@@ -1,0 +1,19 @@
+/* Element Variables */
+
+// Override Element UI variables
+$--color-primary: #fa8334;
+$--color-success: #52c41a;
+$--color-warning: #ff9d3b;
+$--color-danger: #f5212d;
+$--color-info: #4a89dc;
+$--button-font-weight: 400;
+$--color-text-regular: rgb(0,0,0,0.85);
+$--border-color-light: #dfe4ed;
+$--border-color-lighter: #e6ebf5;
+$--table-border:1px solid#dfe6ec;
+
+// Icon font path, required
+$--font-path: '~element-ui/lib/theme-chalk/fonts';
+
+// Apply overrided variables in Element UI
+@import '~element-ui/packages/theme-chalk/src/index';
