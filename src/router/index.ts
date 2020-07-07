@@ -140,6 +140,29 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
+    path: '/device',
+    component: Layout,
+    meta: {
+      title: '设备管理',
+      icon: 'stream',
+      roles: ['admin'],
+      breadcrumb: false,
+      alwaysShow: false
+    },
+    children: [
+      {
+        path: 'device',
+        component: () => import(/* webpackChunkName: "tree" */ '@/views/device/index.vue'),
+        name: 'device',
+        meta: {
+          title: '设备管理',
+          icon: 'stream',
+          roles: ['admin']
+        }
+      }
+    ]
+  },
+  {
     path: '/permission',
     component: Layout,
     redirect: '/permission/directive',

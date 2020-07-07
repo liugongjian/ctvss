@@ -64,3 +64,26 @@ div:focus {
 .pull-right {
   float: right;
 }
+
+.filter-container {
+  &__left {
+    float: left;
+  }
+  &__right {
+    float: right;
+  }
+  &__search-group {
+    width: 300px;
+  }
+}
+
+.info-list {
+  display: flex;
+  padding: 5px 0;
+  align-items: center;
+
+  &--key {
+    min-width: 100px;
+    color: $textGrey;
+  }
+}
