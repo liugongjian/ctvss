@@ -94,6 +94,29 @@ export const constantRoutes: RouteConfig[] = [
 */
 export const asyncRoutes: RouteConfig[] = [
   {
+    path: '/businessgroup',
+    component: Layout,
+    meta: {
+      title: '业务组',
+      icon: 'tree',
+      roles: ['admin'],
+      breadcrumb: false,
+      alwaysShow: false
+    },
+    children: [
+      {
+        path: 'list',
+        component: () => import(/* webpackChunkName: "tree" */ '@/views/businessGroup/index.vue'),
+        name: 'business-group',
+        meta: {
+          title: '业务组管理',
+          icon: 'tree',
+          roles: ['admin']
+        }
+      }
+    ]
+  },
+  {
     path: '/node',
     component: Layout,
     meta: {
@@ -139,29 +162,29 @@ export const asyncRoutes: RouteConfig[] = [
       }
     ]
   },
-  {
-    path: '/device',
-    component: Layout,
-    meta: {
-      title: '设备管理',
-      icon: 'stream',
-      roles: ['admin'],
-      breadcrumb: false,
-      alwaysShow: false
-    },
-    children: [
-      {
-        path: 'device',
-        component: () => import(/* webpackChunkName: "tree" */ '@/views/device/index.vue'),
-        name: 'device',
-        meta: {
-          title: '设备管理',
-          icon: 'stream',
-          roles: ['admin']
-        }
-      }
-    ]
-  },
+  // {
+  //   path: '/device',
+  //   component: Layout,
+  //   meta: {
+  //     title: '设备管理',
+  //     icon: 'stream',
+  //     roles: ['admin'],
+  //     breadcrumb: false,
+  //     alwaysShow: false
+  //   },
+  //   children: [
+  //     {
+  //       path: 'device',
+  //       component: () => import(/* webpackChunkName: "tree" */ '@/views/device/index.vue'),
+  //       name: 'device',
+  //       meta: {
+  //         title: '设备管理',
+  //         icon: 'stream',
+  //         roles: ['admin']
+  //       }
+  //     }
+  //   ]
+  // },
   {
     path: '/permission',
     component: Layout,
