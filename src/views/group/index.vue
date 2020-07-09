@@ -26,9 +26,7 @@
         </el-table-column>
         <el-table-column label="空间状态">
           <template slot-scope="{row}">
-            <div v-if="row.groupStatus==='on'" class="circle--on" />
-            <div v-else-if="row.groupStatus==='off'" class="circle--off" />
-            <div v-else class="circle--warning" />
+            <status-badge status="row.groupStatus" />
             {{ groupStatus[row.groupStatus] }}
           </template>
         </el-table-column>
@@ -67,9 +65,11 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { GroupStatus, InProtocolType } from '@/dics'
 import { dateFormatInTable } from '@/utils/date'
+import StatusBadge from '@/components/StatusBadge/index.vue'
 
 @Component({
-  name: 'GroupList'
+  name: 'GroupList',
+  components: { StatusBadge }
 })
 export default class extends Vue {
   private groupStatus = GroupStatus
@@ -146,29 +146,5 @@ export default class extends Vue {
 <style lang="scss" scoped>
 .filter-container__search-group {
   margin-right: 10px;
-}
-
-.circle{
-  &--on {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 5px;
-    background-color:green;
-  }
-  &--off {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 5px;
-    background-color:red;
-  }
-  &--warning {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 5px;
-    background-color: orange;
-  }
 }
 </style>
