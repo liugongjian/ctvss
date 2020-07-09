@@ -6,7 +6,8 @@ export const DeviceStatus = {
 
 export const DeviceType = {
   'ipc': 'IPC',
-  'nvr': 'NVR'
+  'nvr': 'NVR',
+  'platform': 'Platform'
 }
 
 export const InProtocolType = {

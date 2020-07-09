@@ -40,7 +40,7 @@
           <div class="device-list__container">
             <div class="filter-container clearfix">
               <div class="filter-container__left">
-                <el-button type="primary">添加设备</el-button>
+                <el-button type="primary" @click="handleCreate">添加设备</el-button>
                 <el-dropdown>
                   <el-button>批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
                   <el-dropdown-menu slot="dropdown">
@@ -75,11 +75,13 @@
               </el-table-column>
               <el-table-column label="设备状态">
                 <template slot-scope="{row}">
+                  <status-badge :status="row.deviceStatus" />
                   {{ deviceStatus[row.deviceStatus] }}
                 </template>
               </el-table-column>
               <el-table-column label="流状态">
                 <template slot-scope="{row}">
+                  <status-badge :status="row.deviceStatus" />
                   {{ deviceStatus[row.deviceStatus] }}
                 </template>
               </el-table-column>
@@ -134,10 +136,12 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { DeviceStatus, DeviceType } from '@/dics'
 import TunnelInfo from './components/TunnelInfo.vue'
+import StatusBadge from '@/components/StatusBadge/index.vue'
 
 @Component({
   components: {
-    TunnelInfo
+    TunnelInfo,
+    StatusBadge
   }
 })
 export default class extends Vue {
@@ -224,6 +228,13 @@ export default class extends Vue {
    */
   private toggleFolderList() {
     this.isExpanded = !this.isExpanded
+  }
+
+  /**
+   * 创建设备
+   */
+  private handleCreate() {
+    this.$router.push('/device/create')
   }
 }
 </script>

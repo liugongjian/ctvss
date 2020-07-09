@@ -11,12 +11,12 @@
       >
         <el-form-item label="业务组名称:" prop="groupName" class="form-with-tip">
           <el-input v-model="form.groupName" />
-          <div class="form-tip">4-16位，可包含大小写字母、数字、中划线。空间名称不能重复</div>
+          <div class="form-tip">4-16位，可包含大小写字母、数字、中划线。空间名称不能重复。</div>
         </el-form-item>
         <el-form-item label="业务组描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入业务组描述，如业务介绍或用途" />
         </el-form-item>
-        <el-form-item label="服务区域:" prop="region">
+        <el-form-item label="服务区域:" prop="region" class="form-with-tip">
           <el-select v-model="form.region" placeholder="请选择">
             <el-option v-for="item in regionList" :key="item" :label="item" :value="item" />
           </el-select>
@@ -27,7 +27,7 @@
             <el-radio v-for="protocol in inProtocolList" :key="protocol" :label="protocol.toLocaleLowerCase()">{{ protocol }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="推流域名:" prop="pushDomainName">
+        <el-form-item label="推流域名:" prop="pushDomainName" class="form-with-tip">
           <el-input v-model="form.pushDomainName" />
           <div class="form-tip">视频监控的推流域名，需要进行过备案。如不填写，系统将默认分配ip地址</div>
         </el-form-item>
@@ -59,7 +59,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import { InProtocolType, OutProtocolType } from '@/dics'
 
 @Component({
-  name: 'CreateBusinessGroup'
+  name: 'CreateGroup'
 })
 export default class extends Vue {
   private dialogVisible = true

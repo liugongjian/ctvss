@@ -139,69 +139,34 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
-    path: '/node',
-    component: Layout,
-    meta: {
-      title: '节点',
-      icon: 'tree',
-      roles: ['admin'],
-      breadcrumb: false,
-      alwaysShow: false
-    },
-    children: [
-      {
-        path: 'node-monitor',
-        component: () => import(/* webpackChunkName: "tree" */ '@/views/nodeMonitor/index.vue'),
-        name: 'node-monitor',
-        meta: {
-          title: '节点监控',
-          icon: 'tree',
-          roles: ['admin']
-        }
-      }
-    ]
-  },
-  {
-    path: '/stream',
-    component: Layout,
-    meta: {
-      title: '流',
-      icon: 'stream',
-      roles: ['admin'],
-      breadcrumb: false,
-      alwaysShow: false
-    },
-    children: [
-      {
-        path: 'stream-monitor',
-        component: () => import(/* webpackChunkName: "tree" */ '@/views/streamMonitor/index.vue'),
-        name: 'stream-monitor',
-        meta: {
-          title: '流监控',
-          icon: 'stream',
-          roles: ['admin']
-        }
-      }
-    ]
-  },
-  {
     path: '/device',
     component: Layout,
     meta: {
       title: '设备管理',
       icon: 'stream',
       roles: ['admin'],
-      breadcrumb: false,
       alwaysShow: false
     },
     children: [
       {
-        path: 'device',
+        path: '',
         component: () => import(/* webpackChunkName: "tree" */ '@/views/device/index.vue'),
-        name: 'device',
+        name: 'device-list',
         meta: {
           title: '设备管理',
           icon: 'stream',
+          breadcrumb: false,
+          roles: ['admin']
+        }
+      },
+      {
+        path: 'create',
+        component: () => import(/* webpackChunkName: "tree" */ '@/views/device/create.vue'),
+        name: 'device-create',
+        meta: {
+          title: '添加设备',
+          icon: 'stream',
+          breadcrumb: true,
           roles: ['admin']
         }
       }

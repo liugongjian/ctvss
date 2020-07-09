@@ -16,9 +16,11 @@ export default class extends Vue {
 <style lang="scss" scoped>
   .status-badge {
     display: inline-block;
-    width: 5px;
-    height: 5px;
+    width: 8px;
+    height: 8px;
     border-radius: 100px;
+    vertical-align: middle;
+    margin-right: 5px;
 
     &--on {
       background-color: $success;
