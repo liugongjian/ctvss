@@ -8,3 +8,22 @@ export const DeviceType = {
   'ipc': 'IPC',
   'nvr': 'NVR'
 }
+
+export const InProtocolType = {
+  'gb28181': 'GB28181',
+  'rtmp': 'RTMP',
+  'onvif': 'ONVIF',
+  'rtsp': 'RTSP'
+}
+
+export const OutProtocolType = {
+  'rtmp': 'RTMP',
+  'hls': 'HLS',
+  'flv': 'FLV',
+  'webrtc': 'WebRTC'
+}
+
+export const GroupStatus = {
+  'on': '已启用',
+  'off': '已停用'
+}

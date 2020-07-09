@@ -1,6 +1,12 @@
 /* Variables */
 
 // Base color
+$primary: #fa8334;
+$success: #52c41a;
+$warning: #ff9d3b;
+$danger: #f5212d;
+$info: #4a89dc;
+
 $blue:#324157;
 $light-blue:#3A71A8;
 $red:#C03639;
@@ -30,6 +36,8 @@ $loginBg: #2d3a4b;
 $loginCursorColor: #fff;
 
 $--color-info-lighter: #eee;
+
+$borderGrey: #eee;
 
 // The :export directive is the magic sauce for webpack
 // https://mattferderer.com/use-sass-variables-in-typescript-and-javascript

@@ -18,9 +18,9 @@
         <tags-view v-if="showTagsView" />
       </div>
       <app-main />
-      <right-panel v-if="showSettings">
+      <!-- <right-panel v-if="showSettings">
         <settings />
-      </right-panel>
+      </right-panel> -->
     </div>
   </div>
 </template>
@@ -31,7 +31,7 @@ import { mixins } from 'vue-class-component'
 import { DeviceType, AppModule } from '@/store/modules/app'
 import { SettingsModule } from '@/store/modules/settings'
 import { AppMain, Navbar, Settings, Sidebar, TagsView } from './components'
-import RightPanel from '@/components/RightPanel/index.vue'
+// import RightPanel from '@/components/RightPanel/index.vue'
 import ResizeMixin from './mixin/resize'
 
 @Component({
@@ -39,7 +39,7 @@ import ResizeMixin from './mixin/resize'
   components: {
     AppMain,
     Navbar,
-    RightPanel,
+    // RightPanel,
     Settings,
     Sidebar,
     TagsView

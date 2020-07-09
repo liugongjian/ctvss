@@ -3,6 +3,7 @@
 @import './transition.scss';
 @import './svgicon.scss';
 @import './element-override.scss';
+@import './margin.scss';
 
 /* Global scss */
 
@@ -32,9 +33,17 @@ html {
 a,
 a:focus,
 a:hover {
-  color: inherit;
   outline: none;
   text-decoration: none;
+}
+
+a {
+  color: $primary;
+}
+
+a:focus,
+a:hover {
+  color: #fb9c5d;
 }
 
 div:focus {
@@ -66,6 +75,7 @@ div:focus {
 }
 
 .filter-container {
+  margin-bottom: 10px;
   &__left {
     float: left;
   }
@@ -85,5 +95,25 @@ div:focus {
   &--key {
     min-width: 100px;
     color: $textGrey;
+  }
+}
+
+.form-with-tip {
+  margin-bottom: 35px;
+}
+
+.form-tip {
+  color: $textGrey;
+  font-size: 12px;
+  line-height: 1;
+  padding-top: 6px;
+  position: absolute;
+  top: 100%;
+  left: 0;
+}
+
+.el-form-item.is-error {
+  .form-tip {
+    display: none;
   }
 }
