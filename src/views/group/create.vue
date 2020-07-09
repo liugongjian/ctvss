@@ -59,7 +59,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import { InProtocolType, OutProtocolType } from '@/dics'
 
 @Component({
-  name: 'CreateBusinessGroup'
+  name: 'CreateGroup'
 })
 export default class extends Vue {
   private dialogVisible = true

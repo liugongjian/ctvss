@@ -15,9 +15,15 @@
           </el-form-item>
           <el-form-item label="业务组名称:" prop="groupName">
             <span v-if="edit">
-              <el-input v-model="form.groupName" type="textarea" />
+              <el-input v-model="form.groupName" />
             </span>
             <span v-else>{{ form.groupName }}</span>
+          </el-form-item>
+          <el-form-item label="业务组名称:" prop="description">
+            <span v-if="edit">
+              <el-input v-model="form.description" type="textarea" />
+            </span>
+            <span v-else>{{ form.description }}</span>
           </el-form-item>
           <el-form-item label="服务区域:" prop="region" class="form-with-tip">
             <span v-if="edit">
@@ -34,7 +40,7 @@
                 <el-radio v-for="protocol in inProtocolList" :key="protocol" :label="protocol.toLocaleLowerCase()">{{ protocol }}</el-radio>
               </el-radio-group>
             </span>
-            <span v-else>{{ form.inProtocol }}</span>
+            <span v-else>{{ InProtocolType[form.inProtocol] }}</span>
           </el-form-item>
           <el-form-item label="播放类型:" prop="outProtocol">
             <span v-if="edit">
@@ -42,13 +48,13 @@
                 <el-checkbox
                   v-for="protocol in outProtocolList"
                   :key="protocol"
-                  :label="protocol"
+                  :label="protocol.toLocaleLowerCase()"
                 >
                   {{ protocol }}
                 </el-checkbox>
               </el-checkbox-group>
             </span>
-            <span v-else>{{ form.outProtocol.join(',') }}</span>
+            <span v-else>{{ form.outProtocol.map(item => OutProtocolType[item]).join(',') }}</span>
           </el-form-item>
           <el-form-item label="SIP服务器ID:" prop="sipId">
             <span>{{ form.sipId }}</span>
@@ -112,7 +118,7 @@ import SetRecordTemplate from './dialogs/setRecordTemplate.vue'
 import SetScreenCutTemplate from './dialogs/setScreenCutTemplate.vue'
 
 @Component({
-  name: 'BusinessGroupConfig',
+  name: 'GroupConfig',
   components: {
     SetRecordTemplate,
     SetScreenCutTemplate
@@ -124,13 +130,31 @@ export default class extends Vue {
   private regionList = ['华东', '华南', '华北']
   private outProtocolList = Object.values(OutProtocolType)
   private inProtocolList = Object.values(InProtocolType)
+  private InProtocolType = InProtocolType
+  private OutProtocolType = OutProtocolType
   private form = {
-    groupId: '123',
-    outProtocol: ['flv', 'hls']
+    groupId: '327439123674913',
+    groupName: '上海电信园区监控',
+    description: '用于办公楼道内安全监控',
+    inProtocol: 'rtmp',
+    outProtocol: ['flv', 'hls'],
+    region: '华东',
+    sipId: '310132328883832',
+    sipIp: '192.34.83.132',
+    sipTcpPort: 5060,
+    sipUdpPort: 80
   }
   private formBackUp = {
-    groupId: '123',
-    outProtocol: ['flv', 'hls']
+    groupId: '327439123674913',
+    groupName: '上海电信园区监控',
+    description: '用于办公楼道内安全监控',
+    inProtocol: 'rtmp',
+    outProtocol: ['flv', 'hls'],
+    region: '华东',
+    sipId: '310132328883832',
+    sipIp: '192.34.83.132',
+    sipTcpPort: 5060,
+    sipUdpPort: 80
   }
   private template = {
     screencutTemplate: '123'
