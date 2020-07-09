@@ -26,7 +26,7 @@
         </el-table-column>
         <el-table-column label="空间状态">
           <template slot-scope="{row}">
-            <status-badge status="row.groupStatus" />
+            <status-badge :status="row.groupStatus" />
             {{ groupStatus[row.groupStatus] }}
           </template>
         </el-table-column>
