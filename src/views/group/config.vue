@@ -25,7 +25,7 @@
             </span>
             <span v-else>{{ form.description }}</span>
           </el-form-item>
-          <el-form-item label="服务区域:" prop="region" class="form-with-tip">
+          <el-form-item label="服务区域:" prop="region" :class="{'form-with-tip': edit}">
             <span v-if="edit">
               <el-select v-model="form.region" placeholder="请选择">
                 <el-option v-for="item in regionList" :key="item" :label="item" :value="item" />

@@ -166,7 +166,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '添加设备',
           icon: 'stream',
-          breadcrumb: true,
+          hidden: true,
           roles: ['admin']
         }
       }
