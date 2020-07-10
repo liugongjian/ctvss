@@ -126,9 +126,20 @@ export const asyncRoutes: RouteConfig[] = [
         }
       },
       {
+        path: 'update',
+        component: () => import(/* webpackChunkName: "tree" */ '@/views/group/create.vue'),
+        name: 'group-update',
+        meta: {
+          title: '编辑业务组',
+          icon: 'tree',
+          hidden: true,
+          roles: ['admin']
+        }
+      },
+      {
         path: 'config',
         component: () => import(/* webpackChunkName: "tree" */ '@/views/group/config.vue'),
-        name: 'group-create',
+        name: 'group-config',
         meta: {
           title: '业务组配置',
           icon: 'tree',

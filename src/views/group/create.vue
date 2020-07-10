@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-page-header content="创建业务组" @back="back" />
+    <el-page-header :content="breadCrumbContent" @back="back" />
     <el-card>
       <el-form
         ref="dataForm"
@@ -9,6 +9,9 @@
         label-position="right"
         label-width="140px"
       >
+        <el-form-item v-if="form.groupId" label="业务组Id:" prop="groupId">
+          <el-input v-model="form.groupId" disabled />
+        </el-form-item>
         <el-form-item label="业务组名称:" prop="groupName" class="form-with-tip">
           <el-input v-model="form.groupName" />
           <div class="form-tip">4-16位，可包含大小写字母、数字、中划线。空间名称不能重复。</div>
@@ -47,7 +50,7 @@
           </el-checkbox-group>
         </el-form-item>
         <el-form-item label="">
-          <el-button type="primary" @click="submit">创建</el-button>
+          <el-button type="primary" @click="submit">确定</el-button>
           <el-button @click="back">取 消</el-button>
         </el-form-item>
       </el-form>
@@ -63,6 +66,7 @@ import { InProtocolType, OutProtocolType } from '@/dics'
 })
 export default class extends Vue {
   private dialogVisible = true
+  private breadCrumbContent = ''
   private rules = {
     groupName: [
       { required: true, message: '请输入业务组名称', trigger: 'blur' },
@@ -82,7 +86,7 @@ export default class extends Vue {
   private regionList = ['华东', '华南', '华北']
   private outProtocolList = Object.values(OutProtocolType)
   private inProtocolList = Object.values(InProtocolType)
-  private form = {
+  private form: any = {
     groupName: '',
     description: '',
     region: '华东',
@@ -92,8 +96,28 @@ export default class extends Vue {
     pullDomainName: ''
   }
 
+  private mounted() {
+    this.breadCrumbContent = this.$route.meta.title
+    let query: any = this.$route.query
+    if (query.groupId) {
+      this.$set(this.form, 'groupId', query.groupId)
+      this.form = {
+        groupId: '327439123674913',
+        groupName: '上海电信园区监控',
+        description: '用于办公楼道内安全监控',
+        inProtocol: 'rtmp',
+        outProtocol: ['flv', 'hls'],
+        region: '华东',
+        sipId: '310132328883832',
+        sipIp: '192.34.83.132',
+        sipTcpPort: 5060,
+        sipUdpPort: 80
+      }
+    }
+  }
+
   private validateGroupName(rule: any, value: string, callback: Function) {
-    if (!/[0-9a-zA-Z-]{4,16}/.test(value)) {
+    if (!/^[\u4e00-\u9fa50-9a-zA-Z-]{4,16}$/u.test(value)) {
       callback(new Error('业务组名称格式错误'))
     } else {
       callback()
@@ -109,7 +133,11 @@ export default class extends Vue {
   }
 
   private back() {
-    this.$router.push('/group')
+    if (this.$route.name === 'group-update') {
+      this.$router.push('/group/config')
+    } else {
+      this.$router.push('/group')
+    }
   }
 
   private submit() {
