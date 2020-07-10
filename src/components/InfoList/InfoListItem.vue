@@ -8,17 +8,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Prop, Inject, Vue } from 'vue-property-decorator'
 
 @Component({
   name: 'InfoListItem'
 })
 export default class extends Vue {
   @Prop() private label?: string
-
-  private get labelWidth() {
-    return this.$parent.$props.labelWidth
-  }
+  @Inject('labelWidth') private labelWidth!: number
 }
 </script>
 
