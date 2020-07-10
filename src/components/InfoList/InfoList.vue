@@ -5,13 +5,15 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Prop, Provide, Vue } from 'vue-property-decorator'
+import InfoListItem from './InfoListItem.vue'
 
 @Component({
-  name: 'InfoList'
+  name: 'InfoList',
+  components: { InfoListItem }
 })
 export default class extends Vue {
-  @Prop({ default: 120 }) private labelWidth?: number
+  @Provide('labelWidth') @Prop({ default: 120 }) private labelWidth?: number
   @Prop({ default: 'right' }) private labelPosition?: string
 }
 </script>
