@@ -9,20 +9,15 @@
         </div>
         <el-row class="tunnel-info__base">
           <el-col :span="12">
-            <div class="info-list">
-              <div class="info-list--key">设备名称:</div>
-              <div class="info-list--val">一号楼</div>
-            </div>
-            <div class="info-list">
-              <div class="info-list--key">创建时间:</div>
-              <div class="info-list--val">2020-06-13 18:12:44</div>
-            </div>
+            <info-list label-position="left" label-width="80">
+              <info-list-item label="设备名称:">一号楼</info-list-item>
+              <info-list-item label="创建时间:">2020-06-13 18:12:44</info-list-item>
+            </info-list>
           </el-col>
           <el-col :span="12">
-            <div class="info-list">
-              <div class="info-list--key">通道数:</div>
-              <div class="info-list--val">120</div>
-            </div>
+            <info-list label-position="left" label-width="80">
+              <info-list-item label="通道数:">120</info-list-item>
+            </info-list>
           </el-col>
         </el-row>
         <div class="filter-container">
