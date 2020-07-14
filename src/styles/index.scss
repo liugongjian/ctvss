@@ -106,3 +106,23 @@ div:focus {
     display: none;
   }
 }
+
+.info-list__edit {
+  display: flex;
+  &--value {
+    min-width: 100px;
+  }
+  .el-button--text {
+    padding: 0;
+    vertical-align: middle;
+
+    &::after {
+      content: '|';
+      margin-left: 10px;
+      color: #ccc;
+    }
+    &:last-child::after {
+      display: none;
+    }
+  }
+}

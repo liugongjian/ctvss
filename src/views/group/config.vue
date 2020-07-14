@@ -23,21 +23,19 @@
           label-width="100px"
         >
           <el-form-item label="录制模板:">
-            <div class="template-edit">
-              <div class="template-edit--value">{{ template.recordTemplate?template.recordTemplate:'未配置' }}</div>
-              <div class="template-edit--action">
+            <div class="info-list__edit">
+              <div class="info-list__edit--value">{{ template.recordTemplate?template.recordTemplate:'未配置' }}</div>
+              <div class="info-list__edit--action">
                 <el-button type="text" @click="setRecordTemplate">设置</el-button>
-                <span v-if="template.recordTemplate" class="template-edit--seperator">|</span>
                 <el-button v-if="template.recordTemplate" type="text">解绑</el-button>
               </div>
             </div>
           </el-form-item>
           <el-form-item label="截图模板:">
-            <div class="template-edit">
-              <div class="template-edit--value">{{ template.screencutTemplate?template.screencutTemplate:'未配置' }}</div>
-              <div class="template-edit--action">
+            <div class="info-list__edit">
+              <div class="info-list__edit--value">{{ template.screencutTemplate?template.screencutTemplate:'未配置' }}</div>
+              <div class="info-list__edit--action">
                 <el-button type="text" @click="setScrrenCutTemplate">设置</el-button>
-                <span v-if="template.screencutTemplate" class="template-edit--seperator">|</span>
                 <el-button v-if="template.screencutTemplate" type="text">解绑</el-button>
               </div>
             </div>
@@ -57,8 +55,8 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { OutProtocolType, InProtocolType } from '@/dics'
-import SetRecordTemplate from './dialogs/setRecordTemplate.vue'
-import SetScreenCutTemplate from './dialogs/setScreenCutTemplate.vue'
+import SetRecordTemplate from '../components/dialogs/SetRecordTemplate.vue'
+import SetScreenCutTemplate from '../components/dialogs/SetScreenCutTemplate.vue'
 
 @Component({
   name: 'GroupConfig',

@@ -65,7 +65,6 @@ import { InProtocolType, OutProtocolType } from '@/dics'
   name: 'CreateGroup'
 })
 export default class extends Vue {
-  private dialogVisible = true
   private breadCrumbContent = ''
   private rules = {
     groupName: [

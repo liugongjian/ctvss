@@ -27,6 +27,7 @@
             <el-tree
               :data="folderList"
               node-key="id"
+              accordion
               :default-expanded-keys="[0]"
             />
           </div>
@@ -34,8 +35,8 @@
         <div class="device-list__right">
           <div class="breadcrumb">
             <span class="breadcrumb__item">全部设备</span>
-            <span class="breadcrumb__item">四区</span>
-            <span class="breadcrumb__item">二楼</span>
+            <span class="breadcrumb__item">区域一</span>
+            <span class="breadcrumb__item">一号楼</span>
           </div>
           <div class="device-list__container">
             <div class="filter-container clearfix">
@@ -67,13 +68,13 @@
                   <router-link to="/">{{ row.deviceId }}</router-link>
                   <div>
                     {{ row.deviceName }}
-                    <el-tooltip class="item" effect="dark" content="监控预览" placement="top">
-                      <router-link to="/"><i class="el-icon-video-camera" /></router-link>
+                    <el-tooltip v-if="row.deviceType !== 'nvr'" class="item" effect="dark" content="监控预览" placement="top">
+                      <router-link to="/device/preview"><i class="el-icon-video-camera" /></router-link>
                     </el-tooltip>
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="设备状态">
+              <el-table-column v-if="isIPC" label="设备状态">
                 <template slot-scope="{row}">
                   <status-badge :status="row.deviceStatus" />
                   {{ deviceStatus[row.deviceStatus] }}
@@ -81,19 +82,23 @@
               </el-table-column>
               <el-table-column label="流状态">
                 <template slot-scope="{row}">
-                  <status-badge :status="row.deviceStatus" />
-                  {{ deviceStatus[row.deviceStatus] }}
+                  <status-badge :status="row.streamStatus" />
+                  {{ deviceStatus[row.streamStatus] }}
                 </template>
               </el-table-column>
-              <el-table-column label="类型">
+              <el-table-column v-if="isIPC" label="类型">
                 <template slot-scope="{row}">
                   {{ deviceType[row.deviceType] }}
                 </template>
               </el-table-column>
               <el-table-column label="厂商" prop="deviceVendor" />
-              <el-table-column label="设备IP" prop="deviceIp" min-width="150" />
-              <el-table-column label="国标ID" prop="gbId" min-width="150" />
-              <el-table-column label="通道数">
+              <el-table-column v-if="isIPC" label="设备地址" min-width="150">
+                <template slot-scope="{row}">
+                  {{ row.deviceIp }}:{{ row.devicePort }}
+                </template>
+              </el-table-column>
+              <el-table-column v-if="isIPC" label="国标ID" prop="gbId" min-width="150" />
+              <el-table-column v-if="isIPC" label="通道数">
                 <template slot-scope="{row}">
                   <el-button v-if="row.tunnelNum" type="text" @click="openTunnelInfo(row)">{{ row.tunnelNum || '-' }}</el-button>
                   <span v-else>-</span>
@@ -101,15 +106,15 @@
               </el-table-column>
               <el-table-column label="操作" width="270" fixed="right">
                 <template slot-scope="scope">
-                  <el-button v-if="scope.row.tunnelNum" type="text" @click="openTunnelInfo(scope.row)">查看通道</el-button>
-                  <el-button type="text">设备详情</el-button>
+                  <el-button v-if="isIPC && scope.row.tunnelNum" type="text" @click="openTunnelInfo(scope.row)">查看通道</el-button>
+                  <el-button type="text" @click="goToDetail(scope.row)">设备详情</el-button>
                   <el-button type="text">启用设备</el-button>
-                  <el-dropdown>
+                  <el-dropdown @command="handleMore">
                     <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
                     <el-dropdown-menu slot="dropdown">
-                      <el-dropdown-item>监控预览</el-dropdown-item>
-                      <el-dropdown-item>录制回放</el-dropdown-item>
-                      <el-dropdown-item>查看截图</el-dropdown-item>
+                      <el-dropdown-item :command="{type: 'preview', device: scope.row}">监控预览</el-dropdown-item>
+                      <el-dropdown-item :command="{type: 'replay', device: scope.row}">录制回放</el-dropdown-item>
+                      <el-dropdown-item :command="{type: 'screenshot', device: scope.row}">查看截图</el-dropdown-item>
                       <el-dropdown-item>停用流</el-dropdown-item>
                       <el-dropdown-item>移动至</el-dropdown-item>
                       <el-dropdown-item>删除</el-dropdown-item>
@@ -133,7 +138,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import { DeviceStatus, DeviceType } from '@/dics'
 import TunnelInfo from './components/TunnelInfo.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
@@ -150,6 +155,7 @@ export default class extends Vue {
   private isExpanded = true
   private loading = false
   private currentGroupId: number | null = null
+  private currentGroup: any | null = null
   private keyword = ''
   private currentTunnelInfo: number | null = null
   private pager = {
@@ -161,53 +167,119 @@ export default class extends Vue {
   private groupList = [
     {
       id: 1,
-      groupName: '上海电信园区'
+      groupName: 'RTMP测试组',
+      inProtocol: 'rtmp'
     }, {
       id: 2,
-      groupName: '北京电信园区'
+      groupName: 'IPC测试组',
+      inProtocol: 'ipc'
     }, {
       id: 3,
-      groupName: '广州电信园区'
+      groupName: '广州电信园区',
+      inProtocol: 'ipc'
     }
   ]
 
-  private deviceList = [
-    {
-      deviceId: 374623843,
-      deviceName: '一楼楼道监控',
-      deviceStatus: 'on',
-      deviceType: 'ipc',
-      deviceVendor: '海康',
-      deviceIp: '119.13.44.23:3783',
-      gbId: '235433524',
-      tunnelNum: null
-    },
-    {
-      deviceId: 374623843,
-      deviceName: '一楼楼道监控',
-      deviceStatus: 'on',
-      deviceType: 'nvr',
-      deviceVendor: '海康',
-      deviceIp: '119.13.44.23:3783',
-      gbId: '235433524',
-      tunnelNum: 120
-    }
-  ]
+  private deviceList: any = []
 
   private folderList = [{
     id: 0,
     label: '全部设备',
     children: [{
-      label: '一级 1',
+      label: '区域一',
       children: [{
-        label: '二级 1-1-1'
+        label: '一号楼'
+      }, {
+        label: '二号楼'
+      }, {
+        label: '三号楼'
+      }, {
+        label: '四号楼'
       }]
     }, {
-      label: '一级 2'
+      label: '区域二',
+      children: [{
+        label: '五号楼'
+      }, {
+        label: '六号楼'
+      }, {
+        label: '七号楼'
+      }, {
+        label: '八号楼'
+      }]
     }, {
-      label: '一级 3'
+      label: '区域三'
     }]
   }]
+
+  private get isIPC() {
+    return this.currentGroup ? this.currentGroup.inProtocol === 'ipc' : false
+  }
+
+  @Watch('currentGroupId')
+  private onGroupChange(val: any) {
+    this.currentGroup = this.groupList.find(group => group.id === val)
+    if (this.currentGroup.inProtocol === 'ipc') {
+      this.deviceList = [
+        {
+          deviceId: 374623843,
+          deviceName: '一楼楼道监控',
+          deviceStatus: 'on',
+          streamStatus: 'on',
+          deviceType: 'ipc',
+          deviceVendor: '海康',
+          deviceIp: '119.13.44.23',
+          devicePort: '3783',
+          gbId: '235433524',
+          tunnelNum: null
+        },
+        {
+          deviceId: 374623843,
+          deviceName: '一楼楼道监控',
+          deviceStatus: 'on',
+          streamStatus: 'on',
+          deviceType: 'nvr',
+          deviceVendor: '海康',
+          deviceIp: '119.13.44.23',
+          devicePort: '3783',
+          gbId: '235433524',
+          tunnelNum: 120
+        },
+        {
+          deviceId: 374623843,
+          deviceName: '一楼楼道监控',
+          deviceStatus: 'off',
+          streamStatus: 'off',
+          deviceType: 'ipc',
+          deviceVendor: '海康',
+          deviceIp: '119.13.44.23',
+          devicePort: '3783',
+          gbId: '235433524',
+          tunnelNum: 120
+        }
+      ]
+    } else {
+      this.deviceList = [
+        {
+          deviceId: 374623843,
+          deviceName: '一楼楼道监控',
+          streamStatus: 'on',
+          deviceVendor: '海康'
+        },
+        {
+          deviceId: 374623843,
+          deviceName: '一楼楼道监控',
+          streamStatus: 'on',
+          deviceVendor: '海康'
+        }
+      ]
+    }
+  }
+
+  private mounted() {
+    this.currentGroupId = 1
+    this.currentGroup = this.groupList[0]
+  }
 
   /**
    * 打开通道列表
@@ -235,6 +307,36 @@ export default class extends Vue {
    */
   private handleCreate() {
     this.$router.push('/device/create')
+  }
+
+  /**
+   * 查看详情
+   */
+  private goToDetail(device: any) {
+    this.$router.push({
+      name: 'device-detail',
+      params: {
+        type: this.currentGroup.inProtocol
+      }
+    })
+  }
+
+  /**
+   * 更多菜单
+   */
+  private handleMore(command: any) {
+    switch (command.type) {
+      case 'preview':
+      case 'replay':
+      case 'screenshot':
+        this.$router.push({
+          name: 'device-preview',
+          params: {
+            tab: command.type
+          }
+        })
+        break
+    }
   }
 }
 </script>

@@ -28,3 +28,8 @@ export const GroupStatus = {
   'on': '已启用',
   'off': '已停用'
 }
+
+export const AuthStatus = {
+  true: '开启',
+  false: '关闭'
+}

@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-page-header content="创建设备" @back="back" />
+    <el-page-header :content="breadCrumbContent" @back="back" />
     <el-card>
       <el-form
         ref="dataForm"
@@ -42,7 +42,7 @@
           <el-button type="text" class="ml10">添加账号</el-button>
         </el-form-item>
         <el-form-item label="">
-          <el-button type="primary" @click="submit">创建</el-button>
+          <el-button type="primary" @click="submit">确 定</el-button>
           <el-button @click="back">取 消</el-button>
         </el-form-item>
       </el-form>
@@ -57,7 +57,7 @@ import { DeviceType } from '@/dics'
   name: 'CreateDevice'
 })
 export default class extends Vue {
-  private dialogVisible = true
+  private breadCrumbContent = ''
   private rules = {
     groupName: [
       { validator: this.validateDeviceName, trigger: 'blur' }
@@ -97,6 +97,10 @@ export default class extends Vue {
     } else {
       callback()
     }
+  }
+
+  private mounted() {
+    this.breadCrumbContent = this.$route.meta.title
   }
 
   private back() {

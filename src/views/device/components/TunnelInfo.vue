@@ -38,7 +38,12 @@
           <el-table-column label="通道ID/名称" width="200">
             <template slot-scope="{row}">
               <router-link to="/">{{ row.tunnelId }}</router-link>
-              <div>{{ row.tunnelName }}</div>
+              <div>
+                {{ row.tunnelName }}
+                <el-tooltip class="item" effect="dark" content="监控预览" placement="top">
+                  <router-link to="/device/preview"><i class="el-icon-video-camera" /></router-link>
+                </el-tooltip>
+              </div>
             </template>
           </el-table-column>
           <el-table-column label="设备状态">

@@ -180,6 +180,39 @@ export const asyncRoutes: RouteConfig[] = [
           hidden: true,
           roles: ['admin']
         }
+      },
+      {
+        path: 'update/:deviceId',
+        component: () => import(/* webpackChunkName: "tree" */ '@/views/device/create.vue'),
+        name: 'device-update',
+        meta: {
+          title: '编辑设备',
+          icon: 'tree',
+          hidden: true,
+          roles: ['admin']
+        }
+      },
+      {
+        path: 'detail/:type',
+        component: () => import(/* webpackChunkName: "tree" */ '@/views/device/detail.vue'),
+        name: 'device-detail',
+        meta: {
+          title: '设备详情',
+          icon: 'stream',
+          hidden: true,
+          roles: ['admin']
+        }
+      },
+      {
+        path: 'preview/:tab?',
+        component: () => import(/* webpackChunkName: "tree" */ '@/views/device/preview.vue'),
+        name: 'device-preview',
+        meta: {
+          title: '监控查看',
+          icon: 'stream',
+          hidden: true,
+          roles: ['admin']
+        }
       }
     ]
   },

@@ -22,8 +22,7 @@ export default class extends Vue {
 <style lang="scss" scoped>
   .info-item {
     display: flex;
-    padding: 5px 0;
-    margin: 10px 0;
+    padding: 15px 0;
     align-items: center;
 
     &--key {
