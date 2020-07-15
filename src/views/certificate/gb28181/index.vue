@@ -98,7 +98,12 @@ export default class extends Vue {
   }
 
   private edit(row: any) {
-
+    this.$router.push({
+      name: 'gb28181-update',
+      params: {
+        id: row.id
+      }
+    })
   }
 }
 </script>

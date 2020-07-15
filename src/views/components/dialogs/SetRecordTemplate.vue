@@ -7,9 +7,9 @@
   >
     <el-table :data="list" border fit highlight-current-row style="width: 100%;">
       <el-table-column prop="templateName" label="模板名称" />
-      <el-table-column prop="recordFormat" label="录制格式" />
-      <el-table-column prop="recordRevolution" label="录制周期" />
-      <el-table-column prop="action" align="center" width="80px">
+      <el-table-column prop="format" label="录制格式" />
+      <el-table-column prop="duration" label="录制周期" />
+      <el-table-column prop="action" width="80px">
         <template slot-scope="{row}">
           <el-button type="primary" size="mini" @click="choose(row)">选择</el-button>
         </template>
@@ -24,7 +24,15 @@ import { Component, Vue } from 'vue-property-decorator'
 })
 export default class extends Vue {
   private dialogVisible = true
-  private list = [{}]
+  private list = [{
+    'templateName': '30分钟录制',
+    'format': 'MP4, FLV, HLS',
+    'duration': '20分钟'
+  }, {
+    'templateName': '30分钟录制',
+    'format': 'MP4, FLV, HLS',
+    'duration': '20分钟'
+  }]
   private closeDialog() {
     this.dialogVisible = false
     this.$emit('on-close')

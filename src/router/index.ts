@@ -252,6 +252,17 @@ export const asyncRoutes: RouteConfig[] = [
           hidden: true,
           roles: ['admin']
         }
+      },
+      {
+        path: 'gb28181/update/:id?',
+        component: () => import(/* webpackChunkName: "tree" */ '@/views/certificate/gb28181/create.vue'),
+        name: 'gb28181-update',
+        meta: {
+          title: '编辑GB28181凭证',
+          icon: 'stream',
+          hidden: true,
+          roles: ['admin']
+        }
       }
     ]
   },
