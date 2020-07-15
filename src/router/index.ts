@@ -72,20 +72,25 @@ export const constantRoutes: RouteConfig[] = [
   {
     path: '/',
     component: Layout,
-    redirect: '/dashboard',
-    children: [
-      {
-        path: 'dashboard',
-        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/dashboard/index.vue'),
-        name: 'Dashboard',
-        meta: {
-          title: '全局概览',
-          icon: 'dashboard',
-          affix: true
-        }
-      }
-    ]
+    redirect: '/group'
   }
+  // {
+  //   path: '/',
+  //   component: Layout,
+  //   redirect: '/dashboard',
+  //   children: [
+  //     {
+  //       path: 'dashboard',
+  //       component: () => import(/* webpackChunkName: "dashboard" */ '@/views/dashboard/index.vue'),
+  //       name: 'Dashboard',
+  //       meta: {
+  //         title: '全局概览',
+  //         icon: 'dashboard',
+  //         affix: true
+  //       }
+  //     }
+  //   ]
+  // }
 ]
 
 /**
@@ -217,72 +222,35 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
-    path: '/permission',
+    path: '/certificate',
     component: Layout,
-    redirect: '/permission/directive',
     meta: {
-      title: '权限',
-      icon: 'lock',
-      roles: ['admin', 'editor'], // you can set roles in root nav
-      alwaysShow: true // will always show the root menu
+      title: '凭证管理',
+      icon: 'tree',
+      alwaysShow: true,
+      breadcrumb: false,
+      roles: ['admin']
     },
     children: [
       {
-        path: 'page',
-        component: () => import(/* webpackChunkName: "permission-page" */ '@/views/permission/page.vue'),
-        name: 'PagePermission',
+        path: 'gb28181',
+        component: () => import(/* webpackChunkName: "tree" */ '@/views/certificate/gb28181/index.vue'),
+        name: 'gb28181',
         meta: {
-          title: '页面级权限',
-          roles: ['admin'] // or you can only set roles in sub nav
-        }
-      },
-      {
-        path: 'directive',
-        component: () => import(/* webpackChunkName: "permission-directive" */ '@/views/permission/directive.vue'),
-        name: 'DirectivePermission',
-        meta: {
-          title: '指令级权限'
-          // if do not set roles, means: this page does not require permission
-        }
-      },
-      {
-        path: 'role',
-        component: () => import(/* webpackChunkName: "permission-role" */ '@/views/permission/role.vue'),
-        name: 'RolePermission',
-        meta: {
-          title: '角色权限',
+          title: 'GB28181凭证',
+          icon: 'tree',
           roles: ['admin']
         }
-      }
-    ]
-  },
-  /** when your routing map is too long, you can split it into small modules **/
-  chartsRouter,
-  {
-    path: '/error',
-    component: Layout,
-    redirect: 'noredirect',
-    meta: {
-      title: 'errorPages',
-      icon: '404'
-    },
-    children: [
-      {
-        path: '401',
-        component: () => import(/* webpackChunkName: "error-page-401" */ '@/views/error-page/401.vue'),
-        name: 'Page401',
-        meta: {
-          title: '401页面',
-          noCache: true
-        }
       },
       {
-        path: '404',
-        component: () => import(/* webpackChunkName: "error-page-404" */ '@/views/error-page/404.vue'),
-        name: 'Page404',
+        path: 'gb28181/create',
+        component: () => import(/* webpackChunkName: "tree" */ '@/views/certificate/gb28181/create.vue'),
+        name: 'gb28181-create',
         meta: {
-          title: '404页面',
-          noCache: true
+          title: '新建GB28181凭证',
+          icon: 'stream',
+          hidden: true,
+          roles: ['admin']
         }
       }
     ]

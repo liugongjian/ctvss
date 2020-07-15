@@ -1,14 +1,16 @@
 <template>
   <div class="app-container">
-    <el-page-header content="设备详情" @back="back" />
+    <el-page-header content="工厂园区37号楼一层A区通道No.311监控" @back="back" />
     <div class="preview-wrap">
       <el-card class="preview-wrap__left">
-        <div class="device-list__title">设备列表</div>
+        <div class="device-list__title">设备</div>
         <div class="device-list">
           <el-tree
             :data="folderList"
             node-key="id"
             accordion
+            highlight-current
+            :current-node-key="1"
             :default-expanded-keys="[0]"
           >
             <span slot-scope="{node, data}" class="custom-tree-node">
@@ -183,12 +185,13 @@ export default class extends Vue {
       id: 0,
       label: '一号楼',
       children: [{
+        id: 1,
         label: '设备一',
         streamStatus: 'on'
       }, {
         label: 'NVR设备',
         children: [{
-          label: '一层A区通道1',
+          label: '工厂园区37号楼一层A区通道No.311',
           streamStatus: 'on'
         }, {
           label: '通道2',

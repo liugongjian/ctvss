@@ -22,7 +22,9 @@
         <div class="device-list__left">
           <div class="folder-list">
             <div class="folder-list__tools">
-              <!-- <el-button class="device-list__collapse" @click="toggleFolderList(false)">jjj</el-button> -->
+              <el-tooltip class="item" effect="dark" content="目录设置" placement="top">
+                <el-button type="text"><i class="el-icon-setting" /></el-button>
+              </el-tooltip>
             </div>
             <el-tree
               :data="folderList"
@@ -368,6 +370,14 @@ export default class extends Vue {
         &__tools {
           height: 40px;
           border-bottom: 1px solid $borderGrey;
+          text-align: right;
+          padding-right: 5px;
+          .el-button--text {
+            margin: 0;
+            padding: 12px 5px;
+            color: $text;
+            font-size: 16px;
+          }
         }
       }
       .el-tree {

@@ -33,3 +33,8 @@ export const AuthStatus = {
   true: '开启',
   false: '关闭'
 }
+
+export const AnonymousType = {
+  true: '匿名',
+  false: '非匿名'
+}

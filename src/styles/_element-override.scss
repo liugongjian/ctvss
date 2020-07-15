@@ -71,3 +71,21 @@
 .el-date-editor .el-range-separator {
   width: 40px;
 }
+
+.el-tree{
+  width: 100%;
+  overflow-x: scroll;
+}
+
+.el-tree > .el-tree-node {
+  min-width: 100%;
+  display: inline-block !important;
+}
+
+.el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content {
+  background: #f3f3f3;
+}
+
+.el-dialog__footer {
+  margin-top: -30px;
+}

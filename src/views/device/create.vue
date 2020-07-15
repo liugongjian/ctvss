@@ -39,7 +39,7 @@
           <el-select v-model="form.gbAccount">
             <el-option v-for="item in gbAccountList" :key="item" :label="item" :value="item" />
           </el-select>
-          <el-button type="text" class="ml10">添加账号</el-button>
+          <el-button type="text" class="ml10" @click="openDialog('createGb28181Certificate')">添加账号</el-button>
         </el-form-item>
         <el-form-item label="">
           <el-button type="primary" @click="submit">确 定</el-button>
@@ -47,14 +47,19 @@
         </el-form-item>
       </el-form>
     </el-card>
+    <create-gb28181-certificate v-if="dialog.createGb28181Certificate" @on-close="closeDialog('createGb28181Certificate')" />
   </div>
 </template>
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
 import { DeviceType } from '@/dics'
+import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
 
 @Component({
-  name: 'CreateDevice'
+  name: 'CreateDevice',
+  components: {
+    CreateGb28181Certificate
+  }
 })
 export default class extends Vue {
   private breadCrumbContent = ''
@@ -90,6 +95,9 @@ export default class extends Vue {
     pushDomainName: '',
     pullDomainName: ''
   }
+  private dialog = {
+    createGb28181Certificate: false
+  }
 
   private validateDeviceName(rule: any, value: string, callback: Function) {
     if (!/[0-9a-zA-Z-]{4,16}/.test(value)) {
@@ -101,6 +109,16 @@ export default class extends Vue {
 
   private mounted() {
     this.breadCrumbContent = this.$route.meta.title
+  }
+
+  private openDialog(type: string) {
+    // @ts-ignore
+    this.dialog[type] = true
+  }
+
+  private closeDialog(type: string) {
+    // @ts-ignore
+    this.dialog[type] = false
   }
 
   private back() {
