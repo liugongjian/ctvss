@@ -67,7 +67,7 @@
               <el-table-column type="selection" width="55" />
               <el-table-column label="设备ID/名称" min-width="200">
                 <template slot-scope="{row}">
-                  <router-link to="/">{{ row.deviceId }}</router-link>
+                  <router-link :to="{name: 'device-detail', params: {type: currentGroup.inProtocol}}">{{ row.deviceId }}</router-link>
                   <div>
                     {{ row.deviceName }}
                     <el-tooltip v-if="row.deviceType !== 'nvr'" class="item" effect="dark" content="监控预览" placement="top">

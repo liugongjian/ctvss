@@ -20,7 +20,7 @@
       <el-table :data="dataList" fit>
         <el-table-column prop="groupId" label="业务组ID/名称" min-width="200">
           <template slot-scope="{row}">
-            <router-link to="/">{{ row.groupId }}</router-link>
+            <router-link to="/group/config">{{ row.groupId }}</router-link>
             <div>{{ row.groupName }}</div>
           </template>
         </el-table-column>
