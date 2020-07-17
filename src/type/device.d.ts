@@ -1,6 +1,7 @@
 export interface Device {
   deviceId: number;
   deviceName: string;
+  groupId? :number;
   groupName?: string;
   deviceStatus?: string;
   streamStatus?: string;

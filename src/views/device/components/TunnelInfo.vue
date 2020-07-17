@@ -48,12 +48,14 @@
           </el-table-column>
           <el-table-column label="设备状态">
             <template slot-scope="{row}">
-              {{ deviceStatus[row.deviceStatus] }}
+              <status-badge :status="row.deviceStatus" />
+              {{ deviceStatus[row.streamStatus] }}
             </template>
           </el-table-column>
           <el-table-column label="流状态">
             <template slot-scope="{row}">
-              {{ deviceStatus[row.deviceStatus] }}
+              <status-badge :status="row.deviceStatus" />
+              {{ deviceStatus[row.streamStatus] }}
             </template>
           </el-table-column>
           <el-table-column label="操作" width="150">
@@ -83,9 +85,13 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { DeviceStatus } from '@/dics'
+import StatusBadge from '@/components/StatusBadge/index.vue'
 
 @Component({
-  name: 'TunnelInfo'
+  name: 'TunnelInfo',
+  components: {
+    StatusBadge
+  }
 })
 export default class extends Vue {
   private deviceStatus = DeviceStatus
@@ -101,12 +107,14 @@ export default class extends Vue {
     {
       tunnelId: 374623843,
       tunnelName: '一楼楼道监控',
-      deviceStatus: 'on'
+      deviceStatus: 'on',
+      streamStatus: 'on'
     },
     {
       tunnelId: 374623843,
       tunnelName: '一楼楼道监控',
-      deviceStatus: 'on'
+      deviceStatus: 'on',
+      streamStatus: 'on'
     }
   ]
 

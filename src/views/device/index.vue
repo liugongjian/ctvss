@@ -76,21 +76,21 @@
                   </div>
                 </template>
               </el-table-column>
+              <el-table-column v-if="isIPC" label="类型">
+                <template slot-scope="{row}">
+                  {{ deviceType[row.deviceType] }}
+                </template>
+              </el-table-column>
               <el-table-column v-if="isIPC" label="设备状态">
                 <template slot-scope="{row}">
                   <status-badge :status="row.deviceStatus" />
                   {{ deviceStatus[row.deviceStatus] }}
                 </template>
               </el-table-column>
-              <el-table-column label="流状态">
+              <el-table-column prop="streamStatus" label="流状态">
                 <template slot-scope="{row}">
                   <status-badge :status="row.streamStatus" />
                   {{ deviceStatus[row.streamStatus] }}
-                </template>
-              </el-table-column>
-              <el-table-column v-if="isIPC" label="类型">
-                <template slot-scope="{row}">
-                  {{ deviceType[row.deviceType] }}
                 </template>
               </el-table-column>
               <el-table-column label="厂商" prop="deviceVendor" />
