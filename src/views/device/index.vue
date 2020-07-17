@@ -141,6 +141,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Device } from '@/type/device'
 import { DeviceStatus, DeviceType } from '@/dics'
 import TunnelInfo from './components/TunnelInfo.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
@@ -182,7 +183,7 @@ export default class extends Vue {
     }
   ]
 
-  private deviceList: any = []
+  private deviceList: Array<Device> = []
 
   private folderList = [{
     id: 0,
@@ -231,7 +232,7 @@ export default class extends Vue {
           deviceType: 'ipc',
           deviceVendor: '海康',
           deviceIp: '119.13.44.23',
-          devicePort: '3783',
+          devicePort: 3783,
           gbId: '235433524',
           tunnelNum: null
         },
@@ -243,7 +244,7 @@ export default class extends Vue {
           deviceType: 'nvr',
           deviceVendor: '海康',
           deviceIp: '119.13.44.23',
-          devicePort: '3783',
+          devicePort: 3783,
           gbId: '235433524',
           tunnelNum: 120
         },
@@ -255,7 +256,7 @@ export default class extends Vue {
           deviceType: 'ipc',
           deviceVendor: '海康',
           deviceIp: '119.13.44.23',
-          devicePort: '3783',
+          devicePort: 3783,
           gbId: '235433524',
           tunnelNum: 120
         }

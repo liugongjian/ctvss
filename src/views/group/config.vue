@@ -54,6 +54,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import { Group } from '@/type/group'
 import { OutProtocolType, InProtocolType } from '@/dics'
 import SetRecordTemplate from '../components/dialogs/SetRecordTemplate.vue'
 import SetScreenCutTemplate from '../components/dialogs/SetScreenCutTemplate.vue'
@@ -69,14 +70,14 @@ export default class extends Vue {
   private activeName = 'info'
   private InProtocolType = InProtocolType
   private OutProtocolType = OutProtocolType
-  private form = {
-    groupId: '327439123674913',
+  private form: Group = {
+    groupId: 327439123674913,
     groupName: '上海电信园区监控',
     description: '用于办公楼道内安全监控',
     inProtocol: 'rtmp',
     outProtocol: ['flv', 'hls'],
     region: '华东',
-    sipId: '310132328883832',
+    sipId: 310132328883832,
     sipIp: '192.34.83.132',
     sipTcpPort: 5060,
     sipUdpPort: 80
@@ -99,7 +100,7 @@ export default class extends Vue {
     this.$router.push({
       path: '/group/update',
       query: {
-        groupId: this.form.groupId
+        groupId: this.form.groupId!.toString()
       }
     })
   }

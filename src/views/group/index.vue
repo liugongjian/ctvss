@@ -30,7 +30,7 @@
             {{ groupStatus[row.groupStatus] }}
           </template>
         </el-table-column>
-        <el-table-column label="接入类型">
+        <el-table-column label="接入类型" min-width="80">
           <template slot-scope="{row}">
             {{ inProtocolType[row.inProtocol] }}
           </template>
@@ -63,6 +63,7 @@
 
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
+import { Group } from '@/type/group'
 import { GroupStatus, InProtocolType } from '@/dics'
 import { dateFormatInTable } from '@/utils/date'
 import StatusBadge from '@/components/StatusBadge/index.vue'
@@ -75,7 +76,7 @@ export default class extends Vue {
   private groupStatus = GroupStatus
   private inProtocolType = InProtocolType
   private groupName = ''
-  private dataList = [{
+  private dataList: Array<Group> = [{
     groupId: 327439123674913,
     groupName: '上海电信园区监控',
     groupStatus: 'on',

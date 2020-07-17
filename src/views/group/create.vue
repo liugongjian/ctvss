@@ -59,6 +59,7 @@
 </template>
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
+import { Group } from '@/type/group'
 import { InProtocolType, OutProtocolType } from '@/dics'
 
 @Component({
@@ -85,7 +86,7 @@ export default class extends Vue {
   private regionList = ['华东', '华南', '华北']
   private outProtocolList = Object.values(OutProtocolType)
   private inProtocolList = Object.values(InProtocolType)
-  private form: any = {
+  private form: Group = {
     groupName: '',
     description: '',
     region: '华东',
@@ -101,13 +102,13 @@ export default class extends Vue {
     if (query.groupId) {
       this.$set(this.form, 'groupId', query.groupId)
       this.form = {
-        groupId: '327439123674913',
+        groupId: 327439123674913,
         groupName: '上海电信园区监控',
         description: '用于办公楼道内安全监控',
         inProtocol: 'rtmp',
         outProtocol: ['flv', 'hls'],
         region: '华东',
-        sipId: '310132328883832',
+        sipId: 310132328883832,
         sipIp: '192.34.83.132',
         sipTcpPort: 5060,
         sipUdpPort: 80

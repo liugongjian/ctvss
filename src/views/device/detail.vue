@@ -144,6 +144,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import { Device } from '@/type/device'
 import { DeviceStatus, DeviceType, AuthStatus } from '@/dics'
 import SetRecordTemplate from '../components/dialogs/SetRecordTemplate.vue'
 import SetScreenCutTemplate from '../components/dialogs/SetScreenCutTemplate.vue'
@@ -166,7 +167,7 @@ export default class extends Vue {
   private deviceStatus = DeviceStatus
   private deviceType = DeviceType
   private authStatus = AuthStatus
-  private info = {
+  private info: Device = {
     deviceId: 374623843,
     groupName: '上海电信园区监控',
     deviceName: '一楼楼道监控',
@@ -174,7 +175,7 @@ export default class extends Vue {
     deviceType: 'ipc',
     deviceVendor: '海康',
     deviceIp: '119.13.44.23',
-    devicePort: '3783',
+    devicePort: 3783,
     gbId: '235433524',
     gbAccount: 'GB_user1'
   }
