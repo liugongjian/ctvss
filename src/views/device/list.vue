@@ -2,11 +2,11 @@
   <div class="device-list__container">
     <div class="filter-container clearfix">
       <div class="filter-container__left">
-        <el-button type="primary" @click="handleCreate">添加设备</el-button>
+        <el-button type="primary" @click="handleCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
         <el-dropdown>
           <el-button>批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item>移动至</el-dropdown-item>
+            <el-dropdown-item v-if="!isNVR">移动至</el-dropdown-item>
             <el-dropdown-item>启用流</el-dropdown-item>
             <el-dropdown-item>停用流</el-dropdown-item>
             <el-dropdown-item>删除</el-dropdown-item>
@@ -50,15 +50,15 @@
         </template>
       </el-table-column>
       <el-table-column label="厂商" prop="deviceVendor" />
-      <el-table-column v-if="isIPC" label="设备地址" min-width="150">
+      <el-table-column v-if="isIPC || isNVR" label="设备地址" min-width="150">
         <template slot-scope="{row}">
           {{ row.deviceIp }}:{{ row.devicePort }}
         </template>
       </el-table-column>
-      <el-table-column v-if="isIPC" label="国标ID" prop="gbId" min-width="150" />
-      <el-table-column v-if="isIPC" label="通道数">
+      <el-table-column v-if="isIPC || isNVR" label="国标ID" prop="gbId" min-width="150" />
+      <el-table-column v-if="isIPC && !isNVR" label="通道数">
         <template slot-scope="{row}">
-          <el-button v-if="row.tunnelNum" type="text" @click="openTunnelInfo(row)">{{ row.tunnelNum || '-' }}</el-button>
+          <el-button v-if="row.tunnelNum" type="text" @click="goToNVR(row)">{{ row.tunnelNum || '-' }}</el-button>
           <span v-else>-</span>
         </template>
       </el-table-column>
@@ -70,10 +70,10 @@
           <el-dropdown @command="handleMore">
             <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item v-if="isIPC && scope.row.tunnelNum">查看通道</el-dropdown-item>
+              <el-dropdown-item v-if="isIPC && !isNVR" :command="{type: 'nvr', device: scope.row}">查看通道</el-dropdown-item>
               <el-dropdown-item :command="{type: 'detail'}">设备详情</el-dropdown-item>
               <el-dropdown-item>停用流</el-dropdown-item>
-              <el-dropdown-item>移动至</el-dropdown-item>
+              <el-dropdown-item v-if="!isNVR">移动至</el-dropdown-item>
               <el-dropdown-item :command="{type: 'edit', device: scope.row}">编辑</el-dropdown-item>
               <el-dropdown-item>删除</el-dropdown-item>
             </el-dropdown-menu>
@@ -120,12 +120,12 @@ export default class extends Vue {
   private deviceList: Array<Device> = []
 
   private get isIPC() {
-    return true
+    return this.$route.query.inProtocol === 'ipc'
   }
 
-  // private get type() {
-  //   return this.
-  // }
+  private get isNVR() {
+    return this.$route.query.type === 'nvr'
+  }
 
   @Watch('$route.query')
   private onRouterChange() {
@@ -133,76 +133,117 @@ export default class extends Vue {
     this.init()
   }
 
+  private mounted() {
+    this.init()
+  }
+
   private init() {
-    this.deviceList = [
-      {
-        deviceId: 374623843,
-        deviceName: '一楼楼道监控',
-        deviceStatus: 'on',
-        streamStatus: 'on',
-        deviceType: 'ipc',
-        deviceVendor: '海康',
-        deviceIp: '119.13.44.23',
-        devicePort: 3783,
-        gbId: '235433524',
-        tunnelNum: null
-      },
-      {
-        deviceId: 374623843,
-        deviceName: '一楼楼道监控',
-        deviceStatus: 'on',
-        streamStatus: 'on',
-        deviceType: 'nvr',
-        deviceVendor: '海康',
-        deviceIp: '119.13.44.23',
-        devicePort: 3783,
-        gbId: '235433524',
-        tunnelNum: 120
-      },
-      {
-        deviceId: 374623843,
-        deviceName: '一楼楼道监控',
-        deviceStatus: 'off',
-        streamStatus: 'off',
-        deviceType: 'ipc',
-        deviceVendor: '海康',
-        deviceIp: '119.13.44.23',
-        devicePort: 3783,
-        gbId: '235433524',
-        tunnelNum: 120
-      }
-    ]
-  }
-
-  /**
-   * 打开通道列表
-   */
-  private openTunnelInfo(device: any) {
-    this.currentTunnelInfo = device.deviceId
-  }
-
-  /**
-   * 关闭通道列表
-   */
-  private closeTunnelInfo() {
-    this.currentTunnelInfo = null
+    if (this.isNVR) {
+      this.deviceList = [
+        {
+          deviceId: 374623843,
+          deviceName: '一楼楼道监控',
+          deviceStatus: 'on',
+          streamStatus: 'on',
+          deviceType: 'ipc',
+          deviceVendor: '海康',
+          deviceIp: '119.13.44.23',
+          devicePort: 3783,
+          gbId: '235433524',
+          tunnelNum: null
+        },
+        {
+          deviceId: 374623843,
+          deviceName: '一楼楼道监控',
+          deviceStatus: 'off',
+          streamStatus: 'off',
+          deviceType: 'ipc',
+          deviceVendor: '海康',
+          deviceIp: '119.13.44.23',
+          devicePort: 3783,
+          gbId: '235433524',
+          tunnelNum: 120
+        }
+      ]
+    } else {
+      this.deviceList = [
+        {
+          deviceId: 374623843,
+          deviceName: '一楼楼道监控',
+          deviceStatus: 'on',
+          streamStatus: 'on',
+          deviceType: 'ipc',
+          deviceVendor: '海康',
+          deviceIp: '119.13.44.23',
+          devicePort: 3783,
+          gbId: '235433524',
+          tunnelNum: null
+        },
+        {
+          deviceId: 374623843,
+          deviceName: '一楼楼道监控',
+          deviceStatus: 'on',
+          streamStatus: 'on',
+          deviceType: 'nvr',
+          deviceVendor: '海康',
+          deviceIp: '119.13.44.23',
+          devicePort: 3783,
+          gbId: '235433524',
+          tunnelNum: 120
+        },
+        {
+          deviceId: 374623843,
+          deviceName: '一楼楼道监控',
+          deviceStatus: 'off',
+          streamStatus: 'off',
+          deviceType: 'ipc',
+          deviceVendor: '海康',
+          deviceIp: '119.13.44.23',
+          devicePort: 3783,
+          gbId: '235433524',
+          tunnelNum: 120
+        }
+      ]
+    }
   }
 
   /**
    * 创建设备
    */
   private handleCreate() {
-    this.$router.push('/device/create')
+    this.$router.push({
+      name: 'device-create',
+      query: this.$route.query
+    })
   }
 
   /**
    * 预览
    */
-  private goToPreview(type: string) {
+  private goToPreview(type: string, device: Device) {
     this.$router.push({
       name: 'device-preview',
       params: {
         tab: type
+      },
+      query: {
+        id: device.deviceId.toString(),
+        groupId: this.$route.query.groupId
+      }
+    })
+  }
+
+  /**
+   * 打开通道列表
+   */
+  private goToNVR(device: Device) {
+    this.$router.push({
+      name: 'device-list',
+      query: {
+        id: device.deviceId.toString(),
+        groupId: this.$route.query.groupId,
+        inProtocol: this.$route.query.inProtocol,
+        type: 'nvr'
       }
     })
   }
@@ -228,6 +269,9 @@ export default class extends Vue {
             deviceId: command.device.deviceId
           }
         })
+        break
+      case 'nvr':
+        this.goToNVR(command.device)
         break
     }
   }

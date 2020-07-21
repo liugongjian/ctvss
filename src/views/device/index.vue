@@ -36,7 +36,7 @@
                 :data="dirList"
                 node-key="id"
                 highlight-current
-                @node-click="ondirItemClick"
+                @node-click="onDirItemClick"
               >
                 <span slot-scope="{node, data}" class="custom-tree-node">
                   <svg-icon :name="data.type" color="#6e7c89" />
@@ -65,6 +65,7 @@
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { Device } from '@/type/device'
+import { Group } from '@/type/group'
 import { DeviceStatus, DeviceType } from '@/dics'
 import TunnelInfo from './components/TunnelInfo.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
@@ -81,6 +82,7 @@ export default class extends Vue {
   private isExpanded = true
   private loading = false
   private currentGroupId: number | null = null
+  private currentGroup: Group | null = null
   private keyword = ''
   private currentTunnelInfo: number | null = null
   private pager = {
@@ -133,17 +135,17 @@ export default class extends Vue {
           streamStatus: 'on'
         }, {
           label: '通道2',
-          deviceId: 4,
+          deviceId: 5,
           type: 'ipc',
           streamStatus: 'off'
         }, {
           label: '通道3',
-          deviceId: 4,
+          deviceId: 6,
           type: 'ipc',
           streamStatus: 'off'
         }, {
           label: '通道4',
-          deviceId: 4,
+          deviceId: 7,
           type: 'ipc',
           streamStatus: 'on'
         }]
@@ -194,12 +196,16 @@ export default class extends Vue {
 
   private mounted() {
     this.currentGroupId = 1
-    this.$router.push({
-      name: 'device-list',
-      query: {
-        groupId: this.currentGroupId!.toString()
-      }
-    })
+    this.currentGroup = this.groupList[0]
+    if (!this.$route.query.groupId) {
+      this.$router.push({
+        name: 'device-list',
+        query: {
+          groupId: this.currentGroupId!.toString(),
+          inProtocol: this.currentGroup!.inProtocol
+        }
+      })
+    }
   }
 
   /**
@@ -212,34 +218,39 @@ export default class extends Vue {
   /**
    * 点击目录项
    */
-  private ondirItemClick(item: any) {
+  private onDirItemClick(item: any) {
+    let router: any
     switch (item.type) {
       case 'dir':
-        this.$router.push({
+        router = {
           name: 'device-list',
           query: {
-            groupId: this.currentGroupId!.toString(),
-            type: item.type,
-            id: item.dirId
+            id: item.dirId.toString()
           }
-        })
+        }
         break
       case 'nvr':
-        this.$router.push({
+        router = {
           name: 'device-list',
           query: {
-            groupId: this.currentGroupId!.toString(),
-            type: item.type,
-            id: item.deviceId
+            id: item.deviceId.toString()
           }
-        })
+        }
         break
       case 'ipc':
-        this.$router.push({
-          name: 'device-preview'
-        })
+        router = {
+          name: 'device-preview',
+          query: {
+            deviceId: item.deviceId.toString()
+          }
+        }
         break
     }
+    router.query.groupId = this.currentGroupId!.toString()
+    router.query.inProtocol = this.currentGroup!.inProtocol
+    router.query.type = item.type
+    if (JSON.stringify(this.$route.query) === JSON.stringify(router.query)) return
+    this.$router.push(router)
   }
 
   /**

@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-page-header content="工厂园区37号楼一层A区通道No.311监控" @back="back" />
+    <!-- <el-page-header content="工厂园区37号楼一层A区通道No.311监控" @back="back" /> -->
     <div class="preview-wrap">
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="监控预览" name="preview">
