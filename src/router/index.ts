@@ -110,7 +110,7 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "tree" */ '@/views/group/index.vue'),
+        component: () => import(/* webpackChunkName: "group" */ '@/views/group/index.vue'),
         name: 'group-list',
         meta: {
           title: '业务组管理',
@@ -121,35 +121,38 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'create',
-        component: () => import(/* webpackChunkName: "tree" */ '@/views/group/create.vue'),
+        component: () => import(/* webpackChunkName: "group" */ '@/views/group/create.vue'),
         name: 'group-create',
         meta: {
           title: '创建业务组',
           icon: 'tree',
           hidden: true,
-          roles: ['admin']
+          roles: ['admin'],
+          activeMenu: '/group'
         }
       },
       {
         path: 'update',
-        component: () => import(/* webpackChunkName: "tree" */ '@/views/group/create.vue'),
+        component: () => import(/* webpackChunkName: "group" */ '@/views/group/create.vue'),
         name: 'group-update',
         meta: {
           title: '编辑业务组',
           icon: 'tree',
           hidden: true,
-          roles: ['admin']
+          roles: ['admin'],
+          activeMenu: '/group'
         }
       },
       {
         path: 'config',
-        component: () => import(/* webpackChunkName: "tree" */ '@/views/group/config.vue'),
+        component: () => import(/* webpackChunkName: "group" */ '@/views/group/config.vue'),
         name: 'group-config',
         meta: {
           title: '业务组配置',
           icon: 'tree',
           hidden: true,
-          roles: ['admin']
+          roles: ['admin'],
+          activeMenu: '/group'
         }
       }
     ]
@@ -161,63 +164,80 @@ export const asyncRoutes: RouteConfig[] = [
       title: '设备管理',
       icon: 'stream',
       roles: ['admin'],
-      alwaysShow: false
+      alwaysShow: false,
+      only: true
     },
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "tree" */ '@/views/device/index.vue'),
-        name: 'device-list',
+        component: () => import(/* webpackChunkName: "device" */ '@/views/device/index.vue'),
         meta: {
           title: '设备管理',
           icon: 'stream',
           breadcrumb: false,
           roles: ['admin']
-        }
-      },
-      {
-        path: 'create',
-        component: () => import(/* webpackChunkName: "tree" */ '@/views/device/create.vue'),
-        name: 'device-create',
-        meta: {
-          title: '添加设备',
-          icon: 'stream',
-          hidden: true,
-          roles: ['admin']
-        }
-      },
-      {
-        path: 'update/:deviceId',
-        component: () => import(/* webpackChunkName: "tree" */ '@/views/device/create.vue'),
-        name: 'device-update',
-        meta: {
-          title: '编辑设备',
-          icon: 'tree',
-          hidden: true,
-          roles: ['admin']
-        }
-      },
-      {
-        path: 'detail/:type',
-        component: () => import(/* webpackChunkName: "tree" */ '@/views/device/detail.vue'),
-        name: 'device-detail',
-        meta: {
-          title: '设备详情',
-          icon: 'stream',
-          hidden: true,
-          roles: ['admin']
-        }
-      },
-      {
-        path: 'preview/:tab?',
-        component: () => import(/* webpackChunkName: "tree" */ '@/views/device/preview.vue'),
-        name: 'device-preview',
-        meta: {
-          title: '监控查看',
-          icon: 'stream',
-          hidden: true,
-          roles: ['admin']
-        }
+        },
+        children: [
+          {
+            path: '',
+            component: () => import(/* webpackChunkName: "device" */ '@/views/device/list.vue'),
+            name: 'device-list',
+            meta: {
+              title: '设备列表',
+              icon: 'stream',
+              breadcrumb: false,
+              roles: ['admin']
+            }
+          },
+          {
+            path: 'create',
+            component: () => import(/* webpackChunkName: "device" */ '@/views/device/create.vue'),
+            name: 'device-create',
+            meta: {
+              title: '添加设备',
+              icon: 'stream',
+              hidden: true,
+              roles: ['admin'],
+              activeMenu: '/device'
+            }
+          },
+          {
+            path: 'update/:deviceId',
+            component: () => import(/* webpackChunkName: "device" */ '@/views/device/create.vue'),
+            name: 'device-update',
+            meta: {
+              title: '编辑设备',
+              icon: 'tree',
+              hidden: true,
+              roles: ['admin'],
+              activeMenu: '/device'
+            }
+          },
+          {
+            path: 'detail/:type',
+            component: () => import(/* webpackChunkName: "device" */ '@/views/device/detail.vue'),
+            name: 'device-detail',
+            meta: {
+              title: '设备详情',
+              icon: 'stream',
+              hidden: true,
+              roles: ['admin'],
+              activeMenu: '/device'
+            }
+          },
+          {
+            path: 'preview/:tab?',
+            component: () => import(/* webpackChunkName: "device" */ '@/views/device/preview.vue'),
+            name: 'device-preview',
+            meta: {
+              title: '监控查看',
+              icon: 'stream',
+              hidden: true,
+              roles: ['admin'],
+              activeMenu: '/device'
+            }
+          }
+        ]
       }
     ]
   },

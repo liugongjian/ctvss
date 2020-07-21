@@ -15,23 +15,34 @@
       </el-select>
     </div>
     <el-card class="device-list-wrap">
-      <div class="device-list" :class="{'device-list--collapsed': !isExpanded}">
+      <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': folderDrag.isDragging}">
         <el-button class="device-list__expand" @click="toggleFolderList">
           <i class="el-icon-s-fold" />
         </el-button>
-        <div class="device-list__left">
-          <div class="folder-list">
+        <div
+          class="device-list__handle"
+          :style="`left: ${folderDrag.width}px`"
+          @mousedown="changeWidthStart($event)"
+        />
+        <div ref="folderList" class="device-list__left" :style="`width: ${folderDrag.width}px`">
+          <div class="folder-list" :style="`width: ${folderDrag.width}px`">
             <div class="folder-list__tools">
               <el-tooltip class="item" effect="dark" content="目录设置" placement="top">
                 <el-button type="text"><i class="el-icon-setting" /></el-button>
               </el-tooltip>
             </div>
-            <el-tree
-              :data="folderList"
-              node-key="id"
-              accordion
-              :default-expanded-keys="[0]"
-            />
+            <div class="folder-list__tree">
+              <el-tree
+                :data="folderList"
+                node-key="id"
+                highlight-current
+              >
+                <span slot-scope="{node, data}" class="custom-tree-node">
+                  <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
+                  {{ node.label }}
+                </span>
+              </el-tree>
+            </div>
           </div>
         </div>
         <div class="device-list__right">
@@ -40,97 +51,7 @@
             <span class="breadcrumb__item">区域一</span>
             <span class="breadcrumb__item">一号楼</span>
           </div>
-          <div class="device-list__container">
-            <div class="filter-container clearfix">
-              <div class="filter-container__left">
-                <el-button type="primary" @click="handleCreate">添加设备</el-button>
-                <el-dropdown>
-                  <el-button>批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
-                  <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item>移动至</el-dropdown-item>
-                    <el-dropdown-item>启用设备</el-dropdown-item>
-                    <el-dropdown-item>停用设备</el-dropdown-item>
-                    <el-dropdown-item>启用流</el-dropdown-item>
-                    <el-dropdown-item>停用流</el-dropdown-item>
-                    <el-dropdown-item>删除</el-dropdown-item>
-                  </el-dropdown-menu>
-                </el-dropdown>
-              </div>
-              <div class="filter-container__right">
-                <el-input v-model="keyword" class="filter-container__search-group" placeholder="请输入关键词">
-                  <el-button slot="append" class="el-button-rect" icon="el-icon-search" />
-                </el-input>
-                <el-button class="el-button-rect" icon="el-icon-refresh" />
-              </div>
-            </div>
-            <el-table v-loading="loading" :data="deviceList" fit>
-              <el-table-column type="selection" width="55" />
-              <el-table-column label="设备ID/名称" min-width="200">
-                <template slot-scope="{row}">
-                  <router-link :to="{name: 'device-detail', params: {type: currentGroup.inProtocol}}">{{ row.deviceId }}</router-link>
-                  <div>
-                    {{ row.deviceName }}
-                    <el-tooltip v-if="row.deviceType !== 'nvr'" class="item" effect="dark" content="监控预览" placement="top">
-                      <router-link to="/device/preview"><i class="el-icon-video-camera" /></router-link>
-                    </el-tooltip>
-                  </div>
-                </template>
-              </el-table-column>
-              <el-table-column v-if="isIPC" label="类型">
-                <template slot-scope="{row}">
-                  {{ deviceType[row.deviceType] }}
-                </template>
-              </el-table-column>
-              <el-table-column v-if="isIPC" label="设备状态">
-                <template slot-scope="{row}">
-                  <status-badge :status="row.deviceStatus" />
-                  {{ deviceStatus[row.deviceStatus] }}
-                </template>
-              </el-table-column>
-              <el-table-column prop="streamStatus" label="流状态">
-                <template slot-scope="{row}">
-                  <status-badge :status="row.streamStatus" />
-                  {{ deviceStatus[row.streamStatus] }}
-                </template>
-              </el-table-column>
-              <el-table-column label="厂商" prop="deviceVendor" />
-              <el-table-column v-if="isIPC" label="设备地址" min-width="150">
-                <template slot-scope="{row}">
-                  {{ row.deviceIp }}:{{ row.devicePort }}
-                </template>
-              </el-table-column>
-              <el-table-column v-if="isIPC" label="国标ID" prop="gbId" min-width="150" />
-              <el-table-column v-if="isIPC" label="通道数">
-                <template slot-scope="{row}">
-                  <el-button v-if="row.tunnelNum" type="text" @click="openTunnelInfo(row)">{{ row.tunnelNum || '-' }}</el-button>
-                  <span v-else>-</span>
-                </template>
-              </el-table-column>
-              <el-table-column label="操作" width="270" fixed="right">
-                <template slot-scope="scope">
-                  <el-button v-if="isIPC && scope.row.tunnelNum" type="text" @click="openTunnelInfo(scope.row)">查看通道</el-button>
-                  <el-button type="text" @click="goToDetail(scope.row)">设备详情</el-button>
-                  <el-button type="text">启用设备</el-button>
-                  <el-dropdown @command="handleMore">
-                    <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
-                    <el-dropdown-menu slot="dropdown">
-                      <el-dropdown-item :command="{type: 'preview', device: scope.row}">监控预览</el-dropdown-item>
-                      <el-dropdown-item :command="{type: 'replay', device: scope.row}">录制回放</el-dropdown-item>
-                      <el-dropdown-item :command="{type: 'screenshot', device: scope.row}">查看截图</el-dropdown-item>
-                      <el-dropdown-item>停用流</el-dropdown-item>
-                      <el-dropdown-item>移动至</el-dropdown-item>
-                      <el-dropdown-item>删除</el-dropdown-item>
-                    </el-dropdown-menu>
-                  </el-dropdown>
-                </template>
-              </el-table-column>
-            </el-table>
-            <el-pagination
-              :current-page="pager.pageIndex"
-              :page-size="pager.pageSize"
-              :total="pager.total"
-            />
-          </div>
+          <router-view />
         </div>
       </div>
     </el-card>
@@ -166,6 +87,13 @@ export default class extends Vue {
     pageSize: 10,
     total: 20
   }
+  private folderDrag = {
+    isDragging: false,
+    start: 0,
+    offset: 0,
+    orginWidth: 200,
+    width: 200
+  }
 
   private groupList = [
     {
@@ -186,32 +114,98 @@ export default class extends Vue {
   private deviceList: Array<Device> = []
 
   private folderList = [{
-    id: 0,
-    label: '全部设备',
+    label: '区域一',
     children: [{
-      label: '区域一',
+      id: 0,
+      label: '一号楼',
       children: [{
-        label: '一号楼'
+        id: 1,
+        label: '设备一',
+        streamStatus: 'on'
       }, {
-        label: '二号楼'
+        label: 'NVR设备',
+        children: [{
+          label: '工厂园区37号楼一层A区通道No.311',
+          streamStatus: 'on'
+        }, {
+          label: '通道2',
+          streamStatus: 'off'
+        }, {
+          label: '通道3',
+          streamStatus: 'off'
+        }, {
+          label: '通道4',
+          streamStatus: 'on'
+        }]
       }, {
-        label: '三号楼'
+        label: '设备三',
+        streamStatus: 'on'
       }, {
-        label: '四号楼'
+        label: '设备四',
+        streamStatus: 'off'
       }]
     }, {
-      label: '区域二',
+      label: '二号楼',
       children: [{
-        label: '五号楼'
+        label: '设备一',
+        streamStatus: 'on'
       }, {
-        label: '六号楼'
+        label: '设备二',
+        streamStatus: 'on'
       }, {
-        label: '七号楼'
+        label: '设备三',
+        streamStatus: 'on'
       }, {
-        label: '八号楼'
+        label: '设备四',
+        streamStatus: 'on'
+      }]
+    }]
+  },
+  {
+    label: '区域二',
+    children: [{
+      id: 1,
+      label: '一号楼',
+      children: [{
+        label: '设备一',
+        streamStatus: 'on'
+      }, {
+        label: 'NVR设备',
+        children: [{
+          label: '通道1',
+          streamStatus: 'on'
+        }, {
+          label: '通道2',
+          streamStatus: 'on'
+        }, {
+          label: '通道3',
+          streamStatus: 'on'
+        }, {
+          label: '通道4',
+          streamStatus: 'on'
+        }]
+      }, {
+        label: '设备三',
+        streamStatus: 'on'
+      }, {
+        label: '设备四',
+        streamStatus: 'on'
       }]
     }, {
-      label: '区域三'
+      label: '二号楼',
+      children: [{
+        label: '设备一',
+        streamStatus: 'on'
+      }, {
+        label: '设备二',
+        streamStatus: 'on'
+      }, {
+        label: '设备三',
+        streamStatus: 'on'
+      }, {
+        label: '设备四',
+        streamStatus: 'on'
+      }]
     }]
   }]
 
@@ -341,6 +335,24 @@ export default class extends Vue {
         break
     }
   }
+
+  private changeWidthStart(e: MouseEvent) {
+    const $folderList: any = this.$refs.folderList
+    this.folderDrag.isDragging = true
+    this.folderDrag.start = e.x
+    this.folderDrag.orginWidth = $folderList.clientWidth
+
+    window.addEventListener('mousemove', (e) => {
+      if (!this.folderDrag.isDragging) return
+      this.folderDrag.offset = this.folderDrag.start - e.x
+      const width = this.folderDrag.orginWidth - this.folderDrag.offset
+      if (width < 50) return
+      this.folderDrag.width = width
+    })
+    window.addEventListener('mouseup', (e) => {
+      this.folderDrag.isDragging = false
+    })
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -360,14 +372,34 @@ export default class extends Vue {
   .device-list {
     position: relative;
     display: flex;
-    &__left {
-      width: 180px;
-      overflow: hidden;
+
+    &__handle {
+      position: absolute;
+      left: 200px;
+      top: 0;
+      margin-left: -16px;
+      z-index: 100;
+      height: 100%;
+      width: 16px;
       border-right: 1px solid $borderGrey;
+      transition: border .1s;
+      cursor: ew-resize;
+
+      &:hover {
+        border-right-color: #ccc;
+      }
+    }
+
+    &__left {
+      width: 200px;
+      overflow: hidden;
       transition: width .2s;
 
       .folder-list {
-        width: 180px;
+        width: 200px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
         &__tools {
           height: 40px;
           border-bottom: 1px solid $borderGrey;
@@ -380,9 +412,13 @@ export default class extends Vue {
             font-size: 16px;
           }
         }
+        &__tree {
+          padding: 10px;
+        }
       }
       .el-tree {
-        margin: 10px;
+        flex: 1;
+        background: none;
       }
     }
     &__right {
@@ -402,6 +438,7 @@ export default class extends Vue {
       border-radius: 0;
       left: 0;
       top: 0;
+      z-index: 11;
       height: 39px;
       border-right: 1px solid $borderGrey;
       font-size: 18px;
@@ -424,9 +461,23 @@ export default class extends Vue {
       }
     }
 
-    &--collapsed {
+    &--dragging {
+      cursor: ew-resize;
+
       .device-list__left {
-        width: 0px;
+        transition: none;
+      }
+      * {
+        user-select:none;
+      }
+    }
+
+    &--collapsed {
+      .device-list__handle {
+        display: none;
+      }
+      .device-list__left {
+        width: 0px!important;
       }
       .breadcrumb {
         padding-left: 70px;

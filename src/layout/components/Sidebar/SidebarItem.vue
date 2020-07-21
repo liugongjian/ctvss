@@ -3,7 +3,7 @@
     v-if="!item.meta || !item.meta.hidden"
     :class="[isCollapse ? 'simple-mode' : 'full-mode', {'first-level': isFirstLevel}]"
   >
-    <template v-if="!alwaysShowRootMenu && theOnlyOneChild && !theOnlyOneChild.children">
+    <template v-if="onlyShowRootMenu || (!alwaysShowRootMenu && theOnlyOneChild && !theOnlyOneChild.children)">
       <sidebar-item-link
         v-if="theOnlyOneChild.meta"
         :to="resolvePath(theOnlyOneChild.path)"
@@ -76,6 +76,13 @@ export default class extends Vue {
 
   get alwaysShowRootMenu() {
     if (this.item.meta && this.item.meta.alwaysShow) {
+      return true
+    }
+    return false
+  }
+
+  get onlyShowRootMenu() {
+    if (this.item.meta && this.item.meta.only) {
       return true
     }
     return false

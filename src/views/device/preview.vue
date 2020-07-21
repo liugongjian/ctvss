@@ -2,28 +2,10 @@
   <div class="app-container">
     <el-page-header content="工厂园区37号楼一层A区通道No.311监控" @back="back" />
     <div class="preview-wrap">
-      <el-card class="preview-wrap__left">
-        <div class="device-list__title">设备</div>
-        <div class="device-list">
-          <el-tree
-            :data="folderList"
-            node-key="id"
-            accordion
-            highlight-current
-            :current-node-key="1"
-            :default-expanded-keys="[0]"
-          >
-            <span slot-scope="{node, data}" class="custom-tree-node">
-              <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
-              {{ node.label }}
-            </span>
-          </el-tree>
-        </div>
-      </el-card>
-      <el-tabs v-model="activeName" class="preview-wrap__right" type="border-card" @tab-click="handleClick">
+      <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="监控预览" name="preview">
           <div class="preview-player" />
-          <info-list label-width="115" title="播放地址" class="address">
+          <info-list label-width="70" title="播放地址" class="address">
             <info-list-item label="RTMP:">
               rtmp://102715.push.domain.com:3738/vss/237233774?signature=045bfe2107b98f356e459c8b2bd54be4&expired=5EEC5741
               <el-tooltip class="item" effect="dark" content="复制链接" placement="top">
@@ -44,7 +26,7 @@
             </info-list-item>
           </info-list>
 
-          <info-list label-width="115" title="模版配置">
+          <!-- <info-list label-width="115" title="模版配置">
             <info-list-item label="录制模版:">
               <div class="info-list__edit">
                 <div class="info-list__edit--value">{{ template.recordTemplate?template.recordTemplate:'未配置' }}</div>
@@ -63,7 +45,7 @@
                 </div>
               </div>
             </info-list-item>
-          </info-list>
+          </info-list> -->
         </el-tab-pane>
         <el-tab-pane label="录制回放" name="replay">
           <div class="replay-wrap">
@@ -88,60 +70,60 @@
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="监控截图" name="screenshot">
+        <el-tab-pane label="监控截图" name="snapshot">
           <el-date-picker
-            v-model="screenshotRange"
+            v-model="snapshotRange"
             type="datetimerange"
             range-separator="至"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
           />
-          <div class="screenshot-list">
-            <div class="screenshot-item">
+          <div class="snapshot-list">
+            <div class="snapshot-item">
               <div class="img" />
               <span>{{ dateFormat(1594260926566) }}</span>
             </div>
-            <div class="screenshot-item">
+            <div class="snapshot-item">
               <div class="img" />
               <span>{{ dateFormat(1594260926566) }}</span>
             </div>
-            <div class="screenshot-item">
+            <div class="snapshot-item">
               <div class="img" />
               <span>{{ dateFormat(1594260926566) }}</span>
             </div>
-            <div class="screenshot-item">
+            <div class="snapshot-item">
               <div class="img" />
               <span>{{ dateFormat(1594260926566) }}</span>
             </div>
-            <div class="screenshot-item">
+            <div class="snapshot-item">
               <div class="img" />
               <span>{{ dateFormat(1594260926566) }}</span>
             </div>
-            <div class="screenshot-item">
+            <div class="snapshot-item">
               <div class="img" />
               <span>{{ dateFormat(1594260926566) }}</span>
             </div>
-            <div class="screenshot-item">
+            <div class="snapshot-item">
               <div class="img" />
               <span>{{ dateFormat(1594260926566) }}</span>
             </div>
-            <div class="screenshot-item">
+            <div class="snapshot-item">
               <div class="img" />
               <span>{{ dateFormat(1594260926566) }}</span>
             </div>
-            <div class="screenshot-item">
+            <div class="snapshot-item">
               <div class="img" />
               <span>{{ dateFormat(1594260926566) }}</span>
             </div>
-            <div class="screenshot-item">
+            <div class="snapshot-item">
               <div class="img" />
               <span>{{ dateFormat(1594260926566) }}</span>
             </div>
-            <div class="screenshot-item">
+            <div class="snapshot-item">
               <div class="img" />
               <span>{{ dateFormat(1594260926566) }}</span>
             </div>
-            <div class="screenshot-item">
+            <div class="snapshot-item">
               <div class="img" />
               <span>{{ dateFormat(1594260926566) }}</span>
             </div>
@@ -179,101 +161,6 @@ export default class extends Vue {
   private dateFormat = dateFormat
   private activeName = 'preview'
   private deviceId = 3746238431
-  private folderList = [{
-    label: '区域一',
-    children: [{
-      id: 0,
-      label: '一号楼',
-      children: [{
-        id: 1,
-        label: '设备一',
-        streamStatus: 'on'
-      }, {
-        label: 'NVR设备',
-        children: [{
-          label: '工厂园区37号楼一层A区通道No.311',
-          streamStatus: 'on'
-        }, {
-          label: '通道2',
-          streamStatus: 'off'
-        }, {
-          label: '通道3',
-          streamStatus: 'off'
-        }, {
-          label: '通道4',
-          streamStatus: 'on'
-        }]
-      }, {
-        label: '设备三',
-        streamStatus: 'on'
-      }, {
-        label: '设备四',
-        streamStatus: 'off'
-      }]
-    }, {
-      label: '二号楼',
-      children: [{
-        label: '设备一',
-        streamStatus: 'on'
-      }, {
-        label: '设备二',
-        streamStatus: 'on'
-      }, {
-        label: '设备三',
-        streamStatus: 'on'
-      }, {
-        label: '设备四',
-        streamStatus: 'on'
-      }]
-    }]
-  },
-  {
-    label: '区域二',
-    children: [{
-      id: 1,
-      label: '一号楼',
-      children: [{
-        label: '设备一',
-        streamStatus: 'on'
-      }, {
-        label: 'NVR设备',
-        children: [{
-          label: '通道1',
-          streamStatus: 'on'
-        }, {
-          label: '通道2',
-          streamStatus: 'on'
-        }, {
-          label: '通道3',
-          streamStatus: 'on'
-        }, {
-          label: '通道4',
-          streamStatus: 'on'
-        }]
-      }, {
-        label: '设备三',
-        streamStatus: 'on'
-      }, {
-        label: '设备四',
-        streamStatus: 'on'
-      }]
-    }, {
-      label: '二号楼',
-      children: [{
-        label: '设备一',
-        streamStatus: 'on'
-      }, {
-        label: '设备二',
-        streamStatus: 'on'
-      }, {
-        label: '设备三',
-        streamStatus: 'on'
-      }, {
-        label: '设备四',
-        streamStatus: 'on'
-      }]
-    }]
-  }]
   private timeList = [
     {
       startTime: 1594260926566,
@@ -293,7 +180,7 @@ export default class extends Vue {
     }
   ]
   private replayRange = null
-  private screenshotRange = null
+  private snapshotRange = null
   private template = {
     screencutTemplate: '123'
   }
@@ -340,21 +227,6 @@ export default class extends Vue {
     }
   }
 
-  .preview-wrap {
-    display: flex;
-
-    &__left {
-      width: 280px;
-      margin-right: 15px;
-      ::v-deep .el-card__body {
-        padding: 0;
-      }
-    }
-    &__right {
-      flex: 1;
-    }
-  }
-
   .device-list__title {
     height: 40px;
     line-height: 40px;
@@ -376,8 +248,18 @@ export default class extends Vue {
   }
 
   .address {
-    .el-button--text {
-      padding: 0;
+    ::v-deep .info-item--val {
+      overflow: hidden;
+      text-overflow:ellipsis;
+      white-space: nowrap;
+      position: relative;
+      padding-right: 20px;
+
+      .el-button--text {
+        position: absolute;
+        padding: 0;
+        right: 0;
+      }
     }
   }
 
@@ -400,11 +282,11 @@ export default class extends Vue {
     }
   }
 
-  .screenshot-list {
+  .snapshot-list {
     display: flex;
     flex-wrap: wrap;
     margin: 0 -10px;
-    .screenshot-item {
+    .snapshot-item {
       position: relative;
       width: 25%;
       span {

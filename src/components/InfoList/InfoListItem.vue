@@ -1,6 +1,6 @@
 <template>
   <div class="info-item">
-    <div class="info-item--key" :style="`width: ${labelWidth}px`">{{ label }}</div>
+    <div class="info-item--key" :style="`min-width: ${labelWidth}px`">{{ label }}</div>
     <div class="info-item--val">
       <slot />
     </div>

@@ -1,10 +1,10 @@
 <template>
   <div class="app-container">
     <el-page-header content="设备详情" @back="back" />
-    <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
+    <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane label="基本信息" name="info">
         <el-button type="text" class="info-edit" @click="editForm">编辑</el-button>
-        <info-list label-width="150">
+        <info-list label-width="80">
           <info-list-item label="业务组名称:">{{ info.groupName }}</info-list-item>
           <info-list-item label="设备类型:">{{ deviceType[info.deviceType] }}</info-list-item>
           <info-list-item label="设备名称:">{{ info.deviceName }}</info-list-item>

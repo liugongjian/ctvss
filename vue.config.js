@@ -29,6 +29,9 @@ module.exports = {
         pathRewrite: {
           ['^' + process.env.VUE_APP_BASE_API]: ''
         }
+      },
+      '/mock/11/': {
+        target: 'http://101.89.163.9:8089/'
       }
     }
   },
