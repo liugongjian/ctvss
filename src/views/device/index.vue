@@ -15,29 +15,31 @@
       </el-select>
     </div>
     <el-card class="device-list-wrap">
-      <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': folderDrag.isDragging}">
-        <el-button class="device-list__expand" @click="toggleFolderList">
-          <i class="el-icon-s-fold" />
+      <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
+        <el-button class="device-list__expand" @click="toggledirList">
+          <svg-icon name="hamburger" />
         </el-button>
         <div
           class="device-list__handle"
-          :style="`left: ${folderDrag.width}px`"
+          :style="`left: ${dirDrag.width}px`"
           @mousedown="changeWidthStart($event)"
         />
-        <div ref="folderList" class="device-list__left" :style="`width: ${folderDrag.width}px`">
-          <div class="folder-list" :style="`width: ${folderDrag.width}px`">
-            <div class="folder-list__tools">
+        <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
+          <div class="dir-list" :style="`width: ${dirDrag.width}px`">
+            <div class="dir-list__tools">
               <el-tooltip class="item" effect="dark" content="目录设置" placement="top">
                 <el-button type="text"><i class="el-icon-setting" /></el-button>
               </el-tooltip>
             </div>
-            <div class="folder-list__tree">
+            <div class="dir-list__tree">
               <el-tree
-                :data="folderList"
+                :data="dirList"
                 node-key="id"
                 highlight-current
+                @node-click="ondirItemClick"
               >
                 <span slot-scope="{node, data}" class="custom-tree-node">
+                  <svg-icon :name="data.type" color="#6e7c89" />
                   <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                   {{ node.label }}
                 </span>
@@ -79,7 +81,6 @@ export default class extends Vue {
   private isExpanded = true
   private loading = false
   private currentGroupId: number | null = null
-  private currentGroup: any | null = null
   private keyword = ''
   private currentTunnelInfo: number | null = null
   private pager = {
@@ -87,7 +88,7 @@ export default class extends Vue {
     pageSize: 10,
     total: 20
   }
-  private folderDrag = {
+  private dirDrag = {
     isDragging: false,
     start: 0,
     offset: 0,
@@ -98,12 +99,12 @@ export default class extends Vue {
   private groupList = [
     {
       id: 1,
-      groupName: 'RTMP测试组',
-      inProtocol: 'rtmp'
-    }, {
-      id: 2,
       groupName: 'IPC测试组',
       inProtocol: 'ipc'
+    }, {
+      id: 2,
+      groupName: 'RTMP测试组',
+      inProtocol: 'rtmp'
     }, {
       id: 3,
       groupName: '广州电信园区',
@@ -113,190 +114,132 @@ export default class extends Vue {
 
   private deviceList: Array<Device> = []
 
-  private folderList = [{
+  private dirList = [{
     label: '区域一',
+    dirId: 1,
+    type: 'dir',
     children: [{
-      id: 0,
       label: '一号楼',
+      dirId: 4,
+      type: 'dir',
       children: [{
-        id: 1,
-        label: '设备一',
-        streamStatus: 'on'
-      }, {
         label: 'NVR设备',
+        deviceId: 3,
+        type: 'nvr',
         children: [{
           label: '工厂园区37号楼一层A区通道No.311',
+          deviceId: 4,
+          type: 'ipc',
           streamStatus: 'on'
         }, {
           label: '通道2',
+          deviceId: 4,
+          type: 'ipc',
           streamStatus: 'off'
         }, {
           label: '通道3',
+          deviceId: 4,
+          type: 'ipc',
           streamStatus: 'off'
         }, {
           label: '通道4',
+          deviceId: 4,
+          type: 'ipc',
           streamStatus: 'on'
         }]
       }, {
         label: '设备三',
+        deviceId: 4,
+        type: 'ipc',
         streamStatus: 'on'
       }, {
         label: '设备四',
+        deviceId: 5,
+        type: 'ipc',
         streamStatus: 'off'
       }]
     }, {
       label: '二号楼',
+      dirId: 3,
+      type: 'dir',
       children: [{
         label: '设备一',
+        deviceId: 4,
+        type: 'ipc',
         streamStatus: 'on'
       }, {
         label: '设备二',
+        deviceId: 4,
+        type: 'ipc',
         streamStatus: 'on'
       }, {
         label: '设备三',
+        deviceId: 4,
+        type: 'ipc',
         streamStatus: 'on'
       }, {
         label: '设备四',
+        deviceId: 4,
+        type: 'ipc',
         streamStatus: 'on'
       }]
     }]
   },
   {
-    label: '区域二',
-    children: [{
-      id: 1,
-      label: '一号楼',
-      children: [{
-        label: '设备一',
-        streamStatus: 'on'
-      }, {
-        label: 'NVR设备',
-        children: [{
-          label: '通道1',
-          streamStatus: 'on'
-        }, {
-          label: '通道2',
-          streamStatus: 'on'
-        }, {
-          label: '通道3',
-          streamStatus: 'on'
-        }, {
-          label: '通道4',
-          streamStatus: 'on'
-        }]
-      }, {
-        label: '设备三',
-        streamStatus: 'on'
-      }, {
-        label: '设备四',
-        streamStatus: 'on'
-      }]
-    }, {
-      label: '二号楼',
-      children: [{
-        label: '设备一',
-        streamStatus: 'on'
-      }, {
-        label: '设备二',
-        streamStatus: 'on'
-      }, {
-        label: '设备三',
-        streamStatus: 'on'
-      }, {
-        label: '设备四',
-        streamStatus: 'on'
-      }]
-    }]
+    label: '未分类设备',
+    deviceId: 5,
+    type: 'ipc',
+    streamStatus: 'on'
   }]
-
-  private get isIPC() {
-    return this.currentGroup ? this.currentGroup.inProtocol === 'ipc' : false
-  }
-
-  @Watch('currentGroupId')
-  private onGroupChange(val: any) {
-    this.currentGroup = this.groupList.find(group => group.id === val)
-    if (this.currentGroup.inProtocol === 'ipc') {
-      this.deviceList = [
-        {
-          deviceId: 374623843,
-          deviceName: '一楼楼道监控',
-          deviceStatus: 'on',
-          streamStatus: 'on',
-          deviceType: 'ipc',
-          deviceVendor: '海康',
-          deviceIp: '119.13.44.23',
-          devicePort: 3783,
-          gbId: '235433524',
-          tunnelNum: null
-        },
-        {
-          deviceId: 374623843,
-          deviceName: '一楼楼道监控',
-          deviceStatus: 'on',
-          streamStatus: 'on',
-          deviceType: 'nvr',
-          deviceVendor: '海康',
-          deviceIp: '119.13.44.23',
-          devicePort: 3783,
-          gbId: '235433524',
-          tunnelNum: 120
-        },
-        {
-          deviceId: 374623843,
-          deviceName: '一楼楼道监控',
-          deviceStatus: 'off',
-          streamStatus: 'off',
-          deviceType: 'ipc',
-          deviceVendor: '海康',
-          deviceIp: '119.13.44.23',
-          devicePort: 3783,
-          gbId: '235433524',
-          tunnelNum: 120
-        }
-      ]
-    } else {
-      this.deviceList = [
-        {
-          deviceId: 374623843,
-          deviceName: '一楼楼道监控',
-          streamStatus: 'on',
-          deviceVendor: '海康'
-        },
-        {
-          deviceId: 374623843,
-          deviceName: '一楼楼道监控',
-          streamStatus: 'on',
-          deviceVendor: '海康'
-        }
-      ]
-    }
-  }
 
   private mounted() {
     this.currentGroupId = 1
-    this.currentGroup = this.groupList[0]
-  }
-
-  /**
-   * 打开通道列表
-   */
-  private openTunnelInfo(device: any) {
-    this.currentTunnelInfo = device.deviceId
-  }
-
-  /**
-   * 关闭通道列表
-   */
-  private closeTunnelInfo() {
-    this.currentTunnelInfo = null
+    this.$router.push({
+      name: 'device-list',
+      query: {
+        groupId: this.currentGroupId!.toString()
+      }
+    })
   }
 
   /**
    * 收起/展开目录列表
    */
-  private toggleFolderList() {
+  private toggledirList() {
     this.isExpanded = !this.isExpanded
+  }
+
+  /**
+   * 点击目录项
+   */
+  private ondirItemClick(item: any) {
+    switch (item.type) {
+      case 'dir':
+        this.$router.push({
+          name: 'device-list',
+          query: {
+            groupId: this.currentGroupId!.toString(),
+            type: item.type,
+            id: item.dirId
+          }
+        })
+        break
+      case 'nvr':
+        this.$router.push({
+          name: 'device-list',
+          query: {
+            groupId: this.currentGroupId!.toString(),
+            type: item.type,
+            id: item.deviceId
+          }
+        })
+        break
+      case 'ipc':
+        this.$router.push({
+          name: 'device-preview'
+        })
+        break
+    }
   }
 
   /**
@@ -307,50 +250,23 @@ export default class extends Vue {
   }
 
   /**
-   * 查看详情
+   * 设置左侧宽度
    */
-  private goToDetail(device: any) {
-    this.$router.push({
-      name: 'device-detail',
-      params: {
-        type: this.currentGroup.inProtocol
-      }
-    })
-  }
-
-  /**
-   * 更多菜单
-   */
-  private handleMore(command: any) {
-    switch (command.type) {
-      case 'preview':
-      case 'replay':
-      case 'screenshot':
-        this.$router.push({
-          name: 'device-preview',
-          params: {
-            tab: command.type
-          }
-        })
-        break
-    }
-  }
-
   private changeWidthStart(e: MouseEvent) {
-    const $folderList: any = this.$refs.folderList
-    this.folderDrag.isDragging = true
-    this.folderDrag.start = e.x
-    this.folderDrag.orginWidth = $folderList.clientWidth
+    const $dirList: any = this.$refs.dirList
+    this.dirDrag.isDragging = true
+    this.dirDrag.start = e.x
+    this.dirDrag.orginWidth = $dirList.clientWidth
 
     window.addEventListener('mousemove', (e) => {
-      if (!this.folderDrag.isDragging) return
-      this.folderDrag.offset = this.folderDrag.start - e.x
-      const width = this.folderDrag.orginWidth - this.folderDrag.offset
+      if (!this.dirDrag.isDragging) return
+      this.dirDrag.offset = this.dirDrag.start - e.x
+      const width = this.dirDrag.orginWidth - this.dirDrag.offset
       if (width < 50) return
-      this.folderDrag.width = width
+      this.dirDrag.width = width
     })
     window.addEventListener('mouseup', (e) => {
-      this.folderDrag.isDragging = false
+      this.dirDrag.isDragging = false
     })
   }
 }
@@ -377,10 +293,10 @@ export default class extends Vue {
       position: absolute;
       left: 200px;
       top: 0;
-      margin-left: -16px;
+      margin-left: -8px;
       z-index: 100;
       height: 100%;
-      width: 16px;
+      width: 8px;
       border-right: 1px solid $borderGrey;
       transition: border .1s;
       cursor: ew-resize;
@@ -395,7 +311,7 @@ export default class extends Vue {
       overflow: hidden;
       transition: width .2s;
 
-      .folder-list {
+      .dir-list {
         width: 200px;
         height: 100%;
         display: flex;
@@ -414,6 +330,22 @@ export default class extends Vue {
         }
         &__tree {
           padding: 10px;
+
+          .svg-icon {
+            margin-right: 5px;
+          }
+
+          .custom-tree-node {
+            position: relative;
+            .status-badge {
+              position: absolute;
+              top: -1px;
+              left: -3px;
+              width: 6px;
+              height: 6px;
+              opacity: 0.7;
+            }
+          }
         }
       }
       .el-tree {

@@ -117,92 +117,61 @@ export default class extends Vue {
     total: 20
   }
 
-  private groupList = [
-    {
-      id: 1,
-      groupName: 'RTMP测试组',
-      inProtocol: 'rtmp'
-    }, {
-      id: 2,
-      groupName: 'IPC测试组',
-      inProtocol: 'ipc'
-    }, {
-      id: 3,
-      groupName: '广州电信园区',
-      inProtocol: 'ipc'
-    }
-  ]
-
   private deviceList: Array<Device> = []
 
   private get isIPC() {
-    return this.currentGroup ? this.currentGroup.inProtocol === 'ipc' : false
+    return true
   }
 
-  @Watch('currentGroupId')
-  private onGroupChange(val: any) {
-    this.currentGroup = this.groupList.find(group => group.id === val)
-    if (this.currentGroup.inProtocol === 'ipc') {
-      this.deviceList = [
-        {
-          deviceId: 374623843,
-          deviceName: '一楼楼道监控',
-          deviceStatus: 'on',
-          streamStatus: 'on',
-          deviceType: 'ipc',
-          deviceVendor: '海康',
-          deviceIp: '119.13.44.23',
-          devicePort: 3783,
-          gbId: '235433524',
-          tunnelNum: null
-        },
-        {
-          deviceId: 374623843,
-          deviceName: '一楼楼道监控',
-          deviceStatus: 'on',
-          streamStatus: 'on',
-          deviceType: 'nvr',
-          deviceVendor: '海康',
-          deviceIp: '119.13.44.23',
-          devicePort: 3783,
-          gbId: '235433524',
-          tunnelNum: 120
-        },
-        {
-          deviceId: 374623843,
-          deviceName: '一楼楼道监控',
-          deviceStatus: 'off',
-          streamStatus: 'off',
-          deviceType: 'ipc',
-          deviceVendor: '海康',
-          deviceIp: '119.13.44.23',
-          devicePort: 3783,
-          gbId: '235433524',
-          tunnelNum: 120
-        }
-      ]
-    } else {
-      this.deviceList = [
-        {
-          deviceId: 374623843,
-          deviceName: '一楼楼道监控',
-          streamStatus: 'on',
-          deviceVendor: '海康'
-        },
-        {
-          deviceId: 374623843,
-          deviceName: '一楼楼道监控',
-          streamStatus: 'on',
-          deviceVendor: '海康'
-        }
-      ]
-    }
+  // private get type() {
+  //   return this.
+  // }
+
+  @Watch('$route.query')
+  private onRouterChange() {
+    console.log('change')
+    this.init()
   }
 
-  private mounted() {
-    this.currentGroupId = 1
-    this.currentGroup = this.groupList[0]
-    getDevices({})
+  private init() {
+    this.deviceList = [
+      {
+        deviceId: 374623843,
+        deviceName: '一楼楼道监控',
+        deviceStatus: 'on',
+        streamStatus: 'on',
+        deviceType: 'ipc',
+        deviceVendor: '海康',
+        deviceIp: '119.13.44.23',
+        devicePort: 3783,
+        gbId: '235433524',
+        tunnelNum: null
+      },
+      {
+        deviceId: 374623843,
+        deviceName: '一楼楼道监控',
+        deviceStatus: 'on',
+        streamStatus: 'on',
+        deviceType: 'nvr',
+        deviceVendor: '海康',
+        deviceIp: '119.13.44.23',
+        devicePort: 3783,
+        gbId: '235433524',
+        tunnelNum: 120
+      },
+      {
+        deviceId: 374623843,
+        deviceName: '一楼楼道监控',
+        deviceStatus: 'off',
+        streamStatus: 'off',
+        deviceType: 'ipc',
+        deviceVendor: '海康',
+        deviceIp: '119.13.44.23',
+        devicePort: 3783,
+        gbId: '235433524',
+        tunnelNum: 120
+      }
+    ]
   }
 
   /**
@@ -217,13 +186,6 @@ export default class extends Vue {
    */
   private closeTunnelInfo() {
     this.currentTunnelInfo = null
-  }
-
-  /**
-   * 收起/展开目录列表
-   */
-  private toggleFolderList() {
-    this.isExpanded = !this.isExpanded
   }
 
   /**
