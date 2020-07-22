@@ -188,7 +188,7 @@ export default class extends Vue {
   private setSnapshotTemplateDialog = false
 
   private mounted() {
-    if (this.$route.params.tab) this.activeName = this.$route.params.tab
+    if (this.$route.query.previewTab) this.activeName = this.$route.query.previewTab.toString()
   }
 
   private back() {

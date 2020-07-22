@@ -202,7 +202,7 @@ export const asyncRoutes: RouteConfig[] = [
             }
           },
           {
-            path: 'update/:deviceId',
+            path: 'update',
             component: () => import(/* webpackChunkName: "device" */ '@/views/device/create.vue'),
             name: 'device-update',
             meta: {
@@ -214,7 +214,7 @@ export const asyncRoutes: RouteConfig[] = [
             }
           },
           {
-            path: 'detail/:type',
+            path: 'detail',
             component: () => import(/* webpackChunkName: "device" */ '@/views/device/detail.vue'),
             name: 'device-detail',
             meta: {

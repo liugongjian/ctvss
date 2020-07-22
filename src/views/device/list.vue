@@ -24,20 +24,20 @@
       <el-table-column type="selection" width="55" />
       <el-table-column label="设备ID/名称" min-width="200">
         <template slot-scope="{row}">
-          <div class="device-list__device-name">
+          <div class="device-list__device-name" @click="goInto(row)">
             <div class="device-list__device-id">{{ row.deviceId }}</div>
-            <div @click="goToPreview('preview', row)">
+            <div>
               {{ row.deviceName }} <i class="el-icon-video-camera" />
             </div>
           </div>
         </template>
       </el-table-column>
-      <el-table-column v-if="isIPC" label="类型">
+      <el-table-column v-if="isGb" label="类型">
         <template slot-scope="{row}">
           {{ deviceType[row.deviceType] }}
         </template>
       </el-table-column>
-      <el-table-column v-if="isIPC" label="设备状态">
+      <el-table-column v-if="isGb" label="设备状态">
         <template slot-scope="{row}">
           <status-badge :status="row.deviceStatus" />
           {{ deviceStatus[row.deviceStatus] }}
@@ -50,28 +50,28 @@
         </template>
       </el-table-column>
       <el-table-column label="厂商" prop="deviceVendor" />
-      <el-table-column v-if="isIPC || isNVR" label="设备地址" min-width="150">
+      <el-table-column v-if="isGb || isNVR" label="设备地址" min-width="150">
         <template slot-scope="{row}">
           {{ row.deviceIp }}:{{ row.devicePort }}
         </template>
       </el-table-column>
-      <el-table-column v-if="isIPC || isNVR" label="国标ID" prop="gbId" min-width="150" />
-      <el-table-column v-if="isIPC && !isNVR" label="通道数">
+      <el-table-column v-if="isGb || isNVR" label="国标ID" prop="gbId" min-width="150" />
+      <el-table-column v-if="isGb && !isNVR" label="通道数">
         <template slot-scope="{row}">
-          <el-button v-if="row.tunnelNum" type="text" @click="goToNVR(row)">{{ row.tunnelNum || '-' }}</el-button>
+          <el-button v-if="row.tunnelNum" type="text" @click="goInto(row)">{{ row.tunnelNum || '-' }}</el-button>
           <span v-else>-</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" width="270" fixed="right">
         <template slot-scope="scope">
-          <el-button type="text" @click="goToPreview('preview', scope.row)">监控预览</el-button>
-          <el-button type="text" @click="goToPreview('replay', scope.row)">录制回放</el-button>
-          <el-button type="text" @click="goToPreview('snapshot', scope.row)">查看截图</el-button>
+          <el-button type="text" :disabled="scope.row.deviceType === 'nvr'" @click="goToPreview('preview', scope.row)">监控预览</el-button>
+          <el-button type="text" :disabled="scope.row.deviceType === 'nvr'" @click="goToPreview('replay', scope.row)">录制回放</el-button>
+          <el-button type="text" :disabled="scope.row.deviceType === 'nvr'" @click="goToPreview('snapshot', scope.row)">查看截图</el-button>
           <el-dropdown @command="handleMore">
             <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item v-if="isIPC && !isNVR" :command="{type: 'nvr', device: scope.row}">查看通道</el-dropdown-item>
-              <el-dropdown-item :command="{type: 'detail'}">设备详情</el-dropdown-item>
+              <el-dropdown-item v-if="isGb && scope.row.deviceType === 'nvr'" :command="{type: 'nvr', device: scope.row}">查看通道</el-dropdown-item>
+              <el-dropdown-item :command="{type: 'detail', device: scope.row}">设备详情</el-dropdown-item>
               <el-dropdown-item>停用流</el-dropdown-item>
               <el-dropdown-item v-if="!isNVR">移动至</el-dropdown-item>
               <el-dropdown-item :command="{type: 'edit', device: scope.row}">编辑</el-dropdown-item>
@@ -89,7 +89,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
 import { Device } from '@/type/device'
 import { DeviceStatus, DeviceType } from '@/dics'
 import TunnelInfo from './components/TunnelInfo.vue'
@@ -103,14 +103,11 @@ import { getDevices } from '@/api/device'
   }
 })
 export default class extends Vue {
+  @Inject('deviceRouter') private deviceRouter!: Function
   private deviceStatus = DeviceStatus
   private deviceType = DeviceType
-  private isExpanded = true
   private loading = false
-  private currentGroupId: number | null = null
-  private currentGroup: any | null = null
   private keyword = ''
-  private currentTunnelInfo: number | null = null
   private pager = {
     pageIndex: 1,
     pageSize: 10,
@@ -119,8 +116,8 @@ export default class extends Vue {
 
   private deviceList: Array<Device> = []
 
-  private get isIPC() {
-    return this.$route.query.inProtocol === 'ipc'
+  private get isGb() {
+    return this.$route.query.inProtocol === 'gb'
   }
 
   private get isNVR() {
@@ -129,7 +126,6 @@ export default class extends Vue {
 
   @Watch('$route.query')
   private onRouterChange() {
-    console.log('change')
     this.init()
   }
 
@@ -141,7 +137,7 @@ export default class extends Vue {
     if (this.isNVR) {
       this.deviceList = [
         {
-          deviceId: 374623843,
+          deviceId: 32,
           deviceName: '一楼楼道监控',
           deviceStatus: 'on',
           streamStatus: 'on',
@@ -153,7 +149,7 @@ export default class extends Vue {
           tunnelNum: null
         },
         {
-          deviceId: 374623843,
+          deviceId: 33,
           deviceName: '一楼楼道监控',
           deviceStatus: 'off',
           streamStatus: 'off',
@@ -168,7 +164,7 @@ export default class extends Vue {
     } else {
       this.deviceList = [
         {
-          deviceId: 374623843,
+          deviceId: 34,
           deviceName: '一楼楼道监控',
           deviceStatus: 'on',
           streamStatus: 'on',
@@ -180,7 +176,7 @@ export default class extends Vue {
           tunnelNum: null
         },
         {
-          deviceId: 374623843,
+          deviceId: 31,
           deviceName: '一楼楼道监控',
           deviceStatus: 'on',
           streamStatus: 'on',
@@ -192,7 +188,7 @@ export default class extends Vue {
           tunnelNum: 120
         },
         {
-          deviceId: 374623843,
+          deviceId: 34,
           deviceName: '一楼楼道监控',
           deviceStatus: 'off',
           streamStatus: 'off',
@@ -218,33 +214,23 @@ export default class extends Vue {
   }
 
   /**
-   * 预览
+   * 根据类型进入下一级页面
    */
-  private goToPreview(type: string, device: Device) {
-    this.$router.push({
-      name: 'device-preview',
-      params: {
-        tab: type
-      },
-      query: {
-        id: device.deviceId.toString(),
-        groupId: this.$route.query.groupId
-      }
+  private goInto(device: Device) {
+    this.deviceRouter({
+      id: device.deviceId,
+      type: device.deviceType
     })
   }
 
   /**
-   * 打开通道列表
+   * 预览
    */
-  private goToNVR(device: Device) {
-    this.$router.push({
-      name: 'device-list',
-      query: {
-        id: device.deviceId.toString(),
-        groupId: this.$route.query.groupId,
-        inProtocol: this.$route.query.inProtocol,
-        type: 'nvr'
-      }
+  private goToPreview(previewTab: string, device: Device) {
+    this.deviceRouter({
+      id: device.deviceId,
+      type: device.deviceType,
+      previewTab
     })
   }
 
@@ -255,23 +241,22 @@ export default class extends Vue {
     console.log(command.device)
     switch (command.type) {
       case 'detail':
-        this.$router.push({
-          name: 'device-detail',
-          params: {
-            type: this.currentGroup.inProtocol
-          }
+        this.deviceRouter({
+          id: command.device.deviceId,
+          type: 'detail'
         })
         break
       case 'edit':
         this.$router.push({
           name: 'device-update',
-          params: {
-            deviceId: command.device.deviceId
+          query: {
+            deviceId: command.device.deviceId,
+            ...this.$route.query
           }
         })
         break
       case 'nvr':
-        this.goToNVR(command.device)
+        this.goInto(command.device)
         break
     }
   }
