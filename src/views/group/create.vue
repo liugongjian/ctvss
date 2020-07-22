@@ -61,7 +61,7 @@
           <div class="form-tip">当启用自动拉流，国标设备注册成功后自动启动拉流。关闭该选项后需要通过触发的方式启动拉流。</div>
         </el-form-item>
         <el-form-item label="">
-          <el-button type="primary" @click="submit">确定</el-button>
+          <el-button :loading="loading" type="primary" @click="submit">确定</el-button>
           <el-button @click="back">取 消</el-button>
         </el-form-item>
       </el-form>
@@ -79,6 +79,7 @@ import { createGroup, queryGroup, updateGroup } from '@/api/group'
 })
 export default class extends Vue {
   private breadCrumbContent = ''
+  private loading = false
   private rules = {
     groupName: [
       { required: true, message: '请输入业务组名称', trigger: 'blur' },
@@ -123,8 +124,10 @@ export default class extends Vue {
     let query: any = this.$route.query
     if (query.groupId) {
       this.$set(this.form, 'groupId', query.groupId)
+      this.loading = true
       const res = await queryGroup({ groupId: this.form.groupId })
       this.form = res
+      this.loading = false
     }
   }
 
@@ -167,11 +170,13 @@ export default class extends Vue {
     form.validate(async(valid: any) => {
       if (valid) {
         var res
+        this.loading = true
         if (this.form.groupId) {
           res = await updateGroup(this.form)
         } else {
           res = await createGroup(this.form)
         }
+        this.loading = false
         if (res.errorCode) {
           console.log('error create!!')
         }
