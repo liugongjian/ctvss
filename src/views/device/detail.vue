@@ -125,10 +125,10 @@
           </info-list-item>
           <info-list-item label="截图模板:">
             <div class="info-list__edit">
-              <div class="info-list__edit--value">{{ template.screencutTemplate?template.screencutTemplate:'未配置' }}</div>
+              <div class="info-list__edit--value">{{ template.snapshotTemplate?template.snapshotTemplate:'未配置' }}</div>
               <div class="info-list__edit--action">
-                <el-button type="text" @click="openDialog('setScreenCutTemplate')">设置</el-button>
-                <el-button v-if="template.screencutTemplate" type="text">解绑</el-button>
+                <el-button type="text" @click="openDialog('setSnapshotTemplate')">设置</el-button>
+                <el-button v-if="template.snapshotTemplate" type="text">解绑</el-button>
               </div>
             </div>
           </info-list-item>
@@ -137,7 +137,7 @@
     </el-tabs>
 
     <SetRecordTemplate v-if="dialog.setRecordTemplate" @on-close="closeDialog('setRecordTemplate')" />
-    <SetScreenCutTemplate v-if="dialog.setScreenCutTemplate" @on-close="closeDialog('setScreenCutTemplate')" />
+    <SetSnapshotTemplate v-if="dialog.setSnapshotTemplate" @on-close="closeDialog('setSnapshotTemplate')" />
     <SetAuthConfig v-if="dialog.setAuthConfig" @on-close="closeDialog('setAuthConfig')" />
   </div>
 </template>
@@ -147,7 +147,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import { Device } from '@/type/device'
 import { DeviceStatus, DeviceType, AuthStatus } from '@/dics'
 import SetRecordTemplate from '../components/dialogs/SetRecordTemplate.vue'
-import SetScreenCutTemplate from '../components/dialogs/SetScreenCutTemplate.vue'
+import SetSnapshotTemplate from '../components/dialogs/SetSnapshotTemplate.vue'
 import SetAuthConfig from './components/dialogs/SetAuthConfig.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AntiTheftChain from './components/AntiTheftChain.vue'
@@ -156,7 +156,7 @@ import AntiTheftChain from './components/AntiTheftChain.vue'
   name: 'DeviceDetail',
   components: {
     SetRecordTemplate,
-    SetScreenCutTemplate,
+    SetSnapshotTemplate,
     SetAuthConfig,
     StatusBadge,
     AntiTheftChain
@@ -202,11 +202,11 @@ export default class extends Vue {
   }
   private pushExpired?: number | null = null
   private template = {
-    screencutTemplate: '123'
+    snapshotTemplate: '123'
   }
   private dialog = {
     setRecordTemplate: false,
-    setScreenCutTemplate: false,
+    setSnapshotTemplate: false,
     setAuthConfig: false
   }
 

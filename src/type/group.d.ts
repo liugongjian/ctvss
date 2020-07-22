@@ -10,10 +10,11 @@ export interface Group {
   region?: string;
   createdTime?: number;
   description?: string;
-  pushDomainName?: string;
-  pullDomainName?: string;
+  streamProtocol?: string;
+  sipProtocol?: string;
   sipId?: number;
   sipIp?: string;
   sipTcpPort?: number;
   sipUdpPort?: number;
+  pullType?: number;
 }

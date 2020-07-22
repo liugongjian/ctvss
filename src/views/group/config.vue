@@ -10,7 +10,11 @@
           <info-list-item label="业务组描述:">{{ form.description }}</info-list-item>
           <info-list-item label="服务区域:">{{ form.region }}</info-list-item>
           <info-list-item label="接入类型:">{{ InProtocolType[form.inProtocol] }}</info-list-item>
-          <info-list-item label="播放类型:">{{ form.outProtocol.map(item => OutProtocolType[item]).join(',') }}</info-list-item>
+          <info-list-item
+            label="播放类型:"
+          >
+            {{ form.outProtocol.map(item => OutProtocolType[item]).join(',') }}
+          </info-list-item>
           <info-list-item label="SIP服务器ID:">{{ form.sipId }}</info-list-item>
           <info-list-item label="SIP服务器地址:">{{ form.sipIp }}</info-list-item>
           <info-list-item label="SIP服务器TCP端口:">{{ form.sipTcpPort }}</info-list-item>
@@ -18,36 +22,48 @@
         </info-list>
       </el-tab-pane>
       <el-tab-pane label="模板配置" name="template">
-        <el-form
-          label-position="right"
-          label-width="100px"
-        >
-          <el-form-item label="录制模板:">
-            <div class="info-list__edit">
-              <div class="info-list__edit--value">{{ template.recordTemplate?template.recordTemplate:'未配置' }}</div>
-              <div class="info-list__edit--action">
-                <el-button type="text" @click="setRecordTemplate">设置</el-button>
-                <el-button v-if="template.recordTemplate" type="text">解绑</el-button>
-              </div>
-            </div>
-          </el-form-item>
-          <el-form-item label="截图模板:">
-            <div class="info-list__edit">
-              <div class="info-list__edit--value">{{ template.screencutTemplate?template.screencutTemplate:'未配置' }}</div>
-              <div class="info-list__edit--action">
-                <el-button type="text" @click="setScrrenCutTemplate">设置</el-button>
-                <el-button v-if="template.screencutTemplate" type="text">解绑</el-button>
-              </div>
-            </div>
-          </el-form-item>
-        </el-form>
+        <div>
+          <el-button type="text" class="template-edit" @click="setRecordTemplate">编辑</el-button>
+          <info-list title="录制模板">
+            <el-table :data="template.recordTemplate" fit>
+              <el-table-column prop="templateName" label="模板名称" />
+              <el-table-column prop="interval" label="周期时长" />
+              <el-table-column prop="storeType" label="录制格式">
+                <template slot-scope="{row}">
+                  {{ row.storeType.join(',') }}
+                </template>
+              </el-table-column>
+            </el-table>
+          </info-list>
+        </div>
+        <div>
+          <el-button type="text" class="template-edit" @click="setSnapshotTemplate">编辑</el-button>
+          <info-list title="截图模板">
+            <el-table :data="template.snapshotTemplate" fit>
+              <el-table-column prop="templateName" label="模板名称" />
+              <el-table-column prop="interval" label="周期时长" />
+              <el-table-column prop="storeType" label="录制格式">
+                <template slot-scope="{row}">
+                  {{ row.storeType.join(',') }}
+                </template>
+              </el-table-column>
+            </el-table>
+          </info-list>
+        </div>
       </el-tab-pane>
     </el-tabs>
 
-    <SetRecordTemplate v-if="setRecordTemplateDialog" @on-close="closeSetRecordTemplateDialog" />
-    <SetScreenCutTemplate
-      v-if="setScreenCutTemplateDialog"
-      @on-close="closeSetScrrenCutTemplateDialog"
+    <SetRecordTemplate
+      v-if="setRecordTemplateDialog"
+      :group-id="form.groupId"
+      :region="form.region"
+      @on-close="closeSetRecordTemplateDialog"
+    />
+    <SetSnapshotTemplate
+      v-if="setSnapshotTemplateDialog"
+      :group-id="form.groupId"
+      :region="form.region"
+      @on-close="closeSetSnapshotTemplateDialog"
     />
   </div>
 </template>
@@ -57,13 +73,14 @@ import { Component, Vue } from 'vue-property-decorator'
 import { Group } from '@/type/group'
 import { OutProtocolType, InProtocolType } from '@/dics'
 import SetRecordTemplate from '../components/dialogs/SetRecordTemplate.vue'
-import SetScreenCutTemplate from '../components/dialogs/SetScreenCutTemplate.vue'
+import SetSnapshotTemplate from '../components/dialogs/SetSnapshotTemplate.vue'
+import { queryGroup, getGroupTemplate } from '@/api/group'
 
 @Component({
   name: 'GroupConfig',
   components: {
     SetRecordTemplate,
-    SetScreenCutTemplate
+    SetSnapshotTemplate
   }
 })
 export default class extends Vue {
@@ -83,17 +100,23 @@ export default class extends Vue {
     sipUdpPort: 80
   }
   private template = {
-    screencutTemplate: '123'
+    snapshotTemplate: [],
+    recordTemplate: []
   }
   private setRecordTemplateDialog = false
-  private setScreenCutTemplateDialog = false
+  private setSnapshotTemplateDialog = false
 
   private back() {
     this.$router.push('/group')
   }
 
-  private handleClick(tab: any, event: any) {
+  private async handleClick(tab: any, event: any) {
     this.activeName = tab.name
+    if (this.activeName === 'template') {
+      const res = await getGroupTemplate({ groupId: this.form.groupId })
+      this.template.recordTemplate = res.recordTemplate
+      this.template.snapshotTemplate = res.snapshotTemplate
+    }
   }
 
   private editForm() {
@@ -105,44 +128,65 @@ export default class extends Vue {
     })
   }
 
+  private async mounted() {
+    let query: any = this.$route.query
+    if (query.groupId) {
+      this.$set(this.form, 'groupId', query.groupId)
+      const res = await queryGroup({ groupId: this.form.groupId })
+      this.form = res
+    }
+  }
+
   private setRecordTemplate() {
     this.setRecordTemplateDialog = true
   }
 
-  private setScrrenCutTemplate() {
-    this.setScreenCutTemplateDialog = true
+  private setSnapshotTemplate() {
+    this.setSnapshotTemplateDialog = true
   }
 
   private closeSetRecordTemplateDialog() {
     this.setRecordTemplateDialog = false
   }
 
-  private closeSetScrrenCutTemplateDialog() {
-    this.setScreenCutTemplateDialog = false
+  private closeSetSnapshotTemplateDialog() {
+    this.setSnapshotTemplateDialog = false
   }
 }
 </script>
 <style lang="scss" scoped>
-  .template-edit {
-    display: flex;
-    &--value {
-      min-width: 100px;
-    }
-    &--seperator {
-      display: inline-block;
-      width: 20px;
-      text-align: center;
-      color: $borderGrey;
-    }
+.template-edit {
+  display: flex;
+  &--value {
+    min-width: 100px;
   }
+  &--seperator {
+    display: inline-block;
+    width: 20px;
+    text-align: center;
+    color: $borderGrey;
+  }
+}
 
-  .info-edit {
-    position: absolute;
-    right: 40px;
-    z-index: 10;
-  }
+.info-edit {
+  position: absolute;
+  right: 40px;
+  z-index: 10;
+}
 
-  .el-input, .el-select, .el-textarea {
-    width: 400px;
-  }
+.template-edit {
+  float: right;
+  padding: 0;
+  margin: 0;
+}
+
+.el-input,
+.el-select,
+.el-textarea {
+  width: 400px;
+}
+
+.el-table {
+  margin: 10px 0;
+}
 </style>

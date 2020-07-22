@@ -7,7 +7,7 @@
         :rules="rules"
         :model="form"
         label-position="right"
-        label-width="140px"
+        label-width="160px"
       >
         <el-form-item v-if="form.groupId" label="业务组Id:" prop="groupId">
           <el-input v-model="form.groupId" disabled />
@@ -26,17 +26,9 @@
           <div class="form-tip">服务区域负责对流媒体进行实时处理，包括鉴权、拉流、转码、录制、截图等，请根据处理和存储需求选择</div>
         </el-form-item>
         <el-form-item label="接入类型:" prop="inProtocol">
-          <el-radio-group v-model="form.inProtocol">
+          <el-radio-group v-model="form.inProtocol" @change="inProtocolTypeChange">
             <el-radio v-for="protocol in inProtocolList" :key="protocol" :label="protocol.toLocaleLowerCase()">{{ protocol }}</el-radio>
           </el-radio-group>
-        </el-form-item>
-        <el-form-item label="推流域名:" prop="pushDomainName" class="form-with-tip">
-          <el-input v-model="form.pushDomainName" />
-          <div class="form-tip">视频监控的推流域名，需要进行过备案。如不填写，系统将默认分配ip地址</div>
-        </el-form-item>
-        <el-form-item v-if="form.inProtocol!=='gb28181'" label="播流域名:" prop="pullDomainName">
-          <el-input v-model="form.pullDomainName" />
-          <div class="form-tip">视频监控的播流域名，需要进行过备案。如不填写，系统将默认分配ip地址</div>
         </el-form-item>
         <el-form-item label="播放类型:" prop="outProtocol">
           <el-checkbox-group v-model="form.outProtocol">
@@ -48,6 +40,25 @@
               {{ protocol }}
             </el-checkbox>
           </el-checkbox-group>
+        </el-form-item>
+        <el-form-item v-if="form.inProtocol==='gb28181'" label="sip传输协议:" prop="sipProtocol">
+          <el-radio-group v-model="form.sipProtocol">
+            <el-radio label="tcp">TCP</el-radio>
+            <el-radio label="udp">UDP</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item v-if="form.inProtocol==='gb28181'" label="流媒体传输协议:" prop="streamProtocol">
+          <el-radio-group v-model="form.streamProtocol">
+            <el-radio label="tcp">TCP</el-radio>
+            <el-radio label="udp">UDP</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="是否启用自动拉流:" prop="pullType">
+          <el-radio-group v-model="form.pullType">
+            <el-radio :label="1">开启</el-radio>
+            <el-radio :label="2">关闭</el-radio>
+          </el-radio-group>
+          <div class="form-tip">当启用自动拉流，国标设备注册成功后自动启动拉流。关闭该选项后需要通过触发的方式启动拉流。</div>
         </el-form-item>
         <el-form-item label="">
           <el-button type="primary" @click="submit">确定</el-button>
@@ -61,6 +72,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Group } from '@/type/group'
 import { InProtocolType, OutProtocolType } from '@/dics'
+import { createGroup, queryGroup, updateGroup } from '@/api/group'
 
 @Component({
   name: 'CreateGroup'
@@ -81,6 +93,15 @@ export default class extends Vue {
     outProtocol: [
       { required: true, message: '请选择播放类型', trigger: 'change' },
       { validator: this.validateOutProtocol, trigger: 'change' }
+    ],
+    sipProtocol: [
+      { required: true, message: '请选择sip传输协议', trigger: 'change' }
+    ],
+    streamProtocol: [
+      { required: true, message: '请选择流媒体传输协议', trigger: 'change' }
+    ],
+    pullType: [
+      { required: true, message: '请选择是否开启自动拉流', trigger: 'change' }
     ]
   }
   private regionList = ['华东', '华南', '华北']
@@ -92,27 +113,18 @@ export default class extends Vue {
     region: '华东',
     inProtocol: 'gb28181',
     outProtocol: [],
-    pushDomainName: '',
-    pullDomainName: ''
+    streamProtocol: 'tcp',
+    sipProtocol: 'tcp',
+    pullType: 1
   }
 
-  private mounted() {
+  private async mounted() {
     this.breadCrumbContent = this.$route.meta.title
     let query: any = this.$route.query
     if (query.groupId) {
       this.$set(this.form, 'groupId', query.groupId)
-      this.form = {
-        groupId: 327439123674913,
-        groupName: '上海电信园区监控',
-        description: '用于办公楼道内安全监控',
-        inProtocol: 'rtmp',
-        outProtocol: ['flv', 'hls'],
-        region: '华东',
-        sipId: 310132328883832,
-        sipIp: '192.34.83.132',
-        sipTcpPort: 5060,
-        sipUdpPort: 80
-      }
+      const res = await queryGroup({ groupId: this.form.groupId })
+      this.form = res
     }
   }
 
@@ -132,6 +144,16 @@ export default class extends Vue {
     }
   }
 
+  private inProtocolTypeChange(val: String) {
+    if (val === 'gb28181') {
+      this.form.streamProtocol = 'tcp'
+      this.form.sipProtocol = 'tcp'
+    } else {
+      this.form.streamProtocol = ''
+      this.form.sipProtocol = ''
+    }
+  }
+
   private back() {
     if (this.$route.name === 'group-update') {
       this.$router.push('/group/config')
@@ -142,9 +164,17 @@ export default class extends Vue {
 
   private submit() {
     const form: any = this.$refs.dataForm
-    form.validate((valid: any) => {
+    form.validate(async(valid: any) => {
       if (valid) {
-        console.log('submit')
+        var res
+        if (this.form.groupId) {
+          res = await updateGroup(this.form)
+        } else {
+          res = await createGroup(this.form)
+        }
+        if (res.errorCode) {
+          console.log('error create!!')
+        }
       } else {
         console.log('error submit!!')
         return false

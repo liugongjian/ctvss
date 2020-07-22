@@ -38,10 +38,10 @@
             </info-list-item>
             <info-list-item label="录制模版:">
               <div class="info-list__edit">
-                <div class="info-list__edit--value">{{ template.screencutTemplate?template.screencutTemplate:'未配置' }}</div>
+                <div class="info-list__edit--value">{{ template.snapshotTemplate?template.snapshotTemplate:'未配置' }}</div>
                 <div class="info-list__edit--action">
                   <el-button type="text" @click="setScrrenCutTemplate">设置</el-button>
-                  <el-button v-if="template.screencutTemplate" type="text">解绑</el-button>
+                  <el-button v-if="template.snapshotTemplate" type="text">解绑</el-button>
                 </div>
               </div>
             </info-list-item>
@@ -133,8 +133,8 @@
     </div>
 
     <SetRecordTemplate v-if="setRecordTemplateDialog" @on-close="closeSetRecordTemplateDialog" />
-    <SetScreenCutTemplate
-      v-if="setScreenCutTemplateDialog"
+    <SetSnapshotTemplate
+      v-if="setSnapshotTemplateDialog"
       @on-close="closeSetScrrenCutTemplateDialog"
     />
   </div>
@@ -145,14 +145,14 @@ import { Component, Vue } from 'vue-property-decorator'
 import { DeviceStatus, DeviceType, AuthStatus } from '@/dics'
 import { dateFormatInTable, dateFormat } from '@/utils/date'
 import SetRecordTemplate from '../components/dialogs/SetRecordTemplate.vue'
-import SetScreenCutTemplate from '../components/dialogs/SetScreenCutTemplate.vue'
+import SetSnapshotTemplate from '../components/dialogs/SetSnapshotTemplate.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 
 @Component({
   name: 'DevicePreview',
   components: {
     SetRecordTemplate,
-    SetScreenCutTemplate,
+    SetSnapshotTemplate,
     StatusBadge
   }
 })
@@ -182,10 +182,10 @@ export default class extends Vue {
   private replayRange = null
   private snapshotRange = null
   private template = {
-    screencutTemplate: '123'
+    snapshotTemplate: '123'
   }
   private setRecordTemplateDialog = false
-  private setScreenCutTemplateDialog = false
+  private setSnapshotTemplateDialog = false
 
   private mounted() {
     if (this.$route.params.tab) this.activeName = this.$route.params.tab
@@ -204,7 +204,7 @@ export default class extends Vue {
   }
 
   private setScrrenCutTemplate() {
-    this.setScreenCutTemplateDialog = true
+    this.setSnapshotTemplateDialog = true
   }
 
   private closeSetRecordTemplateDialog() {
@@ -212,7 +212,7 @@ export default class extends Vue {
   }
 
   private closeSetScrrenCutTemplateDialog() {
-    this.setScreenCutTemplateDialog = false
+    this.setSnapshotTemplateDialog = false
   }
 
   private changeReplay() {}

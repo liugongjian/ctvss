@@ -42,18 +42,19 @@
         <el-table-column prop="createdTime" label="创建时间" :formatter="dateFormatInTable" min-width="160" />
         <el-table-column prop="action" label="操作" width="250" fixed="right">
           <template slot-scope="scope">
-            <el-button type="text" @click="goToConfig">业务组配置</el-button>
+            <el-button type="text" @click="goToConfig(scope.row)">业务组配置</el-button>
             <el-button type="text">设备管理</el-button>
-            <el-button v-if="scope.row.groupStatus==='on'" type="text" @click="stop(scope.row)">停用</el-button>
-            <el-button v-if="scope.row.groupStatus==='off'" type="text" @click="start(scope.row)">启用</el-button>
-            <el-button :disabled="scope.row.groupStatus==='on'" type="text">删除</el-button>
+            <el-button v-if="scope.row.groupStatus==='on'" type="text" @click="stopGroup(scope.row)">停用</el-button>
+            <el-button v-if="scope.row.groupStatus==='off'" type="text" @click="startGroup(scope.row)">启用</el-button>
+            <el-button :disabled="scope.row.groupStatus==='on'" type="text" @click="deleteGroup(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
       <el-pagination
-        :current-page="pager.currentIndex"
-        :page-size="pager.size"
+        :current-page="pager.pageIndex"
+        :page-size="pager.pageSize"
         :total="pager.total"
+        layout="total, sizes, prev, pager, next, jumper"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
       />
@@ -67,6 +68,7 @@ import { Group } from '@/type/group'
 import { GroupStatus, InProtocolType } from '@/dics'
 import { dateFormatInTable } from '@/utils/date'
 import StatusBadge from '@/components/StatusBadge/index.vue'
+import { getGroups, startGroup, stopGroup, deleteGroup } from '@/api/group'
 
 @Component({
   name: 'GroupList',
@@ -76,70 +78,73 @@ export default class extends Vue {
   private groupStatus = GroupStatus
   private inProtocolType = InProtocolType
   private groupName = ''
-  private dataList: Array<Group> = [{
-    groupId: 327439123674913,
-    groupName: '上海电信园区监控',
-    groupStatus: 'on',
-    groupStats: {
-      deviceSize: 12
-    },
-    inProtocol: 'gb28181',
-    region: '华东',
-    createdTime: 1594260926566
-  },
-  {
-    groupId: 327439123674913,
-    groupName: '上海电信园区监控',
-    groupStatus: 'off',
-    groupStats: {
-      deviceSize: 2
-    },
-    inProtocol: 'rtmp',
-    region: '华东',
-    createdTime: 1594260926566
-  }]
+  private dataList: Array<Group> = []
   private pager = {
-    total: 0,
-    currentIndex: 1,
-    size: 10
+    pageIndex: 1,
+    pageSize: 10,
+    total: 20
   }
 
   private dateFormatInTable = dateFormatInTable
 
-  private refresh() {
-    console.log('resfresh')
+  private async mounted() {
+    await this.getList()
   }
 
-  private getList() {
-    console.log('getList')
+  private async refresh() {
+    await this.getList()
   }
 
-  private handleSizeChange(val: number) {
-    console.log('sizeChange')
+  private async getList() {
+    let params = {
+      keyWord: this.groupName,
+      pageNum: this.pager.pageIndex,
+      pageSize: this.pager.pageSize
+    }
+    const res = await getGroups(params)
+    this.dataList = res.groups
+    this.pager.total = res.total
+    this.pager.pageIndex = res.pageNum
+    this.pager.pageSize = res.pageSize
   }
 
-  private handleCurrentChange(val: number) {
-    console.log('currentChange')
+  private async handleSizeChange(val: number) {
+    this.pager.pageSize = val
+    await this.getList()
+  }
+
+  private async handleCurrentChange(val: number) {
+    this.pager.pageIndex = val
+    await this.getList()
   }
 
   private handleCreate() {
     this.$router.push('/group/create')
   }
 
-  private handleFilter() {
-    console.log('filter')
+  private async handleFilter() {
+    await this.getList()
   }
 
-  private stop(row: any) {
-    console.log(row)
+  private async stopGroup(row: Group) {
+    await stopGroup({ groupId: row.groupId })
   }
 
-  private start(row: any) {
-    console.log(row)
+  private async startGroup(row: Group) {
+    await startGroup({ groupId: row.groupId })
   }
 
-  private goToConfig() {
-    this.$router.push('/group/config')
+  private async deleteGroup(row: Group) {
+    await deleteGroup({ groupId: row.groupId })
+  }
+
+  private goToConfig(row: Group) {
+    this.$router.push({
+      path: '/group/config',
+      query: {
+        groupId: row.groupId!.toString()
+      }
+    })
   }
 }
 </script>

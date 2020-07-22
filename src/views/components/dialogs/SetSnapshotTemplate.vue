@@ -1,18 +1,14 @@
 <template>
   <el-dialog
-    title="设置录制模板"
+    title="设置截图模板"
     :visible="dialogVisible"
     :close-on-click-modal="false"
     @close="closeDialog"
   >
-    <el-table :data="list" fit highlight-current-row style="width: 100%;">
-      <!-- <el-table-column prop="select" width="55">
-        <template slot-scope="{row}">
-          <el-checkbox v-model="row.select"></el-checkbox>
-        </template>
-      </el-table-column> -->
-      <el-table-column prop="templateName" label="模板名称" />
-      <el-table-column prop="storeType" label="录制格式">
+    <el-table :data="list" highlight-current-row>
+      <!-- <el-table-column type="selection" width="55" /> -->
+      <el-table-column prop="templateName" label="模板名称" width="100" />
+      <el-table-column prop="storeType" label="存储格式">
         <template slot-scope="{row}">
           {{ row.storeType.join(',') }}
         </template>
@@ -27,10 +23,10 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { getRecordTemplates } from '@/api/group'
+import { getSnapshotTemplates } from '@/api/group'
 
 @Component({
-  name: 'SetRecordTemplate'
+  name: 'SetSnapshotTemplate'
 })
 export default class extends Vue {
   @Prop() private groupId?: string
@@ -38,14 +34,14 @@ export default class extends Vue {
   private dialogVisible = true
   private list = [
     {
-      templateName: '30分钟录制',
-      format: 'MP4, FLV, HLS',
-      duration: '20分钟'
+      templateName: '截图策略1',
+      format: '覆盖式截图',
+      duration: '30秒'
     },
     {
-      templateName: '30分钟录制',
-      format: 'MP4, FLV, HLS',
-      duration: '20分钟'
+      templateName: '截图策略2',
+      format: '覆盖式截图',
+      duration: '30秒'
     }
   ]
   private closeDialog() {
@@ -54,7 +50,7 @@ export default class extends Vue {
   }
   private choose() {}
   private async mounted() {
-    const res = await getRecordTemplates({
+    const res = await getSnapshotTemplates({
       groupId: this.groupId,
       region: this.region
     })
