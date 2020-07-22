@@ -16,11 +16,9 @@
       <el-table-column type="selection" width="55" />
       <el-table-column prop="templateName" label="模板名称" />
       <el-table-column prop="storeType" label="录制格式">
-        <template slot-scope="{row}">
-          {{ row.storeType.join(',') }}
-        </template>
+        <template slot-scope="{row}">{{ row.storeType && row.storeType.join(',') }}</template>
       </el-table-column>
-      <el-table-column prop="interval" label="录制周期" />
+      <el-table-column prop="interval" label="录制周期" :formatter="formatSeconds" />
     </el-table>
     <span slot="footer" class="dialog-footer">
       <el-button @click="closeDialog">取 消</el-button>
