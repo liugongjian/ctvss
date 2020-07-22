@@ -120,7 +120,10 @@ export default class extends Vue {
   }
 
   private back() {
-    this.$router.push('/device')
+    this.$router.push({
+      name: 'device-list',
+      query: this.$route.query
+    })
   }
 
   private submit() {

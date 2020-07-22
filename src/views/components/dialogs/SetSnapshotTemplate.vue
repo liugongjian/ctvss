@@ -10,7 +10,7 @@
       <el-table-column prop="templateName" label="模板名称" width="100" />
       <el-table-column prop="storeType" label="存储格式">
         <template slot-scope="{row}">
-          {{ row.storeType.join(',') }}
+          {{ row.storeType && row.storeType.join(',') }}
         </template>
       </el-table-column>
       <el-table-column prop="interval" label="录制周期" />

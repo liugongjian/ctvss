@@ -8,10 +8,12 @@
   >
     <el-form-item label="是否匿名:" prop="anonymous" class="form-with-tip">
       <el-switch v-model="form.anonymous" />
-      <div class="form-tip">当选择匿名密码为国标设备凭证时，设备注册时将使用设备ID作为凭证用户名。</div>
+      <div class="form-tip">当选择匿名密码为国标设备凭证时，设备注册时将使用设备ID作为SIP用户认证ID。</div>
     </el-form-item>
-    <el-form-item v-if="!form.anonymous" label="用户名:" prop="username">
+    <el-form-item :label="form.anonymous ? '用户别名:' : 'SIP用户认证ID:'" prop="username" class="form-with-tip">
       <el-input v-model="form.username" />
+      <div v-if="form.anonymous" class="form-tip">当选择匿名密码为国标设备凭证时，用户别名仅用于凭证管理，便于记忆。</div>
+      <div v-else class="form-tip">设备注册时将使用当前输入值作为SIP用户认证ID。</div>
     </el-form-item>
     <el-form-item label="密码:" prop="password">
       <el-input v-model="form.password" show-password />

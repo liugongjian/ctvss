@@ -1,6 +1,5 @@
 <template>
   <div class="app-container">
-    <el-page-header content="设备详情" @back="back" />
     <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane label="基本信息" name="info">
         <el-button type="text" class="info-edit" @click="editForm">编辑</el-button>

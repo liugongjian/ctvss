@@ -33,10 +33,15 @@
             </div>
             <div class="dir-list__tree">
               <el-tree
+                ref="dirTree"
                 :data="dirList"
                 node-key="id"
                 highlight-current
-                @node-click="onDirItemClick"
+                lazy
+                :load="loadDirs"
+                :props="treeProp"
+                :current-node-key="defaultKey"
+                @node-click="deviceRouter"
               >
                 <span slot-scope="{node, data}" class="custom-tree-node">
                   <svg-icon :name="data.type" color="#6e7c89" />
@@ -49,30 +54,31 @@
         </div>
         <div class="device-list__right">
           <div class="breadcrumb">
-            <span class="breadcrumb__item">全部设备</span>
-            <span class="breadcrumb__item">区域一</span>
-            <span class="breadcrumb__item">一号楼</span>
+            <span
+              v-for="item in breadcrumb"
+              :key="item.id"
+              class="breadcrumb__item"
+              @click="deviceRouter(item)"
+            >
+              {{ item.label }}
+            </span>
           </div>
           <router-view />
         </div>
       </div>
     </el-card>
-    <transition name="fade">
-      <tunnel-info v-if="currentTunnelInfo" @close="closeTunnelInfo" />
-    </transition>
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Component, Vue, Watch, Provide } from 'vue-property-decorator'
 import { Device } from '@/type/device'
 import { Group } from '@/type/group'
 import { DeviceStatus, DeviceType } from '@/dics'
-import TunnelInfo from './components/TunnelInfo.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
+import { resolve } from 'dns'
 
 @Component({
   components: {
-    TunnelInfo,
     StatusBadge
   }
 })
@@ -84,7 +90,7 @@ export default class extends Vue {
   private currentGroupId: number | null = null
   private currentGroup: Group | null = null
   private keyword = ''
-  private currentTunnelInfo: number | null = null
+  private breadcrumb: Array<any> = []
   private pager = {
     pageIndex: 1,
     pageSize: 10,
@@ -98,11 +104,17 @@ export default class extends Vue {
     width: 200
   }
 
+  private treeProp = {
+    label: 'label',
+    children: 'children',
+    isLeaf: 'isLeaf'
+  }
+
   private groupList = [
     {
       id: 1,
       groupName: 'IPC测试组',
-      inProtocol: 'ipc'
+      inProtocol: 'gb'
     }, {
       id: 2,
       groupName: 'RTMP测试组',
@@ -110,7 +122,7 @@ export default class extends Vue {
     }, {
       id: 3,
       groupName: '广州电信园区',
-      inProtocol: 'ipc'
+      inProtocol: 'gb'
     }
   ]
 
@@ -118,81 +130,33 @@ export default class extends Vue {
 
   private dirList = [{
     label: '区域一',
-    dirId: 1,
+    id: 1,
     type: 'dir',
     children: [{
       label: '一号楼',
-      dirId: 4,
+      id: 4,
       type: 'dir',
       children: [{
-        label: 'NVR设备',
-        deviceId: 3,
-        type: 'nvr',
-        children: [{
-          label: '工厂园区37号楼一层A区通道No.311',
-          deviceId: 4,
-          type: 'ipc',
-          streamStatus: 'on'
-        }, {
-          label: '通道2',
-          deviceId: 5,
-          type: 'ipc',
-          streamStatus: 'off'
-        }, {
-          label: '通道3',
-          deviceId: 6,
-          type: 'ipc',
-          streamStatus: 'off'
-        }, {
-          label: '通道4',
-          deviceId: 7,
-          type: 'ipc',
-          streamStatus: 'on'
-        }]
-      }, {
-        label: '设备三',
-        deviceId: 4,
-        type: 'ipc',
-        streamStatus: 'on'
-      }, {
-        label: '设备四',
-        deviceId: 5,
-        type: 'ipc',
-        streamStatus: 'off'
+        label: '一楼',
+        id: 5,
+        type: 'dir',
+        children: []
       }]
     }, {
       label: '二号楼',
-      dirId: 3,
+      id: 3,
       type: 'dir',
-      children: [{
-        label: '设备一',
-        deviceId: 4,
-        type: 'ipc',
-        streamStatus: 'on'
-      }, {
-        label: '设备二',
-        deviceId: 4,
-        type: 'ipc',
-        streamStatus: 'on'
-      }, {
-        label: '设备三',
-        deviceId: 4,
-        type: 'ipc',
-        streamStatus: 'on'
-      }, {
-        label: '设备四',
-        deviceId: 4,
-        type: 'ipc',
-        streamStatus: 'on'
-      }]
+      children: []
     }]
-  },
-  {
-    label: '未分类设备',
-    deviceId: 5,
-    type: 'ipc',
-    streamStatus: 'on'
   }]
+
+  private get defaultKey() {
+    const id = this.$route.query.id
+    if (!id) {
+      return null
+    }
+    return parseInt(id.toString())
+  }
 
   private mounted() {
     this.currentGroupId = 1
@@ -206,6 +170,14 @@ export default class extends Vue {
         }
       })
     }
+    this.initTreeStatus()
+  }
+
+  /**
+   * 创建设备
+   */
+  private handleCreate() {
+    this.$router.push('/device/create')
   }
 
   /**
@@ -216,48 +188,177 @@ export default class extends Vue {
   }
 
   /**
-   * 点击目录项
+   * 初始化目录状态
    */
-  private onDirItemClick(item: any) {
+  private async initTreeStatus() {
+    const dirTree: any = this.$refs.dirTree
+    const path: string | (string | null)[] | null = this.$route.query.path
+    const keyPath = path ? path.toString().split(',') : null
+    if (keyPath) {
+      for (let i = 0; i < keyPath.length; i++) {
+        const _key = parseInt(keyPath[i])
+        const node = dirTree.getNode(_key)
+        if (node) {
+          await this.loadDirChildren(_key, node)
+          if (i === keyPath.length - 1) {
+            this.breadcrumb = this.getDirPath(node).reverse()
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * 加载子目录
+   */
+  private async loadDirChildren(key: number, node: any) {
+    const dirTree: any = this.$refs.dirTree
+    let data = node.data.children || []
+    let deviceData = await this.loadDevices(node)
+    if (deviceData) {
+      data = data.concat(deviceData)
+    }
+    dirTree.updateKeyChildren(key, data)
+    node.expanded = true
+    node.loaded = true
+  }
+
+  /**
+   * 设备页面路由
+   */
+  @Provide('deviceRouter')
+  private deviceRouter(item: any, node: any) {
+    const dirTree: any = this.$refs.dirTree
+    let _node: any
+    if (!node) {
+      _node = dirTree.getNode(item.id)
+      if (!_node.loaded) {
+        this.loadDirChildren(item.id, _node)
+      }
+      _node.parent.expanded = true
+      dirTree.setCurrentKey(item.id)
+    } else {
+      _node = node
+    }
+    this.breadcrumb = this.getDirPath(_node).reverse()
     let router: any
+    let query: any = {}
     switch (item.type) {
       case 'dir':
         router = {
-          name: 'device-list',
-          query: {
-            id: item.dirId.toString()
-          }
+          name: 'device-list'
         }
         break
       case 'nvr':
         router = {
-          name: 'device-list',
-          query: {
-            id: item.deviceId.toString()
-          }
+          name: 'device-list'
         }
         break
       case 'ipc':
         router = {
-          name: 'device-preview',
-          query: {
-            deviceId: item.deviceId.toString()
-          }
+          name: 'device-preview'
+        }
+        query = {
+          previewTab: item.previewTab
+        }
+        break
+      case 'detail':
+        router = {
+          name: 'device-detail'
         }
         break
     }
-    router.query.groupId = this.currentGroupId!.toString()
-    router.query.inProtocol = this.currentGroup!.inProtocol
-    router.query.type = item.type
+    router.query = {
+      id: item.id.toString(),
+      groupId: this.currentGroupId!.toString(),
+      inProtocol: this.currentGroup!.inProtocol,
+      type: item.type,
+      path: this.breadcrumb.map(item => item.id).join(','),
+      ...query
+    }
     if (JSON.stringify(this.$route.query) === JSON.stringify(router.query)) return
     this.$router.push(router)
   }
 
   /**
-   * 创建设备
+   * 加载设备
    */
-  private handleCreate() {
-    this.$router.push('/device/create')
+  private loadDevices(node: any) {
+    return new Promise((resolve, reject) => {
+      const item = node.data
+      setTimeout(() => {
+        let data
+        if (item.id === 4) {
+          data = [{
+            label: 'NVR设备',
+            id: 31,
+            type: 'nvr'
+          }, {
+            label: '设备三',
+            id: 34,
+            type: 'ipc',
+            streamStatus: 'on',
+            isLeaf: true
+          }]
+        }
+        if (item.id === 31) {
+          data = [{
+            label: '工厂园区37号楼一层A区通道No.311',
+            id: 32,
+            type: 'ipc',
+            streamStatus: 'on',
+            isLeaf: true
+          }, {
+            label: '通道2',
+            id: 33,
+            type: 'ipc',
+            streamStatus: 'off',
+            isLeaf: true
+          }]
+        }
+        resolve(data)
+      }, 500)
+    })
+  }
+
+  /**
+   * 加载目录
+   */
+  private async loadDirs(node: any, resolve: Function) {
+    if (node.isLeaf) return resolve([])
+    if (node.level === 0) {
+      resolve(node.data)
+    } else {
+      console.log(node)
+      let data = node.data.children || []
+      let deviceData = await this.loadDevices(node)
+      if (deviceData) {
+        data = data.concat(deviceData)
+      }
+      resolve(data)
+    }
+  }
+
+  /**
+   * 获取树菜单路径
+   */
+  private getDirPath(node: any) {
+    let path: any = []
+    const _getPath = (node: any, path: any) => {
+      const data = node.data
+      if (data.id) {
+        path.push({
+          id: data.id,
+          label: data.label,
+          type: data.type
+        })
+      }
+      if (node.parent) {
+        _getPath(node.parent, path)
+      }
+    }
+    _getPath(node, path)
+    return path
   }
 
   /**
@@ -332,6 +433,7 @@ export default class extends Vue {
           border-bottom: 1px solid $borderGrey;
           text-align: right;
           padding-right: 5px;
+          background: #f8f8f8;
           .el-button--text {
             margin: 0;
             padding: 12px 5px;
@@ -386,6 +488,7 @@ export default class extends Vue {
       border-right: 1px solid $borderGrey;
       font-size: 18px;
       padding: 10px 15px;
+      background: #f8f8f8;
     }
 
     .breadcrumb {
@@ -393,7 +496,11 @@ export default class extends Vue {
       line-height: 40px;
       padding-left: 15px;
       border-bottom: 1px solid $borderGrey;
+      background: #f8f8f8;
       transition: padding-left .2s;
+      &__item {
+        cursor: pointer;
+      }
       &__item:after {
         content: '/';
         color: $textGrey;
