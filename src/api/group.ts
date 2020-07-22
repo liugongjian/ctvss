@@ -69,3 +69,17 @@ export const getSnapshotTemplates = (params: any): Promise<any> =>
     method: 'get',
     params
   })
+
+export const setRecordTemplates = (params: any): Promise<any> =>
+  request({
+    url: '/group/template/record',
+    method: 'post',
+    data: params
+  })
+
+export const setSnapshotTemplates = (params: any): Promise<any> =>
+  request({
+    url: '/group/template/snapshot',
+    method: 'post',
+    data: params
+  })

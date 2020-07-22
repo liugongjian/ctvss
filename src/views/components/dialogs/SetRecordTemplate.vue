@@ -7,7 +7,7 @@
   >
     <el-table
       ref="multipleTable"
-      v-loading="loading"
+      v-loading="tableLoading"
       :data="list"
       fit
       highlight-current-row
@@ -22,13 +22,13 @@
     </el-table>
     <span slot="footer" class="dialog-footer">
       <el-button @click="closeDialog">取 消</el-button>
-      <el-button type="primary" @click="closeDialog">确 定</el-button>
+      <el-button :loading="buttonLoading" type="primary" @click="choose">确 定</el-button>
     </span>
   </el-dialog>
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { getRecordTemplates } from '@/api/group'
+import { getRecordTemplates, setRecordTemplates } from '@/api/group'
 import { formatSeconds } from '@/utils/interval'
 
 @Component({
@@ -36,10 +36,10 @@ import { formatSeconds } from '@/utils/interval'
 })
 export default class extends Vue {
   @Prop() private groupId?: string
-  @Prop() private region?: string
   @Prop() private selectedList?: Array<any>
   private dialogVisible = true
-  private loading = false
+  private tableLoading = false
+  private buttonLoading = false
   private list = [
     {
       templateId: '0001',
@@ -55,29 +55,45 @@ export default class extends Vue {
     }
   ]
   private multipleSelection = []
+
   private formatSeconds = formatSeconds
+
   private closeDialog() {
     this.dialogVisible = false
     this.$emit('on-close')
   }
-  private choose() {}
-  private async mounted() {
-    this.loading = true
-    const res = await getRecordTemplates({
+
+  private async choose() {
+    let templateIdList: Array<string> = []
+    this.list.forEach(item => {
+      templateIdList.push(item.templateId)
+    })
+    let params = {
       groupId: this.groupId,
-      region: this.region
+      templateId: templateIdList
+    }
+    this.buttonLoading = true
+    await setRecordTemplates(params)
+    this.buttonLoading = false
+  }
+
+  private async mounted() {
+    this.tableLoading = true
+    const res = await getRecordTemplates({
+      groupId: this.groupId
     })
     this.list = res.templates
-    this.loading = false
+    this.tableLoading = false
     this.$nextTick(() => {
       this.list.forEach(item => {
-        if (this.selectedList!.indexOf(item.templateId) !== -1) {
+        if (this.selectedList!.includes(item.templateId)) {
           const ref: any = this.$refs.multipleTable
           ref.toggleRowSelection(item)
         }
       })
     })
   }
+
   private handleSelectionChange(val: any) {
     this.multipleSelection = val
   }

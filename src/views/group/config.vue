@@ -56,14 +56,12 @@
     <SetRecordTemplate
       v-if="setRecordTemplateDialog"
       :group-id="form.groupId"
-      :region="form.region"
       :selected-list="template.recordTemplate"
       @on-close="closeSetRecordTemplateDialog"
     />
     <SetSnapshotTemplate
       v-if="setSnapshotTemplateDialog"
       :group-id="form.groupId"
-      :region="form.region"
       :selected-list="template.snapshotTemplate"
       @on-close="closeSetSnapshotTemplateDialog"
     />
