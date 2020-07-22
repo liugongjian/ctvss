@@ -27,7 +27,7 @@
           <info-list title="录制模板">
             <el-table :data="template.recordTemplate" fit>
               <el-table-column prop="templateName" label="模板名称" />
-              <el-table-column prop="interval" label="周期时长" />
+              <el-table-column prop="interval" label="周期时长" :formatter="formatSeconds" />
               <el-table-column prop="storeType" label="录制格式">
                 <template slot-scope="{row}">
                   {{ row.storeType.join(',') }}
@@ -41,7 +41,7 @@
           <info-list title="截图模板">
             <el-table :data="template.snapshotTemplate" fit>
               <el-table-column prop="templateName" label="模板名称" />
-              <el-table-column prop="interval" label="周期时长" />
+              <el-table-column prop="interval" label="周期时长" :formatter="formatSeconds" />
               <el-table-column prop="storeType" label="录制格式">
                 <template slot-scope="{row}">
                   {{ row.storeType.join(',') }}
@@ -57,12 +57,14 @@
       v-if="setRecordTemplateDialog"
       :group-id="form.groupId"
       :region="form.region"
+      :selected-list="template.recordTemplate"
       @on-close="closeSetRecordTemplateDialog"
     />
     <SetSnapshotTemplate
       v-if="setSnapshotTemplateDialog"
       :group-id="form.groupId"
       :region="form.region"
+      :selected-list="template.snapshotTemplate"
       @on-close="closeSetSnapshotTemplateDialog"
     />
   </div>
@@ -75,6 +77,7 @@ import { OutProtocolType, InProtocolType } from '@/dics'
 import SetRecordTemplate from '../components/dialogs/SetRecordTemplate.vue'
 import SetSnapshotTemplate from '../components/dialogs/SetSnapshotTemplate.vue'
 import { queryGroup, getGroupTemplate } from '@/api/group'
+import { formatSeconds } from '@/utils/interval'
 
 @Component({
   name: 'GroupConfig',
@@ -106,6 +109,7 @@ export default class extends Vue {
   private setRecordTemplateDialog = false
   private setSnapshotTemplateDialog = false
 
+  private formatSeconds = formatSeconds
   private back() {
     this.$router.push('/group')
   }

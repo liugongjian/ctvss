@@ -17,7 +17,7 @@
           <el-button class="el-button-rect" icon="el-icon-refresh" @click="refresh" />
         </div>
       </div>
-      <el-table :data="dataList" fit>
+      <el-table v-loading="loading" :data="dataList" fit>
         <el-table-column prop="groupId" label="业务组ID/名称" min-width="200">
           <template slot-scope="{row}">
             <router-link to="/group/config">{{ row.groupId }}</router-link>
@@ -75,6 +75,7 @@ import { getGroups, startGroup, stopGroup, deleteGroup } from '@/api/group'
   components: { StatusBadge }
 })
 export default class extends Vue {
+  private loading = false
   private groupStatus = GroupStatus
   private inProtocolType = InProtocolType
   private groupName = ''
@@ -96,6 +97,7 @@ export default class extends Vue {
   }
 
   private async getList() {
+    this.loading = true
     let params = {
       keyWord: this.groupName,
       pageNum: this.pager.pageIndex,
@@ -106,6 +108,7 @@ export default class extends Vue {
     this.pager.total = res.total
     this.pager.pageIndex = res.pageNum
     this.pager.pageSize = res.pageSize
+    this.loading = false
   }
 
   private async handleSizeChange(val: number) {
