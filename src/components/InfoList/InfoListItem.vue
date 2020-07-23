@@ -23,7 +23,8 @@ export default class extends Vue {
   .info-item {
     display: flex;
     padding: 15px 0;
-    align-items: center;
+    align-items: top;
+    line-height: 150%;
 
     &--key {
       color: $textGrey;

@@ -27,6 +27,9 @@
         <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
           <div class="dir-list" :style="`width: ${dirDrag.width}px`">
             <div class="dir-list__tools">
+              <el-tooltip class="item" effect="dark" content="添加目录" placement="top">
+                <el-button type="text"><i class="el-icon-plus" /></el-button>
+              </el-tooltip>
               <el-tooltip class="item" effect="dark" content="目录设置" placement="top">
                 <el-button type="text"><i class="el-icon-setting" /></el-button>
               </el-tooltip>
@@ -44,9 +47,22 @@
                 @node-click="deviceRouter"
               >
                 <span slot-scope="{node, data}" class="custom-tree-node">
-                  <svg-icon :name="data.type" color="#6e7c89" />
-                  <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
-                  {{ node.label }}
+                  <span class="node-name">
+                    <svg-icon :name="data.type" color="#6e7c89" />
+                    <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
+                    {{ node.label }}
+                  </span>
+                  <div v-if="data.type === 'dir'" class="tools" :style="`left: ${dirDrag.width - 80}px`">
+                    <el-tooltip class="item" effect="dark" content="添加子目录" placement="top">
+                      <el-button type="text"><i class="el-icon-plus" @click.stop="createDir" /></el-button>
+                    </el-tooltip>
+                    <el-tooltip class="item" effect="dark" content="编辑目录" placement="top">
+                      <el-button type="text"><i class="el-icon-edit" @click.stop="createDir" /></el-button>
+                    </el-tooltip>
+                    <el-tooltip class="item" effect="dark" content="删除目录" placement="top">
+                      <el-button type="text"><i class="el-icon-delete" @click.stop="createDir" /></el-button>
+                    </el-tooltip>
+                  </div>
                 </span>
               </el-tree>
             </div>
@@ -101,7 +117,7 @@ export default class extends Vue {
     start: 0,
     offset: 0,
     orginWidth: 200,
-    width: 200
+    width: 250
   }
 
   private treeProp = {
@@ -178,6 +194,10 @@ export default class extends Vue {
    */
   private handleCreate() {
     this.$router.push('/device/create')
+  }
+
+  private createDir() {
+    console.log('createDir')
   }
 
   /**
@@ -403,7 +423,6 @@ export default class extends Vue {
 
     &__handle {
       position: absolute;
-      left: 200px;
       top: 0;
       margin-left: -8px;
       z-index: 100;
@@ -419,12 +438,10 @@ export default class extends Vue {
     }
 
     &__left {
-      width: 200px;
       overflow: hidden;
       transition: width .2s;
 
       .dir-list {
-        width: 200px;
         height: 100%;
         display: flex;
         flex-direction: column;
@@ -444,12 +461,23 @@ export default class extends Vue {
         &__tree {
           padding: 10px;
 
+          ::v-deep .el-tree-node__content {
+            position: relative;
+            &:hover {
+              .tools {
+                display: block;
+              }
+            }
+          }
+
           .svg-icon {
             margin-right: 5px;
           }
 
           .custom-tree-node {
-            position: relative;
+            .node-name {
+              position: relative;
+            }
             .status-badge {
               position: absolute;
               top: -1px;
@@ -457,6 +485,19 @@ export default class extends Vue {
               width: 6px;
               height: 6px;
               opacity: 0.7;
+            }
+            .tools {
+              position: absolute;
+              top: 0;
+              display: none;
+              background: #F5F7FA;
+              .el-button {
+                color: $text;
+                padding: 5px 0;
+              }
+              .el-button + .el-button {
+                margin-left: 5px;
+              }
             }
           }
         }
