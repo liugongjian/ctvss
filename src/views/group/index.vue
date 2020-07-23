@@ -51,7 +51,7 @@
         </el-table-column>
       </el-table>
       <el-pagination
-        :current-page="pager.pageIndex"
+        :current-page="pager.pageNum"
         :page-size="pager.pageSize"
         :total="pager.total"
         layout="total, sizes, prev, pager, next, jumper"
@@ -81,7 +81,7 @@ export default class extends Vue {
   private groupName = ''
   private dataList: Array<Group> = []
   private pager = {
-    pageIndex: 1,
+    pageNum: 1,
     pageSize: 10,
     total: 20
   }
@@ -100,13 +100,13 @@ export default class extends Vue {
     this.loading = true
     let params = {
       keyWord: this.groupName,
-      pageNum: this.pager.pageIndex,
+      pageNum: this.pager.pageNum,
       pageSize: this.pager.pageSize
     }
     const res = await getGroups(params)
     this.dataList = res.groups
     this.pager.total = res.total
-    this.pager.pageIndex = res.pageNum
+    this.pager.pageNum = res.pageNum
     this.pager.pageSize = res.pageSize
     this.loading = false
   }
@@ -117,7 +117,7 @@ export default class extends Vue {
   }
 
   private async handleCurrentChange(val: number) {
-    this.pager.pageIndex = val
+    this.pager.pageNum = val
     await this.getList()
   }
 

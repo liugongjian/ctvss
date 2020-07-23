@@ -82,7 +82,7 @@
       </el-table-column>
     </el-table>
     <el-pagination
-      :current-page="pager.pageIndex"
+      :current-page="pager.pageNum"
       :page-size="pager.pageSize"
       :total="pager.total"
     />
@@ -109,7 +109,7 @@ export default class extends Vue {
   private loading = false
   private keyword = ''
   private pager = {
-    pageIndex: 1,
+    pageNum: 1,
     pageSize: 10,
     total: 20
   }
