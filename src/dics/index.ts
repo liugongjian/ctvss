@@ -35,6 +35,6 @@ export const AuthStatus = {
 }
 
 export const AnonymousType = {
-  true: '匿名',
-  false: '非匿名'
+  'anonymous': '匿名',
+  'normal': '非匿名'
 }

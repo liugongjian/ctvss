@@ -4,21 +4,26 @@
       <div class="filter-container">
         <el-button type="primary" @click="handleCreate">新建GB28181凭证</el-button>
         <div class="filter-container__right">
-          <el-input v-model="groupName" class="filter-container__search-group" placeholder="请输入GB28181凭证" @keyup.enter.native="handleFilter">
-            <el-button slot="append" class="el-button-rect" icon="el-icon-search" />
+          <div class="filter-container__select">
+            <el-select v-model="userType" placeholder="选择匿名方式" clearable>
+              <el-option v-for="(value, key) in anonymousType" :key="key" :label="value" :value="key" />
+            </el-select>
+          </div>
+          <el-input v-model="userName" class="filter-container__search-group" placeholder="请输入SIP用户认证ID/用户别名" @keyup.enter.native="handleFilter">
+            <el-button slot="append" class="el-button-rect" icon="el-icon-search" @click="handleFilter" />
           </el-input>
           <el-button class="el-button-rect" icon="el-icon-refresh" @click="refresh" />
         </div>
       </div>
-      <el-table :data="dataList" fit>
-        <el-table-column label="用户名" min-width="100">
+      <el-table v-loading="loading" :data="dataList" fit>
+        <el-table-column label="SIP用户认证ID/用户别名" min-width="100">
           <template slot-scope="{row}">
-            {{ row.username || '-' }}
+            {{ row.userName || '-' }}
           </template>
         </el-table-column>
         <el-table-column label="是否匿名">
           <template slot-scope="{row}">
-            {{ anonymousType[row.anonymous] }}
+            {{ anonymousType[row.userType] }}
           </template>
         </el-table-column>
         <el-table-column prop="description" label="描述" min-width="160" />
@@ -26,14 +31,15 @@
         <el-table-column prop="action" label="操作" width="150" fixed="right">
           <template slot-scope="{row}">
             <el-button type="text" @click="edit(row)">编辑</el-button>
-            <el-button type="text">删除</el-button>
+            <el-button type="text" @click="deleteCertificate(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
       <el-pagination
-        :current-page="pager.currentIndex"
-        :page-size="pager.size"
+        :current-page="pager.pageNum"
+        :page-size="pager.pageSize"
         :total="pager.total"
+        layout="total, sizes, prev, pager, next, jumper"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
       />
@@ -45,30 +51,32 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { AnonymousType } from '@/dics'
 import { dateFormatInTable } from '@/utils/date'
+import { getList, deleteCertificate } from '@/api/certificate/gb28181'
+import { GB28181 } from '@/type/certificate'
 
 @Component({
   name: 'CertificateGb28181List'
 })
 export default class extends Vue {
   private anonymousType = AnonymousType
-  private groupName = ''
-  private dataList = [{
-    id: 1,
-    username: 'gb_user1',
-    anonymous: false,
+  private userType = ''
+  private userName = ''
+  private loading = false
+  private dataList: Array<GB28181> = [{
+    userName: 'gb_user1',
+    userType: 'abnormal',
     description: '用于上海园区监控',
     createdTime: 1594260926566
   }, {
-    id: 2,
-    username: 'gb_user2',
-    anonymous: false,
+    userName: 'gb_user2',
+    userType: 'normal',
     description: '用于上海园区监控',
     createdTime: 1594260926566
   }]
   private pager = {
-    total: 0,
-    currentIndex: 1,
-    size: 10
+    pageNum: 1,
+    pageSize: 10,
+    total: 0
   }
 
   private dateFormatInTable = dateFormatInTable
@@ -77,39 +85,67 @@ export default class extends Vue {
     console.log('resfresh')
   }
 
-  private getList() {
-    console.log('getList')
+  private async mounted() {
+    await this.getList()
   }
 
-  private handleSizeChange(val: number) {
-    console.log('sizeChange')
+  private async getList() {
+    this.loading = true
+    let params = {
+      userName: this.userName,
+      userType: this.userType,
+      pageNum: this.pager.pageNum,
+      pageSize: this.pager.pageSize
+    }
+    const res = await getList(params)
+    this.dataList = res.gbCerts
+    this.pager.total = res.totalNum
+    this.pager.pageNum = res.pageNum
+    this.pager.pageSize = res.pageSize
+    this.loading = false
   }
 
-  private handleCurrentChange(val: number) {
-    console.log('currentChange')
+  private async handleSizeChange(val: number) {
+    this.pager.pageSize = val
+    await this.getList()
+  }
+
+  private async handleCurrentChange(val: number) {
+    this.pager.pageNum = val
+    await this.getList()
   }
 
   private handleCreate() {
     this.$router.push('/certificate/gb28181/create')
   }
 
-  private handleFilter() {
-    console.log('filter')
+  private async handleFilter() {
+    await this.getList()
   }
 
-  private edit(row: any) {
+  private edit(row: GB28181) {
     this.$router.push({
       name: 'gb28181-update',
       params: {
-        id: row.id
+        userName: row.userName
       }
     })
+  }
+
+  private async deleteCertificate(row: GB28181) {
+    await deleteCertificate({ userName: row.userName })
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.filter-container__search-group {
-  margin-right: 10px;
+.filter-container {
+  &__search-group {
+    margin-right: 10px;
+  }
+  &__select {
+    display: inline;
+    margin-right: 10px;
+  }
 }
 </style>

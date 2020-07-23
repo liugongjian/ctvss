@@ -1,6 +1,7 @@
 <template>
   <el-form
     ref="dataForm"
+    v-loading="loading"
     :rules="rules"
     :model="form"
     label-position="right"
@@ -10,10 +11,13 @@
       <el-switch v-model="form.anonymous" />
       <div class="form-tip">当选择匿名密码为国标设备凭证时，设备注册时将使用设备ID作为SIP用户认证ID。</div>
     </el-form-item>
-    <el-form-item :label="form.anonymous ? '用户别名:' : 'SIP用户认证ID:'" prop="username" class="form-with-tip">
-      <el-input v-model="form.username" />
+    <el-form-item :label="form.anonymous ? '用户别名:' : 'SIP用户认证ID:'" prop="userName" class="form-with-tip">
+      <el-input v-model="form.userName" :disabled="disabled" />
       <div v-if="form.anonymous" class="form-tip">当选择匿名密码为国标设备凭证时，用户别名仅用于凭证管理，便于记忆。</div>
       <div v-else class="form-tip">设备注册时将使用当前输入值作为SIP用户认证ID。</div>
+    </el-form-item>
+    <el-form-item v-if="disabled" label="旧密码:" prop="oldPassword">
+      <el-input v-model="form.oldPassword" show-password />
     </el-form-item>
     <el-form-item label="密码:" prop="password">
       <el-input v-model="form.password" show-password />
@@ -30,13 +34,18 @@
   </el-form>
 </template>
 <script lang='ts'>
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator'
 import { InProtocolType, OutProtocolType } from '@/dics'
+import { createCertificate, queryCertificate, updateCertificate } from '@/api/certificate/gb28181'
+import { GB28181 } from '@/type/certificate'
+import { th } from 'date-fns/locale'
 
 @Component({
   name: 'CreateGb28181CertificateForm'
 })
 export default class extends Vue {
+  private loading = false
+  private disabled = false
   private rules = {
     username: [
       { required: true, message: '请输入用户名', trigger: 'blur' }
@@ -46,18 +55,22 @@ export default class extends Vue {
     ],
     confirmPassword: [
       { validator: this.validatePass2, trigger: 'blur' }
+    ],
+    oldPassword: [
+      { validator: this.validateOldPass, trigger: 'blur' }
     ]
   }
-  private form: any = {
-    anonymous: false,
-    username: '',
+  private form: GB28181 = {
+    userType: 'normal',
+    userName: '',
+    oldPassword: '',
     password: '',
     confirmPassword: '',
     description: ''
   }
 
   private validatePass(rule: any, value: string, callback: any) {
-    if (value === '') {
+    if (!value && !this.disabled) {
       callback(new Error('请输入密码'))
     } else {
       if (this.form.password !== '') {
@@ -69,7 +82,7 @@ export default class extends Vue {
   }
 
   private validatePass2(rule: any, value: string, callback: any) {
-    if (value === '') {
+    if (!value && !this.disabled) {
       callback(new Error('请再次输入密码'))
     } else if (value !== this.form.password) {
       callback(new Error('两次输入密码不一致'))
@@ -78,16 +91,42 @@ export default class extends Vue {
     }
   }
 
+  private validateOldPass(rule: any, value: string, callback: any) {
+    if (this.form.password && !value) {
+      callback(new Error('更改密码时必须输入旧密码'))
+    } else {
+      callback()
+    }
+  }
+
   private submit() {
     const form: any = this.$refs.dataForm
-    form.validate((valid: any) => {
+    form.validate(async(valid: any) => {
       if (valid) {
-        console.log('submit')
+        this.loading = true
+        if (this.disabled) {
+          await updateCertificate(this.form)
+        } else {
+          await createCertificate(this.form)
+        }
+        this.loading = false
       } else {
         console.log('error submit!!')
         return false
       }
     })
+  }
+
+  private async mounted() {
+    let params: any = this.$route.params
+    if (params.userName) {
+      this.disabled = true
+      this.$set(this.form, 'userName', params.userName)
+      this.loading = true
+      const res = await queryCertificate({ userName: this.form.userName })
+      this.form = res
+      this.loading = false
+    }
   }
 }
 </script>
