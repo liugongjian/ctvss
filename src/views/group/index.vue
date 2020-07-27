@@ -39,7 +39,7 @@
         <el-table-column prop="deviceSize" label="设备数量">
           <template slot-scope="scope">{{ scope.row.groupStats.deviceSize }}</template>
         </el-table-column>
-        <el-table-column prop="createdTime" label="创建时间" :formatter="dateFormatInTable" min-width="160" />
+        <el-table-column prop="createdTime" label="创建时间" min-width="160" />
         <el-table-column prop="action" label="操作" width="250" fixed="right">
           <template slot-scope="scope">
             <el-button type="text" @click="goToConfig(scope.row)">业务组配置</el-button>

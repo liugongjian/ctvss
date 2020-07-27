@@ -27,7 +27,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="description" label="描述" min-width="160" />
-        <el-table-column prop="createdTime" label="创建时间" :formatter="dateFormatInTable" min-width="160" />
+        <el-table-column prop="createdTime" label="创建时间" min-width="160" />
         <el-table-column prop="action" label="操作" width="150" fixed="right">
           <template slot-scope="{row}">
             <el-button type="text" @click="edit(row)">编辑</el-button>
@@ -62,17 +62,7 @@ export default class extends Vue {
   private userType = ''
   private userName = ''
   private loading = false
-  private dataList: Array<GB28181> = [{
-    userName: 'gb_user1',
-    userType: 'abnormal',
-    description: '用于上海园区监控',
-    createdTime: 1594260926566
-  }, {
-    userName: 'gb_user2',
-    userType: 'normal',
-    description: '用于上海园区监控',
-    createdTime: 1594260926566
-  }]
+  private dataList: Array<GB28181> = []
   private pager = {
     pageNum: 1,
     pageSize: 10,
