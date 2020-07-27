@@ -14,7 +14,7 @@
         />
       </el-select>
     </div>
-    <el-card class="device-list-wrap">
+    <el-card ref="deviceWrap" class="device-list-wrap">
       <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
         <el-button class="device-list__expand" @click="toggledirList">
           <svg-icon name="hamburger" />
@@ -34,7 +34,7 @@
                 <el-button type="text"><i class="el-icon-setting" /></el-button>
               </el-tooltip>
             </div>
-            <div class="dir-list__tree">
+            <div class="dir-list__tree device-list__max-height" :style="{height: `${maxHeight}px`}">
               <el-tree
                 ref="dirTree"
                 :data="dirList"
@@ -79,7 +79,9 @@
               {{ item.label }}
             </span>
           </div>
-          <router-view />
+          <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
+            <router-view />
+          </div>
         </div>
       </div>
     </el-card>
@@ -94,6 +96,7 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 import { resolve } from 'dns'
 
 @Component({
+  name: 'Device',
   components: {
     StatusBadge
   }
@@ -107,6 +110,7 @@ export default class extends Vue {
   private currentGroup: Group | null = null
   private keyword = ''
   private breadcrumb: Array<any> = []
+  private maxHeight = 1000
   private pager = {
     pageIndex: 1,
     pageSize: 10,
@@ -187,6 +191,23 @@ export default class extends Vue {
       })
     }
     this.initTreeStatus()
+    this.calMaxHeight()
+    window.addEventListener('resize', this.calMaxHeight)
+  }
+
+  private destroyed() {
+    window.removeEventListener('resize', this.calMaxHeight)
+  }
+
+  /**
+   * 计算最大高度
+   */
+  private calMaxHeight() {
+    const deviceWrap: any = this.$refs.deviceWrap
+    const size = deviceWrap.$el.getBoundingClientRect()
+    const top = size.top
+    const documentHeight = document.body.offsetHeight
+    this.maxHeight = documentHeight - top - 65
   }
 
   /**
@@ -579,6 +600,9 @@ export default class extends Vue {
           transform: rotate(180deg);
         }
       }
+    }
+    .device-list__max-height {
+      overflow: auto;
     }
   }
 </style>

@@ -1,8 +1,21 @@
 <template>
   <div class="device-list__container">
+    <div v-if="isNVR" class="device-info">
+      <info-list label-width="80">
+        <info-list-item label="设备名称:">{{ deviceInfo.deviceName }}</info-list-item>
+        <info-list-item label="创建时间:">{{ deviceInfo.createdTime }}</info-list-item>
+        <info-list-item label="设备状态:">
+          <status-badge :status="deviceInfo.deviceStatus" />
+          {{ deviceStatus[deviceInfo.deviceStatus] }}
+        </info-list-item>
+        <info-list-item label="通道数量:">{{ deviceInfo.channelSize }}</info-list-item>
+        <info-list-item label="在线流数量:">{{ deviceInfo.onlineSize }}</info-list-item>
+      </info-list>
+    </div>
     <div class="filter-container clearfix">
       <div class="filter-container__left">
         <el-button type="primary" @click="handleCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
+        <el-button>导出</el-button>
         <el-dropdown>
           <el-button>批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
@@ -22,7 +35,10 @@
     </div>
     <el-table v-loading="loading" :data="deviceList" fit>
       <el-table-column type="selection" width="55" />
-      <el-table-column label="设备ID/名称" min-width="200">
+      <el-table-column
+        :label="isNVR ? '通道号/通道名称' : '设备ID/名称'"
+        min-width="200"
+      >
         <template slot-scope="{row}">
           <div class="device-list__device-name" @click="goInto(row)">
             <div class="device-list__device-id">{{ row.deviceId }}</div>
@@ -32,31 +48,36 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column v-if="isGb" label="类型">
+      <el-table-column v-if="isGb && !isNVR" key="deviceType" label="类型">
         <template slot-scope="{row}">
           {{ deviceType[row.deviceType] }}
         </template>
       </el-table-column>
-      <el-table-column v-if="isGb" label="设备状态">
+      <el-table-column v-if="isGb" key="deviceStatus" label="设备状态">
         <template slot-scope="{row}">
           <status-badge :status="row.deviceStatus" />
           {{ deviceStatus[row.deviceStatus] }}
         </template>
       </el-table-column>
-      <el-table-column prop="streamStatus" label="流状态">
+      <el-table-column key="streamStatus" prop="streamStatus" label="流状态">
         <template slot-scope="{row}">
           <status-badge :status="row.streamStatus" />
           {{ deviceStatus[row.streamStatus] }}
         </template>
       </el-table-column>
-      <el-table-column label="厂商" prop="deviceVendor" />
-      <el-table-column v-if="isGb || isNVR" label="设备地址" min-width="150">
+      <el-table-column key="deviceVendor" prop="deviceVendor" label="厂商" />
+      <el-table-column v-if="isGb && !isNVR" key="deviceIp" label="设备地址" min-width="150">
         <template slot-scope="{row}">
-          {{ row.deviceIp }}:{{ row.devicePort }}
+          <span v-if="row.deviceIp">{{ row.deviceIp }}:{{ row.devicePort }}</span>
+          <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column v-if="isGb || isNVR" label="国标ID" prop="gbId" min-width="150" />
-      <el-table-column v-if="isGb && !isNVR" label="通道数">
+      <el-table-column v-if="isGb || isNVR" key="gbId" prop="gbId" label="国标ID" min-width="150">
+        <template slot-scope="{row}">
+          {{ row.gbId || '-' }}
+        </template>
+      </el-table-column>
+      <el-table-column v-if="isGb && !isNVR" key="tunnelNum" label="通道数">
         <template slot-scope="{row}">
           <el-button v-if="row.tunnelNum" type="text" @click="goInto(row)">{{ row.tunnelNum || '-' }}</el-button>
           <span v-else>-</span>
@@ -97,6 +118,7 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 import { getDevices } from '@/api/device'
 
 @Component({
+  name: 'DeviceList',
   components: {
     TunnelInfo,
     StatusBadge
@@ -112,6 +134,13 @@ export default class extends Vue {
     pageNum: 1,
     pageSize: 10,
     total: 20
+  }
+  private deviceInfo = {
+    deviceName: 'NVR设备名称',
+    channelSize: 20,
+    onlineSize: 17,
+    createdTime: '2020-06-13 18:12:44',
+    deviceStatus: 'on'
   }
 
   private deviceList: Array<Device> = []
@@ -182,13 +211,10 @@ export default class extends Vue {
           streamStatus: 'on',
           deviceType: 'nvr',
           deviceVendor: '海康',
-          deviceIp: '119.13.44.23',
-          devicePort: 3783,
-          gbId: '235433524',
           tunnelNum: 120
         },
         {
-          deviceId: 34,
+          deviceId: 35,
           deviceName: '一楼楼道监控',
           deviceStatus: 'off',
           streamStatus: 'off',
@@ -197,7 +223,7 @@ export default class extends Vue {
           deviceIp: '119.13.44.23',
           devicePort: 3783,
           gbId: '235433524',
-          tunnelNum: 120
+          tunnelNum: null
         }
       ]
     }
@@ -273,6 +299,21 @@ export default class extends Vue {
     }
     &__device-id {
       color: $primary;
+    }
+  }
+  .device-info {
+    background: #f6f6f6;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    padding: 5px 15px;
+    ::v-deep .info-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      .info-item {
+        width: 33%;
+        padding: 10px 0;
+      }
     }
   }
 </style>
