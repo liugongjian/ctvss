@@ -287,6 +287,111 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
+    path: '/template',
+    component: Layout,
+    redirect: 'noredirect',
+    meta: {
+      title: '模板管理',
+      icon: 'tree',
+      alwaysShow: true,
+      breadcrumb: true,
+      roles: ['admin']
+    },
+    children: [
+      {
+        path: 'record',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/record/index.vue'),
+        name: 'record',
+        meta: {
+          title: '录制模板',
+          icon: 'tree',
+          roles: ['admin']
+        }
+      },
+      {
+        path: 'record/create',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/record/createOrUpdate.vue'),
+        name: 'record-create',
+        meta: {
+          title: '新建录制模板',
+          icon: 'stream',
+          hidden: true,
+          roles: ['admin'],
+          activeMenu: '/template/record'
+        }
+      },
+      {
+        path: 'record/update/:id?',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/record/createOrUpdate.vue'),
+        name: 'record-update',
+        meta: {
+          title: '编辑录制模板',
+          icon: 'stream',
+          hidden: true,
+          roles: ['admin'],
+          activeMenu: '/template/record'
+        }
+      },
+      {
+        path: 'snapshot',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/snapshot/index.vue'),
+        name: 'snapshot',
+        meta: {
+          title: '截图模板',
+          icon: 'tree',
+          roles: ['admin']
+        }
+      },
+      {
+        path: 'snapshot/create',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/snapshot/createOrUpdate.vue'),
+        name: 'snapshot-create',
+        meta: {
+          title: '新建截图模板',
+          icon: 'stream',
+          hidden: true,
+          roles: ['admin'],
+          activeMenu: '/template/snapshot'
+        }
+      },
+      {
+        path: 'snapshot/update/:id?',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/snapshot/createOrUpdate.vue'),
+        name: 'snapshot-update',
+        meta: {
+          title: '编辑截图模板',
+          icon: 'stream',
+          hidden: true,
+          roles: ['admin'],
+          activeMenu: '/template/snapshot'
+        }
+      }
+    ]
+  },
+  {
+    path: '/secretManage',
+    component: Layout,
+    meta: {
+      title: 'API密钥管理',
+      icon: 'tree',
+      hidden: true,
+      breadcrumb: true,
+      roles: ['admin']
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "secretManage" */ '@/views/secretManage/index.vue'),
+        meta: {
+          title: 'API密钥管理',
+          icon: 'tree',
+          breadcrumb: false,
+          roles: ['admin']
+        }
+      }
+    ]
+  },
+  {
     path: '*',
     redirect: '/404',
     meta: { hidden: true }

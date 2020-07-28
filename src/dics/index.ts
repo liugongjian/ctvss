@@ -38,3 +38,19 @@ export const AnonymousType = {
   true: '匿名',
   false: '非匿名'
 }
+
+export const RecordStorageType = {
+  'MP4': 'mp4',
+  'FLV': 'flv',
+  'HLS': 'hls'
+}
+
+export const SnapshotStorageType: { [key: string]: string } = {
+  'cover': '覆盖式截图',
+  'realtime': '实时截图'
+}
+
+export const SecretStatus = {
+  true: '已启用',
+  false: '已禁用'
+}

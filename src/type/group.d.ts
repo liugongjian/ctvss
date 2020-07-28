@@ -8,7 +8,7 @@ export interface Group {
   inProtocol?: string;
   outProtocol?: Array<string>;
   region?: string;
-  createdTime?: number;
+  createdTime?: string;
   description?: string;
   streamProtocol?: string;
   sipProtocol?: string;

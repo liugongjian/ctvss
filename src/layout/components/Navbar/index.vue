@@ -12,8 +12,8 @@
     />
     <div class="right-menu">
       <template v-if="device!=='mobile'">
-        <header-search class="right-menu-item" />
-        <error-log class="errLog-container right-menu-item hover-effect" />
+        <!-- <header-search class="right-menu-item" />
+        <error-log class="errLog-container right-menu-item hover-effect" /> -->
         <screenfull class="right-menu-item hover-effect" />
         <el-tooltip
           content="布局大小"
@@ -35,9 +35,9 @@
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown">
-          <router-link to="/profile/">
+          <router-link to="/secretManage">
             <el-dropdown-item>
-              {{ "个人中心" }}
+              {{ "API密钥管理" }}
             </el-dropdown-item>
           </router-link>
           <el-dropdown-item

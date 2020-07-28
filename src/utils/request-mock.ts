@@ -12,7 +12,7 @@ const service = axios.create({
 service.interceptors.request.use(
   (config) => {
     if (UserModule.token) {
-      config.headers['Live-Admin-Access-Token'] = UserModule.token
+      config.headers['VSS-User-Access-Token'] = UserModule.token
     }
     return config
   },
