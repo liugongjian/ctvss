@@ -96,7 +96,7 @@
               <el-dropdown-item>停用流</el-dropdown-item>
               <el-dropdown-item v-if="!isNVR">移动至</el-dropdown-item>
               <el-dropdown-item :command="{type: 'edit', device: scope.row}">编辑</el-dropdown-item>
-              <el-dropdown-item>删除</el-dropdown-item>
+              <el-dropdown-item :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </template>
@@ -115,7 +115,7 @@ import { Device } from '@/type/device'
 import { DeviceStatus, DeviceType } from '@/dics'
 import TunnelInfo from './components/TunnelInfo.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
-import { getDevices } from '@/api/device'
+import { getDevices, deleteDevice } from '@/api/device'
 
 @Component({
   name: 'DeviceList',
@@ -261,6 +261,18 @@ export default class extends Vue {
   }
 
   /**
+   * 删除设备
+   */
+  private deleteDevice(device: Device) {
+    this.$alertDelete({
+      type: '设备',
+      msg: `是否确认删除设备"${device.deviceName}"`,
+      method: deleteDevice,
+      payload: { deviceId: device.deviceId }
+    })
+  }
+
+  /**
    * 更多菜单
    */
   private handleMore(command: any) {
@@ -280,6 +292,9 @@ export default class extends Vue {
             ...this.$route.query
           }
         })
+        break
+      case 'delete':
+        this.deleteDevice(command.device)
         break
       case 'nvr':
         this.goInto(command.device)

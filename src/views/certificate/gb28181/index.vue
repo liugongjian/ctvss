@@ -123,7 +123,12 @@ export default class extends Vue {
   }
 
   private async deleteCertificate(row: GB28181) {
-    await deleteCertificate({ userName: row.userName })
+    this.$alertDelete({
+      type: 'GB28181凭证',
+      msg: `是否确认删除GB28181凭证"${row.userName}"`,
+      method: deleteCertificate,
+      payload: { userName: row.userName }
+    })
   }
 }
 </script>

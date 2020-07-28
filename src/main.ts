@@ -4,6 +4,7 @@ import 'normalize.css'
 import ElementUI from 'element-ui'
 import SvgIcon from 'vue-svgicon'
 import InfoList from '@/components/InfoList'
+import ShowAlert from '@/components/ShowAlert'
 
 import '@/styles/element-variables.scss'
 import '@/styles/index.scss'
@@ -15,7 +16,6 @@ import router from '@/router'
 import '@/icons/components'
 import '@/permission'
 import '@/utils/error-log'
-import '@/pwa/register-service-worker'
 import * as directives from '@/directives'
 import * as filters from '@/filters'
 
@@ -30,6 +30,7 @@ Vue.use(SvgIcon, {
 })
 
 Vue.use(InfoList)
+Vue.use(ShowAlert)
 
 // Register global directives
 Object.keys(directives).forEach(key => {

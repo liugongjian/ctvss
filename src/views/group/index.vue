@@ -138,7 +138,12 @@ export default class extends Vue {
   }
 
   private async deleteGroup(row: Group) {
-    await deleteGroup({ groupId: row.groupId })
+    this.$alertDelete({
+      type: '业务组',
+      msg: `是否确认删除业务组"${row.groupName}"`,
+      method: deleteGroup,
+      payload: { groupId: row.groupId }
+    })
   }
 
   private goToConfig(row: Group) {
