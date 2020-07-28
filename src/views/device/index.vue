@@ -14,7 +14,7 @@
         />
       </el-select>
     </div>
-    <el-card class="device-list-wrap">
+    <el-card ref="deviceWrap" class="device-list-wrap">
       <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
         <el-button class="device-list__expand" @click="toggledirList">
           <svg-icon name="hamburger" />
@@ -27,14 +27,14 @@
         <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
           <div class="dir-list" :style="`width: ${dirDrag.width}px`">
             <div class="dir-list__tools">
-              <el-tooltip class="item" effect="dark" content="添加目录" placement="top">
-                <el-button type="text"><i class="el-icon-plus" /></el-button>
+              <el-tooltip class="item" effect="dark" content="添加目录" placement="top" :open-delay="300">
+                <el-button type="text" @click="openDialog('createDir')"><i class="el-icon-plus" /></el-button>
               </el-tooltip>
-              <el-tooltip class="item" effect="dark" content="目录设置" placement="top">
+              <el-tooltip class="item" effect="dark" content="目录设置" placement="top" :open-delay="300">
                 <el-button type="text"><i class="el-icon-setting" /></el-button>
               </el-tooltip>
             </div>
-            <div class="dir-list__tree">
+            <div class="dir-list__tree device-list__max-height" :style="{height: `${maxHeight}px`}">
               <el-tree
                 ref="dirTree"
                 :data="dirList"
@@ -53,14 +53,14 @@
                     {{ node.label }}
                   </span>
                   <div v-if="data.type === 'dir'" class="tools" :style="`left: ${dirDrag.width - 80}px`">
-                    <el-tooltip class="item" effect="dark" content="添加子目录" placement="top">
-                      <el-button type="text"><i class="el-icon-plus" @click.stop="createDir" /></el-button>
+                    <el-tooltip class="item" effect="dark" content="添加子目录" placement="top" :open-delay="300">
+                      <el-button type="text" @click.stop="openDialog('createDir', data)"><i class="el-icon-plus" /></el-button>
                     </el-tooltip>
-                    <el-tooltip class="item" effect="dark" content="编辑目录" placement="top">
-                      <el-button type="text"><i class="el-icon-edit" @click.stop="createDir" /></el-button>
+                    <el-tooltip class="item" effect="dark" content="编辑目录" placement="top" :open-delay="300">
+                      <el-button type="text" @click.stop="openDialog('updateDir', data)"><i class="el-icon-edit" /></el-button>
                     </el-tooltip>
-                    <el-tooltip class="item" effect="dark" content="删除目录" placement="top">
-                      <el-button type="text"><i class="el-icon-delete" @click.stop="createDir" /></el-button>
+                    <el-tooltip class="item" effect="dark" content="删除目录" placement="top" :open-delay="300">
+                      <el-button type="text" @click.stop="deleteDir(data)"><i class="el-icon-delete" /></el-button>
                     </el-tooltip>
                   </div>
                 </span>
@@ -79,10 +79,13 @@
               {{ item.label }}
             </span>
           </div>
-          <router-view />
+          <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
+            <router-view />
+          </div>
         </div>
       </div>
     </el-card>
+    <create-dir v-if="dialog.createDir" :parent-dir="parentDir" :current-dir="currentDir" :group-id="currentGroupId" @on-close="closeDialog('createDir')" />
   </div>
 </template>
 <script lang="ts">
@@ -91,11 +94,15 @@ import { Device } from '@/type/device'
 import { Group } from '@/type/group'
 import { DeviceStatus, DeviceType } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
+import CreateDir from './components/dialogs/CreateDir.vue'
+import { deleteDir } from '@/api/dir'
 import { resolve } from 'dns'
 
 @Component({
+  name: 'Device',
   components: {
-    StatusBadge
+    StatusBadge,
+    CreateDir
   }
 })
 export default class extends Vue {
@@ -107,10 +114,16 @@ export default class extends Vue {
   private currentGroup: Group | null = null
   private keyword = ''
   private breadcrumb: Array<any> = []
+  private maxHeight = 1000
+  private parentDir = null
+  private currentDir = null
   private pager = {
     pageIndex: 1,
     pageSize: 10,
     total: 20
+  }
+  private dialog = {
+    createDir: false
   }
   private dirDrag = {
     isDragging: false,
@@ -187,6 +200,23 @@ export default class extends Vue {
       })
     }
     this.initTreeStatus()
+    this.calMaxHeight()
+    window.addEventListener('resize', this.calMaxHeight)
+  }
+
+  private destroyed() {
+    window.removeEventListener('resize', this.calMaxHeight)
+  }
+
+  /**
+   * 计算最大高度
+   */
+  private calMaxHeight() {
+    const deviceWrap: any = this.$refs.deviceWrap
+    const size = deviceWrap.$el.getBoundingClientRect()
+    const top = size.top
+    const documentHeight = document.body.offsetHeight
+    this.maxHeight = documentHeight - top - 65
   }
 
   /**
@@ -194,10 +224,6 @@ export default class extends Vue {
    */
   private handleCreate() {
     this.$router.push('/device/create')
-  }
-
-  private createDir() {
-    console.log('createDir')
   }
 
   /**
@@ -401,6 +427,52 @@ export default class extends Vue {
       this.dirDrag.isDragging = false
     })
   }
+
+  /**
+   * 删除目录
+   */
+  private deleteDir(dir: any) {
+    this.$alertDelete({
+      type: '目录',
+      msg: `是否确认删除目录"${dir.label}"`,
+      method: deleteDir,
+      payload: { dirId: dir.dirId }
+    })
+  }
+
+  /**
+   * 打开对话框
+   */
+  private openDialog(type: string, payload: any) {
+    switch (type) {
+      case 'createDir':
+        if (payload) {
+          this.parentDir = payload
+        }
+        this.dialog.createDir = true
+        break
+      case 'updateDir':
+        if (payload) {
+          this.currentDir = payload
+        }
+        this.dialog.createDir = true
+        break
+    }
+  }
+
+  /**
+   * 关闭对话框
+   */
+  private closeDialog(type: string) {
+    // @ts-ignore
+    this.dialog[type] = false
+    switch (type) {
+      case 'createDir':
+      case 'updateDir':
+        this.currentDir = null
+        this.parentDir = null
+    }
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -579,6 +651,9 @@ export default class extends Vue {
           transform: rotate(180deg);
         }
       }
+    }
+    .device-list__max-height {
+      overflow: auto;
     }
   }
 </style>

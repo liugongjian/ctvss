@@ -124,7 +124,7 @@ export const asyncRoutes: RouteConfig[] = [
         component: () => import(/* webpackChunkName: "group" */ '@/views/group/create.vue'),
         name: 'group-create',
         meta: {
-          title: '创建业务组',
+          title: '新建业务组',
           icon: 'tree',
           hidden: true,
           roles: ['admin'],
@@ -186,7 +186,8 @@ export const asyncRoutes: RouteConfig[] = [
               title: '设备列表',
               icon: 'stream',
               breadcrumb: false,
-              roles: ['admin']
+              roles: ['admin'],
+              activeMenu: '/device'
             }
           },
           {

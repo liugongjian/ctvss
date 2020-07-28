@@ -12,7 +12,7 @@
         <el-button type="primary" @click="handleCreate">创建业务组</el-button>
         <div class="filter-container__right">
           <el-input v-model="groupName" class="filter-container__search-group" placeholder="请输入业务组名称" @keyup.enter.native="handleFilter">
-            <el-button slot="append" class="el-button-rect" icon="el-icon-search" />
+            <el-button slot="append" class="el-button-rect" icon="el-icon-search" @click="handleFilter" />
           </el-input>
           <el-button class="el-button-rect" icon="el-icon-refresh" @click="refresh" />
         </div>
@@ -39,7 +39,7 @@
         <el-table-column prop="deviceSize" label="设备数量">
           <template slot-scope="scope">{{ scope.row.groupStats.deviceSize }}</template>
         </el-table-column>
-        <el-table-column prop="createdTime" label="创建时间" :formatter="dateFormatInTable" min-width="160" />
+        <el-table-column prop="createdTime" label="创建时间" min-width="160" />
         <el-table-column prop="action" label="操作" width="250" fixed="right">
           <template slot-scope="scope">
             <el-button type="text" @click="goToConfig(scope.row)">业务组配置</el-button>
@@ -51,7 +51,7 @@
         </el-table-column>
       </el-table>
       <el-pagination
-        :current-page="pager.pageIndex"
+        :current-page="pager.pageNum"
         :page-size="pager.pageSize"
         :total="pager.total"
         layout="total, sizes, prev, pager, next, jumper"
@@ -81,7 +81,7 @@ export default class extends Vue {
   private groupName = ''
   private dataList: Array<Group> = []
   private pager = {
-    pageIndex: 1,
+    pageNum: 1,
     pageSize: 10,
     total: 20
   }
@@ -100,13 +100,13 @@ export default class extends Vue {
     this.loading = true
     let params = {
       keyWord: this.groupName,
-      pageNum: this.pager.pageIndex,
+      pageNum: this.pager.pageNum,
       pageSize: this.pager.pageSize
     }
     const res = await getGroups(params)
     this.dataList = res.groups
     this.pager.total = res.total
-    this.pager.pageIndex = res.pageNum
+    this.pager.pageNum = res.pageNum
     this.pager.pageSize = res.pageSize
     this.loading = false
   }
@@ -117,7 +117,7 @@ export default class extends Vue {
   }
 
   private async handleCurrentChange(val: number) {
-    this.pager.pageIndex = val
+    this.pager.pageNum = val
     await this.getList()
   }
 
@@ -138,7 +138,12 @@ export default class extends Vue {
   }
 
   private async deleteGroup(row: Group) {
-    await deleteGroup({ groupId: row.groupId })
+    this.$alertDelete({
+      type: '业务组',
+      msg: `是否确认删除业务组"${row.groupName}"`,
+      method: deleteGroup,
+      payload: { groupId: row.groupId }
+    })
   }
 
   private goToConfig(row: Group) {
