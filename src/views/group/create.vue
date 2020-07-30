@@ -41,14 +41,14 @@
             </el-checkbox>
           </el-checkbox-group>
         </el-form-item>
-        <el-form-item v-if="form.inProtocol==='gb28181'" label="sip传输协议:" prop="sipProtocol">
-          <el-radio-group v-model="form.sipProtocol">
+        <el-form-item v-if="form.inProtocol==='gb28181'" label="sip传输协议:" prop="sipTransProtocol">
+          <el-radio-group v-model="form.sipTransProtocol">
             <el-radio label="tcp">TCP</el-radio>
             <el-radio label="udp">UDP</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item v-if="form.inProtocol==='gb28181'" label="流媒体传输协议:" prop="streamProtocol">
-          <el-radio-group v-model="form.streamProtocol">
+        <el-form-item v-if="form.inProtocol==='gb28181'" label="流媒体传输协议:" prop="streamTransProtocol">
+          <el-radio-group v-model="form.streamTransProtocol">
             <el-radio label="tcp">TCP</el-radio>
             <el-radio label="udp">UDP</el-radio>
           </el-radio-group>
@@ -73,6 +73,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import { Group } from '@/type/group'
 import { InProtocolType, OutProtocolType } from '@/dics'
 import { createGroup, queryGroup, updateGroup } from '@/api/group'
+import { parse } from 'date-fns'
 
 @Component({
   name: 'CreateGroup'
@@ -95,10 +96,10 @@ export default class extends Vue {
       { required: true, message: '请选择播放类型', trigger: 'change' },
       { validator: this.validateOutProtocol, trigger: 'change' }
     ],
-    sipProtocol: [
+    sipTransProtocol: [
       { required: true, message: '请选择sip传输协议', trigger: 'change' }
     ],
-    streamProtocol: [
+    streamTransProtocol: [
       { required: true, message: '请选择流媒体传输协议', trigger: 'change' }
     ],
     pullType: [
@@ -114,8 +115,8 @@ export default class extends Vue {
     region: '华东',
     inProtocol: 'gb28181',
     outProtocol: [],
-    streamProtocol: 'tcp',
-    sipProtocol: 'tcp',
+    streamTransProtocol: 'tcp',
+    sipTransProtocol: 'tcp',
     pullType: 1
   }
 
@@ -126,7 +127,12 @@ export default class extends Vue {
       this.$set(this.form, 'groupId', query.groupId)
       this.loading = true
       const res = await queryGroup({ groupId: this.form.groupId })
-      this.form = res
+      if (res.code) {
+        this.$message.error(res.message)
+      } else {
+        res.outProtocol = res.outProtocol.split(',')
+        this.form = res
+      }
       this.loading = false
     }
   }
@@ -149,11 +155,11 @@ export default class extends Vue {
 
   private inProtocolTypeChange(val: String) {
     if (val === 'gb28181') {
-      this.form.streamProtocol = 'tcp'
-      this.form.sipProtocol = 'tcp'
+      this.form.streamTransProtocol = 'tcp'
+      this.form.sipTransProtocol = 'tcp'
     } else {
-      this.form.streamProtocol = ''
-      this.form.sipProtocol = ''
+      this.form.streamTransProtocol = ''
+      this.form.sipTransProtocol = ''
     }
   }
 
@@ -171,15 +177,18 @@ export default class extends Vue {
       if (valid) {
         var res
         this.loading = true
+        var params = JSON.parse(JSON.stringify(this.form))
+        params.outProtocol = params.outProtocol.join(',')
         if (this.form.groupId) {
-          res = await updateGroup(this.form)
+          res = await updateGroup(params)
         } else {
-          res = await createGroup(this.form)
+          res = await createGroup(params)
+        }
+        console.log(res)
+        if (res.code) {
+          this.$message.error(res.message)
         }
         this.loading = false
-        if (res.errorCode) {
-          console.log('error create!!')
-        }
       } else {
         console.log('error submit!!')
         return false

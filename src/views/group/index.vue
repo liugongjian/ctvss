@@ -37,7 +37,7 @@
         </el-table-column>
         <el-table-column prop="region" label="服务区域" />
         <el-table-column prop="deviceSize" label="设备数量">
-          <template slot-scope="scope">{{ scope.row.groupStats.deviceSize }}</template>
+          <template slot-scope="scope">{{ scope.row.groupStats && scope.row.groupStats.deviceSize }}</template>
         </el-table-column>
         <el-table-column prop="createdTime" label="创建时间" min-width="160" />
         <el-table-column prop="action" label="操作" width="250" fixed="right">
@@ -104,10 +104,14 @@ export default class extends Vue {
       pageSize: this.pager.pageSize
     }
     const res = await getGroups(params)
-    this.dataList = res.groups
-    this.pager.total = res.total
-    this.pager.pageNum = res.pageNum
-    this.pager.pageSize = res.pageSize
+    if (res.code) {
+      this.$message.error(res.message)
+    } else {
+      this.dataList = res.groups
+      this.pager.total = res.totalNum
+      this.pager.pageNum = res.pageNum
+      this.pager.pageSize = res.pageSize
+    }
     this.loading = false
   }
 

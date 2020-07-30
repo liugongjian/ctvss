@@ -116,8 +116,12 @@ export default class extends Vue {
     this.activeName = tab.name
     if (this.activeName === 'template') {
       const res = await getGroupTemplate({ groupId: this.form.groupId })
-      this.template.recordTemplate = res.recordTemplate
-      this.template.snapshotTemplate = res.snapshotTemplate
+      if (res.code) {
+        this.$message.error(res.message)
+      } else {
+        this.template.recordTemplate = res.recordTemplate
+        this.template.snapshotTemplate = res.snapshotTemplate
+      }
     }
   }
 
@@ -135,7 +139,12 @@ export default class extends Vue {
     if (query.groupId) {
       this.$set(this.form, 'groupId', query.groupId)
       const res = await queryGroup({ groupId: this.form.groupId })
-      this.form = res
+      if (res.code) {
+        this.$message.error(res.message)
+      } else {
+        res.outProtocol = res.outProtocol.split(',')
+        this.form = res
+      }
     }
   }
 
