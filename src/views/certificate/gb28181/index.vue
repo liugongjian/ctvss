@@ -87,12 +87,17 @@ export default class extends Vue {
       pageNum: this.pager.pageNum,
       pageSize: this.pager.pageSize
     }
-    const res = await getList(params)
-    this.dataList = res.gbCerts
-    this.pager.total = res.totalNum
-    this.pager.pageNum = res.pageNum
-    this.pager.pageSize = res.pageSize
-    this.loading = false
+    try {
+      const res = await getList(params)
+      this.dataList = res.gbCerts
+      this.pager.total = res.totalNum
+      this.pager.pageNum = res.pageNum
+      this.pager.pageSize = res.pageSize
+    } catch (e) {
+      this.$message.error(e.response.data.message)
+    } finally {
+      this.loading = false
+    }
   }
 
   private async handleSizeChange(val: number) {
@@ -127,7 +132,8 @@ export default class extends Vue {
       type: 'GB28181凭证',
       msg: `是否确认删除GB28181凭证"${row.userName}"`,
       method: deleteCertificate,
-      payload: { userName: row.userName }
+      payload: { userName: row.userName },
+      onSuccess: this.getList
     })
   }
 }

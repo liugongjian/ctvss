@@ -103,16 +103,17 @@ export default class extends Vue {
       pageNum: this.pager.pageNum,
       pageSize: this.pager.pageSize
     }
-    const res = await getGroups(params)
-    if (res.code) {
-      this.$message.error(res.message)
-    } else {
+    try {
+      const res = await getGroups(params)
       this.dataList = res.groups
       this.pager.total = res.totalNum
       this.pager.pageNum = res.pageNum
       this.pager.pageSize = res.pageSize
+    } catch (e) {
+      this.$message.error(e.response.data.message)
+    } finally {
+      this.loading = false
     }
-    this.loading = false
   }
 
   private async handleSizeChange(val: number) {
@@ -146,7 +147,8 @@ export default class extends Vue {
       type: '业务组',
       msg: `是否确认删除业务组"${row.groupName}"`,
       method: deleteGroup,
-      payload: { groupId: row.groupId }
+      payload: { groupId: row.groupId },
+      onSuccess: this.getList
     })
   }
 

@@ -126,14 +126,15 @@ export default class extends Vue {
     if (query.groupId) {
       this.$set(this.form, 'groupId', query.groupId)
       this.loading = true
-      const res = await queryGroup({ groupId: this.form.groupId })
-      if (res.code) {
-        this.$message.error(res.message)
-      } else {
+      try {
+        const res = await queryGroup({ groupId: this.form.groupId })
         res.outProtocol = res.outProtocol.split(',')
         this.form = res
+      } catch (e) {
+        this.$message.error(e.response.data.message)
+      } finally {
+        this.loading = false
       }
-      this.loading = false
     }
   }
 
@@ -179,16 +180,17 @@ export default class extends Vue {
         this.loading = true
         var params = JSON.parse(JSON.stringify(this.form))
         params.outProtocol = params.outProtocol.join(',')
-        if (this.form.groupId) {
-          res = await updateGroup(params)
-        } else {
-          res = await createGroup(params)
+        try {
+          if (this.form.groupId) {
+            res = await updateGroup(params)
+          } else {
+            res = await createGroup(params)
+          }
+        } catch (e) {
+          this.$message.error(e.response.data.message)
+        } finally {
+          this.loading = false
         }
-        console.log(res)
-        if (res.code) {
-          this.$message.error(res.message)
-        }
-        this.loading = false
       } else {
         console.log('error submit!!')
         return false
