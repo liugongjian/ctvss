@@ -46,12 +46,14 @@ const install = function(Vue: any) {
         }
       }
     }).then(() => {
+      params.onSuccess && params.onSuccess()
       this.$message({
         type: 'success',
         message: `删除${params.type}成功`
       })
-      params.onSuccess && params.onSuccess()
-    }).catch(() => {})
+    }).catch((e: any) => {
+      this.$message.error(e.response.data.message)
+    })
   }
 }
 

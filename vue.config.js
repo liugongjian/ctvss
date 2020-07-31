@@ -30,6 +30,9 @@ module.exports = {
           ['^' + process.env.VUE_APP_BASE_API]: ''
         }
       },
+      '/': {
+        target: 'http://192.168.30.177:8081/'
+      },
       '/mock/11/': {
         target: 'http://101.89.163.9:8089/'
       }

@@ -1,5 +1,5 @@
 export interface Group {
-  groupId?: number;
+  groupId?: string;
   groupName: string;
   groupStatus?: string;
   groupStats?: {
@@ -10,8 +10,8 @@ export interface Group {
   region?: string;
   createdTime?: string;
   description?: string;
-  streamProtocol?: string;
-  sipProtocol?: string;
+  streamTransProtocol?: string;
+  sipTransProtocol?: string;
   sipId?: number;
   sipIp?: string;
   sipTcpPort?: number;

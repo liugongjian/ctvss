@@ -1,4 +1,4 @@
-import request from '@/utils/request-mock'
+import request from '@/utils/request'
 
 export const getList = (params: any): Promise<any> =>
   request({

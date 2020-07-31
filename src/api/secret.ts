@@ -1,4 +1,4 @@
-import request from '@/utils/request-mock'
+import request from '@/utils/request'
 
 export const getSecretList = (): Promise<any> =>
   request({

@@ -71,6 +71,7 @@
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
 import { DeviceType } from '@/dics'
+import { createDevice } from '@/api/device'
 import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
 
 @Component({
@@ -173,9 +174,14 @@ export default class extends Vue {
 
   private submit() {
     const form: any = this.$refs.dataForm
-    form.validate((valid: any) => {
+    form.validate(async(valid: any) => {
       if (valid) {
-        console.log('submit')
+        try {
+          await createDevice(this.form)
+          this.back()
+        } catch (e) {
+          console.log(e)
+        }
       } else {
         console.log('error submit!!')
         return false

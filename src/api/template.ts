@@ -1,4 +1,4 @@
-import request from '@/utils/request-mock'
+import request from '@/utils/request'
 
 // 录制模板相关接口
 export const getRecordTemplates = (params: any): Promise<any> =>
