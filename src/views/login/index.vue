@@ -70,7 +70,7 @@
         {{ "登录" }}
       </el-button>
 
-      <div style="position:relative">
+      <!-- <div style="position:relative">
         <div class="tips">
           <span>{{ "账号" }} : admin </span>
           <span>{{ "密码" }} : {{ "随便填" }} </span>
@@ -87,10 +87,10 @@
         >
           {{ "第三方登录" }}
         </el-button>
-      </div>
+      </div> -->
     </el-form>
 
-    <el-dialog
+    <!-- <el-dialog
       title="第三方登录"
       :visible.sync="showDialog"
     >
@@ -99,7 +99,7 @@
       <br>
       <br>
       <social-sign />
-    </el-dialog>
+    </el-dialog> -->
   </div>
 </template>
 

@@ -2,6 +2,7 @@ import axios from 'axios'
 import { Message, MessageBox } from 'element-ui'
 import { UserModule } from '@/store/modules/user'
 
+let timeoutPromise: Promise<any>
 const service = axios.create({
   baseURL: '/v1', // url = base url + request url
   timeout: 5000
@@ -27,8 +28,8 @@ service.interceptors.response.use(
     return response.data
   },
   (error) => {
-    if (error.response && error.response.data.code === 7) {
-      MessageBox.confirm(
+    if (!timeoutPromise && error.response && error.response.data.code === 7) {
+      timeoutPromise = MessageBox.confirm(
         '登录超时，可以取消继续留在该页面，或者重新登录',
         '确定登出',
         {
@@ -36,7 +37,8 @@ service.interceptors.response.use(
           cancelButtonText: '取消',
           type: 'warning'
         }
-      ).then(() => {
+      )
+      timeoutPromise.then(() => {
         UserModule.ResetToken()
         location.reload() // To prevent bugs from vue-router
       })
