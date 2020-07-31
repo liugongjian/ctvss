@@ -106,15 +106,12 @@ export default class extends Vue {
   }
 
   private async deleteTemplate(row: RecordTemplate) {
-    this.$confirm(`确定删除录制模板 ${row.templateId} 吗？`, '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(async() => {
-      this.loading = true
-      const res = await deleteRecordTemplate({ templateId: row.templateId })
-      this.loading = false
-      this.getList()
+    this.$alertDelete({
+      type: '录制模板',
+      msg: `确定删除录制模板"${row.templateName}"`,
+      method: deleteRecordTemplate,
+      payload: { templateId: row.templateId },
+      onSuccess: this.getList
     })
   }
 

@@ -15,7 +15,7 @@
     </el-alert>
     <el-card>
       <div class="filter-container">
-        <el-button type="primary" @click="handleCreate">新建密钥</el-button>
+        <el-button type="primary" :disabled="!canCreateFlag" @click="handleCreate">新建密钥</el-button>
       </div>
       <el-table v-loading="loading" :data="dataList" fit>
         <el-table-column label="密钥" min-width="200">
@@ -71,6 +71,10 @@ export default class extends Vue {
 
   private async mounted() {
     await this.getList()
+  }
+
+  private get canCreateFlag() {
+    return this.loading && this.dataList.length < 2
   }
 
   private async getList() {

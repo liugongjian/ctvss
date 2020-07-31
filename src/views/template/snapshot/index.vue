@@ -16,7 +16,7 @@
         <el-table-column prop="rate" label="频率" min-width="100" />
         <el-table-column prop="storeType" label="存储格式" min-width="100">
           <template slot-scope="{row}">
-            <span v-html="row.storeType.join('\n')" />
+            <span v-html="row.storeType.map(item => snapshotStorageType[item]).join('<br />')" />
           </template>
         </el-table-column>
         <el-table-column prop="createdTime" label="创建时间" min-width="160" />
@@ -43,6 +43,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { SnapshotTemplate } from '@/type/template'
 import { dateFormatInTable } from '@/utils/date'
+import { SnapshotStorageType } from '@/dics'
 import { getSnapshotTemplates, deleteSnapshotTemplate } from '@/api/template'
 
 @Component({
@@ -57,7 +58,7 @@ export default class extends Vue {
     pageSize: 10,
     total: 20
   }
-
+  private snapshotStorageType = SnapshotStorageType
   private dateFormatInTable = dateFormatInTable
 
   private async mounted() {
@@ -106,15 +107,12 @@ export default class extends Vue {
   }
 
   private async deleteTemplate(row: SnapshotTemplate) {
-    this.$confirm(`确定删除截图模板 ${row.templateId} 吗？`, '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(async() => {
-      this.loading = true
-      const res = await deleteSnapshotTemplate({ templateId: row.templateId })
-      this.loading = false
-      this.getList()
+    this.$alertDelete({
+      type: '截图模板',
+      msg: `确定删除截图模板"${row.templateName}"`,
+      method: deleteSnapshotTemplate,
+      payload: { templateId: row.templateId },
+      onSuccess: this.getList
     })
   }
 

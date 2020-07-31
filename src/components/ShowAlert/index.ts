@@ -40,7 +40,6 @@ const install = function(Vue: any) {
           instance.confirmButtonText = '删除中...'
           await params.method(params.payload)
           done()
-          params.onSuccess && params.onSuccess()
           instance.confirmButtonLoading = false
         } else {
           done()
@@ -51,6 +50,7 @@ const install = function(Vue: any) {
         type: 'success',
         message: `删除${params.type}成功`
       })
+      params.onSuccess && params.onSuccess()
     }).catch(() => {})
   }
 }
