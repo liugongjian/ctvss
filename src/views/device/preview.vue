@@ -4,7 +4,9 @@
     <div class="preview-wrap">
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="监控预览" name="preview">
-          <div class="preview-player" />
+          <div class="preview-player">
+            <video id="previewPlayer" ref="video" controls />
+          </div>
           <info-list label-width="70" title="播放地址" class="address">
             <info-list-item label="RTMP:">
               rtmp://102715.push.domain.com:3738/vss/237233774?signature=045bfe2107b98f356e459c8b2bd54be4&expired=5EEC5741
@@ -49,7 +51,9 @@
         </el-tab-pane>
         <el-tab-pane label="录制回放" name="replay">
           <div class="replay-wrap">
-            <div class="replay-player" />
+            <div class="replay-player">
+              <video id="replayPlayer" ref="video" controls />
+            </div>
             <div class="replay-time-list">
               <el-date-picker
                 v-model="replayRange"
@@ -144,6 +148,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { DeviceStatus, DeviceType, AuthStatus } from '@/dics'
 import { dateFormatInTable, dateFormat } from '@/utils/date'
+import Ctplayer from '@/utils/player'
 import SetRecordTemplate from '../components/dialogs/SetRecordTemplate.vue'
 import SetSnapshotTemplate from '../components/dialogs/SetSnapshotTemplate.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
@@ -161,6 +166,7 @@ export default class extends Vue {
   private dateFormat = dateFormat
   private activeName = 'preview'
   private deviceId = 3746238431
+  private player?:Ctplayer
   private timeList = [
     {
       startTime: 1594260926566,
@@ -189,6 +195,15 @@ export default class extends Vue {
 
   private mounted() {
     if (this.$route.query.previewTab) this.activeName = this.$route.query.previewTab.toString()
+    this.player = new Ctplayer({
+      id: 'previewPlayer', // 播放器DOM ID
+      autoPlay: true, // 是否允许自动播放
+      source: 'http://jazz.liveplay.kijazz.cn/live/walk.flv' // 视频源
+    })
+  }
+
+  private beforeDestroy() {
+    this.player && this.player.disposePlayer()
   }
 
   private back() {
@@ -197,6 +212,19 @@ export default class extends Vue {
 
   private handleClick(tab: any, event: any) {
     this.activeName = tab.name
+    if (tab.name === 'preview') {
+      this.player = new Ctplayer({
+        id: 'previewPlayer', // 播放器DOM ID
+        autoPlay: true, // 是否允许自动播放
+        source: 'http://jazz.liveplay.kijazz.cn/live/walk.flv' // 视频源
+      })
+    } else if (tab.name === 'replay') {
+      this.player = new Ctplayer({
+        id: 'replayPlayer', // 播放器DOM ID
+        autoPlay: true, // 是否允许自动播放
+        source: 'http://jazz.liveplay.kijazz.cn/live/walk.flv' // 视频源
+      })
+    }
   }
 
   private setRecordTemplate() {
@@ -243,8 +271,13 @@ export default class extends Vue {
   }
 
   .preview-player {
-    height: 500px;
+    //height: 500px;
     background: #eee;
+  }
+
+  video {
+    width: 100%;
+    height: auto;
   }
 
   .address {
