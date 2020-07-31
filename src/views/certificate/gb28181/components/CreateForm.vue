@@ -104,12 +104,17 @@ export default class extends Vue {
     form.validate(async(valid: any) => {
       if (valid) {
         this.loading = true
-        if (this.disabled) {
-          await updateCertificate(this.form)
-        } else {
-          await createCertificate(this.form)
+        try {
+          if (this.disabled) {
+            await updateCertificate(this.form)
+          } else {
+            await createCertificate(this.form)
+          }
+        } catch (e) {
+          this.$message.error(e.response.data.message)
+        } finally {
+          this.loading = false
         }
-        this.loading = false
       } else {
         console.log('error submit!!')
         return false
@@ -123,9 +128,14 @@ export default class extends Vue {
       this.disabled = true
       this.$set(this.form, 'userName', params.userName)
       this.loading = true
-      const res = await queryCertificate({ userName: this.form.userName })
-      this.form = res
-      this.loading = false
+      try {
+        const res = await queryCertificate({ userName: this.form.userName })
+        this.form = res
+      } catch (e) {
+        this.$message.error(e.response.data.message)
+      } finally {
+        this.loading = false
+      }
     }
   }
 }

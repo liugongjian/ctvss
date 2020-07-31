@@ -115,9 +115,13 @@ export default class extends Vue {
   private async handleClick(tab: any, event: any) {
     this.activeName = tab.name
     if (this.activeName === 'template') {
-      const res = await getGroupTemplate({ groupId: this.form.groupId })
-      this.template.recordTemplate = res.recordTemplate
-      this.template.snapshotTemplate = res.snapshotTemplate
+      try {
+        const res = await getGroupTemplate({ groupId: this.form.groupId })
+        this.template.recordTemplate = res.recordTemplate
+        this.template.snapshotTemplate = res.snapshotTemplate
+      } catch (e) {
+        this.$message.error(e.response.data.message)
+      }
     }
   }
 
@@ -134,8 +138,13 @@ export default class extends Vue {
     let query: any = this.$route.query
     if (query.groupId) {
       this.$set(this.form, 'groupId', query.groupId)
-      const res = await queryGroup({ groupId: this.form.groupId })
-      this.form = res
+      try {
+        const res = await queryGroup({ groupId: this.form.groupId })
+        res.outProtocol = res.outProtocol.split(',')
+        this.form = res
+      } catch (e) {
+        this.$message.error(e.response.data.message)
+      }
     }
   }
 

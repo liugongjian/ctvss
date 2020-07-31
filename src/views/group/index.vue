@@ -37,7 +37,7 @@
         </el-table-column>
         <el-table-column prop="region" label="服务区域" />
         <el-table-column prop="deviceSize" label="设备数量">
-          <template slot-scope="scope">{{ scope.row.groupStats.deviceSize }}</template>
+          <template slot-scope="scope">{{ scope.row.groupStats && scope.row.groupStats.deviceSize }}</template>
         </el-table-column>
         <el-table-column prop="createdTime" label="创建时间" min-width="160" />
         <el-table-column prop="action" label="操作" width="250" fixed="right">
@@ -103,12 +103,17 @@ export default class extends Vue {
       pageNum: this.pager.pageNum,
       pageSize: this.pager.pageSize
     }
-    const res = await getGroups(params)
-    this.dataList = res.groups
-    this.pager.total = res.total
-    this.pager.pageNum = res.pageNum
-    this.pager.pageSize = res.pageSize
-    this.loading = false
+    try {
+      const res = await getGroups(params)
+      this.dataList = res.groups
+      this.pager.total = res.totalNum
+      this.pager.pageNum = res.pageNum
+      this.pager.pageSize = res.pageSize
+    } catch (e) {
+      this.$message.error(e.response.data.message)
+    } finally {
+      this.loading = false
+    }
   }
 
   private async handleSizeChange(val: number) {
@@ -142,7 +147,8 @@ export default class extends Vue {
       type: '业务组',
       msg: `是否确认删除业务组"${row.groupName}"`,
       method: deleteGroup,
-      payload: { groupId: row.groupId }
+      payload: { groupId: row.groupId },
+      onSuccess: this.getList
     })
   }
 
