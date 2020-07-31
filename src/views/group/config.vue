@@ -89,16 +89,16 @@ export default class extends Vue {
   private InProtocolType = InProtocolType
   private OutProtocolType = OutProtocolType
   private form: Group = {
-    groupId: 327439123674913,
-    groupName: '上海电信园区监控',
-    description: '用于办公楼道内安全监控',
-    inProtocol: 'rtmp',
-    outProtocol: ['flv', 'hls'],
-    region: '华东',
-    sipId: 310132328883832,
-    sipIp: '192.34.83.132',
-    sipTcpPort: 5060,
-    sipUdpPort: 80
+    groupId: '',
+    groupName: '',
+    description: '',
+    inProtocol: '',
+    outProtocol: [],
+    region: '',
+    sipId: undefined,
+    sipIp: '',
+    sipTcpPort: undefined,
+    sipUdpPort: undefined
   }
   private template = {
     snapshotTemplate: [],
