@@ -1,5 +1,5 @@
 export interface Group {
-  groupId?: number;
+  groupId?: string;
   groupName: string;
   groupStatus?: string;
   groupStats?: {

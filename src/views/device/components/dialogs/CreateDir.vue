@@ -14,11 +14,11 @@
       label-width="100px"
     >
       <el-form-item label="目录名称:">
-        <el-input v-model="form.dir" />
+        <el-input v-model="form.dirName" />
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button type="primary" @click="closeDialog">确 定</el-button>
+      <el-button type="primary" @click="submit">确 定</el-button>
       <el-button @click="closeDialog">取 消</el-button>
     </div>
   </el-dialog>
@@ -26,6 +26,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { Dir } from '@/type/dir'
+import { createDir } from '@/api/dir'
 
 @Component({
   name: 'CreateDir'
@@ -55,6 +56,15 @@ export default class extends Vue {
     if (this.parentDir) {
       this.form.parentDirId = this.parentDir.dirId
     }
+  }
+
+  private async submit() {
+    await createDir({
+      groupId: this.groupId,
+      dirName: this.form.dirName,
+      parentDirId: this.parentDir ? this.parentDir.dirId : '0'
+    })
+    this.closeDialog()
   }
 
   private closeDialog() {

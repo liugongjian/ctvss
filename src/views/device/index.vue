@@ -5,12 +5,13 @@
         v-model="currentGroupId"
         class="filter-group"
         placeholder="请选择业务组"
+        @change="changeGroup"
       >
         <el-option
           v-for="item in groupList"
-          :key="item.id"
+          :key="item.groupId"
           :label="item.groupName"
-          :value="item.id"
+          :value="item.groupId"
         />
       </el-select>
     </div>
@@ -95,7 +96,9 @@ import { Group } from '@/type/group'
 import { DeviceStatus, DeviceType } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import CreateDir from './components/dialogs/CreateDir.vue'
+import { getGroups } from '@/api/group'
 import { deleteDir } from '@/api/dir'
+import { getDevices, getDeviceTree } from '@/api/device'
 import { resolve } from 'dns'
 
 @Component({
@@ -109,9 +112,8 @@ export default class extends Vue {
   private deviceStatus = DeviceStatus
   private deviceType = DeviceType
   private isExpanded = true
-  private loading = false
-  private currentGroupId: number | null = null
-  private currentGroup: Group | null = null
+  private currentGroupId: string | null = null
+  private currentGroup: Group | undefined = undefined
   private keyword = ''
   private breadcrumb: Array<any> = []
   private maxHeight = 1000
@@ -121,6 +123,10 @@ export default class extends Vue {
     pageIndex: 1,
     pageSize: 10,
     total: 20
+  }
+  private loading = {
+    group: false,
+    device: false
   }
   private dialog = {
     createDir: false
@@ -139,45 +145,11 @@ export default class extends Vue {
     isLeaf: 'isLeaf'
   }
 
-  private groupList = [
-    {
-      id: 1,
-      groupName: 'IPC测试组',
-      inProtocol: 'gb'
-    }, {
-      id: 2,
-      groupName: 'RTMP测试组',
-      inProtocol: 'rtmp'
-    }, {
-      id: 3,
-      groupName: '广州电信园区',
-      inProtocol: 'gb'
-    }
-  ]
+  private groupList = []
 
   private deviceList: Array<Device> = []
 
-  private dirList = [{
-    label: '区域一',
-    id: 1,
-    type: 'dir',
-    children: [{
-      label: '一号楼',
-      id: 4,
-      type: 'dir',
-      children: [{
-        label: '一楼',
-        id: 5,
-        type: 'dir',
-        children: []
-      }]
-    }, {
-      label: '二号楼',
-      id: 3,
-      type: 'dir',
-      children: []
-    }]
-  }]
+  private dirList = []
 
   private get defaultKey() {
     const id = this.$route.query.id
@@ -188,24 +160,67 @@ export default class extends Vue {
   }
 
   private mounted() {
-    this.currentGroupId = 1
-    this.currentGroup = this.groupList[0]
-    if (!this.$route.query.groupId) {
-      this.$router.push({
-        name: 'device-list',
-        query: {
-          groupId: this.currentGroupId!.toString(),
-          inProtocol: this.currentGroup!.inProtocol
-        }
-      })
-    }
-    this.initTreeStatus()
+    this.getGroupList()
+    // this.initTreeStatus()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
   }
 
   private destroyed() {
     window.removeEventListener('resize', this.calMaxHeight)
+  }
+
+  /**
+   * 获取组列表
+   */
+  private async getGroupList() {
+    this.loading.group = true
+    let params = {
+      pageSize: 1000
+    }
+    const res = await getGroups(params)
+    this.groupList = res.groups
+    if (this.groupList.length) {
+      this.currentGroup = this.groupList[0]
+      this.currentGroupId = this.currentGroup!.groupId!
+      if (!this.$route.query.groupId) {
+        this.$router.push({
+          name: 'device-list',
+          query: {
+            groupId: this.currentGroupId,
+            inProtocol: this.currentGroup!.inProtocol
+          }
+        })
+      }
+      await this.initDirs()
+    }
+    this.loading.group = false
+  }
+
+  /**
+   * 切换业务组
+   */
+  private async changeGroup() {
+    this.currentGroup = this.groupList.find((group: Group) => group.groupId === this.currentGroupId)
+    this.$router.push({
+      name: 'device-list',
+      query: {
+        groupId: this.currentGroupId,
+        inProtocol: this.currentGroup!.inProtocol
+      }
+    })
+    await this.initDirs()
+  }
+
+  /**
+   * 初始化目录
+   */
+  private async initDirs() {
+    const res = await getDeviceTree({
+      groupId: this.currentGroupId,
+      id: 0
+    })
+    this.dirList = res.dirs
   }
 
   /**
@@ -236,38 +251,39 @@ export default class extends Vue {
   /**
    * 初始化目录状态
    */
-  private async initTreeStatus() {
-    const dirTree: any = this.$refs.dirTree
-    const path: string | (string | null)[] | null = this.$route.query.path
-    const keyPath = path ? path.toString().split(',') : null
-    if (keyPath) {
-      for (let i = 0; i < keyPath.length; i++) {
-        const _key = parseInt(keyPath[i])
-        const node = dirTree.getNode(_key)
-        if (node) {
-          await this.loadDirChildren(_key, node)
-          if (i === keyPath.length - 1) {
-            this.breadcrumb = this.getDirPath(node).reverse()
-          }
-        }
-      }
-    }
-  }
+  // private async initTreeStatus() {
+  //   const dirTree: any = this.$refs.dirTree
+  //   console.log(dirTree)
+  //   const path: string | (string | null)[] | null = this.$route.query.path
+  //   const keyPath = path ? path.toString().split(',') : null
+  //   if (keyPath) {
+  //     for (let i = 0; i < keyPath.length; i++) {
+  //       const _key = parseInt(keyPath[i])
+  //       const node = dirTree.getNode(_key)
+  //       if (node) {
+  //         await this.loadDirChildren(_key, node)
+  //         if (i === keyPath.length - 1) {
+  //           this.breadcrumb = this.getDirPath(node).reverse()
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
 
   /**
    * 加载子目录
    */
-  private async loadDirChildren(key: number, node: any) {
-    const dirTree: any = this.$refs.dirTree
-    let data = node.data.children || []
-    let deviceData = await this.loadDevices(node)
-    if (deviceData) {
-      data = data.concat(deviceData)
-    }
-    dirTree.updateKeyChildren(key, data)
-    node.expanded = true
-    node.loaded = true
-  }
+  // private async loadDirChildren(key: number, node: any) {
+  //   const dirTree: any = this.$refs.dirTree
+  //   let data = node.data.children || []
+  //   let deviceData = await this.loadDevices(node)
+  //   if (deviceData) {
+  //     data = data.concat(deviceData)
+  //   }
+  //   dirTree.updateKeyChildren(key, data)
+  //   node.expanded = true
+  //   node.loaded = true
+  // }
 
   /**
    * 设备页面路由
@@ -279,7 +295,7 @@ export default class extends Vue {
     if (!node) {
       _node = dirTree.getNode(item.id)
       if (!_node.loaded) {
-        this.loadDirChildren(item.id, _node)
+        // this.loadDirChildren(item.id, _node)
       }
       _node.parent.expanded = true
       dirTree.setCurrentKey(item.id)
@@ -329,60 +345,48 @@ export default class extends Vue {
   /**
    * 加载设备
    */
-  private loadDevices(node: any) {
-    return new Promise((resolve, reject) => {
-      const item = node.data
-      setTimeout(() => {
-        let data
-        if (item.id === 4) {
-          data = [{
-            label: 'NVR设备',
-            id: 31,
-            type: 'nvr'
-          }, {
-            label: '设备三',
-            id: 34,
-            type: 'ipc',
-            streamStatus: 'on',
-            isLeaf: true
-          }]
-        }
-        if (item.id === 31) {
-          data = [{
-            label: '工厂园区37号楼一层A区通道No.311',
-            id: 32,
-            type: 'ipc',
-            streamStatus: 'on',
-            isLeaf: true
-          }, {
-            label: '通道2',
-            id: 33,
-            type: 'ipc',
-            streamStatus: 'off',
-            isLeaf: true
-          }]
-        }
-        resolve(data)
-      }, 500)
-    })
+  private async getDeviceList(dirId: any) {
+    this.loading.device = true
+    let params = {
+      groupId: this.currentGroupId,
+      dirId: dirId
+    }
+    const res = await getGroups(params)
+    this.deviceList = res.devices
+    this.loading.device = false
   }
 
   /**
    * 加载目录
    */
   private async loadDirs(node: any, resolve: Function) {
-    if (node.isLeaf) return resolve([])
-    if (node.level === 0) {
-      resolve(node.data)
-    } else {
-      console.log(node)
-      let data = node.data.children || []
-      let deviceData = await this.loadDevices(node)
-      if (deviceData) {
-        data = data.concat(deviceData)
-      }
-      resolve(data)
-    }
+    // if (node.isLeaf) return resolve([])
+    // if (node.level === 0) {
+    //   resolve(node.data)
+    // } else {
+    //   console.log(node)
+    //   let data = node.data.children || []
+    //   let deviceData = await this.loadDevices(node)
+    //   if (deviceData) {
+    //     data = data.concat(deviceData)
+    //   }
+    //   resolve(data)
+    // }
+    // let id = 0
+    // if (node.level !== 0) {
+    //   id = node.data.id
+    // }
+    // let dirs = await getDeviceTree({
+    //   groupId: this.currentGroupId,
+    //   id
+    // })
+    // console.log(dirs)
+    if (node.level === 0) return resolve([])
+    const res = await getDeviceTree({
+      groupId: this.currentGroupId,
+      id: node.data.id
+    })
+    resolve(res.dirs)
   }
 
   /**

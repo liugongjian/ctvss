@@ -7,9 +7,23 @@ export const getDevices = (params: any): Promise<any> =>
     params
   })
 
+export const createDevice = (params: any): Promise<any> =>
+  request({
+    url: '/device/create',
+    method: 'post',
+    data: params
+  })
+
 export const deleteDevice = (params: any): Promise<any> =>
   request({
     url: '/device/delete',
     method: 'post',
     data: params
+  })
+
+export const getDeviceTree = (params: any): Promise<any> =>
+  request({
+    url: '/device/tree',
+    method: 'get',
+    params
   })

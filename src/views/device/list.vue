@@ -72,7 +72,7 @@
           <span v-else>-</span>
         </template>
       </el-table-column>
-      <el-table-column v-if="isGb || isNVR" key="gbId" prop="gbId" label="国标ID" min-width="150">
+      <el-table-column v-if="isGb || isNVR" key="gbId" prop="gbId" label="国标ID" min-width="190">
         <template slot-scope="{row}">
           {{ row.gbId || '-' }}
         </template>
@@ -146,7 +146,7 @@ export default class extends Vue {
   private deviceList: Array<Device> = []
 
   private get isGb() {
-    return this.$route.query.inProtocol === 'gb'
+    return this.$route.query.inProtocol === 'gb28181'
   }
 
   private get isNVR() {
@@ -155,78 +155,25 @@ export default class extends Vue {
 
   @Watch('$route.query')
   private onRouterChange() {
-    this.init()
+    this.getDeviceList()
   }
 
   private mounted() {
-    this.init()
+    this.getDeviceList()
   }
 
-  private init() {
-    if (this.isNVR) {
-      this.deviceList = [
-        {
-          deviceId: 32,
-          deviceName: '一楼楼道监控',
-          deviceStatus: 'on',
-          streamStatus: 'on',
-          deviceType: 'ipc',
-          deviceVendor: '海康',
-          deviceIp: '119.13.44.23',
-          devicePort: 3783,
-          gbId: '235433524',
-          tunnelNum: null
-        },
-        {
-          deviceId: 33,
-          deviceName: '一楼楼道监控',
-          deviceStatus: 'off',
-          streamStatus: 'off',
-          deviceType: 'ipc',
-          deviceVendor: '海康',
-          deviceIp: '119.13.44.23',
-          devicePort: 3783,
-          gbId: '235433524',
-          tunnelNum: 120
-        }
-      ]
-    } else {
-      this.deviceList = [
-        {
-          deviceId: 34,
-          deviceName: '一楼楼道监控',
-          deviceStatus: 'on',
-          streamStatus: 'on',
-          deviceType: 'ipc',
-          deviceVendor: '海康',
-          deviceIp: '119.13.44.23',
-          devicePort: 3783,
-          gbId: '235433524',
-          tunnelNum: null
-        },
-        {
-          deviceId: 31,
-          deviceName: '一楼楼道监控',
-          deviceStatus: 'on',
-          streamStatus: 'on',
-          deviceType: 'nvr',
-          deviceVendor: '海康',
-          tunnelNum: 120
-        },
-        {
-          deviceId: 35,
-          deviceName: '一楼楼道监控',
-          deviceStatus: 'off',
-          streamStatus: 'off',
-          deviceType: 'ipc',
-          deviceVendor: '海康',
-          deviceIp: '119.13.44.23',
-          devicePort: 3783,
-          gbId: '235433524',
-          tunnelNum: null
-        }
-      ]
+  /**
+   * 加载设备
+   */
+  private async getDeviceList() {
+    this.loading = true
+    let params = {
+      groupId: this.$route.query.groupId,
+      dirId: this.$route.query.id ? this.$route.query.id : 0
     }
+    const res = await getDevices(params)
+    this.deviceList = res.devices
+    this.loading = false
   }
 
   /**
