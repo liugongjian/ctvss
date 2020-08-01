@@ -69,37 +69,7 @@
       >
         {{ "登录" }}
       </el-button>
-
-      <div style="position:relative">
-        <div class="tips">
-          <span>{{ "账号" }} : admin </span>
-          <span>{{ "密码" }} : {{ "随便填" }} </span>
-        </div>
-        <div class="tips">
-          <span>{{ "账号" }} : editor </span>
-          <span>{{ "密码" }} : {{ "随便填" }} </span>
-        </div>
-
-        <el-button
-          class="thirdparty-button"
-          type="primary"
-          @click="showDialog=true"
-        >
-          {{ "第三方登录" }}
-        </el-button>
-      </div>
     </el-form>
-
-    <el-dialog
-      title="第三方登录"
-      :visible.sync="showDialog"
-    >
-      {{ "第三方登录" }}
-      <br>
-      <br>
-      <br>
-      <social-sign />
-    </el-dialog>
   </div>
 </template>
 
@@ -134,8 +104,8 @@ export default class extends Vue {
     }
   }
   private loginForm = {
-    userName: 'testUser',
-    password: '123456'
+    userName: '',
+    password: ''
   }
   private loginRules = {
     userName: [{ validator: this.validateUsername, trigger: 'blur' }],
