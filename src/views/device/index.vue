@@ -2,7 +2,7 @@
   <div class="app-container">
     <div class="filter-container">
       <el-select
-        v-model="currentGroupId"
+        v-model="groupId"
         class="filter-group"
         placeholder="请选择业务组"
         @change="changeGroup"
@@ -113,8 +113,8 @@ export default class extends Vue {
   private deviceStatus = DeviceStatus
   private deviceType = DeviceType
   private isExpanded = true
-  private currentGroupId: string | null = null
-  private currentGroup: Group | undefined = undefined
+  private groupId: string | null = null
+  // private currentGroup: Group | undefined = undefined
   private keyword = ''
   private maxHeight = 1000
   private parentDir = null
@@ -163,9 +163,14 @@ export default class extends Vue {
     return DeviceModule.breadcrumb
   }
 
-  // private set breadcrumb(value: any) {
-  //   DeviceModule.SetBreadcrumb(value)
-  // }
+  private get currentGroup() {
+    return DeviceModule.group
+  }
+
+  private get currentGroupId() {
+    this.groupId = DeviceModule.group?.groupId!
+    return DeviceModule.group?.groupId
+  }
 
   private mounted() {
     this.getGroupList()
@@ -188,9 +193,8 @@ export default class extends Vue {
     const res = await getGroups(params)
     this.groupList = res.groups
     if (this.groupList.length) {
-      this.currentGroup = this.groupList[0]
-      this.currentGroupId = this.currentGroup!.groupId!
       if (!this.$route.query.groupId) {
+        await DeviceModule.SetGroup(this.groupList[0])
         this.$router.push({
           name: 'device-list',
           query: {
@@ -198,6 +202,9 @@ export default class extends Vue {
             inProtocol: this.currentGroup!.inProtocol
           }
         })
+      } else {
+        const currentGroup = this.groupList.find((group: Group) => group.groupId === this.$route.query.groupId)
+        await DeviceModule.SetGroup(currentGroup)
       }
       await this.initDirs()
     }
@@ -208,7 +215,8 @@ export default class extends Vue {
    * 切换业务组
    */
   private async changeGroup() {
-    this.currentGroup = this.groupList.find((group: Group) => group.groupId === this.currentGroupId)
+    const currentGroup = this.groupList.find((group: Group) => group.groupId === this.groupId)
+    await DeviceModule.SetGroup(currentGroup)
     this.$router.push({
       name: 'device-list',
       query: {
@@ -224,6 +232,7 @@ export default class extends Vue {
    */
   @Provide('initDirs')
   private async initDirs() {
+    await DeviceModule.RestBreadcrumb()
     const res = await getDeviceTree({
       groupId: this.currentGroupId,
       id: 0
@@ -273,7 +282,7 @@ export default class extends Vue {
         if (node) {
           await this.loadDirChildren(_key, node)
           if (i === keyPath.length - 1) {
-            await DeviceModule.SetBreadcrumb(this.getDirPath(node).reverse())
+            DeviceModule.SetBreadcrumb(this.getDirPath(node).reverse())
           }
         }
       }
@@ -312,7 +321,7 @@ export default class extends Vue {
       _node = node
       _node.expanded = true
     }
-    await DeviceModule.SetBreadcrumb(this.getDirPath(_node).reverse())
+    DeviceModule.SetBreadcrumb(this.getDirPath(_node).reverse())
     let router: any
     let query: any = {}
     switch (item.type) {

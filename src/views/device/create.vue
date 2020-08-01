@@ -9,6 +9,20 @@
       label-width="140px"
     >
       <template v-if="!isNVR">
+        <el-form-item v-if="currentGroup" label="业务组:">
+          {{ currentGroup.groupName }}
+        </el-form-item>
+        <el-form-item v-if="breadcrumb" label="当前目录:">
+          <div class="breadcrumb">
+            <span
+              v-for="item in breadcrumb"
+              :key="item.id"
+              class="breadcrumb__item"
+            >
+              {{ item.label }}
+            </span>
+          </div>
+        </el-form-item>
         <el-form-item label="设备类型:" prop="deviceType">
           <el-select v-model="form.deviceType" placeholder="请选择">
             <el-option v-for="item in deviceTypeList" :key="item.value" :label="item.label" :value="item.value" />
@@ -173,6 +187,14 @@ export default class extends Vue {
     account: false
   }
 
+  private get currentGroup() {
+    return DeviceModule.group
+  }
+
+  private get currentGroupId() {
+    return DeviceModule.group!.groupId
+  }
+
   private get isNVR() {
     return this.$route.query.type === 'nvr'
   }
@@ -190,7 +212,7 @@ export default class extends Vue {
   }
 
   private mounted() {
-    this.form.groupId = this.$route.query.groupId.toString()
+    this.form.groupId = this.currentGroupId!
     this.form.dirId = this.$route.query.id ? this.$route.query.id.toString() : '0'
     this.getGbAccounts()
   }
@@ -299,4 +321,14 @@ export default class extends Vue {
   .el-input, .el-select, .el-textarea {
     width: 400px;
   }
+
+  .breadcrumb {
+      &__item:after {
+        content: '/';
+        color: $textGrey;
+      }
+      &__item:last-child:after {
+        content: '';
+      }
+    }
 </style>
