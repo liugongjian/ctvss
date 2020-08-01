@@ -7,47 +7,26 @@
           <div class="preview-player">
             <video id="previewPlayer" ref="video" controls />
           </div>
-          <info-list label-width="70" title="播放地址" class="address">
-            <info-list-item label="RTMP:">
-              rtmp://102715.push.domain.com:3738/vss/237233774?signature=045bfe2107b98f356e459c8b2bd54be4&expired=5EEC5741
+          <info-list v-if="address" label-width="70" title="播放地址" class="address">
+            <info-list-item v-if="address.rtmp" label="RTMP:">
+              {{ address.rtmp }}
               <el-tooltip class="item" effect="dark" content="复制链接" placement="top">
-                <el-button type="text"><i class="el-icon-copy-document" /></el-button>
+                <el-button type="text" @click="copyUrl(address.rtmp)"><i class="el-icon-copy-document" /></el-button>
               </el-tooltip>
             </info-list-item>
-            <info-list-item label="FLV:">
-              https://102715.push.domain.com:3738/vss/237233774.flv?signature=045bfe2107b98f356e459c8b2bd54be4&expired=5EEC5741
+            <info-list-item v-if="address.flv" label="FLV:">
+              {{ address.flv }}
               <el-tooltip class="item" effect="dark" content="复制链接" placement="top">
-                <el-button type="text"><i class="el-icon-copy-document" /></el-button>
+                <el-button type="text" @click="copyUrl(address.flv)"><i class="el-icon-copy-document" /></el-button>
               </el-tooltip>
             </info-list-item>
-            <info-list-item label="HLS:">
-              https://102715.push.domain.com:3738/vss/237233774.m3u8?signature=045bfe2107b98f356e459c8b2bd54be4&expired=5EEC5741
+            <info-list-item v-if="address.hls" label="HLS:">
+              {{ address.hls }}
               <el-tooltip class="item" effect="dark" content="复制链接" placement="top">
-                <el-button type="text"><i class="el-icon-copy-document" /></el-button>
+                <el-button type="text" @click="copyUrl(address.hls)"><i class="el-icon-copy-document" /></el-button>
               </el-tooltip>
             </info-list-item>
           </info-list>
-
-          <!-- <info-list label-width="115" title="模版配置">
-            <info-list-item label="录制模版:">
-              <div class="info-list__edit">
-                <div class="info-list__edit--value">{{ template.recordTemplate?template.recordTemplate:'未配置' }}</div>
-                <div class="info-list__edit--action">
-                  <el-button type="text" @click="setRecordTemplate">设置</el-button>
-                  <el-button v-if="template.recordTemplate" type="text">解绑</el-button>
-                </div>
-              </div>
-            </info-list-item>
-            <info-list-item label="录制模版:">
-              <div class="info-list__edit">
-                <div class="info-list__edit--value">{{ template.snapshotTemplate?template.snapshotTemplate:'未配置' }}</div>
-                <div class="info-list__edit--action">
-                  <el-button type="text" @click="setScrrenCutTemplate">设置</el-button>
-                  <el-button v-if="template.snapshotTemplate" type="text">解绑</el-button>
-                </div>
-              </div>
-            </info-list-item>
-          </info-list> -->
         </el-tab-pane>
         <el-tab-pane v-if="false" label="录制回放" name="replay">
           <div class="replay-wrap">
@@ -149,6 +128,7 @@ import { Component, Vue, Inject } from 'vue-property-decorator'
 import { DeviceStatus, DeviceType, AuthStatus } from '@/dics'
 import { dateFormatInTable, dateFormat } from '@/utils/date'
 import { getDevicePreview } from '@/api/device'
+import copy from 'copy-to-clipboard'
 import Ctplayer from '@/utils/player'
 import SetRecordTemplate from '../components/dialogs/SetRecordTemplate.vue'
 import SetSnapshotTemplate from '../components/dialogs/SetSnapshotTemplate.vue'
@@ -168,6 +148,7 @@ export default class extends Vue {
   private dateFormat = dateFormat
   private activeName = 'preview'
   private player?: Ctplayer
+  private address?: any = null
   private timeList = [
     {
       startTime: 1594260926566,
@@ -201,16 +182,17 @@ export default class extends Vue {
   private mounted() {
     if (this.$route.query.previewTab) this.activeName = this.$route.query.previewTab.toString()
     this.getDevicePreview()
-    this.player = new Ctplayer({
-      id: 'previewPlayer', // 播放器DOM ID
-      autoPlay: true, // 是否允许自动播放
-      source: 'http://jazz.liveplay.kijazz.cn/live/walk.flv' // 视频源
-    })
   }
 
   private async getDevicePreview() {
     const res = await getDevicePreview({
       deviceId: this.deviceId
+    })
+    this.address = res.address
+    this.player = new Ctplayer({
+      id: 'previewPlayer', // 播放器DOM ID
+      autoPlay: true, // 是否允许自动播放
+      source: this.address.flv // 视频源
     })
   }
 
@@ -227,19 +209,19 @@ export default class extends Vue {
 
   private handleClick(tab: any, event: any) {
     this.activeName = tab.name
-    if (tab.name === 'preview') {
-      this.player = new Ctplayer({
-        id: 'previewPlayer', // 播放器DOM ID
-        autoPlay: true, // 是否允许自动播放
-        source: 'http://jazz.liveplay.kijazz.cn/live/walk.flv' // 视频源
-      })
-    } else if (tab.name === 'replay') {
-      this.player = new Ctplayer({
-        id: 'replayPlayer', // 播放器DOM ID
-        autoPlay: true, // 是否允许自动播放
-        source: 'http://jazz.liveplay.kijazz.cn/live/walk.flv' // 视频源
-      })
-    }
+    // if (tab.name === 'preview') {
+    //   this.player = new Ctplayer({
+    //     id: 'previewPlayer', // 播放器DOM ID
+    //     autoPlay: true, // 是否允许自动播放
+    //     source: 'http://jazz.liveplay.kijazz.cn/live/walk.flv' // 视频源
+    //   })
+    // } else if (tab.name === 'replay') {
+    //   this.player = new Ctplayer({
+    //     id: 'replayPlayer', // 播放器DOM ID
+    //     autoPlay: true, // 是否允许自动播放
+    //     source: 'http://jazz.liveplay.kijazz.cn/live/walk.flv' // 视频源
+    //   })
+    // }
   }
 
   private setRecordTemplate() {
@@ -259,6 +241,14 @@ export default class extends Vue {
   }
 
   private changeReplay() {}
+
+  /**
+   * 一键复制
+   */
+  private copyUrl(text: string) {
+    copy(text)
+    this.$message.success('复制成功')
+  }
 }
 </script>
 <style lang="scss" scoped>
