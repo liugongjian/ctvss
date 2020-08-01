@@ -26,19 +26,20 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { Dir } from '@/type/dir'
-import { createDir } from '@/api/dir'
+import { createDir, updateDir } from '@/api/dir'
 
 @Component({
   name: 'CreateDir'
 })
 export default class extends Vue {
   @Prop()
-  private currentDir?: Dir
+  private currentDir?: any
   @Prop()
-  private parentDir?: Dir
+  private parentDir?: any
   @Prop()
   private groupId!: number
   private dialogVisible = true
+  private submitting = false
   private form: Dir = {
     groupId: this.groupId,
     dirName: ''
@@ -50,26 +51,34 @@ export default class extends Vue {
 
   private mounted() {
     if (this.currentDir) {
-      this.form.dirId = this.currentDir.dirId
-      this.form.dirName = this.currentDir.dirName
+      this.form.dirId = this.currentDir.id
+      this.form.dirName = this.currentDir.label
     }
     if (this.parentDir) {
-      this.form.parentDirId = this.parentDir.dirId
+      this.form.parentDirId = this.parentDir.id
+    } else {
+      this.form.parentDirId = '0'
     }
   }
 
   private async submit() {
-    await createDir({
-      groupId: this.groupId,
-      dirName: this.form.dirName,
-      parentDirId: this.parentDir ? this.parentDir.dirId : '0'
-    })
-    this.closeDialog()
+    try {
+      this.submitting = true
+      this.isEdit ? await updateDir(this.form) : await createDir(this.form)
+    } catch (e) {
+      this.$message.error(e.response.data.message)
+    } finally {
+      this.submitting = false
+    }
+    this.closeDialog(true)
   }
 
-  private closeDialog() {
+  private closeDialog(isRefresh: boolean = false) {
     this.dialogVisible = false
-    this.$emit('on-close')
+    this.$emit('on-close', {
+      type: 'createDir',
+      isRefresh
+    })
   }
 }
 </script>

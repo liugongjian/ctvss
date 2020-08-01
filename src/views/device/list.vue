@@ -1,23 +1,23 @@
 <template>
   <div class="device-list__container">
-    <div v-if="isNVR" class="device-info">
-      <info-list label-width="80">
+    <div v-if="isNVR" class="device-info" :loading="loading.info">
+      <info-list v-if="deviceInfo" label-width="80">
         <info-list-item label="设备名称:">{{ deviceInfo.deviceName }}</info-list-item>
         <info-list-item label="创建时间:">{{ deviceInfo.createdTime }}</info-list-item>
         <info-list-item label="设备状态:">
           <status-badge :status="deviceInfo.deviceStatus" />
           {{ deviceStatus[deviceInfo.deviceStatus] }}
         </info-list-item>
-        <info-list-item label="通道数量:">{{ deviceInfo.channelSize }}</info-list-item>
-        <info-list-item label="在线流数量:">{{ deviceInfo.onlineSize }}</info-list-item>
+        <info-list-item label="通道数量:">{{ deviceInfo.deviceStats.channelSize }}</info-list-item>
+        <info-list-item label="在线流数量:">{{ deviceInfo.deviceStats.onlineSize }}</info-list-item>
       </info-list>
     </div>
     <div class="filter-container clearfix">
       <div class="filter-container__left">
         <el-button type="primary" @click="handleCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
-        <el-button>导出</el-button>
+        <el-button disabled>导出</el-button>
         <el-dropdown>
-          <el-button>批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
+          <el-button disabled>批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item v-if="!isNVR">移动至</el-dropdown-item>
             <el-dropdown-item>启用流</el-dropdown-item>
@@ -27,13 +27,13 @@
         </el-dropdown>
       </div>
       <div class="filter-container__right">
-        <el-input v-model="keyword" class="filter-container__search-group" placeholder="请输入关键词">
+        <el-input v-model="keyword" class="filter-container__search-group" placeholder="请输入关键词" disabled>
           <el-button slot="append" class="el-button-rect" icon="el-icon-search" />
         </el-input>
         <el-button class="el-button-rect" icon="el-icon-refresh" />
       </div>
     </div>
-    <el-table v-loading="loading" :data="deviceList" fit>
+    <el-table v-loading="loading.list" :data="deviceList" fit>
       <el-table-column type="selection" width="55" />
       <el-table-column
         :label="isNVR ? '通道号/通道名称' : '设备ID/名称'"
@@ -79,7 +79,7 @@
       </el-table-column>
       <el-table-column v-if="isGb && !isNVR" key="tunnelNum" label="通道数">
         <template slot-scope="{row}">
-          <el-button v-if="row.tunnelNum" type="text" @click="goInto(row)">{{ row.tunnelNum || '-' }}</el-button>
+          <el-button v-if="row.deviceStats && row.deviceStats.channelSize" type="text" @click="goInto(row)">{{ row.deviceStats.channelSize }}</el-button>
           <span v-else>-</span>
         </template>
       </el-table-column>
@@ -93,10 +93,10 @@
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item v-if="isGb && scope.row.deviceType === 'nvr'" :command="{type: 'nvr', device: scope.row}">查看通道</el-dropdown-item>
               <el-dropdown-item :command="{type: 'detail', device: scope.row}">设备详情</el-dropdown-item>
-              <el-dropdown-item>停用流</el-dropdown-item>
-              <el-dropdown-item v-if="!isNVR">移动至</el-dropdown-item>
-              <el-dropdown-item :command="{type: 'edit', device: scope.row}">编辑</el-dropdown-item>
-              <el-dropdown-item :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
+              <el-dropdown-item disabled>停用流</el-dropdown-item>
+              <el-dropdown-item v-if="!isNVR" disabled>移动至</el-dropdown-item>
+              <el-dropdown-item disabled :command="{type: 'edit', device: scope.row}">编辑</el-dropdown-item>
+              <el-dropdown-item disabled :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </template>
@@ -115,7 +115,7 @@ import { Device } from '@/type/device'
 import { DeviceStatus, DeviceType } from '@/dics'
 import TunnelInfo from './components/TunnelInfo.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
-import { getDevices, deleteDevice } from '@/api/device'
+import { getDevice, getDevices, getChannels, deleteDevice } from '@/api/device'
 
 @Component({
   name: 'DeviceList',
@@ -128,20 +128,17 @@ export default class extends Vue {
   @Inject('deviceRouter') private deviceRouter!: Function
   private deviceStatus = DeviceStatus
   private deviceType = DeviceType
-  private loading = false
+  private loading = {
+    info: false,
+    list: false
+  }
   private keyword = ''
   private pager = {
     pageNum: 1,
     pageSize: 10,
-    total: 20
+    total: 0
   }
-  private deviceInfo = {
-    deviceName: 'NVR设备名称',
-    channelSize: 20,
-    onlineSize: 17,
-    createdTime: '2020-06-13 18:12:44',
-    deviceStatus: 'on'
-  }
+  private deviceInfo = null
 
   private deviceList: Array<Device> = []
 
@@ -153,27 +150,66 @@ export default class extends Vue {
     return this.$route.query.type === 'nvr'
   }
 
+  private get groupId() {
+    return this.$route.query.groupId
+  }
+
+  private get id() {
+    return this.$route.query.id
+  }
+
   @Watch('$route.query')
   private onRouterChange() {
+    this.getNVRDeviceInfo()
     this.getDeviceList()
   }
 
   private mounted() {
+    this.getNVRDeviceInfo()
     this.getDeviceList()
   }
 
+  private async getNVRDeviceInfo() {
+    if (this.isNVR && this.id) {
+      this.deviceInfo = await getDevice({
+        deviceId: this.id
+      })
+    }
+  }
+
   /**
-   * 加载设备
+   * 加载设备列表
    */
   private async getDeviceList() {
-    this.loading = true
-    let params = {
-      groupId: this.$route.query.groupId,
-      dirId: this.$route.query.id ? this.$route.query.id : 0
+    if (!this.groupId) return
+    this.loading.list = true
+    try {
+      let res: any
+      if (this.isNVR) {
+        let params = {
+          groupId: this.groupId,
+          deviceId: this.id
+        }
+        res = await getChannels(params)
+        this.deviceList = res.channels
+      } else {
+        let params = {
+          groupId: this.groupId,
+          dirId: this.id ? this.id : -1
+        }
+        res = await getDevices(params)
+        this.deviceList = res.devices
+      }
+      this.pager = {
+        pageNum: res.pageNum,
+        pageSize: res.pageSize,
+        total: res.totalNum
+      }
+    } catch (e) {
+      console.error(e)
+    } finally {
+      this.loading.list = false
     }
-    const res = await getDevices(params)
-    this.deviceList = res.devices
-    this.loading = false
   }
 
   /**
@@ -215,7 +251,8 @@ export default class extends Vue {
       type: '设备',
       msg: `是否确认删除设备"${device.deviceName}"`,
       method: deleteDevice,
-      payload: { deviceId: device.deviceId }
+      payload: { deviceId: device.deviceId },
+      onSuccess: this.getDeviceList
     })
   }
 

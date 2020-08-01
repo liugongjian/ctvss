@@ -31,7 +31,7 @@
               <el-tooltip class="item" effect="dark" content="添加目录" placement="top" :open-delay="300">
                 <el-button type="text" @click="openDialog('createDir')"><i class="el-icon-plus" /></el-button>
               </el-tooltip>
-              <el-tooltip class="item" effect="dark" content="目录设置" placement="top" :open-delay="300">
+              <el-tooltip v-if="false" class="item" effect="dark" content="目录设置" placement="top" :open-delay="300">
                 <el-button type="text"><i class="el-icon-setting" /></el-button>
               </el-tooltip>
             </div>
@@ -57,7 +57,7 @@
                     <el-tooltip class="item" effect="dark" content="添加子目录" placement="top" :open-delay="300">
                       <el-button type="text" @click.stop="openDialog('createDir', data)"><i class="el-icon-plus" /></el-button>
                     </el-tooltip>
-                    <el-tooltip class="item" effect="dark" content="编辑目录" placement="top" :open-delay="300">
+                    <el-tooltip v-if="false" class="item" effect="dark" content="编辑目录" placement="top" :open-delay="300">
                       <el-button type="text" @click.stop="openDialog('updateDir', data)"><i class="el-icon-edit" /></el-button>
                     </el-tooltip>
                     <el-tooltip class="item" effect="dark" content="删除目录" placement="top" :open-delay="300">
@@ -86,7 +86,7 @@
         </div>
       </div>
     </el-card>
-    <create-dir v-if="dialog.createDir" :parent-dir="parentDir" :current-dir="currentDir" :group-id="currentGroupId" @on-close="closeDialog('createDir')" />
+    <create-dir v-if="dialog.createDir" :parent-dir="parentDir" :current-dir="currentDir" :group-id="currentGroupId" @on-close="closeDialog" />
   </div>
 </template>
 <script lang="ts">
@@ -156,12 +156,11 @@ export default class extends Vue {
     if (!id) {
       return null
     }
-    return parseInt(id.toString())
+    return id
   }
 
   private mounted() {
     this.getGroupList()
-    // this.initTreeStatus()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
   }
@@ -221,6 +220,9 @@ export default class extends Vue {
       id: 0
     })
     this.dirList = res.dirs
+    this.$nextTick(() => {
+      this.initTreeStatus()
+    })
   }
 
   /**
@@ -251,39 +253,37 @@ export default class extends Vue {
   /**
    * 初始化目录状态
    */
-  // private async initTreeStatus() {
-  //   const dirTree: any = this.$refs.dirTree
-  //   console.log(dirTree)
-  //   const path: string | (string | null)[] | null = this.$route.query.path
-  //   const keyPath = path ? path.toString().split(',') : null
-  //   if (keyPath) {
-  //     for (let i = 0; i < keyPath.length; i++) {
-  //       const _key = parseInt(keyPath[i])
-  //       const node = dirTree.getNode(_key)
-  //       if (node) {
-  //         await this.loadDirChildren(_key, node)
-  //         if (i === keyPath.length - 1) {
-  //           this.breadcrumb = this.getDirPath(node).reverse()
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
+  private async initTreeStatus() {
+    const dirTree: any = this.$refs.dirTree
+    const path: string | (string | null)[] | null = this.$route.query.path
+    const keyPath = path ? path.toString().split(',') : null
+    if (keyPath) {
+      for (let i = 0; i < keyPath.length; i++) {
+        const _key = keyPath[i]
+        const node = dirTree.getNode(_key)
+        if (node) {
+          await this.loadDirChildren(_key, node)
+          if (i === keyPath.length - 1) {
+            this.breadcrumb = this.getDirPath(node).reverse()
+          }
+        }
+      }
+    }
+  }
 
   /**
    * 加载子目录
    */
-  // private async loadDirChildren(key: number, node: any) {
-  //   const dirTree: any = this.$refs.dirTree
-  //   let data = node.data.children || []
-  //   let deviceData = await this.loadDevices(node)
-  //   if (deviceData) {
-  //     data = data.concat(deviceData)
-  //   }
-  //   dirTree.updateKeyChildren(key, data)
-  //   node.expanded = true
-  //   node.loaded = true
-  // }
+  private async loadDirChildren(key: string, node: any) {
+    const dirTree: any = this.$refs.dirTree
+    let data = await getDeviceTree({
+      groupId: this.currentGroupId,
+      id: node.data.id
+    })
+    dirTree.updateKeyChildren(key, data.dirs)
+    node.expanded = true
+    node.loaded = true
+  }
 
   /**
    * 设备页面路由
@@ -295,12 +295,13 @@ export default class extends Vue {
     if (!node) {
       _node = dirTree.getNode(item.id)
       if (!_node.loaded) {
-        // this.loadDirChildren(item.id, _node)
+        this.loadDirChildren(item.id, _node)
       }
       _node.parent.expanded = true
       dirTree.setCurrentKey(item.id)
     } else {
       _node = node
+      _node.expanded = true
     }
     this.breadcrumb = this.getDirPath(_node).reverse()
     let router: any
@@ -360,31 +361,11 @@ export default class extends Vue {
    * 加载目录
    */
   private async loadDirs(node: any, resolve: Function) {
-    // if (node.isLeaf) return resolve([])
-    // if (node.level === 0) {
-    //   resolve(node.data)
-    // } else {
-    //   console.log(node)
-    //   let data = node.data.children || []
-    //   let deviceData = await this.loadDevices(node)
-    //   if (deviceData) {
-    //     data = data.concat(deviceData)
-    //   }
-    //   resolve(data)
-    // }
-    // let id = 0
-    // if (node.level !== 0) {
-    //   id = node.data.id
-    // }
-    // let dirs = await getDeviceTree({
-    //   groupId: this.currentGroupId,
-    //   id
-    // })
-    // console.log(dirs)
     if (node.level === 0) return resolve([])
     const res = await getDeviceTree({
       groupId: this.currentGroupId,
-      id: node.data.id
+      id: node.data.id,
+      type: node.data.type
     })
     resolve(res.dirs)
   }
@@ -440,7 +421,8 @@ export default class extends Vue {
       type: '目录',
       msg: `是否确认删除目录"${dir.label}"`,
       method: deleteDir,
-      payload: { dirId: dir.dirId }
+      payload: { dirId: dir.id },
+      onSuccess: this.initDirs
     })
   }
 
@@ -467,14 +449,17 @@ export default class extends Vue {
   /**
    * 关闭对话框
    */
-  private closeDialog(type: string) {
+  private closeDialog(payload: any) {
     // @ts-ignore
-    this.dialog[type] = false
-    switch (type) {
+    this.dialog[payload.type] = false
+    switch (payload.type) {
       case 'createDir':
       case 'updateDir':
         this.currentDir = null
         this.parentDir = null
+    }
+    if (payload.isRefresh) {
+      this.initDirs()
     }
   }
 }

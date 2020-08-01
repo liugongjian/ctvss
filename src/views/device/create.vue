@@ -14,15 +14,20 @@
       <template v-if="!isNVR">
         <el-form-item label="设备类型:" prop="deviceType">
           <el-select v-model="form.deviceType" placeholder="请选择">
-            <el-option v-for="item in deviceTypeList" :key="item" :label="item" :value="item" />
+            <el-option v-for="item in deviceTypeList" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item v-if="form.deviceType === 'NVR'" label="自动创建子设备:" prop="createSubDevice" class="form-with-tip">
-          <el-switch v-model="form.createSubDevice" />
+        <el-form-item v-if="form.deviceType === 'nvr'" label="自动创建子设备:" prop="createSubDevice" class="form-with-tip">
+          <el-switch v-model="form.createSubDevice" active-value="1" inactive-value="2" />
           <div class="form-tip">当开启自动创建NVR子设备时，系统将自动为子设备分配通道号和通道名称。</div>
         </el-form-item>
-        <el-form-item v-if="form.deviceType === 'NVR' && form.createSubDevice" label="子设备数量:" prop="channelSize">
+        <el-form-item v-if="form.deviceType === 'nvr' && form.createSubDevice === '1'" label="子设备数量:" prop="channelSize">
           <el-input-number v-model="form.channelSize" type="number" />
+        </el-form-item>
+        <el-form-item label="国标版本:" prop="gbVersion">
+          <el-radio-group v-model="form.gbVersion">
+            <el-radio-button v-for="item in gbVersionList" :key="item" :label="item" :value="item" />
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="厂商:" prop="deviceVendor">
           <el-select v-model="form.deviceVendor">
@@ -33,17 +38,39 @@
           <el-input v-model="form.deviceName" />
           <div class="form-tip">4-16位，可包含大小写字母、数字、中划线。</div>
         </el-form-item>
-        <el-form-item label="设备IP:" prop="gbIp">
-          <el-input v-model="form.gbIp" />
+        <el-form-item label="设备IP:" prop="deviceIp">
+          <el-input v-model="form.deviceIp" />
         </el-form-item>
-        <el-form-item label="设备端口:" prop="gbPort">
-          <el-input v-model="form.gbPort" />
+        <el-form-item label="设备端口:" prop="devicePort">
+          <el-input v-model.number="form.devicePort" />
         </el-form-item>
-        <el-form-item label="GB28181账号:" prop="gbAccount">
-          <el-select v-model="form.gbAccount">
-            <el-option v-for="item in gbAccountList" :key="item" :label="item" :value="item" />
+        <el-form-item label="GB28181账号:" prop="userName">
+          <el-select v-model="form.userName">
+            <el-option-group label="匿名">
+              <el-option
+                v-for="item in gbAccountList.anonymous"
+                :key="item.userName"
+                :label="item.userName"
+                :value="item.userName"
+              />
+            </el-option-group>
+            <el-option-group label="非匿名">
+              <el-option
+                v-for="item in gbAccountList.normal"
+                :key="item.userName"
+                :label="item.userName"
+                :value="item.userName"
+              />
+            </el-option-group>
           </el-select>
           <el-button type="text" class="ml10" @click="openDialog('createGb28181Certificate')">新建账号</el-button>
+        </el-form-item>
+        <el-form-item label="自动拉流:" prop="pullType" class="form-with-tip">
+          <el-switch v-model="form.pullType" active-value="1" inactive-value="2" />
+          <div class="form-tip">开启自动拉流时，国标设备注册成功后自动启动拉流；否则，需要通过触发的方式启动拉流。</div>
+        </el-form-item>
+        <el-form-item label="设备描述:" prop="description">
+          <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
         </el-form-item>
       </template>
       <template v-else>
@@ -59,6 +86,9 @@
           <el-input v-model="form.channelName" />
           <div class="form-tip">4-16位，可包含大小写字母、数字、中划线。</div>
         </el-form-item>
+        <el-form-item label="设备描述:" prop="description">
+          <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
+        </el-form-item>
       </template>
       <el-form-item label="">
         <el-button type="primary" @click="submit">确 定</el-button>
@@ -70,8 +100,10 @@
 </template>
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
+import { pick } from 'lodash'
 import { DeviceType } from '@/dics'
 import { createDevice } from '@/api/device'
+import { getList as getGbList } from '@/api/certificate/gb28181'
 import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
 
 @Component({
@@ -93,6 +125,9 @@ export default class extends Vue {
     deviceType: [
       { required: true, message: '请选择设备类型', trigger: 'change' }
     ],
+    gbVersion: [
+      { required: true, message: '请选择国标版本', trigger: 'change' }
+    ],
     channelSize: [
       { required: true, message: '请填写子设备数量', trigger: 'blur' }
     ],
@@ -100,22 +135,37 @@ export default class extends Vue {
       { required: true, message: '请填写通道号', trigger: 'blur' },
       { validator: this.validateChannelNum, trigger: 'blur' }
     ],
-    gbAccount: [
+    userName: [
       { required: true, message: '请选择账号', trigger: 'change' }
     ]
   }
   private deviceVendorList = ['海康', '大宇', '其他']
-  private deviceTypeList = Object.values(DeviceType)
-  private gbAccountList = ['user1', 'user2']
+  private gbVersionList = ['2011', '2016']
+  private deviceTypeList = Object.values(DeviceType).map(type => {
+    return {
+      label: type,
+      value: type.toLowerCase()
+    }
+  })
+  private gbAccountList = {
+    normal: [],
+    anonymous: []
+  }
   private form = {
+    groupId: '',
+    dirId: '',
     deviceName: '',
+    deviceType: '',
+    deviceVendor: '',
+    gbVersion: '2016',
+    deviceIp: '',
+    devicePort: null,
+    channelSize: '',
+    channelNum: '',
+    channelName: '',
     description: '',
-    createSubDevice: true,
-    region: '华东',
-    inProtocol: 'gb28181',
-    outProtocol: [],
-    pushDomainName: '',
-    pullDomainName: ''
+    createSubDevice: '1',
+    pullType: '1'
   }
   private dialog = {
     createGb28181Certificate: false
@@ -131,6 +181,12 @@ export default class extends Vue {
       title = title.replace('设备', '子设备')
     }
     return title
+  }
+
+  private mounted() {
+    this.form.groupId = this.$route.query.groupId.toString()
+    this.form.dirId = this.$route.query.id.toString()
+    this.getGbAccounts()
   }
 
   /**
@@ -172,18 +228,45 @@ export default class extends Vue {
     })
   }
 
+  private async getGbAccounts() {
+    const res = await getGbList({
+      pageSize: 1000
+    })
+    res.gbCerts.forEach((account: any) => {
+      // @ts-ignore
+      this.gbAccountList[account.userType].push(account)
+    })
+  }
+
   private submit() {
     const form: any = this.$refs.dataForm
     form.validate(async(valid: any) => {
       if (valid) {
         try {
-          await createDevice(this.form)
+          let params = pick(this.form, ['groupId', 'dirId', 'deviceName', 'deviceVendor', 'description'])
+          if (!this.isNVR) {
+            // 非NVR子设备
+            params = Object.assign(params, pick(this.form, ['deviceType', 'gbVersion', 'deviceIp', 'devicePort', 'pullType', 'userName']))
+            if (this.form.deviceType === 'nvr') {
+              // NVR子设备添加额外参数
+              params = Object.assign(params, {
+                channelSize: this.form.channelSize,
+                createSubDevice: this.form.createSubDevice
+              })
+            }
+          } else {
+            // NVR子设备
+            params = Object.assign(params, {
+              deviceName: this.form.channelName,
+              channelNum: this.form.channelNum
+            })
+          }
+          await createDevice(params)
           this.back()
         } catch (e) {
           console.log(e)
         }
       } else {
-        console.log('error submit!!')
         return false
       }
     })
