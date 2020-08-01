@@ -5,7 +5,7 @@
         <el-button type="primary" @click="handleCreate">新建录制模板</el-button>
         <div class="filter-container__right">
           <el-input v-model="recordTemplateName" class="filter-container__search-group" placeholder="请输入录制模板名称" @keyup.enter.native="handleFilter">
-            <el-button slot="append" class="el-button-rect" icon="el-icon-search" />
+            <el-button slot="append" class="el-button-rect" icon="el-icon-search" @click="handleFilter" />
           </el-input>
           <el-button class="el-button-rect" icon="el-icon-refresh" @click="refresh" />
         </div>
@@ -29,7 +29,7 @@
         </el-table-column>
         <el-table-column prop="storageTime" label="存储时长" min-width="100">
           <template slot-scope="{row}">
-            <span>{{ row.storageTime + '分钟' }}</span>
+            <span>{{ row.storageTime ? row.storageTime + '分钟' : '永久存储' }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="createTime" label="创建时间" min-width="160" />
@@ -85,7 +85,7 @@ export default class extends Vue {
     try {
       this.loading = true
       let params = {
-        keyWord: this.recordTemplateName,
+        templateName: this.recordTemplateName || undefined,
         pageNum: this.pager.pageNum,
         pageSize: this.pager.pageSize
       }
