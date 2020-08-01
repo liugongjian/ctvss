@@ -27,7 +27,11 @@
             <span v-html="row.storeType.join(', ')" />
           </template>
         </el-table-column>
-        <el-table-column prop="storageTime" label="存储时长" min-width="100" />
+        <el-table-column prop="storageTime" label="存储时长" min-width="100">
+          <template slot-scope="{row}">
+            <span>{{ row.storageTime + '分钟' }}</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="createTime" label="创建时间" min-width="160" />
         <el-table-column prop="action" label="操作" width="250" fixed="right">
           <template slot-scope="scope">

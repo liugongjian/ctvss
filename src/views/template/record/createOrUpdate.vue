@@ -230,6 +230,9 @@ export default class extends Vue {
         this.loading = false
         if (res.errorCode) {
           console.log('error create!!')
+        } else {
+          this.$message.success(this.form.templateId ? '录制模板编辑成功' : '录制模板创建成功')
+          this.back()
         }
       } else {
         console.log('error submit!!')
