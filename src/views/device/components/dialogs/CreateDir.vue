@@ -18,7 +18,7 @@
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button type="primary" @click="submit">确 定</el-button>
+      <el-button type="primary" :loading="submitting" @click="submit">确 定</el-button>
       <el-button @click="closeDialog">取 消</el-button>
     </div>
   </el-dialog>
@@ -65,8 +65,9 @@ export default class extends Vue {
     try {
       this.submitting = true
       this.isEdit ? await updateDir(this.form) : await createDir(this.form)
+      this.$message.success('创建目录成功！')
     } catch (e) {
-      this.$message.error(e.response.data.message)
+      this.$message.error(e)
     } finally {
       this.submitting = false
     }

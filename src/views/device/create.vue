@@ -102,7 +102,7 @@
         </el-form-item>
       </template>
       <el-form-item label="">
-        <el-button type="primary" @click="submit">确 定</el-button>
+        <el-button type="primary" :loading="submitting" @click="submit">确 定</el-button>
         <el-button @click="back">取 消</el-button>
       </el-form-item>
     </el-form>
@@ -186,6 +186,7 @@ export default class extends Vue {
   private loading = {
     account: false
   }
+  private submitting = false
 
   private get currentGroup() {
     return DeviceModule.group
@@ -285,6 +286,7 @@ export default class extends Vue {
     form.validate(async(valid: any) => {
       if (valid) {
         try {
+          this.submitting = true
           let params = pick(this.form, ['groupId', 'dirId', 'deviceName', 'deviceVendor', 'description'])
           if (!this.isNVR) {
             // 非NVR子设备
@@ -304,10 +306,13 @@ export default class extends Vue {
             })
           }
           await createDevice(params)
+          this.$message.success('创建设备成功！')
           this.back()
           this.initDirs()
         } catch (e) {
-          console.log(e)
+          this.$message.error(e)
+        } finally {
+          this.submitting = false
         }
       } else {
         return false
