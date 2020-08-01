@@ -79,7 +79,7 @@ class User extends VuexModule implements IUserState {
       data: {
         user: {
           roles: ['admin'],
-          name: 'ChinaTelecom',
+          name: 'VSS',
           avatar: './img/ct.png',
           introduction: '欢迎光临',
           email: 'test@chinatelecom.cn'
