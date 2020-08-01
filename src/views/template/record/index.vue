@@ -11,15 +11,24 @@
         </div>
       </div>
       <el-table v-loading="loading" :data="dataList" fit>
-        <el-table-column prop="templateName" label="模板名称" min-width="200" />
-        <el-table-column prop="region" label="服务区域" min-width="100" />
-        <el-table-column prop="interval" label="周期时长" min-width="100" />
+        <el-table-column prop="templateName" label="模板名称" min-width="150" />
+        <el-table-column prop="storeType" label="录制类别" min-width="100">
+          <template slot-scope="{row}">
+            <span v-html="row.recordType === 1 ? '自动录制' : '按需录制'" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="interval" label="周期时长" min-width="100">
+          <template slot-scope="{row}">
+            <span>{{ row.interval + '分钟' }}</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="storeType" label="存储格式" min-width="100">
           <template slot-scope="{row}">
             <span v-html="row.storeType.join(', ')" />
           </template>
         </el-table-column>
-        <el-table-column prop="createdTime" label="创建时间" min-width="160" />
+        <el-table-column prop="storageTime" label="存储时长" min-width="100" />
+        <el-table-column prop="createTime" label="创建时间" min-width="160" />
         <el-table-column prop="action" label="操作" width="250" fixed="right">
           <template slot-scope="scope">
             <el-button type="text" @click="update(scope.row)">编辑</el-button>
@@ -78,11 +87,17 @@ export default class extends Vue {
       }
       const res = await getRecordTemplates(params)
       this.loading = false
-      this.dataList = res.templates
-      this.pager.total = res.total
+      this.dataList = res.templates.map((template: any) => {
+        template.storeType = ['hls']
+        template.interval = (template.hlsParam || template.mpParam || template.flvParam).interval / 60
+        template.storageTime = (template.hlsParam || template.mpParam || template.flvParam).storageTime / 60
+        return template
+      })
+      this.pager.total = res.totalNum
       this.pager.pageNum = res.pageNum
       this.pager.pageSize = res.pageSize
     } catch (e) {
+      this.$message.error(`获取录制模板失败，原因：${e}`)
       this.loading = false
     }
   }
