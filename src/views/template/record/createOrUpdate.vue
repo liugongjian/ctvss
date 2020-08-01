@@ -163,7 +163,8 @@ export default class extends Vue {
         interval: data.hlsParam.interval / 60,
         storageTime: data.hlsParam.storageTime / 60,
         m3u8: data.hlsParam.muPath,
-        ts: data.hlsParam.tsPath
+        ts: data.hlsParam.tsPath,
+        description: data.description
       }
       this.form = {
         ...this.form,
