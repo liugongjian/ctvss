@@ -111,6 +111,7 @@ export default class extends Vue {
             await createCertificate(this.form)
           }
           onSuccess()
+          this.$message.success('新建GB28181凭证成功！')
         } catch (e) {
           this.$message.error(e)
         } finally {
