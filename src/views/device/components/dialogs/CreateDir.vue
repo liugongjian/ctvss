@@ -66,7 +66,7 @@ export default class extends Vue {
       this.submitting = true
       this.isEdit ? await updateDir(this.form) : await createDir(this.form)
     } catch (e) {
-      this.$message.error(e.response.data.message)
+      this.$message.error(message)
     } finally {
       this.submitting = false
     }

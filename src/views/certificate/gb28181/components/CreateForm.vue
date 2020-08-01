@@ -112,7 +112,7 @@ export default class extends Vue {
           }
           onSuccess()
         } catch (e) {
-          this.$message.error(e.response.data.message)
+          this.$message.error(message)
         } finally {
           this.loading = false
         }
@@ -133,7 +133,7 @@ export default class extends Vue {
         const res = await queryCertificate({ userName: this.form.userName })
         this.form = res
       } catch (e) {
-        this.$message.error(e.response.data.message)
+        this.$message.error(message)
       } finally {
         this.loading = false
       }

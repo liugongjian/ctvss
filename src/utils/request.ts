@@ -43,7 +43,12 @@ service.interceptors.response.use(
         location.reload() // To prevent bugs from vue-router
       })
     }
-    return Promise.reject(error)
+    const message = error.response.data ? error.response.data.message : null
+    if (message) {
+      return Promise.reject(message)
+    } else {
+      Message.error('服务器异常，请稍后再试。')
+    }
   }
 )
 
