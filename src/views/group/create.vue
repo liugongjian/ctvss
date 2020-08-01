@@ -61,8 +61,10 @@
           <div class="form-tip">当启用自动拉流，国标设备注册成功后自动启动拉流。关闭该选项后需要通过触发的方式启动拉流。</div>
         </el-form-item>
         <el-form-item label="">
-          <el-button :loading="loading" type="primary" @click="submit">确定</el-button>
-          <el-button @click="back">取 消</el-button>
+          <div class="mt10">
+            <el-button :loading="loading" type="primary" @click="submit">确定</el-button>
+            <el-button @click="back">取 消</el-button>
+          </div>
         </el-form-item>
       </el-form>
     </el-card>

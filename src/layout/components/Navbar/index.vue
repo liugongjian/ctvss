@@ -11,18 +11,6 @@
       class="breadcrumb-container"
     />
     <div class="right-menu">
-      <template v-if="device!=='mobile'">
-        <!-- <header-search class="right-menu-item" />
-        <error-log class="errLog-container right-menu-item hover-effect" /> -->
-        <screenfull class="right-menu-item hover-effect" />
-        <el-tooltip
-          content="布局大小"
-          effect="dark"
-          placement="bottom"
-        >
-          <size-select class="right-menu-item hover-effect" />
-        </el-tooltip>
-      </template>
       <el-dropdown
         class="avatar-container right-menu-item hover-effect"
         trigger="click"
