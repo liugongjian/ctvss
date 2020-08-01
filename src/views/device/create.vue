@@ -306,6 +306,7 @@ export default class extends Vue {
             })
           }
           await createDevice(params)
+          this.$message.success('创建设备成功！')
           this.back()
           this.initDirs()
         } catch (e) {

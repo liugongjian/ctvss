@@ -65,6 +65,7 @@ export default class extends Vue {
     try {
       this.submitting = true
       this.isEdit ? await updateDir(this.form) : await createDir(this.form)
+      this.$message.success('创建目录成功！')
     } catch (e) {
       this.$message.error(e)
     } finally {

@@ -188,6 +188,8 @@ export default class extends Vue {
           } else {
             res = await createGroup(params)
           }
+          this.$message.success('创建业务组成功！')
+          this.back()
         } catch (e) {
           this.$message.error(e)
         } finally {
