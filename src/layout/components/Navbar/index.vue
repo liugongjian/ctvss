@@ -11,15 +11,25 @@
       class="breadcrumb-container"
     />
     <div class="right-menu">
+      <template v-if="device!=='mobile'">
+        <!-- <header-search class="right-menu-item" />
+        <error-log class="errLog-container right-menu-item hover-effect" /> -->
+        <screenfull class="right-menu-item hover-effect" />
+        <el-tooltip
+          content="布局大小"
+          effect="dark"
+          placement="bottom"
+        >
+          <size-select class="right-menu-item hover-effect" />
+        </el-tooltip>
+      </template>
+
       <el-dropdown
         class="avatar-container right-menu-item hover-effect"
         trigger="click"
       >
         <div class="avatar-wrapper">
-          <img
-            :src="avatar+'?imageView2/1/w/80/h/80'"
-            class="user-avatar"
-          >
+          {{ name }}
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown">
@@ -77,6 +87,10 @@ export default class extends Vue {
     return UserModule.avatar
   }
 
+  get name() {
+    return UserModule.name
+  }
+
   private toggleSideBar() {
     AppModule.ToggleSideBar(false)
   }
@@ -132,7 +146,7 @@ export default class extends Vue {
       display: inline-block;
       padding: 0 8px;
       height: 100%;
-      font-size: 18px;
+      font-size: 16px;
       color: #5a5e66;
       vertical-align: text-bottom;
 
@@ -150,7 +164,7 @@ export default class extends Vue {
       margin-right: 30px;
 
       .avatar-wrapper {
-        margin-top: 5px;
+        margin-top: 1px;
         position: relative;
 
         .user-avatar {
@@ -163,8 +177,8 @@ export default class extends Vue {
         .el-icon-caret-bottom {
           cursor: pointer;
           position: absolute;
-          right: -20px;
-          top: 25px;
+          right: -15px;
+          top: 19px;
           font-size: 12px;
         }
       }
