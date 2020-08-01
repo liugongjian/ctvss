@@ -120,7 +120,7 @@ export default class extends Vue {
         this.template.recordTemplate = res.recordTemplate
         this.template.snapshotTemplate = res.snapshotTemplate
       } catch (e) {
-        this.$message.error(message)
+        this.$message.error(e)
       }
     }
   }
@@ -143,7 +143,7 @@ export default class extends Vue {
         res.outProtocol = res.outProtocol.split(',')
         this.form = res
       } catch (e) {
-        this.$message.error(message)
+        this.$message.error(e)
       }
     }
   }

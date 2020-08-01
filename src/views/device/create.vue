@@ -307,7 +307,7 @@ export default class extends Vue {
           this.back()
           this.initDirs()
         } catch (e) {
-          console.log(e)
+          this.$message.error(e)
         }
       } else {
         return false

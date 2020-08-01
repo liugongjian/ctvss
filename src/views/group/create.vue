@@ -133,7 +133,7 @@ export default class extends Vue {
         res.outProtocol = res.outProtocol.split(',')
         this.form = res
       } catch (e) {
-        this.$message.error(message)
+        this.$message.error(e)
       } finally {
         this.loading = false
       }
@@ -189,7 +189,7 @@ export default class extends Vue {
             res = await createGroup(params)
           }
         } catch (e) {
-          this.$message.error(message)
+          this.$message.error(e)
         } finally {
           this.loading = false
         }

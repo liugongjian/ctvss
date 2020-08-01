@@ -94,7 +94,7 @@ export default class extends Vue {
       this.pager.pageNum = res.pageNum
       this.pager.pageSize = res.pageSize
     } catch (e) {
-      this.$message.error(message)
+      this.$message.error(e)
     } finally {
       this.loading = false
     }
