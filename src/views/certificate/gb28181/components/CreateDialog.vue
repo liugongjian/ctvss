@@ -10,7 +10,7 @@
   >
     <create-form ref="createForm" />
     <div slot="footer" class="dialog-footer">
-      <el-button type="primary" @click="closeDialog">确 定</el-button>
+      <el-button type="primary" @click="submit">确 定</el-button>
       <el-button @click="closeDialog">取 消</el-button>
     </div>
   </el-dialog>
@@ -27,14 +27,16 @@ import CreateForm from './CreateForm.vue'
 })
 export default class extends Vue {
   private dialogVisible = true
-  private closeDialog() {
+  private closeDialog(isRefresh: boolean = false) {
     this.dialogVisible = false
-    this.$emit('on-close')
+    this.$emit('on-close', isRefresh)
   }
 
   private submit() {
     const form: any = this.$refs.createForm
-    form.submit()
+    form.submit(() => {
+      this.closeDialog(true)
+    })
   }
 }
 </script>

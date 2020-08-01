@@ -75,10 +75,7 @@ export default class extends Vue {
 
   private closeDialog(isRefresh: boolean = false) {
     this.dialogVisible = false
-    this.$emit('on-close', {
-      type: 'createDir',
-      isRefresh
-    })
+    this.$emit('on-close', isRefresh)
   }
 }
 </script>

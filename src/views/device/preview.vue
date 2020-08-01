@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
-    <!-- <el-page-header content="工厂园区37号楼一层A区通道No.311监控" @back="back" /> -->
     <div class="preview-wrap">
+      <el-button class="btn-detail" @click="goToDetail"><i class="el-icon-tickets" /> 查看设备详情</el-button>
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="监控预览" name="preview">
           <div class="preview-player">
@@ -145,7 +145,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Inject } from 'vue-property-decorator'
 import { DeviceStatus, DeviceType, AuthStatus } from '@/dics'
 import { dateFormatInTable, dateFormat } from '@/utils/date'
 import Ctplayer from '@/utils/player'
@@ -162,11 +162,11 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
   }
 })
 export default class extends Vue {
+  @Inject('deviceRouter') private deviceRouter!: Function
   private dateFormatInTable = dateFormatInTable
   private dateFormat = dateFormat
   private activeName = 'preview'
-  private deviceId = 3746238431
-  private player?:Ctplayer
+  private player?: Ctplayer
   private timeList = [
     {
       startTime: 1594260926566,
@@ -193,6 +193,10 @@ export default class extends Vue {
   private setRecordTemplateDialog = false
   private setSnapshotTemplateDialog = false
 
+  private get deviceId() {
+    return this.$route.query.id
+  }
+
   private mounted() {
     if (this.$route.query.previewTab) this.activeName = this.$route.query.previewTab.toString()
     this.player = new Ctplayer({
@@ -206,8 +210,11 @@ export default class extends Vue {
     this.player && this.player.disposePlayer()
   }
 
-  private back() {
-    this.$router.push('/device')
+  private goToDetail() {
+    this.deviceRouter({
+      id: this.deviceId,
+      type: 'detail'
+    })
   }
 
   private handleClick(tab: any, event: any) {
@@ -267,6 +274,17 @@ export default class extends Vue {
     ::v-deep .status-badge {
       width: 6px;
       height: 6px;
+    }
+  }
+
+  .preview-wrap {
+    position: relative;
+    padding-top: 6px;
+    .btn-detail {
+      position: absolute;
+      top: -12px;
+      right: 0;
+      z-index: 9;
     }
   }
 

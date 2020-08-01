@@ -86,11 +86,12 @@
         </div>
       </div>
     </el-card>
-    <create-dir v-if="dialog.createDir" :parent-dir="parentDir" :current-dir="currentDir" :group-id="currentGroupId" @on-close="closeDialog" />
+    <create-dir v-if="dialog.createDir" :parent-dir="parentDir" :current-dir="currentDir" :group-id="currentGroupId" @on-close="closeDialog('createDir', ...arguments)" />
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue, Watch, Provide } from 'vue-property-decorator'
+import { DeviceModule } from '@/store/modules/device'
 import { Device } from '@/type/device'
 import { Group } from '@/type/group'
 import { DeviceStatus, DeviceType } from '@/dics'
@@ -115,7 +116,6 @@ export default class extends Vue {
   private currentGroupId: string | null = null
   private currentGroup: Group | undefined = undefined
   private keyword = ''
-  private breadcrumb: Array<any> = []
   private maxHeight = 1000
   private parentDir = null
   private currentDir = null
@@ -158,6 +158,14 @@ export default class extends Vue {
     }
     return id
   }
+
+  private get breadcrumb() {
+    return DeviceModule.breadcrumb
+  }
+
+  // private set breadcrumb(value: any) {
+  //   DeviceModule.SetBreadcrumb(value)
+  // }
 
   private mounted() {
     this.getGroupList()
@@ -214,6 +222,7 @@ export default class extends Vue {
   /**
    * 初始化目录
    */
+  @Provide('initDirs')
   private async initDirs() {
     const res = await getDeviceTree({
       groupId: this.currentGroupId,
@@ -264,7 +273,7 @@ export default class extends Vue {
         if (node) {
           await this.loadDirChildren(_key, node)
           if (i === keyPath.length - 1) {
-            this.breadcrumb = this.getDirPath(node).reverse()
+            await DeviceModule.SetBreadcrumb(this.getDirPath(node).reverse())
           }
         }
       }
@@ -289,7 +298,7 @@ export default class extends Vue {
    * 设备页面路由
    */
   @Provide('deviceRouter')
-  private deviceRouter(item: any, node: any) {
+  private async deviceRouter(item: any, node: any) {
     const dirTree: any = this.$refs.dirTree
     let _node: any
     if (!node) {
@@ -303,7 +312,7 @@ export default class extends Vue {
       _node = node
       _node.expanded = true
     }
-    this.breadcrumb = this.getDirPath(_node).reverse()
+    await DeviceModule.SetBreadcrumb(this.getDirPath(_node).reverse())
     let router: any
     let query: any = {}
     switch (item.type) {
@@ -336,7 +345,7 @@ export default class extends Vue {
       groupId: this.currentGroupId!.toString(),
       inProtocol: this.currentGroup!.inProtocol,
       type: item.type,
-      path: this.breadcrumb.map(item => item.id).join(','),
+      path: this.breadcrumb.map((item: any) => item.id).join(','),
       ...query
     }
     if (JSON.stringify(this.$route.query) === JSON.stringify(router.query)) return
@@ -449,17 +458,18 @@ export default class extends Vue {
   /**
    * 关闭对话框
    */
-  private closeDialog(payload: any) {
+  private closeDialog(type: string, payload: any) {
     // @ts-ignore
-    this.dialog[payload.type] = false
-    switch (payload.type) {
+    this.dialog[type] = false
+    switch (type) {
       case 'createDir':
       case 'updateDir':
         this.currentDir = null
         this.parentDir = null
-    }
-    if (payload.isRefresh) {
-      this.initDirs()
+        console.log(payload)
+        if (payload) {
+          this.initDirs()
+        }
     }
   }
 }

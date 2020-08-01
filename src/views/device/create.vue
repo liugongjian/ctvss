@@ -8,9 +8,6 @@
       label-position="right"
       label-width="140px"
     >
-      <el-form-item label="业务组名称:">
-        上海电信园区
-      </el-form-item>
       <template v-if="!isNVR">
         <el-form-item label="设备类型:" prop="deviceType">
           <el-select v-model="form.deviceType" placeholder="请选择">
@@ -45,7 +42,7 @@
           <el-input v-model.number="form.devicePort" />
         </el-form-item>
         <el-form-item label="GB28181账号:" prop="userName">
-          <el-select v-model="form.userName">
+          <el-select v-model="form.userName" :loading="loading.account">
             <el-option-group label="匿名">
               <el-option
                 v-for="item in gbAccountList.anonymous"
@@ -95,12 +92,13 @@
         <el-button @click="back">取 消</el-button>
       </el-form-item>
     </el-form>
-    <create-gb28181-certificate v-if="dialog.createGb28181Certificate" @on-close="closeDialog('createGb28181Certificate')" />
+    <create-gb28181-certificate v-if="dialog.createGb28181Certificate" @on-close="closeDialog('createGb28181Certificate', ...arguments)" />
   </div>
 </template>
 <script lang='ts'>
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Inject } from 'vue-property-decorator'
 import { pick } from 'lodash'
+import { DeviceModule } from '@/store/modules/device'
 import { DeviceType } from '@/dics'
 import { createDevice } from '@/api/device'
 import { getList as getGbList } from '@/api/certificate/gb28181'
@@ -113,6 +111,7 @@ import CreateGb28181Certificate from '@/views/certificate/gb28181/components/Cre
   }
 })
 export default class extends Vue {
+  @Inject('initDirs') private initDirs!: Function
   private rules = {
     deviceName: [
       { required: true, message: '请输入设备名称', trigger: 'blur' },
@@ -170,6 +169,9 @@ export default class extends Vue {
   private dialog = {
     createGb28181Certificate: false
   }
+  private loading = {
+    account: false
+  }
 
   private get isNVR() {
     return this.$route.query.type === 'nvr'
@@ -183,9 +185,13 @@ export default class extends Vue {
     return title
   }
 
+  private get breadcrumb() {
+    return DeviceModule.breadcrumb
+  }
+
   private mounted() {
     this.form.groupId = this.$route.query.groupId.toString()
-    this.form.dirId = this.$route.query.id.toString()
+    this.form.dirId = this.$route.query.id ? this.$route.query.id.toString() : '0'
     this.getGbAccounts()
   }
 
@@ -216,9 +222,12 @@ export default class extends Vue {
     this.dialog[type] = true
   }
 
-  private closeDialog(type: string) {
+  private closeDialog(type: string, payload: any) {
     // @ts-ignore
     this.dialog[type] = false
+    if (type === 'createGb28181Certificate' && payload === true) {
+      this.getGbAccounts()
+    }
   }
 
   private back() {
@@ -229,13 +238,24 @@ export default class extends Vue {
   }
 
   private async getGbAccounts() {
-    const res = await getGbList({
-      pageSize: 1000
-    })
-    res.gbCerts.forEach((account: any) => {
-      // @ts-ignore
-      this.gbAccountList[account.userType].push(account)
-    })
+    try {
+      this.loading.account = true
+      const res = await getGbList({
+        pageSize: 1000
+      })
+      this.gbAccountList = {
+        normal: [],
+        anonymous: []
+      }
+      res.gbCerts.forEach((account: any) => {
+        // @ts-ignore
+        this.gbAccountList[account.userType].push(account)
+      })
+    } catch (e) {
+      console.error(e)
+    } finally {
+      this.loading.account = false
+    }
   }
 
   private submit() {
@@ -263,6 +283,7 @@ export default class extends Vue {
           }
           await createDevice(params)
           this.back()
+          this.initDirs()
         } catch (e) {
           console.log(e)
         }

@@ -14,7 +14,7 @@
     </div>
     <div class="filter-container clearfix">
       <div class="filter-container__left">
-        <el-button type="primary" @click="handleCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
+        <el-button v-if="!deviceInfo || deviceInfo && deviceInfo.createSubDevice === 2" type="primary" @click="handleCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
         <el-button disabled>导出</el-button>
         <el-dropdown>
           <el-button disabled>批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
@@ -30,7 +30,7 @@
         <el-input v-model="keyword" class="filter-container__search-group" placeholder="请输入关键词" disabled>
           <el-button slot="append" class="el-button-rect" icon="el-icon-search" />
         </el-input>
-        <el-button class="el-button-rect" icon="el-icon-refresh" />
+        <el-button class="el-button-rect" icon="el-icon-refresh" @click="init" />
       </div>
     </div>
     <el-table v-loading="loading.list" :data="deviceList" fit>
@@ -106,6 +106,9 @@
       :current-page="pager.pageNum"
       :page-size="pager.pageSize"
       :total="pager.total"
+      layout="total, sizes, prev, pager, next, jumper"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
     />
   </div>
 </template>
@@ -160,16 +163,20 @@ export default class extends Vue {
 
   @Watch('$route.query')
   private onRouterChange() {
-    this.getNVRDeviceInfo()
-    this.getDeviceList()
+    this.init()
   }
 
   private mounted() {
+    this.init()
+  }
+
+  private init() {
     this.getNVRDeviceInfo()
     this.getDeviceList()
   }
 
   private async getNVRDeviceInfo() {
+    this.deviceInfo = null
     if (this.isNVR && this.id) {
       this.deviceInfo = await getDevice({
         deviceId: this.id
@@ -177,26 +184,35 @@ export default class extends Vue {
     }
   }
 
+  private async handleSizeChange(val: number) {
+    this.pager.pageSize = val
+    await this.getDeviceList()
+  }
+
+  private async handleCurrentChange(val: number) {
+    this.pager.pageNum = val
+    await this.getDeviceList()
+  }
+
   /**
    * 加载设备列表
    */
   private async getDeviceList() {
     if (!this.groupId) return
-    this.loading.list = true
     try {
+      let params: any = {
+        groupId: this.groupId,
+        pageNum: this.pager.pageNum,
+        pageSize: this.pager.pageSize
+      }
       let res: any
+      this.loading.list = true
       if (this.isNVR) {
-        let params = {
-          groupId: this.groupId,
-          deviceId: this.id
-        }
+        params.deviceId = this.id
         res = await getChannels(params)
         this.deviceList = res.channels
       } else {
-        let params = {
-          groupId: this.groupId,
-          dirId: this.id ? this.id : -1
-        }
+        params.dirId = this.id ? this.id : -1
         res = await getDevices(params)
         this.deviceList = res.devices
       }
