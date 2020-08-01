@@ -86,8 +86,8 @@
       <el-table-column label="操作" width="270" fixed="right">
         <template slot-scope="scope">
           <el-button type="text" :disabled="scope.row.deviceType === 'nvr'" @click="goToPreview('preview', scope.row)">监控预览</el-button>
-          <el-button type="text" :disabled="scope.row.deviceType === 'nvr'" @click="goToPreview('replay', scope.row)">录制回放</el-button>
-          <el-button type="text" :disabled="scope.row.deviceType === 'nvr'" @click="goToPreview('snapshot', scope.row)">查看截图</el-button>
+          <el-button type="text" disabled @click="goToPreview('replay', scope.row)">录制回放</el-button>
+          <el-button type="text" disabled @click="goToPreview('snapshot', scope.row)">查看截图</el-button>
           <el-dropdown @command="handleMore">
             <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
             <el-dropdown-menu slot="dropdown">
