@@ -1,10 +1,15 @@
 export interface RecordTemplate {
   templateId?: string;
   templateName: string;
-  region: string;
+  recordType: number;
   interval: number;
+  storageTime: number;
   storeType: Array<string>;
-  storeRules?: Array<string>;
+  mp4?: string;
+  flv?: string;
+  m3u8?: string;
+  ts?: string;
+  description?: string;
   createdTime?: string;
 }
 

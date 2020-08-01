@@ -16,16 +16,23 @@
           <el-input v-model="form.templateName" />
           <div class="form-tip">4-16位，可包含大小写字母、数字、中划线。模板名称不能重复。</div>
         </el-form-item>
-        <el-form-item label="服务区域:" prop="region" class="form-with-tip">
-          <el-select v-model="form.region" placeholder="请选择">
-            <el-option v-for="item in regionList" :key="item" :label="item" :value="item" />
-          </el-select>
+        <el-form-item label="录制类别:" required prop="recordType" class="form-with-tip">
+          <el-radio-group v-model="form.recordType">
+            <el-radio :label="1">自动录制</el-radio>
+            <el-radio :label="2">按需录制</el-radio>
+          </el-radio-group>
         </el-form-item>
-        <el-form-item label="录制周期时长：" prop="interval" required class="form-with-tip">
+        <el-form-item label="录制周期时长：" prop="interval" class="form-with-tip">
           <el-input v-model="form.interval" placeholder="请输入录制周期时长" class="transcribe-cycle">
             <template slot="append">分钟</template>
           </el-input>
           <div class="form-tip">录制周期支持15-360分钟，视频时长超过设定的录制周期后，将生成新文件</div>
+        </el-form-item>
+        <el-form-item label="存储时长：" prop="storageTime" class="form-with-tip">
+          <el-input v-model="form.storageTime" placeholder="请输入存储时长" class="transcribe-cycle">
+            <template slot="append">分钟</template>
+          </el-input>
+          <div class="form-tip">录制文件存储时长，0代表永久存储</div>
         </el-form-item>
         <el-form-item label="存储格式:" prop="storeType">
           <el-checkbox-group v-model="form.storeType">
@@ -33,45 +40,49 @@
               v-for="storageType in storageTypeList"
               :key="storageType"
               :label="storageType"
+              :disabled="storageType !== 'hls'"
             >
               {{ storageType.toLocaleUpperCase() }}
             </el-checkbox>
           </el-checkbox-group>
         </el-form-item>
-        <!-- <el-form-item label="存储规则:">
-          <el-row class="mb10">
+        <el-form-item v-if="form.storeType.length" label="存储规则:">
+          <el-row v-if="mp4Show" class="mb10">
             <el-col :span="1">
               <span>MP4</span>
             </el-col>
             <el-col :span="23">
-              <el-input v-model="form.storeRules[0]" placeholder="record/{AppName}/{StreamName}/{EscapedStartTime}_{EscapedEndTime}" />
+              <el-input v-model="form.mp4" placeholder="record/{AppName}/{StreamName}/{EscapedStartTime}_{EscapedEndTime}" />
             </el-col>
           </el-row>
-          <el-row class="mb10">
+          <el-row v-if="flvShow" class="mb10">
             <el-col :span="1">
               <span>FLV</span>
             </el-col>
             <el-col :span="23">
-              <el-input v-model="form.storeRules[1]" placeholder="record/{AppName}/{StreamName}/{EscapedStartTime}_{EscapedEndTime}" />
+              <el-input v-model="form.flv" placeholder="record/{AppName}/{StreamName}/{EscapedStartTime}_{EscapedEndTime}" />
             </el-col>
           </el-row>
-          <el-row class="mb10">
+          <el-row v-if="hlsShow" class="mb10">
             <el-col :span="1">
               <span>M3U8</span>
             </el-col>
             <el-col :span="23">
-              <el-input v-model="form.storeRules[2]" placeholder="record/{AppName}/{StreamName}/{EscapedStartTime}_{EscapedEndTime}" />
+              <el-input v-model="form.m3u8" placeholder="record/{AppName}/{StreamName}/{EscapedStartTime}_{EscapedEndTime}" />
             </el-col>
           </el-row>
-          <el-row>
+          <el-row v-if="hlsShow">
             <el-col :span="1">
               <span>TS</span>
             </el-col>
             <el-col :span="23">
-              <el-input v-model="form.storeRules[3]" placeholder="record/{AppName}/{StreamName}/{EscapedStartTime}_{EscapedEndTime}" />
+              <el-input v-model="form.ts" placeholder="record/{AppName}/{StreamName}/{EscapedStartTime}_{EscapedEndTime}" />
             </el-col>
           </el-row>
-        </el-form-item> -->
+        </el-form-item>
+        <el-form-item label="模板备注" prop="description">
+          <el-input v-model="form.description" type="textarea" />
+        </el-form-item>
         <el-form-item label="">
           <el-button :loading="loading" type="primary" @click="submit">{{ createOrUpdateFlag ? '新建' : '确定' }}</el-button>
           <el-button @click="back">取 消</el-button>
@@ -85,6 +96,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import { RecordTemplate } from '@/type/template'
 import { RecordStorageType } from '@/dics'
 import { queryRecordTemplate, createRecordTemplate, updateRecordTemplate } from '@/api/template'
+import { unwatchFile } from 'fs'
 
 @Component({
   name: 'create-or-update-record-template'
@@ -98,25 +110,42 @@ export default class extends Vue {
       { required: true, message: '请输入录制模板名称', trigger: 'blur' },
       { validator: this.validateTemplateName, trigger: 'blur' }
     ],
-    region: [
-      { required: true, message: '请选择区域', trigger: 'change' }
-    ],
     interval: [
       { required: true, message: '请输入录制周期时长', trigger: 'blur' },
       { validator: this.validateInterval, trigger: 'blur' }
+    ],
+    storageTime: [
+      { required: true, message: '请输入存储时长', trigger: 'blur' },
+      { validator: this.validateStorageTime, trigger: 'blur' }
     ],
     storeType: [
       { required: true, message: '请至少勾选一种存储格式', trigger: 'blur' }
     ]
   }
-  private regionList = ['华东', '华南', '华北']
   private storageTypeList = Object.values(RecordStorageType)
   private form: RecordTemplate = {
     templateName: '',
-    region: '华东',
+    recordType: 1,
+    storageTime: 0,
     interval: 15,
-    storeType: [],
-    storeRules: ['', '', '', '']
+    storeType: ['hls'],
+    mp4: 'record/{AppName}/{StreamName}/{EscapedStartTime}_{EscapedEndTime}',
+    flv: 'record/{AppName}/{StreamName}/{EscapedStartTime}_{EscapedEndTime}',
+    m3u8: 'record/{AppName}/{StreamName}/{EscapedStartTime}_{EscapedEndTime}',
+    ts: 'record/{AppName}/{StreamName}/{EscapedStartTime}_{EscapedEndTime}',
+    description: ''
+  }
+
+  private get mp4Show() {
+    return this.form.storeType.indexOf('mp4') !== -1
+  }
+
+  private get flvShow() {
+    return this.form.storeType.indexOf('flv') !== -1
+  }
+
+  private get hlsShow() {
+    return this.form.storeType.indexOf('hls') !== -1
   }
 
   private async mounted() {
@@ -127,9 +156,18 @@ export default class extends Vue {
       this.$set(this.form, 'templateId', query.templateId)
       this.loading = true
       const res = await queryRecordTemplate({ templateId: query.templateId })
+      const data = res
+      const resFormParams = {
+        templateName: data.templateName,
+        recordType: data.recordType,
+        interval: data.hlsParam.interval / 60,
+        storageTime: data.hlsParam.storageTime / 60,
+        m3u8: data.hlsParam.muPath,
+        ts: data.hlsParam.tsPath
+      }
       this.form = {
         ...this.form,
-        ...res
+        ...resFormParams
       }
       this.loading = false
     }
@@ -152,6 +190,15 @@ export default class extends Vue {
     }
   }
 
+  private validateStorageTime(rule: any, value: string, callback: Function) {
+    const numReg = /^(([1-9][0-9]*)|[0-9])$/
+    if (!numReg.test(value) || Number(value) < 0) {
+      callback(new Error('录制周期时长必须是大于等于0的整数'))
+    } else {
+      callback()
+    }
+  }
+
   private back() {
     this.$router.push('/template/record')
   }
@@ -162,10 +209,23 @@ export default class extends Vue {
       if (valid) {
         var res
         this.loading = true
+        const param = {
+          templateId: this.form.templateId || undefined,
+          templateName: this.form.templateName,
+          recordType: this.form.recordType,
+          description: this.form.description,
+          hlsParam: {
+            enable: false,
+            interval: this.form.interval * 60,
+            storageTime: this.form.storageTime * 60,
+            muPath: this.form.m3u8,
+            tsPath: this.form.ts
+          }
+        }
         if (this.form.templateId) {
-          res = await updateRecordTemplate(this.form)
+          res = await updateRecordTemplate(param)
         } else {
-          res = await createRecordTemplate(this.form)
+          res = await createRecordTemplate(param)
         }
         this.loading = false
         if (res.errorCode) {
