@@ -18,31 +18,34 @@
         <el-button type="primary" :disabled="!canCreateFlag" @click="handleCreate">新建密钥</el-button>
       </div>
       <el-table v-loading="loading" :data="dataList" fit>
-        <el-table-column label="密钥" min-width="200">
+        <el-table-column label="密钥" min-width="250">
           <template slot-scope="{row}">
             <div>
-              <span>{{ 'SecretId: ' + row.accessKey }}</span>
-              <i v-clipboard:copy="row.accessKey" v-clipboard:success="copySuccess" v-clipboard:error="copyError" class="el-icon-copy-document ml10" />
+              <span>{{ 'SecretId: ' + row.AccessKey }}</span>
+              <i v-clipboard:copy="row.AccessKey" v-clipboard:success="copySuccess" v-clipboard:error="copyError" class="el-icon-copy-document ml10" />
             </div>
             <div>
-              <span>{{ 'SecretKey: ' + (row.hidden ? '******' : row.secretKey) }}</span>
+              <span>{{ 'SecretKey: ' + (row.hidden ? '******' : row.SecretKey) }}</span>
               <el-button class="ml10" type="text" @click="toggleHidden(row)">{{ row.hidden ? '显示' : '隐藏' }}</el-button>
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" label="创建时间" min-width="160" />
-        <el-table-column prop="updateTime" label="上次访问时间" min-width="160" />
+        <el-table-column prop="CreateTime" label="创建时间" min-width="160" />
+        <el-table-column prop="UpdateTime" label="上次访问时间" min-width="160" />
         <el-table-column label="状态">
           <template slot-scope="{row}">
             <status-badge :status="row.status ? 'on' : 'warning'" />
-            {{ secretStatus[row.status] }}
+            {{ secretStatus[row.status] || "已启用" }}
           </template>
         </el-table-column>
         <el-table-column label="操作" width="250" fixed="right">
           <template slot-scope="scope">
-            <el-button v-if="scope.row.status" type="text" @click="disableSecret(scope.row)">禁用</el-button>
+            <template v-if="scope.row.status">
+              <el-button type="text" disabled @click="disableSecret(scope.row)">禁用</el-button>
+              <el-button type="text" @click="deleteSecret(scope.row)">删除</el-button>
+            </template>
             <template v-else>
-              <el-button type="text" @click="enableSecret(scope.row)">启用</el-button>
+              <el-button type="text" disabled @click="enableSecret(scope.row)">启用</el-button>
               <el-button type="text" @click="deleteSecret(scope.row)">删除</el-button>
             </template>
           </template>
@@ -74,7 +77,7 @@ export default class extends Vue {
   }
 
   private get canCreateFlag() {
-    return this.loading && this.dataList.length < 2
+    return !this.loading && this.dataList.length < 2
   }
 
   private async getList() {
@@ -171,11 +174,11 @@ export default class extends Vue {
       try {
         this.loading = true
         const res = await deleteSecret(row.id)
+        this.loading = false
         this.getList()
       } catch (e) {
         // TODO LIST
         // 错误处理
-      } finally {
         this.loading = false
       }
     })
