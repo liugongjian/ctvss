@@ -2,7 +2,7 @@
   <div class="app-container">
     <div class="filter-container">
       <el-select
-        v-model="currentGroupId"
+        v-model="groupId"
         class="filter-group"
         placeholder="请选择业务组"
         @change="changeGroup"
@@ -31,7 +31,7 @@
               <el-tooltip class="item" effect="dark" content="添加目录" placement="top" :open-delay="300">
                 <el-button type="text" @click="openDialog('createDir')"><i class="el-icon-plus" /></el-button>
               </el-tooltip>
-              <el-tooltip class="item" effect="dark" content="目录设置" placement="top" :open-delay="300">
+              <el-tooltip v-if="false" class="item" effect="dark" content="目录设置" placement="top" :open-delay="300">
                 <el-button type="text"><i class="el-icon-setting" /></el-button>
               </el-tooltip>
             </div>
@@ -57,7 +57,7 @@
                     <el-tooltip class="item" effect="dark" content="添加子目录" placement="top" :open-delay="300">
                       <el-button type="text" @click.stop="openDialog('createDir', data)"><i class="el-icon-plus" /></el-button>
                     </el-tooltip>
-                    <el-tooltip class="item" effect="dark" content="编辑目录" placement="top" :open-delay="300">
+                    <el-tooltip v-if="false" class="item" effect="dark" content="编辑目录" placement="top" :open-delay="300">
                       <el-button type="text" @click.stop="openDialog('updateDir', data)"><i class="el-icon-edit" /></el-button>
                     </el-tooltip>
                     <el-tooltip class="item" effect="dark" content="删除目录" placement="top" :open-delay="300">
@@ -86,11 +86,12 @@
         </div>
       </div>
     </el-card>
-    <create-dir v-if="dialog.createDir" :parent-dir="parentDir" :current-dir="currentDir" :group-id="currentGroupId" @on-close="closeDialog('createDir')" />
+    <create-dir v-if="dialog.createDir" :parent-dir="parentDir" :current-dir="currentDir" :group-id="currentGroupId" @on-close="closeDialog('createDir', ...arguments)" />
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue, Watch, Provide } from 'vue-property-decorator'
+import { DeviceModule } from '@/store/modules/device'
 import { Device } from '@/type/device'
 import { Group } from '@/type/group'
 import { DeviceStatus, DeviceType } from '@/dics'
@@ -112,10 +113,9 @@ export default class extends Vue {
   private deviceStatus = DeviceStatus
   private deviceType = DeviceType
   private isExpanded = true
-  private currentGroupId: string | null = null
-  private currentGroup: Group | undefined = undefined
+  private groupId: string | null = null
+  // private currentGroup: Group | undefined = undefined
   private keyword = ''
-  private breadcrumb: Array<any> = []
   private maxHeight = 1000
   private parentDir = null
   private currentDir = null
@@ -156,12 +156,24 @@ export default class extends Vue {
     if (!id) {
       return null
     }
-    return parseInt(id.toString())
+    return id
+  }
+
+  private get breadcrumb() {
+    return DeviceModule.breadcrumb
+  }
+
+  private get currentGroup() {
+    return DeviceModule.group
+  }
+
+  private get currentGroupId() {
+    this.groupId = DeviceModule.group?.groupId!
+    return DeviceModule.group?.groupId
   }
 
   private mounted() {
     this.getGroupList()
-    // this.initTreeStatus()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
   }
@@ -181,9 +193,8 @@ export default class extends Vue {
     const res = await getGroups(params)
     this.groupList = res.groups
     if (this.groupList.length) {
-      this.currentGroup = this.groupList[0]
-      this.currentGroupId = this.currentGroup!.groupId!
       if (!this.$route.query.groupId) {
+        await DeviceModule.SetGroup(this.groupList[0])
         this.$router.push({
           name: 'device-list',
           query: {
@@ -191,6 +202,9 @@ export default class extends Vue {
             inProtocol: this.currentGroup!.inProtocol
           }
         })
+      } else {
+        const currentGroup = this.groupList.find((group: Group) => group.groupId === this.$route.query.groupId)
+        await DeviceModule.SetGroup(currentGroup)
       }
       await this.initDirs()
     }
@@ -201,7 +215,8 @@ export default class extends Vue {
    * 切换业务组
    */
   private async changeGroup() {
-    this.currentGroup = this.groupList.find((group: Group) => group.groupId === this.currentGroupId)
+    const currentGroup = this.groupList.find((group: Group) => group.groupId === this.groupId)
+    await DeviceModule.SetGroup(currentGroup)
     this.$router.push({
       name: 'device-list',
       query: {
@@ -215,12 +230,17 @@ export default class extends Vue {
   /**
    * 初始化目录
    */
+  @Provide('initDirs')
   private async initDirs() {
+    await DeviceModule.RestBreadcrumb()
     const res = await getDeviceTree({
       groupId: this.currentGroupId,
       id: 0
     })
     this.dirList = res.dirs
+    this.$nextTick(() => {
+      this.initTreeStatus()
+    })
   }
 
   /**
@@ -251,58 +271,57 @@ export default class extends Vue {
   /**
    * 初始化目录状态
    */
-  // private async initTreeStatus() {
-  //   const dirTree: any = this.$refs.dirTree
-  //   console.log(dirTree)
-  //   const path: string | (string | null)[] | null = this.$route.query.path
-  //   const keyPath = path ? path.toString().split(',') : null
-  //   if (keyPath) {
-  //     for (let i = 0; i < keyPath.length; i++) {
-  //       const _key = parseInt(keyPath[i])
-  //       const node = dirTree.getNode(_key)
-  //       if (node) {
-  //         await this.loadDirChildren(_key, node)
-  //         if (i === keyPath.length - 1) {
-  //           this.breadcrumb = this.getDirPath(node).reverse()
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
+  private async initTreeStatus() {
+    const dirTree: any = this.$refs.dirTree
+    const path: string | (string | null)[] | null = this.$route.query.path
+    const keyPath = path ? path.toString().split(',') : null
+    if (keyPath) {
+      for (let i = 0; i < keyPath.length; i++) {
+        const _key = keyPath[i]
+        const node = dirTree.getNode(_key)
+        if (node) {
+          await this.loadDirChildren(_key, node)
+          if (i === keyPath.length - 1) {
+            DeviceModule.SetBreadcrumb(this.getDirPath(node).reverse())
+          }
+        }
+      }
+    }
+  }
 
   /**
    * 加载子目录
    */
-  // private async loadDirChildren(key: number, node: any) {
-  //   const dirTree: any = this.$refs.dirTree
-  //   let data = node.data.children || []
-  //   let deviceData = await this.loadDevices(node)
-  //   if (deviceData) {
-  //     data = data.concat(deviceData)
-  //   }
-  //   dirTree.updateKeyChildren(key, data)
-  //   node.expanded = true
-  //   node.loaded = true
-  // }
+  private async loadDirChildren(key: string, node: any) {
+    const dirTree: any = this.$refs.dirTree
+    let data = await getDeviceTree({
+      groupId: this.currentGroupId,
+      id: node.data.id
+    })
+    dirTree.updateKeyChildren(key, data.dirs)
+    node.expanded = true
+    node.loaded = true
+  }
 
   /**
    * 设备页面路由
    */
   @Provide('deviceRouter')
-  private deviceRouter(item: any, node: any) {
+  private async deviceRouter(item: any, node: any) {
     const dirTree: any = this.$refs.dirTree
     let _node: any
     if (!node) {
       _node = dirTree.getNode(item.id)
       if (!_node.loaded) {
-        // this.loadDirChildren(item.id, _node)
+        this.loadDirChildren(item.id, _node)
       }
       _node.parent.expanded = true
       dirTree.setCurrentKey(item.id)
     } else {
       _node = node
+      _node.expanded = true
     }
-    this.breadcrumb = this.getDirPath(_node).reverse()
+    DeviceModule.SetBreadcrumb(this.getDirPath(_node).reverse())
     let router: any
     let query: any = {}
     switch (item.type) {
@@ -335,7 +354,7 @@ export default class extends Vue {
       groupId: this.currentGroupId!.toString(),
       inProtocol: this.currentGroup!.inProtocol,
       type: item.type,
-      path: this.breadcrumb.map(item => item.id).join(','),
+      path: this.breadcrumb.map((item: any) => item.id).join(','),
       ...query
     }
     if (JSON.stringify(this.$route.query) === JSON.stringify(router.query)) return
@@ -360,31 +379,11 @@ export default class extends Vue {
    * 加载目录
    */
   private async loadDirs(node: any, resolve: Function) {
-    // if (node.isLeaf) return resolve([])
-    // if (node.level === 0) {
-    //   resolve(node.data)
-    // } else {
-    //   console.log(node)
-    //   let data = node.data.children || []
-    //   let deviceData = await this.loadDevices(node)
-    //   if (deviceData) {
-    //     data = data.concat(deviceData)
-    //   }
-    //   resolve(data)
-    // }
-    // let id = 0
-    // if (node.level !== 0) {
-    //   id = node.data.id
-    // }
-    // let dirs = await getDeviceTree({
-    //   groupId: this.currentGroupId,
-    //   id
-    // })
-    // console.log(dirs)
     if (node.level === 0) return resolve([])
     const res = await getDeviceTree({
       groupId: this.currentGroupId,
-      id: node.data.id
+      id: node.data.id,
+      type: node.data.type
     })
     resolve(res.dirs)
   }
@@ -440,7 +439,8 @@ export default class extends Vue {
       type: '目录',
       msg: `是否确认删除目录"${dir.label}"`,
       method: deleteDir,
-      payload: { dirId: dir.dirId }
+      payload: { dirId: dir.id },
+      onSuccess: this.initDirs
     })
   }
 
@@ -467,7 +467,7 @@ export default class extends Vue {
   /**
    * 关闭对话框
    */
-  private closeDialog(type: string) {
+  private closeDialog(type: string, payload: any) {
     // @ts-ignore
     this.dialog[type] = false
     switch (type) {
@@ -475,6 +475,10 @@ export default class extends Vue {
       case 'updateDir':
         this.currentDir = null
         this.parentDir = null
+        console.log(payload)
+        if (payload) {
+          this.initDirs()
+        }
     }
   }
 }

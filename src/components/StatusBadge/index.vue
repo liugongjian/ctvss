@@ -28,6 +28,9 @@ export default class extends Vue {
     &--off {
       background-color: #ccc;
     }
+    &--new {
+      background-color: #ccc;
+    }
     &--warning {
       background-color: $primary;
     }

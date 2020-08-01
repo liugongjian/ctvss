@@ -99,7 +99,7 @@ export default class extends Vue {
     }
   }
 
-  private submit() {
+  private submit(onSuccess: Function) {
     const form: any = this.$refs.dataForm
     form.validate(async(valid: any) => {
       if (valid) {
@@ -110,6 +110,7 @@ export default class extends Vue {
           } else {
             await createCertificate(this.form)
           }
+          onSuccess()
         } catch (e) {
           this.$message.error(e.response.data.message)
         } finally {

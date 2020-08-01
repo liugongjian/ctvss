@@ -3,5 +3,5 @@ export interface Dir {
   dirName: string;
   groupId: number;
   description?: string;
-  parentDirId?: number;
+  parentDirId?: string;
 }

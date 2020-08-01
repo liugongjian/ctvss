@@ -7,6 +7,13 @@ export const createDir = (params: any): Promise<any> =>
     data: params
   })
 
+export const updateDir = (params: any): Promise<any> =>
+  request({
+    url: '/dir/update',
+    method: 'post',
+    data: params
+  })
+
 export const deleteDir = (params: any): Promise<any> =>
   request({
     url: '/dir/delete',

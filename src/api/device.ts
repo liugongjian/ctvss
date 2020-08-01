@@ -1,8 +1,22 @@
 import request from '@/utils/request'
 
+export const getDevice = (params: any): Promise<any> =>
+  request({
+    url: '/device',
+    method: 'get',
+    params
+  })
+
 export const getDevices = (params: any): Promise<any> =>
   request({
     url: '/device/list',
+    method: 'get',
+    params
+  })
+
+export const getChannels = (params: any): Promise<any> =>
+  request({
+    url: '/device/channel',
     method: 'get',
     params
   })

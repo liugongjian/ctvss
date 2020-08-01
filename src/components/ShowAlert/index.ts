@@ -38,9 +38,15 @@ const install = function(Vue: any) {
         if (action === 'confirm') {
           instance.confirmButtonLoading = true
           instance.confirmButtonText = '删除中...'
-          await params.method(params.payload)
-          done()
-          instance.confirmButtonLoading = false
+          try {
+            await params.method(params.payload)
+            done()
+          } catch (e) {
+            this.$message.error(e.response.data.message)
+          } finally {
+            instance.confirmButtonLoading = false
+            instance.confirmButtonText = '确定'
+          }
         } else {
           done()
         }
