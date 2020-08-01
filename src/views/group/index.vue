@@ -9,7 +9,7 @@
     />
     <el-card>
       <div class="filter-container">
-        <el-button type="primary" @click="handleCreate">创建业务组</el-button>
+        <el-button type="primary" @click="handleCreate">新建业务组</el-button>
         <div class="filter-container__right">
           <el-input v-model="groupName" class="filter-container__search-group" placeholder="请输入业务组名称" disabled @keyup.enter.native="handleFilter">
             <el-button slot="append" class="el-button-rect" icon="el-icon-search" @click="handleFilter" />

@@ -32,7 +32,9 @@ export default class extends Vue {
 
   private submit() {
     const form: any = this.$refs.createForm
-    form.submit()
+    form.submit(() => {
+      this.back()
+    })
   }
 }
 </script>

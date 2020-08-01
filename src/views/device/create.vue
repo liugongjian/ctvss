@@ -47,7 +47,7 @@
         </el-form-item>
         <el-form-item label="设备名称:" prop="deviceName" class="form-with-tip">
           <el-input v-model="form.deviceName" />
-          <div class="form-tip">4-16位，可包含大小写字母、数字、中划线。</div>
+          <div class="form-tip">4-16位，可包含大小写字母、数字、中文、中划线。</div>
         </el-form-item>
         <el-form-item label="设备IP:" prop="deviceIp">
           <el-input v-model="form.deviceIp" />
@@ -95,7 +95,7 @@
         </el-form-item>
         <el-form-item label="通道名称:" prop="channelName" class="form-with-tip">
           <el-input v-model="form.channelName" />
-          <div class="form-tip">4-16位，可包含大小写字母、数字、中划线。</div>
+          <div class="form-tip">4-16位，可包含大小写字母、数字、中文、中划线。</div>
         </el-form-item>
         <el-form-item label="设备描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
@@ -222,7 +222,7 @@ export default class extends Vue {
    * 校验设备/通道名称
    */
   private validateDeviceName(rule: any, value: string, callback: Function) {
-    if (!/[0-9a-zA-Z-]{4,16}/.test(value)) {
+    if (!/[\u4e00-\u9fa50-9a-zA-Z-]{4,16}/.test(value)) {
       callback(new Error('设备名称格式错误'))
     } else {
       callback()
@@ -306,7 +306,7 @@ export default class extends Vue {
             })
           }
           await createDevice(params)
-          this.$message.success('创建设备成功！')
+          this.$message.success('添加设备成功！')
           this.back()
           this.initDirs()
         } catch (e) {
