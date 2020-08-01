@@ -148,6 +148,7 @@
 import { Component, Vue, Inject } from 'vue-property-decorator'
 import { DeviceStatus, DeviceType, AuthStatus } from '@/dics'
 import { dateFormatInTable, dateFormat } from '@/utils/date'
+import { getDevicePreview } from '@/api/device'
 import Ctplayer from '@/utils/player'
 import SetRecordTemplate from '../components/dialogs/SetRecordTemplate.vue'
 import SetSnapshotTemplate from '../components/dialogs/SetSnapshotTemplate.vue'
@@ -198,11 +199,20 @@ export default class extends Vue {
   }
 
   private mounted() {
+    console.log('mo')
     if (this.$route.query.previewTab) this.activeName = this.$route.query.previewTab.toString()
+    this.getDevicePreview()
     this.player = new Ctplayer({
       id: 'previewPlayer', // 播放器DOM ID
       autoPlay: true, // 是否允许自动播放
       source: 'http://jazz.liveplay.kijazz.cn/live/walk.flv' // 视频源
+    })
+  }
+
+  private async getDevicePreview() {
+    console.log('pre')
+    const res = await getDevicePreview({
+      deviceId: this.deviceId
     })
   }
 
