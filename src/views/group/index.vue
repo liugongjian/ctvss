@@ -20,8 +20,12 @@
       <el-table v-loading="loading" :data="dataList" fit>
         <el-table-column prop="groupId" label="业务组ID/名称" min-width="200">
           <template slot-scope="{row}">
-            <router-link to="/group/config">{{ row.groupId }}</router-link>
-            <div>{{ row.groupName }}</div>
+            <div class="group-name" @click="goToConfig(row)">
+              <div class="group-name__id">{{ row.groupId }}</div>
+              <div>
+                {{ row.groupName }}
+              </div>
+            </div>
           </template>
         </el-table-column>
         <el-table-column label="空间状态">
@@ -166,5 +170,11 @@ export default class extends Vue {
 <style lang="scss" scoped>
 .filter-container__search-group {
   margin-right: 10px;
+}
+.group-name {
+  cursor: pointer;
+  &__id {
+    color: $primary;
+  }
 }
 </style>
