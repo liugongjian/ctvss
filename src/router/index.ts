@@ -332,41 +332,42 @@ export const asyncRoutes: RouteConfig[] = [
           roles: ['admin'],
           activeMenu: '/template/record'
         }
-      },
-      {
-        path: 'snapshot',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/template/snapshot/index.vue'),
-        name: 'snapshot',
-        meta: {
-          title: '截图模板',
-          icon: 'tree',
-          roles: ['admin']
-        }
-      },
-      {
-        path: 'snapshot/create',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/template/snapshot/createOrUpdate.vue'),
-        name: 'snapshot-create',
-        meta: {
-          title: '新建截图模板',
-          icon: 'stream',
-          hidden: true,
-          roles: ['admin'],
-          activeMenu: '/template/snapshot'
-        }
-      },
-      {
-        path: 'snapshot/update/:id?',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/template/snapshot/createOrUpdate.vue'),
-        name: 'snapshot-update',
-        meta: {
-          title: '编辑截图模板',
-          icon: 'stream',
-          hidden: true,
-          roles: ['admin'],
-          activeMenu: '/template/snapshot'
-        }
       }
+      // ,
+      // {
+      //   path: 'snapshot',
+      //   component: () => import(/* webpackChunkName: "template" */ '@/views/template/snapshot/index.vue'),
+      //   name: 'snapshot',
+      //   meta: {
+      //     title: '截图模板',
+      //     icon: 'tree',
+      //     roles: ['admin']
+      //   }
+      // },
+      // {
+      //   path: 'snapshot/create',
+      //   component: () => import(/* webpackChunkName: "template" */ '@/views/template/snapshot/createOrUpdate.vue'),
+      //   name: 'snapshot-create',
+      //   meta: {
+      //     title: '新建截图模板',
+      //     icon: 'stream',
+      //     hidden: true,
+      //     roles: ['admin'],
+      //     activeMenu: '/template/snapshot'
+      //   }
+      // },
+      // {
+      //   path: 'snapshot/update/:id?',
+      //   component: () => import(/* webpackChunkName: "template" */ '@/views/template/snapshot/createOrUpdate.vue'),
+      //   name: 'snapshot-update',
+      //   meta: {
+      //     title: '编辑截图模板',
+      //     icon: 'stream',
+      //     hidden: true,
+      //     roles: ['admin'],
+      //     activeMenu: '/template/snapshot'
+      //   }
+      // }
     ]
   },
   {

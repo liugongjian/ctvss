@@ -17,7 +17,7 @@
               <template v-if="info.deviceType === 'ipc'">
                 <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
                 <info-list-item label="设备IP:">{{ info.deviceIp }}</info-list-item>
-                <info-list-item label="端口:">{{ info.devicePort }}</info-list-item>
+                <info-list-item label="端口:">{{ info.devicePort ? info.devicePort : '-' }}</info-list-item>
               </template>
               <template v-if="info.deviceType === 'nvr'">
                 <info-list-item label="通道数量:">{{ info.deviceStats.channelSize }}</info-list-item>
@@ -121,7 +121,7 @@
             <anti-theft-chain type="UA" :config="playConfig.anti.ua" />
           </info-list>
         </el-tab-pane>
-        <el-tab-pane label="模板配置" name="template">
+        <el-tab-pane v-if="false" label="模板配置" name="template">
           <info-list label-width="100" title="模版配置">
             <info-list-item label="录制模板:">
               <div class="info-list__edit">

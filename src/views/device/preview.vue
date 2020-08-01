@@ -49,7 +49,7 @@
             </info-list-item>
           </info-list> -->
         </el-tab-pane>
-        <el-tab-pane label="录制回放" name="replay">
+        <el-tab-pane v-if="false" label="录制回放" name="replay">
           <div class="replay-wrap">
             <div class="replay-player">
               <video id="replayPlayer" ref="video" controls />
@@ -74,7 +74,7 @@
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="监控截图" name="snapshot">
+        <el-tab-pane v-if="false" label="监控截图" name="snapshot">
           <el-date-picker
             v-model="snapshotRange"
             type="datetimerange"
@@ -199,7 +199,6 @@ export default class extends Vue {
   }
 
   private mounted() {
-    console.log('mo')
     if (this.$route.query.previewTab) this.activeName = this.$route.query.previewTab.toString()
     this.getDevicePreview()
     this.player = new Ctplayer({
@@ -210,7 +209,6 @@ export default class extends Vue {
   }
 
   private async getDevicePreview() {
-    console.log('pre')
     const res = await getDevicePreview({
       deviceId: this.deviceId
     })

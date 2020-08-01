@@ -21,7 +21,7 @@
           <info-list-item label="SIP服务器UDP端口:">{{ form.sipUdpPort }}</info-list-item>
         </info-list>
       </el-tab-pane>
-      <el-tab-pane label="模板配置" name="template">
+      <el-tab-pane v-if="false" label="模板配置" name="template">
         <div>
           <el-button type="text" class="template-edit" @click="setRecordTemplate">编辑</el-button>
           <info-list title="录制模板">
