@@ -13,11 +13,11 @@
               <info-list-item label="设备类型:">{{ deviceType[info.deviceType] }}</info-list-item>
               <info-list-item label="设备名称:">{{ info.deviceName }}</info-list-item>
               <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
-              <info-list-item label="厂商:">{{ info.deviceVendor }}</info-list-item>
+              <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
               <template v-if="info.deviceType === 'ipc'">
                 <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
-                <info-list-item label="设备IP:">{{ info.deviceIp }}</info-list-item>
-                <info-list-item label="端口:">{{ info.devicePort ? info.devicePort : '-' }}</info-list-item>
+                <info-list-item label="设备IP:">{{ info.deviceIp || '-' }}</info-list-item>
+                <info-list-item label="端口:">{{ info.devicePort || '-' }}</info-list-item>
               </template>
               <template v-if="info.deviceType === 'nvr'">
                 <info-list-item label="自动创建子设备:">{{ createSubDevice[info.createSubDevice] }}</info-list-item>
