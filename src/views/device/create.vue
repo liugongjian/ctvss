@@ -152,7 +152,7 @@ export default class extends Vue {
       { required: true, message: '请选择账号', trigger: 'change' }
     ]
   }
-  private deviceVendorList = ['海康', '大宇', '其他']
+  private deviceVendorList = ['海康', '大华', '宇视', '其他']
   private gbVersionList = ['2011', '2016']
   private deviceTypeList = Object.values(DeviceType).map(type => {
     return {

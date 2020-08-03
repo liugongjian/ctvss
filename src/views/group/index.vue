@@ -34,7 +34,7 @@
             {{ groupStatus[row.groupStatus] }}
           </template>
         </el-table-column>
-        <el-table-column label="接入类型" min-width="80">
+        <el-table-column label="接入类型" min-width="90">
           <template slot-scope="{row}">
             {{ inProtocolType[row.inProtocol] }}
           </template>
