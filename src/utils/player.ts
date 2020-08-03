@@ -47,12 +47,15 @@ export default class Ctplayer {
       switch (this.type) {
         case 'flv':
           this.player.destroy()
+          break
         case 'm3u8':
           this.player.destroy()
+          break
         case 'mp4':
           this.player.stop()
+          break
       }
-    } catch(e){
+    } catch (e) {
       console.log(e)
     }
   }

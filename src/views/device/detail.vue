@@ -9,7 +9,7 @@
         <el-tab-pane label="基本信息" name="info">
           <div :loading="loading.info">
             <el-button type="text" class="info-edit" @click="edit">编辑</el-button>
-            <info-list v-if="info" label-width="80">
+            <info-list v-if="info" label-width="110">
               <info-list-item label="设备类型:">{{ deviceType[info.deviceType] }}</info-list-item>
               <info-list-item label="设备名称:">{{ info.deviceName }}</info-list-item>
               <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
@@ -20,9 +20,11 @@
                 <info-list-item label="端口:">{{ info.devicePort ? info.devicePort : '-' }}</info-list-item>
               </template>
               <template v-if="info.deviceType === 'nvr'">
+                <info-list-item label="自动创建子设备:">{{ createSubDevice[info.createSubDevice] }}</info-list-item>
                 <info-list-item label="通道数量:">{{ info.deviceStats.channelSize }}</info-list-item>
                 <info-list-item label="在线流数量:">{{ info.deviceStats.onlineSize }}</info-list-item>
               </template>
+              <info-list-item label="自动拉流:">{{ pullType[info.pullType] }}</info-list-item>
               <info-list-item label="GB28181账号:">{{ info.userName }}</info-list-item>
               <info-list-item label="状态:">
                 <div class="info-list__edit">
@@ -155,7 +157,7 @@
 <script lang="ts">
 import { Component, Vue, Inject } from 'vue-property-decorator'
 import { Device } from '@/type/device'
-import { DeviceStatus, DeviceType, AuthStatus } from '@/dics'
+import { DeviceStatus, DeviceType, AuthStatus, PullType, CreateSubDevice } from '@/dics'
 import { getDevice } from '@/api/device'
 import SetRecordTemplate from '../components/dialogs/SetRecordTemplate.vue'
 import SetSnapshotTemplate from '../components/dialogs/SetSnapshotTemplate.vue'
@@ -179,6 +181,8 @@ export default class extends Vue {
   private deviceStatus = DeviceStatus
   private deviceType = DeviceType
   private authStatus = AuthStatus
+  private pullType = PullType
+  private createSubDevice = CreateSubDevice
   private info: Device | null = null
   private pushConfig = {
     auth: true,

@@ -54,3 +54,13 @@ export const SecretStatus = {
   true: '已启用',
   false: '已禁用'
 }
+
+export const PullType = {
+  1: '已启用',
+  2: '已禁用'
+}
+
+export const CreateSubDevice = {
+  1: '是',
+  2: '否'
+}

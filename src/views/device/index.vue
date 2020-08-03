@@ -286,6 +286,9 @@ export default class extends Vue {
           }
         }
       }
+    } else if (this.dirList.length && this.dirList.every((dir: any) => dir.type === 'dir')) {
+      // 如果根目录下无设备，则跳转至第一个目录下
+      this.deviceRouter(this.dirList[0])
     }
   }
 
@@ -307,7 +310,7 @@ export default class extends Vue {
    * 设备页面路由
    */
   @Provide('deviceRouter')
-  private async deviceRouter(item: any, node: any) {
+  private async deviceRouter(item: any, node?: any) {
     const dirTree: any = this.$refs.dirTree
     let _node: any
     if (!node) {

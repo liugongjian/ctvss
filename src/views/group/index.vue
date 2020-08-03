@@ -47,7 +47,7 @@
         <el-table-column prop="action" label="操作" width="250" fixed="right">
           <template slot-scope="scope">
             <el-button type="text" @click="goToConfig(scope.row)">业务组配置</el-button>
-            <el-button type="text">设备管理</el-button>
+            <el-button type="text" @click="goToDevices(scope.row)">设备管理</el-button>
             <el-button v-if="scope.row.groupStatus==='on'" type="text" @click="stopGroup(scope.row)">停用</el-button>
             <el-button v-if="scope.row.groupStatus==='off'" type="text" @click="startGroup(scope.row)">启用</el-button>
             <el-button :disabled="scope.row.groupStatus==='on'" type="text" @click="deleteGroup(scope.row)">删除</el-button>
@@ -160,7 +160,17 @@ export default class extends Vue {
     this.$router.push({
       path: '/group/config',
       query: {
-        groupId: row.groupId!.toString()
+        groupId: row.groupId
+      }
+    })
+  }
+
+  private goToDevices(row: Group) {
+    this.$router.push({
+      path: '/device',
+      query: {
+        groupId: row.groupId,
+        inProtocol: row.inProtocol
       }
     })
   }
