@@ -72,11 +72,11 @@ export default class Ctplayer {
       isLive: true,
       url: this.source
     })
-    flvPlayer.on('ERROR', (e) => {})
-    flvPlayer.on('MEDIA_INFO', (e) => {})
+    flvPlayer.on('error', (e) => {})
+    flvPlayer.on('log', (e) => {})
     flvPlayer.attachMediaElement(videoElement)
     flvPlayer.load()
-    this.autoPlayVideo(flvPlayer, videoElement)
+    flvPlayer.play()
     return flvPlayer
   }
 
