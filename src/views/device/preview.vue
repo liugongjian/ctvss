@@ -124,7 +124,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Inject } from 'vue-property-decorator'
+import { Component, Vue, Inject, Watch } from 'vue-property-decorator'
 import { DeviceStatus, DeviceType, AuthStatus } from '@/dics'
 import { dateFormatInTable, dateFormat } from '@/utils/date'
 import { getDevicePreview } from '@/api/device'
@@ -179,6 +179,12 @@ export default class extends Vue {
     return this.$route.query.id
   }
 
+  @Watch('$route.query')
+  private onRouterChange() {
+    this.player && this.player.disposePlayer()
+    this.getDevicePreview()
+  }
+
   private mounted() {
     if (this.$route.query.previewTab) this.activeName = this.$route.query.previewTab.toString()
     this.getDevicePreview()
@@ -197,6 +203,7 @@ export default class extends Vue {
   }
 
   private beforeDestroy() {
+    console.log('beforeDestroy')
     this.player && this.player.disposePlayer()
   }
 

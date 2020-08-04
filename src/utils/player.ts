@@ -56,7 +56,7 @@ export default class Ctplayer {
           break
       }
     } catch (e) {
-      console.log(e)
+      console.log()
     }
   }
 
@@ -72,6 +72,8 @@ export default class Ctplayer {
       isLive: true,
       url: this.source
     })
+    flvPlayer.on('ERROR', (e) => {})
+    flvPlayer.on('MEDIA_INFO', (e) => {})
     flvPlayer.attachMediaElement(videoElement)
     flvPlayer.load()
     this.autoPlayVideo(flvPlayer, videoElement)
@@ -145,14 +147,18 @@ export default class Ctplayer {
 
   private autoPlayVideo(player: any, videoElement: any) {
     if (this.autoPlay) {
-      this.testAutoPlay().then(isSupport => {
-        if (isSupport) {
-          player.play()
-        } else {
-          videoElement.muted = true
-          player.play()
-        }
-      })
+      try {
+        this.testAutoPlay().then(isSupport => {
+          if (isSupport) {
+            player.play()
+          } else {
+            videoElement.muted = true
+            player.play()
+          }
+        })
+      } catch (e) {
+        console.log(e)
+      }
     }
   }
 }
