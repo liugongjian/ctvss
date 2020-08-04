@@ -175,21 +175,52 @@ export default class extends Vue {
   private setRecordTemplateDialog = false
   private setSnapshotTemplateDialog = false
 
+  private playerTimer: any = null
+
   private get deviceId() {
     return this.$route.query.id
   }
 
   @Watch('$route.query')
   private onRouterChange() {
-    this.player && this.player.disposePlayer()
-    this.getDevicePreview()
+    if (this.playerTimer !== null) {
+      clearTimeout(this.playerTimer)
+    }
+    this.playerTimer = setTimeout(this.loadPlayer, 500)
   }
 
   private mounted() {
     if (this.$route.query.previewTab) this.activeName = this.$route.query.previewTab.toString()
     this.getDevicePreview()
+    window.addEventListener('focus', this.reloadPlayer)
   }
 
+  private beforeDestroy() {
+    this.player && this.player.disposePlayer()
+    window.removeEventListener('focus', this.reloadPlayer)
+  }
+
+  /**
+   * 加载视频
+   */
+  private loadPlayer() {
+    if (this.player) {
+      this.player.disposePlayer()
+      this.getDevicePreview()
+    }
+  }
+
+  /**
+   * 重新加载视频
+   */
+  private reloadPlayer() {
+    console.log('reload')
+    this.player && this.player.reloadPlayer()
+  }
+
+  /**
+   * 获取预览链接
+   */
   private async getDevicePreview() {
     const res = await getDevicePreview({
       deviceId: this.deviceId
@@ -201,12 +232,6 @@ export default class extends Vue {
       source: this.address.flv // 视频源
     })
   }
-
-  private beforeDestroy() {
-    console.log('beforeDestroy')
-    this.player && this.player.disposePlayer()
-  }
-
   private goToDetail() {
     this.deviceRouter({
       id: this.deviceId,

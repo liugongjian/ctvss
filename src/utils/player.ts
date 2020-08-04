@@ -42,11 +42,24 @@ export default class Ctplayer {
     }
   }
 
+  public reloadPlayer() {
+    switch (this.type) {
+      case 'flv':
+        this.player.unload()
+        this.player.load()
+        this.player.play()
+        break
+      case 'm3u8':
+      case 'mp4':
+    }
+  }
+
   public disposePlayer() {
     try {
       switch (this.type) {
         case 'flv':
           this.player.destroy()
+          console.log('destroy')
           break
         case 'm3u8':
           this.player.destroy()
