@@ -28,30 +28,8 @@
             </info-list-item>
           </info-list>
         </el-tab-pane>
-        <el-tab-pane v-if="false" label="录制回放" name="replay">
-          <div class="replay-wrap">
-            <div class="replay-player">
-              <video id="replayPlayer" ref="video" controls />
-            </div>
-            <div class="replay-time-list">
-              <el-date-picker
-                v-model="replayRange"
-                type="datetimerange"
-                range-separator="至"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期"
-              />
-              <el-table :data="timeList">
-                <el-table-column label="开始时间" prop="startTime" min-width="180" :formatter="dateFormatInTable" />
-                <el-table-column label="时长" prop="duration" />
-                <el-table-column prop="action" label="操作" width="90" fixed="right">
-                  <template slot-scope="{row}">
-                    <el-button type="primary" @click="changeReplay(row)">播放</el-button>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </div>
-          </div>
+        <el-tab-pane label="录制回放" name="replay">
+          <replay />
         </el-tab-pane>
         <el-tab-pane v-if="false" label="监控截图" name="snapshot">
           <el-date-picker
@@ -133,13 +111,15 @@ import Ctplayer from '@/utils/player'
 import SetRecordTemplate from '../components/dialogs/SetRecordTemplate.vue'
 import SetSnapshotTemplate from '../components/dialogs/SetSnapshotTemplate.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
+import Replay from './components/Replay.vue'
 
 @Component({
   name: 'DevicePreview',
   components: {
     SetRecordTemplate,
     SetSnapshotTemplate,
-    StatusBadge
+    StatusBadge,
+    Replay
   }
 })
 export default class extends Vue {
@@ -149,25 +129,6 @@ export default class extends Vue {
   private activeName = 'preview'
   private player?: Ctplayer
   private address?: any = null
-  private timeList = [
-    {
-      startTime: 1594260926566,
-      duration: '10分钟'
-    },
-    {
-      startTime: 1594260926566,
-      duration: '10分钟'
-    },
-    {
-      startTime: 1594260926566,
-      duration: '10分钟'
-    },
-    {
-      startTime: 1594260926566,
-      duration: '10分钟'
-    }
-  ]
-  private replayRange = null
   private snapshotRange = null
   private template = {
     snapshotTemplate: '123'
@@ -341,25 +302,6 @@ export default class extends Vue {
         padding: 0;
         right: 0;
       }
-    }
-  }
-
-  .replay-wrap {
-    display: flex;
-  }
-  .replay-player {
-    flex: 4;
-    height: 500px;
-    background: #eee;
-  }
-  .replay-time-list {
-    flex: 2;
-    margin-left: 15px;
-    overflow: hidden;
-
-    .el-range-editor {
-      width: 100%;
-      margin-bottom: 15px;
     }
   }
 
