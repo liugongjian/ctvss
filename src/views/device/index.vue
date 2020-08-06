@@ -299,7 +299,8 @@ export default class extends Vue {
     const dirTree: any = this.$refs.dirTree
     let data = await getDeviceTree({
       groupId: this.currentGroupId,
-      id: node.data.id
+      id: node.data.id,
+      type: node.data.type
     })
     dirTree.updateKeyChildren(key, data.dirs)
     node.expanded = true
