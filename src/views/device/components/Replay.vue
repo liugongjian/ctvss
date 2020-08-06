@@ -2,17 +2,25 @@
   <div class="replay-wrap">
     <div class="replay-player">
       <video id="replayPlayer" ref="video" controls />
-      <div ref="timeline" class="timeline">
-        <div
-          v-for="(time, index) in timePositionList"
-          :key="index"
-          class="timeline__bar"
-          :style="`left: ${time.left}%; width: ${time.width}%;`"
-          @click="handleTimeline($event, time)"
-        />
-        <div class="timeline__hours">
-          <div v-for="i in 24" :key="i" class="timeline__hour">
-            {{ i > 10 ? '' : '0' }}{{ i - 1 }}:00
+      <div class="timeline--wrap">
+        <div ref="timeline" class="timeline">
+          <div
+            class="timeline__handle"
+            :style="`left: ${handlePos}px;`"
+          >
+            {{ currentTime }}
+          </div>
+          <div
+            v-for="(time, index) in timePositionList"
+            :key="index"
+            class="timeline__bar"
+            :style="`left: ${time.left}%; width: ${time.width}%;`"
+            @click="handleTimeline($event, time)"
+          />
+          <div class="timeline__hours">
+            <div v-for="i in 24" :key="i" class="timeline__hour">
+              {{ i > 10 ? '' : '0' }}{{ i - 1 }}:00
+            </div>
           </div>
         </div>
       </div>
@@ -48,6 +56,8 @@ export default class extends Vue {
   private dateFormatInTable = dateFormatInTable
   private replayRange = null
   private currentDateTime = new Date(new Date().toLocaleDateString()).getTime()
+  private currentTime: string | null = null
+  private handlePos = 0
   private timeList = [
     {
       duration: 1800,
@@ -78,9 +88,15 @@ export default class extends Vue {
 
   private handleTimeline(e: any, time: any) {
     console.log(e, time)
-    let scale = e.offsetX / e.target.clientWidth
-    let seek = scale * time.duration
-    console.log(seek)
+    const $timeline: any = this.$refs.timeline
+    const scale = e.offsetX / e.target.clientWidth
+    const wrapPos = $timeline.getBoundingClientRect()
+    const seek = Math.ceil(scale * time.duration)
+    const currentTime = time.startAt + seek * 1000
+    const currentTimeDate = new Date(currentTime)
+    this.currentTime = `${currentTimeDate.getHours()}:${currentTimeDate.getMinutes()}`
+    console.log(currentTimeDate)
+    this.handlePos = e.clientX - wrapPos.left
   }
 
   private calcPosition(list: Array<any>) {
@@ -115,12 +131,22 @@ export default class extends Vue {
       margin-bottom: 15px;
     }
   }
+  .timeline--wrap {
+    overflow: auto;
+  }
   .timeline {
+    min-width: 970px;
     position: relative;
     margin-top: 15px;
     padding: 10px 0;
     display: flex;
     background: #eee;
+    &__handle {
+      position: absolute;
+      top: 0;
+      border-right: 2px solid $primary;
+      height: 100%;
+    }
     &__hours {
       display: flex;
       width: 100%;
