@@ -4,8 +4,8 @@ import { UserModule } from '@/store/modules/user'
 
 let timeoutPromise: Promise<any>
 const service = axios.create({
-  baseURL: '/v1', // url = base url + request url
-  timeout: 5000
+  baseURL: '/v1' // url = base url + request url
+  // timeout: 5000
   // withCredentials: true // send cookies when cross-domain requests
 })
 
