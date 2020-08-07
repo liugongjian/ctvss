@@ -43,7 +43,7 @@ service.interceptors.response.use(
         location.reload() // To prevent bugs from vue-router
       })
     }
-    const message = error.response.data ? error.response.data.message : null
+    const message = error.response && error.response.data ? error.response.data.message : null
     if (message) {
       return Promise.reject(message)
     } else {

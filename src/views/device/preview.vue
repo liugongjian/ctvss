@@ -5,7 +5,7 @@
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="监控预览" name="preview">
           <div class="preview-player">
-            <video id="previewPlayer" ref="video" controls />
+            <div id="previewPlayer" ref="video" />
           </div>
           <info-list v-if="address" label-width="70" title="播放地址" class="address">
             <info-list-item v-if="address.rtmp" label="RTMP:">
@@ -206,8 +206,8 @@ export default class extends Vue {
   private loadPlayer() {
     if (this.player) {
       this.player.disposePlayer()
-      this.getDevicePreview()
     }
+    this.getDevicePreview()
   }
 
   /**
@@ -218,19 +218,29 @@ export default class extends Vue {
     this.player && this.player.reloadPlayer()
   }
 
+  private play() {
+    this.player && this.player.play()
+  }
+
   /**
    * 获取预览链接
    */
   private async getDevicePreview() {
-    const res = await getDevicePreview({
-      deviceId: this.deviceId
-    })
-    this.address = res.address
-    this.player = new Ctplayer({
-      id: 'previewPlayer', // 播放器DOM ID
-      autoPlay: true, // 是否允许自动播放
-      source: this.address.flv // 视频源
-    })
+    try {
+      this.address = null
+      const res = await getDevicePreview({
+        deviceId: this.deviceId
+      })
+      this.address = res.address
+      this.player = new Ctplayer({
+        id: 'previewPlayer', // 播放器DOM ID
+        autoPlay: true, // 是否允许自动播放
+        source: this.address.flv, // 视频源
+        type: 'h265-flv'
+      })
+    } catch (e) {
+      console.log(e)
+    }
   }
   private goToDetail() {
     this.deviceRouter({
@@ -320,7 +330,22 @@ export default class extends Vue {
 
   .preview-player {
     //height: 500px;
-    background: #eee;
+    position: relative;
+    background: #000;
+    ::v-deep canvas {
+      display: block;
+    }
+    ::v-deep .play {
+      position: absolute;
+      top: 0;
+      left: 0;
+      color: #fff;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      background: url('./assets/play.svg') no-repeat center;
+      background-size: 80px 80px;
+    }
   }
 
   video {
