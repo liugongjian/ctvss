@@ -3,11 +3,12 @@
     <div v-if="isNVR" class="device-info" :loading="loading.info">
       <info-list v-if="deviceInfo" label-width="80">
         <info-list-item label="设备名称:">{{ deviceInfo.deviceName }}</info-list-item>
-        <info-list-item label="创建时间:">{{ deviceInfo.createdTime }}</info-list-item>
+        <info-list-item label="国标ID:">{{ deviceInfo.gbId }}</info-list-item>
         <info-list-item label="设备状态:">
           <status-badge :status="deviceInfo.deviceStatus" />
           {{ deviceStatus[deviceInfo.deviceStatus] }}
         </info-list-item>
+        <info-list-item label="创建时间:">{{ deviceInfo.createdTime }}</info-list-item>
         <info-list-item label="通道数量:">{{ deviceInfo.deviceStats.channelSize }}</info-list-item>
         <info-list-item label="在线流数量:">{{ deviceInfo.deviceStats.onlineSize }}</info-list-item>
       </info-list>
@@ -81,6 +82,11 @@
         <template slot-scope="{row}">
           <el-button v-if="row.deviceStats && row.deviceStats.channelSize" type="text" @click="goInto(row)">{{ row.deviceStats.channelSize }}</el-button>
           <span v-else>-</span>
+        </template>
+      </el-table-column>
+      <el-table-column key="createdTime" label="创建时间" min-width="180">
+        <template slot-scope="{row}">
+          {{ row.createdTime }}
         </template>
       </el-table-column>
       <el-table-column label="操作" width="270" fixed="right">

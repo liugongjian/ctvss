@@ -4,8 +4,8 @@ import { UserModule } from '@/store/modules/user'
 
 let timeoutPromise: Promise<any>
 const service = axios.create({
-  baseURL: '/v1', // url = base url + request url
-  timeout: 5000
+  baseURL: '/v1' // url = base url + request url
+  // timeout: 5000
   // withCredentials: true // send cookies when cross-domain requests
 })
 
@@ -43,7 +43,7 @@ service.interceptors.response.use(
         location.reload() // To prevent bugs from vue-router
       })
     }
-    const message = error.response.data ? error.response.data.message : null
+    const message = error.response && error.response.data ? error.response.data.message : null
     if (message) {
       return Promise.reject(message)
     } else {
