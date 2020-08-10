@@ -15,7 +15,7 @@
     </div>
     <div class="filter-container clearfix">
       <div class="filter-container__left">
-        <el-button v-if="!deviceInfo || deviceInfo && deviceInfo.createSubDevice === 2" type="primary" @click="handleCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
+        <el-button v-if="!isNVR || deviceInfo && deviceInfo.createSubDevice === 2" type="primary" @click="handleCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
         <el-button disabled>导出</el-button>
         <el-dropdown>
           <el-button disabled>批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>

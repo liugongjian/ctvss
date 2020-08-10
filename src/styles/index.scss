@@ -101,6 +101,11 @@ div:focus {
   left: 0;
 }
 
+.form-question {
+  font-size: 16px;
+  cursor: help;
+}
+
 .el-form-item.is-error {
   .form-tip {
     display: none;

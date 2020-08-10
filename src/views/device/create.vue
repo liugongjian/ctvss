@@ -76,9 +76,37 @@
           </el-select>
           <el-button type="text" class="ml10" @click="openDialog('createGb28181Certificate')">新建账号</el-button>
         </el-form-item>
-        <el-form-item label="自动拉流:" prop="pullType" class="form-with-tip">
+        <el-form-item prop="pullType">
+          <template slot="label">
+            自动拉流:
+            <el-popover
+              placement="top-start"
+              title="自动拉流"
+              width="400"
+              trigger="hover"
+              :open-delay="300"
+              content="当启用自动拉流，国标设备注册成功后自动启动拉流。关闭该选项后需要通过触发的方式启动拉流。"
+            >
+              <i slot="reference" class="form-question el-icon-question" />
+            </el-popover>
+          </template>
           <el-switch v-model="form.pullType" active-value="1" inactive-value="2" />
-          <div class="form-tip">开启自动拉流时，国标设备注册成功后自动启动拉流；否则，需要通过触发的方式启动拉流。</div>
+        </el-form-item>
+        <el-form-item prop="transPriority">
+          <template slot="label">
+            优先TCP传输:
+            <el-popover
+              placement="top-start"
+              title="优先TCP传输"
+              width="400"
+              trigger="hover"
+              :open-delay="300"
+              content="开启优先TCP传输时，设备进行视频邀约时优先使用TCP协议接入到视频监控服务中。关闭时则优先使用UDP协议接入。"
+            >
+              <i slot="reference" class="form-question el-icon-question" />
+            </el-popover>
+          </template>
+          <el-switch v-model="form.transPriority" active-value="1" inactive-value="2" />
         </el-form-item>
         <el-form-item label="设备描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
@@ -290,7 +318,7 @@ export default class extends Vue {
           let params = pick(this.form, ['groupId', 'dirId', 'deviceName', 'deviceVendor', 'description'])
           if (!this.isNVR) {
             // 非NVR子设备
-            params = Object.assign(params, pick(this.form, ['deviceType', 'gbVersion', 'deviceIp', 'devicePort', 'pullType', 'userName']))
+            params = Object.assign(params, pick(this.form, ['deviceType', 'gbVersion', 'deviceIp', 'devicePort', 'pullType', 'transPriority', 'userName']))
             if (this.form.deviceType === 'nvr') {
               // NVR子设备添加额外参数
               params = Object.assign(params, {
