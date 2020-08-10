@@ -11,27 +11,31 @@
         </div>
       </div>
       <el-table v-loading="loading" :data="dataList" fit>
+        <el-table-column type="expand">
+          <template slot-scope="{row}">
+            <el-table :data="row.formatList" border size="mini" :header-cell-style="setHeaderClass">
+              <el-table-column prop="formatType" label="存储格式" align="center" />
+              <el-table-column prop="interval" label="周期时长" align="center">
+                <template slot-scope="{row}">
+                  <span>{{ row.interval + '分钟' }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="storageTime" label="存储时长" align="center">
+                <template slot-scope="{row}">
+                  <span>{{ row.storageTime ? rpw.storageTime + '分钟' : '永久存储' }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="path" label="存储路径" min-width="200" />
+            </el-table>
+          </template>
+        </el-table-column>
         <el-table-column prop="templateName" label="模板名称" min-width="150" />
         <el-table-column prop="storeType" label="录制类别" min-width="100">
           <template slot-scope="{row}">
             <span v-html="row.recordType === 1 ? '自动录制' : '按需录制'" />
           </template>
         </el-table-column>
-        <el-table-column prop="interval" label="周期时长" min-width="100">
-          <template slot-scope="{row}">
-            <span>{{ row.interval + '分钟' }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="storeType" label="存储格式" min-width="100">
-          <template slot-scope="{row}">
-            <span v-html="row.storeType.join(', ')" />
-          </template>
-        </el-table-column>
-        <el-table-column prop="storageTime" label="存储时长" min-width="100">
-          <template slot-scope="{row}">
-            <span>{{ row.storageTime ? row.storageTime + '分钟' : '永久存储' }}</span>
-          </template>
-        </el-table-column>
+        <el-table-column prop="description" label="模板备注" />
         <el-table-column prop="createTime" label="创建时间" min-width="160" />
         <el-table-column prop="action" label="操作" width="250" fixed="right">
           <template slot-scope="scope">
@@ -80,7 +84,9 @@ export default class extends Vue {
   private async refresh() {
     await this.getList()
   }
-
+  private setHeaderClass() {
+    return 'background: white'
+  }
   private async getList() {
     try {
       this.loading = true
@@ -92,10 +98,39 @@ export default class extends Vue {
       const res = await getRecordTemplates(params)
       this.loading = false
       this.dataList = res.templates.map((template: any) => {
-        template.storeType = ['hls']
-        template.interval = (template.hlsParam || template.mpParam || template.flvParam).interval / 60
-        template.storageTime = (template.hlsParam || template.mpParam || template.flvParam).storageTime / 60
-        return template
+        const rowData: RecordTemplate = {
+          templateId: template.templateId,
+          templateName: template.templateName,
+          recordType: template.recordType,
+          createTime: template.createTime,
+          description: template.description,
+          formatList: []
+        }
+        if (template.hlsParam && template.hlsParam.enable) {
+          rowData.formatList.push({
+            formatType: 'hls',
+            interval: template.hlsParam.interval / 60,
+            path: template.hlsParam.muPath,
+            storageTime: template.hlsParam.stoargeTime
+          })
+        }
+        if (template.flvParam && template.flvParam.enable) {
+          rowData.formatList.push({
+            formatType: 'flv',
+            interval: template.flvParam.interval / 60,
+            path: template.flvParam.path,
+            storageTime: template.flvParam.storageTime
+          })
+        }
+        if (template.mpParam && template.mpParam.enable) {
+          rowData.formatList.push({
+            formatType: 'mp4',
+            interval: template.mpParam.interval / 60,
+            path: template.mpParam.path,
+            storageTime: template.mpParam.storageTime
+          })
+        }
+        return rowData
       })
       this.pager.total = res.totalNum
       this.pager.pageNum = res.pageNum

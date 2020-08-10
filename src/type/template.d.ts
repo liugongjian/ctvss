@@ -1,16 +1,16 @@
+interface RecordTemplateFormat {
+  formatType: string,
+  interval: number,
+  storageTime: number,
+  path: string
+}
 export interface RecordTemplate {
   templateId?: string;
   templateName: string;
   recordType: number;
-  interval: number;
-  storageTime: number;
-  storeType: Array<string>;
-  mp4?: string;
-  flv?: string;
-  m3u8?: string;
-  ts?: string;
+  formatList: Array<RecordTemplateFormat>,
   description?: string;
-  createdTime?: string;
+  createTime?: string;
 }
 
 export interface SnapshotTemplate {
