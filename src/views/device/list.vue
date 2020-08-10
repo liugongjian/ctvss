@@ -15,7 +15,7 @@
     </div>
     <div class="filter-container clearfix">
       <div class="filter-container__left">
-        <el-button v-if="!deviceInfo || deviceInfo && deviceInfo.createSubDevice === 2" type="primary" @click="handleCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
+        <el-button v-if="!isNVR || deviceInfo && deviceInfo.createSubDevice === 2" type="primary" @click="handleCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
         <el-button disabled>导出</el-button>
         <el-dropdown>
           <el-button disabled>批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
@@ -67,10 +67,14 @@
         </template>
       </el-table-column>
       <el-table-column key="deviceVendor" prop="deviceVendor" label="厂商" />
-      <el-table-column v-if="isGb && !isNVR" key="deviceIp" label="设备地址" min-width="150">
+      <el-table-column v-if="isGb && !isNVR" key="deviceIp" label="设备IP" min-width="130">
         <template slot-scope="{row}">
-          <span v-if="row.deviceIp">{{ row.deviceIp }}:{{ row.devicePort }}</span>
-          <span v-else>-</span>
+          {{ row.deviceIp || '-' }}
+        </template>
+      </el-table-column>
+      <el-table-column v-if="isGb && !isNVR" key="devicePort" label="设备端口">
+        <template slot-scope="{row}">
+          {{ row.devicePort || '-' }}
         </template>
       </el-table-column>
       <el-table-column v-if="isGb || isNVR" key="gbId" prop="gbId" label="国标ID" min-width="190">
@@ -228,7 +232,7 @@ export default class extends Vue {
         total: res.totalNum
       }
     } catch (e) {
-      console.error(e)
+      this.deviceList = []
     } finally {
       this.loading.list = false
     }

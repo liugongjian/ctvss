@@ -19,11 +19,23 @@
         <el-form-item label="业务组描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入业务组描述，如业务介绍或用途" />
         </el-form-item>
-        <el-form-item label="服务区域:" prop="region" class="form-with-tip">
+        <el-form-item prop="region" class="form-with-tip">
+          <template slot="label">
+            服务区域:
+            <el-popover
+              placement="top-start"
+              title="服务区域"
+              width="400"
+              trigger="hover"
+              :open-delay="300"
+              content="服务区域负责对流媒体进行实时处理，包括鉴权、拉流、转码、录制、截图等，请根据处理和存储需求选择"
+            >
+              <i slot="reference" class="form-question el-icon-question" />
+            </el-popover>
+          </template>
           <el-select v-model="form.region" placeholder="请选择">
             <el-option v-for="item in regionList" :key="item" :label="item" :value="item" />
           </el-select>
-          <div class="form-tip">服务区域负责对流媒体进行实时处理，包括鉴权、拉流、转码、录制、截图等，请根据处理和存储需求选择</div>
         </el-form-item>
         <el-form-item label="接入类型:" prop="inProtocol">
           <el-radio-group v-model="form.inProtocol" @change="inProtocolTypeChange">
@@ -41,24 +53,21 @@
             </el-checkbox>
           </el-checkbox-group>
         </el-form-item>
-        <el-form-item v-if="form.inProtocol==='gb28181'" label="sip传输协议:" prop="sipTransProtocol">
-          <el-radio-group v-model="form.sipTransProtocol">
-            <el-radio label="tcp">TCP</el-radio>
-            <el-radio label="udp">UDP</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item v-if="form.inProtocol==='gb28181'" label="流媒体传输协议:" prop="streamTransProtocol">
-          <el-radio-group v-model="form.streamTransProtocol">
-            <el-radio label="tcp">TCP</el-radio>
-            <el-radio label="udp">UDP</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="是否启用自动拉流:" prop="pullType">
-          <el-radio-group v-model="form.pullType">
-            <el-radio :label="1">开启</el-radio>
-            <el-radio :label="2">关闭</el-radio>
-          </el-radio-group>
-          <div class="form-tip">当启用自动拉流，国标设备注册成功后自动启动拉流。关闭该选项后需要通过触发的方式启动拉流。</div>
+        <el-form-item prop="pullType">
+          <template slot="label">
+            自动拉流:
+            <el-popover
+              placement="top-start"
+              title="自动拉流"
+              width="400"
+              trigger="hover"
+              :open-delay="300"
+              content="当启用自动拉流，国标设备注册成功后自动启动拉流。关闭该选项后需要通过触发的方式启动拉流。"
+            >
+              <i slot="reference" class="form-question el-icon-question" />
+            </el-popover>
+          </template>
+          <el-switch v-model="form.pullType" active-value="1" inactive-value="2" />
         </el-form-item>
         <el-form-item label="">
           <div class="mt10">
@@ -97,12 +106,6 @@ export default class extends Vue {
     outProtocol: [
       { required: true, message: '请选择播放类型', trigger: 'change' },
       { validator: this.validateOutProtocol, trigger: 'change' }
-    ],
-    sipTransProtocol: [
-      { required: true, message: '请选择sip传输协议', trigger: 'change' }
-    ],
-    streamTransProtocol: [
-      { required: true, message: '请选择流媒体传输协议', trigger: 'change' }
     ],
     pullType: [
       { required: true, message: '请选择是否开启自动拉流', trigger: 'change' }
@@ -196,7 +199,6 @@ export default class extends Vue {
           this.loading = false
         }
       } else {
-        console.log('error submit!!')
         return false
       }
     })

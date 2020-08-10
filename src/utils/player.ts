@@ -1,5 +1,6 @@
 import flvjs from 'flv.js'
 import Hls from 'hls.js'
+import '@/libs/h265/goldplay.css'
 
 export default class Ctplayer {
   public source: string
@@ -12,15 +13,17 @@ export default class Ctplayer {
     this.id = config.id
     this.source = config.source
     this.autoPlay = config.autoPlay
+    this.type = config.type
     this.init()
   }
 
   private init() {
-    this.type = this.getType(this.source)
+    this.type = this.type || this.getType(this.source)
     if (!this.type) {
       throw new Error('不支持当前视频类型')
     }
     const videoElement: any = document.getElementById(this.id)
+
     if (!videoElement) {
       throw new Error('找不到指定的ID Video元素')
     }
@@ -39,13 +42,14 @@ export default class Ctplayer {
         return this.playHls(videoElement)
       case 'mp4':
         return this.playDefault(videoElement)
+      case 'h265-flv':
+        return this.playH265Flv(videoElement)
     }
   }
 
   public reloadPlayer() {
     switch (this.type) {
       case 'flv':
-        this.player.unload()
         this.player.load()
         this.player.play()
         break
@@ -56,6 +60,7 @@ export default class Ctplayer {
 
   public disposePlayer() {
     try {
+      const videoElement: any = document.getElementById(this.id)
       switch (this.type) {
         case 'flv':
           this.player.destroy()
@@ -67,10 +72,93 @@ export default class Ctplayer {
         case 'mp4':
           this.player.stop()
           break
+        case 'h265-flv':
+          this.player.destroy()
+          videoElement!.innerHTML = ''
+          break
       }
     } catch (e) {
       console.log()
     }
+  }
+
+  public play() {
+    switch (this.type) {
+      case 'flv':
+      case 'm3u8':
+      case 'mp4':
+      case 'h265-flv':
+        this.player.load()
+        this.player.play()
+        break
+    }
+  }
+
+  /**
+   * H265 Flv 方式播放
+   */
+  private playH265Flv(videoElement: HTMLDivElement) {
+    // @ts-ignore
+    const KsPlayer = window.h265js
+    const canvasElement = document.createElement('canvas')
+    const width = videoElement.clientWidth
+    const height = width * 9 / 16
+    canvasElement.setAttribute('width', width.toString())
+    canvasElement.setAttribute('height', height.toString())
+    const audioElement = document.createElement('audio')
+    videoElement.innerHTML = ''
+    videoElement.append(canvasElement)
+    videoElement.append(audioElement)
+    const player = KsPlayer.createPlayer({
+      isLive: true
+    },
+    {
+      wasmFilePath: `${window.location.origin}/lib/libqydecoder.wasm`,
+      maxLength4ToBeDecodeQueue: 7 + 30 * 30, // 待解码NALU队列最大长度 (fps * s) 7 + 30 * 30
+      maxLength4ToBeRenderQueue: 200, // 待渲染frame队列最大长度 (720p每帧2M，1080p每帧3M) 200
+      enableYUVrender: true,
+      enableSkipFrame: false,
+      disableStreamLoader: false,
+      lazyLoadMaxDuration: 3 * 60,
+      seekType: 'range',
+      url: this.source,
+      timeToDecideWaiting: 500, // 暂停多久算卡顿, 默认500ms
+      bufferTime: 500, // 启播前缓冲视频时长（ms）
+      token: '30ed327e0ccbdbf594223f0f8f092f12'
+    }, {
+      audioElement: audioElement,
+      canvas: canvasElement
+    })
+    player.on(KsPlayer.Events.READY, () => {
+      player.load()
+    })
+    player.on(KsPlayer.Events.MEDIAINFO, (event: any, data: any) => {
+      console.warn('MEDIAINFO: ', event, data)
+    })
+    player.on(KsPlayer.Events.ERROR, (event: any, data: any) => {
+      console.warn('ERROR: ', event, data)
+      if (data.detail === 'AudioAutoPlayUnsupported') {
+        console.log('unload AudioAutoPlayUnsupported')
+        player.destroy()
+        const playButton = document.createElement('div')
+        playButton.className = 'play'
+        playButton.addEventListener('click', () => {
+          this.playH265Flv(videoElement)
+        })
+        videoElement.append(playButton)
+      }
+    })
+    player.on(KsPlayer.Events.WAITING, (event: any, data: any) => {
+      console.warn('WAITING: ', event, data)
+    })
+    player.on(KsPlayer.Events.PLAYING, (event: any, data: any) => {
+      console.warn('PLAYING: ', event, data)
+    })
+    player.on(KsPlayer.Events.RELOAD, (event: any, data: any) => {
+      console.warn('RELOAD: ', event, data)
+    })
+    console.log(player)
+    return player
   }
 
   /**

@@ -19,6 +19,11 @@ import '@/utils/error-log'
 import * as directives from '@/directives'
 import * as filters from '@/filters'
 
+// @ts-ignore
+window._typeof = (e: any) => {
+  return typeof e
+}
+
 Vue.use(ElementUI, {
   size: AppModule.size // Set element-ui default size
 })
