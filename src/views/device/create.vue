@@ -33,7 +33,7 @@
           <div class="form-tip">当开启自动创建NVR子设备时，系统将自动为子设备分配通道号和通道名称。</div>
         </el-form-item>
         <el-form-item v-if="form.deviceType === 'nvr' && form.createSubDevice === '1'" label="子设备数量:" prop="channelSize">
-          <el-input-number v-model="form.channelSize" type="number" />
+          <el-input-number v-model="form.channelSize" :min="1" type="number" />
         </el-form-item>
         <el-form-item label="国标版本:" prop="gbVersion">
           <el-radio-group v-model="form.gbVersion">
