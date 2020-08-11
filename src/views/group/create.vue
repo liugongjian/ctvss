@@ -67,7 +67,7 @@
               <i slot="reference" class="form-question el-icon-question" />
             </el-popover>
           </template>
-          <el-switch v-model="form.pullType" active-value="1" inactive-value="2" />
+          <el-switch v-model="form.pullType" :active-value="1" :inactive-value="2" />
         </el-form-item>
         <el-form-item label="">
           <div class="mt10">
@@ -120,8 +120,6 @@ export default class extends Vue {
     region: '华东',
     inProtocol: 'gb28181',
     outProtocol: [],
-    streamTransProtocol: 'tcp',
-    sipTransProtocol: 'tcp',
     pullType: 1
   }
 
@@ -159,19 +157,12 @@ export default class extends Vue {
     }
   }
 
-  private inProtocolTypeChange(val: String) {
-    if (val === 'gb28181') {
-      this.form.streamTransProtocol = 'tcp'
-      this.form.sipTransProtocol = 'tcp'
-    } else {
-      this.form.streamTransProtocol = ''
-      this.form.sipTransProtocol = ''
-    }
-  }
-
   private back() {
     if (this.$route.name === 'group-update') {
-      this.$router.push('/group/config')
+      this.$router.push({
+        path: '/group/config',
+        query: { groupId: this.form.groupId!.toString() }
+      })
     } else {
       this.$router.push('/group')
     }

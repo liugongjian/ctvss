@@ -3,7 +3,7 @@
     <el-page-header content="业务组配置" @back="back" />
     <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
       <el-tab-pane label="基本信息" name="info">
-        <!-- <el-button type="text" class="info-edit" @click="editForm">编辑</el-button> -->
+        <el-button type="text" class="info-edit" @click="editForm">编辑</el-button>
         <info-list label-width="150">
           <info-list-item label="业务组ID:">{{ form.groupId }}</info-list-item>
           <info-list-item label="业务组名称:">{{ form.groupName }}</info-list-item>

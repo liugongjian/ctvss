@@ -7,7 +7,7 @@ export interface Certificate {
 }
 
 export interface GB28181 extends Certificate {
-  oldPassword?: string;
   password?: string;
+  newPassword?: string;
   confirmPassword?: string;
 }

@@ -10,8 +10,6 @@ export interface Group {
   region?: string;
   createdTime?: string;
   description?: string;
-  streamTransProtocol?: string;
-  sipTransProtocol?: string;
   sipId?: number;
   sipIp?: string;
   sipTcpPort?: number;

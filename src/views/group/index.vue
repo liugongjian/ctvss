@@ -11,7 +11,7 @@
       <div class="filter-container">
         <el-button type="primary" @click="handleCreate">新建业务组</el-button>
         <div class="filter-container__right">
-          <el-input v-model="groupName" class="filter-container__search-group" placeholder="请输入业务组名称" disabled @keyup.enter.native="handleFilter">
+          <el-input v-model="groupName" class="filter-container__search-group" placeholder="请输入业务组名称" clearable @keyup.enter.native="handleFilter" @clear="handleFilter">
             <el-button slot="append" class="el-button-rect" icon="el-icon-search" @click="handleFilter" />
           </el-input>
           <el-button class="el-button-rect" icon="el-icon-refresh" @click="refresh" />
@@ -48,8 +48,8 @@
           <template slot-scope="scope">
             <el-button type="text" @click="goToConfig(scope.row)">业务组配置</el-button>
             <el-button type="text" @click="goToDevices(scope.row)">设备管理</el-button>
-            <el-button v-if="scope.row.groupStatus==='on'" disabled type="text" @click="stopGroup(scope.row)">停用</el-button>
-            <el-button v-if="scope.row.groupStatus==='off'" disabled type="text" @click="startGroup(scope.row)">启用</el-button>
+            <el-button v-if="scope.row.groupStatus==='on'" type="text" @click="stopGroup(scope.row)">停用</el-button>
+            <el-button v-if="scope.row.groupStatus==='off'" type="text" @click="startGroup(scope.row)">启用</el-button>
             <el-button :disabled="scope.row.groupStatus==='on'" type="text" @click="deleteGroup(scope.row)">删除</el-button>
           </template>
         </el-table-column>
@@ -103,7 +103,7 @@ export default class extends Vue {
   private async getList() {
     this.loading = true
     let params = {
-      keyWord: this.groupName,
+      groupName: this.groupName,
       pageNum: this.pager.pageNum,
       pageSize: this.pager.pageSize
     }
@@ -135,15 +135,26 @@ export default class extends Vue {
   }
 
   private async handleFilter() {
+    this.pager.pageNum = 1
     await this.getList()
   }
 
   private async stopGroup(row: Group) {
-    await stopGroup({ groupId: row.groupId })
+    try {
+      await stopGroup({ groupId: row.groupId })
+      await this.getList()
+    } catch (e) {
+      this.$message.error(e)
+    }
   }
 
   private async startGroup(row: Group) {
-    await startGroup({ groupId: row.groupId })
+    try {
+      await startGroup({ groupId: row.groupId })
+      await this.getList()
+    } catch (e) {
+      this.$message.error(e)
+    }
   }
 
   private async deleteGroup(row: Group) {

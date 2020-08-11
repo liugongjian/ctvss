@@ -5,7 +5,7 @@
         <el-button type="primary" @click="handleCreate">新建GB28181凭证</el-button>
         <div class="filter-container__right">
           <div class="filter-container__select">
-            <el-select v-model="userType" placeholder="选择匿名方式" clearable @clear="handleFilter">
+            <el-select v-model="userType" placeholder="选择匿名方式" clearable @clear="handleFilter" @change="handleFilter">
               <el-option v-for="(value, key) in anonymousType" :key="key" :label="value" :value="key" />
             </el-select>
           </div>
@@ -71,8 +71,8 @@ export default class extends Vue {
 
   private dateFormatInTable = dateFormatInTable
 
-  private refresh() {
-    console.log('resfresh')
+  private async refresh() {
+    await this.getList()
   }
 
   private async mounted() {
@@ -115,6 +115,7 @@ export default class extends Vue {
   }
 
   private async handleFilter() {
+    this.pager.pageNum = 1
     await this.getList()
   }
 
@@ -122,7 +123,8 @@ export default class extends Vue {
     this.$router.push({
       name: 'gb28181-update',
       params: {
-        userName: row.userName
+        userName: row.userName,
+        userType: row.userType!
       }
     })
   }
