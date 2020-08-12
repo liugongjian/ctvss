@@ -28,7 +28,7 @@
         </el-dropdown>
       </div>
       <div class="filter-container__right">
-        <el-input v-model="keyword" class="filter-container__search-group" placeholder="请输入关键词" disabled>
+        <el-input v-show="false" v-model="keyword" class="filter-container__search-group" placeholder="请输入关键词">
           <el-button slot="append" class="el-button-rect" icon="el-icon-search" />
         </el-input>
         <el-button class="el-button-rect" icon="el-icon-refresh" @click="init" />
@@ -36,10 +36,17 @@
     </div>
     <el-table v-loading="loading.list" :data="deviceList" fit>
       <el-table-column type="selection" width="55" />
-      <el-table-column
-        :label="isNVR ? '通道号/通道名称' : '设备ID/名称'"
-        min-width="200"
-      >
+      <el-table-column v-if="isGb && isNVR" label="通道号/通道名称" min-width="200">
+        <template slot-scope="{row}">
+          <div class="device-list__device-name" @click="goInto(row)">
+            <div class="device-list__device-id">{{ row.channelNum }}</div>
+            <div>
+              {{ row.channelName }} <i class="el-icon-video-camera" />
+            </div>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column v-if="isGb && !isNVR" label="设备ID/名称" min-width="200">
         <template slot-scope="{row}">
           <div class="device-list__device-name" @click="goInto(row)">
             <div class="device-list__device-id">{{ row.deviceId }}</div>
@@ -220,9 +227,9 @@ export default class extends Vue {
       if (this.isNVR) {
         params.deviceId = this.id
         res = await getChannels(params)
-        this.deviceList = res.channels
+        this.deviceList = res.deviceChannels
       } else {
-        params.dirId = this.id ? this.id : -1
+        params.dirId = this.id ? this.id : 0
         res = await getDevices(params)
         this.deviceList = res.devices
       }

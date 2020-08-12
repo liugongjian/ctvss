@@ -28,6 +28,13 @@ export const createDevice = (params: any): Promise<any> =>
     data: params
   })
 
+export const updateDevice = (params: any): Promise<any> =>
+  request({
+    url: '/device/update',
+    method: 'post',
+    data: params
+  })
+
 export const deleteDevice = (params: any): Promise<any> =>
   request({
     url: '/device/delete',

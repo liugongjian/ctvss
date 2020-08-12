@@ -5,7 +5,7 @@
         <el-button type="primary" @click="handleCreate">新建GB28181凭证</el-button>
         <div class="filter-container__right">
           <div class="filter-container__select">
-            <el-select v-model="userType" placeholder="选择匿名方式" clearable @clear="handleFilter" @change="handleFilter">
+            <el-select v-model="userType" placeholder="选择匿名方式" clearable @change="handleFilter">
               <el-option v-for="(value, key) in anonymousType" :key="key" :label="value" :value="key" />
             </el-select>
           </div>
