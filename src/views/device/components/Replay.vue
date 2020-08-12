@@ -1,15 +1,27 @@
 <template>
   <div class="replay-wrap">
-    <div class="replay-player">
-      <video id="replayPlayer" ref="video" controls />
+    <div class="filter-container">
+      <el-date-picker
+        v-model="currentDate"
+        type="date"
+        value-format="timestamp"
+        placeholder="选择日期"
+        :picker-options="pickerOptions"
+      />
+      <el-radio-group v-model="viewModel">
+        <el-radio-button label="timeline">时间轴视图</el-radio-button>
+        <el-radio-button label="list">列表视图</el-radio-button>
+      </el-radio-group>
+    </div>
+    <div v-if="viewModel === 'timeline'" class="replay-player">
+      <div ref="video" class="replay-video" />
+      <div class="timeline__current-time">{{ dateFormat(currentTime) }}</div>
       <div class="timeline--wrap">
         <div ref="timeline" class="timeline">
           <div
             class="timeline__handle"
-            :style="`left: ${handlePos}px;`"
-          >
-            {{ currentTime }}
-          </div>
+            :style="`left: ${handlePos}%;`"
+          />
           <div
             v-for="(time, index) in timePositionList"
             :key="index"
@@ -25,101 +37,272 @@
         </div>
       </div>
     </div>
-    <div class="replay-time-list">
-      <el-date-picker
-        v-model="replayRange"
-        type="datetimerange"
-        range-separator="至"
-        start-placeholder="开始日期"
-        end-placeholder="结束日期"
-      />
-      <el-table :data="timeList">
-        <el-table-column label="开始时间" prop="startTime" min-width="180" :formatter="dateFormatInTable" />
+    <div v-else class="replay-time-list">
+      <el-table :data="videoList">
+        <el-table-column label="开始时间" prop="startAt" min-width="180" :formatter="dateFormatInTable" />
         <el-table-column label="时长" prop="duration" />
-        <el-table-column prop="action" label="操作" width="90" fixed="right">
+        <el-table-column prop="action" label="操作" width="180" fixed="right">
           <template slot-scope="{row}">
-            <el-button type="primary" @click="changeReplay(row)">播放</el-button>
+            <el-button type="text" @click="changeReplay(row)">下载录像</el-button>
+            <el-button type="text" @click="playReplay(row)">播放录像</el-button>
           </template>
         </el-table-column>
       </el-table>
+      <replay-player v-if="dialog.play" :video="currentListVideo" @on-close="closeReplayPlayer" />
     </div>
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import { dateFormatInTable, dateFormat } from '@/utils/date'
+import Ctplayer from '@/utils/player'
+import ReplayPlayer from './dialogs/ReplayPlayer.vue'
 
 @Component({
-  name: 'Replay'
+  name: 'Replay',
+  components: {
+    ReplayPlayer
+  }
 })
 export default class extends Vue {
+  private player?: Ctplayer
   private dateFormatInTable = dateFormatInTable
-  private replayRange = null
-  private currentDateTime = new Date(new Date().toLocaleDateString()).getTime()
-  private currentTime: string | null = null
+  private dateFormat = dateFormat
+  private viewModel = 'timeline'
+  private currentVideo: any = null
+  private currentListVideo: any = null
+  private currentDate = new Date(new Date('2020-8-6').toLocaleDateString()).getTime()
+  private currentTime: Date | null = null
   private handlePos = 0
-  private timeList = [
-    {
+  private videoList: Array<any> = []
+  private timePositionList: Array<any> = []
+  private pickerOptions = {
+    disabledDate(time: any) {
+      return time.getTime() > Date.now()
+    }
+  }
+  private dialog = {
+    play: false
+  }
+
+  public stopVideo() {
+    this.player && this.player.stop()
+  }
+
+  private mounted() {
+    this.getVideoList()
+    this.timePositionList = this.calcVideoPosition(this.videoList)
+    this.initVideoPlayer()
+    window.addEventListener('resize', this.resizeVideo)
+  }
+
+  private beforeDestroy() {
+    this.player && this.player.disposePlayer()
+    window.removeEventListener('resize', this.resizeVideo)
+  }
+
+  @Watch('viewModel')
+  private onViewModelChange(val: string) {
+    this.player && this.player.disposePlayer()
+    this.$nextTick(() => {
+      val === 'timeline' && this.initVideoPlayer()
+    })
+  }
+
+  /**
+   * 设置播放器大小
+   */
+  private resizeVideo() {
+    const $video: HTMLDivElement = this.$refs.video as HTMLDivElement
+    if (!$video) return
+    const videoSize = $video.getBoundingClientRect()
+    const width = videoSize.width
+    const height = width * 9 / 16
+    const maxHeight = document.body.clientHeight - videoSize.top - 132
+    $video.style.height = Math.min(height, maxHeight) + 'px'
+  }
+
+  /**
+   * 获取回放列表
+   */
+  private getVideoList() {
+    // this.videoList = [{
+    //   duration: 1800,
+    //   // hls: 'http://127.0.0.1:8082/h265_hls.m3u8',
+    //   // type: 'h265',
+    //   hls: 'https://vod-origin-mehf.gdoss.xstore.ctyun.cn/ec56f6f38cbf4083b54305733a38eb01.m3u8',
+    //   type: 'h264',
+    //   startAt: 1596672000000
+    // },
+    // {
+    //   duration: 1800,
+    //   hls: 'https://vod-origin-mehf.gdoss.xstore.ctyun.cn/ec56f6f38cbf4083b54305733a38eb01.m3u8',
+    //   type: 'h264',
+    //   startAt: 1596673800000
+    // },
+    // {
+    //   duration: 1800,
+    //   hls: 'https://vod-origin-mehf.gdoss.xstore.ctyun.cn/ec56f6f38cbf4083b54305733a38eb01.m3u8',
+    //   type: 'h264',
+    //   startAt: 1596675600000
+    // },
+    // {
+    //   duration: 1800,
+    //   hls: 'https://vod-origin-mehf.gdoss.xstore.ctyun.cn/ec56f6f38cbf4083b54305733a38eb01.m3u8',
+    //   type: 'h264',
+    //   startAt: 1596686400000
+    // }]
+    this.videoList = [{
       duration: 1800,
-      hls: 'https://gbs.liveqing.com:10010/sms/34020000002020000001/record/34020000001320000264_34020000001320000264/20200803/20200803093000/34020000001320000264_34020000001320000264_record.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1OTY2NzY3NDAsInB3IjoiZ3Vlc3QiLCJ0bSI6MTU5NjY3NjU2MCwidW4iOiJndWVzdCJ9.BjZ_n72eTYUl8aUDaQICUcaHqES6IXj1Ra8cIa6235A',
+      hls: 'http://127.0.0.1:8080/data/video2/playlist.m3u8',
+      type: 'h265',
       startAt: 1596672000000
     },
     {
       duration: 1800,
-      hls: 'https://gbs.liveqing.com:10010/sms/34020000002020000001/record/34020000001320000264_34020000001320000264/20200803/20200803093000/34020000001320000264_34020000001320000264_record.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1OTY2NzY3NDAsInB3IjoiZ3Vlc3QiLCJ0bSI6MTU5NjY3NjU2MCwidW4iOiJndWVzdCJ9.BjZ_n72eTYUl8aUDaQICUcaHqES6IXj1Ra8cIa6235A',
+      hls: 'http://127.0.0.1:8080/data/video2/playlist.m3u8',
+      type: 'h265',
       startAt: 1596673800000
     },
     {
       duration: 1800,
-      hls: 'https://gbs.liveqing.com:10010/sms/34020000002020000001/record/34020000001320000264_34020000001320000264/20200803/20200803093000/34020000001320000264_34020000001320000264_record.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1OTY2NzY3NDAsInB3IjoiZ3Vlc3QiLCJ0bSI6MTU5NjY3NjU2MCwidW4iOiJndWVzdCJ9.BjZ_n72eTYUl8aUDaQICUcaHqES6IXj1Ra8cIa6235A',
+      hls: 'http://127.0.0.1:8080/data/video2/playlist.m3u8',
+      type: 'h265',
       startAt: 1596675600000
     },
     {
       duration: 1800,
-      hls: 'https://gbs.liveqing.com:10010/sms/34020000002020000001/record/34020000001320000264_34020000001320000264/20200803/20200803093000/34020000001320000264_34020000001320000264_record.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1OTY2NzY3NDAsInB3IjoiZ3Vlc3QiLCJ0bSI6MTU5NjY3NjU2MCwidW4iOiJndWVzdCJ9.BjZ_n72eTYUl8aUDaQICUcaHqES6IXj1Ra8cIa6235A',
+      hls: 'http://127.0.0.1:8080/data/video2/playlist.m3u8',
+      type: 'h265',
       startAt: 1596686400000
+    }]
+  }
+
+  /**
+   * 初始化播放器
+   */
+  private initVideoPlayer() {
+    if (this.videoList.length) {
+      this.currentVideo = this.videoList[0]
+      this.player = this.createPlayer(this.currentVideo)
+      this.setCurrentTime(this.currentVideo, 0)
+      this.resizeVideo()
     }
-  ]
-  private timePositionList: Array<any> = []
-
-  private mounted() {
-    this.timePositionList = this.calcPosition(this.timeList)
   }
 
-  private handleTimeline(e: any, time: any) {
-    console.log(e, time)
-    const $timeline: any = this.$refs.timeline
+  /**
+   * 创建播放器
+   */
+  private createPlayer(video: any, autoPlay: boolean = false) {
+    console.log(video.hls, video.type)
+    const player = new Ctplayer({
+      wrap: this.$refs.video,
+      autoPlay,
+      source: video.hls,
+      type: video.type === 'h264' ? 'hls' : 'h265-hls',
+      onTimeUpdate: (currentTime: number) => {
+        if (this.currentVideo) {
+          this.setCurrentTime(this.currentVideo, currentTime)
+        }
+      },
+      onResizeScreen: (originWidth: number, originHeight: number) => {
+        const $video: HTMLDivElement = this.$refs.video as HTMLDivElement
+        const $canvas: HTMLCanvasElement | null = $video.querySelector('canvas')
+        const videoSize = $video.getBoundingClientRect()
+        const width = videoSize.width
+        const height = videoSize.width
+        if ($canvas) {
+          const proportion = width / originWidth!
+          $canvas.style.position = 'absolute'
+          $canvas.style.transform = `scale(${proportion})`
+          $canvas.style.transformOrigin = `top left`
+          $canvas.style.top = (height - originHeight) / 2 * proportion + 'px'
+        }
+      }
+    })
+    return player
+  }
+
+  /**
+   * 点击时间轴位置
+   */
+  private handleTimeline(e: any, video: any) {
     const scale = e.offsetX / e.target.clientWidth
-    const wrapPos = $timeline.getBoundingClientRect()
-    const seek = Math.ceil(scale * time.duration)
-    const currentTime = time.startAt + seek * 1000
-    const currentTimeDate = new Date(currentTime)
-    this.currentTime = `${currentTimeDate.getHours()}:${currentTimeDate.getMinutes()}`
-    console.log(currentTimeDate)
-    this.handlePos = e.clientX - wrapPos.left
+    const position = Math.ceil(scale * video.duration)
+    if (this.currentVideo !== video || !this.player) {
+      this.currentVideo = video
+      this.player && this.player.disposePlayer()
+      this.player = this.createPlayer(video, true)
+    }
+    this.player.play()
+    this.player.seek(position)
+    this.setCurrentTime(video, position)
   }
 
-  private calcPosition(list: Array<any>) {
-    return list.map((time: any) => {
+  /**
+   * 设置操作具柄在时间轴中的位置
+   */
+  private setCurrentTime(video: any, currentTime: number) {
+    const currentTimestamp = video.startAt + currentTime
+    this.currentTime = new Date(currentTimestamp)
+    this.handlePos = this.scale(Math.round((currentTimestamp - this.currentDate) / 1000))
+  }
+
+  /**
+   * 计算视频在时间轴中的位置
+   */
+  private calcVideoPosition(list: Array<any>) {
+    return list.map((video: any) => {
       return {
-        width: this.scale(time.duration + 1),
-        left: this.scale(Math.round((time.startAt - this.currentDateTime) / 1000)),
-        ...time
+        width: this.scale(video.duration + 1).toFixed(6),
+        left: this.scale(Math.round((video.startAt - this.currentDate) / 1000)).toFixed(6),
+        ...video
       }
     })
   }
 
+  /**
+   * 秒 / 一天的秒的比率
+   */
   private scale(sec: number) {
-    return (sec / (24 * 60 * 60) * 100).toFixed(6)
+    return sec / (24 * 60 * 60) * 100
+  }
+
+  /**
+   * 播放录像（模态框）
+   */
+  private playReplay(video: any) {
+    this.dialog.play = true
+    this.currentListVideo = video
+  }
+
+  /**
+   * 关闭播放录像弹出框
+   */
+  private closeReplayPlayer() {
+    this.dialog.play = false
+    this.currentListVideo = null
   }
 }
 </script>
 <style lang="scss" scoped>
-  .replay-wrap {
+  .filter-container {
+    text-align: right;
+    .el-date-editor {
+      margin-right: 10px;
+      vertical-align: middle;
+    }
   }
+
   .replay-player {
-    flex: 4;
-    height: 500px;
+    .replay-video {
+      width: 100%;
+      background: #000;
+      ::v-deep video {
+        width: 100%;
+        height: 100%;
+      }
+    }
   }
   .replay-time-list {
     flex: 2;
@@ -134,18 +317,28 @@ export default class extends Vue {
   .timeline--wrap {
     overflow: auto;
   }
+  .timeline__current-time {
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 10px;
+  }
   .timeline {
     min-width: 970px;
     position: relative;
-    margin-top: 15px;
-    padding: 10px 0;
+    margin-top: 10px;
+    padding: 8px 4px;
     display: flex;
-    background: #eee;
+    background: #f2f2f2;
+    border-radius: 4px;
     &__handle {
       position: absolute;
+      z-index: 10;
       top: 0;
       border-right: 2px solid $primary;
       height: 100%;
+      &__time {
+        position: absolute;
+      }
     }
     &__hours {
       display: flex;
@@ -154,9 +347,9 @@ export default class extends Vue {
     &__hour {
       flex: 1 1 0;
       text-align: center;
-      border-left: 1px solid #aaa;
-      border-top: 1px solid #aaa;
-      padding: 5px 0;
+      border-left: 1px solid #ccc;
+      border-top: 1px solid #ccc;
+      padding: 8px 0;
       font-size: 12px;
       &:first-child {
         border-left: none;
@@ -165,7 +358,7 @@ export default class extends Vue {
     &__bar {
       position: absolute;
       top: 0;
-      border-top: 10px solid $primary;
+      border-top: 8px solid $light-blue;
       height: 100%;
       cursor: pointer;
     }

@@ -3,33 +3,11 @@
     <div class="preview-wrap">
       <el-button class="btn-detail" @click="goToDetail"><i class="el-icon-tickets" /> 查看设备详情</el-button>
       <el-tabs v-model="activeName" @tab-click="handleClick">
-        <el-tab-pane label="监控预览" name="preview">
-          <div class="preview-player">
-            <div id="previewPlayer" ref="video" />
-          </div>
-          <info-list v-if="address" label-width="70" title="播放地址" class="address">
-            <info-list-item v-if="address.rtmp" label="RTMP:">
-              {{ address.rtmp }}
-              <el-tooltip class="item" effect="dark" content="复制链接" placement="top">
-                <el-button type="text" @click="copyUrl(address.rtmp)"><i class="el-icon-copy-document" /></el-button>
-              </el-tooltip>
-            </info-list-item>
-            <info-list-item v-if="address.flv" label="FLV:">
-              {{ address.flv }}
-              <el-tooltip class="item" effect="dark" content="复制链接" placement="top">
-                <el-button type="text" @click="copyUrl(address.flv)"><i class="el-icon-copy-document" /></el-button>
-              </el-tooltip>
-            </info-list-item>
-            <info-list-item v-if="address.hls" label="HLS:">
-              {{ address.hls }}
-              <el-tooltip class="item" effect="dark" content="复制链接" placement="top">
-                <el-button type="text" @click="copyUrl(address.hls)"><i class="el-icon-copy-document" /></el-button>
-              </el-tooltip>
-            </info-list-item>
-          </info-list>
+        <el-tab-pane lazy label="实时预览" name="preview">
+          <live v-if="activeName === 'preview'" />
         </el-tab-pane>
-        <el-tab-pane label="录制回放" name="replay">
-          <replay />
+        <el-tab-pane lazy label="录像回放" name="replay">
+          <replay v-if="activeName === 'replay'" />
         </el-tab-pane>
         <el-tab-pane v-if="false" label="监控截图" name="snapshot">
           <el-date-picker
@@ -107,11 +85,11 @@ import { DeviceStatus, DeviceType, AuthStatus } from '@/dics'
 import { dateFormatInTable, dateFormat } from '@/utils/date'
 import { getDevicePreview } from '@/api/device'
 import copy from 'copy-to-clipboard'
-import Ctplayer from '@/utils/player'
 import SetRecordTemplate from '../components/dialogs/SetRecordTemplate.vue'
 import SetSnapshotTemplate from '../components/dialogs/SetSnapshotTemplate.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import Replay from './components/Replay.vue'
+import Live from './components/Live.vue'
 
 @Component({
   name: 'DevicePreview',
@@ -119,7 +97,8 @@ import Replay from './components/Replay.vue'
     SetRecordTemplate,
     SetSnapshotTemplate,
     StatusBadge,
-    Replay
+    Replay,
+    Live
   }
 })
 export default class extends Vue {
@@ -127,8 +106,6 @@ export default class extends Vue {
   private dateFormatInTable = dateFormatInTable
   private dateFormat = dateFormat
   private activeName = 'preview'
-  private player?: Ctplayer
-  private address?: any = null
   private snapshotRange = null
   private template = {
     snapshotTemplate: '123'
@@ -136,73 +113,19 @@ export default class extends Vue {
   private setRecordTemplateDialog = false
   private setSnapshotTemplateDialog = false
 
-  private playerTimer: any = null
-
   private get deviceId() {
     return this.$route.query.id
   }
 
   @Watch('$route.query')
   private onRouterChange() {
-    if (this.playerTimer !== null) {
-      clearTimeout(this.playerTimer)
-    }
-    this.playerTimer = setTimeout(this.loadPlayer, 500)
+    this.activeName = 'preview'
   }
 
   private mounted() {
     if (this.$route.query.previewTab) this.activeName = this.$route.query.previewTab.toString()
-    this.getDevicePreview()
-    window.addEventListener('focus', this.reloadPlayer)
   }
 
-  private beforeDestroy() {
-    this.player && this.player.disposePlayer()
-    window.removeEventListener('focus', this.reloadPlayer)
-  }
-
-  /**
-   * 加载视频
-   */
-  private loadPlayer() {
-    if (this.player) {
-      this.player.disposePlayer()
-    }
-    this.getDevicePreview()
-  }
-
-  /**
-   * 重新加载视频
-   */
-  private reloadPlayer() {
-    console.log('reload')
-    this.player && this.player.reloadPlayer()
-  }
-
-  private play() {
-    this.player && this.player.play()
-  }
-
-  /**
-   * 获取预览链接
-   */
-  private async getDevicePreview() {
-    try {
-      this.address = null
-      const res = await getDevicePreview({
-        deviceId: this.deviceId
-      })
-      this.address = res.address
-      this.player = new Ctplayer({
-        id: 'previewPlayer', // 播放器DOM ID
-        autoPlay: true, // 是否允许自动播放
-        source: this.address.flv, // 视频源
-        type: 'h265-flv'
-      })
-    } catch (e) {
-      console.log(e)
-    }
-  }
   private goToDetail() {
     this.deviceRouter({
       id: this.deviceId,
@@ -242,16 +165,6 @@ export default class extends Vue {
   private closeSetScrrenCutTemplateDialog() {
     this.setSnapshotTemplateDialog = false
   }
-
-  private changeReplay() {}
-
-  /**
-   * 一键复制
-   */
-  private copyUrl(text: string) {
-    copy(text)
-    this.$message.success('复制成功')
-  }
 }
 </script>
 <style lang="scss" scoped>
@@ -286,47 +199,6 @@ export default class extends Vue {
       top: -12px;
       right: 0;
       z-index: 9;
-    }
-  }
-
-  .preview-player {
-    //height: 500px;
-    position: relative;
-    background: #000;
-    ::v-deep canvas {
-      display: block;
-    }
-    ::v-deep .play {
-      position: absolute;
-      top: 0;
-      left: 0;
-      color: #fff;
-      width: 100%;
-      height: 100%;
-      cursor: pointer;
-      background: url('./assets/play.svg') no-repeat center;
-      background-size: 80px 80px;
-    }
-  }
-
-  video {
-    width: 100%;
-    height: auto;
-  }
-
-  .address {
-    ::v-deep .info-item--val {
-      overflow: hidden;
-      text-overflow:ellipsis;
-      white-space: nowrap;
-      position: relative;
-      padding-right: 20px;
-
-      .el-button--text {
-        position: absolute;
-        padding: 0;
-        right: 0;
-      }
     }
   }
 

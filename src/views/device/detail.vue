@@ -2,7 +2,7 @@
   <div class="app-container">
     <div class="detail-wrap">
       <div v-if="info">
-        <el-button v-if="info.deviceType === 'ipc'" class="btn-detail" @click="goToPreview"><i class="el-icon-video-camera" /> 监控预览</el-button>
+        <el-button v-if="info.deviceType === 'ipc'" class="btn-detail" @click="goToPreview"><i class="el-icon-video-camera" /> 实时预览</el-button>
         <el-button v-if="info.deviceType === 'nvr'" class="btn-detail" @click="goToChannels"><i class="el-icon-files" /> 查看通道</el-button>
       </div>
       <el-tabs v-model="activeName" @tab-click="handleClick">
@@ -247,7 +247,7 @@ export default class extends Vue {
   }
 
   /**
-   * 监控预览
+   * 实时预览
    */
   private goToPreview() {
     this.deviceRouter({
