@@ -16,6 +16,8 @@
     <div class="filter-container clearfix">
       <div class="filter-container__left">
         <el-button v-if="!isNVR || deviceInfo && deviceInfo.createSubDevice === 2" type="primary" @click="handleCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
+        <el-button v-if="isNVR" @click="goToDetail(deviceInfo)">查看NVR设备详情</el-button>
+        <el-button v-if="isNVR" @click="goToUpdate(deviceInfo)">编辑NVR设备</el-button>
         <el-button disabled>导出</el-button>
         <el-dropdown>
           <el-button disabled>批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
@@ -34,7 +36,7 @@
         <el-button class="el-button-rect" icon="el-icon-refresh" @click="init" />
       </div>
     </div>
-    <el-table v-loading="loading.list" :data="deviceList" fit>
+    <el-table v-loading="loading.list || loading.info" :data="deviceList" fit>
       <el-table-column type="selection" width="55" />
       <el-table-column v-if="isGb && isNVR" label="通道号/通道名称" min-width="200">
         <template slot-scope="{row}">
@@ -109,10 +111,11 @@
             <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item v-if="isGb && scope.row.deviceType === 'nvr'" :command="{type: 'nvr', device: scope.row}">查看通道</el-dropdown-item>
-              <el-dropdown-item :command="{type: 'detail', device: scope.row}">设备详情</el-dropdown-item>
+              <el-dropdown-item v-if="isGb && isNVR" :command="{type: 'detail', device: scope.row}">通道详情</el-dropdown-item>
+              <el-dropdown-item v-else :command="{type: 'detail', device: scope.row}">设备详情</el-dropdown-item>
               <el-dropdown-item disabled>停用流</el-dropdown-item>
               <el-dropdown-item v-if="!isNVR" disabled>移动至</el-dropdown-item>
-              <el-dropdown-item disabled :command="{type: 'edit', device: scope.row}">编辑</el-dropdown-item>
+              <el-dropdown-item :command="{type: 'update', device: scope.row}">编辑</el-dropdown-item>
               <el-dropdown-item disabled :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -180,6 +183,7 @@ export default class extends Vue {
 
   @Watch('$route.query')
   private onRouterChange() {
+    this.deviceInfo = null
     this.init()
   }
 
@@ -193,15 +197,22 @@ export default class extends Vue {
   }
 
   private async getNVRDeviceInfo() {
-    this.deviceInfo = null
     if (this.isNVR && this.id) {
-      this.deviceInfo = await getDevice({
-        deviceId: this.id
-      })
-      this.deviceList = this.deviceInfo.deviceChannels.map((channel: any) => {
-        channel.deviceType = 'ipc'
-        return channel
-      })
+      try {
+        this.loading.info = true
+        this.deviceInfo = await getDevice({
+          deviceId: this.id
+        })
+        this.deviceList = this.deviceInfo.deviceChannels.map((channel: any) => {
+          channel.deviceType = 'ipc'
+          return channel
+        })
+      } catch (e) {
+        this.deviceInfo = null
+        this.deviceList = []
+      } finally {
+        this.loading.info = false
+      }
     }
   }
 
@@ -219,6 +230,7 @@ export default class extends Vue {
    * 加载设备列表
    */
   private async getDeviceList() {
+    if (this.isNVR) return
     if (!this.groupId) return
     try {
       let params: any = {
@@ -277,6 +289,26 @@ export default class extends Vue {
   }
 
   /**
+   * 查看设备详情
+   */
+  private goToDetail(device: Device) {
+    this.deviceRouter({
+      id: device.deviceId,
+      type: 'detail'
+    })
+  }
+
+  /**
+   * 编辑设备
+   */
+  private goToUpdate(device: Device) {
+    this.deviceRouter({
+      id: device.deviceId,
+      type: 'update'
+    })
+  }
+
+  /**
    * 删除设备
    */
   private deleteDevice(device: Device) {
@@ -298,17 +330,13 @@ export default class extends Vue {
       case 'detail':
         this.deviceRouter({
           id: command.device.deviceId,
-          type: 'detail',
-          createSubDevice: this.deviceInfo.createSubDevice
+          type: 'detail'
         })
         break
-      case 'edit':
-        this.$router.push({
-          name: 'device-update',
-          query: {
-            deviceId: command.device.deviceId,
-            ...this.$route.query
-          }
+      case 'update':
+        this.deviceRouter({
+          id: command.device.deviceId,
+          type: 'update'
         })
         break
       case 'delete':

@@ -352,13 +352,17 @@ export default class extends Vue {
           name: 'device-detail'
         }
         break
+      case 'update':
+        router = {
+          name: 'device-update'
+        }
+        break
     }
     router.query = {
       id: item.id.toString(),
       groupId: this.currentGroupId!.toString(),
       inProtocol: this.currentGroup!.inProtocol,
       type: item.type,
-      createSubDevice: item.createSubDevice,
       path: this.breadcrumb.map((item: any) => item.id).join(','),
       ...query
     }

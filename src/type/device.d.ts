@@ -12,4 +12,6 @@ export interface Device {
   gbId?: string;
   gbAccount?: string;
   tunnelNum?: number | null;
+  createSubDevice?: number;
+  parentDeviceId?: string;
 }
