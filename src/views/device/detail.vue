@@ -9,7 +9,7 @@
         <el-tab-pane label="基本信息" name="info">
           <div :loading="loading.info">
             <el-button v-if="!isAutoCreated" type="text" class="info-edit" @click="edit">编辑</el-button>
-            <info-list v-if="info" label-width="110">
+            <info-list v-if="info && !isNVRChannel" label-width="110">
               <info-list-item label="设备类型:">{{ deviceType[info.deviceType] }}</info-list-item>
               <info-list-item label="设备名称:">{{ info.deviceName }}</info-list-item>
               <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
@@ -26,6 +26,23 @@
               </template>
               <info-list-item label="自动拉流:">{{ pullType[info.pullType] }}</info-list-item>
               <info-list-item label="GB28181账号:">{{ info.userName }}</info-list-item>
+              <info-list-item label="状态:">
+                <div class="info-list__edit">
+                  <div class="info-list__edit--value">
+                    <status-badge :status="info.deviceStatus" />
+                    {{ deviceStatus[info.deviceStatus] }}
+                  </div>
+                  <div v-if="info.deviceStatus === 'off'" class="info-list__edit--action">
+                    <el-button type="text">停用</el-button>
+                  </div>
+                </div>
+              </info-list-item>
+            </info-list>
+            <info-list v-if="info && isNVRChannel" label-width="110">
+              <info-list-item label="通道号:">{{ info.deviceChannels[0].channelNum }}</info-list-item>
+              <info-list-item label="通道名称:">{{ info.deviceChannels[0].channelName }}</info-list-item>
+              <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
+              <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
               <info-list-item label="状态:">
                 <div class="info-list__edit">
                   <div class="info-list__edit--value">
@@ -245,7 +262,7 @@ export default class extends Vue {
     return this.$route.query.inProtocol === 'gb28181'
   }
 
-  private get isNVR() {
+  private get isNVRChannel() {
     return this.info && this.info.parentDeviceId !== '-1'
   }
 

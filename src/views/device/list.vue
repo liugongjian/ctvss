@@ -115,7 +115,7 @@
               <el-dropdown-item v-else :command="{type: 'detail', device: scope.row}">设备详情</el-dropdown-item>
               <el-dropdown-item disabled>停用流</el-dropdown-item>
               <el-dropdown-item v-if="!isNVR" :command="{type: 'move', device: scope.row}">移动至</el-dropdown-item>
-              <el-dropdown-item :command="{type: 'update', device: scope.row}">编辑</el-dropdown-item>
+              <el-dropdown-item v-if="!isNVR || !isCreateSubDevice" :command="{type: 'update', device: scope.row}">编辑</el-dropdown-item>
               <el-dropdown-item disabled :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -183,6 +183,10 @@ export default class extends Vue {
 
   private get groupId() {
     return this.$route.query.groupId
+  }
+
+  private get isCreateSubDevice() {
+    return this.deviceInfo && this.deviceInfo.createSubDevice === 1
   }
 
   private get dirId() {
