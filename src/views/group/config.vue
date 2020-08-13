@@ -25,23 +25,28 @@
         <div>
           <el-button type="text" class="template-edit" @click="setRecordTemplate">编辑</el-button>
           <info-list title="录制模板">
-            <el-table :data="template.recordTemplate" fit>
+            <el-table v-loading="loading" :data="template.recordTemplate" fit>
               <el-table-column prop="templateName" label="模板名称" />
-              <el-table-column prop="interval" label="周期时长" :formatter="formatSeconds" />
+              <el-table-column prop="recordType" label="是否启用自动录制">
+                <template slot-scope="{row}">
+                  {{ row.recordType === 1 ? '是':'否' }}
+                </template>
+              </el-table-column>
               <el-table-column prop="storeType" label="录制格式">
                 <template slot-scope="{row}">
-                  {{ row.storeType.join(',') }}
+                  {{ row.flvParam ? 'flv': '' }}
+                  {{ row.hlsParam ? 'hls': '' }}
+                  {{ row.mpParam ? 'mp4': '' }}
                 </template>
               </el-table-column>
             </el-table>
           </info-list>
         </div>
-        <div>
+        <div v-if="false" style="margin-top:10px;">
           <el-button type="text" class="template-edit" @click="setSnapshotTemplate">编辑</el-button>
           <info-list title="截图模板">
             <el-table :data="template.snapshotTemplate" fit>
               <el-table-column prop="templateName" label="模板名称" />
-              <el-table-column prop="interval" label="周期时长" :formatter="formatSeconds" />
               <el-table-column prop="storeType" label="录制格式">
                 <template slot-scope="{row}">
                   {{ row.storeType.join(',') }}
@@ -56,7 +61,7 @@
     <SetRecordTemplate
       v-if="setRecordTemplateDialog"
       :group-id="form.groupId"
-      :selected-list="template.recordTemplate"
+      :template-id="recordTemplateId"
       @on-close="closeSetRecordTemplateDialog"
     />
     <SetSnapshotTemplate
@@ -71,6 +76,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Group } from '@/type/group'
+import { RecordTemplate } from '@/type/template'
 import { OutProtocolType, InProtocolType } from '@/dics'
 import SetRecordTemplate from '../components/dialogs/SetRecordTemplate.vue'
 import SetSnapshotTemplate from '../components/dialogs/SetSnapshotTemplate.vue'
@@ -100,12 +106,14 @@ export default class extends Vue {
     sipTcpPort: undefined,
     sipUdpPort: undefined
   }
-  private template = {
+  private template: Record<any, Array<RecordTemplate>> = {
     snapshotTemplate: [],
     recordTemplate: []
   }
   private setRecordTemplateDialog = false
   private setSnapshotTemplateDialog = false
+  private loading = false
+  private recordTemplateId = ''
 
   private formatSeconds = formatSeconds
   private back() {
@@ -116,11 +124,14 @@ export default class extends Vue {
     this.activeName = tab.name
     if (this.activeName === 'template') {
       try {
+        this.loading = true
+        this.template.recordTemplate = []
         const res = await getGroupTemplate({ groupId: this.form.groupId })
-        this.template.recordTemplate = res.recordTemplate
-        this.template.snapshotTemplate = res.snapshotTemplate
+        this.template.recordTemplate.push(res)
       } catch (e) {
         this.$message.error(e)
+      } finally {
+        this.loading = false
       }
     }
   }
@@ -150,14 +161,29 @@ export default class extends Vue {
 
   private setRecordTemplate() {
     this.setRecordTemplateDialog = true
+    if (!this.template.recordTemplate.length) {
+      this.recordTemplateId = ''
+    } else {
+      this.recordTemplateId = this.template.recordTemplate[0].templateId!
+    }
   }
 
   private setSnapshotTemplate() {
     this.setSnapshotTemplateDialog = true
   }
 
-  private closeSetRecordTemplateDialog() {
+  private async closeSetRecordTemplateDialog() {
     this.setRecordTemplateDialog = false
+    try {
+      this.loading = true
+      this.template.recordTemplate = []
+      const res = await getGroupTemplate({ groupId: this.form.groupId })
+      this.template.recordTemplate.push(res)
+    } catch (e) {
+      this.$message.error(e)
+    } finally {
+      this.loading = false
+    }
   }
 
   private closeSetSnapshotTemplateDialog() {

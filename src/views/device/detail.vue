@@ -123,16 +123,28 @@
             <anti-theft-chain type="UA" :config="playConfig.anti.ua" />
           </info-list>
         </el-tab-pane>
-        <el-tab-pane v-if="false" label="模板配置" name="template">
+        <el-tab-pane label="模板配置" name="template">
           <div>
-            <el-button type="text" class="template-edit" @click="setRecordTemplate">编辑</el-button>
+            <el-button type="text" class="template-edit" @click="openDialog('setRecordTemplate')">编辑</el-button>
             <info-list title="录制模板">
-              <el-table :data="template.recordTemplate" fit>
+              <el-table v-loading="loading.template" :data="template.recordTemplate" fit>
                 <el-table-column prop="templateName" label="模板名称" />
+                <el-table-column prop="recordType" label="是否启用自动录制">
+                  <template slot-scope="{row}">
+                    {{ row.recordType === 1 ? '是':'否' }}
+                  </template>
+                </el-table-column>
+                <el-table-column prop="storeType" label="录制格式">
+                  <template slot-scope="{row}">
+                    {{ row.flvParam ? 'flv': '' }}
+                    {{ row.hlsParam ? 'hls': '' }}
+                    {{ row.mpParam ? 'mp4': '' }}
+                  </template>
+                </el-table-column>
               </el-table>
             </info-list>
           </div>
-          <div>
+          <div v-if="false">
             <el-button type="text" class="template-edit" @click="setSnapshotTemplate">编辑</el-button>
             <info-list title="截图模板">
               <el-table :data="template.snapshotTemplate" fit>
@@ -150,7 +162,12 @@
       </el-tabs>
     </div>
 
-    <SetRecordTemplate v-if="dialog.setRecordTemplate" @on-close="closeDialog('setRecordTemplate')" />
+    <SetRecordTemplate
+      v-if="dialog.setRecordTemplate"
+      :device-id="id"
+      :template-id="recordTemplateId"
+      @on-close="closeDialog('setRecordTemplate')"
+    />
     <SetSnapshotTemplate v-if="dialog.setSnapshotTemplate" @on-close="closeDialog('setSnapshotTemplate')" />
     <SetAuthConfig v-if="dialog.setAuthConfig" @on-close="closeDialog('setAuthConfig')" />
   </div>
@@ -159,6 +176,7 @@
 <script lang="ts">
 import { Component, Vue, Inject } from 'vue-property-decorator'
 import { Device } from '@/type/device'
+import { RecordTemplate } from '@/type/template'
 import { DeviceStatus, DeviceType, AuthStatus, PullType, CreateSubDevice } from '@/dics'
 import { getDevice, getRecordTemplate } from '@/api/device'
 import SetRecordTemplate from '../components/dialogs/SetRecordTemplate.vue'
@@ -208,7 +226,7 @@ export default class extends Vue {
     }
   }
   private pushExpired?: number | null = null
-  private template = {
+  private template: Record<any, Array<RecordTemplate>> = {
     snapshotTemplate: [],
     recordTemplate: []
   }
@@ -218,8 +236,10 @@ export default class extends Vue {
     setAuthConfig: false
   }
   private loading = {
-    info: false
+    info: false,
+    template: false
   }
+  private recordTemplateId = ''
 
   private get isGb() {
     return this.$route.query.inProtocol === 'gb28181'
@@ -280,11 +300,14 @@ export default class extends Vue {
     this.activeName = tab.name
     if (this.activeName === 'template') {
       try {
+        this.loading.template = true
+        this.template.recordTemplate = []
         const res = await getRecordTemplate({ deviceId: this.id })
-        this.template.recordTemplate = res.templates
-        // this.template.snapshotTemplate = res.snapshotTemplate
+        this.template.recordTemplate.push(res)
       } catch (e) {
         this.$message.error(e)
+      } finally {
+        this.loading.template = false
       }
     }
   }
@@ -302,11 +325,30 @@ export default class extends Vue {
   private openDialog(type: string) {
     // @ts-ignore
     this.dialog[type] = true
+    if (type === 'setRecordTemplate') {
+      if (!this.template.recordTemplate.length) {
+        this.recordTemplateId = ''
+      } else {
+        this.recordTemplateId = this.template.recordTemplate[0].templateId!
+      }
+    }
   }
 
-  private closeDialog(type: string) {
+  private async closeDialog(type: string) {
     // @ts-ignore
     this.dialog[type] = false
+    if (type === 'setRecordTemplate') {
+      try {
+        this.loading.template = true
+        this.template.recordTemplate = []
+        const res = await getRecordTemplate({ deviceId: this.id })
+        this.template.recordTemplate.push(res)
+      } catch (e) {
+        this.$message.error(e)
+      } finally {
+        this.loading.template = false
+      }
+    }
   }
 }
 </script>
