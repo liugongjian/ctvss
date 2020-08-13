@@ -7,95 +7,124 @@
   >
     <el-table
       ref="multipleTable"
-      v-loading="tableLoading"
+      v-loading="loading"
       :data="list"
       fit
       highlight-current-row
-      @selection-change="handleSelectionChange"
+      max-height="500"
     >
-      <el-table-column type="selection" width="55" />
       <el-table-column prop="templateName" label="模板名称" />
-      <el-table-column prop="storeType" label="录制格式">
-        <template slot-scope="{row}">{{ row.storeType && row.storeType.join(',') }}</template>
+      <el-table-column prop="recordType" label="是否启用自动录制">
+        <template slot-scope="{row}">
+          {{ row.recordType === 1 ? '是':'否' }}
+        </template>
       </el-table-column>
-      <el-table-column prop="interval" label="录制周期" :formatter="formatSeconds" />
+      <el-table-column prop="storeType" label="录制格式">
+        <template slot-scope="{row}">
+          {{ row.flvParam ? 'flv': '' }}
+          {{ row.hlsParam ? 'hls': '' }}
+          {{ row.mpParam ? 'mp4': '' }}
+        </template>
+      </el-table-column>
+      <el-table-column label="操作">
+        <template slot-scope="{row}">
+          <el-button v-if="row.templateId !== bindTemplateId" type="text" @click="bind(row)">绑定</el-button>
+          <el-button v-else type="text" @click="unbind(row)">解绑</el-button>
+        </template>
+      </el-table-column>
     </el-table>
     <span slot="footer" class="dialog-footer">
-      <el-button @click="closeDialog">取 消</el-button>
-      <el-button :loading="buttonLoading" type="primary" @click="choose">确 定</el-button>
+      <el-button @click="closeDialog">关闭</el-button>
     </span>
   </el-dialog>
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { getRecordTemplates, setRecordTemplates } from '@/api/group'
+import { getRecordTemplates, setGroupRecordTemplates, unbindGroupRecordTemplates } from '@/api/group'
+import { setDeviceRecordTemplate, unbindDeviceRecordTemplate } from '@/api/device'
 import { formatSeconds } from '@/utils/interval'
+import { template } from 'lodash'
 
 @Component({
   name: 'SetRecordTemplate'
 })
 export default class extends Vue {
   @Prop() private groupId?: string
-  @Prop() private selectedList?: Array<any>
+  @Prop() private deviceId?: String
+  @Prop() private templateId?: string
   private dialogVisible = true
-  private tableLoading = false
-  private buttonLoading = false
+  private loading = false
   private list = [
     {
       templateId: '0001',
       templateName: '30分钟录制',
       format: 'MP4, FLV, HLS',
       duration: '20分钟'
-    },
-    {
-      templateId: '0002',
-      templateName: '30分钟录制',
-      format: 'MP4, FLV, HLS',
-      duration: '20分钟'
     }
   ]
-  private multipleSelection = []
-
   private formatSeconds = formatSeconds
+  private bindTemplateId = this.templateId
 
   private closeDialog() {
     this.dialogVisible = false
     this.$emit('on-close')
   }
 
-  private async choose() {
-    let templateIdList: Array<string> = []
-    this.list.forEach(item => {
-      templateIdList.push(item.templateId)
-    })
+  private async bind(row: any) {
     let params = {
       groupId: this.groupId,
-      templateId: templateIdList
+      deviceId: this.deviceId,
+      templateId: row.templateId
     }
-    this.buttonLoading = true
-    await setRecordTemplates(params)
-    this.buttonLoading = false
+    try {
+      this.loading = true
+      if (this.groupId) {
+        await setGroupRecordTemplates(params)
+      } else {
+        await setDeviceRecordTemplate(params)
+      }
+      this.bindTemplateId = row.templateId
+    } catch (e) {
+      this.$message.error(e)
+    } finally {
+      this.loading = false
+    }
+  }
+
+  private async unbind(row: any) {
+    let params = {
+      groupId: this.groupId,
+      deviceId: this.deviceId,
+      templateId: row.templateId
+    }
+    try {
+      this.loading = true
+      if (this.groupId) {
+        await unbindGroupRecordTemplates(params)
+      } else {
+        await unbindDeviceRecordTemplate(params)
+      }
+      this.bindTemplateId = ''
+    } catch (e) {
+      this.$message.error(e)
+    } finally {
+      this.loading = false
+    }
   }
 
   private async mounted() {
-    this.tableLoading = true
-    const res = await getRecordTemplates({
-      groupId: this.groupId
-    })
-    this.list = res.templates
-    this.tableLoading = false
-    this.$nextTick(() => {
-      this.list.forEach(item => {
-        if (this.selectedList!.includes(item.templateId)) {
-          const ref: any = this.$refs.multipleTable
-          ref.toggleRowSelection(item)
-        }
+    try {
+      this.loading = true
+      const res = await getRecordTemplates({
+        pageNum: 1,
+        pageSize: 50
       })
-    })
-  }
-
-  private handleSelectionChange(val: any) {
-    this.multipleSelection = val
+      this.list = res.templates
+    } catch (e) {
+      this.$message.error(e)
+    } finally {
+      this.loading = false
+    }
   }
 }
 </script>
