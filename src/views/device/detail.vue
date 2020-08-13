@@ -8,7 +8,7 @@
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="基本信息" name="info">
           <div :loading="loading.info">
-            <el-button type="text" class="info-edit" @click="edit">编辑</el-button>
+            <el-button v-if="!isAutoCreated" type="text" class="info-edit" @click="edit">编辑</el-button>
             <info-list v-if="info" label-width="110">
               <info-list-item label="设备类型:">{{ deviceType[info.deviceType] }}</info-list-item>
               <info-list-item label="设备名称:">{{ info.deviceName }}</info-list-item>
@@ -124,26 +124,28 @@
           </info-list>
         </el-tab-pane>
         <el-tab-pane v-if="false" label="模板配置" name="template">
-          <info-list label-width="100" title="模版配置">
-            <info-list-item label="录制模板:">
-              <div class="info-list__edit">
-                <div class="info-list__edit--value">{{ template.recordTemplate?template.recordTemplate:'未配置' }}</div>
-                <div class="info-list__edit--action">
-                  <el-button type="text" @click="openDialog('setRecordTemplate')">设置</el-button>
-                  <el-button v-if="template.recordTemplate" type="text">解绑</el-button>
-                </div>
-              </div>
-            </info-list-item>
-            <info-list-item label="截图模板:">
-              <div class="info-list__edit">
-                <div class="info-list__edit--value">{{ template.snapshotTemplate?template.snapshotTemplate:'未配置' }}</div>
-                <div class="info-list__edit--action">
-                  <el-button type="text" @click="openDialog('setSnapshotTemplate')">设置</el-button>
-                  <el-button v-if="template.snapshotTemplate" type="text">解绑</el-button>
-                </div>
-              </div>
-            </info-list-item>
-          </info-list>
+          <div>
+            <el-button type="text" class="template-edit" @click="setRecordTemplate">编辑</el-button>
+            <info-list title="录制模板">
+              <el-table :data="template.recordTemplate" fit>
+                <el-table-column prop="templateName" label="模板名称" />
+              </el-table>
+            </info-list>
+          </div>
+          <div>
+            <el-button type="text" class="template-edit" @click="setSnapshotTemplate">编辑</el-button>
+            <info-list title="截图模板">
+              <el-table :data="template.snapshotTemplate" fit>
+                <el-table-column prop="templateName" label="模板名称" />
+                <el-table-column prop="interval" label="周期时长" :formatter="formatSeconds" />
+                <el-table-column prop="storeType" label="录制格式">
+                  <template slot-scope="{row}">
+                    {{ row.storeType.join(',') }}
+                  </template>
+                </el-table-column>
+              </el-table>
+            </info-list>
+          </div>
         </el-tab-pane>
       </el-tabs>
     </div>
@@ -158,7 +160,7 @@
 import { Component, Vue, Inject } from 'vue-property-decorator'
 import { Device } from '@/type/device'
 import { DeviceStatus, DeviceType, AuthStatus, PullType, CreateSubDevice } from '@/dics'
-import { getDevice } from '@/api/device'
+import { getDevice, getRecordTemplate } from '@/api/device'
 import SetRecordTemplate from '../components/dialogs/SetRecordTemplate.vue'
 import SetSnapshotTemplate from '../components/dialogs/SetSnapshotTemplate.vue'
 import SetAuthConfig from './components/dialogs/SetAuthConfig.vue'
@@ -207,7 +209,8 @@ export default class extends Vue {
   }
   private pushExpired?: number | null = null
   private template = {
-    snapshotTemplate: '123'
+    snapshotTemplate: [],
+    recordTemplate: []
   }
   private dialog = {
     setRecordTemplate: false,
@@ -224,6 +227,10 @@ export default class extends Vue {
 
   private get id() {
     return this.$route.query.id
+  }
+
+  private get isAutoCreated() {
+    return this.info && this.info.parentDeviceId !== '-1' && this.info.createSubDevice === 1
   }
 
   private mounted() {
@@ -269,19 +276,26 @@ export default class extends Vue {
   /**
    * TAB切换
    */
-  private handleClick(tab: any, event: any) {
+  private async handleClick(tab: any, event: any) {
     this.activeName = tab.name
+    if (this.activeName === 'template') {
+      try {
+        const res = await getRecordTemplate({ deviceId: this.id })
+        this.template.recordTemplate = res.templates
+        // this.template.snapshotTemplate = res.snapshotTemplate
+      } catch (e) {
+        this.$message.error(e)
+      }
+    }
   }
 
   /**
    * 编辑
    */
   private edit() {
-    this.$router.push({
-      name: 'device-update',
-      params: {
-        deviceId: this.id.toString()
-      }
+    this.deviceRouter({
+      id: this.id,
+      type: 'update'
     })
   }
 
@@ -343,4 +357,11 @@ export default class extends Vue {
       padding: 0;
     }
   }
+
+  .template-edit {
+    float: right;
+    padding: 0;
+    margin: 0;
+  }
+
 </style>

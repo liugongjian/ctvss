@@ -16,11 +16,11 @@
       <div v-if="form.userType === 'anonymous'" class="form-tip">当选择匿名密码为国标设备凭证时，用户别名仅用于凭证管理，便于记忆。</div>
       <div v-else class="form-tip">设备注册时将使用当前输入值作为SIP用户认证ID。</div>
     </el-form-item>
-    <el-form-item v-if="disabled" label="旧密码:" prop="oldPassword">
-      <el-input v-model="form.oldPassword" show-password />
-    </el-form-item>
-    <el-form-item label="密码:" prop="password">
+    <el-form-item v-if="disabled" label="旧密码:" prop="password">
       <el-input v-model="form.password" show-password />
+    </el-form-item>
+    <el-form-item label="密码:" prop="newPassword">
+      <el-input v-model="form.newPassword" show-password />
     </el-form-item>
     <el-form-item label="确认密码:" prop="confirmPassword">
       <el-input v-model="form.confirmPassword" show-password />
@@ -50,21 +50,21 @@ export default class extends Vue {
     username: [
       { required: true, message: '请输入用户名', trigger: 'blur' }
     ],
-    password: [
+    newPassword: [
       { validator: this.validatePass, trigger: 'blur' }
     ],
     confirmPassword: [
       { validator: this.validatePass2, trigger: 'blur' }
     ],
-    oldPassword: [
+    password: [
       { validator: this.validateOldPass, trigger: 'blur' }
     ]
   }
   private form: GB28181 = {
-    userType: 'normal',
+    userType: 'normpal',
     userName: '',
-    oldPassword: '',
     password: '',
+    newPassword: '',
     confirmPassword: '',
     description: ''
   }
@@ -73,7 +73,7 @@ export default class extends Vue {
     if (!value && !this.disabled) {
       callback(new Error('请输入密码'))
     } else {
-      if (this.form.password !== '') {
+      if (this.form.newPassword !== '') {
         const form: any = this.$refs.dataForm
         form.validateField('confirmPassword')
       }
@@ -84,7 +84,7 @@ export default class extends Vue {
   private validatePass2(rule: any, value: string, callback: any) {
     if (!value && !this.disabled) {
       callback(new Error('请再次输入密码'))
-    } else if (value !== this.form.password) {
+    } else if (value !== this.form.newPassword) {
       callback(new Error('两次输入密码不一致'))
     } else {
       callback()
@@ -92,7 +92,7 @@ export default class extends Vue {
   }
 
   private validateOldPass(rule: any, value: string, callback: any) {
-    if (this.form.password && !value) {
+    if (this.form.newPassword && !value) {
       callback(new Error('更改密码时必须输入旧密码'))
     } else {
       callback()
@@ -111,7 +111,11 @@ export default class extends Vue {
             await createCertificate(this.form)
           }
           onSuccess()
-          this.$message.success('新建GB28181凭证成功！')
+          if (this.disabled) {
+            this.$message.success('修改GB28181凭证成功！')
+          } else {
+            this.$message.success('新建GB28181凭证成功！')
+          }
         } catch (e) {
           this.$message.error(e)
         } finally {
@@ -129,15 +133,7 @@ export default class extends Vue {
     if (params.userName) {
       this.disabled = true
       this.$set(this.form, 'userName', params.userName)
-      this.loading = true
-      try {
-        const res = await queryCertificate({ userName: this.form.userName })
-        this.form = res
-      } catch (e) {
-        this.$message.error(e)
-      } finally {
-        this.loading = false
-      }
+      this.$set(this.form, 'userType', params.userType)
     }
   }
 }

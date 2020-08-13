@@ -12,7 +12,7 @@
         <el-form-item v-if="currentGroup" label="业务组:">
           {{ currentGroup.groupName }}
         </el-form-item>
-        <el-form-item v-if="breadcrumb" label="当前目录:">
+        <el-form-item v-if="breadcrumb && !isUpdate" label="当前目录:">
           <div class="breadcrumb">
             <span
               v-for="item in breadcrumb"
@@ -24,7 +24,7 @@
           </div>
         </el-form-item>
         <el-form-item label="设备类型:" prop="deviceType">
-          <el-select v-model="form.deviceType" placeholder="请选择">
+          <el-select v-model="form.deviceType" placeholder="请选择" :disabled="isUpdate">
             <el-option v-for="item in deviceTypeList" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -142,7 +142,7 @@ import { Component, Vue, Inject } from 'vue-property-decorator'
 import { pick } from 'lodash'
 import { DeviceModule } from '@/store/modules/device'
 import { DeviceType } from '@/dics'
-import { createDevice } from '@/api/device'
+import { createDevice, updateDevice, getDevice } from '@/api/device'
 import { getList as getGbList } from '@/api/certificate/gb28181'
 import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
 
@@ -194,7 +194,7 @@ export default class extends Vue {
   }
   private form = {
     groupId: '',
-    dirId: '',
+    deviceId: '',
     deviceName: '',
     deviceType: '',
     deviceVendor: '',
@@ -206,7 +206,9 @@ export default class extends Vue {
     channelName: '',
     description: '',
     createSubDevice: '1',
-    pullType: '1'
+    pullType: '1',
+    parentDeviceId: '',
+    userName: ''
   }
   private dialog = {
     createGb28181Certificate: false
@@ -215,6 +217,7 @@ export default class extends Vue {
     account: false
   }
   private submitting = false
+  private isUpdate = false
 
   private get currentGroup() {
     return DeviceModule.group
@@ -225,7 +228,7 @@ export default class extends Vue {
   }
 
   private get isNVR() {
-    return this.$route.query.type === 'nvr'
+    return this.$route.query.type === 'nvr' || this.form.parentDeviceId !== '-1'
   }
 
   private get breadCrumbContent() {
@@ -240,9 +243,17 @@ export default class extends Vue {
     return DeviceModule.breadcrumb
   }
 
-  private mounted() {
+  private async mounted() {
     this.form.groupId = this.currentGroupId!
-    this.form.dirId = this.$route.query.id ? this.$route.query.id.toString() : '0'
+    this.form.deviceId = this.$route.query.id ? this.$route.query.id.toString() : '0'
+    if (this.form.deviceId) {
+      this.isUpdate = true
+      const info = await getDevice({
+        deviceId: this.form.deviceId
+      })
+      this.form = Object.assign(this.form, pick(info, ['groupId', 'deviceId', 'deviceName', 'deviceType', 'deviceVendor',
+        'gbVersion', 'deviceIp', 'devicePort', 'channelSize', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'parentDeviceId', 'userName']))
+    }
     this.getGbAccounts()
   }
 
@@ -250,7 +261,7 @@ export default class extends Vue {
    * 校验设备/通道名称
    */
   private validateDeviceName(rule: any, value: string, callback: Function) {
-    if (!/[\u4e00-\u9fa50-9a-zA-Z-]{4,16}/.test(value)) {
+    if (!/^[\u4e00-\u9fa50-9a-zA-Z-]{4,16}$/.test(value)) {
       callback(new Error('设备名称格式错误'))
     } else {
       callback()
@@ -282,10 +293,17 @@ export default class extends Vue {
   }
 
   private back() {
-    this.$router.push({
-      name: 'device-list',
-      query: this.$route.query
-    })
+    if (this.isUpdate) {
+      this.$router.push({
+        name: 'device-detail',
+        query: this.$route.query
+      })
+    } else {
+      this.$router.push({
+        name: 'device-list',
+        query: this.$route.query
+      })
+    }
   }
 
   private async getGbAccounts() {
@@ -315,7 +333,7 @@ export default class extends Vue {
       if (valid) {
         try {
           this.submitting = true
-          let params = pick(this.form, ['groupId', 'dirId', 'deviceName', 'deviceVendor', 'description'])
+          let params = pick(this.form, ['groupId', 'deviceId', 'deviceName', 'deviceVendor', 'description'])
           if (!this.isNVR) {
             // 非NVR子设备
             params = Object.assign(params, pick(this.form, ['deviceType', 'gbVersion', 'deviceIp', 'devicePort', 'pullType', 'transPriority', 'userName']))
@@ -333,8 +351,13 @@ export default class extends Vue {
               channelNum: this.form.channelNum
             })
           }
-          await createDevice(params)
-          this.$message.success('添加设备成功！')
+          if (this.isUpdate) {
+            await updateDevice(params)
+            this.$message.success('修改设备成功！')
+          } else {
+            await createDevice(params)
+            this.$message.success('添加设备成功！')
+          }
           this.back()
           this.initDirs()
         } catch (e) {

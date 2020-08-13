@@ -51,7 +51,7 @@ export const deleteGroup = (params: any): Promise<any> =>
 
 export const getGroupTemplate = (params: any): Promise<any> =>
   request({
-    url: '/group/template',
+    url: '/group/record',
     method: 'get',
     params
   })
@@ -72,7 +72,7 @@ export const getSnapshotTemplates = (params: any): Promise<any> =>
 
 export const setRecordTemplates = (params: any): Promise<any> =>
   request({
-    url: '/group/template/record',
+    url: '/group/record/bind',
     method: 'post',
     data: params
   })

@@ -28,6 +28,13 @@ export const createDevice = (params: any): Promise<any> =>
     data: params
   })
 
+export const updateDevice = (params: any): Promise<any> =>
+  request({
+    url: '/device/update',
+    method: 'post',
+    data: params
+  })
+
 export const deleteDevice = (params: any): Promise<any> =>
   request({
     url: '/device/delete',
@@ -45,6 +52,13 @@ export const getDeviceTree = (params: any): Promise<any> =>
 export const getDevicePreview = (params: any): Promise<any> =>
   request({
     url: '/device/preview',
+    method: 'get',
+    params
+  })
+
+export const getRecordTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/device/record',
     method: 'get',
     params
   })

@@ -57,7 +57,7 @@
                     <el-tooltip class="item" effect="dark" content="添加子目录" placement="top" :open-delay="300">
                       <el-button type="text" @click.stop="openDialog('createDir', data)"><i class="el-icon-plus" /></el-button>
                     </el-tooltip>
-                    <el-tooltip v-if="false" class="item" effect="dark" content="编辑目录" placement="top" :open-delay="300">
+                    <el-tooltip class="item" effect="dark" content="编辑目录" placement="top" :open-delay="300">
                       <el-button type="text" @click.stop="openDialog('updateDir', data)"><i class="el-icon-edit" /></el-button>
                     </el-tooltip>
                     <el-tooltip class="item" effect="dark" content="删除目录" placement="top" :open-delay="300">
@@ -350,6 +350,11 @@ export default class extends Vue {
       case 'detail':
         router = {
           name: 'device-detail'
+        }
+        break
+      case 'update':
+        router = {
+          name: 'device-update'
         }
         break
     }
