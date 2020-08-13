@@ -22,7 +22,7 @@
               </el-table-column>
               <el-table-column prop="storageTime" label="存储时长" align="center">
                 <template slot-scope="{row}">
-                  <span>{{ row.storageTime ? rpw.storageTime + '分钟' : '永久存储' }}</span>
+                  <span>{{ row.storageTime ? row.storageTime + '分钟' : '永久存储' }}</span>
                 </template>
               </el-table-column>
               <el-table-column prop="path" label="存储路径" min-width="200" />
@@ -110,8 +110,8 @@ export default class extends Vue {
           rowData.formatList.push({
             formatType: 'hls',
             interval: template.hlsParam.interval / 60,
-            path: template.hlsParam.muPath,
-            storageTime: template.hlsParam.stoargeTime
+            path: template.hlsParam.path,
+            storageTime: template.hlsParam.storageTime / 60
           })
         }
         if (template.flvParam && template.flvParam.enable) {
@@ -119,7 +119,7 @@ export default class extends Vue {
             formatType: 'flv',
             interval: template.flvParam.interval / 60,
             path: template.flvParam.path,
-            storageTime: template.flvParam.storageTime
+            storageTime: template.flvParam.storageTime / 60
           })
         }
         if (template.mpParam && template.mpParam.enable) {
@@ -127,7 +127,7 @@ export default class extends Vue {
             formatType: 'mp4',
             interval: template.mpParam.interval / 60,
             path: template.mpParam.path,
-            storageTime: template.mpParam.storageTime
+            storageTime: template.mpParam.storageTime / 60
           })
         }
         return rowData

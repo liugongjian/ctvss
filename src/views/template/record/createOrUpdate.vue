@@ -114,7 +114,7 @@ export default class extends Vue {
         resFormParams.formatList.push({
           formatType: 'HLS',
           interval: data.hlsParam.interval / 60,
-          path: data.hlsParam.muPath,
+          path: data.hlsParam.path,
           storageTime: data.hlsParam.storageTime / 60
         })
         selectedRows.push(resFormParams.formatList[resFormParams.formatList.length - 1])
@@ -131,7 +131,7 @@ export default class extends Vue {
         resFormParams.formatList.push({
           formatType: 'FLV',
           interval: data.flvParam.interval / 60,
-          path: data.flvParam.flvPath,
+          path: data.flvParam.path,
           storageTime: data.flvParam.storageTime
         })
         selectedRows.push(resFormParams.formatList[resFormParams.formatList.length - 1])
@@ -148,7 +148,7 @@ export default class extends Vue {
         resFormParams.formatList.push({
           formatType: 'MP4',
           interval: data.mpParam.interval / 60,
-          path: data.mpParam.mpPath,
+          path: data.mpParam.path,
           storageTime: data.mpParam.storageTime
         })
         selectedRows.push(resFormParams.formatList[resFormParams.formatList.length - 1])
@@ -211,6 +211,10 @@ export default class extends Vue {
     const form: any = this.$refs.dataForm
     form.validate(async(valid: any) => {
       if (valid) {
+        if (!this.selectedRows || !this.selectedRows.length) {
+          this.$message.error('请至少勾选一种录制类型')
+          return
+        }
         const validateResult = this.selectedRows.every(row => {
           if (!this.intervalReg.test(row.interval)) {
             this.$message.error('录制周期时长必须是15~360之间的整数')
@@ -234,22 +238,21 @@ export default class extends Vue {
           this.selectedRows.forEach(row => {
             if (row.formatType === 'HLS') {
               param.hlsParam = {
-                enable: true,
+                enable: 1,
                 interval: row.interval * 60,
                 storageTime: row.storageTime * 60,
-                muPath: row.path,
-                tsPath: row.path
+                path: row.path
               }
             } else if (row.formatType === 'FLV') {
               param.flvParam = {
-                enable: true,
+                enable: 1,
                 interval: row.interval * 60,
                 storageTime: row.storageTime * 60,
                 path: row.path
               }
             } else if (row.formatType === 'MP4') {
               param.mpParam = {
-                enable: true,
+                enable: 1,
                 interval: row.interval * 60,
                 storageTime: row.storageTime * 60,
                 path: row.path
