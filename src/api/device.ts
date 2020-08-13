@@ -55,3 +55,10 @@ export const getDevicePreview = (params: any): Promise<any> =>
     method: 'get',
     params
   })
+
+export const getRecordTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/device/record',
+    method: 'get',
+    params
+  })
