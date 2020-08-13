@@ -29,10 +29,10 @@
           </el-select>
         </el-form-item>
         <el-form-item v-if="form.deviceType === 'nvr'" label="自动创建子设备:" prop="createSubDevice" class="form-with-tip">
-          <el-switch v-model="form.createSubDevice" active-value="1" inactive-value="2" />
+          <el-switch v-model="form.createSubDevice" :active-value="1" :inactive-value="2" />
           <div class="form-tip">当开启自动创建NVR子设备时，系统将自动为子设备分配通道号和通道名称。</div>
         </el-form-item>
-        <el-form-item v-if="form.deviceType === 'nvr' && form.createSubDevice === '1'" label="子设备数量:" prop="channelSize">
+        <el-form-item v-if="form.deviceType === 'nvr'" label="子设备数量:" prop="channelSize">
           <el-input-number v-model="form.channelSize" :min="1" type="number" />
         </el-form-item>
         <el-form-item label="国标版本:" prop="gbVersion">
@@ -90,7 +90,7 @@
               <i slot="reference" class="form-question el-icon-question" />
             </el-popover>
           </template>
-          <el-switch v-model="form.pullType" active-value="1" inactive-value="2" />
+          <el-switch v-model="form.pullType" :active-value="1" :inactive-value="2" />
         </el-form-item>
         <el-form-item prop="transPriority">
           <template slot="label">
@@ -106,7 +106,7 @@
               <i slot="reference" class="form-question el-icon-question" />
             </el-popover>
           </template>
-          <el-switch v-model="form.transPriority" active-value="1" inactive-value="2" />
+          <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" />
         </el-form-item>
         <el-form-item label="设备描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
@@ -124,9 +124,6 @@
         <el-form-item label="通道名称:" prop="channelName" class="form-with-tip">
           <el-input v-model="form.channelName" />
           <div class="form-tip">4-16位，可包含大小写字母、数字、中文、中划线。</div>
-        </el-form-item>
-        <el-form-item label="设备描述:" prop="description">
-          <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
         </el-form-item>
       </template>
       <el-form-item label="">
@@ -153,6 +150,7 @@ import CreateGb28181Certificate from '@/views/certificate/gb28181/components/Cre
   }
 })
 export default class extends Vue {
+  @Inject('deviceRouter') private deviceRouter!: Function
   @Inject('initDirs') private initDirs!: Function
   private rules = {
     deviceName: [
@@ -193,6 +191,7 @@ export default class extends Vue {
     anonymous: []
   }
   private form = {
+    dirId: '',
     groupId: '',
     deviceId: '',
     deviceName: '',
@@ -205,8 +204,9 @@ export default class extends Vue {
     channelNum: '',
     channelName: '',
     description: '',
-    createSubDevice: '1',
-    pullType: '1',
+    createSubDevice: 1,
+    pullType: 1,
+    transPriority: 'tcp',
     parentDeviceId: '',
     userName: ''
   }
@@ -217,18 +217,29 @@ export default class extends Vue {
     account: false
   }
   private submitting = false
-  private isUpdate = false
+
+  private get isUpdate() {
+    return this.$route.name === 'device-update'
+  }
 
   private get currentGroup() {
     return DeviceModule.group
   }
 
-  private get currentGroupId() {
-    return DeviceModule.group!.groupId
+  private get groupId() {
+    return this.$route.query.groupId ? this.$route.query.groupId.toString() : ''
+  }
+
+  private get deviceId() {
+    return this.$route.query.deviceId ? this.$route.query.deviceId.toString() : ''
+  }
+
+  private get dirId() {
+    return this.$route.query.dirId ? this.$route.query.dirId.toString() : '0'
   }
 
   private get isNVR() {
-    return this.$route.query.type === 'nvr' || this.form.parentDeviceId !== '-1'
+    return this.$route.query.isNVR || (this.form.parentDeviceId && this.form.parentDeviceId !== '-1')
   }
 
   private get breadCrumbContent() {
@@ -244,15 +255,27 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    this.form.groupId = this.currentGroupId!
-    this.form.deviceId = this.$route.query.id ? this.$route.query.id.toString() : '0'
-    if (this.form.deviceId) {
-      this.isUpdate = true
+    this.form.groupId = this.groupId
+    if (this.isUpdate || this.isNVR) {
+      this.form.deviceId = this.deviceId
       const info = await getDevice({
         deviceId: this.form.deviceId
       })
-      this.form = Object.assign(this.form, pick(info, ['groupId', 'deviceId', 'deviceName', 'deviceType', 'deviceVendor',
-        'gbVersion', 'deviceIp', 'devicePort', 'channelSize', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'parentDeviceId', 'userName']))
+      if (this.isUpdate) {
+        this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'deviceType', 'deviceVendor',
+          'gbVersion', 'deviceIp', 'devicePort', 'channelSize', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'userName']))
+        if (this.isNVR) {
+          if (info.deviceChannels.length) {
+            const channel = info.deviceChannels[0]
+            this.form.channelNum = channel.channelNum
+            this.form.channelName = channel.channelName
+          }
+        }
+      } else {
+        this.form = Object.assign(this.form, pick(info, ['userName']))
+      }
+    } else {
+      this.form.dirId = this.dirId
     }
     this.getGbAccounts()
   }
@@ -294,14 +317,19 @@ export default class extends Vue {
 
   private back() {
     if (this.isUpdate) {
-      this.$router.push({
-        name: 'device-detail',
-        query: this.$route.query
+      this.deviceRouter({
+        type: 'detail',
+        id: this.$route.query.deviceId
+      })
+    } else if (this.isNVR) {
+      this.deviceRouter({
+        type: 'nvr',
+        id: this.$route.query.deviceId
       })
     } else {
-      this.$router.push({
-        name: 'device-list',
-        query: this.$route.query
+      this.deviceRouter({
+        type: 'dir',
+        id: this.$route.query.dirId
       })
     }
   }
@@ -333,12 +361,15 @@ export default class extends Vue {
       if (valid) {
         try {
           this.submitting = true
-          let params = pick(this.form, ['groupId', 'deviceId', 'deviceName', 'deviceVendor', 'description'])
+          let params = pick(this.form, ['groupId', 'deviceName', 'deviceVendor', 'description'])
+          if (this.isUpdate) {
+            params = Object.assign(params, pick(this.form, ['deviceId']))
+          }
           if (!this.isNVR) {
             // 非NVR子设备
-            params = Object.assign(params, pick(this.form, ['deviceType', 'gbVersion', 'deviceIp', 'devicePort', 'pullType', 'transPriority', 'userName']))
+            params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'gbVersion', 'deviceIp', 'devicePort', 'pullType', 'transPriority', 'userName']))
             if (this.form.deviceType === 'nvr') {
-              // NVR子设备添加额外参数
+              // NVR类型添加额外参数
               params = Object.assign(params, {
                 channelSize: this.form.channelSize,
                 createSubDevice: this.form.createSubDevice
@@ -347,9 +378,12 @@ export default class extends Vue {
           } else {
             // NVR子设备
             params = Object.assign(params, {
-              deviceName: this.form.channelName,
+              deviceType: 'ipc',
+              createSubDevice: this.isUpdate ? null : '2',
+              parentDeviceId: this.isUpdate ? this.form.parentDeviceId : this.deviceId,
+              channelName: this.form.channelName,
               channelNum: this.form.channelNum
-            })
+            }, pick(this.form, ['userName']))
           }
           if (this.isUpdate) {
             await updateDevice(params)

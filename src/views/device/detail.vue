@@ -225,8 +225,12 @@ export default class extends Vue {
     return this.$route.query.inProtocol === 'gb28181'
   }
 
-  private get id() {
-    return this.$route.query.id
+  private get isNVR() {
+    return this.info && this.info.parentDeviceId !== '-1'
+  }
+
+  private get deviceId() {
+    return this.$route.query.deviceId
   }
 
   private get isAutoCreated() {
@@ -244,7 +248,7 @@ export default class extends Vue {
     try {
       this.loading.info = true
       this.info = await getDevice({
-        deviceId: this.id
+        deviceId: this.deviceId
       })
     } catch (e) {
       console.error(e)
@@ -258,7 +262,7 @@ export default class extends Vue {
    */
   private goToPreview() {
     this.deviceRouter({
-      id: this.id,
+      id: this.deviceId,
       type: 'ipc'
     })
   }
@@ -268,7 +272,7 @@ export default class extends Vue {
    */
   private goToChannels() {
     this.deviceRouter({
-      id: this.id,
+      id: this.deviceId,
       type: 'nvr'
     })
   }
@@ -280,7 +284,7 @@ export default class extends Vue {
     this.activeName = tab.name
     if (this.activeName === 'template') {
       try {
-        const res = await getRecordTemplate({ deviceId: this.id })
+        const res = await getRecordTemplate({ deviceId: this.deviceId })
         this.template.recordTemplate = res.templates
         // this.template.snapshotTemplate = res.snapshotTemplate
       } catch (e) {
@@ -294,7 +298,7 @@ export default class extends Vue {
    */
   private edit() {
     this.deviceRouter({
-      id: this.id,
+      id: this.deviceId,
       type: 'update'
     })
   }

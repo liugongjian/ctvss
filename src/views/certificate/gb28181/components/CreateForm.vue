@@ -108,6 +108,7 @@ export default class extends Vue {
           if (this.disabled) {
             await updateCertificate(this.form)
           } else {
+            this.form.password = this.form.newPassword
             await createCertificate(this.form)
           }
           onSuccess()

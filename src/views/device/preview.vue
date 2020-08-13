@@ -178,7 +178,7 @@ export default class extends Vue {
   private playerTimer: any = null
 
   private get deviceId() {
-    return this.$route.query.id
+    return this.$route.query.deviceId
   }
 
   @Watch('$route.query')

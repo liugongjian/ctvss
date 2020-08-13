@@ -58,6 +58,7 @@ const install = function(Vue: any) {
         message: `删除${params.type}成功`
       })
     }).catch((e: any) => {
+      if (e === 'cancel') return
       this.$message.error(e)
     })
   }
