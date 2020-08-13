@@ -1,6 +1,5 @@
 <template>
   <div class="device-list__container">
-    <move-dir v-if="dialog.moveDir" :device="currentDevice" @on-close="closeDialog('moveDir')" />
     <div v-if="isNVR" class="device-info" :loading="loading.info">
       <info-list v-if="deviceInfo" label-width="80">
         <info-list-item label="设备名称:">{{ deviceInfo.deviceName }}</info-list-item>
@@ -131,6 +130,7 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
     />
+    <move-dir v-if="dialog.moveDir" :device="currentDevice" @on-close="closeDialog('moveDir', ...arguments)" />
   </div>
 </template>
 <script lang="ts">
@@ -356,6 +356,9 @@ export default class extends Vue {
     switch (type) {
       case 'moveDir':
         this.currentDevice = null
+    }
+    if (payload) {
+      this.getDeviceList()
     }
   }
 

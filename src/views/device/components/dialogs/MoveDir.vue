@@ -47,6 +47,7 @@ import { Component, Vue, Prop, Inject } from 'vue-property-decorator'
 import { DeviceModule } from '@/store/modules/device'
 import { Device } from '@/type/device'
 import { getDeviceTree } from '@/api/device'
+import { bindDir } from '@/api/dir'
 
 @Component({
   name: 'MoveDir',
@@ -54,12 +55,14 @@ import { getDeviceTree } from '@/api/device'
   }
 })
 export default class extends Vue {
+  @Inject('initDirs') private initDirs!: Function
   @Inject('getDirPath') private getDirPath!: Function
   @Prop()
   private device!: Device
   private dialogVisible = true
   private submitting = false
   private breadcrumb: Array<any> = []
+  private currentDir: any = null
 
   private treeProp = {
     label: 'label',
@@ -153,16 +156,25 @@ export default class extends Vue {
   }
 
   private selectDir(dir: any) {
-    console.log(dir)
     const dirTree: any = this.$refs.dirTree
     const node = dirTree.getNode(dir.id)
     this.breadcrumb = this.getDirPath(node).reverse()
+    this.currentDir = dir
   }
 
   private async submit() {
+    if (!this.currentDir) {
+      this.$message.error('未选择目标目录')
+      return
+    }
     try {
       this.submitting = true
-      this.$message.success('创建目录成功！')
+      await bindDir({
+        dirId: this.currentDir.id,
+        deviceId: this.device.deviceId
+      })
+      this.initDirs()
+      this.$message.success('移动设备成功！')
     } catch (e) {
       this.$message.error(e)
     } finally {
@@ -183,15 +195,15 @@ export default class extends Vue {
     overflow: auto;
   }
   .breadcrumb {
-    height: 40px;
-    line-height: 40px;
-    padding-left: 15px;
-    border-bottom: 1px solid $borderGrey;
+    height: 50px;
+    line-height: 50px;
+    padding-left: 20px;
+    border: 1px solid $primary;
     background: #f8f8f8;
     transition: padding-left .2s;
     margin-bottom: 10px;
     label {
-      margin-right: 10px;
+      margin-right: 20px;
       color: $textGrey;
     }
     &__item {

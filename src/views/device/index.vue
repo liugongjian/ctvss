@@ -181,6 +181,13 @@ export default class extends Vue {
     window.removeEventListener('resize', this.calMaxHeight)
   }
 
+  @Watch('$route.query')
+  private onRouterChange() {
+    if (!this.$route.query.groupId) {
+      this.getGroupList()
+    }
+  }
+
   /**
    * 获取组列表
    */
@@ -508,7 +515,6 @@ export default class extends Vue {
       case 'updateDir':
         this.currentDir = null
         this.parentDir = null
-        console.log(payload)
         if (payload) {
           this.initDirs()
         }
