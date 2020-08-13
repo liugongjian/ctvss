@@ -345,7 +345,7 @@ export default class extends Vue {
       try {
         this.loading.template = true
         this.template.recordTemplate = []
-        const res = await getRecordTemplate({ deviceId: this.id })
+        const res = await getRecordTemplate({ deviceId: this.deviceId })
         this.template.recordTemplate.push(res)
       } catch (e) {
         this.$message.error(e)
