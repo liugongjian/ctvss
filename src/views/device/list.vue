@@ -158,7 +158,7 @@ export default class extends Vue {
     pageSize: 10,
     total: 0
   }
-  private deviceInfo = null
+  private deviceInfo: any = null
 
   private deviceList: Array<Device> = []
 
@@ -198,6 +198,10 @@ export default class extends Vue {
       this.deviceInfo = await getDevice({
         deviceId: this.id
       })
+      this.deviceList = this.deviceInfo.deviceChannels.map((channel: any) => {
+        channel.deviceType = 'ipc'
+        return channel
+      })
     }
   }
 
@@ -224,11 +228,7 @@ export default class extends Vue {
       }
       let res: any
       this.loading.list = true
-      if (this.isNVR) {
-        params.deviceId = this.id
-        res = await getChannels(params)
-        this.deviceList = res.deviceChannels
-      } else {
+      if (!this.isNVR) {
         params.dirId = this.id ? this.id : 0
         res = await getDevices(params)
         this.deviceList = res.devices
@@ -298,7 +298,8 @@ export default class extends Vue {
       case 'detail':
         this.deviceRouter({
           id: command.device.deviceId,
-          type: 'detail'
+          type: 'detail',
+          createSubDevice: this.deviceInfo.createSubDevice
         })
         break
       case 'edit':

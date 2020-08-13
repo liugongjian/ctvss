@@ -12,7 +12,7 @@
         <el-form-item v-if="currentGroup" label="业务组:">
           {{ currentGroup.groupName }}
         </el-form-item>
-        <el-form-item v-if="breadcrumb" label="当前目录:">
+        <el-form-item v-if="breadcrumb && !isUpdate" label="当前目录:">
           <div class="breadcrumb">
             <span
               v-for="item in breadcrumb"
@@ -207,6 +207,7 @@ export default class extends Vue {
     description: '',
     createSubDevice: '1',
     pullType: '1',
+    parentDeviceId: '',
     userName: ''
   }
   private dialog = {
@@ -227,7 +228,7 @@ export default class extends Vue {
   }
 
   private get isNVR() {
-    return this.$route.query.type === 'nvr'
+    return this.$route.query.type === 'nvr' || this.form.parentDeviceId !== '-1'
   }
 
   private get breadCrumbContent() {
@@ -244,15 +245,14 @@ export default class extends Vue {
 
   private async mounted() {
     this.form.groupId = this.currentGroupId!
-    this.form.deviceId = this.$route.params.deviceId ? this.$route.params.deviceId : '0'
-    if (this.$route.params.deviceId) {
+    this.form.deviceId = this.$route.query.id ? this.$route.query.id.toString() : '0'
+    if (this.form.deviceId) {
       this.isUpdate = true
       const info = await getDevice({
         deviceId: this.form.deviceId
       })
-      console.log(info)
       this.form = Object.assign(this.form, pick(info, ['groupId', 'deviceId', 'deviceName', 'deviceType', 'deviceVendor',
-        'gbVersion', 'deviceIp', 'devicePort', 'channelSize', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'userName']))
+        'gbVersion', 'deviceIp', 'devicePort', 'channelSize', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'parentDeviceId', 'userName']))
     }
     this.getGbAccounts()
   }
@@ -293,10 +293,17 @@ export default class extends Vue {
   }
 
   private back() {
-    this.$router.push({
-      name: 'device-list',
-      query: this.$route.query
-    })
+    if (this.isUpdate) {
+      this.$router.push({
+        name: 'device-detail',
+        query: this.$route.query
+      })
+    } else {
+      this.$router.push({
+        name: 'device-list',
+        query: this.$route.query
+      })
+    }
   }
 
   private async getGbAccounts() {

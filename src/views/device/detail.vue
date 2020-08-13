@@ -8,7 +8,7 @@
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="基本信息" name="info">
           <div :loading="loading.info">
-            <el-button type="text" class="info-edit" @click="edit">编辑</el-button>
+            <el-button v-if="!isCreateSubDevice" type="text" class="info-edit" @click="edit">编辑</el-button>
             <info-list v-if="info" label-width="110">
               <info-list-item label="设备类型:">{{ deviceType[info.deviceType] }}</info-list-item>
               <info-list-item label="设备名称:">{{ info.deviceName }}</info-list-item>
@@ -226,6 +226,10 @@ export default class extends Vue {
     return this.$route.query.id
   }
 
+  private get isCreateSubDevice() {
+    return this.$route.query.createSubDevice && this.$route.query.createSubDevice.toString() === '1'
+  }
+
   private mounted() {
     this.getDevice()
   }
@@ -279,9 +283,7 @@ export default class extends Vue {
   private edit() {
     this.$router.push({
       name: 'device-update',
-      params: {
-        deviceId: this.id.toString()
-      }
+      query: this.$route.query
     })
   }
 

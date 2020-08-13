@@ -358,6 +358,7 @@ export default class extends Vue {
       groupId: this.currentGroupId!.toString(),
       inProtocol: this.currentGroup!.inProtocol,
       type: item.type,
+      createSubDevice: item.createSubDevice,
       path: this.breadcrumb.map((item: any) => item.id).join(','),
       ...query
     }
