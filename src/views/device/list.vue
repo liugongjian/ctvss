@@ -15,7 +15,7 @@
     </div>
     <div class="filter-container clearfix">
       <div class="filter-container__left">
-        <el-button v-if="!isNVR || deviceInfo && deviceInfo.createSubDevice === 2" type="primary" @click="handleCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
+        <el-button v-if="!isNVR || deviceInfo && deviceInfo.createSubDevice === 2" type="primary" @click="goToCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
         <el-button v-if="isNVR" @click="goToDetail(deviceInfo)">查看NVR设备详情</el-button>
         <el-button v-if="isNVR" @click="goToUpdate(deviceInfo)">编辑NVR设备</el-button>
         <el-button disabled>导出</el-button>
@@ -114,8 +114,8 @@
               <el-dropdown-item v-if="isGb && isNVR" :command="{type: 'detail', device: scope.row}">通道详情</el-dropdown-item>
               <el-dropdown-item v-else :command="{type: 'detail', device: scope.row}">设备详情</el-dropdown-item>
               <el-dropdown-item disabled>停用流</el-dropdown-item>
-              <el-dropdown-item v-if="!isNVR" disabled>移动至</el-dropdown-item>
-              <el-dropdown-item :command="{type: 'update', device: scope.row}">编辑</el-dropdown-item>
+              <el-dropdown-item v-if="!isNVR" :command="{type: 'move', device: scope.row}">移动至</el-dropdown-item>
+              <el-dropdown-item v-if="!isNVR || !isCreateSubDevice" :command="{type: 'update', device: scope.row}">编辑</el-dropdown-item>
               <el-dropdown-item disabled :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -130,6 +130,7 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
     />
+    <move-dir v-if="dialog.moveDir" :device="currentDevice" @on-close="closeDialog('moveDir', ...arguments)" />
   </div>
 </template>
 <script lang="ts">
@@ -138,22 +139,29 @@ import { Device } from '@/type/device'
 import { DeviceStatus, DeviceType } from '@/dics'
 import TunnelInfo from './components/TunnelInfo.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
+import MoveDir from './components/dialogs/MoveDir.vue'
 import { getDevice, getDevices, getChannels, deleteDevice } from '@/api/device'
 
 @Component({
   name: 'DeviceList',
   components: {
     TunnelInfo,
-    StatusBadge
+    StatusBadge,
+    MoveDir
   }
 })
 export default class extends Vue {
-  @Inject('deviceRouter') private deviceRouter!: Function
+  @Inject('deviceRouter')
+  private deviceRouter!: Function
+
   private deviceStatus = DeviceStatus
   private deviceType = DeviceType
   private loading = {
     info: false,
     list: false
+  }
+  private dialog = {
+    moveDir: false
   }
   private keyword = ''
   private pager = {
@@ -162,8 +170,8 @@ export default class extends Vue {
     total: 0
   }
   private deviceInfo: any = null
-
   private deviceList: Array<Device> = []
+  private currentDevice?: Device | null = null
 
   private get isGb() {
     return this.$route.query.inProtocol === 'gb28181'
@@ -177,8 +185,16 @@ export default class extends Vue {
     return this.$route.query.groupId
   }
 
-  private get id() {
-    return this.$route.query.id
+  private get isCreateSubDevice() {
+    return this.deviceInfo && this.deviceInfo.createSubDevice === 1
+  }
+
+  private get dirId() {
+    return this.$route.query.dirId ? this.$route.query.dirId : 0
+  }
+
+  private get deviceId() {
+    return this.$route.query.deviceId
   }
 
   @Watch('$route.query')
@@ -197,11 +213,11 @@ export default class extends Vue {
   }
 
   private async getNVRDeviceInfo() {
-    if (this.isNVR && this.id) {
+    if (this.isNVR && this.deviceId) {
       try {
         this.loading.info = true
         this.deviceInfo = await getDevice({
-          deviceId: this.id
+          deviceId: this.deviceId
         })
         this.deviceList = this.deviceInfo.deviceChannels.map((channel: any) => {
           channel.deviceType = 'ipc'
@@ -241,7 +257,7 @@ export default class extends Vue {
       let res: any
       this.loading.list = true
       if (!this.isNVR) {
-        params.dirId = this.id ? this.id : 0
+        params.dirId = this.dirId ? this.dirId : 0
         res = await getDevices(params)
         this.deviceList = res.devices
       }
@@ -260,10 +276,12 @@ export default class extends Vue {
   /**
    * 创建设备
    */
-  private handleCreate() {
-    this.$router.push({
-      name: 'device-create',
-      query: this.$route.query
+  private goToCreate() {
+    this.deviceRouter({
+      id: this.dirId,
+      deviceId: this.deviceId,
+      type: 'create',
+      isNVR: this.isNVR
     })
   }
 
@@ -322,6 +340,33 @@ export default class extends Vue {
   }
 
   /**
+   * 打开对话框
+   */
+  private openDialog(type: string, payload: any) {
+    switch (type) {
+      case 'moveDir':
+        this.currentDevice = payload
+        this.dialog.moveDir = true
+        break
+    }
+  }
+
+  /**
+   * 关闭对话框
+   */
+  private closeDialog(type: string, payload: any) {
+    // @ts-ignore
+    this.dialog[type] = false
+    switch (type) {
+      case 'moveDir':
+        this.currentDevice = null
+    }
+    if (payload) {
+      this.getDeviceList()
+    }
+  }
+
+  /**
    * 更多菜单
    */
   private handleMore(command: any) {
@@ -344,6 +389,9 @@ export default class extends Vue {
         break
       case 'nvr':
         this.goInto(command.device)
+        break
+      case 'move':
+        this.openDialog('moveDir', command.device)
         break
     }
   }

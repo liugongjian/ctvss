@@ -20,3 +20,10 @@ export const deleteDir = (params: any): Promise<any> =>
     method: 'post',
     data: params
   })
+
+export const bindDir = (params: any): Promise<any> =>
+  request({
+    url: '/dir/bind',
+    method: 'post',
+    data: params
+  })

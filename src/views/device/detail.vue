@@ -9,7 +9,7 @@
         <el-tab-pane label="基本信息" name="info">
           <div :loading="loading.info">
             <el-button v-if="!isAutoCreated" type="text" class="info-edit" @click="edit">编辑</el-button>
-            <info-list v-if="info" label-width="110">
+            <info-list v-if="info && !isNVRChannel" label-width="110">
               <info-list-item label="设备类型:">{{ deviceType[info.deviceType] }}</info-list-item>
               <info-list-item label="设备名称:">{{ info.deviceName }}</info-list-item>
               <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
@@ -26,6 +26,23 @@
               </template>
               <info-list-item label="自动拉流:">{{ pullType[info.pullType] }}</info-list-item>
               <info-list-item label="GB28181账号:">{{ info.userName }}</info-list-item>
+              <info-list-item label="状态:">
+                <div class="info-list__edit">
+                  <div class="info-list__edit--value">
+                    <status-badge :status="info.deviceStatus" />
+                    {{ deviceStatus[info.deviceStatus] }}
+                  </div>
+                  <div v-if="info.deviceStatus === 'off'" class="info-list__edit--action">
+                    <el-button type="text">停用</el-button>
+                  </div>
+                </div>
+              </info-list-item>
+            </info-list>
+            <info-list v-if="info && isNVRChannel" label-width="110">
+              <info-list-item label="通道号:">{{ info.deviceChannels[0].channelNum }}</info-list-item>
+              <info-list-item label="通道名称:">{{ info.deviceChannels[0].channelName }}</info-list-item>
+              <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
+              <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
               <info-list-item label="状态:">
                 <div class="info-list__edit">
                   <div class="info-list__edit--value">
@@ -123,16 +140,28 @@
             <anti-theft-chain type="UA" :config="playConfig.anti.ua" />
           </info-list>
         </el-tab-pane>
-        <el-tab-pane v-if="false" label="模板配置" name="template">
+        <el-tab-pane label="模板配置" name="template">
           <div>
-            <el-button type="text" class="template-edit" @click="setRecordTemplate">编辑</el-button>
+            <el-button type="text" class="template-edit" @click="openDialog('setRecordTemplate')">编辑</el-button>
             <info-list title="录制模板">
-              <el-table :data="template.recordTemplate" fit>
+              <el-table v-loading="loading.template" :data="template.recordTemplate" fit>
                 <el-table-column prop="templateName" label="模板名称" />
+                <el-table-column prop="recordType" label="是否启用自动录制">
+                  <template slot-scope="{row}">
+                    {{ row.recordType === 1 ? '是':'否' }}
+                  </template>
+                </el-table-column>
+                <el-table-column prop="storeType" label="录制格式">
+                  <template slot-scope="{row}">
+                    {{ row.flvParam ? 'flv': '' }}
+                    {{ row.hlsParam ? 'hls': '' }}
+                    {{ row.mpParam ? 'mp4': '' }}
+                  </template>
+                </el-table-column>
               </el-table>
             </info-list>
           </div>
-          <div>
+          <div v-if="false">
             <el-button type="text" class="template-edit" @click="setSnapshotTemplate">编辑</el-button>
             <info-list title="截图模板">
               <el-table :data="template.snapshotTemplate" fit>
@@ -150,7 +179,12 @@
       </el-tabs>
     </div>
 
-    <SetRecordTemplate v-if="dialog.setRecordTemplate" @on-close="closeDialog('setRecordTemplate')" />
+    <SetRecordTemplate
+      v-if="dialog.setRecordTemplate"
+      :device-id="deviceId"
+      :template-id="recordTemplateId"
+      @on-close="closeDialog('setRecordTemplate')"
+    />
     <SetSnapshotTemplate v-if="dialog.setSnapshotTemplate" @on-close="closeDialog('setSnapshotTemplate')" />
     <SetAuthConfig v-if="dialog.setAuthConfig" @on-close="closeDialog('setAuthConfig')" />
   </div>
@@ -159,6 +193,7 @@
 <script lang="ts">
 import { Component, Vue, Inject } from 'vue-property-decorator'
 import { Device } from '@/type/device'
+import { RecordTemplate } from '@/type/template'
 import { DeviceStatus, DeviceType, AuthStatus, PullType, CreateSubDevice } from '@/dics'
 import { getDevice, getRecordTemplate } from '@/api/device'
 import SetRecordTemplate from '../components/dialogs/SetRecordTemplate.vue'
@@ -208,7 +243,7 @@ export default class extends Vue {
     }
   }
   private pushExpired?: number | null = null
-  private template = {
+  private template: Record<any, Array<RecordTemplate>> = {
     snapshotTemplate: [],
     recordTemplate: []
   }
@@ -218,15 +253,21 @@ export default class extends Vue {
     setAuthConfig: false
   }
   private loading = {
-    info: false
+    info: false,
+    template: false
   }
+  private recordTemplateId = ''
 
   private get isGb() {
     return this.$route.query.inProtocol === 'gb28181'
   }
 
-  private get id() {
-    return this.$route.query.id
+  private get isNVRChannel() {
+    return this.info && this.info.parentDeviceId !== '-1'
+  }
+
+  private get deviceId() {
+    return this.$route.query.deviceId
   }
 
   private get isAutoCreated() {
@@ -244,7 +285,7 @@ export default class extends Vue {
     try {
       this.loading.info = true
       this.info = await getDevice({
-        deviceId: this.id
+        deviceId: this.deviceId
       })
     } catch (e) {
       console.error(e)
@@ -258,7 +299,7 @@ export default class extends Vue {
    */
   private goToPreview() {
     this.deviceRouter({
-      id: this.id,
+      id: this.deviceId,
       type: 'ipc'
     })
   }
@@ -268,7 +309,7 @@ export default class extends Vue {
    */
   private goToChannels() {
     this.deviceRouter({
-      id: this.id,
+      id: this.deviceId,
       type: 'nvr'
     })
   }
@@ -280,11 +321,14 @@ export default class extends Vue {
     this.activeName = tab.name
     if (this.activeName === 'template') {
       try {
-        const res = await getRecordTemplate({ deviceId: this.id })
-        this.template.recordTemplate = res.templates
-        // this.template.snapshotTemplate = res.snapshotTemplate
+        this.loading.template = true
+        this.template.recordTemplate = []
+        const res = await getRecordTemplate({ deviceId: this.deviceId })
+        this.template.recordTemplate.push(res)
       } catch (e) {
         this.$message.error(e)
+      } finally {
+        this.loading.template = false
       }
     }
   }
@@ -294,7 +338,7 @@ export default class extends Vue {
    */
   private edit() {
     this.deviceRouter({
-      id: this.id,
+      id: this.deviceId,
       type: 'update'
     })
   }
@@ -302,11 +346,30 @@ export default class extends Vue {
   private openDialog(type: string) {
     // @ts-ignore
     this.dialog[type] = true
+    if (type === 'setRecordTemplate') {
+      if (!this.template.recordTemplate.length) {
+        this.recordTemplateId = ''
+      } else {
+        this.recordTemplateId = this.template.recordTemplate[0].templateId!
+      }
+    }
   }
 
-  private closeDialog(type: string) {
+  private async closeDialog(type: string) {
     // @ts-ignore
     this.dialog[type] = false
+    if (type === 'setRecordTemplate') {
+      try {
+        this.loading.template = true
+        this.template.recordTemplate = []
+        const res = await getRecordTemplate({ deviceId: this.deviceId })
+        this.template.recordTemplate.push(res)
+      } catch (e) {
+        this.$message.error(e)
+      } finally {
+        this.loading.template = false
+      }
+    }
   }
 }
 </script>

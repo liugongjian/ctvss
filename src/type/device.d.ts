@@ -14,4 +14,5 @@ export interface Device {
   tunnelNum?: number | null;
   createSubDevice?: number;
   parentDeviceId?: string;
+  dirId?: string;
 }

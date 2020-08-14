@@ -114,7 +114,6 @@ export default class extends Vue {
   private deviceType = DeviceType
   private isExpanded = true
   private groupId: string | null = null
-  // private currentGroup: Group | undefined = undefined
   private keyword = ''
   private maxHeight = 1000
   private parentDir = null
@@ -152,7 +151,7 @@ export default class extends Vue {
   private dirList = []
 
   private get defaultKey() {
-    const id = this.$route.query.id
+    const id = this.$route.query.deviceId || this.$route.query.id
     if (!id) {
       return null
     }
@@ -160,7 +159,7 @@ export default class extends Vue {
   }
 
   private get breadcrumb() {
-    return DeviceModule.breadcrumb
+    return DeviceModule.breadcrumb ? DeviceModule.breadcrumb : []
   }
 
   private get currentGroup() {
@@ -180,6 +179,13 @@ export default class extends Vue {
 
   private destroyed() {
     window.removeEventListener('resize', this.calMaxHeight)
+  }
+
+  @Watch('$route.query')
+  private onRouterChange() {
+    if (!this.$route.query.groupId) {
+      this.getGroupList()
+    }
   }
 
   /**
@@ -316,16 +322,18 @@ export default class extends Vue {
     let _node: any
     if (!node) {
       _node = dirTree.getNode(item.id)
-      if (!_node.loaded) {
-        this.loadDirChildren(item.id, _node)
+      if (_node) {
+        if (!_node.loaded) {
+          this.loadDirChildren(item.id, _node)
+        }
+        _node.parent.expanded = true
+        dirTree.setCurrentKey(item.id)
       }
-      _node.parent.expanded = true
-      dirTree.setCurrentKey(item.id)
     } else {
       _node = node
       _node.expanded = true
     }
-    DeviceModule.SetBreadcrumb(this.getDirPath(_node).reverse())
+    _node && DeviceModule.SetBreadcrumb(this.getDirPath(_node).reverse())
     let router: any
     let query: any = {}
     switch (item.type) {
@@ -333,10 +341,16 @@ export default class extends Vue {
         router = {
           name: 'device-list'
         }
+        query = {
+          dirId: item.id
+        }
         break
       case 'nvr':
         router = {
           name: 'device-list'
+        }
+        query = {
+          deviceId: item.id
         }
         break
       case 'ipc':
@@ -344,6 +358,7 @@ export default class extends Vue {
           name: 'device-preview'
         }
         query = {
+          deviceId: item.id,
           previewTab: item.previewTab
         }
         break
@@ -351,15 +366,30 @@ export default class extends Vue {
         router = {
           name: 'device-detail'
         }
+        query = {
+          deviceId: item.id
+        }
+        break
+      case 'create':
+        router = {
+          name: 'device-create'
+        }
+        query = {
+          dirId: item.id,
+          deviceId: item.deviceId,
+          isNVR: item.isNVR
+        }
         break
       case 'update':
         router = {
           name: 'device-update'
         }
+        query = {
+          deviceId: item.id
+        }
         break
     }
     router.query = {
-      id: item.id.toString(),
       groupId: this.currentGroupId!.toString(),
       inProtocol: this.currentGroup!.inProtocol,
       type: item.type,
@@ -400,11 +430,12 @@ export default class extends Vue {
   /**
    * 获取树菜单路径
    */
+  @Provide('getDirPath')
   private getDirPath(node: any) {
     let path: any = []
     const _getPath = (node: any, path: any) => {
       const data = node.data
-      if (data.id) {
+      if (data && data.id) {
         path.push({
           id: data.id,
           label: data.label,
@@ -484,7 +515,6 @@ export default class extends Vue {
       case 'updateDir':
         this.currentDir = null
         this.parentDir = null
-        console.log(payload)
         if (payload) {
           this.initDirs()
         }

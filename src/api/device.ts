@@ -62,3 +62,17 @@ export const getRecordTemplate = (params: any): Promise<any> =>
     method: 'get',
     params
   })
+
+export const setDeviceRecordTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/device/record/bind',
+    method: 'post',
+    data: params
+  })
+
+export const unbindDeviceRecordTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/device/record/unbind',
+    method: 'post',
+    data: params
+  })
