@@ -66,16 +66,20 @@
       <el-table-column v-if="isGb" key="deviceStatus" label="设备状态">
         <template slot-scope="{row}">
           <status-badge :status="row.deviceStatus" />
-          {{ deviceStatus[row.deviceStatus] }}
+          {{ deviceStatus[row.deviceStatus] || '-' }}
         </template>
       </el-table-column>
       <el-table-column key="streamStatus" prop="streamStatus" label="流状态">
         <template slot-scope="{row}">
           <status-badge :status="row.streamStatus" />
-          {{ deviceStatus[row.streamStatus] }}
+          {{ deviceStatus[row.streamStatus] || '-' }}
         </template>
       </el-table-column>
-      <el-table-column key="deviceVendor" prop="deviceVendor" label="厂商" />
+      <el-table-column key="deviceVendor" prop="deviceVendor" label="厂商">
+        <template slot-scope="{row}">
+          {{ row.deviceVendor || '-' }}
+        </template>
+      </el-table-column>
       <el-table-column v-if="isGb && !isNVR" key="deviceIp" label="设备IP" min-width="130">
         <template slot-scope="{row}">
           {{ row.deviceIp || '-' }}
@@ -89,6 +93,21 @@
       <el-table-column v-if="isGb || isNVR" key="gbId" prop="gbId" label="国标ID" min-width="190">
         <template slot-scope="{row}">
           {{ row.gbId || '-' }}
+        </template>
+      </el-table-column>
+      <el-table-column v-if="isGb || !isNVR" key="sipTransType" prop="sipTransType" label="信令传输模式" min-width="110">
+        <template slot-scope="{row}">
+          {{ sipTransType[row.sipTransType] || '-' }}
+        </template>
+      </el-table-column>
+      <el-table-column v-if="isGb || !isNVR" key="streamTransType" prop="streamTransType" label="流传输模式" min-width="110">
+        <template slot-scope="{row}">
+          {{ streamTransType[row.streamTransType] || '-' }}
+        </template>
+      </el-table-column>
+      <el-table-column v-if="isGb || !isNVR" key="transPriority" prop="transPriority" label="优先TCP传输" min-width="110">
+        <template slot-scope="{row}">
+          {{ transPriority[row.transPriority] || '-' }}
         </template>
       </el-table-column>
       <el-table-column v-if="isGb && !isNVR" key="tunnelNum" label="通道数">
@@ -113,8 +132,8 @@
               <el-dropdown-item v-if="isGb && scope.row.deviceType === 'nvr'" :command="{type: 'nvr', device: scope.row}">查看通道</el-dropdown-item>
               <el-dropdown-item v-if="isGb && isNVR" :command="{type: 'detail', device: scope.row}">通道详情</el-dropdown-item>
               <el-dropdown-item v-else :command="{type: 'detail', device: scope.row}">设备详情</el-dropdown-item>
-              <el-dropdown-item v-if="scope.row.deviceEnabled" :command="{type: 'stopDevice', device: scope.row}">停用设备</el-dropdown-item>
-              <el-dropdown-item v-else :command="{type: 'startDevice', device: scope.row}">启用设备</el-dropdown-item>
+              <el-dropdown-item v-if="scope.row.streamStatus === 'on'" :command="{type: 'stopDevice', device: scope.row}">停用流</el-dropdown-item>
+              <el-dropdown-item v-else :command="{type: 'startDevice', device: scope.row}">启用流</el-dropdown-item>
               <el-dropdown-item v-if="!isNVR" :command="{type: 'move', device: scope.row}">移动至</el-dropdown-item>
               <el-dropdown-item v-if="!isNVR || !isCreateSubDevice" :command="{type: 'update', device: scope.row}">编辑</el-dropdown-item>
               <el-dropdown-item disabled :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
@@ -137,7 +156,7 @@
 <script lang="ts">
 import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
 import { Device } from '@/type/device'
-import { DeviceStatus, DeviceType } from '@/dics'
+import { DeviceStatus, DeviceType, SipTransType, StreamTransType, TransPriority } from '@/dics'
 import TunnelInfo from './components/TunnelInfo.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MoveDir from './components/dialogs/MoveDir.vue'
@@ -157,6 +176,9 @@ export default class extends Vue {
 
   private deviceStatus = DeviceStatus
   private deviceType = DeviceType
+  private sipTransType = SipTransType
+  private streamTransType = StreamTransType
+  private transPriority = TransPriority
   private loading = {
     info: false,
     list: false
