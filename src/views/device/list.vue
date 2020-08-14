@@ -113,7 +113,8 @@
               <el-dropdown-item v-if="isGb && scope.row.deviceType === 'nvr'" :command="{type: 'nvr', device: scope.row}">查看通道</el-dropdown-item>
               <el-dropdown-item v-if="isGb && isNVR" :command="{type: 'detail', device: scope.row}">通道详情</el-dropdown-item>
               <el-dropdown-item v-else :command="{type: 'detail', device: scope.row}">设备详情</el-dropdown-item>
-              <el-dropdown-item disabled>停用流</el-dropdown-item>
+              <el-dropdown-item v-if="scope.row.deviceEnabled" :command="{type: 'stopDevice', device: scope.row}">停用设备</el-dropdown-item>
+              <el-dropdown-item v-else :command="{type: 'startDevice', device: scope.row}">启用设备</el-dropdown-item>
               <el-dropdown-item v-if="!isNVR" :command="{type: 'move', device: scope.row}">移动至</el-dropdown-item>
               <el-dropdown-item v-if="!isNVR || !isCreateSubDevice" :command="{type: 'update', device: scope.row}">编辑</el-dropdown-item>
               <el-dropdown-item disabled :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
@@ -140,7 +141,7 @@ import { DeviceStatus, DeviceType } from '@/dics'
 import TunnelInfo from './components/TunnelInfo.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MoveDir from './components/dialogs/MoveDir.vue'
-import { getDevice, getDevices, getChannels, deleteDevice } from '@/api/device'
+import { getDevice, getDevices, getChannels, deleteDevice, startDevice, stopDevice } from '@/api/device'
 
 @Component({
   name: 'DeviceList',
@@ -340,6 +341,36 @@ export default class extends Vue {
   }
 
   /**
+   * 启动设备
+   */
+  private async startDevice(device: Device) {
+    try {
+      const params: any = {
+        deviceId: device.deviceId
+      }
+      await startDevice(params)
+      this.$message.success('已通知启用设备')
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  /**
+   * 停用设备
+   */
+  private async stopDevice(device: Device) {
+    try {
+      const params: any = {
+        deviceId: device.deviceId
+      }
+      await stopDevice(params)
+      this.$message.success('已通知停用设备')
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  /**
    * 打开对话框
    */
   private openDialog(type: string, payload: any) {
@@ -392,6 +423,12 @@ export default class extends Vue {
         break
       case 'move':
         this.openDialog('moveDir', command.device)
+        break
+      case 'startDevice':
+        this.startDevice(command.device)
+        break
+      case 'stopDevice':
+        this.stopDevice(command.device)
         break
     }
   }

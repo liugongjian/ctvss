@@ -76,3 +76,17 @@ export const unbindDeviceRecordTemplate = (params: any): Promise<any> =>
     method: 'post',
     data: params
   })
+
+export const startDevice = (params: any): Promise<any> =>
+  request({
+    url: '/device/start',
+    method: 'post',
+    data: params
+  })
+
+export const stopDevice = (params: any): Promise<any> =>
+  request({
+    url: '/device/stop',
+    method: 'post',
+    data: params
+  })
