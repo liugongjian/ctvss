@@ -1,25 +1,25 @@
 <template>
   <div>
     <div class="preview-player">
-      <player v-if="address" ref="video" type="h265-flv" :url="address.flv" :auto-play="true" />
+      <player v-if="address" ref="video" :type="videoCoding" :url="address.flvUrl" :auto-play="true" />
     </div>
     <info-list v-if="address" label-width="70" title="播放地址" class="address">
-      <info-list-item v-if="address.rtmp" label="RTMP:">
-        {{ address.rtmp }}
+      <info-list-item v-if="address.rtmpUrl" label="RTMP:">
+        {{ address.rtmpUrl }}
         <el-tooltip class="item" effect="dark" content="复制链接" placement="top">
-          <el-button type="text" @click="copyUrl(address.rtmp)"><i class="el-icon-copy-document" /></el-button>
+          <el-button type="text" @click="copyUrl(address.rtmpUrl)"><i class="el-icon-copy-document" /></el-button>
         </el-tooltip>
       </info-list-item>
-      <info-list-item v-if="address.flv" label="FLV:">
-        {{ address.flv }}
+      <info-list-item v-if="address.flvUrl" label="FLV:">
+        {{ address.flvUrl }}
         <el-tooltip class="item" effect="dark" content="复制链接" placement="top">
-          <el-button type="text" @click="copyUrl(address.flv)"><i class="el-icon-copy-document" /></el-button>
+          <el-button type="text" @click="copyUrl(address.flvUrl)"><i class="el-icon-copy-document" /></el-button>
         </el-tooltip>
       </info-list-item>
-      <info-list-item v-if="address.hls" label="HLS:">
-        {{ address.hls }}
+      <info-list-item v-if="address.hlsUrl" label="HLS:">
+        {{ address.hlsUrl }}
         <el-tooltip class="item" effect="dark" content="复制链接" placement="top">
-          <el-button type="text" @click="copyUrl(address.hls)"><i class="el-icon-copy-document" /></el-button>
+          <el-button type="text" @click="copyUrl(address.hlsUrl)"><i class="el-icon-copy-document" /></el-button>
         </el-tooltip>
       </info-list-item>
     </info-list>
@@ -41,12 +41,12 @@ import Player from '@/views/components/Player.vue'
 })
 export default class extends Vue {
   @Inject('deviceRouter') private deviceRouter!: Function
-  private player?: Ctplayer
   private address?: any = null
+  private videoCoding?: string = ''
   private playerTimer: any = null
 
   private get deviceId() {
-    return this.$route.query.id
+    return this.$route.query.deviceId
   }
 
   @Watch('$route.query')
@@ -84,7 +84,8 @@ export default class extends Vue {
    * 重新加载视频
    */
   private reloadPlayer() {
-    this.player && this.player.reloadPlayer()
+    const $video: any = this.$refs.video
+    $video.reloadPlayer()
   }
 
   /**
@@ -93,22 +94,11 @@ export default class extends Vue {
   private async getDevicePreview() {
     try {
       this.address = null
-      // const res = await getDevicePreview({
-      //   deviceId: this.deviceId
-      // })
-      // this.address = res.address
-      setTimeout(() => {
-        this.address = {
-          flv: 'http://127.0.0.1:8080/data/video.flv',
-          hls: 'http://127.0.0.1:8080/data/video.flv'
-        }
-      }, 200)
-      // this.player = new Ctplayer({
-      //   id: 'previewPlayer', // 播放器DOM ID
-      //   autoPlay: true, // 是否允许自动播放
-      //   source: this.address.flv, // 视频源
-      //   type: 'h265-flv'
-      // })
+      const res = await getDevicePreview({
+        deviceId: this.deviceId
+      })
+      this.address = res.playUrl
+      this.videoCoding = res.videoCoding === 'h264' ? 'flv' : 'h265-flv'
     } catch (e) {
       console.log(e)
     }

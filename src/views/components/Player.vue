@@ -38,6 +38,10 @@ export default class extends Vue {
     this.player && this.player.disposePlayer()
   }
 
+  public reloadPlayer() {
+    this.player && this.player.reloadPlayer()
+  }
+
   /**
    * 创建播放器
    */

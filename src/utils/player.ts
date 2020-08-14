@@ -76,6 +76,7 @@ export default class Ctplayer {
   public reloadPlayer() {
     switch (this.type) {
       case 'flv':
+        this.player.unload()
         this.player.load()
         this.player.play()
         break
