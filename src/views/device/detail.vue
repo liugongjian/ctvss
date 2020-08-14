@@ -181,7 +181,7 @@
 
     <SetRecordTemplate
       v-if="dialog.setRecordTemplate"
-      :device-id="id"
+      :device-id="deviceId"
       :template-id="recordTemplateId"
       @on-close="closeDialog('setRecordTemplate')"
     />
