@@ -54,7 +54,7 @@ class User extends VuexModule implements IUserState {
     this.email = email
   }
 
-  @Action
+  @Action({ rawError: true })
   public async Login(userInfo: { userName: string, password: string}) {
     let { userName, password } = userInfo
     userName = userName.trim()
