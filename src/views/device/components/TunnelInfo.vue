@@ -40,7 +40,7 @@
               <router-link to="/">{{ row.tunnelId }}</router-link>
               <div>
                 {{ row.tunnelName }}
-                <el-tooltip class="item" effect="dark" content="监控预览" placement="top">
+                <el-tooltip class="item" effect="dark" content="实时预览" placement="top">
                   <router-link to="/device/preview"><i class="el-icon-video-camera" /></router-link>
                 </el-tooltip>
               </div>
@@ -64,8 +64,8 @@
               <el-dropdown @command="handle(scope.row)">
                 <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
                 <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item>监控预览</el-dropdown-item>
-                  <el-dropdown-item>录制回放</el-dropdown-item>
+                  <el-dropdown-item>实时预览</el-dropdown-item>
+                  <el-dropdown-item>录像回放</el-dropdown-item>
                   <el-dropdown-item>查看截图</el-dropdown-item>
                   <el-dropdown-item>停用流</el-dropdown-item>
                 </el-dropdown-menu>
