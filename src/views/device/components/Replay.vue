@@ -1,5 +1,5 @@
 <template>
-  <div class="replay-wrap">
+  <div v-loading="loading" class="replay-wrap">
     <div class="filter-container">
       <el-date-picker
         v-model="currentDate"
@@ -14,36 +14,42 @@
       </el-radio-group>
     </div>
     <div v-if="viewModel === 'timeline'" class="replay-player">
-      <div ref="video" class="replay-video" />
-      <div class="timeline__current-time">{{ dateFormat(currentTime) }}</div>
-      <div class="timeline--wrap">
-        <div ref="timeline" class="timeline">
-          <div
-            class="timeline__handle"
-            :style="`left: ${handlePos}%;`"
-          />
-          <div
-            v-for="(time, index) in timePositionList"
-            :key="index"
-            class="timeline__bar"
-            :style="`left: ${time.left}%; width: ${time.width}%;`"
-            @click="handleTimeline($event, time)"
-          />
-          <div class="timeline__hours">
-            <div v-for="i in 24" :key="i" class="timeline__hour">
-              {{ i > 10 ? '' : '0' }}{{ i - 1 }}:00
+      <div v-if="videoList.length && !loading">
+        <div ref="video" class="replay-video" />
+        <div class="timeline__current-time">{{ dateFormat(currentTime) }}</div>
+        <div class="timeline--wrap">
+          <div ref="timeline" class="timeline">
+            <div
+              class="timeline__handle"
+              :style="`left: ${handlePos}%;`"
+            />
+            <div
+              v-for="(time, index) in timePositionList"
+              :key="index"
+              class="timeline__bar"
+              :style="`left: ${time.left}%; width: ${time.width}%;`"
+              @click="handleTimeline($event, time)"
+            />
+            <div class="timeline__hours">
+              <div v-for="i in 24" :key="i" class="timeline__hour">
+                {{ i > 10 ? '' : '0' }}{{ i - 1 }}:00
+              </div>
             </div>
           </div>
         </div>
       </div>
+      <div v-else class="empty-text">
+        所选日期暂无录像
+      </div>
     </div>
     <div v-else class="replay-time-list">
-      <el-table :data="videoList">
+      <el-table :data="videoList" empty-text="所选日期暂无录像">
         <el-table-column label="开始时间" prop="startAt" min-width="180" :formatter="dateFormatInTable" />
         <el-table-column label="时长" prop="duration" />
-        <el-table-column prop="action" label="操作" width="180" fixed="right">
+        <el-table-column prop="action" label="操作" width="200" fixed="right">
           <template slot-scope="{row}">
-            <el-button type="text" @click="changeReplay(row)">下载录像</el-button>
+            <el-button v-if="row.loading" type="text" disabled>正在转码...</el-button>
+            <el-button v-if="!row.loading" type="text" @click="changeReplay(row)">下载录像</el-button>
             <el-button type="text" @click="playReplay(row)">播放录像</el-button>
           </template>
         </el-table-column>
@@ -56,6 +62,7 @@
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { dateFormatInTable, dateFormat } from '@/utils/date'
 import Ctplayer from '@/utils/player'
+import { getDeviceRecords, getDeviceRecord } from '@/api/device'
 import ReplayPlayer from './dialogs/ReplayPlayer.vue'
 
 @Component({
@@ -71,9 +78,10 @@ export default class extends Vue {
   private viewModel = 'timeline'
   private currentVideo: any = null
   private currentListVideo: any = null
-  private currentDate = new Date(new Date('2020-8-6').toLocaleDateString()).getTime()
+  private currentDate = new Date(new Date().toLocaleDateString()).getTime()
   private currentTime: Date | null = null
   private handlePos = 0
+  private loading = false
   private videoList: Array<any> = []
   private timePositionList: Array<any> = []
   private pickerOptions = {
@@ -85,12 +93,16 @@ export default class extends Vue {
     play: false
   }
 
+  private get deviceId() {
+    return this.$route.query.deviceId
+  }
+
   public stopVideo() {
     this.player && this.player.stop()
   }
 
-  private mounted() {
-    this.getVideoList()
+  private async mounted() {
+    await this.getVideoList()
     this.timePositionList = this.calcVideoPosition(this.videoList)
     this.initVideoPlayer()
     window.addEventListener('resize', this.resizeVideo)
@@ -125,57 +137,27 @@ export default class extends Vue {
   /**
    * 获取回放列表
    */
-  private getVideoList() {
-    // this.videoList = [{
-    //   duration: 1800,
-    //   // hls: 'http://127.0.0.1:8082/h265_hls.m3u8',
-    //   // type: 'h265',
-    //   hls: 'https://vod-origin-mehf.gdoss.xstore.ctyun.cn/ec56f6f38cbf4083b54305733a38eb01.m3u8',
-    //   type: 'h264',
-    //   startAt: 1596672000000
-    // },
-    // {
-    //   duration: 1800,
-    //   hls: 'https://vod-origin-mehf.gdoss.xstore.ctyun.cn/ec56f6f38cbf4083b54305733a38eb01.m3u8',
-    //   type: 'h264',
-    //   startAt: 1596673800000
-    // },
-    // {
-    //   duration: 1800,
-    //   hls: 'https://vod-origin-mehf.gdoss.xstore.ctyun.cn/ec56f6f38cbf4083b54305733a38eb01.m3u8',
-    //   type: 'h264',
-    //   startAt: 1596675600000
-    // },
-    // {
-    //   duration: 1800,
-    //   hls: 'https://vod-origin-mehf.gdoss.xstore.ctyun.cn/ec56f6f38cbf4083b54305733a38eb01.m3u8',
-    //   type: 'h264',
-    //   startAt: 1596686400000
-    // }]
-    this.videoList = [{
-      duration: 1800,
-      hls: 'http://127.0.0.1:8080/data/video2/playlist.m3u8',
-      type: 'h265',
-      startAt: 1596672000000
-    },
-    {
-      duration: 1800,
-      hls: 'http://127.0.0.1:8080/data/video2/playlist.m3u8',
-      type: 'h265',
-      startAt: 1596673800000
-    },
-    {
-      duration: 1800,
-      hls: 'http://127.0.0.1:8080/data/video2/playlist.m3u8',
-      type: 'h265',
-      startAt: 1596675600000
-    },
-    {
-      duration: 1800,
-      hls: 'http://127.0.0.1:8080/data/video2/playlist.m3u8',
-      type: 'h265',
-      startAt: 1596686400000
-    }]
+  private async getVideoList() {
+    try {
+      this.loading = true
+      const res = await getDeviceRecords({
+        deviceId: this.deviceId,
+        startTime: this.currentDate / 1000,
+        endTime: this.currentDate / 1000 + 24 * 60 * 60,
+        pageSize: 999
+      })
+      this.videoList = res.records.map((video: any) => {
+        video.startAt = new Date(video.startTime).getTime()
+        video.videoCoding = 'h264'
+        video.loading = false
+        return video
+      })
+    } catch (e) {
+      this.videoList = []
+      console.log(e)
+    } finally {
+      this.loading = false
+    }
   }
 
   /**
@@ -198,8 +180,8 @@ export default class extends Vue {
     const player = new Ctplayer({
       wrap: this.$refs.video,
       autoPlay,
-      source: video.hls,
-      type: video.type === 'h264' ? 'hls' : 'h265-hls',
+      source: video.playUrl.hlsUrl,
+      type: video.videoCoding === 'h264' ? 'hls' : 'h265-hls',
       onTimeUpdate: (currentTime: number) => {
         if (this.currentVideo) {
           this.setCurrentTime(this.currentVideo, currentTime)
@@ -274,6 +256,26 @@ export default class extends Vue {
   private playReplay(video: any) {
     this.dialog.play = true
     this.currentListVideo = video
+  }
+
+  private async changeReplay(video: any) {
+    try {
+      video.loading = true
+      const res = await getDeviceRecord({
+        deviceId: this.deviceId,
+        startTime: video.startAt / 1000,
+        fileFormat: 'mp4'
+      })
+      const link: HTMLAnchorElement = document.createElement('a')
+      link.setAttribute('href', res.downloadUrl)
+      link.setAttribute('target', '_blank')
+      link.click()
+      link.remove()
+    } catch (e) {
+      console.log(e)
+    } finally {
+      video.loading = false
+    }
   }
 
   /**
@@ -362,5 +364,9 @@ export default class extends Vue {
       height: 100%;
       cursor: pointer;
     }
+  }
+
+  .empty-text {
+    padding-top: 30px;
   }
 </style>

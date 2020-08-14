@@ -26,14 +26,19 @@
               </template>
               <info-list-item label="自动拉流:">{{ pullType[info.pullType] }}</info-list-item>
               <info-list-item label="GB28181账号:">{{ info.userName }}</info-list-item>
-              <info-list-item label="状态:">
+              <info-list-item label="设备状态:">
                 <div class="info-list__edit">
                   <div class="info-list__edit--value">
                     <status-badge :status="info.deviceStatus" />
                     {{ deviceStatus[info.deviceStatus] }}
                   </div>
-                  <div v-if="info.deviceStatus === 'off'" class="info-list__edit--action">
-                    <el-button type="text">停用</el-button>
+                </div>
+              </info-list-item>
+              <info-list-item label="流状态:">
+                <div class="info-list__edit">
+                  <div class="info-list__edit--value">
+                    <status-badge :status="info.streamStatus" />
+                    {{ deviceStatus[info.streamStatus] }}
                   </div>
                 </div>
               </info-list-item>
@@ -43,14 +48,19 @@
               <info-list-item label="通道名称:">{{ info.deviceChannels[0].channelName }}</info-list-item>
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
               <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
-              <info-list-item label="状态:">
+              <info-list-item label="设备状态:">
                 <div class="info-list__edit">
                   <div class="info-list__edit--value">
                     <status-badge :status="info.deviceStatus" />
                     {{ deviceStatus[info.deviceStatus] }}
                   </div>
-                  <div v-if="info.deviceStatus === 'off'" class="info-list__edit--action">
-                    <el-button type="text">停用</el-button>
+                </div>
+              </info-list-item>
+              <info-list-item label="流状态:">
+                <div class="info-list__edit">
+                  <div class="info-list__edit--value">
+                    <status-badge :status="info.streamStatus" />
+                    {{ deviceStatus[info.streamStatus] }}
                   </div>
                 </div>
               </info-list-item>

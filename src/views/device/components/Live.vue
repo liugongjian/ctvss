@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading="loading" class="live-wrap">
     <div class="preview-player">
       <player v-if="address" ref="video" :type="videoCoding" :url="address.flvUrl" :auto-play="true" />
     </div>
@@ -44,6 +44,7 @@ export default class extends Vue {
   private address?: any = null
   private videoCoding?: string = ''
   private playerTimer: any = null
+  private loading = false
 
   private get deviceId() {
     return this.$route.query.deviceId
@@ -69,7 +70,7 @@ export default class extends Vue {
 
   private destroy() {
     const $video: any = this.$refs.video
-    $video.disposePlayer()
+    $video && $video.disposePlayer()
   }
 
   /**
@@ -85,7 +86,7 @@ export default class extends Vue {
    */
   private reloadPlayer() {
     const $video: any = this.$refs.video
-    $video.reloadPlayer()
+    $video && $video.reloadPlayer()
   }
 
   /**
@@ -93,6 +94,7 @@ export default class extends Vue {
    */
   private async getDevicePreview() {
     try {
+      this.loading = true
       this.address = null
       const res = await getDevicePreview({
         deviceId: this.deviceId
@@ -101,6 +103,8 @@ export default class extends Vue {
       this.videoCoding = res.videoCoding === 'h264' ? 'flv' : 'h265-flv'
     } catch (e) {
       console.log(e)
+    } finally {
+      this.loading = false
     }
   }
 
@@ -114,6 +118,9 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
+  .live-wrap {
+    min-height: 100px;
+  }
   .preview-player {
     position: relative;
     background: #000;
