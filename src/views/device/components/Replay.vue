@@ -266,11 +266,12 @@ export default class extends Vue {
         startTime: video.startAt / 1000,
         fileFormat: 'mp4'
       })
-      const link: HTMLAnchorElement = document.createElement('a')
-      link.setAttribute('href', res.downloadUrl)
-      link.setAttribute('target', '_blank')
-      link.click()
-      link.remove()
+      if (res.downloadUrl) {
+        const link: HTMLAnchorElement = document.createElement('a')
+        link.setAttribute('href', res.downloadUrl)
+        link.click()
+        link.remove()
+      }
     } catch (e) {
       console.log(e)
     } finally {
