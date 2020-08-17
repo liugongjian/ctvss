@@ -11,6 +11,8 @@ export default class Ctplayer {
   private onTimeUpdate?: Function
   private onResizeScreen?: Function
   private onReset?: Function
+  private onEnded?: Function
+  private onSeeked?: Function
 
   public constructor(config: any) {
     this.wrap = config.wrap
@@ -20,6 +22,8 @@ export default class Ctplayer {
     this.onTimeUpdate = config.onTimeUpdate
     this.onResizeScreen = config.onResizeScreen
     this.onReset = config.onReset
+    this.onEnded = config.onEnded
+    this.onSeeked = config.onSeeked
     this.init()
   }
 
@@ -60,7 +64,13 @@ export default class Ctplayer {
     switch (this.type) {
       case 'hls':
         this.player.addEventListener('timeupdate', () => {
-          this.onTimeUpdate && this.onTimeUpdate(this.player.currentTime * 1000)
+          this.onTimeUpdate && this.onTimeUpdate(this.player.currentTime)
+        })
+        this.player.addEventListener('ended', () => {
+          this.onEnded && this.onEnded()
+        })
+        this.player.addEventListener('seeked', () => {
+          this.onSeeked && this.onSeeked(this.player.currentTime)
         })
         break
       case 'h265-hls':
@@ -258,7 +268,9 @@ export default class Ctplayer {
     videoElement.controls = true
     wrapElement.innerHTML = ''
     wrapElement.append(videoElement)
-    const hls = new Hls()
+    const hls = new Hls({
+      manifestLoadingMaxRetry: 2
+    })
     hls.loadSource(this.source)
     hls.attachMedia(videoElement)
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
