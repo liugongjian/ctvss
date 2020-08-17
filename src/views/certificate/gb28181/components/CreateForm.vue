@@ -8,7 +8,7 @@
     label-width="140px"
   >
     <el-form-item label="是否匿名:" prop="userType" class="form-with-tip">
-      <el-switch v-model="form.userType" active-value="anonymous" inactive-value="normal" />
+      <el-switch v-model="form.userType" active-value="anonymous" inactive-value="normal" :disabled="disabled" />
       <div class="form-tip">当选择匿名密码为国标设备凭证时，设备注册时将使用设备ID作为SIP用户认证ID。</div>
     </el-form-item>
     <el-form-item :label="form.userType === 'anonymous' ? '用户别名:' : 'SIP用户认证ID:'" prop="userName" class="form-with-tip">
@@ -26,7 +26,7 @@
       <el-input v-model="form.confirmPassword" show-password />
     </el-form-item>
     <el-form-item label="描述:" prop="description">
-      <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入业务组描述，如业务介绍或用途" />
+      <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入凭证描述，如凭证介绍或用途" />
     </el-form-item>
     <el-form-item label="">
       <slot />
