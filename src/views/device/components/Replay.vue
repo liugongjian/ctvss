@@ -7,6 +7,7 @@
         value-format="timestamp"
         placeholder="选择日期"
         :picker-options="pickerOptions"
+        @change="changeDate"
       />
       <el-radio-group v-model="viewModel">
         <el-radio-button label="timeline">时间轴视图</el-radio-button>
@@ -14,7 +15,7 @@
       </el-radio-group>
     </div>
     <div v-if="viewModel === 'timeline'" class="replay-player">
-      <div v-if="videoList.length && !loading">
+      <div v-if="recordList.length && !loading">
         <div ref="video" class="replay-video" />
         <div class="timeline__current-time">{{ dateFormat(currentTime) }}</div>
         <div class="timeline--wrap">
@@ -43,7 +44,7 @@
       </div>
     </div>
     <div v-else class="replay-time-list">
-      <el-table :data="videoList" empty-text="所选日期暂无录像">
+      <el-table :data="recordListSlice" empty-text="所选日期暂无录像">
         <el-table-column label="开始时间" prop="startAt" min-width="180" :formatter="dateFormatInTable" />
         <el-table-column label="时长" prop="duration" />
         <el-table-column prop="action" label="操作" width="200" fixed="right">
@@ -54,7 +55,15 @@
           </template>
         </el-table-column>
       </el-table>
-      <replay-player v-if="dialog.play" :video="currentListVideo" @on-close="closeReplayPlayer" />
+      <el-pagination
+        :current-page="pager.pageNum"
+        :page-size="pager.pageSize"
+        :total="pager.total"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      />
+      <replay-player v-if="dialog.play" :video="currentListRecord" @on-close="closeReplayPlayer" />
     </div>
   </div>
 </template>
@@ -76,13 +85,15 @@ export default class extends Vue {
   private dateFormatInTable = dateFormatInTable
   private dateFormat = dateFormat
   private viewModel = 'timeline'
-  private currentVideo: any = null
-  private currentListVideo: any = null
+  private currentRecord: any = null
+  private currentListRecord: any = null
   private currentDate = new Date(new Date().toLocaleDateString()).getTime()
   private currentTime: Date | null = null
   private handlePos = 0
   private loading = false
-  private videoList: Array<any> = []
+  private recordList: Array<any> = []
+  private recordListSlice: Array<any> = []
+  private recordIndex = 0
   private timePositionList: Array<any> = []
   private pickerOptions = {
     disabledDate(time: any) {
@@ -91,6 +102,11 @@ export default class extends Vue {
   }
   private dialog = {
     play: false
+  }
+  private pager = {
+    pageNum: 1,
+    pageSize: 10,
+    total: 0
   }
 
   private get deviceId() {
@@ -102,9 +118,7 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    await this.getVideoList()
-    this.timePositionList = this.calcVideoPosition(this.videoList)
-    this.initVideoPlayer()
+    await this.init()
     window.addEventListener('resize', this.resizeVideo)
   }
 
@@ -121,6 +135,12 @@ export default class extends Vue {
     })
   }
 
+  private async init() {
+    await this.getRecordList()
+    this.timePositionList = this.calcVideoPosition(this.recordList)
+    this.initVideoPlayer()
+  }
+
   /**
    * 设置播放器大小
    */
@@ -135,25 +155,36 @@ export default class extends Vue {
   }
 
   /**
+   * 切换日期
+   */
+  private changeDate() {
+    this.player && this.player.disposePlayer()
+    this.init()
+  }
+
+  /**
    * 获取回放列表
    */
-  private async getVideoList() {
+  private async getRecordList() {
     try {
       this.loading = true
       const res = await getDeviceRecords({
         deviceId: this.deviceId,
         startTime: this.currentDate / 1000,
         endTime: this.currentDate / 1000 + 24 * 60 * 60,
-        pageSize: 999
+        pageSize: 9999
       })
-      this.videoList = res.records.map((video: any) => {
-        video.startAt = new Date(video.startTime).getTime()
-        video.videoCoding = 'h264'
-        video.loading = false
-        return video
+      this.recordList = res.records.map((record: any, index: number) => {
+        record.startAt = new Date(record.startTime).getTime()
+        record.videoCoding = 'h264'
+        record.loading = false
+        record.index = index
+        return record
       })
+      this.pager.total = res.totalNum
+      this.getRecordListByPage()
     } catch (e) {
-      this.videoList = []
+      this.recordList = []
       console.log(e)
     } finally {
       this.loading = false
@@ -164,10 +195,10 @@ export default class extends Vue {
    * 初始化播放器
    */
   private initVideoPlayer() {
-    if (this.videoList.length) {
-      this.currentVideo = this.videoList[0]
-      this.player = this.createPlayer(this.currentVideo)
-      this.setCurrentTime(this.currentVideo, 0)
+    if (this.recordList.length) {
+      this.currentRecord = this.recordList[0]
+      this.player = this.createPlayer(this.currentRecord, true)
+      this.setCurrentTime(this.currentRecord, 0)
       this.resizeVideo()
     }
   }
@@ -176,15 +207,14 @@ export default class extends Vue {
    * 创建播放器
    */
   private createPlayer(video: any, autoPlay: boolean = false) {
-    console.log(video.hls, video.type)
     const player = new Ctplayer({
       wrap: this.$refs.video,
       autoPlay,
       source: video.playUrl.hlsUrl,
       type: video.videoCoding === 'h264' ? 'hls' : 'h265-hls',
       onTimeUpdate: (currentTime: number) => {
-        if (this.currentVideo) {
-          this.setCurrentTime(this.currentVideo, currentTime)
+        if (this.currentRecord) {
+          this.setCurrentTime(this.currentRecord, currentTime)
         }
       },
       onResizeScreen: (originWidth: number, originHeight: number) => {
@@ -200,6 +230,18 @@ export default class extends Vue {
           $canvas.style.transformOrigin = `top left`
           $canvas.style.top = (height - originHeight) / 2 * proportion + 'px'
         }
+      },
+      onEnded: () => {
+        if (this.recordIndex === this.pager.total) return
+        const nextRecord = this.recordList[this.recordIndex + 1]
+        if (nextRecord) {
+          this.currentRecord = nextRecord
+          this.player && this.player.disposePlayer()
+          this.player = this.createPlayer(nextRecord, true)
+          this.recordIndex = this.currentRecord.index
+          this.player.play()
+          this.setCurrentTime(nextRecord, 0)
+        }
       }
     })
     return player
@@ -208,24 +250,29 @@ export default class extends Vue {
   /**
    * 点击时间轴位置
    */
-  private handleTimeline(e: any, video: any) {
+  private handleTimeline(e: any, record: any) {
     const scale = e.offsetX / e.target.clientWidth
-    const position = Math.ceil(scale * video.duration)
-    if (this.currentVideo !== video || !this.player) {
-      this.currentVideo = video
+    let currentTime = Math.ceil(scale * record.duration)
+    currentTime = currentTime < 0 ? 0 : currentTime
+    if (this.currentRecord !== record || !this.player) {
+      this.currentRecord = record
       this.player && this.player.disposePlayer()
-      this.player = this.createPlayer(video, true)
+      this.player = this.createPlayer(record, true)
+      this.recordIndex = this.currentRecord.index
+      this.player.play()
     }
-    this.player.play()
-    this.player.seek(position)
-    this.setCurrentTime(video, position)
+    this.setCurrentTime(record, currentTime)
+    this.player.seek(currentTime)
+    console.log(this.currentRecord.index, this.currentRecord, currentTime)
+    // this.setCurrentTime(record, currentTime)
   }
 
   /**
    * 设置操作具柄在时间轴中的位置
+   * currentTime: 单位(秒)
    */
-  private setCurrentTime(video: any, currentTime: number) {
-    const currentTimestamp = video.startAt + currentTime
+  private setCurrentTime(record: any, currentTime: number) {
+    const currentTimestamp = record.startAt + currentTime * 1000
     this.currentTime = new Date(currentTimestamp)
     this.handlePos = this.scale(Math.round((currentTimestamp - this.currentDate) / 1000))
   }
@@ -234,11 +281,11 @@ export default class extends Vue {
    * 计算视频在时间轴中的位置
    */
   private calcVideoPosition(list: Array<any>) {
-    return list.map((video: any) => {
+    return list.map((record: any) => {
       return {
-        width: this.scale(video.duration + 1).toFixed(6),
-        left: this.scale(Math.round((video.startAt - this.currentDate) / 1000)).toFixed(6),
-        ...video
+        width: this.scale(record.duration + 1).toFixed(6),
+        left: this.scale(Math.round((record.startAt - this.currentDate) / 1000)).toFixed(6),
+        ...record
       }
     })
   }
@@ -253,17 +300,17 @@ export default class extends Vue {
   /**
    * 播放录像（模态框）
    */
-  private playReplay(video: any) {
+  private playReplay(record: any) {
     this.dialog.play = true
-    this.currentListVideo = video
+    this.currentListRecord = record
   }
 
-  private async changeReplay(video: any) {
+  private async changeReplay(record: any) {
     try {
-      video.loading = true
+      record.loading = true
       const res = await getDeviceRecord({
         deviceId: this.deviceId,
-        startTime: video.startAt / 1000,
+        startTime: record.startAt / 1000,
         fileFormat: 'mp4'
       })
       if (res.downloadUrl) {
@@ -275,7 +322,7 @@ export default class extends Vue {
     } catch (e) {
       console.log(e)
     } finally {
-      video.loading = false
+      record.loading = false
     }
   }
 
@@ -284,7 +331,24 @@ export default class extends Vue {
    */
   private closeReplayPlayer() {
     this.dialog.play = false
-    this.currentListVideo = null
+    this.currentListRecord = null
+  }
+
+  /**
+   * 分页
+   */
+  private async handleSizeChange(val: number) {
+    this.pager.pageSize = val
+    await this.getRecordListByPage()
+  }
+
+  private async handleCurrentChange(val: number) {
+    this.pager.pageNum = val
+    await this.getRecordListByPage()
+  }
+
+  private getRecordListByPage() {
+    this.recordListSlice = this.recordList.slice((this.pager.pageNum - 1) * this.pager.pageSize, this.pager.pageNum * this.pager.pageSize)
   }
 }
 </script>
