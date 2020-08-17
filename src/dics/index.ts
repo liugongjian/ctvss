@@ -64,3 +64,18 @@ export const CreateSubDevice = {
   1: '是',
   2: '否'
 }
+
+export const SipTransType = {
+  tcp: 'TCP',
+  udp: 'UDP'
+}
+
+export const StreamTransType = {
+  tcp: 'TCP',
+  udp: 'UDP'
+}
+
+export const TransPriority = {
+  tcp: '是',
+  udp: '否'
+}

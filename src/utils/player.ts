@@ -4,16 +4,22 @@ import '@/libs/h265/goldplay.css'
 
 export default class Ctplayer {
   public source: string
-  public id: string
+  public wrap: HTMLDivElement
   public autoPlay: boolean
   public player: any
   public type?: string
+  private onTimeUpdate?: Function
+  private onResizeScreen?: Function
+  private onReset?: Function
 
   public constructor(config: any) {
-    this.id = config.id
+    this.wrap = config.wrap
     this.source = config.source
     this.autoPlay = config.autoPlay
     this.type = config.type
+    this.onTimeUpdate = config.onTimeUpdate
+    this.onResizeScreen = config.onResizeScreen
+    this.onReset = config.onReset
     this.init()
   }
 
@@ -22,51 +28,72 @@ export default class Ctplayer {
     if (!this.type) {
       throw new Error('不支持当前视频类型')
     }
-    const videoElement: any = document.getElementById(this.id)
+    const wrapElement: HTMLDivElement = this.wrap
 
-    if (!videoElement) {
+    if (!wrapElement) {
       throw new Error('找不到指定的ID Video元素')
     }
-    this.player = this.createPlayer(videoElement)
+    this.player = this.createPlayer(wrapElement)
     if (!this.player) {
       throw new Error('播放器创建失败')
     }
+    this.bindEvent()
     return this.player
   }
 
-  private createPlayer(videoElement: any) {
+  private createPlayer(wrapElement: HTMLDivElement) {
     switch (this.type) {
       case 'flv':
-        return this.playFlv(videoElement)
-      case 'm3u8':
-        return this.playHls(videoElement)
+        return this.createFlv(wrapElement)
+      case 'hls':
+        return this.createHls(wrapElement)
       case 'mp4':
-        return this.playDefault(videoElement)
+        return this.createDefault(wrapElement)
       case 'h265-flv':
-        return this.playH265Flv(videoElement)
+        return this.createH265Flv(wrapElement)
+      case 'h265-hls':
+        return this.createH265Hls(wrapElement)
+    }
+  }
+
+  private bindEvent() {
+    switch (this.type) {
+      case 'hls':
+        this.player.addEventListener('timeupdate', () => {
+          this.onTimeUpdate && this.onTimeUpdate(this.player.currentTime * 1000)
+        })
+        break
+      case 'h265-hls':
+        this.player.events.on('Player.resizeScreen', (width: number, height: number) => {
+          this.onResizeScreen && this.onResizeScreen(width, height)
+        })
+        this.player.events.on('Player.timeUpdate', (e: any) => {
+          this.onTimeUpdate && this.onTimeUpdate(e)
+        })
     }
   }
 
   public reloadPlayer() {
     switch (this.type) {
       case 'flv':
+        this.player.unload()
         this.player.load()
         this.player.play()
         break
-      case 'm3u8':
+      case 'hls':
       case 'mp4':
     }
   }
 
   public disposePlayer() {
     try {
-      const videoElement: any = document.getElementById(this.id)
+      const wrapElement: HTMLDivElement = this.wrap
       switch (this.type) {
         case 'flv':
           this.player.destroy()
           console.log('destroy')
           break
-        case 'm3u8':
+        case 'hls':
           this.player.destroy()
           break
         case 'mp4':
@@ -74,7 +101,12 @@ export default class Ctplayer {
           break
         case 'h265-flv':
           this.player.destroy()
-          videoElement!.innerHTML = ''
+          this.player = null
+          wrapElement!.innerHTML = ''
+          break
+        case 'h265-hls':
+          this.player.destroy()
+          wrapElement!.innerHTML = ''
           break
       }
     } catch (e) {
@@ -85,7 +117,7 @@ export default class Ctplayer {
   public play() {
     switch (this.type) {
       case 'flv':
-      case 'm3u8':
+      case 'hls':
       case 'mp4':
       case 'h265-flv':
         this.player.load()
@@ -94,22 +126,37 @@ export default class Ctplayer {
     }
   }
 
+  public seek(time: number) {
+    switch (this.type) {
+      case 'hls':
+        this.player.currentTime = time
+        break
+      case 'h265-hls':
+        this.player.seek(time * 1000)
+        break
+    }
+  }
+
+  public stop() {
+    this.player.stop()
+  }
+
   /**
    * H265 Flv 方式播放
    */
-  private playH265Flv(videoElement: HTMLDivElement) {
+  private createH265Flv(wrapElement: HTMLDivElement) {
     // @ts-ignore
     const KsPlayer = window.h265js
     const canvasElement = document.createElement('canvas')
-    const width = videoElement.clientWidth
+    const width = wrapElement.clientWidth
     const height = width * 9 / 16
     canvasElement.setAttribute('width', width.toString())
     canvasElement.setAttribute('height', height.toString())
     const audioElement = document.createElement('audio')
-    videoElement.innerHTML = ''
-    videoElement.append(canvasElement)
-    videoElement.append(audioElement)
-    const player = KsPlayer.createPlayer({
+    wrapElement.innerHTML = ''
+    wrapElement.append(canvasElement)
+    wrapElement.append(audioElement)
+    let player = KsPlayer.createPlayer({
       isLive: true
     },
     {
@@ -129,45 +176,64 @@ export default class Ctplayer {
       audioElement: audioElement,
       canvas: canvasElement
     })
+
+    player.on(KsPlayer.Events.WAITING, (event: any, data: any) => {
+      // console.log('WAITING: ', event, data)
+    })
+    player.on(KsPlayer.Events.PLAYING, (event: any, data: any) => {
+      // console.log('PLAYING: ', event, data)
+    })
+    player.on(KsPlayer.Events.RELOAD, (event: any, data: any) => {
+      // console.log('RELOAD: ', event, data)
+    })
+    player.on(KsPlayer.Events.MEDIAINFO, (event: any, data: any) => {
+      // console.log('MEDIAINFO: ', event, data)
+    })
     player.on(KsPlayer.Events.READY, () => {
       player.load()
     })
-    player.on(KsPlayer.Events.MEDIAINFO, (event: any, data: any) => {
-      console.warn('MEDIAINFO: ', event, data)
-    })
     player.on(KsPlayer.Events.ERROR, (event: any, data: any) => {
-      console.warn('ERROR: ', event, data)
+      console.log(event)
       if (data.detail === 'AudioAutoPlayUnsupported') {
         console.log('unload AudioAutoPlayUnsupported')
         player.destroy()
         const playButton = document.createElement('div')
         playButton.className = 'play'
         playButton.addEventListener('click', () => {
-          this.playH265Flv(videoElement)
+          player = this.createH265Flv(wrapElement)
+          this.onReset && this.onReset(player)
         })
-        videoElement.append(playButton)
+        wrapElement.append(playButton)
       }
     })
-    player.on(KsPlayer.Events.WAITING, (event: any, data: any) => {
-      console.warn('WAITING: ', event, data)
+    return player
+  }
+
+  private createH265Hls(wrapElement: HTMLDivElement) {
+    // @ts-ignore
+    const GoldPlay = window.GoldPlay
+    const player: any = new GoldPlay(wrapElement, {
+      sourceURL: this.source,
+      type: 'HLS',
+      autoPlay: this.autoPlay,
+      libPath: `${window.location.origin}/lib/`,
+      playBackRate: 1,
+      containerFullPage: false
     })
-    player.on(KsPlayer.Events.PLAYING, (event: any, data: any) => {
-      console.warn('PLAYING: ', event, data)
-    })
-    player.on(KsPlayer.Events.RELOAD, (event: any, data: any) => {
-      console.warn('RELOAD: ', event, data)
-    })
-    console.log(player)
     return player
   }
 
   /**
    * Flv 方式播放
    */
-  private playFlv(videoElement: any) {
+  private createFlv(wrapElement: any) {
     if (!flvjs.isSupported()) {
       throw new Error('当前浏览器不支持Flv播放器')
     }
+    const videoElement: HTMLVideoElement = document.createElement('video')
+    videoElement.controls = true
+    wrapElement.innerHTML = ''
+    wrapElement.append(videoElement)
     const flvPlayer = flvjs.createPlayer({
       type: 'flv',
       isLive: true,
@@ -184,25 +250,29 @@ export default class Ctplayer {
   /**
    * Hls 方式播放
    */
-  private playHls(videoElement: any) {
+  private createHls(wrapElement: any) {
     if (!flvjs.isSupported()) {
       throw new Error('当前浏览器不支持Hls播放器')
     }
+    const videoElement: HTMLVideoElement = document.createElement('video')
+    videoElement.controls = true
+    wrapElement.innerHTML = ''
+    wrapElement.append(videoElement)
     const hls = new Hls()
     hls.loadSource(this.source)
     hls.attachMedia(videoElement)
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
       this.autoPlayVideo(videoElement, videoElement)
     })
-    return hls
+    return videoElement
   }
 
   /**
    * 默认方式播放
    */
-  private playDefault(videoElement: any) {
-    videoElement.src = this.source
-    return videoElement
+  private createDefault(wrapElement: any) {
+    wrapElement.src = this.source
+    return wrapElement
   }
 
   /**
@@ -246,14 +316,14 @@ export default class Ctplayer {
     }
   }
 
-  private autoPlayVideo(player: any, videoElement: any) {
+  private autoPlayVideo(player: any, wrapElement: any) {
     if (this.autoPlay) {
       try {
         this.testAutoPlay().then(isSupport => {
           if (isSupport) {
             player.play()
           } else {
-            videoElement.muted = true
+            wrapElement.muted = true
             player.play()
           }
         })
