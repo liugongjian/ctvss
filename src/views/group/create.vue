@@ -38,7 +38,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="接入类型:" prop="inProtocol">
-          <el-radio-group v-model="form.inProtocol" @change="inProtocolTypeChange">
+          <el-radio-group v-model="form.inProtocol">
             <el-radio v-for="protocol in inProtocolList" :key="protocol" :label="protocol.toLocaleLowerCase()">{{ protocol }}</el-radio>
           </el-radio-group>
         </el-form-item>
