@@ -72,7 +72,7 @@ export default class extends Vue {
   private pager = {
     pageNum: 1,
     pageSize: 10,
-    total: 20
+    total: 0
   }
 
   private dateFormatInTable = dateFormatInTable
