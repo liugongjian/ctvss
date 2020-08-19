@@ -3,7 +3,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import Ctplayer from '@/utils/player'
+import Ctplayer from '../models/Ctplayer'
 
 @Component({
   name: 'Player'
@@ -21,6 +21,10 @@ export default class extends Vue {
     default: false
   })
   private autoPlay?: boolean
+  @Prop({
+    default: true
+  })
+  private hasControl?: boolean
   @Prop()
   private onTimeUpdate?: Function
 
@@ -49,6 +53,7 @@ export default class extends Vue {
     this.player = new Ctplayer({
       wrap: this.$refs.video,
       autoPlay: this.autoPlay,
+      hasControl: this.hasControl,
       source: this.url,
       type: this.type,
       onTimeUpdate: this.onTimeUpdate,
