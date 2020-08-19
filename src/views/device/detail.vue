@@ -2,7 +2,7 @@
   <div class="app-container">
     <div class="detail-wrap">
       <div v-if="info">
-        <el-button v-if="info.deviceType === 'ipc'" class="btn-detail" @click="goToPreview"><i class="el-icon-video-camera" /> 监控预览</el-button>
+        <el-button v-if="info.deviceType === 'ipc'" class="btn-detail" @click="goToPreview"><i class="el-icon-video-camera" /> 实时预览</el-button>
         <el-button v-if="info.deviceType === 'nvr'" class="btn-detail" @click="goToChannels"><i class="el-icon-files" /> 查看通道</el-button>
       </div>
       <el-tabs v-model="activeName" @tab-click="handleClick">
@@ -26,14 +26,19 @@
               </template>
               <info-list-item label="自动拉流:">{{ pullType[info.pullType] }}</info-list-item>
               <info-list-item label="GB28181账号:">{{ info.userName }}</info-list-item>
-              <info-list-item label="状态:">
+              <info-list-item label="设备状态:">
                 <div class="info-list__edit">
                   <div class="info-list__edit--value">
                     <status-badge :status="info.deviceStatus" />
                     {{ deviceStatus[info.deviceStatus] }}
                   </div>
-                  <div v-if="info.deviceStatus === 'off'" class="info-list__edit--action">
-                    <el-button type="text">停用</el-button>
+                </div>
+              </info-list-item>
+              <info-list-item label="流状态:">
+                <div class="info-list__edit">
+                  <div class="info-list__edit--value">
+                    <status-badge :status="info.streamStatus" />
+                    {{ deviceStatus[info.streamStatus] }}
                   </div>
                 </div>
               </info-list-item>
@@ -43,14 +48,19 @@
               <info-list-item label="通道名称:">{{ info.deviceChannels[0].channelName }}</info-list-item>
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
               <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
-              <info-list-item label="状态:">
+              <info-list-item label="设备状态:">
                 <div class="info-list__edit">
                   <div class="info-list__edit--value">
                     <status-badge :status="info.deviceStatus" />
                     {{ deviceStatus[info.deviceStatus] }}
                   </div>
-                  <div v-if="info.deviceStatus === 'off'" class="info-list__edit--action">
-                    <el-button type="text">停用</el-button>
+                </div>
+              </info-list-item>
+              <info-list-item label="流状态:">
+                <div class="info-list__edit">
+                  <div class="info-list__edit--value">
+                    <status-badge :status="info.streamStatus" />
+                    {{ deviceStatus[info.streamStatus] }}
                   </div>
                 </div>
               </info-list-item>
@@ -144,7 +154,7 @@
           <div>
             <el-button type="text" class="template-edit" @click="openDialog('setRecordTemplate')">编辑</el-button>
             <info-list title="录制模板">
-              <el-table v-loading="loading.template" :data="template.recordTemplate" fit>
+              <el-table v-loading="loading.template" :data="template.recordTemplate" :empty-text="emptyText" fit>
                 <el-table-column prop="templateName" label="模板名称" />
                 <el-table-column prop="recordType" label="是否启用自动录制">
                   <template slot-scope="{row}">
@@ -153,9 +163,9 @@
                 </el-table-column>
                 <el-table-column prop="storeType" label="录制格式">
                   <template slot-scope="{row}">
-                    {{ row.flvParam ? 'flv': '' }}
-                    {{ row.hlsParam ? 'hls': '' }}
-                    {{ row.mpParam ? 'mp4': '' }}
+                    {{ row.flvParam.enable ? 'flv': '' }}
+                    {{ row.hlsParam.enable ? 'hls': '' }}
+                    {{ row.mpParam.enable ? 'mp4': '' }}
                   </template>
                 </el-table-column>
               </el-table>
@@ -257,6 +267,7 @@ export default class extends Vue {
     template: false
   }
   private recordTemplateId = ''
+  private emptyText = '暂无数据'
 
   private get isGb() {
     return this.$route.query.inProtocol === 'gb28181'
@@ -295,7 +306,7 @@ export default class extends Vue {
   }
 
   /**
-   * 监控预览
+   * 实时预览
    */
   private goToPreview() {
     this.deviceRouter({
@@ -326,7 +337,11 @@ export default class extends Vue {
         const res = await getRecordTemplate({ deviceId: this.deviceId })
         this.template.recordTemplate.push(res)
       } catch (e) {
-        this.$message.error(e)
+        if (e === '该设备或组没有绑定录制模板') {
+          this.emptyText = e
+        } else {
+          this.$message.error(e)
+        }
       } finally {
         this.loading.template = false
       }

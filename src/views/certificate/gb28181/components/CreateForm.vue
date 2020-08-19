@@ -8,7 +8,7 @@
     label-width="140px"
   >
     <el-form-item label="是否匿名:" prop="userType" class="form-with-tip">
-      <el-switch v-model="form.userType" active-value="anonymous" inactive-value="normal" />
+      <el-switch v-model="form.userType" active-value="anonymous" inactive-value="normal" :disabled="disabled" />
       <div class="form-tip">当选择匿名密码为国标设备凭证时，设备注册时将使用设备ID作为SIP用户认证ID。</div>
     </el-form-item>
     <el-form-item :label="form.userType === 'anonymous' ? '用户别名:' : 'SIP用户认证ID:'" prop="userName" class="form-with-tip">
@@ -26,7 +26,7 @@
       <el-input v-model="form.confirmPassword" show-password />
     </el-form-item>
     <el-form-item label="描述:" prop="description">
-      <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入业务组描述，如业务介绍或用途" />
+      <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入凭证描述，如凭证介绍或用途" />
     </el-form-item>
     <el-form-item label="">
       <slot />
@@ -47,8 +47,9 @@ export default class extends Vue {
   private loading = false
   private disabled = false
   private rules = {
-    username: [
-      { required: true, message: '请输入用户名', trigger: 'blur' }
+    userName: [
+      { required: true, message: '请输入用户名', trigger: 'blur' },
+      { validator: this.validateUserName, trigger: 'blur' }
     ],
     newPassword: [
       { validator: this.validatePass, trigger: 'blur' }
@@ -61,7 +62,7 @@ export default class extends Vue {
     ]
   }
   private form: GB28181 = {
-    userType: 'normpal',
+    userType: 'normal',
     userName: '',
     password: '',
     newPassword: '',
@@ -86,6 +87,20 @@ export default class extends Vue {
       callback(new Error('请再次输入密码'))
     } else if (value !== this.form.newPassword) {
       callback(new Error('两次输入密码不一致'))
+    } else {
+      callback()
+    }
+  }
+
+  private validateUserName(rule: any, value: string, callback: any) {
+    if (!value) {
+      callback(new Error('请输入用户名'))
+    } else if (this.form.userType === 'normal') {
+      if (!/^[0-9]+$/.test(value)) {
+        callback(new Error('非匿名用户ID仅能填写数字'))
+      } else {
+        callback()
+      }
     } else {
       callback()
     }

@@ -21,9 +21,9 @@
       </el-table-column>
       <el-table-column prop="storeType" label="录制格式">
         <template slot-scope="{row}">
-          {{ row.flvParam ? 'flv': '' }}
-          {{ row.hlsParam ? 'hls': '' }}
-          {{ row.mpParam ? 'mp4': '' }}
+          {{ row.flvParam.enable ? 'flv': '' }}
+          {{ row.hlsParam.enable ? 'hls': '' }}
+          {{ row.mpParam.enable ? 'mp4': '' }}
         </template>
       </el-table-column>
       <el-table-column label="操作">
