@@ -41,12 +41,15 @@
         <div class="timeline__settings">
           <label>缩放时间轴:</label>
           <el-select v-model="timelineRatio" @change="changeTimelineRatio">
-            <el-option :value="1" label="100%" />
-            <el-option :value="2" label="200%" />
-            <el-option :value="4" label="400%" />
-            <el-option :value="6" label="600%" />
-            <el-option :value="8" label="800%" />
-            <el-option :value="10" label="1000%" />
+            <el-option :value="1" label="1倍" />
+            <el-option :value="2" label="2倍" />
+            <el-option :value="4" label="4倍" />
+            <el-option :value="6" label="6倍" />
+            <el-option :value="8" label="8倍" />
+            <el-option :value="10" label="10倍" />
+            <el-option :value="20" label="20倍" />
+            <el-option :value="40" label="30倍" />
+            <el-option :value="60" label="60倍" />
           </el-select>
         </div>
       </div>
@@ -81,7 +84,7 @@
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { dateFormatInTable, dateFormat } from '@/utils/date'
-import Ctplayer from '@/utils/player'
+import Ctplayer from '../models/Ctplayer'
 import { getDeviceRecords, getDeviceRecord } from '@/api/device'
 import ReplayPlayer from './dialogs/ReplayPlayer.vue'
 

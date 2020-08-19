@@ -14,7 +14,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { dateFormat } from '@/utils/date'
-import Player from '@/views/components/Player.vue'
+import Player from '../Player.vue'
 
 @Component({
   name: 'ReplayPlayer',

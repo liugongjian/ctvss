@@ -6,6 +6,7 @@ export default class Ctplayer {
   public source: string
   public wrap: HTMLDivElement
   public autoPlay: boolean
+  public hasControl: boolean
   public player: any
   public type?: string
   private onTimeUpdate?: Function
@@ -18,6 +19,7 @@ export default class Ctplayer {
     this.wrap = config.wrap
     this.source = config.source
     this.autoPlay = config.autoPlay
+    this.hasControl = config.hasControl
     this.type = config.type
     this.onTimeUpdate = config.onTimeUpdate
     this.onResizeScreen = config.onResizeScreen
@@ -241,7 +243,7 @@ export default class Ctplayer {
       throw new Error('当前浏览器不支持Flv播放器')
     }
     const videoElement: HTMLVideoElement = document.createElement('video')
-    videoElement.controls = true
+    videoElement.controls = this.hasControl
     wrapElement.innerHTML = ''
     wrapElement.append(videoElement)
     const flvPlayer = flvjs.createPlayer({
@@ -249,8 +251,11 @@ export default class Ctplayer {
       isLive: true,
       url: this.source
     })
-    flvPlayer.on('error', (e) => {})
-    flvPlayer.on('log', (e) => {})
+    flvPlayer.on(flvjs.Events.ERROR, (e) => {})
+    flvPlayer.on(flvjs.Events.STATISTICS_INFO, (e) => {})
+    flvPlayer.on(flvjs.Events.METADATA_ARRIVED, (e) => {
+      console.log('METADATA_ARRIVED', e)
+    })
     flvPlayer.attachMediaElement(videoElement)
     flvPlayer.load()
     flvPlayer.play()
@@ -265,7 +270,7 @@ export default class Ctplayer {
       throw new Error('当前浏览器不支持Hls播放器')
     }
     const videoElement: HTMLVideoElement = document.createElement('video')
-    videoElement.controls = true
+    videoElement.controls = this.hasControl
     wrapElement.innerHTML = ''
     wrapElement.append(videoElement)
     const hls = new Hls({
