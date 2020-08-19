@@ -259,21 +259,22 @@ export default class extends Vue {
               }
             }
           })
-          if (this.form.templateId) {
-            res = await updateRecordTemplate(param)
-          } else {
-            res = await createRecordTemplate(param)
-          }
-          this.loading = false
-          if (res.errorCode) {
-            console.log('error create!!')
-          } else {
+          try {
+            if (this.form.templateId) {
+              res = await updateRecordTemplate(param)
+            } else {
+              res = await createRecordTemplate(param)
+            }
+            this.loading = false
             this.$message.success(this.form.templateId ? '录制模板编辑成功' : '录制模板创建成功')
             this.back()
+          } catch (e) {
+            this.loading = false
+            this.$message.error(e)
           }
         }
       } else {
-        console.log('error submit!!')
+        console.log('校验不通过')
       }
     })
   }
