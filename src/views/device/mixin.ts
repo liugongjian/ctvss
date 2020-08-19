@@ -48,7 +48,7 @@ export default class DeviceMixin extends Vue {
   public async initDirs() {
     try {
       this.loading.dir = true
-      await DeviceModule.RestBreadcrumb()
+      await DeviceModule.ResetBreadcrumb()
       const res = await getDeviceTree({
         groupId: this.currentGroupId,
         id: 0
@@ -139,47 +139,6 @@ export default class DeviceMixin extends Vue {
   }
 
   /**
-   * 收起/展开目录列表
-   */
-  public toggledirList() {
-    this.isExpanded = !this.isExpanded
-  }
-
-  /**
-   * 设置左侧宽度
-   */
-  public changeWidthStart(e: MouseEvent) {
-    const $dirList: any = this.$refs.dirList
-    this.dirDrag.isDragging = true
-    this.dirDrag.start = e.x
-    this.dirDrag.orginWidth = $dirList.clientWidth
-
-    window.addEventListener('mousemove', (e) => {
-      if (!this.dirDrag.isDragging) return
-      this.dirDrag.offset = this.dirDrag.start - e.x
-      const width = this.dirDrag.orginWidth - this.dirDrag.offset
-      if (width < 50) return
-      this.dirDrag.width = width
-    })
-    window.addEventListener('mouseup', (e) => {
-      this.dirDrag.isDragging = false
-    })
-  }
-
-  /**
-   * 加载目录
-   */
-  public async loadDirs(node: any, resolve: Function) {
-    if (node.level === 0) return resolve([])
-    const res = await getDeviceTree({
-      groupId: this.currentGroupId,
-      id: node.data.id,
-      type: node.data.type
-    })
-    resolve(res.dirs)
-  }
-
-  /**
    * 设备页面路由
    */
   @Provide('deviceRouter')
@@ -220,6 +179,14 @@ export default class DeviceMixin extends Vue {
         }
         break
       case 'ipc':
+        router = {
+          name: 'device-list'
+        }
+        query = {
+          deviceId: item.id
+        }
+        break
+      case 'preview':
         router = {
           name: 'device-preview'
         }
@@ -264,5 +231,46 @@ export default class DeviceMixin extends Vue {
     }
     if (JSON.stringify(this.$route.query) === JSON.stringify(router.query)) return
     this.$router.push(router)
+  }
+
+  /**
+   * 收起/展开目录列表
+   */
+  public toggledirList() {
+    this.isExpanded = !this.isExpanded
+  }
+
+  /**
+   * 设置左侧宽度
+   */
+  public changeWidthStart(e: MouseEvent) {
+    const $dirList: any = this.$refs.dirList
+    this.dirDrag.isDragging = true
+    this.dirDrag.start = e.x
+    this.dirDrag.orginWidth = $dirList.clientWidth
+
+    window.addEventListener('mousemove', (e) => {
+      if (!this.dirDrag.isDragging) return
+      this.dirDrag.offset = this.dirDrag.start - e.x
+      const width = this.dirDrag.orginWidth - this.dirDrag.offset
+      if (width < 50) return
+      this.dirDrag.width = width
+    })
+    window.addEventListener('mouseup', (e) => {
+      this.dirDrag.isDragging = false
+    })
+  }
+
+  /**
+   * 加载目录
+   */
+  public async loadDirs(node: any, resolve: Function) {
+    if (node.level === 0) return resolve([])
+    const res = await getDeviceTree({
+      groupId: this.currentGroupId,
+      id: node.data.id,
+      type: node.data.type
+    })
+    resolve(res.dirs)
   }
 }

@@ -85,7 +85,7 @@ export default class extends Vue {
       }
       this.bindTemplateId = row.templateId
     } catch (e) {
-      this.$message.error(e)
+      this.$message.error(e && e.message)
     } finally {
       this.loading = false
     }
@@ -106,7 +106,7 @@ export default class extends Vue {
       }
       this.bindTemplateId = ''
     } catch (e) {
-      this.$message.error(e)
+      this.$message.error(e && e.message)
     } finally {
       this.loading = false
     }
@@ -121,7 +121,7 @@ export default class extends Vue {
       })
       this.list = res.templates
     } catch (e) {
-      this.$message.error(e)
+      this.$message.error(e && e.message)
     } finally {
       this.loading = false
     }

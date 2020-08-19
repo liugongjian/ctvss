@@ -322,7 +322,7 @@ export default class extends Vue {
   private goToPreview(previewTab: string, device: Device) {
     this.deviceRouter({
       id: device.deviceId,
-      type: device.deviceType,
+      type: 'preview',
       previewTab
     })
   }

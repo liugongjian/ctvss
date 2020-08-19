@@ -1,3 +1,4 @@
+<!-- 分屏预览 -->
 <template>
   <div v-loading="loading.group" class="app-container">
     <div class="filter-container">

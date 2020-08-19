@@ -36,6 +36,7 @@
               </el-tooltip>
             </div>
             <div v-loading="loading.dir" class="dir-list__tree device-list__max-height" :style="{height: `${maxHeight}px`}">
+              <div class="dir-list__root" @click="gotoRoot"><svg-icon name="back" />返回根目录</div>
               <el-tree
                 ref="dirTree"
                 empty-text="暂无目录或设备"
@@ -115,7 +116,7 @@ export default class extends Mixins(DeviceMixin) {
   }
 
   private get defaultKey() {
-    const id = this.$route.query.deviceId || this.$route.query.id
+    const id = this.$route.query.deviceId || this.$route.query.dirId
     if (!id) {
       return null
     }
@@ -233,6 +234,19 @@ export default class extends Mixins(DeviceMixin) {
         }
     }
   }
+
+  /**
+   * 返回根目录
+   */
+  private async gotoRoot() {
+    const dirTree: any = this.$refs.dirTree
+    dirTree.setCurrentKey(null)
+    await DeviceModule.ResetBreadcrumb()
+    this.deviceRouter({
+      id: '0',
+      type: 'dir'
+    })
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -288,6 +302,16 @@ export default class extends Mixins(DeviceMixin) {
             padding: 12px 5px;
             color: $text;
             font-size: 16px;
+          }
+        }
+        &__root {
+          border-bottom: 1px solid $borderGrey;
+          margin: 0 -10px 5px -10px;
+          padding: 0 15px 10px 15px;
+          cursor: pointer;
+          .svg-icon {
+            color: #C0C4CC;
+            margin-right: 10px !important;
           }
         }
         &__tree {
