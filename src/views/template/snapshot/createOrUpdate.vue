@@ -132,18 +132,20 @@ export default class extends Vue {
       if (valid) {
         var res
         this.loading = true
-        if (this.form.templateId) {
-          res = await updateSnapshotTemplate(this.form)
-        } else {
-          res = await createSnapshotTemplate(this.form)
-        }
-        this.loading = false
-        if (res.errorCode) {
-          console.log('error create!!')
+        try {
+          if (this.form.templateId) {
+            res = await updateSnapshotTemplate(this.form)
+          } else {
+            res = await createSnapshotTemplate(this.form)
+          }
+          this.loading = false
+          this.$message.success(this.form.templateId ? '截图模板编辑成功' : '截图模板创建成功')
+        } catch (e) {
+          this.loading = false
+          this.$message.error(e && e.message)
         }
       } else {
-        console.log('error submit!!')
-        return false
+        console.log('校验不通过')
       }
     })
   }
