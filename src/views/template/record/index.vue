@@ -136,7 +136,7 @@ export default class extends Vue {
       this.pager.pageNum = res.pageNum
       this.pager.pageSize = res.pageSize
     } catch (e) {
-      this.$message.error(`获取录制模板失败，原因：${e}`)
+      this.$message.error(`获取录制模板失败，原因：${e && e.message}`)
       this.loading = false
     }
   }
