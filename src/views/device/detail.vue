@@ -340,7 +340,7 @@ export default class extends Vue {
         if (e === '该设备或组没有绑定录制模板') {
           this.emptyText = e
         } else {
-          this.$message.error(e && e.message)
+          this.$message.error(e)
         }
       } finally {
         this.loading.template = false
@@ -380,7 +380,11 @@ export default class extends Vue {
         const res = await getRecordTemplate({ deviceId: this.deviceId })
         this.template.recordTemplate.push(res)
       } catch (e) {
-        this.$message.error(e && e.message)
+        if (e === '该设备或组没有绑定录制模板') {
+          this.emptyText = e
+        } else {
+          this.$message.error(e)
+        }
       } finally {
         this.loading.template = false
       }
