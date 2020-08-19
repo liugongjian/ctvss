@@ -18,7 +18,7 @@
       <div v-if="recordList.length && !loading">
         <div ref="video" class="replay-video" />
         <div class="timeline__current-time">{{ dateFormat(currentTime) }}</div>
-        <div class="timeline--wrap">
+        <div ref="timelineWrap" class="timeline--wrap">
           <div ref="timeline" class="timeline">
             <div
               class="timeline__handle"
@@ -38,6 +38,17 @@
             </div>
           </div>
         </div>
+        <div class="timeline__settings">
+          <label>缩放时间轴:</label>
+          <el-select v-model="timelineRatio" @change="changeTimelineRatio">
+            <el-option :value="1" label="100%" />
+            <el-option :value="2" label="200%" />
+            <el-option :value="4" label="400%" />
+            <el-option :value="6" label="600%" />
+            <el-option :value="8" label="800%" />
+            <el-option :value="10" label="1000%" />
+          </el-select>
+        </div>
       </div>
       <div v-else class="empty-text">
         所选日期暂无录像
@@ -50,7 +61,7 @@
         <el-table-column prop="action" label="操作" width="200" fixed="right">
           <template slot-scope="{row}">
             <el-button v-if="row.loading" type="text" disabled>正在转码...</el-button>
-            <el-button v-if="!row.loading" type="text" @click="changeReplay(row)">下载录像</el-button>
+            <el-button v-if="!row.loading" type="text" @click="downloadReplay(row)">下载录像</el-button>
             <el-button type="text" @click="playReplay(row)">播放录像</el-button>
           </template>
         </el-table-column>
@@ -100,6 +111,7 @@ export default class extends Vue {
       return time.getTime() > Date.now()
     }
   }
+  private timelineRatio = 1
   private dialog = {
     play: false
   }
@@ -135,6 +147,9 @@ export default class extends Vue {
     })
   }
 
+  /**
+   * 初始化
+   */
   private async init() {
     await this.getRecordList()
     this.timePositionList = this.calcVideoPosition(this.recordList)
@@ -176,7 +191,6 @@ export default class extends Vue {
       })
       this.recordList = res.records.map((record: any, index: number) => {
         record.startAt = new Date(record.startTime).getTime()
-        record.videoCoding = 'h264'
         record.loading = false
         record.index = index
         return record
@@ -297,6 +311,14 @@ export default class extends Vue {
     return sec / (24 * 60 * 60) * 100
   }
 
+  private changeTimelineRatio() {
+    const timelineWrap: any = this.$refs.timelineWrap
+    const timeline: any = this.$refs.timeline
+    const originWidth = timelineWrap.clientWidth
+    const zoomWidth = originWidth * this.timelineRatio
+    timeline.style.width = `${zoomWidth}px`
+  }
+
   /**
    * 播放录像（模态框）
    */
@@ -305,7 +327,10 @@ export default class extends Vue {
     this.currentListRecord = record
   }
 
-  private async changeReplay(record: any) {
+  /**
+   * 下载录像
+   */
+  private async downloadReplay(record: any) {
     try {
       record.loading = true
       const res = await getDeviceRecord({
@@ -390,7 +415,7 @@ export default class extends Vue {
     margin-top: 10px;
   }
   .timeline {
-    min-width: 970px;
+    min-width: 1000px;
     position: relative;
     margin-top: 10px;
     padding: 8px 4px;
@@ -430,7 +455,16 @@ export default class extends Vue {
       cursor: pointer;
     }
   }
-
+  .timeline__settings {
+    text-align: right;
+    margin-top: 10px;
+    .el-select {
+      width: 100px;
+    }
+    label {
+      margin-right: 5px;
+    }
+  }
   .empty-text {
     padding-top: 30px;
   }

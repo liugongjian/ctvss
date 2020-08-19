@@ -25,7 +25,7 @@
         <div>
           <el-button type="text" class="template-edit" @click="setRecordTemplate">编辑</el-button>
           <info-list title="录制模板">
-            <el-table v-loading="loading" :data="template.recordTemplate" fit>
+            <el-table v-loading="loading" :data="template.recordTemplate" :empty-text="emptyText" fit>
               <el-table-column prop="templateName" label="模板名称" />
               <el-table-column prop="recordType" label="是否启用自动录制">
                 <template slot-scope="{row}">
@@ -34,9 +34,9 @@
               </el-table-column>
               <el-table-column prop="storeType" label="录制格式">
                 <template slot-scope="{row}">
-                  {{ row.flvParam ? 'flv': '' }}
-                  {{ row.hlsParam ? 'hls': '' }}
-                  {{ row.mpParam ? 'mp4': '' }}
+                  {{ row.flvParam.enable ? 'flv': '' }}
+                  {{ row.hlsParam.enable ? 'hls': '' }}
+                  {{ row.mpParam.enable ? 'mp4': '' }}
                 </template>
               </el-table-column>
             </el-table>
@@ -114,6 +114,7 @@ export default class extends Vue {
   private setSnapshotTemplateDialog = false
   private loading = false
   private recordTemplateId = ''
+  private emptyText = '暂无数据'
 
   private formatSeconds = formatSeconds
   private back() {
@@ -129,7 +130,11 @@ export default class extends Vue {
         const res = await getGroupTemplate({ groupId: this.form.groupId })
         this.template.recordTemplate.push(res)
       } catch (e) {
-        this.$message.error(e)
+        if (e === '该设备或组没有绑定录制模板') {
+          this.emptyText = e
+        } else {
+          this.$message.error(e)
+        }
       } finally {
         this.loading = false
       }

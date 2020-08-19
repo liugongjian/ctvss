@@ -47,8 +47,9 @@ export default class extends Vue {
   private loading = false
   private disabled = false
   private rules = {
-    username: [
-      { required: true, message: '请输入用户名', trigger: 'blur' }
+    userName: [
+      { required: true, message: '请输入用户名', trigger: 'blur' },
+      { validator: this.validateUserName, trigger: 'blur' }
     ],
     newPassword: [
       { validator: this.validatePass, trigger: 'blur' }
@@ -61,7 +62,7 @@ export default class extends Vue {
     ]
   }
   private form: GB28181 = {
-    userType: 'normpal',
+    userType: 'normal',
     userName: '',
     password: '',
     newPassword: '',
@@ -86,6 +87,20 @@ export default class extends Vue {
       callback(new Error('请再次输入密码'))
     } else if (value !== this.form.newPassword) {
       callback(new Error('两次输入密码不一致'))
+    } else {
+      callback()
+    }
+  }
+
+  private validateUserName(rule: any, value: string, callback: any) {
+    if (!value) {
+      callback(new Error('请输入用户名'))
+    } else if (this.form.userType === 'normal') {
+      if (!/^[0-9]+$/.test(value)) {
+        callback(new Error('非匿名用户ID仅能填写数字'))
+      } else {
+        callback()
+      }
     } else {
       callback()
     }
