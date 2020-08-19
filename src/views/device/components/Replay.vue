@@ -270,7 +270,7 @@ export default class extends Vue {
   private handleTimeline(e: any, record: any) {
     const scale = e.offsetX / e.target.clientWidth
     let currentTime = Math.ceil(scale * record.duration)
-    currentTime = currentTime < 0 ? 0 : currentTime
+    currentTime = currentTime <= 0 ? 0 : currentTime
     if (this.currentRecord !== record || !this.player) {
       this.currentRecord = record
       this.player && this.player.disposePlayer()

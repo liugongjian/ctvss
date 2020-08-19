@@ -134,7 +134,7 @@ export default class extends Vue {
         res.outProtocol = res.outProtocol.split(',')
         this.form = res
       } catch (e) {
-        this.$message.error(e)
+        this.$message.error(e && e.message)
       } finally {
         this.loading = false
       }
@@ -185,7 +185,7 @@ export default class extends Vue {
           this.$message.success('新建业务组成功！')
           this.back()
         } catch (e) {
-          this.$message.error(e)
+          this.$message.error(e && e.message)
         } finally {
           this.loading = false
         }

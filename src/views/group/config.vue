@@ -133,7 +133,7 @@ export default class extends Vue {
         if (e === '该设备或组没有绑定录制模板') {
           this.emptyText = e
         } else {
-          this.$message.error(e)
+          this.$message.error(e && e.message)
         }
       } finally {
         this.loading = false
@@ -159,7 +159,7 @@ export default class extends Vue {
         res.outProtocol = res.outProtocol.split(',')
         this.form = res
       } catch (e) {
-        this.$message.error(e)
+        this.$message.error(e && e.message)
       }
     }
   }
@@ -185,7 +185,7 @@ export default class extends Vue {
       const res = await getGroupTemplate({ groupId: this.form.groupId })
       this.template.recordTemplate.push(res)
     } catch (e) {
-      this.$message.error(e)
+      this.$message.error(e && e.message)
     } finally {
       this.loading = false
     }

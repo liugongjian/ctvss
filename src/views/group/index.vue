@@ -114,7 +114,7 @@ export default class extends Vue {
       this.pager.pageNum = res.pageNum
       this.pager.pageSize = res.pageSize
     } catch (e) {
-      this.$message.error(e)
+      this.$message.error(e && e.message)
     } finally {
       this.loading = false
     }
@@ -144,7 +144,7 @@ export default class extends Vue {
       await stopGroup({ groupId: row.groupId })
       await this.getList()
     } catch (e) {
-      this.$message.error(e)
+      this.$message.error(e && e.message)
     }
   }
 
@@ -153,7 +153,7 @@ export default class extends Vue {
       await startGroup({ groupId: row.groupId })
       await this.getList()
     } catch (e) {
-      this.$message.error(e)
+      this.$message.error(e && e.message)
     }
   }
 

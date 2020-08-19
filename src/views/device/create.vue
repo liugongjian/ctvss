@@ -395,7 +395,7 @@ export default class extends Vue {
           this.back()
           this.initDirs()
         } catch (e) {
-          this.$message.error(e)
+          this.$message.error(e && e.message)
         } finally {
           this.submitting = false
         }
