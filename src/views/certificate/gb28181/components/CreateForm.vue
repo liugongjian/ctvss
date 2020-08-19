@@ -94,10 +94,10 @@ export default class extends Vue {
 
   private validateUserName(rule: any, value: string, callback: any) {
     if (!value) {
-      callback('请输入用户名')
+      callback(new Error('请输入用户名'))
     } else if (this.form.userType === 'normal') {
       if (!/^[0-9]+$/.test(value)) {
-        callback('非匿名用户ID仅能填写数字')
+        callback(new Error('非匿名用户ID仅能填写数字'))
       } else {
         callback()
       }

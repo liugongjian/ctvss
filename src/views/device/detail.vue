@@ -154,7 +154,7 @@
           <div>
             <el-button type="text" class="template-edit" @click="openDialog('setRecordTemplate')">编辑</el-button>
             <info-list title="录制模板">
-              <el-table v-loading="loading.template" :data="template.recordTemplate" fit>
+              <el-table v-loading="loading.template" :data="template.recordTemplate" :empty-text="emptyText" fit>
                 <el-table-column prop="templateName" label="模板名称" />
                 <el-table-column prop="recordType" label="是否启用自动录制">
                   <template slot-scope="{row}">
@@ -267,6 +267,7 @@ export default class extends Vue {
     template: false
   }
   private recordTemplateId = ''
+  private emptyText = '暂无数据'
 
   private get isGb() {
     return this.$route.query.inProtocol === 'gb28181'
@@ -336,7 +337,11 @@ export default class extends Vue {
         const res = await getRecordTemplate({ deviceId: this.deviceId })
         this.template.recordTemplate.push(res)
       } catch (e) {
-        this.$message.error(e)
+        if (e === '该设备或组没有绑定录制模板') {
+          this.emptyText = e
+        } else {
+          this.$message.error(e)
+        }
       } finally {
         this.loading.template = false
       }
