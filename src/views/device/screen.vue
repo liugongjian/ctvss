@@ -27,14 +27,7 @@
         />
         <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
           <div class="dir-list" :style="`width: ${dirDrag.width}px`">
-            <div class="dir-list__tools">
-              <el-tooltip class="item" effect="dark" content="添加目录" placement="top" :open-delay="300">
-                <el-button type="text" @click="openDialog('createDir')"><i class="el-icon-plus" /></el-button>
-              </el-tooltip>
-              <el-tooltip v-if="false" class="item" effect="dark" content="目录设置" placement="top" :open-delay="300">
-                <el-button type="text"><i class="el-icon-setting" /></el-button>
-              </el-tooltip>
-            </div>
+            <div class="dir-list__tools" />
             <div v-loading="loading.dir" class="dir-list__tree device-list__max-height" :style="{height: `${maxHeight}px`}">
               <el-tree
                 ref="dirTree"
@@ -46,48 +39,70 @@
                 :load="loadDirs"
                 :props="treeProp"
                 :current-node-key="defaultKey"
-                @node-click="deviceRouter"
+                @node-click="openScreen"
               >
                 <span slot-scope="{node, data}" class="custom-tree-node">
                   <span class="node-name">
                     <svg-icon :name="data.type" color="#6e7c89" />
-                    <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                     {{ node.label }}
+                    <status-badge v-if="checkTreeItemStatus(data)" status="on" />
                   </span>
-                  <div v-if="data.type === 'dir'" class="tools" :style="`left: ${dirDrag.width - 80}px`">
-                    <el-tooltip class="item" effect="dark" content="添加子目录" placement="top" :open-delay="300">
-                      <el-button type="text" @click.stop="openDialog('createDir', data)"><i class="el-icon-plus" /></el-button>
-                    </el-tooltip>
-                    <el-tooltip class="item" effect="dark" content="编辑目录" placement="top" :open-delay="300">
-                      <el-button type="text" @click.stop="openDialog('updateDir', data)"><i class="el-icon-edit" /></el-button>
-                    </el-tooltip>
-                    <el-tooltip class="item" effect="dark" content="删除目录" placement="top" :open-delay="300">
-                      <el-button type="text" @click.stop="deleteDir(data)"><i class="el-icon-delete" /></el-button>
-                    </el-tooltip>
-                  </div>
                 </span>
               </el-tree>
             </div>
           </div>
         </div>
         <div class="device-list__right">
-          <div class="breadcrumb">
-            <span
-              v-for="item in breadcrumb"
-              :key="item.id"
-              class="breadcrumb__item"
-              @click="deviceRouter(item)"
-            >
-              {{ item.label }}
-            </span>
+          <div class="device__tools">
+            <label>分屏数:</label>
+            <el-tooltip content="单分屏" placement="top">
+              <el-button type="text" @click="changeMaxSize(1)"><svg-icon name="screen1" /></el-button>
+            </el-tooltip>
+            <el-tooltip content="四分屏" placement="top">
+              <el-button type="text" @click="changeMaxSize(4)"><svg-icon name="screen4" /></el-button>
+            </el-tooltip>
+            <el-tooltip content="九分屏" placement="top">
+              <el-button type="text" @click="changeMaxSize(9)"><svg-icon name="screen9" /></el-button>
+            </el-tooltip>
+            <el-tooltip content="十六分屏" placement="top">
+              <el-button type="text" @click="changeMaxSize(16)"><svg-icon name="screen16" /></el-button>
+            </el-tooltip>
+            <div class="device__tools--right">
+              <el-tooltip content="全屏" placement="top">
+                <el-button type="text" @click="fullscreen"><svg-icon name="fullscreen" /></el-button>
+              </el-tooltip>
+            </div>
           </div>
-          <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
-            <router-view />
+          <div class="screen-list" :class="[`screen-size--${maxSize}`, {'fullscreen': isFullscreen}]">
+            <div
+              v-for="(screen, index) in screenList"
+              :key="index"
+              v-loading="screen.loading"
+              class="screen-item"
+              :class="{'actived': index === currentIndex}"
+              @click="selectScreen(index)"
+            >
+              <template v-if="screen.loaded">
+                <player
+                  v-if="screen.url"
+                  :type="screen.type"
+                  :url="screen.url"
+                  :auto-play="true"
+                  :has-control="false"
+                />
+                <div v-else class="tip-text">无信号</div>
+                <el-tooltip content="关闭视频">
+                  <el-button class="screen__close" type="text" @click="screen.reset()">
+                    <i class="el-icon-close" />
+                  </el-button>
+                </el-tooltip>
+              </template>
+              <div v-else class="tip-text">请选择设备</div>
+            </div>
           </div>
         </div>
       </div>
     </el-card>
-    <create-dir v-if="dialog.createDir" :parent-dir="parentDir" :current-dir="currentDir" :group-id="currentGroupId" @on-close="closeDialog('createDir', ...arguments)" />
   </div>
 </template>
 <script lang="ts">
@@ -96,23 +111,22 @@ import DeviceMixin from './mixin'
 import { DeviceModule } from '@/store/modules/device'
 import { getGroups } from '@/api/group'
 import { Group } from '@/type/group'
-import CreateDir from './components/dialogs/CreateDir.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
-import { deleteDir } from '@/api/dir'
+import Screen from './models/Screen'
+import Player from './components/Player.vue'
 
 @Component({
-  name: 'Device',
+  name: 'Screen',
   components: {
-    CreateDir,
+    Player,
     StatusBadge
   }
 })
 export default class extends Mixins(DeviceMixin) {
-  private parentDir = null
-  private currentDir = null
-  private dialog = {
-    createDir: false
-  }
+  private currentIndex = 0
+  private maxSize = 4
+  private screenList: Array<Screen> = []
+  private isFullscreen = false
 
   private get defaultKey() {
     const id = this.$route.query.deviceId || this.$route.query.id
@@ -124,25 +138,21 @@ export default class extends Mixins(DeviceMixin) {
 
   private mounted() {
     this.getGroupList()
+    this.initScreen()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
+    window.addEventListener('resize', this.checkFullscreen)
   }
 
   private destroyed() {
     window.removeEventListener('resize', this.calMaxHeight)
-  }
-
-  @Watch('$route.query')
-  private onRouterChange() {
-    if (!this.$route.query.groupId) {
-      this.getGroupList()
-    }
+    window.removeEventListener('resize', this.checkFullscreen)
   }
 
   /**
    * 获取组列表
    */
-  public async getGroupList() {
+  private async getGroupList() {
     this.loading.group = true
     let params = {
       pageSize: 1000
@@ -152,11 +162,11 @@ export default class extends Mixins(DeviceMixin) {
     if (this.groupList.length) {
       if (!this.$route.query.groupId) {
         await DeviceModule.SetGroup(this.groupList[0])
+        this.$route.query.groupId = this.groupList[0]
         this.$router.push({
-          name: 'device-list',
+          name: 'screen',
           query: {
-            groupId: this.currentGroupId,
-            inProtocol: this.currentGroup!.inProtocol
+            groupId: this.currentGroupId
           }
         })
       } else {
@@ -171,67 +181,102 @@ export default class extends Mixins(DeviceMixin) {
   /**
    * 切换业务组
    */
-  public async changeGroup() {
+  private async changeGroup() {
     const currentGroup = this.groupList.find((group: Group) => group.groupId === this.groupId)
     await DeviceModule.SetGroup(currentGroup)
     this.$router.push({
-      name: 'device-list',
+      name: 'screen',
       query: {
-        groupId: this.currentGroupId,
-        inProtocol: this.currentGroup!.inProtocol
+        groupId: this.currentGroupId
       }
     })
     await this.initDirs()
   }
 
   /**
-   * 删除目录
+   * 清空初始化树状态默认方法
    */
-  private deleteDir(dir: any) {
-    this.$alertDelete({
-      type: '目录',
-      msg: `是否确认删除目录"${dir.label}"`,
-      method: deleteDir,
-      payload: { dirId: dir.id },
-      onSuccess: this.initDirs
-    })
+  public async initTreeStatus() {}
+
+  /**
+   * 初始化分屏
+   */
+  private initScreen() {
+    // this.screenList = []
+    // for (let i = 0; i < this.maxSize; i++) {
+    //   const screen = new Screen()
+    //   this.screenList.push(screen)
+    // }
+    let screenList: Array<Screen> = []
+    let startIndex = 0
+    if (this.screenList.length) {
+      screenList = this.screenList.slice(0, this.maxSize)
+      startIndex = screenList.length
+    }
+    for (let i = startIndex; i < this.maxSize; i++) {
+      const screen = new Screen()
+      screenList.push(screen)
+    }
+    this.screenList = screenList
   }
 
   /**
-   * 打开对话框
+   * 打开分屏视频
    */
-  private openDialog(type: string, payload: any) {
-    switch (type) {
-      case 'createDir':
-        if (payload) {
-          this.parentDir = payload
-        }
-        this.dialog.createDir = true
-        break
-      case 'updateDir':
-        if (payload) {
-          this.currentDir = payload
-        }
-        this.dialog.createDir = true
-        break
+  private openScreen(item: any, node?: any) {
+    if (item.type === 'ipc') {
+      const screen = this.screenList[this.currentIndex]
+      if (screen.deviceId) {
+        screen.reset()
+      }
+      screen.deviceId = item.id
+      screen.getUrl()
+      if (this.currentIndex < (this.maxSize - 1)) this.currentIndex++
     }
   }
 
   /**
-   * 关闭对话框
+   * 选择分屏
    */
-  private closeDialog(type: string, payload: any) {
-    // @ts-ignore
-    this.dialog[type] = false
-    switch (type) {
-      case 'createDir':
-      case 'updateDir':
-        this.currentDir = null
-        this.parentDir = null
-        if (payload) {
-          this.initDirs()
-        }
+  private async selectScreen(index: number) {
+    this.currentIndex = index
+  }
+
+  /**
+   * 切换分屏数量
+   */
+  private changeMaxSize(size: number) {
+    this.maxSize = size
+    this.initScreen()
+  }
+
+  /**
+   * 全屏
+   */
+  private fullscreen() {
+    const element: any = document.documentElement
+    if (element.requestFullscreen) {
+      element.requestFullscreen()
+    } else if (element.msRequestFullscreen) {
+      element.msRequestFullscreen()
+    } else if (element.mozRequestFullScreen) {
+      element.mozRequestFullScreen()
+    } else if (element.webkitRequestFullscreen) {
+      element.webkitRequestFullscreen()
     }
+  }
+
+  /**
+   * 检查是否全屏
+   */
+  private checkFullscreen() {
+    const doc: any = document
+    this.isFullscreen = !!(doc.webkitIsFullScreen || doc.mozFullScreen || doc.msFullscreenElement || doc.fullscreenElement)
+  }
+
+  private checkTreeItemStatus(item: any) {
+    if (item.type !== 'ipc') return false
+    return !!this.screenList.find(screen => screen.deviceId === item.id)
   }
 }
 </script>
@@ -311,12 +356,8 @@ export default class extends Mixins(DeviceMixin) {
               position: relative;
             }
             .status-badge {
-              position: absolute;
-              top: -1px;
-              left: -3px;
-              width: 6px;
-              height: 6px;
-              opacity: 0.7;
+              margin-left: 2px;
+              margin-top: -2px;
             }
             .tools {
               position: absolute;
@@ -341,7 +382,8 @@ export default class extends Mixins(DeviceMixin) {
     }
     &__right {
       flex: 1;
-      overflow: hidden;
+      display: flex;
+      flex-direction: column;
       .filter-container__search-group {
         margin-right: 10px;
       }
@@ -364,23 +406,25 @@ export default class extends Mixins(DeviceMixin) {
       background: #f8f8f8;
     }
 
-    .breadcrumb {
+    .device__tools {
       height: 40px;
       line-height: 40px;
-      padding-left: 15px;
+      padding: 0 15px;
       border-bottom: 1px solid $borderGrey;
       background: #f8f8f8;
       transition: padding-left .2s;
-      &__item {
-        cursor: pointer;
+      label {
+        margin-right: 10px;
       }
-      &__item:after {
-        content: '/';
-        color: $textGrey;
-        margin: 0 10px;
+      .el-button {
+        color: #5a5e66;
+        padding: 0;
       }
-      &__item:last-child:after {
-        content: '';
+      &--right {
+        float: right;
+        .el-button {
+          font-size: 16px;
+        }
       }
     }
 
@@ -414,6 +458,60 @@ export default class extends Mixins(DeviceMixin) {
     }
     .device-list__max-height {
       overflow: auto;
+    }
+  }
+  .screen-list {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    .screen-item {
+      display: flex;
+      flex: 1 0 50%;
+      position: relative;
+      background: #333;
+      border: 2px solid #fff;
+      justify-content: center;
+      align-items: center;
+      &.actived {
+        border-color: $primary
+      }
+      ::v-deep .el-loading-mask {
+        background: #333;
+      }
+      .tip-text {
+        color: #fff;
+      }
+      ::v-deep video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        outline: none;
+      }
+      .screen__close {
+        position: absolute;
+        z-index: 10;
+        right: 10px;
+        top: 10px;
+        font-size: 18px;
+        color: #fff;
+        padding: 0;
+      }
+    }
+    &.screen-size--9 .screen-item {
+      flex-basis: 33%;
+    }
+    &.screen-size--16 .screen-item {
+      flex-basis: 25%;
+    }
+    &.fullscreen {
+      position: fixed;
+      z-index: 1001;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
     }
   }
 </style>

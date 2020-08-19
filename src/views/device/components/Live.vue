@@ -30,8 +30,7 @@
 import { Component, Vue, Inject, Watch } from 'vue-property-decorator'
 import { getDevicePreview } from '@/api/device'
 import copy from 'copy-to-clipboard'
-import Ctplayer from '@/utils/player'
-import Player from '@/views/components/Player.vue'
+import Player from './Player.vue'
 
 @Component({
   name: 'DevicePreview',

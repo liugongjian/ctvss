@@ -36,7 +36,7 @@
         <el-button class="el-button-rect" icon="el-icon-refresh" @click="init" />
       </div>
     </div>
-    <el-table v-loading="loading.list || loading.info" :data="deviceList" fit>
+    <el-table v-loading="loading.list || loading.info" :data="deviceList" empty-text="暂无设备" fit>
       <el-table-column type="selection" width="55" />
       <el-table-column v-if="isGb && isNVR" label="通道号/通道名称" min-width="200">
         <template slot-scope="{row}">
@@ -157,7 +157,6 @@
 import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
 import { Device } from '@/type/device'
 import { DeviceStatus, DeviceType, SipTransType, StreamTransType, TransPriority } from '@/dics'
-import TunnelInfo from './components/TunnelInfo.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MoveDir from './components/dialogs/MoveDir.vue'
 import { getDevice, getDevices, getChannels, deleteDevice, startDevice, stopDevice } from '@/api/device'
@@ -165,7 +164,6 @@ import { getDevice, getDevices, getChannels, deleteDevice, startDevice, stopDevi
 @Component({
   name: 'DeviceList',
   components: {
-    TunnelInfo,
     StatusBadge,
     MoveDir
   }

@@ -243,6 +243,30 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
+    path: '/screen',
+    component: Layout,
+    meta: {
+      title: '实时预览',
+      icon: 'tree',
+      roles: ['admin'],
+      alwaysShow: false
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "screen" */ '@/views/device/screen.vue'),
+        name: 'screen',
+        meta: {
+          title: '实时预览',
+          icon: 'stream',
+          breadcrumb: false,
+          roles: ['admin'],
+          activeMenu: '/screen'
+        }
+      }
+    ]
+  },
+  {
     path: '/certificate',
     component: Layout,
     meta: {
