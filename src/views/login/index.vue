@@ -194,8 +194,7 @@ export default class extends Vue {
             query: this.otherQuery
           })
         } catch (err) {
-          console.log(err)
-          this.$message.error('登录失败，失败原因：' + err)
+          this.$message.error('登录失败，失败原因：' + err.message)
         } finally {
           this.loading = false
         }
