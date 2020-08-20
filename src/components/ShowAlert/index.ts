@@ -42,7 +42,7 @@ const install = function(Vue: any) {
             await params.method(params.payload)
             done()
           } catch (e) {
-            this.$message.error(e)
+            this.$message.error(e.message)
           } finally {
             instance.confirmButtonLoading = false
             instance.confirmButtonText = '确定'
