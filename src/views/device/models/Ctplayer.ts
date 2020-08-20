@@ -80,7 +80,9 @@ export default class Ctplayer {
           this.onResizeScreen && this.onResizeScreen(width, height)
         })
         this.player.events.on('Player.timeUpdate', (e: any) => {
-          this.onTimeUpdate && this.onTimeUpdate(e)
+          console.log(e)
+          // 统一返回"秒"为单位
+          this.onTimeUpdate && this.onTimeUpdate(e / 1000)
         })
     }
   }
@@ -144,7 +146,8 @@ export default class Ctplayer {
         this.player.currentTime = time
         break
       case 'h265-hls':
-        this.player.seek(time * 1000)
+        console.log(time)
+        this.player.seek(time)
         break
     }
   }
@@ -232,6 +235,7 @@ export default class Ctplayer {
       playBackRate: 1,
       containerFullPage: false
     })
+    player.muted = true
     return player
   }
 

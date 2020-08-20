@@ -227,6 +227,7 @@ export default class extends Vue {
     const player = new Ctplayer({
       wrap: this.$refs.video,
       autoPlay,
+      hasControl: true,
       source: video.playUrl.hlsUrl,
       type: video.videoCoding === 'h264' ? 'hls' : 'h265-hls',
       onTimeUpdate: (currentTime: number) => {
@@ -270,7 +271,7 @@ export default class extends Vue {
   private handleTimeline(e: any, record: any) {
     const scale = e.offsetX / e.target.clientWidth
     let currentTime = Math.ceil(scale * record.duration)
-    currentTime = currentTime < 0 ? 0 : currentTime
+    currentTime = currentTime <= 0 ? 0 : currentTime
     if (this.currentRecord !== record || !this.player) {
       this.currentRecord = record
       this.player && this.player.disposePlayer()

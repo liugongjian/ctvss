@@ -1,3 +1,4 @@
+<!-- 设备管理页面中的三合一预览（实时、录像、截图）-->
 <template>
   <div class="app-container">
     <div class="preview-wrap">

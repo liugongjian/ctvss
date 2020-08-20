@@ -30,7 +30,7 @@ class Device extends VuexModule implements IDeviceState {
   }
 
   @Action
-  public RestBreadcrumb() {
+  public ResetBreadcrumb() {
     this.SET_BREADCRUMB('')
   }
 

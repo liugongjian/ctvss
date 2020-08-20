@@ -176,7 +176,7 @@ export default class extends Vue {
       this.initDirs()
       this.$message.success('移动设备成功！')
     } catch (e) {
-      this.$message.error(e)
+      this.$message.error(e && e.message)
     } finally {
       this.submitting = false
     }

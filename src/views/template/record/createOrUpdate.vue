@@ -270,7 +270,7 @@ export default class extends Vue {
             this.back()
           } catch (e) {
             this.loading = false
-            this.$message.error(e)
+            this.$message.error(e && e.message)
           }
         }
       } else {

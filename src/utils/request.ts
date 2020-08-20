@@ -1,6 +1,12 @@
 import axios from 'axios'
-import { Message, MessageBox } from 'element-ui'
+import { MessageBox } from 'element-ui'
 import { UserModule } from '@/store/modules/user'
+
+class VSSError extends Error {
+  constructor(public code: string, message: string) {
+    super(message)
+  }
+}
 
 let timeoutPromise: Promise<any>
 const service = axios.create({
@@ -43,12 +49,10 @@ service.interceptors.response.use(
         location.reload() // To prevent bugs from vue-router
       })
     }
-    const message = error.response && error.response.data ? error.response.data.message : null
-    if (message) {
-      return Promise.reject(message)
-    } else {
-      Message.error('服务器异常，请稍后再试。')
-    }
+    const data = error.response && error.response.data
+    const code = data && data.code ? data.code : '-1'
+    const message = data && data.message ? data.message : '服务器异常，请稍后再试。'
+    return Promise.reject(new VSSError(code, message))
   }
 )
 
