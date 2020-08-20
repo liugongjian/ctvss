@@ -142,6 +142,12 @@ export default class extends Vue {
     window.removeEventListener('resize', this.resizeVideo)
   }
 
+  @Watch('$route.query')
+  private onRouterChange() {
+    this.player && this.player.disposePlayer()
+    this.init()
+  }
+
   @Watch('viewModel')
   private onViewModelChange(val: string) {
     this.player && this.player.disposePlayer()
@@ -168,7 +174,7 @@ export default class extends Vue {
     const videoSize = $video.getBoundingClientRect()
     const width = videoSize.width
     const height = width * 9 / 16
-    const maxHeight = document.body.clientHeight - videoSize.top - 132
+    const maxHeight = document.body.clientHeight - videoSize.top - 150
     $video.style.height = Math.min(height, maxHeight) + 'px'
   }
 
