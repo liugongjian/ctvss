@@ -15,7 +15,7 @@
     </div>
     <div class="filter-container clearfix">
       <div class="filter-container__left">
-        <el-button v-if="(!isIPC && !isNVR) || deviceInfo && deviceInfo.createSubDevice === 2" type="primary" @click="goToCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
+        <el-button v-if="isDir || deviceInfo && deviceInfo.createSubDevice === 2" type="primary" @click="goToCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
         <el-button v-if="isNVR" @click="goToDetail(deviceInfo)">查看NVR设备详情</el-button>
         <el-button v-if="isNVR" @click="goToUpdate(deviceInfo)">编辑NVR设备</el-button>
         <el-button disabled>导出</el-button>
@@ -143,6 +143,7 @@
       </el-table-column>
     </el-table>
     <el-pagination
+      v-if="isDir"
       :current-page="pager.pageNum"
       :page-size="pager.pageSize"
       :total="pager.total"
@@ -210,6 +211,10 @@ export default class extends Vue {
     return this.$route.query.type === 'ipc'
   }
 
+  private get isDir() {
+    return this.$route.query.type === 'dir'
+  }
+
   private get groupId() {
     return this.$route.query.groupId
   }
@@ -238,10 +243,10 @@ export default class extends Vue {
 
   private init() {
     if (!this.groupId) return
-    if (!this.deviceId) return
     switch (this.type) {
       case 'ipc':
       case 'nvr':
+        if (!this.deviceId) return
         this.getDeviceInfo(this.type)
         break
       case 'dir':
