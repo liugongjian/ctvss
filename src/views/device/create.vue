@@ -361,7 +361,7 @@ export default class extends Vue {
       if (valid) {
         try {
           this.submitting = true
-          let params = pick(this.form, ['groupId', 'deviceName', 'deviceVendor', 'description'])
+          let params: any = pick(this.form, ['groupId', 'deviceName', 'deviceVendor', 'description'])
           if (this.isUpdate) {
             params = Object.assign(params, pick(this.form, ['deviceId']))
           }
@@ -386,6 +386,7 @@ export default class extends Vue {
             }, pick(this.form, ['userName']))
           }
           if (this.isUpdate) {
+            delete params.deviceType
             await updateDevice(params)
             this.$message.success('修改设备成功！')
           } else {

@@ -234,6 +234,7 @@ export default class extends Vue {
   @Watch('$route.query')
   private onRouterChange() {
     this.deviceInfo = null
+    this.deviceList = []
     this.init()
   }
 
@@ -250,6 +251,7 @@ export default class extends Vue {
         this.getDeviceInfo(this.type)
         break
       case 'dir':
+      default:
         this.getDeviceList()
         break
     }
