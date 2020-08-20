@@ -227,6 +227,7 @@ export default class extends Vue {
     const player = new Ctplayer({
       wrap: this.$refs.video,
       autoPlay,
+      hasControl: true,
       source: video.playUrl.hlsUrl,
       type: video.videoCoding === 'h264' ? 'hls' : 'h265-hls',
       onTimeUpdate: (currentTime: number) => {
