@@ -129,7 +129,7 @@ export default class extends Vue {
         const res = await getGroupTemplate({ groupId: this.form.groupId })
         this.template.recordTemplate.push(res)
       } catch (e) {
-        if (e && e.code !== 3) {
+        if (e && e.code !== 5) {
           this.$message.error(e && e.message)
         }
       } finally {
@@ -182,7 +182,7 @@ export default class extends Vue {
       const res = await getGroupTemplate({ groupId: this.form.groupId })
       this.template.recordTemplate.push(res)
     } catch (e) {
-      if (e && e.code !== 3) {
+      if (e && e.code !== 5) {
         this.$message.error(e && e.message)
       }
     } finally {
