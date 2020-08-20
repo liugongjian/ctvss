@@ -15,7 +15,7 @@
     </div>
     <div class="filter-container clearfix">
       <div class="filter-container__left">
-        <el-button v-if="!isNVR || deviceInfo && deviceInfo.createSubDevice === 2" type="primary" @click="goToCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
+        <el-button v-if="isDir || deviceInfo && deviceInfo.createSubDevice === 2" type="primary" @click="goToCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
         <el-button v-if="isNVR" @click="goToDetail(deviceInfo)">查看NVR设备详情</el-button>
         <el-button v-if="isNVR" @click="goToUpdate(deviceInfo)">编辑NVR设备</el-button>
         <el-button disabled>导出</el-button>
@@ -124,7 +124,7 @@
       <el-table-column label="操作" width="270" fixed="right">
         <template slot-scope="scope">
           <el-button type="text" :disabled="scope.row.deviceType === 'nvr'" @click="goToPreview('preview', scope.row)">实时预览</el-button>
-          <el-button type="text" disabled @click="goToPreview('replay', scope.row)">录像回放</el-button>
+          <el-button type="text" :disabled="scope.row.deviceType === 'nvr'" @click="goToPreview('replay', scope.row)">录像回放</el-button>
           <el-button type="text" disabled @click="goToPreview('snapshot', scope.row)">查看截图</el-button>
           <el-dropdown @command="handleMore">
             <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
@@ -143,6 +143,7 @@
       </el-table-column>
     </el-table>
     <el-pagination
+      v-if="isDir"
       :current-page="pager.pageNum"
       :page-size="pager.pageSize"
       :total="pager.total"
@@ -198,8 +199,20 @@ export default class extends Vue {
     return this.$route.query.inProtocol === 'gb28181'
   }
 
+  private get type() {
+    return this.$route.query.type
+  }
+
   private get isNVR() {
     return this.$route.query.type === 'nvr'
+  }
+
+  private get isIPC() {
+    return this.$route.query.type === 'ipc'
+  }
+
+  private get isDir() {
+    return this.$route.query.type === 'dir'
   }
 
   private get groupId() {
@@ -229,27 +242,73 @@ export default class extends Vue {
   }
 
   private init() {
-    this.getNVRDeviceInfo()
-    this.getDeviceList()
+    if (!this.groupId) return
+    switch (this.type) {
+      case 'ipc':
+      case 'nvr':
+        if (!this.deviceId) return
+        this.getDeviceInfo(this.type)
+        break
+      case 'dir':
+        this.getDeviceList()
+        break
+    }
   }
 
-  private async getNVRDeviceInfo() {
-    if (this.isNVR && this.deviceId) {
-      try {
-        this.loading.info = true
-        this.deviceInfo = await getDevice({
-          deviceId: this.deviceId
-        })
+  /**
+   * 获取设备信息
+   */
+  private async getDeviceInfo(type: string) {
+    try {
+      this.loading.info = true
+      const res = await getDevice({
+        deviceId: this.deviceId
+      })
+      if (type === 'nvr') {
+        this.deviceInfo = res
         this.deviceList = this.deviceInfo.deviceChannels.map((channel: any) => {
           channel.deviceType = 'ipc'
           return channel
         })
-      } catch (e) {
+      } else if (type === 'ipc') {
         this.deviceInfo = null
-        this.deviceList = []
-      } finally {
-        this.loading.info = false
+        if (res.parentDeviceId && res.deviceChannels.length) {
+          res.deviceName = res.deviceChannels[0].channelName
+        }
+        this.deviceList = [ res ]
       }
+    } catch (e) {
+      this.deviceInfo = null
+      this.deviceList = []
+    } finally {
+      this.loading.info = false
+    }
+  }
+
+  /**
+   * 加载设备列表
+   */
+  private async getDeviceList() {
+    try {
+      let params: any = {
+        groupId: this.groupId,
+        pageNum: this.pager.pageNum,
+        pageSize: this.pager.pageSize
+      }
+      let res: any
+      this.loading.list = true
+      params.dirId = this.dirId ? this.dirId : 0
+      res = await getDevices(params)
+      this.deviceList = res.devices
+      this.pager = {
+        pageNum: res.pageNum,
+        pageSize: res.pageSize,
+        total: res.totalNum
+      }
+    } catch (e) {
+      this.deviceList = []
+    } finally {
+      this.loading.list = false
     }
   }
 
@@ -261,37 +320,6 @@ export default class extends Vue {
   private async handleCurrentChange(val: number) {
     this.pager.pageNum = val
     await this.getDeviceList()
-  }
-
-  /**
-   * 加载设备列表
-   */
-  private async getDeviceList() {
-    if (this.isNVR) return
-    if (!this.groupId) return
-    try {
-      let params: any = {
-        groupId: this.groupId,
-        pageNum: this.pager.pageNum,
-        pageSize: this.pager.pageSize
-      }
-      let res: any
-      this.loading.list = true
-      if (!this.isNVR) {
-        params.dirId = this.dirId ? this.dirId : 0
-        res = await getDevices(params)
-        this.deviceList = res.devices
-      }
-      this.pager = {
-        pageNum: res.pageNum,
-        pageSize: res.pageSize,
-        total: res.totalNum
-      }
-    } catch (e) {
-      this.deviceList = []
-    } finally {
-      this.loading.list = false
-    }
   }
 
   /**

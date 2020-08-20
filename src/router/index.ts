@@ -267,6 +267,30 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
+    path: '/replay',
+    component: Layout,
+    meta: {
+      title: '录像回放',
+      icon: 'tree',
+      roles: ['admin'],
+      alwaysShow: false
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "replay" */ '@/views/device/replay.vue'),
+        name: 'replay',
+        meta: {
+          title: '录像回放',
+          icon: 'stream',
+          breadcrumb: false,
+          roles: ['admin'],
+          activeMenu: '/replay'
+        }
+      }
+    ]
+  },
+  {
     path: '/certificate',
     component: Layout,
     meta: {

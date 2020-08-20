@@ -275,6 +275,9 @@ export default class extends Mixins(DeviceMixin) {
     this.isFullscreen = !!(doc.webkitIsFullScreen || doc.mozFullScreen || doc.msFullscreenElement || doc.fullscreenElement)
   }
 
+  /**
+   * 检查设备树中的设备项是否选择
+   */
   private checkTreeItemStatus(item: any) {
     if (item.type !== 'ipc') return false
     return !!this.screenList.find(screen => screen.deviceId === item.id)
@@ -282,129 +285,23 @@ export default class extends Mixins(DeviceMixin) {
 }
 </script>
 <style lang="scss" scoped>
-  .filter-group {
-    width: 300px;
-    ::v-deep .el-input--medium .el-input__inner {
-      height: 50px;
-      line-height: 50px;
-      font-size: 18px;
-    }
-  }
-  .device-list-wrap {
-    ::v-deep .el-card__body {
-      padding: 0;
-    }
-  }
   .device-list {
-    position: relative;
-    display: flex;
-
-    &__handle {
-      position: absolute;
-      top: 0;
-      margin-left: -8px;
-      z-index: 100;
-      height: 100%;
-      width: 8px;
-      border-right: 1px solid $borderGrey;
-      transition: border .1s;
-      cursor: ew-resize;
-
-      &:hover {
-        border-right-color: #ccc;
-      }
-    }
-
     &__left {
-      overflow: hidden;
-      transition: width .2s;
-
       .dir-list {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        &__tools {
-          height: 40px;
-          border-bottom: 1px solid $borderGrey;
-          text-align: right;
-          padding-right: 5px;
-          background: #f8f8f8;
-          .el-button--text {
-            margin: 0;
-            padding: 12px 5px;
-            color: $text;
-            font-size: 16px;
-          }
-        }
         &__tree {
-          padding: 10px;
-
-          ::v-deep .el-tree-node__content {
-            position: relative;
-            &:hover {
-              .tools {
-                display: block;
-              }
-            }
-          }
-
-          .svg-icon {
-            margin-right: 5px;
-          }
-
           .custom-tree-node {
-            .node-name {
-              position: relative;
-            }
             .status-badge {
               margin-left: 2px;
               margin-top: -2px;
             }
-            .tools {
-              position: absolute;
-              top: 0;
-              display: none;
-              background: #F5F7FA;
-              .el-button {
-                color: $text;
-                padding: 5px 0;
-              }
-              .el-button + .el-button {
-                margin-left: 5px;
-              }
-            }
           }
         }
-      }
-      .el-tree {
-        flex: 1;
-        background: none;
       }
     }
     &__right {
       flex: 1;
       display: flex;
       flex-direction: column;
-      .filter-container__search-group {
-        margin-right: 10px;
-      }
-    }
-    &__container {
-      padding: 15px;
-    }
-
-    &__expand {
-      position: absolute;
-      border: none;
-      border-radius: 0;
-      left: 0;
-      top: 0;
-      z-index: 11;
-      height: 39px;
-      border-right: 1px solid $borderGrey;
-      font-size: 18px;
-      padding: 10px 15px;
-      background: #f8f8f8;
     }
 
     .device__tools {
@@ -427,38 +324,6 @@ export default class extends Mixins(DeviceMixin) {
           font-size: 16px;
         }
       }
-    }
-
-    &--dragging {
-      cursor: ew-resize;
-
-      .device-list__left {
-        transition: none;
-      }
-      * {
-        user-select:none;
-      }
-    }
-
-    &--collapsed {
-      .device-list__handle {
-        display: none;
-      }
-      .device-list__left {
-        width: 0px!important;
-      }
-      .breadcrumb {
-        padding-left: 70px;
-      }
-      .device-list__expand {
-        left: 1px;
-        i {
-          transform: rotate(180deg);
-        }
-      }
-    }
-    .device-list__max-height {
-      overflow: auto;
     }
   }
   .screen-list {
