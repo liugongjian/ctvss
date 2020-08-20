@@ -156,6 +156,7 @@ export default class extends Vue {
   }
 
   private async handleFilter() {
+    this.pager.pageNum = 1
     await this.getList()
   }
 
