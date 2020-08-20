@@ -179,10 +179,11 @@ export default class extends Vue {
         try {
           if (this.form.groupId) {
             res = await updateGroup(params)
+            this.$message.success('修改业务组成功！')
           } else {
             res = await createGroup(params)
+            this.$message.success('新建业务组成功！')
           }
-          this.$message.success('新建业务组成功！')
           this.back()
         } catch (e) {
           this.$message.error(e && e.message)
