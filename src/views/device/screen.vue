@@ -49,8 +49,9 @@
                 <span slot-scope="{node, data}" class="custom-tree-node">
                   <span class="node-name">
                     <svg-icon :name="data.type" color="#6e7c89" />
+                    <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                     {{ node.label }}
-                    <status-badge v-if="checkTreeItemStatus(data)" status="on" />
+                    <i v-if="checkTreeItemStatus(data)" class="el-icon-check" />
                   </span>
                 </span>
               </el-tree>
@@ -291,15 +292,8 @@ export default class extends Mixins(DeviceMixin) {
 <style lang="scss" scoped>
   .device-list {
     &__left {
-      .dir-list {
-        &__tree {
-          .custom-tree-node {
-            .status-badge {
-              margin-left: 2px;
-              margin-top: -2px;
-            }
-          }
-        }
+      .el-icon-check {
+        color: $success;
       }
     }
     &__right {
