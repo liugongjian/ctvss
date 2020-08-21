@@ -1,5 +1,6 @@
 <template>
   <div v-loading="loading" class="live-wrap">
+    <div class="empty-text">{{ errorMessage }}</div>
     <div class="preview-player">
       <player v-if="address" ref="video" :type="videoCoding" :url="address.flvUrl" :auto-play="true" />
     </div>
@@ -44,6 +45,7 @@ export default class extends Vue {
   private videoCoding?: string = ''
   private playerTimer: any = null
   private loading = false
+  private errorMessage = ''
 
   private get deviceId() {
     return this.$route.query.deviceId
@@ -94,6 +96,7 @@ export default class extends Vue {
   private async getDevicePreview() {
     try {
       this.loading = true
+      this.errorMessage = ''
       this.address = null
       const res = await getDevicePreview({
         deviceId: this.deviceId
@@ -101,7 +104,7 @@ export default class extends Vue {
       this.address = res.playUrl
       this.videoCoding = res.videoCoding === 'h264' ? 'flv' : 'h265-flv'
     } catch (e) {
-      console.log(e)
+      this.errorMessage = e.message
     } finally {
       this.loading = false
     }

@@ -332,7 +332,7 @@ export default class extends Vue {
       id: this.dirId,
       deviceId: this.deviceId,
       type: 'create',
-      isNVR: this.isNVR
+      isChannel: this.isNVR
     })
   }
 

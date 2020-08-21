@@ -28,6 +28,9 @@
         <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
           <div class="dir-list" :style="`width: ${dirDrag.width}px`">
             <div class="dir-list__tools">
+              <el-tooltip class="item" effect="dark" content="刷新目录" placement="top" :open-delay="300">
+                <el-button type="text" @click="initDirs"><i class="el-icon-refresh" /></el-button>
+              </el-tooltip>
               <el-tooltip class="item" effect="dark" content="添加目录" placement="top" :open-delay="300">
                 <el-button type="text" @click="openDialog('createDir')"><i class="el-icon-plus" /></el-button>
               </el-tooltip>
