@@ -28,7 +28,11 @@
         />
         <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
           <div class="dir-list" :style="`width: ${dirDrag.width}px`">
-            <div class="dir-list__tools" />
+            <div class="dir-list__tools">
+              <el-tooltip class="item" effect="dark" content="刷新目录" placement="top" :open-delay="300">
+                <el-button type="text" @click="initDirs"><i class="el-icon-refresh" /></el-button>
+              </el-tooltip>
+            </div>
             <div v-loading="loading.dir" class="dir-list__tree device-list__max-height" :style="{height: `${maxHeight}px`}">
               <el-tree
                 ref="dirTree"

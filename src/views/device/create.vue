@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div v-loading="loading.device" class="app-container">
     <el-page-header :content="breadCrumbContent" @back="back" />
     <el-form
       ref="dataForm"
@@ -8,7 +8,7 @@
       label-position="right"
       label-width="140px"
     >
-      <template v-if="!isNVR">
+      <template v-if="!isChannel">
         <el-form-item v-if="currentGroup" label="业务组:">
           {{ currentGroup.groupName }}
         </el-form-item>
@@ -214,7 +214,8 @@ export default class extends Vue {
     createGb28181Certificate: false
   }
   private loading = {
-    account: false
+    account: false,
+    device: false
   }
   private submitting = false
 
@@ -238,13 +239,13 @@ export default class extends Vue {
     return this.$route.query.dirId ? this.$route.query.dirId.toString() : '0'
   }
 
-  private get isNVR() {
-    return this.$route.query.isNVR || (this.form.parentDeviceId && this.form.parentDeviceId !== '-1')
+  private get isChannel() {
+    return this.$route.query.isChannel || (this.form.parentDeviceId && this.form.parentDeviceId !== '-1')
   }
 
   private get breadCrumbContent() {
     let title = this.$route.meta.title
-    if (this.isNVR) {
+    if (this.isChannel) {
       title = title.replace('设备', '子设备')
     }
     return title
@@ -256,15 +257,31 @@ export default class extends Vue {
 
   private async mounted() {
     this.form.groupId = this.groupId
-    if (this.isUpdate || this.isNVR) {
+    if (this.isUpdate || this.isChannel) {
+      await this.getDeviceInfo()
+    } else {
+      this.form.dirId = this.dirId
+    }
+    this.getGbAccounts()
+  }
+
+  /**
+   * 加载设备信息
+   */
+  private async getDeviceInfo() {
+    try {
+      this.loading.device = true
       this.form.deviceId = this.deviceId
       const info = await getDevice({
         deviceId: this.form.deviceId
       })
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'deviceType', 'deviceVendor',
-          'gbVersion', 'deviceIp', 'devicePort', 'channelSize', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'userName']))
-        if (this.isNVR) {
+          'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'userName']))
+        if (info.deviceStats) {
+          this.form.channelSize = info.deviceStats.channelSize
+        }
+        if (this.isChannel) {
           if (info.deviceChannels.length) {
             const channel = info.deviceChannels[0]
             this.form.channelNum = channel.channelNum
@@ -274,10 +291,11 @@ export default class extends Vue {
       } else {
         this.form = Object.assign(this.form, pick(info, ['userName']))
       }
-    } else {
-      this.form.dirId = this.dirId
+    } catch (e) {
+      this.$message.error(e.message)
+    } finally {
+      this.loading.device = false
     }
-    this.getGbAccounts()
   }
 
   /**
@@ -321,7 +339,7 @@ export default class extends Vue {
         type: 'detail',
         id: this.$route.query.deviceId
       })
-    } else if (this.isNVR) {
+    } else if (this.isChannel) {
       this.deviceRouter({
         type: 'nvr',
         id: this.$route.query.deviceId
@@ -365,7 +383,7 @@ export default class extends Vue {
           if (this.isUpdate) {
             params = Object.assign(params, pick(this.form, ['deviceId']))
           }
-          if (!this.isNVR) {
+          if (!this.isChannel) {
             // 非NVR子设备
             params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'gbVersion', 'deviceIp', 'devicePort', 'pullType', 'transPriority', 'userName']))
             if (this.form.deviceType === 'nvr') {
