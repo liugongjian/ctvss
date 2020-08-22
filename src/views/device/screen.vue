@@ -345,13 +345,18 @@ export default class extends Mixins(DeviceMixin) {
       .tip-text {
         color: #fff;
       }
-      ::v-deep video {
+      ::v-deep video,
+      ::v-deep .video-wrap {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
         outline: none;
+      }
+      ::v-deep .video-wrap {
+        display: flex;
+        align-items: center;
       }
       .screen__close {
         position: absolute;
