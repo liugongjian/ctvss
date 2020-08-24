@@ -46,12 +46,12 @@
                 :current-node-key="defaultKey"
                 @node-click="openScreen"
               >
-                <span slot-scope="{node, data}" class="custom-tree-node">
+                <span slot-scope="{node, data}" class="custom-tree-node" :class="{'offline': data.type === 'ipc' && data.streamStatus !== 'on'}">
                   <span class="node-name">
                     <svg-icon :name="data.type" color="#6e7c89" />
                     <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                     {{ node.label }}
-                    <i v-if="checkTreeItemStatus(data)" class="el-icon-check" />
+                    <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
                   </span>
                 </span>
               </el-tree>
@@ -292,10 +292,14 @@ export default class extends Mixins(DeviceMixin) {
 <style lang="scss" scoped>
   .device-list {
     &__left {
-      .el-icon-check {
+      .offline .node-name {
+        color: $textGrey;
+      }
+      .playing {
         color: $success;
       }
     }
+
     &__right {
       flex: 1;
       display: flex;
