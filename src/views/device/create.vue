@@ -29,7 +29,7 @@
           </el-select>
         </el-form-item>
         <el-form-item v-if="form.deviceType === 'nvr'" label="自动创建子设备:" prop="createSubDevice" class="form-with-tip">
-          <el-switch v-model="form.createSubDevice" :active-value="1" :inactive-value="2" />
+          <el-switch v-model="form.createSubDevice" :active-value="1" :inactive-value="2" :disabled="isUpdate" />
           <div class="form-tip">当开启自动创建NVR子设备时，系统将自动为子设备分配通道号和通道名称。</div>
         </el-form-item>
         <el-form-item v-if="form.deviceType === 'nvr'" label="子设备数量:" prop="channelSize">
