@@ -135,7 +135,7 @@
   </div>
 </template>
 <script lang='ts'>
-import { Component, Vue, Inject } from 'vue-property-decorator'
+import { Component, Vue, Inject, Watch } from 'vue-property-decorator'
 import { pick } from 'lodash'
 import { DeviceModule } from '@/store/modules/device'
 import { DeviceType } from '@/dics'
@@ -240,7 +240,7 @@ export default class extends Vue {
   }
 
   private get isChannel() {
-    return this.$route.query.isChannel || (this.form.parentDeviceId && this.form.parentDeviceId !== '-1')
+    return this.$route.query.isChannel === 'true' || (this.form.parentDeviceId && this.form.parentDeviceId !== '-1')
   }
 
   private get breadCrumbContent() {
@@ -255,6 +255,13 @@ export default class extends Vue {
     return DeviceModule.breadcrumb
   }
 
+  @Watch('currentGroup')
+  private onGroupChange() {
+    if (this.currentGroup) {
+      this.form.pullType = this.currentGroup.pullType!
+    }
+  }
+
   private async mounted() {
     this.form.groupId = this.groupId
     if (this.isUpdate || this.isChannel) {
@@ -263,6 +270,7 @@ export default class extends Vue {
       this.form.dirId = this.dirId
     }
     this.getGbAccounts()
+    this.onGroupChange()
   }
 
   /**

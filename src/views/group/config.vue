@@ -10,6 +10,7 @@
           <info-list-item label="业务组描述:">{{ form.description }}</info-list-item>
           <info-list-item label="服务区域:">{{ form.region }}</info-list-item>
           <info-list-item label="接入类型:">{{ InProtocolType[form.inProtocol] }}</info-list-item>
+          <info-list-item label="自动拉流:">{{ PullType[form.pullType] }}</info-list-item>
           <info-list-item
             label="播放类型:"
           >
@@ -77,7 +78,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Group } from '@/type/group'
 import { RecordTemplate } from '@/type/template'
-import { OutProtocolType, InProtocolType } from '@/dics'
+import { OutProtocolType, InProtocolType, PullType } from '@/dics'
 import SetRecordTemplate from '../components/dialogs/SetRecordTemplate.vue'
 import SetSnapshotTemplate from '../components/dialogs/SetSnapshotTemplate.vue'
 import { queryGroup, getGroupTemplate } from '@/api/group'
@@ -94,6 +95,7 @@ export default class extends Vue {
   private activeName = 'info'
   private InProtocolType = InProtocolType
   private OutProtocolType = OutProtocolType
+  private PullType = PullType
   private form: Group = {
     groupId: '',
     groupName: '',
