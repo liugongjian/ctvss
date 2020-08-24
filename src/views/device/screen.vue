@@ -48,7 +48,7 @@
               >
                 <span slot-scope="{node, data}" class="custom-tree-node" :class="{'offline': data.type === 'ipc' && data.streamStatus !== 'on'}">
                   <span class="node-name">
-                    <svg-icon :name="data.type" color="#6e7c89" />
+                    <svg-icon :name="data.type" />
                     <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                     {{ node.label }}
                     <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
@@ -97,6 +97,7 @@
                   :has-control="false"
                 />
                 <div v-else class="tip-text">无信号</div>
+                <div class="device-name">{{ screen.deviceName }}</div>
                 <el-tooltip content="关闭视频">
                   <el-button class="screen__close" type="text" @click="screen.reset()">
                     <i class="el-icon-close" />
@@ -230,12 +231,13 @@ export default class extends Mixins(DeviceMixin) {
    * 打开分屏视频
    */
   private openScreen(item: any, node?: any) {
-    if (item.type === 'ipc') {
+    if (item.type === 'ipc' && item.streamStatus === 'on') {
       const screen = this.screenList[this.currentIndex]
       if (screen.deviceId) {
         screen.reset()
       }
       screen.deviceId = item.id
+      screen.deviceName = item.label
       screen.getUrl()
       if (this.currentIndex < (this.maxSize - 1)) this.currentIndex++
     }
@@ -296,9 +298,10 @@ export default class extends Mixins(DeviceMixin) {
         color: $success;
       }
       .offline .node-name {
-        color: $textGrey;
-        .playing {
-          color: #bbb;
+        cursor: not-allowed;
+        color: #aaa;
+        .svg-icon {
+          color: #ccc;
         }
       }
     }
@@ -373,6 +376,13 @@ export default class extends Mixins(DeviceMixin) {
         font-size: 18px;
         color: #fff;
         padding: 0;
+      }
+      .device-name {
+        position: absolute;
+        z-index: 10;
+        left: 15px;
+        top: 15px;
+        color: #fff;
       }
     }
     &.screen-size--9 .screen-item {
