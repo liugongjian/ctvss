@@ -210,7 +210,7 @@ export default class DeviceMixin extends Vue {
         query = {
           dirId: item.id,
           deviceId: item.deviceId,
-          isChannel: item.isChannel
+          isChannel: item.isChannel.toString()
         }
         break
       case 'update':

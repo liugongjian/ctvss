@@ -274,7 +274,7 @@ export default class extends Vue {
         })
       } else if (type === 'ipc') {
         this.deviceInfo = null
-        if (res.parentDeviceId && res.deviceChannels.length) {
+        if (res.parentDeviceId !== '-1' && res.deviceChannels.length) {
           res.deviceName = res.deviceChannels[0].channelName
         }
         this.deviceList = [ res ]

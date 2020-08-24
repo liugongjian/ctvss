@@ -178,13 +178,7 @@ export default class extends Mixins(DeviceMixin) {
   public async changeGroup() {
     const currentGroup = this.groupList.find((group: Group) => group.groupId === this.groupId)
     await DeviceModule.SetGroup(currentGroup)
-    this.$router.push({
-      name: 'device-list',
-      query: {
-        groupId: this.currentGroupId,
-        inProtocol: this.currentGroup!.inProtocol
-      }
-    })
+    this.gotoRoot()
     await this.initDirs()
   }
 
