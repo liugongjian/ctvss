@@ -49,8 +49,9 @@
                 <span slot-scope="{node, data}" class="custom-tree-node">
                   <span class="node-name">
                     <svg-icon :name="data.type" color="#6e7c89" />
+                    <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                     {{ node.label }}
-                    <status-badge v-if="checkTreeItemStatus(data)" status="on" />
+                    <i v-if="checkTreeItemStatus(data)" class="el-icon-check" />
                   </span>
                 </span>
               </el-tree>
@@ -291,15 +292,8 @@ export default class extends Mixins(DeviceMixin) {
 <style lang="scss" scoped>
   .device-list {
     &__left {
-      .dir-list {
-        &__tree {
-          .custom-tree-node {
-            .status-badge {
-              margin-left: 2px;
-              margin-top: -2px;
-            }
-          }
-        }
+      .el-icon-check {
+        color: $success;
       }
     }
     &__right {
@@ -351,13 +345,18 @@ export default class extends Mixins(DeviceMixin) {
       .tip-text {
         color: #fff;
       }
-      ::v-deep video {
+      ::v-deep video,
+      ::v-deep .video-wrap {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
         outline: none;
+      }
+      ::v-deep .video-wrap {
+        display: flex;
+        align-items: center;
       }
       .screen__close {
         position: absolute;
