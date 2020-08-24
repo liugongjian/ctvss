@@ -292,11 +292,14 @@ export default class extends Mixins(DeviceMixin) {
 <style lang="scss" scoped>
   .device-list {
     &__left {
-      .offline .node-name {
-        color: $textGrey;
-      }
       .playing {
         color: $success;
+      }
+      .offline .node-name {
+        color: $textGrey;
+        .playing {
+          color: #bbb;
+        }
       }
     }
 
