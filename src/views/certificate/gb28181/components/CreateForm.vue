@@ -149,7 +149,13 @@ export default class extends Vue {
     if (params.userName) {
       this.disabled = true
       this.$set(this.form, 'userName', params.userName)
-      this.$set(this.form, 'userType', params.userType)
+      try {
+        const res = await queryCertificate({ userName: this.form.userName })
+        this.$set(this.form, 'userType', res.userType)
+        this.$set(this.form, 'description', res.description)
+      } catch (e) {
+        this.$message.error(e && e.message)
+      }
     }
   }
 }

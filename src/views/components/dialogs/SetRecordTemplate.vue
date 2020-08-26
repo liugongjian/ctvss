@@ -28,7 +28,7 @@
       </el-table-column>
       <el-table-column label="操作">
         <template slot-scope="{row}">
-          <el-button v-if="row.templateId !== bindTemplateId" type="text" @click="bind(row)" :disabled="bindTemplateId.length !== 0">绑定</el-button>
+          <el-button v-if="row.templateId !== bindTemplateId" type="text" :disabled="bindTemplateId.length !== 0" @click="bind(row)">绑定</el-button>
           <el-button v-else type="text" @click="unbind(row)">解绑</el-button>
         </template>
       </el-table-column>
@@ -58,9 +58,9 @@ export default class extends Vue {
     {
       templateId: '0001',
       templateName: '30分钟录制',
-      flvParam: {enable:0},
-      hlsParam:{enable:0},
-      mpParam:{enable:0}
+      flvParam: { enable: 0 },
+      hlsParam: { enable: 0 },
+      mpParam: { enable: 0 }
     }
   ]
   private formatSeconds = formatSeconds
