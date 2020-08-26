@@ -123,8 +123,7 @@ export default class extends Vue {
     this.$router.push({
       name: 'gb28181-update',
       params: {
-        userName: row.userName,
-        userType: row.userType!
+        userName: row.userName
       }
     })
   }
