@@ -11,9 +11,7 @@
           <info-list-item label="服务区域:">{{ form.region }}</info-list-item>
           <info-list-item label="接入类型:">{{ InProtocolType[form.inProtocol] }}</info-list-item>
           <info-list-item label="自动拉流:">{{ PullType[form.pullType] }}</info-list-item>
-          <info-list-item
-            label="播放类型:"
-          >
+          <info-list-item label="播放类型:">
             {{ form.outProtocol.map(item => OutProtocolType[item]).join(',') }}
           </info-list-item>
           <info-list-item label="SIP服务器ID:">{{ form.sipId }}</info-list-item>

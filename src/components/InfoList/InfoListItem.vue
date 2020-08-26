@@ -31,5 +31,8 @@ export default class extends Vue {
       padding-right: 10px;
       box-sizing: content-box;
     }
+    &--val {
+      word-break: break-word;
+    }
   }
 </style>
