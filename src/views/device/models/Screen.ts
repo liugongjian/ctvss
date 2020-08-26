@@ -2,6 +2,7 @@ import { getDevicePreview } from '@/api/device'
 
 export default class Screen {
   public deviceId: string
+  public deviceName?: string
   private url?: string
   private type?: string
   private loading: boolean
