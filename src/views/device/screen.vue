@@ -97,12 +97,14 @@
                   :has-control="false"
                 />
                 <div v-else class="tip-text">无信号</div>
-                <div class="device-name">{{ screen.deviceName }}</div>
-                <el-tooltip content="关闭视频">
-                  <el-button class="screen__close" type="text" @click="screen.reset()">
-                    <i class="el-icon-close" />
-                  </el-button>
-                </el-tooltip>
+                <div class="screen-header">
+                  <div class="device-name">{{ screen.deviceName }}</div>
+                  <el-tooltip content="关闭视频">
+                    <el-button class="screen__close" type="text" @click="screen.reset()">
+                      <i class="el-icon-close" />
+                    </el-button>
+                  </el-tooltip>
+                </div>
               </template>
               <div v-else class="tip-text">请选择设备</div>
             </div>
@@ -367,6 +369,7 @@ export default class extends Mixins(DeviceMixin) {
       ::v-deep .video-wrap {
         display: flex;
         align-items: center;
+        overflow: hidden;
       }
       .screen__close {
         position: absolute;
