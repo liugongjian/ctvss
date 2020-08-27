@@ -23,7 +23,9 @@
           <size-select class="right-menu-item hover-effect" />
         </el-tooltip>
       </template> -->
-
+      <div class="links">
+        <a target="_blank" href="/document/api/">API文档</a>
+      </div>
       <el-dropdown
         class="avatar-container right-menu-item hover-effect"
         trigger="click"
@@ -133,6 +135,19 @@ export default class extends Vue {
     vertical-align: top;
   }
 
+  .links {
+    display: inline-block;
+    vertical-align: text-bottom;
+    margin-right: 15px;
+
+    a {
+      color: $text;
+    }
+    a:hover {
+      color: $primary;
+    }
+  }
+
   .right-menu {
     float: right;
     height: 100%;
@@ -146,8 +161,7 @@ export default class extends Vue {
       display: inline-block;
       padding: 0 8px;
       height: 100%;
-      font-size: 16px;
-      color: #5a5e66;
+      color: $text;
       vertical-align: text-bottom;
 
       &.hover-effect {
