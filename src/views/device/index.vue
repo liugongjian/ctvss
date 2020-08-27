@@ -191,7 +191,12 @@ export default class extends Mixins(DeviceMixin) {
       msg: `是否确认删除目录"${dir.label}"`,
       method: deleteDir,
       payload: { dirId: dir.id },
-      onSuccess: this.initDirs
+      onSuccess: () => {
+        this.initDirs()
+        if (dir.id === this.$route.query.dirId) {
+          this.gotoRoot()
+        }
+      }
     })
   }
 

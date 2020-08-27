@@ -311,7 +311,7 @@ export default class extends Vue {
    */
   private validateDeviceName(rule: any, value: string, callback: Function) {
     if (!/^[\u4e00-\u9fa50-9a-zA-Z-]{4,16}$/.test(value)) {
-      callback(new Error('设备名称格式错误'))
+      callback(new Error('设备或通道名称格式错误'))
     } else {
       callback()
     }
