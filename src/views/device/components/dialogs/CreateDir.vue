@@ -71,7 +71,7 @@ export default class extends Vue {
 
   private validateDirName(rule: any, value: string, callback: Function) {
     if (!/^[\u4e00-\u9fa50-9a-zA-Z-]{0,64}$/u.test(value)) {
-      callback(new Error('目录名称格式错误'))
+      callback(new Error('目录名称格式错误。不超过64个字符，可包含大小写字母、数字、中文、中划线。'))
     } else {
       callback()
     }
@@ -83,8 +83,13 @@ export default class extends Vue {
       if (valid) {
         try {
           this.submitting = true
-          this.isEdit ? await updateDir(this.form) : await createDir(this.form)
-          this.$message.success('创建目录成功！')
+          if (this.isEdit) {
+            await updateDir(this.form)
+            this.$message.success('创建目录成功！')
+          } else {
+            await createDir(this.form)
+            this.$message.success('修改目录成功！')
+          }
         } catch (e) {
           this.$message.error(e && e.message)
         } finally {
