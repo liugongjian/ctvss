@@ -267,6 +267,18 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
+    path: '/player-debug',
+    component: () => import(/* webpackChunkName: "device" */ '@/views/device/debug.vue'),
+    name: 'device-debug',
+    meta: {
+      title: '播放器调试',
+      icon: 'stream',
+      hidden: true,
+      roles: ['admin'],
+      activeMenu: '/device'
+    }
+  },
+  {
     path: '/replay',
     component: Layout,
     meta: {
