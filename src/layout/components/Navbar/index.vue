@@ -24,7 +24,7 @@
         </el-tooltip>
       </template> -->
       <div class="links">
-        <a href="/document/api/">API文档</a>
+        <a target="_blank" href="/document/api/">API文档</a>
       </div>
       <el-dropdown
         class="avatar-container right-menu-item hover-effect"
