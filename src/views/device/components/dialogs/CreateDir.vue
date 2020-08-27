@@ -10,11 +10,13 @@
     <el-form
       ref="dataForm"
       :model="form"
+      :rules="rules"
       label-position="right"
       label-width="100px"
     >
-      <el-form-item label="目录名称:">
+      <el-form-item label="目录名称:" prop="dirName" class="form-with-tip">
         <el-input v-model="form.dirName" />
+        <div class="form-tip">不超过64个字符，可包含大小写字母、数字、中文、中划线。</div>
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -44,6 +46,12 @@ export default class extends Vue {
     groupId: this.groupId,
     dirName: ''
   }
+  private rules = {
+    dirName: [
+      { required: true, message: '请输入目录名称', trigger: 'blur' },
+      { validator: this.validateDirName, trigger: 'blur' }
+    ]
+  }
 
   private get isEdit() {
     return !!this.currentDir
@@ -61,17 +69,30 @@ export default class extends Vue {
     }
   }
 
-  private async submit() {
-    try {
-      this.submitting = true
-      this.isEdit ? await updateDir(this.form) : await createDir(this.form)
-      this.$message.success('创建目录成功！')
-    } catch (e) {
-      this.$message.error(e && e.message)
-    } finally {
-      this.submitting = false
+  private validateDirName(rule: any, value: string, callback: Function) {
+    if (!/^[\u4e00-\u9fa50-9a-zA-Z-]{0,64}$/u.test(value)) {
+      callback(new Error('目录名称格式错误'))
+    } else {
+      callback()
     }
-    this.closeDialog(true)
+  }
+
+  private async submit() {
+    const form: any = this.$refs.dataForm
+    form.validate(async(valid: any) => {
+      if (valid) {
+        try {
+          this.submitting = true
+          this.isEdit ? await updateDir(this.form) : await createDir(this.form)
+          this.$message.success('创建目录成功！')
+        } catch (e) {
+          this.$message.error(e && e.message)
+        } finally {
+          this.submitting = false
+        }
+        this.closeDialog(true)
+      }
+    })
   }
 
   private closeDialog(isRefresh: boolean = false) {
