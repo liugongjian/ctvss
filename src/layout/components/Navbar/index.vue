@@ -140,7 +140,7 @@ export default class extends Vue {
     vertical-align: text-bottom;
     margin-right: 15px;
 
-    a:link {
+    a {
       color: $text;
     }
     a:hover {
