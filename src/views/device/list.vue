@@ -270,6 +270,9 @@ export default class extends Vue {
         this.deviceInfo = res
         this.deviceList = this.deviceInfo.deviceChannels.map((channel: any) => {
           channel.deviceType = 'ipc'
+          channel.transPriority = this.deviceInfo.transPriority
+          channel.sipTransType = this.deviceInfo.sipTransType
+          channel.streamTransType = this.deviceInfo.streamTransType
           return channel
         })
       } else if (type === 'ipc') {

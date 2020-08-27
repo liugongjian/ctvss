@@ -26,33 +26,19 @@
               </template>
               <info-list-item label="自动拉流:">{{ pullType[info.pullType] }}</info-list-item>
               <info-list-item label="GB28181账号:">{{ info.userName }}</info-list-item>
-              <info-list-item label="设备状态:">
-                <div class="info-list__edit">
-                  <div class="info-list__edit--value">
-                    <status-badge :status="info.deviceStatus" />
-                    {{ deviceStatus[info.deviceStatus] }}
-                  </div>
-                </div>
-              </info-list-item>
-              <info-list-item label="流状态:">
-                <div class="info-list__edit">
-                  <div class="info-list__edit--value">
-                    <status-badge :status="info.streamStatus" />
-                    {{ deviceStatus[info.streamStatus] }}
-                  </div>
-                </div>
-              </info-list-item>
             </info-list>
             <info-list v-if="info && isNVRChannel" label-width="110">
               <info-list-item label="通道号:">{{ info.deviceChannels[0].channelNum }}</info-list-item>
               <info-list-item label="通道名称:">{{ info.deviceChannels[0].channelName }}</info-list-item>
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
               <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
+            </info-list>
+            <info-list label-width="110">
               <info-list-item label="设备状态:">
                 <div class="info-list__edit">
                   <div class="info-list__edit--value">
                     <status-badge :status="info.deviceStatus" />
-                    {{ deviceStatus[info.deviceStatus] }}
+                    {{ deviceStatus[info.deviceStatus] || '-' }}
                   </div>
                 </div>
               </info-list-item>
@@ -61,6 +47,27 @@
                   <div class="info-list__edit--value">
                     <status-badge :status="info.streamStatus" />
                     {{ deviceStatus[info.streamStatus] }}
+                  </div>
+                </div>
+              </info-list-item>
+              <info-list-item label="信令传输模式:">
+                <div class="info-list__edit">
+                  <div class="info-list__edit--value">
+                    {{ transPriority[info.sipTransType] || '-' }}
+                  </div>
+                </div>
+              </info-list-item>
+              <info-list-item label="流传输模式:">
+                <div class="info-list__edit">
+                  <div class="info-list__edit--value">
+                    {{ transPriority[info.streamTransType] || '-' }}
+                  </div>
+                </div>
+              </info-list-item>
+              <info-list-item label="优先TCP传输:">
+                <div class="info-list__edit">
+                  <div class="info-list__edit--value">
+                    {{ transPriority[info.transPriority] || '-' }}
                   </div>
                 </div>
               </info-list-item>
@@ -204,7 +211,7 @@
 import { Component, Vue, Inject } from 'vue-property-decorator'
 import { Device } from '@/type/device'
 import { RecordTemplate } from '@/type/template'
-import { DeviceStatus, DeviceType, AuthStatus, PullType, CreateSubDevice } from '@/dics'
+import { DeviceStatus, DeviceType, AuthStatus, PullType, CreateSubDevice, TransPriority, SipTransType, StreamTransType } from '@/dics'
 import { getDevice, getRecordTemplate } from '@/api/device'
 import SetRecordTemplate from '../components/dialogs/SetRecordTemplate.vue'
 import SetSnapshotTemplate from '../components/dialogs/SetSnapshotTemplate.vue'
@@ -229,6 +236,9 @@ export default class extends Vue {
   private deviceType = DeviceType
   private authStatus = AuthStatus
   private pullType = PullType
+  private transPriority = TransPriority
+  private sipTransType = SipTransType
+  private streamTransType = StreamTransType
   private createSubDevice = CreateSubDevice
   private info: Device | null = null
   private pushConfig = {
