@@ -28,6 +28,7 @@
               <info-list-item label="GB28181账号:">{{ info.userName }}</info-list-item>
             </info-list>
             <info-list v-if="info && isNVRChannel" label-width="110">
+              <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
               <info-list-item label="通道号:">{{ info.deviceChannels[0].channelNum }}</info-list-item>
               <info-list-item label="通道名称:">{{ info.deviceChannels[0].channelName }}</info-list-item>
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
