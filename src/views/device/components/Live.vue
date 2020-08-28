@@ -2,7 +2,15 @@
   <div v-loading="loading" class="live-wrap">
     <div class="empty-text">{{ errorMessage }}</div>
     <div class="preview-player">
-      <player v-if="address" ref="video" :type="videoCoding" :url="address.flvUrl" :auto-play="true" />
+      <player
+        v-if="address"
+        ref="video"
+        :type="videoCoding"
+        :url="address.flvUrl"
+        :auto-play="true"
+        :is-live="true"
+        @onRetry="onRetry"
+      />
     </div>
     <info-list v-if="address" label-width="70" title="播放地址" class="address">
       <info-list-item v-if="address.rtmpUrl" label="RTMP:">
@@ -45,7 +53,9 @@ export default class extends Vue {
   private videoCoding?: string = ''
   private playerTimer: any = null
   private loading = false
+  private retry = false
   private errorMessage = ''
+  private timeout: any = null
 
   private get deviceId() {
     return this.$route.query.deviceId
@@ -53,7 +63,6 @@ export default class extends Vue {
 
   @Watch('$route.query')
   private onRouterChange() {
-    console.log('onRouterChange')
     if (this.playerTimer !== null) {
       clearTimeout(this.playerTimer)
     }
@@ -66,6 +75,7 @@ export default class extends Vue {
   }
 
   private beforeDestroy() {
+    clearTimeout(this.timeout)
     window.removeEventListener('focus', this.reloadPlayer)
   }
 
@@ -103,11 +113,29 @@ export default class extends Vue {
       })
       this.address = res.playUrl
       this.videoCoding = res.videoCoding === 'h264' ? 'flv' : 'h265-flv'
+      this.retry = false
     } catch (e) {
+      if (e.code === 5) {
+        this.retry = true
+      }
       this.errorMessage = e.message
     } finally {
       this.loading = false
     }
+  }
+
+  /**
+   * 视频断流30秒后重试
+   */
+  private onRetry() {
+    this.timeout = setTimeout(async() => {
+      this.address = ''
+      await this.getDevicePreview()
+      console.log(this.retry)
+      if (this.retry) {
+        this.onRetry()
+      }
+    }, 30 * 1000)
   }
 
   /**

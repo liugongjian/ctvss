@@ -93,8 +93,10 @@
                   v-if="screen.url"
                   :type="screen.type"
                   :url="screen.url"
+                  :is-live="true"
                   :auto-play="true"
                   :has-control="false"
+                  @onRetry="onRetry(screen)"
                 />
                 <div v-else class="tip-text">无信号</div>
                 <div class="screen-header">
@@ -154,6 +156,9 @@ export default class extends Mixins(DeviceMixin) {
   }
 
   private destroyed() {
+    this.screenList.forEach(screen => {
+      screen.reset()
+    })
     window.removeEventListener('resize', this.calMaxHeight)
     window.removeEventListener('resize', this.checkFullscreen)
   }
@@ -211,11 +216,6 @@ export default class extends Mixins(DeviceMixin) {
    * 初始化分屏
    */
   private initScreen() {
-    // this.screenList = []
-    // for (let i = 0; i < this.maxSize; i++) {
-    //   const screen = new Screen()
-    //   this.screenList.push(screen)
-    // }
     let screenList: Array<Screen> = []
     let startIndex = 0
     if (this.screenList.length) {
@@ -290,6 +290,19 @@ export default class extends Mixins(DeviceMixin) {
   private checkTreeItemStatus(item: any) {
     if (item.type !== 'ipc') return false
     return !!this.screenList.find(screen => screen.deviceId === item.id)
+  }
+
+  /**
+   * 视频断流30秒后重试
+   */
+  private onRetry(screen: Screen) {
+    setTimeout(async() => {
+      screen.url = ''
+      await screen.getUrl()
+      if (screen.retry) {
+        this.onRetry(screen)
+      }
+    }, 30 * 1000)
   }
 }
 </script>

@@ -1,4 +1,5 @@
-import flvjs from 'flv.js'
+// @ts-ignore
+import flvjs from 'flv.js/src/flv.js'
 import Hls from 'hls.js'
 import '@/libs/h265/goldplay.css'
 
@@ -9,10 +10,12 @@ export default class Ctplayer {
   public hasControl: boolean
   public player: any
   public type?: string
+  public isLive?: boolean
   private onTimeUpdate?: Function
   private onResizeScreen?: Function
   private onReset?: Function
   private onEnded?: Function
+  private onRetry?: Function
   private onSeeked?: Function
 
   public constructor(config: any) {
@@ -21,10 +24,12 @@ export default class Ctplayer {
     this.autoPlay = config.autoPlay
     this.hasControl = config.hasControl
     this.type = config.type
+    this.isLive = config.isLive
     this.onTimeUpdate = config.onTimeUpdate
     this.onResizeScreen = config.onResizeScreen
     this.onReset = config.onReset
     this.onEnded = config.onEnded
+    this.onRetry = config.onRetry
     this.onSeeked = config.onSeeked
     this.init()
   }
@@ -255,14 +260,29 @@ export default class Ctplayer {
       isLive: true,
       url: this.source
     })
-    flvPlayer.on(flvjs.Events.ERROR, (e) => {})
-    flvPlayer.on(flvjs.Events.STATISTICS_INFO, (e) => {})
-    flvPlayer.on(flvjs.Events.METADATA_ARRIVED, (e) => {
-      console.log('METADATA_ARRIVED', e)
-    })
     flvPlayer.attachMediaElement(videoElement)
     flvPlayer.load()
     flvPlayer.play()
+    flvPlayer.on(flvjs.Events.ERROR, (e: any) => {
+      console.log('ERROR', e)
+      if (e === flvjs.ErrorTypes.NETWORK_ERROR) {
+        this.onRetry && this.onRetry()
+      }
+    })
+    flvPlayer.on(flvjs.Events.STATISTICS_INFO, (e: any) => {
+      // console.log('STATISTICS_INFO', e)
+    })
+    flvPlayer.on(flvjs.Events.METADATA_ARRIVED, (e: any) => {
+      console.log('METADATA_ARRIVED', e)
+    })
+    flvPlayer.on(flvjs.Events.METADATA_ARRIVED, (e: any) => {
+      console.log('LOADING_COMPLETE', e)
+    })
+    flvPlayer.on(flvjs.Events.MEDIA_ENDED, () => {
+      if (this.isLive) {
+        this.onRetry && this.onRetry()
+      }
+    })
     return flvPlayer
   }
 
