@@ -9,6 +9,7 @@ export default class Ctplayer {
   public autoPlay: boolean
   public hasControl: boolean
   public player: any
+  public hls?: any
   public type?: string
   public isLive?: boolean
   private onTimeUpdate?: Function
@@ -31,6 +32,7 @@ export default class Ctplayer {
     this.onEnded = config.onEnded
     this.onRetry = config.onRetry
     this.onSeeked = config.onSeeked
+    console.log(config.onResizeScreen)
     this.init()
   }
 
@@ -49,10 +51,10 @@ export default class Ctplayer {
       throw new Error('播放器创建失败')
     }
     this.bindEvent()
-    return this.player
   }
 
   private createPlayer(wrapElement: HTMLDivElement) {
+    console.log('createPlayer', wrapElement)
     switch (this.type) {
       case 'flv':
         return this.createFlv(wrapElement)
@@ -70,25 +72,13 @@ export default class Ctplayer {
   private bindEvent() {
     switch (this.type) {
       case 'hls':
-        this.player.addEventListener('timeupdate', () => {
-          this.onTimeUpdate && this.onTimeUpdate(this.player.currentTime)
-        })
-        this.player.addEventListener('ended', () => {
-          this.onEnded && this.onEnded()
-        })
-        this.player.addEventListener('seeked', () => {
-          this.onSeeked && this.onSeeked(this.player.currentTime)
-        })
+        this.player.addEventListener('timeupdate', this.hlsTimeUpdate)
+        this.player.addEventListener('ended', this.hlsEnded)
+        this.player.addEventListener('seeked', this.hlsSeeked)
         break
       case 'h265-hls':
-        this.player.events.on('Player.resizeScreen', (width: number, height: number) => {
-          this.onResizeScreen && this.onResizeScreen(width, height)
-        })
-        this.player.events.on('Player.timeUpdate', (e: any) => {
-          console.log(e)
-          // 统一返回"秒"为单位
-          this.onTimeUpdate && this.onTimeUpdate(e / 1000)
-        })
+        this.player.events.on('Player.resizeScreen', this.resizeH265Hls.bind(this))
+        this.player.events.on('Player.timeUpdate', this.H265HlsTimeUpdate)
     }
   }
 
@@ -107,13 +97,16 @@ export default class Ctplayer {
   public disposePlayer() {
     try {
       const wrapElement: HTMLDivElement = this.wrap
+      console.log('dispose', wrapElement)
       switch (this.type) {
         case 'flv':
           this.player.destroy()
-          console.log('destroy')
           break
         case 'hls':
-          this.player.destroy()
+          this.player.removeEventListener('timeupdate', this.hlsTimeUpdate)
+          this.player.removeEventListener('ended', this.hlsEnded)
+          this.player.removeEventListener('seeked', this.hlsSeeked)
+          this.hls.destroy()
           break
         case 'mp4':
           this.player.stop()
@@ -121,15 +114,16 @@ export default class Ctplayer {
         case 'h265-flv':
           this.player.destroy()
           this.player = null
-          wrapElement!.innerHTML = ''
           break
         case 'h265-hls':
+          this.player.events.off('Player.resizeScreen', this.resizeH265Hls)
+          this.player.events.off('Player.timeUpdate', this.H265HlsTimeUpdate)
           this.player.destroy()
-          wrapElement!.innerHTML = ''
           break
       }
+      wrapElement!.innerHTML = ''
     } catch (e) {
-      console.log()
+      console.log(e)
     }
   }
 
@@ -305,6 +299,7 @@ export default class Ctplayer {
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
       this.autoPlayVideo(videoElement, videoElement)
     })
+    this.hls = hls
     return videoElement
   }
 
@@ -372,5 +367,46 @@ export default class Ctplayer {
         console.log(e)
       }
     }
+  }
+
+  /**
+   * H264 HLS更新时间
+   */
+  private hlsTimeUpdate() {
+    this.onTimeUpdate && this.onTimeUpdate(this.player.currentTime)
+  }
+
+  /**
+   * H264 HLS播放结束
+   */
+  private hlsEnded() {
+    this.onEnded && this.onEnded()
+  }
+
+  /**
+   * H264 HLS Seeked
+   */
+  private hlsSeeked() {
+    this.onSeeked && this.onSeeked(this.player.currentTime)
+  }
+
+  /**
+   * H265 HLS设置播放器大小
+   * @param width
+   * @param height
+   */
+  private resizeH265Hls(width: number, height: number) {
+    console.log('resizeH265Hls', this, this.onResizeScreen)
+    this.onResizeScreen && this.onResizeScreen(width, height)
+  }
+
+  /**
+   * H265 HLS更新时间
+   * @param e
+   */
+  private H265HlsTimeUpdate(e: any) {
+    console.log(e)
+    // 统一返回"秒"为单位
+    this.onTimeUpdate && this.onTimeUpdate(e / 1000)
   }
 }
