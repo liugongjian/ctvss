@@ -71,12 +71,10 @@ export default class extends Vue {
 
   private mounted() {
     this.getDevicePreview()
-    window.addEventListener('focus', this.reloadPlayer)
   }
 
   private beforeDestroy() {
     clearTimeout(this.timeout)
-    window.removeEventListener('focus', this.reloadPlayer)
   }
 
   private destroy() {

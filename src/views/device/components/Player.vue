@@ -36,10 +36,12 @@ export default class extends Vue {
 
   private mounted() {
     this.createPlayer()
+    if (this.isLive) window.addEventListener('focus', this.reloadPlayer)
   }
 
   private beforeDestroy() {
     this.disposePlayer()
+    if (this.isLive) window.removeEventListener('focus', this.reloadPlayer)
   }
 
   public disposePlayer() {
