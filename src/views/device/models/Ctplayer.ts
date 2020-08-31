@@ -32,7 +32,6 @@ export default class Ctplayer {
     this.onEnded = config.onEnded
     this.onRetry = config.onRetry
     this.onSeeked = config.onSeeked
-    console.log(config.onResizeScreen)
     this.init()
   }
 
@@ -54,7 +53,6 @@ export default class Ctplayer {
   }
 
   private createPlayer(wrapElement: HTMLDivElement) {
-    console.log('createPlayer', wrapElement)
     switch (this.type) {
       case 'flv':
         return this.createFlv(wrapElement)
@@ -97,7 +95,6 @@ export default class Ctplayer {
   public disposePlayer() {
     try {
       const wrapElement: HTMLDivElement = this.wrap
-      console.log('dispose', wrapElement)
       switch (this.type) {
         case 'flv':
           this.player.destroy()
@@ -145,7 +142,6 @@ export default class Ctplayer {
         this.player.currentTime = time
         break
       case 'h265-hls':
-        console.log(time)
         this.player.seek(time)
         break
     }
@@ -207,9 +203,7 @@ export default class Ctplayer {
       player.load()
     })
     player.on(KsPlayer.Events.ERROR, (event: any, data: any) => {
-      console.log(event)
       if (data.detail === 'AudioAutoPlayUnsupported') {
-        console.log('unload AudioAutoPlayUnsupported')
         player.destroy()
         const playButton = document.createElement('div')
         playButton.className = 'play'
@@ -396,7 +390,6 @@ export default class Ctplayer {
    * @param height
    */
   private resizeH265Hls(width: number, height: number) {
-    console.log('resizeH265Hls', this, this.onResizeScreen)
     this.onResizeScreen && this.onResizeScreen(width, height)
   }
 

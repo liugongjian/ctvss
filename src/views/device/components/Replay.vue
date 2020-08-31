@@ -247,7 +247,6 @@ export default class extends Vue {
         const videoSize = $video.getBoundingClientRect()
         const width = videoSize.width
         const height = videoSize.width
-        console.log('$canvas', $canvas)
         if ($canvas) {
           const proportion = width / originWidth!
           $canvas.style.position = 'absolute'
@@ -281,7 +280,6 @@ export default class extends Vue {
     currentTime = currentTime <= 0 ? 0 : currentTime
     if (this.currentRecord !== record || !this.player) {
       this.currentRecord = record
-      console.log('this.player && this.player.disposePlayer()', this.player)
       this.player && this.player.disposePlayer()
       this.player = this.createPlayer(record, true)
       this.recordIndex = this.currentRecord.index
