@@ -7,7 +7,7 @@
     class="video-player"
     @close="closeDialog"
   >
-    <player v-if="dialogVisible" ref="video" :type="type" :url="video.hls" :auto-play="true" :on-time-update="onTimeUpdate" />
+    <player v-if="dialogVisible" ref="video" :type="type" :url="video.playUrl.hlsUrl" :auto-play="true" :on-time-update="onTimeUpdate" />
     <div class="current-time">{{ dateFormat(currentTime) }}</div>
   </el-dialog>
 </template>
@@ -31,7 +31,7 @@ export default class extends Vue {
   private dateFormat = dateFormat
 
   private get type() {
-    return this.video.type === 'h265' ? 'h265-hls' : 'hls'
+    return this.video.videoCoding === 'h265' ? 'h265-hls' : 'hls'
   }
 
   private onTimeUpdate() {

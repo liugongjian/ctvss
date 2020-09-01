@@ -70,13 +70,13 @@ export default class Ctplayer {
   private bindEvent() {
     switch (this.type) {
       case 'hls':
-        this.player.addEventListener('timeupdate', this.hlsTimeUpdate)
-        this.player.addEventListener('ended', this.hlsEnded)
-        this.player.addEventListener('seeked', this.hlsSeeked)
+        this.player.addEventListener('timeupdate', this.hlsTimeUpdate.bind(this))
+        this.player.addEventListener('ended', this.hlsEnded.bind(this))
+        this.player.addEventListener('seeked', this.hlsSeeked.bind(this))
         break
       case 'h265-hls':
         this.player.events.on('Player.resizeScreen', this.resizeH265Hls.bind(this))
-        this.player.events.on('Player.timeUpdate', this.H265HlsTimeUpdate)
+        this.player.events.on('Player.timeUpdate', this.H265HlsTimeUpdate.bind(this))
     }
   }
 
