@@ -25,7 +25,9 @@ module.exports = {
     'vue/eqeqeq': 'error',
     'vue/key-spacing': 'error',
     'vue/match-component-file-name': 'error',
-    'vue/object-curly-spacing': 'error'
+    'vue/object-curly-spacing': 'error',
+    'vue/singleline-html-element-content-newline': 'off',
+    'vue/max-attributes-per-line': 'off'
   },
   parserOptions: {
     parser: '@typescript-eslint/parser'

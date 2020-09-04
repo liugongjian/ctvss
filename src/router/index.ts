@@ -72,20 +72,25 @@ export const constantRoutes: RouteConfig[] = [
   {
     path: '/',
     component: Layout,
-    redirect: '/dashboard',
-    children: [
-      {
-        path: 'dashboard',
-        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/dashboard/index.vue'),
-        name: 'Dashboard',
-        meta: {
-          title: '全局概览',
-          icon: 'dashboard',
-          affix: true
-        }
-      }
-    ]
+    redirect: '/group'
   }
+  // {
+  //   path: '/',
+  //   component: Layout,
+  //   redirect: '/dashboard',
+  //   children: [
+  //     {
+  //       path: 'dashboard',
+  //       component: () => import(/* webpackChunkName: "dashboard" */ '@/views/dashboard/index.vue'),
+  //       name: 'Dashboard',
+  //       meta: {
+  //         title: '全局概览',
+  //         icon: 'dashboard',
+  //         affix: true
+  //       }
+  //     }
+  //   ]
+  // }
 ]
 
 /**
@@ -94,118 +99,356 @@ export const constantRoutes: RouteConfig[] = [
 */
 export const asyncRoutes: RouteConfig[] = [
   {
-    path: '/node',
+    path: '/group',
     component: Layout,
     meta: {
-      title: '节点',
+      title: '业务组管理',
       icon: 'tree',
       roles: ['admin'],
-      breadcrumb: false,
       alwaysShow: false
     },
     children: [
       {
-        path: 'node-monitor',
-        component: () => import(/* webpackChunkName: "tree" */ '@/views/nodeMonitor/index.vue'),
-        name: 'node-monitor',
+        path: '',
+        component: () => import(/* webpackChunkName: "group" */ '@/views/group/index.vue'),
+        name: 'group-list',
         meta: {
-          title: '节点监控',
+          title: '业务组管理',
+          icon: 'tree',
+          breadcrumb: false,
+          roles: ['admin']
+        }
+      },
+      {
+        path: 'create',
+        component: () => import(/* webpackChunkName: "group" */ '@/views/group/create.vue'),
+        name: 'group-create',
+        meta: {
+          title: '新建业务组',
+          icon: 'tree',
+          hidden: true,
+          roles: ['admin'],
+          activeMenu: '/group'
+        }
+      },
+      {
+        path: 'update',
+        component: () => import(/* webpackChunkName: "group" */ '@/views/group/create.vue'),
+        name: 'group-update',
+        meta: {
+          title: '编辑业务组',
+          icon: 'tree',
+          hidden: true,
+          roles: ['admin'],
+          activeMenu: '/group'
+        }
+      },
+      {
+        path: 'config',
+        component: () => import(/* webpackChunkName: "group" */ '@/views/group/config.vue'),
+        name: 'group-config',
+        meta: {
+          title: '业务组配置',
+          icon: 'tree',
+          hidden: true,
+          roles: ['admin'],
+          activeMenu: '/group'
+        }
+      }
+    ]
+  },
+  {
+    path: '/device',
+    component: Layout,
+    meta: {
+      title: '设备管理',
+      icon: 'stream',
+      roles: ['admin'],
+      alwaysShow: false,
+      only: true
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "device" */ '@/views/device/index.vue'),
+        meta: {
+          title: '设备管理',
+          icon: 'stream',
+          breadcrumb: false,
+          roles: ['admin']
+        },
+        children: [
+          {
+            path: '',
+            component: () => import(/* webpackChunkName: "device" */ '@/views/device/list.vue'),
+            name: 'device-list',
+            meta: {
+              title: '设备列表',
+              icon: 'stream',
+              breadcrumb: false,
+              roles: ['admin'],
+              activeMenu: '/device'
+            }
+          },
+          {
+            path: 'create',
+            component: () => import(/* webpackChunkName: "device" */ '@/views/device/create.vue'),
+            name: 'device-create',
+            meta: {
+              title: '添加设备',
+              icon: 'stream',
+              hidden: true,
+              roles: ['admin'],
+              activeMenu: '/device'
+            }
+          },
+          {
+            path: 'update',
+            component: () => import(/* webpackChunkName: "device" */ '@/views/device/create.vue'),
+            name: 'device-update',
+            meta: {
+              title: '编辑设备',
+              icon: 'tree',
+              hidden: true,
+              roles: ['admin'],
+              activeMenu: '/device'
+            }
+          },
+          {
+            path: 'detail',
+            component: () => import(/* webpackChunkName: "device" */ '@/views/device/detail.vue'),
+            name: 'device-detail',
+            meta: {
+              title: '设备详情',
+              icon: 'stream',
+              hidden: true,
+              roles: ['admin'],
+              activeMenu: '/device'
+            }
+          },
+          {
+            path: 'preview/:tab?',
+            component: () => import(/* webpackChunkName: "device" */ '@/views/device/preview.vue'),
+            name: 'device-preview',
+            meta: {
+              title: '监控查看',
+              icon: 'stream',
+              hidden: true,
+              roles: ['admin'],
+              activeMenu: '/device'
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    path: '/screen',
+    component: Layout,
+    meta: {
+      title: '实时预览',
+      icon: 'tree',
+      roles: ['admin'],
+      alwaysShow: false
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "screen" */ '@/views/device/screen.vue'),
+        name: 'screen',
+        meta: {
+          title: '实时预览',
+          icon: 'stream',
+          breadcrumb: false,
+          roles: ['admin'],
+          activeMenu: '/screen'
+        }
+      }
+    ]
+  },
+  {
+    path: '/player-debug',
+    component: () => import(/* webpackChunkName: "device" */ '@/views/device/debug.vue'),
+    name: 'device-debug',
+    meta: {
+      title: '播放器调试',
+      icon: 'stream',
+      hidden: true,
+      roles: ['admin'],
+      activeMenu: '/device'
+    }
+  },
+  {
+    path: '/replay',
+    component: Layout,
+    meta: {
+      title: '录像回放',
+      icon: 'tree',
+      roles: ['admin'],
+      alwaysShow: false
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "replay" */ '@/views/device/replay.vue'),
+        name: 'replay',
+        meta: {
+          title: '录像回放',
+          icon: 'stream',
+          breadcrumb: false,
+          roles: ['admin'],
+          activeMenu: '/replay'
+        }
+      }
+    ]
+  },
+  {
+    path: '/certificate',
+    component: Layout,
+    meta: {
+      title: '凭证管理',
+      icon: 'tree',
+      alwaysShow: true,
+      breadcrumb: false,
+      roles: ['admin']
+    },
+    children: [
+      {
+        path: 'gb28181',
+        component: () => import(/* webpackChunkName: "tree" */ '@/views/certificate/gb28181/index.vue'),
+        name: 'gb28181',
+        meta: {
+          title: 'GB28181凭证',
           icon: 'tree',
           roles: ['admin']
         }
-      }
-    ]
-  },
-  {
-    path: '/stream',
-    component: Layout,
-    meta: {
-      title: '流',
-      icon: 'stream',
-      roles: ['admin'],
-      breadcrumb: false,
-      alwaysShow: false
-    },
-    children: [
+      },
       {
-        path: 'stream-monitor',
-        component: () => import(/* webpackChunkName: "tree" */ '@/views/streamMonitor/index.vue'),
-        name: 'stream-monitor',
+        path: 'gb28181/create',
+        component: () => import(/* webpackChunkName: "tree" */ '@/views/certificate/gb28181/create.vue'),
+        name: 'gb28181-create',
         meta: {
-          title: '流监控',
+          title: '新建GB28181凭证',
           icon: 'stream',
+          hidden: true,
+          roles: ['admin']
+        }
+      },
+      {
+        path: 'gb28181/update/:id?',
+        component: () => import(/* webpackChunkName: "tree" */ '@/views/certificate/gb28181/create.vue'),
+        name: 'gb28181-update',
+        meta: {
+          title: '编辑GB28181凭证',
+          icon: 'stream',
+          hidden: true,
           roles: ['admin']
         }
       }
     ]
   },
   {
-    path: '/permission',
-    component: Layout,
-    redirect: '/permission/directive',
-    meta: {
-      title: '权限',
-      icon: 'lock',
-      roles: ['admin', 'editor'], // you can set roles in root nav
-      alwaysShow: true // will always show the root menu
-    },
-    children: [
-      {
-        path: 'page',
-        component: () => import(/* webpackChunkName: "permission-page" */ '@/views/permission/page.vue'),
-        name: 'PagePermission',
-        meta: {
-          title: '页面级权限',
-          roles: ['admin'] // or you can only set roles in sub nav
-        }
-      },
-      {
-        path: 'directive',
-        component: () => import(/* webpackChunkName: "permission-directive" */ '@/views/permission/directive.vue'),
-        name: 'DirectivePermission',
-        meta: {
-          title: '指令级权限'
-          // if do not set roles, means: this page does not require permission
-        }
-      },
-      {
-        path: 'role',
-        component: () => import(/* webpackChunkName: "permission-role" */ '@/views/permission/role.vue'),
-        name: 'RolePermission',
-        meta: {
-          title: '角色权限',
-          roles: ['admin']
-        }
-      }
-    ]
-  },
-  /** when your routing map is too long, you can split it into small modules **/
-  chartsRouter,
-  {
-    path: '/error',
+    path: '/template',
     component: Layout,
     redirect: 'noredirect',
     meta: {
-      title: 'errorPages',
-      icon: '404'
+      title: '模板管理',
+      icon: 'tree',
+      alwaysShow: true,
+      breadcrumb: true,
+      roles: ['admin']
     },
     children: [
       {
-        path: '401',
-        component: () => import(/* webpackChunkName: "error-page-401" */ '@/views/error-page/401.vue'),
-        name: 'Page401',
+        path: 'record',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/record/index.vue'),
+        name: 'record',
         meta: {
-          title: '401页面',
-          noCache: true
+          title: '录制模板',
+          icon: 'tree',
+          roles: ['admin']
         }
       },
       {
-        path: '404',
-        component: () => import(/* webpackChunkName: "error-page-404" */ '@/views/error-page/404.vue'),
-        name: 'Page404',
+        path: 'record/create',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/record/createOrUpdate.vue'),
+        name: 'record-create',
         meta: {
-          title: '404页面',
-          noCache: true
+          title: '新建录制模板',
+          icon: 'stream',
+          hidden: true,
+          roles: ['admin'],
+          activeMenu: '/template/record'
+        }
+      },
+      {
+        path: 'record/update/:id?',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/record/createOrUpdate.vue'),
+        name: 'record-update',
+        meta: {
+          title: '编辑录制模板',
+          icon: 'stream',
+          hidden: true,
+          roles: ['admin'],
+          activeMenu: '/template/record'
+        }
+      }
+      // ,
+      // {
+      //   path: 'snapshot',
+      //   component: () => import(/* webpackChunkName: "template" */ '@/views/template/snapshot/index.vue'),
+      //   name: 'snapshot',
+      //   meta: {
+      //     title: '截图模板',
+      //     icon: 'tree',
+      //     roles: ['admin']
+      //   }
+      // },
+      // {
+      //   path: 'snapshot/create',
+      //   component: () => import(/* webpackChunkName: "template" */ '@/views/template/snapshot/createOrUpdate.vue'),
+      //   name: 'snapshot-create',
+      //   meta: {
+      //     title: '新建截图模板',
+      //     icon: 'stream',
+      //     hidden: true,
+      //     roles: ['admin'],
+      //     activeMenu: '/template/snapshot'
+      //   }
+      // },
+      // {
+      //   path: 'snapshot/update/:id?',
+      //   component: () => import(/* webpackChunkName: "template" */ '@/views/template/snapshot/createOrUpdate.vue'),
+      //   name: 'snapshot-update',
+      //   meta: {
+      //     title: '编辑截图模板',
+      //     icon: 'stream',
+      //     hidden: true,
+      //     roles: ['admin'],
+      //     activeMenu: '/template/snapshot'
+      //   }
+      // }
+    ]
+  },
+  {
+    path: '/secretManage',
+    component: Layout,
+    meta: {
+      title: 'API密钥管理',
+      icon: 'tree',
+      hidden: true,
+      breadcrumb: true,
+      roles: ['admin']
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "secretManage" */ '@/views/secretManage/index.vue'),
+        meta: {
+          title: 'API密钥管理',
+          icon: 'tree',
+          breadcrumb: false,
+          roles: ['admin']
         }
       }
     ]

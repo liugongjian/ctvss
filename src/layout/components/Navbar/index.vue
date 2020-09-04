@@ -11,7 +11,7 @@
       class="breadcrumb-container"
     />
     <div class="right-menu">
-      <template v-if="device!=='mobile'">
+      <!-- <template v-if="device!=='mobile'">
         <header-search class="right-menu-item" />
         <error-log class="errLog-container right-menu-item hover-effect" />
         <screenfull class="right-menu-item hover-effect" />
@@ -22,22 +22,22 @@
         >
           <size-select class="right-menu-item hover-effect" />
         </el-tooltip>
-      </template>
+      </template> -->
+      <div class="links">
+        <a target="_blank" href="/document/api/">API文档</a>
+      </div>
       <el-dropdown
         class="avatar-container right-menu-item hover-effect"
         trigger="click"
       >
         <div class="avatar-wrapper">
-          <img
-            :src="avatar+'?imageView2/1/w/80/h/80'"
-            class="user-avatar"
-          >
+          {{ name }}
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown">
-          <router-link to="/profile/">
+          <router-link to="/secretManage">
             <el-dropdown-item>
-              {{ "个人中心" }}
+              {{ "API密钥管理" }}
             </el-dropdown-item>
           </router-link>
           <el-dropdown-item
@@ -89,6 +89,10 @@ export default class extends Vue {
     return UserModule.avatar
   }
 
+  get name() {
+    return UserModule.name
+  }
+
   private toggleSideBar() {
     AppModule.ToggleSideBar(false)
   }
@@ -131,6 +135,19 @@ export default class extends Vue {
     vertical-align: top;
   }
 
+  .links {
+    display: inline-block;
+    vertical-align: text-bottom;
+    margin-right: 15px;
+
+    a {
+      color: $text;
+    }
+    a:hover {
+      color: $primary;
+    }
+  }
+
   .right-menu {
     float: right;
     height: 100%;
@@ -144,8 +161,7 @@ export default class extends Vue {
       display: inline-block;
       padding: 0 8px;
       height: 100%;
-      font-size: 18px;
-      color: #5a5e66;
+      color: $text;
       vertical-align: text-bottom;
 
       &.hover-effect {
@@ -162,7 +178,7 @@ export default class extends Vue {
       margin-right: 30px;
 
       .avatar-wrapper {
-        margin-top: 5px;
+        margin-top: 1px;
         position: relative;
 
         .user-avatar {
@@ -175,8 +191,8 @@ export default class extends Vue {
         .el-icon-caret-bottom {
           cursor: pointer;
           position: absolute;
-          right: -20px;
-          top: 25px;
+          right: -15px;
+          top: 19px;
           font-size: 12px;
         }
       }

@@ -8,7 +8,7 @@ const mockServerPort = 9528 // TODO: get this variable from setting.ts
 const name = '视频监控-用户控制台' // TODO: get this variable from setting.ts
 
 module.exports = {
-  publicPath: process.env.NODE_ENV === 'production' ? '/' : '/',
+  publicPath: process.env.NODE_ENV === 'production' ? './' : '/',
   lintOnSave: process.env.NODE_ENV === 'development',
   productionSourceMap: false,
   devServer: {
@@ -29,6 +29,13 @@ module.exports = {
         pathRewrite: {
           ['^' + process.env.VUE_APP_BASE_API]: ''
         }
+      },
+      '/': {
+        // target: 'http://192.168.30.177:8081/'
+        target: 'http://101.89.163.9:8091/'
+      },
+      '/mock/11/': {
+        target: 'http://101.89.163.9:8089/'
       }
     }
   },

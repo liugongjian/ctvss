@@ -10,17 +10,12 @@
     />
     <sidebar class="sidebar-container" />
     <div
-      :class="{hasTagsView: showTagsView}"
       class="main-container"
     >
       <div :class="{'fixed-header': fixedHeader}">
         <navbar />
-        <tags-view v-if="showTagsView" />
       </div>
       <app-main />
-      <right-panel v-if="showSettings">
-        <settings />
-      </right-panel>
     </div>
   </div>
 </template>
@@ -31,7 +26,7 @@ import { mixins } from 'vue-class-component'
 import { DeviceType, AppModule } from '@/store/modules/app'
 import { SettingsModule } from '@/store/modules/settings'
 import { AppMain, Navbar, Settings, Sidebar, TagsView } from './components'
-import RightPanel from '@/components/RightPanel/index.vue'
+// import RightPanel from '@/components/RightPanel/index.vue'
 import ResizeMixin from './mixin/resize'
 
 @Component({
@@ -39,7 +34,7 @@ import ResizeMixin from './mixin/resize'
   components: {
     AppMain,
     Navbar,
-    RightPanel,
+    // RightPanel,
     Settings,
     Sidebar,
     TagsView

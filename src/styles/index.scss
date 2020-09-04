@@ -3,6 +3,8 @@
 @import './transition.scss';
 @import './svgicon.scss';
 @import './element-override.scss';
+@import './margin.scss';
+@import './device.scss';
 
 /* Global scss */
 
@@ -32,9 +34,17 @@ html {
 a,
 a:focus,
 a:hover {
-  color: inherit;
   outline: none;
   text-decoration: none;
+}
+
+a {
+  color: $primary;
+}
+
+a:focus,
+a:hover {
+  color: #fb9c5d;
 }
 
 div:focus {
@@ -63,4 +73,77 @@ div:focus {
 
 .pull-right {
   float: right;
+}
+
+.filter-container {
+  margin-bottom: 10px;
+  &__left {
+    float: left;
+  }
+  &__right {
+    float: right;
+  }
+  &__search-group {
+    width: 300px;
+  }
+}
+
+.form-with-tip {
+  margin-bottom: 35px;
+}
+
+.form-tip {
+  color: $textGrey;
+  font-size: 12px;
+  line-height: 1;
+  padding-top: 6px;
+  position: absolute;
+  top: 100%;
+  left: 0;
+}
+
+.form-question {
+  font-size: 16px;
+  cursor: help;
+}
+
+.el-form-item.is-error {
+  .form-tip {
+    display: none;
+  }
+}
+
+.info-list__edit {
+  display: flex;
+  &--value {
+    min-width: 100px;
+  }
+  .el-button--text {
+    padding: 0;
+    vertical-align: middle;
+
+    &::after {
+      content: '|';
+      margin-left: 10px;
+      color: #ccc;
+    }
+    &:last-child::after {
+      display: none;
+    }
+  }
+}
+
+.device-list .el-page-header {
+  border-bottom: 1px solid $borderGrey;
+  padding-bottom: 15px;
+  margin-bottom: 10px;
+}
+
+.device-list .el-tabs {
+  margin-top: -15px;
+}
+
+.empty-text {
+  color: $textGrey;
+  text-align: center;
 }

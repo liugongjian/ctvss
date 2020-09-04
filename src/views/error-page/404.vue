@@ -27,14 +27,6 @@
         <div class="text-404__oops">
           OOPS!
         </div>
-        <div class="text-404__info">
-          All rights reserved
-          <a
-            style="color:#20a0ff"
-            href="https://wallstreetcn.com"
-            target="_blank"
-          >wallstreetcn</a>
-        </div>
         <div class="text-404__headline">
           {{ message }}
         </div>

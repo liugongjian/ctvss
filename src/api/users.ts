@@ -45,20 +45,14 @@ export const deleteUser = (username: string) =>
 
 export const login = (data: any) =>
   request({
-    url: '/users/login',
+    url: '/user/login',
     method: 'post',
     data
-  }).catch(() => {
-    return {
-      data: {
-        accessToken: 'XXXXXXXXXXX'
-      }
-    }
   })
 
 export const logout = () =>
   request({
-    url: '/users/logout',
+    url: '/user/logout',
     method: 'post'
   })
 

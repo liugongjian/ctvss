@@ -14,15 +14,15 @@
         </h3>
       </div>
 
-      <el-form-item prop="username">
+      <el-form-item prop="userName">
         <span class="svg-container">
           <svg-icon name="user" />
         </span>
         <el-input
-          ref="username"
-          v-model="loginForm.username"
+          ref="userName"
+          v-model="loginForm.userName"
           placeholder="账号"
-          name="username"
+          name="userName"
           type="text"
           tabindex="1"
           autocomplete="on"
@@ -70,7 +70,7 @@
         {{ "登录" }}
       </el-button>
 
-      <div style="position:relative">
+      <!-- <div style="position:relative">
         <div class="tips">
           <span>{{ "账号" }} : admin </span>
           <span>{{ "密码" }} : {{ "随便填" }} </span>
@@ -87,10 +87,10 @@
         >
           {{ "第三方登录" }}
         </el-button>
-      </div>
+      </div> -->
     </el-form>
 
-    <el-dialog
+    <!-- <el-dialog
       title="第三方登录"
       :visible.sync="showDialog"
     >
@@ -99,7 +99,7 @@
       <br>
       <br>
       <social-sign />
-    </el-dialog>
+    </el-dialog> -->
   </div>
 </template>
 
@@ -120,25 +120,25 @@ import SocialSign from './components/SocialSignin.vue'
 })
 export default class extends Vue {
   private validateUsername = (rule: any, value: string, callback: Function) => {
-    if (!isValidUsername(value)) {
-      callback(new Error('Please enter the correct user name'))
+    if (!value) {
+      callback(new Error('用户名不能为空'))
     } else {
       callback()
     }
   }
   private validatePassword = (rule: any, value: string, callback: Function) => {
-    if (value.length < 6) {
-      callback(new Error('The password can not be less than 6 digits'))
+    if (!value) {
+      callback(new Error('密码不能为空'))
     } else {
       callback()
     }
   }
   private loginForm = {
-    username: 'admin',
-    password: '111111'
+    userName: '',
+    password: ''
   }
   private loginRules = {
-    username: [{ validator: this.validateUsername, trigger: 'blur' }],
+    userName: [{ validator: this.validateUsername, trigger: 'blur' }],
     password: [{ validator: this.validatePassword, trigger: 'blur' }]
   }
   private passwordType = 'password'
@@ -160,8 +160,8 @@ export default class extends Vue {
   }
 
   mounted() {
-    if (this.loginForm.username === '') {
-      (this.$refs.username as Input).focus()
+    if (this.loginForm.userName === '') {
+      (this.$refs.userName as Input).focus()
     } else if (this.loginForm.password === '') {
       (this.$refs.password as Input).focus()
     }
@@ -186,16 +186,18 @@ export default class extends Vue {
   private handleLogin() {
     (this.$refs.loginForm as ElForm).validate(async(valid: boolean) => {
       if (valid) {
-        this.loading = true
-        await UserModule.Login(this.loginForm)
-        this.$router.push({
-          path: this.redirect || '/',
-          query: this.otherQuery
-        })
-        // Just to simulate the time of the request
-        setTimeout(() => {
+        try {
+          this.loading = true
+          await UserModule.Login(this.loginForm)
+          this.$router.push({
+            path: this.redirect || '/',
+            query: this.otherQuery
+          })
+        } catch (err) {
+          this.$message.error('登录失败，失败原因：' + err.message)
+        } finally {
           this.loading = false
-        }, 0.5 * 1000)
+        }
       } else {
         return false
       }

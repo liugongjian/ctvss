@@ -49,7 +49,7 @@ export default class extends Vue {
     let matched = this.$route.matched.filter((item) => item.meta && item.meta.title)
     const first = matched[0]
     if (!this.isDashboard(first)) {
-      matched = [{ path: '/dashboard', meta: { title: '全局概览' } } as RouteRecord].concat(matched)
+      matched = [{ path: '/', meta: { title: '首页' } } as RouteRecord].concat(matched)
     }
     this.breadcrumbs = matched.filter((item) => {
       return item.meta && item.meta.title && item.meta.breadcrumb !== false
@@ -61,7 +61,7 @@ export default class extends Vue {
     if (!name) {
       return false
     }
-    return name.trim().toLocaleLowerCase() === 'Dashboard'.toLocaleLowerCase()
+    return name.trim().toLocaleLowerCase() === 'group-list'.toLocaleLowerCase()
   }
 
   private pathCompile(path: string) {

@@ -5,7 +5,7 @@
       mode="out-in"
     >
       <keep-alive :include="cachedViews">
-        <router-view :key="key" />
+        <router-view />
       </keep-alive>
     </transition>
   </section>
