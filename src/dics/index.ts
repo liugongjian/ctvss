@@ -72,7 +72,9 @@ export const SipTransType = {
 
 export const StreamTransType = {
   tcp: 'TCP',
-  udp: 'UDP'
+  udp: 'UDP',
+  ps_rtp_tcp: 'TCP',
+  ps_rtp_udp: 'TCP'
 }
 
 export const TransPriority = {
