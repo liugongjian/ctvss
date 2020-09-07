@@ -1,5 +1,5 @@
 <template>
-  <div ref="video" class="video-wrap" />
+  <div ref="video" class="video-wrap" @wheel="zoom" />
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
@@ -31,8 +31,17 @@ export default class extends Vue {
     default: false
   })
   private isLive?: boolean
+  @Prop({
+    default: false
+  })
+  private isZoom?: boolean
 
   public player?: Ctplayer
+  private ratio = 1
+  private offset: any = {
+    x: 0,
+    y: 0
+  }
 
   private mounted() {
     this.createPlayer()
@@ -95,6 +104,22 @@ export default class extends Vue {
         }
       }
     })
+  }
+
+  /**
+   * 电子放大
+   */
+  private zoom(event: any) {
+    const $video: any = this.$refs.video
+    const player = $video.querySelector('video')
+    // const videoSize = $video.getBoundingClientRect()
+    // const playerSize = player.getBoundingClientRect()
+    const deltaY = event.deltaY / 200
+    this.ratio = this.ratio + this.ratio * deltaY
+    if (this.ratio < 1) {
+      this.ratio = 1
+    }
+    player.style.transform = `scale(${this.ratio})`
   }
 }
 </script>

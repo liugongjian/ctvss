@@ -79,6 +79,9 @@
               </el-tooltip>
             </div>
           </div>
+          <div class="tool-buttons">
+            <el-button>开启电子放大</el-button>
+          </div>
           <div class="screen-list" :class="[`screen-size--${maxSize}`, {'fullscreen': isFullscreen}]">
             <div
               v-for="(screen, index) in screenList"
@@ -96,6 +99,7 @@
                   :is-live="true"
                   :auto-play="true"
                   :has-control="false"
+                  :is-zoom="true"
                   @onRetry="onRetry(screen)"
                 />
                 <div v-else class="tip-text">无信号</div>
@@ -138,6 +142,7 @@ export default class extends Mixins(DeviceMixin) {
   private maxSize = 4
   private screenList: Array<Screen> = []
   private isFullscreen = false
+  private isZoom = false
 
   private get defaultKey() {
     const id = this.$route.query.deviceId || this.$route.query.id
@@ -349,6 +354,11 @@ export default class extends Mixins(DeviceMixin) {
       }
     }
   }
+
+  .tool-buttons {
+    height: 40px;
+  }
+
   .screen-list {
     flex: 1;
     display: flex;
@@ -361,6 +371,7 @@ export default class extends Mixins(DeviceMixin) {
       border: 2px solid #fff;
       justify-content: center;
       align-items: center;
+      overflow: hidden;
       &.actived {
         border-color: $primary
       }
