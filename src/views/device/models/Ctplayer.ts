@@ -1,6 +1,7 @@
 // @ts-ignore
 import flvjs from 'flv.js/src/flv.js'
 import Hls from 'hls.js'
+import { dateFormat } from '@/utils/date'
 import '@/libs/h265/goldplay.css'
 
 export default class Ctplayer {
@@ -12,6 +13,8 @@ export default class Ctplayer {
   public hls?: any
   public type?: string
   public isLive?: boolean
+  private onPlay?: Function
+  private onPause?: Function
   private onTimeUpdate?: Function
   private onResizeScreen?: Function
   private onReset?: Function
@@ -26,6 +29,8 @@ export default class Ctplayer {
     this.hasControl = config.hasControl
     this.type = config.type
     this.isLive = config.isLive
+    this.onPlay = config.onPlay
+    this.onPause = config.onPause
     this.onTimeUpdate = config.onTimeUpdate
     this.onResizeScreen = config.onResizeScreen
     this.onReset = config.onReset
@@ -69,14 +74,17 @@ export default class Ctplayer {
 
   private bindEvent() {
     switch (this.type) {
+      case 'flv':
       case 'hls':
-        this.player.addEventListener('timeupdate', this.hlsTimeUpdate.bind(this))
-        this.player.addEventListener('ended', this.hlsEnded.bind(this))
-        this.player.addEventListener('seeked', this.hlsSeeked.bind(this))
+        this.player.addEventListener('play', this.h264Play.bind(this))
+        this.player.addEventListener('pause', this.h264Pause.bind(this))
+        this.player.addEventListener('timeupdate', this.h264TimeUpdate.bind(this))
+        this.player.addEventListener('ended', this.h264Ended.bind(this))
+        this.player.addEventListener('seeked', this.h264Seeked.bind(this))
         break
       case 'h265-hls':
         this.player.events.on('Player.resizeScreen', this.resizeH265Hls.bind(this))
-        this.player.events.on('Player.timeUpdate', this.H265HlsTimeUpdate.bind(this))
+        this.player.events.on('Player.timeUpdate', this.h265HlsTimeUpdate.bind(this))
     }
   }
 
@@ -97,12 +105,12 @@ export default class Ctplayer {
       const wrapElement: HTMLDivElement = this.wrap
       switch (this.type) {
         case 'flv':
-          this.player.destroy()
-          break
         case 'hls':
-          this.player.removeEventListener('timeupdate', this.hlsTimeUpdate)
-          this.player.removeEventListener('ended', this.hlsEnded)
-          this.player.removeEventListener('seeked', this.hlsSeeked)
+          this.player.removeEventListener('play', this.h264Play)
+          this.player.removeEventListener('pause', this.h264Pause)
+          this.player.removeEventListener('timeupdate', this.h264TimeUpdate)
+          this.player.removeEventListener('ended', this.h264Ended)
+          this.player.removeEventListener('seeked', this.h264Seeked)
           this.hls.destroy()
           break
         case 'mp4':
@@ -114,7 +122,7 @@ export default class Ctplayer {
           break
         case 'h265-hls':
           this.player.events.off('Player.resizeScreen', this.resizeH265Hls)
-          this.player.events.off('Player.timeUpdate', this.H265HlsTimeUpdate)
+          this.player.events.off('Player.timeUpdate', this.h265HlsTimeUpdate)
           this.player.destroy()
           break
       }
@@ -124,14 +132,30 @@ export default class Ctplayer {
     }
   }
 
+  /**
+   * 播放
+   */
   public play() {
     switch (this.type) {
       case 'flv':
       case 'hls':
       case 'mp4':
       case 'h265-flv':
-        this.player.load()
         this.player.play()
+        break
+    }
+  }
+
+  /**
+   * 暂停
+   */
+  public pause() {
+    switch (this.type) {
+      case 'flv':
+      case 'hls':
+      case 'mp4':
+      case 'h265-flv':
+        this.player.pause()
         break
     }
   }
@@ -147,8 +171,27 @@ export default class Ctplayer {
     }
   }
 
+  /**
+   * 停止
+   */
   public stop() {
     this.player.stop()
+  }
+
+  /**
+   * 截图
+   */
+  public snapshot(name: string = 'snapshot') {
+    let $video: HTMLVideoElement | null = this.wrap.querySelector('video')
+    if (!$video) return
+    let $canvas: any | null = document.createElement('canvas')
+    $canvas.width = $video.videoWidth
+    $canvas.height = $video.videoHeight
+    $canvas!.getContext('2d').drawImage($video, 0, 0, $canvas.width, $canvas.height)
+    let $link: any = document.createElement('a')
+    $link.download = `${name}_${dateFormat(new Date(), 'yyyy-MM-dd_HH-mm-ss')}.png`
+    $link.href = $canvas.toDataURL('image/png')
+    $link.click()
   }
 
   /**
@@ -271,7 +314,7 @@ export default class Ctplayer {
         this.onRetry && this.onRetry()
       }
     })
-    return flvPlayer
+    return videoElement
   }
 
   /**
@@ -364,23 +407,37 @@ export default class Ctplayer {
   }
 
   /**
+   * H264 开始播放
+   */
+  private h264Play() {
+    this.onPlay && this.onPlay()
+  }
+
+  /**
+   * H264 开始播放
+   */
+  private h264Pause() {
+    this.onPause && this.onPause()
+  }
+
+  /**
    * H264 HLS更新时间
    */
-  private hlsTimeUpdate() {
+  private h264TimeUpdate() {
     this.onTimeUpdate && this.onTimeUpdate(this.player.currentTime)
   }
 
   /**
    * H264 HLS播放结束
    */
-  private hlsEnded() {
+  private h264Ended() {
     this.onEnded && this.onEnded()
   }
 
   /**
    * H264 HLS Seeked
    */
-  private hlsSeeked() {
+  private h264Seeked() {
     this.onSeeked && this.onSeeked(this.player.currentTime)
   }
 
@@ -397,8 +454,7 @@ export default class Ctplayer {
    * H265 HLS更新时间
    * @param e
    */
-  private H265HlsTimeUpdate(e: any) {
-    console.log(e)
+  private h265HlsTimeUpdate(e: any) {
     // 统一返回"秒"为单位
     this.onTimeUpdate && this.onTimeUpdate(e / 1000)
   }

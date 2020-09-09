@@ -15,7 +15,8 @@
       </el-radio-group>
     </div>
     <div v-if="viewModel === 'timeline'" class="replay-player">
-      <div v-if="recordList.length && !loading">
+      <ReplayPlayerB :current-date="currentDate" />
+      <!-- <div v-if="recordList.length && !loading">
         <div ref="video" class="replay-video" />
         <div class="timeline__current-time">{{ dateFormat(currentTime) }}</div>
         <div ref="timelineWrap" class="timeline--wrap">
@@ -55,7 +56,7 @@
       </div>
       <div v-else class="empty-text">
         所选日期暂无录像
-      </div>
+      </div> -->
     </div>
     <div v-else class="replay-time-list">
       <el-table :data="recordListSlice" empty-text="所选日期暂无录像">
@@ -87,11 +88,13 @@ import { dateFormatInTable, dateFormat } from '@/utils/date'
 import Ctplayer from '../models/Ctplayer'
 import { getDeviceRecords, getDeviceRecord } from '@/api/device'
 import ReplayPlayer from './dialogs/ReplayPlayer.vue'
+import ReplayPlayerB from './ReplayPlayer.vue'
 
 @Component({
   name: 'Replay',
   components: {
-    ReplayPlayer
+    ReplayPlayer,
+    ReplayPlayerB
   }
 })
 export default class extends Vue {
@@ -133,7 +136,7 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    await this.init()
+    // await this.init()
     window.addEventListener('resize', this.resizeVideo)
   }
 
@@ -182,8 +185,8 @@ export default class extends Vue {
    * 切换日期
    */
   private changeDate() {
-    this.player && this.player.disposePlayer()
-    this.init()
+    // this.player && this.player.disposePlayer()
+    // this.init()
   }
 
   /**
@@ -220,7 +223,7 @@ export default class extends Vue {
   private initVideoPlayer() {
     if (this.recordList.length) {
       this.currentRecord = this.recordList[0]
-      this.player = this.createPlayer(this.currentRecord, true)
+      // this.player = this.createPlayer(this.currentRecord, true)
       this.setCurrentTime(this.currentRecord, 0)
       this.resizeVideo()
     }
@@ -235,7 +238,7 @@ export default class extends Vue {
       autoPlay,
       hasControl: true,
       source: video.playUrl.hlsUrl,
-      type: video.videoCoding === 'h264' ? 'hls' : 'h265-hls',
+      type: video.videoCoding === 'h265' ? 'h265-hls' : 'hls',
       onTimeUpdate: (currentTime: number) => {
         if (this.currentRecord) {
           this.setCurrentTime(this.currentRecord, currentTime)

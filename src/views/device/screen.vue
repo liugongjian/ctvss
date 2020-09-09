@@ -100,6 +100,7 @@
                   :auto-play="true"
                   :has-control="false"
                   :is-zoom="true"
+                  :device-name="screen.deviceName"
                   @onRetry="onRetry(screen)"
                 />
                 <div v-else class="tip-text">无信号</div>

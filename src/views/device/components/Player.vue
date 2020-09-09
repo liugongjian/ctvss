@@ -1,5 +1,31 @@
 <template>
-  <div ref="video" class="video-wrap" @wheel="zoom" />
+  <div class="video-wrap">
+    <div ref="video" @wheel="zoom" />
+    <div class="controls">
+      <div class="controls__left">
+        <template v-if="!isLive">
+          <div v-if="paused" class="controls__btn controls__snapshot" @click="play">
+            <svg-icon name="play" width="16px" height="16px" />
+          </div>
+          <div v-else class="controls__btn controls__snapshot" @click="pause">
+            <svg-icon name="pause" width="18px" height="18px" />
+          </div>
+        </template>
+      </div>
+      <div class="controls__right">
+        <!-- <el-tooltip content="保存截图">
+          <div class="controls__btn controls__playback" @click.stop.prevent="snapshot">
+            <svg-icon name="playback" width="18px" height="18px" />
+          </div>
+        </el-tooltip> -->
+        <el-tooltip content="保存截图">
+          <div class="controls__btn controls__snapshot" @click.stop.prevent="snapshot">
+            <svg-icon name="snapshot" width="18px" height="18px" />
+          </div>
+        </el-tooltip>
+      </div>
+    </div>
+  </div>
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
@@ -25,8 +51,6 @@ export default class extends Vue {
     default: true
   })
   private hasControl?: boolean
-  @Prop()
-  private onTimeUpdate?: Function
   @Prop({
     default: false
   })
@@ -35,8 +59,15 @@ export default class extends Vue {
     default: false
   })
   private isZoom?: boolean
+  @Prop()
+  private deviceName?: string
+  @Prop()
+  private onTimeUpdate?: Function
+  @Prop()
+  private onEnded?: Function
 
   public player?: Ctplayer
+  public paused?: boolean = true
   private ratio = 1
   private offset: any = {
     x: 0,
@@ -53,20 +84,6 @@ export default class extends Vue {
     if (this.isLive) window.removeEventListener('focus', this.reloadPlayer)
   }
 
-  public disposePlayer() {
-    this.player && this.player.disposePlayer()
-  }
-
-  public reloadPlayer() {
-    console.log('reloadPlayer')
-    this.player && this.player.reloadPlayer()
-  }
-
-  public reset() {
-    this.player && this.player.disposePlayer()
-    this.createPlayer()
-  }
-
   /**
    * 创建播放器
    */
@@ -79,6 +96,9 @@ export default class extends Vue {
       type: this.type,
       isLive: this.isLive,
       onTimeUpdate: this.onTimeUpdate,
+      onEnded: this.onEnded,
+      onPlay: this.setStatus,
+      onPause: this.setStatus,
       onResizeScreen: (originWidth: number, originHeight: number) => {
         const $video: HTMLDivElement = this.$refs.video as HTMLDivElement
         const $canvas: HTMLCanvasElement | null = $video.querySelector('canvas')
@@ -106,10 +126,28 @@ export default class extends Vue {
     })
   }
 
+  public disposePlayer() {
+    this.player && this.player.disposePlayer()
+  }
+
+  public reloadPlayer() {
+    console.log('reloadPlayer')
+    this.player && this.player.reloadPlayer()
+  }
+
+  public reset() {
+    this.player && this.player.disposePlayer()
+    this.createPlayer()
+  }
+
+  public setStatus() {
+    this.paused = this.player!.player.paused
+  }
+
   /**
    * 电子放大
    */
-  private zoom(event: any) {
+  public zoom(event: any) {
     const $video: any = this.$refs.video
     const player = $video.querySelector('video')
     // const videoSize = $video.getBoundingClientRect()
@@ -121,5 +159,78 @@ export default class extends Vue {
     }
     player.style.transform = `scale(${this.ratio})`
   }
+
+  /**
+   * 播放
+   */
+  public play() {
+    this.player!.play()
+  }
+
+  /**
+   * 暂停
+   */
+  public pause() {
+    this.player!.pause()
+  }
+
+  /**
+   * 跳转
+   */
+  public seek(time: number) {
+    this.player!.seek(time)
+  }
+
+  /**
+   * 视频截图
+   */
+  public snapshot() {
+    this.player!.snapshot(this.deviceName)
+  }
 }
 </script>
+<style lang="scss" scoped>
+  .video-wrap {
+    position: relative;
+    background: #333;
+    overflow: hidden;
+
+    video {
+      display: block;
+    }
+    .controls {
+      position: absolute;
+      z-index: 10;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 35px;
+      background: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      opacity: 1;
+      transition: opacity .2s;
+
+      &__left, &__right {
+        position: absolute;
+        left: 10px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+      }
+
+      &__right {
+        left: auto;
+        right: 10px;
+      }
+      &__btn {
+        cursor: pointer;
+        margin: 0 5px;
+      }
+    }
+    &:hover {
+      .controls {
+        opacity: 1;
+      }
+    }
+  }
+</style>
