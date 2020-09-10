@@ -11,6 +11,7 @@ export default class Ctplayer {
   public hasControl: boolean
   public player: any
   public hls?: any
+  public flv?: any
   public type?: string
   public isLive?: boolean
   public playbackRate?: number
@@ -113,6 +114,13 @@ export default class Ctplayer {
       const wrapElement: HTMLDivElement = this.wrap
       switch (this.type) {
         case 'flv':
+          this.player.removeEventListener('play', this.h264Play)
+          this.player.removeEventListener('pause', this.h264Pause)
+          this.player.removeEventListener('timeupdate', this.h264TimeUpdate)
+          this.player.removeEventListener('ended', this.h264Ended)
+          this.player.removeEventListener('seeked', this.h264Seeked)
+          this.flv.destroy()
+          break
         case 'hls':
           this.player.removeEventListener('play', this.h264Play)
           this.player.removeEventListener('pause', this.h264Pause)
@@ -355,6 +363,7 @@ export default class Ctplayer {
         this.onRetry && this.onRetry()
       }
     })
+    this.flv = flvPlayer
     return videoElement
   }
 
