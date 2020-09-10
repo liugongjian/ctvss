@@ -53,7 +53,7 @@
                     <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                     {{ node.label }}
                     <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
-                    <i v-if="data.type === 'nvr' || data.type === 'dir'" class="el-icon-video-play" @click="videosOnPolling(1)" style="float: right;" />
+                    <i v-if="data.type === 'nvr' || data.type === 'dir'" class="el-icon-video-play" style="float: right;" @click="videosOnPolling(1)" />
                   </span>
                 </span>
               </el-tree>
@@ -392,6 +392,9 @@ export default class extends Mixins(DeviceMixin) {
    */
   private changeMaxSize(size: number) {
     this.maxSize = size
+    if (this.currentIndex >= this.maxSize) {
+      this.currentIndex = this.maxSize - 1
+    }
     this.initScreen()
   }
 
