@@ -13,7 +13,7 @@
         </template>
       </div>
       <div class="controls__right">
-        <div class="controls__btn controls__playback">
+        <div v-if="!isLive" class="controls__btn controls__playback">
           {{ playbackRate === 1 ? '倍速' : `${playbackRate}x` }}
           <ul class="controls__popup">
             <li
@@ -49,7 +49,9 @@ export default class extends Vue {
     default: 'player'
   })
   private playerId!: string
-  @Prop()
+  @Prop({
+    default: ''
+  })
   private url!: string
   @Prop({
     default: false
@@ -63,6 +65,10 @@ export default class extends Vue {
     default: false
   })
   private isLive?: boolean
+  @Prop({
+    default: false
+  })
+  private isWs?: boolean
   @Prop({
     default: false
   })
@@ -98,6 +104,7 @@ export default class extends Vue {
    * 创建播放器
    */
   private createPlayer() {
+    this.url = this.isWs ? this.url.replace('http://', 'ws://') : this.url
     this.player = new Ctplayer({
       wrap: this.$refs.video,
       autoPlay: this.autoPlay,

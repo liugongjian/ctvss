@@ -527,12 +527,23 @@ export default class extends Mixins(DeviceMixin) {
       flex: 1 0 50%;
       position: relative;
       background: #333;
-      border: 2px solid #fff;
+      border: 3px solid #fff;
       justify-content: center;
       align-items: center;
       overflow: hidden;
       &.actived {
-        border-color: $primary
+        border-color: $primary;
+        &:before {
+          content: ' ';
+          position: absolute;
+          z-index: 10;
+          width: 30px;
+          height: 30px;
+          left: -15px;
+          top: -15px;
+          background: $primary;
+          transform: rotate(45deg);
+        }
       }
       ::v-deep .el-loading-mask {
         background: #333;

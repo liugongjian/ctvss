@@ -8,7 +8,9 @@
         :type="videoCoding"
         :url="address.flvUrl"
         :auto-play="true"
+        :is-ws="true"
         :is-live="true"
+        :has-control="false"
         @onRetry="onRetry"
       />
     </div>
