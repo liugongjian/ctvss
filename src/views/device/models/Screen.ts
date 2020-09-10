@@ -29,7 +29,7 @@ export default class Screen {
         deviceId: this.deviceId
       })
       if (res.playUrl) {
-        this.url = res.playUrl.flvUrl
+        this.url = res.playUrl.flvUrl.replace('http://', 'ws://')
         this.type = res.videoCoding === 'h264' ? 'flv' : 'h265-flv'
       }
       this.retry = false

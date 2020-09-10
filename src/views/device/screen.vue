@@ -34,6 +34,7 @@
               </el-tooltip>
             </div>
             <div v-loading="loading.dir" class="dir-list__tree device-list__max-height" :style="{height: `${maxHeight}px`}">
+              <el-button size="mini" class="dir-list__tree polling-button" @click="videosOnPolling(-1)">轮巡根目录</el-button>
               <el-tree
                 ref="dirTree"
                 empty-text="暂无目录或设备"
@@ -46,12 +47,13 @@
                 :current-node-key="defaultKey"
                 @node-click="openScreen"
               >
-                <span slot-scope="{node, data}" class="custom-tree-node" :class="{'offline': data.type === 'ipc' && data.streamStatus !== 'on'}">
+                <span slot-scope="{node, data}" class="custom-tree-node" :class="{'offline': data.type === 'ipc' && data.streamStatus !== 'on'}" @contextmenu="openMenu($event, node)">
                   <span class="node-name">
                     <svg-icon :name="data.type" />
                     <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                     {{ node.label }}
                     <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
+                    <i v-if="data.type === 'nvr' || data.type === 'dir'" class="el-icon-video-play" @click="videosOnPolling(1)" style="float: right;" />
                   </span>
                 </span>
               </el-tree>
@@ -81,6 +83,15 @@
           </div>
           <div class="tool-buttons">
             <el-button>开启电子放大</el-button>
+            <el-button v-if="polling.isStart" @click="stopPolling()">停止轮巡</el-button>
+            <el-select v-if="polling.isStart" v-model="polling.interval" class="tool-buttons--select" placeholder="请选择" @change="intervalChange">
+              <el-option
+                v-for="item in pollingInterval"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
           </div>
           <div class="screen-list" :class="[`screen-size--${maxSize}`, {'fullscreen': isFullscreen}]">
             <div
@@ -119,6 +130,10 @@
         </div>
       </div>
     </el-card>
+
+    <div id="mouse-right" class="mouse-right" @click="videosOnPolling(1)">
+      轮巡
+    </div>
   </div>
 </template>
 <script lang="ts">
@@ -130,6 +145,8 @@ import { Group } from '@/type/group'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import Screen from './models/Screen'
 import Player from './components/Player.vue'
+import { getDeviceTree } from '@/api/device'
+import { clear } from 'console'
 
 @Component({
   name: 'Screen',
@@ -141,9 +158,45 @@ import Player from './components/Player.vue'
 export default class extends Mixins(DeviceMixin) {
   private currentIndex = 0
   private maxSize = 4
+  private currentPollingIndex = 0
   private screenList: Array<Screen> = []
   private isFullscreen = false
   private isZoom = false
+  private polling = {
+    interval: 5,
+    isStart: false
+  }
+  private interval?: NodeJS.Timeout
+  private currentNode?: Record<string, any> = {
+    data: {}
+  }
+  private pollingDevices: Record<string, any>[] = []
+  private pollingInterval = [
+    {
+      value: 5,
+      label: '5秒'
+    },
+    {
+      value: 20,
+      label: '20秒'
+    },
+    {
+      value: 40,
+      label: '40秒'
+    },
+    {
+      value: 60,
+      label: '1分钟'
+    },
+    {
+      value: 180,
+      label: '3分钟'
+    },
+    {
+      value: 300,
+      label: '5分钟'
+    }
+  ]
 
   private get defaultKey() {
     const id = this.$route.query.deviceId || this.$route.query.id
@@ -159,6 +212,10 @@ export default class extends Mixins(DeviceMixin) {
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
     window.addEventListener('resize', this.checkFullscreen)
+  }
+
+  private beforeDestroy() {
+    this.interval && clearInterval(this.interval)
   }
 
   private destroyed() {
@@ -239,6 +296,13 @@ export default class extends Mixins(DeviceMixin) {
    * 打开分屏视频
    */
   private openScreen(item: any, node?: any) {
+    if (this.polling.isStart) {
+      this.$message({
+        message: '请先关闭轮巡再进行选择',
+        type: 'warning'
+      })
+      return
+    }
     if (item.type === 'ipc' && item.streamStatus === 'on') {
       const screen = this.screenList[this.currentIndex]
       if (screen.deviceId) {
@@ -249,6 +313,71 @@ export default class extends Mixins(DeviceMixin) {
       screen.getUrl()
       if (this.currentIndex < (this.maxSize - 1)) this.currentIndex++
     }
+  }
+
+  /**
+   * 需要轮训的视频
+   */
+  private async videosOnPolling(dir: number) {
+    this.polling.isStart = true
+    this.pollingDevices = []
+    if (dir === -1) {
+      console.log('轮训根目录')
+      this.dirList.forEach((item: any) => {
+        if (item.type === 'ipc' && item.streamStatus === 'on') {
+          this.pollingDevices.push(item)
+        }
+      })
+    } else {
+      console.log('查询dir下设备')
+      let data = await getDeviceTree({
+        groupId: this.currentGroupId,
+        id: this.currentNode!.data.id,
+        type: this.currentNode!.data.type
+      })
+      data.dirs.forEach((item: any) => {
+        if (item.type === 'ipc' && item.streamStatus === 'on') {
+          this.pollingDevices.push(item)
+        }
+      })
+    }
+    this.interval && clearInterval(this.interval)
+    this.interval = setInterval(this.pollingVideos, this.polling.interval * 1000)
+  }
+
+  private intervalChange() {
+    console.log(this.polling.interval)
+    if (this.polling.isStart) {
+      this.interval && clearInterval(this.interval)
+      this.interval = setInterval(this.pollingVideos, this.polling.interval * 1000)
+    }
+  }
+
+  private stopPolling() {
+    if (this.polling.isStart) {
+      this.polling.isStart = false
+      clearInterval(this.interval!)
+    }
+  }
+
+  /**
+   * 轮训
+   */
+  private pollingVideos() {
+    console.log('轮训')
+    const length = this.pollingDevices.length
+    this.currentIndex = 0
+    for (let i = 0; i < this.maxSize; i++) {
+      this.screenList[i].deviceId = this.pollingDevices[(this.currentPollingIndex + i) % length].id
+      this.screenList[i].deviceName = this.pollingDevices[(this.currentPollingIndex + i) % length].label
+      this.screenList[i].getUrl()
+      if (this.currentIndex < (this.maxSize - 1)) {
+        this.currentIndex++
+      } else {
+        this.currentIndex = 0
+      }
+    }
+    this.currentPollingIndex = this.currentPollingIndex + this.maxSize
   }
 
   /**
@@ -310,6 +439,25 @@ export default class extends Mixins(DeviceMixin) {
       }
     }, 30 * 1000)
   }
+
+  /**
+   * 右键菜单
+   */
+  public openMenu(event: MouseEvent, node: any) {
+    console.log(event, node)
+    this.currentNode = node
+    if (node.data.type === 'dir' || node.data.type === 'nvr') {
+      event.preventDefault()
+      var context = document.getElementById('mouse-right')
+      context!.style.display = 'block'
+      context!.style.left = event.x + 'px'
+      context!.style.top = event.y + 'px'
+      document.onclick = function() {
+        var context = document.getElementById('mouse-right')
+        context!.style.display = 'none'
+      }
+    }
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -317,6 +465,9 @@ export default class extends Mixins(DeviceMixin) {
     &__left {
       .playing {
         color: $success;
+      }
+      .polling {
+        color: blue;
       }
       .offline .node-name {
         cursor: not-allowed;
@@ -358,6 +509,10 @@ export default class extends Mixins(DeviceMixin) {
 
   .tool-buttons {
     height: 40px;
+
+    &--select {
+      margin-left: 10px;
+    }
   }
 
   .screen-list {
@@ -427,5 +582,15 @@ export default class extends Mixins(DeviceMixin) {
       right: 0;
       bottom: 0;
     }
+  }
+
+  .mouse-right {
+    display: none;
+    position: fixed;
+    width: 140px;
+    border: 1px solid #dcdfe6;
+    padding: 5px 10px;
+    background-color: white;
+    text-align: center;
   }
 </style>
