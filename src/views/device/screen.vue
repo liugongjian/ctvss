@@ -138,10 +138,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Watch, Mixins } from 'vue-property-decorator'
-import DeviceMixin from './mixin/deviceMixin'
-import { DeviceModule } from '@/store/modules/device'
-import { getGroups } from '@/api/group'
-import { Group } from '@/type/group'
+import ScreenMixin from './mixin/screenMixin'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import Screen from './models/Screen'
 import Player from './components/Player.vue'
@@ -155,12 +152,9 @@ import { clear } from 'console'
     StatusBadge
   }
 })
-export default class extends Mixins(DeviceMixin) {
-  private currentIndex = 0
-  private maxSize = 4
+export default class extends Mixins(ScreenMixin) {
+  public maxSize = 4
   private currentPollingIndex = 0
-  private screenList: Array<Screen> = []
-  private isFullscreen = false
   private isZoom = false
   private polling = {
     interval: 5,
@@ -227,70 +221,9 @@ export default class extends Mixins(DeviceMixin) {
   }
 
   /**
-   * 获取组列表
-   */
-  private async getGroupList() {
-    this.loading.group = true
-    let params = {
-      pageSize: 1000
-    }
-    const res = await getGroups(params)
-    this.groupList = res.groups
-    if (this.groupList.length) {
-      if (!this.$route.query.groupId) {
-        await DeviceModule.SetGroup(this.groupList[0])
-        this.$route.query.groupId = this.groupList[0]
-        this.$router.push({
-          name: 'screen',
-          query: {
-            groupId: this.currentGroupId
-          }
-        })
-      } else {
-        const currentGroup = this.groupList.find((group: Group) => group.groupId === this.$route.query.groupId)
-        await DeviceModule.SetGroup(currentGroup)
-      }
-      await this.initDirs()
-    }
-    this.loading.group = false
-  }
-
-  /**
-   * 切换业务组
-   */
-  private async changeGroup() {
-    const currentGroup = this.groupList.find((group: Group) => group.groupId === this.groupId)
-    await DeviceModule.SetGroup(currentGroup)
-    this.$router.push({
-      name: 'screen',
-      query: {
-        groupId: this.currentGroupId
-      }
-    })
-    await this.initDirs()
-  }
-
-  /**
    * 清空初始化树状态默认方法
    */
   public async initTreeStatus() {}
-
-  /**
-   * 初始化分屏
-   */
-  private initScreen() {
-    let screenList: Array<Screen> = []
-    let startIndex = 0
-    if (this.screenList.length) {
-      screenList = this.screenList.slice(0, this.maxSize)
-      startIndex = screenList.length
-    }
-    for (let i = startIndex; i < this.maxSize; i++) {
-      const screen = new Screen()
-      screenList.push(screen)
-    }
-    this.screenList = screenList
-  }
 
   /**
    * 打开分屏视频
@@ -378,56 +311,6 @@ export default class extends Mixins(DeviceMixin) {
       }
     }
     this.currentPollingIndex = this.currentPollingIndex + this.maxSize
-  }
-
-  /**
-   * 选择分屏
-   */
-  private async selectScreen(index: number) {
-    this.currentIndex = index
-  }
-
-  /**
-   * 切换分屏数量
-   */
-  private changeMaxSize(size: number) {
-    this.maxSize = size
-    if (this.currentIndex >= this.maxSize) {
-      this.currentIndex = this.maxSize - 1
-    }
-    this.initScreen()
-  }
-
-  /**
-   * 全屏
-   */
-  private fullscreen() {
-    const element: any = document.documentElement
-    if (element.requestFullscreen) {
-      element.requestFullscreen()
-    } else if (element.msRequestFullscreen) {
-      element.msRequestFullscreen()
-    } else if (element.mozRequestFullScreen) {
-      element.mozRequestFullScreen()
-    } else if (element.webkitRequestFullscreen) {
-      element.webkitRequestFullscreen()
-    }
-  }
-
-  /**
-   * 检查是否全屏
-   */
-  private checkFullscreen() {
-    const doc: any = document
-    this.isFullscreen = !!(doc.webkitIsFullScreen || doc.mozFullScreen || doc.msFullscreenElement || doc.fullscreenElement)
-  }
-
-  /**
-   * 检查设备树中的设备项是否选择
-   */
-  private checkTreeItemStatus(item: any) {
-    if (item.type !== 'ipc') return false
-    return !!this.screenList.find(screen => screen.deviceId === item.id)
   }
 
   /**
