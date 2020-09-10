@@ -10,46 +10,45 @@
         :has-control="false"
         :on-time-update="setCurrentTime"
       />
-      <div ref="timelineWrap" class="timeline--wrap">
-        <div ref="timeline" class="timeline">
-          <div
-            v-if="currentTime"
-            ref="handle"
-            class="timeline__handle"
-            :style="`left: ${handlePos}%;`"
-            @mousedown="moveHandleStart($event)"
-          >
-            <div class="timeline__current-time">
-              <span>{{ dateFormat(currentTime) }}</span>
+      <div class="timeline__box">
+        <div ref="timelineWrap" class="timeline__wrap">
+          <div ref="timeline" class="timeline" :class="{'dragging': axisDrag.isDragging}" @mousedown.stop.prevent="moveAxisStart($event)">
+            <div
+              v-if="currentTime"
+              ref="handle"
+              class="timeline__handle"
+              :style="`left: ${handlePos}%;`"
+              @mousedown.stop.prevent="moveHandleStart($event)"
+            >
+              <div class="timeline__current-time">
+                <span>{{ dateFormat(currentTime) }}</span>
+              </div>
             </div>
-          </div>
-          <div class="timeline__axis">
-            <div v-for="i in 24" :key="i" class="timeline__hour">
-              {{ i > 10 ? '' : '0' }}{{ i - 1 }}:00
+            <div class="timeline__axis">
+              <div v-for="i in 24" :key="i" class="timeline__hour">
+                {{ i > 10 ? '' : '0' }}{{ i - 1 }}:00
+              </div>
+              <div v-if="timelineRatio > 1" class="timeline__axis__slice">
+                <div v-for="i in 24 * 4" :key="i" class="timeline__half__hour">.</div>
+              </div>
             </div>
+            <div
+              v-for="(time, index) in timePositionList"
+              :key="index"
+              class="timeline__bar"
+              :style="`left: ${time.left}%; width: ${time.width}%;`"
+              @click="handleTimeline($event, time)"
+            />
           </div>
-          <div
-            v-for="(time, index) in timePositionList"
-            :key="index"
-            class="timeline__bar"
-            :style="`left: ${time.left}%; width: ${time.width}%;`"
-            @click="handleTimeline($event, time)"
-          />
         </div>
-      </div>
-      <div class="timeline__settings">
-        <label>缩放时间轴:</label>
-        <el-select v-model="timelineRatio" @change="changeTimelineRatio">
-          <el-option :value="1" label="1倍" />
-          <el-option :value="2" label="2倍" />
-          <el-option :value="4" label="4倍" />
-          <el-option :value="6" label="6倍" />
-          <el-option :value="8" label="8倍" />
-          <el-option :value="10" label="10倍" />
-          <el-option :value="20" label="20倍" />
-          <el-option :value="40" label="30倍" />
-          <el-option :value="60" label="60倍" />
-        </el-select>
+        <div class="timeline__settings">
+          <div class="settings__btn settings_zoomin" @click="setTimelineRatio(1)">
+            <svg-icon name="zoom-in" width="14px" height="14px" />
+          </div>
+          <div class="settings__btn settings_zoomout" @click="setTimelineRatio(0)">
+            <svg-icon name="zoom-out" width="14px" height="14px" />
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -95,10 +94,16 @@ export default class extends Vue {
     pageSize: 10,
     total: 0
   }
-  public drag: any = {
+  public handleDrag: any = {
     isDragging: false,
     timelineSize: null,
     deltaX: 0
+  }
+  public axisDrag: any = {
+    isDragging: false,
+    isMove: false,
+    deltaX: 0,
+    startX: 0
   }
 
   private get deviceId() {
@@ -200,7 +205,7 @@ export default class extends Vue {
    * offsetTime: 单位(秒)
    */
   private setCurrentTime(offsetTime: number) {
-    if (this.drag.isDragging) return
+    if (this.handleDrag.isDragging) return
     if (!offsetTime) return
     const currentTimestamp = this.currentRecord!.startAt + offsetTime * 1000
     this.currentTime = currentTimestamp
@@ -244,6 +249,7 @@ export default class extends Vue {
    * 点击时间轴位置
    */
   private handleTimeline(e: any, record: any) {
+    if (this.axisDrag.isMove) return
     const scale = e.offsetX / e.target.clientWidth
     let offsetTime = Math.ceil(scale * record.duration)
     offsetTime = offsetTime <= 0 ? 0 : offsetTime
@@ -264,26 +270,26 @@ export default class extends Vue {
    * 拖拽时间轴具柄
    */
   private moveHandleStart(e: MouseEvent) {
+    this.handleDrag.isDragging = true
     const $dirList: any = this.$refs.dirList
-    this.drag.isDragging = true
     const $timeline: any = this.$refs.timeline
-    this.drag.timelineSize = $timeline.getBoundingClientRect()
+    this.handleDrag.timelineSize = $timeline.getBoundingClientRect()
     const $handle: any = this.$refs.handle
     const handleSize = $handle.getBoundingClientRect()
     const offsetX = e.x - handleSize.x
-    this.drag.deltaX = offsetX - handleSize.width
+    this.handleDrag.deltaX = offsetX - handleSize.width
     window.addEventListener('mousemove', this.onHandleMove)
     window.addEventListener('mouseup', this.onHandleMouseup)
   }
 
   private onHandleMove(e: MouseEvent) {
-    if (!this.drag.isDragging) return
-    this.handlePos = (e.x - this.drag.deltaX - this.drag.timelineSize.x) / this.drag.timelineSize.width * 100
+    if (!this.handleDrag.isDragging) return
+    this.handlePos = (e.x - this.handleDrag.deltaX - this.handleDrag.timelineSize.x) / this.handleDrag.timelineSize.width * 100
     this.currentTime = this.currentDate! + this.handlePos * 24 * 60 * 60 * 10
   }
 
   private onHandleMouseup(e: MouseEvent) {
-    this.drag.isDragging = false
+    this.handleDrag.isDragging = false
     window.removeEventListener('mousemove', this.onHandleMove)
     window.removeEventListener('mouseup', this.onHandleMouseup)
     const currentTime = this.currentTime!
@@ -318,7 +324,7 @@ export default class extends Vue {
     const timelineSize = $timeline.getBoundingClientRect()
     if ((handleSize.x - $time.offsetWidth / 2) < timelineSize.x) {
       $time.style.left = `-5px`
-    } else if ((handleSize.x + $time.offsetWidth / 2) > timelineSize.width) {
+    } else if ((handleSize.x + $time.offsetWidth / 2) > (timelineSize.x + timelineSize.width)) {
       $time.style.left = `-${$time.offsetWidth - 5}px`
     } else {
       $time.style.left = `-${$time.offsetWidth / 2}px`
@@ -345,12 +351,44 @@ export default class extends Vue {
     return sec / (24 * 60 * 60) * 100
   }
 
-  private changeTimelineRatio() {
+  /**
+   * 设置时间轴比例
+   */
+  private setTimelineRatio(method: number) {
+    let timelineRatio = method ? this.timelineRatio * 2 : this.timelineRatio / 2
+    timelineRatio = timelineRatio < 1 ? 1 : timelineRatio
     const timelineWrap: any = this.$refs.timelineWrap
     const timeline: any = this.$refs.timeline
     const originWidth = timelineWrap.clientWidth
-    const zoomWidth = originWidth * this.timelineRatio
+    const zoomWidth = originWidth * timelineRatio
     timeline.style.width = `${zoomWidth}px`
+    this.timelineRatio = timelineRatio
+  }
+
+  /**
+   * 拖拽时间轴
+   */
+  private moveAxisStart(e: MouseEvent) {
+    this.axisDrag.isDragging = true
+    this.axisDrag.isMove = false
+    const $timelineWrap: any = this.$refs.timelineWrap
+    this.axisDrag.deltaX = $timelineWrap.scrollLeft
+    this.axisDrag.startX = e.x
+    window.addEventListener('mousemove', this.onAxisMove)
+    window.addEventListener('mouseup', this.onAxisMouseup)
+  }
+
+  private onAxisMove(e: MouseEvent) {
+    if (!this.axisDrag.isDragging) return
+    this.axisDrag.isMove = true
+    const $timelineWrap: any = this.$refs.timelineWrap
+    $timelineWrap.scrollLeft = this.axisDrag.deltaX + this.axisDrag.startX - e.x
+  }
+
+  private onAxisMouseup(e: MouseEvent) {
+    window.removeEventListener('mousemove', this.onAxisMove)
+    window.removeEventListener('mouseup', this.onAxisMouseup)
+    this.axisDrag.isDragging = false
   }
 }
 </script>
@@ -373,22 +411,36 @@ export default class extends Vue {
       margin-bottom: 15px;
     }
   }
-  .timeline--wrap {
+  .timeline__box {
     position: relative;
-    z-index: 200;
-    padding-top: 12px;
+  }
+  .timeline__wrap {
+    padding-top: 16px;
     overflow: auto;
     * {
       user-select:none;
     }
+    &::-webkit-scrollbar {
+      height: 10px;
+    }
+    &::-webkit-scrollbar-track-piece {
+      background-color: #222;
+    }
+    &::-webkit-scrollbar-thumb {
+      height: 10px;
+      background: #888;
+      border-radius: 4px;
+      cursor: pointer;
+    }
   }
   .timeline {
-    min-width: 1000px;
+    min-width: 930px;
     position: relative;
     margin-top: 10px;
     padding: 0 4px 15px 4px;
     display: flex;
     background: #333;
+    cursor: grab;
     &__handle {
       position: absolute;
       z-index: 10;
@@ -401,8 +453,8 @@ export default class extends Vue {
         font-size: 12px;
         width: 140px;
         left: -65px;
-        top: -12px;
-        padding: 4px;
+        top: -14px;
+        padding: 4px 0;
         border-radius: 5px;
         text-align: center;
         background: $primary;
@@ -411,8 +463,15 @@ export default class extends Vue {
       }
     }
     &__axis {
+      position: relative;
       display: flex;
       width: 100%;
+      &__slice {
+        position: absolute;
+        width: 100%;
+        left: 0;
+        display: flex;
+      }
     }
     &__hour {
       flex: 1 1 0;
@@ -426,6 +485,15 @@ export default class extends Vue {
         border-left: none;
       }
     }
+    &__half__hour {
+      flex: 1 1 0;
+      border-left: 1px solid #666;
+      height: 5px;
+      color: #333;
+      &:first-child {
+        border-left: none;
+      }
+    }
     &__bar {
       position: absolute;
       bottom: 0;
@@ -433,15 +501,20 @@ export default class extends Vue {
       height: 100%;
       cursor: pointer;
     }
+    &.dragging * {
+      cursor: grabbing;
+    }
   }
   .timeline__settings {
-    text-align: right;
-    margin-top: 10px;
-    .el-select {
-      width: 100px;
-    }
-    label {
-      margin-right: 5px;
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    display: flex;
+    color: #fff;
+
+    .settings__btn {
+      margin: 0 5px;
+      cursor: pointer;
     }
   }
   .empty-text {

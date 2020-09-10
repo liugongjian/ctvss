@@ -13,6 +13,7 @@ export default class Ctplayer {
   public hls?: any
   public type?: string
   public isLive?: boolean
+  public playbackRate?: number
   private onPlay?: Function
   private onPause?: Function
   private onTimeUpdate?: Function
@@ -29,6 +30,7 @@ export default class Ctplayer {
     this.hasControl = config.hasControl
     this.type = config.type
     this.isLive = config.isLive
+    this.playbackRate = config.playbackRate || 1
     this.onPlay = config.onPlay
     this.onPause = config.onPause
     this.onTimeUpdate = config.onTimeUpdate
@@ -55,6 +57,7 @@ export default class Ctplayer {
       throw new Error('播放器创建失败')
     }
     this.bindEvent()
+    this.setDefault()
   }
 
   private createPlayer(wrapElement: HTMLDivElement) {
@@ -72,6 +75,9 @@ export default class Ctplayer {
     }
   }
 
+  /**
+   * 绑定事件
+   */
   private bindEvent() {
     switch (this.type) {
       case 'flv':
@@ -88,18 +94,20 @@ export default class Ctplayer {
     }
   }
 
-  public reloadPlayer() {
+  /**
+   * 设置默认值
+   */
+  private setDefault() {
     switch (this.type) {
       case 'flv':
-        this.player.unload()
-        this.player.load()
-        this.player.play()
-        break
       case 'hls':
-      case 'mp4':
+        this.player.playbackRate = this.playbackRate
     }
   }
 
+  /**
+   * 销毁播放器
+   */
   public disposePlayer() {
     try {
       const wrapElement: HTMLDivElement = this.wrap
@@ -133,6 +141,21 @@ export default class Ctplayer {
   }
 
   /**
+   * 重新加载视频
+   */
+  public reloadPlayer() {
+    switch (this.type) {
+      case 'flv':
+        this.player.unload()
+        this.player.load()
+        this.player.play()
+        break
+      case 'hls':
+      case 'mp4':
+    }
+  }
+
+  /**
    * 播放
    */
   public play() {
@@ -160,13 +183,31 @@ export default class Ctplayer {
     }
   }
 
+  /**
+   * Seek
+   * @param time 秒
+   */
   public seek(time: number) {
     switch (this.type) {
+      case 'flv':
       case 'hls':
         this.player.currentTime = time
         break
       case 'h265-hls':
         this.player.seek(time)
+        break
+    }
+  }
+
+  /**
+   * 切换播放速度
+   * @param playbackRate
+   */
+  public setPlaybackRate(playbackRate: number) {
+    switch (this.type) {
+      case 'flv':
+      case 'hls':
+        this.player.playbackRate = playbackRate
         break
     }
   }

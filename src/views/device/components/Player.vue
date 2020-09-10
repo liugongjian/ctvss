@@ -13,12 +13,20 @@
         </template>
       </div>
       <div class="controls__right">
-        <!-- <el-tooltip content="保存截图">
-          <div class="controls__btn controls__playback" @click.stop.prevent="snapshot">
-            <svg-icon name="playback" width="18px" height="18px" />
-          </div>
-        </el-tooltip> -->
-        <el-tooltip content="保存截图">
+        <div class="controls__btn controls__playback">
+          {{ playbackRate === 1 ? '倍速' : `${playbackRate}x` }}
+          <ul class="controls__popup">
+            <li
+              v-for="rate in playbackRateList"
+              :key="rate"
+              :class="{'selected': rate === playbackRate}"
+              @click="setPlaybackRate(rate)"
+            >
+              {{ rate }}x
+            </li>
+          </ul>
+        </div>
+        <el-tooltip content="保存截图" placement="top">
           <div class="controls__btn controls__snapshot" @click.stop.prevent="snapshot">
             <svg-icon name="snapshot" width="18px" height="18px" />
           </div>
@@ -69,6 +77,8 @@ export default class extends Vue {
   public player?: Ctplayer
   public paused?: boolean = true
   private ratio = 1
+  private playbackRate = 1
+  private playbackRateList = [16, 8, 4, 2, 1.5, 1, 0.5]
   private offset: any = {
     x: 0,
     y: 0
@@ -95,6 +105,7 @@ export default class extends Vue {
       source: this.url,
       type: this.type,
       isLive: this.isLive,
+      playbackRate: this.playbackRate,
       onTimeUpdate: this.onTimeUpdate,
       onEnded: this.onEnded,
       onPlay: this.setStatus,
@@ -152,7 +163,7 @@ export default class extends Vue {
     const player = $video.querySelector('video')
     // const videoSize = $video.getBoundingClientRect()
     // const playerSize = player.getBoundingClientRect()
-    const deltaY = event.deltaY / 200
+    const deltaY = -event.deltaY / 200
     this.ratio = this.ratio + this.ratio * deltaY
     if (this.ratio < 1) {
       this.ratio = 1
@@ -187,6 +198,14 @@ export default class extends Vue {
   public snapshot() {
     this.player!.snapshot(this.deviceName)
   }
+
+  /**
+   * 切换播放速度
+   */
+  public setPlaybackRate(playbackRate: number) {
+    this.playbackRate = playbackRate
+    this.player!.setPlaybackRate(playbackRate)
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -199,6 +218,9 @@ export default class extends Vue {
       display: block;
     }
     .controls {
+      * {
+        user-select:none;
+      }
       position: absolute;
       z-index: 10;
       bottom: 0;
@@ -215,7 +237,6 @@ export default class extends Vue {
         left: 10px;
         height: 100%;
         display: flex;
-        align-items: center;
       }
 
       &__right {
@@ -223,8 +244,45 @@ export default class extends Vue {
         right: 10px;
       }
       &__btn {
+        position: relative;
+        display: flex;
+        align-items: center;
+        margin: 0 8px;
+        height: 35px;
+        font-size: 12px;
         cursor: pointer;
-        margin: 0 5px;
+        .controls__popup {
+          display: none;
+          position: absolute;
+          bottom: 35px;
+          left: -10px;
+          margin: 0;
+          padding: 5px 0;
+          min-width: 50px;
+          list-style: none;
+          background: rgba(0, 0, 0, 0.7);
+          li {
+            margin: 0;
+            padding: 5px 10px;
+            list-style: none;
+            &:hover {
+              background: #444;
+            }
+            &.selected {
+              color: $primary;
+            }
+          }
+        }
+        &:hover {
+          .controls__popup {
+            display: block;
+          }
+        }
+      }
+      &__playback {
+        li {
+          text-align: center;
+        }
       }
     }
     &:hover {
