@@ -44,7 +44,7 @@ import copy from 'copy-to-clipboard'
 import Player from './Player.vue'
 
 @Component({
-  name: 'DevicePreview',
+  name: 'LiveView',
   components: {
     Player
   }

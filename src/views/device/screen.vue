@@ -138,7 +138,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Watch, Mixins } from 'vue-property-decorator'
-import DeviceMixin from './mixin'
+import DeviceMixin from './mixin/deviceMixin'
 import { DeviceModule } from '@/store/modules/device'
 import { getGroups } from '@/api/group'
 import { Group } from '@/type/group'

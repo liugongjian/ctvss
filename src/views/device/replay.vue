@@ -49,7 +49,9 @@
                 <span slot-scope="{node, data}" class="custom-tree-node">
                   <span class="node-name">
                     <svg-icon :name="data.type" color="#6e7c89" />
+                    <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                     {{ node.label }}
+                    <!-- <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" /> -->
                   </span>
                 </span>
               </el-tree>
@@ -77,12 +79,12 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Watch, Mixins } from 'vue-property-decorator'
-import DeviceMixin from './mixin'
+import DeviceMixin from './mixin/deviceMixin'
 import { DeviceModule } from '@/store/modules/device'
 import { getGroups } from '@/api/group'
 import { Group } from '@/type/group'
 import StatusBadge from '@/components/StatusBadge/index.vue'
-import Replay from './components/Replay.vue'
+import Replay from './components/ReplayView.vue'
 
 @Component({
   name: 'Record',

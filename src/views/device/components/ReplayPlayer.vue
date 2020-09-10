@@ -1,56 +1,54 @@
 <template>
-  <div v-loading="loading" class="replay-player">
-    <div>
-      <player
-        v-if="currentRecord"
-        ref="player"
-        type="hls"
-        :url="currentRecord.playUrl.hlsUrl"
-        :auto-play="true"
-        :has-control="false"
-        :on-time-update="setCurrentTime"
-      />
-      <div v-if="!timePositionList.length" class="empty-text">
-        该时段暂无录像
-      </div>
-      <div class="timeline__box">
-        <div ref="timelineWrap" class="timeline__wrap">
-          <div ref="timeline" class="timeline" :class="{'dragging': axisDrag.isDragging}" @mousedown.stop.prevent="moveAxisStart($event)">
-            <div
-              v-if="currentTime"
-              ref="handle"
-              class="timeline__handle"
-              :style="`left: ${handlePos}%;`"
-              @mousedown.stop.prevent="moveHandleStart($event)"
-            >
-              <div class="timeline__current-time">
-                <span>{{ dateFormat(currentTime) }}</span>
-              </div>
+  <div class="replay-player">
+    <player
+      v-if="currentRecord"
+      ref="player"
+      type="hls"
+      :url="currentRecord.playUrl.hlsUrl"
+      :auto-play="true"
+      :has-control="false"
+      :on-time-update="setCurrentTime"
+    />
+    <div v-if="!timePositionList.length" class="empty-text">
+      该时段暂无录像
+    </div>
+    <div class="timeline__box">
+      <div ref="timelineWrap" class="timeline__wrap">
+        <div ref="timeline" class="timeline" :class="{'dragging': axisDrag.isDragging}" @mousedown.stop.prevent="moveAxisStart($event)">
+          <div
+            v-if="currentTime"
+            ref="handle"
+            class="timeline__handle"
+            :style="`left: ${handlePos}%;`"
+            @mousedown.stop.prevent="moveHandleStart($event)"
+          >
+            <div class="timeline__current-time">
+              <span>{{ dateFormat(currentTime) }}</span>
             </div>
-            <div class="timeline__axis">
-              <div v-for="i in 24" :key="i" class="timeline__hour">
-                {{ i > 10 ? '' : '0' }}{{ i - 1 }}:00
-              </div>
-              <div v-if="timelineRatio > 1" class="timeline__axis__slice">
-                <div v-for="i in 24 * 4" :key="i" class="timeline__half__hour">.</div>
-              </div>
-            </div>
-            <div
-              v-for="(time, index) in timePositionList"
-              :key="index"
-              class="timeline__bar"
-              :style="`left: ${time.left}%; width: ${time.width}%;`"
-              @click="handleTimeline($event, time)"
-            />
           </div>
+          <div class="timeline__axis">
+            <div v-for="i in 24" :key="i" class="timeline__hour">
+              {{ i > 10 ? '' : '0' }}{{ i - 1 }}:00
+            </div>
+            <div v-if="timelineRatio > 1" class="timeline__axis__slice">
+              <div v-for="i in 24 * 4" :key="i" class="timeline__half__hour">.</div>
+            </div>
+          </div>
+          <div
+            v-for="(time, index) in timePositionList"
+            :key="index"
+            class="timeline__bar"
+            :style="`left: ${time.left}%; width: ${time.width}%;`"
+            @click="handleTimeline($event, time)"
+          />
         </div>
-        <div class="timeline__settings">
-          <div class="settings__btn settings_zoomin" @click="setTimelineRatio(1)">
-            <svg-icon name="zoom-in" width="14px" height="14px" />
-          </div>
-          <div class="settings__btn settings_zoomout" @click="setTimelineRatio(0)">
-            <svg-icon name="zoom-out" width="14px" height="14px" />
-          </div>
+      </div>
+      <div class="timeline__settings">
+        <div class="settings__btn settings_zoomin" @click="setTimelineRatio(1)">
+          <svg-icon name="zoom-in" width="14px" height="14px" />
+        </div>
+        <div class="settings__btn settings_zoomout" @click="setTimelineRatio(0)">
+          <svg-icon name="zoom-out" width="14px" height="14px" />
         </div>
       </div>
     </div>
@@ -58,8 +56,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { dateFormatInTable, dateFormat } from '@/utils/date'
-import { getDeviceRecords, getDeviceRecord } from '@/api/device'
+import { dateFormat } from '@/utils/date'
 import Player from './Player.vue'
 
 @Component({
@@ -71,17 +68,16 @@ import Player from './Player.vue'
 export default class extends Vue {
   @Prop()
   private currentDate?: number
+  @Prop({
+    default: []
+  })
+  private recordList!: Array<any>
 
-  private dateFormatInTable = dateFormatInTable
   private dateFormat = dateFormat
-  private viewModel = 'timeline'
   private currentRecord: any = null
   private currentListRecord: any = null
   private currentTime: number | null = null
   private handlePos = 0
-  private loading = false
-  private recordList: Array<any> = []
-  private recordListSlice: Array<any> = []
   private timePositionList: Array<any> = []
   private pickerOptions = {
     disabledDate(time: any) {
@@ -126,8 +122,8 @@ export default class extends Vue {
     window.removeEventListener('resize', this.resizeVideo)
   }
 
-  @Watch('currentDate')
-  private onCurrentDateChange() {
+  @Watch('recordList')
+  private onRecordListChanged() {
     this.init()
   }
 
@@ -135,7 +131,6 @@ export default class extends Vue {
    * 初始化
    */
   private async init() {
-    await this.getRecordList()
     this.timePositionList = this.calcVideoPosition(this.recordList)
     this.initVideoPlayer()
   }
@@ -150,43 +145,8 @@ export default class extends Vue {
     const playerSize = $player.getBoundingClientRect()
     const width = playerSize.width
     const height = width * 9 / 16
-    const maxHeight = document.body.clientHeight - playerSize.top - 150
+    const maxHeight = document.body.clientHeight - playerSize.top - 60
     $player.style.height = Math.min(height, maxHeight) + 'px'
-  }
-
-  /**
-   * 切换日期
-   */
-  private changeDate() {
-    this.init()
-  }
-
-  /**
-   * 获取回放列表
-   */
-  private async getRecordList() {
-    try {
-      if (!this.currentDate) return
-      this.loading = true
-      const res = await getDeviceRecords({
-        deviceId: this.deviceId,
-        startTime: this.currentDate / 1000,
-        endTime: this.currentDate / 1000 + 24 * 60 * 60,
-        pageSize: 9999
-      })
-      this.recordList = res.records.map((record: any, index: number) => {
-        record.startAt = new Date(record.startTime).getTime()
-        record.loading = false
-        record.index = index
-        return record
-      })
-      this.pager.total = res.totalNum
-    } catch (e) {
-      this.recordList = []
-      console.log(e)
-    } finally {
-      this.loading = false
-    }
   }
 
   /**
@@ -214,38 +174,6 @@ export default class extends Vue {
     this.currentTime = currentTimestamp
     this.handlePos = this.scale(Math.round((currentTimestamp - this.currentDate!) / 1000))
     this.setHandlePosition()
-  }
-
-  /**
-   * 播放录像（模态框）
-   */
-  private playReplay(record: any) {
-    this.dialog.play = true
-    this.currentListRecord = record
-  }
-
-  /**
-   * 下载录像
-   */
-  private async downloadReplay(record: any) {
-    try {
-      record.loading = true
-      const res = await getDeviceRecord({
-        deviceId: this.deviceId,
-        startTime: record.startAt / 1000,
-        fileFormat: 'mp4'
-      })
-      if (res.downloadUrl) {
-        const link: HTMLAnchorElement = document.createElement('a')
-        link.setAttribute('href', res.downloadUrl)
-        link.click()
-        link.remove()
-      }
-    } catch (e) {
-      console.log(e)
-    } finally {
-      record.loading = false
-    }
   }
 
   /**
