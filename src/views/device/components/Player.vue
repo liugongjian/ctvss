@@ -229,6 +229,10 @@ export default class extends Vue {
         player.style.top = mainBox.offsetHeight - player.offsetHeight + 'px'
       }
     }
+    // 判断鼠标是否出框
+    if (event.target.nodeName !== 'VIDEO') {
+      window.onmousemove = null
+    }
   }
 
   public mouseUpHandle(event: any) {
