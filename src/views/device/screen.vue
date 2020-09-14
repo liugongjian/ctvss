@@ -476,6 +476,9 @@ export default class extends Mixins(ScreenMixin) {
         align-items: center;
         overflow: hidden;
       }
+      ::v-deep video {
+        background: #000;
+      }
       .screen__close {
         position: absolute;
         z-index: 10;
@@ -489,7 +492,7 @@ export default class extends Mixins(ScreenMixin) {
         position: absolute;
         z-index: 10;
         left: 15px;
-        top: 15px;
+        top: 11px;
         color: #fff;
       }
     }

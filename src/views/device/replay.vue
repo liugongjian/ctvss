@@ -50,7 +50,7 @@
                     <svg-icon :name="data.type" color="#6e7c89" />
                     <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                     {{ node.label }}
-                    <!-- <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" /> -->
+                    <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
                   </span>
                 </span>
               </el-tree>
@@ -79,7 +79,6 @@
             <div
               v-for="(screen, index) in screenList"
               :key="index"
-              v-loading="screen.loading"
               class="screen-item"
               :class="{'actived': index === currentIndex}"
               @click="selectScreen(index)"
@@ -171,10 +170,12 @@ export default class extends Mixins(ScreenMixin) {
       if (screen.deviceId) {
         screen.reset()
       }
-      screen.deviceId = item.id
-      screen.deviceName = item.label
-      screen.getUrl()
-      if (this.currentIndex < (this.maxSize - 1)) this.currentIndex++
+      this.$nextTick(() => {
+        screen.deviceId = item.id
+        screen.deviceName = item.label
+        screen.loaded = true
+        if (this.currentIndex < (this.maxSize - 1)) this.currentIndex++
+      })
     }
   }
 }
@@ -269,11 +270,61 @@ export default class extends Mixins(ScreenMixin) {
       }
       ::v-deep .replay-view {
         flex: 1;
+        width: 100%;
         height: 100%;
         display: flex;
         flex-direction: column;
+        .filter-container {
+          position: absolute;
+          right: 50px;
+          top: 6px;
+          .el-date-editor {
+            .el-input__inner {
+              background: #555;
+              color: #fff;
+              border: none;
+              font-size: 12px;
+              height: 28px;
+              line-height: 28px;
+            }
+            .el-input__icon {
+              line-height: 28px;
+            }
+          }
+          .el-radio-group {
+            .el-radio-button__inner {
+              padding: 6px 7px;
+              background: #555;
+              color: #fff;
+              border: none;
+            }
+            .el-radio-button.is-active .el-radio-button__inner {
+              background: $primary;
+            }
+          }
+        }
         .replay-player {
-          height: 100%;
+          margin-top: 40px;
+          display: flex;
+          flex: 1;
+          flex-direction: column;
+          .video-wrap {
+            flex: 1;
+            position: relative;
+            video {
+              position: absolute;
+              background: #000;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+            }
+          }
+        }
+        .replay-time-list {
+          background: #fff;
+          margin-top: 40px;
+          padding: 15px;
         }
       }
       .screen__close {
@@ -289,7 +340,7 @@ export default class extends Mixins(ScreenMixin) {
         position: absolute;
         z-index: 10;
         left: 15px;
-        top: 15px;
+        top: 11px;
         color: #fff;
       }
     }

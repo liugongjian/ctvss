@@ -6,7 +6,7 @@ export default class Screen {
   public url?: string
   private type?: string
   private loading: boolean
-  private loaded: boolean
+  public loaded: boolean
   public retry?: boolean
 
   constructor() {
@@ -29,7 +29,7 @@ export default class Screen {
         deviceId: this.deviceId
       })
       if (res.playUrl) {
-        this.url = res.playUrl.flvUrl.replace('http://', 'ws://')
+        this.url = res.playUrl.flvUrl
         this.type = res.videoCoding === 'h264' ? 'flv' : 'h265-flv'
       }
       this.retry = false

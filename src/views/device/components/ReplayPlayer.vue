@@ -139,14 +139,14 @@ export default class extends Vue {
    * 设置播放器大小
    */
   private resizeVideo() {
-    const player: any = this.$refs.player
-    if (!player) return
-    const $player = player.$el
-    const playerSize = $player.getBoundingClientRect()
-    const width = playerSize.width
-    const height = width * 9 / 16
-    const maxHeight = document.body.clientHeight - playerSize.top - 60
-    $player.style.height = Math.min(height, maxHeight) + 'px'
+    // const player: any = this.$refs.player
+    // if (!player) return
+    // const $player = player.$el
+    // const playerSize = $player.getBoundingClientRect()
+    // const width = playerSize.width
+    // const height = width * 9 / 16
+    // const maxHeight = document.body.clientHeight - playerSize.top - 60
+    // $player.style.height = Math.min(height, maxHeight) + 'px'
   }
 
   /**
