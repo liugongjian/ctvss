@@ -134,9 +134,9 @@
               <el-dropdown-item v-else :command="{type: 'detail', device: scope.row}">设备详情</el-dropdown-item>
               <el-dropdown-item v-if="scope.row.streamStatus === 'on'" :command="{type: 'stopDevice', device: scope.row}">停用流</el-dropdown-item>
               <el-dropdown-item v-else :command="{type: 'startDevice', device: scope.row}">启用流</el-dropdown-item>
-              <el-dropdown-item v-if="!isNVR" :command="{type: 'move', device: scope.row}">移动至</el-dropdown-item>
-              <el-dropdown-item v-if="!isNVR || !isCreateSubDevice" :command="{type: 'update', device: scope.row}">编辑</el-dropdown-item>
-              <el-dropdown-item disabled :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
+              <el-dropdown-item v-if="!isNVR && scope.row.parentDeviceId === '-1'" :command="{type: 'move', device: scope.row}">移动至</el-dropdown-item>
+              <el-dropdown-item v-if="(isNVR && !isCreateSubDevice) || (!isNVR && scope.row.createSubDevice !== 1)" :command="{type: 'update', device: scope.row}">编辑</el-dropdown-item>
+              <el-dropdown-item :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </template>
@@ -270,6 +270,9 @@ export default class extends Vue {
         this.deviceInfo = res
         this.deviceList = this.deviceInfo.deviceChannels.map((channel: any) => {
           channel.deviceType = 'ipc'
+          channel.transPriority = this.deviceInfo.transPriority
+          channel.sipTransType = this.deviceInfo.sipTransType
+          channel.streamTransType = this.deviceInfo.streamTransType
           return channel
         })
       } else if (type === 'ipc') {

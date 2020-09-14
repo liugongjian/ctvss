@@ -27,15 +27,21 @@ export default class extends Vue {
   private hasControl?: boolean
   @Prop()
   private onTimeUpdate?: Function
+  @Prop({
+    default: false
+  })
+  private isLive?: boolean
 
   public player?: Ctplayer
 
   private mounted() {
     this.createPlayer()
+    if (this.isLive) window.addEventListener('focus', this.reloadPlayer)
   }
 
   private beforeDestroy() {
     this.disposePlayer()
+    if (this.isLive) window.removeEventListener('focus', this.reloadPlayer)
   }
 
   public disposePlayer() {
@@ -43,7 +49,13 @@ export default class extends Vue {
   }
 
   public reloadPlayer() {
+    console.log('reloadPlayer')
     this.player && this.player.reloadPlayer()
+  }
+
+  public reset() {
+    this.player && this.player.disposePlayer()
+    this.createPlayer()
   }
 
   /**
@@ -56,6 +68,7 @@ export default class extends Vue {
       hasControl: this.hasControl,
       source: this.url,
       type: this.type,
+      isLive: this.isLive,
       onTimeUpdate: this.onTimeUpdate,
       onResizeScreen: (originWidth: number, originHeight: number) => {
         const $video: HTMLDivElement = this.$refs.video as HTMLDivElement
@@ -74,6 +87,11 @@ export default class extends Vue {
       onReset: (player: any) => {
         if (this.player) {
           this.player.player = player
+        }
+      },
+      onRetry: () => {
+        if (this.isLive) {
+          this.$emit('onRetry')
         }
       }
     })

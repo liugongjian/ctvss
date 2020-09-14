@@ -156,13 +156,14 @@ export default class extends Mixins(DeviceMixin) {
     if (this.groupList.length) {
       if (!this.$route.query.groupId) {
         await DeviceModule.SetGroup(this.groupList[0])
-        this.$router.push({
-          name: 'device-list',
-          query: {
-            groupId: this.currentGroupId,
-            inProtocol: this.currentGroup!.inProtocol
-          }
-        })
+        // this.$router.push({
+        //   name: 'device-list',
+        //   query: {
+        //     groupId: this.currentGroupId,
+        //     inProtocol: this.currentGroup!.inProtocol
+        //   }
+        // })
+        this.gotoRoot()
       } else {
         const currentGroup = this.groupList.find((group: Group) => group.groupId === this.$route.query.groupId)
         await DeviceModule.SetGroup(currentGroup)
@@ -191,7 +192,12 @@ export default class extends Mixins(DeviceMixin) {
       msg: `是否确认删除目录"${dir.label}"`,
       method: deleteDir,
       payload: { dirId: dir.id },
-      onSuccess: this.initDirs
+      onSuccess: () => {
+        this.initDirs()
+        if (dir.id === this.$route.query.dirId) {
+          this.gotoRoot()
+        }
+      }
     })
   }
 

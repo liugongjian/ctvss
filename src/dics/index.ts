@@ -71,8 +71,12 @@ export const SipTransType = {
 }
 
 export const StreamTransType = {
-  tcp: 'TCP',
-  udp: 'UDP'
+  ps_rtp_udp: 'UDP',
+  ps_rtp_tcp: 'TCP',
+  h264_rtp_udp: 'UDP',
+  h264_rtp_tcp: 'TCP',
+  h265_rtp_udp: 'UDP',
+  h265_rtp_tcp: 'TCP'
 }
 
 export const TransPriority = {

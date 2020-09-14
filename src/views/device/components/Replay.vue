@@ -400,6 +400,7 @@ export default class extends Vue {
     .replay-video {
       width: 100%;
       background: #000;
+      overflow: hidden;
       ::v-deep video {
         width: 100%;
         height: 100%;

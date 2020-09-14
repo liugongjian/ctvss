@@ -33,7 +33,7 @@
           <div class="form-tip">当开启自动创建NVR子设备时，系统将自动为子设备分配通道号和通道名称。</div>
         </el-form-item>
         <el-form-item v-if="form.deviceType === 'nvr'" label="子设备数量:" prop="channelSize">
-          <el-input-number v-model="form.channelSize" :min="1" type="number" />
+          <el-input-number v-model="form.channelSize" :min="minChannelSize" type="number" :disabled="isUpdate && form.createSubDevice === 1" />
         </el-form-item>
         <el-form-item label="国标版本:" prop="gbVersion">
           <el-radio-group v-model="form.gbVersion">
@@ -119,7 +119,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="通道号:" prop="channelNum">
-          <el-input v-model="form.channelNum" />
+          <el-input v-model="form.channelNum" :disabled="isUpdate" />
         </el-form-item>
         <el-form-item label="通道名称:" prop="channelName" class="form-with-tip">
           <el-input v-model="form.channelName" />
@@ -190,7 +190,7 @@ export default class extends Vue {
     normal: [],
     anonymous: []
   }
-  private form = {
+  private form: any = {
     dirId: '',
     groupId: '',
     deviceId: '',
@@ -210,6 +210,7 @@ export default class extends Vue {
     parentDeviceId: '',
     userName: ''
   }
+  private minChannelSize = 1
   private dialog = {
     createGb28181Certificate: false
   }
@@ -257,8 +258,8 @@ export default class extends Vue {
 
   @Watch('currentGroup')
   private onGroupChange() {
-    if (this.currentGroup) {
-      this.form.pullType = this.currentGroup.pullType!
+    if (this.currentGroup && !this.isUpdate) {
+      this.form.pullType = this.currentGroup.pullType
     }
   }
 
@@ -287,7 +288,7 @@ export default class extends Vue {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'deviceType', 'deviceVendor',
           'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'userName']))
         if (info.deviceStats) {
-          this.form.channelSize = info.deviceStats.channelSize
+          this.minChannelSize = this.form.channelSize = info.deviceStats.channelSize
         }
         if (this.isChannel) {
           if (info.deviceChannels.length) {
@@ -311,7 +312,7 @@ export default class extends Vue {
    */
   private validateDeviceName(rule: any, value: string, callback: Function) {
     if (!/^[\u4e00-\u9fa50-9a-zA-Z-]{4,16}$/.test(value)) {
-      callback(new Error('设备名称格式错误'))
+      callback(new Error('设备或通道名称格式错误。4-16位，可包含大小写字母、数字、中文、中划线。'))
     } else {
       callback()
     }

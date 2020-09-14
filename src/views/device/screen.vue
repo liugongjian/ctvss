@@ -93,16 +93,20 @@
                   v-if="screen.url"
                   :type="screen.type"
                   :url="screen.url"
+                  :is-live="true"
                   :auto-play="true"
                   :has-control="false"
+                  @onRetry="onRetry(screen)"
                 />
                 <div v-else class="tip-text">无信号</div>
-                <div class="device-name">{{ screen.deviceName }}</div>
-                <el-tooltip content="关闭视频">
-                  <el-button class="screen__close" type="text" @click="screen.reset()">
-                    <i class="el-icon-close" />
-                  </el-button>
-                </el-tooltip>
+                <div class="screen-header">
+                  <div class="device-name">{{ screen.deviceName }}</div>
+                  <el-tooltip content="关闭视频">
+                    <el-button class="screen__close" type="text" @click="screen.reset()">
+                      <i class="el-icon-close" />
+                    </el-button>
+                  </el-tooltip>
+                </div>
               </template>
               <div v-else class="tip-text">请选择设备</div>
             </div>
@@ -152,6 +156,9 @@ export default class extends Mixins(DeviceMixin) {
   }
 
   private destroyed() {
+    this.screenList.forEach(screen => {
+      screen.reset()
+    })
     window.removeEventListener('resize', this.calMaxHeight)
     window.removeEventListener('resize', this.checkFullscreen)
   }
@@ -209,11 +216,6 @@ export default class extends Mixins(DeviceMixin) {
    * 初始化分屏
    */
   private initScreen() {
-    // this.screenList = []
-    // for (let i = 0; i < this.maxSize; i++) {
-    //   const screen = new Screen()
-    //   this.screenList.push(screen)
-    // }
     let screenList: Array<Screen> = []
     let startIndex = 0
     if (this.screenList.length) {
@@ -288,6 +290,19 @@ export default class extends Mixins(DeviceMixin) {
   private checkTreeItemStatus(item: any) {
     if (item.type !== 'ipc') return false
     return !!this.screenList.find(screen => screen.deviceId === item.id)
+  }
+
+  /**
+   * 视频断流30秒后重试
+   */
+  private onRetry(screen: Screen) {
+    setTimeout(async() => {
+      screen.url = ''
+      await screen.getUrl()
+      if (screen.retry) {
+        this.onRetry(screen)
+      }
+    }, 30 * 1000)
   }
 }
 </script>
@@ -367,6 +382,7 @@ export default class extends Mixins(DeviceMixin) {
       ::v-deep .video-wrap {
         display: flex;
         align-items: center;
+        overflow: hidden;
       }
       .screen__close {
         position: absolute;
