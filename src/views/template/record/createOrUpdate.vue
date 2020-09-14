@@ -217,7 +217,10 @@ export default class extends Vue {
         }
         const validateResult = this.selectedRows.every(row => {
           if (!this.intervalReg.test(row.interval)) {
-            this.$message.error('录制周期时长必须是15~360之间的整数')
+            this.$message.error('录制周期时长必须是5~120之间的整数')
+            return false
+          } else if (row.interval < 5 || row.interval > 120) {
+            this.$message.error('录制周期时长必须是5~120之间的整数')
             return false
           }
           if (!this.timeReg.test(row.storageTime)) {
