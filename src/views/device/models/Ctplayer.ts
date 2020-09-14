@@ -154,9 +154,10 @@ export default class Ctplayer {
   public reloadPlayer() {
     switch (this.type) {
       case 'flv':
-        this.player.unload()
-        this.player.load()
-        this.player.play()
+        console.log(this.player)
+        this.flv.unload()
+        this.flv.load()
+        this.flv.play()
         break
       case 'hls':
       case 'mp4':

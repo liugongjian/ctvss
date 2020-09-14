@@ -44,7 +44,6 @@
                 lazy
                 :load="loadDirs"
                 :props="treeProp"
-                :current-node-key="defaultKey"
                 @node-click="openScreen"
               >
                 <span slot-scope="{node, data}" class="custom-tree-node" :class="{'offline': data.type === 'ipc' && data.streamStatus !== 'on'}" @contextmenu="openMenu($event, node)">
@@ -138,6 +137,8 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Watch, Mixins } from 'vue-property-decorator'
+import { DeviceModule } from '@/store/modules/device'
+import { Group } from '@/type/group'
 import ScreenMixin from './mixin/screenMixin'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import Screen from './models/Screen'
@@ -192,16 +193,8 @@ export default class extends Mixins(ScreenMixin) {
     }
   ]
 
-  private get defaultKey() {
-    const id = this.$route.query.deviceId || this.$route.query.id
-    if (!id) {
-      return null
-    }
-    return id
-  }
-
   private mounted() {
-    this.getGroupList()
+    this.getGroupList('screen')
     this.initScreen()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
@@ -218,6 +211,21 @@ export default class extends Mixins(ScreenMixin) {
     })
     window.removeEventListener('resize', this.calMaxHeight)
     window.removeEventListener('resize', this.checkFullscreen)
+  }
+
+  /**
+   * 切换业务组
+   */
+  public async changeGroup() {
+    const currentGroup = this.groupList.find((group: Group) => group.groupId === this.groupId)
+    await DeviceModule.SetGroup(currentGroup)
+    this.$router.push({
+      name: 'screen',
+      query: {
+        groupId: this.currentGroupId
+      }
+    })
+    await this.initDirs()
   }
 
   /**

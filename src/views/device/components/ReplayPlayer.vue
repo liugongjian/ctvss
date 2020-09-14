@@ -1,7 +1,10 @@
 <template>
   <div class="replay-player">
+    <div v-if="!recordList.length" class="empty-text">
+      该时段暂无录像
+    </div>
     <player
-      v-if="currentRecord"
+      v-if="recordList.length && currentRecord"
       ref="player"
       type="hls"
       :url="currentRecord.playUrl.hlsUrl"
@@ -9,9 +12,6 @@
       :has-control="false"
       :on-time-update="setCurrentTime"
     />
-    <div v-if="!timePositionList.length" class="empty-text">
-      该时段暂无录像
-    </div>
     <div class="timeline__box">
       <div ref="timelineWrap" class="timeline__wrap">
         <div ref="timeline" class="timeline" :class="{'dragging': axisDrag.isDragging}" @mousedown.stop.prevent="moveAxisStart($event)">

@@ -32,7 +32,7 @@ export default class ScreenMixin extends Mixins(DeviceMixin) {
   /**
    * 获取组列表
    */
-  public async getGroupList() {
+  public async getGroupList(routeName: string) {
     this.loading.group = true
     let params = {
       pageSize: 1000
@@ -44,7 +44,7 @@ export default class ScreenMixin extends Mixins(DeviceMixin) {
         await DeviceModule.SetGroup(this.groupList[0])
         this.$route.query.groupId = this.groupList[0]
         this.$router.push({
-          name: 'screen',
+          name: routeName,
           query: {
             groupId: this.currentGroupId
           }
@@ -56,21 +56,6 @@ export default class ScreenMixin extends Mixins(DeviceMixin) {
       await this.initDirs()
     }
     this.loading.group = false
-  }
-
-  /**
-   * 切换业务组
-   */
-  public async changeGroup() {
-    const currentGroup = this.groupList.find((group: Group) => group.groupId === this.groupId)
-    await DeviceModule.SetGroup(currentGroup)
-    this.$router.push({
-      name: 'screen',
-      query: {
-        groupId: this.currentGroupId
-      }
-    })
-    await this.initDirs()
   }
 
   /**

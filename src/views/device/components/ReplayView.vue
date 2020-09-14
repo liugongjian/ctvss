@@ -1,22 +1,25 @@
 <template>
-  <div v-loading="loading" class="replay-wrap">
+  <div v-loading="loading" class="replay-view">
     <div class="filter-container">
       <el-date-picker
         v-model="currentDate"
         type="date"
         value-format="timestamp"
         placeholder="选择日期"
+        size="small"
         :picker-options="pickerOptions"
         @change="changeDate"
       />
-      <el-radio-group v-model="viewModel">
-        <el-radio-button label="timeline">时间轴视图</el-radio-button>
-        <el-radio-button label="list">列表视图</el-radio-button>
+      <el-radio-group v-model="viewModel" size="small">
+        <el-tooltip content="时间轴视图" placement="top">
+          <el-radio-button label="timeline"><svg-icon name="timeline" width="16px" height="16px" /></el-radio-button>
+        </el-tooltip>
+        <el-tooltip content="列表视图" placement="top">
+          <el-radio-button label="list"><svg-icon name="list" width="16px" height="16px" /></el-radio-button>
+        </el-tooltip>
       </el-radio-group>
     </div>
-    <div v-if="viewModel === 'timeline'" class="replay-player">
-      <replay-player :current-date="currentDate" :record-list="recordList" />
-    </div>
+    <replay-player v-if="viewModel === 'timeline'" :current-date="currentDate" :record-list="recordList" />
     <div v-else class="replay-time-list">
       <el-table :data="recordListSlice" empty-text="所选日期暂无录像">
         <el-table-column label="开始时间" prop="startAt" min-width="180" :formatter="dateFormatInTable" />
@@ -42,7 +45,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { dateFormatInTable, dateFormat } from '@/utils/date'
 import Ctplayer from '../models/Ctplayer'
 import { getDeviceRecords, getDeviceRecord } from '@/api/device'
@@ -57,6 +60,8 @@ import ReplayPlayer from './ReplayPlayer.vue'
   }
 })
 export default class extends Vue {
+  @Prop()
+  private deviceId!: number | string
   private player?: Ctplayer
   private dateFormatInTable = dateFormatInTable
   private dateFormat = dateFormat
@@ -79,10 +84,6 @@ export default class extends Vue {
     pageNum: 1,
     pageSize: 10,
     total: 0
-  }
-
-  private get deviceId() {
-    return this.$route.query.deviceId
   }
 
   private async mounted() {
@@ -199,12 +200,19 @@ export default class extends Vue {
   .filter-container {
     text-align: right;
     .el-date-editor {
+      width: 150px;
       margin-right: 10px;
       vertical-align: middle;
+      ::v-deep .el-input__inner {
+        padding-right: 0;
+      }
+    }
+    ::v-deep .el-radio-button--small .el-radio-button__inner {
+      padding: 7px 10px;
     }
   }
 
-  .replay-player {
+  .replay-view {
     .replay-video {
       width: 100%;
       background: #000;

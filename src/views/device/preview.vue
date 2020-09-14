@@ -5,10 +5,10 @@
       <el-button class="btn-detail" @click="goToDetail"><i class="el-icon-tickets" /> 查看设备详情</el-button>
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane lazy label="实时预览" name="preview">
-          <live-view v-if="activeName === 'preview'" />
+          <live-view v-if="activeName === 'preview'" :device-id="deviceId" />
         </el-tab-pane>
         <el-tab-pane lazy label="录像回放" name="replay">
-          <replay-view v-if="activeName === 'replay'" />
+          <replay-view v-if="activeName === 'replay'" :device-id="deviceId" />
         </el-tab-pane>
         <el-tab-pane v-if="false" label="监控截图" name="snapshot">
           <el-date-picker
@@ -136,19 +136,6 @@ export default class extends Vue {
 
   private handleClick(tab: any, event: any) {
     this.activeName = tab.name
-    // if (tab.name === 'preview') {
-    //   this.player = new Ctplayer({
-    //     id: 'previewPlayer', // 播放器DOM ID
-    //     autoPlay: true, // 是否允许自动播放
-    //     source: 'http://jazz.liveplay.kijazz.cn/live/walk.flv' // 视频源
-    //   })
-    // } else if (tab.name === 'replay') {
-    //   this.player = new Ctplayer({
-    //     id: 'replayPlayer', // 播放器DOM ID
-    //     autoPlay: true, // 是否允许自动播放
-    //     source: 'http://jazz.liveplay.kijazz.cn/live/walk.flv' // 视频源
-    //   })
-    // }
   }
 
   private setRecordTemplate() {
