@@ -81,7 +81,7 @@
             </div>
           </div>
           <div class="tool-buttons">
-            <el-button>开启电子放大</el-button>
+            <el-button @click="electronicZoom">{{ electronicZoomInfo?'关闭电子放大':'开启电子放大' }}</el-button>
             <el-button v-if="polling.isStart" @click="stopPolling()">停止轮巡</el-button>
             <el-select v-if="polling.isStart" v-model="polling.interval" class="tool-buttons--select" placeholder="请选择" @change="intervalChange">
               <el-option
@@ -109,7 +109,7 @@
                   :is-live="true"
                   :auto-play="true"
                   :has-control="false"
-                  :is-zoom="true"
+                  :is-zoom="electronicZoomInfo"
                   :device-name="screen.deviceName"
                   @onRetry="onRetry(screen)"
                 />
@@ -157,6 +157,7 @@ export default class extends Mixins(ScreenMixin) {
   public maxSize = 4
   private currentPollingIndex = 0
   private isZoom = false
+  private electronicZoomInfo = false
   private polling = {
     interval: 5,
     isStart: false
@@ -350,6 +351,25 @@ export default class extends Mixins(ScreenMixin) {
         var context = document.getElementById('mouse-right')
         context!.style.display = 'none'
       }
+    }
+  }
+
+  /**
+   * 是否开启电子放大
+   */
+  private electronicZoom() {
+    if (this.electronicZoomInfo) {
+      this.electronicZoomInfo = false
+      this.$message({
+        message: '已关闭电子放大',
+        type: 'warning'
+      })
+    } else {
+      this.electronicZoomInfo = true
+      this.$message({
+        message: '已开启电子放大',
+        type: 'success'
+      })
     }
   }
 }

@@ -1,6 +1,6 @@
 <template>
-  <div class="video-wrap">
-    <div ref="video" @wheel="zoom" />
+  <div ref="videoWrap" class="video-wrap">
+    <div ref="video" @wheel="zoom" @mousedown="mouseDownHandle($event)" @mouseup="mouseUpHandle($event)" />
     <div class="controls">
       <div class="controls__left">
         <template v-if="!isLive">
@@ -36,7 +36,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import Ctplayer from '../models/Ctplayer'
 
 @Component({
@@ -89,6 +89,10 @@ export default class extends Vue {
     x: 0,
     y: 0
   }
+  private moveData: any = {
+    x: null,
+    y: null
+  }
 
   private mounted() {
     this.createPlayer()
@@ -98,6 +102,18 @@ export default class extends Vue {
   private beforeDestroy() {
     this.disposePlayer()
     if (this.isLive) window.removeEventListener('focus', this.reloadPlayer)
+  }
+
+  @Watch('isZoom')
+  getIsZoom(val: boolean) {
+    if (!val) {
+      const $video: any = this.$refs.video
+      const player = $video.querySelector('video')
+      player.style.width = ''
+      player.style.height = ''
+      player.style.top = ''
+      player.style.left = ''
+    }
   }
 
   /**
@@ -163,19 +179,107 @@ export default class extends Vue {
   }
 
   /**
+   * 拖拽
+   */
+  public mouseDownHandle(event: any) {
+    if (!this.isZoom) {
+      return
+    }
+    const $video: any = this.$refs.video
+    const player = $video.querySelector('video')
+    this.moveData.x = event.pageX - player.offsetLeft
+    this.moveData.y = event.pageY - player.offsetTop
+    event.currentTarget.style.cursor = 'move'
+    window.onmousemove = this.mouseMoveHandleelse
+  }
+
+  public mouseMoveHandleelse(event: any) {
+    const $video: any = this.$refs.video
+    const player = $video.querySelector('video')
+    const mainBox: any = this.$refs.videoWrap
+    let moveLeft = event.pageX - this.moveData.x
+    let moveTop = event.pageY - this.moveData.y
+    const mainBoxSize = mainBox.getBoundingClientRect()
+    const playerSize = player.getBoundingClientRect()
+    // 左右拖拽判断
+    if (moveLeft > 0) {
+      if (mainBoxSize.x - playerSize.x + moveLeft <= 0) {
+        player.style.left = moveLeft + 'px'
+      } else {
+        player.style.left = '0px'
+      }
+    } else {
+      if (playerSize.width + moveLeft >= mainBoxSize.width) {
+        player.style.left = moveLeft + 'px'
+      } else {
+        player.style.left = mainBox.offsetWidth - player.offsetWidth + 'px'
+      }
+    }
+    // 上下拖拽判断
+    if (moveTop > 0) {
+      if (mainBoxSize.y - playerSize.y + moveTop <= 0) {
+        player.style.top = moveTop + 'px'
+      } else {
+        player.style.top = '0px'
+      }
+    } else {
+      if (playerSize.height + moveTop >= mainBoxSize.height) {
+        player.style.top = moveTop + 'px'
+      } else {
+        player.style.top = mainBox.offsetHeight - player.offsetHeight + 'px'
+      }
+    }
+    // 判断鼠标是否出框
+    if (event.target.nodeName !== 'VIDEO') {
+      window.onmousemove = null
+    }
+  }
+
+  public mouseUpHandle(event: any) {
+    if (!this.isZoom) {
+      return
+    }
+    window.onmousemove = null
+    event.currentTarget.style.cursor = 'move'
+  }
+
+  /**
    * 电子放大
    */
   public zoom(event: any) {
-    const $video: any = this.$refs.video
-    const player = $video.querySelector('video')
-    // const videoSize = $video.getBoundingClientRect()
-    // const playerSize = player.getBoundingClientRect()
-    const deltaY = -event.deltaY / 200
-    this.ratio = this.ratio + this.ratio * deltaY
-    if (this.ratio < 1) {
-      this.ratio = 1
+    if (!this.isZoom) {
+      return
     }
-    player.style.transform = `scale(${this.ratio})`
+    const $videoWrap: any = this.$refs.videoWrap
+    const player = $videoWrap.querySelector('video')
+    const videoWrapSize = $videoWrap.getBoundingClientRect()
+    const playerSize = player.getBoundingClientRect()
+    const deltaY = event.deltaY / 2000
+    let width
+    let height
+    let top
+    let left
+    if (event.deltaY < 0) {
+      width = 1.1 * player.offsetWidth
+      height = 1.1 * player.offsetHeight
+      left = player.offsetLeft - 0.1 * event.offsetX
+      top = player.offsetTop - 0.1 * event.offsetY
+    } else {
+      width = 0.9 * player.offsetWidth
+      height = 0.9 * player.offsetHeight
+      left = player.offsetLeft + 0.1 * event.offsetX
+      top = player.offsetTop + 0.1 * event.offsetY
+      if (width <= videoWrapSize.width) {
+        width = videoWrapSize.width
+        height = videoWrapSize.height
+        left = 0
+        top = 0
+      }
+    }
+    player.style.width = width + 'px'
+    player.style.height = height + 'px'
+    player.style.left = left + 'px'
+    player.style.top = top + 'px'
   }
 
   /**
