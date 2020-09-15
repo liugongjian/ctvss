@@ -26,6 +26,11 @@
             </li>
           </ul>
         </div>
+        <el-tooltip :content="isZoom ? '关闭电子缩放' : '开启电子缩放'" placement="top">
+          <div class="controls__btn controls__zoom" :class="{'selected': isZoom}" @click.stop.prevent="toggleZoom">
+            <svg-icon name="zoom" width="16px" height="16px" />
+          </div>
+        </el-tooltip>
         <el-tooltip content="保存截图" placement="top">
           <div class="controls__btn controls__snapshot" @click.stop.prevent="snapshot">
             <svg-icon name="snapshot" width="18px" height="18px" />
@@ -69,10 +74,6 @@ export default class extends Vue {
     default: false
   })
   private isWs?: boolean
-  @Prop({
-    default: false
-  })
-  private isZoom?: boolean
   @Prop()
   private deviceName?: string
   @Prop()
@@ -82,6 +83,7 @@ export default class extends Vue {
 
   public player?: Ctplayer
   public paused?: boolean = true
+  private isZoom = false
   private ratio = 1
   private playbackRate = 1
   private playbackRateList = [16, 8, 4, 2, 1.5, 1, 0.5]
@@ -190,10 +192,10 @@ export default class extends Vue {
     this.moveData.x = event.pageX - player.offsetLeft
     this.moveData.y = event.pageY - player.offsetTop
     event.currentTarget.style.cursor = 'move'
-    window.onmousemove = this.mouseMoveHandleelse
+    window.onmousemove = this.mouseMoveHandle
   }
 
-  public mouseMoveHandleelse(event: any) {
+  public mouseMoveHandle(event: any) {
     const $video: any = this.$refs.video
     const player = $video.querySelector('video')
     const mainBox: any = this.$refs.videoWrap
@@ -304,6 +306,13 @@ export default class extends Vue {
   }
 
   /**
+   * Zoom开关
+   */
+  public toggleZoom() {
+    this.isZoom = !this.isZoom
+  }
+
+  /**
    * 视频截图
    */
   public snapshot() {
@@ -388,6 +397,9 @@ export default class extends Vue {
           .controls__popup {
             display: block;
           }
+        }
+        &.selected {
+          color: $primary;
         }
       }
       &__playback {

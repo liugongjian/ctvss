@@ -91,7 +91,6 @@ export default class extends Vue {
       const res = await getList(params)
       this.dataList = res.gbCerts
       this.pager.total = res.totalNum
-      this.pager.pageNum = res.pageNum
       this.pager.pageSize = res.pageSize
     } catch (e) {
       this.$message.error(e && e.message)

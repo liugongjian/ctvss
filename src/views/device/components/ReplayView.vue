@@ -18,12 +18,15 @@
           <el-radio-button label="list"><svg-icon name="list" width="16px" height="16px" /></el-radio-button>
         </el-tooltip>
       </el-radio-group>
+      <el-tooltip content="录像切片下载" placement="top">
+        <el-button class="filter-container__slice" size="small" @click="sliceDownload"><svg-icon name="download" width="16px" height="16px" /></el-button>
+      </el-tooltip>
     </div>
     <replay-player v-if="viewModel === 'timeline'" :current-date="currentDate" :record-list="recordList" />
     <div v-else class="replay-time-list">
       <el-table :data="recordListSlice" empty-text="所选日期暂无录像">
         <el-table-column label="开始时间" prop="startAt" min-width="180" :formatter="dateFormatInTable" />
-        <el-table-column label="时长" prop="duration" />
+        <el-table-column label="时长" prop="duration" :formatter="durationFormatInTable" />
         <el-table-column prop="action" label="操作" width="200" fixed="right">
           <template slot-scope="{row}">
             <el-button v-if="row.loading" type="text" disabled>正在转码...</el-button>
@@ -42,20 +45,23 @@
       />
       <replay-player-dialog v-if="dialog.play" :video="currentListRecord" @on-close="closeReplayPlayer" />
     </div>
+    <slice-download-dialog v-if="dialog.slice" :device-id="deviceId" @on-close="closeSliceDownload" />
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { dateFormatInTable, dateFormat } from '@/utils/date'
+import { dateFormatInTable, dateFormat, durationFormatInTable } from '@/utils/date'
 import Ctplayer from '../models/Ctplayer'
 import { getDeviceRecords, getDeviceRecord } from '@/api/device'
 import ReplayPlayerDialog from './dialogs/ReplayPlayer.vue'
+import SliceDownloadDialog from './dialogs/SliceDownload.vue'
 import ReplayPlayer from './ReplayPlayer.vue'
 
 @Component({
   name: 'ReplayView',
   components: {
     ReplayPlayerDialog,
+    SliceDownloadDialog,
     ReplayPlayer
   }
 })
@@ -64,6 +70,7 @@ export default class extends Vue {
   private deviceId!: number | string
   private player?: Ctplayer
   private dateFormatInTable = dateFormatInTable
+  private durationFormatInTable = durationFormatInTable
   private dateFormat = dateFormat
   private viewModel = 'timeline'
   private currentRecord: any = null
@@ -78,7 +85,8 @@ export default class extends Vue {
     }
   }
   private dialog = {
-    play: false
+    play: false,
+    slice: false
   }
   private pager = {
     pageNum: 1,
@@ -139,14 +147,6 @@ export default class extends Vue {
   }
 
   /**
-   * 播放录像（模态框）
-   */
-  private playReplay(record: any) {
-    this.dialog.play = true
-    this.currentListRecord = record
-  }
-
-  /**
    * 下载录像
    */
   private async downloadReplay(record: any) {
@@ -164,10 +164,18 @@ export default class extends Vue {
         link.remove()
       }
     } catch (e) {
-      console.log(e)
+      this.$message.error(e.message)
     } finally {
       record.loading = false
     }
+  }
+
+  /**
+   * 播放录像（模态框）
+   */
+  private playReplay(record: any) {
+    this.dialog.play = true
+    this.currentListRecord = record
   }
 
   /**
@@ -176,6 +184,20 @@ export default class extends Vue {
   private closeReplayPlayer() {
     this.dialog.play = false
     this.currentListRecord = null
+  }
+
+  /**
+   * 切片下载
+   */
+  private sliceDownload() {
+    this.dialog.slice = true
+  }
+
+  /**
+   * 关闭切片下载弹出框
+   */
+  private closeSliceDownload() {
+    this.dialog.slice = false
   }
 
   /**
@@ -210,17 +232,10 @@ export default class extends Vue {
     ::v-deep .el-radio-button--small .el-radio-button__inner {
       padding: 7px 10px;
     }
-  }
-
-  .replay-view {
-    .replay-video {
-      width: 100%;
-      background: #000;
-      overflow: hidden;
-      ::v-deep video {
-        width: 100%;
-        height: 100%;
-      }
+    &__slice {
+      margin-left: 10px;
+      padding: 7px 10px;
+      vertical-align: bottom;
     }
   }
   .replay-time-list {

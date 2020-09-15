@@ -186,9 +186,6 @@ export default class extends Mixins(ScreenMixin) {
       .playing {
         color: $success;
       }
-      .polling {
-        color: blue;
-      }
       .offline .node-name {
         cursor: not-allowed;
         color: #aaa;
@@ -291,16 +288,18 @@ export default class extends Mixins(ScreenMixin) {
               line-height: 28px;
             }
           }
-          .el-radio-group {
-            .el-radio-button__inner {
-              padding: 6px 7px;
-              background: #555;
-              color: #fff;
-              border: none;
+          .el-radio-group .el-radio-button__inner, &__slice {
+            padding: 6px 7px;
+            background: #555;
+            color: #fff;
+            border: none;
+            &:hover {
+              color: $primary;
             }
-            .el-radio-button.is-active .el-radio-button__inner {
-              background: $primary;
-            }
+          }
+          .el-radio-button.is-active .el-radio-button__inner {
+            background: $primary;
+            color: #fff;
           }
         }
         .replay-player {
@@ -308,22 +307,10 @@ export default class extends Mixins(ScreenMixin) {
           display: flex;
           flex: 1;
           flex-direction: column;
-          .video-wrap {
-            flex: 1;
-            position: relative;
-            video {
-              position: absolute;
-              background: #000;
-              top: 0;
-              left: 0;
-              width: 100%;
-              height: 100%;
-            }
-          }
         }
         .replay-time-list {
           background: #fff;
-          margin-top: 40px;
+          margin: 40px 0 0;
           padding: 15px;
         }
       }

@@ -115,11 +115,6 @@ export default class extends Vue {
 
   private async mounted() {
     await this.init()
-    window.addEventListener('resize', this.resizeVideo)
-  }
-
-  private beforeDestroy() {
-    window.removeEventListener('resize', this.resizeVideo)
   }
 
   @Watch('recordList')
@@ -136,20 +131,6 @@ export default class extends Vue {
   }
 
   /**
-   * 设置播放器大小
-   */
-  private resizeVideo() {
-    // const player: any = this.$refs.player
-    // if (!player) return
-    // const $player = player.$el
-    // const playerSize = $player.getBoundingClientRect()
-    // const width = playerSize.width
-    // const height = width * 9 / 16
-    // const maxHeight = document.body.clientHeight - playerSize.top - 60
-    // $player.style.height = Math.min(height, maxHeight) + 'px'
-  }
-
-  /**
    * 初始化播放器
    */
   private initVideoPlayer() {
@@ -157,7 +138,6 @@ export default class extends Vue {
       this.currentRecord = this.recordList[0]
       this.$nextTick(() => {
         this.setCurrentTime(0)
-        this.resizeVideo()
         this.player && this.player.reset()
       })
     }
@@ -325,11 +305,19 @@ export default class extends Vue {
 </script>
 <style lang="scss" scoped>
   .replay-player {
+    display: flex;
+    flex-direction: column;
     background: #333;
+    position: relative;
+    .video-wrap {
+      flex: 1;
+    }
     ::v-deep video {
+      position: absolute;
       width: 100%;
       height: 100%;
       display: block;
+      background: #000;
     }
   }
   .replay-time-list {

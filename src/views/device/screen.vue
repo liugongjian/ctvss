@@ -52,7 +52,10 @@
                     <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                     {{ node.label }}
                     <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
-                    <i v-if="data.type === 'nvr' || data.type === 'dir'" class="el-icon-video-play" style="float: right;" @click="videosOnPolling(1)" />
+
+                    <el-tooltip class="item" effect="dark" content="轮询当前目录" placement="top" :open-delay="300">
+                      <i v-if="data.type === 'nvr' || data.type === 'dir'" class="el-icon-video-play" style="float: right;" @click.stop.prevent="videosOnPolling(1)" />
+                    </el-tooltip>
                   </span>
                 </span>
               </el-tree>
@@ -80,18 +83,6 @@
               </el-tooltip>
             </div>
           </div>
-          <div class="tool-buttons">
-            <el-button @click="electronicZoom">{{ electronicZoomInfo?'关闭电子放大':'开启电子放大' }}</el-button>
-            <el-button v-if="polling.isStart" @click="stopPolling()">停止轮巡</el-button>
-            <el-select v-if="polling.isStart" v-model="polling.interval" class="tool-buttons--select" placeholder="请选择" @change="intervalChange">
-              <el-option
-                v-for="item in pollingInterval"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </div>
           <div class="screen-list" :class="[`screen-size--${maxSize}`, {'fullscreen': isFullscreen}]">
             <div
               v-for="(screen, index) in screenList"
@@ -109,7 +100,6 @@
                   :is-live="true"
                   :auto-play="true"
                   :has-control="false"
-                  :is-zoom="electronicZoomInfo"
                   :device-name="screen.deviceName"
                   @onRetry="onRetry(screen)"
                 />
@@ -126,12 +116,26 @@
               <div v-else class="tip-text">请选择设备</div>
             </div>
           </div>
+          <div v-if="polling.isStart" class="tool-buttons">
+            <span>
+              轮巡间隔:
+              <el-select v-model="polling.interval" class="tool-buttons--select" size="mini" placeholder="请选择" @change="intervalChange">
+                <el-option
+                  v-for="item in pollingInterval"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+              <el-button size="mini" @click="stopPolling()">停止轮巡</el-button>
+            </span>
+          </div>
         </div>
       </div>
     </el-card>
 
     <div id="mouse-right" class="mouse-right" @click="videosOnPolling(1)">
-      轮巡
+      轮询当前目录
     </div>
   </div>
 </template>
@@ -157,7 +161,6 @@ export default class extends Mixins(ScreenMixin) {
   public maxSize = 4
   private currentPollingIndex = 0
   private isZoom = false
-  private electronicZoomInfo = false
   private polling = {
     interval: 5,
     isStart: false
@@ -353,25 +356,6 @@ export default class extends Mixins(ScreenMixin) {
       }
     }
   }
-
-  /**
-   * 是否开启电子放大
-   */
-  private electronicZoom() {
-    if (this.electronicZoomInfo) {
-      this.electronicZoomInfo = false
-      this.$message({
-        message: '已关闭电子放大',
-        type: 'warning'
-      })
-    } else {
-      this.electronicZoomInfo = true
-      this.$message({
-        message: '已开启电子放大',
-        type: 'success'
-      })
-    }
-  }
 }
 </script>
 <style lang="scss" scoped>
@@ -423,9 +407,14 @@ export default class extends Mixins(ScreenMixin) {
 
   .tool-buttons {
     height: 40px;
+    background: #f8f8f8;
+    border-top: 1px solid $borderGrey;
+    font-size: 12px;
+    padding: 4px 15px;
 
     &--select {
-      margin-left: 10px;
+      margin: 0 10px;
+      width: 80px;
     }
   }
 
@@ -516,9 +505,10 @@ export default class extends Mixins(ScreenMixin) {
     display: none;
     position: fixed;
     width: 140px;
-    border: 1px solid #dcdfe6;
-    padding: 5px 10px;
-    background-color: white;
+    border: 1px solid #ccc;
+    padding: 7px 10px;
+    background-color: #fff;
     text-align: center;
+    box-shadow: 1px 1px 5px #ccc;
   }
 </style>

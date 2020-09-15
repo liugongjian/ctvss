@@ -8,7 +8,7 @@
           <live-view v-if="activeName === 'preview'" :device-id="deviceId" />
         </el-tab-pane>
         <el-tab-pane lazy label="录像回放" name="replay">
-          <replay-view v-if="activeName === 'replay'" :device-id="deviceId" />
+          <replay-view v-if="activeName === 'replay'" ref="replayView" :device-id="deviceId" />
         </el-tab-pane>
         <el-tab-pane v-if="false" label="监控截图" name="snapshot">
           <el-date-picker
@@ -125,6 +125,12 @@ export default class extends Vue {
 
   private mounted() {
     if (this.$route.query.previewTab) this.activeName = this.$route.query.previewTab.toString()
+    this.$nextTick(this.resizeReplayVideo)
+    window.addEventListener('resize', this.resizeReplayVideo)
+  }
+
+  private beforeDestroy() {
+    window.removeEventListener('resize', this.resizeReplayVideo)
   }
 
   private goToDetail() {
@@ -134,8 +140,21 @@ export default class extends Vue {
     })
   }
 
+  /**
+   * 设置播放器大小
+   */
+  private resizeReplayVideo() {
+    const replayView: any = this.$refs.replayView
+    if (!replayView) return
+    const $replayView = replayView.$el
+    const playerSize = $replayView.getBoundingClientRect()
+    const documentHeight = document.body.offsetHeight
+    $replayView.style.height = `${documentHeight - playerSize.top - 50}px`
+  }
+
   private handleClick(tab: any, event: any) {
     this.activeName = tab.name
+    this.$nextTick(this.resizeReplayVideo)
   }
 
   private setRecordTemplate() {
@@ -187,6 +206,13 @@ export default class extends Vue {
       top: -12px;
       right: 0;
       z-index: 9;
+    }
+    .replay-view {
+      display: flex;
+      flex-direction: column;
+      ::v-deep .replay-player {
+        flex: 1;
+      }
     }
   }
 
