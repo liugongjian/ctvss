@@ -65,6 +65,10 @@
       &__tree {
         padding: 10px;
 
+        .polling-button {
+          margin-bottom: 10px;
+        }
+
         .el-tree-node__content {
           position: relative;
           &:hover {
@@ -80,6 +84,7 @@
         }
 
         .custom-tree-node {
+          width: 100%;
           .node-name {
             position: relative;
           }

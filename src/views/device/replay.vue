@@ -43,13 +43,14 @@
                 lazy
                 :load="loadDirs"
                 :props="treeProp"
-                :current-node-key="deviceId"
-                @node-click="selectDevice"
+                @node-click="openScreen"
               >
                 <span slot-scope="{node, data}" class="custom-tree-node">
                   <span class="node-name">
                     <svg-icon :name="data.type" color="#6e7c89" />
+                    <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                     {{ node.label }}
+                    <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
                   </span>
                 </span>
               </el-tree>
@@ -57,18 +58,44 @@
           </div>
         </div>
         <div class="device-list__right">
-          <div class="breadcrumb">
-            <span
-              v-for="item in breadcrumb"
-              :key="item.id"
-              class="breadcrumb__item"
-            >
-              {{ item.label }}
-            </span>
+          <div class="device__tools">
+            <label>分屏数:</label>
+            <el-tooltip content="单分屏" placement="top">
+              <el-button type="text" @click="changeMaxSize(1)"><svg-icon name="screen1" /></el-button>
+            </el-tooltip>
+            <el-tooltip content="两分屏" placement="top">
+              <el-button type="text" @click="changeMaxSize(2)"><svg-icon name="screen2" /></el-button>
+            </el-tooltip>
+            <el-tooltip content="四分屏" placement="top">
+              <el-button type="text" @click="changeMaxSize(4)"><svg-icon name="screen4" /></el-button>
+            </el-tooltip>
+            <div class="device__tools--right">
+              <el-tooltip content="全屏" placement="top">
+                <el-button type="text" @click="fullscreen"><svg-icon name="fullscreen" /></el-button>
+              </el-tooltip>
+            </div>
           </div>
-          <replay v-if="deviceId" />
-          <div v-else class="empty-text">
-            请先选择左侧设备
+          <div class="screen-list" :class="[`screen-size--${maxSize}`, {'fullscreen': isFullscreen}]">
+            <div
+              v-for="(screen, index) in screenList"
+              :key="index"
+              class="screen-item"
+              :class="{'actived': index === currentIndex}"
+              @click="selectScreen(index)"
+            >
+              <template v-if="screen.loaded">
+                <replay-view :device-id="screen.deviceId" />
+                <div class="screen-header">
+                  <div class="device-name">{{ screen.deviceName }}</div>
+                  <el-tooltip content="关闭视频">
+                    <el-button class="screen__close" type="text" @click="screen.reset()">
+                      <i class="el-icon-close" />
+                    </el-button>
+                  </el-tooltip>
+                </div>
+              </template>
+              <div v-else class="tip-text">请选择设备</div>
+            </div>
           </div>
         </div>
       </div>
@@ -77,73 +104,47 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Watch, Mixins } from 'vue-property-decorator'
-import DeviceMixin from './mixin'
+import ScreenMixin from './mixin/screenMixin'
 import { DeviceModule } from '@/store/modules/device'
 import { getGroups } from '@/api/group'
 import { Group } from '@/type/group'
 import StatusBadge from '@/components/StatusBadge/index.vue'
-import Replay from './components/Replay.vue'
+import ReplayView from './components/ReplayView.vue'
 
 @Component({
   name: 'Record',
   components: {
-    Replay,
+    ReplayView,
     StatusBadge
   }
 })
-export default class extends Mixins(DeviceMixin) {
-  private currentIndex = 0
-  private maxSize = 4
-  private screenList: Array<Screen> = []
-  private isFullscreen = false
+export default class extends Mixins(ScreenMixin) {
+  public maxSize = 1
 
   private get deviceId() {
     return this.$route.query.deviceId || null
   }
 
   private mounted() {
-    this.getGroupList()
+    this.getGroupList('replay')
+    this.initScreen()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
+    window.addEventListener('resize', this.checkFullscreen)
   }
 
   private destroyed() {
+    this.screenList.forEach(screen => {
+      screen.reset()
+    })
     window.removeEventListener('resize', this.calMaxHeight)
-  }
-
-  /**
-   * 获取组列表
-   */
-  private async getGroupList() {
-    this.loading.group = true
-    let params = {
-      pageSize: 1000
-    }
-    const res = await getGroups(params)
-    this.groupList = res.groups
-    if (this.groupList.length) {
-      if (!this.$route.query.groupId) {
-        await DeviceModule.SetGroup(this.groupList[0])
-        this.$route.query.groupId = this.groupList[0]
-        this.$router.push({
-          name: 'replay',
-          query: {
-            groupId: this.currentGroupId
-          }
-        })
-      } else {
-        const currentGroup = this.groupList.find((group: Group) => group.groupId === this.$route.query.groupId)
-        await DeviceModule.SetGroup(currentGroup)
-      }
-      await this.initDirs()
-    }
-    this.loading.group = false
+    window.removeEventListener('resize', this.checkFullscreen)
   }
 
   /**
    * 切换业务组
    */
-  private async changeGroup() {
+  public async changeGroup() {
     const currentGroup = this.groupList.find((group: Group) => group.groupId === this.groupId)
     await DeviceModule.SetGroup(currentGroup)
     this.$router.push({
@@ -158,49 +159,191 @@ export default class extends Mixins(DeviceMixin) {
   /**
    * 清空初始化树状态默认方法
    */
-  public async initTreeStatus() {
-    const dirTree: any = this.$refs.dirTree
-    const path: string | (string | null)[] | null = this.$route.query.path
-    const keyPath = path ? path.toString().split(',') : null
-    if (keyPath) {
-      for (let i = 0; i < keyPath.length; i++) {
-        const _key = keyPath[i]
-        const node = dirTree.getNode(_key)
-        if (node) {
-          await this.loadDirChildren(_key, node)
-          if (i === keyPath.length - 1) {
-            DeviceModule.SetBreadcrumb(this.getDirPath(node).reverse())
-          }
-        }
-      }
-    }
-  }
+  public async initTreeStatus() {}
 
   /**
-   * 选择录像回放设备
+   * 打开分屏视频
    */
-  private selectDevice(item: any, node: any) {
-    DeviceModule.SetBreadcrumb(this.getDirPath(node).reverse())
+  private openScreen(item: any, node?: any) {
     if (item.type === 'ipc') {
-      this.$router.push({
-        name: 'replay',
-        query: {
-          groupId: this.currentGroupId,
-          deviceId: item.id,
-          path: this.breadcrumb.map((item: any) => item.id).join(',')
-        }
+      const screen = this.screenList[this.currentIndex]
+      if (screen.deviceId) {
+        screen.reset()
+      }
+      this.$nextTick(() => {
+        screen.deviceId = item.id
+        screen.deviceName = item.label
+        screen.loaded = true
+        if (this.currentIndex < (this.maxSize - 1)) this.currentIndex++
       })
     }
   }
 }
 </script>
 <style lang="scss" scoped>
-.device-list__right {
-  .replay-wrap {
-    padding: 15px;
+  .device-list {
+    &__left {
+      .playing {
+        color: $success;
+      }
+      .offline .node-name {
+        cursor: not-allowed;
+        color: #aaa;
+        .svg-icon {
+          color: #ccc;
+        }
+      }
+    }
+
+    &__right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .device__tools {
+      height: 40px;
+      line-height: 40px;
+      padding: 0 15px;
+      border-bottom: 1px solid $borderGrey;
+      background: #f8f8f8;
+      transition: padding-left .2s;
+      label {
+        margin-right: 10px;
+      }
+      .el-button {
+        color: #5a5e66;
+        padding: 0;
+      }
+      &--right {
+        float: right;
+        .el-button {
+          font-size: 16px;
+        }
+      }
+    }
   }
-  .empty-text {
-    margin-top: 35px;
+
+  .tool-buttons {
+    height: 40px;
+
+    &--select {
+      margin-left: 10px;
+    }
   }
-}
+
+  .screen-list {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    .screen-item {
+      display: flex;
+      flex: 1 0 50%;
+      position: relative;
+      background: #333;
+      border: 3px solid #fff;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      &.actived {
+        border-color: $primary;
+        &:before {
+          content: ' ';
+          position: absolute;
+          z-index: 10;
+          width: 30px;
+          height: 30px;
+          left: -15px;
+          top: -15px;
+          background: $primary;
+          transform: rotate(45deg);
+        }
+      }
+      ::v-deep .el-loading-mask {
+        background: #333;
+      }
+      .tip-text {
+        color: #fff;
+      }
+      ::v-deep .replay-view {
+        flex: 1;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        .filter-container {
+          position: absolute;
+          right: 50px;
+          top: 6px;
+          .el-date-editor {
+            .el-input__inner {
+              background: #555;
+              color: #fff;
+              border: none;
+              font-size: 12px;
+              height: 28px;
+              line-height: 28px;
+            }
+            .el-input__icon {
+              line-height: 28px;
+            }
+          }
+          .el-radio-group .el-radio-button__inner, &__slice {
+            padding: 6px 7px;
+            background: #555;
+            color: #fff;
+            border: none;
+            &:hover {
+              color: $primary;
+            }
+          }
+          .el-radio-button.is-active .el-radio-button__inner {
+            background: $primary;
+            color: #fff;
+          }
+        }
+        .replay-player {
+          margin-top: 40px;
+          display: flex;
+          flex: 1;
+          flex-direction: column;
+        }
+        .replay-time-list {
+          background: #fff;
+          margin: 40px 0 0;
+          padding: 15px;
+        }
+      }
+      .screen__close {
+        position: absolute;
+        z-index: 10;
+        right: 10px;
+        top: 10px;
+        font-size: 18px;
+        color: #fff;
+        padding: 0;
+      }
+      .device-name {
+        position: absolute;
+        z-index: 10;
+        left: 15px;
+        top: 11px;
+        color: #fff;
+      }
+    }
+    &.screen-size--9 .screen-item {
+      flex-basis: 33%;
+    }
+    &.screen-size--16 .screen-item {
+      flex-basis: 25%;
+    }
+    &.fullscreen {
+      position: fixed;
+      z-index: 1001;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+  }
 </style>

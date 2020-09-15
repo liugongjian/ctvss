@@ -8,7 +8,9 @@
         :type="videoCoding"
         :url="address.flvUrl"
         :auto-play="true"
+        :is-ws="true"
         :is-live="true"
+        :has-control="false"
         @onRetry="onRetry"
       />
     </div>
@@ -36,19 +38,21 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Inject, Watch } from 'vue-property-decorator'
+import { Component, Vue, Inject, Prop, Watch } from 'vue-property-decorator'
 import { getDevicePreview } from '@/api/device'
 import copy from 'copy-to-clipboard'
 import Player from './Player.vue'
 
 @Component({
-  name: 'DevicePreview',
+  name: 'LiveView',
   components: {
     Player
   }
 })
 export default class extends Vue {
   @Inject('deviceRouter') private deviceRouter!: Function
+  @Prop()
+  private deviceId!: number | string
   private address?: any = null
   private videoCoding?: string = ''
   private playerTimer: any = null
@@ -56,10 +60,6 @@ export default class extends Vue {
   private retry = false
   private errorMessage = ''
   private timeout: any = null
-
-  private get deviceId() {
-    return this.$route.query.deviceId
-  }
 
   @Watch('$route.query')
   private onRouterChange() {

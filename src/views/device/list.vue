@@ -36,11 +36,11 @@
         <el-button class="el-button-rect" icon="el-icon-refresh" @click="init" />
       </div>
     </div>
-    <el-table v-loading="loading.list || loading.info" :data="deviceList" empty-text="暂无设备" fit>
+    <el-table v-loading="loading.list || loading.info" :data="deviceList" empty-text="暂无设备" fit class="device-list__table" @row-click="rowClick">
       <el-table-column type="selection" width="55" />
       <el-table-column v-if="isGb && isNVR" label="通道号/通道名称" min-width="200">
         <template slot-scope="{row}">
-          <div class="device-list__device-name" @click="goInto(row)">
+          <div class="device-list__device-name">
             <div class="device-list__device-id">{{ row.channelNum }}</div>
             <div>
               {{ row.channelName }} <i class="el-icon-video-camera" />
@@ -50,7 +50,7 @@
       </el-table-column>
       <el-table-column v-if="isGb && !isNVR" label="设备ID/名称" min-width="200">
         <template slot-scope="{row}">
-          <div class="device-list__device-name" @click="goInto(row)">
+          <div class="device-list__device-name">
             <div class="device-list__device-id">{{ row.deviceId }}</div>
             <div>
               {{ row.deviceName }} <i class="el-icon-video-camera" />
@@ -110,10 +110,9 @@
           {{ transPriority[row.transPriority] || '-' }}
         </template>
       </el-table-column>
-      <el-table-column v-if="isGb && !isNVR" key="tunnelNum" label="通道数">
+      <el-table-column v-if="isGb && !isNVR" key="tunnelNum" prop="tunnelNum" label="通道数">
         <template slot-scope="{row}">
-          <el-button v-if="row.deviceStats && row.deviceStats.channelSize" type="text" @click="goInto(row)">{{ row.deviceStats.channelSize }}</el-button>
-          <span v-else>-</span>
+          {{ row.deviceStats.channelSize || '-' }}
         </template>
       </el-table-column>
       <el-table-column key="createdTime" label="创建时间" min-width="180">
@@ -121,7 +120,7 @@
           {{ row.createdTime }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="270" fixed="right">
+      <el-table-column label="操作" prop="handle" width="270" fixed="right">
         <template slot-scope="scope">
           <el-button type="text" :disabled="scope.row.deviceType === 'nvr'" @click="goToPreview('preview', scope.row)">实时预览</el-button>
           <el-button type="text" :disabled="scope.row.deviceType === 'nvr'" @click="goToPreview('replay', scope.row)">录像回放</el-button>
@@ -342,11 +341,14 @@ export default class extends Vue {
   /**
    * 根据类型进入下一级页面
    */
-  private goInto(device: Device) {
-    this.deviceRouter({
-      id: device.deviceId,
-      type: device.deviceType
-    })
+  private rowClick(device: Device, column: any, event: any) {
+    if (column.property !== 'handle') {
+      const type = device.deviceType === 'ipc' ? 'detail' : device.deviceType
+      this.deviceRouter({
+        id: device.deviceId,
+        type
+      })
+    }
   }
 
   /**
@@ -472,7 +474,10 @@ export default class extends Vue {
         this.deleteDevice(command.device)
         break
       case 'nvr':
-        this.goInto(command.device)
+        this.deviceRouter({
+          id: command.device.deviceId,
+          type: 'nvr'
+        })
         break
       case 'move':
         this.openDialog('moveDir', command.device)
@@ -493,11 +498,13 @@ export default class extends Vue {
   }
 
   .device-list {
-    &__device-name {
-      cursor: pointer;
-    }
     &__device-id {
       color: $primary;
+    }
+  }
+  .device-list__table {
+    ::v-deep .el-table__body td {
+      cursor: pointer;
     }
   }
   .device-info {

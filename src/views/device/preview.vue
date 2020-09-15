@@ -5,10 +5,10 @@
       <el-button class="btn-detail" @click="goToDetail"><i class="el-icon-tickets" /> 查看设备详情</el-button>
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane lazy label="实时预览" name="preview">
-          <live v-if="activeName === 'preview'" />
+          <live-view v-if="activeName === 'preview'" :device-id="deviceId" />
         </el-tab-pane>
         <el-tab-pane lazy label="录像回放" name="replay">
-          <replay v-if="activeName === 'replay'" />
+          <replay-view v-if="activeName === 'replay'" ref="replayView" :device-id="deviceId" />
         </el-tab-pane>
         <el-tab-pane v-if="false" label="监控截图" name="snapshot">
           <el-date-picker
@@ -89,8 +89,8 @@ import copy from 'copy-to-clipboard'
 import SetRecordTemplate from '../components/dialogs/SetRecordTemplate.vue'
 import SetSnapshotTemplate from '../components/dialogs/SetSnapshotTemplate.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
-import Replay from './components/Replay.vue'
-import Live from './components/Live.vue'
+import ReplayView from './components/ReplayView.vue'
+import LiveView from './components/LiveView.vue'
 
 @Component({
   name: 'DevicePreview',
@@ -98,8 +98,8 @@ import Live from './components/Live.vue'
     SetRecordTemplate,
     SetSnapshotTemplate,
     StatusBadge,
-    Replay,
-    Live
+    ReplayView,
+    LiveView
   }
 })
 export default class extends Vue {
@@ -125,6 +125,12 @@ export default class extends Vue {
 
   private mounted() {
     if (this.$route.query.previewTab) this.activeName = this.$route.query.previewTab.toString()
+    this.$nextTick(this.resizeReplayVideo)
+    window.addEventListener('resize', this.resizeReplayVideo)
+  }
+
+  private beforeDestroy() {
+    window.removeEventListener('resize', this.resizeReplayVideo)
   }
 
   private goToDetail() {
@@ -134,21 +140,21 @@ export default class extends Vue {
     })
   }
 
+  /**
+   * 设置播放器大小
+   */
+  private resizeReplayVideo() {
+    const replayView: any = this.$refs.replayView
+    if (!replayView) return
+    const $replayView = replayView.$el
+    const playerSize = $replayView.getBoundingClientRect()
+    const documentHeight = document.body.offsetHeight
+    $replayView.style.height = `${documentHeight - playerSize.top - 50}px`
+  }
+
   private handleClick(tab: any, event: any) {
     this.activeName = tab.name
-    // if (tab.name === 'preview') {
-    //   this.player = new Ctplayer({
-    //     id: 'previewPlayer', // 播放器DOM ID
-    //     autoPlay: true, // 是否允许自动播放
-    //     source: 'http://jazz.liveplay.kijazz.cn/live/walk.flv' // 视频源
-    //   })
-    // } else if (tab.name === 'replay') {
-    //   this.player = new Ctplayer({
-    //     id: 'replayPlayer', // 播放器DOM ID
-    //     autoPlay: true, // 是否允许自动播放
-    //     source: 'http://jazz.liveplay.kijazz.cn/live/walk.flv' // 视频源
-    //   })
-    // }
+    this.$nextTick(this.resizeReplayVideo)
   }
 
   private setRecordTemplate() {
@@ -200,6 +206,13 @@ export default class extends Vue {
       top: -12px;
       right: 0;
       z-index: 9;
+    }
+    .replay-view {
+      display: flex;
+      flex-direction: column;
+      ::v-deep .replay-player {
+        flex: 1;
+      }
     }
   }
 

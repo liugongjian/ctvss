@@ -6,7 +6,7 @@ export default class Screen {
   public url?: string
   private type?: string
   private loading: boolean
-  private loaded: boolean
+  public loaded: boolean
   public retry?: boolean
 
   constructor() {
