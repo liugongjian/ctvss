@@ -34,7 +34,7 @@
               </el-tooltip>
             </div>
             <div v-loading="loading.dir" class="dir-list__tree device-list__max-height" :style="{height: `${maxHeight}px`}">
-              <el-button size="mini" class="dir-list__tree polling-button" @click="videosOnPolling(-1)">轮巡根目录</el-button>
+              <el-button size="mini" class="dir-list__tree polling-button" @click="videosOnPolling(null, false)">轮巡根目录</el-button>
               <el-tree
                 ref="dirTree"
                 empty-text="暂无目录或设备"
@@ -46,15 +46,15 @@
                 :props="treeProp"
                 @node-click="openScreen"
               >
-                <span slot-scope="{node, data}" class="custom-tree-node" :class="{'offline': data.type === 'ipc' && data.streamStatus !== 'on'}" @contextmenu="openMenu($event, node)">
+                <span slot-scope="{node, data}" class="custom-tree-node" :class="{'offline': data.type === 'ipc' && data.streamStatus !== 'on'}" @contextmenu="($event, node)">
                   <span class="node-name">
                     <svg-icon :name="data.type" />
                     <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                     {{ node.label }}
                     <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
 
-                    <el-tooltip class="item" effect="dark" content="轮询当前目录" placement="top" :open-delay="300">
-                      <i v-if="data.type === 'nvr' || data.type === 'dir'" class="el-icon-video-play" style="float: right;" @click.stop.prevent="videosOnPolling(1)" />
+                    <el-tooltip class="item" effect="dark" content="轮巡当前目录" placement="top" :open-delay="300">
+                      <i v-if="data.type === 'nvr' || data.type === 'dir'" class="el-icon-video-play" style="float: right;" @click.stop.prevent="videosOnPolling(node, true)" />
                     </el-tooltip>
                   </span>
                 </span>
@@ -134,8 +134,8 @@
       </div>
     </el-card>
 
-    <div id="mouse-right" class="mouse-right" @click="videosOnPolling(1)">
-      轮询当前目录
+    <div id="mouse-right" class="mouse-right" @click="videosOnPolling(null, true)">
+      轮巡当前目录
     </div>
   </div>
 </template>
@@ -261,20 +261,23 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   /**
-   * 需要轮训的视频
+   * 需要轮巡的视频
    */
-  private async videosOnPolling(dir: number) {
+  private async videosOnPolling(node:any, isDir: boolean) {
     this.polling.isStart = true
     this.pollingDevices = []
-    if (dir === -1) {
-      console.log('轮训根目录')
+    if (node) {
+      this.currentNode = node
+    }
+    if (!isDir) {
+      console.log('轮巡根目录')
       this.dirList.forEach((item: any) => {
         if (item.type === 'ipc' && item.streamStatus === 'on') {
           this.pollingDevices.push(item)
         }
       })
     } else {
-      console.log('查询dir下设备')
+      console.log('查询node下设备')
       let data = await getDeviceTree({
         groupId: this.currentGroupId,
         id: this.currentNode!.data.id,
@@ -306,12 +309,24 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   /**
-   * 轮训
+   * 轮巡
    */
   private pollingVideos() {
-    console.log('轮训')
+    console.log('轮巡')
     const length = this.pollingDevices.length
     this.currentIndex = 0
+    if (this.pollingDevices.length - 1 < this.maxSize) {
+      for (let i = 0; i < this.screenList.length; i++) {
+        this.screenList[i].reset()
+      }
+      while (this.currentIndex < this.pollingDevices.length) {
+        this.screenList[this.currentIndex].deviceId = this.pollingDevices[this.currentIndex].id
+        this.screenList[this.currentIndex].deviceName = this.pollingDevices[this.currentIndex].label
+        this.screenList[this.currentIndex].getUrl()
+        this.currentIndex++
+      }
+      return
+    }
     for (let i = 0; i < this.maxSize; i++) {
       this.screenList[i].deviceId = this.pollingDevices[(this.currentPollingIndex + i) % length].id
       this.screenList[i].deviceName = this.pollingDevices[(this.currentPollingIndex + i) % length].label
