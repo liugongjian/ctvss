@@ -119,7 +119,7 @@
               :key="index"
               v-loading="screen.loading"
               class="screen-item"
-              :class="{'actived': index === currentIndex}"
+              :class="{'actived': index === currentIndex && !polling.isStart}"
               @click="selectScreen(index)"
             >
               <template v-if="screen.loaded">
