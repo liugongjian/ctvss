@@ -164,6 +164,28 @@
     }
   }
 
+  .device__tools {
+    height: 40px;
+    line-height: 40px;
+    padding: 0 15px;
+    border-bottom: 1px solid $borderGrey;
+    background: #f8f8f8;
+    transition: padding-left .2s;
+    label {
+      margin-right: 10px;
+    }
+    .el-button {
+      color: #5a5e66;
+      padding: 0;
+    }
+    &--right {
+      float: right;
+      .el-button {
+        font-size: 16px;
+      }
+    }
+  }
+
   &--dragging {
     cursor: ew-resize;
 
@@ -183,6 +205,9 @@
       width: 0px!important;
     }
     .breadcrumb {
+      padding-left: 70px;
+    }
+    .device__tools {
       padding-left: 70px;
     }
     .device-list__expand {
