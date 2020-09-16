@@ -84,7 +84,7 @@
                   </div>
                   <div v-if="polling.isPause" class="polling-mask__tools__item">
                     <el-button size="mini" @click="resumePolling()">
-                      <svg-icon name="pause" />继续
+                      <svg-icon name="play" />继续
                     </el-button>
                   </div>
                   <div class="polling-mask__tools__item">
