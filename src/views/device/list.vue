@@ -33,7 +33,7 @@
         <el-input v-show="false" v-model="keyword" class="filter-container__search-group" placeholder="请输入关键词">
           <el-button slot="append" class="el-button-rect" icon="el-icon-search" />
         </el-input>
-        <el-button class="el-button-rect" icon="el-icon-refresh" @click="init" />
+        <el-button class="el-button-rect" @click="init"><svg-icon name="refresh" /></el-button>
       </div>
     </div>
     <el-table v-loading="loading.list || loading.info" :data="deviceList" empty-text="暂无设备" fit class="device-list__table" @row-click="rowClick">

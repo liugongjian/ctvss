@@ -6,6 +6,7 @@
         v-model="groupId"
         class="filter-group"
         placeholder="请选择业务组"
+        :disabled="polling.isStart"
         @change="changeGroup"
       >
         <el-option
@@ -29,12 +30,14 @@
         <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
           <div class="dir-list" :style="`width: ${dirDrag.width}px`">
             <div class="dir-list__tools">
+              <el-tooltip class="item" effect="dark" content="轮巡根目录" placement="top" :open-delay="300">
+                <el-button v-if="!polling.isStart" type="text" @click="videosOnPolling(null, false)"><svg-icon name="polling-play" /></el-button>
+              </el-tooltip>
               <el-tooltip class="item" effect="dark" content="刷新目录" placement="top" :open-delay="300">
-                <el-button type="text" @click="initDirs"><i class="el-icon-refresh" /></el-button>
+                <el-button type="text" @click="initDirs"><svg-icon name="refresh" /></el-button>
               </el-tooltip>
             </div>
             <div v-loading="loading.dir" class="dir-list__tree device-list__max-height" :style="{height: `${maxHeight}px`}">
-              <el-button size="mini" class="dir-list__tree polling-button" @click="videosOnPolling(-1)">轮巡根目录</el-button>
               <el-tree
                 ref="dirTree"
                 empty-text="暂无目录或设备"
@@ -46,19 +49,51 @@
                 :props="treeProp"
                 @node-click="openScreen"
               >
-                <span slot-scope="{node, data}" class="custom-tree-node" :class="{'offline': data.type === 'ipc' && data.streamStatus !== 'on'}" @contextmenu="openMenu($event, node)">
+                <span slot-scope="{node, data}" class="custom-tree-node" :class="{'offline': data.type === 'ipc' && data.streamStatus !== 'on'}" @contextmenu="($event, node)">
                   <span class="node-name">
                     <svg-icon :name="data.type" />
                     <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                     {{ node.label }}
                     <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
-
-                    <el-tooltip class="item" effect="dark" content="轮询当前目录" placement="top" :open-delay="300">
-                      <i v-if="data.type === 'nvr' || data.type === 'dir'" class="el-icon-video-play" style="float: right;" @click.stop.prevent="videosOnPolling(1)" />
-                    </el-tooltip>
                   </span>
+                  <el-tooltip class="item" effect="dark" content="轮巡当前目录" placement="top" :open-delay="300">
+                    <i class="polling">
+                      <svg-icon v-if="data.type === 'nvr' || data.type === 'dir'" name="polling-play" width="16px" height="16px" @click.stop.prevent="videosOnPolling(node, true)" />
+                    </i>
+                  </el-tooltip>
                 </span>
               </el-tree>
+              <div v-if="polling.isStart" class="polling-mask">
+                <div class="polling-mask__tools">
+                  <div class="polling-mask__tools__status">当前轮巡中...</div>
+                  <div class="polling-mask__tools__item">
+                    <svg-icon name="clock" class="polling-mask__tools__clock" width="16px" height="16px" />
+                    <el-select v-model="polling.interval" class="polling-mask__tools__select" size="mini" placeholder="请选择" @change="intervalChange">
+                      <el-option
+                        v-for="item in pollingInterval"
+                        :key="item.value"
+                        :label="item.label"
+                        :value="item.value"
+                      />
+                    </el-select>
+                  </div>
+                  <div v-if="!polling.isPause" class="polling-mask__tools__item">
+                    <el-button size="mini" @click="pausePolling()">
+                      <svg-icon name="pause" />暂停
+                    </el-button>
+                  </div>
+                  <div v-if="polling.isPause" class="polling-mask__tools__item">
+                    <el-button size="mini" @click="resumePolling()">
+                      <svg-icon name="play" />继续
+                    </el-button>
+                  </div>
+                  <div class="polling-mask__tools__item">
+                    <el-button size="mini" @click="stopPolling()">
+                      <svg-icon name="stop" />结束
+                    </el-button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -89,7 +124,7 @@
               :key="index"
               v-loading="screen.loading"
               class="screen-item"
-              :class="{'actived': index === currentIndex}"
+              :class="{'actived': index === currentIndex && !polling.isStart}"
               @click="selectScreen(index)"
             >
               <template v-if="screen.loaded">
@@ -116,26 +151,12 @@
               <div v-else class="tip-text">请选择设备</div>
             </div>
           </div>
-          <div v-if="polling.isStart" class="tool-buttons">
-            <span>
-              轮巡间隔:
-              <el-select v-model="polling.interval" class="tool-buttons--select" size="mini" placeholder="请选择" @change="intervalChange">
-                <el-option
-                  v-for="item in pollingInterval"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-              <el-button size="mini" @click="stopPolling()">停止轮巡</el-button>
-            </span>
-          </div>
         </div>
       </div>
     </el-card>
 
-    <div id="mouse-right" class="mouse-right" @click="videosOnPolling(1)">
-      轮询当前目录
+    <div id="mouse-right" class="mouse-right" @click="videosOnPolling(null, true)">
+      轮巡当前目录
     </div>
   </div>
 </template>
@@ -162,8 +183,9 @@ export default class extends Mixins(ScreenMixin) {
   private currentPollingIndex = 0
   private isZoom = false
   private polling = {
-    interval: 5,
-    isStart: false
+    interval: 10,
+    isStart: false,
+    isPause: false
   }
   private interval?: NodeJS.Timeout
   private currentNode?: Record<string, any> = {
@@ -174,6 +196,10 @@ export default class extends Mixins(ScreenMixin) {
     {
       value: 5,
       label: '5秒'
+    },
+    {
+      value: 10,
+      label: '10秒'
     },
     {
       value: 20,
@@ -261,20 +287,37 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   /**
-   * 需要轮训的视频
+   * @override 切换分屏数量
    */
-  private async videosOnPolling(dir: number) {
+  public changeMaxSize(size: number) {
+    this.maxSize = size
+    if (this.currentIndex >= this.maxSize) {
+      this.currentIndex = this.maxSize - 1
+    }
+    this.initScreen()
+    if (this.polling.isStart) {
+      this.doPolling()
+    }
+  }
+
+  /**
+   * 需要轮巡的视频
+   */
+  private async videosOnPolling(node:any, isDir: boolean) {
     this.polling.isStart = true
     this.pollingDevices = []
-    if (dir === -1) {
-      console.log('轮训根目录')
+    if (node) {
+      this.currentNode = node
+    }
+    if (!isDir) {
+      console.log('轮巡根目录')
       this.dirList.forEach((item: any) => {
         if (item.type === 'ipc' && item.streamStatus === 'on') {
           this.pollingDevices.push(item)
         }
       })
     } else {
-      console.log('查询dir下设备')
+      console.log('查询node下设备')
       let data = await getDeviceTree({
         groupId: this.currentGroupId,
         id: this.currentNode!.data.id,
@@ -286,35 +329,74 @@ export default class extends Mixins(ScreenMixin) {
         }
       })
     }
+    this.currentPollingIndex = 0
+    this.doPolling()
+  }
+
+  /**
+   * 判断轮巡时是否需要刷新
+   */
+  private doPolling() {
+    // 不刷新
     this.interval && clearInterval(this.interval)
-    this.interval = setInterval(this.pollingVideos, this.polling.interval * 1000)
+    if (this.pollingDevices.length - 1 < this.maxSize) {
+      this.currentIndex = 0
+      for (let i = 0; i < this.screenList.length; i++) {
+        this.screenList[i].reset()
+      }
+      while (this.currentIndex < this.pollingDevices.length) {
+        this.screenList[this.currentIndex].deviceId = this.pollingDevices[this.currentIndex].id
+        this.screenList[this.currentIndex].deviceName = this.pollingDevices[this.currentIndex].label
+        this.screenList[this.currentIndex].getUrl()
+        this.currentIndex++
+      }
+    } else {
+      // 刷新
+      this.pollingVideos()
+      this.interval = setInterval(this.pollingVideos, this.polling.interval * 1000)
+    }
   }
 
   private intervalChange() {
-    console.log(this.polling.interval)
+    if (this.polling.isStart && !this.polling.isPause) {
+      this.doPolling()
+    }
+  }
+
+  private pausePolling() {
     if (this.polling.isStart) {
-      this.interval && clearInterval(this.interval)
-      this.interval = setInterval(this.pollingVideos, this.polling.interval * 1000)
+      this.polling.isPause = true
+      clearInterval(this.interval!)
+    }
+  }
+
+  private resumePolling() {
+    if (this.polling.isStart) {
+      this.polling.isPause = false
+      this.doPolling()
     }
   }
 
   private stopPolling() {
     if (this.polling.isStart) {
       this.polling.isStart = false
+      this.polling.isPause = false
       clearInterval(this.interval!)
     }
   }
 
   /**
-   * 轮训
+   * 轮巡
    */
   private pollingVideos() {
-    console.log('轮训')
+    console.log('轮巡')
     const length = this.pollingDevices.length
+    this.currentPollingIndex = this.currentPollingIndex % length
     this.currentIndex = 0
     for (let i = 0; i < this.maxSize; i++) {
-      this.screenList[i].deviceId = this.pollingDevices[(this.currentPollingIndex + i) % length].id
-      this.screenList[i].deviceName = this.pollingDevices[(this.currentPollingIndex + i) % length].label
+      this.screenList[i].reset()
+      this.screenList[i].deviceId = this.pollingDevices[(this.currentPollingIndex + i % length) % length].id
+      this.screenList[i].deviceName = this.pollingDevices[(this.currentPollingIndex + i % length) % length].label
       this.screenList[i].getUrl()
       if (this.currentIndex < (this.maxSize - 1)) {
         this.currentIndex++
@@ -365,7 +447,13 @@ export default class extends Mixins(ScreenMixin) {
         color: $success;
       }
       .polling {
-        color: blue;
+        position: absolute;
+        right: 0;
+        top: 4px;
+        outline: none;
+        .svg-icon {
+          color: $text;
+        }
       }
       .offline .node-name {
         cursor: not-allowed;
@@ -382,39 +470,44 @@ export default class extends Mixins(ScreenMixin) {
       flex-direction: column;
     }
 
-    .device__tools {
-      height: 40px;
-      line-height: 40px;
-      padding: 0 15px;
-      border-bottom: 1px solid $borderGrey;
-      background: #f8f8f8;
-      transition: padding-left .2s;
-      label {
-        margin-right: 10px;
-      }
-      .el-button {
-        color: #5a5e66;
-        padding: 0;
-      }
-      &--right {
-        float: right;
-        .el-button {
-          font-size: 16px;
+    .dir-list__tree {
+      position: relative;
+      .polling-mask {
+        position: absolute;
+        display: flex;
+        height: 100%;
+        width: 100%;
+        top: 0;
+        left: 0;
+        background: rgba(255, 255, 255, .75);
+        align-items: center;
+        &__tools {
+          width: 100%;
+          text-align: center;
+          font-size: 12px;
+          margin-top: -30%;
+          &__item {
+            margin-bottom: 15px;
+          }
+          &__clock {
+            vertical-align: middle;
+          }
+          &__status {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 30px;
+          }
+          &__select {
+            width: 80px;
+          }
+          .el-button--mini {
+            width: 100px;
+          }
+          .svg-icon {
+            color: inherit;
+          }
         }
       }
-    }
-  }
-
-  .tool-buttons {
-    height: 40px;
-    background: #f8f8f8;
-    border-top: 1px solid $borderGrey;
-    font-size: 12px;
-    padding: 4px 15px;
-
-    &--select {
-      margin: 0 10px;
-      width: 80px;
     }
   }
 

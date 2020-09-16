@@ -30,7 +30,7 @@
           <div class="dir-list" :style="`width: ${dirDrag.width}px`">
             <div class="dir-list__tools">
               <el-tooltip class="item" effect="dark" content="刷新目录" placement="top" :open-delay="300">
-                <el-button type="text" @click="initDirs"><i class="el-icon-refresh" /></el-button>
+                <el-button type="text" @click="initDirs"><svg-icon name="refresh" /></el-button>
               </el-tooltip>
             </div>
             <div v-loading="loading.dir" class="dir-list__tree device-list__max-height" :style="{height: `${maxHeight}px`}">
@@ -199,36 +199,6 @@ export default class extends Mixins(ScreenMixin) {
       flex: 1;
       display: flex;
       flex-direction: column;
-    }
-
-    .device__tools {
-      height: 40px;
-      line-height: 40px;
-      padding: 0 15px;
-      border-bottom: 1px solid $borderGrey;
-      background: #f8f8f8;
-      transition: padding-left .2s;
-      label {
-        margin-right: 10px;
-      }
-      .el-button {
-        color: #5a5e66;
-        padding: 0;
-      }
-      &--right {
-        float: right;
-        .el-button {
-          font-size: 16px;
-        }
-      }
-    }
-  }
-
-  .tool-buttons {
-    height: 40px;
-
-    &--select {
-      margin-left: 10px;
     }
   }
 
