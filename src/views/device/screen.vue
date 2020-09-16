@@ -65,7 +65,10 @@
               </el-tree>
               <div v-if="polling.isStart" class="polling-mask">
                 <div class="polling-mask__tools">
-                  <div class="polling-mask__tools__status">当前轮巡中...</div>
+                  <div class="polling-mask__tools__status">
+                    <span v-if="!polling.isPause">当前轮巡中...</span>
+                    <span v-else>轮巡已暂停</span>
+                  </div>
                   <div class="polling-mask__tools__item">
                     <svg-icon name="clock" class="polling-mask__tools__clock" width="16px" height="16px" />
                     <el-select v-model="polling.interval" class="polling-mask__tools__select" size="mini" placeholder="请选择" @change="intervalChange">
