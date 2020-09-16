@@ -178,7 +178,7 @@ export default class extends Mixins(ScreenMixin) {
   private currentPollingIndex = 0
   private isZoom = false
   private polling = {
-    interval: 5,
+    interval: 10,
     isStart: false
   }
   private interval?: NodeJS.Timeout
@@ -190,6 +190,10 @@ export default class extends Mixins(ScreenMixin) {
     {
       value: 5,
       label: '5秒'
+    },
+    {
+      value: 10,
+      label: '10秒'
     },
     {
       value: 20,
@@ -277,6 +281,20 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   /**
+   * @override 切换分屏数量
+   */
+  public changeMaxSize(size: number) {
+    this.maxSize = size
+    if (this.currentIndex >= this.maxSize) {
+      this.currentIndex = this.maxSize - 1
+    }
+    this.initScreen()
+    if (this.polling.isStart) {
+      this.doPolling()
+    }
+  }
+
+  /**
    * 需要轮巡的视频
    */
   private async videosOnPolling(node:any, isDir: boolean) {
@@ -305,15 +323,36 @@ export default class extends Mixins(ScreenMixin) {
         }
       })
     }
+    this.doPolling()
+  }
+
+  /**
+   * 判断轮巡时是否需要刷新
+   */
+  private doPolling() {
+    // 不刷新
     this.interval && clearInterval(this.interval)
-    this.interval = setInterval(this.pollingVideos, this.polling.interval * 1000)
+    if (this.pollingDevices.length - 1 < this.maxSize) {
+      this.currentIndex = 0
+      for (let i = 0; i < this.screenList.length; i++) {
+        this.screenList[i].reset()
+      }
+      while (this.currentIndex < this.pollingDevices.length) {
+        this.screenList[this.currentIndex].deviceId = this.pollingDevices[this.currentIndex].id
+        this.screenList[this.currentIndex].deviceName = this.pollingDevices[this.currentIndex].label
+        this.screenList[this.currentIndex].getUrl()
+        this.currentIndex++
+      }
+    } else {
+      // 刷新
+      this.pollingVideos()
+      this.interval = setInterval(this.pollingVideos, this.polling.interval * 1000)
+    }
   }
 
   private intervalChange() {
-    console.log(this.polling.interval)
     if (this.polling.isStart) {
-      this.interval && clearInterval(this.interval)
-      this.interval = setInterval(this.pollingVideos, this.polling.interval * 1000)
+      this.doPolling()
     }
   }
 
@@ -330,22 +369,12 @@ export default class extends Mixins(ScreenMixin) {
   private pollingVideos() {
     console.log('轮巡')
     const length = this.pollingDevices.length
+    this.currentPollingIndex = this.currentPollingIndex % length
     this.currentIndex = 0
-    if (this.pollingDevices.length - 1 < this.maxSize) {
-      for (let i = 0; i < this.screenList.length; i++) {
-        this.screenList[i].reset()
-      }
-      while (this.currentIndex < this.pollingDevices.length) {
-        this.screenList[this.currentIndex].deviceId = this.pollingDevices[this.currentIndex].id
-        this.screenList[this.currentIndex].deviceName = this.pollingDevices[this.currentIndex].label
-        this.screenList[this.currentIndex].getUrl()
-        this.currentIndex++
-      }
-      return
-    }
     for (let i = 0; i < this.maxSize; i++) {
-      this.screenList[i].deviceId = this.pollingDevices[(this.currentPollingIndex + i) % length].id
-      this.screenList[i].deviceName = this.pollingDevices[(this.currentPollingIndex + i) % length].label
+      this.screenList[i].reset()
+      this.screenList[i].deviceId = this.pollingDevices[(this.currentPollingIndex + i % length) % length].id
+      this.screenList[i].deviceName = this.pollingDevices[(this.currentPollingIndex + i % length) % length].label
       this.screenList[i].getUrl()
       if (this.currentIndex < (this.maxSize - 1)) {
         this.currentIndex++
