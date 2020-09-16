@@ -77,9 +77,14 @@
                       />
                     </el-select>
                   </div>
-                  <div class="polling-mask__tools__item">
-                    <el-button size="mini" @click="stopPolling()">
+                  <div v-if="!polling.isPause" class="polling-mask__tools__item">
+                    <el-button size="mini" @click="pausePolling()">
                       <svg-icon name="pause" />暂停
+                    </el-button>
+                  </div>
+                  <div v-if="polling.isPause" class="polling-mask__tools__item">
+                    <el-button size="mini" @click="resumePolling()">
+                      <svg-icon name="pause" />继续
                     </el-button>
                   </div>
                   <div class="polling-mask__tools__item">
@@ -179,7 +184,8 @@ export default class extends Mixins(ScreenMixin) {
   private isZoom = false
   private polling = {
     interval: 10,
-    isStart: false
+    isStart: false,
+    isPause: false
   }
   private interval?: NodeJS.Timeout
   private currentNode?: Record<string, any> = {
@@ -323,6 +329,7 @@ export default class extends Mixins(ScreenMixin) {
         }
       })
     }
+    this.currentPollingIndex = 0
     this.doPolling()
   }
 
@@ -351,7 +358,21 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   private intervalChange() {
+    if (this.polling.isStart && !this.polling.isPause) {
+      this.doPolling()
+    }
+  }
+
+  private pausePolling() {
     if (this.polling.isStart) {
+      this.polling.isPause = true
+      clearInterval(this.interval!)
+    }
+  }
+
+  private resumePolling() {
+    if (this.polling.isStart) {
+      this.polling.isPause = false
       this.doPolling()
     }
   }
@@ -359,6 +380,7 @@ export default class extends Mixins(ScreenMixin) {
   private stopPolling() {
     if (this.polling.isStart) {
       this.polling.isStart = false
+      this.polling.isPause = false
       clearInterval(this.interval!)
     }
   }
