@@ -2,7 +2,7 @@
 import flvjs from 'flv.js/src/flv.js'
 import Hls from 'hls.js'
 import { dateFormat } from '@/utils/date'
-import '@/libs/h265/goldplay.css'
+// import '@/libs/h265/goldplay.css'
 
 export default class Ctplayer {
   public source: string
@@ -312,17 +312,17 @@ export default class Ctplayer {
 
   private createH265Hls(wrapElement: HTMLDivElement) {
     // @ts-ignore
-    const GoldPlay = window.GoldPlay
-    const player: any = new GoldPlay(wrapElement, {
-      sourceURL: this.source,
-      type: 'HLS',
-      autoPlay: this.autoPlay,
-      libPath: `${window.location.origin}/lib/`,
-      playBackRate: 1,
-      containerFullPage: false
-    })
-    player.muted = true
-    return player
+    // const GoldPlay = window.GoldPlay
+    // const player: any = new GoldPlay(wrapElement, {
+    //   sourceURL: this.source,
+    //   type: 'HLS',
+    //   autoPlay: this.autoPlay,
+    //   libPath: `${window.location.origin}/lib/`,
+    //   playBackRate: 1,
+    //   containerFullPage: false
+    // })
+    // player.muted = true
+    // return player
   }
 
   /**
