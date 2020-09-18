@@ -162,7 +162,7 @@ export const asyncRoutes: RouteConfig[] = [
     component: Layout,
     meta: {
       title: '设备管理',
-      icon: 'stream',
+      icon: 'component',
       roles: ['admin'],
       alwaysShow: false,
       only: true
@@ -173,7 +173,7 @@ export const asyncRoutes: RouteConfig[] = [
         component: () => import(/* webpackChunkName: "device" */ '@/views/device/index.vue'),
         meta: {
           title: '设备管理',
-          icon: 'stream',
+          icon: 'component',
           breadcrumb: false,
           roles: ['admin']
         },
@@ -184,7 +184,6 @@ export const asyncRoutes: RouteConfig[] = [
             name: 'device-list',
             meta: {
               title: '设备列表',
-              icon: 'stream',
               breadcrumb: false,
               roles: ['admin'],
               activeMenu: '/device'
@@ -196,7 +195,6 @@ export const asyncRoutes: RouteConfig[] = [
             name: 'device-create',
             meta: {
               title: '添加设备',
-              icon: 'stream',
               hidden: true,
               roles: ['admin'],
               activeMenu: '/device'
@@ -208,7 +206,6 @@ export const asyncRoutes: RouteConfig[] = [
             name: 'device-update',
             meta: {
               title: '编辑设备',
-              icon: 'tree',
               hidden: true,
               roles: ['admin'],
               activeMenu: '/device'
@@ -220,7 +217,6 @@ export const asyncRoutes: RouteConfig[] = [
             name: 'device-detail',
             meta: {
               title: '设备详情',
-              icon: 'stream',
               hidden: true,
               roles: ['admin'],
               activeMenu: '/device'
@@ -232,7 +228,6 @@ export const asyncRoutes: RouteConfig[] = [
             name: 'device-preview',
             meta: {
               title: '监控查看',
-              icon: 'stream',
               hidden: true,
               roles: ['admin'],
               activeMenu: '/device'
@@ -247,7 +242,7 @@ export const asyncRoutes: RouteConfig[] = [
     component: Layout,
     meta: {
       title: '实时预览',
-      icon: 'tree',
+      icon: 'ipc',
       roles: ['admin'],
       alwaysShow: false
     },
@@ -258,7 +253,7 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'screen',
         meta: {
           title: '实时预览',
-          icon: 'stream',
+          icon: 'ipc',
           breadcrumb: false,
           roles: ['admin'],
           activeMenu: '/screen'
@@ -283,7 +278,7 @@ export const asyncRoutes: RouteConfig[] = [
     component: Layout,
     meta: {
       title: '录像回放',
-      icon: 'tree',
+      icon: 'video',
       roles: ['admin'],
       alwaysShow: false
     },
@@ -294,7 +289,7 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'replay',
         meta: {
           title: '录像回放',
-          icon: 'stream',
+          icon: 'video',
           breadcrumb: false,
           roles: ['admin'],
           activeMenu: '/replay'
@@ -307,7 +302,7 @@ export const asyncRoutes: RouteConfig[] = [
     component: Layout,
     meta: {
       title: '凭证管理',
-      icon: 'tree',
+      icon: 'key',
       alwaysShow: true,
       breadcrumb: false,
       roles: ['admin']
@@ -319,7 +314,7 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'gb28181',
         meta: {
           title: 'GB28181凭证',
-          icon: 'tree',
+          icon: 'dot',
           roles: ['admin']
         }
       },
@@ -329,7 +324,6 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'gb28181-create',
         meta: {
           title: '新建GB28181凭证',
-          icon: 'stream',
           hidden: true,
           roles: ['admin']
         }
@@ -340,7 +334,6 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'gb28181-update',
         meta: {
           title: '编辑GB28181凭证',
-          icon: 'stream',
           hidden: true,
           roles: ['admin']
         }
@@ -353,7 +346,7 @@ export const asyncRoutes: RouteConfig[] = [
     redirect: 'noredirect',
     meta: {
       title: '模板管理',
-      icon: 'tree',
+      icon: 'template',
       alwaysShow: true,
       breadcrumb: true,
       roles: ['admin']
@@ -365,7 +358,7 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'record',
         meta: {
           title: '录制模板',
-          icon: 'tree',
+          icon: 'dot',
           roles: ['admin']
         }
       },
@@ -375,7 +368,6 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'record-create',
         meta: {
           title: '新建录制模板',
-          icon: 'stream',
           hidden: true,
           roles: ['admin'],
           activeMenu: '/template/record'
@@ -387,7 +379,6 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'record-update',
         meta: {
           title: '编辑录制模板',
-          icon: 'stream',
           hidden: true,
           roles: ['admin'],
           activeMenu: '/template/record'

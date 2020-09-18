@@ -7,22 +7,11 @@ export const getUsers = (params: any) =>
     params
   })
 
-export const getUserInfo = (data: any) =>
+export const getUserInfo = () =>
   request({
-    url: '/users/info',
-    method: 'post',
-    data
-  }).catch(() => ({
-    data: {
-      user: {
-        roles: ['admin'],
-        name: '龙虾狂魔',
-        avatar: 'https://chafen-segen.oss-cn-hangzhou.aliyuncs.com/admin/cat.jpg?imageView2/1/w/80/h/80',
-        introduction: '欢迎光临',
-        email: 'ruanzhj@chinatelecom.cn'
-      }
-    }
-  }))
+    url: '/user',
+    method: 'get'
+  })
 
 export const getUserByName = (username: string) =>
   request({

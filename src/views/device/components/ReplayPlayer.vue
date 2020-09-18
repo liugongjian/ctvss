@@ -11,6 +11,7 @@
       :auto-play="true"
       :has-control="false"
       :on-time-update="setCurrentTime"
+      :on-end="playNextRecord"
     />
     <div class="timeline__box">
       <div ref="timelineWrap" class="timeline__wrap">
@@ -136,6 +137,22 @@ export default class extends Vue {
   private initVideoPlayer() {
     if (this.recordList.length) {
       this.currentRecord = this.recordList[0]
+      this.$nextTick(() => {
+        this.setCurrentTime(0)
+        this.player && this.player.reset()
+      })
+    }
+  }
+
+  /**
+   * 播放下一段
+   */
+  private playNextRecord() {
+    let index = this.recordList.findIndex(record => this.currentRecord.index === record.index)
+    index++
+    if (index < this.recordList.length) {
+      this.currentRecord = this.recordList[index]
+      console.log(this.currentRecord)
       this.$nextTick(() => {
         this.setCurrentTime(0)
         this.player && this.player.reset()
