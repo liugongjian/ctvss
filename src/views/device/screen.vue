@@ -136,6 +136,7 @@
                   :type="screen.type"
                   :url="screen.url"
                   :is-live="true"
+                  :is-ws="true"
                   :auto-play="true"
                   :has-control="false"
                   :device-name="screen.deviceName"
