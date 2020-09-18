@@ -311,6 +311,7 @@ export default class Ctplayer {
   }
 
   private createH265Hls(wrapElement: HTMLDivElement) {
+    wrapElement.innerHTML = '<div class="not-support">暂不支持H265</div>'
     // @ts-ignore
     // const GoldPlay = window.GoldPlay
     // const player: any = new GoldPlay(wrapElement, {

@@ -8,6 +8,7 @@ export default class Screen {
   private loading: boolean
   public loaded: boolean
   public retry?: boolean
+  public isLive?: boolean
 
   constructor() {
     this.deviceId = ''
@@ -16,6 +17,7 @@ export default class Screen {
     this.loading = false
     this.loaded = false
     this.retry = false
+    this.isLive = true
   }
 
   public async getUrl() {
@@ -50,5 +52,6 @@ export default class Screen {
     this.loading = false
     this.loaded = false
     this.retry = false
+    this.isLive = true
   }
 }

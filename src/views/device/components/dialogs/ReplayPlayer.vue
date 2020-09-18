@@ -7,7 +7,15 @@
     class="video-player"
     @close="closeDialog"
   >
-    <player v-if="dialogVisible" ref="video" :type="type" :url="video.playUrl.hlsUrl" :auto-play="true" :on-time-update="onTimeUpdate" />
+    <player
+      v-if="dialogVisible"
+      ref="video"
+      type="h265-hls"
+      :url="video.playUrl.hlsUrl"
+      :auto-play="true"
+      :on-time-update="onTimeUpdate"
+      :has-control="false"
+    />
     <div class="current-time">{{ dateFormat(currentTime) }}</div>
   </el-dialog>
 </template>
@@ -68,9 +76,10 @@ export default class extends Vue {
 
   ::v-deep .video-wrap {
     width: 100%;
-    height: 0;
+    position: relative;
     flex: 1;
     video {
+      position: absolute;
       width: 100%;
       height: 100%;
       background: #000;

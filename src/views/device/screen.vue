@@ -131,18 +131,27 @@
               @click="selectScreen(index)"
             >
               <template v-if="screen.loaded">
-                <player
-                  v-if="screen.url"
-                  :type="screen.type"
-                  :url="screen.url"
-                  :is-live="true"
-                  :is-ws="true"
-                  :auto-play="true"
-                  :has-control="false"
-                  :device-name="screen.deviceName"
-                  @onRetry="onRetry(screen)"
-                />
-                <div v-else class="tip-text">无信号</div>
+                <template v-if="screen.isLive">
+                  <div class="live-view">
+                    <player
+                      v-if="screen.url"
+                      :type="screen.type"
+                      :url="screen.url"
+                      :is-live="true"
+                      :is-ws="true"
+                      :auto-play="true"
+                      :has-control="false"
+                      :has-playback="true"
+                      :device-name="screen.deviceName"
+                      @onRetry="onRetry(screen)"
+                      @onPlayback="onPlayback(screen)"
+                    />
+                    <div v-else class="tip-text">无信号</div>
+                  </div>
+                </template>
+                <template v-else>
+                  <replay-view :device-id="screen.deviceId" :has-playlive="true" @onPlaylive="onPlaylive(screen)" />
+                </template>
                 <div class="screen-header">
                   <div class="device-name">{{ screen.deviceName }}</div>
                   <el-tooltip content="关闭视频">
@@ -172,6 +181,7 @@ import ScreenMixin from './mixin/screenMixin'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import Screen from './models/Screen'
 import Player from './components/Player.vue'
+import ReplayView from './components/ReplayView.vue'
 import { getDeviceTree } from '@/api/device'
 import { clear } from 'console'
 
@@ -179,6 +189,7 @@ import { clear } from 'console'
   name: 'Screen',
   components: {
     Player,
+    ReplayView,
     StatusBadge
   }
 })
@@ -425,10 +436,23 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   /**
+   * 录像回放
+   */
+  private onPlayback(screen: Screen) {
+    screen.isLive = false
+  }
+
+  /**
+   * 播放直播
+   */
+  private onPlaylive(screen: Screen) {
+    screen.isLive = true
+  }
+
+  /**
    * 右键菜单
    */
   public openMenu(event: MouseEvent, node: any) {
-    console.log(event, node)
     this.currentNode = node
     if (node.data.type === 'dir' || node.data.type === 'nvr') {
       event.preventDefault()
@@ -512,89 +536,6 @@ export default class extends Mixins(ScreenMixin) {
           }
         }
       }
-    }
-  }
-
-  .screen-list {
-    flex: 1;
-    display: flex;
-    flex-wrap: wrap;
-    .screen-item {
-      display: flex;
-      flex: 1 0 50%;
-      position: relative;
-      background: #333;
-      border: 3px solid #fff;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-      &.actived {
-        border-color: $primary;
-        &:before {
-          content: ' ';
-          position: absolute;
-          z-index: 10;
-          width: 30px;
-          height: 30px;
-          left: -15px;
-          top: -15px;
-          background: $primary;
-          transform: rotate(45deg);
-        }
-      }
-      ::v-deep .el-loading-mask {
-        background: #333;
-      }
-      .tip-text {
-        color: #fff;
-      }
-      ::v-deep video,
-      ::v-deep .video-wrap {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        outline: none;
-      }
-      ::v-deep .video-wrap {
-        display: flex;
-        align-items: center;
-        overflow: hidden;
-      }
-      ::v-deep video {
-        background: #000;
-      }
-      .screen__close {
-        position: absolute;
-        z-index: 10;
-        right: 10px;
-        top: 10px;
-        font-size: 18px;
-        color: #fff;
-        padding: 0;
-      }
-      .device-name {
-        position: absolute;
-        z-index: 10;
-        left: 15px;
-        top: 11px;
-        color: #fff;
-      }
-    }
-    &.screen-size--9 .screen-item {
-      flex-basis: 33%;
-    }
-    &.screen-size--16 .screen-item {
-      flex-basis: 25%;
-    }
-    &.fullscreen {
-      position: fixed;
-      z-index: 1001;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
     }
   }
 

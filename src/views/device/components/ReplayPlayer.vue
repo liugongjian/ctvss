@@ -10,8 +10,10 @@
       :url="currentRecord.playUrl.hlsUrl"
       :auto-play="true"
       :has-control="false"
+      :has-playlive="hasPlaylive"
       :on-time-update="setCurrentTime"
-      :on-end="playNextRecord"
+      :on-ended="playNextRecord"
+      @onPlaylive="playlive"
     />
     <div class="timeline__box">
       <div ref="timelineWrap" class="timeline__wrap">
@@ -73,6 +75,10 @@ export default class extends Vue {
     default: []
   })
   private recordList!: Array<any>
+  @Prop({
+    default: false
+  })
+  private hasPlaylive?: boolean
 
   private dateFormat = dateFormat
   private currentRecord: any = null
@@ -318,6 +324,13 @@ export default class extends Vue {
     window.removeEventListener('mouseup', this.onAxisMouseup)
     this.axisDrag.isDragging = false
   }
+
+  /**
+   * 播放直播
+   */
+  public playlive() {
+    this.$emit('onPlaylive')
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -454,6 +467,9 @@ export default class extends Vue {
     }
   }
   .empty-text {
-    padding-top: 30px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 </style>

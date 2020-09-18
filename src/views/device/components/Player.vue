@@ -36,6 +36,16 @@
             <svg-icon name="snapshot" width="18px" height="18px" />
           </div>
         </el-tooltip>
+        <el-tooltip content="录像回放" placement="top">
+          <div v-if="isLive && hasPlayback" class="controls__btn controls__snapshot" @click.stop.prevent="playback">
+            <svg-icon name="playback2" width="18px" height="18px" />
+          </div>
+        </el-tooltip>
+        <el-tooltip content="播放实时监控" placement="top">
+          <div v-if="!isLive && hasPlaylive" class="controls__btn controls__snapshot" @click.stop.prevent="playlive">
+            <svg-icon name="ipc" width="18px" height="18px" />
+          </div>
+        </el-tooltip>
       </div>
     </div>
   </div>
@@ -66,6 +76,14 @@ export default class extends Vue {
     default: true
   })
   private hasControl?: boolean
+  @Prop({
+    default: false
+  })
+  private hasPlayback?: boolean
+  @Prop({
+    default: false
+  })
+  private hasPlaylive?: boolean
   @Prop({
     default: false
   })
@@ -320,6 +338,20 @@ export default class extends Vue {
   }
 
   /**
+   * 录像回放
+   */
+  public playback() {
+    this.$emit('onPlayback')
+  }
+
+  /**
+   * 播放直播
+   */
+  public playlive() {
+    this.$emit('onPlaylive')
+  }
+
+  /**
    * 切换播放速度
    */
   public setPlaybackRate(playbackRate: number) {
@@ -333,7 +365,13 @@ export default class extends Vue {
     position: relative;
     background: #333;
     overflow: hidden;
-
+    ::v-deep .not-support {
+      color: #fff;
+      width: 100%;
+      text-align: center;
+      position: absolute;
+      top: 50%;
+    }
     video {
       display: block;
     }

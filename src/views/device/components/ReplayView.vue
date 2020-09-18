@@ -22,7 +22,13 @@
         <el-button class="filter-container__slice" size="small" @click="sliceDownload"><svg-icon name="download" width="16px" height="16px" /></el-button>
       </el-tooltip>
     </div>
-    <replay-player v-if="viewModel === 'timeline'" :current-date="currentDate" :record-list="recordList" />
+    <replay-player
+      v-if="viewModel === 'timeline'"
+      :current-date="currentDate"
+      :record-list="recordList"
+      :has-playlive="hasPlaylive"
+      @onPlaylive="playlive"
+    />
     <div v-else class="replay-time-list">
       <el-table :data="recordListSlice" empty-text="所选日期暂无录像">
         <el-table-column label="开始时间" prop="startAt" min-width="180" :formatter="dateFormatInTable" />
@@ -68,6 +74,10 @@ import ReplayPlayer from './ReplayPlayer.vue'
 export default class extends Vue {
   @Prop()
   private deviceId!: number | string
+  @Prop({
+    default: false
+  })
+  private hasPlaylive?: boolean
   private player?: Ctplayer
   private dateFormatInTable = dateFormatInTable
   private durationFormatInTable = durationFormatInTable
@@ -216,6 +226,13 @@ export default class extends Vue {
   private getRecordListByPage() {
     this.recordListSlice = this.recordList.slice((this.pager.pageNum - 1) * this.pager.pageSize, this.pager.pageNum * this.pager.pageSize)
   }
+
+  /**
+   * 播放直播
+   */
+  public playlive() {
+    this.$emit('onPlaylive')
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -241,7 +258,7 @@ export default class extends Vue {
   .replay-time-list {
     flex: 2;
     margin-left: 15px;
-    overflow: hidden;
+    overflow: auto;
 
     .el-range-editor {
       width: 100%;
