@@ -120,7 +120,7 @@
           {{ row.createdTime }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" prop="handle" width="270" fixed="right">
+      <el-table-column label="操作" prop="action" width="270" fixed="right">
         <template slot-scope="scope">
           <el-button type="text" :disabled="scope.row.deviceType === 'nvr'" @click="goToPreview('preview', scope.row)">实时预览</el-button>
           <el-button type="text" :disabled="scope.row.deviceType === 'nvr'" @click="goToPreview('replay', scope.row)">录像回放</el-button>
@@ -342,7 +342,7 @@ export default class extends Vue {
    * 根据类型进入下一级页面
    */
   private rowClick(device: Device, column: any, event: any) {
-    if (column.property !== 'handle') {
+    if (column.property !== 'action') {
       const type = device.deviceType === 'ipc' ? 'detail' : device.deviceType
       this.deviceRouter({
         id: device.deviceId,

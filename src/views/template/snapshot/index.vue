@@ -10,7 +10,7 @@
           <el-button class="el-button-rect" icon="el-icon-refresh" @click="refresh" />
         </div>
       </div>
-      <el-table v-loading="loading" :data="dataList" fit>
+      <el-table ref="table" v-loading="loading" :data="dataList" fit class="template__table" @row-click="rowClick">
         <el-table-column prop="templateName" label="模板名称" min-width="200" />
         <el-table-column prop="region" label="服务区域" min-width="100" />
         <el-table-column prop="rate" label="频率" min-width="100" />
@@ -20,7 +20,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="createdTime" label="创建时间" min-width="160" />
-        <el-table-column prop="action" label="操作" width="250" fixed="right">
+        <el-table-column prop="action" class-name="col-action" label="操作" width="250" fixed="right">
           <template slot-scope="scope">
             <el-button type="text" @click="update(scope.row)">编辑</el-button>
             <el-button type="text" @click="deleteTemplate(scope.row)">删除</el-button>
@@ -125,11 +125,31 @@ export default class extends Vue {
       }
     })
   }
+
+  /**
+   * 单击行
+   */
+  private rowClick(row: any, column: any, event: any) {
+    if (column.property !== 'action') {
+      const $table: any = this.$refs.table
+      $table.toggleRowExpansion(row)
+    }
+  }
 }
 </script>
 
 <style lang="scss" scoped>
 .filter-container__search-group {
   margin-right: 10px;
+}
+.template__table {
+  ::v-deep .el-table__body {
+    td {
+      cursor: pointer;
+    }
+    .col-action {
+      cursor: default;
+    }
+  }
 }
 </style>
