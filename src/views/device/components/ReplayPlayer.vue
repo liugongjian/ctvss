@@ -79,6 +79,8 @@ export default class extends Vue {
     default: false
   })
   private hasPlaylive?: boolean
+  @Prop()
+  private startTime?: number
 
   private dateFormat = dateFormat
   private currentRecord: any = null
@@ -142,11 +144,16 @@ export default class extends Vue {
    */
   private initVideoPlayer() {
     if (this.recordList.length) {
-      this.currentRecord = this.recordList[0]
-      this.$nextTick(() => {
-        this.setCurrentTime(0)
-        this.player && this.player.reset()
-      })
+      if (this.startTime) {
+        this.currentTime = this.startTime
+        this.setRecordByCurrentTime()
+      } else {
+        this.currentRecord = this.recordList[0]
+        this.$nextTick(() => {
+          this.setCurrentTime(0)
+          this.player && this.player.reset()
+        })
+      }
     }
   }
 
@@ -226,14 +233,21 @@ export default class extends Vue {
     this.handleDrag.isDragging = false
     window.removeEventListener('mousemove', this.onHandleMove)
     window.removeEventListener('mouseup', this.onHandleMouseup)
+    this.setRecordByCurrentTime()
+  }
+
+  /**
+   * 根据当前时间选择录像切片
+   */
+  private setRecordByCurrentTime() {
     const currentTime = this.currentTime!
     let record = this.recordList.find(record => {
-      return currentTime! >= record.startAt && currentTime! <= record.startAt + record.duration * 1000
+      return (currentTime! >= record.startAt) && (currentTime! <= (record.startAt + record.duration * 1000))
     })
     if (record) {
       let offsetTime = 0
       let isCurrent = true
-      if (this.currentRecord.index !== record.index) {
+      if (!this.currentRecord || this.currentRecord.index !== record.index) {
         this.currentRecord = record
         isCurrent = false
       }
