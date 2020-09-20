@@ -9,6 +9,7 @@ export default class Screen {
   public loaded: boolean
   public retry?: boolean
   public isLive?: boolean
+  public isFullscreen?: boolean
 
   constructor() {
     this.deviceId = ''
@@ -18,6 +19,7 @@ export default class Screen {
     this.loaded = false
     this.retry = false
     this.isLive = true
+    this.isFullscreen = false
   }
 
   public async getUrl() {
@@ -53,5 +55,13 @@ export default class Screen {
     this.loaded = false
     this.retry = false
     this.isLive = true
+  }
+
+  public fullscreen() {
+    this.isFullscreen = true
+  }
+
+  public exitFullscreen() {
+    this.isFullscreen = false
   }
 }

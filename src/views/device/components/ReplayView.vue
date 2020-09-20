@@ -18,7 +18,7 @@
           <el-radio-button label="list"><svg-icon name="list" width="16px" height="16px" /></el-radio-button>
         </el-tooltip>
       </el-radio-group>
-      <el-tooltip content="录像切片下载" placement="top">
+      <el-tooltip content="录像文件下载" placement="top">
         <el-button class="filter-container__slice" size="small" @click="sliceDownload"><svg-icon name="download" width="16px" height="16px" /></el-button>
       </el-tooltip>
     </div>
@@ -35,8 +35,7 @@
         <el-table-column label="时长" prop="duration" :formatter="durationFormatInTable" />
         <el-table-column prop="action" label="操作" width="200" fixed="right">
           <template slot-scope="{row}">
-            <el-button v-if="row.loading" type="text" disabled>正在转码...</el-button>
-            <el-button v-if="!row.loading" type="text" @click="downloadReplay(row)">下载录像</el-button>
+            <el-button :disabled="row.loading" type="text" @click="downloadReplay(row)">下载录像</el-button>
             <el-button type="text" @click="playReplay(row)">播放录像</el-button>
           </template>
         </el-table-column>

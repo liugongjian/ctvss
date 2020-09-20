@@ -237,23 +237,15 @@
     overflow: hidden;
     &.actived {
       border-color: $primary;
-      &:before {
-        content: ' ';
-        position: absolute;
-        z-index: 10;
-        width: 30px;
-        height: 30px;
-        left: -15px;
-        top: -15px;
-        background: $primary;
-        transform: rotate(45deg);
-      }
     }
     .el-loading-mask {
       background: #333;
     }
     .tip-text {
       color: #fff;
+    }
+    .tip-select-device {
+      color: $primary;
     }
     .live-view {
       video, .video-wrap {
@@ -281,8 +273,10 @@
       flex-direction: column;
       .filter-container {
         position: absolute;
-        right: 50px;
+        right: 60px;
         top: 6px;
+        height: 28px;
+        overflow: hidden;
         .el-date-editor {
           .el-input__inner {
             background: #555;
@@ -322,14 +316,17 @@
         padding: 15px;
       }
     }
-    .screen__close {
+    .screen__tools {
       position: absolute;
       z-index: 10;
       right: 10px;
-      top: 10px;
-      font-size: 18px;
-      color: #fff;
-      padding: 0;
+      top: 6px;
+      
+      .el-button {
+        padding: 0;
+        font-size: 18px;
+        color: #fff;
+      }
     }
     .device-name {
       position: absolute;
@@ -351,12 +348,22 @@
     flex-basis: 25%;
     height: 25%;
   }
-  &.fullscreen {
+  &.fullscreen, .screen-item.fullscreen {
     position: fixed;
     z-index: 1001;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
+    height: 100%;
+    
+  }
+  .screen-item.fullscreen {
+    .screen__tools {
+      display: none;
+    }
+    .filter-container {
+      right: 10px;
+    }
   }
 }

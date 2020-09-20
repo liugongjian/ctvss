@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="录像切片下载"
+    title="录像文件下载"
     :visible="dialogVisible"
     :close-on-click-modal="false"
     width="380px"
@@ -36,8 +36,7 @@
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button type="primary" :loading="submitting" @click="submit">
-        <span v-if="submitting">正在转码...</span>
-        <span v-else>下 载</span>
+        下 载
       </el-button>
       <el-button @click="closeDialog">取 消</el-button>
     </div>

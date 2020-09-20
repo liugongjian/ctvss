@@ -10,7 +10,7 @@
     <player
       v-if="dialogVisible"
       ref="video"
-      type="h265-hls"
+      :type="type"
       :url="video.playUrl.hlsUrl"
       :auto-play="true"
       :on-time-update="onTimeUpdate"

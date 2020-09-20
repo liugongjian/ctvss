@@ -146,7 +146,7 @@ export default class extends Vue {
     if (this.recordList.length) {
       if (this.startTime) {
         this.currentTime = this.startTime
-        this.setRecordByCurrentTime()
+        this.setRecordByCurrentTime(true)
       } else {
         this.currentRecord = this.recordList[0]
         this.$nextTick(() => {
@@ -239,7 +239,7 @@ export default class extends Vue {
   /**
    * 根据当前时间选择录像切片
    */
-  private setRecordByCurrentTime() {
+  private setRecordByCurrentTime(backToStart = false) {
     const currentTime = this.currentTime!
     let record = this.recordList.find(record => {
       return (currentTime! >= record.startAt) && (currentTime! <= (record.startAt + record.duration * 1000))
@@ -257,6 +257,9 @@ export default class extends Vue {
         this.player.seek(offsetTime)
         this.setHandlePosition()
       })
+    } else {
+      console.log('destory')
+      this.player && this.player.stop()
     }
   }
 
@@ -378,45 +381,31 @@ export default class extends Vue {
     position: relative;
   }
   .timeline__wrap {
-    padding-top: 16px;
     overflow: auto;
     * {
       user-select:none;
-    }
-    &::-webkit-scrollbar {
-      height: 10px;
-    }
-    &::-webkit-scrollbar-track-piece {
-      background-color: #222;
-    }
-    &::-webkit-scrollbar-thumb {
-      height: 10px;
-      background: #888;
-      border-radius: 4px;
-      cursor: pointer;
     }
   }
   .timeline {
     min-width: 930px;
     position: relative;
-    margin-top: 10px;
-    padding: 0 4px 15px 4px;
+    padding: 18px 4px 26px 4px;
     display: flex;
     background: #333;
     cursor: grab;
     &__handle {
       position: absolute;
       z-index: 10;
-      bottom: 0;
+      top: 0;
       border-right: 2px solid $primary;
-      height: 120%;
+      height: 97%;
       cursor: move;
       .timeline__current-time {
         position: absolute;
         font-size: 12px;
         width: 140px;
         left: -65px;
-        top: -14px;
+        bottom: 0;
         padding: 4px 0;
         border-radius: 5px;
         text-align: center;
@@ -460,7 +449,7 @@ export default class extends Vue {
     &__bar {
       position: absolute;
       bottom: 0;
-      border-bottom: 16px solid #3e80c1;
+      border-top: 12px solid #3e80c1;
       height: 100%;
       cursor: pointer;
     }
@@ -470,7 +459,7 @@ export default class extends Vue {
   }
   .timeline__settings {
     position: absolute;
-    top: 6px;
+    top: 48px;
     right: 10px;
     display: flex;
     color: #fff;

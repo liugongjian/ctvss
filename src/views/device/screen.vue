@@ -127,7 +127,7 @@
               :key="index"
               v-loading="screen.loading"
               class="screen-item"
-              :class="{'actived': index === currentIndex && !polling.isStart}"
+              :class="[{'actived': index === currentIndex && !polling.isStart}, {'fullscreen': screen.isFullscreen}]"
               @click="selectScreen(index)"
             >
               <template v-if="screen.loaded">
@@ -154,14 +154,23 @@
                 </template>
                 <div class="screen-header">
                   <div class="device-name">{{ screen.deviceName }}</div>
-                  <el-tooltip content="关闭视频">
-                    <el-button class="screen__close" type="text" @click="screen.reset()">
-                      <i class="el-icon-close" />
-                    </el-button>
-                  </el-tooltip>
+                  <div class="screen__tools">
+                    <el-tooltip content="全屏当前设备">
+                      <el-button class="screen__fullscreen" type="text" @click="screen.fullscreen();fullscreen()">
+                        <svg-icon name="fullscreen" width="12" height="12" />
+                      </el-button>
+                    </el-tooltip>
+                    <el-tooltip content="关闭视频">
+                      <el-button class="screen__close" type="text" @click="screen.reset()">
+                        <svg-icon name="close" width="12" height="12" />
+                      </el-button>
+                    </el-tooltip>
+                  </div>
                 </div>
               </template>
-              <div v-else class="tip-text">请选择设备</div>
+              <div v-else class="tip-text tip-select-device">
+                <el-button type="primary" @click="selectDevice(screen)">请选择设备</el-button>
+              </div>
             </div>
           </div>
         </div>
@@ -171,17 +180,20 @@
     <div id="mouse-right" class="mouse-right" @click="videosOnPolling(null, true)">
       轮巡当前目录
     </div>
+    <device-dir v-if="dialogs.deviceDir" @on-close="onDeviceDirClose" />
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue, Watch, Mixins } from 'vue-property-decorator'
 import { DeviceModule } from '@/store/modules/device'
 import { Group } from '@/type/group'
+import { Device } from '@/type/device'
 import ScreenMixin from './mixin/screenMixin'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import Screen from './models/Screen'
 import Player from './components/Player.vue'
 import ReplayView from './components/ReplayView.vue'
+import DeviceDir from './components/dialogs/DeviceDir.vue'
 import { getDeviceTree } from '@/api/device'
 import { clear } from 'console'
 
@@ -190,6 +202,7 @@ import { clear } from 'console'
   components: {
     Player,
     ReplayView,
+    DeviceDir,
     StatusBadge
   }
 })
@@ -452,7 +465,7 @@ export default class extends Mixins(ScreenMixin) {
   /**
    * 右键菜单
    */
-  public openMenu(event: MouseEvent, node: any) {
+  private openMenu(event: MouseEvent, node: any) {
     this.currentNode = node
     if (node.data.type === 'dir' || node.data.type === 'nvr') {
       event.preventDefault()
@@ -465,6 +478,15 @@ export default class extends Mixins(ScreenMixin) {
         context!.style.display = 'none'
       }
     }
+  }
+
+  /**
+   * 关闭视频选择对话框
+   * @param device 设备
+   */
+  private onDeviceDirClose(device: Device) {
+    this.dialogs.deviceDir = false
+    if (device) this.openScreen(device)
   }
 }
 </script>

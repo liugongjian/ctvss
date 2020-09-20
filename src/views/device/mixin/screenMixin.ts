@@ -11,6 +11,9 @@ export default class ScreenMixin extends Mixins(DeviceMixin) {
   public isFullscreen = false
   public maxSize = 4
   public currentIndex = 0
+  public dialogs = {
+    deviceDir: false
+  }
 
   /**
    * 初始化分屏
@@ -91,6 +94,11 @@ export default class ScreenMixin extends Mixins(DeviceMixin) {
   public checkFullscreen() {
     const doc: any = document
     this.isFullscreen = !!(doc.webkitIsFullScreen || doc.mozFullScreen || doc.msFullscreenElement || doc.fullscreenElement)
+    if (!this.isFullscreen) {
+      this.screenList.forEach((screen: Screen) => {
+        screen.exitFullscreen()
+      })
+    }
   }
 
   /**
@@ -106,5 +114,13 @@ export default class ScreenMixin extends Mixins(DeviceMixin) {
    */
   public async selectScreen(index: number) {
     this.currentIndex = index
+  }
+
+  /**
+   * 选择视频
+   * @param screen 视频
+   */
+  public selectDevice(screen: Screen) {
+    this.dialogs.deviceDir = true
   }
 }

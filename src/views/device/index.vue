@@ -39,7 +39,6 @@
               </el-tooltip>
             </div>
             <div v-loading="loading.dir" class="dir-list__tree device-list__max-height" :style="{height: `${maxHeight}px`}">
-              <div class="dir-list__root" @click="gotoRoot"><svg-icon name="back" />返回根目录</div>
               <el-tree
                 ref="dirTree"
                 empty-text="暂无目录或设备"
@@ -76,6 +75,7 @@
         </div>
         <div class="device-list__right">
           <div class="breadcrumb">
+            <span class="breadcrumb__item" @click="gotoRoot">根目录</span>
             <span
               v-for="item in breadcrumb"
               :key="item.id"
