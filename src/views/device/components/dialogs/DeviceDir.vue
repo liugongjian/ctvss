@@ -7,7 +7,7 @@
     center
     @close="closeDialog"
   >
-    <div class="tree-wrap">
+    <div v-loading="loading.dir" class="tree-wrap">
       <el-tree
         ref="dirTree"
         node-key="id"
