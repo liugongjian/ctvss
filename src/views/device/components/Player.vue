@@ -176,7 +176,14 @@ export default class extends Vue {
         if (this.isLive) {
           this.$emit('onRetry')
         }
-      }
+      },  
+    })
+    this.$nextTick(() => {
+      const $video: any = this.$refs.video
+      const player = $video.querySelector('video')
+      const mainBox: any = this.$refs.videoWrap
+      this.moveData.player = player
+      this.moveData.mainBox = mainBox   
     })
   }
 
@@ -205,8 +212,7 @@ export default class extends Vue {
     if (!this.isZoom) {
       return
     }
-    const $video: any = this.$refs.video
-    const player = $video.querySelector('video')
+    const player = this.moveData.player
     this.moveData.x = event.pageX - player.offsetLeft
     this.moveData.y = event.pageY - player.offsetTop
     event.currentTarget.style.cursor = 'move'
@@ -214,9 +220,8 @@ export default class extends Vue {
   }
 
   public mouseMoveHandle(event: any) {
-    const $video: any = this.$refs.video
-    const player = $video.querySelector('video')
-    const mainBox: any = this.$refs.videoWrap
+    const player = this.moveData.player
+    const mainBox = this.moveData.mainBox
     let moveLeft = event.pageX - this.moveData.x
     let moveTop = event.pageY - this.moveData.y
     const mainBoxSize = mainBox.getBoundingClientRect()
