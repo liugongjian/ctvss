@@ -332,7 +332,6 @@ export default class extends Mixins(ScreenMixin) {
    * 需要轮巡的视频
    */
   private async videosOnPolling(node:any, isDir: boolean) {
-    this.polling.isStart = true
     this.pollingDevices = []
     if (node) {
       this.currentNode = node
@@ -368,18 +367,12 @@ export default class extends Mixins(ScreenMixin) {
     // 不刷新
     this.interval && clearInterval(this.interval)
     if (this.pollingDevices.length - 1 < this.maxSize) {
-      this.currentIndex = 0
-      for (let i = 0; i < this.screenList.length; i++) {
-        this.screenList[i].reset()
-      }
-      while (this.currentIndex < this.pollingDevices.length) {
-        this.screenList[this.currentIndex].deviceId = this.pollingDevices[this.currentIndex].id
-        this.screenList[this.currentIndex].deviceName = this.pollingDevices[this.currentIndex].label
-        this.screenList[this.currentIndex].getUrl()
-        this.currentIndex++
-      }
+      this.$alert(`当前设备数需大于分屏数才可开始轮巡`, '提示', {
+        confirmButtonText: '确定'
+      })
     } else {
       // 刷新
+      this.polling.isStart = true
       this.pollingVideos()
       this.interval = setInterval(this.pollingVideos, this.polling.interval * 1000)
     }
