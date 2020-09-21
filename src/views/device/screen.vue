@@ -169,7 +169,7 @@
                 </div>
               </template>
               <div v-else class="tip-text tip-select-device">
-                <el-button type="primary" @click="selectDevice(screen)">请选择设备</el-button>
+                <el-button type="text" @click="selectDevice(screen)">请选择设备</el-button>
               </div>
             </div>
           </div>

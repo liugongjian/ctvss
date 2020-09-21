@@ -235,17 +235,20 @@
     justify-content: center;
     align-items: center;
     overflow: hidden;
+    .tip-select-device .el-button--text {
+      color: #fff;
+    }
     &.actived {
       border-color: $primary;
+      .tip-select-device .el-button--text {
+        color: $primary;
+      }
     }
     .el-loading-mask {
       background: #333;
     }
     .tip-text {
       color: #fff;
-    }
-    .tip-select-device {
-      color: $primary;
     }
     .live-view {
       video, .video-wrap {
