@@ -34,7 +34,7 @@
         <div class="header-dropdown">
           <router-link to="/secretManage"><i><svg-icon name="key" /></i> API密钥管理</router-link>
           <div class="header-dropdown__divided" />
-          <a @click.native="logout"><i><svg-icon name="logout" /></i> 退出登录</a>
+          <a @click="logout"><i><svg-icon name="logout" /></i> 退出登录</a>
         </div>
       </div>
     </div>
