@@ -176,14 +176,14 @@ export default class extends Vue {
         if (this.isLive) {
           this.$emit('onRetry')
         }
-      },  
+      }
     })
     this.$nextTick(() => {
       const $video: any = this.$refs.video
       const player = $video.querySelector('video')
       const mainBox: any = this.$refs.videoWrap
       this.moveData.player = player
-      this.moveData.mainBox = mainBox   
+      this.moveData.mainBox = mainBox
     })
   }
 

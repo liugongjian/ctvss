@@ -2,6 +2,9 @@
   <div class="replay-player">
     <div v-if="!recordList.length" class="empty-text">
       该时段暂无录像
+      <div v-if="hasPlaylive">
+        <el-button type="text" @click="playlive">返回实时预览</el-button>
+      </div>
     </div>
     <player
       v-if="recordList.length && currentRecord"
@@ -472,6 +475,7 @@ export default class extends Vue {
   .empty-text {
     flex: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
   }
