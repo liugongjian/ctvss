@@ -26,30 +26,17 @@
       <div class="links">
         <a>API文档</a>
       </div>
-      <el-dropdown
-        class="avatar-container right-menu-item hover-effect"
-        trigger="click"
-      >
-        <div class="avatar-wrapper">
+      <div class="user-container">
+        <div class="user-container__menu">
           {{ name }}
-          <i class="el-icon-caret-bottom" />
+          <svg-icon class="user-container__arrow" name="arrow-down" width="9" height="9" />
         </div>
-        <el-dropdown-menu slot="dropdown">
-          <router-link to="/secretManage">
-            <el-dropdown-item>
-              {{ "API密钥管理" }}
-            </el-dropdown-item>
-          </router-link>
-          <el-dropdown-item
-            divided
-            @click.native="logout"
-          >
-            <span style="display:block;">
-              {{ "退出登录" }}
-            </span>
-          </el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
+        <div class="header-dropdown">
+          <router-link to="/secretManage"><i><svg-icon name="key" /></i> API密钥管理</router-link>
+          <div class="header-dropdown__divided" />
+          <a @click.native="logout"><i><svg-icon name="logout" /></i> 退出登录</a>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -107,7 +94,6 @@ export default class extends Vue {
 <style lang="scss" scoped>
 .navbar {
   height: 50px;
-  overflow: hidden;
   position: relative;
   background: #fff;
   box-shadow: 0 1px 4px rgba(0,21,41,.08);
@@ -136,10 +122,6 @@ export default class extends Vue {
   }
 
   .links {
-    display: inline-block;
-    vertical-align: text-bottom;
-    margin-right: 15px;
-
     a {
       color: $text;
     }
@@ -152,9 +134,64 @@ export default class extends Vue {
     float: right;
     height: 100%;
     line-height: 50px;
+    display: flex;
 
     &:focus {
       outline: none;
+    }
+
+    .user-container {
+      position: relative;
+      padding: 0 20px;
+      color: $text;
+
+      &__arrow {
+        vertical-align: middle;
+        transition: transform 0.2s;
+      }
+
+      .header-dropdown {
+        display: none;
+        position: absolute;
+        z-index: 10;
+        top: 50px;
+        right: 0;
+        width: 180px;
+        background: #fff;
+        border: 1px solid $borderGrey;
+        line-height: 32px;
+        padding: 5px 0;
+        animation-duration: .5s;
+
+        a {
+          display: block;
+          color: $text;
+          padding: 0 15px;
+          cursor: pointer;
+          &:hover {
+            background: #f3f3f3;
+          }
+        }
+        i {
+          display: inline-block;
+          width: 22px;
+          color: $textGrey;
+        }
+        &__divided {
+          border-top: 1px solid $borderGrey;
+          margin: 5px 0;
+        }
+      }
+
+      &:hover {
+        .header-dropdown {
+          animation-name: slideInDown;
+          display: block;
+        }
+        .user-container__arrow {
+          transform: rotate(-180deg);
+        }
+      }
     }
 
     .right-menu-item {
@@ -178,7 +215,6 @@ export default class extends Vue {
       margin-right: 30px;
 
       .avatar-wrapper {
-        margin-top: 1px;
         position: relative;
 
         .user-avatar {
