@@ -34,7 +34,7 @@ export default class Screen {
       })
       if (res.playUrl) {
         this.url = res.playUrl.flvUrl
-        this.type = res.videoCoding === 'h264' ? 'flv' : 'h265-flv'
+        this.type = res.video.Codec === 'h264' ? 'flv' : 'h265-flv'
       }
       this.retry = false
     } catch (e) {

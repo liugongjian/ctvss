@@ -39,7 +39,7 @@ export default class extends Vue {
   private dateFormat = dateFormat
 
   private get type() {
-    return this.video.videoCoding === 'h265' ? 'h265-hls' : 'hls'
+    return this.video.Codec === 'h265' ? 'h265-hls' : 'hls'
   }
 
   private onTimeUpdate() {
