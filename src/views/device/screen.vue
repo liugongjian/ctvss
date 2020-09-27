@@ -230,20 +230,8 @@
                 <div class="screen-header">
                   <div class="device-name">{{ screen.deviceName }}</div>
                   <div class="screen__tools">
-<<<<<<< HEAD
-                    <el-tooltip content="全屏当前设备">
-                      <el-button
-                        class="screen__fullscreen"
-                        type="text"
-                        @click="screen.fullscreen();fullscreen()"
-                      >
-                        <svg-icon name="fullscreen" width="12" height="12" />
-                      </el-button>
-                    </el-tooltip>
-=======
->>>>>>> 5763a5a4b8382d2adaea5511a5d6dfb57e993087
                     <el-tooltip content="关闭视频">
-                      <el-button class="screen__close" type="text" @click="screen.reset()">
+                      <el-button class="screen__close" type="text" @click="closeScreen(screen)">
                         <svg-icon name="close" width="12" height="12" />
                       </el-button>
                     </el-tooltip>
@@ -256,7 +244,7 @@
             </div>
           </div>
         </div>
-        <ptz-control></ptz-control>
+        <ptz-control :device-id="selectedDeviceId"></ptz-control>
       </div>
     </el-card>
 
@@ -291,6 +279,7 @@ import { clear } from "console";
 })
 export default class extends Mixins(ScreenMixin) {
   public maxSize = 4;
+  private selectedDeviceId = "";
   private currentPollingIndex = 0;
   private isZoom = false;
   private isClosed = false;
@@ -335,7 +324,13 @@ export default class extends Mixins(ScreenMixin) {
       label: "5分钟"
     }
   ];
-
+  @Watch('currentIndex')
+  private onCurrentIndexChange (newValue: number) {
+    if (this.screenList.length) {
+      this.selectedDeviceId = this.screenList[newValue]!.deviceId
+      console.log('this.selectedDeviceId:', this.selectedDeviceId)
+    }
+  }
   private mounted() {
     this.getGroupList("screen");
     this.initScreen();
@@ -356,6 +351,11 @@ export default class extends Mixins(ScreenMixin) {
     window.removeEventListener("resize", this.checkFullscreen);
   }
 
+  private closeScreen(screen: Screen) {
+    this.selectedDeviceId = ""
+    screen.reset()
+  }
+  
   /**
    * 切换业务组
    */

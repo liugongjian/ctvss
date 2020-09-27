@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container" v-if="deviceId">
     <div class="container__ptz" v-show="!isClosed">
       <div class="container__ptz__title">
         <label>云台控制</label>
@@ -58,7 +58,7 @@
             <el-slider
               v-model="speed"
               :min="1"
-              :max="10"
+              :max="15"
               :show-input="true"
               :show-input-controls="false"
               :format-tooltip="formatToolTip"
@@ -90,32 +90,32 @@ export default class extends Vue {
     }
     switch (direction) {
       case 5: 
-        param.pan = -speed
-        param.tilt = -speed
+        param.pan = -speed * 17
+        param.tilt = speed * 17
         break;
       case 1:
-        param.tilt = speed
+        param.tilt = speed * 17
         break;
       case 7:
-        param.pan = speed
-        param.tilt = speed
+        param.pan = speed * 17
+        param.tilt = speed * 17
         break;
       case 3:
-        param.pan = -speed
+        param.pan = -speed * 17
         break;
       case 4:
-        param.pan = speed
+        param.pan = speed * 17
         break;
       case 6:
-        param.pan = -speed
-        param.tilt = -speed
+        param.pan = -speed * 17
+        param.tilt = -speed * 17
         break;
       case 2:
-        param.tilt = -speed
+        param.tilt = -speed * 17
         break;
       case 8: 
-        param.pan = speed
-        param.tilt = -speed
+        param.pan = speed * 17
+        param.tilt = -speed * 17
         break;
       case 9:
         param.zoom = -speed
@@ -124,16 +124,16 @@ export default class extends Vue {
         param.zoom = speed
         break;
       case 11:
-        param.focus = -speed
+        param.focus = -speed * 17
         break;
       case 12:
-        param.focus = speed
+        param.focus = speed * 17
         break;
       case 13:
-        param.iris = -speed
+        param.iris = -speed * 17
         break;
       case 14:
-        param.iris = speed
+        param.iris = speed * 17
         break;
     }
     return param
@@ -143,18 +143,52 @@ export default class extends Vue {
       deviceId: this.deviceId
     }
     switch (direction) {
-      case 5: case 6: case 7: case 8:
+      case 5:
+        param.panStopped = -1
+        param.tiltStopped = 1
+        break;
+      case 1:
+        param.tiltStopped = 1
+        break;
+      case 7:
         param.panStopped = 1
         param.tiltStopped = 1
         break;
-      case 1: case 2:
-        param.tiltStopped = 1
+      case 3:
+        param.panStopped = -1
         break;
-      case 3: case 4:
+      case 4:
         param.panStopped = 1
         break;
-      case 9: case 10:
+      case 6:
+        param.panStopped = -1
+        param.tiltStopped = -1
+        break;
+      case 2:
+        param.tiltStopped = -1
+        break;
+      case 8:
+        param.panStopped = 1
+        param.tiltStopped = -1
+        break;
+      case 9:
+        param.zoomStopped = -1
+        break;
+      case 10:
         param.zoomStopped = 1
+        break;
+      case 11:
+        param.focusStopped = -1
+        break;
+      case 12:
+        param.focusStopped = 1
+        break;
+      case 13:
+        param.irisStopped = -1
+        break;
+      case 14:
+        param.irisStopped = 1
+        break;
     }
     return param
   }
