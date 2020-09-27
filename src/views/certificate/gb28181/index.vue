@@ -6,6 +6,7 @@
         <div class="filter-container__right">
           <div class="filter-container__select">
             <el-select v-model="userType" placeholder="选择匿名方式" clearable @change="handleFilter">
+              <el-option label="全部" value="" />
               <el-option v-for="(value, key) in anonymousType" :key="key" :label="value" :value="key" />
             </el-select>
           </div>

@@ -27,7 +27,10 @@
       :current-date="currentDate"
       :record-list="recordList"
       :has-playlive="hasPlaylive"
+      :is-fullscreen="isFullscreen"
       @onPlaylive="playlive"
+      @onFullscreen="fullscreen()"
+      @onExitFullscreen="exitFullscreen()"
     />
     <div v-else class="replay-time-list">
       <el-table :data="recordListSlice" empty-text="所选日期暂无录像">
@@ -73,6 +76,10 @@ import ReplayPlayer from './ReplayPlayer.vue'
 export default class extends Vue {
   @Prop()
   private deviceId!: number | string
+  @Prop({
+    default: false
+  })
+  private isFullscreen?: boolean
   @Prop({
     default: false
   })
@@ -231,6 +238,20 @@ export default class extends Vue {
    */
   public playlive() {
     this.$emit('onPlaylive')
+  }
+
+  /**
+   * 开启全屏
+   */
+  public fullscreen() {
+    this.$emit('onFullscreen')
+  }
+
+  /**
+   * 退出全屏
+   */
+  public exitFullscreen() {
+    this.$emit('onExitFullscreen')
   }
 }
 </script>

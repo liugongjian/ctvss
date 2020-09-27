@@ -46,6 +46,16 @@
             <svg-icon name="ipc" width="18px" height="18px" />
           </div>
         </el-tooltip>
+        <el-tooltip v-if="!isFullscreen" content="进入全屏" placement="top">
+          <div class="controls__btn controls__fullscreen" @click.stop.prevent="fullscreen">
+            <svg-icon name="fullscreen" width="15px" height="15px" />
+          </div>
+        </el-tooltip>
+        <el-tooltip v-else content="退出全屏" placement="top">
+          <div class="controls__btn controls__exit-fullscreen" @click.stop.prevent="exitFullscreen">
+            <svg-icon name="exit-fullscreen" width="15px" height="15px" />
+          </div>
+        </el-tooltip>
       </div>
     </div>
   </div>
@@ -92,6 +102,10 @@ export default class extends Vue {
     default: false
   })
   private isWs?: boolean
+  @Prop({
+    default: false
+  })
+  private isFullscreen?: boolean
   @Prop()
   private deviceName?: string
   @Prop()
@@ -354,6 +368,20 @@ export default class extends Vue {
    */
   public playlive() {
     this.$emit('onPlaylive')
+  }
+
+  /**
+   * 开启全屏
+   */
+  public fullscreen() {
+    this.$emit('onFullscreen')
+  }
+
+  /**
+   * 退出全屏
+   */
+  public exitFullscreen() {
+    this.$emit('onExitFullscreen')
   }
 
   /**

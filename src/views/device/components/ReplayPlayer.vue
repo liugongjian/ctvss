@@ -16,7 +16,10 @@
       :has-playlive="hasPlaylive"
       :on-time-update="setCurrentTime"
       :on-ended="playNextRecord"
+      :is-fullscreen="isFullscreen"
       @onPlaylive="playlive"
+      @onFullscreen="fullscreen()"
+      @onExitFullscreen="exitFullscreen()"
     />
     <div class="timeline__box">
       <div ref="timelineWrap" class="timeline__wrap">
@@ -78,6 +81,10 @@ export default class extends Vue {
     default: []
   })
   private recordList!: Array<any>
+  @Prop({
+    default: false
+  })
+  private isFullscreen?: boolean
   @Prop({
     default: false
   })
@@ -350,6 +357,20 @@ export default class extends Vue {
    */
   public playlive() {
     this.$emit('onPlaylive')
+  }
+
+  /**
+   * 开启全屏
+   */
+  public fullscreen() {
+    this.$emit('onFullscreen')
+  }
+
+  /**
+   * 退出全屏
+   */
+  public exitFullscreen() {
+    this.$emit('onExitFullscreen')
   }
 }
 </script>

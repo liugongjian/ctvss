@@ -10,8 +10,11 @@
         :auto-play="true"
         :is-ws="true"
         :is-live="true"
+        :is-fullscreen="isFullscreen"
         :has-control="false"
         @onRetry="onRetry"
+        @onFullscreen="fullscreen()"
+        @onExitFullscreen="exitFullscreen()"
       />
     </div>
     <info-list v-if="address" label-width="70" title="播放地址" class="address">
@@ -51,6 +54,10 @@ import Player from './Player.vue'
 })
 export default class extends Vue {
   @Inject('deviceRouter') private deviceRouter!: Function
+  @Prop({
+    default: false
+  })
+  private isFullscreen?: boolean
   @Prop()
   private deviceId!: number | string
   private address?: any = null
@@ -142,6 +149,20 @@ export default class extends Vue {
   private copyUrl(text: string) {
     copy(text)
     this.$message.success('复制成功')
+  }
+
+  /**
+   * 开启全屏
+   */
+  public fullscreen() {
+    this.$emit('onFullscreen')
+  }
+
+  /**
+   * 退出全屏
+   */
+  public exitFullscreen() {
+    this.$emit('onExitFullscreen')
   }
 }
 </script>

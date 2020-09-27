@@ -3,12 +3,12 @@ import { DeviceModule } from '@/store/modules/device'
 import { getGroups } from '@/api/group'
 import { Group } from '@/type/group'
 import DeviceMixin from './deviceMixin'
+import FullscreenMixin from './fullscreenMixin'
 import Screen from '../models/Screen'
 
 @Component
-export default class ScreenMixin extends Mixins(DeviceMixin) {
+export default class ScreenMixin extends Mixins(DeviceMixin, FullscreenMixin) {
   public screenList: Array<Screen> = []
-  public isFullscreen = false
   public maxSize = 4
   public currentIndex = 0
   public dialogs = {
@@ -70,22 +70,6 @@ export default class ScreenMixin extends Mixins(DeviceMixin) {
       this.currentIndex = this.maxSize - 1
     }
     this.initScreen()
-  }
-
-  /**
-   * 全屏
-   */
-  public fullscreen() {
-    const element: any = document.documentElement
-    if (element.requestFullscreen) {
-      element.requestFullscreen()
-    } else if (element.msRequestFullscreen) {
-      element.msRequestFullscreen()
-    } else if (element.mozRequestFullScreen) {
-      element.mozRequestFullScreen()
-    } else if (element.webkitRequestFullscreen) {
-      element.webkitRequestFullscreen()
-    }
   }
 
   /**

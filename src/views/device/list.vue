@@ -120,7 +120,7 @@
           {{ row.createdTime }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" prop="action" width="270" fixed="right">
+      <el-table-column label="操作" prop="action" class-name="col-action" width="270" fixed="right">
         <template slot-scope="scope">
           <el-button type="text" :disabled="scope.row.deviceType === 'nvr'" @click="goToPreview('preview', scope.row)">实时预览</el-button>
           <el-button type="text" :disabled="scope.row.deviceType === 'nvr'" @click="goToPreview('replay', scope.row)">录像回放</el-button>
@@ -503,8 +503,13 @@ export default class extends Vue {
     }
   }
   .device-list__table {
-    ::v-deep .el-table__body td {
-      cursor: pointer;
+    ::v-deep .el-table__body {
+      td {
+        cursor: pointer;
+      }
+      .col-action {
+        cursor: default;
+      }
     }
   }
   .device-info {
