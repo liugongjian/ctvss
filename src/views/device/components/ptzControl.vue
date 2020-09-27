@@ -82,7 +82,7 @@ import { startDeviceMove, endDeviceMove, startDeviceAdjust, endDeviceAdjust } fr
 export default class extends Vue {
   @Prop({default: ''})
   private deviceId!: string
-  private speed = 1
+  private speed = 5
   private isClosed = false
   private formatStartParam(direction: number, speed: number) {
     const param: any = {
