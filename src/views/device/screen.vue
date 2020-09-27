@@ -207,12 +207,15 @@
                       :url="screen.url"
                       :is-live="true"
                       :is-ws="true"
+                      :is-fullscreen="screen.isFullscreen"
                       :auto-play="true"
                       :has-control="false"
                       :has-playback="true"
                       :device-name="screen.deviceName"
                       @onRetry="onRetry(screen)"
                       @onPlayback="onPlayback(screen)"
+                      @onFullscreen="screen.fullscreen();fullscreen()"
+                      @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
                     />
                     <div v-else class="tip-text">无信号</div>
                   </div>
@@ -227,6 +230,7 @@
                 <div class="screen-header">
                   <div class="device-name">{{ screen.deviceName }}</div>
                   <div class="screen__tools">
+<<<<<<< HEAD
                     <el-tooltip content="全屏当前设备">
                       <el-button
                         class="screen__fullscreen"
@@ -236,6 +240,8 @@
                         <svg-icon name="fullscreen" width="12" height="12" />
                       </el-button>
                     </el-tooltip>
+=======
+>>>>>>> 5763a5a4b8382d2adaea5511a5d6dfb57e993087
                     <el-tooltip content="关闭视频">
                       <el-button class="screen__close" type="text" @click="screen.reset()">
                         <svg-icon name="close" width="12" height="12" />

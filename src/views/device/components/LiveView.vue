@@ -5,13 +5,16 @@
       <player
         v-if="address"
         ref="video"
-        :type="videoCoding"
+        :type="Codec"
         :url="address.flvUrl"
         :auto-play="true"
         :is-ws="true"
         :is-live="true"
+        :is-fullscreen="isFullscreen"
         :has-control="false"
         @onRetry="onRetry"
+        @onFullscreen="fullscreen()"
+        @onExitFullscreen="exitFullscreen()"
       />
     </div>
     <info-list v-if="address" label-width="70" title="播放地址" class="address">
@@ -51,10 +54,14 @@ import Player from './Player.vue'
 })
 export default class extends Vue {
   @Inject('deviceRouter') private deviceRouter!: Function
+  @Prop({
+    default: false
+  })
+  private isFullscreen?: boolean
   @Prop()
   private deviceId!: number | string
   private address?: any = null
-  private videoCoding?: string = ''
+  private Codec?: string = ''
   private playerTimer: any = null
   private loading = false
   private retry = false
@@ -110,7 +117,7 @@ export default class extends Vue {
         deviceId: this.deviceId
       })
       this.address = res.playUrl
-      this.videoCoding = res.videoCoding === 'h264' ? 'flv' : 'h265-flv'
+      this.Codec = res.video.Codec === 'h264' ? 'flv' : 'h265-flv'
       this.retry = false
     } catch (e) {
       if (e.code === 5) {
@@ -142,6 +149,20 @@ export default class extends Vue {
   private copyUrl(text: string) {
     copy(text)
     this.$message.success('复制成功')
+  }
+
+  /**
+   * 开启全屏
+   */
+  public fullscreen() {
+    this.$emit('onFullscreen')
+  }
+
+  /**
+   * 退出全屏
+   */
+  public exitFullscreen() {
+    this.$emit('onExitFullscreen')
   }
 }
 </script>

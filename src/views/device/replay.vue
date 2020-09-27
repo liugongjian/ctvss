@@ -84,15 +84,15 @@
               @click="selectScreen(index)"
             >
               <template v-if="screen.loaded">
-                <replay-view :device-id="screen.deviceId" />
+                <replay-view
+                  :device-id="screen.deviceId"
+                  :is-fullscreen="screen.isFullscreen"
+                  @onFullscreen="screen.fullscreen();fullscreen()"
+                  @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
+                />
                 <div class="screen-header">
                   <div class="device-name">{{ screen.deviceName }}</div>
                   <div class="screen__tools">
-                    <el-tooltip content="全屏当前设备">
-                      <el-button class="screen__fullscreen" type="text" @click="screen.fullscreen();fullscreen()">
-                        <svg-icon name="fullscreen" width="12" height="12" />
-                      </el-button>
-                    </el-tooltip>
                     <el-tooltip content="关闭视频">
                       <el-button class="screen__close" type="text" @click="screen.reset()">
                         <svg-icon name="close" width="12" height="12" />

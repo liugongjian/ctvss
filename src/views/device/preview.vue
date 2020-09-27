@@ -5,10 +5,24 @@
       <el-button class="btn-detail" @click="goToDetail"><i class="el-icon-tickets" /> 查看设备详情</el-button>
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane lazy label="实时预览" name="preview">
-          <live-view v-if="activeName === 'preview'" :device-id="deviceId" />
+          <live-view
+            v-if="activeName === 'preview'"
+            :class="{'fullscreen': previewFullscreen.live}"
+            :device-id="deviceId"
+            :is-fullscreen="previewFullscreen.live"
+            @onFullscreen="previewFullscreen.live = true; fullscreen()"
+            @onExitFullscreen="exitFullscreen()"
+          />
         </el-tab-pane>
         <el-tab-pane lazy label="录像回放" name="replay">
-          <replay-view v-if="activeName === 'replay'" ref="replayView" :device-id="deviceId" />
+          <replay-view
+            v-if="activeName === 'replay'" ref="replayView"
+            :class="{'fullscreen': previewFullscreen.replay}"
+            :device-id="deviceId"
+            :is-fullscreen="previewFullscreen.replay"
+            @onFullscreen="previewFullscreen.replay = true; fullscreen()"
+            @onExitFullscreen="exitFullscreen()"
+          />
         </el-tab-pane>
         <el-tab-pane v-if="false" label="监控截图" name="snapshot">
           <el-date-picker
@@ -81,10 +95,11 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Inject, Watch } from 'vue-property-decorator'
+import { Component, Mixins, Inject, Watch } from 'vue-property-decorator'
 import { DeviceStatus, DeviceType, AuthStatus } from '@/dics'
 import { dateFormatInTable, dateFormat } from '@/utils/date'
 import { getDevicePreview } from '@/api/device'
+import FullscreenMixin from './mixin/fullscreenMixin'
 import copy from 'copy-to-clipboard'
 import SetRecordTemplate from '../components/dialogs/SetRecordTemplate.vue'
 import SetSnapshotTemplate from '../components/dialogs/SetSnapshotTemplate.vue'
@@ -102,7 +117,7 @@ import LiveView from './components/LiveView.vue'
     LiveView
   }
 })
-export default class extends Vue {
+export default class extends Mixins(FullscreenMixin) {
   @Inject('deviceRouter') private deviceRouter!: Function
   private dateFormatInTable = dateFormatInTable
   private dateFormat = dateFormat
@@ -113,6 +128,10 @@ export default class extends Vue {
   }
   private setRecordTemplateDialog = false
   private setSnapshotTemplateDialog = false
+  private previewFullscreen = {
+    live: false,
+    replay: false
+  }
 
   private get deviceId() {
     return this.$route.query.deviceId
@@ -127,10 +146,24 @@ export default class extends Vue {
     if (this.$route.query.previewTab) this.activeName = this.$route.query.previewTab.toString()
     this.$nextTick(this.resizeReplayVideo)
     window.addEventListener('resize', this.resizeReplayVideo)
+    window.addEventListener('resize', this.checkFullscreen)
   }
 
   private beforeDestroy() {
     window.removeEventListener('resize', this.resizeReplayVideo)
+    window.removeEventListener('resize', this.checkFullscreen)
+  }
+
+  /**
+   * 检查是否全屏
+   */
+  public checkFullscreen() {
+    const doc: any = document
+    const isFullscreen = !!(doc.webkitIsFullScreen || doc.mozFullScreen || doc.msFullscreenElement || doc.fullscreenElement)
+    this.previewFullscreen = {
+      live: isFullscreen,
+      replay: isFullscreen
+    }
   }
 
   private goToDetail() {
@@ -234,5 +267,58 @@ export default class extends Vue {
         min-height: 200px;
       }
     }
+  }
+
+  .fullscreen ::v-deep .preview-player .video-wrap, .fullscreen.replay-view {
+    position: fixed;
+    z-index: 1001;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100% !important;
+    background: #333;
+  }
+
+  .fullscreen.replay-view {
+    ::v-deep .filter-container {
+      margin: 4px 10px;
+      .el-date-editor {
+        .el-input__inner {
+          background: #555;
+          color: #fff;
+          border: none;
+          font-size: 12px;
+          height: 28px;
+          line-height: 28px;
+        }
+        .el-input__icon {
+          line-height: 28px;
+        }
+      }
+      .el-radio-group .el-radio-button__inner, &__slice {
+        padding: 6px 7px;
+        background: #555;
+        color: #fff;
+        border: none;
+        &:hover {
+          color: $primary;
+        }
+      }
+      .el-radio-button.is-active .el-radio-button__inner {
+        background: $primary;
+        color: #fff;
+      }
+    }
+    ::v-deep .replay-time-list {
+      background: #fff;
+      margin: 40px 0 0;
+      padding: 15px;
+    }
+  }
+
+  .fullscreen ::v-deep .preview-player video {
+    position: absolute;
+    height: 100%;
   }
 </style>

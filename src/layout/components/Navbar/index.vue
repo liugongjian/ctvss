@@ -34,7 +34,7 @@
         <div class="header-dropdown">
           <router-link to="/secretManage"><i><svg-icon name="key" /></i> API密钥管理</router-link>
           <div class="header-dropdown__divided" />
-          <a @click="logout"><i><svg-icon name="logout" /></i> 退出登录</a>
+          <el-button type="text" @click="logout"><i><svg-icon name="logout" /></i> 退出登录</el-button>
         </div>
       </div>
     </div>
@@ -163,10 +163,13 @@ export default class extends Vue {
         padding: 5px 0;
         animation-duration: .5s;
 
-        a {
+        a, .el-button--text {
           display: block;
           color: $text;
           padding: 0 15px;
+          line-height: 32px;
+          width: 100%;
+          text-align: left;
           cursor: pointer;
           &:hover {
             background: #f3f3f3;

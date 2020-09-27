@@ -276,7 +276,7 @@
       flex-direction: column;
       .filter-container {
         position: absolute;
-        right: 60px;
+        right: 35px;
         top: 6px;
         height: 28px;
         overflow: hidden;
@@ -359,7 +359,7 @@
     right: 0;
     bottom: 0;
     height: 100%;
-    
+    border: none;
   }
   .screen-item.fullscreen {
     .screen__tools {
