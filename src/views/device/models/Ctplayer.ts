@@ -82,6 +82,8 @@ export default class Ctplayer {
   private bindEvent() {
     switch (this.type) {
       case 'flv':
+        this.player.addEventListener('timeupdate', this.h264TimeUpdate.bind(this))
+        break
       case 'hls':
         this.player.addEventListener('play', this.h264Play.bind(this))
         this.player.addEventListener('pause', this.h264Pause.bind(this))
@@ -356,6 +358,9 @@ export default class Ctplayer {
     })
     flvPlayer.on(flvjs.Events.METADATA_ARRIVED, (e: any) => {
       console.log('METADATA_ARRIVED', e)
+    })
+    flvPlayer.on(flvjs.Events.SCRIPTDATA_ARRIVED, (e: any) => {
+      console.log('SCRIPTDATA_ARRIVED', e)
     })
     flvPlayer.on(flvjs.Events.METADATA_ARRIVED, (e: any) => {
       console.log('LOADING_COMPLETE', e)

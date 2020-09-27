@@ -108,10 +108,6 @@ export default class extends Vue {
   private isFullscreen?: boolean
   @Prop()
   private deviceName?: string
-  @Prop()
-  private onTimeUpdate?: Function
-  @Prop()
-  private onEnded?: Function
 
   public player?: Ctplayer
   public paused?: boolean = true
@@ -354,6 +350,20 @@ export default class extends Vue {
    */
   public snapshot() {
     this.player!.snapshot(this.deviceName)
+  }
+
+  /**
+   * 播放结束
+   */
+  public onEnded() {
+    this.$emit('onEnded')
+  }
+
+  /**
+   * 时间戳变化
+   */
+  public onTimeUpdate(currentTime: number) {
+    this.$emit('onTimeUpdate', currentTime)
   }
 
   /**
