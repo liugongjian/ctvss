@@ -41,6 +41,7 @@
           <template slot-scope="scope">
             <el-button type="text" @click="update(scope.row)">编辑</el-button>
             <el-button type="text" @click="deleteTemplate(scope.row)">删除</el-button>
+            <el-button type="text" @click="viewBind(scope.row)">查看绑定关系</el-button>
           </template>
         </el-table-column>
       </el-table>
