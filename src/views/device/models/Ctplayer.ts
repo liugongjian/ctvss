@@ -518,7 +518,9 @@ export default class Ctplayer {
    * H264 HLS Seeked
    */
   private h264Buffered() {
-    this.onBuffered && this.onBuffered(this.player.buffered.end(this.player.buffered.length - 1))
+    if (this.player.buffered.length) {
+      this.onBuffered && this.onBuffered(this.player.buffered.end(this.player.buffered.length - 1))
+    }
   }
 
   /**
