@@ -342,8 +342,8 @@ export default class Ctplayer {
     if (!flvjs.isSupported()) {
       throw new Error('当前浏览器不支持Flv播放器')
     }
-    flvjs.enableError = false
-    flvjs.enableWarn = false
+    flvjs.LoggingControl.enableError = false
+    flvjs.LoggingControl.enableWarn = false
     const videoElement: HTMLVideoElement = document.createElement('video')
     videoElement.controls = this.hasControl
     wrapElement.innerHTML = ''
@@ -357,7 +357,7 @@ export default class Ctplayer {
     flvPlayer.load()
     flvPlayer.play()
     flvPlayer.on(flvjs.Events.ERROR, (e: any) => {
-      console.log('ERROR', e)
+      // console.log('ERROR', e)
       if (e === flvjs.ErrorTypes.NETWORK_ERROR) {
         this.onRetry && this.onRetry()
       }
