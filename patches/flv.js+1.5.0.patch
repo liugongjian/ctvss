@@ -52,3 +52,6 @@ index e089627..b32d96a 100644
 +    STATISTICS_INFO: 'statistics_info',
 +    MEDIA_ENDED: 'media_ended'
  };
+ 
+ export default PlayerEvents;
+\ No newline at end of file
