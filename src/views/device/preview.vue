@@ -282,38 +282,7 @@ export default class extends Mixins(FullscreenMixin) {
 
   .fullscreen.replay-view {
     ::v-deep .filter-container {
-      margin: 4px 10px;
-      .el-date-editor {
-        .el-input__inner {
-          background: #555;
-          color: #fff;
-          border: none;
-          font-size: 12px;
-          height: 28px;
-          line-height: 28px;
-        }
-        .el-input__icon {
-          line-height: 28px;
-        }
-      }
-      .el-radio-group .el-radio-button__inner, &__slice {
-        padding: 6px 7px;
-        background: #555;
-        color: #fff;
-        border: none;
-        &:hover {
-          color: $primary;
-        }
-      }
-      .el-radio-button.is-active .el-radio-button__inner {
-        background: $primary;
-        color: #fff;
-      }
-    }
-    ::v-deep .replay-time-list {
-      background: #fff;
-      margin: 40px 0 0;
-      padding: 15px;
+      display: none;
     }
   }
 

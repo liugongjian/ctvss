@@ -86,8 +86,6 @@ export default class Ctplayer {
   private bindEvent() {
     switch (this.type) {
       case 'flv':
-        this.player.addEventListener('timeupdate', this.h264TimeUpdate.bind(this))
-        break
       case 'hls':
         this.player.addEventListener('play', this.h264Play.bind(this))
         this.player.addEventListener('pause', this.h264Pause.bind(this))
@@ -122,7 +120,12 @@ export default class Ctplayer {
       const wrapElement: HTMLDivElement = this.wrap
       switch (this.type) {
         case 'flv':
+          this.player.removeEventListener('play', this.h264Play)
+          this.player.removeEventListener('pause', this.h264Pause)
           this.player.removeEventListener('timeupdate', this.h264TimeUpdate)
+          this.player.removeEventListener('ended', this.h264Ended)
+          this.player.removeEventListener('seeked', this.h264Seeked)
+          this.player.removeEventListener('progress', this.h264Buffered)
           this.flv.destroy()
           break
         case 'hls':

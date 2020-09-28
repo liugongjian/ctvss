@@ -1,22 +1,21 @@
 <template>
   <div class="replay-player">
-    <div v-if="!recordList.length" class="empty-text">
+    <div v-if="!address" v-loading="loading" class="empty-text">
       该时段暂无录像
       <div v-if="hasPlaylive">
         <el-button type="text" @click="playlive">返回实时预览</el-button>
       </div>
     </div>
     <player
-      v-if="recordList.length && currentRecord"
+      v-if="address"
       ref="player"
-      type="hls"
-      :url="currentRecord.playUrl.hlsUrl"
+      :type="Codec"
+      :url="address.flvUrl"
       :auto-play="true"
       :has-control="false"
       :has-playlive="hasPlaylive"
       :is-fullscreen="isFullscreen"
       @onTimeUpdate="setCurrentTime"
-      @onEnded="playNextRecord"
       @onPlaylive="playlive"
       @onFullscreen="fullscreen()"
       @onExitFullscreen="exitFullscreen()"
@@ -25,7 +24,6 @@
       <div ref="timelineWrap" class="timeline__wrap">
         <div ref="timeline" class="timeline" :class="{'dragging': axisDrag.isDragging}" @mousedown.stop.prevent="moveAxisStart($event)">
           <div
-            v-if="currentTime"
             ref="handle"
             class="timeline__handle"
             :style="`left: ${handlePos}%;`"
@@ -66,82 +64,74 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch, Mixins } from 'vue-property-decorator'
 import { dateFormat } from '@/utils/date'
+import { getDevicePreview } from '@/api/device'
 import ReplayPlayerMixin from '@/views/device/mixin/replayPlayerMixin'
+import { stubFalse } from 'lodash'
 
 @Component({
-  name: 'ReplayPlayer'
+  name: 'ReplayPlayerLocal'
 })
 export default class extends Mixins(ReplayPlayerMixin) {
-  public async mounted() {
-    await this.init()
+  @Prop()
+  private deviceId!: number | string
+  private address?: any = null
+  private Codec?: string = ''
+  private loading = false
+  private errorMessage = ''
+
+  @Watch('startTime')
+  private onStartTimeChange(startTime: number) {
+    this.setHandlePosition()
+    this.getDevicePreview()
   }
 
-  @Watch('recordList')
-  public onRecordListChanged() {
-    this.init()
+  @Watch('currentDate')
+  private onCurrentDateChange(startTime: number) {
+    this.currentTime = this.startTime = this.currentDate!
   }
 
-  /**
-   * 初始化
-   */
-  public async init() {
-    this.timePositionList = this.calcVideoPosition(this.recordList)
-    this.initVideoPlayer()
-  }
-
-  /**
-   * 初始化播放器
-   */
-  public initVideoPlayer() {
-    if (this.recordList.length) {
-      if (this.startTime) {
-        this.currentTime = this.startTime
-        this.setRecordByCurrentTime(true)
-      } else {
-        this.currentRecord = this.recordList[0]
-        this.$nextTick(() => {
-          this.setCurrentTime(0)
-          this.player && this.player.reset()
-        })
-      }
-    }
+  private async mounted() {
+    this.currentTime = this.startTime = this.currentDate!
   }
 
   /**
-   * 点击时间轴位置
+   * 获取预览链接
    */
-  public handleTimeline(e: any, record: any) {
-    if (this.axisDrag.isMove) return
-    const scale = e.offsetX / e.target.clientWidth
-    let offsetTime = Math.ceil(scale * record.duration)
-    offsetTime = offsetTime <= 0 ? 0 : offsetTime
-    let isCurrent = true
-    if (this.currentRecord !== record) {
-      this.currentRecord = record
-      isCurrent = false
-    }
-    this.$nextTick(() => {
-      this.setCurrentTime(offsetTime)
-      this.setHandlePosition()
-      !isCurrent && this.player.reset()
-      this.player.seek(offsetTime)
-    })
-  }
-
-  /**
-   * 播放下一段
-   */
-  public playNextRecord() {
-    let index = this.recordList.findIndex(record => this.currentRecord.index === record.index)
-    index++
-    if (index < this.recordList.length) {
-      this.currentRecord = this.recordList[index]
-      console.log(this.currentRecord)
-      this.$nextTick(() => {
-        this.setCurrentTime(0)
-        this.player && this.player.reset()
+  private async getDevicePreview() {
+    try {
+      this.loading = true
+      this.errorMessage = ''
+      this.address = null
+      const res = await getDevicePreview({
+        deviceId: this.deviceId,
+        startTime: Math.floor(this.startTime! / 1000),
+        endTime: Math.floor(new Date().getTime() / 1000),
+        type: 'vod'
       })
+      this.address = res.playUrl
+      this.Codec = res.video.Codec === 'h264' ? 'flv' : 'h265-flv'
+    } catch (e) {
+      this.errorMessage = e.message
+    } finally {
+      this.loading = false
     }
+  }
+
+  /**
+   * 设置操作具柄在时间轴中的位置
+   * offsetTime: 单位(秒)
+   */
+  public setCurrentTime(offsetTime: number) {
+    if (this.handleDrag.isDragging) return
+    if (!offsetTime) return
+    const currentTimestamp = this.startTime! + offsetTime * 1000
+    this.currentTime = currentTimestamp
+    this.handlePos = this.scale(Math.round((currentTimestamp - this.currentDate!) / 1000))
+    this.setHandlePosition()
+  }
+
+  private jumpStartTime(event: any) {
+    console.log(event)
   }
 }
 </script>

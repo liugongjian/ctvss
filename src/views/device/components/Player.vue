@@ -16,7 +16,7 @@
           <div v-else class="controls__btn controls__snapshot" @click="pause">
             <svg-icon name="pause" width="18px" height="18px" />
           </div>
-          <div class="controls__time">{{ durationFormatInVideo(Math.floor(currentTime)) }} / {{ durationFormatInVideo(duration) }}</div>
+          <div v-if="hasProgress && duration" class="controls__time">{{ durationFormatInVideo(Math.floor(currentTime)) }} / {{ durationFormatInVideo(duration) }}</div>
         </template>
       </div>
       <div class="controls__right">

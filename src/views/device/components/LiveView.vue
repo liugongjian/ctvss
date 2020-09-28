@@ -136,7 +136,6 @@ export default class extends Vue {
     this.timeout = setTimeout(async() => {
       this.address = ''
       await this.getDevicePreview()
-      console.log(this.retry)
       if (this.retry) {
         this.onRetry()
       }

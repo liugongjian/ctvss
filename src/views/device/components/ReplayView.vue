@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="loading" class="replay-view">
+  <div class="replay-view">
     <div class="filter-container">
       <el-date-picker
         v-model="currentDate"
@@ -10,7 +10,11 @@
         :picker-options="pickerOptions"
         @change="changeDate"
       />
-      <el-radio-group v-model="viewModel" size="small">
+      <el-radio-group v-model="replayType" size="small" class="filter-container__replay-type">
+        <el-radio-button label="cloud">云端</el-radio-button>
+        <el-radio-button label="local">本地</el-radio-button>
+      </el-radio-group>
+      <el-radio-group v-if="replayType === 'cloud'" v-model="viewModel" size="small" class="filter-container__view-model">
         <el-tooltip content="时间轴视图" placement="top">
           <el-radio-button label="timeline"><svg-icon name="timeline" width="16px" height="16px" /></el-radio-button>
         </el-tooltip>
@@ -18,22 +22,37 @@
           <el-radio-button label="list"><svg-icon name="list" width="16px" height="16px" /></el-radio-button>
         </el-tooltip>
       </el-radio-group>
-      <el-tooltip content="录像文件下载" placement="top">
+      <el-tooltip v-if="replayType === 'cloud'" content="录像文件下载" placement="top">
         <el-button class="filter-container__slice" size="small" @click="sliceDownload"><svg-icon name="download" width="16px" height="16px" /></el-button>
       </el-tooltip>
     </div>
-    <replay-player
-      v-if="viewModel === 'timeline'"
-      :current-date="currentDate"
-      :record-list="recordList"
-      :has-playlive="hasPlaylive"
-      :is-fullscreen="isFullscreen"
-      @onPlaylive="playlive"
-      @onFullscreen="fullscreen()"
-      @onExitFullscreen="exitFullscreen()"
-    />
+    <template v-if="viewModel === 'timeline'">
+      <replay-player
+        v-if="replayType === 'cloud'"
+        v-loading="loading"
+        :current-date="currentDate"
+        :record-list="recordList"
+        :has-playlive="hasPlaylive"
+        :is-fullscreen="isFullscreen"
+        :replay-type="replayType"
+        @onPlaylive="playlive"
+        @onFullscreen="fullscreen()"
+        @onExitFullscreen="exitFullscreen()"
+      />
+      <replay-player-local
+        v-if="replayType === 'local'"
+        :current-date="currentDate"
+        :has-playlive="hasPlaylive"
+        :is-fullscreen="isFullscreen"
+        :replay-type="replayType"
+        :device-id="deviceId"
+        @onPlaylive="playlive"
+        @onFullscreen="fullscreen()"
+        @onExitFullscreen="exitFullscreen()"
+      />
+    </template>
     <div v-else class="replay-time-list">
-      <el-table :data="recordListSlice" empty-text="所选日期暂无录像">
+      <el-table v-loading="loading" :data="recordListSlice" empty-text="所选日期暂无录像">
         <el-table-column label="开始时间" prop="startAt" min-width="180" :formatter="dateFormatInTable" />
         <el-table-column label="时长" prop="duration" :formatter="durationFormatInTable" />
         <el-table-column prop="action" label="操作" width="200" fixed="right">
@@ -64,13 +83,15 @@ import { getDeviceRecords, getDeviceRecord } from '@/api/device'
 import ReplayPlayerDialog from './dialogs/ReplayPlayer.vue'
 import SliceDownloadDialog from './dialogs/SliceDownload.vue'
 import ReplayPlayer from './ReplayPlayer.vue'
+import ReplayPlayerLocal from './ReplayPlayerLocal.vue'
 
 @Component({
   name: 'ReplayView',
   components: {
     ReplayPlayerDialog,
     SliceDownloadDialog,
-    ReplayPlayer
+    ReplayPlayer,
+    ReplayPlayerLocal
   }
 })
 export default class extends Vue {
@@ -89,6 +110,7 @@ export default class extends Vue {
   private durationFormatInTable = durationFormatInTable
   private dateFormat = dateFormat
   private viewModel = 'timeline'
+  private replayType = 'cloud'
   private currentRecord: any = null
   private currentListRecord: any = null
   private currentDate = new Date(new Date().toLocaleDateString()).getTime()
@@ -269,8 +291,16 @@ export default class extends Vue {
     ::v-deep .el-radio-button--small .el-radio-button__inner {
       padding: 7px 10px;
     }
+    &__replay-type {
+      margin-right: 10px;
+      ::v-deep .el-radio-button--small .el-radio-button__inner {
+        padding: 9px 10px;
+      }
+    }
+    &__view-model {
+      margin-right: 10px;
+    }
     &__slice {
-      margin-left: 10px;
       padding: 7px 10px;
       vertical-align: bottom;
     }
