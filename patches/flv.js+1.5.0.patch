@@ -67,4 +67,3 @@ index e8d3b09..cad921a 100644
  
          if (console.error) {
              console.error(str);
-\ No newline at end of file
