@@ -267,6 +267,9 @@ export default class extends Vue {
                 margin: 1px;
                 background: url("~@/assets/ptz/ptz-icons.png");
               }
+              i:hover {
+                background-image: url("~@/assets/ptz/ptz-icons-on.png")
+              }
               i.icon-ptz-left-up {
                 background-position: 0 0;
               }
@@ -316,6 +319,9 @@ export default class extends Vue {
                 height: 30px;
                 margin: 1px 0 1px 1px;
                 background: url("~@/assets/ptz/ptz-icons.png") no-repeat;
+              }
+              i:hover {
+                background: url("~@/assets/ptz/ptz-icons-on.png") no-repeat;
               }
               i.icon-ptz-zoomout {
                 background-position: -90px 0;
