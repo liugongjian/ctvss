@@ -37,3 +37,20 @@ export const durationFormatInTable = (row: any, col: any, val: any) => {
   if (!val) return '-'
   return durationFormat(val)
 }
+
+export const durationFormatInVideo = (duration: number) => {
+  if (duration < 3600) {
+    const minute = Math.floor(duration / 60)
+    const second = duration % 60
+    return `${minute}:${second}`
+  } else {
+    const hour = Math.floor(duration / 3600)
+    const minute = Math.floor(duration % 3600 / 60)
+    const second = duration % 60
+    return `${hour}:${minute}:${second}`
+  }
+}
+
+const prefixZero = (num: number, n: number) => {
+  return (Array(n).join('0') + num).slice(-n)
+}

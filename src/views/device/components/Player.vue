@@ -160,6 +160,7 @@ export default class extends Vue {
       isLive: this.isLive,
       playbackRate: this.playbackRate,
       onTimeUpdate: this.onTimeUpdate,
+      onDurationChange: this.onDurationChange,
       onEnded: this.onEnded,
       onPlay: this.setStatus,
       onPause: this.setStatus,
@@ -188,6 +189,7 @@ export default class extends Vue {
         }
       }
     })
+    console.log(this.player)
     this.$nextTick(() => {
       const $video: any = this.$refs.video
       const player = $video.querySelector('video')
@@ -364,6 +366,13 @@ export default class extends Vue {
    */
   public onTimeUpdate(currentTime: number) {
     this.$emit('onTimeUpdate', currentTime)
+  }
+
+  /**
+   * 视频时长变化
+   */
+  public onDurationChange(duration: number) {
+    console.log(duration)
   }
 
   /**
