@@ -53,7 +53,11 @@ export const getDevicePreview = (params: any): Promise<any> =>
   request({
     url: '/device/preview',
     method: 'get',
-    params
+    params: {
+      outProtocol: 'rtmp,flv,hls',
+      type: params.type || 'live',
+      ...params
+    }
   })
 
 export const getDeviceRecords = (params: any): Promise<any> =>
