@@ -244,7 +244,7 @@
             </div>
           </div>
         </div>
-        <ptz-control :device-id="selectedDeviceId"></ptz-control>
+        <ptz-control v-if="!polling.isStart" :device-id="selectedDeviceId"></ptz-control>
       </div>
     </el-card>
 
@@ -328,7 +328,6 @@ export default class extends Mixins(ScreenMixin) {
   private onCurrentIndexChange (newValue: number) {
     if (this.screenList.length) {
       this.selectedDeviceId = this.screenList[newValue]!.deviceId
-      console.log('this.selectedDeviceId:', this.selectedDeviceId)
     }
   }
   private mounted() {
@@ -355,7 +354,7 @@ export default class extends Mixins(ScreenMixin) {
     this.selectedDeviceId = ""
     screen.reset()
   }
-  
+
   /**
    * 切换业务组
    */
@@ -397,7 +396,13 @@ export default class extends Mixins(ScreenMixin) {
       screen.deviceId = item.id;
       screen.deviceName = item.label;
       screen.getUrl();
-      if (this.currentIndex < this.maxSize - 1) this.currentIndex++;
+      if (this.currentIndex < this.maxSize - 1) {
+        this.currentIndex++;
+      } else {
+        if (this.screenList.length) {
+          this.selectedDeviceId = this.screenList[this.currentIndex]!.deviceId
+        }
+      }
     }
   }
 
