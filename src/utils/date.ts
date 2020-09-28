@@ -42,15 +42,20 @@ export const durationFormatInVideo = (duration: number) => {
   if (duration < 3600) {
     const minute = Math.floor(duration / 60)
     const second = duration % 60
-    return `${minute}:${second}`
+    return `${minute}:${prefixZero(second, 2)}`
   } else {
     const hour = Math.floor(duration / 3600)
     const minute = Math.floor(duration % 3600 / 60)
     const second = duration % 60
-    return `${hour}:${minute}:${second}`
+    return `${hour}:${minute}:${prefixZero(second, 2)}`
   }
 }
 
+/**
+ * 补零
+ * @param num 数字
+ * @param n 位数
+ */
 const prefixZero = (num: number, n: number) => {
   return (Array(n).join('0') + num).slice(-n)
 }

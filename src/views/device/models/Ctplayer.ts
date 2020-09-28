@@ -24,6 +24,7 @@ export default class Ctplayer {
   private onEnded?: Function
   private onRetry?: Function
   private onSeeked?: Function
+  private onBuffered?: Function
 
   public constructor(config: any) {
     this.wrap = config.wrap
@@ -42,6 +43,7 @@ export default class Ctplayer {
     this.onEnded = config.onEnded
     this.onRetry = config.onRetry
     this.onSeeked = config.onSeeked
+    this.onBuffered = config.onBuffered
     this.init()
   }
 
@@ -93,6 +95,7 @@ export default class Ctplayer {
         this.player.addEventListener('durationchange', this.h264DurationChange.bind(this))
         this.player.addEventListener('ended', this.h264Ended.bind(this))
         this.player.addEventListener('seeked', this.h264Seeked.bind(this))
+        this.player.addEventListener('progress', this.h264Buffered.bind(this))
         break
       case 'h265-hls':
         // this.player.events.on('Player.resizeScreen', this.resizeH265Hls.bind(this))
@@ -119,11 +122,7 @@ export default class Ctplayer {
       const wrapElement: HTMLDivElement = this.wrap
       switch (this.type) {
         case 'flv':
-          this.player.removeEventListener('play', this.h264Play)
-          this.player.removeEventListener('pause', this.h264Pause)
           this.player.removeEventListener('timeupdate', this.h264TimeUpdate)
-          this.player.removeEventListener('ended', this.h264Ended)
-          this.player.removeEventListener('seeked', this.h264Seeked)
           this.flv.destroy()
           break
         case 'hls':
@@ -132,6 +131,7 @@ export default class Ctplayer {
           this.player.removeEventListener('timeupdate', this.h264TimeUpdate)
           this.player.removeEventListener('ended', this.h264Ended)
           this.player.removeEventListener('seeked', this.h264Seeked)
+          this.player.removeEventListener('progress', this.h264Buffered)
           this.hls.destroy()
           break
         case 'mp4':
@@ -507,6 +507,13 @@ export default class Ctplayer {
    */
   private h264Seeked() {
     this.onSeeked && this.onSeeked(this.player.currentTime)
+  }
+
+  /**
+   * H264 HLS Seeked
+   */
+  private h264Buffered() {
+    this.onBuffered && this.onBuffered(this.player.buffered.end(this.player.buffered.length - 1))
   }
 
   /**

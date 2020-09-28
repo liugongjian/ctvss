@@ -10,18 +10,22 @@
     <player
       v-if="dialogVisible"
       ref="video"
+      :class="{'fullscreen': isFullscreen}"
       :type="type"
       :url="video.playUrl.hlsUrl"
       :auto-play="true"
-      :on-time-update="onTimeUpdate"
       :has-control="false"
+      :has-progress="true"
+      :is-fullscreen="isFullscreen"
+      @onFullscreen="fullscreen()"
+      @onExitFullscreen="exitFullscreen()"
     />
-    <div class="current-time">{{ dateFormat(currentTime) }}</div>
   </el-dialog>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Mixins, Watch } from 'vue-property-decorator'
 import { dateFormat } from '@/utils/date'
+import FullscreenMixin from '../../mixin/fullscreenMixin'
 import Player from '../Player.vue'
 
 @Component({
@@ -30,7 +34,7 @@ import Player from '../Player.vue'
     Player
   }
 })
-export default class extends Vue {
+export default class extends Mixins(FullscreenMixin) {
   @Prop()
   private video?: any
 
@@ -42,12 +46,18 @@ export default class extends Vue {
     return this.video.Codec === 'h265' ? 'h265-hls' : 'hls'
   }
 
-  private onTimeUpdate() {
-    const $video: any = this.$refs.video
-    if ($video) {
-      const currentTimestamp = this.video.startAt + $video.player.player.currentTime * 1000
-      this.currentTime = new Date(currentTimestamp)
-    }
+  @Watch('isFullscreen')
+  private isFullscreenChange(val: boolean) {
+    const $model: any = document.querySelector('.v-modal')
+    $model.style.display = val ? 'none' : 'block'
+  }
+
+  private mounted() {
+    window.addEventListener('resize', this.checkFullscreen)
+  }
+
+  private beforeDestroy() {
+    window.removeEventListener('resize', this.checkFullscreen)
   }
 
   private closeDialog() {
@@ -86,13 +96,11 @@ export default class extends Vue {
     }
   }
 
-  .current-time {
-    font-size: 16px;
-    font-weight: bold;
-    padding: 0 15px;
-    color: #fff;
-    height: 50px;
-    line-height: 50px;
-    background: #000;
+  .fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    height: 100%;
   }
 </style>

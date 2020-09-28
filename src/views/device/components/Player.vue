@@ -1,7 +1,13 @@
 <template>
   <div ref="videoWrap" class="video-wrap">
     <div ref="video" @wheel="zoom" @mousedown="mouseDownHandle($event)" @mouseup="mouseUpHandle($event)" />
-    <div class="controls">
+    <div class="controls" :class="{'controls--large': hasProgress}">
+      <div v-if="hasProgress && duration" ref="progress" class="controls__progress" :class="{'moving': progressMoveData.isStart}" @mousedown="progressHandle($event)">
+        <div class="controls__progress__bar">
+          <div class="controls__progress__buffered" :style="`width: ${bufferedRate}%`" />
+          <div class="controls__progress__played" :style="`width: ${progressRate}%`" />
+        </div>
+      </div>
       <div class="controls__left">
         <template v-if="!isLive">
           <div v-if="paused" class="controls__btn controls__snapshot" @click="play">
@@ -10,6 +16,7 @@
           <div v-else class="controls__btn controls__snapshot" @click="pause">
             <svg-icon name="pause" width="18px" height="18px" />
           </div>
+          <div class="controls__time">{{ durationFormatInVideo(Math.floor(currentTime)) }} / {{ durationFormatInVideo(duration) }}</div>
         </template>
       </div>
       <div class="controls__right">
@@ -63,6 +70,7 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import Ctplayer from '../models/Ctplayer'
+import { durationFormatInVideo } from '@/utils/date'
 
 @Component({
   name: 'Player'
@@ -97,6 +105,10 @@ export default class extends Vue {
   @Prop({
     default: false
   })
+  private hasProgress?: boolean
+  @Prop({
+    default: false
+  })
   private isLive?: boolean
   @Prop({
     default: false
@@ -115,13 +127,32 @@ export default class extends Vue {
   private ratio = 1
   private playbackRate = 1
   private playbackRateList = [16, 8, 4, 2, 1.5, 1, 0.5]
-  private offset: any = {
-    x: 0,
-    y: 0
-  }
+  // private offset: any = {
+  //   x: 0,
+  //   y: 0
+  // }
   private moveData: any = {
     x: null,
     y: null
+  }
+  private progressMoveData: any = {
+    isStart: false,
+    x: null,
+    width: null
+  }
+  private duration = 0
+  private currentTime = 0
+  private buffered = 0
+  private durationFormatInVideo = durationFormatInVideo
+
+  private get progressRate() {
+    if (!this.currentTime) return 0
+    return this.currentTime / this.duration * 100
+  }
+
+  private get bufferedRate() {
+    if (!this.buffered) return 0
+    return this.buffered / this.duration * 100
   }
 
   private mounted() {
@@ -161,6 +192,7 @@ export default class extends Vue {
       playbackRate: this.playbackRate,
       onTimeUpdate: this.onTimeUpdate,
       onDurationChange: this.onDurationChange,
+      onBuffered: this.onBuffered,
       onEnded: this.onEnded,
       onPlay: this.setStatus,
       onPause: this.setStatus,
@@ -189,7 +221,6 @@ export default class extends Vue {
         }
       }
     })
-    console.log(this.player)
     this.$nextTick(() => {
       const $video: any = this.$refs.video
       const player = $video.querySelector('video')
@@ -281,6 +312,48 @@ export default class extends Vue {
   }
 
   /**
+   * 鼠标点击进度条
+   */
+  public progressHandle(event: any) {
+    const $progress: any = this.$refs.progress
+    const progressSize = $progress.getBoundingClientRect()
+    this.progressMoveData.x = progressSize.x
+    this.progressMoveData.width = progressSize.width
+    this.progressMoveData.isStart = true
+    window.addEventListener('mousemove', this.progressMouseMove)
+    window.addEventListener('mouseup', this.progressMouseUp)
+  }
+
+  /**
+   * 拖拽进度条
+   */
+  public progressMouseMove(event: any) {
+    if (!this.progressMoveData.isStart) return
+    const offsetX = event.x - this.progressMoveData.x
+    const rate = offsetX / this.progressMoveData.width
+    const startTime = rate * this.duration
+    this.progressSeek(startTime)
+  }
+
+  /**
+   * 拖拽进度条
+   */
+  public progressMouseUp(event: any) {
+    this.progressMouseMove(event)
+    this.progressMoveData.isStart = false
+    window.removeEventListener('mousemove', this.progressMouseMove)
+    window.removeEventListener('mouseup', this.progressMouseUp)
+  }
+
+  /**
+   * 进度条跳转视频位置
+   */
+  public progressSeek(startTime: number) {
+    this.currentTime = startTime
+    this.seek(startTime)
+  }
+
+  /**
    * 电子放大
    */
   public zoom(event: any) {
@@ -365,6 +438,7 @@ export default class extends Vue {
    * 时间戳变化
    */
   public onTimeUpdate(currentTime: number) {
+    this.currentTime = currentTime
     this.$emit('onTimeUpdate', currentTime)
   }
 
@@ -372,7 +446,14 @@ export default class extends Vue {
    * 视频时长变化
    */
   public onDurationChange(duration: number) {
-    console.log(duration)
+    this.duration = duration
+  }
+
+  /**
+   * 视频缓冲时长变化
+   */
+  public onBuffered(buffered: number) {
+    this.buffered = buffered
   }
 
   /**
@@ -441,7 +522,6 @@ export default class extends Vue {
       color: #fff;
       opacity: 1;
       transition: opacity .2s;
-
       &__left, &__right {
         position: absolute;
         left: 10px;
@@ -497,6 +577,56 @@ export default class extends Vue {
           text-align: center;
         }
       }
+      &__time {
+        line-height: 35px;
+        margin-left: 10px;
+      }
+      &__progress {
+        position: absolute;
+        width: 100%;
+        top: -13px;
+        height: 30px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        &__bar {
+          width: 100%;
+          height: 4px;
+          background: rgba(255, 255, 255, 0.2);
+        }
+        &__buffered {
+          position: absolute;
+          height: 4px;
+          background: rgba(255, 255, 255, 0.3);
+          transition: width 200ms;
+        }
+        &__played {
+          position: absolute;
+          height: 4px;
+          background: $lightGray;
+          &::after {
+            content: ' ';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: $lightGray;
+            border-radius: 100%;
+            right: -5px;
+            top: -4px;
+            opacity: 0;
+            transition: opacity 200ms;
+          }
+        }
+        &:hover, &.moving {
+          .controls__progress__played::after {
+            opacity: 1;
+          }
+        }
+      }
+    }
+    .controls--large {
+      height: 55px;
+      padding-top: 10px;
     }
     &:hover {
       .controls {
