@@ -12,8 +12,8 @@
       </div>
       <el-table ref="table" v-loading="loading" :data="dataList" fit class="template__table" @row-click="rowClick">
         <el-table-column type="expand">
-          <template slot-scope="{row}">
-            <el-table :data="row.formatList" border size="mini" :header-cell-style="setHeaderClass">
+          <template slot-scope="scope">
+            <el-table :data="scope.row.formatList" border size="mini" :header-cell-style="setHeaderClass">
               <el-table-column prop="formatType" label="存储格式" align="center" />
               <el-table-column prop="interval" label="周期时长" align="center">
                 <template slot-scope="{row}">
@@ -32,7 +32,7 @@
         <el-table-column prop="templateName" label="模板名称" min-width="150" />
         <el-table-column prop="storeType" label="录制类别" min-width="100">
           <template slot-scope="{row}">
-            <span v-html="row.recordType === 1 ? '自动录制' : '按需录制'" />
+            <span>{{ row.recordType === 1 ? '自动录制' : '按需录制' }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="description" label="模板备注" />
@@ -54,6 +54,7 @@
         @current-change="handleCurrentChange"
       />
     </el-card>
+    <view-bind v-if="showViewBindDialog" @on-close="closeViewBind" />
   </div>
 </template>
 
@@ -62,9 +63,13 @@ import { Component, Vue } from 'vue-property-decorator'
 import { RecordTemplate } from '@/type/template'
 import { dateFormatInTable } from '@/utils/date'
 import { getRecordTemplates, deleteRecordTemplate } from '@/api/template'
+import ViewBind from './dialogs/viewBind.vue'
 
 @Component({
-  name: 'record-template'
+  name: 'record-template',
+  components: {
+    ViewBind
+  }
 })
 export default class extends Vue {
   private loading = false
@@ -77,6 +82,8 @@ export default class extends Vue {
   }
 
   private dateFormatInTable = dateFormatInTable
+  private showViewBindDialog = false
+  private currentTemplateId: any
 
   private async mounted() {
     await this.getList()
@@ -84,6 +91,14 @@ export default class extends Vue {
 
   private async refresh() {
     await this.getList()
+  }
+  private async viewBind(row: RecordTemplate) {
+    this.currentTemplateId = row.templateId
+    this.showViewBindDialog = true
+  }
+  private async closeViewBind() {
+    this.currentTemplateId = ''
+    this.showViewBindDialog = false
   }
   private setHeaderClass() {
     return 'background: white'

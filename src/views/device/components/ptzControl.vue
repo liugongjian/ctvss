@@ -1,56 +1,56 @@
 <template>
-  <div class="container" v-if="deviceId">
-    <div class="container__ptz" v-show="!isClosed">
+  <div v-if="deviceId" class="container">
+    <div v-show="!isClosed" class="container__ptz">
       <div class="container__ptz__title">
         <label>云台控制</label>
       </div>
       <div class="container__ptz__content">
         <div class="content-left">
-          <div title="关闭" class="toggle-icon" @click="isClosed = true"></div>
+          <div title="关闭" class="toggle-icon" @click="isClosed = true" />
         </div>
         <div class="content-right">
           <div class="ptz-ctrl">
             <div class="ctrl-l">
               <span class="direction" @mousedown="startPtzMove(5, speed)" @click="endPtzMove(5)">
-                <i class="icon-ptz-left-up"></i>
+                <i class="icon-ptz-left-up" />
               </span>
               <span class="direction" @mousedown="startPtzMove(1, speed)" @click="endPtzMove(1)">
-                <i class="icon-ptz-up"></i>
+                <i class="icon-ptz-up" />
               </span>
               <span class="direction" @mousedown="startPtzMove(7, speed)" @click="endPtzMove(7)">
-                <i class="icon-ptz-right-up"></i>
+                <i class="icon-ptz-right-up" />
               </span>
               <span class="direction" @mousedown="startPtzMove(3, speed)" @click="endPtzMove(3)">
-                <i class="icon-ptz-left"></i>
+                <i class="icon-ptz-left" />
               </span>
               <span class="direction" @mousedown="startPtzMove(15, speed)" @click="endPtzMove(15)">
-                <i class="icon-ptz-auto"></i>
+                <i class="icon-ptz-auto" />
               </span>
               <span class="direction" @mousedown="startPtzMove(4, speed)" @click="endPtzMove(4)">
-                <i class="icon-ptz-right"></i>
+                <i class="icon-ptz-right" />
               </span>
               <span class="direction" @mousedown="startPtzMove(6, speed)" @click="endPtzMove(6)">
-                <i class="icon-ptz-left-down"></i>
+                <i class="icon-ptz-left-down" />
               </span>
               <span class="direction" @mousedown="startPtzMove(2, speed)" @click="endPtzMove(2)">
-                <i class="icon-ptz-down"></i>
+                <i class="icon-ptz-down" />
               </span>
               <span class="direction" @mousedown="startPtzMove(8, speed)" @click="endPtzMove(8)">
-                <i class="icon-ptz-right-down"></i>
+                <i class="icon-ptz-right-down" />
               </span>
             </div>
             <div class="ctrl-r">
               <span class="operation">
-                <i class="icon-ptz-zoomout" title="调焦 -" @mousedown="startPtzMove(9, speed)" @click="endPtzMove(9)"></i>
-                <i class="icon-ptz-zoomin" title="调焦 +" @mousedown="startPtzMove(10, speed)" @click="endPtzMove(10)"></i>
+                <i class="icon-ptz-zoomout" title="调焦 -" @mousedown="startPtzMove(9, speed)" @click="endPtzMove(9)" />
+                <i class="icon-ptz-zoomin" title="调焦 +" @mousedown="startPtzMove(10, speed)" @click="endPtzMove(10)" />
               </span>
               <span class="operation">
-                <i class="icon-ptz-focusout" title="聚焦 -" @mousedown="startPtzAdjust(11, speed)" @click="endPtzAdjust(11)"></i>
-                <i class="icon-ptz-focusin" title="聚焦 +" @mousedown="startPtzAdjust(12, speed)" @click="endPtzAdjust(12)"></i>
+                <i class="icon-ptz-focusout" title="聚焦 -" @mousedown="startPtzAdjust(11, speed)" @click="endPtzAdjust(11)" />
+                <i class="icon-ptz-focusin" title="聚焦 +" @mousedown="startPtzAdjust(12, speed)" @click="endPtzAdjust(12)" />
               </span>
               <span class="operation">
-                <i class="icon-ptz-irisout" title="光圈 -" @mousedown="startPtzAdjust(13, speed)" @click="endPtzAdjust(13)"></i>
-                <i class="icon-ptz-irisin" title="光圈 +" @mousedown="startPtzAdjust(14, speed)" @click="endPtzAdjust(14)"></i>
+                <i class="icon-ptz-irisout" title="光圈 -" @mousedown="startPtzAdjust(13, speed)" @click="endPtzAdjust(13)" />
+                <i class="icon-ptz-irisin" title="光圈 +" @mousedown="startPtzAdjust(14, speed)" @click="endPtzAdjust(14)" />
               </span>
             </div>
           </div>
@@ -63,13 +63,13 @@
               :show-input-controls="false"
               :format-tooltip="formatToolTip"
               input-size="mini"
-            ></el-slider>
+            />
           </div>
         </div>
       </div>
     </div>
-    <div class="container__ptz--shrink" v-show="isClosed">
-      <div title="打开" class="toggle-icon__closed" @click="isClosed = false"></div>
+    <div v-show="isClosed" class="container__ptz--shrink">
+      <div title="打开" class="toggle-icon__closed" @click="isClosed = false" />
     </div>
   </div>
 </template>
@@ -80,7 +80,7 @@ import { startDeviceMove, endDeviceMove, startDeviceAdjust, endDeviceAdjust } fr
   name: 'ptz-control'
 })
 export default class extends Vue {
-  @Prop({default: ''})
+  @Prop({ default: '' })
   private deviceId!: string
   private speed = 5
   private isClosed = false
@@ -89,52 +89,52 @@ export default class extends Vue {
       deviceId: this.deviceId
     }
     switch (direction) {
-      case 5: 
+      case 5:
         param.pan = -speed * 17
         param.tilt = speed * 17
-        break;
+        break
       case 1:
         param.tilt = speed * 17
-        break;
+        break
       case 7:
         param.pan = speed * 17
         param.tilt = speed * 17
-        break;
+        break
       case 3:
         param.pan = -speed * 17
-        break;
+        break
       case 4:
         param.pan = speed * 17
-        break;
+        break
       case 6:
         param.pan = -speed * 17
         param.tilt = -speed * 17
-        break;
+        break
       case 2:
         param.tilt = -speed * 17
-        break;
-      case 8: 
+        break
+      case 8:
         param.pan = speed * 17
         param.tilt = -speed * 17
-        break;
+        break
       case 9:
         param.zoom = -speed
-        break;
+        break
       case 10:
         param.zoom = speed
-        break;
+        break
       case 11:
         param.focus = -speed * 17
-        break;
+        break
       case 12:
         param.focus = speed * 17
-        break;
+        break
       case 13:
         param.iris = -speed * 17
-        break;
+        break
       case 14:
         param.iris = speed * 17
-        break;
+        break
     }
     return param
   }
@@ -146,49 +146,49 @@ export default class extends Vue {
       case 5:
         param.panStopped = -1
         param.tiltStopped = 1
-        break;
+        break
       case 1:
         param.tiltStopped = 1
-        break;
+        break
       case 7:
         param.panStopped = 1
         param.tiltStopped = 1
-        break;
+        break
       case 3:
         param.panStopped = -1
-        break;
+        break
       case 4:
         param.panStopped = 1
-        break;
+        break
       case 6:
         param.panStopped = -1
         param.tiltStopped = -1
-        break;
+        break
       case 2:
         param.tiltStopped = -1
-        break;
+        break
       case 8:
         param.panStopped = 1
         param.tiltStopped = -1
-        break;
+        break
       case 9:
         param.zoomStopped = -1
-        break;
+        break
       case 10:
         param.zoomStopped = 1
-        break;
+        break
       case 11:
         param.focusStopped = -1
-        break;
+        break
       case 12:
         param.focusStopped = 1
-        break;
+        break
       case 13:
         param.irisStopped = -1
-        break;
+        break
       case 14:
         param.irisStopped = 1
-        break;
+        break
     }
     return param
   }
@@ -209,7 +209,7 @@ export default class extends Vue {
     const res = await endDeviceAdjust(data)
   }
   private formatToolTip() {
-    return "云台速度 " + this.speed
+    return '云台速度 ' + this.speed
   }
 }
 </script>
