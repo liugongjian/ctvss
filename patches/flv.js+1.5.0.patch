@@ -55,3 +55,16 @@ index e089627..b32d96a 100644
  
  export default PlayerEvents;
 \ No newline at end of file
+diff --git a/node_modules/flv.js/src/utils/logger.js b/node_modules/flv.js/src/utils/logger.js
+index e8d3b09..cad921a 100644
+--- a/node_modules/flv.js/src/utils/logger.js
++++ b/node_modules/flv.js/src/utils/logger.js
+@@ -33,6 +33,7 @@ class Log {
+         if (!Log.ENABLE_ERROR) {
+             return;
+         }
++        return;
+ 
+         if (console.error) {
+             console.error(str);
+\ No newline at end of file
