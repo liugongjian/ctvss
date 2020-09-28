@@ -244,7 +244,7 @@
             </div>
           </div>
         </div>
-        <ptz-control v-if="!polling.isStart" :device-id="selectedDeviceId"></ptz-control>
+        <ptz-control v-if="!polling.isStart" :device-id="selectedDeviceId" />
       </div>
     </el-card>
 
@@ -253,22 +253,22 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Watch, Mixins } from "vue-property-decorator";
-import { DeviceModule } from "@/store/modules/device";
-import { Group } from "@/type/group";
-import { Device } from "@/type/device";
-import ScreenMixin from "./mixin/screenMixin";
-import StatusBadge from "@/components/StatusBadge/index.vue";
-import Screen from "./models/Screen";
-import Player from "./components/Player.vue";
-import ReplayView from "./components/ReplayView.vue";
-import DeviceDir from "./components/dialogs/DeviceDir.vue";
-import PtzControl from "./components/ptzControl.vue";
-import { getDeviceTree } from "@/api/device";
-import { clear } from "console";
+import { Component, Vue, Watch, Mixins } from 'vue-property-decorator'
+import { DeviceModule } from '@/store/modules/device'
+import { Group } from '@/type/group'
+import { Device } from '@/type/device'
+import ScreenMixin from './mixin/screenMixin'
+import StatusBadge from '@/components/StatusBadge/index.vue'
+import Screen from './models/Screen'
+import Player from './components/Player.vue'
+import ReplayView from './components/ReplayView.vue'
+import DeviceDir from './components/dialogs/DeviceDir.vue'
+import PtzControl from './components/ptzControl.vue'
+import { getDeviceTree } from '@/api/device'
+import { clear } from 'console'
 
 @Component({
-  name: "Screen",
+  name: 'Screen',
   components: {
     Player,
     ReplayView,
@@ -279,7 +279,7 @@ import { clear } from "console";
 })
 export default class extends Mixins(ScreenMixin) {
   public maxSize = 4;
-  private selectedDeviceId = "";
+  private selectedDeviceId = '';
   private currentPollingIndex = 0;
   private isZoom = false;
   private isClosed = false;
@@ -297,61 +297,61 @@ export default class extends Mixins(ScreenMixin) {
   private pollingInterval = [
     {
       value: 5,
-      label: "5秒"
+      label: '5秒'
     },
     {
       value: 10,
-      label: "10秒"
+      label: '10秒'
     },
     {
       value: 20,
-      label: "20秒"
+      label: '20秒'
     },
     {
       value: 40,
-      label: "40秒"
+      label: '40秒'
     },
     {
       value: 60,
-      label: "1分钟"
+      label: '1分钟'
     },
     {
       value: 180,
-      label: "3分钟"
+      label: '3分钟'
     },
     {
       value: 300,
-      label: "5分钟"
+      label: '5分钟'
     }
   ];
   @Watch('currentIndex')
-  private onCurrentIndexChange (newValue: number) {
+  private onCurrentIndexChange(newValue: number) {
     if (this.screenList.length) {
       this.selectedDeviceId = this.screenList[newValue]!.deviceId
     }
   }
   private mounted() {
-    this.getGroupList("screen");
-    this.initScreen();
-    this.calMaxHeight();
-    window.addEventListener("resize", this.calMaxHeight);
-    window.addEventListener("resize", this.checkFullscreen);
+    this.getGroupList('screen')
+    this.initScreen()
+    this.calMaxHeight()
+    window.addEventListener('resize', this.calMaxHeight)
+    window.addEventListener('resize', this.checkFullscreen)
   }
 
   private beforeDestroy() {
-    this.interval && clearInterval(this.interval);
+    this.interval && clearInterval(this.interval)
   }
 
   private destroyed() {
     this.screenList.forEach(screen => {
-      screen.reset();
-    });
-    window.removeEventListener("resize", this.calMaxHeight);
-    window.removeEventListener("resize", this.checkFullscreen);
+      screen.reset()
+    })
+    window.removeEventListener('resize', this.calMaxHeight)
+    window.removeEventListener('resize', this.checkFullscreen)
   }
 
   private closeScreen(screen: Screen) {
-    this.selectedDeviceId = ""
+    this.selectedDeviceId = ''
     screen.reset()
   }
 
@@ -361,15 +361,15 @@ export default class extends Mixins(ScreenMixin) {
   public async changeGroup() {
     const currentGroup = this.groupList.find(
       (group: Group) => group.groupId === this.groupId
-    );
-    await DeviceModule.SetGroup(currentGroup);
+    )
+    await DeviceModule.SetGroup(currentGroup)
     this.$router.push({
-      name: "screen",
+      name: 'screen',
       query: {
         groupId: this.currentGroupId
       }
-    });
-    await this.initDirs();
+    })
+    await this.initDirs()
   }
 
   /**
@@ -383,21 +383,21 @@ export default class extends Mixins(ScreenMixin) {
   private openScreen(item: any, node?: any) {
     if (this.polling.isStart) {
       this.$message({
-        message: "请先关闭轮巡再进行选择",
-        type: "warning"
-      });
-      return;
+        message: '请先关闭轮巡再进行选择',
+        type: 'warning'
+      })
+      return
     }
-    if (item.type === "ipc" && item.streamStatus === "on") {
-      const screen = this.screenList[this.currentIndex];
+    if (item.type === 'ipc' && item.streamStatus === 'on') {
+      const screen = this.screenList[this.currentIndex]
       if (screen.deviceId) {
-        screen.reset();
+        screen.reset()
       }
-      screen.deviceId = item.id;
-      screen.deviceName = item.label;
-      screen.getUrl();
+      screen.deviceId = item.id
+      screen.deviceName = item.label
+      screen.getUrl()
       if (this.currentIndex < this.maxSize - 1) {
-        this.currentIndex++;
+        this.currentIndex++
       } else {
         if (this.screenList.length) {
           this.selectedDeviceId = this.screenList[this.currentIndex]!.deviceId
@@ -410,13 +410,13 @@ export default class extends Mixins(ScreenMixin) {
    * @override 切换分屏数量
    */
   public changeMaxSize(size: number) {
-    this.maxSize = size;
+    this.maxSize = size
     if (this.currentIndex >= this.maxSize) {
-      this.currentIndex = this.maxSize - 1;
+      this.currentIndex = this.maxSize - 1
     }
-    this.initScreen();
+    this.initScreen()
     if (this.polling.isStart) {
-      this.doPolling();
+      this.doPolling()
     }
   }
 
@@ -424,32 +424,32 @@ export default class extends Mixins(ScreenMixin) {
    * 需要轮巡的视频
    */
   private async videosOnPolling(node: any, isDir: boolean) {
-    this.pollingDevices = [];
+    this.pollingDevices = []
     if (node) {
-      this.currentNode = node;
+      this.currentNode = node
     }
     if (!isDir) {
-      console.log("轮巡根目录");
+      console.log('轮巡根目录')
       this.dirList.forEach((item: any) => {
-        if (item.type === "ipc" && item.streamStatus === "on") {
-          this.pollingDevices.push(item);
+        if (item.type === 'ipc' && item.streamStatus === 'on') {
+          this.pollingDevices.push(item)
         }
-      });
+      })
     } else {
-      console.log("查询node下设备");
+      console.log('查询node下设备')
       let data = await getDeviceTree({
         groupId: this.currentGroupId,
         id: this.currentNode!.data.id,
         type: this.currentNode!.data.type
-      });
+      })
       data.dirs.forEach((item: any) => {
-        if (item.type === "ipc" && item.streamStatus === "on") {
-          this.pollingDevices.push(item);
+        if (item.type === 'ipc' && item.streamStatus === 'on') {
+          this.pollingDevices.push(item)
         }
-      });
+      })
     }
-    this.currentPollingIndex = 0;
-    this.doPolling();
+    this.currentPollingIndex = 0
+    this.doPolling()
   }
 
   /**
@@ -457,47 +457,47 @@ export default class extends Mixins(ScreenMixin) {
    */
   private doPolling() {
     // 不刷新
-    this.interval && clearInterval(this.interval);
+    this.interval && clearInterval(this.interval)
     if (this.pollingDevices.length - 1 < this.maxSize) {
-      this.$alert(`当前设备数需大于分屏数才可开始轮巡`, "提示", {
-        confirmButtonText: "确定"
-      });
+      this.$alert(`当前设备数需大于分屏数才可开始轮巡`, '提示', {
+        confirmButtonText: '确定'
+      })
     } else {
       // 刷新
-      this.polling.isStart = true;
-      this.pollingVideos();
+      this.polling.isStart = true
+      this.pollingVideos()
       this.interval = setInterval(
         this.pollingVideos,
         this.polling.interval * 1000
-      );
+      )
     }
   }
 
   private intervalChange() {
     if (this.polling.isStart && !this.polling.isPause) {
-      this.doPolling();
+      this.doPolling()
     }
   }
 
   private pausePolling() {
     if (this.polling.isStart) {
-      this.polling.isPause = true;
-      clearInterval(this.interval!);
+      this.polling.isPause = true
+      clearInterval(this.interval!)
     }
   }
 
   private resumePolling() {
     if (this.polling.isStart) {
-      this.polling.isPause = false;
-      this.doPolling();
+      this.polling.isPause = false
+      this.doPolling()
     }
   }
 
   private stopPolling() {
     if (this.polling.isStart) {
-      this.polling.isStart = false;
-      this.polling.isPause = false;
-      clearInterval(this.interval!);
+      this.polling.isStart = false
+      this.polling.isPause = false
+      clearInterval(this.interval!)
     }
   }
 
@@ -505,70 +505,66 @@ export default class extends Mixins(ScreenMixin) {
    * 轮巡
    */
   private pollingVideos() {
-    console.log("轮巡");
-    const length = this.pollingDevices.length;
-    this.currentPollingIndex = this.currentPollingIndex % length;
-    this.currentIndex = 0;
+    console.log('轮巡')
+    const length = this.pollingDevices.length
+    this.currentPollingIndex = this.currentPollingIndex % length
+    this.currentIndex = 0
     for (let i = 0; i < this.maxSize; i++) {
-      this.screenList[i].reset();
-      this.screenList[i].deviceId = this.pollingDevices[
-        (this.currentPollingIndex + (i % length)) % length
-      ].id;
-      this.screenList[i].deviceName = this.pollingDevices[
-        (this.currentPollingIndex + (i % length)) % length
-      ].label;
-      this.screenList[i].getUrl();
+      this.screenList[i].reset()
+      this.screenList[i].deviceId = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].id
+      this.screenList[i].deviceName = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].label
+      this.screenList[i].getUrl()
       if (this.currentIndex < this.maxSize - 1) {
-        this.currentIndex++;
+        this.currentIndex++
       } else {
-        this.currentIndex = 0;
+        this.currentIndex = 0
       }
     }
-    this.currentPollingIndex = this.currentPollingIndex + this.maxSize;
+    this.currentPollingIndex = this.currentPollingIndex + this.maxSize
   }
 
   /**
    * 视频断流30秒后重试
    */
   private onRetry(screen: Screen) {
-    setTimeout(async () => {
-      screen.url = "";
-      await screen.getUrl();
+    setTimeout(async() => {
+      screen.url = ''
+      await screen.getUrl()
       if (screen.retry) {
-        this.onRetry(screen);
+        this.onRetry(screen)
       }
-    }, 30 * 1000);
+    }, 30 * 1000)
   }
 
   /**
    * 录像回放
    */
   private onPlayback(screen: Screen) {
-    screen.isLive = false;
+    screen.isLive = false
   }
 
   /**
    * 播放直播
    */
   private onPlaylive(screen: Screen) {
-    screen.isLive = true;
+    screen.isLive = true
   }
 
   /**
    * 右键菜单
    */
   private openMenu(event: MouseEvent, node: any) {
-    this.currentNode = node;
-    if (node.data.type === "dir" || node.data.type === "nvr") {
-      event.preventDefault();
-      var context = document.getElementById("mouse-right");
-      context!.style.display = "block";
-      context!.style.left = event.x + "px";
-      context!.style.top = event.y + "px";
+    this.currentNode = node
+    if (node.data.type === 'dir' || node.data.type === 'nvr') {
+      event.preventDefault()
+      var context = document.getElementById('mouse-right')
+      context!.style.display = 'block'
+      context!.style.left = event.x + 'px'
+      context!.style.top = event.y + 'px'
       document.onclick = function() {
-        var context = document.getElementById("mouse-right");
-        context!.style.display = "none";
-      };
+        var context = document.getElementById('mouse-right')
+        context!.style.display = 'none'
+      }
     }
   }
 
@@ -577,8 +573,8 @@ export default class extends Mixins(ScreenMixin) {
    * @param device 设备
    */
   private onDeviceDirClose(device: Device) {
-    this.dialogs.deviceDir = false;
-    if (device) this.openScreen(device);
+    this.dialogs.deviceDir = false
+    if (device) this.openScreen(device)
   }
 }
 </script>
