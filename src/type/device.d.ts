@@ -15,4 +15,8 @@ export interface Device {
   createSubDevice?: number;
   parentDeviceId?: string;
   dirId?: string;
+  sipTransType?: string;
+  streamTransType?: string;
+  transPriority?: string;
+  createdTime?: string;
 }

@@ -4,7 +4,7 @@
     <div class="player__controls">
       <el-form label-position="top">
         <el-form-item label="视频格式">
-          <el-select v-model="form.Codec">
+          <el-select v-model="form.codec">
             <el-option value="flv" label="FLV - 264" />
             <el-option value="hls" label="HLS - 264" />
             <el-option value="h265-flv" label="FLV - 265" />
@@ -24,7 +24,7 @@
       </el-form>
     </div>
     <div class="player__body">
-      <player v-if="url" ref="player" :type="Codec" :url="url" :auto-play="true" :is-live="isLive" @onRetry="onRetry" />
+      <player v-if="url" ref="player" :type="codec" :url="url" :auto-play="true" :is-live="isLive" @onRetry="onRetry" />
     </div>
   </div>
 </template>
@@ -40,14 +40,14 @@ import Player from './components/Player.vue'
 })
 export default class extends Vue {
   private form: any = {}
-  private Codec = ''
+  private codec = ''
   private url = ''
   private isLive = false
 
   private generate() {
     this.url = ''
     this.$nextTick(() => {
-      this.Codec = this.form.Codec
+      this.codec = this.form.codec
       this.url = this.form.url
       this.isLive = this.form.isLive
     })
