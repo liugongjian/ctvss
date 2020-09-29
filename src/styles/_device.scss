@@ -6,11 +6,14 @@
     font-size: 18px;
   }
 }
+
 .device-list-wrap {
   .el-card__body {
     padding: 0;
   }
 }
+
+// 设备列表
 .device-list {
   position: relative;
   display: flex;
@@ -222,6 +225,7 @@
   }
 }
 
+// 分屏
 .screen-list {
   flex: 1;
   display: flex;
@@ -376,6 +380,7 @@
   }
 }
 
+// 录像播放
 .replay-player {
   display: flex;
   flex-direction: column;
@@ -499,5 +504,35 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+  }
+}
+
+// 批量删除列表
+.batch-device-list {
+  border: 1px solid $borderGrey;
+  margin-top: 10px;
+  max-height: 50vh;
+  overflow: auto;
+  p {
+    display: flex;
+    border-bottom: 1px solid $borderGrey;
+    padding: 5px 15px;
+
+    &:last-child {
+      border: none;
+    }
+
+    .devivce-name {
+      flex: 2;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      word-break: break-all;
+    }
+
+    .device-id {
+      flex: 1;
+      text-align: right;
+    }
   }
 }

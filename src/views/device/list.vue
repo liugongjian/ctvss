@@ -19,13 +19,13 @@
         <el-button v-if="isNVR" @click="goToDetail(deviceInfo)">查看NVR设备详情</el-button>
         <el-button v-if="isNVR" @click="goToUpdate(deviceInfo)">编辑NVR设备</el-button>
         <el-button disabled>导出</el-button>
-        <el-dropdown>
-          <el-button disabled>批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
+        <el-dropdown @command="handleBatch">
+          <el-button>批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item v-if="!isNVR">移动至</el-dropdown-item>
-            <el-dropdown-item>启用流</el-dropdown-item>
-            <el-dropdown-item>停用流</el-dropdown-item>
-            <el-dropdown-item>删除</el-dropdown-item>
+            <el-dropdown-item v-if="!isNVR" command="move">移动至</el-dropdown-item>
+            <el-dropdown-item command="startDevice">启用流</el-dropdown-item>
+            <el-dropdown-item command="stopDevice">停用流</el-dropdown-item>
+            <el-dropdown-item command="delete">删除</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
@@ -36,8 +36,8 @@
         <el-button class="el-button-rect" @click="init"><svg-icon name="refresh" /></el-button>
       </div>
     </div>
-    <el-table v-loading="loading.list || loading.info" :data="deviceList" empty-text="暂无设备" fit class="device-list__table" @row-click="rowClick">
-      <el-table-column type="selection" width="55" />
+    <el-table v-loading="loading.list || loading.info" :data="deviceList" empty-text="暂无设备" fit class="device-list__table" @row-click="rowClick" @selection-change="handleSelectionChange">
+      <el-table-column type="selection" prop="selection" class-name="col-selection" width="55" />
       <el-table-column v-if="isGb && isNVR" label="通道号/通道名称" min-width="200">
         <template slot-scope="{row}">
           <div class="device-list__device-name">
@@ -150,7 +150,7 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
     />
-    <move-dir v-if="dialog.moveDir" :device="currentDevice" @on-close="closeDialog('moveDir', ...arguments)" />
+    <move-dir v-if="dialog.moveDir" :device="currentDevice" :devices="selectedDeviceList" :is-batch="isBatchMoveDir" @on-close="closeDialog('moveDir', ...arguments)" />
   </div>
 </template>
 <script lang="ts">
@@ -171,6 +171,8 @@ import { getDevice, getDevices, getChannels, deleteDevice, startDevice, stopDevi
 export default class extends Vue {
   @Inject('deviceRouter')
   private deviceRouter!: Function
+  @Inject('initDirs')
+  private initDirs!: Function
 
   private deviceStatus = DeviceStatus
   private deviceType = DeviceType
@@ -192,7 +194,10 @@ export default class extends Vue {
   }
   private deviceInfo: any = null
   private deviceList: Array<Device> = []
+  private selectedDeviceList: Array<Device> = []
   private currentDevice?: Device | null = null
+  // 是否批量移动
+  private isBatchMoveDir = false
 
   private get isGb() {
     return this.$route.query.inProtocol === 'gb28181'
@@ -342,7 +347,7 @@ export default class extends Vue {
    * 根据类型进入下一级页面
    */
   private rowClick(device: Device, column: any, event: any) {
-    if (column.property !== 'action') {
+    if (column.property !== 'action' && column.property !== 'selection') {
       const type = device.deviceType === 'ipc' ? 'detail' : device.deviceType
       this.deviceRouter({
         id: device.deviceId,
@@ -391,7 +396,50 @@ export default class extends Vue {
       msg: `是否确认删除设备"${device.deviceName}"`,
       method: deleteDevice,
       payload: { deviceId: device.deviceId },
-      onSuccess: this.getDeviceList
+      onSuccess: () => {
+        this.getDeviceList()
+        this.initDirs()
+      }
+    })
+  }
+
+  /**
+   * 批量删除设备
+   */
+  private batchDeleteDevice() {
+    const h: Function = this.$createElement
+    this.$alertDelete({
+      type: '设备',
+      msg: h('div', undefined, [
+        h(
+          'span',
+          undefined,
+          '删除操作不能恢复，确定要删除选中的设备吗？'
+        ),
+        h(
+          'div',
+          { class: 'batch-device-list' },
+          this.selectedDeviceList.map((device: Device) => {
+            return h('p', undefined, [
+              h('span', { class: 'device-name' }, device.deviceName)
+            ])
+          })
+        )
+      ]),
+      method: () => {
+        return Promise.all(
+          this.selectedDeviceList.map((device: Device) => {
+            return deleteDevice({
+              deviceId: device.deviceId
+            })
+          })
+        )
+      },
+      payload: null,
+      onSuccess: () => {
+        this.getDeviceList()
+        this.initDirs()
+      }
     })
   }
 
@@ -426,6 +474,63 @@ export default class extends Vue {
   }
 
   /**
+   * 批量启用/停用设备
+   */
+  private batchStartOrStopDevice(type: string) {
+    const method = type === 'start' ? startDevice : stopDevice
+    const methodStr = type === 'start' ? '启用' : '停用'
+    const h: Function = this.$createElement
+    this.$msgbox({
+      title: `确认${methodStr}选中的设备吗？`,
+      message: h('div', undefined, [
+        h(
+          'div',
+          { class: 'batch-device-list' },
+          this.selectedDeviceList.map((device: Device) => {
+            return h('p', undefined, [
+              h('span', { class: 'device-name' }, device.deviceName)
+            ])
+          })
+        )
+      ]),
+      showCancelButton: true,
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      beforeClose: async(action: any, instance: any, done: Function) => {
+        if (action === 'confirm') {
+          instance.confirmButtonLoading = true
+          instance.confirmButtonText = '...'
+          try {
+            await Promise.all(this.selectedDeviceList.map((device: Device) => {
+              return method({
+                deviceId: device.deviceId
+              })
+            }))
+            done()
+          } catch (e) {
+            this.$message.error(e.message)
+          } finally {
+            instance.confirmButtonLoading = false
+            instance.confirmButtonText = '确定'
+          }
+        } else {
+          done()
+        }
+      }
+    }).then(() => {
+      this.$message.success(`已通知${methodStr}设备`)
+    }).catch((e: any) => {
+      if (e === 'cancel' || e === 'close') return
+      this.$message.error(e)
+    })
+  }
+
+  private batchMoveDir() {
+    this.isBatchMoveDir = true
+    this.openDialog('moveDir', null)
+  }
+
+  /**
    * 打开对话框
    */
   private openDialog(type: string, payload: any) {
@@ -446,8 +551,9 @@ export default class extends Vue {
     switch (type) {
       case 'moveDir':
         this.currentDevice = null
+        this.isBatchMoveDir = false
     }
-    if (payload) {
+    if (payload === true) {
       this.getDeviceList()
     }
   }
@@ -456,7 +562,6 @@ export default class extends Vue {
    * 更多菜单
    */
   private handleMore(command: any) {
-    console.log(command.device)
     switch (command.type) {
       case 'detail':
         this.deviceRouter({
@@ -490,6 +595,37 @@ export default class extends Vue {
         break
     }
   }
+
+  /**
+   * 批量操作菜单
+   */
+  private handleBatch(command: string) {
+    if (!this.selectedDeviceList.length) {
+      this.$alertError('请先选择设备')
+      return
+    }
+    switch (command) {
+      case 'move':
+        this.batchMoveDir()
+        break
+      case 'delete':
+        this.batchDeleteDevice()
+        break
+      case 'startDevice':
+        this.batchStartOrStopDevice('start')
+        break
+      case 'stopDevice':
+        this.batchStartOrStopDevice('stop')
+        break
+    }
+  }
+
+  /**
+   * 表格多选框变化
+   */
+  private handleSelectionChange(devices: Array<Device>) {
+    this.selectedDeviceList = devices
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -507,7 +643,7 @@ export default class extends Vue {
       td {
         cursor: pointer;
       }
-      .col-action {
+      .col-action, .col-selection {
         cursor: default;
       }
     }

@@ -34,7 +34,7 @@
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
               <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
             </info-list>
-            <info-list label-width="110">
+            <info-list v-if="info" label-width="110">
               <info-list-item label="设备状态:">
                 <div class="info-list__edit">
                   <div class="info-list__edit--value">
@@ -321,7 +321,7 @@ export default class extends Vue {
   private goToPreview() {
     this.deviceRouter({
       id: this.deviceId,
-      type: 'ipc'
+      type: 'preview'
     })
   }
 
