@@ -3,35 +3,36 @@
     title="录像文件下载"
     :visible="dialogVisible"
     :close-on-click-modal="false"
-    width="380px"
+    width="450px"
     center
     @close="closeDialog"
   >
     <el-form
       ref="dataForm"
+      class="form"
       :model="form"
       :rules="rules"
       label-position="right"
       label-width="100px"
     >
-      <el-form-item label="开始时间:" prop="startTime">
+      <el-form-item label="日期:" prop="date">
         <el-date-picker
-          v-model="form.startTime"
-          type="datetime"
-          value-format="timestamp"
-          placeholder="选择开始时间"
-          :picker-options="pickerOptions"
+          v-model="form.date"
+          class="form-date"
+          type="date"
+          placeholder="选择日期"
         />
       </el-form-item>
-      <el-form-item label="结束时间:" prop="endTime" class="form-with-tip">
-        <el-date-picker
-          v-model="form.endTime"
-          type="datetime"
-          value-format="timestamp"
-          placeholder="选择结束时间"
-          :picker-options="pickerOptions"
+      <el-form-item label="时间区间:" prop="time">
+        <el-time-picker
+          v-model="form.time"
+          is-range
+          class="form-date"
+          range-separator="至"
+          start-placeholder="开始时间"
+          end-placeholder="结束时间"
+          placeholder="选择时间范围"
         />
-        <div class="form-tip">时间间隔不超过2小时</div>
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -54,29 +55,23 @@ export default class extends Vue {
   private deviceId!: number | string
   private dialogVisible = true
   private submitting = false
+  private today = new Date()
   private form: any = {
-    startTime: null,
-    endTime: null
-  }
-  private pickerOptions = {
-    disabledDate(time: any) {
-      return time.getTime() > Date.now()
-    }
+    date: this.today,
+    time: [new Date(this.today.getFullYear(), this.today.getMonth(), this.today.getDate(), 0, 0), new Date(this.today.getFullYear(), this.today.getMonth(), this.today.getDate(), 2, 0)]
   }
   private rules = {
-    startTime: [
-      { required: true, message: '请选择开始时间', trigger: 'submit' }
+    date: [
+      { required: true, message: '请选择日期', trigger: 'submit' }
     ],
-    endTime: [
-      { required: true, message: '请选择结束时间', trigger: 'submit' },
+    time: [
+      { required: true, message: '请选择时间区间', trigger: 'submit' },
       { validator: this.validateTime, trigger: 'change' }
     ]
   }
 
   private validateTime(rule: any, value: string, callback: Function) {
-    if (this.form.endTime < this.form.startTime) {
-      callback(new Error('结束时间必须大于开始时间'))
-    } else if (this.form.endTime - this.form.startTime > 2 * 3600 * 1000) {
+    if (this.form.time[1].getTime() - this.form.time[0].getTime() > 2 * 3600 * 1000) {
       callback(new Error('录像切片间隔不能超过2小时'))
     } else {
       callback()
@@ -89,10 +84,15 @@ export default class extends Vue {
       if (valid) {
         try {
           this.submitting = true
+          const year = this.form.date.getFullYear()
+          const month = this.form.date.getMonth()
+          const date = this.form.date.getDate()
+          const startTime = new Date(year, month, date, this.form.time[0].getHours(), this.form.time[0].getMinutes(), this.form.time[0].getSeconds()).getTime()
+          const endTime = new Date(year, month, date, this.form.time[1].getHours(), this.form.time[1].getMinutes(), this.form.time[1].getSeconds()).getTime()
           const res = await getDeviceRecord({
             deviceId: this.deviceId,
-            startTime: this.form.startTime / 1000,
-            endTime: this.form.endTime / 1000,
+            startTime: startTime / 1000,
+            endTime: endTime / 1000,
             fileFormat: 'mp4'
           })
           if (res.downloadUrl) {
@@ -116,3 +116,11 @@ export default class extends Vue {
   }
 }
 </script>
+<style lang="scss" scoped>
+  .form {
+    margin: 0;
+  }
+  .form-date {
+    width: 100%;
+  }
+</style>
