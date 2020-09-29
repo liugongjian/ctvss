@@ -18,9 +18,9 @@
         <el-button v-if="isDir || deviceInfo && deviceInfo.createSubDevice === 2" type="primary" @click="goToCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
         <el-button v-if="isNVR" @click="goToDetail(deviceInfo)">查看NVR设备详情</el-button>
         <el-button v-if="isNVR" @click="goToUpdate(deviceInfo)">编辑NVR设备</el-button>
-        <el-button disabled>导出</el-button>
-        <el-dropdown @command="handleBatch">
-          <el-button>批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
+        <el-button :disabled="!selectedDeviceList.length" @click="exportCsv">导出</el-button>
+        <el-dropdown placement="bottom" @command="handleBatch">
+          <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item v-if="!isNVR" command="move">移动至</el-dropdown-item>
             <el-dropdown-item command="startDevice">启用流</el-dropdown-item>
@@ -155,6 +155,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
+import { ExportToCsv } from 'export-to-csv'
 import { Device } from '@/type/device'
 import { DeviceStatus, DeviceType, SipTransType, StreamTransType, TransPriority } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
@@ -618,6 +619,39 @@ export default class extends Vue {
         this.batchStartOrStopDevice('stop')
         break
     }
+  }
+
+  /**
+   * 导出CSV
+   */
+  private exportCsv() {
+    const options = {
+      filename: '设备列表',
+      fieldSeparator: ',',
+      quoteStrings: '"',
+      decimalSeparator: '.',
+      showLabels: true,
+      useTextFile: false,
+      useBom: true,
+      useKeysAsHeaders: true
+    }
+    const csvExporter = new ExportToCsv(options)
+    const data = this.selectedDeviceList.map((device: Device) => {
+      return {
+        '设备ID': device.deviceId,
+        '设备名称': device.deviceName,
+        '类型': device.deviceType,
+        '厂商': device.deviceVendor,
+        '设备IP': device.deviceIp,
+        '设备端口': device.devicePort,
+        '国标ID': device.gbId,
+        '信令传输模式': device.sipTransType,
+        '流传输模式': device.streamTransType,
+        '优先TCP传输': device.transPriority,
+        '创建时间': device.createdTime
+      }
+    })
+    csvExporter.generateCsv(data)
   }
 
   /**

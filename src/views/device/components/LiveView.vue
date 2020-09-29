@@ -5,7 +5,7 @@
       <player
         v-if="address"
         ref="video"
-        :type="Codec"
+        :type="codec"
         :url="address.flvUrl"
         :auto-play="true"
         :is-ws="true"
@@ -61,7 +61,7 @@ export default class extends Vue {
   @Prop()
   private deviceId!: number | string
   private address?: any = null
-  private Codec?: string = ''
+  private codec?: string = ''
   private playerTimer: any = null
   private loading = false
   private retry = false
@@ -117,7 +117,7 @@ export default class extends Vue {
         deviceId: this.deviceId
       })
       this.address = res.playUrl
-      this.Codec = res.video.Codec === 'h264' ? 'flv' : 'h265-flv'
+      this.codec = res.video.codec === 'h264' ? 'flv' : 'h265-flv'
       this.retry = false
     } catch (e) {
       if (e.code === 5) {

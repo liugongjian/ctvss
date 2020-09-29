@@ -9,7 +9,7 @@
     <player
       v-if="address"
       ref="player"
-      :type="Codec"
+      :type="codec"
       :url="address.flvUrl"
       :auto-play="true"
       :has-control="false"
@@ -75,7 +75,7 @@ export default class extends Mixins(ReplayPlayerMixin) {
   @Prop()
   private deviceId!: number | string
   private address?: any = null
-  private Codec?: string = ''
+  private codec?: string = ''
   private loading = false
   private errorMessage = ''
 
@@ -109,7 +109,7 @@ export default class extends Mixins(ReplayPlayerMixin) {
         type: 'vod'
       })
       this.address = res.playUrl
-      this.Codec = res.video.Codec === 'h264' ? 'flv' : 'h265-flv'
+      this.codec = res.video.codec === 'h264' ? 'flv' : 'h265-flv'
     } catch (e) {
       this.errorMessage = e.message
     } finally {
