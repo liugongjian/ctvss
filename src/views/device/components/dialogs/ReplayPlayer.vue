@@ -43,7 +43,7 @@ export default class extends Mixins(FullscreenMixin) {
   private dateFormat = dateFormat
 
   private get type() {
-    return this.video.Codec === 'h265' ? 'h265-hls' : 'hls'
+    return this.video.Codec === 'h264' ? 'hls' : 'h265-hls'
   }
 
   @Watch('isFullscreen')

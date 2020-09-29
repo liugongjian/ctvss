@@ -20,10 +20,12 @@ export default class extends Vue {
     default: false
   })
   public isFullscreen?: boolean
+  // 是否显示返回实时预览
   @Prop({
     default: false
   })
   public hasPlaylive?: boolean
+  // 录像类型(cloud: 云端, local: 本地)
   @Prop()
   public replayType?: string
 
@@ -34,6 +36,7 @@ export default class extends Vue {
   public startTime = 0
   public handlePos = 0
   public timePositionList: Array<any> = []
+  // 时间轴缩放比例
   public timelineRatio = 1
   public dialog = {
     play: false
@@ -43,11 +46,13 @@ export default class extends Vue {
     pageSize: 10,
     total: 0
   }
+  // 游标拖动数据
   public handleDrag: any = {
     isDragging: false,
     timelineSize: null,
     deltaX: 0
   }
+  // 时间轴拖动数据
   public axisDrag: any = {
     isDragging: false,
     isMove: false,
@@ -55,12 +60,15 @@ export default class extends Vue {
     startX: 0
   }
 
+  /**
+   * 播放器DOM
+   */
   public get player(): any {
     return this.$refs.player
   }
 
   /**
-   * 设置操作具柄在时间轴中的位置
+   * 设置游标在时间轴中的位置
    * offsetTime: 单位(秒)
    */
   public setCurrentTime(offsetTime: number) {
@@ -73,7 +81,7 @@ export default class extends Vue {
   }
 
   /**
-   * 拖拽时间轴具柄
+   * 拖拽游标
    */
   public moveHandleStart(e: MouseEvent) {
     this.handleDrag.isDragging = true
@@ -88,12 +96,18 @@ export default class extends Vue {
     window.addEventListener('mouseup', this.onHandleMouseup)
   }
 
+  /**
+   * 拖拽游标时移动鼠标
+   */
   public onHandleMove(e: MouseEvent) {
     if (!this.handleDrag.isDragging) return
     this.handlePos = (e.x - this.handleDrag.deltaX - this.handleDrag.timelineSize.x) / this.handleDrag.timelineSize.width * 100
     this.currentTime = this.currentDate! + this.handlePos * 24 * 60 * 60 * 10
   }
 
+  /**
+   * 拖拽游标后抬起鼠标
+   */
   public onHandleMouseup(e: MouseEvent) {
     this.handleDrag.isDragging = false
     window.removeEventListener('mousemove', this.onHandleMove)
@@ -103,6 +117,38 @@ export default class extends Vue {
     } else {
       this.setStartTime()
     }
+  }
+
+  /**
+   * 拖拽时间轴
+   */
+  public moveAxisStart(e: MouseEvent) {
+    this.axisDrag.isDragging = true
+    this.axisDrag.isMove = false
+    const $timelineWrap: any = this.$refs.timelineWrap
+    this.axisDrag.deltaX = $timelineWrap.scrollLeft
+    this.axisDrag.startX = e.x
+    window.addEventListener('mousemove', this.onAxisMove)
+    window.addEventListener('mouseup', this.onAxisMouseup)
+  }
+
+  /**
+   * 拖拽时间轴时移动鼠标
+   */
+  public onAxisMove(e: MouseEvent) {
+    if (!this.axisDrag.isDragging) return
+    this.axisDrag.isMove = true
+    const $timelineWrap: any = this.$refs.timelineWrap
+    $timelineWrap.scrollLeft = this.axisDrag.deltaX + this.axisDrag.startX - e.x
+  }
+
+  /**
+   * 拖拽时间轴后抬起鼠标
+   */
+  public onAxisMouseup() {
+    window.removeEventListener('mousemove', this.onAxisMove)
+    window.removeEventListener('mouseup', this.onAxisMouseup)
+    this.axisDrag.isDragging = false
   }
 
   /**
@@ -190,32 +236,6 @@ export default class extends Vue {
     const zoomWidth = originWidth * timelineRatio
     timeline.style.width = `${zoomWidth}px`
     this.timelineRatio = timelineRatio
-  }
-
-  /**
-   * 拖拽时间轴
-   */
-  public moveAxisStart(e: MouseEvent) {
-    this.axisDrag.isDragging = true
-    this.axisDrag.isMove = false
-    const $timelineWrap: any = this.$refs.timelineWrap
-    this.axisDrag.deltaX = $timelineWrap.scrollLeft
-    this.axisDrag.startX = e.x
-    window.addEventListener('mousemove', this.onAxisMove)
-    window.addEventListener('mouseup', this.onAxisMouseup)
-  }
-
-  public onAxisMove(e: MouseEvent) {
-    if (!this.axisDrag.isDragging) return
-    this.axisDrag.isMove = true
-    const $timelineWrap: any = this.$refs.timelineWrap
-    $timelineWrap.scrollLeft = this.axisDrag.deltaX + this.axisDrag.startX - e.x
-  }
-
-  public onAxisMouseup(e: MouseEvent) {
-    window.removeEventListener('mousemove', this.onAxisMove)
-    window.removeEventListener('mouseup', this.onAxisMouseup)
-    this.axisDrag.isDragging = false
   }
 
   /**

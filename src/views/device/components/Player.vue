@@ -124,14 +124,9 @@ export default class extends Vue {
   public player?: Ctplayer
   public paused?: boolean = true
   private isZoom = false
-  private ratio = 1
   private playbackRate = 1
   private playbackRateList = [16, 8, 4, 2, 1.5, 1, 0.5]
-  // private offset: any = {
-  //   x: 0,
-  //   y: 0
-  // }
-  private moveData: any = {
+  private videoMoveData: any = {
     x: null,
     y: null
   }
@@ -225,8 +220,8 @@ export default class extends Vue {
       const $video: any = this.$refs.video
       const player = $video.querySelector('video')
       const mainBox: any = this.$refs.videoWrap
-      this.moveData.player = player
-      this.moveData.mainBox = mainBox
+      this.videoMoveData.player = player
+      this.videoMoveData.mainBox = mainBox
     })
   }
 
@@ -235,7 +230,6 @@ export default class extends Vue {
   }
 
   public reloadPlayer() {
-    console.log('reloadPlayer')
     this.player && this.player.reloadPlayer()
   }
 
@@ -249,24 +243,24 @@ export default class extends Vue {
   }
 
   /**
-   * 拖拽
+   * 拖拽视频
    */
   public mouseDownHandle(event: any) {
     if (!this.isZoom) {
       return
     }
-    const player = this.moveData.player
-    this.moveData.x = event.pageX - player.offsetLeft
-    this.moveData.y = event.pageY - player.offsetTop
+    const player = this.videoMoveData.player
+    this.videoMoveData.x = event.pageX - player.offsetLeft
+    this.videoMoveData.y = event.pageY - player.offsetTop
     event.currentTarget.style.cursor = 'move'
     window.onmousemove = this.mouseMoveHandle
   }
 
   public mouseMoveHandle(event: any) {
-    const player = this.moveData.player
-    const mainBox = this.moveData.mainBox
-    let moveLeft = event.pageX - this.moveData.x
-    let moveTop = event.pageY - this.moveData.y
+    const player = this.videoMoveData.player
+    const mainBox = this.videoMoveData.mainBox
+    let moveLeft = event.pageX - this.videoMoveData.x
+    let moveTop = event.pageY - this.videoMoveData.y
     const mainBoxSize = mainBox.getBoundingClientRect()
     const playerSize = player.getBoundingClientRect()
     // 左右拖拽判断
@@ -314,7 +308,7 @@ export default class extends Vue {
   /**
    * 鼠标点击进度条
    */
-  public progressHandle(event: any) {
+  public progressHandle(event: MouseEvent) {
     const $progress: any = this.$refs.progress
     const progressSize = $progress.getBoundingClientRect()
     this.progressMoveData.x = progressSize.x
@@ -327,7 +321,7 @@ export default class extends Vue {
   /**
    * 拖拽进度条
    */
-  public progressMouseMove(event: any) {
+  public progressMouseMove(event: MouseEvent) {
     if (!this.progressMoveData.isStart) return
     const offsetX = event.x - this.progressMoveData.x
     const rate = offsetX / this.progressMoveData.width
@@ -336,9 +330,9 @@ export default class extends Vue {
   }
 
   /**
-   * 拖拽进度条
+   * 拖拽进度条后抬起鼠标
    */
-  public progressMouseUp(event: any) {
+  public progressMouseUp(event: MouseEvent) {
     this.progressMouseMove(event)
     this.progressMoveData.isStart = false
     window.removeEventListener('mousemove', this.progressMouseMove)

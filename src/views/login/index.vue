@@ -169,6 +169,7 @@ export default class extends Vue {
 
   private checkCapslock(e: KeyboardEvent) {
     const { key } = e
+    if (!key) return
     this.capsTooltip = key !== null && key.length === 1 && (key >= 'A' && key <= 'Z')
   }
 

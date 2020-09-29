@@ -1,7 +1,7 @@
 <template>
   <div class="replay-player">
     <div v-if="!address" v-loading="loading" class="empty-text">
-      该时段暂无录像
+      {{ errorMessage || '该时段暂无录像' }}
       <div v-if="hasPlaylive">
         <el-button type="text" @click="playlive">返回实时预览</el-button>
       </div>
@@ -128,10 +128,6 @@ export default class extends Mixins(ReplayPlayerMixin) {
     this.currentTime = currentTimestamp
     this.handlePos = this.scale(Math.round((currentTimestamp - this.currentDate!) / 1000))
     this.setHandlePosition()
-  }
-
-  private jumpStartTime(event: any) {
-    console.log(event)
   }
 }
 </script>

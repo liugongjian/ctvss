@@ -14,7 +14,7 @@
         <el-radio-button label="cloud">云端</el-radio-button>
         <el-radio-button label="local">本地</el-radio-button>
       </el-radio-group>
-      <el-radio-group v-if="replayType === 'cloud'" v-model="viewModel" size="small" class="filter-container__view-model">
+      <el-radio-group v-if="replayType === 'cloud'" v-model="viewType" size="small" class="filter-container__view-model">
         <el-tooltip content="时间轴视图" placement="top">
           <el-radio-button label="timeline"><svg-icon name="timeline" width="16px" height="16px" /></el-radio-button>
         </el-tooltip>
@@ -26,7 +26,7 @@
         <el-button class="filter-container__slice" size="small" @click="sliceDownload"><svg-icon name="download" width="16px" height="16px" /></el-button>
       </el-tooltip>
     </div>
-    <template v-if="viewModel === 'timeline'">
+    <template v-if="viewType === 'timeline'">
       <replay-player
         v-if="replayType === 'cloud'"
         v-loading="loading"
@@ -109,7 +109,7 @@ export default class extends Vue {
   private dateFormatInTable = dateFormatInTable
   private durationFormatInTable = durationFormatInTable
   private dateFormat = dateFormat
-  private viewModel = 'timeline'
+  private viewType = 'timeline'
   private replayType = 'cloud'
   private currentRecord: any = null
   private currentListRecord: any = null
