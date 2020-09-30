@@ -278,6 +278,11 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
+  .replay-view {
+    ::v-deep .el-loading-mask {
+      background-color: rgba(0, 0, 0, 0.6);
+    }
+  }
   .filter-container {
     text-align: right;
     .el-date-editor {

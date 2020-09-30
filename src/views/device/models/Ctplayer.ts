@@ -25,6 +25,8 @@ export default class Ctplayer {
   private onRetry?: Function
   private onSeeked?: Function
   private onBuffered?: Function
+  private onLoadStart?: Function
+  private onCanplay?: Function
 
   public constructor(config: any) {
     this.wrap = config.wrap
@@ -44,6 +46,8 @@ export default class Ctplayer {
     this.onRetry = config.onRetry
     this.onSeeked = config.onSeeked
     this.onBuffered = config.onBuffered
+    this.onLoadStart = config.onLoadStart
+    this.onCanplay = config.onCanplay
     this.init()
   }
 
@@ -94,6 +98,8 @@ export default class Ctplayer {
         this.player.addEventListener('ended', this.h264Ended.bind(this))
         this.player.addEventListener('seeked', this.h264Seeked.bind(this))
         this.player.addEventListener('progress', this.h264Buffered.bind(this))
+        this.player.addEventListener('loadstart', this.h264LoadStart.bind(this))
+        this.player.addEventListener('canplay', this.h264Canplay.bind(this))
         break
       case 'h265-hls':
         // this.player.events.on('Player.resizeScreen', this.resizeH265Hls.bind(this))
@@ -120,14 +126,6 @@ export default class Ctplayer {
       const wrapElement: HTMLDivElement = this.wrap
       switch (this.type) {
         case 'flv':
-          this.player.removeEventListener('play', this.h264Play)
-          this.player.removeEventListener('pause', this.h264Pause)
-          this.player.removeEventListener('timeupdate', this.h264TimeUpdate)
-          this.player.removeEventListener('ended', this.h264Ended)
-          this.player.removeEventListener('seeked', this.h264Seeked)
-          this.player.removeEventListener('progress', this.h264Buffered)
-          this.flv.destroy()
-          break
         case 'hls':
           this.player.removeEventListener('play', this.h264Play)
           this.player.removeEventListener('pause', this.h264Pause)
@@ -135,7 +133,10 @@ export default class Ctplayer {
           this.player.removeEventListener('ended', this.h264Ended)
           this.player.removeEventListener('seeked', this.h264Seeked)
           this.player.removeEventListener('progress', this.h264Buffered)
-          this.hls.destroy()
+          this.player.removeEventListener('loadstart', this.h264LoadStart)
+          this.player.removeEventListener('canplay', this.h264Canplay)
+          this.hls && this.hls.destroy()
+          this.flv && this.flv.destroy()
           break
         case 'mp4':
           this.player.stop()
@@ -521,6 +522,20 @@ export default class Ctplayer {
     if (this.player.buffered.length) {
       this.onBuffered && this.onBuffered(this.player.buffered.end(this.player.buffered.length - 1))
     }
+  }
+
+  /**
+   * H264 开始加载
+   */
+  private h264LoadStart() {
+    this.onLoadStart && this.onLoadStart()
+  }
+
+  /**
+   * H264 已加载
+   */
+  private h264Canplay() {
+    this.onCanplay && this.onCanplay()
   }
 
   /**

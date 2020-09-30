@@ -1,5 +1,5 @@
 <template>
-  <div ref="videoWrap" class="video-wrap">
+  <div ref="videoWrap" v-loading="waiting" class="video-wrap">
     <div ref="video" @wheel="zoom" @mousedown="mouseDownHandle($event)" @mouseup="mouseUpHandle($event)" />
     <div class="controls" :class="{'controls--large': hasProgress}">
       <div v-if="hasProgress && duration" ref="progress" class="controls__progress" :class="{'moving': progressMoveData.isStart}" @mousedown="progressHandle($event)">
@@ -123,6 +123,7 @@ export default class extends Vue {
 
   public player?: Ctplayer
   public paused?: boolean = true
+  public waiting = false
   private isZoom = false
   private playbackRate = 1
   private playbackRateList = [16, 8, 4, 2, 1.5, 1, 0.5]
@@ -188,6 +189,8 @@ export default class extends Vue {
       onTimeUpdate: this.onTimeUpdate,
       onDurationChange: this.onDurationChange,
       onBuffered: this.onBuffered,
+      onLoadStart: this.onLoadStart,
+      onCanplay: this.onCanplay,
       onEnded: this.onEnded,
       onPlay: this.setStatus,
       onPause: this.setStatus,
@@ -451,6 +454,20 @@ export default class extends Vue {
   }
 
   /**
+   * 视频加载中
+   */
+  public onLoadStart() {
+    this.waiting = true
+  }
+
+  /**
+   * 视频加载完成
+   */
+  public onCanplay() {
+    this.waiting = false
+  }
+
+  /**
    * 录像回放
    */
   public playback() {
@@ -492,6 +509,13 @@ export default class extends Vue {
     position: relative;
     background: #333;
     overflow: hidden;
+    ::v-deep .el-loading-mask {
+      background: none !important;
+      bottom: 50px;
+      .el-loading-spinner {
+        margin-top: 0;
+      }
+    }
     ::v-deep .not-support {
       color: #fff;
       width: 100%;
