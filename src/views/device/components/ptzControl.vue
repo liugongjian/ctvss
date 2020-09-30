@@ -65,6 +65,26 @@
               input-size="mini"
             />
           </div>
+          <div v-loading="loading" class="ptz-preset">
+            <template v-for="(preset, index) in presets">
+              <div
+                :key="index"
+                :class="['preset-line', {'preset-line__select': currentIndex === index, 'preset-line__no-set': !preset.setFlag}]"
+                @click="currentIndex = index"
+              >
+                <span class="index">{{ index + 1 }}</span>
+                <div :title="preset.name" class="name">
+                  <span v-if="!preset.editNameFlag" @dblclick="enterEdit(preset, index)">{{ preset.name }}</span>
+                  <el-input v-else :ref="'nameinput' + index" v-model="preset.name" size="mini" @blur="closeEdit(preset, index)" />
+                </div>
+                <span v-if="currentIndex === index" class="handle">
+                  <i v-if="preset.setFlag" title="删除" class="handle-delete" @click="deletePreset(index + 1)" />
+                  <i title="设置" class="handle-edit" @click="setPreset(index + 1, preset.name)" />
+                  <i v-if="preset.setFlag" title="调用" class="handle-goto" @click="gotoPreset(index + 1)" />
+                </span>
+              </div>
+            </template>
+          </div>
         </div>
       </div>
     </div>
@@ -75,7 +95,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { startDeviceMove, endDeviceMove, startDeviceAdjust, endDeviceAdjust } from '@/api/ptz_control'
+import { startDeviceMove, endDeviceMove, startDeviceAdjust, endDeviceAdjust, setDevicePreset, gotoDevicePreset, deleteDevicePreset, describeDevicePresets } from '@/api/ptz_control'
 @Component({
   name: 'ptz-control'
 })
@@ -84,6 +104,62 @@ export default class extends Vue {
   private deviceId!: string
   private speed = 5
   private isClosed = false
+  private loading = false
+  private currentIndex = null
+  private presets: Array<any> = []
+  @Watch('deviceId')
+  private async onDeviceIdChange(newValue: string) {
+    if (newValue) {
+      try {
+        this.loading = true
+        const res = await describeDevicePresets({ deviceId: newValue })
+        this.presets = Array.from({ length: 255 }, (value, index) => {
+          const found = res.presets.find((preset: any) => Number(preset.presetId) === index + 1)
+          return {
+            setFlag: !!found,
+            name: found?.presetName || `预置位 ${index + 1}`,
+            editNameFlag: false
+          }
+        })
+        this.loading = false
+      } catch (e) {
+        this.loading = false
+        this.$message.error(`查询预置位失败，原因：${e && e.message}`)
+      }
+    }
+  }
+  private async deletePreset(presetId: number) {
+    const res = await deleteDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId) })
+    this.$set(this.presets, presetId - 1, {
+      'setFlag': false,
+      'name': `预置位 ${presetId}`,
+      'editNameFlag': false
+    })
+  }
+  private async setPreset(presetId: number, presetName: string) {
+    const res = await setDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId), presetName })
+    this.$set(this.presets, presetId - 1, {
+      'setFlag': true,
+      'name': presetName,
+      'editNameFlag': false
+    })
+  }
+  private enterEdit(preset: any, index: number) {
+    preset.editNameFlag = true
+    this.$nextTick(() => {
+      const $nameinput: any = this.$refs['nameinput' + index]
+      $nameinput[0].focus()
+    })
+  }
+  private closeEdit(preset: any, index: number) {
+    if (!preset.name) {
+      preset.name = `预置位 ${index + 1}`
+    }
+    preset.editNameFlag = false
+  }
+  private async gotoPreset(presetId: number) {
+    const res = await gotoDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId) })
+  }
   private formatStartParam(direction: number, speed: number) {
     const param: any = {
       deviceId: this.deviceId
@@ -245,6 +321,8 @@ export default class extends Vue {
         }
       }
       .content-right {
+        margin-left: 5px;
+        position: relative;
         .ptz-ctrl {
           height: 120px;
           .ctrl-l {
@@ -357,6 +435,82 @@ export default class extends Vue {
             }
             .el-slider__runway.show-input {
               margin-right: 52px;
+            }
+          }
+        }
+        .ptz-preset {
+          position: absolute;
+          font-size: 12px;
+          top: 160px;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          overflow-y: scroll;
+          border: 1px solid #aaaaaa;
+          .preset-line {
+            height: 30px;
+            line-height: 30px;
+            cursor: pointer;
+            padding-left: 10px;
+            padding-right: 5px;
+            background-color: #ffffff;
+            white-space: nowrap;
+            .index {
+              display: inline-block;
+              width: 23px;
+              vertical-align: super;
+              color: #000000;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
+            .name {
+              display: inline-block;
+              width: 68px;
+              vertical-align: super;
+              color: #000000;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+              ::v-deep {
+                .el-input.el-input--mini input {
+                  padding-left: 4px !important;
+                  padding-right: 4px !important;
+                }
+              }
+            }
+            .handle {
+              i {
+                float: right;
+                width: 30px;
+                height: 30px;
+                margin: 1px 0 1px 1px;
+                cursor: pointer;
+                background-image: url("~@/assets/ptz/ptz-icons.png");
+              }
+              i:hover {
+                background-image: url("~@/assets/ptz/ptz-icons-on.png");
+              }
+              .handle-delete {
+                width: 20px;
+                background-position: -35px -182px;
+              }
+              .handle-edit {
+                width: 20px;
+                background-position: -35px -152px;
+              }
+              .handle-goto {
+                width: 20px;
+                background-position: -10px -152px;
+              }
+            }
+          }
+          .preset-line__select {
+            background-color: #eeeeee;
+          }
+          .preset-line__no-set {
+            .name {
+              color: gray!important;
             }
           }
         }

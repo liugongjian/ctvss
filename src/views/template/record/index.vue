@@ -54,7 +54,7 @@
         @current-change="handleCurrentChange"
       />
     </el-card>
-    <view-bind v-if="showViewBindDialog" @on-close="closeViewBind" />
+    <view-bind v-if="showViewBindDialog" :template-id="currentTemplateId" @on-close="closeViewBind" />
   </div>
 </template>
 

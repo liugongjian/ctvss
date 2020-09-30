@@ -27,3 +27,31 @@ export const endDeviceAdjust = (data: any): Promise<any> =>
     method: 'post',
     data
   })
+
+export const setDevicePreset = (data: any): Promise<any> =>
+  request({
+    url: '/ptz/preset/set',
+    method: 'post',
+    data
+  })
+
+export const gotoDevicePreset = (data: any): Promise<any> =>
+  request({
+    url: '/ptz/preset/goto',
+    method: 'post',
+    data
+  })
+
+export const deleteDevicePreset = (data: any): Promise<any> =>
+  request({
+    url: '/ptz/preset/delete',
+    method: 'post',
+    data
+  })
+
+export const describeDevicePresets = (data: any): Promise<any> =>
+  request({
+    url: '/ptz/preset/list',
+    method: 'get',
+    params: data
+  })

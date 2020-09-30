@@ -1,6 +1,13 @@
 import request from '@/utils/request'
 
 // 录制模板相关接口
+export const getRecordBind = (params: any): Promise<any> =>
+  request({
+    url: '/template/record/bind',
+    method: 'get',
+    params
+  })
+
 export const getRecordTemplates = (params: any): Promise<any> =>
   request({
     url: '/template/record/list',
@@ -19,7 +26,7 @@ export const createRecordTemplate = (params: any): Promise<any> =>
   request({
     url: '/template/record/create',
     method: 'post',
-    data: params
+    params
   })
 
 export const updateRecordTemplate = (params: any): Promise<any> =>
