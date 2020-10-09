@@ -82,42 +82,72 @@ export default class extends Vue {
     default: 'player'
   })
   private playerId!: string
+  /**
+   * 视频地址
+   */
   @Prop({
     default: ''
   })
   private url!: string
+  /**
+   * 自动播放
+   */
   @Prop({
     default: false
   })
   private autoPlay?: boolean
+  /**
+   * 是否显示浏览器默认控制条
+   */
   @Prop({
     default: true
   })
   private hasControl?: boolean
+  /**
+   * 是否显示回放按钮
+   */
   @Prop({
     default: false
   })
   private hasPlayback?: boolean
+  /**
+   * 是否显示实时预览按钮
+   */
   @Prop({
     default: false
   })
   private hasPlaylive?: boolean
+  /**
+   * 是否显示进度条
+   */
   @Prop({
     default: false
   })
   private hasProgress?: boolean
+  /**
+   * 是否是实时预览视频
+   */
   @Prop({
     default: false
   })
   private isLive?: boolean
+  /**
+   * 是否使用Websocket
+   */
   @Prop({
     default: false
   })
   private isWs?: boolean
+  /**
+   * 是否全屏显示
+   */
   @Prop({
     default: false
   })
   private isFullscreen?: boolean
+  /**
+   * 设备名称
+   */
   @Prop()
   private deviceName?: string
 

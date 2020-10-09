@@ -24,7 +24,7 @@
         </el-tooltip>
       </template> -->
       <div class="links">
-        <a>API文档</a>
+        <a target="_blank" href="/document/api/">API文档</a>
       </div>
       <div class="user-container">
         <div class="user-container__menu">
