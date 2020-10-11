@@ -80,7 +80,7 @@
               v-for="(screen, index) in screenList"
               :key="index"
               class="screen-item"
-              :class="[{'actived': index === currentIndex}, {'fullscreen': screen.isFullscreen}]"
+              :class="[{'actived': index === currentIndex && screenList.length > 1}, {'fullscreen': screen.isFullscreen}]"
               @click="selectScreen(index)"
             >
               <template v-if="screen.loaded">
