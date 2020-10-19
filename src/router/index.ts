@@ -444,6 +444,38 @@ export const asyncRoutes: RouteConfig[] = [
           roles: ['admin'],
           activeMenu: '/template/record'
         }
+      },
+      {
+        path: 'callback',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/callback/index.vue'),
+        name: 'callback',
+        meta: {
+          title: '回调模板',
+          icon: 'dot',
+          roles: ['admin']
+        }
+      },
+      {
+        path: 'callback/create',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/callback/createOrUpdate.vue'),
+        name: 'callback-create',
+        meta: {
+          title: '新建回调模板',
+          hidden: true,
+          roles: ['admin'],
+          activeMenu: '/template/callback'
+        }
+      },
+      {
+        path: 'callback/update/:id?',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/callback/createOrUpdate.vue'),
+        name: 'callback-update',
+        meta: {
+          title: '编辑回调模板',
+          hidden: true,
+          roles: ['admin'],
+          activeMenu: '/template/callback'
+        }
       }
       // ,
       // {

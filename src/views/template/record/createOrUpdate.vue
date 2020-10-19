@@ -122,7 +122,7 @@ export default class extends Vue {
         resFormParams.formatList.push({
           formatType: 'HLS',
           interval: 30,
-          path: "",
+          path: '',
           storageTime: 0
         })
       }
@@ -139,7 +139,7 @@ export default class extends Vue {
         resFormParams.formatList.push({
           formatType: 'FLV',
           interval: 30,
-          path: "",
+          path: '',
           storageTime: 0
         })
       }
@@ -156,7 +156,7 @@ export default class extends Vue {
         resFormParams.formatList.push({
           formatType: 'MP4',
           interval: 30,
-          path: "",
+          path: '',
           storageTime: 0
         })
       }
@@ -175,17 +175,17 @@ export default class extends Vue {
       this.form.formatList.push({
         formatType: 'HLS',
         interval: 30,
-        path: "",
+        path: '',
         storageTime: 0
       }, {
         formatType: 'FLV',
         interval: 30,
-        path: "",
+        path: '',
         storageTime: 0
       }, {
         formatType: 'MP4',
         interval: 30,
-        path: "",
+        path: '',
         storageTime: 0
       })
     }
