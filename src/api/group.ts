@@ -49,9 +49,16 @@ export const deleteGroup = (params: any): Promise<any> =>
     data: params
   })
 
-export const getGroupTemplate = (params: any): Promise<any> =>
+export const getGroupRecordTemplate = (params: any): Promise<any> =>
   request({
     url: '/group/record',
+    method: 'get',
+    params
+  })
+
+export const getGroupCallbackTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/group/callback',
     method: 'get',
     params
   })
@@ -87,6 +94,20 @@ export const setSnapshotTemplates = (params: any): Promise<any> =>
 export const unbindGroupRecordTemplates = (params: any): Promise<any> =>
   request({
     url: '/group/record/unbind',
+    method: 'post',
+    data: params
+  })
+
+export const setGroupCallBackTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/group/callback/bind',
+    method: 'post',
+    data: params
+  })
+
+export const unbindGroupCallBackTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/group/callback/unbind',
     method: 'post',
     data: params
   })

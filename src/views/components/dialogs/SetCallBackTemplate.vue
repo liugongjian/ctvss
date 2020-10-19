@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="设置录制模板"
+    title="设置回调模板"
     :visible="dialogVisible"
     :close-on-click-modal="false"
     @close="closeDialog"
@@ -14,18 +14,8 @@
       max-height="500"
     >
       <el-table-column prop="templateName" label="模板名称" />
-      <el-table-column prop="recordType" label="是否启用自动录制">
-        <template slot-scope="{row}">
-          {{ row.recordType === 1 ? '是':'否' }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="storeType" label="录制格式">
-        <template slot-scope="{row}">
-          {{ row.flvParam.enable ? 'flv': '' }}
-          {{ row.hlsParam.enable ? 'hls': '' }}
-          {{ row.mpParam.enable ? 'mp4': '' }}
-        </template>
-      </el-table-column>
+      <el-table-column prop="recordNotifyUrl" label="回调URL" />
+      <el-table-column prop="callbackKey" label="回调Key" />
       <el-table-column label="操作">
         <template slot-scope="{row}">
           <el-button v-if="row.templateId !== bindTemplateId" type="text" :disabled="bindTemplateId.length !== 0" @click="bind(row)">绑定</el-button>
@@ -40,30 +30,21 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { getRecordTemplates, setGroupRecordTemplates, unbindGroupRecordTemplates } from '@/api/group'
-import { setDeviceRecordTemplate, unbindDeviceRecordTemplate } from '@/api/device'
-import { setStreamRecordTemplate, unbindStreamRecordTemplate } from '@/api/stream'
+import { getRecordTemplates, setGroupCallBackTemplate, unbindGroupCallBackTemplate } from '@/api/group'
+import { setStreamCallBackTemplate, unbindStreamCallBackTemplate, getCallBackTemplates } from '@/api/stream'
 import { formatSeconds } from '@/utils/interval'
 import { template } from 'lodash'
 
 @Component({
-  name: 'SetRecordTemplate'
+  name: 'SetCallBackTemplate'
 })
 export default class extends Vue {
   @Prop() private groupId?: string
   @Prop() private streamId?: string
-  @Prop() private deviceId?: String
   @Prop() private templateId?: string
   private dialogVisible = true
   private loading = false
   private list = [
-    {
-      templateId: '0001',
-      templateName: '30分钟录制',
-      flvParam: { enable: 0 },
-      hlsParam: { enable: 0 },
-      mpParam: { enable: 0 }
-    }
   ]
   private formatSeconds = formatSeconds
   private bindTemplateId = ''
@@ -74,20 +55,16 @@ export default class extends Vue {
   }
 
   private async bind(row: any) {
-    let params = {
-      groupId: this.groupId,
-      deviceId: this.deviceId,
-      templateId: row.templateId
-    }
     try {
       this.loading = true
-      if (this.groupId) {
-        await setGroupRecordTemplates(params)
-      } else if (this.deviceId) {
-        await setDeviceRecordTemplate(params)
-      } else {
-        await setStreamRecordTemplate({
+      if (this.streamId) {
+        await setStreamCallBackTemplate({
           deviceId: this.streamId,
+          templateId: row.templateId
+        })
+      } else {
+        await setGroupCallBackTemplate({
+          groupId: this.groupId,
           templateId: row.templateId
         })
       }
@@ -100,20 +77,16 @@ export default class extends Vue {
   }
 
   private async unbind(row: any) {
-    let params = {
-      groupId: this.groupId,
-      deviceId: this.deviceId,
-      templateId: row.templateId
-    }
     try {
       this.loading = true
-      if (this.groupId) {
-        await unbindGroupRecordTemplates(params)
-      } else if (this.deviceId) {
-        await unbindDeviceRecordTemplate(params)
-      } else {
-        await unbindStreamRecordTemplate({
+      if (this.streamId) {
+        await unbindStreamCallBackTemplate({
           deviceId: this.streamId,
+          templateId: row.templateId
+        })
+      } else {
+        await unbindGroupCallBackTemplate({
+          groupId: this.groupId,
           templateId: row.templateId
         })
       }
@@ -129,7 +102,7 @@ export default class extends Vue {
     this.bindTemplateId = this.templateId!
     try {
       this.loading = true
-      const res = await getRecordTemplates({
+      const res = await getCallBackTemplates({
         pageNum: 1,
         pageSize: 50
       })
