@@ -13,6 +13,15 @@ export interface RecordTemplate {
   createTime?: string;
 }
 
+export interface CallbackTemplate {
+  templateId?: string;
+  templateName: string;
+  recordNotifyUrl: string;
+  callbackKey: string;
+  description?: string;
+  createTime?: string;
+}
+
 export interface SnapshotTemplate {
   templateId?: string;
   templateName: string;

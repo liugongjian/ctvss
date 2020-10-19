@@ -43,6 +43,49 @@ export const deleteRecordTemplate = (params: any): Promise<any> =>
     data: params
   })
 
+// 回调模板相关接口
+export const getCallbackBind = (params: any): Promise<any> =>
+  request({
+    url: '/template/callback/bind',
+    method: 'get',
+    params
+  })
+
+export const getCallbackTemplates = (params: any): Promise<any> =>
+  request({
+    url: '/template/callback/list',
+    method: 'get',
+    params
+  })
+
+export const queryCallbackTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/template/callback',
+    method: 'get',
+    params
+  })
+
+export const createCallbackTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/template/callback/create',
+    method: 'post',
+    params
+  })
+
+export const updateCallbackTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/template/callback/update',
+    method: 'post',
+    data: params
+  })
+
+export const deleteCallbackTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/template/callback/delete',
+    method: 'post',
+    data: params
+  })
+
 // 截图模板相关接口
 export const getSnapshotTemplates = (params: any): Promise<any> =>
   request({
