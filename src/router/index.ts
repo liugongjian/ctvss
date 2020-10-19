@@ -253,7 +253,7 @@ export const asyncRoutes: RouteConfig[] = [
         component: () => import(/* webpackChunkName: "screen" */ '@/views/stream/index.vue'),
         name: 'stream-list',
         meta: {
-          title: '流列表',
+          title: '流管理',
           icon: 'stream',
           breadcrumb: false,
           roles: ['admin'],

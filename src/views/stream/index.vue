@@ -41,7 +41,7 @@
           <template slot-scope="scope">
             <el-button type="text" @click="goToInfo(scope.row)">流详情</el-button>
             <el-button type="text" @click="goToPreview(scope.row)">实时预览</el-button>
-            <el-button type="text">录像回放</el-button>
+            <!-- <el-button type="text">录像回放</el-button> -->
           </template>
         </el-table-column>
       </el-table>
