@@ -26,7 +26,7 @@ export const createRecordTemplate = (params: any): Promise<any> =>
   request({
     url: '/template/record/create',
     method: 'post',
-    params
+    data: params
   })
 
 export const updateRecordTemplate = (params: any): Promise<any> =>
@@ -69,7 +69,7 @@ export const createCallbackTemplate = (params: any): Promise<any> =>
   request({
     url: '/template/callback/create',
     method: 'post',
-    params
+    data: params
   })
 
 export const updateCallbackTemplate = (params: any): Promise<any> =>
