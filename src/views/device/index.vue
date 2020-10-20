@@ -14,6 +14,9 @@
           :value="item.groupId"
         />
       </el-select>
+      <el-tooltip content="仅包含接入类型为GB28181的业务组" placement="right">
+        <svg-icon class="filter-container__help" name="help" />
+      </el-tooltip>
     </div>
     <el-card ref="deviceWrap" class="device-list-wrap">
       <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
@@ -152,7 +155,7 @@ export default class extends Mixins(DeviceMixin) {
       pageSize: 1000
     }
     const res = await getGroups(params)
-    this.groupList = res.groups
+    this.groupList = res.groups.filter((item: Group) => item.inProtocol === 'gb28181')
     if (this.groupList.length) {
       if (!this.$route.query.groupId) {
         await DeviceModule.SetGroup(this.groupList[0])

@@ -15,6 +15,9 @@
           :value="item.groupId"
         />
       </el-select>
+      <el-tooltip content="仅包含接入类型为GB28181的业务组" placement="right">
+        <svg-icon class="filter-container__help" name="help" />
+      </el-tooltip>
     </div>
     <el-card ref="deviceWrap" class="device-list-wrap">
       <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">

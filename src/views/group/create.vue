@@ -9,7 +9,7 @@
         label-position="right"
         label-width="160px"
       >
-        <el-form-item v-if="form.groupId" label="业务组Id:" prop="groupId">
+        <el-form-item v-if="isEdit" label="业务组Id:" prop="groupId">
           <el-input v-model="form.groupId" disabled />
         </el-form-item>
         <el-form-item label="业务组名称:" prop="groupName" class="form-with-tip">
@@ -38,7 +38,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="接入类型:" prop="inProtocol">
-          <el-radio-group v-model="form.inProtocol">
+          <el-radio-group v-model="form.inProtocol" :disabled="isEdit">
             <el-radio v-for="protocol in inProtocolList" :key="protocol" :label="protocol.toLocaleLowerCase()">{{ protocol }}</el-radio>
           </el-radio-group>
         </el-form-item>
@@ -53,7 +53,8 @@
             </el-checkbox>
           </el-checkbox-group>
         </el-form-item>
-        <el-form-item prop="pullType">
+        <!-- 国标业务组允许设置是否自动拉流 -->
+        <el-form-item v-if="form.inProtocol === 'gb28181'" prop="pullType">
           <template slot="label">
             自动拉流:
             <el-popover
@@ -121,6 +122,10 @@ export default class extends Vue {
     inProtocol: 'gb28181',
     outProtocol: [],
     pullType: 1
+  }
+
+  private get isEdit() {
+    return !!this.form.groupId
   }
 
   private async mounted() {

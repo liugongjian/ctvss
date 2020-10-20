@@ -10,14 +10,17 @@
           <info-list-item label="业务组描述:">{{ form.description }}</info-list-item>
           <info-list-item label="服务区域:">{{ form.region }}</info-list-item>
           <info-list-item label="接入类型:">{{ InProtocolType[form.inProtocol] }}</info-list-item>
-          <info-list-item label="自动拉流:">{{ PullType[form.pullType] }}</info-list-item>
           <info-list-item label="播放类型:">
             {{ form.outProtocol.map(item => OutProtocolType[item]).join(',') }}
           </info-list-item>
-          <info-list-item label="SIP服务器ID:">{{ form.sipId }}</info-list-item>
-          <info-list-item label="SIP服务器地址:">{{ form.sipIp }}</info-list-item>
-          <info-list-item label="SIP服务器TCP端口:">{{ form.sipTcpPort }}</info-list-item>
-          <info-list-item label="SIP服务器UDP端口:">{{ form.sipUdpPort }}</info-list-item>
+          <!-- 以下字段仅在国标业务组中显示 -->
+          <template v-if="form.inProtocol === 'gb28181'">
+            <info-list-item label="自动拉流:">{{ PullType[form.pullType] }}</info-list-item>
+            <info-list-item label="SIP服务器ID:">{{ form.sipId }}</info-list-item>
+            <info-list-item label="SIP服务器地址:">{{ form.sipIp }}</info-list-item>
+            <info-list-item label="SIP服务器TCP端口:">{{ form.sipTcpPort }}</info-list-item>
+            <info-list-item label="SIP服务器UDP端口:">{{ form.sipUdpPort }}</info-list-item>
+          </template>
         </info-list>
       </el-tab-pane>
       <el-tab-pane label="模板配置" name="template">
