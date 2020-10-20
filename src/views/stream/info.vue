@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div>
     <el-page-header content="流列表" @back="back" />
     <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
       <el-tab-pane label="详细信息" name="info">
@@ -8,7 +8,11 @@
           <info-list-item label="流ID:">{{ form.streamId || '-' }}</info-list-item>
           <info-list-item label="视频编码:">{{ form.video && form.video.codec || '-' }}</info-list-item>
           <info-list-item label="开始推流时间:">{{ form.createTime || '-' }}</info-list-item>
+          <info-list-item label="过期时间:">{{ form.expires || '-' }}</info-list-item>
           <info-list-item label="流状态:">{{ form.status === 'off' ? '下线' : '在线' }}</info-list-item>
+        </info-list>
+        <info-list label-width="100" title="推流地址" class="address">
+          <info-list-item label="RTMP:">{{ form.pushUrl || '-' }}</info-list-item>
         </info-list>
         <info-list label-width="100" title="播放地址" class="address">
           <info-list-item label="RTMP:">{{ form.playUrl || '-' }}</info-list-item>
@@ -37,6 +41,7 @@ import { pick } from 'lodash'
 })
 export default class extends Vue {
   private activeName = 'info'
+  private groupId = ''
   private form: Stream = {
     deviceId: ''
   }
@@ -44,6 +49,7 @@ export default class extends Vue {
     let query: any = this.$route.query
     if (query.deviceId) {
       this.$set(this.form, 'deviceId', query.deviceId)
+      this.groupId = query.groupId
       try {
         const res = await getStream({ deviceId: this.form.deviceId })
         this.form = res
@@ -60,7 +66,12 @@ export default class extends Vue {
     this.activeName = tab.name
   }
   private back() {
-    this.$router.push('/stream')
+    this.$router.push({
+      path: '/stream/list',
+      query: {
+        groupId: this.groupId
+      }
+    })
   }
 }
 </script>

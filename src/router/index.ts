@@ -251,50 +251,64 @@ export const asyncRoutes: RouteConfig[] = [
       {
         path: '',
         component: () => import(/* webpackChunkName: "screen" */ '@/views/stream/index.vue'),
-        name: 'stream-list',
+        name: 'stream',
         meta: {
           title: '流管理',
           icon: 'stream',
           breadcrumb: false,
           roles: ['admin'],
           activeMenu: '/stream'
-        }
-      },
-      {
-        path: 'info',
-        component: () => import(/* webpackChunkName: "group" */ '@/views/stream/info.vue'),
-        name: 'stream-config',
-        meta: {
-          title: '流详情',
-          icon: 'stream',
-          hidden: true,
-          roles: ['admin'],
-          activeMenu: '/stream'
-        }
-      },
-      {
-        path: 'create',
-        component: () => import(/* webpackChunkName: "group" */ '@/views/stream/create.vue'),
-        name: 'stream-create',
-        meta: {
-          title: '创建流',
-          icon: 'stream',
-          hidden: true,
-          roles: ['admin'],
-          activeMenu: '/stream'
-        }
-      },
-      {
-        path: 'preview',
-        component: () => import(/* webpackChunkName: "group" */ '@/views/stream/preview.vue'),
-        name: 'stream-preview',
-        meta: {
-          title: '实时预览',
-          icon: 'tree',
-          hidden: true,
-          roles: ['admin'],
-          activeMenu: '/stream'
-        }
+        },
+        children: [
+          {
+            path: 'info',
+            component: () => import(/* webpackChunkName: "group" */ '@/views/stream/info.vue'),
+            name: 'stream-config',
+            meta: {
+              title: '流详情',
+              icon: 'stream',
+              hidden: true,
+              roles: ['admin'],
+              activeMenu: '/stream'
+            }
+          },
+          {
+            path: 'list',
+            component: () => import(/* webpackChunkName: "group" */ '@/views/stream/list.vue'),
+            name: 'stream-list',
+            meta: {
+              title: '流列表',
+              icon: 'stream',
+              hidden: true,
+              roles: ['admin'],
+              activeMenu: '/stream'
+            }
+          },
+          {
+            path: 'create',
+            component: () => import(/* webpackChunkName: "group" */ '@/views/stream/create.vue'),
+            name: 'stream-create',
+            meta: {
+              title: '创建流',
+              icon: 'stream',
+              hidden: true,
+              roles: ['admin'],
+              activeMenu: '/stream'
+            }
+          },
+          {
+            path: 'preview',
+            component: () => import(/* webpackChunkName: "group" */ '@/views/stream/preview.vue'),
+            name: 'stream-preview',
+            meta: {
+              title: '实时预览',
+              icon: 'tree',
+              hidden: true,
+              roles: ['admin'],
+              activeMenu: '/stream'
+            }
+          }
+        ]
       }
     ]
   },

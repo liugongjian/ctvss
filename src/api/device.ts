@@ -74,9 +74,16 @@ export const getDeviceRecord = (params: any): Promise<any> =>
     params
   })
 
-export const getRecordTemplate = (params: any): Promise<any> =>
+export const getDeviceRecordTemplate = (params: any): Promise<any> =>
   request({
     url: '/device/record',
+    method: 'get',
+    params
+  })
+
+export const getDeviceCallbackTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/device/callback',
     method: 'get',
     params
   })
@@ -88,9 +95,23 @@ export const setDeviceRecordTemplate = (params: any): Promise<any> =>
     data: params
   })
 
+export const setDeviceCallbackTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/device/callback/bind',
+    method: 'post',
+    data: params
+  })
+
 export const unbindDeviceRecordTemplate = (params: any): Promise<any> =>
   request({
     url: '/device/record/unbind',
+    method: 'post',
+    data: params
+  })
+
+export const unbindDeviceCallbackTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/device/callback/unbind',
     method: 'post',
     data: params
   })

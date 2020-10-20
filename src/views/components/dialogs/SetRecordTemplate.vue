@@ -131,7 +131,7 @@ export default class extends Vue {
       this.loading = true
       const res = await getRecordTemplates({
         pageNum: 1,
-        pageSize: 50
+        pageSize: 999
       })
       this.list = res.templates
     } catch (e) {

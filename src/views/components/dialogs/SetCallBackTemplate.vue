@@ -31,6 +31,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { getRecordTemplates, setGroupCallBackTemplate, unbindGroupCallBackTemplate } from '@/api/group'
+import { setDeviceCallbackTemplate, unbindDeviceCallbackTemplate } from '@/api/device'
 import { setStreamCallBackTemplate, unbindStreamCallBackTemplate, getCallBackTemplates } from '@/api/stream'
 import { formatSeconds } from '@/utils/interval'
 import { template } from 'lodash'
@@ -40,6 +41,7 @@ import { template } from 'lodash'
 })
 export default class extends Vue {
   @Prop() private groupId?: string
+  @Prop() private deviceId?: string
   @Prop() private streamId?: string
   @Prop() private templateId?: string
   private dialogVisible = true
@@ -62,9 +64,14 @@ export default class extends Vue {
           deviceId: this.streamId,
           templateId: row.templateId
         })
-      } else {
+      } else if (this.groupId) {
         await setGroupCallBackTemplate({
           groupId: this.groupId,
+          templateId: row.templateId
+        })
+      } else {
+        await setDeviceCallbackTemplate({
+          deviceId: this.deviceId,
           templateId: row.templateId
         })
       }
@@ -84,9 +91,14 @@ export default class extends Vue {
           deviceId: this.streamId,
           templateId: row.templateId
         })
-      } else {
+      } else if (this.groupId) {
         await unbindGroupCallBackTemplate({
           groupId: this.groupId,
+          templateId: row.templateId
+        })
+      } else {
+        await unbindDeviceCallbackTemplate({
+          deviceId: this.deviceId,
           templateId: row.templateId
         })
       }
@@ -104,7 +116,7 @@ export default class extends Vue {
       this.loading = true
       const res = await getCallBackTemplates({
         pageNum: 1,
-        pageSize: 50
+        pageSize: 999
       })
       this.list = res.templates
     } catch (e) {

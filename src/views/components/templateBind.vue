@@ -41,6 +41,7 @@
     <SetCallBackTemplate
       v-if="setCallbackTemplateDialog"
       :stream-id="streamId"
+      :device-id="deviceId"
       :group-id="groupId"
       :template-id="callbackTemplateId"
       @on-close="closeCallbackTemplateDialog"
@@ -53,6 +54,7 @@ import SetCallBackTemplate from './dialogs/SetCallBackTemplate.vue'
 import { RecordTemplate } from '@/type/template'
 import { getStream, getStreamRecordTemplate, getStreamCallBackTemplate } from '@/api/stream'
 import { getGroupRecordTemplate, getGroupCallbackTemplate } from '@/api/group'
+import { getDeviceRecordTemplate, getDeviceCallbackTemplate } from '@/api/device'
 import { Component, Vue, Prop } from 'vue-property-decorator'
 @Component({
   name: 'TemplateBind',
@@ -89,10 +91,15 @@ export default class extends Vue {
         this.template.recordTemplate.push(resRecord)
         const resCallback = await getStreamCallBackTemplate({ deviceId: this.streamId })
         this.template.callbackTemplate.push(resCallback)
-      } else {
+      } else if (this.groupId) {
         const resRecord = await getGroupRecordTemplate({ groupId: this.groupId })
         this.template.recordTemplate.push(resRecord)
         const resCallback = await getGroupCallbackTemplate({ groupId: this.groupId })
+        this.template.callbackTemplate.push(resCallback)
+      } else {
+        const resRecord = await getDeviceRecordTemplate({ deviceId: this.deviceId })
+        this.template.recordTemplate.push(resRecord)
+        const resCallback = await getDeviceCallbackTemplate({ deviceId: this.deviceId })
         this.template.callbackTemplate.push(resCallback)
       }
     } catch (e) {
@@ -122,8 +129,11 @@ export default class extends Vue {
       if (this.streamId) {
         const res = await getStreamRecordTemplate({ deviceId: this.streamId })
         this.template.recordTemplate.push(res)
-      } else {
+      } else if (this.groupId) {
         const res = await getGroupRecordTemplate({ groupId: this.groupId })
+        this.template.recordTemplate.push(res)
+      } else {
+        const res = await getDeviceRecordTemplate({ deviceId: this.deviceId })
         this.template.recordTemplate.push(res)
       }
     } catch (e) {
@@ -152,8 +162,11 @@ export default class extends Vue {
       if (this.streamId) {
         const res = await getStreamCallBackTemplate({ deviceId: this.streamId })
         this.template.callbackTemplate.push(res)
-      } else {
+      } else if (this.groupId) {
         const res = await getGroupCallbackTemplate({ groupId: this.groupId })
+        this.template.callbackTemplate.push(res)
+      } else {
+        const res = await getDeviceCallbackTemplate({ deviceId: this.deviceId })
         this.template.callbackTemplate.push(res)
       }
     } catch (e) {

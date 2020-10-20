@@ -24,7 +24,7 @@
           <el-radio v-model="form.streamType" :label="1">全量视频</el-radio>
           <el-radio v-model="form.streamType" :label="2">移动侦测</el-radio>
         </el-form-item>
-        <el-form-item label="容器ID" prop="streamCode">
+        <el-form-item label="业务ID" prop="streamCode">
           <el-input v-model="form.streamCode" />
         </el-form-item>
         <el-form-item label="过期时间" prop="expires">
@@ -86,7 +86,7 @@ export default class extends Vue {
       { required: true, message: '请选择设备流的类型', trigger: 'change' }
     ],
     streamCode: [
-      { required: true, message: '请输入容器ID', trigger: 'blur' }
+      { required: true, message: '请输入业务ID', trigger: 'blur' }
     ],
     expires: [
       { required: true, message: '请选择过期时间', trigger: 'change' }
@@ -99,7 +99,12 @@ export default class extends Vue {
     }
   }
   private back() {
-    this.$router.push('/stream')
+    this.$router.push({
+      path: '/stream/list',
+      query: {
+        groupId: this.form.groupId
+      }
+    })
   }
   private submit() {
     const form: any = this.$refs.dataForm

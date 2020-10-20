@@ -1,13 +1,18 @@
 <template>
   <div class="app-container">
     <el-page-header content="流列表" @back="back" />
-    <live-view
-      :class="{'fullscreen': previewFullscreen.live}"
-      :device-id="deviceId"
-      :is-fullscreen="previewFullscreen.live"
-      @onFullscreen="previewFullscreen.live = true; fullscreen()"
-      @onExitFullscreen="exitFullscreen()"
-    />
+    <div class="preview-player">
+      <player
+        ref="video"
+        type="rtmp"
+        :url="form.playUrl"
+        :auto-play="true"
+        :is-ws="true"
+        :is-live="true"
+        :is-fullscreen="false"
+        :has-control="false"
+      />
+    </div>
   </div>
 </template>
 
@@ -16,27 +21,47 @@ import { Component, Vue, Mixins } from 'vue-property-decorator'
 import { RecordTemplate } from '@/type/template'
 import FullscreenMixin from '@/views/device/mixin/fullscreenMixin'
 import LiveView from '@/views/device/components/LiveView.vue'
+import { Stream } from '@/type/stream'
+import { getStream } from '@/api/stream'
+import Player from '../device/components/Player.vue'
 
 @Component({
   name: 'StreamPreview',
   components: {
-    LiveView
+    Player
   }
 })
 export default class extends Mixins(FullscreenMixin) {
   private deviceId = ''
+  private groupId = ''
   private previewFullscreen = {
     live: false,
     replay: false
   }
-  private created() {
+  private form: Stream = {
+    deviceId: ''
+  }
+  private async created() {
     let query: any = this.$route.query
     if (query.deviceId) {
       this.deviceId = query.deviceId
+      this.groupId = query.groupId
+      try {
+        const res = await getStream({ deviceId: this.deviceId })
+        this.form = res
+      } catch (e) {
+        this.$message.error(e && e.message)
+      }
     }
   }
+
   private back() {
-    this.$router.push('/stream')
+    this.$router.push({
+      path: '/stream/list',
+      query: {
+        groupId: this.groupId
+      }
+    })
   }
 }
 </script>
