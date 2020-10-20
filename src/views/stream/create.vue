@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div>
     <el-page-header content="流列表" @back="back" />
     <el-card>
       <el-form

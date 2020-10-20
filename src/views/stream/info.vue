@@ -6,8 +6,12 @@
         <info-list label-width="100" title="基本信息">
           <info-list-item label="流名称:">{{ form.streamName || '-' }}</info-list-item>
           <info-list-item label="设备号:">{{ form.deviceId || '-' }}</info-list-item>
+          <info-list-item label="业务ID:">{{ form.streamCode || '-' }}</info-list-item>
+          <info-list-item label="存储区域:">{{ form.storeRegion || '-' }}</info-list-item>
+          <info-list-item label="存储桶:">{{ form.bucketName || '-' }}</info-list-item>
+          <info-list-item label="流类型:">{{ form.steamType ? ( form.steamType === 1 ? '全量视频' : '移动侦测') : '-' }}</info-list-item>
           <info-list-item label="视频编码:">{{ form.video && form.video.codec || '-' }}</info-list-item>
-          <info-list-item label="开始推流时间:">{{ form.createTime || '-' }}</info-list-item>
+          <info-list-item label="开始推流时间:">{{ form.startTime || '-' }}</info-list-item>
           <info-list-item label="过期时间:">{{ form.expires || '-' }}</info-list-item>
           <info-list-item label="流状态:">{{ form.status === 'off' ? '下线' : '在线' }}</info-list-item>
         </info-list>
