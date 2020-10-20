@@ -5,7 +5,7 @@
       <el-tab-pane label="详细信息" name="info">
         <info-list label-width="100" title="基本信息">
           <info-list-item label="流名称:">{{ form.streamName || '-' }}</info-list-item>
-          <info-list-item label="流ID:">{{ form.streamId || '-' }}</info-list-item>
+          <info-list-item label="流ID:">{{ form.deviceId || '-' }}</info-list-item>
           <info-list-item label="视频编码:">{{ form.video && form.video.codec || '-' }}</info-list-item>
           <info-list-item label="开始推流时间:">{{ form.createTime || '-' }}</info-list-item>
           <info-list-item label="过期时间:">{{ form.expires || '-' }}</info-list-item>
