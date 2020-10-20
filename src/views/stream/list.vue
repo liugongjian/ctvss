@@ -14,14 +14,18 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column prop="status" label="流状态" width="250">
+      <el-table-column prop="status" label="流状态">
         <template slot-scope="{row}">
           <status-badge :status="row.status" />
           {{ row.status === 'off' ? '下线':'在线' }}
         </template>
       </el-table-column>
-      <el-table-column prop="startTime" label="开始推流时间" />
       <el-table-column prop="createTime" label="创建时间" />
+      <el-table-column key="startTime" label="开始推流时间">
+        <template slot-scope="{row}">
+          {{ row.startTime || '-' }}
+        </template>
+      </el-table-column>
       <el-table-column prop="expires" label="过期时间" />
       <el-table-column prop="action" class-name="col-action" label="操作" width="150" fixed="right">
         <template slot-scope="scope">
