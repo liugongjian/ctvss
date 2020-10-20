@@ -87,6 +87,10 @@ div:focus {
   &__search-group {
     width: 300px;
   }
+  &__help {
+    margin-left: 10px;
+    color: #777;
+  }
 }
 
 .form-with-tip {

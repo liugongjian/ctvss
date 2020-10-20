@@ -53,7 +53,8 @@
             </el-checkbox>
           </el-checkbox-group>
         </el-form-item>
-        <el-form-item prop="pullType">
+        <!-- 国标业务组允许设置是否自动拉流 -->
+        <el-form-item v-if="form.inProtocol === 'gb28181'" prop="pullType">
           <template slot="label">
             自动拉流:
             <el-popover

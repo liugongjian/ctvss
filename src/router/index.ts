@@ -238,6 +238,66 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
+    path: '/screen',
+    component: Layout,
+    meta: {
+      title: '实时预览',
+      icon: 'ipc',
+      roles: ['admin'],
+      alwaysShow: false
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "screen" */ '@/views/device/screen.vue'),
+        name: 'screen',
+        meta: {
+          title: '实时预览',
+          icon: 'ipc',
+          breadcrumb: false,
+          roles: ['admin'],
+          activeMenu: '/screen'
+        }
+      }
+    ]
+  },
+  {
+    path: '/player-debug',
+    component: () => import(/* webpackChunkName: "device" */ '@/views/device/debug.vue'),
+    name: 'device-debug',
+    meta: {
+      title: '播放器调试',
+      icon: 'stream',
+      hidden: true,
+      roles: ['admin'],
+      activeMenu: '/device'
+    }
+  },
+  {
+    path: '/replay',
+    component: Layout,
+    meta: {
+      title: '录像回放',
+      icon: 'video',
+      roles: ['admin'],
+      alwaysShow: false
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "replay" */ '@/views/device/replay.vue'),
+        name: 'replay',
+        meta: {
+          title: '录像回放',
+          icon: 'video',
+          breadcrumb: false,
+          roles: ['admin'],
+          activeMenu: '/replay'
+        }
+      }
+    ]
+  },
+  {
     path: '/stream',
     component: Layout,
     meta: {
@@ -294,66 +354,6 @@ export const asyncRoutes: RouteConfig[] = [
           hidden: true,
           roles: ['admin'],
           activeMenu: '/stream'
-        }
-      }
-    ]
-  },
-  {
-    path: '/screen',
-    component: Layout,
-    meta: {
-      title: '实时预览',
-      icon: 'ipc',
-      roles: ['admin'],
-      alwaysShow: false
-    },
-    children: [
-      {
-        path: '',
-        component: () => import(/* webpackChunkName: "screen" */ '@/views/device/screen.vue'),
-        name: 'screen',
-        meta: {
-          title: '实时预览',
-          icon: 'ipc',
-          breadcrumb: false,
-          roles: ['admin'],
-          activeMenu: '/screen'
-        }
-      }
-    ]
-  },
-  {
-    path: '/player-debug',
-    component: () => import(/* webpackChunkName: "device" */ '@/views/device/debug.vue'),
-    name: 'device-debug',
-    meta: {
-      title: '播放器调试',
-      icon: 'stream',
-      hidden: true,
-      roles: ['admin'],
-      activeMenu: '/device'
-    }
-  },
-  {
-    path: '/replay',
-    component: Layout,
-    meta: {
-      title: '录像回放',
-      icon: 'video',
-      roles: ['admin'],
-      alwaysShow: false
-    },
-    children: [
-      {
-        path: '',
-        component: () => import(/* webpackChunkName: "replay" */ '@/views/device/replay.vue'),
-        name: 'replay',
-        meta: {
-          title: '录像回放',
-          icon: 'video',
-          breadcrumb: false,
-          roles: ['admin'],
-          activeMenu: '/replay'
         }
       }
     ]
