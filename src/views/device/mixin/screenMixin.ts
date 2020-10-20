@@ -41,7 +41,7 @@ export default class ScreenMixin extends Mixins(DeviceMixin, FullscreenMixin) {
       pageSize: 1000
     }
     const res = await getGroups(params)
-    this.groupList = res.groups
+    this.groupList = res.groups.filter((item: Group) => item.inProtocol === 'gb28181')
     if (this.groupList.length) {
       if (!this.$route.query.groupId) {
         await DeviceModule.SetGroup(this.groupList[0])

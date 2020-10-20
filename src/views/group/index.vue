@@ -49,9 +49,15 @@
             <el-button type="text" @click="goToConfig(scope.row)">业务组配置</el-button>
             <el-button v-if="scope.row.inProtocol === 'rtmp'" type="text" @click="goToStreams(scope.row)">流管理</el-button>
             <el-button v-else type="text" @click="goToDevices(scope.row)">设备管理</el-button>
-            <el-button v-if="scope.row.groupStatus === 'on'" type="text" @click="stopGroup(scope.row)">停用</el-button>
-            <el-button v-if="scope.row.groupStatus === 'off'" type="text" @click="startGroup(scope.row)">启用</el-button>
-            <el-button :disabled="scope.row.groupStatus === 'on'" type="text" @click="deleteGroup(scope.row)">删除</el-button>
+            <el-dropdown @command="handleMore">
+              <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item v-if="scope.row.groupStatus === 'on'" :command="{type: 'stop', group: scope.row}">停用</el-dropdown-item>
+                <el-dropdown-item v-if="scope.row.groupStatus === 'off'" :command="{type: 'start', group: scope.row}">启用</el-dropdown-item>
+                <el-dropdown-item :command="{type: 'update', group: scope.row}">编辑</el-dropdown-item>
+                <el-dropdown-item :disabled="scope.row.groupStatus === 'on'" :command="{type: 'delete', group: scope.row}">删除</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
           </template>
         </el-table-column>
       </el-table>
@@ -140,6 +146,9 @@ export default class extends Vue {
     await this.getList()
   }
 
+  /**
+   * 停用业务组
+   */
   private async stopGroup(row: Group) {
     try {
       await stopGroup({ groupId: row.groupId })
@@ -149,6 +158,9 @@ export default class extends Vue {
     }
   }
 
+  /**
+   * 启动业务组
+   */
   private async startGroup(row: Group) {
     try {
       await startGroup({ groupId: row.groupId })
@@ -158,6 +170,9 @@ export default class extends Vue {
     }
   }
 
+  /**
+   * 删除业务组
+   */
   private async deleteGroup(row: Group) {
     this.$alertDelete({
       type: '业务组',
@@ -168,6 +183,21 @@ export default class extends Vue {
     })
   }
 
+  /**
+   * 编辑业务组
+   */
+  private goToUpdateGroup(row: Group) {
+    this.$router.push({
+      path: '/group/update',
+      query: {
+        groupId: row.groupId
+      }
+    })
+  }
+
+  /**
+   * 跳转至详情配置页面
+   */
   private goToConfig(row: Group) {
     this.$router.push({
       path: '/group/config',
@@ -177,6 +207,9 @@ export default class extends Vue {
     })
   }
 
+  /**
+   * 跳转至设备管理页面
+   */
   private goToDevices(row: Group) {
     this.$router.push({
       path: '/device',
@@ -187,6 +220,9 @@ export default class extends Vue {
     })
   }
 
+  /**
+   * 跳转至流管理页面
+   */
   private goToStreams(row: Group) {
     this.$router.push({
       path: '/stream',
@@ -196,9 +232,32 @@ export default class extends Vue {
     })
   }
 
+  /**
+   * 整行可点
+   */
   private rowClick(group: Group, column: any, event: any) {
     if (column.property !== 'action') {
       this.goToConfig(group)
+    }
+  }
+
+  /**
+   * 更多菜单
+   */
+  private handleMore(command: any) {
+    switch (command.type) {
+      case 'stop':
+        this.stopGroup(command.group)
+        break
+      case 'start':
+        this.startGroup(command.group)
+        break
+      case 'delete':
+        this.deleteGroup(command.group)
+        break
+      case 'update':
+        this.goToUpdateGroup(command.group)
+        break
     }
   }
 }
