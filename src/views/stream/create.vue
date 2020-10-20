@@ -112,8 +112,7 @@ export default class extends Vue {
       if (valid) {
         this.loading = true
         var params = JSON.parse(JSON.stringify(this.form))
-        // params['recordTemplateId'] = '746016249426739200'
-        // params['callbackTemplateId'] = '31206914560475136'
+        params['expires'] = Math.ceil(params['expires'] / 1000)
         try {
           const res = await createStream(params)
           this.$message.success('新建流成功！')
