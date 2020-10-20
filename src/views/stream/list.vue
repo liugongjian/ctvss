@@ -20,11 +20,13 @@
           {{ row.status === 'off' ? '下线':'在线' }}
         </template>
       </el-table-column>
-      <el-table-column prop="createTime" label="开始推流时间" />
+      <el-table-column prop="startTime" label="开始推流时间" />
+      <el-table-column prop="createTime" label="创建时间" />
+      <el-table-column prop="expires" label="过期时间" />
       <el-table-column prop="action" class-name="col-action" label="操作" width="250" fixed="right">
         <template slot-scope="scope">
           <el-button type="text" @click="goToInfo(scope.row)">流详情</el-button>
-          <el-button type="text" @click="goToPreview(scope.row)">实时预览</el-button>
+          <!-- <el-button type="text" @click="goToPreview(scope.row)">实时预览</el-button> -->
         </template>
       </el-table-column>
     </el-table>
