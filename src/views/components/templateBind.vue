@@ -184,6 +184,6 @@ export default class extends Vue {
 .template-edit {
   float: right;
   padding: 0;
-  margin: 0;
+  margin-right: 5px;
 }
 </style>
