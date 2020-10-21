@@ -102,6 +102,9 @@ export default class extends Vue {
     try {
       const res = await getStreamList(params)
       this.streamList = res.streams
+      this.pager.pageNum = res.pageNum
+      this.pager.total = res.totalNum
+      this.pager.pageSize = res.pageSize
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
