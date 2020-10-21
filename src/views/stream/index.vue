@@ -22,7 +22,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import { getGroups } from '@/api/group'
 import { Group } from '@/type/group'
 import { dateFormatInTable } from '@/utils/date'
@@ -40,6 +40,11 @@ export default class extends Vue {
   private dateFormatInTable = dateFormatInTable
 
   private mounted() {
+    this.getGroupList()
+  }
+
+  @Watch('$route.query')
+  private onRouterChange() {
     this.getGroupList()
   }
 
