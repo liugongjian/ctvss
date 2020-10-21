@@ -1,7 +1,7 @@
 export interface Stream {
   deviceId: String;
   groupId?: string;
-  storageRegion?: string;
+  storeRegion?: string;
   bucketName?: string;
   recordTemplateId?: string;
   callbackTemplateId?: string;

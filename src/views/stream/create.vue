@@ -12,9 +12,9 @@
         <el-form-item label="设备号" prop="deviceId">
           <el-input v-model="form.deviceId" />
         </el-form-item>
-        <el-form-item label="存储区域" prop="storageRegion">
-          <el-select v-model="form.storageRegion" placeholder="请选择">
-            <el-option v-for="item in regionList" :key="item" :label="item" :value="item" />
+        <el-form-item label="存储区域" prop="storeRegion">
+          <el-select v-model="form.storeRegion" placeholder="请选择">
+            <el-option v-for="item in regionList" :key="item.id" :label="item.label" :value="item.id" />
           </el-select>
         </el-form-item>
         <el-form-item label="桶名称" prop="bucketName">
@@ -60,13 +60,17 @@ export default class extends Vue {
   private form: Stream = {
     groupId: '',
     deviceId: '',
-    storageRegion: '华南',
+    storeRegion: '0851002',
     bucketName: '',
     streamType: 1,
     streamCode: '',
     expires: (new Date()).getTime()
   }
-  private regionList = ['华东', '华南', '华北']
+  private regionList = [
+    {
+      label: '华东',
+      id: '0851002'
+    }]
   private pickerOptions = {
     disabledDate(time: any) {
       return time.getTime() < Date.now()
@@ -76,7 +80,7 @@ export default class extends Vue {
     deviceId: [
       { required: true, message: '请输入设备号', trigger: 'blur' }
     ],
-    storageRegion: [
+    storeRegion: [
       { required: true, message: '请选择区域', trigger: 'change' }
     ],
     bucketName: [
