@@ -45,7 +45,9 @@ export default class extends Vue {
 
   @Watch('$route.query')
   private onRouterChange() {
-    this.getGroupList()
+    if (!this.$route.query.groupId) {
+      this.getGroupList()
+    }
   }
 
   private async getGroupList() {
