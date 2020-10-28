@@ -44,6 +44,7 @@ pipeline {
           echo "当前环境：${env.env}"
 		  sh 'npm install'
 		  sh 'npm run build:stage'
+		}
       }
     }
 
