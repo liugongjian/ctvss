@@ -20,6 +20,10 @@
           <el-input v-model="form.recordNotifyUrl" class="fixed-width" />
           <div class="form-tip">录制回调URL，以http、https等开头</div>
         </el-form-item>
+        <el-form-item label="设备状态回调:" prop="deviceStatusUrl" class="form-with-tip">
+          <el-input v-model="form.deviceStatusUrl" class="fixed-width" />
+          <div class="form-tip">设备状态回调URL，以http、https等开头</div>
+        </el-form-item>
         <el-form-item label="回调KEY:" prop="callbackKey" class="form-with-tip">
           <el-input v-model="form.callbackKey" class="fixed-width" />
         </el-form-item>
@@ -57,15 +61,19 @@ export default class extends Vue {
       { required: true, message: '请输入录制回调地址', trigger: 'blur' },
       { validator: this.validateCallbackUrl, trigger: 'blur' }
     ],
+    deviceStatusUrl: [
+      { validator: this.validateDeviceStatusCallbackUrl, trigger: 'blur' }
+    ],
     callbackKey: [
       { required: true, message: '请输入回调KEY', trigger: 'blur' }
     ]
   }
-  private urlReg = /^(((http:|https:)\/\/)[a-zA-Z0-9][a-zA-Z0-9-]{0,62}((:(\d*\*\d*|\d+))*|\.[a-zA-Z0-9][a-zA-Z0-9-]{0,62})+(:(\d*\*\d*|\d+))*(\/[a-zA-Z0-9-.]*)*)$/;
+  private urlReg = /^(((http:|https:)\/\/)[a-zA-Z0-9][a-zA-Z0-9-]{0,62}((:(\d*\*\d*|\d+))*|\.[a-zA-Z0-9][a-zA-Z0-9-]{0,62})+(:(\d*\*\d*|\d+))*(\/[a-zA-Z0-9-.]*)*)*$/;
   private selectedRows: any[] = []
   private form: CallbackTemplate = {
     templateName: '',
     recordNotifyUrl: '',
+    deviceStatusUrl: '',
     callbackKey: '',
     description: ''
   }
@@ -103,6 +111,14 @@ export default class extends Vue {
     }
   }
 
+  private validateDeviceStatusCallbackUrl(rule: any, value: string, callback: Function) {
+    if (!this.urlReg.test(value)) {
+      callback(new Error('设备状态回调地址格式不正确，请重新输入'))
+    } else {
+      callback()
+    }
+  }
+
   private back() {
     this.$router.push('/template/callback')
   }
@@ -117,6 +133,7 @@ export default class extends Vue {
           templateId: this.form.templateId || undefined,
           templateName: this.form.templateName,
           recordNotifyUrl: this.form.recordNotifyUrl,
+          deviceStatusUrl: this.form.deviceStatusUrl,
           callbackKey: this.form.callbackKey,
           description: this.form.description
         }

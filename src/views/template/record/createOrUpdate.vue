@@ -88,7 +88,7 @@ export default class extends Vue {
     description: '',
     formatList: []
   }
-  private placeHolder = 'record/{AppName}/{StreamName}/{EscapedStartTime}_{EscapedEndTime}'
+  private placeHolder = 'Prefix/{DeviceId}/{StartTime}/{StartTime}_{EndTime}'
   private setHeaderClass() {
     return 'background: white'
   }
