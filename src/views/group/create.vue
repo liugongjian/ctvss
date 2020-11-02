@@ -34,7 +34,7 @@
             </el-popover>
           </template>
           <el-select v-model="form.region" placeholder="请选择">
-            <el-option v-for="item in regionList" :key="item" :label="item" :value="item" />
+            <el-option v-for="item in regionList" :key="item.regionCode" :label="item.regionName" :value="item.regionCode" />
           </el-select>
         </el-form-item>
         <el-form-item label="接入类型:" prop="inProtocol">
@@ -112,13 +112,16 @@ export default class extends Vue {
       { required: true, message: '请选择是否开启自动拉流', trigger: 'change' }
     ]
   }
-  private regionList = ['华东', '华南', '华北']
+  private regionList = [
+    { regionName: '贵州资源池2区', regionCode: '0851002' },
+    { regionName: '云南资源池1区', regionCode: '0871001' }
+  ]
   private outProtocolList = Object.values(OutProtocolType)
   private inProtocolList = Object.values(InProtocolType)
   private form: Group = {
     groupName: '',
     description: '',
-    region: '华东',
+    region: '0851002',
     inProtocol: 'gb28181',
     outProtocol: [],
     pullType: 1

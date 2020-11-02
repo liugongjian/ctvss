@@ -39,7 +39,11 @@
             {{ inProtocolType[row.inProtocol] }}
           </template>
         </el-table-column>
-        <el-table-column prop="region" label="服务区域" />
+        <el-table-column prop="region" label="服务区域">
+          <template slot-scope="{row}">
+            {{ regionList[row.region] }}
+          </template>
+        </el-table-column>
         <el-table-column prop="deviceSize" label="设备数量">
           <template slot-scope="scope">{{ scope.row.groupStats && scope.row.groupStats.deviceSize }}</template>
         </el-table-column>
@@ -86,6 +90,10 @@ import { getGroups, startGroup, stopGroup, deleteGroup } from '@/api/group'
   components: { StatusBadge }
 })
 export default class extends Vue {
+  private regionList = {
+    '0851002': '贵州资源池2区',
+    '0871001': '云南资源池1区'
+  }
   private loading = false
   private groupStatus = GroupStatus
   private inProtocolType = InProtocolType
