@@ -81,35 +81,8 @@ export default class extends Vue {
   private callbackTemplateId = ''
 
   private async mounted() {
-    try {
-      this.loading.record = true
-      this.loading.callback = true
-      this.template.recordTemplate = []
-      this.template.callbackTemplate = []
-      if (this.streamId) {
-        const resRecord = await getStreamRecordTemplate({ deviceId: this.streamId })
-        this.template.recordTemplate.push(resRecord)
-        const resCallback = await getStreamCallBackTemplate({ deviceId: this.streamId })
-        this.template.callbackTemplate.push(resCallback)
-      } else if (this.groupId) {
-        const resRecord = await getGroupRecordTemplate({ groupId: this.groupId })
-        this.template.recordTemplate.push(resRecord)
-        const resCallback = await getGroupCallbackTemplate({ groupId: this.groupId })
-        this.template.callbackTemplate.push(resCallback)
-      } else {
-        const resRecord = await getDeviceRecordTemplate({ deviceId: this.deviceId })
-        this.template.recordTemplate.push(resRecord)
-        const resCallback = await getDeviceCallbackTemplate({ deviceId: this.deviceId })
-        this.template.callbackTemplate.push(resCallback)
-      }
-    } catch (e) {
-      if (e && e.code !== 5) {
-        this.$message.error(e && e.message)
-      }
-    } finally {
-      this.loading.record = false
-      this.loading.callback = false
-    }
+    this.getStreamTemplate()
+    this.getRecordTemplate()
   }
 
   private setRecordTemplate() {
@@ -120,9 +93,7 @@ export default class extends Vue {
       this.recordTemplateId = this.template.recordTemplate[0].templateId!
     }
   }
-
-  private async closeSetRecordTemplateDialog() {
-    this.setRecordTemplateDialog = false
+  private async getRecordTemplate() {
     try {
       this.loading.record = true
       this.template.recordTemplate = []
@@ -145,6 +116,11 @@ export default class extends Vue {
     }
   }
 
+  private async closeSetRecordTemplateDialog() {
+    this.setRecordTemplateDialog = false
+    this.getRecordTemplate()
+  }
+
   private setCallbackTemplate() {
     this.setCallbackTemplateDialog = true
     if (!this.template.callbackTemplate.length) {
@@ -154,8 +130,7 @@ export default class extends Vue {
     }
   }
 
-  private async closeCallbackTemplateDialog() {
-    this.setCallbackTemplateDialog = false
+  private async getStreamTemplate() {
     try {
       this.loading.callback = true
       this.template.callbackTemplate = []
@@ -176,6 +151,11 @@ export default class extends Vue {
     } finally {
       this.loading.callback = false
     }
+  }
+
+  private async closeCallbackTemplateDialog() {
+    this.setCallbackTemplateDialog = false
+    this.getStreamTemplate()
   }
 }
 </script>
