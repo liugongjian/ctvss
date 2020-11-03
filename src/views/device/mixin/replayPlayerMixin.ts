@@ -232,10 +232,13 @@ export default class extends Vue {
     timelineRatio = timelineRatio < 1 ? 1 : timelineRatio
     const timelineWrap: any = this.$refs.timelineWrap
     const timeline: any = this.$refs.timeline
+    const handle: any = this.$refs.handle
     const originWidth = timelineWrap.clientWidth
     const zoomWidth = originWidth * timelineRatio
     timeline.style.width = `${zoomWidth}px`
     this.timelineRatio = timelineRatio
+    // 居中时间轴具柄
+    timelineWrap.scrollLeft = handle.offsetLeft - timelineWrap.clientWidth / 2
   }
 
   /**
