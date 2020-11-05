@@ -33,9 +33,11 @@
               <i slot="reference" class="form-question el-icon-question" />
             </el-popover>
           </template>
-          <el-select v-model="form.region" placeholder="请选择">
-            <el-option v-for="item in regionList" :key="item.regionCode" :label="item.regionName" :value="item.regionCode" />
-          </el-select>
+          <el-cascader
+            v-model="form.region"
+            placeholder="请选择"
+            :options="regionList"
+          />
         </el-form-item>
         <el-form-item label="接入类型:" prop="inProtocol">
           <el-radio-group v-model="form.inProtocol" :disabled="isEdit">
@@ -84,8 +86,8 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Group } from '@/type/group'
 import { InProtocolType, OutProtocolType } from '@/dics'
+import { Provinces, Regions, RegionName } from '@/dics/region'
 import { createGroup, queryGroup, updateGroup } from '@/api/group'
-import { parse } from 'date-fns'
 
 @Component({
   name: 'CreateGroup'
@@ -112,21 +114,29 @@ export default class extends Vue {
       { required: true, message: '请选择是否开启自动拉流', trigger: 'change' }
     ]
   }
-  private regionList = [
-    { regionName: '贵州资源池2区', regionCode: '0851002' },
-    { regionName: '云南资源池1区', regionCode: '0871001' },
-    { regionName: '泰州资源池1区', regionCode: '0523001' }
-  ]
   private outProtocolList = Object.values(OutProtocolType)
   private inProtocolList = Object.values(InProtocolType)
   private form: Group = {
     groupName: '',
     description: '',
-    region: '0851002',
+    region: '',
     inProtocol: 'gb28181',
     outProtocol: [],
     pullType: 1
   }
+
+  private regionList = Object.keys(Provinces).map((key: string) => {
+    return {
+      value: key,
+      label: (Provinces as any)[key],
+      children: (Regions as any)[key]?.map((regionCode: string) => {
+        return {
+          value: regionCode,
+          label: (RegionName as any)[regionCode]
+        }
+      })
+    }
+  })
 
   private get isEdit() {
     return !!this.form.groupId
@@ -185,6 +195,7 @@ export default class extends Vue {
         this.loading = true
         var params = JSON.parse(JSON.stringify(this.form))
         params.outProtocol = params.outProtocol.join(',')
+        params.region = params.region[params.region.length - 1]
         try {
           if (this.form.groupId) {
             res = await updateGroup(params)
@@ -208,7 +219,7 @@ export default class extends Vue {
 </script>
 
 <style lang="scss" scoped>
-  .el-input, .el-select, .el-textarea {
+  .el-input, .el-select, .el-textarea, .el-cascader {
     width: 400px;
   }
 </style>

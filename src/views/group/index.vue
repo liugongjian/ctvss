@@ -41,7 +41,7 @@
         </el-table-column>
         <el-table-column prop="region" label="服务区域">
           <template slot-scope="{row}">
-            {{ regionList[row.region] }}
+            {{ regionName[row.region] }}
           </template>
         </el-table-column>
         <el-table-column prop="deviceSize" label="设备数量">
@@ -81,6 +81,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Group } from '@/type/group'
 import { GroupStatus, InProtocolType } from '@/dics'
+import { RegionName } from '@/dics/region'
 import { dateFormatInTable } from '@/utils/date'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { getGroups, startGroup, stopGroup, deleteGroup } from '@/api/group'
@@ -90,13 +91,10 @@ import { getGroups, startGroup, stopGroup, deleteGroup } from '@/api/group'
   components: { StatusBadge }
 })
 export default class extends Vue {
-  private regionList = {
-    '0851002': '贵州资源池2区',
-    '0871001': '云南资源池1区'
-  }
   private loading = false
   private groupStatus = GroupStatus
   private inProtocolType = InProtocolType
+  private regionName = RegionName
   private groupName = ''
   private dataList: Array<Group> = []
   private pager = {
