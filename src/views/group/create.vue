@@ -114,7 +114,8 @@ export default class extends Vue {
   }
   private regionList = [
     { regionName: '贵州资源池2区', regionCode: '0851002' },
-    { regionName: '云南资源池1区', regionCode: '0871001' }
+    { regionName: '云南资源池1区', regionCode: '0871001' },
+    { regionName: '泰州资源池1区', regionCode: '0523001' }
   ]
   private outProtocolList = Object.values(OutProtocolType)
   private inProtocolList = Object.values(InProtocolType)
