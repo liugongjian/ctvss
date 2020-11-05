@@ -541,7 +541,9 @@ export default class extends Vue {
     overflow: hidden;
     ::v-deep .el-loading-mask {
       background: none !important;
+      top: 50px;
       bottom: 50px;
+      z-index: 10;
       .el-loading-spinner {
         margin-top: 0;
       }
