@@ -13,6 +13,7 @@ export interface IUserState {
   introduction: string
   roles: string[]
   email: string
+  type: string
 }
 
 @Module({ dynamic: true, store, name: 'user' })
@@ -23,6 +24,7 @@ class User extends VuexModule implements IUserState {
   public introduction = ''
   public roles: string[] = []
   public email = ''
+  public type = ''
 
   @Mutation
   private SET_TOKEN(token: string) {
@@ -52,6 +54,11 @@ class User extends VuexModule implements IUserState {
   @Mutation
   private SET_EMAIL(email: string) {
     this.email = email
+  }
+
+  @Mutation
+  private SET_TYPE(type: string) {
+    this.type = type
   }
 
   @Action({ rawError: true })
@@ -87,6 +94,7 @@ class User extends VuexModule implements IUserState {
     const roles = ['admin']
     const introduction = '欢迎光临'
     const email = 'vss@chinatelecom.cn'
+    const type = userName === 'tywl' ? 'kanjia' : 'default' // HARDCODE: 针对天翼看家单独判断
 
     // roles must be a non-empty array
     if (!roles || roles.length <= 0) {
@@ -97,6 +105,7 @@ class User extends VuexModule implements IUserState {
     // this.SET_AVATAR(avatar)
     this.SET_INTRODUCTION(introduction)
     this.SET_EMAIL(email)
+    this.SET_TYPE(type)
   }
 
   @Action

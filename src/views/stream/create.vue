@@ -12,21 +12,36 @@
         <el-form-item label="设备号" prop="deviceId">
           <el-input v-model="form.deviceId" />
         </el-form-item>
-        <el-form-item label="存储区域" prop="storeRegion">
-          <el-select v-model="form.storeRegion" placeholder="请选择">
-            <el-option v-for="item in regionList" :key="item.id" :label="item.label" :value="item.id" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="桶名称" prop="bucketName">
-          <el-input v-model="form.bucketName" />
-        </el-form-item>
-        <el-form-item label="设备流的类型" prop="streamType">
-          <el-radio v-model="form.streamType" :label="1">全量视频</el-radio>
-          <el-radio v-model="form.streamType" :label="2">移动侦测</el-radio>
-        </el-form-item>
-        <el-form-item label="业务ID" prop="streamCode">
-          <el-input v-model="form.streamCode" />
-        </el-form-item>
+        <template v-if="userType === 'kanjia'">
+          <el-form-item label="存储区域" prop="storeRegion">
+            <el-cascader
+              v-model="form.storeRegion"
+              placeholder="请选择"
+              :options="regionList"
+            />
+          </el-form-item>
+          <el-form-item label="桶名称" prop="bucketName">
+            <el-input v-model="form.bucketName" />
+          </el-form-item>
+          <el-form-item label="设备流的类型" prop="streamType">
+            <el-radio v-model="form.streamType" :label="1">全量视频</el-radio>
+            <el-radio v-model="form.streamType" :label="2">移动侦测</el-radio>
+          </el-form-item>
+          <el-form-item label="业务ID" prop="streamCode">
+            <el-input v-model="form.streamCode" />
+          </el-form-item>
+        </template>
+        <template v-else>
+          <el-form-item label="标签" prop="tags">
+            <div v-for="(tag, index) in form.tags" :key="index" class="form-tags">
+              <el-input v-model="form.tags[index].key" placeholder="键" />
+              <el-input v-model="form.tags[index].value" placeholder="值" />
+            </div>
+            <div v-if="form.tags.length < 10" class="form-tags__add">
+              <el-button @click="addTag">添加标签</el-button>
+            </div>
+          </el-form-item>
+        </template>
         <el-form-item label="过期时间" prop="expires">
           <el-date-picker
             v-model="form.expires"
@@ -48,9 +63,12 @@
   </div>
 </template>
 <script lang="ts">
-import { Stream } from '@/type/stream'
-import { createStream } from '@/api/stream'
 import { Component, Vue } from 'vue-property-decorator'
+import { Stream } from '@/type/stream'
+import { createStream, createStreamKanjia } from '@/api/stream'
+import { UserModule } from '@/store/modules/user'
+import { Provinces, Regions, RegionName } from '@/dics/region'
+import { pick } from 'lodash'
 
 @Component({
   name: 'StreamCreate'
@@ -60,22 +78,23 @@ export default class extends Vue {
   private form: Stream = {
     groupId: '',
     deviceId: '',
-    storeRegion: '0851002',
+    storeRegion: '',
     bucketName: '',
     streamType: 1,
     streamCode: '',
+    tags: [{
+      key: '',
+      value: ''
+    }],
     expires: (new Date()).getTime()
   }
-  private regionList = [
-    {
-      label: '华东',
-      id: '0851002'
-    }]
+
   private pickerOptions = {
     disabledDate(time: any) {
       return time.getTime() < Date.now()
     }
   }
+
   private rules = {
     deviceId: [
       { required: true, message: '请输入设备号', trigger: 'blur' }
@@ -96,12 +115,38 @@ export default class extends Vue {
       { required: true, message: '请选择过期时间', trigger: 'change' }
     ]
   }
+
+  private regionList = Object.keys(Provinces).map((key: string) => {
+    return {
+      value: key,
+      label: (Provinces as any)[key],
+      children: (Regions as any)[key]?.map((regionCode: string) => {
+        return {
+          value: regionCode,
+          label: (RegionName as any)[regionCode]
+        }
+      })
+    }
+  })
+
+  get userType() {
+    return UserModule.type
+  }
+
   private mounted() {
     const query: any = this.$route.query
     if (query.groupId) {
       this.$set(this.form, 'groupId', query.groupId)
     }
   }
+
+  private addTag() {
+    this.form.tags?.push({
+      key: '',
+      value: ''
+    })
+  }
+
   private back() {
     this.$router.push({
       path: '/stream/list',
@@ -110,15 +155,31 @@ export default class extends Vue {
       }
     })
   }
+
   private submit() {
     const form: any = this.$refs.dataForm
     form.validate(async(valid: any) => {
       if (valid) {
         this.loading = true
-        var params = JSON.parse(JSON.stringify(this.form))
+        let params: any = {}
+        // HARDCODE: 针对天翼看家单独判断
+        if (this.userType === 'kanjia') {
+          params = pick(this.form, ['groupId', 'deviceId', 'storeRegion', 'bucketName', 'streamType', 'streamCode', 'expires'])
+        } else {
+          params = pick(this.form, ['groupId', 'deviceId', 'expires'])
+          let tags: string[] = []
+          this.form.tags?.forEach((tag: any) => {
+            if (tag.key) {
+              tags.push(`${tag.key}:${tag.value}`)
+            }
+          })
+          if (tags.length) {
+            params.tags = tags.join(',')
+          }
+        }
         params['expires'] = Math.ceil(params['expires'] / 1000)
         try {
-          const res = await createStream(params)
+          this.userType === 'kanjia' ? await createStreamKanjia(params) : await createStream(params)
           this.$message.success('新建流成功！')
           this.back()
         } catch (e) {
@@ -134,7 +195,14 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-  .el-input, .el-select, .el-textarea {
+  .el-input, .el-select, .el-textarea, .el-cascader {
     width: 400px;
+  }
+  .form-tags .el-input {
+    width: 195px;
+    margin-bottom: 5px;
+    &:first-child {
+      margin-right: 10px;
+    }
   }
 </style>

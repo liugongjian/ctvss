@@ -16,6 +16,13 @@ export const getStream = (params: any): Promise<any> =>
 
 export const createStream = (params: any): Promise<any> =>
   request({
+    url: '/stream/push/url',
+    method: 'post',
+    data: params
+  })
+
+export const createStreamKanjia = (params: any): Promise<any> =>
+  request({
     url: '/rtmp/stream/push/url',
     method: 'post',
     data: params

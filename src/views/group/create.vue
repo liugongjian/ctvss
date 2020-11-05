@@ -191,17 +191,16 @@ export default class extends Vue {
     const form: any = this.$refs.dataForm
     form.validate(async(valid: any) => {
       if (valid) {
-        var res
         this.loading = true
         var params = JSON.parse(JSON.stringify(this.form))
         params.outProtocol = params.outProtocol.join(',')
         params.region = params.region[params.region.length - 1]
         try {
           if (this.form.groupId) {
-            res = await updateGroup(params)
+            await updateGroup(params)
             this.$message.success('修改业务组成功！')
           } else {
-            res = await createGroup(params)
+            await createGroup(params)
             this.$message.success('新建业务组成功！')
           }
           this.back()

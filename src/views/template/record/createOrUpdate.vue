@@ -42,7 +42,7 @@
             </el-table-column>
             <el-table-column label="存储路径" align="center">
               <template slot-scope="{row}">
-                <el-input v-model="row.path" :placeholder="placeHolder" size="mini" />
+                <el-input v-model="row.path" :placeholder="placeHolder[userType]" size="mini" />
               </template>
             </el-table-column>
           </el-table>
@@ -61,9 +61,9 @@
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
 import { RecordTemplate } from '@/type/template'
+import { UserModule } from '@/store/modules/user'
 import { RecordStorageType } from '@/dics'
 import { queryRecordTemplate, createRecordTemplate, updateRecordTemplate } from '@/api/template'
-import { unwatchFile } from 'fs'
 
 @Component({
   name: 'create-or-update-record-template'
@@ -88,9 +88,17 @@ export default class extends Vue {
     description: '',
     formatList: []
   }
-  private placeHolder = 'Prefix/{DeviceId}/{StartTime}/{StartTime}_{EndTime}'
+  // HARDCODE: 针对天翼看家单独判断
+  private placeHolder = {
+    default: 'Prefix/{DeviceId}/{StartTime}/{StartTime}_{EndTime}',
+    kanjia: 'Prefix/{DeviceId}_{StartTime}_{StreamType}_{StreamCode}'
+  }
   private setHeaderClass() {
     return 'background: white'
+  }
+
+  get userType() {
+    return UserModule.type
   }
 
   private async mounted() {
@@ -230,7 +238,6 @@ export default class extends Vue {
           return true
         })
         if (validateResult) {
-          var res
           this.loading = true
           const param: any = {
             templateId: this.form.templateId || undefined,
@@ -267,9 +274,9 @@ export default class extends Vue {
           param.mpParam = param.mpParam || { enable: 0 }
           try {
             if (this.form.templateId) {
-              res = await updateRecordTemplate(param)
+              await updateRecordTemplate(param)
             } else {
-              res = await createRecordTemplate(param)
+              await createRecordTemplate(param)
             }
             this.loading = false
             this.$message.success(this.form.templateId ? '录制模板编辑成功' : '录制模板创建成功')

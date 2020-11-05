@@ -12,4 +12,5 @@ export interface Stream {
   createTime?: string;
   streamName?: string;
   playUrl?: string;
+  tags?: Array<any>;
 }

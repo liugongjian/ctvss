@@ -6,11 +6,13 @@
         <info-list label-width="100" title="基本信息">
           <info-list-item label="流名称:">{{ form.streamName || '-' }}</info-list-item>
           <info-list-item label="设备号:">{{ form.deviceId || '-' }}</info-list-item>
-          <info-list-item label="业务ID:">{{ form.streamCode || '-' }}</info-list-item>
-          <info-list-item label="存储区域:">{{ form.storeRegion || '-' }}</info-list-item>
-          <info-list-item label="存储桶:">{{ form.bucketName || '-' }}</info-list-item>
-          <info-list-item label="流类型:">{{ form.steamType ? ( form.steamType === 1 ? '全量视频' : '移动侦测') : '-' }}</info-list-item>
-          <info-list-item label="视频编码:">{{ form.video && form.video.codec || '-' }}</info-list-item>
+          <template v-if="userType === 'kanjia'">
+            <info-list-item label="业务ID:">{{ form.streamCode || '-' }}</info-list-item>
+            <info-list-item label="存储区域:">{{ form.storeRegion || '-' }}</info-list-item>
+            <info-list-item label="存储桶:">{{ form.bucketName || '-' }}</info-list-item>
+            <info-list-item label="流类型:">{{ form.steamType ? ( form.steamType === 1 ? '全量视频' : '移动侦测') : '-' }}</info-list-item>
+            <info-list-item label="视频编码:">{{ form.video && form.video.codec || '-' }}</info-list-item>
+          </template>
           <info-list-item label="开始推流时间:">{{ form.startTime || '-' }}</info-list-item>
           <info-list-item label="过期时间:">{{ form.expires || '-' }}</info-list-item>
           <info-list-item label="流状态:">{{ form.status === 'off' ? '下线' : '在线' }}</info-list-item>
@@ -43,9 +45,9 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Stream } from '@/type/stream'
 import { getStream } from '@/api/stream'
+import { UserModule } from '@/store/modules/user'
 import TemplateBind from '../components/templateBind.vue'
 import copy from 'copy-to-clipboard'
-import { pick } from 'lodash'
 
 @Component({
   name: 'StreamInfo',
@@ -59,6 +61,11 @@ export default class extends Vue {
   private form: Stream = {
     deviceId: ''
   }
+
+  get userType() {
+    return UserModule.type
+  }
+
   private async mounted() {
     let query: any = this.$route.query
     if (query.deviceId) {
@@ -72,13 +79,16 @@ export default class extends Vue {
       }
     }
   }
+
   private copyUrl(text: string) {
     copy(text)
     this.$message.success('复制成功')
   }
-  private async handleClick(tab: any, event: any) {
+
+  private async handleClick(tab: any) {
     this.activeName = tab.name
   }
+
   private back() {
     this.$router.push({
       path: '/stream/list',
