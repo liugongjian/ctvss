@@ -40,7 +40,7 @@
                 </el-input>
               </template>
             </el-table-column>
-            <el-table-column label="存储路径" align="center">
+            <el-table-column label="存储路径" align="center" min-width="400">
               <template slot-scope="{row}">
                 <el-input v-model="row.path" :placeholder="placeHolder[userType]" size="mini" />
               </template>
