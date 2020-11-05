@@ -36,6 +36,13 @@
             <div v-for="(tag, index) in form.tags" :key="index" class="form-tags">
               <el-input v-model="form.tags[index].key" placeholder="键" />
               <el-input v-model="form.tags[index].value" placeholder="值" />
+              <el-button type="text" @click="removeTag(index)">
+                <svg-icon
+                  name="close"
+                  width="10"
+                  height="10"
+                />
+              </el-button>
             </div>
             <div v-if="form.tags.length < 10" class="form-tags__add">
               <el-button @click="addTag">添加标签</el-button>
@@ -147,6 +154,10 @@ export default class extends Vue {
     })
   }
 
+  private removeTag(index: number) {
+    this.form.tags?.splice(index, 1)
+  }
+
   private back() {
     this.$router.push({
       path: '/stream/list',
@@ -199,10 +210,17 @@ export default class extends Vue {
     width: 400px;
   }
   .form-tags .el-input {
-    width: 195px;
+    width: 180px;
     margin-bottom: 5px;
-    &:first-child {
-      margin-right: 10px;
+    margin-right: 10px;
+  }
+  .form-tags .el-button--text {
+    color: $textGrey;
+    svg {
+      vertical-align: middle;
+    }
+    &:hover {
+      color: $primary;
     }
   }
 </style>
