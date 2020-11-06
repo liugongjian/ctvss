@@ -41,9 +41,7 @@
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
 import { CallbackTemplate } from '@/type/template'
-import { RecordStorageType } from '@/dics'
 import { queryCallbackTemplate, createCallbackTemplate, updateCallbackTemplate } from '@/api/template'
-import { unwatchFile } from 'fs'
 
 @Component({
   name: 'create-or-update-callback-template'
@@ -58,7 +56,6 @@ export default class extends Vue {
       { validator: this.validateTemplateName, trigger: 'blur' }
     ],
     recordNotifyUrl: [
-      { required: true, message: '请输入录制回调地址', trigger: 'blur' },
       { validator: this.validateCallbackUrl, trigger: 'blur' }
     ],
     deviceStatusUrl: [
@@ -102,9 +99,7 @@ export default class extends Vue {
   }
 
   private validateCallbackUrl(rule: any, value: string, callback: Function) {
-    if (!value) {
-      callback(new Error('录制回调地址不能为空'))
-    } else if (!this.urlReg.test(value)) {
+    if (!this.urlReg.test(value)) {
       callback(new Error('录制回调地址格式不正确，请重新输入'))
     } else {
       callback()
@@ -124,10 +119,13 @@ export default class extends Vue {
   }
 
   private submit() {
+    if (!this.form.recordNotifyUrl && !this.form.deviceStatusUrl) {
+      this.$message.error('请至少填写一个回调地址！')
+      return
+    }
     const form: any = this.$refs.dataForm
     form.validate(async(valid: any) => {
       if (valid) {
-        var res
         this.loading = true
         const param: any = {
           templateId: this.form.templateId || undefined,
@@ -139,9 +137,9 @@ export default class extends Vue {
         }
         try {
           if (this.form.templateId) {
-            res = await updateCallbackTemplate(param)
+            await updateCallbackTemplate(param)
           } else {
-            res = await createCallbackTemplate(param)
+            await createCallbackTemplate(param)
           }
           this.loading = false
           this.$message.success(this.form.templateId ? '回调模板编辑成功' : '回调模板创建成功')
