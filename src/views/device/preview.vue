@@ -96,11 +96,8 @@
 
 <script lang="ts">
 import { Component, Mixins, Inject, Watch } from 'vue-property-decorator'
-import { DeviceStatus, DeviceType, AuthStatus } from '@/dics'
 import { dateFormatInTable, dateFormat } from '@/utils/date'
-import { getDevicePreview } from '@/api/device'
 import FullscreenMixin from './mixin/fullscreenMixin'
-import copy from 'copy-to-clipboard'
 import SetRecordTemplate from '../components/dialogs/SetRecordTemplate.vue'
 import SetSnapshotTemplate from '../components/dialogs/SetSnapshotTemplate.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
@@ -185,7 +182,7 @@ export default class extends Mixins(FullscreenMixin) {
     $replayView.style.height = `${documentHeight - playerSize.top - 50}px`
   }
 
-  private handleClick(tab: any, event: any) {
+  private handleClick(tab: any) {
     this.activeName = tab.name
     this.$nextTick(this.resizeReplayVideo)
   }

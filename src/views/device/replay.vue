@@ -13,11 +13,11 @@
           :key="item.groupId"
           :label="item.groupName"
           :value="item.groupId"
-        />
+        >
+          <span class="filter-group__label">{{ item.groupName }}</span>
+          <span class="filter-group__in">{{ item.inProtocol }}</span>
+        </el-option>
       </el-select>
-      <el-tooltip content="仅包含接入类型为GB28181的业务组" placement="right">
-        <svg-icon class="filter-container__help" name="help" />
-      </el-tooltip>
     </div>
     <el-card ref="deviceWrap" class="device-list-wrap">
       <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
@@ -51,7 +51,7 @@
                 <span slot-scope="{node, data}" class="custom-tree-node">
                   <span class="node-name">
                     <svg-icon :name="data.type" color="#6e7c89" />
-                    <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
+                    <!-- <status-badge v-if="data.streamStatus" :status="data.streamStatus" /> -->
                     {{ node.label }}
                     <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
                   </span>
@@ -116,10 +116,9 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Watch, Mixins } from 'vue-property-decorator'
+import { Component, Mixins } from 'vue-property-decorator'
 import ScreenMixin from './mixin/screenMixin'
 import { DeviceModule } from '@/store/modules/device'
-import { getGroups } from '@/api/group'
 import { Device } from '@/type/device'
 import { Group } from '@/type/group'
 import StatusBadge from '@/components/StatusBadge/index.vue'
@@ -180,7 +179,7 @@ export default class extends Mixins(ScreenMixin) {
   /**
    * 打开分屏视频
    */
-  private openScreen(item: any, node?: any) {
+  private openScreen(item: any) {
     if (item.type === 'ipc') {
       const screen = this.screenList[this.currentIndex]
       if (screen.deviceId) {
@@ -224,6 +223,19 @@ export default class extends Mixins(ScreenMixin) {
       flex: 1;
       display: flex;
       flex-direction: column;
+    }
+  }
+
+  .filter-group {
+    &__label {
+      float: left;
+      margin-right: 10px;
+    }
+    &__in {
+      float: right;
+      color: $textGrey;
+      font-size: 12px;
+      text-transform: uppercase;
     }
   }
 </style>

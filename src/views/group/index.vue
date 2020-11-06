@@ -241,7 +241,7 @@ export default class extends Vue {
   /**
    * 整行可点
    */
-  private rowClick(group: Group, column: any, event: any) {
+  private rowClick(group: Group, column: any) {
     if (column.property !== 'action') {
       this.goToConfig(group)
     }

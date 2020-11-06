@@ -176,6 +176,7 @@ export default class extends Vue {
         // HARDCODE: 针对天翼看家单独判断
         if (this.userType === 'kanjia') {
           params = pick(this.form, ['groupId', 'deviceId', 'storeRegion', 'bucketName', 'streamType', 'streamCode', 'expires'])
+          params.storeRegion = params.storeRegion[params.storeRegion.length - 1]
         } else {
           params = pick(this.form, ['groupId', 'deviceId', 'expires'])
           let tags: string[] = []
