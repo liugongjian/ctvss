@@ -41,7 +41,11 @@ export default class ScreenMixin extends Mixins(DeviceMixin, FullscreenMixin) {
       pageSize: 1000
     }
     const res = await getGroups(params)
-    this.groupList = res.groups.filter((item: Group) => item.inProtocol === 'gb28181')
+    if (routeName === 'screen') {
+      this.groupList = res.groups.filter((item: Group) => item.inProtocol === 'gb28181')
+    } else {
+      this.groupList = res.groups
+    }
     if (this.groupList.length) {
       if (!this.$route.query.groupId) {
         await DeviceModule.SetGroup(this.groupList[0])
@@ -104,7 +108,7 @@ export default class ScreenMixin extends Mixins(DeviceMixin, FullscreenMixin) {
    * 选择视频
    * @param screen 视频
    */
-  public selectDevice(screen: Screen) {
+  public selectDevice() {
     this.dialogs.deviceDir = true
   }
 }

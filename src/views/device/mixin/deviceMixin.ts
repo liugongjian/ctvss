@@ -1,6 +1,8 @@
 import { Component, Provide, Vue } from 'vue-property-decorator'
 import { DeviceModule } from '@/store/modules/device'
 import { getDeviceTree } from '@/api/device'
+import { getStreamList } from '@/api/stream'
+import { Stream } from '@/type/stream'
 
 @Component
 export default class DeviceMixin extends Vue {
@@ -37,6 +39,10 @@ export default class DeviceMixin extends Vue {
     return DeviceModule.group?.groupId
   }
 
+  public get currentGroupInProtocol() {
+    return DeviceModule.group?.inProtocol
+  }
+
   public get breadcrumb() {
     return DeviceModule.breadcrumb ? DeviceModule.breadcrumb : []
   }
@@ -49,11 +55,29 @@ export default class DeviceMixin extends Vue {
     try {
       this.loading.dir = true
       await DeviceModule.ResetBreadcrumb()
-      const res = await getDeviceTree({
-        groupId: this.currentGroupId,
-        id: 0
-      })
-      this.dirList = res.dirs
+      if (this.currentGroupInProtocol === 'rtmp') {
+        let params = {
+          pageNum: 1,
+          pageSize: 1000,
+          groupId: this.currentGroupId
+        }
+        const res = await getStreamList(params)
+        this.dirList = res.streams.map((stream: Stream) => {
+          return {
+            id: stream.deviceId,
+            label: stream.deviceId,
+            type: 'ipc',
+            isLeaf: true,
+            streamStatus: stream.status
+          }
+        })
+      } else {
+        const res = await getDeviceTree({
+          groupId: this.currentGroupId,
+          id: 0
+        })
+        this.dirList = res.dirs
+      }
       this.$nextTick(() => {
         this.initTreeStatus()
       })
@@ -256,7 +280,7 @@ export default class DeviceMixin extends Vue {
       if (width < 50) return
       this.dirDrag.width = width
     })
-    window.addEventListener('mouseup', (e) => {
+    window.addEventListener('mouseup', () => {
       this.dirDrag.isDragging = false
     })
   }
