@@ -5,7 +5,6 @@ import Router, { RouteConfig } from 'vue-router'
 import Layout from '@/layout/index.vue'
 
 /* Router modules */
-import chartsRouter from './modules/charts'
 
 Vue.use(Router)
 
