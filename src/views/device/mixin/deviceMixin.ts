@@ -76,7 +76,7 @@ export default class DeviceMixin extends Vue {
           groupId: this.currentGroupId,
           id: 0
         })
-        this.dirList = res.dirs
+        this.dirList = res.dirs.sort(this.sortDevice)
       }
       this.$nextTick(() => {
         this.initTreeStatus()
@@ -128,15 +128,19 @@ export default class DeviceMixin extends Vue {
    * 加载子目录
    */
   public async loadDirChildren(key: string, node: any) {
-    const dirTree: any = this.$refs.dirTree
-    let data = await getDeviceTree({
-      groupId: this.currentGroupId,
-      id: node.data.id,
-      type: node.data.type
-    })
-    dirTree.updateKeyChildren(key, data.dirs)
-    node.expanded = true
-    node.loaded = true
+    try {
+      const dirTree: any = this.$refs.dirTree
+      let data = await getDeviceTree({
+        groupId: this.currentGroupId,
+        id: node.data.id,
+        type: node.data.type
+      })
+      data.dirs && dirTree.updateKeyChildren(key, data.dirs.sort(this.sortDevice))
+      node.expanded = true
+      node.loaded = true
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   /**
@@ -290,11 +294,25 @@ export default class DeviceMixin extends Vue {
    */
   public async loadDirs(node: any, resolve: Function) {
     if (node.level === 0) return resolve([])
-    const res = await getDeviceTree({
-      groupId: this.currentGroupId,
-      id: node.data.id,
-      type: node.data.type
-    })
-    resolve(res.dirs)
+    try {
+      const res = await getDeviceTree({
+        groupId: this.currentGroupId,
+        id: node.data.id,
+        type: node.data.type
+      })
+      resolve(res.dirs.sort(this.sortDevice))
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  /**
+   * 根据类型排序目录
+   */
+  private sortDevice = (a: any, b: any) => {
+    if (a.type === 'dir') return -1
+    if (a.type === 'nvr' && b.type === 'dir') return 1
+    if (a.type === 'nvr' && b.type === 'ipc') return -1
+    if (a.type === 'ipc') return 1
   }
 }

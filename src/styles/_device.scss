@@ -87,7 +87,7 @@
         }
 
         .custom-tree-node {
-          width: 100%;
+          width: auto;
           .node-name {
             position: relative;
           }
@@ -102,6 +102,7 @@
           .tools {
             position: absolute;
             top: 0;
+            right: 5px;
             display: none;
             background: #F5F7FA;
             .el-button {

@@ -60,7 +60,7 @@
                     <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                     {{ node.label }}
                   </span>
-                  <div v-if="data.type === 'dir'" class="tools" :style="`left: ${dirDrag.width - 80}px`">
+                  <div v-if="data.type === 'dir'" class="tools">
                     <el-tooltip class="item" effect="dark" content="添加子目录" placement="top" :open-delay="300">
                       <el-button type="text" @click.stop="openDialog('createDir', data)"><i class="el-icon-plus" /></el-button>
                     </el-tooltip>
@@ -98,7 +98,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Watch, Mixins } from 'vue-property-decorator'
+import { Component, Watch, Mixins } from 'vue-property-decorator'
 import DeviceMixin from './mixin/deviceMixin'
 import { DeviceModule } from '@/store/modules/device'
 import { getGroups } from '@/api/group'
