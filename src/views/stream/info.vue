@@ -21,9 +21,21 @@
         </info-list>
         <info-list label-width="100" title="播放地址" class="address">
           <info-list-item label="RTMP:">
-            {{ form.playUrl || '-' }}
-            <el-tooltip v-if="form.playUrl" class="item" effect="dark" content="复制链接" placement="top">
-              <el-button type="text" @click="copyUrl(form.playUrl)"><i class="el-icon-copy-document" /></el-button>
+            {{ (form.playUrl && form.playUrl.rtmpUrl) || '-' }}
+            <el-tooltip v-if="form.playUrl && form.playUrl.rtmpUrl" class="item" effect="dark" content="复制链接" placement="top">
+              <el-button type="text" @click="copyUrl(form.playUrl.rtmpUrl)"><i class="el-icon-copy-document" /></el-button>
+            </el-tooltip>
+          </info-list-item>
+          <info-list-item label="FLV:">
+            {{ (form.playUrl && form.playUrl.flvUrl) || '-' }}
+            <el-tooltip v-if="form.playUrl && form.playUrl.flvUrl" class="item" effect="dark" content="复制链接" placement="top">
+              <el-button type="text" @click="copyUrl(form.playUrl.flvUrl)"><i class="el-icon-copy-document" /></el-button>
+            </el-tooltip>
+          </info-list-item>
+          <info-list-item label="HLS:">
+            {{ (form.playUrl && form.playUrl.hlsUrl) || '-' }}
+            <el-tooltip v-if="form.playUrl && form.playUrl.hlsUrl" class="item" effect="dark" content="复制链接" placement="top">
+              <el-button type="text" @click="copyUrl(form.playUrl.hlsUrl)"><i class="el-icon-copy-document" /></el-button>
             </el-tooltip>
           </info-list-item>
         </info-list>
