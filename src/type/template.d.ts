@@ -10,7 +10,7 @@ export interface RecordTemplate {
   recordType: number;
   formatList: Array<RecordTemplateFormat>,
   description?: string;
-  createTime?: string;
+  createdTime?: string;
 }
 
 export interface CallbackTemplate {
@@ -20,7 +20,7 @@ export interface CallbackTemplate {
   deviceStatusUrl?: string;
   callbackKey: string;
   description?: string;
-  createTime?: string;
+  createdTime?: string;
 }
 
 export interface SnapshotTemplate {

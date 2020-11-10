@@ -13,7 +13,7 @@
       <el-table ref="table" v-loading="loading" :data="dataList" fit class="template__table">
         <el-table-column prop="templateName" label="模板名称" min-width="150" />
         <el-table-column prop="description" label="模板备注" />
-        <el-table-column prop="createTime" label="创建时间" min-width="160" />
+        <el-table-column prop="createdTime" label="创建时间" min-width="160" />
         <el-table-column prop="action" class-name="col-action" label="操作" width="250" fixed="right">
           <template slot-scope="scope">
             <el-button type="text" @click="update(scope.row)">编辑</el-button>

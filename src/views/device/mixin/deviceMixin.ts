@@ -76,7 +76,7 @@ export default class DeviceMixin extends Vue {
           groupId: this.currentGroupId,
           id: 0
         })
-        this.dirList = res.dirs.sort(this.sortDevice)
+        this.dirList = res.dirs
       }
       this.$nextTick(() => {
         this.initTreeStatus()
@@ -135,7 +135,7 @@ export default class DeviceMixin extends Vue {
         id: node.data.id,
         type: node.data.type
       })
-      data.dirs && dirTree.updateKeyChildren(key, data.dirs.sort(this.sortDevice))
+      data.dirs && dirTree.updateKeyChildren(key, data.dirs)
       node.expanded = true
       node.loaded = true
     } catch (e) {
@@ -300,19 +300,9 @@ export default class DeviceMixin extends Vue {
         id: node.data.id,
         type: node.data.type
       })
-      resolve(res.dirs.sort(this.sortDevice))
+      resolve(res.dirs)
     } catch (e) {
       console.log(e)
     }
-  }
-
-  /**
-   * 根据类型排序目录
-   */
-  private sortDevice = (a: any, b: any) => {
-    if (a.type === 'dir') return -1
-    if (a.type === 'nvr' && b.type === 'dir') return 1
-    if (a.type === 'nvr' && b.type === 'ipc') return -1
-    if (a.type === 'ipc') return 1
   }
 }

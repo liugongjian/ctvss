@@ -30,8 +30,8 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="CreateTime" label="创建时间" min-width="160" />
-        <el-table-column prop="UpdateTime" label="上次访问时间" min-width="160" />
+        <el-table-column prop="createdTime" label="创建时间" min-width="160" />
+        <el-table-column prop="updatedTime" label="上次访问时间" min-width="160" />
         <el-table-column label="状态">
           <template slot-scope="{row}">
             <status-badge :status="row.status ? 'on' : 'warning'" />

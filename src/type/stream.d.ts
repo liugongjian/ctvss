@@ -9,7 +9,7 @@ export interface Stream {
   streamCode?: string;
   expires?: number;
   status?: string;
-  createTime?: string;
+  createdTime?: string;
   streamName?: string;
   playUrl?: string;
   tags?: Array<any>;

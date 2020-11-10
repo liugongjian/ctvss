@@ -20,7 +20,7 @@
           {{ row.status === 'off' ? '下线':'在线' }}
         </template>
       </el-table-column>
-      <el-table-column prop="createTime" label="创建时间" />
+      <el-table-column prop="createdTime" label="创建时间" />
       <el-table-column key="startTime" label="开始推流时间">
         <template slot-scope="{row}">
           {{ row.startTime || '-' }}
@@ -102,9 +102,7 @@ export default class extends Vue {
     try {
       const res = await getStreamList(params)
       this.streamList = res.streams
-      this.pager.pageNum = res.pageNum
       this.pager.total = res.totalNum
-      this.pager.pageSize = res.pageSize
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
