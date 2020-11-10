@@ -151,6 +151,10 @@ export default class extends Vue {
       try {
         const res = await queryGroup({ groupId: this.form.groupId })
         res.outProtocol = res.outProtocol.split(',')
+        let arr: String[] = []
+        arr.push(res.region.substring(0, 3))
+        arr.push(res.region)
+        res.region = arr
         this.form = res
       } catch (e) {
         this.$message.error(e && e.message)
