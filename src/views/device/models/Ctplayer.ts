@@ -2,6 +2,7 @@
 import flvjs from 'flv.js/src/flv.js'
 import Hls from 'hls.js'
 import { dateFormat } from '@/utils/date'
+import { prepareUrl, srsRtcPlayerAsync } from '@/utils/webrtc'
 // import '@/libs/h265/goldplay.css'
 
 export default class Ctplayer {
@@ -52,7 +53,7 @@ export default class Ctplayer {
   }
 
   private init() {
-    this.type = this.type || this.getType(this.source)
+    this.type = this.type || this.getType()
     if (!this.type) {
       throw new Error('不支持当前视频类型')
     }
@@ -75,6 +76,8 @@ export default class Ctplayer {
         return this.createFlv(wrapElement)
       case 'hls':
         return this.createHls(wrapElement)
+      case 'rtc':
+        return this.createRtc(wrapElement)
       case 'mp4':
         return this.createDefault(wrapElement)
       case 'h265-flv':
@@ -138,6 +141,9 @@ export default class Ctplayer {
           this.hls && this.hls.destroy()
           this.flv && this.flv.destroy()
           break
+        case 'rtc':
+          this.player.stop()
+          break
         case 'mp4':
           this.player.stop()
           break
@@ -180,6 +186,7 @@ export default class Ctplayer {
     switch (this.type) {
       case 'flv':
       case 'hls':
+      case 'rtc':
       case 'mp4':
       case 'h265-flv':
         this.player.play()
@@ -194,6 +201,7 @@ export default class Ctplayer {
     switch (this.type) {
       case 'flv':
       case 'hls':
+      case 'rtc':
       case 'mp4':
       case 'h265-flv':
         this.player.pause()
@@ -358,13 +366,9 @@ export default class Ctplayer {
     flvPlayer.load()
     flvPlayer.play()
     flvPlayer.on(flvjs.Events.ERROR, (e: any) => {
-      // console.log('ERROR', e)
       if (e === flvjs.ErrorTypes.NETWORK_ERROR) {
         this.onRetry && this.onRetry()
       }
-    })
-    flvPlayer.on(flvjs.Events.STATISTICS_INFO, (e: any) => {
-      // console.log('STATISTICS_INFO', e)
     })
     flvPlayer.on(flvjs.Events.METADATA_ARRIVED, (e: any) => {
       console.log('METADATA_ARRIVED', e)
@@ -407,10 +411,36 @@ export default class Ctplayer {
     return videoElement
   }
 
+  private createRtc(wrapElement: any) {
+    if (!window.RTCPeerConnection) {
+      throw new Error('当前浏览器不支持Webrtc播放器')
+    }
+    const videoElement: HTMLVideoElement = document.createElement('video')
+    videoElement.controls = this.hasControl
+    wrapElement.innerHTML = ''
+    wrapElement.append(videoElement)
+
+    const conf = prepareUrl(this.source)
+    const sdk = srsRtcPlayerAsync()
+    sdk.onaddstream = (event) => {
+      videoElement.srcObject = event.stream
+      this.autoPlayVideo(videoElement, videoElement)
+    }
+
+    sdk.play(conf.apiUrl, conf.streamUrl).then((session) => {
+      console.log(session)
+    }).catch((error) => {
+      sdk.close()
+      throw new Error(error)
+    })
+    return videoElement
+  }
+
   /**
    * 默认方式播放
    */
   private createDefault(wrapElement: any) {
+    // TODO
     wrapElement.src = this.source
     return wrapElement
   }
@@ -446,7 +476,7 @@ export default class Ctplayer {
   /**
    * 根据后缀检查视频类型
    */
-  private getType(url: string) {
+  private getType() {
     const a = document.createElement('a')
     a.href = this.source
     const allowType = ['flv', 'mp4', 'm3u8']

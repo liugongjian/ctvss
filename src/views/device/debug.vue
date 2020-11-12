@@ -7,6 +7,7 @@
           <el-select v-model="form.codec">
             <el-option value="flv" label="FLV - 264" />
             <el-option value="hls" label="HLS - 264" />
+            <el-option value="rtc" label="Webrtc - 264" />
             <el-option value="h265-flv" label="FLV - 265" />
             <el-option value="h265-hls" label="HLS - 265" />
           </el-select>
@@ -24,12 +25,12 @@
       </el-form>
     </div>
     <div class="player__body">
-      <player v-if="url" ref="player" :type="codec" :url="url" :auto-play="true" :is-live="isLive" @onRetry="onRetry" />
+      <player v-if="url" ref="player" :type="codec" :url="url" :auto-play="true" :has-control="false" :is-live="isLive" @onRetry="onRetry" />
     </div>
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Watch, Mixins } from 'vue-property-decorator'
+import { Component, Vue } from 'vue-property-decorator'
 import Player from './components/Player.vue'
 
 @Component({
@@ -43,6 +44,23 @@ export default class extends Vue {
   private codec = ''
   private url = ''
   private isLive = false
+
+  private mounted() {
+    // const conf = prepareUrl('webrtc://d.ossrs.net:11985/live/livestream')
+    // const sdk = srsRtcPlayerAsync()
+    // console.log(sdk)
+    // sdk.onaddstream = function (event) {
+    //     console.log('Start play, event: ', event.stream);
+    //     document.getElementById('rtc_media_player').srcObject = event.stream;
+    // };
+
+    // sdk.play(conf.apiUrl, conf.streamUrl).then(function(session){
+    //     console.log(session)
+    // }).catch(function (reason) {
+    //   console.log(reason)
+    //     sdk.close();
+    // });
+  }
 
   private generate() {
     this.url = ''
