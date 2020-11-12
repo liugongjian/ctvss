@@ -370,6 +370,10 @@
     bottom: 0;
     height: 100%;
     border: none;
+    
+    .screen-item {
+      border-color: #222;
+    }
   }
   .screen-item.fullscreen {
     .screen__tools {
