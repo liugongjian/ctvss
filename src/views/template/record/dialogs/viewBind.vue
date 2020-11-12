@@ -7,13 +7,18 @@
     @close="closeDialog"
   >
     <el-table
+      v-loading="loading"
       :data="bindData"
       class="bind-table"
     >
       <el-table-column
         prop="name"
         label="业务组/设备名称"
-      />
+      >
+        <template slot-scope="{row}">
+          {{ row.name || row.id }}
+        </template>
+      </el-table-column>
       <el-table-column
         :filters="filtersArray"
         :filter-method="filterHandler"
