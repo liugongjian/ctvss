@@ -114,7 +114,7 @@ export const prepareUrl = (url: string) => {
 
   // If user specifies the schema, use it as API schema.
   var schema = urlObject.userQuery.schema
-  schema = schema? schema + ':' : window.location.protocol
+  schema = schema ? schema + ':' : window.location.protocol
 
   var port = urlObject.port || 1985
   if (schema === 'https:') {

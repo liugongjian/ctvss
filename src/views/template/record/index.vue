@@ -198,7 +198,7 @@ export default class extends Vue {
   /**
    * 单击行
    */
-  private rowClick(row: any, column: any, event: any) {
+  private rowClick(row: any, column: any) {
     if (column.property !== 'action') {
       const $table: any = this.$refs.table
       $table.toggleRowExpansion(row)

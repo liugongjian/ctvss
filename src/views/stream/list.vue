@@ -140,7 +140,7 @@ export default class extends Vue {
     })
   }
 
-  private rowClick(stream: Stream, column: any, event: any) {
+  private rowClick(stream: Stream, column: any) {
     if (column.property !== 'action') {
       this.goToInfo(stream)
     }

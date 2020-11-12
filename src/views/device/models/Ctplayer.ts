@@ -422,14 +422,14 @@ export default class Ctplayer {
 
     const conf = prepareUrl(this.source)
     const sdk = srsRtcPlayerAsync()
-    sdk.onaddstream = (event) => {
+    sdk.onaddstream = (event: any) => {
       videoElement.srcObject = event.stream
       this.autoPlayVideo(videoElement, videoElement)
     }
 
-    sdk.play(conf.apiUrl, conf.streamUrl).then((session) => {
+    sdk.play(conf.apiUrl, conf.streamUrl).then((session: any) => {
       console.log(session)
-    }).catch((error) => {
+    }).catch((error: any) => {
       sdk.close()
       throw new Error(error)
     })
