@@ -5,8 +5,8 @@
       <player
         v-if="address"
         ref="video"
-        :type="codec"
-        :url="address.flvUrl"
+        type="rtc"
+        :url="`webrtc://218.78.82.199:1985/live/${deviceId}`"
         :auto-play="true"
         :is-ws="true"
         :is-live="true"
