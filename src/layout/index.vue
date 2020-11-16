@@ -1,7 +1,7 @@
 <template>
   <div
+    :class="classObj"
     class="app-wrapper"
-    :class="[{'hide-header': !isShowHeader}, classObj]"
   >
     <div
       v-if="classObj.mobile && sidebar.opened"
@@ -12,7 +12,6 @@
     <div
       class="main-container"
     >
-      <svg-icon class="header-toggle" name="arrow-down" width="9" height="9" @click="toggleHeader" />
       <div :class="{'fixed-header': fixedHeader}">
         <navbar />
       </div>
@@ -42,8 +41,6 @@ import ResizeMixin from './mixin/resize'
   }
 })
 export default class extends mixins(ResizeMixin) {
-  public isShowHeader = true
-
   get classObj() {
     return {
       hideSidebar: !this.sidebar.opened,
@@ -67,10 +64,6 @@ export default class extends mixins(ResizeMixin) {
 
   private handleClickOutside() {
     AppModule.CloseSideBar(false)
-  }
-
-  private toggleHeader() {
-    this.isShowHeader = !this.isShowHeader
   }
 }
 </script>
@@ -169,27 +162,6 @@ export default class extends mixins(ResizeMixin) {
   .main-container,
   .sidebar-container {
     transition: none;
-  }
-}
-
-.header-toggle {
-  position: absolute;
-  top: 95px;
-  right: 30px;
-  cursor: pointer;
-  transform: rotate(180deg);
-  z-index: 100;
-  color: #bbb;
-}
-
-.hide-header {
-  .navbar, ::v-deep .app-container > .filter-container {
-    display: none;
-  }
-
-  .header-toggle {
-    top: 5px;
-    transform: rotate(0);
   }
 }
 </style>
