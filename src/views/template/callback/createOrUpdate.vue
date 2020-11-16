@@ -24,6 +24,10 @@
           <el-input v-model="form.deviceStatusUrl" class="fixed-width" />
           <div class="form-tip">设备状态回调URL，以http、https等开头</div>
         </el-form-item>
+        <el-form-item label="流状态回调:" prop="streamStatusUrl" class="form-with-tip">
+          <el-input v-model="form.streamStatusUrl" class="fixed-width" />
+          <div class="form-tip">流状态回调URL，以http、https等开头</div>
+        </el-form-item>
         <el-form-item label="回调KEY:" prop="callbackKey" class="form-with-tip">
           <el-input v-model="form.callbackKey" class="fixed-width" />
         </el-form-item>
@@ -61,6 +65,9 @@ export default class extends Vue {
     deviceStatusUrl: [
       { validator: this.validateDeviceStatusCallbackUrl, trigger: 'blur' }
     ],
+    streamStatusUrl: [
+      { validator: this.validateStreamStatusCallbackUrl, trigger: 'blur' }
+    ],
     callbackKey: [
       { required: true, message: '请输入回调KEY', trigger: 'blur' }
     ]
@@ -71,6 +78,7 @@ export default class extends Vue {
     templateName: '',
     recordNotifyUrl: '',
     deviceStatusUrl: '',
+    streamStatusUrl: '',
     callbackKey: '',
     description: ''
   }
@@ -114,12 +122,20 @@ export default class extends Vue {
     }
   }
 
+  private validateStreamStatusCallbackUrl(rule: any, value: string, callback: Function) {
+    if (!this.urlReg.test(value)) {
+      callback(new Error('流状态回调地址格式不正确，请重新输入'))
+    } else {
+      callback()
+    }
+  }
+
   private back() {
     this.$router.push('/template/callback')
   }
 
   private submit() {
-    if (!this.form.recordNotifyUrl && !this.form.deviceStatusUrl) {
+    if (!this.form.recordNotifyUrl && !this.form.deviceStatusUrl && !this.form.streamStatusUrl) {
       this.$message.error('请至少填写一个回调地址！')
       return
     }
@@ -132,6 +148,7 @@ export default class extends Vue {
           templateName: this.form.templateName,
           recordNotifyUrl: this.form.recordNotifyUrl,
           deviceStatusUrl: this.form.deviceStatusUrl,
+          streamStatusUrl: this.form.streamStatusUrl,
           callbackKey: this.form.callbackKey,
           description: this.form.description
         }

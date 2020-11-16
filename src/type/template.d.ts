@@ -18,6 +18,7 @@ export interface CallbackTemplate {
   templateName: string;
   recordNotifyUrl: string;
   deviceStatusUrl?: string;
+  streamStatusUrl?: string;
   callbackKey: string;
   description?: string;
   createdTime?: string;
