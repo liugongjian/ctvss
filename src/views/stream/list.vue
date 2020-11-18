@@ -17,7 +17,7 @@
       <el-table-column prop="status" label="流状态">
         <template slot-scope="{row}">
           <status-badge :status="row.status" />
-          {{ row.status === 'off' ? '下线':'在线' }}
+          {{ streamStatus[row.status] }}
         </template>
       </el-table-column>
       <el-table-column prop="createdTime" label="创建时间" />
@@ -49,6 +49,7 @@
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { getStreamList } from '@/api/stream'
 import { Stream } from '@/type/stream'
+import { StreamStatus } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 
 @Component({
@@ -59,6 +60,7 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 })
 
 export default class extends Vue {
+  private streamStatus = StreamStatus
   private groupId = ''
   private streamList: Array<Stream> = []
   private pager = {

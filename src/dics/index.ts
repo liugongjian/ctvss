@@ -83,3 +83,13 @@ export const TransPriority = {
   tcp: '是',
   udp: '否'
 }
+
+export const StreamStatus = {
+  'on': '在线',
+  'off': '离线'
+}
+
+export const StreamType = {
+  1: '全量视频',
+  2: '移动侦测'
+}

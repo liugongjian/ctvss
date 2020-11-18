@@ -256,7 +256,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Watch, Mixins } from 'vue-property-decorator'
+import { Component, Watch, Mixins } from 'vue-property-decorator'
 import { DeviceModule } from '@/store/modules/device'
 import { Group } from '@/type/group'
 import { Device } from '@/type/device'
@@ -268,7 +268,6 @@ import ReplayView from './components/ReplayView.vue'
 import DeviceDir from './components/dialogs/DeviceDir.vue'
 import PtzControl from './components/ptzControl.vue'
 import { getDeviceTree } from '@/api/device'
-import { clear } from 'console'
 
 @Component({
   name: 'Screen',
@@ -383,7 +382,7 @@ export default class extends Mixins(ScreenMixin) {
   /**
    * 打开分屏视频
    */
-  private openScreen(item: any, node?: any) {
+  private openScreen(item: any) {
     if (this.polling.isStart) {
       this.$message({
         message: '请先关闭轮巡再进行选择',

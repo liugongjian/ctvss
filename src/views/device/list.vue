@@ -160,7 +160,7 @@ import { Device } from '@/type/device'
 import { DeviceStatus, DeviceType, SipTransType, StreamTransType, TransPriority } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MoveDir from './components/dialogs/MoveDir.vue'
-import { getDevice, getDevices, getChannels, deleteDevice, startDevice, stopDevice } from '@/api/device'
+import { getDevice, getDevices, deleteDevice, startDevice, stopDevice } from '@/api/device'
 
 @Component({
   name: 'DeviceList',

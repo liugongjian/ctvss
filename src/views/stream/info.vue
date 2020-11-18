@@ -10,12 +10,12 @@
             <info-list-item label="业务ID:">{{ form.streamCode || '-' }}</info-list-item>
             <info-list-item label="存储区域:">{{ form.storeRegion || '-' }}</info-list-item>
             <info-list-item label="存储桶:">{{ form.bucketName || '-' }}</info-list-item>
-            <info-list-item label="流类型:">{{ form.steamType ? ( form.steamType === 1 ? '全量视频' : '移动侦测') : '-' }}</info-list-item>
+            <info-list-item label="流类型:">{{ streamType[form.steamType] || '-' }}</info-list-item>
             <info-list-item label="视频编码:">{{ form.video && form.video.codec || '-' }}</info-list-item>
           </template>
           <info-list-item label="开始推流时间:">{{ form.startTime || '-' }}</info-list-item>
           <info-list-item label="过期时间:">{{ form.expires || '-' }}</info-list-item>
-          <info-list-item label="流状态:">{{ form.status === 'off' ? '下线' : '在线' }}</info-list-item>
+          <info-list-item label="流状态:">{{ streamStatus[form.status] }}</info-list-item>
         </info-list>
         <info-list label-width="100" title="推流地址" class="address">
           <info-list-item label="RTMP:">
@@ -55,6 +55,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import { StreamStatus, StreamType } from '@/dics'
 import { Stream } from '@/type/stream'
 import { getStream } from '@/api/stream'
 import { UserModule } from '@/store/modules/user'
@@ -68,6 +69,8 @@ import copy from 'copy-to-clipboard'
   }
 })
 export default class extends Vue {
+  private streamStatus = StreamStatus
+  private streamType = StreamType
   private activeName = 'info'
   private groupId = ''
   private form: Stream = {
