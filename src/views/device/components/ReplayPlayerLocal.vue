@@ -62,11 +62,9 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop, Watch, Mixins } from 'vue-property-decorator'
-import { dateFormat } from '@/utils/date'
+import { Component, Prop, Watch, Mixins } from 'vue-property-decorator'
 import { getDevicePreview } from '@/api/device'
 import ReplayPlayerMixin from '@/views/device/mixin/replayPlayerMixin'
-import { stubFalse } from 'lodash'
 
 @Component({
   name: 'ReplayPlayerLocal'
@@ -80,13 +78,13 @@ export default class extends Mixins(ReplayPlayerMixin) {
   private errorMessage = ''
 
   @Watch('startTime')
-  private onStartTimeChange(startTime: number) {
+  private onStartTimeChange() {
     this.setHandlePosition()
     this.getDevicePreview()
   }
 
   @Watch('currentDate')
-  private onCurrentDateChange(startTime: number) {
+  private onCurrentDateChange() {
     this.currentTime = this.startTime = this.currentDate!
   }
 

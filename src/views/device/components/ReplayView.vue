@@ -28,7 +28,8 @@
     </div>
     <template v-if="viewType === 'timeline'">
       <replay-player
-        v-if="replayType === 'cloud'"
+        v-if="replayType === 'cloud' && recordList.length"
+        ref="replayPlayer"
         v-loading="loading"
         :current-date="currentDate"
         :record-list="recordList"
@@ -79,7 +80,7 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { dateFormatInTable, dateFormat, durationFormatInTable } from '@/utils/date'
 import Ctplayer from '../models/Ctplayer'
-import { getDeviceRecords, getDeviceRecord } from '@/api/device'
+import { getDeviceRecords, getDeviceRecord, getDeviceRecordStatistic, getDeviceRecordRule } from '@/api/device'
 import ReplayPlayerDialog from './dialogs/ReplayPlayer.vue'
 import SliceDownloadDialog from './dialogs/SliceDownload.vue'
 import ReplayPlayer from './ReplayPlayer.vue'
@@ -117,9 +118,25 @@ export default class extends Vue {
   private loading = false
   private recordList: Array<any> = []
   private recordListSlice: Array<any> = []
+  private recordStatistic: Map<string, any> = new Map()
   private pickerOptions = {
     disabledDate(time: any) {
       return time.getTime() > Date.now()
+    },
+    cellClassName: (date: any) => {
+      const monthStr = `${date.getFullYear()}-${date.getMonth() + 1}`
+      const dateStr = monthStr + `-${date.getDate()}`
+      const month = this.recordStatistic.get(monthStr)
+      const hasRecords = month ? month.has(dateStr) : ''
+      return hasRecords ? 'has-records' : ''
+    },
+    changeCalendar: (date: any) => {
+      const monthStr = `${date.getFullYear()}-${date.getMonth()}`
+      if (!this.recordStatistic.has(monthStr)) {
+        const startTime = Math.floor(new Date(date.getFullYear(), date.getMonth() - 1).getTime() / 1000)
+        const endTime = Math.floor(new Date(date.getFullYear(), date.getMonth() + 1).getTime() / 1000)
+        this.getRecordStatistic(startTime, endTime)
+      }
     }
   }
   private dialog = {
@@ -131,9 +148,14 @@ export default class extends Vue {
     pageSize: 10,
     total: 0
   }
+  private recordInterval: any = null
 
   private async mounted() {
     await this.init()
+  }
+
+  private async destroyed() {
+    clearInterval(this.recordInterval)
   }
 
   @Watch('$route.query')
@@ -146,7 +168,16 @@ export default class extends Vue {
    * 初始化
    */
   private async init() {
+    // 获得最近两月录像统计
+    const current = new Date()
+    const startTime = Math.floor(new Date(current.getFullYear(), current.getMonth() - 1).getTime() / 1000)
+    const endTime = Math.floor(new Date().getTime() / 1000)
+    this.getRecordStatistic(startTime, endTime)
+    clearInterval(this.recordInterval)
+    this.recordList = []
     await this.getRecordList()
+    // 定时轮询新录像
+    this.getLatestRecord()
   }
 
   /**
@@ -159,28 +190,94 @@ export default class extends Vue {
   /**
    * 获取回放列表
    */
-  private async getRecordList() {
+  private async getRecordList(startTime?: number) {
     try {
       this.loading = true
       const res = await getDeviceRecords({
         deviceId: this.deviceId,
-        startTime: this.currentDate / 1000,
+        startTime: startTime || this.currentDate / 1000,
         endTime: this.currentDate / 1000 + 24 * 60 * 60,
         pageSize: 9999
       })
-      this.recordList = res.records.map((record: any, index: number) => {
-        record.startAt = new Date(record.startTime).getTime()
-        record.loading = false
-        record.index = index
-        return record
-      })
-      this.pager.total = res.totalNum
+      // 追加最新的录像
+      if (startTime) {
+        const recordLength = this.recordList.length
+        res.records.forEach((record: any, index: number) => {
+          record.startAt = new Date(record.startTime).getTime()
+          record.loading = false
+          record.index = recordLength + index
+          if (!~this.recordList.findIndex(_record => {
+            return record.startTime === _record.startTime
+          })) {
+            this.recordList.push(record)
+          }
+        })
+        if (res.records) {
+          const replayPlayer: any = this.$refs.replayPlayer
+          replayPlayer.loadedNewRecords(res.records.length)
+        }
+      } else {
+        this.recordList = res.records.map((record: any, index: number) => {
+          record.startAt = new Date(record.startTime).getTime()
+          record.loading = false
+          record.index = index
+          return record
+        })
+        this.pager.total = res.totalNum
+      }
       this.getRecordListByPage()
     } catch (e) {
-      this.recordList = []
       console.log(e)
     } finally {
       this.loading = false
+    }
+  }
+
+  /**
+   * 获取日历统计
+   */
+  private async getRecordStatistic(startTime: number, endTime: number) {
+    try {
+      const res = await getDeviceRecordStatistic({
+        deviceId: this.deviceId,
+        startTime: startTime,
+        endTime: endTime
+      })
+      res.records.forEach((statistic: any) => {
+        const monthArray = statistic.day.match(/\d+-\d+/)
+        const month = monthArray ? monthArray[0] : null
+        if (this.recordStatistic.has(month)) {
+          this.recordStatistic.get(month).add(statistic.day)
+        } else {
+          this.recordStatistic.set(month, new Set())
+        }
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  /**
+   * 定时轮询新录像
+   */
+  private async getLatestRecord() {
+    const recordListLength = this.recordList.length
+    if (!recordListLength) return
+    try {
+      // 获取录制规则
+      const res = await getDeviceRecordRule({
+        deviceId: this.deviceId
+      })
+      const interval = res.interval
+      if (interval) {
+        this.recordInterval = setInterval(() => {
+          const lastRecord = this.recordList[recordListLength - 1]
+          const startTime = Math.floor(new Date(lastRecord.endTime).getTime() / 1000)
+          this.getRecordList(startTime)
+        }, interval * 1000)
+      }
+    } catch (e) {
+      console.log(e)
     }
   }
 

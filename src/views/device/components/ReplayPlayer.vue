@@ -64,8 +64,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop, Watch, Mixins } from 'vue-property-decorator'
-import { dateFormat } from '@/utils/date'
+import { Component, Watch, Mixins } from 'vue-property-decorator'
 import ReplayPlayerMixin from '@/views/device/mixin/replayPlayerMixin'
 
 @Component({
@@ -78,7 +77,7 @@ export default class extends Mixins(ReplayPlayerMixin) {
 
   @Watch('recordList')
   public onRecordListChanged() {
-    this.init()
+    this.timePositionList = this.calcVideoPosition(this.recordList)
   }
 
   /**
@@ -96,7 +95,7 @@ export default class extends Mixins(ReplayPlayerMixin) {
     if (this.recordList.length) {
       if (this.startTime) {
         this.currentTime = this.startTime
-        this.setRecordByCurrentTime(true)
+        this.setRecordByCurrentTime()
       } else {
         this.currentRecord = this.recordList[0]
         this.$nextTick(() => {
@@ -141,6 +140,17 @@ export default class extends Mixins(ReplayPlayerMixin) {
         this.setCurrentTime(0)
         this.player && this.player.reset()
       })
+    }
+  }
+
+  /**
+   * 已加载新录像
+   */
+  public loadedNewRecords(length: number) {
+    let index = this.recordList.findIndex(record => this.currentRecord.index === record.index)
+    // 最后一段并暂停时播放下一段
+    if (this.recordList.length - length - 1 === index && this.player.paused) {
+      this.playNextRecord()
     }
   }
 }

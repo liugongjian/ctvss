@@ -52,7 +52,7 @@
 import SetRecordTemplate from './dialogs/SetRecordTemplate.vue'
 import SetCallBackTemplate from './dialogs/SetCallBackTemplate.vue'
 import { RecordTemplate } from '@/type/template'
-import { getStream, getStreamRecordTemplate, getStreamCallBackTemplate } from '@/api/stream'
+import { getStreamRecordTemplate, getStreamCallBackTemplate } from '@/api/stream'
 import { getGroupRecordTemplate, getGroupCallbackTemplate } from '@/api/group'
 import { getDeviceRecordTemplate, getDeviceCallbackTemplate } from '@/api/device'
 import { Component, Vue, Prop } from 'vue-property-decorator'
@@ -93,6 +93,7 @@ export default class extends Vue {
       this.recordTemplateId = this.template.recordTemplate[0].templateId!
     }
   }
+
   private async getRecordTemplate() {
     try {
       this.loading.record = true

@@ -74,6 +74,20 @@ export const getDeviceRecord = (params: any): Promise<any> =>
     params
   })
 
+export const getDeviceRecordRule = (params: any): Promise<any> =>
+  request({
+    url: '/record/rule',
+    method: 'get',
+    params
+  })
+
+export const getDeviceRecordStatistic = (params: any): Promise<any> =>
+  request({
+    url: '/record/statistic',
+    method: 'get',
+    params
+  })
+
 export const getDeviceRecordTemplate = (params: any): Promise<any> =>
   request({
     url: '/device/record',

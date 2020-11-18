@@ -85,7 +85,6 @@ export default class extends Vue {
    */
   public moveHandleStart(e: MouseEvent) {
     this.handleDrag.isDragging = true
-    const $dirList: any = this.$refs.dirList
     const $timeline: any = this.$refs.timeline
     this.handleDrag.timelineSize = $timeline.getBoundingClientRect()
     const $handle: any = this.$refs.handle
@@ -108,7 +107,7 @@ export default class extends Vue {
   /**
    * 拖拽游标后抬起鼠标
    */
-  public onHandleMouseup(e: MouseEvent) {
+  public onHandleMouseup() {
     this.handleDrag.isDragging = false
     window.removeEventListener('mousemove', this.onHandleMove)
     window.removeEventListener('mouseup', this.onHandleMouseup)
@@ -154,7 +153,7 @@ export default class extends Vue {
   /**
    * 根据当前时间选择录像切片
    */
-  public setRecordByCurrentTime(backToStart = false) {
+  public setRecordByCurrentTime() {
     const currentTime = this.currentTime!
     let record = this.recordList.find(record => {
       return (currentTime! >= record.startAt) && (currentTime! <= (record.startAt + record.duration * 1000))
