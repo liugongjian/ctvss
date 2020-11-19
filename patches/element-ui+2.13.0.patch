@@ -1,0 +1,32 @@
+diff --git a/node_modules/element-ui/lib/element-ui.common.js b/node_modules/element-ui/lib/element-ui.common.js
+index a425343..bf8a8b6 100644
+--- a/node_modules/element-ui/lib/element-ui.common.js
++++ b/node_modules/element-ui/lib/element-ui.common.js
+@@ -18385,9 +18385,11 @@ date_table_component.options.__file = "packages/date-picker/src/basic/date-table
+ 
+     prevMonth: function prevMonth() {
+       this.date = Object(date_util_["prevMonth"])(this.date);
++      this.changeCalendar && this.changeCalendar(this.date);
+     },
+     nextMonth: function nextMonth() {
+       this.date = Object(date_util_["nextMonth"])(this.date);
++      this.changeCalendar && this.changeCalendar(this.date);
+     },
+     prevYear: function prevYear() {
+       if (this.currentView === 'year') {
+@@ -18395,6 +18397,7 @@ date_table_component.options.__file = "packages/date-picker/src/basic/date-table
+       } else {
+         this.date = Object(date_util_["prevYear"])(this.date);
+       }
++      this.changeCalendar && this.changeCalendar(this.date);
+     },
+     nextYear: function nextYear() {
+       if (this.currentView === 'year') {
+@@ -18402,6 +18405,7 @@ date_table_component.options.__file = "packages/date-picker/src/basic/date-table
+       } else {
+         this.date = Object(date_util_["nextYear"])(this.date);
+       }
++      this.changeCalendar && this.changeCalendar(this.date);
+     },
+     handleShortcutClick: function handleShortcutClick(shortcut) {
+       if (shortcut.onClick) {
