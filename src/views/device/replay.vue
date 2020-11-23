@@ -212,7 +212,6 @@ export default class extends Mixins(ScreenMixin) {
       }
       .offline .node-name {
         cursor: not-allowed;
-        color: #aaa;
         .svg-icon {
           color: #ccc;
         }

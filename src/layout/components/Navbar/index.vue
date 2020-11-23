@@ -23,6 +23,24 @@
           <size-select class="right-menu-item hover-effect" />
         </el-tooltip>
       </template> -->
+      <div class="search-box">
+        <div class="search-box__form" @click.stop="focusSearch">
+          <span class="search-box__placeholder">搜索设备</span>
+          <span class="search-box__icon"><svg-icon name="search" width="15" height="15" /></span>
+        </div>
+        <div ref="searchBoxPopup" class="search-box__popup" @click.stop>
+          <div class="search-box__popup__close" @click="closeSearchPopup">
+            <svg-icon name="close" width="12" height="12" />
+          </div>
+          <div class="search-box__popup__types">搜索设备</div>
+          <el-form class="search-box__popup__form" @submit.native.prevent>
+            <el-input ref="searchBoxPopupInput" v-model="searchForm.deviceId" placeholder="请输入设备ID" />
+            <el-button type="text" native-type="submit" @click="search">
+              <svg-icon name="search" width="15" height="15" />
+            </el-button>
+          </el-form>
+        </div>
+      </div>
       <div class="links">
         <a target="_blank" href="/document/api/">API文档</a>
       </div>
@@ -43,8 +61,10 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import { trim } from 'lodash'
 import { AppModule } from '@/store/modules/app'
 import { UserModule } from '@/store/modules/user'
+import { getDevice } from '@/api/device'
 import Breadcrumb from '@/components/Breadcrumb/index.vue'
 import ErrorLog from '@/components/ErrorLog/index.vue'
 import Hamburger from '@/components/Hamburger/index.vue'
@@ -64,6 +84,10 @@ import SizeSelect from '@/components/SizeSelect/index.vue'
   }
 })
 export default class extends Vue {
+  public searchForm = {
+    deviceId: ''
+  }
+
   get sidebar() {
     return AppModule.sidebar
   }
@@ -87,6 +111,39 @@ export default class extends Vue {
   private async logout() {
     await UserModule.LogOut()
     this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+  }
+
+  private focusSearch() {
+    const searchBoxPopup: any = this.$refs.searchBoxPopup
+    searchBoxPopup.style.display = 'block'
+    document.body.addEventListener('click', this.closeSearchPopup)
+    const searchBoxPopupInput: any = this.$refs.searchBoxPopupInput
+    searchBoxPopupInput.focus()
+  }
+
+  private closeSearchPopup() {
+    const searchBoxPopup: any = this.$refs.searchBoxPopup
+    searchBoxPopup.style.display = 'none'
+  }
+
+  private async search() {
+    try {
+      const deviceId = trim(this.searchForm.deviceId)
+      const res = await getDevice({
+        deviceId: deviceId
+      })
+      this.$router.push({
+        name: 'device-detail',
+        query: {
+          type: 'detail',
+          deviceId: deviceId,
+          groupId: res.groupId,
+          inProtocol: res.inProtocol
+        }
+      })
+    } catch (e) {
+      this.$message.error(`未搜索到设备ID:"${this.searchForm.deviceId}"`)
+    }
   }
 }
 </script>
@@ -233,6 +290,69 @@ export default class extends Vue {
           right: -15px;
           top: 19px;
           font-size: 12px;
+        }
+      }
+    }
+  }
+
+  .search-box {
+    position: relative;
+    margin-right: 20px;
+    &__form {
+      display: flex;
+      justify-content: space-between;
+      width: 150px;
+      padding: 0 10px;
+      border: 1px solid $borderGrey;
+      border-top: none;
+      border-bottom: none;
+      height: 50px;
+      line-height: 50px;
+      color: $textGrey;
+      background: #fff;
+      cursor: pointer;
+      transition: background-color 200ms;
+      &:hover {
+        background: #f4f4f4;
+        color: $text;
+        .search-box__icon {
+          color: $primary;
+        }
+      }
+    }
+    &__popup {
+      display: none;
+      position: absolute;
+      background: #fff;
+      width: 400px;
+      top: 0;
+      right: 0;
+      padding: 15px;
+      z-index: 10;
+      line-height: 100%;
+      color: $text;
+      border-radius: 2px;
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, .15);
+      transition: all 2000ms;
+
+      &__close {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        cursor: pointer;
+        transition: color 200ms;
+        &:hover {
+          color: $primary;
+        }
+      }
+      &__types {
+        margin-bottom: 10px;
+      }
+      &__form {
+        display: flex;
+        .el-button {
+          color: $text;
+          margin-left: 10px;
         }
       }
     }
