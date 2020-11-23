@@ -183,12 +183,12 @@ export default class extends Vue {
 
   private mounted() {
     this.createPlayer()
-    if (this.isLive) window.addEventListener('focus', this.reloadPlayer)
+    if (this.isLive) document.addEventListener('visibilitychange', this.reloadPlayer)
   }
 
   private beforeDestroy() {
     this.disposePlayer()
-    if (this.isLive) window.removeEventListener('focus', this.reloadPlayer)
+    if (this.isLive) document.removeEventListener('visibilitychange', this.reloadPlayer)
   }
 
   @Watch('isZoom')
@@ -263,6 +263,7 @@ export default class extends Vue {
   }
 
   public reloadPlayer() {
+    console.log('visibilitychange')
     this.player && this.player.reloadPlayer()
   }
 
