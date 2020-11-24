@@ -39,11 +39,7 @@
             {{ inProtocolType[row.inProtocol] }}
           </template>
         </el-table-column>
-        <el-table-column prop="region" label="服务区域">
-          <template slot-scope="{row}">
-            {{ regionName[row.region] }}
-          </template>
-        </el-table-column>
+        <el-table-column prop="regionName" label="服务区域" />
         <el-table-column prop="deviceSize" label="设备数量">
           <template slot-scope="scope">{{ scope.row.groupStats && scope.row.groupStats.deviceSize }}</template>
         </el-table-column>
@@ -81,7 +77,6 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Group } from '@/type/group'
 import { GroupStatus, InProtocolType } from '@/dics'
-import { RegionName } from '@/dics/region'
 import { dateFormatInTable } from '@/utils/date'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { getGroups, startGroup, stopGroup, deleteGroup } from '@/api/group'
@@ -94,7 +89,6 @@ export default class extends Vue {
   private loading = false
   private groupStatus = GroupStatus
   private inProtocolType = InProtocolType
-  private regionName = RegionName
   private groupName = ''
   private dataList: Array<Group> = []
   private pager = {

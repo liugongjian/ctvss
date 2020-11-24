@@ -54,9 +54,13 @@
                 :current-node-key="defaultKey"
                 @node-click="deviceRouter"
               >
-                <span slot-scope="{node, data}" class="custom-tree-node">
+                <span
+                  slot-scope="{node, data}"
+                  class="custom-tree-node"
+                  :class="{'offline': data.type === 'ipc' && data.deviceStatus !== 'on'}"
+                >
                   <span class="node-name">
-                    <svg-icon :name="data.type" color="#6e7c89" />
+                    <svg-icon :name="data.type" />
                     <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                     {{ node.label }}
                   </span>

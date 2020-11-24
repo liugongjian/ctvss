@@ -12,7 +12,7 @@
         <el-form-item label="设备号" prop="deviceId">
           <el-input v-model="form.deviceId" />
         </el-form-item>
-        <template v-if="userType === 'kanjia'">
+        <template v-if="true">
           <el-form-item label="存储区域" prop="storeRegion">
             <el-cascader
               v-model="form.storeRegion"
@@ -74,8 +74,8 @@ import { Component, Vue } from 'vue-property-decorator'
 import { Stream } from '@/type/stream'
 import { createStream, createStreamKanjia } from '@/api/stream'
 import { UserModule } from '@/store/modules/user'
-import { Provinces, Regions, RegionName } from '@/dics/region'
 import { pick } from 'lodash'
+import { getRegions } from '@/api/region'
 
 @Component({
   name: 'StreamCreate'
@@ -123,18 +123,7 @@ export default class extends Vue {
     ]
   }
 
-  private regionList = Object.keys(Provinces).map((key: string) => {
-    return {
-      value: key,
-      label: (Provinces as any)[key],
-      children: (Regions as any)[key]?.map((regionCode: string) => {
-        return {
-          value: regionCode,
-          label: (RegionName as any)[regionCode]
-        }
-      })
-    }
-  })
+  private regionList = []
 
   get userType() {
     return UserModule.type
@@ -144,6 +133,21 @@ export default class extends Vue {
     const query: any = this.$route.query
     if (query.groupId) {
       this.$set(this.form, 'groupId', query.groupId)
+    }
+    this.getRegionList()
+  }
+
+  /**
+   * 获取区域列表
+   */
+  private async getRegionList() {
+    this.loading = true
+    try {
+      this.regionList = await getRegions()
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.loading = false
     }
   }
 

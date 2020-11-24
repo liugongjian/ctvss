@@ -86,8 +86,8 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Group } from '@/type/group'
 import { InProtocolType, OutProtocolType } from '@/dics'
-import { Provinces, Regions, RegionName } from '@/dics/region'
 import { createGroup, queryGroup, updateGroup } from '@/api/group'
+import { getRegions } from '@/api/region'
 
 @Component({
   name: 'CreateGroup'
@@ -119,30 +119,20 @@ export default class extends Vue {
   private form: Group = {
     groupName: '',
     description: '',
-    region: '',
+    region: [],
     inProtocol: 'gb28181',
     outProtocol: [],
     pullType: 1
   }
 
-  private regionList = Object.keys(Provinces).map((key: string) => {
-    return {
-      value: key,
-      label: (Provinces as any)[key],
-      children: (Regions as any)[key]?.map((regionCode: string) => {
-        return {
-          value: regionCode,
-          label: (RegionName as any)[regionCode]
-        }
-      })
-    }
-  })
+  private regionList = []
 
   private get isEdit() {
     return !!this.form.groupId
   }
 
   private async mounted() {
+    await this.getRegionList()
     this.breadCrumbContent = this.$route.meta.title
     let query: any = this.$route.query
     if (query.groupId) {
@@ -151,16 +141,47 @@ export default class extends Vue {
       try {
         const res = await queryGroup({ groupId: this.form.groupId })
         res.outProtocol = res.outProtocol.split(',')
-        let arr: String[] = []
-        arr.push(res.region.substring(0, 3))
-        arr.push(res.region)
-        res.region = arr
+        res.region = this.getRegionPath(this.regionList, res.region)
         this.form = res
       } catch (e) {
         this.$message.error(e && e.message)
       } finally {
         this.loading = false
       }
+    }
+  }
+
+  /**
+   * 递归查找目标区域的所在路径
+   */
+  private getRegionPath(regions: any, target: string) {
+    const path: any = []
+    const _find: any = function(path: Array<string>, children: any) {
+      for (let i = 0; i < children.length; i++) {
+        const item = children[i]
+        path.push(item.value)
+        if (item.children) {
+          return _find(path, item.children)
+        } else if (item.value === target) {
+          return path
+        }
+      }
+      return path
+    }
+    return _find(path, regions)
+  }
+
+  /**
+   * 获取区域列表
+   */
+  private async getRegionList() {
+    this.loading = true
+    try {
+      this.regionList = await getRegions()
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.loading = false
     }
   }
 

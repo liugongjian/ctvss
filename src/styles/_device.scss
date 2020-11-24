@@ -42,6 +42,7 @@
       height: 100%;
       display: flex;
       flex-direction: column;
+
       &__tools {
         height: 40px;
         border-bottom: 1px solid $borderGrey;
@@ -90,6 +91,11 @@
           width: auto;
           .node-name {
             position: relative;
+          }
+          &.offline .node-name {
+            .svg-icon {
+              color: #ccc;
+            }
           }
           .status-badge {
             position: absolute;

@@ -82,7 +82,7 @@
                 <span
                   slot-scope="{node, data}"
                   class="custom-tree-node"
-                  :class="{'offline': data.type === 'ipc' && data.streamStatus !== 'on'}"
+                  :class="{'offline': data.type === 'ipc' && data.deviceStatus !== 'on'}"
                   @contextmenu="($event, node)"
                 >
                   <span class="node-name">
@@ -599,12 +599,6 @@ export default class extends Mixins(ScreenMixin) {
         margin: 0;
       }
     }
-    .offline .node-name {
-      cursor: not-allowed;
-      .svg-icon {
-        color: #ccc;
-      }
-    }
   }
 
   &__right {
@@ -615,6 +609,9 @@ export default class extends Mixins(ScreenMixin) {
 
   .dir-list__tree {
     position: relative;
+    .offline .node-name {
+      cursor: not-allowed;
+    }
     .polling-mask {
       position: absolute;
       display: flex;

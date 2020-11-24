@@ -8,7 +8,7 @@
           <info-list-item label="业务组ID:">{{ form.groupId }}</info-list-item>
           <info-list-item label="业务组名称:">{{ form.groupName }}</info-list-item>
           <info-list-item label="业务组描述:">{{ form.description }}</info-list-item>
-          <info-list-item label="服务区域:">{{ RegionName[form.region] }}</info-list-item>
+          <info-list-item label="服务区域:">{{ form.regionName }}</info-list-item>
           <info-list-item label="接入类型:">{{ InProtocolType[form.inProtocol] }}</info-list-item>
           <info-list-item label="播放类型:">
             {{ form.outProtocol.map(item => OutProtocolType[item]).join(',') }}
@@ -33,7 +33,6 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Group } from '@/type/group'
-import { RegionName } from '@/dics/region'
 import { OutProtocolType, InProtocolType, PullType } from '@/dics'
 import { queryGroup } from '@/api/group'
 import { formatSeconds } from '@/utils/interval'
@@ -49,7 +48,6 @@ export default class extends Vue {
   private activeName = 'info'
   private InProtocolType = InProtocolType
   private OutProtocolType = OutProtocolType
-  private RegionName = RegionName
   private PullType = PullType
   private form: Group = {
     groupId: '',

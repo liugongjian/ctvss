@@ -36,15 +36,13 @@
         <el-button class="el-button-rect" @click="init"><svg-icon name="refresh" /></el-button>
       </div>
     </div>
-    <el-table v-loading="loading.list || loading.info" :data="deviceList" empty-text="暂无设备" fit class="device-list__table" @row-click="rowClick" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading.list || loading.info" :data="deviceList" empty-text="暂无设备" fit class="device-list__table" @row-click="rowClick" @selection-change="handleSelectionChange" @filter-change="filterChange">
       <el-table-column type="selection" prop="selection" class-name="col-selection" width="55" />
       <el-table-column v-if="isGb && isNVR" label="通道号/通道名称" min-width="200">
         <template slot-scope="{row}">
           <div class="device-list__device-name">
             <div class="device-list__device-id">{{ row.channelNum }}</div>
-            <div>
-              {{ row.channelName }} <i class="el-icon-video-camera" />
-            </div>
+            <div>{{ row.channelName }}</div>
           </div>
         </template>
       </el-table-column>
@@ -52,24 +50,58 @@
         <template slot-scope="{row}">
           <div class="device-list__device-name">
             <div class="device-list__device-id">{{ row.deviceId }}</div>
-            <div>
-              {{ row.deviceName }} <i class="el-icon-video-camera" />
-            </div>
+            <div>{{ row.deviceName }}</div>
           </div>
         </template>
       </el-table-column>
-      <el-table-column v-if="isGb && !isNVR" key="deviceType" label="类型">
+      <el-table-column
+        v-if="isGb && !isNVR"
+        key="deviceType"
+        column-key="deviceType"
+        prop="deviceType"
+        label="类型"
+        :filters="filtersArray.deviceType"
+        :filter-multiple="false"
+      >
+        <template slot="header">
+          <span>类型</span>
+          <svg-icon name="filter" width="15" height="15" />
+        </template>
         <template slot-scope="{row}">
           {{ deviceType[row.deviceType] }}
         </template>
       </el-table-column>
-      <el-table-column v-if="isGb" key="deviceStatus" label="设备状态">
+      <el-table-column
+        v-if="isGb"
+        key="deviceStatus"
+        column-key="deviceStatus"
+        label="设备状态"
+        min-width="110"
+        :filters="filtersArray.deviceStatus"
+        :filter-multiple="false"
+      >
+        <template slot="header">
+          <span>设备状态</span>
+          <svg-icon name="filter" width="15" height="15" />
+        </template>
         <template slot-scope="{row}">
           <status-badge :status="row.deviceStatus" />
           {{ deviceStatus[row.deviceStatus] || '-' }}
         </template>
       </el-table-column>
-      <el-table-column key="streamStatus" prop="streamStatus" label="流状态">
+      <el-table-column
+        key="streamStatus"
+        column-key="streamStatus"
+        prop="streamStatus"
+        label="流状态"
+        min-width="110"
+        :filters="filtersArray.streamStatus"
+        :filter-multiple="false"
+      >
+        <template slot="header">
+          <span>流状态</span>
+          <svg-icon name="filter" width="15" height="15" />
+        </template>
         <template slot-scope="{row}">
           <status-badge :status="row.streamStatus" />
           {{ deviceStatus[row.streamStatus] || '-' }}
@@ -188,6 +220,11 @@ export default class extends Vue {
     moveDir: false
   }
   private keyword = ''
+  private filter = {
+    deviceType: '',
+    deviceStatus: '',
+    streamStatus: ''
+  }
   private pager = {
     pageNum: 1,
     pageSize: 10,
@@ -199,6 +236,12 @@ export default class extends Vue {
   private currentDevice?: Device | null = null
   // 是否批量移动
   private isBatchMoveDir = false
+  // 筛选类型
+  private filtersArray = {
+    deviceType: [{ text: 'IPC', value: 'ipc' }, { text: 'NVR', value: 'nvr' }],
+    deviceStatus: [{ text: '在线', value: 'on' }, { text: '离线', value: 'off' }, { text: '未注册', value: 'new' }],
+    streamStatus: [{ text: '在线', value: 'on' }, { text: '离线', value: 'off' }, { text: '失败', value: 'failed' }]
+  }
 
   private get isGb() {
     return this.$route.query.inProtocol === 'gb28181'
@@ -241,6 +284,11 @@ export default class extends Vue {
     this.deviceInfo = null
     this.deviceList = []
     this.init()
+  }
+
+  @Watch('filter', { immediate: true, deep: true })
+  private onFilterChange() {
+    this.getDeviceList()
   }
 
   private mounted() {
@@ -303,7 +351,10 @@ export default class extends Vue {
       let params: any = {
         groupId: this.groupId,
         pageNum: this.pager.pageNum,
-        pageSize: this.pager.pageSize
+        pageSize: this.pager.pageSize,
+        deviceType: this.filter.deviceType,
+        deviceStatus: this.filter.deviceStatus,
+        streamStatus: this.filter.streamStatus
       }
       let res: any
       this.loading.list = true
@@ -347,7 +398,7 @@ export default class extends Vue {
   /**
    * 根据类型进入下一级页面
    */
-  private rowClick(device: Device, column: any, event: any) {
+  private rowClick(device: Device, column: any) {
     if (column.property !== 'action' && column.property !== 'selection') {
       const type = device.deviceType === 'ipc' ? 'detail' : device.deviceType
       this.deviceRouter({
@@ -663,6 +714,22 @@ export default class extends Vue {
   private handleSelectionChange(devices: Array<Device>) {
     this.selectedDeviceList = devices
   }
+
+  /**
+   * 当表格的筛选条件发生变化
+   */
+  private filterChange(filters: any) {
+    for (let key in filters) {
+      const values = filters[key]
+      if (values.length) {
+        // @ts-ignore
+        this.filter[key] = values[0]
+      } else {
+        // @ts-ignore
+        this.filter[key] = ''
+      }
+    }
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -683,6 +750,9 @@ export default class extends Vue {
       .col-action, .col-selection {
         cursor: default;
       }
+    }
+    ::v-deep .el-table__column-filter-trigger {
+      visibility: hidden;
     }
   }
   .device-info {
