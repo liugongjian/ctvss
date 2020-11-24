@@ -588,11 +588,15 @@ export default class extends Mixins(ScreenMixin) {
     }
     .polling {
       position: absolute;
-      right: 0;
+      right: -20px;
       top: 4px;
       outline: none;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1) 20%);
+      padding-left: 12px;
+      padding-right: 20px;
       .svg-icon {
         color: $text;
+        margin: 0;
       }
     }
     .offline .node-name {
