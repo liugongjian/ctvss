@@ -2,7 +2,7 @@
 <template>
   <div class="app-container">
     <div class="preview-wrap">
-      <el-button class="btn-detail" @click="goToDetail"><svg-icon name="document" /> 查看设备详情</el-button>
+      <el-button class="btn-detail" @click="goToDetail"><svg-icon name="documentation" /> 查看设备详情</el-button>
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane lazy label="实时预览" name="preview">
           <live-view
