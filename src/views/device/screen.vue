@@ -206,8 +206,8 @@
                   <div class="live-view">
                     <player
                       v-if="screen.url"
-                      :type="screen.type"
-                      :url="screen.url"
+                      type="rtc"
+                      :url="`webrtc://218.78.82.199:1985/live/${screen.deviceId}`"
                       :is-live="true"
                       :is-ws="true"
                       :is-fullscreen="screen.isFullscreen"
