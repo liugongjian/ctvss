@@ -31,12 +31,21 @@
       </div>
       <div class="filter-container__right">
         <el-input v-show="false" v-model="keyword" class="filter-container__search-group" placeholder="请输入关键词">
-          <el-button slot="append" class="el-button-rect" icon="el-icon-search" />
+          <el-button slot="append" class="el-button-rect"><svg-icon name="search" /></el-button>
         </el-input>
         <el-button class="el-button-rect" @click="init"><svg-icon name="refresh" /></el-button>
       </div>
     </div>
-    <el-table v-loading="loading.list || loading.info" :data="deviceList" empty-text="暂无设备" fit class="device-list__table" @row-click="rowClick" @selection-change="handleSelectionChange" @filter-change="filterChange">
+    <div v-if="hasFiltered" class="filter-container filter-buttons">
+      <div v-for="{key, value} in filterButtons" :key="key" class="filter-button" @click="clearFilter(key)">
+        <label>{{ deviceParams[key] }}</label>
+        <span v-if="key === 'deviceType'">{{ deviceType[value] }}</span>
+        <span v-if="key === 'deviceStatus'">{{ deviceStatus[value] }}</span>
+        <span v-if="key === 'streamStatus'">{{ streamStatus[value] }}</span>
+        <svg-icon class="filter-button__close" name="close" width="10" height="10" />
+      </div>
+    </div>
+    <el-table ref="deviceTable" v-loading="loading.list || loading.info" :data="deviceList" empty-text="暂无设备" fit class="device-list__table" @row-click="rowClick" @selection-change="handleSelectionChange" @filter-change="filterChange">
       <el-table-column type="selection" prop="selection" class-name="col-selection" width="55" />
       <el-table-column v-if="isGb && isNVR" label="通道号/通道名称" min-width="200">
         <template slot-scope="{row}">
@@ -64,8 +73,8 @@
         :filter-multiple="false"
       >
         <template slot="header">
-          <span>类型</span>
-          <svg-icon name="filter" width="15" height="15" />
+          <span class="filter">类型</span>
+          <svg-icon class="filter" name="filter" width="15" height="15" />
         </template>
         <template slot-scope="{row}">
           {{ deviceType[row.deviceType] }}
@@ -81,8 +90,8 @@
         :filter-multiple="false"
       >
         <template slot="header">
-          <span>设备状态</span>
-          <svg-icon name="filter" width="15" height="15" />
+          <span class="filter">设备状态</span>
+          <svg-icon class="filter" name="filter" width="15" height="15" />
         </template>
         <template slot-scope="{row}">
           <status-badge :status="row.deviceStatus" />
@@ -99,12 +108,12 @@
         :filter-multiple="false"
       >
         <template slot="header">
-          <span>流状态</span>
-          <svg-icon name="filter" width="15" height="15" />
+          <span class="filter">流状态</span>
+          <svg-icon class="filter" name="filter" width="15" height="15" />
         </template>
         <template slot-scope="{row}">
           <status-badge :status="row.streamStatus" />
-          {{ deviceStatus[row.streamStatus] || '-' }}
+          {{ streamStatus[row.streamStatus] || '-' }}
         </template>
       </el-table-column>
       <el-table-column key="deviceVendor" prop="deviceVendor" label="厂商">
@@ -189,7 +198,7 @@
 import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
 import { ExportToCsv } from 'export-to-csv'
 import { Device } from '@/type/device'
-import { DeviceStatus, DeviceType, SipTransType, StreamTransType, TransPriority } from '@/dics'
+import { DeviceParams, DeviceStatus, StreamStatus, DeviceType, SipTransType, StreamTransType, TransPriority } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MoveDir from './components/dialogs/MoveDir.vue'
 import { getDevice, getDevices, deleteDevice, startDevice, stopDevice } from '@/api/device'
@@ -207,7 +216,9 @@ export default class extends Vue {
   @Inject('initDirs')
   private initDirs!: Function
 
+  private deviceParams = DeviceParams
   private deviceStatus = DeviceStatus
+  private streamStatus = StreamStatus
   private deviceType = DeviceType
   private sipTransType = SipTransType
   private streamTransType = StreamTransType
@@ -220,7 +231,7 @@ export default class extends Vue {
     moveDir: false
   }
   private keyword = ''
-  private filter = {
+  private filter: any = {
     deviceType: '',
     deviceStatus: '',
     streamStatus: ''
@@ -238,9 +249,9 @@ export default class extends Vue {
   private isBatchMoveDir = false
   // 筛选类型
   private filtersArray = {
-    deviceType: [{ text: 'IPC', value: 'ipc' }, { text: 'NVR', value: 'nvr' }],
-    deviceStatus: [{ text: '在线', value: 'on' }, { text: '离线', value: 'off' }, { text: '未注册', value: 'new' }],
-    streamStatus: [{ text: '在线', value: 'on' }, { text: '离线', value: 'off' }, { text: '失败', value: 'failed' }]
+    deviceType: this.dictToFilterArray(DeviceType),
+    deviceStatus: this.dictToFilterArray(DeviceStatus),
+    streamStatus: this.dictToFilterArray(StreamStatus)
   }
 
   private get isGb() {
@@ -279,6 +290,24 @@ export default class extends Vue {
     return this.$route.query.deviceId
   }
 
+  private get hasFiltered() {
+    return !!(this.filter.deviceType || this.filter.deviceStatus || this.filter.streamStatus)
+  }
+
+  private get filterButtons() {
+    const buttons = []
+    for (let key in this.filter) {
+      const value = this.filter[key]
+      if (value) {
+        buttons.push({
+          key,
+          value
+        })
+      }
+    }
+    return buttons
+  }
+
   @Watch('$route.query')
   private onRouterChange() {
     this.deviceInfo = null
@@ -288,7 +317,7 @@ export default class extends Vue {
 
   @Watch('filter', { immediate: true, deep: true })
   private onFilterChange() {
-    this.getDeviceList()
+    this.type === 'dir' && this.getDeviceList()
   }
 
   private mounted() {
@@ -722,13 +751,34 @@ export default class extends Vue {
     for (let key in filters) {
       const values = filters[key]
       if (values.length) {
-        // @ts-ignore
         this.filter[key] = values[0]
       } else {
-        // @ts-ignore
         this.filter[key] = ''
       }
     }
+  }
+
+  /**
+   * 清空指定筛选条件
+   */
+  private clearFilter(key: string) {
+    this.filter[key] = ''
+    const deviceTable: any = this.$refs.deviceTable
+    deviceTable.clearFilter(key)
+  }
+
+  /**
+   * 将字典转为筛选数组
+   */
+  private dictToFilterArray(dict: any) {
+    const filterArray = []
+    for (let key in dict) {
+      filterArray.push({
+        text: dict[key],
+        value: key
+      })
+    }
+    return filterArray
   }
 }
 </script>
@@ -754,6 +804,9 @@ export default class extends Vue {
     ::v-deep .el-table__column-filter-trigger {
       visibility: hidden;
     }
+    .filter {
+      cursor: pointer;
+    }
   }
   .device-info {
     background: #f6f6f6;
@@ -767,6 +820,40 @@ export default class extends Vue {
       .info-item {
         width: 33%;
         padding: 10px 0;
+      }
+    }
+  }
+  .filter-buttons {
+    display: flex;
+    .filter-button {
+      position: relative;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      line-height: 26px;
+      padding-right: 24px;
+      margin-right: 10px;
+      overflow: hidden;
+      transition: border 100ms;
+      cursor: pointer;
+      label {
+        display: inline-block;
+        background: #f1f1f1;
+        padding: 0 10px;
+        margin-right: 8px;
+        cursor: pointer;
+      }
+      &__close {
+        position: absolute;
+        right: 6px;
+        top: 8px;
+        color: #bbb;
+        transition: border 100ms;
+      }
+      &:hover {
+        border-color: $primary;
+        .filter-button__close {
+          color: $primary;
+        }
       }
     }
   }

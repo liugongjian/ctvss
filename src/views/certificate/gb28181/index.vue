@@ -11,9 +11,9 @@
             </el-select>
           </div>
           <el-input v-model="userName" class="filter-container__search-group" placeholder="请输入SIP用户认证ID/用户别名" @keyup.enter.native="handleFilter">
-            <el-button slot="append" class="el-button-rect" icon="el-icon-search" @click="handleFilter" />
+            <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
           </el-input>
-          <el-button class="el-button-rect" icon="el-icon-refresh" @click="refresh" />
+          <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
         </div>
       </div>
       <el-table v-loading="loading" :data="dataList" fit>

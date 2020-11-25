@@ -5,9 +5,9 @@
         <el-button type="primary" @click="handleCreate">新建回调模板</el-button>
         <div class="filter-container__right">
           <el-input v-model="callbackTemplateName" class="filter-container__search-group" placeholder="请输入回调模板名称" @keyup.enter.native="handleFilter">
-            <el-button slot="append" class="el-button-rect" icon="el-icon-search" @click="handleFilter" />
+            <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
           </el-input>
-          <el-button class="el-button-rect" icon="el-icon-refresh" @click="refresh" />
+          <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
         </div>
       </div>
       <el-table ref="table" v-loading="loading" :data="dataList" fit class="template__table">

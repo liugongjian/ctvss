@@ -21,7 +21,7 @@
           <info-list-item label="RTMP:">
             {{ form.pushUrl || '-' }}
             <el-tooltip v-if="form.pushUrl" class="item" effect="dark" content="复制链接" placement="top">
-              <el-button type="text" @click="copyUrl(form.pushUrl)"><i class="el-icon-copy-document" /></el-button>
+              <el-button type="text" @click="copyUrl(form.pushUrl)"><svg-icon name="copy" /></el-button>
             </el-tooltip>
           </info-list-item>
         </info-list>
@@ -29,19 +29,19 @@
           <info-list-item label="RTMP:">
             {{ (form.playUrl && form.playUrl.rtmpUrl) || '-' }}
             <el-tooltip v-if="form.playUrl && form.playUrl.rtmpUrl" class="item" effect="dark" content="复制链接" placement="top">
-              <el-button type="text" @click="copyUrl(form.playUrl.rtmpUrl)"><i class="el-icon-copy-document" /></el-button>
+              <el-button type="text" @click="copyUrl(form.playUrl.rtmpUrl)"><svg-icon name="copy" /></el-button>
             </el-tooltip>
           </info-list-item>
           <info-list-item label="FLV:">
             {{ (form.playUrl && form.playUrl.flvUrl) || '-' }}
             <el-tooltip v-if="form.playUrl && form.playUrl.flvUrl" class="item" effect="dark" content="复制链接" placement="top">
-              <el-button type="text" @click="copyUrl(form.playUrl.flvUrl)"><i class="el-icon-copy-document" /></el-button>
+              <el-button type="text" @click="copyUrl(form.playUrl.flvUrl)"><svg-icon name="copy" /></el-button>
             </el-tooltip>
           </info-list-item>
           <info-list-item label="HLS:">
             {{ (form.playUrl && form.playUrl.hlsUrl) || '-' }}
             <el-tooltip v-if="form.playUrl && form.playUrl.hlsUrl" class="item" effect="dark" content="复制链接" placement="top">
-              <el-button type="text" @click="copyUrl(form.playUrl.hlsUrl)"><i class="el-icon-copy-document" /></el-button>
+              <el-button type="text" @click="copyUrl(form.playUrl.hlsUrl)"><svg-icon name="copy" /></el-button>
             </el-tooltip>
           </info-list-item>
         </info-list>

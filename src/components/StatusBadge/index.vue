@@ -21,15 +21,10 @@ export default class extends Vue {
     border-radius: 100px;
     vertical-align: middle;
     margin-right: 5px;
+    background-color: #ccc;
 
     &--on {
       background-color: $success;
-    }
-    &--off {
-      background-color: #ccc;
-    }
-    &--new {
-      background-color: #ccc;
     }
     &--warning {
       background-color: $primary;

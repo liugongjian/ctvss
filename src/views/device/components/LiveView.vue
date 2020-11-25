@@ -21,19 +21,19 @@
       <info-list-item v-if="address.rtmpUrl" label="RTMP:">
         {{ address.rtmpUrl }}
         <el-tooltip class="item" effect="dark" content="复制链接" placement="top">
-          <el-button type="text" @click="copyUrl(address.rtmpUrl)"><i class="el-icon-copy-document" /></el-button>
+          <el-button type="text" @click="copyUrl(address.rtmpUrl)"><svg-icon name="copy" /></el-button>
         </el-tooltip>
       </info-list-item>
       <info-list-item v-if="address.flvUrl" label="FLV:">
         {{ address.flvUrl }}
         <el-tooltip class="item" effect="dark" content="复制链接" placement="top">
-          <el-button type="text" @click="copyUrl(address.flvUrl)"><i class="el-icon-copy-document" /></el-button>
+          <el-button type="text" @click="copyUrl(address.flvUrl)"><svg-icon name="copy" /></el-button>
         </el-tooltip>
       </info-list-item>
       <info-list-item v-if="address.hlsUrl" label="HLS:">
         {{ address.hlsUrl }}
         <el-tooltip class="item" effect="dark" content="复制链接" placement="top">
-          <el-button type="text" @click="copyUrl(address.hlsUrl)"><i class="el-icon-copy-document" /></el-button>
+          <el-button type="text" @click="copyUrl(address.hlsUrl)"><svg-icon name="copy" /></el-button>
         </el-tooltip>
       </info-list-item>
     </info-list>

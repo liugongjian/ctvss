@@ -35,7 +35,7 @@
                 <el-button type="text" @click="initDirs"><svg-icon name="refresh" /></el-button>
               </el-tooltip>
               <el-tooltip class="item" effect="dark" content="添加目录" placement="top" :open-delay="300">
-                <el-button type="text" @click="openDialog('createDir')"><i class="el-icon-plus" /></el-button>
+                <el-button type="text" @click="openDialog('createDir')"><svg-icon name="plus" /></el-button>
               </el-tooltip>
               <el-tooltip v-if="false" class="item" effect="dark" content="目录设置" placement="top" :open-delay="300">
                 <el-button type="text"><i class="el-icon-setting" /></el-button>
@@ -60,19 +60,19 @@
                   :class="{'offline': data.type === 'ipc' && data.deviceStatus !== 'on'}"
                 >
                   <span class="node-name">
-                    <svg-icon :name="data.type" />
-                    <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
+                    <svg-icon :name="data.type" width="15" height="15" />
+                    <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
                     {{ node.label }}
                   </span>
                   <div v-if="data.type === 'dir'" class="tools">
                     <el-tooltip class="item" effect="dark" content="添加子目录" placement="top" :open-delay="300">
-                      <el-button type="text" @click.stop="openDialog('createDir', data)"><i class="el-icon-plus" /></el-button>
+                      <el-button type="text" @click.stop="openDialog('createDir', data)"><svg-icon name="plus" /></el-button>
                     </el-tooltip>
                     <el-tooltip class="item" effect="dark" content="编辑目录" placement="top" :open-delay="300">
-                      <el-button type="text" @click.stop="openDialog('updateDir', data)"><i class="el-icon-edit" /></el-button>
+                      <el-button type="text" @click.stop="openDialog('updateDir', data)"><svg-icon name="edit" /></el-button>
                     </el-tooltip>
                     <el-tooltip class="item" effect="dark" content="删除目录" placement="top" :open-delay="300">
-                      <el-button type="text" @click.stop="deleteDir(data)"><i class="el-icon-delete" /></el-button>
+                      <el-button type="text" @click.stop="deleteDir(data)"><svg-icon name="trash" /></el-button>
                     </el-tooltip>
                   </div>
                 </span>

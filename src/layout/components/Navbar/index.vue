@@ -311,7 +311,7 @@ export default class extends Vue {
       color: $textGrey;
       background: #fff;
       cursor: pointer;
-      transition: background-color 200ms;
+      transition: background-color 100ms;
       &:hover {
         background: #f4f4f4;
         color: $text;
@@ -340,7 +340,7 @@ export default class extends Vue {
         right: 10px;
         top: 10px;
         cursor: pointer;
-        transition: color 200ms;
+        transition: color 100ms;
         &:hover {
           color: $primary;
         }

@@ -649,7 +649,7 @@ export default class extends Vue {
           position: absolute;
           height: 4px;
           background: rgba(255, 255, 255, 0.3);
-          transition: width 200ms;
+          transition: width 100ms;
         }
         &__played {
           position: absolute;
@@ -665,7 +665,7 @@ export default class extends Vue {
             right: -5px;
             top: -4px;
             opacity: 0;
-            transition: opacity 200ms;
+            transition: opacity 100ms;
           }
         }
         &:hover, &.moving {

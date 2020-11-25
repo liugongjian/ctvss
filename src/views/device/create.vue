@@ -87,7 +87,7 @@
               :open-delay="300"
               content="当启用自动拉流，国标设备注册成功后自动启动拉流。关闭该选项后需要通过触发的方式启动拉流。"
             >
-              <i slot="reference" class="form-question el-icon-question" />
+              <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
           </template>
           <el-switch v-model="form.pullType" :active-value="1" :inactive-value="2" />
@@ -103,7 +103,7 @@
               :open-delay="300"
               content="开启优先TCP传输时，设备进行视频邀约时优先使用TCP协议接入到视频监控服务中。关闭时则优先使用UDP协议接入。"
             >
-              <i slot="reference" class="form-question el-icon-question" />
+              <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
           </template>
           <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" />

@@ -86,10 +86,17 @@ export const TransPriority = {
 
 export const StreamStatus = {
   'on': '在线',
-  'off': '离线'
+  'off': '离线',
+  'failed': '失败'
 }
 
 export const StreamType = {
   1: '全量视频',
   2: '移动侦测'
+}
+
+export const DeviceParams = {
+  'deviceType': '类型',
+  'deviceStatus': '设备状态',
+  'streamStatus': '流状态'
 }

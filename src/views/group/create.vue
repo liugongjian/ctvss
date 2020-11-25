@@ -30,7 +30,7 @@
               :open-delay="300"
               content="服务区域负责对流媒体进行实时处理，包括鉴权、拉流、转码、录制、截图等，请根据处理和存储需求选择"
             >
-              <i slot="reference" class="form-question el-icon-question" />
+              <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
           </template>
           <el-cascader
@@ -67,7 +67,7 @@
               :open-delay="300"
               content="当启用自动拉流，国标设备注册成功后自动启动拉流。关闭该选项后需要通过触发的方式启动拉流。"
             >
-              <i slot="reference" class="form-question el-icon-question" />
+              <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
           </template>
           <el-switch v-model="form.pullType" :active-value="1" :inactive-value="2" />

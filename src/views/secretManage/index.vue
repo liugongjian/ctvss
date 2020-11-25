@@ -22,7 +22,9 @@
           <template slot-scope="{row}">
             <div>
               <span>{{ 'SecretId: ' + row.accessKey }}</span>
-              <i v-clipboard:copy="row.accessKey" v-clipboard:success="copySuccess" v-clipboard:error="copyError" class="el-icon-copy-document ml10" />
+              <el-button v-clipboard:copy="row.accessKey" v-clipboard:success="copySuccess" v-clipboard:error="copyError" type="text" class="ml10">
+                <svg-icon name="copy" />
+              </el-button>
             </div>
             <div>
               <span>{{ 'SecretKey: ' + (row.hidden ? '******' : row.secretKey) }}</span>
