@@ -7,6 +7,7 @@ import { IErrorLogState } from './modules/error-log'
 import { IPermissionState } from './modules/permission'
 import { ISettingsState } from './modules/settings'
 import { IDeviceState } from './modules/device'
+import { IGroupState } from './modules/group'
 
 Vue.use(Vuex)
 
@@ -18,6 +19,7 @@ export interface IRootState {
   permission: IPermissionState
   settings: ISettingsState
   device: IDeviceState
+  group: IGroupState
 }
 
 // Declare empty store first, dynamically register all modules later.

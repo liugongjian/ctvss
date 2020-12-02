@@ -1,25 +1,6 @@
 <!-- 分屏预览 -->
 <template>
   <div v-loading="loading.group" class="app-container">
-    <div class="filter-container">
-      <el-select
-        v-model="groupId"
-        class="filter-group"
-        placeholder="请选择业务组"
-        :disabled="polling.isStart"
-        @change="changeGroup"
-      >
-        <el-option
-          v-for="item in groupList"
-          :key="item.groupId"
-          :label="item.groupName"
-          :value="item.groupId"
-        />
-      </el-select>
-      <el-tooltip content="仅包含接入类型为GB28181的业务组" placement="right">
-        <svg-icon class="filter-container__help" name="help" />
-      </el-tooltip>
-    </div>
     <el-card ref="deviceWrap" class="device-list-wrap">
       <div
         class="device-list"
@@ -206,8 +187,8 @@
                   <div class="live-view">
                     <player
                       v-if="screen.url"
-                      type="rtc"
-                      :url="`webrtc://218.78.82.199:1985/live/${screen.deviceId}`"
+                      :type="screen.type"
+                      :url="screen.url"
                       :is-live="true"
                       :is-ws="true"
                       :is-fullscreen="screen.isFullscreen"
@@ -257,8 +238,6 @@
 </template>
 <script lang="ts">
 import { Component, Watch, Mixins } from 'vue-property-decorator'
-import { DeviceModule } from '@/store/modules/device'
-import { Group } from '@/type/group'
 import { Device } from '@/type/device'
 import ScreenMixin from './mixin/screenMixin'
 import StatusBadge from '@/components/StatusBadge/index.vue'
@@ -325,15 +304,28 @@ export default class extends Mixins(ScreenMixin) {
       value: 300,
       label: '5分钟'
     }
-  ];
+  ]
+
+  @Watch('currentGroupId', { immediate: true })
+  private onCurrentGroupChange(groupId: String) {
+    if (!groupId) return
+    this.$nextTick(() => {
+      this.currentIndex = 0
+      this.screenList.forEach(screen => {
+        screen.reset()
+      })
+      this.initDirs()
+    })
+  }
+
   @Watch('currentIndex')
   private onCurrentIndexChange(newValue: number) {
     if (this.screenList.length) {
       this.selectedDeviceId = this.screenList[newValue]!.deviceId
     }
   }
+
   private mounted() {
-    this.getGroupList('screen')
     this.initScreen()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
@@ -355,23 +347,6 @@ export default class extends Mixins(ScreenMixin) {
   private closeScreen(screen: Screen) {
     this.selectedDeviceId = ''
     screen.reset()
-  }
-
-  /**
-   * 切换业务组
-   */
-  public async changeGroup() {
-    const currentGroup = this.groupList.find(
-      (group: Group) => group.groupId === this.groupId
-    )
-    await DeviceModule.SetGroup(currentGroup)
-    this.$router.push({
-      name: 'screen',
-      query: {
-        groupId: this.currentGroupId
-      }
-    })
-    await this.initDirs()
   }
 
   /**
@@ -431,7 +406,6 @@ export default class extends Mixins(ScreenMixin) {
       this.currentNode = node
     }
     if (!isDir) {
-      console.log('轮巡根目录')
       this.dirList.forEach((item: any) => {
         if (item.type === 'ipc' && item.streamStatus === 'on') {
           this.pollingDevices.push(item)

@@ -47,6 +47,7 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
+import { GroupModule } from '@/store/modules/group'
 import { getStreamList } from '@/api/stream'
 import { Stream } from '@/type/stream'
 import { StreamStatus } from '@/dics'
@@ -61,7 +62,6 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 
 export default class extends Vue {
   private streamStatus = StreamStatus
-  private groupId = ''
   private streamList: Array<Stream> = []
   private pager = {
     pageNum: 1,
@@ -72,25 +72,21 @@ export default class extends Vue {
     table: false
   }
 
-  private mounted() {
-    const query: any = this.$route.query
-    this.groupId = query.groupId
-    this.getStreamList()
+  private get currentGroupId() {
+    return GroupModule.group?.groupId
   }
 
-  @Watch('$route.query')
-  private onRouterChange() {
-    const query: any = this.$route.query
-    this.groupId = query.groupId
-    this.getStreamList()
+  @Watch('currentGroupId', { immediate: true })
+  private onCurrentGroupChange(groupId: String) {
+    if (!groupId) return
+    this.$nextTick(() => {
+      this.getStreamList()
+    })
   }
 
   private handleCreate() {
     this.$router.push({
-      path: '/stream/create',
-      query: {
-        groupId: this.groupId
-      }
+      path: '/stream/create'
     })
   }
 
@@ -99,7 +95,7 @@ export default class extends Vue {
     let params = {
       pageNum: this.pager.pageNum,
       pageSize: this.pager.pageSize,
-      groupId: this.groupId
+      groupId: this.currentGroupId
     }
     try {
       const res = await getStreamList(params)
@@ -126,8 +122,7 @@ export default class extends Vue {
     this.$router.push({
       path: '/stream/info',
       query: {
-        deviceId: row.deviceId,
-        groupId: this.groupId
+        deviceId: row.deviceId
       }
     })
   }
@@ -136,8 +131,7 @@ export default class extends Vue {
     this.$router.push({
       path: '/stream/preview',
       query: {
-        deviceId: row.deviceId,
-        groupId: this.groupId
+        deviceId: row.deviceId
       }
     })
   }

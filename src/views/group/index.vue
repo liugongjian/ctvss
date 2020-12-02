@@ -75,6 +75,7 @@
 
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
+import { GroupModule } from '@/store/modules/group'
 import { Group } from '@/type/group'
 import { GroupStatus, InProtocolType } from '@/dics'
 import { dateFormatInTable } from '@/utils/date'
@@ -211,12 +212,9 @@ export default class extends Vue {
    * 跳转至设备管理页面
    */
   private goToDevices(row: Group) {
+    GroupModule.SetGroup(row)
     this.$router.push({
-      path: '/device',
-      query: {
-        groupId: row.groupId,
-        inProtocol: row.inProtocol
-      }
+      path: '/device'
     })
   }
 
@@ -224,11 +222,9 @@ export default class extends Vue {
    * 跳转至流管理页面
    */
   private goToStreams(row: Group) {
+    GroupModule.SetGroup(row)
     this.$router.push({
-      path: '/stream',
-      query: {
-        groupId: row.groupId
-      }
+      path: '/stream'
     })
   }
 

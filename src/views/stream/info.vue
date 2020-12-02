@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="app-container">
     <el-page-header content="流列表" @back="back" />
     <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
       <el-tab-pane label="详细信息" name="info">
@@ -106,10 +106,7 @@ export default class extends Vue {
 
   private back() {
     this.$router.push({
-      path: '/stream/list',
-      query: {
-        groupId: this.groupId
-      }
+      path: '/stream'
     })
   }
 }

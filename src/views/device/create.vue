@@ -138,6 +138,7 @@
 import { Component, Vue, Inject, Watch } from 'vue-property-decorator'
 import { pick } from 'lodash'
 import { DeviceModule } from '@/store/modules/device'
+import { GroupModule } from '@/store/modules/group'
 import { DeviceType } from '@/dics'
 import { createDevice, updateDevice, getDevice } from '@/api/device'
 import { getList as getGbList } from '@/api/certificate/gb28181'
@@ -225,11 +226,7 @@ export default class extends Vue {
   }
 
   private get currentGroup() {
-    return DeviceModule.group
-  }
-
-  private get groupId() {
-    return this.$route.query.groupId ? this.$route.query.groupId.toString() : ''
+    return GroupModule.group
   }
 
   private get deviceId() {
@@ -256,15 +253,15 @@ export default class extends Vue {
     return DeviceModule.breadcrumb
   }
 
-  @Watch('currentGroup')
+  @Watch('currentGroup', { immediate: true, deep: true })
   private onGroupChange() {
     if (this.currentGroup && !this.isUpdate) {
       this.form.pullType = this.currentGroup.pullType
+      this.form.groupId = this.currentGroup.groupId
     }
   }
 
   private async mounted() {
-    this.form.groupId = this.groupId
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
     } else {

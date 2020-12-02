@@ -57,10 +57,7 @@ export default class extends Mixins(FullscreenMixin) {
 
   private back() {
     this.$router.push({
-      path: '/stream/list',
-      query: {
-        groupId: this.groupId
-      }
+      path: '/stream'
     })
   }
 }

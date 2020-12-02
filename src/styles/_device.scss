@@ -1,9 +1,14 @@
 .filter-group {
-  width: 300px;
-  .el-input--medium .el-input__inner {
-    height: 50px;
-    line-height: 50px;
-    font-size: 18px;
+  width: 250px;
+  &__label {
+    float: left;
+    margin-right: 10px;
+  }
+  &__in {
+    float: right;
+    color: $textGrey;
+    font-size: 12px;
+    text-transform: uppercase;
   }
 }
 

@@ -1,14 +1,13 @@
 import { Component, Provide, Vue } from 'vue-property-decorator'
 import { DeviceModule } from '@/store/modules/device'
+import { GroupModule } from '@/store/modules/group'
 import { getDeviceTree } from '@/api/device'
 import { getStreamList } from '@/api/stream'
 import { Stream } from '@/type/stream'
 
 @Component
 export default class DeviceMixin extends Vue {
-  public groupId: string | null = null
   public maxHeight = 1000
-  public groupList = []
   public dirList = []
   public isExpanded = true
   public dirDrag = {
@@ -19,7 +18,6 @@ export default class DeviceMixin extends Vue {
     width: 250
   }
   public loading = {
-    group: false,
     dir: false,
     device: false
   }
@@ -31,16 +29,15 @@ export default class DeviceMixin extends Vue {
   }
 
   public get currentGroup() {
-    return DeviceModule.group
+    return GroupModule.group
   }
 
   public get currentGroupId() {
-    this.groupId = DeviceModule.group?.groupId!
-    return DeviceModule.group?.groupId
+    return GroupModule.group?.groupId
   }
 
   public get currentGroupInProtocol() {
-    return DeviceModule.group?.inProtocol
+    return GroupModule.group?.inProtocol
   }
 
   public get breadcrumb() {
@@ -251,7 +248,6 @@ export default class DeviceMixin extends Vue {
         break
     }
     router.query = {
-      groupId: this.currentGroupId!.toString(),
       inProtocol: this.currentGroup!.inProtocol,
       type: item.type,
       path: this.breadcrumb.map((item: any) => item.id).join(','),

@@ -45,6 +45,7 @@
 <script lang="ts">
 import { Component, Vue, Prop, Inject } from 'vue-property-decorator'
 import { DeviceModule } from '@/store/modules/device'
+import { GroupModule } from '@/store/modules/group'
 import { Device } from '@/type/device'
 import { getDeviceTree } from '@/api/device'
 import { bindDir } from '@/api/dir'
@@ -92,7 +93,7 @@ export default class extends Vue {
    * 当前业务组ID
    */
   private get groupId() {
-    return DeviceModule.group!.groupId
+    return GroupModule.group!.groupId
   }
 
   /**

@@ -11,6 +11,7 @@ import '@/styles/index.scss'
 
 import App from '@/App.vue'
 import store from '@/store'
+import { GroupModule } from '@/store/modules/group'
 import { AppModule } from '@/store/modules/app'
 import router from '@/router'
 import '@/icons/components'
@@ -48,6 +49,8 @@ Object.keys(filters).forEach(key => {
 })
 
 Vue.config.productionTip = false
+
+GroupModule.GetGroupFromLs()
 
 new Vue({
   router,

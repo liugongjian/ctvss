@@ -1,24 +1,6 @@
 <!-- 分屏预览 -->
 <template>
   <div v-loading="loading.group" class="app-container">
-    <div class="filter-container">
-      <el-select
-        v-model="groupId"
-        class="filter-group"
-        placeholder="请选择业务组"
-        @change="changeGroup"
-      >
-        <el-option
-          v-for="item in groupList"
-          :key="item.groupId"
-          :label="item.groupName"
-          :value="item.groupId"
-        >
-          <span class="filter-group__label">{{ item.groupName }}</span>
-          <span class="filter-group__in">{{ item.inProtocol }}</span>
-        </el-option>
-      </el-select>
-    </div>
     <el-card ref="deviceWrap" class="device-list-wrap">
       <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
         <el-button class="device-list__expand" @click="toggledirList">
@@ -116,11 +98,9 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Mixins } from 'vue-property-decorator'
+import { Component, Watch, Mixins } from 'vue-property-decorator'
 import ScreenMixin from './mixin/screenMixin'
-import { DeviceModule } from '@/store/modules/device'
 import { Device } from '@/type/device'
-import { Group } from '@/type/group'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import ReplayView from './components/ReplayView.vue'
 import DeviceDir from './components/dialogs/DeviceDir.vue'
@@ -140,8 +120,19 @@ export default class extends Mixins(ScreenMixin) {
     return this.$route.query.deviceId || null
   }
 
+  @Watch('currentGroupId', { immediate: true })
+  private onCurrentGroupChange(groupId: String) {
+    if (!groupId) return
+    this.$nextTick(() => {
+      this.currentIndex = 0
+      this.screenList.forEach(screen => {
+        screen.reset()
+      })
+      this.initDirs()
+    })
+  }
+
   private mounted() {
-    this.getGroupList('replay')
     this.initScreen()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
@@ -154,21 +145,6 @@ export default class extends Mixins(ScreenMixin) {
     })
     window.removeEventListener('resize', this.calMaxHeight)
     window.removeEventListener('resize', this.checkFullscreen)
-  }
-
-  /**
-   * 切换业务组
-   */
-  public async changeGroup() {
-    const currentGroup = this.groupList.find((group: Group) => group.groupId === this.groupId)
-    await DeviceModule.SetGroup(currentGroup)
-    this.$router.push({
-      name: 'replay',
-      query: {
-        groupId: this.currentGroupId
-      }
-    })
-    await this.initDirs()
   }
 
   /**
@@ -222,19 +198,6 @@ export default class extends Mixins(ScreenMixin) {
       flex: 1;
       display: flex;
       flex-direction: column;
-    }
-  }
-
-  .filter-group {
-    &__label {
-      float: left;
-      margin-right: 10px;
-    }
-    &__in {
-      float: right;
-      color: $textGrey;
-      font-size: 12px;
-      text-transform: uppercase;
     }
   }
 </style>

@@ -1,7 +1,4 @@
 import { Component, Mixins } from 'vue-property-decorator'
-import { DeviceModule } from '@/store/modules/device'
-import { getGroups } from '@/api/group'
-import { Group } from '@/type/group'
 import DeviceMixin from './deviceMixin'
 import FullscreenMixin from './fullscreenMixin'
 import Screen from '../models/Screen'
@@ -30,39 +27,6 @@ export default class ScreenMixin extends Mixins(DeviceMixin, FullscreenMixin) {
       screenList.push(screen)
     }
     this.screenList = screenList
-  }
-
-  /**
-   * 获取组列表
-   */
-  public async getGroupList(routeName: string) {
-    this.loading.group = true
-    let params = {
-      pageSize: 1000
-    }
-    const res = await getGroups(params)
-    if (routeName === 'screen') {
-      this.groupList = res.groups.filter((item: Group) => item.inProtocol === 'gb28181')
-    } else {
-      this.groupList = res.groups
-    }
-    if (this.groupList.length) {
-      if (!this.$route.query.groupId) {
-        await DeviceModule.SetGroup(this.groupList[0])
-        this.$route.query.groupId = this.groupList[0]
-        this.$router.push({
-          name: routeName,
-          query: {
-            groupId: this.currentGroupId
-          }
-        })
-      } else {
-        const currentGroup = this.groupList.find((group: Group) => group.groupId === this.$route.query.groupId)
-        await DeviceModule.SetGroup(currentGroup)
-      }
-      await this.initDirs()
-    }
-    this.loading.group = false
   }
 
   /**

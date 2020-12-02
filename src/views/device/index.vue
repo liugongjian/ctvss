@@ -1,23 +1,5 @@
 <template>
   <div v-loading="loading.group" class="app-container">
-    <div class="filter-container">
-      <el-select
-        v-model="groupId"
-        class="filter-group"
-        placeholder="请选择业务组"
-        @change="changeGroup"
-      >
-        <el-option
-          v-for="item in groupList"
-          :key="item.groupId"
-          :label="item.groupName"
-          :value="item.groupId"
-        />
-      </el-select>
-      <el-tooltip content="仅包含接入类型为GB28181的业务组" placement="right">
-        <svg-icon class="filter-container__help" name="help" />
-      </el-tooltip>
-    </div>
     <el-card ref="deviceWrap" class="device-list-wrap">
       <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
         <el-button class="device-list__expand" @click="toggledirList">
@@ -105,8 +87,6 @@
 import { Component, Watch, Mixins } from 'vue-property-decorator'
 import DeviceMixin from './mixin/deviceMixin'
 import { DeviceModule } from '@/store/modules/device'
-import { getGroups } from '@/api/group'
-import { Group } from '@/type/group'
 import CreateDir from './components/dialogs/CreateDir.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { deleteDir } from '@/api/dir'
@@ -134,7 +114,7 @@ export default class extends Mixins(DeviceMixin) {
   }
 
   private mounted() {
-    this.getGroupList()
+    // this.getGroupList()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
   }
@@ -145,49 +125,18 @@ export default class extends Mixins(DeviceMixin) {
 
   @Watch('$route.query')
   private onRouterChange() {
-    if (!this.$route.query.groupId) {
-      this.getGroupList()
-    }
+    !this.defaultKey && this.gotoRoot()
   }
 
-  /**
-   * 获取组列表
-   */
-  public async getGroupList() {
-    this.loading.group = true
-    let params = {
-      pageSize: 1000
-    }
-    const res = await getGroups(params)
-    this.groupList = res.groups.filter((item: Group) => item.inProtocol === 'gb28181')
-    if (this.groupList.length) {
-      if (!this.$route.query.groupId) {
-        await DeviceModule.SetGroup(this.groupList[0])
-        // this.$router.push({
-        //   name: 'device-list',
-        //   query: {
-        //     groupId: this.currentGroupId,
-        //     inProtocol: this.currentGroup!.inProtocol
-        //   }
-        // })
+  @Watch('currentGroupId', { immediate: true })
+  private onCurrentGroupChange(groupId: string, oldGroupId: string) {
+    if (!groupId) return
+    this.$nextTick(() => {
+      if (oldGroupId || !this.defaultKey) {
         this.gotoRoot()
-      } else {
-        const currentGroup = this.groupList.find((group: Group) => group.groupId === this.$route.query.groupId)
-        await DeviceModule.SetGroup(currentGroup)
       }
-      await this.initDirs()
-    }
-    this.loading.group = false
-  }
-
-  /**
-   * 切换业务组
-   */
-  public async changeGroup() {
-    const currentGroup = this.groupList.find((group: Group) => group.groupId === this.groupId)
-    await DeviceModule.SetGroup(currentGroup)
-    this.gotoRoot()
-    await this.initDirs()
+      this.initDirs()
+    })
   }
 
   /**

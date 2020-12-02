@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="app-container">
     <el-page-header content="流列表" @back="back" />
     <el-card>
       <el-form
@@ -70,10 +70,11 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Watch, Vue } from 'vue-property-decorator'
 import { Stream } from '@/type/stream'
 import { createStream, createStreamKanjia } from '@/api/stream'
 import { UserModule } from '@/store/modules/user'
+import { GroupModule } from '@/store/modules/group'
 import { pick } from 'lodash'
 import { getRegions } from '@/api/region'
 
@@ -125,15 +126,22 @@ export default class extends Vue {
 
   private regionList = []
 
-  get userType() {
+  private get userType() {
     return UserModule.type
   }
 
+  private get currentGroupId() {
+    return GroupModule.group?.groupId
+  }
+
+  @Watch('currentGroupId', { immediate: true })
+  private onCurrentGroupChange(groupId: String, oldGroupId: string) {
+    if (!groupId) return
+    this.$set(this.form, 'groupId', groupId)
+    oldGroupId && this.back()
+  }
+
   private mounted() {
-    const query: any = this.$route.query
-    if (query.groupId) {
-      this.$set(this.form, 'groupId', query.groupId)
-    }
     this.getRegionList()
   }
 
@@ -164,10 +172,7 @@ export default class extends Vue {
 
   private back() {
     this.$router.push({
-      path: '/stream/list',
-      query: {
-        groupId: this.form.groupId
-      }
+      path: '/stream'
     })
   }
 

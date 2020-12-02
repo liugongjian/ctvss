@@ -164,6 +164,11 @@ export default class extends Vue {
     this.init()
   }
 
+  @Watch('replayType')
+  private onReplayTypeChange() {
+    this.viewType = 'timeline'
+  }
+
   /**
    * 初始化
    */

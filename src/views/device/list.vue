@@ -197,6 +197,7 @@
 <script lang="ts">
 import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
 import { ExportToCsv } from 'export-to-csv'
+import { GroupModule } from '@/store/modules/group'
 import { Device } from '@/type/device'
 import { DeviceParams, DeviceStatus, StreamStatus, DeviceType, SipTransType, StreamTransType, TransPriority } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
@@ -254,6 +255,10 @@ export default class extends Vue {
     streamStatus: this.dictToFilterArray(StreamStatus)
   }
 
+  private get inProtocol() {
+    return this.$route.query.inProtocol
+  }
+
   private get isGb() {
     return this.$route.query.inProtocol === 'gb28181'
   }
@@ -275,7 +280,7 @@ export default class extends Vue {
   }
 
   private get groupId() {
-    return this.$route.query.groupId
+    return GroupModule.group?.groupId
   }
 
   private get isCreateSubDevice() {
@@ -315,6 +320,13 @@ export default class extends Vue {
     this.init()
   }
 
+  @Watch('groupId')
+  private onGroupIdChange() {
+    this.deviceInfo = null
+    this.deviceList = []
+    this.init()
+  }
+
   @Watch('filter', { immediate: true, deep: true })
   private onFilterChange() {
     this.type === 'dir' && this.getDeviceList()
@@ -325,7 +337,7 @@ export default class extends Vue {
   }
 
   private init() {
-    if (!this.groupId) return
+    if (!this.groupId || !this.inProtocol) return
     switch (this.type) {
       case 'ipc':
       case 'nvr':

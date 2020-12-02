@@ -164,7 +164,8 @@ export const asyncRoutes: RouteConfig[] = [
       icon: 'component',
       roles: ['admin'],
       alwaysShow: false,
-      only: true
+      only: true,
+      groupSelector: true
     },
     children: [
       {
@@ -174,7 +175,8 @@ export const asyncRoutes: RouteConfig[] = [
           title: '设备管理',
           icon: 'component',
           breadcrumb: false,
-          roles: ['admin']
+          roles: ['admin'],
+          groupSelector: true
         },
         children: [
           {
@@ -185,7 +187,8 @@ export const asyncRoutes: RouteConfig[] = [
               title: '设备列表',
               breadcrumb: false,
               roles: ['admin'],
-              activeMenu: '/device'
+              activeMenu: '/device',
+              groupSelector: true
             }
           },
           {
@@ -196,7 +199,8 @@ export const asyncRoutes: RouteConfig[] = [
               title: '添加设备',
               hidden: true,
               roles: ['admin'],
-              activeMenu: '/device'
+              activeMenu: '/device',
+              groupSelector: true
             }
           },
           {
@@ -207,7 +211,8 @@ export const asyncRoutes: RouteConfig[] = [
               title: '编辑设备',
               hidden: true,
               roles: ['admin'],
-              activeMenu: '/device'
+              activeMenu: '/device',
+              groupSelector: true
             }
           },
           {
@@ -218,7 +223,8 @@ export const asyncRoutes: RouteConfig[] = [
               title: '设备详情',
               hidden: true,
               roles: ['admin'],
-              activeMenu: '/device'
+              activeMenu: '/device',
+              groupSelector: true
             }
           },
           {
@@ -229,7 +235,8 @@ export const asyncRoutes: RouteConfig[] = [
               title: '监控查看',
               hidden: true,
               roles: ['admin'],
-              activeMenu: '/device'
+              activeMenu: '/device',
+              groupSelector: true
             }
           }
         ]
@@ -245,7 +252,8 @@ export const asyncRoutes: RouteConfig[] = [
       icon: 'stream',
       roles: ['admin'],
       alwaysShow: false,
-      only: true
+      only: true,
+      groupSelector: true
     },
     children: [
       {
@@ -257,58 +265,48 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'stream',
           breadcrumb: false,
           roles: ['admin'],
-          activeMenu: '/stream'
-        },
-        children: [
-          {
-            path: 'info',
-            component: () => import(/* webpackChunkName: "group" */ '@/views/stream/info.vue'),
-            name: 'stream-config',
-            meta: {
-              title: '流详情',
-              icon: 'stream',
-              hidden: true,
-              roles: ['admin'],
-              activeMenu: '/stream'
-            }
-          },
-          {
-            path: 'list',
-            component: () => import(/* webpackChunkName: "group" */ '@/views/stream/list.vue'),
-            name: 'stream-list',
-            meta: {
-              title: '流列表',
-              icon: 'stream',
-              hidden: true,
-              roles: ['admin'],
-              activeMenu: '/stream'
-            }
-          },
-          {
-            path: 'create',
-            component: () => import(/* webpackChunkName: "group" */ '@/views/stream/create.vue'),
-            name: 'stream-create',
-            meta: {
-              title: '创建流',
-              icon: 'stream',
-              hidden: true,
-              roles: ['admin'],
-              activeMenu: '/stream'
-            }
-          },
-          {
-            path: 'preview',
-            component: () => import(/* webpackChunkName: "group" */ '@/views/stream/preview.vue'),
-            name: 'stream-preview',
-            meta: {
-              title: '实时预览',
-              icon: 'tree',
-              hidden: true,
-              roles: ['admin'],
-              activeMenu: '/stream'
-            }
-          }
-        ]
+          activeMenu: '/stream',
+          groupSelector: true
+        }
+      },
+      {
+        path: 'info',
+        component: () => import(/* webpackChunkName: "group" */ '@/views/stream/info.vue'),
+        name: 'stream-config',
+        meta: {
+          title: '流详情',
+          icon: 'stream',
+          hidden: true,
+          roles: ['admin'],
+          activeMenu: '/stream',
+          groupSelector: true
+        }
+      },
+      {
+        path: 'create',
+        component: () => import(/* webpackChunkName: "group" */ '@/views/stream/create.vue'),
+        name: 'stream-create',
+        meta: {
+          title: '创建流',
+          icon: 'stream',
+          hidden: true,
+          roles: ['admin'],
+          activeMenu: '/stream',
+          groupSelector: true
+        }
+      },
+      {
+        path: 'preview',
+        component: () => import(/* webpackChunkName: "group" */ '@/views/stream/preview.vue'),
+        name: 'stream-preview',
+        meta: {
+          title: '实时预览',
+          icon: 'tree',
+          hidden: true,
+          roles: ['admin'],
+          activeMenu: '/stream',
+          groupSelector: true
+        }
       }
     ]
   },
@@ -319,7 +317,8 @@ export const asyncRoutes: RouteConfig[] = [
       title: '实时预览',
       icon: 'ipc',
       roles: ['admin'],
-      alwaysShow: false
+      alwaysShow: false,
+      groupSelector: true
     },
     children: [
       {
@@ -331,7 +330,8 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'ipc',
           breadcrumb: false,
           roles: ['admin'],
-          activeMenu: '/screen'
+          activeMenu: '/screen',
+          groupSelector: true
         }
       }
     ]
@@ -355,7 +355,8 @@ export const asyncRoutes: RouteConfig[] = [
       title: '录像回放',
       icon: 'video',
       roles: ['admin'],
-      alwaysShow: false
+      alwaysShow: false,
+      groupSelector: true
     },
     children: [
       {
@@ -367,7 +368,8 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'video',
           breadcrumb: false,
           roles: ['admin'],
-          activeMenu: '/replay'
+          activeMenu: '/replay',
+          groupSelector: true
         }
       }
     ]

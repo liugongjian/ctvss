@@ -6,6 +6,23 @@
       class="hamburger-container"
       @toggleClick="toggleSideBar"
     />
+    <el-select
+      v-if="hasGroupSelector"
+      v-model="groupId"
+      class="filter-group"
+      placeholder="请选择业务组"
+      @change="changeGroup"
+    >
+      <el-option
+        v-for="item in groupList"
+        :key="item.groupId"
+        :label="item.groupName"
+        :value="item.groupId"
+      >
+        <span class="filter-group__label">{{ item.groupName }}</span>
+        <span class="filter-group__in">{{ item.inProtocol }}</span>
+      </el-option>
+    </el-select>
     <breadcrumb
       id="breadcrumb-container"
       class="breadcrumb-container"
@@ -60,11 +77,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Watch, Vue } from 'vue-property-decorator'
 import { trim } from 'lodash'
 import { AppModule } from '@/store/modules/app'
 import { UserModule } from '@/store/modules/user'
+import { GroupModule } from '@/store/modules/group'
 import { getDevice } from '@/api/device'
+import { getGroups } from '@/api/group'
+import { Group } from '@/type/group'
 import Breadcrumb from '@/components/Breadcrumb/index.vue'
 import ErrorLog from '@/components/ErrorLog/index.vue'
 import Hamburger from '@/components/Hamburger/index.vue'
@@ -87,6 +107,11 @@ export default class extends Vue {
   public searchForm = {
     deviceId: ''
   }
+  public groupId: string | null = null
+  public loading = {
+    group: false
+  }
+  public groupList = []
 
   get sidebar() {
     return AppModule.sidebar
@@ -104,8 +129,61 @@ export default class extends Vue {
     return UserModule.name
   }
 
+  get currentGroup() {
+    return GroupModule.group
+  }
+
+  get currentGroupId() {
+    return GroupModule.group?.groupId
+  }
+
+  get hasGroupSelector() {
+    return this.$route.meta.groupSelector
+  }
+
   private toggleSideBar() {
     AppModule.ToggleSideBar(false)
+  }
+
+  @Watch('currentGroupId', { immediate: true })
+  private onCurrentGroupChange(groupId: string) {
+    if (!groupId) return
+    this.groupId = groupId
+  }
+
+  private mounted() {
+    this.getGroupList()
+  }
+
+  /**
+   * 获取组列表
+   */
+  public async getGroupList() {
+    this.loading.group = true
+    let params = {
+      pageSize: 1000
+    }
+    const res = await getGroups(params)
+    this.groupList = res.groups
+    if (this.groupList.length) {
+      if (!this.currentGroup?.groupId) {
+        const group: Group = this.groupList[0]
+        this.groupId = group.groupId!
+        await GroupModule.SetGroup(group)
+      } else {
+        const currentGroup = this.groupList.find((group: Group) => group.groupId === GroupModule.group?.groupId)
+        await GroupModule.SetGroup(currentGroup)
+      }
+    }
+    this.loading.group = false
+  }
+
+  /**
+   * 切换业务组
+   */
+  public async changeGroup() {
+    const currentGroup = this.groupList.find((group: Group) => group.groupId === this.groupId)
+    await GroupModule.SetGroup(currentGroup)
   }
 
   private async logout() {
@@ -167,6 +245,12 @@ export default class extends Vue {
     &:hover {
       background: rgba(0, 0, 0, .025)
     }
+  }
+
+  .filter-group {
+    float: left;
+    margin-top: 7px;
+    margin-right: 10px;
   }
 
   .breadcrumb-container {
