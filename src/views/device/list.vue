@@ -153,7 +153,7 @@
       </el-table-column>
       <el-table-column v-if="isGb && !isNVR" key="tunnelNum" prop="tunnelNum" label="通道数">
         <template slot-scope="{row}">
-          {{ row.deviceStats.channelSize || '-' }}
+          {{ row.deviceStats && row.deviceStats.channelSize || '-' }}
         </template>
       </el-table-column>
       <el-table-column key="createdTime" label="创建时间" min-width="180">

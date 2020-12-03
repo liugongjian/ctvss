@@ -125,6 +125,26 @@
             }
           }
         }
+
+        .node-dir {
+          .svg-icon {
+            display: none;
+            &:last-child {
+              display: inline;
+            }
+          }
+        }
+
+        .is-expanded > .el-tree-node__content {
+          .node-dir {
+            .svg-icon {
+              display: none;
+              &:first-child {
+                display: inline;
+              }
+            }
+          }
+        }
       }
     }
     .el-tree {
