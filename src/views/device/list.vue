@@ -1,6 +1,6 @@
 <template>
   <div class="device-list__container">
-    <div v-if="isNVR" class="device-info" :loading="loading.info">
+    <div v-if="isNVR || isPlatform" class="device-info" :loading="loading.info">
       <info-list v-if="deviceInfo" label-width="80">
         <info-list-item label="设备名称:">{{ deviceInfo.deviceName }}</info-list-item>
         <info-list-item label="国标ID:">{{ deviceInfo.gbId }}</info-list-item>
@@ -18,6 +18,9 @@
         <el-button v-if="isDir || deviceInfo && deviceInfo.createSubDevice === 2" type="primary" @click="goToCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
         <el-button v-if="isNVR" @click="goToDetail(deviceInfo)">查看NVR设备详情</el-button>
         <el-button v-if="isNVR" @click="goToUpdate(deviceInfo)">编辑NVR设备</el-button>
+        <el-button v-if="isPlatform" @click="goToDetail(deviceInfo)">查看Platform详情</el-button>
+        <el-button v-if="isPlatform" @click="goToUpdate(deviceInfo)">编辑Platform</el-button>
+        <el-button v-if="isPlatform" :loading="loading.syncDevice" @click="syncDevice">同步</el-button>
         <el-button :disabled="!selectedDeviceList.length" @click="exportCsv">导出</el-button>
         <el-dropdown placement="bottom" @command="handleBatch">
           <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
@@ -47,15 +50,7 @@
     </div>
     <el-table ref="deviceTable" v-loading="loading.list || loading.info" :data="deviceList" empty-text="暂无设备" fit class="device-list__table" @row-click="rowClick" @selection-change="handleSelectionChange" @filter-change="filterChange">
       <el-table-column type="selection" prop="selection" class-name="col-selection" width="55" />
-      <el-table-column v-if="isGb && isNVR" label="通道号/通道名称" min-width="200">
-        <template slot-scope="{row}">
-          <div class="device-list__device-name">
-            <div class="device-list__device-id">{{ row.channelNum }}</div>
-            <div>{{ row.channelName }}</div>
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column v-if="isGb && !isNVR" label="设备ID/名称" min-width="200">
+      <el-table-column label="设备ID/名称" min-width="200">
         <template slot-scope="{row}">
           <div class="device-list__device-name">
             <div class="device-list__device-id">{{ row.deviceId }}</div>
@@ -63,8 +58,13 @@
           </div>
         </template>
       </el-table-column>
+      <el-table-column v-if="isNVR" label="通道号" min-width="100">
+        <template slot-scope="{row}">
+          {{ row.channelNum }}
+        </template>
+      </el-table-column>
       <el-table-column
-        v-if="isGb && !isNVR"
+        v-if="!isNVR"
         key="deviceType"
         column-key="deviceType"
         prop="deviceType"
@@ -202,7 +202,7 @@ import { Device } from '@/type/device'
 import { DeviceParams, DeviceStatus, StreamStatus, DeviceType, SipTransType, StreamTransType, TransPriority } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MoveDir from './components/dialogs/MoveDir.vue'
-import { getDevice, getDevices, deleteDevice, startDevice, stopDevice } from '@/api/device'
+import { getDevice, getDevices, deleteDevice, startDevice, stopDevice, syncDevice } from '@/api/device'
 
 @Component({
   name: 'DeviceList',
@@ -226,7 +226,8 @@ export default class extends Vue {
   private transPriority = TransPriority
   private loading = {
     info: false,
-    list: false
+    list: false,
+    syncDevice: false
   }
   private dialog = {
     moveDir: false
@@ -269,6 +270,10 @@ export default class extends Vue {
 
   private get isNVR() {
     return this.$route.query.type === 'nvr'
+  }
+
+  private get isPlatform() {
+    return this.$route.query.type === 'platform'
   }
 
   private get isIPC() {
@@ -340,6 +345,7 @@ export default class extends Vue {
     if (!this.groupId || !this.inProtocol) return
     switch (this.type) {
       case 'ipc':
+      case 'platform':
       case 'nvr':
         if (!this.deviceId) return
         this.getDeviceInfo(this.type)
@@ -360,19 +366,22 @@ export default class extends Vue {
       const res = await getDevice({
         deviceId: this.deviceId
       })
-      if (type === 'nvr') {
+      if (type === 'nvr' || type === 'platform') {
         this.deviceInfo = res
         this.deviceList = this.deviceInfo.deviceChannels.map((channel: any) => {
           channel.deviceType = 'ipc'
           channel.transPriority = this.deviceInfo.transPriority
           channel.sipTransType = this.deviceInfo.sipTransType
           channel.streamTransType = this.deviceInfo.streamTransType
+          channel.deviceName = channel.channelName
           return channel
         })
       } else if (type === 'ipc') {
         this.deviceInfo = null
         if (res.parentDeviceId !== '-1' && res.deviceChannels.length) {
+          res.deviceId = res.deviceChannels[0].deviceId
           res.deviceName = res.deviceChannels[0].channelName
+          console.log(res)
         }
         this.deviceList = [ res ]
       }
@@ -747,6 +756,23 @@ export default class extends Vue {
       }
     })
     csvExporter.generateCsv(data)
+  }
+
+  /**
+   * 设备同步
+   */
+  private async syncDevice() {
+    try {
+      this.loading.syncDevice = true
+      await syncDevice({
+        deviceId: this.deviceInfo.deviceId
+      })
+      this.init()
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.loading.syncDevice = false
+    }
   }
 
   /**

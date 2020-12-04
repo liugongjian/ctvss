@@ -143,3 +143,10 @@ export const stopDevice = (params: any): Promise<any> =>
     method: 'post',
     data: params
   })
+
+export const syncDevice = (params: any): Promise<any> =>
+  request({
+    url: '/device/sync',
+    method: 'post',
+    data: params
+  })

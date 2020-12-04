@@ -195,6 +195,7 @@ export default class DeviceMixin extends Vue {
           dirId: item.id
         }
         break
+      case 'platform':
       case 'nvr':
         router = {
           name: 'device-list'

@@ -14,13 +14,17 @@
               <info-list-item label="设备名称:">{{ info.deviceName }}</info-list-item>
               <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
-              <template v-if="info.deviceType === 'ipc'">
+              <template v-if="info.deviceType === 'ipc' || info.deviceType === 'platform'">
                 <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
                 <info-list-item label="设备IP:">{{ info.deviceIp || '-' }}</info-list-item>
                 <info-list-item label="端口:">{{ info.devicePort || '-' }}</info-list-item>
               </template>
               <template v-if="info.deviceType === 'nvr'">
                 <info-list-item label="自动创建子设备:">{{ createSubDevice[info.createSubDevice] }}</info-list-item>
+                <info-list-item label="通道数量:">{{ info.deviceStats && info.deviceStats.channelSize }}</info-list-item>
+                <info-list-item label="在线流数量:">{{ info.deviceStats && info.deviceStats.onlineSize }}</info-list-item>
+              </template>
+              <template v-if="info.deviceType === 'platform'">
                 <info-list-item label="通道数量:">{{ info.deviceStats && info.deviceStats.channelSize }}</info-list-item>
                 <info-list-item label="在线流数量:">{{ info.deviceStats && info.deviceStats.onlineSize }}</info-list-item>
               </template>
@@ -65,7 +69,7 @@
                   </div>
                 </div>
               </info-list-item>
-              <info-list-item label="优先TCP传输:">
+              <info-list-item v-if="info.deviceType === 'nvr' || info.deviceType === 'ipc'" label="优先TCP传输:">
                 <div class="info-list__edit">
                   <div class="info-list__edit--value">
                     {{ transPriority[info.transPriority] || '-' }}

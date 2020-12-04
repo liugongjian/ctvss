@@ -39,7 +39,7 @@
                 <span
                   slot-scope="{node, data}"
                   class="custom-tree-node"
-                  :class="{'offline': data.type === 'ipc' && data.deviceStatus !== 'on'}"
+                  :class="{'online': data.deviceStatus === 'on'}"
                 >
                   <span class="node-name">
                     <svg-icon v-if="data.type !== 'dir'" :name="data.type" width="15" height="15" />

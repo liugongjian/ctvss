@@ -63,7 +63,7 @@
                 <span
                   slot-scope="{node, data}"
                   class="custom-tree-node"
-                  :class="{'offline': data.type === 'ipc' && data.deviceStatus !== 'on'}"
+                  :class="{'online': data.deviceStatus === 'on'}"
                   @contextmenu="($event, node)"
                 >
                   <span class="node-name">

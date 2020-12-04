@@ -35,7 +35,7 @@
         <el-form-item v-if="form.deviceType === 'nvr'" label="子设备数量:" prop="channelSize">
           <el-input-number v-model="form.channelSize" :min="minChannelSize" type="number" :disabled="isUpdate && form.createSubDevice === 1" />
         </el-form-item>
-        <el-form-item label="国标版本:" prop="gbVersion">
+        <el-form-item v-if="form.deviceType === 'nvr' || form.deviceType === 'ipc'" label="国标版本:" prop="gbVersion">
           <el-radio-group v-model="form.gbVersion">
             <el-radio-button v-for="item in gbVersionList" :key="item" :label="item" :value="item" />
           </el-radio-group>
@@ -54,6 +54,9 @@
         </el-form-item>
         <el-form-item label="设备端口:" prop="devicePort">
           <el-input v-model.number="form.devicePort" />
+        </el-form-item>
+        <el-form-item v-if="form.deviceType === 'platform'" label="国标ID:" prop="gbId">
+          <el-input v-model="form.gbId" />
         </el-form-item>
         <el-form-item label="GB28181账号:" prop="userName">
           <el-select v-model="form.userName" :loading="loading.account">
@@ -92,7 +95,7 @@
           </template>
           <el-switch v-model="form.pullType" :active-value="1" :inactive-value="2" />
         </el-form-item>
-        <el-form-item prop="transPriority">
+        <el-form-item v-if="form.deviceType === 'nvr' || form.deviceType === 'ipc'" prop="transPriority">
           <template slot="label">
             优先TCP传输:
             <el-popover
@@ -178,6 +181,9 @@ export default class extends Vue {
       { required: true, message: '请填写通道号', trigger: 'blur' },
       { validator: this.validateChannelNum, trigger: 'blur' }
     ],
+    gbId: [
+      { required: true, message: '请填写国标ID', trigger: 'blur' }
+    ],
     userName: [
       { required: true, message: '请选择账号', trigger: 'change' }
     ]
@@ -212,6 +218,7 @@ export default class extends Vue {
     pullType: 1,
     transPriority: 'tcp',
     parentDeviceId: '',
+    gbId: '',
     userName: ''
   }
   private minChannelSize = 1
@@ -286,7 +293,7 @@ export default class extends Vue {
       })
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'deviceType', 'deviceVendor',
-          'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'userName']))
+          'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'gbId', 'userName']))
         if (info.deviceStats) {
           this.minChannelSize = this.form.channelSize = info.deviceStats.channelSize
         }
@@ -393,13 +400,28 @@ export default class extends Vue {
             params = Object.assign(params, pick(this.form, ['deviceId']))
           }
           if (!this.isChannel) {
-            // 非NVR子设备
-            params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'gbVersion', 'deviceIp', 'devicePort', 'pullType', 'transPriority', 'userName']))
-            if (this.form.deviceType === 'nvr') {
-              // NVR类型添加额外参数
+            // 通用参数
+            params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'deviceIp', 'devicePort', 'pullType', 'userName']))
+            // IPC类型添加额外参数
+            if (this.form.deviceType === 'ipc') {
               params = Object.assign(params, {
+                gbVersion: this.form.gbVersion,
+                transPriority: this.form.transPriority
+              })
+            }
+            // NVR类型添加额外参数
+            if (this.form.deviceType === 'nvr') {
+              params = Object.assign(params, {
+                gbVersion: this.form.gbVersion,
+                transPriority: this.form.transPriority,
                 channelSize: this.form.channelSize,
                 createSubDevice: this.form.createSubDevice
+              })
+            }
+            // Platform类型添加额外参数
+            if (this.form.deviceType === 'platform') {
+              params = Object.assign(params, {
+                gbId: this.form.gbId
               })
             }
           } else {
