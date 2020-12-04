@@ -5,7 +5,7 @@
         <el-button type="primary" @click="handleCreate">新建流</el-button>
       </div>
       <el-table v-loading="loading.table" class="stream-list__table" :data="streamList" fit @row-click="rowClick">
-        <el-table-column prop="deviceId" label="设备号/流名称">
+        <el-table-column prop="deviceId" label="设备号/流名称" min-width="150">
           <template slot-scope="{row}">
             <div class="stream-name">
               <div class="stream-name__id">{{ row.deviceId }}</div>
@@ -21,13 +21,13 @@
             {{ streamStatus[row.status] }}
           </template>
         </el-table-column>
-        <el-table-column prop="createdTime" label="创建时间" />
-        <el-table-column key="startTime" label="开始推流时间">
+        <el-table-column prop="createdTime" label="创建时间" min-width="170" />
+        <el-table-column key="startTime" label="开始推流时间" min-width="170">
           <template slot-scope="{row}">
             {{ row.startTime || '-' }}
           </template>
         </el-table-column>
-        <el-table-column prop="expires" label="过期时间" />
+        <el-table-column prop="expires" label="过期时间" min-width="170" />
         <el-table-column prop="action" class-name="col-action" label="操作" width="150" fixed="right">
           <template slot-scope="scope">
             <el-button type="text" @click="goToInfo(scope.row)">流详情</el-button>

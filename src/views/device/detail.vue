@@ -21,16 +21,16 @@
               </template>
               <template v-if="info.deviceType === 'nvr'">
                 <info-list-item label="自动创建子设备:">{{ createSubDevice[info.createSubDevice] }}</info-list-item>
-                <info-list-item label="通道数量:">{{ info.deviceStats.channelSize }}</info-list-item>
-                <info-list-item label="在线流数量:">{{ info.deviceStats.onlineSize }}</info-list-item>
+                <info-list-item label="通道数量:">{{ info.deviceStats && info.deviceStats.channelSize }}</info-list-item>
+                <info-list-item label="在线流数量:">{{ info.deviceStats && info.deviceStats.onlineSize }}</info-list-item>
               </template>
               <info-list-item label="自动拉流:">{{ pullType[info.pullType] }}</info-list-item>
               <info-list-item label="GB28181账号:">{{ info.userName }}</info-list-item>
             </info-list>
             <info-list v-if="info && isNVRChannel" label-width="110">
               <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
-              <info-list-item label="通道号:">{{ info.deviceChannels[0].channelNum }}</info-list-item>
-              <info-list-item label="通道名称:">{{ info.deviceChannels[0].channelName }}</info-list-item>
+              <info-list-item v-if="info.deviceChannels.length" label="通道号:">{{ info.deviceChannels[0].channelNum }}</info-list-item>
+              <info-list-item v-if="info.deviceChannels.length" label="通道名称:">{{ info.deviceChannels[0].channelName }}</info-list-item>
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
               <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
             </info-list>
@@ -293,7 +293,7 @@ export default class extends Vue {
   /**
    * TAB切换
    */
-  private async handleClick(tab: any, event: any) {
+  private async handleClick(tab: any) {
     this.activeName = tab.name
   }
 

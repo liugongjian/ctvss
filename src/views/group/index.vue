@@ -39,11 +39,11 @@
             {{ inProtocolType[row.inProtocol] }}
           </template>
         </el-table-column>
-        <el-table-column prop="regionName" label="服务区域" />
+        <el-table-column prop="regionName" label="服务区域" min-width="120" />
         <el-table-column prop="deviceSize" label="设备数量">
           <template slot-scope="scope">{{ scope.row.groupStats && scope.row.groupStats.deviceSize }}</template>
         </el-table-column>
-        <el-table-column prop="createdTime" label="创建时间" min-width="160" />
+        <el-table-column prop="createdTime" label="创建时间" min-width="170" />
         <el-table-column prop="action" class-name="col-action" label="操作" width="250" fixed="right">
           <template slot-scope="scope">
             <el-button type="text" @click="goToConfig(scope.row)">业务组配置</el-button>

@@ -121,16 +121,6 @@
           {{ row.deviceVendor || '-' }}
         </template>
       </el-table-column>
-      <el-table-column v-if="isGb && !isNVR" key="deviceIp" label="设备IP" min-width="130">
-        <template slot-scope="{row}">
-          {{ row.deviceIp || '-' }}
-        </template>
-      </el-table-column>
-      <el-table-column v-if="isGb && !isNVR" key="devicePort" label="设备端口">
-        <template slot-scope="{row}">
-          {{ row.devicePort || '-' }}
-        </template>
-      </el-table-column>
       <el-table-column v-if="isGb || isNVR" key="gbId" prop="gbId" label="国标ID" min-width="190">
         <template slot-scope="{row}">
           {{ row.gbId || '-' }}
@@ -154,6 +144,16 @@
       <el-table-column v-if="isGb && !isNVR" key="tunnelNum" prop="tunnelNum" label="通道数">
         <template slot-scope="{row}">
           {{ row.deviceStats && row.deviceStats.channelSize || '-' }}
+        </template>
+      </el-table-column>
+      <el-table-column v-if="isGb && !isNVR" key="deviceIp" label="设备IP" min-width="130">
+        <template slot-scope="{row}">
+          {{ row.deviceIp || '-' }}
+        </template>
+      </el-table-column>
+      <el-table-column v-if="isGb && !isNVR" key="devicePort" label="设备端口">
+        <template slot-scope="{row}">
+          {{ row.devicePort || '-' }}
         </template>
       </el-table-column>
       <el-table-column key="createdTime" label="创建时间" min-width="180">
