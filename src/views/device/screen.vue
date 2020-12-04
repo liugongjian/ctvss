@@ -63,7 +63,7 @@
                 <span
                   slot-scope="{node, data}"
                   class="custom-tree-node"
-                  :class="{'online': data.deviceStatus === 'on'}"
+                  :class="{'online': data.deviceStatus === 'on', 'offline': (data.deviceStatus !== 'on' && data.type === 'ipc')}"
                   @contextmenu="($event, node)"
                 >
                   <span class="node-name">
@@ -369,7 +369,7 @@ export default class extends Mixins(ScreenMixin) {
       })
       return
     }
-    if (item.type === 'ipc' && item.streamStatus === 'on') {
+    if (item.type === 'ipc' && item.deviceStatus === 'on') {
       const screen = this.screenList[this.currentIndex]
       if (screen.deviceId) {
         screen.reset()
