@@ -168,6 +168,9 @@ export default class extends Vue {
     gbVersion: [
       { required: true, message: '请选择国标版本', trigger: 'change' }
     ],
+    deviceVendor: [
+      { required: true, message: '请选择厂商', trigger: 'change' }
+    ],
     channelSize: [
       { required: true, message: '请填写子设备数量', trigger: 'blur' }
     ],
