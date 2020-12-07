@@ -76,3 +76,10 @@ export const getCallBackTemplates = (params: any): Promise<any> =>
     method: 'get',
     params
   })
+
+export const deleteStream = (params: any): Promise<any> =>
+  request({
+    url: '/rtmp/stream/delete',
+    method: 'post',
+    data: params
+  })

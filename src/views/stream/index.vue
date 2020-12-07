@@ -31,6 +31,7 @@
         <el-table-column prop="action" class-name="col-action" label="操作" width="150" fixed="right">
           <template slot-scope="scope">
             <el-button type="text" @click="goToInfo(scope.row)">流详情</el-button>
+            <el-button type="text" @click="deleteStream(scope.row)">删除</el-button>
             <!-- <el-button type="text" @click="goToPreview(scope.row)">实时预览</el-button> -->
           </template>
         </el-table-column>
@@ -50,7 +51,7 @@
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { GroupModule } from '@/store/modules/group'
-import { getStreamList } from '@/api/stream'
+import { getStreamList, deleteStream } from '@/api/stream'
 import { Stream } from '@/type/stream'
 import { StreamStatus } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
@@ -120,6 +121,9 @@ export default class extends Vue {
     await this.getStreamList()
   }
 
+  /**
+   * 查看详情
+   */
   private goToInfo(row: any) {
     this.$router.push({
       path: '/stream/info',
@@ -129,12 +133,28 @@ export default class extends Vue {
     })
   }
 
+  /**
+   * 前往预览页面
+   */
   private goToPreview(row: any) {
     this.$router.push({
       path: '/stream/preview',
       query: {
         deviceId: row.deviceId
       }
+    })
+  }
+
+  /**
+   * 删除流
+   */
+  private async deleteStream(row: Stream) {
+    this.$alertDelete({
+      type: '流',
+      msg: `是否确认删除流"${row.deviceId}"`,
+      method: deleteStream,
+      payload: { deviceId: row.deviceId },
+      onSuccess: this.getStreamList
     })
   }
 

@@ -258,7 +258,7 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "screen" */ '@/views/stream/index.vue'),
+        component: () => import(/* webpackChunkName: "stream" */ '@/views/stream/index.vue'),
         name: 'stream',
         meta: {
           title: '流管理',
@@ -271,7 +271,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'info',
-        component: () => import(/* webpackChunkName: "group" */ '@/views/stream/info.vue'),
+        component: () => import(/* webpackChunkName: "stream" */ '@/views/stream/info.vue'),
         name: 'stream-config',
         meta: {
           title: '流详情',
@@ -284,7 +284,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'create',
-        component: () => import(/* webpackChunkName: "group" */ '@/views/stream/create.vue'),
+        component: () => import(/* webpackChunkName: "stream" */ '@/views/stream/create.vue'),
         name: 'stream-create',
         meta: {
           title: '创建流',
@@ -297,7 +297,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'preview',
-        component: () => import(/* webpackChunkName: "group" */ '@/views/stream/preview.vue'),
+        component: () => import(/* webpackChunkName: "stream" */ '@/views/stream/preview.vue'),
         name: 'stream-preview',
         meta: {
           title: '实时预览',
