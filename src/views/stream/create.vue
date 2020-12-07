@@ -12,7 +12,7 @@
         <el-form-item label="设备号" prop="deviceId">
           <el-input v-model="form.deviceId" />
         </el-form-item>
-        <template v-if="true">
+        <template v-if="userType === 'kanjia'">
           <el-form-item label="存储区域" prop="storeRegion">
             <el-cascader
               v-model="form.storeRegion"
