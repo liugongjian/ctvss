@@ -1,13 +1,13 @@
 <template>
   <div class="app-container">
-    <div class="detail-wrap">
+    <div v-loading="loading.info" class="detail-wrap">
       <div v-if="info">
         <el-button v-if="info.deviceType === 'ipc'" class="btn-detail" @click="goToPreview"><svg-icon name="live" /> 实时预览</el-button>
         <el-button v-if="info.deviceType === 'nvr'" class="btn-detail" @click="goToChannels"><svg-icon name="list" /> 查看通道</el-button>
       </div>
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="基本信息" name="info">
-          <div :loading="loading.info">
+          <div>
             <el-button v-if="!isAutoCreated" type="text" class="info-edit" @click="edit">编辑</el-button>
             <info-list v-if="info && !isNVRChannel" label-width="110">
               <info-list-item label="设备类型:">{{ deviceType[info.deviceType] }}</info-list-item>
