@@ -207,14 +207,14 @@ export default class extends Vue {
    * 创建播放器
    */
   private createPlayer() {
-    const source = this.isWs ? this.url.replace('http://', 'ws://') : this.url
     this.player = new Ctplayer({
       wrap: this.$refs.video,
       autoPlay: this.autoPlay,
       hasControl: this.hasControl,
-      source,
+      source: this.url,
       type: this.type,
       isLive: this.isLive,
+      isWs: this.isWs,
       playbackRate: this.playbackRate,
       onTimeUpdate: this.onTimeUpdate,
       onDurationChange: this.onDurationChange,
