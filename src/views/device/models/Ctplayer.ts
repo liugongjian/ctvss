@@ -285,15 +285,17 @@ export default class Ctplayer {
     // wrapElement.innerHTML = '<div class="not-support">网页版暂不支持H265，请使用手机APP播放</div>'
     // @ts-ignore
     const h265Player = window.h265js
+    const audioElement = document.createElement('audio')
+    wrapElement.append(audioElement)
     const canvasElement = document.createElement('canvas')
-    const width = wrapElement.clientWidth
+    wrapElement.innerHTML = ''
+    wrapElement.append(canvasElement)
+    const width = canvasElement.clientWidth
+    // const width = wrapElement.clientWidth
     const height = width * 9 / 16
     canvasElement.setAttribute('width', width.toString())
     canvasElement.setAttribute('height', height.toString())
-    const audioElement = document.createElement('audio')
-    wrapElement.innerHTML = ''
-    wrapElement.append(canvasElement)
-    wrapElement.append(audioElement)
+    
     let player = h265Player.createPlayer({
       isLive: true
     },

@@ -172,27 +172,44 @@ export default class extends Vue {
   .preview-player {
     position: relative;
     background: #000;
-    ::v-deep canvas {
-      display: block;
-      margin: 0 auto;
-    }
-    ::v-deep .play {
-      position: absolute;
-      top: 0;
-      left: 0;
-      color: #fff;
-      width: 100%;
-      height: 100%;
-      cursor: pointer;
-      background: url('../assets/play.svg') no-repeat center;
-      background-size: 80px 80px;
-    }
-    ::v-deep video {
-      width: 100%;
-      height: auto;
-    }
+    height: 70vh;
   }
-
+  ::v-deep .play {
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: #fff;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    background: url('../assets/play.svg') no-repeat center;
+    background-size: 80px 80px;
+  }
+  ::v-deep canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    outline: none;
+  }
+  ::v-deep video {
+    position: absolute;
+    background: #000;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    outline: none;
+  }
+  ::v-deep .video-wrap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    outline: none;
+  }
   .address {
     ::v-deep .info-item {
       padding: 15px 0 5px 0;
