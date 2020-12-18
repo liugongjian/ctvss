@@ -588,9 +588,6 @@ export default class extends Vue {
     position: relative;
     background: #000;
     overflow: hidden;
-    > div {
-      // position: absolute;
-    }
     ::v-deep .el-loading-mask {
       background: none !important;
       top: 50px;
