@@ -22,7 +22,7 @@
               </el-table-column>
               <el-table-column prop="storageTime" label="存储时长" align="center">
                 <template slot-scope="{row}">
-                  <span>{{ row.storageTime ? row.storageTime + '分钟' : '永久存储' }}</span>
+                  <span>{{ row.storageTime ? row.storageTime / 60 / 24 + '天' : '永久存储' }}</span>
                 </template>
               </el-table-column>
               <el-table-column prop="path" label="存储路径" min-width="200" />

@@ -35,9 +35,9 @@
             </el-table-column>
             <el-table-column label="存储时长" align="center" width="300">
               <template slot-scope="{row}">
-                <el-input v-model="row.storageTime" placeholder="0为永久保存" class="transcribe-cycle" size="mini" style="width: 90%;">
-                  <template slot="append">分钟</template>
-                </el-input>
+                <el-select v-model="row.storageTime" size="mini" style="width: 80%;">
+                  <el-option v-for="item in storageTimeList" :key="item.value" :label="item.label" :value="item.value" />
+                </el-select>
               </template>
             </el-table-column>
             <el-table-column label="存储路径" align="center" min-width="400">
@@ -78,6 +78,28 @@ export default class extends Vue {
       { validator: this.validateTemplateName, trigger: 'blur' }
     ]
   }
+  private storageTimeList = [
+    {
+      label: '7天',
+      value: 7 * 24 * 60
+    },
+    {
+      label: '15天',
+      value: 15 * 24 * 60
+    },
+    {
+      label: '30天',
+      value: 30 * 24 * 60
+    },
+    {
+      label: '90天',
+      value: 90 * 24 * 60
+    },
+    {
+      label: '永久',
+      value: 0
+    }
+  ]
   private storageTypeList = Object.values(RecordStorageType)
   private intervalReg = /^[1-9][0-9]*$/
   private timeReg = /^(([1-9][0-9]*)|[0-9])$/
@@ -130,8 +152,8 @@ export default class extends Vue {
         resFormParams.formatList.push({
           formatType: 'HLS',
           interval: 30,
-          path: '',
-          storageTime: 0
+          path: 'record/{DeviceId}/{StartTime}',
+          storageTime: 30 * 24 * 60
         })
       }
 
@@ -140,15 +162,15 @@ export default class extends Vue {
           formatType: 'FLV',
           interval: data.flvParam.interval / 60,
           path: data.flvParam.path,
-          storageTime: data.flvParam.storageTime
+          storageTime: data.flvParam.storageTime / 60
         })
         selectedRows.push(resFormParams.formatList[resFormParams.formatList.length - 1])
       } else {
         resFormParams.formatList.push({
           formatType: 'FLV',
           interval: 30,
-          path: '',
-          storageTime: 0
+          path: 'record/{DeviceId}/{StartTime}',
+          storageTime: 30 * 24 * 60
         })
       }
 
@@ -157,15 +179,15 @@ export default class extends Vue {
           formatType: 'MP4',
           interval: data.mpParam.interval / 60,
           path: data.mpParam.path,
-          storageTime: data.mpParam.storageTime
+          storageTime: data.mpParam.storageTime / 60
         })
         selectedRows.push(resFormParams.formatList[resFormParams.formatList.length - 1])
       } else {
         resFormParams.formatList.push({
           formatType: 'MP4',
           interval: 30,
-          path: '',
-          storageTime: 0
+          path: 'record/{DeviceId}/{StartTime}',
+          storageTime: 30 * 24 * 60
         })
       }
 
@@ -183,18 +205,18 @@ export default class extends Vue {
       this.form.formatList.push({
         formatType: 'HLS',
         interval: 30,
-        path: '',
-        storageTime: 0
+        path: 'record/{DeviceId}/{StartTime}',
+        storageTime: 30 * 24 * 60
       }, {
         formatType: 'FLV',
         interval: 30,
-        path: '',
-        storageTime: 0
+        path: 'record/{DeviceId}/{StartTime}',
+        storageTime: 30 * 24 * 60
       }, {
         formatType: 'MP4',
         interval: 30,
-        path: '',
-        storageTime: 0
+        path: 'record/{DeviceId}/{StartTime}',
+        storageTime: 30 * 24 * 60
       })
     }
   }
