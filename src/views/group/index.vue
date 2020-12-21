@@ -180,7 +180,10 @@ export default class extends Vue {
       msg: `是否确认删除业务组"${row.groupName}"`,
       method: deleteGroup,
       payload: { groupId: row.groupId },
-      onSuccess: this.getList
+      onSuccess: () => {
+        this.getList()
+        GroupModule.GetGroupList()
+      }
     })
   }
 

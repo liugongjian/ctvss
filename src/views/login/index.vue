@@ -190,6 +190,7 @@ export default class extends Vue {
         try {
           this.loading = true
           await GroupModule.ResetGroup()
+          await GroupModule.ResetGroupList()
           await UserModule.Login(this.loginForm)
           this.$router.push({
             path: this.redirect || '/',

@@ -85,6 +85,7 @@
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
 import { Group } from '@/type/group'
+import { GroupModule } from '@/store/modules/group'
 import { InProtocolType, OutProtocolType } from '@/dics'
 import { createGroup, queryGroup, updateGroup } from '@/api/group'
 import { getRegions } from '@/api/region'
@@ -228,6 +229,7 @@ export default class extends Vue {
             await createGroup(params)
             this.$message.success('新建业务组成功！')
           }
+          GroupModule.GetGroupList()
           this.back()
         } catch (e) {
           this.$message.error(e && e.message)

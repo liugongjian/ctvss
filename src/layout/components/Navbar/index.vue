@@ -83,7 +83,6 @@ import { AppModule } from '@/store/modules/app'
 import { UserModule } from '@/store/modules/user'
 import { GroupModule } from '@/store/modules/group'
 import { getDevice } from '@/api/device'
-import { getGroups } from '@/api/group'
 import { Group } from '@/type/group'
 import Breadcrumb from '@/components/Breadcrumb/index.vue'
 import ErrorLog from '@/components/ErrorLog/index.vue'
@@ -111,7 +110,6 @@ export default class extends Vue {
   public loading = {
     group: false
   }
-  public groupList = []
 
   get sidebar() {
     return AppModule.sidebar
@@ -141,41 +139,21 @@ export default class extends Vue {
     return this.$route.meta.groupSelector
   }
 
+  get groupList() {
+    return GroupModule.groups || []
+  }
+
   private toggleSideBar() {
     AppModule.ToggleSideBar(false)
   }
 
   @Watch('currentGroupId', { immediate: true })
   private onCurrentGroupChange(groupId: string) {
-    if (!groupId) return
     this.groupId = groupId
   }
 
   private mounted() {
-    this.getGroupList()
-  }
-
-  /**
-   * 获取组列表
-   */
-  public async getGroupList() {
-    this.loading.group = true
-    let params = {
-      pageSize: 1000
-    }
-    const res = await getGroups(params)
-    this.groupList = res.groups
-    if (this.groupList.length) {
-      if (!this.currentGroup?.groupId) {
-        const group: Group = this.groupList[0]
-        this.groupId = group.groupId!
-        await GroupModule.SetGroup(group)
-      } else {
-        const currentGroup = this.groupList.find((group: Group) => group.groupId === GroupModule.group?.groupId)
-        await GroupModule.SetGroup(currentGroup)
-      }
-    }
-    this.loading.group = false
+    GroupModule.GetGroupList()
   }
 
   /**

@@ -58,7 +58,7 @@
         <el-form-item v-if="form.deviceType === 'platform'" label="国标ID:" prop="gbId">
           <el-input v-model="form.gbId" />
         </el-form-item>
-        <el-form-item label="GB28181账号:" prop="userName">
+        <el-form-item label="GB28181账号:" :prop="form.deviceType === 'platform' ? '' : 'userName'">
           <el-select v-model="form.userName" :loading="loading.account">
             <el-option-group label="匿名">
               <el-option
