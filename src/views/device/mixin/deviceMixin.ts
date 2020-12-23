@@ -187,6 +187,7 @@ export default class DeviceMixin extends Vue {
     let router: any
     let query: any = {}
     switch (item.type) {
+      case 'platformDir':
       case 'dir':
         router = {
           name: 'device-list'
