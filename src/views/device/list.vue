@@ -1,6 +1,6 @@
 <template>
   <div class="device-list__container">
-    <div v-if="isNVR || isPlatform" class="device-info" :loading="loading.info">
+    <div v-if="isNVR" class="device-info" :loading="loading.info">
       <info-list v-if="deviceInfo" label-width="80">
         <info-list-item label="设备名称:">{{ deviceInfo.deviceName }}</info-list-item>
         <info-list-item label="国标ID:">{{ deviceInfo.gbId }}</info-list-item>
@@ -11,6 +11,17 @@
         <info-list-item label="创建时间:">{{ deviceInfo.createdTime }}</info-list-item>
         <info-list-item label="通道数量:">{{ deviceInfo.deviceStats.channelSize }}</info-list-item>
         <info-list-item label="在线流数量:">{{ deviceInfo.deviceStats.onlineSize }}</info-list-item>
+      </info-list>
+    </div>
+    <div v-if="isPlatform" class="device-info" :loading="loading.info">
+      <info-list v-if="deviceInfo" label-width="80">
+        <info-list-item label="平台名称:">{{ deviceInfo.deviceName }}</info-list-item>
+        <info-list-item label="国标ID:">{{ deviceInfo.gbId }}</info-list-item>
+        <info-list-item label="设备状态:">
+          <status-badge :status="deviceInfo.deviceStatus" />
+          {{ deviceStatus[deviceInfo.deviceStatus] }}
+        </info-list-item>
+        <info-list-item label="创建时间:">{{ deviceInfo.createdTime }}</info-list-item>
       </info-list>
     </div>
     <div class="filter-container clearfix">
@@ -344,8 +355,11 @@ export default class extends Vue {
   private init() {
     if (!this.groupId || !this.inProtocol) return
     switch (this.type) {
-      case 'ipc':
       case 'platform':
+        this.getDeviceInfo(this.type)
+        this.getDeviceList()
+        break
+      case 'ipc':
       case 'nvr':
         if (!this.deviceId) return
         this.getDeviceInfo(this.type)
