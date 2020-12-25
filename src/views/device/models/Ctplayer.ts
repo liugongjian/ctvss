@@ -15,6 +15,7 @@ export default class Ctplayer {
   public flv?: any
   public type?: string
   public isLive?: boolean
+  public isWs?: boolean
   public playbackRate?: number
   private onPlay?: Function
   private onPause?: Function
@@ -36,6 +37,7 @@ export default class Ctplayer {
     this.hasControl = config.hasControl
     this.type = config.type
     this.isLive = config.isLive
+    this.isWs = config.isWs
     this.playbackRate = config.playbackRate || 1
     this.onPlay = config.onPlay
     this.onPause = config.onPause
@@ -61,6 +63,9 @@ export default class Ctplayer {
 
     if (!wrapElement) {
       throw new Error('找不到指定的ID Video元素')
+    }
+    if (this.type !== 'h265-flv') {
+      this.source = this.isWs ? this.source.replace('http://', 'ws://') : this.source
     }
     this.player = this.createPlayer(wrapElement)
     if (!this.player) {
@@ -148,8 +153,8 @@ export default class Ctplayer {
           this.player.stop()
           break
         case 'h265-flv':
-          // this.player.destroy()
-          // this.player = null
+          this.player.destroy()
+          this.player = null
           break
         case 'h265-hls':
           // this.player.events.off('Player.resizeScreen', this.resizeH265Hls)
@@ -174,8 +179,11 @@ export default class Ctplayer {
         this.flv.load()
         this.flv.play()
         break
-      case 'hls':
-      case 'mp4':
+      case 'h265-flv':
+        this.player.destroy()
+        this.player = null
+        this.init()
+        break
     }
   }
 
@@ -249,83 +257,93 @@ export default class Ctplayer {
    * 截图
    */
   public snapshot(name: string = 'snapshot') {
-    let $video: HTMLVideoElement | null = this.wrap.querySelector('video')
-    if (!$video) return
-    let $canvas: any | null = document.createElement('canvas')
-    $canvas.width = $video.videoWidth
-    $canvas.height = $video.videoHeight
-    $canvas!.getContext('2d').drawImage($video, 0, 0, $canvas.width, $canvas.height)
-    let $link: any = document.createElement('a')
-    $link.download = `${name}_${dateFormat(new Date(), 'yyyy-MM-dd_HH-mm-ss')}.png`
-    $link.href = $canvas.toDataURL('image/png')
-    $link.click()
+    if (this.type !== 'h265-flv') {
+      let $video: HTMLVideoElement | null = this.wrap.querySelector('video')
+      if (!$video) return
+      let $canvas: any | null = document.createElement('canvas')
+      $canvas.width = $video.videoWidth
+      $canvas.height = $video.videoHeight
+      $canvas!.getContext('2d').drawImage($video, 0, 0, $canvas.width, $canvas.height)
+      let $link: any = document.createElement('a')
+      $link.download = `${name}_${dateFormat(new Date(), 'yyyy-MM-dd_HH-mm-ss')}.png`
+      $link.href = $canvas.toDataURL('image/png')
+      $link.click()
+    } else {
+      let $canvas: any | null = this.wrap.querySelector('canvas')
+      console.log($canvas.toDataURL('image/png'))
+      let $link: any = document.createElement('a')
+      $link.download = `${name}_${dateFormat(new Date(), 'yyyy-MM-dd_HH-mm-ss')}.png`
+      $link.href = $canvas.toDataURL('image/png')
+      $link.click()
+    }
   }
 
   /**
    * H265 Flv 方式播放
    */
   private createH265Flv(wrapElement: HTMLDivElement) {
-    wrapElement.innerHTML = '<div class="not-support">网页版暂不支持H265，请使用手机APP播放</div>'
-    // // @ts-ignore
-    // const KsPlayer = window.h265js
-    // const canvasElement = document.createElement('canvas')
+    // wrapElement.innerHTML = '<div class="not-support">网页版暂不支持H265，请使用手机APP播放</div>'
+    // @ts-ignore
+    const h265Player = window.h265js
+    const audioElement = document.createElement('audio')
+    wrapElement.append(audioElement)
+    const canvasElement = document.createElement('canvas')
+    wrapElement.innerHTML = ''
+    wrapElement.append(canvasElement)
+    const width = canvasElement.clientWidth
     // const width = wrapElement.clientWidth
-    // const height = width * 9 / 16
-    // canvasElement.setAttribute('width', width.toString())
-    // canvasElement.setAttribute('height', height.toString())
-    // const audioElement = document.createElement('audio')
-    // wrapElement.innerHTML = ''
-    // wrapElement.append(canvasElement)
-    // wrapElement.append(audioElement)
-    // let player = KsPlayer.createPlayer({
-    //   isLive: true
-    // },
-    // {
-    //   wasmFilePath: `${window.location.origin}/lib/libqydecoder.wasm`,
-    //   maxLength4ToBeDecodeQueue: 7 + 30 * 30, // 待解码NALU队列最大长度 (fps * s) 7 + 30 * 30
-    //   maxLength4ToBeRenderQueue: 200, // 待渲染frame队列最大长度 (720p每帧2M，1080p每帧3M) 200
-    //   enableYUVrender: true,
-    //   enableSkipFrame: false,
-    //   disableStreamLoader: false,
-    //   lazyLoadMaxDuration: 3 * 60,
-    //   seekType: 'range',
-    //   url: this.source,
-    //   timeToDecideWaiting: 500, // 暂停多久算卡顿, 默认500ms
-    //   bufferTime: 500, // 启播前缓冲视频时长（ms）
-    //   token: '30ed327e0ccbdbf594223f0f8f092f12'
-    // }, {
-    //   audioElement: audioElement,
-    //   canvas: canvasElement
-    // })
+    const height = width * 9 / 16
+    canvasElement.setAttribute('width', width.toString())
+    canvasElement.setAttribute('height', height.toString())
+    
+    let player = h265Player.createPlayer({
+      isLive: true
+    },
+    {
+      wasmFilePath: `${window.location.origin}/lib/h265.wasm`,
+      maxLength4ToBeDecodeQueue: 7 + 30 * 30, // 待解码NALU队列最大长度 (fps * s) 7 + 30 * 30
+      maxLength4ToBeRenderQueue: 200, // 待渲染frame队列最大长度 (720p每帧2M，1080p每帧3M) 200
+      enableYUVrender: true,
+      enableSkipFrame: false,
+      disableStreamLoader: false,
+      lazyLoadMaxDuration: 3 * 60,
+      seekType: 'range',
+      url: this.source,
+      timeToDecideWaiting: 500, // 暂停多久算卡顿, 默认500ms
+      bufferTime: 500 // 启播前缓冲视频时长（ms）
+    }, {
+      audioElement: audioElement,
+      canvas: canvasElement
+    })
 
-    // player.on(KsPlayer.Events.WAITING, (event: any, data: any) => {
-    //   // console.log('WAITING: ', event, data)
-    // })
-    // player.on(KsPlayer.Events.PLAYING, (event: any, data: any) => {
-    //   // console.log('PLAYING: ', event, data)
-    // })
-    // player.on(KsPlayer.Events.RELOAD, (event: any, data: any) => {
-    //   // console.log('RELOAD: ', event, data)
-    // })
-    // player.on(KsPlayer.Events.MEDIAINFO, (event: any, data: any) => {
-    //   // console.log('MEDIAINFO: ', event, data)
-    // })
-    // player.on(KsPlayer.Events.READY, () => {
-    //   player.load()
-    // })
-    // player.on(KsPlayer.Events.ERROR, (event: any, data: any) => {
-    //   if (data.detail === 'AudioAutoPlayUnsupported') {
-    //     player.destroy()
-    //     const playButton = document.createElement('div')
-    //     playButton.className = 'play'
-    //     playButton.addEventListener('click', () => {
-    //       player = this.createH265Flv(wrapElement)
-    //       this.onReset && this.onReset(player)
-    //     })
-    //     wrapElement.append(playButton)
-    //   }
-    // })
-    // return player
+    player.on(h265Player.Events.WAITING, (event: any, data: any) => {
+      // console.log('WAITING: ', event, data)
+    })
+    player.on(h265Player.Events.PLAYING, (event: any, data: any) => {
+      // console.log('PLAYING: ', event, data)
+    })
+    player.on(h265Player.Events.RELOAD, (event: any, data: any) => {
+      // console.log('RELOAD: ', event, data)
+    })
+    player.on(h265Player.Events.MEDIAINFO, (event: any, data: any) => {
+      // console.log('MEDIAINFO: ', event, data)
+    })
+    player.on(h265Player.Events.READY, () => {
+      player.load()
+    })
+    player.on(h265Player.Events.ERROR, (event: any, data: any) => {
+      if (data.detail === 'AudioAutoPlayUnsupported') {
+        player.destroy()
+        const playButton = document.createElement('div')
+        playButton.className = 'play'
+        playButton.addEventListener('click', () => {
+          player = this.createH265Flv(wrapElement)
+          this.onReset && this.onReset(player)
+        })
+        wrapElement.append(playButton)
+      }
+    })
+    return player
   }
 
   private createH265Hls(wrapElement: HTMLDivElement) {

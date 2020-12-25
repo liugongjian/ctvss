@@ -301,8 +301,7 @@
       color: #fff;
     }
     .live-view {
-      video, .video-wrap {
-        position: absolute;
+      canvas, video, .video-wrap {
         top: 0;
         left: 0;
         width: 100%;
@@ -310,12 +309,15 @@
         outline: none;
       }
       .video-wrap {
-        display: flex;
-        align-items: center;
+        position: absolute;
         overflow: hidden;
       }
       video {
+        position: absolute;
         background: #000;
+      }
+      canvas {
+        position: absolute;
       }
     }
     .replay-view {
