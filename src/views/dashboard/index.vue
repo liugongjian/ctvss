@@ -47,6 +47,7 @@ export default class extends Vue {
     background-repeat: no-repeat;
     background-position: 35% -240px;
     height: 100%;
+    font-size: 16px;
     min-height: calc(100vh - 50px);
 
     &__header {
