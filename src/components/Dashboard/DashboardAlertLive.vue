@@ -1,7 +1,7 @@
 <template>
   <DashboardContainer title="实时告警信息">
     <ul class="alert-list">
-      <li v-for="item in list" :key="item.id">
+      <li v-for="item in filteredList" :key="item.id">
         <div class="alert-list__level" :class="`alert-list__level--${item.level}`">
           <svg-icon :name="item.level" />
           {{ typeDic[item.level] }}
@@ -56,8 +56,17 @@ export default class extends Vue {
       level: 'alert',
       type: '人员聚集',
       datetime: '2020-12-23 13:32:40'
+    },
+    {
+      id: 2,
+      level: 'warning',
+      type: '未带口罩',
+      datetime: '2020-12-23 13:32:40'
     }
   ]
+  private get filteredList() {
+    return this.list.slice(0, 6)
+  }
 }
 </script>
 <style lang="scss" scoped>
