@@ -156,20 +156,25 @@ export default class extends Vue {
    * 递归查找目标区域的所在路径
    */
   private getRegionPath(regions: any, target: string) {
-    const path: any = []
-    const _find: any = function(path: Array<string>, children: any) {
-      for (let i = 0; i < children.length; i++) {
-        const item = children[i]
-        path.push(item.value)
-        if (item.children) {
-          return _find(path, item.children)
-        } else if (item.value === target) {
-          return path
+    let path: Array<any> = []
+    try {
+      const _find: any = function(path: Array<string>, children: any) {
+        for (let i = 0; i < children.length; i++) {
+          const item = children[i]
+          path.push(item.value)
+          item.children && _find(path, item.children)
+          if (item.value === target) {
+            throw new Error('found')
+          }
         }
       }
-      return path
+      _find(path, regions)
+    // eslint-disable-next-line no-empty
+    } catch (e) {}
+    if (path.length) {
+      return path.slice(-3, path.length)
     }
-    return _find(path, regions)
+    return path
   }
 
   /**

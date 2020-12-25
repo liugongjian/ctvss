@@ -23,6 +23,17 @@
   position: relative;
   display: flex;
 
+  &__wrap {
+    min-height: 100px;
+  }
+
+  &__empty-text {
+    text-align: center;
+    color: $textGrey;
+    border-top: 1px solid $borderGrey;
+    padding-top: 20px;
+  }
+
   &__handle {
     position: absolute;
     top: 0;
