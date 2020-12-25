@@ -1,5 +1,5 @@
 <template>
-  <div class="navbar">
+  <div class="navbar" :class="`navbar--${routerName}`">
     <hamburger
       id="hamburger-container"
       :is-active="sidebar.opened"
@@ -145,6 +145,10 @@ export default class extends Vue {
 
   private toggleSideBar() {
     AppModule.ToggleSideBar(false)
+  }
+
+  get routerName() {
+    return this.$route.name
   }
 
   @Watch('currentGroupId', { immediate: true })
@@ -416,6 +420,40 @@ export default class extends Vue {
           color: $text;
           margin-left: 10px;
         }
+      }
+    }
+  }
+
+  &--dashboard {
+    background: #131a23;
+    color: #eee;
+    .links a,
+    .right-menu .user-container {
+      color: #eee;
+    }
+    .right-menu .user-container .header-dropdown {
+      background: #131a23;
+      border-color: #131a23;
+      i {
+        color: #aaa;
+      }
+      a, .el-button--text {
+        color: #eee;
+        &:hover {
+          background: #243243;
+        }
+      }
+      .header-dropdown__divided {
+        border-color: #243243;
+      }
+    }
+    .search-box__form {
+      color: #eee;
+      background: #243243;
+      border-color: #131a23;
+      &:hover {
+        background: #2c3c51;
+        color: #eee;
       }
     }
   }
