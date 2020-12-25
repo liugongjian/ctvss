@@ -23,6 +23,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { UserModule } from '@/store/modules/user'
 import DashboardDevice from '@/components/Dashboard/DashboardDevice.vue'
+import DashboardFlow from '@/components/Dashboard/DashboardFlow.vue'
 import DashboardAlertLive from '@/components/Dashboard/DashboardAlertLive.vue'
 import DashboardAlertToday from '@/components/Dashboard/DashboardAlertToday.vue'
 
@@ -30,6 +31,7 @@ import DashboardAlertToday from '@/components/Dashboard/DashboardAlertToday.vue'
   name: 'Dashboard',
   components: {
     DashboardDevice,
+    DashboardFlow,
     DashboardAlertLive,
     DashboardAlertToday
   }
