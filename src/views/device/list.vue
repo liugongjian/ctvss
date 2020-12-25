@@ -194,7 +194,7 @@
       </el-table-column>
     </el-table>
     <el-pagination
-      v-if="isDir"
+      v-if="isDir || isPlatformDir"
       :current-page="pager.pageNum"
       :page-size="pager.pageSize"
       :total="pager.total"
@@ -293,6 +293,10 @@ export default class extends Vue {
 
   private get isDir() {
     return this.$route.query.type === 'dir'
+  }
+
+  private get isPlatformDir() {
+    return this.$route.query.type === 'platformDir'
   }
 
   private get groupId() {
