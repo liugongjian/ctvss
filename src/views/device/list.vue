@@ -354,7 +354,7 @@ export default class extends Vue {
 
   @Watch('filter', { immediate: true, deep: true })
   private onFilterChange() {
-    this.type === 'dir' && this.getDeviceList()
+    (this.type === 'dir' || this.type === 'platformDir') && this.getDeviceList()
   }
 
   private mounted() {
