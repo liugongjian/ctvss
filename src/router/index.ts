@@ -71,25 +71,8 @@ export const constantRoutes: RouteConfig[] = [
   {
     path: '/',
     component: Layout,
-    redirect: '/group'
+    redirect: '/dashboard'
   }
-  // {
-  //   path: '/',
-  //   component: Layout,
-  //   redirect: '/dashboard',
-  //   children: [
-  //     {
-  //       path: 'dashboard',
-  //       component: () => import(/* webpackChunkName: "dashboard" */ '@/views/dashboard/index.vue'),
-  //       name: 'Dashboard',
-  //       meta: {
-  //         title: '全局概览',
-  //         icon: 'dashboard',
-  //         affix: true
-  //       }
-  //     }
-  //   ]
-  // }
 ]
 
 /**
@@ -97,6 +80,29 @@ export const constantRoutes: RouteConfig[] = [
  * the routes that need to be dynamically loaded based on user roles
 */
 export const asyncRoutes: RouteConfig[] = [
+  {
+    path: '/dashboard',
+    component: Layout,
+    meta: {
+      title: '首页',
+      icon: 'dashboard',
+      breadcrumb: false,
+      roles: ['admin'],
+      alwaysShow: false
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/dashboard/index.vue'),
+        name: 'dashboard',
+        meta: {
+          title: '首页',
+          icon: 'dashboard',
+          breadcrumb: false
+        }
+      }
+    ]
+  },
   {
     path: '/group',
     component: Layout,
