@@ -1,9 +1,6 @@
 <template>
-  <DashboardContainer title="设备状态统计">
-    <template v-slot:header>
-      最近12小时
-    </template>
-    hsdjfhdsjf
+  <DashboardContainer title="今日告警信息">
+    1111
   </DashboardContainer>
 </template>
 
@@ -12,7 +9,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import DashboardContainer from './DashboardContainer.vue'
 
 @Component({
-  name: 'DashboardDevice',
+  name: 'DashboardAlertToday',
   components: { DashboardContainer }
 })
 export default class extends Vue {
