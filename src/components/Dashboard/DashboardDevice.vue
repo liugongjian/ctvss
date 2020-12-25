@@ -12,7 +12,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import DashboardContainer from './DashboardContainer.vue'
 
 @Component({
-  name: 'InfoList',
+  name: 'DashboardDevice',
   components: { DashboardContainer }
 })
 export default class extends Vue {
