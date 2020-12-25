@@ -8,7 +8,7 @@
     </div>
     <div class="dashboard-wrap__col dashboard-wrap__col--left">
       <DashboardDevice />
-      <DashboardDevice />
+      <DashboardFlow />
       <DashboardDevice />
     </div>
     <div class="dashboard-wrap__col dashboard-wrap__col--right">
