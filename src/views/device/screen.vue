@@ -67,7 +67,7 @@
                   @contextmenu="($event, node)"
                 >
                   <span class="node-name">
-                    <svg-icon v-if="data.type !== 'dir'" :name="data.type" width="15" height="15" />
+                    <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
                     <span v-else class="node-dir">
                       <svg-icon name="dir" width="15" height="15" />
                       <svg-icon name="dir-close" width="15" height="15" />
