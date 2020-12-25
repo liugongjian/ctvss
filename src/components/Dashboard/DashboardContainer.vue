@@ -103,7 +103,7 @@ export default class extends Vue {
 
     // Body
     &__body {
-      padding: 1rem;
+      padding: 1rem .5rem;
     }
   }
 
