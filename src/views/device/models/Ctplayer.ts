@@ -295,7 +295,6 @@ export default class Ctplayer {
     const height = width * 9 / 16
     canvasElement.setAttribute('width', width.toString())
     canvasElement.setAttribute('height', height.toString())
-    
     let player = h265Player.createPlayer({
       isLive: true
     },
@@ -310,7 +309,8 @@ export default class Ctplayer {
       seekType: 'range',
       url: this.source,
       timeToDecideWaiting: 500, // 暂停多久算卡顿, 默认500ms
-      bufferTime: 500 // 启播前缓冲视频时长（ms）
+      bufferTime: 500, // 启播前缓冲视频时长（ms）
+      token: '4de606075fcb375a6e1d23ee6b3992bd'
     }, {
       audioElement: audioElement,
       canvas: canvasElement
