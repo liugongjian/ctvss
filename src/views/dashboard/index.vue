@@ -1,6 +1,7 @@
 <template>
   <div class="dashboard-wrap">
     <DashboardDevice />
+    <DashboardFlow />
   </div>
 </template>
 
@@ -8,11 +9,13 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { UserModule } from '@/store/modules/user'
 import DashboardDevice from '@/components/Dashboard/DashboardDevice.vue'
+import DashboardFlow from '@/components/Dashboard/DashboardFlow.vue'
 
 @Component({
   name: 'Dashboard',
   components: {
-    DashboardDevice
+    DashboardDevice,
+    DashboardFlow
   }
 })
 export default class extends Vue {
