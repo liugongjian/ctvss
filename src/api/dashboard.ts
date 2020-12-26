@@ -7,13 +7,12 @@ export const getFlowData = (params: any): Promise<any> =>
   //   params
   // })
   Promise.resolve([
-    { time: '2020-12-05 10:53:13', type: 'InFlow', value: 1033 },
-    { time: '2020-12-05 10:53:13', type: 'OutFlow', value: 1024 },
-    { time: '2020-12-05 10:53:16', type: 'InFlow', value: 1038 },
-    { time: '2020-12-05 10:53:16', type: 'OutFlow', value: 1014 },
-    { time: '2020-12-05 10:53:33', type: 'InFlow', value: 923 },
-    { time: '2020-12-05 10:53:43', type: 'OutFlow', value: 24 },
-    { time: '2020-12-05 10:53:56', type: 'InFlow', value: 138 },
-    { time: '2020-12-05 10:53:56', type: 'OutFlow', value: 214 }
+    { time: '10:53:13', type: 'InFlow', value: 1033 },
+    { time: '10:53:13', type: 'OutFlow', value: 1024 },
+    { time: '10:53:16', type: 'InFlow', value: 1038 },
+    { time: '10:53:16', type: 'OutFlow', value: 1014 },
+    { time: '10:53:33', type: 'InFlow', value: 923 },
+    { time: '10:53:43', type: 'OutFlow', value: 124 },
+    { time: '10:53:56', type: 'InFlow', value: 138 },
+    { time: '10:53:56', type: 'OutFlow', value: 214 }
   ])
-  

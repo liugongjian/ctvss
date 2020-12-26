@@ -73,23 +73,70 @@ export default class extends Vue {
     })
 
     chart.legend({
-      marker: {
-        symbol: 'square'
-      },
-      offsetY: 20
+      offsetY: 10,
+      itemSpacing: 30,
+      items: [
+        {
+          id: '1',
+          name: 'OutFlow',
+          value: '出网流量',
+          marker: {
+            symbol: 'square',
+            style: {
+              fill: '#F4C46C'
+            },
+            spacing: 5
+          }
+        },
+        {
+          id: '2',
+          name: 'InFlow',
+          value: '入网流量',
+          marker: {
+            symbol: 'square',
+            style: {
+              fill: '#6F9FC9'
+            },
+            spacing: 5
+          }
+        }
+      ],
+      itemName: {
+        style: {
+          fill: '#eeeeee'
+          // fontSize: 14
+        },
+        formatter: (text, item) => item.value
+      }
     })
 
     chart.axis('value', {
       label: {
         formatter: (val) => {
-          return val + ' /Mbps'
+          return val
+        }
+      },
+      title: {
+        style: {
+          fill: '#98CFFF',
+          fontSize: 14
+        }
+      },
+      grid: {
+        line: {
+          style: {
+            stroke: '#434659'
+          }
         }
       }
     })
+    chart.scale('value', {
+      alias: 'Mbps'
+    })
 
-    chart.line().position('time*value').color('type').shape('smooth')
+    chart.line().position('time*value').color('type', ['#6F9FC9', '#F4C46C']).shape('smooth')
 
-    chart.point().position('time*value').color('type').shape('circle')
+    // chart.point().position('time*value').color('type', ['#6F9FC9', '#F4C46C']).shape('circle')
 
     chart.render()
   }
