@@ -23,3 +23,10 @@ export const getDeviceStates = (params: any): Promise<any> =>
     method: 'get',
     params
   })
+
+export const getDeviceDirInfo = (params: any): Promise<any> =>
+  request({
+    url: '/taizhou/dir/list',
+    method: 'get',
+    params
+  })

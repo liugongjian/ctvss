@@ -7,8 +7,9 @@
 </template>
 
 <script lang="ts">
-import { random } from 'lodash'
 import { Component, Vue } from 'vue-property-decorator'
+import { getDeviceDirInfo } from '@/api/dashboard'
+import { DirInfo } from '@/type/dirInfo'
 declare let AMap: any
 
 @Component({
@@ -16,8 +17,9 @@ declare let AMap: any
 })
 export default class extends Vue {
   private amap: any
+  private dirList: Array<DirInfo> = []
 
-  private created() {
+  private async created() {
     // @ts-ignore
     window.scriptLoad = () => {
       this.amap = new AMap.Map('amap-container', {
@@ -31,43 +33,38 @@ export default class extends Vue {
         skyColor: '#1E3046'
       })
 
-      // AMap.plugin('AMap.ToolBar', () => {
-      //   const toolbar = new AMap.ToolBar()
-      //   this.amap.addControl(toolbar)
-      // })
-
-      // const mark = new AMap.Marker({
-      //   icon: icon,
-      //   position: new AMap.LngLat(119.922929, 32.455353),
-      //   offset: new AMap.Pixel(-10, -10),
-      //   title: 'ipc',
-      //   zoom: 17
-      // })
       const infoWindow = new AMap.InfoWindow({
         offset: new AMap.Pixel(0, 0)
       })
-      const contents = ["<div style='color:blue; margin:0 20px;'>我是header</div>", "<div style='color:red; margin:0 20px;'>我是footer</div>"]
       const onMarkClick = (e: any) => {
-        console.log(e)
-        infoWindow.setContent(contents.join(e.target.getTitle()))
+        const data = e.target.getExtData()
+        const content = `
+        <div style="width: 200px; margin: 10px;color:white;line-height: 24px; font-size:12px;">
+          <div style="font-size:18px; color:#98cfff; padding-bottom: 8px;margin-bottom: 8px;border-bottom:2px solid #98cfff;">${data.dirName}</div>
+          <div>设备总数:&nbsp;${data.sum}</div>
+          <div>在线:&nbsp;${data.online}</div>
+          <div>离线:&nbsp;${data.offline}</div>
+        </div>
+        `
+        infoWindow.setContent(content)
         infoWindow.open(this.amap, e.target.getPosition())
       }
+      const icon = new AMap.Icon({
+        size: new AMap.Size(25, 25),
+        image: require('../../icons/svg/ipc-green.svg'),
+        imageOffset: new AMap.Pixel(0, 0),
+        imageSize: new AMap.Size(25, 25)
+      })
       const markList = []
-      for (let i = -5; i < 5; i++) {
-        let icon = new AMap.Icon({
-          size: new AMap.Size(25, 25),
-          image: require('../../icons/svg/ipc-green.svg'),
-          imageOffset: new AMap.Pixel(0, 0),
-          imageSize: new AMap.Size(25, 25)
-        })
+      for (let i = 0; i < this.dirList.length; i++) {
         let mark = new AMap.Marker({
           icon: icon,
           position: new AMap.LngLat(
-            119.921029 + 0.005 * Math.random(),
-            32.454553 + 0.005 * Math.random()
+            this.dirList[i].posX,
+            this.dirList[i].posY
           ),
           offset: new AMap.Pixel(-10, -10),
-          // title: "<div style='margin: 0 20px;'>ipc" + i + '</div>',
+          extData: this.dirList[i],
           zoom: 17
         })
         mark.on('click', onMarkClick)
@@ -76,15 +73,21 @@ export default class extends Vue {
       this.amap.add(markList)
     }
 
-    var script = document.createElement('script')
+    await this.getDirInfo()
+    const script = document.createElement('script')
     script.type = 'text/javascript'
     script.src =
       'https://webapi.amap.com/maps?v=1.4.15&key=71af8b44421cf4f91011a90a6e54c659&callback=scriptLoad'
     document.head.appendChild(script)
   }
 
-  private mounted() {
-    console.log(this.amap)
+  private async getDirInfo() {
+    try {
+      const res = await getDeviceDirInfo({})
+      this.dirList = res.dirs
+    } catch (e) {
+      this.$message.error(e && e.message)
+    }
   }
 }
 </script>
