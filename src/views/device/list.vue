@@ -1,6 +1,6 @@
 <template>
   <div class="device-list__container">
-    <div v-if="isNVR" class="device-info" :loading="loading.info">
+    <div v-if="isNVR" v-loading="loading.info" class="device-info">
       <info-list v-if="deviceInfo" label-width="80">
         <info-list-item label="设备名称:">{{ deviceInfo.deviceName }}</info-list-item>
         <info-list-item label="国标ID:">{{ deviceInfo.gbId }}</info-list-item>
@@ -13,7 +13,7 @@
         <info-list-item label="在线流数量:">{{ deviceInfo.deviceStats.onlineSize }}</info-list-item>
       </info-list>
     </div>
-    <div v-if="isPlatform" class="device-info" :loading="loading.info">
+    <div v-if="isPlatform" v-loading="loading.info" class="device-info">
       <info-list v-if="deviceInfo" label-width="80">
         <info-list-item label="平台名称:">{{ deviceInfo.deviceName }}</info-list-item>
         <info-list-item label="国标ID:">{{ deviceInfo.gbId }}</info-list-item>
@@ -22,6 +22,22 @@
           {{ deviceStatus[deviceInfo.deviceStatus] }}
         </info-list-item>
         <info-list-item label="创建时间:">{{ deviceInfo.createdTime }}</info-list-item>
+      </info-list>
+    </div>
+    <div v-if="isDir" v-loading="loading.list" class="device-info">
+      <info-list v-if="dirStats" label-width="80">
+        <info-list-item label="设备总数:">{{ dirStats.deviceSize }}</info-list-item>
+        <info-list-item label="IPC数量:">{{ dirStats.ipcSize }}</info-list-item>
+        <info-list-item label="NVR数量:">
+          <span v-for="state in renderNvrSize(dirStats)" :key="state.label">
+            {{ state.label }}({{ state.value }})
+          </span>
+        </info-list-item>
+        <info-list-item label="平台数量:">
+          <span v-for="state in renderPlatformSize(dirStats)" :key="state.label">
+            {{ state.label }}({{ state.value }})
+          </span>
+        </info-list-item>
       </info-list>
     </div>
     <div class="filter-container clearfix">
@@ -261,6 +277,7 @@ export default class extends Vue {
   }
   private deviceInfo: any = null
   private deviceList: Array<Device> = []
+  private dirStats: any = null
   private selectedDeviceList: Array<Device> = []
   private currentDevice?: Device | null = null
   // 是否批量移动
@@ -434,6 +451,7 @@ export default class extends Vue {
       params.dirId = this.dirId ? this.dirId : 0
       res = await getDevices(params)
       this.deviceList = res.devices
+      this.dirStats = res.dirStats
       this.pager = {
         pageNum: res.pageNum,
         pageSize: res.pageSize,
@@ -840,6 +858,48 @@ export default class extends Vue {
       })
     }
     return filterArray
+  }
+
+  /**
+   * 渲染NVR数量
+   */
+  private renderNvrSize(dirStats: any) {
+    if (dirStats && dirStats.nvrSize) {
+      const size = dirStats.nvrSize.split(':')
+      if (size.length) {
+        return [
+          {
+            label: 'NVR',
+            value: size[0]
+          },
+          {
+            label: '通道',
+            value: size[1]
+          }
+        ]
+      }
+    }
+  }
+
+  /**
+   * 渲染NVR数量
+   */
+  private renderPlatformSize(dirStats: any) {
+    if (dirStats && dirStats.platformSize) {
+      const size = dirStats.platformSize.split(':')
+      if (size.length) {
+        return [
+          {
+            label: '平台',
+            value: size[0]
+          },
+          {
+            label: '通道',
+            value: size[1]
+          }
+        ]
+      }
+    }
   }
 }
 </script>

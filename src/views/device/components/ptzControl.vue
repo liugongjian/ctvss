@@ -103,7 +103,7 @@ export default class extends Vue {
   @Prop({ default: '' })
   private deviceId!: string
   private speed = 5
-  private isClosed = false
+  private isClosed = true
   private loading = false
   private currentIndex = null
   private presets: Array<any> = []
