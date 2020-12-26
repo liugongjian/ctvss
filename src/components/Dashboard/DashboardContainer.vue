@@ -31,8 +31,7 @@ export default class extends Vue {
     position: relative;
     border: 1px solid #3D536A;
     color: #fff;
-    min-height: 100px;
-    padding: 1rem;
+    padding: 1vh;
     padding-bottom: 0;
 
     // Decorator
@@ -87,24 +86,24 @@ export default class extends Vue {
     // Header
     &__header {
       background: linear-gradient(90deg, rgba(128, 173, 212, 0), rgba(128, 173, 212, 1) 100%);
-      height: 45px;
-      line-height: 45px;
+      height: 5vh;
+      line-height: 5vh;
       border-left: 5px solid #7BB3E5;
 
       &__title {
-        font-size: 1.2rem;
+        font-size: 1.2em;
         color: #98CFFF;
-        margin-left: 1rem;
+        margin-left: 1em;
       }
       &__slot {
         float: right;
-        margin-right: 1rem;
+        margin-right: 1em;
       }
     }
 
     // Body
     &__body {
-      padding: 1rem .5rem;
+      padding: 1em .5em;
     }
   }
 

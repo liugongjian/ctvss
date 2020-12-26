@@ -2,7 +2,7 @@
   <DashboardContainer title="设备状态统计">
     <div class="device-stats">
       <div class="device-stats__chart">
-        <div ref="chart" />
+        <div ref="chart" :style="`height:${height}vh`" />
       </div>
       <div class="device-stats__data">
         <div class="device-stats__data__chip device-stats__data__chip--online"><label>在线</label><span>{{ stats.online }}</span></div>
@@ -71,23 +71,11 @@ export default class extends Mixins(DashboardMixin) {
       .color('item', ['#7CC96F', '#E56161'])
 
     this.chart.annotation().text({
-      position: [ '50%', '50%' ],
+      position: [ '50%', '30%' ],
       content: '设备总数',
       style: {
-        fontSize: 16,
+        fontSize: 14,
         fill: '#98CFFF',
-        fontWeight: 300,
-        textAlign: 'center'
-      },
-      offsetY: -30
-    })
-
-    this.chart.annotation().text({
-      position: [ '50%', '50%' ],
-      content: this.stats.sum,
-      style: {
-        fontSize: 24,
-        fill: '#fff',
         fontWeight: 300,
         textAlign: 'center'
       }
@@ -95,14 +83,24 @@ export default class extends Mixins(DashboardMixin) {
 
     this.chart.annotation().text({
       position: [ '50%', '50%' ],
-      content: (parseInt(this.stats.online) / parseInt(this.stats.sum) * 100).toFixed(0) + '%',
+      content: this.stats.sum,
       style: {
         fontSize: 22,
+        fill: '#fff',
+        fontWeight: 300,
+        textAlign: 'center'
+      }
+    })
+
+    this.chart.annotation().text({
+      position: [ '50%', '70%' ],
+      content: (parseInt(this.stats.online) / parseInt(this.stats.sum) * 100).toFixed(0) + '%',
+      style: {
+        fontSize: 20,
         fill: '#7CC96F',
         fontWeight: 300,
         textAlign: 'center'
-      },
-      offsetY: 30
+      }
     })
 
     this.chart.render()
@@ -123,7 +121,7 @@ export default class extends Mixins(DashboardMixin) {
       flex: 3;
     }
     &__data {
-      margin-left: 2rem;
+      margin-left: 2em;
       flex: 4;
       display: flex;
       flex-direction: column;
@@ -131,10 +129,12 @@ export default class extends Mixins(DashboardMixin) {
       &__chip {
         display: flex;
         border: 1px solid #fff;
-        padding: 20px 0;
+        flex: 1;
+        margin: 1vh;
+        align-items: center;
         position: relative;
         overflow: hidden;
-        font-size: 1.2rem;
+        font-size: 1.2em;
         &::before {
           content: ' ';
           width: 20px;

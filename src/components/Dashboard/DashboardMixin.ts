@@ -1,10 +1,14 @@
-import { clearInterval } from 'timers'
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator'
 
 @Component
 export default class DashboardMixin extends Vue {
-  public intervalInstance: any = null
+  @Prop() public height: any
+  private intervalInstance: any = null
   public intervalTime = 5 * 1000
+
+  private destroyed() {
+    this.destroy()
+  }
 
   public destroy() {
     this.intervalInstance && clearInterval(this.intervalInstance)

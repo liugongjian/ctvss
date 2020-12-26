@@ -1,6 +1,6 @@
 <template>
   <DashboardContainer title="实时告警信息">
-    <ul class="alert-list">
+    <ul class="alert-list" :style="`height:${height}vh`">
       <li v-for="item in filteredList" :key="item.id" :class="{'new-alert': item.isNew}" @click="openDialog(item)">
         <div class="alert-list__level" :class="`alert-list__level--${item.level}`">
           <svg-icon :name="item.level" />
@@ -15,7 +15,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Mixins } from 'vue-property-decorator'
+import DashboardMixin from './DashboardMixin'
 import DashboardContainer from './DashboardContainer.vue'
 import DashboardAlertLiveDetailDialog from '@/views/alertBoard/components/DetailDialog.vue'
 
@@ -26,7 +27,7 @@ import DashboardAlertLiveDetailDialog from '@/views/alertBoard/components/Detail
     DashboardAlertLiveDetailDialog
   }
 })
-export default class extends Vue {
+export default class extends Mixins(DashboardMixin) {
   private typeDic = {
     warning: '一般警告',
     alert: '严重警告'
@@ -112,13 +113,16 @@ export default class extends Vue {
     list-style: none;
     margin: 0 -0.5rem;
     padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
     li {
+      flex: 1;
       display: flex;
-      padding: 1rem 0.5rem;
+      align-items: center;
+      padding: .4rem;
       cursor: pointer;
-      &:last-child {
-        padding-bottom: 0;
-      }
       &:hover {
         background: #374960;
       }
