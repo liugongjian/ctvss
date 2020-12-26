@@ -134,6 +134,7 @@ export default class extends Mixins(DashboardMixin) {
         padding: 20px 0;
         position: relative;
         overflow: hidden;
+        font-size: 1.2rem;
         &::before {
           content: ' ';
           width: 20px;

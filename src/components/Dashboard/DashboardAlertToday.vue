@@ -71,7 +71,7 @@ export default class extends Mixins(DashboardMixin) {
       grid: {
         line: {
           style: {
-            stroke: '#51708D'
+            stroke: '#434659'
           }
         }
       }
