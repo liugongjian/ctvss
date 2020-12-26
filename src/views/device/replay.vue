@@ -154,7 +154,10 @@ export default class extends Mixins(ScreenMixin) {
   /**
    * 清空初始化树状态默认方法
    */
-  public async initTreeStatus() {}
+  public async initTreeStatus() {
+    // TODO: 对泰州用户单独处理，后续需删除
+    this.dealTzTree()
+  }
 
   /**
    * 打开分屏视频

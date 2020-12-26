@@ -76,6 +76,7 @@ export default class DeviceMixin extends Vue {
         this.dirList = res.dirs
       }
       this.$nextTick(() => {
+        console.log('this.initTreeStatus()')
         this.initTreeStatus()
       })
     } catch (e) {
@@ -118,6 +119,26 @@ export default class DeviceMixin extends Vue {
     } else if (this.dirList.length && this.dirList.every((dir: any) => dir.type === 'dir')) {
       // 如果根目录下无设备，则跳转至第一个目录下
       this.deviceRouter(this.dirList[0])
+    } else {
+      this.dealTzTree()
+    }
+  }
+
+  // TODO: 对泰州用户单独处理，后续需删除
+  public async dealTzTree() {
+    if (this.currentGroupId === '80337930297556992') {
+      const dirTree: any = this.$refs.dirTree
+      const keyPath = ['29942060635128281', '85528278015803392']
+      for (let i = 0; i < keyPath.length; i++) {
+        const _key = keyPath[i]
+        const node = dirTree.getNode(_key)
+        if (node) {
+          await this.loadDirChildren(_key, node)
+          if (i === keyPath.length - 1) {
+            DeviceModule.SetBreadcrumb(this.getDirPath(node).reverse())
+          }
+        }
+      }
     }
   }
 
