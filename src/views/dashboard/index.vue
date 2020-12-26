@@ -82,5 +82,13 @@ export default class extends Vue {
         margin-bottom: 2rem;
       }
     }
+
+    ::v-deep .el-select {
+      .el-input__inner {
+        background: #33475F;
+        border-color: #33475F;
+        color: #fff;
+      }
+    }
   }
 </style>
