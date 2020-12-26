@@ -4,6 +4,7 @@
       <el-select
         v-model="userType"
         size="small"
+        popper-class="dark-select"
         @change="flowTypeChange"
       >
         <el-option

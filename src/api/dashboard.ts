@@ -16,4 +16,10 @@ export const getFlowData = (params: any): Promise<any> =>
     { time: '2020-12-05 10:53:56', type: 'InFlow', value: 138 },
     { time: '2020-12-05 10:53:56', type: 'OutFlow', value: 214 }
   ])
-  
+
+export const getDeviceStates = (params: any): Promise<any> =>
+  request({
+    url: '/statistics/device',
+    method: 'get',
+    params
+  })
