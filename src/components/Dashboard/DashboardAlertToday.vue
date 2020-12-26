@@ -1,6 +1,6 @@
 <template>
   <DashboardContainer title="今日告警信息">
-    <div ref="chart" />
+    <div ref="chart" :style="`height:${height}vh`" />
   </DashboardContainer>
 </template>
 
@@ -61,7 +61,7 @@ export default class extends Mixins(DashboardMixin) {
         offset: 25,
         style: {
           fill: '#98CFFF',
-          fontSize: 16
+          fontSize: 14
         }
       }
     })
@@ -86,7 +86,6 @@ export default class extends Mixins(DashboardMixin) {
     this.chart
       .interval()
       .position('type*value')
-      .size(10)
       .color('type', ['#F4C46C', '#6F9FC9', '#E56161'])
       .label('value', {
         style: {
@@ -106,6 +105,3 @@ export default class extends Mixins(DashboardMixin) {
   }
 }
 </script>
-<style lang="scss" scoped>
-
-</style>
