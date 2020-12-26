@@ -10,14 +10,14 @@
         <div class="alert-list__datetime">{{ item.datetime }}</div>
       </li>
     </ul>
-    <DashboardAlertLiveDetailDialog v-if="dialog" @on-close="closeDialog" />
+    <DashboardAlertLiveDetailDialog v-if="dialog" theme="dashboard-alert-live-dialog" @on-close="closeDialog" />
   </DashboardContainer>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import DashboardContainer from './DashboardContainer.vue'
-import DashboardAlertLiveDetailDialog from './DashboardAlertLiveDetailDialog.vue'
+import DashboardAlertLiveDetailDialog from '@/views/alertBoard/components/DetailDialog.vue'
 
 @Component({
   name: 'DashboardAlertLive',

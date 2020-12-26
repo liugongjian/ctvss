@@ -560,6 +560,32 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
+    path: '/alertBoard',
+    component: Layout,
+    meta: {
+      title: '告警信息',
+      icon: 'alert',
+      roles: ['admin'],
+      alwaysShow: false,
+      groupSelector: true
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "alertBoard" */ '@/views/alertBoard/index.vue'),
+        name: 'alertBoard',
+        meta: {
+          title: '告警信息',
+          icon: 'alert',
+          breadcrumb: false,
+          roles: ['admin'],
+          activeMenu: '/alertBoard',
+          groupSelector: true
+        }
+      }
+    ]
+  },
+  {
     path: '*',
     redirect: '/404',
     meta: { hidden: true }
