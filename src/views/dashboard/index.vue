@@ -9,7 +9,7 @@
     <div class="dashboard-wrap__col dashboard-wrap__col--left">
       <DashboardDevice />
       <DashboardDevice />
-      <DashboardDevice />
+      <DashboardIntegrityRate />
     </div>
     <div class="dashboard-wrap__col dashboard-wrap__col--right">
       <DashboardAlertLive />
@@ -25,13 +25,15 @@ import { UserModule } from '@/store/modules/user'
 import DashboardDevice from '@/components/Dashboard/DashboardDevice.vue'
 import DashboardAlertLive from '@/components/Dashboard/DashboardAlertLive.vue'
 import DashboardAlertToday from '@/components/Dashboard/DashboardAlertToday.vue'
+import DashboardIntegrityRate from '@/components/Dashboard/DashboardIntegrityRate.vue'
 
 @Component({
   name: 'Dashboard',
   components: {
     DashboardDevice,
     DashboardAlertLive,
-    DashboardAlertToday
+    DashboardAlertToday,
+    DashboardIntegrityRate
   }
 })
 export default class extends Vue {
