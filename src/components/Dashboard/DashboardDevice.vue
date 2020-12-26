@@ -25,9 +25,11 @@ import { getDeviceStates } from '@/api/dashboard'
 })
 export default class extends Mixins(DashboardMixin) {
   private stats: any = {}
+  private chart: any = null
+  private chartData: any = []
 
   private mounted() {
-    this.getDeviceStates()
+    this.setInterval(this.getDeviceStates)
   }
 
   /**
@@ -35,40 +37,40 @@ export default class extends Mixins(DashboardMixin) {
    */
   private async getDeviceStates() {
     this.stats = await getDeviceStates(null)
-    this.drawChart()
+    this.chartData = [
+      { item: '在线', count: parseInt(this.stats.online) },
+      { item: '离线', count: parseInt(this.stats.offline) }
+    ]
+    this.chart ? this.updateChart() : this.drawChart()
   }
 
   /**
    * 绘制图表
    */
-  private async drawChart() {
+  private drawChart() {
     const $container: any = this.$refs.chart
-    const data = [
-      { item: '在线', count: parseInt(this.stats.online) },
-      { item: '离线', count: parseInt(this.stats.offline) }
-    ]
 
-    const chart = new Chart({
+    this.chart = new Chart({
       container: $container,
       autoFit: true,
       height: 180
     })
 
-    chart.coordinate('theta', {
+    this.chart.coordinate('theta', {
       radius: 1,
       innerRadius: 0.8
     })
 
-    chart
-      .data(data)
+    this.chart
+      .data(this.chartData)
       .legend(false)
 
-    chart
+    this.chart
       .interval()
       .position('count')
       .color('item', ['#7CC96F', '#E56161'])
 
-    chart.annotation().text({
+    this.chart.annotation().text({
       position: [ '50%', '50%' ],
       content: '设备总数',
       style: {
@@ -80,7 +82,7 @@ export default class extends Mixins(DashboardMixin) {
       offsetY: -30
     })
 
-    chart.annotation().text({
+    this.chart.annotation().text({
       position: [ '50%', '50%' ],
       content: this.stats.sum,
       style: {
@@ -91,7 +93,7 @@ export default class extends Mixins(DashboardMixin) {
       }
     })
 
-    chart.annotation().text({
+    this.chart.annotation().text({
       position: [ '50%', '50%' ],
       content: (parseInt(this.stats.online) / parseInt(this.stats.sum) * 100).toFixed(0) + '%',
       style: {
@@ -103,7 +105,14 @@ export default class extends Mixins(DashboardMixin) {
       offsetY: 30
     })
 
-    chart.render()
+    this.chart.render()
+  }
+
+  /**
+   * 更新图表
+   */
+  private updateChart() {
+    this.chart.changeData(this.chartData)
   }
 }
 </script>
