@@ -1,0 +1,31 @@
+.el-select-dropdown.dark-select {
+  background: #33475F;
+  border-color: #33475F;
+  
+  .popper__arrow, .popper__arrow::after {
+    border-bottom-color: #33475F;
+  }
+  .el-select-dropdown__item {
+    color: #fff;
+  }
+  .el-select-dropdown__item.selected {
+    color: #98CFFF;
+  }
+  .el-select-dropdown__item.hover {
+    background: #131a23;
+  }
+}
+
+.dashboard-alert-live-dialog {
+  background: #232F3E;
+  
+  .el-dialog__title {
+    color: #fff;
+  }
+  .el-dialog__headerbtn .el-dialog__close {
+    color: #eee;
+  }
+  .el-dialog__body {
+    color: #fff;
+  }
+}

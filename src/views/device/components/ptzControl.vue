@@ -129,7 +129,7 @@ export default class extends Vue {
     }
   }
   private async deletePreset(presetId: number) {
-    const res = await deleteDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId) })
+    await deleteDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId) })
     this.$set(this.presets, presetId - 1, {
       'setFlag': false,
       'name': `预置位 ${presetId}`,
@@ -137,7 +137,7 @@ export default class extends Vue {
     })
   }
   private async setPreset(presetId: number, presetName: string) {
-    const res = await setDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId), presetName })
+    await setDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId), presetName })
     this.$set(this.presets, presetId - 1, {
       'setFlag': true,
       'name': presetName,
@@ -158,7 +158,7 @@ export default class extends Vue {
     preset.editNameFlag = false
   }
   private async gotoPreset(presetId: number) {
-    const res = await gotoDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId) })
+    await gotoDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId) })
   }
   private formatStartParam(direction: number, speed: number) {
     const param: any = {
@@ -270,19 +270,19 @@ export default class extends Vue {
   }
   private async startPtzMove(direction: number, speed: number) {
     const data = this.formatStartParam(direction, speed)
-    const res = await startDeviceMove(data)
+    await startDeviceMove(data)
   }
   private async endPtzMove(direction: number) {
     const data = this.formatEndParam(direction)
-    const res = await endDeviceMove(data)
+    await endDeviceMove(data)
   }
   private async startPtzAdjust(direction: number, speed: number) {
     const data = this.formatStartParam(direction, speed)
-    const res = await startDeviceAdjust(data)
+    await startDeviceAdjust(data)
   }
   private async endPtzAdjust(direction: number) {
     const data = this.formatEndParam(direction)
-    const res = await endDeviceAdjust(data)
+    await endDeviceAdjust(data)
   }
   private formatToolTip() {
     return '云台速度 ' + this.speed

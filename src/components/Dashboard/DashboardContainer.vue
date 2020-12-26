@@ -33,6 +33,7 @@ export default class extends Vue {
     color: #fff;
     min-height: 100px;
     padding: 1rem;
+    padding-bottom: 0;
 
     // Decorator
     &__decorator--top,
@@ -103,7 +104,7 @@ export default class extends Vue {
 
     // Body
     &__body {
-      padding: 1rem;
+      padding: 1rem .5rem;
     }
   }
 

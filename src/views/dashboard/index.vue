@@ -8,8 +8,10 @@
     </div>
     <div class="dashboard-wrap__col dashboard-wrap__col--left">
       <DashboardDevice />
-      <DashboardDevice />
+      <!-- <DashboardDevice /> -->
       <DashboardIntegrityRate />
+      <!-- <DashboardFlow />
+      <DashboardDevice /> -->
     </div>
     <div class="dashboard-wrap__col dashboard-wrap__col--right">
       <DashboardAlertLive />
@@ -23,6 +25,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { UserModule } from '@/store/modules/user'
 import DashboardDevice from '@/components/Dashboard/DashboardDevice.vue'
+import DashboardFlow from '@/components/Dashboard/DashboardFlow.vue'
 import DashboardAlertLive from '@/components/Dashboard/DashboardAlertLive.vue'
 import DashboardAlertToday from '@/components/Dashboard/DashboardAlertToday.vue'
 import DashboardIntegrityRate from '@/components/Dashboard/DashboardIntegrityRate.vue'
@@ -31,6 +34,7 @@ import DashboardIntegrityRate from '@/components/Dashboard/DashboardIntegrityRat
   name: 'Dashboard',
   components: {
     DashboardDevice,
+    DashboardFlow,
     DashboardAlertLive,
     DashboardAlertToday,
     DashboardIntegrityRate
@@ -49,6 +53,7 @@ export default class extends Vue {
     background-repeat: no-repeat;
     background-position: 35% -240px;
     height: 100%;
+    font-size: 16px;
     min-height: calc(100vh - 50px);
 
     &__header {
@@ -79,6 +84,14 @@ export default class extends Vue {
       }
       ::v-deep .dashboard-container {
         margin-bottom: 2rem;
+      }
+    }
+
+    ::v-deep .el-select {
+      .el-input__inner {
+        background: #33475F;
+        border-color: #33475F;
+        color: #fff;
       }
     }
   }
