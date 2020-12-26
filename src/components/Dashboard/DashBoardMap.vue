@@ -27,7 +27,8 @@ export default class extends Vue {
         zooms: [10, 30],
         showLabel: false,
         viewMode: '3D',
-        pitch: 60
+        pitch: 60,
+        skyColor: '#1E3046'
       })
 
       // AMap.plugin('AMap.ToolBar', () => {
@@ -54,10 +55,10 @@ export default class extends Vue {
       const markList = []
       for (let i = -5; i < 5; i++) {
         let icon = new AMap.Icon({
-          size: new AMap.Size(20, 20),
+          size: new AMap.Size(25, 25),
           image: require('../../icons/svg/ipc-green.svg'),
           imageOffset: new AMap.Pixel(0, 0),
-          imageSize: new AMap.Size(20, 20)
+          imageSize: new AMap.Size(25, 25)
         })
         let mark = new AMap.Marker({
           icon: icon,
@@ -66,7 +67,7 @@ export default class extends Vue {
             32.454553 + 0.005 * Math.random()
           ),
           offset: new AMap.Pixel(-10, -10),
-          title: "<div style='margin: 0 20px;'>ipc" + i + '</div>',
+          // title: "<div style='margin: 0 20px;'>ipc" + i + '</div>',
           zoom: 17
         })
         mark.on('click', onMarkClick)
@@ -94,26 +95,26 @@ export default class extends Vue {
     &--left {
       pointer-events: none;
       position: absolute;
-      top: 60px;
+      top: 0;
       left: 0;
       bottom: 0;
-      width: 30%;
+      width: 40%;
       background-image: linear-gradient(
         to right,
-        rgb(35, 47, 62, 1) 10%,
+        rgb(35, 47, 62, 1) 80%,
         rgb(35, 47, 62, 0)
       );
     }
     &--right {
       pointer-events: none;
       position: absolute;
-      width: 30%;
+      width: 40%;
       right: 0;
-      top: 60px;
+      top: 0;
       bottom: 0;
       background-image: linear-gradient(
         to left,
-        rgb(35, 47, 62, 1) 10%,
+        rgb(35, 47, 62, 1) 80%,
         rgb(35, 47, 62, 0)
       );
     }
