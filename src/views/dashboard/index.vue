@@ -9,13 +9,13 @@
     <DashboardMap />
     <div class="dashboard-wrap__col dashboard-wrap__col--left">
       <DashboardDevice height="15" />
-      <DashboardFlow />
+      <DashboardFlow height="20" />
       <DashboardDevice />
     </div>
     <div class="dashboard-wrap__col dashboard-wrap__col--right">
       <DashboardAlertLive height="20" />
       <DashboardAlertToday height="15" />
-      <DashboardDevice height="20" />
+      <DashboardAlertTrend height="20" />
     </div>
   </div>
 </template>
@@ -28,6 +28,7 @@ import DashboardFlow from '@/components/Dashboard/DashboardFlow.vue'
 import DashboardAlertLive from '@/components/Dashboard/DashboardAlertLive.vue'
 import DashboardAlertToday from '@/components/Dashboard/DashboardAlertToday.vue'
 import DashboardMap from '@/components/Dashboard/DashBoardMap.vue'
+import DashboardAlertTrend from '@/components/Dashboard/DashboardAlertTrend.vue'
 
 @Component({
   name: 'Dashboard',
@@ -36,7 +37,8 @@ import DashboardMap from '@/components/Dashboard/DashBoardMap.vue'
     DashboardFlow,
     DashboardAlertLive,
     DashboardAlertToday,
-    DashboardMap
+    DashboardMap,
+    DashboardAlertTrend
   }
 })
 export default class extends Vue {
@@ -108,7 +110,7 @@ export default class extends Vue {
     }
 
     ::v-deep .el-loading-mask {
-      background: rgba(35, 59, 88, 0.9);
+      background: rgba(35, 59, 88, 0.6);
     }
   }
 
