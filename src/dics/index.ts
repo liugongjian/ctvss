@@ -100,3 +100,19 @@ export const DeviceParams = {
   'deviceStatus': '设备状态',
   'streamStatus': '流状态'
 }
+
+export const AlertLevel = {
+  normal: '一般警告',
+  serious: '严重警告'
+}
+
+export const AlertType = {
+  1: '未带口罩',
+  2: '人员聚集',
+  3: '人员上访'
+}
+
+export const AlertParams = {
+  'alertLevel': '告警级别',
+  'alertType': '告警类型'
+}

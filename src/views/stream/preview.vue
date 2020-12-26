@@ -17,10 +17,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Mixins } from 'vue-property-decorator'
-import { RecordTemplate } from '@/type/template'
+import { Component, Mixins } from 'vue-property-decorator'
 import FullscreenMixin from '@/views/device/mixin/fullscreenMixin'
-import LiveView from '@/views/device/components/LiveView.vue'
 import { Stream } from '@/type/stream'
 import { getStream } from '@/api/stream'
 import Player from '../device/components/Player.vue'
