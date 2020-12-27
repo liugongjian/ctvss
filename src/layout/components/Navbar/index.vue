@@ -225,7 +225,7 @@ export default class extends Vue {
   private routeToAI(type: string) {
     this.$router.push({
       path: '/dashboard/ai',
-      params: {
+      query: {
         type
       }
     })

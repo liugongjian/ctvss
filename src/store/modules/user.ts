@@ -1,6 +1,6 @@
 import { VuexModule, Module, Action, Mutation, getModule } from 'vuex-module-decorators'
 import { login, logout, getUserInfo } from '@/api/users'
-import { getToken, setToken, removeToken } from '@/utils/cookies'
+import { getToken, setToken, removeToken, setUsername, getUsername } from '@/utils/cookies'
 import router, { resetRouter } from '@/router'
 import { PermissionModule } from './permission'
 import { TagsViewModule } from './tags-view'
@@ -69,6 +69,9 @@ class User extends VuexModule implements IUserState {
       const data: any = await login({ userName, password })
       setToken(data.token)
       this.SET_TOKEN(data.token)
+      // TODO 泰州专属
+      setUsername(userName)
+      this.SET_NAME(userName)
     } catch (e) {
       throw Error(e)
     }
@@ -101,7 +104,9 @@ class User extends VuexModule implements IUserState {
       throw Error('GetUserInfo: roles must be a non-null array!')
     }
     this.SET_ROLES(roles)
-    this.SET_NAME(userName)
+    const todoUserName: any = getUsername()
+    this.SET_NAME(todoUserName)
+    // this.SET_NAME(userName)
     // this.SET_AVATAR(avatar)
     this.SET_INTRODUCTION(introduction)
     this.SET_EMAIL(email)
