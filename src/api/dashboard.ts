@@ -15,6 +15,12 @@ export const getDeviceStates = (params: any): Promise<any> =>
     params
   })
 
+export const getIntegrityRate = (params: any): Promise<any> =>
+  request({
+    url: '/record/integrity',
+    method: 'get',
+    params
+  })
 export const getDeviceDirInfo = (params: any): Promise<any> =>
   request({
     url: '/taizhou/dir/list',

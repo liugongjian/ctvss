@@ -86,12 +86,13 @@ export default class extends Vue {
     // Header
     &__header {
       background: linear-gradient(90deg, rgba(128, 173, 212, 0), rgba(128, 173, 212, 1) 100%);
-      height: 5vh;
-      line-height: 5vh;
+      height: 4vh;
+      line-height: 4vh;
       border-left: 5px solid #7BB3E5;
 
       &__title {
-        font-size: 1.2em;
+        font-size: 1em;
+        font-weight: bold;
         color: #98CFFF;
         margin-left: 1em;
       }
