@@ -548,7 +548,7 @@ export const asyncRoutes: RouteConfig[] = [
     },
     children: [
       {
-        path: '',
+        path: '/',
         component: () => import(/* webpackChunkName: "secretManage" */ '@/views/secretManage/index.vue'),
         meta: {
           title: 'API密钥管理',
@@ -581,6 +581,29 @@ export const asyncRoutes: RouteConfig[] = [
           roles: ['admin'],
           activeMenu: '/alertBoard',
           groupSelector: true
+        }
+      }
+    ]
+  },
+  {
+    path: '/AI',
+    component: Layout,
+    meta: {
+      title: 'AI能力',
+      icon: 'key',
+      alwaysShow: true,
+      breadcrumb: false,
+      roles: ['admin']
+    },
+    children: [
+      {
+        path: 'faceRecognation',
+        component: () => import(/* webpackChunkName: "tree" */ '@/views/AI/faceRecognation/index.vue'),
+        name: 'faceRecognation',
+        meta: {
+          title: '人脸识别',
+          icon: 'dot',
+          roles: ['admin']
         }
       }
     ]
