@@ -9,13 +9,13 @@
     <DashboardMap />
     <div class="dashboard-wrap__col dashboard-wrap__col--left">
       <DashboardDevice height="15" />
-      <DashboardFlow height="20" />
-      <DashboardDevice />
+      <DashboardFlow height="25" />
+      <DashboardDevice height="25" />
     </div>
     <div class="dashboard-wrap__col dashboard-wrap__col--right">
-      <DashboardAlertLive height="20" />
+      <DashboardAlertLive height="25" />
       <DashboardAlertToday height="15" />
-      <DashboardAlertTrend height="20" />
+      <DashboardAlertTrend height="25" />
     </div>
   </div>
 </template>
@@ -57,7 +57,7 @@ export default class extends Vue {
     height: 100%;
     width: 100%;
     font-size: 16px;
-    min-height: calc(100vh - 50px);
+    min-height: calc(100vh);
     overflow: auto;
 
     &__bg {
@@ -97,7 +97,7 @@ export default class extends Vue {
         right: 2em;
       }
       ::v-deep .dashboard-container {
-        margin-bottom: 2em;
+        margin-bottom: 2vh;
       }
     }
 

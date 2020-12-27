@@ -127,7 +127,7 @@ export default class extends Vue {
 #amap-container {
   position: absolute;
   width: 100%;
-  min-height: calc(100vh - 50px);
+  height: 100vh;
 }
 
 .amap-icon {
