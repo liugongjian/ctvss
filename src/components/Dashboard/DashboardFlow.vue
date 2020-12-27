@@ -1,5 +1,5 @@
 <template>
-  <DashboardContainer v-loading="loading" title="网络流量统计">
+  <DashboardContainer title="网络流量统计">
     <template v-slot:header>
       <el-select
         v-model="userType"
@@ -49,7 +49,6 @@ export default class extends Mixins(DashboardMixin) {
   private userType = 12 * 60 * 60 * 1000
   private chart: any = null
   public intervalTime = 60 * 1000
-  private loading = false
 
   private mounted() {
     this.timeChange()
@@ -66,12 +65,10 @@ export default class extends Mixins(DashboardMixin) {
     try {
       const end: any = new Date()
       const start: any = new Date(end - this.userType)
-      this.loading = true
       const res = await getFlowData({
         StartTime: this.dateFormat(start),
         EndTime: this.dateFormat(end)
       })
-      this.loading = false
       const flowData = []
       for (let key in res.data.Bandwidth) {
         const item = res.data.Bandwidth[key]
@@ -91,7 +88,7 @@ export default class extends Mixins(DashboardMixin) {
       this.flowData = flowData
       this.chart ? this.updateChart() : this.drawChart()
     } catch (e) {
-      this.loading = false
+      // 异常处理
     }
   }
 
