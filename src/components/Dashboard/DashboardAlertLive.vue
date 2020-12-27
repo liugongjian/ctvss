@@ -18,7 +18,7 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import DashboardMixin from './DashboardMixin'
 import DashboardContainer from './DashboardContainer.vue'
-import DashboardAlertLiveDetailDialog from '@/views/alertBoard/components/DetailDialog.vue'
+import DashboardAlertLiveDetailDialog from '@/views/AI/maskRecognation/components/DetailDialog.vue'
 
 @Component({
   name: 'DashboardAlertLive',
