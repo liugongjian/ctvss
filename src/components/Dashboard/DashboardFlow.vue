@@ -99,7 +99,7 @@ export default class extends Mixins(DashboardMixin) {
     this.chart = new Chart({
       container: 'flow-container',
       autoFit: true,
-      padding: [10, 10, 40, 60]
+      padding: [10, 10, 45, 50]
     })
     this.chart.data(this.flowData)
     this.chart.scale({
@@ -156,7 +156,7 @@ export default class extends Mixins(DashboardMixin) {
 
     this.chart.axis('value', {
       label: {
-        offset: 10,
+        offset: 5,
         formatter: (val: any) => {
           return val
         }
