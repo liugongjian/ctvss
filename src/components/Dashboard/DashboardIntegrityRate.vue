@@ -243,8 +243,8 @@ export default class extends Mixins(DashboardMixin) {
           justify-content: center;
           background: #7CC96F;
           border-radius: 100%;
-          width: 2em;
-          height: 2em;
+          width: 4vh;
+          height: 4vh;
           color: white;
           span {
             -webkit-user-select:none;
