@@ -12,27 +12,26 @@
           :key="item.value"
           :label="item.label"
           :value="item.value"
-        >
-        </el-option>
+        />
       </el-select>
     </template>
     <div v-if="selectValue === '0'" class="content" :style="`height:${height}vh`">
       <div class="content__calendar">
-        <el-tooltip v-for="(item, index) in data" :key="index" placement="bottom" effect="light">
-          <div class="content__calendar__tooltip" slot="content">{{ item.time }}<br/>{{ `完整率: ${parseFloat(item.rate * 100).toFixed(1)}%` }}</div>
-          <div class="content__calendar__item">
+        <div v-for="(item, index) in data" :key="index" class="content__calendar__item">
+          <el-tooltip placement="bottom" effect="light" popper-class="dark-tooltip">
+            <div slot="content">{{ item.time }}<br />{{ `完整率: ${parseFloat(item.rate * 100).toFixed(1)}%` }}</div>
             <p :style="item.itemBgColor">
               <span>{{ index + 1 === data.length ? '今': item.day }}</span>
             </p>
-          </div>
-        </el-tooltip>
+          </el-tooltip>
+        </div>
       </div>
       <div class="content__process">
         <span class="content__process__span content__process__span--top">0%</span>
         <span class="content__process__span content__process__span--bottom">100%</span>
       </div>
     </div>
-    <div v-show="selectValue === '1'" id="chartContainer" :style="`height:${height}vh`"></div>
+    <div v-show="selectValue === '1'" id="chartContainer" :style="`height:${height}vh`" />
   </DashboardContainer>
 </template>
 
@@ -43,7 +42,6 @@ import { Chart } from '@antv/g2'
 import DashboardMixin from './DashboardMixin'
 import { getIntegrityRate } from '@/api/dashboard'
 import { dateFormatInTable } from '@/utils/date'
-import { count } from 'console'
 
 @Component({
   name: 'DashboardDevice',
@@ -266,7 +264,7 @@ export default class extends Mixins(DashboardMixin) {
       border-radius: 10px;
 
       &__span {
-        font-size: 0.5vh;
+        font-size: 1vh;
         position: absolute;
         left: 200%;
 
@@ -281,6 +279,5 @@ export default class extends Mixins(DashboardMixin) {
         }
       }
     }
-
   }
 </style>
