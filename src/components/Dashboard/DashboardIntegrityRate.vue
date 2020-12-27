@@ -237,7 +237,7 @@ export default class extends Mixins(DashboardMixin) {
         justify-content: center;
         align-items: center;
         p {
-          font-size: 1em;
+          font-size: 1.5vh;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -266,7 +266,7 @@ export default class extends Mixins(DashboardMixin) {
       border-radius: 10px;
 
       &__span {
-        font-size: 0.5em;
+        font-size: 0.5vh;
         position: absolute;
         left: 200%;
 
