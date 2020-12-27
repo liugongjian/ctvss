@@ -9,8 +9,8 @@
     <DashboardMap />
     <div class="dashboard-wrap__col dashboard-wrap__col--left">
       <DashboardDevice height="15" />
-      <DashboardFlow height="25" />
-      <DashboardDevice height="25" />
+      <DashboardFlow height="20" />
+      <DashboardIntegrityRate height="20"/>
     </div>
     <div class="dashboard-wrap__col dashboard-wrap__col--right">
       <DashboardAlertLive height="25" />
@@ -26,7 +26,8 @@ import { UserModule } from '@/store/modules/user'
 import DashboardDevice from '@/components/Dashboard/DashboardDevice.vue'
 import DashboardFlow from '@/components/Dashboard/DashboardFlow.vue'
 import DashboardAlertLive from '@/components/Dashboard/DashboardAlertLive.vue'
-import DashboardAlertToday from '@/components/Dashboard/DashboardAlertToday.vue'
+import DashboardAlertToday from '@/components/Dashboard/DashboardAlertToday.vue'                                                         
+import DashboardIntegrityRate from '@/components/Dashboard/DashboardIntegrityRate.vue'
 import DashboardMap from '@/components/Dashboard/DashBoardMap.vue'
 import DashboardAlertTrend from '@/components/Dashboard/DashboardAlertTrend.vue'
 
@@ -38,6 +39,7 @@ import DashboardAlertTrend from '@/components/Dashboard/DashboardAlertTrend.vue'
     DashboardAlertLive,
     DashboardAlertToday,
     DashboardMap,
+    DashboardIntegrityRate,
     DashboardAlertTrend
   }
 })
