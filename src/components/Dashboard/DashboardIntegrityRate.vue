@@ -18,8 +18,8 @@
     </template>
     <div v-if="selectValue === '0'" class="content" :style="`height:${height}vh`">
       <div class="content__calendar">
-        <el-tooltip v-for="(item, index) in data" :key="index" placement="top" effect="light">
-          <div slot="content">{{ item.time }}<br/>{{ `rate: ${parseFloat(item.rate * 100).toFixed(1)}%` }}</div>
+        <el-tooltip v-for="(item, index) in data" :key="index" placement="bottom" effect="light">
+          <div class="content__calendar__tooltip" slot="content">{{ item.time }}<br/>{{ `完整率: ${parseFloat(item.rate * 100).toFixed(1)}%` }}</div>
           <div class="content__calendar__item">
             <p :style="item.itemBgColor">
               <span>{{ index + 1 === data.length ? '今': item.day }}</span>
@@ -43,6 +43,7 @@ import { Chart } from '@antv/g2'
 import DashboardMixin from './DashboardMixin'
 import { getIntegrityRate } from '@/api/dashboard'
 import { dateFormatInTable } from '@/utils/date'
+import { count } from 'console'
 
 @Component({
   name: 'DashboardDevice',
@@ -50,7 +51,7 @@ import { dateFormatInTable } from '@/utils/date'
 })
 export default class extends Mixins(DashboardMixin) {
   private data: any = []
-  private data_hours: any = []
+  private dataHours: any = []
   private selectValue: string = '0'
   private selectOptions: any = [{
     value: '0',
@@ -89,11 +90,11 @@ export default class extends Mixins(DashboardMixin) {
     }).then((res) => {
       this.data = []
       for (let i = 0; i < 30; i++) {
-        var mock_time = dateFormatInTable('', '', time - 3600 * (29 - i) * 24 * 1000)
+        var mockTime = dateFormatInTable('', '', time - 3600 * (29 - i) * 24 * 1000)
         this.data.push({
-          time: mock_time.split(' ')[0],
+          time: mockTime.split(' ')[0],
           rate: 0,
-          day: parseInt(mock_time.split(' ')[0].split('-')[2])
+          day: parseInt(mockTime.split(' ')[0].split('-')[2])
         })
       }
       Object.keys(res.rate).forEach((key) => {
@@ -117,12 +118,12 @@ export default class extends Mixins(DashboardMixin) {
         gradient.rgb_top[2] - gradient.rgb_bottom[2]
       ]
       for (let i = 0; i < this.data.length; i++) {
-        var rgb_temp = [
+        var rgbTemp = [
           gradient.rgb_bottom[0] + rgb[0] * this.data[i].rate,
           gradient.rgb_bottom[1] + rgb[1] * this.data[i].rate,
           gradient.rgb_bottom[2] + rgb[2] * this.data[i].rate
         ]
-        this.data[i].itemBgColor = `background-color: rgb(${rgb_temp[0]},${rgb_temp[1]},${rgb_temp[2]})`
+        this.data[i].itemBgColor = `background-color: rgb(${rgbTemp[0]},${rgbTemp[1]},${rgbTemp[2]})`
       }
     })
   }
@@ -135,31 +136,33 @@ export default class extends Mixins(DashboardMixin) {
       startTime: startTime,
       endTime: endTime
     }).then((res) => {
-      this.data_hours = []
+      this.dataHours = []
       Object.keys(res.rate).forEach((key) => {
-        this.data_hours.push({
+        this.dataHours.push({
           time: key.split(' ')[1].slice(0, -3),
           rate: res.rate[key]
         })
       })
       // 柱状图
       var chartData = []
-      for (let i = 0; i < this.data_hours.length; i++) {
+      for (let i = 0; i < this.dataHours.length; i++) {
         chartData.push({
-          time: this.data_hours[i].time,
-          value: this.data_hours[i].rate
+          time: this.dataHours[i].time,
+          value: this.dataHours[i].rate
         })
       }
       this.chart = new Chart({
         container: 'chartContainer',
-        autoFit: true
+        autoFit: true,
+        padding: [30, 10, 30, 50]
       })
       this.chart.scale({
         time: {
           range: [0, 1]
         },
         value: {
-          alias: 'rate',
+          alias: '完整率',
+          type: 'quantize',
           nice: true,
           formatter: (val: number) => {
             return (val * 100).toFixed(0) + '%'
@@ -181,12 +184,12 @@ export default class extends Mixins(DashboardMixin) {
             gradient.rgb_top[1] - gradient.rgb_bottom[1],
             gradient.rgb_top[2] - gradient.rgb_bottom[2]
           ]
-          var rgb_temp = [
+          var rgbTemp = [
             gradient.rgb_bottom[0] + rgb[0] * val,
             gradient.rgb_bottom[1] + rgb[1] * val,
             gradient.rgb_bottom[2] + rgb[2] * val
           ]
-          return `rgb(${rgb_temp[0]}, ${rgb_temp[1]}, ${rgb_temp[2]})`
+          return `rgb(${rgbTemp[0]}, ${rgbTemp[1]}, ${rgbTemp[2]})`
         })
       this.chart.axis('value', {
         grid: null,
@@ -228,29 +231,29 @@ export default class extends Mixins(DashboardMixin) {
       margin-left: -5%;
 
       &__item {
-      display: flex;
-      height: 33%;
-      width: 10%;
-      justify-content: center;
-      align-items: center;
-      p {
-        font-size: 1em;
         display: flex;
-        align-items: center;
+        height: 33%;
+        width: 10%;
         justify-content: center;
-        background: #7CC96F;
-        border-radius: 100%;
-        width: 2em;
-        height: 2em;
-        color: white;
-        span {
-          -webkit-user-select:none;
-          -moz-user-select:none;
-          -ms-user-select:none;
-          user-select:none;
+        align-items: center;
+        p {
+          font-size: 1em;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: #7CC96F;
+          border-radius: 100%;
+          width: 4vh;
+          height: 4vh;
+          color: white;
+          span {
+            -webkit-user-select:none;
+            -moz-user-select:none;
+            -ms-user-select:none;
+            user-select:none;
+          }
         }
       }
-    }
     }
 
     &__process {
