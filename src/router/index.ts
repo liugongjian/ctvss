@@ -100,6 +100,17 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dashboard',
           breadcrumb: false
         }
+      },
+      {
+        path: 'ai',
+        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/dashboard/ai/index.vue'),
+        name: 'dashboardAI',
+        meta: {
+          title: 'ai页面',
+          hidden: true,
+          icon: 'dashboard',
+          breadcrumb: false
+        }
       }
     ]
   },

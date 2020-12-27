@@ -3,10 +3,10 @@
     <ul class="alert-list" :style="`height:${height}vh`">
       <li v-for="item in filteredList" :key="item.id" :class="{'new-alert': item.isNew}" @click="openDialog(item)">
         <div class="alert-list__level" :class="`alert-list__level--${item.level}`">
-          <svg-icon :name="item.level" />
-          {{ typeDic[item.level] }}
+          <svg-icon :name="alertIcon[item.level]" />
+          {{ alertLevel[item.level] }}
         </div>
-        <div class="alert-list__type">{{ item.type }}</div>
+        <div class="alert-list__type">{{ alertType[item.type] }}</div>
         <div class="alert-list__datetime">{{ item.datetime }}</div>
       </li>
     </ul>
@@ -17,6 +17,7 @@
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import DashboardMixin from './DashboardMixin'
+import { AlertType, AlertLevel, AlertIcon } from '@/dics'
 import DashboardContainer from './DashboardContainer.vue'
 import DashboardAlertLiveDetailDialog from '@/views/AI/maskRecognation/components/DetailDialog.vue'
 
@@ -28,48 +29,47 @@ import DashboardAlertLiveDetailDialog from '@/views/AI/maskRecognation/component
   }
 })
 export default class extends Mixins(DashboardMixin) {
-  private typeDic = {
-    warning: '一般警告',
-    alert: '严重警告'
-  }
+  private alertType = AlertType
+  private alertLevel = AlertLevel
+  private alertIcon = AlertIcon
   private currentItem = null
   private dialog = false
   private id = 7
   private list: any = [
     {
       id: 1,
-      level: 'warning',
-      type: '未带口罩',
+      level: 'normal',
+      type: 1,
       datetime: '2020-12-23 13:32:40'
     },
     {
       id: 2,
-      level: 'warning',
-      type: '未带口罩',
+      level: 'serious',
+      type: 2,
       datetime: '2020-12-23 13:32:40'
     },
     {
       id: 3,
-      level: 'warning',
-      type: '未带口罩',
+      level: 'serious',
+      type: 3,
       datetime: '2020-12-23 13:32:40'
     },
     {
       id: 4,
-      level: 'alert',
-      type: '人员聚集',
+      level: 'serious',
+      type: 1,
       datetime: '2020-12-23 13:32:40'
     },
     {
       id: 5,
-      level: 'alert',
-      type: '人员聚集',
+      level: 'normal',
+      type: 2,
       datetime: '2020-12-23 13:32:40'
     },
     {
       id: 6,
-      level: 'warning',
-      type: '未带口罩',
+      level: 'normal',
+      type: 3,
       datetime: '2020-12-23 13:32:40'
     }
   ]
@@ -82,15 +82,15 @@ export default class extends Mixins(DashboardMixin) {
     setInterval(() => {
       this.id % 2 && this.list.unshift({
         id: this.id,
-        level: 'alert',
-        type: '人员聚集',
+        level: 'normal',
+        type: 1,
         datetime: '2020-12-23 13:32:40',
         isNew: true
       })
       !(this.id % 2) && this.list.unshift({
         id: this.id,
-        level: 'warning',
-        type: '未带口罩',
+        level: 'serious',
+        type: 2,
         datetime: '2020-12-23 13:32:40',
         isNew: true
       })
@@ -129,10 +129,10 @@ export default class extends Mixins(DashboardMixin) {
     }
     &__level {
       width: 30%;
-      &--warning {
+      &--normal {
         color: #F4C46C;
       }
-      &--alert {
+      &--serious {
         color: #E56161;
       }
     }
