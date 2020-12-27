@@ -34,11 +34,9 @@
   </el-form>
 </template>
 <script lang='ts'>
-import { Component, Vue, Prop } from 'vue-property-decorator'
-import { InProtocolType, OutProtocolType } from '@/dics'
+import { Component, Vue } from 'vue-property-decorator'
 import { createCertificate, queryCertificate, updateCertificate } from '@/api/certificate/gb28181'
 import { GB28181 } from '@/type/certificate'
-import { th } from 'date-fns/locale'
 
 @Component({
   name: 'CreateGb28181CertificateForm'
@@ -62,7 +60,7 @@ export default class extends Vue {
     ]
   }
   private form: GB28181 = {
-    userType: 'normal',
+    userType: 'anonymous',
     userName: '',
     password: '',
     newPassword: '',

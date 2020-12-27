@@ -23,6 +23,17 @@
   position: relative;
   display: flex;
 
+  &__wrap {
+    min-height: 100px;
+  }
+
+  &__empty-text {
+    text-align: center;
+    color: $textGrey;
+    border-top: 1px solid $borderGrey;
+    padding-top: 20px;
+  }
+
   &__handle {
     position: absolute;
     top: 0;
@@ -290,8 +301,7 @@
       color: #fff;
     }
     .live-view {
-      video, .video-wrap {
-        position: absolute;
+      canvas, video, .video-wrap {
         top: 0;
         left: 0;
         width: 100%;
@@ -299,12 +309,15 @@
         outline: none;
       }
       .video-wrap {
-        display: flex;
-        align-items: center;
+        position: absolute;
         overflow: hidden;
       }
       video {
+        position: absolute;
         background: #000;
+      }
+      canvas {
+        position: absolute;
       }
     }
     .replay-view {

@@ -287,4 +287,13 @@ export default class extends Mixins(FullscreenMixin) {
     position: absolute;
     height: 100%;
   }
+
+  .fullscreen ::v-deep .preview-player canvas {
+    position: absolute;
+    width: 100%;
+  }
+
+  .fullscreen ::v-deep .preview-player .video-wrap {
+    max-height: 100%;
+  }
 </style>
