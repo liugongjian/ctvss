@@ -449,7 +449,11 @@ export default class extends Vue {
   }
 
   &--dashboard, &--AI {
-    background: #131a23;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 11;
+    background: transparent;
     color: #eee;
     .links a,
     .right-menu .user-container {
