@@ -154,7 +154,7 @@ export default class extends Mixins(DashboardMixin) {
       this.chart = new Chart({
         container: 'chartContainer',
         autoFit: true,
-        padding: [50, 10, 20, 50]
+        padding: [30, 10, 30, 50]
       })
       this.chart.scale({
         time: {
