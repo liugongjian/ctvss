@@ -42,9 +42,9 @@
       </template> -->
       <template v-if="routerName === 'AI' || routerName === 'dashboard'">
         <div class="links">
-          <a>未带口罩</a>
-          <a>人员上访</a>
-          <a>人员聚集</a>
+          <a @click="routeToAI('mask')">未带口罩</a>
+          <a @click="routeToAI('appeal')">人员上访</a>
+          <a @click="routeToAI('gather')">人员聚集</a>
         </div>
       </template>
       <template v-else>
@@ -213,6 +213,15 @@ export default class extends Vue {
     } catch (e) {
       this.$message.error(`未搜索到设备ID:"${this.searchForm.deviceId}"`)
     }
+  }
+
+  private routeToAI(type: string) {
+    this.$router.push({
+      path: '/dashboard/ai',
+      params: {
+        type
+      }
+    })
   }
 }
 </script>
