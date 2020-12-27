@@ -106,8 +106,13 @@ export const AlertLevel = {
   serious: '严重警告'
 }
 
+export const AlertIcon = {
+  normal: 'warning',
+  serious: 'alert'
+}
+
 export const AlertType = {
-  1: '未带口罩',
+  1: '未戴口罩',
   2: '人员聚集',
   3: '人员上访'
 }

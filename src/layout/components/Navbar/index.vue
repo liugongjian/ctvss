@@ -42,7 +42,7 @@
       </template> -->
       <template v-if="routerName === 'AI' || routerName === 'dashboard'">
         <div class="links">
-          <a>未带口罩</a>
+          <a>未戴口罩</a>
           <a>人员上访</a>
           <a>人员聚集</a>
         </div>
