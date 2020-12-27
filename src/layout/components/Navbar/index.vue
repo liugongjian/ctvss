@@ -41,25 +41,10 @@
         </el-tooltip>
       </template> -->
       <template v-if="routerName === 'AI' || routerName === 'dashboard'">
-        <div class="user-container">
-          <div class="user-container__menu">
-            {{ "安全管理" }}
-          </div>
-          <div class="header-dropdown">
-            <router-link to="/secretManage"><i><svg-icon name="key" /></i> API密钥管理</router-link>
-            <div class="header-dropdown__divided" />
-            <el-button type="text" @click="logout"><i><svg-icon name="logout" /></i> 退出登录</el-button>
-          </div>
-        </div>
-        <div class="user-container">
-          <div class="user-container__menu">
-            {{ "人员管理" }}
-          </div>
-          <div class="header-dropdown">
-            <router-link to="/secretManage"><i><svg-icon name="key" /></i> API密钥管理</router-link>
-            <div class="header-dropdown__divided" />
-            <el-button type="text" @click="logout"><i><svg-icon name="logout" /></i> 退出登录</el-button>
-          </div>
+        <div class="links">
+          <a>未带口罩</a>
+          <a>人员上访</a>
+          <a>人员聚集</a>
         </div>
       </template>
       <template v-else>
@@ -455,6 +440,7 @@ export default class extends Vue {
     z-index: 11;
     background: transparent;
     color: #eee;
+    height: auto;
     .links a,
     .right-menu .user-container {
       color: #eee;
@@ -482,6 +468,57 @@ export default class extends Vue {
       &:hover {
         background: #2c3c51;
         color: #eee;
+      }
+    }
+    .hamburger-container {
+      line-height: 40px;
+    }
+    .app-breadcrumb.el-breadcrumb {
+      line-height: 40px;
+    }
+    .right-menu {
+      margin-right: 2em;
+      line-height: 40px;
+
+      a {
+        display: inline-block;
+        padding: 0 15px;
+        margin: 0 5px;
+        font-weight: bold;
+        background: rgba(35, 59, 88, 0.6);
+        border-radius: 0 0 4px 4px;
+        border: 1px solid #597B9B;
+        border-top: none;
+      }
+    }
+
+    @media screen and (max-height: 1100px) {
+      .hamburger-container {
+        line-height: 30px;
+      }
+      .app-breadcrumb.el-breadcrumb {
+        line-height: 30px;
+      }
+      .right-menu {
+        line-height: 30px;
+        a {
+          font-size: 12px;
+        }
+      }
+    }
+
+    @media screen and (max-height: 800px) {
+      .hamburger-container {
+        line-height: 25px;
+      }
+      .app-breadcrumb.el-breadcrumb {
+        line-height: 25px;
+      }
+      .right-menu {
+        line-height: 25px;
+        a {
+          font-size: 12px;
+        }
       }
     }
   }
