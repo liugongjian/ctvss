@@ -8,12 +8,12 @@
     </div>
     <DashboardMap />
     <div class="dashboard-wrap__col dashboard-wrap__col--left">
-      <DashboardDevice height="15" />
+      <DashboardDevice height="16" />
       <DashboardFlow height="25" />
       <DashboardIntegrityRate height="25" />
     </div>
     <div class="dashboard-wrap__col dashboard-wrap__col--right">
-      <DashboardAlertLive height="25" />
+      <DashboardAlertLive height="26" />
       <DashboardAlertToday height="15" />
       <DashboardAlertTrend height="25" />
     </div>
@@ -26,7 +26,7 @@ import { UserModule } from '@/store/modules/user'
 import DashboardDevice from '@/components/Dashboard/DashboardDevice.vue'
 import DashboardFlow from '@/components/Dashboard/DashboardFlow.vue'
 import DashboardAlertLive from '@/components/Dashboard/DashboardAlertLive.vue'
-import DashboardAlertToday from '@/components/Dashboard/DashboardAlertToday.vue'                                                         
+import DashboardAlertToday from '@/components/Dashboard/DashboardAlertToday.vue'
 import DashboardIntegrityRate from '@/components/Dashboard/DashboardIntegrityRate.vue'
 import DashboardMap from '@/components/Dashboard/DashBoardMap.vue'
 import DashboardAlertTrend from '@/components/Dashboard/DashboardAlertTrend.vue'
@@ -65,7 +65,7 @@ export default class extends Vue {
     height: 100%;
     width: 100%;
     font-size: 16px;
-    min-height: calc(100vh);
+    height: 100vh;
     overflow: auto;
 
     &__bg {
@@ -114,6 +114,11 @@ export default class extends Vue {
         background: #33475F;
         border-color: #33475F;
         color: #fff;
+        height: 3vh;
+        line-height: 3vh;
+      }
+      .el-input--small .el-input__icon {
+        line-height: 3vh;
       }
     }
 
@@ -122,13 +127,13 @@ export default class extends Vue {
     }
   }
 
-  @media screen and (max-width: 1700px) {
+  @media screen and (max-height: 1000px) {
     .dashboard-wrap {
       font-size: 14px;
     }
   }
 
-  @media screen and (max-width: 1400px) {
+  @media screen and (max-height: 700px) {
     .dashboard-wrap {
       font-size: 12px;
     }
