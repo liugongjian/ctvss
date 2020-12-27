@@ -16,7 +16,7 @@
         </el-option>
       </el-select>
     </template>
-    <div v-if="selectValue === '0'" class="content">
+    <div v-if="selectValue === '0'" class="content" :style="`height:${height}vh`">
       <div class="content__calendar">
         <el-tooltip v-for="(item, index) in data" :key="index" placement="top" effect="light">
           <div slot="content">{{ item.time }}<br/>{{ `rate: ${parseFloat(item.rate * 100).toFixed(1)}%` }}</div>
@@ -32,14 +32,15 @@
         <span class="content__process__span content__process__span--bottom">100%</span>
       </div>
     </div>
-    <div v-show="selectValue === '1'" id="chartContainer"></div>
+    <div v-show="selectValue === '1'" id="chartContainer" :style="`height:${height}vh`"></div>
   </DashboardContainer>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Mixins } from 'vue-property-decorator'
 import DashboardContainer from './DashboardContainer.vue'
 import { Chart } from '@antv/g2'
+import DashboardMixin from './DashboardMixin'
 import { getIntegrityRate } from '@/api/dashboard'
 import { dateFormatInTable } from '@/utils/date'
 
@@ -47,7 +48,7 @@ import { dateFormatInTable } from '@/utils/date'
   name: 'DashboardDevice',
   components: { DashboardContainer }
 })
-export default class extends Vue {
+export default class extends Mixins(DashboardMixin) {
   private data: any = []
   private data_hours: any = []
   private selectValue: string = '0'
@@ -188,10 +189,14 @@ export default class extends Vue {
           return `rgb(${rgb_temp[0]}, ${rgb_temp[1]}, ${rgb_temp[2]})`
         })
       this.chart.axis('value', {
-        grid: null
+        grid: null,
+        label: {
+          offset: 15
+        }
       })
       this.chart.axis('time', {
         label: {
+          offset: 10,
           formatter: (val: string) => {
             return val
           }
