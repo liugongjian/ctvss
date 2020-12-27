@@ -8,10 +8,13 @@
           <video src="" />
         </div>
         <div class="ai-recognation__images">
-          <div v-for="(src, index) in imageList" :key="index" class="ai-recognation__images__item">
+          <div v-for="(img, index) in imageList" :key="index" class="ai-recognation__images__item">
             <div class="ai-recognation__images__item__decorator--top" />
             <div class="ai-recognation__images__item__decorator--bottom" />
-            <img :src="src">
+            <div class="ai-recognation__images__item--wrap">
+              <img ref="img" :src="img.src" @load="onload(index)">
+              <div class="ai-recognation__images__item--mask" :style="`top:${img.top * img.ratio}px; left:${img.left * img.ratio}px; width:${img.width * img.ratio}px; height:${img.height * img.ratio}px;`" />
+            </div>
             <div class="ai-recognation__images__item--datetime">2020-12-27 19:04:33</div>
           </div>
         </div>
@@ -28,15 +31,44 @@ import { Component, Vue } from 'vue-property-decorator'
 export default class extends Vue {
   private type = ''
   private imageList = [
-    'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1236258137,222312282&fm=26&gp=0.jpg',
-    'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1236258137,222312282&fm=26&gp=0.jpg',
-    'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1236258137,222312282&fm=26&gp=0.jpg',
-    'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1236258137,222312282&fm=26&gp=0.jpg',
-    'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1236258137,222312282&fm=26&gp=0.jpg',
-    'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1236258137,222312282&fm=26&gp=0.jpg',
-    'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1236258137,222312282&fm=26&gp=0.jpg',
-    'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1236258137,222312282&fm=26&gp=0.jpg',
-    'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1236258137,222312282&fm=26&gp=0.jpg'
+    {
+      src: 'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1236258137,222312282&fm=26&gp=0.jpg',
+      locations: [
+        {
+          top: 40,
+          left: 20,
+          width: 100,
+          height: 100,
+          ratio: 0
+        },
+        {
+          top: 60,
+          left: 60,
+          width: 100,
+          height: 100,
+          ratio: 0
+        }
+      ]
+    },
+    {
+      src: 'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1236258137,222312282&fm=26&gp=0.jpg',
+      locations: [
+        {
+          top: 40,
+          left: 20,
+          width: 100,
+          height: 100,
+          ratio: 0
+        },
+        {
+          top: 60,
+          left: 60,
+          width: 100,
+          height: 100,
+          ratio: 0
+        }
+      ]
+    }
   ]
 
   private mounted() {
@@ -44,6 +76,17 @@ export default class extends Vue {
     if (params.type) {
       this.type = params.type
     }
+  }
+
+  private onload(index: number) {
+    console.log(index)
+    const imgData: any = this.imageList[index]
+    const imgs: any = this.$refs.img
+    const img = imgs[index]
+    console.log(img)
+    imgData.locations.forEach((location: any) => {
+      location.ratio = img.clientWidth / img.naturalWidth
+    })
   }
 }
 </script>
@@ -139,6 +182,13 @@ export default class extends Vue {
         border-left: 5px solid #648fb9;
         border-right: 5px solid #648fb9;
         padding: 10px;
+        &--wrap {
+          position: relative;
+        }
+        &--mask {
+          position: absolute;
+          border: 1px solid #eee;
+        }
         // Decorator
         &__decorator--top,
         &__decorator--bottom {
