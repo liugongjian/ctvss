@@ -40,8 +40,25 @@
           </template>
         </el-table-column>
         <el-table-column prop="regionName" label="服务区域" min-width="120" />
-        <el-table-column prop="deviceSize" label="设备数量">
+        <el-table-column prop="deviceSize" label="设备总数" min-width="90">
           <template slot-scope="scope">{{ scope.row.groupStats && scope.row.groupStats.deviceSize }}</template>
+        </el-table-column>
+        <el-table-column prop="ipcSize" label="IPC设备数" min-width="90">
+          <template slot-scope="scope">{{ scope.row.groupStats && scope.row.groupStats.ipcSize }}</template>
+        </el-table-column>
+        <el-table-column prop="nvrSize" label="NVR设备数" min-width="95">
+          <template slot-scope="scope">
+            <div v-for="state in renderNvrSize(scope.row.groupStats)" :key="state.label">
+              {{ state.label }}: {{ state.value }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="platformSize" label="平台设备数" min-width="95">
+          <template slot-scope="scope">
+            <div v-for="state in renderPlatformSize(scope.row.groupStats)" :key="state.label">
+              {{ state.label }}: {{ state.value }}
+            </div>
+          </template>
         </el-table-column>
         <el-table-column prop="createdTime" label="创建时间" min-width="170" />
         <el-table-column prop="action" class-name="col-action" label="操作" width="250" fixed="right">
@@ -257,6 +274,48 @@ export default class extends Vue {
       case 'update':
         this.goToUpdateGroup(command.group)
         break
+    }
+  }
+
+  /**
+   * 渲染NVR数量
+   */
+  private renderNvrSize(groupStats: any) {
+    if (groupStats && groupStats.nvrSize) {
+      const size = groupStats.nvrSize.split(':')
+      if (size.length) {
+        return [
+          {
+            label: 'NVR',
+            value: size[0]
+          },
+          {
+            label: '通道',
+            value: size[1]
+          }
+        ]
+      }
+    }
+  }
+
+  /**
+   * 渲染NVR数量
+   */
+  private renderPlatformSize(groupStats: any) {
+    if (groupStats && groupStats.platformSize) {
+      const size = groupStats.platformSize.split(':')
+      if (size.length) {
+        return [
+          {
+            label: '平台',
+            value: size[0]
+          },
+          {
+            label: '通道',
+            value: size[1]
+          }
+        ]
+      }
     }
   }
 }

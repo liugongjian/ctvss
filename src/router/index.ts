@@ -106,7 +106,7 @@ export const asyncRoutes: RouteConfig[] = [
         component: () => import(/* webpackChunkName: "dashboard" */ '@/views/dashboard/ai/index.vue'),
         name: 'dashboardAI',
         meta: {
-          title: 'ai页面',
+          title: 'AI监控告警',
           hidden: true,
           icon: 'dashboard',
           breadcrumb: false

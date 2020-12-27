@@ -42,6 +42,7 @@
       </template> -->
       <template v-if="routerName === 'AI' || routerName === 'dashboard'">
         <div class="links">
+          <a @click="routeToHome()">首页</a>
           <a @click="routeToAI('mask')">未带口罩</a>
           <a @click="routeToAI('appeal')">人员上访</a>
           <a @click="routeToAI('gather')">人员聚集</a>
@@ -157,7 +158,13 @@ export default class extends Vue {
   }
 
   get routerName() {
-    return this.$route.name?.startsWith('AI-') ? 'AI' : this.$route.name
+    if (this.$route.name?.startsWith('AI-')) {
+      return 'AI'
+    } else if (this.$route.name?.startsWith('dashboard')) {
+      return 'dashboard'
+    } else {
+      return this.$route.name
+    }
   }
 
   @Watch('currentGroupId', { immediate: true })
@@ -218,9 +225,15 @@ export default class extends Vue {
   private routeToAI(type: string) {
     this.$router.push({
       path: '/dashboard/ai',
-      params: {
+      query: {
         type
       }
+    })
+  }
+
+  private routeToHome() {
+    this.$router.push({
+      path: '/dashboard'
     })
   }
 }
@@ -498,6 +511,7 @@ export default class extends Vue {
 
       a {
         display: inline-block;
+        cursor: pointer;
         padding: 0 30px;
         margin-right: 10px;
         font-weight: bold;
