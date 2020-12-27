@@ -96,7 +96,7 @@ export default class extends Vue {
     &__col {
       position: absolute;
       width: 30%;
-      top: 4vh;
+      top: 5vh;
       &--left {
         left: 2em;
       }
