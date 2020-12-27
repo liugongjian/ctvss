@@ -18,7 +18,7 @@
     </template>
     <div v-if="selectValue === '0'" class="content" :style="`height:${height}vh`">
       <div class="content__calendar">
-        <el-tooltip v-for="(item, index) in data" :key="index" placement="bottom" effect="light">
+        <el-tooltip v-for="(item, index) in data" :key="index" placement="bottom">
           <div class="content__calendar__tooltip" slot="content">{{ item.time }}<br/>{{ `完整率: ${parseFloat(item.rate * 100).toFixed(1)}%` }}</div>
           <div class="content__calendar__item">
             <p :style="item.itemBgColor">
@@ -237,7 +237,7 @@ export default class extends Mixins(DashboardMixin) {
         justify-content: center;
         align-items: center;
         p {
-          font-size: 1em;
+          font-size: 1.5vh;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -266,7 +266,7 @@ export default class extends Mixins(DashboardMixin) {
       border-radius: 10px;
 
       &__span {
-        font-size: 0.5em;
+        font-size: 1vh;
         position: absolute;
         left: 200%;
 

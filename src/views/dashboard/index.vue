@@ -54,8 +54,6 @@ export default class extends Vue {
   .dashboard-wrap {
     position: relative;
     background-color: #232F3E;
-    background-repeat: no-repeat;
-    background-position: 35% -240px;
     height: 100%;
     width: 100%;
     font-size: 16px;
@@ -118,6 +116,10 @@ export default class extends Vue {
 
     ::v-deep .el-loading-mask {
       background: rgba(35, 59, 88, 0.6);
+    }
+
+    ::v-deep .g2-tooltip {
+      opacity: 0.85!important;
     }
   }
 

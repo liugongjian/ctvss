@@ -1,16 +1,18 @@
 <template>
-  <div class="app-container">
-    <div class="ai-recognation-video">
-      <video src="" />
-    </div>
-    <div class="ai-recognation-img--abnormal">
-      <div v-for="(src, index) in abnormalImageList" :key="index">
-        <img :src="src">
+  <div class="dashboard-wrap">
+    <div class="ai-recognation">
+      <div class="ai-recognation-video">
+        <video src="" />
       </div>
-    </div>
-    <div class="ai-recognation-img--normal">
-      <div v-for="(src, index) in normalImageList" :key="index">
-        <img :src="src">
+      <div class="ai-recognation-img--abnormal">
+        <div v-for="(src, index) in abnormalImageList" :key="index">
+          <img :src="src">
+        </div>
+      </div>
+      <div class="ai-recognation-img--normal">
+        <div v-for="(src, index) in normalImageList" :key="index">
+          <img :src="src">
+        </div>
       </div>
     </div>
   </div>
@@ -48,8 +50,21 @@ export default class extends Vue {
 </script>
 
 <style lang="scss" scoped>
-img {
-  width: 200px;
-  height: 120px;
-}
+  .dashboard-wrap {
+    position: relative;
+    background-color: #232F3E;
+    height: 100%;
+    width: 100%;
+    font-size: 16px;
+    height: 100vh;
+    overflow: auto;
+  }
+  .ai-recognation {
+    border: 2px solid #516F8D;
+    margin: 8vh 5vh;
+  }
+  img {
+    width: 200px;
+    height: 120px;
+  }
 </style>
