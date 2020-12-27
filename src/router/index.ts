@@ -548,7 +548,7 @@ export const asyncRoutes: RouteConfig[] = [
     },
     children: [
       {
-        path: '',
+        path: '/',
         component: () => import(/* webpackChunkName: "secretManage" */ '@/views/secretManage/index.vue'),
         meta: {
           title: 'API密钥管理',
@@ -560,27 +560,40 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
-    path: '/alertBoard',
+    path: '/AI',
     component: Layout,
+    redirect: '/AI/config',
     meta: {
-      title: '告警信息',
-      icon: 'alert',
-      roles: ['admin'],
-      alwaysShow: false,
-      groupSelector: true
+      title: 'AI配置',
+      icon: 'key',
+      alwaysShow: true,
+      breadcrumb: false,
+      roles: ['admin']
     },
     children: [
       {
-        path: '',
-        component: () => import(/* webpackChunkName: "alertBoard" */ '@/views/alertBoard/index.vue'),
-        name: 'alertBoard',
+        path: 'config',
+        component: () => import(/* webpackChunkName: "AI" */ '@/views/AI/aiconfig/index.vue'),
+        name: 'aiconfig',
         meta: {
-          title: '告警信息',
-          icon: 'alert',
+          title: '关联配置',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/AI',
+          roles: ['admin']
+        }
+      },
+      {
+        path: 'maskRecognation',
+        component: () => import(/* webpackChunkName: "AI" */ '@/views/AI/maskRecognation/index.vue'),
+        name: 'AI-MaskRecognation',
+        meta: {
+          title: '口罩识别',
+          icon: 'dot',
+          hidden: true,
           breadcrumb: false,
-          roles: ['admin'],
-          activeMenu: '/alertBoard',
-          groupSelector: true
+          activeMenu: '/AI',
+          roles: ['admin']
         }
       }
     ]

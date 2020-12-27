@@ -40,38 +40,62 @@
           <size-select class="right-menu-item hover-effect" />
         </el-tooltip>
       </template> -->
-      <div class="search-box">
-        <div class="search-box__form" @click.stop="focusSearch">
-          <span class="search-box__placeholder">搜索设备</span>
-          <span class="search-box__icon"><svg-icon name="search" width="15" height="15" /></span>
-        </div>
-        <div ref="searchBoxPopup" class="search-box__popup" @click.stop>
-          <div class="search-box__popup__close" @click="closeSearchPopup">
-            <svg-icon name="close" width="12" height="12" />
+      <template v-if="routerName === 'AI' || routerName === 'dashboard'">
+        <div class="user-container">
+          <div class="user-container__menu">
+            {{ "安全管理" }}
           </div>
-          <div class="search-box__popup__types">搜索设备</div>
-          <el-form class="search-box__popup__form" @submit.native.prevent>
-            <el-input ref="searchBoxPopupInput" v-model="searchForm.deviceId" placeholder="请输入设备ID" />
-            <el-button type="text" native-type="submit" @click="search">
-              <svg-icon name="search" width="15" height="15" />
-            </el-button>
-          </el-form>
+          <div class="header-dropdown">
+            <router-link to="/secretManage"><i><svg-icon name="key" /></i> API密钥管理</router-link>
+            <div class="header-dropdown__divided" />
+            <el-button type="text" @click="logout"><i><svg-icon name="logout" /></i> 退出登录</el-button>
+          </div>
         </div>
-      </div>
-      <div class="links">
-        <a target="_blank" href="/document/api/">API文档</a>
-      </div>
-      <div class="user-container">
-        <div class="user-container__menu">
-          {{ name }}
-          <svg-icon class="user-container__arrow" name="arrow-down" width="9" height="9" />
+        <div class="user-container">
+          <div class="user-container__menu">
+            {{ "人员管理" }}
+          </div>
+          <div class="header-dropdown">
+            <router-link to="/secretManage"><i><svg-icon name="key" /></i> API密钥管理</router-link>
+            <div class="header-dropdown__divided" />
+            <el-button type="text" @click="logout"><i><svg-icon name="logout" /></i> 退出登录</el-button>
+          </div>
         </div>
-        <div class="header-dropdown">
-          <router-link to="/secretManage"><i><svg-icon name="key" /></i> API密钥管理</router-link>
-          <div class="header-dropdown__divided" />
-          <el-button type="text" @click="logout"><i><svg-icon name="logout" /></i> 退出登录</el-button>
+      </template>
+      <template v-else>
+        <div class="search-box">
+          <div class="search-box__form" @click.stop="focusSearch">
+            <span class="search-box__placeholder">搜索设备</span>
+            <span class="search-box__icon"><svg-icon name="search" width="15" height="15" /></span>
+          </div>
+          <div ref="searchBoxPopup" class="search-box__popup" @click.stop>
+            <div class="search-box__popup__close" @click="closeSearchPopup">
+              <svg-icon name="close" width="12" height="12" />
+            </div>
+            <div class="search-box__popup__types">搜索设备</div>
+            <el-form class="search-box__popup__form" @submit.native.prevent>
+              <el-input ref="searchBoxPopupInput" v-model="searchForm.deviceId" placeholder="请输入设备ID" />
+              <el-button type="text" native-type="submit" @click="search">
+                <svg-icon name="search" width="15" height="15" />
+              </el-button>
+            </el-form>
+          </div>
         </div>
-      </div>
+        <div class="links">
+          <a target="_blank" href="/document/api/">API文档</a>
+        </div>
+        <div class="user-container">
+          <div class="user-container__menu">
+            {{ name }}
+            <svg-icon class="user-container__arrow" name="arrow-down" width="9" height="9" />
+          </div>
+          <div class="header-dropdown">
+            <router-link to="/secretManage"><i><svg-icon name="key" /></i> API密钥管理</router-link>
+            <div class="header-dropdown__divided" />
+            <el-button type="text" @click="logout"><i><svg-icon name="logout" /></i> 退出登录</el-button>
+          </div>
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -148,7 +172,7 @@ export default class extends Vue {
   }
 
   get routerName() {
-    return this.$route.name
+    return this.$route.name?.startsWith('AI-') ? 'AI' : this.$route.name
   }
 
   @Watch('currentGroupId', { immediate: true })
@@ -424,8 +448,12 @@ export default class extends Vue {
     }
   }
 
-  &--dashboard {
-    background: #131a23;
+  &--dashboard, &--AI {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 11;
+    background: transparent;
     color: #eee;
     .links a,
     .right-menu .user-container {
