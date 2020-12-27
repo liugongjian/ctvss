@@ -472,52 +472,63 @@ export default class extends Vue {
     }
     .hamburger-container {
       line-height: 40px;
+      background: #2c3c51;
+      padding: 0 10px;
+      border-radius: 0 5px 5px 0;
+      ::v-deep svg {
+        color: #7BB3E5;
+      }
     }
-    .app-breadcrumb.el-breadcrumb {
-      line-height: 40px;
+    .app-breadcrumb {
+      display: none;
     }
     .right-menu {
       margin-right: 2em;
-      line-height: 40px;
+      line-height: 50px;
+      border-top: 3px solid #3a556e;
 
       a {
         display: inline-block;
-        padding: 0 15px;
-        margin: 0 5px;
+        padding: 0 30px;
+        margin-right: 10px;
         font-weight: bold;
-        background: rgba(35, 59, 88, 0.6);
+        background: rgba(50, 82, 121, 0.6);
         border-radius: 0 0 4px 4px;
         border: 1px solid #597B9B;
-        border-top: none;
+        border-top: 0;
+        font-size: 18px;
+        &:last-child {
+          margin: 0;
+        }
       }
     }
 
     @media screen and (max-height: 1100px) {
       .hamburger-container {
-        line-height: 30px;
-      }
-      .app-breadcrumb.el-breadcrumb {
-        line-height: 30px;
+        line-height: 40px;
+        ::v-deep svg {
+          width: 15px!important;
+          height: 15px!important;
+        }
       }
       .right-menu {
-        line-height: 30px;
+        line-height: 40px;
         a {
-          font-size: 12px;
+          font-size: 16px;
+          padding: 0 20px;
         }
       }
     }
 
     @media screen and (max-height: 800px) {
       .hamburger-container {
-        line-height: 25px;
-      }
-      .app-breadcrumb.el-breadcrumb {
-        line-height: 25px;
+        line-height: 30px;
       }
       .right-menu {
-        line-height: 25px;
+        line-height: 30px;
         a {
-          font-size: 12px;
+          font-size: 14px;
+          padding: 0 15px;
         }
       }
     }
