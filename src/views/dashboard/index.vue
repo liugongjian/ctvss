@@ -8,16 +8,14 @@
     </div>
     <DashboardMap />
     <div class="dashboard-wrap__col dashboard-wrap__col--left">
-      <DashboardDevice />
-      <!-- <DashboardDevice /> -->
-      <DashboardIntegrityRate />
-      <!-- <DashboardFlow />
-      <DashboardDevice /> -->
+      <DashboardDevice height="15" />
+      <DashboardFlow height="20" />
+      <DashboardIntegrityRate height="20"/>
     </div>
     <div class="dashboard-wrap__col dashboard-wrap__col--right">
-      <DashboardAlertLive />
-      <DashboardAlertToday />
-      <DashboardDevice />
+      <DashboardAlertLive height="20" />
+      <DashboardAlertToday height="15" />
+      <DashboardAlertTrend height="20" />
     </div>
   </div>
 </template>
@@ -31,6 +29,7 @@ import DashboardAlertLive from '@/components/Dashboard/DashboardAlertLive.vue'
 import DashboardAlertToday from '@/components/Dashboard/DashboardAlertToday.vue'                                                         
 import DashboardIntegrityRate from '@/components/Dashboard/DashboardIntegrityRate.vue'
 import DashboardMap from '@/components/Dashboard/DashBoardMap.vue'
+import DashboardAlertTrend from '@/components/Dashboard/DashboardAlertTrend.vue'
 
 @Component({
   name: 'Dashboard',
@@ -40,7 +39,8 @@ import DashboardMap from '@/components/Dashboard/DashBoardMap.vue'
     DashboardAlertLive,
     DashboardAlertToday,
     DashboardMap,
-    DashboardIntegrityRate
+    DashboardIntegrityRate,
+    DashboardAlertTrend
   }
 })
 export default class extends Vue {
@@ -60,6 +60,7 @@ export default class extends Vue {
     width: 100%;
     font-size: 16px;
     min-height: calc(100vh - 50px);
+    overflow: auto;
 
     &__bg {
       position: absolute;
@@ -71,7 +72,7 @@ export default class extends Vue {
       position: absolute;
       z-index: 11;
       left: 50%;
-      font-size: 1.8rem;
+      font-size: 1.8em;
       color: #98CFFF;
       font-weight: bold;
       background: rgba(35, 59, 88, 0.6);
@@ -82,23 +83,23 @@ export default class extends Vue {
       padding: 20px 0;
       text-align: center;
       letter-spacing: .5rem;
-      border-radius: 0 0 1rem 1rem;
+      border-radius: 0 0 1em 1em;
       box-shadow: 0 0 10px rgba(89, 123, 155, .5);
     }
 
     &__col {
       position: absolute;
       width: 30%;
-      top: 4rem;
+      top: 4vh;
       &--left {
-        left: 2rem;
+        left: 2em;
       }
       &--right {
         position: absolute;
-        right: 2rem;
+        right: 2em;
       }
       ::v-deep .dashboard-container {
-        margin-bottom: 2rem;
+        margin-bottom: 2em;
       }
     }
 
@@ -108,6 +109,22 @@ export default class extends Vue {
         border-color: #33475F;
         color: #fff;
       }
+    }
+
+    ::v-deep .el-loading-mask {
+      background: rgba(35, 59, 88, 0.6);
+    }
+  }
+
+  @media screen and (max-width: 1700px) {
+    .dashboard-wrap {
+      font-size: 14px;
+    }
+  }
+
+  @media screen and (max-width: 1400px) {
+    .dashboard-wrap {
+      font-size: 12px;
     }
   }
 </style>

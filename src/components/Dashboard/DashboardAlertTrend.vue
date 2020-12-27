@@ -1,21 +1,6 @@
 <template>
-  <DashboardContainer v-loading="loading" title="网络流量统计">
-    <template v-slot:header>
-      <el-select
-        v-model="userType"
-        size="small"
-        popper-class="dark-select"
-        @change="timeChange"
-      >
-        <el-option
-          v-for="time in timeList"
-          :key="time.value"
-          :label="time.label"
-          :value="time.value"
-        />
-      </el-select>
-    </template>
-    <div id="flow-container" :style="`height:${height}vh`" />
+  <DashboardContainer v-loading="loading" title="本周告警趋势分析">
+    <div id="weekly-trend-container" :style="`height:${height}vh`" />
   </DashboardContainer>
 </template>
 
@@ -24,31 +9,16 @@ import { Component, Mixins } from 'vue-property-decorator'
 import { Chart } from '@antv/g2'
 import DashboardMixin from './DashboardMixin'
 import DashboardContainer from './DashboardContainer.vue'
-import { getFlowData } from '@/api/dashboard'
+import { getWeeklyTrend } from '@/api/dashboard'
 
 @Component({
-  name: 'DashboardFlow',
+  name: 'DashboardWeeklyTrend',
   components: { DashboardContainer }
 })
 export default class extends Mixins(DashboardMixin) {
-  private timeList: Array<{ label: string; value: number }> = [
-    {
-      label: '最近12小时',
-      value: 12 * 60 * 60 * 1000
-    },
-    {
-      label: '最近6小时',
-      value: 6 * 60 * 60 * 1000
-    },
-    {
-      label: '最近3小时',
-      value: 3 * 60 * 60 * 1000
-    }
-  ]
-  private flowData: any = []
-  private userType = 12 * 60 * 60 * 1000
+  private weeklyTrendData: any = []
   private chart: any = null
-  public intervalTime = 60 * 1000
+  public intervalTime = 24 * 60 * 60 * 1000
   private loading = false
 
   private mounted() {
@@ -64,31 +34,26 @@ export default class extends Mixins(DashboardMixin) {
    */
   private async getData() {
     try {
-      const end: any = new Date()
-      const start: any = new Date(end - this.userType)
       this.loading = true
-      const res = await getFlowData({
-        StartTime: this.dateFormat(start),
-        EndTime: this.dateFormat(end)
-      })
+      const res = await getWeeklyTrend({})
       this.loading = false
-      const flowData = []
-      for (let key in res.data.Bandwidth) {
-        const item = res.data.Bandwidth[key]
-        flowData.push(
-          {
-            time: key.split(' ')[1].slice(0, -3),
-            type: '入网流量',
-            value: Math.floor(item['InFlow'] / 1024)
-          },
-          {
-            time: key.split(' ')[1].slice(0, -3),
-            type: '出网流量',
-            value: Math.floor(item['OutFlow'] / 1024)
-          }
-        )
-      }
-      this.flowData = flowData
+      // const weeklyTrendData = []
+      // for (let key in res.data.Bandwidth) {
+      //   const item = res.data.Bandwidth[key]
+      //   weeklyTrendData.push(
+      //     {
+      //       time: key.split(' ')[1].slice(0, -3),
+      //       type: '入网流量',
+      //       value: Math.floor(item['InFlow'] / 1024)
+      //     },
+      //     {
+      //       time: key.split(' ')[1].slice(0, -3),
+      //       type: '出网流量',
+      //       value: Math.floor(item['OutFlow'] / 1024)
+      //     }
+      //   )
+      // }
+      this.weeklyTrendData = res
       this.chart ? this.updateChart() : this.drawChart()
     } catch (e) {
       this.loading = false
@@ -100,10 +65,10 @@ export default class extends Mixins(DashboardMixin) {
    */
   private async drawChart() {
     this.chart = new Chart({
-      container: 'flow-container',
+      container: 'weekly-trend-container',
       autoFit: true
     })
-    this.chart.data(this.flowData)
+    this.chart.data(this.weeklyTrendData)
     this.chart.scale({
       time: {
         range: [0, 1]
@@ -124,7 +89,7 @@ export default class extends Mixins(DashboardMixin) {
       items: [
         {
           id: '1',
-          name: '出网流量',
+          name: '人员聚集',
           value: 'OutFlow',
           marker: {
             symbol: 'square',
@@ -136,7 +101,7 @@ export default class extends Mixins(DashboardMixin) {
         },
         {
           id: '2',
-          name: '入网流量',
+          name: '未带口罩',
           value: 'InFlow',
           marker: {
             symbol: 'square',
@@ -145,12 +110,23 @@ export default class extends Mixins(DashboardMixin) {
             },
             spacing: 5
           }
+        },
+        {
+          id: '3',
+          name: '人员上访',
+          value: 'InFlow',
+          marker: {
+            symbol: 'square',
+            style: {
+              fill: '#E56161'
+            },
+            spacing: 5
+          }
         }
       ],
       itemName: {
         style: {
           fill: '#eeeeee'
-          // fontSize: 14
         },
         formatter: (text: any, item: any) => item.name
       }
@@ -162,12 +138,6 @@ export default class extends Mixins(DashboardMixin) {
           return val
         }
       },
-      title: {
-        style: {
-          fill: '#98CFFF',
-          fontSize: 14
-        }
-      },
       grid: {
         line: {
           style: {
@@ -177,15 +147,11 @@ export default class extends Mixins(DashboardMixin) {
       }
     })
     this.chart.scale('value', {
-      alias: 'Mbps',
       min: 0,
       max: 100
     })
 
-    this.chart.line().position('time*value').color('type', ['#6F9FC9', '#F4C46C']).shape('smooth')
-
-    // this.chart.point().position('time*value').color('type', ['#6F9FC9', '#F4C46C']).shape('circle')
-
+    this.chart.line().position('time*value').color('type', ['#F4C46C', '#6F9FC9', '#E56161']).shape('smooth')
     this.chart.render()
   }
 
@@ -193,7 +159,7 @@ export default class extends Mixins(DashboardMixin) {
    * 更新图表
    */
   private updateChart() {
-    this.chart.changeData(this.flowData)
+    this.chart.changeData(this.weeklyTrendData)
   }
 
   private dateFormat(date: any) {
