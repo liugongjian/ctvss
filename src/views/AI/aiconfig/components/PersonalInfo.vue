@@ -8,8 +8,17 @@
         </template>
       </el-table-column>
       <el-table-column prop="name" label="姓名" />
+      <el-table-column prop="certificate" label="身份证号" />
       <el-table-column prop="description" label="描述" />
     </el-table>
+    <el-pagination
+      :current-page="pager.pageNum"
+      :page-size="pager.pageSize"
+      :total="pager.total"
+      layout="total, sizes, prev, pager, next, jumper"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+    />
     <AddPersonal v-if="showAddPesronDialog" @on-close="showAddPesronDialog=false" />
   </div>
 </template>
@@ -28,6 +37,25 @@ export default class extends Vue {
   private showAddPesronDialog = false
   private loading = false
   private dataList = []
+  private pager = {
+    pageNum: 1,
+    pageSize: 10,
+    total: 20
+  }
+
+  private getPersonalList() {
+
+  }
+
+  private async handleSizeChange(val: number) {
+    this.pager.pageSize = val
+    await this.getPersonalList()
+  }
+
+  private async handleCurrentChange(val: number) {
+    this.pager.pageNum = val
+    await this.getPersonalList()
+  }
 }
 </script>
 

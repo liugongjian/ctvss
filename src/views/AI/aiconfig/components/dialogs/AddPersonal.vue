@@ -12,7 +12,7 @@
       :rules="rules"
       :model="form"
       label-position="right"
-      label-width="80px"
+      label-width="100px"
     >
       <el-form-item label="头像:" prop="profile">
         <el-upload
@@ -28,6 +28,9 @@
       </el-form-item>
       <el-form-item label="姓名:" prop="name">
         <el-input v-model="form.name" placeholder="请输入姓名" />
+      </el-form-item>
+      <el-form-item label="身份证号:" prop="certificate">
+        <el-input v-model="form.certificate" placeholder="请输入身份证号" />
       </el-form-item>
       <el-form-item label="描述:" prop="description">
         <el-input v-model="form.description" type="textarea" placeholder="请输入描述" />
@@ -50,6 +53,7 @@ export default class extends Vue {
   private form: Record<string, any> = {
     profile: null,
     name: null,
+    certificate: null,
     description: null
   }
   private rules = {
@@ -58,7 +62,19 @@ export default class extends Vue {
     ],
     name: [
       { required: true, message: '请输入姓名', trigger: 'blur' }
+    ],
+    certificate: [
+      { required: true, message: '请输入身份证号', trigger: 'blur' },
+      { validator: this.validateCertificate, trigger: 'blur' }
     ]
+  }
+
+  private validateCertificate(rule: any, value: string, callback: any) {
+    if (!/^[0-9]{17}[0-9a-zA-Z]{1}$/.test(value)) {
+      callback(new Error('身份证格式错误'))
+    } else {
+      callback()
+    }
   }
 
   private closeDialog() {
@@ -81,7 +97,7 @@ export default class extends Vue {
   }
 
   private submit() {
-    const form: any = this.$refs.dataForm
+    const form: any = this.$refs.form
     form.validate((valid: any) => {
       if (valid) {
         console.log('valid')
