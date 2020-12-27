@@ -560,36 +560,11 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
-    path: '/alertBoard',
-    component: Layout,
-    meta: {
-      title: '告警信息',
-      icon: 'alert',
-      roles: ['admin'],
-      alwaysShow: false,
-      groupSelector: true
-    },
-    children: [
-      {
-        path: '',
-        component: () => import(/* webpackChunkName: "alertBoard" */ '@/views/alertBoard/index.vue'),
-        name: 'alertBoard',
-        meta: {
-          title: '告警信息',
-          icon: 'alert',
-          breadcrumb: false,
-          roles: ['admin'],
-          activeMenu: '/alertBoard',
-          groupSelector: true
-        }
-      }
-    ]
-  },
-  {
     path: '/AI',
     component: Layout,
+    redirect: '/AI/config',
     meta: {
-      title: 'AI能力',
+      title: 'AI配置',
       icon: 'key',
       alwaysShow: true,
       breadcrumb: false,
@@ -597,12 +572,27 @@ export const asyncRoutes: RouteConfig[] = [
     },
     children: [
       {
-        path: 'faceRecognation',
-        component: () => import(/* webpackChunkName: "tree" */ '@/views/AI/faceRecognation/index.vue'),
-        name: 'faceRecognation',
+        path: 'config',
+        component: () => import(/* webpackChunkName: "AI" */ '@/views/AI/aiconfig/index.vue'),
+        name: 'aiconfig',
         meta: {
-          title: '人脸识别',
+          title: '关联配置',
           icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/AI',
+          roles: ['admin']
+        }
+      },
+      {
+        path: 'maskRecognation',
+        component: () => import(/* webpackChunkName: "AI" */ '@/views/AI/maskRecognation/index.vue'),
+        name: 'AI-MaskRecognation',
+        meta: {
+          title: '口罩识别',
+          icon: 'dot',
+          hidden: true,
+          breadcrumb: false,
+          activeMenu: '/AI',
           roles: ['admin']
         }
       }

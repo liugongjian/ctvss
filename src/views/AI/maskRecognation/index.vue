@@ -63,10 +63,10 @@
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { AlertLevel, AlertType, AlertParams } from '@/dics'
 import { GroupModule } from '@/store/modules/group'
-import DashboardAlertLiveDetailDialog from '@/views/alertBoard/components/DetailDialog.vue'
+import DashboardAlertLiveDetailDialog from '@/views/AI/maskRecognation/components/DetailDialog.vue'
 
 @Component({
-  name: 'AlertBoard',
+  name: 'MaskRecognation',
   components: {
     DashboardAlertLiveDetailDialog
   }

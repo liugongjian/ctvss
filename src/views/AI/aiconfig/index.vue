@@ -13,10 +13,10 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import PersonalInfo from './components/PersonalInfo'
+import PersonalInfo from './components/PersonalInfo.vue'
 
 @Component({
-  name: 'AI',
+  name: 'FaceRecognation',
   components: {
     PersonalInfo
   }
