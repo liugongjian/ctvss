@@ -98,7 +98,8 @@ export default class extends Mixins(DashboardMixin) {
   private async drawChart() {
     this.chart = new Chart({
       container: 'flow-container',
-      autoFit: true
+      autoFit: true,
+      padding: [10, 10, 40, 60]
     })
     this.chart.data(this.flowData)
     this.chart.scale({
@@ -116,7 +117,7 @@ export default class extends Mixins(DashboardMixin) {
     })
 
     this.chart.legend({
-      offsetY: 10,
+      offsetY: 5,
       itemSpacing: 30,
       items: [
         {
@@ -155,6 +156,7 @@ export default class extends Mixins(DashboardMixin) {
 
     this.chart.axis('value', {
       label: {
+        offset: 10,
         formatter: (val: any) => {
           return val
         }
@@ -173,6 +175,13 @@ export default class extends Mixins(DashboardMixin) {
         }
       }
     })
+
+    this.chart.axis('time', {
+      label: {
+        offset: 10
+      }
+    })
+
     this.chart.scale('value', {
       alias: 'Mbps',
       min: 0,

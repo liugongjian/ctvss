@@ -9,8 +9,8 @@
     <DashboardMap />
     <div class="dashboard-wrap__col dashboard-wrap__col--left">
       <DashboardDevice height="15" />
-      <DashboardFlow height="20" />
-      <DashboardIntegrityRate height="20"/>
+      <DashboardFlow height="25" />
+      <DashboardIntegrityRate height="25" />
     </div>
     <div class="dashboard-wrap__col dashboard-wrap__col--right">
       <DashboardAlertLive height="25" />
