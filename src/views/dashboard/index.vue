@@ -1,11 +1,12 @@
 <template>
   <div
     class="dashboard-wrap"
-    :style="`background-image: url(${require('@/assets/dashboard/header-bg.png')})`"
   >
+    <img class="dashboard-wrap__bg" :src="require('@/assets/dashboard/header-bg.png')">
     <div class="dashboard-wrap__header">
       智能视频云
     </div>
+    <DashboardMap />
     <div class="dashboard-wrap__col dashboard-wrap__col--left">
       <DashboardDevice />
       <!-- <DashboardDevice /> -->
@@ -27,8 +28,9 @@ import { UserModule } from '@/store/modules/user'
 import DashboardDevice from '@/components/Dashboard/DashboardDevice.vue'
 import DashboardFlow from '@/components/Dashboard/DashboardFlow.vue'
 import DashboardAlertLive from '@/components/Dashboard/DashboardAlertLive.vue'
-import DashboardAlertToday from '@/components/Dashboard/DashboardAlertToday.vue'
+import DashboardAlertToday from '@/components/Dashboard/DashboardAlertToday.vue'                                                         
 import DashboardIntegrityRate from '@/components/Dashboard/DashboardIntegrityRate.vue'
+import DashboardMap from '@/components/Dashboard/DashBoardMap.vue'
 
 @Component({
   name: 'Dashboard',
@@ -37,6 +39,7 @@ import DashboardIntegrityRate from '@/components/Dashboard/DashboardIntegrityRat
     DashboardFlow,
     DashboardAlertLive,
     DashboardAlertToday,
+    DashboardMap,
     DashboardIntegrityRate
   }
 })
@@ -49,14 +52,25 @@ export default class extends Vue {
 
 <style lang="scss" scoped>
   .dashboard-wrap {
+    position: relative;
     background-color: #232F3E;
     background-repeat: no-repeat;
     background-position: 35% -240px;
     height: 100%;
+    width: 100%;
     font-size: 16px;
     min-height: calc(100vh - 50px);
 
+    &__bg {
+      position: absolute;
+      left: 30%;
+      top: -200px;
+      z-index: 10;
+    }
     &__header {
+      position: absolute;
+      z-index: 11;
+      left: 50%;
       font-size: 1.8rem;
       color: #98CFFF;
       font-weight: bold;
@@ -64,7 +78,7 @@ export default class extends Vue {
       border: 2px solid #597B9B;
       border-top: none;
       width: 30%;
-      margin: 0 auto;
+      margin-left: -15%;
       padding: 20px 0;
       text-align: center;
       letter-spacing: .5rem;
@@ -75,6 +89,7 @@ export default class extends Vue {
     &__col {
       position: absolute;
       width: 30%;
+      top: 4rem;
       &--left {
         left: 2rem;
       }
