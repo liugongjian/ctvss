@@ -60,17 +60,20 @@ export default class extends Mixins(DashboardMixin) {
   }]
   private resizeObserver: any
   private chart: any
+  public intervalTime = 60 * 1000 * 10
 
   private changeEvent(val: string) {
     if (val === '0') {
       this.$nextTick(() => {
+        this.destroy()
         this.setCalender()
       })
     } else if (val === '1') {
+      this.destroy()
       this.$nextTick(() => {
-        // @ts-ignore
-        document.getElementById('chartContainer').innerHTML = ''
-        this.setChart()
+        this.setInterval(() => {
+          this.chart ? this.updateChart() : this.setChart()
+        })
       })
     }
   }
@@ -127,6 +130,8 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   private setChart() {
+    // @ts-ignore
+    document.getElementById('chartContainer').innerHTML = ''
     const time = new Date().getTime()
     var startTime = dateFormatInTable('', '', time - 3600 * 23 * 1000)
     var endTime = dateFormatInTable('', '', time)
@@ -152,7 +157,7 @@ export default class extends Mixins(DashboardMixin) {
       this.chart = new Chart({
         container: 'chartContainer',
         autoFit: true,
-        padding: [30, 10, 30, 50]
+        padding: [30, 15, 30, 50]
       })
       this.chart.scale({
         time: {
@@ -204,6 +209,24 @@ export default class extends Mixins(DashboardMixin) {
         }
       })
       this.chart.render()
+    })
+  }
+  private updateChart() {
+    const time = new Date().getTime()
+    var startTime = dateFormatInTable('', '', time - 3600 * 23 * 1000)
+    var endTime = dateFormatInTable('', '', time)
+    getIntegrityRate({
+      startTime: startTime,
+      endTime: endTime
+    }).then((res) => {
+      var chartData = []
+      for (let i = 0; i < this.dataHours.length; i++) {
+        chartData.push({
+          time: this.dataHours[i].time,
+          value: this.dataHours[i].rate
+        })
+      }
+      this.chart.changeData(chartData)
     })
   }
 }
