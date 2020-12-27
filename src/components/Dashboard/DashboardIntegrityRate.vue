@@ -41,7 +41,8 @@ import DashboardContainer from './DashboardContainer.vue'
 import { Chart } from '@antv/g2';
 import { log } from 'console';
 import { watch } from 'fs';
-import axios from 'axios'
+import { getIntegrityRate } from '@/api/dashboard'
+import { dateFormatInTable } from '@/utils/date'
 
 @Component({
   name: 'DashboardDevice',
@@ -76,16 +77,28 @@ export default class extends Vue {
   }
 
   mounted() {
-    this.data = []
-    for (let i=0; i<30; i++) {
-      this.data.push({
-        time: "2020年12月15日",
-        day: i+1,
-        rate: i/30,
-      })
-    }
-    this.setCalender()
-    this.setChart()
+    const time = new Date().getTime()
+    var startTime = dateFormatInTable( '', '', time - 3600 * 24 * 30 * 1000)
+    var endTime = dateFormatInTable( '', '', time)
+    getIntegrityRate({
+      startTime: startTime,
+      endTime: endTime
+    }).then((data1) => {
+      console.log(data1);
+      console.log(startTime, endTime);
+      
+      this.data = []
+      for (let i=0; i<30; i++) {
+        this.data.push({
+          time: "2020年12月15日",
+          day: i+1,
+          rate: i/30,
+        })
+      }
+      this.setCalender()
+      this.setChart()
+    })
+    
   }
   private setCalender() {
     //日历
