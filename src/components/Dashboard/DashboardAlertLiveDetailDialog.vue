@@ -8,26 +8,31 @@
     center
     @close="closeDialog"
   >
-    <div class="alert" :class="theme">
+    <div v-loading="loading" class="alert" :class="theme">
       <div class="alert-header">
-        <div class="alert-header__level" :class="`alert-header__level--${alertIcon[alertItem.level]}`">
-          <svg-icon :name="alertIcon[alertItem.level]" />
-          {{ alertLevel[alertItem.level] }}
-        </div>
-        <div class="alert-header__type">{{ alertType[alertItem.type] }}</div>
-        <div class="alert-header__datetime">{{ alertItem.datetime }}</div>
+        <div class="alert-header__type">事件类型: {{ alertType[audit.event] }}</div>
+        <div class="alert-header__datetime">{{ audit.timestamp }}</div>
       </div>
-      <div class="alert-body">
+      <div v-if="auditDetail" class="alert-body">
         <div class="alert-body__video">
-          <video />
+          <player
+            :type="auditDetail.type"
+            :url="auditDetail.videoUrl"
+            :is-live="false"
+            :is-ws="false"
+            :has-fullscreen="false"
+            :auto-play="true"
+            :has-control="false"
+            :has-playback="true"
+          />
         </div>
         <div class="alert-body__image">
           <div class="alert-body__image__decorator--top" />
           <div class="alert-body__image__decorator--bottom" />
           <div class="alert-body__image__wrap">
-            <img ref="img" :src="alertItem.img" @load="onload">
+            <img ref="img" :src="auditDetail.imgUrl" @load="onload">
             <div
-              v-for="(location, locationIndex) in alertItem.locations"
+              v-for="(location, locationIndex) in auditDetail.locations"
               :key="locationIndex"
               class="alert-body__image__mask"
               :class="{'alert-body__image__mask--warning': location.isMask}"
@@ -41,54 +46,71 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
+import { getRecordAudits } from '@/api/dashboard'
 import { AlertType, AlertLevel, AlertIcon } from '@/dics'
+import { parseMetaData } from '@/utils/ai'
+import Player from '@/views/device/components/Player.vue'
 
 @Component({
-  name: 'AlertBoardDetailDialog'
+  name: 'AlertBoardDetailDialog',
+  components: {
+    Player
+  }
 })
 export default class extends Vue {
-  @Prop() private alertId: any
+  private audit: any = {
+    timestamp: '2020-12-27 13:57:12',
+    streamName: '29942045602742559',
+    event: '1'
+  }
   @Prop() private theme: any
   private alertType = AlertType
   private alertLevel = AlertLevel
   private alertIcon = AlertIcon
-
   private dialogVisible = true
-  private alertItem = {
-    id: 1,
-    level: 'serious',
-    type: 2,
-    datetime: '2020-12-23 13:32:40',
-    img: 'https://ai.ctyun.cn/static/frontend/imgs/electronic/178_1.jpg',
-    locations: [
-      {
-        top: 40,
-        left: 20,
-        width: 100,
-        height: 100,
-        isMask: false
-      },
-      {
-        top: 60,
-        left: 60,
-        width: 100,
-        height: 100,
-        isMask: true
+  private auditDetail: any = null
+  private loading = false
+
+  private mounted() {
+    this.getRecordAudits()
+  }
+
+  private async getRecordAudits() {
+    try {
+      this.loading = true
+      const res = await getRecordAudits({
+        event: this.audit.event,
+        streamName: this.audit.streamName,
+        timeStamp: this.audit.timestamp
+      })
+      if (res.imgs.length) {
+        this.auditDetail = {
+          imgUrl: res.imgs[0].url,
+          metaData: res.imgs[0].metaData,
+          videoUrl: res.playUrl,
+          type: res.codec === 'CodecH265' ? 'h265-flv' : 'flv'
+        }
       }
-    ]
+    } catch (e) {
+      console.log(e)
+    } finally {
+      this.loading = false
+    }
   }
 
   private onload() {
+    console.log(this.auditDetail.metaData)
+    const metaData = JSON.parse(this.auditDetail.metaData)
     const img: any = this.$refs.img
-    const locations: any = this.alertItem.locations.map((location: any) => {
+    const locations = parseMetaData(this.audit.event, metaData)
+    locations.forEach((location: any) => {
       location.ratio = img.clientWidth / img.naturalWidth
       location.clientTopPercent = location.top * location.ratio / img.clientHeight * 100
       location.clientLeftPercent = location.left * location.ratio / img.clientWidth * 100
       location.clientWidthPercent = location.width * location.ratio / img.clientWidth * 100
       location.clientHeightPercent = location.height * location.ratio / img.clientHeight * 100
-      return location
     })
-    this.$set(this.alertItem, 'locations', locations)
+    this.$set(this.auditDetail, 'locations', locations)
   }
 
   private closeDialog(isRefresh: boolean = false) {
@@ -98,6 +120,9 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
+  .alert {
+    min-height: 10vh;
+  }
   .alert-header {
     display: flex;
     width: 100%;
@@ -127,7 +152,19 @@ export default class extends Vue {
     overflow: auto;
 
     &__video {
+      position: relative;
       flex: 1;
+      margin-right: 20px;
+      ::v-deep .video-wrap, ::v-deep video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+      ::v-deep canvas {
+        position: absolute;
+      }
     }
     &__image {
       flex: 1;
@@ -138,6 +175,11 @@ export default class extends Vue {
       padding: 20px;
       &__wrap {
         position: relative;
+
+        img {
+          width: 100%;
+          display: block;
+        }
       }
       &__mask {
         position: absolute;

@@ -11,7 +11,9 @@
               {{ alertType[type] }}
             </div>
           </div>
-          <div v-loading="loading.video" class="ai-recognation__video">
+          <div class="ai-recognation__video">
+            <div v-if="loading.video" class="ai-recognation__video__loading">正在加载视频...</div>
+            <img v-if="currentImg" :src="currentImg.url">
             <player
               v-if="currentVideo"
               :type="currentVideo.type"
@@ -27,7 +29,7 @@
         </div>
         <div class="ai-recognation__images__wrap">
           <div v-loading="loading.list" class="ai-recognation__images">
-            <div v-for="(img, index) in imageList" :key="index" class="ai-recognation__images__item" :class="{'actived': img.timestamp === currentImgTime}" @click="getRecordAudits(img)">
+            <div v-for="(img, index) in imageList" :key="index" class="ai-recognation__images__item" :class="{'actived': currentImg && img.timestamp === currentImg.timestamp}" @click="getRecordAudits(img)">
               <div class="ai-recognation__images__item__decorator--top" />
               <div class="ai-recognation__images__item__decorator--bottom" />
               <div class="ai-recognation__images__item__wrap">
@@ -38,12 +40,16 @@
                   class="ai-recognation__images__item__mask"
                   :class="{'ai-recognation__images__item__mask--warning': location.isWarning}"
                   :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
-                />
+                >
+                  <div v-if="type === '1'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
+                    {{ location.isWarning ? '未戴口罩' : '戴口罩' }}
+                  </div>
+                </div>
               </div>
               <div class="ai-recognation__images__item--datetime">{{ img.timestamp }}</div>
             </div>
           </div>
-          <div class="ai-recognation__bottom">
+          <div v-if="imageList.length" class="ai-recognation__bottom">
             <el-button class="ai-recognation__bottom--fresh" @click="getRecordAuditEvents">刷新当前页</el-button>
             <el-pagination
               :current-page="pager.pageNum"
@@ -64,6 +70,7 @@
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { getRecordAuditEvents, getRecordAudits } from '@/api/dashboard'
 import { AlertType } from '@/dics'
+import { parseMetaData } from '@/utils/ai'
 import Player from '@/views/device/components/Player.vue'
 
 @Component({
@@ -74,7 +81,7 @@ import Player from '@/views/device/components/Player.vue'
 })
 export default class extends Vue {
   private alertType = AlertType
-  private currentImgTime = null
+  private currentImg: any = null
   private currentVideo: any = null
   private pager = {
     pageNum: 1,
@@ -98,8 +105,9 @@ export default class extends Vue {
 
   @Watch('$route.query')
   private onRouterChange() {
-    this.currentImgTime = null
+    this.currentImg = null
     this.pager.pageNum = 1
+    this.imageList = []
     this.getRecordAuditEvents()
   }
 
@@ -113,6 +121,9 @@ export default class extends Vue {
       })
       this.imageList = res.imgs
       this.pager.total = res.totalNum
+      if (this.imageList.length) {
+        this.getRecordAudits(this.imageList[0])
+      }
     } catch (e) {
       console.log(e)
     } finally {
@@ -122,7 +133,8 @@ export default class extends Vue {
 
   private async getRecordAudits(audit: any) {
     try {
-      this.currentImgTime = audit.timestamp
+      this.currentVideo = null
+      this.currentImg = audit
       this.loading.video = true
       const res = await getRecordAudits({
         event: this.type,
@@ -143,7 +155,7 @@ export default class extends Vue {
   private onload(index: number) {
     const imgData: any = this.imageList[index]
     const metaData = JSON.parse(imgData.metaData)
-    const locations = this.parseMetaData(metaData)
+    const locations = parseMetaData(this.type, metaData)
     const imgs: any = this.$refs.img
     const img = imgs[index]
     locations.forEach((location: any) => {
@@ -154,32 +166,6 @@ export default class extends Vue {
       location.clientHeightPercent = location.height * ratio / img.clientHeight * 100
     })
     this.$set(this.imageList[index], 'locations', locations)
-  }
-
-  private parseMetaData(metaData: any) {
-    console.log(metaData)
-    let locations = []
-    switch (this.type) {
-      case '1':
-        locations = metaData.face_list.map((face: any) => {
-          return {
-            ...face.face_location,
-            isWarning: !face.isMask
-          }
-        })
-        break
-      case '2':
-        locations = metaData.result.map((face: any) => {
-          return {
-            top: face.box[1],
-            left: face.box[0],
-            width: face.box[2] - face.box[0],
-            height: face.box[3] - face.box[1],
-            isWarning: metaData.result.length > 5
-          }
-        })
-    }
-    return locations
   }
 
   private async handleSizeChange(val: number) {
@@ -295,6 +281,24 @@ export default class extends Vue {
       margin-top: 2vh;
       border: 1px solid #648fb9;
       min-height: 30vh;
+      display: flex;
+      align-items: center;
+      &__loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-left: -150px;
+        font-size: 18px;
+        color: #7baee0;
+        width: 300px;
+        height: 50px;
+        line-height: 50px;
+        text-align: center;
+        background: rgba(20, 34, 51, 0.9);
+      }
+      img {
+        width: 100%;
+      }
       ::v-deep .video-wrap, ::v-deep video {
         position: absolute;
         top: 0;
@@ -329,6 +333,9 @@ export default class extends Vue {
           border: 2px solid $dashboardGreen;
           &--warning {
             border-color: $red;
+          }
+          &__text {
+            font-size: 11px;
           }
         }
         // Decorator
