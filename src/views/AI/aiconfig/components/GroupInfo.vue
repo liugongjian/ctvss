@@ -1,6 +1,7 @@
 <template>
   <div>
     <el-button type="primary" class="add-group" @click="showAddGroupDialog = true">添加群组</el-button>
+    <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
     <el-table v-loading="loading" :data="dataList">
       <el-table-column prop="name" label="组名" align="center" />
       <el-table-column prop="description" label="描述" align="center" />
@@ -49,11 +50,17 @@ export default class extends Vue {
   private dataList: any = []
 
   private async getData() {
-    const res = await getAIConfigGroupData({
-      pageSize: this.pager.pageSize,
-      pageNum: this.pager.pageNum
-    })
-    this.dataList = res.groups
+    try {
+      this.loading = true
+      const res = await getAIConfigGroupData({
+        pageSize: this.pager.pageSize,
+        pageNum: this.pager.pageNum
+      })
+      this.loading = false
+      this.dataList = res.groups
+    } catch (e) {
+      this.loading = false
+    }
   }
 
   private closeAddDialog(refresh: boolean) {
@@ -81,6 +88,9 @@ export default class extends Vue {
     await this.getData()
   }
 
+  private refresh() {
+    this.getData()
+  }
   mounted() {
     this.getData()
   }
