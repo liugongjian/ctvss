@@ -10,7 +10,7 @@
         <div class="alert-list__datetime">{{ item.timeStamp }}</div>
       </li>
     </ul>
-    <DashboardAlertLiveDetailDialog v-if="dialog" theme="dashboard-alert-live-dialog" @on-close="closeDialog" />
+    <DashboardAlertLiveDetailDialog v-if="dialog" theme="dashboard-alert-live-dialog" :audit="currentItem" @on-close="closeDialog" />
   </DashboardContainer>
 </template>
 
@@ -19,12 +19,8 @@ import { Component, Mixins } from 'vue-property-decorator'
 import DashboardMixin from './DashboardMixin'
 import { AlertType, AlertLevel, AlertIcon } from '@/dics'
 import DashboardContainer from './DashboardContainer.vue'
-<<<<<<< HEAD
-import DashboardAlertLiveDetailDialog from '@/views/AI/maskRecognation/components/DetailDialog.vue'
 import { getAuditList } from '@/api/dashboard'
-=======
 import DashboardAlertLiveDetailDialog from './DashboardAlertLiveDetailDialog.vue'
->>>>>>> 9557653dae7c69bab80edc1c78a45886a55cbbc9
 
 @Component({
   name: 'DashboardAlertLive',
@@ -37,7 +33,7 @@ export default class extends Mixins(DashboardMixin) {
   private alertType = AlertType
   private alertLevel = AlertLevel
   private alertIcon = AlertIcon
-  private currentItem = null
+  private currentItem: any = null
   private dialog = false
   private id = 7
   private list: any = []
@@ -83,7 +79,11 @@ export default class extends Mixins(DashboardMixin) {
 
   private openDialog(item: any) {
     this.dialog = true
-    this.currentItem = item
+    this.currentItem = {
+      event: item.event,
+      streamName: item.streamName,
+      timestamp: item.timeStamp
+    }
   }
 
   private closeDialog() {

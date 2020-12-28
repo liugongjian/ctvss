@@ -45,6 +45,7 @@
                     {{ location.isWarning ? '未戴口罩' : '戴口罩' }}
                   </div>
                 </div>
+                <div v-if="type === '2'" class="ai-recognation__images__item__count" :class="{'ai-recognation__images__item__count--warning': img.locations && img.locations.length > 5}">聚集人数: {{ img.locations && img.locations.length || '-' }}</div>
               </div>
               <div class="ai-recognation__images__item--datetime">{{ img.timestamp }}</div>
             </div>
@@ -335,7 +336,31 @@ export default class extends Vue {
             border-color: $red;
           }
           &__text {
+            position: absolute;
+            display: block;
             font-size: 11px;
+            background: $dashboardGreen;
+            color: #fff;
+            word-break: keep-all;
+            top: -12px;
+            left: -2px;
+            padding: 2px;
+            opacity: 0.8;
+            &--warning {
+              background: $red;
+            }
+          }
+        }
+        &__count {
+          position: absolute;
+          top: 0;
+          left: 0;
+          background: $dashboardGreen;
+          color: #fff;
+          font-size: 12px;
+          padding: 3px 6px;
+          &--warning {
+            background: $red;
           }
         }
         // Decorator

@@ -13,6 +13,7 @@
         <div class="alert-header__type">事件类型: {{ alertType[audit.event] }}</div>
         <div class="alert-header__datetime">{{ audit.timestamp }}</div>
       </div>
+      <div v-if="error" class="alert-error">{{ error }}</div>
       <div v-if="auditDetail" class="alert-body">
         <div class="alert-body__video">
           <player
@@ -58,11 +59,7 @@ import Player from '@/views/device/components/Player.vue'
   }
 })
 export default class extends Vue {
-  private audit: any = {
-    timestamp: '2020-12-27 13:57:12',
-    streamName: '29942045602742559',
-    event: '1'
-  }
+  @Prop() private audit: any
   @Prop() private theme: any
   private alertType = AlertType
   private alertLevel = AlertLevel
@@ -70,6 +67,7 @@ export default class extends Vue {
   private dialogVisible = true
   private auditDetail: any = null
   private loading = false
+  private error: any = null
 
   private mounted() {
     this.getRecordAudits()
@@ -78,6 +76,7 @@ export default class extends Vue {
   private async getRecordAudits() {
     try {
       this.loading = true
+      this.error = null
       const res = await getRecordAudits({
         event: this.audit.event,
         streamName: this.audit.streamName,
@@ -92,14 +91,13 @@ export default class extends Vue {
         }
       }
     } catch (e) {
-      console.log(e)
+      this.error = '加载失败，请关闭重试'
     } finally {
       this.loading = false
     }
   }
 
   private onload() {
-    console.log(this.auditDetail.metaData)
     const metaData = JSON.parse(this.auditDetail.metaData)
     const img: any = this.$refs.img
     const locations = parseMetaData(this.audit.event, metaData)
@@ -123,9 +121,16 @@ export default class extends Vue {
   .alert {
     min-height: 10vh;
   }
+  .alert-error {
+    margin-top: 10px;
+    text-align: center;
+  }
   .alert-header {
     display: flex;
     width: 100%;
+    border-bottom: 1px solid $borderGrey;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
 
     &__level {
       &--warning {
@@ -145,9 +150,6 @@ export default class extends Vue {
   .alert-body {
     display: flex;
     flex-wrap: wrap;
-    border-top: 1px solid $borderGrey;
-    margin-top: 15px;
-    padding-top: 15px;
     max-height: 60vh;
     overflow: auto;
 
