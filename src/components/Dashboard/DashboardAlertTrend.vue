@@ -1,5 +1,5 @@
 <template>
-  <DashboardContainer v-loading="loading" title="最近一周告警趋势分析">
+  <DashboardContainer title="最近一周告警趋势分析">
     <div id="weekly-trend-container" :style="`height:${height}vh`" />
   </DashboardContainer>
 </template>
@@ -102,6 +102,7 @@ export default class extends Mixins(DashboardMixin) {
       autoFit: true
     })
     this.chart.data(this.weeklyTrendData)
+    console.log(this.weeklyTrendData)
     this.chart.scale({
       time: {
         range: [0, 1]
@@ -117,13 +118,12 @@ export default class extends Mixins(DashboardMixin) {
     })
 
     this.chart.legend({
-      offsetY: 10,
+      offsetY: 5,
       itemSpacing: 30,
       items: [
         {
-          id: '1',
-          name: '未带口罩',
-          value: 'OutFlow',
+          name: '未戴口罩',
+          value: '未戴口罩',
           marker: {
             symbol: 'square',
             style: {
@@ -133,9 +133,8 @@ export default class extends Mixins(DashboardMixin) {
           }
         },
         {
-          id: '2',
           name: '人员聚集',
-          value: 'InFlow',
+          value: '人员聚集',
           marker: {
             symbol: 'square',
             style: {
@@ -145,9 +144,8 @@ export default class extends Mixins(DashboardMixin) {
           }
         },
         {
-          id: '3',
-          name: '人员上访',
-          value: 'InFlow',
+          name: '人员布控',
+          value: '人员布控',
           marker: {
             symbol: 'square',
             style: {
@@ -183,7 +181,7 @@ export default class extends Mixins(DashboardMixin) {
       nice: true
     })
 
-    this.chart.line().position('time*value').color('type', ['#F4C46C', '#6F9FC9', '#E56161']).shape('smooth')
+    this.chart.line().position('time*value').color('type', ['#E56161', '#6F9FC9', '#F4C46C']).shape('smooth')
     this.chart.render()
   }
 

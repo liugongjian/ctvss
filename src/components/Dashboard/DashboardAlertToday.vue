@@ -30,9 +30,9 @@ export default class extends Mixins(DashboardMixin) {
   private async getDeviceStates() {
     const data = await getAuditTrend({ form: 'day' })
     this.chartData = [
-      { type: '人员聚集', value: parseInt(data.trend[2] || 0) },
       { type: '未带口罩', value: parseInt(data.trend[1] || 0) },
-      { type: '人员上访', value: parseInt(data.trend[3] || 0) }
+      { type: '人员聚集', value: parseInt(data.trend[2] || 0) },
+      { type: '人员布控', value: parseInt(data.trend[3] || 0) }
     ]
     this.chart ? this.updateChart() : this.drawChart()
   }
