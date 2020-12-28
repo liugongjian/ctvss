@@ -44,6 +44,9 @@
                   <div v-if="type === '1'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
                     {{ location.isWarning ? '未戴口罩' : '戴口罩' }}
                   </div>
+                  <div v-if="type === '3'" class="ai-recognation__images__item__mask__text ai-recognation__images__item__mask__text--warning">
+                    {{ location.label }}
+                  </div>
                 </div>
                 <div v-if="type === '2'" class="ai-recognation__images__item__count" :class="{'ai-recognation__images__item__count--warning': img.locations && img.locations.length > 5}">聚集人数: {{ img.locations && img.locations.length || '-' }}</div>
               </div>
