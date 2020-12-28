@@ -48,10 +48,6 @@ export default class extends Vue {
     return UserModule.name
   }
   private mounted() {
-    this.refresh()
-  }
-  private refresh() {
-    setInterval(() => window.resizeBy(10, 10), 1000)
   }
 }
 </script>

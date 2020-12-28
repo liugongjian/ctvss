@@ -10,6 +10,7 @@
   >
     <el-transfer
       v-model="nameModel"
+      v-loading="loading"
       filterable
       :filter-method="filterMethod"
       :props="{
@@ -21,14 +22,14 @@
       @change="handleChange"
     />
     <div slot="footer" align="center">
-      <el-button type="primary" :loading="loading" @click="doAddGroup">{{ '确定' }}</el-button>
+      <el-button type="primary" :loading="loading" @click="doBindGroupPerson">{{ '确定' }}</el-button>
       <el-button @click="closeDialog">取消</el-button>
     </div>
   </el-dialog>
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { getPerson, addGroup } from '@/api/aiConfig'
+import { getGroupPersonLeft, bindGroupPerson } from '@/api/aiConfig'
 @Component({
   name: 'AddGroup'
 })
@@ -47,30 +48,29 @@ export default class extends Vue {
   }
 
   private async getPersonList() {
-    await getPerson({ groupId: this.groupId })
-    this.nameList = [
-      {
-        id: 1,
-        name: '阮志健'
-      },
-      {
-        id: 2,
-        name: '凌浩'
-      },
-      {
-        id: 3,
-        name: '赵光'
-      }
-    ]
-  }
-
-  private async doAddGroup() {
     try {
       this.loading = true
-      await addGroup({})
+      const res = await getGroupPersonLeft({ groupId: this.groupId })
       this.loading = false
+      this.nameList = res.faces
     } catch (e) {
       this.loading = false
+      this.$message.error(e && e.message)
+    }
+  }
+
+  private async doBindGroupPerson() {
+    try {
+      this.loading = true
+      await bindGroupPerson({
+        groupId: this.groupId,
+        faceId: this.nameModel
+      })
+      this.loading = false
+      this.$message.success('绑定成功')
+    } catch (e) {
+      this.loading = false
+      this.$message.error(e && e.message)
     }
   }
 

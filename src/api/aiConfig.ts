@@ -2,21 +2,28 @@ import request from '@/utils/request'
 
 export const getAIConfigGroupData = (params: any): Promise<any> =>
   request({
-    url: '/statistics/device',
+    url: '/face/group/list',
     method: 'get',
     params
   })
 
-export const addGroup = (data: any): Promise<any> =>
+export const addAIConfigGroupData = (data: any): Promise<any> =>
   request({
-    url: '/statistics/device',
+    url: '/face/group/create',
     method: 'post',
     data
   })
 
-export const getPerson = (params: any): Promise<any> =>
+export const getGroupPersonLeft = (params: any): Promise<any> =>
   request({
-    url: '/statistics/device',
+    url: '/face/group/list',
     method: 'get',
     params
+  })
+
+export const bindGroupPerson = (data: any): Promise<any> =>
+  request({
+    url: '/face/group/bind',
+    method: 'post',
+    data
   })

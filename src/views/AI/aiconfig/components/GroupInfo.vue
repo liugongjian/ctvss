@@ -3,7 +3,10 @@
     <el-button type="primary" class="add-group" @click="showAddGroupDialog = true">添加群组</el-button>
     <el-table v-loading="loading" :data="dataList">
       <el-table-column prop="name" label="组名" align="center" />
-      <el-table-column prop="desc" label="描述" align="center" />
+      <el-table-column prop="description" label="描述" align="center" />
+      <el-table-column prop="num" label="人数" align="center" />
+      <el-table-column prop="createTime" label="创建时间" width="200" align="center" />
+      <el-table-column prop="updateTime" label="更新时间" width="200" align="center" />
       <el-table-column label="操作" align="center">
         <template slot-scope="scope">
           <el-button type="text" @click="correlationWith(scope.row)">关联</el-button>
@@ -46,12 +49,11 @@ export default class extends Vue {
   private dataList: any = []
 
   private async getData() {
-    const res = await getAIConfigGroupData({})
-    this.dataList = [{
-      groupId: 123,
-      name: 'rzj-test',
-      desc: '测试分组'
-    }]
+    const res = await getAIConfigGroupData({
+      pageSize: this.pager.pageSize,
+      pageNum: this.pager.pageNum
+    })
+    this.dataList = res.groups
   }
 
   private closeAddDialog(refresh: boolean) {
@@ -60,7 +62,7 @@ export default class extends Vue {
   }
 
   private correlationWith(row: any) {
-    this.groupId = row.groupId
+    this.groupId = row.id
     this.showCorrelationWithDialog = true
   }
 
