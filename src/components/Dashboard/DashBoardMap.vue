@@ -21,6 +21,10 @@ export default class extends Vue {
   private timer: any = null
   private index = 0
 
+  private destroyed() {
+    clearInterval(this.timer)
+  }
+
   private async created() {
     // @ts-ignore
     window.scriptLoad = () => {

@@ -113,7 +113,8 @@ export default class extends Mixins(DashboardMixin) {
 
     this.chart.tooltip({
       showCrosshairs: true,
-      shared: true
+      shared: true,
+      itemTpl: '<li data-index="{index}" style="margin: 12px 0"><span style="background-color:{color};width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:8px;"></span>{name}: {value} Mbps</li>'
     })
 
     this.chart.legend({
