@@ -30,8 +30,8 @@ export default class extends Vue {
     window.scriptLoad = () => {
       this.amap = new AMap.Map('amap-container', {
         mapStyle: 'amap://styles/3836b8d6bbbf8fbff8a92d15cc17cbbc',
-        center: [119.922929, 32.455353],
-        zoom: 17,
+        center: [119.922920, 32.456453],
+        zoom: 19,
         zooms: [10, 30],
         showLabel: false,
         viewMode: '3D',
@@ -39,28 +39,25 @@ export default class extends Vue {
         skyColor: '#1E3046'
       })
 
-      const infoWindow = new AMap.InfoWindow({
-        offset: new AMap.Pixel(0, -10)
-      })
-      const onMarkOpen = (e: any) => {
-        const data = e.target.getExtData()
-        const sum = Math.max(data.sum, data.online)
-        const online = Math.min(data.sum, data.online)
-        const offline = sum - online
-        const content = `
-        <div style="width: 200px; margin: 10px;color:white;line-height: 24px; font-size:12px;">
-          <div style="font-size:18px; color:#98cfff; padding-bottom: 8px;margin-bottom: 8px;border-bottom:2px solid #98cfff;">${data.dirName}</div>
-          <div>设备总数:&nbsp;${sum}</div>
-          <div>在线:&nbsp;${online}</div>
-          <div>离线:&nbsp;${offline}</div>
-        </div>
-        `
-        infoWindow.setContent(content)
-        infoWindow.open(this.amap, e.target.getPosition())
-      }
-      const onMarkClose = () => {
-        infoWindow.close()
-      }
+      // const onMarkOpen = (e: any) => {
+      //   const data = e.target.getExtData()
+      //   const sum = Math.max(data.sum, data.online)
+      //   const online = Math.min(data.sum, data.online)
+      //   const offline = sum - online
+      //   const content = `
+      //   <div style="width: 200px; margin: 10px;color:white;line-height: 24px; font-size:12px;">
+      //     <div style="font-size:18px; color:#98cfff; padding-bottom: 8px;margin-bottom: 8px;border-bottom:2px solid #98cfff;">${data.dirName}</div>
+      //     <div>设备总数:&nbsp;${sum}</div>
+      //     <div>在线:&nbsp;${online}</div>
+      //     <div>离线:&nbsp;${offline}</div>
+      //   </div>
+      //   `
+      //   infoWindow.setContent(content)
+      //   infoWindow.open(this.amap, e.target.getPosition())
+      // }
+      // const onMarkClose = () => {
+      //   infoWindow.close()
+      // }
       const icon = new AMap.Icon({
         size: new AMap.Size(25, 25),
         image: require('../../icons/svg/ipc-green.svg'),
@@ -79,31 +76,31 @@ export default class extends Vue {
           extData: this.dirList[i],
           zoom: 17
         })
-        mark.on('mouseover', onMarkOpen)
-        mark.on('mouseout', onMarkClose)
-        markList.push(mark)
-      }
-      this.timer = setInterval(() => {
-        infoWindow.close()
-        const data: any = this.dirList[this.index]
+        const data: any = this.dirList[i]
         const sum = Math.max(data.sum, data.online)
         const online = Math.min(data.sum, data.online)
         const offline = sum - online
-        const content = `
-        <div style="width: 200px; margin: 10px;color:white;line-height: 24px; font-size:12px;">
-          <div style="font-size:18px; color:#98cfff; padding-bottom: 8px;margin-bottom: 8px;border-bottom:2px solid #98cfff;">${data.dirName}</div>
-          <div>设备总数:&nbsp;${sum}</div>
-          <div>在线:&nbsp;${online}</div>
-          <div>离线:&nbsp;${offline}</div>
-        </div>
-        `
-        infoWindow.setContent(content)
-        infoWindow.open(this.amap, markList[this.index].getPosition())
-        this.index++
-        if (this.index > 7) {
-          this.index = 0
-        }
-      }, 2000)
+        let text = new AMap.Text({
+          text: `${this.dirList[i].dirName}: ${online}/${offline}`,
+          position: new AMap.LngLat(
+            this.dirList[i].posX,
+            this.dirList[i].posY
+          ),
+          offset: new AMap.Pixel(0, -20),
+          zoom: 17
+        })
+        text.setStyle({
+          background: 'rgba(25, 35, 47, 0.8)',
+          border: 'none',
+          color: '#fff',
+          fontSize: '12px',
+          padding: '3px 4px'
+        })
+        // mark.on('mouseover', onMarkOpen)
+        // mark.on('mouseout', onMarkClose)
+        markList.push(mark)
+        markList.push(text)
+      }
       this.amap.add(markList)
     }
 
