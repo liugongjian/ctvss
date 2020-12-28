@@ -229,7 +229,7 @@ export default class extends Vue {
     let url = this.url
     let type = this.type
     let isWs = this.isWs
-    if (this.type === 'h265-flv') {
+    if (this.type === 'h265-flv' && this.isLive) {
       const execRes: any = /\.[^\\.]+$/.exec(this.url)
       url = `${this.url.substring(0, execRes.index)}_264conv${execRes[0]}`
       type = 'flv'
