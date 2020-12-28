@@ -18,6 +18,8 @@ declare let AMap: any
 export default class extends Vue {
   private amap: any
   private dirList: Array<DirInfo> = []
+  private timer: any = null
+  private index = 0
 
   private async created() {
     // @ts-ignore
@@ -61,7 +63,7 @@ export default class extends Vue {
         imageOffset: new AMap.Pixel(0, 0),
         imageSize: new AMap.Size(25, 25)
       })
-      const markList = []
+      const markList:any = []
       for (let i = 0; i < this.dirList.length; i++) {
         let mark = new AMap.Marker({
           icon: icon,
@@ -77,6 +79,27 @@ export default class extends Vue {
         mark.on('mouseout', onMarkClose)
         markList.push(mark)
       }
+      this.timer = setInterval(() => {
+        infoWindow.close()
+        const data: any = this.dirList[this.index]
+        const sum = Math.max(data.sum, data.online)
+        const online = Math.min(data.sum, data.online)
+        const offline = sum - online
+        const content = `
+        <div style="width: 200px; margin: 10px;color:white;line-height: 24px; font-size:12px;">
+          <div style="font-size:18px; color:#98cfff; padding-bottom: 8px;margin-bottom: 8px;border-bottom:2px solid #98cfff;">${data.dirName}</div>
+          <div>设备总数:&nbsp;${sum}</div>
+          <div>在线:&nbsp;${online}</div>
+          <div>离线:&nbsp;${offline}</div>
+        </div>
+        `
+        infoWindow.setContent(content)
+        infoWindow.open(this.amap, markList[this.index].getPosition())
+        this.index++
+        if (this.index > 7) {
+          this.index = 0
+        }
+      }, 2000)
       this.amap.add(markList)
     }
 

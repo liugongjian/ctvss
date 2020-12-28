@@ -46,7 +46,6 @@ import { Component, Mixins } from 'vue-property-decorator'
 import DashboardContainer from './DashboardContainer.vue'
 import { Chart } from '@antv/g2'
 import DashboardMixin from './DashboardMixin'
-import { getIntegrityRate } from '@/api/dashboard'
 import { dateFormatInTable } from '@/utils/date'
 
 @Component({
@@ -77,9 +76,7 @@ export default class extends Mixins(DashboardMixin) {
     } else if (val === '1') {
       this.destroy()
       this.$nextTick(() => {
-        this.setInterval(() => {
-          this.chart ? this.updateChart() : this.setChart()
-        })
+        this.setChart()
       })
     }
   }
@@ -88,159 +85,133 @@ export default class extends Mixins(DashboardMixin) {
     this.setCalender()
   }
   private setCalender() {
-    const time = new Date().getTime()
-    var startTime = dateFormatInTable('', '', time - 3600 * 30 * 24 * 1000)
-    var endTime = dateFormatInTable('', '', time)
-    getIntegrityRate({
-      startTime: startTime,
-      endTime: endTime
-    }).then((res) => {
-      this.data = []
-      for (let i = 0; i < 30; i++) {
-        var mockTime = dateFormatInTable('', '', time - 3600 * (29 - i) * 24 * 1000)
-        this.data.push({
-          time: mockTime.split(' ')[0],
-          rate: 0,
-          day: parseInt(mockTime.split(' ')[0].split('-')[2])
-        })
-      }
-      Object.keys(res.rate).forEach((key) => {
-        var index = this.data.findIndex((item: any) => {
-          return item.time === key.split(' ')[0]
-        })
-        this.data[index] = {
-          time: key.split(' ')[0],
-          rate: res.rate[key],
-          day: parseInt(key.split(' ')[0].split('-')[2])
-        }
+    const startTime = new Date('2020-12-28').getTime()
+    const todayTime = new Date().getTime()
+    this.data = []
+    for (let i = 0; i < 30; i++) {
+      const mockTimestamp = todayTime - 3600 * (29 - i) * 24 * 1000
+      const mockTime = dateFormatInTable('', '', mockTimestamp)
+      const itemBgColor = mockTimestamp > startTime ? 'background-color: rgba(124, 201, 111)' : ''
+      this.data.push({
+        time: mockTime.split(' ')[0],
+        rate: 0,
+        day: parseInt(mockTime.split(' ')[0].split('-')[2]),
+        itemBgColor
       })
-      // 日历
-      var gradient = {
-        rgb_top: [124, 201, 111],
-        rgb_bottom: [226, 97, 95]
-      }
-      var rgb = [
-        gradient.rgb_top[0] - gradient.rgb_bottom[0],
-        gradient.rgb_top[1] - gradient.rgb_bottom[1],
-        gradient.rgb_top[2] - gradient.rgb_bottom[2]
-      ]
-      for (let i = 0; i < this.data.length; i++) {
-        var rgbTemp = [
-          gradient.rgb_bottom[0] + rgb[0] * this.data[i].rate,
-          gradient.rgb_bottom[1] + rgb[1] * this.data[i].rate,
-          gradient.rgb_bottom[2] + rgb[2] * this.data[i].rate
-        ]
-        this.data[i].itemBgColor = `background-color: rgb(${rgbTemp[0]},${rgbTemp[1]},${rgbTemp[2]})`
-      }
-    })
+    }
+
+    // const time = new Date().getTime()
+    // var startTime = dateFormatInTable('', '', time - 3600 * 30 * 24 * 1000)
+    // var endTime = dateFormatInTable('', '', time)
+    // getIntegrityRate({
+    //   startTime: startTime,
+    //   endTime: endTime
+    // }).then((res) => {
+    //   this.data = []
+    //   for (let i = 0; i < 30; i++) {
+    //     var mockTime = dateFormatInTable('', '', time - 3600 * (29 - i) * 24 * 1000)
+    //     this.data.push({
+    //       time: mockTime.split(' ')[0],
+    //       rate: 0,
+    //       day: parseInt(mockTime.split(' ')[0].split('-')[2])
+    //     })
+    //   }
+    //   Object.keys(res.rate).forEach((key) => {
+    //     var index = this.data.findIndex((item: any) => {
+    //       return item.time === key.split(' ')[0]
+    //     })
+    //     this.data[index] = {
+    //       time: key.split(' ')[0],
+    //       rate: res.rate[key],
+    //       day: parseInt(key.split(' ')[0].split('-')[2])
+    //     }
+    //   })
+    //   // 日历
+    //   var gradient = {
+    //     rgb_top: [124, 201, 111],
+    //     rgb_bottom: [226, 97, 95]
+    //   }
+    //   var rgb = [
+    //     gradient.rgb_top[0] - gradient.rgb_bottom[0],
+    //     gradient.rgb_top[1] - gradient.rgb_bottom[1],
+    //     gradient.rgb_top[2] - gradient.rgb_bottom[2]
+    //   ]
+    //   for (let i = 0; i < this.data.length; i++) {
+    //     var rgbTemp = [
+    //       gradient.rgb_bottom[0] + rgb[0] * this.data[i].rate,
+    //       gradient.rgb_bottom[1] + rgb[1] * this.data[i].rate,
+    //       gradient.rgb_bottom[2] + rgb[2] * this.data[i].rate
+    //     ]
+    //     this.data[i].itemBgColor = `background-color: rgb(${rgbTemp[0]},${rgbTemp[1]},${rgbTemp[2]})`
+    //   }
+    // })
   }
 
   private setChart() {
     // @ts-ignore
     document.getElementById('chartContainer').innerHTML = ''
-    const time = new Date().getTime()
-    var startTime = dateFormatInTable('', '', time - 3600 * 23 * 1000)
-    var endTime = dateFormatInTable('', '', time)
-    getIntegrityRate({
-      startTime: startTime,
-      endTime: endTime
-    }).then((res) => {
-      this.dataHours = []
-      Object.keys(res.rate).forEach((key) => {
-        this.dataHours.push({
-          time: key.split(' ')[1].slice(0, -3),
-          rate: res.rate[key]
-        })
+    const time = new Date()
+    const startHour = time.getHours()
+    for (let i = startHour - 24; i <= startHour; i++) {
+      const hour = i < 0 ? 24 + i : i
+      this.dataHours.push({
+        time: `${hour}:00`,
+        rate: 1
       })
-      // 柱状图
-      var chartData = []
-      for (let i = 0; i < this.dataHours.length; i++) {
-        chartData.push({
-          time: this.dataHours[i].time,
-          value: this.dataHours[i].rate
-        })
-      }
-      this.chart = new Chart({
-        container: 'chartContainer',
-        autoFit: true,
-        padding: [30, 15, 30, 50]
+    }
+    // Object.keys(res.rate).forEach((key) => {
+    //   this.dataHours.push({
+    //     time: key.split(' ')[1].slice(0, -3),
+    //     rate: res.rate[key]
+    //   })
+    // })
+    // 柱状图
+    var chartData = []
+    for (let i = 0; i < this.dataHours.length; i++) {
+      chartData.push({
+        time: this.dataHours[i].time,
+        value: this.dataHours[i].rate
       })
-      this.chart.scale({
-        time: {
-          range: [0, 1]
-        },
-        value: {
-          alias: '完整率',
-          type: 'quantize',
-          nice: true,
-          formatter: (val: number) => {
-            return (val * 100).toFixed(0) + '%'
-          }
-        }
-      })
-      this.chart.legend(false)
-      this.chart.data(chartData)
-      this.chart
-        .interval()
-        .position('time*value')
-        .color('value', (val: number) => {
-          var gradient = {
-            rgb_top: [124, 201, 111],
-            rgb_bottom: [226, 97, 95]
-          }
-          var rgb = [
-            gradient.rgb_top[0] - gradient.rgb_bottom[0],
-            gradient.rgb_top[1] - gradient.rgb_bottom[1],
-            gradient.rgb_top[2] - gradient.rgb_bottom[2]
-          ]
-          var rgbTemp = [
-            gradient.rgb_bottom[0] + rgb[0] * val,
-            gradient.rgb_bottom[1] + rgb[1] * val,
-            gradient.rgb_bottom[2] + rgb[2] * val
-          ]
-          return `rgb(${rgbTemp[0]}, ${rgbTemp[1]}, ${rgbTemp[2]})`
-        })
-      this.chart.axis('value', {
-        grid: null,
-        label: {
-          offset: 15
-        }
-      })
-      this.chart.axis('time', {
-        label: {
-          offset: 10,
-          formatter: (val: string) => {
-            return val
-          }
-        }
-      })
-      this.chart.render()
+    }
+    this.chart = new Chart({
+      container: 'chartContainer',
+      autoFit: true,
+      padding: [30, 15, 30, 50]
     })
-  }
-  private updateChart() {
-    const time = new Date().getTime()
-    var startTime = dateFormatInTable('', '', time - 3600 * 23 * 1000)
-    var endTime = dateFormatInTable('', '', time)
-    getIntegrityRate({
-      startTime: startTime,
-      endTime: endTime
-    }).then((res) => {
-      this.dataHours = []
-      Object.keys(res.rate).forEach((key) => {
-        this.dataHours.push({
-          time: key.split(' ')[1].slice(0, -3),
-          rate: res.rate[key]
-        })
-      })
-      var chartData = []
-      for (let i = 0; i < this.dataHours.length; i++) {
-        chartData.push({
-          time: this.dataHours[i].time,
-          value: this.dataHours[i].rate
-        })
+    this.chart.scale({
+      time: {
+        range: [0, 1]
+      },
+      value: {
+        alias: '完整率',
+        type: 'quantize',
+        nice: true,
+        formatter: (val: number) => {
+          return (val * 100).toFixed(0) + '%'
+        }
       }
-      this.chart.changeData(chartData)
     })
+    this.chart.legend(false)
+    this.chart.data(chartData)
+    this.chart
+      .interval()
+      .position('time*value')
+      .color('value', ['#78c16c'])
+    this.chart.axis('value', {
+      grid: null,
+      label: {
+        offset: 15
+      }
+    })
+    this.chart.axis('time', {
+      label: {
+        offset: 10,
+        formatter: (val: string) => {
+          return val
+        }
+      }
+    })
+    this.chart.render()
   }
 }
 </script>
@@ -275,7 +246,7 @@ export default class extends Mixins(DashboardMixin) {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: #7CC96F;
+          background: #777;
           border-radius: 100%;
           width: 4vh;
           height: 4vh;
