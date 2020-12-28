@@ -34,9 +34,9 @@ export default class extends Vue {
       })
 
       const infoWindow = new AMap.InfoWindow({
-        offset: new AMap.Pixel(0, 0)
+        offset: new AMap.Pixel(0, -10)
       })
-      const onMarkClick = (e: any) => {
+      const onMarkOpen = (e: any) => {
         const data = e.target.getExtData()
         const content = `
         <div style="width: 200px; margin: 10px;color:white;line-height: 24px; font-size:12px;">
@@ -48,6 +48,9 @@ export default class extends Vue {
         `
         infoWindow.setContent(content)
         infoWindow.open(this.amap, e.target.getPosition())
+      }
+      const onMarkClose = () => {
+        infoWindow.close()
       }
       const icon = new AMap.Icon({
         size: new AMap.Size(25, 25),
@@ -67,7 +70,8 @@ export default class extends Vue {
           extData: this.dirList[i],
           zoom: 17
         })
-        mark.on('click', onMarkClick)
+        mark.on('mouseover', onMarkOpen)
+        mark.on('mouseout', onMarkClose)
         markList.push(mark)
       }
       this.amap.add(markList)
