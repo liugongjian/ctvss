@@ -1,6 +1,5 @@
 <template>
   <el-dialog
-    v-loading="loading"
     title="关联人员"
     :visible="dialogVisible"
     :close-on-click-modal="false"
@@ -17,7 +16,7 @@
         key: 'id',
         label: 'name'
       }"
-      :titles="['未选', '已选']"
+      :titles="['未绑定', '已绑定']"
       :data="nameList"
       @change="handleChange"
     />
@@ -29,7 +28,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { getGroupPersonLeft, bindGroupPerson } from '@/api/aiConfig'
+import { getGroupPersonLeft, getGroupPersonAlready, bindGroupPerson } from '@/api/aiConfig'
 @Component({
   name: 'AddGroup'
 })
@@ -39,20 +38,23 @@ export default class extends Vue {
   private loading = false
   private nameModel = []
   private nameList: any = []
+  private alreadyList: any = []
 
   mounted() {
-    this.getPersonList()
+    this.getList()
   }
   private closeDialog() {
     this.$emit('on-close', false)
   }
 
-  private async getPersonList() {
+  private async getList() {
     try {
       this.loading = true
-      const res = await getGroupPersonLeft({ groupId: this.groupId })
+      const leftData = await getGroupPersonLeft({ id: this.groupId })
+      const alreadyData = this.alreadyList = await getGroupPersonAlready({ id: this.groupId })
       this.loading = false
-      this.nameList = res.faces
+      this.nameList = leftData.faces.concat(alreadyData.faces.map((already: any) => ({ ...already, disabled: true })))
+      this.nameModel = alreadyData.faces.map((already: { id: any }) => already.id)
     } catch (e) {
       this.loading = false
       this.$message.error(e && e.message)
@@ -64,10 +66,11 @@ export default class extends Vue {
       this.loading = true
       await bindGroupPerson({
         groupId: this.groupId,
-        faceId: this.nameModel
+        faceId: this.nameModel.filter(name => this.alreadyList.faces.findIndex((already: any) => already.id === name) === -1)
       })
       this.loading = false
       this.$message.success('绑定成功')
+      this.$emit('on-close', true)
     } catch (e) {
       this.loading = false
       this.$message.error(e && e.message)

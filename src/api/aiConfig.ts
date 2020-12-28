@@ -16,7 +16,14 @@ export const addAIConfigGroupData = (data: any): Promise<any> =>
 
 export const getGroupPersonLeft = (params: any): Promise<any> =>
   request({
-    url: '/face/group/list',
+    url: '/face/group/left',
+    method: 'get',
+    params
+  })
+
+export const getGroupPersonAlready = (params: any): Promise<any> =>
+  request({
+    url: '/face/group/faces',
     method: 'get',
     params
   })
