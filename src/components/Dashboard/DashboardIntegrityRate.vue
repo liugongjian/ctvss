@@ -18,12 +18,12 @@
     <div v-if="selectValue === '0'" class="content" :style="`height:${height}vh`">
       <div class="content__calendar">
         <div v-for="(item, index) in data" :key="index" class="content__calendar__item">
-          <el-tooltip 
-            placement="bottom" 
-            effect="light" 
-            popper-class="dark-tooltip" 
+          <el-tooltip
+            placement="bottom"
+            effect="light"
+            popper-class="dark-tooltip"
             :visible-arrow="false"
-            open-delay=400
+            :open-delay="400"
           >
             <div slot="content">{{ item.time }}<br />{{ `完整率: ${parseFloat(item.rate * 100).toFixed(1)}%` }}</div>
             <p :style="item.itemBgColor">
@@ -225,6 +225,13 @@ export default class extends Mixins(DashboardMixin) {
       startTime: startTime,
       endTime: endTime
     }).then((res) => {
+      this.dataHours = []
+      Object.keys(res.rate).forEach((key) => {
+        this.dataHours.push({
+          time: key.split(' ')[1].slice(0, -3),
+          rate: res.rate[key]
+        })
+      })
       var chartData = []
       for (let i = 0; i < this.dataHours.length; i++) {
         chartData.push({

@@ -1,5 +1,5 @@
 <template>
-  <DashboardContainer v-loading="loading" title="本周告警趋势分析">
+  <DashboardContainer v-loading="loading" title="最近一周告警趋势分析">
     <div id="weekly-trend-container" :style="`height:${height}vh`" />
   </DashboardContainer>
 </template>
@@ -9,7 +9,15 @@ import { Component, Mixins } from 'vue-property-decorator'
 import { Chart } from '@antv/g2'
 import DashboardMixin from './DashboardMixin'
 import DashboardContainer from './DashboardContainer.vue'
-import { getWeeklyTrend } from '@/api/dashboard'
+import { getAuditTrend } from '@/api/dashboard'
+import { AlertType } from '@/dics'
+import { dateFormatInTable } from '@/utils/date'
+
+declare module 'vue/types/vue' {
+    interface Vue {
+        [key: string]: any,
+    }
+}
 
 @Component({
   name: 'DashboardWeeklyTrend',
@@ -18,7 +26,7 @@ import { getWeeklyTrend } from '@/api/dashboard'
 export default class extends Mixins(DashboardMixin) {
   private weeklyTrendData: any = []
   private chart: any = null
-  public intervalTime = 24 * 60 * 60 * 1000
+  public intervalTime = 12 * 60 * 60 * 1000
   private loading = false
 
   private mounted() {
@@ -28,6 +36,7 @@ export default class extends Mixins(DashboardMixin) {
     this.destroy()
     this.setInterval(this.getData.bind(this))
   }
+  private alertType = AlertType
 
   /**
    * 获取数据
@@ -35,25 +44,49 @@ export default class extends Mixins(DashboardMixin) {
   private async getData() {
     try {
       this.loading = true
-      const res = await getWeeklyTrend({})
+      var event1 = getAuditTrend({
+        form: 'week',
+        event: 1
+      })
+      const event2 = getAuditTrend({
+        form: 'week',
+        event: 2
+      })
+      const event3 = getAuditTrend({
+        form: 'week',
+        event: 3
+      })
+      var data = await Promise.all([event1, event2, event3])
+      console.log(data)
       this.loading = false
-      // const weeklyTrendData = []
-      // for (let key in res.data.Bandwidth) {
-      //   const item = res.data.Bandwidth[key]
-      //   weeklyTrendData.push(
-      //     {
-      //       time: key.split(' ')[1].slice(0, -3),
-      //       type: '入网流量',
-      //       value: Math.floor(item['InFlow'] / 1024)
-      //     },
-      //     {
-      //       time: key.split(' ')[1].slice(0, -3),
-      //       type: '出网流量',
-      //       value: Math.floor(item['OutFlow'] / 1024)
-      //     }
-      //   )
-      // }
-      this.weeklyTrendData = res
+      var nowTime = new Date().getTime()
+      for (let i = 0; i < 7; i++) {
+        for (let j = 0; j < 3; j++) {
+          this.weeklyTrendData.push({
+            time: dateFormatInTable('', '', nowTime - i * 3600 * 24 * 1000).slice(5, 10),
+            type: this.alertType[j + 1],
+            value: 0
+          })
+        }
+      }
+      data.forEach((item, index) => {
+        Object.keys(item.trend).forEach((key) => {
+          var tableIndex = this.weeklyTrendData.findIndex((value: any) => {
+            return value.time === key.split(' ')[0].slice(-5,) && value.type === this.alertType[index + 1]
+          })
+          this.weeklyTrendData[tableIndex] = {
+            time: key.split(' ')[0].slice(-5,),
+            type: this.alertType[index + 1],
+            value: parseInt(item.trend[key])
+          }
+          // this.weeklyTrendData.push({
+          //   time: key.split(' ')[0].slice(-5,),
+          //   type: this.alertType[index + 1],
+          //   value: parseInt(item.trend[key])
+          // })
+        })
+      })
+      this.weeklyTrendData.reverse()
       this.chart ? this.updateChart() : this.drawChart()
     } catch (e) {
       this.loading = false
@@ -89,7 +122,7 @@ export default class extends Mixins(DashboardMixin) {
       items: [
         {
           id: '1',
-          name: '人员聚集',
+          name: '未带口罩',
           value: 'OutFlow',
           marker: {
             symbol: 'square',
@@ -101,7 +134,7 @@ export default class extends Mixins(DashboardMixin) {
         },
         {
           id: '2',
-          name: '未带口罩',
+          name: '人员聚集',
           value: 'InFlow',
           marker: {
             symbol: 'square',
@@ -147,8 +180,7 @@ export default class extends Mixins(DashboardMixin) {
       }
     })
     this.chart.scale('value', {
-      min: 0,
-      max: 100
+      nice: true
     })
 
     this.chart.line().position('time*value').color('type', ['#F4C46C', '#6F9FC9', '#E56161']).shape('smooth')
