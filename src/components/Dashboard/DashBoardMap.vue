@@ -31,7 +31,7 @@ export default class extends Vue {
       this.amap = new AMap.Map('amap-container', {
         mapStyle: 'amap://styles/3836b8d6bbbf8fbff8a92d15cc17cbbc',
         center: [119.922920, 32.456453],
-        zoom: 19,
+        zoom: window.outerWidth > 2000 ? 19 : 17,
         zooms: [10, 30],
         showLabel: false,
         viewMode: '3D',
