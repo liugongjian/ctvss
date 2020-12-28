@@ -6,8 +6,8 @@
           <svg-icon :name="alertIcon[item.level]" />
           {{ alertLevel[item.level] }}
         </div>
-        <div class="alert-list__type">{{ alertType[item.type] }}</div>
-        <div class="alert-list__datetime">{{ item.datetime }}</div>
+        <div class="alert-list__type">{{ alertType[item.event] }}</div>
+        <div class="alert-list__datetime">{{ item.timeStamp }}</div>
       </li>
     </ul>
     <DashboardAlertLiveDetailDialog v-if="dialog" theme="dashboard-alert-live-dialog" @on-close="closeDialog" />
@@ -19,7 +19,12 @@ import { Component, Mixins } from 'vue-property-decorator'
 import DashboardMixin from './DashboardMixin'
 import { AlertType, AlertLevel, AlertIcon } from '@/dics'
 import DashboardContainer from './DashboardContainer.vue'
+<<<<<<< HEAD
+import DashboardAlertLiveDetailDialog from '@/views/AI/maskRecognation/components/DetailDialog.vue'
+import { getAuditList } from '@/api/dashboard'
+=======
 import DashboardAlertLiveDetailDialog from './DashboardAlertLiveDetailDialog.vue'
+>>>>>>> 9557653dae7c69bab80edc1c78a45886a55cbbc9
 
 @Component({
   name: 'DashboardAlertLive',
@@ -35,67 +40,45 @@ export default class extends Mixins(DashboardMixin) {
   private currentItem = null
   private dialog = false
   private id = 7
-  private list: any = [
-    {
-      id: 1,
-      level: 'normal',
-      type: 1,
-      datetime: '2020-12-23 13:32:40'
-    },
-    {
-      id: 2,
-      level: 'serious',
-      type: 2,
-      datetime: '2020-12-23 13:32:40'
-    },
-    {
-      id: 3,
-      level: 'serious',
-      type: 3,
-      datetime: '2020-12-23 13:32:40'
-    },
-    {
-      id: 4,
-      level: 'serious',
-      type: 1,
-      datetime: '2020-12-23 13:32:40'
-    },
-    {
-      id: 5,
-      level: 'normal',
-      type: 2,
-      datetime: '2020-12-23 13:32:40'
-    },
-    {
-      id: 6,
-      level: 'normal',
-      type: 3,
-      datetime: '2020-12-23 13:32:40'
-    }
-  ]
+  private list: any = []
 
   private get filteredList() {
     return this.list.slice(0, 6)
   }
 
   private mounted() {
+    this.updateAuditList()
     setInterval(() => {
-      this.id % 2 && this.list.unshift({
-        id: this.id,
-        level: 'normal',
-        type: 1,
-        datetime: '2020-12-23 13:32:40',
-        isNew: true
+      this.updateAuditList()
+    }, 30000)
+  }
+
+  private updateAuditList() {
+    getAuditList({
+      limit: 6
+    }).then((res) => {
+      console.log(res)
+      this.list.forEach((item: any) => {
+        item.isNew = false
       })
-      !(this.id % 2) && this.list.unshift({
-        id: this.id,
-        level: 'serious',
-        type: 2,
-        datetime: '2020-12-23 13:32:40',
-        isNew: true
+      res.audit.reverse().forEach((item: any) => {
+        if (this.list.length === 0 || (item.timeStamp >= this.list[0].timeStamp && item.event !== this.list[0].event)) {
+          this.list.unshift({
+            ...item,
+            isNew: true,
+            level: checkLevel(item)
+          })
+        }
       })
-      this.id++
-    }, 4000)
+      this.list = this.list.slice(0, 6)
+      function checkLevel(data: any) {
+        if (data.event === '2' && JSON.parse(data.metaData).result.length <= 5) {
+          return 'normal'
+        } else {
+          return 'serious'
+        }
+      }
+    })
   }
 
   private openDialog(item: any) {
@@ -115,10 +98,12 @@ export default class extends Mixins(DashboardMixin) {
     padding: 0;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    // justify-content: space-between;
+    justify-content: flex-start;
 
     li {
-      flex: 1;
+      // flex: 1;
+      height: 16.6%;
       display: flex;
       align-items: center;
       padding: .4rem;

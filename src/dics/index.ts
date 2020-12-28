@@ -111,7 +111,7 @@ export const AlertIcon = {
   serious: 'alert'
 }
 
-export const AlertType = {
+export const AlertType: any = {
   1: '未戴口罩',
   2: '人员聚集',
   3: '人员布控'

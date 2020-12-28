@@ -9,6 +9,7 @@ import { Component, Mixins } from 'vue-property-decorator'
 import DashboardMixin from './DashboardMixin'
 import DashboardContainer from './DashboardContainer.vue'
 import { Chart } from '@antv/g2'
+import { getAuditTrend } from '@/api/dashboard'
 
 @Component({
   name: 'DashboardAlertToday',
@@ -17,6 +18,7 @@ import { Chart } from '@antv/g2'
 export default class extends Mixins(DashboardMixin) {
   private chart: any = null
   private chartData: any = []
+  public intervalTime = 0.5 * 60 * 60 * 1000
 
   private mounted() {
     this.setInterval(this.getDeviceStates)
@@ -26,10 +28,11 @@ export default class extends Mixins(DashboardMixin) {
    * 获取数据
    */
   private async getDeviceStates() {
+    const data = await getAuditTrend({ form: 'day' })
     this.chartData = [
-      { type: '人员聚集', value: 34 },
-      { type: '未带口罩', value: 85 },
-      { type: '人员上访', value: 103 }
+      { type: '人员聚集', value: parseInt(data.trend[2] || 0) },
+      { type: '未带口罩', value: parseInt(data.trend[1] || 0) },
+      { type: '人员上访', value: parseInt(data.trend[3] || 0) }
     ]
     this.chart ? this.updateChart() : this.drawChart()
   }

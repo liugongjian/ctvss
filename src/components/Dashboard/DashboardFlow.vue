@@ -184,7 +184,7 @@ export default class extends Mixins(DashboardMixin) {
 
     this.chart.scale('value', {
       alias: 'Mbps',
-      min: 0
+      nice: true
     })
 
     this.chart.line().position('time*value').color('type', ['#6F9FC9', '#F4C46C']).shape('smooth')
