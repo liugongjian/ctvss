@@ -43,10 +43,7 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   private mounted() {
-    this.updateAuditList()
-    this.setInterval(() => {
-      this.updateAuditList()
-    })
+    this.setInterval(this.updateAuditList)
   }
 
   private updateAuditList() {
@@ -56,15 +53,28 @@ export default class extends Mixins(DashboardMixin) {
       this.list.forEach((item: any) => {
         item.isNew = false
       })
-      res.audit.reverse().forEach((item: any) => {
-        if (this.list.length === 0 || (item.timeStamp >= this.list[0].timeStamp && item.event !== this.list[0].event)) {
-          this.list.unshift({
-            ...item,
-            isNew: this.list.length,
-            level: checkLevel(item)
-          })
-        }
-      })
+      if (this.list.length === 0) {
+        this.list = res.audit
+      } else {
+        res.audit.forEach((item: any) => {
+          if (!this.list.find((_item: any) => {
+            return _item.event === item.event && _item.timeStamp === item.timeStamp
+          })) {
+            this.list.unshift({
+              ...item,
+              isNew: true,
+              level: checkLevel(item)
+            })
+          }
+          // if (this.list.length === 0 || (item.timeStamp >= this.list[0].timeStamp && item.event !== this.list[0].event)) {
+          //   this.list.unshift({
+          //     ...item,
+          //     isNew: this.list.length,
+          //     level: checkLevel(item)
+          //   })
+          // }
+        })
+      }
       this.list = this.list.slice(0, 6)
       function checkLevel(data: any) {
         if (data.event === '2' && JSON.parse(data.metaData).result.length <= 5) {
