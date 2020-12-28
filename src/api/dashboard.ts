@@ -54,3 +54,17 @@ export const getWeeklyTrend = (params: any): Promise<any> =>
     { time: '12-25', type: '未带口罩', value: 15 },
     { time: '12-25', type: '人员上访', value: 20 }
   ])
+
+export const getRecordAuditEvents = (params: any): Promise<any> =>
+  request({
+    url: '/record/auditEvents',
+    method: 'get',
+    params
+  })
+
+export const getRecordAudits = (params: any): Promise<any> =>
+  request({
+    url: '/record/audits',
+    method: 'get',
+    params
+  })

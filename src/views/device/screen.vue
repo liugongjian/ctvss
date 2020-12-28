@@ -151,21 +151,23 @@
                 <svg-icon name="screen1" />
               </el-button>
             </el-tooltip>
-            <el-tooltip content="四分屏" placement="top">
-              <el-button type="text" @click="changeMaxSize(4)">
-                <svg-icon name="screen4" />
-              </el-button>
-            </el-tooltip>
-            <el-tooltip content="九分屏" placement="top">
-              <el-button type="text" @click="changeMaxSize(9)">
-                <svg-icon name="screen9" />
-              </el-button>
-            </el-tooltip>
-            <el-tooltip content="十六分屏" placement="top">
-              <el-button type="text" @click="changeMaxSize(16)">
-                <svg-icon name="screen16" />
-              </el-button>
-            </el-tooltip>
+            <template v-if="currentGroupId !== '80337930297556992'">
+              <el-tooltip content="四分屏" placement="top">
+                <el-button type="text" @click="changeMaxSize(4)">
+                  <svg-icon name="screen4" />
+                </el-button>
+              </el-tooltip>
+              <el-tooltip content="九分屏" placement="top">
+                <el-button type="text" @click="changeMaxSize(9)">
+                  <svg-icon name="screen9" />
+                </el-button>
+              </el-tooltip>
+              <el-tooltip content="十六分屏" placement="top">
+                <el-button type="text" @click="changeMaxSize(16)">
+                  <svg-icon name="screen16" />
+                </el-button>
+              </el-tooltip>
+            </template>
             <div class="device__tools--right">
               <el-tooltip content="全屏" placement="top">
                 <el-button type="text" @click="fullscreen">
@@ -320,6 +322,11 @@ export default class extends Mixins(ScreenMixin) {
       })
       this.initDirs()
     })
+
+    // TODO: 泰州专属
+    if (groupId === '80337930297556992') {
+      this.maxSize = 1
+    }
   }
 
   @Watch('currentIndex')

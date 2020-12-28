@@ -114,7 +114,7 @@ export const AlertIcon = {
 export const AlertType = {
   1: '未戴口罩',
   2: '人员聚集',
-  3: '人员上访'
+  3: '人员布控'
 }
 
 export const AlertParams = {

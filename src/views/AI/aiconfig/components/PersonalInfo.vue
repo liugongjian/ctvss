@@ -27,7 +27,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import AddPersonal from './dialogs/AddPersonal'
+import AddPersonal from './dialogs/AddPersonal.vue'
 import { getPersonalList } from '@/api/ai'
 
 @Component({

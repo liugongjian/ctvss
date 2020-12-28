@@ -52,12 +52,14 @@
             <el-tooltip content="单分屏" placement="top">
               <el-button type="text" @click="changeMaxSize(1)"><svg-icon name="screen1" /></el-button>
             </el-tooltip>
-            <el-tooltip content="两分屏" placement="top">
-              <el-button type="text" @click="changeMaxSize(2)"><svg-icon name="screen2" /></el-button>
-            </el-tooltip>
-            <el-tooltip content="四分屏" placement="top">
-              <el-button type="text" @click="changeMaxSize(4)"><svg-icon name="screen4" /></el-button>
-            </el-tooltip>
+            <template v-if="currentGroupId !== '80337930297556992'">
+              <el-tooltip content="两分屏" placement="top">
+                <el-button type="text" @click="changeMaxSize(2)"><svg-icon name="screen2" /></el-button>
+              </el-tooltip>
+              <el-tooltip content="四分屏" placement="top">
+                <el-button type="text" @click="changeMaxSize(4)"><svg-icon name="screen4" /></el-button>
+              </el-tooltip>
+            </template>
             <div class="device__tools--right">
               <el-tooltip content="全屏" placement="top">
                 <el-button type="text" @click="fullscreen"><svg-icon name="fullscreen" /></el-button>

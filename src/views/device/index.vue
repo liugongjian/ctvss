@@ -48,7 +48,7 @@
                       <svg-icon name="dir-close" width="15" height="15" />
                     </span>
                     <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
-                    {{ node.label }}
+                    {{ node.label }} <span class="alert-type">{{ renderAlertType(data) }}</span>
                   </span>
                   <div v-if="data.type === 'dir'" class="tools">
                     <el-tooltip class="item" effect="dark" content="添加子目录" placement="top" :open-delay="300">
@@ -94,6 +94,7 @@ import { DeviceModule } from '@/store/modules/device'
 import CreateDir from './components/dialogs/CreateDir.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { deleteDir } from '@/api/dir'
+import { renderAlertType } from '@/utils/device'
 
 @Component({
   name: 'Device',
@@ -103,6 +104,7 @@ import { deleteDir } from '@/api/dir'
   }
 })
 export default class extends Mixins(DeviceMixin) {
+  private renderAlertType = renderAlertType
   private parentDir = null
   private currentDir = null
   private dialog = {
