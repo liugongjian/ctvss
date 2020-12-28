@@ -38,12 +38,15 @@ export default class extends Vue {
       })
       const onMarkOpen = (e: any) => {
         const data = e.target.getExtData()
+        const sum = Math.max(data.sum, data.online)
+        const online = Math.min(data.sum, data.online)
+        const offline = sum - online
         const content = `
         <div style="width: 200px; margin: 10px;color:white;line-height: 24px; font-size:12px;">
           <div style="font-size:18px; color:#98cfff; padding-bottom: 8px;margin-bottom: 8px;border-bottom:2px solid #98cfff;">${data.dirName}</div>
-          <div>设备总数:&nbsp;${data.sum}</div>
-          <div>在线:&nbsp;${data.online}</div>
-          <div>离线:&nbsp;${data.offline}</div>
+          <div>设备总数:&nbsp;${sum}</div>
+          <div>在线:&nbsp;${online}</div>
+          <div>离线:&nbsp;${offline}</div>
         </div>
         `
         infoWindow.setContent(content)

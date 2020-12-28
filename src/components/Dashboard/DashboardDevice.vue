@@ -36,10 +36,18 @@ export default class extends Mixins(DashboardMixin) {
    * 获取数据
    */
   private async getDeviceStates() {
-    this.stats = await getDeviceStates(null)
+    const res = await getDeviceStates(null)
+    const sum = Math.max(parseInt(res.sum), parseInt(res.online))
+    const online = Math.min(parseInt(res.sum), parseInt(res.online))
+    const offline = sum - online
+    this.stats = {
+      sum,
+      online,
+      offline
+    }
     this.chartData = [
-      { item: '在线', count: parseInt(this.stats.online) },
-      { item: '离线', count: parseInt(this.stats.offline) }
+      { item: '在线', count: online },
+      { item: '离线', count: offline }
     ]
     this.chart ? this.updateChart() : this.drawChart()
   }
