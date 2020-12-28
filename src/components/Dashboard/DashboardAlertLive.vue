@@ -35,8 +35,8 @@ export default class extends Mixins(DashboardMixin) {
   private alertIcon = AlertIcon
   private currentItem: any = null
   private dialog = false
-  private id = 7
   private list: any = []
+  public intervalTime = 15 * 1000
 
   private get filteredList() {
     return this.list.slice(0, 6)
@@ -44,16 +44,15 @@ export default class extends Mixins(DashboardMixin) {
 
   private mounted() {
     this.updateAuditList()
-    setInterval(() => {
+    this.setInterval(() => {
       this.updateAuditList()
-    }, 30000)
+    })
   }
 
   private updateAuditList() {
     getAuditList({
       limit: 6
     }).then((res) => {
-      console.log(res)
       this.list.forEach((item: any) => {
         item.isNew = false
       })
@@ -61,7 +60,7 @@ export default class extends Mixins(DashboardMixin) {
         if (this.list.length === 0 || (item.timeStamp >= this.list[0].timeStamp && item.event !== this.list[0].event)) {
           this.list.unshift({
             ...item,
-            isNew: true,
+            isNew: this.list.length,
             level: checkLevel(item)
           })
         }
