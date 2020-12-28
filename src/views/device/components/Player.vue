@@ -53,16 +53,18 @@
             <svg-icon name="ipc" width="18px" height="18px" />
           </div>
         </el-tooltip>
-        <el-tooltip v-if="!isFullscreen" content="进入全屏" placement="top">
-          <div class="controls__btn controls__fullscreen" @click.stop.prevent="fullscreen">
-            <svg-icon name="fullscreen" width="15px" height="15px" />
-          </div>
-        </el-tooltip>
-        <el-tooltip v-else content="退出全屏" placement="top">
-          <div class="controls__btn controls__exit-fullscreen" @click.stop.prevent="exitFullscreen">
-            <svg-icon name="exit-fullscreen" width="15px" height="15px" />
-          </div>
-        </el-tooltip>
+        <template v-if="hasFullscreen">
+          <el-tooltip v-if="!isFullscreen" content="进入全屏" placement="top">
+            <div class="controls__btn controls__fullscreen" @click.stop.prevent="fullscreen">
+              <svg-icon name="fullscreen" width="15px" height="15px" />
+            </div>
+          </el-tooltip>
+          <el-tooltip v-else content="退出全屏" placement="top">
+            <div class="controls__btn controls__exit-fullscreen" @click.stop.prevent="exitFullscreen">
+              <svg-icon name="exit-fullscreen" width="15px" height="15px" />
+            </div>
+          </el-tooltip>
+        </template>
       </div>
     </div>
   </div>
@@ -138,6 +140,13 @@ export default class extends Vue {
     default: false
   })
   private isWs?: boolean
+  /**
+   * 是否支持全屏显示
+   */
+  @Prop({
+    default: true
+  })
+  private hasFullscreen?: boolean
   /**
    * 是否全屏显示
    */

@@ -43,9 +43,7 @@
       <template v-if="routerName === 'AI' || routerName === 'dashboard'">
         <div class="links">
           <a @click="routeToHome()">首页</a>
-          <a @click="routeToAI('mask')">未带口罩</a>
-          <a @click="routeToAI('appeal')">人员上访</a>
-          <a @click="routeToAI('gather')">人员聚集</a>
+          <a v-for="(type, key) in alertType" :key="key" :class="{'actived': queryAlertType === key.toString()}" @click="routeToAI(key)">{{ type }}</a>
         </div>
       </template>
       <template v-else>
@@ -94,6 +92,7 @@ import { UserModule } from '@/store/modules/user'
 import { GroupModule } from '@/store/modules/group'
 import { getDevice } from '@/api/device'
 import { Group } from '@/type/group'
+import { AlertType } from '@/dics'
 import Breadcrumb from '@/components/Breadcrumb/index.vue'
 import ErrorLog from '@/components/ErrorLog/index.vue'
 import Hamburger from '@/components/Hamburger/index.vue'
@@ -113,6 +112,7 @@ import SizeSelect from '@/components/SizeSelect/index.vue'
   }
 })
 export default class extends Vue {
+  private alertType = AlertType
   public searchForm = {
     deviceId: ''
   }
@@ -165,6 +165,10 @@ export default class extends Vue {
     } else {
       return this.$route.name
     }
+  }
+
+  get queryAlertType() {
+    return this.$route.query.type
   }
 
   @Watch('currentGroupId', { immediate: true })
@@ -522,6 +526,9 @@ export default class extends Vue {
         font-size: 18px;
         &:last-child {
           margin: 0;
+        }
+        &.actived {
+          color: $primary;
         }
       }
     }

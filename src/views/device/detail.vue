@@ -28,7 +28,6 @@
                 <info-list-item label="通道数量:">{{ info.deviceStats && info.deviceStats.channelSize }}</info-list-item>
                 <info-list-item label="在线流数量:">{{ info.deviceStats && info.deviceStats.onlineSize }}</info-list-item>
               </template>
-              <info-list-item label="自动拉流:">{{ pullType[info.pullType] }}</info-list-item>
               <info-list-item label="GB28181账号:">{{ info.userName }}</info-list-item>
             </info-list>
             <info-list v-if="info && isNVRChannel" label-width="110">
@@ -39,6 +38,7 @@
               <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
             </info-list>
             <info-list v-if="info" label-width="110">
+              <info-list-item label="自动拉流:">{{ pullType[info.pullType] }}</info-list-item>
               <info-list-item label="设备状态:">
                 <div class="info-list__edit">
                   <div class="info-list__edit--value">

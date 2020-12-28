@@ -4,18 +4,55 @@
       <div class="ai-recognation__decorator--top" />
       <div class="ai-recognation__decorator--bottom" />
       <div class="ai-recognation__body">
-        <div class="ai-recognation__video">
-          <video src="" />
-        </div>
-        <div class="ai-recognation__images">
-          <div v-for="(img, index) in imageList" :key="index" class="ai-recognation__images__item">
-            <div class="ai-recognation__images__item__decorator--top" />
-            <div class="ai-recognation__images__item__decorator--bottom" />
-            <div class="ai-recognation__images__item--wrap">
-              <img ref="img" :src="img.src" @load="onload(index)">
-              <div class="ai-recognation__images__item--mask" :style="`top:${img.top * img.ratio}px; left:${img.left * img.ratio}px; width:${img.width * img.ratio}px; height:${img.height * img.ratio}px;`" />
+        <div class="ai-recognation--left">
+          <div class="ai-recognation__title">
+            <img :src="require('@/assets/dashboard/title-bg.svg')">
+            <div class="ai-recognation__title--text">
+              {{ alertType[type] }}
             </div>
-            <div class="ai-recognation__images__item--datetime">2020-12-27 19:04:33</div>
+          </div>
+          <div v-loading="loading.video" class="ai-recognation__video">
+            <player
+              v-if="currentVideo"
+              :type="currentVideo.type"
+              :url="currentVideo.url"
+              :is-live="false"
+              :is-ws="false"
+              :has-fullscreen="false"
+              :auto-play="true"
+              :has-control="false"
+              :has-playback="true"
+            />
+          </div>
+        </div>
+        <div class="ai-recognation__images__wrap">
+          <div v-loading="loading.list" class="ai-recognation__images">
+            <div v-for="(img, index) in imageList" :key="index" class="ai-recognation__images__item" :class="{'actived': img.timestamp === currentImgTime}" @click="getRecordAudits(img)">
+              <div class="ai-recognation__images__item__decorator--top" />
+              <div class="ai-recognation__images__item__decorator--bottom" />
+              <div class="ai-recognation__images__item__wrap">
+                <img ref="img" :src="img.url" @load="onload(index)">
+                <div
+                  v-for="(location, locationIndex) in img.locations"
+                  :key="locationIndex"
+                  class="ai-recognation__images__item__mask"
+                  :class="{'ai-recognation__images__item__mask--warning': location.isWarning}"
+                  :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
+                />
+              </div>
+              <div class="ai-recognation__images__item--datetime">{{ img.timestamp }}</div>
+            </div>
+          </div>
+          <div class="ai-recognation__bottom">
+            <el-button class="ai-recognation__bottom--fresh" @click="getRecordAuditEvents">刷新当前页</el-button>
+            <el-pagination
+              :current-page="pager.pageNum"
+              :page-size="pager.pageSize"
+              :total="pager.total"
+              layout="prev, pager, next"
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+            />
           </div>
         </div>
       </div>
@@ -24,69 +61,135 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
+import { getRecordAuditEvents, getRecordAudits } from '@/api/dashboard'
+import { AlertType } from '@/dics'
+import Player from '@/views/device/components/Player.vue'
+
 @Component({
-  name: 'DashboardAI'
+  name: 'DashboardAI',
+  components: {
+    Player
+  }
 })
 export default class extends Vue {
-  private type = ''
-  private imageList = [
-    {
-      src: 'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1236258137,222312282&fm=26&gp=0.jpg',
-      locations: [
-        {
-          top: 40,
-          left: 20,
-          width: 100,
-          height: 100,
-          ratio: 0
-        },
-        {
-          top: 60,
-          left: 60,
-          width: 100,
-          height: 100,
-          ratio: 0
-        }
-      ]
-    },
-    {
-      src: 'https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=1236258137,222312282&fm=26&gp=0.jpg',
-      locations: [
-        {
-          top: 40,
-          left: 20,
-          width: 100,
-          height: 100,
-          ratio: 0
-        },
-        {
-          top: 60,
-          left: 60,
-          width: 100,
-          height: 100,
-          ratio: 0
-        }
-      ]
-    }
-  ]
+  private alertType = AlertType
+  private currentImgTime = null
+  private currentVideo: any = null
+  private pager = {
+    pageNum: 1,
+    pageSize: 9,
+    total: 20
+  }
+  private loading = {
+    list: false,
+    video: false
+  }
+  private imageList = []
+
+  private get type() {
+    let params: any = this.$route.query
+    return params.type
+  }
 
   private mounted() {
-    let params: any = this.$route.query
-    if (params.type) {
-      this.type = params.type
+    this.getRecordAuditEvents()
+  }
+
+  @Watch('$route.query')
+  private onRouterChange() {
+    this.currentImgTime = null
+    this.pager.pageNum = 1
+    this.getRecordAuditEvents()
+  }
+
+  private async getRecordAuditEvents() {
+    try {
+      this.loading.list = true
+      const res = await getRecordAuditEvents({
+        event: this.type,
+        pageSize: this.pager.pageSize,
+        pageNum: this.pager.pageNum
+      })
+      this.imageList = res.imgs
+      this.pager.total = res.totalNum
+    } catch (e) {
+      console.log(e)
+    } finally {
+      this.loading.list = false
+    }
+  }
+
+  private async getRecordAudits(audit: any) {
+    try {
+      this.currentImgTime = audit.timestamp
+      this.loading.video = true
+      const res = await getRecordAudits({
+        event: this.type,
+        streamName: audit.streamName,
+        timeStamp: audit.timestamp
+      })
+      this.currentVideo = {
+        url: res.playUrl,
+        type: res.codec === 'CodecH265' ? 'h265-flv' : 'flv'
+      }
+    } catch (e) {
+      console.log(e)
+    } finally {
+      this.loading.video = false
     }
   }
 
   private onload(index: number) {
-    console.log(index)
     const imgData: any = this.imageList[index]
+    const metaData = JSON.parse(imgData.metaData)
+    const locations = this.parseMetaData(metaData)
     const imgs: any = this.$refs.img
     const img = imgs[index]
-    console.log(img)
-    imgData.locations.forEach((location: any) => {
-      location.ratio = img.clientWidth / img.naturalWidth
+    locations.forEach((location: any) => {
+      const ratio = img.clientWidth / img.naturalWidth
+      location.clientTopPercent = location.top * ratio / img.clientHeight * 100
+      location.clientLeftPercent = location.left * ratio / img.clientWidth * 100
+      location.clientWidthPercent = location.width * ratio / img.clientWidth * 100
+      location.clientHeightPercent = location.height * ratio / img.clientHeight * 100
     })
+    this.$set(this.imageList[index], 'locations', locations)
+  }
+
+  private parseMetaData(metaData: any) {
+    console.log(metaData)
+    let locations = []
+    switch (this.type) {
+      case '1':
+        locations = metaData.face_list.map((face: any) => {
+          return {
+            ...face.face_location,
+            isWarning: !face.isMask
+          }
+        })
+        break
+      case '2':
+        locations = metaData.result.map((face: any) => {
+          return {
+            top: face.box[1],
+            left: face.box[0],
+            width: face.box[2] - face.box[0],
+            height: face.box[3] - face.box[1],
+            isWarning: metaData.result.length > 5
+          }
+        })
+    }
+    return locations
+  }
+
+  private async handleSizeChange(val: number) {
+    this.pager.pageSize = val
+    await this.getRecordAuditEvents()
+  }
+
+  private async handleCurrentChange(val: number) {
+    this.pager.pageNum = val
+    await this.getRecordAuditEvents()
   }
 }
 </script>
@@ -100,6 +203,10 @@ export default class extends Vue {
     font-size: 16px;
     height: 100vh;
     overflow: auto;
+
+    ::v-deep .el-loading-mask {
+      background: rgba(35, 59, 88, 0.6);
+    }
   }
   .ai-recognation {
     border: 2px solid #516F8D;
@@ -159,35 +266,70 @@ export default class extends Vue {
     &__body {
       display: flex;
     }
-    &__video {
+    &--left {
+      display: flex;
       flex: 1;
+      margin: 0.7%;
+      flex-direction: column;
+    }
+    &__title {
       position: relative;
-      video {
+      img {
+        display: block;
+      }
+      &--text {
+        position: absolute;
+        top: 0;
+        right: 1vw;
+        font-size: 1.5vw;
+        letter-spacing: 0.5em;
+        display: flex;
+        align-items: center;
+        height: 100%;
+        color: #fff;
+      }
+    }
+    &__video {
+      position: relative;
+      flex: 1;
+      margin-top: 2vh;
+      border: 1px solid #648fb9;
+      min-height: 30vh;
+      ::v-deep .video-wrap, ::v-deep video {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
       }
+      ::v-deep canvas {
+        position: absolute;
+      }
+    }
+    &__images__wrap {
+      flex: 2;
     }
     &__images {
-      flex: 2;
       display: flex;
       flex-wrap: wrap;
       &__item {
         position: relative;
         width: 31%;
-        margin: 10px;
+        margin: 1%;
         border: 1px solid #516F8D;
         border-left: 5px solid #648fb9;
         border-right: 5px solid #648fb9;
         padding: 10px;
-        &--wrap {
+        cursor: pointer;
+        &__wrap {
           position: relative;
         }
-        &--mask {
+        &__mask {
           position: absolute;
-          border: 1px solid #eee;
+          border: 2px solid $dashboardGreen;
+          &--warning {
+            border-color: $red;
+          }
         }
         // Decorator
         &__decorator--top,
@@ -229,6 +371,46 @@ export default class extends Vue {
         img {
           width: 100%;
           display: block;
+        }
+
+        &:hover, &.actived {
+          border-color: $primary;
+          .ai-recognation__images__item__decorator--top,
+          .ai-recognation__images__item__decorator--bottom {
+            &::after, &::before {
+              border-color: $primary;
+            }
+          }
+        }
+      }
+    }
+
+    &__bottom {
+      display: flex;
+      margin: 0 1%;
+      justify-content: space-between;
+      align-items: center;
+
+      &--fresh {
+        background: #516F8D;
+        border: none;
+        padding: 15px 20px;
+        color: #fff;
+        &:hover {
+          background: $primary;
+        }
+      }
+
+      .el-pagination {
+        position: relative;
+        margin: 0;
+        z-index: 100;
+        ::v-deep .el-pager li, ::v-deep .btn-prev, ::v-deep  .btn-next {
+          background: none;
+          color: #fff;
+        }
+        ::v-deep .el-pager li.active {
+          color: $primary;
         }
       }
     }

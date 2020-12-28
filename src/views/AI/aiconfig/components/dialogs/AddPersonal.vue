@@ -14,7 +14,7 @@
       label-position="right"
       label-width="100px"
     >
-      <el-form-item label="头像:" prop="profile">
+      <el-form-item label="头像:" prop="imageString">
         <el-upload
           action=""
           class="avatar-uploader"
@@ -22,15 +22,15 @@
           :on-change="getImage"
           :auto-upload="false"
         >
-          <img v-if="form.profile" :src="form.profile" class="avatar">
+          <img v-if="form.imageString" :src="form.imageString" class="avatar">
           <i v-else class="el-icon-plus avatar-uploader-icon" />
         </el-upload>
       </el-form-item>
       <el-form-item label="姓名:" prop="name">
         <el-input v-model="form.name" placeholder="请输入姓名" />
       </el-form-item>
-      <el-form-item label="身份证号:" prop="certificate">
-        <el-input v-model="form.certificate" placeholder="请输入身份证号" />
+      <el-form-item label="身份证号:" prop="cardId">
+        <el-input v-model="form.cardId" placeholder="请输入身份证号" />
       </el-form-item>
       <el-form-item label="描述:" prop="description">
         <el-input v-model="form.description" type="textarea" placeholder="请输入描述" />
@@ -38,12 +38,14 @@
     </el-form>
     <span slot="footer" class="dialog-footer">
       <el-button type="primary" @click="submit">确定</el-button>
-      <el-button @click="closeDialog">关闭</el-button>
+      <el-button @click="closeDialog(false)">关闭</el-button>
     </span>
   </el-dialog>
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import { addPersonalInfo } from '@/api/ai'
+
 @Component({
   name: 'AddPersonal'
 })
@@ -51,19 +53,20 @@ export default class extends Vue {
   private dialogVisible = true
   private loading = false
   private form: Record<string, any> = {
-    profile: null,
+    imageString: null,
+    imageName: null,
     name: null,
-    certificate: null,
+    cardId: null,
     description: null
   }
   private rules = {
-    profile: [
+    imageString: [
       { required: true, message: '请选择图片', trigger: 'blur' }
     ],
     name: [
       { required: true, message: '请输入姓名', trigger: 'blur' }
     ],
-    certificate: [
+    cardId: [
       { required: true, message: '请输入身份证号', trigger: 'blur' },
       { validator: this.validateCertificate, trigger: 'blur' }
     ]
@@ -77,22 +80,35 @@ export default class extends Vue {
     }
   }
 
-  private closeDialog() {
+  private closeDialog(refresh: boolean) {
     this.dialogVisible = false
-    this.$emit('on-close')
+    this.$emit('on-close', refresh)
   }
 
   private getImage(file: any) {
-    const isImage = file.type === 'image/jpeg' || file.type === 'image/jpeg' || file.type === 'image/png'
+    const isImage = file.raw.type === 'image/jpeg' || file.raw.type === 'image/jpg' || file.raw.type === 'image/png'
     if (!isImage) {
       this.$message.error('不支持该格式')
       return
     }
     const reader = new FileReader()
     reader.readAsDataURL(file.raw)
+    this.form.imageName = file.raw.name
     reader.onload = (e: any) => {
-      this.form.profile = e.target.result
-      console.log(this.form.profile)
+      this.form.imageString = e.target.result
+      console.log(this.form.imageString)
+    }
+  }
+
+  private async addPersonalInfo() {
+    try {
+      this.loading = true
+      await addPersonalInfo(this.form)
+      this.closeDialog(true)
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.loading = false
     }
   }
 
@@ -100,7 +116,7 @@ export default class extends Vue {
     const form: any = this.$refs.form
     form.validate((valid: any) => {
       if (valid) {
-        console.log('valid')
+        this.addPersonalInfo()
       } else {
         return false
       }
@@ -110,6 +126,9 @@ export default class extends Vue {
 </script>
 <style lang="scss" scoped>
   .avatar-uploader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     border: 1px dashed #d9d9d9;
     border-radius: 6px;
     cursor: pointer;
@@ -125,8 +144,8 @@ export default class extends Vue {
     text-align: center;
   }
   .avatar {
-    width: 178px;
-    height: 178px;
+    max-width: 178px;
+    max-height: 178px;
     display: block;
   }
 </style>
