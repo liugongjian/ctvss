@@ -73,7 +73,7 @@
                       <svg-icon name="dir-close" width="15" height="15" />
                     </span>
                     <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
-                    {{ node.label }}
+                    {{ node.label }} <span class="alert-type">{{ renderAlertType(data) }}</span>
                     <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
                   </span>
                   <el-tooltip
@@ -253,6 +253,7 @@ import ReplayView from './components/ReplayView.vue'
 import DeviceDir from './components/dialogs/DeviceDir.vue'
 import PtzControl from './components/ptzControl.vue'
 import { getDeviceTree } from '@/api/device'
+import { renderAlertType } from '@/utils/device'
 
 @Component({
   name: 'Screen',
@@ -265,6 +266,7 @@ import { getDeviceTree } from '@/api/device'
   }
 })
 export default class extends Mixins(ScreenMixin) {
+  private renderAlertType = renderAlertType
   public maxSize = 4;
   private selectedDeviceId = '';
   private currentPollingIndex = 0;
