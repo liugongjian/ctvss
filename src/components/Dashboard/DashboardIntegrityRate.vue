@@ -18,7 +18,13 @@
     <div v-if="selectValue === '0'" class="content" :style="`height:${height}vh`">
       <div class="content__calendar">
         <div v-for="(item, index) in data" :key="index" class="content__calendar__item">
-          <el-tooltip placement="bottom" effect="light" popper-class="dark-tooltip">
+          <el-tooltip 
+            placement="bottom" 
+            effect="light" 
+            popper-class="dark-tooltip" 
+            :visible-arrow="false"
+            open-delay=400
+          >
             <div slot="content">{{ item.time }}<br />{{ `完整率: ${parseFloat(item.rate * 100).toFixed(1)}%` }}</div>
             <p :style="item.itemBgColor">
               <span>{{ index + 1 === data.length ? '今': item.day }}</span>
