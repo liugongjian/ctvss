@@ -5,10 +5,10 @@
     <el-table v-loading="loading" :data="dataList">
       <el-table-column prop="name" label="组名" align="center" />
       <el-table-column prop="description" label="描述" align="center" />
-      <el-table-column prop="num" label="人数" align="center" />
-      <el-table-column prop="createTime" label="创建时间" width="200" align="center" />
-      <el-table-column prop="updateTime" label="更新时间" width="200" align="center" />
-      <el-table-column label="操作" align="center">
+      <el-table-column prop="num" label="人数" width="140" align="center" />
+      <el-table-column prop="createTime" label="创建时间" width="220" align="center" />
+      <el-table-column prop="updateTime" label="更新时间" width="220" align="center" />
+      <el-table-column label="操作" align="center" width="140">
         <template slot-scope="scope">
           <el-button type="text" @click="correlationWith(scope.row)">关联</el-button>
         </template>
@@ -58,6 +58,7 @@ export default class extends Vue {
       })
       this.loading = false
       this.dataList = res.groups
+      this.pager.total = res.totalNum
     } catch (e) {
       this.loading = false
     }
