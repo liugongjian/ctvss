@@ -24,7 +24,7 @@
         <info-list-item label="创建时间:">{{ deviceInfo.createdTime }}</info-list-item>
       </info-list>
     </div>
-    <div v-if="isDir" v-loading="loading.list" class="device-info">
+    <div v-if="false" v-loading="loading.list" class="device-info">
       <info-list v-if="dirStats" label-width="80">
         <info-list-item label="设备总数:">{{ dirStats.deviceSize }}</info-list-item>
         <info-list-item label="IPC数量:">{{ dirStats.ipcSize }}</info-list-item>
