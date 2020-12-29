@@ -18,7 +18,6 @@ import { getAuditTrend } from '@/api/dashboard'
 export default class extends Mixins(DashboardMixin) {
   private chart: any = null
   private chartData: any = []
-  public intervalTime = 0.5 * 60 * 60 * 1000
 
   private mounted() {
     this.setInterval(this.getDeviceStates)

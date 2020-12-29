@@ -55,6 +55,9 @@ export default class extends Mixins(DashboardMixin) {
       })
       if (this.list.length === 0) {
         this.list = res.audit
+        this.list.forEach((item:any) => {
+          item.level = checkLevel(item)
+        })
       } else {
         res.audit.forEach((item: any) => {
           if (!this.list.find((_item: any) => {

@@ -81,7 +81,7 @@ export default class extends Vue {
         const online = Math.min(data.sum, data.online)
         const offline = sum - online
         let text = new AMap.Text({
-          text: `${this.dirList[i].dirName}: ${online}/${offline}`,
+          text: `${this.dirList[i].dirName}: ${online} | ${offline}`,
           position: new AMap.LngLat(
             this.dirList[i].posX,
             this.dirList[i].posY

@@ -85,7 +85,7 @@ export default class extends Mixins(DashboardMixin) {
     this.setCalender()
   }
   private setCalender() {
-    const startTime = new Date('2020-12-28').getTime()
+    const startTime = new Date('2020-12-29').getTime()
     const todayTime = new Date().getTime()
     this.data = []
     for (let i = 0; i < 30; i++) {
