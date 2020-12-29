@@ -1,7 +1,7 @@
 <template>
   <DashboardContainer title="实时告警信息">
     <ul class="alert-list" :style="`height:${height}vh`">
-      <li v-for="item in filteredList" :key="item.id" :class="{'new-alert': item.isNew}" @click="openDialog(item)">
+      <li v-for="item in list" :key="item.id" :class="{'new-alert': item.isNew}" @click="openDialog(item)">
         <div class="alert-list__level" :class="`alert-list__level--${item.level}`">
           <svg-icon :name="alertIcon[item.level]" />
           {{ alertLevel[item.level] }}
@@ -38,10 +38,6 @@ export default class extends Mixins(DashboardMixin) {
   private list: any = []
   public intervalTime = 15 * 1000
 
-  private get filteredList() {
-    return this.list.slice(0, 6)
-  }
-
   private mounted() {
     this.setInterval(this.updateAuditList)
   }
@@ -50,21 +46,23 @@ export default class extends Mixins(DashboardMixin) {
     getAuditList({
       limit: 6
     }).then((res) => {
-      this.list.forEach((item: any) => {
-        item.isNew = false
-      })
       if (this.list.length === 0) {
         this.list = res.audit
         this.list.forEach((item:any) => {
+          item.id = Math.random().toString(16).slice(-10)
           item.level = checkLevel(item)
         })
       } else {
         res.audit.forEach((item: any) => {
+          const lastTime = new Date(this.list[0].timeStamp).getTime()
+          const thisTime = new Date(item.timeStamp).getTime()
+          if (thisTime < lastTime) return
           if (!this.list.find((_item: any) => {
             return _item.event === item.event && _item.timeStamp === item.timeStamp
           })) {
             this.list.unshift({
               ...item,
+              id: Math.random().toString(16).slice(-10),
               isNew: true,
               level: checkLevel(item)
             })
