@@ -22,13 +22,9 @@ export const parseMetaData = (type: string, metaData: any) => {
       })
       break
     case '3':
-      locations = metaData.result.map((face: any) => {
+      locations = metaData.data.map((face: any) => {
         return {
-          top: face.box[1],
-          left: face.box[0],
-          width: face.box[2] - face.box[0],
-          height: face.box[3] - face.box[1],
-          label: face.label,
+          ...face.location,
           isWarning: true
         }
       })
