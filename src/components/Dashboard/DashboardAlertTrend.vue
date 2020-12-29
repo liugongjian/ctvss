@@ -26,7 +26,6 @@ declare module 'vue/types/vue' {
 export default class extends Mixins(DashboardMixin) {
   private weeklyTrendData: any = []
   private chart: any = null
-  public intervalTime = 60 * 1000
   private loading = false
 
   private mounted() {
