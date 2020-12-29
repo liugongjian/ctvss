@@ -12,7 +12,7 @@
             </div>
           </div>
           <div class="ai-recognation__video">
-            <div v-if="loading.video" class="ai-recognation__video__loading">正在加载视频...</div>
+            <div v-if="false" class="ai-recognation__video__loading">正在加载视频...</div>
             <img v-if="currentImg" :src="currentImg.url">
             <player
               v-if="currentVideo"
