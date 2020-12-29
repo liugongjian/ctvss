@@ -46,14 +46,7 @@ export default class extends Mixins(DashboardMixin) {
       container: $container,
       autoFit: true,
       height: 120,
-      padding: [10, -10, 10, 85]
-    })
-
-    this.chart.scale({
-      value: {
-        max: Math.max(...this.chartData.map((data: any) => data.value)) * 1.2,
-        min: 0
-      }
+      padding: [10, 40, 10, 85]
     })
 
     this.chart.axis('type', {
