@@ -37,6 +37,7 @@ export default class extends Mixins(DashboardMixin) {
   private dialog = false
   private list: any = []
   public intervalTime = 15 * 1000
+  private lastTime: any = null
 
   private mounted() {
     this.setInterval(this.updateAuditList)
@@ -46,45 +47,24 @@ export default class extends Mixins(DashboardMixin) {
     getAuditList({
       limit: 6
     }).then((res) => {
-      if (this.list.length === 0) {
-        this.list = res.audit
-        this.list.forEach((item:any) => {
-          item.id = Math.random().toString(16).slice(-10)
-          item.level = checkLevel(item)
-        })
-      } else {
-        res.audit.forEach((item: any) => {
-          const lastTime = new Date(this.list[0].timeStamp).getTime()
-          const thisTime = new Date(item.timeStamp).getTime()
-          if (thisTime < lastTime) return
-          if (!this.list.find((_item: any) => {
-            return _item.event === item.event && _item.timeStamp === item.timeStamp
-          })) {
-            this.list.unshift({
-              ...item,
-              id: Math.random().toString(16).slice(-10),
-              isNew: true,
-              level: checkLevel(item)
-            })
-          }
-          // if (this.list.length === 0 || (item.timeStamp >= this.list[0].timeStamp && item.event !== this.list[0].event)) {
-          //   this.list.unshift({
-          //     ...item,
-          //     isNew: this.list.length,
-          //     level: checkLevel(item)
-          //   })
-          // }
-        })
-      }
-      this.list = this.list.slice(0, 6)
-      function checkLevel(data: any) {
-        if (data.event === '2' && JSON.parse(data.metaData).result.length <= 5) {
-          return 'normal'
-        } else {
-          return 'serious'
-        }
+      this.list = res.audit
+      this.list.forEach((item:any) => {
+        item.id = Math.random().toString(16).slice(-10)
+        item.level = this.checkLevel(item)
+        item.isNew = this.lastTime && (new Date(item.timeStamp).getTime() > this.lastTime)
+      })
+      if (this.list.length) {
+        this.lastTime = new Date(this.list[0].timeStamp).getTime()
       }
     })
+  }
+
+  private checkLevel(data: any) {
+    if (data.event === '2' && JSON.parse(data.metaData).result.length <= 5) {
+      return 'normal'
+    } else {
+      return 'serious'
+    }
   }
 
   private openDialog(item: any) {
