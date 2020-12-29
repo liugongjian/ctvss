@@ -13,7 +13,25 @@
           </div>
           <div class="ai-recognation__video">
             <div v-if="false" class="ai-recognation__video__loading">正在加载视频...</div>
-            <img v-if="currentImg" :src="currentImg.url">
+            <div class="ai-recognation__images__item__wrap">
+              <img v-if="currentImg" :src="currentImg && currentImg.url">
+              <div
+                v-for="(location, locationIndex) in currentImg && currentImg.locations"
+                :key="locationIndex"
+                class="ai-recognation__images__item__mask"
+                :class="{'ai-recognation__images__item__mask--warning': location.isWarning}"
+                :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
+              >
+                <div v-if="type === '1'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
+                  {{ location.isWarning ? '未戴口罩' : '戴口罩' }}
+                </div>
+                <!-- <div v-if="type === '3'" class="ai-recognation__images__item__mask__text ai-recognation__images__item__mask__text--warning">
+                  {{ location.label }}
+                </div> -->
+              </div>
+              <div v-if="type === '2'" class="ai-recognation__images__item__count" :class="{'ai-recognation__images__item__count--warning': currentImg && currentImg.locations && currentImg.locations.length > 5}">聚集人数: {{ currentImg && currentImg.locations && currentImg.locations.length || '-' }}</div>
+              <div class="ai-recognation__images__item--datetime">{{ currentImg && currentImg.timestamp }}</div>
+            </div>
             <player
               v-if="currentVideo"
               :type="currentVideo.type"
@@ -157,12 +175,15 @@ export default class extends Vue {
   }
 
   private onload(index: number) {
+    if (!this.imageList || !this.imageList.length) {
+      return
+    }
     const imgData: any = this.imageList[index]
     const metaData = JSON.parse(imgData.metaData)
     const locations = parseMetaData(this.type, metaData)
     const imgs: any = this.$refs.img
     const img = imgs[index]
-    locations.forEach((location: any) => {
+    locations && locations.forEach((location: any) => {
       const ratio = img.clientWidth / img.naturalWidth
       location.clientTopPercent = location.top * ratio / img.clientHeight * 100
       location.clientLeftPercent = location.left * ratio / img.clientWidth * 100
@@ -343,14 +364,14 @@ export default class extends Vue {
             display: block;
             font-size: 11px;
             background: $dashboardGreen;
-            color: #fff;
+            color: #000;
             word-break: keep-all;
-            top: -12px;
+            bottom: -19px;
             left: -2px;
             padding: 2px;
             opacity: 0.8;
             &--warning {
-              background: $red;
+              background: $white;
             }
           }
         }

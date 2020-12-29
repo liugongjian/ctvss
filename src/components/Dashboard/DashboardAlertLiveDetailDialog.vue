@@ -194,14 +194,14 @@ export default class extends Vue {
           display: block;
           font-size: 11px;
           background: $dashboardGreen;
-          color: #fff;
+          color: #000;
           word-break: keep-all;
-          top: -12px;
+          bottom: -19px;
           left: -2px;
           padding: 2px;
           opacity: 0.8;
           &--warning {
-            background: $red;
+            background: $white;
           }
         }
         &__count {
