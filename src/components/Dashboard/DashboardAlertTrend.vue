@@ -60,6 +60,7 @@ export default class extends Mixins(DashboardMixin) {
       console.log(data)
       this.loading = false
       var nowTime = new Date().getTime()
+      this.weeklyTrendData = []
       for (let i = 0; i < 7; i++) {
         for (let j = 0; j < 3; j++) {
           this.weeklyTrendData.push({
@@ -72,18 +73,13 @@ export default class extends Mixins(DashboardMixin) {
       data.forEach((item, index) => {
         Object.keys(item.trend).forEach((key) => {
           var tableIndex = this.weeklyTrendData.findIndex((value: any) => {
-            return value.time === key.split(' ')[0].slice(-5,) && value.type === this.alertType[index + 1]
+            return value.time === key.split(' ')[0].slice(-5) && value.type === this.alertType[index + 1]
           })
           this.weeklyTrendData[tableIndex] = {
-            time: key.split(' ')[0].slice(-5,),
+            time: key.split(' ')[0].slice(-5),
             type: this.alertType[index + 1],
             value: parseInt(item.trend[key])
           }
-          // this.weeklyTrendData.push({
-          //   time: key.split(' ')[0].slice(-5,),
-          //   type: this.alertType[index + 1],
-          //   value: parseInt(item.trend[key])
-          // })
         })
       })
       this.weeklyTrendData.reverse()
