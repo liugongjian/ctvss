@@ -46,7 +46,7 @@
                 {{ location.label }}
               </div> -->
             </div>
-            <div v-if="audit.event === '2'" class="alert-body__image__mask__text__count" :class="{'alert-body__image__mask__text__count--warning': audit && audit.locations && audit.locations.length > 5}">聚集人数: {{ audit && audit.locations && audit.locations.length || '-' }}</div>
+            <div v-if="audit.event === '2'" class="alert-body__image__mask__count" :class="{'alert-body__image__mask__count--warning': audit && audit.locations && audit.locations.length > 5}">聚集人数: {{ audit && audit.locations && audit.locations.length || '-' }}</div>
           </div>
         </div>
       </div>
