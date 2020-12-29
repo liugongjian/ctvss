@@ -25,7 +25,7 @@
             :visible-arrow="false"
             :open-delay="400"
           >
-            <div slot="content">{{ item.time }}<br />{{ `完整率: ${parseFloat(item.rate * 100).toFixed(1)}%` }}</div>
+            <div slot="content">{{ item.time }}<br>{{ item.rate === 0 ? '无录像' : `完整率: ${parseFloat(item.rate * 100).toFixed(1)}%` }}</div>
             <p :style="item.itemBgColor">
               <span>{{ index + 1 === data.length ? '今': item.day }}</span>
             </p>
