@@ -13,24 +13,7 @@
           </div>
           <div class="ai-recognation__video">
             <div v-if="false" class="ai-recognation__video__loading">正在加载视频...</div>
-            <div class="ai-recognation__images__item__wrap">
-              <img v-if="currentImg" :src="currentImg.url">
-              <div
-                v-for="(location, locationIndex) in currentImg.locations"
-                :key="locationIndex"
-                class="ai-recognation__images__item__mask"
-                :class="{'ai-recognation__images__item__mask--warning': location.isWarning}"
-                :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
-              >
-                <div v-if="type === '1'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
-                  {{ location.isWarning ? '未戴口罩' : '戴口罩' }}
-                </div>
-                <!-- <div v-if="type === '3'" class="ai-recognation__images__item__mask__text ai-recognation__images__item__mask__text--warning">
-                  {{ location.label }}
-                </div> -->
-              </div>
-              <div v-if="type === '2'" class="ai-recognation__images__item__count" :class="{'ai-recognation__images__item__count--warning': currentImg.locations && currentImg.locations.length > 5}">聚集人数: {{ currentImg.locations && currentImg.locations.length || '-' }}</div>
-            </div>
+            <img v-if="currentImg" :src="currentImg.url">
             <player
               v-if="currentVideo"
               :type="currentVideo.type"
@@ -157,15 +140,15 @@ export default class extends Vue {
       this.currentVideo = null
       this.currentImg = audit
       this.loading.video = true
-      const res = await getRecordAudits({
-        event: this.type,
-        streamName: audit.streamName,
-        timeStamp: audit.timestamp
-      })
-      this.currentVideo = {
-        url: res.playUrl,
-        type: res.codec === 'CodecH265' ? 'h265-flv' : 'flv'
-      }
+      // const res = await getRecordAudits({
+      //   event: this.type,
+      //   streamName: audit.streamName,
+      //   timeStamp: audit.timestamp
+      // })
+      // this.currentVideo = {
+      //   url: res.playUrl,
+      //   type: res.codec === 'CodecH265' ? 'h265-flv' : 'flv'
+      // }
     } catch (e) {
       console.log(e)
     } finally {

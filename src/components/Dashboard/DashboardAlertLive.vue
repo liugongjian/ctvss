@@ -72,7 +72,9 @@ export default class extends Mixins(DashboardMixin) {
     this.currentItem = {
       event: item.event,
       streamName: item.streamName,
-      timestamp: item.timeStamp
+      timestamp: item.timeStamp,
+      metaData: item.metaData,
+      url: item.url
     }
   }
 

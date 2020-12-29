@@ -4,7 +4,7 @@
     :custom-class="theme"
     :visible="dialogVisible"
     :close-on-click-modal="true"
-    width="70%"
+    width="50%"
     center
     @close="closeDialog"
   >
@@ -14,8 +14,8 @@
         <div class="alert-header__datetime">{{ audit.timestamp }}</div>
       </div>
       <div v-if="error" class="alert-error">{{ error }}</div>
-      <div v-if="auditDetail" class="alert-body">
-        <div class="alert-body__video">
+      <div v-if="audit" class="alert-body">
+        <!-- <div class="alert-body__video">
           <player
             :type="auditDetail.type"
             :url="auditDetail.videoUrl"
@@ -26,17 +26,17 @@
             :has-control="false"
             :has-playback="true"
           />
-        </div>
+        </div> -->
         <div class="alert-body__image">
           <div class="alert-body__image__decorator--top" />
           <div class="alert-body__image__decorator--bottom" />
           <div class="alert-body__image__wrap">
-            <img ref="img" :src="auditDetail.imgUrl" @load="onload">
+            <img ref="img" :src="audit.url" @load="onload">
             <div
-              v-for="(location, locationIndex) in auditDetail.locations"
+              v-for="(location, locationIndex) in audit.locations"
               :key="locationIndex"
               class="alert-body__image__mask"
-              :class="{'alert-body__image__mask--warning': location.isMask}"
+              :class="{'alert-body__image__mask--warning': location.isWarning}"
               :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
             />
           </div>
@@ -70,7 +70,7 @@ export default class extends Vue {
   private error: any = null
 
   private mounted() {
-    this.getRecordAudits()
+    // this.getRecordAudits()
   }
 
   private async getRecordAudits() {
@@ -98,7 +98,7 @@ export default class extends Vue {
   }
 
   private onload() {
-    const metaData = JSON.parse(this.auditDetail.metaData)
+    const metaData = JSON.parse(this.audit.metaData)
     const img: any = this.$refs.img
     const locations = parseMetaData(this.audit.event, metaData)
     locations.forEach((location: any) => {
@@ -108,7 +108,7 @@ export default class extends Vue {
       location.clientWidthPercent = location.width * location.ratio / img.clientWidth * 100
       location.clientHeightPercent = location.height * location.ratio / img.clientHeight * 100
     })
-    this.$set(this.auditDetail, 'locations', locations)
+    this.$set(this.audit, 'locations', locations)
   }
 
   private closeDialog(isRefresh: boolean = false) {
@@ -188,6 +188,33 @@ export default class extends Vue {
         border: 2px solid $dashboardGreen;
         &--warning {
           border-color: $red;
+        }
+        &__text {
+          position: absolute;
+          display: block;
+          font-size: 11px;
+          background: $dashboardGreen;
+          color: #fff;
+          word-break: keep-all;
+          top: -12px;
+          left: -2px;
+          padding: 2px;
+          opacity: 0.8;
+          &--warning {
+            background: $red;
+          }
+        }
+        &__count {
+          position: absolute;
+          top: 0;
+          left: 0;
+          background: $dashboardGreen;
+          color: #fff;
+          font-size: 12px;
+          padding: 3px 6px;
+          &--warning {
+            background: $red;
+          }
         }
       }
       // Decorator
