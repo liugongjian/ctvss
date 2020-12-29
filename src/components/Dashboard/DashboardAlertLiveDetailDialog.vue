@@ -38,7 +38,15 @@
               class="alert-body__image__mask"
               :class="{'alert-body__image__mask--warning': location.isWarning}"
               :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
-            />
+            >
+              <div v-if="audit.event === '1'" class="alert-body__image__mask__text" :class="{'alert-body__image__mask__text--warning': location.isWarning}">
+                {{ location.isWarning ? '未戴口罩' : '戴口罩' }}
+              </div>
+              <!-- <div v-if="audit.event === '3'" class="alert-body__image__mask__text alert-body__image__mask__text--warning">
+                {{ location.label }}
+              </div> -->
+            </div>
+            <div v-if="audit.event === '2'" class="alert-body__image__mask__text__count" :class="{'alert-body__image__mask__text__count--warning': audit && audit.locations && audit.locations.length > 5}">聚集人数: {{ audit && audit.locations && audit.locations.length || '-' }}</div>
           </div>
         </div>
       </div>
