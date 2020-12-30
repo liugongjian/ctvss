@@ -4,7 +4,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 export default class DashboardMixin extends Vue {
   @Prop() public height: any
   private intervalInstance: any = null
-  public intervalTime = 5 * 1000
+  public intervalTime = 15 * 1000
 
   private destroyed() {
     this.destroy()

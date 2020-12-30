@@ -17,7 +17,7 @@ export const parseMetaData = (type: string, metaData: any) => {
           left: face.box[0],
           width: face.box[2] - face.box[0],
           height: face.box[3] - face.box[1],
-          isWarning: metaData.result.length > 5
+          isWarning: metaData.result.length > 10
         }
       })
       break

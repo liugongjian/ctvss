@@ -56,7 +56,6 @@ export default class extends Mixins(DashboardMixin) {
         event: 3
       })
       var data = await Promise.all([event1, event2, event3])
-      console.log(data)
       this.loading = false
       var nowTime = new Date().getTime()
       this.weeklyTrendData = []
@@ -97,7 +96,6 @@ export default class extends Mixins(DashboardMixin) {
       autoFit: true
     })
     this.chart.data(this.weeklyTrendData)
-    console.log(this.weeklyTrendData)
     this.chart.scale({
       time: {
         range: [0, 1]

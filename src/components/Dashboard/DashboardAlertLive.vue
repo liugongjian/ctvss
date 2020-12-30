@@ -10,6 +10,7 @@
         <div class="alert-list__datetime">{{ item.timeStamp }}</div>
       </li>
     </ul>
+    <audio ref="audio" :src="require('@/assets/dashboard/alert.mp3')" preload="auto" />
     <DashboardAlertLiveDetailDialog v-if="dialog" theme="dashboard-alert-live-dialog" :audit="currentItem" @on-close="closeDialog" />
   </DashboardContainer>
 </template>
@@ -53,6 +54,10 @@ export default class extends Mixins(DashboardMixin) {
         item.level = this.checkLevel(item)
         item.isNew = this.lastTime && (new Date(item.timeStamp).getTime() > this.lastTime)
       })
+      if (this.list.some((item: any) => item.isNew)) {
+        const audio: any = this.$refs.audio
+        audio.play()
+      }
       if (this.list.length) {
         this.lastTime = new Date(this.list[0].timeStamp).getTime()
       }
@@ -60,7 +65,7 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   private checkLevel(data: any) {
-    if (data.event === '2' && JSON.parse(data.metaData).result.length <= 5) {
+    if (data.event === '2' && JSON.parse(data.metaData).result.length <= 10) {
       return 'normal'
     } else {
       return 'serious'
