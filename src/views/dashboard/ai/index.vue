@@ -29,7 +29,7 @@
                   {{ location.label }}
                 </div> -->
               </div>
-              <div v-if="type === '2'" class="ai-recognation__images__item__count" :class="{'ai-recognation__images__item__count--warning': currentImg && currentImg.locations && currentImg.locations.length > 5}">聚集人数: {{ currentImg && currentImg.locations && currentImg.locations.length || '-' }}</div>
+              <div v-if="type === '2'" class="ai-recognation__images__item__count" :class="{'ai-recognation__images__item__count--warning': currentImg && currentImg.locations && currentImg.locations.length > 10}">聚集人数: {{ currentImg && currentImg.locations && currentImg.locations.length || '-' }}</div>
               <div class="ai-recognation__images__item--datetime">{{ currentImg && currentImg.timestamp }}</div>
             </div>
             <player
@@ -66,7 +66,7 @@
                     {{ location.label }}
                   </div> -->
                 </div>
-                <div v-if="type === '2'" class="ai-recognation__images__item__count" :class="{'ai-recognation__images__item__count--warning': img.locations && img.locations.length > 5}">聚集人数: {{ img.locations && img.locations.length || '-' }}</div>
+                <div v-if="type === '2'" class="ai-recognation__images__item__count" :class="{'ai-recognation__images__item__count--warning': img.locations && img.locations.length > 10}">聚集人数: {{ img.locations && img.locations.length || '-' }}</div>
               </div>
               <div class="ai-recognation__images__item--datetime">{{ img.timestamp }}</div>
             </div>
