@@ -192,6 +192,12 @@ export default class extends Vue {
   }
 
   private mounted() {
+    if (this.type === 'h265-flv' && this.isLive) {
+      const execRes: any = /\.[^\\.]+$/.exec(this.url)
+      this.url = `${this.url.substring(0, execRes.index)}_264conv${execRes[0]}`
+      this.type = 'flv'
+      this.isWs = false
+    }
     this.createPlayer()
     if (this.isLive) document.addEventListener('visibilitychange', this.reloadPlayer)
   }
@@ -225,24 +231,14 @@ export default class extends Vue {
    * 创建播放器
    */
   private createPlayer() {
-    // TODO: 泰州专属
-    let url = this.url
-    let type = this.type
-    let isWs = this.isWs
-    if (this.type === 'h265-flv' && this.isLive) {
-      const execRes: any = /\.[^\\.]+$/.exec(this.url)
-      url = `${this.url.substring(0, execRes.index)}_264conv${execRes[0]}`
-      type = 'flv'
-      isWs = false
-    }
     this.player = new Ctplayer({
       wrap: this.$refs.video,
       autoPlay: this.autoPlay,
       hasControl: this.hasControl,
-      source: url,
-      type: type,
+      source: this.url,
+      type: this.type,
       isLive: this.isLive,
-      isWs: isWs,
+      isWs: this.isWs,
       playbackRate: this.playbackRate,
       onTimeUpdate: this.onTimeUpdate,
       onDurationChange: this.onDurationChange,
