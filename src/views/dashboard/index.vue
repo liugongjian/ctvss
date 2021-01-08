@@ -4,7 +4,7 @@
   >
     <img class="dashboard-wrap__bg" :src="require('@/assets/dashboard/header-bg.png')">
     <div class="dashboard-wrap__header">
-      泰州智能视频云
+      {{ name === 'tzszf' ? '泰州智能视频云' : '中国电信视频云网平台' }}
     </div>
     <DashboardMap />
     <div class="dashboard-wrap__col dashboard-wrap__col--left">

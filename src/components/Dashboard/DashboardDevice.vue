@@ -75,6 +75,7 @@ export default class extends Mixins(DashboardMixin) {
 
     this.chart
       .interval()
+      .adjust('stack')
       .position('count')
       .color('item', ['#7CC96F', '#E56161'])
 
