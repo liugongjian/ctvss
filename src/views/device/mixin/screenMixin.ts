@@ -57,7 +57,7 @@ export default class ScreenMixin extends Mixins(DeviceMixin, FullscreenMixin) {
    * 检查设备树中的设备项是否选择
    */
   public checkTreeItemStatus(item: any) {
-    if (item.type !== 'ipc') return false
+    if (item.type !== 'ipc' && item.type !== 'stream') return false
     return !!this.screenList.find(screen => screen.deviceId === item.id)
   }
 

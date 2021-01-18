@@ -277,7 +277,7 @@ export default class extends Vue {
       if (interval) {
         this.recordInterval = setInterval(() => {
           const lastRecord = this.recordList[recordListLength - 1]
-          const startTime = Math.floor(new Date(lastRecord.endTime).getTime() / 1000)
+          const startTime = Math.floor(new Date(lastRecord.endTime).getTime() / 1000 - 3 * 60)
           this.getRecordList(startTime)
         }, interval * 1000)
       }

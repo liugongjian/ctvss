@@ -1,16 +1,14 @@
 <template>
   <div class="app-container">
     <el-page-header content="流列表" @back="back" />
-    <div class="preview-player">
-      <player
-        ref="video"
-        type="rtmp"
-        :url="form.playUrl"
-        :auto-play="true"
-        :is-ws="true"
-        :is-live="true"
-        :is-fullscreen="false"
-        :has-control="false"
+    <div class="preview-wrap">
+      <live-view
+        :class="{'fullscreen': isFullscreen}"
+        :device-id="deviceId"
+        type="stream"
+        :is-fullscreen="isFullscreen"
+        @onFullscreen="isFullscreen = true; fullscreen()"
+        @onExitFullscreen="exitFullscreen()"
       />
     </div>
   </div>
@@ -19,38 +17,32 @@
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import FullscreenMixin from '@/views/device/mixin/fullscreenMixin'
-import { Stream } from '@/type/stream'
-import { getStream } from '@/api/stream'
-import Player from '../device/components/Player.vue'
+import LiveView from '../device/components/LiveView.vue'
 
 @Component({
   name: 'StreamPreview',
   components: {
-    Player
+    LiveView
   }
 })
 export default class extends Mixins(FullscreenMixin) {
   private deviceId = ''
   private groupId = ''
-  private previewFullscreen = {
-    live: false,
-    replay: false
-  }
-  private form: Stream = {
-    deviceId: ''
-  }
+
   private async created() {
     let query: any = this.$route.query
     if (query.deviceId) {
       this.deviceId = query.deviceId
-      this.groupId = query.groupId
-      try {
-        const res = await getStream({ deviceId: this.deviceId })
-        this.form = res
-      } catch (e) {
-        this.$message.error(e && e.message)
-      }
+      this.groupId = query.currentGroupId
     }
+  }
+
+  private mounted() {
+    window.addEventListener('resize', this.checkFullscreen)
+  }
+
+  private beforeDestroy() {
+    window.removeEventListener('resize', this.checkFullscreen)
   }
 
   private back() {
@@ -61,4 +53,21 @@ export default class extends Mixins(FullscreenMixin) {
 }
 </script>
 <style lang="scss" scoped>
+  .app-container {
+    ::v-deep {
+      .info-list__title {
+        margin: 10px 5px 0 5px;
+      }
+    }
+  }
+  .fullscreen ::v-deep .preview-player .video-wrap {
+    position: fixed;
+    z-index: 1001;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100% !important;
+    background: #333;
+  }
 </style>

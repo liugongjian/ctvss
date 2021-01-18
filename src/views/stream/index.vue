@@ -28,11 +28,11 @@
           </template>
         </el-table-column>
         <el-table-column prop="expires" label="过期时间" min-width="170" />
-        <el-table-column prop="action" class-name="col-action" label="操作" width="150" fixed="right">
+        <el-table-column prop="action" class-name="col-action" label="操作" width="200" fixed="right">
           <template slot-scope="scope">
+            <el-button type="text" @click="goToPreview(scope.row)">实时预览</el-button>
             <el-button type="text" @click="goToInfo(scope.row)">流详情</el-button>
             <el-button type="text" @click="deleteStream(scope.row)">删除</el-button>
-            <!-- <el-button type="text" @click="goToPreview(scope.row)">实时预览</el-button> -->
           </template>
         </el-table-column>
       </el-table>

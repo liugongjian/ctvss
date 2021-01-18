@@ -41,8 +41,9 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Inject, Prop, Watch } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { getDevicePreview } from '@/api/device'
+import { getStream } from '@/api/stream'
 import copy from 'copy-to-clipboard'
 import Player from './Player.vue'
 
@@ -53,13 +54,14 @@ import Player from './Player.vue'
   }
 })
 export default class extends Vue {
-  @Inject('deviceRouter') private deviceRouter!: Function
   @Prop({
     default: false
   })
   private isFullscreen?: boolean
   @Prop()
   private deviceId!: number | string
+  @Prop()
+  private type?: string
   private address?: any = null
   private codec?: string = ''
   private playerTimer: any = null
@@ -113,7 +115,8 @@ export default class extends Vue {
       this.loading = true
       this.errorMessage = ''
       this.address = null
-      const res = await getDevicePreview({
+      const getPreview = this.type === 'stream' ? getStream : getDevicePreview
+      const res = await getPreview({
         deviceId: this.deviceId
       })
       this.address = res.playUrl

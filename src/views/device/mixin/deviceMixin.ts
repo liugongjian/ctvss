@@ -63,7 +63,7 @@ export default class DeviceMixin extends Vue {
           return {
             id: stream.deviceId,
             label: stream.deviceId,
-            type: 'ipc',
+            type: 'stream',
             isLeaf: true,
             streamStatus: stream.status
           }

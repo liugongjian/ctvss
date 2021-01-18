@@ -193,7 +193,7 @@
                   <div class="live-view">
                     <player
                       v-if="screen.url"
-                      :type="screen.type"
+                      :type="screen.codec"
                       :url="screen.url"
                       :is-live="true"
                       :is-ws="true"
@@ -374,6 +374,7 @@ export default class extends Mixins(ScreenMixin) {
    * 打开分屏视频
    */
   private openScreen(item: any) {
+    console.log(item)
     if (this.polling.isStart) {
       this.$message({
         message: '请先关闭轮巡再进行选择',
@@ -381,13 +382,14 @@ export default class extends Mixins(ScreenMixin) {
       })
       return
     }
-    if (item.type === 'ipc' && item.deviceStatus === 'on') {
+    if ((item.type === 'ipc' && item.deviceStatus === 'on') || (item.type === 'stream' && item.streamStatus === 'on')) {
       const screen = this.screenList[this.currentIndex]
       if (screen.deviceId) {
         screen.reset()
       }
       screen.deviceId = item.id
       screen.deviceName = item.label
+      screen.type = item.type
       screen.getUrl()
       if (this.currentIndex < this.maxSize - 1) {
         this.currentIndex++
@@ -423,7 +425,7 @@ export default class extends Mixins(ScreenMixin) {
     }
     if (!isDir) {
       this.dirList.forEach((item: any) => {
-        if (item.type === 'ipc' && item.streamStatus === 'on') {
+        if ((item.type === 'ipc' || item.type === 'stream') && item.streamStatus === 'on') {
           this.pollingDevices.push(item)
         }
       })
@@ -435,7 +437,7 @@ export default class extends Mixins(ScreenMixin) {
         type: this.currentNode!.data.type
       })
       data.dirs.forEach((item: any) => {
-        if (item.type === 'ipc' && item.streamStatus === 'on') {
+        if ((item.type === 'ipc' || item.type === 'stream') && item.streamStatus === 'on') {
           this.pollingDevices.push(item)
         }
       })
@@ -504,6 +506,7 @@ export default class extends Mixins(ScreenMixin) {
     for (let i = 0; i < this.maxSize; i++) {
       this.screenList[i].reset()
       this.screenList[i].deviceId = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].id
+      this.screenList[i].type = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].type
       this.screenList[i].deviceName = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].label
       this.screenList[i].getUrl()
       if (this.currentIndex < this.maxSize - 1) {
