@@ -10,6 +10,7 @@
       v-if="hasGroupSelector"
       v-model="groupId"
       class="filter-group"
+      filterable
       placeholder="请选择业务组"
       @change="changeGroup"
     >

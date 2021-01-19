@@ -167,7 +167,7 @@ export default class extends Mixins(ScreenMixin) {
    * 打开分屏视频
    */
   private openScreen(item: any) {
-    if (item.type === 'ipc') {
+    if (item.type === 'ipc' || item.type === 'stream') {
       const screen = this.screenList[this.currentIndex]
       if (screen.deviceId) {
         screen.reset()
