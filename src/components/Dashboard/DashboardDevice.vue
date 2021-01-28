@@ -2,13 +2,13 @@
   <DashboardContainer title="设备状态统计">
     <div class="device-stats">
       <div class="device-stats__chart">
-        <div ref="chart" :style="`height:${height}vh`" />
-        <div class="device-stats__chart__percent">{{ stats.percent }}<span>%</span></div>
+        <div ref="chart" class="device-stats__chart__g2" :style="`height:${height - 4}vh`" />
+        <div class="device-stats__chart__percent"><span>{{ stats.percent }}</span>%</div>
       </div>
       <div class="device-stats__data">
-        <div class="device-stats__data__chip"><label>设备总数</label><span>{{ stats.sum }}</span></div>
-        <div class="device-stats__data__chip"><label>在线</label><span>{{ stats.online }}</span></div>
-        <div class="device-stats__data__chip"><label>离线</label><span>{{ stats.offline }}</span></div>
+        <div class="device-stats__data__chip"><label>设备总数</label><div><span :data-text="stats.sum">{{ stats.sum }}</span></div></div>
+        <div class="device-stats__data__chip"><label>在线</label><div><span :data-text="stats.online">{{ stats.online }}</span></div></div>
+        <div class="device-stats__data__chip"><label>离线</label><div><span :data-text="stats.offline">{{ stats.offline }}</span></div></div>
       </div>
     </div>
   </DashboardContainer>
@@ -82,6 +82,9 @@ export default class extends Mixins(DashboardMixin) {
       .adjust('stack')
       .position('count')
       .color('item', ['l(90) 0:#51E1EB 0.25:#12A1E9 0.5:#4084E8 0.75:#5E63DC 1:#C254D1', 'rgba(0, 0, 0, 0)'])
+      .style({
+        lineCap: 'round'
+      })
 
     this.chart.render()
   }
@@ -98,10 +101,34 @@ export default class extends Mixins(DashboardMixin) {
   .device-stats {
     display: flex;
     &__chart {
+      position: relative;
       flex: 3;
+      display: flex;
+      align-items: center;
+      justify-items: center;
+      background: url('./images/circle.png') no-repeat;
+      background-size: auto 100%;
+      background-position: center;
+      padding: 2vh;
+
+      &__g2 {
+        width: 100%;
+      }
+
+      &__percent {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        margin-top: -1.5em;
+        width: 100%;
+        text-align: center;
+        font-size: 1.5em;
+        span {
+          font-size: 2.5em;
+        }
+      }
     }
     &__data {
-      margin-left: 2em;
       flex: 4;
       display: flex;
       flex-direction: column;
@@ -113,7 +140,7 @@ export default class extends Mixins(DashboardMixin) {
         align-items: center;
         position: relative;
         overflow: hidden;
-        font-size: 1.2em;
+        font-size: 1.1em;
 
         label {
           flex: 1;
@@ -121,10 +148,15 @@ export default class extends Mixins(DashboardMixin) {
           color: #d8d8d8;
           margin-right: 1.5vh;
         }
-        span {
+        div {
           flex: 1;
-          font-size: 2em;
-          font-weight: bold;
+          span {
+            font-size: 2em;
+            font-weight: 900;
+            background: -webkit-linear-gradient(0, #35B5F5, #925ae0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+          }
         }
 
         &--online {
