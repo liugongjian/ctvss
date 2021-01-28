@@ -136,7 +136,7 @@ export default class extends Vue {
   .alert-header {
     display: flex;
     width: 100%;
-    border-bottom: 1px solid $borderGrey;
+    border-bottom: 1px solid #0187ee;
     margin-bottom: 15px;
     padding-bottom: 15px;
 
@@ -179,9 +179,9 @@ export default class extends Vue {
     &__image {
       flex: 1;
       position: relative;
-      border: 1px solid #516F8D;
-      border-left: 5px solid #648fb9;
-      border-right: 5px solid #648fb9;
+      border: 1px solid #0187ee;
+      border-left: 5px solid #0187ee;
+      border-right: 5px solid #0187ee;
       padding: 20px;
       &__wrap {
         position: relative;
@@ -236,7 +236,7 @@ export default class extends Vue {
           display: block;
           content: ' ';
           width: 10px;
-          border-top: 7px solid #648fb9;
+          border-top: 7px solid #0187ee;
         }
         &::before {
           left: 0;

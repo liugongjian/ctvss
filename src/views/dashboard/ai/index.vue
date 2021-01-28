@@ -208,7 +208,7 @@ export default class extends Vue {
 <style lang="scss" scoped>
   .dashboard-wrap {
     position: relative;
-    background-color: #232F3E;
+    background-color: #070f2e;
     height: 100%;
     width: 100%;
     font-size: 16px;
@@ -220,7 +220,7 @@ export default class extends Vue {
     }
   }
   .ai-recognation {
-    border: 2px solid #516F8D;
+    border: 2px solid #0185ea;
     margin: 8vh 5vh;
     padding: 2vh;
     position: relative;
@@ -237,7 +237,7 @@ export default class extends Vue {
         content: ' ';
         width: 10vh;
         height: 10vh;
-        border: 7px solid #648fb9;
+        border: 7px solid #0187ee;
       }
       &::before {
         left: -1px;
@@ -304,7 +304,7 @@ export default class extends Vue {
       position: relative;
       flex: 1;
       margin-top: 2vh;
-      border: 1px solid #648fb9;
+      border: 1px solid #0187ee;
       min-height: 30vh;
       display: flex;
       align-items: center;
@@ -345,9 +345,9 @@ export default class extends Vue {
         position: relative;
         width: 31%;
         margin: 1%;
-        border: 1px solid #516F8D;
-        border-left: 5px solid #648fb9;
-        border-right: 5px solid #648fb9;
+        border: 1px solid #0187ee;
+        border-left: 5px solid #0187ee;
+        border-right: 5px solid #0187ee;
         padding: 10px;
         cursor: pointer;
         &__wrap {
@@ -398,7 +398,7 @@ export default class extends Vue {
             display: block;
             content: ' ';
             width: 10px;
-            border-top: 7px solid #648fb9;
+            border-top: 7px solid #0187ee;
           }
           &::before {
             left: 0;
@@ -448,7 +448,7 @@ export default class extends Vue {
       align-items: center;
 
       &--fresh {
-        background: #516F8D;
+        background: #0185ea;
         border: none;
         padding: 15px 20px;
         color: #fff;

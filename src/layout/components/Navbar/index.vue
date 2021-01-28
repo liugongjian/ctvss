@@ -501,7 +501,7 @@ export default class extends Vue {
       line-height: 40px;
       background: #2c3c51;
       padding: 0 10px;
-      border-radius: 0 5px 5px 0;
+      border-radius: 0;
       ::v-deep svg {
         color: #7BB3E5;
       }

@@ -196,7 +196,7 @@ export default class extends Mixins(DashboardMixin) {
     this.chart
       .interval()
       .position('time*value')
-      .color('time', ['l(90) 0:#C054D1 1:#65CBD2'])
+      .color('time', ['l(90) 0:#65CBD2 1:#C054D1'])
     this.chart.axis('value', {
       grid: null,
       label: {
