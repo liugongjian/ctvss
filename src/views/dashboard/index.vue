@@ -69,7 +69,7 @@ export default class extends Vue {
       width: 28%;
       height: 80px;
       z-index: 10;
-      background: url('./images/left_bg@3x.png') no-repeat;
+      background: url('./images/left_bg.png') no-repeat;
       background-size: 100% auto;
     }
     &__header {
@@ -84,7 +84,7 @@ export default class extends Vue {
       padding: 15px 0 50px 0;
       text-align: center;
       letter-spacing: .5rem;
-      background: url('./images/title_bg@3x.png') no-repeat;
+      background: url('./images/title_bg.png') no-repeat;
       background-size: 100% 100%;
     }
 
