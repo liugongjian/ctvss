@@ -91,7 +91,7 @@ export default class extends Mixins(DashboardMixin) {
 <style lang="scss" scoped>
   .alert-list {
     list-style: none;
-    margin: 0 -0.5rem;
+    margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
@@ -104,9 +104,10 @@ export default class extends Mixins(DashboardMixin) {
       display: flex;
       align-items: center;
       padding: .4rem;
+      color: #d8d8d8;
       cursor: pointer;
       &:hover {
-        background: #374960;
+        background: #052777;
       }
     }
     &__level {
@@ -115,7 +116,7 @@ export default class extends Mixins(DashboardMixin) {
         color: #F4C46C;
       }
       &--serious {
-        color: #E56161;
+        color: #FF4949;
       }
     }
     &__datetime {

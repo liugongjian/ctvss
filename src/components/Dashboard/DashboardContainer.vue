@@ -1,7 +1,5 @@
 <template>
   <div class="dashboard-container">
-    <div class="dashboard-container__decorator--top" />
-    <div class="dashboard-container__decorator--bottom" />
     <div class="dashboard-container__header">
       <div class="dashboard-container__header__slot">
         <slot name="header" />
@@ -29,72 +27,22 @@ export default class extends Vue {
 <style lang="scss" scoped>
   .dashboard-container {
     position: relative;
-    border: 1px solid #3D536A;
     color: #fff;
-    padding: 1vh;
-    padding-bottom: 0;
-
-    // Decorator
-    &__decorator--top,
-    &__decorator--bottom {
-      position: absolute;
-      left: -1px;
-      width: 100%;
-      &::before, &::after {
-        position: absolute;
-        display: block;
-        content: ' ';
-        width: 40px;
-        height: 40px;
-        border: 3px solid #516F8D;
-      }
-      &::before {
-        left: -1px;
-      }
-      &::after {
-        right: -1px;
-      }
-    }
-    &__decorator--top {
-      top: -1px;
-      &::before {
-        border-right: 0;
-        border-bottom: 0;
-      }
-      &::after {
-        right: -1px;
-        border-left: 0;
-        border-bottom: 0;
-      }
-    }
-    &__decorator--bottom {
-      bottom: -1px;
-      &::before, &::after {
-        bottom: -1px;
-      }
-      &::before {
-        border-right: 0;
-        border-top: 0;
-      }
-      &::after {
-        right: -1px;
-        border-left: 0;
-        border-top: 0;
-      }
-    }
+    padding: 2.7vh 5vh 4vh 5vh;
+    background: url('./images/box@2x.png') no-repeat;
+    background-size: 100% 100%;
 
     // Header
     &__header {
-      background: linear-gradient(90deg, rgba(128, 173, 212, 0), rgba(128, 173, 212, 1) 100%);
+      background: linear-gradient(90deg, rgba(0, 46, 218, 0), rgba(0, 46, 218, 1) 50%, rgba(0, 46, 218, 0) 100%);
       height: 4vh;
       line-height: 4vh;
-      border-left: 5px solid #7BB3E5;
 
       &__title {
-        font-size: 1em;
+        font-size: 1.2em;
         font-weight: bold;
-        color: #98CFFF;
-        margin-left: 1em;
+        color: #fff;
+        text-align: center;
       }
       &__slot {
         float: right;

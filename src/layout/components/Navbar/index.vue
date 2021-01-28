@@ -43,7 +43,7 @@
       </template> -->
       <template v-if="routerName === 'AI' || routerName === 'dashboard'">
         <div class="links">
-          <a @click="routeToHome()">首页</a>
+          <a :class="{'actived': !queryAlertType}" @click="routeToHome()">首页</a>
           <a v-for="(type, key) in alertType" :key="key" :class="{'actived': queryAlertType === key.toString()}" @click="routeToAI(key)">{{ type }}</a>
         </div>
       </template>
@@ -481,7 +481,7 @@ export default class extends Vue {
       a, .el-button--text {
         color: #eee;
         &:hover {
-          background: #243243;
+          background: #242c43;
         }
       }
       .header-dropdown__divided {
@@ -512,7 +512,7 @@ export default class extends Vue {
     .right-menu {
       margin-right: 2em;
       line-height: 50px;
-      border-top: 3px solid #3a556e;
+      border-top: 3px solid #2c4e9b;
 
       a {
         display: inline-block;
@@ -520,16 +520,17 @@ export default class extends Vue {
         padding: 0 30px;
         margin-right: 10px;
         font-weight: bold;
-        background: rgba(50, 82, 121, 0.6);
+        background: #06266f;
         border-radius: 0 0 4px 4px;
-        border: 1px solid #597B9B;
+        border: 1px solid #2c4e9b;
         border-top: 0;
         font-size: 18px;
         &:last-child {
           margin: 0;
         }
-        &.actived {
-          color: $primary;
+        &.actived, &:hover {
+          background: #0091FF;
+          color: #fff;
         }
       }
     }

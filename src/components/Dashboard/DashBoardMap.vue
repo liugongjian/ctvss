@@ -135,8 +135,8 @@ export default class extends Vue {
       width: 40%;
       background-image: linear-gradient(
         to right,
-        rgb(35, 47, 62, 1) 80%,
-        rgb(35, 47, 62, 0)
+        rgb(7, 15, 46, 1) 80%,
+        rgb(7, 15, 46, 0)
       );
     }
     &--right {
@@ -148,8 +148,8 @@ export default class extends Vue {
       bottom: 0;
       background-image: linear-gradient(
         to left,
-        rgb(35, 47, 62, 1) 80%,
-        rgb(35, 47, 62, 0)
+        rgb(7, 15, 46, 1) 80%,
+        rgb(7, 15, 46, 0)
       );
     }
   }
