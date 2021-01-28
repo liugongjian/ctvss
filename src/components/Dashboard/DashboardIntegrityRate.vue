@@ -91,7 +91,7 @@ export default class extends Mixins(DashboardMixin) {
     for (let i = 0; i < 30; i++) {
       const mockTimestamp = todayTime - 3600 * (29 - i) * 24 * 1000
       const mockTime = dateFormatInTable('', '', mockTimestamp)
-      const itemBgColor = mockTimestamp > startTime ? 'background-color: rgba(124, 201, 111)' : ''
+      const itemBgColor = mockTimestamp > startTime ? 'background-color: rgb(101,203,210)' : ''
       this.data.push({
         time: mockTime.split(' ')[0],
         rate: 0,
@@ -196,7 +196,7 @@ export default class extends Mixins(DashboardMixin) {
     this.chart
       .interval()
       .position('time*value')
-      .color('value', ['#78c16c'])
+      .color('time', ['l(90) 0:#C054D1 1:#65CBD2'])
     this.chart.axis('value', {
       grid: null,
       label: {
@@ -232,8 +232,8 @@ export default class extends Mixins(DashboardMixin) {
       flex-wrap: wrap;
       width: 90%;
       height: 95%;
-      margin-right: 3%;
-      margin-left: -5%;
+      margin-right: 5%;
+      margin-left: -2%;
 
       &__item {
         display: flex;
@@ -248,8 +248,8 @@ export default class extends Mixins(DashboardMixin) {
           justify-content: center;
           background: #777;
           border-radius: 100%;
-          width: 4vh;
-          height: 4vh;
+          width: 3vh;
+          height: 3vh;
           color: white;
           span {
             -webkit-user-select:none;
@@ -263,11 +263,11 @@ export default class extends Mixins(DashboardMixin) {
 
     &__process {
       position: relative;
-      top: 20%;
+      top: 0%;
       /* (226, 97, 95), (124, 201, 111) */
-      background-image: linear-gradient(#E2615F, #7CC96F);
-      width: 3px;
-      height: 40%;
+      background-image: linear-gradient(#65CBD2, #C054D1);
+      width: 5px;
+      height: 75%;
       border-radius: 10px;
 
       &__span {
@@ -276,13 +276,15 @@ export default class extends Mixins(DashboardMixin) {
         left: 200%;
 
         &--top {
-          top: 0;
-          color: #E2615F;
+          top: -10%;
+          left: -6px;
+          color: #33DBE3;
         }
 
         &--bottom {
-          top: 90%;
-          color: #7CC96F;
+          bottom: -10%;
+          left: -10px;
+          color: #33DBE3;
         }
       }
     }
