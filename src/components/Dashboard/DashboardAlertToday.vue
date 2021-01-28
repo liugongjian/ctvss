@@ -82,7 +82,7 @@ export default class extends Mixins(DashboardMixin) {
     this.chart
       .interval()
       .position('type*value')
-      .color('type', ['#F4C46C', '#6F9FC9', '#E56161'])
+      .color('type', ['l(0) 0:#EDDE12 1:#FF810C', 'l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#9E10D7 1:#EB155B'])
       .label('value', {
         style: {
           fill: '#fff'
