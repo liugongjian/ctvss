@@ -45,8 +45,10 @@ export default class extends Vue {
         text-align: center;
       }
       &__slot {
-        float: right;
-        margin-right: 1em;
+        position: absolute;
+        z-index: 100;
+        top: 6.5vh;
+        left: 5.5vh;
       }
     }
 

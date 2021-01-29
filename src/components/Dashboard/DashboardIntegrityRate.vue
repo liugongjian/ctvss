@@ -91,7 +91,7 @@ export default class extends Mixins(DashboardMixin) {
     for (let i = 0; i < 30; i++) {
       const mockTimestamp = todayTime - 3600 * (29 - i) * 24 * 1000
       const mockTime = dateFormatInTable('', '', mockTimestamp)
-      const itemBgColor = mockTimestamp > startTime ? 'background-color: rgb(101,203,210)' : ''
+      const itemBgColor = mockTimestamp > startTime ? 'background-image: linear-gradient(#16E8FF, #007FDF);color:#08233F;' : ''
       this.data.push({
         time: mockTime.split(' ')[0],
         rate: 0,
@@ -232,6 +232,7 @@ export default class extends Mixins(DashboardMixin) {
       flex-wrap: wrap;
       width: 90%;
       height: 95%;
+      margin-top: 5%;
       margin-right: 5%;
       margin-left: -2%;
 
@@ -263,7 +264,7 @@ export default class extends Mixins(DashboardMixin) {
 
     &__process {
       position: relative;
-      top: 0%;
+      top: 5%;
       /* (226, 97, 95), (124, 201, 111) */
       background-image: linear-gradient(#65CBD2, #C054D1);
       width: 5px;

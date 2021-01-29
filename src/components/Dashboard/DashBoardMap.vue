@@ -86,15 +86,15 @@ export default class extends Vue {
             this.dirList[i].posX,
             this.dirList[i].posY
           ),
-          offset: new AMap.Pixel(0, -20),
+          offset: new AMap.Pixel(0, -22),
           zoom: 17
         })
         text.setStyle({
-          background: 'rgba(25, 35, 47, 0.8)',
+          backgroundImage: 'linear-gradient(90deg, #00B3E9, #002DC1)',
           border: 'none',
           color: '#fff',
           fontSize: '12px',
-          padding: '3px 4px'
+          padding: '4px 5px'
         })
         // mark.on('mouseover', onMarkOpen)
         // mark.on('mouseout', onMarkClose)

@@ -108,14 +108,16 @@ export default class extends Vue {
       width: 120px;
       .el-input__inner {
         background: none;
-        border-color: #0091ff;
+        border-color: transparent;
         color: #fff;
-        height: 3vh;
-        line-height: 3vh;
+        height: 2.5vh;
+        line-height: 2.5vh;
         border-radius: 0;
+        color: #65cbd2;
       }
       .el-input--small .el-input__icon {
-        line-height: 3vh;
+        line-height: 2.5vh;
+        color: #65cbd2;
       }
     }
 

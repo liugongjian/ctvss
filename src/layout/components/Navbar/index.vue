@@ -529,7 +529,7 @@ export default class extends Vue {
           margin: 0;
         }
         &.actived, &:hover {
-          background: #0091FF;
+          background-image: linear-gradient(#00B3E9, #002DC1);
           color: #fff;
         }
       }
