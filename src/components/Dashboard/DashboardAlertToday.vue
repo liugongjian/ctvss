@@ -56,7 +56,7 @@ export default class extends Mixins(DashboardMixin) {
       label: {
         offset: 25,
         style: {
-          fill: '#98CFFF',
+          fill: '#D8D8D8',
           fontSize: 14
         }
       }
@@ -82,10 +82,10 @@ export default class extends Mixins(DashboardMixin) {
     this.chart
       .interval()
       .position('type*value')
-      .color('type', ['#F4C46C', '#6F9FC9', '#E56161'])
+      .color('type', ['l(0) 0:#9E10D7 1:#EB155B', 'l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#EDDE12 1:#FF810C'])
       .label('value', {
         style: {
-          fill: '#fff'
+          fill: '#33DBE3'
         },
         offset: 10
       })

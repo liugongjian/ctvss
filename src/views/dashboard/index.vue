@@ -2,20 +2,20 @@
   <div
     class="dashboard-wrap"
   >
-    <img class="dashboard-wrap__bg" :src="require('@/assets/dashboard/header-bg.png')">
+    <div class="dashboard-wrap__decorator" />
     <div class="dashboard-wrap__header">
       {{ name === 'tzszf' ? '泰州智能视频云' : '中国电信视频云网平台' }}
     </div>
     <DashboardMap />
     <div class="dashboard-wrap__col dashboard-wrap__col--left">
-      <DashboardDevice height="16" />
-      <DashboardFlow height="25" />
-      <DashboardIntegrityRate height="25" />
+      <DashboardDevice height="19" />
+      <DashboardFlow height="19" />
+      <DashboardIntegrityRate height="19" />
     </div>
     <div class="dashboard-wrap__col dashboard-wrap__col--right">
-      <DashboardAlertLive height="26" />
-      <DashboardAlertToday height="15" />
-      <DashboardAlertTrend height="25" />
+      <DashboardAlertLive height="19" />
+      <DashboardAlertToday height="19" />
+      <DashboardAlertTrend height="19" />
     </div>
   </div>
 </template>
@@ -55,36 +55,37 @@ export default class extends Vue {
 <style lang="scss" scoped>
   .dashboard-wrap {
     position: relative;
-    background-color: #232F3E;
+    background-color: #000649;
     height: 100%;
     width: 100%;
     font-size: 16px;
     height: 100vh;
     overflow: auto;
 
-    &__bg {
+    &__decorator {
       position: absolute;
-      left: 30%;
-      top: -200px;
+      left: 0;
+      top: 0;
+      width: 28%;
+      height: 80px;
       z-index: 10;
+      background: url('./images/left_bg.png') no-repeat;
+      background-size: 100% auto;
     }
     &__header {
       position: absolute;
       z-index: 11;
       left: 50%;
       font-size: 1.8em;
-      color: #98CFFF;
+      color: #fff;
       font-weight: bold;
-      background: rgba(35, 59, 88, 0.6);
-      border: 2px solid #597B9B;
-      border-top: none;
-      width: 30%;
-      margin-left: -15%;
-      padding: 20px 0;
+      width: 40%;
+      margin-left: -20%;
+      padding: 15px 0 50px 0;
       text-align: center;
       letter-spacing: .5rem;
-      border-radius: 0 0 1em 1em;
-      box-shadow: 0 0 10px rgba(89, 123, 155, .5);
+      background: url('./images/title_bg.png') no-repeat;
+      background-size: 100% 100%;
     }
 
     &__col {
@@ -92,27 +93,31 @@ export default class extends Vue {
       width: 30%;
       top: 5vh;
       &--left {
-        left: 2em;
+        left: 0.5em;
       }
       &--right {
         position: absolute;
-        right: 2em;
+        right: 0.5em;
       }
       ::v-deep .dashboard-container {
-        margin-bottom: 2vh;
+        margin-bottom: -1.5vh;
       }
     }
 
     ::v-deep .el-select {
+      width: 120px;
       .el-input__inner {
-        background: #33475F;
-        border-color: #33475F;
+        background: none;
+        border-color: transparent;
         color: #fff;
-        height: 3vh;
-        line-height: 3vh;
+        height: 2.5vh;
+        line-height: 2.5vh;
+        border-radius: 0;
+        color: #65cbd2;
       }
       .el-input--small .el-input__icon {
-        line-height: 3vh;
+        line-height: 2.5vh;
+        color: #65cbd2;
       }
     }
 

@@ -29,14 +29,14 @@ export default class extends Vue {
     // @ts-ignore
     window.scriptLoad = () => {
       this.amap = new AMap.Map('amap-container', {
-        mapStyle: 'amap://styles/3836b8d6bbbf8fbff8a92d15cc17cbbc',
+        mapStyle: 'amap://styles/7a72d6ee8e4ef6ad7c80c5dd7e0bad69',
         center: [119.922920, 32.456453],
         zoom: window.outerWidth > 2000 ? 19 : 17,
         zooms: [10, 30],
         showLabel: false,
         viewMode: '3D',
         pitch: 60,
-        skyColor: '#1E3046'
+        skyColor: '#080f32'
       })
 
       // const onMarkOpen = (e: any) => {
@@ -60,7 +60,7 @@ export default class extends Vue {
       // }
       const icon = new AMap.Icon({
         size: new AMap.Size(25, 25),
-        image: require('../../icons/svg/ipc-green.svg'),
+        image: require('./images/ipc-green.svg'),
         imageOffset: new AMap.Pixel(0, 0),
         imageSize: new AMap.Size(25, 25)
       })
@@ -86,15 +86,15 @@ export default class extends Vue {
             this.dirList[i].posX,
             this.dirList[i].posY
           ),
-          offset: new AMap.Pixel(0, -20),
+          offset: new AMap.Pixel(0, -22),
           zoom: 17
         })
         text.setStyle({
-          background: 'rgba(25, 35, 47, 0.8)',
+          backgroundImage: 'linear-gradient(90deg, #00B3E9, #002DC1)',
           border: 'none',
           color: '#fff',
           fontSize: '12px',
-          padding: '3px 4px'
+          padding: '4px 5px'
         })
         // mark.on('mouseover', onMarkOpen)
         // mark.on('mouseout', onMarkClose)
@@ -108,7 +108,7 @@ export default class extends Vue {
     const script = document.createElement('script')
     script.type = 'text/javascript'
     script.src =
-      'https://webapi.amap.com/maps?v=1.4.15&key=71af8b44421cf4f91011a90a6e54c659&callback=scriptLoad'
+      'https://webapi.amap.com/maps?v=1.4.15&key=f94d6b44b13dddb7d32c48302cd6f794&callback=scriptLoad'
     document.head.appendChild(script)
   }
 
@@ -135,8 +135,8 @@ export default class extends Vue {
       width: 40%;
       background-image: linear-gradient(
         to right,
-        rgb(35, 47, 62, 1) 80%,
-        rgb(35, 47, 62, 0)
+        rgb(7, 15, 46, 1) 80%,
+        rgb(7, 15, 46, 0)
       );
     }
     &--right {
@@ -148,8 +148,8 @@ export default class extends Vue {
       bottom: 0;
       background-image: linear-gradient(
         to left,
-        rgb(35, 47, 62, 1) 80%,
-        rgb(35, 47, 62, 0)
+        rgb(7, 15, 46, 1) 80%,
+        rgb(7, 15, 46, 0)
       );
     }
   }
