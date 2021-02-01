@@ -172,6 +172,10 @@ export default class extends Mixins(DashboardMixin) {
     })
 
     this.chart.line().position('time*value').color('type', ['l(0) 0:#EDDE12 1:#FF810C', 'l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#9E10D7 1:#EB155B']).shape('smooth').style({ lineWidth: 3 })
+    this.chart.point().position('time*value').color('type', ['l(0) 0:#EDDE12 1:#FF810C', 'l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#9E10D7 1:#EB155B']).shape('circle').style({
+      stroke: '#08233F',
+      lineWidth: 1
+    })
     this.chart.render()
   }
 
