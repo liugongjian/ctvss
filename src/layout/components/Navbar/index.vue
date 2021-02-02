@@ -511,20 +511,20 @@ export default class extends Vue {
     }
     .right-menu {
       margin-right: 2em;
-      line-height: 50px;
+      line-height: 40px;
       border-top: 3px solid #2c4e9b;
 
       a {
         display: inline-block;
         cursor: pointer;
-        padding: 0 30px;
+        padding: 0 20px;
         margin-right: 10px;
         font-weight: bold;
         background: #06266f;
         border-radius: 0 0 4px 4px;
         border: 1px solid #2c4e9b;
         border-top: 0;
-        font-size: 18px;
+        font-size: 16px;
         &:last-child {
           margin: 0;
         }

@@ -99,7 +99,7 @@ export default class extends Mixins(DashboardMixin) {
     this.chart = new Chart({
       container: 'flow-container',
       autoFit: true,
-      padding: [10, 10, 45, 60]
+      padding: [20, 10, 45, 60]
     })
     this.chart.data(this.flowData)
     this.chart.scale({

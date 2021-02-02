@@ -36,6 +36,7 @@ export default class extends Mixins(DashboardMixin) {
     this.setInterval(this.getData.bind(this))
   }
   private alertType = AlertType
+  private alertTypeMapping = [1, 2, 3, 5]
 
   /**
    * 获取数据
@@ -55,27 +56,32 @@ export default class extends Mixins(DashboardMixin) {
         form: 'week',
         event: 3
       })
-      var data = await Promise.all([event1, event2, event3])
+      const event5 = getAuditTrend({
+        form: 'week',
+        event: 5
+      })
+      var data = await Promise.all([event1, event2, event3, event5])
       this.loading = false
       var nowTime = new Date().getTime()
       this.weeklyTrendData = []
       for (let i = 0; i < 7; i++) {
-        for (let j = 0; j < 3; j++) {
+        for (let j = 0; j < 4; j++) {
           this.weeklyTrendData.push({
             time: dateFormatInTable('', '', nowTime - i * 3600 * 24 * 1000).slice(5, 10),
-            type: this.alertType[j + 1],
+            type: this.alertType[this.alertTypeMapping[j]],
             value: 0
           })
         }
       }
       data.forEach((item, index) => {
         Object.keys(item.trend).forEach((key) => {
+          var currentType = this.alertType[this.alertTypeMapping[index]]
           var tableIndex = this.weeklyTrendData.findIndex((value: any) => {
-            return value.time === key.split(' ')[0].slice(-5) && value.type === this.alertType[index + 1]
+            return value.time === key.split(' ')[0].slice(-5) && value.type === currentType
           })
           this.weeklyTrendData[tableIndex] = {
             time: key.split(' ')[0].slice(-5),
-            type: this.alertType[index + 1],
+            type: currentType,
             value: parseInt(item.trend[key])
           }
         })
@@ -120,7 +126,7 @@ export default class extends Mixins(DashboardMixin) {
           marker: {
             symbol: 'square',
             style: {
-              fill: '#EB155B'
+              fill: '#FF810C'
             },
             spacing: 5
           }
@@ -142,7 +148,18 @@ export default class extends Mixins(DashboardMixin) {
           marker: {
             symbol: 'square',
             style: {
-              fill: '#FF810C'
+              fill: '#EB155B'
+            },
+            spacing: 5
+          }
+        },
+        {
+          name: '吸烟检测',
+          value: '吸烟检测',
+          marker: {
+            symbol: 'square',
+            style: {
+              fill: '#1CB500'
             },
             spacing: 5
           }
@@ -171,8 +188,8 @@ export default class extends Mixins(DashboardMixin) {
       }
     })
 
-    this.chart.line().position('time*value').color('type', ['l(0) 0:#EDDE12 1:#FF810C', 'l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#9E10D7 1:#EB155B']).shape('smooth').style({ lineWidth: 3 })
-    this.chart.point().position('time*value').color('type', ['l(0) 0:#EDDE12 1:#FF810C', 'l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#9E10D7 1:#EB155B']).shape('circle').style({
+    this.chart.line().position('time*value').color('type', ['l(0) 0:#B0FF1C 1:#1CB500', 'l(0) 0:#9E10D7 1:#EB155B', 'l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#EDDE12 1:#FF810C']).shape('smooth').style({ lineWidth: 3 })
+    this.chart.point().position('time*value').color('type', ['l(0) 0:#B0FF1C 1:#1CB500', 'l(0) 0:#9E10D7 1:#EB155B', 'l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#EDDE12 1:#FF810C']).shape('circle').style({
       stroke: '#08233F',
       lineWidth: 1
     })

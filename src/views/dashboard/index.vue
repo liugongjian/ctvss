@@ -74,7 +74,7 @@ export default class extends Vue {
     }
     &__header {
       position: absolute;
-      z-index: 11;
+      z-index: 1;
       left: 50%;
       font-size: 1.8em;
       color: #fff;
