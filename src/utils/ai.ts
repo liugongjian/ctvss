@@ -1,7 +1,19 @@
+/**
+ * @param type event id
+ * @param metaData AI接口返回的源数据
+ * @return {
+ *  top: 上边距,
+ *  left: 左边距,
+ *  width: 宽度,
+ *  height: 高度,
+ *  isWarning: 是否警告
+ * }
+ */
 export const parseMetaData = (type: string, metaData: any) => {
-  console.log(metaData)
+  console.log(metaData.Data)
   let locations = []
   switch (type) {
+    // 未带口罩
     case '1':
       locations = metaData.face_list && metaData.face_list.map((face: any) => {
         return {
@@ -10,6 +22,7 @@ export const parseMetaData = (type: string, metaData: any) => {
         }
       })
       break
+    // 人员聚集
     case '2':
       locations = metaData.result && metaData.result.map((face: any) => {
         return {
@@ -21,6 +34,7 @@ export const parseMetaData = (type: string, metaData: any) => {
         }
       })
       break
+    // 人员布控
     case '3':
       locations = metaData.data && metaData.data.map((face: any) => {
         return {
@@ -28,6 +42,23 @@ export const parseMetaData = (type: string, metaData: any) => {
           isWarning: true
         }
       })
+      break
+    // 抽烟检测
+    case '5':
+      if (metaData.Data && metaData.Data.DetectBoxes) {
+        const boxes = metaData.Data.DetectBoxes
+        for (let i = 0; i < boxes.length; i += 4) {
+          locations.push(
+            {
+              top: boxes[i + 1],
+              left: boxes[i],
+              width: boxes[i + 2],
+              height: boxes[i + 3],
+              isWarning: !!metaData.Data.DetectClses[i / 4]
+            }
+          )
+        }
+      }
   }
   return locations
 }
