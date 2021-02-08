@@ -56,6 +56,6 @@ export const durationFormatInVideo = (duration: number) => {
  * @param num 数字
  * @param n 位数
  */
-const prefixZero = (num: number, n: number) => {
+export const prefixZero = (num: number, n: number) => {
   return (Array(n).join('0') + num).slice(-n)
 }

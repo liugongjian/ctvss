@@ -78,7 +78,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { dateFormatInTable, dateFormat, durationFormatInTable } from '@/utils/date'
+import { dateFormatInTable, dateFormat, durationFormatInTable, prefixZero } from '@/utils/date'
 import Ctplayer from '../models/Ctplayer'
 import { getDeviceRecords, getDeviceRecord, getDeviceRecordStatistic, getDeviceRecordRule } from '@/api/device'
 import ReplayPlayerDialog from './dialogs/ReplayPlayer.vue'
@@ -124,8 +124,8 @@ export default class extends Vue {
       return time.getTime() > Date.now()
     },
     cellClassName: (date: any) => {
-      const monthStr = `${date.getFullYear()}-${date.getMonth() + 1}`
-      const dateStr = monthStr + `-${date.getDate()}`
+      const monthStr = `${date.getFullYear()}-${prefixZero(date.getMonth() + 1, 2)}`
+      const dateStr = monthStr + `-${prefixZero(date.getDate(), 2)}`
       const month = this.recordStatistic.get(monthStr)
       const hasRecords = month ? month.has(dateStr) : ''
       return hasRecords ? 'has-records' : ''
