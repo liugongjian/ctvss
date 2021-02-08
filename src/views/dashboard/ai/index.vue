@@ -30,7 +30,7 @@
                 </div> -->
               </div>
               <div v-if="type === '2'" class="ai-recognation__images__item__count" :class="{'ai-recognation__images__item__count--warning': currentImg && currentImg.locations && currentImg.locations.length > 10}">聚集人数: {{ currentImg && currentImg.locations && currentImg.locations.length || '-' }}</div>
-              <div class="ai-recognation__images__item--datetime">{{ currentImg && currentImg.timestamp }}</div>
+              <div class="ai-recognation__images__item--datetime">{{ currentImg.deviceName }} | {{ currentImg && currentImg.timestamp }}</div>
             </div>
             <player
               v-if="currentVideo"

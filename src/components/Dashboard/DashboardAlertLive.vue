@@ -79,7 +79,8 @@ export default class extends Mixins(DashboardMixin) {
       streamName: item.streamName,
       timestamp: item.timeStamp,
       metaData: item.metaData,
-      url: item.url
+      url: item.url,
+      deviceName: item.deviceName
     }
   }
 

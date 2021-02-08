@@ -11,6 +11,7 @@
     <div v-loading="loading" class="alert" :class="theme">
       <div class="alert-header">
         <div class="alert-header__type">事件类型: {{ alertType[audit.event] }}</div>
+        <div class="alert-header__device">{{ audit.deviceName }}</div>
         <div class="alert-header__datetime">{{ audit.timestamp }}</div>
       </div>
       <div v-if="error" class="alert-error">{{ error }}</div>
@@ -148,6 +149,10 @@ export default class extends Vue {
         color: #E56161;
       }
       margin-right: 10px;
+    }
+    &__device {
+      flex: 1;
+      text-align: right;
     }
     &__datetime {
       flex: 1;
