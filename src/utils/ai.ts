@@ -10,7 +10,6 @@
  * }
  */
 export const parseMetaData = (type: string, metaData: any) => {
-  console.log(metaData.Data)
   let locations = []
   switch (type) {
     // 未带口罩
