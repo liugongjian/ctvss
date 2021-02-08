@@ -332,6 +332,9 @@ export default class DeviceMixin extends Vue {
         id: node.data.id,
         type: node.data.type
       })
+      if (node.data.type === 'nvr') {
+        res.dirs = res.dirs.sort((left: any, right: any) => left.channelNum - right.channelNum)
+      }
       resolve(res.dirs)
     } catch (e) {
       console.log(e)
