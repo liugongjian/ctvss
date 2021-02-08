@@ -8,7 +8,8 @@
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="基本信息" name="info">
           <div>
-            <el-button v-if="!isAutoCreated" type="text" class="info-edit" @click="edit">编辑</el-button>
+            <!-- <el-button v-if="!isAutoCreated" type="text" class="info-edit" @click="edit">编辑</el-button> -->
+            <el-button type="text" class="info-edit" @click="edit">编辑</el-button>
             <info-list v-if="info && !isNVRChannel" label-width="110">
               <info-list-item label="设备类型:">{{ deviceType[info.deviceType] }}</info-list-item>
               <info-list-item label="设备名称:">{{ info.deviceName }}</info-list-item>
@@ -20,6 +21,7 @@
                 <info-list-item label="端口:">{{ info.devicePort || '-' }}</info-list-item>
               </template>
               <template v-if="info.deviceType === 'nvr'">
+                <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
                 <info-list-item label="自动创建子设备:">{{ createSubDevice[info.createSubDevice] }}</info-list-item>
                 <info-list-item label="通道数量:">{{ info.deviceStats && info.deviceStats.channelSize }}</info-list-item>
                 <info-list-item label="在线流数量:">{{ info.deviceStats && info.deviceStats.onlineSize }}</info-list-item>
@@ -32,7 +34,7 @@
             </info-list>
             <info-list v-if="info && isNVRChannel" label-width="110">
               <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
-              <info-list-item v-if="info.deviceChannels.length" label="通道号:">{{ info.deviceChannels[0].channelNum }}</info-list-item>
+              <info-list-item v-if="info.deviceChannels.length" label="通道号:">{{ 'D' + info.deviceChannels[0].channelNum }}</info-list-item>
               <info-list-item v-if="info.deviceChannels.length" label="通道名称:">{{ info.deviceChannels[0].channelName }}</info-list-item>
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
               <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>

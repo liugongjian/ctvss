@@ -425,7 +425,7 @@ export default class extends Vue {
               })
             }
           } else {
-            // NVR子设备
+            // NVR通道
             params = Object.assign(params, {
               deviceType: 'ipc',
               createSubDevice: this.isUpdate ? null : '2',

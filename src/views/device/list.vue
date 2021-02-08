@@ -88,7 +88,7 @@
         </el-table-column>
         <el-table-column v-if="isNVR" label="通道号" min-width="100">
           <template slot-scope="{row}">
-            {{ row.channelNum }}
+            {{ 'D' + row.channelNum }}
           </template>
         </el-table-column>
         <el-table-column
@@ -408,7 +408,7 @@ export default class extends Vue {
       })
       if (type === 'nvr' || type === 'platform') {
         this.deviceInfo = res
-        this.deviceList = this.deviceInfo.deviceChannels.map((channel: any) => {
+        const deviceList = this.deviceInfo.deviceChannels.map((channel: any) => {
           channel.deviceType = 'ipc'
           channel.transPriority = this.deviceInfo.transPriority
           channel.sipTransType = this.deviceInfo.sipTransType
@@ -416,6 +416,11 @@ export default class extends Vue {
           channel.deviceName = channel.channelName
           return channel
         })
+        if (type === 'nvr') {
+          this.deviceList = deviceList.sort((left: any, right: any) => left.channelNum - right.channelNum)
+        } else {
+          this.deviceList = deviceList
+        }
       } else if (type === 'ipc') {
         this.deviceInfo = null
         if (res.parentDeviceId !== '-1' && res.deviceChannels.length) {
