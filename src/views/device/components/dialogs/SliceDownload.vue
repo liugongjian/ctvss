@@ -23,16 +23,10 @@
           placeholder="选择日期"
         />
       </el-form-item>
-      <el-form-item label="时间区间:" prop="time">
-        <el-time-picker
-          v-model="form.time"
-          is-range
-          class="form-date"
-          range-separator="至"
-          start-placeholder="开始时间"
-          end-placeholder="结束时间"
-          placeholder="选择时间范围"
-        />
+      <el-form-item label="时间区间:" prop="endTime">
+        <vue-timepicker v-model="form.startTime" placeholder="开始时间" format="HH:mm:ss" hour-label="时" minute-label="分" second-label="秒" />
+        <span class="time-range-gap">至</span>
+        <vue-timepicker v-model="form.endTime" placeholder="结束时间" format="HH:mm:ss" hour-label="时" minute-label="分" second-label="秒" />
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -46,9 +40,13 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { getDeviceRecord } from '@/api/device'
+import VueTimepicker from 'vue2-timepicker'
 
 @Component({
-  name: 'SliceDownload'
+  name: 'SliceDownload',
+  components: {
+    VueTimepicker
+  }
 })
 export default class extends Vue {
   @Prop()
@@ -58,20 +56,22 @@ export default class extends Vue {
   private today = new Date()
   private form: any = {
     date: this.today,
-    time: [new Date(this.today.getFullYear(), this.today.getMonth(), this.today.getDate(), 0, 0), new Date(this.today.getFullYear(), this.today.getMonth(), this.today.getDate(), 2, 0)]
+    startTime: { HH: '00', mm: '00', ss: '00' },
+    endTime: { HH: '00', mm: '00', ss: '00' }
   }
   private rules = {
     date: [
       { required: true, message: '请选择日期', trigger: 'submit' }
     ],
-    time: [
+    endTime: [
       { required: true, message: '请选择时间区间', trigger: 'submit' },
       { validator: this.validateTime, trigger: 'change' }
     ]
   }
 
   private validateTime(rule: any, value: string, callback: Function) {
-    if (this.form.time[1].getTime() - this.form.time[0].getTime() > 2 * 3600 * 1000) {
+    const { startTime, endTime } = this.getRangeTime()
+    if (endTime - startTime > 2 * 3600 * 1000) {
       callback(new Error('录像切片间隔不能超过2小时'))
     } else {
       callback()
@@ -84,11 +84,7 @@ export default class extends Vue {
       if (valid) {
         try {
           this.submitting = true
-          const year = this.form.date.getFullYear()
-          const month = this.form.date.getMonth()
-          const date = this.form.date.getDate()
-          const startTime = new Date(year, month, date, this.form.time[0].getHours(), this.form.time[0].getMinutes(), this.form.time[0].getSeconds()).getTime()
-          const endTime = new Date(year, month, date, this.form.time[1].getHours(), this.form.time[1].getMinutes(), this.form.time[1].getSeconds()).getTime()
+          const { startTime, endTime } = this.getRangeTime()
           const res = await getDeviceRecord({
             deviceId: this.deviceId,
             startTime: startTime / 1000,
@@ -114,11 +110,29 @@ export default class extends Vue {
     this.dialogVisible = false
     this.$emit('on-close', isRefresh)
   }
+
+  private getRangeTime() {
+    const year = this.form.date.getFullYear()
+    const month = this.form.date.getMonth()
+    const date = this.form.date.getDate()
+    const startTime = new Date(year, month, date, this.form.startTime.HH, this.form.startTime.mm, this.form.startTime.ss).getTime()
+    const endTime = new Date(year, month, date, this.form.endTime.HH, this.form.endTime.mm, this.form.endTime.ss).getTime()
+    return {
+      startTime,
+      endTime
+    }
+  }
 }
 </script>
 <style lang="scss" scoped>
   .form {
     margin: 0;
+    ::v-deep .vue__time-picker, ::v-deep .vue__time-picker input.display-time {
+      width: 132px;
+    }
+    .time-range-gap {
+      margin: 0 10px;
+    }
   }
   .form-date {
     width: 100%;

@@ -1,11 +1,12 @@
 import Vue, { DirectiveOptions } from 'vue'
 
-import 'normalize.css'
 import ElementUI from 'element-ui'
 import SvgIcon from 'vue-svgicon'
 import InfoList from '@/components/InfoList'
 import ShowAlert from '@/components/ShowAlert'
 
+import 'normalize.css'
+import 'vue2-timepicker/dist/VueTimepicker.css'
 import '@/styles/element-variables.scss'
 import '@/styles/index.scss'
 
