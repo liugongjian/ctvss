@@ -46,6 +46,7 @@
           </div>
         </div>
         <div class="ai-recognation__images__wrap">
+          <div v-if="!loading.list && !imageList.length" class="ai-recognation__empty">暂无{{ alertType[type] }}告警</div>
           <div v-loading="loading.list" class="ai-recognation__images">
             <div v-for="(img, index) in imageList" :key="index" class="ai-recognation__images__item" :class="{'actived': currentImg && img.timestamp === currentImg.timestamp}" @click="getRecordAudits(img)">
               <div class="ai-recognation__images__item__decorator--top" />
@@ -224,6 +225,12 @@ export default class extends Vue {
     margin: 8vh 5vh;
     padding: 2vh;
     position: relative;
+
+    &__empty {
+      color: #fff;
+      text-align: center;
+      margin-top: 240px;
+    }
 
     // Decorator
     &__decorator--top,
