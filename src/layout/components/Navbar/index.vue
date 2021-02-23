@@ -67,7 +67,7 @@
           </div>
         </div>
         <div class="links">
-          <a target="_blank" href="/document/api/">API文档</a>
+          <a target="_blank" href="http://vcn.ctyun.cn/document/api/">API文档</a>
         </div>
         <div class="user-container">
           <div class="user-container__menu">
