@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: vss-portal-web
+  namespace: vss-test
   labels:
     app: vss-portal-web
 spec:
