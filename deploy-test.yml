@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vss-portal-web
+  labels:
+    app: vss-portal-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vss-portal-web
+  template:
+    metadata:
+      labels:
+        app: vss-portal-web
+    spec:
+      containers:
+      - name: vss-portal-web
+        image: 10.95.123.130:7080/ctyun/vss-portal-web:temptag
+        command:
+          - nginx
+        args:
+          - '-g daemon off;'
+        ports:
+        - containerPort: 80
+      nodeSelector:
+        node: vss-web
