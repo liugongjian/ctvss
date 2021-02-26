@@ -1,5 +1,5 @@
 <template>
-  <DashboardContainer title="今日告警信息">
+  <DashboardContainer title="今日告警统计">
     <div ref="chart" :style="`height:${height}vh`" />
   </DashboardContainer>
 </template>
