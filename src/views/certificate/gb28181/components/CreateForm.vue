@@ -72,10 +72,10 @@ export default class extends Vue {
     if (!value && !this.disabled) {
       callback(new Error('请输入密码'))
     } else {
-      if (this.form.newPassword !== '') {
-        const form: any = this.$refs.dataForm
-        form.validateField('confirmPassword')
-      }
+      // if (this.form.newPassword !== '') {
+      //   const form: any = this.$refs.dataForm
+      //   form.validateField('confirmPassword')
+      // }
       callback()
     }
   }
