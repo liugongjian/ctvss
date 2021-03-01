@@ -40,7 +40,7 @@
         @onFullscreen="fullscreen()"
         @onExitFullscreen="exitFullscreen()"
       />
-      <div v-else-if="!loading" class="replay-player">
+      <div v-if="replayType === 'cloud' && !recordList.length && !loading" class="replay-player">
         <div class="empty-text">
           该时段暂无录像
           <div v-if="hasPlaylive">
