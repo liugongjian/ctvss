@@ -22,8 +22,8 @@
                 :class="{'ai-recognation__images__item__mask--warning': location.isWarning}"
                 :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
               >
-                <div v-if="type === '6'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
-                  {{ aiMaskType[location.type] }}
+                <div v-if="type === '1'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
+                  {{ location.isWarning ? '未戴口罩' : '戴口罩' }}
                 </div>
                 <!-- <div v-if="type === '3'" class="ai-recognation__images__item__mask__text ai-recognation__images__item__mask__text--warning">
                   {{ location.label }}
@@ -60,8 +60,8 @@
                   :class="{'ai-recognation__images__item__mask--warning': location.isWarning}"
                   :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
                 >
-                  <div v-if="type === '6'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
-                    {{ aiMaskType[location.type] }}
+                  <div v-if="type === '1'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
+                    {{ location.isWarning ? '未戴口罩' : '戴口罩' }}
                   </div>
                   <!-- <div v-if="type === '3'" class="ai-recognation__images__item__mask__text ai-recognation__images__item__mask__text--warning">
                     {{ location.label }}
@@ -91,8 +91,8 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import { getRecordAuditEvents } from '@/api/dashboard'
-import { AlertType, AiMaskType } from '@/dics'
+import { getRecordAuditEvents, getRecordAudits } from '@/api/dashboard'
+import { AlertType } from '@/dics'
 import { parseMetaData } from '@/utils/ai'
 import Player from '@/views/device/components/Player.vue'
 
@@ -104,7 +104,6 @@ import Player from '@/views/device/components/Player.vue'
 })
 export default class extends Vue {
   private alertType = AlertType
-  private aiMaskType = AiMaskType
   private currentImg: any = null
   private currentVideo: any = null
   private pager = {
@@ -192,7 +191,6 @@ export default class extends Vue {
       location.clientWidthPercent = location.width * ratio / img.clientWidth * 100
       location.clientHeightPercent = location.height * ratio / img.clientHeight * 100
     })
-    console.log(locations)
     this.$set(this.imageList[index], 'locations', locations)
   }
 
