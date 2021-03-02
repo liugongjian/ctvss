@@ -44,7 +44,7 @@
       <template v-if="routerName === 'AI' || routerName === 'dashboard'">
         <div class="links">
           <a :class="{'actived': !queryAlertType}" @click="routeToHome()">首页</a>
-          <a v-for="type in alertTypeList" :key="type.key" :class="{'actived': queryAlertType === type.key.toString()}" @click="routeToAI(type.key)">{{ type.value }}</a>
+          <a v-for="(type, key) in alertType" :key="key" :class="{'actived': queryAlertType === key.toString()}" @click="routeToAI(key)">{{ type }}</a>
         </div>
       </template>
       <template v-else>
@@ -170,26 +170,6 @@ export default class extends Vue {
 
   get queryAlertType() {
     return this.$route.query.type
-  }
-
-  get alertTypeList() {
-    const list = []
-    const sort: any = {
-      6: 1,
-      2: 2,
-      3: 3,
-      5: 5
-    }
-    for (const key in this.alertType) {
-      list.push({
-        key,
-        value: this.alertType[key]
-      })
-    }
-    list.sort(function(a, b) {
-      return sort[a.key] - sort[b.key]
-    })
-    return list
   }
 
   @Watch('currentGroupId', { immediate: true })
