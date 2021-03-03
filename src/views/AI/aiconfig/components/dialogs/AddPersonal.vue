@@ -44,7 +44,8 @@
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { addPersonalInfo } from '@/api/ai'
+import { addPersonalInfo } from '@/api/aiConfig'
+import { encodeBase64 } from '@/utils/base64'
 
 @Component({
   name: 'AddPersonal'
@@ -67,13 +68,13 @@ export default class extends Vue {
       { required: true, message: '请输入姓名', trigger: 'blur' }
     ],
     cardId: [
-      { required: true, message: '请输入身份证号', trigger: 'blur' },
+      { message: '请输入身份证号', trigger: 'blur' },
       { validator: this.validateCertificate, trigger: 'blur' }
     ]
   }
 
   private validateCertificate(rule: any, value: string, callback: any) {
-    if (!/^[0-9]{17}[0-9a-zA-Z]{1}$/.test(value)) {
+    if (value && !/^[0-9]{17}[0-9a-zA-Z]{1}$/.test(value)) {
       callback(new Error('身份证格式错误'))
     } else {
       callback()
@@ -96,14 +97,22 @@ export default class extends Vue {
     this.form.imageName = file.raw.name
     reader.onload = (e: any) => {
       this.form.imageString = e.target.result
-      console.log(this.form.imageString)
     }
   }
 
   private async addPersonalInfo() {
     try {
       this.loading = true
-      await addPersonalInfo(this.form)
+      const labels = {
+        name: this.form.name,
+        cardId: this.form.cardId,
+        description: this.form.description
+      }
+      const params = {
+        labels: JSON.stringify(labels),
+        imageString: encodeBase64(this.form.imageString)
+      }
+      await addPersonalInfo(params)
       this.closeDialog(true)
     } catch (e) {
       this.$message.error(e && e.message)
