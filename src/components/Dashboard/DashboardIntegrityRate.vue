@@ -33,8 +33,8 @@
         </div>
       </div>
       <div class="content__process">
-        <span class="content__process__span content__process__span--top">0%</span>
-        <span class="content__process__span content__process__span--bottom">100%</span>
+        <span class="content__process__span content__process__span--top">100%</span>
+        <span class="content__process__span content__process__span--bottom">0%</span>
       </div>
     </div>
     <div v-show="selectValue === '1'" id="chartContainer" :style="`height:${height}vh`" />
@@ -49,7 +49,7 @@ import DashboardMixin from './DashboardMixin'
 import { dateFormatInTable } from '@/utils/date'
 
 @Component({
-  name: 'DashboardDevice',
+  name: 'DashboardIntegrityRate',
   components: { DashboardContainer }
 })
 export default class extends Mixins(DashboardMixin) {
@@ -94,7 +94,7 @@ export default class extends Mixins(DashboardMixin) {
       const itemBgColor = mockTimestamp > startTime ? 'background-image: linear-gradient(#16E8FF, #007FDF);color:#08233F;' : ''
       this.data.push({
         time: mockTime.split(' ')[0],
-        rate: 0,
+        rate: 1,
         day: parseInt(mockTime.split(' ')[0].split('-')[2]),
         itemBgColor
       })
