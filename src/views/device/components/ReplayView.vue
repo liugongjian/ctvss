@@ -40,6 +40,14 @@
         @onFullscreen="fullscreen()"
         @onExitFullscreen="exitFullscreen()"
       />
+      <div v-if="replayType === 'cloud' && !recordList.length && !loading" class="replay-player">
+        <div class="empty-text">
+          该时段暂无录像
+          <div v-if="hasPlaylive">
+            <el-button type="text" @click="playlive">返回实时预览</el-button>
+          </div>
+        </div>
+      </div>
       <replay-player-local
         v-if="replayType === 'local'"
         :current-date="currentDate"

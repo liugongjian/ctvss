@@ -7,7 +7,7 @@
           {{ alertLevel[item.level] }}
         </div>
         <div class="alert-list__type">{{ alertType[item.event] }}</div>
-        <div class="alert-list__datetime">{{ item.timeStamp }}</div>
+        <div class="alert-list__datetime">{{ item.formatedTime }}</div>
       </li>
     </ul>
     <audio ref="audio" :src="require('@/assets/dashboard/alert.mp3')" preload="auto" />
@@ -21,6 +21,7 @@ import DashboardMixin from './DashboardMixin'
 import { AlertType, AlertLevel, AlertIcon } from '@/dics'
 import DashboardContainer from './DashboardContainer.vue'
 import { getAuditList } from '@/api/dashboard'
+import { dateFormat } from '@/utils/date'
 import DashboardAlertLiveDetailDialog from './DashboardAlertLiveDetailDialog.vue'
 
 @Component({
@@ -53,6 +54,7 @@ export default class extends Mixins(DashboardMixin) {
         item.id = Math.random().toString(16).slice(-10)
         item.level = this.checkLevel(item)
         item.isNew = this.lastTime && (new Date(item.timeStamp).getTime() > this.lastTime)
+        item.formatedTime = dateFormat(new Date(item.timeStamp), 'MM-dd HH:mm:ss')
       })
       if (this.list.some((item: any) => item.isNew)) {
         const audio: any = this.$refs.audio

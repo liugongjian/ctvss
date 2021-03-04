@@ -40,8 +40,8 @@
               :class="{'alert-body__image__mask--warning': location.isWarning}"
               :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
             >
-              <div v-if="audit.event === '1'" class="alert-body__image__mask__text" :class="{'alert-body__image__mask__text--warning': location.isWarning}">
-                {{ location.isWarning ? '未戴口罩' : '戴口罩' }}
+              <div v-if="audit.event === '6'" class="alert-body__image__mask__text" :class="{'alert-body__image__mask__text--warning': location.isWarning}">
+                {{ aiMaskType[location.type] }}
               </div>
               <!-- <div v-if="audit.event === '3'" class="alert-body__image__mask__text alert-body__image__mask__text--warning">
                 {{ location.label }}
@@ -57,7 +57,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { getRecordAudits } from '@/api/dashboard'
-import { AlertType, AlertLevel, AlertIcon } from '@/dics'
+import { AlertType, AlertLevel, AlertIcon, AiMaskType } from '@/dics'
 import { parseMetaData } from '@/utils/ai'
 import Player from '@/views/device/components/Player.vue'
 
@@ -73,6 +73,7 @@ export default class extends Vue {
   private alertType = AlertType
   private alertLevel = AlertLevel
   private alertIcon = AlertIcon
+  private aiMaskType = AiMaskType
   private dialogVisible = true
   private auditDetail: any = null
   private loading = false
