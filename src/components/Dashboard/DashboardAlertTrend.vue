@@ -36,7 +36,7 @@ export default class extends Mixins(DashboardMixin) {
     this.setInterval(this.getData.bind(this))
   }
   private alertType = AlertType
-  private alertTypeMapping = [6, 2, 3, 5]
+  private alertTypeMapping = [6, 2, 4, 5]
 
   /**
    * 获取数据
@@ -54,7 +54,7 @@ export default class extends Mixins(DashboardMixin) {
       })
       const event3 = getAuditTrend({
         form: 'week',
-        event: 3
+        event: 4
       })
       const event5 = getAuditTrend({
         form: 'week',

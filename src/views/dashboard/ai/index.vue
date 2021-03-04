@@ -192,7 +192,6 @@ export default class extends Vue {
       location.clientWidthPercent = location.width * ratio / img.clientWidth * 100
       location.clientHeightPercent = location.height * ratio / img.clientHeight * 100
     })
-    console.log(locations)
     this.$set(this.imageList[index], 'locations', locations)
   }
 
