@@ -3,12 +3,11 @@
     <el-button type="primary" class="add-group" @click="showAddGroupDialog = true">添加群组</el-button>
     <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
     <el-table v-loading="loading" :data="dataList">
-      <el-table-column prop="name" label="组名" align="center" />
-      <el-table-column prop="description" label="描述" align="center" />
-      <el-table-column prop="num" label="人数" width="140" align="center" />
-      <el-table-column prop="createTime" label="创建时间" width="220" align="center" />
-      <el-table-column prop="updateTime" label="更新时间" width="220" align="center" />
-      <el-table-column label="操作" align="center" width="140">
+      <el-table-column prop="name" label="组名" />
+      <el-table-column prop="num" label="人数" width="140" />
+      <el-table-column prop="createdTime" label="创建时间" />
+      <el-table-column prop="updatedTime" label="更新时间" />
+      <el-table-column label="操作" width="140">
         <template slot-scope="scope">
           <el-button type="text" @click="correlationWith(scope.row)">关联</el-button>
         </template>

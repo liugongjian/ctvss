@@ -34,3 +34,24 @@ export const bindGroupPerson = (data: any): Promise<any> =>
     method: 'post',
     data
   })
+
+export const getPersonalList = (params: any) =>
+  request({
+    url: '/face/list',
+    method: 'get',
+    params
+  })
+
+export const addPersonalInfo = (params: any) =>
+  request({
+    url: '/face/create',
+    method: 'post',
+    data: params
+  })
+
+export const deletePersonalInfo = (params: any) =>
+  request({
+    url: '/face/delete',
+    method: 'post',
+    data: params
+  })

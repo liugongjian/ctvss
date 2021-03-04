@@ -13,7 +13,7 @@
       filterable
       :filter-method="filterMethod"
       :props="{
-        key: 'id',
+        key: 'faceSampleId',
         label: 'name'
       }"
       :titles="['未绑定', '已绑定']"
@@ -30,7 +30,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { getGroupPersonLeft, getGroupPersonAlready, bindGroupPerson } from '@/api/aiConfig'
 @Component({
-  name: 'AddGroup'
+  name: 'CorrelationWith'
 })
 export default class extends Vue {
   @Prop() private groupId?: string
@@ -50,11 +50,14 @@ export default class extends Vue {
   private async getList() {
     try {
       this.loading = true
-      const leftData = await getGroupPersonLeft({ id: this.groupId })
-      const alreadyData = this.alreadyList = await getGroupPersonAlready({ id: this.groupId })
+      const _leftData = await getGroupPersonLeft({ id: this.groupId })
+      const _alreadyData = await getGroupPersonAlready({ id: this.groupId })
+      const leftData = this.formateList(_leftData)
+      const alreadyData = this.formateList(_alreadyData)
+      this.alreadyList = alreadyData
       this.loading = false
-      this.nameList = leftData.faces.concat(alreadyData.faces.map((already: any) => ({ ...already, disabled: true })))
-      this.nameModel = alreadyData.faces.map((already: { id: any }) => already.id)
+      this.nameList = leftData.concat(alreadyData)
+      this.nameModel = alreadyData.map((already: { faceSampleId: any }) => already.faceSampleId)
     } catch (e) {
       this.loading = false
       this.$message.error(e && e.message)
@@ -66,7 +69,7 @@ export default class extends Vue {
       this.loading = true
       await bindGroupPerson({
         groupId: this.groupId,
-        faceId: this.nameModel.filter(name => this.alreadyList.faces.findIndex((already: any) => already.id === name) === -1)
+        faceId: this.nameModel
       })
       this.loading = false
       this.$message.success('绑定成功')
@@ -78,12 +81,27 @@ export default class extends Vue {
   }
 
   private filterMethod(query: string, item: any) {
+    if (!item.name) return false
     return item.name.indexOf(query) > -1
   }
 
   private handleChange(value: any, direction: any, movedKeys: any) {
     console.log(value, direction, movedKeys)
     console.log('nameModel: ', this.nameModel)
+  }
+
+  private formateList(data: any) {
+    if (!data.faces) return []
+    return data.faces.map((person: any) => {
+      if (person.labels && person.labels.startsWith('{')) {
+        return {
+          ...person,
+          ...JSON.parse(person.labels)
+        }
+      } else {
+        return person
+      }
+    })
   }
 }
 </script>

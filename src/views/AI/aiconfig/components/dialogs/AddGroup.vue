@@ -17,9 +17,6 @@
       <el-form-item label="组名:" prop="name">
         <el-input v-model="form.name" />
       </el-form-item>
-      <el-form-item label="模板备注" prop="description">
-        <el-input v-model="form.description" type="textarea" />
-      </el-form-item>
     </el-form>
     <div slot="footer" align="center">
       <el-button type="primary" :loading="loading" @click="doAddGroup">{{ '确定' }}</el-button>
