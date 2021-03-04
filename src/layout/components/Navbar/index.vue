@@ -177,7 +177,7 @@ export default class extends Vue {
     const sort: any = {
       6: 1,
       2: 2,
-      3: 3,
+      4: 4,
       5: 5
     }
     for (const key in this.alertType) {

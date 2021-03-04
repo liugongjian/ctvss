@@ -33,12 +33,24 @@ export const parseMetaData = (type: string, metaData: any) => {
         }
       })
       break
-    // 人员布控
+      // 人员布控
     case '3':
       locations = metaData.data && metaData.data.map((face: any) => {
         return {
           ...face.location,
           isWarning: true
+        }
+      })
+      break
+    // 研发二部人员布控
+    case '4':
+      locations = metaData.Data && metaData.Data.MatchList.map((person: any) => {
+        return {
+          top: person.Location.Y,
+          left: person.Location.X,
+          width: person.Location.Width,
+          height: person.Location.Height,
+          isWarning: person.FaceItems.length > 0
         }
       })
       break
