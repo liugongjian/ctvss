@@ -48,7 +48,7 @@
         <div class="ai-recognation__images__wrap">
           <div v-if="!loading.list && !imageList.length" class="ai-recognation__empty">暂无{{ alertType[type] }}告警</div>
           <div v-loading="loading.list" class="ai-recognation__images">
-            <div v-for="(img, index) in imageList" :key="index" class="ai-recognation__images__item" :class="{'actived': currentImg && img.timestamp === currentImg.timestamp}" @click="getRecordAudits(img)">
+            <div v-for="(img, index) in imageList" :key="index" class="ai-recognation__images__item" :class="{'actived': currentImg && img.timestamp === currentImg.timestamp && img.streamName === currentImg.streamName}" @click="getRecordAudits(img)">
               <div class="ai-recognation__images__item__decorator--top" />
               <div class="ai-recognation__images__item__decorator--bottom" />
               <div class="ai-recognation__images__item__wrap">
