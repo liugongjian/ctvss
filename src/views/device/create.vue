@@ -126,7 +126,7 @@
         </el-form-item>
         <el-form-item label="通道名称:" prop="channelName" class="form-with-tip">
           <el-input v-model="form.channelName" />
-          <div class="form-tip">4-16位，可包含大小写字母、数字、中文、中划线。</div>
+          <div class="form-tip">2-16位，可包含大小写字母、数字、中文、中划线。</div>
         </el-form-item>
       </template>
       <el-form-item label="">
