@@ -25,7 +25,7 @@
                 <div v-if="type === '6'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
                   {{ aiMaskType[location.type] }}
                 </div>
-                <div v-if="type === '4'" class="ai-recognation__images__item__mask__text ai-recognation__images__item__mask__text--warning">
+                <div v-if="type === '4'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
                   匹配度:{{ location.score }}%
                 </div>
                 <!-- <div v-if="type === '3'" class="ai-recognation__images__item__mask__text ai-recognation__images__item__mask__text--warning">
@@ -66,7 +66,7 @@
                   <div v-if="type === '6'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
                     {{ aiMaskType[location.type] }}
                   </div>
-                  <div v-if="type === '4'" class="ai-recognation__images__item__mask__text ai-recognation__images__item__mask__text--warning">
+                  <div v-if="type === '4'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
                     匹配度:{{ location.score }}%
                   </div>
                   <!-- <div v-if="type === '3'" class="ai-recognation__images__item__mask__text ai-recognation__images__item__mask__text--warning">
