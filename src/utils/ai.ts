@@ -50,7 +50,8 @@ export const parseMetaData = (type: string, metaData: any) => {
           left: person.Location.X,
           width: person.Location.Width,
           height: person.Location.Height,
-          isWarning: person.FaceItems.length > 0
+          isWarning: person.FaceItems.length > 0,
+          score: person.FaceItems.length > 0 && Math.round(person.FaceItems[0].Score)
         }
       })
       break
