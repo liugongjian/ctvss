@@ -788,13 +788,13 @@ export default class extends Vue {
     const csvExporter = new ExportToCsv(options)
     const data = this.selectedDeviceList.map((device: Device) => {
       return {
-        '设备ID': device.deviceId,
+        '设备ID': `${device.deviceId}\t`,
         '设备名称': device.deviceName,
         '类型': device.deviceType,
         '厂商': device.deviceVendor,
         '设备IP': device.deviceIp,
         '设备端口': device.devicePort,
-        '国标ID': device.gbId,
+        '国标ID': `${device.gbId}\t`,
         '信令传输模式': device.sipTransType,
         '流传输模式': device.streamTransType,
         '优先TCP传输': device.transPriority,
