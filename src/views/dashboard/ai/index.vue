@@ -25,6 +25,9 @@
                 <div v-if="type === '6'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
                   {{ aiMaskType[location.type] }}
                 </div>
+                <div v-if="type === '4'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
+                  匹配度:{{ location.score }}%
+                </div>
                 <!-- <div v-if="type === '3'" class="ai-recognation__images__item__mask__text ai-recognation__images__item__mask__text--warning">
                   {{ location.label }}
                 </div> -->
@@ -62,6 +65,9 @@
                 >
                   <div v-if="type === '6'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
                     {{ aiMaskType[location.type] }}
+                  </div>
+                  <div v-if="type === '4'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
+                    匹配度:{{ location.score }}%
                   </div>
                   <!-- <div v-if="type === '3'" class="ai-recognation__images__item__mask__text ai-recognation__images__item__mask__text--warning">
                     {{ location.label }}
@@ -192,7 +198,6 @@ export default class extends Vue {
       location.clientWidthPercent = location.width * ratio / img.clientWidth * 100
       location.clientHeightPercent = location.height * ratio / img.clientHeight * 100
     })
-    console.log(locations)
     this.$set(this.imageList[index], 'locations', locations)
   }
 

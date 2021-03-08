@@ -31,7 +31,7 @@ export default class extends Mixins(DashboardMixin) {
     this.chartData = [
       { type: '未带口罩', value: parseInt(data.trend[6] || 0) },
       { type: '人员聚集', value: parseInt(data.trend[2] || 0) },
-      { type: '人员布控', value: parseInt(data.trend[3] || 0) },
+      { type: '人员布控', value: parseInt(data.trend[4] || 0) },
       { type: '吸烟检测', value: parseInt(data.trend[5] || 0) }
     ]
     this.chart ? this.updateChart() : this.drawChart()
