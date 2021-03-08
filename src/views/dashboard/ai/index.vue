@@ -50,7 +50,7 @@
         </div>
         <div class="ai-recognation__images__wrap">
           <div v-if="!loading.list && !imageList.length" class="ai-recognation__empty">暂无{{ alertType[type] }}告警</div>
-          <div v-loading="loading.list" class="ai-recognation__images">
+          <div v-if="loading.list || imageList.length" v-loading="loading.list" class="ai-recognation__images">
             <div v-for="(img, index) in imageList" :key="index" class="ai-recognation__images__item" :class="{'actived': currentImg && img.timestamp === currentImg.timestamp && img.streamName === currentImg.streamName}" @click="getRecordAudits(img)">
               <div class="ai-recognation__images__item__decorator--top" />
               <div class="ai-recognation__images__item__decorator--bottom" />
@@ -236,7 +236,10 @@ export default class extends Vue {
     &__empty {
       color: #fff;
       text-align: center;
-      margin-top: 240px;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     // Decorator
@@ -351,8 +354,11 @@ export default class extends Vue {
     }
     &__images__wrap {
       flex: 2;
+      display: flex;
+      flex-direction: column;
     }
     &__images {
+      flex: 1;
       display: flex;
       flex-wrap: wrap;
       &__item {
