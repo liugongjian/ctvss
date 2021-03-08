@@ -14,7 +14,8 @@
           <div class="ai-recognation__video">
             <div v-if="false" class="ai-recognation__video__loading">正在加载视频...</div>
             <div class="ai-recognation__images__item__wrap">
-              <img v-if="currentImg" :src="currentImg && currentImg.url">
+              <img v-if="currentImg" class="ai-recognation__images__item__img" :src="currentImg && currentImg.url">
+              <img :src="require('@/assets/dashboard/image-placeholder.png')">
               <div
                 v-for="(location, locationIndex) in currentImg && currentImg.locations"
                 :key="locationIndex"
@@ -34,6 +35,11 @@
               </div>
               <div v-if="type === '2' && currentImg" class="ai-recognation__images__item__count" :class="{'ai-recognation__images__item__count--warning': currentImg && currentImg.locations && currentImg.locations.length > 10}">聚集人数: {{ currentImg && currentImg.locations && currentImg.locations.length || '-' }}</div>
               <div v-if="currentImg" class="ai-recognation__images__item--datetime">{{ currentImg && currentImg.deviceName }} | {{ currentImg && currentImg.timestamp }}</div>
+              <div class="ai-recognation__images__item__tools">
+                <div class="ai-recognation__images__item__tools--zoomin" @click="fullscreenImage()">
+                  <svg-icon name="zoom-in" width="14px" height="14px" />
+                </div>
+              </div>
             </div>
             <player
               v-if="currentVideo"
@@ -55,7 +61,8 @@
               <div class="ai-recognation__images__item__decorator--top" />
               <div class="ai-recognation__images__item__decorator--bottom" />
               <div class="ai-recognation__images__item__wrap">
-                <img ref="img" :src="img.url" @load="onload(index)">
+                <img ref="img" class="ai-recognation__images__item__img" :src="img.url" @load="onload(index)">
+                <img :src="require('@/assets/dashboard/image-placeholder.png')">
                 <div
                   v-for="(location, locationIndex) in img.locations"
                   :key="locationIndex"
@@ -92,6 +99,36 @@
         </div>
       </div>
     </div>
+    <el-dialog
+      v-if="dialog.fullscreen"
+      :visible="true"
+      :fullscreen="true"
+      custom-class="ai-image-fullscreen"
+      @close="dialog.fullscreen = false"
+    >
+      <div slot="title">{{ currentImg && currentImg.deviceName }} | {{ currentImg && currentImg.timestamp }}</div>
+      <div class="ai-recognation__images__item__wrap ai-image-fullscreen__img">
+        <img v-if="currentImg" :src="currentImg && currentImg.url">
+        <div
+          v-for="(location, locationIndex) in currentImg && currentImg.locations"
+          :key="locationIndex"
+          class="ai-recognation__images__item__mask"
+          :class="{'ai-recognation__images__item__mask--warning': location.isWarning}"
+          :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
+        >
+          <div v-if="type === '6'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
+            {{ aiMaskType[location.type] }}
+          </div>
+          <div v-if="type === '4'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
+            匹配度:{{ location.score }}%
+          </div>
+          <!-- <div v-if="type === '3'" class="ai-recognation__images__item__mask__text ai-recognation__images__item__mask__text--warning">
+            {{ location.label }}
+          </div> -->
+        </div>
+        <div v-if="type === '2' && currentImg" class="ai-recognation__images__item__count" :class="{'ai-recognation__images__item__count--warning': currentImg && currentImg.locations && currentImg.locations.length > 10}">聚集人数: {{ currentImg && currentImg.locations && currentImg.locations.length || '-' }}</div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -121,6 +158,9 @@ export default class extends Vue {
   private loading = {
     list: false,
     video: false
+  }
+  private dialog = {
+    fullscreen: false
   }
   private imageList = []
 
@@ -209,6 +249,10 @@ export default class extends Vue {
   private async handleCurrentChange(val: number) {
     this.pager.pageNum = val
     await this.getRecordAuditEvents()
+  }
+
+  private fullscreenImage() {
+    this.dialog.fullscreen = true
   }
 }
 </script>
@@ -372,6 +416,12 @@ export default class extends Vue {
         cursor: pointer;
         &__wrap {
           position: relative;
+          width: 100%;
+        }
+        &__img {
+          position: absolute;
+          top: 0;
+          width: 100%;
         }
         &__mask {
           position: absolute;
@@ -444,6 +494,15 @@ export default class extends Vue {
           background: rgba(0, 0, 0, 0.8);
           padding: 5px 10px;
         }
+        &__tools {
+          position: absolute;
+          color: #fff;
+          right: 10px;
+          bottom: -20px;
+          &--zoomin {
+            cursor: pointer;
+          }
+        }
         img {
           width: 100%;
           display: block;
@@ -490,5 +549,8 @@ export default class extends Vue {
         }
       }
     }
+  }
+  .ai-image-fullscreen__img img {
+    width: 100%;
   }
 </style>
