@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: vss-user-web
-  namespace: vss-dev
+  namespace: vss-test
   labels:
     app: vss-user-web
 spec:
@@ -33,7 +33,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: vss-user-web-service
-  namespace: vss-dev
+  namespace: vss-test
   labels:
     name: vss-user-web-service
 spec:
@@ -42,6 +42,6 @@ spec:
   - port: 80
     targetPort: 80
     protocol: TCP
-    nodePort: 32288
+    nodePort: 32188
   selector:
     app: vss-user-web
