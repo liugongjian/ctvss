@@ -177,7 +177,7 @@
 import { Component, Vue, Inject } from 'vue-property-decorator'
 import { Device } from '@/type/device'
 import { RecordTemplate } from '@/type/template'
-import { DeviceStatus, DeviceType, AuthStatus, PullType, CreateSubDevice, TransPriority, SipTransType, StreamTransType } from '@/dics'
+import { DeviceStatus, DeviceGb28181Type, AuthStatus, PullType, CreateSubDevice, TransPriority, SipTransType, StreamTransType } from '@/dics'
 import { getDevice } from '@/api/device'
 import TemplateBind from '../components/templateBind.vue'
 import SetAuthConfig from './components/dialogs/SetAuthConfig.vue'
@@ -197,7 +197,7 @@ export default class extends Vue {
   @Inject('deviceRouter') private deviceRouter!: Function
   private activeName = 'info'
   private deviceStatus = DeviceStatus
-  private deviceType = DeviceType
+  private deviceType = DeviceGb28181Type
   private authStatus = AuthStatus
   private pullType = PullType
   private transPriority = TransPriority
