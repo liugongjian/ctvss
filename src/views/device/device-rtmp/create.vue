@@ -33,7 +33,7 @@
         <div class="form-tip">2-16位，可包含大小写字母、数字、中文、中划线。</div>
       </el-form-item>
       <el-form-item label="视频流接入方式:" prop="inType">
-        <el-radio-group v-model="form.inType" @change="changeInType">
+        <el-radio-group v-model="form.inType" @change="clearValidate">
           <el-radio v-for="(inType, key) in inTypeList" :key="key" :label="key">{{ inType }}</el-radio>
         </el-radio-group>
       </el-form-item>
@@ -158,14 +158,6 @@ export default class extends Mixins(createMixin) {
     } finally {
       this.loading.device = false
     }
-  }
-
-  /**
-   * 清空拉流地址验证信息
-   */
-  private changeInType() {
-    const form: any = this.$refs.dataForm
-    form.clearValidate()
   }
 
   private submit() {

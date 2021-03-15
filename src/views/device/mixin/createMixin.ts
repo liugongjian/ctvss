@@ -70,6 +70,14 @@ export default class CreateMixin extends Vue {
   }
 
   /**
+   * 清空验证信息
+   */
+  public clearValidate() {
+    const form: any = this.$refs.dataForm
+    form.clearValidate()
+  }
+
+  /**
    * 返回
    */
   public back() {
