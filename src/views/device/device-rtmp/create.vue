@@ -33,9 +33,12 @@
         <div class="form-tip">2-16位，可包含大小写字母、数字、中文、中划线。</div>
       </el-form-item>
       <el-form-item label="视频流接入方式:" prop="inType">
-        <el-radio-group v-model="form.inType">
+        <el-radio-group v-model="form.inType" @change="changeInType">
           <el-radio v-for="(inType, key) in inTypeList" :key="key" :label="key">{{ inType }}</el-radio>
         </el-radio-group>
+      </el-form-item>
+      <el-form-item v-if="form.inType === 'pull'" label="拉流地址:" prop="pullUrl">
+        <el-input v-model="form.pullUrl" />
       </el-form-item>
       <el-form-item v-if="form.inType === 'pull'" prop="pullType">
         <template slot="label">
@@ -46,7 +49,7 @@
             width="400"
             trigger="hover"
             :open-delay="300"
-            content="当启用自动拉流，设备注册成功后自动启动拉流。关闭该选项后需要通过触发的方式启动拉流。"
+            :content="tips.pullType"
           >
             <svg-icon slot="reference" class="form-question" name="help" />
           </el-popover>
@@ -62,12 +65,15 @@
             width="400"
             trigger="hover"
             :open-delay="300"
-            content="自动激活推流地址，设备创建完成后，平台立刻自动生成推流地址。关闭该选项后需要通过触发的方式生成推流地址。"
+            :content="tips.pushType"
           >
             <svg-icon slot="reference" class="form-question" name="help" />
           </el-popover>
         </template>
         <el-switch v-model="form.pushType" :active-value="1" :inactive-value="2" />
+      </el-form-item>
+      <el-form-item label="视频标签:" prop="description">
+        <Tags v-model="form.tags" class="tags" />
       </el-form-item>
       <el-form-item label="设备描述:" prop="description">
         <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
@@ -85,12 +91,13 @@ import createMixin from '../mixin/createMixin'
 import { InType } from '@/dics'
 import { pick } from 'lodash'
 import { createDevice, updateDevice, getDevice } from '@/api/device'
+import Tags from '@/components/Tags/index.vue'
 
-/**
- * Rtsp协议也使用本组件
- */
 @Component({
-  name: 'CreateRtmpDevice'
+  name: 'CreateRtmpDevice',
+  components: {
+    Tags
+  }
 })
 export default class extends Mixins(createMixin) {
   private rules = {
@@ -100,6 +107,9 @@ export default class extends Mixins(createMixin) {
     ],
     deviceVendor: [
       { required: true, message: '请选择厂商', trigger: 'change' }
+    ],
+    pullUrl: [
+      { required: true, message: '请输入拉流地址', trigger: 'blur' }
     ]
   }
 
@@ -112,10 +122,11 @@ export default class extends Mixins(createMixin) {
     deviceType: 'ipc',
     deviceVendor: '',
     description: '',
-    inType: '',
+    inType: 'push',
     pullType: 1,
     pushType: 1,
-    pullUrl: ''
+    pullUrl: '',
+    tags: ''
   }
 
   private inTypeList = InType
@@ -126,8 +137,6 @@ export default class extends Mixins(createMixin) {
     } else {
       this.form.dirId = this.dirId
       this.form.inProtocol = this.inProtocol
-      // 如果接入协议是rtmp，默认接入方式设为push
-      this.form.inType = this.inProtocol === 'rtmp' ? 'push' : 'pull'
     }
     this.onGroupChange()
   }
@@ -143,12 +152,20 @@ export default class extends Mixins(createMixin) {
         deviceId: this.form.deviceId
       })
       this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
-        'description', 'inType', 'pullType', 'pushType', 'pullUrl']))
+        'description', 'inType', 'pullType', 'pushType', 'pullUrl', 'tags']))
     } catch (e) {
       this.$message.error(e.message)
     } finally {
       this.loading.device = false
     }
+  }
+
+  /**
+   * 清空拉流地址验证信息
+   */
+  private changeInType() {
+    const form: any = this.$refs.dataForm
+    form.clearValidate()
   }
 
   private submit() {
@@ -157,7 +174,7 @@ export default class extends Mixins(createMixin) {
       if (valid) {
         try {
           this.submitting = true
-          let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor', 'description', 'inType'])
+          let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor', 'description', 'inType', 'tags'])
           if (this.isUpdate) {
             params = Object.assign(params, pick(this.form, ['deviceId']))
           }
@@ -190,7 +207,7 @@ export default class extends Mixins(createMixin) {
 </script>
 
 <style lang="scss" scoped>
-  .el-input, .el-select, .el-textarea {
+  .el-input, .el-select, .el-textarea, .tags {
     width: 400px;
   }
 

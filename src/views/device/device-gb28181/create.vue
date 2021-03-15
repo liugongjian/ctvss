@@ -6,7 +6,7 @@
       :rules="rules"
       :model="form"
       label-position="right"
-      label-width="140px"
+      label-width="150px"
     >
       <template v-if="!isChannel">
         <el-form-item v-if="currentGroup" label="业务组:">
@@ -30,8 +30,20 @@
           </el-select>
         </el-form-item>
         <el-form-item v-if="form.deviceType === 'nvr'" label="自动创建子设备:" prop="createSubDevice" class="form-with-tip">
+          <template slot="label">
+            自动创建子设备:
+            <el-popover
+              placement="top-start"
+              title="自动创建子设备"
+              width="400"
+              trigger="hover"
+              :open-delay="300"
+              :content="tips.createSubDevice"
+            >
+              <svg-icon slot="reference" class="form-question" name="help" />
+            </el-popover>
+          </template>
           <el-switch v-model="form.createSubDevice" :active-value="1" :inactive-value="2" :disabled="isUpdate" />
-          <div class="form-tip">当开启自动创建NVR子设备时，系统将自动为子设备分配通道号和通道名称。</div>
         </el-form-item>
         <el-form-item v-if="form.deviceType === 'nvr'" label="子设备数量:" prop="channelSize">
           <el-input-number v-model="form.channelSize" :min="minChannelSize" type="number" :disabled="isUpdate && form.createSubDevice === 1" />
@@ -89,7 +101,7 @@
               width="400"
               trigger="hover"
               :open-delay="300"
-              content="当启用自动拉流，国标设备注册成功后自动启动拉流。关闭该选项后需要通过触发的方式启动拉流。"
+              :content="tips.pullType"
             >
               <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
@@ -105,7 +117,7 @@
               width="400"
               trigger="hover"
               :open-delay="300"
-              content="开启优先TCP传输时，设备进行视频邀约时优先使用TCP协议接入到视频监控服务中。关闭时则优先使用UDP协议接入。"
+              :content="tips.transPriority"
             >
               <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
