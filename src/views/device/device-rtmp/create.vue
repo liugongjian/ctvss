@@ -76,7 +76,12 @@
         <Tags v-model="form.tags" class="tags" />
       </el-form-item>
       <el-form-item label="设备地址:" prop="address">
-        <el-input v-model="form.address" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
+        <el-cascader
+          v-model="form.address"
+          expand-trigger="hover"
+          :options="cities"
+          :props="citiesProps"
+        />
       </el-form-item>
       <el-form-item label="设备描述:" prop="description">
         <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
@@ -95,6 +100,7 @@ import { InType } from '@/dics'
 import { pick } from 'lodash'
 import { createDevice, updateDevice, getDevice } from '@/api/device'
 import Tags from '@/components/Tags/index.vue'
+import { cities } from '@/assets/region/cities'
 
 @Component({
   name: 'CreateRtmpDevice',
@@ -103,6 +109,14 @@ import Tags from '@/components/Tags/index.vue'
   }
 })
 export default class extends Mixins(createMixin) {
+  private cities = cities
+
+  private citiesProps: any = {
+    value: 'code',
+    label: 'name',
+    children: 'cities'
+  }
+
   private rules = {
     deviceName: [
       { required: true, message: '请输入设备名称', trigger: 'blur' },
@@ -125,7 +139,7 @@ export default class extends Mixins(createMixin) {
     deviceType: 'ipc',
     deviceVendor: '',
     description: '',
-    address: '',
+    address: [],
     inType: 'push',
     pullType: 1,
     pushType: 1,
@@ -143,6 +157,7 @@ export default class extends Mixins(createMixin) {
       this.form.inProtocol = this.inProtocol
     }
     this.onGroupChange()
+    this.form.address = ['1100', '1100']
   }
 
   /**

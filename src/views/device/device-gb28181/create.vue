@@ -124,6 +124,14 @@
           </template>
           <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" />
         </el-form-item>
+        <el-form-item label="设备地址:" prop="address">
+          <el-cascader
+            v-model="form.address"
+            expand-trigger="hover"
+            :options="cities"
+            :props="citiesProps"
+          />
+        </el-form-item>
         <el-form-item label="设备描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
         </el-form-item>
@@ -158,6 +166,7 @@ import { DeviceGb28181Type } from '@/dics'
 import { createDevice, updateDevice, getDevice } from '@/api/device'
 import { getList as getGbList } from '@/api/certificate/gb28181'
 import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
+import { cities } from '@/assets/region/cities'
 
 @Component({
   name: 'CreateGb28181Device',
@@ -166,6 +175,14 @@ import CreateGb28181Certificate from '@/views/certificate/gb28181/components/Cre
   }
 })
 export default class extends Mixins(createMixin) {
+  private cities = cities
+
+  private citiesProps: any = {
+    value: 'code',
+    label: 'name',
+    children: 'cities'
+  }
+
   private rules = {
     deviceName: [
       { required: true, message: '请输入设备名称', trigger: 'blur' },
@@ -245,6 +262,7 @@ export default class extends Mixins(createMixin) {
     }
     this.getGbAccounts()
     this.onGroupChange()
+    this.form.address = ['1100', '1100']
   }
 
   /**
