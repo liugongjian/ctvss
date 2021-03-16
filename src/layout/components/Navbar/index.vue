@@ -607,6 +607,11 @@ export default class extends Vue {
           font-size: 16px;
           padding: 0 20px;
         }
+        .dropdown {
+          &__menu {
+            top: 39px;
+          }
+        }
       }
     }
 
@@ -619,6 +624,11 @@ export default class extends Vue {
         a {
           font-size: 14px;
           padding: 0 15px;
+        }
+        .dropdown {
+          &__menu {
+            top: 29px;
+          }
         }
       }
     }
