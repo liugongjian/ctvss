@@ -114,10 +114,12 @@ export const AlertIcon = {
 export const AlertType: any = {
   // 1: '未戴口罩',
   6: '未戴口罩',
-  2: '人员聚集',
+  8: '人员聚集',
+  // 2: '人员聚集',
   // 3: '人员布控',
   4: '人员布控',
-  5: '吸烟检测'
+  5: '吸烟检测',
+  7: '安全帽反光服检测'
 }
 
 export const AiMaskType: any = {

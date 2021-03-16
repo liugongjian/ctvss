@@ -44,7 +44,14 @@
       <template v-if="routerName === 'AI' || routerName === 'dashboard'">
         <div class="links">
           <a :class="{'actived': !queryAlertType}" @click="routeToHome()">首页</a>
-          <a v-for="type in alertTypeList" :key="type.key" :class="{'actived': queryAlertType === type.key.toString()}" @click="routeToAI(type.key)">{{ type.value }}</a>
+          <div class="dropdown">
+            AI能力
+            <ul class="dropdown__menu">
+              <li v-for="type in alertTypeList" :key="type.key" :class="{'actived': queryAlertType === type.key.toString()}" @click="routeToAI(type.key)">
+                {{ type.value }}
+              </li>
+            </ul>
+          </div>
         </div>
       </template>
       <template v-else>
@@ -69,18 +76,18 @@
         <div class="links">
           <a target="_blank" href="http://vcn.ctyun.cn/document/api/">API文档</a>
         </div>
-        <div class="user-container">
-          <div class="user-container__menu">
-            {{ name }}
-            <svg-icon class="user-container__arrow" name="arrow-down" width="9" height="9" />
-          </div>
-          <div class="header-dropdown">
-            <router-link to="/secretManage"><i><svg-icon name="key" /></i> API密钥管理</router-link>
-            <div class="header-dropdown__divided" />
-            <el-button type="text" @click="logout"><i><svg-icon name="logout" /></i> 退出登录</el-button>
-          </div>
-        </div>
       </template>
+      <div class="user-container">
+        <div class="user-container__menu">
+          {{ name }}
+          <svg-icon class="user-container__arrow" name="arrow-down" width="9" height="9" />
+        </div>
+        <div class="header-dropdown">
+          <router-link to="/secretManage"><i><svg-icon name="key" /></i> API密钥管理</router-link>
+          <div class="header-dropdown__divided" />
+          <el-button type="text" @click="logout"><i><svg-icon name="logout" /></i> 退出登录</el-button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -176,9 +183,10 @@ export default class extends Vue {
     const list = []
     const sort: any = {
       6: 1,
-      2: 2,
+      8: 2,
       4: 4,
-      5: 5
+      5: 5,
+      7: 7
     }
     for (const key in this.alertType) {
       list.push({
@@ -532,9 +540,8 @@ export default class extends Vue {
     .right-menu {
       margin-right: 2em;
       line-height: 40px;
-      border-top: 3px solid #2c4e9b;
 
-      a {
+      .links a, .links .dropdown {
         display: inline-block;
         cursor: pointer;
         padding: 0 20px;
@@ -553,6 +560,37 @@ export default class extends Vue {
           color: #fff;
         }
       }
+
+      .dropdown {
+        position: relative;
+
+        &__menu {
+          display: none;
+          position: absolute;
+          right: -1px;
+          top: 39px;
+          width: 180px;
+          background: #06266f;
+          border: 1px solid #2c4e9b;
+          list-style: none;
+          margin: 0;
+          padding: 10px;
+          li {
+            text-align: center;
+            &.actived, &:hover {
+              background: #00B3E9;
+            }
+          }
+        }
+
+        &:hover .dropdown__menu {
+          display: block;
+        }
+      }
+    }
+
+    .user-container .header-dropdown {
+      top: 40px !important;
     }
 
     @media screen and (max-height: 1100px) {
