@@ -81,7 +81,7 @@
         </div>
       </div>
     </el-card>
-    <CreateUserGroup v-if="showAddGroupDialog" :dialogData="dialogData" @on-close="closeAddDialog" />
+    <CreateUserGroup v-if="showAddGroupDialog" :dialog-data="dialogData" @on-close="closeAddDialog" />
   </div>
 </template>
 
@@ -228,6 +228,7 @@ export default class extends Vue {
       flex-shrink: 0;
       overflow: hidden;
       transition: .2s;
+      padding: 10px;
       &__item {
         flex: 1;
         display: flex;
@@ -256,6 +257,9 @@ export default class extends Vue {
     }
     .content__menu {
       width: 0px;
+      padding-left: 0;
+      padding-right: 0;
+      border-right: 0px
     }
   }
   .head {

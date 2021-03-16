@@ -6,7 +6,7 @@
         <el-form
           ref="userForm"
           :model="form"
-          :rules="form.rules"
+          :rules="rules"
           label-position="right"
           label-width="150px"
         >
@@ -16,74 +16,85 @@
           </el-form-item>
           <el-form-item prop="accessType" label="访问方式：">
             <el-radio v-model="form.accessType" label="control">控制台访问</el-radio>
-            <el-tooltip placement="top-start" effect="light">
-              <div slot="content">
-                启用密码，允许用户登录到视频监控用户控制台。
-              </div>
-              <i class="sign el-icon-question"></i>
-            </el-tooltip>
+            <el-popover
+              placement="top-start"
+              title="控制台访问"
+              width="400"
+              trigger="hover"
+              :open-delay="300"
+              content="启用密码，允许用户登录到视频监控用户控制台。"
+            >
+              <svg-icon slot="reference" class="form-question" style="color: #888888; margin-right: 20px" name="help" />
+            </el-popover>
             <el-radio v-model="form.accessType" label="code">编程访问</el-radio>
-            <el-tooltip placement="top-start" effect="light">
-              <div class="sign" slot="content">
-                启用SecretId和SecretKey，支持API、SDK和其他开发工具访问。
-              </div>
-              <i class="sign el-icon-question"></i>
-            </el-tooltip>
+            <el-popover
+              placement="top-start"
+              title="编程访问"
+              width="400"
+              trigger="hover"
+              :open-delay="300"
+              content="启用SecretId和SecretKey，支持API、SDK和其他开发工具访问。"
+            >
+              <svg-icon slot="reference" class="form-question" style="color: #888888" name="help" />
+            </el-popover>
           </el-form-item>
           <el-form-item prop="policyChecked" label="用户权限：">
-            <el-table ref="policyList" :data="policyList" max-height="500" @selection-change="handleSelectionChange">
+            <el-table ref="policyList" :data="policyList" max-height="500" @selection-change="handleSelectionChange" @row-click="rowClick">
               <el-table-column
                 type="selection"
-                width="55">
-              </el-table-column>
+                width="55"
+              />
               <el-table-column
                 prop="policyName"
                 label="策略名"
-                width="150">
-              </el-table-column>
+                width="150"
+              />
               <el-table-column
                 prop="policyDescribe"
-                label="策略描述">
-              </el-table-column>
+                label="策略描述"
+              />
             </el-table>
           </el-form-item>
           <el-form-item prop="isResetPassword" label="是否重置密码：">
             <el-switch
               v-model="form.isResetPassword"
               active-color="#FA8334"
-              inactive-color="#CCCCCC">
-            </el-switch>
+              inactive-color="#CCCCCC"
+            />
             <span class="item-tip">用户必须在下次登录时重置密码</span>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="submit">{{ '确定' }}</el-button>
+            <el-button type="primary" @click="submit">确定</el-button>
             <el-button @click="back">取消</el-button>
           </el-form-item>
-        </el-form>  
+        </el-form>
       </div>
     </el-card>
     <el-card v-if="cardIndex === 'table'">
       <div class="main-box">
         <h2>成功新建成员</h2>
-        <p class="item-tip">您已经成功新建用户，用户基础信息如下所示。您可以点击复制或者<a>下载</a>当前新建用户的所有信息。</p>
+        <p class="item-tip">您已经成功新建用户，用户基础信息如下所示。您可以点击复制或者<a href=""> 下载 </a>当前新建用户的所有信息。</p>
         <el-table :data="newUserData" style="width: 100%">
           <el-table-column
             prop="userName"
-            label="用户名">
-          </el-table-column>
+            label="用户名"
+          />
           <el-table-column prop="passwords" label="密码">
             <template slot-scope="scope">
-              <span>{{ showPasswords ? scope.row.passwords : '****'}}</span>
-              <el-button v-if="showPasswords" type="text" @click="showPasswords = false">隐藏</el-button>
-              <el-button v-else type="text" @click="showPasswords = true">显示</el-button>
+              <span>{{ showPasswords ? scope.row.passwords : '****' }}</span>
+              <span v-if="showPasswords" class="text-btn" @click="showPasswords = false">隐藏</span>
+              <span v-else class="text-btn" @click="showPasswords = true">显示</span>
             </template>
           </el-table-column>
           <el-table-column prop="secrets" label="密钥">
             <template slot-scope="scope">
-              SecretId：<span>{{ scope.row.secretId }}</span><br/>
-              SecretKey：<span>{{ showSecretKey ? scope.row.secretKey : '****' }}</span>
-              <el-button v-if="showSecretKey" type="text" @click="showSecretKey = false">隐藏</el-button>
-              <el-button v-else type="text" @click="showSecretKey = true">显示</el-button>
+              <div>SecretId：<span>{{ scope.row.secretId }}</span></div>
+              <div>
+                <span>SecretKey：</span>
+                <span>{{ showSecretKey ? scope.row.secretKey : '****' }}</span>
+                <span v-if="showSecretKey" class="text-btn" @click="showSecretKey = false">隐藏</span>
+                <span v-else class="text-btn" @click="showSecretKey = true">显示</span>
+              </div>
             </template>
           </el-table-column>
           <el-table-column label="操作" align="center">
@@ -105,29 +116,22 @@ import copy from 'copy-to-clipboard'
   name: 'CreateUser'
 })
 export default class extends Vue {
-  private validateUserName = (rule: any, value: any, callback: Function) => {
-    if(!/^[0-9a-zA-Z-]{1,}$/.test(value)){
-      callback(new Error("仅允许包含大小写字母、数字、中划线"))
-    }else {
-      callback()
-    }
-  }
   private cardIndex: string = 'form'
   private breadCrumbContent: string = ''
   private form: any = {
     userName: '',
     accessType: 'control',
     policyChecked: [],
-    isResetPassword: true,
-    rules: {
-      userName: [
-        {required: true, message: '用户名必填', trigger: 'blur'},
-        {validator: this.validateUserName, trigger: 'blur'},
-      ],
-      policyChecked: [
-        {required: true, message: '请添加用户权限'}
-      ]
-    }
+    isResetPassword: true
+  }
+  private rules: any = {
+    userName: [
+      { required: true, message: '用户名必填', trigger: 'blur' },
+      { validator: this.validateUserName, trigger: 'blur' }
+    ],
+    policyChecked: [
+      { required: true, message: '请添加用户权限' }
+    ]
   }
   private policyList: Array<object> = [
     {
@@ -164,10 +168,15 @@ export default class extends Vue {
     }
   }
 
+  private rowClick(row: any) {
+    const policyList: any = this.$refs.policyList
+    policyList.toggleRowSelection(row)
+  }
+
   private submit() {
     const form: any = this.$refs.userForm
     form.validate((valid: any) => {
-      if(valid) {
+      if (valid) {
         console.log(this.form)
         this.cardIndex = 'table'
         this.newUserData = [
@@ -183,7 +192,7 @@ export default class extends Vue {
   }
 
   private copyRow(row: any) {
-    let str = 
+    let str =
     `
     主账号ID：100008184984
     用户名：${row.userName}
@@ -193,7 +202,7 @@ export default class extends Vue {
     
     `
     copy(str)
-    this.$message.success("复制成功")
+    this.$message.success('复制成功')
   }
 
   private back() {
@@ -203,13 +212,17 @@ export default class extends Vue {
   private mounted() {
     this.breadCrumbContent = this.$route.meta.title
   }
-
-  
+  private validateUserName(rule: any, value: any, callback: Function) {
+    if (!/^[0-9a-zA-Z-]{1,}$/.test(value)) {
+      callback(new Error('仅允许包含大小写字母、数字、中划线'))
+    } else {
+      callback()
+    }
+  }
 }
 </script>
 
 <style lang="scss" scoped>
-  
   .main-box {
     margin-left: 10px;
     .el-input {
@@ -232,6 +245,11 @@ export default class extends Vue {
     font-size: 13px;
     color: #999999;
     margin-left: 10px;
+  }
+  .text-btn {
+    color: #FA8334;
+    margin-left: 10px;
+    cursor: pointer;
   }
   .back-btn {
     margin-top: 20px;
