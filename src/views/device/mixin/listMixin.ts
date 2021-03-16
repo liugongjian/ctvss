@@ -142,7 +142,8 @@ export default class CreateMixin extends Vue {
 
   @Watch('filter', { immediate: true, deep: true })
   public onFilterChange() {
-    (this.type === 'dir' || this.type === 'platformDir') && this.getDeviceList()
+    if (this.type === 'dir' || this.type === 'platformDir') this.getDeviceList()
+    if (this.type === 'nvr') this.getDeviceInfo(this.type)
   }
 
   public mounted() {
@@ -182,7 +183,7 @@ export default class CreateMixin extends Vue {
       })
       if (type === 'nvr' || type === 'platform') {
         this.deviceInfo = res
-        const deviceList = this.deviceInfo.deviceChannels.map((channel: any) => {
+        let deviceList = this.deviceInfo.deviceChannels.map((channel: any) => {
           channel.deviceType = 'ipc'
           channel.transPriority = this.deviceInfo.transPriority
           channel.sipTransType = this.deviceInfo.sipTransType
@@ -191,6 +192,16 @@ export default class CreateMixin extends Vue {
           return channel
         })
         if (type === 'nvr') {
+          // nvr通道后端全量返回，前端做筛选
+          deviceList = deviceList.filter((device: any) => {
+            if (this.filter.deviceStatus && device.deviceStatus !== this.filter.deviceStatus) {
+              return false
+            }
+            if (this.filter.streamStatus && device.streamStatus !== this.filter.streamStatus) {
+              return false
+            }
+            return true
+          })
           this.deviceList = deviceList.sort((left: any, right: any) => left.channelNum - right.channelNum)
         } else {
           this.deviceList = deviceList
