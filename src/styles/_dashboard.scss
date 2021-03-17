@@ -1,0 +1,64 @@
+.el-select-dropdown.dark-select {
+  background: #33475F;
+  border-color: #33475F;
+  
+  .popper__arrow, .popper__arrow::after {
+    border-bottom-color: #33475F;
+  }
+  .el-select-dropdown__item {
+    color: #fff;
+  }
+  .el-select-dropdown__item.selected {
+    color: #98CFFF;
+  }
+  .el-select-dropdown__item.hover {
+    background: #131a23;
+  }
+}
+
+.dark-tooltip {
+  position: absolute;
+  z-index: 8;
+  background-color: rgb(255, 255, 255);
+  box-shadow: rgb(174, 174, 174) 0px 0px 10px;
+  border-radius: 5px;
+  color: rgb(89, 89, 89);
+  font-size: 1.2vh;
+  font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  opacity: 0.85;
+  line-height: 170%;
+  pointer-events: none;
+  left: 50.6094px;
+  top: 0px;
+  border: 0.01px solid rgb(174, 174, 174) !important;
+}
+
+.dashboard-alert-live-dialog {
+  background: #081032;
+  
+  .el-dialog__title {
+    color: #fff;
+  }
+  .el-dialog__headerbtn .el-dialog__close {
+    color: #eee;
+  }
+  .el-dialog__body {
+    color: #fff;
+  }
+}
+.amap-logo {
+  z-index: 0;
+}
+.amap-maps {
+  background: #081032;
+}
+.amap-info-outer {
+  background: #50789c;
+}
+.bottom-center .amap-info-sharp {
+  border-top: 8px solid  #50789c;
+}
+
+.amap-info-close {
+  color: #fff;
+}

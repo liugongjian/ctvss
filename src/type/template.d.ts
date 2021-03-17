@@ -10,7 +10,18 @@ export interface RecordTemplate {
   recordType: number;
   formatList: Array<RecordTemplateFormat>,
   description?: string;
-  createTime?: string;
+  createdTime?: string;
+}
+
+export interface CallbackTemplate {
+  templateId?: string;
+  templateName: string;
+  recordNotifyUrl: string;
+  deviceStatusUrl?: string;
+  streamStatusUrl?: string;
+  callbackKey: string;
+  description?: string;
+  createdTime?: string;
 }
 
 export interface SnapshotTemplate {

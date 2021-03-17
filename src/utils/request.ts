@@ -10,8 +10,8 @@ class VSSError extends Error {
 
 let timeoutPromise: Promise<any>
 const service = axios.create({
-  baseURL: '/v1' // url = base url + request url
-  // timeout: 5000
+  baseURL: '/v1', // url = base url + request url
+  timeout: 5 * 3600 * 1000
   // withCredentials: true // send cookies when cross-domain requests
 })
 
@@ -34,7 +34,7 @@ service.interceptors.response.use(
     return response.data
   },
   (error) => {
-    if (!timeoutPromise && error.response && error.response.data.code === 7) {
+    if (!timeoutPromise && error.response && error.response.data.code === 16) {
       timeoutPromise = MessageBox.confirm(
         '登录超时，可以取消继续留在该页面，或者重新登录',
         '确定登出',

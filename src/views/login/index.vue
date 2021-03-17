@@ -109,8 +109,8 @@ import { Route } from 'vue-router'
 import { Dictionary } from 'vue-router/types/router'
 import { Form as ElForm, Input } from 'element-ui'
 import { UserModule } from '@/store/modules/user'
-import { isValidUsername } from '@/utils/validate'
 import SocialSign from './components/SocialSignin.vue'
+import { GroupModule } from '@/store/modules/group'
 
 @Component({
   name: 'Login',
@@ -169,6 +169,7 @@ export default class extends Vue {
 
   private checkCapslock(e: KeyboardEvent) {
     const { key } = e
+    if (!key) return
     this.capsTooltip = key !== null && key.length === 1 && (key >= 'A' && key <= 'Z')
   }
 
@@ -188,6 +189,8 @@ export default class extends Vue {
       if (valid) {
         try {
           this.loading = true
+          await GroupModule.ResetGroup()
+          await GroupModule.ResetGroupList()
           await UserModule.Login(this.loginForm)
           this.$router.push({
             path: this.redirect || '/',

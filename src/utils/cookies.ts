@@ -18,3 +18,9 @@ const tokenKey = 'live_admin_access_token'
 export const getToken = () => Cookies.get(tokenKey)
 export const setToken = (token: string) => Cookies.set(tokenKey, token)
 export const removeToken = () => Cookies.remove(tokenKey)
+
+// Username
+const username = 'username'
+export const getUsername = () => Cookies.get(username)
+export const setUsername = (token: string) => Cookies.set(username, token)
+export const removeUsername = () => Cookies.remove(username)

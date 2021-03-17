@@ -1,21 +1,6 @@
 <!-- 分屏预览 -->
 <template>
   <div v-loading="loading.group" class="app-container">
-    <div class="filter-container">
-      <el-select
-        v-model="groupId"
-        class="filter-group"
-        placeholder="请选择业务组"
-        @change="changeGroup"
-      >
-        <el-option
-          v-for="item in groupList"
-          :key="item.groupId"
-          :label="item.groupName"
-          :value="item.groupId"
-        />
-      </el-select>
-    </div>
     <el-card ref="deviceWrap" class="device-list-wrap">
       <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
         <el-button class="device-list__expand" @click="toggledirList">
@@ -30,7 +15,7 @@
           <div class="dir-list" :style="`width: ${dirDrag.width}px`">
             <div class="dir-list__tools">
               <el-tooltip class="item" effect="dark" content="刷新目录" placement="top" :open-delay="300">
-                <el-button type="text" @click="initDirs"><i class="el-icon-refresh" /></el-button>
+                <el-button type="text" @click="initDirs"><svg-icon name="refresh" /></el-button>
               </el-tooltip>
             </div>
             <div v-loading="loading.dir" class="dir-list__tree device-list__max-height" :style="{height: `${maxHeight}px`}">
@@ -43,13 +28,18 @@
                 lazy
                 :load="loadDirs"
                 :props="treeProp"
-                :current-node-key="deviceId"
-                @node-click="selectDevice"
+                @node-click="openScreen"
               >
                 <span slot-scope="{node, data}" class="custom-tree-node">
                   <span class="node-name">
-                    <svg-icon :name="data.type" color="#6e7c89" />
-                    {{ node.label }}
+                    <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
+                    <span v-else class="node-dir">
+                      <svg-icon name="dir" width="15" height="15" />
+                      <svg-icon name="dir-close" width="15" height="15" />
+                    </span>
+                    <!-- <status-badge v-if="data.streamStatus" :status="data.streamStatus" /> -->
+                    {{ node.label }} <span class="alert-type">{{ renderAlertType(data) }}</span>
+                    <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
                   </span>
                 </span>
               </el-tree>
@@ -57,150 +47,168 @@
           </div>
         </div>
         <div class="device-list__right">
-          <div class="breadcrumb">
-            <span
-              v-for="item in breadcrumb"
-              :key="item.id"
-              class="breadcrumb__item"
-            >
-              {{ item.label }}
-            </span>
+          <div class="device__tools">
+            <label>分屏数:</label>
+            <el-tooltip content="单分屏" placement="top">
+              <el-button type="text" @click="changeMaxSize(1)"><svg-icon name="screen1" /></el-button>
+            </el-tooltip>
+            <template v-if="currentGroupId !== '80337930297556992'">
+              <el-tooltip content="两分屏" placement="top">
+                <el-button type="text" @click="changeMaxSize(2)"><svg-icon name="screen2" /></el-button>
+              </el-tooltip>
+              <el-tooltip content="四分屏" placement="top">
+                <el-button type="text" @click="changeMaxSize(4)"><svg-icon name="screen4" /></el-button>
+              </el-tooltip>
+            </template>
+            <div class="device__tools--right">
+              <el-tooltip content="全屏" placement="top">
+                <el-button type="text" @click="fullscreen"><svg-icon name="fullscreen" /></el-button>
+              </el-tooltip>
+            </div>
           </div>
-          <replay v-if="deviceId" />
-          <div v-else class="empty-text">
-            请先选择左侧设备
+          <div class="screen-list" :class="[`screen-size--${maxSize}`, {'fullscreen': isFullscreen}]">
+            <div
+              v-for="(screen, index) in screenList"
+              :key="index"
+              class="screen-item"
+              :class="[{'actived': index === currentIndex && screenList.length > 1}, {'fullscreen': screen.isFullscreen}]"
+              @click="selectScreen(index)"
+            >
+              <template v-if="screen.loaded">
+                <replay-view
+                  :device-id="screen.deviceId"
+                  :is-fullscreen="screen.isFullscreen"
+                  @onFullscreen="screen.fullscreen();fullscreen()"
+                  @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
+                />
+                <div class="screen-header">
+                  <div class="device-name">{{ screen.deviceName }}</div>
+                  <div class="screen__tools">
+                    <el-tooltip content="关闭视频">
+                      <el-button class="screen__close" type="text" @click="screen.reset()">
+                        <svg-icon name="close" width="12" height="12" />
+                      </el-button>
+                    </el-tooltip>
+                  </div>
+                </div>
+              </template>
+              <div v-else class="tip-text tip-select-device">
+                <el-button type="text" @click="selectDevice(screen)">请选择设备</el-button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </el-card>
+    <device-dir v-if="dialogs.deviceDir" @on-close="onDeviceDirClose" />
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Watch, Mixins } from 'vue-property-decorator'
-import DeviceMixin from './mixin'
-import { DeviceModule } from '@/store/modules/device'
-import { getGroups } from '@/api/group'
-import { Group } from '@/type/group'
+import { Component, Watch, Mixins } from 'vue-property-decorator'
+import ScreenMixin from './mixin/screenMixin'
+import { Device } from '@/type/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
-import Replay from './components/Replay.vue'
+import ReplayView from './components/ReplayView.vue'
+import DeviceDir from './components/dialogs/DeviceDir.vue'
+import { renderAlertType } from '@/utils/device'
 
 @Component({
   name: 'Record',
   components: {
-    Replay,
-    StatusBadge
+    ReplayView,
+    StatusBadge,
+    DeviceDir
   }
 })
-export default class extends Mixins(DeviceMixin) {
-  private currentIndex = 0
-  private maxSize = 4
-  private screenList: Array<Screen> = []
-  private isFullscreen = false
+export default class extends Mixins(ScreenMixin) {
+  private renderAlertType = renderAlertType
+  public maxSize = 1
 
   private get deviceId() {
     return this.$route.query.deviceId || null
   }
 
+  @Watch('currentGroupId', { immediate: true })
+  private onCurrentGroupChange(groupId: String) {
+    if (!groupId) return
+    this.$nextTick(() => {
+      this.currentIndex = 0
+      this.screenList.forEach(screen => {
+        screen.reset()
+      })
+      this.initDirs()
+    })
+  }
+
   private mounted() {
-    this.getGroupList()
+    this.initScreen()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
+    window.addEventListener('resize', this.checkFullscreen)
   }
 
   private destroyed() {
-    window.removeEventListener('resize', this.calMaxHeight)
-  }
-
-  /**
-   * 获取组列表
-   */
-  private async getGroupList() {
-    this.loading.group = true
-    let params = {
-      pageSize: 1000
-    }
-    const res = await getGroups(params)
-    this.groupList = res.groups
-    if (this.groupList.length) {
-      if (!this.$route.query.groupId) {
-        await DeviceModule.SetGroup(this.groupList[0])
-        this.$route.query.groupId = this.groupList[0]
-        this.$router.push({
-          name: 'replay',
-          query: {
-            groupId: this.currentGroupId
-          }
-        })
-      } else {
-        const currentGroup = this.groupList.find((group: Group) => group.groupId === this.$route.query.groupId)
-        await DeviceModule.SetGroup(currentGroup)
-      }
-      await this.initDirs()
-    }
-    this.loading.group = false
-  }
-
-  /**
-   * 切换业务组
-   */
-  private async changeGroup() {
-    const currentGroup = this.groupList.find((group: Group) => group.groupId === this.groupId)
-    await DeviceModule.SetGroup(currentGroup)
-    this.$router.push({
-      name: 'replay',
-      query: {
-        groupId: this.currentGroupId
-      }
+    this.screenList.forEach(screen => {
+      screen.reset()
     })
-    await this.initDirs()
+    window.removeEventListener('resize', this.calMaxHeight)
+    window.removeEventListener('resize', this.checkFullscreen)
   }
 
   /**
    * 清空初始化树状态默认方法
    */
   public async initTreeStatus() {
-    const dirTree: any = this.$refs.dirTree
-    const path: string | (string | null)[] | null = this.$route.query.path
-    const keyPath = path ? path.toString().split(',') : null
-    if (keyPath) {
-      for (let i = 0; i < keyPath.length; i++) {
-        const _key = keyPath[i]
-        const node = dirTree.getNode(_key)
-        if (node) {
-          await this.loadDirChildren(_key, node)
-          if (i === keyPath.length - 1) {
-            DeviceModule.SetBreadcrumb(this.getDirPath(node).reverse())
-          }
-        }
+    // TODO: 对泰州用户单独处理，后续需删除
+    this.dealTzTree()
+  }
+
+  /**
+   * 打开分屏视频
+   */
+  private openScreen(item: any) {
+    if (item.type === 'ipc' || item.type === 'stream') {
+      const screen = this.screenList[this.currentIndex]
+      if (screen.deviceId) {
+        screen.reset()
       }
+      this.$nextTick(() => {
+        screen.deviceId = item.id
+        screen.deviceName = item.label
+        screen.loaded = true
+        if (this.currentIndex < (this.maxSize - 1)) this.currentIndex++
+      })
     }
   }
 
   /**
-   * 选择录像回放设备
+   * 关闭视频选择对话框
+   * @param device 设备
    */
-  private selectDevice(item: any, node: any) {
-    DeviceModule.SetBreadcrumb(this.getDirPath(node).reverse())
-    if (item.type === 'ipc') {
-      this.$router.push({
-        name: 'replay',
-        query: {
-          groupId: this.currentGroupId,
-          deviceId: item.id,
-          path: this.breadcrumb.map((item: any) => item.id).join(',')
-        }
-      })
-    }
+  private onDeviceDirClose(device: Device) {
+    this.dialogs.deviceDir = false
+    if (device) this.openScreen(device)
   }
 }
 </script>
 <style lang="scss" scoped>
-.device-list__right {
-  .replay-wrap {
-    padding: 15px;
+  .device-list {
+    &__left {
+      .playing {
+        color: $success;
+      }
+      .offline .node-name {
+        cursor: not-allowed;
+        .svg-icon {
+          color: #ccc;
+        }
+      }
+    }
+
+    &__right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
   }
-  .empty-text {
-    margin-top: 35px;
-  }
-}
 </style>

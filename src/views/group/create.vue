@@ -9,7 +9,7 @@
         label-position="right"
         label-width="160px"
       >
-        <el-form-item v-if="form.groupId" label="业务组Id:" prop="groupId">
+        <el-form-item v-if="isEdit" label="业务组Id:" prop="groupId">
           <el-input v-model="form.groupId" disabled />
         </el-form-item>
         <el-form-item label="业务组名称:" prop="groupName" class="form-with-tip">
@@ -30,15 +30,17 @@
               :open-delay="300"
               content="服务区域负责对流媒体进行实时处理，包括鉴权、拉流、转码、录制、截图等，请根据处理和存储需求选择"
             >
-              <i slot="reference" class="form-question el-icon-question" />
+              <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
           </template>
-          <el-select v-model="form.region" placeholder="请选择">
-            <el-option v-for="item in regionList" :key="item" :label="item" :value="item" />
-          </el-select>
+          <el-cascader
+            v-model="form.region"
+            placeholder="请选择"
+            :options="regionList"
+          />
         </el-form-item>
         <el-form-item label="接入类型:" prop="inProtocol">
-          <el-radio-group v-model="form.inProtocol">
+          <el-radio-group v-model="form.inProtocol" :disabled="isEdit">
             <el-radio v-for="protocol in inProtocolList" :key="protocol" :label="protocol.toLocaleLowerCase()">{{ protocol }}</el-radio>
           </el-radio-group>
         </el-form-item>
@@ -53,7 +55,8 @@
             </el-checkbox>
           </el-checkbox-group>
         </el-form-item>
-        <el-form-item prop="pullType">
+        <!-- 国标业务组允许设置是否自动拉流 -->
+        <el-form-item v-if="form.inProtocol === 'gb28181'" prop="pullType">
           <template slot="label">
             自动拉流:
             <el-popover
@@ -64,7 +67,7 @@
               :open-delay="300"
               content="当启用自动拉流，国标设备注册成功后自动启动拉流。关闭该选项后需要通过触发的方式启动拉流。"
             >
-              <i slot="reference" class="form-question el-icon-question" />
+              <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
           </template>
           <el-switch v-model="form.pullType" :active-value="1" :inactive-value="2" />
@@ -82,9 +85,10 @@
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
 import { Group } from '@/type/group'
+import { GroupModule } from '@/store/modules/group'
 import { InProtocolType, OutProtocolType } from '@/dics'
 import { createGroup, queryGroup, updateGroup } from '@/api/group'
-import { parse } from 'date-fns'
+import { getRegions } from '@/api/region'
 
 @Component({
   name: 'CreateGroup'
@@ -111,19 +115,25 @@ export default class extends Vue {
       { required: true, message: '请选择是否开启自动拉流', trigger: 'change' }
     ]
   }
-  private regionList = ['华东', '华南', '华北']
   private outProtocolList = Object.values(OutProtocolType)
   private inProtocolList = Object.values(InProtocolType)
   private form: Group = {
     groupName: '',
     description: '',
-    region: '华东',
+    region: [],
     inProtocol: 'gb28181',
     outProtocol: [],
     pullType: 1
   }
 
+  private regionList = []
+
+  private get isEdit() {
+    return !!this.form.groupId
+  }
+
   private async mounted() {
+    await this.getRegionList()
     this.breadCrumbContent = this.$route.meta.title
     let query: any = this.$route.query
     if (query.groupId) {
@@ -132,12 +142,52 @@ export default class extends Vue {
       try {
         const res = await queryGroup({ groupId: this.form.groupId })
         res.outProtocol = res.outProtocol.split(',')
+        res.region = this.getRegionPath(this.regionList, res.region)
         this.form = res
       } catch (e) {
         this.$message.error(e && e.message)
       } finally {
         this.loading = false
       }
+    }
+  }
+
+  /**
+   * 递归查找目标区域的所在路径
+   */
+  private getRegionPath(regions: any, target: string) {
+    let path: Array<any> = []
+    try {
+      const _find: any = function(path: Array<string>, children: any) {
+        for (let i = 0; i < children.length; i++) {
+          const item = children[i]
+          path.push(item.value)
+          item.children && _find(path, item.children)
+          if (item.value === target) {
+            throw new Error('found')
+          }
+        }
+      }
+      _find(path, regions)
+    // eslint-disable-next-line no-empty
+    } catch (e) {}
+    if (path.length) {
+      return path.slice(-3, path.length)
+    }
+    return path
+  }
+
+  /**
+   * 获取区域列表
+   */
+  private async getRegionList() {
+    this.loading = true
+    try {
+      this.regionList = await getRegions()
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.loading = false
     }
   }
 
@@ -172,18 +222,19 @@ export default class extends Vue {
     const form: any = this.$refs.dataForm
     form.validate(async(valid: any) => {
       if (valid) {
-        var res
         this.loading = true
         var params = JSON.parse(JSON.stringify(this.form))
         params.outProtocol = params.outProtocol.join(',')
+        params.region = params.region[params.region.length - 1]
         try {
           if (this.form.groupId) {
-            res = await updateGroup(params)
+            await updateGroup(params)
             this.$message.success('修改业务组成功！')
           } else {
-            res = await createGroup(params)
+            await createGroup(params)
             this.$message.success('新建业务组成功！')
           }
+          GroupModule.GetGroupList()
           this.back()
         } catch (e) {
           this.$message.error(e && e.message)
@@ -199,7 +250,7 @@ export default class extends Vue {
 </script>
 
 <style lang="scss" scoped>
-  .el-input, .el-select, .el-textarea {
+  .el-input, .el-select, .el-textarea, .el-cascader {
     width: 400px;
   }
 </style>

@@ -97,3 +97,18 @@
 .el-message {
   min-width: auto;
 }
+
+.el-date-picker .has-records {
+  position: relative;
+  &:after {
+    content: ' ';
+    background: $success;
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    border-radius: 100px;
+    bottom: 5px;
+    left: 50%;
+    margin-left: -3px;
+  }
+}

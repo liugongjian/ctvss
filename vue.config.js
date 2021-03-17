@@ -31,11 +31,12 @@ module.exports = {
         }
       },
       '/': {
-        // target: 'http://192.168.30.177:8081/'
-        target: 'http://101.89.163.9:8091/'
+        // target: 'http://192.168.30.124:8081/'
+        // target: 'http://101.91.194.232:8090/'
+        target: 'http://182.43.127.35:9180'
       },
       '/mock/11/': {
-        target: 'http://101.89.163.9:8089/'
+        target: 'http://218.78.82.199:8089/'
       }
     }
   },
@@ -55,6 +56,7 @@ module.exports = {
       ]
     }
   },
+  transpileDependencies: ['flv.js'],
   chainWebpack(config) {
     // provide the app's title in webpack's name field, so that
     // it can be accessed in index.html to inject the correct title.

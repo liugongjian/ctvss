@@ -35,7 +35,7 @@
         <el-form-item v-if="form.deviceType === 'nvr'" label="子设备数量:" prop="channelSize">
           <el-input-number v-model="form.channelSize" :min="minChannelSize" type="number" :disabled="isUpdate && form.createSubDevice === 1" />
         </el-form-item>
-        <el-form-item label="国标版本:" prop="gbVersion">
+        <el-form-item v-if="form.deviceType === 'nvr' || form.deviceType === 'ipc'" label="国标版本:" prop="gbVersion">
           <el-radio-group v-model="form.gbVersion">
             <el-radio-button v-for="item in gbVersionList" :key="item" :label="item" :value="item" />
           </el-radio-group>
@@ -47,13 +47,16 @@
         </el-form-item>
         <el-form-item label="设备名称:" prop="deviceName" class="form-with-tip">
           <el-input v-model="form.deviceName" />
-          <div class="form-tip">4-16位，可包含大小写字母、数字、中文、中划线。</div>
+          <div class="form-tip">2-16位，可包含大小写字母、数字、中文、中划线。</div>
         </el-form-item>
         <el-form-item label="设备IP:" prop="deviceIp">
           <el-input v-model="form.deviceIp" />
         </el-form-item>
         <el-form-item label="设备端口:" prop="devicePort">
           <el-input v-model.number="form.devicePort" />
+        </el-form-item>
+        <el-form-item v-if="form.deviceType === 'platform'" label="国标ID:" prop="gbId">
+          <el-input v-model="form.gbId" />
         </el-form-item>
         <el-form-item label="GB28181账号:" prop="userName">
           <el-select v-model="form.userName" :loading="loading.account">
@@ -87,12 +90,12 @@
               :open-delay="300"
               content="当启用自动拉流，国标设备注册成功后自动启动拉流。关闭该选项后需要通过触发的方式启动拉流。"
             >
-              <i slot="reference" class="form-question el-icon-question" />
+              <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
           </template>
           <el-switch v-model="form.pullType" :active-value="1" :inactive-value="2" />
         </el-form-item>
-        <el-form-item prop="transPriority">
+        <el-form-item v-if="form.deviceType === 'nvr' || form.deviceType === 'ipc'" prop="transPriority">
           <template slot="label">
             优先TCP传输:
             <el-popover
@@ -103,7 +106,7 @@
               :open-delay="300"
               content="开启优先TCP传输时，设备进行视频邀约时优先使用TCP协议接入到视频监控服务中。关闭时则优先使用UDP协议接入。"
             >
-              <i slot="reference" class="form-question el-icon-question" />
+              <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
           </template>
           <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" />
@@ -123,7 +126,7 @@
         </el-form-item>
         <el-form-item label="通道名称:" prop="channelName" class="form-with-tip">
           <el-input v-model="form.channelName" />
-          <div class="form-tip">4-16位，可包含大小写字母、数字、中文、中划线。</div>
+          <div class="form-tip">2-16位，可包含大小写字母、数字、中文、中划线。</div>
         </el-form-item>
       </template>
       <el-form-item label="">
@@ -138,6 +141,7 @@
 import { Component, Vue, Inject, Watch } from 'vue-property-decorator'
 import { pick } from 'lodash'
 import { DeviceModule } from '@/store/modules/device'
+import { GroupModule } from '@/store/modules/group'
 import { DeviceType } from '@/dics'
 import { createDevice, updateDevice, getDevice } from '@/api/device'
 import { getList as getGbList } from '@/api/certificate/gb28181'
@@ -167,12 +171,18 @@ export default class extends Vue {
     gbVersion: [
       { required: true, message: '请选择国标版本', trigger: 'change' }
     ],
+    deviceVendor: [
+      { required: true, message: '请选择厂商', trigger: 'change' }
+    ],
     channelSize: [
       { required: true, message: '请填写子设备数量', trigger: 'blur' }
     ],
     channelNum: [
       { required: true, message: '请填写通道号', trigger: 'blur' },
       { validator: this.validateChannelNum, trigger: 'blur' }
+    ],
+    gbId: [
+      { required: true, message: '请填写国标ID', trigger: 'blur' }
     ],
     userName: [
       { required: true, message: '请选择账号', trigger: 'change' }
@@ -208,6 +218,7 @@ export default class extends Vue {
     pullType: 1,
     transPriority: 'tcp',
     parentDeviceId: '',
+    gbId: '',
     userName: ''
   }
   private minChannelSize = 1
@@ -225,11 +236,7 @@ export default class extends Vue {
   }
 
   private get currentGroup() {
-    return DeviceModule.group
-  }
-
-  private get groupId() {
-    return this.$route.query.groupId ? this.$route.query.groupId.toString() : ''
+    return GroupModule.group
   }
 
   private get deviceId() {
@@ -256,15 +263,15 @@ export default class extends Vue {
     return DeviceModule.breadcrumb
   }
 
-  @Watch('currentGroup')
+  @Watch('currentGroup', { immediate: true, deep: true })
   private onGroupChange() {
     if (this.currentGroup && !this.isUpdate) {
       this.form.pullType = this.currentGroup.pullType
+      this.form.groupId = this.currentGroup.groupId
     }
   }
 
   private async mounted() {
-    this.form.groupId = this.groupId
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
     } else {
@@ -286,7 +293,7 @@ export default class extends Vue {
       })
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'deviceType', 'deviceVendor',
-          'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'userName']))
+          'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'gbId', 'userName']))
         if (info.deviceStats) {
           this.minChannelSize = this.form.channelSize = info.deviceStats.channelSize
         }
@@ -311,8 +318,8 @@ export default class extends Vue {
    * 校验设备/通道名称
    */
   private validateDeviceName(rule: any, value: string, callback: Function) {
-    if (!/^[\u4e00-\u9fa50-9a-zA-Z-]{4,16}$/.test(value)) {
-      callback(new Error('设备或通道名称格式错误。4-16位，可包含大小写字母、数字、中文、中划线。'))
+    if (!/^[\u4e00-\u9fa50-9a-zA-Z-]{2,16}$/.test(value)) {
+      callback(new Error('设备或通道名称格式错误。2-16位，可包含大小写字母、数字、中文、中划线。'))
     } else {
       callback()
     }
@@ -393,17 +400,32 @@ export default class extends Vue {
             params = Object.assign(params, pick(this.form, ['deviceId']))
           }
           if (!this.isChannel) {
-            // 非NVR子设备
-            params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'gbVersion', 'deviceIp', 'devicePort', 'pullType', 'transPriority', 'userName']))
-            if (this.form.deviceType === 'nvr') {
-              // NVR类型添加额外参数
+            // 通用参数
+            params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'deviceIp', 'devicePort', 'pullType', 'userName']))
+            // IPC类型添加额外参数
+            if (this.form.deviceType === 'ipc') {
               params = Object.assign(params, {
+                gbVersion: this.form.gbVersion,
+                transPriority: this.form.transPriority
+              })
+            }
+            // NVR类型添加额外参数
+            if (this.form.deviceType === 'nvr') {
+              params = Object.assign(params, {
+                gbVersion: this.form.gbVersion,
+                transPriority: this.form.transPriority,
                 channelSize: this.form.channelSize,
                 createSubDevice: this.form.createSubDevice
               })
             }
+            // Platform类型添加额外参数
+            if (this.form.deviceType === 'platform') {
+              params = Object.assign(params, {
+                gbId: this.form.gbId
+              })
+            }
           } else {
-            // NVR子设备
+            // NVR通道
             params = Object.assign(params, {
               deviceType: 'ipc',
               createSubDevice: this.isUpdate ? null : '2',

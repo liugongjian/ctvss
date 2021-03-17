@@ -42,6 +42,7 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { getRecordTemplates, setGroupRecordTemplates, unbindGroupRecordTemplates } from '@/api/group'
 import { setDeviceRecordTemplate, unbindDeviceRecordTemplate } from '@/api/device'
+import { setStreamRecordTemplate, unbindStreamRecordTemplate } from '@/api/stream'
 import { formatSeconds } from '@/utils/interval'
 import { template } from 'lodash'
 
@@ -50,6 +51,7 @@ import { template } from 'lodash'
 })
 export default class extends Vue {
   @Prop() private groupId?: string
+  @Prop() private streamId?: string
   @Prop() private deviceId?: String
   @Prop() private templateId?: string
   private dialogVisible = true
@@ -64,7 +66,7 @@ export default class extends Vue {
     }
   ]
   private formatSeconds = formatSeconds
-  private bindTemplateId = this.templateId
+  private bindTemplateId = ''
 
   private closeDialog() {
     this.dialogVisible = false
@@ -81,8 +83,13 @@ export default class extends Vue {
       this.loading = true
       if (this.groupId) {
         await setGroupRecordTemplates(params)
-      } else {
+      } else if (this.deviceId) {
         await setDeviceRecordTemplate(params)
+      } else {
+        await setStreamRecordTemplate({
+          deviceId: this.streamId,
+          templateId: row.templateId
+        })
       }
       this.bindTemplateId = row.templateId
     } catch (e) {
@@ -102,8 +109,13 @@ export default class extends Vue {
       this.loading = true
       if (this.groupId) {
         await unbindGroupRecordTemplates(params)
-      } else {
+      } else if (this.deviceId) {
         await unbindDeviceRecordTemplate(params)
+      } else {
+        await unbindStreamRecordTemplate({
+          deviceId: this.streamId,
+          templateId: row.templateId
+        })
       }
       this.bindTemplateId = ''
     } catch (e) {
@@ -114,11 +126,12 @@ export default class extends Vue {
   }
 
   private async mounted() {
+    this.bindTemplateId = this.templateId!
     try {
       this.loading = true
       const res = await getRecordTemplates({
         pageNum: 1,
-        pageSize: 50
+        pageSize: 999
       })
       this.list = res.templates
     } catch (e) {

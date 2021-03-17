@@ -1,19 +1,38 @@
 .filter-group {
-  width: 300px;
-  .el-input--medium .el-input__inner {
-    height: 50px;
-    line-height: 50px;
-    font-size: 18px;
+  width: 250px;
+  &__label {
+    float: left;
+    margin-right: 10px;
+  }
+  &__in {
+    float: right;
+    color: $textGrey;
+    font-size: 12px;
+    text-transform: uppercase;
   }
 }
+
 .device-list-wrap {
   .el-card__body {
     padding: 0;
   }
 }
+
+// 设备列表
 .device-list {
   position: relative;
   display: flex;
+
+  &__wrap {
+    min-height: 100px;
+  }
+
+  &__empty-text {
+    text-align: center;
+    color: $textGrey;
+    border-top: 1px solid $borderGrey;
+    padding-top: 20px;
+  }
 
   &__handle {
     position: absolute;
@@ -39,6 +58,7 @@
       height: 100%;
       display: flex;
       flex-direction: column;
+
       &__tools {
         height: 40px;
         border-bottom: 1px solid $borderGrey;
@@ -65,6 +85,10 @@
       &__tree {
         padding: 10px;
 
+        .polling-button {
+          margin-bottom: 10px;
+        }
+
         .el-tree-node__content {
           position: relative;
           &:hover {
@@ -80,8 +104,17 @@
         }
 
         .custom-tree-node {
+          width: auto;
           .node-name {
             position: relative;
+          }
+          &.online .node-name {
+            .svg-icon {
+              color: #65c465;
+            }
+          }
+          .alert-type {
+            color: $textGrey;
           }
           .status-badge {
             position: absolute;
@@ -90,10 +123,14 @@
             width: 6px;
             height: 6px;
             opacity: 0.7;
+            &--, &--off, &--failed {
+              display: none;
+            }
           }
           .tools {
             position: absolute;
             top: 0;
+            right: 5px;
             display: none;
             background: #F5F7FA;
             .el-button {
@@ -102,6 +139,26 @@
             }
             .el-button + .el-button {
               margin-left: 5px;
+            }
+          }
+        }
+
+        .node-dir {
+          .svg-icon {
+            display: none;
+            &:last-child {
+              display: inline;
+            }
+          }
+        }
+
+        .is-expanded > .el-tree-node__content {
+          .node-dir {
+            .svg-icon {
+              display: none;
+              &:first-child {
+                display: inline;
+              }
             }
           }
         }
@@ -159,6 +216,28 @@
     }
   }
 
+  .device__tools {
+    height: 40px;
+    line-height: 40px;
+    padding: 0 15px;
+    border-bottom: 1px solid $borderGrey;
+    background: #f8f8f8;
+    transition: padding-left .2s;
+    label {
+      margin-right: 10px;
+    }
+    .el-button {
+      color: #5a5e66;
+      padding: 0;
+    }
+    &--right {
+      float: right;
+      .el-button {
+        font-size: 16px;
+      }
+    }
+  }
+
   &--dragging {
     cursor: ew-resize;
 
@@ -180,6 +259,9 @@
     .breadcrumb {
       padding-left: 70px;
     }
+    .device__tools {
+      padding-left: 70px;
+    }
     .device-list__expand {
       left: 1px;
       i {
@@ -189,5 +271,323 @@
   }
   .device-list__max-height {
     overflow: auto;
+  }
+}
+
+// 分屏
+.screen-list {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  .screen-item {
+    display: flex;
+    flex: 1 0 50%;
+    position: relative;
+    background: #333;
+    border: 3px solid #fff;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    .tip-select-device .el-button--text {
+      color: #fff;
+    }
+    &.actived {
+      border-color: $primary;
+      .tip-select-device .el-button--text {
+        color: $primary;
+      }
+    }
+    .el-loading-mask {
+      background: #333;
+    }
+    .tip-text {
+      color: #fff;
+    }
+    .live-view {
+      canvas, video, .video-wrap {
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        outline: none;
+      }
+      .video-wrap {
+        position: absolute;
+        overflow: hidden;
+      }
+      video {
+        position: absolute;
+        background: #000;
+      }
+      canvas {
+        position: absolute;
+      }
+    }
+    .replay-view {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      .filter-container {
+        position: absolute;
+        right: 35px;
+        top: 6px;
+        height: 28px;
+        overflow: hidden;
+        .el-date-editor {
+          .el-input__inner {
+            background: #555;
+            color: #fff;
+            border: none;
+            font-size: 12px;
+            height: 28px;
+            line-height: 28px;
+          }
+          .el-input__icon {
+            line-height: 28px;
+          }
+        }
+        .el-radio-group .el-radio-button__inner, &__slice {
+          padding: 6px 7px;
+          background: #555;
+          color: #fff;
+          border: none;
+          &:hover {
+            color: $primary;
+          }
+        }
+        &__replay-type.el-radio-group {
+          .el-radio-button__inner {
+            padding: 8px 7px;
+          }
+        }
+        .el-radio-button.is-active .el-radio-button__inner {
+          background: $primary;
+          color: #fff;
+        }
+      }
+      .replay-player {
+        margin-top: 40px;
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+      }
+      .replay-time-list {
+        background: #fff;
+        margin: 40px 0 0;
+        padding: 15px;
+      }
+    }
+    .screen__tools {
+      position: absolute;
+      z-index: 10;
+      right: 10px;
+      top: 6px;
+      
+      .el-button {
+        padding: 0;
+        font-size: 18px;
+        color: #fff;
+      }
+    }
+    .device-name {
+      position: absolute;
+      z-index: 10;
+      left: 15px;
+      top: 11px;
+      color: #fff;
+    }
+  }
+  &.screen-size--4 .screen-item {
+    flex-basis: 50%;
+    height: 50%;
+  }
+  &.screen-size--9 .screen-item {
+    flex-basis: 33%;
+    height: 33%;
+  }
+  &.screen-size--16 .screen-item {
+    flex-basis: 25%;
+    height: 25%;
+  }
+  &.fullscreen, .screen-item.fullscreen {
+    position: fixed;
+    z-index: 1002;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    border: none;
+    
+    .screen-item {
+      border-color: #222;
+    }
+  }
+  .screen-item.fullscreen {
+    .screen__tools {
+      display: none;
+    }
+    .filter-container {
+      display: none;
+    }
+  }
+}
+
+// 录像播放
+.replay-player {
+  display: flex;
+  flex-direction: column;
+  background: #333;
+  position: relative;
+  .video-wrap {
+    flex: 1;
+  }
+  video {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: #000;
+  }
+  .replay-time-list {
+    flex: 2;
+    margin-left: 15px;
+    overflow: hidden;
+
+    .el-range-editor {
+      width: 100%;
+      margin-bottom: 15px;
+    }
+  }
+  .timeline__box {
+    position: relative;
+  }
+  .timeline__wrap {
+    overflow: auto;
+    * {
+      user-select:none;
+    }
+  }
+  .timeline {
+    min-width: 930px;
+    position: relative;
+    padding: 18px 4px 26px 4px;
+    display: flex;
+    background: #333;
+    cursor: grab;
+    &__handle {
+      position: absolute;
+      z-index: 10;
+      top: 0;
+      border-right: 2px solid $primary;
+      height: 97%;
+      cursor: move;
+      .timeline__current-time {
+        position: absolute;
+        font-size: 12px;
+        width: 140px;
+        left: -65px;
+        bottom: 0;
+        padding: 4px 0;
+        border-radius: 5px;
+        text-align: center;
+        background: $primary;
+        color: #fff;
+        transition: left .2s;
+      }
+    }
+    &__axis {
+      position: relative;
+      display: flex;
+      width: 100%;
+      &__slice {
+        position: absolute;
+        width: 100%;
+        left: 0;
+        display: flex;
+      }
+    }
+    &__hour {
+      flex: 1 1 0;
+      text-align: center;
+      border-left: 1px solid #666;
+      border-bottom: 1px solid #666;
+      padding: 6px 0;
+      font-size: 11px;
+      color: #fff;
+      &:first-child {
+        border-left: none;
+      }
+    }
+    &__half__hour {
+      flex: 1 1 0;
+      border-left: 1px solid #666;
+      height: 5px;
+      color: #333;
+      &:first-child {
+        border-left: none;
+      }
+    }
+    &__bar {
+      position: absolute;
+      bottom: 0;
+      border-top: 12px solid #3e80c1;
+      height: 100%;
+      cursor: pointer;
+    }
+    &.dragging * {
+      cursor: grabbing;
+    }
+  }
+  .timeline__settings {
+    position: absolute;
+    top: 48px;
+    right: 10px;
+    display: flex;
+    color: #fff;
+
+    .settings__btn {
+      margin: 0 5px;
+      cursor: pointer;
+    }
+  }
+  .empty-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+// 批量删除列表
+.batch-device-list {
+  border: 1px solid $borderGrey;
+  margin-top: 10px;
+  max-height: 50vh;
+  overflow: auto;
+  p {
+    display: flex;
+    border-bottom: 1px solid $borderGrey;
+    padding: 5px 15px;
+
+    &:last-child {
+      border: none;
+    }
+
+    .devivce-name {
+      flex: 2;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      word-break: break-all;
+    }
+
+    .device-id {
+      flex: 1;
+      text-align: right;
+    }
   }
 }

@@ -71,11 +71,64 @@ export const SipTransType = {
 }
 
 export const StreamTransType = {
-  tcp: 'TCP',
-  udp: 'UDP'
+  ps_rtp_udp: 'UDP',
+  ps_rtp_tcp: 'TCP',
+  h264_rtp_udp: 'UDP',
+  h264_rtp_tcp: 'TCP',
+  h265_rtp_udp: 'UDP',
+  h265_rtp_tcp: 'TCP'
 }
 
 export const TransPriority = {
   tcp: '是',
   udp: '否'
+}
+
+export const StreamStatus = {
+  'on': '在线',
+  'off': '离线',
+  'failed': '失败'
+}
+
+export const StreamType = {
+  1: '全量视频',
+  2: '移动侦测'
+}
+
+export const DeviceParams = {
+  'deviceType': '类型',
+  'deviceStatus': '设备状态',
+  'streamStatus': '流状态'
+}
+
+export const AlertLevel = {
+  normal: '一般警告',
+  serious: '严重警告'
+}
+
+export const AlertIcon = {
+  normal: 'warning',
+  serious: 'alert'
+}
+
+export const AlertType: any = {
+  // 1: '未戴口罩',
+  6: '未戴口罩',
+  8: '人员聚集',
+  // 2: '人员聚集',
+  // 3: '人员布控',
+  4: '人员布控',
+  5: '吸烟检测',
+  7: '安全帽反光服检测'
+}
+
+export const AiMaskType: any = {
+  0: '未戴口罩',
+  1: '戴口罩',
+  2: '佩戴不规范'
+}
+
+export const AlertParams = {
+  'alertLevel': '告警级别',
+  'alertType': '告警类型'
 }

@@ -1,6 +1,13 @@
 import request from '@/utils/request'
 
 // 录制模板相关接口
+export const getRecordBind = (params: any): Promise<any> =>
+  request({
+    url: '/template/record/bind',
+    method: 'get',
+    params
+  })
+
 export const getRecordTemplates = (params: any): Promise<any> =>
   request({
     url: '/template/record/list',
@@ -32,6 +39,49 @@ export const updateRecordTemplate = (params: any): Promise<any> =>
 export const deleteRecordTemplate = (params: any): Promise<any> =>
   request({
     url: '/template/record/delete',
+    method: 'post',
+    data: params
+  })
+
+// 回调模板相关接口
+export const getCallbackBind = (params: any): Promise<any> =>
+  request({
+    url: '/template/callback/bind',
+    method: 'get',
+    params
+  })
+
+export const getCallbackTemplates = (params: any): Promise<any> =>
+  request({
+    url: '/template/callback/list',
+    method: 'get',
+    params
+  })
+
+export const queryCallbackTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/template/callback',
+    method: 'get',
+    params
+  })
+
+export const createCallbackTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/template/callback/create',
+    method: 'post',
+    data: params
+  })
+
+export const updateCallbackTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/template/callback/update',
+    method: 'post',
+    data: params
+  })
+
+export const deleteCallbackTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/template/callback/delete',
     method: 'post',
     data: params
   })

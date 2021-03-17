@@ -1,11 +1,29 @@
 <template>
-  <div class="navbar">
+  <div class="navbar" :class="`navbar--${routerName}`">
     <hamburger
       id="hamburger-container"
       :is-active="sidebar.opened"
       class="hamburger-container"
       @toggleClick="toggleSideBar"
     />
+    <el-select
+      v-if="hasGroupSelector"
+      v-model="groupId"
+      class="filter-group"
+      filterable
+      placeholder="请选择业务组"
+      @change="changeGroup"
+    >
+      <el-option
+        v-for="item in groupList"
+        :key="item.groupId"
+        :label="item.groupName"
+        :value="item.groupId"
+      >
+        <span class="filter-group__label">{{ item.groupName }}</span>
+        <span class="filter-group__in">{{ item.inProtocol }}</span>
+      </el-option>
+    </el-select>
     <breadcrumb
       id="breadcrumb-container"
       class="breadcrumb-container"
@@ -23,41 +41,66 @@
           <size-select class="right-menu-item hover-effect" />
         </el-tooltip>
       </template> -->
-      <div class="links">
-        <a target="_blank" href="/document/api/">API文档</a>
-      </div>
-      <el-dropdown
-        class="avatar-container right-menu-item hover-effect"
-        trigger="click"
-      >
-        <div class="avatar-wrapper">
-          {{ name }}
-          <i class="el-icon-caret-bottom" />
+      <template v-if="routerName === 'AI' || routerName === 'dashboard'">
+        <div class="links">
+          <a :class="{'actived': !queryAlertType}" @click="routeToHome()">首页</a>
+          <div class="dropdown">
+            AI能力
+            <ul class="dropdown__menu">
+              <li v-for="type in alertTypeList" :key="type.key" :class="{'actived': queryAlertType === type.key.toString()}" @click="routeToAI(type.key)">
+                {{ type.value }}
+              </li>
+            </ul>
+          </div>
         </div>
-        <el-dropdown-menu slot="dropdown">
-          <router-link to="/secretManage">
-            <el-dropdown-item>
-              {{ "API密钥管理" }}
-            </el-dropdown-item>
-          </router-link>
-          <el-dropdown-item
-            divided
-            @click.native="logout"
-          >
-            <span style="display:block;">
-              {{ "退出登录" }}
-            </span>
-          </el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
+      </template>
+      <template v-else>
+        <div class="search-box">
+          <div class="search-box__form" @click.stop="focusSearch">
+            <span class="search-box__placeholder">搜索设备</span>
+            <span class="search-box__icon"><svg-icon name="search" width="15" height="15" /></span>
+          </div>
+          <div ref="searchBoxPopup" class="search-box__popup" @click.stop>
+            <div class="search-box__popup__close" @click="closeSearchPopup">
+              <svg-icon name="close" width="12" height="12" />
+            </div>
+            <div class="search-box__popup__types">搜索设备</div>
+            <el-form class="search-box__popup__form" @submit.native.prevent>
+              <el-input ref="searchBoxPopupInput" v-model="searchForm.deviceId" placeholder="请输入设备ID" />
+              <el-button type="text" native-type="submit" @click="search">
+                <svg-icon name="search" width="15" height="15" />
+              </el-button>
+            </el-form>
+          </div>
+        </div>
+        <div class="links">
+          <a target="_blank" href="http://vcn.ctyun.cn/document/api/">API文档</a>
+        </div>
+      </template>
+      <div class="user-container">
+        <div class="user-container__menu">
+          {{ name }}
+          <svg-icon class="user-container__arrow" name="arrow-down" width="9" height="9" />
+        </div>
+        <div class="header-dropdown">
+          <router-link to="/secretManage"><i><svg-icon name="key" /></i> API密钥管理</router-link>
+          <div class="header-dropdown__divided" />
+          <el-button type="text" @click="logout"><i><svg-icon name="logout" /></i> 退出登录</el-button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Watch, Vue } from 'vue-property-decorator'
+import { trim } from 'lodash'
 import { AppModule } from '@/store/modules/app'
 import { UserModule } from '@/store/modules/user'
+import { GroupModule } from '@/store/modules/group'
+import { getDevice } from '@/api/device'
+import { Group } from '@/type/group'
+import { AlertType } from '@/dics'
 import Breadcrumb from '@/components/Breadcrumb/index.vue'
 import ErrorLog from '@/components/ErrorLog/index.vue'
 import Hamburger from '@/components/Hamburger/index.vue'
@@ -77,6 +120,15 @@ import SizeSelect from '@/components/SizeSelect/index.vue'
   }
 })
 export default class extends Vue {
+  private alertType = AlertType
+  public searchForm = {
+    deviceId: ''
+  }
+  public groupId: string | null = null
+  public loading = {
+    group: false
+  }
+
   get sidebar() {
     return AppModule.sidebar
   }
@@ -93,13 +145,129 @@ export default class extends Vue {
     return UserModule.name
   }
 
+  get currentGroup() {
+    return GroupModule.group
+  }
+
+  get currentGroupId() {
+    return GroupModule.group?.groupId
+  }
+
+  get hasGroupSelector() {
+    return this.$route.meta.groupSelector
+  }
+
+  get groupList() {
+    return GroupModule.groups || []
+  }
+
   private toggleSideBar() {
     AppModule.ToggleSideBar(false)
   }
 
+  get routerName() {
+    if (this.$route.name?.startsWith('AI-')) {
+      return 'AI'
+    } else if (this.$route.name?.startsWith('dashboard')) {
+      return 'dashboard'
+    } else {
+      return this.$route.name
+    }
+  }
+
+  get queryAlertType() {
+    return this.$route.query.type
+  }
+
+  get alertTypeList() {
+    const list = []
+    const sort: any = {
+      6: 1,
+      8: 2,
+      4: 4,
+      5: 5,
+      7: 7
+    }
+    for (const key in this.alertType) {
+      list.push({
+        key,
+        value: this.alertType[key]
+      })
+    }
+    list.sort(function(a, b) {
+      return sort[a.key] - sort[b.key]
+    })
+    return list
+  }
+
+  @Watch('currentGroupId', { immediate: true })
+  private onCurrentGroupChange(groupId: string) {
+    this.groupId = groupId
+  }
+
+  private mounted() {
+    GroupModule.GetGroupList()
+  }
+
+  /**
+   * 切换业务组
+   */
+  public async changeGroup() {
+    const currentGroup = this.groupList.find((group: Group) => group.groupId === this.groupId)
+    await GroupModule.SetGroup(currentGroup)
+  }
+
   private async logout() {
     await UserModule.LogOut()
-    this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+    this.$router.push(`/login?redirect=%2Fdashboard`)
+  }
+
+  private focusSearch() {
+    const searchBoxPopup: any = this.$refs.searchBoxPopup
+    searchBoxPopup.style.display = 'block'
+    document.body.addEventListener('click', this.closeSearchPopup)
+    const searchBoxPopupInput: any = this.$refs.searchBoxPopupInput
+    searchBoxPopupInput.focus()
+  }
+
+  private closeSearchPopup() {
+    const searchBoxPopup: any = this.$refs.searchBoxPopup
+    searchBoxPopup.style.display = 'none'
+  }
+
+  private async search() {
+    try {
+      const deviceId = trim(this.searchForm.deviceId)
+      const res = await getDevice({
+        deviceId: deviceId
+      })
+      this.$router.push({
+        name: 'device-detail',
+        query: {
+          type: 'detail',
+          deviceId: deviceId,
+          groupId: res.groupId,
+          inProtocol: res.inProtocol
+        }
+      })
+    } catch (e) {
+      this.$message.error(`未搜索到设备ID:"${this.searchForm.deviceId}"`)
+    }
+  }
+
+  private routeToAI(type: string) {
+    this.$router.push({
+      path: '/dashboard/ai',
+      query: {
+        type
+      }
+    })
+  }
+
+  private routeToHome() {
+    this.$router.push({
+      path: '/dashboard'
+    })
   }
 }
 </script>
@@ -107,7 +275,6 @@ export default class extends Vue {
 <style lang="scss" scoped>
 .navbar {
   height: 50px;
-  overflow: hidden;
   position: relative;
   background: #fff;
   box-shadow: 0 1px 4px rgba(0,21,41,.08);
@@ -126,6 +293,12 @@ export default class extends Vue {
     }
   }
 
+  .filter-group {
+    float: left;
+    margin-top: 7px;
+    margin-right: 10px;
+  }
+
   .breadcrumb-container {
     float: left;
   }
@@ -136,10 +309,6 @@ export default class extends Vue {
   }
 
   .links {
-    display: inline-block;
-    vertical-align: text-bottom;
-    margin-right: 15px;
-
     a {
       color: $text;
     }
@@ -152,9 +321,67 @@ export default class extends Vue {
     float: right;
     height: 100%;
     line-height: 50px;
+    display: flex;
 
     &:focus {
       outline: none;
+    }
+
+    .user-container {
+      position: relative;
+      padding: 0 20px;
+      color: $text;
+
+      &__arrow {
+        vertical-align: middle;
+        transition: transform 0.2s;
+      }
+
+      .header-dropdown {
+        display: none;
+        position: absolute;
+        z-index: 10;
+        top: 50px;
+        right: 0;
+        width: 180px;
+        background: #fff;
+        border: 1px solid $borderGrey;
+        line-height: 32px;
+        padding: 5px 0;
+        animation-duration: .5s;
+
+        a, .el-button--text {
+          display: block;
+          color: $text;
+          padding: 0 15px;
+          line-height: 32px;
+          width: 100%;
+          text-align: left;
+          cursor: pointer;
+          &:hover {
+            background: #f3f3f3;
+          }
+        }
+        i {
+          display: inline-block;
+          width: 22px;
+          color: $textGrey;
+        }
+        &__divided {
+          border-top: 1px solid $borderGrey;
+          margin: 5px 0;
+        }
+      }
+
+      &:hover {
+        .header-dropdown {
+          animation-name: slideInDown;
+          display: block;
+        }
+        .user-container__arrow {
+          transform: rotate(-180deg);
+        }
+      }
     }
 
     .right-menu-item {
@@ -178,7 +405,6 @@ export default class extends Vue {
       margin-right: 30px;
 
       .avatar-wrapper {
-        margin-top: 1px;
         position: relative;
 
         .user-avatar {
@@ -194,6 +420,215 @@ export default class extends Vue {
           right: -15px;
           top: 19px;
           font-size: 12px;
+        }
+      }
+    }
+  }
+
+  .search-box {
+    position: relative;
+    margin-right: 20px;
+    &__form {
+      display: flex;
+      justify-content: space-between;
+      width: 150px;
+      padding: 0 10px;
+      border: 1px solid $borderGrey;
+      border-top: none;
+      border-bottom: none;
+      height: 50px;
+      line-height: 50px;
+      color: $textGrey;
+      background: #fff;
+      cursor: pointer;
+      transition: background-color 100ms;
+      &:hover {
+        background: #f4f4f4;
+        color: $text;
+        .search-box__icon {
+          color: $primary;
+        }
+      }
+    }
+    &__popup {
+      display: none;
+      position: absolute;
+      background: #fff;
+      width: 400px;
+      top: 0;
+      right: 0;
+      padding: 15px;
+      z-index: 10;
+      line-height: 100%;
+      color: $text;
+      border-radius: 2px;
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, .15);
+      transition: all 2000ms;
+
+      &__close {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        cursor: pointer;
+        transition: color 100ms;
+        &:hover {
+          color: $primary;
+        }
+      }
+      &__types {
+        margin-bottom: 10px;
+      }
+      &__form {
+        display: flex;
+        .el-button {
+          color: $text;
+          margin-left: 10px;
+        }
+      }
+    }
+  }
+
+  &--dashboard, &--AI {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 11;
+    background: transparent;
+    color: #eee;
+    height: auto;
+    .links a,
+    .right-menu .user-container {
+      color: #eee;
+    }
+    .right-menu .user-container .header-dropdown {
+      background: #131a23;
+      border-color: #131a23;
+      i {
+        color: #aaa;
+      }
+      a, .el-button--text {
+        color: #eee;
+        &:hover {
+          background: #242c43;
+        }
+      }
+      .header-dropdown__divided {
+        border-color: #243243;
+      }
+    }
+    .search-box__form {
+      color: #eee;
+      background: #243243;
+      border-color: #131a23;
+      &:hover {
+        background: #2c3c51;
+        color: #eee;
+      }
+    }
+    .hamburger-container {
+      line-height: 40px;
+      background: #2c3c51;
+      padding: 0 10px;
+      border-radius: 0;
+      ::v-deep svg {
+        color: #7BB3E5;
+      }
+    }
+    .app-breadcrumb {
+      display: none;
+    }
+    .right-menu {
+      margin-right: 2em;
+      line-height: 40px;
+
+      .links a, .links .dropdown {
+        display: inline-block;
+        cursor: pointer;
+        padding: 0 20px;
+        margin-right: 10px;
+        font-weight: bold;
+        background: #06266f;
+        border-radius: 0 0 4px 4px;
+        border: 1px solid #2c4e9b;
+        border-top: 0;
+        font-size: 16px;
+        &:last-child {
+          margin: 0;
+        }
+        &.actived, &:hover {
+          background-image: linear-gradient(#00B3E9, #002DC1);
+          color: #fff;
+        }
+      }
+
+      .dropdown {
+        position: relative;
+
+        &__menu {
+          display: none;
+          position: absolute;
+          right: -1px;
+          top: 39px;
+          width: 180px;
+          background: #06266f;
+          border: 1px solid #2c4e9b;
+          list-style: none;
+          margin: 0;
+          padding: 10px;
+          li {
+            text-align: center;
+            &.actived, &:hover {
+              background: #00B3E9;
+            }
+          }
+        }
+
+        &:hover .dropdown__menu {
+          display: block;
+        }
+      }
+    }
+
+    .user-container .header-dropdown {
+      top: 40px !important;
+    }
+
+    @media screen and (max-height: 1100px) {
+      .hamburger-container {
+        line-height: 40px;
+        ::v-deep svg {
+          width: 15px!important;
+          height: 15px!important;
+        }
+      }
+      .right-menu {
+        line-height: 40px;
+        a {
+          font-size: 16px;
+          padding: 0 20px;
+        }
+        .dropdown {
+          &__menu {
+            top: 39px;
+          }
+        }
+      }
+    }
+
+    @media screen and (max-height: 800px) {
+      .hamburger-container {
+        line-height: 30px;
+      }
+      .right-menu {
+        line-height: 30px;
+        a {
+          font-size: 14px;
+          padding: 0 15px;
+        }
+        .dropdown {
+          &__menu {
+            top: 29px;
+          }
         }
       }
     }

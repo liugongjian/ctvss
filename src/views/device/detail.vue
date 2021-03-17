@@ -1,40 +1,46 @@
 <template>
   <div class="app-container">
-    <div class="detail-wrap">
+    <div v-loading="loading.info" class="detail-wrap">
       <div v-if="info">
-        <el-button v-if="info.deviceType === 'ipc'" class="btn-detail" @click="goToPreview"><i class="el-icon-video-camera" /> 实时预览</el-button>
-        <el-button v-if="info.deviceType === 'nvr'" class="btn-detail" @click="goToChannels"><i class="el-icon-files" /> 查看通道</el-button>
+        <el-button v-if="info.deviceType === 'ipc'" class="btn-detail" @click="goToPreview"><svg-icon name="live" /> 实时预览</el-button>
+        <el-button v-if="info.deviceType === 'nvr'" class="btn-detail" @click="goToChannels"><svg-icon name="list" /> 查看通道</el-button>
       </div>
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="基本信息" name="info">
-          <div :loading="loading.info">
-            <el-button v-if="!isAutoCreated" type="text" class="info-edit" @click="edit">编辑</el-button>
+          <div>
+            <!-- <el-button v-if="!isAutoCreated" type="text" class="info-edit" @click="edit">编辑</el-button> -->
+            <el-button type="text" class="info-edit" @click="edit">编辑</el-button>
             <info-list v-if="info && !isNVRChannel" label-width="110">
               <info-list-item label="设备类型:">{{ deviceType[info.deviceType] }}</info-list-item>
               <info-list-item label="设备名称:">{{ info.deviceName }}</info-list-item>
               <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
-              <template v-if="info.deviceType === 'ipc'">
+              <template v-if="info.deviceType === 'ipc' || info.deviceType === 'platform'">
                 <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
                 <info-list-item label="设备IP:">{{ info.deviceIp || '-' }}</info-list-item>
                 <info-list-item label="端口:">{{ info.devicePort || '-' }}</info-list-item>
               </template>
               <template v-if="info.deviceType === 'nvr'">
+                <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
                 <info-list-item label="自动创建子设备:">{{ createSubDevice[info.createSubDevice] }}</info-list-item>
-                <info-list-item label="通道数量:">{{ info.deviceStats.channelSize }}</info-list-item>
-                <info-list-item label="在线流数量:">{{ info.deviceStats.onlineSize }}</info-list-item>
+                <info-list-item label="通道数量:">{{ info.deviceStats && info.deviceStats.channelSize }}</info-list-item>
+                <info-list-item label="在线流数量:">{{ info.deviceStats && info.deviceStats.onlineSize }}</info-list-item>
               </template>
-              <info-list-item label="自动拉流:">{{ pullType[info.pullType] }}</info-list-item>
+              <template v-if="info.deviceType === 'platform'">
+                <info-list-item label="通道数量:">{{ info.deviceStats && info.deviceStats.channelSize }}</info-list-item>
+                <info-list-item label="在线流数量:">{{ info.deviceStats && info.deviceStats.onlineSize }}</info-list-item>
+              </template>
               <info-list-item label="GB28181账号:">{{ info.userName }}</info-list-item>
             </info-list>
             <info-list v-if="info && isNVRChannel" label-width="110">
               <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
-              <info-list-item label="通道号:">{{ info.deviceChannels[0].channelNum }}</info-list-item>
-              <info-list-item label="通道名称:">{{ info.deviceChannels[0].channelName }}</info-list-item>
+              <info-list-item v-if="info.deviceChannels.length" label="通道号:">{{ 'D' + info.deviceChannels[0].channelNum }}</info-list-item>
+              <info-list-item v-if="info.deviceChannels.length" label="通道名称:">{{ info.deviceChannels[0].channelName }}</info-list-item>
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
               <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
             </info-list>
-            <info-list label-width="110">
+            <info-list v-if="info" label-width="110">
+              <info-list-item label="自动拉流:">{{ pullType[info.pullType] }}</info-list-item>
               <info-list-item label="设备状态:">
                 <div class="info-list__edit">
                   <div class="info-list__edit--value">
@@ -65,7 +71,7 @@
                   </div>
                 </div>
               </info-list-item>
-              <info-list-item label="优先TCP传输:">
+              <info-list-item v-if="info.deviceType === 'nvr' || info.deviceType === 'ipc'" label="优先TCP传输:">
                 <div class="info-list__edit">
                   <div class="info-list__edit--value">
                     {{ transPriority[info.transPriority] || '-' }}
@@ -159,51 +165,10 @@
           </info-list>
         </el-tab-pane>
         <el-tab-pane label="模板配置" name="template">
-          <div>
-            <el-button type="text" class="template-edit" @click="openDialog('setRecordTemplate')">编辑</el-button>
-            <info-list title="录制模板">
-              <el-table v-loading="loading.template" :data="template.recordTemplate" empty-text="该设备或组没有绑定录制模板" fit>
-                <el-table-column prop="templateName" label="模板名称" />
-                <el-table-column prop="recordType" label="是否启用自动录制">
-                  <template slot-scope="{row}">
-                    {{ row.recordType === 1 ? '是':'否' }}
-                  </template>
-                </el-table-column>
-                <el-table-column prop="storeType" label="录制格式">
-                  <template slot-scope="{row}">
-                    {{ row.flvParam.enable ? 'flv': '' }}
-                    {{ row.hlsParam.enable ? 'hls': '' }}
-                    {{ row.mpParam.enable ? 'mp4': '' }}
-                  </template>
-                </el-table-column>
-              </el-table>
-            </info-list>
-          </div>
-          <div v-if="false">
-            <el-button type="text" class="template-edit" @click="setSnapshotTemplate">编辑</el-button>
-            <info-list title="截图模板">
-              <el-table :data="template.snapshotTemplate" fit>
-                <el-table-column prop="templateName" label="模板名称" />
-                <el-table-column prop="interval" label="周期时长" :formatter="formatSeconds" />
-                <el-table-column prop="storeType" label="录制格式">
-                  <template slot-scope="{row}">
-                    {{ row.storeType.join(',') }}
-                  </template>
-                </el-table-column>
-              </el-table>
-            </info-list>
-          </div>
+          <template-bind v-if="activeName==='template'" :device-id="deviceId" />
         </el-tab-pane>
       </el-tabs>
     </div>
-
-    <SetRecordTemplate
-      v-if="dialog.setRecordTemplate"
-      :device-id="deviceId"
-      :template-id="recordTemplateId"
-      @on-close="closeDialog('setRecordTemplate')"
-    />
-    <SetSnapshotTemplate v-if="dialog.setSnapshotTemplate" @on-close="closeDialog('setSnapshotTemplate')" />
     <SetAuthConfig v-if="dialog.setAuthConfig" @on-close="closeDialog('setAuthConfig')" />
   </div>
 </template>
@@ -213,9 +178,8 @@ import { Component, Vue, Inject } from 'vue-property-decorator'
 import { Device } from '@/type/device'
 import { RecordTemplate } from '@/type/template'
 import { DeviceStatus, DeviceType, AuthStatus, PullType, CreateSubDevice, TransPriority, SipTransType, StreamTransType } from '@/dics'
-import { getDevice, getRecordTemplate } from '@/api/device'
-import SetRecordTemplate from '../components/dialogs/SetRecordTemplate.vue'
-import SetSnapshotTemplate from '../components/dialogs/SetSnapshotTemplate.vue'
+import { getDevice } from '@/api/device'
+import TemplateBind from '../components/templateBind.vue'
 import SetAuthConfig from './components/dialogs/SetAuthConfig.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AntiTheftChain from './components/AntiTheftChain.vue'
@@ -223,8 +187,7 @@ import AntiTheftChain from './components/AntiTheftChain.vue'
 @Component({
   name: 'DeviceDetail',
   components: {
-    SetRecordTemplate,
-    SetSnapshotTemplate,
+    TemplateBind,
     SetAuthConfig,
     StatusBadge,
     AntiTheftChain
@@ -269,8 +232,6 @@ export default class extends Vue {
     recordTemplate: []
   }
   private dialog = {
-    setRecordTemplate: false,
-    setSnapshotTemplate: false,
     setAuthConfig: false
   }
   private loading = {
@@ -321,7 +282,7 @@ export default class extends Vue {
   private goToPreview() {
     this.deviceRouter({
       id: this.deviceId,
-      type: 'ipc'
+      type: 'preview'
     })
   }
 
@@ -338,22 +299,8 @@ export default class extends Vue {
   /**
    * TAB切换
    */
-  private async handleClick(tab: any, event: any) {
+  private async handleClick(tab: any) {
     this.activeName = tab.name
-    if (this.activeName === 'template') {
-      try {
-        this.loading.template = true
-        this.template.recordTemplate = []
-        const res = await getRecordTemplate({ deviceId: this.deviceId })
-        this.template.recordTemplate.push(res)
-      } catch (e) {
-        if (e && e.code !== 5) {
-          this.$message.error(e && e.message)
-        }
-      } finally {
-        this.loading.template = false
-      }
-    }
   }
 
   /**
@@ -369,32 +316,11 @@ export default class extends Vue {
   private openDialog(type: string) {
     // @ts-ignore
     this.dialog[type] = true
-    if (type === 'setRecordTemplate') {
-      if (!this.template.recordTemplate.length) {
-        this.recordTemplateId = ''
-      } else {
-        this.recordTemplateId = this.template.recordTemplate[0].templateId!
-      }
-    }
   }
 
   private async closeDialog(type: string) {
     // @ts-ignore
     this.dialog[type] = false
-    if (type === 'setRecordTemplate') {
-      try {
-        this.loading.template = true
-        this.template.recordTemplate = []
-        const res = await getRecordTemplate({ deviceId: this.deviceId })
-        this.template.recordTemplate.push(res)
-      } catch (e) {
-        if (e && e.code !== 5) {
-          this.$message.error(e && e.message)
-        }
-      } finally {
-        this.loading.template = false
-      }
-    }
   }
 }
 </script>

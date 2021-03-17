@@ -21,17 +21,19 @@
         <el-table-column label="密钥" min-width="250">
           <template slot-scope="{row}">
             <div>
-              <span>{{ 'SecretId: ' + row.AccessKey }}</span>
-              <i v-clipboard:copy="row.AccessKey" v-clipboard:success="copySuccess" v-clipboard:error="copyError" class="el-icon-copy-document ml10" />
+              <span>{{ 'SecretId: ' + row.accessKey }}</span>
+              <el-button v-clipboard:copy="row.accessKey" v-clipboard:success="copySuccess" v-clipboard:error="copyError" type="text" class="ml10">
+                <svg-icon name="copy" />
+              </el-button>
             </div>
             <div>
-              <span>{{ 'SecretKey: ' + (row.hidden ? '******' : row.SecretKey) }}</span>
+              <span>{{ 'SecretKey: ' + (row.hidden ? '******' : row.secretKey) }}</span>
               <el-button class="ml10" type="text" @click="toggleHidden(row)">{{ row.hidden ? '显示' : '隐藏' }}</el-button>
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="CreateTime" label="创建时间" min-width="160" />
-        <el-table-column prop="UpdateTime" label="上次访问时间" min-width="160" />
+        <el-table-column prop="createdTime" label="创建时间" min-width="160" />
+        <el-table-column prop="updatedTime" label="上次访问时间" min-width="160" />
         <el-table-column label="状态">
           <template slot-scope="{row}">
             <status-badge :status="row.status ? 'on' : 'warning'" />
@@ -61,7 +63,7 @@ import { Secret } from '@/type/secret'
 import { SecretStatus } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { getSecretList, createSecret, deleteSecret, enableSecret, disableSecret } from '@/api/secret'
-import { MessageBox, Message } from 'element-ui'
+import { MessageBox } from 'element-ui'
 
 @Component({
   name: 'secret-manage',
@@ -114,7 +116,7 @@ export default class extends Vue {
   private async enableSecret(row: Secret) {
     try {
       this.loading = true
-      const res = await enableSecret(row.id)
+      await enableSecret(row.id)
       this.$message({
         message: '启用密钥成功',
         type: 'success'
@@ -131,7 +133,7 @@ export default class extends Vue {
   private async disableSecret(row: Secret) {
     try {
       this.loading = true
-      const res = await disableSecret(row.id)
+      await disableSecret(row.id)
       this.$message({
         message: '禁用密钥成功',
         type: 'success'
@@ -147,7 +149,7 @@ export default class extends Vue {
 
   private async createSecret() {
     try {
-      const res = await createSecret()
+      await createSecret()
       this.getList()
     } catch (e) {
       // TODO
@@ -173,7 +175,7 @@ export default class extends Vue {
     }).then(async() => {
       try {
         this.loading = true
-        const res = await deleteSecret(row.id)
+        await deleteSecret(row.id)
         this.loading = false
         this.getList()
       } catch (e) {

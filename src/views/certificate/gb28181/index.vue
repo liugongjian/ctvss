@@ -6,13 +6,14 @@
         <div class="filter-container__right">
           <div class="filter-container__select">
             <el-select v-model="userType" placeholder="选择匿名方式" clearable @change="handleFilter">
+              <el-option label="全部" value="" />
               <el-option v-for="(value, key) in anonymousType" :key="key" :label="value" :value="key" />
             </el-select>
           </div>
           <el-input v-model="userName" class="filter-container__search-group" placeholder="请输入SIP用户认证ID/用户别名" @keyup.enter.native="handleFilter">
-            <el-button slot="append" class="el-button-rect" icon="el-icon-search" @click="handleFilter" />
+            <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
           </el-input>
-          <el-button class="el-button-rect" icon="el-icon-refresh" @click="refresh" />
+          <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
         </div>
       </div>
       <el-table v-loading="loading" :data="dataList" fit>
@@ -91,7 +92,6 @@ export default class extends Vue {
       const res = await getList(params)
       this.dataList = res.gbCerts
       this.pager.total = res.totalNum
-      this.pager.pageNum = res.pageNum
       this.pager.pageSize = res.pageSize
     } catch (e) {
       this.$message.error(e && e.message)

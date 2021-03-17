@@ -5,7 +5,6 @@ import Router, { RouteConfig } from 'vue-router'
 import Layout from '@/layout/index.vue'
 
 /* Router modules */
-import chartsRouter from './modules/charts'
 
 Vue.use(Router)
 
@@ -72,25 +71,8 @@ export const constantRoutes: RouteConfig[] = [
   {
     path: '/',
     component: Layout,
-    redirect: '/group'
+    redirect: '/dashboard'
   }
-  // {
-  //   path: '/',
-  //   component: Layout,
-  //   redirect: '/dashboard',
-  //   children: [
-  //     {
-  //       path: 'dashboard',
-  //       component: () => import(/* webpackChunkName: "dashboard" */ '@/views/dashboard/index.vue'),
-  //       name: 'Dashboard',
-  //       meta: {
-  //         title: '全局概览',
-  //         icon: 'dashboard',
-  //         affix: true
-  //       }
-  //     }
-  //   ]
-  // }
 ]
 
 /**
@@ -98,6 +80,40 @@ export const constantRoutes: RouteConfig[] = [
  * the routes that need to be dynamically loaded based on user roles
 */
 export const asyncRoutes: RouteConfig[] = [
+  {
+    path: '/dashboard',
+    component: Layout,
+    meta: {
+      title: '首页',
+      icon: 'dashboard',
+      breadcrumb: false,
+      roles: ['admin'],
+      alwaysShow: false
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/dashboard/index.vue'),
+        name: 'dashboard',
+        meta: {
+          title: '首页',
+          icon: 'dashboard',
+          breadcrumb: false
+        }
+      },
+      {
+        path: 'ai',
+        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/dashboard/ai/index.vue'),
+        name: 'dashboardAI',
+        meta: {
+          title: 'AI监控告警',
+          hidden: true,
+          icon: 'dashboard',
+          breadcrumb: false
+        }
+      }
+    ]
+  },
   {
     path: '/group',
     component: Layout,
@@ -162,10 +178,11 @@ export const asyncRoutes: RouteConfig[] = [
     component: Layout,
     meta: {
       title: '设备管理',
-      icon: 'stream',
+      icon: 'component',
       roles: ['admin'],
       alwaysShow: false,
-      only: true
+      only: true,
+      groupSelector: true
     },
     children: [
       {
@@ -173,9 +190,10 @@ export const asyncRoutes: RouteConfig[] = [
         component: () => import(/* webpackChunkName: "device" */ '@/views/device/index.vue'),
         meta: {
           title: '设备管理',
-          icon: 'stream',
+          icon: 'component',
           breadcrumb: false,
-          roles: ['admin']
+          roles: ['admin'],
+          groupSelector: true
         },
         children: [
           {
@@ -184,10 +202,10 @@ export const asyncRoutes: RouteConfig[] = [
             name: 'device-list',
             meta: {
               title: '设备列表',
-              icon: 'stream',
               breadcrumb: false,
               roles: ['admin'],
-              activeMenu: '/device'
+              activeMenu: '/device',
+              groupSelector: true
             }
           },
           {
@@ -196,10 +214,10 @@ export const asyncRoutes: RouteConfig[] = [
             name: 'device-create',
             meta: {
               title: '添加设备',
-              icon: 'stream',
               hidden: true,
               roles: ['admin'],
-              activeMenu: '/device'
+              activeMenu: '/device',
+              groupSelector: true
             }
           },
           {
@@ -208,10 +226,10 @@ export const asyncRoutes: RouteConfig[] = [
             name: 'device-update',
             meta: {
               title: '编辑设备',
-              icon: 'tree',
               hidden: true,
               roles: ['admin'],
-              activeMenu: '/device'
+              activeMenu: '/device',
+              groupSelector: true
             }
           },
           {
@@ -220,10 +238,10 @@ export const asyncRoutes: RouteConfig[] = [
             name: 'device-detail',
             meta: {
               title: '设备详情',
-              icon: 'stream',
               hidden: true,
               roles: ['admin'],
-              activeMenu: '/device'
+              activeMenu: '/device',
+              groupSelector: true
             }
           },
           {
@@ -232,13 +250,80 @@ export const asyncRoutes: RouteConfig[] = [
             name: 'device-preview',
             meta: {
               title: '监控查看',
-              icon: 'stream',
               hidden: true,
               roles: ['admin'],
-              activeMenu: '/device'
+              activeMenu: '/device',
+              groupSelector: true
             }
           }
         ]
+      }
+    ]
+  },
+
+  {
+    path: '/stream',
+    component: Layout,
+    meta: {
+      title: '流管理',
+      icon: 'stream',
+      roles: ['admin'],
+      alwaysShow: false,
+      only: true,
+      groupSelector: true
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "stream" */ '@/views/stream/index.vue'),
+        name: 'stream',
+        meta: {
+          title: '流管理',
+          icon: 'stream',
+          breadcrumb: false,
+          roles: ['admin'],
+          activeMenu: '/stream',
+          groupSelector: true
+        }
+      },
+      {
+        path: 'info',
+        component: () => import(/* webpackChunkName: "stream" */ '@/views/stream/info.vue'),
+        name: 'stream-config',
+        meta: {
+          title: '流详情',
+          icon: 'stream',
+          hidden: true,
+          roles: ['admin'],
+          activeMenu: '/stream',
+          groupSelector: true
+        }
+      },
+      {
+        path: 'create',
+        component: () => import(/* webpackChunkName: "stream" */ '@/views/stream/create.vue'),
+        name: 'stream-create',
+        meta: {
+          title: '创建流',
+          icon: 'stream',
+          hidden: true,
+          roles: ['admin'],
+          activeMenu: '/stream',
+          groupSelector: true
+        }
+      },
+      {
+        path: 'preview',
+        component: () => import(/* webpackChunkName: "stream" */ '@/views/stream/preview.vue'),
+        name: 'stream-preview',
+        meta: {
+          title: '实时预览',
+          icon: 'tree',
+          hidden: true,
+          roles: ['admin'],
+          activeMenu: '/stream',
+          groupSelector: true
+        }
       }
     ]
   },
@@ -247,9 +332,10 @@ export const asyncRoutes: RouteConfig[] = [
     component: Layout,
     meta: {
       title: '实时预览',
-      icon: 'tree',
+      icon: 'ipc',
       roles: ['admin'],
-      alwaysShow: false
+      alwaysShow: false,
+      groupSelector: true
     },
     children: [
       {
@@ -258,10 +344,11 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'screen',
         meta: {
           title: '实时预览',
-          icon: 'stream',
+          icon: 'ipc',
           breadcrumb: false,
           roles: ['admin'],
-          activeMenu: '/screen'
+          activeMenu: '/screen',
+          groupSelector: true
         }
       }
     ]
@@ -283,9 +370,10 @@ export const asyncRoutes: RouteConfig[] = [
     component: Layout,
     meta: {
       title: '录像回放',
-      icon: 'tree',
+      icon: 'video',
       roles: ['admin'],
-      alwaysShow: false
+      alwaysShow: false,
+      groupSelector: true
     },
     children: [
       {
@@ -294,10 +382,11 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'replay',
         meta: {
           title: '录像回放',
-          icon: 'stream',
+          icon: 'video',
           breadcrumb: false,
           roles: ['admin'],
-          activeMenu: '/replay'
+          activeMenu: '/replay',
+          groupSelector: true
         }
       }
     ]
@@ -307,7 +396,7 @@ export const asyncRoutes: RouteConfig[] = [
     component: Layout,
     meta: {
       title: '凭证管理',
-      icon: 'tree',
+      icon: 'key',
       alwaysShow: true,
       breadcrumb: false,
       roles: ['admin']
@@ -319,7 +408,7 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'gb28181',
         meta: {
           title: 'GB28181凭证',
-          icon: 'tree',
+          icon: 'dot',
           roles: ['admin']
         }
       },
@@ -329,7 +418,6 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'gb28181-create',
         meta: {
           title: '新建GB28181凭证',
-          icon: 'stream',
           hidden: true,
           roles: ['admin']
         }
@@ -340,7 +428,6 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'gb28181-update',
         meta: {
           title: '编辑GB28181凭证',
-          icon: 'stream',
           hidden: true,
           roles: ['admin']
         }
@@ -353,7 +440,7 @@ export const asyncRoutes: RouteConfig[] = [
     redirect: 'noredirect',
     meta: {
       title: '模板管理',
-      icon: 'tree',
+      icon: 'template',
       alwaysShow: true,
       breadcrumb: true,
       roles: ['admin']
@@ -365,7 +452,7 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'record',
         meta: {
           title: '录制模板',
-          icon: 'tree',
+          icon: 'dot',
           roles: ['admin']
         }
       },
@@ -375,7 +462,6 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'record-create',
         meta: {
           title: '新建录制模板',
-          icon: 'stream',
           hidden: true,
           roles: ['admin'],
           activeMenu: '/template/record'
@@ -387,10 +473,41 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'record-update',
         meta: {
           title: '编辑录制模板',
-          icon: 'stream',
           hidden: true,
           roles: ['admin'],
           activeMenu: '/template/record'
+        }
+      },
+      {
+        path: 'callback',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/callback/index.vue'),
+        name: 'callback',
+        meta: {
+          title: '回调模板',
+          icon: 'dot',
+          roles: ['admin']
+        }
+      },
+      {
+        path: 'callback/create',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/callback/createOrUpdate.vue'),
+        name: 'callback-create',
+        meta: {
+          title: '新建回调模板',
+          hidden: true,
+          roles: ['admin'],
+          activeMenu: '/template/callback'
+        }
+      },
+      {
+        path: 'callback/update/:id?',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/callback/createOrUpdate.vue'),
+        name: 'callback-update',
+        meta: {
+          title: '编辑回调模板',
+          hidden: true,
+          roles: ['admin'],
+          activeMenu: '/template/callback'
         }
       }
       // ,
@@ -442,12 +559,51 @@ export const asyncRoutes: RouteConfig[] = [
     },
     children: [
       {
-        path: '',
+        path: '/',
         component: () => import(/* webpackChunkName: "secretManage" */ '@/views/secretManage/index.vue'),
         meta: {
           title: 'API密钥管理',
           icon: 'tree',
           breadcrumb: false,
+          roles: ['admin']
+        }
+      }
+    ]
+  },
+  {
+    path: '/AI',
+    component: Layout,
+    redirect: '/AI/config',
+    meta: {
+      title: 'AI配置',
+      icon: 'key',
+      alwaysShow: true,
+      breadcrumb: false,
+      roles: ['admin']
+    },
+    children: [
+      {
+        path: 'config',
+        component: () => import(/* webpackChunkName: "AI" */ '@/views/AI/aiconfig/index.vue'),
+        name: 'aiconfig',
+        meta: {
+          title: '关联配置',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/AI',
+          roles: ['admin']
+        }
+      },
+      {
+        path: 'maskRecognation',
+        component: () => import(/* webpackChunkName: "AI" */ '@/views/AI/maskRecognation/index.vue'),
+        name: 'AI-MaskRecognation',
+        meta: {
+          title: '口罩识别',
+          icon: 'dot',
+          hidden: true,
+          breadcrumb: false,
+          activeMenu: '/AI',
           roles: ['admin']
         }
       }

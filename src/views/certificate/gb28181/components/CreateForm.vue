@@ -9,7 +9,7 @@
   >
     <el-form-item label="是否匿名:" prop="userType" class="form-with-tip">
       <el-switch v-model="form.userType" active-value="anonymous" inactive-value="normal" :disabled="disabled" />
-      <div class="form-tip">当选择匿名密码为国标设备凭证时，设备注册时将使用设备ID作为SIP用户认证ID。</div>
+      <div class="form-tip">当选择匿名密码为国标设备凭证时，设备注册时将使用国标ID作为SIP用户认证ID。</div>
     </el-form-item>
     <el-form-item :label="form.userType === 'anonymous' ? '用户别名:' : 'SIP用户认证ID:'" prop="userName" class="form-with-tip">
       <el-input v-model="form.userName" :disabled="disabled" />
@@ -34,11 +34,9 @@
   </el-form>
 </template>
 <script lang='ts'>
-import { Component, Vue, Prop } from 'vue-property-decorator'
-import { InProtocolType, OutProtocolType } from '@/dics'
+import { Component, Vue } from 'vue-property-decorator'
 import { createCertificate, queryCertificate, updateCertificate } from '@/api/certificate/gb28181'
 import { GB28181 } from '@/type/certificate'
-import { th } from 'date-fns/locale'
 
 @Component({
   name: 'CreateGb28181CertificateForm'
@@ -62,7 +60,7 @@ export default class extends Vue {
     ]
   }
   private form: GB28181 = {
-    userType: 'normal',
+    userType: 'anonymous',
     userName: '',
     password: '',
     newPassword: '',
@@ -74,10 +72,10 @@ export default class extends Vue {
     if (!value && !this.disabled) {
       callback(new Error('请输入密码'))
     } else {
-      if (this.form.newPassword !== '') {
-        const form: any = this.$refs.dataForm
-        form.validateField('confirmPassword')
-      }
+      // if (this.form.newPassword !== '') {
+      //   const form: any = this.$refs.dataForm
+      //   form.validateField('confirmPassword')
+      // }
       callback()
     }
   }

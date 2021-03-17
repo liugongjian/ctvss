@@ -12,12 +12,12 @@
         <el-button type="primary" @click="handleCreate">新建业务组</el-button>
         <div class="filter-container__right">
           <el-input v-model="groupName" class="filter-container__search-group" placeholder="请输入业务组名称" clearable @keyup.enter.native="handleFilter" @clear="handleFilter">
-            <el-button slot="append" class="el-button-rect" icon="el-icon-search" @click="handleFilter" />
+            <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
           </el-input>
-          <el-button class="el-button-rect" icon="el-icon-refresh" @click="refresh" />
+          <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
         </div>
       </div>
-      <el-table v-loading="loading" :data="dataList" fit>
+      <el-table v-loading="loading" class="group-list__table" :data="dataList" fit @row-click="rowClick">
         <el-table-column prop="groupId" label="业务组ID/名称" min-width="200">
           <template slot-scope="{row}">
             <div class="group-name" @click="goToConfig(row)">
@@ -39,18 +39,42 @@
             {{ inProtocolType[row.inProtocol] }}
           </template>
         </el-table-column>
-        <el-table-column prop="region" label="服务区域" />
-        <el-table-column prop="deviceSize" label="设备数量">
+        <el-table-column prop="regionName" label="服务区域" min-width="120" />
+        <el-table-column prop="deviceSize" label="设备总数" min-width="90">
           <template slot-scope="scope">{{ scope.row.groupStats && scope.row.groupStats.deviceSize }}</template>
         </el-table-column>
-        <el-table-column prop="createdTime" label="创建时间" min-width="160" />
-        <el-table-column prop="action" label="操作" width="250" fixed="right">
+        <el-table-column prop="ipcSize" label="IPC设备数" min-width="90">
+          <template slot-scope="scope">{{ scope.row.groupStats && scope.row.groupStats.ipcSize }}</template>
+        </el-table-column>
+        <el-table-column prop="nvrSize" label="NVR设备数" min-width="95">
+          <template slot-scope="scope">
+            <div v-for="state in renderNvrSize(scope.row.groupStats)" :key="state.label">
+              {{ state.label }}: {{ state.value }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="platformSize" label="平台设备数" min-width="95">
+          <template slot-scope="scope">
+            <div v-for="state in renderPlatformSize(scope.row.groupStats)" :key="state.label">
+              {{ state.label }}: {{ state.value }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="createdTime" label="创建时间" min-width="170" />
+        <el-table-column prop="action" class-name="col-action" label="操作" width="250" fixed="right">
           <template slot-scope="scope">
             <el-button type="text" @click="goToConfig(scope.row)">业务组配置</el-button>
-            <el-button type="text" @click="goToDevices(scope.row)">设备管理</el-button>
-            <el-button v-if="scope.row.groupStatus==='on'" type="text" @click="stopGroup(scope.row)">停用</el-button>
-            <el-button v-if="scope.row.groupStatus==='off'" type="text" @click="startGroup(scope.row)">启用</el-button>
-            <el-button :disabled="scope.row.groupStatus==='on'" type="text" @click="deleteGroup(scope.row)">删除</el-button>
+            <el-button v-if="scope.row.inProtocol === 'rtmp'" type="text" @click="goToStreams(scope.row)">流管理</el-button>
+            <el-button v-else type="text" @click="goToDevices(scope.row)">设备管理</el-button>
+            <el-dropdown @command="handleMore">
+              <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item v-if="scope.row.groupStatus === 'on'" :command="{type: 'stop', group: scope.row}">停用</el-dropdown-item>
+                <el-dropdown-item v-if="scope.row.groupStatus === 'off'" :command="{type: 'start', group: scope.row}">启用</el-dropdown-item>
+                <el-dropdown-item :command="{type: 'update', group: scope.row}">编辑</el-dropdown-item>
+                <el-dropdown-item :disabled="scope.row.groupStatus === 'on'" :command="{type: 'delete', group: scope.row}">删除</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
           </template>
         </el-table-column>
       </el-table>
@@ -68,6 +92,7 @@
 
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
+import { GroupModule } from '@/store/modules/group'
 import { Group } from '@/type/group'
 import { GroupStatus, InProtocolType } from '@/dics'
 import { dateFormatInTable } from '@/utils/date'
@@ -139,6 +164,9 @@ export default class extends Vue {
     await this.getList()
   }
 
+  /**
+   * 停用业务组
+   */
   private async stopGroup(row: Group) {
     try {
       await stopGroup({ groupId: row.groupId })
@@ -148,6 +176,9 @@ export default class extends Vue {
     }
   }
 
+  /**
+   * 启动业务组
+   */
   private async startGroup(row: Group) {
     try {
       await startGroup({ groupId: row.groupId })
@@ -157,16 +188,37 @@ export default class extends Vue {
     }
   }
 
+  /**
+   * 删除业务组
+   */
   private async deleteGroup(row: Group) {
     this.$alertDelete({
       type: '业务组',
       msg: `是否确认删除业务组"${row.groupName}"`,
       method: deleteGroup,
       payload: { groupId: row.groupId },
-      onSuccess: this.getList
+      onSuccess: () => {
+        this.getList()
+        GroupModule.GetGroupList()
+      }
     })
   }
 
+  /**
+   * 编辑业务组
+   */
+  private goToUpdateGroup(row: Group) {
+    this.$router.push({
+      path: '/group/update',
+      query: {
+        groupId: row.groupId
+      }
+    })
+  }
+
+  /**
+   * 跳转至详情配置页面
+   */
   private goToConfig(row: Group) {
     this.$router.push({
       path: '/group/config',
@@ -176,14 +228,95 @@ export default class extends Vue {
     })
   }
 
+  /**
+   * 跳转至设备管理页面
+   */
   private goToDevices(row: Group) {
+    GroupModule.SetGroup(row)
     this.$router.push({
-      path: '/device',
-      query: {
-        groupId: row.groupId,
-        inProtocol: row.inProtocol
-      }
+      path: '/device'
     })
+  }
+
+  /**
+   * 跳转至流管理页面
+   */
+  private goToStreams(row: Group) {
+    GroupModule.SetGroup(row)
+    this.$router.push({
+      path: '/stream'
+    })
+  }
+
+  /**
+   * 整行可点
+   */
+  private rowClick(group: Group, column: any) {
+    if (column.property !== 'action') {
+      this.goToConfig(group)
+    }
+  }
+
+  /**
+   * 更多菜单
+   */
+  private handleMore(command: any) {
+    switch (command.type) {
+      case 'stop':
+        this.stopGroup(command.group)
+        break
+      case 'start':
+        this.startGroup(command.group)
+        break
+      case 'delete':
+        this.deleteGroup(command.group)
+        break
+      case 'update':
+        this.goToUpdateGroup(command.group)
+        break
+    }
+  }
+
+  /**
+   * 渲染NVR数量
+   */
+  private renderNvrSize(groupStats: any) {
+    if (groupStats && groupStats.nvrSize) {
+      const size = groupStats.nvrSize.split(':')
+      if (size.length) {
+        return [
+          {
+            label: 'NVR',
+            value: size[0]
+          },
+          {
+            label: '通道',
+            value: size[1]
+          }
+        ]
+      }
+    }
+  }
+
+  /**
+   * 渲染NVR数量
+   */
+  private renderPlatformSize(groupStats: any) {
+    if (groupStats && groupStats.platformSize) {
+      const size = groupStats.platformSize.split(':')
+      if (size.length) {
+        return [
+          {
+            label: '平台',
+            value: size[0]
+          },
+          {
+            label: '通道',
+            value: size[1]
+          }
+        ]
+      }
+    }
   }
 }
 </script>
@@ -191,6 +324,16 @@ export default class extends Vue {
 <style lang="scss" scoped>
 .filter-container__search-group {
   margin-right: 10px;
+}
+.group-list__table {
+  ::v-deep .el-table__body {
+    td {
+      cursor: pointer;
+    }
+    .col-action {
+      cursor: default;
+    }
+  }
 }
 .group-name {
   cursor: pointer;

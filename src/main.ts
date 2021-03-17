@@ -1,16 +1,18 @@
 import Vue, { DirectiveOptions } from 'vue'
 
-import 'normalize.css'
 import ElementUI from 'element-ui'
 import SvgIcon from 'vue-svgicon'
 import InfoList from '@/components/InfoList'
 import ShowAlert from '@/components/ShowAlert'
 
+import 'normalize.css'
+import 'vue2-timepicker/dist/VueTimepicker.css'
 import '@/styles/element-variables.scss'
 import '@/styles/index.scss'
 
 import App from '@/App.vue'
 import store from '@/store'
+import { GroupModule } from '@/store/modules/group'
 import { AppModule } from '@/store/modules/app'
 import router from '@/router'
 import '@/icons/components'
@@ -48,6 +50,8 @@ Object.keys(filters).forEach(key => {
 })
 
 Vue.config.productionTip = false
+
+GroupModule.GetGroupFromLs()
 
 new Vue({
   router,

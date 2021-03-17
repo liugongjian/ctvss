@@ -4,7 +4,9 @@
 @import './svgicon.scss';
 @import './element-override.scss';
 @import './margin.scss';
+@import './animation.scss';
 @import './device.scss';
+@import './dashboard.scss';
 
 /* Global scss */
 
@@ -86,6 +88,10 @@ div:focus {
   &__search-group {
     width: 300px;
   }
+  &__help {
+    margin-left: 10px;
+    color: #777;
+  }
 }
 
 .form-with-tip {
@@ -146,4 +152,27 @@ div:focus {
 .empty-text {
   color: $textGrey;
   text-align: center;
+}
+
+.el-tab-pane .info-list {
+  margin: 0 5px;
+}
+
+.vue__time-picker input.display-time {
+  border-radius: 4px;
+  border: 1px solid #DCDFE6;
+  color: $text;
+  height: 36px;
+  line-height: 36px;
+  padding: 0 10px;
+}
+.vue__time-picker input.display-time:focus {
+  outline: none;
+  border-color: $primary;
+}
+.vue__time-picker-dropdown, .vue__time-picker .dropdown {
+  top: 38px;
+}
+.vue__time-picker-dropdown ul li:not([disabled]).active, .vue__time-picker-dropdown ul li:not([disabled]).active:focus, .vue__time-picker-dropdown ul li:not([disabled]).active:hover, .vue__time-picker .dropdown ul li:not([disabled]).active, .vue__time-picker .dropdown ul li:not([disabled]).active:focus, .vue__time-picker .dropdown ul li:not([disabled]).active:hover {
+  background: $primary;
 }

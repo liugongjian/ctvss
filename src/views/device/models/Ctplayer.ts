@@ -1,7 +1,9 @@
 // @ts-ignore
 import flvjs from 'flv.js/src/flv.js'
 import Hls from 'hls.js'
-import '@/libs/h265/goldplay.css'
+import { dateFormat } from '@/utils/date'
+import { prepareUrl, srsRtcPlayerAsync } from '@/utils/webrtc'
+// import '@/libs/h265/goldplay.css'
 
 export default class Ctplayer {
   public source: string
@@ -10,14 +12,23 @@ export default class Ctplayer {
   public hasControl: boolean
   public player: any
   public hls?: any
+  public flv?: any
   public type?: string
   public isLive?: boolean
+  public isWs?: boolean
+  public playbackRate?: number
+  private onPlay?: Function
+  private onPause?: Function
   private onTimeUpdate?: Function
+  private onDurationChange?: Function
   private onResizeScreen?: Function
   private onReset?: Function
   private onEnded?: Function
   private onRetry?: Function
   private onSeeked?: Function
+  private onBuffered?: Function
+  private onLoadStart?: Function
+  private onCanplay?: Function
 
   public constructor(config: any) {
     this.wrap = config.wrap
@@ -26,17 +37,25 @@ export default class Ctplayer {
     this.hasControl = config.hasControl
     this.type = config.type
     this.isLive = config.isLive
+    this.isWs = config.isWs
+    this.playbackRate = config.playbackRate || 1
+    this.onPlay = config.onPlay
+    this.onPause = config.onPause
     this.onTimeUpdate = config.onTimeUpdate
+    this.onDurationChange = config.onDurationChange
     this.onResizeScreen = config.onResizeScreen
     this.onReset = config.onReset
     this.onEnded = config.onEnded
     this.onRetry = config.onRetry
     this.onSeeked = config.onSeeked
+    this.onBuffered = config.onBuffered
+    this.onLoadStart = config.onLoadStart
+    this.onCanplay = config.onCanplay
     this.init()
   }
 
   private init() {
-    this.type = this.type || this.getType(this.source)
+    this.type = this.type || this.getType()
     if (!this.type) {
       throw new Error('不支持当前视频类型')
     }
@@ -45,11 +64,15 @@ export default class Ctplayer {
     if (!wrapElement) {
       throw new Error('找不到指定的ID Video元素')
     }
+    if (this.type !== 'h265-flv') {
+      this.source = this.isWs ? this.source.replace('http://', 'ws://') : this.source
+    }
     this.player = this.createPlayer(wrapElement)
     if (!this.player) {
       throw new Error('播放器创建失败')
     }
     this.bindEvent()
+    this.setDefault()
   }
 
   private createPlayer(wrapElement: HTMLDivElement) {
@@ -58,6 +81,8 @@ export default class Ctplayer {
         return this.createFlv(wrapElement)
       case 'hls':
         return this.createHls(wrapElement)
+      case 'rtc':
+        return this.createRtc(wrapElement)
       case 'mp4':
         return this.createDefault(wrapElement)
       case 'h265-flv':
@@ -67,43 +92,62 @@ export default class Ctplayer {
     }
   }
 
+  /**
+   * 绑定事件
+   */
   private bindEvent() {
     switch (this.type) {
+      case 'flv':
       case 'hls':
-        this.player.addEventListener('timeupdate', this.hlsTimeUpdate.bind(this))
-        this.player.addEventListener('ended', this.hlsEnded.bind(this))
-        this.player.addEventListener('seeked', this.hlsSeeked.bind(this))
+        this.player.addEventListener('play', this.h264Play.bind(this))
+        this.player.addEventListener('pause', this.h264Pause.bind(this))
+        this.player.addEventListener('timeupdate', this.h264TimeUpdate.bind(this))
+        this.player.addEventListener('durationchange', this.h264DurationChange.bind(this))
+        this.player.addEventListener('ended', this.h264Ended.bind(this))
+        this.player.addEventListener('seeked', this.h264Seeked.bind(this))
+        this.player.addEventListener('progress', this.h264Buffered.bind(this))
+        this.player.addEventListener('loadstart', this.h264LoadStart.bind(this))
+        this.player.addEventListener('canplay', this.h264Canplay.bind(this))
         break
       case 'h265-hls':
-        this.player.events.on('Player.resizeScreen', this.resizeH265Hls.bind(this))
-        this.player.events.on('Player.timeUpdate', this.H265HlsTimeUpdate.bind(this))
+        // this.player.events.on('Player.resizeScreen', this.resizeH265Hls.bind(this))
+        // this.player.events.on('Player.timeUpdate', this.h265HlsTimeUpdate.bind(this))
     }
   }
 
-  public reloadPlayer() {
+  /**
+   * 设置默认值
+   */
+  private setDefault() {
     switch (this.type) {
       case 'flv':
-        this.player.unload()
-        this.player.load()
-        this.player.play()
-        break
       case 'hls':
-      case 'mp4':
+        this.player.playbackRate = this.playbackRate
     }
   }
 
+  /**
+   * 销毁播放器
+   */
   public disposePlayer() {
     try {
       const wrapElement: HTMLDivElement = this.wrap
       switch (this.type) {
         case 'flv':
-          this.player.destroy()
-          break
         case 'hls':
-          this.player.removeEventListener('timeupdate', this.hlsTimeUpdate)
-          this.player.removeEventListener('ended', this.hlsEnded)
-          this.player.removeEventListener('seeked', this.hlsSeeked)
-          this.hls.destroy()
+          this.player.removeEventListener('play', this.h264Play)
+          this.player.removeEventListener('pause', this.h264Pause)
+          this.player.removeEventListener('timeupdate', this.h264TimeUpdate)
+          this.player.removeEventListener('ended', this.h264Ended)
+          this.player.removeEventListener('seeked', this.h264Seeked)
+          this.player.removeEventListener('progress', this.h264Buffered)
+          this.player.removeEventListener('loadstart', this.h264LoadStart)
+          this.player.removeEventListener('canplay', this.h264Canplay)
+          this.hls && this.hls.destroy()
+          this.flv && this.flv.destroy()
+          break
+        case 'rtc':
+          this.player.stop()
           break
         case 'mp4':
           this.player.stop()
@@ -113,9 +157,9 @@ export default class Ctplayer {
           this.player = null
           break
         case 'h265-hls':
-          this.player.events.off('Player.resizeScreen', this.resizeH265Hls)
-          this.player.events.off('Player.timeUpdate', this.H265HlsTimeUpdate)
-          this.player.destroy()
+          // this.player.events.off('Player.resizeScreen', this.resizeH265Hls)
+          // this.player.events.off('Player.timeUpdate', this.h265HlsTimeUpdate)
+          // this.player.destroy()
           break
       }
       wrapElement!.innerHTML = ''
@@ -124,20 +168,62 @@ export default class Ctplayer {
     }
   }
 
+  /**
+   * 重新加载视频
+   */
+  public reloadPlayer() {
+    switch (this.type) {
+      case 'flv':
+        console.log(this.player)
+        this.flv.unload()
+        this.flv.load()
+        this.flv.play()
+        break
+      case 'h265-flv':
+        this.player.destroy()
+        this.player = null
+        this.init()
+        break
+    }
+  }
+
+  /**
+   * 播放
+   */
   public play() {
     switch (this.type) {
       case 'flv':
       case 'hls':
+      case 'rtc':
       case 'mp4':
       case 'h265-flv':
-        this.player.load()
         this.player.play()
         break
     }
   }
 
+  /**
+   * 暂停
+   */
+  public pause() {
+    switch (this.type) {
+      case 'flv':
+      case 'hls':
+      case 'rtc':
+      case 'mp4':
+      case 'h265-flv':
+        this.player.pause()
+        break
+    }
+  }
+
+  /**
+   * Seek
+   * @param time 秒
+   */
   public seek(time: number) {
     switch (this.type) {
+      case 'flv':
       case 'hls':
         this.player.currentTime = time
         break
@@ -147,30 +233,73 @@ export default class Ctplayer {
     }
   }
 
+  /**
+   * 切换播放速度
+   * @param playbackRate
+   */
+  public setPlaybackRate(playbackRate: number) {
+    switch (this.type) {
+      case 'flv':
+      case 'hls':
+        this.player.playbackRate = playbackRate
+        break
+    }
+  }
+
+  /**
+   * 停止
+   */
   public stop() {
     this.player.stop()
+  }
+
+  /**
+   * 截图
+   */
+  public snapshot(name: string = 'snapshot') {
+    if (this.type !== 'h265-flv') {
+      let $video: HTMLVideoElement | null = this.wrap.querySelector('video')
+      if (!$video) return
+      let $canvas: any | null = document.createElement('canvas')
+      $canvas.width = $video.videoWidth
+      $canvas.height = $video.videoHeight
+      $canvas!.getContext('2d').drawImage($video, 0, 0, $canvas.width, $canvas.height)
+      let $link: any = document.createElement('a')
+      $link.download = `${name}_${dateFormat(new Date(), 'yyyy-MM-dd_HH-mm-ss')}.png`
+      $link.href = $canvas.toDataURL('image/png')
+      $link.click()
+    } else {
+      let $canvas: any | null = this.wrap.querySelector('canvas')
+      console.log($canvas.toDataURL('image/png'))
+      let $link: any = document.createElement('a')
+      $link.download = `${name}_${dateFormat(new Date(), 'yyyy-MM-dd_HH-mm-ss')}.png`
+      $link.href = $canvas.toDataURL('image/png')
+      $link.click()
+    }
   }
 
   /**
    * H265 Flv 方式播放
    */
   private createH265Flv(wrapElement: HTMLDivElement) {
+    // wrapElement.innerHTML = '<div class="not-support">网页版暂不支持H265，请使用手机APP播放</div>'
     // @ts-ignore
-    const KsPlayer = window.h265js
+    const h265Player = window.h265js
+    const audioElement = document.createElement('audio')
+    wrapElement.append(audioElement)
     const canvasElement = document.createElement('canvas')
-    const width = wrapElement.clientWidth
+    wrapElement.innerHTML = ''
+    wrapElement.append(canvasElement)
+    const width = canvasElement.clientWidth
+    // const width = wrapElement.clientWidth
     const height = width * 9 / 16
     canvasElement.setAttribute('width', width.toString())
     canvasElement.setAttribute('height', height.toString())
-    const audioElement = document.createElement('audio')
-    wrapElement.innerHTML = ''
-    wrapElement.append(canvasElement)
-    wrapElement.append(audioElement)
-    let player = KsPlayer.createPlayer({
+    let player = h265Player.createPlayer({
       isLive: true
     },
     {
-      wasmFilePath: `${window.location.origin}/lib/libqydecoder.wasm`,
+      wasmFilePath: `${window.location.origin}/lib/h265.wasm`,
       maxLength4ToBeDecodeQueue: 7 + 30 * 30, // 待解码NALU队列最大长度 (fps * s) 7 + 30 * 30
       maxLength4ToBeRenderQueue: 200, // 待渲染frame队列最大长度 (720p每帧2M，1080p每帧3M) 200
       enableYUVrender: true,
@@ -181,28 +310,28 @@ export default class Ctplayer {
       url: this.source,
       timeToDecideWaiting: 500, // 暂停多久算卡顿, 默认500ms
       bufferTime: 500, // 启播前缓冲视频时长（ms）
-      token: '30ed327e0ccbdbf594223f0f8f092f12'
+      token: '4de606075fcb375a6e1d23ee6b3992bd'
     }, {
       audioElement: audioElement,
       canvas: canvasElement
     })
 
-    player.on(KsPlayer.Events.WAITING, (event: any, data: any) => {
+    player.on(h265Player.Events.WAITING, (event: any, data: any) => {
       // console.log('WAITING: ', event, data)
     })
-    player.on(KsPlayer.Events.PLAYING, (event: any, data: any) => {
+    player.on(h265Player.Events.PLAYING, (event: any, data: any) => {
       // console.log('PLAYING: ', event, data)
     })
-    player.on(KsPlayer.Events.RELOAD, (event: any, data: any) => {
+    player.on(h265Player.Events.RELOAD, (event: any, data: any) => {
       // console.log('RELOAD: ', event, data)
     })
-    player.on(KsPlayer.Events.MEDIAINFO, (event: any, data: any) => {
+    player.on(h265Player.Events.MEDIAINFO, (event: any, data: any) => {
       // console.log('MEDIAINFO: ', event, data)
     })
-    player.on(KsPlayer.Events.READY, () => {
+    player.on(h265Player.Events.READY, () => {
       player.load()
     })
-    player.on(KsPlayer.Events.ERROR, (event: any, data: any) => {
+    player.on(h265Player.Events.ERROR, (event: any, data: any) => {
       if (data.detail === 'AudioAutoPlayUnsupported') {
         player.destroy()
         const playButton = document.createElement('div')
@@ -218,18 +347,19 @@ export default class Ctplayer {
   }
 
   private createH265Hls(wrapElement: HTMLDivElement) {
+    wrapElement.innerHTML = '<div class="not-support">网页版暂不支持H265，请使用手机APP播放</div>'
     // @ts-ignore
-    const GoldPlay = window.GoldPlay
-    const player: any = new GoldPlay(wrapElement, {
-      sourceURL: this.source,
-      type: 'HLS',
-      autoPlay: this.autoPlay,
-      libPath: `${window.location.origin}/lib/`,
-      playBackRate: 1,
-      containerFullPage: false
-    })
-    player.muted = true
-    return player
+    // const GoldPlay = window.GoldPlay
+    // const player: any = new GoldPlay(wrapElement, {
+    //   sourceURL: this.source,
+    //   type: 'HLS',
+    //   autoPlay: this.autoPlay,
+    //   libPath: `${window.location.origin}/lib/`,
+    //   playBackRate: 1,
+    //   containerFullPage: false
+    // })
+    // player.muted = true
+    // return player
   }
 
   /**
@@ -239,6 +369,8 @@ export default class Ctplayer {
     if (!flvjs.isSupported()) {
       throw new Error('当前浏览器不支持Flv播放器')
     }
+    flvjs.LoggingControl.enableError = false
+    flvjs.LoggingControl.enableWarn = false
     const videoElement: HTMLVideoElement = document.createElement('video')
     videoElement.controls = this.hasControl
     wrapElement.innerHTML = ''
@@ -252,16 +384,15 @@ export default class Ctplayer {
     flvPlayer.load()
     flvPlayer.play()
     flvPlayer.on(flvjs.Events.ERROR, (e: any) => {
-      console.log('ERROR', e)
       if (e === flvjs.ErrorTypes.NETWORK_ERROR) {
         this.onRetry && this.onRetry()
       }
     })
-    flvPlayer.on(flvjs.Events.STATISTICS_INFO, (e: any) => {
-      // console.log('STATISTICS_INFO', e)
-    })
     flvPlayer.on(flvjs.Events.METADATA_ARRIVED, (e: any) => {
       console.log('METADATA_ARRIVED', e)
+    })
+    flvPlayer.on(flvjs.Events.SCRIPTDATA_ARRIVED, (e: any) => {
+      console.log('SCRIPTDATA_ARRIVED', e)
     })
     flvPlayer.on(flvjs.Events.METADATA_ARRIVED, (e: any) => {
       console.log('LOADING_COMPLETE', e)
@@ -271,7 +402,8 @@ export default class Ctplayer {
         this.onRetry && this.onRetry()
       }
     })
-    return flvPlayer
+    this.flv = flvPlayer
+    return videoElement
   }
 
   /**
@@ -297,10 +429,36 @@ export default class Ctplayer {
     return videoElement
   }
 
+  private createRtc(wrapElement: any) {
+    if (!window.RTCPeerConnection) {
+      throw new Error('当前浏览器不支持Webrtc播放器')
+    }
+    const videoElement: HTMLVideoElement = document.createElement('video')
+    videoElement.controls = this.hasControl
+    wrapElement.innerHTML = ''
+    wrapElement.append(videoElement)
+
+    const conf = prepareUrl(this.source)
+    const sdk = srsRtcPlayerAsync()
+    sdk.onaddstream = (event: any) => {
+      videoElement.srcObject = event.stream
+      this.autoPlayVideo(videoElement, videoElement)
+    }
+
+    sdk.play(conf.apiUrl, conf.streamUrl).then((session: any) => {
+      console.log(session)
+    }).catch((error: any) => {
+      sdk.close()
+      throw new Error(error)
+    })
+    return videoElement
+  }
+
   /**
    * 默认方式播放
    */
   private createDefault(wrapElement: any) {
+    // TODO
     wrapElement.src = this.source
     return wrapElement
   }
@@ -336,7 +494,7 @@ export default class Ctplayer {
   /**
    * 根据后缀检查视频类型
    */
-  private getType(url: string) {
+  private getType() {
     const a = document.createElement('a')
     a.href = this.source
     const allowType = ['flv', 'mp4', 'm3u8']
@@ -364,24 +522,68 @@ export default class Ctplayer {
   }
 
   /**
+   * H264 开始播放
+   */
+  private h264Play() {
+    this.onPlay && this.onPlay()
+  }
+
+  /**
+   * H264 开始播放
+   */
+  private h264Pause() {
+    this.onPause && this.onPause()
+  }
+
+  /**
    * H264 HLS更新时间
    */
-  private hlsTimeUpdate() {
+  private h264TimeUpdate() {
     this.onTimeUpdate && this.onTimeUpdate(this.player.currentTime)
+  }
+
+  /**
+   * H264 更新时长
+   */
+  private h264DurationChange() {
+    this.onDurationChange && this.onDurationChange(this.player.duration)
   }
 
   /**
    * H264 HLS播放结束
    */
-  private hlsEnded() {
+  private h264Ended() {
     this.onEnded && this.onEnded()
   }
 
   /**
    * H264 HLS Seeked
    */
-  private hlsSeeked() {
+  private h264Seeked() {
     this.onSeeked && this.onSeeked(this.player.currentTime)
+  }
+
+  /**
+   * H264 HLS Seeked
+   */
+  private h264Buffered() {
+    if (this.player.buffered.length) {
+      this.onBuffered && this.onBuffered(this.player.buffered.end(this.player.buffered.length - 1))
+    }
+  }
+
+  /**
+   * H264 开始加载
+   */
+  private h264LoadStart() {
+    this.onLoadStart && this.onLoadStart()
+  }
+
+  /**
+   * H264 已加载
+   */
+  private h264Canplay() {
+    this.onCanplay && this.onCanplay()
   }
 
   /**
@@ -397,8 +599,7 @@ export default class Ctplayer {
    * H265 HLS更新时间
    * @param e
    */
-  private H265HlsTimeUpdate(e: any) {
-    console.log(e)
+  private h265HlsTimeUpdate(e: any) {
     // 统一返回"秒"为单位
     this.onTimeUpdate && this.onTimeUpdate(e / 1000)
   }

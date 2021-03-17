@@ -45,6 +45,7 @@
 <script lang="ts">
 import { Component, Vue, Prop, Inject } from 'vue-property-decorator'
 import { DeviceModule } from '@/store/modules/device'
+import { GroupModule } from '@/store/modules/group'
 import { Device } from '@/type/device'
 import { getDeviceTree } from '@/api/device'
 import { bindDir } from '@/api/dir'
@@ -59,6 +60,11 @@ export default class extends Vue {
   @Inject('getDirPath') private getDirPath!: Function
   @Prop()
   private device!: Device
+  @Prop()
+  private devices!: Array<Device>
+  @Prop()
+  private isBatch!: boolean
+
   private dialogVisible = true
   private submitting = false
   private breadcrumb: Array<any> = []
@@ -87,7 +93,7 @@ export default class extends Vue {
    * 当前业务组ID
    */
   private get groupId() {
-    return DeviceModule.group!.groupId
+    return GroupModule.group!.groupId
   }
 
   /**
@@ -169,10 +175,21 @@ export default class extends Vue {
     }
     try {
       this.submitting = true
-      await bindDir({
-        dirId: this.currentDir.id,
-        deviceId: this.device.deviceId
-      })
+      if (this.isBatch) {
+        await Promise.all(
+          this.devices.map((device: Device) => {
+            return bindDir({
+              dirId: this.currentDir.id,
+              deviceId: device.deviceId
+            })
+          })
+        )
+      } else {
+        await bindDir({
+          dirId: this.currentDir.id,
+          deviceId: this.device.deviceId
+        })
+      }
       this.initDirs()
       this.$message.success('移动设备成功！')
     } catch (e) {

@@ -7,7 +7,7 @@ export interface Group {
   },
   inProtocol?: string;
   outProtocol?: Array<string>;
-  region?: string;
+  region?: string | Array<string>;
   createdTime?: string;
   description?: string;
   sipId?: number;

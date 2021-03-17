@@ -35,14 +35,14 @@
             </el-table-column>
             <el-table-column label="存储时长" align="center" width="300">
               <template slot-scope="{row}">
-                <el-input v-model="row.storageTime" placeholder="0为永久保存" class="transcribe-cycle" size="mini" style="width: 90%;">
-                  <template slot="append">分钟</template>
-                </el-input>
+                <el-select v-model="row.storageTime" size="mini" style="width: 80%;">
+                  <el-option v-for="item in storageTimeList" :key="item.value" :label="item.label" :value="item.value" />
+                </el-select>
               </template>
             </el-table-column>
-            <el-table-column label="存储路径" align="center">
+            <el-table-column label="存储路径" align="center" min-width="400">
               <template slot-scope="{row}">
-                <el-input v-model="row.path" :placeholder="placeHolder" size="mini" />
+                <el-input v-model="row.path" :placeholder="placeHolder[userType]" size="mini" />
               </template>
             </el-table-column>
           </el-table>
@@ -61,9 +61,9 @@
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
 import { RecordTemplate } from '@/type/template'
+import { UserModule } from '@/store/modules/user'
 import { RecordStorageType } from '@/dics'
 import { queryRecordTemplate, createRecordTemplate, updateRecordTemplate } from '@/api/template'
-import { unwatchFile } from 'fs'
 
 @Component({
   name: 'create-or-update-record-template'
@@ -78,6 +78,28 @@ export default class extends Vue {
       { validator: this.validateTemplateName, trigger: 'blur' }
     ]
   }
+  private storageTimeList = [
+    {
+      label: '7天',
+      value: 7 * 24 * 60
+    },
+    {
+      label: '15天',
+      value: 15 * 24 * 60
+    },
+    {
+      label: '30天',
+      value: 30 * 24 * 60
+    },
+    {
+      label: '90天',
+      value: 90 * 24 * 60
+    },
+    {
+      label: '永久',
+      value: 0
+    }
+  ]
   private storageTypeList = Object.values(RecordStorageType)
   private intervalReg = /^[1-9][0-9]*$/
   private timeReg = /^(([1-9][0-9]*)|[0-9])$/
@@ -88,9 +110,17 @@ export default class extends Vue {
     description: '',
     formatList: []
   }
-  private placeHolder = 'record/{AppName}/{StreamName}/{EscapedStartTime}_{EscapedEndTime}'
+  // HARDCODE: 针对天翼看家单独判断
+  private placeHolder = {
+    default: 'Prefix/{DeviceId}/{StartTime}/{StartTime}_{EndTime}',
+    kanjia: 'Prefix/{DeviceId}_{StartTime}_{StreamType}_{StreamCode}'
+  }
   private setHeaderClass() {
     return 'background: white'
+  }
+
+  get userType() {
+    return UserModule.type
   }
 
   private async mounted() {
@@ -122,8 +152,8 @@ export default class extends Vue {
         resFormParams.formatList.push({
           formatType: 'HLS',
           interval: 30,
-          path: this.placeHolder,
-          storageTime: 0
+          path: 'record/{DeviceId}/{StartTime}',
+          storageTime: 30 * 24 * 60
         })
       }
 
@@ -132,15 +162,15 @@ export default class extends Vue {
           formatType: 'FLV',
           interval: data.flvParam.interval / 60,
           path: data.flvParam.path,
-          storageTime: data.flvParam.storageTime
+          storageTime: data.flvParam.storageTime / 60
         })
         selectedRows.push(resFormParams.formatList[resFormParams.formatList.length - 1])
       } else {
         resFormParams.formatList.push({
           formatType: 'FLV',
           interval: 30,
-          path: this.placeHolder,
-          storageTime: 0
+          path: 'record/{DeviceId}/{StartTime}',
+          storageTime: 30 * 24 * 60
         })
       }
 
@@ -149,15 +179,15 @@ export default class extends Vue {
           formatType: 'MP4',
           interval: data.mpParam.interval / 60,
           path: data.mpParam.path,
-          storageTime: data.mpParam.storageTime
+          storageTime: data.mpParam.storageTime / 60
         })
         selectedRows.push(resFormParams.formatList[resFormParams.formatList.length - 1])
       } else {
         resFormParams.formatList.push({
           formatType: 'MP4',
           interval: 30,
-          path: this.placeHolder,
-          storageTime: 0
+          path: 'record/{DeviceId}/{StartTime}',
+          storageTime: 30 * 24 * 60
         })
       }
 
@@ -175,18 +205,18 @@ export default class extends Vue {
       this.form.formatList.push({
         formatType: 'HLS',
         interval: 30,
-        path: this.placeHolder,
-        storageTime: 0
+        path: 'record/{DeviceId}/{StartTime}',
+        storageTime: 30 * 24 * 60
       }, {
         formatType: 'FLV',
         interval: 30,
-        path: this.placeHolder,
-        storageTime: 0
+        path: 'record/{DeviceId}/{StartTime}',
+        storageTime: 30 * 24 * 60
       }, {
         formatType: 'MP4',
         interval: 30,
-        path: this.placeHolder,
-        storageTime: 0
+        path: 'record/{DeviceId}/{StartTime}',
+        storageTime: 30 * 24 * 60
       })
     }
   }
@@ -217,7 +247,10 @@ export default class extends Vue {
         }
         const validateResult = this.selectedRows.every(row => {
           if (!this.intervalReg.test(row.interval)) {
-            this.$message.error('录制周期时长必须是15~360之间的整数')
+            this.$message.error('录制周期时长必须是5~120之间的整数')
+            return false
+          } else if (row.interval < 5 || row.interval > 120) {
+            this.$message.error('录制周期时长必须是5~120之间的整数')
             return false
           }
           if (!this.timeReg.test(row.storageTime)) {
@@ -227,7 +260,6 @@ export default class extends Vue {
           return true
         })
         if (validateResult) {
-          var res
           this.loading = true
           const param: any = {
             templateId: this.form.templateId || undefined,
@@ -259,11 +291,14 @@ export default class extends Vue {
               }
             }
           })
+          param.hlsParam = param.hlsParam || { enable: 0 }
+          param.flvParam = param.flvParam || { enable: 0 }
+          param.mpParam = param.mpParam || { enable: 0 }
           try {
             if (this.form.templateId) {
-              res = await updateRecordTemplate(param)
+              await updateRecordTemplate(param)
             } else {
-              res = await createRecordTemplate(param)
+              await createRecordTemplate(param)
             }
             this.loading = false
             this.$message.success(this.form.templateId ? '录制模板编辑成功' : '录制模板创建成功')
