@@ -34,16 +34,3 @@ const initPlayer = (config: any) => {
       return new RtcPlayer(config)
   }
 }
-
-/**
- * 根据后缀检查视频类型
- */
-const getType = (source: string) => {
-  const a = document.createElement('a')
-  a.href = source
-  const allowType = ['flv', 'mp4', 'm3u8']
-  const path = /[^.]+$/.exec(a.pathname)
-  if (path && allowType.includes(path[0])) {
-    return path[0]
-  }
-}
