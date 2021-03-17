@@ -87,7 +87,6 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { dateFormatInTable, dateFormat, durationFormatInTable, prefixZero } from '@/utils/date'
-import Ctplayer from '../models/Ctplayer'
 import { getDeviceRecords, getDeviceRecord, getDeviceRecordStatistic, getDeviceRecordRule } from '@/api/device'
 import ReplayPlayerDialog from './dialogs/ReplayPlayer.vue'
 import SliceDownloadDialog from './dialogs/SliceDownload.vue'
@@ -114,7 +113,7 @@ export default class extends Vue {
     default: false
   })
   private hasPlaylive?: boolean
-  private player?: Ctplayer
+  private player?: any
   private dateFormatInTable = dateFormatInTable
   private durationFormatInTable = durationFormatInTable
   private dateFormat = dateFormat
