@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-card>
+    <el-card v-loading="isLoading">
       <!-- <div class="head">
         <div class="head__left">
           <el-button type="primary" @click="createPolicy">{{ `创建${this.typeObj[this.type]}策略` }}</el-button>
@@ -13,9 +13,9 @@
         </div>
       </div> -->
       <el-table :data="policyList">
-        <el-table-column prop="source" label="策略名" />
-        <el-table-column prop="operate" label="策略描述" />
-        <el-table-column prop="operate" label="创建时间" />
+        <el-table-column prop="policyName" label="策略名" />
+        <el-table-column prop="describe" label="策略描述" />
+        <el-table-column prop="createTime" label="创建时间" />
         <!-- <el-table-column label="操作" width="140">
           <template slot-scope="scope">
             <el-button type="text" @click="viewPolicy">查看</el-button>
@@ -38,10 +38,12 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import { getPolicyList } from '@/api/accessManage'
 @Component({
-  name: 'accessManagePolicy'
+  name: 'AccessManagePolicy'
 })
 export default class extends Vue {
+  private isLoading: boolean = false
   private policyList: any = [1]
   private policyNameSearch: string = ''
   private pager: object = {
@@ -51,6 +53,7 @@ export default class extends Vue {
   }
 
   private mounted() {
+
   }
 
   private createPolicy() {
@@ -63,7 +66,25 @@ export default class extends Vue {
   }
   private refresh() {
   }
-  private getList() {
+  private async getList() {
+    // try {
+    //   let params: any = {}
+    //   this.isLoading = true
+    //   let res: any = await getPolicyList(params)
+    //   this.policyList = []
+    //   for (let i = 0; i < res.iamPolices.length; i++) {
+    //     let obj: object = {
+    //       policyName: res.iamPolices.policyName,
+    //       describe: res.iamPolices.describe,
+    //       createTime: res.iamPolices.createTime
+    //     }
+    //     this.policyList.push(obj)
+    //   }
+    // } catch (e) {
+    //   this.$message.error(e && e.message)
+    // } finally {
+    //   this.isLoading = false
+    // }
   }
   private handleSizeChange(val: number) {
     const pager: any = this.pager

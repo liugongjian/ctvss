@@ -13,22 +13,21 @@
           </div>
         </div>
         <div class="titleBar__title">
-          <span>region1/region2</span>
+          <span>通讯录</span>
+          <span>{{ currentGroup.groupName === '通讯录' ? '' : `/${currentGroup.groupName}` }}</span>
         </div>
       </div>
       <div class="content">
-        <div class="content__menu">
+        <el-main v-loading="loading.menu" class="content__menu">
           <el-tree
             ref="groupTree"
+            :data="groupList"
             :props="props"
-            :load="loadNode"
-            lazy
-            node-key="name"
+            node-key="groupName"
             highlight-current
             :expand-on-click-node="false"
             :default-expanded-keys="['通讯录']"
             current-node-key="通讯录"
-            @current-change="currentKeyChange"
           >
             <span
               slot-scope="{node}"
@@ -38,35 +37,42 @@
                 <span>{{ node.label }}</span>
               </span>
               <span v-if="node.label !== '通讯录'" class="content__menu__item__btns">
-                <el-button type="text" @click="showDialog('edit', node.label)">
-                  <i class="el-icon-setting" style="color: #000000" />
-                </el-button>
+                <el-tooltip effect="dark" content="修改子部门" placement="top" :open-delay="300">
+                  <el-button type="text" @click="showDialog('edit')">
+                    <svg-icon name="edit" class="content__menu__item__btns__icon" />
+                  </el-button>
+                </el-tooltip>
+                <el-tooltip effect="dark" content="合并子部门" placement="top" :open-delay="300">
+                  <el-button type="text" @click="showDialog('merge', node)">
+                    <svg-icon name="combine" class="content__menu__item__btns__icon" />
+                  </el-button>
+                </el-tooltip>
               </span>
             </span>
           </el-tree>
-        </div>
+        </el-main>
         <div class="content__body">
           <div class="head">
             <div class="head__left">
               <el-button type="primary" @click="createUser">创建成员</el-button>
-              <el-button :disabled="currentNode.label === '通讯录'" @click="showDialog('edit', currentNode.label)">修改子部门</el-button>
+              <el-button :disabled="currentGroup.groupName === '通讯录'" @click="showDialog('edit')">修改子部门</el-button>
             </div>
             <div class="head__right">
-              <el-input v-model="policyNameSearch" placeholder="请输入用户名/账号ID" @keyup.enter.native="1">
-                <el-button slot="append" class="el-button-rect" @click="1"><svg-icon name="search" /></el-button>
+              <el-input v-model="userSearch" placeholder="请输入用户名/账号ID" @keyup.enter.native="getUserList">
+                <el-button slot="append" class="el-button-rect" @click="getUserList"><svg-icon name="search" /></el-button>
               </el-input>
-              <el-button class="el-button-rect" @click="1"><svg-icon name="refresh" /></el-button>
+              <el-button class="el-button-rect" @click="getUserList"><svg-icon name="refresh" /></el-button>
             </div>
           </div>
-          <el-table :data="policyList">
-            <el-table-column prop="userName" label="用户名" />
-            <el-table-column prop="ID" label="账号ID" />
+          <el-table v-loading="loading.body" :data="userList">
+            <el-table-column prop="iamUserName" label="用户名" />
+            <el-table-column prop="iamUserId" label="账号ID" />
             <el-table-column prop="policyName" label="策略" />
-            <el-table-column prop="operate" label="创建时间" />
+            <el-table-column prop="createdTime" label="创建时间" />
             <el-table-column label="操作" width="140">
               <template slot-scope="scope">
-                <el-button type="text" @click="policyList.splice(scope.$index, 1)">管理</el-button>
-                <el-button style="color: #A5A5A5" type="text" @click="policyList.splice(scope.$index, 1)">删除</el-button>
+                <el-button type="text" @click="editUser(scope.row.iamUserId)">编辑</el-button>
+                <el-button style="color: #A5A5A5" type="text" @click="deleteUser(scope.row.iamUserId)">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -81,90 +87,157 @@
         </div>
       </div>
     </el-card>
-    <CreateUserGroup v-if="showAddGroupDialog" :dialog-data="dialogData" @on-close="closeAddDialog" />
+    <UserGroupDialog v-if="isShowDialog" :dialog-data="dialogData" @on-close="closeAddDialog" />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import CreateUserGroup from './components/dialogs/CreateUserGroup.vue'
+import UserGroupDialog from './components/dialogs/userGroupDialog.vue'
+import { getGroupList, getUserList, deleteUser } from '@/api/accessManage'
+import { nextTick } from 'process'
 @Component({
-  name: 'accessManageUser',
+  name: 'AccessManageUser',
   components: {
-    CreateUserGroup
+    UserGroupDialog
   }
 })
 export default class extends Vue {
-  private showAddGroupDialog: boolean = false
+  private loading: any = {
+    menu: false,
+    body: false
+  }
+  private isShowDialog: boolean = false
   private isCollapsed: boolean = false
   private props: object = {
     isLeaf: 'leaf',
-    label: 'name',
-    children: 'zones'
+    label: 'groupName',
+    children: 'children'
   }
-  private currentNode: object = {
-    label: '通讯录'
+  private currentGroup: object = {
+    groupName: '通讯录'
   }
-  private policyList: any = [1]
-  private policyNameSearch: string = ''
+  private userList: any = [1]
+  private userSearch: string = ''
   private pager: object = {
     pageNum: 1,
     pageSize: 10,
     total: 0
   }
-  private dialogData: object = {
-    groupId: '',
-    type: ''
-  }
+  private dialogData: any = {}
+  private groupList: any = [
+    { groupName: '通讯录', leaf: false, children: [] }
+  ]
 
   private mounted() {
-    this.type = this.$route.meta.type
-    const groupTree: any = this.$refs.groupTree
-    groupTree.setCurrentKey = '通讯录'
-    const currentNode: any = this.currentNode
-    currentNode.label = groupTree.getCurrentNode().name
+    this.getGroups()
+    this.getUserList()
   }
 
-  private loadNode(node: any, resolve: any) {
-    if (node.level === 0) {
-      return resolve([{ name: '通讯录' }])
-    } else if (node.level === 1) {
-      setTimeout(() => {
-        return resolve([
-          { name: '分组1', leaf: true },
-          { name: '分组2', leaf: true },
-          { name: '分组3', leaf: true },
-          { name: '分组4', leaf: true }
-        ])
-      }, 500)
+  private async getGroups() {
+    this.loading.menu = true
+    await setTimeout(() => {
+      this.groupList[0].children = [
+        { groupName: '分组1', groupId: 120, leaf: true },
+        { groupName: '分组2', groupId: 121, leaf: true },
+        { groupName: '分组3', groupId: 122, leaf: true },
+        { groupName: '分组4', groupId: 123, leaf: true }
+      ]
+    }, 500)
+    this.loading.menu = false
+    // let params = {
+    //   parentGroupId: -1
+    // }
+    // try {
+    //   this.loading.menu = true
+    //   this.groupList[0].children = await getGroupList(params)
+    // } catch (e) {
+    //   this.$message.error(e && e.message)
+    // } finally {
+    //   this.loading.menu = false
+    // }
+  }
+
+  private async getUserList() {
+    let pager: any = this.pager
+    let params = {
+      groupId: this.userSearch,
+      pageNum: pager.pageNum,
+      pageSize: pager.pageSize
     }
+    // try {
+    //   this.loading.body = true
+    //   let res: any = await getUserList(params)
+    //   this.userList = []
+    //   for (let i = 0; i < res.iamUsers.length; i++) {
+    //     let obj: object = {
+    //       iamUserId: res.iamUsers.iamUserId,
+    //       iamUserName: res.iamUsers.iamUserName,
+    //       policyName: res.iamUsers.policyName,
+    //       createTime: res.iamUsers.createTime
+    //     }
+    //     this.userList.push(obj)
+    //   }
+    //   pager.total = res.totalNum
+    // } catch (e) {
+    //   this.$message.error(e && e.message)
+    // } finally {
+    //   this.loading.body = false
+    // }
   }
-  private currentKeyChange(data: any, node: any) {
-    this.currentNode = node
+
+  private async deleteUser(id: any) {
+    // try {
+    //   await deleteUser({ iamUserId: id })
+    //   this.$message.success('删除用户成功')
+    // } catch (e) {
+    //   this.$message.error(e && e.message)
+    // }
   }
-  private showDialog(type: any, groupId: any) {
+
+  private showDialog(type: any, node: any) {
+    this.isShowDialog = true
     this.dialogData = {
-      type,
-      groupId
+      type: type,
+      data: node.data
     }
-    this.showAddGroupDialog = true
+    if (type === 'merge') {
+      this.dialogData.groupList = this.groupList[0].children
+    }
   }
-  private closeAddDialog(refresh: boolean) {
-    this.showAddGroupDialog = false
-    // refresh && this.getData()
+  private closeAddDialog() {
+    this.isShowDialog = false
+    this.showDailogSign = false
+    this.getGroups()
   }
   private createUser() {
-    this.$router.push(`/accessManage/user/create`)
+    let currentGroup: any = this.currentGroup
+    this.$router.push({
+      path: `/accessManage/user/create`,
+      query: {
+        type: 'add',
+        groupId: currentGroup.groupId
+      }
+    })
+  }
+  private editUser(id: any) {
+    this.$router.push({
+      path: `/accessManage/user/create`,
+      query: {
+        type: 'edit',
+        userId: id
+      }
+    })
   }
   private handleSizeChange(val: number) {
     const pager: any = this.pager
     pager.pageSize = val
-    this.getList()
+    this.getUserList()
   }
   private handleCurrentChange(val: number) {
     const pager: any = this.pager
     pager.pageNum = val
-    this.getList()
+    this.getUserList()
   }
 }
 </script>
@@ -238,6 +311,9 @@ export default class extends Vue {
         padding-right: 8px;
         &__btns {
           display: none;
+          &__icon {
+            color: #6E7C89;
+          }
         }
         &:hover .content__menu__item__btns {
           display: block;
