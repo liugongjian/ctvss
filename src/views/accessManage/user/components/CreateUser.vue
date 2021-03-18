@@ -224,8 +224,8 @@ export default class extends Vue {
     this.$router.push(`/accessManage/user`)
   }
 
-  private mounted() {
-    this.getPolicyList()
+  private async mounted() {
+    await this.getPolicyList()
     this.type = this.$router.currentRoute.query.type
     if (this.type === 'edit') {
       this.breadCrumbContent = '编辑用户'
@@ -236,48 +236,47 @@ export default class extends Vue {
   }
 
   private async getPolicyList() {
-    // let params: any = {}
-    // try {
-    //   this.loading.table = true
-    //   let res: any = await getPolicyList(params)
-    //   this.policyList = []
-    //   for (let i = 0; i < res.iamPolices.length; i++) {
-    //     let obj: object = {
-    //       policyName: res.iamPolices.policyName,
-    //       policyDescribe: res.iamPolices.describe,
-    //       policyId: res.iamPolices.policyId
-    //     }
-    //     this.policyList.push(obj)
-    //   }
-    // } catch (e) {
-    //   this.$message.error(e && e.message)
-    // } finally {
-    //   this.loading.table = false
-    // }
+    let params: any = {}
+    try {
+      this.loading.table = true
+      let res: any = await getPolicyList(params)
+      this.policyList = []
+      for (let i = 0; i < res.iamPolices.length; i++) {
+        let obj: object = {
+          policyName: res.iamPolices[i].policyName,
+          policyDescribe: res.iamPolices[i].policyDesc,
+          policyId: res.iamPolices[i].policyId
+        }
+        this.policyList.push(obj)
+      }
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.loading.table = false
+    }
   }
 
   private async getUser() {
-    // try {
-    //   this.loading.form = true
-    //   let res = await getUser({ iamUserId: this.$router.currentRoute.query.userId })
-    //   this.form = {
-    //     iamUserName: res.iamUserName,
-    //     consoleEnabled: res.consoleEnabled === '1',
-    //     apiEnabled: res.consoleEnabled === '1',
-    //     policy: {
-    //       policyName: res.policyName,
-    //       policyId: res.policyId,
-    //       policyDescribe: res.policyDescribe
-    //     },
-    //     resetPwdEnabled: true
-    //   }
-    //   const policyList: any = this.$refs.policyList
-    //   policyList.toggleRowSelection(this.form.policy)
-    // } catch (e) {
-    //   this.$message.error(e && e.message)
-    // } finally {
-    //   this.loading.form = false
-    // }
+    try {
+      this.loading.form = true
+      let res = await getUser({ iamUserId: this.$router.currentRoute.query.userId })
+      this.form = {
+        iamUserName: res.iamUserName,
+        consoleEnabled: res.consoleEnabled === '1',
+        apiEnabled: res.apiEnabled === '1',
+        resetPwdEnabled: true
+      }
+      let selectRow = this.policyList.find((policy: any) => {
+        return policy.policyId === res.policyId
+      })
+      const policyList: any = this.$refs.policyList
+      policyList.toggleRowSelection(selectRow)
+    } catch (e) {
+      this.$message.error(e && e.message)
+      this.back()
+    } finally {
+      this.loading.form = false
+    }
   }
   private async operateUser(type: any) {
     const form: any = this.$refs.userForm
@@ -294,19 +293,19 @@ export default class extends Vue {
           this.loading.submit = true
           if (type === 'add') {
             params.groupId = this.$router.currentRoute.query.groupId
-            // await createUser(params)
+            let res = await createUser(params)
             this.cardIndex = 'table'
             this.newUserData = [
               {
-                userName: '用户01',
-                passwords: 'yhJD-43/',
-                secretId: 'AKIDS3OUO8N8rJ7k7DtA5sSZ8bxHWP2UwndC',
-                secretKey: 'TfbLtDIFyxkMZgpmJfHfUX6XkhUVIrGV'
+                userName: res.iamUserName,
+                passwords: res.iamUserPasswd,
+                secretId: res.ak,
+                secretKey: res.sk
               }
             ]
           } else if (type === 'edit') {
             params.iamUserId = this.$router.currentRoute.query.userId
-            // await modifyUser(params)
+            await modifyUser(params)
             this.$message.success('修改用户成功')
             this.$router.push(`/accessManage/user`)
           }

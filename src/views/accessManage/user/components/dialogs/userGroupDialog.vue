@@ -38,7 +38,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { createGroup, modifyGroup, getGroup } from '@/api/accessManage'
+import { createGroup, modifyGroup, getGroup, combineGroup } from '@/api/accessManage'
 import { group } from 'console'
 @Component({
   name: 'AddGroup'
@@ -53,6 +53,7 @@ export default class extends Vue {
   }
   private form: any = {
     groupName: '',
+    groupId: '',
     aimGroupId: ''
   }
 
@@ -70,17 +71,14 @@ export default class extends Vue {
       this.dialogTitle = '创建子部门'
     } else if (this.dialogData.type === 'edit') {
       this.dialogTitle = '修改子部门'
-      console.log(this.dialogData.data.groupName);
-      
-      this.form.groupName = this.dialogData.data.name
-      // this.getGroup()
+      this.getGroup()
     } else if (this.dialogData.type === 'merge') {
       this.dialogTitle = '合并子部门'
     }
   }
 
-  private closeDialog() {
-    this.$emit('on-close', false)
+  private closeDialog(data: any) {
+    this.$emit('on-close', data)
   }
 
   private async getGroup() {
@@ -90,6 +88,7 @@ export default class extends Vue {
     this.loading.form = true
     let res = await getGroup(params)
     this.loading.form = false
+    this.form.groupId = res.groupId
     this.form.groupName = res.groupName
   }
 
@@ -103,13 +102,22 @@ export default class extends Vue {
           }
           this.loading.submit = true
           if (type === 'add') {
-            // await createGroup(params)
+            await createGroup(params)
+            this.$message.success('创建子部门成功')
           } else if (type === 'edit') {
-            // await modifyGroup(params)
+            params.groupId = this.form.groupId
+            await modifyGroup(params)
+            this.$message.success('修改子部门成功')
           } else if (type === 'merge') {
+            params = {
+              sourceGroupId: this.dialogData.data.groupId,
+              destGroupId: this.form.aimGroupId
+            }
+            await combineGroup(params)
+            this.$message.success('合并子部门成功')
             console.log(this.form.aimGroupId, this.dialogData.data.groupId)
           }
-          this.$emit('on-close', true)
+          this.$emit('on-close', 'merge')
         } else {
           return false
         }

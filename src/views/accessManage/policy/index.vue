@@ -44,16 +44,16 @@ import { getPolicyList } from '@/api/accessManage'
 })
 export default class extends Vue {
   private isLoading: boolean = false
-  private policyList: any = [1]
+  private policyList: any = []
   private policyNameSearch: string = ''
-  private pager: object = {
+  private pager: any = {
     pageNum: 1,
     pageSize: 10,
     total: 0
   }
 
   private mounted() {
-
+    this.getList()
   }
 
   private createPolicy() {
@@ -67,24 +67,25 @@ export default class extends Vue {
   private refresh() {
   }
   private async getList() {
-    // try {
-    //   let params: any = {}
-    //   this.isLoading = true
-    //   let res: any = await getPolicyList(params)
-    //   this.policyList = []
-    //   for (let i = 0; i < res.iamPolices.length; i++) {
-    //     let obj: object = {
-    //       policyName: res.iamPolices.policyName,
-    //       describe: res.iamPolices.describe,
-    //       createTime: res.iamPolices.createTime
-    //     }
-    //     this.policyList.push(obj)
-    //   }
-    // } catch (e) {
-    //   this.$message.error(e && e.message)
-    // } finally {
-    //   this.isLoading = false
-    // }
+    try {
+      let params: any = {}
+      this.isLoading = true
+      let res: any = await getPolicyList(params)
+      this.policyList = []
+      for (let i = 0; i < res.iamPolices.length; i++) {
+        let obj: object = {
+          policyName: res.iamPolices[i].policyName,
+          describe: res.iamPolices[i].policyDesc,
+          createTime: res.iamPolices[i].createdTime
+        }
+        this.policyList.push(obj)
+      }
+      this.pager.total = res.totalNuam
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.isLoading = false
+    }
   }
   private handleSizeChange(val: number) {
     const pager: any = this.pager

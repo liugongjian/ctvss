@@ -14,7 +14,7 @@
         </div>
         <div class="titleBar__title">
           <span>通讯录</span>
-          <span>{{ currentGroup.groupName === '通讯录' ? '' : `/${currentGroup.groupName}` }}</span>
+          <span>{{ currentNode.data.groupName === '通讯录' ? '' : `/${currentNode.data.groupName}` }}</span>
         </div>
       </div>
       <div class="content">
@@ -28,6 +28,7 @@
             :expand-on-click-node="false"
             :default-expanded-keys="['通讯录']"
             current-node-key="通讯录"
+            @current-change="setCurrentNode"
           >
             <span
               slot-scope="{node}"
@@ -38,7 +39,7 @@
               </span>
               <span v-if="node.label !== '通讯录'" class="content__menu__item__btns">
                 <el-tooltip effect="dark" content="修改子部门" placement="top" :open-delay="300">
-                  <el-button type="text" @click="showDialog('edit')">
+                  <el-button type="text" @click="showDialog('edit', node)">
                     <svg-icon name="edit" class="content__menu__item__btns__icon" />
                   </el-button>
                 </el-tooltip>
@@ -55,12 +56,12 @@
           <div class="head">
             <div class="head__left">
               <el-button type="primary" @click="createUser">创建成员</el-button>
-              <el-button :disabled="currentGroup.groupName === '通讯录'" @click="showDialog('edit')">修改子部门</el-button>
+              <el-button :disabled="currentNode.data.groupName === '通讯录'" @click="showDialog('edit', currentNode)">修改子部门</el-button>
             </div>
             <div class="head__right">
-              <el-input v-model="userSearch" placeholder="请输入用户名/账号ID" @keyup.enter.native="getUserList">
+              <!-- <el-input v-model="userSearch" placeholder="请输入用户名/账号ID" @keyup.enter.native="getUserList">
                 <el-button slot="append" class="el-button-rect" @click="getUserList"><svg-icon name="search" /></el-button>
-              </el-input>
+              </el-input> -->
               <el-button class="el-button-rect" @click="getUserList"><svg-icon name="refresh" /></el-button>
             </div>
           </div>
@@ -96,6 +97,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import UserGroupDialog from './components/dialogs/userGroupDialog.vue'
 import { getGroupList, getUserList, deleteUser } from '@/api/accessManage'
 import { nextTick } from 'process'
+import { map } from 'node_modules/@types/lodash/ts3.1'
 @Component({
   name: 'AccessManageUser',
   components: {
@@ -114,10 +116,7 @@ export default class extends Vue {
     label: 'groupName',
     children: 'children'
   }
-  private currentGroup: object = {
-    groupName: '通讯录'
-  }
-  private userList: any = [1]
+  private userList: any = []
   private userSearch: string = ''
   private pager: object = {
     pageNum: 1,
@@ -126,97 +125,112 @@ export default class extends Vue {
   }
   private dialogData: any = {}
   private groupList: any = [
-    { groupName: '通讯录', leaf: false, children: [] }
+    { groupName: '通讯录', groupId: '-1', leaf: false, children: [] }
   ]
+  private currentNode: any = {
+    data: {
+      groupName: '通讯录',
+      groupId: '-1'
+    }
+  }
 
   private mounted() {
     this.getGroups()
     this.getUserList()
   }
 
+  private setCurrentNode(data: any, node: any) {
+    this.currentNode = node
+    this.getUserList()
+  }
+
   private async getGroups() {
-    this.loading.menu = true
-    await setTimeout(() => {
-      this.groupList[0].children = [
-        { groupName: '分组1', groupId: 120, leaf: true },
-        { groupName: '分组2', groupId: 121, leaf: true },
-        { groupName: '分组3', groupId: 122, leaf: true },
-        { groupName: '分组4', groupId: 123, leaf: true }
-      ]
-    }, 500)
-    this.loading.menu = false
-    // let params = {
-    //   parentGroupId: -1
-    // }
-    // try {
-    //   this.loading.menu = true
-    //   this.groupList[0].children = await getGroupList(params)
-    // } catch (e) {
-    //   this.$message.error(e && e.message)
-    // } finally {
-    //   this.loading.menu = false
-    // }
+    let params = {
+      // parentGroupId: -1
+    }
+    try {
+      this.loading.menu = true
+      let res = await getGroupList(params)
+      this.groupList[0].children = res.groups.map((group: any) => {
+        return {
+          groupName: group.groupName,
+          groupId: group.groupId,
+          leaf: true
+        }
+      })
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.loading.menu = false
+    }
   }
 
   private async getUserList() {
     let pager: any = this.pager
     let params = {
-      groupId: this.userSearch,
+      groupId: this.currentNode.data.groupId,
       pageNum: pager.pageNum,
       pageSize: pager.pageSize
     }
-    // try {
-    //   this.loading.body = true
-    //   let res: any = await getUserList(params)
-    //   this.userList = []
-    //   for (let i = 0; i < res.iamUsers.length; i++) {
-    //     let obj: object = {
-    //       iamUserId: res.iamUsers.iamUserId,
-    //       iamUserName: res.iamUsers.iamUserName,
-    //       policyName: res.iamUsers.policyName,
-    //       createTime: res.iamUsers.createTime
-    //     }
-    //     this.userList.push(obj)
-    //   }
-    //   pager.total = res.totalNum
-    // } catch (e) {
-    //   this.$message.error(e && e.message)
-    // } finally {
-    //   this.loading.body = false
-    // }
+    try {
+      this.loading.body = true
+      let res: any = await getUserList(params)
+      this.userList = res.iamUsers.map((iamUser: any) => {
+        return {
+          iamUserId: iamUser.iamUserId,
+          iamUserName: iamUser.iamUserName,
+          policyName: iamUser.policyName,
+          createdTime: iamUser.createdTime
+        }
+      })
+      pager.total = res.totalNum
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.loading.body = false
+    }
   }
 
   private async deleteUser(id: any) {
-    // try {
-    //   await deleteUser({ iamUserId: id })
-    //   this.$message.success('删除用户成功')
-    // } catch (e) {
-    //   this.$message.error(e && e.message)
-    // }
+    try {
+      await deleteUser({ iamUserId: id })
+      this.$message.success('删除用户成功')
+      this.getUserList()
+    } catch (e) {
+      this.$message.error(e && e.message)
+    }
   }
 
   private showDialog(type: any, node: any) {
     this.isShowDialog = true
     this.dialogData = {
       type: type,
-      data: node.data
+      data: node && node.data
     }
     if (type === 'merge') {
       this.dialogData.groupList = this.groupList[0].children
     }
   }
-  private closeAddDialog() {
+  private closeAddDialog(data: any) {
+    if (data === 'merge') {
+      this.currentNode = {
+        data: {
+          groupName: '通讯录',
+          groupId: '-1'
+        }
+      }
+    }
     this.isShowDialog = false
     this.showDailogSign = false
     this.getGroups()
+    this.getUserList()
   }
   private createUser() {
-    let currentGroup: any = this.currentGroup
     this.$router.push({
       path: `/accessManage/user/create`,
       query: {
         type: 'add',
-        groupId: currentGroup.groupId
+        groupId: this.currentNode.data.groupId
       }
     })
   }
@@ -232,6 +246,7 @@ export default class extends Vue {
   private handleSizeChange(val: number) {
     const pager: any = this.pager
     pager.pageSize = val
+    pager.pageNum = 1
     this.getUserList()
   }
   private handleCurrentChange(val: number) {
