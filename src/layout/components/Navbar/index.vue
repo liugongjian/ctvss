@@ -44,10 +44,10 @@
       <template v-if="routerName === 'AI' || routerName === 'dashboard'">
         <div class="links">
           <a :class="{'actived': !queryAlertType}" @click="routeToHome()">首页</a>
-          <div class="dropdown">
-            AI能力
+          <div v-for="group in alertTypeList" :key="group.name" class="dropdown">
+            {{ group.name }}
             <ul class="dropdown__menu">
-              <li v-for="type in alertTypeList" :key="type.key" :class="{'actived': queryAlertType === type.key.toString()}" @click="routeToAI(type.key)">
+              <li v-for="type in group.list" :key="type.key" :class="{'actived': queryAlertType === type.key.toString()}" @click="routeToAI(type.key)">
                 {{ type.value }}
               </li>
             </ul>
@@ -79,7 +79,7 @@
       </template>
       <div class="user-container">
         <div class="user-container__menu">
-          {{ name }}
+          <span class="user-container__name">{{ name }}</span>
           <svg-icon class="user-container__arrow" name="arrow-down" width="9" height="9" />
         </div>
         <div class="header-dropdown">
@@ -181,21 +181,23 @@ export default class extends Vue {
 
   get alertTypeList() {
     const list = []
-    const sort: any = {
-      6: 1,
-      8: 2,
-      4: 4,
-      5: 5,
-      7: 7
-    }
-    for (const key in this.alertType) {
-      list.push({
-        key,
-        value: this.alertType[key]
+    list.push({
+      name: '人脸人体',
+      list: [6, 8, 4].map((id: number) => {
+        return {
+          key: id,
+          value: this.alertType[id]
+        }
       })
-    }
-    list.sort(function(a, b) {
-      return sort[a.key] - sort[b.key]
+    })
+    list.push({
+      name: '安全生产',
+      list: [5, 7].map((id: number) => {
+        return {
+          key: id,
+          value: this.alertType[id]
+        }
+      })
     })
     return list
   }
@@ -332,9 +334,22 @@ export default class extends Vue {
       padding: 0 20px;
       color: $text;
 
+      &__menu {
+        display: flex;
+        align-items: center;
+      }
+
       &__arrow {
         vertical-align: middle;
         transition: transform 0.2s;
+        margin-left: 4px;
+      }
+
+      &__name {
+        max-width: 60px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .header-dropdown {
@@ -629,6 +644,9 @@ export default class extends Vue {
           &__menu {
             top: 29px;
           }
+        }
+        .user-container .header-dropdown {
+          top: 29px!important;
         }
       }
     }
