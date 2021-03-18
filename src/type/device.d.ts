@@ -19,4 +19,6 @@ export interface Device {
   streamTransType?: string;
   transPriority?: string;
   createdTime?: string;
+  recordStatus?: number;
+  recordTaskId?: string;
 }
