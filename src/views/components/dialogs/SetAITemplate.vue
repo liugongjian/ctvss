@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="设置录制模板"
+    title="设置AI模板"
     :visible="dialogVisible"
     :close-on-click-modal="false"
     @close="closeDialog"
@@ -14,16 +14,10 @@
       max-height="500"
     >
       <el-table-column prop="templateName" label="模板名称" />
-      <el-table-column prop="recordType" label="是否启用自动录制">
+      <el-table-column prop="description" label="模板概要" />
+      <el-table-column prop="enableType" label="启动方式">
         <template slot-scope="{row}">
-          {{ row.recordType === 1 ? '是':'否' }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="storeType" label="录制格式">
-        <template slot-scope="{row}">
-          {{ row.flvParam.enable ? 'flv': '' }}
-          {{ row.hlsParam.enable ? 'hls': '' }}
-          {{ row.mpParam.enable ? 'mp4': '' }}
+          {{ row.enableType === 1 ? '自动开启' : '手动开启' }}
         </template>
       </el-table-column>
       <el-table-column label="操作">
@@ -40,10 +34,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { getRecordTemplates, setGroupRecordTemplates, unbindGroupRecordTemplates } from '@/api/group'
-import { setDeviceRecordTemplate, unbindDeviceRecordTemplate } from '@/api/device'
-import { setStreamRecordTemplate, unbindStreamRecordTemplate } from '@/api/stream'
-import { formatSeconds } from '@/utils/interval'
+import { getAITemplates, bindAITemplates, unbindAITemplates } from '@/api/template'
 
 @Component({
   name: 'SetRecordTemplate'
@@ -55,16 +46,7 @@ export default class extends Vue {
   @Prop() private templateId?: string
   private dialogVisible = true
   private loading = false
-  private list = [
-    {
-      templateId: '0001',
-      templateName: '30分钟录制',
-      flvParam: { enable: 0 },
-      hlsParam: { enable: 0 },
-      mpParam: { enable: 0 }
-    }
-  ]
-  private formatSeconds = formatSeconds
+  private list = []
   private bindTemplateId = ''
 
   private closeDialog() {
@@ -81,11 +63,11 @@ export default class extends Vue {
     try {
       this.loading = true
       if (this.groupId) {
-        await setGroupRecordTemplates(params)
+        await bindAITemplates(params)
       } else if (this.deviceId) {
-        await setDeviceRecordTemplate(params)
+        await bindAITemplates(params)
       } else {
-        await setStreamRecordTemplate({
+        await bindAITemplates({
           deviceId: this.streamId,
           templateId: row.templateId
         })
@@ -107,11 +89,11 @@ export default class extends Vue {
     try {
       this.loading = true
       if (this.groupId) {
-        await unbindGroupRecordTemplates(params)
+        await unbindAITemplates(params)
       } else if (this.deviceId) {
-        await unbindDeviceRecordTemplate(params)
+        await unbindAITemplates(params)
       } else {
-        await unbindStreamRecordTemplate({
+        await unbindAITemplates({
           deviceId: this.streamId,
           templateId: row.templateId
         })
@@ -128,11 +110,11 @@ export default class extends Vue {
     this.bindTemplateId = this.templateId!
     try {
       this.loading = true
-      const res = await getRecordTemplates({
+      const res = await getAITemplates({
         pageNum: 1,
         pageSize: 999
       })
-      this.list = res.templates
+      this.list = res.aITemplates
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {

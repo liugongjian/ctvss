@@ -32,3 +32,49 @@ export interface SnapshotTemplate {
   storeType: Array<string>;
   createdTime?: string;
 }
+
+interface AITemplateAlgorithm {
+  aIAbilityId: number;
+  aIAbilityName: string;
+  aIAbilityAlgorithmId: number;
+  algorithmName: string;
+  algorithmMetadata: object;
+  frameCutFrequency: number;
+  threshold?: number;
+}
+
+export interface AITemplate {
+  templateId?: string;
+  templateName: string;
+  description?: string;
+  enableType: number;
+  threshold?: number;
+  algorithms: AITemplateAlgorithm[];
+  createdTime?: string;
+  updatedTime?: string;
+}
+
+export interface AIAbility {
+  aIAbilityId: string;
+  name: string;
+  summary: string;
+  selectedRow?: AIAbilityAlgorithm[];
+  algorithms?: AIAbilityAlgorithm[];
+  icon?: string;
+  labels?: string;
+  createdTime?: string;
+  updatedTime?: string;
+}
+
+export interface AIAbilityAlgorithm {
+  aIAbilityAlgorithmId: string;
+  name: string;
+  summary: string;
+  needConfig?: boolean;
+  algorithmMetadata?: string;
+  frameCutFrequency?: number;
+  threshold?: number;
+  code?: string;
+  icon?: string;
+  labels?: string;
+}
