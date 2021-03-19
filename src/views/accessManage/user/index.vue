@@ -73,7 +73,7 @@
             <el-table-column label="操作" width="140">
               <template slot-scope="scope">
                 <el-button type="text" @click="editUser(scope.row.iamUserId)">编辑</el-button>
-                <el-button style="color: #A5A5A5" type="text" @click="deleteUser(scope.row.iamUserId)">删除</el-button>
+                <el-button type="text" @click="deleteUser(scope.row)">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -191,14 +191,23 @@ export default class extends Vue {
     }
   }
 
-  private async deleteUser(id: any) {
-    try {
-      await deleteUser({ iamUserId: id })
-      this.$message.success('删除用户成功')
-      this.getUserList()
-    } catch (e) {
-      this.$message.error(e && e.message)
-    }
+  private async deleteUser(user: any) {
+    this.$alertDelete({
+      type: '用户',
+      msg: `是否确认删除用户"${user.iamUserName}"`,
+      method: deleteUser,
+      payload: { iamUserId: user.iamUserId },
+      onSuccess: () => {
+        this.getUserList()
+      }
+    })
+    // try {
+    //   await deleteUser({ iamUserId: id })
+    //   this.$message.success('删除用户成功')
+    //   this.getUserList()
+    // } catch (e) {
+    //   this.$message.error(e && e.message)
+    // }
   }
 
   private showDialog(type: any, node: any) {
