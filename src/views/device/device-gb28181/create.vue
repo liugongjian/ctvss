@@ -126,10 +126,12 @@
         </el-form-item>
         <el-form-item label="设备地址:" prop="address">
           <el-cascader
+            ref="addressCascader"
             v-model="form.address"
             expand-trigger="hover"
             :options="cities"
             :props="citiesProps"
+            @change="addressChange"
           />
         </el-form-item>
         <el-form-item label="设备描述:" prop="description">
@@ -246,7 +248,10 @@ export default class extends Mixins(createMixin) {
     transPriority: 'tcp',
     parentDeviceId: '',
     gbId: '',
-    userName: ''
+    userName: '',
+    address: ['1100', '1100'],
+    gbRegion: '110000000',
+    gbRegionLevel: '1'
   }
   private minChannelSize = 1
   private dialog = {
@@ -262,7 +267,15 @@ export default class extends Mixins(createMixin) {
     }
     this.getGbAccounts()
     this.onGroupChange()
-    this.form.address = ['1100', '1100']
+    // this.form.address = ['1100', '1100']
+  }
+
+  private addressChange() {
+    const addressCascader: any = this.$refs['addressCascader']
+    const currentAdress = addressCascader.getCheckedNodes()[0].data
+    this.form.gbRegion = currentAdress.code + '00000'
+    this.form.gbRegionLevel = currentAdress.level
+    console.log(this.form.gbRegion, this.form.gbRegionLevel)
   }
 
   /**
@@ -349,7 +362,7 @@ export default class extends Mixins(createMixin) {
       if (valid) {
         try {
           this.submitting = true
-          let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceVendor', 'description'])
+          let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceVendor', 'description', 'gbRegion', 'gbRegionLevel'])
           if (this.isUpdate) {
             params = Object.assign(params, pick(this.form, ['deviceId']))
           }

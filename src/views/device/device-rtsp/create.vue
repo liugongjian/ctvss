@@ -156,12 +156,14 @@ export default class extends Mixins(createMixin) {
     devicePort: null,
     deviceVendor: '',
     description: '',
-    address: [],
     inType: 'pull',
     pullType: 1,
     pushType: 1,
     pullUrl: '',
-    transPriority: 'udp'
+    transPriority: 'udp',
+    address: ['1100', '1100'],
+    gbRegion: '110000000',
+    gbRegionLevel: '1'
   }
 
   private inTypeList = InType
@@ -175,6 +177,14 @@ export default class extends Mixins(createMixin) {
     }
     this.onGroupChange()
     this.form.address = ['1100', '1100']
+  }
+
+  private addressChange() {
+    const addressCascader: any = this.$refs['addressCascader']
+    const currentAdress = addressCascader.getCheckedNodes()[0].data
+    this.form.gbRegion = currentAdress.code + '00000'
+    this.form.gbRegionLevel = currentAdress.level
+    console.log(this.form.gbRegion, this.form.gbRegionLevel)
   }
 
   /**
@@ -202,7 +212,7 @@ export default class extends Mixins(createMixin) {
       if (valid) {
         try {
           this.submitting = true
-          let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor', 'deviceIp', 'devicePort', 'description', 'inType', 'transPriority'])
+          let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor', 'deviceIp', 'devicePort', 'description', 'inType', 'transPriority', 'gbRegion', 'gbRegionLevel'])
           if (this.isUpdate) {
             params = Object.assign(params, pick(this.form, ['deviceId']))
           }
