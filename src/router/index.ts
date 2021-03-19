@@ -509,6 +509,38 @@ export const asyncRoutes: RouteConfig[] = [
           roles: ['admin'],
           activeMenu: '/template/callback'
         }
+      },
+      {
+        path: 'ai',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/ai/index.vue'),
+        name: 'ai',
+        meta: {
+          title: 'AI模板',
+          icon: 'dot',
+          roles: ['admin']
+        }
+      },
+      {
+        path: 'ai/create',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/ai/createOrUpdate.vue'),
+        name: 'ai-create',
+        meta: {
+          title: '新建AI模板',
+          hidden: true,
+          roles: ['admin'],
+          activeMenu: '/template/ai'
+        }
+      },
+      {
+        path: 'ai/update/:id?',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/ai/createOrUpdate.vue'),
+        name: 'ai-update',
+        meta: {
+          title: '编辑AI模板',
+          hidden: true,
+          roles: ['admin'],
+          activeMenu: '/template/ai'
+        }
       }
       // ,
       // {
@@ -590,7 +622,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '关联配置',
           icon: 'dot',
           breadcrumb: true,
-          activeMenu: '/AI',
+          activeMenu: '/AI/config',
           roles: ['admin']
         }
       },
@@ -603,86 +635,86 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           breadcrumb: false,
-          activeMenu: '/AI',
+          activeMenu: '/AI/config',
           roles: ['admin']
         }
       }
     ]
   },
-  // {
-  //   path: '/accessManage',
-  //   component: Layout,
-  //   redirect: 'noredirect',
-  //   meta: {
-  //     title: '访问管理',
-  //     icon: 'user',
-  //     alwaysShow: true,
-  //     breadcrumb: false,
-  //     roles: ['admin']
-  //   },
-  //   children: [
-  //     {
-  //       path: 'user',
-  //       component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/user/index.vue'),
-  //       name: 'accessManage-user',
-  //       meta: {
-  //         title: '用户',
-  //         icon: 'dot',
-  //         breadcrumb: true,
-  //         activeMenu: '/accessManage',
-  //         roles: ['admin']
-  //       }
-  //     },
-  //     {
-  //       path: 'user/create',
-  //       component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/user/components/CreateUser.vue'),
-  //       name: 'accessManage-user-create',
-  //       meta: {
-  //         title: '创建用户',
-  //         icon: 'dot',
-  //         hidden: true,
-  //         activeMenu: '/accessManage',
-  //         roles: ['admin']
-  //       }
-  //     },
-  //     {
-  //       path: 'policy',
-  //       component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/policy/index.vue'),
-  //       name: 'accessManage-policy',
-  //       meta: {
-  //         title: '策略',
-  //         icon: 'dot',
-  //         breadcrumb: true,
-  //         activeMenu: '/accessManage',
-  //         roles: ['admin']
-  //       }
-  //     },
-  //     {
-  //       path: 'policy/create',
-  //       component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/policy/components/CreatePolicy.vue'),
-  //       name: 'accessManage-policy-create',
-  //       meta: {
-  //         title: '创建策略',
-  //         icon: 'dot',
-  //         hidden: true,
-  //         activeMenu: '/accessManage',
-  //         roles: ['admin']
-  //       }
-  //     },
-  //     {
-  //       path: 'policy/view',
-  //       component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/policy/components/ViewPolicy.vue'),
-  //       name: 'accessManage-policy-view',
-  //       meta: {
-  //         title: '策略详情',
-  //         icon: 'dot',
-  //         hidden: true,
-  //         activeMenu: '/accessManage',
-  //         roles: ['admin']
-  //       }
-  //     }
-  //   ]
-  // },
+  {
+    path: '/accessManage',
+    component: Layout,
+    redirect: 'noredirect',
+    meta: {
+      title: '访问管理',
+      icon: 'user',
+      alwaysShow: true,
+      breadcrumb: false,
+      roles: ['admin']
+    },
+    children: [
+      {
+        path: 'user',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/user/index.vue'),
+        name: 'accessManage-user',
+        meta: {
+          title: '用户',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/accessManage',
+          roles: ['admin']
+        }
+      },
+      {
+        path: 'user/create',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/user/components/CreateUser.vue'),
+        name: 'accessManage-user-create',
+        meta: {
+          title: '创建用户',
+          icon: 'dot',
+          hidden: true,
+          activeMenu: '/accessManage',
+          roles: ['admin']
+        }
+      },
+      {
+        path: 'policy',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/policy/index.vue'),
+        name: 'accessManage-policy',
+        meta: {
+          title: '策略',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/accessManage',
+          roles: ['admin']
+        }
+      },
+      {
+        path: 'policy/create',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/policy/components/CreatePolicy.vue'),
+        name: 'accessManage-policy-create',
+        meta: {
+          title: '创建策略',
+          icon: 'dot',
+          hidden: true,
+          activeMenu: '/accessManage',
+          roles: ['admin']
+        }
+      },
+      {
+        path: 'policy/view',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/policy/components/ViewPolicy.vue'),
+        name: 'accessManage-policy-view',
+        meta: {
+          title: '策略详情',
+          icon: 'dot',
+          hidden: true,
+          activeMenu: '/accessManage',
+          roles: ['admin']
+        }
+      }
+    ]
+  },
   {
     path: '*',
     redirect: '/404',
