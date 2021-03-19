@@ -84,7 +84,7 @@
         <h2>成功新建成员</h2>
         <p class="item-tip">
           您已经成功新建用户，用户基础信息如下所示。您可以点击复制或者
-          <span class="text-btn" @click="exportCsv" style="margin: 0"> 下载 </span>
+          <span class="text-btn" style="margin: 0" @click="exportCsv"> 下载 </span>
           当前新建用户的所有信息。
         </p>
         <el-table :data="newUserData" style="width: 100%">
