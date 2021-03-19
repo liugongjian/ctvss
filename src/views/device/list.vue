@@ -637,7 +637,7 @@ export default class extends Vue {
         deviceId: device.deviceId
       }
       await stopDevice(params)
-      this.$message.success('已通知停用设备')
+      this.$message.success('已通知停用录制')
     } catch (e) {
       console.error(e)
     }
@@ -652,8 +652,8 @@ export default class extends Vue {
         deviceId: device.deviceId
       }
       await startRecord(params)
-      this.$message.success('已通知开始录像')
-      this.getDeviceList()
+      this.$message.success('已通知开始录制')
+      this.init()
     } catch (e) {
       this.$message.error(e.message)
       console.error(e)
@@ -671,7 +671,7 @@ export default class extends Vue {
       }
       await stopRecord(params)
       this.$message.success('已通知停止录像')
-      this.getDeviceList()
+      this.init()
     } catch (e) {
       this.$message.error(e.message)
       console.error(e)
