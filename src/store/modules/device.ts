@@ -8,10 +8,21 @@ export interface IDeviceState {
 @Module({ dynamic: true, store, name: 'device' })
 class Device extends VuexModule implements IDeviceState {
   public breadcrumb: any = null
+  public screenCache: any = {
+    groupId: 0,
+    currentIndex: 0,
+    maxSize: 0,
+    list: []
+  }
 
   @Mutation
   public SET_BREADCRUMB(payload: any) {
     this.breadcrumb = payload
+  }
+
+  @Mutation
+  public SET_SCREEN_CACHE(payload: any) {
+    this.screenCache = payload
   }
 
   @Action
@@ -22,6 +33,11 @@ class Device extends VuexModule implements IDeviceState {
   @Action
   public ResetBreadcrumb() {
     this.SET_BREADCRUMB('')
+  }
+
+  @Action
+  public SetScreenCache(payload: any) {
+    this.SET_SCREEN_CACHE(payload)
   }
 }
 
