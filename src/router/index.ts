@@ -609,80 +609,80 @@ export const asyncRoutes: RouteConfig[] = [
       }
     ]
   },
-  // {
-  //   path: '/accessManage',
-  //   component: Layout,
-  //   redirect: 'noredirect',
-  //   meta: {
-  //     title: '访问管理',
-  //     icon: 'user',
-  //     alwaysShow: true,
-  //     breadcrumb: false,
-  //     roles: ['admin']
-  //   },
-  //   children: [
-  //     {
-  //       path: 'user',
-  //       component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/user/index.vue'),
-  //       name: 'accessManage-user',
-  //       meta: {
-  //         title: '用户',
-  //         icon: 'dot',
-  //         breadcrumb: true,
-  //         activeMenu: '/accessManage',
-  //         roles: ['admin']
-  //       }
-  //     },
-  //     {
-  //       path: 'user/create',
-  //       component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/user/components/CreateUser.vue'),
-  //       name: 'accessManage-user-create',
-  //       meta: {
-  //         title: '创建用户',
-  //         icon: 'dot',
-  //         hidden: true,
-  //         activeMenu: '/accessManage',
-  //         roles: ['admin']
-  //       }
-  //     },
-  //     {
-  //       path: 'policy',
-  //       component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/policy/index.vue'),
-  //       name: 'accessManage-policy',
-  //       meta: {
-  //         title: '策略',
-  //         icon: 'dot',
-  //         breadcrumb: true,
-  //         activeMenu: '/accessManage',
-  //         roles: ['admin']
-  //       }
-  //     },
-  //     {
-  //       path: 'policy/create',
-  //       component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/policy/components/CreatePolicy.vue'),
-  //       name: 'accessManage-policy-create',
-  //       meta: {
-  //         title: '创建策略',
-  //         icon: 'dot',
-  //         hidden: true,
-  //         activeMenu: '/accessManage',
-  //         roles: ['admin']
-  //       }
-  //     },
-  //     {
-  //       path: 'policy/view',
-  //       component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/policy/components/ViewPolicy.vue'),
-  //       name: 'accessManage-policy-view',
-  //       meta: {
-  //         title: '策略详情',
-  //         icon: 'dot',
-  //         hidden: true,
-  //         activeMenu: '/accessManage',
-  //         roles: ['admin']
-  //       }
-  //     }
-  //   ]
-  // },
+  {
+    path: '/accessManage',
+    component: Layout,
+    redirect: 'noredirect',
+    meta: {
+      title: '访问管理',
+      icon: 'user',
+      alwaysShow: true,
+      breadcrumb: false,
+      roles: ['admin']
+    },
+    children: [
+      {
+        path: 'user',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/user/index.vue'),
+        name: 'accessManage-user',
+        meta: {
+          title: '用户',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/accessManage',
+          roles: ['admin']
+        }
+      },
+      {
+        path: 'user/create',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/user/components/CreateUser.vue'),
+        name: 'accessManage-user-create',
+        meta: {
+          title: '创建用户',
+          icon: 'dot',
+          hidden: true,
+          activeMenu: '/accessManage',
+          roles: ['admin']
+        }
+      },
+      {
+        path: 'policy',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/policy/index.vue'),
+        name: 'accessManage-policy',
+        meta: {
+          title: '策略',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/accessManage',
+          roles: ['admin']
+        }
+      },
+      {
+        path: 'policy/create',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/policy/components/CreatePolicy.vue'),
+        name: 'accessManage-policy-create',
+        meta: {
+          title: '创建策略',
+          icon: 'dot',
+          hidden: true,
+          activeMenu: '/accessManage',
+          roles: ['admin']
+        }
+      },
+      {
+        path: 'policy/view',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/policy/components/ViewPolicy.vue'),
+        name: 'accessManage-policy-view',
+        meta: {
+          title: '策略详情',
+          icon: 'dot',
+          hidden: true,
+          activeMenu: '/accessManage',
+          roles: ['admin']
+        }
+      }
+    ]
+  },
   {
     path: '*',
     redirect: '/404',
