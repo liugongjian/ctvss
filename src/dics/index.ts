@@ -90,6 +90,11 @@ export const StreamStatus = {
   'failed': '失败'
 }
 
+export const RecordStatus = {
+  0: '录制中',
+  1: '未录制'
+}
+
 export const StreamType = {
   1: '全量视频',
   2: '移动侦测'
@@ -98,7 +103,8 @@ export const StreamType = {
 export const DeviceParams = {
   'deviceType': '类型',
   'deviceStatus': '设备状态',
-  'streamStatus': '流状态'
+  'streamStatus': '流状态',
+  'recordStatus': '录制状态'
 }
 
 export const AlertLevel = {

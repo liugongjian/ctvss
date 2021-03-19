@@ -29,5 +29,8 @@ export default class extends Vue {
     &--warning {
       background-color: $primary;
     }
+    &--red {
+      background-color: $red;
+    }
   }
 </style>
