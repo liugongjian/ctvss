@@ -135,7 +135,7 @@ export default class extends Vue {
   private systemAbilityAlgorithmsMap: {[index: string]: AIAbilityAlgorithm[]} = {}
   private form: any = {
     templateName: '',
-    enableType: 2,
+    enableType: 1,
     description: '',
     threshold: 60,
     templateAbilityList: []

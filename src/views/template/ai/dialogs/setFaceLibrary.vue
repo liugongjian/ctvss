@@ -23,8 +23,8 @@
       <el-table-column prop="name" label="组名称" width="200" align="center" />
       <el-table-column prop="description" label="描述" align="center" />
       <el-table-column prop="num" label="人数" width="80" align="center" />
-      <el-table-column prop="createTime" label="创建时间" width="200" align="center" />
-      <el-table-column prop="updateTime" label="更新时间" width="200" align="center" />
+      <el-table-column prop="createdTime" label="创建时间" width="200" align="center" />
+      <el-table-column prop="updatedTime" label="更新时间" width="200" align="center" />
     </el-table>
     <span slot="footer" class="dialog-footer">
       <el-button @click="setFaceLibray">确定</el-button>
