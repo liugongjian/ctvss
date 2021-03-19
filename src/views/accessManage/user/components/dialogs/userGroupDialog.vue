@@ -39,7 +39,6 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { createGroup, modifyGroup, getGroup, combineGroup } from '@/api/accessManage'
-import { group } from 'console'
 @Component({
   name: 'AddGroup'
 })

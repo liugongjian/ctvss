@@ -68,7 +68,10 @@ export default class extends Vue {
   }
   private async getList() {
     try {
-      let params: any = {}
+      let params: any = {
+        pageNum: this.pager.pageNum,
+        pageSize: this.pager.pageSize
+      }
       this.isLoading = true
       let res: any = await getPolicyList(params)
       this.policyList = []
@@ -80,7 +83,7 @@ export default class extends Vue {
         }
         this.policyList.push(obj)
       }
-      this.pager.total = res.totalNuam
+      this.pager.total = res.totalNum
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
@@ -90,6 +93,7 @@ export default class extends Vue {
   private handleSizeChange(val: number) {
     const pager: any = this.pager
     pager.pageSize = val
+    pager.pageNum = 1
     this.getList()
   }
   private handleCurrentChange(val: number) {

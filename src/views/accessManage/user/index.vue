@@ -96,8 +96,6 @@
 import { Component, Vue } from 'vue-property-decorator'
 import UserGroupDialog from './components/dialogs/userGroupDialog.vue'
 import { getGroupList, getUserList, deleteUser } from '@/api/accessManage'
-import { nextTick } from 'process'
-import { map } from 'node_modules/@types/lodash/ts3.1'
 @Component({
   name: 'AccessManageUser',
   components: {
