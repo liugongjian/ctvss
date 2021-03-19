@@ -653,6 +653,7 @@ export default class extends Vue {
       }
       await startRecord(params)
       this.$message.success('已通知开始录像')
+      this.getDeviceList()
     } catch (e) {
       this.$message.error(e.message)
       console.error(e)
@@ -670,6 +671,7 @@ export default class extends Vue {
       }
       await stopRecord(params)
       this.$message.success('已通知停止录像')
+      this.getDeviceList()
     } catch (e) {
       this.$message.error(e.message)
       console.error(e)
