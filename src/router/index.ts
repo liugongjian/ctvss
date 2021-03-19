@@ -509,6 +509,38 @@ export const asyncRoutes: RouteConfig[] = [
           roles: ['admin'],
           activeMenu: '/template/callback'
         }
+      },
+      {
+        path: 'ai',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/ai/index.vue'),
+        name: 'ai',
+        meta: {
+          title: 'AI模板',
+          icon: 'dot',
+          roles: ['admin']
+        }
+      },
+      {
+        path: 'ai/create',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/ai/createOrUpdate.vue'),
+        name: 'ai-create',
+        meta: {
+          title: '新建AI模板',
+          hidden: true,
+          roles: ['admin'],
+          activeMenu: '/template/ai'
+        }
+      },
+      {
+        path: 'ai/update/:id?',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/ai/createOrUpdate.vue'),
+        name: 'ai-update',
+        meta: {
+          title: '编辑AI模板',
+          hidden: true,
+          roles: ['admin'],
+          activeMenu: '/template/ai'
+        }
       }
       // ,
       // {
@@ -590,7 +622,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '关联配置',
           icon: 'dot',
           breadcrumb: true,
-          activeMenu: '/AI',
+          activeMenu: '/AI/config',
           roles: ['admin']
         }
       },
@@ -603,7 +635,7 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           breadcrumb: false,
-          activeMenu: '/AI',
+          activeMenu: '/AI/config',
           roles: ['admin']
         }
       }
