@@ -123,7 +123,7 @@
           </template>
           <template slot-scope="{row}">
             <status-badge :status="row.deviceStatus" />
-            {{ deviceStatus[row.deviceStatus] || '-' }}
+            <span>{{ deviceStatus[row.deviceStatus] || '-' }}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -158,8 +158,8 @@
             <svg-icon class="filter" name="filter" width="15" height="15" />
           </template>
           <template slot-scope="{row}">
-            <status-badge :status="row.recordStatus === 0 ? 'red' : ''" />
-            {{ recordStatus[row.recordStatus] || '-' }}
+            <span v-if="row.deviceType === 'nvr'">-</span>
+            <span v-else><status-badge :status="row.recordStatus === 0 ? 'red' : ''" />{{ recordStatus[row.recordStatus] || '-' }}</span>
           </template>
         </el-table-column>
         <el-table-column key="deviceVendor" prop="deviceVendor" label="厂商">
