@@ -14,9 +14,10 @@
             <el-input v-model="form.iamUserName" placeholder="请填写用户名" />
             <el-row class="form-tip">可包含大小写字母、数字、中划线，用户名称不能重复</el-row>
           </el-form-item>
-          <el-form-item prop="consoleEnabled" label="访问方式：">
+          <el-form-item prop="accessType" label="访问方式：">
             <template>
-              <el-checkbox v-model="form.consoleEnabled">控制台访问</el-checkbox>
+              <el-switch v-show="false" v-model="form.accessType" />
+              <el-checkbox v-model="form.consoleEnabled" @change="accessTypeChange">控制台访问</el-checkbox>
               <el-popover
                 placement="top-start"
                 title="控制台访问"
@@ -27,7 +28,7 @@
               >
                 <svg-icon slot="reference" class="form-question sign" name="help" />
               </el-popover>
-              <el-checkbox v-model="form.apiEnabled">编程访问</el-checkbox>
+              <el-checkbox v-model="form.apiEnabled" @change="accessTypeChange">编程访问</el-checkbox>
               <el-popover
                 placement="top-start"
                 title="编程访问"
@@ -147,6 +148,7 @@ export default class extends Vue {
   private breadCrumbContent: string = ''
   private form: any = {
     iamUserName: '',
+    accessType: true,
     consoleEnabled: true,
     apiEnabled: false,
     policy: [],
@@ -159,6 +161,9 @@ export default class extends Vue {
     ],
     policy: [
       { required: true, message: '请添加用户权限' }
+    ],
+    accessType: [
+      { required: true, validator: this.validateAccessType, trigger: 'change' }
     ]
   }
   private policyList: Array<object> = [
@@ -191,6 +196,10 @@ export default class extends Vue {
   private newUserData: Array<object> = []
   private showPasswords: boolean = false
   private showSecretKey: boolean = false
+
+  private accessTypeChange() {
+    this.form.accessType = this.form.consoleEnabled || this.form.apiEnabled
+  }
 
   private handleSelectionChange(selection: any) {
     this.form.policy = selection[0]
@@ -353,6 +362,14 @@ export default class extends Vue {
       callback()
     }
   }
+
+  private validateAccessType(rule: any, value: any, callback: Function) {
+    if (!value) {
+      callback(new Error('请至少选择一种访问方式'))
+    } else {
+      callback()
+    }
+  }
 }
 </script>
 
@@ -365,8 +382,25 @@ export default class extends Vue {
   }
   .el-table {
     width: 700px;
-    ::v-deep .el-table__header-wrapper  .el-checkbox {
-      display:none
+    ::v-deep {
+      .el-table__header-wrapper  .el-checkbox {
+        display:none
+      }
+      //单选补充样式
+      .el-checkbox__inner {
+        border-radius: 100%;
+        &::after {
+          opacity: 1;
+          position: absolute;
+          width: 0.3px;
+          height: 0.3px;
+          background: #fff;;
+          border-radius: 100%;
+          top: 4px;
+          left: 4px;
+          border: 2px solid #fff;
+        }
+      }
     }
   }
   .sign {
