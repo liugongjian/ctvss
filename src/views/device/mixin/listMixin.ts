@@ -1,8 +1,8 @@
 import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
-import { DeviceParams, DeviceStatus, StreamStatus, DeviceGb28181Type, SipTransType, StreamTransType, TransPriority } from '@/dics'
+import { DeviceParams, DeviceStatus, StreamStatus, RecordStatus, DeviceGb28181Type, SipTransType, StreamTransType, TransPriority } from '@/dics'
 import { Device } from '@/type/device'
 import { GroupModule } from '@/store/modules/group'
-import { deleteDevice, startDevice, stopDevice, getDevice, getDevices, syncDevice } from '@/api/device'
+import { deleteDevice, startDevice, stopDevice, getDevice, getDevices, startRecord, stopRecord, syncDevice } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MoveDir from '../components/dialogs/MoveDir.vue'
 
@@ -27,6 +27,7 @@ export default class CreateMixin extends Vue {
   public deviceParams = DeviceParams
   public deviceStatus = DeviceStatus
   public streamStatus = StreamStatus
+  private recordStatus = RecordStatus
   public deviceType = DeviceGb28181Type
   public sipTransType = SipTransType
   public streamTransType = StreamTransType
@@ -44,7 +45,8 @@ export default class CreateMixin extends Vue {
   public filter: any = {
     deviceType: '',
     deviceStatus: '',
-    streamStatus: ''
+    streamStatus: '',
+    recordStatus: ''
   }
   public pager = {
     pageNum: 1,
@@ -57,7 +59,8 @@ export default class CreateMixin extends Vue {
   public filtersArray = {
     deviceType: this.dictToFilterArray(DeviceGb28181Type),
     deviceStatus: this.dictToFilterArray(DeviceStatus),
-    streamStatus: this.dictToFilterArray(StreamStatus)
+    streamStatus: this.dictToFilterArray(StreamStatus),
+    recordStatus: this.dictToFilterArray(RecordStatus)
   }
 
   public get inProtocol() {
@@ -356,6 +359,12 @@ export default class CreateMixin extends Vue {
       case 'stopDevice':
         this.stopDevice(command.device)
         break
+      case 'startRecord':
+        this.startRecord(command.device)
+        break
+      case 'stopRecord':
+        this.stopRecord(command.device)
+        break
     }
   }
 
@@ -496,6 +505,41 @@ export default class CreateMixin extends Vue {
       await stopDevice(params)
       this.$message.success('已通知停用设备')
     } catch (e) {
+      console.error(e)
+    }
+  }
+
+  /**
+   * 开始录像
+   */
+  public async startRecord(device: Device) {
+    try {
+      const params: any = {
+        deviceId: device.deviceId
+      }
+      await startRecord(params)
+      this.$message.success('已通知开始录制')
+      this.init()
+    } catch (e) {
+      this.$message.error(e.message)
+      console.error(e)
+    }
+  }
+
+  /**
+   * 停止录像
+   */
+  public async stopRecord(device: Device) {
+    try {
+      const params: any = {
+        deviceId: device.deviceId,
+        recordTaskId: device.recordTaskId
+      }
+      await stopRecord(params)
+      this.$message.success('已通知停止录像')
+      this.init()
+    } catch (e) {
+      this.$message.error(e.message)
       console.error(e)
     }
   }
