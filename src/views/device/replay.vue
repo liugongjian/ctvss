@@ -201,12 +201,6 @@ export default class extends Mixins(ScreenMixin) {
       .playing {
         color: $success;
       }
-      .offline .node-name {
-        cursor: not-allowed;
-        .svg-icon {
-          color: #ccc;
-        }
-      }
     }
 
     &__right {
