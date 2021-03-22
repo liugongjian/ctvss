@@ -57,6 +57,14 @@
                   </div>
                 </div>
               </info-list-item>
+              <info-list-item label="录制状态:">
+                <div class="info-list__edit">
+                  <div class="info-list__edit--value">
+                    <status-badge :status="info.recordStatus === 0 ? 'red' : ''" />
+                    {{ recordStatus[info.recordStatus] }}
+                  </div>
+                </div>
+              </info-list-item>
               <info-list-item label="信令传输模式:">
                 <div class="info-list__edit">
                   <div class="info-list__edit--value">
@@ -177,7 +185,7 @@
 import { Component, Vue, Inject } from 'vue-property-decorator'
 import { Device } from '@/type/device'
 import { RecordTemplate } from '@/type/template'
-import { DeviceStatus, DeviceType, AuthStatus, PullType, CreateSubDevice, TransPriority, SipTransType, StreamTransType } from '@/dics'
+import { DeviceStatus, RecordStatus, DeviceType, AuthStatus, PullType, CreateSubDevice, TransPriority, SipTransType, StreamTransType } from '@/dics'
 import { getDevice } from '@/api/device'
 import TemplateBind from '../components/templateBind.vue'
 import SetAuthConfig from './components/dialogs/SetAuthConfig.vue'
@@ -197,6 +205,7 @@ export default class extends Vue {
   @Inject('deviceRouter') private deviceRouter!: Function
   private activeName = 'info'
   private deviceStatus = DeviceStatus
+  private recordStatus = RecordStatus
   private deviceType = DeviceType
   private authStatus = AuthStatus
   private pullType = PullType

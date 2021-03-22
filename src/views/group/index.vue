@@ -39,7 +39,7 @@
             {{ inProtocolType[row.inProtocol] }}
           </template>
         </el-table-column>
-        <el-table-column prop="regionName" label="服务区域" min-width="120" />
+        <el-table-column prop="regionName" label="接入区域" min-width="120" />
         <el-table-column prop="deviceSize" label="设备总数" min-width="90">
           <template slot-scope="scope">{{ scope.row.groupStats && scope.row.groupStats.deviceSize }}</template>
         </el-table-column>

@@ -36,7 +36,7 @@ export default class extends Mixins(DashboardMixin) {
     this.setInterval(this.getData.bind(this))
   }
   private alertType = AlertType
-  private alertTypeMapping = [6, 2, 4, 5]
+  private alertTypeMapping = [6, 8, 4, 5, 7]
 
   /**
    * 获取数据
@@ -44,15 +44,15 @@ export default class extends Mixins(DashboardMixin) {
   private async getData() {
     try {
       this.loading = true
-      var event1 = getAuditTrend({
+      var event6 = getAuditTrend({
         form: 'week',
         event: 6
       })
-      const event2 = getAuditTrend({
+      const event8 = getAuditTrend({
         form: 'week',
-        event: 2
+        event: 8
       })
-      const event3 = getAuditTrend({
+      const event4 = getAuditTrend({
         form: 'week',
         event: 4
       })
@@ -60,12 +60,16 @@ export default class extends Mixins(DashboardMixin) {
         form: 'week',
         event: 5
       })
-      var data = await Promise.all([event1, event2, event3, event5])
+      const event7 = getAuditTrend({
+        form: 'week',
+        event: 7
+      })
+      var data = await Promise.all([event6, event8, event4, event5, event7])
       this.loading = false
       var nowTime = new Date().getTime()
       this.weeklyTrendData = []
       for (let i = 0; i < 7; i++) {
-        for (let j = 0; j < 4; j++) {
+        for (let j = 0; j < this.alertTypeMapping.length; j++) {
           this.weeklyTrendData.push({
             time: dateFormatInTable('', '', nowTime - i * 3600 * 24 * 1000).slice(5, 10),
             type: this.alertType[this.alertTypeMapping[j]],
@@ -148,7 +152,7 @@ export default class extends Mixins(DashboardMixin) {
           marker: {
             symbol: 'square',
             style: {
-              fill: '#EB155B'
+              fill: '#9E10D7'
             },
             spacing: 5
           }
@@ -160,6 +164,17 @@ export default class extends Mixins(DashboardMixin) {
             symbol: 'square',
             style: {
               fill: '#1CB500'
+            },
+            spacing: 5
+          }
+        },
+        {
+          name: '安全帽反光服检测',
+          value: '安全帽反光服检测',
+          marker: {
+            symbol: 'square',
+            style: {
+              fill: '#ffe21c'
             },
             spacing: 5
           }
@@ -188,8 +203,8 @@ export default class extends Mixins(DashboardMixin) {
       }
     })
 
-    this.chart.line().position('time*value').color('type', ['l(0) 0:#B0FF1C 1:#1CB500', 'l(0) 0:#9E10D7 1:#EB155B', 'l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#EDDE12 1:#FF810C']).shape('smooth').style({ lineWidth: 3 })
-    this.chart.point().position('time*value').color('type', ['l(0) 0:#B0FF1C 1:#1CB500', 'l(0) 0:#9E10D7 1:#EB155B', 'l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#EDDE12 1:#FF810C']).shape('circle').style({
+    this.chart.line().position('time*value').color('type', ['l(0) 0:#ffe21c 1:#bba300', 'l(0) 0:#B0FF1C 1:#1CB500', 'l(0) 0:#9E10D7 1:#EB155B', 'l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#EDDE12 1:#FF810C']).shape('smooth').style({ lineWidth: 3 })
+    this.chart.point().position('time*value').color('type', ['l(0) 0:#ffe21c 1:#bba300', 'l(0) 0:#B0FF1C 1:#1CB500', 'l(0) 0:#9E10D7 1:#EB155B', 'l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#EDDE12 1:#FF810C']).shape('circle').style({
       stroke: '#08233F',
       lineWidth: 1
     })

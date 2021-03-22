@@ -30,9 +30,10 @@ export default class extends Mixins(DashboardMixin) {
     const data = await getAuditTrend({ form: 'day' })
     this.chartData = [
       { type: '未带口罩', value: parseInt(data.trend[6] || 0) },
-      { type: '人员聚集', value: parseInt(data.trend[2] || 0) },
+      { type: '人员聚集', value: parseInt(data.trend[8] || 0) },
       { type: '人员布控', value: parseInt(data.trend[4] || 0) },
-      { type: '吸烟检测', value: parseInt(data.trend[5] || 0) }
+      { type: '吸烟检测', value: parseInt(data.trend[5] || 0) },
+      { type: '安全帽反光服检测', value: parseInt(data.trend[7] || 0) }
     ]
     this.chart ? this.updateChart() : this.drawChart()
   }
@@ -47,7 +48,7 @@ export default class extends Mixins(DashboardMixin) {
       container: $container,
       autoFit: true,
       height: 120,
-      padding: [10, 40, 10, 85]
+      padding: [10, 40, 10, 140]
     })
 
     this.chart.axis('type', {
@@ -83,7 +84,7 @@ export default class extends Mixins(DashboardMixin) {
     this.chart
       .interval()
       .position('type*value')
-      .color('type', ['l(0) 0:#EDDE12 1:#FF810C', 'l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#9E10D7 1:#EB155B', 'l(0) 0:#B0FF1C 1:#1CB500'])
+      .color('type', ['l(0) 0:#EDDE12 1:#FF810C', 'l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#9E10D7 1:#EB155B', 'l(0) 0:#B0FF1C 1:#1CB500', 'l(0) 0:#ffe21c 1:#bba300'])
       .label('value', {
         style: {
           fill: '#33DBE3'

@@ -150,3 +150,17 @@ export const syncDevice = (params: any): Promise<any> =>
     method: 'post',
     data: params
   })
+
+export const startRecord = (params: any): Promise<any> =>
+  request({
+    url: '/record/task/start',
+    method: 'post',
+    data: params
+  })
+
+export const stopRecord = (params: any): Promise<any> =>
+  request({
+    url: '/record/task/stop',
+    method: 'post',
+    data: params
+  })

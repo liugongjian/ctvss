@@ -21,14 +21,14 @@
         </el-form-item>
         <el-form-item prop="region" class="form-with-tip">
           <template slot="label">
-            服务区域:
+            接入区域:
             <el-popover
               placement="top-start"
-              title="服务区域"
+              title="接入区域"
               width="400"
               trigger="hover"
               :open-delay="300"
-              content="服务区域负责对流媒体进行实时处理，包括鉴权、拉流、转码、录制、截图等，请根据处理和存储需求选择"
+              content="接入区域负责IPC/NVR/第三方视频平台视频接入、存储、分发和AI分析等，请根据需求选择。"
             >
               <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
