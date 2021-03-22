@@ -143,9 +143,7 @@ export default class extends Vue {
   }
 
   private async getGroups() {
-    let params = {
-      // parentGroupId: -1
-    }
+    let params = {}
     try {
       this.loading.menu = true
       let res = await getGroupList(params)
@@ -199,13 +197,6 @@ export default class extends Vue {
         this.getUserList()
       }
     })
-    // try {
-    //   await deleteUser({ iamUserId: id })
-    //   this.$message.success('删除用户成功')
-    //   this.getUserList()
-    // } catch (e) {
-    //   this.$message.error(e && e.message)
-    // }
   }
 
   private showDialog(type: any, node: any) {
