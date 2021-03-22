@@ -30,14 +30,18 @@
                 :props="treeProp"
                 @node-click="openScreen"
               >
-                <span slot-scope="{node, data}" class="custom-tree-node">
+                <span
+                  slot-scope="{node, data}"
+                  class="custom-tree-node"
+                  :class="{'online': data.deviceStatus === 'on', 'offline': (data.deviceStatus !== 'on' && data.type === 'ipc')}"
+                >
                   <span class="node-name">
                     <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
                     <span v-else class="node-dir">
                       <svg-icon name="dir" width="15" height="15" />
                       <svg-icon name="dir-close" width="15" height="15" />
                     </span>
-                    <!-- <status-badge v-if="data.streamStatus" :status="data.streamStatus" /> -->
+                    <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                     {{ node.label }} <span class="alert-type">{{ renderAlertType(data) }}</span>
                     <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
                   </span>
