@@ -208,6 +208,7 @@ export default class extends Vue {
       this.loading = true
       const res = await getDeviceRecords({
         deviceId: this.deviceId,
+        recordType: 0, // 0-云端，1-本地
         startTime: startTime || this.currentDate / 1000,
         endTime: this.currentDate / 1000 + 24 * 60 * 60,
         pageSize: 9999

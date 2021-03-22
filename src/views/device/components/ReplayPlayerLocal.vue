@@ -63,7 +63,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Watch, Mixins } from 'vue-property-decorator'
-import { getDevicePreview } from '@/api/device'
+import { getDeviceRecords, getDevicePreview } from '@/api/device'
 import ReplayPlayerMixin from '@/views/device/mixin/replayPlayerMixin'
 
 @Component({
@@ -83,13 +83,57 @@ export default class extends Mixins(ReplayPlayerMixin) {
     this.getDevicePreview()
   }
 
-  @Watch('currentDate')
+  @Watch('currentDate', {
+    immediate: true
+  })
   private onCurrentDateChange() {
     this.currentTime = this.startTime = this.currentDate!
+    this.getRecordList()
   }
 
-  private async mounted() {
-    this.currentTime = this.startTime = this.currentDate!
+  /**
+   * 获取回放列表
+   */
+  private async getRecordList(startTime?: number) {
+    try {
+      this.loading = true
+      const res = await getDeviceRecords({
+        deviceId: this.deviceId,
+        recordType: 1, // 0-云端，1-本地
+        startTime: startTime || this.currentDate! / 1000,
+        endTime: this.currentDate! / 1000 + 24 * 60 * 60,
+        pageSize: 9999
+      })
+      // 追加最新的录像
+      if (startTime) {
+        const recordLength = this.recordList.length
+        res.records.forEach((record: any, index: number) => {
+          record.startAt = new Date(record.startTime).getTime()
+          record.loading = false
+          record.index = recordLength + index
+          if (!~this.recordList.findIndex(_record => {
+            return record.startTime === _record.startTime
+          })) {
+            this.recordList.push(record)
+          }
+        })
+        if (res.records) {
+          const replayPlayer: any = this.$refs.replayPlayer
+          replayPlayer.loadedNewRecords(res.records.length)
+        }
+      } else {
+        this.recordList = res.records.map((record: any, index: number) => {
+          record.startAt = new Date(record.startTime).getTime()
+          record.loading = false
+          record.index = index
+          return record
+        })
+      }
+    } catch (e) {
+      console.log(e)
+    } finally {
+      this.loading = false
+    }
   }
 
   /**

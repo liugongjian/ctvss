@@ -125,6 +125,16 @@ export const getDeviceRecordStatistic = (params: any): Promise<any> =>
   })
 
 /**
+ * 设置本地录像的播放速率
+ */
+export const setRecordScale = (params: any): Promise<any> =>
+  request({
+    url: '/record/statistic',
+    method: 'post',
+    data: params
+  })
+
+/**
  * 获取设备录制模版
  */
 export const getDeviceRecordTemplate = (params: any): Promise<any> =>
