@@ -71,7 +71,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import Ctplayer from '../models/Ctplayer'
+import { createPlayer } from '../models/Ctplayer'
 import { durationFormatInVideo } from '@/utils/date'
 
 @Component({
@@ -160,7 +160,7 @@ export default class extends Vue {
   @Prop()
   private deviceName?: string
 
-  public player?: Ctplayer
+  public player?: any
   public paused?: boolean = true
   public waiting = false
   private isZoom = false
@@ -192,6 +192,7 @@ export default class extends Vue {
   }
 
   private mounted() {
+    // TODO 泰州业务需求，将h265转成h264播放
     if (this.type === 'h265-flv' && this.isLive) {
       const execRes: any = /\.[^\\.]+$/.exec(this.url)
       this.url = `${this.url.substring(0, execRes.index)}_264conv${execRes[0]}`
@@ -231,7 +232,7 @@ export default class extends Vue {
    * 创建播放器
    */
   private createPlayer() {
-    this.player = new Ctplayer({
+    this.player = createPlayer({
       wrap: this.$refs.video,
       autoPlay: this.autoPlay,
       hasControl: this.hasControl,
@@ -317,7 +318,6 @@ export default class extends Vue {
   }
 
   public reloadPlayer() {
-    console.log('visibilitychange')
     this.player && this.player.reloadPlayer()
   }
 
@@ -327,7 +327,7 @@ export default class extends Vue {
   }
 
   public setStatus() {
-    this.paused = this.player!.player.paused
+    this.paused = this.player?.player.paused
   }
 
   /**
@@ -396,7 +396,7 @@ export default class extends Vue {
   /**
    * 鼠标点击进度条
    */
-  public progressHandle(event: MouseEvent) {
+  public progressHandle() {
     const $progress: any = this.$refs.progress
     const progressSize = $progress.getBoundingClientRect()
     this.progressMoveData.x = progressSize.x
