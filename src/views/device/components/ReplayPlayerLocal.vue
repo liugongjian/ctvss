@@ -15,10 +15,12 @@
       :has-control="false"
       :has-playlive="hasPlaylive"
       :is-fullscreen="isFullscreen"
+      :is-custom-rate="true"
       @onTimeUpdate="setCurrentTime"
       @onPlaylive="playlive"
       @onFullscreen="fullscreen()"
       @onExitFullscreen="exitFullscreen()"
+      @onSetPlaybackRate="setPlaybackRate"
     />
     <div class="timeline__box">
       <div ref="timelineWrap" class="timeline__wrap">
@@ -63,7 +65,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Watch, Mixins } from 'vue-property-decorator'
-import { getDeviceRecords, getDevicePreview } from '@/api/device'
+import { getDeviceRecords, getDevicePreview, setRecordScale } from '@/api/device'
 import ReplayPlayerMixin from '@/views/device/mixin/replayPlayerMixin'
 
 @Component({
@@ -170,6 +172,17 @@ export default class extends Mixins(ReplayPlayerMixin) {
     this.currentTime = currentTimestamp
     this.handlePos = this.scale(Math.round((currentTimestamp - this.currentDate!) / 1000))
     this.setHandlePosition()
+  }
+
+  /**
+   * 设置播放速率
+   */
+  public setPlaybackRate(scale: number) {
+    setRecordScale({
+      deviceId: this.deviceId,
+      playUrl: this.address.flvUrl,
+      scale: scale.toString()
+    })
   }
 }
 </script>

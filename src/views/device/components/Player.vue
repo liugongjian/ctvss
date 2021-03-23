@@ -159,6 +159,13 @@ export default class extends Vue {
    */
   @Prop()
   private deviceName?: string
+  /**
+   * 是否自定义控制倍速
+   */
+  @Prop({
+    default: false
+  })
+  private isCustomRate?: string
 
   public player?: any
   public paused?: boolean = true
@@ -594,7 +601,11 @@ export default class extends Vue {
    */
   public setPlaybackRate(playbackRate: number) {
     this.playbackRate = playbackRate
-    this.player!.setPlaybackRate(playbackRate)
+    if (this.isCustomRate) {
+      this.$emit('onSetPlaybackRate', playbackRate)
+    } else {
+      this.player!.setPlaybackRate(playbackRate)
+    }
   }
 }
 </script>

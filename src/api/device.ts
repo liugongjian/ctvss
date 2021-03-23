@@ -129,7 +129,7 @@ export const getDeviceRecordStatistic = (params: any): Promise<any> =>
  */
 export const setRecordScale = (params: any): Promise<any> =>
   request({
-    url: '/record/statistic',
+    url: '/record/scale',
     method: 'post',
     data: params
   })
