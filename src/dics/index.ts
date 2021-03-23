@@ -117,6 +117,10 @@ export const AlertIcon = {
   serious: 'alert'
 }
 
+/**
+ * AI告警类型
+ * 相应修改src/utils/device.ts
+ */
 export const AlertType: any = {
   // 1: '未戴口罩',
   6: '未戴口罩',
