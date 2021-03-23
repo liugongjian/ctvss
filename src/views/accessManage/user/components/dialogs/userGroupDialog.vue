@@ -28,6 +28,7 @@
       </el-form-item>
       <el-form-item v-else label="子部门名称:" prop="groupName">
         <el-input v-model="form.groupName" />
+        <el-row class="form-tip">2-16位，可包含大小写字母、数字、中文、中划线。</el-row>
       </el-form-item>
     </el-form>
     <div slot="footer" align="center">
@@ -58,7 +59,8 @@ export default class extends Vue {
 
   private rules = {
     groupName: [
-      { required: true, message: '请输入子部门名称', trigger: 'blur' }
+      { required: true, message: '请输入子部门名称', trigger: 'blur' },
+      { validator: this.validateGroupName, trigger: 'blur' }
     ],
     aimGroupId: [
       { required: true, message: '请选择目标子部门', trigger: 'blur' }
@@ -76,8 +78,8 @@ export default class extends Vue {
     }
   }
 
-  private closeDialog(data: any) {
-    this.$emit('on-close', data)
+  private closeDialog() {
+    this.$emit('on-close', false)
   }
 
   private async getGroup() {
@@ -126,6 +128,14 @@ export default class extends Vue {
         this.loading.submit = false
       }
     })
+  }
+
+  private validateGroupName(rule: any, value: any, callback: Function) {
+    if (!/^[\u4e00-\u9fa50-9a-zA-Z-]{2,16}$/.test(value)) {
+      callback(new Error('2-16位，可包含大小写字母、数字、中划线。'))
+    } else {
+      callback()
+    }
   }
 }
 </script>
