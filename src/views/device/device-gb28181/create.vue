@@ -145,7 +145,9 @@
           </el-select>
         </el-form-item>
         <el-form-item label="通道号:" prop="channelNum">
-          <el-input v-model="form.channelNum" :disabled="isUpdate" />
+          <el-select v-model="form.channelNum" :disabled="isUpdate">
+            <el-option v-for="item in availableChannels" :key="item" :label="`D${item}`" :value="item" />
+          </el-select>
         </el-form-item>
         <el-form-item label="通道名称:" prop="channelName" class="form-with-tip">
           <el-input v-model="form.channelName" />
@@ -254,6 +256,7 @@ export default class extends Mixins(createMixin) {
     gbRegionLevel: '1'
   }
   private minChannelSize = 1
+  private availableChannels: Array<number> = []
   private dialog = {
     createGb28181Certificate: false
   }
@@ -288,11 +291,15 @@ export default class extends Mixins(createMixin) {
       const info = await getDevice({
         deviceId: this.form.deviceId
       })
+      const usedChannelNum = info.deviceChannels.map((channel: any) => {
+        return channel.channelNum
+      })
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
           'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'gbId', 'userName']))
         if (info.deviceStats) {
-          this.minChannelSize = this.form.channelSize = info.deviceStats.channelSize
+          // 编辑的时候，设置数量不得小于已创建的子通道中最大通道号或1
+          this.minChannelSize = Math.max(...usedChannelNum, 1)
         }
         if (this.isChannel) {
           if (info.deviceChannels.length) {
@@ -303,6 +310,19 @@ export default class extends Mixins(createMixin) {
         }
       } else {
         this.form = Object.assign(this.form, pick(info, ['userName']))
+      }
+      // 构建可选择的通道，排除已选择通道
+      if (this.isChannel && info.deviceStats) {
+        const channelSize = info.deviceStats.channelSize
+        const availableChannels = []
+        for (let i = 1; i <= channelSize; i++) {
+          if (!~usedChannelNum.indexOf(i)) {
+            availableChannels.push(i)
+          }
+        }
+        this.availableChannels = availableChannels
+      } else if (this.isUpdate && info.deviceChannels.length) {
+        this.availableChannels = usedChannelNum
       }
     } catch (e) {
       this.$message.error(e.message)
