@@ -12,7 +12,7 @@
         >
           <el-form-item prop="iamUserName" label="用户名：">
             <el-input v-model="form.iamUserName" placeholder="请填写用户名" />
-            <el-row class="form-tip">可包含大小写字母、数字、中划线，用户名称不能重复</el-row>
+            <el-row class="form-tip">2-16位，可包含大小写字母、数字、中文、中划线，用户名称不能重复。</el-row>
           </el-form-item>
           <el-form-item prop="accessType" label="访问方式：">
             <template>
@@ -384,8 +384,8 @@ export default class extends Vue {
   }
 
   private validateUserName(rule: any, value: any, callback: Function) {
-    if (!/^[0-9a-zA-Z-]{1,}$/.test(value)) {
-      callback(new Error('仅允许包含大小写字母、数字、中划线'))
+    if (!/^[\u4e00-\u9fa50-9a-zA-Z-]{2,16}$/.test(value)) {
+      callback(new Error('2-16位，可包含大小写字母、数字、中划线'))
     } else {
       callback()
     }
