@@ -103,6 +103,9 @@ export default class extends Vue {
           }
           this.loading.submit = true
           if (type === 'add') {
+            params.parentGroupId = this.dialogData.data.groupId
+            console.log(params);
+            
             await createGroup(params)
             this.$message.success('创建子部门成功')
           } else if (type === 'edit') {
