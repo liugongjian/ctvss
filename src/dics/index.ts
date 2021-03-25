@@ -70,6 +70,11 @@ export const PullType = {
   2: '已禁用'
 }
 
+export const PushType = {
+  1: '已启用',
+  2: '已禁用'
+}
+
 export const CreateSubDevice = {
   1: '是',
   2: '否'

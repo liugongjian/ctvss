@@ -1,5 +1,4 @@
 import { getDevicePreview } from '@/api/device'
-import { getStream } from '@/api/stream'
 
 export default class Screen {
   public deviceId: string

@@ -1,19 +1,21 @@
 <template>
   <div class="app-container">
     <div v-loading="loading.info" class="detail-wrap">
-      <div v-if="info">
-        <el-button class="btn-detail" @click="goToPreview"><svg-icon name="live" /> 实时预览</el-button>
+      <div v-if="info" class="btn-detail">
+        <el-button @click="goToPreview"><svg-icon name="live" /> 实时预览</el-button>
+        <el-button @click="edit"><svg-icon name="edit" /> 编辑</el-button>
       </div>
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="基本信息" name="info">
           <div>
-            <el-button type="text" class="info-edit" @click="edit">编辑</el-button>
-            <info-list v-if="info" label-width="110">
+            <info-list abel-width="100">
               <info-list-item label="设备类型:">{{ deviceType[info.deviceType] }}</info-list-item>
               <info-list-item label="设备名称:">{{ info.deviceName }}</info-list-item>
               <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
-              <info-list-item label="自动拉流:">{{ pullType[info.pullType] }}</info-list-item>
+              <info-list-item label="视频流接入方式:">{{ inType[info.inType] || '-' }}</info-list-item>
+              <info-list-item v-if="info.inType === 'push'" label="自动激活推流地址:">{{ pushType[info.pushType] || '-' }}</info-list-item>
+              <info-list-item v-if="info.inType === 'pull'" label="自动拉流:">{{ pullType[info.pullType] || '-' }}</info-list-item>
               <info-list-item label="设备状态:">
                 <div class="info-list__edit">
                   <div class="info-list__edit--value">
@@ -26,7 +28,7 @@
                 <div class="info-list__edit">
                   <div class="info-list__edit--value">
                     <status-badge :status="info.streamStatus" />
-                    {{ deviceStatus[info.streamStatus] }}
+                    {{ deviceStatus[info.streamStatus] || '-' }}
                   </div>
                 </div>
               </info-list-item>
@@ -38,10 +40,22 @@
                   </div>
                 </div>
               </info-list-item>
+              <info-list-item label="推流地址">
+                {{ info.pushUrl || '-' }}
+                <el-tooltip v-if="info.pushUrl" class="item" effect="dark" content="复制链接" placement="top">
+                  <el-button type="text" @click="copyUrl(info.pushUrl)"><svg-icon name="copy" /></el-button>
+                </el-tooltip>
+              </info-list-item>
+              <info-list-item label="拉流地址">
+                {{ info.pushUrl || '-' }}
+                <el-tooltip v-if="info.pullUrl" class="item" effect="dark" content="复制链接" placement="top">
+                  <el-button type="text" @click="copyUrl(info.pullUrl)"><svg-icon name="copy" /></el-button>
+                </el-tooltip>
+              </info-list-item>
             </info-list>
           </div>
         </el-tab-pane>
-        <el-tab-pane v-if="!isGb" label="推流配置" name="push">
+        <el-tab-pane v-if="false" label="推流配置" name="push">
           <info-list label-width="115" title="鉴权配置" class="auth-config">
             <el-button v-if="pushConfig.auth" type="text" class="auth-config__edit" @click="openDialog('setAuthConfig')">编辑鉴权KEY</el-button>
             <info-list-item label="推流鉴权:">
@@ -72,7 +86,7 @@
             </div>
           </info-list>
         </el-tab-pane>
-        <el-tab-pane v-if="!isGb" label="播流配置" name="play">
+        <el-tab-pane v-if="false" label="播流配置" name="play">
           <info-list label-width="115" title="鉴权配置" class="auth-config">
             <el-button v-if="playConfig.auth" type="text" class="auth-config__edit" @click="openDialog('setAuthConfig')">编辑鉴权KEY</el-button>
             <info-list-item label="推流鉴权:">

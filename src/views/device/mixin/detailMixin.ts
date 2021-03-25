@@ -1,7 +1,7 @@
 import { Component, Vue, Inject } from 'vue-property-decorator'
 import { Device } from '@/type/device'
 import { RecordTemplate } from '@/type/template'
-import { DeviceStatus, DeviceGb28181Type, RecordStatus, AuthStatus, PullType, CreateSubDevice, TransPriority, SipTransType, StreamTransType } from '@/dics'
+import { DeviceStatus, DeviceGb28181Type, RecordStatus, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType } from '@/dics'
 import { getDevice } from '@/api/device'
 import TemplateBind from '../../components/templateBind.vue'
 import SetAuthConfig from '../components/dialogs/SetAuthConfig.vue'
@@ -23,7 +23,9 @@ export default class DetailMixin extends Vue {
   public deviceType = DeviceGb28181Type
   public recordStatus = RecordStatus
   public authStatus = AuthStatus
+  public inType = InType
   public pullType = PullType
+  public pushType = PushType
   public transPriority = TransPriority
   public sipTransType = SipTransType
   public streamTransType = StreamTransType
