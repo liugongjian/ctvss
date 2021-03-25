@@ -129,6 +129,7 @@
             ref="addressCascader"
             v-model="form.address"
             expand-trigger="hover"
+            :disabled="isUpdate"
             :options="cities"
             :props="citiesProps"
             @change="addressChange"
@@ -385,9 +386,11 @@ export default class extends Mixins(createMixin) {
       if (valid) {
         try {
           this.submitting = true
-          let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceVendor', 'description', 'gbRegion', 'gbRegionLevel'])
+          let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceVendor', 'description'])
           if (this.isUpdate) {
             params = Object.assign(params, pick(this.form, ['deviceId']))
+          } else {
+            params = Object.assign(params, pick(this.form, ['gbRegion', 'gbRegionLevel']))
           }
           if (!this.isChannel) {
             // 通用参数
