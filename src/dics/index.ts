@@ -4,10 +4,20 @@ export const DeviceStatus = {
   'new': '未注册'
 }
 
-export const DeviceType = {
+export const DeviceGb28181Type = {
   'ipc': 'IPC',
   'nvr': 'NVR',
   'platform': 'Platform'
+}
+
+export const DeviceRtmpType = {
+  'ipc': 'IPC',
+  'platform': 'Platform'
+}
+
+export const InType = {
+  'push': '推流',
+  'pull': '拉流'
 }
 
 export const InProtocolType = {
@@ -56,6 +66,11 @@ export const SecretStatus = {
 }
 
 export const PullType = {
+  1: '已启用',
+  2: '已禁用'
+}
+
+export const PushType = {
   1: '已启用',
   2: '已禁用'
 }

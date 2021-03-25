@@ -7,7 +7,7 @@
         :rules="rules"
         :model="form"
         label-position="right"
-        label-width="160px"
+        label-width="180px"
       >
         <el-form-item v-if="isEdit" label="业务组Id:" prop="groupId">
           <el-input v-model="form.groupId" disabled />
@@ -55,8 +55,8 @@
             </el-checkbox>
           </el-checkbox-group>
         </el-form-item>
-        <!-- 国标业务组允许设置是否自动拉流 -->
-        <el-form-item v-if="form.inProtocol === 'gb28181'" prop="pullType">
+        <!-- gb28181/rtmp/rtsp允许设置是否自动拉流 -->
+        <el-form-item v-if="form.inProtocol === 'gb28181' || form.inProtocol === 'rtmp' || form.inProtocol === 'rtsp'" prop="pullType">
           <template slot="label">
             自动拉流:
             <el-popover
@@ -71,6 +71,23 @@
             </el-popover>
           </template>
           <el-switch v-model="form.pullType" :active-value="1" :inactive-value="2" />
+        </el-form-item>
+        <!-- rtmp/rtsp允许设置是否自动拉流 -->
+        <el-form-item v-if="form.inProtocol === 'rtmp' || form.inProtocol === 'rtsp'" prop="pushType">
+          <template slot="label">
+            自动激活推流地址:
+            <el-popover
+              placement="top-start"
+              title="自动激活推流地址"
+              width="400"
+              trigger="hover"
+              :open-delay="300"
+              content="自动激活推流地址，设备创建完成后，平台立刻自动生成推流地址。关闭该选项后需要通过触发的方式生成推流地址。"
+            >
+              <svg-icon slot="reference" class="form-question" name="help" />
+            </el-popover>
+          </template>
+          <el-switch v-model="form.pushType" :active-value="1" :inactive-value="2" />
         </el-form-item>
         <el-form-item label="">
           <div class="mt10">
@@ -110,9 +127,6 @@ export default class extends Vue {
     outProtocol: [
       { required: true, message: '请选择播放类型', trigger: 'change' },
       { validator: this.validateOutProtocol, trigger: 'change' }
-    ],
-    pullType: [
-      { required: true, message: '请选择是否开启自动拉流', trigger: 'change' }
     ]
   }
   private outProtocolList = Object.values(OutProtocolType)
@@ -123,7 +137,8 @@ export default class extends Vue {
     region: [],
     inProtocol: 'gb28181',
     outProtocol: [],
-    pullType: 1
+    pullType: 1,
+    pushType: 1
   }
 
   private regionList = []

@@ -2,14 +2,14 @@ import { UserModule } from '@/store/modules/user'
 
 export const checkPermission = (value: string[]): boolean => {
   if (value && value instanceof Array && value.length > 0) {
-    const roles = UserModule.roles
-    const permissionRoles = value
-    const hasPermission = roles.some((role: string) => {
-      return permissionRoles.includes(role)
+    const perms = UserModule.perms
+    const permissions = value
+    const hasPermission = perms.some((perm: string) => {
+      return permissions.includes(perm)
     })
     return hasPermission
   } else {
-    console.error(`need roles! Like v-permission="['admin','editor']"`)
+    console.error(`need perms! Like v-permission="['GET']"`)
     return false
   }
 }

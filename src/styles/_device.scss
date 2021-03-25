@@ -34,6 +34,10 @@
     padding-top: 20px;
   }
 
+  &__device-id {
+    color: $primary;
+  }
+
   &__handle {
     position: absolute;
     top: 0;
@@ -271,6 +275,79 @@
   }
   .device-list__max-height {
     overflow: auto;
+  }
+
+
+  .filter-container__search-group {
+    margin-right: 10px;
+  }
+
+  .device-list__table {
+    .el-table__body {
+      td {
+        cursor: pointer;
+      }
+      .col-action, .col-selection {
+        cursor: default;
+      }
+    }
+    .el-table__column-filter-trigger {
+      visibility: hidden;
+    }
+    .filter {
+      cursor: pointer;
+    }
+  }
+
+  .device-info {
+    background: #f6f6f6;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    padding: 5px 15px;
+    .info-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      .info-item {
+        width: 33%;
+        padding: 10px 0;
+      }
+    }
+  }
+
+  .filter-buttons {
+    display: flex;
+    .filter-button {
+      position: relative;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      line-height: 26px;
+      padding-right: 24px;
+      margin-right: 10px;
+      overflow: hidden;
+      transition: border 100ms;
+      cursor: pointer;
+      label {
+        display: inline-block;
+        background: #f1f1f1;
+        padding: 0 10px;
+        margin-right: 8px;
+        cursor: pointer;
+      }
+      &__close {
+        position: absolute;
+        right: 6px;
+        top: 8px;
+        color: #bbb;
+        transition: border 100ms;
+      }
+      &:hover {
+        border-color: $primary;
+        .filter-button__close {
+          color: $primary;
+        }
+      }
+    }
   }
 }
 
