@@ -261,72 +261,72 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
 
-  {
-    path: '/stream',
-    component: Layout,
-    meta: {
-      title: '流管理',
-      icon: 'stream',
-      perms: ['GET'],
-      alwaysShow: false,
-      only: true,
-      groupSelector: true
-    },
-    children: [
-      {
-        path: '',
-        component: () => import(/* webpackChunkName: "stream" */ '@/views/stream/index.vue'),
-        name: 'stream',
-        meta: {
-          title: '流管理',
-          icon: 'stream',
-          breadcrumb: false,
-          perms: ['GET'],
-          activeMenu: '/stream',
-          groupSelector: true
-        }
-      },
-      {
-        path: 'info',
-        component: () => import(/* webpackChunkName: "stream" */ '@/views/stream/info.vue'),
-        name: 'stream-config',
-        meta: {
-          title: '流详情',
-          icon: 'stream',
-          hidden: true,
-          perms: ['GET'],
-          activeMenu: '/stream',
-          groupSelector: true
-        }
-      },
-      {
-        path: 'create',
-        component: () => import(/* webpackChunkName: "stream" */ '@/views/stream/create.vue'),
-        name: 'stream-create',
-        meta: {
-          title: '创建流',
-          icon: 'stream',
-          hidden: true,
-          perms: ['*'],
-          activeMenu: '/stream',
-          groupSelector: true
-        }
-      },
-      {
-        path: 'preview',
-        component: () => import(/* webpackChunkName: "stream" */ '@/views/stream/preview.vue'),
-        name: 'stream-preview',
-        meta: {
-          title: '实时预览',
-          icon: 'tree',
-          hidden: true,
-          perms: ['*'],
-          activeMenu: '/stream',
-          groupSelector: true
-        }
-      }
-    ]
-  },
+  // {
+  //   path: '/stream',
+  //   component: Layout,
+  //   meta: {
+  //     title: '流管理',
+  //     icon: 'stream',
+  //     perms: ['GET'],
+  //     alwaysShow: false,
+  //     only: true,
+  //     groupSelector: true
+  //   },
+  //   children: [
+  //     {
+  //       path: '',
+  //       component: () => import(/* webpackChunkName: "stream" */ '@/views/stream/index.vue'),
+  //       name: 'stream',
+  //       meta: {
+  //         title: '流管理',
+  //         icon: 'stream',
+  //         breadcrumb: false,
+  //         perms: ['GET'],
+  //         activeMenu: '/stream',
+  //         groupSelector: true
+  //       }
+  //     },
+  //     {
+  //       path: 'info',
+  //       component: () => import(/* webpackChunkName: "stream" */ '@/views/stream/info.vue'),
+  //       name: 'stream-config',
+  //       meta: {
+  //         title: '流详情',
+  //         icon: 'stream',
+  //         hidden: true,
+  //         perms: ['GET'],
+  //         activeMenu: '/stream',
+  //         groupSelector: true
+  //       }
+  //     },
+  //     {
+  //       path: 'create',
+  //       component: () => import(/* webpackChunkName: "stream" */ '@/views/stream/create.vue'),
+  //       name: 'stream-create',
+  //       meta: {
+  //         title: '创建流',
+  //         icon: 'stream',
+  //         hidden: true,
+  //         perms: ['*'],
+  //         activeMenu: '/stream',
+  //         groupSelector: true
+  //       }
+  //     },
+  //     {
+  //       path: 'preview',
+  //       component: () => import(/* webpackChunkName: "stream" */ '@/views/stream/preview.vue'),
+  //       name: 'stream-preview',
+  //       meta: {
+  //         title: '实时预览',
+  //         icon: 'tree',
+  //         hidden: true,
+  //         perms: ['*'],
+  //         activeMenu: '/stream',
+  //         groupSelector: true
+  //       }
+  //     }
+  //   ]
+  // },
   {
     path: '/screen',
     component: Layout,
@@ -604,6 +604,80 @@ export const asyncRoutes: RouteConfig[] = [
           hidden: true,
           breadcrumb: false,
           activeMenu: '/AI',
+          perms: ['*']
+        }
+      }
+    ]
+  },
+  {
+    path: '/accessManage',
+    component: Layout,
+    redirect: 'noredirect',
+    meta: {
+      title: '访问管理',
+      icon: 'user',
+      alwaysShow: true,
+      breadcrumb: false,
+      perms: ['*']
+    },
+    children: [
+      {
+        path: 'user',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/user/index.vue'),
+        name: 'accessManage-user',
+        meta: {
+          title: '用户',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/accessManage',
+          perms: ['*']
+        }
+      },
+      {
+        path: 'user/create',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/user/components/CreateUser.vue'),
+        name: 'accessManage-user-create',
+        meta: {
+          title: '创建用户',
+          icon: 'dot',
+          hidden: true,
+          activeMenu: '/accessManage',
+          perms: ['*']
+        }
+      },
+      {
+        path: 'policy',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/policy/index.vue'),
+        name: 'accessManage-policy',
+        meta: {
+          title: '策略',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/accessManage',
+          perms: ['*']
+        }
+      },
+      {
+        path: 'policy/create',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/policy/components/CreatePolicy.vue'),
+        name: 'accessManage-policy-create',
+        meta: {
+          title: '创建策略',
+          icon: 'dot',
+          hidden: true,
+          activeMenu: '/accessManage',
+          perms: ['*']
+        }
+      },
+      {
+        path: 'policy/view',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/policy/components/ViewPolicy.vue'),
+        name: 'accessManage-policy-view',
+        meta: {
+          title: '策略详情',
+          icon: 'dot',
+          hidden: true,
+          activeMenu: '/accessManage',
           perms: ['*']
         }
       }
