@@ -147,7 +147,19 @@ class User extends VuexModule implements IUserState {
     if (this.iamUserId) {
       data = await getIAMUserInfo({ iamUserId: this.iamUserId })
       const policy = JSON.parse(data.policyDocument || '{}')
-      data.perms = [policy.Statement[0].Action[0].slice('vss:'.length, -1).toLocaleUpperCase()]
+      try {
+        const actionStr = policy.Statement[0].Action[0].split(':')[1]
+        console.log('actionStr: ', actionStr)
+        if (actionStr === 'Get*') {
+          data.perms = ['GET']
+        } else {
+          data.perms = ['*']
+        }
+      } catch (e) {
+        data = {
+          perms: ['*']
+        }
+      }
     } else {
       data = {
         perms: ['*']
