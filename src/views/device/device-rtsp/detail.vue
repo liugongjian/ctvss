@@ -156,11 +156,15 @@ import detailMixin from '../mixin/detailMixin'
 })
 export default class extends Mixins(detailMixin) {}
 </script>
+
 <style lang="scss" scoped>
   .app-container {
     ::v-deep {
       .info-list__title {
         margin: 10px 5px 0 5px;
+      }
+      .info-item .el-button {
+        padding: 0;
       }
     }
   }
@@ -174,12 +178,6 @@ export default class extends Mixins(detailMixin) {}
       right: 0;
       z-index: 9;
     }
-  }
-
-  .info-edit {
-    position: absolute;
-    right: 40px;
-    z-index: 10;
   }
 
   .address-maker {

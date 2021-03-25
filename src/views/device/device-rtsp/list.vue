@@ -107,6 +107,24 @@
             {{ streamStatus[row.streamStatus] || '-' }}
           </template>
         </el-table-column>
+        <el-table-column
+          key="recordStatus"
+          column-key="recordStatus"
+          prop="recordStatus"
+          label="录制状态"
+          min-width="110"
+          :filters="filtersArray.recordStatus"
+          :filter-multiple="false"
+        >
+          <template slot="header">
+            <span class="filter">录制状态</span>
+            <svg-icon class="filter" name="filter" width="15" height="15" />
+          </template>
+          <template slot-scope="{row}">
+            <span v-if="row.deviceType === 'nvr'">-</span>
+            <span v-else><status-badge :status="row.recordStatus === 0 ? 'red' : ''" />{{ recordStatus[row.recordStatus] || '-' }}</span>
+          </template>
+        </el-table-column>
         <el-table-column key="deviceVendor" prop="deviceVendor" label="厂商">
           <template slot-scope="{row}">
             {{ row.deviceVendor || '-' }}

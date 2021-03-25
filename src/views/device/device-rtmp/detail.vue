@@ -162,6 +162,9 @@ export default class extends Mixins(detailMixin) {}
       .info-list__title {
         margin: 10px 5px 0 5px;
       }
+      .info-item .el-button {
+        padding: 0;
+      }
     }
   }
 
