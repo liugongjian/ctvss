@@ -66,6 +66,8 @@ export default class extends Vue {
   private isFullscreen?: boolean
   @Prop()
   private deviceId!: number | string
+  @Prop()
+  private inProtocol?: string
   private address?: any = null
   private codec?: string = ''
   private playerTimer: any = null
@@ -120,7 +122,8 @@ export default class extends Vue {
       this.errorMessage = ''
       this.address = null
       const res = await getDevicePreview({
-        deviceId: this.deviceId
+        deviceId: this.deviceId,
+        inProtocol: this.inProtocol
       })
       this.address = res.playUrl
       this.codec = res.video.codec

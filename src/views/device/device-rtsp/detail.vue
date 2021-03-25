@@ -2,44 +2,20 @@
   <div class="app-container">
     <div v-loading="loading.info" class="detail-wrap">
       <div v-if="info" class="btn-detail">
-        <el-button v-if="info.deviceType === 'ipc'" @click="goToPreview"><svg-icon name="live" /> 实时预览</el-button>
-        <el-button v-if="info.deviceType === 'nvr'" @click="goToChannels"><svg-icon name="list" /> 查看通道</el-button>
-        <el-button v-if="info.deviceType === 'nvr' && checkPermission(['*'])" @click="edit"><svg-icon name="list" /> 编辑</el-button>
+        <el-button @click="goToPreview"><svg-icon name="live" /> 实时预览</el-button>
+        <el-button v-if="checkPermission(['*'])" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
       </div>
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="基本信息" name="info">
           <div>
-            <info-list v-if="info && !isNVRChannel" label-width="110">
+            <info-list abel-width="100">
               <info-list-item label="设备类型:">{{ deviceType[info.deviceType] }}</info-list-item>
               <info-list-item label="设备名称:">{{ info.deviceName }}</info-list-item>
               <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
-              <template v-if="info.deviceType === 'ipc' || info.deviceType === 'platform'">
-                <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
-                <info-list-item label="设备IP:">{{ info.deviceIp || '-' }}</info-list-item>
-                <info-list-item label="端口:">{{ info.devicePort || '-' }}</info-list-item>
-              </template>
-              <template v-if="info.deviceType === 'nvr'">
-                <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
-                <info-list-item label="自动创建子设备:">{{ createSubDevice[info.createSubDevice] }}</info-list-item>
-                <info-list-item label="通道数量:">{{ info.deviceStats && info.deviceStats.channelSize }}</info-list-item>
-                <info-list-item label="在线流数量:">{{ info.deviceStats && info.deviceStats.onlineSize }}</info-list-item>
-              </template>
-              <template v-if="info.deviceType === 'platform'">
-                <info-list-item label="通道数量:">{{ info.deviceStats && info.deviceStats.channelSize }}</info-list-item>
-                <info-list-item label="在线流数量:">{{ info.deviceStats && info.deviceStats.onlineSize }}</info-list-item>
-              </template>
-              <info-list-item label="GB28181账号:">{{ info.userName }}</info-list-item>
-            </info-list>
-            <info-list v-if="info && isNVRChannel" label-width="110">
-              <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
-              <info-list-item v-if="info.deviceChannels.length" label="通道号:">{{ 'D' + info.deviceChannels[0].channelNum }}</info-list-item>
-              <info-list-item v-if="info.deviceChannels.length" label="通道名称:">{{ info.deviceChannels[0].channelName }}</info-list-item>
-              <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
-              <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
-            </info-list>
-            <info-list v-if="info" label-width="110">
-              <info-list-item label="自动拉流:">{{ pullType[info.pullType] }}</info-list-item>
+              <info-list-item label="视频流接入方式:">{{ inType[info.inType] }}</info-list-item>
+              <info-list-item v-if="info.inType === 'push'" label="自动激活推流地址:">{{ pushType[info.pushType] || '-' }}</info-list-item>
+              <info-list-item v-else label="自动拉流:">{{ pullType[info.pullType] || '-' }}</info-list-item>
               <info-list-item label="设备状态:">
                 <div class="info-list__edit">
                   <div class="info-list__edit--value">
@@ -52,7 +28,7 @@
                 <div class="info-list__edit">
                   <div class="info-list__edit--value">
                     <status-badge :status="info.streamStatus" />
-                    {{ deviceStatus[info.streamStatus] }}
+                    {{ deviceStatus[info.streamStatus] || '-' }}
                   </div>
                 </div>
               </info-list-item>
@@ -64,31 +40,22 @@
                   </div>
                 </div>
               </info-list-item>
-              <info-list-item label="信令传输模式:">
-                <div class="info-list__edit">
-                  <div class="info-list__edit--value">
-                    {{ transPriority[info.sipTransType] || '-' }}
-                  </div>
-                </div>
+              <info-list-item v-if="info.inType === 'push'" label="推流地址:">
+                {{ info.pushUrl || '-' }}
+                <el-tooltip v-if="info.pushUrl" class="item" effect="dark" content="复制链接" placement="top">
+                  <el-button type="text" @click="copyUrl(info.pushUrl)"><svg-icon name="copy" /></el-button>
+                </el-tooltip>
               </info-list-item>
-              <info-list-item label="流传输模式:">
-                <div class="info-list__edit">
-                  <div class="info-list__edit--value">
-                    {{ transPriority[info.streamTransType] || '-' }}
-                  </div>
-                </div>
-              </info-list-item>
-              <info-list-item v-if="info.deviceType === 'nvr' || info.deviceType === 'ipc'" label="优先TCP传输:">
-                <div class="info-list__edit">
-                  <div class="info-list__edit--value">
-                    {{ transPriority[info.transPriority] || '-' }}
-                  </div>
-                </div>
+              <info-list-item v-else label="拉流地址:">
+                {{ info.pullUrl || '-' }}
+                <el-tooltip v-if="info.pullUrl" class="item" effect="dark" content="复制链接" placement="top">
+                  <el-button type="text" @click="copyUrl(info.pullUrl)"><svg-icon name="copy" /></el-button>
+                </el-tooltip>
               </info-list-item>
             </info-list>
           </div>
         </el-tab-pane>
-        <el-tab-pane v-if="!isGb" label="推流配置" name="push">
+        <el-tab-pane v-if="false" label="推流配置" name="push">
           <info-list label-width="115" title="鉴权配置" class="auth-config">
             <el-button v-if="pushConfig.auth" type="text" class="auth-config__edit" @click="openDialog('setAuthConfig')">编辑鉴权KEY</el-button>
             <info-list-item label="推流鉴权:">
@@ -119,7 +86,7 @@
             </div>
           </info-list>
         </el-tab-pane>
-        <el-tab-pane v-if="!isGb" label="播流配置" name="play">
+        <el-tab-pane v-if="false" label="播流配置" name="play">
           <info-list label-width="115" title="鉴权配置" class="auth-config">
             <el-button v-if="playConfig.auth" type="text" class="auth-config__edit" @click="openDialog('setAuthConfig')">编辑鉴权KEY</el-button>
             <info-list-item label="推流鉴权:">
@@ -185,7 +152,7 @@ import { Component, Mixins } from 'vue-property-decorator'
 import detailMixin from '../mixin/detailMixin'
 
 @Component({
-  name: 'DeviceGb28181Detail'
+  name: 'DeviceRtspDetail'
 })
 export default class extends Mixins(detailMixin) {}
 </script>
