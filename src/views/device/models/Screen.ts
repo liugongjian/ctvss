@@ -2,6 +2,7 @@ import { getDevicePreview } from '@/api/device'
 
 export default class Screen {
   public deviceId: string
+  public inProtocol: string
   public deviceName?: string
   public url?: string
   public type?: string
@@ -14,6 +15,7 @@ export default class Screen {
 
   constructor() {
     this.deviceId = ''
+    this.inProtocol = ''
     this.url = ''
     this.type = ''
     this.codec = ''
@@ -25,6 +27,9 @@ export default class Screen {
   }
 
   public async getUrl() {
+    if (!this.inProtocol) {
+      throw new Error('未设置InProtocol')
+    }
     if (!this.deviceId) {
       throw new Error('未设置DeviceId')
     }
@@ -32,7 +37,8 @@ export default class Screen {
       this.loading = true
       this.loaded = true
       const res: any = await getDevicePreview({
-        deviceId: this.deviceId
+        deviceId: this.deviceId,
+        inProtocol: this.inProtocol
       })
       if (res.playUrl) {
         this.url = res.playUrl.flvUrl

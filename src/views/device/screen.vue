@@ -397,11 +397,12 @@ export default class extends Mixins(ScreenMixin) {
       })
       return
     }
-    if ((item.type === 'ipc' && item.deviceStatus === 'on') || (item.type === 'stream' && item.streamStatus === 'on')) {
+    if (item.type === 'ipc' && item.deviceStatus === 'on') {
       const screen = this.screenList[this.currentIndex]
       if (screen.deviceId) {
         screen.reset()
       }
+      screen.inProtocol = this.currentGroupInProtocol!
       screen.deviceId = item.id
       screen.deviceName = item.label
       if (this.currentIndex < this.maxSize - 1) {
@@ -441,7 +442,7 @@ export default class extends Mixins(ScreenMixin) {
     }
     if (!isDir) {
       this.dirList.forEach((item: any) => {
-        if ((item.type === 'ipc' || item.type === 'stream') && item.streamStatus === 'on') {
+        if (item.type === 'ipc' && item.streamStatus === 'on') {
           this.pollingDevices.push(item)
         }
       })
@@ -453,7 +454,7 @@ export default class extends Mixins(ScreenMixin) {
         type: this.currentNode!.data.type
       })
       data.dirs.forEach((item: any) => {
-        if ((item.type === 'ipc' || item.type === 'stream') && item.streamStatus === 'on') {
+        if (item.type === 'ipc' && item.streamStatus === 'on') {
           this.pollingDevices.push(item)
         }
       })
