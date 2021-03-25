@@ -1,6 +1,6 @@
 import { VuexModule, Module, Action, Mutation, getModule } from 'vuex-module-decorators'
 import { login, logout, getUserInfo, getIAMUserInfo } from '@/api/users'
-import { getToken, setToken, removeToken, getUsername, setUsername, removeUsername, setPerms, removePerms, getIsIamUserLogin, setIsIamUserLogin, getIamUserId, setIamUserId } from '@/utils/cookies'
+import { getToken, setToken, removeToken, getUsername, setUsername, removeUsername, setPerms, removePerms, getIsIamUserLogin, setIsIamUserLogin, getIamUserId, setIamUserId, removeIamUserId } from '@/utils/cookies'
 import router, { resetRouter } from '@/router'
 import { PermissionModule } from './permission'
 import { TagsViewModule } from './tags-view'
@@ -198,6 +198,7 @@ class User extends VuexModule implements IUserState {
     resetRouter()
     removePerms()
     removeUsername()
+    removeIamUserId()
 
     // Reset visited views and cached views
     TagsViewModule.delAllViews()
@@ -205,6 +206,7 @@ class User extends VuexModule implements IUserState {
     this.SET_ROLES([])
     this.SET_PERMS([])
     this.SET_NAME('')
+    this.SET_IAM_USER_ID('')
   }
 }
 
