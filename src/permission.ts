@@ -20,22 +20,18 @@ router.beforeEach(async(to: Route, _: Route, next: any) => {
   NProgress.start()
 
   // Determine whether the user has logged in
-  console.log('to: ', to)
-  console.log('UserModule.token: ', UserModule.token)
   if (UserModule.token) {
     if (to.path === '/login') {
       // If is logged in, redirect to the home page
       next({ path: '/' })
       NProgress.done()
     } else {
-      console.log('UserModule.perms: ', UserModule.perms)
       // Check whether the user has obtained his permission
       if (UserModule.perms.length === 0) {
         try {
           // Note: perms must be a object array! such as: ['*'] or ['GET']
           await UserModule.GetIAMUserInfo()
           const perms = UserModule.perms
-          console.log('perms: ', perms)
           // Generate accessible routes map based on role
           PermissionModule.GenerateRoutes(perms)
           // Dynamically add accessible routes
