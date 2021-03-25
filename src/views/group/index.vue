@@ -9,7 +9,7 @@
     />
     <el-card>
       <div class="filter-container">
-        <el-button type="primary" @click="handleCreate">新建业务组</el-button>
+        <el-button v-permission="['*']" type="primary" @click="handleCreate">新建业务组</el-button>
         <div class="filter-container__right">
           <el-input v-model="groupName" class="filter-container__search-group" placeholder="请输入业务组名称" clearable @keyup.enter.native="handleFilter" @clear="handleFilter">
             <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
@@ -63,10 +63,10 @@
         <el-table-column prop="createdTime" label="创建时间" min-width="170" />
         <el-table-column prop="action" class-name="col-action" label="操作" width="250" fixed="right">
           <template slot-scope="scope">
-            <el-button type="text" @click="goToConfig(scope.row)">业务组配置</el-button>
+            <el-button v-if="checkPermission(['*'])" type="text" @click="goToConfig(scope.row)">业务组配置</el-button>
             <el-button v-if="scope.row.inProtocol === 'rtmp'" type="text" @click="goToStreams(scope.row)">流管理</el-button>
             <el-button v-else type="text" @click="goToDevices(scope.row)">设备管理</el-button>
-            <el-dropdown @command="handleMore">
+            <el-dropdown v-if="checkPermission(['*'])" @command="handleMore">
               <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item v-if="scope.row.groupStatus === 'on'" :command="{type: 'stop', group: scope.row}">停用</el-dropdown-item>
@@ -98,12 +98,14 @@ import { GroupStatus, InProtocolType } from '@/dics'
 import { dateFormatInTable } from '@/utils/date'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { getGroups, startGroup, stopGroup, deleteGroup } from '@/api/group'
+import { checkPermission } from '@/utils/permission'
 
 @Component({
   name: 'GroupList',
   components: { StatusBadge }
 })
 export default class extends Vue {
+  private checkPermission = checkPermission
   private loading = false
   private groupStatus = GroupStatus
   private inProtocolType = InProtocolType
@@ -252,7 +254,7 @@ export default class extends Vue {
    * 整行可点
    */
   private rowClick(group: Group, column: any) {
-    if (column.property !== 'action') {
+    if (checkPermission(['*']) && column.property !== 'action') {
       this.goToConfig(group)
     }
   }
