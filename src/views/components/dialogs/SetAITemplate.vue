@@ -41,8 +41,8 @@ import { getAITemplates, bindAITemplates, unbindAITemplates } from '@/api/templa
 })
 export default class extends Vue {
   @Prop() private groupId?: string
-  @Prop() private streamId?: string
   @Prop() private deviceId?: String
+  @Prop() private inProtocol?: String
   @Prop() private templateId?: string
   private dialogVisible = true
   private loading = false
@@ -58,7 +58,8 @@ export default class extends Vue {
     let params = {
       groupId: this.groupId,
       deviceId: this.deviceId,
-      templateId: row.templateId
+      templateId: row.templateId,
+      inProtocol: this.deviceId ? this.inProtocol : undefined
     }
     try {
       this.loading = true
@@ -66,11 +67,6 @@ export default class extends Vue {
         await bindAITemplates(params)
       } else if (this.deviceId) {
         await bindAITemplates(params)
-      } else {
-        await bindAITemplates({
-          deviceId: this.streamId,
-          templateId: row.templateId
-        })
       }
       this.bindTemplateId = row.templateId
     } catch (e) {
@@ -84,7 +80,8 @@ export default class extends Vue {
     let params = {
       groupId: this.groupId,
       deviceId: this.deviceId,
-      templateId: row.templateId
+      templateId: row.templateId,
+      inProtocol: this.deviceId ? this.inProtocol : undefined
     }
     try {
       this.loading = true
@@ -92,11 +89,6 @@ export default class extends Vue {
         await unbindAITemplates(params)
       } else if (this.deviceId) {
         await unbindAITemplates(params)
-      } else {
-        await unbindAITemplates({
-          deviceId: this.streamId,
-          templateId: row.templateId
-        })
       }
       this.bindTemplateId = ''
     } catch (e) {
