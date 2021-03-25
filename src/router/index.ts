@@ -509,6 +509,38 @@ export const asyncRoutes: RouteConfig[] = [
           perms: ['*'],
           activeMenu: '/template/callback'
         }
+      },
+      {
+        path: 'ai',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/ai/index.vue'),
+        name: 'ai',
+        meta: {
+          title: 'AI模板',
+          icon: 'dot',
+          perms: ['*']
+        }
+      },
+      {
+        path: 'ai/create',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/ai/createOrUpdate.vue'),
+        name: 'ai-create',
+        meta: {
+          title: '新建AI模板',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/template/ai'
+        }
+      },
+      {
+        path: 'ai/update/:id?',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/ai/createOrUpdate.vue'),
+        name: 'ai-update',
+        meta: {
+          title: '编辑AI模板',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/template/ai'
+        }
       }
       // ,
       // {

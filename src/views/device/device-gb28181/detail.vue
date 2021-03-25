@@ -102,7 +102,6 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import detailMixin from '../mixin/detailMixin'
 import { provinceMapping, cityMapping } from '@/assets/region/cities'
-import { checkPermission } from '@/utils/permission'
 
 @Component({
   name: 'DeviceGb28181Detail'
@@ -114,7 +113,6 @@ export default class extends Mixins(detailMixin) {
     let cityCode: number = parseInt(info.gbRegion.substring(0, 4))
     return provinceMapping[provinceCode] + ' / ' + cityMapping[cityCode]
   }
-  private checkPermission = checkPermission
 }
 </script>
 <style lang="scss" scoped>
