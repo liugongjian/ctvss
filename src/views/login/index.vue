@@ -85,7 +85,6 @@
         </el-button>
         <el-button
           class="button-group__sublogin"
-          :loading="loading"
           type="warning"
           @click.native.prevent="switchToSubUserLogin"
         >
