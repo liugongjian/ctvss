@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      <el-button type="text" class="template-edit" @click="setRecordTemplate">编辑</el-button>
+      <el-button v-permission="['*']" type="text" class="template-edit" @click="setRecordTemplate">编辑</el-button>
       <info-list title="录制模板">
         <el-table v-loading="loading.record" :data="template.recordTemplate" empty-text="该设备或组没有绑定录制模板" fit>
           <el-table-column prop="templateName" label="模板名称" />
@@ -21,7 +21,7 @@
       </info-list>
     </div>
     <div style="margin-top:20px;">
-      <el-button type="text" class="template-edit" @click="setCallbackTemplate">编辑</el-button>
+      <el-button v-permission="['*']" type="text" class="template-edit" @click="setCallbackTemplate">编辑</el-button>
       <info-list title="回调模板">
         <el-table v-loading="loading.callback" :data="template.callbackTemplate" fit empty-text="该设备或组没有绑定录制模板">
           <el-table-column prop="templateName" label="模板名称" />
