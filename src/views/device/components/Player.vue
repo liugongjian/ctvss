@@ -166,20 +166,13 @@ export default class extends Vue {
    */
   @Prop()
   private deviceName?: string
-  /**
-   * 是否自定义控制倍速
-   */
-  @Prop({
-    default: false
-  })
-  private isCustomRate?: string
 
   public player?: any
   public paused?: boolean = true
   public waiting = false
   private isZoom = false
   private playbackRate = 1
-  private playbackRateList = [16, 8, 4, 2, 1.5, 1, 0.5]
+  private playbackRateList = [16, 8, 4, 2, 1.5, 1, 0.5, 0.25]
   private videoMoveData: any = {
     x: null,
     y: null
@@ -618,11 +611,8 @@ export default class extends Vue {
    */
   public setPlaybackRate(playbackRate: number) {
     this.playbackRate = playbackRate
-    if (this.isCustomRate) {
-      this.$emit('onSetPlaybackRate', playbackRate)
-    } else {
-      this.player!.setPlaybackRate(playbackRate)
-    }
+    this.player!.setPlaybackRate(playbackRate)
+    this.$emit('onSetPlaybackRate', playbackRate)
   }
 }
 </script>
