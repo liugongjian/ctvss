@@ -8,12 +8,6 @@ import Player from '../components/Player.vue'
   }
 })
 export default class extends Vue {
-  @Prop({
-    default: () => {
-      return []
-    }
-  })
-  public recordList!: Array<any>
   @Prop()
   public currentDate?: number
   @Prop({
@@ -111,11 +105,7 @@ export default class extends Vue {
     this.handleDrag.isDragging = false
     window.removeEventListener('mousemove', this.onHandleMove)
     window.removeEventListener('mouseup', this.onHandleMouseup)
-    if (this.replayType === 'cloud') {
-      this.setRecordByCurrentTime()
-    } else {
-      this.setStartTime()
-    }
+    this.setRecordByCurrentTime()
   }
 
   /**
@@ -153,39 +143,10 @@ export default class extends Vue {
   /**
    * 根据当前时间选择录像切片
    */
-  public setRecordByCurrentTime() {
-    const currentTime = this.currentTime!
-    let record = this.recordList.find(record => {
-      return (currentTime! >= record.startAt) && (currentTime! <= (record.startAt + record.duration * 1000))
-    })
-    if (record) {
-      let offsetTime = 0
-      let isCurrent = true
-      if (!this.currentRecord || this.currentRecord.index !== record.index) {
-        this.currentRecord = record
-        isCurrent = false
-      }
-      this.$nextTick(() => {
-        offsetTime = (currentTime - this.currentRecord.startAt) / 1000
-        !isCurrent && this.player.reset()
-        this.player.seek(offsetTime)
-        this.setHandlePosition()
-      })
-    } else {
-      console.log('destory')
-      this.player && this.player.stop()
-    }
-  }
+  public setRecordByCurrentTime() {}
 
   /**
-   * 设置启始时间
-   */
-  public setStartTime() {
-    this.startTime = this.currentTime!
-  }
-
-  /**
-   * 设置具柄位置
+   * 设置具柄样式位置(向左，居中，向右)
    */
   public setHandlePosition() {
     const $handle: any = this.$refs.handle

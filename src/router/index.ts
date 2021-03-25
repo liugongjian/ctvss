@@ -77,7 +77,7 @@ export const constantRoutes: RouteConfig[] = [
 
 /**
  * asyncRoutes
- * the routes that need to be dynamically loaded based on user roles
+ * the routes that need to be dynamically loaded based on user perms
 */
 export const asyncRoutes: RouteConfig[] = [
   {
@@ -87,7 +87,7 @@ export const asyncRoutes: RouteConfig[] = [
       title: '首页',
       icon: 'dashboard',
       breadcrumb: false,
-      roles: ['admin'],
+      perms: ['GET'],
       alwaysShow: false
     },
     children: [
@@ -120,7 +120,7 @@ export const asyncRoutes: RouteConfig[] = [
     meta: {
       title: '业务组管理',
       icon: 'tree',
-      roles: ['admin'],
+      perms: ['GET'],
       alwaysShow: false
     },
     children: [
@@ -132,7 +132,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '业务组管理',
           icon: 'tree',
           breadcrumb: false,
-          roles: ['admin']
+          perms: ['GET']
         }
       },
       {
@@ -143,7 +143,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '新建业务组',
           icon: 'tree',
           hidden: true,
-          roles: ['admin'],
+          perms: ['*'],
           activeMenu: '/group'
         }
       },
@@ -155,7 +155,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '编辑业务组',
           icon: 'tree',
           hidden: true,
-          roles: ['admin'],
+          perms: ['*'],
           activeMenu: '/group'
         }
       },
@@ -167,7 +167,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '业务组配置',
           icon: 'tree',
           hidden: true,
-          roles: ['admin'],
+          perms: ['*'],
           activeMenu: '/group'
         }
       }
@@ -179,7 +179,7 @@ export const asyncRoutes: RouteConfig[] = [
     meta: {
       title: '设备管理',
       icon: 'component',
-      roles: ['admin'],
+      perms: ['GET'],
       alwaysShow: false,
       only: true,
       groupSelector: true
@@ -192,7 +192,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '设备管理',
           icon: 'component',
           breadcrumb: false,
-          roles: ['admin'],
+          perms: ['GET'],
           groupSelector: true
         },
         children: [
@@ -203,7 +203,7 @@ export const asyncRoutes: RouteConfig[] = [
             meta: {
               title: '设备列表',
               breadcrumb: false,
-              roles: ['admin'],
+              perms: ['GET'],
               activeMenu: '/device',
               groupSelector: true
             }
@@ -215,7 +215,7 @@ export const asyncRoutes: RouteConfig[] = [
             meta: {
               title: '添加设备',
               hidden: true,
-              roles: ['admin'],
+              perms: ['*'],
               activeMenu: '/device',
               groupSelector: true
             }
@@ -227,7 +227,7 @@ export const asyncRoutes: RouteConfig[] = [
             meta: {
               title: '编辑设备',
               hidden: true,
-              roles: ['admin'],
+              perms: ['*'],
               activeMenu: '/device',
               groupSelector: true
             }
@@ -239,7 +239,7 @@ export const asyncRoutes: RouteConfig[] = [
             meta: {
               title: '设备详情',
               hidden: true,
-              roles: ['admin'],
+              perms: ['GET'],
               activeMenu: '/device',
               groupSelector: true
             }
@@ -251,7 +251,7 @@ export const asyncRoutes: RouteConfig[] = [
             meta: {
               title: '监控查看',
               hidden: true,
-              roles: ['admin'],
+              perms: ['GET'],
               activeMenu: '/device',
               groupSelector: true
             }
@@ -267,7 +267,7 @@ export const asyncRoutes: RouteConfig[] = [
     meta: {
       title: '流管理',
       icon: 'stream',
-      roles: ['admin'],
+      perms: ['GET'],
       alwaysShow: false,
       only: true,
       groupSelector: true
@@ -281,7 +281,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '流管理',
           icon: 'stream',
           breadcrumb: false,
-          roles: ['admin'],
+          perms: ['GET'],
           activeMenu: '/stream',
           groupSelector: true
         }
@@ -294,7 +294,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '流详情',
           icon: 'stream',
           hidden: true,
-          roles: ['admin'],
+          perms: ['GET'],
           activeMenu: '/stream',
           groupSelector: true
         }
@@ -307,7 +307,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '创建流',
           icon: 'stream',
           hidden: true,
-          roles: ['admin'],
+          perms: ['*'],
           activeMenu: '/stream',
           groupSelector: true
         }
@@ -320,7 +320,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '实时预览',
           icon: 'tree',
           hidden: true,
-          roles: ['admin'],
+          perms: ['*'],
           activeMenu: '/stream',
           groupSelector: true
         }
@@ -333,7 +333,7 @@ export const asyncRoutes: RouteConfig[] = [
     meta: {
       title: '实时预览',
       icon: 'ipc',
-      roles: ['admin'],
+      perms: ['GET'],
       alwaysShow: false,
       groupSelector: true
     },
@@ -346,7 +346,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '实时预览',
           icon: 'ipc',
           breadcrumb: false,
-          roles: ['admin'],
+          perms: ['GET'],
           activeMenu: '/screen',
           groupSelector: true
         }
@@ -361,7 +361,7 @@ export const asyncRoutes: RouteConfig[] = [
       title: '播放器调试',
       icon: 'stream',
       hidden: true,
-      roles: ['admin'],
+      perms: ['*'],
       activeMenu: '/device'
     }
   },
@@ -371,7 +371,7 @@ export const asyncRoutes: RouteConfig[] = [
     meta: {
       title: '录像回放',
       icon: 'video',
-      roles: ['admin'],
+      perms: ['GET'],
       alwaysShow: false,
       groupSelector: true
     },
@@ -384,7 +384,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '录像回放',
           icon: 'video',
           breadcrumb: false,
-          roles: ['admin'],
+          perms: ['GET'],
           activeMenu: '/replay',
           groupSelector: true
         }
@@ -399,7 +399,7 @@ export const asyncRoutes: RouteConfig[] = [
       icon: 'key',
       alwaysShow: true,
       breadcrumb: false,
-      roles: ['admin']
+      perms: ['*']
     },
     children: [
       {
@@ -409,7 +409,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: 'GB28181凭证',
           icon: 'dot',
-          roles: ['admin']
+          perms: ['*']
         }
       },
       {
@@ -419,7 +419,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '新建GB28181凭证',
           hidden: true,
-          roles: ['admin']
+          perms: ['*']
         }
       },
       {
@@ -429,7 +429,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '编辑GB28181凭证',
           hidden: true,
-          roles: ['admin']
+          perms: ['*']
         }
       }
     ]
@@ -443,7 +443,7 @@ export const asyncRoutes: RouteConfig[] = [
       icon: 'template',
       alwaysShow: true,
       breadcrumb: true,
-      roles: ['admin']
+      perms: ['*']
     },
     children: [
       {
@@ -453,7 +453,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '录制模板',
           icon: 'dot',
-          roles: ['admin']
+          perms: ['*']
         }
       },
       {
@@ -463,7 +463,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '新建录制模板',
           hidden: true,
-          roles: ['admin'],
+          perms: ['*'],
           activeMenu: '/template/record'
         }
       },
@@ -474,7 +474,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '编辑录制模板',
           hidden: true,
-          roles: ['admin'],
+          perms: ['*'],
           activeMenu: '/template/record'
         }
       },
@@ -485,7 +485,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '回调模板',
           icon: 'dot',
-          roles: ['admin']
+          perms: ['*']
         }
       },
       {
@@ -495,7 +495,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '新建回调模板',
           hidden: true,
-          roles: ['admin'],
+          perms: ['*'],
           activeMenu: '/template/callback'
         }
       },
@@ -506,40 +506,8 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '编辑回调模板',
           hidden: true,
-          roles: ['admin'],
+          perms: ['*'],
           activeMenu: '/template/callback'
-        }
-      },
-      {
-        path: 'ai',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/template/ai/index.vue'),
-        name: 'ai',
-        meta: {
-          title: 'AI模板',
-          icon: 'dot',
-          roles: ['admin']
-        }
-      },
-      {
-        path: 'ai/create',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/template/ai/createOrUpdate.vue'),
-        name: 'ai-create',
-        meta: {
-          title: '新建AI模板',
-          hidden: true,
-          roles: ['admin'],
-          activeMenu: '/template/ai'
-        }
-      },
-      {
-        path: 'ai/update/:id?',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/template/ai/createOrUpdate.vue'),
-        name: 'ai-update',
-        meta: {
-          title: '编辑AI模板',
-          hidden: true,
-          roles: ['admin'],
-          activeMenu: '/template/ai'
         }
       }
       // ,
@@ -550,7 +518,7 @@ export const asyncRoutes: RouteConfig[] = [
       //   meta: {
       //     title: '截图模板',
       //     icon: 'tree',
-      //     roles: ['admin']
+      //     perms: ['*']
       //   }
       // },
       // {
@@ -561,7 +529,7 @@ export const asyncRoutes: RouteConfig[] = [
       //     title: '新建截图模板',
       //     icon: 'stream',
       //     hidden: true,
-      //     roles: ['admin'],
+      //     perms: ['*'],
       //     activeMenu: '/template/snapshot'
       //   }
       // },
@@ -573,7 +541,7 @@ export const asyncRoutes: RouteConfig[] = [
       //     title: '编辑截图模板',
       //     icon: 'stream',
       //     hidden: true,
-      //     roles: ['admin'],
+      //     perms: ['*'],
       //     activeMenu: '/template/snapshot'
       //   }
       // }
@@ -587,7 +555,7 @@ export const asyncRoutes: RouteConfig[] = [
       icon: 'tree',
       hidden: true,
       breadcrumb: true,
-      roles: ['admin']
+      perms: ['*']
     },
     children: [
       {
@@ -597,7 +565,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: 'API密钥管理',
           icon: 'tree',
           breadcrumb: false,
-          roles: ['admin']
+          perms: ['*']
         }
       }
     ]
@@ -608,10 +576,10 @@ export const asyncRoutes: RouteConfig[] = [
     redirect: '/AI/config',
     meta: {
       title: 'AI配置',
-      icon: 'Intelligentwarning',
+      icon: 'key',
       alwaysShow: true,
       breadcrumb: false,
-      roles: ['admin']
+      perms: ['*']
     },
     children: [
       {
@@ -622,8 +590,8 @@ export const asyncRoutes: RouteConfig[] = [
           title: '关联配置',
           icon: 'dot',
           breadcrumb: true,
-          activeMenu: '/AI/config',
-          roles: ['admin']
+          activeMenu: '/AI',
+          perms: ['*']
         }
       },
       {
@@ -635,82 +603,8 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           breadcrumb: false,
-          activeMenu: '/AI/config',
-          roles: ['admin']
-        }
-      }
-    ]
-  },
-  {
-    path: '/accessManage',
-    component: Layout,
-    redirect: 'noredirect',
-    meta: {
-      title: '访问管理',
-      icon: 'user',
-      alwaysShow: true,
-      breadcrumb: false,
-      roles: ['admin']
-    },
-    children: [
-      {
-        path: 'user',
-        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/user/index.vue'),
-        name: 'accessManage-user',
-        meta: {
-          title: '用户',
-          icon: 'dot',
-          breadcrumb: true,
-          activeMenu: '/accessManage',
-          roles: ['admin']
-        }
-      },
-      {
-        path: 'user/create',
-        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/user/components/CreateUser.vue'),
-        name: 'accessManage-user-create',
-        meta: {
-          title: '创建用户',
-          icon: 'dot',
-          hidden: true,
-          activeMenu: '/accessManage',
-          roles: ['admin']
-        }
-      },
-      {
-        path: 'policy',
-        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/policy/index.vue'),
-        name: 'accessManage-policy',
-        meta: {
-          title: '策略',
-          icon: 'dot',
-          breadcrumb: true,
-          activeMenu: '/accessManage',
-          roles: ['admin']
-        }
-      },
-      {
-        path: 'policy/create',
-        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/policy/components/CreatePolicy.vue'),
-        name: 'accessManage-policy-create',
-        meta: {
-          title: '创建策略',
-          icon: 'dot',
-          hidden: true,
-          activeMenu: '/accessManage',
-          roles: ['admin']
-        }
-      },
-      {
-        path: 'policy/view',
-        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/policy/components/ViewPolicy.vue'),
-        name: 'accessManage-policy-view',
-        meta: {
-          title: '策略详情',
-          icon: 'dot',
-          hidden: true,
-          activeMenu: '/accessManage',
-          roles: ['admin']
+          activeMenu: '/AI',
+          perms: ['*']
         }
       }
     ]

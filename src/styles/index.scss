@@ -79,6 +79,7 @@ div:focus {
 
 .filter-container {
   margin-bottom: 10px;
+  overflow: hidden;
   &__left {
     float: left;
   }

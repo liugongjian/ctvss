@@ -1,7 +1,7 @@
 <template>
   <div class="replay-player">
     <div v-if="!address" v-loading="loading" class="empty-text">
-      {{ errorMessage || '该时段暂无录像' }}
+      <div v-if="!loading">{{ errorMessage || '该时段暂无录像' }}</div>
       <div v-if="hasPlaylive">
         <el-button type="text" @click="playlive">返回实时预览</el-button>
       </div>
@@ -9,7 +9,8 @@
     <player
       v-if="address"
       ref="player"
-      :type="codec"
+      type="flv"
+      :codec="codec"
       :url="address.flvUrl"
       :auto-play="true"
       :has-control="false"
@@ -19,6 +20,7 @@
       @onPlaylive="playlive"
       @onFullscreen="fullscreen()"
       @onExitFullscreen="exitFullscreen()"
+      @onSetPlaybackRate="setPlaybackRate"
     />
     <div class="timeline__box">
       <div ref="timelineWrap" class="timeline__wrap">
@@ -63,7 +65,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Watch, Mixins } from 'vue-property-decorator'
-import { getDevicePreview } from '@/api/device'
+import { getDeviceRecords, getDevicePreview, setRecordScale } from '@/api/device'
 import ReplayPlayerMixin from '@/views/device/mixin/replayPlayerMixin'
 
 @Component({
@@ -72,6 +74,7 @@ import ReplayPlayerMixin from '@/views/device/mixin/replayPlayerMixin'
 export default class extends Mixins(ReplayPlayerMixin) {
   @Prop()
   private deviceId!: number | string
+  public recordList: Array<any> = []
   private address?: any = null
   private codec?: string = ''
   private loading = false
@@ -80,16 +83,73 @@ export default class extends Mixins(ReplayPlayerMixin) {
   @Watch('startTime')
   private onStartTimeChange() {
     this.setHandlePosition()
-    this.getDevicePreview()
+    this.recordList.length && this.getDevicePreview()
   }
 
-  @Watch('currentDate')
-  private onCurrentDateChange() {
+  @Watch('currentDate', {
+    immediate: true
+  })
+  private async onCurrentDateChange() {
     this.currentTime = this.startTime = this.currentDate!
+    await this.getRecordList()
+    this.initVideoPlayer()
   }
 
-  private async mounted() {
-    this.currentTime = this.startTime = this.currentDate!
+  /**
+   * 初始化播放器
+   */
+  public initVideoPlayer() {
+    this.currentRecord = this.recordList[0]
+    this.$nextTick(() => {
+      this.setCurrentTime(0)
+      this.getDevicePreview()
+    })
+  }
+
+  /**
+   * 获取回放列表
+   */
+  private async getRecordList(startTime?: number) {
+    try {
+      this.loading = true
+      const res = await getDeviceRecords({
+        deviceId: this.deviceId,
+        recordType: 1, // 0-云端，1-本地
+        startTime: startTime || this.currentDate! / 1000,
+        endTime: this.currentDate! / 1000 + 24 * 60 * 60,
+        pageSize: 9999
+      })
+      // 追加最新的录像
+      if (startTime) {
+        const recordLength = this.recordList.length
+        res.records.forEach((record: any, index: number) => {
+          record.startAt = new Date(record.startTime).getTime()
+          record.loading = false
+          record.index = recordLength + index
+          if (!~this.recordList.findIndex(_record => {
+            return record.startTime === _record.startTime
+          })) {
+            this.recordList.push(record)
+          }
+        })
+        if (res.records) {
+          const replayPlayer: any = this.$refs.replayPlayer
+          replayPlayer.loadedNewRecords(res.records.length)
+        }
+      } else {
+        this.recordList = res.records.map((record: any, index: number) => {
+          record.startAt = new Date(record.startTime).getTime()
+          record.loading = false
+          record.index = index
+          return record
+        })
+      }
+      this.timePositionList = this.calcVideoPosition(this.recordList)
+    } catch (e) {
+      console.log(e)
+    } finally {
+      this.loading = false
+    }
   }
 
   /**
@@ -107,7 +167,7 @@ export default class extends Mixins(ReplayPlayerMixin) {
         type: 'vod'
       })
       this.address = res.playUrl
-      this.codec = res.video.codec === 'h264' ? 'flv' : 'h265-flv'
+      this.codec = res.video.codec
     } catch (e) {
       this.errorMessage = e.message
     } finally {
@@ -116,16 +176,65 @@ export default class extends Mixins(ReplayPlayerMixin) {
   }
 
   /**
-   * 设置操作具柄在时间轴中的位置
+   * 点击时间轴位置
+   */
+  public handleTimeline(e: any, record: any) {
+    if (this.axisDrag.isMove) return
+    const scale = e.offsetX / e.target.clientWidth
+    let offsetTime = Math.ceil(scale * record.duration)
+    offsetTime = offsetTime <= 0 ? 0 : offsetTime
+    this.currentTime = new Date(record.startTime).getTime() + offsetTime * 1000
+    this.startTime = this.currentTime!
+    if (this.currentRecord !== record) {
+      this.currentRecord = record
+    }
+    this.$nextTick(() => {
+      this.setCurrentTime(0)
+    })
+  }
+
+  /**
+   * 设置游标在时间轴中的位置
    * offsetTime: 单位(秒)
    */
   public setCurrentTime(offsetTime: number) {
     if (this.handleDrag.isDragging) return
-    if (!offsetTime) return
-    const currentTimestamp = this.startTime! + offsetTime * 1000
+    const currentTimestamp = this.startTime + offsetTime * 1000
     this.currentTime = currentTimestamp
     this.handlePos = this.scale(Math.round((currentTimestamp - this.currentDate!) / 1000))
-    this.setHandlePosition()
+    this.$nextTick(() => {
+      this.setHandlePosition()
+    })
+  }
+
+  /**
+   * 根据当前时间选择录像切片
+   */
+  public setRecordByCurrentTime() {
+    const currentTime = this.currentTime!
+    let record = this.recordList.find(record => {
+      return (currentTime! >= record.startAt) && (currentTime! <= (record.startAt + record.duration * 1000))
+    })
+    if (record) {
+      if (!this.currentRecord || this.currentRecord.index !== record.index) {
+        this.currentRecord = record
+      }
+      this.$nextTick(() => {
+        this.startTime = currentTime
+        this.setHandlePosition()
+      })
+    }
+  }
+
+  /**
+   * 设置播放速率
+   */
+  public setPlaybackRate(scale: number) {
+    setRecordScale({
+      deviceId: this.deviceId,
+      playUrl: this.address.flvUrl,
+      scale: scale.toString()
+    })
   }
 }
 </script>

@@ -1,6 +1,6 @@
 import { VuexModule, Module, Action, Mutation, getModule } from 'vuex-module-decorators'
-import { login, logout, getUserInfo } from '@/api/users'
-import { getToken, setToken, removeToken, setUsername, getUsername, removeUsername } from '@/utils/cookies'
+import { login, logout, getUserInfo, getIAMUserInfo } from '@/api/users'
+import { getToken, setToken, removeToken, getUsername, setUsername, removeUsername, setPerms, removePerms, getIsIamUserLogin, setIsIamUserLogin, getIamUserId, setIamUserId } from '@/utils/cookies'
 import router, { resetRouter } from '@/router'
 import { PermissionModule } from './permission'
 import { TagsViewModule } from './tags-view'
@@ -11,7 +11,10 @@ export interface IUserState {
   name: string
   avatar: string
   introduction: string
-  roles: string[]
+  roles: string[],
+  perms: string[],
+  iamUserId: string,
+  isIamUserLogin: string,
   email: string
   type: string
 }
@@ -19,10 +22,13 @@ export interface IUserState {
 @Module({ dynamic: true, store, name: 'user' })
 class User extends VuexModule implements IUserState {
   public token = getToken() || ''
-  public name = ''
+  public name = getUsername() || ''
   public avatar = ''
   public introduction = ''
+  public iamUserId = getIamUserId() || ''
+  public isIamUserLogin = getIsIamUserLogin() || 'false'
   public roles: string[] = []
+  public perms: string[] = []
   public email = ''
   public type = ''
 
@@ -37,6 +43,11 @@ class User extends VuexModule implements IUserState {
   }
 
   @Mutation
+  private SET_IAM_USER_ID(id: string) {
+    this.iamUserId = id
+  }
+
+  @Mutation
   private SET_AVATAR(avatar: string) {
     this.avatar = avatar
   }
@@ -44,6 +55,11 @@ class User extends VuexModule implements IUserState {
   @Mutation
   private SET_INTRODUCTION(introduction: string) {
     this.introduction = introduction
+  }
+
+  @Mutation
+  private SET_PERMS(perms: string[]) {
+    this.perms = perms
   }
 
   @Mutation
@@ -61,17 +77,34 @@ class User extends VuexModule implements IUserState {
     this.type = type
   }
 
+  @Mutation
+  private SET_IS_IAM_USER_LOGIN(type: string) {
+    this.isIamUserLogin = type
+  }
+
   @Action({ rawError: true })
-  public async Login(userInfo: { userName: string, password: string}) {
-    let { userName, password } = userInfo
+  public async Login(userInfo: { mainUserID?: string, userName: string, password: string}) {
+    let { mainUserID, userName, password } = userInfo
     userName = userName.trim()
     try {
-      const data: any = await login({ userName, password })
+      const data: any = await login({
+        mainUserID: this.isIamUserLogin === 'true' ? mainUserID : undefined,
+        userName,
+        password
+      })
       setToken(data.token)
+      setUsername(userName)
+      setIamUserId(data.iamUserId)
       this.SET_TOKEN(data.token)
-      // TODO 泰州专属
-      // setUsername(userName)
-      // this.SET_NAME(userName)
+      this.SET_NAME(userName)
+      const introduction = '欢迎光临'
+      const email = 'vss@chinatelecom.cn'
+      const type = userName === 'tywl' ? 'kanjia' : 'default' // HARDCODE: 针对天翼看家单独判断
+      this.SET_INTRODUCTION(introduction)
+      this.SET_EMAIL(email)
+      this.SET_TYPE(type)
+      this.SET_IAM_USER_ID(data.iamUserId)
+      // this.SET_AVATAR(avatar)
     } catch (e) {
       throw Error(e)
     }
@@ -81,9 +114,10 @@ class User extends VuexModule implements IUserState {
   public ResetToken() {
     removeToken()
     removeUsername()
+    removePerms()
     this.SET_TOKEN('')
     this.SET_NAME('')
-    this.SET_ROLES([])
+    this.SET_PERMS([])
   }
 
   @Action
@@ -95,26 +129,40 @@ class User extends VuexModule implements IUserState {
     if (!data) {
       throw Error('Verification failed, please Login again.')
     }
-    const { userName } = data
     const roles = ['admin']
-    const introduction = '欢迎光临'
-    const email = 'vss@chinatelecom.cn'
-    const type = userName === 'tywl' ? 'kanjia' : 'default' // HARDCODE: 针对天翼看家单独判断
-
     // roles must be a non-empty array
     if (!roles || roles.length <= 0) {
       throw Error('GetUserInfo: roles must be a non-null array!')
     }
     this.SET_ROLES(roles)
-    // const todoUserName: any = getUsername()
-    // this.SET_NAME(todoUserName)
-    setUsername(userName)
-    this.SET_NAME(userName)
-    // this.SET_NAME(userName)
-    // this.SET_AVATAR(avatar)
-    this.SET_INTRODUCTION(introduction)
-    this.SET_EMAIL(email)
-    this.SET_TYPE(type)
+    setPerms(roles)
+  }
+
+  @Action({ rawError: true })
+  public async GetIAMUserInfo() {
+    if (this.token === '') {
+      throw Error('GetIAMUserInfo: token is undefined!')
+    }
+    let data: any = null
+    if (this.iamUserId) {
+      data = await getIAMUserInfo({ iamUserId: this.iamUserId })
+      const policy = JSON.parse(data.policyDocument || '{}')
+      data.perms = [policy.Statement[0].Action[0].slice('vss:'.length, -1).toLocaleUpperCase()]
+    } else {
+      data = {
+        perms: ['*']
+      }
+    }
+    if (!data) {
+      throw Error('Verification failed, please Login again.')
+    }
+    const perms = data.perms
+    // perms must be a non-empty array
+    if (!perms || perms.length <= 0) {
+      throw Error('GetIAMUserInfo: perms must be a non-null array!')
+    }
+    this.SET_PERMS(perms)
+    setPerms(perms)
   }
 
   @Action
@@ -134,6 +182,13 @@ class User extends VuexModule implements IUserState {
   }
 
   @Action
+  public async ChangeLoginType() {
+    const type = this.isIamUserLogin === 'true' ? 'false' : 'true'
+    this.SET_IS_IAM_USER_LOGIN(type)
+    setIsIamUserLogin(type)
+  }
+
+  @Action
   public async LogOut() {
     if (this.token === '') {
       throw Error('LogOut: token is undefined!')
@@ -141,11 +196,15 @@ class User extends VuexModule implements IUserState {
     await logout()
     removeToken()
     resetRouter()
+    removePerms()
+    removeUsername()
 
     // Reset visited views and cached views
     TagsViewModule.delAllViews()
     this.SET_TOKEN('')
     this.SET_ROLES([])
+    this.SET_PERMS([])
+    this.SET_NAME('')
   }
 }
 
