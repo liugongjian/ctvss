@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-card>
-      <div class="filter-container">
+      <div v-permission="['*']" class="filter-container">
         <el-button type="primary" @click="handleCreate">新建流</el-button>
       </div>
       <el-table v-loading="loading.table" class="stream-list__table" :data="streamList" fit @row-click="rowClick">
