@@ -14,6 +14,7 @@
               <info-list-item label="设备名称:">{{ info.deviceName }}</info-list-item>
               <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
+              <info-list-item label="设备地址:">{{ address || '-' }}</info-list-item>
               <template v-if="info.deviceType === 'ipc' || info.deviceType === 'platform'">
                 <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
                 <info-list-item label="设备IP:">{{ info.deviceIp || '-' }}</info-list-item>
@@ -100,11 +101,38 @@
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import detailMixin from '../mixin/detailMixin'
+import { cities } from '@/assets/region/cities'
 
 @Component({
   name: 'DeviceGb28181Detail'
 })
-export default class extends Mixins(detailMixin) {}
+export default class extends Mixins(detailMixin) {
+  private cities = cities
+  private address = ''
+  // private info: any = {}
+
+  // private updated() {
+  //   console.log(this.info);
+    
+  // }
+  private get info() {
+    return this.info
+  }
+
+  private set info(val: any) {
+    let info: any = val
+    let provinceCode: number = parseInt(info.gbRegion.substring(0, 2))
+    let cityCode: number = parseInt(info.gbRegion.substring(2, 4))
+    let province = cities[provinceCode - 11].name
+    let city = ''
+    if (cityCode === 0) {
+      city = province
+    } else {
+      city = cities[provinceCode - 11].cities[cityCode - 1]
+    }
+    this.address = province + ' / ' + city
+  }
+}
 </script>
 <style lang="scss" scoped>
   .app-container {
