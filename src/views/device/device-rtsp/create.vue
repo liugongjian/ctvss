@@ -94,14 +94,6 @@
         </template>
         <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" />
       </el-form-item>
-      <el-form-item label="设备地址:" prop="address">
-        <el-cascader
-          v-model="form.address"
-          expand-trigger="hover"
-          :options="cities"
-          :props="citiesProps"
-        />
-      </el-form-item>
       <el-form-item label="设备描述:" prop="description">
         <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
       </el-form-item>
@@ -118,20 +110,11 @@ import createMixin from '../mixin/createMixin'
 import { InType } from '@/dics'
 import { pick } from 'lodash'
 import { createDevice, updateDevice, getDevice } from '@/api/device'
-import { cities } from '@/assets/region/cities'
 
 @Component({
   name: 'CreateRtspDevice'
 })
 export default class extends Mixins(createMixin) {
-  private cities = cities
-
-  private citiesProps: any = {
-    value: 'code',
-    label: 'name',
-    children: 'cities'
-  }
-
   private rules = {
     deviceName: [
       { required: true, message: '请输入设备名称', trigger: 'blur' },
@@ -160,10 +143,7 @@ export default class extends Mixins(createMixin) {
     pullType: 1,
     pushType: 1,
     pullUrl: '',
-    transPriority: 'udp',
-    address: ['1100', '1100'],
-    gbRegion: '110000000',
-    gbRegionLevel: '1'
+    transPriority: 'udp'
   }
 
   private inTypeList = InType
@@ -176,15 +156,6 @@ export default class extends Mixins(createMixin) {
       this.form.inProtocol = this.inProtocol
     }
     this.onGroupChange()
-    this.form.address = ['1100', '1100']
-  }
-
-  private addressChange() {
-    const addressCascader: any = this.$refs['addressCascader']
-    const currentAdress = addressCascader.getCheckedNodes()[0].data
-    this.form.gbRegion = currentAdress.code + '00000'
-    this.form.gbRegionLevel = currentAdress.level
-    console.log(this.form.gbRegion, this.form.gbRegionLevel)
   }
 
   /**
@@ -213,7 +184,7 @@ export default class extends Mixins(createMixin) {
       if (valid) {
         try {
           this.submitting = true
-          let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor', 'deviceIp', 'devicePort', 'description', 'inType', 'transPriority', 'gbRegion', 'gbRegionLevel'])
+          let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor', 'deviceIp', 'devicePort', 'description', 'inType', 'transPriority'])
           if (this.isUpdate) {
             params = Object.assign(params, pick(this.form, ['deviceId']))
           }
