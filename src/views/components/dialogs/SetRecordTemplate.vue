@@ -42,7 +42,6 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { getRecordTemplates, setGroupRecordTemplates, unbindGroupRecordTemplates } from '@/api/group'
 import { setDeviceRecordTemplate, unbindDeviceRecordTemplate } from '@/api/device'
-import { setStreamRecordTemplate, unbindStreamRecordTemplate } from '@/api/stream'
 import { formatSeconds } from '@/utils/interval'
 
 @Component({
@@ -50,9 +49,9 @@ import { formatSeconds } from '@/utils/interval'
 })
 export default class extends Vue {
   @Prop() private groupId?: string
-  @Prop() private streamId?: string
   @Prop() private deviceId?: String
   @Prop() private templateId?: string
+  @Prop() private inProtocol?: string
   private dialogVisible = true
   private loading = false
   private list = [
@@ -76,7 +75,8 @@ export default class extends Vue {
     let params = {
       groupId: this.groupId,
       deviceId: this.deviceId,
-      templateId: row.templateId
+      templateId: row.templateId,
+      inProtocol: this.deviceId ? this.inProtocol : undefined
     }
     try {
       this.loading = true
@@ -84,11 +84,6 @@ export default class extends Vue {
         await setGroupRecordTemplates(params)
       } else if (this.deviceId) {
         await setDeviceRecordTemplate(params)
-      } else {
-        await setStreamRecordTemplate({
-          deviceId: this.streamId,
-          templateId: row.templateId
-        })
       }
       this.bindTemplateId = row.templateId
     } catch (e) {
@@ -102,7 +97,8 @@ export default class extends Vue {
     let params = {
       groupId: this.groupId,
       deviceId: this.deviceId,
-      templateId: row.templateId
+      templateId: row.templateId,
+      inProtocol: this.deviceId ? this.inProtocol : undefined
     }
     try {
       this.loading = true
@@ -110,11 +106,6 @@ export default class extends Vue {
         await unbindGroupRecordTemplates(params)
       } else if (this.deviceId) {
         await unbindDeviceRecordTemplate(params)
-      } else {
-        await unbindStreamRecordTemplate({
-          deviceId: this.streamId,
-          templateId: row.templateId
-        })
       }
       this.bindTemplateId = ''
     } catch (e) {
