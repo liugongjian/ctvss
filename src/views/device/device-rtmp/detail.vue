@@ -152,7 +152,7 @@ import { Component, Mixins } from 'vue-property-decorator'
 import detailMixin from '../mixin/detailMixin'
 
 @Component({
-  name: 'DeviceGb28181Detail'
+  name: 'DeviceRtmpDetail'
 })
 export default class extends Mixins(detailMixin) {}
 </script>
@@ -174,12 +174,6 @@ export default class extends Mixins(detailMixin) {}
       right: 0;
       z-index: 9;
     }
-  }
-
-  .info-edit {
-    position: absolute;
-    right: 40px;
-    z-index: 10;
   }
 
   .address-maker {
