@@ -2,8 +2,6 @@ import { Component, Provide, Vue } from 'vue-property-decorator'
 import { DeviceModule } from '@/store/modules/device'
 import { GroupModule } from '@/store/modules/group'
 import { getDeviceTree } from '@/api/device'
-import { getStreamList } from '@/api/stream'
-import { Stream } from '@/type/stream'
 
 @Component
 export default class DeviceMixin extends Vue {
@@ -52,29 +50,11 @@ export default class DeviceMixin extends Vue {
     try {
       this.loading.dir = true
       await DeviceModule.ResetBreadcrumb()
-      if (this.currentGroupInProtocol === 'rtmp') {
-        let params = {
-          pageNum: 1,
-          pageSize: 1000,
-          groupId: this.currentGroupId
-        }
-        const res = await getStreamList(params)
-        this.dirList = res.streams.map((stream: Stream) => {
-          return {
-            id: stream.deviceId,
-            label: stream.deviceId,
-            type: 'stream',
-            isLeaf: true,
-            streamStatus: stream.status
-          }
-        })
-      } else {
-        const res = await getDeviceTree({
-          groupId: this.currentGroupId,
-          id: 0
-        })
-        this.dirList = res.dirs
-      }
+      const res = await getDeviceTree({
+        groupId: this.currentGroupId,
+        id: 0
+      })
+      this.dirList = res.dirs
       this.$nextTick(() => {
         console.log('this.initTreeStatus()')
         this.initTreeStatus()

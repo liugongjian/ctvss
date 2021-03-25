@@ -193,7 +193,8 @@
                   <div class="live-view">
                     <player
                       v-if="screen.url"
-                      :type="screen.codec"
+                      type="flv"
+                      :codec="screen.codec"
                       :url="screen.url"
                       :is-live="true"
                       :is-ws="true"
@@ -207,7 +208,7 @@
                       @onFullscreen="screen.fullscreen();fullscreen()"
                       @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
                     />
-                    <div v-else class="tip-text">无信号</div>
+                    <div v-if="!screen.url && !screen.loading" class="tip-text">无信号</div>
                   </div>
                 </template>
                 <template v-else>
@@ -403,7 +404,6 @@ export default class extends Mixins(ScreenMixin) {
       }
       screen.deviceId = item.id
       screen.deviceName = item.label
-      screen.type = item.type
       if (this.currentIndex < this.maxSize - 1) {
         this.currentIndex++
       } else {

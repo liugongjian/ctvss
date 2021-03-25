@@ -182,6 +182,7 @@ export default class CreateMixin extends Vue {
     try {
       this.loading.info = true
       const res = await getDevice({
+        inProtocol: this.inProtocol,
         deviceId: this.deviceId
       })
       if (type === 'nvr' || type === 'platform') {
@@ -214,7 +215,6 @@ export default class CreateMixin extends Vue {
         if (res.parentDeviceId !== '-1' && res.deviceChannels.length) {
           res.deviceId = res.deviceChannels[0].deviceId
           res.deviceName = res.deviceChannels[0].channelName
-          console.log(res)
         }
         this.deviceList = [ res ]
       }
@@ -233,6 +233,7 @@ export default class CreateMixin extends Vue {
     try {
       let params: any = {
         groupId: this.groupId,
+        inProtocol: this.inProtocol,
         pageNum: this.pager.pageNum,
         pageSize: this.pager.pageSize,
         deviceType: this.filter.deviceType,
@@ -485,12 +486,13 @@ export default class CreateMixin extends Vue {
   public async startDevice(device: Device) {
     try {
       const params: any = {
-        deviceId: device.deviceId
+        deviceId: device.deviceId,
+        inProtocol: this.inProtocol
       }
       await startDevice(params)
       this.$message.success('已通知启用设备')
     } catch (e) {
-      console.error(e)
+      this.$message.error(e)
     }
   }
 
@@ -500,12 +502,13 @@ export default class CreateMixin extends Vue {
   public async stopDevice(device: Device) {
     try {
       const params: any = {
-        deviceId: device.deviceId
+        deviceId: device.deviceId,
+        inProtocol: this.inProtocol
       }
       await stopDevice(params)
       this.$message.success('已通知停用设备')
     } catch (e) {
-      console.error(e)
+      this.$message.error(e)
     }
   }
 
@@ -515,7 +518,8 @@ export default class CreateMixin extends Vue {
   public async startRecord(device: Device) {
     try {
       const params: any = {
-        deviceId: device.deviceId
+        deviceId: device.deviceId,
+        inProtocol: this.inProtocol
       }
       await startRecord(params)
       this.$message.success('已通知开始录制')
@@ -533,7 +537,8 @@ export default class CreateMixin extends Vue {
     try {
       const params: any = {
         deviceId: device.deviceId,
-        recordTaskId: device.recordTaskId
+        recordTaskId: device.recordTaskId,
+        inProtocol: this.inProtocol
       }
       await stopRecord(params)
       this.$message.success('已通知停止录像')
