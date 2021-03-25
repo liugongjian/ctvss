@@ -44,7 +44,6 @@ import { getRecordTemplates, setGroupRecordTemplates, unbindGroupRecordTemplates
 import { setDeviceRecordTemplate, unbindDeviceRecordTemplate } from '@/api/device'
 import { setStreamRecordTemplate, unbindStreamRecordTemplate } from '@/api/stream'
 import { formatSeconds } from '@/utils/interval'
-import { template } from 'lodash'
 
 @Component({
   name: 'SetRecordTemplate'

@@ -3,12 +3,12 @@
     <el-page-header content="业务组管理" @back="back" />
     <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
       <el-tab-pane label="基本信息" name="info">
-        <el-button type="text" class="info-edit" @click="editForm">编辑</el-button>
+        <el-button v-permission="['*']" type="text" class="info-edit" @click="editForm">编辑</el-button>
         <info-list label-width="150">
           <info-list-item label="业务组ID:">{{ form.groupId }}</info-list-item>
           <info-list-item label="业务组名称:">{{ form.groupName }}</info-list-item>
           <info-list-item label="业务组描述:">{{ form.description }}</info-list-item>
-          <info-list-item label="服务区域:">{{ form.regionName }}</info-list-item>
+          <info-list-item label="接入区域:">{{ form.regionName }}</info-list-item>
           <info-list-item label="接入类型:">{{ InProtocolType[form.inProtocol] }}</info-list-item>
           <info-list-item label="播放类型:">
             {{ form.outProtocol.map(item => OutProtocolType[item]).join(',') }}

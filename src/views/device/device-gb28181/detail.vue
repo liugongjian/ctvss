@@ -4,7 +4,7 @@
       <div v-if="info" class="btn-detail">
         <el-button v-if="info.deviceType === 'ipc'" @click="goToPreview"><svg-icon name="live" /> 实时预览</el-button>
         <el-button v-if="info.deviceType === 'nvr'" @click="goToChannels"><svg-icon name="list" /> 查看通道</el-button>
-        <el-button @click="goToChannels"><svg-icon name="edit" /> 编辑</el-button>
+        <el-button v-if="checkPermission(['*'])" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
       </div>
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="基本信息" name="info">
@@ -102,6 +102,7 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import detailMixin from '../mixin/detailMixin'
 import { provinceMapping, cityMapping } from '@/assets/region/cities'
+import { checkPermission } from '@/utils/permission'
 
 @Component({
   name: 'DeviceGb28181Detail'
@@ -113,6 +114,7 @@ export default class extends Mixins(detailMixin) {
     let cityCode: number = parseInt(info.gbRegion.substring(0, 4))
     return provinceMapping[provinceCode] + ' / ' + cityMapping[cityCode]
   }
+  private checkPermission = checkPermission
 }
 </script>
 <style lang="scss" scoped>

@@ -3,23 +3,34 @@ import { RouteConfig } from 'vue-router'
 import { asyncRoutes, constantRoutes } from '@/router'
 import store from '@/store'
 
-const hasPermission = (roles: string[], route: RouteConfig) => {
-  if (route.meta && route.meta.roles) {
-    return roles.some(role => route.meta.roles.includes(role))
+const hasPermission = (perms: string[], route: RouteConfig) => {
+  if (route.meta && route.meta.perms) {
+    return perms.some(perm => route.meta.perms.includes(perm))
   } else {
     return true
   }
 }
 
-export const filterAsyncRoutes = (routes: RouteConfig[], roles: string[]) => {
+export const filterAsyncRoutes = (routes: RouteConfig[], perms: string[]) => {
   const res: RouteConfig[] = []
   routes.forEach(route => {
     const r = { ...route }
-    if (hasPermission(roles, r)) {
-      if (r.children) {
-        r.children = filterAsyncRoutes(r.children, roles)
+    // 子用户重构后注释掉原先逻辑，改为下面的代码
+    // if (hasPermission(perms, r)) {
+    //   if (r.children) {
+    //     r.children = filterAsyncRoutes(r.children, perms)
+    //   }
+    //   res.push(r)
+    // }
+    if (r.children) {
+      r.children = filterAsyncRoutes(r.children, perms)
+      if (r.children && r.children.length > 0) {
+        res.push(r)
       }
-      res.push(r)
+    } else {
+      if (hasPermission(perms, r)) {
+        res.push(r)
+      }
     }
   })
   return res
@@ -42,12 +53,12 @@ class Permission extends VuexModule implements IPermissionState {
   }
 
   @Action
-  public GenerateRoutes(roles: string[]) {
+  public GenerateRoutes(perms: string[]) {
     let accessedRoutes
-    if (roles.includes('admin')) {
+    if (perms.includes('*')) {
       accessedRoutes = asyncRoutes
     } else {
-      accessedRoutes = filterAsyncRoutes(asyncRoutes, roles)
+      accessedRoutes = filterAsyncRoutes(asyncRoutes, perms)
     }
     this.SET_ROUTES(accessedRoutes)
   }

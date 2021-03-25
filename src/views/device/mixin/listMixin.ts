@@ -432,7 +432,10 @@ export default class CreateMixin extends Vue {
       type: '设备',
       msg: `是否确认删除设备"${device.deviceName}"`,
       method: deleteDevice,
-      payload: { deviceId: device.deviceId },
+      payload: {
+        deviceId: device.deviceId,
+        inProtocol: this.inProtocol
+      },
       onSuccess: () => {
         this.getDeviceList()
         this.initDirs()
@@ -467,7 +470,8 @@ export default class CreateMixin extends Vue {
         return Promise.all(
           this.selectedDeviceList.map((device: Device) => {
             return deleteDevice({
-              deviceId: device.deviceId
+              deviceId: device.deviceId,
+              inProtocol: this.inProtocol
             })
           })
         )
@@ -579,7 +583,8 @@ export default class CreateMixin extends Vue {
           try {
             await Promise.all(this.selectedDeviceList.map((device: Device) => {
               return method({
-                deviceId: device.deviceId
+                deviceId: device.deviceId,
+                inProtocol: this.inProtocol
               })
             }))
             done()
@@ -616,7 +621,8 @@ export default class CreateMixin extends Vue {
     try {
       this.loading.syncDevice = true
       await syncDevice({
-        deviceId: this.deviceInfo.deviceId
+        deviceId: this.deviceInfo.deviceId,
+        inProtocol: this.inProtocol
       })
       this.init()
     } catch (e) {

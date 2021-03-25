@@ -16,7 +16,6 @@
       :has-control="false"
       :has-playlive="hasPlaylive"
       :is-fullscreen="isFullscreen"
-      :is-custom-rate="true"
       @onTimeUpdate="setCurrentTime"
       @onPlaylive="playlive"
       @onFullscreen="fullscreen()"

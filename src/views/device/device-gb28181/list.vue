@@ -42,14 +42,14 @@
     </div>
     <div class="filter-container clearfix">
       <div class="filter-container__left">
-        <el-button v-if="isDir || deviceInfo && deviceInfo.createSubDevice === 2" type="primary" @click="goToCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
-        <el-button v-if="isNVR" @click="goToDetail(deviceInfo)">查看NVR设备详情</el-button>
-        <el-button v-if="isNVR" @click="goToUpdate(deviceInfo)">编辑NVR设备</el-button>
-        <el-button v-if="isPlatform" @click="goToDetail(deviceInfo)">查看Platform详情</el-button>
-        <el-button v-if="isPlatform" @click="goToUpdate(deviceInfo)">编辑Platform</el-button>
-        <el-button v-if="isPlatform" :loading="loading.syncDevice" @click="syncDevice">同步</el-button>
-        <el-button :disabled="!selectedDeviceList.length" @click="exportCsv">导出</el-button>
-        <el-dropdown placement="bottom" @command="handleBatch">
+        <el-button v-if="(isDir || deviceInfo && deviceInfo.createSubDevice === 2) && checkPermission(['*'])" key="dir-button" type="primary" @click="goToCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
+        <el-button v-if="isNVR" key="check-nvr-detail" @click="goToDetail(deviceInfo)">查看NVR设备详情</el-button>
+        <el-button v-if="isNVR && checkPermission(['*'])" key="edit-nvr" @click="goToUpdate(deviceInfo)">编辑NVR设备</el-button>
+        <el-button v-if="isPlatform" key="check-platform" @click="goToDetail(deviceInfo)">查看Platform详情</el-button>
+        <el-button v-if="isPlatform && checkPermission(['*'])" key="edit-platform" @click="goToUpdate(deviceInfo)">编辑Platform</el-button>
+        <el-button v-if="isPlatform" key="sync" :loading="loading.syncDevice" @click="syncDevice">同步</el-button>
+        <el-button key="export" :disabled="!selectedDeviceList.length" @click="exportCsv">导出</el-button>
+        <el-dropdown key="dropdown" v-permission="['*']" placement="bottom" @command="handleBatch">
           <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item v-if="!isNVR" command="move">移动至</el-dropdown-item>
@@ -209,22 +209,24 @@
         </el-table-column>
         <el-table-column label="操作" prop="action" class-name="col-action" width="270" fixed="right">
           <template slot-scope="scope">
-            <el-button type="text" :disabled="scope.row.deviceType === 'nvr'" @click="goToPreview('preview', scope.row)">实时预览</el-button>
-            <el-button type="text" :disabled="scope.row.deviceType === 'nvr'" @click="goToPreview('replay', scope.row)">录像回放</el-button>
+            <el-button type="text" :disabled="scope.row.deviceType === 'nvr' || scope.row.deviceType === 'platform'" @click="goToPreview('preview', scope.row)">实时预览</el-button>
+            <el-button type="text" :disabled="scope.row.deviceType === 'nvr' || scope.row.deviceType === 'platform'" @click="goToPreview('replay', scope.row)">录像回放</el-button>
             <el-button type="text" disabled @click="goToPreview('snapshot', scope.row)">查看截图</el-button>
             <el-dropdown @command="handleMore">
               <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item v-if="isGb && scope.row.deviceType === 'nvr'" :command="{type: 'nvr', device: scope.row}">查看通道</el-dropdown-item>
-                <el-dropdown-item v-if="isGb && isNVR" :command="{type: 'detail', device: scope.row}">通道详情</el-dropdown-item>
+                <el-dropdown-item v-if="scope.row.deviceType === 'nvr'" :command="{type: 'nvr', device: scope.row}">查看通道</el-dropdown-item>
+                <el-dropdown-item v-if="isNVR" :command="{type: 'detail', device: scope.row}">通道详情</el-dropdown-item>
                 <el-dropdown-item v-else :command="{type: 'detail', device: scope.row}">设备详情</el-dropdown-item>
-                <el-dropdown-item v-if="scope.row.streamStatus === 'on'" :command="{type: 'stopDevice', device: scope.row}">停用流</el-dropdown-item>
-                <el-dropdown-item v-else :command="{type: 'startDevice', device: scope.row}">启用流</el-dropdown-item>
-                <el-dropdown-item v-if="scope.row.recordStatus === 0" :command="{type: 'stopRecord', device: scope.row}">停止录像</el-dropdown-item>
-                <el-dropdown-item v-else :command="{type: 'startRecord', device: scope.row}">开始录像</el-dropdown-item>
-                <el-dropdown-item v-if="!isNVR && scope.row.parentDeviceId === '-1'" :command="{type: 'move', device: scope.row}">移动至</el-dropdown-item>
-                <el-dropdown-item v-if="(isNVR && !isCreateSubDevice) || (!isNVR && scope.row.createSubDevice !== 1)" :command="{type: 'update', device: scope.row}">编辑</el-dropdown-item>
-                <el-dropdown-item :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
+                <template v-if="scope.row.deviceType === 'ipc'">
+                  <el-dropdown-item v-if="scope.row.streamStatus === 'on' && checkPermission(['*'])" :command="{type: 'stopDevice', device: scope.row}">停用流</el-dropdown-item>
+                  <el-dropdown-item v-else-if="checkPermission(['*'])" :command="{type: 'startDevice', device: scope.row}">启用流</el-dropdown-item>
+                  <el-dropdown-item v-if="scope.row.recordStatus === 0 && checkPermission(['*'])" :command="{type: 'stopRecord', device: scope.row}">停止录像</el-dropdown-item>
+                  <el-dropdown-item v-else-if="checkPermission(['*'])" :command="{type: 'startRecord', device: scope.row}">开始录像</el-dropdown-item>
+                </template>
+                <el-dropdown-item v-if="!isNVR && scope.row.parentDeviceId === '-1' && checkPermission(['*'])" :command="{type: 'move', device: scope.row}">移动至</el-dropdown-item>
+                <el-dropdown-item v-if="((isNVR && !isCreateSubDevice) || (!isNVR && scope.row.createSubDevice !== 1)) && checkPermission(['*'])" :command="{type: 'update', device: scope.row}">编辑</el-dropdown-item>
+                <el-dropdown-item v-if="checkPermission(['*'])" :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </template>
@@ -251,11 +253,13 @@ import { Component, Mixins } from 'vue-property-decorator'
 import listMixin from '../mixin/listMixin'
 import { ExportToCsv } from 'export-to-csv'
 import { Device } from '@/type/device'
+import { checkPermission } from '@/utils/permission'
 
 @Component({
   name: 'DeviceGb28181List'
 })
 export default class extends Mixins(listMixin) {
+  private checkPermission = checkPermission
   /**
    * 导出CSV
    */

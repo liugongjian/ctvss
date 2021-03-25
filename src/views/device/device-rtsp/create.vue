@@ -166,7 +166,8 @@ export default class extends Mixins(createMixin) {
       this.loading.device = true
       this.form.deviceId = this.deviceId
       const info = await getDevice({
-        deviceId: this.form.deviceId
+        deviceId: this.form.deviceId,
+        inProtocol: this.inProtocol
       })
       this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
         'deviceIp', 'devicePort', 'description', 'inType', 'pullType', 'pushType', 'pullUrl', 'transPriority']))

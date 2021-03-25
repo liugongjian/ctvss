@@ -13,7 +13,7 @@ const sizeKey = 'size'
 export const getSize = () => Cookies.get(sizeKey)
 export const setSize = (size: string) => Cookies.set(sizeKey, size)
 
-// User
+// Token
 const tokenKey = 'live_admin_access_token'
 export const getToken = () => Cookies.get(tokenKey)
 export const setToken = (token: string) => Cookies.set(tokenKey, token)
@@ -24,3 +24,21 @@ const username = 'username'
 export const getUsername = () => Cookies.get(username)
 export const setUsername = (token: string) => Cookies.set(username, token)
 export const removeUsername = () => Cookies.remove(username)
+
+// perms
+const permsKey = 'perms'
+export const getPerms = () => Cookies.get(permsKey) || []
+export const setPerms = (perms: string[]) => Cookies.set(permsKey, perms)
+export const removePerms = () => Cookies.remove(permsKey)
+
+// isIamUserLogin
+const loginTypeKey = 'isIamUserLogin'
+export const getIsIamUserLogin = () => Cookies.get(loginTypeKey)
+export const setIsIamUserLogin = (type: string) => Cookies.set(loginTypeKey, type)
+export const removeIsIamUserLogin = () => Cookies.remove(loginTypeKey)
+
+// iamUserId
+const iamUserIdKey = 'iamUserId'
+export const getIamUserId = () => Cookies.get(iamUserIdKey)
+export const setIamUserId = (id: string) => Cookies.set(iamUserIdKey, id)
+export const removeIamUserId = () => () => Cookies.remove(iamUserIdKey)

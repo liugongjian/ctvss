@@ -12,7 +12,7 @@ const userList: IUserData[] = [
     introduction: 'I am a super administrator',
     email: 'admin@test.com',
     phone: '1234567890',
-    roles: ['admin'],
+    roles: ['admin']
   },
   {
     id: 1,
@@ -23,7 +23,7 @@ const userList: IUserData[] = [
     introduction: 'I am an editor',
     email: 'editor@test.com',
     phone: '1234567890',
-    roles: ['editor'],
+    roles: ['editor']
   }
 ]
 const userCount = 100
