@@ -92,7 +92,6 @@ import { InType } from '@/dics'
 import { pick } from 'lodash'
 import { createDevice, updateDevice, getDevice } from '@/api/device'
 import Tags from '@/components/Tags/index.vue'
-import { cities } from '@/assets/region/cities'
 
 @Component({
   name: 'CreateRtmpDevice',
@@ -101,14 +100,6 @@ import { cities } from '@/assets/region/cities'
   }
 })
 export default class extends Mixins(createMixin) {
-  private cities = cities
-
-  private citiesProps: any = {
-    value: 'code',
-    label: 'name',
-    children: 'cities'
-  }
-
   private rules = {
     deviceName: [
       { required: true, message: '请输入设备名称', trigger: 'blur' },
@@ -150,14 +141,6 @@ export default class extends Mixins(createMixin) {
     this.onGroupChange()
   }
 
-  private addressChange() {
-    const addressCascader: any = this.$refs['addressCascader']
-    const currentAdress = addressCascader.getCheckedNodes()[0].data
-    this.form.gbRegion = currentAdress.code + '00000'
-    this.form.gbRegionLevel = currentAdress.level
-    console.log(this.form.gbRegion, this.form.gbRegionLevel)
-  }
-
   /**
    * 加载设备信息
    */
@@ -184,7 +167,7 @@ export default class extends Mixins(createMixin) {
       if (valid) {
         try {
           this.submitting = true
-          let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor', 'description', 'inType', 'tags', 'gbRegion', 'gbRegionLevel'])
+          let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor', 'description', 'inType', 'tags'])
           if (this.isUpdate) {
             params = Object.assign(params, pick(this.form, ['deviceId']))
           }

@@ -129,6 +129,7 @@
             ref="addressCascader"
             v-model="form.address"
             expand-trigger="hover"
+            :disabled="isUpdate"
             :options="cities"
             :props="citiesProps"
             @change="addressChange"
@@ -271,14 +272,13 @@ export default class extends Mixins(createMixin) {
     }
     this.getGbAccounts()
     this.onGroupChange()
-    // this.form.address = ['1100', '1100']
   }
 
   private addressChange() {
     const addressCascader: any = this.$refs['addressCascader']
-    const currentAdress = addressCascader.getCheckedNodes()[0].data
-    this.form.gbRegion = currentAdress.code + '00000'
-    this.form.gbRegionLevel = currentAdress.level
+    const currentAddress = addressCascader.getCheckedNodes()[0].data
+    this.form.gbRegion = currentAddress.code + '00000'
+    this.form.gbRegionLevel = currentAddress.level
     console.log(this.form.gbRegion, this.form.gbRegionLevel)
   }
 
@@ -297,7 +297,10 @@ export default class extends Mixins(createMixin) {
       })
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
-          'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'gbId', 'userName']))
+          'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'gbId', 'userName', 'gbRegion', 'gbRegionLevel']))
+        // 设备地址参数转换
+        let gbCode = this.form.gbRegion.substring(0, 4)
+        this.form.address = [gbCode.substring(0, 2) + '00', gbCode]
         if (info.deviceStats) {
           // 编辑的时候，设置数量不得小于已创建的子通道中最大通道号或1
           this.minChannelSize = Math.max(...usedChannelNum, 1)
@@ -383,9 +386,11 @@ export default class extends Mixins(createMixin) {
       if (valid) {
         try {
           this.submitting = true
-          let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceVendor', 'description', 'gbRegion', 'gbRegionLevel'])
+          let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceVendor', 'description'])
           if (this.isUpdate) {
             params = Object.assign(params, pick(this.form, ['deviceId']))
+          } else {
+            params = Object.assign(params, pick(this.form, ['gbRegion', 'gbRegionLevel']))
           }
           if (!this.isChannel) {
             // 通用参数
