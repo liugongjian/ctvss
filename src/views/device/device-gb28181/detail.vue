@@ -101,36 +101,17 @@
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import detailMixin from '../mixin/detailMixin'
-import { cities } from '@/assets/region/cities'
+import { provinceMapping, cityMapping } from '@/assets/region/cities'
 
 @Component({
   name: 'DeviceGb28181Detail'
 })
 export default class extends Mixins(detailMixin) {
-  private cities = cities
-  private address = ''
-  // private info: any = {}
-
-  // private updated() {
-  //   console.log(this.info);
-    
-  // }
-  private get info() {
-    return this.info
-  }
-
-  private set info(val: any) {
-    let info: any = val
+  private get address() {
+    let info: any = this.info
     let provinceCode: number = parseInt(info.gbRegion.substring(0, 2))
-    let cityCode: number = parseInt(info.gbRegion.substring(2, 4))
-    let province = cities[provinceCode - 11].name
-    let city = ''
-    if (cityCode === 0) {
-      city = province
-    } else {
-      city = cities[provinceCode - 11].cities[cityCode - 1]
-    }
-    this.address = province + ' / ' + city
+    let cityCode: number = parseInt(info.gbRegion.substring(0, 4))
+    return provinceMapping[provinceCode] + ' / ' + cityMapping[cityCode]
   }
 }
 </script>
