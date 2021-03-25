@@ -9,7 +9,7 @@
         <el-tab-pane label="基本信息" name="info">
           <div>
             <!-- <el-button v-if="!isAutoCreated" type="text" class="info-edit" @click="edit">编辑</el-button> -->
-            <el-button type="text" class="info-edit" @click="edit">编辑</el-button>
+            <el-button v-permission="['*']" type="text" class="info-edit" @click="edit">编辑</el-button>
             <info-list v-if="info && !isNVRChannel" label-width="110">
               <info-list-item label="设备类型:">{{ deviceType[info.deviceType] }}</info-list-item>
               <info-list-item label="设备名称:">{{ info.deviceName }}</info-list-item>
