@@ -5,7 +5,7 @@
     :visible="dialogVisible"
     :close-on-click-modal="false"
     center
-    width="500px"
+    width="700px"
     @close="closeDialog"
   >
     <el-form
@@ -15,16 +15,30 @@
       label-position="right"
       label-width="120px"
     >
-      <el-form-item v-if="dialogData.type === 'merge'" label="目标子部门:" prop="aimGroupId">
-        <el-select v-model="form.aimGroupId" style="width: 80%">
-          <el-option
-            v-for="(item, index) in dialogData.groupList"
-            v-show="item.groupId !== dialogData.data.groupId"
-            :key="index"
-            :label="item.groupName"
-            :value="item.groupId"
-          />
-        </el-select>
+      <el-form-item v-if="dialogData.type === 'merge'" label-width="0" prop="aimGroupId">
+        <div class="breadcrumb">
+          <label>合并至子部门:</label>
+          <span
+            v-for="item in breadcrumb"
+            :key="item.groupId"
+            class="breadcrumb__item"
+          >
+            {{ item.groupName }}
+          </span>
+        </div>
+        <el-tree
+          v-if="dialogData.type === 'merge'"
+          ref="groupTree"
+          :props="props"
+          node-key="groupId"
+          highlight-current
+          :expand-on-click-node="false"
+          :default-expanded-keys="['']"
+          current-node-key=""
+          lazy
+          :load="loadGroups"
+          @current-change="setCurrentNode"
+        />
       </el-form-item>
       <el-form-item v-else label="子部门名称:" prop="groupName">
         <el-input v-model="form.groupName" />
@@ -39,7 +53,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { createGroup, modifyGroup, getGroup, combineGroup } from '@/api/accessManage'
+import { createGroup, modifyGroup, getGroup, combineGroup, getGroupList } from '@/api/accessManage'
 @Component({
   name: 'AddGroup'
 })
@@ -51,12 +65,23 @@ export default class extends Vue {
     form: false,
     submit: false
   }
+  private props: object = {
+    label: 'groupName',
+    children: 'children'
+  }
+  private currentNode: any = {
+    data: {
+      groupName: '通讯录',
+      groupId: ''
+    }
+  }
+  private breadcrumb: any = []
   private form: any = {
     groupName: '',
     groupId: '',
-    aimGroupId: ''
+    aimGroupId: '',
+    isChoosePath: false
   }
-
   private rules = {
     groupName: [
       { required: true, message: '请输入子部门名称', trigger: 'blur' },
@@ -75,6 +100,51 @@ export default class extends Vue {
       this.getGroup()
     } else if (this.dialogData.type === 'merge') {
       this.dialogTitle = '合并子部门'
+    }
+  }
+
+  private setCurrentNode(data: any, node: any) {
+    this.currentNode = node
+    this.form.aimGroupId = node.data.groupId
+    this.breadcrumb = this.getNodePath(node)
+  }
+
+  private getNodePath(node: any) {
+    let curentNodePath: any = []
+    this.findParentNode(node, curentNodePath)
+    return curentNodePath
+  }
+
+  private findParentNode(node: any, curentNodePath: any) {
+    if (node.parent !== null) {
+      curentNodePath.unshift({
+        groupName: node.data.groupName,
+        groupId: node.data.groupId
+      })
+      this.findParentNode(node.parent, curentNodePath)
+    }
+  }
+
+  private async loadGroups(node: any, resolve: Function) {
+    if (node.level === 0) {
+      return resolve([
+        { groupName: '通讯录', groupId: '', children: [] }
+      ])
+    }
+    try {
+      const res = await getGroupList({
+        parentGroupId: node.data.groupId
+      })
+      let groups = res.groups.filter((item: any) => item.groupId !== this.dialogData.data.groupId)
+      let dirs: any = groups.map((group: any) => {
+        return {
+          groupName: group.groupName,
+          groupId: group.groupId
+        }
+      })
+      resolve(dirs)
+    } catch (e) {
+      console.log(e)
     }
   }
 
@@ -104,8 +174,6 @@ export default class extends Vue {
           this.loading.submit = true
           if (type === 'add') {
             params.parentGroupId = this.dialogData.data.groupId
-            console.log(params);
-            
             await createGroup(params)
             this.$message.success('创建子部门成功')
           } else if (type === 'edit') {
@@ -119,7 +187,6 @@ export default class extends Vue {
             }
             await combineGroup(params)
             this.$message.success('合并子部门成功')
-            console.log(this.form.aimGroupId, this.dialogData.data.groupId)
           }
           this.$emit('on-close', 'merge')
         } else {
@@ -143,4 +210,28 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
+  .breadcrumb {
+    height: 50px;
+    line-height: 50px;
+    padding-left: 20px;
+    border: 1px solid $primary;
+    background: #f8f8f8;
+    transition: padding-left .2s;
+    margin-bottom: 10px;
+    label {
+      margin-right: 20px;
+      color: $textGrey;
+    }
+    &__item {
+      cursor: pointer;
+    }
+    &__item:after {
+      content: '>';
+      color: $textGrey;
+      margin: 0 10px;
+    }
+    &__item:last-child:after {
+      content: '';
+    }
+  }
 </style>

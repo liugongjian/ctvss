@@ -21,23 +21,21 @@
           </div>
         </div>
         <div class="titleBar__title">
-          <span>通讯录</span>
-          <span>{{ currentNode.data.groupName === '通讯录' ? '' : `/${currentNode.data.groupName}` }}</span>
+          <span>{{ nodePath }}</span>
         </div>
       </div>
       <div class="content">
         <el-main v-loading="loading.menu" class="content__menu" :style="`width: ${handleDrag.width}px`">
           <el-tree
             ref="groupTree"
-            :data="groupList"
             :props="props"
             node-key="groupId"
             highlight-current
             :expand-on-click-node="false"
-            :default-expanded-keys="['']"
-            current-node-key=""
+            :default-expanded-keys="['-1']"
+            current-node-key="-1"
             lazy
-            :load="loadDirs"
+            :load="loadGroups"
             @current-change="setCurrentNode"
           >
             <span
@@ -127,10 +125,10 @@ export default class extends Vue {
     menu: false,
     body: false
   }
+  private nodePath: string = '通讯录'
   private isShowDialog: boolean = false
   private isCollapsed: boolean = false
   private props: object = {
-    isLeaf: 'leaf',
     label: 'groupName',
     children: 'children'
   }
@@ -142,13 +140,10 @@ export default class extends Vue {
     total: 0
   }
   private dialogData: any = {}
-  private groupList: any = [
-    { groupName: '通讯录', groupId: '-1', leaf: false, children: [] }
-  ]
   private currentNode: any = {
     data: {
       groupName: '通讯录',
-      groupId: ''
+      groupId: '-1'
     }
   }
 
@@ -176,15 +171,37 @@ export default class extends Vue {
 
   private setCurrentNode(data: any, node: any) {
     this.currentNode = node
+    this.nodePath = ''
+    this.getNodePath(node).forEach((nodeObj: any) => {
+      this.nodePath += nodeObj.groupId === '-1' ? `${nodeObj.groupName}` : ` / ${nodeObj.groupName}`
+    })
     this.getUserList()
+  }
+
+  private getNodePath(node: any) {
+    let curentNodePath: any = []
+    this.findParentNode(node, curentNodePath)
+    return curentNodePath
+  }
+
+  private findParentNode(node: any, curentNodePath: any) {
+    if (node.parent !== null) {
+      curentNodePath.unshift({
+        groupName: node.data.groupName,
+        groupId: node.data.groupId
+      })
+      this.findParentNode(node.parent, curentNodePath)
+    }
   }
 
   private async initGroupTree() {
     let groupTree: any = this.$refs.groupTree
     try {
       this.loading.menu = true
-      let res = await getGroupList({})
-      groupTree.updateKeyChildren('', res.groups.map((group: any) => {
+      let res = await getGroupList({
+        parentGroupId: '-1'
+      })
+      groupTree.updateKeyChildren('-1', res.groups.map((group: any) => {
         return {
           groupName: group.groupName,
           groupId: group.groupId
@@ -197,10 +214,10 @@ export default class extends Vue {
     }
   }
 
-  private async loadDirs(node: any, resolve: Function) {
+  private async loadGroups(node: any, resolve: Function) {
     if (node.level === 0) {
       return resolve([
-        { groupName: '通讯录', groupId: '', leaf: false, children: [] }
+        { groupName: '通讯录', groupId: '-1', children: [] }
       ])
     }
     try {
@@ -262,9 +279,6 @@ export default class extends Vue {
     this.dialogData = {
       type: type,
       data: node && node.data
-    }
-    if (type === 'merge') {
-      this.dialogData.groupList = this.groupList[0].children
     }
   }
   private closeAddDialog(data: any) {
