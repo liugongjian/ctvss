@@ -1,11 +1,12 @@
 <template>
   <div v-loading="loading" class="live-wrap">
     <div class="empty-text">{{ errorMessage }}</div>
-    <div class="preview-player">
+    <div v-if="!errorMessage" class="preview-player">
       <player
         v-if="address"
         ref="video"
-        :type="codec"
+        type="flv"
+        :codec="codec"
         :url="address.flvUrl"
         :auto-play="true"
         :is-ws="true"
@@ -36,6 +37,12 @@
           <el-button type="text" @click="copyUrl(address.hlsUrl)"><svg-icon name="copy" /></el-button>
         </el-tooltip>
       </info-list-item>
+      <info-list-item v-if="address.hlsUrl" label="WebRTC:">
+        {{ address.webrtcUrl }}
+        <el-tooltip class="item" effect="dark" content="复制链接" placement="top">
+          <el-button type="text" @click="copyUrl(address.webrtcUrl)"><svg-icon name="copy" /></el-button>
+        </el-tooltip>
+      </info-list-item>
     </info-list>
   </div>
 </template>
@@ -43,7 +50,6 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { getDevicePreview } from '@/api/device'
-import { getStream } from '@/api/stream'
 import copy from 'copy-to-clipboard'
 import Player from './Player.vue'
 
@@ -60,8 +66,6 @@ export default class extends Vue {
   private isFullscreen?: boolean
   @Prop()
   private deviceId!: number | string
-  @Prop()
-  private type?: string
   private address?: any = null
   private codec?: string = ''
   private playerTimer: any = null
@@ -115,12 +119,11 @@ export default class extends Vue {
       this.loading = true
       this.errorMessage = ''
       this.address = null
-      const getPreview = this.type === 'stream' ? getStream : getDevicePreview
-      const res = await getPreview({
+      const res = await getDevicePreview({
         deviceId: this.deviceId
       })
       this.address = res.playUrl
-      this.codec = res.video.codec === 'h264' ? 'flv' : 'h265-flv'
+      this.codec = res.video.codec
       this.retry = false
     } catch (e) {
       if (e.code === 5) {

@@ -1,5 +1,4 @@
 import { getDevicePreview } from '@/api/device'
-import { getStream } from '@/api/stream'
 
 export default class Screen {
   public deviceId: string
@@ -32,17 +31,15 @@ export default class Screen {
     try {
       this.loading = true
       this.loaded = true
-      const getPreview = this.type === 'stream' ? getStream : getDevicePreview
-      const res: any = await getPreview({
+      const res: any = await getDevicePreview({
         deviceId: this.deviceId
       })
       if (res.playUrl) {
         this.url = res.playUrl.flvUrl
-        this.codec = res.video.codec === 'h264' ? 'flv' : 'h265-flv'
+        this.codec = res.video.codec
       }
       this.retry = false
     } catch (e) {
-      console.error(e.code)
       if (e.code === 5) {
         this.retry = true
       }

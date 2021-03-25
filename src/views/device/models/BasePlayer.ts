@@ -8,6 +8,7 @@ export class BasePlayer {
   public hasControl: boolean
   public player: any
   public type?: string
+  public codec?: string
   public isLive?: boolean
   public isWs?: boolean
   public playbackRate?: number
@@ -20,6 +21,7 @@ export class BasePlayer {
     this.autoPlay = config.autoPlay
     this.hasControl = config.hasControl
     this.type = config.type
+    this.codec = config.codec
     this.isLive = config.isLive
     this.isWs = config.isWs
     this.playbackRate = config.playbackRate || 1

@@ -75,14 +75,6 @@
       <el-form-item label="视频标签:" prop="description">
         <Tags v-model="form.tags" class="tags" />
       </el-form-item>
-      <el-form-item label="设备地址:" prop="address">
-        <el-cascader
-          v-model="form.address"
-          expand-trigger="hover"
-          :options="cities"
-          :props="citiesProps"
-        />
-      </el-form-item>
       <el-form-item label="设备描述:" prop="description">
         <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
       </el-form-item>
@@ -143,10 +135,7 @@ export default class extends Mixins(createMixin) {
     pullType: 1,
     pushType: 1,
     pullUrl: '',
-    tags: '',
-    address: ['1100', '1100'],
-    gbRegion: '110000000',
-    gbRegionLevel: '1'
+    tags: ''
   }
 
   private inTypeList = InType

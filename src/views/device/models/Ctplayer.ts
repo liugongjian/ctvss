@@ -3,17 +3,18 @@ import { HlsPlayer } from './HlsPlayer'
 import { RtcPlayer } from './RtcPlayer'
 
 export const createPlayer = (config: any) => {
-  if (!config.type) {
-    throw new Error('不支持当前视频类型')
-  }
   const wrapElement: HTMLDivElement = config.wrap
-
   if (!wrapElement) {
     throw new Error('找不到指定的ID Video元素')
   }
-  if (config.type !== 'h265-flv') {
-    config.source = config.isWs ? config.source.replace('http://', 'ws://') : config.source
+  if (!config.type) {
+    throw new Error('不支持当前视频类型')
   }
+  if (config.codec === 'h265') {
+    throw new Error('浏览器不支持H265')
+  }
+  // 使用ws播放
+  config.source = config.isWs ? config.source.replace('http://', 'ws://') : config.source
   const player = initPlayer(config)
   if (!player) {
     throw new Error('播放器创建失败')

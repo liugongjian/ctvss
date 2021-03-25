@@ -1,5 +1,6 @@
 <template>
   <div ref="videoWrap" v-loading="waiting" class="video-wrap">
+    <div class="error">{{ error }}</div>
     <div ref="video" @wheel="zoom" @mousedown="mouseDownHandle($event)" @mouseup="mouseUpHandle($event)" />
     <div class="controls" :class="{'controls--large': hasProgress}">
       <div v-if="hasProgress && duration" ref="progress" class="controls__progress" :class="{'moving': progressMoveData.isStart}" @mousedown="progressHandle($event)">
@@ -71,6 +72,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { UserModule } from '@/store/modules/user'
 import { createPlayer } from '../models/Ctplayer'
 import { durationFormatInVideo } from '@/utils/date'
 
@@ -91,6 +93,11 @@ export default class extends Vue {
     default: ''
   })
   private url!: string
+  /**
+   * 视频编码
+   */
+  @Prop()
+  private codec?: string
   /**
    * 自动播放
    */
@@ -187,6 +194,11 @@ export default class extends Vue {
   private buffered = 0
   private durationFormatInVideo = durationFormatInVideo
   private resizeObserver?: any
+  private error = ''
+
+  get username() {
+    return UserModule.name
+  }
 
   private get progressRate() {
     if (!this.currentTime) return 0
@@ -200,7 +212,7 @@ export default class extends Vue {
 
   private mounted() {
     // TODO 泰州业务需求，将h265转成h264播放
-    if (this.type === 'h265-flv' && this.isLive) {
+    if (this.username === 'tzszf' && this.type === 'h265-flv' && this.isLive) {
       const execRes: any = /\.[^\\.]+$/.exec(this.url)
       this.url = `${this.url.substring(0, execRes.index)}_264conv${execRes[0]}`
       this.type = 'flv'
@@ -239,66 +251,71 @@ export default class extends Vue {
    * 创建播放器
    */
   private createPlayer() {
-    this.player = createPlayer({
-      wrap: this.$refs.video,
-      autoPlay: this.autoPlay,
-      hasControl: this.hasControl,
-      source: this.url,
-      type: this.type,
-      isLive: this.isLive,
-      isWs: this.isWs,
-      playbackRate: this.playbackRate,
-      onTimeUpdate: this.onTimeUpdate,
-      onDurationChange: this.onDurationChange,
-      onBuffered: this.onBuffered,
-      onLoadStart: this.onLoadStart,
-      onCanplay: this.onCanplay,
-      onEnded: this.onEnded,
-      onPlay: this.setStatus,
-      onPause: this.setStatus,
-      onResizeScreen: (originWidth: number, originHeight: number) => {
-        const $video: HTMLDivElement = this.$refs.video as HTMLDivElement
-        const $canvas: HTMLCanvasElement | null = $video.querySelector('canvas')
-        const videoSize = $video.getBoundingClientRect()
-        const width = videoSize.width
-        const height = videoSize.height
-        if ($canvas) {
-          const proportion = width / originWidth!
-          $canvas.style.position = 'absolute'
-          $canvas.style.transform = `scale(${proportion})`
-          $canvas.style.transformOrigin = `top left`
-          $canvas.style.top = (height - originHeight) / 2 * proportion + 'px'
+    try {
+      this.player = createPlayer({
+        wrap: this.$refs.video,
+        autoPlay: this.autoPlay,
+        hasControl: this.hasControl,
+        source: this.url,
+        type: this.type,
+        codec: this.codec,
+        isLive: this.isLive,
+        isWs: this.isWs,
+        playbackRate: this.playbackRate,
+        onTimeUpdate: this.onTimeUpdate,
+        onDurationChange: this.onDurationChange,
+        onBuffered: this.onBuffered,
+        onLoadStart: this.onLoadStart,
+        onCanplay: this.onCanplay,
+        onEnded: this.onEnded,
+        onPlay: this.setStatus,
+        onPause: this.setStatus,
+        onResizeScreen: (originWidth: number, originHeight: number) => {
+          const $video: HTMLDivElement = this.$refs.video as HTMLDivElement
+          const $canvas: HTMLCanvasElement | null = $video.querySelector('canvas')
+          const videoSize = $video.getBoundingClientRect()
+          const width = videoSize.width
+          const height = videoSize.height
+          if ($canvas) {
+            const proportion = width / originWidth!
+            $canvas.style.position = 'absolute'
+            $canvas.style.transform = `scale(${proportion})`
+            $canvas.style.transformOrigin = `top left`
+            $canvas.style.top = (height - originHeight) / 2 * proportion + 'px'
+          }
+        },
+        onReset: (player: any) => {
+          if (this.player) {
+            this.player.player = player
+          }
+        },
+        onRetry: () => {
+          if (this.isLive) {
+            this.$emit('onRetry')
+          }
         }
-      },
-      onReset: (player: any) => {
-        if (this.player) {
-          this.player.player = player
-        }
-      },
-      onRetry: () => {
-        if (this.isLive) {
-          this.$emit('onRetry')
-        }
-      }
-    })
-    this.$nextTick(() => {
-      const $video: any = this.$refs.video
-      const mainBox: any = this.$refs.videoWrap
-      var player = $video.querySelector('video')
-      if (this.type === 'h265-flv') {
-        player = $video.querySelector('canvas')
-        this.playerFS()
-        window.addEventListener('resize', this.playerFS, false)
-        var targetNode = mainBox
-        // @ts-ignore
-        this.resizeObserver = new ResizeObserver(() => {
+      })
+      this.$nextTick(() => {
+        const $video: any = this.$refs.video
+        const mainBox: any = this.$refs.videoWrap
+        var player = $video.querySelector('video')
+        if (this.type === 'h265-flv') {
+          player = $video.querySelector('canvas')
           this.playerFS()
-        })
-        this.resizeObserver.observe(targetNode)
-      }
-      this.videoMoveData.player = player
-      this.videoMoveData.mainBox = mainBox
-    })
+          window.addEventListener('resize', this.playerFS, false)
+          var targetNode = mainBox
+          // @ts-ignore
+          this.resizeObserver = new ResizeObserver(() => {
+            this.playerFS()
+          })
+          this.resizeObserver.observe(targetNode)
+        }
+        this.videoMoveData.player = player
+        this.videoMoveData.mainBox = mainBox
+      })
+    } catch (e) {
+      this.error = e.message
+    }
   }
 
   public playerFS() {
@@ -630,6 +647,13 @@ export default class extends Vue {
       position: absolute;
       top: 50%;
     }
+    .error {
+      color: #fff;
+      position: absolute;
+      top: 50%;
+      width: 100%;
+      text-align: center;
+    }
     video, canvas {
       margin: auto;
       display: block;
@@ -639,7 +663,7 @@ export default class extends Vue {
         user-select:none;
       }
       position: absolute;
-      z-index: 10;
+      z-index: 15;
       bottom: 0;
       left: 0;
       width: 100%;
@@ -663,14 +687,16 @@ export default class extends Vue {
         position: relative;
         display: flex;
         align-items: center;
-        margin: 0 8px;
+        justify-content: center;
+        margin: 0 4px;
+        padding: 0 4px;
         height: 35px;
         font-size: 12px;
         cursor: pointer;
         .controls__popup {
           display: none;
           position: absolute;
-          bottom: 35px;
+          bottom: 34px;
           left: -10px;
           margin: 0;
           padding: 5px 0;
@@ -679,7 +705,7 @@ export default class extends Vue {
           background: rgba(0, 0, 0, 0.7);
           li {
             margin: 0;
-            padding: 5px 10px;
+            padding: 5px 15px;
             list-style: none;
             &:hover {
               background: #444;
@@ -699,6 +725,7 @@ export default class extends Vue {
         }
       }
       &__playback {
+        width: 32px;
         li {
           text-align: center;
         }

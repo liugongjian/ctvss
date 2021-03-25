@@ -5,11 +5,9 @@
       <el-form label-position="top">
         <el-form-item label="视频格式">
           <el-select v-model="form.codec">
-            <el-option value="flv" label="FLV - 264" />
-            <el-option value="hls" label="HLS - 264" />
-            <el-option value="rtc" label="Webrtc - 264" />
-            <el-option value="h265-flv" label="FLV - 265" />
-            <el-option value="h265-hls" label="HLS - 265" />
+            <el-option value="flv" label="FLV" />
+            <el-option value="hls" label="HLS" />
+            <el-option value="rtc" label="Webrtc" />
           </el-select>
         </el-form-item>
         <el-form-item label="流类型">
