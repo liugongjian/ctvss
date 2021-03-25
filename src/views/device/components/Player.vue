@@ -663,7 +663,7 @@ export default class extends Vue {
         user-select:none;
       }
       position: absolute;
-      z-index: 10;
+      z-index: 15;
       bottom: 0;
       left: 0;
       width: 100%;
@@ -687,6 +687,7 @@ export default class extends Vue {
         position: relative;
         display: flex;
         align-items: center;
+        justify-content: center;
         margin: 0 4px;
         padding: 0 4px;
         height: 35px;
@@ -724,6 +725,7 @@ export default class extends Vue {
         }
       }
       &__playback {
+        width: 32px;
         li {
           text-align: center;
         }
