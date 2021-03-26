@@ -43,10 +43,10 @@ export default class CreateMixin extends Vue {
   }
   public keyword = ''
   public filter: any = {
-    deviceType: '',
-    deviceStatus: '',
-    streamStatus: '',
-    recordStatus: ''
+    deviceType: undefined,
+    deviceStatus: undefined,
+    streamStatus: undefined,
+    recordStatus: undefined
   }
   public pager = {
     pageNum: 1,
@@ -112,7 +112,7 @@ export default class CreateMixin extends Vue {
   }
 
   public get hasFiltered() {
-    return !!(this.filter.deviceType || this.filter.deviceStatus || this.filter.streamStatus)
+    return !!(this.filter.deviceType || this.filter.deviceStatus || this.filter.streamStatus || this.filter.recordStatus)
   }
 
   public get filterButtons() {
@@ -677,7 +677,7 @@ export default class CreateMixin extends Vue {
       if (values.length) {
         this.filter[key] = values[0]
       } else {
-        this.filter[key] = ''
+        this.filter[key] = undefined
       }
     }
   }
@@ -686,7 +686,7 @@ export default class CreateMixin extends Vue {
    * 清空指定筛选条件
    */
   public clearFilter(key: string) {
-    this.filter[key] = ''
+    this.filter[key] = undefined
     const deviceTable: any = this.$refs.deviceTable
     deviceTable.clearFilter(key)
   }
