@@ -7,7 +7,7 @@
       </div>
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="基本信息" name="info">
-          <div>
+          <div v-if="info">
             <info-list abel-width="100">
               <info-list-item label="设备类型:">{{ deviceType[info.deviceType] }}</info-list-item>
               <info-list-item label="设备名称:">{{ info.deviceName }}</info-list-item>
@@ -40,6 +40,11 @@
                   </div>
                 </div>
               </info-list-item>
+              <info-list-item label="视频标签:">
+                <el-tag v-for="tag in tags" :key="tag" type="info">{{ tag }}</el-tag>
+                <span v-if="!tags">-</span>
+              </info-list-item>
+              <info-list-item label="设备描述:">{{ info.description || '-' }}</info-list-item>
               <info-list-item v-if="info.inType === 'push'" label="推流地址:">
                 {{ info.pushUrl || '-' }}
                 <el-tooltip v-if="info.pushUrl" class="item" effect="dark" content="复制链接" placement="top">
@@ -139,7 +144,7 @@
           </info-list>
         </el-tab-pane>
         <el-tab-pane label="模板配置" name="template">
-          <template-bind v-if="activeName==='template'" :device-id="deviceId" />
+          <template-bind v-if="activeName==='template'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
       </el-tabs>
     </div>
@@ -161,6 +166,14 @@ export default class extends Mixins(detailMixin) {}
     ::v-deep {
       .info-list__title {
         margin: 10px 5px 0 5px;
+      }
+      .info-item .el-button {
+        padding: 0;
+      }
+      .info-item  .el-tag--medium {
+        height: 24px;
+        line-height: 22px;
+        margin-right: 5px;
       }
     }
   }

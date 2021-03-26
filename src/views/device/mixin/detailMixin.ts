@@ -88,6 +88,14 @@ export default class DetailMixin extends Vue {
     return this.info && this.info.parentDeviceId !== '-1' && this.info.createSubDevice === 1
   }
 
+  public get tags() {
+    if (this.info && this.info.tags) {
+      return this.info.tags.split(',')
+    } else {
+      return null
+    }
+  }
+
   public mounted() {
     this.getDevice()
   }
