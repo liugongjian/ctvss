@@ -126,6 +126,7 @@ export default class extends Vue {
     body: false
   }
   private nodePath: string = '通讯录'
+  private nodeKeyPath: any = '-1'
   private isShowDialog: boolean = false
   private isCollapsed: boolean = false
   private props: object = {
@@ -148,7 +149,9 @@ export default class extends Vue {
   }
 
   private mounted() {
-    this.getUserList()
+    this.$route.params.nodeKeyPath && (
+      this.nodeKeyPath = this.$route.params.nodeKeyPath
+    ) && this.initGroupTree('')
   }
 
   private changeHandle(e: any) {
@@ -172,9 +175,12 @@ export default class extends Vue {
   private setCurrentNode(data: any, node: any) {
     this.currentNode = node
     this.nodePath = ''
+    this.nodeKeyPath = ''
     this.getNodePath(node).forEach((nodeObj: any) => {
       this.nodePath += nodeObj.groupId === '-1' ? `${nodeObj.groupName}` : ` / ${nodeObj.groupName}`
+      this.nodeKeyPath += nodeObj.groupId === '-1' ? `${nodeObj.groupId}` : `/${nodeObj.groupId}`
     })
+    this.$route.params.nodeKeyPath = this.nodeKeyPath
     this.getUserList()
   }
 
@@ -194,28 +200,43 @@ export default class extends Vue {
     }
   }
 
-  private async initGroupTree() {
+  private async initGroupTree(type: any) {
     let groupTree: any = this.$refs.groupTree
     try {
       this.loading.menu = true
-      let res = await getGroupList({
-        parentGroupId: '-1'
+      const nodeKeyPathArr: any = this.nodeKeyPath.split('/')
+      for (let i = 0; i < nodeKeyPathArr.length; i++) {
+        let node: any = groupTree.getNode(nodeKeyPathArr[i])
+        if (!node) break
+        this.currentNode = node
+        if (i !== nodeKeyPathArr.length - 1 || type === 'add') {
+          await this.loadChildrenNodes(nodeKeyPathArr[i])
+          node.expanded = true
+        }
+      }
+      groupTree.setCurrentKey(this.currentNode.data.groupId)
+      this.setCurrentNode(this.currentNode.data, this.currentNode)
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.loading.menu = false
+    }
+  }
+
+  private async loadChildrenNodes(key: string) {
+    try {
+      const groupTree: any = this.$refs.groupTree
+      let data = await getGroupList({
+        parentGroupId: key
       })
-      groupTree.updateKeyChildren('-1', res.groups.map((group: any) => {
+      groupTree.updateKeyChildren(key, data.groups.map((group: any) => {
         return {
           groupName: group.groupName,
           groupId: group.groupId
         }
       }))
-      groupTree.setCurrentKey('-1')
-      // groupTree.getNode('-1').expanded = true
-      this.setCurrentNode(groupTree.getNode('-1').data, groupTree.getNode('-1'))
-      
-      // this.nodePath = '通讯录'
     } catch (e) {
-      this.$message.error(e && e.message)
-    } finally {
-      this.loading.menu = false
+      console.log(e)
     }
   }
 
@@ -291,25 +312,27 @@ export default class extends Vue {
     this.isShowDialog = false
     this.showDailogSign = false
     if (data) {
-      this.initGroupTree()
+      this.initGroupTree(data.type)
       this.getUserList()
     }
   }
   private createUser() {
     this.$router.push({
-      path: `/accessManage/user/create`,
-      query: {
+      name: `accessManage-user-create`,
+      params: {
         type: 'add',
-        groupId: this.currentNode.data.groupId
+        groupId: this.currentNode.data.groupId,
+        nodeKeyPath: this.nodeKeyPath
       }
     })
   }
   private editUser(id: any) {
     this.$router.push({
-      path: `/accessManage/user/create`,
-      query: {
+      name: `accessManage-user-create`,
+      params: {
         type: 'edit',
-        userId: id
+        userId: id,
+        nodeKeyPath: this.nodeKeyPath
       }
     })
   }
