@@ -238,7 +238,8 @@ export default class CreateMixin extends Vue {
         pageSize: this.pager.pageSize,
         deviceType: this.filter.deviceType,
         deviceStatus: this.filter.deviceStatus,
-        streamStatus: this.filter.streamStatus
+        streamStatus: this.filter.streamStatus,
+        recordStatus: this.filter.recordStatus
       }
       let res: any
       this.loading.list = true

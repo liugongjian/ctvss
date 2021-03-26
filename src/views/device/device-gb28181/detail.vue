@@ -90,7 +90,7 @@
           </div>
         </el-tab-pane>
         <el-tab-pane label="模板配置" name="template">
-          <template-bind v-if="activeName==='template'" :device-id="deviceId" />
+          <template-bind v-if="activeName==='template'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
       </el-tabs>
     </div>

@@ -7,7 +7,7 @@
       </div>
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="基本信息" name="info">
-          <div>
+          <div v-if="info">
             <info-list abel-width="100">
               <info-list-item label="设备类型:">{{ deviceType[info.deviceType] }}</info-list-item>
               <info-list-item label="设备名称:">{{ info.deviceName }}</info-list-item>
@@ -139,7 +139,7 @@
           </info-list>
         </el-tab-pane>
         <el-tab-pane label="模板配置" name="template">
-          <template-bind v-if="activeName==='template'" :device-id="deviceId" />
+          <template-bind v-if="activeName==='template'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
       </el-tabs>
     </div>
@@ -156,11 +156,15 @@ import detailMixin from '../mixin/detailMixin'
 })
 export default class extends Mixins(detailMixin) {}
 </script>
+
 <style lang="scss" scoped>
   .app-container {
     ::v-deep {
       .info-list__title {
         margin: 10px 5px 0 5px;
+      }
+      .info-item .el-button {
+        padding: 0;
       }
     }
   }
@@ -174,12 +178,6 @@ export default class extends Mixins(detailMixin) {}
       right: 0;
       z-index: 9;
     }
-  }
-
-  .info-edit {
-    position: absolute;
-    right: 40px;
-    z-index: 10;
   }
 
   .address-maker {

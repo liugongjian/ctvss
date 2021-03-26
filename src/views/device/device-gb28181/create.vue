@@ -277,7 +277,7 @@ export default class extends Mixins(createMixin) {
   private addressChange() {
     const addressCascader: any = this.$refs['addressCascader']
     const currentAddress = addressCascader.getCheckedNodes()[0].data
-    this.form.gbRegion = currentAddress.code + '00000'
+    this.form.gbRegion = currentAddress.code + '0000'
     this.form.gbRegionLevel = currentAddress.level
     console.log(this.form.gbRegion, this.form.gbRegionLevel)
   }
