@@ -40,6 +40,11 @@
                   </div>
                 </div>
               </info-list-item>
+              <info-list-item label="视频标签:">
+                <el-tag v-for="tag in tags" :key="tag" type="info">{{ tag }}</el-tag>
+                <span v-if="!tags">-</span>
+              </info-list-item>
+              <info-list-item label="设备描述:">{{ info.description || '-' }}</info-list-item>
               <info-list-item v-if="info.inType === 'push'" label="推流地址:">
                 {{ info.pushUrl || '-' }}
                 <el-tooltip v-if="info.pushUrl" class="item" effect="dark" content="复制链接" placement="top">
@@ -165,6 +170,11 @@ export default class extends Mixins(detailMixin) {}
       }
       .info-item .el-button {
         padding: 0;
+      }
+      .info-item  .el-tag--medium {
+        height: 24px;
+        line-height: 22px;
+        margin-right: 5px;
       }
     }
   }

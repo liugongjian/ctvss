@@ -21,4 +21,5 @@ export interface Device {
   createdTime?: string;
   recordStatus?: number;
   recordTaskId?: string;
+  tags?: string;
 }
