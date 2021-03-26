@@ -176,10 +176,12 @@ export default class extends Vue {
             params.parentGroupId = this.dialogData.data.groupId
             await createGroup(params)
             this.$message.success('创建子部门成功')
+            this.$emit('on-close', { type: 'add' })
           } else if (type === 'edit') {
             params.groupId = this.form.groupId
             await modifyGroup(params)
             this.$message.success('修改子部门成功')
+            this.$emit('on-close', { type: 'edit', nodeKey: params.groupId })
           } else if (type === 'merge') {
             params = {
               sourceGroupId: this.dialogData.data.groupId,
@@ -187,8 +189,8 @@ export default class extends Vue {
             }
             await combineGroup(params)
             this.$message.success('合并子部门成功')
+            this.$emit('on-close', { type: 'merge' })
           }
-          this.$emit('on-close', 'merge')
         } else {
           return false
         }

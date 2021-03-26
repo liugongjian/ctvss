@@ -207,6 +207,11 @@ export default class extends Vue {
           groupId: group.groupId
         }
       }))
+      groupTree.setCurrentKey('-1')
+      // groupTree.getNode('-1').expanded = true
+      this.setCurrentNode(groupTree.getNode('-1').data, groupTree.getNode('-1'))
+      
+      // this.nodePath = '通讯录'
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
@@ -281,15 +286,8 @@ export default class extends Vue {
       data: node && node.data
     }
   }
+
   private closeAddDialog(data: any) {
-    if (data === 'merge') {
-      this.currentNode = {
-        data: {
-          groupName: '通讯录',
-          groupId: '-1'
-        }
-      }
-    }
     this.isShowDialog = false
     this.showDailogSign = false
     if (data) {
