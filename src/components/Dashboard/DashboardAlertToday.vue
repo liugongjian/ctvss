@@ -56,6 +56,8 @@ export default class extends Mixins(DashboardMixin) {
       tickLine: null,
       line: null,
       label: {
+        autoHide: false,
+        autoEllipsis: false,
         offset: 25,
         style: {
           fill: '#D8D8D8',

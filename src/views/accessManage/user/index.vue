@@ -1,8 +1,13 @@
 <template>
   <div class="app-container">
-    <el-card :class="{'collapsed': isCollapsed}">
+    <el-card :class="{'collapsed': isCollapsed, 'dragging': handleDrag.isDragging}">
+      <div
+        class="handle"
+        :style="`left: ${handleDrag.width}px`"
+        @mousedown="changeHandle($event)"
+      />
       <div class="titleBar">
-        <div class="titleBar__menu">
+        <div ref="menu" class="titleBar__menu" :style="`width: ${handleDrag.width}px`">
           <el-button @click="isCollapsed = !isCollapsed">
             <svg-icon name="hamburger" />
           </el-button>
@@ -18,7 +23,7 @@
         </div>
       </div>
       <div class="content">
-        <el-main v-loading="loading.menu" class="content__menu">
+        <el-main v-loading="loading.menu" class="content__menu" :style="`width: ${handleDrag.width}px`">
           <el-tree
             ref="groupTree"
             :data="groupList"
@@ -34,17 +39,15 @@
               slot-scope="{node}"
               class="content__menu__item"
             >
-              <span>
-                <span>{{ node.label }}</span>
-              </span>
+              <span>{{ node.label }}</span>
               <span v-if="node.label !== '通讯录'" class="content__menu__item__btns">
                 <el-tooltip effect="dark" content="修改子部门" placement="top" :open-delay="300">
-                  <el-button type="text" @click="showDialog('edit', node)">
+                  <el-button type="text" @click.stop="showDialog('edit', node)">
                     <svg-icon name="edit" class="content__menu__item__btns__icon" />
                   </el-button>
                 </el-tooltip>
                 <el-tooltip effect="dark" content="合并子部门" placement="top" :open-delay="300">
-                  <el-button type="text" @click="showDialog('merge', node)">
+                  <el-button type="text" @click.stop="showDialog('merge', node)">
                     <svg-icon name="combine" class="content__menu__item__btns__icon" />
                   </el-button>
                 </el-tooltip>
@@ -103,6 +106,13 @@ import { getGroupList, getUserList, deleteUser } from '@/api/accessManage'
   }
 })
 export default class extends Vue {
+  private handleDrag = {
+    isDragging: false,
+    start: 0,
+    offset: 0,
+    orginWidth: 200,
+    width: 250
+  }
   private loading: any = {
     menu: false,
     body: false
@@ -137,15 +147,31 @@ export default class extends Vue {
     this.getUserList()
   }
 
+  private changeHandle(e: any) {
+    const $menu: any = this.$refs.menu
+    this.handleDrag.isDragging = true
+    this.handleDrag.start = e.x
+    this.handleDrag.orginWidth = $menu.clientWidth
+
+    window.addEventListener('mousemove', (e) => {
+      if (!this.handleDrag.isDragging) return
+      this.handleDrag.offset = this.handleDrag.start - e.x
+      const width = this.handleDrag.orginWidth - this.handleDrag.offset
+      if (width < 50) return
+      this.handleDrag.width = width
+    })
+    window.addEventListener('mouseup', () => {
+      this.handleDrag.isDragging = false
+    })
+  }
+
   private setCurrentNode(data: any, node: any) {
     this.currentNode = node
     this.getUserList()
   }
 
   private async getGroups() {
-    let params = {
-      // parentGroupId: -1
-    }
+    let params = {}
     try {
       this.loading.menu = true
       let res = await getGroupList(params)
@@ -199,13 +225,6 @@ export default class extends Vue {
         this.getUserList()
       }
     })
-    // try {
-    //   await deleteUser({ iamUserId: id })
-    //   this.$message.success('删除用户成功')
-    //   this.getUserList()
-    // } catch (e) {
-    //   this.$message.error(e && e.message)
-    // }
   }
 
   private showDialog(type: any, node: any) {
@@ -229,8 +248,10 @@ export default class extends Vue {
     }
     this.isShowDialog = false
     this.showDailogSign = false
-    this.getGroups()
-    this.getUserList()
+    if (data) {
+      this.getGroups()
+      this.getUserList()
+    }
   }
   private createUser() {
     this.$router.push({
@@ -271,18 +292,28 @@ export default class extends Vue {
     .el-card {
       &__body {
         padding: 0;
+        position: relative;
       }
     }
     .titleBar .el-button {
       &--medium {
         border-radius: 0;
         border: none;
-        border-right: 1px solid $borderGrey;
         height: 100%;
       }
       &--default {
         background: $titleBackground;
       }
+    }
+  }
+  .handle {
+    height: 100%;
+    position: absolute;
+    width: 8px;
+    border-right: 1px solid $borderGrey;
+    cursor: ew-resize;
+    &:hover {
+      border-right-color: #ccc;
     }
   }
   .titleBar {
@@ -292,7 +323,6 @@ export default class extends Vue {
     background: $titleBackground;
     &__menu {
       width: 250px;
-      border-right: 1px solid $borderGrey;
       overflow: hidden;
       transition: .2s;
       display: flex;
@@ -317,21 +347,23 @@ export default class extends Vue {
     min-height: 0;
     display: flex;
     &__menu {
+      overflow-x: auto;
       width: 250px;
-      border-right: 1px solid $borderGrey;
       height: 100%;
       flex-shrink: 0;
-      overflow: hidden;
       transition: .2s;
       padding: 10px;
       &__item {
         flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
         font-size: 14px;
         padding-right: 8px;
         &__btns {
+          background: #F5F7FA;
+          position: absolute;
+          right: 5px;
+          top: -10px;
           display: none;
           &__icon {
             color: #6E7C89;
@@ -350,14 +382,27 @@ export default class extends Vue {
     }
   }
   .collapsed {
+    .handle {
+      display: none;
+    }
     .titleBar__menu {
-      width: 50px;
+      width: 50px !important;
     }
     .content__menu {
-      width: 0px;
+      width: 0px !important;
       padding-left: 0;
       padding-right: 0;
       border-right: 0px
+    }
+  }
+  .dragging {
+    cursor: ew-resize;
+
+    .titleBar__menu, .content__menu {
+      transition: none;
+    }
+    * {
+      user-select:none;
     }
   }
   .head {
