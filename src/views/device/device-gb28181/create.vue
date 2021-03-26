@@ -11,7 +11,7 @@
       <template v-if="!isChannel">
         <el-form-item v-if="currentGroup" label="业务组:">
           {{ currentGroup.groupName }}
-          <span class="in-protocol">({{ inProtocol }})</span>
+          <span class="in-protocol">({{ inProtocolUpper }})</span>
         </el-form-item>
         <el-form-item v-if="breadcrumb && !isUpdate" label="当前目录:">
           <div class="breadcrumb">

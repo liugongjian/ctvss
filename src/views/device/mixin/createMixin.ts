@@ -29,6 +29,10 @@ export default class CreateMixin extends Vue {
   }
 
   public get inProtocol() {
+    return this.$route.query.inProtocol
+  }
+
+  public get inProtocolUpper() {
     return this.$route.query.inProtocol ? this.$route.query.inProtocol.toString().toLocaleUpperCase() : ''
   }
 
