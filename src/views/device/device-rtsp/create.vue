@@ -184,7 +184,7 @@ export default class extends Mixins(createMixin) {
       if (valid) {
         try {
           this.submitting = true
-          let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor', 'deviceIp', 'devicePort', 'description', 'inType', 'transPriority'])
+          let params: any = pick(this.form, ['groupId', 'dirId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor', 'deviceIp', 'devicePort', 'description', 'inType', 'transPriority'])
           if (this.isUpdate) {
             params = Object.assign(params, pick(this.form, ['deviceId']))
           }
