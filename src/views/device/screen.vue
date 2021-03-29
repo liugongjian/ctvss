@@ -316,16 +316,11 @@ export default class extends Mixins(ScreenMixin) {
     }
   ]
 
-  private get screenCache() {
-    return DeviceModule.screenCache
-  }
-
   @Watch('currentGroupId', { immediate: true })
   private onCurrentGroupChange(groupId: String) {
     if (!groupId) return
     this.$nextTick(() => {
-      // 如果groupId与之前vuex中所存的不同，则将分屏重置
-      groupId !== this.screenCache.groupId && this.screenList.forEach(screen => {
+      this.screenList.forEach(screen => {
         screen.reset()
         this.currentIndex = 0
       })
@@ -342,18 +337,11 @@ export default class extends Mixins(ScreenMixin) {
   private onCurrentIndexChange(newValue: number) {
     if (this.screenList.length) {
       this.selectedDeviceId = this.screenList[newValue]!.deviceId
-      this.setScreenCache()
     }
   }
 
   private mounted() {
-    if (this.screenCache.groupId) {
-      this.currentIndex = this.screenCache.currentIndex
-      this.maxSize = this.screenCache.maxSize
-      this.screenList = this.screenCache.list
-    } else {
-      this.initScreen()
-    }
+    this.initScreen()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
     window.addEventListener('resize', this.checkFullscreen)
@@ -374,7 +362,6 @@ export default class extends Mixins(ScreenMixin) {
   private closeScreen(screen: Screen) {
     this.selectedDeviceId = ''
     screen.reset()
-    this.setScreenCache()
   }
 
   /**
@@ -412,7 +399,6 @@ export default class extends Mixins(ScreenMixin) {
         }
       }
       await screen.getUrl()
-      this.setScreenCache()
     }
   }
 
@@ -428,7 +414,6 @@ export default class extends Mixins(ScreenMixin) {
     if (this.polling.isStart) {
       this.doPolling()
     }
-    this.setScreenCache()
   }
 
   /**
@@ -586,15 +571,6 @@ export default class extends Mixins(ScreenMixin) {
   private onDeviceDirClose(device: Device) {
     this.dialogs.deviceDir = false
     if (device) this.openScreen(device)
-  }
-
-  private setScreenCache() {
-    DeviceModule.SetScreenCache({
-      maxSize: this.maxSize,
-      currentIndex: this.currentIndex,
-      groupId: this.currentGroupId,
-      list: cloneDeep(this.screenList)
-    })
   }
 }
 </script>
