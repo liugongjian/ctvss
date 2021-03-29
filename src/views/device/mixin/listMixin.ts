@@ -5,6 +5,7 @@ import { GroupModule } from '@/store/modules/group'
 import { deleteDevice, startDevice, stopDevice, getDevice, getDevices, startRecord, stopRecord, syncDevice } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MoveDir from '../components/dialogs/MoveDir.vue'
+import { checkPermission } from '@/utils/permission'
 
 @Component({
   components: {
@@ -17,7 +18,7 @@ export default class CreateMixin extends Vue {
   public deviceRouter!: Function
   @Inject('initDirs')
   public initDirs!: Function
-
+  public checkPermission = checkPermission
   public deviceInfo: any = null
   public deviceList: Array<Device> = []
   public dirStats: any = null
