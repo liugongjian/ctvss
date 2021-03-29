@@ -20,6 +20,7 @@
             v-if="activeName === 'replay'" ref="replayView"
             :class="{'fullscreen': previewFullscreen.replay}"
             :device-id="deviceId"
+            :in-protocol="inProtocol"
             :is-fullscreen="previewFullscreen.replay"
             @onFullscreen="previewFullscreen.replay = true; fullscreen()"
             @onExitFullscreen="exitFullscreen()"
