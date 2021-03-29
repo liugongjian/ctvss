@@ -57,23 +57,6 @@
           </template>
         </el-table-column>
         <el-table-column
-          v-if="!isNVR"
-          key="deviceType"
-          column-key="deviceType"
-          prop="deviceType"
-          label="类型"
-          :filters="filtersArray.deviceType"
-          :filter-multiple="false"
-        >
-          <template slot="header">
-            <span class="filter">类型</span>
-            <svg-icon class="filter" name="filter" width="15" height="15" />
-          </template>
-          <template slot-scope="{row}">
-            {{ deviceType[row.deviceType] }}
-          </template>
-        </el-table-column>
-        <el-table-column
           key="deviceStatus"
           column-key="deviceStatus"
           label="设备状态"
@@ -147,6 +130,8 @@
                 <el-dropdown-item :command="{type: 'detail', device: scope.row}">设备详情</el-dropdown-item>
                 <el-dropdown-item v-if="scope.row.streamStatus === 'on'" :command="{type: 'stopDevice', device: scope.row}">停用流</el-dropdown-item>
                 <el-dropdown-item v-else :command="{type: 'startDevice', device: scope.row}">启用流</el-dropdown-item>
+                  <el-dropdown-item v-if="scope.row.recordStatus === 1 && checkPermission(['*'])" :command="{type: 'stopRecord', device: scope.row}">停止录像</el-dropdown-item>
+                  <el-dropdown-item v-else-if="checkPermission(['*'])" :command="{type: 'startRecord', device: scope.row}">开始录像</el-dropdown-item>
                 <el-dropdown-item v-if="!isNVR && scope.row.parentDeviceId === '-1'" :command="{type: 'move', device: scope.row}">移动至</el-dropdown-item>
                 <el-dropdown-item v-if="(isNVR && !isCreateSubDevice) || (!isNVR && scope.row.createSubDevice !== 1)" :command="{type: 'update', device: scope.row}">编辑</el-dropdown-item>
                 <el-dropdown-item :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>

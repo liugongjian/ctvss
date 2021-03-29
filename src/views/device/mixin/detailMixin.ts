@@ -8,6 +8,7 @@ import SetAuthConfig from '../components/dialogs/SetAuthConfig.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AntiTheftChain from '../components/AntiTheftChain.vue'
 import { checkPermission } from '@/utils/permission'
+import copy from 'copy-to-clipboard'
 
 @Component({
   components: {
@@ -162,5 +163,13 @@ export default class DetailMixin extends Vue {
   public async closeDialog(type: string) {
     // @ts-ignore
     this.dialog[type] = false
+  }
+
+  /**
+   * 一键复制
+   */
+  public copyUrl(text: string) {
+    copy(text)
+    this.$message.success('复制成功')
   }
 }
