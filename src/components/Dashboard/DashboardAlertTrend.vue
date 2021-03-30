@@ -36,7 +36,7 @@ export default class extends Mixins(DashboardMixin) {
     this.setInterval(this.getData.bind(this))
   }
   private alertType = AlertType
-  private alertTypeMapping = [6, 8, 4, 5, 7]
+  private alertTypeMapping = [6, 8, 4, 5, 7, 9]
 
   /**
    * 获取数据
@@ -64,7 +64,11 @@ export default class extends Mixins(DashboardMixin) {
         form: 'week',
         event: 7
       })
-      var data = await Promise.all([event6, event8, event4, event5, event7])
+      const event9 = getAuditTrend({
+        form: 'week',
+        event: 9
+      })
+      var data = await Promise.all([event6, event8, event4, event5, event7, event9])
       this.loading = false
       var nowTime = new Date().getTime()
       this.weeklyTrendData = []
@@ -178,6 +182,17 @@ export default class extends Mixins(DashboardMixin) {
             },
             spacing: 5
           }
+        },
+        {
+          name: '危险区域检测',
+          value: '危险区域检测',
+          marker: {
+            symbol: 'square',
+            style: {
+              fill: '#d21414'
+            },
+            spacing: 5
+          }
         }
       ],
       itemName: {
@@ -203,8 +218,8 @@ export default class extends Mixins(DashboardMixin) {
       }
     })
 
-    this.chart.line().position('time*value').color('type', ['l(0) 0:#ffe21c 1:#bba300', 'l(0) 0:#B0FF1C 1:#1CB500', 'l(0) 0:#9E10D7 1:#EB155B', 'l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#EDDE12 1:#FF810C']).shape('smooth').style({ lineWidth: 3 })
-    this.chart.point().position('time*value').color('type', ['l(0) 0:#ffe21c 1:#bba300', 'l(0) 0:#B0FF1C 1:#1CB500', 'l(0) 0:#9E10D7 1:#EB155B', 'l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#EDDE12 1:#FF810C']).shape('circle').style({
+    this.chart.line().position('time*value').color('type', ['l(0) 0:#d21414 1:#880000', 'l(0) 0:#ffe21c 1:#bba300', 'l(0) 0:#B0FF1C 1:#1CB500', 'l(0) 0:#9E10D7 1:#EB155B', 'l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#EDDE12 1:#FF810C']).shape('smooth').style({ lineWidth: 3 })
+    this.chart.point().position('time*value').color('type', ['l(0) 0:#d21414 1:#880000', 'l(0) 0:#ffe21c 1:#bba300', 'l(0) 0:#B0FF1C 1:#1CB500', 'l(0) 0:#9E10D7 1:#EB155B', 'l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#EDDE12 1:#FF810C']).shape('circle').style({
       stroke: '#08233F',
       lineWidth: 1
     })
