@@ -493,7 +493,8 @@ export default class CreateMixin extends Vue {
     try {
       const params: any = {
         deviceId: device.deviceId,
-        inProtocol: this.inProtocol
+        inProtocol: this.inProtocol,
+        inType: device.inType
       }
       await startDevice(params)
       this.$message.success('已通知启用设备')
@@ -509,7 +510,8 @@ export default class CreateMixin extends Vue {
     try {
       const params: any = {
         deviceId: device.deviceId,
-        inProtocol: this.inProtocol
+        inProtocol: this.inProtocol,
+        inType: device.inType
       }
       await stopDevice(params)
       this.$message.success('已通知停用设备')
