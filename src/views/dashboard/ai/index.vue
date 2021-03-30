@@ -166,7 +166,7 @@ export default class extends Vue {
 
   private get type() {
     let params: any = this.$route.query
-    return params.type
+    return params.type.toString()
   }
 
   private mounted() {
@@ -354,7 +354,7 @@ export default class extends Vue {
         top: 0;
         right: 1vw;
         font-size: 1.5vw;
-        letter-spacing: 0.5em;
+        letter-spacing: 0.1em;
         display: flex;
         align-items: center;
         height: 100%;

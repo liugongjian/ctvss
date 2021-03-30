@@ -192,7 +192,7 @@ export default class extends Vue {
     })
     list.push({
       name: '安全生产',
-      list: [5, 7].map((id: number) => {
+      list: [5, 7, 9].map((id: number) => {
         return {
           key: id,
           value: this.alertType[id]
