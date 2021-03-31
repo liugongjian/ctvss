@@ -1,5 +1,5 @@
 <template>
-  <div ref="videoWrap" v-loading="waiting" class="video-wrap">
+  <div ref="videoWrap" v-loading="waiting" class="video-wrap" :class="{'dragging': isDragging}">
     <div class="error">{{ error }}</div>
     <div ref="video" @wheel="zoom" @mousedown="mouseDownHandle($event)" @mouseup="mouseUpHandle($event)" />
     <div class="controls" :class="{'controls--large': hasProgress}">
@@ -167,6 +167,7 @@ export default class extends Vue {
   @Prop()
   private deviceName?: string
 
+  private isDragging: boolean = false
   public player?: any
   public paused?: boolean = true
   public waiting = false
@@ -225,11 +226,16 @@ export default class extends Vue {
   @Watch('isZoom')
   getIsZoom(val: boolean) {
     if (!val) {
-      const $video: any = this.$refs.video
-      var player = $video.querySelector('video')
-      if (this.type === 'h265-flv') {
-        player = $video.querySelector('canvas')
-        const mainBox: any = this.$refs.videoWrap
+      // const $video: any = this.$refs.video
+      // var player = $video.querySelector('video')
+      const player = this.videoMoveData.player
+      const mainBox = this.videoMoveData.mainBox
+      if (this.type === 'h265-flv' || this.codec === 'h265') {
+        // player = $video.querySelector('canvas')
+        // if (this.codec === 'h265') {
+        //   player = $video.querySelector('.player-box')
+        // }
+        // const mainBox: any = this.$refs.videoWrap
         this.playerFitSize(mainBox.clientWidth, mainBox.clientHeight, player)
       } else {
         player.style.width = ''
@@ -292,8 +298,11 @@ export default class extends Vue {
         const $video: any = this.$refs.video
         const mainBox: any = this.$refs.videoWrap
         var player = $video.querySelector('video')
-        if (this.type === 'h265-flv') {
+        if (this.type === 'h265-flv' || this.codec === 'h265') {
           player = $video.querySelector('canvas')
+          if (this.codec === 'h265') {
+            player = $video.querySelector('.player-box')
+          }
           this.playerFS()
           window.addEventListener('resize', this.playerFS, false)
           var targetNode = mainBox
@@ -315,6 +324,9 @@ export default class extends Vue {
     const $video: any = this.$refs.video
     const mainBox: any = this.$refs.videoWrap
     var player = $video.querySelector('canvas')
+    if (this.codec === 'h265') {
+      player = $video.querySelector('.player-box')
+    }
     this.playerFitSize(mainBox.clientWidth, mainBox.clientHeight, player)
   }
 
@@ -358,6 +370,7 @@ export default class extends Vue {
     this.videoMoveData.x = event.pageX - player.offsetLeft
     this.videoMoveData.y = event.pageY - player.offsetTop
     event.currentTarget.style.cursor = 'move'
+    this.isDragging = true
     window.onmousemove = this.mouseMoveHandle
   }
 
@@ -369,36 +382,40 @@ export default class extends Vue {
     const mainBoxSize = mainBox.getBoundingClientRect()
     const playerSize = player.getBoundingClientRect()
     // 左右拖拽判断
-    if (moveLeft > 0) {
-      if (mainBoxSize.x - playerSize.x + moveLeft <= 0) {
-        player.style.left = moveLeft + 'px'
+    if (mainBox.clientWidth < player.clientWidth) {
+      if (moveLeft > 0) {
+        if (mainBoxSize.x - playerSize.x + moveLeft <= 0) {
+          player.style.left = moveLeft + 'px'
+        } else {
+          player.style.left = '0px'
+        }
       } else {
-        player.style.left = '0px'
-      }
-    } else {
-      if (playerSize.width + moveLeft >= mainBoxSize.width) {
-        player.style.left = moveLeft + 'px'
-      } else {
-        player.style.left = mainBox.offsetWidth - player.offsetWidth + 'px'
+        if (playerSize.width + moveLeft >= mainBoxSize.width) {
+          player.style.left = moveLeft + 'px'
+        } else {
+          player.style.left = mainBox.offsetWidth - player.offsetWidth + 'px'
+        }
       }
     }
     // 上下拖拽判断
-    if (moveTop > 0) {
-      if (mainBoxSize.y - playerSize.y + moveTop <= 0) {
-        player.style.top = moveTop + 'px'
+    if (mainBox.clientHeight < player.clientHeight) {
+      if (moveTop > 0) {
+        if (mainBoxSize.y - playerSize.y + moveTop <= 0) {
+          player.style.top = moveTop + 'px'
+        } else {
+          player.style.top = '0px'
+        }
       } else {
-        player.style.top = '0px'
+        if (playerSize.height + moveTop >= mainBoxSize.height) {
+          player.style.top = moveTop + 'px'
+        } else {
+          player.style.top = mainBox.offsetHeight - player.offsetHeight + 'px'
+        }
       }
-    } else {
-      if (playerSize.height + moveTop >= mainBoxSize.height) {
-        player.style.top = moveTop + 'px'
-      } else {
-        player.style.top = mainBox.offsetHeight - player.offsetHeight + 'px'
+      // 判断鼠标是否出框
+      if (event.target.nodeName !== 'VIDEO' && event.target.nodeName !== 'CANVAS') {
+        window.onmousemove = null
       }
-    }
-    // 判断鼠标是否出框
-    if (event.target.nodeName !== 'VIDEO' && event.target.nodeName !== 'CANVAS') {
-      window.onmousemove = null
     }
   }
 
@@ -408,6 +425,7 @@ export default class extends Vue {
     }
     window.onmousemove = null
     event.currentTarget.style.cursor = 'move'
+    this.isDragging = false
   }
 
   /**
@@ -461,11 +479,15 @@ export default class extends Vue {
       return
     }
     const $videoWrap: any = this.$refs.videoWrap
-    var player = $videoWrap.querySelector('video')
-    if (this.type === 'h265-flv') {
-      player = $videoWrap.querySelector('canvas')
-      player.type = 'canvas'
-    }
+    // var player = $videoWrap.querySelector('video')
+    // if (this.type === 'h265-flv' || this.codec === 'h265') {
+    //   player = $videoWrap.querySelector('canvas')
+    //   if (this.codec === 'h265') {
+    //     player = $videoWrap.querySelector('.player-box')
+    //   }
+    //   player.type = 'canvas'
+    // }
+    const player = this.videoMoveData.player
     const videoWrapSize = $videoWrap.getBoundingClientRect()
     let width
     let height
@@ -481,7 +503,7 @@ export default class extends Vue {
       height = 0.9 * player.offsetHeight
       left = player.offsetLeft + 0.1 * event.offsetX
       top = player.offsetTop + 0.1 * event.offsetY
-      if (width <= videoWrapSize.width && player.type !== 'canvas') {
+      if (width <= videoWrapSize.width && player.type !== 'canvas' && player.className !== 'player-box') {
         width = videoWrapSize.width
         height = videoWrapSize.height
         left = 0
@@ -493,7 +515,7 @@ export default class extends Vue {
     player.style.height = height + 'px'
     player.style.left = left + 'px'
     player.style.top = top + 'px'
-    if (player.type === 'canvas' && width < videoWrapSize.width && height < videoWrapSize.height) {
+    if ((player.type === 'canvas' || player.className === 'player-box') && width < videoWrapSize.width && height < videoWrapSize.height) {
       this.playerFitSize(videoWrapSize.width, videoWrapSize.height, player)
     }
   }
@@ -617,6 +639,11 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
+  .dragging {
+    * {
+      user-select:none;
+    }
+  }
   .video-wrap {
     position: relative;
     background: #000;
@@ -643,6 +670,11 @@ export default class extends Vue {
       top: 50%;
       width: 100%;
       text-align: center;
+    }
+    ::v-deep .player-box {
+      div{
+        display: none !important;
+      }
     }
     video, canvas {
       margin: auto;

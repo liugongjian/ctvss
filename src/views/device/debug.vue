@@ -4,10 +4,16 @@
     <div class="player__controls">
       <el-form label-position="top">
         <el-form-item label="视频格式">
-          <el-select v-model="form.codec">
+          <el-select v-model="form.type">
             <el-option value="flv" label="FLV" />
             <el-option value="hls" label="HLS" />
             <el-option value="rtc" label="Webrtc" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="编码格式">
+          <el-select v-model="form.codec">
+            <el-option value="h264" label="H264" />
+            <el-option value="h265" label="H265" />
           </el-select>
         </el-form-item>
         <el-form-item label="流类型">
@@ -23,7 +29,7 @@
       </el-form>
     </div>
     <div class="player__body">
-      <player v-if="url" ref="player" :type="codec" :url="url" :auto-play="true" :has-control="false" :is-live="isLive" @onRetry="onRetry" />
+      <player v-if="url" ref="player" :type="type" :codec="codec" :url="url" :auto-play="true" :has-control="false" :is-live="isLive" @onRetry="onRetry" />
     </div>
   </div>
 </template>
@@ -64,6 +70,7 @@ export default class extends Vue {
     this.url = ''
     this.$nextTick(() => {
       this.codec = this.form.codec
+      this.type = this.form.codec
       this.url = this.form.url
       this.isLive = this.form.isLive
     })
@@ -92,6 +99,13 @@ export default class extends Vue {
 
     ::v-deep video {
       width: 100%;
+    }
+
+    ::v-deep .player-box {
+      height: 300px !important;
+      div{
+        display: none !important;
+      }
     }
   }
 }
