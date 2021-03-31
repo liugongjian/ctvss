@@ -9,6 +9,7 @@
             v-if="activeName === 'preview'"
             :class="{'fullscreen': previewFullscreen.live}"
             :device-id="deviceId"
+            :in-protocol="inProtocol"
             :is-fullscreen="previewFullscreen.live"
             @onFullscreen="previewFullscreen.live = true; fullscreen()"
             @onExitFullscreen="exitFullscreen()"
@@ -19,6 +20,7 @@
             v-if="activeName === 'replay'" ref="replayView"
             :class="{'fullscreen': previewFullscreen.replay}"
             :device-id="deviceId"
+            :in-protocol="inProtocol"
             :is-fullscreen="previewFullscreen.replay"
             @onFullscreen="previewFullscreen.replay = true; fullscreen()"
             @onExitFullscreen="exitFullscreen()"
@@ -132,6 +134,10 @@ export default class extends Mixins(FullscreenMixin) {
 
   private get deviceId() {
     return this.$route.query.deviceId
+  }
+
+  private get inProtocol() {
+    return this.$route.query.inProtocol
   }
 
   @Watch('$route.query')

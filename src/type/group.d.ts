@@ -15,4 +15,5 @@ export interface Group {
   sipTcpPort?: number;
   sipUdpPort?: number;
   pullType?: number;
+  pushType?: number;
 }

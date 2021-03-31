@@ -3,12 +3,12 @@
     <el-page-header content="业务组管理" @back="back" />
     <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
       <el-tab-pane label="基本信息" name="info">
-        <el-button type="text" class="info-edit" @click="editForm">编辑</el-button>
+        <el-button v-permission="['*']" type="text" class="info-edit" @click="editForm">编辑</el-button>
         <info-list label-width="150">
           <info-list-item label="业务组ID:">{{ form.groupId }}</info-list-item>
           <info-list-item label="业务组名称:">{{ form.groupName }}</info-list-item>
           <info-list-item label="业务组描述:">{{ form.description }}</info-list-item>
-          <info-list-item label="服务区域:">{{ form.regionName }}</info-list-item>
+          <info-list-item label="接入区域:">{{ form.regionName }}</info-list-item>
           <info-list-item label="接入类型:">{{ InProtocolType[form.inProtocol] }}</info-list-item>
           <info-list-item label="播放类型:">
             {{ form.outProtocol.map(item => OutProtocolType[item]).join(',') }}
@@ -20,6 +20,11 @@
             <info-list-item label="SIP服务器地址:">{{ form.sipIp }}</info-list-item>
             <info-list-item label="SIP服务器TCP端口:">{{ form.sipTcpPort }}</info-list-item>
             <info-list-item label="SIP服务器UDP端口:">{{ form.sipUdpPort }}</info-list-item>
+          </template>
+          <!-- 以下字段仅在RTMP/RTSP业务组中显示 -->
+          <template v-if="form.inProtocol !== 'gb28181'">
+            <info-list-item label="自动拉流:">{{ PullType[form.pullType] }}</info-list-item>
+            <info-list-item label="自动激活推流地址:">{{ PushType[form.pushType] }}</info-list-item>
           </template>
         </info-list>
       </el-tab-pane>
@@ -33,7 +38,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Group } from '@/type/group'
-import { OutProtocolType, InProtocolType, PullType } from '@/dics'
+import { OutProtocolType, InProtocolType, PullType, PushType } from '@/dics'
 import { queryGroup } from '@/api/group'
 import { formatSeconds } from '@/utils/interval'
 import TemplateBind from '../components/templateBind.vue'
@@ -49,6 +54,7 @@ export default class extends Vue {
   private InProtocolType = InProtocolType
   private OutProtocolType = OutProtocolType
   private PullType = PullType
+  private PushType = PushType
   private form: Group = {
     groupId: '',
     groupName: '',

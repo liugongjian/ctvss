@@ -64,13 +64,20 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Watch, Mixins } from 'vue-property-decorator'
+import { Component, Watch, Prop, Mixins } from 'vue-property-decorator'
 import ReplayPlayerMixin from '@/views/device/mixin/replayPlayerMixin'
 
 @Component({
   name: 'ReplayPlayer'
 })
 export default class extends Mixins(ReplayPlayerMixin) {
+  @Prop({
+    default: () => {
+      return []
+    }
+  })
+  public recordList!: Array<any>
+
   public async mounted() {
     await this.init()
   }
@@ -107,6 +114,33 @@ export default class extends Mixins(ReplayPlayerMixin) {
   }
 
   /**
+   * 根据当前时间选择录像切片
+   */
+  public setRecordByCurrentTime() {
+    const currentTime = this.currentTime!
+    let record = this.recordList.find(record => {
+      return (currentTime! >= record.startAt) && (currentTime! <= (record.startAt + record.duration * 1000))
+    })
+    if (record) {
+      let offsetTime = 0
+      let isCurrent = true
+      if (!this.currentRecord || this.currentRecord.index !== record.index) {
+        this.currentRecord = record
+        isCurrent = false
+      }
+      this.$nextTick(() => {
+        offsetTime = (currentTime - this.currentRecord.startAt) / 1000
+        !isCurrent && this.player.reset()
+        this.player.seek(offsetTime)
+        this.setHandlePosition()
+      })
+    } else {
+      console.log('destory')
+      this.player && this.player.stop()
+    }
+  }
+
+  /**
    * 点击时间轴位置
    */
   public handleTimeline(e: any, record: any) {
@@ -135,7 +169,6 @@ export default class extends Mixins(ReplayPlayerMixin) {
     index++
     if (index < this.recordList.length) {
       this.currentRecord = this.recordList[index]
-      console.log(this.currentRecord)
       this.$nextTick(() => {
         this.setCurrentTime(0)
         this.player && this.player.reset()

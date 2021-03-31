@@ -81,6 +81,7 @@
               <template v-if="screen.loaded">
                 <replay-view
                   :device-id="screen.deviceId"
+                  :in-protocol="currentGroupInProtocol"
                   :is-fullscreen="screen.isFullscreen"
                   @onFullscreen="screen.fullscreen();fullscreen()"
                   @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"

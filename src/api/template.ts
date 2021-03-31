@@ -121,3 +121,82 @@ export const deleteSnapshotTemplate = (params: any): Promise<any> =>
     method: 'post',
     data: params
   })
+
+// AI模板相关接口
+export const getAIBind = (params: any): Promise<any> =>
+  request({
+    url: '/aimanage/airule',
+    method: 'get',
+    params
+  })
+
+export const getAIBindList = (params: any): Promise<any> =>
+  request({
+    url: '/aimanage/airule/list',
+    method: 'get',
+    params
+  })
+
+export const bindAITemplates = (params: any): Promise<any> =>
+  request({
+    url: '/aimanage/airule/create',
+    method: 'post',
+    data: params
+  })
+
+export const unbindAITemplates = (params: any): Promise<any> =>
+  request({
+    url: '/aimanage/airule/delete',
+    method: 'post',
+    data: params
+  })
+
+export const getAITemplates = (params: any): Promise<any> =>
+  request({
+    url: '/aitemplate/list',
+    method: 'get',
+    params
+  })
+
+export const queryAITemplate = (params: any): Promise<any> =>
+  request({
+    url: '/aitemplate',
+    method: 'get',
+    params
+  })
+
+export const createAITemplate = (params: any): Promise<any> =>
+  request({
+    url: '/aitemplate/create',
+    method: 'post',
+    data: params
+  })
+
+export const updateAITemplate = (params: any): Promise<any> =>
+  request({
+    url: '/aitemplate/modify',
+    method: 'post',
+    data: params
+  })
+
+export const deleteAITemplate = (params: any): Promise<any> =>
+  request({
+    url: '/aitemplate/delete',
+    method: 'post',
+    data: params
+  })
+
+// AI能力相关接口
+export const getAIAbilityList = (params: any): Promise<any> =>
+  request({
+    url: '/aimanage/aiabilitys/list',
+    method: 'get',
+    params
+  })
+
+export const getAbilityAlgorithmList = (params: any): Promise<any> =>
+  request({
+    url: '/aimanage/aiability',
+    method: 'get',
+    params
+  })

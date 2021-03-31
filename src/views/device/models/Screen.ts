@@ -1,8 +1,8 @@
 import { getDevicePreview } from '@/api/device'
-import { getStream } from '@/api/stream'
 
 export default class Screen {
   public deviceId: string
+  public inProtocol: string
   public deviceName?: string
   public url?: string
   public type?: string
@@ -15,6 +15,7 @@ export default class Screen {
 
   constructor() {
     this.deviceId = ''
+    this.inProtocol = ''
     this.url = ''
     this.type = ''
     this.codec = ''
@@ -26,23 +27,25 @@ export default class Screen {
   }
 
   public async getUrl() {
+    if (!this.inProtocol) {
+      throw new Error('未设置InProtocol')
+    }
     if (!this.deviceId) {
       throw new Error('未设置DeviceId')
     }
     try {
       this.loading = true
       this.loaded = true
-      const getPreview = this.type === 'stream' ? getStream : getDevicePreview
-      const res: any = await getPreview({
-        deviceId: this.deviceId
+      const res: any = await getDevicePreview({
+        deviceId: this.deviceId,
+        inProtocol: this.inProtocol
       })
       if (res.playUrl) {
         this.url = res.playUrl.flvUrl
-        this.codec = res.video.codec === 'h264' ? 'flv' : 'h265-flv'
+        this.codec = res.video.codec
       }
       this.retry = false
     } catch (e) {
-      console.error(e.code)
       if (e.code === 5) {
         this.retry = true
       }

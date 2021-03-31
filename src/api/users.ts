@@ -13,6 +13,13 @@ export const getUserInfo = () =>
     method: 'get'
   })
 
+export const getIAMUserInfo = (params: any) =>
+  request({
+    url: '/iam/user',
+    method: 'get',
+    params
+  })
+
 export const getUserByName = (username: string) =>
   request({
     url: `/users/${username}`,

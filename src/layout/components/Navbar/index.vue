@@ -83,8 +83,10 @@
           <svg-icon class="user-container__arrow" name="arrow-down" width="9" height="9" />
         </div>
         <div class="header-dropdown">
-          <router-link to="/secretManage"><i><svg-icon name="key" /></i> API密钥管理</router-link>
-          <div class="header-dropdown__divided" />
+          <div v-if="checkPermission(['*'])">
+            <router-link to="/secretManage"><i><svg-icon name="key" /></i> API密钥管理</router-link>
+            <div class="header-dropdown__divided" />
+          </div>
           <el-button type="text" @click="logout"><i><svg-icon name="logout" /></i> 退出登录</el-button>
         </div>
       </div>
@@ -107,6 +109,8 @@ import Hamburger from '@/components/Hamburger/index.vue'
 import HeaderSearch from '@/components/HeaderSearch/index.vue'
 import Screenfull from '@/components/Screenfull/index.vue'
 import SizeSelect from '@/components/SizeSelect/index.vue'
+import TemplateBind from '@/views/components/templateBind.vue'
+import { checkPermission } from '@/utils/permission'
 
 @Component({
   name: 'Navbar',
@@ -116,10 +120,12 @@ import SizeSelect from '@/components/SizeSelect/index.vue'
     Hamburger,
     HeaderSearch,
     Screenfull,
-    SizeSelect
+    SizeSelect,
+    TemplateBind
   }
 })
 export default class extends Vue {
+  private checkPermission = checkPermission
   private alertType = AlertType
   public searchForm = {
     deviceId: ''

@@ -10,10 +10,24 @@
     >
       <div class="title-container">
         <h3 class="title">
-          {{ "系统登录" }}
+          {{ isMainUser ? "主账号登录" : '子账号登录' }}
         </h3>
       </div>
 
+      <el-form-item v-if="!isMainUser" prop="mainUserID">
+        <span class="svg-container">
+          <svg-icon name="user" />
+        </span>
+        <el-input
+          ref="mainUserID"
+          v-model="loginForm.mainUserID"
+          placeholder="主账号ID"
+          name="mainUserID"
+          type="text"
+          tabindex="1"
+          autocomplete="on"
+        />
+      </el-form-item>
       <el-form-item prop="userName">
         <span class="svg-container">
           <svg-icon name="user" />
@@ -31,7 +45,7 @@
 
       <el-tooltip
         v-model="capsTooltip"
-        content="Caps lock is On"
+        content="大写键盘已打开"
         placement="right"
         manual
       >
@@ -60,16 +74,23 @@
           </span>
         </el-form-item>
       </el-tooltip>
-
-      <el-button
-        :loading="loading"
-        type="primary"
-        style="width:100%; margin-bottom:30px;"
-        @click.native.prevent="handleLogin"
-      >
-        {{ "登录" }}
-      </el-button>
-
+      <div class="button-group">
+        <el-button
+          class="button-group__login"
+          :loading="loading"
+          type="primary"
+          @click.native.prevent="handleLogin"
+        >
+          {{ "登录" }}
+        </el-button>
+        <el-button
+          class="button-group__sublogin"
+          type="warning"
+          @click.native.prevent="switchToSubUserLogin"
+        >
+          {{ isMainUser ? "切换子账号" : "切换主账号" }}
+        </el-button>
+      </div>
       <!-- <div style="position:relative">
         <div class="tips">
           <span>{{ "账号" }} : admin </span>
@@ -109,16 +130,24 @@ import { Route } from 'vue-router'
 import { Dictionary } from 'vue-router/types/router'
 import { Form as ElForm, Input } from 'element-ui'
 import { UserModule } from '@/store/modules/user'
-import SocialSign from './components/SocialSignin.vue'
+// import SocialSign from './components/SocialSignin.vue'
 import { GroupModule } from '@/store/modules/group'
+// import { Module } from 'module'
 
 @Component({
   name: 'Login',
   components: {
-    SocialSign
+    // SocialSign
   }
 })
 export default class extends Vue {
+  private validateMainUserId = (rule: any, value: string, callback: Function) => {
+    if (!value) {
+      callback(new Error('主账号ID不能为空'))
+    } else {
+      callback()
+    }
+  }
   private validateUsername = (rule: any, value: string, callback: Function) => {
     if (!value) {
       callback(new Error('用户名不能为空'))
@@ -138,6 +167,7 @@ export default class extends Vue {
     password: ''
   }
   private loginRules = {
+    mainUserID: [{ validator: this.validateMainUserId, trigger: 'blur' }],
     userName: [{ validator: this.validateUsername, trigger: 'blur' }],
     password: [{ validator: this.validatePassword, trigger: 'blur' }]
   }
@@ -147,6 +177,10 @@ export default class extends Vue {
   private capsTooltip = false
   private redirect?: string
   private otherQuery: Dictionary<string> = {}
+
+  get isMainUser() {
+    return UserModule.isIamUserLogin === 'false'
+  }
 
   @Watch('$route', { immediate: true })
   private onRouteChange(route: Route) {
@@ -173,6 +207,9 @@ export default class extends Vue {
     this.capsTooltip = key !== null && key.length === 1 && (key >= 'A' && key <= 'Z')
   }
 
+  private switchToSubUserLogin() {
+    UserModule.ChangeLoginType()
+  }
   private showPwd() {
     if (this.passwordType === 'password') {
       this.passwordType = ''
@@ -326,6 +363,18 @@ export default class extends Vue {
   @media only screen and (max-width: 470px) {
     .thirdparty-button {
       display: none;
+    }
+  }
+
+  .button-group {
+    display: flex;
+    margin-bottom: 30px;
+    justify-content: space-between;
+    &__login {
+      width: 48%;
+    }
+    &__sublogin {
+      width: 48%;
     }
   }
 }

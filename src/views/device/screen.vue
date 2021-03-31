@@ -193,7 +193,8 @@
                   <div class="live-view">
                     <player
                       v-if="screen.url"
-                      :type="screen.codec"
+                      type="flv"
+                      :codec="screen.codec"
                       :url="screen.url"
                       :is-live="true"
                       :is-ws="true"
@@ -207,7 +208,7 @@
                       @onFullscreen="screen.fullscreen();fullscreen()"
                       @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
                     />
-                    <div v-else class="tip-text">无信号</div>
+                    <div v-if="!screen.url && !screen.loading" class="tip-text">无信号</div>
                   </div>
                 </template>
                 <template v-else>
@@ -383,14 +384,14 @@ export default class extends Mixins(ScreenMixin) {
       })
       return
     }
-    if ((item.type === 'ipc' && item.deviceStatus === 'on') || (item.type === 'stream' && item.streamStatus === 'on')) {
+    if (item.type === 'ipc' && item.deviceStatus === 'on') {
       const screen = this.screenList[this.currentIndex]
       if (screen.deviceId) {
         screen.reset()
       }
+      screen.inProtocol = this.currentGroupInProtocol!
       screen.deviceId = item.id
       screen.deviceName = item.label
-      screen.type = item.type
       if (this.currentIndex < this.maxSize - 1) {
         this.currentIndex++
       } else {
@@ -426,7 +427,7 @@ export default class extends Mixins(ScreenMixin) {
     }
     if (!isDir) {
       this.dirList.forEach((item: any) => {
-        if ((item.type === 'ipc' || item.type === 'stream') && item.streamStatus === 'on') {
+        if (item.type === 'ipc' && item.streamStatus === 'on') {
           this.pollingDevices.push(item)
         }
       })
@@ -438,7 +439,7 @@ export default class extends Mixins(ScreenMixin) {
         type: this.currentNode!.data.type
       })
       data.dirs.forEach((item: any) => {
-        if ((item.type === 'ipc' || item.type === 'stream') && item.streamStatus === 'on') {
+        if (item.type === 'ipc' && item.streamStatus === 'on') {
           this.pollingDevices.push(item)
         }
       })

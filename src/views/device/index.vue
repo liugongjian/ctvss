@@ -16,7 +16,7 @@
               <el-tooltip class="item" effect="dark" content="刷新目录" placement="top" :open-delay="300">
                 <el-button type="text" @click="initDirs"><svg-icon name="refresh" /></el-button>
               </el-tooltip>
-              <el-tooltip class="item" effect="dark" content="添加目录" placement="top" :open-delay="300">
+              <el-tooltip v-permission="['*']" class="item" effect="dark" content="添加目录" placement="top" :open-delay="300">
                 <el-button type="text" @click="openDialog('createDir')"><svg-icon name="plus" /></el-button>
               </el-tooltip>
               <el-tooltip v-if="false" class="item" effect="dark" content="目录设置" placement="top" :open-delay="300">
@@ -50,7 +50,7 @@
                     <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
                     {{ node.label }} <span class="alert-type">{{ renderAlertType(data) }}</span>
                   </span>
-                  <div v-if="data.type === 'dir'" class="tools">
+                  <div v-if="data.type === 'dir' && checkPermission(['*'])" class="tools">
                     <el-tooltip class="item" effect="dark" content="添加子目录" placement="top" :open-delay="300">
                       <el-button type="text" @click.stop="openDialog('createDir', data)"><svg-icon name="plus" /></el-button>
                     </el-tooltip>
@@ -95,6 +95,7 @@ import CreateDir from './components/dialogs/CreateDir.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { deleteDir } from '@/api/dir'
 import { renderAlertType } from '@/utils/device'
+import { checkPermission } from '@/utils/permission'
 
 @Component({
   name: 'Device',
@@ -104,6 +105,7 @@ import { renderAlertType } from '@/utils/device'
   }
 })
 export default class extends Mixins(DeviceMixin) {
+  private checkPermission = checkPermission
   private renderAlertType = renderAlertType
   private parentDir = null
   private currentDir = null
