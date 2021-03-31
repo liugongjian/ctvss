@@ -25,7 +25,6 @@ export const createPlayer = (config: any) => {
  */
 const initPlayer = (config: any) => {
   if (config.codec === 'h265') {
-    console.log(config)
     return new H265Player(config)
   } else {
     switch (config.type) {

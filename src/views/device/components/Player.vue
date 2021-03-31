@@ -206,12 +206,12 @@ export default class extends Vue {
 
   private mounted() {
     // TODO 泰州业务需求，将h265转成h264播放
-    if (this.username === 'tzszf' && this.type === 'h265-flv' && this.isLive) {
-      const execRes: any = /\.[^\\.]+$/.exec(this.url)
-      this.url = `${this.url.substring(0, execRes.index)}_264conv${execRes[0]}`
-      this.type = 'flv'
-      this.isWs = false
-    }
+    // if (this.username === 'tzszf' && this.type === 'h265-flv' && this.isLive) {
+    //   const execRes: any = /\.[^\\.]+$/.exec(this.url)
+    //   this.url = `${this.url.substring(0, execRes.index)}_264conv${execRes[0]}`
+    //   this.type = 'flv'
+    //   this.isWs = false
+    // }
     this.createPlayer()
     if (this.isLive) document.addEventListener('visibilitychange', this.reloadPlayer)
   }

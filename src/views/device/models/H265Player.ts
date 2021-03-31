@@ -3,6 +3,8 @@ import { dateFormat } from '@/utils/date'
 
 export class H265Player extends BasePlayer {
   public h265?: any
+  public onLoading = true
+  public seekTime = 0
 
   public init() {
     const videoElement = document.createElement('div')
@@ -15,7 +17,6 @@ export class H265Player extends BasePlayer {
     })
     this.player = h265
     this.config.autoPlay && this.play()
-    console.log(this.player)
   }
 
   /**
@@ -28,8 +29,6 @@ export class H265Player extends BasePlayer {
    */
 
   private callbackfun(...res: any) {
-    console.log(res)
-    // this.player.paused = !this.player.playFlag
     switch (res[0]) {
       case 'play':
         this.player.paused = !this.player.playFlag
@@ -49,7 +48,7 @@ export class H265Player extends BasePlayer {
         this.onTimeUpdate && this.onTimeUpdate()
         return
       case 'endLoading':
-        this.onCanplay && this.onCanplay()
+        this.onEndLoading && this.onEndLoading()
     }
   }
 
@@ -81,9 +80,17 @@ export class H265Player extends BasePlayer {
    * @param time 秒
    */
   public seek(time: number) {
+    this.seekTime = time
     this.player.seekToSecs(time)
   }
 
+  public onEndLoading() {
+    if (this.onLoading) {
+      this.player.seekToSecs(this.seekTime)
+    }
+    this.onLoading = false
+    this.onCanplay && this.onCanplay()
+  }
   /**
    * 停止
    */
@@ -104,11 +111,9 @@ export class H265Player extends BasePlayer {
   public snapshot(name: string = 'snapshot') {
     let $canvas: HTMLCanvasElement | null = this.wrap.querySelector('canvas')
     if (!$canvas) return
-    console.log($canvas.width, $canvas.height)
     let $link: any = document.createElement('a')
     $link.download = `${name}_${dateFormat(new Date(), 'yyyy-MM-dd_HH-mm-ss')}.png`
     $link.href = $canvas.toDataURL('image/png')
-    console.log($link.href)
     $link.click()
   }
 
