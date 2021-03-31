@@ -510,7 +510,7 @@ export default class extends Vue {
         top = 0
       }
     }
-    // player.style.position = 'absolute'
+    player.style.position = 'absolute'
     player.style.width = width + 'px'
     player.style.height = height + 'px'
     player.style.left = left + 'px'

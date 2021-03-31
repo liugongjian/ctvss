@@ -12,6 +12,7 @@
       ref="video"
       :class="{'fullscreen': isFullscreen}"
       :type="type"
+      :codec="video.video.codec"
       :url="video.playUrl.hlsUrl"
       :auto-play="true"
       :has-control="false"

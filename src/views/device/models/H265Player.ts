@@ -9,17 +9,8 @@ export class H265Player extends BasePlayer {
     this.wrap.innerHTML = ''
     this.wrap.append(videoElement)
     videoElement.id = `h265_player_${new Date().getTime()}`
-    // this.wrap.parentElement && (videoElement.style.height = this.wrap.parentElement?.clientHeight + 'PX')
-    // let childArr: any = videoElement.getElementsByTagName('div')
-    // childArr.forEach((child: any) => {
-    //   console.log(child);
-    //   videoElement.removeChild(child)
-    // });
-    // window.onresize = () => {
-    //   videoElement.style.height = this.wrap.parentElement?.clientHeight + 'px'
-    // }
     // @ts-ignore
-    const h265 = new WasmPlayer(null, videoElement.id, this.callbackfun, {
+    const h265 = new WasmPlayer(null, videoElement.id, this.callbackfun.bind(this), {
       Height: true
     })
     this.player = h265
@@ -39,16 +30,19 @@ export class H265Player extends BasePlayer {
     console.log(res)
     switch (res[0]) {
       case 'play':
+        this.player.paused = false
         this.onPlay && this.onPlay()
         return
       case 'pause':
+        this.player.paused = true
         this.onPause && this.onPause()
         return
       case 'ended':
         this.onEnded && this.onEnded()
         return
-      case 'playBackTime':
+      case 'playbackTime':
         this.onSeeked && this.onSeeked()
+        this.player.currentTime = res[1]
         this.onTimeUpdate && this.onTimeUpdate()
         return
       case 'endLoading':
@@ -84,7 +78,7 @@ export class H265Player extends BasePlayer {
    * @param time 秒
    */
   public seek(time: number) {
-    this.player.play(this.source, 1, time)
+    this.player.seekToSecs(time)
   }
 
   /**
