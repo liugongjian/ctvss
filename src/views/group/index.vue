@@ -64,8 +64,7 @@
         <el-table-column prop="action" class-name="col-action" label="操作" width="250" fixed="right">
           <template slot-scope="scope">
             <el-button v-if="checkPermission(['*'])" type="text" @click="goToConfig(scope.row)">业务组配置</el-button>
-            <el-button v-if="scope.row.inProtocol === 'rtmp'" type="text" @click="goToStreams(scope.row)">流管理</el-button>
-            <el-button v-else type="text" @click="goToDevices(scope.row)">设备管理</el-button>
+            <el-button type="text" @click="goToDevices(scope.row)">设备管理</el-button>
             <el-dropdown v-if="checkPermission(['*'])" @command="handleMore">
               <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
               <el-dropdown-menu slot="dropdown">
