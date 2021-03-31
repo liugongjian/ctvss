@@ -12,7 +12,7 @@
         >
           <el-form-item prop="iamUserName" label="用户名：">
             <el-input v-model="form.iamUserName" placeholder="请填写用户名" />
-            <el-row class="form-tip">可包含大小写字母、数字、中划线，用户名称不能重复</el-row>
+            <el-row class="form-tip">2-16位，可包含大小写字母、数字、中文、中划线，用户名称不能重复。</el-row>
           </el-form-item>
           <el-form-item prop="accessType" label="访问方式：">
             <template>
@@ -50,6 +50,9 @@
               @selection-change="handleSelectionChange"
               @row-click="rowClick"
             >
+              <template slot="empty">
+                <span>暂无策略，请先添加策略。</span>
+              </template>
               <el-table-column
                 type="selection"
                 width="55"
@@ -85,7 +88,7 @@
         <h2>成功新建成员</h2>
         <p class="item-tip">
           您已经成功新建用户，用户基础信息如下所示。您可以点击复制或者
-          <span class="text-btn" style="margin: 0" @click="exportCsv"> 下载 </span>
+          <span class="text-btn" style="margin: 0" @click="exportExel"> 下载 </span>
           当前新建用户的所有信息。
         </p>
         <el-table :data="newUserData" style="width: 100%">
@@ -95,9 +98,14 @@
           />
           <el-table-column prop="passwords" label="密码">
             <template slot-scope="scope">
-              <span>{{ showPasswords ? scope.row.passwords : '****' }}</span>
-              <span v-if="showPasswords" class="text-btn" @click="showPasswords = false">隐藏</span>
-              <span v-else class="text-btn" @click="showPasswords = true">显示</span>
+              <div v-if="scope.row.passwords">
+                <span>{{ showPasswords ? scope.row.passwords : '****' }}</span>
+                <span v-if="showPasswords" class="text-btn" @click="showPasswords = false">隐藏</span>
+                <span v-else class="text-btn" @click="showPasswords = true">显示</span>
+              </div>
+              <div v-else>
+                <span>--</span>
+              </div>
             </template>
           </el-table-column>
           <el-table-column prop="secrets" label="密钥">
@@ -133,6 +141,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import copy from 'copy-to-clipboard'
 import { ExportToCsv } from 'export-to-csv'
+import ExcelJS from 'exceljs'
 import { createUser, getUser, modifyUser, getPolicyList } from '@/api/accessManage'
 @Component({
   name: 'CreateUser'
@@ -147,6 +156,7 @@ export default class extends Vue {
   private cardIndex: string = 'form'
   private breadCrumbContent: string = ''
   private form: any = {
+    mainUserId: '',
     iamUserName: '',
     accessType: true,
     consoleEnabled: true,
@@ -166,33 +176,7 @@ export default class extends Vue {
       { required: true, validator: this.validateAccessType, trigger: 'change' }
     ]
   }
-  private policyList: Array<object> = [
-    {
-      policyName: '策略1',
-      policyId: '1',
-      policyDescribe: '描述'
-    },
-    {
-      policyName: '策略2',
-      policyId: '2',
-      policyDescribe: '描述'
-    },
-    {
-      policyName: '策略3',
-      policyId: '3',
-      policyDescribe: '描述'
-    },
-    {
-      policyName: '策略4',
-      policyId: '4',
-      policyDescribe: '描述'
-    },
-    {
-      policyName: '策略5',
-      policyId: '5',
-      policyDescribe: '描述'
-    }
-  ]
+  private policyList: Array<object> = []
   private newUserData: Array<object> = []
   private showPasswords: boolean = false
   private showSecretKey: boolean = false
@@ -218,7 +202,7 @@ export default class extends Vue {
   private copyRow(row: any) {
     let str =
     `
-    主账号ID：100008184984
+    主账号ID：${row.mainUserId}
     用户名：${row.userName}
     登录密码：${row.passwords}
     SecretId：${row.secretId}
@@ -273,7 +257,8 @@ export default class extends Vue {
         iamUserName: res.iamUserName,
         consoleEnabled: res.consoleEnabled === '1',
         apiEnabled: res.apiEnabled === '1',
-        resetPwdEnabled: true
+        resetPwdEnabled: res.resetPwdEnabled === '1',
+        accessType: res.apiEnabled === '1' || res.consoleEnabled === '1'
       }
       let selectRow = this.policyList.find((policy: any) => {
         return policy.policyId === res.policyId
@@ -306,6 +291,7 @@ export default class extends Vue {
             this.cardIndex = 'table'
             this.newUserData = [
               {
+                mainUserId: res.mainUserId,
                 userName: res.iamUserName,
                 passwords: res.iamUserPasswd,
                 secretId: res.ak,
@@ -355,9 +341,51 @@ export default class extends Vue {
     csvExporter.generateCsv(data)
   }
 
+  /**
+   * 导出xlsx
+   */
+  private async exportExel() {
+    const exelName: string = '新建用户的所有信息'
+    const workbook = new ExcelJS.Workbook()
+    workbook.views = [
+      {
+        x: 0,
+        y: 0,
+        width: 10000,
+        height: 20000,
+        firstSheet: 0,
+        activeTab: 1,
+        visibility: 'visible'
+      }
+    ]
+    const worksheet: any = workbook.addWorksheet('My Sheet')
+    let options: any = {
+      name: exelName,
+      ref: 'A1',
+      columns: [
+        { name: '用户名' },
+        { name: '密码' },
+        { name: 'secretId' },
+        { name: 'secretKey' }
+      ],
+      rows: []
+    }
+    options.rows = this.newUserData.map((user: any) => {
+      return [user.userName, user.passwords, user.secretId ? user.secretId : '--', user.secretKey ? user.secretKey : '--']
+    })
+    worksheet.addTable(options)
+
+    const buffer = await workbook.xlsx.writeBuffer()
+    var blob = new Blob([buffer], { type: 'application/xlsx' })
+    var link = document.createElement('a')
+    link.href = window.URL.createObjectURL(blob)
+    link.download = `${exelName}.xlsx`
+    link.click()
+  }
+
   private validateUserName(rule: any, value: any, callback: Function) {
-    if (!/^[0-9a-zA-Z-]{1,}$/.test(value)) {
-      callback(new Error('仅允许包含大小写字母、数字、中划线'))
+    if (!/^[\u4e00-\u9fa50-9a-zA-Z-]{2,16}$/.test(value)) {
+      callback(new Error('2-16位，可包含大小写字母、数字、中划线'))
     } else {
       callback()
     }

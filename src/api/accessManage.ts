@@ -1,6 +1,4 @@
 import request from '@/utils/request'
-import requestOrgin from '@/utils/request-origin'
-import { resolve } from 'path'
 
 export const createUser = (params: any): Promise<any> =>
   request({
@@ -31,26 +29,6 @@ export const getUser = (params: any): Promise<any> =>
   })
 
 export const getUserList = (params: any): Promise<any> =>
-// {
-//   return new Promise((resolve) => {
-//     setTimeout(() => {
-//       let res: any = {
-//         iamUsers: [
-//           {
-//             iamUserName: 'first',
-//             iamUserId: '1000373823',
-//             policyName: '策略1',
-//             createdTime: '2020-06-12 12:23:43'
-//           }
-//         ],
-//         totalNum: 1
-//       }
-//       // return Promise.resolve(res)
-//       resolve(res)
-//     }, 2000)
-//   })
-// }
-
   request({
     url: '/iam/user/list',
     method: 'get',

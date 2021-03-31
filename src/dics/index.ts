@@ -106,8 +106,8 @@ export const StreamStatus = {
 }
 
 export const RecordStatus = {
-  0: '录制中',
-  1: '未录制'
+  1: '录制中',
+  2: '未录制'
 }
 
 export const StreamType = {
@@ -144,7 +144,8 @@ export const AlertType: any = {
   // 3: '人员布控',
   4: '人员布控',
   5: '吸烟检测',
-  7: '安全帽反光服检测'
+  7: '安全帽反光服检测',
+  9: '危险区域检测'
 }
 
 export const AiMaskType: any = {

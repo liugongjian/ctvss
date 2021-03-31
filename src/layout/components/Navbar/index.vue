@@ -83,7 +83,7 @@
           <svg-icon class="user-container__arrow" name="arrow-down" width="9" height="9" />
         </div>
         <div class="header-dropdown">
-          <div v-permission="['*']">
+          <div v-if="checkPermission(['*'])">
             <router-link to="/secretManage"><i><svg-icon name="key" /></i> API密钥管理</router-link>
             <div class="header-dropdown__divided" />
           </div>
@@ -110,6 +110,7 @@ import HeaderSearch from '@/components/HeaderSearch/index.vue'
 import Screenfull from '@/components/Screenfull/index.vue'
 import SizeSelect from '@/components/SizeSelect/index.vue'
 import TemplateBind from '@/views/components/templateBind.vue'
+import { checkPermission } from '@/utils/permission'
 
 @Component({
   name: 'Navbar',
@@ -124,6 +125,7 @@ import TemplateBind from '@/views/components/templateBind.vue'
   }
 })
 export default class extends Vue {
+  private checkPermission = checkPermission
   private alertType = AlertType
   public searchForm = {
     deviceId: ''
@@ -196,7 +198,7 @@ export default class extends Vue {
     })
     list.push({
       name: '安全生产',
-      list: [5, 7].map((id: number) => {
+      list: [5, 7, 9].map((id: number) => {
         return {
           key: id,
           value: this.alertType[id]

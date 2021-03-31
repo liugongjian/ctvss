@@ -11,7 +11,7 @@
       <template v-if="!isChannel">
         <el-form-item v-if="currentGroup" label="业务组:">
           {{ currentGroup.groupName }}
-          <span class="in-protocol">({{ inProtocol }})</span>
+          <span class="in-protocol">({{ inProtocolUpper }})</span>
         </el-form-item>
         <el-form-item v-if="breadcrumb && !isUpdate" label="当前目录:">
           <div class="breadcrumb">
@@ -277,7 +277,7 @@ export default class extends Mixins(createMixin) {
   private addressChange() {
     const addressCascader: any = this.$refs['addressCascader']
     const currentAddress = addressCascader.getCheckedNodes()[0].data
-    this.form.gbRegion = currentAddress.code + '00000'
+    this.form.gbRegion = currentAddress.code + '0000'
     this.form.gbRegionLevel = currentAddress.level
     console.log(this.form.gbRegion, this.form.gbRegionLevel)
   }

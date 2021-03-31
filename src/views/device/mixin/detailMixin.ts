@@ -7,6 +7,8 @@ import TemplateBind from '../../components/templateBind.vue'
 import SetAuthConfig from '../components/dialogs/SetAuthConfig.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AntiTheftChain from '../components/AntiTheftChain.vue'
+import { checkPermission } from '@/utils/permission'
+import copy from 'copy-to-clipboard'
 
 @Component({
   components: {
@@ -18,6 +20,7 @@ import AntiTheftChain from '../components/AntiTheftChain.vue'
 })
 export default class DetailMixin extends Vue {
   @Inject('deviceRouter') public deviceRouter!: Function
+  public checkPermission = checkPermission
   public activeName = 'info'
   public deviceStatus = DeviceStatus
   public deviceType = DeviceGb28181Type
@@ -86,6 +89,14 @@ export default class DetailMixin extends Vue {
     return this.info && this.info.parentDeviceId !== '-1' && this.info.createSubDevice === 1
   }
 
+  public get tags() {
+    if (this.info && this.info.tags) {
+      return this.info.tags.split(',')
+    } else {
+      return null
+    }
+  }
+
   public mounted() {
     this.getDevice()
   }
@@ -152,5 +163,13 @@ export default class DetailMixin extends Vue {
   public async closeDialog(type: string) {
     // @ts-ignore
     this.dialog[type] = false
+  }
+
+  /**
+   * 一键复制
+   */
+  public copyUrl(text: string) {
+    copy(text)
+    this.$message.success('复制成功')
   }
 }

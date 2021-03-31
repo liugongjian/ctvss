@@ -5,6 +5,7 @@ import { GroupModule } from '@/store/modules/group'
 import { deleteDevice, startDevice, stopDevice, getDevice, getDevices, startRecord, stopRecord, syncDevice } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MoveDir from '../components/dialogs/MoveDir.vue'
+import { checkPermission } from '@/utils/permission'
 
 @Component({
   components: {
@@ -17,7 +18,7 @@ export default class CreateMixin extends Vue {
   public deviceRouter!: Function
   @Inject('initDirs')
   public initDirs!: Function
-
+  public checkPermission = checkPermission
   public deviceInfo: any = null
   public deviceList: Array<Device> = []
   public dirStats: any = null
@@ -43,10 +44,10 @@ export default class CreateMixin extends Vue {
   }
   public keyword = ''
   public filter: any = {
-    deviceType: '',
-    deviceStatus: '',
-    streamStatus: '',
-    recordStatus: ''
+    deviceType: undefined,
+    deviceStatus: undefined,
+    streamStatus: undefined,
+    recordStatus: undefined
   }
   public pager = {
     pageNum: 1,
@@ -112,7 +113,7 @@ export default class CreateMixin extends Vue {
   }
 
   public get hasFiltered() {
-    return !!(this.filter.deviceType || this.filter.deviceStatus || this.filter.streamStatus)
+    return !!(this.filter.deviceType || this.filter.deviceStatus || this.filter.streamStatus || this.filter.recordStatus)
   }
 
   public get filterButtons() {
@@ -238,7 +239,8 @@ export default class CreateMixin extends Vue {
         pageSize: this.pager.pageSize,
         deviceType: this.filter.deviceType,
         deviceStatus: this.filter.deviceStatus,
-        streamStatus: this.filter.streamStatus
+        streamStatus: this.filter.streamStatus,
+        recordStatus: this.filter.recordStatus
       }
       let res: any
       this.loading.list = true
@@ -676,7 +678,7 @@ export default class CreateMixin extends Vue {
       if (values.length) {
         this.filter[key] = values[0]
       } else {
-        this.filter[key] = ''
+        this.filter[key] = undefined
       }
     }
   }
@@ -685,7 +687,7 @@ export default class CreateMixin extends Vue {
    * 清空指定筛选条件
    */
   public clearFilter(key: string) {
-    this.filter[key] = ''
+    this.filter[key] = undefined
     const deviceTable: any = this.$refs.deviceTable
     deviceTable.clearFilter(key)
   }

@@ -74,6 +74,8 @@ import ReplayPlayerMixin from '@/views/device/mixin/replayPlayerMixin'
 export default class extends Mixins(ReplayPlayerMixin) {
   @Prop()
   private deviceId!: number | string
+  @Prop()
+  private inProtocol!: string
   public recordList: Array<any> = []
   private address?: any = null
   private codec?: string = ''
@@ -114,6 +116,7 @@ export default class extends Mixins(ReplayPlayerMixin) {
       this.loading = true
       const res = await getDeviceRecords({
         deviceId: this.deviceId,
+        inProtocol: this.inProtocol,
         recordType: 1, // 0-云端，1-本地
         startTime: startTime || this.currentDate! / 1000,
         endTime: this.currentDate! / 1000 + 24 * 60 * 60,
@@ -161,6 +164,7 @@ export default class extends Mixins(ReplayPlayerMixin) {
       this.errorMessage = ''
       this.address = null
       const res = await getDevicePreview({
+        inProtocol: this.inProtocol,
         deviceId: this.deviceId,
         startTime: Math.floor(this.startTime! / 1000),
         endTime: Math.floor(new Date().getTime() / 1000),

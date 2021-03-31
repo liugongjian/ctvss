@@ -32,9 +32,8 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { getRecordTemplates, setGroupCallBackTemplate, unbindGroupCallBackTemplate } from '@/api/group'
 import { setDeviceCallbackTemplate, unbindDeviceCallbackTemplate } from '@/api/device'
-import { setStreamCallBackTemplate, unbindStreamCallBackTemplate, getCallBackTemplates } from '@/api/stream'
+import { getCallBackTemplates } from '@/api/stream'
 import { formatSeconds } from '@/utils/interval'
-import { template } from 'lodash'
 
 @Component({
   name: 'SetCallBackTemplate'
@@ -42,8 +41,8 @@ import { template } from 'lodash'
 export default class extends Vue {
   @Prop() private groupId?: string
   @Prop() private deviceId?: string
-  @Prop() private streamId?: string
   @Prop() private templateId?: string
+  @Prop() private inProtocol?: string
   private dialogVisible = true
   private loading = false
   private list = [
@@ -59,12 +58,7 @@ export default class extends Vue {
   private async bind(row: any) {
     try {
       this.loading = true
-      if (this.streamId) {
-        await setStreamCallBackTemplate({
-          deviceId: this.streamId,
-          templateId: row.templateId
-        })
-      } else if (this.groupId) {
+      if (this.groupId) {
         await setGroupCallBackTemplate({
           groupId: this.groupId,
           templateId: row.templateId
@@ -72,7 +66,8 @@ export default class extends Vue {
       } else {
         await setDeviceCallbackTemplate({
           deviceId: this.deviceId,
-          templateId: row.templateId
+          templateId: row.templateId,
+          inProtocol: this.inProtocol
         })
       }
       this.bindTemplateId = row.templateId
@@ -86,12 +81,7 @@ export default class extends Vue {
   private async unbind(row: any) {
     try {
       this.loading = true
-      if (this.streamId) {
-        await unbindStreamCallBackTemplate({
-          deviceId: this.streamId,
-          templateId: row.templateId
-        })
-      } else if (this.groupId) {
+      if (this.groupId) {
         await unbindGroupCallBackTemplate({
           groupId: this.groupId,
           templateId: row.templateId
@@ -99,7 +89,8 @@ export default class extends Vue {
       } else {
         await unbindDeviceCallbackTemplate({
           deviceId: this.deviceId,
-          templateId: row.templateId
+          templateId: row.templateId,
+          inProtocol: this.inProtocol
         })
       }
       this.bindTemplateId = ''
