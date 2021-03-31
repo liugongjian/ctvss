@@ -21,7 +21,7 @@
         </template>
       </div>
       <div class="controls__right">
-        <div v-if="!isLive" class="controls__btn controls__playback">
+        <div v-if="!isLive && codec !== 'h265'" class="controls__btn controls__playback">
           {{ playbackRate === 1 ? '倍速' : `${playbackRate}x` }}
           <ul class="controls__popup">
             <li

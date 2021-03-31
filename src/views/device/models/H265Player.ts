@@ -14,7 +14,8 @@ export class H265Player extends BasePlayer {
       Height: true
     })
     this.player = h265
-    this.play()
+    this.config.autoPlay && this.play()
+    console.log(this.player)
   }
 
   /**
@@ -28,16 +29,18 @@ export class H265Player extends BasePlayer {
 
   private callbackfun(...res: any) {
     console.log(res)
+    // this.player.paused = !this.player.playFlag
     switch (res[0]) {
       case 'play':
-        this.player.paused = false
+        this.player.paused = !this.player.playFlag
         this.onPlay && this.onPlay()
         return
       case 'pause':
-        this.player.paused = true
+        this.player.paused = !this.player.playFlag
         this.onPause && this.onPause()
         return
       case 'ended':
+        this.player.paused = !this.player.playFlag
         this.onEnded && this.onEnded()
         return
       case 'playbackTime':
@@ -85,7 +88,7 @@ export class H265Player extends BasePlayer {
    * 停止
    */
   public stop() {
-    this.player.destroy()
+    this.player.stop()
   }
 
   /**
