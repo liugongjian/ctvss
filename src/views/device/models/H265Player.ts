@@ -45,7 +45,6 @@ export class H265Player extends BasePlayer {
         return
       case 'playbackTime':
         this.player.currentTime = res[1]
-        this.onSeeked && this.onSeeked()
         this.onTimeUpdate && this.onTimeUpdate()
         return
       case 'endLoading':
@@ -58,6 +57,14 @@ export class H265Player extends BasePlayer {
    */
   public play() {
     this.player.play(this.source, 1)
+  }
+
+  /**
+   * 回调-开始播放
+   */
+  public onPlay() {
+    this.config.onLoadStart && this.onLoadStart()
+    this.config.onPlay && this.config.onPlay()
   }
 
   /**
@@ -82,10 +89,10 @@ export class H265Player extends BasePlayer {
   }
 
   /**
-   * 回调-H265 Seeked
+   * 回调-H265更新时间
    */
-  public onSeeked() {
-    this.config.onSeeked && this.config.onSeeked(this.player.currentTime)
+  public onTimeUpdate() {
+    this.config.onTimeUpdate && this.config.onTimeUpdate(this.player.currentTime)
     if (this.player.currentTime === 0) {
       this.onCanplay && this.onCanplay()
     }
