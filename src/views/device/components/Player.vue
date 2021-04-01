@@ -321,11 +321,11 @@ export default class extends Vue {
   }
 
   public playerFS() {
-    const $video: any = this.$refs.video
     const mainBox: any = this.$refs.videoWrap
-    var player = $video.querySelector('canvas')
+    if (!mainBox) return
+    var player = mainBox.querySelector('canvas')
     if (this.codec === 'h265') {
-      player = $video.querySelector('.player-box')
+      player = mainBox.querySelector('.player-box')
     }
     this.playerFitSize(mainBox.clientWidth, mainBox.clientHeight, player)
   }

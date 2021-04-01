@@ -16,6 +16,7 @@ export class H265Player extends BasePlayer {
       Height: true
     })
     this.player = h265
+    this.config.onLoadStart && this.onLoadStart()
     this.config.autoPlay && this.play()
   }
 
@@ -43,8 +44,8 @@ export class H265Player extends BasePlayer {
         this.onEnded && this.onEnded()
         return
       case 'playbackTime':
-        this.onSeeked && this.onSeeked()
         this.player.currentTime = res[1]
+        this.onSeeked && this.onSeeked()
         this.onTimeUpdate && this.onTimeUpdate()
         return
       case 'endLoading':
@@ -62,11 +63,7 @@ export class H265Player extends BasePlayer {
   /**
    * 重新加载视频
    */
-  public reloadPlayer() {
-    // this.player.destroy()
-    // this.player = null
-    // this.init()
-  }
+  public reloadPlayer() {}
 
   /**
    * 暂停
@@ -80,16 +77,28 @@ export class H265Player extends BasePlayer {
    * @param time 秒
    */
   public seek(time: number) {
-    this.seekTime = time
-    this.player.seekToSecs(time)
+    this.seekTime = Math.floor(time)
+    this.player.seekToSecs(this.seekTime)
+  }
+
+  /**
+   * 回调-H265 Seeked
+   */
+  public onSeeked() {
+    this.config.onSeeked && this.config.onSeeked(this.player.currentTime)
+    if (this.player.currentTime === 0) {
+      this.onCanplay && this.onCanplay()
+    }
   }
 
   public onEndLoading() {
-    if (this.onLoading) {
+    if (this.onLoading && this.seekTime) {
       this.player.seekToSecs(this.seekTime)
     }
     this.onLoading = false
-    this.onCanplay && this.onCanplay()
+    if (this.isLive) {
+      this.onCanplay && this.onCanplay()
+    }
   }
   /**
    * 停止
