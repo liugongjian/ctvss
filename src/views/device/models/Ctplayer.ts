@@ -12,7 +12,7 @@ export const createPlayer = (config: any) => {
     throw new Error('不支持当前视频类型')
   }
   // 使用ws播放
-  // config.source = config.isWs ? config.source.replace('http://', 'ws://') : config.source
+  config.source = config.isWs ? config.source.replace('http://', 'ws://') : config.source
   const player = initPlayer(config)
   if (!player) {
     throw new Error('播放器创建失败')
