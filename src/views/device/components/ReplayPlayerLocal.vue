@@ -119,7 +119,7 @@ export default class extends Mixins(ReplayPlayerMixin) {
         inProtocol: this.inProtocol,
         recordType: 1, // 0-云端，1-本地
         startTime: startTime || this.currentDate! / 1000,
-        endTime: this.currentDate! / 1000 + 24 * 60 * 60,
+        endTime: this.currentDate! / 1000 + 24 * 60 * 60 - 1,
         pageSize: 9999
       })
       // 追加最新的录像
@@ -163,11 +163,13 @@ export default class extends Mixins(ReplayPlayerMixin) {
       this.loading = true
       this.errorMessage = ''
       this.address = null
+      const startTimeDate = new Date(this.startTime)
+      const endTime = new Date(startTimeDate.getFullYear(), startTimeDate.getMonth(), startTimeDate.getDate() + 1)
       const res = await getDevicePreview({
         inProtocol: this.inProtocol,
         deviceId: this.deviceId,
         startTime: Math.floor(this.startTime! / 1000),
-        endTime: Math.floor(new Date().getTime() / 1000),
+        endTime: Math.floor(endTime.getTime() / 1000 - 1),
         type: 'vod'
       })
       this.address = res.playUrl
