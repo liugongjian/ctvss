@@ -10,6 +10,7 @@
       v-if="recordList.length && currentRecord"
       ref="player"
       type="hls"
+      :codec="currentRecord.video.codec"
       :url="currentRecord.playUrl.hlsUrl"
       :auto-play="true"
       :has-control="false"

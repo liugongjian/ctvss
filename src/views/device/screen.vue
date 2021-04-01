@@ -215,7 +215,10 @@
                   <replay-view
                     :device-id="screen.deviceId"
                     :has-playlive="true"
+                    :is-fullscreen="screen.isFullscreen"
                     @onPlaylive="onPlaylive(screen)"
+                    @onFullscreen="screen.fullscreen();fullscreen()"
+                    @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
                   />
                 </template>
                 <div class="screen-header">
@@ -246,7 +249,6 @@
 <script lang="ts">
 import { Component, Watch, Mixins } from 'vue-property-decorator'
 import { Device } from '@/type/device'
-import { DeviceModule } from '@/store/modules/device'
 import ScreenMixin from './mixin/screenMixin'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import Screen from './models/Screen'
@@ -256,7 +258,6 @@ import DeviceDir from './components/dialogs/DeviceDir.vue'
 import PtzControl from './components/ptzControl.vue'
 import { getDeviceTree } from '@/api/device'
 import { renderAlertType } from '@/utils/device'
-import { cloneDeep } from 'lodash'
 
 @Component({
   name: 'Screen',
