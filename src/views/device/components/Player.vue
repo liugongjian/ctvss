@@ -3,6 +3,9 @@
     <div class="error">{{ error }}</div>
     <div ref="video" @wheel="zoom" @mousedown="mouseDownHandle($event)" @mouseup="mouseUpHandle($event)" />
     <div class="controls" :class="{'controls--large': hasProgress}">
+      <div v-if="codec === 'h265'" class="controls__h265">
+        <svg-icon name="h265" width="40px" height="22px" />
+      </div>
       <div v-if="hasProgress && duration" ref="progress" class="controls__progress" :class="{'moving': progressMoveData.isStart}" @mousedown="progressHandle($event)">
         <div class="controls__progress__bar">
           <div class="controls__progress__buffered" :style="`width: ${bufferedRate}%`" />
@@ -797,6 +800,12 @@ export default class extends Vue {
             opacity: 1;
           }
         }
+      }
+      &__h265 {
+        position: absolute;
+        top: -25px;
+        right: 10px;
+        opacity: 0.7;
       }
     }
     .controls--large {
