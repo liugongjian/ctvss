@@ -1,6 +1,6 @@
 # live-admin-web
 
-> 视频监控-用户控制台前端代码
+> 视频监控-客户控制台前端代码
 
 ## Build Setup
 

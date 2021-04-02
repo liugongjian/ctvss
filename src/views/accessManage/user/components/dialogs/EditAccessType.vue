@@ -13,7 +13,7 @@
     </el-row>
     <el-row>
       <el-radio v-model="dialogData.val" label="b">控制台访问</el-radio>
-      <el-row class="item-tip">启用密码，允许用户登录到视频监控用户控制台</el-row>
+      <el-row class="item-tip">启用密码，允许用户登录到视频监控客户控制台</el-row>
     </el-row>
     <div slot="footer" align="center">
       <el-button type="primary" @click="submit">{{ '确定' }}</el-button>

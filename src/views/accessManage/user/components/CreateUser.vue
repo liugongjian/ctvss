@@ -24,7 +24,7 @@
                 width="400"
                 trigger="hover"
                 :open-delay="300"
-                content="启用密码，允许用户登录到视频监控用户控制台。"
+                content="启用密码，允许用户登录到视频监控客户控制台。"
               >
                 <svg-icon slot="reference" class="form-question sign" name="help" />
               </el-popover>
@@ -35,7 +35,7 @@
                 width="400"
                 trigger="hover"
                 :open-delay="300"
-                content="启用SecretId和SecretKey，支持API、SDK和其他开发工具访问。"
+                content="启用Access Key ID和Secret Access Key，支持API、SDK和其他开发工具访问。"
               >
                 <svg-icon slot="reference" class="form-question sign" name="help" />
               </el-popover>

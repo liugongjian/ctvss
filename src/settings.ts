@@ -12,7 +12,7 @@ interface ISettings {
 
 // You can customize below settings :)
 const settings: ISettings = {
-  title: '视频监控-用户控制台',
+  title: '视频监控-客户控制台',
   showSettings: true,
   showTagsView: true,
   fixedHeader: false,
