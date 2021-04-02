@@ -8,6 +8,7 @@ export class H265Player extends BasePlayer {
 
   public init() {
     const videoElement = document.createElement('div')
+    this.wrap.innerHTML = ''
     this.wrap.append(videoElement)
     videoElement.id = `h265_player_${new Date().getTime()}`
     // @ts-ignore
@@ -63,8 +64,6 @@ export class H265Player extends BasePlayer {
    */
   public onPlay() {
     this.config.onLoadStart && this.onLoadStart()
-    const H265Logo = this.wrap.querySelector('.logo-h265')
-    H265Logo && H265Logo.remove()
     this.config.onPlay && this.config.onPlay()
   }
 
@@ -72,18 +71,6 @@ export class H265Player extends BasePlayer {
    * 重新加载视频
    */
   public reloadPlayer() {}
-
-  /**
-   * 回调-已加载
-   */
-  public onCanplay() {
-    this.config.onCanplay && this.config.onCanplay()
-    const H265Logo = document.createElement('span')
-    H265Logo.innerHTML = 'H265'
-    H265Logo.className = 'logo-h265'
-    const playerBox = this.wrap.querySelector('.player-box')
-    playerBox?.append(H265Logo)
-  }
 
   /**
    * 暂停
