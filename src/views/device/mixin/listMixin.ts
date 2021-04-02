@@ -5,6 +5,7 @@ import { GroupModule } from '@/store/modules/group'
 import { deleteDevice, startDevice, stopDevice, getDevice, getDevices, startRecord, stopRecord, syncDevice } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MoveDir from '../components/dialogs/MoveDir.vue'
+import { checkPermission } from '@/utils/permission'
 
 @Component({
   components: {
@@ -17,7 +18,7 @@ export default class CreateMixin extends Vue {
   public deviceRouter!: Function
   @Inject('initDirs')
   public initDirs!: Function
-
+  public checkPermission = checkPermission
   public deviceInfo: any = null
   public deviceList: Array<Device> = []
   public dirStats: any = null
@@ -492,7 +493,8 @@ export default class CreateMixin extends Vue {
     try {
       const params: any = {
         deviceId: device.deviceId,
-        inProtocol: this.inProtocol
+        inProtocol: this.inProtocol,
+        inType: device.inType
       }
       await startDevice(params)
       this.$message.success('已通知启用设备')
@@ -508,7 +510,8 @@ export default class CreateMixin extends Vue {
     try {
       const params: any = {
         deviceId: device.deviceId,
-        inProtocol: this.inProtocol
+        inProtocol: this.inProtocol,
+        inType: device.inType
       }
       await stopDevice(params)
       this.$message.success('已通知停用设备')

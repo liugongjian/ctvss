@@ -215,7 +215,10 @@
                   <replay-view
                     :device-id="screen.deviceId"
                     :has-playlive="true"
+                    :is-fullscreen="screen.isFullscreen"
                     @onPlaylive="onPlaylive(screen)"
+                    @onFullscreen="screen.fullscreen();fullscreen()"
+                    @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
                   />
                 </template>
                 <div class="screen-header">
@@ -246,7 +249,6 @@
 <script lang="ts">
 import { Component, Watch, Mixins } from 'vue-property-decorator'
 import { Device } from '@/type/device'
-import { DeviceModule } from '@/store/modules/device'
 import ScreenMixin from './mixin/screenMixin'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import Screen from './models/Screen'
@@ -256,7 +258,6 @@ import DeviceDir from './components/dialogs/DeviceDir.vue'
 import PtzControl from './components/ptzControl.vue'
 import { getDeviceTree } from '@/api/device'
 import { renderAlertType } from '@/utils/device'
-import { cloneDeep } from 'lodash'
 
 @Component({
   name: 'Screen',
@@ -317,16 +318,11 @@ export default class extends Mixins(ScreenMixin) {
     }
   ]
 
-  private get screenCache() {
-    return DeviceModule.screenCache
-  }
-
   @Watch('currentGroupId', { immediate: true })
   private onCurrentGroupChange(groupId: String) {
     if (!groupId) return
     this.$nextTick(() => {
-      // 如果groupId与之前vuex中所存的不同，则将分屏重置
-      groupId !== this.screenCache.groupId && this.screenList.forEach(screen => {
+      this.screenList.forEach(screen => {
         screen.reset()
         this.currentIndex = 0
       })
@@ -343,18 +339,11 @@ export default class extends Mixins(ScreenMixin) {
   private onCurrentIndexChange(newValue: number) {
     if (this.screenList.length) {
       this.selectedDeviceId = this.screenList[newValue]!.deviceId
-      this.setScreenCache()
     }
   }
 
   private mounted() {
-    if (this.screenCache.groupId) {
-      this.currentIndex = this.screenCache.currentIndex
-      this.maxSize = this.screenCache.maxSize
-      this.screenList = this.screenCache.list
-    } else {
-      this.initScreen()
-    }
+    this.initScreen()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
     window.addEventListener('resize', this.checkFullscreen)
@@ -375,7 +364,6 @@ export default class extends Mixins(ScreenMixin) {
   private closeScreen(screen: Screen) {
     this.selectedDeviceId = ''
     screen.reset()
-    this.setScreenCache()
   }
 
   /**
@@ -413,7 +401,6 @@ export default class extends Mixins(ScreenMixin) {
         }
       }
       await screen.getUrl()
-      this.setScreenCache()
     }
   }
 
@@ -429,7 +416,6 @@ export default class extends Mixins(ScreenMixin) {
     if (this.polling.isStart) {
       this.doPolling()
     }
-    this.setScreenCache()
   }
 
   /**
@@ -587,15 +573,6 @@ export default class extends Mixins(ScreenMixin) {
   private onDeviceDirClose(device: Device) {
     this.dialogs.deviceDir = false
     if (device) this.openScreen(device)
-  }
-
-  private setScreenCache() {
-    DeviceModule.SetScreenCache({
-      maxSize: this.maxSize,
-      currentIndex: this.currentIndex,
-      groupId: this.currentGroupId,
-      list: cloneDeep(this.screenList)
-    })
   }
 }
 </script>

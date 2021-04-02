@@ -67,7 +67,7 @@ export default class extends Vue {
    */
   public setCurrentTime(offsetTime: number) {
     if (this.handleDrag.isDragging) return
-    if (!offsetTime) return
+    if (offsetTime === null) return
     const currentTimestamp = this.currentRecord!.startAt + offsetTime * 1000
     this.currentTime = currentTimestamp
     this.handlePos = this.scale(Math.round((currentTimestamp - this.currentDate!) / 1000))

@@ -21,6 +21,11 @@
             <info-list-item label="SIP服务器TCP端口:">{{ form.sipTcpPort }}</info-list-item>
             <info-list-item label="SIP服务器UDP端口:">{{ form.sipUdpPort }}</info-list-item>
           </template>
+          <!-- 以下字段仅在RTMP/RTSP业务组中显示 -->
+          <template v-if="form.inProtocol !== 'gb28181'">
+            <info-list-item label="自动拉流:">{{ PullType[form.pullType] }}</info-list-item>
+            <info-list-item label="自动激活推流地址:">{{ PushType[form.pushType] }}</info-list-item>
+          </template>
         </info-list>
       </el-tab-pane>
       <el-tab-pane label="模板配置" name="template">
@@ -33,7 +38,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Group } from '@/type/group'
-import { OutProtocolType, InProtocolType, PullType } from '@/dics'
+import { OutProtocolType, InProtocolType, PullType, PushType } from '@/dics'
 import { queryGroup } from '@/api/group'
 import { formatSeconds } from '@/utils/interval'
 import TemplateBind from '../components/templateBind.vue'
@@ -49,6 +54,7 @@ export default class extends Vue {
   private InProtocolType = InProtocolType
   private OutProtocolType = OutProtocolType
   private PullType = PullType
+  private PushType = PushType
   private form: Group = {
     groupId: '',
     groupName: '',

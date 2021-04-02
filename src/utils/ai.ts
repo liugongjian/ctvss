@@ -102,7 +102,7 @@ export const parseMetaData = (type: string, metaData: any) => {
               left: boxes[i],
               width: boxes[i + 2],
               height: boxes[i + 3],
-              isWarning: !!metaData.Data.DetectClses[i / 4]
+              isWarning: !!~[1, 2].indexOf(metaData.Data.DetectClses[i / 4])
             }
           )
         }
@@ -120,6 +120,23 @@ export const parseMetaData = (type: string, metaData: any) => {
               width: boxes[i + 2],
               height: boxes[i + 3],
               isWarning: !!metaData.Data.DetectClses[i / 4]
+            }
+          )
+        }
+      }
+      break
+    // 危险区域检测
+    case '9':
+      if (metaData.Data && metaData.Data.DetectBoxes) {
+        const boxes = metaData.Data.DetectBoxes
+        for (let i = 0; i < boxes.length; i += 4) {
+          locations.push(
+            {
+              top: boxes[i + 1],
+              left: boxes[i],
+              width: boxes[i + 2],
+              height: boxes[i + 3],
+              isWarning: !metaData.Data.DetectClses[i / 4]
             }
           )
         }
