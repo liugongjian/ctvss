@@ -54,7 +54,7 @@
               <el-table-column prop="threshold" label="算法阈值（百分比）" min-width="160" align="center">
                 <template slot-scope="{row, $index}">
                   <el-form-item :rules="thresholdRules" :prop="'templateAbilityList.' + abilityIndex + '.algorithms.' + $index + '.threshold'" :inline-message="true">
-                    <el-input v-model="row.threshold" size="mini" />
+                    <el-input v-model="row.threshold" size="mini" :disabled="row.threshold === null" />
                   </el-form-item>
                 </template>
               </el-table-column>
@@ -85,38 +85,53 @@
         </el-form-item>
       </el-form>
     </el-card>
-    <SetFaceLibrary
-      v-if="setFaceLibraryDialog"
-      :current-algorithm="currentAlgorithm"
-      @on-close="closeSetFaceLibraryDialog"
-    />
-    <SetNumThreshold
-      v-if="setNumThresholdDialog"
-      :current-algorithm="currentAlgorithm"
-      @on-close="closeSetNumThresholdDilaog"
-    />
+    <template v-if="showSetDialog">
+      <component
+        :is="setDialogType"
+        :current-algorithm="currentAlgorithm"
+        @on-close="closeSetDialog"
+      />
+    </template>
   </div>
 </template>
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
 import { AIAbility, AIAbilityAlgorithm } from '@/type/template'
 import { queryAITemplate, createAITemplate, updateAITemplate, getAIAbilityList, getAbilityAlgorithmList } from '@/api/template'
-import SetFaceLibrary from './dialogs/setFaceLibrary.vue'
-import SetNumThreshold from './dialogs/setNumThreshold.vue'
+import setFaceRecognition from './dialogs/setFaceRecognition.vue'
+import setMaskDetection from './dialogs/setMaskDetection.vue'
+import setPeopleGathering from './dialogs/setPeopleGathering.vue'
+import setDangerArea from './dialogs/setDangerArea.vue'
 
 @Component({
   name: 'create-or-update-callback-template',
   components: {
-    SetFaceLibrary,
-    SetNumThreshold
+    setFaceRecognition,
+    setMaskDetection,
+    setPeopleGathering,
+    setDangerArea
   }
 })
 export default class extends Vue {
+  private codeTypeMap: {[index: string]: string} = {
+    '10001': 'setFaceRecognition',
+    '10003': 'setMaskDetection',
+    '10005': 'setPeopleGathering',
+    '10006': 'setDangerArea'
+  }
+  private algorithmDefaultThresholdMap: any = {
+    '10001': '68',
+    '10002': null,
+    '10003': '50',
+    '10004': '50',
+    '10005': '30',
+    '10006': '30'
+  }
+  private showSetDialog = false
+  private setDialogType = ''
   private breadCrumbContent = ''
   private createOrUpdateFlag = false
   private loading = false
-  private setFaceLibraryDialog = false
-  private setNumThresholdDialog = false
   private rules = {
     templateName: [
       { required: true, message: '请输入AI模板名称', trigger: 'blur' },
@@ -135,9 +150,9 @@ export default class extends Vue {
   private systemAbilityAlgorithmsMap: {[index: string]: AIAbilityAlgorithm[]} = {}
   private form: any = {
     templateName: '',
-    enableType: 1,
+    enableType: null,
     description: '',
-    threshold: 60,
+    threshold: '',
     templateAbilityList: []
   }
 
@@ -150,6 +165,8 @@ export default class extends Vue {
       if (query.templateId) {
         this.loading = true
         const res = await queryAITemplate({ templateId: query.templateId })
+        res.threshold && (res.threshold = (res.threshold * 100).toString())
+        res.threshold === 0 && (res.threshold = '')
         this.form = {
           ...res,
           templateId: query.templateId,
@@ -167,18 +184,26 @@ export default class extends Vue {
         await Promise.all(promiseArray)
         for (let key in algorithmsGroupbyAbility) {
           const algorithms = algorithmsGroupbyAbility[key]
-          console.log('algorithms: ', algorithms)
           const systemAlgorithms = this.systemAbilityAlgorithmsMap[key]
           const selectedRow: any = []
           const combinedAlgorithms = systemAlgorithms.map(systemAlgorithm => {
-            const index = algorithms.findIndex((algorithm: any) => systemAlgorithm.aIAbilityAlgorithmId == algorithm.aIAbilityAlgorithmId)
+            const index = algorithms.findIndex((algorithm: any) => systemAlgorithm.aIAbilityAlgorithmId === algorithm.aIAbilityAlgorithmId)
             const rowData = {
               ...systemAlgorithm
             }
             if (index !== -1) {
               rowData.algorithmMetadata = algorithms[index].algorithmMetadata
               rowData.frameCutFrequency = algorithms[index].frameCutFrequency
-              rowData.threshold = algorithms[index].threshold
+              if (systemAlgorithm.code === '10001') {
+                rowData.threshold = algorithms[index].threshold || ''
+              } else {
+                if (!this.algorithmDefaultThresholdMap[systemAlgorithm.code]) {
+                  rowData.threshold = null
+                } else {
+                  rowData.threshold = (algorithms[index].threshold * 100).toString()
+                }
+              }
+              rowData.threshold === '0' && (rowData.threshold = '')
               selectedRow.push(rowData)
             }
             return rowData
@@ -188,21 +213,24 @@ export default class extends Vue {
             algorithms: combinedAlgorithms,
             selectedRow: selectedRow
           })
-          console.log('this.form.templateAbilityList: ', this.form.templateAbilityList)
         }
         this.initTableSelection()
         this.loading = false
       } else {
-        // do nothing
+        this.form = {
+          templateName: '',
+          enableType: 1,
+          description: '',
+          threshold: '70',
+          templateAbilityList: []
+        }
       }
     } catch (e) {
-      console.log('e: ', e)
       this.loading = false
     }
   }
 
   private validateFrequency(rule: any, value: string, callback: Function) {
-    console.log('value: ', value)
     const frequenceReg = /^\d+$/
     if (!frequenceReg.test(value)) {
       callback(new Error('截图频率必须是正整数'))
@@ -213,7 +241,7 @@ export default class extends Vue {
 
   private validateThreshold(rule: any, value: string, callback: Function) {
     const thresholdReg = /^\d+$/
-    if (value && (!thresholdReg.test(value) || Number(value) < 1 || Number(value) > 100)) {
+    if ((value !== '' && value !== null) && (!thresholdReg.test(value) || Number(value) < 1 || Number(value) > 100)) {
       callback(new Error('请输入1-100之间的正整数'))
     } else {
       callback()
@@ -233,31 +261,18 @@ export default class extends Vue {
   }
 
   private configMetadata(algorithm: AIAbilityAlgorithm) {
-    this.currentAlgorithm = algorithm
-    switch (algorithm.code) {
-      case '10001':
-        this.setFaceLibraryDialog = true
-        break
-      case '10002':
-        this.setNumThresholdDialog = true
-        break
-      default:
-        this.$message.error(`未配置的code类型：${algorithm.code}`)
+    if (algorithm.code in this.codeTypeMap) {
+      this.currentAlgorithm = algorithm
+      this.setDialogType = this.codeTypeMap[algorithm.code]
+      this.setDialogType && (this.showSetDialog = true)
+    } else {
+      this.$message.error(`未配置的code类型：${algorithm.code}`)
     }
   }
 
-  private closeSetFaceLibraryDialog(params: any) {
-    this.setFaceLibraryDialog = false
+  private closeSetDialog(params: any) {
+    this.showSetDialog = false
     if (params.refresh) {
-      console.log('params.val: ', params.val)
-      this.currentAlgorithm.algorithmMetadata = params.val
-    }
-  }
-
-  private closeSetNumThresholdDilaog(params: any) {
-    this.setNumThresholdDialog = false
-    if (params.refresh) {
-      console.log('params.val: ', params.val)
       this.currentAlgorithm.algorithmMetadata = params.val
     }
   }
@@ -267,7 +282,6 @@ export default class extends Vue {
       this.form.templateAbilityList.forEach((templateAbility: any, index: any) => {
         templateAbility.selectedRow.forEach((row: any) => {
           const refTables: any = this.$refs['multipleTable' + index]
-          console.log('refTable: ', refTables[0])
           refTables[0].toggleRowSelection(row, true)
         })
       })
@@ -305,8 +319,10 @@ export default class extends Vue {
         ...algorithm,
         aIAbilityAlgorithmId: algorithm.algorithmId,
         frameCutFrequency: 5,
-        threshold: 98,
-        algorithmMetadata: ''
+        threshold: this.algorithmDefaultThresholdMap[algorithm.code],
+        algorithmMetadata: '',
+        aIAbilityName: res.detail,
+        algorithmName: algorithm.name
       }))
       this.systemAbilityAlgorithmsMap[aIAbilityId] = algorithms
     } catch (e) {
@@ -326,8 +342,10 @@ export default class extends Vue {
           ...algorithm,
           aIAbilityAlgorithmId: algorithm.algorithmId,
           frameCutFrequency: 5,
-          threshold: 98,
-          algorithmMetadata: ''
+          threshold: this.algorithmDefaultThresholdMap[algorithm.code],
+          algorithmMetadata: '',
+          aIAbilityName: res.detail,
+          algorithmName: algorithm.name
         }))
         this.systemAbilityAlgorithmsMap[aIAbilityId] = algorithms
         this.$set(ability, 'algorithms', algorithms)
@@ -340,7 +358,7 @@ export default class extends Vue {
 
   private submit() {
     if (!this.form.templateAbilityList || !this.form.templateAbilityList.length) {
-      this.$message.error('AI模板需要配置至少一个AI能力，请检查！')
+      this.$message.error('AI模板中至少配置一项AI能力！')
       return
     }
     const abilityIdList = this.form.templateAbilityList.map((templateAbility: any) => templateAbility.aIAbilityId)
@@ -351,7 +369,7 @@ export default class extends Vue {
     }
     const noRowSelected = this.form.templateAbilityList.some((templateAbility: any) => !templateAbility.selectedRow || !templateAbility.selectedRow.length)
     if (noRowSelected) {
-      this.$message.error('AI能力下需要至少选择一个AI算法，请检查！')
+      this.$message.error('AI能力中至少配置一种算法！')
       return
     }
     const form: any = this.$refs.dataForm
@@ -360,19 +378,40 @@ export default class extends Vue {
         const algorithms: any = []
         this.form.templateAbilityList.forEach((ability: AIAbility) => {
           if (ability && ability.selectedRow) {
-            algorithms.push(...ability.selectedRow.map(algorithm => ({
+            algorithms.push(...ability.selectedRow.map((algorithm: any) => ({
               aIAbilityId: ability.aIAbilityId,
               aIAbilityAlgorithmId: algorithm.aIAbilityAlgorithmId,
               algorithmMetadata: algorithm.needConfig ? algorithm.algorithmMetadata : '',
               frameCutFrequency: algorithm.frameCutFrequency || undefined,
-              threshold: algorithm.threshold || undefined,
-              needConfig: algorithm.needConfig
+              threshold: algorithm.threshold ? (algorithm.code === '10001' ? algorithm.threshold : (Number(algorithm.threshold) / 100).toString()) : algorithm.threshold,
+              needConfig: algorithm.needConfig,
+              aIAbilityName: algorithm.aIAbilityName,
+              algorithmName: algorithm.algorithmName
             })))
           }
         })
-        const needConfig = algorithms.some((algorithm: any) => algorithm.needConfig && !algorithm.algorithmMetadata)
+        let aIAbilityName = ''
+        let algorithmName = ''
+        const needConfig = algorithms.some((algorithm: any) => {
+          if (algorithm.needConfig && !algorithm.algorithmMetadata) {
+            aIAbilityName = algorithm.aIAbilityName
+            algorithmName = algorithm.algorithmName
+          }
+          return algorithm.needConfig && !algorithm.algorithmMetadata
+        })
         if (needConfig) {
-          this.$message.error('存在需要配置但尚未配置的算法，请检查！')
+          this.$message.error(`${aIAbilityName}的${algorithmName}算法尚未配置！`)
+          return
+        }
+        const needDefaultThreshold = algorithms.some((algorithm: any) => {
+          if (algorithm.threshold === '' && this.form.threshold === '') {
+            aIAbilityName = algorithm.aIAbilityName
+            algorithmName = algorithm.algorithmName
+          }
+          return algorithm.threshold === '' && this.form.threshold === ''
+        })
+        if (needDefaultThreshold) {
+          this.$message.error(`${aIAbilityName}的${algorithmName}算法配置信息不完整！`)
           return
         }
         this.loading = true
@@ -381,10 +420,9 @@ export default class extends Vue {
           templateName: this.form.templateName,
           description: this.form.description,
           enableType: this.form.enableType,
-          threshold: this.form.threshold ? Number(this.form.threshold) : undefined,
-          algorithms: algorithms
+          threshold: this.form.threshold ? (this.form.threshold / 100).toString() : undefined,
+          algorithms: algorithms.map((algorithm: any) => ({ ...algorithm, threshold: algorithm.threshold || undefined }))
         }
-        console.log('this.form.templateId: ', this.form.templateId)
         try {
           if (this.form.templateId) {
             await updateAITemplate(param)
