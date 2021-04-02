@@ -263,11 +263,10 @@ export default class extends Vue {
       res.records.forEach((statistic: any) => {
         const monthArray = statistic.day.match(/\d+-\d+/)
         const month = monthArray ? monthArray[0] : null
-        if (this.recordStatistic.has(month)) {
-          this.recordStatistic.get(month).add(statistic.day)
-        } else {
+        if (!this.recordStatistic.has(month)) {
           this.recordStatistic.set(month, new Set())
         }
+        this.recordStatistic.get(month).add(statistic.day)
       })
     } catch (e) {
       console.log(e)
