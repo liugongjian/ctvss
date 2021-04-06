@@ -87,6 +87,10 @@
             <router-link to="/secretManage"><i><svg-icon name="key" /></i> API密钥管理</router-link>
             <div class="header-dropdown__divided" />
           </div>
+          <div>
+            <router-link to="/changePassword"><i><svg-icon name="password" /></i> 修改密码</router-link>
+            <div class="header-dropdown__divided" />
+          </div>
           <el-button type="text" @click="logout"><i><svg-icon name="logout" /></i> 退出登录</el-button>
         </div>
       </div>
