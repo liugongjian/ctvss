@@ -7,21 +7,19 @@ export const getRegions = async() => {
   })
   if (!res.provinces) return []
   return res.provinces.map((province: any) => {
+    const regions: any = []
+    province.citys.forEach((city: any) => {
+      city.regions.forEach((region: any) => {
+        regions.push({
+          value: region.region,
+          label: region.regionName
+        })
+      })
+    })
     return {
       value: province.name,
       label: province.name,
-      children: province.citys.map((city: any) => {
-        return {
-          value: city.name,
-          label: city.name,
-          children: city.regions.map((region: any) => {
-            return {
-              value: region.region,
-              label: region.regionName
-            }
-          })
-        }
-      })
+      children: regions
     }
   })
 }
