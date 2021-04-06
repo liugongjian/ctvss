@@ -13,13 +13,13 @@
       label-position="right"
       label-width="160px"
     >
-      <el-form-item label="人员数量阈值:" prop="numThreshold" class="form-with-tip">
-        <el-input v-model="form.numThreshold" class="fixed-width" />
+      <el-form-item label="人员数量阈值:" prop="pedThreshold" class="form-with-tip">
+        <el-input v-model="form.pedThreshold" class="fixed-width" />
         <div class="form-tip">人员数量达到该阈值即可触发人员聚集告警</div>
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
-      <el-button @click="setNumThreshold">确定</el-button>
+      <el-button @click="setPedThreshold">确定</el-button>
       <el-button @click="closeDialog(false)">取消</el-button>
     </span>
   </el-dialog>
@@ -28,26 +28,28 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 
 @Component({
-  name: 'SetFaceLibrary'
+  name: 'SetPeopleGathering'
 })
 export default class extends Vue {
   @Prop() private currentAlgorithm?: any
   private dialogVisible = true
   private form = {
-    numThreshold: '5'
+    pedThreshold: '5'
   }
   private rules = {
-    numThreshold: [
+    pedThreshold: [
       { required: true, message: '请输入人员数量阈值', trigger: 'blur' },
-      { validator: this.validateNumThreshold, trigger: 'blur' }
+      { validator: this.validatePedThreshold, trigger: 'blur' }
     ]
   }
 
   mounted() {
-    this.form.numThreshold = (this.currentAlgorithm && this.currentAlgorithm.algorithmMetadata) || this.form.numThreshold
+    if (this.currentAlgorithm && this.currentAlgorithm.algorithmMetadata) {
+      this.form = JSON.parse(this.currentAlgorithm.algorithmMetadata)
+    }
   }
 
-  private validateNumThreshold(rule: any, value: string, callback: Function) {
+  private validatePedThreshold(rule: any, value: string, callback: Function) {
     const thresholdReg = /^\d+$/
     if (value && (!thresholdReg.test(value) || Number(value) < 1 || Number(value) > 100)) {
       callback(new Error('请输入1-100之间的正整数'))
@@ -56,17 +58,17 @@ export default class extends Vue {
     }
   }
 
-  private closeDialog(refresh: boolean, val: any) {
+  private closeDialog(refresh: boolean) {
     this.dialogVisible = false
-    this.$emit('on-close', { val: val, refresh: refresh })
+    this.$emit('on-close', { val: '', refresh: refresh })
   }
 
-  private setNumThreshold() {
+  private setPedThreshold() {
     const form: any = this.$refs.dataForm
     form.validate(async(valid: any) => {
       if (valid) {
         this.dialogVisible = false
-        this.$emit('on-close', { val: this.form.numThreshold, refresh: true })
+        this.$emit('on-close', { val: JSON.stringify(this.form), refresh: true })
       }
     })
   }

@@ -40,7 +40,7 @@ interface AITemplateAlgorithm {
   algorithmName: string;
   algorithmMetadata: object;
   frameCutFrequency: number;
-  threshold?: number;
+  threshold?: string | number | null;
 }
 
 export interface AITemplate {
@@ -48,7 +48,7 @@ export interface AITemplate {
   templateName: string;
   description?: string;
   enableType: number;
-  threshold?: number;
+  threshold?: string | number | null;
   algorithms: AITemplateAlgorithm[];
   createdTime?: string;
   updatedTime?: string;
@@ -73,8 +73,8 @@ export interface AIAbilityAlgorithm {
   needConfig?: boolean;
   algorithmMetadata?: string;
   frameCutFrequency?: number;
-  threshold?: number;
-  code?: string;
+  threshold?: string | number | null;
+  code: string;
   icon?: string;
   labels?: string;
 }
