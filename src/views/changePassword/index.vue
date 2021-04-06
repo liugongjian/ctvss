@@ -45,9 +45,9 @@
         </span>
         <el-popover placement="right-start" title="密码说明" width="450" trigger="hover" class="show-popover">
           <div>
-            1. 密码长度必须在8-26位之间<br>
-            2. 密码必须包含数字<br>
-            3. 密码必须包含字母(区分大小写)<br>
+            1. 密码必须由字母、数字、特殊符号组成，区分大小写<br>
+            2. 特殊符号包含 . _ ~ ! @ # $ ^ & *<br>
+            3. 密码长度为8-20位<br>
           </div>
           <i slot="reference" class="el-icon-info" />
         </el-popover>
@@ -94,6 +94,8 @@ export default class extends Vue {
   private validatePassword = (rule: any, value: string, callback: Function) => {
     if (!value) {
       callback(new Error('密码不能为空'))
+    } else if (!this.pwdReg.test(value)) {
+      callback(new Error('密码格式不正确'))
     } else {
       callback()
     }
@@ -127,6 +129,7 @@ export default class extends Vue {
     ]
   }
 
+  private pwdReg = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[._~!@#$^&*])[A-Za-z0-9._~!@#$^&*]{8,20}$/
   private showOriginalPwdError = false
   private loading = false
 

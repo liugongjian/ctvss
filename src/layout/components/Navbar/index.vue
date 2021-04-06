@@ -87,7 +87,7 @@
             <router-link to="/secretManage"><i><svg-icon name="key" /></i> API密钥管理</router-link>
             <div class="header-dropdown__divided" />
           </div>
-          <div>
+          <div v-if="!isIamUserLogin">
             <router-link to="/changePassword"><i><svg-icon name="password" /></i> 修改密码</router-link>
             <div class="header-dropdown__divided" />
           </div>
@@ -139,6 +139,9 @@ export default class extends Vue {
     group: false
   }
 
+  get isMainUser() {
+    return UserModule.isIamUserLogin === 'false'
+  }
   get sidebar() {
     return AppModule.sidebar
   }
