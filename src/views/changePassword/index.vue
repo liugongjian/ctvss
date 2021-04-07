@@ -43,14 +43,7 @@
             :name="passwordType.newPwd === 'password' ? 'eye-off' : 'eye-on'"
           />
         </span>
-        <el-popover placement="right-start" title="密码说明" width="450" trigger="hover" class="show-popover">
-          <div>
-            1. 密码必须由字母、数字、特殊符号组成，区分大小写<br>
-            2. 特殊符号包含 . _ ~ ! @ # $ ^ & *<br>
-            3. 密码长度为8-20位<br>
-          </div>
-          <i slot="reference" class="el-icon-info" />
-        </el-popover>
+        <span class="form-item-tip">密码长度为8-20位,必须是字母和数字、特殊字符的组合，区分大小写</span>
       </el-form-item>
       <el-form-item prop="confirmPwd" label="确认密码">
         <el-input
@@ -115,8 +108,7 @@ export default class extends Vue {
   }
   private rules = {
     originalPwd: [
-      { required: true, message: '请输入原始密码', trigger: 'blur' },
-      { validator: this.validatePassword, trigger: 'blur' }
+      { required: true, message: '请输入原始密码', trigger: 'blur' }
     ],
     newPwd: [
       { required: true, message: '请输入新密码', trigger: 'blur' },
@@ -189,10 +181,6 @@ export default class extends Vue {
     cursor: pointer;
     user-select: none;
   }
-  .show-popover {
-    position: absolute;
-    right: -20px;
-  }
   ::v-deep .el-form-item {
     margin-bottom: 30px;
     .error-tip {
@@ -204,9 +192,21 @@ export default class extends Vue {
       left: 0;
       padding-top: 6px;
     }
+    .form-item-tip {
+      font-size: 12px;
+      color: $darkGray;
+      line-height: 1;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      padding-top: 6px;
+    }
   }
   ::v-deep .el-form-item.is-error {
     .error-tip {
+      display: none;
+    }
+    .form-item-tip {
       display: none;
     }
   }
