@@ -43,7 +43,7 @@
             :name="passwordType.newPwd === 'password' ? 'eye-off' : 'eye-on'"
           />
         </span>
-        <span class="form-item-tip">密码长度为8-20位,必须是字母和数字、特殊字符的组合，区分大小写</span>
+        <span class="form-item-tip">密码长度为8-20位，必须同时包含大写字母、小写字母、数字、特殊字符</span>
       </el-form-item>
       <el-form-item prop="confirmPwd" label="确认密码">
         <el-input
@@ -121,7 +121,7 @@ export default class extends Vue {
     ]
   }
 
-  private pwdReg = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[._~!@#$^&*])[A-Za-z0-9._~!@#$^&*]{8,20}$/
+  private pwdReg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[.@$!%*#_~?&^])[A-Za-z0-9.@$!%*#_~?&^]{8,20}$/
   private showOriginalPwdError = false
   private loading = false
 
