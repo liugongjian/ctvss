@@ -6,10 +6,10 @@
       class="tags__item"
     >
       <div class="tags__item__col">
-        <el-input v-model="tag.key" @change="onChange" />
+        <el-input v-model="tag.key" placeholder="键" @change="onChange" />
       </div>
       <div class="tags__item__col">
-        <el-input v-model="tag.value" @change="onChange" />
+        <el-input v-model="tag.value" placeholder="值" @change="onChange" />
       </div>
       <div class="tags__item__col">
         <svg-icon class="tags__item__remove" name="trash" @click="removeTag(index)" />
