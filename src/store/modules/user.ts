@@ -1,5 +1,5 @@
 import { VuexModule, Module, Action, Mutation, getModule } from 'vuex-module-decorators'
-import { login, logout, getUserInfo, getIAMUserInfo } from '@/api/users'
+import { login, logout, getUserInfo, getIAMUserInfo, changePassword } from '@/api/users'
 import { getToken, setToken, removeToken, getUsername, setUsername, removeUsername, setPerms, removePerms, getIsIamUserLogin, setIsIamUserLogin, getIamUserId, setIamUserId, removeIamUserId } from '@/utils/cookies'
 import router, { resetRouter } from '@/router'
 import { PermissionModule } from './permission'
@@ -191,6 +191,15 @@ class User extends VuexModule implements IUserState {
     router.addRoutes(PermissionModule.dynamicRoutes)
     // Reset visited views and cached views
     TagsViewModule.delAllViews()
+  }
+
+  @Action({ rawError: true })
+  public async ChangePassword(form: { originalPwd: string, newPwd: string }) {
+    let { originalPwd, newPwd } = form
+    await changePassword({
+      oldPassword: originalPwd,
+      newPassword: newPwd
+    })
   }
 
   @Action
