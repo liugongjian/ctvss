@@ -25,18 +25,6 @@ export const getUsername = () => Cookies.get(username)
 export const setUsername = (token: string) => Cookies.set(username, token)
 export const removeUsername = () => Cookies.remove(username)
 
-// perms
-const permsKey = 'perms'
-export const getPerms = () => Cookies.get(permsKey) || []
-export const setPerms = (perms: string[]) => Cookies.set(permsKey, perms)
-export const removePerms = () => Cookies.remove(permsKey)
-
-// isIamUserLogin
-const loginTypeKey = 'isIamUserLogin'
-export const getIsIamUserLogin = () => Cookies.get(loginTypeKey)
-export const setIsIamUserLogin = (type: string) => Cookies.set(loginTypeKey, type)
-export const removeIsIamUserLogin = () => Cookies.remove(loginTypeKey)
-
 // iamUserId
 const iamUserIdKey = 'iamUserId'
 export const getIamUserId = () => Cookies.get(iamUserIdKey)
