@@ -17,11 +17,11 @@
         >
           <div class="title-container">
             <h3 class="title">
-              {{ isMainUser ? "主账号登录" : '子账号登录' }}
+              {{ !subUserLogin ? "主账号登录" : '子账号登录' }}
             </h3>
           </div>
 
-          <el-form-item v-if="!isMainUser" prop="mainUserID">
+          <el-form-item v-if="subUserLogin" prop="mainUserID">
             <span class="svg-container">
               <svg-icon name="user" />
             </span>
@@ -33,6 +33,7 @@
               type="text"
               tabindex="1"
               autocomplete="on"
+              @change="setIDQuery"
             />
           </el-form-item>
           <el-form-item prop="userName">
@@ -97,7 +98,7 @@
               type="text"
               @click.native.prevent="switchToSubUserLogin"
             >
-              <svg-icon name="arrow-left" height="12px" /> {{ isMainUser ? "切换子账号" : "切换主账号" }}
+              <svg-icon name="arrow-left" height="12px" /> {{ !subUserLogin ? "切换子账号" : "切换主账号" }}
             </el-button>
           </div>
           <!-- <div style="position:relative">
@@ -176,6 +177,7 @@ export default class extends Vue {
     }
   }
   private loginForm = {
+    mainUserID: '',
     userName: '',
     password: ''
   }
@@ -190,10 +192,7 @@ export default class extends Vue {
   private capsTooltip = false
   private redirect?: string
   private otherQuery: Dictionary<string> = {}
-
-  get isMainUser() {
-    return UserModule.isIamUserLogin === 'false'
-  }
+  private subUserLogin = false
 
   @Watch('$route', { immediate: true })
   private onRouteChange(route: Route) {
@@ -203,6 +202,8 @@ export default class extends Vue {
     if (query) {
       this.redirect = query.redirect
       this.otherQuery = this.getOtherQuery(query)
+      this.subUserLogin = (this.otherQuery.subUserLogin === '1')
+      this.loginForm.mainUserID = this.otherQuery.mainUserID || ''
     }
   }
 
@@ -214,6 +215,18 @@ export default class extends Vue {
     }
   }
 
+  private setIDQuery(value: string) {
+    const query = JSON.parse(JSON.stringify(this.$route.query))
+    if (value) {
+      query.mainUserID = value
+    } else {
+      delete query.mainUserID
+    }
+    this.$router.replace({
+      query
+    })
+  }
+
   private checkCapslock(e: KeyboardEvent) {
     const { key } = e
     if (!key) return
@@ -221,7 +234,19 @@ export default class extends Vue {
   }
 
   private switchToSubUserLogin() {
-    UserModule.ChangeLoginType()
+    this.loginForm.userName = ''
+    this.loginForm.password = ''
+    this.subUserLogin = !this.subUserLogin
+    const query = JSON.parse(JSON.stringify(this.$route.query))
+    if (this.subUserLogin) {
+      query.subUserLogin = '1'
+    } else {
+      delete query.subUserLogin
+      delete query.mainUserID
+    }
+    this.$router.replace({
+      query
+    })
   }
   private showPwd() {
     if (this.passwordType === 'password') {
@@ -241,7 +266,14 @@ export default class extends Vue {
           this.loading = true
           await GroupModule.ResetGroup()
           await GroupModule.ResetGroupList()
-          await UserModule.Login(this.loginForm)
+          const loginData: any = {
+            userName: this.loginForm.userName,
+            password: this.loginForm.password
+          }
+          if (this.subUserLogin) {
+            loginData.mainUserID = this.loginForm.mainUserID
+          }
+          await UserModule.Login(loginData)
           this.$router.push({
             path: this.redirect || '/',
             query: this.otherQuery
