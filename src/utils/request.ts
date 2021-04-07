@@ -34,6 +34,7 @@ service.interceptors.response.use(
     return response.data
   },
   (error) => {
+    console.dir(error)
     if (!timeoutPromise && error.response && error.response.data.code === 16) {
       timeoutPromise = MessageBox.confirm(
         '登录超时，可以取消继续留在该页面，或者重新登录',

@@ -52,6 +52,13 @@ export const logout = () =>
     method: 'post'
   })
 
+export const changePassword = (data: any) =>
+  request({
+    url: 'iam/user/changePwd',
+    method: 'post',
+    data
+  })
+
 export const register = (data: any) =>
   request({
     url: '/users/register',
