@@ -1,116 +1,130 @@
 <template>
   <div class="login-container">
-    <el-form
-      ref="loginForm"
-      :model="loginForm"
-      :rules="loginRules"
-      class="login-form"
-      autocomplete="on"
-      label-position="left"
-    >
-      <div class="title-container">
-        <h3 class="title">
-          {{ isMainUser ? "主账号登录" : '子账号登录' }}
-        </h3>
+    <div class="header">
+      <div class="logo">
+        <img src="@/assets/images/logo.png">
       </div>
-
-      <el-form-item v-if="!isMainUser" prop="mainUserID">
-        <span class="svg-container">
-          <svg-icon name="user" />
-        </span>
-        <el-input
-          ref="mainUserID"
-          v-model="loginForm.mainUserID"
-          placeholder="主账号ID"
-          name="mainUserID"
-          type="text"
-          tabindex="1"
+    </div>
+    <div class="login-container__body">
+      <div class="login-container__body__left">
+        <el-form
+          ref="loginForm"
+          :model="loginForm"
+          :rules="loginRules"
+          class="login-form"
           autocomplete="on"
-        />
-      </el-form-item>
-      <el-form-item prop="userName">
-        <span class="svg-container">
-          <svg-icon name="user" />
-        </span>
-        <el-input
-          ref="userName"
-          v-model="loginForm.userName"
-          placeholder="账号"
-          name="userName"
-          type="text"
-          tabindex="1"
-          autocomplete="on"
-        />
-      </el-form-item>
+          label-position="left"
+        >
+          <div class="title-container">
+            <h3 class="title">
+              {{ !subUserLogin ? "主账号登录" : '子账号登录' }}
+            </h3>
+          </div>
 
-      <el-tooltip
-        v-model="capsTooltip"
-        content="大写键盘已打开"
-        placement="right"
-        manual
-      >
-        <el-form-item prop="password">
-          <span class="svg-container">
-            <svg-icon name="password" />
-          </span>
-          <el-input
-            :key="passwordType"
-            ref="password"
-            v-model="loginForm.password"
-            :type="passwordType"
-            placeholder="密码"
-            name="password"
-            tabindex="2"
-            autocomplete="on"
-            @keyup.native="checkCapslock"
-            @blur="capsTooltip = false"
-            @keyup.enter.native="handleLogin"
-          />
-          <span
-            class="show-pwd"
-            @click="showPwd"
+          <el-form-item v-if="subUserLogin" prop="mainUserID">
+            <span class="svg-container">
+              <svg-icon name="user" />
+            </span>
+            <el-input
+              ref="mainUserID"
+              v-model="loginForm.mainUserID"
+              placeholder="主账号ID"
+              name="mainUserID"
+              type="text"
+              tabindex="1"
+              autocomplete="on"
+              @change="setIDQuery"
+            />
+          </el-form-item>
+          <el-form-item prop="userName">
+            <span class="svg-container">
+              <svg-icon name="user" />
+            </span>
+            <el-input
+              ref="userName"
+              v-model="loginForm.userName"
+              placeholder="账号"
+              name="userName"
+              type="text"
+              tabindex="1"
+              autocomplete="on"
+            />
+          </el-form-item>
+
+          <el-tooltip
+            v-model="capsTooltip"
+            content="大写键盘已打开"
+            placement="right"
+            manual
           >
-            <svg-icon :name="passwordType === 'password' ? 'eye-off' : 'eye-on'" />
-          </span>
-        </el-form-item>
-      </el-tooltip>
-      <div class="button-group">
-        <el-button
-          class="button-group__login"
-          :loading="loading"
-          type="primary"
-          @click.native.prevent="handleLogin"
-        >
-          {{ "登录" }}
-        </el-button>
-        <el-button
-          class="button-group__sublogin"
-          type="warning"
-          @click.native.prevent="switchToSubUserLogin"
-        >
-          {{ isMainUser ? "切换子账号" : "切换主账号" }}
-        </el-button>
+            <el-form-item prop="password">
+              <span class="svg-container">
+                <svg-icon name="password" />
+              </span>
+              <el-input
+                :key="passwordType"
+                ref="password"
+                v-model="loginForm.password"
+                :type="passwordType"
+                placeholder="密码"
+                name="password"
+                tabindex="2"
+                autocomplete="on"
+                @keyup.native="checkCapslock"
+                @blur="capsTooltip = false"
+                @keyup.enter.native="handleLogin"
+              />
+              <span
+                class="show-pwd"
+                @click="showPwd"
+              >
+                <svg-icon :name="passwordType === 'password' ? 'eye-off' : 'eye-on'" />
+              </span>
+            </el-form-item>
+          </el-tooltip>
+          <div class="button-group">
+            <el-button
+              class="button-group__login"
+              :loading="loading"
+              type="primary"
+              size="large"
+              @click.native.prevent="handleLogin"
+            >
+              {{ "登录" }}
+            </el-button>
+          </div>
+          <div class="login-switcher">
+            <el-button
+              type="text"
+              @click.native.prevent="switchToSubUserLogin"
+            >
+              <svg-icon name="arrow-left" height="12px" /> {{ !subUserLogin ? "切换子账号" : "切换主账号" }}
+            </el-button>
+          </div>
+          <!-- <div style="position:relative">
+            <div class="tips">
+              <span>{{ "账号" }} : admin </span>
+              <span>{{ "密码" }} : {{ "随便填" }} </span>
+            </div>
+            <div class="tips">
+              <span>{{ "账号" }} : editor </span>
+              <span>{{ "密码" }} : {{ "随便填" }} </span>
+            </div>
+
+            <el-button
+              class="thirdparty-button"
+              type="primary"
+              @click="showDialog=true"
+            >
+              {{ "第三方登录" }}
+            </el-button>
+          </div> -->
+        </el-form>
       </div>
-      <!-- <div style="position:relative">
-        <div class="tips">
-          <span>{{ "账号" }} : admin </span>
-          <span>{{ "密码" }} : {{ "随便填" }} </span>
-        </div>
-        <div class="tips">
-          <span>{{ "账号" }} : editor </span>
-          <span>{{ "密码" }} : {{ "随便填" }} </span>
-        </div>
-
-        <el-button
-          class="thirdparty-button"
-          type="primary"
-          @click="showDialog=true"
-        >
-          {{ "第三方登录" }}
-        </el-button>
-      </div> -->
-    </el-form>
-
+      <div class="login-container__body__right">
+        <img src="@/assets/images/landing.png">
+      </div>
+    </div>
     <!-- <el-dialog
       title="第三方登录"
       :visible.sync="showDialog"
@@ -163,6 +177,7 @@ export default class extends Vue {
     }
   }
   private loginForm = {
+    mainUserID: '',
     userName: '',
     password: ''
   }
@@ -177,10 +192,7 @@ export default class extends Vue {
   private capsTooltip = false
   private redirect?: string
   private otherQuery: Dictionary<string> = {}
-
-  get isMainUser() {
-    return UserModule.isIamUserLogin === 'false'
-  }
+  private subUserLogin = false
 
   @Watch('$route', { immediate: true })
   private onRouteChange(route: Route) {
@@ -190,6 +202,8 @@ export default class extends Vue {
     if (query) {
       this.redirect = query.redirect
       this.otherQuery = this.getOtherQuery(query)
+      this.subUserLogin = (this.otherQuery.subUserLogin === '1')
+      this.loginForm.mainUserID = this.otherQuery.mainUserID || ''
     }
   }
 
@@ -201,6 +215,18 @@ export default class extends Vue {
     }
   }
 
+  private setIDQuery(value: string) {
+    const query = JSON.parse(JSON.stringify(this.$route.query))
+    if (value) {
+      query.mainUserID = value
+    } else {
+      delete query.mainUserID
+    }
+    this.$router.replace({
+      query
+    })
+  }
+
   private checkCapslock(e: KeyboardEvent) {
     const { key } = e
     if (!key) return
@@ -208,7 +234,19 @@ export default class extends Vue {
   }
 
   private switchToSubUserLogin() {
-    UserModule.ChangeLoginType()
+    this.loginForm.userName = ''
+    this.loginForm.password = ''
+    this.subUserLogin = !this.subUserLogin
+    const query = JSON.parse(JSON.stringify(this.$route.query))
+    if (this.subUserLogin) {
+      query.subUserLogin = '1'
+    } else {
+      delete query.subUserLogin
+      delete query.mainUserID
+    }
+    this.$router.replace({
+      query
+    })
   }
   private showPwd() {
     if (this.passwordType === 'password') {
@@ -228,7 +266,14 @@ export default class extends Vue {
           this.loading = true
           await GroupModule.ResetGroup()
           await GroupModule.ResetGroupList()
-          await UserModule.Login(this.loginForm)
+          const loginData: any = {
+            userName: this.loginForm.userName,
+            password: this.loginForm.password
+          }
+          if (this.subUserLogin) {
+            loginData.mainUserID = this.loginForm.mainUserID
+          }
+          await UserModule.Login(loginData)
           this.$router.push({
             path: this.redirect || '/',
             query: this.otherQuery
@@ -259,39 +304,37 @@ export default class extends Vue {
 // References: https://www.zhangxinxu.com/wordpress/2018/01/css-caret-color-first-line/
 @supports (-webkit-mask: none) and (not (cater-color: $loginCursorColor)) {
   .login-container .el-input {
-    input { color: $loginCursorColor; }
-    input::first-line { color: $lightGray; }
+    input { color: $text; }
+    input::first-line { color: $text; }
   }
 }
 
 .login-container {
   .el-input {
     display: inline-block;
-    height: 47px;
     width: 85%;
 
     input {
-      height: 47px;
-      background: transparent;
+      background: #fff;
       border: 0px;
       border-radius: 0px;
       padding: 12px 5px 12px 15px;
-      color: $lightGray;
-      caret-color: $loginCursorColor;
+      color: $text;
       -webkit-appearance: none;
 
       &:-webkit-autofill {
-        box-shadow: 0 0 0px 1000px $loginBg inset !important;
-        -webkit-text-fill-color: #fff !important;
+        background: none;
+        box-shadow: 0 0 0px 1000px #fff inset !important;
+        -webkit-text-fill-color: $text !important;
       }
     }
   }
 
   .el-form-item {
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(0, 0, 0, 0.1);
+    border: 1px solid #C6C6C6;
+    background: #fff;
     border-radius: 5px;
-    color: #454545;
+    color: $text;
   }
 }
 </style>
@@ -303,13 +346,49 @@ export default class extends Vue {
   overflow: hidden;
   background-color: $loginBg;
 
+  .header {
+    height: 50px;
+    width: 100%;
+    background-color: #31313b;
+    line-height: 50px;
+    position: fixed;
+    z-index: 100;
+
+    .logo {
+      float: left;
+      color: #fff;
+      margin-left: 15px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      img {
+        height: 30px;
+      }
+    }
+  }
+
+  &__body {
+    display: flex;
+    width: 1100px;
+    margin: 70px auto 0 auto;
+
+    &__left {
+      flex: 1;
+    }
+
+    &__right {
+      flex: 1;
+      img {
+        width: 100%;
+      }
+    }
+  }
+
   .login-form {
     position: relative;
-    width: 520px;
-    max-width: 100%;
-    padding: 160px 35px 0;
-    margin: 0 auto;
-    overflow: hidden;
+    border-right: 1px solid #ddd;
+    margin: 120px 60px 0 0;
+    padding-right: 60px;
   }
 
   .tips {
@@ -326,7 +405,7 @@ export default class extends Vue {
 
   .svg-container {
     padding: 6px 5px 6px 15px;
-    color: $darkGray;
+    color: #a5b1b7;
     vertical-align: middle;
     width: 30px;
     display: inline-block;
@@ -337,7 +416,7 @@ export default class extends Vue {
 
     .title {
       font-size: 26px;
-      color: $lightGray;
+      color: $text;
       margin: 0px auto 40px auto;
       text-align: center;
       font-weight: bold;
@@ -368,13 +447,17 @@ export default class extends Vue {
 
   .button-group {
     display: flex;
-    margin-bottom: 30px;
+    margin-bottom: 10px;
     justify-content: space-between;
     &__login {
-      width: 48%;
+      width: 100%;
     }
-    &__sublogin {
-      width: 48%;
+  }
+
+  .login-switcher {
+    text-align: center;
+    svg {
+      vertical-align: middle;
     }
   }
 }
