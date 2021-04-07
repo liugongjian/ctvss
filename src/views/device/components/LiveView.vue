@@ -13,9 +13,10 @@
         :is-live="true"
         :is-fullscreen="isFullscreen"
         :has-control="false"
+        @onSetStreamNum="onSetStreamNum"
         @onRetry="onRetry"
-        @onFullscreen="fullscreen()"
-        @onExitFullscreen="exitFullscreen()"
+        @onFullscreen="fullscreen"
+        @onExitFullscreen="exitFullscreen"
       />
     </div>
     <info-list v-if="address" label-width="70" title="播放地址" class="address">
@@ -136,6 +137,10 @@ export default class extends Vue {
     } finally {
       this.loading = false
     }
+  }
+
+  private onSetStreamNum(streamNum: number) {
+    console.log('onSetStreamNum', streamNum)
   }
 
   /**

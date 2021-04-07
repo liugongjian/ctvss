@@ -24,6 +24,19 @@
         </template>
       </div>
       <div class="controls__right">
+        <div v-if="isLive" class="controls__btn controls__stream">
+          <svg-icon name="branch" width="16px" height="16px" />
+          <ul class="controls__popup">
+            <li
+              v-for="stream in streamList"
+              :key="stream.value"
+              :class="{'selected': stream.value === streamNum}"
+              @click="setStreamNum(stream.value)"
+            >
+              {{ stream.label }}
+            </li>
+          </ul>
+        </div>
         <div v-if="!isLive && codec !== 'h265'" class="controls__btn controls__playback">
           {{ playbackRate === 1 ? '倍速' : `${playbackRate}x` }}
           <ul class="controls__popup">
@@ -176,6 +189,19 @@ export default class extends Vue {
   public waiting = false
   private isZoom = false
   private playbackRate = 1
+  private streamNum = 1
+  private streamList = [
+    {
+      label: '主码流',
+      value: 1
+    }, {
+      label: '第二码流',
+      value: 2
+    }, {
+      label: '第三码流',
+      value: 3
+    }
+  ]
   private playbackRateList = [16, 8, 4, 2, 1.5, 1, 0.5, 0.25]
   private videoMoveData: any = {
     x: null,
@@ -639,6 +665,14 @@ export default class extends Vue {
     this.player!.setPlaybackRate(playbackRate)
     this.$emit('onSetPlaybackRate', playbackRate)
   }
+
+  /**
+   * 切换通道号
+   */
+  public setStreamNum(streamNum: number) {
+    this.streamNum = streamNum
+    this.$emit('onSetStreamNum', streamNum)
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -753,6 +787,15 @@ export default class extends Vue {
         width: 32px;
         li {
           text-align: center;
+        }
+      }
+      &__stream {
+        .controls__popup {
+          width: 80px;
+          left: -30px;
+          li {
+            text-align: center;
+          }
         }
       }
       &__time {
