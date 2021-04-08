@@ -1,6 +1,6 @@
 import { VuexModule, Module, Action, Mutation, getModule } from 'vuex-module-decorators'
 import { login, logout, getUserInfo, getIAMUserInfo, changePassword } from '@/api/users'
-import { getToken, setToken, removeToken, getUsername, setUsername, removeUsername, setPerms, removePerms, getIsIamUserLogin, setIsIamUserLogin, getIamUserId, setIamUserId, removeIamUserId } from '@/utils/cookies'
+import { getToken, setToken, removeToken, getUsername, setUsername, removeUsername, getIamUserId, setIamUserId, removeIamUserId } from '@/utils/cookies'
 import router, { resetRouter } from '@/router'
 import { PermissionModule } from './permission'
 import { TagsViewModule } from './tags-view'
@@ -14,9 +14,9 @@ export interface IUserState {
   roles: string[],
   perms: string[],
   iamUserId: string,
-  isIamUserLogin: string,
-  email: string
-  type: string
+  email: string,
+  type: string,
+  mainUserID: string
 }
 
 @Module({ dynamic: true, store, name: 'user' })
@@ -26,11 +26,11 @@ class User extends VuexModule implements IUserState {
   public avatar = ''
   public introduction = ''
   public iamUserId = getIamUserId() || ''
-  public isIamUserLogin = getIsIamUserLogin() || 'false'
   public roles: string[] = []
   public perms: string[] = []
   public email = ''
   public type = ''
+  public mainUserID = ''
 
   @Mutation
   private SET_TOKEN(token: string) {
@@ -78,8 +78,8 @@ class User extends VuexModule implements IUserState {
   }
 
   @Mutation
-  private SET_IS_IAM_USER_LOGIN(type: string) {
-    this.isIamUserLogin = type
+  private SET_MAIN_USER_ID(id: string) {
+    this.mainUserID = id
   }
 
   @Action({ rawError: true })
@@ -88,10 +88,13 @@ class User extends VuexModule implements IUserState {
     userName = userName.trim()
     try {
       const data: any = await login({
-        mainUserID: this.isIamUserLogin === 'true' ? mainUserID : undefined,
+        mainUserID: mainUserID || undefined,
         userName,
         password
       })
+      if (mainUserID) {
+        this.SET_MAIN_USER_ID(mainUserID)
+      }
       setToken(data.token)
       setUsername(userName)
       setIamUserId(data.iamUserId)
@@ -114,7 +117,6 @@ class User extends VuexModule implements IUserState {
   public ResetToken() {
     removeToken()
     removeUsername()
-    removePerms()
     this.SET_TOKEN('')
     this.SET_NAME('')
     this.SET_PERMS([])
@@ -135,7 +137,6 @@ class User extends VuexModule implements IUserState {
       throw Error('GetUserInfo: roles must be a non-null array!')
     }
     this.SET_ROLES(roles)
-    setPerms(roles)
   }
 
   @Action({ rawError: true })
@@ -174,7 +175,6 @@ class User extends VuexModule implements IUserState {
       throw Error('GetIAMUserInfo: perms must be a non-null array!')
     }
     this.SET_PERMS(perms)
-    setPerms(perms)
   }
 
   @Action
@@ -203,13 +203,6 @@ class User extends VuexModule implements IUserState {
   }
 
   @Action
-  public async ChangeLoginType() {
-    const type = this.isIamUserLogin === 'true' ? 'false' : 'true'
-    this.SET_IS_IAM_USER_LOGIN(type)
-    setIsIamUserLogin(type)
-  }
-
-  @Action
   public async LogOut() {
     if (this.token === '') {
       throw Error('LogOut: token is undefined!')
@@ -217,7 +210,6 @@ class User extends VuexModule implements IUserState {
     await logout()
     removeToken()
     resetRouter()
-    removePerms()
     removeUsername()
     removeIamUserId()
 
@@ -228,6 +220,10 @@ class User extends VuexModule implements IUserState {
     this.SET_PERMS([])
     this.SET_NAME('')
     this.SET_IAM_USER_ID('')
+
+    const mainUserID = this.mainUserID
+    this.SET_MAIN_USER_ID('')
+    return mainUserID
   }
 }
 
