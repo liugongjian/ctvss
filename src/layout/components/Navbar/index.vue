@@ -623,6 +623,9 @@ export default class extends Vue {
 
     .user-container .header-dropdown {
       top: 40px !important;
+      a, button {
+        font-size: 14px;
+      }
     }
 
     @media screen and (max-height: 1100px) {
