@@ -11,23 +11,23 @@
       :rules="rules"
       :model="form"
       label-position="right"
-      label-width="120px"
+      label-width="140px"
     >
-      <el-form-item label="左上坐标:" prop="leftTop" class="form-with-tip">
+      <el-form-item label="左上比例坐标:" prop="leftTop" class="form-with-tip">
         <el-input v-model="form.leftTop" class="fixed-width" />
-        <div class="form-tip">逗号分隔的x,y轴坐标</div>
+        <div class="form-tip">逗号分隔的x,y轴百分比（0-100之间）</div>
       </el-form-item>
-      <el-form-item label="左下坐标:" prop="leftDown" class="form-with-tip">
+      <el-form-item label="左下比例坐标:" prop="leftDown" class="form-with-tip">
         <el-input v-model="form.leftDown" class="fixed-width" />
-        <div class="form-tip">逗号分隔的x,y轴坐标</div>
+        <div class="form-tip">逗号分隔的x,y轴百分比（0-100之间）</div>
       </el-form-item>
-      <el-form-item label="右上坐标:" prop="rightTop" class="form-with-tip">
+      <el-form-item label="右上比例坐标:" prop="rightTop" class="form-with-tip">
         <el-input v-model="form.rightTop" class="fixed-width" />
-        <div class="form-tip">逗号分隔的x,y轴坐标</div>
+        <div class="form-tip">逗号分隔的x,y轴百分比（0-100之间）</div>
       </el-form-item>
-      <el-form-item label="右下坐标:" prop="rightDown" class="form-with-tip">
+      <el-form-item label="右下比例坐标:" prop="rightDown" class="form-with-tip">
         <el-input v-model="form.rightDown" class="fixed-width" />
-        <div class="form-tip">逗号分隔的x,y轴坐标</div>
+        <div class="form-tip">逗号分隔的x,y轴百分比（0-100之间）</div>
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -83,9 +83,14 @@ export default class extends Vue {
   private validatePoint(rule: any, value: string, callback: Function) {
     const pointReg = /^\d+,\d+$/
     if (!pointReg.test(value)) {
-      callback(new Error('格式错误，请输入逗号分隔的横纵轴坐标'))
+      callback(new Error('格式错误，请输入逗号分隔的横纵轴百分比'))
     } else {
-      callback()
+      const numberArr = value.split(',').map(item => Number(item))
+      if (numberArr[0] >= 0 && numberArr[0] <= 100 && numberArr[1] >= 0 && numberArr[1] <= 100) {
+        callback()
+      } else {
+        callback(new Error('请输入0-100之间的数字'))
+      }
     }
   }
 
