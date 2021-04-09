@@ -73,9 +73,10 @@
             <el-table-column prop="iamUserId" label="账号ID" />
             <el-table-column prop="policyName" label="策略" />
             <el-table-column prop="createdTime" label="创建时间" />
-            <el-table-column label="操作" width="140">
+            <el-table-column label="操作" fixed="right" width="200">
               <template slot-scope="scope">
-                <el-button type="text" @click="editUser(scope.row.iamUserId)">编辑</el-button>
+                <el-button type="text" @click="editUser(scope.row)">编辑</el-button>
+                <el-button type="text" @click="copyLink(scope.row)">复制登录链接</el-button>
                 <el-button type="text" @click="deleteUser(scope.row)">删除</el-button>
               </template>
             </el-table-column>
@@ -99,6 +100,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import UserGroupDialog from './components/dialogs/userGroupDialog.vue'
 import { getGroupList, getUserList, deleteUser } from '@/api/accessManage'
+import copy from 'copy-to-clipboard'
 @Component({
   name: 'AccessManageUser',
   components: {
@@ -141,6 +143,7 @@ export default class extends Vue {
       groupId: '-1'
     }
   }
+  private subUserLoginLink: string = ''
 
   private mounted() {
     this.getGroups()
@@ -215,6 +218,19 @@ export default class extends Vue {
     }
   }
 
+  private getSubuserLoginLink(userName: any) {
+    const origin = window.location.origin
+    const mainUserID = this.$store.state.user.mainUserID
+    const link: string = `${origin}/#/login?subUserLogin=1&subUserName=${userName}&mainUserID=${mainUserID}`
+    this.subUserLoginLink = link
+  }
+
+  private copyLink(row: any) {
+    this.getSubuserLoginLink(row.iamUserName)
+    copy(this.subUserLoginLink)
+    this.$message.success('复制成功')
+  }
+
   private async deleteUser(user: any) {
     this.$alertDelete({
       type: '用户',
@@ -262,12 +278,14 @@ export default class extends Vue {
       }
     })
   }
-  private editUser(id: any) {
+  private editUser(row: any) {
+    this.getSubuserLoginLink(row.iamUserName)
     this.$router.push({
       path: `/accessManage/user/create`,
       query: {
         type: 'edit',
-        userId: id
+        userId: row.iamUserId,
+        subUserLoginLink: this.subUserLoginLink
       }
     })
   }
