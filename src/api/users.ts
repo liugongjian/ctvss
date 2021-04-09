@@ -7,7 +7,7 @@ export const getUsers = (params: any) =>
     params
   })
 
-export const getUserInfo = () =>
+export const getMainUserInfo = () =>
   request({
     url: '/user',
     method: 'get'

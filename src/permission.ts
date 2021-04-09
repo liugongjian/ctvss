@@ -30,7 +30,7 @@ router.beforeEach(async(to: Route, _: Route, next: any) => {
       if (UserModule.perms.length === 0) {
         try {
           // Note: perms must be a object array! such as: ['*'] or ['GET']
-          await UserModule.GetIAMUserInfo()
+          await UserModule.GetGlobalInfo()
           const perms = UserModule.perms
           // Generate accessible routes map based on role
           PermissionModule.GenerateRoutes(perms)

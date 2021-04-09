@@ -48,6 +48,7 @@
               type="text"
               tabindex="1"
               autocomplete="on"
+              @change="setNameQuery"
             />
           </el-form-item>
 
@@ -203,7 +204,10 @@ export default class extends Vue {
       this.redirect = query.redirect
       this.otherQuery = this.getOtherQuery(query)
       this.subUserLogin = (this.otherQuery.subUserLogin === '1')
-      this.loginForm.mainUserID = this.otherQuery.mainUserID || ''
+      if (this.subUserLogin) {
+        this.loginForm.mainUserID = this.otherQuery.mainUserID || ''
+        this.loginForm.userName = this.otherQuery.subUserName || ''
+      }
     }
   }
 
@@ -216,15 +220,31 @@ export default class extends Vue {
   }
 
   private setIDQuery(value: string) {
-    const query = JSON.parse(JSON.stringify(this.$route.query))
-    if (value) {
-      query.mainUserID = value
-    } else {
-      delete query.mainUserID
+    if (this.subUserLogin) {
+      const query = JSON.parse(JSON.stringify(this.$route.query))
+      if (value) {
+        query.mainUserID = value
+      } else {
+        delete query.mainUserID
+      }
+      this.$router.replace({
+        query
+      })
     }
-    this.$router.replace({
-      query
-    })
+  }
+
+  private setNameQuery(value: string) {
+    if (this.subUserLogin) {
+      const query = JSON.parse(JSON.stringify(this.$route.query))
+      if (value) {
+        query.subUserName = value
+      } else {
+        delete query.subUserName
+      }
+      this.$router.replace({
+        query
+      })
+    }
   }
 
   private checkCapslock(e: KeyboardEvent) {
