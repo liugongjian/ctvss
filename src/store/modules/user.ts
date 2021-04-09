@@ -199,7 +199,7 @@ class User extends VuexModule implements IUserState {
     await this.GetUserInfo()
     resetRouter()
     // Generate dynamic accessible routes based on roles
-    PermissionModule.GenerateRoutes(this.roles)
+    PermissionModule.GenerateRoutes({ perms: this.roles, iamUserId: this.iamUserId })
     // Add generated routes
     router.addRoutes(PermissionModule.dynamicRoutes)
     // Reset visited views and cached views

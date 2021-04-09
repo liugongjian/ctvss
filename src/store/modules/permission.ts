@@ -53,12 +53,16 @@ class Permission extends VuexModule implements IPermissionState {
   }
 
   @Action
-  public GenerateRoutes(perms: string[]) {
+  public GenerateRoutes(params : {perms: string[], iamUserId: string }) {
     let accessedRoutes
-    if (perms.includes('*')) {
-      accessedRoutes = asyncRoutes
+    let filteredRoutes = asyncRoutes
+    if (params.iamUserId) {
+      filteredRoutes = filteredRoutes.filter(route => route.path !== '/accessManage')
+    }
+    if (params.perms.includes('*')) {
+      accessedRoutes = filteredRoutes
     } else {
-      accessedRoutes = filterAsyncRoutes(asyncRoutes, perms)
+      accessedRoutes = filterAsyncRoutes(filteredRoutes, params.perms)
     }
     this.SET_ROUTES(accessedRoutes)
   }
