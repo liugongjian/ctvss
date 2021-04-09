@@ -153,10 +153,9 @@ class User extends VuexModule implements IUserState {
       throw Error('GetGlobalInfo: token is undefined!')
     }
     let userInfo: any = await getMainUserInfo()
-    console.log('userInfo: ', userInfo)
     if (userInfo.userId) {
       this.SET_MAIN_USER_ID(userInfo.userId)
-      this.SET_MAIN_USER_ADDRESS(userInfo.userAddress)
+      this.SET_MAIN_USER_ADDRESS(userInfo.address)
     }
     let data: any = null
     if (this.iamUserId) {

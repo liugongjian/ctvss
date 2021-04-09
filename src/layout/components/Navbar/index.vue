@@ -234,7 +234,6 @@ export default class extends Vue {
 
   private async logout() {
     const data: any = await UserModule.LogOut()
-    console.log('data: ', data)
     if (data.iamUserId) {
       this.$router.push(`/login?redirect=%2Fdashboard&subUserLogin=1&mainUserID=${data.mainUserID}`)
     } else {
