@@ -219,6 +219,9 @@ export default class extends Mixins(createMixin) {
     ],
     userName: [
       { required: true, message: '请选择账号', trigger: 'change' }
+    ],
+    deviceIp: [
+      { validator: this.validateDeviceIp, trigger: 'blur' }
     ]
   }
   private gbVersionList = ['2011', '2016']
@@ -317,7 +320,7 @@ export default class extends Mixins(createMixin) {
       }
       // 构建可选择的通道，排除已选择通道
       if (this.isChannel && info.deviceStats) {
-        const channelSize = info.deviceStats.channelSize
+        const channelSize = info.deviceStats.maxChannelSize
         const availableChannels = []
         for (let i = 1; i <= channelSize; i++) {
           if (!~usedChannelNum.indexOf(i)) {

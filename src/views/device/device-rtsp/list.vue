@@ -1,5 +1,14 @@
 <template>
   <div class="device-list__container">
+    <div v-if="isNVR" v-loading="loading.info" class="device-info">
+      <info-list v-if="deviceInfo" label-width="80">
+        <info-list-item label="设备名称:">{{ deviceInfo.deviceName }}</info-list-item>
+        <info-list-item label="国标ID:">{{ deviceInfo.gbId }}</info-list-item>
+        <info-list-item label="创建时间:">{{ deviceInfo.createdTime }}</info-list-item>
+        <info-list-item label="通道数量:">{{ deviceInfo.deviceStats.channelSize }}</info-list-item>
+        <info-list-item label="在线流数量:">{{ deviceInfo.deviceStats.onlineSize }}</info-list-item>
+      </info-list>
+    </div>
     <div v-if="isPlatform" v-loading="loading.info" class="device-info">
       <info-list v-if="deviceInfo" label-width="80">
         <info-list-item label="平台名称:">{{ deviceInfo.deviceName }}</info-list-item>
@@ -13,7 +22,9 @@
     </div>
     <div class="filter-container clearfix">
       <div class="filter-container__left">
-        <el-button v-if="isDir || deviceInfo" type="primary" @click="goToCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
+        <el-button v-if="(isDir || deviceInfo && deviceInfo.createSubDevice === 2) && checkPermission(['*'])" key="dir-button" type="primary" @click="goToCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
+        <el-button v-if="isNVR" key="check-nvr-detail" @click="goToDetail(deviceInfo)">查看NVR设备详情</el-button>
+        <el-button v-if="isNVR && checkPermission(['*'])" key="edit-nvr" @click="goToUpdate(deviceInfo)">编辑NVR设备</el-button>
         <el-button v-if="isPlatform" @click="goToDetail(deviceInfo)">查看Platform详情</el-button>
         <el-button v-if="isPlatform" @click="goToUpdate(deviceInfo)">编辑Platform</el-button>
         <el-button v-if="isPlatform" :loading="loading.syncDevice" @click="syncDevice">同步</el-button>

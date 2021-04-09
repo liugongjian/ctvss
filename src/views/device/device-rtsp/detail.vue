@@ -8,42 +8,45 @@
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="基本信息" name="info">
           <div v-if="info">
-            <info-list abel-width="100">
+            <info-list v-if="info && !isNVRChannel" label-width="110">
               <info-list-item label="设备类型:">{{ deviceType[info.deviceType] }}</info-list-item>
               <info-list-item label="设备名称:">{{ info.deviceName }}</info-list-item>
               <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
+            </info-list>
+            <info-list v-if="info && isNVRChannel" label-width="110">
+              <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
+              <info-list-item v-if="info.deviceChannels.length" label="通道号:">{{ 'D' + info.deviceChannels[0].channelNum }}</info-list-item>
+              <info-list-item v-if="info.deviceChannels.length" label="通道名称:">{{ info.deviceChannels[0].channelName }}</info-list-item>
+              <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
+            </info-list>
+            <info-list v-if="info" label-width="110">
               <info-list-item label="视频流接入方式:">{{ inType[info.inType] }}</info-list-item>
+              <info-list-item v-if="info.inType === 'pull'" label="用户名:">{{ info.userName }}</info-list-item>
+              <info-list-item v-if="info.inType === 'pull'" label="设备IP:">{{ info.deviceIp }}</info-list-item>
+              <info-list-item v-if="info.inType === 'pull'" label="设备端口:">{{ info.devicePort }}</info-list-item>
+              <info-list-item v-if="info.inType === 'pull'" label="主子码流数量:">{{ info.autoStreamNum }}</info-list-item>
               <info-list-item v-if="info.inType === 'push'" label="自动激活推流地址:">{{ pushType[info.pushType] || '-' }}</info-list-item>
               <info-list-item v-else label="自动拉流:">{{ pullType[info.pullType] || '-' }}</info-list-item>
-              <info-list-item label="设备状态:">
-                <div class="info-list__edit">
-                  <div class="info-list__edit--value">
-                    <status-badge :status="info.deviceStatus" />
-                    {{ deviceStatus[info.deviceStatus] || '-' }}
+              <info-list-item v-if="info.inType === 'pull' && info.pullType === 1" label="自动拉取第几个码流:">{{ info.autoStreamNum }}</info-list-item>
+              <template v-if="info.deviceType === 'ipc' || info.deviceType === 'platform'">
+                <info-list-item label="流状态:">
+                  <div class="info-list__edit">
+                    <div class="info-list__edit--value">
+                      <status-badge :status="info.streamStatus" />
+                      {{ deviceStatus[info.streamStatus] || '-' }}
+                    </div>
                   </div>
-                </div>
-              </info-list-item>
-              <info-list-item label="流状态:">
-                <div class="info-list__edit">
-                  <div class="info-list__edit--value">
-                    <status-badge :status="info.streamStatus" />
-                    {{ deviceStatus[info.streamStatus] || '-' }}
+                </info-list-item>
+                <info-list-item label="录制状态:">
+                  <div class="info-list__edit">
+                    <div class="info-list__edit--value">
+                      <status-badge :status="info.recordStatus === 1 ? 'red' : ''" />
+                      {{ recordStatus[info.recordStatus] }}
+                    </div>
                   </div>
-                </div>
-              </info-list-item>
-              <info-list-item label="录制状态:">
-                <div class="info-list__edit">
-                  <div class="info-list__edit--value">
-                    <status-badge :status="info.recordStatus === 1 ? 'red' : ''" />
-                    {{ recordStatus[info.recordStatus] }}
-                  </div>
-                </div>
-              </info-list-item>
-              <info-list-item label="视频标签:">
-                <el-tag v-for="tag in tags" :key="tag" type="info">{{ tag }}</el-tag>
-                <span v-if="!tags">-</span>
-              </info-list-item>
+                </info-list-item>
+              </template>
               <info-list-item label="设备描述:">{{ info.description || '-' }}</info-list-item>
               <info-list-item v-if="info.inType === 'push'" label="推流地址:">
                 {{ info.pushUrl || '-' }}

@@ -4,10 +4,6 @@
       <info-list v-if="deviceInfo" label-width="80">
         <info-list-item label="平台名称:">{{ deviceInfo.deviceName }}</info-list-item>
         <info-list-item label="国标ID:">{{ deviceInfo.gbId }}</info-list-item>
-        <info-list-item label="设备状态:">
-          <status-badge :status="deviceInfo.deviceStatus" />
-          {{ deviceStatus[deviceInfo.deviceStatus] }}
-        </info-list-item>
         <info-list-item label="创建时间:">{{ deviceInfo.createdTime }}</info-list-item>
       </info-list>
     </div>

@@ -1,6 +1,9 @@
 <template>
   <div v-loading="loading" class="live-wrap">
-    <div class="empty-text">{{ errorMessage }}</div>
+    <div v-if="inProtocol === 'rtsp'" class="stream-selector">
+      <StreamSelector :stream-size="streamSize" :stream-num="streamNum" @onSetStreamNum="onSetStreamNum" />
+    </div>
+    <div v-if="errorMessage" class="empty-text">{{ errorMessage }}</div>
     <div v-if="!errorMessage" class="preview-player">
       <player
         v-if="address"
@@ -13,7 +16,6 @@
         :is-live="true"
         :is-fullscreen="isFullscreen"
         :has-control="false"
-        @onSetStreamNum="onSetStreamNum"
         @onRetry="onRetry"
         @onFullscreen="fullscreen"
         @onExitFullscreen="exitFullscreen"
@@ -50,14 +52,16 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { getDevicePreview } from '@/api/device'
+import { getDevicePreview, getDevice } from '@/api/device'
 import copy from 'copy-to-clipboard'
 import Player from './Player.vue'
+import StreamSelector from './StreamSelector.vue'
 
 @Component({
   name: 'LiveView',
   components: {
-    Player
+    Player,
+    StreamSelector
   }
 })
 export default class extends Vue {
@@ -76,6 +80,8 @@ export default class extends Vue {
   private retry = false
   private errorMessage = ''
   private timeout: any = null
+  private streamNum?: number | null = null
+  private streamSize?: number | null = null
 
   @Watch('$route.query')
   private onRouterChange() {
@@ -85,7 +91,10 @@ export default class extends Vue {
     this.playerTimer = setTimeout(this.loadPlayer, 500)
   }
 
-  private mounted() {
+  private async mounted() {
+    if (this.inProtocol === 'rtsp') {
+      await this.getDevice()
+    }
     this.getDevicePreview()
   }
 
@@ -115,6 +124,23 @@ export default class extends Vue {
   }
 
   /**
+   * 获取设备信息
+   */
+  public async getDevice() {
+    try {
+      const res = await getDevice({
+        deviceId: this.deviceId,
+        inProtocol: this.inProtocol
+      })
+      this.streamNum = res.autoStreamNum
+      this.streamSize = res.multiStreamSize
+      console.log(res)
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  /**
    * 获取预览链接
    */
   private async getDevicePreview() {
@@ -124,7 +150,8 @@ export default class extends Vue {
       this.address = null
       const res = await getDevicePreview({
         deviceId: this.deviceId,
-        inProtocol: this.inProtocol
+        inProtocol: this.inProtocol,
+        streamNum: this.streamNum
       })
       this.address = res.playUrl
       this.codec = res.video.codec
@@ -139,8 +166,13 @@ export default class extends Vue {
     }
   }
 
+  /**
+   * 切换主子码流
+   */
   private onSetStreamNum(streamNum: number) {
-    console.log('onSetStreamNum', streamNum)
+    this.address = ''
+    this.streamNum = streamNum
+    this.getDevicePreview()
   }
 
   /**
@@ -182,6 +214,21 @@ export default class extends Vue {
 <style lang="scss" scoped>
   .live-wrap {
     min-height: 100px;
+    .stream-selector {
+      i {
+        margin-bottom: 10px;
+      }
+      ::v-deep .controls__popup {
+        left: 0;
+      }
+    }
+    .empty-text {
+      display: flex;
+      min-height: 100px;
+      justify-content: center;
+      align-items: center;
+      background: #f6f6f6;
+    }
   }
   .preview-player {
     position: relative;
