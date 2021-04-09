@@ -48,7 +48,16 @@
         <el-button v-if="isPlatform" key="check-platform" @click="goToDetail(deviceInfo)">查看Platform详情</el-button>
         <el-button v-if="isPlatform && checkPermission(['*'])" key="edit-platform" @click="goToUpdate(deviceInfo)">编辑Platform</el-button>
         <el-button v-if="isPlatform" key="sync" :loading="loading.syncDevice" @click="syncDevice">同步</el-button>
-        <el-button key="export" :disabled="!selectedDeviceList.length" @click="exportCsv">导出</el-button>
+        <el-dropdown trigger="click" placement="bottom-start" style="margin: 10px" @command="exportExcel">
+          <el-button>导出</el-button>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="exportAll" :disabled="!deviceList.length">导出全部</el-dropdown-item>
+            <el-dropdown-item command="exportCurrentPage" :disabled="!deviceList.length">导出当前页</el-dropdown-item>
+            <el-dropdown-item command="exportSelect" :disabled="!selectedDeviceList.length">导出选定项</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+        <el-button>导入</el-button>
+        <el-button @click="exportTemplate">下载模板</el-button>
         <el-dropdown key="dropdown" v-permission="['*']" placement="bottom" @command="handleBatch">
           <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
@@ -254,42 +263,37 @@ import { Component, Mixins } from 'vue-property-decorator'
 import listMixin from '../mixin/listMixin'
 import { ExportToCsv } from 'export-to-csv'
 import { Device } from '@/type/device'
+import excelMixin from '../mixin/excelMixin'
 
 @Component({
   name: 'DeviceGb28181List'
 })
-export default class extends Mixins(listMixin) {
+export default class extends Mixins(listMixin, excelMixin) {
   /**
-   * 导出CSV
+   * 导出设备Excel
    */
-  private exportCsv() {
-    const options = {
-      filename: '设备列表',
-      fieldSeparator: ',',
-      quoteStrings: '"',
-      decimalSeparator: '.',
-      showLabels: true,
-      useTextFile: false,
-      useBom: true,
-      useKeysAsHeaders: true
+  private exportExcel(command: any) {
+    switch (command) {
+      case 'exportSelect':
+        this.exportData = this.selectedDeviceList
+        return
+      case 'exportCurrentPage':
+        this.exportData = this.deviceList
     }
-    const csvExporter = new ExportToCsv(options)
-    const data = this.selectedDeviceList.map((device: Device) => {
-      return {
-        '设备ID': `${device.deviceId}\t`,
-        '设备名称': device.deviceName,
-        '类型': device.deviceType,
-        '厂商': device.deviceVendor,
-        '设备IP': device.deviceIp,
-        '设备端口': device.devicePort,
-        '国标ID': `${device.gbId}\t`,
-        '信令传输模式': device.sipTransType,
-        '流传输模式': device.streamTransType,
-        '优先TCP传输': device.transPriority,
-        '创建时间': device.createdTime
-      }
-    })
-    csvExporter.generateCsv(data)
+    this.exelType = 'export'
+    this.exelDeviceType = 'gb28181'
+    this.exelName = '设备表格（gb28181）'
+    this.exportExel()
+  }
+
+  /**
+   * 导出模板
+   */
+  private exportTemplate() {
+    this.exelType = 'template'
+    this.exelDeviceType = 'gb28181'
+    this.exelName = '设备导入模板（gb28181）'
+    this.exportExel()
   }
 }
 </script>

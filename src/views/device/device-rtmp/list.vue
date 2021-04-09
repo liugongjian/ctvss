@@ -17,7 +17,26 @@
         <el-button v-if="isPlatform" @click="goToDetail(deviceInfo)">查看Platform详情</el-button>
         <el-button v-if="isPlatform" @click="goToUpdate(deviceInfo)">编辑Platform</el-button>
         <el-button v-if="isPlatform" :loading="loading.syncDevice" @click="syncDevice">同步</el-button>
-        <el-button :disabled="!selectedDeviceList.length" @click="exportCsv">导出</el-button>
+        <el-dropdown trigger="click" placement="bottom-start" style="margin: 10px" @command="exportExcel">
+          <el-button>导出</el-button>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="exportAll" :disabled="!deviceList.length">导出全部</el-dropdown-item>
+            <el-dropdown-item command="exportCurrentPage" :disabled="!deviceList.length">导出当前页</el-dropdown-item>
+            <el-dropdown-item command="exportSelect" :disabled="!selectedDeviceList.length">导出选定项</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+        <el-upload
+          ref="excelUpload"
+          action="https://jsonplaceholder.typicode.com/posts/"
+          :show-file-list="false"
+          :on-change="uploadProgress"
+          :on-progress="uploadProgress"
+          :on-success="uploadProgress"
+          :on-error="uploadProgress"
+        >
+          <el-button>导入</el-button>
+        </el-upload>
+        <el-button @click="exportTemplate">下载模板</el-button>
         <el-dropdown placement="bottom" @command="handleBatch">
           <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
@@ -154,49 +173,62 @@
       </div>
     </div>
     <move-dir v-if="dialog.moveDir" :device="currentDevice" :devices="selectedDeviceList" :is-batch="isBatchMoveDir" @on-close="closeDialog('moveDir', ...arguments)" />
+    <upload-excel v-if="dialog.uploadExcel" :event="uploadEvent" @on-close="closeDialog('uploadExcel', ...arguments)" />
   </div>
 </template>
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import listMixin from '../mixin/listMixin'
-import { ExportToCsv } from 'export-to-csv'
-import { Device } from '@/type/device'
+import excelMixin from '../mixin/excelMixin'
 
 @Component({
   name: 'DeviceRtmpList'
 })
-export default class extends Mixins(listMixin) {
+export default class extends Mixins(listMixin, excelMixin) {
+  private uploadEvent: any = null
   /**
-   * 导出CSV
+   * 导入设备表
    */
-  private exportCsv() {
-    const options = {
-      filename: '设备列表',
-      fieldSeparator: ',',
-      quoteStrings: '"',
-      decimalSeparator: '.',
-      showLabels: true,
-      useTextFile: false,
-      useBom: true,
-      useKeysAsHeaders: true
+  private importExcel() {
+
+  }
+
+  private uploadProgress(event: any, filList: any) {
+    if (event.status === 'ready') {
+      console.log('ready')
+      console.log(filList[0].raw)
     }
-    const csvExporter = new ExportToCsv(options)
-    const data = this.selectedDeviceList.map((device: Device) => {
-      return {
-        '设备ID': `${device.deviceId}\t`,
-        '设备名称': device.deviceName,
-        '类型': device.deviceType,
-        '厂商': device.deviceVendor,
-        '设备IP': device.deviceIp,
-        '设备端口': device.devicePort,
-        '国标ID': `${device.gbId}\t`,
-        '信令传输模式': device.sipTransType,
-        '流传输模式': device.streamTransType,
-        '优先TCP传输': device.transPriority,
-        '创建时间': device.createdTime
-      }
-    })
-    csvExporter.generateCsv(data)
+    // this.uploadEvent = event
+    // this.dialog.uploadExcel = true
+  }
+
+  private exportExcel(command: any) {
+    switch (command) {
+      case 'exportSelect':
+        this.exportData = this.selectedDeviceList
+        return
+      case 'exportCurrentPage':
+        this.exportData = this.deviceList
+    }
+    this.exelType = 'export'
+    this.exelDeviceType = 'rtmp'
+    this.exelName = '设备表格（rtmp）'
+    this.exportExel()
+  }
+
+  /**
+   * 导出模板
+   */
+  private exportTemplate() {
+    this.exelType = 'template'
+    this.exelDeviceType = 'rtmp'
+    this.exelName = '设备导入模板（rtmp）'
+    this.exportExel()
   }
 }
 </script>
+<style lang="scss" scoped>
+  div:has(.el-upload) {
+    display: inline-block;
+  }
+</style>

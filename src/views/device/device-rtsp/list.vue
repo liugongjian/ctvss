@@ -17,7 +17,16 @@
         <el-button v-if="isPlatform" @click="goToDetail(deviceInfo)">查看Platform详情</el-button>
         <el-button v-if="isPlatform" @click="goToUpdate(deviceInfo)">编辑Platform</el-button>
         <el-button v-if="isPlatform" :loading="loading.syncDevice" @click="syncDevice">同步</el-button>
-        <el-button :disabled="!selectedDeviceList.length" @click="exportCsv">导出</el-button>
+        <el-dropdown trigger="click" placement="bottom-start" style="margin: 10px" @command="exportExcel">
+          <el-button>导出</el-button>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="exportAll" :disabled="!deviceList.length">导出全部</el-dropdown-item>
+            <el-dropdown-item command="exportCurrentPage" :disabled="!deviceList.length">导出当前页</el-dropdown-item>
+            <el-dropdown-item command="exportSelect" :disabled="!selectedDeviceList.length">导出选定项</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+        <el-button>导入</el-button>
+        <el-button @click="exportTemplate">下载模板</el-button>
         <el-dropdown placement="bottom" @command="handleBatch">
           <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
@@ -186,13 +195,14 @@
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import listMixin from '../mixin/listMixin'
+import excelMixin from '../mixin/excelMixin'
 import { ExportToCsv } from 'export-to-csv'
 import { Device } from '@/type/device'
 
 @Component({
   name: 'DeviceRtspList'
 })
-export default class extends Mixins(listMixin) {
+export default class extends Mixins(listMixin, excelMixin) {
   /**
    * 导出CSV
    */
@@ -224,6 +234,30 @@ export default class extends Mixins(listMixin) {
       }
     })
     csvExporter.generateCsv(data)
+  }
+
+  private exportExcel(command: any) {
+    switch (command) {
+      case 'exportSelect':
+        this.exportData = this.selectedDeviceList
+        return
+      case 'exportCurrentPage':
+        this.exportData = this.deviceList
+    }
+    this.exelType = 'export'
+    this.exelDeviceType = 'rtsp'
+    this.exelName = '设备表格（rtsp）'
+    this.exportExel()
+  }
+
+  /**
+   * 导出模板
+   */
+  private exportTemplate() {
+    this.exelType = 'template'
+    this.exelDeviceType = 'rtsp'
+    this.exelName = '设备导入模板（rtsp）'
+    this.exportExel()
   }
 }
 </script>
