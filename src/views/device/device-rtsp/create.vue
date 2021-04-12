@@ -300,11 +300,12 @@ export default class extends Mixins(createMixin) {
         return channel.channelNum
       })
       if (this.isUpdate) {
-        this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'deviceType', 'createSubDevice', 'channelSize', 'deviceVendor',
+        this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'deviceType', 'createSubDevice', 'deviceVendor',
           'deviceIp', 'devicePort', 'description', 'inType', 'userName', 'password', 'multiStreamSize', 'autoStreamNum', 'pullType', 'pushType', 'pullUrl', 'transPriority', 'parentDeviceId']))
         if (info.deviceStats) {
           // 编辑的时候，设置数量不得小于已创建的子通道中最大通道号或1
           this.minChannelSize = Math.max(...usedChannelNum, 1)
+          this.form.channelSize = info.deviceStats.maxChannelSize
         }
         if (this.isChannel) {
           if (info.deviceChannels.length) {
