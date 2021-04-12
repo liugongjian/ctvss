@@ -113,4 +113,15 @@ export default class CreateMixin extends Vue {
       callback()
     }
   }
+
+  /**
+   * 校验设备IP格式
+   */
+  public validateDeviceIp(rule: any, value: string, callback: Function) {
+    if (value && !/^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/.test(value)) {
+      callback(new Error('设备IP格式不正确'))
+    } else {
+      callback()
+    }
+  }
 }
