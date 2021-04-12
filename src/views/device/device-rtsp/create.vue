@@ -220,6 +220,8 @@ export default class extends Mixins(createMixin) {
     deviceType: 'ipc',
     createSubDevice: 1,
     channelSize: '',
+    channelNum: '',
+    channelName: '',
     deviceIp: '',
     devicePort: null,
     deviceVendor: '',

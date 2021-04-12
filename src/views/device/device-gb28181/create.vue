@@ -146,10 +146,9 @@
           </el-select>
         </el-form-item>
         <el-form-item label="通道号:" prop="channelNum">
-          <el-input v-model="form.channelNum" />
-          <!-- <el-select v-model="form.channelNum" :disabled="isUpdate">
+          <el-select v-model="form.channelNum" :disabled="isUpdate">
             <el-option v-for="item in availableChannels" :key="item" :label="`D${item}`" :value="item" />
-          </el-select> -->
+          </el-select>
         </el-form-item>
         <el-form-item label="通道名称:" prop="channelName" class="form-with-tip">
           <el-input v-model="form.channelName" />

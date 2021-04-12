@@ -3,7 +3,6 @@
     <div v-if="isNVR" v-loading="loading.info" class="device-info">
       <info-list v-if="deviceInfo" label-width="80">
         <info-list-item label="设备名称:">{{ deviceInfo.deviceName }}</info-list-item>
-        <info-list-item label="国标ID:">{{ deviceInfo.gbId }}</info-list-item>
         <info-list-item label="创建时间:">{{ deviceInfo.createdTime }}</info-list-item>
         <info-list-item label="通道数量:">{{ deviceInfo.deviceStats.channelSize }}</info-list-item>
         <info-list-item label="在线流数量:">{{ deviceInfo.deviceStats.onlineSize }}</info-list-item>
@@ -12,7 +11,6 @@
     <div v-if="isPlatform" v-loading="loading.info" class="device-info">
       <info-list v-if="deviceInfo" label-width="80">
         <info-list-item label="平台名称:">{{ deviceInfo.deviceName }}</info-list-item>
-        <info-list-item label="国标ID:">{{ deviceInfo.gbId }}</info-list-item>
         <info-list-item label="设备状态:">
           <status-badge :status="deviceInfo.deviceStatus" />
           {{ deviceStatus[deviceInfo.deviceStatus] }}
