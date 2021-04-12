@@ -180,14 +180,16 @@ export default class extends Vue {
           this.devices.map((device: Device) => {
             return bindDir({
               dirId: this.currentDir.id,
-              deviceId: device.deviceId
+              deviceId: device.deviceId,
+              inProtocol: device.inProtocol
             })
           })
         )
       } else {
         await bindDir({
           dirId: this.currentDir.id,
-          deviceId: this.device.deviceId
+          deviceId: this.device.deviceId,
+          inProtocol: this.device.inProtocol
         })
       }
       this.initDirs()

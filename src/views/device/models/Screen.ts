@@ -12,6 +12,8 @@ export default class Screen {
   public retry?: boolean
   public isLive?: boolean
   public isFullscreen?: boolean
+  public streamSize?: number
+  public streamNum?: number
 
   constructor() {
     this.deviceId = ''
@@ -19,6 +21,8 @@ export default class Screen {
     this.url = ''
     this.type = ''
     this.codec = ''
+    this.streamSize = 0
+    this.streamNum = undefined
     this.loading = false
     this.loaded = false
     this.retry = false
@@ -38,7 +42,8 @@ export default class Screen {
       this.loaded = true
       const res: any = await getDevicePreview({
         deviceId: this.deviceId,
-        inProtocol: this.inProtocol
+        inProtocol: this.inProtocol,
+        streamNum: this.streamNum
       })
       if (res.playUrl) {
         this.url = res.playUrl.flvUrl
@@ -59,6 +64,8 @@ export default class Screen {
     this.url = ''
     this.type = ''
     this.codec = ''
+    this.streamSize = 0
+    this.streamNum = undefined
     this.loading = false
     this.loaded = false
     this.retry = false
