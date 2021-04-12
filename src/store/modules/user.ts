@@ -1,5 +1,5 @@
 import { VuexModule, Module, Action, Mutation, getModule } from 'vuex-module-decorators'
-import { login, logout, getUserInfo, getIAMUserInfo, changePassword } from '@/api/users'
+import { login, logout, getMainUserInfo, getIAMUserInfo, changePassword } from '@/api/users'
 import { getToken, setToken, removeToken, getUsername, setUsername, removeUsername, getIamUserId, setIamUserId, removeIamUserId } from '@/utils/cookies'
 import router, { resetRouter } from '@/router'
 import { PermissionModule } from './permission'
@@ -16,7 +16,8 @@ export interface IUserState {
   iamUserId: string,
   email: string,
   type: string,
-  mainUserID: string
+  mainUserID: string,
+  mainUserAddress: string
 }
 
 @Module({ dynamic: true, store, name: 'user' })
@@ -31,6 +32,7 @@ class User extends VuexModule implements IUserState {
   public email = ''
   public type = ''
   public mainUserID = ''
+  public mainUserAddress = ''
 
   @Mutation
   private SET_TOKEN(token: string) {
@@ -82,6 +84,11 @@ class User extends VuexModule implements IUserState {
     this.mainUserID = id
   }
 
+  @Mutation
+  private SET_MAIN_USER_ADDRESS(address: string) {
+    this.mainUserAddress = address
+  }
+
   @Action({ rawError: true })
   public async Login(userInfo: { mainUserID?: string, userName: string, password: string}) {
     let { mainUserID, userName, password } = userInfo
@@ -92,9 +99,6 @@ class User extends VuexModule implements IUserState {
         userName,
         password
       })
-      if (mainUserID) {
-        this.SET_MAIN_USER_ID(mainUserID)
-      }
       setToken(data.token)
       setUsername(userName)
       setIamUserId(data.iamUserId)
@@ -117,9 +121,13 @@ class User extends VuexModule implements IUserState {
   public ResetToken() {
     removeToken()
     removeUsername()
+    removeIamUserId()
     this.SET_TOKEN('')
     this.SET_NAME('')
     this.SET_PERMS([])
+    this.SET_IAM_USER_ID('')
+    this.SET_MAIN_USER_ADDRESS('')
+    this.SET_MAIN_USER_ID('')
   }
 
   @Action
@@ -127,7 +135,7 @@ class User extends VuexModule implements IUserState {
     if (this.token === '') {
       throw Error('GetUserInfo: token is undefined!')
     }
-    const data: any = await getUserInfo()
+    const data: any = await getMainUserInfo()
     if (!data) {
       throw Error('Verification failed, please Login again.')
     }
@@ -140,9 +148,14 @@ class User extends VuexModule implements IUserState {
   }
 
   @Action({ rawError: true })
-  public async GetIAMUserInfo() {
+  public async GetGlobalInfo() {
     if (this.token === '') {
-      throw Error('GetIAMUserInfo: token is undefined!')
+      throw Error('GetGlobalInfo: token is undefined!')
+    }
+    let userInfo: any = await getMainUserInfo()
+    if (userInfo.userId) {
+      this.SET_MAIN_USER_ID(userInfo.userId)
+      this.SET_MAIN_USER_ADDRESS(userInfo.address)
     }
     let data: any = null
     if (this.iamUserId) {
@@ -172,7 +185,7 @@ class User extends VuexModule implements IUserState {
     const perms = data.perms
     // perms must be a non-empty array
     if (!perms || perms.length <= 0) {
-      throw Error('GetIAMUserInfo: perms must be a non-null array!')
+      throw Error('GetGlobalInfo: perms must be a non-null array!')
     }
     this.SET_PERMS(perms)
   }
@@ -186,7 +199,7 @@ class User extends VuexModule implements IUserState {
     await this.GetUserInfo()
     resetRouter()
     // Generate dynamic accessible routes based on roles
-    PermissionModule.GenerateRoutes(this.roles)
+    PermissionModule.GenerateRoutes({ perms: this.roles, iamUserId: this.iamUserId })
     // Add generated routes
     router.addRoutes(PermissionModule.dynamicRoutes)
     // Reset visited views and cached views
@@ -211,7 +224,6 @@ class User extends VuexModule implements IUserState {
     removeToken()
     resetRouter()
     removeUsername()
-    removeIamUserId()
 
     // Reset visited views and cached views
     TagsViewModule.delAllViews()
@@ -219,11 +231,17 @@ class User extends VuexModule implements IUserState {
     this.SET_ROLES([])
     this.SET_PERMS([])
     this.SET_NAME('')
+
+    const result = {
+      mainUserID: this.mainUserID,
+      iamUserId: this.iamUserId
+    }
+    removeIamUserId()
     this.SET_IAM_USER_ID('')
 
-    const mainUserID = this.mainUserID
     this.SET_MAIN_USER_ID('')
-    return mainUserID
+    this.SET_MAIN_USER_ADDRESS('')
+    return result
   }
 }
 

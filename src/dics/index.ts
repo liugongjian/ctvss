@@ -15,6 +15,11 @@ export const DeviceRtmpType = {
   'platform': 'Platform'
 }
 
+export const DeviceRtspType = {
+  'ipc': 'IPC',
+  'nvr': 'NVR'
+}
+
 export const InType = {
   'push': '推流',
   'pull': '拉流'
