@@ -221,12 +221,14 @@ export default class extends Vue {
    * 跳转至详情配置页面
    */
   private goToConfig(row: Group) {
-    this.$router.push({
-      path: '/group/config',
-      query: {
-        groupId: row.groupId
-      }
-    })
+    if (checkPermission(['*'])) {
+      this.$router.push({
+        path: '/group/config',
+        query: {
+          groupId: row.groupId
+        }
+      })
+    }
   }
 
   /**
@@ -253,7 +255,7 @@ export default class extends Vue {
    * 整行可点
    */
   private rowClick(group: Group, column: any) {
-    if (checkPermission(['*']) && column.property !== 'action') {
+    if (column.property !== 'action') {
       this.goToConfig(group)
     }
   }
