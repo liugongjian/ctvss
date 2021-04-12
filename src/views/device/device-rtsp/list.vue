@@ -27,7 +27,7 @@
         <el-button v-if="isPlatform" @click="goToUpdate(deviceInfo)">编辑Platform</el-button>
         <el-button v-if="isPlatform" :loading="loading.syncDevice" @click="syncDevice">同步</el-button>
         <el-button :disabled="!selectedDeviceList.length" @click="exportCsv">导出</el-button>
-        <el-dropdown placement="bottom" @command="handleBatch">
+        <el-dropdown v-permission="['*']" placement="bottom" @command="handleBatch">
           <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="move">移动至</el-dropdown-item>
