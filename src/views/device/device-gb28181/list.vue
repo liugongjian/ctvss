@@ -9,7 +9,8 @@
           {{ deviceStatus[deviceInfo.deviceStatus] }}
         </info-list-item>
         <info-list-item label="创建时间:">{{ deviceInfo.createdTime }}</info-list-item>
-        <info-list-item label="通道数量:">{{ deviceInfo.deviceStats.channelSize }}</info-list-item>
+        <info-list-item v-if="deviceInfo.createSubDevice === 2" label="可支持通道数量:">{{ deviceInfo.deviceStats.maxChannelSize }}</info-list-item>
+        <info-list-item v-else label="通道数量:">{{ deviceInfo.deviceStats.maxChannelSize }}</info-list-item>
         <info-list-item label="在线流数量:">{{ deviceInfo.deviceStats.onlineSize }}</info-list-item>
       </info-list>
     </div>
@@ -242,6 +243,9 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
       />
+      <div v-if="isNVR" class="el-pagination">
+        <div class="el-pagination__total">共{{ deviceList.length }}条</div>
+      </div>
       <div v-if="!deviceList.length && !loading.list" class="device-list__empty-text">
         当前{{ isNVR ? 'NVR' : '目录' }}暂无设备
       </div>
