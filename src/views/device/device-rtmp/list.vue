@@ -33,6 +33,7 @@
           :on-progress="uploadProgress"
           :on-success="uploadProgress"
           :on-error="uploadProgress"
+          :auto-upload="false"
         >
           <el-button>导入</el-button>
         </el-upload>
@@ -203,17 +204,18 @@ export default class extends Mixins(listMixin, excelMixin) {
   }
 
   private exportExcel(command: any) {
-    switch (command) {
-      case 'exportSelect':
-        this.exportData = this.selectedDeviceList
-        return
-      case 'exportCurrentPage':
-        this.exportData = this.deviceList
-    }
-    this.exelType = 'export'
-    this.exelDeviceType = 'rtmp'
-    this.exelName = '设备表格（rtmp）'
-    this.exportExel()
+    // switch (command) {
+    //   case 'exportSelect':
+    //     this.exportData = this.selectedDeviceList
+    //     return
+    //   case 'exportCurrentPage':
+    //     this.exportData = this.deviceList
+    // }
+    // this.exelType = 'export'
+    // this.exelDeviceType = 'rtmp'
+    // this.exelName = '设备表格（rtmp）'
+    // this.exportExel()
+    console.log(this.groupId, this.inProtocol, this.isNVR, this.dirId);
   }
 
   /**
