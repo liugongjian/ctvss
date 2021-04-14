@@ -591,7 +591,8 @@ export default class CreateMixin extends Vue {
             await Promise.all(this.selectedDeviceList.map((device: Device) => {
               return method({
                 deviceId: device.deviceId,
-                inProtocol: this.inProtocol
+                inProtocol: this.inProtocol,
+                inType: device.inType
               })
             }))
             done()
