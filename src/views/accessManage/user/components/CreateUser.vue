@@ -77,9 +77,9 @@
             <span class="item-tip">用户必须在下次登录时重置密码</span>
           </el-form-item>
           <el-form-item v-if="type === 'edit'" prop="subUserLoginLink" label="子用户登录链接：">
-            <span>{{ $router.currentRoute.query.subUserLoginLink }}</span>
+            <span>{{ $route.params.subUserLoginLink }}</span>
             <el-tooltip class="item" effect="dark" content="复制链接" placement="top">
-              <el-button type="text" style="margin-left: 10px" @click="copyRow($router.currentRoute.query.subUserLoginLink, 'link')"><svg-icon name="copy" /></el-button>
+              <el-button type="text" style="margin-left: 10px" @click="copyRow($route.params.subUserLoginLink, 'link')"><svg-icon name="copy" /></el-button>
             </el-tooltip>
           </el-form-item>
           <el-form-item>
@@ -218,19 +218,24 @@ export default class extends Vue {
       `
       copy(str)
     } else if (type === 'link') {
-      const subUserLoginLink = this.$router.currentRoute.query.subUserLoginLink
+      const subUserLoginLink = row
       copy(subUserLoginLink + '')
     }
     this.$message.success('复制成功')
   }
 
   private back() {
-    this.$router.push(`/accessManage/user`)
+    this.$router.push({
+      name: 'accessManage-user',
+      params: {
+        nodeKeyPath: this.$route.params.nodeKeyPath
+      }
+    })
   }
 
   private async mounted() {
     await this.getPolicyList()
-    this.type = this.$router.currentRoute.query.type
+    this.type = this.$route.params.type
     if (this.type === 'edit') {
       this.breadCrumbContent = '编辑用户'
       this.getUser()
@@ -263,7 +268,7 @@ export default class extends Vue {
   private async getUser() {
     try {
       this.loading.form = true
-      let res = await getUser({ iamUserId: this.$router.currentRoute.query.userId })
+      let res = await getUser({ iamUserId: this.$router.currentRoute.params.userId })
       this.form = {
         iamUserName: res.iamUserName,
         consoleEnabled: res.consoleEnabled === '1',
@@ -297,7 +302,7 @@ export default class extends Vue {
         if (valid) {
           this.loading.submit = true
           if (type === 'add') {
-            params.groupId = this.$router.currentRoute.query.groupId
+            params.groupId = this.$router.currentRoute.params.groupId
             let res = await createUser(params)
             this.cardIndex = 'table'
             this.newUserData = [
@@ -310,10 +315,10 @@ export default class extends Vue {
               }
             ]
           } else if (type === 'edit') {
-            params.iamUserId = this.$router.currentRoute.query.userId
+            params.iamUserId = this.$router.currentRoute.params.userId
             await modifyUser(params)
             this.$message.success('修改用户成功')
-            this.$router.push(`/accessManage/user`)
+            this.back()
           }
         } else {
           return false

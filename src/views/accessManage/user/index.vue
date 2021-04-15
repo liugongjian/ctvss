@@ -12,27 +12,30 @@
             <svg-icon name="hamburger" />
           </el-button>
           <div class="titleBar__menu__tools">
+            <el-tooltip effect="dark" content="刷新" placement="top" :open-delay="300">
+              <el-button type="text" @click="initGroupTree"><svg-icon name="refresh" class="titleBar__menu__tools__icon" /></el-button>
+            </el-tooltip>
             <el-tooltip effect="dark" content="创建子部门" placement="top" :open-delay="300">
-              <el-button type="text" @click="showDialog('add')"><svg-icon name="plus" style="color: #000000" /></el-button>
+              <el-button type="text" @click="showDialog('add', currentNode)"><svg-icon name="plus" class="titleBar__menu__tools__icon" /></el-button>
             </el-tooltip>
           </div>
         </div>
         <div class="titleBar__title">
-          <span>通讯录</span>
-          <span>{{ currentNode.data.groupName === '通讯录' ? '' : `/${currentNode.data.groupName}` }}</span>
+          <span>{{ nodePath }}</span>
         </div>
       </div>
       <div class="content">
         <el-main v-loading="loading.menu" class="content__menu" :style="`width: ${handleDrag.width}px`">
           <el-tree
             ref="groupTree"
-            :data="groupList"
             :props="props"
-            node-key="groupName"
+            node-key="groupId"
             highlight-current
             :expand-on-click-node="false"
-            :default-expanded-keys="['通讯录']"
-            current-node-key="通讯录"
+            :default-expanded-keys="['-1']"
+            current-node-key="-1"
+            lazy
+            :load="loadGroups"
             @current-change="setCurrentNode"
           >
             <span
@@ -41,13 +44,18 @@
             >
               <span>{{ node.label }}</span>
               <span v-if="node.label !== '通讯录'" class="content__menu__item__btns">
+                <el-tooltip effect="dark" content="添加子部门" placement="top" :open-delay="300">
+                  <el-button type="text" @click="showDialog('add', node)">
+                    <svg-icon name="plus" class="content__menu__item__btns__icon" />
+                  </el-button>
+                </el-tooltip>
                 <el-tooltip effect="dark" content="修改子部门" placement="top" :open-delay="300">
-                  <el-button type="text" @click.stop="showDialog('edit', node)">
+                  <el-button type="text" @click="showDialog('edit', node)">
                     <svg-icon name="edit" class="content__menu__item__btns__icon" />
                   </el-button>
                 </el-tooltip>
                 <el-tooltip effect="dark" content="合并子部门" placement="top" :open-delay="300">
-                  <el-button type="text" @click.stop="showDialog('merge', node)">
+                  <el-button type="text" @click="showDialog('merge', node)">
                     <svg-icon name="combine" class="content__menu__item__btns__icon" />
                   </el-button>
                 </el-tooltip>
@@ -119,10 +127,11 @@ export default class extends Vue {
     menu: false,
     body: false
   }
+  private nodePath: string = '通讯录'
+  private nodeKeyPath: any = '-1'
   private isShowDialog: boolean = false
   private isCollapsed: boolean = false
   private props: object = {
-    isLeaf: 'leaf',
     label: 'groupName',
     children: 'children'
   }
@@ -134,9 +143,6 @@ export default class extends Vue {
     total: 0
   }
   private dialogData: any = {}
-  private groupList: any = [
-    { groupName: '通讯录', groupId: '-1', leaf: false, children: [] }
-  ]
   private currentNode: any = {
     data: {
       groupName: '通讯录',
@@ -146,8 +152,10 @@ export default class extends Vue {
   private subUserLoginLink: string = ''
 
   private mounted() {
-    this.getGroups()
-    this.getUserList()
+    this.$route.params.nodeKeyPath && (
+      this.nodeKeyPath = this.$route.params.nodeKeyPath
+    )
+    this.initGroupTree('')
   }
 
   private changeHandle(e: any) {
@@ -170,25 +178,91 @@ export default class extends Vue {
 
   private setCurrentNode(data: any, node: any) {
     this.currentNode = node
+    this.nodePath = ''
+    this.nodeKeyPath = ''
+    this.getNodePath(node).forEach((nodeObj: any) => {
+      this.nodePath += nodeObj.groupId === '-1' ? `${nodeObj.groupName}` : ` / ${nodeObj.groupName}`
+      this.nodeKeyPath += nodeObj.groupId === '-1' ? `${nodeObj.groupId}` : `/${nodeObj.groupId}`
+    })
+    this.$route.params.nodeKeyPath = this.nodeKeyPath
     this.getUserList()
   }
 
-  private async getGroups() {
-    let params = {}
+  private getNodePath(node: any) {
+    let curentNodePath: any = []
+    this.findParentNode(node, curentNodePath)
+    return curentNodePath
+  }
+
+  private findParentNode(node: any, curentNodePath: any) {
+    if (node.parent !== null) {
+      curentNodePath.unshift({
+        groupName: node.data.groupName,
+        groupId: node.data.groupId
+      })
+      this.findParentNode(node.parent, curentNodePath)
+    }
+  }
+
+  private async initGroupTree(type: any) {
+    let groupTree: any = this.$refs.groupTree
     try {
       this.loading.menu = true
-      let res = await getGroupList(params)
-      this.groupList[0].children = res.groups.map((group: any) => {
-        return {
-          groupName: group.groupName,
-          groupId: group.groupId,
-          leaf: true
+      const nodeKeyPathArr: any = this.nodeKeyPath.split('/')
+      for (let i = 0; i < nodeKeyPathArr.length; i++) {
+        let node: any = groupTree.getNode(nodeKeyPathArr[i])
+        if (!node) break
+        this.currentNode = node
+        if (i !== nodeKeyPathArr.length - 1 || type === 'add') {
+          await this.loadChildrenNodes(nodeKeyPathArr[i])
+          node.expanded = true
         }
-      })
+      }
+      groupTree.setCurrentKey(this.currentNode.data.groupId)
+      this.setCurrentNode(this.currentNode.data, this.currentNode)
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
       this.loading.menu = false
+    }
+  }
+
+  private async loadChildrenNodes(key: string) {
+    try {
+      const groupTree: any = this.$refs.groupTree
+      let data = await getGroupList({
+        parentGroupId: key
+      })
+      groupTree.updateKeyChildren(key, data.groups.map((group: any) => {
+        return {
+          groupName: group.groupName,
+          groupId: group.groupId
+        }
+      }))
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  private async loadGroups(node: any, resolve: Function) {
+    if (node.level === 0) {
+      return resolve([
+        { groupName: '通讯录', groupId: '-1', children: [] }
+      ])
+    }
+    try {
+      const res = await getGroupList({
+        parentGroupId: node.data.groupId
+      })
+      let dirs: any = res.groups.map((group: any) => {
+        return {
+          groupName: group.groupName,
+          groupId: group.groupId
+        }
+      })
+      resolve(dirs)
+    } catch (e) {
+      console.log(e)
     }
   }
 
@@ -249,43 +323,35 @@ export default class extends Vue {
       type: type,
       data: node && node.data
     }
-    if (type === 'merge') {
-      this.dialogData.groupList = this.groupList[0].children
-    }
   }
+
   private closeAddDialog(data: any) {
-    if (data === 'merge') {
-      this.currentNode = {
-        data: {
-          groupName: '通讯录',
-          groupId: '-1'
-        }
-      }
-    }
     this.isShowDialog = false
     this.showDailogSign = false
     if (data) {
-      this.getGroups()
+      this.initGroupTree(data.type)
       this.getUserList()
     }
   }
   private createUser() {
     this.$router.push({
-      path: `/accessManage/user/create`,
-      query: {
+      name: `accessManage-user-create`,
+      params: {
         type: 'add',
-        groupId: this.currentNode.data.groupId
+        groupId: this.currentNode.data.groupId,
+        nodeKeyPath: this.nodeKeyPath
       }
     })
   }
   private editUser(row: any) {
     this.getSubuserLoginLink(row.iamUserName)
     this.$router.push({
-      path: `/accessManage/user/create`,
-      query: {
+      name: `accessManage-user-create`,
+      params: {
         type: 'edit',
         userId: row.iamUserId,
-        subUserLoginLink: this.subUserLoginLink
+        subUserLoginLink: this.subUserLoginLink,
+        nodeKeyPath: this.nodeKeyPath
       }
     })
   }
@@ -323,6 +389,13 @@ export default class extends Vue {
         background: $titleBackground;
       }
     }
+    .el-tree {
+      .el-tree-node {
+        &__content {
+          overflow: hidden;
+        }
+      }
+    }
   }
   .handle {
     height: 100%;
@@ -351,6 +424,11 @@ export default class extends Vue {
           margin: 0;
           margin-right: 10px;
           font-size: 20px;
+        }
+        &__icon {
+          width: 16px !important;
+          height: 16px !important;
+          color: #000000;
         }
       }
     }
