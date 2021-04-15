@@ -299,7 +299,15 @@ export default class extends Vue {
             query: this.otherQuery
           })
         } catch (err) {
-          this.$message.error('登录失败，失败原因：' + err.message)
+          console.log('err:', err)
+          if (this.subUserLogin && err.code === 16) {
+            this.$router.push({
+              path: '/reset-password',
+              query: this.$route.query
+            })
+          } else {
+            this.$message.error('登录失败，失败原因：' + err.message)
+          }
         } finally {
           this.loading = false
         }

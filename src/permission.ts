@@ -9,7 +9,7 @@ import settings from './settings'
 
 NProgress.configure({ showSpinner: false })
 
-const whiteList = ['/login', '/auth-redirect']
+const whiteList = ['/login', '/reset-password', '/auth-redirect']
 
 const getPageTitle = (key: string) => {
   return (key ? `${key} - ` : '') + settings.title
