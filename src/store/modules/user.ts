@@ -1,4 +1,5 @@
 import { VuexModule, Module, Action, Mutation, getModule } from 'vuex-module-decorators'
+import { Base64 } from 'js-base64'
 import { login, logout, getMainUserInfo, getIAMUserInfo, changePassword } from '@/api/users'
 import { getToken, setToken, removeToken, getUsername, setUsername, removeUsername, getIamUserId, setIamUserId, removeIamUserId } from '@/utils/cookies'
 import router, { resetRouter } from '@/router'
@@ -97,7 +98,7 @@ class User extends VuexModule implements IUserState {
       const data: any = await login({
         mainUserID: mainUserID || undefined,
         userName,
-        password
+        password: 'YWJjZG' + Base64.encode(password) + 'VmZWRl'
       })
       setToken(data.token)
       setUsername(userName)

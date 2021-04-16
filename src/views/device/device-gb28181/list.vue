@@ -9,7 +9,8 @@
           {{ deviceStatus[deviceInfo.deviceStatus] }}
         </info-list-item>
         <info-list-item label="创建时间:">{{ deviceInfo.createdTime }}</info-list-item>
-        <info-list-item label="通道数量:">{{ deviceInfo.deviceStats.channelSize }}</info-list-item>
+        <info-list-item v-if="deviceInfo.createSubDevice === 2" label="可支持通道数量:">{{ deviceInfo.deviceStats.maxChannelSize }}</info-list-item>
+        <info-list-item v-else label="通道数量:">{{ deviceInfo.deviceStats.maxChannelSize }}</info-list-item>
         <info-list-item label="在线流数量:">{{ deviceInfo.deviceStats.onlineSize }}</info-list-item>
       </info-list>
     </div>
@@ -52,7 +53,7 @@
         <el-dropdown key="dropdown" v-permission="['*']" placement="bottom" @command="handleBatch">
           <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item v-if="!isNVR" command="move">移动至</el-dropdown-item>
+            <el-dropdown-item v-if="!isNVR && !isPlatform" command="move">移动至</el-dropdown-item>
             <el-dropdown-item command="startDevice">启用流</el-dropdown-item>
             <el-dropdown-item command="stopDevice">停用流</el-dropdown-item>
             <el-dropdown-item command="delete">删除</el-dropdown-item>
@@ -242,11 +243,14 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
       />
+      <div v-if="isNVR" class="el-pagination">
+        <div class="el-pagination__total">共{{ deviceList.length }}条</div>
+      </div>
       <div v-if="!deviceList.length && !loading.list" class="device-list__empty-text">
         当前{{ isNVR ? 'NVR' : '目录' }}暂无设备
       </div>
     </div>
-    <move-dir v-if="dialog.moveDir" :device="currentDevice" :devices="selectedDeviceList" :is-batch="isBatchMoveDir" @on-close="closeDialog('moveDir', ...arguments)" />
+    <move-dir v-if="dialog.moveDir" :in-protocol="inProtocol" :device="currentDevice" :devices="selectedDeviceList" :is-batch="isBatchMoveDir" @on-close="closeDialog('moveDir', ...arguments)" />
   </div>
 </template>
 <script lang="ts">

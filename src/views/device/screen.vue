@@ -108,49 +108,49 @@
                   </div>
                 </span>
               </el-tree>
-              <div v-if="polling.isStart" class="polling-mask">
-                <div class="polling-mask__tools">
-                  <div class="polling-mask__tools__status">
-                    <span v-if="!polling.isPause">当前轮巡中...</span>
-                    <span v-else>轮巡已暂停</span>
-                  </div>
-                  <div class="polling-mask__tools__item">
-                    <svg-icon
-                      name="clock"
-                      class="polling-mask__tools__clock"
-                      width="16px"
-                      height="16px"
+            </div>
+            <div v-if="polling.isStart" class="polling-mask">
+              <div class="polling-mask__tools">
+                <div class="polling-mask__tools__status">
+                  <span v-if="!polling.isPause">当前轮巡中...</span>
+                  <span v-else>轮巡已暂停</span>
+                </div>
+                <div class="polling-mask__tools__item">
+                  <svg-icon
+                    name="clock"
+                    class="polling-mask__tools__clock"
+                    width="16px"
+                    height="16px"
+                  />
+                  <el-select
+                    v-model="polling.interval"
+                    class="polling-mask__tools__select"
+                    size="mini"
+                    placeholder="请选择"
+                    @change="intervalChange"
+                  >
+                    <el-option
+                      v-for="item in pollingInterval"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
                     />
-                    <el-select
-                      v-model="polling.interval"
-                      class="polling-mask__tools__select"
-                      size="mini"
-                      placeholder="请选择"
-                      @change="intervalChange"
-                    >
-                      <el-option
-                        v-for="item in pollingInterval"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                      />
-                    </el-select>
-                  </div>
-                  <div v-if="!polling.isPause" class="polling-mask__tools__item">
-                    <el-button size="mini" @click="pausePolling()">
-                      <svg-icon name="pause" />暂停
-                    </el-button>
-                  </div>
-                  <div v-if="polling.isPause" class="polling-mask__tools__item">
-                    <el-button size="mini" @click="resumePolling()">
-                      <svg-icon name="play" />继续
-                    </el-button>
-                  </div>
-                  <div class="polling-mask__tools__item">
-                    <el-button size="mini" @click="stopPolling()">
-                      <svg-icon name="stop" />结束
-                    </el-button>
-                  </div>
+                  </el-select>
+                </div>
+                <div v-if="!polling.isPause" class="polling-mask__tools__item">
+                  <el-button size="mini" @click="pausePolling()">
+                    <svg-icon name="pause" />暂停
+                  </el-button>
+                </div>
+                <div v-if="polling.isPause" class="polling-mask__tools__item">
+                  <el-button size="mini" @click="resumePolling()">
+                    <svg-icon name="play" />继续
+                  </el-button>
+                </div>
+                <div class="polling-mask__tools__item">
+                  <el-button size="mini" @click="stopPolling()">
+                    <svg-icon name="stop" />结束
+                  </el-button>
                 </div>
               </div>
             </div>
@@ -535,6 +535,7 @@ export default class extends Mixins(ScreenMixin) {
       this.screenList[i].deviceId = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].id
       this.screenList[i].type = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].type
       this.screenList[i].deviceName = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].label
+      this.screenList[i].inProtocol = this.currentGroupInProtocol!
       this.screenList[i].getUrl()
       if (this.currentIndex < this.maxSize - 1) {
         this.currentIndex++
@@ -657,6 +658,10 @@ export default class extends Mixins(ScreenMixin) {
     .offline .node-name {
       cursor: not-allowed;
     }
+  }
+  .dir-list {
+    position: relative;
+
     .polling-mask {
       position: absolute;
       display: flex;

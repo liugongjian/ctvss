@@ -167,7 +167,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '业务组配置',
           icon: 'tree',
           hidden: true,
-          perms: ['*'],
+          perms: ['GET'],
           activeMenu: '/group'
         }
       }

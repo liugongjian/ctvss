@@ -29,7 +29,7 @@
         </info-list>
       </el-tab-pane>
       <el-tab-pane label="模板配置" name="template">
-        <template-bind v-if="activeName==='template'" :group-id="form.groupId" />
+        <template-bind v-if="activeName==='template'" :group-id="form.groupId" :in-protocol="form.inProtocol" />
       </el-tab-pane>
     </el-tabs>
   </div>
