@@ -63,7 +63,7 @@
         <el-table-column prop="createdTime" label="创建时间" min-width="170" />
         <el-table-column prop="action" class-name="col-action" label="操作" width="250" fixed="right">
           <template slot-scope="scope">
-            <el-button v-if="checkPermission(['*'])" type="text" @click="goToConfig(scope.row)">业务组配置</el-button>
+            <el-button type="text" @click="goToConfig(scope.row)">业务组配置</el-button>
             <el-button type="text" @click="goToDevices(scope.row)">设备管理</el-button>
             <el-dropdown v-if="checkPermission(['*'])" @command="handleMore">
               <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
@@ -252,10 +252,8 @@ export default class extends Vue {
   /**
    * 整行可点
    */
-  private rowClick(group: Group, column: any) {
-    if (checkPermission(['*']) && column.property !== 'action') {
-      this.goToConfig(group)
-    }
+  private rowClick(group: Group) {
+    this.goToConfig(group)
   }
 
   /**
