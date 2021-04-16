@@ -23,4 +23,5 @@ export interface Device {
   recordTaskId?: string;
   tags?: string;
   inType?: string;
+  inProtocol?: string;
 }

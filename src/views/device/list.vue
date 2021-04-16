@@ -6,13 +6,15 @@ import { Component, Vue } from 'vue-property-decorator'
 import gb28181 from './device-gb28181/list.vue'
 import rtmp from './device-rtmp/list.vue'
 import rtsp from './device-rtsp/list.vue'
+import onvif from './device-onvif/list.vue'
 
 @Component({
   name: 'DeviceList',
   components: {
     gb28181,
     rtmp,
-    rtsp
+    rtsp,
+    onvif
   }
 })
 export default class extends Vue {
