@@ -16,7 +16,9 @@
               <info-list-item label="硬件:">{{ info.deviceHardware || '-' }}</info-list-item>
               <info-list-item label="固件:">{{ info.deviceFirmware || '-' }}</info-list-item>
               <info-list-item label="公网IP地址:">{{ info.devicePubIp }}</info-list-item>
+              <info-list-item label="公网端口:">{{ info.devicePubPort }}</info-list-item>
               <info-list-item label="局域网IP地址:">{{ info.deviceIp }}</info-list-item>
+              <info-list-item label="局域网端口:">{{ info.devicePort }}</info-list-item>
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
               <info-list-item label="流状态:">
                 <div class="info-list__edit">
