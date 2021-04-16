@@ -145,7 +145,9 @@ export const AlertType: any = {
   4: '人员布控',
   5: '吸烟检测',
   7: '安全帽反光服检测',
-  9: '危险区域检测'
+  9: '危险区域检测',
+  10: '烟雾明火',
+  11: '冲压机'
 }
 
 export const AiMaskType: any = {
