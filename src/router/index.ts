@@ -735,6 +735,18 @@ export const asyncRoutes: RouteConfig[] = [
           activeMenu: '/accessManage',
           perms: ['*']
         }
+      },
+      {
+        path: 'role',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/role/index.vue'),
+        name: 'accessManage-role',
+        meta: {
+          title: '角色',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/accessManage',
+          perms: ['*']
+        }
       }
     ]
   },

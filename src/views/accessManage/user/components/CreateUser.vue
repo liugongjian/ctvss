@@ -234,7 +234,6 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    await this.getPolicyList()
     this.type = this.$route.params.type
     if (this.type === 'edit') {
       this.breadCrumbContent = '编辑用户'
@@ -242,6 +241,7 @@ export default class extends Vue {
     } else if (this.type === 'add') {
       this.breadCrumbContent = '创建用户'
     }
+    this.getPolicyList()
   }
 
   private async getPolicyList() {
