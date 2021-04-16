@@ -34,6 +34,7 @@
   </el-form>
 </template>
 <script lang='ts'>
+import { Base64 } from 'js-base64'
 import { Component, Vue } from 'vue-property-decorator'
 import { createCertificate, queryCertificate, updateCertificate } from '@/api/certificate/gb28181'
 import { GB28181 } from '@/type/certificate'
@@ -114,15 +115,29 @@ export default class extends Vue {
 
   private submit(onSuccess: Function) {
     const form: any = this.$refs.dataForm
+    let data: any = {}
     form.validate(async(valid: any) => {
       if (valid) {
         this.loading = true
         try {
           if (this.disabled) {
-            await updateCertificate(this.form)
+            data = {
+              userName: this.form.userName,
+              userType: this.form.userType,
+              description: this.form.description,
+              password: 'YTVjIX' + Base64.encode(this.form.password as string) + 'ZmZUBl',
+              newPassword: 'YmNjIW' + Base64.encode(this.form.newPassword as string) + '1mZSNl'
+            }
+            await updateCertificate(data)
           } else {
             this.form.password = this.form.newPassword
-            await createCertificate(this.form)
+            data = {
+              userName: this.form.userName,
+              userType: this.form.userType,
+              description: this.form.description,
+              password: 'YTVjIX' + Base64.encode(this.form.password as string) + 'ZmZUBl'
+            }
+            await createCertificate(data)
           }
           onSuccess()
           if (this.disabled) {
