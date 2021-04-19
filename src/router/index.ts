@@ -391,6 +391,50 @@ export const asyncRoutes: RouteConfig[] = [
       }
     ]
   },
+
+  {
+    path: '/up-platform',
+    component: Layout,
+    meta: {
+      title: '国际级联',
+      icon: 'platform',
+      alwaysShow: true,
+      breadcrumb: false,
+      perms: ['GET']
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/index.vue'),
+        name: 'up-platform',
+        meta: {
+          title: '上级平台级联',
+          icon: 'dot',
+          perms: ['GET']
+        }
+      },
+      {
+        path: 'create',
+        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/create.vue'),
+        name: 'up-platform-create',
+        meta: {
+          title: '新建上级平台级联',
+          hidden: true,
+          perms: ['GET']
+        }
+      }
+      // {
+      //   path: 'gb28181/update/:id?',
+      //   component: () => import(/* webpackChunkName: "tree" */ '@/views/certificate/gb28181/create.vue'),
+      //   name: 'gb28181-update',
+      //   meta: {
+      //     title: '编辑GB28181凭证',
+      //     hidden: true,
+      //     perms: ['*']
+      //   }
+      // }
+    ]
+  },
   {
     path: '/certificate',
     component: Layout,
