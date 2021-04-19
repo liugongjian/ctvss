@@ -1,84 +1,79 @@
 <template>
-  <div class="login-container">
+  <div class="reset-container">
     <div class="header">
       <div class="logo">
         <img src="@/assets/images/logo.png">
       </div>
     </div>
-    <div class="login-container__body">
-      <div class="login-container__body__left">
-        <span>重置密码</span>
-        <span>您可能因被要求重置密码而需进行密码重置</span>
-        <el-form
-          ref="form"
-          v-loading="loading"
-          :model="form"
-          :rules="rules"
-          label-position="right"
-          label-width="150px"
-          class="change-password-form"
-        >
-          <el-form-item prop="originalPwd" label="原始密码">
-            <el-input
-              :key="'originalPwd-' + passwordType.originalPwd"
-              ref="originalPwd"
-              v-model="form.originalPwd"
-              :type="passwordType.originalPwd"
-              placeholder="原始密码"
-              name="originalPwd"
-              tabindex="1"
-              autocomplete="on"
-              @focus="showOriginalPwdError = false"
+    <div class="reset-container__body">
+      <div class="reset-container__body_headline">重置密码</div>
+      <div class="reset-container__body_sub_headline">您可能因被要求重置密码而需进行密码重置</div>
+      <el-form
+        ref="form"
+        v-loading="loading"
+        :model="form"
+        :rules="rules"
+        label-position="right"
+        label-width="150px"
+        class="reset-container__body_form"
+      >
+        <el-form-item prop="originalPwd" label="原始密码">
+          <el-input
+            :key="'originalPwd-' + passwordType.originalPwd"
+            ref="originalPwd"
+            v-model="form.originalPwd"
+            :type="passwordType.originalPwd"
+            placeholder="原始密码"
+            name="originalPwd"
+            tabindex="1"
+            autocomplete="on"
+            @focus="showOriginalPwdError = false"
+          />
+          <span class="show-pwd" @click="showPwd('originalPwd')">
+            <svg-icon
+              :name="passwordType.originalPwd === 'password' ? 'eye-off' : 'eye-on'"
             />
-            <span class="show-pwd" @click="showPwd('originalPwd')">
-              <svg-icon
-                :name="passwordType.originalPwd === 'password' ? 'eye-off' : 'eye-on'"
-              />
-            </span>
-            <span v-if="showOriginalPwdError" class="error-tip">原始密码错误</span>
-          </el-form-item>
-          <el-form-item prop="newPwd" label="新密码">
-            <el-input
-              :key="'newPwd-' + passwordType.newPwd"
-              ref="newPwd"
-              v-model="form.newPwd"
-              :type="passwordType.newPwd"
-              placeholder="新密码"
-              name="newPwd"
-              tabindex="2"
+          </span>
+          <span v-if="showOriginalPwdError" class="error-tip">原始密码错误</span>
+        </el-form-item>
+        <el-form-item prop="newPwd" label="新密码">
+          <el-input
+            :key="'newPwd-' + passwordType.newPwd"
+            ref="newPwd"
+            v-model="form.newPwd"
+            :type="passwordType.newPwd"
+            placeholder="新密码"
+            name="newPwd"
+            tabindex="2"
+          />
+          <span class="show-pwd" @click="showPwd('newPwd')">
+            <svg-icon
+              :name="passwordType.newPwd === 'password' ? 'eye-off' : 'eye-on'"
             />
-            <span class="show-pwd" @click="showPwd('newPwd')">
-              <svg-icon
-                :name="passwordType.newPwd === 'password' ? 'eye-off' : 'eye-on'"
-              />
-            </span>
-            <span class="form-item-tip">密码长度为8-20位，必须同时包含大写字母、小写字母、数字、特殊字符</span>
-          </el-form-item>
-          <el-form-item prop="confirmPwd" label="确认密码">
-            <el-input
-              :key="'confirmPwd-' + passwordType.confirmPwd"
-              ref="confirmPwd"
-              v-model="form.confirmPwd"
-              :type="passwordType.confirmPwd"
-              placeholder="确认密码"
-              name="confirmPwd"
-              tabindex="3"
-              @keyup.enter.native="handleChangePassword"
+          </span>
+          <span class="form-item-tip">密码长度为8-20位，必须同时包含大写字母、小写字母、数字、特殊字符</span>
+        </el-form-item>
+        <el-form-item prop="confirmPwd" label="确认密码">
+          <el-input
+            :key="'confirmPwd-' + passwordType.confirmPwd"
+            ref="confirmPwd"
+            v-model="form.confirmPwd"
+            :type="passwordType.confirmPwd"
+            placeholder="确认密码"
+            name="confirmPwd"
+            tabindex="3"
+            @keyup.enter.native="handleResetSubUserPassword"
+          />
+          <span class="show-pwd" @click="showPwd('confirmPwd')">
+            <svg-icon
+              :name="passwordType.confirmPwd === 'password' ? 'eye-off' : 'eye-on'"
             />
-            <span class="show-pwd" @click="showPwd('confirmPwd')">
-              <svg-icon
-                :name="passwordType.confirmPwd === 'password' ? 'eye-off' : 'eye-on'"
-              />
-            </span>
-          </el-form-item>
-          <el-form-item label="">
-            <el-button type="primary" @click="handleChangePassword">提 交</el-button>
-          </el-form-item>
-        </el-form>
-      </div>
-      <div class="login-container__body__right">
-        <img src="@/assets/images/landing.png">
-      </div>
+          </span>
+        </el-form-item>
+        <el-form-item label="">
+          <el-button type="primary" @click="handleResetSubUserPassword">提 交</el-button>
+        </el-form-item>
+      </el-form>
     </div>
   </div>
 </template>
@@ -115,7 +110,9 @@ export default class extends Vue {
     }
   }
 
-  private form = {
+  private form: any = {
+    mainUserID: '',
+    subUserName: '',
     originalPwd: '',
     newPwd: '',
     confirmPwd: ''
@@ -140,6 +137,14 @@ export default class extends Vue {
   private loading = false
 
   mounted() {
+    const query = this.$route.query
+    if (query.mainUserID && query.subUserName) {
+      this.form.mainUserID = query.mainUserID
+      this.form.subUserName = query.subUserName
+    } else {
+      this.$message.error('状态异常，请重新登录')
+      this.$router.push(`/login?redirect=%2Fdashboard&subUserLogin=1`)
+    }
     if (this.form.originalPwd === '') {
       (this.$refs.originalPwd as Input).focus()
     } else if (this.form.newPwd === '') {
@@ -172,9 +177,12 @@ export default class extends Vue {
       if (valid) {
         try {
           this.loading = true
-          await UserModule.ChangePassword(this.form)
+          await UserModule.ResetIAMPassword(this.form)
           this.$message.success('重置密码成功！')
-          this.logout()
+          this.$router.push({
+            path: '/login',
+            query: this.$route.query
+          })
         } catch (err) {
           if (err.code === 7) {
             this.showOriginalPwdError = true
@@ -192,47 +200,16 @@ export default class extends Vue {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 // References: https://www.zhangxinxu.com/wordpress/2018/01/css-caret-color-first-line/
 @supports (-webkit-mask: none) and (not (cater-color: $loginCursorColor)) {
-  .login-container .el-input {
+  .reset-container .el-input {
     input { color: $text; }
     input::first-line { color: $text; }
   }
 }
 
-.login-container {
-  .el-input {
-    display: inline-block;
-    width: 85%;
-
-    input {
-      background: #fff;
-      border: 0px;
-      border-radius: 0px;
-      padding: 12px 5px 12px 15px;
-      color: $text;
-      -webkit-appearance: none;
-
-      &:-webkit-autofill {
-        background: none;
-        box-shadow: 0 0 0px 1000px #fff inset !important;
-        -webkit-text-fill-color: $text !important;
-      }
-    }
-  }
-
-  .el-form-item {
-    border: 1px solid #C6C6C6;
-    background: #fff;
-    border-radius: 5px;
-    color: $text;
-  }
-}
-</style>
-
-<style lang="scss" scoped>
-.login-container {
+.reset-container {
   height: 100%;
   width: 100%;
   overflow: hidden;
@@ -260,96 +237,57 @@ export default class extends Vue {
   }
 
   &__body {
-    display: flex;
     width: 1100px;
-    margin: 70px auto 0 auto;
-
-    &__left {
-      flex: 1;
-    }
-
-    &__right {
-      flex: 1;
-      img {
-        width: 100%;
-      }
-    }
-  }
-
-  .login-form {
-    position: relative;
-    border-right: 1px solid #ddd;
-    margin: 120px 60px 0 0;
-    padding-right: 60px;
-  }
-
-  .tips {
-    font-size: 14px;
-    color: #fff;
-    margin-bottom: 10px;
-
-    span {
-      &:first-of-type {
-        margin-right: 16px;
-      }
-    }
-  }
-
-  .svg-container {
-    padding: 6px 5px 6px 15px;
-    color: #a5b1b7;
-    vertical-align: middle;
-    width: 30px;
-    display: inline-block;
-  }
-
-  .title-container {
-    position: relative;
-
-    .title {
+    margin: 100px auto 0 auto;
+    &_headline {
       font-size: 26px;
-      color: $text;
-      margin: 0px auto 40px auto;
-      text-align: center;
       font-weight: bold;
+      margin-bottom: 20px;
     }
-  }
-
-  .show-pwd {
-    position: absolute;
-    right: 10px;
-    top: 7px;
-    font-size: 16px;
-    color: $darkGray;
-    cursor: pointer;
-    user-select: none;
-  }
-
-  .thirdparty-button {
-    position: absolute;
-    right: 0;
-    bottom: 6px;
-  }
-
-  @media only screen and (max-width: 470px) {
-    .thirdparty-button {
-      display: none;
+    &_sub_headline {
+      font-size: 22px;
     }
-  }
-
-  .button-group {
-    display: flex;
-    margin-bottom: 10px;
-    justify-content: space-between;
-    &__login {
-      width: 100%;
-    }
-  }
-
-  .login-switcher {
-    text-align: center;
-    svg {
-      vertical-align: middle;
+    &_form {
+      position: relative;
+      width: 52%;
+      margin: 40px 0 60px 20px;
+      .show-pwd {
+        position: absolute;
+        right: 10px;
+        font-size: 16px;
+        color: $darkGray;
+        cursor: pointer;
+        user-select: none;
+      }
+      ::v-deep .el-form-item {
+        margin-bottom: 30px;
+        .error-tip {
+          font-size: 12px;
+          color: $danger;
+          line-height: 1;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          padding-top: 6px;
+        }
+        .form-item-tip {
+          font-size: 12px;
+          color: $darkGray;
+          line-height: 1;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          padding-top: 6px;
+        }
+      }
+      ::v-deep .el-form-item.is-error {
+        .error-tip {
+          display: none;
+        }
+        .form-item-tip {
+          display: none;
+        }
+      }
     }
   }
 }

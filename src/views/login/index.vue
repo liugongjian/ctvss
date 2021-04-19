@@ -299,8 +299,7 @@ export default class extends Vue {
             query: this.otherQuery
           })
         } catch (err) {
-          console.log('err:', err)
-          if (this.subUserLogin && err.code === 16) {
+          if (this.subUserLogin && err.code === 8) {
             this.$router.push({
               path: '/reset-password',
               query: this.$route.query
