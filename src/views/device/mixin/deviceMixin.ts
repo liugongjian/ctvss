@@ -317,7 +317,7 @@ export default class DeviceMixin extends Vue {
       }
       resolve(res.dirs)
     } catch (e) {
-      console.log(e)
+      resolve([])
     }
   }
 }

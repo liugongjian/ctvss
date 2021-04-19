@@ -7,7 +7,7 @@ export const getUsers = (params: any) =>
     params
   })
 
-export const getUserInfo = () =>
+export const getMainUserInfo = () =>
   request({
     url: '/user',
     method: 'get'
@@ -50,6 +50,20 @@ export const logout = () =>
   request({
     url: '/user/logout',
     method: 'post'
+  })
+
+export const changePassword = (data: any) =>
+  request({
+    url: 'iam/user/changePwd',
+    method: 'post',
+    data
+  })
+
+export const resetIAMPassword = (data: any) =>
+  request({
+    url: 'iam/user/reset',
+    method: 'post',
+    data
   })
 
 export const register = (data: any) =>

@@ -34,6 +34,7 @@ service.interceptors.response.use(
     return response.data
   },
   (error) => {
+    console.dir(error)
     if (!timeoutPromise && error.response && error.response.data.code === 16) {
       timeoutPromise = MessageBox.confirm(
         '登录超时，可以取消继续留在该页面，或者重新登录',
@@ -52,6 +53,7 @@ service.interceptors.response.use(
     const data = error.response && error.response.data
     const code = data && data.code ? data.code : '-1'
     const message = data && data.message ? data.message : '服务器异常，请稍后再试。'
+    console.log('code: ', code, ' message: ', message)
     return Promise.reject(new VSSError(code, message))
   }
 )

@@ -76,6 +76,12 @@
             />
             <span class="item-tip">用户必须在下次登录时重置密码</span>
           </el-form-item>
+          <el-form-item v-if="type === 'edit'" prop="subUserLoginLink" label="子用户登录链接：">
+            <span>{{ $router.currentRoute.query.subUserLoginLink }}</span>
+            <el-tooltip class="item" effect="dark" content="复制链接" placement="top">
+              <el-button type="text" style="margin-left: 10px" @click="copyRow($router.currentRoute.query.subUserLoginLink, 'link')"><svg-icon name="copy" /></el-button>
+            </el-tooltip>
+          </el-form-item>
           <el-form-item>
             <el-button :disabled="loading.submit" type="primary" @click="operateUser(type)">确定</el-button>
             <el-button :disabled="loading.submit" @click="back">取消</el-button>
@@ -127,7 +133,7 @@
           </el-table-column>
           <el-table-column label="操作" align="center">
             <template slot-scope="scope">
-              <el-button type="text" @click="copyRow(scope.row)">复制</el-button>
+              <el-button type="text" @click="copyRow(scope.row, 'data')">复制</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -199,17 +205,22 @@ export default class extends Vue {
     policyList.toggleRowSelection(row)
   }
 
-  private copyRow(row: any) {
-    let str =
-    `
-    主账号ID：${row.mainUserId}
-    用户名：${row.userName}
-    登录密码：${row.passwords}
-    SecretId：${row.secretId}
-    SecretKey：${row.secretKey}
-    
-    `
-    copy(str)
+  private copyRow(row: any, type: any) {
+    if (type === 'data') {
+      let str =
+      `
+      主账号ID：${row.mainUserId}
+      用户名：${row.userName}
+      登录密码：${row.passwords}
+      SecretId：${row.secretId}
+      SecretKey：${row.secretKey}
+      
+      `
+      copy(str)
+    } else if (type === 'link') {
+      const subUserLoginLink = this.$router.currentRoute.query.subUserLoginLink
+      copy(subUserLoginLink + '')
+    }
     this.$message.success('复制成功')
   }
 

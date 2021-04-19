@@ -1,40 +1,21 @@
 <template>
   <div class="device-list__container">
-    <div v-if="isNVR" v-loading="loading.info" class="device-info">
-      <info-list v-if="deviceInfo" label-width="80">
-        <info-list-item label="设备名称:">{{ deviceInfo.deviceName }}</info-list-item>
-        <info-list-item label="创建时间:">{{ deviceInfo.createdTime }}</info-list-item>
-        <info-list-item v-if="deviceInfo.createSubDevice === 2" label="可支持通道数量:">{{ deviceInfo.deviceStats.maxChannelSize }}</info-list-item>
-        <info-list-item v-else label="通道数量:">{{ deviceInfo.deviceStats.maxChannelSize }}</info-list-item>
-        <info-list-item label="在线流数量:">{{ deviceInfo.deviceStats.onlineSize }}</info-list-item>
-      </info-list>
-    </div>
     <div v-if="isPlatform" v-loading="loading.info" class="device-info">
       <info-list v-if="deviceInfo" label-width="80">
         <info-list-item label="平台名称:">{{ deviceInfo.deviceName }}</info-list-item>
-        <info-list-item label="设备状态:">
-          <status-badge :status="deviceInfo.deviceStatus" />
-          {{ deviceStatus[deviceInfo.deviceStatus] }}
-        </info-list-item>
+        <info-list-item label="国标ID:">{{ deviceInfo.gbId }}</info-list-item>
         <info-list-item label="创建时间:">{{ deviceInfo.createdTime }}</info-list-item>
       </info-list>
     </div>
     <div class="filter-container clearfix">
       <div class="filter-container__left">
-        <el-button v-if="(isDir || deviceInfo && deviceInfo.createSubDevice === 2) && checkPermission(['*'])" key="dir-button" type="primary" @click="goToCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
-        <el-button v-if="isNVR" key="check-nvr-detail" @click="goToDetail(deviceInfo)">查看NVR设备详情</el-button>
-        <el-button v-if="isNVR && checkPermission(['*'])" key="edit-nvr" @click="goToUpdate(deviceInfo)">编辑NVR设备</el-button>
-        <el-button v-if="isPlatform" @click="goToDetail(deviceInfo)">查看Platform详情</el-button>
-        <el-button v-if="isPlatform" @click="goToUpdate(deviceInfo)">编辑Platform</el-button>
-        <el-button v-if="isPlatform" :loading="loading.syncDevice" @click="syncDevice">同步</el-button>
         <el-button :disabled="!selectedDeviceList.length" @click="exportCsv">导出</el-button>
         <el-dropdown v-permission="['*']" placement="bottom" @command="handleBatch">
           <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item v-if="!isNVR && !isPlatform" command="move">移动至</el-dropdown-item>
+            <el-dropdown-item command="move">移动至</el-dropdown-item>
             <el-dropdown-item command="startDevice">启用流</el-dropdown-item>
             <el-dropdown-item command="stopDevice">停用流</el-dropdown-item>
-            <el-dropdown-item command="delete">删除</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
@@ -64,23 +45,6 @@
               <div class="device-list__device-id">{{ row.deviceId }}</div>
               <div>{{ row.deviceName }}</div>
             </div>
-          </template>
-        </el-table-column>
-        <el-table-column
-          v-if="!isNVR"
-          key="deviceType"
-          column-key="deviceType"
-          prop="deviceType"
-          label="类型"
-          :filters="filtersArray.deviceType"
-          :filter-multiple="false"
-        >
-          <template slot="header">
-            <span class="filter">类型</span>
-            <svg-icon class="filter" name="filter" width="15" height="15" />
-          </template>
-          <template slot-scope="{row}">
-            {{ deviceType[row.deviceType] }}
           </template>
         </el-table-column>
         <el-table-column
@@ -136,19 +100,39 @@
             <span v-else><status-badge :status="row.recordStatus === 1 ? 'red' : ''" />{{ recordStatus[row.recordStatus] || '-' }}</span>
           </template>
         </el-table-column>
+        <el-table-column key="devicePosition" prop="devicePosition" label="地点">
+          <template slot-scope="{row}">
+            {{ row.devicePosition || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column key="deviceModel" prop="deviceModel" label="设备型号" min-width="200">
+          <template slot-scope="{row}">
+            {{ row.deviceModel || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column key="deviceHardware" prop="deviceHardware" label="硬件" min-width="120">
+          <template slot-scope="{row}">
+            {{ row.deviceHardware || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column key="deviceFirmware" prop="deviceFirmware" label="固件">
+          <template slot-scope="{row}">
+            {{ row.deviceFirmware || '-' }}
+          </template>
+        </el-table-column>
         <el-table-column key="deviceVendor" prop="deviceVendor" label="厂商">
           <template slot-scope="{row}">
             {{ row.deviceVendor || '-' }}
           </template>
         </el-table-column>
-        <el-table-column key="deviceIp" label="设备IP" min-width="130">
+        <el-table-column key="devicePubIp" prop="devicePubIp" label="公网IP地址" min-width="120">
           <template slot-scope="{row}">
-            {{ row.deviceIp || '-' }}
+            {{ row.devicePubIp || '-' }}
           </template>
         </el-table-column>
-        <el-table-column key="devicePort" label="设备端口">
+        <el-table-column key="deviceIp" prop="deviceIp" label="局域网IP地址" min-width="120">
           <template slot-scope="{row}">
-            {{ row.devicePort || '-' }}
+            {{ row.deviceIp || '-' }}
           </template>
         </el-table-column>
         <el-table-column key="createdTime" label="创建时间" min-width="180">
@@ -169,9 +153,7 @@
                 <el-dropdown-item v-else-if="checkPermission(['*'])" :command="{type: 'startDevice', device: scope.row}">启用流</el-dropdown-item>
                 <el-dropdown-item v-if="scope.row.recordStatus === 1 && checkPermission(['*'])" :command="{type: 'stopRecord', device: scope.row}">停止录像</el-dropdown-item>
                 <el-dropdown-item v-else-if="checkPermission(['*'])" :command="{type: 'startRecord', device: scope.row}">开始录像</el-dropdown-item>
-                <el-dropdown-item v-if="!isNVR && scope.row.parentDeviceId === '-1' && checkPermission(['*'])" :command="{type: 'move', device: scope.row}">移动至</el-dropdown-item>
-                <el-dropdown-item v-if="((isNVR && !isCreateSubDevice) || (!isNVR && scope.row.createSubDevice !== 1)) && checkPermission(['*'])" :command="{type: 'update', device: scope.row}">编辑</el-dropdown-item>
-                <el-dropdown-item v-if="checkPermission(['*'])" :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
+                <el-dropdown-item v-if="!isNVR && checkPermission(['*'])" :command="{type: 'move', device: scope.row}">移动至</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </template>
@@ -186,14 +168,11 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
       />
-      <div v-if="isNVR" class="el-pagination">
-        <div class="el-pagination__total">共{{ deviceList.length }}条</div>
-      </div>
       <div v-if="!deviceList.length && !loading.list" class="device-list__empty-text">
         当前目录暂无设备
       </div>
     </div>
-    <move-dir v-if="dialog.moveDir" :in-protocol="inProtocol" :device="currentDevice" :devices="selectedDeviceList" :is-batch="isBatchMoveDir" @on-close="closeDialog('moveDir', ...arguments)" />
+    <move-dir v-if="dialog.moveDir" :device="currentDevice" :devices="selectedDeviceList" :is-batch="isBatchMoveDir" @on-close="closeDialog('moveDir', ...arguments)" />
   </div>
 </template>
 <script lang="ts">
@@ -203,7 +182,7 @@ import { ExportToCsv } from 'export-to-csv'
 import { Device } from '@/type/device'
 
 @Component({
-  name: 'DeviceRtspList'
+  name: 'DeviceRtmpList'
 })
 export default class extends Mixins(listMixin) {
   /**

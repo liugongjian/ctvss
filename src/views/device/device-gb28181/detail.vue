@@ -15,15 +15,16 @@
               <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
               <info-list-item label="设备地址:">{{ address || '-' }}</info-list-item>
+              <info-list-item label="设备IP:">{{ info.deviceIp || '-' }}</info-list-item>
+              <info-list-item label="端口:">{{ info.devicePort || '-' }}</info-list-item>
               <template v-if="info.deviceType === 'ipc' || info.deviceType === 'platform'">
                 <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
-                <info-list-item label="设备IP:">{{ info.deviceIp || '-' }}</info-list-item>
-                <info-list-item label="端口:">{{ info.devicePort || '-' }}</info-list-item>
               </template>
               <template v-if="info.deviceType === 'nvr'">
                 <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
                 <info-list-item label="自动创建子设备:">{{ createSubDevice[info.createSubDevice] }}</info-list-item>
-                <info-list-item label="通道数量:">{{ info.deviceStats && info.deviceStats.channelSize }}</info-list-item>
+                <info-list-item :label="info.createSubDevice === 2 ? '实际通道数量:' : '通道数量:'">{{ info.deviceStats && info.deviceStats.channelSize }}</info-list-item>
+                <info-list-item v-if="info.createSubDevice === 2" label="可支持通道数量:">{{ info.deviceStats && info.deviceStats.maxChannelSize }}</info-list-item>
                 <info-list-item label="在线流数量:">{{ info.deviceStats && info.deviceStats.onlineSize }}</info-list-item>
               </template>
               <template v-if="info.deviceType === 'platform'">
@@ -49,22 +50,24 @@
                   </div>
                 </div>
               </info-list-item>
-              <info-list-item label="流状态:">
-                <div class="info-list__edit">
-                  <div class="info-list__edit--value">
-                    <status-badge :status="info.streamStatus" />
-                    {{ deviceStatus[info.streamStatus] }}
+              <template v-if="info.deviceType === 'ipc' || info.deviceType === 'platform'">
+                <info-list-item label="流状态:">
+                  <div class="info-list__edit">
+                    <div class="info-list__edit--value">
+                      <status-badge :status="info.streamStatus" />
+                      {{ deviceStatus[info.streamStatus] }}
+                    </div>
                   </div>
-                </div>
-              </info-list-item>
-              <info-list-item label="录制状态:">
-                <div class="info-list__edit">
-                  <div class="info-list__edit--value">
-                    <status-badge :status="info.recordStatus === 1 ? 'red' : ''" />
-                    {{ recordStatus[info.recordStatus] }}
+                </info-list-item>
+                <info-list-item label="录制状态:">
+                  <div class="info-list__edit">
+                    <div class="info-list__edit--value">
+                      <status-badge :status="info.recordStatus === 1 ? 'red' : ''" />
+                      {{ recordStatus[info.recordStatus] }}
+                    </div>
                   </div>
-                </div>
-              </info-list-item>
+                </info-list-item>
+              </template>
               <info-list-item label="信令传输模式:">
                 <div class="info-list__edit">
                   <div class="info-list__edit--value">
@@ -110,6 +113,7 @@ import { provinceMapping, cityMapping } from '@/assets/region/cities'
 export default class extends Mixins(detailMixin) {
   private get address() {
     let info: any = this.info
+    if (!info.gbRegion) return null
     let provinceCode: number = parseInt(info.gbRegion.substring(0, 2))
     let cityCode: number = parseInt(info.gbRegion.substring(0, 4))
     return provinceMapping[provinceCode] + ' / ' + cityMapping[cityCode]

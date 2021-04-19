@@ -9,7 +9,7 @@ import settings from './settings'
 
 NProgress.configure({ showSpinner: false })
 
-const whiteList = ['/login', '/auth-redirect']
+const whiteList = ['/login', '/reset-password', '/auth-redirect']
 
 const getPageTitle = (key: string) => {
   return (key ? `${key} - ` : '') + settings.title
@@ -30,10 +30,11 @@ router.beforeEach(async(to: Route, _: Route, next: any) => {
       if (UserModule.perms.length === 0) {
         try {
           // Note: perms must be a object array! such as: ['*'] or ['GET']
-          await UserModule.GetIAMUserInfo()
+          await UserModule.GetGlobalInfo()
           const perms = UserModule.perms
-          // Generate accessible routes map based on role
-          PermissionModule.GenerateRoutes(perms)
+          const iamUserId = UserModule.iamUserId
+          // Generate accessible routes map based on perms
+          PermissionModule.GenerateRoutes({ perms, iamUserId })
           // Dynamically add accessible routes
           router.addRoutes(PermissionModule.dynamicRoutes)
           // Hack: ensure addRoutes is complete

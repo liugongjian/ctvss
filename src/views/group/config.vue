@@ -3,7 +3,7 @@
     <el-page-header content="业务组管理" @back="back" />
     <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
       <el-tab-pane label="基本信息" name="info">
-        <el-button v-permission="['*']" type="text" class="info-edit" @click="editForm">编辑</el-button>
+        <el-button v-permission="['*']" class="info-edit" @click="editForm"><svg-icon name="edit" /> 编辑</el-button>
         <info-list label-width="150">
           <info-list-item label="业务组ID:">{{ form.groupId }}</info-list-item>
           <info-list-item label="业务组名称:">{{ form.groupName }}</info-list-item>
@@ -29,7 +29,7 @@
         </info-list>
       </el-tab-pane>
       <el-tab-pane label="模板配置" name="template">
-        <template-bind v-if="activeName==='template'" :group-id="form.groupId" />
+        <template-bind v-if="activeName==='template'" :group-id="form.groupId" :in-protocol="form.inProtocol" />
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -118,7 +118,7 @@ export default class extends Vue {
 
 .info-edit {
   position: absolute;
-  right: 40px;
+  right: 20px;
   z-index: 10;
 }
 

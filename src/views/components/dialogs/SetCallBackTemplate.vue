@@ -58,18 +58,11 @@ export default class extends Vue {
   private async bind(row: any) {
     try {
       this.loading = true
-      if (this.groupId) {
-        await setGroupCallBackTemplate({
-          groupId: this.groupId,
-          templateId: row.templateId
-        })
-      } else {
-        await setDeviceCallbackTemplate({
-          deviceId: this.deviceId,
-          templateId: row.templateId,
-          inProtocol: this.inProtocol
-        })
-      }
+      await setDeviceCallbackTemplate({
+        deviceId: this.deviceId,
+        templateId: row.templateId,
+        inProtocol: this.inProtocol
+      })
       this.bindTemplateId = row.templateId
     } catch (e) {
       this.$message.error(e && e.message)
@@ -81,18 +74,11 @@ export default class extends Vue {
   private async unbind(row: any) {
     try {
       this.loading = true
-      if (this.groupId) {
-        await unbindGroupCallBackTemplate({
-          groupId: this.groupId,
-          templateId: row.templateId
-        })
-      } else {
-        await unbindDeviceCallbackTemplate({
-          deviceId: this.deviceId,
-          templateId: row.templateId,
-          inProtocol: this.inProtocol
-        })
-      }
+      await unbindDeviceCallbackTemplate({
+        deviceId: this.deviceId,
+        templateId: row.templateId,
+        inProtocol: this.inProtocol
+      })
       this.bindTemplateId = ''
     } catch (e) {
       this.$message.error(e && e.message)

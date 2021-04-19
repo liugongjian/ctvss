@@ -205,6 +205,9 @@ export default class CreateMixin extends Vue {
             if (this.filter.streamStatus && device.streamStatus !== this.filter.streamStatus) {
               return false
             }
+            if (this.filter.recordStatus && device.recordStatus.toString() !== this.filter.recordStatus.toString()) {
+              return false
+            }
             return true
           })
           this.deviceList = deviceList.sort((left: any, right: any) => left.channelNum - right.channelNum)
@@ -430,16 +433,18 @@ export default class CreateMixin extends Vue {
    * 删除设备
    */
   public deleteDevice(device: Device) {
+    console.log(device)
     this.$alertDelete({
       type: '设备',
       msg: `是否确认删除设备"${device.deviceName}"`,
       method: deleteDevice,
       payload: {
         deviceId: device.deviceId,
-        inProtocol: this.inProtocol
+        inProtocol: this.inProtocol,
+        parentDeviceId: device.parentDeviceId
       },
       onSuccess: () => {
-        this.getDeviceList()
+        this.init()
         this.initDirs()
       }
     })
@@ -473,14 +478,15 @@ export default class CreateMixin extends Vue {
           this.selectedDeviceList.map((device: Device) => {
             return deleteDevice({
               deviceId: device.deviceId,
-              inProtocol: this.inProtocol
+              inProtocol: this.inProtocol,
+              parentDeviceId: device.parentDeviceId
             })
           })
         )
       },
       payload: null,
       onSuccess: () => {
-        this.getDeviceList()
+        this.init()
         this.initDirs()
       }
     })
@@ -588,7 +594,8 @@ export default class CreateMixin extends Vue {
             await Promise.all(this.selectedDeviceList.map((device: Device) => {
               return method({
                 deviceId: device.deviceId,
-                inProtocol: this.inProtocol
+                inProtocol: this.inProtocol,
+                inType: device.inType
               })
             }))
             done()
@@ -660,7 +667,7 @@ export default class CreateMixin extends Vue {
         this.isBatchMoveDir = false
     }
     if (payload === true) {
-      this.getDeviceList()
+      this.init()
     }
   }
 

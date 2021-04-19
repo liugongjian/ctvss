@@ -146,10 +146,9 @@
           </el-select>
         </el-form-item>
         <el-form-item label="通道号:" prop="channelNum">
-          <el-input v-model="form.channelNum" />
-          <!-- <el-select v-model="form.channelNum" :disabled="isUpdate">
+          <el-select v-model="form.channelNum" :disabled="isUpdate">
             <el-option v-for="item in availableChannels" :key="item" :label="`D${item}`" :value="item" />
-          </el-select> -->
+          </el-select>
         </el-form-item>
         <el-form-item label="通道名称:" prop="channelName" class="form-with-tip">
           <el-input v-model="form.channelName" />
@@ -219,6 +218,9 @@ export default class extends Mixins(createMixin) {
     ],
     userName: [
       { required: true, message: '请选择账号', trigger: 'change' }
+    ],
+    deviceIp: [
+      { validator: this.validateDeviceIp, trigger: 'blur' }
     ]
   }
   private gbVersionList = ['2011', '2016']
@@ -304,6 +306,7 @@ export default class extends Mixins(createMixin) {
         if (info.deviceStats) {
           // 编辑的时候，设置数量不得小于已创建的子通道中最大通道号或1
           this.minChannelSize = Math.max(...usedChannelNum, 1)
+          this.form.channelSize = info.deviceStats.maxChannelSize
         }
         if (this.isChannel) {
           if (info.deviceChannels.length) {
@@ -317,7 +320,7 @@ export default class extends Mixins(createMixin) {
       }
       // 构建可选择的通道，排除已选择通道
       if (this.isChannel && info.deviceStats) {
-        const channelSize = info.deviceStats.channelSize
+        const channelSize = info.deviceStats.maxChannelSize
         const availableChannels = []
         for (let i = 1; i <= channelSize; i++) {
           if (!~usedChannelNum.indexOf(i)) {

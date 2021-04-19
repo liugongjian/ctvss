@@ -87,6 +87,10 @@
             <router-link to="/secretManage"><i><svg-icon name="key" /></i> API密钥管理</router-link>
             <div class="header-dropdown__divided" />
           </div>
+          <div v-if="isMainUser">
+            <router-link to="/changePassword"><i><svg-icon name="password" /></i> 修改密码</router-link>
+            <div class="header-dropdown__divided" />
+          </div>
           <el-button type="text" @click="logout"><i><svg-icon name="logout" /></i> 退出登录</el-button>
         </div>
       </div>
@@ -135,6 +139,9 @@ export default class extends Vue {
     group: false
   }
 
+  get isMainUser() {
+    return !UserModule.iamUserId
+  }
   get sidebar() {
     return AppModule.sidebar
   }
@@ -226,8 +233,12 @@ export default class extends Vue {
   }
 
   private async logout() {
-    await UserModule.LogOut()
-    this.$router.push(`/login?redirect=%2Fdashboard`)
+    const data: any = await UserModule.LogOut()
+    if (data.iamUserId) {
+      this.$router.push(`/login?redirect=%2Fdashboard&subUserLogin=1&mainUserID=${data.mainUserID}`)
+    } else {
+      this.$router.push(`/login?redirect=%2Fdashboard`)
+    }
   }
 
   private focusSearch() {
@@ -612,6 +623,9 @@ export default class extends Vue {
 
     .user-container .header-dropdown {
       top: 40px !important;
+      a, button {
+        font-size: 14px;
+      }
     }
 
     @media screen and (max-height: 1100px) {

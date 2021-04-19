@@ -173,22 +173,20 @@ export default class extends Vue {
   private getRegionPath(regions: any, target: string) {
     let path: Array<any> = []
     try {
-      const _find: any = function(path: Array<string>, children: any) {
+      const _find: any = function(path: Array<string>, children: any, parentValue: any) {
         for (let i = 0; i < children.length; i++) {
           const item = children[i]
-          path.push(item.value)
-          item.children && _find(path, item.children)
+          item.children && _find(path, item.children, item.value)
           if (item.value === target) {
+            path.push(parentValue)
+            path.push(item.value)
             throw new Error('found')
           }
         }
       }
-      _find(path, regions)
+      _find(path, regions, null)
     // eslint-disable-next-line no-empty
     } catch (e) {}
-    if (path.length) {
-      return path.slice(-3, path.length)
-    }
     return path
   }
 
