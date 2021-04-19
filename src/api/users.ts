@@ -59,6 +59,13 @@ export const changePassword = (data: any) =>
     data
   })
 
+export const resetIAMPassword = (data: any) =>
+  request({
+    url: 'iam/user/reset',
+    method: 'post',
+    data
+  })
+
 export const register = (data: any) =>
   request({
     url: '/users/register',

@@ -53,6 +53,7 @@ service.interceptors.response.use(
     const data = error.response && error.response.data
     const code = data && data.code ? data.code : '-1'
     const message = data && data.message ? data.message : '服务器异常，请稍后再试。'
+    console.log('code: ', code, ' message: ', message)
     return Promise.reject(new VSSError(code, message))
   }
 )
