@@ -89,7 +89,7 @@
             </el-popover>
           </template>
           <el-radio-group v-model="form.multiStreamSize">
-            <el-radio v-for="multiStreamSize in multiStreamSizeList" :key="multiStreamSize.value" :label="multiStreamSize.value">
+            <el-radio v-for="multiStreamSize in multiStreamSizeList" :key="multiStreamSize.value" :label="multiStreamSize.value" @change="onMultiStreamSizeChange">
               {{ multiStreamSize.label }}
             </el-radio>
           </el-radio-group>
@@ -112,7 +112,7 @@
         </el-form-item>
         <el-form-item v-if="form.inType === 'pull' && form.pullType === 1" label="自动拉取第几个码流:" prop="autoStreamNum">
           <el-radio-group v-model="form.autoStreamNum">
-            <el-radio v-for="autoStreamNum in autoStreamNumList" :key="autoStreamNum.value" :label="autoStreamNum.value">{{ autoStreamNum.label }}</el-radio>
+            <el-radio v-for="autoStreamNum in autoStreamNumList" :key="autoStreamNum.value" :label="autoStreamNum.value" :disabled="autoStreamNum.value > form.multiStreamSize">{{ autoStreamNum.label }}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item v-if="form.inType === 'push'" prop="pushType">
@@ -283,6 +283,12 @@ export default class extends Mixins(createMixin) {
     }
     this.form.inProtocol = this.inProtocol
     this.onGroupChange()
+  }
+
+  private onMultiStreamSizeChange() {
+    if (this.form.multiStreamSize < this.form.autoStreamNum) {
+      this.form.autoStreamNum = this.form.multiStreamSize
+    }
   }
 
   /**
