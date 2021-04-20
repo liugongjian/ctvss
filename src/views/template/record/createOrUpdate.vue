@@ -28,7 +28,7 @@
             <el-table-column prop="formatType" label="文件类型" align="center" width="100" />
             <el-table-column label="录制周期时长" align="center" width="250">
               <template slot-scope="{row}">
-                <el-input v-model="row.interval" placeholder="15~360之间的整数" class="transcribe-cycle" size="mini" style="width: 90%;">
+                <el-input v-model="row.interval" placeholder="5~120之间的整数" class="transcribe-cycle" size="mini" style="width: 90%;">
                   <template slot="append">分钟</template>
                 </el-input>
               </template>

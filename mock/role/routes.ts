@@ -23,6 +23,11 @@ export const constantRoutes = [
     meta: { hidden: true }
   },
   {
+    path: '/reset-password',
+    component: 'views/login/reset-password',
+    meta: { hidden: true }
+  },
+  {
     path: '/404',
     component: 'views/error-page/404',
     meta: { hidden: true }
