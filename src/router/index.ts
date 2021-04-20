@@ -585,29 +585,6 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
-    path: '/secretManage',
-    component: Layout,
-    meta: {
-      title: 'API密钥管理',
-      icon: 'tree',
-      hidden: true,
-      breadcrumb: true,
-      perms: ['*']
-    },
-    children: [
-      {
-        path: '/',
-        component: () => import(/* webpackChunkName: "secretManage" */ '@/views/secretManage/index.vue'),
-        meta: {
-          title: 'API密钥管理',
-          icon: 'tree',
-          breadcrumb: false,
-          perms: ['*']
-        }
-      }
-    ]
-  },
-  {
     path: '/changePassword',
     component: Layout,
     meta: {
@@ -647,10 +624,10 @@ export const asyncRoutes: RouteConfig[] = [
         component: () => import(/* webpackChunkName: "AI" */ '@/views/AI/aiconfig/index.vue'),
         name: 'aiconfig',
         meta: {
-          title: '关联配置',
+          title: '人脸库',
           icon: 'dot',
           breadcrumb: true,
-          activeMenu: '/AI',
+          activeMenu: '/AI/config',
           perms: ['*']
         }
       },
@@ -689,7 +666,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '用户',
           icon: 'dot',
           breadcrumb: true,
-          activeMenu: '/accessManage',
+          activeMenu: '/accessManage/user',
           perms: ['*']
         }
       },
@@ -701,7 +678,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '创建用户',
           icon: 'dot',
           hidden: true,
-          activeMenu: '/accessManage',
+          activeMenu: '/accessManage/user',
           perms: ['*']
         }
       },
@@ -713,7 +690,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '策略',
           icon: 'dot',
           breadcrumb: true,
-          activeMenu: '/accessManage',
+          activeMenu: '/accessManage/policy',
           perms: ['*']
         }
       },
@@ -725,7 +702,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '创建策略',
           icon: 'dot',
           hidden: true,
-          activeMenu: '/accessManage',
+          activeMenu: '/accessManage/policy',
           perms: ['*']
         }
       },
@@ -737,7 +714,19 @@ export const asyncRoutes: RouteConfig[] = [
           title: '策略详情',
           icon: 'dot',
           hidden: true,
-          activeMenu: '/accessManage',
+          activeMenu: '/accessManage/policy',
+          perms: ['*']
+        }
+      },
+      {
+        path: 'secretManage',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/secretManage/index.vue'),
+        name: 'accessManage-secretManage',
+        meta: {
+          title: 'API密钥',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/accessManage/secretManage',
           perms: ['*']
         }
       }
