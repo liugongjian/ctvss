@@ -205,6 +205,9 @@ export default class CreateMixin extends Vue {
             if (this.filter.streamStatus && device.streamStatus !== this.filter.streamStatus) {
               return false
             }
+            if (this.filter.recordStatus && device.recordStatus.toString() !== this.filter.recordStatus.toString()) {
+              return false
+            }
             return true
           })
           this.deviceList = deviceList.sort((left: any, right: any) => left.channelNum - right.channelNum)
