@@ -4,7 +4,7 @@
   >
     <div class="dashboard-wrap__decorator" />
     <div class="dashboard-wrap__header">
-      {{ name === 'tzszf' ? '泰州智能视频云' : '中国电信视频云网平台' }}
+      {{ name === 'tzszf' ? '泰州智能视频云' : '天翼云视频云网平台' }}
     </div>
     <DashboardMap />
     <div class="dashboard-wrap__col dashboard-wrap__col--left">
