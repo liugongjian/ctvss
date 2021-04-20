@@ -42,7 +42,7 @@ export default class extends Vue {
         border-color: $red;
       }
       &--zone {
-        border-color: #f3ef7c;
+        border-color: #6bd174;
       }
       &__text {
         position: absolute;
