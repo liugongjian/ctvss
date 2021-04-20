@@ -16,24 +16,7 @@
             <div class="ai-recognation__images__item__wrap">
               <img v-if="currentImg" class="ai-recognation__images__item__img" :src="currentImg && currentImg.url">
               <img :src="require('@/assets/dashboard/image-placeholder.png')">
-              <div
-                v-for="(location, locationIndex) in currentImg && currentImg.locations"
-                :key="locationIndex"
-                class="ai-recognation__images__item__mask"
-                :class="{'ai-recognation__images__item__mask--warning': location.isWarning}"
-                :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
-              >
-                <div v-if="type === '6'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
-                  {{ aiMaskType[location.type] }}
-                </div>
-                <div v-if="type === '4'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
-                  匹配度:{{ location.score }}%
-                </div>
-                <!-- <div v-if="type === '3'" class="ai-recognation__images__item__mask__text ai-recognation__images__item__mask__text--warning">
-                  {{ location.label }}
-                </div> -->
-              </div>
-              <div v-if="type === '8' && currentImg" class="ai-recognation__images__item__count" :class="{'ai-recognation__images__item__count--warning': currentImg && currentImg.locations && currentImg.locations.length > 10}">聚集人数: {{ currentImg && currentImg.locations && currentImg.locations.length || '-' }}</div>
+              <Locations :type="type" :img="currentImg" />
               <div v-if="currentImg" class="ai-recognation__images__item--datetime">{{ currentImg && currentImg.deviceName }} | {{ currentImg && currentImg.timestamp }}</div>
               <div class="ai-recognation__images__item__tools">
                 <div class="ai-recognation__images__item__tools--zoomin" @click="fullscreenImage()">
@@ -63,24 +46,7 @@
               <div class="ai-recognation__images__item__wrap">
                 <img ref="img" class="ai-recognation__images__item__img" :src="img.url" @load="onload(index)">
                 <img :src="require('@/assets/dashboard/image-placeholder.png')">
-                <div
-                  v-for="(location, locationIndex) in img.locations"
-                  :key="locationIndex"
-                  class="ai-recognation__images__item__mask"
-                  :class="{'ai-recognation__images__item__mask--warning': location.isWarning}"
-                  :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
-                >
-                  <div v-if="type === '6'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
-                    {{ aiMaskType[location.type] }}
-                  </div>
-                  <div v-if="type === '4'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
-                    匹配度:{{ location.score }}%
-                  </div>
-                  <!-- <div v-if="type === '3'" class="ai-recognation__images__item__mask__text ai-recognation__images__item__mask__text--warning">
-                    {{ location.label }}
-                  </div> -->
-                </div>
-                <div v-if="type === '8'" class="ai-recognation__images__item__count" :class="{'ai-recognation__images__item__count--warning': img.locations && img.locations.length > 10}">聚集人数: {{ img.locations && img.locations.length || '-' }}</div>
+                <Locations :type="type" :img="img" />
               </div>
               <div class="ai-recognation__images__item--datetime">{{ img.timestamp }}</div>
             </div>
@@ -109,24 +75,7 @@
       <div slot="title">{{ currentImg && currentImg.deviceName }} | {{ currentImg && currentImg.timestamp }}</div>
       <div class="ai-recognation__images__item__wrap ai-image-fullscreen__img">
         <img v-if="currentImg" :src="currentImg && currentImg.url">
-        <div
-          v-for="(location, locationIndex) in currentImg && currentImg.locations"
-          :key="locationIndex"
-          class="ai-recognation__images__item__mask"
-          :class="{'ai-recognation__images__item__mask--warning': location.isWarning}"
-          :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
-        >
-          <div v-if="type === '6'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
-            {{ aiMaskType[location.type] }}
-          </div>
-          <div v-if="type === '4'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
-            匹配度:{{ location.score }}%
-          </div>
-          <!-- <div v-if="type === '3'" class="ai-recognation__images__item__mask__text ai-recognation__images__item__mask__text--warning">
-            {{ location.label }}
-          </div> -->
-        </div>
-        <div v-if="type === '2' && currentImg" class="ai-recognation__images__item__count" :class="{'ai-recognation__images__item__count--warning': currentImg && currentImg.locations && currentImg.locations.length > 10}">聚集人数: {{ currentImg && currentImg.locations && currentImg.locations.length || '-' }}</div>
+        <Locations :type="type" :img="currentImg" />
       </div>
     </el-dialog>
   </div>
@@ -138,11 +87,13 @@ import { getRecordAuditEvents } from '@/api/dashboard'
 import { AlertType, AiMaskType } from '@/dics'
 import { parseMetaData } from '@/utils/ai'
 import Player from '@/views/device/components/Player.vue'
+import Locations from './components/Locations.vue'
 
 @Component({
   name: 'DashboardAI',
   components: {
-    Player
+    Player,
+    Locations
   }
 })
 export default class extends Vue {
@@ -232,11 +183,18 @@ export default class extends Vue {
     const imgs: any = this.$refs.img
     const img = imgs[index]
     locations && locations.forEach((location: any) => {
-      const ratio = img.clientWidth / img.naturalWidth
-      location.clientTopPercent = location.top * ratio / img.clientHeight * 100
-      location.clientLeftPercent = location.left * ratio / img.clientWidth * 100
-      location.clientWidthPercent = location.width * ratio / img.clientWidth * 100
-      location.clientHeightPercent = location.height * ratio / img.clientHeight * 100
+      if (location.isPercent) {
+        location.clientTopPercent = location.top
+        location.clientLeftPercent = location.left
+        location.clientWidthPercent = location.width
+        location.clientHeightPercent = location.height
+      } else {
+        const ratio = img.clientWidth / img.naturalWidth
+        location.clientTopPercent = location.top * ratio / img.clientHeight * 100
+        location.clientLeftPercent = location.left * ratio / img.clientWidth * 100
+        location.clientWidthPercent = location.width * ratio / img.clientWidth * 100
+        location.clientHeightPercent = location.height * ratio / img.clientHeight * 100
+      }
     })
     this.$set(this.imageList[index], 'locations', locations)
   }
@@ -422,28 +380,6 @@ export default class extends Vue {
           position: absolute;
           top: 0;
           width: 100%;
-        }
-        &__mask {
-          position: absolute;
-          border: 2px solid $dashboardGreen;
-          &--warning {
-            border-color: $red;
-          }
-          &__text {
-            position: absolute;
-            display: block;
-            font-size: 11px;
-            background: $dashboardGreen;
-            color: #000;
-            word-break: keep-all;
-            bottom: -19px;
-            left: -2px;
-            padding: 2px;
-            opacity: 0.8;
-            &--warning {
-              background: $white;
-            }
-          }
         }
         &__count {
           position: absolute;

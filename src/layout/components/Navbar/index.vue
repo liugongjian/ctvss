@@ -45,7 +45,7 @@
         <div class="links">
           <a :class="{'actived': !queryAlertType}" @click="routeToHome()">首页</a>
           <div v-for="group in alertTypeList" :key="group.name" class="dropdown">
-            {{ group.name }}
+            {{ group.name }} <svg-icon name="arrow-down2" width="8" height="8" />
             <ul class="dropdown__menu">
               <li v-for="type in group.list" :key="type.key" :class="{'actived': queryAlertType === type.key.toString()}" @click="routeToAI(type.key)">
                 {{ type.value }}
@@ -83,10 +83,6 @@
           <svg-icon class="user-container__arrow" name="arrow-down" width="9" height="9" />
         </div>
         <div class="header-dropdown">
-          <div v-if="checkPermission(['*'])">
-            <router-link to="/secretManage"><i><svg-icon name="key" /></i> API密钥管理</router-link>
-            <div class="header-dropdown__divided" />
-          </div>
           <div v-if="isMainUser">
             <router-link to="/changePassword"><i><svg-icon name="password" /></i> 修改密码</router-link>
             <div class="header-dropdown__divided" />
@@ -205,7 +201,7 @@ export default class extends Vue {
     })
     list.push({
       name: '安全生产',
-      list: [5, 7, 9].map((id: number) => {
+      list: [5, 7, 9, 10, 11].map((id: number) => {
         return {
           key: id,
           value: this.alertType[id]
@@ -595,6 +591,10 @@ export default class extends Vue {
 
       .dropdown {
         position: relative;
+
+        svg {
+          vertical-align: middle;
+        }
 
         &__menu {
           display: none;
