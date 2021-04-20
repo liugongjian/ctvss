@@ -585,29 +585,6 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
-    path: '/secretManage',
-    component: Layout,
-    meta: {
-      title: 'API密钥管理',
-      icon: 'tree',
-      hidden: true,
-      breadcrumb: true,
-      perms: ['*']
-    },
-    children: [
-      {
-        path: '/',
-        component: () => import(/* webpackChunkName: "secretManage" */ '@/views/secretManage/index.vue'),
-        meta: {
-          title: 'API密钥管理',
-          icon: 'tree',
-          breadcrumb: false,
-          perms: ['*']
-        }
-      }
-    ]
-  },
-  {
     path: '/changePassword',
     component: Layout,
     meta: {
