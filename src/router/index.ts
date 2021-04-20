@@ -54,6 +54,11 @@ export const constantRoutes: RouteConfig[] = [
     meta: { hidden: true }
   },
   {
+    path: '/reset-password',
+    component: () => import(/* webpackChunkName: "reset-password" */ '@/views/login/resetPassword.vue'),
+    meta: { hidden: true }
+  },
+  {
     path: '/auth-redirect',
     component: () => import(/* webpackChunkName: "auth-redirect" */ '@/views/login/auth-redirect.vue'),
     meta: { hidden: true }
@@ -167,7 +172,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '业务组配置',
           icon: 'tree',
           hidden: true,
-          perms: ['*'],
+          perms: ['GET'],
           activeMenu: '/group'
         }
       }

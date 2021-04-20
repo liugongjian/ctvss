@@ -1,7 +1,7 @@
 <template>
   <div v-loading="loading" class="live-wrap">
     <div v-if="inProtocol === 'rtsp'" class="stream-selector">
-      <StreamSelector :stream-size="streamSize" :stream-num="streamNum" @onSetStreamNum="onSetStreamNum" />
+      <StreamSelector :is-show-label="true" :stream-size="streamSize" :stream-num="streamNum" @onSetStreamNum="onSetStreamNum" />
     </div>
     <div v-if="errorMessage" class="empty-text">{{ errorMessage }}</div>
     <div v-if="!errorMessage" class="preview-player">
@@ -216,6 +216,7 @@ export default class extends Vue {
     min-height: 100px;
     .stream-selector {
       i {
+        display: inline-block;
         margin-bottom: 10px;
       }
       ::v-deep .controls__popup {

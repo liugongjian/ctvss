@@ -1,6 +1,6 @@
 import { VuexModule, Module, Action, Mutation, getModule } from 'vuex-module-decorators'
 import { Base64 } from 'js-base64'
-import { login, logout, getMainUserInfo, getIAMUserInfo, changePassword } from '@/api/users'
+import { login, logout, getMainUserInfo, getIAMUserInfo, changePassword, resetIAMPassword } from '@/api/users'
 import { getToken, setToken, removeToken, getUsername, setUsername, removeUsername, getIamUserId, setIamUserId, removeIamUserId } from '@/utils/cookies'
 import router, { resetRouter } from '@/router'
 import { PermissionModule } from './permission'
@@ -94,28 +94,24 @@ class User extends VuexModule implements IUserState {
   public async Login(userInfo: { mainUserID?: string, userName: string, password: string}) {
     let { mainUserID, userName, password } = userInfo
     userName = userName.trim()
-    try {
-      const data: any = await login({
-        mainUserID: mainUserID || undefined,
-        userName,
-        password: 'YWJjZG' + Base64.encode(password) + 'VmZWRl'
-      })
-      setToken(data.token)
-      setUsername(userName)
-      setIamUserId(data.iamUserId)
-      this.SET_TOKEN(data.token)
-      this.SET_NAME(userName)
-      const introduction = '欢迎光临'
-      const email = 'vss@chinatelecom.cn'
-      const type = userName === 'tywl' ? 'kanjia' : 'default' // HARDCODE: 针对天翼看家单独判断
-      this.SET_INTRODUCTION(introduction)
-      this.SET_EMAIL(email)
-      this.SET_TYPE(type)
-      this.SET_IAM_USER_ID(data.iamUserId)
-      // this.SET_AVATAR(avatar)
-    } catch (e) {
-      throw Error(e)
-    }
+    const data: any = await login({
+      mainUserID: mainUserID || undefined,
+      userName,
+      password: 'YWJjZG' + Base64.encode(password) + 'VmZWRl'
+    })
+    setToken(data.token)
+    setUsername(userName)
+    setIamUserId(data.iamUserId)
+    this.SET_TOKEN(data.token)
+    this.SET_NAME(userName)
+    const introduction = '欢迎光临'
+    const email = 'vss@chinatelecom.cn'
+    const type = userName === 'tywl' ? 'kanjia' : 'default' // HARDCODE: 针对天翼看家单独判断
+    this.SET_INTRODUCTION(introduction)
+    this.SET_EMAIL(email)
+    this.SET_TYPE(type)
+    this.SET_IAM_USER_ID(data.iamUserId)
+    // this.SET_AVATAR(avatar)
   }
 
   @Action
@@ -211,6 +207,17 @@ class User extends VuexModule implements IUserState {
   public async ChangePassword(form: { originalPwd: string, newPwd: string }) {
     let { originalPwd, newPwd } = form
     await changePassword({
+      oldPassword: originalPwd,
+      newPassword: newPwd
+    })
+  }
+
+  @Action({ rawError: true })
+  public async ResetIAMPassword(form: { mainUserID: string, subUserName: string, originalPwd: string, newPwd: string }) {
+    let { mainUserID, subUserName, originalPwd, newPwd } = form
+    await resetIAMPassword({
+      mainUserID,
+      subUserName,
       oldPassword: originalPwd,
       newPassword: newPwd
     })

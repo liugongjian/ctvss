@@ -306,6 +306,7 @@ export default class extends Mixins(createMixin) {
         if (info.deviceStats) {
           // 编辑的时候，设置数量不得小于已创建的子通道中最大通道号或1
           this.minChannelSize = Math.max(...usedChannelNum, 1)
+          this.form.channelSize = info.deviceStats.maxChannelSize
         }
         if (this.isChannel) {
           if (info.deviceChannels.length) {
