@@ -274,6 +274,8 @@ export default class extends Mixins(createMixin) {
     }
     this.getGbAccounts()
     this.onGroupChange()
+    console.log(this.$store.state.user.mainUserAddress);
+    
   }
 
   private addressChange() {
