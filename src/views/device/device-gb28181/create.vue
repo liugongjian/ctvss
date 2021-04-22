@@ -171,7 +171,7 @@ import { DeviceGb28181Type } from '@/dics'
 import { createDevice, updateDevice, getDevice } from '@/api/device'
 import { getList as getGbList } from '@/api/certificate/gb28181'
 import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
-import { cities } from '@/assets/region/cities'
+import { cities, provinceMapping, cityMapping } from '@/assets/region/cities'
 
 @Component({
   name: 'CreateGb28181Device',
@@ -255,9 +255,9 @@ export default class extends Mixins(createMixin) {
     parentDeviceId: '',
     gbId: '',
     userName: '',
-    address: ['1100', '1100'],
-    gbRegion: '110000000',
-    gbRegionLevel: '1'
+    address: [],
+    gbRegion: '',
+    gbRegionLevel: ''
   }
   private minChannelSize = 1
   private availableChannels: Array<number> = []
@@ -280,16 +280,39 @@ export default class extends Mixins(createMixin) {
   private addressCascaderInit() {
     const mainUserAddress: any = this.$store.state.user.mainUserAddress
     if (mainUserAddress) {
-      this.form.address = mainUserAddress.split(',')
-      console.log(this.form.address);
-      
-      const addressCascader: any = this.$refs['addressCascader']
-      const currentAddress = addressCascader.getCheckedNodes()[0].data
-      this.form.gbRegion = currentAddress.code + '0000'
-      this.form.gbRegionLevel = currentAddress.level
+      const mainUserAddresses = mainUserAddress.split(',')
+      let proArr: any = mainUserAddresses.map((adress: any) => {
+        return (adress.substring(0, 2) + '00')
+      })
+      this.cities = [...new Set(proArr)].map((pro: any) => {
+        return {
+          name: provinceMapping[pro.substring(0, 2)],
+          level: '1',
+          code: pro,
+          cities: []
+        }
+      })
+      this.cities.forEach((city: any) => {
+        mainUserAddresses.forEach((adress: any) => {
+          if (adress.substring(0, 2) === city.code.substring(0, 2)) {
+            let cityObj: any = {
+              name: cityMapping[adress],
+              level: '3',
+              code: adress
+            }
+            adress.substring(2, 4) === '00' && (cityObj.level = '1')
+            adress.substring(2, 4) === '01' && (cityObj.level = '2')
+            city.cities.push(cityObj)
+          }
+        })
+      })
+      this.form.address = [proArr[0], mainUserAddresses[0]]
     } else {
       this.form.address = ['1100', '1100']
     }
+    this.$nextTick(() => {
+      this.addressChange()
+    })
   }
 
   private addressChange() {
