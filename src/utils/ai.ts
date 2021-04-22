@@ -183,7 +183,7 @@ export const parseMetaData = (type: string, metaData: any) => {
               left: boxes[i],
               width: boxes[i + 2],
               height: boxes[i + 3],
-              isWarning: !!metaData.Data.DetectClses[i / 4]
+              isWarning: false
             }
           )
         }
