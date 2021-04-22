@@ -42,7 +42,8 @@ export default class extends Mixins(DashboardMixin) {
     const sum = Math.max(parseInt(res.sum), parseInt(res.online))
     const online = Math.min(parseInt(res.sum), parseInt(res.online))
     const offline = sum - online
-    const percent = Math.round(online / sum * 100)
+    console.log(sum)
+    const percent = sum === 0 ? 0 : Math.round(online / sum * 100)
     this.stats = {
       sum,
       online,
