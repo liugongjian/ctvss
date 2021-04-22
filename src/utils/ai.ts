@@ -140,6 +140,53 @@ export const parseMetaData = (type: string, metaData: any) => {
             }
           )
         }
+        const zoneBoxes = metaData.DangerZoneBox
+        if (zoneBoxes && zoneBoxes.length) {
+          locations.push(
+            {
+              top: zoneBoxes[1],
+              left: zoneBoxes[0],
+              width: zoneBoxes[4] - zoneBoxes[0],
+              height: zoneBoxes[3] - zoneBoxes[1],
+              isPercent: true,
+              isZone: true
+            }
+          )
+        }
+      }
+      break
+    // 研发二部烟雾明火
+    case '10':
+      if (metaData.Data && metaData.Data.DetectBoxes) {
+        const boxes = metaData.Data.DetectBoxes
+        for (let i = 0; i < boxes.length; i += 4) {
+          locations.push(
+            {
+              top: boxes[i + 1],
+              left: boxes[i],
+              width: boxes[i + 2],
+              height: boxes[i + 3],
+              isWarning: !!metaData.Data.DetectClses[i / 4]
+            }
+          )
+        }
+      }
+      break
+    // 研发二部冲压机
+    case '11':
+      if (metaData.Data && metaData.Data.DetectBoxes) {
+        const boxes = metaData.Data.DetectBoxes
+        for (let i = 0; i < boxes.length; i += 4) {
+          locations.push(
+            {
+              top: boxes[i + 1],
+              left: boxes[i],
+              width: boxes[i + 2],
+              height: boxes[i + 3],
+              isWarning: !!metaData.Data.DetectClses[i / 4]
+            }
+          )
+        }
       }
       break
   }
