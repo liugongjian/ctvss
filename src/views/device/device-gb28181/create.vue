@@ -274,8 +274,22 @@ export default class extends Mixins(createMixin) {
     }
     this.getGbAccounts()
     this.onGroupChange()
-    console.log(this.$store.state.user.mainUserAddress);
-    
+    this.addressCascaderInit()
+  }
+
+  private addressCascaderInit() {
+    const mainUserAddress: any = this.$store.state.user.mainUserAddress
+    if (mainUserAddress) {
+      this.form.address = mainUserAddress.split(',')
+      console.log(this.form.address);
+      
+      const addressCascader: any = this.$refs['addressCascader']
+      const currentAddress = addressCascader.getCheckedNodes()[0].data
+      this.form.gbRegion = currentAddress.code + '0000'
+      this.form.gbRegionLevel = currentAddress.level
+    } else {
+      this.form.address = ['1100', '1100']
+    }
   }
 
   private addressChange() {
