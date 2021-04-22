@@ -266,6 +266,7 @@ export default class extends Mixins(createMixin) {
   }
 
   private async mounted() {
+    this.addressCascaderInit()
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
     } else {
@@ -274,7 +275,6 @@ export default class extends Mixins(createMixin) {
     }
     this.getGbAccounts()
     this.onGroupChange()
-    this.addressCascaderInit()
   }
 
   private addressCascaderInit() {
