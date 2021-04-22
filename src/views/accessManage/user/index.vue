@@ -336,7 +336,7 @@ export default class extends Vue {
   private createUser() {
     this.$router.push({
       name: `accessManage-user-create`,
-      params: {
+      query: {
         type: 'add',
         groupId: this.currentNode.data.groupId,
         nodeKeyPath: this.nodeKeyPath
@@ -347,7 +347,7 @@ export default class extends Vue {
     this.getSubuserLoginLink(row.iamUserName)
     this.$router.push({
       name: `accessManage-user-create`,
-      params: {
+      query: {
         type: 'edit',
         userId: row.iamUserId,
         subUserLoginLink: this.subUserLoginLink,

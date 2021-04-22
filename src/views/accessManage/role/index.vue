@@ -17,10 +17,11 @@
         <el-table-column prop="roleId" label="角色ID" />
         <el-table-column prop="describe" label="角色描述" />
         <el-table-column prop="createTime" label="创建时间" />
+        <el-table-column prop="updatedTime" label="创建时间" />
         <el-table-column label="操作" width="140">
           <template slot-scope="scope">
-            <el-button type="text" @click="manageRole(scope.row)">管理</el-button>
-            <el-button type="text" @click="policyList.splice(scope.$index, 1)">删除</el-button>
+            <el-button type="text" @click="editRole(scope.row)">管理</el-button>
+            <el-button type="text" @click="deleteRole(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -33,19 +34,14 @@
         @current-change="handleCurrentChange"
       />
     </el-card>
-    <ManageRoleDialog v-if="showDialog" @on-close="closeDialog" />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { getPolicyList } from '@/api/accessManage'
-import ManageRoleDialog from './components/dialogs/ManageRoleDialog.vue'
+import { iamDeleteRole, getIamRoleList } from '@/api/accessManage'
 @Component({
-  name: 'AccessManageRole',
-  components: {
-    ManageRoleDialog
-  }
+  name: 'AccessManageRole'
 })
 export default class extends Vue {
   private isLoading: boolean = false
@@ -62,18 +58,6 @@ export default class extends Vue {
     this.getList()
   }
 
-  private createRole() {
-    this.$router.push(`/accessManage/policy/createRole`)
-  }
-  private manageRole() {
-    this.showDialog = true
-  }
-  private closeDialog(refresh: boolean) {
-    this.showDialog = false
-    if (refresh) {
-      this.getList()
-    }
-  }
   private async getList() {
     try {
       let params: any = {
@@ -81,23 +65,60 @@ export default class extends Vue {
         pageSize: this.pager.pageSize
       }
       this.isLoading = true
-      let res: any = await getPolicyList(params)
+      let res: any = await getIamRoleList(params)
       this.policyList = []
-      for (let i = 0; i < res.iamPolices.length; i++) {
+      for (let i = 0; i < res.iamRoles.length; i++) {
         let obj: object = {
-          policyName: res.iamPolices[i].policyName,
-          describe: res.iamPolices[i].policyDesc,
-          createTime: res.iamPolices[i].createdTime
+          policyName: res.iamRoles[i].policyName,
+          describe: res.iamRoles[i].policyDesc,
+          createTime: res.iamRoles[i].createdTime,
+          updatedTime: res.iamRoles[i].updatedTime
         }
         this.policyList.push(obj)
       }
-      this.pager.total = res.totalNum
+      this.pager.total = parseInt(res.totalNum)
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
       this.isLoading = false
     }
   }
+
+  private createRole() {
+    this.$router.push({
+      name: 'accessManage-role-create',
+      query: {
+        type: 'add'
+      }
+    })
+  }
+  private editRole(role: any) {
+    this.$router.push({
+      name: 'accessManage-role-create',
+      query: {
+        type: 'edit',
+        roleId: role.id
+      }
+    })
+  }
+  private deleteRole(role: any) {
+    this.$alertDelete({
+      type: '用户',
+      msg: `是否确认删除用户"${role.roleName}"`,
+      method: iamDeleteRole,
+      payload: { roleId: role.roleId },
+      onSuccess: () => {
+        this.getList()
+      }
+    })
+  }
+  private closeDialog(refresh: boolean) {
+    this.showDialog = false
+    if (refresh) {
+      this.getList()
+    }
+  }
+
   private handleSizeChange(val: number) {
     const pager: any = this.pager
     pager.pageSize = val

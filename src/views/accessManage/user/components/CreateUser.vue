@@ -77,7 +77,7 @@
             <span class="item-tip">用户必须在下次登录时重置密码</span>
           </el-form-item>
           <el-form-item v-if="type === 'edit'" prop="subUserLoginLink" label="子用户登录链接：">
-            <span>{{ $route.params.subUserLoginLink }}</span>
+            <span>{{ $route.query.subUserLoginLink }}</span>
             <el-tooltip class="item" effect="dark" content="复制链接" placement="top">
               <el-button type="text" style="margin-left: 10px" @click="copyRow($route.params.subUserLoginLink, 'link')"><svg-icon name="copy" /></el-button>
             </el-tooltip>
@@ -167,7 +167,7 @@ export default class extends Vue {
     accessType: true,
     consoleEnabled: true,
     apiEnabled: false,
-    policy: [],
+    policy: null,
     resetPwdEnabled: true
   }
   private rules: any = {
@@ -225,27 +225,30 @@ export default class extends Vue {
   }
 
   private back() {
+    let query: any = this.$route.query
     this.$router.push({
       name: 'accessManage-user',
       params: {
-        nodeKeyPath: this.$route.params.nodeKeyPath
+        nodeKeyPath: query.nodeKeyPath
       }
     })
   }
 
   private async mounted() {
-    this.type = this.$route.params.type
+    await this.getPolicyList()
+    this.type = this.$route.query.type
     if (this.type === 'edit') {
       this.breadCrumbContent = '编辑用户'
       this.getUser()
     } else if (this.type === 'add') {
       this.breadCrumbContent = '创建用户'
     }
-    this.getPolicyList()
   }
 
   private async getPolicyList() {
-    let params: any = {}
+    let params: any = {
+      pageSize: 1000
+    }
     try {
       this.loading.table = true
       let res: any = await getPolicyList(params)
@@ -268,7 +271,7 @@ export default class extends Vue {
   private async getUser() {
     try {
       this.loading.form = true
-      let res = await getUser({ iamUserId: this.$router.currentRoute.params.userId })
+      let res = await getUser({ iamUserId: this.$router.currentRoute.query.userId })
       this.form = {
         iamUserName: res.iamUserName,
         consoleEnabled: res.consoleEnabled === '1',
@@ -302,7 +305,7 @@ export default class extends Vue {
         if (valid) {
           this.loading.submit = true
           if (type === 'add') {
-            params.groupId = this.$router.currentRoute.params.groupId
+            params.groupId = this.$router.currentRoute.query.groupId
             let res = await createUser(params)
             this.cardIndex = 'table'
             this.newUserData = [
@@ -315,7 +318,7 @@ export default class extends Vue {
               }
             ]
           } else if (type === 'edit') {
-            params.iamUserId = this.$router.currentRoute.params.userId
+            params.iamUserId = this.$router.currentRoute.query.userId
             await modifyUser(params)
             this.$message.success('修改用户成功')
             this.back()
