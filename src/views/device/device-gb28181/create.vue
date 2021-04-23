@@ -431,12 +431,10 @@ export default class extends Mixins(createMixin) {
           let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceVendor', 'description'])
           if (this.isUpdate) {
             params = Object.assign(params, pick(this.form, ['deviceId']))
-          } else {
-            params = Object.assign(params, pick(this.form, ['gbRegion', 'gbRegionLevel']))
           }
           if (!this.isChannel) {
             // 通用参数
-            params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'inProtocol', 'deviceIp', 'devicePort', 'pullType', 'userName']))
+            params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'inProtocol', 'deviceIp', 'devicePort', 'pullType', 'userName', 'gbRegion', 'gbRegionLevel']))
             // IPC类型添加额外参数
             if (this.form.deviceType === 'ipc') {
               params = Object.assign(params, {
