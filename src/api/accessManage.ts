@@ -97,3 +97,45 @@ export const getPolicyList = (params: any): Promise<any> =>
     method: 'get',
     params
   })
+
+export const iamCreateRole = (params: any): Promise<any> =>
+  request({
+    url: '/iam/role/create',
+    method: 'post',
+    data: params
+  })
+
+export const iamModifyRole = (params: any): Promise<any> =>
+  request({
+    url: '/iam/role/modify',
+    method: 'post',
+    data: params
+  })
+
+export const iamGetRole = (params: any): Promise<any> =>
+  request({
+    url: '/iam/role',
+    method: 'get',
+    params
+  })
+
+export const iamDeleteRole = (params: any): Promise<any> =>
+  request({
+    url: '/iam/role/delete',
+    method: 'post',
+    data: params
+  })
+
+export const getIamRoleList = (params: any): Promise<any> =>
+  request({
+    url: '/iam/role/list',
+    method: 'get',
+    params
+  })
+
+export const attachPolicyAndRole = (params: any): Promise<any> =>
+  request({
+    url: '/iam/user/attachPolicyAndRole',
+    method: 'post',
+    data: params
+  })

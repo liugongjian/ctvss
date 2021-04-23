@@ -730,6 +730,30 @@ export const asyncRoutes: RouteConfig[] = [
           perms: ['*']
         }
       }
+      // {
+      //   path: 'role',
+      //   component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/role/index.vue'),
+      //   name: 'accessManage-role',
+      //   meta: {
+      //     title: '角色',
+      //     icon: 'dot',
+      //     breadcrumb: true,
+      //     activeMenu: '/accessManage',
+      //     perms: ['*']
+      //   }
+      // },
+      // {
+      //   path: 'role/create',
+      //   component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/role/components/CreateRole.vue'),
+      //   name: 'accessManage-role-create',
+      //   meta: {
+      //     title: '创建角色',
+      //     icon: 'dot',
+      //     hidden: true,
+      //     activeMenu: '/accessManage',
+      //     perms: ['*']
+      //   }
+      // }
     ]
   },
   {
