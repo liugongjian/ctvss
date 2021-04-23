@@ -85,15 +85,15 @@
             <!-- <el-button @click="getChecked">getChecked</el-button> -->
           </div>
         </el-form-item>
-        <el-form-item label="过期时间">
+        <!-- <el-form-item label="过期时间">
           <el-date-picker
             v-model="form.dateTime"
             type="datetime"
             placeholder="选择日期时间"
           />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="角色描述">
-          <el-input v-model="form.describe" type="textarea" :rows="4" />
+          <el-input v-model="form.description" type="textarea" :rows="4" />
         </el-form-item>
         <el-form-item>
           <el-button :disabled="loading.submit" type="primary" @click="submit">提交</el-button>
@@ -132,17 +132,11 @@ export default class extends Vue {
     systemPolicy: [],
     policyDocument: '',
     dateTime: '',
-    describe: '',
-    expandedKeys: ['-1']
+    description: '',
+    expandedKeys: ['']
   }
   private policyList: any = []
   private roleResources: any = null
-  private dirList: any = []
-  private treeProp = {
-    label: 'label',
-    children: 'children',
-    isLeaf: 'isLeaf'
-  }
   private operateType = 'vss:*'
   private operateOptions = [
     {
@@ -154,6 +148,12 @@ export default class extends Vue {
       value: 'vss:Get'
     }
   ]
+  private dirList: any = []
+  private treeProp = {
+    label: 'label',
+    children: 'children',
+    isLeaf: 'isLeaf'
+  }
   private rules = {
     extendUserId: [
       { required: true, message: '请填写外部用户ID', trigger: 'blur' }
@@ -235,11 +235,15 @@ export default class extends Vue {
       }
     })
     dirTree.updateKeyChildren('-1', dirs)
+    console.log(dirs);
+    
     dirTree.getNode('-1').expanded = true
     await this.getRoleInfo()
     let maxLength = 0
     let pathList: any = []
     let keyList: any = []
+    console.log(this.roleResources);
+    
     let resourceList = this.roleResources.map((resource: any) => {
       let arr = resource.split(':')
       let arrList = arr[arr.length - 1].split('/')
@@ -258,25 +262,53 @@ export default class extends Vue {
     console.log(resourceList);
     console.log(pathList);
     console.log(keyList);
-    await this.initDirTree(pathList, keyList)
+    if (keyList.indexOf('*') !== -1) {
+      dirTree.setCheckedKeys(['-1'])
+      console.log(1);
+      
+    } else {
+      await this.initDirTree(pathList, keyList)
+    }
     this.loading.dir = false
   }
   // 查询角色
   private async getRoleInfo() {
+    const policyTable: any = this.$refs.policyList
     try {
       this.loading.submit = true
-      // this.roleResources = await iamGetRole(this.query.roleId)
-      this.roleResources = [
-        'ctyun:vss:::gb28181-dir:152352445740318720/152873158985367552',
-        'ctyun:vss:::gb28181-ipc:152352445740318720/155064983875829760/29942163714343227',
-        'ctyun:vss:::gb28181-nvr:152352445740318720/29942013390487957',
-        'ctyun:vss:::gb28181-nvrchannel:152352445740318720/29942013390487957/29942058487644566',
-        'ctyun:vss:::rtsp-vssgroup:155262131464667136',
-        'ctyun:vss:::rtsp-dir:155262131464667136/155806982425935872',
-        'ctyun:vss:::gb28181-nvrchannel:156752021260009472/29941959703396695/29942165861826904'
-      ]
-      this.form.policyType.system = true
-      this.form.policyType.customize = true
+      const roleInfo: any = await iamGetRole({ roleId: this.query.roleId })
+      console.log(roleInfo)
+      this.form.extendUserId = roleInfo.principal
+      this.form.roleName = roleInfo.roleName
+      this.form.description = roleInfo.description
+      if (roleInfo.systemPolicy.systemPolicy.length) {
+        this.form.policyType.system = true
+        this.form.systemPolicy = roleInfo.systemPolicy.systemPolicy.map((policy: any) => {
+          let selectRow = this.policyList.find((row: any) => {
+            return row.policyId === policy.policyId
+          })
+          policyTable.toggleRowSelection(selectRow)
+          return policy.policyId
+        })
+      }
+      console.log(this.form.systemPolicy);
+      
+      if (roleInfo.policyDocument) {
+        this.form.policyType.customize = true
+        this.form.policyDocument = JSON.parse(roleInfo.policyDocument)
+        const policyDocument: any = this.form.policyDocument
+        this.roleResources = policyDocument.statement[0].resource
+        this.operateType = policyDocument.statement[0].action[0]
+      }
+      // this.roleResources = [
+      //   'ctyun:vss:::gb28181-dir:152352445740318720/152873158985367552',
+      //   'ctyun:vss:::gb28181-ipc:152352445740318720/155064983875829760/29942163714343227',
+      //   'ctyun:vss:::gb28181-nvr:152352445740318720/29942013390487957',
+      //   'ctyun:vss:::gb28181-nvrchannel:152352445740318720/29942013390487957/29942058487644566',
+      //   'ctyun:vss:::rtsp-vssgroup:155262131464667136',
+      //   'ctyun:vss:::rtsp-dir:155262131464667136/155806982425935872',
+      //   'ctyun:vss:::gb28181-nvrchannel:156752021260009472/29941959703396695/29942165861826904'
+      // ]
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
@@ -340,8 +372,14 @@ export default class extends Vue {
         dir.icon = dir.type
         dir.inProtocol = data.inProtocol
         dir.deviceType = dir.type === 'nvr' || dir.type === 'platform' ? dir.type : data.deviceType
-        dir.resourceType = (data.deviceType === 'nvr' || data.deviceType === 'platform') && dir.type === 'ipc' ? `${data.type}channel` : dir.type
         dir.path = `${data.path}/${dir.id}`
+        if ((data.deviceType === 'nvr' || data.deviceType === 'platform') && dir.type === 'ipc') {
+          dir.resourceType = `${data.type}channel`
+        } else if (dir.type === 'dir') {
+          dir.resourceType = 'directory'
+        } else {
+          dir.resourceType = dir.type
+        }
         return dir
       })
       resolve(dirs)
@@ -362,7 +400,7 @@ export default class extends Vue {
    * 提交
    */
   private async submit() {
-    console.log(this.form.policyDocument);
+    console.log(this.form.systemPolicy);
     this.getPolicyDocument()
     if ((this.form.policyType.system && this.form.systemPolicy.length) || (this.form.policyType.customize && this.form.policyDocument)) {
       this.form.policy = 'valid'
@@ -374,16 +412,16 @@ export default class extends Vue {
       if (!valid) return
       let params: any = {
         roleName: this.form.roleName,
-        description: this.form.describe,
+        description: this.form.description,
         systemPolicy: {
           systemPolicy: []
         },
-        policyDocument: []
+        policyDocument: ''
       }
-      this.form.policyType.system && (params.systemPolicy = {
-        systemPolicy: this.form.systemPolicy
-      })
+      this.form.policyType.system && (params.systemPolicy.systemPolicy = this.form.systemPolicy)
       this.form.policyType.customize && (params.policyDocument = this.form.policyDocument)
+      console.log(params);
+      
       try {
         this.loading.submit = true
         if (this.query.type === 'add') {
@@ -393,7 +431,7 @@ export default class extends Vue {
           this.$message.success('创建角色成功')
         } else if (this.query.type === 'edit') {
           params.roleId = this.query.roleId
-          // await iamModifyRole(params)
+          await iamModifyRole(params)
           this.$message.success('修改角色成功')
         }
         console.log(params);

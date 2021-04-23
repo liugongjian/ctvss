@@ -15,9 +15,9 @@
       <el-table :data="policyList">
         <el-table-column prop="roleName" label="角色名" />
         <el-table-column prop="roleId" label="角色ID" />
-        <el-table-column prop="describe" label="角色描述" />
-        <el-table-column prop="createTime" label="创建时间" />
-        <el-table-column prop="updatedTime" label="创建时间" />
+        <el-table-column prop="description" label="角色描述" />
+        <el-table-column prop="createdTime" label="创建时间" />
+        <el-table-column prop="updatedTime" label="更新时间" />
         <el-table-column label="操作" width="140">
           <template slot-scope="scope">
             <el-button type="text" @click="editRole(scope.row)">管理</el-button>
@@ -66,16 +66,7 @@ export default class extends Vue {
       }
       this.isLoading = true
       let res: any = await getIamRoleList(params)
-      this.policyList = []
-      for (let i = 0; i < res.iamRoles.length; i++) {
-        let obj: object = {
-          policyName: res.iamRoles[i].policyName,
-          describe: res.iamRoles[i].policyDesc,
-          createTime: res.iamRoles[i].createdTime,
-          updatedTime: res.iamRoles[i].updatedTime
-        }
-        this.policyList.push(obj)
-      }
+      this.policyList = res.iamRoles
       this.pager.total = parseInt(res.totalNum)
     } catch (e) {
       this.$message.error(e && e.message)
@@ -97,7 +88,7 @@ export default class extends Vue {
       name: 'accessManage-role-create',
       query: {
         type: 'edit',
-        roleId: role.id
+        roleId: role.roleId
       }
     })
   }
@@ -106,7 +97,7 @@ export default class extends Vue {
       type: '用户',
       msg: `是否确认删除用户"${role.roleName}"`,
       method: iamDeleteRole,
-      payload: { roleId: role.roleId },
+      payload: { iamRoleId: role.roleId },
       onSuccess: () => {
         this.getList()
       }
