@@ -65,7 +65,7 @@
               width="400"
               trigger="hover"
               :open-delay="300"
-              content="当启用自动拉流，国标设备注册成功后自动启动拉流。关闭该选项后需要通过触发的方式启动拉流。"
+              :content="`当启用自动拉流，${form.inProtocol.toLocaleUpperCase()}设备注册成功后自动启动拉流。关闭该选项后需要通过触发的方式启动拉流。`"
             >
               <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
