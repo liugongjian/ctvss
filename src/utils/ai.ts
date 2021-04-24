@@ -144,7 +144,7 @@ export const parseMetaData = (type: string, metaData: any) => {
         if (zoneBoxes && zoneBoxes.length) {
           locations.push(
             {
-              zone: [6.7, 61.4, 62.5, 28.5, 66.5, 29.5, 15.5, 69.5]
+              zone: [1.4, 62.8, 61.4, 27.2, 66.5, 29.5, 12.2, 71.7]
             }
           )
         }
