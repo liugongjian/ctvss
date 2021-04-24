@@ -4,7 +4,7 @@
       v-for="(location, locationIndex) in img && img.locations"
       :key="locationIndex"
       class="ai-recognation__images__item__mask"
-      :class="{'ai-recognation__images__item__mask--warning': location.isWarning, 'ai-recognation__images__item__mask--zone': location.isZone}"
+      :class="[{'ai-recognation__images__item__mask--warning': location.isWarning, 'ai-recognation__images__item__mask--zone': location.isZone}, `ai-recognation__images__item__mask--${type}`]"
       :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
     >
       <div v-if="type === '6'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
@@ -43,6 +43,10 @@ export default class extends Vue {
       }
       &--zone {
         border-color: #6bd174;
+      }
+      // 冲压机
+      &--11 {
+        border-width: 4px;
       }
       &__text {
         position: absolute;
