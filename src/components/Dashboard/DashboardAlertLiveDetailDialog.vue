@@ -33,21 +33,7 @@
           <div class="alert-body__image__decorator--bottom" />
           <div class="alert-body__image__wrap">
             <img ref="img" :src="audit.url" @load="onload">
-            <div
-              v-for="(location, locationIndex) in audit.locations"
-              :key="locationIndex"
-              class="alert-body__image__mask"
-              :class="{'alert-body__image__mask--warning': location.isWarning}"
-              :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
-            >
-              <div v-if="audit.event === '6'" class="alert-body__image__mask__text" :class="{'alert-body__image__mask__text--warning': location.isWarning}">
-                {{ aiMaskType[location.type] }}
-              </div>
-              <!-- <div v-if="audit.event === '3'" class="alert-body__image__mask__text alert-body__image__mask__text--warning">
-                {{ location.label }}
-              </div> -->
-            </div>
-            <div v-if="audit.event === '2'" class="alert-body__image__mask__count" :class="{'alert-body__image__mask__count--warning': audit && audit.locations && audit.locations.length > 5}">聚集人数: {{ audit && audit.locations && audit.locations.length || '-' }}</div>
+            <Locations :type="audit.event" :img="audit" />
           </div>
         </div>
       </div>
@@ -60,11 +46,13 @@ import { getRecordAudits } from '@/api/dashboard'
 import { AlertType, AlertLevel, AlertIcon, AiMaskType } from '@/dics'
 import { parseMetaData } from '@/utils/ai'
 import Player from '@/views/device/components/Player.vue'
+import Locations from '@/views/dashboard/ai/components/Locations.vue'
 
 @Component({
   name: 'AlertBoardDetailDialog',
   components: {
-    Player
+    Player,
+    Locations
   }
 })
 export default class extends Vue {
