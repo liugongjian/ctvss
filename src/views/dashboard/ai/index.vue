@@ -183,11 +183,22 @@ export default class extends Vue {
     const imgs: any = this.$refs.img
     const img = imgs[index]
     locations && locations.forEach((location: any) => {
-      if (location.isPercent) {
-        location.clientTopPercent = location.top
-        location.clientLeftPercent = location.left
-        location.clientWidthPercent = location.width
-        location.clientHeightPercent = location.height
+      location.imgNaturalWidth = img.naturalWidth
+      location.imgNaturalHeight = img.naturalHeight
+      if (location.zone) {
+        let zoneSvg = ''
+        const zoneBoxes = location.zone.map((point: number, index: number) => {
+          if (index % 2) {
+            return point * img.naturalHeight / 100
+          } else {
+            return point * img.naturalWidth / 100
+          }
+        })
+        for (let i = 0; i < zoneBoxes.length; i += 2) {
+          const sub = zoneBoxes.slice(i, i + 2)
+          zoneSvg += (sub.join(',') + ' ')
+        }
+        location.zoneSvg = zoneSvg
       } else {
         const ratio = img.clientWidth / img.naturalWidth
         location.clientTopPercent = location.top * ratio / img.clientHeight * 100

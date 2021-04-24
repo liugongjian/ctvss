@@ -144,12 +144,7 @@ export const parseMetaData = (type: string, metaData: any) => {
         if (zoneBoxes && zoneBoxes.length) {
           locations.push(
             {
-              top: zoneBoxes[1],
-              left: zoneBoxes[0],
-              width: zoneBoxes[4] - zoneBoxes[0],
-              height: zoneBoxes[3] - zoneBoxes[1],
-              isPercent: true,
-              isZone: true
+              zone: zoneBoxes
             }
           )
         }

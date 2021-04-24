@@ -3,19 +3,25 @@
     <div
       v-for="(location, locationIndex) in img && img.locations"
       :key="locationIndex"
-      class="ai-recognation__images__item__mask"
-      :class="[{'ai-recognation__images__item__mask--warning': location.isWarning, 'ai-recognation__images__item__mask--zone': location.isZone}, `ai-recognation__images__item__mask--${type}`]"
-      :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
     >
-      <div v-if="type === '6'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
-        {{ aiMaskType[location.type] }}
+      <div
+        v-if="!location.zone"
+        class="ai-recognation__images__item__mask"
+        :class="[{'ai-recognation__images__item__mask--warning': location.isWarning}, `ai-recognation__images__item__mask--${type}`]"
+        :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
+      >
+        <div v-if="type === '6'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
+          {{ aiMaskType[location.type] }}
+        </div>
+        <div v-if="type === '4'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
+          匹配度:{{ location.score }}%
+        </div>
       </div>
-      <div v-if="type === '4'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
-        匹配度:{{ location.score }}%
+      <div v-else class="ai-recognation__images__item__mask--zone">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" :viewBox="`0 0 ${location.imgNaturalWidth} ${location.imgNaturalHeight}`" style="enable-background:new 0 0 100 50.5;" xml:space="preserve">
+          <polygon points="0,669.6 288,864 1440,324 1344,270" />
+        </svg>
       </div>
-      <!-- <div v-if="type === '3'" class="ai-recognation__images__item__mask__text ai-recognation__images__item__mask__text--warning">
-        {{ location.label }}
-      </div> -->
     </div>
     <div v-if="type === '8' && img" class="ai-recognation__images__item__count" :class="{'ai-recognation__images__item__count--warning': img && img.locations && img.locations.length > 10}">聚集人数: {{ img && img.locations && img.locations.length || '-' }}</div>
   </div>
@@ -42,7 +48,21 @@ export default class extends Vue {
         border-color: $red;
       }
       &--zone {
-        border-color: #6bd174;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+
+        svg {
+          width: 100%;
+          height: 100%;
+          polygon {
+            fill: none;
+            stroke: #6bd174;
+            stroke-width: 16px;
+          }
+        }
       }
       // 冲压机
       &--11 {
