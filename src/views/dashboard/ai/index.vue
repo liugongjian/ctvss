@@ -433,6 +433,7 @@ export default class extends Vue {
 
         &--datetime {
           position: absolute;
+          z-index: 2;
           color: #eee;
           font-size: 12px;
           text-align: right;

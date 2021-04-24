@@ -19,7 +19,7 @@
       </div>
       <div v-else class="ai-recognation__images__item__mask--zone">
         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" :viewBox="`0 0 ${location.imgNaturalWidth} ${location.imgNaturalHeight}`" style="enable-background:new 0 0 100 50.5;" xml:space="preserve">
-          <polygon points="0,669.6 288,864 1440,324 1344,270" />
+          <polygon :points="location.zoneSvg" />
         </svg>
       </div>
     </div>
@@ -44,6 +44,7 @@ export default class extends Vue {
     &__mask {
       position: absolute;
       border: 2px solid $dashboardGreen;
+      z-index: 1;
       &--warning {
         border-color: $red;
       }
