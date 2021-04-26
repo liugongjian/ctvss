@@ -144,7 +144,7 @@ export const parseMetaData = (type: string, metaData: any) => {
         if (zoneBoxes && zoneBoxes.length) {
           locations.push(
             {
-              zone: [1.4, 62.8, 61.4, 27.2, 66.5, 29.5, 12.2, 71.7]
+              zone: zoneBoxes
             }
           )
         }
@@ -185,5 +185,37 @@ export const parseMetaData = (type: string, metaData: any) => {
       }
       break
   }
+  return locations
+}
+
+/**
+ * 将坐标转为百分比，危险区域转成svg polygon
+ */
+export const transformLocation = (locations: any, img: any) => {
+  locations && locations.forEach((location: any) => {
+    location.imgNaturalWidth = img.naturalWidth
+    location.imgNaturalHeight = img.naturalHeight
+    if (location.zone) {
+      let zoneSvg = ''
+      const zoneBoxes = location.zone.map((point: number, index: number) => {
+        if (index % 2) {
+          return point * img.naturalHeight / 100
+        } else {
+          return point * img.naturalWidth / 100
+        }
+      })
+      for (let i = 0; i < zoneBoxes.length; i += 2) {
+        const sub = zoneBoxes.slice(i, i + 2)
+        zoneSvg += (sub.join(',') + ' ')
+      }
+      location.zoneSvg = zoneSvg
+    } else {
+      const ratio = img.clientWidth / img.naturalWidth
+      location.clientTopPercent = location.top * ratio / img.clientHeight * 100
+      location.clientLeftPercent = location.left * ratio / img.clientWidth * 100
+      location.clientWidthPercent = location.width * ratio / img.clientWidth * 100
+      location.clientHeightPercent = location.height * ratio / img.clientHeight * 100
+    }
+  })
   return locations
 }

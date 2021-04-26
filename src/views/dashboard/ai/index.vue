@@ -85,7 +85,7 @@
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { getRecordAuditEvents } from '@/api/dashboard'
 import { AlertType, AiMaskType } from '@/dics'
-import { parseMetaData } from '@/utils/ai'
+import { parseMetaData, transformLocation } from '@/utils/ai'
 import Player from '@/views/device/components/Player.vue'
 import Locations from './components/Locations.vue'
 
@@ -182,32 +182,7 @@ export default class extends Vue {
     const locations = parseMetaData(this.type, metaData)
     const imgs: any = this.$refs.img
     const img = imgs[index]
-    locations && locations.forEach((location: any) => {
-      location.imgNaturalWidth = img.naturalWidth
-      location.imgNaturalHeight = img.naturalHeight
-      if (location.zone) {
-        let zoneSvg = ''
-        const zoneBoxes = location.zone.map((point: number, index: number) => {
-          if (index % 2) {
-            return point * img.naturalHeight / 100
-          } else {
-            return point * img.naturalWidth / 100
-          }
-        })
-        for (let i = 0; i < zoneBoxes.length; i += 2) {
-          const sub = zoneBoxes.slice(i, i + 2)
-          zoneSvg += (sub.join(',') + ' ')
-        }
-        location.zoneSvg = zoneSvg
-      } else {
-        const ratio = img.clientWidth / img.naturalWidth
-        location.clientTopPercent = location.top * ratio / img.clientHeight * 100
-        location.clientLeftPercent = location.left * ratio / img.clientWidth * 100
-        location.clientWidthPercent = location.width * ratio / img.clientWidth * 100
-        location.clientHeightPercent = location.height * ratio / img.clientHeight * 100
-      }
-    })
-    this.$set(this.imageList[index], 'locations', locations)
+    this.$set(this.imageList[index], 'locations', transformLocation(locations, img))
   }
 
   private async handleSizeChange(val: number) {

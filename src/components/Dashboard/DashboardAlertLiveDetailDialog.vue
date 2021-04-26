@@ -44,7 +44,7 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { getRecordAudits } from '@/api/dashboard'
 import { AlertType, AlertLevel, AlertIcon, AiMaskType } from '@/dics'
-import { parseMetaData } from '@/utils/ai'
+import { parseMetaData, transformLocation } from '@/utils/ai'
 import Player from '@/views/device/components/Player.vue'
 import Locations from '@/views/dashboard/ai/components/Locations.vue'
 
@@ -99,14 +99,7 @@ export default class extends Vue {
     const metaData = JSON.parse(this.audit.metaData)
     const img: any = this.$refs.img
     const locations = parseMetaData(this.audit.event, metaData)
-    locations.forEach((location: any) => {
-      location.ratio = img.clientWidth / img.naturalWidth
-      location.clientTopPercent = location.top * location.ratio / img.clientHeight * 100
-      location.clientLeftPercent = location.left * location.ratio / img.clientWidth * 100
-      location.clientWidthPercent = location.width * location.ratio / img.clientWidth * 100
-      location.clientHeightPercent = location.height * location.ratio / img.clientHeight * 100
-    })
-    this.$set(this.audit, 'locations', locations)
+    this.$set(this.audit, 'locations', transformLocation(locations, img))
   }
 
   private closeDialog(isRefresh: boolean = false) {
