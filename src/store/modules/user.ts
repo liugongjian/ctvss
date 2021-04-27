@@ -172,8 +172,7 @@ class User extends VuexModule implements IUserState {
     if (this.token === '') {
       throw Error('GetGlobalInfo: token is undefined!')
     }
-    // let userInfo: any = await getMainUserInfo()
-    let userInfo: any = {}
+    let userInfo: any = await getMainUserInfo()
     if (userInfo.userId) {
       this.SET_MAIN_USER_ID(userInfo.userId)
       this.SET_MAIN_USER_ADDRESS(userInfo.address)
@@ -269,15 +268,15 @@ class User extends VuexModule implements IUserState {
       mainUserID: this.mainUserID,
       iamUserId: this.iamUserId
     }
+    console.log('iamUserId: ', getIamUserId())
     removeIamUserId()
+    console.log('iamUserId: ', getIamUserId())
     this.SET_IAM_USER_ID('')
 
     this.SET_MAIN_USER_ID('')
     this.SET_MAIN_USER_ADDRESS('')
 
     localStorage.clear()
-    // todo 天翼云退出需要清空 ct_tgc这个cookies字段
-    // 验证下天翼云退出是否回set-cookie: ct_tgc为空
     return result
   }
 }

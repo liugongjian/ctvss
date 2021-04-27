@@ -23,7 +23,6 @@ import * as directives from '@/directives'
 import * as filters from '@/filters'
 import settings from './settings'
 import { getLocalStorage, setLocalStorage } from '@/utils/storage'
-import { getToken } from '@/utils/cookies'
 
 // @ts-ignore
 window._typeof = (e: any) => {
@@ -91,6 +90,7 @@ CtcloudLayout.getPublicInfo().authCurrentPromise.then((data :any) => {
     const loginId = data.isLoggedIn ? data.property.loginId : null
     const localLoginId = getLocalStorage('ctLoginId')
     if (localLoginId && localLoginId !== loginId) {
+      console.log('切换用户登录。。。。。。。')
       localStorage.clear()
       window.location.href = `${settings.casLoginUrl}`
     } else {

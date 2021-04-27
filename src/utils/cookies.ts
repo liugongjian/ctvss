@@ -30,4 +30,4 @@ export const removeUsername = () => Cookies.remove(username)
 const iamUserIdKey = 'iamUserId'
 export const getIamUserId = () => Cookies.get(iamUserIdKey)
 export const setIamUserId = (id: string) => Cookies.set(iamUserIdKey, id)
-export const removeIamUserId = () => () => Cookies.remove(iamUserIdKey)
+export const removeIamUserId = () => Cookies.remove(iamUserIdKey)

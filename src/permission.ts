@@ -5,7 +5,7 @@ import { Message, MessageBox } from 'element-ui'
 import { Route } from 'vue-router'
 import { UserModule } from '@/store/modules/user'
 import { PermissionModule } from '@/store/modules/permission'
-import { getLocalStorage, setLocalStorage } from '@/utils/storage'
+import { getLocalStorage } from '@/utils/storage'
 import settings from './settings'
 
 NProgress.configure({ showSpinner: false })

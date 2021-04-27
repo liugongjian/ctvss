@@ -2,7 +2,7 @@ import { VuexModule, Module, Mutation, Action, getModule } from 'vuex-module-dec
 import { RouteConfig } from 'vue-router'
 import { asyncRoutes, constantRoutes } from '@/router'
 import store from '@/store'
-import { setLocalStorage, getLocalStorage } from '@/utils/storage'
+import { getLocalStorage } from '@/utils/storage'
 
 const hasPermission = (perms: string[], route: RouteConfig) => {
   if (route.meta && route.meta.perms) {
