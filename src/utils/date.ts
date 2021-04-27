@@ -1,4 +1,5 @@
 import { format } from 'date-fns'
+import { isIE } from './browser'
 
 export const dateFormat = (date?: Date, formatString = 'yyyy-MM-dd HH:mm:ss') => {
   if (!date) return ''
@@ -49,6 +50,26 @@ export const durationFormatInVideo = (duration: number) => {
     const second = duration % 60
     return `${hour}:${minute}:${prefixZero(second, 2)}`
   }
+}
+
+export const getLocaleDate = () => {
+  if (isIE()) {
+    const date = new Date()
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate())
+  } else {
+    return new Date(new Date().toLocaleDateString())
+  }
+}
+
+export const getTimestamp = (time: string) => {
+  let timestamp
+  if (isIE()) {
+    timestamp = new Date(time.replace(/-/g, '/').replace(/T|Z/g, ' ').trim()).getTime()
+  } else {
+    // 非IE
+    timestamp = new Date(time).getTime()
+  }
+  return timestamp
 }
 
 /**

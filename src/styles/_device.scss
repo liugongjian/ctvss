@@ -357,7 +357,7 @@
 
 // 分屏
 .screen-list {
-  flex: 1;
+  flex-grow: 1;
   display: flex;
   flex-wrap: wrap;
   .screen-item {
@@ -480,17 +480,24 @@
       color: #fff;
     }
   }
+  &.screen-size--2 .screen-item {
+    flex-basis: 50%;
+    max-width: 50%;
+  }
   &.screen-size--4 .screen-item {
     flex-basis: 50%;
     height: 50%;
+    max-width: 50%;
   }
   &.screen-size--9 .screen-item {
-    flex-basis: 33%;
-    height: 33%;
+    flex-basis: 33.333%;
+    height: 33.333%;
+    max-width: 33.333%;
   }
   &.screen-size--16 .screen-item {
     flex-basis: 25%;
     height: 25%;
+    max-width: 25%;
   }
   &.fullscreen, .screen-item.fullscreen {
     position: fixed;

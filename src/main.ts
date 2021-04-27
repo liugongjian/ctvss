@@ -1,3 +1,5 @@
+import 'babel-polyfill'
+import Polyfill from '@/polyfill'
 import Vue, { DirectiveOptions } from 'vue'
 
 import ElementUI from 'element-ui'
@@ -29,6 +31,8 @@ window._typeof = (e: any) => {
 Vue.use(ElementUI, {
   size: AppModule.size // Set element-ui default size
 })
+
+Vue.use(Polyfill)
 
 Vue.use(SvgIcon, {
   tagName: 'svg-icon',
