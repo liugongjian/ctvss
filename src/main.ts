@@ -94,24 +94,23 @@ CtcloudLayout.getPublicInfo().authCurrentPromise.then((data :any) => {
       localStorage.clear()
       window.location.href = `${settings.casLoginUrl}`
     } else {
+      const originalLoginType = getLocalStorage('loginType')
+      console.log('originalLoginType: ', originalLoginType)
+      if (originalLoginType !== 'cas') {
+        UserModule.ResetToken()
+      }
       UserModule.SetCTLoginId(loginId)
       GroupModule.GetGroupFromLs()
+      setLocalStorage('loginType', 'cas')
+      const href = window.location.href
+      if (href.indexOf('token=') !== -1) {
+        const token = href.slice(href.indexOf('token=') + 'token='.length, href.lastIndexOf('#'))
+        UserModule.SetToken(token)
+        window.history.replaceState(null, '', href.slice(0, href.indexOf('?token=')))
+      }
       new Vue({
         router,
         store,
-        created() {
-          const originalLoginType = getLocalStorage('loginType')
-          if (originalLoginType !== 'cas') {
-            UserModule.ResetToken()
-          }
-          setLocalStorage('loginType', 'cas')
-          const href = window.location.href
-          if (href.indexOf('token=') !== -1) {
-            const token = href.slice(href.indexOf('token=') + 'token='.length, href.lastIndexOf('#'))
-            UserModule.SetToken(token)
-            window.history.replaceState(null, '', href.slice(0, href.indexOf('?token=')))
-          }
-        },
         render: (h) => h(App)
       }).$mount('#app')
     }
