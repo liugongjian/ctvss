@@ -162,6 +162,7 @@ export default class extends Vue {
   private handleCreate() {
     MessageBox.alert('请稍后，正在创建密钥......', '正在创建密钥', {
       showClose: false,
+      closeOnClickModal: false,
       showConfirmButton: false
     })
     this.createSecret()
