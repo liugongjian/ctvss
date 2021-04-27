@@ -1,4 +1,5 @@
 import Cookies from 'js-cookie'
+export default Cookies
 
 // App
 const sidebarStatusKey = 'sidebar_status'
