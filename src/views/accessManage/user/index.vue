@@ -295,7 +295,7 @@ export default class extends Vue {
   private getSubuserLoginLink(userName: any) {
     const origin = window.location.origin
     const mainUserID = this.$store.state.user.mainUserID
-    const link: string = `${origin}/#/login/subAoccunt?&subUserName=${userName}&mainUserID=${mainUserID}`
+    const link: string = `${origin}/#/login/subAccount?&subUserName=${userName}&mainUserID=${mainUserID}`
     this.subUserLoginLink = link
   }
 
