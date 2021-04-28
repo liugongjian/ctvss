@@ -94,14 +94,14 @@
               {{ "登录" }}
             </el-button>
           </div>
-          <div class="login-switcher">
+          <!-- <div class="login-switcher">
             <el-button
               type="text"
               @click.native.prevent="switchToSubUserLogin"
             >
               <svg-icon name="arrow-left" height="12px" /> {{ !subUserLogin ? "切换子账号" : "切换主账号" }}
             </el-button>
-          </div>
+          </div> -->
           <!-- <div style="position:relative">
             <div class="tips">
               <span>{{ "账号" }} : admin </span>
@@ -197,13 +197,14 @@ export default class extends Vue {
 
   @Watch('$route', { immediate: true })
   private onRouteChange(route: Route) {
+    console.log('route: ', route)
+    this.subUserLogin = (route.path === '/login/subAccount')
     // TODO: remove the "as Dictionary<string>" hack after v4 release for vue-router
     // See https://github.com/vuejs/vue-router/pull/2050 for details
     const query = route.query as Dictionary<string>
     if (query) {
       this.redirect = query.redirect
       this.otherQuery = this.getOtherQuery(query)
-      this.subUserLogin = (this.otherQuery.subUserLogin === '1')
       if (this.subUserLogin) {
         this.loginForm.mainUserID = this.otherQuery.mainUserID || ''
         this.loginForm.userName = this.otherQuery.subUserName || ''
@@ -253,21 +254,21 @@ export default class extends Vue {
     this.capsTooltip = key !== null && key.length === 1 && (key >= 'A' && key <= 'Z')
   }
 
-  private switchToSubUserLogin() {
-    this.loginForm.userName = ''
-    this.loginForm.password = ''
-    this.subUserLogin = !this.subUserLogin
-    const query = JSON.parse(JSON.stringify(this.$route.query))
-    if (this.subUserLogin) {
-      query.subUserLogin = '1'
-    } else {
-      delete query.subUserLogin
-      delete query.mainUserID
-    }
-    this.$router.replace({
-      query
-    })
-  }
+  // private switchToSubUserLogin() {
+  //   this.loginForm.userName = ''
+  //   this.loginForm.password = ''
+  //   this.subUserLogin = !this.subUserLogin
+  //   const query = JSON.parse(JSON.stringify(this.$route.query))
+  //   if (this.subUserLogin) {
+  //     query.subUserLogin = '1'
+  //   } else {
+  //     delete query.subUserLogin
+  //     delete query.mainUserID
+  //   }
+  //   this.$router.replace({
+  //     query
+  //   })
+  // }
   private showPwd() {
     if (this.passwordType === 'password') {
       this.passwordType = ''
@@ -293,11 +294,18 @@ export default class extends Vue {
           if (this.subUserLogin) {
             loginData.mainUserID = this.loginForm.mainUserID
           }
-          await UserModule.Login(loginData)
-          this.$router.push({
-            path: this.redirect || '/',
-            query: this.otherQuery
-          })
+          const result: any = await UserModule.Login(loginData)
+          if (this.subUserLogin && result.code === 8) {
+            this.$router.push({
+              path: '/reset-password',
+              query: this.$route.query
+            })
+          } else {
+            this.$router.push({
+              path: this.redirect || '/',
+              query: this.otherQuery
+            })
+          }
         } catch (err) {
           if (this.subUserLogin && err.code === 8) {
             this.$router.push({

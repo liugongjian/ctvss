@@ -73,6 +73,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Form as ElForm, Input } from 'element-ui'
 import { UserModule } from '@/store/modules/user'
+import settings from '@/settings'
 
 @Component({
   name: 'changePassword'
@@ -147,9 +148,9 @@ export default class extends Vue {
   private async logout() {
     const data: any = await UserModule.LogOut()
     if (data.iamUserId) {
-      this.$router.push(`/login?redirect=%2Fdashboard&subUserLogin=1&mainUserID=${data.mainUserID}`)
+      this.$router.push(`${settings.subLoginUrl}?redirect=%2Fdashboard&mainUserID=${data.mainUserID}`)
     } else {
-      this.$router.push(`/login?redirect=%2Fdashboard`)
+      this.$router.push(`${settings.mainLoginUrl}?redirect=%2Fdashboard`)
     }
   }
 

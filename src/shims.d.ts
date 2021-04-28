@@ -31,3 +31,5 @@ declare module 'vue2-timepicker'
 
 // js-base64@2版本暂无声明文件
 declare module 'js-base64'
+
+declare const CtcloudLayout: any
