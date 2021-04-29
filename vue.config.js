@@ -1,36 +1,32 @@
 const path = require('path')
-const fs = require('fs')
-// If your port is set to 80,
-// use administrator privileges to execute the command line.
-// For example, on Mac: sudo npm run / sudo yarn
-const devServerPort = 9527 // TODO: get this variable from setting.ts
-const devHttpsServerPort = 443
-const mockServerPort = 9528 // TODO: get this variable from setting.ts
-const name = '天翼云视频云网平台-客户控制台' // TODO: get this variable from setting.ts
+const environment = process.argv[3] === '--env' ? process.argv[4] : 'dev'
+const isHttps = process.argv[process.argv.length - 1] === '--https'
+const name = '天翼云视频云网平台-客户控制台'
+const serverAddressMapping = {
+  dev: 'http://182.43.127.35:9190', // 开发环境
+  test: 'https://182.43.127.35:9180', // 测试环境
+  prod: 'http://console.vcn.ctyun.cn/vss' // 生产环境
+}
+const serverAddress = serverAddressMapping[environment]
+const devServerPort = isHttps ? 443 : 9527
+
+console.info(`启动${environment}环境:`, serverAddress)
+console.info(`是否开启https:`, isHttps)
 
 module.exports = {
   publicPath: process.env.NODE_ENV === 'production' ? './' : '/',
   lintOnSave: process.env.NODE_ENV === 'development',
   productionSourceMap: false,
   devServer: {
-    port: devHttpsServerPort,
+    port: devServerPort,
     open: true,
+    openPage: '#/login',
     overlay: {
       warnings: false,
       errors: true
     },
     progress: false,
     proxy: {
-      // change xxx-api/login => /mock-api/v1/login
-      // detail: https://cli.vuejs.org/config/#devserver-proxy
-      [process.env.VUE_APP_BASE_API]: {
-        target: `http://localhost:${mockServerPort}/mock-api/v1`,
-        changeOrigin: true, // needed for virtual hosted sites
-        ws: true, // proxy websockets
-        pathRewrite: {
-          ['^' + process.env.VUE_APP_BASE_API]: ''
-        }
-      },
       '/ctyun/': {
         target: 'https://www.ctyun.cn/',
         secure: false,
@@ -72,25 +68,12 @@ module.exports = {
         changeOrigin: true
       },
       '/': {
-        // target: 'http://192.168.30.124:8081/'
-        // target: 'http://101.91.194.232:8090/'
-        target: 'http://182.43.127.35:9190', // 开发环境
-        // target: 'http://182.43.127.35:9180' // 测试环境
-        // target: 'http://192.168.30.181:8081', // 本地环境
-        // target: 'http://192.168.30.232:8081',
-        // target: 'http://182.43.127.35:9190'
-        changeOrigin: false
-      },
-      '/mock/11/': {
-        target: 'http://218.78.82.199:8089/'
+        target: serverAddress,
+        changeOrigin: false,
+        secure: isHttps
       }
     },
-    https: true,
     disableHostCheck: true
-    // https: {
-    //   key: fs.readFileSync(path.join(__dirname, './dist/cert/privatekey.pem')),
-    //   cert: fs.readFileSync(path.join(__dirname, './dist/cert/certificate.pem'))
-    // }
   },
   pwa: {
     name: name,
