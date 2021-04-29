@@ -1,6 +1,7 @@
 <template>
   <div class="navbar" :class="`navbar--${routerName}`">
     <hamburger
+      v-if="!ctLogin"
       id="hamburger-container"
       :is-active="sidebar.opened"
       class="hamburger-container"
@@ -45,7 +46,7 @@
         <div class="links">
           <a :class="{'actived': !queryAlertType}" @click="routeToHome()">首页</a>
           <div v-for="group in alertTypeList" :key="group.name" class="dropdown">
-            {{ group.name }}
+            {{ group.name }} <svg-icon name="arrow-down2" width="8" height="8" />
             <ul class="dropdown__menu">
               <li v-for="type in group.list" :key="type.key" :class="{'actived': queryAlertType === type.key.toString()}" @click="routeToAI(type.key)">
                 {{ type.value }}
@@ -73,20 +74,16 @@
             </el-form>
           </div>
         </div>
-        <div class="links">
+        <div :class="['links', ctLogin ? 'ct-login' : '']">
           <a target="_blank" href="http://vcn.ctyun.cn/document/api/">API文档</a>
         </div>
       </template>
-      <div class="user-container">
+      <div v-if="!ctLogin" class="user-container">
         <div class="user-container__menu">
           <span class="user-container__name">{{ name }}</span>
           <svg-icon class="user-container__arrow" name="arrow-down" width="9" height="9" />
         </div>
         <div class="header-dropdown">
-          <div v-if="checkPermission(['*'])">
-            <router-link to="/secretManage"><i><svg-icon name="key" /></i> API密钥管理</router-link>
-            <div class="header-dropdown__divided" />
-          </div>
           <div v-if="isMainUser">
             <router-link to="/changePassword"><i><svg-icon name="password" /></i> 修改密码</router-link>
             <div class="header-dropdown__divided" />
@@ -137,6 +134,10 @@ export default class extends Vue {
   public groupId: string | null = null
   public loading = {
     group: false
+  }
+
+  get ctLogin() {
+    return !!UserModule.ctLoginId
   }
 
   get isMainUser() {
@@ -235,7 +236,7 @@ export default class extends Vue {
   private async logout() {
     const data: any = await UserModule.LogOut()
     if (data.iamUserId) {
-      this.$router.push(`/login?redirect=%2Fdashboard&subUserLogin=1&mainUserID=${data.mainUserID}`)
+      this.$router.push(`/login/subAccount?redirect=%2Fdashboard&mainUserID=${data.mainUserID}`)
     } else {
       this.$router.push(`/login?redirect=%2Fdashboard`)
     }
@@ -334,6 +335,9 @@ export default class extends Vue {
     a:hover {
       color: $primary;
     }
+  }
+  .links.ct-login {
+    margin-right: 10px;
   }
 
   .right-menu {
@@ -595,6 +599,10 @@ export default class extends Vue {
 
       .dropdown {
         position: relative;
+
+        svg {
+          vertical-align: middle;
+        }
 
         &__menu {
           display: none;

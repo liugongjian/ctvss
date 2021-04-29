@@ -46,6 +46,7 @@ service.interceptors.response.use(
           {
             confirmButtonText: '重新登录',
             cancelButtonText: '取消',
+            closeOnClickModal: false,
             type: 'warning'
           }
         ).then(() => {
