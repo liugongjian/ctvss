@@ -1,6 +1,7 @@
 <template>
   <div class="navbar" :class="`navbar--${routerName}`">
     <hamburger
+      v-if="!ctLogin"
       id="hamburger-container"
       :is-active="sidebar.opened"
       class="hamburger-container"
@@ -73,11 +74,11 @@
             </el-form>
           </div>
         </div>
-        <div class="links">
+        <div :class="['links', ctLogin ? 'ct-login' : '']">
           <a target="_blank" href="http://vcn.ctyun.cn/document/api/">API文档</a>
         </div>
       </template>
-      <div class="user-container">
+      <div v-if="!ctLogin" class="user-container">
         <div class="user-container__menu">
           <span class="user-container__name">{{ name }}</span>
           <svg-icon class="user-container__arrow" name="arrow-down" width="9" height="9" />
@@ -133,6 +134,10 @@ export default class extends Vue {
   public groupId: string | null = null
   public loading = {
     group: false
+  }
+
+  get ctLogin() {
+    return !!UserModule.ctLoginId
   }
 
   get isMainUser() {
@@ -231,7 +236,7 @@ export default class extends Vue {
   private async logout() {
     const data: any = await UserModule.LogOut()
     if (data.iamUserId) {
-      this.$router.push(`/login?redirect=%2Fdashboard&subUserLogin=1&mainUserID=${data.mainUserID}`)
+      this.$router.push(`/login/subAccount?redirect=%2Fdashboard&mainUserID=${data.mainUserID}`)
     } else {
       this.$router.push(`/login?redirect=%2Fdashboard`)
     }
@@ -330,6 +335,9 @@ export default class extends Vue {
     a:hover {
       color: $primary;
     }
+  }
+  .links.ct-login {
+    margin-right: 10px;
   }
 
   .right-menu {

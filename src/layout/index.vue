@@ -8,7 +8,7 @@
       class="drawer-bg"
       @click="handleClickOutside"
     />
-    <sidebar class="sidebar-container" />
+    <sidebar v-if="!ctLogin" class="sidebar-container" />
     <div
       class="main-container"
     >
@@ -28,6 +28,7 @@ import { SettingsModule } from '@/store/modules/settings'
 import { AppMain, Navbar, Settings, Sidebar, TagsView } from './components'
 // import RightPanel from '@/components/RightPanel/index.vue'
 import ResizeMixin from './mixin/resize'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'Layout',
@@ -48,6 +49,10 @@ export default class extends mixins(ResizeMixin) {
       withoutAnimation: this.sidebar.withoutAnimation,
       mobile: this.device === DeviceType.Mobile
     }
+  }
+
+  get ctLogin() {
+    return !!UserModule.ctLoginId
   }
 
   get showSettings() {
