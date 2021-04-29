@@ -27,13 +27,9 @@
         </el-dropdown>
         <el-upload
           ref="excelUpload"
-          action="https://jsonplaceholder.typicode.com/posts/"
+          action="#"
           :show-file-list="false"
-          :on-change="uploadProgress"
-          :on-progress="uploadProgress"
-          :on-success="uploadProgress"
-          :on-error="uploadProgress"
-          :auto-upload="false"
+          :http-request="uploadFile"
         >
           <el-button>导入</el-button>
         </el-upload>
@@ -174,7 +170,7 @@
       </div>
     </div>
     <move-dir v-if="dialog.moveDir" :device="currentDevice" :devices="selectedDeviceList" :is-batch="isBatchMoveDir" @on-close="closeDialog('moveDir', ...arguments)" />
-    <upload-excel v-if="dialog.uploadExcel" :event="uploadEvent" @on-close="closeDialog('uploadExcel', ...arguments)" />
+    <upload-excel v-if="dialog.uploadExcel" :file="selectedFile" @on-close="closeDialog('uploadExcel', ...arguments)" />
   </div>
 </template>
 <script lang="ts">
@@ -194,13 +190,13 @@ export default class extends Mixins(listMixin, excelMixin) {
 
   }
 
-  private uploadProgress(event: any, filList: any) {
-    if (event.status === 'ready') {
-      console.log('ready')
-      console.log(filList[0].raw)
+  private uploadFile(data: any) {
+    if (data.file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || data.file.type === 'application/vnd.ms-excel') {
+      this.dialog.uploadExcel = true
+      this.selectedFile = data.file
+    } else {
+      this.$message.error('导入文件必须为表格')
     }
-    // this.uploadEvent = event
-    // this.dialog.uploadExcel = true
   }
 
   private exportExcel(command: any) {
