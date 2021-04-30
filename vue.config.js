@@ -5,7 +5,7 @@ const name = '天翼云视频云网平台-客户控制台'
 const serverAddressMapping = {
   dev: 'http://182.43.127.35:9190', // 开发环境
   test: 'https://182.43.127.35:9180', // 测试环境
-  prod: 'http://console.vcn.ctyun.cn/vss' // 生产环境
+  prod: 'http://console.vcn.ctyun.cn' // 生产环境
 }
 const portMapping = {
   dev: 9190,
@@ -74,8 +74,8 @@ module.exports = {
       },
       '/': {
         target: serverAddress,
-        changeOrigin: false,
-        secure: isHttps
+        changeOrigin: true,
+        secure: false
       }
     },
     disableHostCheck: true
