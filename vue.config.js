@@ -7,8 +7,13 @@ const serverAddressMapping = {
   test: 'https://182.43.127.35:9180', // 测试环境
   prod: 'http://console.vcn.ctyun.cn/vss' // 生产环境
 }
+const portMapping = {
+  dev: 9190,
+  test: 9180,
+  prod: 443
+}
 const serverAddress = serverAddressMapping[environment]
-const devServerPort = isHttps ? 443 : 9527
+const devServerPort = portMapping[environment]
 
 console.info(`启动${environment}环境:`, serverAddress)
 console.info(`是否开启https:`, isHttps)
