@@ -440,11 +440,11 @@ export const asyncRoutes: RouteConfig[] = [
     },
     children: [
       {
-        path: 'gb2812',
+        path: 'gb28121',
         component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/index.vue'),
         name: 'up-platform',
         meta: {
-          title: '国标级联',
+          title: 'GB28181级联',
           icon: 'dot',
           perms: ['GET']
         }
@@ -460,14 +460,14 @@ export const asyncRoutes: RouteConfig[] = [
         }
       },
       {
-        path: 'gb2812-create',
+        path: 'gb28121-create',
         component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/create.vue'),
         name: 'up-platform-create',
         meta: {
           title: '新建国标级联',
           hidden: true,
           perms: ['GET'],
-          activeMenu: '/up-platform/gb2812'
+          activeMenu: '/up-platform/gb28121'
         }
       },
       {
