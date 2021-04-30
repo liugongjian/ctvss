@@ -432,7 +432,7 @@ export const asyncRoutes: RouteConfig[] = [
     path: '/up-platform',
     component: Layout,
     meta: {
-      title: '国际级联',
+      title: '向上级联',
       icon: 'platform',
       alwaysShow: true,
       breadcrumb: false,
@@ -440,23 +440,45 @@ export const asyncRoutes: RouteConfig[] = [
     },
     children: [
       {
-        path: '',
+        path: 'gb2812',
         component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/index.vue'),
         name: 'up-platform',
         meta: {
-          title: '上级平台级联',
+          title: '国标级联',
           icon: 'dot',
           perms: ['GET']
         }
       },
       {
-        path: 'create',
+        path: 'gat1400',
+        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/index.vue'),
+        name: 'up-platform-gat1400',
+        meta: {
+          title: 'GAT1400级联',
+          icon: 'dot',
+          perms: ['GET']
+        }
+      },
+      {
+        path: 'gb2812-create',
         component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/create.vue'),
         name: 'up-platform-create',
         meta: {
-          title: '新建上级平台级联',
+          title: '新建国标级联',
           hidden: true,
-          perms: ['GET']
+          perms: ['GET'],
+          activeMenu: '/up-platform/gb2812'
+        }
+      },
+      {
+        path: 'gat1400-create',
+        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/create-1400.vue'),
+        name: 'up-platform-create',
+        meta: {
+          title: '新建GAT1400级联',
+          hidden: true,
+          perms: ['GET'],
+          activeMenu: '/up-platform/gat1400'
         }
       }
       // {
