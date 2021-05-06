@@ -47,9 +47,19 @@
         </ul>
       </div>
     </el-card>
-    <el-card class="shared-devices">
+    <el-card ref="deviceWrap" class="shared-devices">
       <div class="filter-container">
-        <el-button type="primary" @click="handleCreate">添加资源</el-button>
+        <el-button type="primary" @click="addDevices">添加资源</el-button>
+        <el-popover
+          placement="top-start"
+          title="添加资源"
+          width="400"
+          trigger="hover"
+          :open-delay="300"
+          :content="tips.addDevices"
+        >
+          <svg-icon slot="reference" class="filter-container__button-question" name="help" />
+        </el-popover>
         <div class="filter-container__right">
           <el-input class="filter-container__search-group" placeholder="请输入关键词" @keyup.enter.native="handleFilter">
             <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
@@ -57,10 +67,23 @@
           <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
         </div>
       </div>
-      <div class="device-list">
-        <div class="device-list__left">
-          <div class="dir-list">
-            <div v-loading="loading.dir" class="dir-list__tree device-list__max-height">
+      <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
+        <el-button class="device-list__expand" @click="toggledirList">
+          <svg-icon name="hamburger" />
+        </el-button>
+        <div
+          class="device-list__handle"
+          :style="`left: ${dirDrag.width}px`"
+          @mousedown="changeWidthStart($event)"
+        />
+        <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
+          <div class="dir-list" :style="`width: ${dirDrag.width}px`">
+            <div class="dir-list__tools">
+              <el-tooltip class="item" effect="dark" content="刷新目录" placement="top" :open-delay="300">
+                <el-button type="text" @click="initDirs"><svg-icon name="refresh" /></el-button>
+              </el-tooltip>
+            </div>
+            <div v-loading="loading.dir" class="dir-list__tree device-list__max-height" :style="{height: `${maxHeight}px`}">
               <el-tree
                 ref="dirTree"
                 empty-text="暂无目录或设备"
@@ -99,15 +122,12 @@
               {{ item.label }}
             </span>
           </div>
-          <div class="device-list__max-height">
+          <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
             <el-table v-loading="loading.sharedDevices" :data="dataList" fit>
               <el-table-column prop="name" label="名称" min-width="160" />
-              <el-table-column prop="action" label="操作" width="220" fixed="right">
+              <el-table-column prop="action" label="操作" width="80" fixed="right">
                 <template slot-scope="{row}">
-                  <el-button type="text" @click="edit(row)">编辑</el-button>
-                  <el-button type="text" @click="edit(row)">选择通道</el-button>
-                  <el-button type="text" @click="edit(row)">启用</el-button>
-                  <el-button type="text" @click="deleteCertificate(row)">删除</el-button>
+                  <el-button type="text" @click="deleteCertificate(row)">移除</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -123,37 +143,54 @@
         </div>
       </div>
     </el-card>
+    <AddDevices v-if="dialog.addDevices" on-close="dialog.addDevices = false" />
   </div>
 </template>
 
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
-import { Platform } from '@/type/platform'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
+import AddDevices from './compontents/dialogs/AddDevices.vue'
 
 @Component({
-  name: 'UpPlatformList'
+  name: 'UpPlatformList',
+  components: {
+    AddDevices
+  }
 })
 export default class extends Vue {
   private dirList: Array<any> = []
   private dataList: any = []
   private breadcrumb: any = []
+  public isExpanded = true
+  public maxHeight = 1000
+  public dirDrag = {
+    isDragging: false,
+    start: 0,
+    offset: 0,
+    orginWidth: 200,
+    width: 250
+  }
   private pager = {
     pageNum: 1,
     pageSize: 10,
     total: 0
   }
-
   public loading = {
     dir: false,
     sharedDevices: false
   }
-
+  public dialog = {
+    addDevices: false
+  }
   public treeProp = {
     label: 'label',
     children: 'children',
     isLeaf: 'isLeaf'
+  }
+  public tips = {
+    addDevices: '下方列表显示已共享的设备，点击"添加资源"添加想要共享的设备。'
   }
 
   private refresh() {
@@ -163,12 +200,21 @@ export default class extends Vue {
   private mounted() {
     this.getList()
     this.initDirs()
+    this.calMaxHeight()
+    window.addEventListener('resize', this.calMaxHeight)
+  }
+
+  private destroyed() {
+    window.removeEventListener('resize', this.calMaxHeight)
   }
 
   private async getList() {
     this.loading.sharedDevices = true
     try {
       this.dataList = [
+        {
+          name: '名称'
+        },
         {
           name: '名称'
         }
@@ -190,8 +236,8 @@ export default class extends Vue {
     await this.getList()
   }
 
-  private handleCreate() {
-    this.$router.push('up-platform/create')
+  private addDevices() {
+    this.dialog.addDevices = true
   }
 
   private async handleFilter() {
@@ -253,6 +299,46 @@ export default class extends Vue {
     // })
   }
 
+  /**
+   * 计算最大高度
+   */
+  public calMaxHeight() {
+    const deviceWrap: any = this.$refs.deviceWrap
+    const size = deviceWrap.$el.getBoundingClientRect()
+    const top = size.top
+    const documentHeight = document.body.offsetHeight
+    this.maxHeight = documentHeight - top - 129
+    console.log(this.maxHeight)
+  }
+
+  /**
+   * 收起/展开目录列表
+   */
+  public toggledirList() {
+    this.isExpanded = !this.isExpanded
+  }
+
+  /**
+   * 设置左侧宽度
+   */
+  public changeWidthStart(e: MouseEvent) {
+    const $dirList: any = this.$refs.dirList
+    this.dirDrag.isDragging = true
+    this.dirDrag.start = e.x
+    this.dirDrag.orginWidth = $dirList.clientWidth
+
+    window.addEventListener('mousemove', (e) => {
+      if (!this.dirDrag.isDragging) return
+      this.dirDrag.offset = this.dirDrag.start - e.x
+      const width = this.dirDrag.orginWidth - this.dirDrag.offset
+      if (width < 50) return
+      this.dirDrag.width = width
+    })
+    window.addEventListener('mouseup', () => {
+      this.dirDrag.isDragging = false
+    })
+  }
+
   // private edit(row: GB28181) {
   //   this.$router.push({
   //     name: 'gb28181-update',
@@ -276,6 +362,10 @@ export default class extends Vue {
 
 <style lang="scss" scoped>
 .filter-container {
+  &__button-question {
+    margin-left: 10px;
+    color: rgba(0, 0, 0, 0.6);
+  }
   &__search-group {
     margin-right: 10px;
   }
@@ -294,7 +384,7 @@ export default class extends Vue {
 
   .platform {
     margin-right: 10px;
-    width: 280px;
+    width: 250px;
 
     &__header {
       border-bottom: 1px solid $borderGrey;
@@ -307,7 +397,7 @@ export default class extends Vue {
       }
 
       &--search {
-        width: 202px;
+        width: 172px;
       }
     }
 
