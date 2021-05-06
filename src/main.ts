@@ -1,6 +1,7 @@
 import 'babel-polyfill'
 import Polyfill from '@/polyfill'
 import Vue, { DirectiveOptions } from 'vue'
+import { isIE } from '@/utils/browser'
 
 import ElementUI from 'element-ui'
 import SvgIcon from 'vue-svgicon'
@@ -57,6 +58,10 @@ Object.keys(filters).forEach(key => {
 })
 
 Vue.config.productionTip = false
+
+if (isIE()) {
+  document.getElementsByTagName('html')[0].className = 'ie'
+}
 
 CtcloudLayout.getPublicInfo().authCurrentPromise.then((data :any) => {
   if (!data.isLoggedIn) {
