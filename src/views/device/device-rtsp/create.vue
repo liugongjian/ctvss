@@ -66,7 +66,7 @@
           <el-input v-model="form.userName" />
         </el-form-item>
         <el-form-item v-if="form.inType === 'pull'" label="密码:" prop="password">
-          <el-input v-model.number="form.password" type="password" />
+          <el-input v-model="form.password" type="password" />
         </el-form-item>
         <el-form-item label="设备IP:" prop="deviceIp">
           <el-input v-model="form.deviceIp" />
