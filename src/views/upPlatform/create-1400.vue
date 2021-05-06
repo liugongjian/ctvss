@@ -13,41 +13,26 @@
         <el-form-item label="名称:" prop="name">
           <el-input v-model="form.name" />
         </el-form-item>
-        <el-form-item label="SIP服务国标编码:" prop="name">
+        <el-form-item label="设备编号:" prop="name">
           <el-input v-model="form.name" />
         </el-form-item>
-        <el-form-item label="SIP服务IP:" prop="name">
+        <el-form-item label="视图库用户名:" prop="name">
           <el-input v-model="form.name" />
         </el-form-item>
-        <el-form-item label="SIP服务端口:" prop="name">
+        <el-form-item label="视图库密码:" prop="name">
           <el-input v-model="form.name" />
         </el-form-item>
-        <el-form-item label="设备国标编号:" prop="name">
+        <el-form-item label="IP:" prop="name">
           <el-input v-model="form.name" />
         </el-form-item>
-        <el-form-item label="级联映射:" prop="switch1">
-          <el-switch v-model="form.switch1" />
-        </el-form-item>
-        <el-form-item label="开启鉴权:" prop="switch2">
-          <el-switch v-model="form.switch2" />
-        </el-form-item>
-        <el-form-item label="SIP认证用户名:" prop="name">
-          <el-input v-model="form.name" placeholder="默认使用设备国标编号" />
-        </el-form-item>
-        <el-form-item label="SIP认证密码:" prop="name">
+        <el-form-item label="端口:" prop="name">
           <el-input v-model="form.name" />
         </el-form-item>
-        <el-form-item label="注册周期（秒）:" prop="name">
+        <el-form-item label="心跳周期（秒）:" prop="">
           <el-input v-model="form.name" />
         </el-form-item>
-        <el-form-item label="心跳周期（秒）:" prop="name">
+        <el-form-item label="最大心跳超时次数:" prop="">
           <el-input v-model="form.name" />
-        </el-form-item>
-        <el-form-item label="信令传输:" prop="name">
-          <el-radio-group v-model="form.inProtocol">
-            <el-radio label="UDP">UDP</el-radio>
-            <el-radio label="TCP">TCP</el-radio>
-          </el-radio-group>
         </el-form-item>
         <el-form-item label="">
           <el-button type="primary" @click="submit">确定</el-button>
