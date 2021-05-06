@@ -355,6 +355,10 @@
   }
 }
 
+.ie .device-list {
+  position: static;
+}
+
 // 分屏
 .screen-list {
   flex-grow: 1;
@@ -507,6 +511,7 @@
     right: 0;
     bottom: 0;
     height: 100%;
+    max-width: 100%;
     border: none;
     
     .screen-item {
