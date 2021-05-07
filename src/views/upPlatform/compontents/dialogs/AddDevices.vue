@@ -1,40 +1,54 @@
 <template>
   <el-dialog
-    title="移动至"
+    title="添加资源"
     :visible="dialogVisible"
     :close-on-click-modal="true"
-    width="700px"
+    width="900px"
     center
     @close="closeDialog"
   >
-    <div class="breadcrumb">
-      <label>移动至:</label>
-      <span
-        v-for="item in breadcrumb"
-        :key="item.id"
-        class="breadcrumb__item"
-        @click="deviceRouter(item)"
-      >
-        {{ item.label }}
-      </span>
-    </div>
-    <div class="tree-wrap">
-      <el-tree
-        ref="dirTree"
-        node-key="id"
-        highlight-current
-        lazy
-        :load="loadDirs"
-        :props="treeProp"
-        @node-click="selectDir"
-      >
-        <span slot-scope="{node, data}" class="custom-tree-node">
-          <span class="node-name">
-            <svg-icon :name="data.type" color="#6e7c89" />
-            {{ node.label }}
+    <div class="dialog-wrap">
+      <div v-loading="loading.dir" class="tree-wrap">
+        <el-tree
+          ref="dirTree"
+          node-key="id"
+          lazy
+          show-checkbox
+          :data="dirList"
+          :load="loadDirs"
+          :props="treeProp"
+          :check-strictly="false"
+          @check-change="onCheckDevice"
+          @node-click="selectDevice"
+        >
+          <span slot-scope="{node, data}" class="custom-tree-node">
+            <span class="node-name">
+              <svg-icon :name="data.type" color="#6e7c89" />
+              {{ node.label }}
+            </span>
           </span>
-        </span>
-      </el-tree>
+        </el-tree>
+      </div>
+      <div class="device-wrap">
+        <div class="device-wrap__header">已选资源({{ deviceList.length }})</div>
+        <el-table ref="deviceTable" :data="deviceList" empty-text="暂无选择资源" fit>
+          <el-table-column key="label" prop="label" width="120" label="设备名称">
+            <template slot-scope="{row}">
+              {{ row.label || '-' }}
+            </template>
+          </el-table-column>
+          <el-table-column key="path" prop="path" label="所在位置">
+            <template slot-scope="{row}">
+              {{ renderPath(row.path) }}
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" prop="action" class-name="col-action" width="110" fixed="right">
+            <template slot-scope="scope">
+              <el-button type="text" @click="removeDevice(scope.row)">移除设备</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
     </div>
     <div slot="footer" class="dialog-footer">
       <el-button type="primary" :loading="submitting" @click="submit">确 定</el-button>
@@ -44,11 +58,9 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { DeviceModule } from '@/store/modules/device'
-import { GroupModule } from '@/store/modules/group'
 import { Device } from '@/type/device'
 import { getDeviceTree } from '@/api/device'
-import { bindDir } from '@/api/dir'
+import { getGroups } from '@/api/group'
 
 @Component({
   name: 'AddDevices',
@@ -60,16 +72,16 @@ export default class extends Vue {
   private device!: Device
   @Prop()
   private devices!: Array<Device>
-  @Prop()
-  private isBatch!: boolean
-  @Prop()
-  private inProtocol!: string
 
   private dialogVisible = true
   private submitting = false
   private breadcrumb: Array<any> = []
   private currentDir: any = null
-
+  private dirList: any = []
+  private deviceList: any = []
+  public loading = {
+    dir: false
+  }
   private treeProp = {
     label: 'label',
     children: 'children',
@@ -77,67 +89,41 @@ export default class extends Vue {
   }
 
   private mounted() {
-    this.$nextTick(() => {
-      this.initTreeStatus()
-    })
+    this.initDirs()
   }
 
   /**
-   * 当前目录路径
+   * 目录初始化
    */
-  private get dirPath() {
-    return DeviceModule.breadcrumb
-  }
-
-  /**
-   * 当前业务组ID
-   */
-  private get groupId() {
-    return GroupModule.group!.groupId
-  }
-
-  /**
-   * 初始化目录状态
-   */
-  private async initTreeStatus() {
-    const dirTree: any = this.$refs.dirTree
-    const root = [{
-      id: '0'
-    }]
-    const dirPath = root.concat(this.dirPath)
-    if (dirPath) {
-      dirPath.forEach(async(dir: any) => {
-        const node = dirTree.getNode(dir.id)
-        if (node) {
-          await this.loadDirChildren(dir.id, node)
+  public async initDirs() {
+    try {
+      this.loading.dir = true
+      const res = await getGroups({
+        pageSize: 1000
+      })
+      this.dirList = res.groups.map((group: any) => {
+        return {
+          id: group.groupId,
+          groupId: group.groupId,
+          label: group.groupName,
+          inProtocol: group.inProtocol,
+          type: 'group',
+          disabled: true,
+          path: [group.groupName]
         }
       })
+    } catch (e) {
+      this.dirList = []
+    } finally {
+      this.loading.dir = false
     }
-  }
-  /**
-   * 加载子目录
-   */
-  private async loadDirChildren(key: string, node: any) {
-    const dirTree: any = this.$refs.dirTree
-    let dirs = await this.getTree(node)
-    dirTree.updateKeyChildren(key, dirs)
-    node.expanded = true
-    node.loaded = true
   }
 
   /**
    * 加载目录
    */
   private async loadDirs(node: any, resolve: Function) {
-    if (node.level === 0) {
-      return resolve(
-        [{
-          label: '根目录',
-          id: '0',
-          type: 'dir'
-        }]
-      )
-    }
+    if (node.level === 0) return resolve([])
     const dirs = await this.getTree(node)
     resolve(dirs)
   }
@@ -148,12 +134,22 @@ export default class extends Vue {
   private async getTree(node: any) {
     try {
       const res = await getDeviceTree({
-        groupId: this.groupId,
-        id: node.data.id,
-        type: 'dir'
+        groupId: node.data.groupId,
+        id: node.data.type === 'group' ? 0 : node.data.id,
+        inProtocol: node.data.inProtocol,
+        type: node.data.type
       })
-      const dirs = res.dirs.filter((dir: any) => {
-        return dir.type === 'dir'
+      const dirs = res.dirs.map((dir: any) => {
+        return {
+          id: dir.id,
+          groupId: node.data.groupId,
+          label: dir.label,
+          inProtocol: node.data.inProtocol,
+          isLeaf: dir.isLeaf,
+          type: dir.type,
+          disabled: dir.type !== 'ipc',
+          path: node.data.path.concat([dir.label])
+        }
       })
       return dirs
     } catch (e) {
@@ -161,39 +157,41 @@ export default class extends Vue {
     }
   }
 
-  private selectDir(dir: any) {
+  private selectDevice(node: any) {
+    if (node.type === 'ipc') {
+      console.log(node)
+      const dirTree: any = this.$refs.dirTree
+      dirTree.setChecked(node.id, true)
+    }
+  }
+
+  private onCheckDevice() {
     const dirTree: any = this.$refs.dirTree
-    const node = dirTree.getNode(dir.id)
-    this.breadcrumb = this.getDirPath(node).reverse()
-    this.currentDir = dir
+    const nodes = dirTree.getCheckedNodes()
+    this.deviceList = nodes.filter((node: any) => {
+      return node.type === 'ipc'
+    })
+  }
+
+  private removeDevice(device: any) {
+    const dirTree: any = this.$refs.dirTree
+    dirTree.setChecked(device.id, false)
+  }
+
+  private renderPath(path: any) {
+    const dirPath = path.slice(0, -1)
+    return dirPath.join('/')
   }
 
   private async submit() {
-    if (!this.currentDir) {
-      this.$message.error('未选择目标目录')
+    if (!this.deviceList.length) {
+      this.$message.error('未选择任何资源')
       return
     }
     try {
       this.submitting = true
-      if (this.isBatch) {
-        await Promise.all(
-          this.devices.map((device: Device) => {
-            return bindDir({
-              dirId: this.currentDir.id,
-              deviceId: device.deviceId,
-              inProtocol: this.inProtocol
-            })
-          })
-        )
-      } else {
-        await bindDir({
-          dirId: this.currentDir.id,
-          deviceId: this.device.deviceId,
-          inProtocol: this.inProtocol
-        })
-      }
-      this.initDirs()
-      this.$message.success('移动设备成功！')
+      console.log(this.deviceList)
+      this.$message.success('添加资源成功！')
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
@@ -209,32 +207,25 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-  .tree-wrap {
-    height: 300px;
-    overflow: auto;
+  .dialog-wrap {
+    display: flex;
+    border: 1px solid $borderGrey;
   }
-  .breadcrumb {
-    height: 50px;
-    line-height: 50px;
-    padding-left: 20px;
-    border: 1px solid $primary;
-    background: #f8f8f8;
-    transition: padding-left .2s;
-    margin-bottom: 10px;
-    label {
-      margin-right: 20px;
-      color: $textGrey;
-    }
-    &__item {
-      cursor: pointer;
-    }
-    &__item:after {
-      content: '>';
-      color: $textGrey;
-      margin: 0 10px;
-    }
-    &__item:last-child:after {
-      content: '';
+  .tree-wrap {
+    flex: 1 0;
+    height: 550px;
+    padding: 10px;
+    overflow: auto;
+    border-right: 1px solid $borderGrey;
+  }
+  .device-wrap {
+    flex: 1 0;
+    height: 550px;
+    overflow: auto;
+    &__header {
+      font-weight: bold;
+      text-align: center;
+      padding: 10px;
     }
   }
 </style>

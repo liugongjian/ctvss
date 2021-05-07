@@ -143,12 +143,12 @@
         </div>
       </div>
     </el-card>
-    <AddDevices v-if="dialog.addDevices" on-close="dialog.addDevices = false" />
+    <AddDevices v-if="dialog.addDevices" @on-close="dialog.addDevices = false" />
   </div>
 </template>
 
 <script lang='ts'>
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Provide } from 'vue-property-decorator'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
 import AddDevices from './compontents/dialogs/AddDevices.vue'
@@ -236,6 +236,10 @@ export default class extends Vue {
     await this.getList()
   }
 
+  private handleCreate() {
+    this.$router.push('/up-platform/gb28121-create')
+  }
+
   private addDevices() {
     this.dialog.addDevices = true
   }
@@ -245,6 +249,7 @@ export default class extends Vue {
     await this.getList()
   }
 
+  @Provide('initDirs')
   public async initDirs() {
     try {
       this.loading.dir = true
