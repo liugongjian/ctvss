@@ -57,8 +57,7 @@
   </el-dialog>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
-import { Device } from '@/type/device'
+import { Component, Vue } from 'vue-property-decorator'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
 
@@ -68,15 +67,8 @@ import { getGroups } from '@/api/group'
   }
 })
 export default class extends Vue {
-  @Prop()
-  private device!: Device
-  @Prop()
-  private devices!: Array<Device>
-
   private dialogVisible = true
   private submitting = false
-  private breadcrumb: Array<any> = []
-  private currentDir: any = null
   private dirList: any = []
   private deviceList: any = []
   public loading = {
@@ -157,14 +149,20 @@ export default class extends Vue {
     }
   }
 
-  private selectDevice(node: any) {
-    if (node.type === 'ipc') {
-      console.log(node)
+  /**
+   * 单击ipc时直接勾选
+   */
+  private selectDevice(data: any) {
+    if (data.type === 'ipc') {
       const dirTree: any = this.$refs.dirTree
-      dirTree.setChecked(node.id, true)
+      const node = dirTree.getNode(data.id)
+      dirTree.setChecked(data.id, !node.checked)
     }
   }
 
+  /**
+   * 当设备被选中时回调，将选中的设备列出
+   */
   private onCheckDevice() {
     const dirTree: any = this.$refs.dirTree
     const nodes = dirTree.getCheckedNodes()
@@ -173,16 +171,25 @@ export default class extends Vue {
     })
   }
 
+  /**
+   * 移除设备
+   */
   private removeDevice(device: any) {
     const dirTree: any = this.$refs.dirTree
     dirTree.setChecked(device.id, false)
   }
 
+  /**
+   * 显示设备所在路径
+   */
   private renderPath(path: any) {
     const dirPath = path.slice(0, -1)
     return dirPath.join('/')
   }
 
+  /**
+   * 提交
+   */
   private async submit() {
     if (!this.deviceList.length) {
       this.$message.error('未选择任何资源')
