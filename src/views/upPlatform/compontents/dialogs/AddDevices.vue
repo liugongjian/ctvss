@@ -44,7 +44,7 @@
           </el-table-column>
           <el-table-column label="操作" prop="action" class-name="col-action" width="110" fixed="right">
             <template slot-scope="scope">
-              <el-button type="text" @click="removeDevice(scope.row)">移除设备</el-button>
+              <el-button type="text" @click="removeDevice(scope.row)">移除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -137,7 +137,7 @@ export default class extends Vue {
         groupId: node.data.groupId,
         id: node.data.type === 'group' ? 0 : node.data.id,
         inProtocol: node.data.inProtocol,
-        type: node.data.type
+        type: node.data.type === 'group' ? undefined : node.data.type
       })
       const dirs = res.dirs.map((dir: any) => {
         return {
@@ -209,6 +209,7 @@ export default class extends Vue {
 <style lang="scss" scoped>
   .dialog-wrap {
     display: flex;
+    margin: -15px 0 10px 0;
     border: 1px solid $borderGrey;
   }
   .tree-wrap {
