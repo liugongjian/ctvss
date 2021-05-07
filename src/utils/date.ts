@@ -39,7 +39,10 @@ export const durationFormatInTable = (row: any, col: any, val: any) => {
 }
 
 export const durationFormatInVideo = (duration: number) => {
-  if (duration < 3600) {
+  if (duration < 60) {
+    const second = Math.round(duration)
+    return `00:${prefixZero(second, 2)}`
+  } else if (duration < 3600) {
     const minute = Math.floor(duration / 60)
     const second = duration % 60
     return `${minute}:${prefixZero(second, 2)}`
