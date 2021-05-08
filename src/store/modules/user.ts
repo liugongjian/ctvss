@@ -268,9 +268,7 @@ class User extends VuexModule implements IUserState {
       mainUserID: this.mainUserID,
       iamUserId: this.iamUserId
     }
-    console.log('iamUserId: ', getIamUserId())
     removeIamUserId()
-    console.log('iamUserId: ', getIamUserId())
     this.SET_IAM_USER_ID('')
 
     this.SET_MAIN_USER_ID('')
