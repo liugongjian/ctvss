@@ -26,8 +26,6 @@
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
             </info-list>
             <info-list v-if="info" label-width="110">
-              <info-list-item label="视频流接入方式:">{{ inType[info.inType] }}</info-list-item>
-              <info-list-item v-if="info.inType === 'pull'" label="用户名:">{{ info.userName }}</info-list-item>
               <info-list-item v-if="info.inType === 'pull'" label="设备IP:">{{ info.deviceIp }}</info-list-item>
               <info-list-item v-if="info.inType === 'pull'" label="设备端口:">{{ info.devicePort }}</info-list-item>
               <info-list-item v-if="info.inType === 'pull'" label="主子码流数量:">{{ info.autoStreamNum }}</info-list-item>
