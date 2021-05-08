@@ -1,5 +1,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { getList as getGbList } from '@/api/certificate/gb28181'
+import { exportDeviceAll, exportDeviceOption } from '@/api/device'
+import { cityMapping } from '@/assets/region/cities'
 import ExcelJS from 'exceljs'
 
 @Component
@@ -20,6 +22,8 @@ export default class ExcelMixin extends Vue {
     }
   ]
   private gbAccountList: any = []
+  private cityList: any = []
+  // 表格字段配置
   private columnsTemplate: any = {
     gb28181: {
       template: [
@@ -32,26 +36,15 @@ export default class ExcelMixin extends Vue {
         { header: '设备端口', key: 'devicePort', width: 10 },
         { header: '设备用户名', key: 'userName', width: 10 },
         { header: '是否启用自动拉流', key: 'pullType', width: 16 },
+        { header: '国标ID', key: 'gbId', width: 24 },
         { header: '设备视频流优先传输协议', key: 'pullType', width: 24 },
         { header: '设备通道数量', key: 'channelSize', width: 16 },
-        { header: '是否自动创建子设备', key: 'createSubDevice', width: 24 },
-        { header: '指定通道号', key: 'ChannelNum', width: 24 },
-        { header: '指定通道名称', key: 'ChannelName', width: 24 },
-        { header: '国标区域编码', key: 'GbRegion', width: 16 },
-        { header: '国标区域级别', key: 'GbRegionLevel', width: 16 }
-      ],
-      export: [
-        { header: '设备ID', key: 'deviceId', width: 24 },
-        { header: '设备名称', key: 'deviceName', width: 16 },
-        { header: '类型', key: 'deviceType', width: 10 },
-        { header: '厂商', key: 'deviceVendor', width: 10 },
-        { header: '设备IP', key: 'deviceIp', width: 24 },
-        { header: '设备端口', key: 'devicePort', width: 10 },
-        { header: '国标ID', key: 'gbId', width: 24 },
-        { header: '信令传输模式', key: 'sipTransType', width: 16 },
-        { header: '流传输模式', key: 'streamTransType', width: 16 },
-        { header: '优先TCP传输', key: 'transPriority', width: 16 },
-        { header: '创建时间', key: 'createdTime', width: 24 }
+        // { header: '是否自动创建子设备', key: 'createSubDevice', width: 24 },
+        // { header: '指定通道号', key: 'channelNum', width: 24 },
+        // { header: '指定通道名称', key: 'channelName', width: 24 },
+        { header: '预设城市', key: 'city', width: 16 }
+        // { header: '国标区域编码', key: 'GbRegion', width: 16 },
+        // { header: '国标区域级别', key: 'GbRegionLevel', width: 16 }
       ]
     },
     rtmp: {
@@ -65,19 +58,6 @@ export default class ExcelMixin extends Vue {
         { header: '是否启用自动激活推流地址', key: 'pushType', width: 24 },
         { header: '拉流地址', key: 'pullUrl', width: 24 },
         { header: '视频流标签', key: 'tags', width: 24 }
-      ],
-      export: [
-        { header: '设备ID', key: 'deviceId', width: 24 },
-        { header: '设备名称', key: 'deviceName', width: 16 },
-        { header: '类型', key: 'deviceType', width: 10 },
-        { header: '厂商', key: 'deviceVendor', width: 10 },
-        { header: '设备IP', key: 'deviceIp', width: 24 },
-        { header: '设备端口', key: 'devicePort', width: 10 },
-        { header: '国标ID', key: 'gbId', width: 24 },
-        { header: '信令传输模式', key: 'sipTransType', width: 16 },
-        { header: '流传输模式', key: 'streamTransType', width: 16 },
-        { header: '优先TCP传输', key: 'transPriority', width: 16 },
-        { header: '创建时间', key: 'createdTime', width: 24 }
       ]
     },
     rtsp: {
@@ -98,19 +78,6 @@ export default class ExcelMixin extends Vue {
         { header: '是否启用自动激活推流地址', key: 'pushType', width: 24 },
         { header: '拉流地址', key: 'pullUrl', width: 24 },
         { header: '视频流标签', key: 'tags', width: 24 }
-      ],
-      export: [
-        { header: '设备ID', key: 'deviceId', width: 24 },
-        { header: '设备名称', key: 'deviceName', width: 16 },
-        { header: '类型', key: 'deviceType', width: 10 },
-        { header: '厂商', key: 'deviceVendor', width: 10 },
-        { header: '设备IP', key: 'deviceIp', width: 24 },
-        { header: '设备端口', key: 'devicePort', width: 10 },
-        { header: '国标ID', key: 'gbId', width: 24 },
-        { header: '信令传输模式', key: 'sipTransType', width: 16 },
-        { header: '流传输模式', key: 'streamTransType', width: 16 },
-        { header: '优先TCP传输', key: 'transPriority', width: 16 },
-        { header: '创建时间', key: 'createdTime', width: 24 }
       ]
     }
   }
@@ -181,6 +148,7 @@ export default class ExcelMixin extends Vue {
   }
 
   private async getOptions() {
+    // 获取设备用户选项
     try {
       const res = await getGbList({
         pageSize: 1000
@@ -191,8 +159,14 @@ export default class ExcelMixin extends Vue {
     } catch (e) {
       console.error(e)
     }
+    // 获取预设城市选项
+    const mainUserAddress: any = this.$store.state.user.mainUserAddress
+    this.cityList = mainUserAddress.split(',').map((addressCode: any) => {
+      return cityMapping[addressCode]
+    })
   }
 
+  // 表格填写各字段校验
   private gb28181OptionsInit(worksheet: any) {
     worksheet.dataValidations.add('A2:A9999', this.validation.deviceType)
     worksheet.dataValidations.add('B2:B9999', {
@@ -215,28 +189,42 @@ export default class ExcelMixin extends Vue {
     })
     worksheet.dataValidations.add('I2:I9999', this.validation.pullType)
     worksheet.dataValidations.add('J2:J9999', {
+      type: 'textLength',
+      allowBlank: true,
+      showInputMessage: true,
+      showErrorMessage: true,
+      prompt: '当选择 “Platform” 设备类型时为必选'
+    })
+    worksheet.dataValidations.add('K2:K9999', {
       type: 'list',
       allowBlank: true,
       showErrorMessage: true,
       formulae: ['"tcp,udp"'],
       error: '请从选项中选择传输协议'
     })
-    worksheet.dataValidations.add('K2:K9999', this.validation.channelSize)
-    worksheet.dataValidations.add('L2:L9999', {
-      type: 'list',
-      allowBlank: true,
-      showErrorMessage: true,
-      formulae: ['"是,否"'],
-      error: '请从选项中选择'
-    })
+    worksheet.dataValidations.add('L2:L9999', this.validation.channelSize)
+    // worksheet.dataValidations.add('L2:L9999', {
+    //   type: 'list',
+    //   allowBlank: true,
+    //   showErrorMessage: true,
+    //   formulae: ['"是,否"'],
+    //   error: '请从选项中选择'
+    // })
+    // worksheet.dataValidations.add('M2:M9999', {
+    //   type: 'textLength',
+    //   allowBlank: true,
+    //   showInputMessage: true,
+    //   showErrorMessage: true,
+    //   prompt: '手动创建子设备时该项为必填，示例“{D1,D2,D5}”'
+    // })
+    // worksheet.dataValidations.add('N2:N9999', this.validation.tags)
     worksheet.dataValidations.add('M2:M9999', {
-      type: 'textLength',
-      allowBlank: true,
-      showInputMessage: true,
+      type: 'list',
+      allowBlank: false,
       showErrorMessage: true,
-      prompt: '手动创建子设备时该项为必填，示例“{D1,D2,D5}”'
+      formulae: [`"${this.cityList.join(',')}"`],
+      error: '请选择预设城市'
     })
-    worksheet.dataValidations.add('N2:N9999', this.validation.tags)
   }
 
   private rtmpOptionsInit(worksheet: any) {
@@ -294,6 +282,7 @@ export default class ExcelMixin extends Vue {
     if (this.exelDeviceType === 'gb28181') this.gb28181OptionsInit(worksheet)
     if (this.exelDeviceType === 'rtmp') this.rtmpOptionsInit(worksheet)
     if (this.exelDeviceType === 'rtsp') this.rtspOptionsInit(worksheet)
+    // 调整样式
     worksheet._columns.forEach((column: any) => {
       column.style = {
         alignment: {
@@ -301,11 +290,85 @@ export default class ExcelMixin extends Vue {
         }
       }
     })
+    // 添加过滤器
+    worksheet.autoFilter = {
+      from: {
+        row: 1,
+        column: 1
+      },
+      to: {
+        row: 9999,
+        column: worksheet._columns.length
+      }
+    }
     const buffer = await workbook.xlsx.writeBuffer()
     var blob = new Blob([buffer], { type: 'application/xlsx' })
     var link = document.createElement('a')
     link.href = window.URL.createObjectURL(blob)
     link.download = `${exelName}.xlsx`
     link.click()
+  }
+
+  // 导出设备表格
+  public async exportDevicesExcel(data: any) {
+    let params: any = {
+      groupId: data.groupId,
+      inProtocol: data.inProtocol,
+      dirId: data.dirId.toString(),
+      parentDeviceId: data.parentDeviceId
+    }
+    // data.parentDeviceId && (params.parentDeviceId = data.parentDeviceId)
+    try {
+      if (data.command === 'all') {
+        params.pageSize = 500
+        params.pageNum = 1
+        var res = await exportDeviceAll(params)
+      } else if (data.command === 'selected') {
+        params.deviceIds = data.deviceIds
+        res = await exportDeviceOption(params)
+      }
+      this.downloadFileUrl(`${params.inProtocol}导出设备表格`, res.exportFile)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  // 下载表格
+  public downloadFileUrl(fileName: string, file: any) {
+    const blob = this.base64ToBlob(`data:application/zip;base64,${file}`)
+    var link = document.createElement('a')
+    link.href = window.URL.createObjectURL(blob)
+    link.download = `${fileName}.xlsx`
+    link.click()
+  }
+  // base64转blob
+  public base64ToBlob(base64: any) {
+    var arr = base64.split(',')
+    var mime = arr[0].match(/:(.*?);/)[1]
+    var bstr = atob(arr[1])
+    var n = bstr.length
+    var u8arr = new Uint8Array(n)
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n)
+    }
+    return new Blob([u8arr], { type: mime })
+  }
+
+  // 文件转base64
+  public fileToBase64(file: any, reader: any) {
+    return new Promise((resolve, reject) => {
+      reader = new FileReader()
+      let fileResult: any = ''
+      reader.readAsDataURL(file)
+      reader.onload = function() {
+        fileResult = reader.result
+      }
+      reader.onerror = function(error: any) {
+        reject(error)
+      }
+      reader.onloadend = function() {
+        resolve(fileResult)
+      }
+    })
   }
 }

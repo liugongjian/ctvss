@@ -59,7 +59,7 @@ export default class extends Vue {
       groupId: this.groupId,
       deviceId: this.deviceId,
       templateId: row.templateId,
-      inProtocol: this.deviceId ? this.inProtocol : undefined
+      inProtocol: this.inProtocol
     }
     try {
       this.loading = true
@@ -81,7 +81,7 @@ export default class extends Vue {
       groupId: this.groupId,
       deviceId: this.deviceId,
       templateId: row.templateId,
-      inProtocol: this.deviceId ? this.inProtocol : undefined
+      inProtocol: this.inProtocol
     }
     try {
       this.loading = true

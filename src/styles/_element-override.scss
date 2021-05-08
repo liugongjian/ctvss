@@ -38,6 +38,9 @@
 }
 .el-page-header__left {
   margin-right: 0;
+  .el-icon-back:hover {
+    color: $primary;
+  }
   &::after {
     display: none;
   }

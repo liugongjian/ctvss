@@ -64,6 +64,8 @@ export default class extends Vue {
   private devices!: Array<Device>
   @Prop()
   private isBatch!: boolean
+  @Prop()
+  private inProtocol!: string
 
   private dialogVisible = true
   private submitting = false
@@ -180,14 +182,16 @@ export default class extends Vue {
           this.devices.map((device: Device) => {
             return bindDir({
               dirId: this.currentDir.id,
-              deviceId: device.deviceId
+              deviceId: device.deviceId,
+              inProtocol: this.inProtocol
             })
           })
         )
       } else {
         await bindDir({
           dirId: this.currentDir.id,
-          deviceId: this.device.deviceId
+          deviceId: this.device.deviceId,
+          inProtocol: this.inProtocol
         })
       }
       this.initDirs()

@@ -76,68 +76,81 @@
                     {{ node.label }} <span class="alert-type">{{ renderAlertType(data) }}</span>
                     <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
                   </span>
-                  <el-tooltip
-                    class="item"
-                    effect="dark"
-                    content="轮巡当前目录"
-                    placement="top"
-                    :open-delay="300"
-                  >
-                    <i class="polling">
-                      <svg-icon
+                  <div class="tools" @click.stop.prevent>
+                    <el-tooltip
+                      class="item"
+                      effect="dark"
+                      content="切换主子码流"
+                      placement="top"
+                      :open-delay="500"
+                    >
+                      <StreamSelector v-if="data.type === 'ipc'" class="set-stream" :stream-size="data.multiStreamSize" @onSetStreamNum="openScreen(data, ...arguments)" />
+                    </el-tooltip>
+                    <el-tooltip
+                      class="item"
+                      effect="dark"
+                      content="轮巡当前目录"
+                      placement="top"
+                      :open-delay="300"
+                    >
+                      <i
                         v-if="data.type === 'nvr' || data.type === 'dir'"
-                        name="polling-play"
-                        width="16px"
-                        height="16px"
-                        @click.stop.prevent="videosOnPolling(node, true)"
-                      />
-                    </i>
-                  </el-tooltip>
+                        class="polling"
+                        @click="videosOnPolling(node, true)"
+                      >
+                        <svg-icon
+                          name="polling-play"
+                          width="16px"
+                          height="16px"
+                        />
+                      </i>
+                    </el-tooltip>
+                  </div>
                 </span>
               </el-tree>
-              <div v-if="polling.isStart" class="polling-mask">
-                <div class="polling-mask__tools">
-                  <div class="polling-mask__tools__status">
-                    <span v-if="!polling.isPause">当前轮巡中...</span>
-                    <span v-else>轮巡已暂停</span>
-                  </div>
-                  <div class="polling-mask__tools__item">
-                    <svg-icon
-                      name="clock"
-                      class="polling-mask__tools__clock"
-                      width="16px"
-                      height="16px"
+            </div>
+            <div v-if="polling.isStart" class="polling-mask">
+              <div class="polling-mask__tools">
+                <div class="polling-mask__tools__status">
+                  <span v-if="!polling.isPause">当前轮巡中...</span>
+                  <span v-else>轮巡已暂停</span>
+                </div>
+                <div class="polling-mask__tools__item">
+                  <svg-icon
+                    name="clock"
+                    class="polling-mask__tools__clock"
+                    width="16px"
+                    height="16px"
+                  />
+                  <el-select
+                    v-model="polling.interval"
+                    class="polling-mask__tools__select"
+                    size="mini"
+                    placeholder="请选择"
+                    @change="intervalChange"
+                  >
+                    <el-option
+                      v-for="item in pollingInterval"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
                     />
-                    <el-select
-                      v-model="polling.interval"
-                      class="polling-mask__tools__select"
-                      size="mini"
-                      placeholder="请选择"
-                      @change="intervalChange"
-                    >
-                      <el-option
-                        v-for="item in pollingInterval"
-                        :key="item.value"
-                        :label="item.label"
-                        :value="item.value"
-                      />
-                    </el-select>
-                  </div>
-                  <div v-if="!polling.isPause" class="polling-mask__tools__item">
-                    <el-button size="mini" @click="pausePolling()">
-                      <svg-icon name="pause" />暂停
-                    </el-button>
-                  </div>
-                  <div v-if="polling.isPause" class="polling-mask__tools__item">
-                    <el-button size="mini" @click="resumePolling()">
-                      <svg-icon name="play" />继续
-                    </el-button>
-                  </div>
-                  <div class="polling-mask__tools__item">
-                    <el-button size="mini" @click="stopPolling()">
-                      <svg-icon name="stop" />结束
-                    </el-button>
-                  </div>
+                  </el-select>
+                </div>
+                <div v-if="!polling.isPause" class="polling-mask__tools__item">
+                  <el-button size="mini" @click="pausePolling()">
+                    <svg-icon name="pause" />暂停
+                  </el-button>
+                </div>
+                <div v-if="polling.isPause" class="polling-mask__tools__item">
+                  <el-button size="mini" @click="resumePolling()">
+                    <svg-icon name="play" />继续
+                  </el-button>
+                </div>
+                <div class="polling-mask__tools__item">
+                  <el-button size="mini" @click="stopPolling()">
+                    <svg-icon name="stop" />结束
+                  </el-button>
                 </div>
               </div>
             </div>
@@ -203,6 +216,8 @@
                       :has-control="false"
                       :has-playback="true"
                       :device-name="screen.deviceName"
+                      :stream-num="screen.streamNum"
+                      @onSetStreamNum="onSetStreamNum(screen, ...arguments)"
                       @onRetry="onRetry(screen)"
                       @onPlayback="onPlayback(screen)"
                       @onFullscreen="screen.fullscreen();fullscreen()"
@@ -222,7 +237,7 @@
                   />
                 </template>
                 <div class="screen-header">
-                  <div class="device-name">{{ screen.deviceName }}</div>
+                  <div class="device-name">{{ screen.deviceName }}<StreamSelector v-if="screen.isLive" class="set-stream" :stream-size="screen.streamSize" :stream-num="screen.streamNum" @onSetStreamNum="onSetStreamNum(screen, ...arguments)" /></div>
                   <div class="screen__tools">
                     <el-tooltip content="关闭视频">
                       <el-button class="screen__close" type="text" @click="closeScreen(screen)">
@@ -256,6 +271,7 @@ import Player from './components/Player.vue'
 import ReplayView from './components/ReplayView.vue'
 import DeviceDir from './components/dialogs/DeviceDir.vue'
 import PtzControl from './components/ptzControl.vue'
+import StreamSelector from './components/StreamSelector.vue'
 import { getDeviceTree } from '@/api/device'
 import { renderAlertType } from '@/utils/device'
 
@@ -266,7 +282,8 @@ import { renderAlertType } from '@/utils/device'
     ReplayView,
     DeviceDir,
     StatusBadge,
-    PtzControl
+    PtzControl,
+    StreamSelector
   }
 })
 export default class extends Mixins(ScreenMixin) {
@@ -377,7 +394,7 @@ export default class extends Mixins(ScreenMixin) {
   /**
    * 打开分屏视频
    */
-  private async openScreen(item: any) {
+  private async openScreen(item: any, streamNum?: number) {
     if (this.polling.isStart) {
       this.$message({
         message: '请先关闭轮巡再进行选择',
@@ -385,6 +402,7 @@ export default class extends Mixins(ScreenMixin) {
       })
       return
     }
+    console.log(item)
     if (item.type === 'ipc' && item.deviceStatus === 'on') {
       const screen = this.screenList[this.currentIndex]
       if (screen.deviceId) {
@@ -393,6 +411,12 @@ export default class extends Mixins(ScreenMixin) {
       screen.inProtocol = this.currentGroupInProtocol!
       screen.deviceId = item.id
       screen.deviceName = item.label
+      screen.streamSize = item.multiStreamSize
+      if (streamNum && !isNaN(streamNum)) {
+        screen.streamNum = streamNum
+      } else {
+        screen.streamNum = item.autoStreamNum
+      }
       if (this.currentIndex < this.maxSize - 1) {
         this.currentIndex++
       } else {
@@ -511,6 +535,7 @@ export default class extends Mixins(ScreenMixin) {
       this.screenList[i].deviceId = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].id
       this.screenList[i].type = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].type
       this.screenList[i].deviceName = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].label
+      this.screenList[i].inProtocol = this.currentGroupInProtocol!
       this.screenList[i].getUrl()
       if (this.currentIndex < this.maxSize - 1) {
         this.currentIndex++
@@ -532,6 +557,15 @@ export default class extends Mixins(ScreenMixin) {
         this.onRetry(screen)
       }
     }, 30 * 1000)
+  }
+
+  /**
+   * 设置主子码流号
+   */
+  private onSetStreamNum(screen: Screen, streamNum: number) {
+    screen.url = ''
+    screen.streamNum = streamNum
+    screen.getUrl()
   }
 
   /**
@@ -582,17 +616,33 @@ export default class extends Mixins(ScreenMixin) {
     .playing {
       color: $success;
     }
-    .polling {
-      position: absolute;
-      right: -20px;
-      top: 4px;
-      outline: none;
-      background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1) 20%);
-      padding-left: 12px;
-      padding-right: 20px;
-      .svg-icon {
-        color: $text;
-        margin: 0;
+    .custom-tree-node .tools {
+      display: block;
+      background: #fff;
+      right: -10px;
+      padding-right: 10px;
+      i {
+        display: block;
+        padding: 5px 0;
+
+        &:hover {
+          .svg-icon {
+            margin-right: 5px;
+            color: #313941;
+          }
+        }
+      }
+      .set-stream {
+        ::v-deep .controls__popup {
+          left: auto;
+          right: -5px;
+        }
+      }
+    }
+    .el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content,
+    .dir-list__tree .el-tree-node__content:hover {
+      .custom-tree-node .tools {
+        background: #F5F7FA;
       }
     }
   }
@@ -608,6 +658,10 @@ export default class extends Mixins(ScreenMixin) {
     .offline .node-name {
       cursor: not-allowed;
     }
+  }
+  .dir-list {
+    position: relative;
+
     .polling-mask {
       position: absolute;
       display: flex;

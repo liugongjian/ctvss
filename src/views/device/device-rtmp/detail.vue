@@ -16,14 +16,6 @@
               <info-list-item label="视频流接入方式:">{{ inType[info.inType] }}</info-list-item>
               <info-list-item v-if="info.inType === 'push'" label="自动激活推流地址:">{{ pushType[info.pushType] || '-' }}</info-list-item>
               <info-list-item v-else label="自动拉流:">{{ pullType[info.pullType] || '-' }}</info-list-item>
-              <info-list-item label="设备状态:">
-                <div class="info-list__edit">
-                  <div class="info-list__edit--value">
-                    <status-badge :status="info.deviceStatus" />
-                    {{ deviceStatus[info.deviceStatus] || '-' }}
-                  </div>
-                </div>
-              </info-list-item>
               <info-list-item label="流状态:">
                 <div class="info-list__edit">
                   <div class="info-list__edit--value">

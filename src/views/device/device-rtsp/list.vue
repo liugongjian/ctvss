@@ -1,9 +1,17 @@
 <template>
   <div class="device-list__container">
+    <div v-if="isNVR" v-loading="loading.info" class="device-info">
+      <info-list v-if="deviceInfo" label-width="80">
+        <info-list-item label="设备名称:">{{ deviceInfo.deviceName }}</info-list-item>
+        <info-list-item label="创建时间:">{{ deviceInfo.createdTime }}</info-list-item>
+        <info-list-item v-if="deviceInfo.createSubDevice === 2" label="可支持通道数量:">{{ deviceInfo.deviceStats.maxChannelSize }}</info-list-item>
+        <info-list-item v-else label="通道数量:">{{ deviceInfo.deviceStats.maxChannelSize }}</info-list-item>
+        <info-list-item label="在线流数量:">{{ deviceInfo.deviceStats.onlineSize }}</info-list-item>
+      </info-list>
+    </div>
     <div v-if="isPlatform" v-loading="loading.info" class="device-info">
       <info-list v-if="deviceInfo" label-width="80">
         <info-list-item label="平台名称:">{{ deviceInfo.deviceName }}</info-list-item>
-        <info-list-item label="国标ID:">{{ deviceInfo.gbId }}</info-list-item>
         <info-list-item label="设备状态:">
           <status-badge :status="deviceInfo.deviceStatus" />
           {{ deviceStatus[deviceInfo.deviceStatus] }}
@@ -13,24 +21,34 @@
     </div>
     <div class="filter-container clearfix">
       <div class="filter-container__left">
-        <el-button v-if="isDir || deviceInfo" type="primary" @click="goToCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
+        <el-button v-if="(isDir || deviceInfo && deviceInfo.createSubDevice === 2) && checkPermission(['*'])" key="dir-button" type="primary" @click="goToCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
+        <el-button v-if="isNVR" key="check-nvr-detail" @click="goToDetail(deviceInfo)">查看NVR设备详情</el-button>
+        <el-button v-if="isNVR && checkPermission(['*'])" key="edit-nvr" @click="goToUpdate(deviceInfo)">编辑NVR设备</el-button>
         <el-button v-if="isPlatform" @click="goToDetail(deviceInfo)">查看Platform详情</el-button>
         <el-button v-if="isPlatform" @click="goToUpdate(deviceInfo)">编辑Platform</el-button>
         <el-button v-if="isPlatform" :loading="loading.syncDevice" @click="syncDevice">同步</el-button>
         <el-dropdown trigger="click" placement="bottom-start" style="margin: 10px" @command="exportExcel">
-          <el-button>导出</el-button>
+          <el-button :loading="exportLoading">导出</el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="exportAll" :disabled="!deviceList.length">导出全部</el-dropdown-item>
             <el-dropdown-item command="exportCurrentPage" :disabled="!deviceList.length">导出当前页</el-dropdown-item>
             <el-dropdown-item command="exportSelect" :disabled="!selectedDeviceList.length">导出选定项</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
-        <el-button>导入</el-button>
+        <el-upload
+          v-if="!isNVR"
+          ref="excelUpload"
+          action="#"
+          :show-file-list="false"
+          :http-request="uploadExcel"
+        >
+          <el-button>导入</el-button>
+        </el-upload>
         <el-button @click="exportTemplate">下载模板</el-button>
         <el-dropdown placement="bottom" @command="handleBatch">
           <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="move">移动至</el-dropdown-item>
+            <el-dropdown-item v-if="!isNVR && !isPlatform" command="move">移动至</el-dropdown-item>
             <el-dropdown-item command="startDevice">启用流</el-dropdown-item>
             <el-dropdown-item command="stopDevice">停用流</el-dropdown-item>
             <el-dropdown-item command="delete">删除</el-dropdown-item>
@@ -164,13 +182,15 @@
               <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item :command="{type: 'detail', device: scope.row}">设备详情</el-dropdown-item>
-                <el-dropdown-item v-if="scope.row.streamStatus === 'on'" :command="{type: 'stopDevice', device: scope.row}">停用流</el-dropdown-item>
-                <el-dropdown-item v-else :command="{type: 'startDevice', device: scope.row}">启用流</el-dropdown-item>
-                <el-dropdown-item v-if="scope.row.recordStatus === 1 && checkPermission(['*'])" :command="{type: 'stopRecord', device: scope.row}">停止录像</el-dropdown-item>
-                <el-dropdown-item v-else-if="checkPermission(['*'])" :command="{type: 'startRecord', device: scope.row}">开始录像</el-dropdown-item>
-                <el-dropdown-item v-if="!isNVR && scope.row.parentDeviceId === '-1'" :command="{type: 'move', device: scope.row}">移动至</el-dropdown-item>
-                <el-dropdown-item v-if="(isNVR && !isCreateSubDevice) || (!isNVR && scope.row.createSubDevice !== 1)" :command="{type: 'update', device: scope.row}">编辑</el-dropdown-item>
-                <el-dropdown-item :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
+                <template v-if="scope.row.deviceType === 'ipc'">
+                  <el-dropdown-item v-if="scope.row.streamStatus === 'on' && checkPermission(['*'])" :command="{type: 'stopDevice', device: scope.row}">停用流</el-dropdown-item>
+                  <el-dropdown-item v-else-if="checkPermission(['*'])" :command="{type: 'startDevice', device: scope.row}">启用流</el-dropdown-item>
+                  <el-dropdown-item v-if="scope.row.recordStatus === 1 && checkPermission(['*'])" :command="{type: 'stopRecord', device: scope.row}">停止录像</el-dropdown-item>
+                  <el-dropdown-item v-else-if="checkPermission(['*'])" :command="{type: 'startRecord', device: scope.row}">开始录像</el-dropdown-item>
+                </template>
+                <el-dropdown-item v-if="!isNVR && scope.row.parentDeviceId === '-1' && checkPermission(['*'])" :command="{type: 'move', device: scope.row}">移动至</el-dropdown-item>
+                <el-dropdown-item v-if="((isNVR && !isCreateSubDevice) || (!isNVR && scope.row.createSubDevice !== 1)) && checkPermission(['*'])" :command="{type: 'update', device: scope.row}">编辑</el-dropdown-item>
+                <el-dropdown-item v-if="checkPermission(['*'])" :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </template>
@@ -185,69 +205,79 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
       />
+      <div v-if="isNVR" class="el-pagination">
+        <div class="el-pagination__total">共{{ deviceList.length }}条</div>
+      </div>
       <div v-if="!deviceList.length && !loading.list" class="device-list__empty-text">
         当前目录暂无设备
       </div>
     </div>
-    <move-dir v-if="dialog.moveDir" :device="currentDevice" :devices="selectedDeviceList" :is-batch="isBatchMoveDir" @on-close="closeDialog('moveDir', ...arguments)" />
+    <move-dir v-if="dialog.moveDir" :in-protocol="inProtocol" :device="currentDevice" :devices="selectedDeviceList" :is-batch="isBatchMoveDir" @on-close="closeDialog('moveDir', ...arguments)" />
+    <upload-excel v-if="dialog.uploadExcel" :file="selectedFile" :data="fileData" @on-close="closeDialog('uploadExcel', ...arguments)" />
   </div>
 </template>
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import listMixin from '../mixin/listMixin'
 import excelMixin from '../mixin/excelMixin'
-import { ExportToCsv } from 'export-to-csv'
-import { Device } from '@/type/device'
 
 @Component({
   name: 'DeviceRtspList'
 })
 export default class extends Mixins(listMixin, excelMixin) {
+  private exportLoading = false
   /**
-   * 导出CSV
+   * 导入设备表
    */
-  private exportCsv() {
-    const options = {
-      filename: '设备列表',
-      fieldSeparator: ',',
-      quoteStrings: '"',
-      decimalSeparator: '.',
-      showLabels: true,
-      useTextFile: false,
-      useBom: true,
-      useKeysAsHeaders: true
-    }
-    const csvExporter = new ExportToCsv(options)
-    const data = this.selectedDeviceList.map((device: Device) => {
-      return {
-        '设备ID': `${device.deviceId}\t`,
-        '设备名称': device.deviceName,
-        '类型': device.deviceType,
-        '厂商': device.deviceVendor,
-        '设备IP': device.deviceIp,
-        '设备端口': device.devicePort,
-        '国标ID': `${device.gbId}\t`,
-        '信令传输模式': device.sipTransType,
-        '流传输模式': device.streamTransType,
-        '优先TCP传输': device.transPriority,
-        '创建时间': device.createdTime
+  private uploadExcel(data: any) {
+    if (data.file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || data.file.type === 'application/vnd.ms-excel') {
+      this.dialog.uploadExcel = true
+      this.selectedFile = data.file
+      this.fileData = {
+        groupId: this.groupId,
+        inProtocol: this.inProtocol,
+        dirId: this.dirId,
+        fileName: data.file.name
       }
-    })
-    csvExporter.generateCsv(data)
+      this.isNVR && (this.fileData.parentDeviceId = this.deviceInfo.parentDeviceId)
+    } else {
+      this.$message.error('导入文件必须为表格')
+    }
   }
 
-  private exportExcel(command: any) {
-    switch (command) {
-      case 'exportSelect':
-        this.exportData = this.selectedDeviceList
-        return
-      case 'exportCurrentPage':
-        this.exportData = this.deviceList
+  /**
+   * 导出设备表
+   */
+  private async exportExcel(command: any) {
+    this.exportLoading = true
+    try {
+      let params: any = {
+        groupId: this.groupId,
+        inProtocol: this.inProtocol,
+        dirId: this.dirId,
+        parentDeviceId: this.deviceId
+      }
+      // this.isNVR && (params.parentDeviceId = this.deviceInfo.parentDeviceId)
+      if (command === 'exportAll') {
+        params.command = 'all'
+      } else {
+        params.command = 'selected'
+        let deviceArr: any = []
+        if (command === 'exportCurrentPage') {
+          deviceArr = this.deviceList
+        } else if (command === 'exportSelect') {
+          deviceArr = this.selectedDeviceList
+        }
+        params.deviceIds = deviceArr.map((device: any) => {
+          return { deviceId: device.deviceId }
+        })
+      }
+      await this.exportDevicesExcel(params)
+    } catch (e) {
+      this.$message.error('导出失败')
+      console.log(e)
     }
-    this.exelType = 'export'
-    this.exelDeviceType = 'rtsp'
-    this.exelName = '设备表格（rtsp）'
-    this.exportExel()
+    this.exportLoading = false
   }
 
   /**
@@ -256,7 +286,7 @@ export default class extends Mixins(listMixin, excelMixin) {
   private exportTemplate() {
     this.exelType = 'template'
     this.exelDeviceType = 'rtsp'
-    this.exelName = '设备导入模板（rtsp）'
+    this.exelName = 'RTSP导入模板'
     this.exportExel()
   }
 }

@@ -76,6 +76,12 @@
             />
             <span class="item-tip">用户必须在下次登录时重置密码</span>
           </el-form-item>
+          <el-form-item v-if="type === 'edit'" prop="subUserLoginLink" label="子用户登录链接：">
+            <span>{{ $route.query.subUserLoginLink }}</span>
+            <el-tooltip class="item" effect="dark" content="复制链接" placement="top">
+              <el-button type="text" style="margin-left: 10px" @click="copyRow($route.params.subUserLoginLink, 'link')"><svg-icon name="copy" /></el-button>
+            </el-tooltip>
+          </el-form-item>
           <el-form-item>
             <el-button :disabled="loading.submit" type="primary" @click="operateUser(type)">确定</el-button>
             <el-button :disabled="loading.submit" @click="back">取消</el-button>
@@ -127,7 +133,7 @@
           </el-table-column>
           <el-table-column label="操作" align="center">
             <template slot-scope="scope">
-              <el-button type="text" @click="copyRow(scope.row)">复制</el-button>
+              <el-button type="text" @click="copyRow(scope.row, 'data')">复制</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -140,7 +146,6 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import copy from 'copy-to-clipboard'
-import { ExportToCsv } from 'export-to-csv'
 import ExcelJS from 'exceljs'
 import { createUser, getUser, modifyUser, getPolicyList } from '@/api/accessManage'
 @Component({
@@ -161,7 +166,7 @@ export default class extends Vue {
     accessType: true,
     consoleEnabled: true,
     apiEnabled: false,
-    policy: [],
+    policy: null,
     resetPwdEnabled: true
   }
   private rules: any = {
@@ -199,27 +204,38 @@ export default class extends Vue {
     policyList.toggleRowSelection(row)
   }
 
-  private copyRow(row: any) {
-    let str =
-    `
-    主账号ID：${row.mainUserId}
-    用户名：${row.userName}
-    登录密码：${row.passwords}
-    SecretId：${row.secretId}
-    SecretKey：${row.secretKey}
-    
-    `
-    copy(str)
+  private copyRow(row: any, type: any) {
+    if (type === 'data') {
+      let str =
+      `
+      主账号ID：${row.mainUserId}
+      用户名：${row.userName}
+      登录密码：${row.passwords}
+      SecretId：${row.secretId}
+      SecretKey：${row.secretKey}
+      
+      `
+      copy(str)
+    } else if (type === 'link') {
+      const subUserLoginLink = row
+      copy(subUserLoginLink + '')
+    }
     this.$message.success('复制成功')
   }
 
   private back() {
-    this.$router.push(`/accessManage/user`)
+    let query: any = this.$route.query
+    this.$router.push({
+      name: 'accessManage-user',
+      params: {
+        nodeKeyPath: query.nodeKeyPath
+      }
+    })
   }
 
   private async mounted() {
     await this.getPolicyList()
-    this.type = this.$router.currentRoute.query.type
+    this.type = this.$route.query.type
     if (this.type === 'edit') {
       this.breadCrumbContent = '编辑用户'
       this.getUser()
@@ -229,7 +245,9 @@ export default class extends Vue {
   }
 
   private async getPolicyList() {
-    let params: any = {}
+    let params: any = {
+      pageSize: 1000
+    }
     try {
       this.loading.table = true
       let res: any = await getPolicyList(params)
@@ -302,7 +320,7 @@ export default class extends Vue {
             params.iamUserId = this.$router.currentRoute.query.userId
             await modifyUser(params)
             this.$message.success('修改用户成功')
-            this.$router.push(`/accessManage/user`)
+            this.back()
           }
         } else {
           return false
@@ -313,32 +331,6 @@ export default class extends Vue {
         this.loading.submit = false
       }
     })
-  }
-
-  /**
-   * 导出CSV
-   */
-  private exportCsv() {
-    const options = {
-      filename: '新建用户的所有信息',
-      fieldSeparator: ',',
-      quoteStrings: '"',
-      decimalSeparator: '.',
-      showLabels: true,
-      useTextFile: false,
-      useBom: true,
-      useKeysAsHeaders: true
-    }
-    const csvExporter = new ExportToCsv(options)
-    const data = this.newUserData.map((user: any) => {
-      return {
-        '用户名': user.userName,
-        '密码': user.passwords,
-        'secretId': user.secretId ? user.secretId : '--',
-        'secretKey': user.secretKey ? user.secretKey : '--'
-      }
-    })
-    csvExporter.generateCsv(data)
   }
 
   /**
@@ -359,22 +351,16 @@ export default class extends Vue {
       }
     ]
     const worksheet: any = workbook.addWorksheet('My Sheet')
-    let options: any = {
-      name: exelName,
-      ref: 'A1',
-      columns: [
-        { name: '用户名' },
-        { name: '密码' },
-        { name: 'secretId' },
-        { name: 'secretKey' }
-      ],
-      rows: []
-    }
-    options.rows = this.newUserData.map((user: any) => {
-      return [user.userName, user.passwords, user.secretId ? user.secretId : '--', user.secretKey ? user.secretKey : '--']
+    worksheet.name = exelName
+    worksheet.columns = [
+      { header: '用户名', key: 'userName', width: 16 },
+      { header: '密码', key: 'passwords', width: 16 },
+      { header: 'secretId', key: 'secretId', width: 48 },
+      { header: 'secretKey', key: 'secretKey', width: 48 }
+    ]
+    this.newUserData.forEach((user: any) => {
+      worksheet.addRow(user)
     })
-    worksheet.addTable(options)
-
     const buffer = await workbook.xlsx.writeBuffer()
     var blob = new Blob([buffer], { type: 'application/xlsx' })
     var link = document.createElement('a')

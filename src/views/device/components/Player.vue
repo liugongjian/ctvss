@@ -755,6 +755,15 @@ export default class extends Vue {
           text-align: center;
         }
       }
+      &__stream {
+        .controls__popup {
+          width: 80px;
+          left: -30px;
+          li {
+            text-align: center;
+          }
+        }
+      }
       &__time {
         line-height: 35px;
         margin-left: 10px;

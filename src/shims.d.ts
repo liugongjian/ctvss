@@ -28,3 +28,6 @@ declare module 'vue-splitpane'
 
 // TODO: remove this part after vue-splitpane has its typescript file
 declare module 'vue2-timepicker'
+
+// js-base64@2版本暂无声明文件
+declare module 'js-base64'

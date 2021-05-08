@@ -54,6 +54,11 @@ export const constantRoutes: RouteConfig[] = [
     meta: { hidden: true }
   },
   {
+    path: '/reset-password',
+    component: () => import(/* webpackChunkName: "reset-password" */ '@/views/login/resetPassword.vue'),
+    meta: { hidden: true }
+  },
+  {
     path: '/auth-redirect',
     component: () => import(/* webpackChunkName: "auth-redirect" */ '@/views/login/auth-redirect.vue'),
     meta: { hidden: true }
@@ -167,7 +172,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '业务组配置',
           icon: 'tree',
           hidden: true,
-          perms: ['*'],
+          perms: ['GET'],
           activeMenu: '/group'
         }
       }
@@ -510,27 +515,27 @@ export const asyncRoutes: RouteConfig[] = [
           activeMenu: '/template/callback'
         }
       },
-      // {
-      //   path: 'ai',
-      //   component: () => import(/* webpackChunkName: "template" */ '@/views/template/ai/index.vue'),
-      //   name: 'ai',
-      //   meta: {
-      //     title: 'AI模板',
-      //     icon: 'dot',
-      //     perms: ['*']
-      //   }
-      // },
-      // {
-      //   path: 'ai/create',
-      //   component: () => import(/* webpackChunkName: "template" */ '@/views/template/ai/createOrUpdate.vue'),
-      //   name: 'ai-create',
-      //   meta: {
-      //     title: '新建AI模板',
-      //     hidden: true,
-      //     perms: ['*'],
-      //     activeMenu: '/template/ai'
-      //   }
-      // },
+      {
+        path: 'ai',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/ai/index.vue'),
+        name: 'ai',
+        meta: {
+          title: 'AI模板',
+          icon: 'dot',
+          perms: ['*']
+        }
+      },
+      {
+        path: 'ai/create',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/ai/createOrUpdate.vue'),
+        name: 'ai-create',
+        meta: {
+          title: '新建AI模板',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/template/ai'
+        }
+      },
       {
         path: 'ai/update/:id?',
         component: () => import(/* webpackChunkName: "template" */ '@/views/template/ai/createOrUpdate.vue'),
@@ -580,10 +585,10 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
-    path: '/secretManage',
+    path: '/changePassword',
     component: Layout,
     meta: {
-      title: 'API密钥管理',
+      title: '修改密码',
       icon: 'tree',
       hidden: true,
       breadcrumb: true,
@@ -592,9 +597,9 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: '/',
-        component: () => import(/* webpackChunkName: "secretManage" */ '@/views/secretManage/index.vue'),
+        component: () => import(/* webpackChunkName: "changePassword" */ '@/views/changePassword/index.vue'),
         meta: {
-          title: 'API密钥管理',
+          title: '修改密码',
           icon: 'tree',
           breadcrumb: false,
           perms: ['*']
@@ -619,10 +624,10 @@ export const asyncRoutes: RouteConfig[] = [
         component: () => import(/* webpackChunkName: "AI" */ '@/views/AI/aiconfig/index.vue'),
         name: 'aiconfig',
         meta: {
-          title: '关联配置',
+          title: '人脸库',
           icon: 'dot',
           breadcrumb: true,
-          activeMenu: '/AI',
+          activeMenu: '/AI/config',
           perms: ['*']
         }
       },
@@ -661,7 +666,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '用户',
           icon: 'dot',
           breadcrumb: true,
-          activeMenu: '/accessManage',
+          activeMenu: '/accessManage/user',
           perms: ['*']
         }
       },
@@ -673,7 +678,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '创建用户',
           icon: 'dot',
           hidden: true,
-          activeMenu: '/accessManage',
+          activeMenu: '/accessManage/user',
           perms: ['*']
         }
       },
@@ -685,7 +690,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '策略',
           icon: 'dot',
           breadcrumb: true,
-          activeMenu: '/accessManage',
+          activeMenu: '/accessManage/policy',
           perms: ['*']
         }
       },
@@ -697,7 +702,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '创建策略',
           icon: 'dot',
           hidden: true,
-          activeMenu: '/accessManage',
+          activeMenu: '/accessManage/policy',
           perms: ['*']
         }
       },
@@ -709,10 +714,46 @@ export const asyncRoutes: RouteConfig[] = [
           title: '策略详情',
           icon: 'dot',
           hidden: true,
-          activeMenu: '/accessManage',
+          activeMenu: '/accessManage/policy',
+          perms: ['*']
+        }
+      },
+      {
+        path: 'secretManage',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/secretManage/index.vue'),
+        name: 'accessManage-secretManage',
+        meta: {
+          title: 'API密钥',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/accessManage/secretManage',
           perms: ['*']
         }
       }
+      // {
+      //   path: 'role',
+      //   component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/role/index.vue'),
+      //   name: 'accessManage-role',
+      //   meta: {
+      //     title: '角色',
+      //     icon: 'dot',
+      //     breadcrumb: true,
+      //     activeMenu: '/accessManage',
+      //     perms: ['*']
+      //   }
+      // },
+      // {
+      //   path: 'role/create',
+      //   component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/role/components/CreateRole.vue'),
+      //   name: 'accessManage-role-create',
+      //   meta: {
+      //     title: '创建角色',
+      //     icon: 'dot',
+      //     hidden: true,
+      //     activeMenu: '/accessManage',
+      //     perms: ['*']
+      //   }
+      // }
     ]
   },
   {
