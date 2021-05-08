@@ -248,7 +248,11 @@ export default class CreateMixin extends Vue {
       let res: any
       this.loading.list = true
       params.dirId = this.dirId ? this.dirId : 0
+      console.log(params);
+      
       res = await getDevices(params)
+      console.log(res);
+      
       this.deviceList = res.devices
       this.dirStats = res.dirStats
       this.pager = {

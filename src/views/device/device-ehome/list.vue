@@ -101,17 +101,44 @@
           </template>
         </el-table-column>
         <el-table-column
-          key="streamStatus"
-          column-key="streamStatus"
-          prop="streamStatus"
-          label="流状态"
+          key="mainStreamStatus"
+          column-key="mainStreamStatus"
+          prop="mainStreamStatus"
+          label="主码流状态"
           min-width="110"
-          :filters="filtersArray.streamStatus"
-          :filter-multiple="false"
         >
           <template slot="header">
-            <span class="filter">流状态</span>
-            <svg-icon class="filter" name="filter" width="15" height="15" />
+            <span class="filter">主码流状态</span>
+          </template>
+          <template slot-scope="{row}">
+            <status-badge :status="row.streamStatus" />
+            {{ streamStatus[row.streamStatus] || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column
+          key="subStreamStatus"
+          column-key="subStreamStatus"
+          prop="subStreamStatus"
+          label="子码流状态"
+          min-width="110"
+        >
+          <template slot="header">
+            <span class="filter">子码流状态</span>
+          </template>
+          <template slot-scope="{row}">
+            <status-badge :status="row.streamStatus" />
+            {{ streamStatus[row.streamStatus] || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column
+          key="thirdStreamStatus"
+          column-key="thirdStreamStatus"
+          prop="thirdStreamStatus"
+          label="第三码流状态"
+          min-width="110"
+        >
+          <template slot="header">
+            <span class="filter">第三码流状态</span>
           </template>
           <template slot-scope="{row}">
             <status-badge :status="row.streamStatus" />
