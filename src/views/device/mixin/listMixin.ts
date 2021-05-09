@@ -177,6 +177,21 @@ export default class CreateMixin extends Vue {
   }
 
   /**
+   * 获取设备流信息
+   */
+  public getStreamStatus(statusArr: any, num: any) {
+    if (!statusArr) {
+      return false
+    }
+    let statusObj = statusArr.find((status: any) => status.streamNum === num)
+    if (!statusObj) {
+      return false
+    } else {
+      return statusObj.streamStatus
+    }
+  }
+
+  /**
    * 获取设备信息
    */
   public async getDeviceInfo(type: string) {
@@ -248,11 +263,7 @@ export default class CreateMixin extends Vue {
       let res: any
       this.loading.list = true
       params.dirId = this.dirId ? this.dirId : 0
-      console.log(params);
-      
       res = await getDevices(params)
-      console.log(res);
-      
       this.deviceList = res.devices
       this.dirStats = res.dirStats
       this.pager = {
@@ -364,9 +375,16 @@ export default class CreateMixin extends Vue {
         this.openDialog('moveDir', command.device)
         break
       case 'startDevice':
+        if (command.device.inProtocol === 'ehome') {
+          command.device.streamNum = command.num
+        }
+        // console.log(command.device);
         this.startDevice(command.device)
         break
       case 'stopDevice':
+        if (command.device.inProtocol === 'ehome') {
+          command.device.streamNum = command.num
+        }
         this.stopDevice(command.device)
         break
       case 'startRecord':
@@ -381,12 +399,12 @@ export default class CreateMixin extends Vue {
   /**
    * 批量操作菜单
    */
-  public handleBatch(command: string) {
+  public handleBatch(command: any) {
     if (!this.selectedDeviceList.length) {
       this.$alertError('请先选择设备')
       return
     }
-    switch (command) {
+    switch (command.type) {
       case 'move':
         this.batchMoveDir()
         break

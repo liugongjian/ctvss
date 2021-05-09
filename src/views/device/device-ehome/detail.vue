@@ -26,18 +26,42 @@
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
             </info-list>
             <info-list v-if="info" label-width="110">
-              <info-list-item v-if="info.inType === 'pull'" label="设备IP:">{{ info.deviceIp }}</info-list-item>
-              <info-list-item v-if="info.inType === 'pull'" label="设备端口:">{{ info.devicePort }}</info-list-item>
-              <info-list-item v-if="info.inType === 'pull'" label="主子码流数量:">{{ info.autoStreamNum }}</info-list-item>
-              <info-list-item v-if="info.inType === 'push'" label="自动激活推流地址:">{{ pushType[info.pushType] || '-' }}</info-list-item>
-              <info-list-item v-else label="自动拉流:">{{ pullType[info.pullType] || '-' }}</info-list-item>
-              <info-list-item v-if="info.inType === 'pull' && info.pullType === 1" label="自动拉取第几个码流:">{{ info.autoStreamNum }}</info-list-item>
+              <info-list-item label="设备IP:">{{ info.deviceIp }}</info-list-item>
+              <info-list-item label="设备端口:">{{ info.devicePort }}</info-list-item>
+              <info-list-item label="主子码流数量:">{{ info.autoStreamNum }}</info-list-item>
+              <!-- <info-list-item v-if="info.inType === 'push'" label="自动激活推流地址:">{{ pushType[info.pushType] || '-' }}</info-list-item> -->
+              <info-list-item label="自动拉流:">{{ pullType[info.pullType] || '-' }}</info-list-item>
+              <info-list-item label="设备状态:">
+                <div class="info-list__edit">
+                  <div class="info-list__edit--value">
+                    <status-badge :status="info.deviceStatus" />
+                    {{ deviceStatus[info.deviceStatus] || '-' }}
+                  </div>
+                </div>
+              </info-list-item>
+              <info-list-item v-if="info.pullType === 1" label="自动拉取码流:">{{ autoStreamNumObj[info.autoStreamNum] }}</info-list-item>
               <template v-if="info.deviceType === 'ipc' || info.deviceType === 'platform'">
-                <info-list-item label="流状态:">
+                <info-list-item v-if="getStreamStatus(info.deviceStreams, 1)" label="主码流状态:">
                   <div class="info-list__edit">
                     <div class="info-list__edit--value">
-                      <status-badge :status="info.streamStatus" />
-                      {{ deviceStatus[info.streamStatus] || '-' }}
+                      <status-badge :status="getStreamStatus(info.deviceStreams, 1)" />
+                      {{ deviceStatus[getStreamStatus(info.deviceStreams, 1)] || '-' }}
+                    </div>
+                  </div>
+                </info-list-item>
+                <info-list-item v-if="getStreamStatus(info.deviceStreams, 2)" label="子码流状态:">
+                  <div class="info-list__edit">
+                    <div class="info-list__edit--value">
+                      <status-badge :status="getStreamStatus(info.deviceStreams, 2)" />
+                      {{ deviceStatus[getStreamStatus(info.deviceStreams, 2)] || '-' }}
+                    </div>
+                  </div>
+                </info-list-item>
+                <info-list-item v-if="getStreamStatus(info.deviceStreams, 3)" label="第三码流状态:">
+                  <div class="info-list__edit">
+                    <div class="info-list__edit--value">
+                      <status-badge :status="getStreamStatus(info.deviceStreams, 3)" />
+                      {{ deviceStatus[getStreamStatus(info.deviceStreams, 3)] || '-' }}
                     </div>
                   </div>
                 </info-list-item>
@@ -51,13 +75,13 @@
                 </info-list-item>
               </template>
               <info-list-item label="设备描述:">{{ info.description || '-' }}</info-list-item>
-              <info-list-item v-if="info.inType === 'push'" label="推流地址:">
+              <!-- <info-list-item v-if="info.inType === 'push'" label="推流地址:">
                 {{ info.pushUrl || '-' }}
                 <el-tooltip v-if="info.pushUrl" class="item" effect="dark" content="复制链接" placement="top">
                   <el-button type="text" @click="copyUrl(info.pushUrl)"><svg-icon name="copy" /></el-button>
                 </el-tooltip>
-              </info-list-item>
-              <info-list-item v-else label="拉流地址:">
+              </info-list-item> -->
+              <info-list-item label="拉流地址:">
                 {{ info.pullUrl || '-' }}
                 <el-tooltip v-if="info.pullUrl" class="item" effect="dark" content="复制链接" placement="top">
                   <el-button type="text" @click="copyUrl(info.pullUrl)"><svg-icon name="copy" /></el-button>

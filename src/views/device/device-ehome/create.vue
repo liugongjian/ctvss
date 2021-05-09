@@ -104,7 +104,7 @@
           </template>
           <el-switch v-model="form.pullType" :active-value="1" :inactive-value="2" />
         </el-form-item>
-        <el-form-item v-if="form.pullType === 1" label="自动拉取第几个码流:" prop="autoStreamNum">
+        <el-form-item v-if="form.pullType === 1" label="自动拉取码流:" prop="autoStreamNum">
           <el-radio-group v-model="form.autoStreamNum">
             <el-radio v-for="autoStreamNum in autoStreamNumList" :key="autoStreamNum.value" :label="autoStreamNum.value" :disabled="autoStreamNum.value > form.multiStreamSize">{{ autoStreamNum.label }}</el-radio>
           </el-radio-group>
