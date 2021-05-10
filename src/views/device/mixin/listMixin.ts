@@ -527,7 +527,7 @@ export default class CreateMixin extends Vue {
       await startDevice(params)
       this.$message.success('已通知启用设备')
     } catch (e) {
-      this.$message.error(e)
+      this.$message.error(e && e.message)
     }
   }
 
@@ -539,12 +539,13 @@ export default class CreateMixin extends Vue {
       const params: any = {
         deviceId: device.deviceId,
         inProtocol: this.inProtocol,
-        inType: device.inType
+        inType: device.inType,
+        streamNum: device.streamNum
       }
       await stopDevice(params)
       this.$message.success('已通知停用设备')
     } catch (e) {
-      this.$message.error(e)
+      this.$message.error(e && e.message)
     }
   }
 
@@ -561,7 +562,7 @@ export default class CreateMixin extends Vue {
       this.$message.success('已通知开始录制')
       this.init()
     } catch (e) {
-      this.$message.error(e.message)
+      this.$message.error(e && e.message)
       console.error(e)
     }
   }
@@ -580,7 +581,7 @@ export default class CreateMixin extends Vue {
       this.$message.success('已通知停止录像')
       this.init()
     } catch (e) {
-      this.$message.error(e.message)
+      this.$message.error(e && e.message)
       console.error(e)
     }
   }
@@ -622,7 +623,7 @@ export default class CreateMixin extends Vue {
             }))
             done()
           } catch (e) {
-            this.$message.error(e.message)
+            this.$message.error(e && e.message)
           } finally {
             instance.confirmButtonLoading = false
             instance.confirmButtonText = '确定'
@@ -635,7 +636,7 @@ export default class CreateMixin extends Vue {
       this.$message.success(`已通知${methodStr}设备`)
     }).catch((e: any) => {
       if (e === 'cancel' || e === 'close') return
-      this.$message.error(e)
+      this.$message.error(e && e.message)
     })
   }
 
