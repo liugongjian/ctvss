@@ -63,6 +63,11 @@ export default class CreateMixin extends Vue {
     streamStatus: this.dictToFilterArray(StreamStatus),
     recordStatus: this.dictToFilterArray(RecordStatus)
   }
+  public autoStreamNumObj = {
+    1: '主码流',
+    2: '子码流',
+    3: '第三码流'
+  }
 
   public get inProtocol() {
     return this.$route.query.inProtocol

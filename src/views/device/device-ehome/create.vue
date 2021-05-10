@@ -53,7 +53,7 @@
             <el-option v-for="item in deviceVendorList" :key="item" :label="item" :value="item" />
           </el-select>
         </el-form-item>
-        <el-form-item label="版本:" prop="deviceVendor">
+        <el-form-item label="版本:" prop="ehomeVersion">
           <el-radio-group v-model="form.ehomeVersion">
             <el-radio-button v-for="item in ehomeVersionList" :key="item" :label="item" :value="item" />
           </el-radio-group>

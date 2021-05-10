@@ -197,18 +197,18 @@
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item :command="{type: 'detail', device: scope.row}">设备详情</el-dropdown-item>
                 <template v-if="scope.row.deviceType === 'ipc'">
-                  <div v-if="getStreamStatus(scope.row.deviceStreams, 1)">
-                    <el-dropdown-item v-if="getStreamStatus(scope.row.deviceStreams, 1) === 'on' && checkPermission(['*'])" :command="{type: 'stopDevice', device: scope.row, num: 1}">停用主码流</el-dropdown-item>
-                    <el-dropdown-item v-else-if="checkPermission(['*'])" :command="{type: 'startDevice', device: scope.row, num: 1}">启用主码流</el-dropdown-item>
+                  <div v-for="num in scope.row.multiStreamSize" :key="num">
+                    <el-dropdown-item v-if="getStreamStatus(scope.row.deviceStreams, num) === 'on' && checkPermission(['*'])" :command="{type: 'stopDevice', device: scope.row, num}">{{ `停用${autoStreamNumObj[num]}` }}</el-dropdown-item>
+                    <el-dropdown-item v-else-if="checkPermission(['*'])" :command="{type: 'startDevice', device: scope.row, num}">{{ `启用${autoStreamNumObj[num]}` }}</el-dropdown-item>
                   </div>
-                  <div v-if="getStreamStatus(scope.row.deviceStreams, 2)">
+                  <!-- <div v-if="getStreamStatus(scope.row.deviceStreams, 2)">
                     <el-dropdown-item v-if="getStreamStatus(scope.row.deviceStreams, 2) === 'on' && checkPermission(['*'])" :command="{type: 'stopDevice', device: scope.row, num: 2}">停用子码流</el-dropdown-item>
                     <el-dropdown-item v-else-if="checkPermission(['*'])" :command="{type: 'startDevice', device: scope.row, num: 2}">启用子码流</el-dropdown-item>
                   </div>
                   <div v-if="getStreamStatus(scope.row.deviceStreams, 3)">
                     <el-dropdown-item v-if="getStreamStatus(scope.row.deviceStreams, 3) === 'on' && checkPermission(['*'])" :command="{type: 'stopDevice', device: scope.row, num: 3}">停用第三码流</el-dropdown-item>
                     <el-dropdown-item v-else-if="checkPermission(['*'])" :command="{type: 'startDevice', device: scope.row, num: 3}">启用第三码流</el-dropdown-item>
-                  </div>
+                  </div> -->
                   <el-dropdown-item v-if="scope.row.recordStatus === 1 && checkPermission(['*'])" :command="{type: 'stopRecord', device: scope.row}">停止录像</el-dropdown-item>
                   <el-dropdown-item v-else-if="checkPermission(['*'])" :command="{type: 'startRecord', device: scope.row}">开始录像</el-dropdown-item>
                 </template>
