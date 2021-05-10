@@ -378,7 +378,6 @@ export default class CreateMixin extends Vue {
         if (command.device.inProtocol === 'ehome') {
           command.device.streamNum = command.num
         }
-        // console.log(command.device);
         this.startDevice(command.device)
         break
       case 'stopDevice':
@@ -522,7 +521,8 @@ export default class CreateMixin extends Vue {
       const params: any = {
         deviceId: device.deviceId,
         inProtocol: this.inProtocol,
-        inType: device.inType
+        inType: device.inType,
+        streamNum: device.streamNum
       }
       await startDevice(params)
       this.$message.success('已通知启用设备')
