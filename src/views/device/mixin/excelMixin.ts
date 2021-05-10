@@ -126,7 +126,7 @@ export default class ExcelMixin extends Vue {
       type: 'list',
       allowBlank: false,
       showErrorMessage: true,
-      formulae: ['"push,pull"'],
+      formulae: ['"推流,拉流"'],
       error: '请选择视频流接入方式'
     },
     pushType: {
