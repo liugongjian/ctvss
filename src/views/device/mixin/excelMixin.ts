@@ -54,7 +54,7 @@ export default class ExcelMixin extends Vue {
         { header: '设备厂商', key: 'deviceVendor', width: 10 },
         { header: '设备名称', key: 'deviceName', width: 16 },
         { header: '设备描述', key: 'description', width: 16 },
-        { header: '是否启用自动拉流', key: 'pullType', width: 16 },
+        { header: '是否启用自动拉流', key: 'pullType', width: 24 },
         { header: '是否启用自动激活推流地址', key: 'pushType', width: 24 },
         { header: '拉流地址', key: 'pullUrl', width: 24 },
         { header: '视频流标签', key: 'tags', width: 24 }
@@ -74,7 +74,7 @@ export default class ExcelMixin extends Vue {
         { header: '设备通道数量', key: 'channelSize', width: 16 },
         { header: '主子码流数量', key: 'multiStreamSize', width: 16 },
         { header: '自动拉取第几个码流', key: 'multiStreamSize', width: 24 },
-        { header: '是否启用自动拉流', key: 'pullType', width: 16 },
+        { header: '是否启用自动拉流', key: 'pullType', width: 24 },
         { header: '是否启用自动激活推流地址', key: 'pushType', width: 24 },
         { header: '拉流地址', key: 'pullUrl', width: 24 },
         { header: '视频流标签', key: 'tags', width: 24 }
