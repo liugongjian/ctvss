@@ -70,6 +70,7 @@ export default class extends Vue {
     switch2: true,
     inProtocol: 'UDP'
   }
+  private loading = false
 
   private rules = {
     name: [
