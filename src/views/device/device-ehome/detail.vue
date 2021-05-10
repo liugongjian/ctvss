@@ -28,7 +28,7 @@
             <info-list v-if="info" label-width="110">
               <info-list-item label="设备IP:">{{ info.deviceIp }}</info-list-item>
               <info-list-item label="设备端口:">{{ info.devicePort }}</info-list-item>
-              <info-list-item label="主子码流数量:">{{ info.autoStreamNum }}</info-list-item>
+              <info-list-item label="主子码流数量:">{{ info.multiStreamSize }}</info-list-item>
               <info-list-item label="自动拉流:">{{ pullType[info.pullType] || '-' }}</info-list-item>
               <info-list-item label="设备状态:">
                 <div class="info-list__edit">

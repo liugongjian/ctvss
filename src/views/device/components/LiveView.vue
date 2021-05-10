@@ -1,6 +1,6 @@
 <template>
   <div v-loading="loading" class="live-wrap">
-    <div v-if="inProtocol === 'rtsp'" class="stream-selector">
+    <div v-if="inProtocol === 'rtsp' || inProtocol === 'ehome'" class="stream-selector">
       <StreamSelector :is-show-label="true" :stream-size="streamSize" :stream-num="streamNum" @onSetStreamNum="onSetStreamNum" />
     </div>
     <div v-if="errorMessage" class="empty-text">{{ errorMessage }}</div>
@@ -92,7 +92,7 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    if (this.inProtocol === 'rtsp') {
+    if (this.inProtocol === 'rtsp' || this.inProtocol === 'ehome') {
       await this.getDevice()
     }
     this.getDevicePreview()
