@@ -127,8 +127,8 @@
         </el-form-item>
         <el-form-item prop="transPriority">
           <template slot="label">
-            优先TCP传输:
-            <el-popover
+            TCP传输:
+            <!-- <el-popover
               placement="top-start"
               title="优先TCP传输"
               width="400"
@@ -137,9 +137,9 @@
               :content="tips.transPriority"
             >
               <svg-icon slot="reference" class="form-question" name="help" />
-            </el-popover>
+            </el-popover> -->
           </template>
-          <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" />
+          <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" disabled />
         </el-form-item>
         <el-form-item label="设备描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
@@ -211,7 +211,7 @@ export default class extends Mixins(createMixin) {
     multiStreamSize: 1,
     autoStreamNum: 1,
     pullType: 1,
-    transPriority: 'udp',
+    transPriority: 'tcp',
     parentDeviceId: ''
   }
   protected minChannelSize = 1
