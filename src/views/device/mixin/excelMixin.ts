@@ -1,7 +1,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { getList as getGbList } from '@/api/certificate/gb28181'
 import { exportDeviceAll, exportDeviceOption } from '@/api/device'
-import { cityMapping } from '@/assets/region/cities'
+import { cityMapping, provinceMapping } from '@/assets/region/cities'
 import ExcelJS from 'exceljs'
 
 @Component
@@ -39,12 +39,7 @@ export default class ExcelMixin extends Vue {
         { header: '国标ID', key: 'gbId', width: 24 },
         { header: '设备视频流优先传输协议', key: 'pullType', width: 24 },
         { header: '设备通道数量', key: 'channelSize', width: 16 },
-        // { header: '是否自动创建子设备', key: 'createSubDevice', width: 24 },
-        // { header: '指定通道号', key: 'channelNum', width: 24 },
-        // { header: '指定通道名称', key: 'channelName', width: 24 },
         { header: '预设城市', key: 'city', width: 16 }
-        // { header: '国标区域编码', key: 'GbRegion', width: 16 },
-        // { header: '国标区域级别', key: 'GbRegionLevel', width: 16 }
       ]
     },
     rtmp: {
@@ -162,7 +157,21 @@ export default class ExcelMixin extends Vue {
     // 获取预设城市选项
     const mainUserAddress: any = this.$store.state.user.mainUserAddress
     this.cityList = mainUserAddress.split(',').map((addressCode: any) => {
-      return cityMapping[addressCode]
+      let provincelevelCities = [
+        '北京市',
+        '天津市',
+        '上海市',
+        '重庆市',
+        '台湾省',
+        '香港特别行政区',
+        '澳门特别行政区'
+      ]
+      let city = cityMapping[addressCode]
+      if (provincelevelCities.includes(city)) {
+        return city
+      } else {
+        return provinceMapping[addressCode.substring(0, 2)] + city
+      }
     })
   }
 
@@ -175,7 +184,7 @@ export default class ExcelMixin extends Vue {
       showInputMessage: true,
       showErrorMessage: true,
       formulae: ['"2011,2016"'],
-      prompt: '当选择 “IPC” 设备类型时为必选',
+      prompt: '当选择 “IPC” 或 “NVR” 设备类型时为必选',
       error: '请从选项中选择国标版本'
     })
     worksheet.dataValidations.add('C2:C9999', this.validation.deviceVendor)
