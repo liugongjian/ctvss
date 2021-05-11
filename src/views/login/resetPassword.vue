@@ -143,7 +143,7 @@ export default class extends Vue {
       this.form.subUserName = query.subUserName
     } else {
       this.$message.error('状态异常，请重新登录')
-      this.$router.push(`/login?redirect=%2Fdashboard&subUserLogin=1`)
+      this.$router.push(`/login/subAccount?redirect=%2Fdashboard`)
     }
     if (this.form.originalPwd === '') {
       (this.$refs.originalPwd as Input).focus()
@@ -166,7 +166,7 @@ export default class extends Vue {
   private async logout() {
     const data: any = await UserModule.LogOut()
     if (data.iamUserId) {
-      this.$router.push(`/login?redirect=%2Fdashboard&subUserLogin=1&mainUserID=${data.mainUserID}`)
+      this.$router.push(`/login/subAccount?redirect=%2Fdashboard&mainUserID=${data.mainUserID}`)
     } else {
       this.$router.push(`/login?redirect=%2Fdashboard`)
     }
@@ -177,12 +177,16 @@ export default class extends Vue {
       if (valid) {
         try {
           this.loading = true
-          await UserModule.ResetIAMPassword(this.form)
-          this.$message.success('重置密码成功！')
-          this.$router.push({
-            path: '/login',
-            query: this.$route.query
-          })
+          const result: any = await UserModule.ResetIAMPassword(this.form)
+          if (result.code === 7) {
+            this.showOriginalPwdError = true
+          } else {
+            this.$message.success('重置密码成功！')
+            this.$router.push({
+              path: '/login/subAccount',
+              query: this.$route.query
+            })
+          }
         } catch (err) {
           if (err.code === 7) {
             this.showOriginalPwdError = true
