@@ -110,8 +110,8 @@
         </el-form-item>
         <el-form-item v-if="form.deviceType === 'nvr' || form.deviceType === 'ipc'" prop="transPriority">
           <template slot="label">
-            优先TCP传输:
-            <el-popover
+            TCP传输:
+            <!-- <el-popover
               placement="top-start"
               title="优先TCP传输"
               width="400"
@@ -120,9 +120,9 @@
               :content="tips.transPriority"
             >
               <svg-icon slot="reference" class="form-question" name="help" />
-            </el-popover>
+            </el-popover> -->
           </template>
-          <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" />
+          <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" disabled />
         </el-form-item>
         <el-form-item label="设备地址:" prop="address">
           <el-cascader
