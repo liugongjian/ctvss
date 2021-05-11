@@ -68,7 +68,7 @@
         <el-form-item label="设备端口:" prop="devicePort">
           <el-input v-model.number="form.devicePort" />
         </el-form-item>
-        <el-form-item v-if="form.deviceType === 'platform'" label="国标ID:" prop="gbId">
+        <el-form-item v-if="form.deviceType === 'platform'" label="设备国标编号:" prop="gbId">
           <el-input v-model="form.gbId" />
         </el-form-item>
         <el-form-item label="GB28181账号:" prop="userName">
@@ -379,11 +379,11 @@ export default class extends Mixins(createMixin) {
   }
 
   /**
-   * 校验国标ID
+   * 校验设备国标编号
    */
   private validateGbId(rule: any, value: string, callback: Function) {
     if (value && !/^[0-9]{20}$/.test(value)) {
-      callback(new Error('国标ID为20位数字'))
+      callback(new Error('设备国标编号为20位数字'))
     } else {
       callback()
     }
