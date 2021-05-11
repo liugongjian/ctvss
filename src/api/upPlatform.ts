@@ -7,5 +7,5 @@ export const createPlatform = (params: any): Promise<any> =>
   request({
     url: '/platform/create',
     method: 'post',
-    params
+    data: params
   })
