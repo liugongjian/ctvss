@@ -40,27 +40,11 @@
               </info-list-item>
               <info-list-item v-if="info.pullType === 1" label="自动拉取码流:">{{ autoStreamNumObj[info.autoStreamNum] }}</info-list-item>
               <template v-if="info.deviceType === 'ipc' || info.deviceType === 'platform'">
-                <info-list-item v-if="getStreamStatus(info.deviceStreams, 1)" label="主码流状态:">
+                <info-list-item v-for="num in info.multiStreamSize" :key="num" :label="`${autoStreamNumObj[num]}状态`">
                   <div class="info-list__edit">
                     <div class="info-list__edit--value">
-                      <status-badge :status="getStreamStatus(info.deviceStreams, 1)" />
-                      {{ deviceStatus[getStreamStatus(info.deviceStreams, 1)] || '-' }}
-                    </div>
-                  </div>
-                </info-list-item>
-                <info-list-item v-if="getStreamStatus(info.deviceStreams, 2)" label="子码流状态:">
-                  <div class="info-list__edit">
-                    <div class="info-list__edit--value">
-                      <status-badge :status="getStreamStatus(info.deviceStreams, 2)" />
-                      {{ deviceStatus[getStreamStatus(info.deviceStreams, 2)] || '-' }}
-                    </div>
-                  </div>
-                </info-list-item>
-                <info-list-item v-if="getStreamStatus(info.deviceStreams, 3)" label="第三码流状态:">
-                  <div class="info-list__edit">
-                    <div class="info-list__edit--value">
-                      <status-badge :status="getStreamStatus(info.deviceStreams, 3)" />
-                      {{ deviceStatus[getStreamStatus(info.deviceStreams, 3)] || '-' }}
+                      <status-badge :status="getStreamStatus(info.deviceStreams, num) || 'false'" />
+                      {{ deviceStatus[getStreamStatus(info.deviceStreams, num)] || '-' }}
                     </div>
                   </div>
                 </info-list-item>
