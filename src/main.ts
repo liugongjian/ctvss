@@ -77,7 +77,7 @@ CtcloudLayout.getPublicInfo().authCurrentPromise.then((data :any) => {
         }).$mount('#app')
         break
       default: {
-        localStorage.clear()
+        UserModule.ResetToken()
         const href = window.location.href
         const path = href.split('#')[1]
         if (path.startsWith('/login') || path.startsWith('/login/subAccount') || path.startsWith('/reset-password')) {
@@ -89,7 +89,6 @@ CtcloudLayout.getPublicInfo().authCurrentPromise.then((data :any) => {
           }).$mount('#app')
         } else {
           // 访问平台其他路径
-          UserModule.ResetToken()
           window.location.href = `${settings.casLoginUrl}`
         }
       }
