@@ -5,12 +5,14 @@ import { GroupModule } from '@/store/modules/group'
 import { deleteDevice, startDevice, stopDevice, getDevice, getDevices, startRecord, stopRecord, syncDevice } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MoveDir from '../components/dialogs/MoveDir.vue'
+import UploadExcel from '../components/dialogs/UploadExcel.vue'
 import { checkPermission } from '@/utils/permission'
 
 @Component({
   components: {
     StatusBadge,
-    MoveDir
+    MoveDir,
+    UploadExcel
   }
 })
 export default class CreateMixin extends Vue {
@@ -40,7 +42,8 @@ export default class CreateMixin extends Vue {
     syncDevice: false
   }
   public dialog = {
-    moveDir: false
+    moveDir: false,
+    uploadExcel: false
   }
   public keyword = ''
   public filter: any = {
@@ -152,6 +155,13 @@ export default class CreateMixin extends Vue {
 
   public mounted() {
     this.init()
+    // 调整el-upload外框样式
+    const uploadDiv: any = document.querySelector('.el-upload')?.parentNode
+    uploadDiv && (
+      uploadDiv.style.display = 'inline-block'
+    ) && (
+      uploadDiv.style.marginRight = '10px'
+    )
   }
 
   /**

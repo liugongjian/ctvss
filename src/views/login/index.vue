@@ -349,6 +349,11 @@ export default class extends Vue {
     display: inline-block;
     width: 85%;
 
+    .el-input__inner {
+      vertical-align: middle;
+      line-height: 1px;
+    }
+
     input {
       background: #fff;
       border: 0px;
