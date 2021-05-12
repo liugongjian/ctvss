@@ -87,6 +87,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import axios from 'axios'
 import { dateFormatInTable, dateFormat, durationFormatInTable, prefixZero } from '@/utils/date'
 import { getDeviceRecords, getDeviceRecord, getDeviceRecordStatistic, getDeviceRecordRule } from '@/api/device'
 import ReplayPlayerDialog from './dialogs/ReplayPlayer.vue'
@@ -159,6 +160,7 @@ export default class extends Vue {
     total: 0
   }
   private recordInterval: any = null
+  private axiosSource: any = null
 
   private async mounted() {
     await this.init()
@@ -166,6 +168,7 @@ export default class extends Vue {
 
   private async destroyed() {
     clearInterval(this.recordInterval)
+    this.axiosSource.cancel()
   }
 
   @Watch('$route.query')
@@ -208,6 +211,8 @@ export default class extends Vue {
   private async getRecordList(startTime?: number) {
     try {
       this.loading = true
+      const cancelToken = axios.CancelToken
+      this.axiosSource = cancelToken.source()
       const res = await getDeviceRecords({
         deviceId: this.deviceId,
         inProtocol: this.inProtocol,
@@ -215,7 +220,7 @@ export default class extends Vue {
         startTime: startTime || this.currentDate / 1000,
         endTime: this.currentDate / 1000 + 24 * 60 * 60,
         pageSize: 9999
-      })
+      }, this.axiosSource.token)
       // 追加最新的录像
       if (startTime) {
         const recordLength = this.recordList.length

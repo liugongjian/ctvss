@@ -87,11 +87,12 @@ export const getDevicePreview = (params: any): Promise<any> =>
 /**
  * 获取设备录像列表
  */
-export const getDeviceRecords = (params: any): Promise<any> =>
+export const getDeviceRecords = (params: any, cancelToken: any): Promise<any> =>
   request({
     url: '/record/list',
     method: 'get',
-    params
+    params,
+    cancelToken
   })
 
 /**
