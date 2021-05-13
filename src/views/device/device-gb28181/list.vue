@@ -244,9 +244,9 @@
                   <el-dropdown-item v-else-if="checkPermission(['*'])" :command="{type: 'startRecord', device: scope.row}">开始录像</el-dropdown-item>
                 </template>
                 <el-dropdown-item v-if="(!isNVR && scope.row.parentDeviceId === '-1') && checkPermission(['*'])" :command="{type: 'move', device: scope.row}">移动至</el-dropdown-item>
-                <!--自动创建的子通道不允许编辑和删除-->
-                <el-dropdown-item v-if="(!isNVR || scope.row.createSubDevice !== 1) && checkPermission(['*'])" :command="{type: 'update', device: scope.row}">编辑</el-dropdown-item>
-                <el-dropdown-item v-if="(!isNVR || scope.row.createSubDevice !== 1) && checkPermission(['*'])" :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
+                <el-dropdown-item v-if="checkPermission(['*'])" :command="{type: 'update', device: scope.row}">编辑</el-dropdown-item>
+                <!--自动创建的子通道不允许删除-->
+                <el-dropdown-item v-if="!(scope.row.createSubDevice === 1 && scope.row.channelNum) && checkPermission(['*'])" :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </template>
