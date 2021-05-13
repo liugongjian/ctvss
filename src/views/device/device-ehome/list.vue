@@ -135,6 +135,7 @@
           </template>
         </el-table-column>
         <el-table-column
+          v-if="deviceList[0] && deviceList[0].parentDeviceId === -1 "
           key="thirdStreamStatus"
           column-key="thirdStreamStatus"
           prop="thirdStreamStatus"

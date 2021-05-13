@@ -25,7 +25,7 @@
           </div>
         </el-form-item>
         <el-form-item label="设备类型:" prop="deviceType">
-          <el-select v-model="form.deviceType" placeholder="请选择" :disabled="isUpdate">
+          <el-select v-model="form.deviceType" placeholder="请选择" :disabled="isUpdate" @change="(form.multiStreamSize = 1) && (form.autoStreamNum = 1)">
             <el-option v-for="item in deviceTypeList" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -87,7 +87,7 @@
               v-for="multiStreamSize in multiStreamSizeList"
               :key="multiStreamSize.value"
               :label="multiStreamSize.value"
-              :disabled="multiStreamSize.value === 3"
+              :disabled="form.deviceType === 'nvr' && multiStreamSize.value === 3"
               @change="onMultiStreamSizeChange"
             >
               {{ multiStreamSize.label }}
