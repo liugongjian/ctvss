@@ -291,73 +291,6 @@ export const asyncRoutes: RouteConfig[] = [
       }
     ]
   },
-
-  // {
-  //   path: '/stream',
-  //   component: Layout,
-  //   meta: {
-  //     title: '流管理',
-  //     icon: 'stream',
-  //     perms: ['GET'],
-  //     alwaysShow: false,
-  //     only: true,
-  //     groupSelector: true
-  //   },
-  //   children: [
-  //     {
-  //       path: '',
-  //       component: () => import(/* webpackChunkName: "stream" */ '@/views/stream/index.vue'),
-  //       name: 'stream',
-  //       meta: {
-  //         title: '流管理',
-  //         icon: 'stream',
-  //         breadcrumb: false,
-  //         perms: ['GET'],
-  //         activeMenu: '/stream',
-  //         groupSelector: true
-  //       }
-  //     },
-  //     {
-  //       path: 'info',
-  //       component: () => import(/* webpackChunkName: "stream" */ '@/views/stream/info.vue'),
-  //       name: 'stream-config',
-  //       meta: {
-  //         title: '流详情',
-  //         icon: 'stream',
-  //         hidden: true,
-  //         perms: ['GET'],
-  //         activeMenu: '/stream',
-  //         groupSelector: true
-  //       }
-  //     },
-  //     {
-  //       path: 'create',
-  //       component: () => import(/* webpackChunkName: "stream" */ '@/views/stream/create.vue'),
-  //       name: 'stream-create',
-  //       meta: {
-  //         title: '创建流',
-  //         icon: 'stream',
-  //         hidden: true,
-  //         perms: ['*'],
-  //         activeMenu: '/stream',
-  //         groupSelector: true
-  //       }
-  //     },
-  //     {
-  //       path: 'preview',
-  //       component: () => import(/* webpackChunkName: "stream" */ '@/views/stream/preview.vue'),
-  //       name: 'stream-preview',
-  //       meta: {
-  //         title: '实时预览',
-  //         icon: 'tree',
-  //         hidden: true,
-  //         perms: ['*'],
-  //         activeMenu: '/stream',
-  //         groupSelector: true
-  //       }
-  //     }
-  //   ]
-  // },
   {
     path: '/screen',
     component: Layout,
@@ -462,9 +395,20 @@ export const asyncRoutes: RouteConfig[] = [
       {
         path: 'gb28121-create',
         component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/create.vue'),
-        name: 'up-platform-create',
+        name: 'up-platform-gb28121-create',
         meta: {
           title: '新建国标级联',
+          hidden: true,
+          perms: ['GET'],
+          activeMenu: '/up-platform/gb28121'
+        }
+      },
+      {
+        path: 'gb28121-update',
+        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/create.vue'),
+        name: 'up-platform-gb28121-update',
+        meta: {
+          title: '编辑国标级联',
           hidden: true,
           perms: ['GET'],
           activeMenu: '/up-platform/gb28121'

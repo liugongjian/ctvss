@@ -23,7 +23,7 @@
           <el-input v-model="form.sipIp" />
         </el-form-item>
         <el-form-item label="SIP服务端口:" prop="sipPort">
-          <el-input v-model="form.sipPort" />
+          <el-input v-model.number="form.sipPort" />
         </el-form-item>
         <el-form-item label="设备国标编号:" prop="gbId">
           <el-input v-model="form.gbId" />
@@ -137,7 +137,7 @@
 </template>
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
-import { createPlatform } from '@/api/upPlatform'
+import { createPlatform, getPlatform } from '@/api/upPlatform'
 import { getRegions } from '@/api/region'
 
 @Component({
@@ -179,7 +179,8 @@ export default class extends Vue {
       { validator: this.validateSipIp, trigger: 'blur' }
     ],
     sipPort: [
-      { required: true, message: '请输入SIP服务端口', trigger: 'blur' }
+      { required: true, message: '请输入SIP服务端口', trigger: 'blur' },
+      { validator: this.validateSipPort, trigger: 'blur' }
     ],
     cascadeRegion: [
       { required: true, message: '请选择级联区域', trigger: 'blur' }
@@ -203,9 +204,23 @@ export default class extends Vue {
     ]
   }
 
+  private get isUpdate() {
+    return this.$route.name === 'up-platform-gb28121-update'
+  }
+
   private mounted() {
     this.breadCrumbContent = this.$route.meta.title
+    if (this.isUpdate) {
+      this.getPlatformInfo()
+    }
     this.getRegionList()
+  }
+
+  private async getPlatformInfo() {
+    const platformId = this.$route.query.platformId
+    const res = await getPlatform({
+      platformId
+    })
   }
 
   /**
@@ -272,6 +287,17 @@ export default class extends Vue {
   private validateSipIp(rule: any, value: string, callback: Function) {
     if (value && !/^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/.test(value)) {
       callback(new Error('SIP服务IP格式不正确'))
+    } else {
+      callback()
+    }
+  }
+
+  /**
+   * 校验SIP服务端口格式
+   */
+  private validateSipPort(rule: any, value: string, callback: Function) {
+    if (!/^[0-9]$/.test(value)) {
+      callback(new Error('SIP服务端口格式不正确'))
     } else {
       callback()
     }

@@ -11,36 +11,14 @@
       </div>
       <div class="platform__list">
         <ul>
-          <li>
-            <span><svg-icon name="dot" /> 测试平台名称长的名称长的名称长的名称</span>
+          <li v-for="platform in platformList" :key="platform.platformId">
+            <span><svg-icon name="dot" /> {{ platform.name }}</span>
             <div class="tools">
               <el-tooltip class="item" effect="dark" content="编辑平台" placement="top" :open-delay="300">
-                <el-button type="text" @click.stop=""><svg-icon name="edit" /></el-button>
+                <el-button type="text" @click.stop="editPlatform(platform)"><svg-icon name="edit" /></el-button>
               </el-tooltip>
               <el-tooltip class="item" effect="dark" content="删除平台" placement="top" :open-delay="300">
-                <el-button type="text" @click.stop=""><svg-icon name="trash" /></el-button>
-              </el-tooltip>
-            </div>
-          </li>
-          <li>
-            <span><svg-icon name="dot" /> 测试平台名称长的名称长的名称长的名称</span>
-            <div class="tools">
-              <el-tooltip class="item" effect="dark" content="编辑平台" placement="top" :open-delay="300">
-                <el-button type="text" @click.stop=""><svg-icon name="edit" /></el-button>
-              </el-tooltip>
-              <el-tooltip class="item" effect="dark" content="删除平台" placement="top" :open-delay="300">
-                <el-button type="text" @click.stop=""><svg-icon name="trash" /></el-button>
-              </el-tooltip>
-            </div>
-          </li>
-          <li>
-            <span><svg-icon name="dot" /> 测试平台</span>
-            <div class="tools">
-              <el-tooltip class="item" effect="dark" content="编辑平台" placement="top" :open-delay="300">
-                <el-button type="text" @click.stop=""><svg-icon name="edit" /></el-button>
-              </el-tooltip>
-              <el-tooltip class="item" effect="dark" content="删除平台" placement="top" :open-delay="300">
-                <el-button type="text" @click.stop=""><svg-icon name="trash" /></el-button>
+                <el-button type="text" @click.stop="deletePlatform(platform)"><svg-icon name="trash" /></el-button>
               </el-tooltip>
             </div>
           </li>
@@ -151,6 +129,7 @@
 import { Component, Vue, Provide } from 'vue-property-decorator'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
+import { getPlatforms, deletePlatform } from '@/api/upPlatform'
 import AddDevices from './compontents/dialogs/AddDevices.vue'
 
 @Component({
@@ -161,6 +140,7 @@ import AddDevices from './compontents/dialogs/AddDevices.vue'
 })
 export default class extends Vue {
   private dirList: Array<any> = []
+  private platformList: Array<any> = []
   private dataList: any = []
   private breadcrumb: any = []
   public isExpanded = true
@@ -178,6 +158,7 @@ export default class extends Vue {
     total: 0
   }
   public loading = {
+    platform: false,
     dir: false,
     sharedDevices: false
   }
@@ -198,6 +179,7 @@ export default class extends Vue {
   }
 
   private mounted() {
+    this.getPlatformList()
     this.getList()
     this.initDirs()
     this.calMaxHeight()
@@ -206,6 +188,53 @@ export default class extends Vue {
 
   private destroyed() {
     window.removeEventListener('resize', this.calMaxHeight)
+  }
+
+  /**
+   * 查询上级平台列表
+   */
+  private async getPlatformList() {
+    try {
+      this.loading.platform = true
+      const res = await getPlatforms({
+        pageNum: 1,
+        pageSize: 1000
+      })
+      this.platformList = res.platforms
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.loading.platform = false
+    }
+  }
+
+  /**
+   * 删除上级平台
+   */
+  private deletePlatform(platform: any) {
+    this.$alertDelete({
+      type: '设备',
+      msg: `是否确认删除设备"${platform.name}"`,
+      method: deletePlatform,
+      payload: {
+        platformId: platform.platformId
+      },
+      onSuccess: () => {
+        this.getPlatformList()
+      }
+    })
+  }
+
+  /**
+   * 编辑上级平台
+   */
+  private editPlatform(platform: any) {
+    this.$router.push({
+      path: '/up-platform/gb28121-update',
+      query: {
+        platformId: platform.platformId
+      }
+    })
   }
 
   private async getList() {
