@@ -21,7 +21,7 @@ import DashboardMixin from './DashboardMixin'
 import { AlertType, AlertLevel, AlertIcon } from '@/dics'
 import DashboardContainer from './DashboardContainer.vue'
 import { getAuditList } from '@/api/dashboard'
-import { dateFormat } from '@/utils/date'
+import { dateFormat, getTimestamp } from '@/utils/date'
 import DashboardAlertLiveDetailDialog from './DashboardAlertLiveDetailDialog.vue'
 
 @Component({
@@ -53,15 +53,15 @@ export default class extends Mixins(DashboardMixin) {
       this.list.forEach((item:any) => {
         item.id = Math.random().toString(16).slice(-10)
         item.level = this.checkLevel(item)
-        item.isNew = this.lastTime && (new Date(item.timeStamp).getTime() > this.lastTime)
-        item.formatedTime = dateFormat(new Date(item.timeStamp), 'MM-dd HH:mm:ss')
+        item.isNew = this.lastTime && (getTimestamp(item.timeStamp) > this.lastTime)
+        item.formatedTime = dateFormat(new Date(getTimestamp(item.timeStamp)), 'MM-dd HH:mm:ss')
       })
       if (this.list.some((item: any) => item.isNew)) {
         const audio: any = this.$refs.audio
         audio.play()
       }
       if (this.list.length) {
-        this.lastTime = new Date(this.list[0].timeStamp).getTime()
+        this.lastTime = getTimestamp(this.list[0].timeStamp)
       }
     })
   }

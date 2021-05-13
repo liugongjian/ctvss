@@ -88,7 +88,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { dateFormatInTable, dateFormat, durationFormatInTable, prefixZero } from '@/utils/date'
+import { dateFormatInTable, dateFormat, durationFormatInTable, prefixZero, getLocaleDate, getTimestamp } from '@/utils/date'
 import { getDeviceRecords, getDeviceRecord, getDeviceRecordStatistic, getDeviceRecordRule } from '@/api/device'
 import ReplayPlayerDialog from './dialogs/ReplayPlayer.vue'
 import SliceDownloadDialog from './dialogs/SliceDownload.vue'
@@ -125,7 +125,7 @@ export default class extends Vue {
   private replayType = 'cloud'
   private currentRecord: any = null
   private currentListRecord: any = null
-  private currentDate = new Date(new Date().toLocaleDateString()).getTime()
+  private currentDate = getLocaleDate().getTime()
   private loading = false
   private recordList: Array<any> = []
   private recordListSlice: Array<any> = []
@@ -221,7 +221,7 @@ export default class extends Vue {
       if (startTime) {
         const recordLength = this.recordList.length
         res.records.forEach((record: any, index: number) => {
-          record.startAt = new Date(record.startTime).getTime()
+          record.startAt = getTimestamp(record.startTime)
           record.loading = false
           record.index = recordLength + index
           if (!~this.recordList.findIndex(_record => {
@@ -236,7 +236,7 @@ export default class extends Vue {
         }
       } else {
         this.recordList = res.records.map((record: any, index: number) => {
-          record.startAt = new Date(record.startTime).getTime()
+          record.startAt = getTimestamp(record.startTime)
           record.loading = false
           record.index = index
           return record

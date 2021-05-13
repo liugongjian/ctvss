@@ -25,7 +25,7 @@
           </div>
         </el-form-item>
         <el-form-item label="设备类型:" prop="deviceType">
-          <el-select v-model="form.deviceType" placeholder="请选择" :disabled="isUpdate">
+          <el-select v-model="form.deviceType" placeholder="请选择" :disabled="isUpdate" @change="clearValidate">
             <el-option v-for="item in deviceTypeList" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -66,7 +66,7 @@
           <el-input v-model="form.userName" />
         </el-form-item>
         <el-form-item v-if="form.inType === 'pull'" label="密码:" prop="password">
-          <el-input v-model.number="form.password" type="password" />
+          <el-input v-model="form.password" type="password" />
         </el-form-item>
         <el-form-item label="设备IP:" prop="deviceIp">
           <el-input v-model="form.deviceIp" />
