@@ -73,7 +73,7 @@ export const getDeviceTree = (params: any): Promise<any> =>
 /**
  * 获取设备预览地址
  */
-export const getDevicePreview = (params: any): Promise<any> =>
+export const getDevicePreview = (params: any, cancelToken?: any): Promise<any> =>
   request({
     url: '/device/preview',
     method: 'get',
@@ -81,13 +81,14 @@ export const getDevicePreview = (params: any): Promise<any> =>
       outProtocol: 'rtmp,flv,hls',
       type: params.type || 'live',
       ...params
-    }
+    },
+    cancelToken
   })
 
 /**
  * 获取设备录像列表
  */
-export const getDeviceRecords = (params: any, cancelToken: any): Promise<any> =>
+export const getDeviceRecords = (params: any, cancelToken?: any): Promise<any> =>
   request({
     url: '/record/list',
     method: 'get',

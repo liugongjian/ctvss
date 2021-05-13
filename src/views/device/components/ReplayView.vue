@@ -86,8 +86,8 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import axios from 'axios'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { dateFormatInTable, dateFormat, durationFormatInTable, prefixZero } from '@/utils/date'
 import { getDeviceRecords, getDeviceRecord, getDeviceRecordStatistic, getDeviceRecordRule } from '@/api/device'
 import ReplayPlayerDialog from './dialogs/ReplayPlayer.vue'
@@ -202,6 +202,7 @@ export default class extends Vue {
    * 切换日期
    */
   private changeDate() {
+    this.axiosSource.cancel()
     this.init()
   }
 
@@ -211,8 +212,7 @@ export default class extends Vue {
   private async getRecordList(startTime?: number) {
     try {
       this.loading = true
-      const cancelToken = axios.CancelToken
-      this.axiosSource = cancelToken.source()
+      this.axiosSource = axios.CancelToken.source()
       const res = await getDeviceRecords({
         deviceId: this.deviceId,
         inProtocol: this.inProtocol,

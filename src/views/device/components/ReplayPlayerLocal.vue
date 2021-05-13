@@ -64,6 +64,7 @@
   </div>
 </template>
 <script lang="ts">
+import axios from 'axios'
 import { Component, Prop, Watch, Mixins } from 'vue-property-decorator'
 import { getDeviceRecords, getDevicePreview, setRecordScale } from '@/api/device'
 import ReplayPlayerMixin from '@/views/device/mixin/replayPlayerMixin'
@@ -81,6 +82,10 @@ export default class extends Mixins(ReplayPlayerMixin) {
   private codec?: string = ''
   private loading = false
   private errorMessage = ''
+  private axiosSource: any = {
+    getRecordList: null,
+    getDevicePreview: null
+  }
 
   @Watch('startTime')
   private onStartTimeChange() {
@@ -92,9 +97,20 @@ export default class extends Mixins(ReplayPlayerMixin) {
     immediate: true
   })
   private async onCurrentDateChange() {
+    this.cancelAxios()
     this.currentTime = this.startTime = this.currentDate!
     await this.getRecordList()
     this.initVideoPlayer()
+  }
+
+  private destroyed() {
+    this.cancelAxios()
+  }
+
+  private cancelAxios() {
+    for (const key in this.axiosSource) {
+      this.axiosSource[key] && this.axiosSource[key].cancel()
+    }
   }
 
   /**
@@ -114,6 +130,7 @@ export default class extends Mixins(ReplayPlayerMixin) {
   private async getRecordList(startTime?: number) {
     try {
       this.loading = true
+      this.axiosSource.getRecordList = axios.CancelToken.source()
       const res = await getDeviceRecords({
         deviceId: this.deviceId,
         inProtocol: this.inProtocol,
@@ -121,7 +138,7 @@ export default class extends Mixins(ReplayPlayerMixin) {
         startTime: startTime || this.currentDate! / 1000,
         endTime: this.currentDate! / 1000 + 24 * 60 * 60 - 1,
         pageSize: 9999
-      })
+      }, this.axiosSource.getRecordList.token)
       // 追加最新的录像
       if (startTime) {
         const recordLength = this.recordList.length
@@ -165,13 +182,14 @@ export default class extends Mixins(ReplayPlayerMixin) {
       this.address = null
       const startTimeDate = new Date(this.startTime)
       const endTime = new Date(startTimeDate.getFullYear(), startTimeDate.getMonth(), startTimeDate.getDate() + 1)
+      this.axiosSource.getDevicePreview = axios.CancelToken.source()
       const res = await getDevicePreview({
         inProtocol: this.inProtocol,
         deviceId: this.deviceId,
         startTime: Math.floor(this.startTime! / 1000),
         endTime: Math.floor(endTime.getTime() / 1000 - 1),
         type: 'vod'
-      })
+      }, this.axiosSource.getDevicePreview)
       this.address = res.playUrl
       this.codec = res.video.codec
     } catch (e) {
