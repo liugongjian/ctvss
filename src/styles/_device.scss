@@ -186,6 +186,12 @@
   }
   &__container {
     padding: 15px;
+    .filter-container {
+      &__import-button {
+        display: inline-block;
+        margin-right: 10px;
+      }
+    }
   }
 
   &__expand {
