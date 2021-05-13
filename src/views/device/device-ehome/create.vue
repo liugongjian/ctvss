@@ -305,6 +305,9 @@ export default class extends Mixins(createMixin) {
           }
         }
       }
+      if (this.isChannel) {
+        this.form.deviceName = info.deviceName
+      }
       // 构建可选择的通道，排除已选择通道
       if (this.isChannel && info.deviceStats) {
         const channelSize = info.deviceStats.maxChannelSize
@@ -352,7 +355,8 @@ export default class extends Mixins(createMixin) {
               createSubDevice: this.isUpdate ? null : '2',
               parentDeviceId: this.isUpdate ? this.form.parentDeviceId : this.deviceId,
               channelName: this.form.channelName,
-              channelNum: this.form.channelNum
+              channelNum: this.form.channelNum,
+              deviceName: this.form.deviceName
             })
           }
           if (this.isUpdate) {
