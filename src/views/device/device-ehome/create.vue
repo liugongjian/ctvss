@@ -83,7 +83,13 @@
             </el-popover>
           </template>
           <el-radio-group v-model="form.multiStreamSize">
-            <el-radio v-for="multiStreamSize in multiStreamSizeList" :key="multiStreamSize.value" :label="multiStreamSize.value" @change="onMultiStreamSizeChange">
+            <el-radio
+              v-for="multiStreamSize in multiStreamSizeList"
+              :key="multiStreamSize.value"
+              :label="multiStreamSize.value"
+              :disabled="multiStreamSize.value === 3"
+              @change="onMultiStreamSizeChange"
+            >
               {{ multiStreamSize.label }}
             </el-radio>
           </el-radio-group>
