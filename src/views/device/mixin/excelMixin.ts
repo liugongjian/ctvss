@@ -37,7 +37,7 @@ export default class ExcelMixin extends Vue {
         { header: '设备用户名', key: 'userName', width: 10 },
         { header: '是否启用自动拉流', key: 'pullType', width: 16 },
         { header: '国标ID', key: 'gbId', width: 24 },
-        { header: '设备视频流优先传输协议', key: 'pullType', width: 24 },
+        { header: '设备视频流优先传输协议', key: 'transPriority', width: 24 },
         { header: '设备通道数量', key: 'channelSize', width: 16 },
         { header: '预设城市', key: 'city', width: 16 }
       ]
@@ -71,8 +71,7 @@ export default class ExcelMixin extends Vue {
         { header: '自动拉取第几个码流', key: 'multiStreamSize', width: 24 },
         { header: '是否启用自动拉流', key: 'pullType', width: 24 },
         { header: '是否启用自动激活推流地址', key: 'pushType', width: 24 },
-        { header: '拉流地址', key: 'pullUrl', width: 24 },
-        { header: '视频流标签', key: 'tags', width: 24 }
+        { header: '设备视频流优先传输协议', key: 'transPriority', width: 24 }
       ]
     }
   }
@@ -139,6 +138,13 @@ export default class ExcelMixin extends Vue {
       showInputMessage: true,
       showErrorMessage: true,
       prompt: '示例“{key1:value1,key2:value2}”'
+    },
+    transPriority: {
+      type: 'list',
+      allowBlank: true,
+      showErrorMessage: true,
+      formulae: ['"tcp,udp"'],
+      error: '请从选项中选择传输协议'
     }
   }
 
@@ -204,13 +210,7 @@ export default class ExcelMixin extends Vue {
       showErrorMessage: true,
       prompt: '当选择 “Platform” 设备类型时为必选'
     })
-    worksheet.dataValidations.add('K2:K9999', {
-      type: 'list',
-      allowBlank: true,
-      showErrorMessage: true,
-      formulae: ['"tcp,udp"'],
-      error: '请从选项中选择传输协议'
-    })
+    worksheet.dataValidations.add('K2:K9999', this.validation.transPriority)
     worksheet.dataValidations.add('L2:L9999', this.validation.channelSize)
     // worksheet.dataValidations.add('L2:L9999', {
     //   type: 'list',
@@ -271,7 +271,7 @@ export default class ExcelMixin extends Vue {
     })
     worksheet.dataValidations.add('M2:M9999', this.validation.pullType)
     worksheet.dataValidations.add('N2:N9999', this.validation.pushType)
-    worksheet.dataValidations.add('P2:P9999', this.validation.tags)
+    worksheet.dataValidations.add('O2:O9999', this.validation.transPriority)
   }
 
   /**

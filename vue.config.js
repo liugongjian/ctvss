@@ -39,14 +39,25 @@ module.exports = {
         secure: false,
         changeOrigin: true
       },
-      '/': {
-        // target: 'http://192.168.30.124:8081/'
-        // target: 'http://101.91.194.232:8090/'
-        target: 'http://182.43.127.35:9190' // 开发环境
-        // target: 'https://182.43.127.35:9180', // 测试环境
-        // secure: false
-        // target: 'http://182.43.127.35:9190'
-        // target: 'http://192.168.30.186:8081'
+      '/layout/': {
+        target: 'https://www.ctyun.cn/',
+        secure: false,
+        changeOrigin: true
+      },
+      '/gw': {
+        target: 'https://www.ctyun.cn',
+        secure: false,
+        changeOrigin: true
+      },
+      '/ctyun/signin': {
+        target: 'https://www.ctyun.cn/',
+        secure: false,
+        changeOrigin: true
+      },
+      '/services/user/ImageCode': {
+        target: 'https://www.ctyun.cn/',
+        secure: false,
+        changeOrigin: true
       },
       '/record2/': {
         target: 'https://www.ctyun.cn/',
