@@ -27,10 +27,10 @@
       </el-tooltip>
     </div>
     <template v-if="viewType === 'timeline'">
+      <div v-loading="loading" class="record-list-loading" />
       <replay-player
         v-if="replayType === 'cloud' && recordList.length"
         ref="replayPlayer"
-        v-loading="loading"
         :current-date="currentDate"
         :record-list="recordList"
         :has-playlive="hasPlaylive"
@@ -168,7 +168,7 @@ export default class extends Vue {
 
   private async destroyed() {
     clearInterval(this.recordInterval)
-    this.axiosSource.cancel()
+    this.axiosSource && this.axiosSource.cancel()
   }
 
   @Watch('$route.query')
@@ -400,6 +400,11 @@ export default class extends Vue {
     ::v-deep .el-loading-mask {
       background-color: rgba(0, 0, 0, 0.6);
     }
+  }
+  .record-list-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
   }
   .filter-container {
     text-align: right;
