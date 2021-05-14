@@ -215,6 +215,7 @@ export default class CreateMixin extends Vue {
         this.deviceInfo = res
         let deviceList = this.deviceInfo.deviceChannels.map((channel: any) => {
           channel.deviceType = 'ipc'
+          channel.multiStreamSize = this.deviceInfo.multiStreamSize
           channel.transPriority = this.deviceInfo.transPriority
           channel.sipTransType = this.deviceInfo.sipTransType
           channel.streamTransType = this.deviceInfo.streamTransType
