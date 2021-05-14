@@ -25,7 +25,7 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
   // Determine whether the user has logged in
   if (UserModule.token) {
     // 已登录
-    if (to.path === '/login' || to.path === '/login/subAccount' || to.path === '/reset-password') {
+    if (to.path.startsWith('/login') || to.path.startsWith('/login/subAccount') || to.path.startsWith('/reset-password')) {
       if (UserModule.ctLoginId) {
         setTimeout(() => MessageBox.confirm('您已通过天翼云登录，点击确认退出登录，是否继续？', '提示', {
           confirmButtonText: '确定',
