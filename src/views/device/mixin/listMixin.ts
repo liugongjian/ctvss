@@ -219,6 +219,7 @@ export default class CreateMixin extends Vue {
         if (res.parentDeviceId !== '-1' && res.deviceChannels.length) {
           res.deviceId = res.deviceChannels[0].deviceId
           res.deviceName = res.deviceChannels[0].channelName
+          res.channelNum = res.deviceChannels[0].channelNum
         }
         this.deviceList = [ res ]
       }
