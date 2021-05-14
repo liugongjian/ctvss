@@ -33,6 +33,7 @@ export default class CreateMixin extends Vue {
   public sipTransType = SipTransType
   public streamTransType = StreamTransType
   public transPriority = TransPriority
+  public parentDeviceId = ''
 
   public loading = {
     info: false,
@@ -83,6 +84,10 @@ export default class CreateMixin extends Vue {
 
   public get isNVR() {
     return this.$route.query.type === 'nvr'
+  }
+
+  public get isChannel() {
+    return this.$route.query.isChannel === 'true' || (this.parentDeviceId && this.parentDeviceId !== '-1')
   }
 
   public get isPlatform() {
@@ -236,6 +241,7 @@ export default class CreateMixin extends Vue {
         }
       } else if (type === 'ipc') {
         this.deviceInfo = null
+        this.parentDeviceId = res.parentDeviceId
         if (res.parentDeviceId !== '-1' && res.deviceChannels.length) {
           res.deviceId = res.deviceChannels[0].deviceId
           res.deviceName = res.deviceChannels[0].channelName

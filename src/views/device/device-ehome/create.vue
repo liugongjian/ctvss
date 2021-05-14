@@ -50,7 +50,7 @@
         </el-form-item>
         <el-form-item label="厂商:" prop="deviceVendor">
           <el-select v-model="form.deviceVendor">
-            <el-option v-for="item in deviceVendorList" :key="item" :label="item" :value="item" />
+            <el-option key="海康" label="海康" value="海康" />
           </el-select>
         </el-form-item>
         <el-form-item label="版本:" prop="ehomeVersion">
@@ -154,7 +154,7 @@
       <template v-else>
         <el-form-item label="厂商:" prop="deviceVendor">
           <el-select v-model="form.deviceVendor">
-            <el-option v-for="item in deviceVendorList" :key="item" :label="item" :value="item" />
+            <el-option key="海康" label="海康" value="海康" />
           </el-select>
         </el-form-item>
         <el-form-item label="通道号:" prop="channelNum">

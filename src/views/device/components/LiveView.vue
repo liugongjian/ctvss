@@ -40,7 +40,7 @@
           <el-button type="text" @click="copyUrl(address.hlsUrl)"><svg-icon name="copy" /></el-button>
         </el-tooltip>
       </info-list-item>
-      <info-list-item v-if="address.hlsUrl" label="WebRTC:">
+      <info-list-item v-if="address.webrtcUrl" label="WebRTC:">
         {{ address.webrtcUrl }}
         <el-tooltip class="item" effect="dark" content="复制链接" placement="top">
           <el-button type="text" @click="copyUrl(address.webrtcUrl)"><svg-icon name="copy" /></el-button>
