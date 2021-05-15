@@ -12,7 +12,7 @@ import { removeTicket } from '@/utils/cookies'
 NProgress.configure({ showSpinner: false })
 
 // const whiteList = ['/login', '/login/subAccount', '/reset-password', '/auth-redirect']
-const whiteList = ['/login', '/login/subAccount', '/reset-password']
+const whiteList = ['/login', '/login/subAccount', '/reset-password', '/login/', '/login/subAccount/', '/reset-password/']
 
 const getPageTitle = (key: string) => {
   return (key ? `${key} - ` : '') + settings.title
