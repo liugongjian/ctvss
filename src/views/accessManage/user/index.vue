@@ -327,7 +327,6 @@ export default class extends Vue {
 
   private closeAddDialog(data: any) {
     this.isShowDialog = false
-    this.showDailogSign = false
     if (data) {
       this.initGroupTree(data.type)
       this.getUserList()

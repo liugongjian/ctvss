@@ -1,132 +1,161 @@
 <template>
-  <div
-    class="dashboard-wrap"
-  >
-    <div class="dashboard-wrap__decorator" />
-    <div class="dashboard-wrap__header">
-      {{ name === 'tzszf' ? '泰州智能视频云' : '天翼云视频云网平台' }}
-    </div>
-    <DashboardMap />
-    <div class="dashboard-wrap__col dashboard-wrap__col--left">
-      <DashboardDevice height="19" />
-      <DashboardFlow height="19" />
-      <DashboardIntegrityRate height="19" />
-    </div>
-    <div class="dashboard-wrap__col dashboard-wrap__col--right">
-      <DashboardAlertLive height="19" />
-      <DashboardAlertToday height="19" />
-      <DashboardAlertTrend height="19" />
+  <div class="app-container">
+    <div class="dashboard-wrap">
+      <div class="dashboard-wrap__left">
+        <div class="dashboard-wrap__item">
+          <el-card class="dashboard-wrap__item__card">
+            <div slot="header">
+              <span>今日数据统计</span>
+            </div>
+            <div class="dashboard-wrap__item__card__content">
+              <div class="dashboard-wrap__cell">
+                <p class="dashboard-wrap__cell__head">今日上行流量峰值</p>
+                <p class="dashboard-wrap__cell__content">
+                  <span class="dashboard-wrap__num">49</span>Mbps
+                </p>
+              </div>
+              <div class="column-line" />
+              <div class="dashboard-wrap__cell">
+                <p class="dashboard-wrap__cell__head">今日下行流量峰值</p>
+                <p class="dashboard-wrap__cell__content">2</p>
+              </div>
+              <div class="column-line" />
+              <div class="dashboard-wrap__cell">
+                <p class="dashboard-wrap__cell__head">当前在线设备(在线/总数)</p>
+                <p class="dashboard-wrap__cell__content">2</p>
+              </div>
+            </div>
+          </el-card>
+        </div>
+        <div class="dashboard-wrap__item dashboard-wrap__chart">
+          <el-card class="dashboard-wrap__item__card">
+            <div slot="header">
+              <span>网络流量统计</span>
+            </div>
+          </el-card>
+        </div>
+        <div class="dashboard-wrap__item">
+          <el-card class="dashboard-wrap__item__card">
+            <div slot="header">
+              <span>资源包</span>
+            </div>
+          </el-card>
+        </div>
+      </div>
+      <div class="dashboard-wrap__right">
+        <div class="dashboard-wrap__item">
+          <el-card class="dashboard-wrap__item__card">
+            <div slot="header">
+              <span>AI能力</span>
+            </div>
+          </el-card>
+        </div>
+        <div class="dashboard-wrap__item">
+          <el-card class="dashboard-wrap__item__card">
+            <div slot="header">
+              <span>AI实时告警信息</span>
+            </div>
+          </el-card>
+        </div>
+        <div class="dashboard-wrap__item">
+          <el-card class="dashboard-wrap__item__card">
+            <div slot="header">
+              <span>AI今日告警统计</span>
+            </div>
+            <DashboardAlertToday
+              :is-light="true"
+            />
+          </el-card>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
-<script lang="ts">
+<script>
+import DashboardAlertToday from '@/views/dashboard/components/DashboardAlertToday.vue'
 import { Component, Vue } from 'vue-property-decorator'
-import { UserModule } from '@/store/modules/user'
-import DashboardDevice from '@/components/Dashboard/DashboardDevice.vue'
-import DashboardFlow from '@/components/Dashboard/DashboardFlow.vue'
-import DashboardAlertLive from '@/components/Dashboard/DashboardAlertLive.vue'
-import DashboardAlertToday from '@/components/Dashboard/DashboardAlertToday.vue'
-import DashboardIntegrityRate from '@/components/Dashboard/DashboardIntegrityRate.vue'
-import DashboardMap from '@/components/Dashboard/DashBoardMap.vue'
-import DashboardAlertTrend from '@/components/Dashboard/DashboardAlertTrend.vue'
-
 @Component({
   name: 'Dashboard',
   components: {
-    DashboardDevice,
-    DashboardFlow,
-    DashboardAlertLive,
-    DashboardAlertToday,
-    DashboardMap,
-    DashboardIntegrityRate,
-    DashboardAlertTrend
+    // DashboardDevice,
+    // DashboardFlow,
+    // DashboardAlertLive,
+    DashboardAlertToday
+    // DashboardMap,
+    // DashboardIntegrityRate,
+    // DashboardAlertTrend
   }
 })
 export default class extends Vue {
-  get name() {
-    return UserModule.name
-  }
-  private mounted() {
-  }
+
 }
 </script>
 
 <style lang="scss" scoped>
+  .el-card {
+    ::v-deep {
+      .el-card__header {
+        padding: 10px 18px;
+      }
+      .el-card__body {
+        padding: 10px 18px;
+      }
+    }
+  }
+  .column-line {
+    width: 1px;
+    border-left: 1px solid #BBBBBB;
+  }
   .dashboard-wrap {
+    display: flex;
+    flex-direction: row;
     position: relative;
-    background-color: #000649;
-    height: 100%;
+    height: 90vh;
     width: 100%;
-    font-size: 16px;
-    height: 100vh;
+    font-weight: 600;
     overflow: auto;
 
-    &__decorator {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 28%;
-      height: 80px;
-      z-index: 10;
-      background: url('./images/left_bg.png') no-repeat;
-      background-size: 100% auto;
+    &__item {
+      flex: 2;
+      padding: 10px;
+      flex-shrink: 0;
+      &__card {
+        height: 100%;
+        &__content {
+          display: flex;
+          flex-direction: row;
+        }
+      }
     }
-    &__header {
-      position: absolute;
-      z-index: 1;
-      left: 50%;
-      font-size: 1.8em;
-      color: #fff;
-      font-weight: bold;
-      width: 40%;
-      margin-left: -20%;
-      padding: 15px 0 50px 0;
+
+    &__cell {
+      flex: 1;
+      font-weight: normal;
       text-align: center;
-      letter-spacing: .5rem;
-      background: url('./images/title_bg.png') no-repeat;
-      background-size: 100% 100%;
-    }
-
-    &__col {
-      position: absolute;
-      width: 30%;
-      top: 5vh;
-      &--left {
-        left: 0.5em;
+      &__head {
+        margin: 0;
       }
-      &--right {
-        position: absolute;
-        right: 0.5em;
-      }
-      ::v-deep .dashboard-container {
-        margin-bottom: -1.5vh;
+      &__body {
+        .dashboard-wrap__num {
+          font-size: 30px;
+        }
       }
     }
 
-    ::v-deep .el-select {
-      width: 120px;
-      .el-input__inner {
-        background: none;
-        border-color: transparent;
-        color: #fff;
-        height: 2.5vh;
-        line-height: 2.5vh;
-        border-radius: 0;
-        color: #65cbd2;
-      }
-      .el-input--small .el-input__icon {
-        line-height: 2.5vh;
-        color: #65cbd2;
-      }
+    &__chart {
+      flex: 5;
     }
 
-    ::v-deep .el-loading-mask {
-      background: rgba(35, 59, 88, 0.6);
+    &__left {
+      display: flex;
+      flex: 5;
+      flex-direction: column;
     }
-
-    ::v-deep .g2-tooltip {
-      opacity: 0.85!important;
+    &__right {
+      display: flex;
+      flex: 3;
+      flex-direction: column;
     }
   }
 

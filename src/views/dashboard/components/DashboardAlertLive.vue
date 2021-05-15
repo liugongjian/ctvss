@@ -17,7 +17,7 @@
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
-import DashboardMixin from './DashboardMixin'
+import DashboardMixin from '../mixin/DashboardMixin'
 import { AlertType, AlertLevel, AlertIcon } from '@/dics'
 import DashboardContainer from './DashboardContainer.vue'
 import { getAuditList } from '@/api/dashboard'

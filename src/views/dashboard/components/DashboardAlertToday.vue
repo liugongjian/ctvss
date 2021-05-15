@@ -1,23 +1,31 @@
 <template>
-  <DashboardContainer title="今日告警统计">
+  <component :is="container" title="今日告警统计">
     <div ref="chart" :style="`height:${height}vh`" />
-  </DashboardContainer>
+  </component>
 </template>
 
 <script lang="ts">
-import { Component, Mixins } from 'vue-property-decorator'
-import DashboardMixin from './DashboardMixin'
+import { Component, Mixins, Prop } from 'vue-property-decorator'
+import DashboardMixin from '../mixin/DashboardMixin'
 import DashboardContainer from './DashboardContainer.vue'
+import DashboardLightContainer from './DashboardLightContainer.vue'
 import { Chart } from '@antv/g2'
 import { getAuditTrend } from '@/api/dashboard'
 
 @Component({
   name: 'DashboardAlertToday',
-  components: { DashboardContainer }
+  components: { DashboardContainer, DashboardLightContainer }
 })
 export default class extends Mixins(DashboardMixin) {
   private chart: any = null
   private chartData: any = []
+
+  @Prop({ default: false })
+  private isLight?: boolean
+
+  private get container() {
+    return this.isLight ? 'DashboardLightContainer' : 'DashboardContainer'
+  }
 
   private mounted() {
     this.setInterval(this.getDeviceStates)
@@ -61,7 +69,7 @@ export default class extends Mixins(DashboardMixin) {
         autoEllipsis: false,
         offset: 25,
         style: {
-          fill: '#D8D8D8',
+          fill: this.isLight ? '#333' : '#D8D8D8',
           fontSize: 14
         }
       }

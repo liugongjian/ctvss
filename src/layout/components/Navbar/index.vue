@@ -42,7 +42,7 @@
           <size-select class="right-menu-item hover-effect" />
         </el-tooltip>
       </template> -->
-      <template v-if="routerName === 'AI' || routerName === 'dashboard'">
+      <template v-if="routerName === 'AI' || routerName === 'visualizationDashboard'">
         <div class="links">
           <a :class="{'actived': !queryAlertType}" @click="routeToHome()">首页</a>
           <div v-for="group in alertTypeList" :key="group.name" class="dropdown">
@@ -182,8 +182,8 @@ export default class extends Vue {
   get routerName() {
     if (this.$route.name?.startsWith('AI-')) {
       return 'AI'
-    } else if (this.$route.name?.startsWith('dashboard')) {
-      return 'dashboard'
+    } else if (this.$route.name?.startsWith('visualizationDashboard')) {
+      return 'visualizationDashboard'
     } else {
       return this.$route.name
     }
@@ -524,7 +524,7 @@ export default class extends Vue {
     }
   }
 
-  &--dashboard, &--AI {
+  &--visualizationDashboard, &--AI {
     position: absolute;
     top: 0;
     width: 100%;
