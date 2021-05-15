@@ -131,7 +131,7 @@ export const asyncRoutes: RouteConfig[] = [
         }
       },
       {
-        path: 'ai',
+        path: 'dashboard',
         component: () => import(/* webpackChunkName: "dashboard" */ '@/views/dashboard/VisualizationDashboard.vue'),
         name: 'visualizationDashboard',
         meta: {

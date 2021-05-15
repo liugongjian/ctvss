@@ -1,26 +1,29 @@
 <template>
-  <DashboardContainer title="网络流量统计">
-    <template v-slot:header>
-      <el-select
-        v-model="userType"
-        size="small"
-        popper-class="dark-select"
-        @change="timeChange"
-      >
-        <el-option
-          v-for="time in timeList"
-          :key="time.value"
-          :label="time.label"
-          :value="time.value"
-        />
-      </el-select>
-    </template>
-    <div id="flow-container" :style="`height:${height}vh`" />
-  </DashboardContainer>
+  <div>
+    <DashboardContainer v-if="!isLight" title="网络流量统计">
+      <template v-slot:header>
+        <el-select
+          v-model="userType"
+          size="small"
+          popper-class="dark-select"
+          @change="timeChange"
+        >
+          <el-option
+            v-for="time in timeList"
+            :key="time.value"
+            :label="time.label"
+            :value="time.value"
+          />
+        </el-select>
+      </template>
+      <div id="flow-container" :style="`height:${height}vh`" />
+    </DashboardContainer>
+    <div v-else id="flow-container" :style="`height:${height}vh`" />
+  </div>
 </template>
 
 <script lang="ts">
-import { Component, Mixins } from 'vue-property-decorator'
+import { Component, Mixins, Prop } from 'vue-property-decorator'
 import { Chart } from '@antv/g2'
 import DashboardMixin from '../mixin/DashboardMixin'
 import DashboardContainer from './DashboardContainer.vue'
@@ -31,6 +34,9 @@ import { getFlowData } from '@/api/dashboard'
   components: { DashboardContainer }
 })
 export default class extends Mixins(DashboardMixin) {
+  @Prop({ default: false })
+  private isLight?: boolean
+
   private timeList: Array<{ label: string; value: number }> = [
     {
       label: '最近12小时',
