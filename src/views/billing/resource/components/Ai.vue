@@ -1,0 +1,25 @@
+<template>
+  <div>
+    <el-table v-loading="loading" :data="dataList">
+      <el-table-column prop="id" label="编号" width="120" />
+      <el-table-column prop="name" label="资源包" width="300" />
+      <el-table-column prop="amountDevice" label="可用设备总数（路）" />
+      <el-table-column prop="remainedDevice" label="设备余量（路）" />
+      <el-table-column prop="aiType" label="分析类型" />
+      <el-table-column prop="startDatetime" label="开通时间" />
+      <el-table-column prop="endDatetime" label="到期时间" />
+    </el-table>
+  </div>
+</template>
+
+<script lang="ts">
+import { Component, Mixins } from 'vue-property-decorator'
+import ResourceMixin from '../mixins/resource'
+
+@Component({
+  name: 'ResourceVideo'
+})
+export default class extends Mixins(ResourceMixin) {
+  public type = 'video'
+}
+</script>

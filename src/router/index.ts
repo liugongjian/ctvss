@@ -817,6 +817,31 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
+    path: '/billing',
+    component: Layout,
+    meta: {
+      id: '20210515200901012000',
+      title: '计费详情',
+      icon: 'key',
+      alwaysShow: true,
+      breadcrumb: false,
+      perms: ['*']
+    },
+    children: [
+      {
+        path: 'resource',
+        component: () => import(/* webpackChunkName: "billing" */ '@/views/billing/resource/index.vue'),
+        name: 'billing-resource',
+        meta: {
+          id: '20210515200901012001',
+          title: '资源包详情',
+          icon: 'dot',
+          perms: ['*']
+        }
+      }
+    ]
+  },
+  {
     path: '*',
     redirect: '/404',
     meta: { hidden: true }
