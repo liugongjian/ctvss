@@ -340,7 +340,10 @@ export default class extends Mixins(createMixin) {
           }
           if (!this.isChannel) {
             // 通用参数
-            params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'deviceIp', 'devicePort', 'pullType', 'ehomeVersion', 'transPriority', 'multiStreamSize', 'autoStreamNum']))
+            params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'deviceIp', 'devicePort', 'pullType', 'ehomeVersion', 'transPriority', 'multiStreamSize']))
+            if (this.form.pullType === 1) {
+              params = Object.assign(params, pick(this.form, ['autoStreamNum']))
+            }
             // NVR类型添加额外参数
             if (this.form.deviceType === 'nvr') {
               params = Object.assign(params, {
