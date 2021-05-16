@@ -57,7 +57,7 @@ export default class extends Mixins(DashboardMixin) {
       container: $container,
       autoFit: true,
       height: 120,
-      padding: [10, 40, 10, 140]
+      padding: [10, 50, 10, 140]
     })
 
     this.chart.axis('type', {
@@ -80,7 +80,7 @@ export default class extends Mixins(DashboardMixin) {
       grid: {
         line: {
           style: {
-            stroke: this.isLight ? '#BBBBBB' : '#434659'
+            stroke: this.isLight ? '#EEE' : '#434659'
           }
         }
       }
@@ -100,10 +100,10 @@ export default class extends Mixins(DashboardMixin) {
     this.chart
       .interval()
       .position('type*value')
-      .color('type', ['l(0) 0:#d21414 1:#880000', 'l(0) 0:#EDDE12 1:#FF810C', 'l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#9E10D7 1:#EB155B', 'l(0) 0:#B0FF1C 1:#1CB500', 'l(0) 0:#ffe21c 1:#bba300'])
+      .color('type', this.isLight ? '#FA8334' : ['l(0) 0:#d21414 1:#880000', 'l(0) 0:#EDDE12 1:#FF810C', 'l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#9E10D7 1:#EB155B', 'l(0) 0:#B0FF1C 1:#1CB500', 'l(0) 0:#ffe21c 1:#bba300'])
       .label('value', {
         style: {
-          fill: '#33DBE3'
+          fill: this.isLight ? '#4C4C4C' : '#33DBE3'
         },
         offset: 10
       })

@@ -1,5 +1,30 @@
 <template>
   <div :class="isLight? 'light-dashboard-wrap' :'dashboard-wrap'">
+    <div class="light-btns">
+      <el-dropdown trigger="click" placement="bottom-start" @command="goRouter">
+        <el-button>人脸识别<i class="el-icon-arrow-down el-icon--right" /></el-button>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item :command="6">未带口罩</el-dropdown-item>
+          <el-dropdown-item :command="4">人员布控</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+      <el-dropdown trigger="click" placement="bottom-start" @command="goRouter">
+        <el-button>人体识别<i class="el-icon-arrow-down el-icon--right" /></el-button>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item :command="8">人员聚集</el-dropdown-item>
+          <el-dropdown-item :command="5">吸烟检测</el-dropdown-item>
+          <el-dropdown-item :command="7">安全帽反光服检测</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+      <el-dropdown trigger="click" placement="bottom-start" @command="goRouter">
+        <el-button>场景识别<i class="el-icon-arrow-down el-icon--right" /></el-button>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item :command="9">危险区域检测</el-dropdown-item>
+          <el-dropdown-item :command="10">烟雾明火</el-dropdown-item>
+          <el-dropdown-item :command="11">冲压机</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+    </div>
     <div class="ai-recognation">
       <div class="ai-recognation__decorator--top" />
       <div class="ai-recognation__decorator--bottom" />
@@ -69,7 +94,7 @@
       v-if="dialog.fullscreen"
       :visible="true"
       :fullscreen="true"
-      custom-class="ai-image-fullscreen"
+      :custom-class="`${isLight ? 'light-' : ''}ai-image-fullscreen`"
       @close="dialog.fullscreen = false"
     >
       <div slot="title">{{ currentImg && currentImg.deviceName }} | {{ currentImg && currentImg.timestamp }}</div>
@@ -126,6 +151,17 @@ export default class extends Vue {
 
   private mounted() {
     this.getRecordAuditEvents()
+  }
+
+  private goRouter(type: any) {
+    let params: any = {
+      path: '/dashboard/ai',
+      query: {
+        type,
+        isLight: true
+      }
+    }
+    this.$router.push(params)
   }
 
   @Watch('$route.query')
@@ -220,11 +256,19 @@ export default class extends Vue {
 </script>
 
 <style lang="scss" scoped>
-  $lightColor: #A8A8A8;
+  $lightColor: #CCC;
   $lightFont: #4C4C4C;
+  .light-btns {
+    margin: 3vh 5vh;
+    .el-dropdown {
+      margin-right: 15px;
+    }
+  }
+
   .light-dashboard-wrap {
     background-color: #F6F6F6;
     .ai-recognation {
+      margin: 0vh 5vh;
       border: 2px solid $lightColor;
       &__empty {
         color: $lightFont;
@@ -263,8 +307,13 @@ export default class extends Vue {
         }
       }
       &__title {
+        margin: 20px 0;
+        img {
+          display: none;
+        }
         &--text {
           color: $lightFont;
+          left: 1vw;
         }
       }
       &__video {

@@ -61,11 +61,11 @@ export default class extends Vue {
   }
 
   private isDashboard(route: RouteRecord) {
-    const name = route && route.name
-    if (!name) {
+    const path = route && route.path
+    if (!path) {
       return false
     }
-    return name.trim().toLocaleLowerCase() === 'group-list'.toLocaleLowerCase()
+    return path.trim().toLocaleLowerCase() === '/dashboard'
   }
 
   private pathCompile(path: string) {

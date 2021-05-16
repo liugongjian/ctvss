@@ -44,7 +44,7 @@
       </template> -->
       <template v-if="(routerName === 'dashboardAI' && !isLight) || routerName === 'visualizationDashboard'">
         <div class="links">
-          <a :class="{'actived': !queryAlertType}" @click="routeToHome()">首页</a>
+          <a :class="{'actived': !queryAlertType}" @click="routeToHome()">可视化大屏</a>
           <div v-for="group in alertTypeList" :key="group.name" class="dropdown">
             {{ group.name }} <svg-icon name="arrow-down2" width="8" height="8" />
             <ul class="dropdown__menu">

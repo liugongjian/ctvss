@@ -85,3 +85,26 @@
     align-items: center;
   }
 }
+
+.el-dialog.is-fullscreen.light-ai-image-fullscreen {
+  width: 98%;
+  height: 98%;
+  margin: 1%;
+  display: flex;
+  flex-direction: column;
+  .el-dialog__header {
+    background: #fff;
+    padding: 20px;
+    color: $text;
+    .el-dialog__headerbtn .el-dialog__close {
+      color: $text;
+      font-size: 20px;
+    }
+  }
+  .el-dialog__body {
+    background: #fff;
+    flex: 1;
+    display: flex;
+    align-items: center;
+  }
+}

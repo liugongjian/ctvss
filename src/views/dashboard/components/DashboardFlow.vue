@@ -1,6 +1,6 @@
 <template>
   <div>
-    <DashboardContainer v-if="!isLight" title="网络流量统计">
+    <DashboardContainer v-if="!isLight" title="网络带宽统计">
       <template v-slot:header>
         <el-select
           v-model="userType"
@@ -81,12 +81,12 @@ export default class extends Mixins(DashboardMixin) {
         flowData.push(
           {
             time: key.split(' ')[1].slice(0, -3),
-            type: '入网流量',
+            type: '入网带宽',
             value: Math.floor(item['InFlow'] / 1024)
           },
           {
             time: key.split(' ')[1].slice(0, -3),
-            type: '出网流量',
+            type: '出网带宽',
             value: Math.floor(item['OutFlow'] / 1024)
           }
         )
@@ -129,19 +129,19 @@ export default class extends Mixins(DashboardMixin) {
       items: [
         {
           id: '1',
-          name: '出网流量',
+          name: '出网带宽',
           value: 'OutFlow',
           marker: {
             symbol: 'square',
             style: {
-              fill: '#EB155B'
+              fill: this.isLight ? '#FA8334' : '#EB155B'
             },
             spacing: 5
           }
         },
         {
           id: '2',
-          name: '入网流量',
+          name: '入网带宽',
           value: 'InFlow',
           marker: {
             symbol: 'square',
@@ -177,7 +177,7 @@ export default class extends Mixins(DashboardMixin) {
       grid: {
         line: {
           style: {
-            stroke: this.isLight ? '#BBBBBB' : '#434659'
+            stroke: this.isLight ? '#eee' : '#434659'
           }
         }
       }
@@ -193,7 +193,7 @@ export default class extends Mixins(DashboardMixin) {
       alias: 'Mbps'
     })
 
-    this.chart.line().position('time*value').color('type', ['l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#9E10D7 1:#EB155B']).shape('smooth')
+    this.chart.line().position('time*value').color('type', this.isLight ? ['#0091FF', '#FA8334'] : ['l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#9E10D7 1:#EB155B']).shape('smooth')
 
     // this.chart.point().position('time*value').color('type', ['#6F9FC9', '#F4C46C']).shape('circle')
 

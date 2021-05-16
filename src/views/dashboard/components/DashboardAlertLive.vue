@@ -11,7 +11,7 @@
       </li>
     </ul>
     <audio ref="audio" :src="require('@/assets/dashboard/alert.mp3')" preload="auto" />
-    <DashboardAlertLiveDetailDialog v-if="dialog" theme="dashboard-alert-live-dialog" :audit="currentItem" @on-close="closeDialog" />
+    <DashboardAlertLiveDetailDialog v-if="dialog" :is-light="isLight" theme="dashboard-alert-live-dialog" :audit="currentItem" @on-close="closeDialog" />
   </component>
 </template>
 

@@ -35,7 +35,7 @@
           <el-card class="dashboard-wrap__item__card">
             <el-tabs v-model="activePane" @tab-click="1">
               <el-tab-pane label="网络流量统计" name="网络流量统计">
-                <el-radio-group v-model="timeRange" size="small">
+                <el-radio-group v-model="flowTimeRange" size="small">
                   <el-radio-button label="今日" />
                   <el-radio-button label="昨日" />
                   <el-radio-button label="近7日" />>
@@ -46,7 +46,12 @@
                   :height="34"
                 />
               </el-tab-pane>
-              <el-tab-pane label="设备接入统计" name="设备接入统计">设备接入统计</el-tab-pane>
+              <el-tab-pane label="设备接入统计" name="设备接入统计">
+                <el-radio-group v-model="deviceTimeRange" size="small">
+                  <el-radio-button label="近7日" />
+                  <el-radio-button label="近30日" />>
+                </el-radio-group>
+              </el-tab-pane>
             </el-tabs>
           </el-card>
         </div>
@@ -96,7 +101,7 @@
           <el-card class="dashboard-wrap__item__card">
             <div slot="header">
               <span>AI能力</span>
-              <el-button type="primary" class="dash-btn" @click="$router.push('/dashboard/dashboard')">可视化大屏</el-button>
+              <el-button type="primary" class="dash-btn" @click="$router.push('/dashboard/visualization-dashboard')">可视化大屏</el-button>
             </div>
             <p class="dashboard-wrap__cell__head">人脸识别</p>
             <div class="dashboard-wrap__cell__list">
@@ -163,7 +168,8 @@ import { Component, Vue } from 'vue-property-decorator'
 })
 export default class extends Vue {
   private activePane = '网络流量统计'
-  private timeRange = '今日'
+  private flowTimeRange = '今日'
+  private deviceTimeRange = '近7日'
   private goRouter(type: any) {
     let params: any = {
       path: '/dashboard/ai',
@@ -187,8 +193,7 @@ export default class extends Vue {
 <style lang="scss" scoped>
   .dash-btn {
     float: right;
-    margin-right: -5px;
-    margin-top: -5px;
+    margin-top: 5px;
     width: 90px;
     font-size: 6px;
     height: 25px;
@@ -197,8 +202,12 @@ export default class extends Vue {
   .el-card {
     ::v-deep {
       .el-card__header {
-        padding: 10px 18px;
+        padding: 0;
         font-weight: 600;
+        font-size: 14px;
+        line-height: 40px;
+        margin: 5px 20px 0 20px;
+        border-bottom: 2px solid #DFE4ED
       }
       .el-card__body {
         padding: 15px 18px;
@@ -209,7 +218,7 @@ export default class extends Vue {
   .column-line {
     display: inline-block;
     width: 1px;
-    border-left: 1px solid #BBBBBB;
+    border-left: 1px solid #DFE4ED;
   }
   .dashboard-wrap {
     display: flex;
@@ -232,6 +241,7 @@ export default class extends Vue {
       &__card {
         height: 100%;
         &__content {
+          padding-top: 12px;
           display: flex;
           flex-direction: row;
         }
@@ -258,18 +268,25 @@ export default class extends Vue {
     }
 
     &__chart {
-      // flex: 5;
+      .el-card {
+        ::v-deep {
+          .el-card__body {
+            padding-top: 5px;
+          }
+          .el-tabs__item {
+            font-weight: bold;
+          }
+        }
+      }
     }
 
     &__left {
-      display: flex;
       flex: 5;
-      flex-direction: column;
+      min-width: 0px;
     }
     &__right {
-      display: flex;
       flex: 3;
-      flex-direction: column;
+      min-width: 0;
     }
   }
 
