@@ -216,6 +216,7 @@ export default class CreateMixin extends Vue {
         let deviceList = this.deviceInfo.deviceChannels.map((channel: any) => {
           channel.deviceType = 'ipc'
           channel.multiStreamSize = this.deviceInfo.multiStreamSize
+          channel.inProtocol = this.deviceInfo.inProtocol
           channel.transPriority = this.deviceInfo.transPriority
           channel.sipTransType = this.deviceInfo.sipTransType
           channel.streamTransType = this.deviceInfo.streamTransType
@@ -244,12 +245,13 @@ export default class CreateMixin extends Vue {
         this.deviceInfo = null
         this.parentDeviceId = res.parentDeviceId
         if (res.parentDeviceId !== '-1' && res.deviceChannels.length) {
-          res.deviceChannels[0].deviceName = res.deviceChannels[0].channelName
-          res.deviceChannels[0].deviceType = res.deviceType
-          this.deviceList = [ res.deviceChannels[0] ]
-        } else {
-          this.deviceList = [ res ]
+          res.deviceId = res.deviceChannels[0].deviceId
+          res.deviceName = res.deviceChannels[0].channelName
+          res.deviceStatus = res.deviceChannels[0].deviceStatus
+          res.recordStatus = res.deviceChannels[0].recordStatus
+          res.deviceStreams = res.deviceChannels[0].deviceStreams
         }
+        this.deviceList = [ res ]
       }
     } catch (e) {
       this.deviceInfo = null
