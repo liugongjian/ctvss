@@ -48,9 +48,6 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
         NProgress.done()
       }
     } else {
-      (<any>window).CtcloudLayout && (<any>window).CtcloudLayout.consoleLayout.match({
-        key: to.meta.name
-      })
       // Check whether the user has obtained his permission
       if (UserModule.perms.length === 0) {
         try {
@@ -62,12 +59,13 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
           PermissionModule.GenerateRoutes({ perms, iamUserId })
           // Dynamically add accessible routes
           router.addRoutes(PermissionModule.dynamicRoutes)
+          // 单点登录菜单高亮
+          UserModule.ctLoginId && (<any>window).CtcloudLayout && (<any>window).CtcloudLayout.consoleLayout.match({
+            key: to.meta.activeMenu || ('/' + to.name)
+          })
           // Hack: ensure addRoutes is complete
           // Set the replace: true, so the navigation will not leave a history record
           next({ ...to, replace: true })
-          // UserModule.ctLoginId && window.CtcloudLayout && window.CtcloudLayout.consoleLayout.match({
-          //   key: to.name
-          // })
         } catch (err) {
           // Remove token and redirect to login page
           UserModule.ResetToken()
@@ -76,10 +74,11 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
           NProgress.done()
         }
       } else {
+        // 单点登录菜单高亮
+        UserModule.ctLoginId && (<any>window).CtcloudLayout && (<any>window).CtcloudLayout.consoleLayout.match({
+          key: to.meta.activeMenu || ('/' + to.name)
+        })
         next()
-        // UserModule.ctLoginId && window.CtcloudLayout && window.CtcloudLayout.consoleLayout.match({
-        //   key: to.name
-        // })
       }
     }
   } else {
