@@ -36,7 +36,7 @@
           </el-dropdown-menu>
         </el-dropdown>
         <el-upload
-          v-if="!isNVR"
+          v-if="!isNVR && checkPermission(['*'])"
           ref="excelUpload"
           action="#"
           :show-file-list="false"
@@ -45,8 +45,8 @@
         >
           <el-button>导入</el-button>
         </el-upload>
-        <el-button @click="exportTemplate">下载模板</el-button>
-        <el-dropdown placement="bottom" @command="handleBatch">
+        <el-button v-permission="['*']" @click="exportTemplate">下载模板</el-button>
+        <el-dropdown v-permission="['*']" placement="bottom" @command="handleBatch">
           <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item v-if="!isNVR && !isPlatform" command="move">移动至</el-dropdown-item>
