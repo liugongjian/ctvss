@@ -7,6 +7,7 @@ import { UserModule } from '@/store/modules/user'
 import { PermissionModule } from '@/store/modules/permission'
 import { getLocalStorage } from '@/utils/storage'
 import settings from './settings'
+import { removeTicket } from '@/utils/cookies'
 
 NProgress.configure({ showSpinner: false })
 
@@ -33,6 +34,7 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
           closeOnClickModal: false,
           type: 'warning'
         }).then(async() => {
+          removeTicket()
           await UserModule.LogOut()
           window.location.href = 'https://www.ctyun.cn/sign/out'
         }).catch(err => {

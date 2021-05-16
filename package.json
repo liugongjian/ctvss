@@ -5,9 +5,11 @@
   "author": "CTG <CTG@chinatelecom.cn>",
   "scripts": {
     "serve": "vue-cli-service serve --env dev",
+    "serve:local": "vue-cli-service serve --env local",
     "serve:dev": "vue-cli-service serve --env dev",
     "serve:test": "vue-cli-service serve --env test",
     "serve:prod": "vue-cli-service serve --env prod",
+    "serve:local-https": "vue-cli-service serve --env local --https",
     "serve:dev-https": "vue-cli-service serve --env dev --https",
     "serve:test-https": "vue-cli-service serve --env test --https",
     "serve:prod-https": "vue-cli-service serve --env prod --https",

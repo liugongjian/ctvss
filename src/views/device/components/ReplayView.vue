@@ -63,6 +63,7 @@
     </template>
     <div v-else class="replay-time-list">
       <el-table v-loading="loading" :data="recordListSlice" empty-text="所选日期暂无录像">
+        <el-table-column label="录像名称" prop="templateName" min-width="100" />
         <el-table-column label="开始时间" prop="startAt" min-width="180" :formatter="dateFormatInTable" />
         <el-table-column label="时长" prop="duration" :formatter="durationFormatInTable" />
         <el-table-column prop="action" label="操作" width="200" fixed="right">
