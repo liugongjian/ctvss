@@ -80,10 +80,15 @@ export default class extends Mixins(DashboardMixin) {
       grid: {
         line: {
           style: {
-            stroke: '#434659'
+            stroke: this.isLight ? '#BBBBBB' : '#434659'
           }
         }
       }
+    })
+
+    // 设置间距
+    this.chart.scale('y', {
+      tickInterval: 1000
     })
 
     this.chart

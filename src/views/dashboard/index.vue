@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div id="container" class="app-container">
     <div class="dashboard-wrap">
       <div class="dashboard-wrap__left">
         <div class="dashboard-wrap__item">
@@ -43,7 +43,7 @@
                 </el-radio-group>
                 <DashboardFlow
                   :is-light="true"
-                  :height="19"
+                  :height="34"
                 />
               </el-tab-pane>
               <el-tab-pane label="设备接入统计" name="设备接入统计">设备接入统计</el-tab-pane>
@@ -100,25 +100,25 @@
             </div>
             <p class="dashboard-wrap__cell__head">人脸识别</p>
             <div class="dashboard-wrap__cell__list">
-              <el-button size="medium" type="text">未带口罩</el-button>
+              <el-button size="medium" type="text" @click="goRouter(6)">未带口罩</el-button>
               <div class="column-line" />
-              <el-button size="medium" type="text">人员布控</el-button>
+              <el-button size="medium" type="text" @click="goRouter(4)">人员布控</el-button>
             </div>
             <p class="dashboard-wrap__cell__head">人体识别</p>
             <div class="dashboard-wrap__cell__list">
-              <el-button size="medium" type="text">人员聚集</el-button>
+              <el-button size="medium" type="text" @click="goRouter(8)">人员聚集</el-button>
               <div class="column-line" />
-              <el-button size="medium" type="text">吸烟检测</el-button>
+              <el-button size="medium" type="text" @click="goRouter(5)">吸烟检测</el-button>
               <div class="column-line" />
-              <el-button size="medium" type="text">安全帽反光服检测</el-button>
+              <el-button size="medium" type="text" @click="goRouter(7)">安全帽反光服检测</el-button>
             </div>
             <p class="dashboard-wrap__cell__head">场景识别</p>
             <div class="dashboard-wrap__cell__list">
-              <el-button size="medium" type="text">危险区域检测</el-button>
+              <el-button size="medium" type="text" @click="goRouter(9)">危险区域检测</el-button>
               <div class="column-line" />
-              <el-button size="medium" type="text">烟雾明火</el-button>
+              <el-button size="medium" type="text" @click="goRouter(10)">烟雾明火</el-button>
               <div class="column-line" />
-              <el-button size="medium" type="text">冲压机</el-button>
+              <el-button size="medium" type="text" @click="goRouter(11)">冲压机</el-button>
             </div>
           </el-card>
         </div>
@@ -139,6 +139,7 @@
             </div>
             <DashboardAlertToday
               :is-light="true"
+              :height="19"
             />
           </el-card>
         </div>
@@ -163,6 +164,23 @@ import { Component, Vue } from 'vue-property-decorator'
 export default class extends Vue {
   private activePane = '网络流量统计'
   private timeRange = '今日'
+  private goRouter(type: any) {
+    let params: any = {
+      path: '/dashboard/ai',
+      query: {
+        type,
+        isLight: true
+      }
+    }
+    this.$router.push(params)
+  }
+  private mounted() {
+    // window.onresize = () => {
+    //   const wrap: any = document.getElementsByClassName('dashboard-wrap')
+    //   // wrap.style.width = document.body.clientWidth + 'px'
+    //   console.log(wrap);
+    // }
+  }
 }
 </script>
 
@@ -234,7 +252,7 @@ export default class extends Vue {
         margin: 5px 0;
         .column-line {
           height: 14px;
-          margin: 0 20px;
+          margin: 0 15px;
         }
       }
     }
@@ -246,7 +264,6 @@ export default class extends Vue {
     &__left {
       display: flex;
       flex: 5;
-      flex-shrink: 0;
       flex-direction: column;
     }
     &__right {

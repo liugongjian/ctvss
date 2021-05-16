@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard-wrap">
+  <div :class="isLight? 'light-dashboard-wrap' :'dashboard-wrap'">
     <div class="ai-recognation">
       <div class="ai-recognation__decorator--top" />
       <div class="ai-recognation__decorator--bottom" />
@@ -120,6 +120,10 @@ export default class extends Vue {
     return params.type.toString()
   }
 
+  get isLight() {
+    return this.$route.query.isLight
+  }
+
   private mounted() {
     this.getRecordAuditEvents()
   }
@@ -216,6 +220,97 @@ export default class extends Vue {
 </script>
 
 <style lang="scss" scoped>
+  $lightColor: #A8A8A8;
+  $lightFont: #4C4C4C;
+  .light-dashboard-wrap {
+    background-color: #F6F6F6;
+    .ai-recognation {
+      border: 2px solid $lightColor;
+      &__empty {
+        color: $lightFont;
+      }
+      &__decorator--top,
+      &__decorator--bottom {
+        &::before, &::after {
+          border: 7px solid $lightColor;
+        }
+      }
+      &__decorator--top {
+        top: -3px;
+        &::before {
+          border-right: 0;
+          border-bottom: 0;
+        }
+        &::after {
+          right: -8px;
+          border-left: 0;
+          border-bottom: 0;
+        }
+      }
+      &__decorator--bottom {
+        bottom: -3px;
+        &::before, &::after {
+          bottom: -3px;
+        }
+        &::before {
+          border-right: 0;
+          border-top: 0;
+        }
+        &::after {
+          right: -8px;
+          border-left: 0;
+          border-top: 0;
+        }
+      }
+      &__title {
+        &--text {
+          color: $lightFont;
+        }
+      }
+      &__video {
+        border: 1px solid $lightColor;
+        &__loading {
+          color: $lightFont;
+        }
+      }
+      &__images {
+        &__item {
+          border: 1px solid $lightColor;
+          border-left: 5px solid $lightColor;
+          border-right: 5px solid $lightColor;
+          &__count {
+            color: $lightFont;
+          }
+          &__decorator--top,
+          &__decorator--bottom {
+            &::before, &::after {
+              border-top: 7px solid $lightColor;
+            }
+          }
+          &--datetime {
+            color: #cccccc;
+            background: rgba(100, 100, 100, 0.4);
+          }
+          &__tools {
+            color: $lightFont;
+          }
+        }
+      }
+      &__bottom {
+        &--fresh {
+          background: $primary;
+          color: #ffffff;
+        }
+
+        .el-pagination {
+          ::v-deep .el-pager li, ::v-deep .btn-prev, ::v-deep  .btn-next {
+            color: $lightFont;
+          }
+        }
+      }
+    }
+  }
+
   .dashboard-wrap {
     position: relative;
     background-color: #070f2e;

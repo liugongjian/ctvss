@@ -154,7 +154,7 @@ export default class extends Mixins(DashboardMixin) {
       ],
       itemName: {
         style: {
-          fill: '#eeeeee'
+          fill: this.isLight ? '#505050' : '#eeeeee'
           // fontSize: 14
         },
         formatter: (text: any, item: any) => item.name
@@ -170,14 +170,14 @@ export default class extends Mixins(DashboardMixin) {
       },
       title: {
         style: {
-          fill: '#98CFFF',
+          fill: this.isLight ? '#505050' : '#98CFFF',
           fontSize: 14
         }
       },
       grid: {
         line: {
           style: {
-            stroke: '#434659'
+            stroke: this.isLight ? '#BBBBBB' : '#434659'
           }
         }
       }
