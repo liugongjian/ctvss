@@ -48,6 +48,9 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
         NProgress.done()
       }
     } else {
+      (<any>window).CtcloudLayout && (<any>window).CtcloudLayout.consoleLayout.match({
+        key: to.meta.name
+      })
       // Check whether the user has obtained his permission
       if (UserModule.perms.length === 0) {
         try {
