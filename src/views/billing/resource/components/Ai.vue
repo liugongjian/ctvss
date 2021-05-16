@@ -17,9 +17,9 @@ import { Component, Mixins } from 'vue-property-decorator'
 import ResourceMixin from '../mixins/resource'
 
 @Component({
-  name: 'ResourceVideo'
+  name: 'ResourceAI'
 })
 export default class extends Mixins(ResourceMixin) {
-  public type = 'video'
+  public type = 'ai'
 }
 </script>

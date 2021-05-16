@@ -24,7 +24,7 @@ import Bandwidth from './components/Bandwidth.vue'
 import Ai from './components/Ai.vue'
 
 @Component({
-  name: 'FaceRecognation',
+  name: 'BillingResource',
   components: {
     Video,
     Bandwidth,

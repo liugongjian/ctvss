@@ -19,9 +19,9 @@ import { Component, Mixins } from 'vue-property-decorator'
 import ResourceMixin from '../mixins/resource'
 
 @Component({
-  name: 'ResourceVideo'
+  name: 'ResourceBandwidth'
 })
 export default class extends Mixins(ResourceMixin) {
-  public type = 'video'
+  public type = 'bandwidth'
 }
 </script>
