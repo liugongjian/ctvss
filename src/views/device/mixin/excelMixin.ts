@@ -238,7 +238,13 @@ export default class ExcelMixin extends Vue {
 
   private rtmpOptionsInit(worksheet: any) {
     worksheet.dataValidations.add('A2:A9999', this.validation.inType)
-    worksheet.dataValidations.add('B2:B9999', this.validation.deviceType)
+    worksheet.dataValidations.add('B2:B9999', {
+      type: 'list',
+      allowBlank: false,
+      showErrorMessage: true,
+      formulae: ['"IPC"'],
+      error: '请选择设备类型'
+    })
     worksheet.dataValidations.add('C2:C9999', this.validation.deviceVendor)
     worksheet.dataValidations.add('D2:D9999', this.validation.deviceName)
     worksheet.dataValidations.add('F2:F9999', this.validation.pullType)
@@ -248,7 +254,13 @@ export default class ExcelMixin extends Vue {
 
   private rtspOptionsInit(worksheet: any) {
     worksheet.dataValidations.add('A2:A9999', this.validation.inType)
-    worksheet.dataValidations.add('B2:B9999', this.validation.deviceType)
+    worksheet.dataValidations.add('B2:B9999', {
+      type: 'list',
+      allowBlank: false,
+      showErrorMessage: true,
+      formulae: ['"IPC,NVR"'],
+      error: '请选择设备类型'
+    })
     worksheet.dataValidations.add('C2:C9999', this.validation.deviceVendor)
     worksheet.dataValidations.add('D2:D9999', this.validation.deviceName)
     worksheet.dataValidations.add('J2:J9999', this.validation.channelSize)
