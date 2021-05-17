@@ -187,10 +187,20 @@
   }
   &__container {
     padding: 15px;
+    min-width: 685px;
     .filter-container {
       &__import-button {
         display: inline-block;
         margin-right: 10px;
+      }
+      .el-button + .filter-container__import-button {
+        margin-left: 10px;
+      }
+      .el-dropdown + .filter-container__import-button {
+        margin-left: 10px;
+      }
+      .el-dropdown + .el-button {
+        margin-left: 10px;
       }
     }
   }
