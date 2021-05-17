@@ -152,7 +152,8 @@ export const asyncRoutes: RouteConfig[] = [
           title: '业务组管理',
           icon: 'tree',
           breadcrumb: false,
-          perms: ['GET']
+          perms: ['GET'],
+          activeMenu: '/group'
         }
       },
       {
@@ -430,6 +431,7 @@ export const asyncRoutes: RouteConfig[] = [
   {
     path: '/certificate',
     component: Layout,
+    name: 'certificate',
     meta: {
       id: '20210424150201007000',
       title: '凭证管理',
@@ -448,7 +450,8 @@ export const asyncRoutes: RouteConfig[] = [
           name: 'certificate',
           title: 'GB28181凭证',
           icon: 'dot',
-          perms: ['*']
+          perms: ['*'],
+          activeMenu: '/certificate/gb28181'
         }
       },
       {
@@ -459,7 +462,8 @@ export const asyncRoutes: RouteConfig[] = [
           id: '20210424150201007002',
           title: '新建GB28181凭证',
           hidden: true,
-          perms: ['*']
+          perms: ['*'],
+          activeMenu: '/certificate/gb28181'
         }
       },
       {
@@ -470,7 +474,8 @@ export const asyncRoutes: RouteConfig[] = [
           id: '20210424150201007003',
           title: '编辑GB28181凭证',
           hidden: true,
-          perms: ['*']
+          perms: ['*'],
+          activeMenu: '/certificate/gb28181'
         }
       }
     ]
@@ -497,7 +502,8 @@ export const asyncRoutes: RouteConfig[] = [
           id: '20210424150201008001',
           title: '录制模板',
           icon: 'dot',
-          perms: ['*']
+          perms: ['*'],
+          activeMenu: '/template/record'
         }
       },
       {
@@ -532,7 +538,8 @@ export const asyncRoutes: RouteConfig[] = [
           id: '20210424150201008004',
           title: '回调模板',
           icon: 'dot',
-          perms: ['*']
+          perms: ['*'],
+          activeMenu: '/template/callback'
         }
       },
       {
@@ -567,7 +574,8 @@ export const asyncRoutes: RouteConfig[] = [
           id: '20210424150201008007',
           title: 'AI模板',
           icon: 'dot',
-          perms: ['*']
+          perms: ['*'],
+          activeMenu: '/template/ai'
         }
       },
       {

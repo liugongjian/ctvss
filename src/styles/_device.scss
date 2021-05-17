@@ -80,18 +80,19 @@
           font-size: 16px;
         }
       }
-      &__root {
-        border-bottom: 1px solid $borderGrey;
-        margin: 0 -10px 5px -10px;
-        padding: 0 15px 10px 15px;
-        cursor: pointer;
-        .svg-icon {
-          color: #C0C4CC;
-          margin-right: 10px !important;
-        }
-      }
       &__tree {
         padding: 10px;
+
+        &--root {
+          border-bottom: 1px solid $borderGrey;
+          padding: 5px 5px 7px 5px;
+          margin-bottom: 5px;
+          cursor: pointer;
+
+          &.actived {
+            background: #f3f3f3;
+          }
+        }
 
         .polling-button {
           margin-bottom: 10px;
