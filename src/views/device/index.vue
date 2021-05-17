@@ -24,6 +24,7 @@
               </el-tooltip>
             </div>
             <div v-loading="loading.dir" class="dir-list__tree device-list__max-height" :style="{height: `${maxHeight}px`}">
+              <div class="dir-list__tree--root" :class="{'actived': isRootDir}" @click="gotoRoot"><svg-icon name="component" width="12px" />根目录</div>
               <el-tree
                 ref="dirTree"
                 empty-text="暂无目录或设备"
