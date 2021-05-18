@@ -1,23 +1,31 @@
 <template>
-  <DashboardContainer title="今日告警统计">
+  <component :is="container" title="今日告警统计">
     <div ref="chart" :style="`height:${height}vh`" />
-  </DashboardContainer>
+  </component>
 </template>
 
 <script lang="ts">
-import { Component, Mixins } from 'vue-property-decorator'
-import DashboardMixin from './DashboardMixin'
+import { Component, Mixins, Prop } from 'vue-property-decorator'
+import DashboardMixin from '../mixin/DashboardMixin'
 import DashboardContainer from './DashboardContainer.vue'
+import DashboardLightContainer from './DashboardLightContainer.vue'
 import { Chart } from '@antv/g2'
 import { getAuditTrend } from '@/api/dashboard'
 
 @Component({
   name: 'DashboardAlertToday',
-  components: { DashboardContainer }
+  components: { DashboardContainer, DashboardLightContainer }
 })
 export default class extends Mixins(DashboardMixin) {
   private chart: any = null
   private chartData: any = []
+
+  @Prop({ default: false })
+  private isLight?: boolean
+
+  private get container() {
+    return this.isLight ? 'DashboardLightContainer' : 'DashboardContainer'
+  }
 
   private mounted() {
     this.setInterval(this.getDeviceStates)
@@ -49,7 +57,7 @@ export default class extends Mixins(DashboardMixin) {
       container: $container,
       autoFit: true,
       height: 120,
-      padding: [10, 40, 10, 140]
+      padding: [10, 50, 10, 140]
     })
 
     this.chart.axis('type', {
@@ -61,7 +69,7 @@ export default class extends Mixins(DashboardMixin) {
         autoEllipsis: false,
         offset: 25,
         style: {
-          fill: '#D8D8D8',
+          fill: this.isLight ? '#333' : '#D8D8D8',
           fontSize: 14
         }
       }
@@ -72,10 +80,15 @@ export default class extends Mixins(DashboardMixin) {
       grid: {
         line: {
           style: {
-            stroke: '#434659'
+            stroke: this.isLight ? '#EEE' : '#434659'
           }
         }
       }
+    })
+
+    // 设置间距
+    this.chart.scale('y', {
+      tickInterval: 1000
     })
 
     this.chart
@@ -87,10 +100,10 @@ export default class extends Mixins(DashboardMixin) {
     this.chart
       .interval()
       .position('type*value')
-      .color('type', ['l(0) 0:#d21414 1:#880000', 'l(0) 0:#EDDE12 1:#FF810C', 'l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#9E10D7 1:#EB155B', 'l(0) 0:#B0FF1C 1:#1CB500', 'l(0) 0:#ffe21c 1:#bba300'])
+      .color('type', this.isLight ? '#FA8334' : ['l(0) 0:#d21414 1:#880000', 'l(0) 0:#EDDE12 1:#FF810C', 'l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#9E10D7 1:#EB155B', 'l(0) 0:#B0FF1C 1:#1CB500', 'l(0) 0:#ffe21c 1:#bba300'])
       .label('value', {
         style: {
-          fill: '#33DBE3'
+          fill: this.isLight ? '#4C4C4C' : '#33DBE3'
         },
         offset: 10
       })

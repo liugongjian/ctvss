@@ -1,14 +1,14 @@
 <template>
   <el-dialog
     title="告警详情"
-    :custom-class="theme"
+    :custom-class="{theme: !isLight}"
     :visible="dialogVisible"
     :close-on-click-modal="true"
     width="50%"
     center
     @close="closeDialog"
   >
-    <div v-loading="loading" class="alert" :class="theme">
+    <div v-loading="loading" class="alert" :class="{theme: true, 'light-alert': isLight}">
       <div class="alert-header">
         <div class="alert-header__type">事件类型: {{ alertType[audit.event] }}</div>
         <div class="alert-header__device">{{ audit.deviceName }}</div>
@@ -78,6 +78,8 @@ export default class extends Vue {
   private auditDetail: any = null
   private loading = false
   private error: any = null
+  @Prop({ default: false })
+  private isLight?: boolean
 
   private mounted() {
     // this.getRecordAudits()
@@ -128,6 +130,45 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
+  $lightColor: #CCC;
+  .light-alert {
+    .alert-header {
+      border-bottom: 1px solid $lightColor;
+    }
+    .alert-body {
+      &__image {
+        border: 1px solid $lightColor;
+        border-left: 5px solid $lightColor;
+        border-right: 5px solid $lightColor;
+        &__mask {
+          &__count {
+            color: $text;
+          }
+        }
+        &__decorator--top,
+        &__decorator--bottom {
+          position: absolute;
+          width: 100%;
+          left: 0;
+          &::before, &::after {
+            border-top: 7px solid $lightColor;
+          }
+          &::before {
+            left: 0;
+          }
+          &::after {
+            right: 0;
+          }
+        }
+      }
+    }
+    .dashboard-alert-live-dialog {
+      .alert-body {
+        border-top: 1px solid #6086a6;
+      }
+    }
+  }
+
   .alert {
     min-height: 10vh;
   }

@@ -7,7 +7,7 @@
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import { Chart } from '@antv/g2'
-import DashboardMixin from './DashboardMixin'
+import DashboardMixin from '../mixin/DashboardMixin'
 import DashboardContainer from './DashboardContainer.vue'
 import { getAuditTrend } from '@/api/dashboard'
 import { AlertType } from '@/dics'

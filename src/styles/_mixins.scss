@@ -6,3 +6,40 @@
     clear: both;
   }
 }
+
+@mixin filter-buttons {
+  .filter-buttons {
+    display: flex;
+    .filter-button {
+      position: relative;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      line-height: 26px;
+      padding-right: 24px;
+      margin-right: 10px;
+      overflow: hidden;
+      transition: border 100ms;
+      cursor: pointer;
+      label {
+        display: inline-block;
+        background: #f1f1f1;
+        padding: 0 10px;
+        margin-right: 8px;
+        cursor: pointer;
+      }
+      &__close {
+        position: absolute;
+        right: 6px;
+        top: 8px;
+        color: #bbb;
+        transition: border 100ms;
+      }
+      &:hover {
+        border-color: $primary;
+        .filter-button__close {
+          color: $primary;
+        }
+      }
+    }
+  }
+}
