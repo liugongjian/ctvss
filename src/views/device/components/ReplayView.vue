@@ -27,10 +27,10 @@
       </el-tooltip>
     </div>
     <template v-if="viewType === 'timeline'">
+      <div v-loading="loading" class="replay-view__loading" />
       <replay-player
         v-if="replayType === 'cloud' && recordList.length"
         ref="replayPlayer"
-        v-loading="loading"
         :current-date="currentDate"
         :record-list="recordList"
         :has-playlive="hasPlaylive"
@@ -395,6 +395,9 @@ export default class extends Vue {
   .replay-view {
     ::v-deep .el-loading-mask {
       background-color: rgba(0, 0, 0, 0.6);
+    }
+    &__loading {
+      top: 50%;
     }
   }
   .filter-container {
