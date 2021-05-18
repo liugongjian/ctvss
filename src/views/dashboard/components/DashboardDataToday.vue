@@ -44,7 +44,7 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import DashboardLightContainer from './DashboardLightContainer.vue'
 import DashboardMixin from '../mixin/DashboardMixin'
-import { getDeviceStates, getBindwidthStates } from '@/api/dashboard'
+import { getDeviceStates, getBandwidthStates } from '@/api/dashboard'
 
 @Component({
   name: 'DashboardDataToday',
@@ -75,14 +75,14 @@ export default class extends Mixins(DashboardMixin) {
    */
   private getData() {
     this.getDeviceStates()
-    this.getBindwidthStates()
+    this.getBandwidthStates()
   }
 
   /**
    * 获取带宽数据
    */
-  private async getBindwidthStates() {
-    const res = await getBindwidthStates(null)
+  private async getBandwidthStates() {
+    const res = await getBandwidthStates(null)
     this.stats['realUpstreamBandwidth'] = res.realUpstreamBandwidth
     this.stats['realDownstreamBandwidth'] = res.realDownstreamBandwidth
     this.stats['upstreamBandwidth'] = res.upstreamBandwidth

@@ -6,7 +6,7 @@
         <p class="dashboard-wrap-overview__cell__content">
           <span class="dashboard-wrap-overview__num">{{ packageData.video }}</span> 个
         </p>
-        <el-button v-if="packageData.video" type="text">详情</el-button>
+        <el-button v-if="packageData.video" type="text" @click="goRouter('video')">详情</el-button>
       </div>
       <div class="column-line" />
       <div class="dashboard-wrap-overview__cell">
@@ -14,7 +14,7 @@
         <p class="dashboard-wrap-overview__cell__content">
           <span class="dashboard-wrap-overview__num">{{ packageData.uploadBandwidth }}</span> 个
         </p>
-        <el-button v-if="packageData.upstreamBandwidth" type="text">详情</el-button>
+        <el-button v-if="packageData.uploadBandwidth" type="text" @click="goRouter('bandwidth')">详情</el-button>
       </div>
       <div class="column-line" />
       <div class="dashboard-wrap-overview__cell">
@@ -22,7 +22,7 @@
         <p class="dashboard-wrap-overview__cell__content">
           <span class="dashboard-wrap-overview__num">{{ packageData.downloadBandwidth }}</span> 个
         </p>
-        <el-button v-if="packageData.downstreamBandwidth" type="text">详情</el-button>
+        <el-button v-if="packageData.downloadBandwidth" type="text" @click="goRouter('bandwidth')">详情</el-button>
       </div>
       <div class="column-line" />
       <div class="dashboard-wrap-overview__cell">
@@ -31,7 +31,7 @@
           <span class="dashboard-wrap-overview__num">{{ packageData.ai }}</span> 个
         </p>
         <p class="dashboard-wrap-overview__cell__bottom">
-          <el-button v-if="packageData.ai" type="text">详情</el-button>
+          <el-button v-if="packageData.ai" type="text" @click="goRouter('ai')">详情</el-button>
         </p>
       </div>
     </div>
@@ -71,6 +71,15 @@ export default class extends Vue {
   private async getResourceCount() {
     const res = await getResourceCount(null)
     this.packageData = res
+  }
+
+  private goRouter(type: any) {
+    this.$router.push({
+      path: 'billing/resource',
+      query: {
+        type
+      }
+    })
   }
 }
 </script>

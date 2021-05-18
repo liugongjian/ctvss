@@ -2,15 +2,15 @@
   <div class="app-container">
     <el-tabs v-model="activeName" type="border-card" @tab-click="onTabClick">
       <el-tab-pane name="video">
-        <span slot="label">视频包({{ resourceCount.video }})</span>
+        <span slot="label">视频包<span v-if="resourceCount.video">({{ resourceCount.video }})</span></span>
         <Video />
       </el-tab-pane>
       <el-tab-pane name="bandwidth">
-        <span slot="label">带宽包({{ resourceCount.downloadBandwidth + resourceCount.uploadBandwidth }})</span>
+        <span slot="label">带宽包<span v-if="resourceCount.downloadBandwidth && resourceCount.uploadBandwidth">({{ resourceCount.downloadBandwidth + resourceCount.uploadBandwidth }})</span></span>
         <Bandwidth />
       </el-tab-pane>
       <el-tab-pane name="ai">
-        <span slot="label">AI包({{ resourceCount.ai }})</span>
+        <span slot="label">AI包<span v-if="resourceCount.ai">({{ resourceCount.ai }})</span></span>
         <Ai />
       </el-tab-pane>
     </el-tabs>

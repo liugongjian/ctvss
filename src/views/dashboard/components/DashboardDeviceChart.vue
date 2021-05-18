@@ -91,7 +91,7 @@ export default class extends Mixins(DashboardMixin) {
     this.chart = new Chart({
       container: 'device-container',
       autoFit: true,
-      padding: [20, 30, 45, 60]
+      padding: [20, 30, 45, 70]
     })
     this.chart.data(this.deviceData)
     this.chart.scale('value', {
@@ -110,7 +110,7 @@ export default class extends Mixins(DashboardMixin) {
         }
       },
       title: {
-        offset: 50
+        offset: 60
       },
       grid: {
         line: {

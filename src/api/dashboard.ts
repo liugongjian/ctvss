@@ -29,7 +29,7 @@ export const getResourceCount = (params: any): Promise<any> =>
     params
   })
 
-export const getBindwidthStates = (params: any): Promise<any> =>
+export const getBandwidthStates = (params: any): Promise<any> =>
   request({
     url: '/statistics/bandwidth',
     method: 'get',
