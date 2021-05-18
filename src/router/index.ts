@@ -834,7 +834,7 @@ export const asyncRoutes: RouteConfig[] = [
     meta: {
       id: '20210515200901012000',
       title: '计费详情',
-      icon: 'key',
+      icon: 'billing',
       alwaysShow: true,
       breadcrumb: false,
       perms: ['*']
@@ -846,7 +846,7 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'billing-resource',
         meta: {
           id: '20210515200901012001',
-          title: '资源包详情',
+          title: '资源包管理',
           icon: 'dot',
           perms: ['*']
         }

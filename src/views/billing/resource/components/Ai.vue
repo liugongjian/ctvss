@@ -2,12 +2,23 @@
   <div>
     <el-table v-loading="loading" :data="dataList">
       <el-table-column prop="id" label="编号" width="120" />
-      <el-table-column prop="name" label="资源包" width="300" />
-      <el-table-column prop="amountDevice" label="可用设备总数（路）" />
-      <el-table-column prop="remainedDevice" label="设备余量（路）" />
-      <el-table-column prop="aiType" label="分析类型" />
-      <el-table-column prop="startDatetime" label="开通时间" />
-      <el-table-column prop="endDatetime" label="到期时间" />
+      <el-table-column prop="totalDeviceCount" label="可接入设备总数">
+        <template slot-scope="{row}">
+          {{ row.totalDeviceCount }}路
+        </template>
+      </el-table-column>
+      <el-table-column prop="remainDeviceCount" label="接入设备余量">
+        <template slot-scope="{row}">
+          {{ row.remainDeviceCount }}路
+        </template>
+      </el-table-column>
+      <el-table-column prop="aiType" label="分析类型">
+        <template slot-scope="{row}">
+          {{ resourceAiType[row.aiType] }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="createTime" label="开通时间" />
+      <el-table-column prop="expireTime" label="到期时间" />
     </el-table>
   </div>
 </template>
@@ -20,6 +31,6 @@ import ResourceMixin from '../mixins/resource'
   name: 'ResourceAI'
 })
 export default class extends Mixins(ResourceMixin) {
-  public type = 'ai'
+  public type = 'VSS_AI'
 }
 </script>

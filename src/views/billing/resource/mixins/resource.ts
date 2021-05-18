@@ -1,11 +1,14 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { getResources } from '@/api/billing'
+import { ResourceType, ResourceAiType } from '@/dics'
 
 @Component
 export default class ResourceMixin extends Vue {
   public type = ''
   public loading = false
   public dataList: any = []
+  public resourceType = ResourceType
+  public resourceAiType = ResourceAiType
 
   public mounted() {
     this.getResource()
@@ -21,22 +24,9 @@ export default class ResourceMixin extends Vue {
         type: this.type
       }
       let res: any = await getResources(params)
-      this.dataList = res.list
+      this.dataList = res.resPkgList
     } catch (e) {
-      this.dataList = [
-        {
-          id: '111',
-          name: '上行带宽包-100路-2Mbps码率-2Mbps带宽',
-          amountDevice: 120,
-          remainedDevice: 12,
-          rate: 2,
-          bandwidth: 2,
-          aiType: '秒级',
-          duration: '30天',
-          startDatetime: '2021-05-01 23:23:23',
-          endDatetime: '2021-05-01 23:23:23'
-        }
-      ]
+      console.log(e)
     } finally {
       this.loading = false
     }

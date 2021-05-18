@@ -5,7 +5,7 @@ import request from '@/utils/request'
  */
 export const getResources = (params: any): Promise<any> =>
   request({
-    url: '/billing/resource/list',
+    url: '/resource/list',
     method: 'get',
     params
   })
