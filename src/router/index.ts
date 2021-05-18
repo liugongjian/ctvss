@@ -100,7 +100,7 @@ export const asyncRoutes: RouteConfig[] = [
     component: Layout,
     meta: {
       id: '20210424150201001000',
-      title: '首页',
+      title: '概览',
       icon: 'dashboard',
       breadcrumb: false,
       perms: ['GET'],
@@ -113,9 +113,9 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'dashboard',
         meta: {
           id: '20210424150201001001',
-          title: '首页',
+          title: '概览',
           icon: 'dashboard',
-          breadcrumb: false
+          breadcrumb: true
         }
       },
       {
@@ -125,6 +125,18 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           id: '20210424150201001002',
           title: 'AI监控告警',
+          hidden: true,
+          icon: 'dashboard',
+          breadcrumb: false
+        }
+      },
+      {
+        path: 'visualization-dashboard',
+        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/dashboard/VisualizationDashboard.vue'),
+        name: 'visualizationDashboard',
+        meta: {
+          id: '20210424150201001003',
+          title: '可视化大屏',
           hidden: true,
           icon: 'dashboard',
           breadcrumb: false

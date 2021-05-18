@@ -29,7 +29,7 @@ export default class extends Vue {
     position: relative;
     color: #fff;
     padding: 2.7vh 5vh 4vh 5vh;
-    background: url('./images/box.png') no-repeat;
+    background: url('../images/box.png') no-repeat;
     background-size: 100% 100%;
 
     // Header

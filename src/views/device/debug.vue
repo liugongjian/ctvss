@@ -46,6 +46,7 @@ import Player from './components/Player.vue'
 export default class extends Vue {
   private form: any = {}
   private codec = ''
+  private type = ''
   private url = ''
   private isLive = false
 

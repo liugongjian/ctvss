@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
-import DashboardMixin from './DashboardMixin'
+import DashboardMixin from '../mixin/DashboardMixin'
 import DashboardContainer from './DashboardContainer.vue'
 import { Chart } from '@antv/g2'
 import { getDeviceStates } from '@/api/dashboard'
@@ -107,7 +107,7 @@ export default class extends Mixins(DashboardMixin) {
       display: flex;
       align-items: center;
       justify-items: center;
-      background: url('./images/circle.png') no-repeat;
+      background: url('../images/circle.png') no-repeat;
       background-size: auto 100%;
       background-position: center;
       padding: 2vh;
