@@ -290,7 +290,7 @@ export default class extends Vue {
 
   private routeToHome() {
     this.$router.push({
-      path: '/dashboard/dashboard'
+      path: '/dashboard/visualization-dashboard'
     })
   }
 }

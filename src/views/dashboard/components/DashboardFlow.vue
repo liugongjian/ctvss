@@ -10,15 +10,20 @@
         >
           <el-option
             v-for="time in timeList"
-            :key="time.value"
-            :label="time.label"
-            :value="time.value"
+            :key="time"
+            :label="time"
+            :value="time"
           />
         </el-select>
       </template>
       <div id="flow-container" :style="`height:${height}vh`" />
     </DashboardContainer>
-    <div v-else id="flow-container" :style="`height:${height}vh`" />
+    <div v-else>
+      <el-radio-group v-model="userType" size="small" @change="timeChange">
+        <el-radio-button v-for="(time, key) in timeList" :key="key" :label="time" />
+      </el-radio-group>
+      <div id="flow-container" :style="`height:${height}vh`" />
+    </div>
   </div>
 </template>
 
@@ -36,23 +41,25 @@ import { getFlowData } from '@/api/dashboard'
 export default class extends Mixins(DashboardMixin) {
   @Prop({ default: false })
   private isLight?: boolean
+  private flowTimeRange = '今日'
 
-  private timeList: Array<{ label: string; value: number }> = [
-    {
-      label: '最近12小时',
-      value: 12 * 60 * 60 * 1000
-    },
-    {
-      label: '最近6小时',
-      value: 6 * 60 * 60 * 1000
-    },
-    {
-      label: '最近3小时',
-      value: 3 * 60 * 60 * 1000
-    }
-  ]
+  // private timeList: Array<{ label: string; value: number }> = [
+  //   {
+  //     label: '最近12小时',
+  //     value: 12 * 60 * 60 * 1000
+  //   },
+  //   {
+  //     label: '最近6小时',
+  //     value: 6 * 60 * 60 * 1000
+  //   },
+  //   {
+  //     label: '最近3小时',
+  //     value: 3 * 60 * 60 * 1000
+  //   }
+  // ]
+  private timeList: any = ['今日', '昨日', '近7日', '近30日']
   private flowData: any = []
-  private userType = 12 * 60 * 60 * 1000
+  private userType: any = '今日'
   private chart: any = null
   public intervalTime = 60 * 1000
 
@@ -68,9 +75,29 @@ export default class extends Mixins(DashboardMixin) {
    * 获取数据
    */
   private async getData() {
+    let start: any
+    let end: any
+    const today: any = new Date().setHours(0, 0, 0, 0)
+    switch (this.userType) {
+      case '今日':
+        end = new Date()
+        start = new Date(today)
+        break
+      case '昨日':
+        end = new Date(today)
+        start = new Date(new Date(today).getTime() - 24 * 3600 * 1000)
+        break
+      case '近7日':
+        end = new Date()
+        start = new Date(end.getTime() - 7 * 24 * 3600 * 1000)
+        break
+      case '近30日':
+        end = new Date()
+        start = new Date(end.getTime() - 30 * 24 * 3600 * 1000)
+        break
+    }
     try {
-      const end: any = new Date()
-      const start: any = new Date(end - this.userType)
+      console.log(this.dateFormat(start), this.dateFormat(end))
       const res = await getFlowData({
         StartTime: this.dateFormat(start),
         EndTime: this.dateFormat(end)
@@ -94,6 +121,7 @@ export default class extends Mixins(DashboardMixin) {
       this.flowData = flowData
       this.chart ? this.updateChart() : this.drawChart()
     } catch (e) {
+      console.log(e)
       // 异常处理
     }
   }

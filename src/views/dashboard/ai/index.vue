@@ -1,6 +1,6 @@
 <template>
   <div :class="isLight? 'light-dashboard-wrap' :'dashboard-wrap'">
-    <div class="light-btns">
+    <div v-if="isLight" class="light-btns">
       <el-dropdown trigger="click" placement="bottom-start" @command="goRouter">
         <el-button>人脸识别<i class="el-icon-arrow-down el-icon--right" /></el-button>
         <el-dropdown-menu slot="dropdown">
@@ -145,7 +145,7 @@ export default class extends Vue {
     return params.type.toString()
   }
 
-  get isLight() {
+  private get isLight() {
     return this.$route.query.isLight
   }
 

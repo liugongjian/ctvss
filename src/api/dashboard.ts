@@ -8,9 +8,30 @@ export const getFlowData = (params: any): Promise<any> =>
     params
   })
 
+export const getDeviceData = (params: any): Promise<any> =>
+  request({
+    url: '/statistics/device/date',
+    method: 'get',
+    params
+  })
+
 export const getDeviceStates = (params: any): Promise<any> =>
   request({
     url: '/statistics/device',
+    method: 'get',
+    params
+  })
+
+export const getResourceCount = (params: any): Promise<any> =>
+  request({
+    url: '/resource/count',
+    method: 'get',
+    params
+  })
+
+export const getBindwidthStates = (params: any): Promise<any> =>
+  request({
+    url: '/statistics/bandwidth',
     method: 'get',
     params
   })
