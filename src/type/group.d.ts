@@ -16,4 +16,6 @@ export interface Group {
   sipUdpPort?: number;
   pullType?: number;
   pushType?: number;
+  inNetworkType?: string;
+  outNetworkType?: string;
 }

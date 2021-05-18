@@ -26,6 +26,12 @@
             <info-list-item label="自动拉流:">{{ PullType[form.pullType] }}</info-list-item>
             <info-list-item label="自动激活推流地址:">{{ PushType[form.pushType] }}</info-list-item>
           </template>
+          <info-list-item label="接入网络:">
+            {{ form.inNetworkType === 'private' ? '专线网络' : '互联网' }}
+          </info-list-item>
+          <info-list-item label="播放网络:">
+            {{ form.outNetworkType === 'private' ? '专线网络' : '互联网' }}
+          </info-list-item>
         </info-list>
       </el-tab-pane>
       <el-tab-pane label="模板配置" name="template">
