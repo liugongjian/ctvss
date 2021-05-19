@@ -24,7 +24,7 @@ const settings: ISettings = {
   sidebarTextTheme: true,
   devServerPort: 9527,
   mockServerPort: 9528,
-  casLoginUrl: '/v1/cas/callback',
+  casLoginUrl: './v1/cas/callback',
   mainLoginUrl: '/login',
   subLoginUrl: '/login/subAccount'
 }
