@@ -11,8 +11,8 @@ export const createPlayer = (config: any) => {
   if (!config.type) {
     throw new Error('不支持当前视频类型')
   }
-  // 使用ws播放
-  config.source = config.isWs ? config.source.replace('http://', 'ws://') : config.source
+  // 根据协议替换source
+  config.source = replaceProtocol(config)
   const player = initPlayer(config)
   if (!player) {
     throw new Error('播放器创建失败')
@@ -36,4 +36,20 @@ const initPlayer = (config: any) => {
         return new RtcPlayer(config)
     }
   }
+}
+
+const replaceProtocol = (config: any) => {
+  let source = config.source
+  const isHttps = window.location.protocol === 'https:'
+  if (isHttps) {
+    source = source.replace('http://', 'https://')
+  }
+  if (config.isWs) {
+    if (isHttps) {
+      source = source.replace('https://', 'wss://')
+    } else {
+      source = source.replace('http://', 'ws://')
+    }
+  }
+  return source
 }

@@ -71,7 +71,7 @@ export default class extends Vue {
     this.url = ''
     this.$nextTick(() => {
       this.codec = this.form.codec
-      this.type = this.form.codec
+      this.type = this.form.type
       this.url = this.form.url
       this.isLive = this.form.isLive
     })
