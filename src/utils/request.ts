@@ -1,6 +1,8 @@
 import axios from 'axios'
 import { MessageBox } from 'element-ui'
 import { UserModule } from '@/store/modules/user'
+import { getLocalStorage } from '@/utils/storage'
+import settings from '@/settings'
 
 class VSSError extends Error {
   constructor(public code: string, message: string) {
@@ -42,12 +44,20 @@ service.interceptors.response.use(
         {
           confirmButtonText: '重新登录',
           cancelButtonText: '取消',
+          closeOnClickModal: false,
           type: 'warning'
         }
       )
       timeoutPromise.then(() => {
+        const loginType = getLocalStorage('loginType')
         UserModule.ResetToken()
-        location.reload() // To prevent bugs from vue-router
+        if (loginType === 'sub') {
+          window.location.href = `#${settings.subLoginUrl}?redirect=%2Fdashboard`
+        } else if (loginType === 'main') {
+          window.location.href = `#${settings.mainLoginUrl}?redirect=%2Fdashboard`
+        } else {
+          window.location.href = `${settings.casLoginUrl}?redirect=%2Fdashboard`
+        }
       })
     }
     const data = error.response && error.response.data

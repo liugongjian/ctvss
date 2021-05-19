@@ -1,46 +1,86 @@
 const path = require('path')
+const environment = process.argv[3] === '--env' ? process.argv[4] : 'dev'
+const isHttps = process.argv[process.argv.length - 1] === '--https'
+const name = '天翼云视频云网平台-客户控制台'
+const serverAddressMapping = {
+  local: 'http://192.168.30.181:9180', // 本地环境
+  dev: 'http://182.43.127.35:9190', // 开发环境
+  test: 'https://182.43.127.35:9180', // 测试环境
+  prod: 'http://console.vcn.ctyun.cn' // 生产环境
+}
+const portMapping = {
+  local: 9180,
+  dev: 9190,
+  test: 9180,
+  prod: 443
+}
+const serverAddress = serverAddressMapping[environment]
+const devServerPort = portMapping[environment]
 
-// If your port is set to 80,
-// use administrator privileges to execute the command line.
-// For example, on Mac: sudo npm run / sudo yarn
-const devServerPort = 9527 // TODO: get this variable from setting.ts
-const mockServerPort = 9528 // TODO: get this variable from setting.ts
-const name = '天翼云视频云网平台-客户控制台' // TODO: get this variable from setting.ts
+console.info(`启动${environment}环境:`, serverAddress)
+console.info(`是否开启https:`, isHttps)
 
 module.exports = {
-  publicPath: process.env.NODE_ENV === 'production' ? './' : '/',
+  publicPath: process.env.NODE_ENV === 'production' ? '/vss/' : '/',
   lintOnSave: process.env.NODE_ENV === 'development',
   productionSourceMap: false,
   devServer: {
     port: devServerPort,
     open: true,
+    openPage: '#/login',
     overlay: {
       warnings: false,
       errors: true
     },
     progress: false,
     proxy: {
-      // change xxx-api/login => /mock-api/v1/login
-      // detail: https://cli.vuejs.org/config/#devserver-proxy
-      [process.env.VUE_APP_BASE_API]: {
-        target: `http://localhost:${mockServerPort}/mock-api/v1`,
-        changeOrigin: true, // needed for virtual hosted sites
-        ws: true, // proxy websockets
-        pathRewrite: {
-          ['^' + process.env.VUE_APP_BASE_API]: ''
-        }
+      '/ctyun/': {
+        target: 'https://www.ctyun.cn/',
+        secure: false,
+        changeOrigin: true
+      },
+      '/layout/': {
+        target: 'https://www.ctyun.cn/',
+        secure: false,
+        changeOrigin: true
+      },
+      '/gw': {
+        target: 'https://www.ctyun.cn',
+        secure: false,
+        changeOrigin: true
+      },
+      '/ctyun/signin': {
+        target: 'https://www.ctyun.cn/',
+        secure: false,
+        changeOrigin: true
+      },
+      '/services/user/ImageCode': {
+        target: 'https://www.ctyun.cn/',
+        secure: false,
+        changeOrigin: true
+      },
+      '/record2/': {
+        target: 'https://www.ctyun.cn/',
+        secure: false,
+        changeOrigin: true
+      },
+      '/ctyunfile/': {
+        target: 'https://www.ctyun.cn/',
+        secure: false,
+        changeOrigin: true
+      },
+      '/cloudapp/': {
+        target: 'https://www.ctyun.cn/',
+        secure: false,
+        changeOrigin: true
       },
       '/': {
-        // target: 'http://192.168.30.124:8081/'
-        // target: 'http://101.91.194.232:8090/'
-        target: 'http://182.43.127.35:9190' // 开发环境
-        // target: 'http://182.43.127.35:9180' // 测试环境
-        // target: 'http://182.43.127.35:9190'
-      },
-      '/mock/11/': {
-        target: 'http://218.78.82.199:8089/'
+        target: serverAddress,
+        changeOrigin: true,
+        secure: false
       }
-    }
+    },
+    disableHostCheck: true
   },
   pwa: {
     name: name,

@@ -25,7 +25,7 @@
           </div>
         </el-form-item>
         <el-form-item label="设备类型:" prop="deviceType">
-          <el-select v-model="form.deviceType" placeholder="请选择" :disabled="isUpdate">
+          <el-select v-model="form.deviceType" placeholder="请选择" :disabled="isUpdate" @change="clearValidate">
             <el-option v-for="item in deviceTypeList" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -171,7 +171,7 @@ import { DeviceGb28181Type } from '@/dics'
 import { createDevice, updateDevice, getDevice } from '@/api/device'
 import { getList as getGbList } from '@/api/certificate/gb28181'
 import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
-import { cities } from '@/assets/region/cities'
+import { cities, provinceMapping, cityMapping } from '@/assets/region/cities'
 
 @Component({
   name: 'CreateGb28181Device',
@@ -255,9 +255,9 @@ export default class extends Mixins(createMixin) {
     parentDeviceId: '',
     gbId: '',
     userName: '',
-    address: ['1100', '1100'],
-    gbRegion: '110000000',
-    gbRegionLevel: '1'
+    address: [],
+    gbRegion: '',
+    gbRegionLevel: ''
   }
   private minChannelSize = 1
   private availableChannels: Array<number> = []
@@ -266,6 +266,7 @@ export default class extends Mixins(createMixin) {
   }
 
   private async mounted() {
+    this.addressCascaderInit()
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
     } else {
@@ -274,6 +275,44 @@ export default class extends Mixins(createMixin) {
     }
     this.getGbAccounts()
     this.onGroupChange()
+  }
+
+  private addressCascaderInit() {
+    const mainUserAddress: any = this.$store.state.user.mainUserAddress
+    if (mainUserAddress) {
+      const mainUserAddresses = mainUserAddress.split(',')
+      let proArr: any = mainUserAddresses.map((adress: any) => {
+        return (adress.substring(0, 2) + '00')
+      })
+      this.cities = [...new Set(proArr)].map((pro: any) => {
+        return {
+          name: provinceMapping[pro.substring(0, 2)],
+          level: '1',
+          code: pro,
+          cities: []
+        }
+      })
+      this.cities.forEach((city: any) => {
+        mainUserAddresses.forEach((adress: any) => {
+          if (adress.substring(0, 2) === city.code.substring(0, 2)) {
+            let cityObj: any = {
+              name: cityMapping[adress],
+              level: '3',
+              code: adress
+            }
+            adress.substring(2, 4) === '00' && (cityObj.level = '1')
+            adress.substring(2, 4) === '01' && (cityObj.level = '2')
+            city.cities.push(cityObj)
+          }
+        })
+      })
+      this.form.address = [proArr[0], mainUserAddresses[0]]
+    } else {
+      this.form.address = ['1100', '1100']
+    }
+    this.$nextTick(() => {
+      this.addressChange()
+    })
   }
 
   private addressChange() {
@@ -392,12 +431,10 @@ export default class extends Mixins(createMixin) {
           let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceVendor', 'description'])
           if (this.isUpdate) {
             params = Object.assign(params, pick(this.form, ['deviceId']))
-          } else {
-            params = Object.assign(params, pick(this.form, ['gbRegion', 'gbRegionLevel']))
           }
           if (!this.isChannel) {
             // 通用参数
-            params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'inProtocol', 'deviceIp', 'devicePort', 'pullType', 'userName']))
+            params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'inProtocol', 'deviceIp', 'devicePort', 'pullType', 'userName', 'gbRegion', 'gbRegionLevel']))
             // IPC类型添加额外参数
             if (this.form.deviceType === 'ipc') {
               params = Object.assign(params, {

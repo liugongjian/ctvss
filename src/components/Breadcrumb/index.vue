@@ -41,6 +41,10 @@ export default class extends Vue {
     this.getBreadcrumb()
   }
 
+  get isLight() {
+    return this.$route.query.isLight
+  }
+
   created() {
     this.getBreadcrumb()
   }
@@ -48,20 +52,20 @@ export default class extends Vue {
   private getBreadcrumb() {
     let matched = this.$route.matched.filter((item) => item.meta && item.meta.title)
     const first = matched[0]
-    if (!this.isDashboard(first)) {
+    if (!this.isDashboard(first) && !this.isLight) {
       matched = [{ path: '/', meta: { title: '首页' } } as RouteRecord].concat(matched)
     }
     this.breadcrumbs = matched.filter((item) => {
-      return item.meta && item.meta.title && item.meta.breadcrumb !== false
+      return item.meta && item.meta.title && (item.meta.breadcrumb !== false || this.isLight)
     })
   }
 
   private isDashboard(route: RouteRecord) {
-    const name = route && route.name
-    if (!name) {
+    const path = route && route.path
+    if (!path) {
       return false
     }
-    return name.trim().toLocaleLowerCase() === 'group-list'.toLocaleLowerCase()
+    return path.trim().toLocaleLowerCase() === '/dashboard'
   }
 
   private pathCompile(path: string) {

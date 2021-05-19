@@ -2,6 +2,7 @@ import { VuexModule, Module, Action, Mutation, getModule } from 'vuex-module-dec
 import { Base64 } from 'js-base64'
 import { login, logout, getMainUserInfo, getIAMUserInfo, changePassword, resetIAMPassword } from '@/api/users'
 import { getToken, setToken, removeToken, getUsername, setUsername, removeUsername, getIamUserId, setIamUserId, removeIamUserId } from '@/utils/cookies'
+import { setLocalStorage, getLocalStorage } from '@/utils/storage'
 import router, { resetRouter } from '@/router'
 import { PermissionModule } from './permission'
 import { TagsViewModule } from './tags-view'
@@ -18,7 +19,8 @@ export interface IUserState {
   email: string,
   type: string,
   mainUserID: string,
-  mainUserAddress: string
+  mainUserAddress: string,
+  ctLoginId: string
 }
 
 @Module({ dynamic: true, store, name: 'user' })
@@ -34,6 +36,7 @@ class User extends VuexModule implements IUserState {
   public type = ''
   public mainUserID = ''
   public mainUserAddress = ''
+  public ctLoginId = getLocalStorage('ctLoginId') || ''
 
   @Mutation
   private SET_TOKEN(token: string) {
@@ -90,6 +93,11 @@ class User extends VuexModule implements IUserState {
     this.mainUserAddress = address
   }
 
+  @Mutation
+  private SET_CT_LOGIN_ID(ctLoginId: string) {
+    this.ctLoginId = ctLoginId
+  }
+
   @Action({ rawError: true })
   public async Login(userInfo: { mainUserID?: string, userName: string, password: string}) {
     let { mainUserID, userName, password } = userInfo
@@ -99,6 +107,7 @@ class User extends VuexModule implements IUserState {
       userName,
       password: 'YWJjZG' + Base64.encode(password) + 'VmZWRl'
     })
+    setLocalStorage('loginType', mainUserID ? 'sub' : 'main')
     setToken(data.token)
     setUsername(userName)
     setIamUserId(data.iamUserId)
@@ -112,10 +121,24 @@ class User extends VuexModule implements IUserState {
     this.SET_TYPE(type)
     this.SET_IAM_USER_ID(data.iamUserId)
     // this.SET_AVATAR(avatar)
+    return data
+  }
+
+  @Action({ rawError: true })
+  public async SetToken(token: string) {
+    setToken(token)
+    this.SET_TOKEN(token)
+  }
+
+  @Action({ rawError: true })
+  public async SetCTLoginId(loginId: string) {
+    setLocalStorage('ctLoginId', loginId)
+    this.SET_CT_LOGIN_ID(loginId)
   }
 
   @Action
   public ResetToken() {
+    localStorage.clear()
     removeToken()
     removeUsername()
     removeIamUserId()
@@ -215,12 +238,13 @@ class User extends VuexModule implements IUserState {
   @Action({ rawError: true })
   public async ResetIAMPassword(form: { mainUserID: string, subUserName: string, originalPwd: string, newPwd: string }) {
     let { mainUserID, subUserName, originalPwd, newPwd } = form
-    await resetIAMPassword({
+    const data = await resetIAMPassword({
       mainUserID,
       subUserName,
       oldPassword: originalPwd,
       newPassword: newPwd
     })
+    return data
   }
 
   @Action
@@ -249,6 +273,8 @@ class User extends VuexModule implements IUserState {
 
     this.SET_MAIN_USER_ID('')
     this.SET_MAIN_USER_ADDRESS('')
+
+    localStorage.clear()
     return result
   }
 }

@@ -65,7 +65,7 @@
               width="400"
               trigger="hover"
               :open-delay="300"
-              content="当启用自动拉流，国标设备注册成功后自动启动拉流。关闭该选项后需要通过触发的方式启动拉流。"
+              :content="`当启用自动拉流，${form.inProtocol.toLocaleUpperCase()}设备注册成功后自动启动拉流。关闭该选项后需要通过触发的方式启动拉流。`"
             >
               <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
@@ -89,6 +89,42 @@
           </template>
           <el-switch v-model="form.pushType" :active-value="1" :inactive-value="2" />
         </el-form-item>
+        <el-form-item prop="inNetworkType">
+          <template slot="label">
+            接入网络:
+            <el-popover
+              placement="top-start"
+              width="300"
+              trigger="hover"
+              :open-delay="300"
+              content="设备接入的网络类型"
+            >
+              <svg-icon slot="reference" class="form-question" name="help" />
+            </el-popover>
+          </template>
+          <el-radio-group v-model="form.inNetworkType" :disabled="isEdit">
+            <el-radio label="public">互联网</el-radio>
+            <el-radio label="private">专线网络</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item prop="outNetworkType">
+          <template slot="label">
+            播放网络:
+            <el-popover
+              placement="top-start"
+              width="300"
+              trigger="hover"
+              :open-delay="300"
+              content="视频调阅的网络类型"
+            >
+              <svg-icon slot="reference" class="form-question" name="help" />
+            </el-popover>
+          </template>
+          <el-radio-group v-model="form.outNetworkType" :disabled="isEdit">
+            <el-radio label="public">互联网</el-radio>
+            <el-radio label="private">专线网络</el-radio>
+          </el-radio-group>
+        </el-form-item>
         <el-form-item label="">
           <div class="mt10">
             <el-button :loading="loading" type="primary" @click="submit">确定</el-button>
@@ -106,8 +142,10 @@ import { GroupModule } from '@/store/modules/group'
 import { InProtocolType, OutProtocolType } from '@/dics'
 import { createGroup, queryGroup, updateGroup } from '@/api/group'
 import { getRegions } from '@/api/region'
+import templateBind from '../components/templateBind.vue'
 
 @Component({
+  components: { templateBind },
   name: 'CreateGroup'
 })
 export default class extends Vue {
@@ -127,6 +165,12 @@ export default class extends Vue {
     outProtocol: [
       { required: true, message: '请选择播放类型', trigger: 'change' },
       { validator: this.validateOutProtocol, trigger: 'change' }
+    ],
+    inNetworkType: [
+      { required: true, message: '请选择接入网络', trigger: 'change' }
+    ],
+    outNetworkType: [
+      { required: true, message: '请选择播放网络', trigger: 'change' }
     ]
   }
   private outProtocolList = Object.values(OutProtocolType)
@@ -138,7 +182,9 @@ export default class extends Vue {
     inProtocol: 'gb28181',
     outProtocol: [],
     pullType: 1,
-    pushType: 1
+    pushType: 1,
+    inNetworkType: 'public',
+    outNetworkType: 'public'
   }
 
   private regionList = []
@@ -158,6 +204,8 @@ export default class extends Vue {
         const res = await queryGroup({ groupId: this.form.groupId })
         res.outProtocol = res.outProtocol.split(',')
         res.region = this.getRegionPath(this.regionList, res.region)
+        res.inNetworkType = res.inNetworkType || 'public'
+        res.outNetworkType = res.outNetworkType || 'public'
         this.form = res
       } catch (e) {
         this.$message.error(e && e.message)

@@ -1,5 +1,30 @@
 <template>
-  <div class="dashboard-wrap">
+  <div :class="isLight? 'light-dashboard-wrap' :'dashboard-wrap'">
+    <div v-if="isLight" class="light-btns">
+      <el-dropdown trigger="click" placement="bottom-start" @command="goRouter">
+        <el-button>人脸识别<i class="el-icon-arrow-down el-icon--right" /></el-button>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item :command="6">未带口罩</el-dropdown-item>
+          <el-dropdown-item :command="4">人员布控</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+      <el-dropdown trigger="click" placement="bottom-start" @command="goRouter">
+        <el-button>人体识别<i class="el-icon-arrow-down el-icon--right" /></el-button>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item :command="8">人员聚集</el-dropdown-item>
+          <el-dropdown-item :command="5">吸烟检测</el-dropdown-item>
+          <el-dropdown-item :command="7">安全帽反光服检测</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+      <el-dropdown trigger="click" placement="bottom-start" @command="goRouter">
+        <el-button>场景识别<i class="el-icon-arrow-down el-icon--right" /></el-button>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item :command="9">危险区域检测</el-dropdown-item>
+          <el-dropdown-item :command="10">烟雾明火</el-dropdown-item>
+          <el-dropdown-item :command="11">冲压机</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+    </div>
     <div class="ai-recognation">
       <div class="ai-recognation__decorator--top" />
       <div class="ai-recognation__decorator--bottom" />
@@ -69,7 +94,7 @@
       v-if="dialog.fullscreen"
       :visible="true"
       :fullscreen="true"
-      custom-class="ai-image-fullscreen"
+      :custom-class="`${isLight ? 'light-' : ''}ai-image-fullscreen`"
       @close="dialog.fullscreen = false"
     >
       <div slot="title">{{ currentImg && currentImg.deviceName }} | {{ currentImg && currentImg.timestamp }}</div>
@@ -120,8 +145,23 @@ export default class extends Vue {
     return params.type.toString()
   }
 
+  private get isLight() {
+    return this.$route.query.isLight
+  }
+
   private mounted() {
     this.getRecordAuditEvents()
+  }
+
+  private goRouter(type: any) {
+    let params: any = {
+      path: '/dashboard/ai',
+      query: {
+        type,
+        isLight: true
+      }
+    }
+    this.$router.push(params)
   }
 
   @Watch('$route.query')
@@ -202,6 +242,110 @@ export default class extends Vue {
 </script>
 
 <style lang="scss" scoped>
+  $lightColor: #CCC;
+  $lightFont: #4C4C4C;
+  .light-btns {
+    margin: 3vh 5vh;
+    .el-dropdown {
+      margin-right: 15px;
+    }
+  }
+
+  .light-dashboard-wrap {
+    background-color: #F6F6F6;
+    .ai-recognation {
+      margin: 0vh 5vh;
+      border: 2px solid $lightColor;
+      &__empty {
+        color: $lightFont;
+      }
+      &__decorator--top,
+      &__decorator--bottom {
+        &::before, &::after {
+          border: 7px solid $lightColor;
+        }
+      }
+      &__decorator--top {
+        top: -3px;
+        &::before {
+          border-right: 0;
+          border-bottom: 0;
+        }
+        &::after {
+          right: -8px;
+          border-left: 0;
+          border-bottom: 0;
+        }
+      }
+      &__decorator--bottom {
+        bottom: -3px;
+        &::before, &::after {
+          bottom: -3px;
+        }
+        &::before {
+          border-right: 0;
+          border-top: 0;
+        }
+        &::after {
+          right: -8px;
+          border-left: 0;
+          border-top: 0;
+        }
+      }
+      &__title {
+        margin: 20px 0;
+        img {
+          display: none;
+        }
+        &--text {
+          color: $lightFont;
+          left: 1vw;
+        }
+      }
+      &__video {
+        border: 1px solid $lightColor;
+        &__loading {
+          color: $lightFont;
+        }
+      }
+      &__images {
+        &__item {
+          border: 1px solid $lightColor;
+          border-left: 5px solid $lightColor;
+          border-right: 5px solid $lightColor;
+          &__count {
+            color: $lightFont;
+          }
+          &__decorator--top,
+          &__decorator--bottom {
+            &::before, &::after {
+              border-top: 7px solid $lightColor;
+            }
+          }
+          &--datetime {
+            color: #cccccc;
+            background: rgba(100, 100, 100, 0.4);
+          }
+          &__tools {
+            color: $lightFont;
+          }
+        }
+      }
+      &__bottom {
+        &--fresh {
+          background: $primary;
+          color: #ffffff;
+        }
+
+        .el-pagination {
+          ::v-deep .el-pager li, ::v-deep .btn-prev, ::v-deep  .btn-next {
+            color: $lightFont;
+          }
+        }
+      }
+    }
+  }
+
   .dashboard-wrap {
     position: relative;
     background-color: #070f2e;

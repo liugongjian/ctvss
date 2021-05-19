@@ -60,7 +60,7 @@ export default class extends Vue {
       // }
       const icon = new AMap.Icon({
         size: new AMap.Size(25, 25),
-        image: require('./images/ipc-green.svg'),
+        image: require('../images/ipc-green.svg'),
         imageOffset: new AMap.Pixel(0, 0),
         imageSize: new AMap.Size(25, 25)
       })

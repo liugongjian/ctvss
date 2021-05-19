@@ -45,7 +45,7 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import DashboardContainer from './DashboardContainer.vue'
 import { Chart } from '@antv/g2'
-import DashboardMixin from './DashboardMixin'
+import DashboardMixin from '../mixin/DashboardMixin'
 import { dateFormatInTable } from '@/utils/date'
 
 @Component({

@@ -1,6 +1,6 @@
 <template>
   <div v-loading="loading" class="live-wrap">
-    <div v-if="inProtocol === 'rtsp'" class="stream-selector">
+    <div v-if="inProtocol === 'rtsp' || inProtocol === 'ehome'" class="stream-selector">
       <StreamSelector :is-show-label="true" :stream-size="streamSize" :stream-num="streamNum" @onSetStreamNum="onSetStreamNum" />
     </div>
     <div v-if="errorMessage" class="empty-text">{{ errorMessage }}</div>
@@ -21,7 +21,7 @@
         @onExitFullscreen="exitFullscreen"
       />
     </div>
-    <info-list v-if="address" label-width="70" title="播放地址" class="address">
+    <!-- <info-list v-if="address" label-width="70" title="播放地址" class="address">
       <info-list-item v-if="address.rtmpUrl" label="RTMP:">
         {{ address.rtmpUrl }}
         <el-tooltip class="item" effect="dark" content="复制链接" placement="top">
@@ -40,13 +40,13 @@
           <el-button type="text" @click="copyUrl(address.hlsUrl)"><svg-icon name="copy" /></el-button>
         </el-tooltip>
       </info-list-item>
-      <info-list-item v-if="address.hlsUrl" label="WebRTC:">
+      <info-list-item v-if="address.webrtcUrl" label="WebRTC:">
         {{ address.webrtcUrl }}
         <el-tooltip class="item" effect="dark" content="复制链接" placement="top">
           <el-button type="text" @click="copyUrl(address.webrtcUrl)"><svg-icon name="copy" /></el-button>
         </el-tooltip>
       </info-list-item>
-    </info-list>
+    </info-list> -->
   </div>
 </template>
 
@@ -92,7 +92,7 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    if (this.inProtocol === 'rtsp') {
+    if (this.inProtocol === 'rtsp' || this.inProtocol === 'ehome') {
       await this.getDevice()
     }
     this.getDevicePreview()

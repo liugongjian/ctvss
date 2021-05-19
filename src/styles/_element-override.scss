@@ -115,3 +115,11 @@
     margin-left: -3px;
   }
 }
+
+.el-dialog {
+  z-index: 100;
+}
+
+.ie .el-dialog.is-fullscreen {
+  overflow: visible;
+}

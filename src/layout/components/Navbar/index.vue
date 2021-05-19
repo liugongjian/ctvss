@@ -1,6 +1,7 @@
 <template>
-  <div class="navbar" :class="`navbar--${routerName}`">
+  <div class="navbar" :class="isLight ? '' : `navbar--${routerName}`">
     <hamburger
+      v-if="!ctLogin"
       id="hamburger-container"
       :is-active="sidebar.opened"
       class="hamburger-container"
@@ -41,9 +42,9 @@
           <size-select class="right-menu-item hover-effect" />
         </el-tooltip>
       </template> -->
-      <template v-if="routerName === 'AI' || routerName === 'dashboard'">
+      <template v-if="(routerName === 'dashboardAI' && !isLight) || routerName === 'visualizationDashboard'">
         <div class="links">
-          <a :class="{'actived': !queryAlertType}" @click="routeToHome()">首页</a>
+          <a :class="{'actived': !queryAlertType}" @click="routeToHome()">可视化大屏</a>
           <div v-for="group in alertTypeList" :key="group.name" class="dropdown">
             {{ group.name }} <svg-icon name="arrow-down2" width="8" height="8" />
             <ul class="dropdown__menu">
@@ -56,7 +57,7 @@
       </template>
       <template v-else>
         <div class="search-box">
-          <div class="search-box__form" @click.stop="focusSearch">
+          <div v-if="!isLight" class="search-box__form" @click.stop="focusSearch">
             <span class="search-box__placeholder">搜索设备</span>
             <span class="search-box__icon"><svg-icon name="search" width="15" height="15" /></span>
           </div>
@@ -73,11 +74,11 @@
             </el-form>
           </div>
         </div>
-        <div class="links">
+        <div :class="['links', ctLogin ? 'ct-login' : '']">
           <a target="_blank" href="http://vcn.ctyun.cn/document/api/">API文档</a>
         </div>
       </template>
-      <div class="user-container">
+      <div v-if="!ctLogin" class="user-container">
         <div class="user-container__menu">
           <span class="user-container__name">{{ name }}</span>
           <svg-icon class="user-container__arrow" name="arrow-down" width="9" height="9" />
@@ -135,6 +136,10 @@ export default class extends Vue {
     group: false
   }
 
+  get ctLogin() {
+    return !!UserModule.ctLoginId
+  }
+
   get isMainUser() {
     return !UserModule.iamUserId
   }
@@ -175,10 +180,10 @@ export default class extends Vue {
   }
 
   get routerName() {
-    if (this.$route.name?.startsWith('AI-')) {
-      return 'AI'
-    } else if (this.$route.name?.startsWith('dashboard')) {
-      return 'dashboard'
+    if (this.$route.name?.startsWith('dashboardAI')) {
+      return 'dashboardAI'
+    } else if (this.$route.name?.startsWith('visualizationDashboard')) {
+      return 'visualizationDashboard'
     } else {
       return this.$route.name
     }
@@ -186,6 +191,10 @@ export default class extends Vue {
 
   get queryAlertType() {
     return this.$route.query.type
+  }
+
+  get isLight() {
+    return this.$route.query.isLight
   }
 
   get alertTypeList() {
@@ -231,7 +240,7 @@ export default class extends Vue {
   private async logout() {
     const data: any = await UserModule.LogOut()
     if (data.iamUserId) {
-      this.$router.push(`/login?redirect=%2Fdashboard&subUserLogin=1&mainUserID=${data.mainUserID}`)
+      this.$router.push(`/login/subAccount?redirect=%2Fdashboard&mainUserID=${data.mainUserID}`)
     } else {
       this.$router.push(`/login?redirect=%2Fdashboard`)
     }
@@ -281,7 +290,7 @@ export default class extends Vue {
 
   private routeToHome() {
     this.$router.push({
-      path: '/dashboard'
+      path: '/dashboard/visualization-dashboard'
     })
   }
 }
@@ -330,6 +339,9 @@ export default class extends Vue {
     a:hover {
       color: $primary;
     }
+  }
+  .links.ct-login {
+    margin-right: 10px;
   }
 
   .right-menu {
@@ -516,7 +528,7 @@ export default class extends Vue {
     }
   }
 
-  &--dashboard, &--AI {
+  &--visualizationDashboard, &--dashboardAI {
     position: absolute;
     top: 0;
     width: 100%;

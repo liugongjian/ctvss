@@ -197,7 +197,7 @@
               v-for="(screen, index) in screenList"
               :key="index"
               v-loading="screen.loading"
-              class="screen-item"
+              class="screen-item screen-item--live"
               :class="[{'actived': index === currentIndex && screenList.length > 1 && !polling.isStart}, {'fullscreen': screen.isFullscreen}]"
               @click="selectScreen(index)"
             >
