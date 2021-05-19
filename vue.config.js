@@ -21,7 +21,7 @@ console.info(`启动${environment}环境:`, serverAddress)
 console.info(`是否开启https:`, isHttps)
 
 module.exports = {
-  publicPath: process.env.NODE_ENV === 'production' ? './' : '/',
+  publicPath: process.env.NODE_ENV === 'production' ? '/vss/' : '/',
   lintOnSave: process.env.NODE_ENV === 'development',
   productionSourceMap: false,
   devServer: {
