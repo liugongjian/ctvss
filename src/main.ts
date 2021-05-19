@@ -1,4 +1,7 @@
+import 'babel-polyfill'
+import Polyfill from '@/polyfill'
 import Vue, { DirectiveOptions } from 'vue'
+import { isIE } from '@/utils/browser'
 
 import ElementUI from 'element-ui'
 import SvgIcon from 'vue-svgicon'
@@ -33,6 +36,8 @@ Vue.use(ElementUI, {
   size: AppModule.size // Set element-ui default size
 })
 
+Vue.use(Polyfill)
+
 Vue.use(SvgIcon, {
   tagName: 'svg-icon',
   defaultWidth: '1em',
@@ -54,6 +59,10 @@ Object.keys(filters).forEach(key => {
 
 Vue.config.productionTip = false
 
+if (isIE()) {
+  document.getElementsByTagName('html')[0].className = 'ie'
+}
+
 CtcloudLayout.getPublicInfo().authCurrentPromise.then((data :any) => {
   if (!data.isLoggedIn) {
     // 天翼云未登录
@@ -68,7 +77,7 @@ CtcloudLayout.getPublicInfo().authCurrentPromise.then((data :any) => {
         }).$mount('#app')
         break
       default: {
-        localStorage.clear()
+        UserModule.ResetToken()
         const href = window.location.href
         const path = href.split('#')[1]
         if (path.startsWith('/login') || path.startsWith('/login/subAccount') || path.startsWith('/reset-password')) {
@@ -80,7 +89,6 @@ CtcloudLayout.getPublicInfo().authCurrentPromise.then((data :any) => {
           }).$mount('#app')
         } else {
           // 访问平台其他路径
-          UserModule.ResetToken()
           window.location.href = `${settings.casLoginUrl}`
         }
       }

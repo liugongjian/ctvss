@@ -146,7 +146,6 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import copy from 'copy-to-clipboard'
-import { ExportToCsv } from 'export-to-csv'
 import ExcelJS from 'exceljs'
 import { createUser, getUser, modifyUser, getPolicyList } from '@/api/accessManage'
 @Component({
@@ -335,32 +334,6 @@ export default class extends Vue {
   }
 
   /**
-   * 导出CSV
-   */
-  private exportCsv() {
-    const options = {
-      filename: '新建用户的所有信息',
-      fieldSeparator: ',',
-      quoteStrings: '"',
-      decimalSeparator: '.',
-      showLabels: true,
-      useTextFile: false,
-      useBom: true,
-      useKeysAsHeaders: true
-    }
-    const csvExporter = new ExportToCsv(options)
-    const data = this.newUserData.map((user: any) => {
-      return {
-        '用户名': user.userName,
-        '密码': user.passwords,
-        'secretId': user.secretId ? user.secretId : '--',
-        'secretKey': user.secretKey ? user.secretKey : '--'
-      }
-    })
-    csvExporter.generateCsv(data)
-  }
-
-  /**
    * 导出xlsx
    */
   private async exportExel() {
@@ -378,22 +351,16 @@ export default class extends Vue {
       }
     ]
     const worksheet: any = workbook.addWorksheet('My Sheet')
-    let options: any = {
-      name: exelName,
-      ref: 'A1',
-      columns: [
-        { name: '用户名' },
-        { name: '密码' },
-        { name: 'secretId' },
-        { name: 'secretKey' }
-      ],
-      rows: []
-    }
-    options.rows = this.newUserData.map((user: any) => {
-      return [user.userName, user.passwords, user.secretId ? user.secretId : '--', user.secretKey ? user.secretKey : '--']
+    worksheet.name = exelName
+    worksheet.columns = [
+      { header: '用户名', key: 'userName', width: 16 },
+      { header: '密码', key: 'passwords', width: 16 },
+      { header: 'secretId', key: 'secretId', width: 48 },
+      { header: 'secretKey', key: 'secretKey', width: 48 }
+    ]
+    this.newUserData.forEach((user: any) => {
+      worksheet.addRow(user)
     })
-    worksheet.addTable(options)
-
     const buffer = await workbook.xlsx.writeBuffer()
     var blob = new Blob([buffer], { type: 'application/xlsx' })
     var link = document.createElement('a')

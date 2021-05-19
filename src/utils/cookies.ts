@@ -31,3 +31,6 @@ const iamUserIdKey = 'iamUserId'
 export const getIamUserId = () => Cookies.get(iamUserIdKey)
 export const setIamUserId = (id: string) => Cookies.set(iamUserIdKey, id)
 export const removeIamUserId = () => Cookies.remove(iamUserIdKey)
+
+// ticket
+export const removeTicket = () => Cookies.remove('ticket', { path: '/', domain: '.ctyun.cn' })

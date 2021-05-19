@@ -7,11 +7,12 @@ import { UserModule } from '@/store/modules/user'
 import { PermissionModule } from '@/store/modules/permission'
 import { getLocalStorage } from '@/utils/storage'
 import settings from './settings'
+import { removeTicket } from '@/utils/cookies'
 
 NProgress.configure({ showSpinner: false })
 
 // const whiteList = ['/login', '/login/subAccount', '/reset-password', '/auth-redirect']
-const whiteList = ['/login', '/login/subAccount', '/reset-password']
+const whiteList = ['/login', '/login/subAccount', '/reset-password', '/login/', '/login/subAccount/', '/reset-password/']
 
 const getPageTitle = (key: string) => {
   return (key ? `${key} - ` : '') + settings.title
@@ -25,7 +26,7 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
   // Determine whether the user has logged in
   if (UserModule.token) {
     // 已登录
-    if (to.path === '/login' || to.path === '/login/subAccount' || to.path === '/reset-password') {
+    if (to.path.startsWith('/login') || to.path.startsWith('/login/subAccount') || to.path.startsWith('/reset-password')) {
       if (UserModule.ctLoginId) {
         setTimeout(() => MessageBox.confirm('您已通过天翼云登录，点击确认退出登录，是否继续？', '提示', {
           confirmButtonText: '确定',
@@ -33,6 +34,7 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
           closeOnClickModal: false,
           type: 'warning'
         }).then(async() => {
+          removeTicket()
           await UserModule.LogOut()
           window.location.href = 'https://www.ctyun.cn/sign/out'
         }).catch(err => {
@@ -57,12 +59,13 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
           PermissionModule.GenerateRoutes({ perms, iamUserId })
           // Dynamically add accessible routes
           router.addRoutes(PermissionModule.dynamicRoutes)
+          // 单点登录菜单高亮
+          UserModule.ctLoginId && (<any>window).CtcloudLayout && (<any>window).CtcloudLayout.consoleLayout.match({
+            key: to.meta.activeMenu || ('/' + to.name)
+          })
           // Hack: ensure addRoutes is complete
           // Set the replace: true, so the navigation will not leave a history record
           next({ ...to, replace: true })
-          // UserModule.ctLoginId && window.CtcloudLayout && window.CtcloudLayout.consoleLayout.match({
-          //   key: to.name
-          // })
         } catch (err) {
           // Remove token and redirect to login page
           UserModule.ResetToken()
@@ -71,10 +74,11 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
           NProgress.done()
         }
       } else {
+        // 单点登录菜单高亮
+        UserModule.ctLoginId && (<any>window).CtcloudLayout && (<any>window).CtcloudLayout.consoleLayout.match({
+          key: to.meta.activeMenu || ('/' + to.name)
+        })
         next()
-        // UserModule.ctLoginId && window.CtcloudLayout && window.CtcloudLayout.consoleLayout.match({
-        //   key: to.name
-        // })
       }
     }
   } else {

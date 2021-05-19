@@ -437,7 +437,7 @@ export default class extends Vue {
   public progressHandle() {
     const $progress: any = this.$refs.progress
     const progressSize = $progress.getBoundingClientRect()
-    this.progressMoveData.x = progressSize.x
+    this.progressMoveData.x = progressSize.left
     this.progressMoveData.width = progressSize.width
     this.progressMoveData.isStart = true
     window.addEventListener('mousemove', this.progressMouseMove)

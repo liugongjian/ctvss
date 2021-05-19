@@ -1,28 +1,36 @@
 <template>
-  <DashboardContainer title="网络流量统计">
-    <template v-slot:header>
-      <el-select
-        v-model="userType"
-        size="small"
-        popper-class="dark-select"
-        @change="timeChange"
-      >
-        <el-option
-          v-for="time in timeList"
-          :key="time.value"
-          :label="time.label"
-          :value="time.value"
-        />
-      </el-select>
-    </template>
-    <div id="flow-container" :style="`height:${height}vh`" />
-  </DashboardContainer>
+  <div>
+    <DashboardContainer v-if="!isLight" title="网络带宽统计">
+      <template v-slot:header>
+        <el-select
+          v-model="userType"
+          size="small"
+          popper-class="dark-select"
+          @change="timeChange"
+        >
+          <el-option
+            v-for="time in timeList"
+            :key="time"
+            :label="time"
+            :value="time"
+          />
+        </el-select>
+      </template>
+      <div id="flow-container" :style="`height:${height}vh`" />
+    </DashboardContainer>
+    <div v-else>
+      <el-radio-group v-model="userType" size="small" @change="timeChange">
+        <el-radio-button v-for="(time, key) in timeList" :key="key" :label="time" />
+      </el-radio-group>
+      <div id="flow-container" :style="`height:${height}vh`" />
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
-import { Component, Mixins } from 'vue-property-decorator'
+import { Component, Mixins, Prop } from 'vue-property-decorator'
 import { Chart } from '@antv/g2'
-import DashboardMixin from './DashboardMixin'
+import DashboardMixin from '../mixin/DashboardMixin'
 import DashboardContainer from './DashboardContainer.vue'
 import { getFlowData } from '@/api/dashboard'
 
@@ -31,22 +39,27 @@ import { getFlowData } from '@/api/dashboard'
   components: { DashboardContainer }
 })
 export default class extends Mixins(DashboardMixin) {
-  private timeList: Array<{ label: string; value: number }> = [
-    {
-      label: '最近12小时',
-      value: 12 * 60 * 60 * 1000
-    },
-    {
-      label: '最近6小时',
-      value: 6 * 60 * 60 * 1000
-    },
-    {
-      label: '最近3小时',
-      value: 3 * 60 * 60 * 1000
-    }
-  ]
+  @Prop({ default: false })
+  private isLight?: boolean
+  private flowTimeRange = '今日'
+
+  // private timeList: Array<{ label: string; value: number }> = [
+  //   {
+  //     label: '最近12小时',
+  //     value: 12 * 60 * 60 * 1000
+  //   },
+  //   {
+  //     label: '最近6小时',
+  //     value: 6 * 60 * 60 * 1000
+  //   },
+  //   {
+  //     label: '最近3小时',
+  //     value: 3 * 60 * 60 * 1000
+  //   }
+  // ]
+  private timeList: any = ['今日', '昨日', '近7日', '近30日']
   private flowData: any = []
-  private userType = 12 * 60 * 60 * 1000
+  private userType: any = '今日'
   private chart: any = null
   public intervalTime = 60 * 1000
 
@@ -62,9 +75,29 @@ export default class extends Mixins(DashboardMixin) {
    * 获取数据
    */
   private async getData() {
+    let start: any
+    let end: any
+    const today: any = new Date().setHours(0, 0, 0, 0)
+    switch (this.userType) {
+      case '今日':
+        end = new Date()
+        start = new Date(today)
+        break
+      case '昨日':
+        end = new Date(today)
+        start = new Date(new Date(today).getTime() - 24 * 3600 * 1000)
+        break
+      case '近7日':
+        end = new Date()
+        start = new Date(end.getTime() - 7 * 24 * 3600 * 1000)
+        break
+      case '近30日':
+        end = new Date()
+        start = new Date(end.getTime() - 30 * 24 * 3600 * 1000)
+        break
+    }
     try {
-      const end: any = new Date()
-      const start: any = new Date(end - this.userType)
+      console.log(this.dateFormat(start), this.dateFormat(end))
       const res = await getFlowData({
         StartTime: this.dateFormat(start),
         EndTime: this.dateFormat(end)
@@ -75,12 +108,12 @@ export default class extends Mixins(DashboardMixin) {
         flowData.push(
           {
             time: key.split(' ')[1].slice(0, -3),
-            type: '入网流量',
+            type: '入网带宽',
             value: Math.floor(item['InFlow'] / 1024)
           },
           {
             time: key.split(' ')[1].slice(0, -3),
-            type: '出网流量',
+            type: '出网带宽',
             value: Math.floor(item['OutFlow'] / 1024)
           }
         )
@@ -88,6 +121,7 @@ export default class extends Mixins(DashboardMixin) {
       this.flowData = flowData
       this.chart ? this.updateChart() : this.drawChart()
     } catch (e) {
+      console.log(e)
       // 异常处理
     }
   }
@@ -123,19 +157,19 @@ export default class extends Mixins(DashboardMixin) {
       items: [
         {
           id: '1',
-          name: '出网流量',
+          name: '出网带宽',
           value: 'OutFlow',
           marker: {
             symbol: 'square',
             style: {
-              fill: '#EB155B'
+              fill: this.isLight ? '#FA8334' : '#EB155B'
             },
             spacing: 5
           }
         },
         {
           id: '2',
-          name: '入网流量',
+          name: '入网带宽',
           value: 'InFlow',
           marker: {
             symbol: 'square',
@@ -148,7 +182,7 @@ export default class extends Mixins(DashboardMixin) {
       ],
       itemName: {
         style: {
-          fill: '#eeeeee'
+          fill: this.isLight ? '#505050' : '#eeeeee'
           // fontSize: 14
         },
         formatter: (text: any, item: any) => item.name
@@ -164,14 +198,14 @@ export default class extends Mixins(DashboardMixin) {
       },
       title: {
         style: {
-          fill: '#98CFFF',
+          fill: this.isLight ? '#505050' : '#98CFFF',
           fontSize: 14
         }
       },
       grid: {
         line: {
           style: {
-            stroke: '#434659'
+            stroke: this.isLight ? '#eee' : '#434659'
           }
         }
       }
@@ -187,7 +221,7 @@ export default class extends Mixins(DashboardMixin) {
       alias: 'Mbps'
     })
 
-    this.chart.line().position('time*value').color('type', ['l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#9E10D7 1:#EB155B']).shape('smooth')
+    this.chart.line().position('time*value').color('type', this.isLight ? ['#0091FF', '#FA8334'] : ['l(0) 0:#14B7E1 1:#0091FF', 'l(0) 0:#9E10D7 1:#EB155B']).shape('smooth')
 
     // this.chart.point().position('time*value').color('type', ['#6F9FC9', '#F4C46C']).shape('circle')
 

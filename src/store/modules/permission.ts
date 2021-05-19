@@ -22,7 +22,7 @@ const generateCTMenuData = (routes: RouteConfig[]) => {
         const child = route.children[0]
         ctMenuList.push({
           name: child.meta.title,
-          menuCode: child.name === 'device' ? 'device-list' : child.name,
+          menuCode: `${route.path + (child.path ? '/' + child.path : '')}`,
           parentId: '0',
           module: 'menu',
           renderer: 'menu',
@@ -35,7 +35,7 @@ const generateCTMenuData = (routes: RouteConfig[]) => {
       } else {
         ctMenuList.push({
           name: route.meta.title,
-          menuCode: route.name === 'device' ? 'device-list' : route.name,
+          menuCode: `${route.path}`,
           parentId: '0',
           module: 'menu',
           renderer: 'menu',
@@ -48,7 +48,7 @@ const generateCTMenuData = (routes: RouteConfig[]) => {
         route.children && route.children.forEach(child => {
           ctMenuList.push({
             name: child.meta.title,
-            menuCode: child.name === 'device' ? 'device-list' : child.name,
+            menuCode: `${route.path + (child.path ? '/' + child.path : '')}`,
             parentId: route.meta.id,
             module: 'menu',
             renderer: 'menu',

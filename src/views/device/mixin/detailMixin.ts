@@ -68,6 +68,11 @@ export default class DetailMixin extends Vue {
     template: false
   }
   public recordTemplateId = ''
+  public autoStreamNumObj = {
+    1: '主码流',
+    2: '子码流',
+    3: '第三码流'
+  }
 
   public get isGb() {
     return this.$route.query.inProtocol === 'gb28181'
@@ -99,6 +104,21 @@ export default class DetailMixin extends Vue {
 
   public mounted() {
     this.getDevice()
+  }
+
+  /**
+   * 获取设备流信息
+   */
+  public getStreamStatus(statusArr: any, num: any) {
+    if (!statusArr) {
+      return false
+    }
+    let statusObj = statusArr.find((status: any) => status.streamNum === num)
+    if (!statusObj) {
+      return false
+    } else {
+      return statusObj.streamStatus
+    }
   }
 
   /**
