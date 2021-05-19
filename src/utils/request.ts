@@ -12,7 +12,7 @@ class VSSError extends Error {
 
 let timeoutPromise: Promise<any>
 const service = axios.create({
-  baseURL: '/vss/v1', // url = base url + request url
+  baseURL: '/v1', // url = base url + request url
   timeout: 5 * 3600 * 1000
   // withCredentials: true // send cookies when cross-domain requests
 })
