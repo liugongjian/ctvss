@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-table v-loading="loading" :data="dataList">
-      <el-table-column prop="id" label="编号" width="120" />
+      <el-table-column prop="id" label="编号" />
       <el-table-column prop="totalDeviceCount" label="可接入设备总数">
         <template slot-scope="{row}">
           {{ row.totalDeviceCount }}路
@@ -17,8 +17,8 @@
           {{ resourceAiType[row.aiType] }}
         </template>
       </el-table-column>
-      <el-table-column prop="createTime" label="开通时间" />
-      <el-table-column prop="expireTime" label="到期时间" />
+      <el-table-column prop="createTime" label="开通时间" min-width="140" />
+      <el-table-column prop="expireTime" label="到期时间" min-width="140" />
     </el-table>
   </div>
 </template>

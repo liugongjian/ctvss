@@ -46,8 +46,8 @@
           {{ row.bandWidth }}Mbps
         </template>
       </el-table-column>
-      <el-table-column prop="createTime" label="开通时间" />
-      <el-table-column prop="expireTime" label="到期时间" />
+      <el-table-column prop="createTime" label="开通时间" min-width="140" />
+      <el-table-column prop="expireTime" label="到期时间" min-width="140" />
     </el-table>
   </div>
 </template>
