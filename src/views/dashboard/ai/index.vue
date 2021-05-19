@@ -110,7 +110,7 @@
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { getRecordAuditEvents } from '@/api/dashboard'
 import { AlertType, AiMaskType } from '@/dics'
-import { parseMetaData } from '@/utils/ai'
+import { parseMetaData, transformLocation } from '@/utils/ai'
 import Player from '@/views/device/components/Player.vue'
 import Locations from './components/Locations.vue'
 
@@ -222,21 +222,7 @@ export default class extends Vue {
     const locations = parseMetaData(this.type, metaData)
     const imgs: any = this.$refs.img
     const img = imgs[index]
-    locations && locations.forEach((location: any) => {
-      if (location.isPercent) {
-        location.clientTopPercent = location.top
-        location.clientLeftPercent = location.left
-        location.clientWidthPercent = location.width
-        location.clientHeightPercent = location.height
-      } else {
-        const ratio = img.clientWidth / img.naturalWidth
-        location.clientTopPercent = location.top * ratio / img.clientHeight * 100
-        location.clientLeftPercent = location.left * ratio / img.clientWidth * 100
-        location.clientWidthPercent = location.width * ratio / img.clientWidth * 100
-        location.clientHeightPercent = location.height * ratio / img.clientHeight * 100
-      }
-    })
-    this.$set(this.imageList[index], 'locations', locations)
+    this.$set(this.imageList[index], 'locations', transformLocation(locations, img))
   }
 
   private async handleSizeChange(val: number) {
@@ -566,6 +552,7 @@ export default class extends Vue {
 
         &--datetime {
           position: absolute;
+          z-index: 2;
           color: #eee;
           font-size: 12px;
           text-align: right;
