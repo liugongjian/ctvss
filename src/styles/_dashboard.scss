@@ -181,4 +181,31 @@
     flex: 3;
     min-width: 0;
   }
+
+
+  &__tab-pane {
+    .el-card {
+      .el-card__body {
+        padding-top: 5px;
+      }
+      .el-tabs__item {
+        font-weight: bold;
+      }
+    }
+  }
+
+  .el-card {
+    .el-card__header {
+      padding: 0;
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 40px;
+      margin: 5px 20px 0 20px;
+      border-bottom: 2px solid #DFE4ED;
+    }
+    .el-card__body {
+      padding: 15px 18px;
+      height: auto;
+    }
+  }
 }
