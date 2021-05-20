@@ -261,6 +261,7 @@ export default class CreateMixin extends Vue {
           res.deviceStatus = res.deviceChannels[0].deviceStatus
           res.recordStatus = res.deviceChannels[0].recordStatus
           res.deviceStreams = res.deviceChannels[0].deviceStreams
+          res.recordTaskId = res.deviceChannels[0].recordTaskId
         }
         this.deviceList = [ res ]
       }
