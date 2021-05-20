@@ -59,7 +59,4 @@ export default class extends Vue {
       }
     }
   }
-  [v-cloak] {
-    display: none;
-  }
 </style>
