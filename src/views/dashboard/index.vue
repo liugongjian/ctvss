@@ -6,7 +6,7 @@
         <DashboardFlowAndDevice :height="34" />
         <DashboardResourcePackage @ai-change="aiChange" />
       </div>
-      <div v-show="aiPakageNum > 0" class="dashboard-wrap-overview__right">
+      <div v-if="aiPakageNum > 0" class="dashboard-wrap-overview__right">
         <DashboardAIAbility />
         <DashboardAlertLive :is-light="true" />
         <DashboardAlertToday :is-light="true" :height="19" />
@@ -35,10 +35,9 @@ import { Component, Vue } from 'vue-property-decorator'
   }
 })
 export default class extends Vue {
-  private aiPakageNum = 10
+  private aiPakageNum = 0
   private aiChange(packageData: any) {
     this.aiPakageNum = packageData.ai
-    console.log(this.aiPakageNum)
   }
 }
 </script>
