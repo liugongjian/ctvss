@@ -63,64 +63,72 @@ if (isIE()) {
   document.getElementsByTagName('html')[0].className = 'ie'
 }
 
-CtcloudLayout.getPublicInfo().authCurrentPromise.then((data :any) => {
-  if (!data.isLoggedIn) {
-    // 天翼云未登录
-    const loginType = getLocalStorage('loginType')
-    switch (loginType) {
-      case 'main':
-      case 'sub':
-        new Vue({
-          router,
-          store,
-          render: (h) => h(App)
-        }).$mount('#app')
-        break
-      default: {
-        UserModule.ResetToken()
-        const href = window.location.href
-        const path = href.split('#')[1]
-        if (path.startsWith('/login') || path.startsWith('/login/subAccount') || path.startsWith('/reset-password')) {
-          // 访问平台主子账号登录路径or子账号重置密码
+try {
+  CtcloudLayout.getPublicInfo().authCurrentPromise.then((data :any) => {
+    if (!data.isLoggedIn) {
+      // 天翼云未登录
+      const loginType = getLocalStorage('loginType')
+      switch (loginType) {
+        case 'main':
+        case 'sub':
           new Vue({
             router,
             store,
             render: (h) => h(App)
           }).$mount('#app')
-        } else {
-          // 访问平台其他路径
-          window.location.href = `${settings.casLoginUrl}`
+          break
+        default: {
+          UserModule.ResetToken()
+          const href = window.location.href
+          const path = href.split('#')[1]
+          if (path.startsWith('/login') || path.startsWith('/login/subAccount') || path.startsWith('/reset-password')) {
+            // 访问平台主子账号登录路径or子账号重置密码
+            new Vue({
+              router,
+              store,
+              render: (h) => h(App)
+            }).$mount('#app')
+          } else {
+            // 访问平台其他路径
+            window.location.href = `${settings.casLoginUrl}`
+          }
         }
       }
-    }
-  } else {
-    // 天翼云已登录
-    const loginId = data.isLoggedIn ? data.property.loginId : null
-    const localLoginId = getLocalStorage('ctLoginId')
-    if (localLoginId && localLoginId !== loginId) {
-      console.log('切换用户登录。。。。。。。')
-      localStorage.clear()
-      window.location.href = `${settings.casLoginUrl}`
     } else {
-      const originalLoginType = getLocalStorage('loginType')
-      console.log('originalLoginType: ', originalLoginType)
-      if (originalLoginType !== 'cas') {
-        UserModule.ResetToken()
+      // 天翼云已登录
+      const loginId = data.isLoggedIn ? data.property.loginId : null
+      const localLoginId = getLocalStorage('ctLoginId')
+      if (localLoginId && localLoginId !== loginId) {
+        console.log('切换用户登录。。。。。。。')
+        localStorage.clear()
+        window.location.href = `${settings.casLoginUrl}`
+      } else {
+        const originalLoginType = getLocalStorage('loginType')
+        console.log('originalLoginType: ', originalLoginType)
+        if (originalLoginType !== 'cas') {
+          UserModule.ResetToken()
+        }
+        UserModule.SetCTLoginId(loginId)
+        GroupModule.GetGroupFromLs()
+        setLocalStorage('loginType', 'cas')
+        const href = window.location.href
+        if (href.indexOf('token=') !== -1) {
+          const token = href.slice(href.indexOf('token=') + 'token='.length, href.lastIndexOf('#'))
+          UserModule.SetToken(token)
+          window.history.replaceState(null, '', href.slice(0, href.indexOf('?token=')))
+        }
+        new Vue({
+          router,
+          store,
+          render: (h) => h(App)
+        }).$mount('#app')
       }
-      UserModule.SetCTLoginId(loginId)
-      GroupModule.GetGroupFromLs()
-      setLocalStorage('loginType', 'cas')
-      const href = window.location.href
-      if (href.indexOf('token=') !== -1) {
-        const token = href.slice(href.indexOf('token=') + 'token='.length, href.lastIndexOf('#'))
-        UserModule.SetToken(token)
-        window.history.replaceState(null, '', href.slice(0, href.indexOf('?token=')))
-      }
-      new Vue({
-        router,
-        store,
-        render: (h) => h(App)
-      }).$mount('#app')
     }
-  }
-})
+  })
+} catch (e) {
+  new Vue({
+    router,
+    store,
+    render: (h) => h(App)
+  }).$mount('#app')
+}
