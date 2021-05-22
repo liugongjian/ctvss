@@ -3,6 +3,7 @@ import { getList as getGbList } from '@/api/certificate/gb28181'
 import { exportDeviceAll, exportDeviceOption } from '@/api/device'
 import { cityMapping, provinceMapping } from '@/assets/region/cities'
 import ExcelJS from 'exceljs'
+import { el } from 'date-fns/locale'
 
 @Component
 export default class ExcelMixin extends Vue {
@@ -21,6 +22,7 @@ export default class ExcelMixin extends Vue {
       visibility: 'visible'
     }
   ]
+  public regionName = ''
   private gbAccountList: any = []
   private cityList: any = []
   // 表格字段配置
@@ -163,6 +165,15 @@ export default class ExcelMixin extends Vue {
     // 获取预设城市选项
     const mainUserAddress: any = this.$store.state.user.mainUserAddress
     this.cityList = mainUserAddress.split(',').map((addressCode: any) => {
+      if (!addressCode) {
+        let findKey = (value: any, compare = (a: any, b: any) => a.substring(0, 2) === b.substring(0, 2)) =>{
+          return Object.keys(cityMapping).find(k => compare(cityMapping[k], value))
+        }
+        addressCode = findKey(this.regionName)
+        if (!addressCode) {
+          return []
+        }
+      }
       let provincelevelCities = [
         '北京市',
         '天津市',

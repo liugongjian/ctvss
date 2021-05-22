@@ -348,6 +348,7 @@ export default class extends Mixins(listMixin, excelMixin) {
     this.exelType = 'template'
     this.exelDeviceType = 'gb28181'
     this.exelName = 'GB28181导入模板'
+    this.regionName = this.groupData?.regionName
     this.exportExel()
   }
 }
