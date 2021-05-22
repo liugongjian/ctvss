@@ -113,6 +113,10 @@ export default class CreateMixin extends Vue {
     return GroupModule.group?.groupId
   }
 
+  public get groupData() {
+    return GroupModule.group
+  }
+
   public get isCreateSubDevice() {
     return this.deviceInfo && this.deviceInfo.createSubDevice === 1
   }
@@ -431,7 +435,7 @@ export default class CreateMixin extends Vue {
       this.$alertError('请先选择设备')
       return
     }
-    switch (command.type) {
+    switch (command) {
       case 'move':
         this.batchMoveDir()
         break
