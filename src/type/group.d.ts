@@ -10,7 +10,7 @@ export interface Group {
   region?: string | Array<string>;
   createdTime?: string;
   description?: string;
-  regionName?: any;
+  regionName?: string;
   sipId?: number;
   sipIp?: string;
   sipTcpPort?: number;
