@@ -11,7 +11,8 @@
         <div class="alert-list__datetime">{{ item.formatedTime }}</div>
       </li>
     </ul>
-    <audio ref="audio" :src="require('@/assets/dashboard/alert.mp3')" preload="auto" />
+    <audio ref="audio" :src="alertFile" preload="auto" />
+    <el-button @click="play">play</el-button>
     <DashboardAlertLiveDetailDialog v-if="dialog" :is-light="isLight" theme="dashboard-alert-live-dialog" :audit="currentItem" @on-close="closeDialog" />
   </component>
 </template>
@@ -44,6 +45,7 @@ export default class extends Mixins(DashboardMixin) {
   private list: any = []
   public intervalTime = 15 * 1000
   private lastTime: any = null
+  private alertFile = null
 
   @Prop({ default: false })
   private isLight?: boolean
@@ -53,6 +55,13 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   private mounted() {
+    const mainUserID = this.$store.state.user.mainUserID
+    // TODO: 九江码头改音效
+    if (mainUserID === '90009') {
+      this.alertFile = require('@/assets/dashboard/alert2.mp3')
+    } else {
+      this.alertFile = require('@/assets/dashboard/alert.mp3')
+    }
     this.setInterval(this.updateAuditList)
   }
 
