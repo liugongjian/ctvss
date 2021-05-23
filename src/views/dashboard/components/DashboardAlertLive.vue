@@ -12,7 +12,6 @@
       </li>
     </ul>
     <audio ref="audio" :src="alertFile" preload="auto" />
-    <el-button @click="play">play</el-button>
     <DashboardAlertLiveDetailDialog v-if="dialog" :is-light="isLight" theme="dashboard-alert-live-dialog" :audit="currentItem" @on-close="closeDialog" />
   </component>
 </template>
