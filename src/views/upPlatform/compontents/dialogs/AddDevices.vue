@@ -57,9 +57,10 @@
   </el-dialog>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
+import { shareDevice, describeShareDevices } from '@/api/upPlatform'
 
 @Component({
   name: 'AddDevices',
@@ -79,6 +80,8 @@ export default class extends Vue {
     children: 'children',
     isLeaf: 'isLeaf'
   }
+  @Prop()
+  private platform: any
 
   private mounted() {
     this.initDirs()
