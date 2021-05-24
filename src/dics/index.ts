@@ -29,7 +29,8 @@ export const InProtocolType = {
   'gb28181': 'GB28181',
   'rtmp': 'RTMP',
   'onvif': 'ONVIF',
-  'rtsp': 'RTSP'
+  'rtsp': 'RTSP',
+  'ehome': 'EHOME'
 }
 
 export const OutProtocolType = {
@@ -164,4 +165,18 @@ export const AiMaskType: any = {
 export const AlertParams = {
   'alertLevel': '告警级别',
   'alertType': '告警类型'
+}
+
+export const ResourceType = {
+  'VSS_VIDEO': '视频包',
+  'VSS_UPLOAD_BW': '上行带宽包',
+  'VSS_DOWNLOAD_BW': '下行带宽包',
+  'VSS_AI': 'AI包'
+}
+
+export const ResourceAiType = {
+  'VSS_VIDEO': '视频包',
+  'VSS_UPLOAD_BW': '上行带宽包',
+  'VSS_DOWNLOAD_BW': '下行带宽包',
+  'VSS_AI': 'AI包'
 }

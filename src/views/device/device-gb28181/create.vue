@@ -25,7 +25,7 @@
           </div>
         </el-form-item>
         <el-form-item label="设备类型:" prop="deviceType">
-          <el-select v-model="form.deviceType" placeholder="请选择" :disabled="isUpdate">
+          <el-select v-model="form.deviceType" placeholder="请选择" :disabled="isUpdate" @change="clearValidate">
             <el-option v-for="item in deviceTypeList" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>

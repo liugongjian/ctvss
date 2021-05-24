@@ -1,14 +1,14 @@
 <template>
   <el-dialog
     title="告警详情"
-    :custom-class="theme"
+    :custom-class="{theme: !isLight}"
     :visible="dialogVisible"
     :close-on-click-modal="true"
     width="50%"
     center
     @close="closeDialog"
   >
-    <div v-loading="loading" class="alert" :class="theme">
+    <div v-loading="loading" class="alert" :class="{theme: true, 'light-alert': isLight}">
       <div class="alert-header">
         <div class="alert-header__type">事件类型: {{ alertType[audit.event] }}</div>
         <div class="alert-header__device">{{ audit.deviceName }}</div>
@@ -33,21 +33,7 @@
           <div class="alert-body__image__decorator--bottom" />
           <div class="alert-body__image__wrap">
             <img ref="img" :src="audit.url" @load="onload">
-            <div
-              v-for="(location, locationIndex) in audit.locations"
-              :key="locationIndex"
-              class="alert-body__image__mask"
-              :class="{'alert-body__image__mask--warning': location.isWarning}"
-              :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
-            >
-              <div v-if="audit.event === '6'" class="alert-body__image__mask__text" :class="{'alert-body__image__mask__text--warning': location.isWarning}">
-                {{ aiMaskType[location.type] }}
-              </div>
-              <!-- <div v-if="audit.event === '3'" class="alert-body__image__mask__text alert-body__image__mask__text--warning">
-                {{ location.label }}
-              </div> -->
-            </div>
-            <div v-if="audit.event === '2'" class="alert-body__image__mask__count" :class="{'alert-body__image__mask__count--warning': audit && audit.locations && audit.locations.length > 5}">聚集人数: {{ audit && audit.locations && audit.locations.length || '-' }}</div>
+            <Locations :type="audit.event" :img="audit" />
           </div>
         </div>
       </div>
@@ -58,13 +44,15 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { getRecordAudits } from '@/api/dashboard'
 import { AlertType, AlertLevel, AlertIcon, AiMaskType } from '@/dics'
-import { parseMetaData } from '@/utils/ai'
+import { parseMetaData, transformLocation } from '@/utils/ai'
 import Player from '@/views/device/components/Player.vue'
+import Locations from '@/views/dashboard/ai/components/Locations.vue'
 
 @Component({
   name: 'AlertBoardDetailDialog',
   components: {
-    Player
+    Player,
+    Locations
   }
 })
 export default class extends Vue {
@@ -78,6 +66,8 @@ export default class extends Vue {
   private auditDetail: any = null
   private loading = false
   private error: any = null
+  @Prop({ default: false })
+  private isLight?: boolean
 
   private mounted() {
     // this.getRecordAudits()
@@ -111,14 +101,7 @@ export default class extends Vue {
     const metaData = JSON.parse(this.audit.metaData)
     const img: any = this.$refs.img
     const locations = parseMetaData(this.audit.event, metaData)
-    locations.forEach((location: any) => {
-      location.ratio = img.clientWidth / img.naturalWidth
-      location.clientTopPercent = location.top * location.ratio / img.clientHeight * 100
-      location.clientLeftPercent = location.left * location.ratio / img.clientWidth * 100
-      location.clientWidthPercent = location.width * location.ratio / img.clientWidth * 100
-      location.clientHeightPercent = location.height * location.ratio / img.clientHeight * 100
-    })
-    this.$set(this.audit, 'locations', locations)
+    this.$set(this.audit, 'locations', transformLocation(locations, img))
   }
 
   private closeDialog(isRefresh: boolean = false) {
@@ -128,6 +111,45 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
+  $lightColor: #CCC;
+  .light-alert {
+    .alert-header {
+      border-bottom: 1px solid $lightColor;
+    }
+    .alert-body {
+      &__image {
+        border: 1px solid $lightColor;
+        border-left: 5px solid $lightColor;
+        border-right: 5px solid $lightColor;
+        &__mask {
+          &__count {
+            color: $text;
+          }
+        }
+        &__decorator--top,
+        &__decorator--bottom {
+          position: absolute;
+          width: 100%;
+          left: 0;
+          &::before, &::after {
+            border-top: 7px solid $lightColor;
+          }
+          &::before {
+            left: 0;
+          }
+          &::after {
+            right: 0;
+          }
+        }
+      }
+    }
+    .dashboard-alert-live-dialog {
+      .alert-body {
+        border-top: 1px solid #6086a6;
+      }
+    }
+  }
+
   .alert {
     min-height: 10vh;
   }

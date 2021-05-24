@@ -100,7 +100,7 @@ export const asyncRoutes: RouteConfig[] = [
     component: Layout,
     meta: {
       id: '20210424150201001000',
-      title: '首页',
+      title: '概览',
       icon: 'dashboard',
       breadcrumb: false,
       perms: ['GET'],
@@ -113,9 +113,9 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'dashboard',
         meta: {
           id: '20210424150201001001',
-          title: '首页',
+          title: '概览',
           icon: 'dashboard',
-          breadcrumb: false
+          breadcrumb: true
         }
       },
       {
@@ -125,6 +125,18 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           id: '20210424150201001002',
           title: 'AI监控告警',
+          hidden: true,
+          icon: 'dashboard',
+          breadcrumb: false
+        }
+      },
+      {
+        path: 'visualization-dashboard',
+        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/dashboard/VisualizationDashboard.vue'),
+        name: 'visualizationDashboard',
+        meta: {
+          id: '20210424150201001003',
+          title: '可视化大屏',
           hidden: true,
           icon: 'dashboard',
           breadcrumb: false
@@ -152,7 +164,8 @@ export const asyncRoutes: RouteConfig[] = [
           title: '业务组管理',
           icon: 'tree',
           breadcrumb: false,
-          perms: ['GET']
+          perms: ['GET'],
+          activeMenu: '/group'
         }
       },
       {
@@ -440,6 +453,7 @@ export const asyncRoutes: RouteConfig[] = [
   {
     path: '/certificate',
     component: Layout,
+    name: 'certificate',
     meta: {
       id: '20210424150201007000',
       title: '凭证管理',
@@ -458,7 +472,8 @@ export const asyncRoutes: RouteConfig[] = [
           name: 'certificate',
           title: 'GB28181凭证',
           icon: 'dot',
-          perms: ['*']
+          perms: ['*'],
+          activeMenu: '/certificate/gb28181'
         }
       },
       {
@@ -469,7 +484,8 @@ export const asyncRoutes: RouteConfig[] = [
           id: '20210424150201007002',
           title: '新建GB28181凭证',
           hidden: true,
-          perms: ['*']
+          perms: ['*'],
+          activeMenu: '/certificate/gb28181'
         }
       },
       {
@@ -480,7 +496,8 @@ export const asyncRoutes: RouteConfig[] = [
           id: '20210424150201007003',
           title: '编辑GB28181凭证',
           hidden: true,
-          perms: ['*']
+          perms: ['*'],
+          activeMenu: '/certificate/gb28181'
         }
       }
     ]
@@ -507,7 +524,8 @@ export const asyncRoutes: RouteConfig[] = [
           id: '20210424150201008001',
           title: '录制模板',
           icon: 'dot',
-          perms: ['*']
+          perms: ['*'],
+          activeMenu: '/template/record'
         }
       },
       {
@@ -542,7 +560,8 @@ export const asyncRoutes: RouteConfig[] = [
           id: '20210424150201008004',
           title: '回调模板',
           icon: 'dot',
-          perms: ['*']
+          perms: ['*'],
+          activeMenu: '/template/callback'
         }
       },
       {
@@ -577,7 +596,8 @@ export const asyncRoutes: RouteConfig[] = [
           id: '20210424150201008007',
           title: 'AI模板',
           icon: 'dot',
-          perms: ['*']
+          perms: ['*'],
+          activeMenu: '/template/ai'
         }
       },
       {
@@ -824,6 +844,31 @@ export const asyncRoutes: RouteConfig[] = [
       //     perms: ['*']
       //   }
       // }
+    ]
+  },
+  {
+    path: '/billing',
+    component: Layout,
+    meta: {
+      id: '20210515200901012000',
+      title: '计费详情',
+      icon: 'billing',
+      alwaysShow: true,
+      breadcrumb: false,
+      perms: ['*']
+    },
+    children: [
+      {
+        path: 'resource',
+        component: () => import(/* webpackChunkName: "billing" */ '@/views/billing/resource/index.vue'),
+        name: 'billing-resource',
+        meta: {
+          id: '20210515200901012001',
+          title: '资源包管理',
+          icon: 'dot',
+          perms: ['*']
+        }
+      }
     ]
   },
   {

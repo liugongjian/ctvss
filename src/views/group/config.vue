@@ -14,7 +14,7 @@
             {{ form.outProtocol.map(item => OutProtocolType[item]).join(',') }}
           </info-list-item>
           <!-- 以下字段仅在国标业务组中显示 -->
-          <template v-if="form.inProtocol === 'gb28181'">
+          <template v-if="form.inProtocol === 'gb28181' || form.inProtocol === 'ehome'">
             <info-list-item label="自动拉流:">{{ PullType[form.pullType] }}</info-list-item>
             <info-list-item label="SIP服务器ID:">{{ form.sipId }}</info-list-item>
             <info-list-item label="SIP服务器地址:">{{ form.sipIp }}</info-list-item>
@@ -22,10 +22,16 @@
             <info-list-item label="SIP服务器UDP端口:">{{ form.sipUdpPort }}</info-list-item>
           </template>
           <!-- 以下字段仅在RTMP/RTSP业务组中显示 -->
-          <template v-if="form.inProtocol !== 'gb28181'">
+          <template v-if="form.inProtocol === 'rtsp' || form.inProtocol === 'rtmp'">
             <info-list-item label="自动拉流:">{{ PullType[form.pullType] }}</info-list-item>
             <info-list-item label="自动激活推流地址:">{{ PushType[form.pushType] }}</info-list-item>
           </template>
+          <info-list-item label="接入网络:">
+            {{ form.inNetworkType === 'private' ? '专线网络' : '互联网' }}
+          </info-list-item>
+          <info-list-item label="播放网络:">
+            {{ form.outNetworkType === 'private' ? '专线网络' : '互联网' }}
+          </info-list-item>
         </info-list>
       </el-tab-pane>
       <el-tab-pane label="模板配置" name="template">

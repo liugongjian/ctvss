@@ -83,7 +83,7 @@ export default class extends Vue {
     this.handleDrag.timelineSize = $timeline.getBoundingClientRect()
     const $handle: any = this.$refs.handle
     const handleSize = $handle.getBoundingClientRect()
-    const offsetX = e.x - handleSize.x
+    const offsetX = e.x - handleSize.left
     this.handleDrag.deltaX = offsetX - handleSize.width
     window.addEventListener('mousemove', this.onHandleMove)
     window.addEventListener('mouseup', this.onHandleMouseup)
@@ -94,7 +94,7 @@ export default class extends Vue {
    */
   public onHandleMove(e: MouseEvent) {
     if (!this.handleDrag.isDragging) return
-    this.handlePos = (e.x - this.handleDrag.deltaX - this.handleDrag.timelineSize.x) / this.handleDrag.timelineSize.width * 100
+    this.handlePos = (e.x - this.handleDrag.deltaX - this.handleDrag.timelineSize.left) / this.handleDrag.timelineSize.width * 100
     this.currentTime = this.currentDate! + this.handlePos * 24 * 60 * 60 * 10
   }
 
@@ -155,9 +155,9 @@ export default class extends Vue {
     const handleSize = $handle.getBoundingClientRect()
     const $timeline: any = this.$refs.timeline
     const timelineSize = $timeline.getBoundingClientRect()
-    if ((handleSize.x - $time.offsetWidth / 2) < timelineSize.x) {
+    if ((handleSize.left - $time.offsetWidth / 2) < timelineSize.left) {
       $time.style.left = `-5px`
-    } else if ((handleSize.x + $time.offsetWidth / 2) > (timelineSize.x + timelineSize.width)) {
+    } else if ((handleSize.left + $time.offsetWidth / 2) > (timelineSize.left + timelineSize.width)) {
       $time.style.left = `-${$time.offsetWidth - 5}px`
     } else {
       $time.style.left = `-${$time.offsetWidth / 2}px`

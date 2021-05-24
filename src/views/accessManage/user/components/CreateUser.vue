@@ -16,8 +16,7 @@
           </el-form-item>
           <el-form-item prop="accessType" label="访问方式：">
             <template>
-              <el-switch v-show="false" v-model="form.accessType" />
-              <el-checkbox v-model="form.consoleEnabled" @change="accessTypeChange">控制台访问</el-checkbox>
+              <el-checkbox v-model="form.consoleEnabled" :disabled="type === 'edit'" @change="accessTypeChange">控制台访问</el-checkbox>
               <el-popover
                 placement="top-start"
                 title="控制台访问"
@@ -28,7 +27,7 @@
               >
                 <svg-icon slot="reference" class="form-question sign" name="help" />
               </el-popover>
-              <el-checkbox v-model="form.apiEnabled" @change="accessTypeChange">编程访问</el-checkbox>
+              <el-checkbox v-model="form.apiEnabled" :disabled="type === 'edit'" @change="accessTypeChange">编程访问</el-checkbox>
               <el-popover
                 placement="top-start"
                 title="编程访问"
@@ -146,7 +145,6 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import copy from 'copy-to-clipboard'
-import { ExportToCsv } from 'export-to-csv'
 import ExcelJS from 'exceljs'
 import { createUser, getUser, modifyUser, getPolicyList } from '@/api/accessManage'
 @Component({
@@ -156,7 +154,6 @@ export default class extends Vue {
   private type: any = ''
   private loading: any = {
     form: false,
-    table: false,
     submit: false
   }
   private cardIndex: string = 'form'
@@ -235,13 +232,20 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    await this.getPolicyList()
-    this.type = this.$route.query.type
-    if (this.type === 'edit') {
-      this.breadCrumbContent = '编辑用户'
-      this.getUser()
-    } else if (this.type === 'add') {
-      this.breadCrumbContent = '创建用户'
+    try {
+      this.loading.form = true
+      await this.getPolicyList()
+      this.type = this.$route.query.type
+      if (this.type === 'edit') {
+        this.breadCrumbContent = '编辑用户'
+        this.getUser()
+      } else if (this.type === 'add') {
+        this.breadCrumbContent = '创建用户'
+      }
+    } catch (e) {
+      console.log(e)
+    } finally {
+      this.loading.form = false
     }
   }
 
@@ -250,7 +254,6 @@ export default class extends Vue {
       pageSize: 1000
     }
     try {
-      this.loading.table = true
       let res: any = await getPolicyList(params)
       this.policyList = []
       for (let i = 0; i < res.iamPolices.length; i++) {
@@ -263,14 +266,11 @@ export default class extends Vue {
       }
     } catch (e) {
       this.$message.error(e && e.message)
-    } finally {
-      this.loading.table = false
     }
   }
 
   private async getUser() {
     try {
-      this.loading.form = true
       let res = await getUser({ iamUserId: this.$router.currentRoute.query.userId })
       this.form = {
         iamUserName: res.iamUserName,
@@ -287,8 +287,6 @@ export default class extends Vue {
     } catch (e) {
       this.$message.error(e && e.message)
       this.back()
-    } finally {
-      this.loading.form = false
     }
   }
   private async operateUser(type: any) {
@@ -335,32 +333,6 @@ export default class extends Vue {
   }
 
   /**
-   * 导出CSV
-   */
-  private exportCsv() {
-    const options = {
-      filename: '新建用户的所有信息',
-      fieldSeparator: ',',
-      quoteStrings: '"',
-      decimalSeparator: '.',
-      showLabels: true,
-      useTextFile: false,
-      useBom: true,
-      useKeysAsHeaders: true
-    }
-    const csvExporter = new ExportToCsv(options)
-    const data = this.newUserData.map((user: any) => {
-      return {
-        '用户名': user.userName,
-        '密码': user.passwords,
-        'secretId': user.secretId ? user.secretId : '--',
-        'secretKey': user.secretKey ? user.secretKey : '--'
-      }
-    })
-    csvExporter.generateCsv(data)
-  }
-
-  /**
    * 导出xlsx
    */
   private async exportExel() {
@@ -378,22 +350,16 @@ export default class extends Vue {
       }
     ]
     const worksheet: any = workbook.addWorksheet('My Sheet')
-    let options: any = {
-      name: exelName,
-      ref: 'A1',
-      columns: [
-        { name: '用户名' },
-        { name: '密码' },
-        { name: 'secretId' },
-        { name: 'secretKey' }
-      ],
-      rows: []
-    }
-    options.rows = this.newUserData.map((user: any) => {
-      return [user.userName, user.passwords, user.secretId ? user.secretId : '--', user.secretKey ? user.secretKey : '--']
+    worksheet.name = exelName
+    worksheet.columns = [
+      { header: '用户名', key: 'userName', width: 16 },
+      { header: '密码', key: 'passwords', width: 16 },
+      { header: 'secretId', key: 'secretId', width: 48 },
+      { header: 'secretKey', key: 'secretKey', width: 48 }
+    ]
+    this.newUserData.forEach((user: any) => {
+      worksheet.addRow(user)
     })
-    worksheet.addTable(options)
-
     const buffer = await workbook.xlsx.writeBuffer()
     var blob = new Blob([buffer], { type: 'application/xlsx' })
     var link = document.createElement('a')
