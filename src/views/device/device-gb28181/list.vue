@@ -49,8 +49,7 @@
         <el-button v-if="isPlatform" key="check-platform" @click="goToDetail(deviceInfo)">查看Platform详情</el-button>
         <el-button v-if="isPlatform && checkPermission(['*'])" key="edit-platform" @click="goToUpdate(deviceInfo)">编辑Platform</el-button>
         <el-button v-if="isPlatform" key="sync" :loading="loading.syncDevice" @click="syncDevice">同步</el-button>
-        <el-button v-if="isNVR" :loading="exportLoading" @click="exportExcel('specialAll')">导出</el-button>
-        <el-dropdown v-else placement="bottom" @command="exportExcel">
+        <el-dropdown placement="bottom" @command="exportExcel">
           <el-button :loading="exportLoading">导出<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item v-if="!isChannel" command="exportAll" :disabled="!deviceList.length">导出全部</el-dropdown-item>
