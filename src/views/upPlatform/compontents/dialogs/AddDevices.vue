@@ -61,7 +61,6 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
 import { shareDevice, describeShareDevices } from '@/api/upPlatform'
-import { group } from 'console'
 
 @Component({
   name: 'AddDevices',
@@ -83,11 +82,13 @@ export default class extends Vue {
   }
   @Prop()
   private platformId: any
+  private typeMapping: any = {
+    dir: 0,
+    nvr: 1
+  }
 
   private mounted() {
     this.initDirs()
-    console.log(this.platformId);
-    
   }
 
   /**
@@ -217,7 +218,7 @@ export default class extends Vue {
       this.deviceList.forEach((item: any) => {
         // 构建group
         const groupId = item.path[0].id
-        let currentGroup = groups.find((group: any) => group.id === groupId)
+        let currentGroup = groups.find((group: any) => group.groupId === groupId)
         if (!currentGroup) {
           currentGroup = {
             groupId: groupId,
@@ -228,21 +229,44 @@ export default class extends Vue {
         }
         // 构建dir列表
         const pathDirs = item.path.filter((path: any) => {
-          if (path.type === 'dir') return true
+          if (path.type === 'dir' || path.type === 'nvr') return true
         })
         let dirId = 0
         let currentGroupDir
+        let dirType = 0
+        let parentDirId = '0'
         if (pathDirs.length) {
+          const parentPath = pathDirs.slice(0, -1)
+          parentDirId = '0'
+          if (parentPath.length) {
+            const ids = parentPath.map((path: any) => {
+              return path.id
+            })
+            console.log(ids)
+            parentDirId = ids.join(',')
+          }
           dirId = pathDirs[pathDirs.length - 1].id
-          currentGroupDir = currentGroup.dirs.find((dir: any) => dir.id === dirId)
+          dirType = pathDirs[pathDirs.length - 1].type
+          currentGroupDir = currentGroup.dirs.find((dir: any) => dir.dirId === dirId)
           if (!currentGroupDir) {
             currentGroupDir = {
-              id: dirId,
-              dirType: 0,
+              dirId,
+              parentDirId,
+              dirType: this.typeMapping[dirType],
               devices: []
             }
             currentGroup.dirs.push(currentGroupDir)
           }
+        }
+        currentGroupDir = currentGroup.dirs.find((dir: any) => dir.dirId === dirId)
+        if (!currentGroupDir) {
+          currentGroupDir = {
+            dirId,
+            parentDirId,
+            dirType,
+            devices: []
+          }
+          currentGroup.dirs.push(currentGroupDir)
         }
         // 构建ipc
         currentGroupDir.devices.push({
@@ -251,6 +275,8 @@ export default class extends Vue {
       })
       console.log(groups)
       shareDevice({
+        platformId: this.platformId,
+        vssGroups: groups
       })
       this.$message.success('添加资源成功！')
     } catch (e) {
