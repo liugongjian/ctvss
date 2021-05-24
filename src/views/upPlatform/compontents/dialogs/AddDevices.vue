@@ -82,10 +82,12 @@ export default class extends Vue {
     isLeaf: 'isLeaf'
   }
   @Prop()
-  private platform: any
+  private platformId: any
 
   private mounted() {
     this.initDirs()
+    console.log(this.platformId);
+    
   }
 
   /**
