@@ -5,15 +5,18 @@
         <el-tooltip content="添加上级平台">
           <el-button type="primary" @click="handleCreate"><svg-icon name="plus" /></el-button>
         </el-tooltip>
-        <el-input v-model="platformKeyword" class="platform__header--search" placeholder="请输入关键词" @keyup.enter.native="handleFilter">
-          <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
+        <el-input v-model="platformKeyword" class="platform__header--search" placeholder="请输入关键词" clearable>
+          <svg-icon slot="append" name="search" />
         </el-input>
       </div>
       <div class="platform__list">
         <ul>
-          <li v-for="platform in platformList" :key="platform.platformId" @click="selectPlatform(platform)">
+          <li v-for="platform in filteredPlatformList" :key="platform.platformId" :class="{'actived': currentPlatform && (currentPlatform.platformId === platform.platformId)}" @click="selectPlatform(platform)">
             <span><svg-icon name="dot" /> {{ platform.name }}</span>
             <div class="tools">
+              <el-tooltip class="item" effect="dark" content="查看平台详情" placement="top" :open-delay="300">
+                <el-button type="text" @click.stop="viewPlatform(platform)"><svg-icon name="documentation" /></el-button>
+              </el-tooltip>
               <el-tooltip class="item" effect="dark" content="编辑平台" placement="top" :open-delay="300">
                 <el-button type="text" @click.stop="editPlatform(platform)"><svg-icon name="edit" /></el-button>
               </el-tooltip>
@@ -122,6 +125,7 @@
       </div>
     </el-card>
     <AddDevices v-if="dialog.addDevices" @on-close="dialog.addDevices = false" />
+    <PlatformDetail v-if="dialog.platformDetail" :platform-id="currentPlatformDetail.platformId" @on-close="dialog.platformDetail = false" />
   </div>
 </template>
 
@@ -131,11 +135,13 @@ import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
 import { getPlatforms, deletePlatform } from '@/api/upPlatform'
 import AddDevices from './compontents/dialogs/AddDevices.vue'
+import PlatformDetail from './compontents/dialogs/PlatformDetail.vue'
 
 @Component({
   name: 'UpPlatformList',
   components: {
-    AddDevices
+    AddDevices,
+    PlatformDetail
   }
 })
 export default class extends Vue {
@@ -145,6 +151,7 @@ export default class extends Vue {
   private breadcrumb: any = []
   private platformKeyword = ''
   private currentPlatform = null
+  private currentPlatformDetail = null
   public isExpanded = true
   public maxHeight = 1000
   public dirDrag = {
@@ -165,7 +172,8 @@ export default class extends Vue {
     sharedDevices: false
   }
   public dialog = {
-    addDevices: false
+    addDevices: false,
+    platformDetail: false
   }
   public treeProp = {
     label: 'label',
@@ -174,6 +182,16 @@ export default class extends Vue {
   }
   public tips = {
     addDevices: '下方列表显示已共享的设备，点击"添加资源"添加想要共享的设备。'
+  }
+
+  private get filteredPlatformList() {
+    if (!this.platformKeyword) {
+      return this.platformList
+    } else {
+      return this.platformList.filter((platform: any) => {
+        return ~platform.name.indexOf(this.platformKeyword)
+      })
+    }
   }
 
   private refresh() {
@@ -244,6 +262,14 @@ export default class extends Vue {
    */
   private selectPlatform(platform: any) {
     this.currentPlatform = platform
+  }
+
+  /**
+   * 查看平台详情
+   */
+  private viewPlatform(platform: any) {
+    this.dialog.platformDetail = true
+    this.currentPlatformDetail = platform
   }
 
   private async getList() {
@@ -439,6 +465,10 @@ export default class extends Vue {
         margin-right: 10px;
       }
 
+      ::v-deep .el-input-group__append {
+        padding: 0 10px;
+      }
+
       &--search {
         width: 172px;
       }
@@ -454,6 +484,7 @@ export default class extends Vue {
           height: 30px;
           line-height: 30px;
           cursor: pointer;
+          border-radius: 4px;
           span {
             display: block;
             white-space: nowrap;
@@ -480,10 +511,21 @@ export default class extends Vue {
             }
           }
 
-          &:hover, &.actived {
+          &:hover {
             background: $treeHover;
             .tools {
               display: block;
+            }
+          }
+
+          &.actived {
+            background: $primary;
+            color: #fff;
+            .tools {
+              background: $primary;
+            }
+            svg {
+              color: #fff;
             }
           }
         }
