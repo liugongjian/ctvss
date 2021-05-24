@@ -74,6 +74,7 @@
                 lazy
                 :load="loadDirs"
                 :props="treeProp"
+                @node-click="getList"
               >
                 <span
                   slot-scope="{node, data}"
@@ -105,7 +106,13 @@
           </div>
           <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
             <el-table v-loading="loading.sharedDevices" :data="dataList" fit>
-              <el-table-column prop="name" label="名称" min-width="160" />
+              <el-table-column prop="deviceName" label="名称" min-width="160" />
+              <el-table-column prop="deviceName" label="名称" min-width="160">
+                <template slot-scope="{row}">
+                  <status-badge :status="row.deviceStatus" />
+                  {{ deviceStatus[row.deviceStatus] || '-' }}
+                </template>
+              </el-table-column>
               <el-table-column prop="action" label="操作" width="80" fixed="right">
                 <template slot-scope="{row}">
                   <el-button type="text" @click="deleteCertificate(row)">移除</el-button>
@@ -124,14 +131,16 @@
         </div>
       </div>
     </el-card>
-    <AddDevices v-if="dialog.addDevices" :platform="currentPlatform" @on-close="dialog.addDevices = false" />
+    <AddDevices v-if="dialog.addDevices" :platform-id="currentPlatform.platformId" @on-close="dialog.addDevices = false" />
     <PlatformDetail v-if="dialog.platformDetail" :platform-id="currentPlatformDetail.platformId" @on-close="dialog.platformDetail = false" />
   </div>
 </template>
 
 <script lang='ts'>
 import { Component, Vue, Provide } from 'vue-property-decorator'
-import { describeShareGroups, describeShareDirs, getPlatforms, deletePlatform, cancleShareDevice } from '@/api/upPlatform'
+import { describeShareGroups, describeShareDirs, describeShareDevices, getPlatforms, deletePlatform, cancleShareDevice } from '@/api/upPlatform'
+import { DeviceStatus } from '@/dics'
+import StatusBadge from '@/components/StatusBadge/index.vue'
 import AddDevices from './compontents/dialogs/AddDevices.vue'
 import PlatformDetail from './compontents/dialogs/PlatformDetail.vue'
 
@@ -139,16 +148,19 @@ import PlatformDetail from './compontents/dialogs/PlatformDetail.vue'
   name: 'UpPlatformList',
   components: {
     AddDevices,
-    PlatformDetail
+    PlatformDetail,
+    StatusBadge
   }
 })
 export default class extends Vue {
+  private deviceStatus = DeviceStatus
   private dirList: Array<any> = []
   private platformList: Array<any> = []
   private dataList: any = []
   private breadcrumb: any = []
   private platformKeyword = ''
   private currentPlatform: any = {}
+  private currentNode: any = {}
   private currentPlatformDetail = null
   public isExpanded = true
   public maxHeight = 1000
@@ -193,13 +205,13 @@ export default class extends Vue {
   }
 
   private refresh() {
-    this.getList()
+    this.getList(this.currentNode)
   }
 
   private mounted() {
     this.getPlatformList()
-    this.getList()
-    this.initDirs()
+    this.getList(this.currentNode)
+    // this.initDirs()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
   }
@@ -271,17 +283,22 @@ export default class extends Vue {
     this.currentPlatformDetail = platform
   }
 
-  private async getList() {
+  private async getList(node: any) {
+    console.log(node);
+    let params: any = {
+      platformId: this.currentPlatform.platformId,
+      inProtocol: 'gb28181',
+      groupId: node.groupId,
+      dirId: node.dirId || '0',
+      dirType: node.dirType || '0',
+      pageNum: this.pager.pageNum,
+      pageSize: this.pager.pageSize
+    }
     this.loading.sharedDevices = true
     try {
-      this.dataList = [
-        {
-          name: '名称'
-        },
-        {
-          name: '名称'
-        }
-      ]
+      const res = await describeShareDevices(params)
+      this.dataList = res.devices
+      this.pager.total = res.totalNum
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
@@ -291,12 +308,12 @@ export default class extends Vue {
 
   private async handleSizeChange(val: number) {
     this.pager.pageSize = val
-    await this.getList()
+    await this.getList(this.currentNode)
   }
 
   private async handleCurrentChange(val: number) {
     this.pager.pageNum = val
-    await this.getList()
+    await this.getList(this.currentNode)
   }
 
   private handleCreate() {
@@ -309,7 +326,7 @@ export default class extends Vue {
 
   private async handleFilter() {
     this.pager.pageNum = 1
-    await this.getList()
+    await this.getList(this.currentNode)
   }
 
   @Provide('initDirs')
@@ -354,7 +371,11 @@ export default class extends Vue {
         inProtocol: node.data.inProtocol,
         platformId: this.currentPlatform.platformId
       })
-      resolve(res.dirs)
+      resolve({
+        ...res.dirs,
+        groupId: node.data.groupId,
+        platformId: this.currentPlatform.platformId
+      })
     } catch (e) {
       resolve([])
     }
