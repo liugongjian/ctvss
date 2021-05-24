@@ -93,16 +93,19 @@ export default class extends Vue {
       const res = await getGroups({
         pageSize: 1000
       })
-      this.dirList = res.groups.map((group: any) => {
-        return {
-          id: group.groupId,
-          groupId: group.groupId,
-          label: group.groupName,
-          inProtocol: group.inProtocol,
-          type: 'group',
-          disabled: true,
-          path: [group.groupName]
-        }
+      this.dirList = []
+      res.groups.forEach((group: any) => {
+        group.inProtocol === 'gb28181' && (
+          this.dirList.push({
+            id: group.groupId,
+            groupId: group.groupId,
+            label: group.groupName,
+            inProtocol: group.inProtocol,
+            type: 'group',
+            disabled: true,
+            path: [group.groupName]
+          })
+        )
       })
     } catch (e) {
       this.dirList = []

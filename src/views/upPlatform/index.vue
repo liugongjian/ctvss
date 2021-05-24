@@ -285,12 +285,15 @@ export default class extends Vue {
       const res = await getGroups({
         pageSize: 1000
       })
-      this.dirList = res.groups.map((group: any) => {
-        return {
-          id: group.groupId,
-          label: group.groupName,
-          type: 'dir' // TODO: 改成group
-        }
+      this.dirList = []
+      res.groups.forEach((group: any) => {
+        group.inProtocol === 'gb28181' && (
+          this.dirList.push({
+            id: group.groupId,
+            label: group.groupName,
+            type: 'dir' // TODO: 改成group
+          })
+        )
       })
       this.$nextTick(() => {
         // this.initTreeStatus()
