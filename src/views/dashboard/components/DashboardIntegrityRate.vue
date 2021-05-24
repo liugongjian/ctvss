@@ -15,9 +15,9 @@
         />
       </el-select>
     </template>
-    <div v-if="selectValue === '0'" class="content" :style="`height:${height}vh`">
-      <div class="content__calendar">
-        <div v-for="(item, index) in data" :key="index" class="content__calendar__item">
+    <div v-if="selectValue === '0'" class="contentIr" :style="`height:${height}vh`">
+      <div class="contentIr__calendar">
+        <div v-for="(item, index) in data" :key="index" class="contentIr__calendar__item">
           <el-tooltip
             placement="bottom"
             effect="light"
@@ -32,9 +32,9 @@
           </el-tooltip>
         </div>
       </div>
-      <div class="content__process">
-        <span class="content__process__span content__process__span--top">100%</span>
-        <span class="content__process__span content__process__span--bottom">0%</span>
+      <div class="contentIr__process">
+        <span class="contentIr__process__span contentIr__process__span--top">100%</span>
+        <span class="contentIr__process__span contentIr__process__span--bottom">0%</span>
       </div>
     </div>
     <div v-show="selectValue === '1'" id="chartContainer" :style="`height:${height}vh`" />
@@ -220,7 +220,7 @@ export default class extends Mixins(DashboardMixin) {
     width: 100%;
     height: 20vh;
   }
-  .content {
+  .contentIr {
     display: flex;
     justify-content: center;
     align-items: center;
