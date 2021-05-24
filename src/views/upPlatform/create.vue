@@ -48,7 +48,7 @@
             :options="regionList"
           />
         </el-form-item>
-        <el-form-item label="级联映射:" prop="isCascadeMapping">
+        <!-- <el-form-item label="级联映射:" prop="isCascadeMapping">
           <template slot="label">
             级联映射:
             <el-popover
@@ -63,7 +63,7 @@
             </el-popover>
           </template>
           <el-switch v-model="form.isCascadeMapping" />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="开启鉴权:" prop="isAuth">
           <el-switch v-model="form.isAuth" />
         </el-form-item>
@@ -137,7 +137,7 @@
 </template>
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
-import { createPlatform, getPlatform } from '@/api/upPlatform'
+import { createPlatform, updatePlatform, getPlatform } from '@/api/upPlatform'
 import { getRegions } from '@/api/region'
 
 @Component({
@@ -154,6 +154,7 @@ export default class extends Vue {
     gbId: '',
     isCascadeMapping: false,
     cascadeRegion: null,
+    isAuth: false,
     sipUser: '',
     sipPassword: '',
     registerInterval: 300,
@@ -163,6 +164,7 @@ export default class extends Vue {
     permissionSet: [],
     description: ''
   }
+  private submitting = false
   private loading = false
   private regionList = []
 
@@ -208,12 +210,12 @@ export default class extends Vue {
     return this.$route.name === 'up-platform-gb28121-update'
   }
 
-  private mounted() {
+  private async mounted() {
     this.breadCrumbContent = this.$route.meta.title
+    await this.getRegionList()
     if (this.isUpdate) {
       this.getPlatformInfo()
     }
-    this.getRegionList()
   }
 
   private async getPlatformInfo() {
@@ -221,6 +223,17 @@ export default class extends Vue {
     const res = await getPlatform({
       platformId
     })
+    const platform = res.platform
+    if (platform.permissionSet) {
+      platform.permissionSet = platform.permissionSet.split(',')
+    } else {
+      platform.permissionSet = []
+    }
+    if (platform.sipUser) {
+      platform.isAuth = true
+    }
+    platform.cascadeRegion = this.getRegionPath(this.regionList, platform.cascadeRegion)
+    this.form = Object.assign(this.form, platform)
   }
 
   /**
@@ -241,7 +254,6 @@ export default class extends Vue {
    * “SIP服务国标域”默认截取“SIP服务国标编码”的前十位
    */
   private onSipIdChange(sipId: string) {
-    console.log(sipId)
     const form: any = this.$refs.dataForm
     form.validateField('sipId', (e: string) => {
       if (!e) this.form.sipDomain = sipId.substring(0, 10)
@@ -253,10 +265,56 @@ export default class extends Vue {
   }
 
   private submit() {
-    const params = Object.assign({}, this.form)
-    params.cascadeRegion = this.form.cascadeRegion && this.form.cascadeRegion[1]
-    params.permissionSet = this.form.permissionSet.join(',')
-    createPlatform(params)
+    const form: any = this.$refs.dataForm
+    form.validate(async(valid: any) => {
+      if (valid) {
+        try {
+          this.submitting = true
+          const params = Object.assign({}, this.form)
+          params.cascadeRegion = this.form.cascadeRegion && this.form.cascadeRegion[1]
+          params.permissionSet = this.form.permissionSet && this.form.permissionSet.join(',')
+          if (!params.isAuth) {
+            params.sipUser = ''
+            params.sipPassword = ''
+          }
+          if (this.isUpdate) {
+            await updatePlatform(params)
+            this.$message.success('修改向上级联平台成功！')
+          } else {
+            await createPlatform(params)
+            this.$message.success('创建向上级联平台成功！')
+          }
+          this.back()
+        } catch (e) {
+          console.log(e)
+        } finally {
+          this.submitting = false
+        }
+      }
+    })
+  }
+
+  /**
+   * 递归查找目标区域的所在路径
+   */
+  private getRegionPath(regions: any, target: string) {
+    let path: Array<any> = []
+    try {
+      const _find: any = function(path: Array<string>, children: any, parentValue: any) {
+        for (let i = 0; i < children.length; i++) {
+          const item = children[i]
+          item.children && _find(path, item.children, item.value)
+          if (item.value === target) {
+            path.push(parentValue)
+            path.push(item.value)
+            throw new Error('found')
+          }
+        }
+      }
+      _find(path, regions, null)
+    // eslint-disable-next-line no-empty
+    } catch (e) {}
+    return path
   }
 
   /**
@@ -296,7 +354,7 @@ export default class extends Vue {
    * 校验SIP服务端口格式
    */
   private validateSipPort(rule: any, value: string, callback: Function) {
-    if (!/^[0-9]$/.test(value)) {
+    if (!/^[0-9]+$/.test(value)) {
       callback(new Error('SIP服务端口格式不正确'))
     } else {
       callback()
