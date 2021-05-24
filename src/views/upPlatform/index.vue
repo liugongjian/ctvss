@@ -171,6 +171,11 @@ export default class extends Vue {
     orginWidth: 200,
     width: 250
   }
+  private dirTypeMap: any = {
+    '0': 'dir',
+    '1': 'nvr',
+    '3': 'platform'
+  }
   private pager = {
     pageNum: 1,
     pageSize: 10,
@@ -344,7 +349,8 @@ export default class extends Vue {
             groupId: group.groupId,
             label: group.groupName,
             inProtocol: group.inProtocol,
-            gbId: group.gbId
+            gbId: group.gbId,
+            type: 'group'
           })
         )
       })
@@ -367,14 +373,15 @@ export default class extends Vue {
     try {
       const res = await describeShareDirs({
         groupId: node.data.groupId,
-        dirId: node.data.type === 'group' ? 0 : node.data.id,
+        dirId: node.data.type === 'group' ? 0 : node.data.dirId,
         inProtocol: node.data.inProtocol,
         platformId: this.currentPlatform.platformId
       })
       resolve({
         ...res.dirs,
         groupId: node.data.groupId,
-        platformId: this.currentPlatform.platformId
+        platformId: this.currentPlatform.platformId,
+        type: this.dirTypeMap[node.data.dirType]
       })
     } catch (e) {
       resolve([])
