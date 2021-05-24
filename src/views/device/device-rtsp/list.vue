@@ -30,7 +30,7 @@
         <el-dropdown placement="bottom" @command="exportExcel">
           <el-button :loading="exportLoading">导出<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="exportAll" :disabled="!deviceList.length">导出全部</el-dropdown-item>
+            <el-dropdown-item v-if="!isChannel" command="exportAll" :disabled="!deviceList.length">导出全部</el-dropdown-item>
             <el-dropdown-item command="exportCurrentPage" :disabled="!deviceList.length">导出当前页</el-dropdown-item>
             <el-dropdown-item command="exportSelect" :disabled="!selectedDeviceList.length">导出选定项</el-dropdown-item>
           </el-dropdown-menu>
