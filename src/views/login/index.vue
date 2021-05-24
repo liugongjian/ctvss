@@ -286,6 +286,7 @@ export default class extends Vue {
       if (valid) {
         try {
           this.loading = true
+          UserModule.ResetToken()
           await GroupModule.ResetGroup()
           await GroupModule.ResetGroupList()
           const loginData: any = {
