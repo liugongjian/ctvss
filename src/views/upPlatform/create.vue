@@ -48,7 +48,7 @@
             :options="regionList"
           />
         </el-form-item>
-        <el-form-item label="级联映射:" prop="isCascadeMapping">
+        <!-- <el-form-item label="级联映射:" prop="isCascadeMapping">
           <template slot="label">
             级联映射:
             <el-popover
@@ -63,7 +63,7 @@
             </el-popover>
           </template>
           <el-switch v-model="form.isCascadeMapping" />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="开启鉴权:" prop="isAuth">
           <el-switch v-model="form.isAuth" />
         </el-form-item>
@@ -154,6 +154,7 @@ export default class extends Vue {
     gbId: '',
     isCascadeMapping: false,
     cascadeRegion: null,
+    isAuth: false,
     sipUser: '',
     sipPassword: '',
     registerInterval: 300,
@@ -209,12 +210,12 @@ export default class extends Vue {
     return this.$route.name === 'up-platform-gb28121-update'
   }
 
-  private mounted() {
+  private async mounted() {
     this.breadCrumbContent = this.$route.meta.title
+    await this.getRegionList()
     if (this.isUpdate) {
       this.getPlatformInfo()
     }
-    this.getRegionList()
   }
 
   private async getPlatformInfo() {
@@ -222,12 +223,17 @@ export default class extends Vue {
     const res = await getPlatform({
       platformId
     })
-    if (res.permissionSet) {
-      res.permissionSet = res.permissionSet.split(',')
+    const platform = res.platform
+    if (platform.permissionSet) {
+      platform.permissionSet = platform.permissionSet.split(',')
     } else {
-      res.permissionSet = []
+      platform.permissionSet = []
     }
-    this.form = Object.assign(this.form, res.platform)
+    if (platform.sipUser) {
+      platform.isAuth = true
+    }
+    platform.cascadeRegion = this.getRegionPath(this.regionList, platform.cascadeRegion)
+    this.form = Object.assign(this.form, platform)
   }
 
   /**
@@ -267,6 +273,10 @@ export default class extends Vue {
           const params = Object.assign({}, this.form)
           params.cascadeRegion = this.form.cascadeRegion && this.form.cascadeRegion[1]
           params.permissionSet = this.form.permissionSet && this.form.permissionSet.join(',')
+          if (!params.isAuth) {
+            params.sipUser = ''
+            params.sipPassword = ''
+          }
           if (this.isUpdate) {
             await updatePlatform(params)
             this.$message.success('修改向上级联平台成功！')
@@ -282,6 +292,29 @@ export default class extends Vue {
         }
       }
     })
+  }
+
+  /**
+   * 递归查找目标区域的所在路径
+   */
+  private getRegionPath(regions: any, target: string) {
+    let path: Array<any> = []
+    try {
+      const _find: any = function(path: Array<string>, children: any, parentValue: any) {
+        for (let i = 0; i < children.length; i++) {
+          const item = children[i]
+          item.children && _find(path, item.children, item.value)
+          if (item.value === target) {
+            path.push(parentValue)
+            path.push(item.value)
+            throw new Error('found')
+          }
+        }
+      }
+      _find(path, regions, null)
+    // eslint-disable-next-line no-empty
+    } catch (e) {}
+    return path
   }
 
   /**

@@ -5,13 +5,13 @@
         <el-tooltip content="添加上级平台">
           <el-button type="primary" @click="handleCreate"><svg-icon name="plus" /></el-button>
         </el-tooltip>
-        <el-input class="platform__header--search" placeholder="请输入关键词" @keyup.enter.native="handleFilter">
+        <el-input v-model="platformKeyword" class="platform__header--search" placeholder="请输入关键词" @keyup.enter.native="handleFilter">
           <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
         </el-input>
       </div>
       <div class="platform__list">
         <ul>
-          <li v-for="platform in platformList" :key="platform.platformId">
+          <li v-for="platform in platformList" :key="platform.platformId" @click="selectPlatform(platform)">
             <span><svg-icon name="dot" /> {{ platform.name }}</span>
             <div class="tools">
               <el-tooltip class="item" effect="dark" content="编辑平台" placement="top" :open-delay="300">
@@ -143,6 +143,8 @@ export default class extends Vue {
   private platformList: Array<any> = []
   private dataList: any = []
   private breadcrumb: any = []
+  private platformKeyword = ''
+  private currentPlatform = null
   public isExpanded = true
   public maxHeight = 1000
   public dirDrag = {
@@ -235,6 +237,13 @@ export default class extends Vue {
         platformId: platform.platformId
       }
     })
+  }
+
+  /**
+   * 选择平台
+   */
+  private selectPlatform(platform: any) {
+    this.currentPlatform = platform
   }
 
   private async getList() {
@@ -471,7 +480,7 @@ export default class extends Vue {
             }
           }
 
-          &:hover {
+          &:hover, &.actived {
             background: $treeHover;
             .tools {
               display: block;

@@ -378,6 +378,7 @@ export const asyncRoutes: RouteConfig[] = [
     path: '/up-platform',
     component: Layout,
     meta: {
+      id: '20210524150201007000',
       title: '向上级联',
       icon: 'platform',
       alwaysShow: true,
@@ -390,17 +391,8 @@ export const asyncRoutes: RouteConfig[] = [
         component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/index.vue'),
         name: 'up-platform',
         meta: {
+          id: '20210524150201007001',
           title: 'GB28181级联',
-          icon: 'dot',
-          perms: ['GET']
-        }
-      },
-      {
-        path: 'gat1400',
-        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/index.vue'),
-        name: 'up-platform-gat1400',
-        meta: {
-          title: 'GAT1400级联',
           icon: 'dot',
           perms: ['GET']
         }
@@ -410,6 +402,7 @@ export const asyncRoutes: RouteConfig[] = [
         component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/create.vue'),
         name: 'up-platform-gb28121-create',
         meta: {
+          id: '20210524150201007002',
           title: '新建国标级联',
           hidden: true,
           perms: ['GET'],
@@ -421,33 +414,13 @@ export const asyncRoutes: RouteConfig[] = [
         component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/create.vue'),
         name: 'up-platform-gb28121-update',
         meta: {
+          id: '20210524150201007003',
           title: '编辑国标级联',
           hidden: true,
           perms: ['GET'],
           activeMenu: '/up-platform/gb28121'
         }
-      },
-      {
-        path: 'gat1400-create',
-        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/create-1400.vue'),
-        name: 'up-platform-create',
-        meta: {
-          title: '新建GAT1400级联',
-          hidden: true,
-          perms: ['GET'],
-          activeMenu: '/up-platform/gat1400'
-        }
       }
-      // {
-      //   path: 'gb28181/update/:id?',
-      //   component: () => import(/* webpackChunkName: "tree" */ '@/views/certificate/gb28181/create.vue'),
-      //   name: 'gb28181-update',
-      //   meta: {
-      //     title: '编辑GB28181凭证',
-      //     hidden: true,
-      //     perms: ['*']
-      //   }
-      // }
     ]
   },
   {
