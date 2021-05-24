@@ -57,9 +57,10 @@
   </el-dialog>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
+import { shareDevice, describeShareDevices } from '@/api/upPlatform'
 
 @Component({
   name: 'AddDevices',
@@ -79,6 +80,8 @@ export default class extends Vue {
     children: 'children',
     isLeaf: 'isLeaf'
   }
+  @Prop()
+  private platform: any
 
   private mounted() {
     this.initDirs()
@@ -93,20 +96,23 @@ export default class extends Vue {
       const res = await getGroups({
         pageSize: 1000
       })
-      this.dirList = res.groups.map((group: any) => {
-        return {
-          id: group.groupId,
-          groupId: group.groupId,
-          label: group.groupName,
-          inProtocol: group.inProtocol,
-          type: 'group',
-          disabled: true,
-          path: [{
+      this.dirList = []
+      res.groups.forEach((group: any) => {
+        group.inProtocol === 'gb28181' && (
+          this.dirList.push({
             id: group.groupId,
+            groupId: group.groupId,
             label: group.groupName,
-            type: 'group'
-          }]
-        }
+            inProtocol: group.inProtocol,
+            type: 'group',
+            disabled: true,
+            path: [{
+              id: group.groupId,
+              label: group.groupName,
+              type: 'group'
+            }]
+          })
+        )
       })
     } catch (e) {
       this.dirList = []

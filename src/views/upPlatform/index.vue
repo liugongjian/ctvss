@@ -124,16 +124,14 @@
         </div>
       </div>
     </el-card>
-    <AddDevices v-if="dialog.addDevices" @on-close="dialog.addDevices = false" />
+    <AddDevices v-if="dialog.addDevices" :platform="currentPlatform" @on-close="dialog.addDevices = false" />
     <PlatformDetail v-if="dialog.platformDetail" :platform-id="currentPlatformDetail.platformId" @on-close="dialog.platformDetail = false" />
   </div>
 </template>
 
 <script lang='ts'>
 import { Component, Vue, Provide } from 'vue-property-decorator'
-import { getDeviceTree } from '@/api/device'
-import { getGroups } from '@/api/group'
-import { getPlatforms, deletePlatform } from '@/api/upPlatform'
+import { describeShareGroups, describeShareDirs, getPlatforms, deletePlatform, cancleShareDevice } from '@/api/upPlatform'
 import AddDevices from './compontents/dialogs/AddDevices.vue'
 import PlatformDetail from './compontents/dialogs/PlatformDetail.vue'
 
@@ -150,7 +148,7 @@ export default class extends Vue {
   private dataList: any = []
   private breadcrumb: any = []
   private platformKeyword = ''
-  private currentPlatform = null
+  private currentPlatform: any = {}
   private currentPlatformDetail = null
   public isExpanded = true
   public maxHeight = 1000
@@ -262,6 +260,7 @@ export default class extends Vue {
    */
   private selectPlatform(platform: any) {
     this.currentPlatform = platform
+    this.initDirs()
   }
 
   /**
@@ -317,15 +316,20 @@ export default class extends Vue {
   public async initDirs() {
     try {
       this.loading.dir = true
-      const res = await getGroups({
+      const res = await describeShareGroups({
+        platformId: this.currentPlatform.platformId,
         pageSize: 1000
       })
-      this.dirList = res.groups.map((group: any) => {
-        return {
-          id: group.groupId,
-          label: group.groupName,
-          type: 'dir' // TODO: 改成group
-        }
+      this.dirList = []
+      res.groups.forEach((group: any) => {
+        group.inProtocol === 'gb28181' && (
+          this.dirList.push({
+            groupId: group.groupId,
+            label: group.groupName,
+            inProtocol: group.inProtocol,
+            gbId: group.gbId
+          })
+        )
       })
       this.$nextTick(() => {
         // this.initTreeStatus()
@@ -344,10 +348,11 @@ export default class extends Vue {
   public async loadDirs(node: any, resolve: Function) {
     if (node.level === 0) return resolve([])
     try {
-      const res = await getDeviceTree({
-        groupId: this.currentGroupId,
-        id: node.data.id,
-        type: node.data.type
+      const res = await describeShareDirs({
+        groupId: node.data.groupId,
+        dirId: node.data.type === 'group' ? 0 : node.data.id,
+        inProtocol: node.data.inProtocol,
+        platformId: this.currentPlatform.platformId
       })
       resolve(res.dirs)
     } catch (e) {

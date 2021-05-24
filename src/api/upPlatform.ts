@@ -49,3 +49,53 @@ export const deletePlatform = (params: any): Promise<any> =>
     method: 'post',
     data: params
   })
+
+/**
+ * 共享设备业务组查询
+ */
+export const describeShareGroups = (params: any): Promise<any> =>
+  request({
+    url: '/device/platform/describeShareGroups',
+    method: 'get',
+    params
+  })
+
+/**
+ * 共享设备目录查询
+ */
+export const describeShareDirs = (params: any): Promise<any> =>
+  request({
+    url: '/device/platform/describeShareDirs',
+    method: 'get',
+    params
+  })
+
+/**
+ * 共享设备列表查询
+ */
+export const describeShareDevices = (params: any): Promise<any> =>
+  request({
+    url: '/device/platform/describeShareDevices',
+    method: 'get',
+    params
+  })
+
+/**
+ * 共享设备
+ */
+export const shareDevice = (params: any): Promise<any> =>
+  request({
+    url: '/device/platform/shareDevice',
+    method: 'post',
+    data: params
+  })
+
+/**
+ * 取消共享设备
+ */
+export const cancleShareDevice = (params: any): Promise<any> =>
+  request({
+    url: '/device/platform/cancleShareDevice',
+    method: 'post',
+    data: params
+  })
