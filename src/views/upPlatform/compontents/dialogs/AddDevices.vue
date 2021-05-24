@@ -101,7 +101,11 @@ export default class extends Vue {
           inProtocol: group.inProtocol,
           type: 'group',
           disabled: true,
-          path: [group.groupName]
+          path: [{
+            id: group.groupId,
+            label: group.groupName,
+            type: 'group'
+          }]
         }
       })
     } catch (e) {
@@ -140,7 +144,7 @@ export default class extends Vue {
           isLeaf: dir.isLeaf,
           type: dir.type,
           disabled: dir.type !== 'ipc',
-          path: node.data.path.concat([dir.label])
+          path: node.data.path.concat([dir])
         }
       })
       return dirs
@@ -184,7 +188,10 @@ export default class extends Vue {
    */
   private renderPath(path: any) {
     const dirPath = path.slice(0, -1)
-    return dirPath.join('/')
+    const dirPathName = dirPath.map((dir: any) => {
+      return dir.label
+    })
+    return dirPathName.join('/')
   }
 
   /**
