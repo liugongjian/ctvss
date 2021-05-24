@@ -82,11 +82,13 @@ export default class extends Vue {
   }
   @Prop()
   private platformId: any
+  private typeMapping: any = {
+    dir: 0,
+    nvr: 1
+  }
 
   private mounted() {
     this.initDirs()
-    console.log(this.platformId);
-    
   }
 
   /**
@@ -212,14 +214,78 @@ export default class extends Vue {
     }
     try {
       this.submitting = true
-      console.log(this.deviceList)
+      const groups: any = []
+      this.deviceList.forEach((item: any) => {
+        // 构建group
+        const groupId = item.path[0].id
+        let currentGroup = groups.find((group: any) => group.groupId === groupId)
+        if (!currentGroup) {
+          currentGroup = {
+            groupId: groupId,
+            inProtocol: 'gb28181',
+            dirs: []
+          }
+          groups.push(currentGroup)
+        }
+        // 构建dir列表
+        const pathDirs = item.path.filter((path: any) => {
+          if (path.type === 'dir' || path.type === 'nvr') return true
+        })
+        let dirId = 0
+        let currentGroupDir
+        let dirType = 0
+        let parentDirId = '0'
+        if (pathDirs.length) {
+          const parentPath = pathDirs.slice(0, -1)
+          parentDirId = '0'
+          if (parentPath.length) {
+            const ids = parentPath.map((path: any) => {
+              return path.id
+            })
+            console.log(ids)
+            parentDirId = ids.join(',')
+          }
+          dirId = pathDirs[pathDirs.length - 1].id
+          dirType = pathDirs[pathDirs.length - 1].type
+          currentGroupDir = currentGroup.dirs.find((dir: any) => dir.dirId === dirId)
+          if (!currentGroupDir) {
+            currentGroupDir = {
+              dirId,
+              parentDirId,
+              dirType: this.typeMapping[dirType],
+              devices: []
+            }
+            currentGroup.dirs.push(currentGroupDir)
+          }
+        }
+        currentGroupDir = currentGroup.dirs.find((dir: any) => dir.dirId === dirId)
+        if (!currentGroupDir) {
+          currentGroupDir = {
+            dirId,
+            parentDirId,
+            dirType,
+            devices: []
+          }
+          currentGroup.dirs.push(currentGroupDir)
+        }
+        // 构建ipc
+        currentGroupDir.devices.push({
+          deviceId: item.id
+        })
+      })
+      console.log(groups)
+      shareDevice({
+        platformId: this.platformId,
+        vssGroups: groups
+      })
       this.$message.success('添加资源成功！')
     } catch (e) {
+      console.log(e)
       this.$message.error(e && e.message)
     } finally {
       this.submitting = false
     }
-    this.closeDialog(true)
+    // this.closeDialog(true)
   }
 
   private closeDialog(isRefresh: boolean = false) {
