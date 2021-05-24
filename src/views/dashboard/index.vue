@@ -41,22 +41,3 @@ export default class extends Vue {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-  .el-card {
-    ::v-deep {
-      .el-card__header {
-        padding: 0;
-        font-weight: 600;
-        font-size: 14px;
-        line-height: 40px;
-        margin: 5px 20px 0 20px;
-        border-bottom: 2px solid #DFE4ED
-      }
-      .el-card__body {
-        padding: 15px 18px;
-        height: auto;
-      }
-    }
-  }
-</style>
