@@ -142,7 +142,7 @@
         请选择或创建一个向上级联平台
       </div>
     </el-card>
-    <AddDevices v-if="dialog.addDevices" :platform-id="currentPlatform.platformId" @on-close="dialog.addDevices = false" />
+    <AddDevices v-if="dialog.addDevices" :platform-id="currentPlatform.platformId" @on-close="closeDialog" />
     <PlatformDetail v-if="dialog.platformDetail" :platform-id="currentPlatformDetail.platformId" @on-close="dialog.platformDetail = false" />
   </div>
 </template>
@@ -171,7 +171,7 @@ export default class extends Vue {
   private breadcrumb: Array<any> = []
   private platformKeyword = ''
   private currentPlatform: any = {}
-  private currentNode: any = {}
+  private currentNodeData: any = {}
   private defaultExpandedKeys: Array<any> = []
   private currentPlatformDetail = null
   public isExpanded = true
@@ -222,13 +222,13 @@ export default class extends Vue {
   }
 
   private refresh() {
-    this.getList(this.currentNode, false)
+    this.getList(this.currentNodeData, false)
   }
 
   private async mounted() {
     await this.getPlatformList()
     this.initPlatform()
-    this.getList(this.currentNode, false)
+    this.getList(this.currentNodeData, false)
     // this.initDirs()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
@@ -378,25 +378,25 @@ export default class extends Vue {
       method: cancleShareDevice,
       payload: {
         platformId: this.currentPlatform.platformId,
-        dirId: this.currentNode.dirId,
+        dirId: this.currentNodeData.dirId,
         devices: deviceList.map((device: any) => {
           return { deviceId: device.deviceId }
         })
       },
       onSuccess: () => {
-        this.getList(this.currentNode, true)
+        this.getList(this.currentNodeData, true)
       }
     })
   }
 
   private async handleSizeChange(val: number) {
     this.pager.pageSize = val
-    await this.getList(this.currentNode, false)
+    await this.getList(this.currentNodeData, false)
   }
 
   private async handleCurrentChange(val: number) {
     this.pager.pageNum = val
-    await this.getList(this.currentNode, false)
+    await this.getList(this.currentNodeData, false)
   }
 
   private handleCreate() {
@@ -409,7 +409,7 @@ export default class extends Vue {
 
   private async handleFilter() {
     this.pager.pageNum = 1
-    await this.getList(this.currentNode, false)
+    await this.getList(this.currentNodeData, false)
   }
 
   @Provide('initDirs')
@@ -441,7 +441,7 @@ export default class extends Vue {
           dirTree.setCurrentKey(initDir.id)
           this.defaultExpandedKeys = [initDir.id]
           this.getList(this.dirList[0], false)
-          this.currentNode = this.dirList[0]
+          this.currentNodeData = this.dirList[0]
         }
       })
     } catch (e) {
@@ -479,9 +479,15 @@ export default class extends Vue {
     }
   }
 
-  private nodeClick(node: any) {
-    this.currentNode = node
-    this.getList(this.currentNode, false)
+  private nodeClick(data: any, node: any) {
+    node.expanded = true
+    this.currentNodeData = data
+    this.getList(this.currentNodeData, false)
+  }
+
+  private closeDialog(refresh: boolean) {
+    this.dialog.addDevices = false
+    refresh && this.initDirs()
   }
 
   /**
