@@ -12,7 +12,7 @@
       <div v-loading="loading.platform" class="platform__list">
         <ul>
           <li v-for="platform in filteredPlatformList" :key="platform.platformId" :class="{'actived': currentPlatform && (currentPlatform.platformId === platform.platformId)}" @click="selectPlatform(platform)">
-            <span><svg-icon name="dot" width="20" height="20" /> {{ platform.name }}</span>
+            <span><status-badge :status="platform.enabled ? 'on' : ''" /> {{ platform.name }}</span>
             <div class="tools">
               <el-tooltip class="item" effect="dark" content="查看平台详情" placement="top" :open-delay="300">
                 <el-button type="text" @click.stop="viewPlatform(platform)"><svg-icon name="documentation" /></el-button>
@@ -512,7 +512,7 @@ export default class extends Vue {
 
   private closeDialog(refresh: boolean) {
     this.dialog.addDevices = false
-    refresh && this.initDirs()
+    refresh === true && this.initDirs()
   }
 
   /**
@@ -643,12 +643,20 @@ export default class extends Vue {
           line-height: 30px;
           cursor: pointer;
           border-radius: 4px;
+          padding-left: 10px;
           span {
             display: block;
             white-space: nowrap;
             text-overflow: ellipsis;
             overflow: hidden;
             word-break: break-all;
+          }
+
+          .status-badge {
+            width: 5px;
+            height: 5px;
+            position: relative;
+            top: -2px;
           }
 
           svg {
