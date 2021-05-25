@@ -713,8 +713,6 @@ export default class extends Vue {
           .status-badge {
             width: 5px;
             height: 5px;
-            position: relative;
-            top: -2px;
           }
 
           svg {
