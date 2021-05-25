@@ -111,7 +111,7 @@
             <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
               <div class="device-list__tools">
                 <el-button class="cancle-btn" @click="cancleShareDevice(selectedList)">移除选中设备</el-button>
-                <el-input v-model="searchDeviceName" class="filter-container__search-group" placeholder="请输入关键词" @keyup.enter.native="handleFilter">
+                <el-input v-model="searchDeviceName" class="filter-container__search-group" placeholder="请输入关键词" clearable @keyup.enter.native="handleFilter">
                   <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
                 </el-input>
                 <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
@@ -277,6 +277,10 @@ export default class extends Vue {
         pageSize: 1000
       })
       this.platformList = res.platforms
+      if (this.currentPlatform.platformId) {
+        const currentPlatform = this.platformList.find((platform: any) => platform.platformId === this.currentPlatform.platformId)
+        this.currentPlatform = currentPlatform
+      }
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
@@ -339,6 +343,7 @@ export default class extends Vue {
         platformId: this.currentPlatform.platformId
       })
       this.$message.success('已通知启动级联')
+      setTimeout(this.getPlatformList, 2000)
     } catch (e) {
       this.$message.error(e)
     } finally {
@@ -347,7 +352,7 @@ export default class extends Vue {
   }
 
   /**
-   * 启动级联
+   * 停用级联
    */
   private async stopShare() {
     try {
@@ -356,6 +361,7 @@ export default class extends Vue {
         platformId: this.currentPlatform.platformId
       })
       this.$message.success('已通知停用级联')
+      setTimeout(this.getPlatformList, 2000)
     } catch (e) {
       this.$message.error(e)
     } finally {
@@ -552,7 +558,6 @@ export default class extends Vue {
     const top = size.top
     const documentHeight = document.body.offsetHeight
     this.maxHeight = documentHeight - top - 129
-    console.log(this.maxHeight)
   }
 
   /**
