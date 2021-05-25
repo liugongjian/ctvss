@@ -45,8 +45,8 @@
               <svg-icon slot="reference" name="help" color="#fff" />
             </el-popover>
           </el-button>
-          <el-button>启动级联</el-button>
-          <el-button>停止级联</el-button>
+          <el-button v-if="!currentPlatform.enabled" @click="startShare()">启动级联</el-button>
+          <el-button v-else @click="stopShare()">停止级联</el-button>
         </div>
         <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
           <el-button class="device-list__expand" @click="toggledirList">
@@ -149,7 +149,7 @@
 
 <script lang='ts'>
 import { Component, Vue, Provide } from 'vue-property-decorator'
-import { describeShareGroups, describeShareDirs, describeShareDevices, getPlatforms, deletePlatform, cancleShareDevice, cancleShareDir } from '@/api/upPlatform'
+import { describeShareGroups, describeShareDirs, describeShareDevices, getPlatforms, deletePlatform, cancleShareDevice, cancleShareDir, startShareDevice, stopShareDevice } from '@/api/upPlatform'
 import { DeviceStatus } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AddDevices from './compontents/dialogs/AddDevices.vue'
@@ -308,6 +308,20 @@ export default class extends Vue {
   private viewPlatform(platform: any) {
     this.dialog.platformDetail = true
     this.currentPlatformDetail = platform
+  }
+
+  /**
+   * 启动级联
+   */
+  private async startShare() {
+    try {
+      await startShareDevice({
+        platformId: this.currentPlatform.platformId
+      })
+      this.$message.success('已通知启动级联')
+    } catch (e) {
+      this.$message.error(e)
+    }
   }
 
   /**

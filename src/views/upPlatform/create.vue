@@ -286,7 +286,7 @@ export default class extends Vue {
           }
           this.back()
         } catch (e) {
-          console.log(e)
+          this.$message.error(e)
         } finally {
           this.submitting = false
         }
