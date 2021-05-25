@@ -139,7 +139,6 @@
                 </el-table-column>
                 <el-table-column prop="gbId" label="国标ID">
                   <template slot-scope="{row}">
-                    <status-badge :status="row.gbId" />
                     {{ row.gbId || '-' }}
                   </template>
                 </el-table-column>
@@ -428,6 +427,10 @@ export default class extends Vue {
    * 移除设备
    */
   private cancleShareDevice(deviceList: any) {
+    if (!deviceList.length) {
+      this.$message.info('请先选择设备')
+      return
+    }
     this.$alertDelete({
       type: '设备',
       msg: `是否确认移除设备"${deviceList.map((device: any) => {
