@@ -115,7 +115,8 @@
               </div>
               <el-table
                 v-loading="loading.sharedDevices"
-                :data="dataList" fit
+                :data="dataList"
+                fit
                 @selection-change="handleSelectionChange"
               >
                 <el-table-column type="selection" prop="selection" class-name="col-selection" width="55" />
@@ -478,6 +479,8 @@ export default class extends Vue {
           this.defaultExpandedKeys = [initDir.id]
           this.getList(this.dirList[0], false)
           this.currentNodeData = this.dirList[0]
+        } else {
+          this.dataList = []
         }
       })
     } catch (e) {
