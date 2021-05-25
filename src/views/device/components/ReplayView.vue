@@ -83,7 +83,7 @@
       />
       <replay-player-dialog v-if="dialog.play" :video="currentListRecord" @on-close="closeReplayPlayer" />
     </div>
-    <slice-download-dialog v-if="dialog.slice" :device-id="deviceId" @on-close="closeSliceDownload" />
+    <slice-download-dialog v-if="dialog.slice" :in-protocol="inProtocol" :device-id="deviceId" @on-close="closeSliceDownload" />
   </div>
 </template>
 <script lang="ts">
