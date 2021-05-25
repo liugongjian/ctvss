@@ -45,8 +45,8 @@
               <svg-icon slot="reference" name="help" color="#fff" />
             </el-popover>
           </el-button>
-          <el-button v-if="!currentPlatform.enabled" @click="startShare()">启动级联</el-button>
-          <el-button v-else @click="stopShare()">停止级联</el-button>
+          <el-button v-if="!currentPlatform.enabled" :loading="loading.startStop" @click="startShare()">启动级联</el-button>
+          <el-button v-else :loading="loading.startStop" @click="stopShare()">停止级联</el-button>
         </div>
         <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
           <el-button class="device-list__expand" @click="toggledirList">
@@ -196,7 +196,8 @@ export default class extends Vue {
   public loading = {
     platform: false,
     dir: false,
-    sharedDevices: false
+    sharedDevices: false,
+    startStop: false
   }
   public dialog = {
     addDevices: false,
@@ -315,12 +316,32 @@ export default class extends Vue {
    */
   private async startShare() {
     try {
+      this.loading.startStop = true
       await startShareDevice({
         platformId: this.currentPlatform.platformId
       })
       this.$message.success('已通知启动级联')
     } catch (e) {
       this.$message.error(e)
+    } finally {
+      this.loading.startStop = false
+    }
+  }
+
+  /**
+   * 启动级联
+   */
+  private async stopShare() {
+    try {
+      this.loading.startStop = true
+      await stopShareDevice({
+        platformId: this.currentPlatform.platformId
+      })
+      this.$message.success('已通知停用级联')
+    } catch (e) {
+      this.$message.error(e)
+    } finally {
+      this.loading.startStop = false
     }
   }
 
