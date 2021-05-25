@@ -356,7 +356,7 @@ export default class extends Vue {
       this.getPlatformList()
       setTimeout(this.getPlatformList, 2000)
     } catch (e) {
-      this.$message.error(e)
+      this.$message.error(e && e.message)
     } finally {
       this.loading.startStop = false
     }
@@ -375,7 +375,7 @@ export default class extends Vue {
       this.getPlatformList()
       setTimeout(this.getPlatformList, 2000)
     } catch (e) {
-      this.$message.error(e)
+      this.$message.error(e && e.message)
     } finally {
       this.loading.startStop = false
     }
@@ -414,7 +414,7 @@ export default class extends Vue {
           })
           this.initDirs()
         } catch (e) {
-          console.log(e)
+          this.$message.error(e && e.message)
         }
       }
     } catch (e) {
