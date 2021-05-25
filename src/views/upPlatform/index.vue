@@ -99,7 +99,7 @@
           </div>
           <div class="device-list__right">
             <div class="breadcrumb">
-              <span class="breadcrumb__item" @click="gotoRoot">根目录</span>
+              <span class="breadcrumb__item">根目录</span>
               <span
                 v-for="item in breadcrumb"
                 :key="item.id"
@@ -483,6 +483,7 @@ export default class extends Vue {
           this.defaultExpandedKeys = [initDir.id]
           this.getList(this.dirList[0], false)
           this.currentNodeData = this.dirList[0]
+          this.breadcrumb = this.getNodePath(dirTree.getNode(this.dirList[0].id))
         } else {
           this.dataList = []
         }
@@ -526,6 +527,7 @@ export default class extends Vue {
     node.expanded = true
     this.currentNodeData = data
     this.getList(this.currentNodeData, false)
+    this.breadcrumb = this.getNodePath(node)
   }
 
   private closeDialog(refresh: boolean) {
@@ -544,6 +546,22 @@ export default class extends Vue {
     //   id: '0',
     //   type: 'dir'
     // })
+  }
+
+  private getNodePath(node: any) {
+    let curentNodePath: any = []
+    this.findParentNode(node, curentNodePath)
+    return curentNodePath
+  }
+
+  private findParentNode(node: any, curentNodePath: any) {
+    if (node.parent !== null) {
+      curentNodePath.unshift({
+        label: node.data.label,
+        id: node.data.id
+      })
+      this.findParentNode(node.parent, curentNodePath)
+    }
   }
 
   /**
