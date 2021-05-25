@@ -139,13 +139,31 @@ export default class extends Vue {
    */
   private async getTree(node: any) {
     try {
-      const res = await getDeviceTree({
+      let params: any = {
+        platformId: this.platformId,
+        inProtocol: 'gb28181',
+        groupId: node.data.groupId,
+        dirId: node.data.id,
+        dirType: node.data.type || '0',
+        pageNum: 1,
+        pageSize: 1000
+      }
+      const shareDevices: any = await describeShareDevices(params)
+      const shareDeviceIds = shareDevices.devices.map((device: any) => {
+        return device.deviceId
+      })
+      console.log(shareDeviceIds, 'shareDeviceIds')
+      const devices: any = await getDeviceTree({
         groupId: node.data.groupId,
         id: node.data.type === 'group' ? 0 : node.data.id,
         inProtocol: node.data.inProtocol,
         type: node.data.type === 'group' ? undefined : node.data.type
       })
-      const dirs = res.dirs.map((dir: any) => {
+      let dirs: any = devices.dirs.map((dir: any) => {
+        let sharedFlag = false
+        if (shareDeviceIds.includes(dir.id) && dir.type === 'ipc') {
+          sharedFlag = true
+        }
         return {
           id: dir.id,
           groupId: node.data.groupId,
@@ -153,13 +171,14 @@ export default class extends Vue {
           inProtocol: node.data.inProtocol,
           isLeaf: dir.isLeaf,
           type: dir.type,
-          disabled: dir.type !== 'ipc',
-          path: node.data.path.concat([dir])
+          disabled: dir.type !== 'ipc' || sharedFlag,
+          path: node.data.path.concat([dir]),
+          checked: sharedFlag
         }
       })
       return dirs
     } catch (e) {
-      return []
+      console.log(e)
     }
   }
 
@@ -285,7 +304,7 @@ export default class extends Vue {
     } finally {
       this.submitting = false
     }
-    // this.closeDialog(true)
+    this.closeDialog(true)
   }
 
   private closeDialog(isRefresh: boolean = false) {

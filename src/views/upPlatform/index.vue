@@ -289,7 +289,6 @@ export default class extends Vue {
   }
 
   private async getList(node: any) {
-    console.log(node);
     let params: any = {
       platformId: this.currentPlatform.platformId,
       inProtocol: 'gb28181',
@@ -374,15 +373,19 @@ export default class extends Vue {
       const res = await describeShareDirs({
         groupId: node.data.groupId,
         dirId: node.data.type === 'group' ? 0 : node.data.dirId,
-        inProtocol: node.data.inProtocol,
+        inProtocol: 'gb28181',
         platformId: this.currentPlatform.platformId
       })
-      resolve({
-        ...res.dirs,
-        groupId: node.data.groupId,
-        platformId: this.currentPlatform.platformId,
-        type: this.dirTypeMap[node.data.dirType]
+      const dirs = res.dirs.map((dir: any) => {
+        return {
+          ...dir,
+          groupId: node.data.groupId,
+          platformId: this.currentPlatform.platformId,
+          type: this.dirTypeMap[dir.dirType],
+          label: dir.dirName
+        }
       })
+      resolve(dirs)
     } catch (e) {
       resolve([])
     }
