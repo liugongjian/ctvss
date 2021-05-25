@@ -188,7 +188,7 @@ export default class extends Vue {
    * 单击ipc时直接勾选
    */
   private selectDevice(data: any) {
-    if (data.type === 'ipc') {
+    if (data.type === 'ipc' && !data.sharedFlag) {
       const dirTree: any = this.$refs.dirTree
       const node = dirTree.getNode(data.id)
       dirTree.setChecked(data.id, !node.checked)
