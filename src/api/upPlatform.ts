@@ -99,3 +99,13 @@ export const cancleShareDevice = (params: any): Promise<any> =>
     method: 'post',
     data: params
   })
+
+/**
+ * 取消共享设备
+ */
+export const cancleShareDir = (params: any): Promise<any> =>
+  request({
+    url: '/device/platform/cancleShareDir',
+    method: 'post',
+    data: params
+  })

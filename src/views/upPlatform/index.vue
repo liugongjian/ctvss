@@ -74,7 +74,8 @@
                 lazy
                 :load="loadDirs"
                 :props="treeProp"
-                @node-click="getList"
+                :default-expanded-keys="defaultExpandedKeys"
+                @node-click="nodeClick"
               >
                 <span
                   slot-scope="{node, data}"
@@ -115,7 +116,7 @@
               </el-table-column>
               <el-table-column prop="action" label="操作" width="80" fixed="right">
                 <template slot-scope="{row}">
-                  <el-button type="text" @click="deleteCertificate(row)">移除</el-button>
+                  <el-button type="text" @click="cancleShareDevice([row])">移除</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -138,7 +139,7 @@
 
 <script lang='ts'>
 import { Component, Vue, Provide } from 'vue-property-decorator'
-import { describeShareGroups, describeShareDirs, describeShareDevices, getPlatforms, deletePlatform, cancleShareDevice } from '@/api/upPlatform'
+import { describeShareGroups, describeShareDirs, describeShareDevices, getPlatforms, deletePlatform, cancleShareDevice, cancleShareDir } from '@/api/upPlatform'
 import { DeviceStatus } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AddDevices from './compontents/dialogs/AddDevices.vue'
@@ -156,11 +157,12 @@ export default class extends Vue {
   private deviceStatus = DeviceStatus
   private dirList: Array<any> = []
   private platformList: Array<any> = []
-  private dataList: any = []
-  private breadcrumb: any = []
+  private dataList: Array<any> = []
+  private breadcrumb: Array<any> = []
   private platformKeyword = ''
   private currentPlatform: any = {}
   private currentNode: any = {}
+  private defaultExpandedKeys: Array<any> = []
   private currentPlatformDetail = null
   public isExpanded = true
   public maxHeight = 1000
@@ -210,12 +212,13 @@ export default class extends Vue {
   }
 
   private refresh() {
-    this.getList(this.currentNode)
+    this.getList(this.currentNode, false)
   }
 
-  private mounted() {
-    this.getPlatformList()
-    this.getList(this.currentNode)
+  private async mounted() {
+    await this.getPlatformList()
+    this.initPlatform()
+    this.getList(this.currentNode, false)
     // this.initDirs()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
@@ -223,6 +226,15 @@ export default class extends Vue {
 
   private destroyed() {
     window.removeEventListener('resize', this.calMaxHeight)
+  }
+
+  /**
+   * 初始化上级平台
+   */
+  private initPlatform() {
+    if (this.platformList.length !== 0) {
+      this.selectPlatform(this.platformList[0])
+    }
   }
 
   /**
@@ -288,7 +300,13 @@ export default class extends Vue {
     this.currentPlatformDetail = platform
   }
 
-  private async getList(node: any) {
+  /**
+   * 获取设备列表
+   */
+  private async getList(node: any, isDelete: any) {
+    if (!this.currentPlatform.platformId) {
+      return
+    }
     let params: any = {
       platformId: this.currentPlatform.platformId,
       inProtocol: 'gb28181',
@@ -303,6 +321,20 @@ export default class extends Vue {
       const res = await describeShareDevices(params)
       this.dataList = res.devices
       this.pager.total = res.totalNum
+      // 是否删除目录
+      if (isDelete && node.dirId && this.dataList.length === 0) {
+        try {
+          await cancleShareDir({
+            platformId: this.currentPlatform.platformId,
+            inProtocol: 'gb28181',
+            groupId: node.groupId,
+            dirId: node.dirId
+          })
+          this.initDirs()
+        } catch (e) {
+          console.log(e)
+        }
+      }
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
@@ -310,14 +342,37 @@ export default class extends Vue {
     }
   }
 
+  /**
+   * 移除设备
+   */
+  private cancleShareDevice(deviceList: any) {
+    this.$alertDelete({
+      type: '设备',
+      msg: `是否确认移除设备"${deviceList.map((device: any) => {
+        return device.deviceName
+      }).join(',')}"`,
+      method: cancleShareDevice,
+      payload: {
+        platformId: this.currentPlatform.platformId,
+        dirId: this.currentNode.dirId,
+        devices: deviceList.map((device: any) => {
+          return { deviceId: device.deviceId }
+        })
+      },
+      onSuccess: () => {
+        this.getList(this.currentNode, true)
+      }
+    })
+  }
+
   private async handleSizeChange(val: number) {
     this.pager.pageSize = val
-    await this.getList(this.currentNode)
+    await this.getList(this.currentNode, false)
   }
 
   private async handleCurrentChange(val: number) {
     this.pager.pageNum = val
-    await this.getList(this.currentNode)
+    await this.getList(this.currentNode, false)
   }
 
   private handleCreate() {
@@ -330,7 +385,7 @@ export default class extends Vue {
 
   private async handleFilter() {
     this.pager.pageNum = 1
-    await this.getList(this.currentNode)
+    await this.getList(this.currentNode, false)
   }
 
   @Provide('initDirs')
@@ -345,6 +400,7 @@ export default class extends Vue {
       res.groups.forEach((group: any) => {
         group.inProtocol === 'gb28181' && (
           this.dirList.push({
+            id: group.groupId,
             groupId: group.groupId,
             label: group.groupName,
             inProtocol: group.inProtocol,
@@ -354,7 +410,15 @@ export default class extends Vue {
         )
       })
       this.$nextTick(() => {
-        // this.initTreeStatus()
+        // 默认展开第一个组
+        if (this.dirList.length !== 0) {
+          const initDir = this.dirList[0]
+          const dirTree: any = this.$refs.dirTree
+          dirTree.setCurrentKey(initDir.id)
+          this.defaultExpandedKeys = [initDir.id]
+          this.getList(this.dirList[0], false)
+          this.currentNode = this.dirList[0]
+        }
       })
     } catch (e) {
       this.dirList = []
@@ -389,6 +453,11 @@ export default class extends Vue {
     } catch (e) {
       resolve([])
     }
+  }
+
+  private nodeClick(node: any) {
+    this.currentNode = node
+    this.getList(this.currentNode, false)
   }
 
   /**

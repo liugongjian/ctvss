@@ -163,6 +163,8 @@ export default class extends Vue {
         let sharedFlag = false
         if (shareDeviceIds.includes(dir.id) && dir.type === 'ipc') {
           sharedFlag = true
+          const dirTree: any = this.$refs.dirTree
+          dirTree.setCheckedKeys([dir.id])
         }
         return {
           id: dir.id,
@@ -173,7 +175,7 @@ export default class extends Vue {
           type: dir.type,
           disabled: dir.type !== 'ipc' || sharedFlag,
           path: node.data.path.concat([dir]),
-          checked: sharedFlag
+          sharedFlag: sharedFlag
         }
       })
       return dirs
@@ -200,7 +202,7 @@ export default class extends Vue {
     const dirTree: any = this.$refs.dirTree
     const nodes = dirTree.getCheckedNodes()
     this.deviceList = nodes.filter((node: any) => {
-      return node.type === 'ipc'
+      return (node.type === 'ipc' && !node.sharedFlag)
     })
   }
 
