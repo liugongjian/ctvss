@@ -12,7 +12,7 @@
       <div class="platform__list">
         <ul>
           <li v-for="platform in filteredPlatformList" :key="platform.platformId" :class="{'actived': currentPlatform && (currentPlatform.platformId === platform.platformId)}" @click="selectPlatform(platform)">
-            <span><svg-icon name="dot" /> {{ platform.name }}</span>
+            <span><svg-icon name="dot" width="20" height="20" /> {{ platform.name }}</span>
             <div class="tools">
               <el-tooltip class="item" effect="dark" content="查看平台详情" placement="top" :open-delay="300">
                 <el-button type="text" @click.stop="viewPlatform(platform)"><svg-icon name="documentation" /></el-button>
@@ -30,23 +30,21 @@
     </el-card>
     <el-card ref="deviceWrap" class="shared-devices">
       <div class="filter-container">
-        <el-button type="primary" @click="addDevices">添加资源</el-button>
-        <el-popover
-          placement="top-start"
-          title="添加资源"
-          width="400"
-          trigger="hover"
-          :open-delay="300"
-          :content="tips.addDevices"
-        >
-          <svg-icon slot="reference" class="filter-container__button-question" name="help" />
-        </el-popover>
-        <div class="filter-container__right">
-          <el-input class="filter-container__search-group" placeholder="请输入关键词" @keyup.enter.native="handleFilter">
-            <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
-          </el-input>
-          <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
-        </div>
+        <el-button type="primary" @click="addDevices">
+          添加资源
+          <el-popover
+            placement="top-start"
+            title="添加资源"
+            width="400"
+            trigger="hover"
+            :open-delay="300"
+            :content="tips.addDevices"
+          >
+            <svg-icon slot="reference" name="help" color="#fff" />
+          </el-popover>
+        </el-button>
+        <el-button>启动级联</el-button>
+        <el-button>停止级联</el-button>
       </div>
       <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
         <el-button class="device-list__expand" @click="toggledirList">
@@ -106,9 +104,15 @@
             </span>
           </div>
           <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
+            <div class="device-list__tools">
+              <el-input class="filter-container__search-group" placeholder="请输入关键词" @keyup.enter.native="handleFilter">
+                <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
+              </el-input>
+              <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
+            </div>
             <el-table v-loading="loading.sharedDevices" :data="dataList" fit>
               <el-table-column prop="deviceName" label="名称" min-width="160" />
-              <el-table-column prop="deviceName" label="名称" min-width="160">
+              <el-table-column prop="deviceStatus" label="设备状态" min-width="160">
                 <template slot-scope="{row}">
                   <status-badge :status="row.deviceStatus" />
                   {{ deviceStatus[row.deviceStatus] || '-' }}
@@ -536,10 +540,6 @@ export default class extends Vue {
 
 <style lang="scss" scoped>
 .filter-container {
-  &__button-question {
-    margin-left: 10px;
-    color: rgba(0, 0, 0, 0.6);
-  }
   &__search-group {
     margin-right: 10px;
   }
@@ -600,6 +600,8 @@ export default class extends Vue {
 
           svg {
             color: $darkGray;
+            vertical-align: middle;
+            margin-left: 3px;
           }
 
           .tools {
@@ -636,6 +638,11 @@ export default class extends Vue {
         }
       }
     }
+  }
+
+  .device-list__tools {
+    text-align: right;
+    margin-bottom: 10px;
   }
 
   .shared-devices {
