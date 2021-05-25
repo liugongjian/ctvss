@@ -45,7 +45,7 @@
               <svg-icon slot="reference" name="help" color="#fff" />
             </el-popover>
           </el-button>
-          <el-button v-if="currentPlatform.status !== 'on'" :loading="loading.startStop" @click="startShare()">启动级联</el-button>
+          <el-button v-if="!currentPlatform.enable" :loading="loading.startStop" @click="startShare()">启动级联</el-button>
           <el-button v-else :loading="loading.startStop" @click="stopShare()">停止级联</el-button>
           <div class="filter-container__right">
             <div class="platform-status">平台状态: <status-badge :status="currentPlatform.status" />{{ platformStatus[currentPlatform.status] }}</div>
@@ -123,15 +123,24 @@
                 @selection-change="handleSelectionChange"
               >
                 <el-table-column type="selection" prop="selection" class-name="col-selection" width="55" />
-                <el-table-column prop="deviceName" label="名称" min-width="160">
+                <el-table-column prop="deviceName" label="设备ID/名称" min-width="160">
                   <template slot-scope="{row}">
-                    {{ row.channelName || row.deviceName }}
+                    <div class="device-list__device-name">
+                      <div class="device-list__device-id">{{ row.deviceId }}</div>
+                      <div>{{ row.channelName || row.deviceName }}</div>
+                    </div>
                   </template>
                 </el-table-column>
-                <el-table-column prop="deviceStatus" label="设备状态" min-width="160">
+                <el-table-column prop="deviceStatus" label="设备状态">
                   <template slot-scope="{row}">
                     <status-badge :status="row.deviceStatus" />
                     {{ deviceStatus[row.deviceStatus] || '-' }}
+                  </template>
+                </el-table-column>
+                <el-table-column prop="gbId" label="国标ID">
+                  <template slot-scope="{row}">
+                    <status-badge :status="row.gbId" />
+                    {{ row.gbId || '-' }}
                   </template>
                 </el-table-column>
                 <el-table-column prop="action" label="操作" width="80" fixed="right">
@@ -344,6 +353,7 @@ export default class extends Vue {
         platformId: this.currentPlatform.platformId
       })
       this.$message.success('已通知启动级联')
+      this.getPlatformList()
       setTimeout(this.getPlatformList, 2000)
     } catch (e) {
       this.$message.error(e)
@@ -362,6 +372,7 @@ export default class extends Vue {
         platformId: this.currentPlatform.platformId
       })
       this.$message.success('已通知停用级联')
+      this.getPlatformList()
       setTimeout(this.getPlatformList, 2000)
     } catch (e) {
       this.$message.error(e)
