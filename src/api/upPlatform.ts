@@ -109,3 +109,23 @@ export const cancleShareDir = (params: any): Promise<any> =>
     method: 'post',
     data: params
   })
+
+/**
+ * 启动级联
+ */
+export const startShareDevice = (params: any): Promise<any> =>
+  request({
+    url: '/device/platform/startShareDevice',
+    method: 'get',
+    params
+  })
+
+/**
+ * 停止级联
+ */
+export const stopShareDevice = (params: any): Promise<any> =>
+  request({
+    url: '/device/platform/stopShareDevice',
+    method: 'get',
+    params
+  })

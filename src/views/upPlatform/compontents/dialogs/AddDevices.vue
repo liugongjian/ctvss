@@ -252,7 +252,7 @@ export default class extends Vue {
         const pathDirs = item.path.filter((path: any) => {
           if (path.type === 'dir' || path.type === 'nvr') return true
         })
-        let dirId = 0
+        let dirId = '0'
         let currentGroupDir
         let dirType = 0
         let parentDirId = '0'

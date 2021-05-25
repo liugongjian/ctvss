@@ -128,7 +128,7 @@
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
         </el-form-item>
         <el-form-item label="">
-          <el-button type="primary" @click="submit">确定</el-button>
+          <el-button type="primary" :loading="submitting" @click="submit">确定</el-button>
           <el-button @click="back">取 消</el-button>
         </el-form-item>
       </el-form>
@@ -286,7 +286,7 @@ export default class extends Vue {
           }
           this.back()
         } catch (e) {
-          console.log(e)
+          this.$message.error(e)
         } finally {
           this.submitting = false
         }
