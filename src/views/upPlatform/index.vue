@@ -108,7 +108,7 @@
             <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
               <div class="device-list__tools">
                 <el-button type="primary" class="cancle-btn" @click="cancleShareDevice(selectedList)">移除选中设备</el-button>
-                <el-input class="filter-container__search-group" placeholder="请输入关键词" @keyup.enter.native="handleFilter">
+                <el-input v-model="searchDeviceName" class="filter-container__search-group" placeholder="请输入关键词" @keyup.enter.native="handleFilter">
                   <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
                 </el-input>
                 <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
@@ -181,6 +181,7 @@ export default class extends Vue {
   private breadcrumb: Array<any> = []
   private selectedList: Array<any> = []
   private platformKeyword = ''
+  private searchDeviceName = ''
   private currentPlatform: any = {}
   private currentNodeData: any = {}
   private defaultExpandedKeys: Array<any> = []
@@ -240,8 +241,6 @@ export default class extends Vue {
   private async mounted() {
     await this.getPlatformList()
     this.initPlatform()
-    this.getList(this.currentNodeData, false)
-    // this.initDirs()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
   }
@@ -374,7 +373,8 @@ export default class extends Vue {
       dirId: node.dirId || '0',
       dirType: node.dirType || '0',
       pageNum: this.pager.pageNum,
-      pageSize: this.pager.pageSize
+      pageSize: this.pager.pageSize,
+      deviceName: this.searchDeviceName
     }
     this.loading.sharedDevices = true
     try {
