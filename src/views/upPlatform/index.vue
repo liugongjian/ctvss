@@ -45,7 +45,7 @@
               <svg-icon slot="reference" name="help" color="#fff" />
             </el-popover>
           </el-button>
-          <el-button v-if="!currentPlatform.enable" :loading="loading.startStop" @click="startShare()">启动级联</el-button>
+          <el-button v-if="!currentPlatform.enabled" :loading="loading.startStop" @click="startShare()">启动级联</el-button>
           <el-button v-else :loading="loading.startStop" @click="stopShare()">停止级联</el-button>
           <div class="filter-container__right">
             <div class="platform-status">平台状态: <status-badge :status="currentPlatform.status" />{{ platformStatus[currentPlatform.status] }}</div>
