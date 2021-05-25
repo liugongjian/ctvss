@@ -107,12 +107,18 @@
             </div>
             <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
               <div class="device-list__tools">
+                <el-button type="primary" class="cancle-btn" @click="cancleShareDevice(selectedList)">移除选中设备</el-button>
                 <el-input class="filter-container__search-group" placeholder="请输入关键词" @keyup.enter.native="handleFilter">
                   <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
                 </el-input>
                 <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
               </div>
-              <el-table v-loading="loading.sharedDevices" :data="dataList" fit>
+              <el-table
+                v-loading="loading.sharedDevices"
+                :data="dataList" fit
+                @selection-change="handleSelectionChange"
+              >
+                <el-table-column type="selection" prop="selection" class-name="col-selection" width="55" />
                 <el-table-column prop="deviceName" label="名称" min-width="160">
                   <template slot-scope="{row}">
                     {{ row.channelName || row.deviceName }}
@@ -173,6 +179,7 @@ export default class extends Vue {
   private platformList: Array<any> = []
   private dataList: Array<any> = []
   private breadcrumb: Array<any> = []
+  private selectedList: Array<any> = []
   private platformKeyword = ''
   private currentPlatform: any = {}
   private currentNodeData: any = {}
@@ -241,6 +248,10 @@ export default class extends Vue {
 
   private destroyed() {
     window.removeEventListener('resize', this.calMaxHeight)
+  }
+
+  private handleSelectionChange(rows: any) {
+    this.selectedList = rows
   }
 
   /**
@@ -696,6 +707,10 @@ export default class extends Vue {
   .device-list__tools {
     text-align: right;
     margin-bottom: 10px;
+    position: relative;
+    .cancle-btn {
+      float: left;
+    }
   }
 
   .shared-devices {
