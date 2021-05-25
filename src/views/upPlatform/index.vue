@@ -12,7 +12,7 @@
       <div v-loading="loading.platform" class="platform__list">
         <ul>
           <li v-for="platform in filteredPlatformList" :key="platform.platformId" :class="{'actived': currentPlatform && (currentPlatform.platformId === platform.platformId)}" @click="selectPlatform(platform)">
-            <span><status-badge :status="platform.enabled ? 'on' : ''" /> {{ platform.name }}</span>
+            <span><status-badge :status="platform.status" /> {{ platform.name }}</span>
             <div class="tools">
               <el-tooltip class="item" effect="dark" content="查看平台详情" placement="top" :open-delay="300">
                 <el-button type="text" @click.stop="viewPlatform(platform)"><svg-icon name="documentation" /></el-button>
@@ -47,6 +47,9 @@
           </el-button>
           <el-button v-if="!currentPlatform.enabled" :loading="loading.startStop" @click="startShare()">启动级联</el-button>
           <el-button v-else :loading="loading.startStop" @click="stopShare()">停止级联</el-button>
+          <div class="filter-container__right">
+            <div class="platform-status">平台状态: <status-badge :status="currentPlatform.status" />{{ platformStatus[currentPlatform.status] }}</div>
+          </div>
         </div>
         <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
           <el-button class="device-list__expand" @click="toggledirList">
@@ -107,7 +110,7 @@
             </div>
             <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
               <div class="device-list__tools">
-                <el-button type="primary" class="cancle-btn" @click="cancleShareDevice(selectedList)">移除选中设备</el-button>
+                <el-button class="cancle-btn" @click="cancleShareDevice(selectedList)">移除选中设备</el-button>
                 <el-input class="filter-container__search-group" placeholder="请输入关键词" @keyup.enter.native="handleFilter">
                   <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
                 </el-input>
@@ -160,7 +163,7 @@
 <script lang='ts'>
 import { Component, Vue, Provide } from 'vue-property-decorator'
 import { describeShareGroups, describeShareDirs, describeShareDevices, getPlatforms, deletePlatform, cancleShareDevice, cancleShareDir, startShareDevice, stopShareDevice } from '@/api/upPlatform'
-import { DeviceStatus } from '@/dics'
+import { DeviceStatus, PlatformStatus } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AddDevices from './compontents/dialogs/AddDevices.vue'
 import PlatformDetail from './compontents/dialogs/PlatformDetail.vue'
@@ -175,6 +178,7 @@ import PlatformDetail from './compontents/dialogs/PlatformDetail.vue'
 })
 export default class extends Vue {
   private deviceStatus = DeviceStatus
+  private platformStatus = PlatformStatus
   private dirList: Array<any> = []
   private platformList: Array<any> = []
   private dataList: Array<any> = []
@@ -608,6 +612,9 @@ export default class extends Vue {
   &__select {
     display: inline;
     margin-right: 10px;
+  }
+  .platform-status {
+    margin: 10px 10px 0 0;
   }
 }
 

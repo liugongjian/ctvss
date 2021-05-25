@@ -1,3 +1,8 @@
+export const PlatformStatus = {
+  'on': '在线',
+  'off': '离线'
+}
+
 export const DeviceStatus = {
   'on': '在线',
   'off': '离线',
