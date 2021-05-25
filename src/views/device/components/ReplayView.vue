@@ -307,7 +307,8 @@ export default class extends Vue {
       const res = await getDeviceRecord({
         deviceId: this.deviceId,
         startTime: record.startAt / 1000,
-        fileFormat: 'mp4'
+        fileFormat: 'mp4',
+        inProtocol: this.inProtocol
       })
       if (res.downloadUrl) {
         const link: HTMLAnchorElement = document.createElement('a')
