@@ -143,8 +143,8 @@ export default class extends Vue {
         platformId: this.platformId,
         inProtocol: 'gb28181',
         groupId: node.data.groupId,
-        dirId: node.data.id,
-        dirType: node.data.type || '0',
+        dirId: node.data.type === 'group' ? 0 : node.data.id,
+        dirType: '0',
         pageNum: 1,
         pageSize: 1000
       }
@@ -159,12 +159,14 @@ export default class extends Vue {
         inProtocol: node.data.inProtocol,
         type: node.data.type === 'group' ? undefined : node.data.type
       })
+      const dirTree: any = this.$refs.dirTree
+      let checkedKeys = dirTree.getCheckedKeys()
       let dirs: any = devices.dirs.map((dir: any) => {
         let sharedFlag = false
         if (shareDeviceIds.includes(dir.id) && dir.type === 'ipc') {
           sharedFlag = true
-          const dirTree: any = this.$refs.dirTree
-          dirTree.setCheckedKeys([dir.id])
+          checkedKeys.push(dir.id)
+          dirTree.setCheckedKeys(checkedKeys)
         }
         return {
           id: dir.id,

@@ -113,7 +113,11 @@
                 <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
               </div>
               <el-table v-loading="loading.sharedDevices" :data="dataList" fit>
-                <el-table-column prop="deviceName" label="名称" min-width="160" />
+                <el-table-column prop="deviceName" label="名称" min-width="160">
+                  <template slot-scope="{row}">
+                    {{ row.channelName || row.deviceName }}
+                  </template>
+                </el-table-column>
                 <el-table-column prop="deviceStatus" label="设备状态" min-width="160">
                   <template slot-scope="{row}">
                     <status-badge :status="row.deviceStatus" />
