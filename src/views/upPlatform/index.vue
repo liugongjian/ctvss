@@ -9,7 +9,7 @@
           <svg-icon slot="append" name="search" />
         </el-input>
       </div>
-      <div class="platform__list">
+      <div v-loading="loading.platform" class="platform__list">
         <ul>
           <li v-for="platform in filteredPlatformList" :key="platform.platformId" :class="{'actived': currentPlatform && (currentPlatform.platformId === platform.platformId)}" @click="selectPlatform(platform)">
             <span><svg-icon name="dot" width="20" height="20" /> {{ platform.name }}</span>
@@ -26,114 +26,120 @@
             </div>
           </li>
         </ul>
+        <div v-if="platformList && !platformList.length && !loading.platform" class="empty-text">请创建向上级联平台</div>
       </div>
     </el-card>
     <el-card ref="deviceWrap" class="shared-devices">
-      <div class="filter-container">
-        <el-button type="primary" @click="addDevices">
-          添加资源
-          <el-popover
-            placement="top-start"
-            title="添加资源"
-            width="400"
-            trigger="hover"
-            :open-delay="300"
-            :content="tips.addDevices"
-          >
-            <svg-icon slot="reference" name="help" color="#fff" />
-          </el-popover>
-        </el-button>
-        <el-button>启动级联</el-button>
-        <el-button>停止级联</el-button>
-      </div>
-      <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
-        <el-button class="device-list__expand" @click="toggledirList">
-          <svg-icon name="hamburger" />
-        </el-button>
-        <div
-          class="device-list__handle"
-          :style="`left: ${dirDrag.width}px`"
-          @mousedown="changeWidthStart($event)"
-        />
-        <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
-          <div class="dir-list" :style="`width: ${dirDrag.width}px`">
-            <div class="dir-list__tools">
-              <el-tooltip class="item" effect="dark" content="刷新目录" placement="top" :open-delay="300">
-                <el-button type="text" @click="initDirs"><svg-icon name="refresh" /></el-button>
-              </el-tooltip>
-            </div>
-            <div v-loading="loading.dir" class="dir-list__tree device-list__max-height" :style="{height: `${maxHeight}px`}">
-              <el-tree
-                ref="dirTree"
-                empty-text="暂无目录或设备"
-                :data="dirList"
-                node-key="id"
-                highlight-current
-                lazy
-                :load="loadDirs"
-                :props="treeProp"
-                :default-expanded-keys="defaultExpandedKeys"
-                @node-click="nodeClick"
-              >
-                <span
-                  slot-scope="{node, data}"
-                  class="custom-tree-node"
-                >
-                  <span class="node-name">
-                    <svg-icon v-if="data.type !== 'dir'" :name="data.type" width="15" height="15" />
-                    <span v-else class="node-dir">
-                      <svg-icon name="dir" width="15" height="15" />
-                      <svg-icon name="dir-close" width="15" height="15" />
-                    </span>
-                    {{ node.label }}
-                  </span>
-                </span>
-              </el-tree>
-            </div>
-          </div>
-        </div>
-        <div class="device-list__right">
-          <div class="breadcrumb">
-            <span class="breadcrumb__item" @click="gotoRoot">根目录</span>
-            <span
-              v-for="item in breadcrumb"
-              :key="item.id"
-              class="breadcrumb__item"
+      <div v-if="currentPlatform.platformId">
+        <div class="filter-container">
+          <el-button type="primary" @click="addDevices">
+            添加资源
+            <el-popover
+              placement="top-start"
+              title="添加资源"
+              width="400"
+              trigger="hover"
+              :open-delay="300"
+              :content="tips.addDevices"
             >
-              {{ item.label }}
-            </span>
-          </div>
-          <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
-            <div class="device-list__tools">
-              <el-input class="filter-container__search-group" placeholder="请输入关键词" @keyup.enter.native="handleFilter">
-                <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
-              </el-input>
-              <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
+              <svg-icon slot="reference" name="help" color="#fff" />
+            </el-popover>
+          </el-button>
+          <el-button>启动级联</el-button>
+          <el-button>停止级联</el-button>
+        </div>
+        <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
+          <el-button class="device-list__expand" @click="toggledirList">
+            <svg-icon name="hamburger" />
+          </el-button>
+          <div
+            class="device-list__handle"
+            :style="`left: ${dirDrag.width}px`"
+            @mousedown="changeWidthStart($event)"
+          />
+          <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
+            <div class="dir-list" :style="`width: ${dirDrag.width}px`">
+              <div class="dir-list__tools">
+                <el-tooltip class="item" effect="dark" content="刷新目录" placement="top" :open-delay="300">
+                  <el-button type="text" @click="initDirs"><svg-icon name="refresh" /></el-button>
+                </el-tooltip>
+              </div>
+              <div v-loading="loading.dir" class="dir-list__tree device-list__max-height" :style="{height: `${maxHeight}px`}">
+                <el-tree
+                  ref="dirTree"
+                  empty-text="暂无目录或设备"
+                  :data="dirList"
+                  node-key="id"
+                  highlight-current
+                  lazy
+                  :load="loadDirs"
+                  :props="treeProp"
+                  :default-expanded-keys="defaultExpandedKeys"
+                  @node-click="nodeClick"
+                >
+                  <span
+                    slot-scope="{node, data}"
+                    class="custom-tree-node"
+                  >
+                    <span class="node-name">
+                      <svg-icon v-if="data.type !== 'dir'" :name="data.type" width="15" height="15" />
+                      <span v-else class="node-dir">
+                        <svg-icon name="dir" width="15" height="15" />
+                        <svg-icon name="dir-close" width="15" height="15" />
+                      </span>
+                      {{ node.label }}
+                    </span>
+                  </span>
+                </el-tree>
+              </div>
             </div>
-            <el-table v-loading="loading.sharedDevices" :data="dataList" fit>
-              <el-table-column prop="deviceName" label="名称" min-width="160" />
-              <el-table-column prop="deviceStatus" label="设备状态" min-width="160">
-                <template slot-scope="{row}">
-                  <status-badge :status="row.deviceStatus" />
-                  {{ deviceStatus[row.deviceStatus] || '-' }}
-                </template>
-              </el-table-column>
-              <el-table-column prop="action" label="操作" width="80" fixed="right">
-                <template slot-scope="{row}">
-                  <el-button type="text" @click="cancleShareDevice([row])">移除</el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-            <el-pagination
-              :current-page="pager.pageNum"
-              :page-size="pager.pageSize"
-              :total="pager.total"
-              layout="total, sizes, prev, pager, next, jumper"
-              @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
-            />
+          </div>
+          <div class="device-list__right">
+            <div class="breadcrumb">
+              <span class="breadcrumb__item" @click="gotoRoot">根目录</span>
+              <span
+                v-for="item in breadcrumb"
+                :key="item.id"
+                class="breadcrumb__item"
+              >
+                {{ item.label }}
+              </span>
+            </div>
+            <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
+              <div class="device-list__tools">
+                <el-input class="filter-container__search-group" placeholder="请输入关键词" @keyup.enter.native="handleFilter">
+                  <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
+                </el-input>
+                <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
+              </div>
+              <el-table v-loading="loading.sharedDevices" :data="dataList" fit>
+                <el-table-column prop="deviceName" label="名称" min-width="160" />
+                <el-table-column prop="deviceStatus" label="设备状态" min-width="160">
+                  <template slot-scope="{row}">
+                    <status-badge :status="row.deviceStatus" />
+                    {{ deviceStatus[row.deviceStatus] || '-' }}
+                  </template>
+                </el-table-column>
+                <el-table-column prop="action" label="操作" width="80" fixed="right">
+                  <template slot-scope="{row}">
+                    <el-button type="text" @click="cancleShareDevice([row])">移除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+              <el-pagination
+                :current-page="pager.pageNum"
+                :page-size="pager.pageSize"
+                :total="pager.total"
+                layout="total, sizes, prev, pager, next, jumper"
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+              />
+            </div>
           </div>
         </div>
+      </div>
+      <div v-else class="empty-text">
+        请选择或创建一个向上级联平台
       </div>
     </el-card>
     <AddDevices v-if="dialog.addDevices" :platform-id="currentPlatform.platformId" @on-close="dialog.addDevices = false" />
@@ -580,9 +586,11 @@ export default class extends Vue {
     }
 
     &__list {
+      padding: 15px;
+      min-height: 100px;
       ul {
         margin: 0;
-        padding: 15px;
+        padding: 0;
         li {
           position: relative;
           list-style: none;
@@ -656,6 +664,10 @@ export default class extends Vue {
 
     .device-list__max-height {
       padding: 15px;
+    }
+
+    .empty-text {
+      margin-top: 50px;
     }
   }
 }
