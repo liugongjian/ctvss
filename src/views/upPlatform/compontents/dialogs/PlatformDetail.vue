@@ -9,6 +9,8 @@
   >
     <div v-loading="loading" class="dialog-wrap">
       <info-list v-if="platform" label-width="150" class="platform-info-list">
+        <info-list-item label="平台ID:">{{ platform.platformId }}</info-list-item>
+        <info-list-item label="平台状态:"><status-badge :status="platform.enabled ? 'on' : ''" />{{ platform.enabled ? '启用' : '停用' }}</info-list-item>
         <info-list-item label="平台名称:">{{ platform.name }}</info-list-item>
         <info-list-item label="SIP服务国标编码:">{{ platform.sipId }}</info-list-item>
         <info-list-item label="SIP服务国标域:">{{ platform.sipDomain }}</info-list-item>
@@ -35,10 +37,12 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { getPlatform } from '@/api/upPlatform'
+import StatusBadge from '@/components/StatusBadge/index.vue'
 
 @Component({
   name: 'AddDevices',
   components: {
+    StatusBadge
   }
 })
 export default class extends Vue {

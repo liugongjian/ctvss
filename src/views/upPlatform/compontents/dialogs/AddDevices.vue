@@ -21,7 +21,7 @@
           @check-change="onCheckDevice"
           @node-click="selectDevice"
         >
-          <span slot-scope="{node, data}" class="custom-tree-node">
+          <span slot-scope="{node, data}" class="custom-tree-node" :class="`custom-tree-node__${data.type}`">
             <span class="node-name">
               <svg-icon :name="data.type" color="#6e7c89" />
               {{ node.label }}
@@ -296,14 +296,12 @@ export default class extends Vue {
           deviceId: item.id
         })
       })
-      console.log(groups)
-      shareDevice({
+      await shareDevice({
         platformId: this.platformId,
         vssGroups: groups
       })
       this.$message.success('添加资源成功！')
     } catch (e) {
-      console.log(e)
       this.$message.error(e && e.message)
     } finally {
       this.submitting = false
@@ -329,6 +327,10 @@ export default class extends Vue {
     padding: 10px;
     overflow: auto;
     border-right: 1px solid $borderGrey;
+
+    .is-disabled + .custom-tree-node__ipc {
+      cursor: not-allowed;
+    }
   }
   .device-wrap {
     flex: 1 0;
