@@ -352,11 +352,11 @@ export default class extends Vue {
         platformId: this.currentPlatform.platformId
       })
       this.$message.success('已通知启动级联')
-      this.getPlatformList()
       setTimeout(this.getPlatformList, 2000)
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
+      this.getPlatformList()
       this.loading.startStop = false
     }
   }
@@ -371,11 +371,11 @@ export default class extends Vue {
         platformId: this.currentPlatform.platformId
       })
       this.$message.success('已通知停用级联')
-      this.getPlatformList()
       setTimeout(this.getPlatformList, 2000)
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
+      this.getPlatformList()
       this.loading.startStop = false
     }
   }
