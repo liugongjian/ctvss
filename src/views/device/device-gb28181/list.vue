@@ -52,7 +52,7 @@
         <el-dropdown placement="bottom" @command="exportExcel">
           <el-button :loading="exportLoading">导出<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item v-if="!(isChannel && !isNVR)" command="exportAll" :disabled="!deviceList.length">导出全部</el-dropdown-item>
+            <el-dropdown-item command="exportAll" :disabled="!deviceList.length">导出全部</el-dropdown-item>
             <el-dropdown-item command="exportCurrentPage" :disabled="!deviceList.length">导出当前页</el-dropdown-item>
             <el-dropdown-item command="exportSelect" :disabled="!selectedDeviceList.length">导出选定项</el-dropdown-item>
           </el-dropdown-menu>
@@ -315,10 +315,7 @@ export default class extends Mixins(listMixin, excelMixin) {
         parentDeviceId: this.deviceId
       }
       // this.isNVR && (params.parentDeviceId = this.deviceInfo.parentDeviceId)
-      if (command === 'specialAll') {
-        params.command = 'selected'
-        params.deviceIds = [{ deviceId: this.deviceId }]
-      } else if (command === 'exportAll') {
+      if (command === 'exportAll') {
         params.command = 'all'
       } else {
         params.command = 'selected'
