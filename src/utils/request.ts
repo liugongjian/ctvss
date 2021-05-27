@@ -42,7 +42,7 @@ service.interceptors.response.use(
 )
 
 function responseHandler(response: any) {
-  if (response && response.data && response.data.code === 0) {
+  if (response && (response.status === 200) && response.data && !response.data.code) {
     return response.data
   } else {
     if (!timeoutPromise && response && response.data && response.data.code === 16) {
