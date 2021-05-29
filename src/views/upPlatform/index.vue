@@ -111,7 +111,7 @@
             <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
               <div class="device-list__tools">
                 <el-button class="cancle-btn" @click="cancleShareDevice(selectedList)">移除选中设备</el-button>
-                <el-input v-model="searchDeviceName" class="filter-container__search-group" placeholder="请输入关键词" clearable @keyup.enter.native="handleFilter">
+                <el-input v-model="searchDeviceName" class="filter-container__search-group" placeholder="请输入关键词" clearable @keyup.enter.native="handleFilter" @clear="handleFilter">
                   <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
                 </el-input>
                 <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
@@ -135,6 +135,12 @@
                   <template slot-scope="{row}">
                     <status-badge :status="row.deviceStatus" />
                     {{ deviceStatus[row.deviceStatus] || '-' }}
+                  </template>
+                </el-table-column>
+                <el-table-column prop="streamStatus" label="流状态">
+                  <template slot-scope="{row}">
+                    <status-badge :status="row.streamStatus" />
+                    {{ streamStatus[row.streamStatus] || '-' }}
                   </template>
                 </el-table-column>
                 <el-table-column prop="gbId" label="国标ID">
@@ -172,7 +178,7 @@
 <script lang='ts'>
 import { Component, Vue, Provide } from 'vue-property-decorator'
 import { describeShareGroups, describeShareDirs, describeShareDevices, getPlatforms, deletePlatform, cancleShareDevice, cancleShareDir, startShareDevice, stopShareDevice } from '@/api/upPlatform'
-import { DeviceStatus, PlatformStatus } from '@/dics'
+import { DeviceStatus, StreamStatus, PlatformStatus } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AddDevices from './compontents/dialogs/AddDevices.vue'
 import PlatformDetail from './compontents/dialogs/PlatformDetail.vue'
@@ -187,6 +193,7 @@ import PlatformDetail from './compontents/dialogs/PlatformDetail.vue'
 })
 export default class extends Vue {
   private deviceStatus = DeviceStatus
+  private streamStatus = StreamStatus
   private platformStatus = PlatformStatus
   private dirList: Array<any> = []
   private platformList: Array<any> = []
