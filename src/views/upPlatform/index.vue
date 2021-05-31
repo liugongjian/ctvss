@@ -99,11 +99,12 @@
           </div>
           <div class="device-list__right">
             <div class="breadcrumb">
-              <span class="breadcrumb__item">根目录</span>
+              <!-- <span class="breadcrumb__item" @click="goToRoot">根目录</span> -->
               <span
                 v-for="item in breadcrumb"
                 :key="item.id"
                 class="breadcrumb__item"
+                @click="goToPath(item)"
               >
                 {{ item.label }}
               </span>
@@ -248,6 +249,17 @@ export default class extends Vue {
     this.initPlatform()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
+  }
+
+  // 面包屑导航
+  private goToPath(item: any) {
+    const dirTree: any = this.$refs.dirTree
+    dirTree.setCurrentKey(item.id)
+    let currentNode = dirTree.getNode(item.id)
+    this.defaultExpandedKeys = [item.id]
+    this.getList(currentNode.data, false)
+    this.currentNodeData = currentNode.data
+    this.breadcrumb = this.getNodePath(currentNode)
   }
 
   private destroyed() {
@@ -520,7 +532,8 @@ export default class extends Vue {
           groupId: node.data.groupId,
           platformId: this.currentPlatform.platformId,
           type: this.dirTypeMap[dir.dirType],
-          label: dir.dirName
+          label: dir.dirName,
+          id: dir.dirId
         }
       })
       resolve(dirs)
