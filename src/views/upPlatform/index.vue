@@ -45,7 +45,7 @@
               <svg-icon slot="reference" name="help" color="#fff" />
             </el-popover>
           </el-button>
-          <el-button v-if="currentPlatform.status !== 'on'" :loading="loading.startStop" @click="startShare()">启动级联</el-button>
+          <el-button v-if="!currentPlatform.enabled" :loading="loading.startStop" @click="startShare()">启动级联</el-button>
           <el-button v-else :loading="loading.startStop" @click="stopShare()">停止级联</el-button>
           <div class="filter-container__right">
             <div class="platform-status">平台状态: <status-badge :status="currentPlatform.status" />{{ platformStatus[currentPlatform.status] }}</div>
@@ -112,7 +112,7 @@
             <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
               <div class="device-list__tools">
                 <el-button class="cancle-btn" @click="cancleShareDevice(selectedList)">移除选中设备</el-button>
-                <el-input v-model="searchDeviceName" class="filter-container__search-group" placeholder="请输入关键词" clearable @keyup.enter.native="handleFilter">
+                <el-input v-model="searchDeviceName" class="filter-container__search-group" placeholder="请输入关键词" clearable @keyup.enter.native="handleFilter" @clear="handleFilter">
                   <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
                 </el-input>
                 <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
@@ -124,15 +124,29 @@
                 @selection-change="handleSelectionChange"
               >
                 <el-table-column type="selection" prop="selection" class-name="col-selection" width="55" />
-                <el-table-column prop="deviceName" label="名称" min-width="160">
+                <el-table-column prop="deviceName" label="设备ID/名称" min-width="160">
                   <template slot-scope="{row}">
-                    {{ row.channelName || row.deviceName }}
+                    <div class="device-list__device-name">
+                      <div class="device-list__device-id">{{ row.deviceId }}</div>
+                      <div>{{ row.channelName || row.deviceName }}</div>
+                    </div>
                   </template>
                 </el-table-column>
-                <el-table-column prop="deviceStatus" label="设备状态" min-width="160">
+                <el-table-column prop="deviceStatus" label="设备状态">
                   <template slot-scope="{row}">
                     <status-badge :status="row.deviceStatus" />
                     {{ deviceStatus[row.deviceStatus] || '-' }}
+                  </template>
+                </el-table-column>
+                <el-table-column prop="streamStatus" label="流状态">
+                  <template slot-scope="{row}">
+                    <status-badge :status="row.streamStatus" />
+                    {{ streamStatus[row.streamStatus] || '-' }}
+                  </template>
+                </el-table-column>
+                <el-table-column prop="gbId" label="国标ID">
+                  <template slot-scope="{row}">
+                    {{ row.gbId || '-' }}
                   </template>
                 </el-table-column>
                 <el-table-column prop="action" label="操作" width="80" fixed="right">
@@ -165,7 +179,7 @@
 <script lang='ts'>
 import { Component, Vue, Provide } from 'vue-property-decorator'
 import { describeShareGroups, describeShareDirs, describeShareDevices, getPlatforms, deletePlatform, cancleShareDevice, cancleShareDir, startShareDevice, stopShareDevice } from '@/api/upPlatform'
-import { DeviceStatus, PlatformStatus } from '@/dics'
+import { DeviceStatus, StreamStatus, PlatformStatus } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AddDevices from './compontents/dialogs/AddDevices.vue'
 import PlatformDetail from './compontents/dialogs/PlatformDetail.vue'
@@ -180,6 +194,7 @@ import PlatformDetail from './compontents/dialogs/PlatformDetail.vue'
 })
 export default class extends Vue {
   private deviceStatus = DeviceStatus
+  private streamStatus = StreamStatus
   private platformStatus = PlatformStatus
   private dirList: Array<any> = []
   private platformList: Array<any> = []
@@ -358,8 +373,9 @@ export default class extends Vue {
       this.$message.success('已通知启动级联')
       setTimeout(this.getPlatformList, 2000)
     } catch (e) {
-      this.$message.error(e)
+      this.$message.error(e && e.message)
     } finally {
+      this.getPlatformList()
       this.loading.startStop = false
     }
   }
@@ -376,8 +392,9 @@ export default class extends Vue {
       this.$message.success('已通知停用级联')
       setTimeout(this.getPlatformList, 2000)
     } catch (e) {
-      this.$message.error(e)
+      this.$message.error(e && e.message)
     } finally {
+      this.getPlatformList()
       this.loading.startStop = false
     }
   }
@@ -415,7 +432,7 @@ export default class extends Vue {
           })
           this.initDirs()
         } catch (e) {
-          console.log(e)
+          this.$message.error(e && e.message)
         }
       }
     } catch (e) {
@@ -429,6 +446,10 @@ export default class extends Vue {
    * 移除设备
    */
   private cancleShareDevice(deviceList: any) {
+    if (!deviceList.length) {
+      this.$message.info('请先选择设备')
+      return
+    }
     this.$alertDelete({
       type: '设备',
       msg: `是否确认移除设备"${deviceList.map((device: any) => {
@@ -712,8 +733,6 @@ export default class extends Vue {
           .status-badge {
             width: 5px;
             height: 5px;
-            position: relative;
-            top: -2px;
           }
 
           svg {
