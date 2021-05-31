@@ -259,7 +259,6 @@ class User extends VuexModule implements IUserState {
     removeToken()
     resetRouter()
     removeUsername()
-
     // Reset visited views and cached views
     TagsViewModule.delAllViews()
     // 清空设备管理面包屑

@@ -3,21 +3,23 @@ import request from '@/utils/request'
 /**
  * 获取设备详情
  */
-export const getDevice = (params: any): Promise<any> =>
+export const getDevice = (params: any, cancelToken?: any): Promise<any> =>
   request({
     url: '/device',
     method: 'get',
-    params
+    params,
+    cancelToken
   })
 
 /**
  * 获取设备列表
  */
-export const getDevices = (params: any): Promise<any> =>
+export const getDevices = (params: any, cancelToken?: any): Promise<any> =>
   request({
     url: '/device/list',
     method: 'get',
-    params
+    params,
+    cancelToken
   })
 
 /**
@@ -73,7 +75,7 @@ export const getDeviceTree = (params: any): Promise<any> =>
 /**
  * 获取设备预览地址
  */
-export const getDevicePreview = (params: any): Promise<any> =>
+export const getDevicePreview = (params: any, cancelToken?: any): Promise<any> =>
   request({
     url: '/device/preview',
     method: 'get',
@@ -81,17 +83,19 @@ export const getDevicePreview = (params: any): Promise<any> =>
       outProtocol: 'rtmp,flv,hls',
       type: params.type || 'live',
       ...params
-    }
+    },
+    cancelToken
   })
 
 /**
  * 获取设备录像列表
  */
-export const getDeviceRecords = (params: any): Promise<any> =>
+export const getDeviceRecords = (params: any, cancelToken?: any): Promise<any> =>
   request({
     url: '/record/list',
     method: 'get',
-    params
+    params,
+    cancelToken
   })
 
 /**
