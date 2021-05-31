@@ -1,11 +1,12 @@
 import { VuexModule, Module, Action, Mutation, getModule } from 'vuex-module-decorators'
 import { Base64 } from 'js-base64'
 import { login, logout, getMainUserInfo, getIAMUserInfo, changePassword, resetIAMPassword } from '@/api/users'
-import { getToken, setToken, removeToken, getUsername, setUsername, removeUsername, getIamUserId, setIamUserId, removeIamUserId, removeTicket } from '@/utils/cookies'
+import { getToken, setToken, removeToken, getUsername, setUsername, removeUsername, getIamUserId, setIamUserId, removeIamUserId } from '@/utils/cookies'
 import { setLocalStorage, getLocalStorage } from '@/utils/storage'
 import router, { resetRouter } from '@/router'
 import { PermissionModule } from './permission'
 import { TagsViewModule } from './tags-view'
+import { DeviceModule } from '@/store/modules/device'
 import store from '@/store'
 
 export interface IUserState {
@@ -142,13 +143,14 @@ class User extends VuexModule implements IUserState {
     removeToken()
     removeUsername()
     removeIamUserId()
-    removeTicket()
     this.SET_TOKEN('')
     this.SET_NAME('')
     this.SET_PERMS([])
     this.SET_IAM_USER_ID('')
     this.SET_MAIN_USER_ADDRESS('')
     this.SET_MAIN_USER_ID('')
+    // 清空设备管理面包屑
+    DeviceModule.ResetBreadcrumb()
   }
 
   @Action
@@ -257,10 +259,10 @@ class User extends VuexModule implements IUserState {
     removeToken()
     resetRouter()
     removeUsername()
-    removeTicket()
-
     // Reset visited views and cached views
     TagsViewModule.delAllViews()
+    // 清空设备管理面包屑
+    DeviceModule.ResetBreadcrumb()
     this.SET_TOKEN('')
     this.SET_ROLES([])
     this.SET_PERMS([])

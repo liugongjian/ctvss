@@ -83,7 +83,7 @@
       />
       <replay-player-dialog v-if="dialog.play" :video="currentListRecord" @on-close="closeReplayPlayer" />
     </div>
-    <slice-download-dialog v-if="dialog.slice" :device-id="deviceId" @on-close="closeSliceDownload" />
+    <slice-download-dialog v-if="dialog.slice" :in-protocol="inProtocol" :device-id="deviceId" @on-close="closeSliceDownload" />
   </div>
 </template>
 <script lang="ts">
@@ -263,6 +263,7 @@ export default class extends Vue {
     try {
       const res = await getDeviceRecordStatistic({
         deviceId: this.deviceId,
+        inProtocol: this.inProtocol,
         startTime: startTime,
         endTime: endTime
       })
@@ -312,7 +313,8 @@ export default class extends Vue {
       const res = await getDeviceRecord({
         deviceId: this.deviceId,
         startTime: record.startAt / 1000,
-        fileFormat: 'mp4'
+        fileFormat: 'mp4',
+        inProtocol: this.inProtocol
       })
       if (res.downloadUrl) {
         const link: HTMLAnchorElement = document.createElement('a')
