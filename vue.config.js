@@ -74,12 +74,13 @@ module.exports = {
         secure: false,
         changeOrigin: true
       },
-      '/': {
+      '/v1': {
         target: serverAddress,
         changeOrigin: true,
         secure: false
       }
     },
+    historyApiFallback: true,
     disableHostCheck: true
   },
   pwa: {
