@@ -68,6 +68,7 @@ import axios from 'axios'
 import { Component, Prop, Watch, Mixins } from 'vue-property-decorator'
 import { getDeviceRecords, getDevicePreview, setRecordScale } from '@/api/device'
 import ReplayPlayerMixin from '@/views/device/mixin/replayPlayerMixin'
+import { getTimestamp } from '@/utils/date'
 
 @Component({
   name: 'ReplayPlayerLocal'
@@ -143,7 +144,7 @@ export default class extends Mixins(ReplayPlayerMixin) {
       if (startTime) {
         const recordLength = this.recordList.length
         res.records.forEach((record: any, index: number) => {
-          record.startAt = new Date(record.startTime).getTime()
+          record.startAt = getTimestamp(record.startTime)
           record.loading = false
           record.index = recordLength + index
           if (!~this.recordList.findIndex(_record => {
@@ -158,7 +159,7 @@ export default class extends Mixins(ReplayPlayerMixin) {
         }
       } else {
         this.recordList = res.records.map((record: any, index: number) => {
-          record.startAt = new Date(record.startTime).getTime()
+          record.startAt = getTimestamp(record.startTime)
           record.loading = false
           record.index = index
           return record

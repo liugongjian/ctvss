@@ -27,7 +27,7 @@
       </el-tooltip>
     </div>
     <template v-if="viewType === 'timeline'">
-      <div v-loading="loading" class="record-list-loading" />
+      <div v-loading="loading" class="replay-view__loading" />
       <replay-player
         v-if="replayType === 'cloud' && recordList.length"
         ref="replayPlayer"
@@ -63,6 +63,7 @@
     </template>
     <div v-else class="replay-time-list">
       <el-table v-loading="loading" :data="recordListSlice" empty-text="所选日期暂无录像">
+        <el-table-column label="录像名称" prop="templateName" min-width="100" />
         <el-table-column label="开始时间" prop="startAt" min-width="180" :formatter="dateFormatInTable" />
         <el-table-column label="时长" prop="duration" :formatter="durationFormatInTable" />
         <el-table-column prop="action" label="操作" width="200" fixed="right">
@@ -88,7 +89,7 @@
 <script lang="ts">
 import axios from 'axios'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { dateFormatInTable, dateFormat, durationFormatInTable, prefixZero } from '@/utils/date'
+import { dateFormatInTable, dateFormat, durationFormatInTable, prefixZero, getLocaleDate, getTimestamp } from '@/utils/date'
 import { getDeviceRecords, getDeviceRecord, getDeviceRecordStatistic, getDeviceRecordRule } from '@/api/device'
 import ReplayPlayerDialog from './dialogs/ReplayPlayer.vue'
 import SliceDownloadDialog from './dialogs/SliceDownload.vue'
@@ -125,7 +126,7 @@ export default class extends Vue {
   private replayType = 'cloud'
   private currentRecord: any = null
   private currentListRecord: any = null
-  private currentDate = new Date(new Date().toLocaleDateString()).getTime()
+  private currentDate = getLocaleDate().getTime()
   private loading = false
   private recordList: Array<any> = []
   private recordListSlice: Array<any> = []
@@ -225,7 +226,7 @@ export default class extends Vue {
       if (startTime) {
         const recordLength = this.recordList.length
         res.records.forEach((record: any, index: number) => {
-          record.startAt = new Date(record.startTime).getTime()
+          record.startAt = getTimestamp(record.startTime)
           record.loading = false
           record.index = recordLength + index
           if (!~this.recordList.findIndex(_record => {
@@ -240,7 +241,7 @@ export default class extends Vue {
         }
       } else {
         this.recordList = res.records.map((record: any, index: number) => {
-          record.startAt = new Date(record.startTime).getTime()
+          record.startAt = getTimestamp(record.startTime)
           record.loading = false
           record.index = index
           return record
@@ -399,6 +400,9 @@ export default class extends Vue {
   .replay-view {
     ::v-deep .el-loading-mask {
       background-color: rgba(0, 0, 0, 0.6);
+    }
+    &__loading {
+      top: 50%;
     }
   }
   .record-list-loading {

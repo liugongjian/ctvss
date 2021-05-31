@@ -1,6 +1,7 @@
 <template>
-  <DashboardContainer title="实时告警信息">
-    <ul class="alert-list" :style="`height:${height}vh`">
+  <component :is="container" title="实时告警信息">
+    <ul v-loading="loading && !list.length" class="alert-list" :class="{'light': isLight}" :style="`height:${height}vh`">
+      <div v-if="!list.length && !loading" class="empty-text">暂无数据</div>
       <li v-for="item in list" :key="item.id" :class="{'new-alert': item.isNew}" @click="openDialog(item)">
         <div class="alert-list__level" :class="`alert-list__level--${item.level}`">
           <svg-icon :name="alertIcon[item.level]" />
@@ -10,25 +11,27 @@
         <div class="alert-list__datetime">{{ item.formatedTime }}</div>
       </li>
     </ul>
-    <audio ref="audio" :src="require('@/assets/dashboard/alert.mp3')" preload="auto" />
-    <DashboardAlertLiveDetailDialog v-if="dialog" theme="dashboard-alert-live-dialog" :audit="currentItem" @on-close="closeDialog" />
-  </DashboardContainer>
+    <audio ref="audio" :src="alertFile" preload="auto" />
+    <DashboardAlertLiveDetailDialog v-if="dialog" :is-light="isLight" theme="dashboard-alert-live-dialog" :audit="currentItem" @on-close="closeDialog" />
+  </component>
 </template>
 
 <script lang="ts">
-import { Component, Mixins } from 'vue-property-decorator'
-import DashboardMixin from './DashboardMixin'
+import { Component, Mixins, Prop } from 'vue-property-decorator'
+import DashboardMixin from '../mixin/DashboardMixin'
 import { AlertType, AlertLevel, AlertIcon } from '@/dics'
 import DashboardContainer from './DashboardContainer.vue'
 import { getAuditList } from '@/api/dashboard'
-import { dateFormat } from '@/utils/date'
+import { dateFormat, getTimestamp } from '@/utils/date'
+import DashboardLightContainer from './DashboardLightContainer.vue'
 import DashboardAlertLiveDetailDialog from './DashboardAlertLiveDetailDialog.vue'
 
 @Component({
   name: 'DashboardAlertLive',
   components: {
     DashboardContainer,
-    DashboardAlertLiveDetailDialog
+    DashboardAlertLiveDetailDialog,
+    DashboardLightContainer
   }
 })
 export default class extends Mixins(DashboardMixin) {
@@ -36,34 +39,56 @@ export default class extends Mixins(DashboardMixin) {
   private alertLevel = AlertLevel
   private alertIcon = AlertIcon
   private currentItem: any = null
+  private loading = true
   private dialog = false
   private list: any = []
   public intervalTime = 15 * 1000
   private lastTime: any = null
+  private alertFile = null
+
+  @Prop({ default: false })
+  private isLight?: boolean
+
+  private get container() {
+    return this.isLight ? 'DashboardLightContainer' : 'DashboardContainer'
+  }
 
   private mounted() {
+    const mainUserID = this.$store.state.user.mainUserID
+    // TODO: 九江码头改音效
+    if (mainUserID === '90009') {
+      this.alertFile = require('@/assets/dashboard/alert2.mp3')
+    } else {
+      this.alertFile = require('@/assets/dashboard/alert.mp3')
+    }
     this.setInterval(this.updateAuditList)
   }
 
-  private updateAuditList() {
-    getAuditList({
-      limit: 6
-    }).then((res) => {
+  private async updateAuditList() {
+    try {
+      this.loading = true
+      const res = await getAuditList({
+        limit: 6
+      })
       this.list = res.audit
       this.list.forEach((item:any) => {
         item.id = Math.random().toString(16).slice(-10)
         item.level = this.checkLevel(item)
-        item.isNew = this.lastTime && (new Date(item.timeStamp).getTime() > this.lastTime)
-        item.formatedTime = dateFormat(new Date(item.timeStamp), 'MM-dd HH:mm:ss')
+        item.isNew = this.lastTime && (getTimestamp(item.timeStamp) > this.lastTime)
+        item.formatedTime = dateFormat(new Date(getTimestamp(item.timeStamp)), 'MM-dd HH:mm:ss')
       })
       if (this.list.some((item: any) => item.isNew)) {
         const audio: any = this.$refs.audio
         audio.play()
       }
       if (this.list.length) {
-        this.lastTime = new Date(this.list[0].timeStamp).getTime()
+        this.lastTime = getTimestamp(this.list[0].timeStamp)
       }
-    })
+    } catch (e) {
+      console.log(e)
+    } finally {
+      this.loading = false
+    }
   }
 
   private checkLevel(data: any) {
@@ -93,6 +118,7 @@ export default class extends Mixins(DashboardMixin) {
 </script>
 <style lang="scss" scoped>
   .alert-list {
+    min-height: 180px;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -130,6 +156,16 @@ export default class extends Mixins(DashboardMixin) {
     .new-alert {
       animation: shining 2s;
       border-radius: 5px;
+    }
+
+    &.light {
+      li {
+        height: 30px;
+        color: $text;
+        &:hover {
+          background: #F5F7FA;
+        }
+      }
     }
   }
 </style>

@@ -71,14 +71,14 @@
               <info-list-item label="信令传输模式:">
                 <div class="info-list__edit">
                   <div class="info-list__edit--value">
-                    {{ transPriority[info.sipTransType] || '-' }}
+                    {{ sipTransType[info.sipTransType] || '-' }}
                   </div>
                 </div>
               </info-list-item>
               <info-list-item label="流传输模式:">
                 <div class="info-list__edit">
                   <div class="info-list__edit--value">
-                    {{ transPriority[info.streamTransType] || '-' }}
+                    {{ streamTransType[info.streamTransType] || '-' }}
                   </div>
                 </div>
               </info-list-item>

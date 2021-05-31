@@ -1,0 +1,17 @@
+#ctcloud-console {
+  .main-container {
+    margin-left: 0;
+  }
+  .avatar-div.__layout-avatar-with-dropdown .avatar-dropdown {
+    z-index: 2001;
+  }
+  .navbar {
+    padding-left: 20px;
+    .el-breadcrumb {
+      margin-left: 0;
+    }
+    .filter-group {
+      margin-right: 18px;
+    }
+  }
+}

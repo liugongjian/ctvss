@@ -1,144 +1,43 @@
 <template>
-  <div
-    class="dashboard-wrap"
-  >
-    <div class="dashboard-wrap__decorator" />
-    <div class="dashboard-wrap__header">
-      {{ name === 'tzszf' ? '泰州智能视频云' : '天翼云视频云网平台' }}
-    </div>
-    <DashboardMap />
-    <div class="dashboard-wrap__col dashboard-wrap__col--left">
-      <DashboardDevice height="19" />
-      <DashboardFlow height="19" />
-      <DashboardIntegrityRate height="19" />
-    </div>
-    <div class="dashboard-wrap__col dashboard-wrap__col--right">
-      <DashboardAlertLive height="19" />
-      <DashboardAlertToday height="19" />
-      <DashboardAlertTrend height="19" />
+  <div id="container" class="app-container">
+    <div class="dashboard-wrap-overview">
+      <div class="dashboard-wrap-overview__left">
+        <DashboardDataToday />
+        <DashboardFlowAndDevice :height="34" />
+        <DashboardResourcePackage @ai-change="aiChange" />
+      </div>
+      <div v-if="aiPakageNum > 0" class="dashboard-wrap-overview__right">
+        <DashboardAIAbility />
+        <DashboardAlertLive :is-light="true" />
+        <DashboardAlertToday :is-light="true" :height="19" />
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
+import DashboardAlertToday from '@/views/dashboard/components/DashboardAlertToday.vue'
+import DashboardAlertLive from '@/views/dashboard/components/DashboardAlertLive.vue'
+import DashboardFlowAndDevice from '@/views/dashboard/components/DashboardFlowAndDevice.vue'
+import DashboardAIAbility from '@/views/dashboard/components/DashboardAIAbility.vue'
+import DashboardDataToday from '@/views/dashboard/components/DashboardDataToday.vue'
+import DashboardResourcePackage from '@/views/dashboard/components/DashboardResourcePackage.vue'
 import { Component, Vue } from 'vue-property-decorator'
-import { UserModule } from '@/store/modules/user'
-import DashboardDevice from '@/components/Dashboard/DashboardDevice.vue'
-import DashboardFlow from '@/components/Dashboard/DashboardFlow.vue'
-import DashboardAlertLive from '@/components/Dashboard/DashboardAlertLive.vue'
-import DashboardAlertToday from '@/components/Dashboard/DashboardAlertToday.vue'
-import DashboardIntegrityRate from '@/components/Dashboard/DashboardIntegrityRate.vue'
-import DashboardMap from '@/components/Dashboard/DashBoardMap.vue'
-import DashboardAlertTrend from '@/components/Dashboard/DashboardAlertTrend.vue'
-
 @Component({
   name: 'Dashboard',
   components: {
-    DashboardDevice,
-    DashboardFlow,
     DashboardAlertLive,
     DashboardAlertToday,
-    DashboardMap,
-    DashboardIntegrityRate,
-    DashboardAlertTrend
+    DashboardFlowAndDevice,
+    DashboardAIAbility,
+    DashboardDataToday,
+    DashboardResourcePackage
   }
 })
 export default class extends Vue {
-  get name() {
-    return UserModule.name
-  }
-  private mounted() {
+  private aiPakageNum = 0
+  private aiChange(packageData: any) {
+    this.aiPakageNum = packageData.ai
   }
 }
 </script>
-
-<style lang="scss" scoped>
-  .dashboard-wrap {
-    position: relative;
-    background-color: #000649;
-    height: 100%;
-    width: 100%;
-    font-size: 16px;
-    height: 100vh;
-    overflow: auto;
-
-    &__decorator {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 28%;
-      height: 80px;
-      z-index: 10;
-      background: url('./images/left_bg.png') no-repeat;
-      background-size: 100% auto;
-    }
-    &__header {
-      position: absolute;
-      z-index: 1;
-      left: 50%;
-      font-size: 1.8em;
-      color: #fff;
-      font-weight: bold;
-      width: 40%;
-      margin-left: -20%;
-      padding: 15px 0 50px 0;
-      text-align: center;
-      letter-spacing: .5rem;
-      background: url('./images/title_bg.png') no-repeat;
-      background-size: 100% 100%;
-    }
-
-    &__col {
-      position: absolute;
-      width: 30%;
-      top: 5vh;
-      &--left {
-        left: 0.5em;
-      }
-      &--right {
-        position: absolute;
-        right: 0.5em;
-      }
-      ::v-deep .dashboard-container {
-        margin-bottom: -1.5vh;
-      }
-    }
-
-    ::v-deep .el-select {
-      width: 120px;
-      .el-input__inner {
-        background: none;
-        border-color: transparent;
-        color: #fff;
-        height: 2.5vh;
-        line-height: 2.5vh;
-        border-radius: 0;
-        color: #65cbd2;
-      }
-      .el-input--small .el-input__icon {
-        line-height: 2.5vh;
-        color: #65cbd2;
-      }
-    }
-
-    ::v-deep .el-loading-mask {
-      background: rgba(35, 59, 88, 0.6);
-    }
-
-    ::v-deep .g2-tooltip {
-      opacity: 0.85!important;
-    }
-  }
-
-  @media screen and (max-height: 1000px) {
-    .dashboard-wrap {
-      font-size: 14px;
-    }
-  }
-
-  @media screen and (max-height: 700px) {
-    .dashboard-wrap {
-      font-size: 12px;
-    }
-  }
-</style>

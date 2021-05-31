@@ -22,6 +22,12 @@
             <el-option :value="false" label="点播流" />
           </el-select>
         </el-form-item>
+        <el-form-item label="是否使用ws">
+          <el-select v-model="form.isWs">
+            <el-option :value="true" label="使用ws" />
+            <el-option :value="false" label="使用http" />
+          </el-select>
+        </el-form-item>
         <el-form-item label="视频地址">
           <el-input v-model="form.url" />
         </el-form-item>
@@ -29,7 +35,7 @@
       </el-form>
     </div>
     <div class="player__body">
-      <player v-if="url" ref="player" :type="type" :codec="codec" :url="url" :auto-play="true" :has-control="false" :is-live="isLive" @onRetry="onRetry" />
+      <player v-if="url" ref="player" :type="type" :codec="codec" :url="url" :auto-play="true" :has-control="false" :is-live="isLive" :is-ws="isWs" />
     </div>
   </div>
 </template>
@@ -46,43 +52,20 @@ import Player from './components/Player.vue'
 export default class extends Vue {
   private form: any = {}
   private codec = ''
+  private type = ''
   private url = ''
   private isLive = false
-
-  private mounted() {
-    // const conf = prepareUrl('webrtc://d.ossrs.net:11985/live/livestream')
-    // const sdk = srsRtcPlayerAsync()
-    // console.log(sdk)
-    // sdk.onaddstream = function (event) {
-    //     console.log('Start play, event: ', event.stream);
-    //     document.getElementById('rtc_media_player').srcObject = event.stream;
-    // };
-
-    // sdk.play(conf.apiUrl, conf.streamUrl).then(function(session){
-    //     console.log(session)
-    // }).catch(function (reason) {
-    //   console.log(reason)
-    //     sdk.close();
-    // });
-  }
+  private isWs = false
 
   private generate() {
     this.url = ''
     this.$nextTick(() => {
       this.codec = this.form.codec
-      this.type = this.form.codec
+      this.type = this.form.type
       this.url = this.form.url
       this.isLive = this.form.isLive
+      this.isWs = this.form.isWs
     })
-  }
-
-  private onRetry() {
-    const player: any = this.$refs.player
-    console.log('onRetry')
-    setTimeout(() => {
-      this.url = 'http://192.168.30.182:8080/football.flv'
-      player.reset()
-    }, 10 * 1000)
   }
 }
 </script>

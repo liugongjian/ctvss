@@ -5,12 +5,14 @@ import { GroupModule } from '@/store/modules/group'
 import { deleteDevice, startDevice, stopDevice, getDevice, getDevices, startRecord, stopRecord, syncDevice } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MoveDir from '../components/dialogs/MoveDir.vue'
+import UploadExcel from '../components/dialogs/UploadExcel.vue'
 import { checkPermission } from '@/utils/permission'
 
 @Component({
   components: {
     StatusBadge,
-    MoveDir
+    MoveDir,
+    UploadExcel
   }
 })
 export default class CreateMixin extends Vue {
@@ -33,6 +35,7 @@ export default class CreateMixin extends Vue {
   public sipTransType = SipTransType
   public streamTransType = StreamTransType
   public transPriority = TransPriority
+  public parentDeviceId = ''
 
   public loading = {
     info: false,
@@ -40,7 +43,8 @@ export default class CreateMixin extends Vue {
     syncDevice: false
   }
   public dialog = {
-    moveDir: false
+    moveDir: false,
+    uploadExcel: false
   }
   public keyword = ''
   public filter: any = {
@@ -63,6 +67,11 @@ export default class CreateMixin extends Vue {
     streamStatus: this.dictToFilterArray(StreamStatus),
     recordStatus: this.dictToFilterArray(RecordStatus)
   }
+  public autoStreamNumObj = {
+    1: '主码流',
+    2: '子码流',
+    3: '第三码流'
+  }
 
   public get inProtocol() {
     return this.$route.query.inProtocol
@@ -78,6 +87,10 @@ export default class CreateMixin extends Vue {
 
   public get isNVR() {
     return this.$route.query.type === 'nvr'
+  }
+
+  public get isChannel() {
+    return this.$route.query.isChannel === 'true' || (this.parentDeviceId && this.parentDeviceId !== '-1')
   }
 
   public get isPlatform() {
@@ -98,6 +111,10 @@ export default class CreateMixin extends Vue {
 
   public get groupId() {
     return GroupModule.group?.groupId
+  }
+
+  public get groupData() {
+    return GroupModule.group
   }
 
   public get isCreateSubDevice() {
@@ -152,6 +169,13 @@ export default class CreateMixin extends Vue {
 
   public mounted() {
     this.init()
+    // 调整el-upload外框样式
+    const uploadDiv: any = document.querySelector('.el-upload')?.parentNode
+    uploadDiv && (
+      uploadDiv.style.display = 'inline-block'
+    ) && (
+      uploadDiv.style.marginRight = '10px'
+    )
   }
 
   /**
@@ -177,6 +201,21 @@ export default class CreateMixin extends Vue {
   }
 
   /**
+   * 获取设备流信息
+   */
+  public getStreamStatus(statusArr: any, num: any) {
+    if (!statusArr) {
+      return false
+    }
+    let statusObj = statusArr.find((status: any) => status.streamNum === num)
+    if (!statusObj) {
+      return false
+    } else {
+      return statusObj.streamStatus
+    }
+  }
+
+  /**
    * 获取设备信息
    */
   public async getDeviceInfo(type: string) {
@@ -190,6 +229,8 @@ export default class CreateMixin extends Vue {
         this.deviceInfo = res
         let deviceList = this.deviceInfo.deviceChannels.map((channel: any) => {
           channel.deviceType = 'ipc'
+          channel.multiStreamSize = this.deviceInfo.multiStreamSize
+          channel.inProtocol = this.deviceInfo.inProtocol
           channel.transPriority = this.deviceInfo.transPriority
           channel.sipTransType = this.deviceInfo.sipTransType
           channel.streamTransType = this.deviceInfo.streamTransType
@@ -216,9 +257,15 @@ export default class CreateMixin extends Vue {
         }
       } else if (type === 'ipc') {
         this.deviceInfo = null
+        this.parentDeviceId = res.parentDeviceId
         if (res.parentDeviceId !== '-1' && res.deviceChannels.length) {
           res.deviceId = res.deviceChannels[0].deviceId
           res.deviceName = res.deviceChannels[0].channelName
+          res.channelNum = res.deviceChannels[0].channelNum
+          res.deviceStatus = res.deviceChannels[0].deviceStatus
+          res.recordStatus = res.deviceChannels[0].recordStatus
+          res.deviceStreams = res.deviceChannels[0].deviceStreams
+          res.recordTaskId = res.deviceChannels[0].recordTaskId
         }
         this.deviceList = [ res ]
       }
@@ -360,9 +407,15 @@ export default class CreateMixin extends Vue {
         this.openDialog('moveDir', command.device)
         break
       case 'startDevice':
+        if (command.device.inProtocol === 'ehome') {
+          command.device.streamNum = command.num
+        }
         this.startDevice(command.device)
         break
       case 'stopDevice':
+        if (command.device.inProtocol === 'ehome') {
+          command.device.streamNum = command.num
+        }
         this.stopDevice(command.device)
         break
       case 'startRecord':
@@ -377,7 +430,7 @@ export default class CreateMixin extends Vue {
   /**
    * 批量操作菜单
    */
-  public handleBatch(command: string) {
+  public handleBatch(command: any) {
     if (!this.selectedDeviceList.length) {
       this.$alertError('请先选择设备')
       return
@@ -500,12 +553,13 @@ export default class CreateMixin extends Vue {
       const params: any = {
         deviceId: device.deviceId,
         inProtocol: this.inProtocol,
-        inType: device.inType
+        inType: device.inType,
+        streamNum: device.streamNum
       }
       await startDevice(params)
       this.$message.success('已通知启用设备')
     } catch (e) {
-      this.$message.error(e)
+      this.$message.error(e && e.message)
     }
   }
 
@@ -517,12 +571,13 @@ export default class CreateMixin extends Vue {
       const params: any = {
         deviceId: device.deviceId,
         inProtocol: this.inProtocol,
-        inType: device.inType
+        inType: device.inType,
+        streamNum: device.streamNum
       }
       await stopDevice(params)
       this.$message.success('已通知停用设备')
     } catch (e) {
-      this.$message.error(e)
+      this.$message.error(e && e.message)
     }
   }
 
@@ -539,7 +594,7 @@ export default class CreateMixin extends Vue {
       this.$message.success('已通知开始录制')
       this.init()
     } catch (e) {
-      this.$message.error(e.message)
+      this.$message.error(e && e.message)
       console.error(e)
     }
   }
@@ -558,7 +613,7 @@ export default class CreateMixin extends Vue {
       this.$message.success('已通知停止录像')
       this.init()
     } catch (e) {
-      this.$message.error(e.message)
+      this.$message.error(e && e.message)
       console.error(e)
     }
   }
@@ -600,7 +655,7 @@ export default class CreateMixin extends Vue {
             }))
             done()
           } catch (e) {
-            this.$message.error(e.message)
+            this.$message.error(e && e.message)
           } finally {
             instance.confirmButtonLoading = false
             instance.confirmButtonText = '确定'
@@ -613,7 +668,7 @@ export default class CreateMixin extends Vue {
       this.$message.success(`已通知${methodStr}设备`)
     }).catch((e: any) => {
       if (e === 'cancel' || e === 'close') return
-      this.$message.error(e)
+      this.$message.error(e && e.message)
     })
   }
 

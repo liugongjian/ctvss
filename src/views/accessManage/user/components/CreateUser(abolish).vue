@@ -62,11 +62,11 @@
         </div>
       </div>
     </el-card>
-    <EditAccessType 
-      v-if="showAccessEditDialog" 
-      @on-close="closeDialog" 
-      @on-return="getReturnAccessType" 
-      :dialogData="dialogData" 
+    <EditAccessType
+      v-if="showAccessEditDialog"
+      @on-close="closeDialog"
+      @on-return="getReturnAccessType"
+      :dialogData="dialogData"
     />
   </div>
 </template>
@@ -78,7 +78,7 @@ export default {
     EditAccessType
   },
   data() {
-    return{
+    return {
       showAccessEditDialog: false,
       breadCrumbContent: '',
       form: {
@@ -109,7 +109,7 @@ export default {
       }
     },
     getReturnAccessType(dialogData) {
-      this.form.userList[dialogData.index].accessType =  dialogData.val
+      this.form.userList[dialogData.index].accessType = dialogData.val
     },
     closeDialog() {
       this.showAccessEditDialog = false
@@ -118,7 +118,7 @@ export default {
       let obj = {
         userName: '',
         accessType: 'b',
-        plicy: '',
+        plicy: ''
       }
       this.form.userList.push(obj)
     },
@@ -127,8 +127,8 @@ export default {
         this.$message.error('请添加新增用户')
       }
       this.$refs.userForm.validate((valid) => {
-        if(valid) {
-          console.log('success');
+        if (valid) {
+          console.log('success')
         }
       })
     },
@@ -155,7 +155,7 @@ export default {
     }
     &__right {
       display: flex;
-      padding-right: 10px; 
+      padding-right: 10px;
     }
   }
   .foot {

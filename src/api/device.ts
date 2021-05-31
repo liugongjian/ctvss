@@ -245,3 +245,33 @@ export const stopRecord = (params: any): Promise<any> =>
     method: 'post',
     data: params
   })
+
+/**
+ * 导入设备表格
+ */
+export const importDevice = (params: any): Promise<any> =>
+  request({
+    url: '/device/importDevice',
+    method: 'post',
+    data: params
+  })
+
+/**
+ * 导出全部设备表格
+ */
+export const exportDeviceAll = (params: any): Promise<any> =>
+  request({
+    url: '/device/exportDeviceAll',
+    method: 'post',
+    data: params
+  })
+
+/**
+ * 导出选中设备表格
+ */
+export const exportDeviceOption = (params: any): Promise<any> =>
+  request({
+    url: '/device/exportDeviceOption',
+    method: 'post',
+    data: params
+  })

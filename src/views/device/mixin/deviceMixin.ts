@@ -42,6 +42,10 @@ export default class DeviceMixin extends Vue {
     return DeviceModule.breadcrumb ? DeviceModule.breadcrumb : []
   }
 
+  public get isRootDir() {
+    return this.$route.query.type === 'dir' && this.$route.query.dirId === '0'
+  }
+
   /**
    * 初始化目录
    */

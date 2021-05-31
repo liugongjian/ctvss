@@ -131,6 +131,7 @@ export default class extends Vue {
   private setDialogType = ''
   private breadCrumbContent = ''
   private createOrUpdateFlag = false
+  private currentAlgorithm: any
   private loading = false
   private rules = {
     templateName: [

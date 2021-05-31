@@ -30,7 +30,7 @@
               <info-list-item v-if="info.inType === 'pull'" label="用户名:">{{ info.userName }}</info-list-item>
               <info-list-item v-if="info.inType === 'pull'" label="设备IP:">{{ info.deviceIp }}</info-list-item>
               <info-list-item v-if="info.inType === 'pull'" label="设备端口:">{{ info.devicePort }}</info-list-item>
-              <info-list-item v-if="info.inType === 'pull'" label="主子码流数量:">{{ info.autoStreamNum }}</info-list-item>
+              <info-list-item v-if="info.inType === 'pull'" label="主子码流数量:">{{ info.multiStreamSize }}</info-list-item>
               <info-list-item v-if="info.inType === 'push'" label="自动激活推流地址:">{{ pushType[info.pushType] || '-' }}</info-list-item>
               <info-list-item v-else label="自动拉流:">{{ pullType[info.pullType] || '-' }}</info-list-item>
               <info-list-item v-if="info.inType === 'pull' && info.pullType === 1" label="自动拉取第几个码流:">{{ info.autoStreamNum }}</info-list-item>

@@ -2,6 +2,7 @@ import { VuexModule, Module, Mutation, Action, getModule } from 'vuex-module-dec
 import { RouteConfig } from 'vue-router'
 import { asyncRoutes, constantRoutes } from '@/router'
 import store from '@/store'
+import { getLocalStorage } from '@/utils/storage'
 
 const hasPermission = (perms: string[], route: RouteConfig) => {
   if (route.meta && route.meta.perms) {
@@ -9,6 +10,85 @@ const hasPermission = (perms: string[], route: RouteConfig) => {
   } else {
     return true
   }
+}
+
+const generateCTMenuData = (routes: RouteConfig[]) => {
+  const filteredRoutes = filterCTMenu(routes)
+  const p = new Promise(resolve => {
+    const ctMenuList = []
+    for (let i = 0; i < filteredRoutes.length; i++) {
+      const route = filteredRoutes[i]
+      if (!route.meta.alwaysShow && route.children && route.children.length === 1) {
+        const child = route.children[0]
+        ctMenuList.push({
+          name: child.meta.title,
+          menuCode: `${route.path + (child.path ? '/' + child.path : '')}`,
+          parentId: '0',
+          module: 'menu',
+          renderer: 'menu',
+          hrefLocal: `#${route.path + (child.path ? '/' + child.path : '')}`,
+          href: `#${route.path + (child.path ? '/' + child.path : '')}`,
+          domain: '',
+          displayOrder: 0,
+          menuId: child.meta.id
+        })
+      } else {
+        ctMenuList.push({
+          name: route.meta.title,
+          menuCode: `${route.path}`,
+          parentId: '0',
+          module: 'menu',
+          renderer: 'menu',
+          hrefLocal: `#${route.path}`,
+          href: `#${route.path}`,
+          domain: '',
+          dispalyOrder: 0,
+          menuId: route.meta.id
+        })
+        route.children && route.children.forEach(child => {
+          ctMenuList.push({
+            name: child.meta.title,
+            menuCode: `${route.path + (child.path ? '/' + child.path : '')}`,
+            parentId: route.meta.id,
+            module: 'menu',
+            renderer: 'menu',
+            hrefLocal: `#${route.path + (child.path ? '/' + child.path : '')}`,
+            href: `#${route.path + (child.path ? '/' + child.path : '')}`,
+            domain: '',
+            displayOrder: 0,
+            menuId: child.meta.id
+          })
+        })
+      }
+    }
+    resolve({
+      title: '视频监控',
+      list: ctMenuList
+    })
+    console.log('ctMenuList: ', ctMenuList)
+  })
+  CtcloudLayout.consoleLayout.fetchMenuData({
+    getMenuPromise: p
+  })
+}
+
+const filterCTMenu = (routes: RouteConfig[]) => {
+  const result: RouteConfig[] = []
+  routes.forEach(route => {
+    if (route.meta && route.meta.hidden) {
+      return
+    }
+    const temp = { ...route }
+    if (temp.children) {
+      temp.children = filterCTMenu(temp.children)
+      if (temp.children && temp.children.length) {
+        result.push(temp)
+      }
+    } else {
+      temp.meta.hidden !== true && result.push(temp)
+    }
+  })
+  return result
 }
 
 export const filterAsyncRoutes = (routes: RouteConfig[], perms: string[]) => {
@@ -65,6 +145,10 @@ class Permission extends VuexModule implements IPermissionState {
       accessedRoutes = filterAsyncRoutes(filteredRoutes, params.perms)
     }
     this.SET_ROUTES(accessedRoutes)
+    if (getLocalStorage('ctLoginId')) {
+      console.log('generateCTMenuData:', getLocalStorage('ctLoginId'))
+      generateCTMenuData(this.routes)
+    }
   }
 }
 
