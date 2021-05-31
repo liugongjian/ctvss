@@ -258,6 +258,7 @@ export default class extends Vue {
     try {
       const res = await getDeviceRecordStatistic({
         deviceId: this.deviceId,
+        inProtocol: this.inProtocol,
         startTime: startTime,
         endTime: endTime
       })
