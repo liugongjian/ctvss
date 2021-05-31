@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
 import { DeviceParams, DeviceStatus, StreamStatus, RecordStatus, DeviceGb28181Type, SipTransType, StreamTransType, TransPriority } from '@/dics'
 import { Device } from '@/type/device'
@@ -36,6 +37,7 @@ export default class CreateMixin extends Vue {
   public streamTransType = StreamTransType
   public transPriority = TransPriority
   public parentDeviceId = ''
+  public axiosSources: any[] = []
 
   public loading = {
     info: false,
@@ -149,22 +151,27 @@ export default class CreateMixin extends Vue {
 
   @Watch('$route.query')
   public onRouterChange() {
-    this.deviceInfo = null
-    this.deviceList = []
-    this.init()
+    this.reset()
   }
 
   @Watch('groupId')
   public onGroupIdChange() {
-    this.deviceInfo = null
-    this.deviceList = []
-    this.init()
+    this.reset()
   }
 
   @Watch('filter', { immediate: true, deep: true })
   public onFilterChange() {
     if (this.type === 'dir' || this.type === 'platformDir') this.getDeviceList()
     if (this.type === 'nvr') this.getDeviceInfo(this.type)
+  }
+
+  public reset() {
+    this.deviceInfo = null
+    this.deviceList = []
+    this.axiosSources.forEach((axiosSource: any) => {
+      axiosSource.cancel()
+    })
+    this.init()
   }
 
   public mounted() {
@@ -221,10 +228,12 @@ export default class CreateMixin extends Vue {
   public async getDeviceInfo(type: string) {
     try {
       this.loading.info = true
+      const axiosSource = axios.CancelToken.source()
+      this.axiosSources.push(axiosSource)
       const res = await getDevice({
         inProtocol: this.inProtocol,
         deviceId: this.deviceId
-      })
+      }, axiosSource.token)
       if (type === 'nvr' || type === 'platform') {
         this.deviceInfo = res
         let deviceList = this.deviceInfo.deviceChannels.map((channel: any) => {
@@ -295,7 +304,9 @@ export default class CreateMixin extends Vue {
       let res: any
       this.loading.list = true
       params.dirId = this.dirId ? this.dirId : 0
-      res = await getDevices(params)
+      const axiosSource = axios.CancelToken.source()
+      this.axiosSources.push(axiosSource)
+      res = await getDevices(params, axiosSource.token)
       this.deviceList = res.devices
       this.dirStats = res.dirStats
       this.pager = {

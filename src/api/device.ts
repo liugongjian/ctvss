@@ -3,21 +3,23 @@ import request from '@/utils/request'
 /**
  * 获取设备详情
  */
-export const getDevice = (params: any): Promise<any> =>
+export const getDevice = (params: any, cancelToken?: any): Promise<any> =>
   request({
     url: '/device',
     method: 'get',
-    params
+    params,
+    cancelToken
   })
 
 /**
  * 获取设备列表
  */
-export const getDevices = (params: any): Promise<any> =>
+export const getDevices = (params: any, cancelToken?: any): Promise<any> =>
   request({
     url: '/device/list',
     method: 'get',
-    params
+    params,
+    cancelToken
   })
 
 /**
