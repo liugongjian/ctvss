@@ -52,9 +52,9 @@ service.interceptors.response.use(
         const loginType = getLocalStorage('loginType')
         UserModule.ResetToken()
         if (loginType === 'sub') {
-          window.location.href = `#${settings.subLoginUrl}?redirect=%2Fdashboard`
+          window.location.href = `${settings.projectPrefix}/${settings.subLoginUrl}?redirect=%2Fdashboard`
         } else if (loginType === 'main') {
-          window.location.href = `#${settings.mainLoginUrl}?redirect=%2Fdashboard`
+          window.location.href = `${settings.projectPrefix}${settings.mainLoginUrl}?redirect=%2Fdashboard`
         } else {
           window.location.href = `${settings.casLoginUrl}?redirect=%2Fdashboard`
         }

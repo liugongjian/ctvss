@@ -27,7 +27,7 @@ module.exports = {
   devServer: {
     port: devServerPort,
     open: true,
-    openPage: '#/login',
+    openPage: 'login',
     overlay: {
       warnings: false,
       errors: true
