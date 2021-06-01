@@ -14,6 +14,7 @@ export default class Screen {
   public isFullscreen?: boolean
   public streamSize?: number
   public streamNum?: number
+  public streams?: Array<any>
   private loading: boolean
   private axiosSource: any
 
@@ -25,6 +26,7 @@ export default class Screen {
     this.codec = ''
     this.streamSize = 0
     this.streamNum = undefined
+    this.streams = []
     this.loading = false
     this.loaded = false
     this.retry = false
@@ -70,6 +72,7 @@ export default class Screen {
     this.codec = ''
     this.streamSize = 0
     this.streamNum = undefined
+    this.streams = []
     this.loading = false
     this.loaded = false
     this.retry = false
