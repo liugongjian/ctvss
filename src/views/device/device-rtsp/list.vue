@@ -30,7 +30,7 @@
         <el-dropdown placement="bottom" @command="exportExcel">
           <el-button :loading="exportLoading">导出<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="exportAll" :disabled="!deviceList.length">导出全部</el-dropdown-item>
+            <el-dropdown-item v-if="!(isChannel && !isNVR)" command="exportAll" :disabled="!deviceList.length">导出全部</el-dropdown-item>
             <el-dropdown-item command="exportCurrentPage" :disabled="!deviceList.length">导出当前页</el-dropdown-item>
             <el-dropdown-item command="exportSelect" :disabled="!selectedDeviceList.length">导出选定项</el-dropdown-item>
           </el-dropdown-menu>
@@ -167,6 +167,11 @@
         <el-table-column key="devicePort" label="设备端口">
           <template slot-scope="{row}">
             {{ row.devicePort || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column key="transPriority" prop="transPriority" label="优先TCP传输" min-width="110">
+          <template slot-scope="{row}">
+            {{ transPriority[row.transPriority] || '-' }}
           </template>
         </el-table-column>
         <el-table-column key="createdTime" label="创建时间" min-width="180">

@@ -11,7 +11,7 @@
         :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
       >
         <div v-if="type === '6'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
-          {{ aiMaskType[location.type] }}
+          <!-- {{ aiMaskType[location.type] }} -->
         </div>
         <div v-if="type === '4'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
           匹配度:{{ location.score }}%
@@ -28,6 +28,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
+import { AiMaskType } from '@/dics'
 
 @Component({
   name: 'DashboardAILocation'
@@ -37,6 +38,7 @@ export default class extends Vue {
   private img!: any
   @Prop()
   private type!: string
+  private aiMaskType = AiMaskType
 }
 </script>
 <style lang="scss" scoped>
