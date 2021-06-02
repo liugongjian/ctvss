@@ -84,7 +84,7 @@
                       placement="top"
                       :open-delay="500"
                     >
-                      <StreamSelector v-if="data.type === 'ipc'" class="set-stream" :stream-size="data.multiStreamSize" @onSetStreamNum="openScreen(data, ...arguments)" />
+                      <StreamSelector v-if="data.type === 'ipc'" class="set-stream" :stream-size="data.multiStreamSize" :streams="data.deviceStreams" @onSetStreamNum="openScreen(data, ...arguments)" />
                     </el-tooltip>
                     <el-tooltip
                       class="item"
@@ -237,7 +237,17 @@
                   />
                 </template>
                 <div class="screen-header">
-                  <div class="device-name">{{ screen.deviceName }}<StreamSelector v-if="screen.isLive" class="set-stream" :stream-size="screen.streamSize" :stream-num="screen.streamNum" @onSetStreamNum="onSetStreamNum(screen, ...arguments)" /></div>
+                  <div class="device-name">
+                    {{ screen.deviceName }}
+                    <StreamSelector
+                      v-if="screen.isLive"
+                      class="set-stream"
+                      :stream-size="screen.streamSize"
+                      :stream-num="screen.streamNum"
+                      :streams="screen.streams"
+                      @onSetStreamNum="onSetStreamNum(screen, ...arguments)"
+                    />
+                  </div>
                   <div class="screen__tools">
                     <el-tooltip content="关闭视频">
                       <el-button class="screen__close" type="text" @click="closeScreen(screen)">
@@ -402,7 +412,6 @@ export default class extends Mixins(ScreenMixin) {
       })
       return
     }
-    console.log(item)
     if (item.type === 'ipc' && item.deviceStatus === 'on') {
       const screen = this.screenList[this.currentIndex]
       if (screen.deviceId) {
@@ -412,6 +421,7 @@ export default class extends Mixins(ScreenMixin) {
       screen.deviceId = item.id
       screen.deviceName = item.label
       screen.streamSize = item.multiStreamSize
+      screen.streams = item.deviceStreams
       if (streamNum && !isNaN(streamNum)) {
         screen.streamNum = streamNum
       } else {
@@ -457,13 +467,13 @@ export default class extends Mixins(ScreenMixin) {
         }
       })
     } else {
-      console.log('查询node下设备')
       let data = await getDeviceTree({
         groupId: this.currentGroupId,
         id: this.currentNode!.data.id,
         type: this.currentNode!.data.type
       })
-      data.dirs.forEach((item: any) => {
+      const dirs = this.parseDirs(data.dirs)
+      dirs.forEach((item: any) => {
         if (item.type === 'ipc' && item.streamStatus === 'on') {
           this.pollingDevices.push(item)
         }

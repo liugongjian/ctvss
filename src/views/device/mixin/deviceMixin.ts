@@ -58,7 +58,7 @@ export default class DeviceMixin extends Vue {
         groupId: this.currentGroupId,
         id: 0
       })
-      this.dirList = res.dirs
+      this.dirList = this.parseDirs(res.dirs)
       this.$nextTick(() => {
         console.log('this.initTreeStatus()')
         this.initTreeStatus()
@@ -139,7 +139,7 @@ export default class DeviceMixin extends Vue {
       })
       if (data.dirs) {
         if (node.data.type === 'nvr') {
-          data.dirs = data.dirs.sort((left: any, right: any) => left.channelNum - right.channelNum)
+          data.dirs = this.parseDirs(data.dirs)
         }
         dirTree.updateKeyChildren(key, data.dirs)
       }
@@ -317,11 +317,30 @@ export default class DeviceMixin extends Vue {
         type: node.data.type
       })
       if (node.data.type === 'nvr') {
-        res.dirs = res.dirs.sort((left: any, right: any) => left.channelNum - right.channelNum)
+        res.dirs = this.parseDirs(res.dirs)
       }
       resolve(res.dirs)
     } catch (e) {
       resolve([])
     }
+  }
+
+  /**
+   * 解析目录树
+   */
+  public parseDirs(dirs: any) {
+    let _dirs = dirs.sort((left: any, right: any) => left.channelNum - right.channelNum)
+    _dirs = _dirs.map((dir: any) => {
+      if (!dir.streamStatus && dir.deviceStreams.length > 0) {
+        const hasOnline = dir.deviceStreams.some((stream: any) => {
+          return stream.streamStatus === 'on'
+        })
+        if (hasOnline) {
+          dir.streamStatus = 'on'
+        }
+      }
+      return dir
+    })
+    return _dirs
   }
 }

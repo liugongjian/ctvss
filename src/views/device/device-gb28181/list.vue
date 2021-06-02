@@ -49,11 +49,10 @@
         <el-button v-if="isPlatform" key="check-platform" @click="goToDetail(deviceInfo)">查看Platform详情</el-button>
         <el-button v-if="isPlatform && checkPermission(['*'])" key="edit-platform" @click="goToUpdate(deviceInfo)">编辑Platform</el-button>
         <el-button v-if="isPlatform" key="sync" :loading="loading.syncDevice" @click="syncDevice">同步</el-button>
-        <el-button v-if="isNVR" :loading="exportLoading" @click="exportExcel('specialAll')">导出</el-button>
-        <el-dropdown v-else placement="bottom" @command="exportExcel">
+        <el-dropdown placement="bottom" @command="exportExcel">
           <el-button :loading="exportLoading">导出<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item v-if="!isChannel" command="exportAll" :disabled="!deviceList.length">导出全部</el-dropdown-item>
+            <el-dropdown-item command="exportAll" :disabled="!deviceList.length">导出全部</el-dropdown-item>
             <el-dropdown-item command="exportCurrentPage" :disabled="!deviceList.length">导出当前页</el-dropdown-item>
             <el-dropdown-item command="exportSelect" :disabled="!selectedDeviceList.length">导出选定项</el-dropdown-item>
           </el-dropdown-menu>
@@ -316,10 +315,7 @@ export default class extends Mixins(listMixin, excelMixin) {
         parentDeviceId: this.deviceId
       }
       // this.isNVR && (params.parentDeviceId = this.deviceInfo.parentDeviceId)
-      if (command === 'specialAll') {
-        params.command = 'selected'
-        params.deviceIds = [{ deviceId: this.deviceId }]
-      } else if (command === 'exportAll') {
+      if (command === 'exportAll') {
         params.command = 'all'
       } else {
         params.command = 'selected'
@@ -348,6 +344,7 @@ export default class extends Mixins(listMixin, excelMixin) {
     this.exelType = 'template'
     this.exelDeviceType = 'gb28181'
     this.exelName = 'GB28181导入模板'
+    this.regionName = this.groupData?.regionName || ''
     this.exportExel()
   }
 }

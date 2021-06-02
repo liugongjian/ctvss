@@ -10,6 +10,16 @@
       </div>
       <div class="column-line" />
       <div class="dashboard-wrap-overview__cell">
+        <p class="dashboard-wrap-overview__cell__head">AI包</p>
+        <p class="dashboard-wrap-overview__cell__content">
+          <span class="dashboard-wrap-overview__num">{{ packageData.ai }}</span> 个
+        </p>
+        <p class="dashboard-wrap-overview__cell__bottom">
+          <el-button v-if="packageData.ai" type="text" @click="goRouter('ai')">详情</el-button>
+        </p>
+      </div>
+      <div class="column-line" />
+      <div class="dashboard-wrap-overview__cell">
         <p class="dashboard-wrap-overview__cell__head">上行带宽包</p>
         <p class="dashboard-wrap-overview__cell__content">
           <span class="dashboard-wrap-overview__num">{{ packageData.uploadBandwidth }}</span> 个
@@ -23,16 +33,6 @@
           <span class="dashboard-wrap-overview__num">{{ packageData.downloadBandwidth }}</span> 个
         </p>
         <el-button v-if="packageData.downloadBandwidth" type="text" @click="goRouter('bandwidth')">详情</el-button>
-      </div>
-      <div class="column-line" />
-      <div class="dashboard-wrap-overview__cell">
-        <p class="dashboard-wrap-overview__cell__head">AI包</p>
-        <p class="dashboard-wrap-overview__cell__content">
-          <span class="dashboard-wrap-overview__num">{{ packageData.ai }}</span> 个
-        </p>
-        <p class="dashboard-wrap-overview__cell__bottom">
-          <el-button v-if="packageData.ai" type="text" @click="goRouter('ai')">详情</el-button>
-        </p>
       </div>
     </div>
   </component>

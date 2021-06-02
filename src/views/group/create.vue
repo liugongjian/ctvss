@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-page-header :content="breadCrumbContent" @back="back" />
-    <el-card>
+    <el-card v-loading="loading">
       <el-form
         ref="dataForm"
         :rules="rules"
@@ -37,6 +37,7 @@
             v-model="form.region"
             placeholder="请选择"
             :options="regionList"
+            :disabled="isEdit"
           />
         </el-form-item>
         <el-form-item label="接入类型:" prop="inProtocol">
@@ -127,7 +128,7 @@
         </el-form-item>
         <el-form-item label="">
           <div class="mt10">
-            <el-button :loading="loading" type="primary" @click="submit">确定</el-button>
+            <el-button :loading="submitting" type="primary" @click="submit">确定</el-button>
             <el-button @click="back">取 消</el-button>
           </div>
         </el-form-item>
@@ -151,6 +152,7 @@ import templateBind from '../components/templateBind.vue'
 export default class extends Vue {
   private breadCrumbContent = ''
   private loading = false
+  private submitting = false
   private rules = {
     groupName: [
       { required: true, message: '请输入业务组名称', trigger: 'blur' },
@@ -283,7 +285,7 @@ export default class extends Vue {
     const form: any = this.$refs.dataForm
     form.validate(async(valid: any) => {
       if (valid) {
-        this.loading = true
+        this.submitting = true
         var params = JSON.parse(JSON.stringify(this.form))
         params.outProtocol = params.outProtocol.join(',')
         params.region = params.region[params.region.length - 1]
@@ -300,7 +302,7 @@ export default class extends Vue {
         } catch (e) {
           this.$message.error(e && e.message)
         } finally {
-          this.loading = false
+          this.submitting = false
         }
       } else {
         return false

@@ -5,13 +5,13 @@
         <span slot="label">视频包<span v-if="countVideo !== undefined">({{ countVideo }})</span></span>
         <Video />
       </el-tab-pane>
-      <el-tab-pane name="bandwidth">
-        <span slot="label">带宽包<span v-if="countBandwidth !== undefined">({{ countBandwidth }})</span></span>
-        <Bandwidth />
-      </el-tab-pane>
       <el-tab-pane name="ai">
         <span slot="label">AI包<span v-if="countAi !== undefined">({{ countAi }})</span></span>
         <Ai />
+      </el-tab-pane>
+      <el-tab-pane name="bandwidth">
+        <span slot="label">带宽包<span v-if="countBandwidth !== undefined">({{ countBandwidth }})</span></span>
+        <Bandwidth />
       </el-tab-pane>
     </el-tabs>
   </div>

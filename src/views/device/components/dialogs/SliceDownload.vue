@@ -51,6 +51,8 @@ import VueTimepicker from 'vue2-timepicker'
 export default class extends Vue {
   @Prop()
   private deviceId!: number | string
+  @Prop()
+  private inProtocol!: string
   private dialogVisible = true
   private submitting = false
   private today = new Date()
@@ -89,7 +91,8 @@ export default class extends Vue {
             deviceId: this.deviceId,
             startTime: startTime / 1000,
             endTime: endTime / 1000,
-            fileFormat: 'mp4'
+            fileFormat: 'mp4',
+            inProtocol: this.inProtocol
           })
           if (res.downloadUrl) {
             const link: HTMLAnchorElement = document.createElement('a')

@@ -31,14 +31,14 @@
         <el-dropdown v-permission="['*']" placement="bottom" @command="handleBatch">
           <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item v-if="!isNVR && !isPlatform" :command="{type: 'move', num: 1}">移动至</el-dropdown-item>
+            <el-dropdown-item v-if="!isNVR && !isPlatform" command="move">移动至</el-dropdown-item>
             <!-- <el-dropdown-item :command="{type: 'startDevice', num: 1}">启用主码流</el-dropdown-item>
             <el-dropdown-item :command="{type: 'startDevice', num: 2}">启用子码流</el-dropdown-item>
             <el-dropdown-item :command="{type: 'startDevice', num: 3}">启用第三码流</el-dropdown-item>
             <el-dropdown-item :command="{type: 'startDevice', num: 1}">停用主码流</el-dropdown-item>
             <el-dropdown-item :command="{type: 'startDevice', num: 2}">停用子码流</el-dropdown-item>
             <el-dropdown-item :command="{type: 'startDevice', num: 3}">停用第三码流</el-dropdown-item> -->
-            <el-dropdown-item :command="{type: 'delete', num: 1}">删除</el-dropdown-item>
+            <el-dropdown-item command="delete">删除</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>

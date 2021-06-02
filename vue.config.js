@@ -6,7 +6,7 @@ const serverAddressMapping = {
   local: 'http://192.168.30.181:9180', // 本地环境
   dev: 'http://182.43.127.35:9190', // 开发环境
   test: 'https://182.43.127.35:9180', // 测试环境
-  prod: 'http://console.vcn.ctyun.cn' // 生产环境
+  prod: 'https://182.43.127.45' // 生产环境
 }
 const portMapping = {
   local: 9180,
@@ -76,7 +76,7 @@ module.exports = {
       },
       '/v1': {
         target: serverAddress,
-        changeOrigin: true,
+        changeOrigin: false,
         secure: false
       }
     },

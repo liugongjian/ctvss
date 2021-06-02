@@ -109,7 +109,7 @@
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { getRecordAuditEvents } from '@/api/dashboard'
-import { AlertType, AiMaskType } from '@/dics'
+import { AlertType } from '@/dics'
 import { parseMetaData, transformLocation } from '@/utils/ai'
 import Player from '@/views/device/components/Player.vue'
 import Locations from './components/Locations.vue'
@@ -123,7 +123,6 @@ import Locations from './components/Locations.vue'
 })
 export default class extends Vue {
   private alertType = AlertType
-  private aiMaskType = AiMaskType
   private currentImg: any = null
   private currentVideo: any = null
   private pager = {

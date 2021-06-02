@@ -147,6 +147,7 @@ import { Form as ElForm, Input } from 'element-ui'
 import { UserModule } from '@/store/modules/user'
 // import SocialSign from './components/SocialSignin.vue'
 import { GroupModule } from '@/store/modules/group'
+import { removeTicket } from '@/utils/cookies'
 // import { Module } from 'module'
 
 @Component({
@@ -285,6 +286,7 @@ export default class extends Vue {
       if (valid) {
         try {
           this.loading = true
+          UserModule.ResetToken()
           await GroupModule.ResetGroup()
           await GroupModule.ResetGroupList()
           const loginData: any = {
@@ -295,6 +297,7 @@ export default class extends Vue {
             loginData.mainUserID = this.loginForm.mainUserID
           }
           const result: any = await UserModule.Login(loginData)
+          removeTicket()
           if (this.subUserLogin && result.code === 8) {
             this.$router.push({
               path: '/reset-password',

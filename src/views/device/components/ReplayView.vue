@@ -83,10 +83,11 @@
       />
       <replay-player-dialog v-if="dialog.play" :video="currentListRecord" @on-close="closeReplayPlayer" />
     </div>
-    <slice-download-dialog v-if="dialog.slice" :device-id="deviceId" @on-close="closeSliceDownload" />
+    <slice-download-dialog v-if="dialog.slice" :in-protocol="inProtocol" :device-id="deviceId" @on-close="closeSliceDownload" />
   </div>
 </template>
 <script lang="ts">
+import axios from 'axios'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { dateFormatInTable, dateFormat, durationFormatInTable, prefixZero, getLocaleDate, getTimestamp } from '@/utils/date'
 import { getDeviceRecords, getDeviceRecord, getDeviceRecordStatistic, getDeviceRecordRule } from '@/api/device'
@@ -160,6 +161,7 @@ export default class extends Vue {
     total: 0
   }
   private recordInterval: any = null
+  private axiosSource: any = null
 
   private async mounted() {
     await this.init()
@@ -167,6 +169,7 @@ export default class extends Vue {
 
   private async destroyed() {
     clearInterval(this.recordInterval)
+    this.axiosSource && this.axiosSource.cancel()
   }
 
   @Watch('$route.query')
@@ -200,6 +203,7 @@ export default class extends Vue {
    * 切换日期
    */
   private changeDate() {
+    this.axiosSource.cancel()
     this.init()
   }
 
@@ -209,6 +213,7 @@ export default class extends Vue {
   private async getRecordList(startTime?: number) {
     try {
       this.loading = true
+      this.axiosSource = axios.CancelToken.source()
       const res = await getDeviceRecords({
         deviceId: this.deviceId,
         inProtocol: this.inProtocol,
@@ -216,7 +221,7 @@ export default class extends Vue {
         startTime: startTime || this.currentDate / 1000,
         endTime: this.currentDate / 1000 + 24 * 60 * 60,
         pageSize: 9999
-      })
+      }, this.axiosSource.token)
       // 追加最新的录像
       if (startTime) {
         const recordLength = this.recordList.length
@@ -258,6 +263,7 @@ export default class extends Vue {
     try {
       const res = await getDeviceRecordStatistic({
         deviceId: this.deviceId,
+        inProtocol: this.inProtocol,
         startTime: startTime,
         endTime: endTime
       })
@@ -307,7 +313,8 @@ export default class extends Vue {
       const res = await getDeviceRecord({
         deviceId: this.deviceId,
         startTime: record.startAt / 1000,
-        fileFormat: 'mp4'
+        fileFormat: 'mp4',
+        inProtocol: this.inProtocol
       })
       if (res.downloadUrl) {
         const link: HTMLAnchorElement = document.createElement('a')
@@ -399,6 +406,11 @@ export default class extends Vue {
     &__loading {
       top: 50%;
     }
+  }
+  .record-list-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
   }
   .filter-container {
     text-align: right;
