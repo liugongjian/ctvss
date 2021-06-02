@@ -169,6 +169,11 @@
             {{ row.devicePort || '-' }}
           </template>
         </el-table-column>
+        <el-table-column key="transPriority" prop="transPriority" label="优先TCP传输" min-width="110">
+          <template slot-scope="{row}">
+            {{ transPriority[row.transPriority] || '-' }}
+          </template>
+        </el-table-column>
         <el-table-column key="createdTime" label="创建时间" min-width="180">
           <template slot-scope="{row}">
             {{ row.createdTime }}
