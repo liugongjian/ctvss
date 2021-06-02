@@ -131,10 +131,10 @@
           </template>
           <el-switch v-model="form.pushType" :active-value="1" :inactive-value="2" />
         </el-form-item>
-        <el-form-item prop="transPriority">
+        <!-- <el-form-item prop="transPriority">
           <template slot="label">
             TCP传输:
-            <!-- <el-popover
+            <el-popover
               placement="top-start"
               title="优先TCP传输"
               width="400"
@@ -143,10 +143,10 @@
               :content="tips.transPriority"
             >
               <svg-icon slot="reference" class="form-question" name="help" />
-            </el-popover> -->
+            </el-popover>
           </template>
           <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" disabled />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="设备描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
         </el-form-item>
