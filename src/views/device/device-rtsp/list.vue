@@ -36,7 +36,7 @@
           </el-dropdown-menu>
         </el-dropdown>
         <el-upload
-          v-if="!isNVR && checkPermission(['*'])"
+          v-if="(isDir || deviceInfo && deviceInfo.createSubDevice === 2) && checkPermission(['*'])"
           ref="excelUpload"
           action="#"
           :show-file-list="false"
@@ -45,7 +45,7 @@
         >
           <el-button>导入</el-button>
         </el-upload>
-        <el-button v-permission="['*']" @click="exportTemplate">下载模板</el-button>
+        <el-button v-if="isDir || deviceInfo && deviceInfo.createSubDevice === 2" v-permission="['*']" @click="exportTemplate">下载模板</el-button>
         <el-dropdown v-permission="['*']" placement="bottom" @command="handleBatch">
           <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
@@ -240,7 +240,10 @@ export default class extends Mixins(listMixin, excelMixin) {
         dirId: this.dirId,
         fileName: data.file.name
       }
-      this.isNVR && (this.fileData.parentDeviceId = this.deviceInfo.parentDeviceId)
+      if (this.isNVR) {
+        this.fileData.parentDeviceId = this.deviceInfo.deviceId
+        delete this.fileData.dirId
+      }
     } else {
       this.$message.error('导入文件必须为表格')
     }
@@ -288,6 +291,12 @@ export default class extends Mixins(listMixin, excelMixin) {
     this.exelType = 'template'
     this.exelDeviceType = 'rtsp'
     this.exelName = 'RTSP导入模板'
+    this.excelInProtocol = this.deviceInfo.inProtocol
+    if (this.isNVR) {
+      this.exelDeviceType = 'nvr'
+      this.exelName = 'NVR添加子设备导入模板'
+      this.parentDeviceId = this.deviceInfo.deviceId
+    }
     this.exportExel()
   }
 }

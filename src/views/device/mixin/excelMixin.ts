@@ -1,8 +1,9 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { getList as getGbList } from '@/api/certificate/gb28181'
-import { exportDeviceAll, exportDeviceOption } from '@/api/device'
+import { exportDeviceAll, exportDeviceOption, getDevice } from '@/api/device'
 import { cityMapping, provinceMapping } from '@/assets/region/cities'
 import ExcelJS from 'exceljs'
+import { InProtocolType } from '@/dics'
 
 @Component
 export default class ExcelMixin extends Vue {
@@ -10,6 +11,8 @@ export default class ExcelMixin extends Vue {
   public exelDeviceType: string = ''
   public exportData: any = []
   public exelName: string = ''
+  public parentDeviceId: string = ''
+  public excelInProtocol: string = ''
   public excelViews: any = [
     {
       x: 0,
@@ -23,6 +26,7 @@ export default class ExcelMixin extends Vue {
   ]
   public regionName = ''
   private gbAccountList: any = []
+  private availableChannels: any = []
   private cityList: any = []
   // 表格字段配置
   private columnsTemplate: any = {
@@ -73,6 +77,13 @@ export default class ExcelMixin extends Vue {
         { header: '是否启用自动拉流', key: 'pullType', width: 24 },
         { header: '是否启用自动激活推流地址', key: 'pushType', width: 24 },
         { header: '设备视频流优先传输协议', key: 'transPriority', width: 24 }
+      ]
+    },
+    nvr: {
+      template: [
+        { header: '通道号', key: 'channelNum', width: 10 },
+        { header: '厂商', key: 'deviceVendor', width: 10 },
+        { header: '通道名称', key: 'channelName', width: 16 }
       ]
     }
   }
@@ -150,45 +161,63 @@ export default class ExcelMixin extends Vue {
   }
 
   private async getOptions() {
-    // 获取设备用户选项
-    try {
-      const res = await getGbList({
-        pageSize: 1000
-      })
-      res.gbCerts.forEach((account: any) => {
-        this.gbAccountList.push(account.userName)
-      })
-    } catch (e) {
-      console.error(e)
-    }
-    // 获取预设城市选项
-    const mainUserAddress: any = this.$store.state.user.mainUserAddress
-    this.cityList = mainUserAddress.split(',').map((addressCode: any) => {
-      if (!addressCode) {
-        let findKey = (value: any, compare = (a: any, b: any) => a.substring(0, 2) === b.substring(0, 2)) => {
-          return Object.keys(cityMapping).find(k => compare(cityMapping[k], value))
-        }
-        addressCode = findKey(this.regionName)
+    if (this.exelDeviceType === 'gb28181') {
+      // 获取设备用户选项
+      try {
+        const res = await getGbList({
+          pageSize: 1000
+        })
+        res.gbCerts.forEach((account: any) => {
+          this.gbAccountList.push(account.userName)
+        })
+      } catch (e) {
+        console.error(e)
+      }
+      // 获取预设城市选项
+      const mainUserAddress: any = this.$store.state.user.mainUserAddress
+      this.cityList = mainUserAddress.split(',').map((addressCode: any) => {
         if (!addressCode) {
-          return []
+          let findKey = (value: any, compare = (a: any, b: any) => a.substring(0, 2) === b.substring(0, 2)) => {
+            return Object.keys(cityMapping).find(k => compare(cityMapping[k], value))
+          }
+          addressCode = findKey(this.regionName)
+          if (!addressCode) {
+            return []
+          }
+        }
+        let provincelevelCities = [
+          '北京市',
+          '天津市',
+          '上海市',
+          '重庆市',
+          '台湾省',
+          '香港特别行政区',
+          '澳门特别行政区'
+        ]
+        let city = cityMapping[addressCode]
+        if (provincelevelCities.includes(city)) {
+          return city
+        } else {
+          return provinceMapping[addressCode.substring(0, 2)] + city
+        }
+      })
+    } else if (this.exelDeviceType === 'nvr') {
+      // 构建可选择的通道，排除已选择通道
+      const info = await getDevice({
+        deviceId: this.parentDeviceId,
+        inProtocol: this.excelInProtocol
+      })
+      const usedChannelNum = info.deviceChannels.map((channel: any) => {
+        return channel.channelNum
+      })
+      const channelSize = info.deviceStats.maxChannelSize
+      this.availableChannels = []
+      for (let i = 1; i <= channelSize; i++) {
+        if (!~usedChannelNum.indexOf(i)) {
+          this.availableChannels.push(`D${i}`)
         }
       }
-      let provincelevelCities = [
-        '北京市',
-        '天津市',
-        '上海市',
-        '重庆市',
-        '台湾省',
-        '香港特别行政区',
-        '澳门特别行政区'
-      ]
-      let city = cityMapping[addressCode]
-      if (provincelevelCities.includes(city)) {
-        return city
-      } else {
-        return provinceMapping[addressCode.substring(0, 2)] + city
-      }
-    })
+    }
   }
 
   // 表格填写各字段校验
@@ -296,8 +325,20 @@ export default class ExcelMixin extends Vue {
     worksheet.dataValidations.add('O2:O9999', this.validation.transPriority)
   }
 
+  private nvrOptionsInit(worksheet: any) {
+    worksheet.dataValidations.add('A2:A9999', {
+      type: 'list',
+      allowBlank: false,
+      showErrorMessage: true,
+      formulae: [`"${this.availableChannels.join(',')}"`],
+      error: '请选择通道号'
+    })
+    worksheet.dataValidations.add('B2:B9999', this.validation.deviceVendor)
+    worksheet.dataValidations.add('C2:C9999', this.validation.deviceName)
+  }
+
   /**
-   * 导出表格
+   * 导出模板
    */
   public async exportExel() {
     await this.getOptions()
@@ -313,6 +354,7 @@ export default class ExcelMixin extends Vue {
     if (this.exelDeviceType === 'gb28181') this.gb28181OptionsInit(worksheet)
     if (this.exelDeviceType === 'rtmp') this.rtmpOptionsInit(worksheet)
     if (this.exelDeviceType === 'rtsp') this.rtspOptionsInit(worksheet)
+    if (this.exelDeviceType === 'nvr') this.nvrOptionsInit(worksheet)
     // 调整样式
     worksheet._columns.forEach((column: any) => {
       column.style = {
