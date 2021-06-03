@@ -48,7 +48,7 @@
             :options="regionList"
           />
         </el-form-item>
-        <!-- <el-form-item label="级联映射:" prop="isCascadeMapping">
+        <el-form-item v-if="isUpdate" label="级联映射:" prop="enabledNat">
           <template slot="label">
             级联映射:
             <el-popover
@@ -62,8 +62,14 @@
               <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
           </template>
-          <el-switch v-model="form.isCascadeMapping" />
-        </el-form-item> -->
+          <el-switch v-model="form.enabledNat" :active-value="1" :inactive-value="0" />
+        </el-form-item>
+        <el-form-item v-if="form.enabledNat === 1" label="本地IP:" prop="natIp">
+          <el-input v-model="form.natIp" />
+        </el-form-item>
+        <el-form-item v-if="form.enabledNat === 1" label="本地端口:" prop="natPort">
+          <el-input v-model="form.natPort" />
+        </el-form-item>
         <el-form-item label="开启鉴权:" prop="isAuth">
           <el-switch v-model="form.isAuth" />
         </el-form-item>
@@ -155,6 +161,9 @@ export default class extends Vue {
     isCascadeMapping: false,
     cascadeRegion: null,
     isAuth: false,
+    enabledNat: 0, // 未启用 0, 启用 1
+    natIp: '',
+    natPort: '',
     sipUser: '',
     sipPassword: '',
     registerInterval: 300,
@@ -189,6 +198,9 @@ export default class extends Vue {
     ],
     gbId: [
       { validator: this.validateGbId, trigger: 'blur' }
+    ],
+    natIp: [
+      { validator: this.validateNetIp, trigger: 'blur' }
     ],
     registerInterval: [
       { required: true, message: '请输入注册周期（秒）', trigger: 'blur' },
@@ -356,6 +368,17 @@ export default class extends Vue {
   private validateSipPort(rule: any, value: string, callback: Function) {
     if (!/^[0-9]+$/.test(value)) {
       callback(new Error('SIP服务端口格式不正确'))
+    } else {
+      callback()
+    }
+  }
+
+  /**
+   * 校验本地IP格式
+   */
+  private validateNetIp(rule: any, value: string, callback: Function) {
+    if (value && !/^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/.test(value)) {
+      callback(new Error('本地IP格式不正确'))
     } else {
       callback()
     }

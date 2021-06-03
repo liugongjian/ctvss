@@ -18,6 +18,8 @@
         <info-list-item label="SIP服务端口:">{{ platform.sipPort }}</info-list-item>
         <info-list-item label="设备国标编号:">{{ platform.gbId || '-' }}</info-list-item>
         <info-list-item label="级联区域:">{{ platform.cascadeRegion }}</info-list-item>
+        <info-list-item v-if="platform.enabledNat === 1" label="本地IP:">{{ platform.natIp || '-' }}</info-list-item>
+        <info-list-item v-if="platform.enabledNat === 1" label="本地端口:">{{ platform.natPort || '-' }}</info-list-item>
         <info-list-item label="SIP认证用户名:">{{ platform.sipUser || '-' }}</info-list-item>
         <info-list-item label="SIP认证密码:">{{ platform.sipPassword || '-' }}</info-list-item>
         <info-list-item label="注册周期（秒）:">{{ platform.registerInterval }}</info-list-item>
@@ -41,7 +43,7 @@ import { PlatformStatus } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 
 @Component({
-  name: 'AddDevices',
+  name: 'DeviceDetail',
   components: {
     StatusBadge
   }
