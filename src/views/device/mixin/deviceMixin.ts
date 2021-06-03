@@ -331,7 +331,7 @@ export default class DeviceMixin extends Vue {
   public parseDirs(dirs: any) {
     let _dirs = dirs.sort((left: any, right: any) => left.channelNum - right.channelNum)
     _dirs = _dirs.map((dir: any) => {
-      if (!dir.streamStatus && dir.deviceStreams.length > 0) {
+      if (!dir.streamStatus && dir.deviceStreams && dir.deviceStreams.length > 0) {
         const hasOnline = dir.deviceStreams.some((stream: any) => {
           return stream.streamStatus === 'on'
         })
