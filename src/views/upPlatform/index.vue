@@ -109,7 +109,7 @@
                 {{ item.label }}
               </span>
             </div>
-            <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
+            <div v-if="hasDir" class="device-list__max-height" :style="{height: `${maxHeight}px`}">
               <div class="device-list__tools">
                 <el-button class="cancle-btn" @click="cancleShareDevice(selectedList)">移除选中设备</el-button>
                 <el-input v-model="searchDeviceName" class="filter-container__search-group" placeholder="请输入关键词" clearable @keyup.enter.native="handleFilter" @clear="handleFilter">
@@ -164,6 +164,9 @@
                 @current-change="handleCurrentChange"
               />
             </div>
+            <div v-else class="empty-text">
+              暂无数据
+            </div>
           </div>
         </div>
       </div>
@@ -201,6 +204,7 @@ export default class extends Vue {
   private dataList: Array<any> = []
   private breadcrumb: Array<any> = []
   private selectedList: Array<any> = []
+  private hasDir: boolean = false
   private platformKeyword = ''
   private searchDeviceName = ''
   private currentPlatform: any = {}
@@ -495,27 +499,28 @@ export default class extends Vue {
   @Provide('initDirs')
   public async initDirs() {
     try {
+      this.dirList = []
       this.loading.dir = true
       const res = await describeShareGroups({
         platformId: this.currentPlatform.platformId,
         pageSize: 1000
       })
-      this.dirList = []
-      res.groups.forEach((group: any) => {
-        group.inProtocol === 'gb28181' && (
-          this.dirList.push({
-            id: group.groupId,
-            groupId: group.groupId,
-            label: group.groupName,
-            inProtocol: group.inProtocol,
-            gbId: group.gbId,
-            type: 'group'
-          })
-        )
-      })
-      this.$nextTick(() => {
-        // 默认展开第一个组
-        if (this.dirList.length !== 0) {
+      if (res.groups.length) {
+        this.hasDir = true
+        res.groups.forEach((group: any) => {
+          group.inProtocol === 'gb28181' && (
+            this.dirList.push({
+              id: group.groupId,
+              groupId: group.groupId,
+              label: group.groupName,
+              inProtocol: group.inProtocol,
+              gbId: group.gbId,
+              type: 'group'
+            })
+          )
+        })
+        this.$nextTick(() => {
+          // 默认展开第一个组
           const initDir = this.dirList[0]
           const dirTree: any = this.$refs.dirTree
           dirTree.setCurrentKey(initDir.id)
@@ -523,10 +528,11 @@ export default class extends Vue {
           this.getList(this.dirList[0], false)
           this.currentNodeData = this.dirList[0]
           this.breadcrumb = this.getNodePath(dirTree.getNode(this.dirList[0].id))
-        } else {
-          this.dataList = []
-        }
-      })
+        })
+      } else {
+        this.hasDir = false
+        this.breadcrumb = []
+      }
     } catch (e) {
       this.dirList = []
       console.log(e)
@@ -573,19 +579,6 @@ export default class extends Vue {
   private closeDialog(refresh: boolean) {
     this.dialog.addDevices = false
     refresh === true && this.initDirs()
-  }
-
-  /**
-   * 返回根目录
-   */
-  private async gotoRoot() {
-    // const dirTree: any = this.$refs.dirTree
-    // dirTree.setCurrentKey(null)
-    // await DeviceModule.ResetBreadcrumb()
-    // this.deviceRouter({
-    //   id: '0',
-    //   type: 'dir'
-    // })
   }
 
   private getNodePath(node: any) {
@@ -642,25 +635,6 @@ export default class extends Vue {
       this.dirDrag.isDragging = false
     })
   }
-
-  // private edit(row: GB28181) {
-  //   this.$router.push({
-  //     name: 'gb28181-update',
-  //     params: {
-  //       userName: row.userName
-  //     }
-  //   })
-  // }
-
-  // private async deleteCertificate(row: GB28181) {
-  //   this.$alertDelete({
-  //     type: 'GB28181凭证',
-  //     msg: `是否确认删除GB28181凭证"${row.userName}"`,
-  //     method: deleteCertificate,
-  //     payload: { userName: row.userName },
-  //     onSuccess: this.getList
-  //   })
-  // }
 }
 </script>
 
