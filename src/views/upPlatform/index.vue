@@ -265,7 +265,6 @@ export default class extends Vue {
 
   private async mounted() {
     await this.getPlatformList()
-    this.initPlatform()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
   }
@@ -312,6 +311,8 @@ export default class extends Vue {
       if (this.currentPlatform.platformId) {
         const currentPlatform = this.platformList.find((platform: any) => platform.platformId === this.currentPlatform.platformId)
         this.currentPlatform = currentPlatform
+      } else {
+        this.initPlatform()
       }
     } catch (e) {
       this.$message.error(e && e.message)
@@ -331,8 +332,11 @@ export default class extends Vue {
       payload: {
         platformId: platform.platformId
       },
-      onSuccess: () => {
-        this.getPlatformList()
+      onSuccess: async() => {
+        if (platform.platformId === this.currentPlatform.platformId) {
+          this.currentPlatform = {}
+        }
+        await this.getPlatformList()
       }
     })
   }

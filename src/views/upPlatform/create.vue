@@ -162,8 +162,8 @@ export default class extends Vue {
     cascadeRegion: null,
     isAuth: false,
     enabledNat: 0, // 未启用 0, 启用 1
-    natIp: '',
-    natPort: '',
+    natIp: undefined,
+    natPort: undefined,
     sipUser: '',
     sipPassword: '',
     registerInterval: 300,
@@ -288,6 +288,9 @@ export default class extends Vue {
           if (!params.isAuth) {
             params.sipUser = ''
             params.sipPassword = ''
+          }
+          if (params.natPort === '') {
+            params.natPort = 0
           }
           if (this.isUpdate) {
             await updatePlatform(params)
