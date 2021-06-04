@@ -296,10 +296,10 @@ export default class extends Mixins(listMixin, excelMixin) {
     this.exelType = 'template'
     this.exelDeviceType = 'rtsp'
     this.exelName = 'RTSP导入模板'
-    this.excelInProtocol = this.deviceInfo.inProtocol
     if (this.isNVR) {
       this.exelDeviceType = 'nvr'
       this.exelName = 'NVR添加子设备导入模板'
+      this.excelInProtocol = this.deviceInfo.inProtocol
       this.parentDeviceId = this.deviceInfo.deviceId
     }
     this.exportExel()

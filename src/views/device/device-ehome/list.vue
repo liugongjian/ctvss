@@ -27,17 +27,29 @@
         <el-button v-if="isPlatform" @click="goToDetail(deviceInfo)">查看Platform详情</el-button>
         <el-button v-if="isPlatform" @click="goToUpdate(deviceInfo)">编辑Platform</el-button>
         <el-button v-if="isPlatform" :loading="loading.syncDevice" @click="syncDevice">同步</el-button>
-        <el-button :disabled="!selectedDeviceList.length" @click="exportCsv">导出</el-button>
+        <el-dropdown placement="bottom" @command="exportExcel">
+          <el-button :loading="exportLoading">导出<i class="el-icon-arrow-down el-icon--right" /></el-button>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item v-if="!(isChannel && !isNVR)" command="exportAll" :disabled="!deviceList.length">导出全部</el-dropdown-item>
+            <el-dropdown-item command="exportCurrentPage" :disabled="!deviceList.length">导出当前页</el-dropdown-item>
+            <el-dropdown-item command="exportSelect" :disabled="!selectedDeviceList.length">导出选定项</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+        <el-upload
+          v-if="(isDir || deviceInfo && deviceInfo.createSubDevice === 2) && checkPermission(['*'])"
+          ref="excelUpload"
+          action="#"
+          :show-file-list="false"
+          :http-request="uploadExcel"
+          class="filter-container__import-button"
+        >
+          <el-button>导入</el-button>
+        </el-upload>
+        <el-button v-if="isDir || deviceInfo && deviceInfo.createSubDevice === 2" v-permission="['*']" @click="exportTemplate">下载模板</el-button>
         <el-dropdown v-permission="['*']" placement="bottom" @command="handleBatch">
           <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item v-if="!isNVR && !isPlatform" command="move">移动至</el-dropdown-item>
-            <!-- <el-dropdown-item :command="{type: 'startDevice', num: 1}">启用主码流</el-dropdown-item>
-            <el-dropdown-item :command="{type: 'startDevice', num: 2}">启用子码流</el-dropdown-item>
-            <el-dropdown-item :command="{type: 'startDevice', num: 3}">启用第三码流</el-dropdown-item>
-            <el-dropdown-item :command="{type: 'startDevice', num: 1}">停用主码流</el-dropdown-item>
-            <el-dropdown-item :command="{type: 'startDevice', num: 2}">停用子码流</el-dropdown-item>
-            <el-dropdown-item :command="{type: 'startDevice', num: 3}">停用第三码流</el-dropdown-item> -->
             <el-dropdown-item command="delete">删除</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
@@ -244,44 +256,84 @@
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import listMixin from '../mixin/listMixin'
-import { ExportToCsv } from 'export-to-csv'
-import { Device } from '@/type/device'
+import excelMixin from '../mixin/excelMixin'
 
 @Component({
   name: 'DeviceRtspList'
 })
-export default class extends Mixins(listMixin) {
+export default class extends Mixins(listMixin, excelMixin) {
+  private exportLoading = false
   /**
-   * 导出CSV测试
+   * 导入设备表
    */
-  private exportCsv() {
-    const options = {
-      filename: '设备列表',
-      fieldSeparator: ',',
-      quoteStrings: '"',
-      decimalSeparator: '.',
-      showLabels: true,
-      useTextFile: false,
-      useBom: true,
-      useKeysAsHeaders: true
-    }
-    const csvExporter = new ExportToCsv(options)
-    const data = this.selectedDeviceList.map((device: Device) => {
-      return {
-        '设备ID': `${device.deviceId}\t`,
-        '设备名称': device.deviceName,
-        '类型': device.deviceType,
-        '厂商': device.deviceVendor,
-        '设备IP': device.deviceIp,
-        '设备端口': device.devicePort,
-        '国标ID': `${device.gbId}\t`,
-        '信令传输模式': device.sipTransType,
-        '流传输模式': device.streamTransType,
-        '优先TCP传输': device.transPriority,
-        '创建时间': device.createdTime
+  private uploadExcel(data: any) {
+    if (data.file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || data.file.type === 'application/vnd.ms-excel') {
+      this.dialog.uploadExcel = true
+      this.selectedFile = data.file
+      this.fileData = {
+        groupId: this.groupId,
+        inProtocol: this.inProtocol,
+        dirId: this.dirId,
+        fileName: data.file.name
       }
-    })
-    csvExporter.generateCsv(data)
+      if (this.isNVR) {
+        this.fileData.parentDeviceId = this.deviceInfo.deviceId
+        delete this.fileData.dirId
+      }
+    } else {
+      this.$message.error('导入文件必须为表格')
+    }
+  }
+
+  /**
+   * 导出设备表
+   */
+  private async exportExcel(command: any) {
+    this.exportLoading = true
+    try {
+      let params: any = {
+        groupId: this.groupId,
+        inProtocol: this.inProtocol,
+        dirId: this.dirId,
+        parentDeviceId: this.deviceId
+      }
+      // this.isNVR && (params.parentDeviceId = this.deviceInfo.parentDeviceId)
+      if (command === 'exportAll') {
+        params.command = 'all'
+      } else {
+        params.command = 'selected'
+        let deviceArr: any = []
+        if (command === 'exportCurrentPage') {
+          deviceArr = this.deviceList
+        } else if (command === 'exportSelect') {
+          deviceArr = this.selectedDeviceList
+        }
+        params.deviceIds = deviceArr.map((device: any) => {
+          return { deviceId: device.deviceId }
+        })
+      }
+      await this.exportDevicesExcel(params)
+    } catch (e) {
+      this.$message.error('导出失败')
+      console.log(e)
+    }
+    this.exportLoading = false
+  }
+
+  /**
+   * 导出模板
+   */
+  private exportTemplate() {
+    this.exelType = 'template'
+    this.exelDeviceType = 'ehome'
+    this.exelName = 'EHOME导入模板'
+    if (this.isNVR) {
+      this.exelDeviceType = 'nvr'
+      this.exelName = 'NVR添加子设备导入模板'
+      this.excelInProtocol = this.deviceInfo.inProtocol
+      this.parentDeviceId = this.deviceInfo.deviceId
+    }
+    this.exportExel()
   }
 }
 </script>
