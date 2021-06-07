@@ -190,7 +190,7 @@ export default class extends Mixins(ReplayPlayerMixin) {
         startTime: Math.floor(this.startTime! / 1000),
         endTime: Math.floor(endTime.getTime() / 1000 - 1),
         type: 'vod'
-      }, this.axiosSource.getDevicePreview)
+      }, this.axiosSource.getDevicePreview.token)
       this.address = res.playUrl
       this.codec = res.video.codec
     } catch (e) {
