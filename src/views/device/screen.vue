@@ -229,6 +229,7 @@
                 <template v-else>
                   <replay-view
                     :device-id="screen.deviceId"
+                    :in-protocol="currentGroupInProtocol"
                     :has-playlive="true"
                     :is-fullscreen="screen.isFullscreen"
                     @onPlaylive="onPlaylive(screen)"

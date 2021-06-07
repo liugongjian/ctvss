@@ -6,7 +6,7 @@
     :close-on-click-modal="false"
     width="500px"
     center
-    @close="closeDialog"
+    @close="closeDialog(false)"
   >
     <p v-if="process.status === 'loading'" class="process__message">{{ process.message }}</p>
     <p v-if="process.status === 'success'" class="process__message">{{ `总计导入 ${process.total} 条` }}</p>
@@ -18,7 +18,7 @@
       </span>
     </p>
     <div slot="footer" class="dialog-footer">
-      <el-button type="primary" :loading="isLoading" @click="closeDialog">确 定</el-button>
+      <el-button type="primary" :loading="isLoading" @click="closeDialog(true)">确 定</el-button>
     </div>
   </el-dialog>
 </template>
@@ -79,7 +79,6 @@ export default class extends Mixins(excelMixin) {
             total: res.total,
             importFileFail: res.importFileFail
           }
-          console.log(res)
         } else {
           this.process.message = '导入设备失败！'
           console.log('导入设备失败', res.message)
@@ -96,7 +95,7 @@ export default class extends Mixins(excelMixin) {
     this.downloadFileUrl(this.data.fileName + 'fail', this.process.importFileFail)
   }
 
-  private closeDialog(isRefresh: boolean = false) {
+  private closeDialog(isRefresh: boolean) {
     this.reader && this.reader.abort()
     this.dialogVisible = false
     this.$emit('on-close', isRefresh)
