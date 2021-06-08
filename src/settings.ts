@@ -11,6 +11,7 @@ interface ISettings {
   casLoginUrl: string // 单点登录中台路径
   mainLoginUrl: string // 主账号登录路径
   subLoginUrl: string // 子账号登录路径
+  projectPrefix: string // 项目前缀路径
 }
 
 // You can customize below settings :)
@@ -26,7 +27,8 @@ const settings: ISettings = {
   mockServerPort: 9528,
   casLoginUrl: '/v1/cas/callback',
   mainLoginUrl: '/login',
-  subLoginUrl: '/login/subAccount'
+  subLoginUrl: '/login/subAccount',
+  projectPrefix: '/vss'
 }
 
 export default settings
