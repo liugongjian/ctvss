@@ -39,7 +39,7 @@ index e2e3452..7d2a444 100644
  };
  
  export default MSEEvents;
-
+ 
 diff --git a/node_modules/flv.js/src/player/flv-player.js b/node_modules/flv.js/src/player/flv-player.js
 index e9a2524..4ee772f 100644
 --- a/node_modules/flv.js/src/player/flv-player.js
@@ -88,4 +88,3 @@ index e089627..b32d96a 100644
  };
  
  export default PlayerEvents;
-\ No newline at end of file
