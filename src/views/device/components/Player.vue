@@ -291,9 +291,9 @@ export default class extends Vue {
             this.player.player = player
           }
         },
-        onRetry: () => {
+        onRetry: (params: any) => {
           if (this.isLive) {
-            this.$emit('onRetry')
+            this.$emit('onRetry', params)
           }
         }
       })
