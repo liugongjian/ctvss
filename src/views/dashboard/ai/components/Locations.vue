@@ -7,8 +7,9 @@
       <div
         v-if="!location.zone"
         class="ai-recognation__images__item__mask"
-        :class="[{'ai-recognation__images__item__mask--warning': location.isWarning}, `ai-recognation__images__item__mask--${type}`]"
+        :class="[{'ai-recognation__images__item__mask--warning': location.isWarning, 'ai-recognation__images__item__clickable': clickable, 'ai-recognation__images__item__mask--selected': currentIndex === locationIndex}, `ai-recognation__images__item__mask--${type}`]"
         :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
+        @click="clickLocation(locationIndex)"
       >
         <div v-if="type === '6'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
           <!-- {{ aiMaskType[location.type] }} -->
@@ -27,7 +28,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { AiMaskType } from '@/dics'
 
 @Component({
@@ -38,11 +39,34 @@ export default class extends Vue {
   private img!: any
   @Prop()
   private type!: string
+  @Prop()
+  private clickable?: boolean
   private aiMaskType = AiMaskType
+  private currentIndex: number = -1
+
+  @Watch('img', {
+    immediate: true
+  })
+  private onImgChanged(img: any) {
+    // 默认选取人体属性的第一个位置
+    if (this.type === '12' && this.clickable && img && img.locations && img.locations.length) {
+      this.currentIndex = 0
+      this.clickLocation(this.currentIndex)
+    }
+  }
+
+  private clickLocation(locationIndex: number) {
+    if (!this.clickable) return
+    this.currentIndex = locationIndex
+    this.$emit('click-location', locationIndex)
+  }
 }
 </script>
 <style lang="scss" scoped>
   .ai-recognation__images__item {
+    &__clickable {
+      cursor: pointer;
+    }
     &__mask {
       position: absolute;
       border: 2px solid $dashboardGreen;
@@ -85,6 +109,9 @@ export default class extends Vue {
         &--warning {
           background: $white;
         }
+      }
+      &--selected {
+        border-color: $primary;
       }
     }
   }

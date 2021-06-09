@@ -16,6 +16,8 @@
       <el-button size="medium" type="text" @click="goRouter(5)">吸烟检测</el-button>
       <div class="column-line" />
       <el-button size="medium" type="text" @click="goRouter(7)">安全帽反光服检测</el-button>
+      <div class="column-line" />
+      <el-button size="medium" type="text" @click="goRouter(12)">人体属性</el-button>
     </div>
     <p class="dashboard-wrap-overview__cell__head">场景识别</p>
     <div class="dashboard-wrap-overview__cell__list">

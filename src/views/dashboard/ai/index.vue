@@ -14,6 +14,7 @@
           <el-dropdown-item :command="8">人员聚集</el-dropdown-item>
           <el-dropdown-item :command="5">吸烟检测</el-dropdown-item>
           <el-dropdown-item :command="7">安全帽反光服检测</el-dropdown-item>
+          <el-dropdown-item :command="12">人体属性</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
       <el-dropdown trigger="click" placement="bottom-start" @command="goRouter">
@@ -39,10 +40,14 @@
           <div class="ai-recognation__video">
             <div v-if="false" class="ai-recognation__video__loading">正在加载视频...</div>
             <div class="ai-recognation__images__item__wrap">
-              <img v-if="currentImg" class="ai-recognation__images__item__img" :src="currentImg && currentImg.url">
-              <img :src="require('@/assets/dashboard/image-placeholder.png')">
-              <Locations :type="type" :img="currentImg" />
-              <div v-if="currentImg" class="ai-recognation__images__item--datetime">{{ currentImg && currentImg.deviceName }} | {{ currentImg && currentImg.timestamp }}</div>
+              <el-tooltip content="点击放大">
+                <div class="ai-recognation__images__item__img--wrap ai-recognation__images__item__img--wrap--left" @click="fullscreenImage()">
+                  <img v-if="currentImg" class="ai-recognation__images__item__img" :src="currentImg && currentImg.url">
+                  <img :src="require('@/assets/dashboard/image-placeholder.png')">
+                  <Locations :type="type" :img="currentImg" />
+                  <div v-if="currentImg" class="ai-recognation__images__item--datetime">{{ currentImg && currentImg.deviceName }} | {{ currentImg && currentImg.timestamp }}</div>
+                </div>
+              </el-tooltip>
               <div class="ai-recognation__images__item__tools">
                 <div class="ai-recognation__images__item__tools--zoomin" @click="fullscreenImage()">
                   <svg-icon name="zoom-in" width="14px" height="14px" />
@@ -99,8 +104,11 @@
     >
       <div slot="title">{{ currentImg && currentImg.deviceName }} | {{ currentImg && currentImg.timestamp }}</div>
       <div class="ai-recognation__images__item__wrap ai-image-fullscreen__img">
-        <img v-if="currentImg" :src="currentImg && currentImg.url">
-        <Locations :type="type" :img="currentImg" />
+        <div class="ai-recognation__images__item__img--wrap ai-image-fullscreen__img--wrap">
+          <img v-if="currentImg" :src="currentImg && currentImg.url">
+          <Locations :type="type" :img="currentImg" :clickable="true" @click-location="onLocationChanged" />
+        </div>
+        <Attributes v-if="type === '12'" class="ai-image-fullscreen__img--attributes" :type="type" :img="currentImg" :attributes-index="currentLocationIndex" />
       </div>
     </el-dialog>
   </div>
@@ -113,17 +121,20 @@ import { AlertType } from '@/dics'
 import { parseMetaData, transformLocation } from '@/utils/ai'
 import Player from '@/views/device/components/Player.vue'
 import Locations from './components/Locations.vue'
+import Attributes from './components/Attributes.vue'
 
 @Component({
   name: 'DashboardAI',
   components: {
     Player,
-    Locations
+    Locations,
+    Attributes
   }
 })
 export default class extends Vue {
   private alertType = AlertType
   private currentImg: any = null
+  private currentLocationIndex: number = -1
   private currentVideo: any = null
   private pager = {
     pageNum: 1,
@@ -236,6 +247,10 @@ export default class extends Vue {
 
   private fullscreenImage() {
     this.dialog.fullscreen = true
+  }
+
+  private onLocationChanged(index: number) {
+    this.currentLocationIndex = index
   }
 }
 </script>
@@ -505,6 +520,13 @@ export default class extends Vue {
           position: relative;
           width: 100%;
         }
+        &__img--wrap {
+          position: relative;
+          width: 100%;
+          &--left {
+            cursor: pointer;
+          }
+        }
         &__img {
           position: absolute;
           top: 0;
@@ -561,10 +583,9 @@ export default class extends Vue {
           padding: 5px 10px;
         }
         &__tools {
-          position: absolute;
           color: #fff;
-          right: 10px;
-          bottom: -20px;
+          text-align: right;
+          margin: 5px 10px 0 0;
           &--zoomin {
             cursor: pointer;
           }
@@ -616,7 +637,18 @@ export default class extends Vue {
       }
     }
   }
-  .ai-image-fullscreen__img img {
-    width: 100%;
+  .ai-image-fullscreen__img {
+    display: flex;
+    &--wrap {
+      flex: 4;
+    }
+    &--attributes {
+      flex: 1;
+      background: #f7f7f7;
+      padding: 20px 15px;
+    }
+    img {
+      width: 100%;
+    }
   }
 </style>

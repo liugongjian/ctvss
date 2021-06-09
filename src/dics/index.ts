@@ -153,13 +153,26 @@ export const AlertType: any = {
   7: '安全帽反光服检测',
   9: '危险区域检测',
   10: '烟雾明火',
-  11: '冲压机'
+  11: '冲压机',
+  12: '人体属性'
 }
 
 export const AiMaskType: any = {
   0: '未戴口罩',
   1: '戴口罩',
   2: '佩戴不规范'
+}
+
+export const AiAttribute: any = {
+  'gender': '性别',
+  'facemask': '是否戴口罩',
+  'attachment': '附属物',
+  'age': '年龄',
+  'direction': '方向',
+  'upperwear': '上身服饰',
+  'lowerwear': '下身服饰',
+  'uppercolor': '上身服饰颜色',
+  'lowercolor': '下身服饰颜色'
 }
 
 export const AlertParams = {
