@@ -4,6 +4,8 @@ import { BasePlayer } from './BasePlayer'
 
 export class FlvPlayer extends BasePlayer {
   public flv?: any
+  private mseError = false
+  private mseErrorCount = 0
 
   public init() {
     if (!flvjs.isSupported()) {
@@ -18,14 +20,31 @@ export class FlvPlayer extends BasePlayer {
     const flvPlayer = flvjs.createPlayer({
       type: 'flv',
       isLive: true,
-      url: this.source
+      url: this.source,
+      hasAudio: false
     })
     flvPlayer.attachMediaElement(videoElement)
     flvPlayer.load()
     flvPlayer.play()
     flvPlayer.on(flvjs.Events.ERROR, (e: any) => {
+      // 网络错误
       if (e === flvjs.ErrorTypes.NETWORK_ERROR) {
+        console.log('NETWORK_ERROR', e)
         this.onRetry()
+      }
+      // 视频解码错误
+      if (e === flvjs.ErrorTypes.MSE_ERROR && !this.mseError) {
+        console.log('MSE_ERROR', e, this.mseErrorCount)
+        this.mseError = true
+        this.mseErrorCount++
+        // 先尝试reload播放器，如果5次无法继续播放，则重新渲染播放器
+        if (this.mseErrorCount <= 5) {
+          this.reloadPlayer()
+        } else {
+          this.onRetry({
+            immediate: true
+          })
+        }
       }
     })
     flvPlayer.on(flvjs.Events.METADATA_ARRIVED, (e: any) => {
@@ -33,6 +52,7 @@ export class FlvPlayer extends BasePlayer {
     })
     flvPlayer.on(flvjs.Events.SCRIPTDATA_ARRIVED, (e: any) => {
       console.log('SCRIPTDATA_ARRIVED', e)
+      this.mseError = false
     })
     flvPlayer.on(flvjs.Events.METADATA_ARRIVED, (e: any) => {
       console.log('LOADING_COMPLETE', e)

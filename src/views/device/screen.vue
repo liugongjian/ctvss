@@ -217,8 +217,7 @@
                       :has-playback="true"
                       :device-name="screen.deviceName"
                       :stream-num="screen.streamNum"
-                      @onSetStreamNum="onSetStreamNum(screen, ...arguments)"
-                      @onRetry="onRetry(screen)"
+                      @onRetry="onRetry(screen, ...arguments)"
                       @onPlayback="onPlayback(screen)"
                       @onFullscreen="screen.fullscreen();fullscreen()"
                       @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
@@ -560,14 +559,18 @@ export default class extends Mixins(ScreenMixin) {
   /**
    * 视频断流30秒后重试
    */
-  private onRetry(screen: Screen) {
+  private onRetry(screen: Screen, params?: any) {
+    let timeout = 30 * 1000
+    if (params && params.immediate) {
+      timeout = 100
+    }
     setTimeout(async() => {
       screen.url = ''
       await screen.getUrl()
       if (screen.retry) {
         this.onRetry(screen)
       }
-    }, 30 * 1000)
+    }, timeout)
   }
 
   /**
