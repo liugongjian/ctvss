@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router, { RouteConfig } from 'vue-router'
+import settings from '@/settings'
 
 /* Layout */
 import Layout from '@/layout/index.vue'
@@ -869,7 +870,7 @@ export const asyncRoutes: RouteConfig[] = [
 ]
 
 const createRouter = () => new Router({
-  // mode: 'history',  // Disabled due to Github Pages doesn't support this, enable this if you need.
+  mode: 'history', // Disabled due to Github Pages doesn't support this, enable this if you need.
   scrollBehavior: (to, from, savedPosition) => {
     if (savedPosition) {
       return savedPosition
@@ -877,7 +878,7 @@ const createRouter = () => new Router({
       return { x: 0, y: 0 }
     }
   },
-  base: process.env.BASE_URL,
+  base: settings.projectPrefix,
   routes: constantRoutes
 })
 

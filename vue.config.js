@@ -27,7 +27,7 @@ module.exports = {
   devServer: {
     port: devServerPort,
     open: true,
-    openPage: '#/login',
+    openPage: 'login',
     overlay: {
       warnings: false,
       errors: true
@@ -74,12 +74,13 @@ module.exports = {
         secure: false,
         changeOrigin: true
       },
-      '/': {
+      '/v1': {
         target: serverAddress,
         changeOrigin: false,
         secure: false
       }
     },
+    historyApiFallback: true,
     disableHostCheck: true
   },
   pwa: {

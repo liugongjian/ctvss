@@ -497,7 +497,6 @@ export default class CreateMixin extends Vue {
    * 删除设备
    */
   public deleteDevice(device: Device) {
-    console.log(device)
     this.$alertDelete({
       type: '设备',
       msg: `是否确认删除设备"${device.deviceName}"`,

@@ -34,8 +34,8 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
           closeOnClickModal: false,
           type: 'warning'
         }).then(async() => {
-          removeTicket()
           await UserModule.LogOut()
+          removeTicket()
           window.location.href = 'https://www.ctyun.cn/sign/out'
         }).catch(err => {
           console.log('err:', err)

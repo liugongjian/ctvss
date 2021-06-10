@@ -255,7 +255,11 @@ class User extends VuexModule implements IUserState {
     if (this.token === '') {
       throw Error('LogOut: token is undefined!')
     }
-    await logout()
+    try {
+      await logout()
+    } catch (e) {
+      console.log('logout e: ', e)
+    }
     removeToken()
     resetRouter()
     removeUsername()
