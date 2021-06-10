@@ -88,7 +88,6 @@ export default class ExcelMixin extends Vue {
         { header: '主子码流数量', key: 'multiStreamSize', width: 16 },
         { header: '自动拉流', key: 'pullType', width: 10 },
         { header: '自动拉取码流', key: 'AutoStreamNum', width: 16 },
-        { header: '自动创建子设备', key: 'CreateSubDevice', width: 16 },
         { header: '设备通道数量', key: 'channelSize', width: 16 }
       ]
     },
@@ -358,14 +357,7 @@ export default class ExcelMixin extends Vue {
       formulae: ['"主码流,子码流,第三码流"'],
       prompt: '1、自动拉流的情况下，“自动拉取码流”项才会生效；2、自动拉取码流的范围不得超过主子码流数量'
     })
-    worksheet.dataValidations.add('I2:I9999', {
-      type: 'list',
-      allowBlank: true,
-      showErrorMessage: true,
-      formulae: ['"是,否"'],
-      error: '请从选项中选择'
-    })
-    worksheet.dataValidations.add('J2:J9999', this.validation.channelSize)
+    worksheet.dataValidations.add('I2:I9999', this.validation.channelSize)
   }
 
   private nvrOptionsInit(worksheet: any) {
