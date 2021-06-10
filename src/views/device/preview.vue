@@ -120,7 +120,7 @@ export default class extends Mixins(FullscreenMixin) {
   @Inject('deviceRouter') private deviceRouter!: Function
   private dateFormatInTable = dateFormatInTable
   private dateFormat = dateFormat
-  private activeName = 'preview'
+  private activeName = ''
   private snapshotRange = null
   private template = {
     snapshotTemplate: '123'
@@ -146,7 +146,11 @@ export default class extends Mixins(FullscreenMixin) {
   }
 
   private mounted() {
-    if (this.$route.query.previewTab) this.activeName = this.$route.query.previewTab.toString()
+    if (this.$route.query.previewTab) {
+      this.activeName = this.$route.query.previewTab.toString()
+    } else {
+      this.activeName = 'preview'
+    }
     this.$nextTick(this.resizeReplayVideo)
     window.addEventListener('resize', this.resizeReplayVideo)
     window.addEventListener('resize', this.checkFullscreen)
