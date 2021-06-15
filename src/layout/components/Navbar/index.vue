@@ -269,14 +269,16 @@ export default class extends Vue {
         this.groupId = res.groupId
         await this.changeGroup()
       }
-      this.$router.push({
-        name: 'device-detail',
-        query: {
-          type: 'detail',
-          deviceId: deviceId,
-          groupId: res.groupId,
-          inProtocol: res.inProtocol
-        }
+      this.$nextTick(() => {
+        this.$router.push({
+          name: 'device-detail',
+          query: {
+            type: 'detail',
+            deviceId: deviceId,
+            groupId: res.groupId,
+            inProtocol: res.inProtocol
+          }
+        })
       })
     } catch (e) {
       this.$message.error(`未搜索到设备ID:"${this.searchForm.deviceId}"`)
