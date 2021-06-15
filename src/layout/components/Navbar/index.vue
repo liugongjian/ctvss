@@ -265,6 +265,10 @@ export default class extends Vue {
       const res = await getDevice({
         deviceId: deviceId
       })
+      if (res.groupId !== this.groupId) {
+        this.groupId = res.groupId
+        await this.changeGroup()
+      }
       this.$router.push({
         name: 'device-detail',
         query: {
