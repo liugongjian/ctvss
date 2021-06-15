@@ -64,6 +64,8 @@ if (isIE()) {
 }
 
 try {
+  // 从localstorage中读取选中的业务组
+  GroupModule.GetGroupFromLs()
   CtcloudLayout.getPublicInfo().authCurrentPromise.then((data :any) => {
     if (!data.isLoggedIn) {
       // 天翼云未登录
@@ -108,7 +110,6 @@ try {
           UserModule.ResetToken()
         }
         UserModule.SetCTLoginId(loginId)
-        GroupModule.GetGroupFromLs()
         setLocalStorage('loginType', 'cas')
         const href = window.location.href
         if (href.indexOf('token=') !== -1) {
