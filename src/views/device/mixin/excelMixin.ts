@@ -266,9 +266,12 @@ export default class ExcelMixin extends Vue {
     worksheet.dataValidations.add('J2:J9999', {
       type: 'textLength',
       allowBlank: true,
+      operator: 'equal',
+      formulae: [20],
       showInputMessage: true,
       showErrorMessage: true,
-      prompt: '当选择 “Platform” 设备类型时为必选'
+      prompt: '当选择 “Platform” 设备类型时为必选',
+      error: '请检查国标ID格式是否正确'
     })
     worksheet.dataValidations.add('K2:K9999', this.validation.transPriority)
     worksheet.dataValidations.add('L2:L9999', this.validation.channelSize)
@@ -397,6 +400,9 @@ export default class ExcelMixin extends Vue {
         alignment: {
           horizontal: 'left'
         }
+      }
+      if (column._number === 10) {
+        column.numFmt = '@'
       }
     })
     // 添加过滤器
