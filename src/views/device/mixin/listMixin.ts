@@ -111,6 +111,16 @@ export default class CreateMixin extends Vue {
     return this.$route.query.type === 'platformDir'
   }
 
+  public get isAllowedDelete() {
+    let validArr = [
+      this.isPlatform,
+      this.isPlatformDir,
+      this.isDir,
+      this.deviceInfo && this.deviceInfo.createSubDevice !== 1
+    ]
+    return validArr.includes(true)
+  }
+
   public get groupId() {
     return GroupModule.group?.groupId
   }
@@ -265,7 +275,7 @@ export default class CreateMixin extends Vue {
           this.deviceList = deviceList
         }
       } else if (type === 'ipc') {
-        this.deviceInfo = null
+        this.deviceInfo = res
         this.parentDeviceId = res.parentDeviceId
         if (res.parentDeviceId !== '-1' && res.deviceChannels.length) {
           res.deviceId = res.deviceChannels[0].deviceId
