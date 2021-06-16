@@ -74,7 +74,7 @@
             <el-dropdown-item v-if="!isNVR && !isPlatform" command="move">移动至</el-dropdown-item>
             <el-dropdown-item command="startDevice">启用流</el-dropdown-item>
             <el-dropdown-item command="stopDevice">停用流</el-dropdown-item>
-            <el-dropdown-item v-if="!isNVR || (deviceInfo && deviceInfo.createSubDevice === 2)" command="delete">删除</el-dropdown-item>
+            <el-dropdown-item v-if="isAllowedDelete" command="delete">删除</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
