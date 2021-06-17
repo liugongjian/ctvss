@@ -13,9 +13,10 @@
       :rules="rules"
       label-position="right"
       label-width="100px"
+      @submit.native.prevent
     >
       <el-form-item label="目录名称:" prop="dirName" class="form-with-tip">
-        <el-input v-model="form.dirName" />
+        <el-input v-model="form.dirName" @keyup.enter.native="submit" />
         <div class="form-tip">不超过64个字符，可包含大小写字母、数字、中文、中划线。</div>
       </el-form-item>
     </el-form>

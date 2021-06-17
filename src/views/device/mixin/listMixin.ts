@@ -169,6 +169,11 @@ export default class CreateMixin extends Vue {
     this.reset()
   }
 
+  @Watch('dirId')
+  public onDirIdChange() {
+    this.pager.pageNum = 1
+  }
+
   @Watch('filter', { immediate: true, deep: true })
   public onFilterChange() {
     if (this.type === 'dir' || this.type === 'platformDir') this.getDeviceList()
@@ -178,6 +183,7 @@ export default class CreateMixin extends Vue {
   public reset() {
     this.deviceInfo = null
     this.deviceList = []
+    this.pager.pageNum = 1
     this.axiosSources.forEach((axiosSource: any) => {
       axiosSource.cancel()
     })
