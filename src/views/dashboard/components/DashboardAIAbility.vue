@@ -25,7 +25,7 @@
       <div class="column-line" />
       <el-button size="medium" type="text" @click="goRouter(11)">冲压机</el-button>
       <div class="column-line" />
-      <el-button size="medium" type="text" @click="goRouter(12)">蜜蜂密度</el-button>
+      <el-button size="medium" type="text" @click="goRouter(13)">蜜蜂密度</el-button>
     </div>
   </component>
 </template>
