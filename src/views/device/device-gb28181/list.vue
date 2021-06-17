@@ -74,7 +74,7 @@
             <el-dropdown-item v-if="!isNVR && !isPlatform" command="move">移动至</el-dropdown-item>
             <el-dropdown-item command="startDevice">启用流</el-dropdown-item>
             <el-dropdown-item command="stopDevice">停用流</el-dropdown-item>
-            <el-dropdown-item v-if="!isNVR || (deviceInfo && deviceInfo.createSubDevice === 2)" command="delete">删除</el-dropdown-item>
+            <el-dropdown-item v-if="isAllowedDelete" command="delete">删除</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
@@ -247,7 +247,7 @@
                 <el-dropdown-item v-if="(!isNVR && scope.row.parentDeviceId === '-1') && checkPermission(['*'])" :command="{type: 'move', device: scope.row}">移动至</el-dropdown-item>
                 <el-dropdown-item v-if="checkPermission(['*'])" :command="{type: 'update', device: scope.row}">编辑</el-dropdown-item>
                 <!--自动创建的子通道不允许删除-->
-                <el-dropdown-item v-if="!(scope.row.createSubDevice === 1 && scope.row.channelNum) && checkPermission(['*'])" :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
+                <el-dropdown-item v-if="isAllowedDelete && checkPermission(['*'])" :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </template>

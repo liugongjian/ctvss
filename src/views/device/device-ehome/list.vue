@@ -46,7 +46,7 @@
           <el-button>导入</el-button>
         </el-upload>
         <el-button v-if="isDir || deviceInfo && deviceInfo.createSubDevice === 2" v-permission="['*']" @click="exportTemplate">下载模板</el-button>
-        <el-dropdown v-permission="['*']" placement="bottom" @command="handleBatch">
+        <el-dropdown v-if="isAllowedDelete" v-permission="['*']" placement="bottom" @command="handleBatch">
           <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item v-if="!isNVR && !isPlatform" command="move">移动至</el-dropdown-item>
@@ -228,7 +228,7 @@
                 </template>
                 <el-dropdown-item v-if="!isNVR && scope.row.parentDeviceId === '-1' && checkPermission(['*'])" :command="{type: 'move', device: scope.row}">移动至</el-dropdown-item>
                 <el-dropdown-item v-if="((isNVR && !isCreateSubDevice) || (!isNVR && scope.row.createSubDevice !== 1)) && checkPermission(['*'])" :command="{type: 'update', device: scope.row}">编辑</el-dropdown-item>
-                <el-dropdown-item v-if="checkPermission(['*'])" :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
+                <el-dropdown-item v-if="isAllowedDelete && checkPermission(['*'])" :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </template>
@@ -251,6 +251,7 @@
       </div>
     </div>
     <move-dir v-if="dialog.moveDir" :in-protocol="inProtocol" :device="currentDevice" :devices="selectedDeviceList" :is-batch="isBatchMoveDir" @on-close="closeDialog('moveDir', ...arguments)" />
+    <upload-excel v-if="dialog.uploadExcel" :file="selectedFile" :data="fileData" @on-close="closeDialog('uploadExcel', ...arguments)" />
   </div>
 </template>
 <script lang="ts">
