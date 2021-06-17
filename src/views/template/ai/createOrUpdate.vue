@@ -125,7 +125,11 @@ export default class extends Vue {
     '10003': '50',
     '10004': '50',
     '10005': '30',
-    '10006': '30'
+    '10006': '30',
+    '10007': null,
+    '10008': '25',
+    '10009': '10',
+    '10010': '10'
   }
   private showSetDialog = false
   private setDialogType = ''
@@ -195,7 +199,7 @@ export default class extends Vue {
             if (index !== -1) {
               rowData.algorithmMetadata = algorithms[index].algorithmMetadata
               rowData.frameCutFrequency = algorithms[index].frameCutFrequency
-              if (systemAlgorithm.code === '10001') {
+              if (systemAlgorithm.code === '10001' || systemAlgorithm.code === '10010') {
                 rowData.threshold = algorithms[index].threshold || ''
               } else {
                 if (!this.algorithmDefaultThresholdMap[systemAlgorithm.code]) {
@@ -384,7 +388,7 @@ export default class extends Vue {
               aIAbilityAlgorithmId: algorithm.aIAbilityAlgorithmId,
               algorithmMetadata: algorithm.needConfig ? algorithm.algorithmMetadata : '',
               frameCutFrequency: algorithm.frameCutFrequency || undefined,
-              threshold: algorithm.threshold ? (algorithm.code === '10001' ? algorithm.threshold : (Number(algorithm.threshold) / 100).toString()) : algorithm.threshold,
+              threshold: algorithm.threshold ? (algorithm.code === '10001' || algorithm.code === '10010' ? algorithm.threshold : (Number(algorithm.threshold) / 100).toString()) : algorithm.threshold,
               needConfig: algorithm.needConfig,
               aIAbilityName: algorithm.aIAbilityName,
               algorithmName: algorithm.algorithmName
