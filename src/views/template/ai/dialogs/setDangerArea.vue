@@ -17,16 +17,16 @@
         <el-input v-model="form.leftTop" class="fixed-width" />
         <div class="form-tip">逗号分隔的x,y轴百分比（0-100之间）</div>
       </el-form-item>
-      <el-form-item label="左下比例坐标:" prop="leftDown" class="form-with-tip">
-        <el-input v-model="form.leftDown" class="fixed-width" />
-        <div class="form-tip">逗号分隔的x,y轴百分比（0-100之间）</div>
-      </el-form-item>
       <el-form-item label="右上比例坐标:" prop="rightTop" class="form-with-tip">
         <el-input v-model="form.rightTop" class="fixed-width" />
         <div class="form-tip">逗号分隔的x,y轴百分比（0-100之间）</div>
       </el-form-item>
       <el-form-item label="右下比例坐标:" prop="rightDown" class="form-with-tip">
         <el-input v-model="form.rightDown" class="fixed-width" />
+        <div class="form-tip">逗号分隔的x,y轴百分比（0-100之间）</div>
+      </el-form-item>
+      <el-form-item label="左下比例坐标:" prop="leftDown" class="form-with-tip">
+        <el-input v-model="form.leftDown" class="fixed-width" />
         <div class="form-tip">逗号分隔的x,y轴百分比（0-100之间）</div>
       </el-form-item>
     </el-form>
@@ -74,9 +74,9 @@ export default class extends Vue {
     if (this.currentAlgorithm && this.currentAlgorithm.algorithmMetadata) {
       const dangerZone = JSON.parse(this.currentAlgorithm.algorithmMetadata).dangerZone
       this.form.leftTop = dangerZone.slice(0, 2).join(',')
-      this.form.leftDown = dangerZone.slice(2, 4).join(',')
-      this.form.rightTop = dangerZone.slice(4, 6).join(',')
-      this.form.rightDown = dangerZone.slice(6, 8).join(',')
+      this.form.rightTop = dangerZone.slice(2, 4).join(',')
+      this.form.rightDown = dangerZone.slice(4, 6).join(',')
+      this.form.leftDown = dangerZone.slice(6, 8).join(',')
     }
   }
 
@@ -104,7 +104,7 @@ export default class extends Vue {
     form.validate(async(valid: any) => {
       if (valid) {
         this.dialogVisible = false
-        const dangerZone = [this.form.leftTop, this.form.leftDown, this.form.rightTop, this.form.rightDown].join(',').split(',')
+        const dangerZone = [this.form.leftTop, this.form.rightTop, this.form.rightDown, this.form.leftDown].join(',').split(',')
         this.$emit('on-close', { val: JSON.stringify({ dangerZone }), refresh: true })
       }
     })
