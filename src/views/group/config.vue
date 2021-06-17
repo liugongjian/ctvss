@@ -14,12 +14,20 @@
             {{ form.outProtocol.map(item => OutProtocolType[item]).join(',') }}
           </info-list-item>
           <!-- 以下字段仅在国标业务组中显示 -->
-          <template v-if="form.inProtocol === 'gb28181' || form.inProtocol === 'ehome'">
+          <template v-if="form.inProtocol === 'gb28181'">
             <info-list-item label="自动拉流:">{{ PullType[form.pullType] }}</info-list-item>
             <info-list-item label="SIP服务器ID:">{{ form.sipId }}</info-list-item>
             <info-list-item label="SIP服务器地址:">{{ form.sipIp }}</info-list-item>
             <info-list-item label="SIP服务器TCP端口:">{{ form.sipTcpPort }}</info-list-item>
             <info-list-item label="SIP服务器UDP端口:">{{ form.sipUdpPort }}</info-list-item>
+          </template>
+          <!-- 以下字段仅在EHOME业务组中显示 -->
+          <template v-if="form.inProtocol === 'ehome'">
+            <info-list-item label="自动拉流:">{{ PullType[form.pullType] }}</info-list-item>
+            <!-- <info-list-item label="EHOME服务器ID:">{{ form.sipId }}</info-list-item> -->
+            <info-list-item label="EHOME服务器地址:">{{ form.sipIp }}</info-list-item>
+            <info-list-item label="EHOME服务器TCP端口:">{{ form.sipTcpPort }}</info-list-item>
+            <info-list-item label="EHOME服务器UDP端口:">{{ form.sipUdpPort }}</info-list-item>
           </template>
           <!-- 以下字段仅在RTMP/RTSP业务组中显示 -->
           <template v-if="form.inProtocol === 'rtsp' || form.inProtocol === 'rtmp'">
