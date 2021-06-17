@@ -22,7 +22,7 @@
           <el-dropdown-item :command="9">危险区域检测</el-dropdown-item>
           <el-dropdown-item :command="10">烟雾明火</el-dropdown-item>
           <el-dropdown-item :command="11">冲压机</el-dropdown-item>
-          <el-dropdown-item :command="12">蜜蜂密度</el-dropdown-item>
+          <el-dropdown-item :command="13">蜜蜂密度</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
