@@ -64,8 +64,8 @@ export class BasePlayer {
   /**
    * 回调-重试
    */
-  public onRetry() {
-    this.config.onRetry && this.config.onRetry()
+  public onRetry(params?: any) {
+    this.config.onRetry && this.config.onRetry(params)
   }
 
   /**

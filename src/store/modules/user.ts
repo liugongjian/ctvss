@@ -6,6 +6,7 @@ import { setLocalStorage, getLocalStorage } from '@/utils/storage'
 import router, { resetRouter } from '@/router'
 import { PermissionModule } from './permission'
 import { TagsViewModule } from './tags-view'
+import { DeviceModule } from '@/store/modules/device'
 import store from '@/store'
 
 export interface IUserState {
@@ -148,6 +149,8 @@ class User extends VuexModule implements IUserState {
     this.SET_IAM_USER_ID('')
     this.SET_MAIN_USER_ADDRESS('')
     this.SET_MAIN_USER_ID('')
+    // 清空设备管理面包屑
+    DeviceModule.ResetBreadcrumb()
   }
 
   @Action
@@ -252,13 +255,18 @@ class User extends VuexModule implements IUserState {
     if (this.token === '') {
       throw Error('LogOut: token is undefined!')
     }
-    await logout()
+    try {
+      await logout()
+    } catch (e) {
+      console.log('logout e: ', e)
+    }
     removeToken()
     resetRouter()
     removeUsername()
-
     // Reset visited views and cached views
     TagsViewModule.delAllViews()
+    // 清空设备管理面包屑
+    DeviceModule.ResetBreadcrumb()
     this.SET_TOKEN('')
     this.SET_ROLES([])
     this.SET_PERMS([])

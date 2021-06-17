@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
 import { DeviceParams, DeviceStatus, StreamStatus, RecordStatus, DeviceGb28181Type, SipTransType, StreamTransType, TransPriority } from '@/dics'
 import { Device } from '@/type/device'
@@ -36,6 +37,7 @@ export default class CreateMixin extends Vue {
   public streamTransType = StreamTransType
   public transPriority = TransPriority
   public parentDeviceId = ''
+  public axiosSources: any[] = []
 
   public loading = {
     info: false,
@@ -109,8 +111,22 @@ export default class CreateMixin extends Vue {
     return this.$route.query.type === 'platformDir'
   }
 
+  public get isAllowedDelete() {
+    let validArr = [
+      this.isPlatform,
+      this.isPlatformDir,
+      this.isDir,
+      this.deviceInfo && this.deviceInfo.createSubDevice !== 1
+    ]
+    return validArr.includes(true)
+  }
+
   public get groupId() {
     return GroupModule.group?.groupId
+  }
+
+  public get groupData() {
+    return GroupModule.group
   }
 
   public get isCreateSubDevice() {
@@ -145,22 +161,27 @@ export default class CreateMixin extends Vue {
 
   @Watch('$route.query')
   public onRouterChange() {
-    this.deviceInfo = null
-    this.deviceList = []
-    this.init()
+    this.reset()
   }
 
   @Watch('groupId')
   public onGroupIdChange() {
-    this.deviceInfo = null
-    this.deviceList = []
-    this.init()
+    this.reset()
   }
 
   @Watch('filter', { immediate: true, deep: true })
   public onFilterChange() {
     if (this.type === 'dir' || this.type === 'platformDir') this.getDeviceList()
     if (this.type === 'nvr') this.getDeviceInfo(this.type)
+  }
+
+  public reset() {
+    this.deviceInfo = null
+    this.deviceList = []
+    this.axiosSources.forEach((axiosSource: any) => {
+      axiosSource.cancel()
+    })
+    this.init()
   }
 
   public mounted() {
@@ -217,10 +238,12 @@ export default class CreateMixin extends Vue {
   public async getDeviceInfo(type: string) {
     try {
       this.loading.info = true
+      const axiosSource = axios.CancelToken.source()
+      this.axiosSources.push(axiosSource)
       const res = await getDevice({
         inProtocol: this.inProtocol,
         deviceId: this.deviceId
-      })
+      }, axiosSource.token)
       if (type === 'nvr' || type === 'platform') {
         this.deviceInfo = res
         let deviceList = this.deviceInfo.deviceChannels.map((channel: any) => {
@@ -252,7 +275,7 @@ export default class CreateMixin extends Vue {
           this.deviceList = deviceList
         }
       } else if (type === 'ipc') {
-        this.deviceInfo = null
+        this.deviceInfo = res
         this.parentDeviceId = res.parentDeviceId
         if (res.parentDeviceId !== '-1' && res.deviceChannels.length) {
           res.deviceId = res.deviceChannels[0].deviceId
@@ -291,7 +314,9 @@ export default class CreateMixin extends Vue {
       let res: any
       this.loading.list = true
       params.dirId = this.dirId ? this.dirId : 0
-      res = await getDevices(params)
+      const axiosSource = axios.CancelToken.source()
+      this.axiosSources.push(axiosSource)
+      res = await getDevices(params, axiosSource.token)
       this.deviceList = res.devices
       this.dirStats = res.dirStats
       this.pager = {
@@ -431,7 +456,7 @@ export default class CreateMixin extends Vue {
       this.$alertError('请先选择设备')
       return
     }
-    switch (command.type) {
+    switch (command) {
       case 'move':
         this.batchMoveDir()
         break
@@ -482,7 +507,6 @@ export default class CreateMixin extends Vue {
    * 删除设备
    */
   public deleteDevice(device: Device) {
-    console.log(device)
     this.$alertDelete({
       type: '设备',
       msg: `是否确认删除设备"${device.deviceName}"`,

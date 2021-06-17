@@ -71,7 +71,9 @@
                 <el-dropdown-item v-if="scope.row.groupStatus === 'on'" :command="{type: 'stop', group: scope.row}">停用</el-dropdown-item>
                 <el-dropdown-item v-if="scope.row.groupStatus === 'off'" :command="{type: 'start', group: scope.row}">启用</el-dropdown-item>
                 <el-dropdown-item :command="{type: 'update', group: scope.row}">编辑</el-dropdown-item>
-                <el-dropdown-item :disabled="scope.row.groupStatus === 'on'" :command="{type: 'delete', group: scope.row}">删除</el-dropdown-item>
+                <el-tooltip content="请先停用业务组后进行删除操作" :disabled="scope.row.groupStatus === 'off'">
+                  <span><el-dropdown-item :disabled="scope.row.groupStatus === 'on'" :command="{type: 'delete', group: scope.row}">删除</el-dropdown-item></span>
+                </el-tooltip>
               </el-dropdown-menu>
             </el-dropdown>
           </template>

@@ -49,17 +49,16 @@
         <el-button v-if="isPlatform" key="check-platform" @click="goToDetail(deviceInfo)">查看Platform详情</el-button>
         <el-button v-if="isPlatform && checkPermission(['*'])" key="edit-platform" @click="goToUpdate(deviceInfo)">编辑Platform</el-button>
         <el-button v-if="isPlatform" key="sync" :loading="loading.syncDevice" @click="syncDevice">同步</el-button>
-        <el-button v-if="isNVR" :loading="exportLoading" @click="exportExcel('specialAll')">导出</el-button>
-        <el-dropdown v-else placement="bottom" @command="exportExcel">
+        <el-dropdown placement="bottom" @command="exportExcel">
           <el-button :loading="exportLoading">导出<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item v-if="!isChannel" command="exportAll" :disabled="!deviceList.length">导出全部</el-dropdown-item>
+            <el-dropdown-item command="exportAll" :disabled="!deviceList.length">导出全部</el-dropdown-item>
             <el-dropdown-item command="exportCurrentPage" :disabled="!deviceList.length">导出当前页</el-dropdown-item>
             <el-dropdown-item command="exportSelect" :disabled="!selectedDeviceList.length">导出选定项</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
         <el-upload
-          v-if="!isNVR && checkPermission(['*'])"
+          v-if="(isDir || deviceInfo && deviceInfo.createSubDevice === 2) && checkPermission(['*'])"
           ref="excelUpload"
           action="#"
           :show-file-list="false"
@@ -68,14 +67,14 @@
         >
           <el-button>导入</el-button>
         </el-upload>
-        <el-button v-permission="['*']" @click="exportTemplate">下载模板</el-button>
+        <el-button v-if="isDir || deviceInfo && deviceInfo.createSubDevice === 2" v-permission="['*']" @click="exportTemplate">下载模板</el-button>
         <el-dropdown key="dropdown" v-permission="['*']" placement="bottom" @command="handleBatch">
           <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item v-if="!isNVR && !isPlatform" command="move">移动至</el-dropdown-item>
             <el-dropdown-item command="startDevice">启用流</el-dropdown-item>
             <el-dropdown-item command="stopDevice">停用流</el-dropdown-item>
-            <el-dropdown-item v-if="!isNVR || (deviceInfo && deviceInfo.createSubDevice === 2)" command="delete">删除</el-dropdown-item>
+            <el-dropdown-item v-if="isAllowedDelete" command="delete">删除</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
@@ -248,7 +247,7 @@
                 <el-dropdown-item v-if="(!isNVR && scope.row.parentDeviceId === '-1') && checkPermission(['*'])" :command="{type: 'move', device: scope.row}">移动至</el-dropdown-item>
                 <el-dropdown-item v-if="checkPermission(['*'])" :command="{type: 'update', device: scope.row}">编辑</el-dropdown-item>
                 <!--自动创建的子通道不允许删除-->
-                <el-dropdown-item v-if="!(scope.row.createSubDevice === 1 && scope.row.channelNum) && checkPermission(['*'])" :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
+                <el-dropdown-item v-if="isAllowedDelete && checkPermission(['*'])" :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </template>
@@ -297,7 +296,10 @@ export default class extends Mixins(listMixin, excelMixin) {
         dirId: this.dirId,
         fileName: data.file.name
       }
-      this.isNVR && (this.fileData.parentDeviceId = this.deviceInfo.parentDeviceId)
+      if (this.isNVR) {
+        this.fileData.parentDeviceId = this.deviceInfo.deviceId
+        delete this.fileData.dirId
+      }
     } else {
       this.$message.error('导入文件必须为表格')
     }
@@ -316,10 +318,7 @@ export default class extends Mixins(listMixin, excelMixin) {
         parentDeviceId: this.deviceId
       }
       // this.isNVR && (params.parentDeviceId = this.deviceInfo.parentDeviceId)
-      if (command === 'specialAll') {
-        params.command = 'selected'
-        params.deviceIds = [{ deviceId: this.deviceId }]
-      } else if (command === 'exportAll') {
+      if (command === 'exportAll') {
         params.command = 'all'
       } else {
         params.command = 'selected'
@@ -348,6 +347,13 @@ export default class extends Mixins(listMixin, excelMixin) {
     this.exelType = 'template'
     this.exelDeviceType = 'gb28181'
     this.exelName = 'GB28181导入模板'
+    this.regionName = this.groupData?.regionName || ''
+    if (this.isNVR) {
+      this.exelDeviceType = 'nvr'
+      this.exelName = 'NVR添加子设备导入模板'
+      this.excelInProtocol = this.deviceInfo.inProtocol
+      this.parentDeviceId = this.deviceInfo.deviceId
+    }
     this.exportExel()
   }
 }

@@ -1,7 +1,13 @@
 <template>
   <div v-loading="loading" class="live-wrap">
     <div v-if="inProtocol === 'rtsp' || inProtocol === 'ehome'" class="stream-selector">
-      <StreamSelector :is-show-label="true" :stream-size="streamSize" :stream-num="streamNum" @onSetStreamNum="onSetStreamNum" />
+      <StreamSelector
+        :is-show-label="true"
+        :stream-size="streamSize"
+        :stream-num="streamNum"
+        :streams="streams"
+        @onSetStreamNum="onSetStreamNum"
+      />
     </div>
     <div v-if="errorMessage" class="empty-text">{{ errorMessage }}</div>
     <div v-if="!errorMessage" class="preview-player">
@@ -80,6 +86,7 @@ export default class extends Vue {
   private retry = false
   private errorMessage = ''
   private timeout: any = null
+  private streams?: Array<any> = []
   private streamNum?: number | null = null
   private streamSize?: number | null = null
 
@@ -134,6 +141,7 @@ export default class extends Vue {
       })
       this.streamNum = res.autoStreamNum
       this.streamSize = res.multiStreamSize
+      this.streams = res.deviceStreams
       console.log(res)
     } catch (e) {
       console.error(e)

@@ -99,8 +99,7 @@ export default class extends Mixins(DashboardMixin) {
       formatter: (val: any) => {
         return val + '台'
       },
-      range: [0, 1],
-      tickInterval: 30
+      range: [0, 1]
     })
     this.chart.axis('value', {
       label: {

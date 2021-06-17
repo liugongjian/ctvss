@@ -200,8 +200,17 @@ export default class extends Vue {
   get alertTypeList() {
     const list = []
     list.push({
-      name: '人脸人体',
-      list: [6, 8, 4].map((id: number) => {
+      name: '人脸识别',
+      list: [6, 4].map((id: number) => {
+        return {
+          key: id,
+          value: this.alertType[id]
+        }
+      })
+    })
+    list.push({
+      name: '人体识别',
+      list: [8, 5, 7].map((id: number) => {
         return {
           key: id,
           value: this.alertType[id]
@@ -210,7 +219,7 @@ export default class extends Vue {
     })
     list.push({
       name: '安全生产',
-      list: [5, 7, 9, 10, 11].map((id: number) => {
+      list: [9, 10, 11, 13].map((id: number) => {
         return {
           key: id,
           value: this.alertType[id]
@@ -265,14 +274,20 @@ export default class extends Vue {
       const res = await getDevice({
         deviceId: deviceId
       })
-      this.$router.push({
-        name: 'device-detail',
-        query: {
-          type: 'detail',
-          deviceId: deviceId,
-          groupId: res.groupId,
-          inProtocol: res.inProtocol
-        }
+      if (res.groupId !== this.groupId) {
+        this.groupId = res.groupId
+        await this.changeGroup()
+      }
+      this.$nextTick(() => {
+        this.$router.push({
+          name: 'device-detail',
+          query: {
+            type: 'detail',
+            deviceId: deviceId,
+            groupId: res.groupId,
+            inProtocol: res.inProtocol
+          }
+        })
       })
     } catch (e) {
       this.$message.error(`未搜索到设备ID:"${this.searchForm.deviceId}"`)

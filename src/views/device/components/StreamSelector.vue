@@ -13,16 +13,21 @@
         :class="{'selected': stream.value === streamNum}"
         @click="setStreamNum(stream.value)"
       >
+        <status-badge v-if="stream.streamStatus" :status="stream.streamStatus" />
         {{ stream.label }}
       </li>
     </ul>
   </i>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import StatusBadge from '@/components/StatusBadge/index.vue'
 
 @Component({
-  name: 'StreamSelector'
+  name: 'StreamSelector',
+  components: {
+    StatusBadge
+  }
 })
 export default class extends Vue {
   @Prop({
@@ -35,16 +40,21 @@ export default class extends Vue {
   private streamSize?: number
   @Prop()
   private streamNum?: number
+  @Prop()
+  private streams?: Array<any>
   private streamList = [
     {
       label: '主码流',
-      value: 1
+      value: 1,
+      streamStatus: 'off'
     }, {
       label: '第二码流',
-      value: 2
+      value: 2,
+      streamStatus: 'off'
     }, {
       label: '第三码流',
-      value: 3
+      value: 3,
+      streamStatus: 'off'
     }
   ]
 
@@ -57,6 +67,15 @@ export default class extends Vue {
       return this.streamList[this.streamNum - 1].label
     }
     return ''
+  }
+
+  @Watch('streams', {
+    immediate: true
+  })
+  private onStreamsChanged() {
+    this.streams && this.streams.forEach((stream: any) => {
+      this.streamList[stream.streamNum - 1].streamStatus = stream.streamStatus
+    })
   }
 
   private setStreamNum(streamNum: number) {
@@ -73,7 +92,7 @@ export default class extends Vue {
     .controls__popup {
       position: absolute;
       display: none;
-      width: 100px;
+      width: 105px;
       left: -40px;
       top: 25px;
       z-index: 10;
@@ -89,7 +108,6 @@ export default class extends Vue {
         padding: 5px 15px;
         list-style: none;
         font-style: normal;
-        text-align: center;
         color: $text;
         cursor: pointer;
         &:hover {
@@ -97,6 +115,16 @@ export default class extends Vue {
         }
         &.selected {
           color: $primary;
+        }
+        .status-badge {
+          position: relative;
+          top: 0;
+          left: 0;
+          width: 6px;
+          height: 6px;
+        }
+        .status-badge--off {
+          display: inline-block;
         }
       }
     }

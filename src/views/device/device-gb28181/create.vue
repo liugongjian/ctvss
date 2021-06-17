@@ -214,7 +214,8 @@ export default class extends Mixins(createMixin) {
       { validator: this.validateChannelNum, trigger: 'blur' }
     ],
     gbId: [
-      { required: true, message: '请填写国标ID', trigger: 'blur' }
+      { required: true, message: '请填写国标ID', trigger: 'blur' },
+      { validator: this.validateGbId, trigger: 'blur' }
     ],
     userName: [
       { required: true, message: '请选择账号', trigger: 'change' }
@@ -317,10 +318,12 @@ export default class extends Mixins(createMixin) {
 
   private addressChange() {
     const addressCascader: any = this.$refs['addressCascader']
-    const currentAddress = addressCascader.getCheckedNodes()[0].data
-    this.form.gbRegion = currentAddress.code + '0000'
-    this.form.gbRegionLevel = currentAddress.level
-    console.log(this.form.gbRegion, this.form.gbRegionLevel)
+    if (addressCascader) {
+      const currentAddress = addressCascader.getCheckedNodes()[0].data
+      this.form.gbRegion = currentAddress.code + '0000'
+      this.form.gbRegionLevel = currentAddress.level
+      console.log(this.form.gbRegion, this.form.gbRegionLevel)
+    }
   }
 
   /**
@@ -374,6 +377,17 @@ export default class extends Mixins(createMixin) {
       this.$message.error(e.message)
     } finally {
       this.loading.device = false
+    }
+  }
+
+  /**
+   * 校验设备国标编号
+   */
+  private validateGbId(rule: any, value: string, callback: Function) {
+    if (value && !/^[0-9]{20}$/.test(value)) {
+      callback(new Error('设备国标编号为20位数字'))
+    } else {
+      callback()
     }
   }
 

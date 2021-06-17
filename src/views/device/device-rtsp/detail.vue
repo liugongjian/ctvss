@@ -34,6 +34,13 @@
               <info-list-item v-if="info.inType === 'push'" label="自动激活推流地址:">{{ pushType[info.pushType] || '-' }}</info-list-item>
               <info-list-item v-else label="自动拉流:">{{ pullType[info.pullType] || '-' }}</info-list-item>
               <info-list-item v-if="info.inType === 'pull' && info.pullType === 1" label="自动拉取第几个码流:">{{ info.autoStreamNum }}</info-list-item>
+              <info-list-item label="优先TCP传输:">
+                <div class="info-list__edit">
+                  <div class="info-list__edit--value">
+                    {{ transPriority[info.transPriority] || '-' }}
+                  </div>
+                </div>
+              </info-list-item>
               <template v-if="info.deviceType === 'ipc' || info.deviceType === 'platform'">
                 <info-list-item label="流状态:">
                   <div class="info-list__edit">

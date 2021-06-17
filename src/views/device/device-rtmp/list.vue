@@ -13,8 +13,7 @@
         <el-button v-if="isPlatform" @click="goToDetail(deviceInfo)">查看Platform详情</el-button>
         <el-button v-if="isPlatform" @click="goToUpdate(deviceInfo)">编辑Platform</el-button>
         <el-button v-if="isPlatform" :loading="loading.syncDevice" @click="syncDevice">同步</el-button>
-        <el-button v-if="isNVR" :loading="exportLoading" @click="exportExcel('specialAll')">导出</el-button>
-        <el-dropdown v-if="!isNVR && !isChannel" placement="bottom" @command="exportExcel">
+        <el-dropdown placement="bottom" @command="exportExcel">
           <el-button :loading="exportLoading">导出<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="exportAll" :disabled="!deviceList.length">导出全部</el-dropdown-item>
@@ -23,7 +22,7 @@
           </el-dropdown-menu>
         </el-dropdown>
         <el-upload
-          v-if="!isNVR && checkPermission(['*'])"
+          v-if="checkPermission(['*']) && (isDir || deviceInfo)"
           ref="excelUpload"
           action="#"
           :show-file-list="false"
@@ -32,7 +31,7 @@
         >
           <el-button>导入</el-button>
         </el-upload>
-        <el-button v-permission="['*']" @click="exportTemplate">下载模板</el-button>
+        <el-button v-if="isDir || deviceInfo" v-permission="['*']" @click="exportTemplate">下载模板</el-button>
         <el-dropdown v-permission="['*']" placement="bottom" @command="handleBatch">
           <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
@@ -195,7 +194,10 @@ export default class extends Mixins(listMixin, excelMixin) {
         dirId: this.dirId,
         fileName: data.file.name
       }
-      this.isNVR && (this.fileData.parentDeviceId = this.deviceInfo.parentDeviceId)
+      if (this.isNVR) {
+        this.fileData.parentDeviceId = this.deviceInfo.deviceId
+        delete this.fileData.dirId
+      }
     } else {
       this.$message.error('导入文件必须为表格')
     }
@@ -243,6 +245,12 @@ export default class extends Mixins(listMixin, excelMixin) {
     this.exelType = 'template'
     this.exelDeviceType = 'rtmp'
     this.exelName = 'RTMP导入模板'
+    if (this.isNVR) {
+      this.exelDeviceType = 'nvr'
+      this.exelName = 'NVR添加子设备导入模板'
+      this.excelInProtocol = this.deviceInfo.inProtocol
+      this.parentDeviceId = this.deviceInfo.deviceId
+    }
     this.exportExel()
   }
 }

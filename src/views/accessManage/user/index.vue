@@ -24,8 +24,8 @@
           <span>{{ nodePath }}</span>
         </div>
       </div>
-      <div class="content">
-        <el-main v-loading="loading.menu" class="content__menu" :style="`width: ${handleDrag.width}px`">
+      <div class="user-content">
+        <el-main v-loading="loading.menu" class="user-content__menu" :style="`width: ${handleDrag.width}px`">
           <el-tree
             ref="groupTree"
             :props="props"
@@ -40,30 +40,30 @@
           >
             <span
               slot-scope="{node}"
-              class="content__menu__item"
+              class="user-content__menu__item"
             >
               <span>{{ node.label }}</span>
-              <span v-if="node.label !== '通讯录'" class="content__menu__item__btns">
+              <span v-if="node.label !== '通讯录'" class="user-content__menu__item__btns">
                 <el-tooltip effect="dark" content="添加子部门" placement="top" :open-delay="300">
                   <el-button type="text" @click="showDialog('add', node)">
-                    <svg-icon name="plus" class="content__menu__item__btns__icon" />
+                    <svg-icon name="plus" class="user-content__menu__item__btns__icon" />
                   </el-button>
                 </el-tooltip>
                 <el-tooltip effect="dark" content="修改子部门" placement="top" :open-delay="300">
                   <el-button type="text" @click="showDialog('edit', node)">
-                    <svg-icon name="edit" class="content__menu__item__btns__icon" />
+                    <svg-icon name="edit" class="user-content__menu__item__btns__icon" />
                   </el-button>
                 </el-tooltip>
                 <el-tooltip effect="dark" content="合并子部门" placement="top" :open-delay="300">
                   <el-button type="text" @click="showDialog('merge', node)">
-                    <svg-icon name="combine" class="content__menu__item__btns__icon" />
+                    <svg-icon name="combine" class="user-content__menu__item__btns__icon" />
                   </el-button>
                 </el-tooltip>
               </span>
             </span>
           </el-tree>
         </el-main>
-        <div class="content__body">
+        <div class="user-content__body">
           <div class="head">
             <div class="head__left">
               <el-button type="primary" @click="createUser">创建成员</el-button>
@@ -109,6 +109,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import UserGroupDialog from './components/dialogs/userGroupDialog.vue'
 import { getGroupList, getUserList, deleteUser } from '@/api/accessManage'
 import copy from 'copy-to-clipboard'
+import settings from '@/settings'
 @Component({
   name: 'AccessManageUser',
   components: {
@@ -295,7 +296,7 @@ export default class extends Vue {
   private getSubuserLoginLink(userName: any) {
     const origin = window.location.origin
     const mainUserID = this.$store.state.user.mainUserID
-    const link: string = `${origin}/#/login/subAccount?&subUserName=${userName}&mainUserID=${mainUserID}`
+    const link: string = `${origin}${settings.projectPrefix}/login/subAccount?&subUserName=${userName}&mainUserID=${mainUserID}`
     this.subUserLoginLink = link
   }
 
@@ -437,7 +438,7 @@ export default class extends Vue {
       align-items: center;
     }
   }
-  .content {
+  .user-content {
     height: 85vh;
     min-height: 0;
     display: flex;
@@ -464,7 +465,7 @@ export default class extends Vue {
             color: #6E7C89;
           }
         }
-        &:hover .content__menu__item__btns {
+        &:hover .user-content__menu__item__btns {
           display: block;
         }
       }

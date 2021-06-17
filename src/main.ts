@@ -64,6 +64,8 @@ if (isIE()) {
 }
 
 try {
+  // 从localstorage中读取选中的业务组
+  GroupModule.GetGroupFromLs()
   CtcloudLayout.getPublicInfo().authCurrentPromise.then((data :any) => {
     if (!data.isLoggedIn) {
       // 天翼云未登录
@@ -79,9 +81,8 @@ try {
           break
         default: {
           UserModule.ResetToken()
-          const href = window.location.href
-          const path = href.split('#')[1]
-          if (path.startsWith('/login') || path.startsWith('/login/subAccount') || path.startsWith('/reset-password')) {
+          const path = window.location.pathname
+          if (path.startsWith(`${settings.projectPrefix}/login`) || path.startsWith(`${settings.projectPrefix}/login/subAccount`) || path.startsWith(`${settings.projectPrefix}/reset-password`)) {
             // 访问平台主子账号登录路径or子账号重置密码
             new Vue({
               router,
@@ -109,7 +110,6 @@ try {
           UserModule.ResetToken()
         }
         UserModule.SetCTLoginId(loginId)
-        GroupModule.GetGroupFromLs()
         setLocalStorage('loginType', 'cas')
         const href = window.location.href
         if (href.indexOf('token=') !== -1) {
@@ -117,6 +117,13 @@ try {
           UserModule.SetToken(token)
           window.history.replaceState(null, '', href.slice(0, href.indexOf('?token=')))
         }
+        CtcloudLayout.config({
+          pushHash: (route: any) => {
+            router.push({
+              path: route.code
+            })
+          }
+        })
         new Vue({
           router,
           store,

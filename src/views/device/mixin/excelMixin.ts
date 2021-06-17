@@ -1,6 +1,6 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { getList as getGbList } from '@/api/certificate/gb28181'
-import { exportDeviceAll, exportDeviceOption } from '@/api/device'
+import { exportDeviceAll, exportDeviceOption, getDevice } from '@/api/device'
 import { cityMapping, provinceMapping } from '@/assets/region/cities'
 import ExcelJS from 'exceljs'
 
@@ -10,6 +10,8 @@ export default class ExcelMixin extends Vue {
   public exelDeviceType: string = ''
   public exportData: any = []
   public exelName: string = ''
+  public parentDeviceId: string = ''
+  public excelInProtocol: any = ''
   public excelViews: any = [
     {
       x: 0,
@@ -21,7 +23,9 @@ export default class ExcelMixin extends Vue {
       visibility: 'visible'
     }
   ]
+  public regionName = ''
   private gbAccountList: any = []
+  private availableChannels: any = []
   private cityList: any = []
   // 表格字段配置
   private columnsTemplate: any = {
@@ -68,10 +72,31 @@ export default class ExcelMixin extends Vue {
         { header: '设备端口', key: 'devicePort', width: 10 },
         { header: '设备通道数量', key: 'channelSize', width: 16 },
         { header: '主子码流数量', key: 'multiStreamSize', width: 16 },
-        { header: '自动拉取第几个码流', key: 'multiStreamSize', width: 24 },
+        { header: '自动拉取第几个码流', key: 'AutoStreamNum', width: 24 },
         { header: '是否启用自动拉流', key: 'pullType', width: 24 },
         { header: '是否启用自动激活推流地址', key: 'pushType', width: 24 },
         { header: '设备视频流优先传输协议', key: 'transPriority', width: 24 }
+      ]
+    },
+    ehome: {
+      template: [
+        { header: '设备类型', key: 'deviceType', width: 10 },
+        { header: '设备名称', key: 'deviceName', width: 16 },
+        { header: '设备描述', key: 'description', width: 16 },
+        { header: '设备IP', key: 'deviceIp', width: 24 },
+        { header: '设备端口', key: 'devicePort', width: 10 },
+        { header: '主子码流数量', key: 'multiStreamSize', width: 16 },
+        { header: '自动拉流', key: 'pullType', width: 10 },
+        { header: '自动拉取码流', key: 'AutoStreamNum', width: 16 },
+        { header: '自动创建子设备', key: 'CreateSubDevice', width: 16 },
+        { header: '设备通道数量', key: 'channelSize', width: 16 }
+      ]
+    },
+    nvr: {
+      template: [
+        { header: '通道号', key: 'channelNum', width: 10 },
+        { header: '厂商', key: 'deviceVendor', width: 10 },
+        { header: '通道名称', key: 'channelName', width: 16 }
       ]
     }
   }
@@ -132,6 +157,15 @@ export default class ExcelMixin extends Vue {
       prompt: '自动激活推流地址，设备创建完成后，平台立刻自动生成推流地址。关闭该选项后需要通过触发的方式生成推流地址',
       error: '请选择是否自动激活推流地址'
     },
+    multiStreamSize: {
+      type: 'list',
+      allowBlank: false,
+      showInputMessage: true,
+      showErrorMessage: true,
+      formulae: ['"单码流,双码流,三码流"'],
+      prompt: '单码流（仅有一种码流），双码流（主、子码流），三码流（主、子、第三码流）',
+      error: '请选择主子码流数量'
+    },
     tags: {
       type: 'textLength',
       allowBlank: true,
@@ -149,36 +183,63 @@ export default class ExcelMixin extends Vue {
   }
 
   private async getOptions() {
-    // 获取设备用户选项
-    try {
-      const res = await getGbList({
-        pageSize: 1000
-      })
-      res.gbCerts.forEach((account: any) => {
-        this.gbAccountList.push(account.userName)
-      })
-    } catch (e) {
-      console.error(e)
-    }
-    // 获取预设城市选项
-    const mainUserAddress: any = this.$store.state.user.mainUserAddress
-    this.cityList = mainUserAddress.split(',').map((addressCode: any) => {
-      let provincelevelCities = [
-        '北京市',
-        '天津市',
-        '上海市',
-        '重庆市',
-        '台湾省',
-        '香港特别行政区',
-        '澳门特别行政区'
-      ]
-      let city = cityMapping[addressCode]
-      if (provincelevelCities.includes(city)) {
-        return city
-      } else {
-        return provinceMapping[addressCode.substring(0, 2)] + city
+    if (this.exelDeviceType === 'gb28181') {
+      // 获取设备用户选项
+      try {
+        const res = await getGbList({
+          pageSize: 1000
+        })
+        res.gbCerts.forEach((account: any) => {
+          this.gbAccountList.push(account.userName)
+        })
+      } catch (e) {
+        console.error(e)
       }
-    })
+      // 获取预设城市选项
+      const mainUserAddress: any = this.$store.state.user.mainUserAddress
+      this.cityList = mainUserAddress.split(',').map((addressCode: any) => {
+        if (!addressCode) {
+          let findKey = (value: any, compare = (a: any, b: any) => a.substring(0, 2) === b.substring(0, 2)) => {
+            return Object.keys(cityMapping).find(k => compare(cityMapping[k], value))
+          }
+          addressCode = findKey(this.regionName)
+          if (!addressCode) {
+            return []
+          }
+        }
+        let provincelevelCities = [
+          '北京市',
+          '天津市',
+          '上海市',
+          '重庆市',
+          '台湾省',
+          '香港特别行政区',
+          '澳门特别行政区'
+        ]
+        let city = cityMapping[addressCode]
+        if (provincelevelCities.includes(city)) {
+          return city
+        } else {
+          return provinceMapping[addressCode.substring(0, 2)] + city
+        }
+      })
+    } else if (this.exelDeviceType === 'nvr') {
+      // 构建可选择的通道，排除已选择通道
+      const info = await getDevice({
+        deviceId: this.parentDeviceId,
+        inProtocol: this.excelInProtocol
+      })
+      const usedChannelNum = info.deviceChannels.map((channel: any) => {
+        return channel.channelNum
+      })
+      const channelSize = info.deviceStats.maxChannelSize
+      this.availableChannels = []
+      for (let i = 1; i <= channelSize; i++) {
+        if (!~usedChannelNum.indexOf(i)) {
+          this.availableChannels.push(`D${i}`)
+        }
+      }
+    }
   }
 
   // 表格填写各字段校验
@@ -264,15 +325,7 @@ export default class ExcelMixin extends Vue {
     worksheet.dataValidations.add('C2:C9999', this.validation.deviceVendor)
     worksheet.dataValidations.add('D2:D9999', this.validation.deviceName)
     worksheet.dataValidations.add('J2:J9999', this.validation.channelSize)
-    worksheet.dataValidations.add('K2:K9999', {
-      type: 'list',
-      allowBlank: false,
-      showInputMessage: true,
-      showErrorMessage: true,
-      formulae: ['"单码流,双码流,三码流"'],
-      prompt: '单码流（仅有一种码流），双码流（主、子码流），三码流（主、子、第三码流）',
-      error: '请选择主子码流数量'
-    })
+    worksheet.dataValidations.add('K2:K9999', this.validation.multiStreamSize)
     worksheet.dataValidations.add('L2:L9999', {
       type: 'list',
       allowBlank: true,
@@ -286,8 +339,49 @@ export default class ExcelMixin extends Vue {
     worksheet.dataValidations.add('O2:O9999', this.validation.transPriority)
   }
 
+  private ehomeOptionsInit(worksheet: any) {
+    worksheet.dataValidations.add('A2:A9999', {
+      type: 'list',
+      allowBlank: false,
+      showErrorMessage: true,
+      formulae: ['"IPC,NVR"'],
+      error: '请选择设备类型'
+    })
+    worksheet.dataValidations.add('B2:B9999', this.validation.deviceName)
+    worksheet.dataValidations.add('F2:F9999', this.validation.multiStreamSize)
+    worksheet.dataValidations.add('G2:G9999', this.validation.pullType)
+    worksheet.dataValidations.add('H2:H9999', {
+      type: 'list',
+      allowBlank: true,
+      showInputMessage: true,
+      showErrorMessage: true,
+      formulae: ['"主码流,子码流,第三码流"'],
+      prompt: '1、自动拉流的情况下，“自动拉取码流”项才会生效；2、自动拉取码流的范围不得超过主子码流数量'
+    })
+    worksheet.dataValidations.add('I2:I9999', {
+      type: 'list',
+      allowBlank: true,
+      showErrorMessage: true,
+      formulae: ['"是,否"'],
+      error: '请从选项中选择'
+    })
+    worksheet.dataValidations.add('J2:J9999', this.validation.channelSize)
+  }
+
+  private nvrOptionsInit(worksheet: any) {
+    worksheet.dataValidations.add('A2:A9999', {
+      type: 'list',
+      allowBlank: false,
+      showErrorMessage: true,
+      formulae: [`"${this.availableChannels.join(',')}"`],
+      error: '请选择通道号'
+    })
+    worksheet.dataValidations.add('B2:B9999', this.validation.deviceVendor)
+    worksheet.dataValidations.add('C2:C9999', this.validation.deviceName)
+  }
+
   /**
-   * 导出表格
+   * 导出模板
    */
   public async exportExel() {
     await this.getOptions()
@@ -303,6 +397,8 @@ export default class ExcelMixin extends Vue {
     if (this.exelDeviceType === 'gb28181') this.gb28181OptionsInit(worksheet)
     if (this.exelDeviceType === 'rtmp') this.rtmpOptionsInit(worksheet)
     if (this.exelDeviceType === 'rtsp') this.rtspOptionsInit(worksheet)
+    if (this.exelDeviceType === 'ehome') this.ehomeOptionsInit(worksheet)
+    if (this.exelDeviceType === 'nvr') this.nvrOptionsInit(worksheet)
     // 调整样式
     worksheet._columns.forEach((column: any) => {
       column.style = {
