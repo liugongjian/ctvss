@@ -210,7 +210,7 @@ export default class extends Vue {
     })
     list.push({
       name: '人体识别',
-      list: [8, 5, 7].map((id: number) => {
+      list: [8, 5, 7, 12].map((id: number) => {
         return {
           key: id,
           value: this.alertType[id]

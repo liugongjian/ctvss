@@ -184,6 +184,25 @@ export const parseMetaData = (type: string, metaData: any) => {
         }
       }
       break
+    // 研发二人体识别
+    case '12':
+      if (metaData.Data && metaData.Data.Boxes) {
+        const boxes = metaData.Data.Boxes
+        const attributes = metaData.Data.Attributes
+        for (let i = 0; i < boxes.length; i++) {
+          locations.push(
+            {
+              top: boxes[i].TopLeftY,
+              left: boxes[i].TopLeftX,
+              width: boxes[i].BottomRightX - boxes[i].TopLeftX,
+              height: boxes[i].BottomRightY - boxes[i].TopLeftY,
+              attributes: parseBodyAttributes(attributes[i]),
+              isWarning: false
+            }
+          )
+        }
+      }
+      break
   }
   return locations
 }
@@ -218,4 +237,15 @@ export const transformLocation = (locations: any, img: any) => {
     }
   })
   return locations
+}
+
+const parseBodyAttributes = (attributes: any) => {
+  const attributesArray = []
+  for (let key in attributes) {
+    attributesArray.push({
+      key: key.toLocaleLowerCase(),
+      value: attributes[key].Name
+    })
+  }
+  return attributesArray
 }
