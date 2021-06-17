@@ -72,6 +72,12 @@ export default class extends Mixins(DashboardMixin) {
         deviceData.push(
           {
             time: key,
+            type: '设备总数',
+            value: 1
+          },
+          {
+            time: key,
+            type: '新增设备数',
             value: item
           }
         )
@@ -131,7 +137,44 @@ export default class extends Mixins(DashboardMixin) {
       triggerOn: 'mousemove',
       shared: true
     })
-    this.chart.interval().position('time*value').color('#FA8334')
+    this.chart.legend({
+      offsetY: 5,
+      itemSpacing: 30,
+      items: [
+        {
+          id: '1',
+          name: '设备总数',
+          value: 'TotalDevices',
+          marker: {
+            symbol: 'square',
+            style: {
+              fill: '#6780B2'
+            },
+            spacing: 5
+          }
+        },
+        {
+          id: '2',
+          name: '新增设备数',
+          value: 'NewDevices',
+          marker: {
+            symbol: 'square',
+            style: {
+              fill: '#E4BC00'
+            },
+            spacing: 5
+          }
+        }
+      ],
+      itemName: {
+        style: {
+          fill: '#505050'
+          // fontSize: 14
+        },
+        formatter: (text: any, item: any) => item.name
+      }
+    })
+    this.chart.line().position('time*value').color('type', ['#6780B2', '#E4BC00']).shape('smooth')
     this.chart.render()
   }
   /**
