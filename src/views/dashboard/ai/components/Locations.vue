@@ -25,6 +25,7 @@
       </div>
     </div>
     <div v-if="type === '8' && img" class="ai-recognation__images__item__count" :class="{'ai-recognation__images__item__count--warning': img && img.locations && img.locations.length > 10}">聚集人数: {{ img && img.locations && img.locations.length || '-' }}</div>
+    <div v-if="type === '13' && img" class="ai-recognation__images__item__count">蜜蜂密度: {{ img && img.locations && img.locations[0].beeDensity }}</div>
   </div>
 </template>
 <script lang="ts">
@@ -112,6 +113,19 @@ export default class extends Vue {
       }
       &--selected {
         border-color: $primary;
+      }
+    }
+
+    &__count {
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      font-size: 11px;
+      padding: 5px;
+      &--warning {
+        background: $red;
       }
     }
   }
