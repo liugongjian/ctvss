@@ -79,23 +79,26 @@
               @click="selectScreen(index)"
             >
               <template v-if="screen.loaded">
-                <replay-view
-                  :device-id="screen.deviceId"
-                  :in-protocol="currentGroupInProtocol"
-                  :is-fullscreen="screen.isFullscreen"
-                  @onFullscreen="screen.fullscreen();fullscreen()"
-                  @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
-                />
-                <div class="screen-header">
-                  <div class="device-name">{{ screen.deviceName }}</div>
-                  <div class="screen__tools">
-                    <el-tooltip content="关闭视频">
-                      <el-button class="screen__close" type="text" @click="screen.reset()">
-                        <svg-icon name="close" width="12" height="12" />
-                      </el-button>
-                    </el-tooltip>
+                <player-container>
+                  <replay-view
+                    slot="body"
+                    :device-id="screen.deviceId"
+                    :in-protocol="currentGroupInProtocol"
+                    :is-fullscreen="screen.isFullscreen"
+                    @onFullscreen="screen.fullscreen();fullscreen()"
+                    @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
+                  />
+                  <div slot="header" class="screen-header">
+                    <div class="device-name">{{ screen.deviceName }}</div>
+                    <div class="screen__tools">
+                      <el-tooltip content="关闭视频">
+                        <el-button class="screen__close" type="text" @click="screen.reset()">
+                          <svg-icon name="close" width="12" height="12" />
+                        </el-button>
+                      </el-tooltip>
+                    </div>
                   </div>
-                </div>
+                </player-container>
               </template>
               <div v-else class="tip-text tip-select-device">
                 <el-button type="text" @click="selectDevice(screen)">请选择设备</el-button>
@@ -114,6 +117,7 @@ import ScreenMixin from './mixin/screenMixin'
 import { Device } from '@/type/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import ReplayView from './components/ReplayView.vue'
+import PlayerContainer from './components/PlayerContainer.vue'
 import DeviceDir from './components/dialogs/DeviceDir.vue'
 import { renderAlertType } from '@/utils/device'
 
@@ -122,7 +126,8 @@ import { renderAlertType } from '@/utils/device'
   components: {
     ReplayView,
     StatusBadge,
-    DeviceDir
+    DeviceDir,
+    PlayerContainer
   }
 })
 export default class extends Mixins(ScreenMixin) {

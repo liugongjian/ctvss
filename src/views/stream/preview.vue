@@ -2,14 +2,16 @@
   <div class="app-container">
     <el-page-header content="流列表" @back="back" />
     <div class="preview-wrap">
-      <live-view
-        :class="{'fullscreen': isFullscreen}"
-        :device-id="deviceId"
-        type="stream"
-        :is-fullscreen="isFullscreen"
-        @onFullscreen="isFullscreen = true; fullscreen()"
-        @onExitFullscreen="exitFullscreen()"
-      />
+      <player-container>
+        <live-view
+          :class="{'fullscreen': isFullscreen}"
+          :device-id="deviceId"
+          type="stream"
+          :is-fullscreen="isFullscreen"
+          @onFullscreen="isFullscreen = true; fullscreen()"
+          @onExitFullscreen="exitFullscreen()"
+        />
+      </player-container>
     </div>
   </div>
 </template>
@@ -18,11 +20,13 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import FullscreenMixin from '@/views/device/mixin/fullscreenMixin'
 import LiveView from '../device/components/LiveView.vue'
+import PlayerContainer from './components/PlayerContainer.vue'
 
 @Component({
   name: 'StreamPreview',
   components: {
-    LiveView
+    LiveView,
+    PlayerContainer
   }
 })
 export default class extends Mixins(FullscreenMixin) {

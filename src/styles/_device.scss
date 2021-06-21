@@ -347,6 +347,31 @@
   position: static;
 }
 
+// 鼠标移入移出触发样式
+.player-container {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+.player-container--hidden {
+  .screen-header {
+    display: none;
+  }
+  .replay-player {
+    margin-top: 0 !important;
+    .timeline__box {
+      display: none;
+    }
+  }
+  .video-wrap {
+    .controls {
+      display: none;
+    }
+  }
+}
+
 // 分屏
 .screen-list {
   flex-grow: 1;
