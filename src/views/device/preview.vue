@@ -21,7 +21,6 @@
           <player-container>
             <replay-view
               v-if="activeName === 'replay'"
-              slot="body"
               ref="replayView"
               :class="{'fullscreen': previewFullscreen.replay}"
               :device-id="deviceId"
@@ -256,6 +255,7 @@ export default class extends Mixins(FullscreenMixin) {
       z-index: 9;
     }
     .replay-view {
+      width: 100%;
       display: flex;
       flex-direction: column;
       ::v-deep .replay-player {

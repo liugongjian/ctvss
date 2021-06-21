@@ -81,7 +81,6 @@
               <template v-if="screen.loaded">
                 <player-container>
                   <replay-view
-                    slot="body"
                     :device-id="screen.deviceId"
                     :in-protocol="currentGroupInProtocol"
                     :is-fullscreen="screen.isFullscreen"

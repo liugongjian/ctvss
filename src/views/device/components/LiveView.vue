@@ -221,6 +221,7 @@ export default class extends Vue {
 </script>
 <style lang="scss" scoped>
   .live-wrap {
+    width: 100%;
     min-height: 100px;
     .stream-selector {
       i {

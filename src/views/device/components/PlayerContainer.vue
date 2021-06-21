@@ -1,7 +1,7 @@
 <template>
   <div class="player-container" :class="{'player-container--hidden': isHiddenTools}" @mouseover="isHiddenTools = false" @mouseout="isHiddenTools = true">
     <slot name="header" />
-    <slot name="body" />
+    <slot />
   </div>
 </template>
 

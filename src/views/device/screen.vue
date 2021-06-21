@@ -203,7 +203,7 @@
             >
               <template v-if="screen.loaded">
                 <player-container>
-                  <template v-if="screen.isLive" slot="body">
+                  <template v-if="screen.isLive">
                     <div class="live-view">
                       <player
                         v-if="screen.url"
@@ -226,7 +226,7 @@
                       <div v-if="!screen.url && !screen.loading" class="tip-text">无信号</div>
                     </div>
                   </template>
-                  <template v-else slot="body">
+                  <template v-else>
                     <replay-view
                       :device-id="screen.deviceId"
                       :in-protocol="currentGroupInProtocol"

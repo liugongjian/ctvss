@@ -341,6 +341,7 @@ export default class extends Vue {
       player.style.width = width + 'px'
       player.style.height = width * 9 / 16 + 'px'
     }
+    player.style.position = 'absolute'
     player.style.left = (width - player.clientWidth) / 2 + 'px'
     player.style.top = (height - player.clientHeight) / 2 + 'px'
   }
