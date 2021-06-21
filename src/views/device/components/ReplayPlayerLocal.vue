@@ -90,6 +90,7 @@ export default class extends Mixins(ReplayPlayerMixin) {
 
   @Watch('startTime')
   private onStartTimeChange() {
+    this.axiosSource.getDevicePreview && this.axiosSource.getDevicePreview.cancel()
     this.setHandlePosition()
     this.recordList.length && this.getDevicePreview()
   }
@@ -194,7 +195,9 @@ export default class extends Mixins(ReplayPlayerMixin) {
       this.address = res.playUrl
       this.codec = res.video.codec
     } catch (e) {
-      this.errorMessage = e.message
+      if (e.code !== -1) {
+        this.errorMessage = e.message
+      }
     } finally {
       this.loading = false
     }
