@@ -15,6 +15,13 @@ export const getDeviceData = (params: any): Promise<any> =>
     params
   })
 
+export const getDeviceTotal = (params: any): Promise<any> =>
+  request({
+    url: '/statistics/device/total',
+    method: 'get',
+    params
+  })
+
 export const getDeviceStates = (params: any): Promise<any> =>
   request({
     url: '/statistics/device',

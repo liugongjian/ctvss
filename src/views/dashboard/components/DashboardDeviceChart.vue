@@ -12,7 +12,7 @@ import { Component, Mixins, Prop } from 'vue-property-decorator'
 import { Chart } from '@antv/g2'
 import DashboardMixin from '../mixin/DashboardMixin'
 import DashboardContainer from './DashboardContainer.vue'
-import { getDeviceData } from '@/api/dashboard'
+import { getDeviceData, getDeviceTotal } from '@/api/dashboard'
 
 @Component({
   name: 'DashboardDeviceChart',
@@ -65,15 +65,20 @@ export default class extends Mixins(DashboardMixin) {
         startTime: start.getTime(),
         endTime: end.getTime()
       })
+      const resTotal = await getDeviceTotal({
+        startTime: start.getTime(),
+        endTime: end.getTime()
+      })
       this.loading = false
       const deviceData = []
       for (let key in res.deviceStatistic) {
         const item = res.deviceStatistic[key]
+        const itemTotal = resTotal.deviceStatistic[key]
         deviceData.push(
           {
             time: key,
             type: '设备总数',
-            value: 1
+            value: itemTotal
           },
           {
             time: key,
