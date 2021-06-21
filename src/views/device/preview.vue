@@ -5,20 +5,21 @@
       <el-button class="btn-detail" @click="goToDetail"><svg-icon name="documentation" /> 查看设备详情</el-button>
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane lazy label="实时预览" name="preview">
-          <player-container>
+          <player-container :on-can-play="onCanPlay">
             <live-view
               v-if="activeName === 'preview'"
               :class="{'fullscreen': previewFullscreen.live}"
               :device-id="deviceId"
               :in-protocol="inProtocol"
               :is-fullscreen="previewFullscreen.live"
+              @onCanPlay="playEvent"
               @onFullscreen="previewFullscreen.live = true; fullscreen()"
               @onExitFullscreen="exitFullscreen()"
             />
           </player-container>
         </el-tab-pane>
         <el-tab-pane lazy label="录像回放" name="replay">
-          <player-container>
+          <player-container :on-can-play="onCanPlay">
             <replay-view
               v-if="activeName === 'replay'"
               ref="replayView"
@@ -26,6 +27,7 @@
               :device-id="deviceId"
               :in-protocol="inProtocol"
               :is-fullscreen="previewFullscreen.replay"
+              @onCanPlay="playEvent"
               @onFullscreen="previewFullscreen.replay = true; fullscreen()"
               @onExitFullscreen="exitFullscreen()"
             />
@@ -129,6 +131,7 @@ export default class extends Mixins(FullscreenMixin) {
   private dateFormat = dateFormat
   private activeName = ''
   private snapshotRange = null
+  private onCanPlay = false
   private template = {
     snapshotTemplate: '123'
   }
@@ -166,6 +169,10 @@ export default class extends Mixins(FullscreenMixin) {
   private beforeDestroy() {
     window.removeEventListener('resize', this.resizeReplayVideo)
     window.removeEventListener('resize', this.checkFullscreen)
+  }
+
+  private playEvent(val: boolean) {
+    this.onCanPlay = val
   }
 
   /**

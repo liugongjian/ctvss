@@ -202,7 +202,7 @@
               @click="selectScreen(index)"
             >
               <template v-if="screen.loaded">
-                <player-container>
+                <player-container :on-can-play="onCanPlay">
                   <template v-if="screen.isLive">
                     <div class="live-view">
                       <player
@@ -218,6 +218,7 @@
                         :has-playback="true"
                         :device-name="screen.deviceName"
                         :stream-num="screen.streamNum"
+                        @onCanPlay="playEvent"
                         @onRetry="onRetry(screen, ...arguments)"
                         @onPlayback="onPlayback(screen)"
                         @onFullscreen="screen.fullscreen();fullscreen()"
@@ -232,6 +233,7 @@
                       :in-protocol="currentGroupInProtocol"
                       :has-playlive="true"
                       :is-fullscreen="screen.isFullscreen"
+                      @onCanPlay="playEvent"
                       @onPlaylive="onPlaylive(screen)"
                       @onFullscreen="screen.fullscreen();fullscreen()"
                       @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
@@ -307,6 +309,7 @@ export default class extends Mixins(ScreenMixin) {
   private currentPollingIndex = 0;
   private isZoom = false;
   private isClosed = false;
+  private onCanPlay = false
   private speed = 1;
   private polling = {
     interval: 10,
@@ -395,6 +398,10 @@ export default class extends Mixins(ScreenMixin) {
   private closeScreen(screen: Screen) {
     this.selectedDeviceId = ''
     screen.reset()
+  }
+
+  private playEvent(val: boolean) {
+    this.onCanPlay = val
   }
 
   /**

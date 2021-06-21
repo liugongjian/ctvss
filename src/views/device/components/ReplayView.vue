@@ -36,6 +36,7 @@
         :has-playlive="hasPlaylive"
         :is-fullscreen="isFullscreen"
         :replay-type="replayType"
+        @onCanPlay="onCanPlay"
         @onPlaylive="playlive"
         @onFullscreen="fullscreen()"
         @onExitFullscreen="exitFullscreen()"
@@ -374,6 +375,13 @@ export default class extends Vue {
 
   private getRecordListByPage() {
     this.recordListSlice = this.recordList.slice((this.pager.pageNum - 1) * this.pager.pageSize, this.pager.pageNum * this.pager.pageSize)
+  }
+
+  /**
+   * 视频加载完成
+   */
+  public onCanPlay(val: boolean) {
+    this.$emit('onCanPlay', val)
   }
 
   /**

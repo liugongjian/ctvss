@@ -592,6 +592,7 @@ export default class extends Vue {
    * 视频加载中
    */
   public onLoadStart() {
+    this.$emit('onCanPlay', false)
     this.waiting = true
   }
 
@@ -600,6 +601,7 @@ export default class extends Vue {
    */
   public onCanplay() {
     this.waiting = false
+    this.$emit('onCanPlay', true)
   }
 
   /**

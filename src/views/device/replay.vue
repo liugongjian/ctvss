@@ -79,11 +79,12 @@
               @click="selectScreen(index)"
             >
               <template v-if="screen.loaded">
-                <player-container>
+                <player-container :on-can-play="onCanPlay">
                   <replay-view
                     :device-id="screen.deviceId"
                     :in-protocol="currentGroupInProtocol"
                     :is-fullscreen="screen.isFullscreen"
+                    @onCanPlay="playEvent"
                     @onFullscreen="screen.fullscreen();fullscreen()"
                     @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
                   />
@@ -132,6 +133,7 @@ import { renderAlertType } from '@/utils/device'
 export default class extends Mixins(ScreenMixin) {
   private renderAlertType = renderAlertType
   public maxSize = 1
+  private onCanPlay = false
 
   private get deviceId() {
     return this.$route.query.deviceId || null
@@ -162,6 +164,10 @@ export default class extends Mixins(ScreenMixin) {
     })
     window.removeEventListener('resize', this.calMaxHeight)
     window.removeEventListener('resize', this.checkFullscreen)
+  }
+
+  private playEvent(val: boolean) {
+    this.onCanPlay = val
   }
 
   /**

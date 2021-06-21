@@ -2,12 +2,13 @@
   <div class="app-container">
     <el-page-header content="流列表" @back="back" />
     <div class="preview-wrap">
-      <player-container>
+      <player-container :on-can-play="onCanPlay">
         <live-view
           :class="{'fullscreen': isFullscreen}"
           :device-id="deviceId"
           type="stream"
           :is-fullscreen="isFullscreen"
+          @onCanPlay="playEvent"
           @onFullscreen="isFullscreen = true; fullscreen()"
           @onExitFullscreen="exitFullscreen()"
         />
@@ -32,6 +33,7 @@ import PlayerContainer from './components/PlayerContainer.vue'
 export default class extends Mixins(FullscreenMixin) {
   private deviceId = ''
   private groupId = ''
+  private onCanPlay = false
 
   private async created() {
     let query: any = this.$route.query
@@ -53,6 +55,10 @@ export default class extends Mixins(FullscreenMixin) {
     this.$router.push({
       path: '/stream'
     })
+  }
+
+  private playEvent(val: boolean) {
+    this.onCanPlay = val
   }
 }
 </script>

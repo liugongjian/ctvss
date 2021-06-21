@@ -22,6 +22,7 @@
         :is-live="true"
         :is-fullscreen="isFullscreen"
         :has-control="false"
+        @onCanPlay="onCanPlay"
         @onRetry="onRetry"
         @onFullscreen="fullscreen"
         @onExitFullscreen="exitFullscreen"
@@ -181,6 +182,13 @@ export default class extends Vue {
     this.address = ''
     this.streamNum = streamNum
     this.getDevicePreview()
+  }
+
+  /**
+   * 视频加载完成
+   */
+  onCanPlay(val: boolean) {
+    this.$emit('onCanPlay', val)
   }
 
   /**
