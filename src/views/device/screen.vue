@@ -202,7 +202,7 @@
               @click="selectScreen(index)"
             >
               <template v-if="screen.loaded">
-                <player-container :on-can-play="onCanPlay">
+                <player-container :on-can-play="onCanPlay" :calendar-focus="calendarFocus">
                   <template v-if="screen.isLive">
                     <div class="live-view">
                       <player
@@ -233,6 +233,7 @@
                       :in-protocol="currentGroupInProtocol"
                       :has-playlive="true"
                       :is-fullscreen="screen.isFullscreen"
+                      @onCalendarFocus="onCalendarFocus"
                       @onCanPlay="playEvent"
                       @onPlaylive="onPlaylive(screen)"
                       @onFullscreen="screen.fullscreen();fullscreen()"
@@ -241,7 +242,7 @@
                   </template>
                   <div slot="header" class="screen-header">
                     <div class="device-name">
-                      {{ screen.isLive ? "" : screen.deviceName }}
+                      <!-- {{ screen.isLive ? "" : screen.deviceName }} -->
                       <StreamSelector
                         v-if="screen.isLive"
                         class="set-stream"
@@ -309,7 +310,6 @@ export default class extends Mixins(ScreenMixin) {
   private currentPollingIndex = 0;
   private isZoom = false;
   private isClosed = false;
-  private onCanPlay = false
   private speed = 1;
   private polling = {
     interval: 10,
@@ -398,10 +398,6 @@ export default class extends Mixins(ScreenMixin) {
   private closeScreen(screen: Screen) {
     this.selectedDeviceId = ''
     screen.reset()
-  }
-
-  private playEvent(val: boolean) {
-    this.onCanPlay = val
   }
 
   /**

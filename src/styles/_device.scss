@@ -354,20 +354,43 @@
   width: 100%;
   justify-content: center;
   align-items: center;
-}
-.player-container--hidden {
   .screen-header {
-    display: none;
+    overflow: hidden;
+    // height: 40px;
+    opacity: 1;/* Safari 和 Chrome */
+    transition: all .2s;
   }
   .replay-player {
-    margin-top: 0 !important;
+    margin-top: 40px;
+    transition: all .2s;
     .timeline__box {
-      display: none;
+      max-height: 100px;
+      transition: all .2s;
     }
   }
   .video-wrap {
     .controls {
-      display: none;
+      // max-height: 35px;
+      opacity: 1;
+      transition: all .2s !important;
+    }
+  }
+}
+.player-container--hidden {
+  .screen-header {
+    // height: 0 !important;
+    opacity: 0 ;
+  }
+  .replay-player {
+    margin-top: 0 !important;
+    .timeline__box {
+      max-height: 0;
+    }
+  }
+  .video-wrap {
+    .controls {
+      // max-height: 0px;
+      opacity: 0 !important;
     }
   }
 }
@@ -433,6 +456,7 @@
         top: 6px;
         height: 28px;
         overflow: hidden;
+        z-index: 11;
         .el-date-editor {
           .el-input__inner {
             background: #555;
@@ -470,6 +494,7 @@
         display: flex;
         flex: 1;
         flex-direction: column;
+        z-index: 12;
       }
       .replay-time-list {
         background: #fff;

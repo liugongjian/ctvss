@@ -8,6 +8,8 @@
         placeholder="选择日期"
         size="small"
         :picker-options="pickerOptions"
+        @focus="onCalendarFocus(true)"
+        @blur="onCalendarFocus(false)"
         @change="changeDate"
       />
       <el-radio-group v-if="inProtocol === 'gb28181'" v-model="replayType" size="small" class="filter-container__replay-type">
@@ -57,6 +59,7 @@
         :replay-type="replayType"
         :device-id="deviceId"
         :in-protocol="inProtocol"
+        @onCanPlay="onCanPlay"
         @onPlaylive="playlive"
         @onFullscreen="fullscreen()"
         @onExitFullscreen="exitFullscreen()"
@@ -206,6 +209,13 @@ export default class extends Vue {
   private changeDate() {
     this.axiosSource.cancel()
     this.init()
+  }
+
+  /**
+   * 日历获取焦点
+   */
+  private onCalendarFocus(val: boolean) {
+    this.$emit('onCalendarFocus', val)
   }
 
   /**

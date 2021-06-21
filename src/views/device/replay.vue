@@ -79,17 +79,9 @@
               @click="selectScreen(index)"
             >
               <template v-if="screen.loaded">
-                <player-container :on-can-play="onCanPlay">
-                  <replay-view
-                    :device-id="screen.deviceId"
-                    :in-protocol="currentGroupInProtocol"
-                    :is-fullscreen="screen.isFullscreen"
-                    @onCanPlay="playEvent"
-                    @onFullscreen="screen.fullscreen();fullscreen()"
-                    @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
-                  />
+                <player-container :on-can-play="onCanPlay" :calendar-focus="calendarFocus">
                   <div slot="header" class="screen-header">
-                    <div class="device-name">{{ screen.deviceName }}</div>
+                    <!-- <div class="device-name">{{ screen.deviceName }}</div> -->
                     <div class="screen__tools">
                       <el-tooltip content="关闭视频">
                         <el-button class="screen__close" type="text" @click="screen.reset()">
@@ -98,6 +90,15 @@
                       </el-tooltip>
                     </div>
                   </div>
+                  <replay-view
+                    :device-id="screen.deviceId"
+                    :in-protocol="currentGroupInProtocol"
+                    :is-fullscreen="screen.isFullscreen"
+                    @onCalendarFocus="onCalendarFocus"
+                    @onCanPlay="playEvent"
+                    @onFullscreen="screen.fullscreen();fullscreen()"
+                    @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
+                  />
                 </player-container>
               </template>
               <div v-else class="tip-text tip-select-device">
@@ -133,7 +134,6 @@ import { renderAlertType } from '@/utils/device'
 export default class extends Mixins(ScreenMixin) {
   private renderAlertType = renderAlertType
   public maxSize = 1
-  private onCanPlay = false
 
   private get deviceId() {
     return this.$route.query.deviceId || null
@@ -164,10 +164,6 @@ export default class extends Mixins(ScreenMixin) {
     })
     window.removeEventListener('resize', this.calMaxHeight)
     window.removeEventListener('resize', this.checkFullscreen)
-  }
-
-  private playEvent(val: boolean) {
-    this.onCanPlay = val
   }
 
   /**

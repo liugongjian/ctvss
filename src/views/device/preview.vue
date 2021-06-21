@@ -19,7 +19,7 @@
           </player-container>
         </el-tab-pane>
         <el-tab-pane lazy label="录像回放" name="replay">
-          <player-container :on-can-play="onCanPlay">
+          <player-container :on-can-play="onCanPlay" :calendar-focus="calendarFocus">
             <replay-view
               v-if="activeName === 'replay'"
               ref="replayView"
@@ -27,6 +27,7 @@
               :device-id="deviceId"
               :in-protocol="inProtocol"
               :is-fullscreen="previewFullscreen.replay"
+              @onCalendarFocus="onCalendarFocus"
               @onCanPlay="playEvent"
               @onFullscreen="previewFullscreen.replay = true; fullscreen()"
               @onExitFullscreen="exitFullscreen()"
@@ -132,6 +133,7 @@ export default class extends Mixins(FullscreenMixin) {
   private activeName = ''
   private snapshotRange = null
   private onCanPlay = false
+  private calendarFocus = false
   private template = {
     snapshotTemplate: '123'
   }
@@ -171,8 +173,18 @@ export default class extends Mixins(FullscreenMixin) {
     window.removeEventListener('resize', this.checkFullscreen)
   }
 
+  /**
+   * 鼠标移入移出视频触发事件
+   */
   private playEvent(val: boolean) {
     this.onCanPlay = val
+  }
+
+  /**
+   * 日历获取焦点
+   */
+  private onCalendarFocus(val: boolean) {
+    this.calendarFocus = val
   }
 
   /**

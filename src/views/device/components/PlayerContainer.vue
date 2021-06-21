@@ -1,5 +1,10 @@
 <template>
-  <div class="player-container" :class="{'player-container--hidden': isHiddenTools}" @mouseover="onMouseOver" @mouseout="onMouseMove">
+  <div
+    class="player-container"
+    :class="{'player-container--hidden': isHiddenTools}"
+    @mouseover="onMouseOver"
+    @mouseout="onMouseOut"
+  >
     <slot name="header" />
     <slot />
   </div>
@@ -16,18 +21,35 @@ export default class extends Vue {
 
   @Prop()
   private onCanPlay?: false
+  @Prop()
+  private calendarFocus?: false
+
   @Watch('onCanPlay')
   private onCanPlayChange(onCanPlay: boolean) {
-    onCanPlay && this.setMouseEvent()
+    !this.calendarFocus && onCanPlay && this.setMouseEvent()
   }
+  // @Watch('calendarFocus')
+  // private oncalendarFocus(calendarFocus: boolean) {
+  //   console.log(calendarFocus);
+
+  //   if (calendarFocus) {
+  //     this.timer && clearTimeout(this.timer)
+  //     this.isHiddenTools = false
+  //   } else {
+  //     const eventTarget: any = window.event?.target
+  //     if (!['VIDEO', 'CANVAS'].includes(eventTarget.nodeName)) {
+  //       this.setMouseEvent()
+  //     }
+  //   }
+  // }
 
   private onMouseOver() {
     this.timer && clearTimeout(this.timer)
     this.isHiddenTools = false
   }
 
-  private onMouseMove() {
-    this.setMouseEvent()
+  private onMouseOut() {
+    !this.calendarFocus && this.setMouseEvent()
   }
 
   private setMouseEvent() {
