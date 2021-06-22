@@ -356,12 +356,10 @@
   align-items: center;
   .screen-header {
     overflow: hidden;
-    // height: 40px;
-    opacity: 1;/* Safari 和 Chrome */
+    opacity: 1;
     transition: all .2s;
   }
   .replay-player {
-    margin-top: 40px;
     transition: all .2s;
     .timeline__box {
       max-height: 100px;
@@ -370,7 +368,6 @@
   }
   .video-wrap {
     .controls {
-      // max-height: 35px;
       opacity: 1;
       transition: all .2s !important;
     }
@@ -378,7 +375,6 @@
 }
 .player-container--hidden {
   .screen-header {
-    // height: 0 !important;
     opacity: 0 ;
   }
   .replay-player {
@@ -389,7 +385,6 @@
   }
   .video-wrap {
     .controls {
-      // max-height: 0px;
       opacity: 0 !important;
     }
   }
