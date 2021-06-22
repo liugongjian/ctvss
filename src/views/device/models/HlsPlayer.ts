@@ -4,6 +4,8 @@ import { BasePlayer } from './BasePlayer'
 
 export class HlsPlayer extends BasePlayer {
   public hls?: any
+  private manifestLoadingTimeOutMaxRetry = 3
+  private manifestLoadingTimeOutRetryTimes = 0
 
   public init() {
     if (!Hls.isSupported()) {
@@ -14,12 +16,22 @@ export class HlsPlayer extends BasePlayer {
     this.wrap.innerHTML = ''
     this.wrap.append(videoElement)
     const hls = new Hls({
-      manifestLoadingMaxRetry: 2
+      manifestLoadingTimeOut: 5000,
+      manifestLoadingMaxRetry: 3
     })
     hls.loadSource(this.source)
     hls.attachMedia(videoElement)
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
       this.autoPlayVideo(videoElement)
+    })
+    hls.on(Hls.Events.MANIFEST_LOADED, () => {
+      this.manifestLoadingTimeOutRetryTimes = 0
+    })
+    hls.on(Hls.Events.ERROR, (event: string, data: any) => {
+      if (data.details === Hls.ErrorDetails.MANIFEST_LOAD_TIMEOUT && this.manifestLoadingTimeOutRetryTimes < this.manifestLoadingTimeOutMaxRetry) {
+        this.manifestLoadingTimeOutRetryTimes++
+        hls.loadSource(this.source)
+      }
     })
     this.hls = hls
     this.player = videoElement
