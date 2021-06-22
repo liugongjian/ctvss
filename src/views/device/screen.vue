@@ -202,7 +202,7 @@
               @click="selectScreen(index)"
             >
               <template v-if="screen.loaded">
-                <player-container :on-can-play="onCanPlay" :calendar-focus="calendarFocus">
+                <player-container :on-can-play="screen.onCanPlay" :calendar-focus="screen.calendarFocus">
                   <template v-if="screen.isLive">
                     <div class="live-view">
                       <player
@@ -218,7 +218,7 @@
                         :has-playback="true"
                         :device-name="screen.deviceName"
                         :stream-num="screen.streamNum"
-                        @onCanPlay="playEvent"
+                        @onCanPlay="playEvent(screen, ...arguments)"
                         @onRetry="onRetry(screen, ...arguments)"
                         @onPlayback="onPlayback(screen)"
                         @onFullscreen="screen.fullscreen();fullscreen()"
@@ -233,8 +233,8 @@
                       :in-protocol="currentGroupInProtocol"
                       :has-playlive="true"
                       :is-fullscreen="screen.isFullscreen"
-                      @onCalendarFocus="onCalendarFocus"
-                      @onCanPlay="playEvent"
+                      @onCalendarFocus="onCalendarFocus(screen, ...arguments)"
+                      @onCanPlay="playEvent(screen, ...arguments)"
                       @onPlaylive="onPlaylive(screen)"
                       @onFullscreen="screen.fullscreen();fullscreen()"
                       @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"

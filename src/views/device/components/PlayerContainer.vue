@@ -26,7 +26,7 @@ export default class extends Vue {
 
   @Watch('onCanPlay')
   private onCanPlayChange(onCanPlay: boolean) {
-    !this.calendarFocus && onCanPlay && this.setMouseEvent()
+    !this.calendarFocus && onCanPlay && this.setMouseEvent(3000)
   }
   // @Watch('calendarFocus')
   // private oncalendarFocus(calendarFocus: boolean) {
@@ -49,15 +49,15 @@ export default class extends Vue {
   }
 
   private onMouseOut() {
-    !this.calendarFocus && this.setMouseEvent()
+    !this.calendarFocus && this.setMouseEvent(500)
   }
 
-  private setMouseEvent() {
+  private setMouseEvent(timeout: any) {
     this.timer && clearTimeout(this.timer)
     this.isHiddenTools = false
     this.timer = setTimeout(() => {
       this.isHiddenTools = true
-    }, 3000)
+    }, timeout)
   }
 }
 </script>

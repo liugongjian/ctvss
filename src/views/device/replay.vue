@@ -79,7 +79,7 @@
               @click="selectScreen(index)"
             >
               <template v-if="screen.loaded">
-                <player-container :on-can-play="onCanPlay" :calendar-focus="calendarFocus">
+                <player-container :on-can-play="screen.onCanPlay" :calendar-focus="screen.calendarFocus">
                   <div slot="header" class="screen-header">
                     <!-- <div class="device-name">{{ screen.deviceName }}</div> -->
                     <div class="screen__tools">
@@ -94,8 +94,8 @@
                     :device-id="screen.deviceId"
                     :in-protocol="currentGroupInProtocol"
                     :is-fullscreen="screen.isFullscreen"
-                    @onCalendarFocus="onCalendarFocus"
-                    @onCanPlay="playEvent"
+                    @onCalendarFocus="onCalendarFocus(screen, ...arguments)"
+                    @onCanPlay="playEvent(screen, ...arguments)"
                     @onFullscreen="screen.fullscreen();fullscreen()"
                     @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
                   />

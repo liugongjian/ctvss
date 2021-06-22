@@ -11,8 +11,6 @@ export default class ScreenMixin extends Mixins(DeviceMixin, FullscreenMixin) {
   public dialogs = {
     deviceDir: false
   }
-  public calendarFocus: boolean = false
-  public onCanPlay: boolean = false
 
   /**
    * 初始化分屏
@@ -81,14 +79,14 @@ export default class ScreenMixin extends Mixins(DeviceMixin, FullscreenMixin) {
   /**
    * 鼠标移入移出视频触发事件
    */
-  private playEvent(val: boolean) {
-    this.onCanPlay = val
+  private playEvent(screen: any, val: boolean) {
+    screen.onCanPlay = val
   }
 
   /**
    * 日历获取焦点
    */
-  public onCalendarFocus(val: boolean) {
-    this.calendarFocus = val
+  public onCalendarFocus(screen: any, val: boolean) {
+    screen.calendarFocus = val
   }
 }

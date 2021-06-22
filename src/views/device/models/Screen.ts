@@ -17,6 +17,8 @@ export default class Screen {
   public streams?: Array<any>
   private loading: boolean
   private axiosSource: any
+  public onCanPlay?: boolean
+  public calendarFocus?: boolean
 
   constructor() {
     this.deviceId = ''
@@ -33,6 +35,8 @@ export default class Screen {
     this.isLive = true
     this.isFullscreen = false
     this.axiosSource = null
+    this.onCanPlay = false
+    this.calendarFocus = false
   }
 
   public async getUrl() {
