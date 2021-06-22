@@ -1,23 +1,26 @@
 <template>
-  <i v-if="streamSize && streamSize > 1" class="set-stream">
-    <svg-icon
-      name="branch"
-      width="16px"
-      height="16px"
-    />
-    <span v-if="isShowLabel">{{ streamName }}</span>
-    <ul class="controls__popup">
-      <li
-        v-for="stream in subStreamList"
-        :key="stream.value"
-        :class="{'selected': stream.value === streamNum}"
-        @click="setStreamNum(stream.value)"
-      >
-        <status-badge v-if="stream.streamStatus" :status="stream.streamStatus" />
-        {{ stream.label }}
-      </li>
-    </ul>
-  </i>
+  <span v-if="streamSize && streamSize > 1">
+    <i class="set-stream">
+      <svg-icon
+        name="branch"
+        width="16px"
+        height="16px"
+      />
+      <span v-if="isShowLabel">{{ streamName }}</span>
+      <ul class="controls__popup">
+        <li
+          v-for="stream in subStreamList"
+          :key="stream.value"
+          :class="{'selected': stream.value === streamNum}"
+          @click="setStreamNum(stream.value)"
+        >
+          <status-badge v-if="stream.streamStatus" :status="stream.streamStatus" />
+          {{ stream.label }}
+        </li>
+      </ul>
+    </i>
+    <span>{{ streamName }}</span>
+  </span>
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'

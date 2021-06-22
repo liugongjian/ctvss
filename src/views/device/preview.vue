@@ -5,26 +5,34 @@
       <el-button class="btn-detail" @click="goToDetail"><svg-icon name="documentation" /> 查看设备详情</el-button>
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane lazy label="实时预览" name="preview">
-          <live-view
-            v-if="activeName === 'preview'"
-            :class="{'fullscreen': previewFullscreen.live}"
-            :device-id="deviceId"
-            :in-protocol="inProtocol"
-            :is-fullscreen="previewFullscreen.live"
-            @onFullscreen="previewFullscreen.live = true; fullscreen()"
-            @onExitFullscreen="exitFullscreen()"
-          />
+          <player-container :on-can-play="onCanPlay">
+            <live-view
+              v-if="activeName === 'preview'"
+              :class="{'fullscreen': previewFullscreen.live}"
+              :device-id="deviceId"
+              :in-protocol="inProtocol"
+              :is-fullscreen="previewFullscreen.live"
+              @onCanPlay="playEvent"
+              @onFullscreen="previewFullscreen.live = true; fullscreen()"
+              @onExitFullscreen="exitFullscreen()"
+            />
+          </player-container>
         </el-tab-pane>
         <el-tab-pane lazy label="录像回放" name="replay">
-          <replay-view
-            v-if="activeName === 'replay'" ref="replayView"
-            :class="{'fullscreen': previewFullscreen.replay}"
-            :device-id="deviceId"
-            :in-protocol="inProtocol"
-            :is-fullscreen="previewFullscreen.replay"
-            @onFullscreen="previewFullscreen.replay = true; fullscreen()"
-            @onExitFullscreen="exitFullscreen()"
-          />
+          <player-container :on-can-play="onCanPlay" :calendar-focus="calendarFocus">
+            <replay-view
+              v-if="activeName === 'replay'"
+              ref="replayView"
+              :class="{'fullscreen': previewFullscreen.replay}"
+              :device-id="deviceId"
+              :in-protocol="inProtocol"
+              :is-fullscreen="previewFullscreen.replay"
+              @onCalendarFocus="onCalendarFocus"
+              @onCanPlay="playEvent"
+              @onFullscreen="previewFullscreen.replay = true; fullscreen()"
+              @onExitFullscreen="exitFullscreen()"
+            />
+          </player-container>
         </el-tab-pane>
         <el-tab-pane v-if="false" label="监控截图" name="snapshot">
           <el-date-picker
@@ -105,6 +113,7 @@ import SetSnapshotTemplate from '../components/dialogs/SetSnapshotTemplate.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import ReplayView from './components/ReplayView.vue'
 import LiveView from './components/LiveView.vue'
+import PlayerContainer from './components/PlayerContainer.vue'
 
 @Component({
   name: 'DevicePreview',
@@ -113,7 +122,8 @@ import LiveView from './components/LiveView.vue'
     SetSnapshotTemplate,
     StatusBadge,
     ReplayView,
-    LiveView
+    LiveView,
+    PlayerContainer
   }
 })
 export default class extends Mixins(FullscreenMixin) {
@@ -122,6 +132,8 @@ export default class extends Mixins(FullscreenMixin) {
   private dateFormat = dateFormat
   private activeName = ''
   private snapshotRange = null
+  private onCanPlay = false
+  private calendarFocus = false
   private template = {
     snapshotTemplate: '123'
   }
@@ -159,6 +171,20 @@ export default class extends Mixins(FullscreenMixin) {
   private beforeDestroy() {
     window.removeEventListener('resize', this.resizeReplayVideo)
     window.removeEventListener('resize', this.checkFullscreen)
+  }
+
+  /**
+   * 鼠标移入移出视频触发事件
+   */
+  private playEvent(val: boolean) {
+    this.onCanPlay = val
+  }
+
+  /**
+   * 日历获取焦点
+   */
+  private onCalendarFocus(val: boolean) {
+    this.calendarFocus = val
   }
 
   /**
@@ -248,6 +274,7 @@ export default class extends Mixins(FullscreenMixin) {
       z-index: 9;
     }
     .replay-view {
+      width: 100%;
       display: flex;
       flex-direction: column;
       ::v-deep .replay-player {

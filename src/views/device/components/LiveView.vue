@@ -22,6 +22,7 @@
         :is-live="true"
         :is-fullscreen="isFullscreen"
         :has-control="false"
+        @onCanPlay="onCanPlay"
         @onRetry="onRetry"
         @onFullscreen="fullscreen"
         @onExitFullscreen="exitFullscreen"
@@ -184,6 +185,13 @@ export default class extends Vue {
   }
 
   /**
+   * 视频加载完成
+   */
+  onCanPlay(val: boolean) {
+    this.$emit('onCanPlay', val)
+  }
+
+  /**
    * 视频断流30秒后重试
    */
   private onRetry() {
@@ -221,6 +229,7 @@ export default class extends Vue {
 </script>
 <style lang="scss" scoped>
   .live-wrap {
+    width: 100%;
     min-height: 100px;
     .stream-selector {
       i {

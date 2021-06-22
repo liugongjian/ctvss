@@ -75,4 +75,18 @@ export default class ScreenMixin extends Mixins(DeviceMixin, FullscreenMixin) {
   public selectDevice() {
     this.dialogs.deviceDir = true
   }
+
+  /**
+   * 鼠标移入移出视频触发事件
+   */
+  private playEvent(screen: any, val: boolean) {
+    screen.onCanPlay = val
+  }
+
+  /**
+   * 日历获取焦点
+   */
+  public onCalendarFocus(screen: any, val: boolean) {
+    screen.calendarFocus = val
+  }
 }

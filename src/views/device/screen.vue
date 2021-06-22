@@ -202,60 +202,65 @@
               @click="selectScreen(index)"
             >
               <template v-if="screen.loaded">
-                <template v-if="screen.isLive">
-                  <div class="live-view">
-                    <player
-                      v-if="screen.url"
-                      type="flv"
-                      :codec="screen.codec"
-                      :url="screen.url"
-                      :is-live="true"
-                      :is-ws="true"
+                <player-container :on-can-play="screen.onCanPlay" :calendar-focus="screen.calendarFocus">
+                  <template v-if="screen.isLive">
+                    <div class="live-view">
+                      <player
+                        v-if="screen.url"
+                        type="flv"
+                        :codec="screen.codec"
+                        :url="screen.url"
+                        :is-live="true"
+                        :is-ws="true"
+                        :is-fullscreen="screen.isFullscreen"
+                        :auto-play="true"
+                        :has-control="false"
+                        :has-playback="true"
+                        :device-name="screen.deviceName"
+                        :stream-num="screen.streamNum"
+                        @onCanPlay="playEvent(screen, ...arguments)"
+                        @onRetry="onRetry(screen, ...arguments)"
+                        @onPlayback="onPlayback(screen)"
+                        @onFullscreen="screen.fullscreen();fullscreen()"
+                        @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
+                      />
+                      <div v-if="!screen.url && !screen.loading" class="tip-text">无信号</div>
+                    </div>
+                  </template>
+                  <template v-else>
+                    <replay-view
+                      :device-id="screen.deviceId"
+                      :in-protocol="currentGroupInProtocol"
+                      :has-playlive="true"
                       :is-fullscreen="screen.isFullscreen"
-                      :auto-play="true"
-                      :has-control="false"
-                      :has-playback="true"
-                      :device-name="screen.deviceName"
-                      :stream-num="screen.streamNum"
-                      @onRetry="onRetry(screen, ...arguments)"
-                      @onPlayback="onPlayback(screen)"
+                      @onCalendarFocus="onCalendarFocus(screen, ...arguments)"
+                      @onCanPlay="playEvent(screen, ...arguments)"
+                      @onPlaylive="onPlaylive(screen)"
                       @onFullscreen="screen.fullscreen();fullscreen()"
                       @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
                     />
-                    <div v-if="!screen.url && !screen.loading" class="tip-text">无信号</div>
+                  </template>
+                  <div slot="header" class="screen-header">
+                    <div class="device-name">
+                      <!-- {{ screen.isLive ? "" : screen.deviceName }} -->
+                      <StreamSelector
+                        v-if="screen.isLive"
+                        class="set-stream"
+                        :stream-size="screen.streamSize"
+                        :stream-num="screen.streamNum"
+                        :streams="screen.streams"
+                        @onSetStreamNum="onSetStreamNum(screen, ...arguments)"
+                      />
+                    </div>
+                    <div class="screen__tools">
+                      <el-tooltip content="关闭视频">
+                        <el-button class="screen__close" type="text" @click="closeScreen(screen)">
+                          <svg-icon name="close" width="12" height="12" />
+                        </el-button>
+                      </el-tooltip>
+                    </div>
                   </div>
-                </template>
-                <template v-else>
-                  <replay-view
-                    :device-id="screen.deviceId"
-                    :in-protocol="currentGroupInProtocol"
-                    :has-playlive="true"
-                    :is-fullscreen="screen.isFullscreen"
-                    @onPlaylive="onPlaylive(screen)"
-                    @onFullscreen="screen.fullscreen();fullscreen()"
-                    @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
-                  />
-                </template>
-                <div class="screen-header">
-                  <div class="device-name">
-                    {{ screen.deviceName }}
-                    <StreamSelector
-                      v-if="screen.isLive"
-                      class="set-stream"
-                      :stream-size="screen.streamSize"
-                      :stream-num="screen.streamNum"
-                      :streams="screen.streams"
-                      @onSetStreamNum="onSetStreamNum(screen, ...arguments)"
-                    />
-                  </div>
-                  <div class="screen__tools">
-                    <el-tooltip content="关闭视频">
-                      <el-button class="screen__close" type="text" @click="closeScreen(screen)">
-                        <svg-icon name="close" width="12" height="12" />
-                      </el-button>
-                    </el-tooltip>
-                  </div>
-                </div>
+                </player-container>
               </template>
               <div v-else class="tip-text tip-select-device">
                 <el-button type="text" @click="selectDevice(screen)">请选择设备</el-button>
@@ -278,6 +283,7 @@ import ScreenMixin from './mixin/screenMixin'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import Screen from './models/Screen'
 import Player from './components/Player.vue'
+import PlayerContainer from './components/PlayerContainer.vue'
 import ReplayView from './components/ReplayView.vue'
 import DeviceDir from './components/dialogs/DeviceDir.vue'
 import PtzControl from './components/ptzControl.vue'
@@ -293,7 +299,8 @@ import { renderAlertType } from '@/utils/device'
     DeviceDir,
     StatusBadge,
     PtzControl,
-    StreamSelector
+    StreamSelector,
+    PlayerContainer
   }
 })
 export default class extends Mixins(ScreenMixin) {
