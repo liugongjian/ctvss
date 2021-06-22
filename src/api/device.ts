@@ -129,6 +129,16 @@ export const getDeviceRecordStatistic = (params: any): Promise<any> =>
   })
 
 /**
+ * 自定义录制片段名称
+ */
+export const editRecordName = (data: any): Promise<any> =>
+  request({
+    url: '/record/customization',
+    method: 'post',
+    data
+  })
+
+/**
  * 设置本地录像的播放速率
  */
 export const setRecordScale = (params: any): Promise<any> =>
