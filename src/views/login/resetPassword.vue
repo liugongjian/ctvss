@@ -97,7 +97,7 @@ export default class extends Vue {
     if (!value) {
       callback(new Error('密码不能为空'))
     } else if (!this.pwdReg.test(value)) {
-      callback(new Error('密码格式不正确'))
+      callback(new Error('密码长度为8-20位，必须同时包含大写字母、小写字母、数字、特殊字符'))
     } else {
       callback()
     }
@@ -123,12 +123,12 @@ export default class extends Vue {
     ],
     newPwd: [
       { required: true, message: '请输入新密码', trigger: 'blur' },
-      { validator: this.validatePassword, trigger: 'blur' }
+      { validator: this.validatePassword, trigger: ['blur', 'change'] }
     ],
     confirmPwd: [
       { required: true, message: '请再次输入新密码', trigger: 'blur' },
-      { validator: this.validatePassword, trigger: 'blur' },
-      { validator: this.validateConfirmPwd, trigger: 'blur' }
+      { validator: this.validatePassword, trigger: ['blur', 'change'] },
+      { validator: this.validateConfirmPwd, trigger: ['blur', 'change'] }
     ]
   }
 

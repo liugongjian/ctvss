@@ -341,6 +341,7 @@ export default class extends Vue {
       player.style.width = width + 'px'
       player.style.height = width * 9 / 16 + 'px'
     }
+    player.style.position = 'absolute'
     player.style.left = (width - player.clientWidth) / 2 + 'px'
     player.style.top = (height - player.clientHeight) / 2 + 'px'
   }
@@ -591,6 +592,7 @@ export default class extends Vue {
    * 视频加载中
    */
   public onLoadStart() {
+    this.$emit('onCanPlay', false)
     this.waiting = true
   }
 
@@ -599,6 +601,7 @@ export default class extends Vue {
    */
   public onCanplay() {
     this.waiting = false
+    this.$emit('onCanPlay', true)
   }
 
   /**

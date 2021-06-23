@@ -16,6 +16,7 @@
       :has-control="false"
       :has-playlive="hasPlaylive"
       :is-fullscreen="isFullscreen"
+      @onCanPlay="onCanPlay"
       @onTimeUpdate="setCurrentTime"
       @onEnded="playNextRecord"
       @onPlaylive="playlive"
@@ -94,6 +95,13 @@ export default class extends Mixins(ReplayPlayerMixin) {
   public async init() {
     this.timePositionList = this.calcVideoPosition(this.recordList)
     this.initVideoPlayer()
+  }
+
+  /**
+   * 视频加载完成
+   */
+  public onCanPlay(val: boolean) {
+    this.$emit('onCanPlay', val)
   }
 
   /**

@@ -189,8 +189,7 @@ export const ResourceType = {
 }
 
 export const ResourceAiType = {
-  'VSS_VIDEO': '视频包',
-  'VSS_UPLOAD_BW': '上行带宽包',
-  'VSS_DOWNLOAD_BW': '下行带宽包',
-  'VSS_AI': 'AI包'
+  'AI-100': '分钟级',
+  'AI-200': '秒级',
+  'AI-300': '高算力型'
 }

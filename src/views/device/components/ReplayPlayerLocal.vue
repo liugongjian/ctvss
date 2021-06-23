@@ -16,6 +16,7 @@
       :has-control="false"
       :has-playlive="hasPlaylive"
       :is-fullscreen="isFullscreen"
+      @onCanPlay="onCanPlay"
       @onTimeUpdate="setCurrentTime"
       @onPlaylive="playlive"
       @onFullscreen="fullscreen()"
@@ -113,6 +114,13 @@ export default class extends Mixins(ReplayPlayerMixin) {
     for (const key in this.axiosSource) {
       this.axiosSource[key] && this.axiosSource[key].cancel()
     }
+  }
+
+  /**
+   * 视频加载完成
+   */
+  public onCanPlay(val: boolean) {
+    this.$emit('onCanPlay', val)
   }
 
   /**
