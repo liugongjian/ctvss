@@ -133,7 +133,7 @@ export const getDeviceRecordStatistic = (params: any): Promise<any> =>
  */
 export const editRecordName = (data: any): Promise<any> =>
   request({
-    url: '/record/customization',
+    url: '/record/editRecordName',
     method: 'post',
     data
   })

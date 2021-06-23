@@ -70,8 +70,8 @@
               <el-button type="text" icon="el-icon-edit" class="edit-button" @click="editRecordName(row)" />
             </template>
             <template v-else>
-              <el-input v-model="recordName" size="small" style="width: 60%;" />
-              <el-button type="primary" size="small" style="margin-left: 10px;" @click="saveEdit(row)">保存</el-button>
+              <el-input v-model="recordName" size="small" class="edit-input" />
+              <el-button type="primary" size="small" class="edit-save-button" @click="saveEdit(row)">保存</el-button>
               <el-button plain size="small" @click="cancelEdit(row)">取消</el-button>
             </template>
           </template>
@@ -225,6 +225,7 @@ export default class extends Vue {
    */
   private editRecordName(row: any) {
     this.recordName = row.templateName
+    this.recordListSlice.forEach((record: any) => { record.edit = false })
     row.edit = true
   }
 
@@ -237,7 +238,7 @@ export default class extends Vue {
       await editRecordName({
         deviceId: this.deviceId,
         inProtocol: this.inProtocol,
-        startTime: row.startTime,
+        startTime: Math.floor(new Date(row.startTime).getTime() / 1000),
         customName: this.recordName
       })
       this.getRecordList()
@@ -502,6 +503,12 @@ export default class extends Vue {
     }
     .edit-button {
       margin-left: 5px;
+    }
+    .edit-input {
+      width: 50%;
+    }
+    .edit-save-button {
+      margin-left: 10px;
     }
   }
   .timeline--wrap {
