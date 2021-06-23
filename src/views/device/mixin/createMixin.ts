@@ -124,4 +124,15 @@ export default class CreateMixin extends Vue {
       callback()
     }
   }
+
+  /**
+   * 校验设备Domain格式
+   */
+  public validateDeviceDomain(rule: any, value: string, callback: Function) {
+    if (value && !/^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\.?$/.test(value)) {
+      callback(new Error('设备域名格式不正确。正确域名格式例如: www.domain.com'))
+    } else {
+      callback()
+    }
+  }
 }
