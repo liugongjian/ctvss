@@ -110,7 +110,21 @@ export default class extends Mixins(DashboardMixin) {
       formatter: (val: any) => {
         return val + '台'
       },
-      range: [0, 1]
+      range: [0, 1],
+      tickMethod: (scale: any) => {
+        let maxValue = Math.max(...scale.values)
+        let vnum = maxValue % 5
+        let interval = (maxValue - vnum) / 5
+        if (interval < 1) {
+          interval = 1
+        }
+        let intervalArr = []
+        for (let i = 1; i <= 5; i++) {
+          if (interval * i > maxValue) break
+          intervalArr.push(interval * i)
+        }
+        return intervalArr
+      }
     })
     this.chart.axis('value', {
       label: {
