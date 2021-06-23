@@ -203,6 +203,14 @@ export const parseMetaData = (type: string, metaData: any) => {
         }
       }
       break
+    // 研发二蜜蜂密度
+    case '13':
+      if (metaData.Data && metaData.Data.BeeDensity) {
+        locations.push({
+          beeDensity: Math.round(metaData.Data.BeeDensity)
+        })
+      }
+      break
   }
   return locations
 }
