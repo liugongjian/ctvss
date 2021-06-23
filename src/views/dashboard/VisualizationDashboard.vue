@@ -6,7 +6,7 @@
     <div class="dashboard-wrap__header">
       {{ title }}
     </div>
-    <DashboardMap />
+    <DashboardMap :main-user-id="mainUserId" />
     <div class="dashboard-wrap__col dashboard-wrap__col--left">
       <DashboardDevice height="19" />
       <DashboardFlow height="19" />
@@ -14,8 +14,8 @@
     </div>
     <div class="dashboard-wrap__col dashboard-wrap__col--right">
       <DashboardAlertLive height="19" />
-      <DashboardAlertToday height="19" />
-      <DashboardAlertTrend height="19" />
+      <DashboardAlertToday height="19" :main-user-id="mainUserId" />
+      <DashboardAlertTrend height="19" :main-user-id="mainUserId" />
     </div>
   </div>
 </template>
@@ -44,14 +44,15 @@ import DashboardAlertTrend from '@/views/dashboard/components/DashboardAlertTren
   }
 })
 export default class extends Vue {
+  get mainUserId() {
+    return UserModule.mainUserID
+  }
+
   get title() {
     let title = ''
-    switch (UserModule.mainUserID) {
+    switch (this.mainUserId) {
       case '90015':
         title = '两当县智慧蜂业视频AI能力平台'
-        break
-      case '泰州智能视频云':
-        title = '泰州智能视频云'
         break
       default:
         title = '天翼云视频云网平台'
