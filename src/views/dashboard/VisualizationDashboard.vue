@@ -4,7 +4,7 @@
   >
     <div class="dashboard-wrap__decorator" />
     <div class="dashboard-wrap__header">
-      {{ name === 'tzszf' ? '泰州智能视频云' : '天翼云视频云网平台' }}
+      {{ title }}
     </div>
     <DashboardMap />
     <div class="dashboard-wrap__col dashboard-wrap__col--left">
@@ -44,8 +44,19 @@ import DashboardAlertTrend from '@/views/dashboard/components/DashboardAlertTren
   }
 })
 export default class extends Vue {
-  get name() {
-    return UserModule.name
+  get title() {
+    let title = ''
+    switch (UserModule.mainUserID) {
+      case '90015':
+        title = '两当县智慧蜂业视频AI能力平台'
+        break
+      case '泰州智能视频云':
+        title = '泰州智能视频云'
+        break
+      default:
+        title = '天翼云视频云网平台'
+    }
+    return title
   }
   private mounted() {
   }
