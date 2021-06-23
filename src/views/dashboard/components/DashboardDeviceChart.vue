@@ -96,6 +96,27 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   /**
+   * 自适应获取图标y轴刻度
+   */
+  private getTickInterval(tickCount: number, scale: any): Array<number> {
+    let maxValue = Math.max(...scale.values)
+    let vnum = maxValue % tickCount
+    let interval = (maxValue - vnum) / tickCount
+    if (interval < 1) {
+      interval = 1
+    }
+    if (vnum > interval) {
+      return this.getTickInterval(tickCount - 1, scale)
+    }
+    let intervalArr = []
+    for (let i = 1; i <= tickCount; i++) {
+      if (interval * i > maxValue) break
+      intervalArr.push(interval * i)
+    }
+    return intervalArr
+  }
+
+  /**
    * 更新图表
    */
   private async drawChart() {
@@ -112,18 +133,7 @@ export default class extends Mixins(DashboardMixin) {
       },
       range: [0, 1],
       tickMethod: (scale: any) => {
-        let maxValue = Math.max(...scale.values)
-        let vnum = maxValue % 5
-        let interval = (maxValue - vnum) / 5
-        if (interval < 1) {
-          interval = 1
-        }
-        let intervalArr = []
-        for (let i = 1; i <= 5; i++) {
-          if (interval * i > maxValue) break
-          intervalArr.push(interval * i)
-        }
-        return intervalArr
+        return this.getTickInterval(5, scale)
       }
     })
     this.chart.axis('value', {
