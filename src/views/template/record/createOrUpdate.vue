@@ -92,6 +92,10 @@ export default class extends Vue {
       value: 30 * 24 * 60
     },
     {
+      label: '60天',
+      value: 60 * 24 * 60
+    },
+    {
       label: '90天',
       value: 90 * 24 * 60
     },
