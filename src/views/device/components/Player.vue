@@ -508,6 +508,8 @@ export default class extends Vue {
       left = player.offsetLeft + 0.1 * event.offsetX
       top = player.offsetTop + 0.1 * event.offsetY
       if (width <= videoWrapSize.width && player.type !== 'canvas' && player.className !== 'player-box') {
+        console.log(1);
+        
         width = videoWrapSize.width
         height = videoWrapSize.height
         left = 0

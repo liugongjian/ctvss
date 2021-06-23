@@ -232,6 +232,7 @@ export default class extends Vue {
     width: 100%;
     min-height: 100px;
     .stream-selector {
+      margin-bottom: 10px;
       i {
         display: inline-block;
         margin-bottom: 10px;
