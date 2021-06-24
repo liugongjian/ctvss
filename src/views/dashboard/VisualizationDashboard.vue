@@ -6,7 +6,8 @@
     <div class="dashboard-wrap__header">
       {{ title }}
     </div>
-    <DashboardMap :main-user-id="mainUserId" />
+    <DashboardMapBee v-if="mainUserId === '90015'" />
+    <DashboardMap v-else />
     <div class="dashboard-wrap__col dashboard-wrap__col--left">
       <DashboardDevice height="19" />
       <DashboardFlow height="19" />
@@ -29,6 +30,7 @@ import DashboardAlertLive from '@/views/dashboard/components/DashboardAlertLive.
 import DashboardAlertToday from '@/views/dashboard/components/DashboardAlertToday.vue'
 import DashboardIntegrityRate from '@/views/dashboard/components/DashboardIntegrityRate.vue'
 import DashboardMap from '@/views/dashboard/components/DashBoardMap.vue'
+import DashboardMapBee from '@/views/dashboard/components/DashBoardMapBee.vue'
 import DashboardAlertTrend from '@/views/dashboard/components/DashboardAlertTrend.vue'
 
 @Component({
@@ -39,6 +41,7 @@ import DashboardAlertTrend from '@/views/dashboard/components/DashboardAlertTren
     DashboardAlertLive,
     DashboardAlertToday,
     DashboardMap,
+    DashboardMapBee,
     DashboardIntegrityRate,
     DashboardAlertTrend
   }
