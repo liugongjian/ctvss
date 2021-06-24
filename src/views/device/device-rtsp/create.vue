@@ -75,7 +75,7 @@
             <el-input v-model="form.password" type="password" />
           </el-form-item>
           <el-form-item label="是否启用域名:" prop="enableDomain">
-            <el-switch v-model="form.enableDomain" :active-value="1" :inactive-value="2" />
+            <el-switch v-model="form.enableDomain" :active-value="1" :inactive-value="2" @change="clearValidate" />
           </el-form-item>
           <el-form-item v-if="form.enableDomain === 1" label="设备域名:" prop="deviceDomain">
             <el-input v-model="form.deviceDomain" />
