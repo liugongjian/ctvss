@@ -1,10 +1,13 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
+import { UserModule } from '@/store/modules/user'
 
 @Component
 export default class DashboardMixin extends Vue {
   @Prop() public height: any
 
-  @Prop() public mainUserId?: string
+  get mainUserId() {
+    return UserModule.mainUserID
+  }
 
   private intervalInstance: any = null
   public intervalTime = 15 * 1000

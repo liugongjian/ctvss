@@ -15,8 +15,8 @@
     </div>
     <div class="dashboard-wrap__col dashboard-wrap__col--right">
       <DashboardAlertLive height="19" />
-      <DashboardAlertToday height="19" :main-user-id="mainUserId" />
-      <DashboardAlertTrend height="19" :main-user-id="mainUserId" />
+      <DashboardAlertToday height="19" />
+      <DashboardAlertTrend height="19" />
     </div>
   </div>
 </template>
