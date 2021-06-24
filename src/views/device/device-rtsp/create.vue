@@ -62,18 +62,18 @@
             <el-radio v-for="(inType, key) in inTypeList" :key="key" :label="key">{{ inType }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item v-if="form.inType === 'pull'" label="用户名:" prop="userName">
-          <el-input v-model="form.userName" />
-        </el-form-item>
-        <el-form-item v-if="form.inType === 'pull'" label="密码:" prop="password">
-          <el-input v-model="form.password" type="password" />
-        </el-form-item>
         <template v-if="form.deviceVendor === '其他'">
           <el-form-item label="自定义拉流地址:" prop="deviceCustomUrl">
             <el-input v-model="form.deviceCustomUrl" />
           </el-form-item>
         </template>
         <template v-else>
+          <el-form-item v-if="form.inType === 'pull'" label="用户名:" prop="userName">
+            <el-input v-model="form.userName" />
+          </el-form-item>
+          <el-form-item v-if="form.inType === 'pull'" label="密码:" prop="password">
+            <el-input v-model="form.password" type="password" />
+          </el-form-item>
           <el-form-item label="是否启用域名:" prop="enableDomain">
             <el-switch v-model="form.enableDomain" :active-value="1" :inactive-value="2" />
           </el-form-item>
@@ -83,10 +83,10 @@
           <el-form-item v-else label="设备IP:" prop="deviceIp">
             <el-input v-model="form.deviceIp" />
           </el-form-item>
+          <el-form-item label="设备端口:" prop="devicePort">
+            <el-input v-model.number="form.devicePort" />
+          </el-form-item>
         </template>
-        <el-form-item label="设备端口:" prop="devicePort">
-          <el-input v-model.number="form.devicePort" />
-        </el-form-item>
         <el-form-item label="主子码流数量:" prop="multiStreamSize">
           <template slot="label">
             主子码流数量:
