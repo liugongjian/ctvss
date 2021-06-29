@@ -18,7 +18,7 @@ export class HlsPlayer extends BasePlayer {
     const hls = new Hls({
       manifestLoadingTimeOut: 5000,
       manifestLoadingMaxRetry: 3,
-      maxBufferLength: 20
+      maxBufferLength: 30
     })
     hls.loadSource(this.source)
     hls.attachMedia(videoElement)
