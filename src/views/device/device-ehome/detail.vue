@@ -57,6 +57,13 @@
                   </div>
                 </info-list-item>
               </template>
+              <info-list-item label="流传输模式:">
+                <div class="info-list__edit">
+                  <div class="info-list__edit--value">
+                    {{ streamTransType[info.streamTransType] || '-' }}
+                  </div>
+                </div>
+              </info-list-item>
               <info-list-item label="设备描述:">{{ info.description || '-' }}</info-list-item>
               <info-list-item label="拉流地址:">
                 {{ info.pullUrl || '-' }}

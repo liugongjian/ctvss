@@ -194,6 +194,11 @@
             {{ row.deviceVendor || '-' }}
           </template>
         </el-table-column>
+        <el-table-column key="streamTransType" prop="streamTransType" label="流传输模式" min-width="110">
+          <template slot-scope="{row}">
+            {{ streamTransType[row.streamTransType] || '-' }}
+          </template>
+        </el-table-column>
         <el-table-column key="deviceIp" label="设备IP" min-width="130">
           <template slot-scope="{row}">
             {{ row.deviceIp || '-' }}
