@@ -357,7 +357,14 @@ export default class extends Mixins(createMixin) {
     let index3 = this.regionList[index1].children[index2].children.findIndex((item: any) => {
       return item.code === val[2]
     })
-    this.regionList[index1].children[index2].children[index3].children = [
+    this.regionList[index1].children[index2].children[index3].children = this.getExpandList()
+  }
+
+  /**
+   * 加载公安局列表（连州）
+   */
+  private async getExpandList() {
+    return [
       {
         name: 'test1',
         code: '0',
