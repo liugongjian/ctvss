@@ -134,6 +134,15 @@
             :props="citiesProps"
             @change="addressChange"
           />
+          <el-cascader
+            ref="addressCascader"
+            v-model="form.address"
+            expand-trigger="hover"
+            :disabled="isUpdate"
+            :options="regionList"
+            :props="lianzhouRegionProps"
+            @active-item-change="regionChange"
+          />
         </el-form-item>
         <el-form-item label="设备描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
@@ -172,6 +181,7 @@ import { createDevice, updateDevice, getDevice } from '@/api/device'
 import { getList as getGbList } from '@/api/certificate/gb28181'
 import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
 import { cities, provinceMapping, cityMapping } from '@/assets/region/cities'
+import { regionList } from '@/assets/region/lianzhouRegion'
 
 @Component({
   name: 'CreateGb28181Device',
@@ -181,11 +191,18 @@ import { cities, provinceMapping, cityMapping } from '@/assets/region/cities'
 })
 export default class extends Mixins(createMixin) {
   private cities = cities
-
   private citiesProps: any = {
     value: 'code',
     label: 'name',
     children: 'cities'
+  }
+
+  // 连州
+  private regionList = regionList
+  private lianzhouRegionProps: any = {
+    value: 'code',
+    label: 'name',
+    children: 'children'
   }
 
   private rules = {
@@ -324,6 +341,34 @@ export default class extends Mixins(createMixin) {
       this.form.gbRegionLevel = currentAddress.level
       console.log(this.form.gbRegion, this.form.gbRegionLevel)
     }
+  }
+
+  // 连州
+  private regionChange(val: any) {
+    if (val.length !== 3) {
+      return
+    }
+    let index1 = this.regionList.findIndex((item: any) => {
+      return item.code === val[0]
+    })
+    let index2 = this.regionList[index1].children.findIndex((item: any) => {
+      return item.code === val[1]
+    })
+    let index3 = this.regionList[index1].children[index2].children.findIndex((item: any) => {
+      return item.code === val[2]
+    })
+    this.regionList[index1].children[index2].children[index3].children = [
+      {
+        name: 'test1',
+        code: '0',
+        level: 4
+      },
+      {
+        name: 'test2',
+        code: '1',
+        level: 4
+      }
+    ]
   }
 
   /**
