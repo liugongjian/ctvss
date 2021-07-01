@@ -144,6 +144,9 @@
             @active-item-change="regionChange"
           />
         </el-form-item>
+        <el-form-item label="经纬度:" prop="longlat">
+          <el-input class="longlat-input" /> : <el-input class="longlat-input" />
+        </el-form-item>
         <el-form-item label="设备描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
         </el-form-item>
@@ -573,5 +576,8 @@ export default class extends Mixins(createMixin) {
     &__item:last-child:after {
       content: '';
     }
+  }
+  .longlat-input {
+    width: 150px;
   }
 </style>
