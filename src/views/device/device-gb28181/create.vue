@@ -135,6 +135,9 @@
             @change="addressChange"
           />
         </el-form-item>
+        <el-form-item label="配置资源包:" prop="resource">
+          <ResourceTabs :device="form" @resource-change="resourceChange" />
+        </el-form-item>
         <el-form-item label="设备描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
         </el-form-item>
@@ -171,12 +174,14 @@ import { DeviceGb28181Type } from '@/dics'
 import { createDevice, updateDevice, getDevice } from '@/api/device'
 import { getList as getGbList } from '@/api/certificate/gb28181'
 import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
+import ResourceTabs from '../components/ResourceTabs.vue'
 import { cities, provinceMapping, cityMapping } from '@/assets/region/cities'
 
 @Component({
   name: 'CreateGb28181Device',
   components: {
-    CreateGb28181Certificate
+    CreateGb28181Certificate,
+    ResourceTabs
   }
 })
 export default class extends Mixins(createMixin) {
@@ -222,6 +227,9 @@ export default class extends Mixins(createMixin) {
     ],
     deviceIp: [
       { validator: this.validateDeviceIp, trigger: 'blur' }
+    ],
+    resource: [
+      { required: true, validator: this.validateResource, trigger: 'blur' }
     ]
   }
   private gbVersionList = ['2011', '2016']
@@ -258,7 +266,10 @@ export default class extends Mixins(createMixin) {
     userName: '',
     address: [],
     gbRegion: '',
-    gbRegionLevel: ''
+    gbRegionLevel: '',
+    resouceVideo: null,
+    resouceAi: null,
+    resouceUpload: null
   }
   private minChannelSize = 1
   private availableChannels: Array<number> = []
@@ -324,6 +335,15 @@ export default class extends Mixins(createMixin) {
       this.form.gbRegionLevel = currentAddress.level
       console.log(this.form.gbRegion, this.form.gbRegionLevel)
     }
+  }
+
+  /**
+   * 选择资源包
+   */
+  private resourceChange(data: any) {
+    this.form.resouceVideo = data.resouceVideo
+    this.form.resouceAi = data.resouceAi
+    this.form.resouceUpload = data.resouceUpload
   }
 
   /**

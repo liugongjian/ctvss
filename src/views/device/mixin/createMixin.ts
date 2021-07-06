@@ -124,4 +124,17 @@ export default class CreateMixin extends Vue {
       callback()
     }
   }
+
+  /**
+   * 校验资源包
+   */
+  public validateResource(rule: any, value: string, callback: Function) {
+    const hasVideo = !!this.form.resouceVideo
+    const hasUpload = !!this.form.resouceUpload
+    if (!hasVideo && !hasUpload) {
+      callback(new Error('资源包必须配置视频包与上行带宽包'))
+    } else if (!hasVideo) {
+      callback(new Error('必须配置视频包'))
+    }
+  }
 }
