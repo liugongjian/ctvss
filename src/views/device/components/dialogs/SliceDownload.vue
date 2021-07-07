@@ -32,7 +32,9 @@
           hour-label="时"
           minute-label="分"
           second-label="秒"
-          @close="pickToBar(1)"
+          manual-input
+          auto-scroll
+          @close="pickToBar"
           @open="resetWarning"
         />
         <span class="time-range-gap">至</span>
@@ -43,7 +45,9 @@
           hour-label="时"
           minute-label="分"
           second-label="秒"
-          @close="pickToBar(2)"
+          manual-input
+          auto-scroll
+          @close="pickToBar"
           @open="resetWarning"
         />
       </el-form-item>
@@ -52,34 +56,30 @@
       <div ref="timelineWrap" class="timeline__wrap">
         <div ref="timeline" class="timeline">
           <div
-            ref="handle"
+            v-for="(handle, index) in handleList"
+            :id="`handle-${index}`"
+            :key="index"
             class="timeline__handle"
-            :style="`left: ${tmpHandlePos}%;`"
-            @mousedown.stop.prevent="moveHandleStart($event)"
+            :class="{'timeline__handle__plus': index === 0}"
+            :style="`left: ${handle.tmpHandlePos}%;`"
+            @mousedown.stop.prevent="moveHandleStart($event, handle)"
           >
-            <div ref="timesign" class="timeline__start2end ">
-              <span>{{ timeTransfer.formatTime1.HH + ':' + timeTransfer.formatTime1.mm + ':' + timeTransfer.formatTime1.ss }}</span>
-            </div>
-          </div>
-          <div
-            ref="handle2"
-            class="timeline__handle timeline__handle__plus"
-            :style="`left: ${tmpHandlePos2}%;`"
-            @mousedown.stop.prevent="moveHandle2($event)"
-          >
-            <div ref="timesign2" class="timeline__start2end timeline__start2end__plus">
-              <span>{{ timeTransfer.formatTime2.HH + ':' + timeTransfer.formatTime2.mm + ':' + timeTransfer.formatTime2.ss }}</span>
+            <div :id="`timesign-${index}`" class="timeline__start2end" :class="{'timeline__start2end__plus': index === 0}">
+              <span>{{ handle.formatTime.HH + ':' + handle.formatTime.mm + ':' + handle.formatTime.ss }}</span>
             </div>
           </div>
           <div class="timeline__range" :style="`left: ${rangeBarLeftPosition}%; width: ${rangeBarWidth}%`" />
           <div ref="bar" class="timeline__axis">
-            <div v-for="i in 24" :key="i" class="timeline__hour" />
+            <div v-for="i in 24" :key="i" class="timeline__hour">
+              <span v-if="!((i - 1)%6)">{{ renderHour(i) }}</span>
+              <span v-if="i === 24">{{ i }}:00</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
     <div class="warning-wrap">
-      <div v-show="isWarning" class="warning">时间间隔请不要超过2小时</div>
+      <div v-show="isWarning" class="warning">{{ warningText }}</div>
     </div>
     <div slot="footer" class="dialog-footer">
       <el-button type="primary" :loading="submitting" :disabled="isWarning" @click="submit">
@@ -93,7 +93,8 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { getDeviceRecord } from '@/api/device'
 import VueTimepicker from 'vue2-timepicker'
-import { roundToNearestMinutes } from 'date-fns'
+import { cloneDeep } from 'lodash'
+
 @Component({
   name: 'SliceDownload',
   components: {
@@ -106,8 +107,9 @@ export default class extends Vue {
       return []
     }
   })
-  public recordList!: Array<any>
-  public isWarning = false
+  private recordList!: Array<any>
+  private isWarning = false
+  private warningText = ''
 
   @Prop()
   private deviceId!: number | string
@@ -131,172 +133,119 @@ export default class extends Vue {
     ]
   }
 
-  public timeTransfer: any = {
-    numTime1: 0,
-    formatTime1: { HH: '00', mm: '00', ss: '00' },
-    numTime2: 0,
-    formatTime2: { HH: '00', mm: '00', ss: '00' }
-  }
-  public tmpCurrentTime = 0
-  public tmpHandlePos = 0
-  public tmpHandlePos2 = 0
-  public tmpHos = 0
-  public tmpHos2 = 0
-  public tmpCurrentTime2 = 0
-  public tmpDeltatime = 0
+  private handleList: any = [
+    {
+      index: 0,
+      $handle: null,
+      numTime: 0,
+      formatTime: { HH: '00', mm: '00', ss: '00' },
+      tmpCurrentTime: 0,
+      tmpHandlePos: 0,
+      tmpHos: 0,
+      isDragging: false,
+      deltaX: 0
+    },
+    {
+      index: 1,
+      $handle: null,
+      numTime: 0,
+      formatTime: { HH: '00', mm: '00', ss: '00' },
+      tmpCurrentTime: 0,
+      tmpHandlePos: 0,
+      tmpHos: 0,
+      isDragging: false,
+      deltaX: 0
+    }
+  ]
 
-  // 游标1拖动数据
-  public handleDrag: any = {
-    isDragging: false,
-    timelineSize: null,
-    deltaX: 0
-  }
-
-  // 游标2拖动数据
-  public handle2Drag: any = {
-    isDragging: false,
-    timelineSize: null,
-    deltaX: 0
-  }
+  private currentHandleIndex = -1
+  private timelineSize: any = null
 
   private rangeBarWidth = 0
   private rangeBarLeftPosition = 0
 
+  private mounted() {
+    this.$nextTick(() => {
+      const $timeline: any = this.$refs.timeline
+      this.timelineSize = $timeline.getBoundingClientRect()
+      this.handleList[0].$handle = $timeline.querySelector(`#handle-0`)
+      this.handleList[1].$handle = $timeline.querySelector(`#handle-1`)
+    })
+  }
+
+  private renderHour(i: number) {
+    return i - 1 < 12 ? `0${i - 1}:00` : `${i - 1}:00`
+  }
+
   /**
    * 拖拽游标1
    */
-  public moveHandleStart(e: MouseEvent) {
+  private moveHandleStart(e: MouseEvent, handleData: any) {
     this.isWarning = false
-    this.handleDrag.isDragging = roundToNearestMinutes
-    const $timeline: any = this.$refs.timeline
-    this.handleDrag.timelineSize = $timeline.getBoundingClientRect()
-    const $handle: any = this.$refs.handle
-    const handleSize = $handle.getBoundingClientRect()
+    handleData.isDragging = true
+    this.currentHandleIndex = handleData.index
+    const handleSize = handleData.$handle.getBoundingClientRect()
     const offsetX = e.x - handleSize.left
-    this.handleDrag.deltaX = offsetX - handleSize.width
+    handleData.deltaX = offsetX - handleSize.width
     window.addEventListener('mousemove', this.onHandleMove)
     window.addEventListener('mouseup', this.onHandleMouseup)
   }
 
   /**
-   * 拖拽游标2
+   * 拖拽游标时移动鼠标
    */
-  public moveHandle2(e: MouseEvent) {
-    this.isWarning = false
-    this.handle2Drag.isDragging = true
-    const $timeline: any = this.$refs.timeline
-    this.handle2Drag.timelineSize = $timeline.getBoundingClientRect()
-    const $handle2: any = this.$refs.handle2
-    const handleSize = $handle2.getBoundingClientRect()
-    const offsetX = e.x - handleSize.left
-    this.handle2Drag.deltaX = offsetX - handleSize.width
-    this.tmpCurrentTime2 = this.handle2Drag.deltaX
-    window.addEventListener('mousemove', this.onHandle2Move)
-    window.addEventListener('mouseup', this.onHandle2Mouseup)
-  }
-
-  /**
-   * 拖拽游标1时移动鼠标
-   */
-  public onHandleMove(e: MouseEvent) {
-    if (!this.handleDrag.isDragging) return
-    const $handle: any = this.$refs.handle
-    this.tmpHandlePos = (e.x - this.handleDrag.deltaX - this.handleDrag.timelineSize.left) / this.handleDrag.timelineSize.width * 100
-    if (this.tmpHandlePos >= 99.5) {
-      if (this.tmpHandlePos > 100) {
-        this.tmpHandlePos = 100
+  private onHandleMove(e: MouseEvent) {
+    const handleData = this.handleList[this.currentHandleIndex]
+    if (!handleData.isDragging) return
+    handleData.tmpHandlePos = (e.x - handleData.deltaX - this.timelineSize.left) / this.timelineSize.width * 100
+    // 处理边界情况
+    if (handleData.tmpHandlePos >= 99.5) {
+      if (handleData.tmpHandlePos > 100) {
+        handleData.tmpHandlePos = 100
       }
-      $handle.style.left = `calc(100% - 4px)`
-    } else if (this.tmpHandlePos < 0) {
-      this.tmpHandlePos = 0
-      $handle.style.left = `0`
+      handleData.$handle.style.left = `calc(100% - 4px)`
+    } else if (handleData.tmpHandlePos < 0) {
+      handleData.tmpHandlePos = 0
+      handleData.$handle.style.left = `0`
     }
-    this.timeTransfer.numTime1 = +(this.tmpHandlePos * 24 * 60 * 60 / 100).toFixed(6)
-    this.timeTransfer.formatTime1 = this.timeFormat(this.timeTransfer.numTime1)
+    handleData.numTime = +(handleData.tmpHandlePos * 24 * 60 * 60 / 100).toFixed(6)
+    handleData.formatTime = this.timeFormat(handleData.numTime, true)
     this.renderRangeBar()
-    this.tmpHos = (e.x - this.handleDrag.deltaX - this.handleDrag.timelineSize.left)
+    handleData.tmpHos = (e.x - handleData.deltaX - this.timelineSize.left)
     this.handlePosCheck()
     this.transitionHT()
-  }
-  /**
-   * 拖拽游标2时移动鼠标
-   */
-  public onHandle2Move(e: MouseEvent) {
-    const $handle2: any = this.$refs.handle2
-    if (!this.handle2Drag.isDragging) return
-    this.tmpHandlePos2 = (e.x - this.handle2Drag.deltaX - this.handle2Drag.timelineSize.left) / this.handle2Drag.timelineSize.width * 100
-    if (this.tmpHandlePos2 >= 99.5) {
-      if (this.tmpHandlePos2 > 100) {
-        this.tmpHandlePos2 = 100
-      }
-      $handle2.style.left = `calc(100% - 4px)`
-    } else if (this.tmpHandlePos2 < 0) {
-      this.tmpHandlePos2 = 0
-      $handle2.style.left = `0`
-    }
-    this.timeTransfer.numTime2 = +(this.tmpHandlePos2 * 24 * 60 * 60 / 100).toFixed(6)
-    this.timeTransfer.formatTime2 = this.timeFormat(this.timeTransfer.numTime2)
-    this.renderRangeBar()
-    this.handlePosCheck()
-    this.transitionHT()
-    this.tmpHos2 = (e.x - this.handle2Drag.deltaX - this.handle2Drag.timelineSize.left)
-  }
-
-  /**
-   * 计算区间条位置和宽度
-   */
-  private renderRangeBar(flag?: any, tmp?: any) {
-    let minPos = Math.min(this.tmpHandlePos2, this.tmpHandlePos)
-    let maxPos = Math.max(this.tmpHandlePos2, this.tmpHandlePos)
-    if (tmp) {
-      // start pick to bar
-      if (flag === 1) {
-        minPos = Math.min(this.tmpHandlePos2, tmp)
-        maxPos = Math.max(this.tmpHandlePos2, tmp)
-      }
-      // end pick to bar
-      if (flag === 2) {
-        minPos = Math.min(this.tmpHandlePos, tmp)
-        maxPos = Math.max(this.tmpHandlePos, tmp)
-      }
-    }
-    this.rangeBarWidth = (maxPos - minPos) < 100 ? (maxPos - minPos) : 100
-    this.rangeBarLeftPosition = minPos
   }
 
   /**
    * 拖拽游标1后抬起鼠标
    */
-  public onHandleMouseup() {
-    this.handleDrag.isDragging = false
+  private onHandleMouseup() {
+    const handleData = this.handleList[this.currentHandleIndex]
+    handleData.isDragging = false
     this.handleUpReset()
-    this.tmpDeltatime = this.tmpHos2 - this.tmpHos
+    const deltaTime = this.handleList[0].tmpHos - this.handleList[1].tmpHos
     this.handlePosCheck()
-    this.showWarning(Math.abs(this.tmpDeltatime), -1, -1)
+    this.showWarning(Math.abs(deltaTime), -1, -1)
     this.form.startTime = this.timeOrder().startTime
     this.form.endTime = this.timeOrder().endTime
     window.removeEventListener('mousemove', this.onHandleMove)
     window.removeEventListener('mouseup', this.onHandleMouseup)
   }
+
   /**
-   * 拖拽游标2后抬起鼠标
+   * 计算区间条位置和宽度
    */
-  public onHandle2Mouseup() {
-    this.handle2Drag.isDragging = false
-    this.handleUpReset()
-    this.tmpDeltatime = this.tmpHos2 - this.tmpHos
-    this.handlePosCheck()
-    this.showWarning(Math.abs(this.tmpDeltatime), -1, -1)
-    this.form.startTime = this.timeOrder().startTime
-    this.form.endTime = this.timeOrder().endTime
-    window.removeEventListener('mousemove', this.onHandle2Move)
-    window.removeEventListener('mouseup', this.onHandle2Mouseup)
+  private renderRangeBar() {
+    let minPos = Math.min(this.handleList[0].tmpHandlePos, this.handleList[1].tmpHandlePos)
+    let maxPos = Math.max(this.handleList[0].tmpHandlePos, this.handleList[1].tmpHandlePos)
+    this.rangeBarWidth = (maxPos - minPos) < 100 ? (maxPos - minPos) : 100
+    this.rangeBarLeftPosition = minPos
   }
 
   // 修正 time sign 横向位置
-  public handlePosCheck() {
-    const $handle: any = this.$refs.handle
-    const $handle2: any = this.$refs.handle2
+  private handlePosCheck() {
+    const $handle: any = this.handleList[0].$handle
+    const $handle2: any = this.handleList[1].$handle
     const $bar: any = this.$refs.bar
     if (!$handle || !$handle2) return
     const handleLocation = $handle.getBoundingClientRect()
@@ -325,9 +274,10 @@ export default class extends Vue {
   }
 
   // time sign 样式修正
-  public timeSignChange(flag: any, ee: any, tr: any, bl: any, ss: any, left: any) {
-    const $timeSign: any = this.$refs.timesign
-    const $timeSign2: any = this.$refs.timesign2
+  private timeSignChange(flag: any, ee: any, tr: any, bl: any, ss: any, left: any) {
+    const $timeline: any = this.$refs.timeline
+    const $timeSign: any = $timeline.querySelector('#timesign-0')
+    const $timeSign2: any = $timeline.querySelector('#timesign-1')
     if (flag === 1) {
       $timeSign.style.borderStartStartRadius = `${ss}px`
       $timeSign.style.borderBottomLeftRadius = `${bl}px`
@@ -345,19 +295,28 @@ export default class extends Vue {
   }
 
   // 显示 warning
-  public showWarning(deltaTime: any, sec1: any, sec2: any) {
+  private showWarning(deltaTime: any, startTimeSec: any, endTimeSec: any) {
+    const warnings = {
+      O2H: '时间间隔请不要超过2小时',
+      SBTE: '起始时间须早于结束时间'
+    }
     // 拖动检测
-    if (sec1 === -1 && sec2 === -1) {
+    if (startTimeSec === -1 && endTimeSec === -1) {
       if (deltaTime > 77.828125) {
         this.isWarning = true
+        this.warningText = warnings.O2H
       } else {
         this.isWarning = false
       }
     }
     // pick 检测
     if (deltaTime === -1) {
-      if (Math.abs(sec1 - sec2) > 7200) {
+      if (startTimeSec > endTimeSec) {
         this.isWarning = true
+        this.warningText = warnings.SBTE
+      } else if (Math.abs(startTimeSec - endTimeSec) > 7200) {
+        this.isWarning = true
+        this.warningText = warnings.O2H
       } else {
         this.isWarning = false
       }
@@ -365,26 +324,26 @@ export default class extends Vue {
   }
 
   // 修正 handle 和 time sign 高度
-  public transitionHT() {
-    const $handle: any = this.$refs.handle
-    const $handle2: any = this.$refs.handle2
-    const $timeSign2: any = this.$refs.timesign2
+  private transitionHT() {
+    const $handle: any = this.handleList[0].$handle
+    const $handle2: any = this.handleList[1].$handle
+    const $timeSign: any = $handle.querySelector('.timeline__start2end')
     if (!$handle || !$handle2) return
     const handleLocation = $handle.getBoundingClientRect()
     const handle2Location = $handle2.getBoundingClientRect()
-    if (Math.abs(handleLocation.x - handle2Location.x) <= 106) {
+    if (Math.abs(handleLocation.x - handle2Location.x) <= 80) {
       // 升起来
-      $handle2.style.height = `76px`
-      $timeSign2.style.bottom = `55px`
+      $handle.style.height = `76px`
+      $timeSign.style.bottom = `55px`
     } else {
       // 降下去
-      $handle2.style.height = `50px`
-      $timeSign2.style.bottom = `29px`
+      $handle.style.height = `50px`
+      $timeSign.style.bottom = `29px`
     }
   }
 
   // 时间格式
-  public timeFormat(time: any) {
+  private timeFormat(time: any, isIgnoreSecond?: boolean) {
     if (time === undefined) {
       time = 0
     }
@@ -411,62 +370,97 @@ export default class extends Vue {
       formatedTime.mm = '59'
       formatedTime.ss = '59'
     }
+    if (isIgnoreSecond) {
+      formatedTime.ss = '00'
+    }
     return formatedTime
   }
 
-  public timeOrder() {
-    let startTime = this.timeTransfer.numTime1 < this.timeTransfer.numTime2 ? this.timeTransfer.formatTime1 : this.timeTransfer.formatTime2
-    let endTime = this.timeTransfer.numTime1 >= this.timeTransfer.numTime2 ? this.timeTransfer.formatTime1 : this.timeTransfer.formatTime2
+  /**
+   * 判断时间先后
+   */
+  private timeOrder() {
+    let startTime, endTime
+    if (this.handleList[0].numTime < this.handleList[1].numTime) {
+      startTime = this.handleList[0].formatTime
+      endTime = this.handleList[1].formatTime
+    } else {
+      startTime = this.handleList[1].formatTime
+      endTime = this.handleList[0].formatTime
+    }
     return { startTime, endTime }
   }
 
-  public pickToBar(flag: any) {
-    const $handle: any = this.$refs.handle
-    const $handle2: any = this.$refs.handle2
-    let numsec1 = this.form.startTime.HH * 60 * 60 + this.form.startTime.mm * 60 + parseInt(this.form.startTime.ss)
-    let numsec2 = this.form.endTime.HH * 60 * 60 + this.form.endTime.mm * 60 + parseInt(this.form.endTime.ss)
-    if (flag === 1) {
-      // start time changes
-      // 和 handle 绑定
-      let tmp = +(numsec1 * 100 / 86400).toFixed(4) // %
-      this.timeTransfer.formatTime1 = this.form.startTime
-      if (tmp >= 99.5) {
-        $handle.style.left = `calc(100% - 4px)`
-        this.tmpHandlePos = 99.5
-      } else {
-        this.tmpHandlePos = tmp
-      }
-      this.tmpHos = this.tmpHandlePos * 850 // tmpHos 同步
-      this.renderRangeBar(1, tmp)
-      this.$nextTick(this.handlePosCheck)
-    } else if (flag === 2) {
-      // end time
-      // 和 handle2 绑定
-      let tmp = +(numsec2 * 100 / 86400).toFixed(4)
-      this.timeTransfer.formatTime2 = this.form.endTime
-      this.tmpHos2 = tmp
-      if (tmp >= 99.5) {
-        $handle2.style.left = `calc(100% - 4px)`
-        this.tmpHandlePos2 = 99.5
-      } else {
-        this.tmpHandlePos2 = tmp
-      }
-      this.tmpHos2 = this.tmpHandlePos2 * 850 // tmpHos 同步
-      this.renderRangeBar(2, tmp)
-      this.$nextTick(this.handlePosCheck)
+  /**
+   * 当时间选择器值改变更新游标位置
+   */
+  private pickToBar() {
+    let startTimeSec = this.form.startTime.HH * 60 * 60 + this.form.startTime.mm * 60 + parseInt(this.form.startTime.ss)
+    let endTimeSec = this.form.endTime.HH * 60 * 60 + this.form.endTime.mm * 60 + parseInt(this.form.endTime.ss)
+
+    let minHandleData, maxHandleData
+    let minTimeSec, maxTimeSec
+    let minTime, maxTime
+
+    if (this.handleList[0].tmpHos < this.handleList[1].tmpHos) {
+      minHandleData = this.handleList[0]
+      maxHandleData = this.handleList[1]
+    } else {
+      minHandleData = this.handleList[1]
+      maxHandleData = this.handleList[0]
     }
-    this.showWarning(-1, numsec1, numsec2)
+
+    if (startTimeSec > endTimeSec) {
+      minTimeSec = endTimeSec
+      maxTimeSec = startTimeSec
+      minTime = cloneDeep(this.form.endTime)
+      maxTime = cloneDeep(this.form.startTime)
+    } else {
+      minTimeSec = startTimeSec
+      maxTimeSec = endTimeSec
+      minTime = cloneDeep(this.form.startTime)
+      maxTime = cloneDeep(this.form.endTime)
+    }
+
+    // start time changes
+    let minSecPercent = +(minTimeSec * 100 / 86400).toFixed(4) // %
+    minHandleData.formatTime = minTime
+    if (minSecPercent >= 99.5) {
+      minHandleData.style.left = `calc(100% - 4px)`
+      minHandleData.tmpHandlePos = 99.5
+    } else {
+      minHandleData.tmpHandlePos = minSecPercent
+    }
+    minHandleData.tmpHos = minHandleData.tmpHandlePos / 100 * this.timelineSize.width // tmpHos 同步
+
+    // end time
+    let maxSecPercent = +(maxTimeSec * 100 / 86400).toFixed(4) // %
+    maxHandleData.formatTime = maxTime
+    if (maxSecPercent >= 99.5) {
+      maxHandleData.style.left = `calc(100% - 4px)`
+      maxHandleData.tmpHandlePos = 99.5
+    } else {
+      maxHandleData.tmpHandlePos = maxSecPercent
+    }
+    maxHandleData.tmpHos = maxHandleData.tmpHandlePos / 100 * this.timelineSize.width // tmpHos 同步
+
+    this.$nextTick(() => {
+      this.renderRangeBar()
+      this.handlePosCheck()
+      this.transitionHT()
+    })
+    this.showWarning(-1, startTimeSec, endTimeSec)
   }
 
   // 指针越界归位
-  public handleUpReset() {
-    if (this.tmpHos >= 850) {
-      this.tmpHos = 850
+  private handleUpReset() {
+    if (this.tmpHos >= this.timelineSize.width) {
+      this.tmpHos = this.timelineSize.width
     } else if (this.tmpHos <= 0) {
       this.tmpHos = 0
     }
-    if (this.tmpHos2 >= 850) {
-      this.tmpHos2 = 850
+    if (this.tmpHos2 >= this.timelineSize.width) {
+      this.tmpHos2 = this.timelineSize.width
     } else if (this.tmpHos2 <= 0) {
       this.tmpHos2 = 0
     }
@@ -509,6 +503,7 @@ export default class extends Vue {
       }
     })
   }
+
   private resetWarning() {
     this.isWarning = false
   }
@@ -535,9 +530,23 @@ export default class extends Vue {
   .form {
     position: absolute;
     margin: 0;
-    ::v-deep .vue__time-picker, ::v-deep .vue__time-picker input.display-time {
-      width: 132px;
-      z-index: 2007;
+    ::v-deep {
+      .vue__time-picker, .vue__time-picker input.display-time {
+        width: 170px;
+        z-index: 2007;
+      }
+      .vue__time-picker .dropdown, .vue__time-picker-dropdown {
+        width: 100%;
+        height: 15em;
+
+        .select-list {
+          width: 100%;
+          height: 15em;
+        }
+      }
+      .vue__time-picker .dropdown ul li:not([disabled]).active, .vue__time-picker .dropdown ul li:not([disabled]).active:hover, .vue__time-picker .dropdown ul li:not([disabled]).active:focus, .vue__time-picker-dropdown ul li:not([disabled]).active, .vue__time-picker-dropdown ul li:not([disabled]).active:hover, .vue__time-picker-dropdown ul li:not([disabled]).active:focus {
+        background: #fa8334;
+      }
     }
     .time-range-gap {
       margin: 0 10px;
@@ -555,7 +564,8 @@ export default class extends Vue {
     height: 15px;
   }
   .warning-wrap {
-    height: 15px;
+    padding-top: 10px;
+    height: 25px;
   }
   .warning {
     text-align: center;
@@ -566,8 +576,7 @@ export default class extends Vue {
     position: relative;
   }
   .timeline__wrap {
-    overflow-x: hidden;
-    margin-top: 30px;
+    padding-top: 30px;
     * {
       user-select:none;
     }
@@ -630,6 +639,7 @@ export default class extends Vue {
       }
     }
     &__hour {
+      position: relative;
       flex: 1 1 0;
       text-align: center;
       border-right: 2px solid #E6E6E6;
@@ -639,6 +649,18 @@ export default class extends Vue {
       color: #E6E6E6;
       &:first-child {
         border-left: 2px solid;
+      }
+      span {
+        position: absolute;
+        bottom: -25px;
+        left: -40%;
+        color: $textGrey;
+      }
+      &:last-child {
+        span {
+          left: 50%;
+          white-space: nowrap;
+        }
       }
     }
     &__half__hour {
