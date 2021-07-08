@@ -24,7 +24,7 @@
           placeholder="选择日期"
         />
       </el-form-item>
-      <el-form-item label="时间区间:" prop="endTime" style="margin-left: 40px;">
+      <el-form-item label="时间区间:" prop="endTime" class="time-range">
         <vue-timepicker
           v-model="form.startTime"
           placeholder="开始时间"
@@ -546,6 +546,9 @@ export default class extends Vue {
       .vue__time-picker .dropdown ul li:not([disabled]).active, .vue__time-picker .dropdown ul li:not([disabled]).active:hover, .vue__time-picker .dropdown ul li:not([disabled]).active:focus, .vue__time-picker-dropdown ul li:not([disabled]).active, .vue__time-picker-dropdown ul li:not([disabled]).active:hover, .vue__time-picker-dropdown ul li:not([disabled]).active:focus {
         background: #fa8334;
       }
+    }
+    .time-range {
+      margin-left: 35px;
     }
     .time-range-gap {
       margin: 0 10px;
