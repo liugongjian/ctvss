@@ -45,11 +45,11 @@
       <template v-if="(routerName === 'dashboardAI' && !isLight) || routerName === 'visualizationDashboard'">
         <div class="links">
           <a :class="{'actived': !queryAlertType}" @click="routeToHome()">可视化大屏</a>
-          <div v-for="group in alertTypeList" :key="group.name" class="dropdown">
+          <div v-for="group in aiGroups" :key="group.name" class="dropdown">
             {{ group.name }} <svg-icon name="arrow-down2" width="8" height="8" />
             <ul class="dropdown__menu">
-              <li v-for="type in group.list" :key="type.key" :class="{'actived': queryAlertType === type.key.toString()}" @click="routeToAI(type.key)">
-                {{ type.value }}
+              <li v-for="aiType in group.children" :key="aiType" :class="{'actived': queryAlertType === aiType.toString()}" @click="routeToAI(aiType)">
+                {{ alertType[aiType] }}
               </li>
             </ul>
           </div>
@@ -104,6 +104,7 @@ import { GroupModule } from '@/store/modules/group'
 import { getDevice } from '@/api/device'
 import { Group } from '@/type/group'
 import { AlertType } from '@/dics'
+import { AiGroups } from '@/views/dashboard/helper/aiGroups'
 import Breadcrumb from '@/components/Breadcrumb/index.vue'
 import ErrorLog from '@/components/ErrorLog/index.vue'
 import Hamburger from '@/components/Hamburger/index.vue'
@@ -128,6 +129,7 @@ import { checkPermission } from '@/utils/permission'
 export default class extends Vue {
   private checkPermission = checkPermission
   private alertType = AlertType
+  private aiGroups = AiGroups
   public searchForm = {
     deviceId: ''
   }
@@ -195,38 +197,6 @@ export default class extends Vue {
 
   get isLight() {
     return this.$route.query.isLight
-  }
-
-  get alertTypeList() {
-    const list = []
-    list.push({
-      name: '人脸识别',
-      list: [6, 4].map((id: number) => {
-        return {
-          key: id,
-          value: this.alertType[id]
-        }
-      })
-    })
-    list.push({
-      name: '人体识别',
-      list: [8, 5, 7, 12].map((id: number) => {
-        return {
-          key: id,
-          value: this.alertType[id]
-        }
-      })
-    })
-    list.push({
-      name: '安全生产',
-      list: [9, 10, 11, 13].map((id: number) => {
-        return {
-          key: id,
-          value: this.alertType[id]
-        }
-      })
-    })
-    return list
   }
 
   @Watch('currentGroupId', { immediate: true })

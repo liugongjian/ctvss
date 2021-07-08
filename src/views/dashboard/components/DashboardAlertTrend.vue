@@ -27,8 +27,42 @@ export default class extends Mixins(DashboardMixin) {
   private weeklyTrendData: any = []
   private chart: any = null
   private loading = false
+  private promiseList: any = []
 
   private mounted() {
+    const event6 = getAuditTrend({
+      form: 'week',
+      event: 6
+    })
+    const event8 = getAuditTrend({
+      form: 'week',
+      event: 8
+    })
+    const event4 = getAuditTrend({
+      form: 'week',
+      event: 4
+    })
+    const event5 = getAuditTrend({
+      form: 'week',
+      event: 5
+    })
+    const event7 = getAuditTrend({
+      form: 'week',
+      event: 7
+    })
+    const event13 = getAuditTrend({
+      form: 'week',
+      event: 13
+    })
+    this.promiseList = [event6, event8, event4, event5]
+    // TODO: 两当县智慧蜂业特殊处理
+    if (this.mainUserId === '90015') {
+      this.alertTypeMapping.push(13)
+      this.promiseList.push(event13)
+    } else {
+      this.alertTypeMapping.unshift(7)
+      this.promiseList.unshift(event7)
+    }
     this.timeChange()
   }
   private timeChange() {
@@ -36,7 +70,7 @@ export default class extends Mixins(DashboardMixin) {
     this.setInterval(this.getData.bind(this))
   }
   private alertType = AlertType
-  private alertTypeMapping = [6, 8, 4, 5, 7, 9]
+  private alertTypeMapping = [6, 8, 4, 5]
 
   /**
    * 获取数据
@@ -44,31 +78,7 @@ export default class extends Mixins(DashboardMixin) {
   private async getData() {
     try {
       this.loading = true
-      var event6 = getAuditTrend({
-        form: 'week',
-        event: 6
-      })
-      const event8 = getAuditTrend({
-        form: 'week',
-        event: 8
-      })
-      const event4 = getAuditTrend({
-        form: 'week',
-        event: 4
-      })
-      const event5 = getAuditTrend({
-        form: 'week',
-        event: 5
-      })
-      const event7 = getAuditTrend({
-        form: 'week',
-        event: 7
-      })
-      const event9 = getAuditTrend({
-        form: 'week',
-        event: 9
-      })
-      var data = await Promise.all([event6, event8, event4, event5, event7, event9])
+      var data = await Promise.all(this.promiseList)
       this.loading = false
       var nowTime = new Date().getTime()
       this.weeklyTrendData = []
@@ -81,7 +91,7 @@ export default class extends Mixins(DashboardMixin) {
           })
         }
       }
-      data.forEach((item, index) => {
+      data.forEach((item: any, index) => {
         Object.keys(item.trend).forEach((key) => {
           var currentType = this.alertType[this.alertTypeMapping[index]]
           var tableIndex = this.weeklyTrendData.findIndex((value: any) => {
@@ -127,74 +137,7 @@ export default class extends Mixins(DashboardMixin) {
     this.chart.legend({
       offsetY: 5,
       itemSpacing: 30,
-      items: [
-        {
-          name: '未戴口罩',
-          value: '未戴口罩',
-          marker: {
-            symbol: 'square',
-            style: {
-              fill: '#FF810C'
-            },
-            spacing: 5
-          }
-        },
-        {
-          name: '人员聚集',
-          value: '人员聚集',
-          marker: {
-            symbol: 'square',
-            style: {
-              fill: '#0091FF'
-            },
-            spacing: 5
-          }
-        },
-        {
-          name: '人员布控',
-          value: '人员布控',
-          marker: {
-            symbol: 'square',
-            style: {
-              fill: '#9E10D7'
-            },
-            spacing: 5
-          }
-        },
-        {
-          name: '吸烟检测',
-          value: '吸烟检测',
-          marker: {
-            symbol: 'square',
-            style: {
-              fill: '#1CB500'
-            },
-            spacing: 5
-          }
-        },
-        {
-          name: '安全帽反光服检测',
-          value: '安全帽反光服检测',
-          marker: {
-            symbol: 'square',
-            style: {
-              fill: '#ffe21c'
-            },
-            spacing: 5
-          }
-        },
-        {
-          name: '危险区域检测',
-          value: '危险区域检测',
-          marker: {
-            symbol: 'square',
-            style: {
-              fill: '#d21414'
-            },
-            spacing: 5
-          }
-        }
-      ],
+      // items: this.legendLabel,
       itemName: {
         style: {
           fill: '#eeeeee'
