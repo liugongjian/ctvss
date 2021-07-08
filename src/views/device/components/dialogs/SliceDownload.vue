@@ -528,7 +528,6 @@ export default class extends Vue {
 </script>
 <style lang="scss" scoped>
   .form {
-    position: absolute;
     margin: 0;
     ::v-deep {
       .vue__time-picker, .vue__time-picker input.display-time {
@@ -576,7 +575,7 @@ export default class extends Vue {
     position: relative;
   }
   .timeline__wrap {
-    padding-top: 30px;
+    margin-top: -30px;
     * {
       user-select:none;
     }
