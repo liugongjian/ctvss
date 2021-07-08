@@ -126,6 +126,7 @@
         </el-form-item>
         <el-form-item label="设备地址:" prop="address">
           <el-cascader
+            v-if="!lianzhouFlag"
             ref="addressCascader"
             v-model="form.address"
             expand-trigger="hover"
@@ -135,16 +136,19 @@
             @change="addressChange"
           />
           <el-cascader
+            v-else
             ref="addressCascader"
             v-model="form.address"
-            expand-trigger="hover"
+            class="lainzhou-cascader"
+            expand-trigger="click"
             :disabled="isUpdate"
             :options="regionList"
             :props="lianzhouRegionProps"
             @active-item-change="regionChange"
+            @change="addressChange"
           />
         </el-form-item>
-        <el-form-item label="经纬度:" prop="longlat">
+        <el-form-item v-if="lianzhouFlag" label="经纬度:" prop="longlat">
           <el-input class="longlat-input" /> : <el-input class="longlat-input" />
         </el-form-item>
         <el-form-item label="设备描述:" prop="description">
@@ -193,6 +197,8 @@ import { regionList } from '@/assets/region/lianzhouRegion'
   }
 })
 export default class extends Mixins(createMixin) {
+  // 针对连州
+  private lianzhouFlag: boolean = false
   private cities = cities
   private citiesProps: any = {
     value: 'code',
@@ -242,6 +248,9 @@ export default class extends Mixins(createMixin) {
     ],
     deviceIp: [
       { validator: this.validateDeviceIp, trigger: 'blur' }
+    ],
+    address: [
+      { required: true, message: '请选择设备地址', trigger: 'blur' }
     ]
   }
   private gbVersionList = ['2011', '2016']
@@ -287,6 +296,8 @@ export default class extends Mixins(createMixin) {
   }
 
   private async mounted() {
+    // 针对连州
+    this.lianzhouFlag = this.$store.state.user.mainUserID === '20720016'
     this.addressCascaderInit()
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
@@ -301,53 +312,61 @@ export default class extends Mixins(createMixin) {
   private addressCascaderInit() {
     const mainUserAddress: any = this.$store.state.user.mainUserAddress
     if (mainUserAddress) {
-      const mainUserAddresses = mainUserAddress.split(',')
-      let proArr: any = mainUserAddresses.map((adress: any) => {
-        return (adress.substring(0, 2) + '00')
-      })
-      this.cities = [...new Set(proArr)].map((pro: any) => {
-        return {
-          name: provinceMapping[pro.substring(0, 2)],
-          level: '1',
-          code: pro,
-          cities: []
-        }
-      })
-      this.cities.forEach((city: any) => {
-        mainUserAddresses.forEach((adress: any) => {
-          if (adress.substring(0, 2) === city.code.substring(0, 2)) {
-            let cityObj: any = {
-              name: cityMapping[adress],
-              level: '3',
-              code: adress
-            }
-            adress.substring(2, 4) === '00' && (cityObj.level = '1')
-            adress.substring(2, 4) === '01' && (cityObj.level = '2')
-            city.cities.push(cityObj)
+      if (this.lianzhouFlag) {
+        this.form.address = []
+      } else {
+        const mainUserAddresses = mainUserAddress.split(',')
+        let proArr: any = mainUserAddresses.map((adress: any) => {
+          return (adress.substring(0, 2) + '00')
+        })
+        this.cities = [...new Set(proArr)].map((pro: any) => {
+          return {
+            name: provinceMapping[pro.substring(0, 2)],
+            level: '1',
+            code: pro,
+            cities: []
           }
         })
-      })
-      this.form.address = [proArr[0], mainUserAddresses[0]]
-    } else {
-      this.form.address = ['1100', '1100']
+        this.cities.forEach((city: any) => {
+          mainUserAddresses.forEach((adress: any) => {
+            if (adress.substring(0, 2) === city.code.substring(0, 2)) {
+              let cityObj: any = {
+                name: cityMapping[adress],
+                level: '3',
+                code: adress
+              }
+              adress.substring(2, 4) === '00' && (cityObj.level = '1')
+              adress.substring(2, 4) === '01' && (cityObj.level = '2')
+              city.cities.push(cityObj)
+            }
+          })
+        })
+        this.form.address = [proArr[0], mainUserAddresses[0]]
+      }
     }
     this.$nextTick(() => {
       this.addressChange()
     })
   }
 
-  private addressChange() {
+  private addressChange(data?: any) {
     const addressCascader: any = this.$refs['addressCascader']
     if (addressCascader) {
-      const currentAddress = addressCascader.getCheckedNodes()[0].data
-      this.form.gbRegion = currentAddress.code + '0000'
-      this.form.gbRegionLevel = currentAddress.level
-      console.log(this.form.gbRegion, this.form.gbRegionLevel)
+      if (this.lianzhouFlag) {
+        console.log(data);
+        console.log(this.form.address);
+        
+      } else {
+        const currentAddress = addressCascader.getCheckedNodes()[0].data
+        this.form.gbRegion = currentAddress.code + '0000'
+        this.form.gbRegionLevel = currentAddress.level
+        console.log(this.form.gbRegion, this.form.gbRegionLevel)
+      }
     }
   }
 
   // 连州
-  private regionChange(val: any) {
+  private async regionChange(val: any) {
     if (val.length !== 3) {
       return
     }
@@ -360,7 +379,7 @@ export default class extends Mixins(createMixin) {
     let index3 = this.regionList[index1].children[index2].children.findIndex((item: any) => {
       return item.code === val[2]
     })
-    this.regionList[index1].children[index2].children[index3].children = this.getExpandList()
+    this.regionList[index1].children[index2].children[index3].children = await this.getExpandList()
   }
 
   /**
@@ -578,6 +597,9 @@ export default class extends Mixins(createMixin) {
     }
   }
   .longlat-input {
-    width: 150px;
+    width: 193px;
+  }
+  .lainzhou-cascader {
+    width: 400px
   }
 </style>
