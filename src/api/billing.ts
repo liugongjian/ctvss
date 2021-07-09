@@ -9,3 +9,13 @@ export const getResources = (params: any): Promise<any> =>
     method: 'get',
     params
   })
+
+/**
+ * 设备查询绑定资源包列表
+ */
+export const getDeviceResources = (params: any): Promise<any> =>
+  request({
+    url: '/resource/bind/list',
+    method: 'get',
+    params
+  })

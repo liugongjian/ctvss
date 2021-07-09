@@ -135,8 +135,8 @@
             @change="addressChange"
           />
         </el-form-item>
-        <el-form-item label="配置资源包:" prop="resource">
-          <ResourceTabs :device="form" @resource-change="resourceChange" />
+        <el-form-item label="配置资源包:" prop="resources">
+          <ResourceTabs v-model="form.resources" />
         </el-form-item>
         <el-form-item label="设备描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
@@ -172,6 +172,7 @@ import createMixin from '../mixin/createMixin'
 import { pick } from 'lodash'
 import { DeviceGb28181Type } from '@/dics'
 import { createDevice, updateDevice, getDevice } from '@/api/device'
+import { getDeviceResources } from '@/api/billing'
 import { getList as getGbList } from '@/api/certificate/gb28181'
 import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
 import ResourceTabs from '../components/ResourceTabs.vue'
@@ -228,8 +229,8 @@ export default class extends Mixins(createMixin) {
     deviceIp: [
       { validator: this.validateDeviceIp, trigger: 'blur' }
     ],
-    resource: [
-      { required: true, validator: this.validateResource, trigger: 'blur' }
+    resources: [
+      { required: true, validator: this.validateResources, trigger: 'blur' }
     ]
   }
   private gbVersionList = ['2011', '2016']
@@ -267,9 +268,7 @@ export default class extends Mixins(createMixin) {
     address: [],
     gbRegion: '',
     gbRegionLevel: '',
-    resouceVideo: null,
-    resouceAi: null,
-    resouceUpload: null
+    resources: []
   }
   private minChannelSize = 1
   private availableChannels: Array<number> = []
@@ -289,6 +288,9 @@ export default class extends Mixins(createMixin) {
     this.onGroupChange()
   }
 
+  /**
+   * 初始化设备地址
+   */
   private addressCascaderInit() {
     const mainUserAddress: any = this.$store.state.user.mainUserAddress
     if (mainUserAddress) {
@@ -338,15 +340,6 @@ export default class extends Mixins(createMixin) {
   }
 
   /**
-   * 选择资源包
-   */
-  private resourceChange(data: any) {
-    this.form.resouceVideo = data.resouceVideo
-    this.form.resouceAi = data.resouceAi
-    this.form.resouceUpload = data.resouceUpload
-  }
-
-  /**
    * 加载设备信息
    */
   private async getDeviceInfo() {
@@ -362,6 +355,13 @@ export default class extends Mixins(createMixin) {
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
           'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'gbId', 'userName', 'gbRegion', 'gbRegionLevel']))
+        // 获取绑定资源包列表
+        const resourcesRes = await getDeviceResources({
+          deviceId: info.deviceId,
+          deviceType: info.deviceType,
+          inProtocol: info.inProtocol
+        })
+        this.form.resources = resourcesRes.resources
         // 设备地址参数转换
         let gbCode = this.form.gbRegion.substring(0, 4)
         this.form.address = [gbCode.substring(0, 2) + '00', gbCode]
@@ -422,11 +422,17 @@ export default class extends Mixins(createMixin) {
     }
   }
 
+  /**
+   * 打开弹出框
+   */
   private openDialog(type: string) {
     // @ts-ignore
     this.dialog[type] = true
   }
 
+  /**
+   * 关闭弹出框
+   */
   private closeDialog(type: string, payload: any) {
     // @ts-ignore
     this.dialog[type] = false
@@ -435,6 +441,9 @@ export default class extends Mixins(createMixin) {
     }
   }
 
+  /**
+   * 获取国标账号
+   */
   private async getGbAccounts() {
     try {
       this.loading.account = true
@@ -456,6 +465,9 @@ export default class extends Mixins(createMixin) {
     }
   }
 
+  /**
+   * 提交
+   */
   private submit() {
     const form: any = this.$refs.dataForm
     form.validate(async(valid: any) => {
@@ -468,7 +480,7 @@ export default class extends Mixins(createMixin) {
           }
           if (!this.isChannel) {
             // 通用参数
-            params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'inProtocol', 'deviceIp', 'devicePort', 'pullType', 'userName', 'gbRegion', 'gbRegionLevel']))
+            params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'inProtocol', 'deviceIp', 'devicePort', 'pullType', 'userName', 'gbRegion', 'gbRegionLevel', 'resources']))
             // IPC类型添加额外参数
             if (this.form.deviceType === 'ipc') {
               params = Object.assign(params, {
