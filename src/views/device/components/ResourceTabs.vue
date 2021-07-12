@@ -5,27 +5,27 @@
       <div v-loading="loading.resouceVideoList" class="resource-tabs__content">
         <el-table :data="resouceVideoList" @row-click="onResourceRowClick('video', ...arguments)">
           <el-table-column prop="id" label="编号">
-            <template scope="scope">
+            <template slot-scope="scope">
               <el-radio v-model="form.resouceVideo" :label="scope.row.id" />
             </template>
           </el-table-column>
           <el-table-column prop="totalDeviceCount" label="可接入设备数量">
-            <template scope="scope">
+            <template slot-scope="scope">
               {{ scope.row.totalDeviceCount }}路
             </template>
           </el-table-column>
           <el-table-column prop="remainDeviceCount" label="接入设备余量">
-            <template scope="scope">
+            <template slot-scope="scope">
               {{ scope.row.remainDeviceCount }}路
             </template>
           </el-table-column>
           <el-table-column prop="bitRate" label="码率">
-            <template scope="scope">
+            <template slot-scope="scope">
               {{ scope.row.bitRate }}Mbps
             </template>
           </el-table-column>
           <el-table-column prop="storageTime" label="存储周期">
-            <template scope="scope">
+            <template slot-scope="scope">
               {{ scope.row.storageTime }}天
             </template>
           </el-table-column>
@@ -42,22 +42,22 @@
       <div v-loading="loading.resouceAiList" class="resource-tabs__content">
         <el-table :data="resouceAiList" @row-click="onResourceRowClick('ai', ...arguments)">
           <el-table-column prop="id" label="编号">
-            <template scope="scope">
+            <template slot-scope="scope">
               <el-radio v-model="form.resouceAi" :label="scope.row.id" />
             </template>
           </el-table-column>
           <el-table-column prop="totalDeviceCount" label="可接入设备数量">
-            <template scope="scope">
+            <template slot-scope="scope">
               {{ scope.row.totalDeviceCount }}路
             </template>
           </el-table-column>
           <el-table-column prop="remainDeviceCount" label="接入设备余量">
-            <template scope="scope">
+            <template slot-scope="scope">
               {{ scope.row.remainDeviceCount }}路
             </template>
           </el-table-column>
           <el-table-column prop="aiType" label="分析类型">
-            <template scope="scope">
+            <template slot-scope="scope">
               {{ resourceAiType[scope.row.aiType] }}
             </template>
           </el-table-column>
@@ -74,12 +74,12 @@
       <div v-loading="loading.resouceUploadList" class="resource-tabs__content">
         <el-table :data="resouceUploadList" @row-click="onResourceRowClick('upload', ...arguments)">
           <el-table-column prop="id" label="编号">
-            <template scope="scope">
+            <template slot-scope="scope">
               <el-radio v-model="form.resouceUpload" :label="scope.row.id" />
             </template>
           </el-table-column>
           <el-table-column prop="value" label="剩余上行带宽">
-            <template scope="scope">
+            <template slot-scope="scope">
               {{ scope.row.value }}Mbps
             </template>
           </el-table-column>

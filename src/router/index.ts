@@ -859,6 +859,19 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dot',
           perms: ['*']
         }
+      },
+      {
+        path: 'resource/management',
+        component: () => import(/* webpackChunkName: "billing" */ '@/views/billing/resource/index.vue'),
+        name: 'billing-resource-management',
+        meta: {
+          id: '20210709092201012003',
+          title: '资源包管理',
+          icon: 'dot',
+          hidden: true,
+          activeMenu: '/billing/resource',
+          perms: ['*']
+        }
       }
     ]
   },
