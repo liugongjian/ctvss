@@ -881,7 +881,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           id: '20210515200901013001',
           title: '批量导出设备信息',
-          icon: 'billing',
+          icon: 'key',
           breadcrumb: false,
           perms: ['*'],
           activeMenu: '/exportDevices',
