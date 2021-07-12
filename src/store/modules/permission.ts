@@ -139,6 +139,10 @@ class Permission extends VuexModule implements IPermissionState {
     if (params.iamUserId) {
       filteredRoutes = filteredRoutes.filter(route => route.path !== '/accessManage')
     }
+    // TODO: 连州教育局一机一档专用
+    if (store.state.user.mainUserID !== '30003') {
+      filteredRoutes = filteredRoutes.filter(route => route.path !== '/exportDevices')
+    }
     if (params.perms.includes('*')) {
       accessedRoutes = filteredRoutes
     } else {
