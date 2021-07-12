@@ -124,9 +124,27 @@
           </template>
           <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" />
         </el-form-item>
-        <el-form-item label="设备地址:" prop="address">
+        <template v-if="lianzhouFlag">
+          <el-form-item label="设备地址:" prop="address">
+            <el-cascader
+              ref="addressCascader"
+              v-model="form.address"
+              class="lainzhou-cascader"
+              expand-trigger="click"
+              :disabled="isUpdate"
+              :options="regionList"
+              :props="lianzhouRegionProps"
+              @active-item-change="regionChange"
+              @change="lianzhouAddressChange"
+            />
+          </el-form-item>
+          <el-form-item label="经纬度:" prop="longlat">
+            <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
+            <el-input v-model="form.deviceLatitude" class="longlat-input" />
+          </el-form-item>
+        </template>
+        <el-form-item v-else label="设备地址:" prop="address">
           <el-cascader
-            v-if="!lianzhouFlag"
             ref="addressCascader"
             v-model="form.address"
             expand-trigger="hover"
@@ -135,21 +153,6 @@
             :props="citiesProps"
             @change="addressChange"
           />
-          <el-cascader
-            v-else
-            ref="addressCascader"
-            v-model="form.address"
-            class="lainzhou-cascader"
-            expand-trigger="click"
-            :disabled="isUpdate"
-            :options="regionList"
-            :props="lianzhouRegionProps"
-            @active-item-change="regionChange"
-            @change="addressChange"
-          />
-        </el-form-item>
-        <el-form-item v-if="lianzhouFlag" label="经纬度:" prop="longlat">
-          <el-input class="longlat-input" /> : <el-input class="longlat-input" />
         </el-form-item>
         <el-form-item label="设备描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
@@ -188,7 +191,6 @@ import { createDevice, updateDevice, getDevice } from '@/api/device'
 import { getList as getGbList } from '@/api/certificate/gb28181'
 import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
 import { cities, provinceMapping, cityMapping } from '@/assets/region/cities'
-import { regionList } from '@/assets/region/lianzhouRegion'
 
 @Component({
   name: 'CreateGb28181Device',
@@ -197,21 +199,11 @@ import { regionList } from '@/assets/region/lianzhouRegion'
   }
 })
 export default class extends Mixins(createMixin) {
-  // 针对连州
-  private lianzhouFlag: boolean = false
   private cities = cities
   private citiesProps: any = {
     value: 'code',
     label: 'name',
     children: 'cities'
-  }
-
-  // 连州
-  private regionList = regionList
-  private lianzhouRegionProps: any = {
-    value: 'code',
-    label: 'name',
-    children: 'children'
   }
 
   private rules = {
@@ -251,6 +243,10 @@ export default class extends Mixins(createMixin) {
     ],
     address: [
       { required: true, message: '请选择设备地址', trigger: 'blur' }
+    ],
+    longlat: [
+      { required: true, message: '请选择经纬度', trigger: 'blur' },
+      { validator: this.validateLonglat, trigger: 'blur' }
     ]
   }
   private gbVersionList = ['2011', '2016']
@@ -286,6 +282,9 @@ export default class extends Mixins(createMixin) {
     gbId: '',
     userName: '',
     address: [],
+    longlat: 'required',
+    deviceLongitude: '',
+    deviceLatitude: '',
     gbRegion: '',
     gbRegionLevel: ''
   }
@@ -296,9 +295,8 @@ export default class extends Mixins(createMixin) {
   }
 
   private async mounted() {
-    // 针对连州
-    this.lianzhouFlag = this.$store.state.user.mainUserID === '20720016'
-    this.addressCascaderInit()
+    // TODO: 连州教育局一机一档专用
+    this.lianzhouFlag = this.$store.state.user.mainUserID === '30003'
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
     } else {
@@ -307,6 +305,7 @@ export default class extends Mixins(createMixin) {
     }
     this.getGbAccounts()
     this.onGroupChange()
+    this.lianzhouFlag ? this.lianzhouCascaderInit() : this.addressCascaderInit()
   }
 
   private addressCascaderInit() {
@@ -349,55 +348,14 @@ export default class extends Mixins(createMixin) {
     })
   }
 
-  private addressChange(data?: any) {
+  private addressChange() {
     const addressCascader: any = this.$refs['addressCascader']
-    if (addressCascader) {
-      if (this.lianzhouFlag) {
-        console.log(data);
-        console.log(this.form.address);
-        
-      } else {
-        const currentAddress = addressCascader.getCheckedNodes()[0].data
-        this.form.gbRegion = currentAddress.code + '0000'
-        this.form.gbRegionLevel = currentAddress.level
-        console.log(this.form.gbRegion, this.form.gbRegionLevel)
-      }
+    if (addressCascader && addressCascader.getCheckedNodes()[0]) {
+      const currentAddress = addressCascader.getCheckedNodes()[0].data
+      this.form.gbRegion = currentAddress.code + '0000'
+      this.form.gbRegionLevel = currentAddress.level
+      console.log(this.form.gbRegion, this.form.gbRegionLevel)
     }
-  }
-
-  // 连州
-  private async regionChange(val: any) {
-    if (val.length !== 3) {
-      return
-    }
-    let index1 = this.regionList.findIndex((item: any) => {
-      return item.code === val[0]
-    })
-    let index2 = this.regionList[index1].children.findIndex((item: any) => {
-      return item.code === val[1]
-    })
-    let index3 = this.regionList[index1].children[index2].children.findIndex((item: any) => {
-      return item.code === val[2]
-    })
-    this.regionList[index1].children[index2].children[index3].children = await this.getExpandList()
-  }
-
-  /**
-   * 加载公安局列表（连州）
-   */
-  private async getExpandList() {
-    return [
-      {
-        name: 'test1',
-        code: '0',
-        level: 4
-      },
-      {
-        name: 'test2',
-        code: '1',
-        level: 4
-      }
-    ]
   }
 
   /**
@@ -415,7 +373,7 @@ export default class extends Mixins(createMixin) {
       })
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
-          'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'gbId', 'userName', 'gbRegion', 'gbRegionLevel']))
+          'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel']))
         // 设备地址参数转换
         let gbCode = this.form.gbRegion.substring(0, 4)
         this.form.address = [gbCode.substring(0, 2) + '00', gbCode]
@@ -522,7 +480,7 @@ export default class extends Mixins(createMixin) {
           }
           if (!this.isChannel) {
             // 通用参数
-            params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'inProtocol', 'deviceIp', 'devicePort', 'pullType', 'userName', 'gbRegion', 'gbRegionLevel']))
+            params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'inProtocol', 'deviceIp', 'devicePort', 'pullType', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel']))
             // IPC类型添加额外参数
             if (this.form.deviceType === 'ipc') {
               params = Object.assign(params, {
