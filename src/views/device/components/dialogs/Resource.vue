@@ -75,12 +75,12 @@ export default class extends Mixins(createMixin) {
       if (valid) {
         try {
           this.submitting = true
-          const params = Object.assign(this.form, {
+          const params = {
             deviceId: this.device.deviceId,
             deviceType: this.device.deviceType,
             inProtocol: this.device.inProtocol,
             resources: this.form.resources
-          })
+          }
           await updateDeviceResources(params)
         } catch (e) {
           this.$message.error(e && e.message)
