@@ -32,8 +32,8 @@
           <el-table-column prop="createTime" label="开通时间" />
           <el-table-column prop="expireTime" label="到期时间" />
         </el-table>
-        <div v-if="resouceVideoList.length" class="resource-tabs__none">
-          <el-radio v-model="form.resouceVideoId" :label="-1" @change="onFormChange">不绑定任何视频包</el-radio>
+        <div v-if="resouceVideoList.length && isUpdate" class="resource-tabs__none">
+          <el-radio v-model="form.resouceVideoId" :label="-1" @change="onFormChange(false)">不绑定任何视频包</el-radio>
         </div>
       </div>
     </el-tab-pane>
@@ -65,7 +65,7 @@
           <el-table-column prop="expireTime" label="到期时间" />
         </el-table>
         <div v-if="resouceAiList.length" class="resource-tabs__none">
-          <el-radio v-model="form.resouceAiId" :label="-1" @change="onFormChange">不绑定任何视频包</el-radio>
+          <el-radio v-model="form.resouceAiId" :label="-1" @change="onFormChange(false)">不绑定任何AI包</el-radio>
         </div>
       </div>
     </el-tab-pane>
@@ -86,8 +86,8 @@
           <el-table-column prop="createTime" label="开通时间" />
           <el-table-column prop="expireTime" label="到期时间" />
         </el-table>
-        <div v-if="resouceUploadList.length" class="resource-tabs__none">
-          <el-radio v-model="form.resouceUploadId" :label="-1" @change="onFormChange">不绑定任何视频包</el-radio>
+        <div v-if="resouceUploadList.length && isUpdate" class="resource-tabs__none">
+          <el-radio v-model="form.resouceUploadId" :label="-1" @change="onFormChange(false)">不绑定任何上行带宽包</el-radio>
         </div>
       </div>
     </el-tab-pane>
@@ -98,18 +98,20 @@ import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
 import { ResourceAiType } from '@/dics'
 import { getResources } from '@/api/billing'
 
+
 @Component({
   name: 'ResourceTabs'
 })
 export default class extends Vue {
   @Prop() private value?: any
+  @Prop() private isUpdate?: boolean
 
   private resourceTabType = 'video'
   private resourceAiType = ResourceAiType
   private form: any = {
-    resouceVideoId: null,
-    resouceAiId: null,
-    resouceUploadId: null
+    resouceVideoId: -1,
+    resouceAiId: -1,
+    resouceUploadId: -1
   }
   private loading = {
     resouceVideoList: false,
@@ -124,6 +126,7 @@ export default class extends Vue {
     this.resouceVideoList = await this.getResouces('VSS_VIDEO', this.loading.resouceVideoList)
     this.resouceAiList = await this.getResouces('VSS_AI', this.loading.resouceAiList)
     this.resouceUploadList = await this.getResouces('VSS_UPLOAD_BW', this.loading.resouceUploadList)
+    this.onFormChange(true)
   }
 
   /**
@@ -164,25 +167,37 @@ export default class extends Vue {
           break
       }
     })
+    this.onFormChange(true)
   }
 
   /**
    * 切换资源包
    */
-  private onFormChange() {
+  private onFormChange(isInit: boolean) {
     const resouceVideo = this.resouceVideoList.find((resource: any) => resource.resourceId === this.form.resouceVideoId)
     const resouceAi = this.resouceAiList.find((resource: any) => resource.resourceId === this.form.resouceAiId)
     const resouceUpload = this.resouceUploadList.find((resource: any) => resource.resourceId === this.form.resouceUploadId)
     const resources = [resouceVideo, resouceAi, resouceUpload]
     const result: any = []
+    const mapping: any = []
     resources.forEach((resource: any) => {
-      resource && result.push({
-        workOrderId: resource.workOrderId,
-        resourceId: resource.resourceId,
-        resourceType: resource.type
-      })
+      if (resource) {
+        const resourceResult = {
+          workOrderId: resource.workOrderId,
+          resourceId: resource.resourceId,
+          resourceType: resource.type
+        }
+        result.push(resourceResult)
+        mapping[resource.resourceId] = Object.assign(resourceResult, { remainDeviceCount: resource.remainDeviceCount })
+      }
     })
-    this.$emit('input', result)
+    if (!isInit) {
+      this.$emit('input', result)
+    }
+    this.$emit('on-change', {
+      isInit,
+      mapping
+    })
   }
 
   /**
@@ -200,7 +215,7 @@ export default class extends Vue {
         this.form.resouceUploadId = row.resourceId
         break
     }
-    this.onFormChange()
+    this.onFormChange(false)
   }
 }
 </script>

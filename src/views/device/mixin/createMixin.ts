@@ -7,6 +7,7 @@ export default class CreateMixin extends Vue {
   @Inject('deviceRouter') public deviceRouter!: Function
   @Inject('initDirs') public initDirs!: Function
   public form: any = {}
+  public resourcesMapping: any = {}
 
   public loading = {
     account: false,
@@ -74,6 +75,15 @@ export default class CreateMixin extends Vue {
   }
 
   /**
+   * 当资源包改变时获取资源包详情（包含接入剩余设备数）
+   */
+  public onResourceChange(payload: any) {
+    this.resourcesMapping = payload.mapping
+    const form: any = this.$refs.dataForm
+    !payload.isInit && form.validateField('resources')
+  }
+
+  /**
    * 清空验证信息
    */
   public clearValidate() {
@@ -131,22 +141,36 @@ export default class CreateMixin extends Vue {
   public validateResources(rule: any, value: string, callback: Function) {
     let hasVideo = false
     let hasUpload = false
-
+    const remainError: any = []
     this.form.resources.forEach((resource: any) => {
+      // 剩余可接入设备数
+      const remainDeviceCount = parseInt(this.resourcesMapping[resource.resourceId] && this.resourcesMapping[resource.resourceId].remainDeviceCount)
+      const devicesCount = this.form.deviceType === 'ipc' ? 1 : this.form.channelSize
       switch (resource.resourceType) {
         case 'VSS_VIDEO':
           hasVideo = true
+          if (devicesCount > remainDeviceCount) {
+            remainError.push('视频包')
+          }
+          break
+        case 'VSS_AI':
+          if (devicesCount > remainDeviceCount) {
+            remainError.push('AI包')
+          }
           break
         case 'VSS_UPLOAD_BW':
           hasUpload = true
           break
       }
     })
-
-    if (!hasVideo && !hasUpload) {
+    if (remainError.length) {
+      callback(new Error(`${remainError.join(',')}接入设备余量不足，请增加包资源！`))
+    } else if (!this.isUpdate && !hasVideo && !hasUpload) {
       callback(new Error('资源包必须配置视频包与上行带宽包'))
-    } else if (!hasVideo) {
+    } else if (!this.isUpdate && !hasVideo) {
       callback(new Error('必须配置视频包'))
+    } else if (!this.isUpdate && !hasUpload) {
+      callback(new Error('必须配置上行带宽包'))
     } else {
       callback()
     }
