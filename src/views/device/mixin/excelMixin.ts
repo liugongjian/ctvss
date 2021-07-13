@@ -230,8 +230,6 @@ export default class ExcelMixin extends Vue {
   }
 
   private async getOptions() {
-    console.log(this.excelGroupDate)
-
     // 获取资源包选项
     try {
       let VIDEORes: any = await getResources({ type: 'VSS_VIDEO' })
@@ -244,7 +242,7 @@ export default class ExcelMixin extends Vue {
       }) : []
       let BWRes: any = await getResources({ type: 'VSS_UPLOAD_BW' })
       this.BWList = BWRes.resPkgList ? BWRes.resPkgList.map((item: any) => {
-        return `${item.id}||${item.bandWidth}`
+        return `${item.id}`
       }) : []
     } catch (e) {
       console.error(e)
@@ -287,6 +285,11 @@ export default class ExcelMixin extends Vue {
           return city
         } else {
           return provinceMapping[addressCode.substring(0, 2)] + city
+          // let test = []
+          // for (let i = 0; i < 20; i++) {
+          //   test.push('广东省清远市连州派出所')
+          // }
+          // return test
         }
       })
     } else if (this.exelDeviceType === 'nvr') {
@@ -457,6 +460,10 @@ export default class ExcelMixin extends Vue {
     workbook.views = this.excelViews
     const worksheet: any = workbook.addWorksheet('My Sheet')
     worksheet.name = exelName
+    let accessColumns = this.columnsTemplate[this.exelDeviceType][this.exelType]
+    if (this.excelGroupDate && this.excelGroupDate.inNetworkType === 'private') {
+      worksheet.columns = accessColumns.filter((item: any) => item.key !== 'BWPackage')
+    }
     worksheet.columns = this.columnsTemplate[this.exelDeviceType][this.exelType]
     this.exportData.map((device: any) => {
       worksheet.addRow(device)
