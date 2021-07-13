@@ -2,6 +2,8 @@ import { Component, Vue } from 'vue-property-decorator'
 import { getList as getGbList } from '@/api/certificate/gb28181'
 import { exportDeviceAll, exportDeviceOption, getDevice } from '@/api/device'
 import { cityMapping, provinceMapping } from '@/assets/region/cities'
+import { getResources } from '@/api/billing'
+import { ResourceAiType } from '@/dics'
 import ExcelJS from 'exceljs'
 
 @Component
@@ -24,9 +26,13 @@ export default class ExcelMixin extends Vue {
     }
   ]
   public regionName = ''
+  public excelGroupDate: any
   private gbAccountList: any = []
   private availableChannels: any = []
   private cityList: any = []
+  private AIList: any = []
+  private VIDEOList: any = []
+  private BWList: any = []
   // 表格字段配置
   private columnsTemplate: any = {
     gb28181: {
@@ -38,12 +44,15 @@ export default class ExcelMixin extends Vue {
         { header: '设备描述', key: 'description', width: 16 },
         { header: '设备IP', key: 'deviceIp', width: 24 },
         { header: '设备端口', key: 'devicePort', width: 10 },
-        { header: '设备用户名', key: 'userName', width: 10 },
+        { header: '设备用户名', key: 'userName', width: 16 },
         { header: '是否启用自动拉流', key: 'pullType', width: 16 },
         { header: '国标ID', key: 'gbId', width: 24 },
         { header: '设备视频流优先传输协议', key: 'transPriority', width: 24 },
         { header: '设备通道数量', key: 'channelSize', width: 16 },
-        { header: '预设城市', key: 'city', width: 16 }
+        { header: '预设城市', key: 'city', width: 16 },
+        { header: '视频包', key: 'videoPackage', width: 24 },
+        { header: 'AI包', key: 'AIPackage', width: 24 },
+        { header: '上行带宽包', key: 'BWPackage', width: 24 }
       ]
     },
     rtmp: {
@@ -56,7 +65,10 @@ export default class ExcelMixin extends Vue {
         { header: '是否启用自动拉流', key: 'pullType', width: 24 },
         { header: '是否启用自动激活推流地址', key: 'pushType', width: 24 },
         { header: '拉流地址', key: 'pullUrl', width: 24 },
-        { header: '视频流标签', key: 'tags', width: 24 }
+        { header: '视频流标签', key: 'tags', width: 24 },
+        { header: '视频包', key: 'videoPackage', width: 24 },
+        { header: 'AI包', key: 'AIPackage', width: 24 },
+        { header: '上行带宽包', key: 'BWPackage', width: 24 }
       ]
     },
     rtsp: {
@@ -75,7 +87,10 @@ export default class ExcelMixin extends Vue {
         { header: '自动拉取第几个码流', key: 'AutoStreamNum', width: 24 },
         { header: '是否启用自动拉流', key: 'pullType', width: 24 },
         { header: '是否启用自动激活推流地址', key: 'pushType', width: 24 },
-        { header: '设备视频流优先传输协议', key: 'transPriority', width: 24 }
+        { header: '设备视频流优先传输协议', key: 'transPriority', width: 24 },
+        { header: '视频包', key: 'videoPackage', width: 24 },
+        { header: 'AI包', key: 'AIPackage', width: 24 },
+        { header: '上行带宽包', key: 'BWPackage', width: 24 }
       ]
     },
     ehome: {
@@ -88,7 +103,10 @@ export default class ExcelMixin extends Vue {
         { header: '主子码流数量', key: 'multiStreamSize', width: 16 },
         { header: '自动拉流', key: 'pullType', width: 10 },
         { header: '自动拉取码流', key: 'AutoStreamNum', width: 16 },
-        { header: '设备通道数量', key: 'channelSize', width: 16 }
+        { header: '设备通道数量', key: 'channelSize', width: 16 },
+        { header: '视频包', key: 'videoPackage', width: 24 },
+        { header: 'AI包', key: 'AIPackage', width: 24 },
+        { header: '上行带宽包', key: 'BWPackage', width: 24 }
       ]
     },
     nvr: {
@@ -181,7 +199,54 @@ export default class ExcelMixin extends Vue {
     }
   }
 
+  private getVideoPackageValidation(VIDEOList: any) {
+    return {
+      type: 'list',
+      allowBlank: true,
+      showErrorMessage: true,
+      formulae: [`"${VIDEOList.join(',')}"`],
+      error: '请选择视频包'
+    }
+  }
+
+  private getAIPackageValidation(AIList: any) {
+    return {
+      type: 'list',
+      allowBlank: true,
+      showErrorMessage: true,
+      formulae: [`"${AIList.join(',')}"`],
+      error: '请选择AI包'
+    }
+  }
+
+  private getBWPackageValidation(BWList: any) {
+    return {
+      type: 'list',
+      allowBlank: true,
+      showErrorMessage: true,
+      formulae: [`"${BWList.join(',')}"`],
+      error: '请选择上行带宽包'
+    }
+  }
+
   private async getOptions() {
+    // 获取资源包选项
+    try {
+      let VIDEORes: any = await getResources({ type: 'VSS_VIDEO' })
+      this.VIDEOList = VIDEORes.resPkgList ? VIDEORes.resPkgList.map((item: any) => {
+        return `${item.id}||${item.totalDeviceCount}:${item.remainDeviceCount}:${item.bitRate}M:${item.storageTime}天`
+      }) : []
+      let AIRes: any = await getResources({ type: 'VSS_AI' })
+      this.AIList = AIRes.resPkgList ? AIRes.resPkgList.map((item: any) => {
+        return `${item.id}||${item.totalDeviceCount}:${item.remainDeviceCount}:${ResourceAiType[item.aiType]}`
+      }) : []
+      let BWRes: any = await getResources({ type: 'VSS_UPLOAD_BW' })
+      this.BWList = BWRes.resPkgList ? BWRes.resPkgList.map((item: any) => {
+        return `${item.id}`
+      }) : []
+    } catch (e) {
+      console.error(e)
+    }
     if (this.exelDeviceType === 'gb28181') {
       // 获取设备用户选项
       try {
@@ -220,6 +285,11 @@ export default class ExcelMixin extends Vue {
           return city
         } else {
           return provinceMapping[addressCode.substring(0, 2)] + city
+          // let test = []
+          // for (let i = 0; i < 20; i++) {
+          //   test.push('广东省清远市连州派出所')
+          // }
+          // return test
         }
       })
     } else if (this.exelDeviceType === 'nvr') {
@@ -275,21 +345,6 @@ export default class ExcelMixin extends Vue {
     })
     worksheet.dataValidations.add('K2:K9999', this.validation.transPriority)
     worksheet.dataValidations.add('L2:L9999', this.validation.channelSize)
-    // worksheet.dataValidations.add('L2:L9999', {
-    //   type: 'list',
-    //   allowBlank: true,
-    //   showErrorMessage: true,
-    //   formulae: ['"是,否"'],
-    //   error: '请从选项中选择'
-    // })
-    // worksheet.dataValidations.add('M2:M9999', {
-    //   type: 'textLength',
-    //   allowBlank: true,
-    //   showInputMessage: true,
-    //   showErrorMessage: true,
-    //   prompt: '手动创建子设备时该项为必填，示例“{D1,D2,D5}”'
-    // })
-    // worksheet.dataValidations.add('N2:N9999', this.validation.tags)
     worksheet.dataValidations.add('M2:M9999', {
       type: 'list',
       allowBlank: false,
@@ -297,6 +352,9 @@ export default class ExcelMixin extends Vue {
       formulae: [`"${this.cityList.join(',')}"`],
       error: '请选择预设城市'
     })
+    worksheet.dataValidations.add('N2:N9999', this.getVideoPackageValidation(this.VIDEOList))
+    worksheet.dataValidations.add('O2:O9999', this.getAIPackageValidation(this.AIList))
+    worksheet.dataValidations.add('P2:P9999', this.getBWPackageValidation(this.BWList))
   }
 
   private rtmpOptionsInit(worksheet: any) {
@@ -313,6 +371,9 @@ export default class ExcelMixin extends Vue {
     worksheet.dataValidations.add('F2:F9999', this.validation.pullType)
     worksheet.dataValidations.add('G2:G9999', this.validation.pushType)
     worksheet.dataValidations.add('I2:I9999', this.validation.tags)
+    worksheet.dataValidations.add('J2:J9999', this.getVideoPackageValidation(this.VIDEOList))
+    worksheet.dataValidations.add('K2:K9999', this.getAIPackageValidation(this.AIList))
+    worksheet.dataValidations.add('L2:L9999', this.getBWPackageValidation(this.BWList))
   }
 
   private rtspOptionsInit(worksheet: any) {
@@ -339,6 +400,9 @@ export default class ExcelMixin extends Vue {
     worksheet.dataValidations.add('M2:M9999', this.validation.pullType)
     worksheet.dataValidations.add('N2:N9999', this.validation.pushType)
     worksheet.dataValidations.add('O2:O9999', this.validation.transPriority)
+    worksheet.dataValidations.add('P2:P9999', this.getVideoPackageValidation(this.VIDEOList))
+    worksheet.dataValidations.add('Q2:Q9999', this.getAIPackageValidation(this.AIList))
+    worksheet.dataValidations.add('R2:R9999', this.getBWPackageValidation(this.BWList))
   }
 
   private ehomeOptionsInit(worksheet: any) {
@@ -361,6 +425,9 @@ export default class ExcelMixin extends Vue {
       prompt: '1、自动拉流的情况下，“自动拉取码流”项才会生效；2、自动拉取码流的范围不得超过主子码流数量'
     })
     worksheet.dataValidations.add('I2:I9999', this.validation.channelSize)
+    worksheet.dataValidations.add('J2:J9999', this.getVideoPackageValidation(this.VIDEOList))
+    worksheet.dataValidations.add('K2:K9999', this.getAIPackageValidation(this.AIList))
+    worksheet.dataValidations.add('L2:L9999', this.getBWPackageValidation(this.BWList))
   }
 
   private nvrOptionsInit(worksheet: any) {
@@ -375,6 +442,14 @@ export default class ExcelMixin extends Vue {
     worksheet.dataValidations.add('C2:C9999', this.validation.deviceName)
   }
 
+  private coulumnFilter(coulumns: any) {
+    const result: any = {}
+    Object.keys(coulumns).filter((key) => key !== 'BWPackage').forEach((key) => {
+      result[key] = coulumns[key]
+    })
+    return result
+  }
+
   /**
    * 导出模板
    */
@@ -385,6 +460,10 @@ export default class ExcelMixin extends Vue {
     workbook.views = this.excelViews
     const worksheet: any = workbook.addWorksheet('My Sheet')
     worksheet.name = exelName
+    let accessColumns = this.columnsTemplate[this.exelDeviceType][this.exelType]
+    if (this.excelGroupDate && this.excelGroupDate.inNetworkType === 'private') {
+      worksheet.columns = accessColumns.filter((item: any) => item.key !== 'BWPackage')
+    }
     worksheet.columns = this.columnsTemplate[this.exelDeviceType][this.exelType]
     this.exportData.map((device: any) => {
       worksheet.addRow(device)

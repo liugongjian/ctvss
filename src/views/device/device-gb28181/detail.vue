@@ -89,6 +89,7 @@
                   </div>
                 </div>
               </info-list-item>
+              <info-list-item v-for="resource in resources" :key="resource.label" :label="`${resourceType[resource.label]}:`">{{ (resource.value && '已绑定') || '未绑定' }}</info-list-item>
               <info-list-item label="设备描述:">{{ info.description || '-' }}</info-list-item>
             </info-list>
           </div>

@@ -1,8 +1,9 @@
 import { Component, Vue, Inject } from 'vue-property-decorator'
 import { Device } from '@/type/device'
 import { RecordTemplate } from '@/type/template'
-import { DeviceStatus, DeviceGb28181Type, RecordStatus, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType } from '@/dics'
+import { DeviceStatus, DeviceGb28181Type, RecordStatus, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType } from '@/dics'
 import { getDevice } from '@/api/device'
+import { getDeviceResources } from '@/api/billing'
 import TemplateBind from '../../components/templateBind.vue'
 import SetAuthConfig from '../components/dialogs/SetAuthConfig.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
@@ -32,8 +33,10 @@ export default class DetailMixin extends Vue {
   public transPriority = TransPriority
   public sipTransType = SipTransType
   public streamTransType = StreamTransType
+  public resourceType = ResourceType
   public createSubDevice = CreateSubDevice
   public info: Device | null = null
+  public resources: any = []
   public pushConfig = {
     auth: true,
     key: '1a66a5c2317368a282ceb2b326767651',
@@ -102,8 +105,9 @@ export default class DetailMixin extends Vue {
     }
   }
 
-  public mounted() {
-    this.getDevice()
+  public async mounted() {
+    await this.getDevice()
+    await this.getDeviceResources()
   }
 
   /**
@@ -131,6 +135,40 @@ export default class DetailMixin extends Vue {
         deviceId: this.deviceId,
         inProtocol: this.inProtocol
       })
+    } catch (e) {
+      console.error(e)
+    } finally {
+      this.loading.info = false
+    }
+  }
+
+  /**
+   * 获取设备资源包
+   */
+  public async getDeviceResources() {
+    try {
+      this.loading.info = true
+      const resourcesRes = await getDeviceResources({
+        deviceId: this.info!.deviceId,
+        deviceType: this.info!.deviceType,
+        inProtocol: this.info!.inProtocol
+      })
+      const resourcesMapping: any = {
+        'VSS_VIDEO': false,
+        'VSS_UPLOAD_BW': false,
+        'VSS_AI': false
+      }
+      resourcesRes.resources.forEach((resource: any) => {
+        resourcesMapping[resource.resourceType] = true
+      })
+      const resources = []
+      for (let key in resourcesMapping) {
+        resources.push({
+          label: key,
+          value: resourcesMapping[key]
+        })
+      }
+      this.resources = resources
     } catch (e) {
       console.error(e)
     } finally {

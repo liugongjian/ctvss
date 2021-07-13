@@ -1,25 +1,10 @@
 <template>
   <div>
-    <el-table v-loading="loading" class="resource-table" :data="dataList" @row-click="rowClick($event, 'video')">
+    <el-table v-loading="loading" class="resource-table" :data="dataList" @row-click="rowClick($event, 'uploadBandwidth')">
       <el-table-column prop="id" label="编号" />
-      <el-table-column prop="totalDeviceCount" label="可接入设备总数">
+      <el-table-column prop="uploadBandwidth" label="剩余上行带宽">
         <template slot-scope="{row}">
-          {{ row.totalDeviceCount }}路
-        </template>
-      </el-table-column>
-      <el-table-column prop="remainDeviceCount" label="接入设备余量">
-        <template slot-scope="{row}">
-          {{ row.remainDeviceCount }}路
-        </template>
-      </el-table-column>
-      <el-table-column prop="rate" label="码率">
-        <template slot-scope="{row}">
-          {{ row.bitRate }}Mbps
-        </template>
-      </el-table-column>
-      <el-table-column prop="storageTime" label="存储周期">
-        <template slot-scope="{row}">
-          {{ row.storageTime }}天
+          {{ row.totalDeviceCount }}Mbps
         </template>
       </el-table-column>
       <el-table-column prop="createTime" label="开通时间" min-width="140" />
@@ -38,10 +23,10 @@ import { Component, Mixins } from 'vue-property-decorator'
 import ResourceMixin from '../mixins/resource'
 
 @Component({
-  name: 'ResourceVideo'
+  name: 'ResourceUploadBandwidth'
 })
 export default class extends Mixins(ResourceMixin) {
-  public type = 'VSS_VIDEO'
+  public type = 'VSS_UPLOAD_BW'
 }
 </script>
 <style lang="scss" scoped>
