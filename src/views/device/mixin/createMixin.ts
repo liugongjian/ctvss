@@ -257,11 +257,11 @@ export default class CreateMixin extends Vue {
     })
     if (remainError.length) {
       callback(new Error(`${remainError.join(',')}接入设备余量不足，请增加包资源！`))
-    } else if (!this.isUpdate && !hasVideo && !hasUpload) {
+    } else if (!this.isUpdate && !hasVideo && !hasUpload && !this.isPrivateUser) {
       callback(new Error('资源包必须配置视频包与上行带宽包'))
     } else if (!this.isUpdate && !hasVideo) {
       callback(new Error('必须配置视频包'))
-    } else if (!this.isUpdate && !hasUpload) {
+    } else if (!this.isUpdate && !hasUpload && !this.isPrivateUser) {
       callback(new Error('必须配置上行带宽包'))
     } else {
       callback()
