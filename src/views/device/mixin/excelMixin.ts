@@ -8,6 +8,7 @@ import ExcelJS from 'exceljs'
 
 @Component
 export default class ExcelMixin extends Vue {
+  public resourceAiType: any = ResourceAiType
   public exelType: string = ''
   public exelDeviceType: string = ''
   public exportData: any = []
@@ -238,7 +239,7 @@ export default class ExcelMixin extends Vue {
       }) : []
       let AIRes: any = await getResources({ type: 'VSS_AI' })
       this.AIList = AIRes.resPkgList ? AIRes.resPkgList.map((item: any) => {
-        return `${item.id}||${item.totalDeviceCount}:${item.remainDeviceCount}:${ResourceAiType[item.aiType]}`
+        return `${item.id}||${item.totalDeviceCount}:${item.remainDeviceCount}:${this.resourceAiType[item.aiType]}`
       }) : []
       let BWRes: any = await getResources({ type: 'VSS_UPLOAD_BW' })
       this.BWList = BWRes.resPkgList ? BWRes.resPkgList.map((item: any) => {
