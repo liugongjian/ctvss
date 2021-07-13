@@ -19,7 +19,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="dirPath" label="设备路径" min-width="180" />
+        <!-- <el-table-column prop="dirPath" label="设备路径" min-width="180" /> -->
         <el-table-column prop="deviceType" label="类型" />
         <!-- <el-table-column label="码率">
           <template slot-scope="{row}">
