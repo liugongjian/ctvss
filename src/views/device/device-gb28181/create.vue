@@ -162,7 +162,7 @@
         </el-form-item>
       </template>
       <el-form-item label="">
-        <el-button type="primary" :loading="submitting" @click="beforeSubmit">确 定</el-button>
+        <el-button type="primary" :loading="submitting" @click="submit">确 定</el-button>
         <el-button @click="back">取 消</el-button>
       </el-form-item>
     </el-form>
@@ -273,7 +273,6 @@ export default class extends Mixins(createMixin) {
     gbRegionLevel: '',
     resources: []
   }
-  private orginalChannelSize = 0
   private minChannelSize = 1
   private availableChannels: Array<number> = []
   private dialog = {
@@ -471,58 +470,16 @@ export default class extends Mixins(createMixin) {
   }
 
   /**
-   * 提交验证
+   * 提交
    */
-  private beforeSubmit() {
-    const form: any = this.$refs.dataForm
-    form.validate((valid: any) => {
-      if (valid) {
-        // 判断通道数量的变化
-        let channelSizeChangeMsg = ''
-        if (this.form.channelSize < this.orginalChannelSize) {
-          channelSizeChangeMsg = '缩减子设备的数量将会释放相应包资源！'
-        } else if (this.form.channelSize > this.orginalChannelSize) {
-          channelSizeChangeMsg = '新增子设备将自动绑定到现有资源包！'
-        }
-        if (this.isUpdate && this.form.deviceType === 'nvr' && this.form.createSubDevice === 2 && channelSizeChangeMsg) {
-          this.$msgbox({
-            title: '提示',
-            message: channelSizeChangeMsg,
-            showCancelButton: true,
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            beforeClose: async(action: any, instance: any, done: Function) => {
-              if (action === 'confirm') {
-                instance.confirmButtonLoading = true
-                instance.confirmButtonText = '提交中...'
-                try {
-                  await this.submit()
-                  done()
-                } finally {
-                  instance.confirmButtonLoading = false
-                  instance.confirmButtonText = '确定'
-                }
-              } else {
-                done()
-              }
-            }
-          }).catch((e: any) => {
-            if (e === 'cancel' || e === 'close') return
-            this.$message.error(e)
-          })
-        } else {
-          this.submit()
-        }
-      } else {
-        return false
-      }
-    })
+  private submit() {
+    this.beforeSubmit(this.doSubmit)
   }
 
   /**
-   * 提交
+   * 执行提交
    */
-  private async submit() {
+  private async doSubmit() {
     try {
       this.submitting = true
       let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceVendor', 'description'])

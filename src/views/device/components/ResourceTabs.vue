@@ -32,7 +32,7 @@
           <el-table-column prop="createTime" label="开通时间" />
           <el-table-column prop="expireTime" label="到期时间" />
         </el-table>
-        <div v-if="resouceVideoList.length && isUpdate" class="resource-tabs__none">
+        <div v-if="isUpdate || isFreeUser" class="resource-tabs__none">
           <el-radio v-model="form.resouceVideoId" :label="-1" @change="onFormChange(false)">不绑定任何视频包</el-radio>
         </div>
       </div>
@@ -64,7 +64,7 @@
           <el-table-column prop="createTime" label="开通时间" />
           <el-table-column prop="expireTime" label="到期时间" />
         </el-table>
-        <div v-if="resouceAiList.length" class="resource-tabs__none">
+        <div class="resource-tabs__none">
           <el-radio v-model="form.resouceAiId" :label="-1" @change="onFormChange(false)">不绑定任何AI包</el-radio>
         </div>
       </div>
@@ -86,7 +86,7 @@
           <el-table-column prop="createTime" label="开通时间" />
           <el-table-column prop="expireTime" label="到期时间" />
         </el-table>
-        <div v-if="resouceUploadList.length && isUpdate" class="resource-tabs__none">
+        <div v-if="isUpdate || isFreeUser" class="resource-tabs__none">
           <el-radio v-model="form.resouceUploadId" :label="-1" @change="onFormChange(false)">不绑定任何上行带宽包</el-radio>
         </div>
       </div>
@@ -97,7 +97,7 @@
 import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
 import { ResourceAiType } from '@/dics'
 import { getResources } from '@/api/billing'
-
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'ResourceTabs'
@@ -121,6 +121,10 @@ export default class extends Vue {
   private resouceVideoList = []
   private resouceAiList = []
   private resouceUploadList = []
+
+  public get isFreeUser() {
+    return UserModule.tags && UserModule.tags.resourceFree === '1'
+  }
 
   private async mounted() {
     this.resouceVideoList = await this.getResouces('VSS_VIDEO', this.loading.resouceVideoList)

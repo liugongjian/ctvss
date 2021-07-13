@@ -178,50 +178,53 @@ export default class extends Mixins(createMixin) {
     }
   }
 
+  /**
+   * 提交
+   */
   private submit() {
-    const form: any = this.$refs.dataForm
-    form.validate(async(valid: any) => {
-      if (valid) {
-        try {
-          this.submitting = true
-          let params: any = pick(this.form, ['groupId', 'dirId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor', 'description', 'inType', 'tags'])
-          if (this.isUpdate) {
-            params = Object.assign(params, pick(this.form, ['deviceId']))
-          } else {
-            params = Object.assign(params, pick(this.form, ['resources']))
-          }
-          if (this.form.inType === 'push') {
-            params = Object.assign(params, pick(this.form, ['pushType']))
-          } else {
-            params = Object.assign(params, pick(this.form, ['pullType', 'pullUrl']))
-          }
-          if (this.isUpdate) {
-            delete params.deviceType
-            delete params.deviceType
-            // 获取设备资源包
-            await updateDeviceResources({
-              deviceId: this.deviceId,
-              deviceType: this.form.deviceType,
-              inProtocol: this.inProtocol,
-              resources: this.form.resources
-            })
-            await updateDevice(params)
-            this.$message.success('修改设备成功！')
-          } else {
-            await createDevice(params)
-            this.$message.success('添加设备成功！')
-          }
-          this.back()
-          this.initDirs()
-        } catch (e) {
-          this.$message.error(e && e.message)
-        } finally {
-          this.submitting = false
-        }
+    this.beforeSubmit(this.doSubmit)
+  }
+
+  /**
+   * 执行提交
+   */
+  private async doSubmit() {
+    try {
+      this.submitting = true
+      let params: any = pick(this.form, ['groupId', 'dirId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor', 'description', 'inType', 'tags'])
+      if (this.isUpdate) {
+        params = Object.assign(params, pick(this.form, ['deviceId']))
       } else {
-        return false
+        params = Object.assign(params, pick(this.form, ['resources']))
       }
-    })
+      if (this.form.inType === 'push') {
+        params = Object.assign(params, pick(this.form, ['pushType']))
+      } else {
+        params = Object.assign(params, pick(this.form, ['pullType', 'pullUrl']))
+      }
+      if (this.isUpdate) {
+        delete params.deviceType
+        delete params.deviceType
+        // 获取设备资源包
+        await updateDeviceResources({
+          deviceId: this.deviceId,
+          deviceType: this.form.deviceType,
+          inProtocol: this.inProtocol,
+          resources: this.form.resources
+        })
+        await updateDevice(params)
+        this.$message.success('修改设备成功！')
+      } else {
+        await createDevice(params)
+        this.$message.success('添加设备成功！')
+      }
+      this.back()
+      this.initDirs()
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.submitting = false
+    }
   }
 }
 </script>

@@ -179,3 +179,10 @@ div:focus {
 .vue__time-picker-dropdown ul li:not([disabled]).active, .vue__time-picker-dropdown ul li:not([disabled]).active:focus, .vue__time-picker-dropdown ul li:not([disabled]).active:hover, .vue__time-picker .dropdown ul li:not([disabled]).active, .vue__time-picker .dropdown ul li:not([disabled]).active:focus, .vue__time-picker .dropdown ul li:not([disabled]).active:hover {
   background: $primary;
 }
+
+.alert-message-list {
+  margin-top: 0;
+  li {
+    margin: 7px 0;
+  }
+}

@@ -1,5 +1,6 @@
 import { Component, Watch, Vue, Inject } from 'vue-property-decorator'
 import { GroupModule } from '@/store/modules/group'
+import { UserModule } from '@/store/modules/user'
 import { DeviceModule } from '@/store/modules/device'
 
 @Component
@@ -8,6 +9,7 @@ export default class CreateMixin extends Vue {
   @Inject('initDirs') public initDirs!: Function
   public form: any = {}
   public resourcesMapping: any = {}
+  public orginalChannelSize = 0
 
   public loading = {
     account: false,
@@ -55,6 +57,14 @@ export default class CreateMixin extends Vue {
 
   public get breadcrumb() {
     return DeviceModule.breadcrumb
+  }
+
+  public get isPrivateUser() {
+    return UserModule.tags && UserModule.tags.networkType === 'private'
+  }
+
+  public get isFreeUser() {
+    return UserModule.tags && UserModule.tags.resourceFree === '1'
   }
 
   private get breadCrumbContent() {
@@ -111,6 +121,88 @@ export default class CreateMixin extends Vue {
         id: this.$route.query.dirId
       })
     }
+  }
+
+  /**
+   * 提交验证
+   */
+  public beforeSubmit(submit: Function) {
+    const form: any = this.$refs.dataForm
+    form.validate((valid: any) => {
+      if (valid) {
+        // 判断通道数量的变化
+        let alertMsg = []
+        if (this.form.channelSize < this.orginalChannelSize) {
+          alertMsg.push('缩减子设备的数量将会释放相应包资源。')
+        } else if (this.form.channelSize > this.orginalChannelSize) {
+          alertMsg.push('新增子设备将自动绑定到现有资源包。')
+        }
+        // 判断是否未选资源包
+        const hasResource: any = {
+          VSS_VIDEO: {
+            isSelect: false,
+            msg: '不绑定任何视频包，会导致设备无法上线。'
+          },
+          VSS_AI: {
+            isSelect: false,
+            msg: '不绑定任何AI包，会导致AI服务不可用。'
+          },
+          VSS_UPLOAD_BW: {
+            isSelect: false,
+            msg: '不绑定任何上行带宽包，会导致视频流无法上线。'
+          }
+        }
+        this.form.resources.forEach((resource: any) => {
+          hasResource[resource.resourceType].isSelect = true
+        })
+        for (let key in hasResource) {
+          const resource = hasResource[key]
+          if (!resource.isSelect) {
+            alertMsg.push(resource.msg)
+          }
+        }
+        if (this.isUpdate && alertMsg.length) {
+          const h: Function = this.$createElement
+          this.$msgbox({
+            title: '提示',
+            message: h('div', { class: 'alert-message-list' }, [
+              h(
+                'ul',
+                undefined,
+                alertMsg.map((msg: string) => {
+                  return h('li', undefined, msg)
+                })
+              )
+            ]),
+            showCancelButton: true,
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            beforeClose: async(action: any, instance: any, done: Function) => {
+              if (action === 'confirm') {
+                instance.confirmButtonLoading = true
+                instance.confirmButtonText = '提交中...'
+                try {
+                  await submit()
+                  done()
+                } finally {
+                  instance.confirmButtonLoading = false
+                  instance.confirmButtonText = '确定'
+                }
+              } else {
+                done()
+              }
+            }
+          }).catch((e: any) => {
+            if (e === 'cancel' || e === 'close') return
+            this.$message.error(e)
+          })
+        } else {
+          submit()
+        }
+      } else {
+        return false
+      }
+    })
   }
 
   /**

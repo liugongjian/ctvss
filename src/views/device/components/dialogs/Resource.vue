@@ -69,27 +69,26 @@ export default class extends Mixins(createMixin) {
     }
   }
 
-  private async submit() {
-    const form: any = this.$refs.dataForm
-    form.validate(async(valid: any) => {
-      if (valid) {
-        try {
-          this.submitting = true
-          const params = {
-            deviceId: this.device.deviceId,
-            deviceType: this.device.deviceType,
-            inProtocol: this.device.inProtocol,
-            resources: this.form.resources
-          }
-          await updateDeviceResources(params)
-        } catch (e) {
-          this.$message.error(e && e.message)
-        } finally {
-          this.submitting = false
-        }
-        this.closeDialog(true)
+  private submit() {
+    this.beforeSubmit(this.doSubmit)
+  }
+
+  private async doSubmit() {
+    try {
+      this.submitting = true
+      const params = {
+        deviceId: this.device.deviceId,
+        deviceType: this.device.deviceType,
+        inProtocol: this.device.inProtocol,
+        resources: this.form.resources
       }
-    })
+      await updateDeviceResources(params)
+      this.closeDialog(true)
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.submitting = false
+    }
   }
 
   private closeDialog(isRefresh: boolean = false) {
