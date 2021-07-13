@@ -328,6 +328,7 @@ export default class extends Mixins(listMixin, excelMixin) {
     this.exelType = 'template'
     this.exelDeviceType = 'ehome'
     this.exelName = 'EHOME导入模板'
+    this.excelGroupDate = this.groupData
     if (this.isNVR) {
       this.exelDeviceType = 'nvr'
       this.exelName = 'NVR添加子设备导入模板'
