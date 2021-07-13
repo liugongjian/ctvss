@@ -299,49 +299,45 @@ export default class extends Mixins(createMixin) {
     this.lianzhouFlag = this.$store.state.user.mainUserID === '30003'
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
+      this.lianzhouFlag ? this.lianzhouCascaderInit() : this.addressCascaderInit()
     } else {
       this.form.dirId = this.dirId
       this.form.inProtocol = this.inProtocol
     }
     this.getGbAccounts()
     this.onGroupChange()
-    this.lianzhouFlag ? this.lianzhouCascaderInit() : this.addressCascaderInit()
   }
 
   private addressCascaderInit() {
     const mainUserAddress: any = this.$store.state.user.mainUserAddress
     if (mainUserAddress) {
-      if (this.lianzhouFlag) {
-        this.form.address = []
-      } else {
-        const mainUserAddresses = mainUserAddress.split(',')
-        let proArr: any = mainUserAddresses.map((adress: any) => {
-          return (adress.substring(0, 2) + '00')
-        })
-        this.cities = [...new Set(proArr)].map((pro: any) => {
-          return {
-            name: provinceMapping[pro.substring(0, 2)],
-            level: '1',
-            code: pro,
-            cities: []
+      const mainUserAddresses = mainUserAddress.split(',')
+      let proArr: any = mainUserAddresses.map((adress: any) => {
+        return (adress.substring(0, 2) + '00')
+      })
+      this.cities = [...new Set(proArr)].map((pro: any) => {
+        return {
+          name: provinceMapping[pro.substring(0, 2)],
+          level: '1',
+          code: pro,
+          cities: []
+        }
+      })
+      this.cities.forEach((city: any) => {
+        mainUserAddresses.forEach((adress: any) => {
+          if (adress.substring(0, 2) === city.code.substring(0, 2)) {
+            let cityObj: any = {
+              name: cityMapping[adress],
+              level: '3',
+              code: adress
+            }
+            adress.substring(2, 4) === '00' && (cityObj.level = '1')
+            adress.substring(2, 4) === '01' && (cityObj.level = '2')
+            city.cities.push(cityObj)
           }
         })
-        this.cities.forEach((city: any) => {
-          mainUserAddresses.forEach((adress: any) => {
-            if (adress.substring(0, 2) === city.code.substring(0, 2)) {
-              let cityObj: any = {
-                name: cityMapping[adress],
-                level: '3',
-                code: adress
-              }
-              adress.substring(2, 4) === '00' && (cityObj.level = '1')
-              adress.substring(2, 4) === '01' && (cityObj.level = '2')
-              city.cities.push(cityObj)
-            }
-          })
-        })
-        this.form.address = [proArr[0], mainUserAddresses[0]]
-      }
+      })
+      this.form.address = [proArr[0], mainUserAddresses[0]]
     }
     this.$nextTick(() => {
       this.addressChange()

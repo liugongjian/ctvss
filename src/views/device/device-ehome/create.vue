@@ -280,12 +280,12 @@ export default class extends Mixins(createMixin) {
     this.lianzhouFlag = this.$store.state.user.mainUserID === '30003'
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
+      this.lianzhouFlag && this.lianzhouCascaderInit()
     } else {
       this.form.dirId = this.dirId
     }
     this.form.inProtocol = this.inProtocol
     this.onGroupChange()
-    this.lianzhouFlag && this.lianzhouCascaderInit()
   }
 
   private onMultiStreamSizeChange() {
