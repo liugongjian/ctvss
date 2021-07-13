@@ -55,12 +55,15 @@
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import ResourceMixin from '../mixins/resource'
+import { ResourceType, ResourceAiType } from '@/dics'
 
 @Component({
   name: 'ResourceBandwidth'
 })
 export default class extends Mixins(ResourceMixin) {
   public type = 'VSS_UPLOAD_BW'
+  public resourceType = ResourceType
+  public resourceAiType = ResourceAiType
   private filtersArray = [
     {
       text: '上行带宽包',

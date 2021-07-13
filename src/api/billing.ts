@@ -29,3 +29,13 @@ export const updateDeviceResources = (params: any): Promise<any> =>
     method: 'post',
     data: params
   })
+
+/**
+ * 查询与资源包绑定的设备列表
+ */
+export const getResourceDevices = (params: any): Promise<any> =>
+  request({
+    url: 'resource/describeAttachedDevices',
+    method: 'get',
+    params
+  })

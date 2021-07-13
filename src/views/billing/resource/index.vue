@@ -3,15 +3,19 @@
     <el-tabs v-model="activeName" type="border-card" @tab-click="onTabClick">
       <el-tab-pane name="video">
         <span slot="label">视频包<span v-if="countVideo !== undefined">({{ countVideo }})</span></span>
-        <Video />
+        <Video v-if="activeName === 'video'" />
       </el-tab-pane>
       <el-tab-pane name="ai">
         <span slot="label">AI包<span v-if="countAi !== undefined">({{ countAi }})</span></span>
-        <Ai />
+        <Ai v-if="activeName === 'ai'" />
       </el-tab-pane>
-      <el-tab-pane name="bandwidth">
-        <span slot="label">带宽包<span v-if="countBandwidth !== undefined">({{ countBandwidth }})</span></span>
-        <Bandwidth />
+      <el-tab-pane name="uploadBandwidth">
+        <span slot="label">上行带宽包<span v-if="countUploadBandwidth !== undefined">({{ countUploadBandwidth }})</span></span>
+        <UploadBandwidth v-if="activeName === 'uploadBandwidth'" />
+      </el-tab-pane>
+      <el-tab-pane name="downloadBandwidth">
+        <span slot="label">下行带宽包<span v-if="countDownloadBandwidth !== undefined">({{ countDownloadBandwidth }})</span></span>
+        <DownloadBandwidth v-if="activeName === 'downloadBandwidth'" />
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -20,6 +24,8 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import Video from './components/Video.vue'
+import UploadBandwidth from './components/UploadBandwidth.vue'
+import DownloadBandwidth from './components/DownloadBandwidth.vue'
 import Bandwidth from './components/Bandwidth.vue'
 import Ai from './components/Ai.vue'
 import { getResourceCount } from '@/api/dashboard'
@@ -28,12 +34,14 @@ import { getResourceCount } from '@/api/dashboard'
   name: 'BillingResource',
   components: {
     Video,
+    UploadBandwidth,
+    DownloadBandwidth,
     Bandwidth,
     Ai
   }
 })
 export default class extends Vue {
-  private activeName = 'video'
+  private activeName = ''
   private resourceCount: any = {}
 
   private get countVideo() {
@@ -44,15 +52,15 @@ export default class extends Vue {
     return this.resourceCount.ai
   }
 
-  private get countBandwidth() {
-    if (this.resourceCount.downloadBandwidth !== undefined) {
-      return this.resourceCount.downloadBandwidth + this.resourceCount.uploadBandwidth
-    } else {
-      return undefined
-    }
+  private get countUploadBandwidth() {
+    return this.resourceCount.uploadBandwidth
   }
 
-  private mounted() {
+  private get countDownloadBandwidth() {
+    return this.resourceCount.downloadBandwidth
+  }
+
+  private created() {
     this.activeName = this.$route.query.type ? this.$route.query.type.toString() : 'video'
     this.getResourceCount()
   }
