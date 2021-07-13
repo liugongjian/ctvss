@@ -4,9 +4,9 @@
       <!--视频包-->
       <div v-loading="loading.resouceVideoList" class="resource-tabs__content">
         <el-table :data="resouceVideoList" @row-click="onResourceRowClick('video', ...arguments)">
-          <el-table-column prop="id" label="编号">
+          <el-table-column prop="resourceId" label="编号">
             <template scope="scope">
-              <el-radio v-model="form.resouceVideo" :label="scope.row.id" />
+              <el-radio v-model="form.resouceVideoId" :label="scope.row.resourceId" />
             </template>
           </el-table-column>
           <el-table-column prop="totalDeviceCount" label="可接入设备数量">
@@ -32,8 +32,8 @@
           <el-table-column prop="createTime" label="开通时间" />
           <el-table-column prop="expireTime" label="到期时间" />
         </el-table>
-        <div v-if="resouceVideoList.length" class="resource-tabs__none">
-          <el-radio v-model="form.resouceVideo" :label="-1" @change="onFormChange">不绑定任何视频包</el-radio>
+        <div v-if="resouceVideoList.length && isUpdate" class="resource-tabs__none">
+          <el-radio v-model="form.resouceVideoId" :label="-1" @change="onFormChange(false)">不绑定任何视频包</el-radio>
         </div>
       </div>
     </el-tab-pane>
@@ -41,9 +41,9 @@
       <!--AI包-->
       <div v-loading="loading.resouceAiList" class="resource-tabs__content">
         <el-table :data="resouceAiList" @row-click="onResourceRowClick('ai', ...arguments)">
-          <el-table-column prop="id" label="编号">
+          <el-table-column prop="resourceId" label="编号">
             <template scope="scope">
-              <el-radio v-model="form.resouceAi" :label="scope.row.id" />
+              <el-radio v-model="form.resouceAiId" :label="scope.row.resourceId" />
             </template>
           </el-table-column>
           <el-table-column prop="totalDeviceCount" label="可接入设备数量">
@@ -65,7 +65,7 @@
           <el-table-column prop="expireTime" label="到期时间" />
         </el-table>
         <div v-if="resouceAiList.length" class="resource-tabs__none">
-          <el-radio v-model="form.resouceAi" :label="-1" @change="onFormChange">不绑定任何视频包</el-radio>
+          <el-radio v-model="form.resouceAiId" :label="-1" @change="onFormChange(false)">不绑定任何AI包</el-radio>
         </div>
       </div>
     </el-tab-pane>
@@ -73,9 +73,9 @@
       <!--上行带宽包-->
       <div v-loading="loading.resouceUploadList" class="resource-tabs__content">
         <el-table :data="resouceUploadList" @row-click="onResourceRowClick('upload', ...arguments)">
-          <el-table-column prop="id" label="编号">
+          <el-table-column prop="resourceId" label="编号">
             <template scope="scope">
-              <el-radio v-model="form.resouceUpload" :label="scope.row.id" />
+              <el-radio v-model="form.resouceUploadId" :label="scope.row.resourceId" />
             </template>
           </el-table-column>
           <el-table-column prop="value" label="剩余上行带宽">
@@ -86,8 +86,8 @@
           <el-table-column prop="createTime" label="开通时间" />
           <el-table-column prop="expireTime" label="到期时间" />
         </el-table>
-        <div v-if="resouceUploadList.length" class="resource-tabs__none">
-          <el-radio v-model="form.resouceUpload" :label="-1" @change="onFormChange">不绑定任何视频包</el-radio>
+        <div v-if="resouceUploadList.length && isUpdate" class="resource-tabs__none">
+          <el-radio v-model="form.resouceUploadId" :label="-1" @change="onFormChange(false)">不绑定任何上行带宽包</el-radio>
         </div>
       </div>
     </el-tab-pane>
@@ -98,18 +98,20 @@ import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
 import { ResourceAiType } from '@/dics'
 import { getResources } from '@/api/billing'
 
+
 @Component({
   name: 'ResourceTabs'
 })
 export default class extends Vue {
-  @Prop() private device?: any
+  @Prop() private value?: any
+  @Prop() private isUpdate?: boolean
 
   private resourceTabType = 'video'
   private resourceAiType = ResourceAiType
   private form: any = {
-    resouceVideo: null,
-    resouceAi: null,
-    resouceUpload: null
+    resouceVideoId: -1,
+    resouceAiId: -1,
+    resouceUploadId: -1
   }
   private loading = {
     resouceVideoList: false,
@@ -124,6 +126,7 @@ export default class extends Vue {
     this.resouceVideoList = await this.getResouces('VSS_VIDEO', this.loading.resouceVideoList)
     this.resouceAiList = await this.getResouces('VSS_AI', this.loading.resouceAiList)
     this.resouceUploadList = await this.getResouces('VSS_UPLOAD_BW', this.loading.resouceUploadList)
+    this.onFormChange(true)
   }
 
   /**
@@ -144,35 +147,75 @@ export default class extends Vue {
     }
   }
 
-  private onFormChange() {
-    this.$emit('resource-change', this.form)
-  }
-
-  @Watch('device', {
+  /**
+   * 监听设备详情
+   */
+  @Watch('value', {
     deep: true
   })
-  private onDeviceChange(device: any) {
-    console.log(device)
-    this.form = {
-      resouceVideo: device.resouceVideo,
-      resouceAi: device.resouceAi,
-      resouceUpload: device.resouceUpload
-    }
+  private onDeviceChange(resources: any) {
+    resources.forEach((resource: any) => {
+      switch (resource.resourceType) {
+        case 'VSS_VIDEO':
+          this.form.resouceVideoId = resource.resourceId
+          break
+        case 'VSS_AI':
+          this.form.resouceAiId = resource.resourceId
+          break
+        case 'VSS_UPLOAD_BW':
+          this.form.resouceUploadId = resource.resourceId
+          break
+      }
+    })
+    this.onFormChange(true)
   }
 
+  /**
+   * 切换资源包
+   */
+  private onFormChange(isInit: boolean) {
+    const resouceVideo = this.resouceVideoList.find((resource: any) => resource.resourceId === this.form.resouceVideoId)
+    const resouceAi = this.resouceAiList.find((resource: any) => resource.resourceId === this.form.resouceAiId)
+    const resouceUpload = this.resouceUploadList.find((resource: any) => resource.resourceId === this.form.resouceUploadId)
+    const resources = [resouceVideo, resouceAi, resouceUpload]
+    const result: any = []
+    const mapping: any = []
+    resources.forEach((resource: any) => {
+      if (resource) {
+        const resourceResult = {
+          workOrderId: resource.workOrderId,
+          resourceId: resource.resourceId,
+          resourceType: resource.type
+        }
+        result.push(resourceResult)
+        mapping[resource.resourceId] = Object.assign(resourceResult, { remainDeviceCount: resource.remainDeviceCount })
+      }
+    })
+    if (!isInit) {
+      this.$emit('input', result)
+    }
+    this.$emit('on-change', {
+      isInit,
+      mapping
+    })
+  }
+
+  /**
+   * 单击行
+   */
   private onResourceRowClick(type: string, row: any) {
     switch (type) {
       case 'video':
-        this.form.resouceVideo = row.resourceId
+        this.form.resouceVideoId = row.resourceId
         break
       case 'ai':
-        this.form.resouceAi = row.resourceId
+        this.form.resouceAiId = row.resourceId
         break
       case 'upload':
-        this.form.resouceUpload = row.resourceId
+        this.form.resouceUploadId = row.resourceId
         break
     }
-    this.onFormChange()
+    this.onFormChange(false)
   }
 }
 </script>
