@@ -28,4 +28,19 @@ export default class ResourceMixin extends Vue {
       this.loading = false
     }
   }
+
+  /**
+   * 资源包管理
+   */
+  public rowClick(row: any, type: string) {
+    this.$router.push({
+      name: `billing-resource-management`,
+      query: {
+        resourceId: row.resourceId
+      },
+      params: {
+        type
+      }
+    })
+  }
 }

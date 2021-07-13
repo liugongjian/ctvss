@@ -230,8 +230,8 @@ export default class ExcelMixin extends Vue {
   }
 
   private async getOptions() {
-    console.log(this.excelGroupDate);
-    
+    console.log(this.excelGroupDate)
+
     // 获取资源包选项
     try {
       let VIDEORes: any = await getResources({ type: 'VSS_VIDEO' })

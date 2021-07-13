@@ -862,7 +862,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'resource/management',
-        component: () => import(/* webpackChunkName: "billing" */ '@/views/billing/resource/index.vue'),
+        component: () => import(/* webpackChunkName: "billing" */ '@/views/billing/resource/manage.vue'),
         name: 'billing-resource-management',
         meta: {
           id: '20210709092201012003',

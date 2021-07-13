@@ -1,85 +1,133 @@
 <template>
   <div class="app-container">
     <el-page-header :content="breadCrumbContent" @back="back" />
-    <el-table v-loading="loading" :data="dataList">
-      <el-table-column prop="id" label="设备ID/名称" />
-      <el-table-column prop="path" label="设备路径">
-        <template slot-scope="{row}">
-          {{ row.totalDeviceCount }}路
-        </template>
-      </el-table-column>
-      <el-table-column prop="type" label="类型" />
-      <el-table-column label="视频包">
-        <template slot-scope="{row}">
-          {{ row.video ? '已绑定' : '-' }}
-        </template>
-      </el-table-column>
-      <el-table-column label="AI包">
-        <template slot-scope="{row}">
-          {{ row.ai ? '已绑定' : '-' }}
-        </template>
-      </el-table-column>
-      <el-table-column label="上行带宽包">
-        <template slot-scope="{row}">
-          {{ row.bandwidth ? '已绑定' : '-' }}
-        </template>
-      </el-table-column>
-      <el-table-column label="码率">
-        <template slot-scope="{row}">
-          {{ row.codec ? '已绑定' : '-' }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="factory" label="厂商" />
-      <el-table-column prop="gbId" label="国标ID" />
-      <el-table-column label="操作" prop="action" class-name="col-action" width="270" fixed="right">
-        <template slot-scope="scope">
-          <el-button type="text" @click="goToPreview('preview', scope.row)">实时预览</el-button>
-          <el-button type="text" @click="goToPreview('replay', scope.row)">录像回放</el-button>
-          <el-button type="text">查看截图</el-button>
-          <el-dropdown @command="handleMore">
-            <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item>查看通道</el-dropdown-item>
-              <el-dropdown-item v-if="isAllowedDelete && checkPermission(['*'])" :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
-        </template>
-      </el-table-column>
-    </el-table>
+    <el-card>
+      <div class="filter-container">
+        <div class="filter-container__right">
+          <el-input v-model="deviceName" class="filter-container__search-group" clearable placeholder="请输入设备名称" @keyup.enter.native="handleFilter">
+            <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
+          </el-input>
+          <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
+        </div>
+      </div>
+      <el-table v-loading="loading" :data="dataList">
+        <el-table-column prop="id" label="设备ID/名称" min-width="180">
+          <template slot-scope="{row}">
+            <div class="device-list__device-name">
+              <div class="device-list__device-id">{{ row.deviceId }}</div>
+              <div>{{ row.deviceName }}</div>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="dirPath" label="设备路径" min-width="180" />
+        <el-table-column prop="deviceType" label="类型" />
+        <!-- <el-table-column label="码率">
+          <template slot-scope="{row}">
+            {{ row.codec ? '已绑定' : '-' }}
+          </template>
+        </el-table-column> -->
+        <el-table-column prop="deviceVendor" label="厂商">
+          <template slot-scope="{row}">
+            {{ row.deviceVendor ? row.deviceVendor : '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="gbId" label="国标ID" min-width="190">
+          <template slot-scope="{row}">
+            {{ row.gbId ? row.gbId : '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" prop="action" class-name="col-action" width="270" fixed="right">
+          <template slot-scope="scope">
+            <!-- <el-button type="text" @click="goToPreview('preview', scope.row)">实时预览</el-button>
+            <el-button type="text" @click="goToPreview('replay', scope.row)">录像回放</el-button> -->
+            <el-button v-permission="['*']" type="text" @click="updateResource(scope.row)">配置资源包</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-pagination
+        :current-page="pager.pageNum"
+        :page-size="pager.pageSize"
+        :total="pager.total"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      />
+    </el-card>
+    <resource v-if="dialog.resource" :device="currentDevice" @on-close="closeDialog('resource', ...arguments)" />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { getResourceCount } from '@/api/dashboard'
+import { getResourceDevices } from '@/api/billing'
+import Resource from '@/views/device/components/dialogs/Resource.vue'
+
 @Component({
-  name: 'BillingResourceManagement'
+  name: 'BillingResourceManagement',
+  components: {
+    Resource
+  }
 })
 export default class extends Vue {
-  private type: any = ''
-  private loading: any = {
-    form: false,
-    submit: false
+  private resourceId: any = ''
+  private deviceName = ''
+  private loading = false
+  private dialog = {
+    resource: false
   }
+  private currentDevice = ''
   private breadCrumbContent: string = ''
-  
-  private policyList: Array<object> = []
-  private showSecretKey: boolean = false
-
-
-  private rowClick(row: any) {
+  private dataList: Array<object> = []
+  private pager: any = {
+    pageNum: 1,
+    pageSize: 10,
+    total: 0
   }
 
   private back() {
+    let params: any = this.$route.params
     this.$router.push({
-      name: 'billing-resource'
+      name: 'billing-resource',
+      query: {
+        type: params.type || 'video'
+      }
     })
+  }
+
+  public updateResource(row: any) {
+    this.currentDevice = row
+    this.dialog.resource = true
+  }
+
+  public closeDialog(type: string, refresh: any) {
+    // @ts-ignore
+    this.dialog[type] = false
+    if (refresh === true) {
+      this.getResourceDevices()
+    }
   }
 
   private async mounted() {
     this.breadCrumbContent = this.$route.meta.title
-    try {
+    this.resourceId = this.$route.query.resourceId
+    this.getResourceDevices()
+  }
 
+  /**
+   * 分页查询与资源包绑定的设备列表
+   */
+  private async getResourceDevices() {
+    try {
+      let params = {
+        resourceId: this.resourceId,
+        pageNum: this.pager.pageNum,
+        pageSize: this.pager.pageSize,
+        deviceName: this.deviceName || undefined
+      }
+      this.loading = true
+      let res: any = await getResourceDevices(params)
+      this.dataList = res.devices
+      this.pager.total = res.totalNum
     } catch (e) {
       console.log(e)
     } finally {
@@ -87,18 +135,40 @@ export default class extends Vue {
     }
   }
 
-  private async getPolicyList() {
-    let params: any = {
-      pageSize: 1000
-    }
-    try {
+  /**
+   * 刷新
+   */
+  private refresh() {
+    this.getResourceDevices()
+  }
 
-    } catch (e) {
-      this.$message.error(e && e.message)
-    }
+  /**
+   * 按设备名称搜索过滤
+   */
+  private async handleFilter() {
+    this.pager.pageNum = 1
+    await this.getResourceDevices()
+  }
+
+  private handleSizeChange(val: number) {
+    const pager: any = this.pager
+    pager.pageSize = val
+    pager.pageNum = 1
+    this.getResourceDevices()
+  }
+
+  private handleCurrentChange(val: number) {
+    const pager: any = this.pager
+    pager.pageNum = val
+    this.getResourceDevices()
   }
 }
 </script>
 
 <style lang="scss" scoped>
+.filter-container {
+  &__search-group {
+    margin-right: 10px;
+  }
+}
 </style>

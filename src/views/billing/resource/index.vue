@@ -11,11 +11,11 @@
       </el-tab-pane>
       <el-tab-pane name="uploadBandwidth">
         <span slot="label">上行带宽包<span v-if="countUploadBandwidth !== undefined">({{ countUploadBandwidth }})</span></span>
-        <Bandwidth v-if="activeName === 'uploadBandwidth'" />
+        <UploadBandwidth v-if="activeName === 'uploadBandwidth'" />
       </el-tab-pane>
       <el-tab-pane name="downloadBandwidth">
         <span slot="label">下行带宽包<span v-if="countDownloadBandwidth !== undefined">({{ countDownloadBandwidth }})</span></span>
-        <Bandwidth v-if="activeName === 'downloadBandwidth'" />
+        <DownloadBandwidth v-if="activeName === 'downloadBandwidth'" />
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -24,6 +24,8 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import Video from './components/Video.vue'
+import UploadBandwidth from './components/UploadBandwidth.vue'
+import DownloadBandwidth from './components/DownloadBandwidth.vue'
 import Bandwidth from './components/Bandwidth.vue'
 import Ai from './components/Ai.vue'
 import { getResourceCount } from '@/api/dashboard'
@@ -32,6 +34,8 @@ import { getResourceCount } from '@/api/dashboard'
   name: 'BillingResource',
   components: {
     Video,
+    UploadBandwidth,
+    DownloadBandwidth,
     Bandwidth,
     Ai
   }
@@ -48,12 +52,12 @@ export default class extends Vue {
     return this.resourceCount.ai
   }
 
-  private get countBandwidth() {
-    if (this.resourceCount.downloadBandwidth !== undefined) {
-      return this.resourceCount.downloadBandwidth + this.resourceCount.uploadBandwidth
-    } else {
-      return undefined
-    }
+  private get countUploadBandwidth() {
+    return this.resourceCount.uploadBandwidth
+  }
+
+  private get countDownloadBandwidth() {
+    return this.resourceCount.downloadBandwidth
   }
 
   private created() {
