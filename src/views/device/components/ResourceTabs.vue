@@ -69,7 +69,7 @@
         </div>
       </div>
     </el-tab-pane>
-    <el-tab-pane label="上行带宽包" name="upload">
+    <el-tab-pane v-if="!isPrivateUser" label="上行带宽包" name="upload">
       <!--上行带宽包-->
       <div v-loading="loading.resouceUploadList" class="resource-tabs__content">
         <el-table :data="resouceUploadList" @row-click="onResourceRowClick('upload', ...arguments)">
@@ -124,6 +124,10 @@ export default class extends Vue {
 
   public get isFreeUser() {
     return UserModule.tags && UserModule.tags.resourceFree === '1'
+  }
+
+  public get isPrivateUser() {
+    return UserModule.tags && UserModule.tags.networkType === 'private'
   }
 
   private async mounted() {
