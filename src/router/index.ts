@@ -870,7 +870,6 @@ export const asyncRoutes: RouteConfig[] = [
       title: '批量导出设备信息',
       icon: 'billing',
       alwaysShow: false,
-      groupSelector: true,
       perms: ['*']
     },
     children: [
@@ -885,7 +884,6 @@ export const asyncRoutes: RouteConfig[] = [
           breadcrumb: false,
           perms: ['*'],
           activeMenu: '/exportDevices',
-          groupSelector: true
         }
       }
     ]

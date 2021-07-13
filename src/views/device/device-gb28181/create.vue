@@ -283,8 +283,8 @@ export default class extends Mixins(createMixin) {
     userName: '',
     address: [],
     longlat: 'required',
-    deviceLongitude: '',
-    deviceLatitude: '',
+    deviceLongitude: '0.000000',
+    deviceLatitude: '0.000000',
     gbRegion: '',
     gbRegionLevel: ''
   }
