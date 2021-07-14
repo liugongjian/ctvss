@@ -1,14 +1,11 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { getResources } from '@/api/billing'
-import { ResourceType, ResourceAiType } from '@/dics'
 
 @Component
 export default class ResourceMixin extends Vue {
   public type = ''
   public loading = false
   public dataList: any = []
-  public resourceType = ResourceType
-  public resourceAiType = ResourceAiType
 
   public mounted() {
     this.getResource()
@@ -30,5 +27,20 @@ export default class ResourceMixin extends Vue {
     } finally {
       this.loading = false
     }
+  }
+
+  /**
+   * 资源包管理
+   */
+  public rowClick(row: any, type: string) {
+    this.$router.push({
+      name: `billing-resource-management`,
+      query: {
+        resourceId: row.resourceId
+      },
+      params: {
+        type
+      }
+    })
   }
 }

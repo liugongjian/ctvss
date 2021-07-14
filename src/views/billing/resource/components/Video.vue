@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-table v-loading="loading" :data="dataList">
+    <el-table v-loading="loading" class="resource-table" :data="dataList" @row-click="rowClick($event, 'video')">
       <el-table-column prop="id" label="编号" />
       <el-table-column prop="totalDeviceCount" label="可接入设备总数">
         <template slot-scope="{row}">
@@ -24,6 +24,11 @@
       </el-table-column>
       <el-table-column prop="createTime" label="开通时间" min-width="140" />
       <el-table-column prop="expireTime" label="到期时间" min-width="140" />
+      <el-table-column label="资源类型">
+        <template slot-scope="{row}">
+          {{ row.isTrialOrder === '1' ? '试用' : '商用' }}
+        </template>
+      </el-table-column>
     </el-table>
   </div>
 </template>
@@ -39,3 +44,10 @@ export default class extends Mixins(ResourceMixin) {
   public type = 'VSS_VIDEO'
 }
 </script>
+<style lang="scss" scoped>
+.resource-table {
+  ::v-deep .el-table__row {
+    cursor: pointer;
+  }
+}
+</style>

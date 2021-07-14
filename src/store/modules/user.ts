@@ -21,6 +21,7 @@ export interface IUserState {
   type: string,
   mainUserID: string,
   mainUserAddress: string,
+  tags: any,
   ctLoginId: string
 }
 
@@ -37,6 +38,7 @@ class User extends VuexModule implements IUserState {
   public type = ''
   public mainUserID = ''
   public mainUserAddress = ''
+  public tags: any = null
   public ctLoginId = getLocalStorage('ctLoginId') || ''
 
   @Mutation
@@ -95,6 +97,11 @@ class User extends VuexModule implements IUserState {
   }
 
   @Mutation
+  private SET_MAIN_USER_TAGS(tags: any) {
+    this.tags = tags
+  }
+
+  @Mutation
   private SET_CT_LOGIN_ID(ctLoginId: string) {
     this.ctLoginId = ctLoginId
   }
@@ -148,6 +155,7 @@ class User extends VuexModule implements IUserState {
     this.SET_PERMS([])
     this.SET_IAM_USER_ID('')
     this.SET_MAIN_USER_ADDRESS('')
+    this.SET_MAIN_USER_TAGS('')
     this.SET_MAIN_USER_ID('')
     // 清空设备管理面包屑
     DeviceModule.ResetBreadcrumb()
@@ -179,6 +187,7 @@ class User extends VuexModule implements IUserState {
     if (userInfo.userId) {
       this.SET_MAIN_USER_ID(userInfo.userId)
       this.SET_MAIN_USER_ADDRESS(userInfo.address)
+      this.SET_MAIN_USER_TAGS(userInfo.tags)
     }
     let data: any = null
     if (this.iamUserId) {
@@ -281,6 +290,7 @@ class User extends VuexModule implements IUserState {
 
     this.SET_MAIN_USER_ID('')
     this.SET_MAIN_USER_ADDRESS('')
+    this.SET_MAIN_USER_TAGS('')
 
     localStorage.clear()
     return result
