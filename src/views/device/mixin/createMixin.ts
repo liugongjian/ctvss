@@ -5,8 +5,8 @@ import { DeviceModule } from '@/store/modules/device'
 
 @Component
 export default class CreateMixin extends Vue {
-  @Inject('deviceRouter') public deviceRouter!: Function
-  @Inject('initDirs') public initDirs!: Function
+  @Inject({ from: 'deviceRouter', default: null }) public deviceRouter!: Function
+  @Inject({ from: 'initDirs', default: null }) public initDirs!: Function
   public form: any = {}
   public resourcesMapping: any = {}
   public orginalChannelSize = 0
