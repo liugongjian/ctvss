@@ -6,7 +6,10 @@
         <el-table :data="resouceVideoList" @row-click="onResourceRowClick('video', ...arguments)">
           <el-table-column prop="resourceId" label="编号">
             <template slot-scope="scope">
-              <el-radio v-model="form.resouceVideoId" :label="scope.row.resourceId" />
+              <span class="resource-id">
+                <el-radio v-model="form.resouceVideoId" :label="scope.row.resourceId" />
+                {{ scope.row.resourceId.substr(0, 10) }}
+              </span>
             </template>
           </el-table-column>
           <el-table-column prop="totalDeviceCount" label="可接入设备数量">
@@ -43,7 +46,10 @@
         <el-table :data="resouceAiList" @row-click="onResourceRowClick('ai', ...arguments)">
           <el-table-column prop="resourceId" label="编号">
             <template slot-scope="scope">
-              <el-radio v-model="form.resouceAiId" :label="scope.row.resourceId" />
+              <span class="resource-id">
+                <el-radio v-model="form.resouceAiId" :label="scope.row.resourceId" />
+                {{ scope.row.resourceId.substr(0, 10) }}
+              </span>
             </template>
           </el-table-column>
           <el-table-column prop="totalDeviceCount" label="可接入设备数量">
@@ -75,7 +81,10 @@
         <el-table :data="resouceUploadList" @row-click="onResourceRowClick('upload', ...arguments)">
           <el-table-column prop="resourceId" label="编号">
             <template slot-scope="scope">
-              <el-radio v-model="form.resouceUploadId" :label="scope.row.resourceId" />
+              <span class="resource-id">
+                <el-radio v-model="form.resouceUploadId" :label="scope.row.resourceId" />
+                {{ scope.row.resourceId.substr(0, 10) }}
+              </span>
             </template>
           </el-table-column>
           <!-- <el-table-column prop="value" label="剩余上行带宽">
@@ -230,6 +239,15 @@ export default class extends Vue {
   .resource-tabs {
     &.el-tabs {
       margin: 0;
+    }
+
+    .resource-id {
+      ::v-deep .el-radio__label {
+        display: none;
+      }
+      ::v-deep .el-radio__input {
+        margin-right: 3px;
+      }
     }
 
     ::v-deep .el-tabs__header {
