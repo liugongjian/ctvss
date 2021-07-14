@@ -19,7 +19,7 @@
       </el-table-column>
       <el-table-column prop="createTime" label="开通时间" min-width="140" />
       <el-table-column prop="expireTime" label="到期时间" min-width="140" />
-      <el-table-column label="资源类型">
+      <el-table-column label="计费类型">
         <template slot-scope="{row}">
           {{ row.isTrialOrder === '1' ? '试用' : '商用' }}
         </template>

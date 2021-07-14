@@ -26,7 +26,6 @@ import { Component, Vue } from 'vue-property-decorator'
 import Video from './components/Video.vue'
 import UploadBandwidth from './components/UploadBandwidth.vue'
 import DownloadBandwidth from './components/DownloadBandwidth.vue'
-import Bandwidth from './components/Bandwidth.vue'
 import Ai from './components/Ai.vue'
 import { getResourceCount } from '@/api/dashboard'
 import { UserModule } from '@/store/modules/user'
@@ -37,7 +36,6 @@ import { UserModule } from '@/store/modules/user'
     Video,
     UploadBandwidth,
     DownloadBandwidth,
-    Bandwidth,
     Ai
   }
 })

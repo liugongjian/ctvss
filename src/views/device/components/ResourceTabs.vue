@@ -113,7 +113,7 @@ export default class extends Vue {
     resouceAiId: -1,
     resouceUploadId: -1
   }
-  private loading = {
+  private loading:any = {
     resouceVideoList: false,
     resouceAiList: false,
     resouceUploadList: false
@@ -131,19 +131,18 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    this.resouceVideoList = await this.getResouces('VSS_VIDEO', this.loading.resouceVideoList)
-    this.resouceAiList = await this.getResouces('VSS_AI', this.loading.resouceAiList)
-    this.resouceUploadList = await this.getResouces('VSS_UPLOAD_BW', this.loading.resouceUploadList)
+    this.resouceVideoList = await this.getResouces('VSS_VIDEO', 'resouceVideoList')
+    this.resouceAiList = await this.getResouces('VSS_AI', 'resouceAiList')
+    this.resouceUploadList = await this.getResouces('VSS_UPLOAD_BW', 'resouceUploadList')
     this.onFormChange(true)
   }
 
   /**
    * 加载资源包
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private async getResouces(type: string, loading: any) {
+  private async getResouces(type: string, loadingType: string) {
     try {
-      loading = true
+      this.loading[loadingType] = true
       const res = await getResources({
         type
       })
@@ -151,7 +150,7 @@ export default class extends Vue {
     } catch (e) {
       this.$message.error(e.message)
     } finally {
-      loading = false
+      this.loading[loadingType] = false
     }
   }
 
