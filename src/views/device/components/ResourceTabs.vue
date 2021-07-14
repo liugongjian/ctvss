@@ -78,11 +78,11 @@
               <el-radio v-model="form.resouceUploadId" :label="scope.row.resourceId" />
             </template>
           </el-table-column>
-          <el-table-column prop="value" label="剩余上行带宽">
+          <!-- <el-table-column prop="value" label="剩余上行带宽">
             <template slot-scope="scope">
               {{ scope.row.value }}Mbps
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column prop="createTime" label="开通时间" />
           <el-table-column prop="expireTime" label="到期时间" />
         </el-table>
