@@ -2,9 +2,9 @@
   <div>
     <el-table v-loading="loading" class="resource-table" :data="dataList" @row-click="rowClick($event, 'downloadBandwidth')">
       <el-table-column prop="id" label="编号" />
-      <el-table-column prop="downloadBandwidth" label="剩余下行带宽">
+      <el-table-column prop="bandWidth" label="下行带宽总量">
         <template slot-scope="{row}">
-          {{ row.totalDeviceCount }}Mbps
+          {{ row.bandWidth }}Mbps
         </template>
       </el-table-column>
       <el-table-column prop="createTime" label="开通时间" min-width="140" />
@@ -14,7 +14,7 @@
           {{ row.resourceType === '' ? '' : '' }}
         </template>
       </el-table-column>
-      <el-table-column label="资源类型">
+      <el-table-column label="计费类型">
         <template slot-scope="{row}">
           {{ row.isTrialOrder === '1' ? '试用' : '商用' }}
         </template>
