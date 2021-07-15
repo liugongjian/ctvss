@@ -9,6 +9,7 @@ import SetAuthConfig from '../components/dialogs/SetAuthConfig.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AntiTheftChain from '../components/AntiTheftChain.vue'
 import { checkPermission } from '@/utils/permission'
+import { UserModule } from '@/store/modules/user'
 import copy from 'copy-to-clipboard'
 
 @Component({
@@ -105,6 +106,10 @@ export default class DetailMixin extends Vue {
     }
   }
 
+  public get isPrivateUser() {
+    return UserModule.tags && UserModule.tags.networkType === 'private'
+  }
+
   public async mounted() {
     await this.getDevice()
     await this.getDeviceResources()
@@ -157,6 +162,9 @@ export default class DetailMixin extends Vue {
         'VSS_VIDEO': false,
         'VSS_UPLOAD_BW': false,
         'VSS_AI': false
+      }
+      if (this.isPrivateUser) {
+        delete resourcesMapping['VSS_UPLOAD_BW']
       }
       resourcesRes.resources.forEach((resource: any) => {
         resourcesMapping[resource.resourceType] = true
