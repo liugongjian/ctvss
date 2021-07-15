@@ -81,3 +81,13 @@ export default class extends Vue {
   }
 }
 </script>
+<style lang="scss" scoped>
+::v-deep .resource-table {
+  .device-id {
+    color: $primary;
+  }
+  .el-table__row {
+    cursor: pointer;
+  }
+}
+</style>
