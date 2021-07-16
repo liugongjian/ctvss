@@ -156,12 +156,13 @@ export default class CreateMixin extends Vue {
           hasResource[resource.resourceType].isSelect = true
         })
         for (let key in hasResource) {
+          if (key === 'VSS_UPLOAD_BW' && this.isPrivateUser) continue
           const resource = hasResource[key]
           if (!resource.isSelect) {
             alertMsg.push(resource.msg)
           }
         }
-        if (this.isUpdate && alertMsg.length) {
+        if (!this.isFreeUser && this.isUpdate && alertMsg.length) {
           const h: Function = this.$createElement
           this.$msgbox({
             title: '提示',
@@ -266,11 +267,11 @@ export default class CreateMixin extends Vue {
     })
     if (remainError.length) {
       callback(new Error(`${remainError.join(',')}接入设备余量不足，请增加包资源！`))
-    } else if (!this.isUpdate && !hasVideo && !hasUpload && !this.isPrivateUser) {
+    } else if (!this.isUpdate && !hasVideo && !hasUpload && !this.isPrivateUser && !this.isFreeUser) {
       callback(new Error('资源包必须配置视频包与上行带宽包'))
-    } else if (!this.isUpdate && !hasVideo) {
+    } else if (!this.isUpdate && !hasVideo && !this.isFreeUser) {
       callback(new Error('必须配置视频包'))
-    } else if (!this.isUpdate && !hasUpload && !this.isPrivateUser) {
+    } else if (!this.isUpdate && !hasUpload && !this.isPrivateUser && !this.isFreeUser) {
       callback(new Error('必须配置上行带宽包'))
     } else {
       callback()
