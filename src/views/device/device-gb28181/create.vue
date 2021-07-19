@@ -175,7 +175,7 @@ import createMixin from '../mixin/createMixin'
 import { pick } from 'lodash'
 import { DeviceGb28181Type } from '@/dics'
 import { createDevice, updateDevice, getDevice } from '@/api/device'
-import { getDeviceResources, updateDeviceResources } from '@/api/billing'
+import { updateDeviceResources } from '@/api/billing'
 import { getList as getGbList } from '@/api/certificate/gb28181'
 import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
 import ResourceTabs from '../components/ResourceTabs.vue'
@@ -359,12 +359,7 @@ export default class extends Mixins(createMixin) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
           'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'gbId', 'userName', 'gbRegion', 'gbRegionLevel']))
         // 获取绑定资源包列表
-        const resourcesRes = await getDeviceResources({
-          deviceId: info.deviceId,
-          deviceType: info.deviceType,
-          inProtocol: info.inProtocol
-        })
-        this.form.resources = resourcesRes.resources
+        this.getDeviceResources(info.deviceId, info.deviceType!, info.inProtocol!)
         // 设备地址参数转换
         let gbCode = this.form.gbRegion.substring(0, 4)
         this.form.address = [gbCode.substring(0, 2) + '00', gbCode]
