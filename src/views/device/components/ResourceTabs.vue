@@ -92,6 +92,11 @@
               {{ scope.row.value }}Mbps
             </template>
           </el-table-column> -->
+          <el-table-column prop="bandWidth" label="上行带宽总量">
+            <template slot-scope="scope">
+              {{ scope.row.bandWidth }}Mbps
+            </template>
+          </el-table-column>
           <el-table-column prop="createTime" label="开通时间" />
           <el-table-column prop="expireTime" label="到期时间" />
         </el-table>
