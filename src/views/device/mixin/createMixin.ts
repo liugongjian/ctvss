@@ -2,6 +2,7 @@ import { Component, Watch, Vue, Inject } from 'vue-property-decorator'
 import { GroupModule } from '@/store/modules/group'
 import { UserModule } from '@/store/modules/user'
 import { DeviceModule } from '@/store/modules/device'
+import { getDeviceResources } from '@/api/billing'
 
 @Component
 export default class CreateMixin extends Vue {
@@ -9,6 +10,7 @@ export default class CreateMixin extends Vue {
   @Inject({ from: 'initDirs', default: null }) public initDirs!: Function
   public form: any = {}
   public resourcesMapping: any = {}
+  public orginalResourceIdList: Array<string> = []
   public orginalChannelSize = 0
 
   public loading = {
@@ -81,6 +83,23 @@ export default class CreateMixin extends Vue {
       this.form.pullType = this.currentGroup.pullType
       this.form.pushType = this.currentGroup.pushType
       this.form.groupId = this.currentGroup.groupId
+    }
+  }
+
+  /**
+   * 获取绑定资源包列表
+   */
+  public async getDeviceResources(deviceId: number, deviceType: string, inProtocol: string) {
+    try {
+      const resourcesRes = await getDeviceResources({
+        deviceId: deviceId,
+        deviceType: deviceType,
+        inProtocol: inProtocol
+      })
+      this.form.resources = resourcesRes.resources
+      this.orginalResourceIdList = resourcesRes.resources.map((resource: any) => resource.resourceId)
+    } catch (e) {
+      throw new Error(e)
     }
   }
 
@@ -248,15 +267,17 @@ export default class CreateMixin extends Vue {
       // 剩余可接入设备数
       const remainDeviceCount = parseInt(this.resourcesMapping[resource.resourceId] && this.resourcesMapping[resource.resourceId].remainDeviceCount)
       const devicesCount = this.form.deviceType === 'ipc' ? 1 : this.form.channelSize
+      // 如果当前resourceId不在orginalResourceIdList，则表示该类型的资源包的值被更改。如果未更改则需要跳过数量判断。
+      const isChanged = this.orginalResourceIdList.indexOf(resource.resourceId) === -1
       switch (resource.resourceType) {
         case 'VSS_VIDEO':
           hasVideo = true
-          if (devicesCount > remainDeviceCount) {
+          if (isChanged && devicesCount > remainDeviceCount) {
             remainError.push('视频包')
           }
           break
         case 'VSS_AI':
-          if (devicesCount > remainDeviceCount) {
+          if (isChanged && devicesCount > remainDeviceCount) {
             remainError.push('AI包')
           }
           break

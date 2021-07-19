@@ -28,7 +28,7 @@
 import { Component, Mixins, Prop } from 'vue-property-decorator'
 import ResourceTabs from '../../components/ResourceTabs.vue'
 import createMixin from '../../mixin/createMixin'
-import { getDeviceResources, updateDeviceResources } from '@/api/billing'
+import { updateDeviceResources } from '@/api/billing'
 import { Device } from '@/type/device'
 
 @Component({
@@ -58,12 +58,7 @@ export default class extends Mixins(createMixin) {
 
   private async mounted() {
     try {
-      const resourcesRes = await getDeviceResources({
-        deviceId: this.device.deviceId,
-        deviceType: this.device.deviceType,
-        inProtocol: this.device.inProtocol
-      })
-      this.form.resources = resourcesRes.resources
+      this.getDeviceResources(this.device.deviceId, this.device.deviceType!, this.device.inProtocol!)
     } catch (e) {
       this.$message.error(e && e.message)
     }
