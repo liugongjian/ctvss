@@ -186,7 +186,7 @@ import createMixin from '../mixin/createMixin'
 import { InType, DeviceRtspType } from '@/dics'
 import { pick } from 'lodash'
 import { createDevice, updateDevice, getDevice } from '@/api/device'
-import { getDeviceResources, updateDeviceResources } from '@/api/billing'
+import { updateDeviceResources } from '@/api/billing'
 import ResourceTabs from '../components/ResourceTabs.vue'
 
 @Component({
@@ -308,12 +308,7 @@ export default class extends Mixins(createMixin) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'deviceType', 'ehomeVersion', 'createSubDevice', 'deviceVendor',
           'deviceIp', 'devicePort', 'description', 'multiStreamSize', 'autoStreamNum', 'pullType', 'transPriority', 'parentDeviceId']))
         // 获取绑定资源包列表
-        const resourcesRes = await getDeviceResources({
-          deviceId: info.deviceId,
-          deviceType: info.deviceType,
-          inProtocol: info.inProtocol
-        })
-        this.form.resources = resourcesRes.resources
+        this.getDeviceResources(info.deviceId, info.deviceType!, info.inProtocol!)
         if (info.deviceStats) {
           // 编辑的时候，设置数量不得小于已创建的子通道中最大通道号或1
           this.minChannelSize = Math.max(...usedChannelNum, 1)

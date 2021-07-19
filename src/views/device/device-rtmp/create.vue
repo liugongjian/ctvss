@@ -94,7 +94,7 @@ import createMixin from '../mixin/createMixin'
 import { InType } from '@/dics'
 import { pick } from 'lodash'
 import { createDevice, updateDevice, getDevice } from '@/api/device'
-import { getDeviceResources, updateDeviceResources } from '@/api/billing'
+import { updateDeviceResources } from '@/api/billing'
 import Tags from '@/components/Tags/index.vue'
 import ResourceTabs from '../components/ResourceTabs.vue'
 
@@ -165,12 +165,7 @@ export default class extends Mixins(createMixin) {
       this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
         'description', 'inType', 'pullType', 'pushType', 'pullUrl', 'tags']))
       // 获取绑定资源包列表
-      const resourcesRes = await getDeviceResources({
-        deviceId: info.deviceId,
-        deviceType: info.deviceType,
-        inProtocol: info.inProtocol
-      })
-      this.form.resources = resourcesRes.resources
+      this.getDeviceResources(info.deviceId, info.deviceType!, info.inProtocol!)
     } catch (e) {
       this.$message.error(e.message)
     } finally {
