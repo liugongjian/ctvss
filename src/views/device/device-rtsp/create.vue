@@ -161,7 +161,7 @@
           <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" />
         </el-form-item>
         <el-form-item label="配置资源包:" prop="resources">
-          <ResourceTabs v-model="form.resources" :is-update="isUpdate" @on-change="onResourceChange" />
+          <ResourceTabs v-model="form.resources" :is-update="isUpdate" :in-protocol="form.inProtocol" @on-change="onResourceChange" />
         </el-form-item>
         <el-form-item label="设备描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
@@ -183,7 +183,7 @@
           <div class="form-tip">2-16位，可包含大小写字母、数字、中文、中划线。</div>
         </el-form-item>
         <el-form-item v-if="isUpdate" label="配置资源包:" prop="resources">
-          <ResourceTabs v-model="form.resources" :is-update="isUpdate" @on-change="onResourceChange" />
+          <ResourceTabs v-model="form.resources" :is-update="isUpdate" :in-protocol="form.inProtocol" @on-change="onResourceChange" />
         </el-form-item>
       </template>
       <el-form-item label="">
