@@ -176,6 +176,7 @@ export default class CreateMixin extends Vue {
         })
         for (let key in hasResource) {
           if (key === 'VSS_UPLOAD_BW' && this.isPrivateUser) continue
+          if (key === 'VSS_AI' && this.form.inProtocol !== 'gb28181') continue
           const resource = hasResource[key]
           if (!resource.isSelect) {
             alertMsg.push(resource.msg)

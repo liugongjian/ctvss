@@ -166,6 +166,9 @@ export default class DetailMixin extends Vue {
       if (this.isPrivateUser) {
         delete resourcesMapping['VSS_UPLOAD_BW']
       }
+      if (this.info?.inProtocol !== 'gb28181') {
+        delete resourcesMapping['VSS_AI']
+      }
       resourcesRes.resources.forEach((resource: any) => {
         resourcesMapping[resource.resourceType] = true
       })
