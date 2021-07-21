@@ -40,7 +40,7 @@
         </div>
       </div>
     </el-tab-pane>
-    <el-tab-pane label="AI包" name="ai">
+    <el-tab-pane v-if="inProtocol === 'gb28181'" label="AI包" name="ai">
       <!--AI包-->
       <div v-loading="loading.resouceAiList" class="resource-tabs__content">
         <el-table :data="resouceAiList" @row-click="onResourceRowClick('ai', ...arguments)">
@@ -119,6 +119,7 @@ import { UserModule } from '@/store/modules/user'
 export default class extends Vue {
   @Prop() private value?: any
   @Prop() private isUpdate?: boolean
+  @Prop() private inProtocol?: boolean
 
   private resourceTabType = 'video'
   private resourceAiType = ResourceAiType
