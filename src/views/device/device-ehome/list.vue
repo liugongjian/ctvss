@@ -262,7 +262,7 @@ import listMixin from '../mixin/listMixin'
 import excelMixin from '../mixin/excelMixin'
 
 @Component({
-  name: 'DeviceRtspList'
+  name: 'DeviceEhomeList'
 })
 export default class extends Mixins(listMixin, excelMixin) {
   private exportLoading = false

@@ -190,7 +190,7 @@ import { updateDeviceResources } from '@/api/billing'
 import ResourceTabs from '../components/ResourceTabs.vue'
 
 @Component({
-  name: 'CreateRtspDevice',
+  name: 'CreateEhomeDevice',
   components: {
     ResourceTabs
   }

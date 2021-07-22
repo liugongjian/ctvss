@@ -82,7 +82,7 @@ import { Component, Mixins } from 'vue-property-decorator'
 import detailMixin from '../mixin/detailMixin'
 
 @Component({
-  name: 'DeviceRtspDetail'
+  name: 'DeviceEhomeDetail'
 })
 export default class extends Mixins(detailMixin) {}
 </script>
