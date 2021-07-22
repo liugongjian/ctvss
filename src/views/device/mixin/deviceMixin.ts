@@ -317,8 +317,9 @@ export default class DeviceMixin extends Vue {
         type: node.data.type
       })
       if (node.data.type === 'nvr') {
-        res.dirs = this.parseDirs(res.dirs)
+        res.dirs = this.sortDirs(res.dirs)
       }
+      res.dirs = this.setDirsStreamStatus(res.dirs)
       resolve(res.dirs)
     } catch (e) {
       resolve([])
@@ -326,11 +327,17 @@ export default class DeviceMixin extends Vue {
   }
 
   /**
-   * 解析目录树
+   * 排序目录树
    */
-  public parseDirs(dirs: any) {
-    let _dirs = dirs.sort((left: any, right: any) => left.channelNum - right.channelNum)
-    _dirs = _dirs.map((dir: any) => {
+  public sortDirs(dirs: any) {
+    return dirs.sort((left: any, right: any) => left.channelNum - right.channelNum)
+  }
+
+  /**
+   * 设置目录树设备流状态
+   */
+  public setDirsStreamStatus(dirs: any) {
+    return dirs.map((dir: any) => {
       if (!dir.streamStatus && dir.deviceStreams && dir.deviceStreams.length > 0) {
         const hasOnline = dir.deviceStreams.some((stream: any) => {
           return stream.streamStatus === 'on'
@@ -341,6 +348,5 @@ export default class DeviceMixin extends Vue {
       }
       return dir
     })
-    return _dirs
   }
 }
