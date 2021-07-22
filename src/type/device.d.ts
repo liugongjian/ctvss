@@ -26,4 +26,5 @@ export interface Device {
   inProtocol?: string;
   streamNum?: number;
   channelNum?: number;
+  channelSize?: number;
 }

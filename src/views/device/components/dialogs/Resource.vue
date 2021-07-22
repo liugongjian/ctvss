@@ -15,7 +15,7 @@
       @submit.native.prevent
     >
       <el-form-item label="" prop="resources">
-        <ResourceTabs v-model="form.resources" :is-update="isUpdate" @on-change="onResourceChange" />
+        <ResourceTabs v-model="form.resources" :is-update="isUpdate" :in-protocol="device.inProtocol" @on-change="onResourceChange" />
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -58,6 +58,7 @@ export default class extends Mixins(createMixin) {
 
   private async mounted() {
     try {
+      this.orginalChannelSize = this.device.channelSize || 0
       this.getDeviceResources(this.device.deviceId, this.device.deviceType!, this.device.inProtocol!)
     } catch (e) {
       this.$message.error(e && e.message)
