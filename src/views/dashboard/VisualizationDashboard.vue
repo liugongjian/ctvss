@@ -4,9 +4,10 @@
   >
     <div class="dashboard-wrap__decorator" />
     <div class="dashboard-wrap__header">
-      {{ name === 'tzszf' ? '泰州智能视频云' : '天翼云视频云网平台' }}
+      {{ title }}
     </div>
-    <DashboardMap />
+    <DashboardMapBee v-if="mainUserId === '90015'" />
+    <DashboardMap v-else />
     <div class="dashboard-wrap__col dashboard-wrap__col--left">
       <DashboardDevice height="19" />
       <DashboardFlow height="19" />
@@ -29,6 +30,7 @@ import DashboardAlertLive from '@/views/dashboard/components/DashboardAlertLive.
 import DashboardAlertToday from '@/views/dashboard/components/DashboardAlertToday.vue'
 import DashboardIntegrityRate from '@/views/dashboard/components/DashboardIntegrityRate.vue'
 import DashboardMap from '@/views/dashboard/components/DashBoardMap.vue'
+import DashboardMapBee from '@/views/dashboard/components/DashBoardMapBee.vue'
 import DashboardAlertTrend from '@/views/dashboard/components/DashboardAlertTrend.vue'
 
 @Component({
@@ -39,13 +41,26 @@ import DashboardAlertTrend from '@/views/dashboard/components/DashboardAlertTren
     DashboardAlertLive,
     DashboardAlertToday,
     DashboardMap,
+    DashboardMapBee,
     DashboardIntegrityRate,
     DashboardAlertTrend
   }
 })
 export default class extends Vue {
-  get name() {
-    return UserModule.name
+  get mainUserId() {
+    return UserModule.mainUserID
+  }
+
+  get title() {
+    let title = ''
+    switch (this.mainUserId) {
+      case '90015':
+        title = '两当县智慧蜂业视频AI能力平台'
+        break
+      default:
+        title = '天翼云视频云网平台'
+    }
+    return title
   }
   private mounted() {
   }

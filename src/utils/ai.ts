@@ -211,6 +211,40 @@ export const parseMetaData = (type: string, metaData: any) => {
         })
       }
       break
+    // 研发二机房设备检测
+    case '14':
+      if (metaData.Data && metaData.Data.Boxes) {
+        const boxes = metaData.Data.Boxes
+        for (let i = 0; i < boxes.length; i++) {
+          locations.push(
+            {
+              top: boxes[i].TopLeftY,
+              left: boxes[i].TopLeftX,
+              width: boxes[i].BottomRightX - boxes[i].TopLeftX,
+              height: boxes[i].BottomRightY - boxes[i].TopLeftY,
+              isWarning: true
+            }
+          )
+        }
+      }
+      break
+    // 研发二铁塔天线检测
+    case '15':
+      if (metaData.Data && metaData.Data.Boxes) {
+        const boxes = metaData.Data.Boxes
+        for (let i = 0; i < boxes.length; i++) {
+          locations.push(
+            {
+              top: boxes[i].TopLeftY,
+              left: boxes[i].TopLeftX,
+              width: boxes[i].BottomRightX - boxes[i].TopLeftX,
+              height: boxes[i].BottomRightY - boxes[i].TopLeftY,
+              isWarning: true
+            }
+          )
+        }
+      }
+      break
   }
   return locations
 }

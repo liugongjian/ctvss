@@ -62,18 +62,31 @@
             <el-radio v-for="(inType, key) in inTypeList" :key="key" :label="key">{{ inType }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item v-if="form.inType === 'pull'" label="用户名:" prop="userName">
-          <el-input v-model="form.userName" />
-        </el-form-item>
-        <el-form-item v-if="form.inType === 'pull'" label="密码:" prop="password">
-          <el-input v-model="form.password" type="password" />
-        </el-form-item>
-        <el-form-item label="设备IP:" prop="deviceIp">
-          <el-input v-model="form.deviceIp" />
-        </el-form-item>
-        <el-form-item label="设备端口:" prop="devicePort">
-          <el-input v-model.number="form.devicePort" />
-        </el-form-item>
+        <template v-if="form.deviceVendor === '其他'">
+          <el-form-item label="自定义拉流地址:" prop="deviceCustomUrl">
+            <el-input v-model="form.deviceCustomUrl" />
+          </el-form-item>
+        </template>
+        <template v-else>
+          <el-form-item v-if="form.inType === 'pull'" label="用户名:" prop="userName">
+            <el-input v-model="form.userName" />
+          </el-form-item>
+          <el-form-item v-if="form.inType === 'pull'" label="密码:" prop="password">
+            <el-input v-model="form.password" type="password" />
+          </el-form-item>
+          <el-form-item label="是否启用域名:" prop="enableDomain">
+            <el-switch v-model="form.enableDomain" :active-value="1" :inactive-value="2" @change="clearValidate" />
+          </el-form-item>
+          <el-form-item v-if="form.enableDomain === 1" label="设备域名:" prop="deviceDomain">
+            <el-input v-model="form.deviceDomain" />
+          </el-form-item>
+          <el-form-item v-else label="设备IP:" prop="deviceIp">
+            <el-input v-model="form.deviceIp" />
+          </el-form-item>
+          <el-form-item label="设备端口:" prop="devicePort">
+            <el-input v-model.number="form.devicePort" />
+          </el-form-item>
+        </template>
         <el-form-item label="主子码流数量:" prop="multiStreamSize">
           <template slot="label">
             主子码流数量:
@@ -202,9 +215,16 @@ export default class extends Mixins(createMixin) {
     password: [
       { required: true, message: '请输入密码', trigger: 'blur' }
     ],
+    deviceDomain: [
+      { required: true, message: '请输入设备域名', trigger: 'blur' },
+      { validator: this.validateDeviceDomain, trigger: 'blur' }
+    ],
     deviceIp: [
       { required: true, message: '请输入设备IP', trigger: 'blur' },
       { validator: this.validateDeviceIp, trigger: 'blur' }
+    ],
+    deviceCustomUrl: [
+      { required: true, message: '请输入自定义设备拉流地址', trigger: 'blur' }
     ],
     devicePort: [
       { required: true, message: '请输入设备端口', trigger: 'blur' }
@@ -222,7 +242,10 @@ export default class extends Mixins(createMixin) {
     channelSize: '',
     channelNum: '',
     channelName: '',
+    enableDomain: 2,
+    deviceDomain: '',
     deviceIp: '',
+    deviceCustomUrl: '',
     devicePort: null,
     deviceVendor: '',
     description: '',
@@ -307,7 +330,11 @@ export default class extends Mixins(createMixin) {
       })
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'deviceType', 'createSubDevice', 'deviceVendor',
-          'deviceIp', 'devicePort', 'description', 'inType', 'userName', 'password', 'multiStreamSize', 'autoStreamNum', 'pullType', 'pushType', 'pullUrl', 'transPriority', 'parentDeviceId']))
+          'enableDomain', 'deviceDomain', 'deviceIp', 'devicePort', 'description', 'inType', 'userName', 'password', 'multiStreamSize', 'autoStreamNum',
+          'pullType', 'pushType', 'pullUrl', 'transPriority', 'parentDeviceId']))
+        if (this.form.deviceVendor === '其他') {
+          this.form.deviceCustomUrl = this.form.deviceDomain
+        }
         if (info.deviceStats) {
           // 编辑的时候，设置数量不得小于已创建的子通道中最大通道号或1
           this.minChannelSize = Math.max(...usedChannelNum, 1)
@@ -355,7 +382,7 @@ export default class extends Mixins(createMixin) {
           }
           if (!this.isChannel) {
             // 通用参数
-            params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'deviceIp', 'devicePort', 'inType', 'transPriority']))
+            params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'enableDomain', 'deviceDomain', 'deviceIp', 'devicePort', 'inType', 'transPriority']))
             // 判断inType类型
             if (this.form.inType === 'push') {
               params = Object.assign(params, pick(this.form, ['pushType']))
@@ -364,6 +391,9 @@ export default class extends Mixins(createMixin) {
               if (this.form.pullType === 1) {
                 params = Object.assign(params, pick(this.form, ['autoStreamNum']))
               }
+            }
+            if (params.deviceVendor === '其他') {
+              params.deviceDomain = this.form.deviceCustomUrl
             }
             // NVR类型添加额外参数
             if (this.form.deviceType === 'nvr') {

@@ -1,29 +1,10 @@
 <template>
   <div :class="isLight? 'light-dashboard-wrap' :'dashboard-wrap'">
     <div v-if="isLight" class="light-btns">
-      <el-dropdown trigger="click" placement="bottom-start" @command="goRouter">
-        <el-button>人脸识别<i class="el-icon-arrow-down el-icon--right" /></el-button>
+      <el-dropdown v-for="group in aiGroups" :key="group.name" trigger="click" placement="bottom-start" @command="goRouter">
+        <el-button>{{ group.name }}<i class="el-icon-arrow-down el-icon--right" /></el-button>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item :command="6">未带口罩</el-dropdown-item>
-          <el-dropdown-item :command="4">人员布控</el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
-      <el-dropdown trigger="click" placement="bottom-start" @command="goRouter">
-        <el-button>人体识别<i class="el-icon-arrow-down el-icon--right" /></el-button>
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item :command="8">人员聚集</el-dropdown-item>
-          <el-dropdown-item :command="5">吸烟检测</el-dropdown-item>
-          <el-dropdown-item :command="7">安全帽反光服检测</el-dropdown-item>
-          <el-dropdown-item :command="12">人体属性</el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
-      <el-dropdown trigger="click" placement="bottom-start" @command="goRouter">
-        <el-button>场景识别<i class="el-icon-arrow-down el-icon--right" /></el-button>
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item :command="9">危险区域检测</el-dropdown-item>
-          <el-dropdown-item :command="10">烟雾明火</el-dropdown-item>
-          <el-dropdown-item :command="11">冲压机</el-dropdown-item>
-          <el-dropdown-item :command="13">蜜蜂密度</el-dropdown-item>
+          <el-dropdown-item v-for="aiType in group.children" :key="aiType" :command="aiType">{{ alertType[aiType] }}</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
@@ -123,6 +104,7 @@ import { parseMetaData, transformLocation } from '@/utils/ai'
 import Player from '@/views/device/components/Player.vue'
 import Locations from './components/Locations.vue'
 import Attributes from './components/Attributes.vue'
+import { AiGroups } from '../helper/aiGroups'
 
 @Component({
   name: 'DashboardAI',
@@ -134,6 +116,7 @@ import Attributes from './components/Attributes.vue'
 })
 export default class extends Vue {
   private alertType = AlertType
+  private aiGroups = AiGroups
   private currentImg: any = null
   private currentLocationIndex: number = -1
   private currentVideo: any = null
@@ -508,6 +491,7 @@ export default class extends Vue {
       flex: 1;
       display: flex;
       flex-wrap: wrap;
+      align-items: flex-start;
       &__item {
         position: relative;
         width: 31%;

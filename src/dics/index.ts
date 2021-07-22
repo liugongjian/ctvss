@@ -155,7 +155,9 @@ export const AlertType: any = {
   10: '烟雾明火',
   11: '冲压机',
   12: '人体属性',
-  13: '蜜蜂密度'
+  13: '蜜蜂密度',
+  14: '机房设备检测',
+  15: '铁塔天线检测'
 }
 
 export const AiMaskType: any = {
