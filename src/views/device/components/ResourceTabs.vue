@@ -119,7 +119,7 @@ import { UserModule } from '@/store/modules/user'
 export default class extends Vue {
   @Prop() private value?: any
   @Prop() private isUpdate?: boolean
-  @Prop() private inProtocol?: boolean
+  @Prop() private inProtocol?: string
 
   private resourceTabType = 'video'
   private resourceAiType = ResourceAiType
