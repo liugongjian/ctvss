@@ -285,8 +285,8 @@ export default class extends Mixins(createMixin) {
       await this.getDeviceInfo()
     } else {
       this.form.dirId = this.dirId
-      this.form.inProtocol = this.inProtocol
     }
+    this.form.inProtocol = this.inProtocol
     this.getGbAccounts()
     this.onGroupChange()
   }
