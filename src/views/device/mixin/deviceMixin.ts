@@ -58,7 +58,7 @@ export default class DeviceMixin extends Vue {
         groupId: this.currentGroupId,
         id: 0
       })
-      this.dirList = this.parseDirs(res.dirs)
+      this.dirList = this.setDirsStreamStatus(res.dirs)
       this.$nextTick(() => {
         console.log('this.initTreeStatus()')
         this.initTreeStatus()
@@ -139,7 +139,7 @@ export default class DeviceMixin extends Vue {
       })
       if (data.dirs) {
         if (node.data.type === 'nvr') {
-          data.dirs = this.parseDirs(data.dirs)
+          data.dirs = this.setDirsStreamStatus(data.dirs)
         }
         dirTree.updateKeyChildren(key, data.dirs)
       }
