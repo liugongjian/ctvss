@@ -654,6 +654,9 @@ export default class CreateMixin extends Vue {
    * 批量启用/停用设备
    */
   public batchStartOrStopDevice(type: string) {
+    const deviceList = this.selectedDeviceList.filter((device: Device) => {
+      return device.deviceType === 'ipc'
+    })
     const method = type === 'start' ? startDevice : stopDevice
     const methodStr = type === 'start' ? '启用' : '停用'
     const h: Function = this.$createElement
@@ -663,7 +666,7 @@ export default class CreateMixin extends Vue {
         h(
           'div',
           { class: 'batch-device-list' },
-          this.selectedDeviceList.map((device: Device) => {
+          deviceList.map((device: Device) => {
             return h('p', undefined, [
               h('span', { class: 'device-name' }, device.deviceName)
             ])
@@ -678,7 +681,7 @@ export default class CreateMixin extends Vue {
           instance.confirmButtonLoading = true
           instance.confirmButtonText = '...'
           try {
-            await Promise.all(this.selectedDeviceList.map((device: Device) => {
+            await Promise.all(deviceList.map((device: Device) => {
               return method({
                 deviceId: device.deviceId,
                 inProtocol: this.inProtocol,
