@@ -614,6 +614,42 @@ export const asyncRoutes: RouteConfig[] = [
           perms: ['*'],
           activeMenu: '/template/ai'
         }
+      },
+      {
+        path: 'alert',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/alert/index.vue'),
+        name: 'alert',
+        meta: {
+          id: '20210424150201008010',
+          title: '告警模板',
+          icon: 'dot',
+          perms: ['*'],
+          activeMenu: '/template/alert'
+        }
+      },
+      {
+        path: 'alert/create',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/alert/createOrUpdate.vue'),
+        name: 'alert-create',
+        meta: {
+          id: '20210424150201008011',
+          title: '新建告警模板',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/template/alert'
+        }
+      },
+      {
+        path: 'alert/update/:id?',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/alert/createOrUpdate.vue'),
+        name: 'alert-update',
+        meta: {
+          id: '20210424150201008012',
+          title: '编辑告警模板',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/template/alert'
+        }
       }
       // ,
       // {
