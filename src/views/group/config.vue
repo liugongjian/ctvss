@@ -17,6 +17,7 @@
           <template v-if="form.inProtocol === 'gb28181'">
             <info-list-item label="自动拉流:">{{ PullType[form.pullType] }}</info-list-item>
             <info-list-item label="SIP服务器ID:">{{ form.sipId }}</info-list-item>
+            <info-list-item label="SIP服务器域:">{{ sipDomain }}</info-list-item>
             <info-list-item label="SIP服务器地址:">{{ form.sipIp }}</info-list-item>
             <info-list-item label="SIP服务器TCP端口:">{{ form.sipTcpPort }}</info-list-item>
             <info-list-item label="SIP服务器UDP端口:">{{ form.sipUdpPort }}</info-list-item>
@@ -84,6 +85,11 @@ export default class extends Vue {
   private loading = false
 
   private formatSeconds = formatSeconds
+
+  private get sipDomain() {
+    return this.form.sipId && this.form.sipId.toString().substr(0, 10)
+  }
+
   private back() {
     this.$router.push('/group')
   }
