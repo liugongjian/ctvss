@@ -92,6 +92,7 @@ export class H265Player extends BasePlayer {
    * 回调-H265更新时间
    */
   public onTimeUpdate() {
+    console.log('onTimeUpdate', this.player.currentTime)
     this.config.onTimeUpdate && this.config.onTimeUpdate(this.player.currentTime)
     if (this.player.currentTime === 0) {
       this.onCanplay && this.onCanplay()
@@ -99,13 +100,12 @@ export class H265Player extends BasePlayer {
   }
 
   public onEndLoading() {
+    console.log('onEndloading')
     if (this.onLoading && this.seekTime) {
       this.player.seekToSecs(this.seekTime)
     }
     this.onLoading = false
-    if (this.isLive) {
-      this.onCanplay && this.onCanplay()
-    }
+    this.onCanplay && this.onCanplay()
   }
   /**
    * 停止
