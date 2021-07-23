@@ -59,7 +59,6 @@
               <el-table-column
                 prop="policyName"
                 label="策略名"
-                width="150"
               />
               <el-table-column
                 prop="policyDescribe"

@@ -125,9 +125,6 @@
         >
           <template slot="header">
             <span class="filter">主码流状态</span>
-            <el-tooltip class="item" effect="dark" content="长时间未使用流会导致流自动掉线。" placement="top-start">
-              <svg-icon class="help" name="help" width="15" height="15" />
-            </el-tooltip>
           </template>
           <template slot-scope="{row}">
             <status-badge :status="getStreamStatus(row.deviceStreams, 1)" />
@@ -143,9 +140,6 @@
         >
           <template slot="header">
             <span class="filter">子码流状态</span>
-            <el-tooltip class="item" effect="dark" content="长时间未使用流会导致流自动掉线。" placement="top-start">
-              <svg-icon class="help" name="help" width="15" height="15" />
-            </el-tooltip>
           </template>
           <template slot-scope="{row}">
             <status-badge :status="getStreamStatus(row.deviceStreams, 2)" />
@@ -162,9 +156,6 @@
         >
           <template slot="header">
             <span class="filter">第三码流状态</span>
-            <el-tooltip class="item" effect="dark" content="长时间未使用流会导致流自动掉线。" placement="top-start">
-              <svg-icon class="help" name="help" width="15" height="15" />
-            </el-tooltip>
           </template>
           <template slot-scope="{row}">
             <status-badge :status="getStreamStatus(row.deviceStreams, 3)" />

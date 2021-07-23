@@ -106,6 +106,10 @@ export default class extends Mixins(ReplayPlayerMixin) {
     this.initVideoPlayer()
   }
 
+  private mounted() {
+    this.initVideoPlayer()
+  }
+
   private destroyed() {
     this.cancelAxios()
   }
@@ -128,8 +132,8 @@ export default class extends Mixins(ReplayPlayerMixin) {
    */
   public initVideoPlayer() {
     this.currentRecord = this.recordList[0]
+    this.currentTime = this.startTime = this.currentRecord && this.currentRecord.startAt
     this.$nextTick(() => {
-      this.setCurrentTime(0)
       this.getDevicePreview()
     })
   }
