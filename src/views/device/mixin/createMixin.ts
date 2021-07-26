@@ -62,7 +62,7 @@ export default class CreateMixin extends Vue {
   }
 
   public get isPrivateUser() {
-    return UserModule.tags && UserModule.tags.networkType === 'private'
+    return UserModule.tags && UserModule.tags.networkType !== 'public'
   }
 
   public get isFreeUser() {

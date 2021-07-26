@@ -60,7 +60,7 @@ export default class extends Vue {
   }
 
   private get isPrivateUser() {
-    return UserModule.tags && UserModule.tags.networkType === 'private'
+    return UserModule.tags && UserModule.tags.networkType !== 'public'
   }
 
   private created() {
