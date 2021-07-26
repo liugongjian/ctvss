@@ -107,7 +107,7 @@ export default class DetailMixin extends Vue {
   }
 
   public get isPrivateUser() {
-    return UserModule.tags && UserModule.tags.networkType === 'private'
+    return UserModule.tags && UserModule.tags.networkType !== 'public'
   }
 
   public async mounted() {
