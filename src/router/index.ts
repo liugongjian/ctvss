@@ -650,6 +650,18 @@ export const asyncRoutes: RouteConfig[] = [
           perms: ['*'],
           activeMenu: '/template/alert'
         }
+      },
+      {
+        path: 'alert/details/:id?',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/alert/details.vue'),
+        name: 'alert-details',
+        meta: {
+          id: '20210424150201008013',
+          title: '模板详情',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/template/alert'
+        }
       }
       // ,
       // {

@@ -16,16 +16,16 @@
           <el-input v-model="form.templateName" class="fixed-width" :disabled="!createOrUpdateFlag" />
           <div class="form-tip">4-16位，可包含大小写字母、数字、中文、中划线。模板名称不能重复。</div>
         </el-form-item>
-        <el-form-item label="报警级别" prop="alertLevel">
-          <el-select v-model="form.alertLevel" class="select-item">
-            <el-option v-for="item in alertLevelOptions" :key="item.value" :label="item.text" :value="item.value" />
+        <el-form-item label="报警级别" prop="alarmPriority">
+          <el-select v-model="form.alarmPriority" class="select-item">
+            <el-option v-for="item in alarmPriorityOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
           <div class="form-tip">该报警级别为告警筛选的最低级别</div>
         </el-form-item>
-        <el-form-item label="报警方式" prop="alertType">
+        <el-form-item label="报警方式" prop="alarmMethod">
           <el-cascader
-            v-model="form.alertType"
-            :options="alertTypeOptions"
+            v-model="form.alarmMethod"
+            :options="alarmMethodOptions"
             :props="props"
             clearable
           />
@@ -34,7 +34,7 @@
             width="400"
             trigger="hover"
             :open-delay="300"
-            content="设备发送报警方式为“设备报警”通知后,平台需进行“报警复位”控制操作,设备才能发送新 的“设备报警”通知"
+            content="设备发送报警方式为“设备报警”通知后，平台需进行“报警复位”控制操作，设备才能发送新的“设备报警”通知"
           >
             <svg-icon slot="reference" class="form-question" name="help" />
           </el-popover>
@@ -52,7 +52,7 @@
 </template>
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
-// import { queryAlertTemplate, createCallbackTemplate, updateCallbackTemplate } from '@/api/template'
+import { getAlertTemplateDetails, createAlertTemplate, updateAlertTemplate } from '@/api/template'
 
 @Component({
   name: 'create-or-update-callback-template'
@@ -66,79 +66,79 @@ export default class extends Vue {
       { required: true, message: '请输入回调模板名称', trigger: 'blur' },
       { validator: this.validateTemplateName, trigger: 'blur' }
     ],
-    alertLevel: [
+    alarmPriority: [
       { required: true, message: '请选择报警级别', trigger: 'blur' }
     ],
-    alertType: [
+    alarmMethod: [
       { required: true, message: '请选择报警方式', trigger: 'blur' }
     ]
   }
   private selectedRows: any[] = []
   private form: any = {
     templateName: '',
-    alertLevel: 1,
-    alertType: [],
+    alarmPriority: '1',
+    alarmMethod: [],
     description: ''
   }
-  private alertLevelOptions: any = [
-    { text: '一级警情', value: 1 },
-    { text: '二级警情', value: 2 },
-    { text: '三级警情', value: 3 },
-    { text: '四级警情', value: 4 }
+  private alarmPriorityOptions: any = [
+    { label: '一级警情', value: '1' },
+    { label: '二级警情', value: '2' },
+    { label: '三级警情', value: '3' },
+    { label: '四级警情', value: '4' }
   ]
   private props: any = { multiple: true }
-  private alertTypeOptions: any = [
+  private alarmMethodOptions: any = [
     {
-      value: 1,
+      value: '1',
       label: '电话报警'
     },
     {
-      value: 2,
+      value: '2',
       label: '设备报警',
       children: [
-        { value: 1, label: '视频丢失报警' },
-        { value: 2, label: '设备防拆报警' },
-        { value: 3, label: '存储设备磁盘满报警' },
-        { value: 4, label: '设备高温报警' },
-        { value: 5, label: '设备低温报警' }
+        { value: '1', label: '视频丢失报警' },
+        { value: '2', label: '设备防拆报警' },
+        { value: '3', label: '存储设备磁盘满报警' },
+        { value: '4', label: '设备高温报警' },
+        { value: '5', label: '设备低温报警' }
       ]
     },
     {
-      value: 3,
+      value: '3',
       label: '短信报警'
     },
     {
-      value: 4,
+      value: '4',
       label: 'GPS报警'
     },
     {
-      value: 5,
+      value: '5',
       label: '视频报警',
       children: [
-        { value: 1, label: '人工视频报警' },
-        { value: 2, label: '运动目标检测报警' },
-        { value: 3, label: '遗留物检测报警' },
-        { value: 4, label: '物体移除检测报警' },
-        { value: 5, label: '绊线检测报警' },
-        { value: 6, label: '入侵检测报警' },
-        { value: 7, label: '逆行检测报警' },
-        { value: 8, label: '徘徊检测报警' },
-        { value: 9, label: '流量统计报警' },
-        { value: 10, label: '密度检测报警' },
-        { value: 11, label: '视频异常检测报警' },
-        { value: 12, label: '快速移动报警' }
+        { value: '1', label: '人工视频报警' },
+        { value: '2', label: '运动目标检测报警' },
+        { value: '3', label: '遗留物检测报警' },
+        { value: '4', label: '物体移除检测报警' },
+        { value: '5', label: '绊线检测报警' },
+        { value: '6', label: '入侵检测报警' },
+        { value: '7', label: '逆行检测报警' },
+        { value: '8', label: '徘徊检测报警' },
+        { value: '9', label: '流量统计报警' },
+        { value: '10', label: '密度检测报警' },
+        { value: '11', label: '视频异常检测报警' },
+        { value: '12', label: '快速移动报警' }
       ]
     },
     {
-      value: 6,
+      value: '6',
       label: '设备故障报警',
       children: [
-        { value: 1, label: '存储设备磁盘故障报警' },
-        { value: 2, label: '存储设备风扇故障报警' }
+        { value: '1', label: '存储设备磁盘故障报警' },
+        { value: '2', label: '存储设备风扇故障报警' }
       ]
     },
     {
-      value: 7,
+      value: '7',
       label: '其他报警'
     }
   ]
@@ -149,10 +149,20 @@ export default class extends Vue {
     let query: any = this.$route.query
     if (query.templateId) {
       this.$set(this.form, 'templateId', query.templateId)
-      this.loading = true
-      // const res = await queryAlertTemplate({ templateId: query.templateId })
-      // this.form = res
-      this.loading = false
+      try {
+        this.loading = true
+        const res = await getAlertTemplateDetails({ templateId: query.templateId })
+        this.form.templateName = res.templateName
+        this.form.alarmPriority = res.alarmPriority
+        this.form.alarmMethod = res.alarmMethod.split(',').map((item: any) => {
+          return item.split('-')
+        })
+        this.description = res.description
+      } catch (e) {
+        this.$message.error(`获取模板详情失败，原因：${e && e.message}`)
+      } finally {
+        this.loading = false
+      }
     } else {
       // do nothing
     }
@@ -160,7 +170,7 @@ export default class extends Vue {
 
   private validateTemplateName(rule: any, value: string, callback: Function) {
     if (!/^[\u4e00-\u9fa50-9a-zA-Z-]{4,16}$/u.test(value)) {
-      callback(new Error('回调模板名称格式错误'))
+      callback(new Error('告警模板名称格式错误'))
     } else {
       callback()
     }
@@ -178,17 +188,17 @@ export default class extends Vue {
         const param: any = {
           templateId: this.form.templateId || undefined,
           templateName: this.form.templateName,
-          alertLevel: this.form.alertLevel,
-          alertType: this.form.alertType,
+          alarmPriority: this.form.alarmPriority,
+          alarmMethod: this.form.alarmMethod.map((item: any) => {
+            return item.join('-')
+          }).join(','),
           description: this.form.description
         }
-        console.log(this.form);
-        
         try {
           if (this.form.templateId) {
-            // await updateCallbackTemplate(param)
+            await updateAlertTemplate(param)
           } else {
-            // await createCallbackTemplate(param)
+            await createAlertTemplate(param)
           }
           this.loading = false
           this.$message.success(this.form.templateId ? '告警模板编辑成功' : '告警模板创建成功')
@@ -210,6 +220,6 @@ export default class extends Vue {
     width: 600px;
   }
   .select-item {
-    width: 200px;
+    width: 206px;
   }
 </style>

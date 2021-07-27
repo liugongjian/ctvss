@@ -20,67 +20,78 @@
         @sort-change="sortChange"
       >
         <el-table-column prop="templateName" label="模板名称" min-width="150" />
-        <el-table-column
-          key="alertLevel"
-          column-key="alertLevel"
-          prop="alertLevel"
+        <!-- <el-table-column
+          key="AlarmPriority"
+          column-key="AlarmPriority"
+          prop="alarmPriority"
           min-width="150"
-          :filters="filtersArray.alertLevel"
+          :filters="filtersArray.alarmPriority"
+        > -->
+        <el-table-column
+          key="AlarmPriority"
+          column-key="AlarmPriority"
+          prop="alarmPriority"
+          min-width="150"
         >
           <template slot="header">
             <span class="filter">报警级别</span>
-            <svg-icon class="filter" name="filter" width="15" height="15" />
+            <!-- <svg-icon class="filter" name="filter" width="15" height="15" /> -->
           </template>
           <template slot-scope="{row}">
-            {{ getLabel('alertLevel', row.alertLevel) }}
+            {{ getLabel('alarmPriority', row.alarmPriority) }}
           </template>
         </el-table-column>
+        <!-- <el-table-column
+          key="AlarmMethod"
+          column-key="AlarmMethod"
+          prop="alarmMethod"
+          min-width="240"
+          :filters="filtersArray.alarmMethod"
+        > -->
         <el-table-column
-          key="alertType"
-          column-key="alertType"
-          prop="alertType"
-          min-width="150"
-          :filters="filtersArray.alertType"
+          key="AlarmMethod"
+          column-key="AlarmMethod"
+          prop="alarmMethod"
+          min-width="240"
         >
           <template slot="header">
             <span class="filter">报警方式</span>
-            <svg-icon class="filter" name="filter" width="15" height="15" />
+            <!-- <svg-icon class="filter" name="filter" width="15" height="15" /> -->
           </template>
           <template slot-scope="{row}">
-            {{ getLabel('alertType', row.alertType) }}
+            {{ getLabel('alarmMethod', row.alarmMethod) | lengthFormat }}
           </template>
         </el-table-column>
-        <el-table-column prop="date" label="有效期（天）" min-width="150" />
         <el-table-column
-          key="createTime"
-          column-key="createTime"
-          prop="createTime"
+          key="CreatedTime"
+          column-key="CreatedTime"
+          prop="createdTime"
           sortable="custom"
           label="创建时间"
           min-width="240"
         >
           <template slot-scope="{row}">
-            {{ row.createTime }}
+            {{ row.createdTime }}
           </template>
         </el-table-column>
         <el-table-column
-          key="updateTime"
-          column-key="updateTime"
-          prop="updateTime"
+          key="UpdatedTime"
+          column-key="UpdatedTime"
+          prop="updatedTime"
           sortable="custom"
           label="更新时间"
           min-width="240"
         >
           <template slot-scope="{row}">
-            {{ row.updateTime }}
+            {{ row.updatedTime }}
           </template>
         </el-table-column>
         <el-table-column prop="description" label="备注" min-width="240" />
         <el-table-column prop="action" class-name="col-action" label="操作" width="250" fixed="right">
           <template slot-scope="{row}">
-            <el-button type="text" @click="edit(row)">编辑</el-button>
-            <el-button type="text" @click="deleteTemplate(row)">删除</el-button>
-            <el-button type="text" @click="viewBind(row)">查看绑定关系</el-button>
+            <el-button type="text" @click.stop="edit(row)">编辑</el-button>
+            <el-button type="text" @click.stop="deleteTemplate(row)">删除</el-button>
+            <el-button type="text" @click.stop="viewBind(row)">查看绑定关系</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -93,42 +104,117 @@
         @current-change="handleCurrentChange"
       />
     </el-card>
+    <view-bind v-if="showViewBindDialog" :template-id="currentTemplateId" @on-close="closeViewBind" />
   </div>
 </template>
 
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
+import { getAlertTemplates, deleteAlertTemplate } from '@/api/template'
+import viewBind from './dialogs/viewBind.vue'
 
 @Component({
+  components: { viewBind },
   name: 'alert-template',
+  filters: {
+    lengthFormat: (value: string) => {
+      if (value.length > 15) {
+        return value.slice(0, 15) + '...'
+      } else {
+        return value
+      }
+    }
+  }
 })
 export default class extends Vue {
   private loading: boolean = false
+  private showViewBindDialog = false
   private currentTemplateId: any = ''
   private searchFrom: any = {
     templateName: '',
-    alertLevel: [],
-    alertType: [],
-    createTimeSortType: '',
-    updateTimeSortType: ''
+    alarmPriority: [],
+    alarmMethod: [],
+    sortBy: '',
+    sortDirection: ''
   }
   private filtersArray: any = {
-    alertLevel: [
-      { text: '一级警情', value: 1 },
-      { text: '二级警情', value: 2 },
-      { text: '三级警情', value: 3 },
-      { text: '四级警情', value: 4 }
+    alarmPriority: [
+      { text: '一级警情', value: '1' },
+      { text: '二级警情', value: '2' },
+      { text: '三级警情', value: '3' },
+      { text: '四级警情', value: '4' }
     ],
-    alertType: [
-      { text: '电话报警', value: 1 },
-      { text: '设备报警', value: 2 },
-      { text: '短信报警', value: 3 },
-      { text: 'GPS报警', value: 4 },
-      { text: '视频报警', value: 5 },
-      { text: '设备故障报警', value: 6 },
-      { text: '其他报警', value: 7 }
+    alarmMethod: [
+      { text: '电话报警', value: '1' },
+      { text: '设备报警', value: '2' },
+      { text: '短信报警', value: '3' },
+      { text: 'GPS报警', value: '4' },
+      { text: '视频报警', value: '5' },
+      { text: '设备故障报警', value: '6' },
+      { text: '其他报警', value: '7' }
     ]
   }
+  private alarmPriorityOptions: any = [
+    { label: '一级警情', value: '1' },
+    { label: '二级警情', value: '2' },
+    { label: '三级警情', value: '3' },
+    { label: '四级警情', value: '4' }
+  ]
+  private alarmMethodOptions: any = [
+    {
+      value: '1',
+      label: '电话报警'
+    },
+    {
+      value: '2',
+      label: '设备报警',
+      children: [
+        { value: '1', label: '视频丢失报警' },
+        { value: '2', label: '设备防拆报警' },
+        { value: '3', label: '存储设备磁盘满报警' },
+        { value: '4', label: '设备高温报警' },
+        { value: '5', label: '设备低温报警' }
+      ]
+    },
+    {
+      value: '3',
+      label: '短信报警'
+    },
+    {
+      value: '4',
+      label: 'GPS报警'
+    },
+    {
+      value: '5',
+      label: '视频报警',
+      children: [
+        { value: '1', label: '人工视频报警' },
+        { value: '2', label: '运动目标检测报警' },
+        { value: '3', label: '遗留物检测报警' },
+        { value: '4', label: '物体移除检测报警' },
+        { value: '5', label: '绊线检测报警' },
+        { value: '6', label: '入侵检测报警' },
+        { value: '7', label: '逆行检测报警' },
+        { value: '8', label: '徘徊检测报警' },
+        { value: '9', label: '流量统计报警' },
+        { value: '10', label: '密度检测报警' },
+        { value: '11', label: '视频异常检测报警' },
+        { value: '12', label: '快速移动报警' }
+      ]
+    },
+    {
+      value: '6',
+      label: '设备故障报警',
+      children: [
+        { value: '1', label: '存储设备磁盘故障报警' },
+        { value: '2', label: '存储设备风扇故障报警' }
+      ]
+    },
+    {
+      value: '7',
+      label: '其他报警'
+    }
+  ]
   private templateList: any = []
   private pager = {
     pageNum: 1,
@@ -144,52 +230,39 @@ export default class extends Vue {
     this.getList()
   }
   private async getList() {
-    this.templateList = [
-      {
-        templateName: '模板名称1',
-        alertLevel: 1,
-        alertType: 1,
-        date: 12,
-        createTime: '2021-05-12 10:20:27',
-        updateTime: '2021-05-12 10:20:27',
-        description: '告警备注'
-      },
-      {
-        templateName: '模板名称2',
-        alertLevel: 2,
-        alertType: 2,
-        date: 12,
-        createTime: '2021-05-12 10:20:27',
-        updateTime: '2021-05-12 10:20:27',
-        description: '告警备注'
-      },
-      {
-        templateName: '模板名称3',
-        alertLevel: 3,
-        alertType: 3,
-        date: 12,
-        createTime: '2021-05-12 10:20:27',
-        updateTime: '2021-05-12 10:20:27',
-        description: '告警备注'
-      },
-      {
-        templateName: '模板名称4',
-        alertLevel: 4,
-        alertType: 4,
-        date: 12,
-        createTime: '2021-05-12 10:20:27',
-        updateTime: '2021-05-12 10:20:27',
-        description: '告警备注'
-      }
-    ]
+    let params = {
+      templateName: this.searchFrom.templateName,
+      sortBy: this.searchFrom.sortBy,
+      sortDirection: this.searchFrom.sortDirection,
+      pageNum: this.pager.pageNum,
+      pageSize: this.pager.pageSize
+    }
+    try {
+      this.loading = true
+      let res: any = await getAlertTemplates(params)
+      this.templateList = res.alarmTemplates
+      this.pager.total = res.totalPage
+    } catch (e) {
+      this.$message.error(`获取模板列表失败，原因：${e && e.message}`)
+    } finally {
+      this.loading = false
+    }
   }
   private getLabel(type: string, value: any) {
-    let Obj = this.filtersArray[type].find((item: any) => item.value === value)
-    if (Obj) {
-      return Obj.text
-    } else {
-      return 'undefined'
-    }
+    let arr: any = value.split(',')
+    let res: any = arr.map((str: any) => {
+      let obj = this[`${type}Options`].find((item: any) => item.value === str.slice(0, 1))
+      let resStr = obj.label
+      if (obj.children) {
+        resStr += '/' + obj.children.find((item: any) => item.value === str.split('-')[1])?.label
+      }
+      if (obj) {
+        return resStr
+      } else {
+        return 'undefined'
+      }
+    }).join(',')
+    return res
   }
   private filterChange(filters: any) {
     for (let key in filters) {
@@ -205,15 +278,19 @@ export default class extends Vue {
   }
   private sortChange(sort: any) {
     if (sort.order) {
-      this.searchFrom[`${sort.prop}SortType`] = sort.order
-    } else {
-      this.searchFrom[`${sort.prop}SortType`] = ''
+      this.searchFrom.sortBy = sort.column.columnKey
+      this.searchFrom.sortDirection = sort.order === 'ascending' ? 'asc' : 'desc'
+      this.search()
     }
     console.log(this.searchFrom);
   }
   private rowClick(row: any) {
-    console.log(row);
-    
+    this.$router.push({
+      path: '/template/alert/details',
+      query: {
+        templateId: row.templateId?.toString()
+      }
+    })
   }
   private edit(row: any) {
     this.$router.push({
@@ -223,11 +300,22 @@ export default class extends Vue {
       }
     })
   }
-  private deleteTemplate(row: any) {
-    
+  private async deleteTemplate(row: any) {
+    this.$alertDelete({
+      type: '告警模板',
+      msg: `确定删除告警模板"${row.templateName}"`,
+      method: deleteAlertTemplate,
+      payload: { templateId: row.templateId },
+      onSuccess: this.getList
+    })
   }
   private viewBind(row: any) {
-    
+    this.currentTemplateId = row.templateId
+    this.showViewBindDialog = true
+  }
+  private async closeViewBind() {
+    this.currentTemplateId = ''
+    this.showViewBindDialog = false
   }
   private createTemplate() {
     this.$router.push('/template/alert/create')

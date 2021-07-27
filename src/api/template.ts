@@ -200,3 +200,39 @@ export const getAbilityAlgorithmList = (params: any): Promise<any> =>
     method: 'get',
     params
   })
+
+// 告警模板相关接口
+export const getAlertTemplates = (params: any): Promise<any> =>
+  request({
+    url: '/alarmtemplates/describe',
+    method: 'get',
+    params
+  })
+
+export const getAlertTemplateDetails = (params: any): Promise<any> =>
+  request({
+    url: '/alarmtemplate/describe',
+    method: 'get',
+    params
+  })
+
+export const createAlertTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/alarmtemplate/create',
+    method: 'post',
+    data: params
+  })
+
+export const updateAlertTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/alarmtemplate/modify',
+    method: 'post',
+    data: params
+  })
+
+export const deleteAlertTemplate = (params: any): Promise<any> =>
+  request({
+    url: '/alarmtemplate/delete',
+    method: 'post',
+    data: params
+  })
