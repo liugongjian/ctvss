@@ -245,15 +245,19 @@ class User extends VuexModule implements IUserState {
   }
 
   @Action
-  public async switchRole(role: any) {
-    if (!role) {
-      await exitUserRole()
-    } else {
-      await switchUserRole({ roleId: role.roleId })
+  public async switchRole(roleInfo: { role: any, needWebRequest: boolean }) {
+    if (roleInfo.needWebRequest) {
+      if (!roleInfo.role) {
+        await exitUserRole()
+      } else {
+        await switchUserRole({ roleId: roleInfo.role.roleId })
+      }
     }
+    // 清理 业务组列表 和 当前业务组
     await GroupModule.ResetGroup()
     await GroupModule.ResetGroupList()
     await GroupModule.GetGroupList()
+
     await this.GetGlobalInfo()
     resetRouter()
     // Generate dynamic accessible routes based on roles
@@ -262,6 +266,12 @@ class User extends VuexModule implements IUserState {
     router.addRoutes(PermissionModule.dynamicRoutes)
     // Reset visited views and cached views
     TagsViewModule.delAllViews()
+  }
+
+  @Action({ rawError: true })
+  public overrideRoleInfo(roleInfo: { roleId: string, roleName: string }) {
+    this.SET_MAIN_USER_ROLE_ID(roleInfo.roleId)
+    this.SET_MAIN_USER_ROLE_NAME(roleInfo.roleName)
   }
 
   @Action({ rawError: true })

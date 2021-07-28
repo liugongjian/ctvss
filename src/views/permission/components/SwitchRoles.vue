@@ -28,7 +28,7 @@ export default class extends Vue {
   }
 
   set switchRoles(value) {
-    UserModule.switchRole(value).then(() => {
+    UserModule.switchRole({ role: value, needWebRequest: true }).then(() => {
       this.$emit('change')
     })
   }

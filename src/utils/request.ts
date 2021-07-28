@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { MessageBox } from 'element-ui'
+import { MessageBox, Message } from 'element-ui'
 import { UserModule } from '@/store/modules/user'
 import { getLocalStorage } from '@/utils/storage'
 import settings from '@/settings'
@@ -43,7 +43,23 @@ service.interceptors.response.use(
 
 function responseHandler(response: any) {
   if (response && (response.status === 200) && response.data && !response.data.code) {
-    console.log('reponse: ', response)
+    const url = (response && response.config && response.config.url) || ''
+    if (url) {
+      const mainUserRoleId = response.headers['x-role-id'] || response.headers['X-Role-Id'] || ''
+      const mainUserRoleName = decodeURIComponent(response.headers['x-role-name'] || response.headers['X-Role-Name'] || '')
+      if (!url.endsWith('/iam/role/switch') && !url.endsWith('/iam/role/exit')) {
+        if (UserModule.mainUserRoleId !== mainUserRoleId) {
+          // 当前 角色id 为空
+          if (mainUserRoleId === '') {
+            Message.error('授权角色已删除，请联系授权方！')
+          }
+          UserModule.overrideRoleInfo({ roleId: mainUserRoleId, roleName: mainUserRoleName })
+          UserModule.switchRole({ role: false, needWebRequest: false })
+        }
+      } else {
+        UserModule.overrideRoleInfo({ roleId: mainUserRoleId, roleName: mainUserRoleName })
+      }
+    }
     return response.data
   } else {
     if (!timeoutPromise && response && response.data && response.data.code === 16) {

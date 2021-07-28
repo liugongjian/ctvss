@@ -6,7 +6,7 @@
           <el-button v-if="inRole" type="primary" @click="exitRole">退出角色</el-button>
         </div>
         <div class="head__right">
-          <el-input v-model="roleSearch" placeholder="请输入角色名/授权账号" @keyup.enter.native="getList">
+          <el-input v-model="roleSearch" placeholder="请输入角色名/授权账号" clearable @keyup.enter.native="getList">
             <el-button slot="append" class="el-button-rect" @click="getList"><svg-icon name="search" /></el-button>
           </el-input>
           <el-button class="el-button-rect" @click="getList"><svg-icon name="refresh" /></el-button>
@@ -105,7 +105,7 @@ export default class extends Vue {
           instance.confirmButtonLoading = true
           instance.confirmButtonText = role ? '切换中...' : '退出中...'
           try {
-            await UserModule.switchRole(role)
+            await UserModule.switchRole({ role, needWebRequest: true })
             done()
           } catch (e) {
             this.$message.error(e.message)

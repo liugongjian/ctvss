@@ -15,9 +15,9 @@
       <el-table :data="roleList">
         <el-table-column prop="roleId" label="角色ID" />
         <el-table-column prop="roleName" label="角色名" />
-        <el-table-column prop="description" label="角色描述" />
-        <el-table-column prop="bindingUserId" label="角色绑定账号ID" />
-        <el-table-column prop="bindingUserName" label="角色绑定账号Name" />
+        <el-table-column prop="description" label="角色描述" min-width="160" />
+        <el-table-column prop="bindingUserId" label="绑定账号ID" />
+        <el-table-column prop="bindingUserName" label="绑定账号Name" />
         <el-table-column prop="createdTime" label="创建时间" />
         <el-table-column prop="updatedTime" label="更新时间" />
         <el-table-column label="操作" width="140">
