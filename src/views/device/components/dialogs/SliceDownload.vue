@@ -454,16 +454,13 @@ export default class extends Vue {
 
   // 指针越界归位
   private handleUpReset() {
-    if (this.tmpHos >= this.timelineSize.width) {
-      this.tmpHos = this.timelineSize.width
-    } else if (this.tmpHos <= 0) {
-      this.tmpHos = 0
-    }
-    if (this.tmpHos2 >= this.timelineSize.width) {
-      this.tmpHos2 = this.timelineSize.width
-    } else if (this.tmpHos2 <= 0) {
-      this.tmpHos2 = 0
-    }
+    this.handleList.forEach((handle: any) => {
+      if (handle.tmpHos >= this.timelineSize.width) {
+        handle.tmpHos = this.timelineSize.width
+      } else if (handle.tmpHos <= 0) {
+        handle.tmpHos = 0
+      }
+    })
   }
 
   private validateTime(rule: any, value: string, callback: Function) {

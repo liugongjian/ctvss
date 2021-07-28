@@ -7,13 +7,15 @@ import { deleteDevice, startDevice, stopDevice, getDevice, getDevices, startReco
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MoveDir from '../components/dialogs/MoveDir.vue'
 import UploadExcel from '../components/dialogs/UploadExcel.vue'
+import Resource from '../components/dialogs/Resource.vue'
 import { checkPermission } from '@/utils/permission'
 
 @Component({
   components: {
     StatusBadge,
     MoveDir,
-    UploadExcel
+    UploadExcel,
+    Resource
   }
 })
 export default class CreateMixin extends Vue {
@@ -46,7 +48,8 @@ export default class CreateMixin extends Vue {
   }
   public dialog = {
     moveDir: false,
-    uploadExcel: false
+    uploadExcel: false,
+    resource: false
   }
   public keyword = ''
   public filter: any = {
@@ -451,6 +454,9 @@ export default class CreateMixin extends Vue {
       case 'stopRecord':
         this.stopRecord(command.device)
         break
+      case 'updateResource':
+        this.openDialog('resource', command.device)
+        break
     }
   }
 
@@ -735,6 +741,10 @@ export default class CreateMixin extends Vue {
       case 'moveDir':
         this.currentDevice = payload
         this.dialog.moveDir = true
+        break
+      case 'resource':
+        this.currentDevice = payload
+        this.dialog.resource = true
         break
     }
   }
