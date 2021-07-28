@@ -8,7 +8,7 @@
         <info-list-item label="报警方式:">
           <div v-for="(item, index) in getLabel('alarmMethod', details.alarmMethod)" :key="index">{{ item }}</div>
         </info-list-item>
-        <info-list-item label="模板概要:">{{ details.description }}</info-list-item>
+        <info-list-item label="模板概要:">{{ details.description || '-' }}</info-list-item>
       </info-list>
     </el-card>
   </div>

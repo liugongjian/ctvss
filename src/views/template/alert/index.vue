@@ -253,15 +253,13 @@ export default class extends Vue {
     let res: any = arr.map((str: any) => {
       let obj = this[`${type}Options`].find((item: any) => item.value === str.slice(0, 1))
       let resStr = obj.label
-      if (obj.children) {
-        resStr += '/' + obj.children.find((item: any) => item.value === str.split('-')[1])?.label
-      }
       if (obj) {
         return resStr
       } else {
         return 'undefined'
       }
-    }).join(',')
+    })
+    res = [...new Set(res)].join('，')
     return res
   }
   private filterChange(filters: any) {
@@ -273,8 +271,6 @@ export default class extends Vue {
         this.searchFrom[key] = []
       }
     }
-    console.log(this.searchFrom);
-    
   }
   private sortChange(sort: any) {
     if (sort.order) {
@@ -282,7 +278,6 @@ export default class extends Vue {
       this.searchFrom.sortDirection = sort.order === 'ascending' ? 'asc' : 'desc'
       this.search()
     }
-    console.log(this.searchFrom);
   }
   private rowClick(row: any) {
     this.$router.push({
