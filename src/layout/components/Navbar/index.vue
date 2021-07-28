@@ -323,8 +323,8 @@ export default class extends Vue {
     height: 100%;
     font-weight: bold;
     font-size: 15px;
-    width: 200px;
-    left: -100px;
+    width: 400px;
+    left: -200px;
     color: #4a89dc;
   }
 

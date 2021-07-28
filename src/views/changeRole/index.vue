@@ -73,7 +73,8 @@ export default class extends Vue {
     try {
       let params: any = {
         pageNum: this.pager.pageNum,
-        pageSize: this.pager.pageSize
+        pageSize: this.pager.pageSize,
+        roleName: this.roleSearch || undefined
       }
       this.isLoading = true
       let res: any = await getUserRoleList(params)
