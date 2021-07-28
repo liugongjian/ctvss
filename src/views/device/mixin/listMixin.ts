@@ -136,6 +136,10 @@ export default class CreateMixin extends Vue {
     return this.deviceInfo && this.deviceInfo.createSubDevice === 1
   }
 
+  public get isManulNVR() {
+    return this.isNVR && this.deviceInfo && this.deviceInfo.createSubDevice === 2
+  }
+
   public get dirId() {
     return this.$route.query.dirId ? this.$route.query.dirId : 0
   }
