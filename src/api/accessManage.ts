@@ -133,9 +133,22 @@ export const getIamRoleList = (params: any): Promise<any> =>
     params
   })
 
-export const attachPolicyAndRole = (params: any): Promise<any> =>
+export const getUserRoleList = (params: any): Promise<any> =>
   request({
-    url: '/iam/user/attachPolicyAndRole',
+    url: '/iam/role/authorized/list',
+    method: 'get',
+    params
+  })
+
+export const switchUserRole = (data: any): Promise<any> =>
+  request({
+    url: '/iam/role/switch',
     method: 'post',
-    data: params
+    data
+  })
+
+export const exitUserRole = (): Promise<any> =>
+  request({
+    url: '/iam/role/exit',
+    method: 'post'
   })

@@ -250,7 +250,8 @@ export default class extends Vue {
 
   private async getPolicyList() {
     let params: any = {
-      pageSize: 1000
+      pageSize: 1000,
+      policyType: 'subUser'
     }
     try {
       let res: any = await getPolicyList(params)

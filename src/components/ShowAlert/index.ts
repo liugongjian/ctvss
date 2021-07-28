@@ -1,6 +1,8 @@
+import { VNode } from 'vue/types/umd'
+
 type deleteParams = {
   type: string;
-  msg: string | Function;
+  msg: string | Function | VNode;
   method: Function;
   payload: any;
   onSuccess?: Function;
