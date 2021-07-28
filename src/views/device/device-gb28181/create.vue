@@ -411,17 +411,6 @@ export default class extends Mixins(createMixin) {
   }
 
   /**
-   * 校验通道号
-   */
-  private validateChannelNum(rule: any, value: string, callback: Function) {
-    if (!/^[0-9]+$/.test(value)) {
-      callback(new Error('设备号仅支持数字'))
-    } else {
-      callback()
-    }
-  }
-
-  /**
    * 打开弹出框
    */
   private openDialog(type: string) {
