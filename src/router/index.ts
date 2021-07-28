@@ -757,7 +757,7 @@ export const asyncRoutes: RouteConfig[] = [
       title: '访问管理',
       icon: 'user',
       alwaysShow: true,
-      breadcrumb: false,
+      breadcrumb: true,
       perms: ['*']
     },
     children: [

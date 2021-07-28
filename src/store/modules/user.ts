@@ -6,6 +6,7 @@ import { getToken, setToken, removeToken, getUsername, setUsername, removeUserna
 import { setLocalStorage, getLocalStorage } from '@/utils/storage'
 import router, { resetRouter } from '@/router'
 import { PermissionModule } from './permission'
+import { GroupModule } from './group'
 import { TagsViewModule } from './tags-view'
 import { DeviceModule } from '@/store/modules/device'
 import store from '@/store'
@@ -250,6 +251,9 @@ class User extends VuexModule implements IUserState {
     } else {
       await switchUserRole({ roleId: role.roleId })
     }
+    await GroupModule.ResetGroup()
+    await GroupModule.ResetGroupList()
+    await GroupModule.GetGroupList()
     await this.GetGlobalInfo()
     resetRouter()
     // Generate dynamic accessible routes based on roles

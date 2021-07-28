@@ -191,7 +191,7 @@ export default class extends Vue {
 
   private checkRole() {
     this.$router.push({
-      path: 'changeRole'
+      path: '/changeRole'
     })
   }
 
