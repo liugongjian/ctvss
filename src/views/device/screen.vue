@@ -479,7 +479,7 @@ export default class extends Mixins(ScreenMixin) {
         id: this.currentNode!.data.id,
         type: this.currentNode!.data.type
       })
-      const dirs = this.parseDirs(data.dirs)
+      const dirs = this.setDirsStreamStatus(data.dirs)
       dirs.forEach((item: any) => {
         if (item.type === 'ipc' && item.streamStatus === 'on') {
           this.pollingDevices.push(item)
