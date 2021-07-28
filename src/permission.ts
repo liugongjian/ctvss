@@ -65,7 +65,12 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
           })
           // Hack: ensure addRoutes is complete
           // Set the replace: true, so the navigation will not leave a history record
-          next({ ...to, replace: true })
+          // 角色登录后没有 /dashboard 的访问权限
+          if (UserModule.mainUserRoleId && to.path === '/dashboard') {
+            next({ path: '/group', replace: true })
+          } else {
+            next({ ...to, replace: true })
+          }
         } catch (err) {
           // Remove token and redirect to login page
           UserModule.ResetToken()

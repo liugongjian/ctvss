@@ -26,8 +26,8 @@ const settings: ISettings = {
   devServerPort: 9527,
   mockServerPort: 9528,
   casLoginUrl: '/v1/cas/callback',
-  mainLoginUrl: '/login',
-  subLoginUrl: '/login/subAccount',
+  mainLoginUrl: '/vss/login',
+  subLoginUrl: '/vss/login/subAccount',
   projectPrefix: '/vss'
 }
 

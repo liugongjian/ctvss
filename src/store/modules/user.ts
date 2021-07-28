@@ -1,6 +1,7 @@
 import { VuexModule, Module, Action, Mutation, getModule } from 'vuex-module-decorators'
 import { Base64 } from 'js-base64'
 import { login, logout, getMainUserInfo, getIAMUserInfo, changePassword, resetIAMPassword } from '@/api/users'
+import { switchUserRole, exitUserRole } from '@/api/accessManage'
 import { getToken, setToken, removeToken, getUsername, setUsername, removeUsername, getIamUserId, setIamUserId, removeIamUserId } from '@/utils/cookies'
 import { setLocalStorage, getLocalStorage } from '@/utils/storage'
 import router, { resetRouter } from '@/router'
@@ -37,6 +38,8 @@ class User extends VuexModule implements IUserState {
   public type = ''
   public mainUserID = ''
   public mainUserAddress = ''
+  public mainUserRoleId = ''
+  public mainUserRoleName = ''
   public ctLoginId = getLocalStorage('ctLoginId') || ''
 
   @Mutation
@@ -95,6 +98,16 @@ class User extends VuexModule implements IUserState {
   }
 
   @Mutation
+  private SET_MAIN_USER_ROLE_ID(roleId: string) {
+    this.mainUserRoleId = roleId
+  }
+
+  @Mutation
+  private SET_MAIN_USER_ROLE_NAME(roleName: string) {
+    this.mainUserRoleName = roleName
+  }
+
+  @Mutation
   private SET_CT_LOGIN_ID(ctLoginId: string) {
     this.ctLoginId = ctLoginId
   }
@@ -149,6 +162,8 @@ class User extends VuexModule implements IUserState {
     this.SET_IAM_USER_ID('')
     this.SET_MAIN_USER_ADDRESS('')
     this.SET_MAIN_USER_ID('')
+    this.SET_MAIN_USER_ROLE_ID('')
+    this.SET_MAIN_USER_ROLE_NAME('')
     // 清空设备管理面包屑
     DeviceModule.ResetBreadcrumb()
   }
@@ -179,6 +194,8 @@ class User extends VuexModule implements IUserState {
     if (userInfo.userId) {
       this.SET_MAIN_USER_ID(userInfo.userId)
       this.SET_MAIN_USER_ADDRESS(userInfo.address)
+      this.SET_MAIN_USER_ROLE_ID(userInfo.roleId !== '0' ? userInfo.roleId : '')
+      this.SET_MAIN_USER_ROLE_NAME(userInfo.roleName)
     }
     let data: any = null
     if (this.iamUserId) {
@@ -197,6 +214,10 @@ class User extends VuexModule implements IUserState {
           perms: ['*']
         }
       }
+    } else if (this.mainUserRoleId) {
+      data = {
+        perms: ['ROLE']
+      }
     } else {
       data = {
         perms: ['*']
@@ -214,15 +235,16 @@ class User extends VuexModule implements IUserState {
   }
 
   @Action
-  public async ChangeRoles(role: string) {
-    // Dynamically modify permissions
-    const token = role + '-token'
-    this.SET_TOKEN(token)
-    setToken(token)
-    await this.GetUserInfo()
+  public async switchRole(role: any) {
+    if (!role) {
+      await exitUserRole()
+    } else {
+      await switchUserRole({ roleId: role.roleId })
+    }
+    await this.GetGlobalInfo()
     resetRouter()
     // Generate dynamic accessible routes based on roles
-    PermissionModule.GenerateRoutes({ perms: this.roles, iamUserId: this.iamUserId })
+    PermissionModule.GenerateRoutes({ perms: this.perms, iamUserId: this.iamUserId })
     // Add generated routes
     router.addRoutes(PermissionModule.dynamicRoutes)
     // Reset visited views and cached views
@@ -281,6 +303,8 @@ class User extends VuexModule implements IUserState {
 
     this.SET_MAIN_USER_ID('')
     this.SET_MAIN_USER_ADDRESS('')
+    this.SET_MAIN_USER_ROLE_ID('')
+    this.SET_MAIN_USER_ROLE_NAME('')
 
     localStorage.clear()
     return result

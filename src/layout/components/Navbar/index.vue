@@ -29,6 +29,7 @@
       id="breadcrumb-container"
       class="breadcrumb-container"
     />
+    <el-link v-if="inRole" :underline="false" type="warning" class="role-link" @click="checkRole">{{ `当前角色：${mainUserRoleName}` }}</el-link>
     <div class="right-menu">
       <!-- <template v-if="device!=='mobile'">
         <header-search class="right-menu-item" />
@@ -85,6 +86,7 @@
         </div>
         <div class="header-dropdown">
           <div v-if="isMainUser">
+            <router-link to="/changeRole"><i><svg-icon name="user" /></i> 切换角色</router-link>
             <router-link to="/changePassword"><i><svg-icon name="password" /></i> 修改密码</router-link>
             <div class="header-dropdown__divided" />
           </div>
@@ -145,6 +147,12 @@ export default class extends Vue {
   get isMainUser() {
     return !UserModule.iamUserId
   }
+  get inRole() {
+    return !!UserModule.mainUserRoleId
+  }
+  get mainUserRoleName() {
+    return UserModule.mainUserRoleName
+  }
   get sidebar() {
     return AppModule.sidebar
   }
@@ -179,6 +187,12 @@ export default class extends Vue {
 
   private toggleSideBar() {
     AppModule.ToggleSideBar(false)
+  }
+
+  private checkRole() {
+    this.$router.push({
+      path: 'changeRole'
+    })
   }
 
   get routerName() {
@@ -300,6 +314,18 @@ export default class extends Vue {
     &:hover {
       background: rgba(0, 0, 0, .025)
     }
+  }
+
+  .role-link {
+    margin-left: 50%;
+    position: absolute;
+    line-height: 50px;
+    height: 100%;
+    font-weight: bold;
+    font-size: 15px;
+    width: 200px;
+    left: -100px;
+    color: #4a89dc;
   }
 
   .filter-group {
