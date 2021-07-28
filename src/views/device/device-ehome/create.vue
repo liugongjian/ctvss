@@ -190,8 +190,16 @@ export default class extends Mixins(createMixin) {
       { required: true, message: '请输入设备名称', trigger: 'blur' },
       { validator: this.validateDeviceName, trigger: 'blur' }
     ],
+    channelName: [
+      { required: true, message: '请输入通道名称', trigger: 'blur' },
+      { validator: this.validateDeviceName, trigger: 'blur' }
+    ],
     deviceVendor: [
       { required: true, message: '请选择厂商', trigger: 'change' }
+    ],
+    channelNum: [
+      { required: true, message: '请填写通道号', trigger: 'change' },
+      { validator: this.validateChannelNum, trigger: 'change' }
     ],
     deviceIp: [
       { validator: this.validateDeviceIp, trigger: 'blur' }

@@ -210,8 +210,8 @@ export default class extends Mixins(createMixin) {
       { required: true, message: '请填写子设备数量', trigger: 'blur' }
     ],
     channelNum: [
-      { required: true, message: '请填写通道号', trigger: 'blur' },
-      { validator: this.validateChannelNum, trigger: 'blur' }
+      { required: true, message: '请填写通道号', trigger: 'change' },
+      { validator: this.validateChannelNum, trigger: 'change' }
     ],
     gbId: [
       { required: true, message: '请填写国标ID', trigger: 'blur' },
@@ -386,17 +386,6 @@ export default class extends Mixins(createMixin) {
   private validateGbId(rule: any, value: string, callback: Function) {
     if (value && !/^[0-9]{20}$/.test(value)) {
       callback(new Error('设备国标编号为20位数字'))
-    } else {
-      callback()
-    }
-  }
-
-  /**
-   * 校验通道号
-   */
-  private validateChannelNum(rule: any, value: string, callback: Function) {
-    if (!/^[0-9]+$/.test(value)) {
-      callback(new Error('设备号仅支持数字'))
     } else {
       callback()
     }

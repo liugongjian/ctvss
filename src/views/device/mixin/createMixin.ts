@@ -135,4 +135,15 @@ export default class CreateMixin extends Vue {
       callback()
     }
   }
+
+  /**
+   * 校验通道号
+   */
+  public validateChannelNum(rule: any, value: string, callback: Function) {
+    if (!/^[0-9]+$/.test(value)) {
+      callback(new Error('设备号仅支持数字'))
+    } else {
+      callback()
+    }
+  }
 }
