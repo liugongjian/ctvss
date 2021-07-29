@@ -3,8 +3,8 @@
     <el-tab-pane label="视频包" name="video">
       <!--视频包-->
       <div v-loading="loading.resouceVideoList" class="resource-tabs__content">
-        <el-table :data="resouceVideoList" @row-click="onResourceRowClick('video', ...arguments)">
-          <el-table-column prop="resourceId" label="编号">
+        <el-table :data="resouceVideoList" fit @row-click="onResourceRowClick('video', ...arguments)">
+          <el-table-column prop="resourceId" label="编号" min-width="120">
             <template slot-scope="scope">
               <span class="resource-id">
                 <el-radio v-model="form.resouceVideoId" :label="scope.row.resourceId" />
@@ -27,13 +27,13 @@
               {{ scope.row.bitRate }}Mbps
             </template>
           </el-table-column>
-          <el-table-column prop="storageTime" label="存储周期">
+          <el-table-column prop="storageTime" label="存储周期" min-width="90">
             <template slot-scope="scope">
               {{ scope.row.storageTime }}天
             </template>
           </el-table-column>
-          <el-table-column prop="createTime" label="开通时间" />
-          <el-table-column prop="expireTime" label="到期时间" />
+          <el-table-column prop="createTime" label="开通时间" min-width="170" />
+          <el-table-column prop="expireTime" label="到期时间" min-width="170" />
         </el-table>
         <div v-if="isUpdate || isFreeUser" class="resource-tabs__none">
           <el-radio v-model="form.resouceVideoId" :label="-1" @change="onFormChange(false)">不绑定任何视频包</el-radio>
@@ -44,7 +44,7 @@
       <!--AI包-->
       <div v-loading="loading.resouceAiList" class="resource-tabs__content">
         <el-table :data="resouceAiList" @row-click="onResourceRowClick('ai', ...arguments)">
-          <el-table-column prop="resourceId" label="编号">
+          <el-table-column prop="resourceId" label="编号" min-width="120">
             <template slot-scope="scope">
               <span class="resource-id">
                 <el-radio v-model="form.resouceAiId" :label="scope.row.resourceId" />
@@ -67,8 +67,8 @@
               {{ resourceAiType[scope.row.aiType] }}
             </template>
           </el-table-column>
-          <el-table-column prop="createTime" label="开通时间" />
-          <el-table-column prop="expireTime" label="到期时间" />
+          <el-table-column prop="createTime" label="开通时间" min-width="170" />
+          <el-table-column prop="expireTime" label="到期时间" min-width="170" />
         </el-table>
         <div class="resource-tabs__none">
           <el-radio v-model="form.resouceAiId" :label="-1" @change="onFormChange(false)">不绑定任何AI包</el-radio>
@@ -79,7 +79,7 @@
       <!--上行带宽包-->
       <div v-loading="loading.resouceUploadList" class="resource-tabs__content">
         <el-table :data="resouceUploadList" @row-click="onResourceRowClick('upload', ...arguments)">
-          <el-table-column prop="resourceId" label="编号">
+          <el-table-column prop="resourceId" label="编号" min-width="120">
             <template slot-scope="scope">
               <span class="resource-id">
                 <el-radio v-model="form.resouceUploadId" :label="scope.row.resourceId" />
@@ -97,8 +97,8 @@
               {{ scope.row.bandWidth }}Mbps
             </template>
           </el-table-column>
-          <el-table-column prop="createTime" label="开通时间" />
-          <el-table-column prop="expireTime" label="到期时间" />
+          <el-table-column prop="createTime" label="开通时间" min-width="170" />
+          <el-table-column prop="expireTime" label="到期时间" min-width="170" />
         </el-table>
         <div v-if="isUpdate || isFreeUser" class="resource-tabs__none">
           <el-radio v-model="form.resouceUploadId" :label="-1" @change="onFormChange(false)">不绑定任何上行带宽包</el-radio>
