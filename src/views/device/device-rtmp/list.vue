@@ -31,7 +31,7 @@
         >
           <el-button>导入</el-button>
         </el-upload>
-        <el-button v-if="isDir || deviceInfo" v-permission="['*']" @click="exportTemplate">下载模板</el-button>
+        <el-button v-if="checkPermission(['*']) && (isDir || deviceInfo)" @click="exportTemplate">下载模板</el-button>
         <el-dropdown v-permission="['*']" placement="bottom" @command="handleBatch">
           <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">

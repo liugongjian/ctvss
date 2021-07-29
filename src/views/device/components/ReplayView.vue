@@ -71,7 +71,7 @@
           <template slot-scope="{row}">
             <template v-if="!row.edit">
               <span>{{ row.templateName }}</span>
-              <el-button type="text" icon="el-icon-edit" class="edit-button" @click="editRecordName(row)" />
+              <el-button v-if="checkPermission(['*'])" type="text" icon="el-icon-edit" class="edit-button" @click="editRecordName(row)" />
             </template>
             <template v-else>
               <el-input v-model="recordName" size="small" class="edit-input" />
@@ -84,7 +84,7 @@
         <el-table-column label="时长" prop="duration" :formatter="durationFormatInTable" />
         <el-table-column prop="action" label="操作" width="200" fixed="right">
           <template slot-scope="{row}">
-            <el-button :disabled="row.loading" type="text" @click="downloadReplay(row)">下载录像</el-button>
+            <el-button v-if="checkPermission(['*'])" :disabled="row.loading" type="text" @click="downloadReplay(row)">下载录像</el-button>
             <el-button type="text" @click="playReplay(row)">播放录像</el-button>
           </template>
         </el-table-column>
@@ -111,6 +111,7 @@ import ReplayPlayerDialog from './dialogs/ReplayPlayer.vue'
 import SliceDownloadDialog from './dialogs/SliceDownload.vue'
 import ReplayPlayer from './ReplayPlayer.vue'
 import ReplayPlayerLocal from './ReplayPlayerLocal.vue'
+import { checkPermission } from '@/utils/permission'
 
 @Component({
   name: 'ReplayView',
@@ -133,6 +134,7 @@ export default class extends Vue {
   @Prop({
     default: false
   })
+  private checkPermission = checkPermission
   private hasPlaylive?: boolean
   private player?: any
   private dateFormatInTable = dateFormatInTable
