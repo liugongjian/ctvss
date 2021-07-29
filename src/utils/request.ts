@@ -4,6 +4,12 @@ import { UserModule } from '@/store/modules/user'
 import { getLocalStorage } from '@/utils/storage'
 import settings from '@/settings'
 
+export const getConsoleDropdownTree = (): Promise<any> =>
+  axios({
+    url: '/gw/v1/portal/menu/GetTree?domain=console.dropdown&locale=zh-cn',
+    method: 'get'
+  })
+
 class VSSError extends Error {
   constructor(public code: string, message: string) {
     super(message)

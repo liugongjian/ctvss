@@ -16,7 +16,7 @@
         <el-table-column prop="roleId" label="角色ID" />
         <el-table-column prop="roleName" label="角色名" />
         <el-table-column prop="description" label="角色描述" min-width="160" />
-        <el-table-column prop="userName" label="角色授权账号" />
+        <el-table-column prop="userName" label="角色来源账号" />
         <el-table-column prop="status" label="状态" width="120">
           <template slot-scope="scope">
             <el-tag v-if="scope.row.status === true" type="success">使用中</el-tag>
