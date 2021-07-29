@@ -204,8 +204,6 @@ class User extends VuexModule implements IUserState {
       this.SET_MAIN_USER_ID(userInfo.userId)
       this.SET_MAIN_USER_ADDRESS(userInfo.address)
       this.SET_MAIN_USER_TAGS(userInfo.tags)
-      this.SET_MAIN_USER_ROLE_ID(userInfo.roleId !== '0' ? userInfo.roleId : '')
-      this.SET_MAIN_USER_ROLE_NAME(userInfo.roleName)
     }
     let data: any = null
     if (this.iamUserId) {
