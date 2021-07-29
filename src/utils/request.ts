@@ -50,7 +50,7 @@ service.interceptors.response.use(
 function responseHandler(response: any) {
   if (response && (response.status === 200) && response.data && !response.data.code) {
     const url = (response && response.config && response.config.url) || ''
-    if (url) {
+    if (url && !url.endsWith('/user/logout')) {
       const mainUserRoleId = response.headers['x-role-id'] || response.headers['X-Role-Id'] || ''
       const mainUserRoleName = decodeURIComponent(response.headers['x-role-name'] || response.headers['X-Role-Name'] || '')
       if (!url.endsWith('/iam/role/switch') && !url.endsWith('/iam/role/exit')) {
