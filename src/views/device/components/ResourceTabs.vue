@@ -43,7 +43,7 @@
     <el-tab-pane v-if="inProtocol === 'gb28181'" label="AI包" name="ai">
       <!--AI包-->
       <div v-loading="loading.resouceAiList" class="resource-tabs__content">
-        <el-table :data="resouceAiList" @row-click="onResourceRowClick('ai', ...arguments)">
+        <el-table :data="resouceAiList" fit @row-click="onResourceRowClick('ai', ...arguments)">
           <el-table-column prop="resourceId" label="编号" min-width="120">
             <template slot-scope="scope">
               <span class="resource-id">
@@ -78,7 +78,7 @@
     <el-tab-pane v-if="!isPrivateUser" label="上行带宽包" name="upload">
       <!--上行带宽包-->
       <div v-loading="loading.resouceUploadList" class="resource-tabs__content">
-        <el-table :data="resouceUploadList" @row-click="onResourceRowClick('upload', ...arguments)">
+        <el-table :data="resouceUploadList" fit @row-click="onResourceRowClick('upload', ...arguments)">
           <el-table-column prop="resourceId" label="编号" min-width="120">
             <template slot-scope="scope">
               <span class="resource-id">
