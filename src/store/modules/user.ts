@@ -263,12 +263,6 @@ class User extends VuexModule implements IUserState {
     PermissionModule.GenerateRoutes({ perms: this.perms, iamUserId: this.iamUserId })
     // Add generated routes
     router.addRoutes(PermissionModule.dynamicRoutes)
-    if (!roleInfo.needWebRequest) {
-      Message.info('授权角色已被删除，或已在其他终端切换角色！')
-      router.replace({
-        path: '/changeRole'
-      })
-    }
     // Reset visited views and cached views
     TagsViewModule.delAllViews()
   }

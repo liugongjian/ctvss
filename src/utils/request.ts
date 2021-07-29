@@ -55,6 +55,10 @@ function responseHandler(response: any) {
       const mainUserRoleName = decodeURIComponent(response.headers['x-role-name'] || response.headers['X-Role-Name'] || '')
       if (!url.endsWith('/iam/role/switch') && !url.endsWith('/iam/role/exit')) {
         if (UserModule.mainUserRoleId !== mainUserRoleId) {
+          // 当前 角色id 为空
+          if (mainUserRoleId === '') {
+            Message.info('授权角色已被删除，或已在其他终端退出角色！')
+          }
           UserModule.overrideRoleInfo({ roleId: mainUserRoleId, roleName: mainUserRoleName })
           UserModule.switchRole({ role: false, needWebRequest: false })
         }
