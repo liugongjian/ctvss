@@ -29,7 +29,7 @@
       id="breadcrumb-container"
       class="breadcrumb-container"
     />
-    <el-link v-if="inRole" :underline="false" type="warning" class="role-link" @click="checkRole">{{ `当前角色：${mainUserRoleName}` }}</el-link>
+    <el-link v-if="inRole" title="可点击快速切换角色" :underline="false" type="warning" class="role-link" @click="checkRole">{{ `当前角色：${mainUserRoleName}` }}</el-link>
     <div class="right-menu">
       <!-- <template v-if="device!=='mobile'">
         <header-search class="right-menu-item" />
