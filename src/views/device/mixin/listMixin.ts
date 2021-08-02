@@ -735,12 +735,20 @@ export default class CreateMixin extends Vue {
    * 设备同步状态
    */
   public async syncDeviceStatus() {
-    const deviceIdAndTypes = this.deviceList.map(device => {
-      return {
-        deviceId: device.deviceId,
-        deviceType: device.deviceType
-      }
-    })
+    let deviceIdAndTypes = []
+    if (this.isNVR) {
+      deviceIdAndTypes.push({
+        deviceId: this.deviceId,
+        devicieType: 'nvr'
+      })
+    } else {
+      deviceIdAndTypes = this.deviceList.map(device => {
+        return {
+          deviceId: device.deviceId,
+          deviceType: device.deviceType
+        }
+      })
+    }
     try {
       this.loading.syncDeviceStatus = true
       await syncDeviceStatus({
