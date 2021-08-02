@@ -444,6 +444,56 @@ export const asyncRoutes: RouteConfig[] = [
       }
     ]
   },
+
+  {
+    path: '/up-platform',
+    component: Layout,
+    meta: {
+      id: '20210524150201007000',
+      title: '向上级联',
+      icon: 'platform',
+      alwaysShow: true,
+      breadcrumb: false,
+      perms: ['GET']
+    },
+    children: [
+      {
+        path: 'gb28121',
+        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/index.vue'),
+        name: 'up-platform',
+        meta: {
+          id: '20210524150201007001',
+          title: 'GB28181级联',
+          icon: 'dot',
+          perms: ['GET']
+        }
+      },
+      {
+        path: 'gb28121-create',
+        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/create.vue'),
+        name: 'up-platform-gb28121-create',
+        meta: {
+          id: '20210524150201007002',
+          title: '新建国标级联',
+          hidden: true,
+          perms: ['GET'],
+          activeMenu: '/up-platform/gb28121'
+        }
+      },
+      {
+        path: 'gb28121-update',
+        component: () => import(/* webpackChunkName: "up-platform" */ '@/views/upPlatform/create.vue'),
+        name: 'up-platform-gb28121-update',
+        meta: {
+          id: '20210524150201007003',
+          title: '编辑国标级联',
+          hidden: true,
+          perms: ['GET'],
+          activeMenu: '/up-platform/gb28121'
+        }
+      }
+    ]
+  },
   {
     path: '/certificate',
     component: Layout,
@@ -924,7 +974,7 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'key',
           breadcrumb: false,
           perms: ['*'],
-          activeMenu: '/exportDevices',
+          activeMenu: '/exportDevices'
         }
       }
     ]

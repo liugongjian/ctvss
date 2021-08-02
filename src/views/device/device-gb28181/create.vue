@@ -68,7 +68,7 @@
         <el-form-item label="设备端口:" prop="devicePort">
           <el-input v-model.number="form.devicePort" />
         </el-form-item>
-        <el-form-item v-if="form.deviceType === 'platform'" label="国标ID:" prop="gbId">
+        <el-form-item v-if="form.deviceType === 'platform'" label="设备国标编号:" prop="gbId">
           <el-input v-model="form.gbId" />
         </el-form-item>
         <el-form-item label="GB28181账号:" prop="userName">
