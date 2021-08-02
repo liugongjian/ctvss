@@ -61,6 +61,14 @@
                   </div>
                 </info-list-item>
               </template>
+              <info-list-item label="流传输模式:">
+                <div class="info-list__edit">
+                  <div class="info-list__edit--value">
+                    {{ streamTransType[info.streamTransType] || '-' }}
+                  </div>
+                </div>
+              </info-list-item>
+              <info-list-item v-for="resource in resources" :key="resource.label" :label="`${resourceType[resource.label]}:`">{{ (resource.value && '已绑定') || '未绑定' }}</info-list-item>
               <info-list-item label="设备描述:">{{ info.description || '-' }}</info-list-item>
               <info-list-item label="拉流地址:">
                 {{ info.pullUrl || '-' }}
@@ -85,7 +93,7 @@ import { Component, Mixins } from 'vue-property-decorator'
 import detailMixin from '../mixin/detailMixin'
 
 @Component({
-  name: 'DeviceRtspDetail'
+  name: 'DeviceEhomeDetail'
 })
 export default class extends Mixins(detailMixin) {}
 </script>

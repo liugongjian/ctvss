@@ -6,7 +6,7 @@
         width="16px"
         height="16px"
       />
-      <span v-if="isShowLabel">{{ streamName }}</span>
+      <span>{{ streamName }}</span>
       <ul class="controls__popup">
         <li
           v-for="stream in subStreamList"
@@ -19,7 +19,6 @@
         </li>
       </ul>
     </i>
-    <span>{{ streamName }}</span>
   </span>
 </template>
 <script lang="ts">
@@ -96,7 +95,7 @@ export default class extends Vue {
       position: absolute;
       display: none;
       width: 105px;
-      left: -40px;
+      left: -20px;
       top: 25px;
       z-index: 10;
       background: #fff;

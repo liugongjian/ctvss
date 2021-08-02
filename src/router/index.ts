@@ -116,7 +116,8 @@ export const asyncRoutes: RouteConfig[] = [
           id: '20210424150201001001',
           title: '概览',
           icon: 'dashboard',
-          breadcrumb: true
+          breadcrumb: true,
+          perms: ['GET']
         }
       },
       {
@@ -128,7 +129,8 @@ export const asyncRoutes: RouteConfig[] = [
           title: 'AI监控告警',
           hidden: true,
           icon: 'dashboard',
-          breadcrumb: false
+          breadcrumb: false,
+          perms: ['GET']
         }
       },
       {
@@ -140,7 +142,8 @@ export const asyncRoutes: RouteConfig[] = [
           title: '可视化大屏',
           hidden: true,
           icon: 'dashboard',
-          breadcrumb: false
+          breadcrumb: false,
+          perms: ['GET']
         }
       }
     ]
@@ -152,7 +155,7 @@ export const asyncRoutes: RouteConfig[] = [
       id: '20210424150201002000',
       title: '业务组管理',
       icon: 'tree',
-      perms: ['GET'],
+      perms: ['GET', 'ROLE'],
       alwaysShow: false
     },
     children: [
@@ -165,7 +168,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '业务组管理',
           icon: 'tree',
           breadcrumb: false,
-          perms: ['GET'],
+          perms: ['GET', 'ROLE'],
           activeMenu: '/group'
         }
       },
@@ -204,7 +207,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '业务组配置',
           icon: 'tree',
           hidden: true,
-          perms: ['GET'],
+          perms: ['GET', 'ROLE'],
           activeMenu: '/group'
         }
       }
@@ -217,7 +220,7 @@ export const asyncRoutes: RouteConfig[] = [
       id: '20210424150201003000',
       title: '设备管理',
       icon: 'component',
-      perms: ['GET'],
+      perms: ['GET', 'ROLE'],
       alwaysShow: false,
       only: true,
       groupSelector: true
@@ -232,7 +235,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '设备管理',
           icon: 'component',
           breadcrumb: false,
-          perms: ['GET'],
+          perms: ['GET', 'ROLE'],
           groupSelector: true
         },
         children: [
@@ -244,7 +247,7 @@ export const asyncRoutes: RouteConfig[] = [
               id: '20210424150201003002',
               title: '设备列表',
               breadcrumb: false,
-              perms: ['GET'],
+              perms: ['GET', 'ROLE'],
               activeMenu: '/device',
               groupSelector: true
             }
@@ -283,7 +286,7 @@ export const asyncRoutes: RouteConfig[] = [
               id: '20210424150201003005',
               title: '设备详情',
               hidden: true,
-              perms: ['GET'],
+              perms: ['GET', 'ROLE'],
               activeMenu: '/device',
               groupSelector: true
             }
@@ -296,7 +299,7 @@ export const asyncRoutes: RouteConfig[] = [
               id: '20210424150201003006',
               title: '监控查看',
               hidden: true,
-              perms: ['GET'],
+              perms: ['GET', 'ROLE'],
               activeMenu: '/device',
               groupSelector: true
             }
@@ -312,7 +315,7 @@ export const asyncRoutes: RouteConfig[] = [
   //   meta: {
   //     title: '流管理',
   //     icon: 'stream',
-  //     perms: ['GET'],
+  //     perms: ['GET', 'ROLE'],
   //     alwaysShow: false,
   //     only: true,
   //     groupSelector: true
@@ -326,7 +329,7 @@ export const asyncRoutes: RouteConfig[] = [
   //         title: '流管理',
   //         icon: 'stream',
   //         breadcrumb: false,
-  //         perms: ['GET'],
+  //         perms: ['GET', 'ROLE'],
   //         activeMenu: '/stream',
   //         groupSelector: true
   //       }
@@ -339,7 +342,7 @@ export const asyncRoutes: RouteConfig[] = [
   //         title: '流详情',
   //         icon: 'stream',
   //         hidden: true,
-  //         perms: ['GET'],
+  //         perms: ['GET', 'ROLE'],
   //         activeMenu: '/stream',
   //         groupSelector: true
   //       }
@@ -379,7 +382,7 @@ export const asyncRoutes: RouteConfig[] = [
       id: '20210424150201004000',
       title: '实时预览',
       icon: 'ipc',
-      perms: ['GET'],
+      perms: ['GET', 'ROLE'],
       alwaysShow: false,
       groupSelector: true
     },
@@ -393,7 +396,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '实时预览',
           icon: 'ipc',
           breadcrumb: false,
-          perms: ['GET'],
+          perms: ['GET', 'ROLE'],
           activeMenu: '/screen',
           groupSelector: true
         }
@@ -420,7 +423,7 @@ export const asyncRoutes: RouteConfig[] = [
       id: '20210424150201006000',
       title: '录像回放',
       icon: 'video',
-      perms: ['GET'],
+      perms: ['GET', 'ROLE'],
       alwaysShow: false,
       groupSelector: true
     },
@@ -434,7 +437,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '录像回放',
           icon: 'video',
           breadcrumb: false,
-          perms: ['GET'],
+          perms: ['GET', 'ROLE'],
           activeMenu: '/replay',
           groupSelector: true
         }
@@ -672,7 +675,32 @@ export const asyncRoutes: RouteConfig[] = [
           title: '修改密码',
           icon: 'tree',
           breadcrumb: false,
-          perms: ['*']
+          perms: ['*', 'ROLE']
+        }
+      }
+    ]
+  },
+  {
+    path: '/changeRole',
+    component: Layout,
+    meta: {
+      id: '20210716171623013000',
+      title: '切换角色',
+      icon: 'tree',
+      hidden: true,
+      breadcrumb: true,
+      perms: ['*']
+    },
+    children: [
+      {
+        path: '/',
+        component: () => import(/* webpackChunkName: "changeRole" */ '@/views/changeRole/index.vue'),
+        meta: {
+          id: '20210716171623013001',
+          title: '切换角色',
+          icon: 'tree',
+          breadcrumb: false,
+          perms: ['*', 'ROLE']
         }
       }
     ]
@@ -729,7 +757,7 @@ export const asyncRoutes: RouteConfig[] = [
       title: '访问管理',
       icon: 'user',
       alwaysShow: true,
-      breadcrumb: false,
+      breadcrumb: true,
       perms: ['*']
     },
     children: [
@@ -810,31 +838,31 @@ export const asyncRoutes: RouteConfig[] = [
           activeMenu: '/accessManage/secretManage',
           perms: ['*']
         }
+      },
+      {
+        path: 'role',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/role/index.vue'),
+        name: 'accessManage-role',
+        meta: {
+          title: '角色',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/accessManage/role',
+          perms: ['*']
+        }
+      },
+      {
+        path: 'role/create',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/role/components/CreateRole.vue'),
+        name: 'accessManage-role-create',
+        meta: {
+          title: '创建角色',
+          icon: 'dot',
+          hidden: true,
+          activeMenu: '/accessManage/role',
+          perms: ['*']
+        }
       }
-      // {
-      //   path: 'role',
-      //   component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/role/index.vue'),
-      //   name: 'accessManage-role',
-      //   meta: {
-      //     title: '角色',
-      //     icon: 'dot',
-      //     breadcrumb: true,
-      //     activeMenu: '/accessManage',
-      //     perms: ['*']
-      //   }
-      // },
-      // {
-      //   path: 'role/create',
-      //   component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/role/components/CreateRole.vue'),
-      //   name: 'accessManage-role-create',
-      //   meta: {
-      //     title: '创建角色',
-      //     icon: 'dot',
-      //     hidden: true,
-      //     activeMenu: '/accessManage',
-      //     perms: ['*']
-      //   }
-      // }
     ]
   },
   {
@@ -857,6 +885,19 @@ export const asyncRoutes: RouteConfig[] = [
           id: '20210515200901012001',
           title: '资源包管理',
           icon: 'dot',
+          perms: ['*']
+        }
+      },
+      {
+        path: 'resource/management',
+        component: () => import(/* webpackChunkName: "billing" */ '@/views/billing/resource/manage.vue'),
+        name: 'billing-resource-management',
+        meta: {
+          id: '20210709092201012003',
+          title: '资源包管理',
+          icon: 'dot',
+          hidden: true,
+          activeMenu: '/billing/resource',
           perms: ['*']
         }
       }

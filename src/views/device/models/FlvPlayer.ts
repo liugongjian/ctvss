@@ -21,7 +21,6 @@ export class FlvPlayer extends BasePlayer {
       type: 'flv',
       isLive: true,
       url: this.source,
-      hasAudio: false,
       enableStashBuffer: false,
       stashInitialSize: 0,
       autoCleanupSourceBuffer: true

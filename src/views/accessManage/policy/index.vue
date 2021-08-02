@@ -15,6 +15,11 @@
       <el-table :data="policyList">
         <el-table-column prop="policyName" label="策略名" />
         <el-table-column prop="describe" label="策略描述" />
+        <el-table-column prop="policyType" label="策略类型">
+          <template slot-scope="scope">
+            {{ scope.row.policyType === 'subUser' ? '子用户策略' : '角色策略' }}
+          </template>
+        </el-table-column>
         <el-table-column prop="createTime" label="创建时间" />
         <!-- <el-table-column label="操作" width="140">
           <template slot-scope="scope">
@@ -79,11 +84,12 @@ export default class extends Vue {
         let obj: object = {
           policyName: res.iamPolices[i].policyName,
           describe: res.iamPolices[i].policyDesc,
+          policyType: res.iamPolices[i].policyType,
           createTime: res.iamPolices[i].createdTime
         }
         this.policyList.push(obj)
       }
-      this.pager.total = res.totalNum
+      this.pager.total = res.iamPolices.length || 0
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {

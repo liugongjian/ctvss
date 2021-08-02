@@ -7,13 +7,15 @@ import { deleteDevice, startDevice, stopDevice, getDevice, getDevices, startReco
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MoveDir from '../components/dialogs/MoveDir.vue'
 import UploadExcel from '../components/dialogs/UploadExcel.vue'
+import Resource from '../components/dialogs/Resource.vue'
 import { checkPermission } from '@/utils/permission'
 
 @Component({
   components: {
     StatusBadge,
     MoveDir,
-    UploadExcel
+    UploadExcel,
+    Resource
   }
 })
 export default class CreateMixin extends Vue {
@@ -46,7 +48,8 @@ export default class CreateMixin extends Vue {
   }
   public dialog = {
     moveDir: false,
-    uploadExcel: false
+    uploadExcel: false,
+    resource: false
   }
   public keyword = ''
   public filter: any = {
@@ -131,6 +134,10 @@ export default class CreateMixin extends Vue {
 
   public get isCreateSubDevice() {
     return this.deviceInfo && this.deviceInfo.createSubDevice === 1
+  }
+
+  public get isManulNVR() {
+    return this.isNVR && this.deviceInfo && this.deviceInfo.createSubDevice === 2
   }
 
   public get dirId() {
@@ -451,6 +458,9 @@ export default class CreateMixin extends Vue {
       case 'stopRecord':
         this.stopRecord(command.device)
         break
+      case 'updateResource':
+        this.openDialog('resource', command.device)
+        break
     }
   }
 
@@ -648,6 +658,9 @@ export default class CreateMixin extends Vue {
    * 批量启用/停用设备
    */
   public batchStartOrStopDevice(type: string) {
+    const deviceList = this.selectedDeviceList.filter((device: Device) => {
+      return device.deviceType === 'ipc'
+    })
     const method = type === 'start' ? startDevice : stopDevice
     const methodStr = type === 'start' ? '启用' : '停用'
     const h: Function = this.$createElement
@@ -657,7 +670,7 @@ export default class CreateMixin extends Vue {
         h(
           'div',
           { class: 'batch-device-list' },
-          this.selectedDeviceList.map((device: Device) => {
+          deviceList.map((device: Device) => {
             return h('p', undefined, [
               h('span', { class: 'device-name' }, device.deviceName)
             ])
@@ -672,7 +685,7 @@ export default class CreateMixin extends Vue {
           instance.confirmButtonLoading = true
           instance.confirmButtonText = '...'
           try {
-            await Promise.all(this.selectedDeviceList.map((device: Device) => {
+            await Promise.all(deviceList.map((device: Device) => {
               return method({
                 deviceId: device.deviceId,
                 inProtocol: this.inProtocol,
@@ -732,6 +745,10 @@ export default class CreateMixin extends Vue {
       case 'moveDir':
         this.currentDevice = payload
         this.dialog.moveDir = true
+        break
+      case 'resource':
+        this.currentDevice = payload
+        this.dialog.resource = true
         break
     }
   }

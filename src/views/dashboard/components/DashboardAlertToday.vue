@@ -41,9 +41,14 @@ export default class extends Mixins(DashboardMixin) {
       { type: '人员聚集', value: parseInt(data.trend[8] || 0) },
       { type: '人员布控', value: parseInt(data.trend[4] || 0) },
       { type: '吸烟检测', value: parseInt(data.trend[5] || 0) },
-      { type: '安全帽反光服检测', value: parseInt(data.trend[7] || 0) },
       { type: '危险区域检测', value: parseInt(data.trend[9] || 0) }
     ]
+    // TODO: 两当县智慧蜂业特殊处理
+    if (this.mainUserId === '90015') {
+      this.chartData.push({ type: '蜜蜂密度', value: parseInt(data.trend[13] || 0) })
+    } else {
+      this.chartData.push({ type: '安全帽反光服检测', value: parseInt(data.trend[7] || 0) })
+    }
     this.chart ? this.updateChart() : this.drawChart()
   }
 

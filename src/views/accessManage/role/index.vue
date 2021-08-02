@@ -6,21 +6,23 @@
           <el-button type="primary" @click="createRole">创建角色</el-button>
         </div>
         <div class="head__right">
-          <el-input v-model="roleSearch" placeholder="请输入角色名/角色ID" @keyup.enter.native="getList">
+          <el-input v-model="roleSearch" placeholder="请输入角色名模糊查找" clearable @keyup.enter.native="getList">
             <el-button slot="append" class="el-button-rect" @click="getList"><svg-icon name="search" /></el-button>
           </el-input>
           <el-button class="el-button-rect" @click="getList"><svg-icon name="refresh" /></el-button>
         </div>
       </div>
-      <el-table :data="policyList">
-        <el-table-column prop="roleName" label="角色名" />
+      <el-table :data="roleList">
         <el-table-column prop="roleId" label="角色ID" />
-        <el-table-column prop="description" label="角色描述" />
+        <el-table-column prop="roleName" label="角色名" />
+        <el-table-column prop="description" label="角色描述" min-width="160" />
+        <el-table-column prop="bindingUserId" label="绑定账号ID" />
+        <el-table-column prop="bindingUserName" label="绑定账号Name" />
         <el-table-column prop="createdTime" label="创建时间" />
         <el-table-column prop="updatedTime" label="更新时间" />
         <el-table-column label="操作" width="140">
           <template slot-scope="scope">
-            <el-button type="text" @click="editRole(scope.row)">管理</el-button>
+            <el-button type="text" @click="editRole(scope.row)">编辑</el-button>
             <el-button type="text" @click="deleteRole(scope.row)">删除</el-button>
           </template>
         </el-table-column>
@@ -46,7 +48,7 @@ import { iamDeleteRole, getIamRoleList } from '@/api/accessManage'
 export default class extends Vue {
   private isLoading: boolean = false
   private showDialog: boolean = false
-  private policyList: any = []
+  private roleList: any = []
   private roleSearch: string = ''
   private pager: any = {
     pageNum: 1,
@@ -62,11 +64,12 @@ export default class extends Vue {
     try {
       let params: any = {
         pageNum: this.pager.pageNum,
-        pageSize: this.pager.pageSize
+        pageSize: this.pager.pageSize,
+        roleName: this.roleSearch || undefined
       }
       this.isLoading = true
       let res: any = await getIamRoleList(params)
-      this.policyList = res.iamRoles
+      this.roleList = res.vssRoles
       this.pager.total = parseInt(res.totalNum)
     } catch (e) {
       this.$message.error(e && e.message)
@@ -94,10 +97,10 @@ export default class extends Vue {
   }
   private deleteRole(role: any) {
     this.$alertDelete({
-      type: '用户',
-      msg: `是否确认删除用户"${role.roleName}"`,
+      type: '角色',
+      msg: `是否确认删除角色"${role.roleName}"`,
       method: iamDeleteRole,
-      payload: { iamRoleId: role.roleId },
+      payload: { roleId: role.roleId },
       onSuccess: () => {
         this.getList()
       }

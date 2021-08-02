@@ -59,7 +59,6 @@
               <el-table-column
                 prop="policyName"
                 label="策略名"
-                width="150"
               />
               <el-table-column
                 prop="policyDescribe"
@@ -78,7 +77,7 @@
           <el-form-item v-if="type === 'edit'" prop="subUserLoginLink" label="子用户登录链接：">
             <span>{{ $route.query.subUserLoginLink }}</span>
             <el-tooltip class="item" effect="dark" content="复制链接" placement="top">
-              <el-button type="text" style="margin-left: 10px" @click="copyRow($route.params.subUserLoginLink, 'link')"><svg-icon name="copy" /></el-button>
+              <el-button type="text" style="margin-left: 10px" @click="copyRow($route.query.subUserLoginLink, 'link')"><svg-icon name="copy" /></el-button>
             </el-tooltip>
           </el-form-item>
           <el-form-item>
@@ -251,7 +250,8 @@ export default class extends Vue {
 
   private async getPolicyList() {
     let params: any = {
-      pageSize: 1000
+      pageSize: 1000,
+      policyType: 'subUser'
     }
     try {
       let res: any = await getPolicyList(params)

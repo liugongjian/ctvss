@@ -12,7 +12,7 @@ import { Component, Mixins, Prop } from 'vue-property-decorator'
 import { Chart } from '@antv/g2'
 import DashboardMixin from '../mixin/DashboardMixin'
 import DashboardContainer from './DashboardContainer.vue'
-import { getDeviceData } from '@/api/dashboard'
+import { getDeviceData, getDeviceTotal } from '@/api/dashboard'
 
 @Component({
   name: 'DashboardDeviceChart',
@@ -65,13 +65,24 @@ export default class extends Mixins(DashboardMixin) {
         startTime: start.getTime(),
         endTime: end.getTime()
       })
+      const resTotal = await getDeviceTotal({
+        startTime: start.getTime(),
+        endTime: end.getTime()
+      })
       this.loading = false
       const deviceData = []
       for (let key in res.deviceStatistic) {
         const item = res.deviceStatistic[key]
+        const itemTotal = resTotal.deviceStatistic[key]
         deviceData.push(
           {
             time: key,
+            type: '设备总数',
+            value: itemTotal
+          },
+          {
+            time: key,
+            type: '新增设备数',
             value: item
           }
         )
@@ -82,6 +93,27 @@ export default class extends Mixins(DashboardMixin) {
       // 异常处理
       console.log(e)
     }
+  }
+
+  /**
+   * 自适应获取图标y轴刻度
+   */
+  private getTickInterval(tickCount: number, scale: any): Array<number> {
+    let maxValue = Math.max(...scale.values)
+    let vnum = maxValue % tickCount
+    let interval = (maxValue - vnum) / tickCount
+    if (interval < 1) {
+      interval = 1
+    }
+    if (vnum > interval) {
+      return this.getTickInterval(tickCount - 1, scale)
+    }
+    let intervalArr = []
+    for (let i = 1; i <= tickCount; i++) {
+      if (interval * i > maxValue) break
+      intervalArr.push(interval * i)
+    }
+    return intervalArr
   }
 
   /**
@@ -99,7 +131,10 @@ export default class extends Mixins(DashboardMixin) {
       formatter: (val: any) => {
         return val + '台'
       },
-      range: [0, 1]
+      range: [0, 1],
+      tickMethod: (scale: any) => {
+        return this.getTickInterval(5, scale)
+      }
     })
     this.chart.axis('value', {
       label: {
@@ -131,7 +166,44 @@ export default class extends Mixins(DashboardMixin) {
       triggerOn: 'mousemove',
       shared: true
     })
-    this.chart.interval().position('time*value').color('#FA8334')
+    this.chart.legend({
+      offsetY: 5,
+      itemSpacing: 30,
+      items: [
+        {
+          id: '1',
+          name: '设备总数',
+          value: 'TotalDevices',
+          marker: {
+            symbol: 'square',
+            style: {
+              fill: '#6780B2'
+            },
+            spacing: 5
+          }
+        },
+        {
+          id: '2',
+          name: '新增设备数',
+          value: 'NewDevices',
+          marker: {
+            symbol: 'square',
+            style: {
+              fill: '#E4BC00'
+            },
+            spacing: 5
+          }
+        }
+      ],
+      itemName: {
+        style: {
+          fill: '#505050'
+          // fontSize: 14
+        },
+        formatter: (text: any, item: any) => item.name
+      }
+    })
+    this.chart.line().position('time*value').color('type', ['#6780B2', '#E4BC00']).shape('smooth')
     this.chart.render()
   }
   /**

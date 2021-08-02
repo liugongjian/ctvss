@@ -1,14 +1,19 @@
 import { Component, Watch, Vue, Inject } from 'vue-property-decorator'
 import { GroupModule } from '@/store/modules/group'
+import { UserModule } from '@/store/modules/user'
 import { DeviceModule } from '@/store/modules/device'
 import { regionList } from '@/assets/region/lianzhouRegion'
 import { getLianzhouArea } from '@/api/device'
+import { getDeviceResources } from '@/api/billing'
 
 @Component
 export default class CreateMixin extends Vue {
-  @Inject('deviceRouter') public deviceRouter!: Function
-  @Inject('initDirs') public initDirs!: Function
+  @Inject({ from: 'deviceRouter', default: null }) public deviceRouter!: Function
+  @Inject({ from: 'initDirs', default: null }) public initDirs!: Function
   public form: any = {}
+  public resourcesMapping: any = {}
+  public orginalResourceIdList: Array<string> = []
+  public orginalChannelSize = 0
 
   public loading = {
     account: false,
@@ -56,6 +61,14 @@ export default class CreateMixin extends Vue {
 
   public get breadcrumb() {
     return DeviceModule.breadcrumb
+  }
+
+  public get isPrivateUser() {
+    return UserModule.tags && UserModule.tags.networkType !== 'public'
+  }
+
+  public get isFreeUser() {
+    return UserModule.tags && UserModule.tags.resourceFree === '1'
   }
 
   private get breadCrumbContent() {
@@ -141,6 +154,32 @@ export default class CreateMixin extends Vue {
     this.form.address = [...list, this.form.gbRegion]
   }
 
+  /*
+   * 获取绑定资源包列表
+   */
+  public async getDeviceResources(deviceId: number, deviceType: string, inProtocol: string) {
+    try {
+      const resourcesRes = await getDeviceResources({
+        deviceId: deviceId,
+        deviceType: deviceType,
+        inProtocol: inProtocol
+      })
+      this.form.resources = resourcesRes.resources
+      this.orginalResourceIdList = resourcesRes.resources.map((resource: any) => resource.resourceId)
+    } catch (e) {
+      throw new Error(e)
+    }
+  }
+
+  /**
+   * 当资源包改变时获取资源包详情（包含接入剩余设备数）
+   */
+  public onResourceChange(payload: any) {
+    this.resourcesMapping = payload.mapping
+    const form: any = this.$refs.dataForm
+    !payload.isInit && form.validateField('resources')
+  }
+
   /**
    * 清空验证信息
    */
@@ -169,6 +208,90 @@ export default class CreateMixin extends Vue {
         id: this.$route.query.dirId
       })
     }
+  }
+
+  /**
+   * 提交验证
+   */
+  public beforeSubmit(submit: Function) {
+    const form: any = this.$refs.dataForm
+    form.validate((valid: any) => {
+      if (valid) {
+        // 判断通道数量的变化
+        let alertMsg = []
+        if (this.form.channelSize < this.orginalChannelSize) {
+          alertMsg.push('缩减子设备的数量将会释放相应包资源。')
+        } else if (this.form.channelSize > this.orginalChannelSize) {
+          alertMsg.push('新增子设备将自动绑定到现有资源包。')
+        }
+        // 判断是否未选资源包
+        const hasResource: any = {
+          VSS_VIDEO: {
+            isSelect: false,
+            msg: '不绑定任何视频包，会导致设备无法上线。'
+          },
+          VSS_AI: {
+            isSelect: false,
+            msg: '不绑定任何AI包，会导致AI服务不可用。'
+          },
+          VSS_UPLOAD_BW: {
+            isSelect: false,
+            msg: '不绑定任何上行带宽包，会导致视频流无法上线。'
+          }
+        }
+        this.form.resources.forEach((resource: any) => {
+          hasResource[resource.resourceType].isSelect = true
+        })
+        for (let key in hasResource) {
+          if (key === 'VSS_UPLOAD_BW' && this.isPrivateUser) continue
+          if (key === 'VSS_AI' && this.form.inProtocol !== 'gb28181') continue
+          const resource = hasResource[key]
+          if (!resource.isSelect) {
+            alertMsg.push(resource.msg)
+          }
+        }
+        if (!this.isFreeUser && this.isUpdate && alertMsg.length) {
+          const h: Function = this.$createElement
+          this.$msgbox({
+            title: '提示',
+            message: h('div', { class: 'alert-message-list' }, [
+              h(
+                'ul',
+                undefined,
+                alertMsg.map((msg: string) => {
+                  return h('li', undefined, msg)
+                })
+              )
+            ]),
+            showCancelButton: true,
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            beforeClose: async(action: any, instance: any, done: Function) => {
+              if (action === 'confirm') {
+                instance.confirmButtonLoading = true
+                instance.confirmButtonText = '提交中...'
+                try {
+                  await submit()
+                  done()
+                } finally {
+                  instance.confirmButtonLoading = false
+                  instance.confirmButtonText = '确定'
+                }
+              } else {
+                done()
+              }
+            }
+          }).catch((e: any) => {
+            if (e === 'cancel' || e === 'close') return
+            this.$message.error(e)
+          })
+        } else {
+          submit()
+        }
+      } else {
+        return false
+      }
+    })
   }
 
   /**
@@ -203,6 +326,69 @@ export default class CreateMixin extends Vue {
       callback(new Error('经度坐标格式错误'))
     } else if (!/^[-+]?((0|([1-8]\d?))(\.\d{1,10})?|90(\.0{1,10})?)$/.test(this.form.deviceLatitude)) {
       callback(new Error('纬度坐标格式错误'))
+    } else {
+      callback()
+    }
+  }
+
+  /*
+   * 校验设备Domain格式
+   */
+  public validateDeviceDomain(rule: any, value: string, callback: Function) {
+    if (value && !/^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\.?$/.test(value)) {
+      callback(new Error('设备域名格式不正确。正确域名格式例如: www.domain.com'))
+    }
+  }
+
+  /**
+   * 校验资源包
+   */
+  public validateResources(rule: any, value: string, callback: Function) {
+    let hasVideo = false
+    let hasUpload = false
+    const remainError: any = []
+    this.form.resources.forEach((resource: any) => {
+      // 剩余可接入设备数
+      const remainDeviceCount = parseInt(this.resourcesMapping[resource.resourceId] && this.resourcesMapping[resource.resourceId].remainDeviceCount)
+      const devicesCount = this.form.deviceType === 'ipc' ? 1 : this.form.channelSize
+      // 如果当前resourceId不在orginalResourceIdList，则表示该类型的资源包的值被更改。如果未更改则需要跳过数量判断。
+      const isChanged = this.orginalResourceIdList.indexOf(resource.resourceId) === -1
+      switch (resource.resourceType) {
+        case 'VSS_VIDEO':
+          hasVideo = true
+          if (isChanged && devicesCount > remainDeviceCount) {
+            remainError.push('视频包')
+          }
+          break
+        case 'VSS_AI':
+          if (isChanged && devicesCount > remainDeviceCount) {
+            remainError.push('AI包')
+          }
+          break
+        case 'VSS_UPLOAD_BW':
+          hasUpload = true
+          break
+      }
+    })
+    if (remainError.length) {
+      callback(new Error(`${remainError.join(',')}接入设备余量不足，请增加包资源！`))
+    } else if (!this.isUpdate && !hasVideo && !hasUpload && !this.isPrivateUser && !this.isFreeUser) {
+      callback(new Error('资源包必须配置视频包与上行带宽包'))
+    } else if (!this.isUpdate && !hasVideo && !this.isFreeUser) {
+      callback(new Error('必须配置视频包'))
+    } else if (!this.isUpdate && !hasUpload && !this.isPrivateUser && !this.isFreeUser) {
+      callback(new Error('必须配置上行带宽包'))
+    } else {
+      callback()
+    }
+  }
+
+  /**
+   * 校验通道号
+   */
+  public validateChannelNum(rule: any, value: string, callback: Function) {
+    if (!/^[0-9]+$/.test(value)) {
+      callback(new Error('设备号仅支持数字'))
     } else {
       callback()
     }

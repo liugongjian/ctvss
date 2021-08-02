@@ -129,7 +129,9 @@ export default class extends Vue {
     '10007': null,
     '10008': '25',
     '10009': '10',
-    '10010': '10'
+    '10010': '10',
+    '10011': null,
+    '10012': null
   }
   private showSetDialog = false
   private setDialogType = ''

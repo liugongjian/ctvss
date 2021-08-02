@@ -29,6 +29,7 @@
       id="breadcrumb-container"
       class="breadcrumb-container"
     />
+    <el-link v-if="inRole" title="可点击快速切换角色" :underline="false" type="warning" class="role-link" @click="checkRole">{{ `当前角色：${mainUserRoleName}` }}</el-link>
     <div class="right-menu">
       <!-- <template v-if="device!=='mobile'">
         <header-search class="right-menu-item" />
@@ -45,11 +46,11 @@
       <template v-if="(routerName === 'dashboardAI' && !isLight) || routerName === 'visualizationDashboard'">
         <div class="links">
           <a :class="{'actived': !queryAlertType}" @click="routeToHome()">可视化大屏</a>
-          <div v-for="group in alertTypeList" :key="group.name" class="dropdown">
+          <div v-for="group in aiGroups" :key="group.name" class="dropdown">
             {{ group.name }} <svg-icon name="arrow-down2" width="8" height="8" />
             <ul class="dropdown__menu">
-              <li v-for="type in group.list" :key="type.key" :class="{'actived': queryAlertType === type.key.toString()}" @click="routeToAI(type.key)">
-                {{ type.value }}
+              <li v-for="aiType in group.children" :key="aiType" :class="{'actived': queryAlertType === aiType.toString()}" @click="routeToAI(aiType)">
+                {{ alertType[aiType] }}
               </li>
             </ul>
           </div>
@@ -85,6 +86,7 @@
         </div>
         <div class="header-dropdown">
           <div v-if="isMainUser">
+            <router-link to="/changeRole"><i><svg-icon name="user" /></i> 切换角色</router-link>
             <router-link to="/changePassword"><i><svg-icon name="password" /></i> 修改密码</router-link>
             <div class="header-dropdown__divided" />
           </div>
@@ -104,6 +106,7 @@ import { GroupModule } from '@/store/modules/group'
 import { getDevice } from '@/api/device'
 import { Group } from '@/type/group'
 import { AlertType } from '@/dics'
+import { AiGroups } from '@/views/dashboard/helper/aiGroups'
 import Breadcrumb from '@/components/Breadcrumb/index.vue'
 import ErrorLog from '@/components/ErrorLog/index.vue'
 import Hamburger from '@/components/Hamburger/index.vue'
@@ -128,6 +131,7 @@ import { checkPermission } from '@/utils/permission'
 export default class extends Vue {
   private checkPermission = checkPermission
   private alertType = AlertType
+  private aiGroups = AiGroups
   public searchForm = {
     deviceId: ''
   }
@@ -142,6 +146,12 @@ export default class extends Vue {
 
   get isMainUser() {
     return !UserModule.iamUserId
+  }
+  get inRole() {
+    return !!UserModule.mainUserRoleId
+  }
+  get mainUserRoleName() {
+    return UserModule.mainUserRoleName
   }
   get sidebar() {
     return AppModule.sidebar
@@ -179,6 +189,12 @@ export default class extends Vue {
     AppModule.ToggleSideBar(false)
   }
 
+  private checkRole() {
+    this.$router.push({
+      path: '/changeRole'
+    })
+  }
+
   get routerName() {
     if (this.$route.name?.startsWith('dashboardAI')) {
       return 'dashboardAI'
@@ -195,38 +211,6 @@ export default class extends Vue {
 
   get isLight() {
     return this.$route.query.isLight
-  }
-
-  get alertTypeList() {
-    const list = []
-    list.push({
-      name: '人脸识别',
-      list: [6, 4].map((id: number) => {
-        return {
-          key: id,
-          value: this.alertType[id]
-        }
-      })
-    })
-    list.push({
-      name: '人体识别',
-      list: [8, 5, 7, 12].map((id: number) => {
-        return {
-          key: id,
-          value: this.alertType[id]
-        }
-      })
-    })
-    list.push({
-      name: '安全生产',
-      list: [9, 10, 11, 13].map((id: number) => {
-        return {
-          key: id,
-          value: this.alertType[id]
-        }
-      })
-    })
-    return list
   }
 
   @Watch('currentGroupId', { immediate: true })
@@ -330,6 +314,18 @@ export default class extends Vue {
     &:hover {
       background: rgba(0, 0, 0, .025)
     }
+  }
+
+  .role-link {
+    margin-left: 50%;
+    position: absolute;
+    line-height: 50px;
+    height: 100%;
+    font-weight: bold;
+    font-size: 15px;
+    width: 400px;
+    left: -200px;
+    color: #4a89dc;
   }
 
   .filter-group {

@@ -150,6 +150,25 @@
             <el-input v-model="form.deviceLatitude" class="longlat-input" />
           </el-form-item>
         </template>
+        <!-- <el-form-item prop="transPriority">
+          <template slot="label">
+            TCP传输:
+            <el-popover
+              placement="top-start"
+              title="优先TCP传输"
+              width="400"
+              trigger="hover"
+              :open-delay="300"
+              :content="tips.transPriority"
+            >
+              <svg-icon slot="reference" class="form-question" name="help" />
+            </el-popover>
+          </template>
+          <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" disabled />
+        </el-form-item> -->
+        <el-form-item label="配置资源包:" prop="resources">
+          <ResourceTabs v-model="form.resources" :is-update="isUpdate" :in-protocol="form.inProtocol" @on-change="onResourceChange" />
+        </el-form-item>
         <el-form-item label="设备描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
         </el-form-item>
@@ -169,6 +188,9 @@
           <el-input v-model="form.channelName" />
           <div class="form-tip">2-16位，可包含大小写字母、数字、中文、中划线。</div>
         </el-form-item>
+        <el-form-item v-if="isUpdate" label="配置资源包:" prop="resources">
+          <ResourceTabs v-model="form.resources" :is-update="isUpdate" :in-protocol="form.inProtocol" @on-change="onResourceChange" />
+        </el-form-item>
       </template>
       <el-form-item label="">
         <el-button type="primary" :loading="submitting" @click="submit">确 定</el-button>
@@ -183,9 +205,14 @@ import createMixin from '../mixin/createMixin'
 import { InType, DeviceRtspType } from '@/dics'
 import { pick } from 'lodash'
 import { createDevice, updateDevice, getDevice } from '@/api/device'
+import { updateDeviceResources } from '@/api/billing'
+import ResourceTabs from '../components/ResourceTabs.vue'
 
 @Component({
-  name: 'CreateRtspDevice'
+  name: 'CreateEhomeDevice',
+  components: {
+    ResourceTabs
+  }
 })
 export default class extends Mixins(createMixin) {
   private rules = {
@@ -193,8 +220,16 @@ export default class extends Mixins(createMixin) {
       { required: true, message: '请输入设备名称', trigger: 'blur' },
       { validator: this.validateDeviceName, trigger: 'blur' }
     ],
+    channelName: [
+      { required: true, message: '请输入通道名称', trigger: 'blur' },
+      { validator: this.validateDeviceName, trigger: 'blur' }
+    ],
     deviceVendor: [
       { required: true, message: '请选择厂商', trigger: 'change' }
+    ],
+    channelNum: [
+      { required: true, message: '请填写通道号', trigger: 'change' },
+      { validator: this.validateChannelNum, trigger: 'change' }
     ],
     deviceIp: [
       { validator: this.validateDeviceIp, trigger: 'blur' }
@@ -205,6 +240,9 @@ export default class extends Mixins(createMixin) {
     longlat: [
       { required: true, message: '请选择经纬度', trigger: 'blur' },
       { validator: this.validateLonglat, trigger: 'blur' }
+    ],
+    resources: [
+      { required: true, validator: this.validateResources, trigger: 'blur' }
     ]
   }
 
@@ -234,7 +272,8 @@ export default class extends Mixins(createMixin) {
     deviceLongitude: '0.000000',
     deviceLatitude: '0.000000',
     gbRegion: '',
-    gbRegionLevel: ''
+    gbRegionLevel: '',
+    resources: []
   }
   protected minChannelSize = 1
   private availableChannels: Array<number> = []
@@ -311,10 +350,13 @@ export default class extends Mixins(createMixin) {
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'deviceType', 'ehomeVersion', 'createSubDevice', 'deviceVendor',
           'deviceIp', 'devicePort', 'description', 'multiStreamSize', 'autoStreamNum', 'pullType', 'transPriority', 'parentDeviceId', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel']))
+        // 获取绑定资源包列表
+        this.getDeviceResources(info.deviceId, info.deviceType!, info.inProtocol!)
         if (info.deviceStats) {
           // 编辑的时候，设置数量不得小于已创建的子通道中最大通道号或1
           this.minChannelSize = Math.max(...usedChannelNum, 1)
           this.form.channelSize = info.deviceStats.maxChannelSize
+          this.orginalChannelSize = this.form.channelSize
         }
         if (this.isChannel) {
           if (info.deviceChannels.length) {
@@ -347,59 +389,71 @@ export default class extends Mixins(createMixin) {
     }
   }
 
+  /**
+   * 提交
+   */
   private submit() {
-    const form: any = this.$refs.dataForm
-    form.validate(async(valid: any) => {
-      if (valid) {
-        try {
-          this.submitting = true
-          let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceVendor', 'description'])
-          if (this.isUpdate) {
-            params = Object.assign(params, pick(this.form, ['deviceId']))
-          }
-          if (!this.isChannel) {
-            // 通用参数
-            params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'deviceIp', 'devicePort', 'pullType', 'ehomeVersion', 'transPriority', 'multiStreamSize', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel']))
-            if (this.form.pullType === 1) {
-              params = Object.assign(params, pick(this.form, ['autoStreamNum']))
-            }
-            // NVR类型添加额外参数
-            if (this.form.deviceType === 'nvr') {
-              params = Object.assign(params, {
-                channelSize: this.form.channelSize,
-                createSubDevice: this.form.createSubDevice
-              })
-            }
-          } else {
-            // NVR通道
-            params = Object.assign(params, {
-              deviceType: 'ipc',
-              createSubDevice: this.isUpdate ? null : '2',
-              parentDeviceId: this.isUpdate ? this.form.parentDeviceId : this.deviceId,
-              channelName: this.form.channelName,
-              channelNum: this.form.channelNum,
-              deviceName: this.form.deviceName
-            })
-          }
-          if (this.isUpdate) {
-            delete params.deviceType
-            await updateDevice(params)
-            this.$message.success('修改设备成功！')
-          } else {
-            await createDevice(params)
-            this.$message.success('添加设备成功！')
-          }
-          this.back()
-          this.initDirs()
-        } catch (e) {
-          this.$message.error(e && e.message)
-        } finally {
-          this.submitting = false
+    this.beforeSubmit(this.doSubmit)
+  }
+
+  /**
+   * 执行提交
+   */
+  private async doSubmit() {
+    try {
+      this.submitting = true
+      let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceVendor', 'description'])
+      if (this.isUpdate) {
+        params = Object.assign(params, pick(this.form, ['deviceId']))
+      } else {
+        params = Object.assign(params, pick(this.form, ['resources']))
+      }
+      if (!this.isChannel) {
+        // 通用参数
+        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'deviceIp', 'devicePort', 'pullType', 'ehomeVersion', 'transPriority', 'multiStreamSize', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel']))
+        if (this.form.pullType === 1) {
+          params = Object.assign(params, pick(this.form, ['autoStreamNum']))
+        }
+        // NVR类型添加额外参数
+        if (this.form.deviceType === 'nvr') {
+          params = Object.assign(params, {
+            channelSize: this.form.channelSize,
+            createSubDevice: this.form.createSubDevice
+          })
         }
       } else {
-        return false
+        // NVR通道
+        params = Object.assign(params, {
+          deviceType: 'ipc',
+          createSubDevice: this.isUpdate ? null : '2',
+          parentDeviceId: this.isUpdate ? this.form.parentDeviceId : this.deviceId,
+          channelName: this.form.channelName,
+          channelNum: this.form.channelNum,
+          deviceName: this.form.deviceName
+        })
       }
-    })
+      if (this.isUpdate) {
+        delete params.deviceType
+        // 获取设备资源包
+        await updateDeviceResources({
+          deviceId: this.deviceId,
+          deviceType: this.form.deviceType,
+          inProtocol: this.inProtocol,
+          resources: this.form.resources
+        })
+        await updateDevice(params)
+        this.$message.success('修改设备成功！')
+      } else {
+        await createDevice(params)
+        this.$message.success('添加设备成功！')
+      }
+      this.back()
+      this.initDirs()
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.submitting = false
+    }
   }
 }
 </script>

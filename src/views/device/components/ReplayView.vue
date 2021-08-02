@@ -67,7 +67,19 @@
     </template>
     <div v-else class="replay-time-list">
       <el-table v-loading="loading" :data="recordListSlice" empty-text="所选日期暂无录像">
-        <el-table-column label="录像名称" prop="templateName" min-width="100" />
+        <el-table-column label="录像名称" prop="templateName" min-width="200">
+          <template slot-scope="{row}">
+            <template v-if="!row.edit">
+              <span>{{ row.templateName }}</span>
+              <el-button type="text" icon="el-icon-edit" class="edit-button" @click="editRecordName(row)" />
+            </template>
+            <template v-else>
+              <el-input v-model="recordName" size="small" class="edit-input" />
+              <el-button type="primary" size="small" class="edit-save-button" @click="saveEdit(row)">保存</el-button>
+              <el-button plain size="small" @click="cancelEdit(row)">取消</el-button>
+            </template>
+          </template>
+        </el-table-column>
         <el-table-column label="开始时间" prop="startAt" min-width="180" :formatter="dateFormatInTable" />
         <el-table-column label="时长" prop="duration" :formatter="durationFormatInTable" />
         <el-table-column prop="action" label="操作" width="200" fixed="right">
@@ -94,7 +106,7 @@
 import axios from 'axios'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { dateFormatInTable, dateFormat, durationFormatInTable, prefixZero, getLocaleDate, getTimestamp } from '@/utils/date'
-import { getDeviceRecords, getDeviceRecord, getDeviceRecordStatistic, getDeviceRecordRule } from '@/api/device'
+import { getDeviceRecords, getDeviceRecord, getDeviceRecordStatistic, editRecordName, getDeviceRecordRule } from '@/api/device'
 import ReplayPlayerDialog from './dialogs/ReplayPlayer.vue'
 import SliceDownloadDialog from './dialogs/SliceDownload.vue'
 import ReplayPlayer from './ReplayPlayer.vue'
@@ -132,6 +144,7 @@ export default class extends Vue {
   private currentListRecord: any = null
   private currentDate = getLocaleDate().getTime()
   private loading = false
+  private recordName = ''
   private recordList: Array<any> = []
   private recordListSlice: Array<any> = []
   private recordStatistic: Map<string, any> = new Map()
@@ -216,6 +229,42 @@ export default class extends Vue {
    */
   private onCalendarFocus(val: boolean) {
     this.$emit('onCalendarFocus', val)
+  }
+
+  /** 编辑录像名称
+   */
+  private editRecordName(row: any) {
+    this.recordName = row.templateName
+    this.recordListSlice.forEach((record: any) => { record.edit = false })
+    row.edit = true
+  }
+
+  /**
+   * 保存录像名称
+   */
+  private async saveEdit(row: any) {
+    try {
+      this.loading = true
+      await editRecordName({
+        deviceId: this.deviceId,
+        inProtocol: this.inProtocol,
+        startTime: Math.floor(new Date(row.startTime).getTime() / 1000),
+        customName: this.recordName
+      })
+      this.getRecordList()
+      this.loading = false
+    } catch (e) {
+      this.loading = false
+      this.$message.error(e.message)
+    }
+  }
+
+  /**
+   * 取消编辑录像名称
+   */
+  private cancelEdit(row: any) {
+    this.recordName = ''
+    row.edit = false
   }
 
   /**
@@ -384,7 +433,10 @@ export default class extends Vue {
   }
 
   private getRecordListByPage() {
-    this.recordListSlice = this.recordList.slice((this.pager.pageNum - 1) * this.pager.pageSize, this.pager.pageNum * this.pager.pageSize)
+    this.recordListSlice = this.recordList.slice((this.pager.pageNum - 1) * this.pager.pageSize, this.pager.pageNum * this.pager.pageSize).map(record => ({
+      ...record,
+      edit: false
+    }))
   }
 
   /**
@@ -465,6 +517,15 @@ export default class extends Vue {
     .el-range-editor {
       width: 100%;
       margin-bottom: 15px;
+    }
+    .edit-button {
+      margin-left: 5px;
+    }
+    .edit-input {
+      width: 50%;
+    }
+    .edit-save-button {
+      margin-left: 10px;
     }
   }
   .timeline--wrap {

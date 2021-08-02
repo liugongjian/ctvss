@@ -75,6 +75,9 @@
       <el-form-item label="视频标签:" prop="description">
         <Tags v-model="form.tags" class="tags" />
       </el-form-item>
+      <el-form-item label="配置资源包:" prop="resources">
+        <ResourceTabs v-model="form.resources" :is-update="isUpdate" :in-protocol="form.inProtocol" @on-change="onResourceChange" />
+      </el-form-item>
       <el-form-item label="设备描述:" prop="description">
         <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
       </el-form-item>
@@ -91,12 +94,15 @@ import createMixin from '../mixin/createMixin'
 import { InType } from '@/dics'
 import { pick } from 'lodash'
 import { createDevice, updateDevice, getDevice } from '@/api/device'
+import { updateDeviceResources } from '@/api/billing'
 import Tags from '@/components/Tags/index.vue'
+import ResourceTabs from '../components/ResourceTabs.vue'
 
 @Component({
   name: 'CreateRtmpDevice',
   components: {
-    Tags
+    Tags,
+    ResourceTabs
   }
 })
 export default class extends Mixins(createMixin) {
@@ -110,6 +116,9 @@ export default class extends Mixins(createMixin) {
     ],
     pullUrl: [
       { required: true, message: '请输入拉流地址', trigger: 'blur' }
+    ],
+    resources: [
+      { required: true, validator: this.validateResources, trigger: 'blur' }
     ]
   }
 
@@ -126,7 +135,8 @@ export default class extends Mixins(createMixin) {
     pullType: 1,
     pushType: 1,
     pullUrl: '',
-    tags: ''
+    tags: '',
+    resources: []
   }
 
   private inTypeList = InType
@@ -154,6 +164,8 @@ export default class extends Mixins(createMixin) {
       })
       this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
         'description', 'inType', 'pullType', 'pushType', 'pullUrl', 'tags']))
+      // 获取绑定资源包列表
+      this.getDeviceResources(info.deviceId, info.deviceType!, info.inProtocol!)
     } catch (e) {
       this.$message.error(e.message)
     } finally {
@@ -161,40 +173,53 @@ export default class extends Mixins(createMixin) {
     }
   }
 
+  /**
+   * 提交
+   */
   private submit() {
-    const form: any = this.$refs.dataForm
-    form.validate(async(valid: any) => {
-      if (valid) {
-        try {
-          this.submitting = true
-          let params: any = pick(this.form, ['groupId', 'dirId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor', 'description', 'inType', 'tags'])
-          if (this.isUpdate) {
-            params = Object.assign(params, pick(this.form, ['deviceId']))
-          }
-          if (this.form.inType === 'push') {
-            params = Object.assign(params, pick(this.form, ['pushType']))
-          } else {
-            params = Object.assign(params, pick(this.form, ['pullType', 'pullUrl']))
-          }
-          if (this.isUpdate) {
-            delete params.deviceType
-            await updateDevice(params)
-            this.$message.success('修改设备成功！')
-          } else {
-            await createDevice(params)
-            this.$message.success('添加设备成功！')
-          }
-          this.back()
-          this.initDirs()
-        } catch (e) {
-          this.$message.error(e && e.message)
-        } finally {
-          this.submitting = false
-        }
+    this.beforeSubmit(this.doSubmit)
+  }
+
+  /**
+   * 执行提交
+   */
+  private async doSubmit() {
+    try {
+      this.submitting = true
+      let params: any = pick(this.form, ['groupId', 'dirId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor', 'description', 'inType', 'tags'])
+      if (this.isUpdate) {
+        params = Object.assign(params, pick(this.form, ['deviceId']))
       } else {
-        return false
+        params = Object.assign(params, pick(this.form, ['resources']))
       }
-    })
+      if (this.form.inType === 'push') {
+        params = Object.assign(params, pick(this.form, ['pushType']))
+      } else {
+        params = Object.assign(params, pick(this.form, ['pullType', 'pullUrl']))
+      }
+      if (this.isUpdate) {
+        delete params.deviceType
+        delete params.deviceType
+        // 获取设备资源包
+        await updateDeviceResources({
+          deviceId: this.deviceId,
+          deviceType: this.form.deviceType,
+          inProtocol: this.inProtocol,
+          resources: this.form.resources
+        })
+        await updateDevice(params)
+        this.$message.success('修改设备成功！')
+      } else {
+        await createDevice(params)
+        this.$message.success('添加设备成功！')
+      }
+      this.back()
+      this.initDirs()
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.submitting = false
+    }
   }
 }
 </script>
