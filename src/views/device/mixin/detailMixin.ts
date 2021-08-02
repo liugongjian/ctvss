@@ -1,14 +1,15 @@
 import { Component, Vue, Inject } from 'vue-property-decorator'
 import { Device } from '@/type/device'
 import { RecordTemplate } from '@/type/template'
+import { getDevice, getLianzhouArea } from '@/api/device'
 import { DeviceStatus, DeviceGb28181Type, RecordStatus, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType } from '@/dics'
-import { getDevice } from '@/api/device'
 import { getDeviceResources } from '@/api/billing'
 import TemplateBind from '../../components/templateBind.vue'
 import SetAuthConfig from '../components/dialogs/SetAuthConfig.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AntiTheftChain from '../components/AntiTheftChain.vue'
 import { checkPermission } from '@/utils/permission'
+import { regionList } from '@/assets/region/lianzhouRegion'
 import { UserModule } from '@/store/modules/user'
 import copy from 'copy-to-clipboard'
 
@@ -77,6 +78,9 @@ export default class DetailMixin extends Vue {
     2: '子码流',
     3: '第三码流'
   }
+  public lianzhouFlag: boolean = false
+  public regionList = regionList
+  public lianzhouAddress: string = ''
 
   public get isGb() {
     return this.$route.query.inProtocol === 'gb28181'
@@ -106,13 +110,41 @@ export default class DetailMixin extends Vue {
     }
   }
 
-  public get isPrivateUser() {
-    return UserModule.tags && UserModule.tags.networkType !== 'public'
-  }
-
   public async mounted() {
+    // TODO: 连州教育局一机一档专用
+    this.lianzhouFlag = this.$store.state.user.mainUserID === '30003'
     await this.getDevice()
     await this.getDeviceResources()
+    this.lianzhouFlag && await this.getLianzhouAddress()
+  }
+
+  /**
+   * 获取连州region
+   */
+  public async getLianzhouAddress() {
+    let info: any = this.info
+    if (!info || !info.gbRegion) return null
+    let res = await getLianzhouArea({
+      pid: 441882,
+      level: 5
+    })
+    this.lianzhouAddress = '广州省/清远市/连州市'
+    let lianzhouArea = res.areas.map((item: any) => {
+      return {
+        name: item.name,
+        code: item.id,
+        level: item.level
+      }
+    })
+    lianzhouArea.forEach((item: any) => {
+      if (item.code === info.gbRegion) {
+        this.lianzhouAddress += `/${item.name}`
+      }
+    })
+  }
+
+  public get isPrivateUser() {
+    return UserModule.tags && UserModule.tags.networkType !== 'public'
   }
 
   /**

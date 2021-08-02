@@ -124,7 +124,26 @@
           </template>
           <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" />
         </el-form-item>
-        <el-form-item label="设备地址:" prop="address">
+        <template v-if="lianzhouFlag">
+          <el-form-item label="设备地址:" prop="address">
+            <el-cascader
+              ref="addressCascader"
+              v-model="form.address"
+              class="lainzhou-cascader"
+              expand-trigger="click"
+              :disabled="isUpdate"
+              :options="regionList"
+              :props="lianzhouRegionProps"
+              @active-item-change="regionChange"
+              @change="lianzhouAddressChange"
+            />
+          </el-form-item>
+          <el-form-item label="经纬度:" prop="longlat">
+            <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
+            <el-input v-model="form.deviceLatitude" class="longlat-input" />
+          </el-form-item>
+        </template>
+        <el-form-item v-else label="设备地址:" prop="address">
           <el-cascader
             ref="addressCascader"
             v-model="form.address"
@@ -190,7 +209,6 @@ import { cities, provinceMapping, cityMapping } from '@/assets/region/cities'
 })
 export default class extends Mixins(createMixin) {
   private cities = cities
-
   private citiesProps: any = {
     value: 'code',
     label: 'name',
@@ -232,6 +250,13 @@ export default class extends Mixins(createMixin) {
     deviceIp: [
       { validator: this.validateDeviceIp, trigger: 'blur' }
     ],
+    address: [
+      { required: true, message: '请选择设备地址', trigger: 'blur' }
+    ],
+    longlat: [
+      { required: true, message: '请选择经纬度', trigger: 'blur' },
+      { validator: this.validateLonglat, trigger: 'blur' }
+    ],
     resources: [
       { required: true, validator: this.validateResources, trigger: 'blur' }
     ]
@@ -269,6 +294,9 @@ export default class extends Mixins(createMixin) {
     gbId: '',
     userName: '',
     address: [],
+    longlat: 'required',
+    deviceLongitude: '0.000000',
+    deviceLatitude: '0.000000',
     gbRegion: '',
     gbRegionLevel: '',
     resources: []
@@ -280,9 +308,11 @@ export default class extends Mixins(createMixin) {
   }
 
   private async mounted() {
-    this.addressCascaderInit()
+    // TODO: 连州教育局一机一档专用
+    this.lianzhouFlag = this.$store.state.user.mainUserID === '30003'
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
+      this.lianzhouFlag ? this.lianzhouCascaderInit() : this.addressCascaderInit()
     } else {
       this.form.dirId = this.dirId
     }
@@ -324,8 +354,6 @@ export default class extends Mixins(createMixin) {
         })
       })
       this.form.address = [proArr[0], mainUserAddresses[0]]
-    } else {
-      this.form.address = ['1100', '1100']
     }
     this.$nextTick(() => {
       this.addressChange()
@@ -334,7 +362,7 @@ export default class extends Mixins(createMixin) {
 
   private addressChange() {
     const addressCascader: any = this.$refs['addressCascader']
-    if (addressCascader) {
+    if (addressCascader && addressCascader.getCheckedNodes()[0]) {
       const currentAddress = addressCascader.getCheckedNodes()[0].data
       this.form.gbRegion = currentAddress.code + '0000'
       this.form.gbRegionLevel = currentAddress.level
@@ -357,7 +385,7 @@ export default class extends Mixins(createMixin) {
       })
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
-          'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'gbId', 'userName', 'gbRegion', 'gbRegionLevel']))
+          'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel']))
         // 获取绑定资源包列表
         this.getDeviceResources(info.deviceId, info.deviceType!, info.inProtocol!)
         // 设备地址参数转换
@@ -474,7 +502,7 @@ export default class extends Mixins(createMixin) {
       }
       if (!this.isChannel) {
         // 通用参数
-        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'inProtocol', 'deviceIp', 'devicePort', 'pullType', 'userName', 'gbRegion', 'gbRegionLevel']))
+        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'inProtocol', 'deviceIp', 'devicePort', 'pullType', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel']))
         // IPC类型添加额外参数
         if (this.form.deviceType === 'ipc') {
           params = Object.assign(params, {
@@ -551,5 +579,11 @@ export default class extends Mixins(createMixin) {
     &__item:last-child:after {
       content: '';
     }
+  }
+  .longlat-input {
+    width: 193px;
+  }
+  .lainzhou-cascader {
+    width: 400px
   }
 </style>

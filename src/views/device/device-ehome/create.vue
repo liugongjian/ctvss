@@ -131,6 +131,25 @@
           </template>
           <el-switch v-model="form.pushType" :active-value="1" :inactive-value="2" />
         </el-form-item>
+        <template v-if="lianzhouFlag">
+          <el-form-item label="设备地址:" prop="address">
+            <el-cascader
+              ref="addressCascader"
+              v-model="form.address"
+              class="lainzhou-cascader"
+              expand-trigger="click"
+              :disabled="isUpdate"
+              :options="regionList"
+              :props="lianzhouRegionProps"
+              @active-item-change="regionChange"
+              @change="lianzhouAddressChange"
+            />
+          </el-form-item>
+          <el-form-item label="经纬度:" prop="longlat">
+            <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
+            <el-input v-model="form.deviceLatitude" class="longlat-input" />
+          </el-form-item>
+        </template>
         <!-- <el-form-item prop="transPriority">
           <template slot="label">
             TCP传输:
@@ -215,6 +234,13 @@ export default class extends Mixins(createMixin) {
     deviceIp: [
       { validator: this.validateDeviceIp, trigger: 'blur' }
     ],
+    address: [
+      { required: true, message: '请选择设备地址', trigger: 'blur' }
+    ],
+    longlat: [
+      { required: true, message: '请选择经纬度', trigger: 'blur' },
+      { validator: this.validateLonglat, trigger: 'blur' }
+    ],
     resources: [
       { required: true, validator: this.validateResources, trigger: 'blur' }
     ]
@@ -241,6 +267,12 @@ export default class extends Mixins(createMixin) {
     pullType: 1,
     transPriority: 'tcp',
     parentDeviceId: '',
+    address: [],
+    longlat: 'required',
+    deviceLongitude: '0.000000',
+    deviceLatitude: '0.000000',
+    gbRegion: '',
+    gbRegionLevel: '',
     resources: []
   }
   protected minChannelSize = 1
@@ -283,8 +315,11 @@ export default class extends Mixins(createMixin) {
   ]
 
   private async mounted() {
+    // TODO: 连州教育局一机一档专用
+    this.lianzhouFlag = this.$store.state.user.mainUserID === '30003'
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
+      this.lianzhouFlag && this.lianzhouCascaderInit()
     } else {
       this.form.dirId = this.dirId
     }
@@ -314,7 +349,7 @@ export default class extends Mixins(createMixin) {
       })
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'deviceType', 'ehomeVersion', 'createSubDevice', 'deviceVendor',
-          'deviceIp', 'devicePort', 'description', 'multiStreamSize', 'autoStreamNum', 'pullType', 'transPriority', 'parentDeviceId']))
+          'deviceIp', 'devicePort', 'description', 'multiStreamSize', 'autoStreamNum', 'pullType', 'transPriority', 'parentDeviceId', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel']))
         // 获取绑定资源包列表
         this.getDeviceResources(info.deviceId, info.deviceType!, info.inProtocol!)
         if (info.deviceStats) {
@@ -375,7 +410,7 @@ export default class extends Mixins(createMixin) {
       }
       if (!this.isChannel) {
         // 通用参数
-        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'deviceIp', 'devicePort', 'pullType', 'ehomeVersion', 'transPriority', 'multiStreamSize']))
+        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'deviceIp', 'devicePort', 'pullType', 'ehomeVersion', 'transPriority', 'multiStreamSize', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel']))
         if (this.form.pullType === 1) {
           params = Object.assign(params, pick(this.form, ['autoStreamNum']))
         }
@@ -440,5 +475,11 @@ export default class extends Mixins(createMixin) {
     &__item:last-child:after {
       content: '';
     }
+  }
+  .longlat-input {
+    width: 193px;
+  }
+  .lainzhou-cascader {
+    width: 400px
   }
 </style>

@@ -287,3 +287,13 @@ export const exportDeviceOption = (params: any): Promise<any> =>
     method: 'post',
     data: params
   })
+
+/**
+ * 获取连州公安局列表
+ */
+export const getLianzhouArea = (params: any): Promise<any> =>
+  request({
+    url: '/area/list',
+    method: 'get',
+    params
+  })

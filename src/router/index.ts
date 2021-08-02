@@ -904,6 +904,32 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
+    path: '/exportDevices',
+    component: Layout,
+    meta: {
+      id: '20210515200901013000',
+      title: '批量导出设备信息',
+      icon: 'billing',
+      alwaysShow: false,
+      perms: ['*']
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "exportDevices" */ '@/views/exportDevices/index.vue'),
+        name: 'exportDevices',
+        meta: {
+          id: '20210515200901013001',
+          title: '批量导出设备信息',
+          icon: 'key',
+          breadcrumb: false,
+          perms: ['*'],
+          activeMenu: '/exportDevices',
+        }
+      }
+    ]
+  },
+  {
     path: '*',
     redirect: '/404',
     meta: { hidden: true }
