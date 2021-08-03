@@ -827,19 +827,6 @@ export const asyncRoutes: RouteConfig[] = [
         }
       },
       {
-        path: 'secretManage',
-        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/secretManage/index.vue'),
-        name: 'accessManage-secretManage',
-        meta: {
-          id: '20210424150201011006',
-          title: 'API密钥',
-          icon: 'dot',
-          breadcrumb: true,
-          activeMenu: '/accessManage/secretManage',
-          perms: ['*']
-        }
-      },
-      {
         path: 'role',
         component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/role/index.vue'),
         name: 'accessManage-role',
@@ -860,6 +847,19 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           activeMenu: '/accessManage/role',
+          perms: ['*']
+        }
+      },
+      {
+        path: 'secretManage',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/secretManage/index.vue'),
+        name: 'accessManage-secretManage',
+        meta: {
+          id: '20210424150201011006',
+          title: 'API密钥',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/accessManage/secretManage',
           perms: ['*']
         }
       }
