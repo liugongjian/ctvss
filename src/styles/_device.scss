@@ -205,6 +205,16 @@
       .el-dropdown + .el-button {
         margin-left: 10px;
       }
+      &__sync-button {
+        svg {
+          margin-right: 8px;  
+        }
+        &.loading {
+          .svg-icon{
+            animation: rotating 1s linear infinite;
+          }          
+        }
+      }
     }
   }
 
