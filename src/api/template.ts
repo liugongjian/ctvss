@@ -260,7 +260,7 @@ export const getAlertBind = (params: any): Promise<any> =>
 
 export const getAlertBindList = (params: any): Promise<any> =>
   request({
-    url: '/alarm/alarmrule/describeAlarmRule',
+    url: '/alarm/alarmrule/describeAlarmRules',
     method: 'get',
     params
   })

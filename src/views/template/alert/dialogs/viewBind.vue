@@ -46,7 +46,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { getAIBindList } from '@/api/template'
+import { getAlertBindList } from '@/api/template'
 
 @Component({
   name: 'ViewBind'
@@ -77,7 +77,7 @@ export default class extends Vue {
         pageNum: this.pager.pageNum,
         pageSize: this.pager.pageSize
       }
-      const res = await getAIBindList(params)
+      const res = await getAlertBindList(params)
       this.loading = false
       this.bindData = res.bind
       this.pager.total = res.totalNum

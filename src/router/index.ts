@@ -306,6 +306,49 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
 
+  {
+    path: '/alarm',
+    component: Layout,
+    meta: {
+      id: '20210424150201003100',
+      title: '告警管理',
+      icon: 'component',
+      perms: ['GET'],
+      alwaysShow: false,
+      only: true,
+      groupSelector: true
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "alarm" */ '@/views/alarm/index.vue'),
+        name: 'alarm',
+        meta: {
+          id: '20210424150201003101',
+          title: '告警管理',
+          icon: 'component',
+          breadcrumb: false,
+          perms: ['GET'],
+          groupSelector: true
+        },
+        children: [
+          {
+            path: '',
+            component: () => import(/* webpackChunkName: "alarm" */ '@/views/alarm/list.vue'),
+            name: 'alarm-list',
+            meta: {
+              id: '20210424150201003102',
+              title: '告警信息列表',
+              breadcrumb: false,
+              perms: ['GET'],
+              activeMenu: '/alarm',
+              groupSelector: true
+            }
+          }
+        ]
+      }
+    ]
+  },
   // {
   //   path: '/stream',
   //   component: Layout,
