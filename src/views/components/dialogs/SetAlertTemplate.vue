@@ -38,7 +38,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { getAlertTemplates, bindAITemplates, unbindAITemplates } from '@/api/template'
+import { getAlertTemplates, bindAlertTemplates, unbindAlertTemplates } from '@/api/template'
 
 @Component({
   name: 'SetAlertTemplate',
@@ -153,9 +153,9 @@ export default class extends Vue {
     try {
       this.loading = true
       if (this.groupId) {
-        await bindAITemplates(params)
+        await bindAlertTemplates(params)
       } else if (this.deviceId) {
-        await bindAITemplates(params)
+        await bindAlertTemplates(params)
       }
       this.bindTemplateId = row.templateId
     } catch (e) {
@@ -175,9 +175,9 @@ export default class extends Vue {
     try {
       this.loading = true
       if (this.groupId) {
-        await unbindAITemplates(params)
+        await unbindAlertTemplates(params)
       } else if (this.deviceId) {
-        await unbindAITemplates(params)
+        await unbindAlertTemplates(params)
       }
       this.bindTemplateId = ''
     } catch (e) {

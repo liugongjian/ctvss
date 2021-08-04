@@ -236,3 +236,38 @@ export const deleteAlertTemplate = (params: any): Promise<any> =>
     method: 'post',
     data: params
   })
+
+export const bindAlertTemplates = (params: any): Promise<any> =>
+  request({
+    url: '/alarm/alarmrule/create',
+    method: 'post',
+    data: params
+  })
+
+export const unbindAlertTemplates = (params: any): Promise<any> =>
+  request({
+    url: '/alarm/alarmrule/delete',
+    method: 'post',
+    data: params
+  })
+
+export const getAlertBind = (params: any): Promise<any> =>
+  request({
+    url: '/alarm/alarmrule/describeAlarmRule',
+    method: 'get',
+    params
+  })
+
+export const getAlertBindList = (params: any): Promise<any> =>
+  request({
+    url: '/alarm/alarmrule/describeAlarmRule',
+    method: 'get',
+    params
+  })
+
+// export const getAlertBind = (params: any): Promise<any> =>
+//   request({
+//     url: '/alarm/alarmrule/describeAlarmRules',
+//     method: 'get',
+//     params
+//   })

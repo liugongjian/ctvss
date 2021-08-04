@@ -49,14 +49,10 @@
       <info-list title="告警模板">
         <el-table v-loading="loading.alert" :data="template.alertTemplate" empty-text="该设备或组没有绑定告警模板" fit>
           <el-table-column prop="templateName" label="模板名称" />
-          <el-table-column prop="alarmPriority" label="报警级别">
+          <el-table-column prop="description" label="模板概要" />
+          <el-table-column prop="enableType" label="启动方式">
             <template slot-scope="{row}">
-              {{ getLabel('alarmPriority', row.alarmPriority) }}
-            </template>
-          </el-table-column>
-          <el-table-column prop="alarmMethod" label="报警方式">
-            <template slot-scope="{row}">
-              {{ getLabel('alarmMethod', row.alarmMethod) | lengthFormat }}
+              {{ row.enableType === 1 ? '自动开启' : '手动开启' }}
             </template>
           </el-table-column>
         </el-table>
@@ -104,7 +100,7 @@ import SetAlertTemplate from './dialogs/SetAlertTemplate.vue'
 import { RecordTemplate } from '@/type/template'
 import { getGroupRecordTemplate, getGroupCallbackTemplate } from '@/api/group'
 import { getDeviceRecordTemplate, getDeviceCallbackTemplate } from '@/api/device'
-import { getAIBind } from '@/api/template'
+import { getAIBind, getAlertBind } from '@/api/template'
 import { Component, Vue, Prop } from 'vue-property-decorator'
 @Component({
   name: 'TemplateBind',
@@ -147,67 +143,67 @@ export default class extends Vue {
   private recordTemplateId = ''
   private callbackTemplateId = ''
   private aiTemplateId = ''
-  private alarmPriorityOptions: any = [
-    { label: '一级警情', value: '1' },
-    { label: '二级警情', value: '2' },
-    { label: '三级警情', value: '3' },
-    { label: '四级警情', value: '4' }
-  ]
-  private alarmMethodOptions: any = [
-    {
-      value: '1',
-      label: '电话报警'
-    },
-    {
-      value: '2',
-      label: '设备报警',
-      children: [
-        { value: '1', label: '视频丢失报警' },
-        { value: '2', label: '设备防拆报警' },
-        { value: '3', label: '存储设备磁盘满报警' },
-        { value: '4', label: '设备高温报警' },
-        { value: '5', label: '设备低温报警' }
-      ]
-    },
-    {
-      value: '3',
-      label: '短信报警'
-    },
-    {
-      value: '4',
-      label: 'GPS报警'
-    },
-    {
-      value: '5',
-      label: '视频报警',
-      children: [
-        { value: '1', label: '人工视频报警' },
-        { value: '2', label: '运动目标检测报警' },
-        { value: '3', label: '遗留物检测报警' },
-        { value: '4', label: '物体移除检测报警' },
-        { value: '5', label: '绊线检测报警' },
-        { value: '6', label: '入侵检测报警' },
-        { value: '7', label: '逆行检测报警' },
-        { value: '8', label: '徘徊检测报警' },
-        { value: '9', label: '流量统计报警' },
-        { value: '10', label: '密度检测报警' },
-        { value: '11', label: '视频异常检测报警' },
-        { value: '12', label: '快速移动报警' }
-      ]
-    },
-    {
-      value: '6',
-      label: '设备故障报警',
-      children: [
-        { value: '1', label: '存储设备磁盘故障报警' },
-        { value: '2', label: '存储设备风扇故障报警' }
-      ]
-    },
-    {
-      value: '7',
-      label: '其他报警'
-    }
-  ]
+  // private alarmPriorityOptions: any = [
+  //   { label: '一级警情', value: '1' },
+  //   { label: '二级警情', value: '2' },
+  //   { label: '三级警情', value: '3' },
+  //   { label: '四级警情', value: '4' }
+  // ]
+  // private alarmMethodOptions: any = [
+  //   {
+  //     value: '1',
+  //     label: '电话报警'
+  //   },
+  //   {
+  //     value: '2',
+  //     label: '设备报警',
+  //     children: [
+  //       { value: '1', label: '视频丢失报警' },
+  //       { value: '2', label: '设备防拆报警' },
+  //       { value: '3', label: '存储设备磁盘满报警' },
+  //       { value: '4', label: '设备高温报警' },
+  //       { value: '5', label: '设备低温报警' }
+  //     ]
+  //   },
+  //   {
+  //     value: '3',
+  //     label: '短信报警'
+  //   },
+  //   {
+  //     value: '4',
+  //     label: 'GPS报警'
+  //   },
+  //   {
+  //     value: '5',
+  //     label: '视频报警',
+  //     children: [
+  //       { value: '1', label: '人工视频报警' },
+  //       { value: '2', label: '运动目标检测报警' },
+  //       { value: '3', label: '遗留物检测报警' },
+  //       { value: '4', label: '物体移除检测报警' },
+  //       { value: '5', label: '绊线检测报警' },
+  //       { value: '6', label: '入侵检测报警' },
+  //       { value: '7', label: '逆行检测报警' },
+  //       { value: '8', label: '徘徊检测报警' },
+  //       { value: '9', label: '流量统计报警' },
+  //       { value: '10', label: '密度检测报警' },
+  //       { value: '11', label: '视频异常检测报警' },
+  //       { value: '12', label: '快速移动报警' }
+  //     ]
+  //   },
+  //   {
+  //     value: '6',
+  //     label: '设备故障报警',
+  //     children: [
+  //       { value: '1', label: '存储设备磁盘故障报警' },
+  //       { value: '2', label: '存储设备风扇故障报警' }
+  //     ]
+  //   },
+  //   {
+  //     value: '7',
+  //     label: '其他报警'
+  //   }
+  // ]
 
   private async mounted() {
     this.getStreamTemplate()
@@ -256,21 +252,21 @@ export default class extends Vue {
 
   private async getAITemplate() {
     try {
-      this.loading.ai = true
-      this.template.aiTemplate = []
+      this.loading.alert = true
+      this.template.alertTemplate = []
       if (this.groupId) {
         const res = await getAIBind({ groupId: this.groupId })
-        this.template.aiTemplate.push(res)
+        this.template.alertTemplate.push(res)
       } else {
         const res = await getAIBind({ deviceId: this.deviceId, inProtocol: this.inProtocol })
-        this.template.aiTemplate.push(res)
+        this.template.alertTemplate.push(res)
       }
     } catch (e) {
       if (e && e.code !== 5) {
         this.$message.error(e && e.message)
       }
     } finally {
-      this.loading.ai = false
+      this.loading.alert = false
     }
   }
 
@@ -321,32 +317,32 @@ export default class extends Vue {
   /**
    * 告警模板
    */
-  private getLabel(type: string, value: any) {
-    let arr: any = value.split(',')
-    let res: any = arr.map((str: any) => {
-      let obj = this[`${type}Options`].find((item: any) => item.value === str.slice(0, 1))
-      let resStr = obj.label
-      if (obj) {
-        return resStr
-      } else {
-        return 'undefined'
-      }
-    })
-    res = [...new Set(res)].join('，')
-    return res
-  }
+  // private getLabel(type: string, value: any) {
+  //   let arr: any = value.split(',')
+  //   let res: any = arr.map((str: any) => {
+  //     let obj = this[`${type}Options`].find((item: any) => item.value === str.slice(0, 1))
+  //     let resStr = obj.label
+  //     if (obj) {
+  //       return resStr
+  //     } else {
+  //       return 'undefined'
+  //     }
+  //   })
+  //   res = [...new Set(res)].join('，')
+  //   return res
+  // }
 
   private async getAlertTemplate() {
     try {
       this.loading.alert = true
       this.template.alertTemplate = []
-      // if (this.groupId) {
-      //   const res = await getGroupCallbackTemplate({ groupId: this.groupId })
-      //   this.template.callbackTemplate.push(res)
-      // } else {
-      //   const res = await getDeviceCallbackTemplate({ deviceId: this.deviceId, inProtocol: this.inProtocol })
-      //   this.template.callbackTemplate.push(res)
-      // }
+      if (this.groupId) {
+        const res = await getAlertBind({ groupId: this.groupId })
+        this.template.alertTemplate.push(res)
+      } else {
+        const res = await getAlertBind({ deviceId: this.deviceId, inProtocol: this.inProtocol })
+        this.template.alertTemplate.push(res)
+      }
     } catch (e) {
       if (e && e.code !== 5) {
         this.$message.error(e && e.message)
