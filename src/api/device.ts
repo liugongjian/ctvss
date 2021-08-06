@@ -239,6 +239,16 @@ export const syncDevice = (params: any): Promise<any> =>
   })
 
 /**
+ * 同步设备状态
+ */
+export const syncDeviceStatus = (params: any): Promise<any> =>
+  request({
+    url: '/device/consistent',
+    method: 'post',
+    data: params
+  })
+
+/**
  * 开始录制
  */
 export const startRecord = (params: any): Promise<any> =>
