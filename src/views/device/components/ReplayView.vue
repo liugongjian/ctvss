@@ -45,7 +45,7 @@
       />
       <div v-if="replayType === 'cloud' && !recordList.length && !loading" class="replay-player">
         <div class="empty-text">
-          该时段暂无录像
+          该时段暂无云端录像
           <div v-if="hasPlaylive">
             <el-button type="text" @click="playlive">返回实时预览</el-button>
           </div>
