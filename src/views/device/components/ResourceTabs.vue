@@ -75,7 +75,7 @@
         </div>
       </div>
     </el-tab-pane>
-    <el-tab-pane v-if="!isPrivateUser" label="上行带宽包" name="upload">
+    <el-tab-pane v-if="!isPrivateInNetwork" label="上行带宽包" name="upload">
       <!--上行带宽包-->
       <div v-loading="loading.resouceUploadList" class="resource-tabs__content">
         <el-table :data="resouceUploadList" fit @row-click="onResourceRowClick('upload', ...arguments)">
@@ -120,6 +120,7 @@ export default class extends Vue {
   @Prop() private value?: any
   @Prop() private isUpdate?: boolean
   @Prop() private inProtocol?: string
+  @Prop() private isPrivateInNetwork?: string
 
   private resourceTabType = 'video'
   private resourceAiType = ResourceAiType
@@ -139,10 +140,6 @@ export default class extends Vue {
 
   public get isFreeUser() {
     return UserModule.tags && UserModule.tags.resourceFree === '1'
-  }
-
-  public get isPrivateUser() {
-    return UserModule.tags && UserModule.tags.networkType !== 'public'
   }
 
   private async mounted() {
