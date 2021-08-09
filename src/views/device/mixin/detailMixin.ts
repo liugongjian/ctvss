@@ -112,7 +112,7 @@ export default class DetailMixin extends Vue {
 
   public async mounted() {
     // TODO: 连州教育局一机一档专用
-    this.lianzhouFlag = this.$store.state.user.mainUserID === '30003'
+    this.lianzhouFlag = this.$store.state.user.tags.isLianZhouEdu === 'Y'
     await this.getDevice()
     await this.getDeviceResources()
     this.lianzhouFlag && await this.getLianzhouAddress()

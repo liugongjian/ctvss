@@ -295,10 +295,10 @@ export default class extends Mixins(createMixin) {
     userName: '',
     address: [],
     longlat: 'required',
-    deviceLongitude: '0.000000',
-    deviceLatitude: '0.000000',
-    gbRegion: '',
-    gbRegionLevel: '',
+    deviceLongitude: 0.000000,
+    deviceLatitude: 0.000000,
+    gbRegion: 0,
+    gbRegionLevel: 0,
     resources: []
   }
   private minChannelSize = 1
@@ -309,7 +309,7 @@ export default class extends Mixins(createMixin) {
 
   private async mounted() {
     // TODO: 连州教育局一机一档专用
-    this.lianzhouFlag = this.$store.state.user.mainUserID === '30003'
+    this.lianzhouFlag = this.$store.state.user.tags.isLianZhouEdu === 'Y'
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
       this.lianzhouFlag ? this.lianzhouCascaderInit() : this.addressCascaderInit()
