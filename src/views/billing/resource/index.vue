@@ -9,11 +9,11 @@
         <span slot="label">AI包<span v-if="countAi !== undefined">({{ countAi }})</span></span>
         <Ai v-if="activeName === 'ai'" />
       </el-tab-pane>
-      <el-tab-pane v-if="!isPrivateUser" name="uploadBandwidth">
+      <el-tab-pane name="uploadBandwidth">
         <span slot="label">上行带宽包<span v-if="countUploadBandwidth !== undefined">({{ countUploadBandwidth }})</span></span>
         <UploadBandwidth v-if="activeName === 'uploadBandwidth'" />
       </el-tab-pane>
-      <el-tab-pane v-if="!isPrivateUser" name="downloadBandwidth">
+      <el-tab-pane name="downloadBandwidth">
         <span slot="label">下行带宽包<span v-if="countDownloadBandwidth !== undefined">({{ countDownloadBandwidth }})</span></span>
         <DownloadBandwidth v-if="activeName === 'downloadBandwidth'" />
       </el-tab-pane>
@@ -28,7 +28,6 @@ import UploadBandwidth from './components/UploadBandwidth.vue'
 import DownloadBandwidth from './components/DownloadBandwidth.vue'
 import Ai from './components/Ai.vue'
 import { getResourceCount } from '@/api/dashboard'
-import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'BillingResource',
@@ -57,10 +56,6 @@ export default class extends Vue {
 
   private get countDownloadBandwidth() {
     return this.resourceCount.downloadBandwidth
-  }
-
-  private get isPrivateUser() {
-    return UserModule.tags && UserModule.tags.networkType !== 'public'
   }
 
   private created() {

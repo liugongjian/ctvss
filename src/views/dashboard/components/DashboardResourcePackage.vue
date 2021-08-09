@@ -18,16 +18,16 @@
           <el-button v-if="packageData.ai" type="text" @click="goRouter('ai')">详情</el-button>
         </p>
       </div>
-      <div v-if="!isPrivateUser" class="column-line" />
-      <div v-if="!isPrivateUser" class="dashboard-wrap-overview__cell">
+      <div class="column-line" />
+      <div class="dashboard-wrap-overview__cell">
         <p class="dashboard-wrap-overview__cell__head">上行带宽包</p>
         <p class="dashboard-wrap-overview__cell__content">
           <span class="dashboard-wrap-overview__num">{{ packageData.uploadBandwidth }}</span> 个
         </p>
         <el-button v-if="packageData.uploadBandwidth" type="text" @click="goRouter('uploadBandwidth')">详情</el-button>
       </div>
-      <div v-if="!isPrivateUser" class="column-line" />
-      <div v-if="!isPrivateUser" class="dashboard-wrap-overview__cell">
+      <div class="column-line" />
+      <div class="dashboard-wrap-overview__cell">
         <p class="dashboard-wrap-overview__cell__head">下行带宽包</p>
         <p class="dashboard-wrap-overview__cell__content">
           <span class="dashboard-wrap-overview__num">{{ packageData.downloadBandwidth }}</span> 个

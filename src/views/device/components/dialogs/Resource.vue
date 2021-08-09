@@ -15,7 +15,7 @@
       @submit.native.prevent
     >
       <el-form-item label="" prop="resources">
-        <ResourceTabs v-model="form.resources" :is-update="isUpdate" :in-protocol="device.inProtocol" @on-change="onResourceChange" />
+        <ResourceTabs v-model="form.resources" :is-update="isUpdate" :in-protocol="device.inProtocol" :is-private-in-network="isPrivateInNetwork" @on-change="onResourceChange" />
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
