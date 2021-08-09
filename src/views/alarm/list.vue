@@ -14,112 +14,112 @@
         <el-input v-show="false" v-model="searchFrom.templateName" class="filter-container__search-group" placeholder="请输入设备名称">
           <el-button slot="append" class="el-button-rect"><svg-icon name="search" /></el-button>
         </el-input>
-        <el-button class="el-button-rect" @click="init"><svg-icon name="refresh" /></el-button>
+        <el-button class="el-button-rect" @click="1"><svg-icon name="refresh" /></el-button>
       </div>
     </div>
     <el-table
-			ref="table"
-			v-loading="loading"
-			:data="templateList"
-			fit
-			class="template__table"
-			empty-text="暂无告警信息"
-			@row-click="rowClick"
-			@filter-change="filterChange"
-			@sort-change="sortChange"
-		>
-			<el-table-column type="selection" prop="selection" class-name="col-selection" width="55" />
-			<el-table-column label="设备ID/名称" min-width="200">
-				<template slot-scope="{row}">
-					<div class="device-list__device-name">
-						<div class="device-list__device-id">{{ row.deviceId }}</div>
-						<div>{{ row.deviceName }}</div>
-					</div>
-				</template>
-			</el-table-column>
-			<!-- <el-table-column
-				key="AlarmPriority"
-				column-key="AlarmPriority"
-				prop="alarmPriority"
-				min-width="150"
-				:filters="filtersArray.alarmPriority"
-			> -->
-			<el-table-column
-				key="AlarmPriority"
-				column-key="AlarmPriority"
-				prop="alarmPriority"
-				min-width="150"
-			>
-				<template slot="header">
-					<span class="filter">报警级别</span>
-					<!-- <svg-icon class="filter" name="filter" width="15" height="15" /> -->
-				</template>
-				<template slot-scope="{row}">
-					{{ getLabel('alarmPriority', row.alarmPriority) }}
-				</template>
-			</el-table-column>
-			<!-- <el-table-column
-				key="AlarmMethod"
-				column-key="AlarmMethod"
-				prop="alarmMethod"
-				min-width="240"
-				:filters="filtersArray.alarmMethod"
-			> -->
-			<el-table-column
-				key="AlarmMethod"
-				column-key="AlarmMethod"
-				prop="alarmMethod"
-				min-width="240"
-			>
-				<template slot="header">
-					<span class="filter">报警方式</span>
-					<!-- <svg-icon class="filter" name="filter" width="15" height="15" /> -->
-				</template>
-				<template slot-scope="{row}">
-					{{ getLabel('alarmMethod', row.alarmMethod) }}
-				</template>
-			</el-table-column>
-			<el-table-column
-				key="AlarmType"
-				column-key="AlarmType"
-				prop="alarmType"
-				min-width="240"
-			>
-				<template slot="header">
-					<span class="filter">报警方式</span>
-					<!-- <svg-icon class="filter" name="filter" width="15" height="15" /> -->
-				</template>
-				<template slot-scope="{row}">
-					{{ getLabel('alarmType', row.alarmType) }}
-				</template>
-			</el-table-column>
-			<el-table-column
-				key="AlarmTime"
-				column-key="AlarmTime"
-				prop="alarmTime"
-				sortable="custom"
-				label="创建时间"
-				min-width="240"
-			>
-				<template slot-scope="{row}">
-					{{ row.alarmTime }}
-				</template>
-			</el-table-column>
-			<el-table-column prop="alarmDescription" label="报警内容" min-width="240" />
-			<el-table-column prop="action" class-name="col-action" label="操作" width="250" fixed="right">
-				<template slot-scope="{row}">
-					<el-button type="text" @click.stop="1">删除</el-button>
-				</template>
-			</el-table-column>
-		</el-table>
-		<el-pagination
-			:current-page="pager.pageNum"
-			:page-size="pager.pageSize"
-			:total="pager.total"
-			layout="total, sizes, prev, pager, next, jumper"
-			@size-change="handleSizeChange"
-			@current-change="handleCurrentChange"
-		/>
+      ref="table"
+      v-loading="loading"
+      :data="templateList"
+      fit
+      class="template__table"
+      empty-text="暂无告警信息"
+      @row-click="1"
+      @filter-change="filterChange"
+      @sort-change="sortChange"
+    >
+      <el-table-column type="selection" prop="selection" class-name="col-selection" width="55" />
+      <el-table-column label="设备ID/名称" min-width="200">
+        <template slot-scope="{row}">
+          <div class="device-list__device-name">
+            <div class="device-list__device-id">{{ row.deviceId }}</div>
+            <div>{{ row.deviceName }}</div>
+          </div>
+        </template>
+      </el-table-column>
+      <!-- <el-table-column
+        key="AlarmPriority"
+        column-key="AlarmPriority"
+        prop="alarmPriority"
+        min-width="150"
+        :filters="filtersArray.alarmPriority"
+      > -->
+      <el-table-column
+        key="AlarmPriority"
+        column-key="AlarmPriority"
+        prop="alarmPriority"
+        min-width="150"
+      >
+        <template slot="header">
+          <span class="filter">报警级别</span>
+          <!-- <svg-icon class="filter" name="filter" width="15" height="15" /> -->
+        </template>
+        <template slot-scope="{row}">
+          {{ getLabel('alarmPriority', row.alarmPriority) }}
+        </template>
+      </el-table-column>
+      <!-- <el-table-column
+        key="AlarmMethod"
+        column-key="AlarmMethod"
+        prop="alarmMethod"
+        min-width="240"
+        :filters="filtersArray.alarmMethod"
+      > -->
+      <el-table-column
+        key="AlarmMethod"
+        column-key="AlarmMethod"
+        prop="alarmMethod"
+        min-width="240"
+      >
+        <template slot="header">
+          <span class="filter">报警方式</span>
+          <!-- <svg-icon class="filter" name="filter" width="15" height="15" /> -->
+        </template>
+        <template slot-scope="{row}">
+          {{ getLabel('alarmMethod', row.alarmMethod) }}
+        </template>
+      </el-table-column>
+      <el-table-column
+        key="AlarmType"
+        column-key="AlarmType"
+        prop="alarmType"
+        min-width="240"
+      >
+        <template slot="header">
+          <span class="filter">报警方式</span>
+          <!-- <svg-icon class="filter" name="filter" width="15" height="15" /> -->
+        </template>
+        <template slot-scope="{row}">
+          {{ getLabel('alarmType', row.alarmType) }}
+        </template>
+      </el-table-column>
+      <el-table-column
+        key="AlarmTime"
+        column-key="AlarmTime"
+        prop="alarmTime"
+        sortable="custom"
+        label="创建时间"
+        min-width="240"
+      >
+        <template slot-scope="{row}">
+          {{ row.alarmTime }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="alarmDescription" label="报警内容" min-width="240" />
+      <el-table-column prop="action" class-name="col-action" label="操作" width="250" fixed="right">
+        <template slot-scope="{row}">
+          <el-button type="text" @click.stop="1">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <el-pagination
+      :current-page="pager.pageNum"
+      :page-size="pager.pageSize"
+      :total="pager.total"
+      layout="total, sizes, prev, pager, next, jumper"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+    />
   </div>
 </template>
 <script lang="ts">
@@ -129,7 +129,7 @@ import { Vue, Component, Watch } from 'vue-property-decorator'
   name: 'alarm-list'
 })
 export default class extends Vue {
-	private loading: boolean = false
+  private loading: boolean = false
   private showViewBindDialog = false
   private currentTemplateId: any = ''
   private searchFrom: any = {
@@ -224,7 +224,7 @@ export default class extends Vue {
     total: 0
   }
 
-	@Watch('$route.query')
+  @Watch('$route.query')
   public onRouterChange() {
     console.log(this.$route.query)
   }
@@ -305,7 +305,7 @@ export default class extends Vue {
     this.pager.pageNum = val
     await this.getList()
   }
-	/**
+  /**
    * 批量操作菜单
    */
   public handleBatch(command: any) {
