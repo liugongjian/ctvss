@@ -295,10 +295,10 @@ export default class extends Mixins(createMixin) {
     userName: '',
     address: [],
     longlat: 'required',
-    deviceLongitude: 0.000000,
-    deviceLatitude: 0.000000,
-    gbRegion: 0,
-    gbRegionLevel: 0,
+    deviceLongitude: '0.000000',
+    deviceLatitude: '0.000000',
+    gbRegion: '',
+    gbRegionLevel: null,
     resources: []
   }
   private minChannelSize = 1
