@@ -10,6 +10,7 @@ import { GroupModule } from './group'
 import { TagsViewModule } from './tags-view'
 import { DeviceModule } from '@/store/modules/device'
 import store from '@/store'
+import { Message } from 'element-ui'
 
 export interface IUserState {
   token: string

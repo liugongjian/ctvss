@@ -67,7 +67,7 @@
         >
           <el-button>导入</el-button>
         </el-upload>
-        <el-button v-if="isDir || isManulNVR" v-permission="['*']" @click="exportTemplate">下载模板</el-button>
+        <el-button v-if="checkPermission(['*']) && (isDir || isManulNVR)" @click="exportTemplate">下载模板</el-button>
         <el-dropdown key="dropdown" v-permission="['*']" placement="bottom" @command="handleBatch">
           <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
@@ -82,7 +82,7 @@
         <el-input v-show="false" v-model="keyword" class="filter-container__search-group" placeholder="请输入关键词">
           <el-button slot="append" class="el-button-rect"><svg-icon name="search" /></el-button>
         </el-input>
-        <el-button class="el-button-rect filter-container__sync-button" :disabled="loading.syncDeviceStatus" :class="{'loading': loading.syncDeviceStatus}" @click="syncDeviceStatus"><svg-icon name="refresh" />同步设备状态</el-button>
+        <el-button v-if="!isChannel" class="el-button-rect filter-container__sync-button" :disabled="loading.syncDeviceStatus" :class="{'loading': loading.syncDeviceStatus}" @click="syncDeviceStatus"><svg-icon name="refresh" />同步设备状态</el-button>
       </div>
     </div>
     <div v-if="hasFiltered" class="filter-container filter-buttons">

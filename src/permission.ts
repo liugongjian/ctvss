@@ -79,6 +79,13 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
           NProgress.done()
         }
       } else {
+        if (to.path === '/404' && UserModule.mainUserRoleId) {
+          Message.info('已在其他终端使用角色，即将离开未授权页面！')
+          next({
+            path: '/changeRole',
+            replace: true
+          })
+        }
         // 单点登录菜单高亮
         UserModule.ctLoginId && (<any>window).CtcloudLayout && (<any>window).CtcloudLayout.consoleLayout.match({
           key: to.meta.activeMenu || ('/' + to.name)

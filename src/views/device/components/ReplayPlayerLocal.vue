@@ -1,7 +1,7 @@
 <template>
   <div class="replay-player">
     <div v-if="!address" v-loading="loading" class="empty-text">
-      <div v-if="!loading">{{ errorMessage || '该时段暂无录像' }}</div>
+      <div v-if="!loading">{{ errorMessage || '该时段暂无本地录像' }}</div>
       <div v-if="hasPlaylive">
         <el-button type="text" @click="playlive">返回实时预览</el-button>
       </div>
@@ -131,11 +131,15 @@ export default class extends Mixins(ReplayPlayerMixin) {
    * 初始化播放器
    */
   public initVideoPlayer() {
-    this.currentRecord = this.recordList[0]
-    this.currentTime = this.startTime = this.currentRecord && this.currentRecord.startAt
-    this.$nextTick(() => {
-      this.getDevicePreview()
-    })
+    if (this.recordList.length) {
+      this.currentRecord = this.recordList[0]
+      this.currentTime = this.startTime = this.currentRecord && this.currentRecord.startAt
+      this.$nextTick(() => {
+        this.getDevicePreview()
+      })
+    } else {
+      this.errorMessage = '该时段暂无本地录像'
+    }
   }
 
   /**

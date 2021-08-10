@@ -213,6 +213,7 @@ export default class CreateMixin extends Vue {
    * 初始化
    */
   public init() {
+    this.parentDeviceId = ''
     if (!this.groupId || !this.inProtocol) return
     switch (this.type) {
       case 'platform':
