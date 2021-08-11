@@ -24,6 +24,23 @@
         </template>
       </div>
       <div class="controls__right">
+        <div v-if="isVolume" class="controls__btn controls__playback volume">
+          <!-- {{ volume === 0 ? '静音' : '音量' }} -->
+          <svg-icon v-if="volume!==0" name="volume" width="18px" height="18px" />
+          <svg-icon v-else name="mute" width="18px" height="18px" />
+          <div class="controls__popup" style="left:-3px;min-width:35px;">
+            <el-slider
+              v-model="volume"
+              class="volume"
+              vertical
+              height="165px"
+              @input="setPlayVolume(volume)"
+            />
+          </div>
+        </div>
+        <div v-if="!isVolume" class="controls__btn kill__volume">
+          <svg-icon name="mute" class="mute_gray" width="18px" height="18px" />
+        </div>
         <div v-if="!isLive && codec !== 'h265'" class="controls__btn controls__playback">
           {{ playbackRate === 1 ? '倍速' : `${playbackRate}x` }}
           <ul class="controls__popup">
@@ -172,10 +189,12 @@ export default class extends Vue {
 
   private isDragging: boolean = false
   public player?: any
+  public isVolume: boolean = true
   public paused?: boolean = true
   public waiting = false
   private isZoom = false
   private playbackRate = 1
+  private volume = 30
   private playbackRateList = [16, 8, 4, 2, 1.5, 1, 0.5, 0.25]
   private videoMoveData: any = {
     x: null,
@@ -264,6 +283,7 @@ export default class extends Vue {
         isLive: this.isLive,
         isWs: this.isWs,
         playbackRate: this.playbackRate,
+        volume: this.volume,
         onTimeUpdate: this.onTimeUpdate,
         onDurationChange: this.onDurationChange,
         onBuffered: this.onBuffered,
@@ -272,6 +292,8 @@ export default class extends Vue {
         onEnded: this.onEnded,
         onPlay: this.setStatus,
         onPause: this.setStatus,
+        onVolumeChange: this.volumeChange, // base player 里面调用这里的方法
+        // onKillPlayVolume: this.onKillVolume,
         onResizeScreen: (originWidth: number, originHeight: number) => {
           const $video: HTMLDivElement = this.$refs.video as HTMLDivElement
           const $canvas: HTMLCanvasElement | null = $video.querySelector('canvas')
@@ -341,7 +363,6 @@ export default class extends Vue {
       player.style.width = width + 'px'
       player.style.height = width * 9 / 16 + 'px'
     }
-    player.style.position = 'absolute'
     player.style.left = (width - player.clientWidth) / 2 + 'px'
     player.style.top = (height - player.clientHeight) / 2 + 'px'
   }
@@ -360,7 +381,9 @@ export default class extends Vue {
   }
 
   public setStatus() {
+    console.log('自动播放时触发 player')
     this.paused = this.player?.player.paused
+    console.log('播放结束')
   }
 
   /**
@@ -592,7 +615,6 @@ export default class extends Vue {
    * 视频加载中
    */
   public onLoadStart() {
-    this.$emit('onCanPlay', false)
     this.waiting = true
   }
 
@@ -601,7 +623,17 @@ export default class extends Vue {
    */
   public onCanplay() {
     this.waiting = false
-    this.$emit('onCanPlay', true)
+  }
+
+  /**
+   * 音量调整
+   */
+  public onKillVolume() {
+    console.log('player  on   volume   调整🐕的嗓门')
+    console.log('🚩🚩🚩🚩🚩 回调触发')
+    console.log('把图标 kill 掉, 直接隐藏变暗')
+    this.isVolume = false
+    // this.$emit('onSetPlayVolume', volume)
   }
 
   /**
@@ -642,9 +674,39 @@ export default class extends Vue {
     this.player!.setPlaybackRate(playbackRate)
     this.$emit('onSetPlaybackRate', playbackRate)
   }
+
+  /**
+   * 控制音量
+   */
+  public setPlayVolume(volume: number) {
+    console.log('player里 2  volume', volume)
+    console.log('player里 开始 set play volume', this.player.volume)
+    this.player!.setPlayVolume(this.volume, '123') // 调用的是 每个 player 绑定到 baseplayer 里的方法 & this.player 是 baseplayer
+    console.log('player里 2  this.player!.setPlayVolume  结束    volume', volume)
+  }
+
+  /**
+   * 音轨判断、音量调整
+   */
+  public volumeChange() {
+    console.log('player  on   volume   调整🐕的嗓门')
+    // this.isVolume = false
+  }
 }
 </script>
 <style lang="scss" scoped>
+  .volume {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: aliceblue;
+    ::v-deep .el-slider.is-vertical .el-slider__runway {
+      margin: 0px auto;
+      background-color: gray;
+    }
+    ::v-deep .el-slider__bar{
+      background-color: aliceblue;
+    }
+  }
   .dragging {
     * {
       user-select:none;
@@ -686,6 +748,13 @@ export default class extends Vue {
       margin: auto;
       display: block;
     }
+    .mute_gray {
+      opacity: 0.4;
+      color: aliceblue;
+    }
+    .kill__volume {
+      cursor: not-allowed !important; //优先级
+    }
     .controls {
       * {
         user-select:none;
@@ -726,7 +795,7 @@ export default class extends Vue {
           position: absolute;
           bottom: 34px;
           left: -10px;
-          margin: 0;
+          margin: auto 0;
           padding: 5px 0;
           min-width: 50px;
           list-style: none;

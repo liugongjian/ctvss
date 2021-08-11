@@ -20,10 +20,8 @@ export class FlvPlayer extends BasePlayer {
     const flvPlayer = flvjs.createPlayer({
       type: 'flv',
       isLive: true,
-      url: this.source,
-      enableStashBuffer: false,
-      stashInitialSize: 0,
-      autoCleanupSourceBuffer: true
+      url: this.source
+      // hasAudio: false
     })
     flvPlayer.attachMediaElement(videoElement)
     flvPlayer.load()
@@ -73,9 +71,10 @@ export class FlvPlayer extends BasePlayer {
    */
   public bindEvent() {
     this.player.addEventListener('play', this.onPlay.bind(this))
+    // this.player.addEventListener('killvolume', this.onKillPlayVolume.bind(this))
     this.player.addEventListener('pause', this.onPause.bind(this))
     this.player.addEventListener('timeupdate', this.onTimeUpdate.bind(this))
-    this.player.addEventListener('durationchange', this.onDurationChange.bind(this))
+    this.player.addEventListener('volumechange', this.onVolumeChange.bind(this))
     this.player.addEventListener('ended', this.onEnded.bind(this))
     this.player.addEventListener('seeked', this.onSeeked.bind(this))
     this.player.addEventListener('progress', this.onBuffered.bind(this))
@@ -130,6 +129,17 @@ export class FlvPlayer extends BasePlayer {
   }
 
   /**
+   * 调整音量
+   */
+  public setPlayVolume(volume: any, testFlag: any) {
+    console.log('flv player ts volume')
+    console.log('volume ：', volume)
+    console.log('testFlag ：', testFlag)
+    this.player.volume = volume / 100
+    console.log('this.player.volume ：', this.player.volume)
+  }
+
+  /**
    * 停止
    */
   public stop() {
@@ -148,6 +158,8 @@ export class FlvPlayer extends BasePlayer {
     this.player.removeEventListener('progress', this.onBuffered)
     this.player.removeEventListener('loadstart', this.onLoadStart)
     this.player.removeEventListener('canplay', this.onCanplay)
+    this.player.removeEventListener('volumechange', this.onVolumeChange.bind(this))
+    // this.player.removeEventListener('killvolume', this.onKillPlayVolume.bind(this))
     this.flv && this.flv.destroy()
   }
 }
