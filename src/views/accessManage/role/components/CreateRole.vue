@@ -36,7 +36,7 @@
             <el-table-column
               prop="policyName"
               label="策略名"
-              width="150"
+              width="180"
             />
             <el-table-column
               prop="policyDescribe"
