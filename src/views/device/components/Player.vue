@@ -24,21 +24,23 @@
         </template>
       </div>
       <div class="controls__right">
-        <div v-if="isVolume" class="controls__btn controls__playback volume">
-          <!-- {{ volume === 0 ? '静音' : '音量' }} -->
-          <svg-icon v-if="volume!==0" name="volume" width="18px" height="18px" />
-          <svg-icon v-else name="mute" width="18px" height="18px" />
-          <div class="controls__popup" style="left:-3px;min-width:35px;">
+        <div v-if="hasAudio" class="controls__btn controls__playback volume">
+          <span @click="switchMuteStatus">
+            <svg-icon v-if="volume === 0 || isMute" name="mute" width="18px" height="18px" />
+            <svg-icon v-else name="volume" width="18px" height="18px" />
+          </span>
+          <div v-if="codec !== 'h265'" class="controls__popup controls__volume">
             <el-slider
-              v-model="volume"
+              :value="volume"
+              :show-tooltip="false"
               class="volume"
               vertical
               height="165px"
-              @input="setPlayVolume(volume)"
+              @input="setPlayVolume"
             />
           </div>
         </div>
-        <div v-if="!isVolume" class="controls__btn kill__volume">
+        <div v-else class="controls__btn kill__volume">
           <svg-icon name="mute" class="mute_gray" width="18px" height="18px" />
         </div>
         <div v-if="!isLive && codec !== 'h265'" class="controls__btn controls__playback">
@@ -189,8 +191,9 @@ export default class extends Vue {
 
   private isDragging: boolean = false
   public player?: any
-  public isVolume: boolean = true
+  public hasAudio: boolean = true
   public paused?: boolean = true
+  public isMute?: boolean = this.codec === 'h265'
   public waiting = false
   private isZoom = false
   private playbackRate = 1
@@ -235,6 +238,7 @@ export default class extends Vue {
     //   this.isWs = false
     // }
     this.createPlayer()
+    this.setPlayVolume(this.volume)
     if (this.isLive) document.addEventListener('visibilitychange', this.reloadPlayer)
   }
 
@@ -292,8 +296,8 @@ export default class extends Vue {
         onEnded: this.onEnded,
         onPlay: this.setStatus,
         onPause: this.setStatus,
-        onVolumeChange: this.volumeChange, // base player 里面调用这里的方法
-        // onKillPlayVolume: this.onKillVolume,
+        onVolumeChange: this.onVolumeChange,
+        onTestHasAudio: this.onTestHasAudio,
         onResizeScreen: (originWidth: number, originHeight: number) => {
           const $video: HTMLDivElement = this.$refs.video as HTMLDivElement
           const $canvas: HTMLCanvasElement | null = $video.querySelector('canvas')
@@ -381,9 +385,7 @@ export default class extends Vue {
   }
 
   public setStatus() {
-    console.log('自动播放时触发 player')
     this.paused = this.player?.player.paused
-    console.log('播放结束')
   }
 
   /**
@@ -569,6 +571,13 @@ export default class extends Vue {
   }
 
   /**
+   * 开关静音状态
+   */
+  public switchMuteStatus() {
+    this.player!.switchMuteStatus(!this.isMute)
+  }
+
+  /**
    * Zoom开关
    */
   public toggleZoom() {
@@ -626,17 +635,6 @@ export default class extends Vue {
   }
 
   /**
-   * 音量调整
-   */
-  public onKillVolume() {
-    console.log('player  on   volume   调整🐕的嗓门')
-    console.log('🚩🚩🚩🚩🚩 回调触发')
-    console.log('把图标 kill 掉, 直接隐藏变暗')
-    this.isVolume = false
-    // this.$emit('onSetPlayVolume', volume)
-  }
-
-  /**
    * 录像回放
    */
   public playback() {
@@ -679,18 +677,29 @@ export default class extends Vue {
    * 控制音量
    */
   public setPlayVolume(volume: number) {
-    console.log('player里 2  volume', volume)
-    console.log('player里 开始 set play volume', this.player.volume)
-    this.player!.setPlayVolume(this.volume, '123') // 调用的是 每个 player 绑定到 baseplayer 里的方法 & this.player 是 baseplayer
-    console.log('player里 2  this.player!.setPlayVolume  结束    volume', volume)
+    // h264拖动音量后解除静音
+    this.codec !== 'h265' && volume && this.isMute && this.player!.switchMuteStatus(false)
+    // 调用的是 每个 player 绑定到 baseplayer 里的方法 & this.player 是 baseplayer
+    !this.isMute && this.player!.setPlayVolume(volume)
   }
 
   /**
    * 音轨判断、音量调整
    */
-  public volumeChange() {
-    console.log('player  on   volume   调整🐕的嗓门')
-    // this.isVolume = false
+  public onVolumeChange(volume: number, isMute: boolean) {
+    this.isMute = isMute
+    if (isMute) {
+      this.volume = 0
+    } else {
+      this.volume = volume * 100
+    }
+  }
+
+  /**
+   * 判断是否包含音轨
+   */
+  public onTestHasAudio(hasAudio: boolean) {
+    this.hasAudio = hasAudio
   }
 }
 </script>
@@ -811,6 +820,10 @@ export default class extends Vue {
               color: $primary;
             }
           }
+        }
+        .controls__volume {
+          left: -3px;
+          min-width: 35px;
         }
         &:hover {
           .controls__popup {

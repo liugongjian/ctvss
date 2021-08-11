@@ -47,12 +47,25 @@ export class BasePlayer {
   public setDefault() {}
 
   /**
+   * 静音
+   * @param muted
+   */
+  public switchMuteStatus(isMute: boolean) {
+    this.player.muted = isMute
+  }
+
+  /**
+   * 调整音量
+   */
+  public setPlayVolume(volume: number) {
+    this.player.volume = volume / 100
+  }
+
+  /**
    * 回调-开始播放
    */
   public onPlay() {
-    console.log('我不信 ')
     this.config.onPlay && this.config.onPlay() // 触发 player 里的方法
-    console.log('你赢了 ')
   }
 
   /**
@@ -60,15 +73,7 @@ export class BasePlayer {
    * 触发 player 里的方法
    */
   public onVolumeChange() {
-    // 传递给对应的播放器 禁用声音的 flag
-    // console.log('base on volume change isvolume:  ', isVolume)
-    console.log('base player 🐕 调整音量 ')
-    // this.player.volume = volume / 100
-    // if (isVolume === false) {
-    //   console.log('禁止使用声音控制')
-    //   this.config.onVolumeChange && this.config.onVolumeChange() // 触发 player 里的方法
-    // }
-    this.config.onVolumeChange && this.config.onVolumeChange() // 触发 player 里的方法
+    this.config.onVolumeChange && this.config.onVolumeChange(this.player.volume, this.player.muted)
   }
   /**
    * 回调-暂停
@@ -132,6 +137,7 @@ export class BasePlayer {
    * 回调-已加载
    */
   public onCanplay() {
+    this.testHasAudio()
     this.config.onCanplay && this.config.onCanplay()
   }
 
@@ -172,24 +178,10 @@ export class BasePlayer {
    * H265\HLS\RTC 拥有该方法， FLV 等没有
    */
   public autoPlayVideo(player: any) {
-    console.log('H265、HLS、RTC 拥有该方法 base')
     if (this.autoPlay) {
       try {
         this.testAutoPlay().then(isSupport => {
           if (isSupport) {
-            if (this.hasAudio(player)) {
-              console.log('baseplayer 🐕 会叫')
-              // this.onVolumeChange(false)
-              player.play()
-            } else {
-              console.log('baseplayer 可能没有音频')
-              console.log('baseplayer 那我把你的声音图标给关了')
-              console.log('player from base player')
-              console.log('player:  ', player)
-              // this.onVolumeChange(false)
-              // 回调 禁用声音
-              // player.onKillVolume()
-            }
             player.play()
           } else {
             player.muted = true
@@ -233,13 +225,8 @@ export class BasePlayer {
   /**
    * 检测是否有音频
    */
-  public hasAudio(video: any) {
-    console.log('baseplayer 🐕 你会叫 🐎 ？')
-    console.log(video.volume)
-    console.log(video.muted)
-    return video.volume === 0.3
-    // return video.mozHasAudio ||
-    // Boolean(video.webkitAudioDecodedByteCount) ||
-    // Boolean(video.audioTracks && video.audioTracks.length)
+  public testHasAudio() {
+    const hasAudio = this.player.mozHasAudio || Boolean(this.player.webkitAudioDecodedByteCount) || Boolean(this.player.audioTracks && this.player.audioTracks.length) || this.codec === 'h265'
+    this.config.onTestHasAudio && this.config.onTestHasAudio(hasAudio)
   }
 }

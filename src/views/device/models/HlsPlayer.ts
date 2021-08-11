@@ -33,11 +33,10 @@ export class HlsPlayer extends BasePlayer {
     // 添加音量控制 在 baseplayer 里面声明方法
     // 这里的绑定都是将每个播放器的方法绑定到 baseplayer 上面。base player 里面只有几个共有的方法
     // 后期 可能需要调整 base player 和各个播放器之间的属性、方法关系
-    this.player.addEventListener('volumechange', this.onVolumeChange.bind(this))
-    // this.player.addEventListener('killvolume', this.onKillPlayVolume.bind(this))
     this.player.addEventListener('pause', this.onPause.bind(this))
     this.player.addEventListener('timeupdate', this.onTimeUpdate.bind(this))
     this.player.addEventListener('durationchange', this.onDurationChange.bind(this))
+    this.player.addEventListener('volumechange', this.onVolumeChange.bind(this))
     this.player.addEventListener('ended', this.onEnded.bind(this))
     this.player.addEventListener('seeked', this.onSeeked.bind(this))
     this.player.addEventListener('progress', this.onBuffered.bind(this))
@@ -92,16 +91,6 @@ export class HlsPlayer extends BasePlayer {
   }
 
   /**
-   * 调整音量
-   */
-  public setPlayVolume(volume: any, testFlag: any) {
-    console.log('hls player ts volume')
-    console.log('volume ：', volume)
-    console.log('testFlag ：', testFlag)
-    this.player.volume = volume / 100
-    console.log('this.player.volume ：', this.player.volume)
-  }
-  /**
    * 停止
    */
   public stop() {
@@ -120,8 +109,7 @@ export class HlsPlayer extends BasePlayer {
     this.player.removeEventListener('progress', this.onBuffered)
     this.player.removeEventListener('loadstart', this.onLoadStart)
     this.player.removeEventListener('canplay', this.onCanplay)
-    this.player.removeEventListener('volumechange', this.onVolumeChange.bind(this))
-    // this.player.removeEventListener('killvolume', this.onKillPlayVolume.bind(this))
+    this.player.removeEventListener('volumechange', this.onVolumeChange)
     this.hls && this.hls.destroy()
   }
 }
