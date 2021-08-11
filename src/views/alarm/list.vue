@@ -1,8 +1,8 @@
 <template>
-  <div class="device-list__container">
+  <div class="device-list__container min-contaniner">
     <div class="filter-container clearfix">
       <div class="filter-container__left">
-        <el-button @click="1">一键删除</el-button>
+        <el-button type="primary" @click="1">一键删除</el-button>
         <el-dropdown key="dropdown" placement="bottom" @command="handleBatch">
           <el-button>批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
@@ -11,10 +11,18 @@
         </el-dropdown>
       </div>
       <div class="filter-container__right">
-        <el-input v-show="false" v-model="searchFrom.templateName" class="filter-container__search-group" placeholder="请输入设备名称">
+        <el-date-picker
+          class="data-picker"
+          v-model="searchFrom.timeRange"
+          type="datetimerange"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期">
+        </el-date-picker>
+        <el-input v-model="searchFrom.templateName" class="filter-container__search-group" placeholder="请输入设备名称">
           <el-button slot="append" class="el-button-rect"><svg-icon name="search" /></el-button>
         </el-input>
-        <el-button class="el-button-rect" @click="init"><svg-icon name="refresh" /></el-button>
+        <el-button class="el-button-rect" @click="1"><svg-icon name="refresh" /></el-button>
       </div>
     </div>
     <el-table
@@ -24,9 +32,9 @@
 			fit
 			class="template__table"
 			empty-text="暂无告警信息"
-			@row-click="rowClick"
 			@filter-change="filterChange"
 			@sort-change="sortChange"
+      @selection-change="handleSelectionChange"
 		>
 			<el-table-column type="selection" prop="selection" class-name="col-selection" width="55" />
 			<el-table-column label="设备ID/名称" min-width="200">
@@ -132,8 +140,10 @@ export default class extends Vue {
 	private loading: boolean = false
   private showViewBindDialog = false
   private currentTemplateId: any = ''
+  private selectedDeviceList: any = []
   private searchFrom: any = {
     templateName: '',
+    timeRange: [],
     alarmPriority: [],
     alarmMethod: [],
     sortBy: '',
@@ -286,6 +296,12 @@ export default class extends Vue {
       this.search()
     }
   }
+  /**
+   * 表格多选框变化
+   */
+  private handleSelectionChange(alarms: any) {
+    this.selectedDeviceList = alarms
+  }
   // private async deleteTemplate(row: any) {
   //   this.$alertDelete({
   //     type: '告警模板',
@@ -305,7 +321,8 @@ export default class extends Vue {
     this.pager.pageNum = val
     await this.getList()
   }
-	/**
+
+  /**
    * 批量操作菜单
    */
   public handleBatch(command: any) {
@@ -321,3 +338,11 @@ export default class extends Vue {
   }
 }
 </script>
+<style lang="scss" scoped>
+  .min-contaniner {
+    min-width: 1050px
+  }
+  .data-picker {
+    margin-right: 10px
+  }
+</style>
