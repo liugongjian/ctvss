@@ -272,7 +272,7 @@ export default class extends Mixins(createMixin) {
     deviceLongitude: '0.000000',
     deviceLatitude: '0.000000',
     gbRegion: '',
-    gbRegionLevel: '',
+    gbRegionLevel: null,
     resources: []
   }
   protected minChannelSize = 1
