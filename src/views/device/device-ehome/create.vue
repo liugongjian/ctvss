@@ -60,7 +60,7 @@
         </el-form-item>
         <el-form-item label="设备名称:" prop="deviceName" class="form-with-tip">
           <el-input v-model="form.deviceName" />
-          <div class="form-tip">2-16位，可包含大小写字母、数字、中文、中划线。</div>
+          <div class="form-tip">2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号。</div>
         </el-form-item>
         <el-form-item label="设备IP:" prop="deviceIp">
           <el-input v-model="form.deviceIp" />

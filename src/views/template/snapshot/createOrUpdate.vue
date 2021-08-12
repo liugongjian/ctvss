@@ -14,7 +14,7 @@
         </el-form-item>
         <el-form-item label="截图模板名称:" prop="templateName" class="form-with-tip">
           <el-input v-model="form.templateName" />
-          <div class="form-tip">4-16位，可包含大小写字母、数字、中文、中划线。模板名称不能重复。</div>
+          <div class="form-tip">4-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号。模板名称不能重复。</div>
         </el-form-item>
         <el-form-item label="服务区域:" prop="region" class="form-with-tip">
           <el-select v-model="form.region" placeholder="请选择">
@@ -106,7 +106,7 @@ export default class extends Vue {
   }
 
   private validateTemplateName(rule: any, value: string, callback: Function) {
-    if (!/^[\u4e00-\u9fa50-9a-zA-Z-]{4,16}$/u.test(value)) {
+    if (!/^[\u4e00-\u9fa50-9a-zA-Z-()（）_]{4,64}$/u.test(value)) {
       callback(new Error('截图模板名称格式错误'))
     } else {
       callback()
@@ -130,7 +130,8 @@ export default class extends Vue {
     const form: any = this.$refs.dataForm
     form.validate(async(valid: any) => {
       if (valid) {
-        var res
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        let res: any
         this.loading = true
         try {
           if (this.form.templateId) {
