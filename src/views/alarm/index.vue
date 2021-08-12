@@ -42,7 +42,6 @@
                       <svg-icon name="dir" width="15" height="15" />
                       <svg-icon name="dir-close" width="15" height="15" />
                     </span>
-                    <!-- <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" /> -->
                     {{ node.label }} <span class="alert-type">{{ renderAlertType(data) }}</span>
                   </span>
                 </span>

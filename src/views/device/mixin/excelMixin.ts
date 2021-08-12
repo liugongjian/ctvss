@@ -50,7 +50,7 @@ export default class ExcelMixin extends Vue {
         { header: '国标ID', key: 'gbId', width: 24 },
         { header: '设备视频流优先传输协议', key: 'transPriority', width: 24 },
         { header: '设备通道数量', key: 'channelSize', width: 16 },
-        { header: '预设城市', key: 'city', width: 16 },
+        { header: '预设城市', key: 'city', width: 16 }
         // { header: '视频包', key: 'videoPackage', width: 24 },
         // { header: 'AI包', key: 'AIPackage', width: 24 },
         // { header: '上行带宽包', key: 'BWPackage', width: 24 }
@@ -66,7 +66,7 @@ export default class ExcelMixin extends Vue {
         { header: '是否启用自动拉流', key: 'pullType', width: 24 },
         { header: '是否启用自动激活推流地址', key: 'pushType', width: 24 },
         { header: '拉流地址', key: 'pullUrl', width: 24 },
-        { header: '视频流标签', key: 'tags', width: 24 },
+        { header: '视频流标签', key: 'tags', width: 24 }
         // { header: '视频包', key: 'videoPackage', width: 24 },
         // { header: 'AI包', key: 'AIPackage', width: 24 },
         // { header: '上行带宽包', key: 'BWPackage', width: 24 }
@@ -88,7 +88,7 @@ export default class ExcelMixin extends Vue {
         { header: '自动拉取第几个码流', key: 'AutoStreamNum', width: 24 },
         { header: '是否启用自动拉流', key: 'pullType', width: 24 },
         { header: '是否启用自动激活推流地址', key: 'pushType', width: 24 },
-        { header: '设备视频流优先传输协议', key: 'transPriority', width: 24 },
+        { header: '设备视频流优先传输协议', key: 'transPriority', width: 24 }
         // { header: '视频包', key: 'videoPackage', width: 24 },
         // { header: 'AI包', key: 'AIPackage', width: 24 },
         // { header: '上行带宽包', key: 'BWPackage', width: 24 }
@@ -104,7 +104,7 @@ export default class ExcelMixin extends Vue {
         { header: '主子码流数量', key: 'multiStreamSize', width: 16 },
         { header: '自动拉流', key: 'pullType', width: 10 },
         { header: '自动拉取码流', key: 'AutoStreamNum', width: 16 },
-        { header: '设备通道数量', key: 'channelSize', width: 16 },
+        { header: '设备通道数量', key: 'channelSize', width: 16 }
         // { header: '视频包', key: 'videoPackage', width: 24 },
         // { header: 'AI包', key: 'AIPackage', width: 24 },
         // { header: '上行带宽包', key: 'BWPackage', width: 24 }
