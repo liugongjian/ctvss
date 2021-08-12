@@ -202,6 +202,11 @@ export default class extends Vue {
     this.viewType = 'timeline'
   }
 
+  @Watch('recordListSlice.length')
+  private onRecordListSliceChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
+  }
+
   /**
    * 初始化
    */

@@ -188,6 +188,11 @@ export default class CreateMixin extends Vue {
     if (this.type === 'nvr') this.getDeviceInfo(this.type)
   }
 
+  @Watch('deviceList.length')
+  public onDeviceListChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
+  }
+
   public reset() {
     this.deviceInfo = null
     this.deviceList = []

@@ -44,7 +44,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import { getUserRoleList } from '@/api/accessManage'
 import { UserModule } from '@/store/modules/user'
 @Component({
@@ -59,6 +59,11 @@ export default class extends Vue {
     pageNum: 1,
     pageSize: 10,
     total: 0
+  }
+
+  @Watch('roleList.length')
+  private onRoleListChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
   }
 
   private get inRole() {

@@ -127,6 +127,11 @@ export default class extends Vue {
     this.getAlertList()
   }
 
+  @Watch('alertList.length')
+  private onAlertListChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
+  }
+
   private handleCreate() {
     this.$router.push({
       path: '/stream/create'
