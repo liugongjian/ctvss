@@ -45,7 +45,7 @@
   </el-dialog>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { getAlertBindList } from '@/api/template'
 
 @Component({
@@ -62,6 +62,12 @@ export default class extends Vue {
   private loading = false
   private bindData = []
   private filtersArray = [{ text: '组', value: 'group' }, { text: '设备', value: 'device' }]
+
+  @Watch('bindData.length')
+  private onBindDataChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
+  }
+
   private async mounted() {
     this.getCallbackBindMethod()
   }
