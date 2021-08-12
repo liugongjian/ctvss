@@ -49,7 +49,7 @@
 </template>
 
 <script lang='ts'>
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import { AnonymousType } from '@/dics'
 import { dateFormatInTable } from '@/utils/date'
 import { getList, deleteCertificate } from '@/api/certificate/gb28181'
@@ -69,8 +69,12 @@ export default class extends Vue {
     pageSize: 10,
     total: 0
   }
-
   private dateFormatInTable = dateFormatInTable
+
+  @Watch('dataList.length')
+  private onDataListChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
+  }
 
   private async refresh() {
     await this.getList()

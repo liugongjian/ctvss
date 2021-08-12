@@ -59,7 +59,7 @@
 </template>
 
 <script lang='ts'>
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import { RecordTemplate } from '@/type/template'
 import { dateFormatInTable } from '@/utils/date'
 import { getRecordTemplates, deleteRecordTemplate } from '@/api/template'
@@ -80,10 +80,14 @@ export default class extends Vue {
     pageSize: 10,
     total: 0
   }
-
   private dateFormatInTable = dateFormatInTable
   private showViewBindDialog = false
   private currentTemplateId: any
+
+  @Watch('dataList.length')
+  private onDataListChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
+  }
 
   private async mounted() {
     await this.getList()
