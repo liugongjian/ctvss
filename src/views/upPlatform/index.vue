@@ -414,6 +414,8 @@ export default class extends Vue {
     if (!this.currentPlatform.platformId) {
       return
     }
+    console.log(node);
+    
     let params: any = {
       platformId: this.currentPlatform.platformId,
       inProtocol: node.inProtocol,
@@ -561,6 +563,7 @@ export default class extends Vue {
         return {
           ...dir,
           groupId: node.data.groupId,
+          inProtocol: node.data.inProtocol,
           platformId: this.currentPlatform.platformId,
           type: this.dirTypeMap[dir.dirType],
           label: dir.dirName,
