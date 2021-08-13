@@ -152,7 +152,6 @@ export default class extends Vue {
       const shareDeviceIds = shareDevices.devices.map((device: any) => {
         return device.deviceId
       })
-      console.log(shareDeviceIds, 'shareDeviceIds')
       const devices: any = await getDeviceTree({
         groupId: node.data.groupId,
         id: node.data.type === 'group' ? 0 : node.data.id,
@@ -239,8 +238,6 @@ export default class extends Vue {
       this.submitting = true
       const groups: any = []
       this.deviceList.forEach((item: any) => {
-        console.log(item);
-        
         // 构建group
         const groupId = item.path[0].id
         const inProtocol = item.path[0].inProtocol
