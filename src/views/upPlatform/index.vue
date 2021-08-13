@@ -414,8 +414,6 @@ export default class extends Vue {
     if (!this.currentPlatform.platformId) {
       return
     }
-    console.log(node);
-    
     let params: any = {
       platformId: this.currentPlatform.platformId,
       inProtocol: node.inProtocol,
