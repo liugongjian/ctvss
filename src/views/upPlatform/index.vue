@@ -416,7 +416,7 @@ export default class extends Vue {
     }
     let params: any = {
       platformId: this.currentPlatform.platformId,
-      inProtocol: 'gb28181',
+      inProtocol: node.inProtocol,
       groupId: node.groupId,
       dirId: node.dirId || '0',
       dirType: node.dirType || '0',
@@ -434,7 +434,7 @@ export default class extends Vue {
         try {
           await cancleShareDir({
             platformId: this.currentPlatform.platformId,
-            inProtocol: 'gb28181',
+            inProtocol: node.inProtocol,
             groupId: node.groupId,
             dirId: node.dirId
           })
@@ -512,7 +512,7 @@ export default class extends Vue {
       if (res.groups.length) {
         this.hasDir = true
         res.groups.forEach((group: any) => {
-          group.inProtocol === 'gb28181' && (
+          (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome') && (
             this.dirList.push({
               id: group.groupId,
               groupId: group.groupId,
@@ -554,7 +554,7 @@ export default class extends Vue {
       const res = await describeShareDirs({
         groupId: node.data.groupId,
         dirId: node.data.type === 'group' ? 0 : node.data.dirId,
-        inProtocol: 'gb28181',
+        inProtocol: node.data.inProtocol,
         platformId: this.currentPlatform.platformId
       })
       const dirs = res.dirs.map((dir: any) => {
