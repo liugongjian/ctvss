@@ -312,8 +312,9 @@ export default class extends Mixins(createMixin) {
     this.lianzhouFlag = this.$store.state.user.tags.isLianZhouEdu === 'Y'
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
-      this.lianzhouFlag ? this.lianzhouCascaderInit() : this.addressCascaderInit()
+      this.lianzhouFlag && this.lianzhouCascaderInit()
     } else {
+      this.addressCascaderInit()
       this.form.dirId = this.dirId
     }
     this.form.inProtocol = this.inProtocol
