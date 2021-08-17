@@ -58,7 +58,7 @@
         <el-input v-show="false" v-model="keyword" class="filter-container__search-group" placeholder="请输入关键词">
           <el-button slot="append" class="el-button-rect"><svg-icon name="search" /></el-button>
         </el-input>
-        <el-button class="el-button-rect" @click="init"><svg-icon name="refresh" /></el-button>
+        <el-button v-if="!isChannel" class="el-button-rect filter-container__sync-button" :disabled="loading.syncDeviceStatus" :class="{'loading': loading.syncDeviceStatus}" @click="syncDeviceStatus"><svg-icon name="refresh" />同步设备状态</el-button>
       </div>
     </div>
     <div v-if="hasFiltered" class="filter-container filter-buttons">

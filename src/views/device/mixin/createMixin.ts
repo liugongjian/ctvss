@@ -14,6 +14,7 @@ export default class CreateMixin extends Vue {
   public resourcesMapping: any = {}
   public orginalResourceIdList: Array<string> = []
   public orginalChannelSize = 0
+  public inNetworkType = ''
 
   public loading = {
     account: false,
@@ -63,8 +64,9 @@ export default class CreateMixin extends Vue {
     return DeviceModule.breadcrumb
   }
 
-  public get isPrivateUser() {
-    return UserModule.tags && UserModule.tags.networkType !== 'public'
+  public get isPrivateInNetwork() {
+    // 移植到这里统一判断
+    return this.inNetworkType ? this.inNetworkType !== 'public' : this.currentGroup?.inNetworkType !== 'public'
   }
 
   public get isFreeUser() {
@@ -164,6 +166,7 @@ export default class CreateMixin extends Vue {
         deviceType: deviceType,
         inProtocol: inProtocol
       })
+      this.inNetworkType = resourcesRes.inNetworkType
       this.form.resources = resourcesRes.resources
       this.orginalResourceIdList = resourcesRes.resources.map((resource: any) => resource.resourceId)
     } catch (e) {
@@ -243,7 +246,7 @@ export default class CreateMixin extends Vue {
           hasResource[resource.resourceType].isSelect = true
         })
         for (let key in hasResource) {
-          if (key === 'VSS_UPLOAD_BW' && this.isPrivateUser) continue
+          if (key === 'VSS_UPLOAD_BW' && this.isPrivateInNetwork) continue
           if (key === 'VSS_AI' && this.form.inProtocol !== 'gb28181') continue
           const resource = hasResource[key]
           if (!resource.isSelect) {
@@ -324,7 +327,7 @@ export default class CreateMixin extends Vue {
       callback(new Error('请填写经度及纬度坐标'))
     } else if (!/^[-+]?(0(\.\d{1,10})?|([1-9](\d)?)(\.\d{1,10})?|1[0-7]\d{1}(\.\d{1,10})?|180\.0{1,10})$/.test(this.form.deviceLongitude)) {
       callback(new Error('经度坐标格式错误'))
-    } else if (!/^[-+]?((0|([1-8]\d?))(\.\d{1,10})?|90(\.0{1,10})?)$/.test(this.form.deviceLatitude)) {
+    } else if (!/^[-+]?((0|([1-9]\d?))(\.\d{1,10})?|90(\.0{1,10})?)$/.test(this.form.deviceLatitude)) {
       callback(new Error('纬度坐标格式错误'))
     } else {
       callback()
@@ -372,11 +375,11 @@ export default class CreateMixin extends Vue {
     })
     if (remainError.length) {
       callback(new Error(`${remainError.join(',')}接入设备余量不足，请增加包资源！`))
-    } else if (!this.isUpdate && !hasVideo && !hasUpload && !this.isPrivateUser && !this.isFreeUser) {
+    } else if (!this.isUpdate && !hasVideo && !hasUpload && !this.isPrivateInNetwork && !this.isFreeUser) {
       callback(new Error('资源包必须配置视频包与上行带宽包'))
     } else if (!this.isUpdate && !hasVideo && !this.isFreeUser) {
       callback(new Error('必须配置视频包'))
-    } else if (!this.isUpdate && !hasUpload && !this.isPrivateUser && !this.isFreeUser) {
+    } else if (!this.isUpdate && !hasUpload && !this.isPrivateInNetwork && !this.isFreeUser) {
       callback(new Error('必须配置上行带宽包'))
     } else {
       callback()

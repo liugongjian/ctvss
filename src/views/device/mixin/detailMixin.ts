@@ -10,8 +10,8 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 import AntiTheftChain from '../components/AntiTheftChain.vue'
 import { checkPermission } from '@/utils/permission'
 import { regionList } from '@/assets/region/lianzhouRegion'
-import { UserModule } from '@/store/modules/user'
 import copy from 'copy-to-clipboard'
+import { isThisHour } from 'date-fns'
 
 @Component({
   components: {
@@ -30,6 +30,7 @@ export default class DetailMixin extends Vue {
   public recordStatus = RecordStatus
   public authStatus = AuthStatus
   public inType = InType
+  public inNetworkType = ''
   public pullType = PullType
   public pushType = PushType
   public transPriority = TransPriority
@@ -112,7 +113,7 @@ export default class DetailMixin extends Vue {
 
   public async mounted() {
     // TODO: 连州教育局一机一档专用
-    this.lianzhouFlag = this.$store.state.user.mainUserID === '30003'
+    this.lianzhouFlag = this.$store.state.user.tags.isLianZhouEdu === 'Y'
     await this.getDevice()
     await this.getDeviceResources()
     this.lianzhouFlag && await this.getLianzhouAddress()
@@ -143,8 +144,8 @@ export default class DetailMixin extends Vue {
     })
   }
 
-  public get isPrivateUser() {
-    return UserModule.tags && UserModule.tags.networkType !== 'public'
+  public get isPrivateInNetwork() {
+    return this.inNetworkType && this.inNetworkType !== 'public'
   }
 
   /**
@@ -190,12 +191,13 @@ export default class DetailMixin extends Vue {
         deviceType: this.info!.deviceType,
         inProtocol: this.info!.inProtocol
       })
+      this.inNetworkType = resourcesRes.inNetworkType
       const resourcesMapping: any = {
         'VSS_VIDEO': false,
         'VSS_UPLOAD_BW': false,
         'VSS_AI': false
       }
-      if (this.isPrivateUser) {
+      if (this.isPrivateInNetwork) {
         delete resourcesMapping['VSS_UPLOAD_BW']
       }
       if (this.info?.inProtocol !== 'gb28181') {

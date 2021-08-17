@@ -3,7 +3,7 @@ import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
 import { DeviceParams, DeviceStatus, StreamStatus, RecordStatus, DeviceGb28181Type, SipTransType, StreamTransType, TransPriority } from '@/dics'
 import { Device } from '@/type/device'
 import { GroupModule } from '@/store/modules/group'
-import { deleteDevice, startDevice, stopDevice, getDevice, getDevices, startRecord, stopRecord, syncDevice } from '@/api/device'
+import { deleteDevice, startDevice, stopDevice, getDevice, getDevices, startRecord, stopRecord, syncDevice, syncDeviceStatus } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MoveDir from '../components/dialogs/MoveDir.vue'
 import UploadExcel from '../components/dialogs/UploadExcel.vue'
@@ -44,7 +44,8 @@ export default class CreateMixin extends Vue {
   public loading = {
     info: false,
     list: false,
-    syncDevice: false
+    syncDevice: false,
+    syncDeviceStatus: false
   }
   public dialog = {
     moveDir: false,
@@ -212,6 +213,7 @@ export default class CreateMixin extends Vue {
    * 初始化
    */
   public init() {
+    this.parentDeviceId = ''
     if (!this.groupId || !this.inProtocol) return
     switch (this.type) {
       case 'platform':
@@ -734,6 +736,38 @@ export default class CreateMixin extends Vue {
       this.$message.error(e && e.message)
     } finally {
       this.loading.syncDevice = false
+    }
+  }
+
+  /**
+   * 设备同步状态
+   */
+  public async syncDeviceStatus() {
+    let deviceIdAndTypes = []
+    if (this.isNVR) {
+      deviceIdAndTypes.push({
+        deviceId: this.deviceId,
+        devicieType: 'nvr'
+      })
+    } else {
+      deviceIdAndTypes = this.deviceList.map(device => {
+        return {
+          deviceId: device.deviceId,
+          deviceType: device.deviceType
+        }
+      })
+    }
+    try {
+      this.loading.syncDeviceStatus = true
+      await syncDeviceStatus({
+        deviceIdAndTypes,
+        inProtocol: this.inProtocol
+      })
+      this.init()
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.loading.syncDeviceStatus = false
     }
   }
 
