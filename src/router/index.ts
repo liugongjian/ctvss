@@ -811,16 +811,30 @@ export const asyncRoutes: RouteConfig[] = [
           perms: ['*']
         }
       },
-
       {
-        path: 'add',
-        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/AI/applist/addApp.vue'),
+        path: 'addapp',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/AI/applist/addapp.vue'),
         name: 'AI-AddApp',
         meta: {
           id: '20210424150201010004',
           title: '添加应用',
           icon: 'dot',
           hidden: true,
+          breadcrumb: true,
+          activeMenu: '/AI-AppList',
+          perms: ['*']
+        }
+      },
+      {
+        path: 'appdetail',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/AI/applist/appdetail.vue'),
+        name: 'AI-AppDetail',
+        meta: {
+          id: '20210424150201010004',
+          title: '应用详情',
+          icon: 'dot',
+          hidden: true,
+          breadcrumb: false,
           activeMenu: '/AI-AppList',
           perms: ['*']
         }

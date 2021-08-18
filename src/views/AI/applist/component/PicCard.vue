@@ -1,31 +1,25 @@
 
 <template>
-  <el-card shadow="hover">
+  <el-card>
     <div class="pic-wrapper">
       <el-image src="static/svg/u1851.svg" />
     </div>
     <div class="content-wrapper">
-      <div class="prod-name">{{ prod.name }}</div>
-      <div class="prod-desc">{{ prod.description }}</div>
-      <div class="oprator">
-        <el-button type="warning" size="small" @click="onChooseProd">选择</el-button>
-        <el-link type="warning">查看算法介绍</el-link>
-      </div>
+      <div class="prod-name">{{ pic.time }}</div>
+      <div class="prod-desc">{{ pic.device }}</div>
+      <div class="prod-desc">{{ pic.rate }}</div>
     </div>
   </el-card>
 </template>
 <script>
 /* eslint-disable vue/require-prop-types */
 export default {
-  props: ['prod'],
+  props: ['pic'],
   data() {
     return {
     }
   },
   methods: {
-    onChooseProd() {
-      this.$emit('changeStep', { step: 1, prod: this.prod })
-    }
   }
 }
 </script>
@@ -35,6 +29,7 @@ export default {
     height:40%;
     min-width: 100px;
     margin-top: 2%;
+    display: inline-block;
     ::v-deep .el-card__body{
         height: 100%;
     }

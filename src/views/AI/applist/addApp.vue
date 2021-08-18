@@ -1,19 +1,23 @@
 <template>
-  <div>
-    <el-row>
-      <el-col :span="4">
-        <el-steps :active="step+1">
-          <el-step title="选择AI算法" />
-          <el-step title="创建AI应用" />
-        </el-steps>
-      </el-col>
-    </el-row>
-    <div v-show="!step">
-      <AlgoOption :step.sync="step" :prod.sync="prod" />
-    </div>
-    <div v-show="step">
-      <AlgoDetail :step.sync="step" :prod="prod" />
-    </div>
+  <div class="app-container">
+    <el-card v-loading="isLoading">
+      <div class="head">
+        <el-row>
+          <el-col :span="8">
+            <el-steps :active="step+1" simple>
+              <el-step title="选择AI算法" />
+              <el-step title="创建AI应用" />
+            </el-steps>
+          </el-col>
+        </el-row>
+      </div>
+      <div v-show="!step">
+        <AlgoOption :step.sync="step" :prod.sync="prod" />
+      </div>
+      <div v-show="step">
+        <AlgoDetail :step.sync="step" :prod="prod" />
+      </div>
+    </el-card>
   </div>
 </template>
 <script>
@@ -26,6 +30,8 @@ export default {
       step: 0,
       prod: {}
     }
+  },
+  methods: {
   }
 }
 </script>
@@ -49,5 +55,8 @@ export default {
     height: 60vh;
     min-width: 1200px;
     min-height: 400px;
+}
+.head{
+   margin-bottom: 20px;
 }
 </style>

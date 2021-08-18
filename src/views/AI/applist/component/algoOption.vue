@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-row>
-      <el-tabs v-model="activeName" type="border-card" @tab-click="handleTabType">
+      <el-tabs v-model="activeName" @tab-click="handleTabType">
         <el-tab-pane v-for="tab in tabInfo" :key="tab.name" :label="tab.label" :name="tab.name">
           <div class="card-container">
             <ProdCard v-for="prod in prodInfo" :key="prod.id" :prod="prod" @changeStep="changeStep" />
