@@ -16,7 +16,7 @@
               <el-tooltip class="item" effect="dark" content="刷新目录" placement="top" :open-delay="300">
                 <el-button type="text" @click="initDirs"><svg-icon name="refresh" /></el-button>
               </el-tooltip>
-              <el-tooltip v-permission="['*']" class="item" effect="dark" content="添加目录" placement="top" :open-delay="300">
+              <el-tooltip v-if="!isVGroup && checkPermission(['*'])" class="item" effect="dark" content="添加目录" placement="top" :open-delay="300">
                 <el-button type="text" @click="openDialog('createDir')"><svg-icon name="plus" /></el-button>
               </el-tooltip>
               <el-tooltip v-if="false" class="item" effect="dark" content="目录设置" placement="top" :open-delay="300">
@@ -51,7 +51,7 @@
                     <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
                     {{ node.label }} <span class="alert-type">{{ renderAlertType(data) }}</span>
                   </span>
-                  <div v-if="data.type === 'dir' && checkPermission(['*'])" class="tools">
+                  <div v-if="data.type === 'dir' && !isVGroup && checkPermission(['*'])" class="tools">
                     <el-tooltip class="item" effect="dark" content="添加子目录" placement="top" :open-delay="300">
                       <el-button type="text" @click.stop="openDialog('createDir', data)"><svg-icon name="plus" /></el-button>
                     </el-tooltip>
@@ -97,6 +97,7 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 import { deleteDir } from '@/api/dir'
 import { renderAlertType } from '@/utils/device'
 import { checkPermission } from '@/utils/permission'
+import { VGroupModule } from '@/store/modules/vgroup'
 
 @Component({
   name: 'Device',
@@ -129,6 +130,7 @@ export default class extends Mixins(DeviceMixin) {
   }
 
   private destroyed() {
+    VGroupModule.resetVGroupInfo()
     window.removeEventListener('resize', this.calMaxHeight)
   }
 
@@ -210,6 +212,7 @@ export default class extends Mixins(DeviceMixin) {
     const dirTree: any = this.$refs.dirTree
     dirTree.setCurrentKey(null)
     await DeviceModule.ResetBreadcrumb()
+    await VGroupModule.resetVGroupInfo()
     this.deviceRouter({
       id: '0',
       type: 'dir'

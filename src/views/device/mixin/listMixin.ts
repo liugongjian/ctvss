@@ -18,7 +18,7 @@ import { checkPermission } from '@/utils/permission'
     Resource
   }
 })
-export default class CreateMixin extends Vue {
+export default class ListMixin extends Vue {
   @Inject('deviceRouter')
   public deviceRouter!: Function
   @Inject('initDirs')
@@ -87,12 +87,25 @@ export default class CreateMixin extends Vue {
     return this.$route.query.inProtocol === 'gb28181'
   }
 
+  public get isVGroup() {
+    return this.$route.query.inProtocol === 'vgroup'
+  }
+
   public get type() {
     return this.$route.query.type
   }
 
   public get isNVR() {
     return this.$route.query.type === 'nvr'
+  }
+
+  public get showRole() {
+    const query = this.$route.query
+    return query.inProtocol === 'vgroup' && query.type === 'dir' && query.dirId === '0'
+  }
+
+  public get showRealGroup() {
+    return this.$route.query.type === 'role'
   }
 
   public get isChannel() {
@@ -109,6 +122,10 @@ export default class CreateMixin extends Vue {
 
   public get isDir() {
     return this.$route.query.type === 'dir'
+  }
+
+  public get isRealGroup() {
+    return this.$route.query.type === 'group'
   }
 
   public get isPlatformDir() {
@@ -319,6 +336,7 @@ export default class CreateMixin extends Vue {
       let params: any = {
         groupId: this.groupId,
         inProtocol: this.inProtocol,
+        type: this.type === 'role' || this.type === 'group' ? this.type : undefined,
         pageNum: this.pager.pageNum,
         pageSize: this.pager.pageSize,
         deviceType: this.filter.deviceType,

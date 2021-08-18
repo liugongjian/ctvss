@@ -39,7 +39,11 @@
             {{ inProtocolType[row.inProtocol] }}
           </template>
         </el-table-column>
-        <el-table-column prop="regionName" label="接入区域" min-width="120" />
+        <el-table-column prop="regionName" label="接入区域" min-width="120">
+          <template slot-scope="scope">
+            {{ scope.row.inProtocol === 'vgroup' ? '-' : scope.row.regionName }}
+          </template>
+        </el-table-column>
         <el-table-column prop="deviceSize" label="设备总数" min-width="90">
           <template slot-scope="scope">{{ scope.row.groupStats && scope.row.groupStats.deviceSize }}</template>
         </el-table-column>
@@ -68,10 +72,10 @@
             <el-dropdown v-if="checkPermission(['*'])" @command="handleMore">
               <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item v-if="scope.row.groupStatus === 'on'" :command="{type: 'stop', group: scope.row}">停用</el-dropdown-item>
-                <el-dropdown-item v-if="scope.row.groupStatus === 'off'" :command="{type: 'start', group: scope.row}">启用</el-dropdown-item>
+                <el-dropdown-item v-if="scope.row.inProtocol !== 'vgroup' && scope.row.groupStatus === 'on'" :command="{type: 'stop', group: scope.row}">停用</el-dropdown-item>
+                <el-dropdown-item v-if="scope.row.inProtocol !== 'vgroup' && scope.row.groupStatus === 'off'" :command="{type: 'start', group: scope.row}">启用</el-dropdown-item>
                 <el-dropdown-item :command="{type: 'update', group: scope.row}">编辑</el-dropdown-item>
-                <el-tooltip content="请先停用业务组后进行删除操作" :disabled="scope.row.groupStatus === 'off'">
+                <el-tooltip v-if="scope.row.inProtocol !== 'vgroup'" content="请先停用业务组后进行删除操作" :disabled="scope.row.groupStatus === 'off'">
                   <span><el-dropdown-item :disabled="scope.row.groupStatus === 'on'" :command="{type: 'delete', group: scope.row}">删除</el-dropdown-item></span>
                 </el-tooltip>
               </el-dropdown-menu>
@@ -109,7 +113,10 @@ export default class extends Vue {
   private checkPermission = checkPermission
   private loading = false
   private groupStatus = GroupStatus
-  private inProtocolType = InProtocolType
+  private inProtocolType = {
+    ...InProtocolType,
+    'vgroup': 'VGROUP'
+  }
   private groupName = ''
   private dataList: Array<Group> = []
   private pager = {

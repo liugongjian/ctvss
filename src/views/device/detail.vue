@@ -8,6 +8,7 @@ import rtmp from './device-rtmp/detail.vue'
 import rtsp from './device-rtsp/detail.vue'
 import onvif from './device-onvif/detail.vue'
 import ehome from './device-ehome/detail.vue'
+import vgroup from './device-vgroup/detail.vue'
 
 @Component({
   name: 'DetailList',
@@ -16,7 +17,8 @@ import ehome from './device-ehome/detail.vue'
     rtmp,
     rtsp,
     onvif,
-    ehome
+    ehome,
+    vgroup
   }
 })
 export default class extends Vue {

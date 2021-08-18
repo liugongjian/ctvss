@@ -87,6 +87,10 @@ export default class DetailMixin extends Vue {
     return this.$route.query.inProtocol === 'gb28181'
   }
 
+  public get isVGroup() {
+    return this.$route.query.inProtocol === 'vgroup'
+  }
+
   public get isNVRChannel() {
     return this.info && this.info.parentDeviceId !== '-1'
   }

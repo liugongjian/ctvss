@@ -2,6 +2,7 @@ import { Component, Provide, Vue } from 'vue-property-decorator'
 import { DeviceModule } from '@/store/modules/device'
 import { GroupModule } from '@/store/modules/group'
 import { getDeviceTree } from '@/api/device'
+import { VGroupModule } from '@/store/modules/vgroup'
 
 @Component
 export default class DeviceMixin extends Vue {
@@ -38,6 +39,10 @@ export default class DeviceMixin extends Vue {
     return GroupModule.group?.inProtocol
   }
 
+  public get isVGroup() {
+    return GroupModule.group?.inProtocol === 'vgroup'
+  }
+
   public get breadcrumb() {
     return DeviceModule.breadcrumb ? DeviceModule.breadcrumb : []
   }
@@ -52,6 +57,7 @@ export default class DeviceMixin extends Vue {
   @Provide('initDirs')
   public async initDirs() {
     try {
+      VGroupModule.resetVGroupInfo()
       this.loading.dir = true
       await DeviceModule.ResetBreadcrumb()
       const res = await getDeviceTree({
@@ -60,7 +66,6 @@ export default class DeviceMixin extends Vue {
       })
       this.dirList = this.setDirsStreamStatus(res.dirs)
       this.$nextTick(() => {
-        console.log('this.initTreeStatus()')
         this.initTreeStatus()
       })
     } catch (e) {
@@ -131,6 +136,17 @@ export default class DeviceMixin extends Vue {
    */
   public async loadDirChildren(key: string, node: any) {
     try {
+      if (this.currentGroup?.inProtocol === 'vgroup') {
+        if (node.data.type === 'role') {
+          node.data.roleId = node.data.id
+        } else if (node.data.type === 'group') {
+          node.data.realGroupId = node.data.id
+          node.data.realGroupInProtocol = node.data.inProtocol
+        }
+        VGroupModule.SetRoleID(node.data.roleId || '')
+        VGroupModule.SetRealGroupId(node.data.realGroupId || '')
+        VGroupModule.SetRealGroupInProtocol(node.data.realGroupInProtocol || '')
+      }
       const dirTree: any = this.$refs.dirTree
       let data = await getDeviceTree({
         groupId: this.currentGroupId,
@@ -138,6 +154,13 @@ export default class DeviceMixin extends Vue {
         type: node.data.type
       })
       if (data.dirs) {
+        if (this.currentGroup?.inProtocol === 'vgroup') {
+          data.dirs.forEach((dir: any) => {
+            dir.roleId = node.data.roleId || ''
+            dir.realGroupId = node.data.realGroupId || ''
+            dir.realGroupInProtocol = node.data.realGroupInProtocol || ''
+          })
+        }
         if (node.data.type === 'nvr') {
           data.dirs = this.setDirsStreamStatus(data.dirs)
         }
@@ -178,6 +201,9 @@ export default class DeviceMixin extends Vue {
    */
   @Provide('deviceRouter')
   public async deviceRouter(item: any, node?: any) {
+    console.log('deviceRouter 22222222222')
+    console.log('---item: ', item)
+    console.log('---node: ', node)
     const dirTree: any = this.$refs.dirTree
     let _node: any
     if (!node) {
@@ -193,10 +219,26 @@ export default class DeviceMixin extends Vue {
       _node = node
       _node.expanded = true
     }
-    _node && DeviceModule.SetBreadcrumb(this.getDirPath(_node).reverse())
+    if (_node) {
+      DeviceModule.SetBreadcrumb(this.getDirPath(_node).reverse())
+      // 跳转前设置虚拟业务组相关信息
+      VGroupModule.SetRoleID(_node.data.roleId || '')
+      VGroupModule.SetRealGroupId(_node.data.realGroupId || '')
+      VGroupModule.SetRealGroupInProtocol(_node.data.realGroupInProtocol || '')
+    }
     let router: any
     let query: any = {}
     switch (item.type) {
+      case 'role':
+      case 'group':
+        router = {
+          name: 'device-list'
+        }
+        query = {
+          dirId: item.id,
+          type: item.type
+        }
+        break
       case 'platformDir':
       case 'dir':
         router = {
@@ -273,6 +315,12 @@ export default class DeviceMixin extends Vue {
       path: this.breadcrumb.map((item: any) => item.id).join(','),
       ...query
     }
+
+    if (_node && this.currentGroupInProtocol === 'vgroup') {
+      router.query.realGroupInProtocol = _node.data.realGroupInProtocol || ''
+    } else {
+      delete router.query.realGroupInProtocol
+    }
     if (JSON.stringify(this.$route.query) === JSON.stringify(router.query)) return
     this.$router.push(router)
   }
@@ -309,13 +357,32 @@ export default class DeviceMixin extends Vue {
    * 加载目录
    */
   public async loadDirs(node: any, resolve: Function) {
+    console.log('loadDirs 1111111')
     if (node.level === 0) return resolve([])
+    if (this.currentGroup?.inProtocol === 'vgroup') {
+      if (node.data.type === 'role') {
+        node.data.roleId = node.data.id
+      } else if (node.data.type === 'group') {
+        node.data.realGroupId = node.data.id
+        node.data.realGroupInProtocol = node.data.inProtocol
+      }
+      VGroupModule.SetRoleID(node.data.roleId || '')
+      VGroupModule.SetRealGroupId(node.data.realGroupId || '')
+      VGroupModule.SetRealGroupInProtocol(node.data.realGroupInProtocol || '')
+    }
     try {
       const res = await getDeviceTree({
         groupId: this.currentGroupId,
         id: node.data.id,
         type: node.data.type
       })
+      if (this.currentGroup?.inProtocol === 'vgroup') {
+        res.dirs.forEach((dir: any) => {
+          dir.roleId = node.data.roleId || ''
+          dir.realGroupId = node.data.realGroupId || ''
+          dir.realGroupInProtocol = node.data.realGroupInProtocol || ''
+        })
+      }
       if (node.data.type === 'nvr') {
         res.dirs = this.sortDirs(res.dirs)
       }
