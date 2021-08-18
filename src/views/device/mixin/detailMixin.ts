@@ -11,7 +11,6 @@ import AntiTheftChain from '../components/AntiTheftChain.vue'
 import { checkPermission } from '@/utils/permission'
 import { regionList } from '@/assets/region/lianzhouRegion'
 import copy from 'copy-to-clipboard'
-import { isThisHour } from 'date-fns'
 
 @Component({
   components: {
