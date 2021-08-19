@@ -84,7 +84,7 @@ export default class ListMixin extends Vue {
   }
 
   public get isGb() {
-    return this.$route.query.inProtocol === 'gb28181'
+    return this.$route.query.inProtocol === 'gb28181' || this.$route.query.realGroupInProtocol === 'gb28181'
   }
 
   public get isVGroup() {
@@ -423,7 +423,7 @@ export default class ListMixin extends Vue {
    */
   public rowClick(device: Device, column: any) {
     if (column.property !== 'action' && column.property !== 'selection') {
-      const type = device.deviceType === 'ipc' ? 'detail' : device.deviceType
+      const type = device.deviceType === 'ipc' ? 'detail' : device.deviceType || (this.showRole ? 'role' : this.showRealGroup ? 'group' : '')
       this.deviceRouter({
         id: device.deviceId,
         type

@@ -201,9 +201,6 @@ export default class DeviceMixin extends Vue {
    */
   @Provide('deviceRouter')
   public async deviceRouter(item: any, node?: any) {
-    console.log('deviceRouter 22222222222')
-    console.log('---item: ', item)
-    console.log('---node: ', node)
     const dirTree: any = this.$refs.dirTree
     let _node: any
     if (!node) {
@@ -357,7 +354,6 @@ export default class DeviceMixin extends Vue {
    * 加载目录
    */
   public async loadDirs(node: any, resolve: Function) {
-    console.log('loadDirs 1111111')
     if (node.level === 0) return resolve([])
     if (this.currentGroup?.inProtocol === 'vgroup') {
       if (node.data.type === 'role') {
