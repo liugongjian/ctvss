@@ -65,12 +65,16 @@ export const deleteDevice = (params: any): Promise<any> =>
 /**
  * 获取设备目录树
  */
-export const getDeviceTree = (params: any): Promise<any> =>
-  request({
+export const getDeviceTree = (params: any): Promise<any> => {
+  const headers = params['self-defined-headers']
+  delete params['self-defined-headers']
+  return request({
     url: '/device/tree',
     method: 'get',
-    params
+    params,
+    headers: headers
   })
+}
 
 /**
  * 获取设备预览地址

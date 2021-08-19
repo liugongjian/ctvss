@@ -463,7 +463,7 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'up-platform',
         meta: {
           id: '20210524150201007001',
-          title: 'GB28181级联',
+          title: '国标级联',
           icon: 'dot',
           perms: ['GET']
         }
