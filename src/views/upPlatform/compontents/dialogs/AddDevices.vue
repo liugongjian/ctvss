@@ -146,7 +146,6 @@ export default class extends Vue {
         node.data.realGroupInProtocol = node.data.inProtocol
       }
       let shareDeviceIds: any = []
-      console.log('node.data: ', node.data)
       if (node.data.type !== 'vgroup' && node.data.type !== 'role') {
         let params: any = {
           platformId: this.platformId,
@@ -251,7 +250,6 @@ export default class extends Vue {
    * 提交
    */
   private async submit() {
-    console.log('this.deviceList: ', this.deviceList)
     if (!this.deviceList.length) {
       this.$message.error('未选择任何资源')
       return
