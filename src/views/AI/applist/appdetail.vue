@@ -15,7 +15,7 @@
               />
             </el-select>
             <div ref="faceoptions" class="face-options">
-              <div v-for="item in faceInfos" :key="item.name" class="option">
+              <div v-for="(item, index) in faceInfos" :id="item.id" :key="index" class="option" @click="handleFaceSelect(item)">
                 <el-image :src="item.url" />
                 <div class="option-info">
                   <span>{{ item.name }}</span>
@@ -89,94 +89,81 @@
 // @ts-ignore
 import PicCard from './component/PicCard.vue'
 import PeopleTrendChart from './component/PeopleTrendChart.vue'
-import axios from 'axios'
+
 export default {
   components: { PicCard, PeopleTrendChart },
   data() {
     return {
       appName: null,
       isExpand: false,
+      value: '',
+      faceSelected: [],
       faceInfos: [{
         url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手'
+        name: '高手高手',
+        id: '1'
       }, {
         url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手'
+        name: '高手高手',
+        id: '2'
       }, {
         url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手'
+        name: '高手高手',
+        id: '3'
       }, {
         url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手'
+        name: '高手高手',
+        id: '4'
       }, {
         url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手'
+        name: '高手高手',
+        id: '5'
       }, {
         url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手'
+        name: '高手高手',
+        id: '6'
       }, {
         url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手'
+        name: '高手高手',
+        id: '7'
       }, {
         url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手'
+        name: '高手高手',
+        id: '8'
       }, {
         url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手'
+        name: '高手高手',
+        id: '9'
       }, {
         url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手'
+        name: '高手高手',
+        id: '10'
       }, {
         url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手'
+        name: '高手高手',
+        id: '11'
       }, {
         url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手'
+        name: '高手高手',
+        id: '12'
       }, {
         url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手'
+        name: '高手高手',
+        id: '13'
       }, {
         url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手'
+        name: '高手高手',
+        id: '14'
       }, {
         url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手'
+        name: '高手高手',
+        id: '15'
       }, {
         url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手'
-      }],
-      chartData: [{
-        year: '1991',
-        value: 3
-      }, {
-        year: '1992',
-        value: 4
-      }, {
-        year: '1993',
-        value: 3.5
-      }, {
-        year: '1994',
-        value: 5
-      }, {
-        year: '1995',
-        value: 4.9
-      }, {
-        year: '1996',
-        value: 6
-      }, {
-        year: '1997',
-        value: 7
-      }, {
-        year: '1998',
-        value: 9
-      }, {
-        year: '1999',
-        value: 13
+        name: '高手高手',
+        id: '16'
       }],
       isLoading: false,
-      chart: null,
-      view1: null,
-      view2: null,
       options: [{
         value: '选项1',
         label: '全部人脸库'
@@ -231,17 +218,29 @@ export default {
       }]
     }
   },
+  computed: {
+  },
+  watch: {
+    faceSelected: function(newArr, oldArr) {
+      let difference = newArr.concat(oldArr).filter(v => !newArr.includes(v) || !oldArr.includes(v))
+      if (newArr.length < oldArr.length) {
+        document.getElementById(difference[0]).classList.remove('selected')
+      } else {
+        newArr.forEach(element => {
+          document.getElementById(element).classList.add('selected')
+        })
+      }
+    }
+  },
   created() {
   },
-  async mounted() {
-    await this.getChartData()
-  },
   methods: {
-    async getChartData() {
-      await axios({
-        url: 'https://gw.alipayobjects.com/os/antvdemo/assets/data/terrorism.json',
-        method: 'get'
-      })
+    handleFaceSelect(option) {
+      if (this.faceSelected.includes(option.id)) {
+        this.faceSelected = this.faceSelected.filter(item => item !== option.id)
+      } else {
+        this.faceSelected.push(option.id)
+      }
     },
     handleTabClick() {
       const e = document.createEvent('Event')
@@ -270,8 +269,7 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-.app-container{
-}
+
 .el-card{
     .face-filter{
         margin-bottom: 20px;
@@ -296,15 +294,21 @@ export default {
                 background   : #fff;
                 border-radius: 10px;
             }
-            // border: orange solid 1px;
+            .selected{
+                border: rgba(250,184,236) solid .5px !important;
+            }
             .option{
+                cursor: pointer;
                 display: inline-block;
                 width: 15%;
                 min-width: 167px;
                 max-width: 222px;
                 height: 54px;
-                border: red solid 1px;
+                border: rgb(192,196,204) solid .5px;
+                border-radius: 5px;
                 margin:20px 20px 0 0;
+                overflow: hidden;
+                padding:0;
                 .el-image{
                     display: inline-block;
                     height: 100%;

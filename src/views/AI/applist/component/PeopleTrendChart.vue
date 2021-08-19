@@ -10,6 +10,7 @@ import { Chart } from '@antv/g2'
 import DashboardMixin from '@/views/dashboard/mixin/DashboardMixin'
 import DashboardContainer from '@/views/dashboard/components/DashboardContainer.vue'
 import { getDeviceData, getDeviceTotal } from '@/api/dashboard'
+import DataSet from '@antv/data-set'
 
 @Component({
   name: 'DashboardDeviceChart',
@@ -36,55 +37,42 @@ export default class extends Mixins(DashboardMixin) {
   private chart: any = null
   public intervalTime = 60 * 1000
 
-  private mounted() {
-    this.timeChange()
-  }
-  private timeChange() {
-    this.destroy()
-    this.setInterval(this.getData.bind(this))
-  }
+  private chartData: any = [
+    { time: '00:00', value: 11, type: '人员聚集' },
+    { time: '00:15', value: 12, type: '人员聚集' },
+    { time: '00:30', value: 20, type: '人员聚集' },
+    { time: '00:40', value: 40, type: '人员聚集' },
+    { time: '00:50', value: 51, type: '人员聚集' },
+    { time: '01:00', value: 61, type: '人员聚集' },
+    { time: '02:10', value: 81, type: '人员聚集' },
+    { time: '03:20', value: 19, type: '人员聚集' },
+    { time: '04:10', value: 31, type: '人员聚集' },
+    { time: '05:50', value: 61, type: '人员聚集' },
+    { time: '06:00', value: 81, type: '人员聚集' },
+    { time: '07:00', value: 91, type: '人员聚集' },
+    { time: '12:20', value: 101, type: '人员聚集' },
+    { time: '20:00', value: 102, type: '人员聚集' },
+    { time: '24:00', value: 108, type: '人员聚集' }
+  ]
 
-  private flowTimeRangeChange(label: string) {
-    this.userType = this.timeList.filter((item: any) => {
-      return item.label === label
-    })[0].value
-    this.timeChange()
+  private mounted() {
+    // this.timeChange()
+    this.getData()
   }
   /**
    * 获取数据
    */
   private async getData() {
     try {
-      const end: any = new Date()
-      const start: any = new Date(end - this.userType)
-      this.loading = true
-      const res = await getDeviceData({
-        startTime: start.getTime(),
-        endTime: end.getTime()
-      })
-      const resTotal = await getDeviceTotal({
-        startTime: start.getTime(),
-        endTime: end.getTime()
-      })
-      this.loading = false
-      const deviceData = []
-      for (let key in res.deviceStatistic) {
-        const item = res.deviceStatistic[key]
-        const itemTotal = resTotal.deviceStatistic[key]
-        deviceData.push(
-          {
-            time: key,
-            type: '设备总数',
-            value: itemTotal
-          },
-          {
-            time: key,
-            type: '新增设备数',
-            value: item
-          }
-        )
-      }
-      this.deviceData = deviceData
+      // this.trendView = new DataSet.DataView().source(this.chartData)
+      // this.trendView.transform({
+      //   type: 'regression',
+      //   method: 'polynomial',
+      //   fields: ['time', 'value'],
+      //   bandwidth: 1,
+      //   // extent: [0, 4],
+      //   as: ['time', 'value']
+      // })
       this.chart ? this.updateChart() : this.drawChart()
     } catch (e) {
       // 异常处理
@@ -122,12 +110,12 @@ export default class extends Mixins(DashboardMixin) {
       autoFit: true,
       padding: [20, 30, 45, 70]
     })
-    this.chart.data(this.deviceData)
+    this.chart.data(this.chartData)
     this.chart.scale('value', {
-      alias: '设备接入数量',
-      formatter: (val: any) => {
-        return val + '台'
-      },
+      alias: ' ',
+      // formatter: (val: any) => {
+      //   return val + '台'
+      // },
       range: [0, 1],
       tickMethod: (scale: any) => {
         return this.getTickInterval(5, scale)
@@ -163,43 +151,7 @@ export default class extends Mixins(DashboardMixin) {
       triggerOn: 'mousemove',
       shared: true
     })
-    this.chart.legend({
-      offsetY: 5,
-      itemSpacing: 30,
-      items: [
-        {
-          id: '1',
-          name: '设备总数',
-          value: 'TotalDevices',
-          marker: {
-            symbol: 'square',
-            style: {
-              fill: '#6780B2'
-            },
-            spacing: 5
-          }
-        },
-        {
-          id: '2',
-          name: '新增设备数',
-          value: 'NewDevices',
-          marker: {
-            symbol: 'square',
-            style: {
-              fill: '#E4BC00'
-            },
-            spacing: 5
-          }
-        }
-      ],
-      itemName: {
-        style: {
-          fill: '#505050'
-          // fontSize: 14
-        },
-        formatter: (text: any, item: any) => item.name
-      }
-    })
+    this.chart.legend(false)
     this.chart.line().position('time*value').color('type', ['#6780B2', '#E4BC00']).shape('smooth')
     this.chart.render()
   }
@@ -207,7 +159,7 @@ export default class extends Mixins(DashboardMixin) {
    * 更新图表
    */
   private updateChart() {
-    this.chart.changeData(this.deviceData)
+    this.chart.changeData(this.chartData)
   }
 }
 </script>
