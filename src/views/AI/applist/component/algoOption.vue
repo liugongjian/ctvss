@@ -42,7 +42,7 @@ export default {
   methods: {
     changeStep(val) {
       this.$emit('update:step', val.step)
-      this.$emit('update:prod', val.prod)
+      val.prod && this.$emit('update:prod', val.prod)
     }
   }
 }

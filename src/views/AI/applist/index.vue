@@ -39,18 +39,20 @@
                 </el-table-column>
                 <el-table-column label="操作">
                   <template slot-scope="scope">
-                    <el-link type="warning">分析结果</el-link>
-                    <el-popover
-                      placement="bottom"
-                      popper-class="more"
-                      trigger="click"
-                    >
-                      <div><el-link @click="appDetail(scope.row)">应用详情</el-link></div>
-                      <div><el-link>编辑</el-link></div>
-                      <div><el-link>停用</el-link></div>
-                      <div><el-link>删除</el-link></div>
-                      <el-link slot="reference" type="warning">更多</el-link>
-                    </el-popover>
+                    <div class="result-btn-wrapper">
+                      <el-link type="warning">分析结果</el-link>
+                      <el-popover
+                        placement="bottom"
+                        popper-class="more"
+                        trigger="click"
+                      >
+                        <div><el-link @click="appDetail(scope.row)">应用详情</el-link></div>
+                        <div><el-link>编辑</el-link></div>
+                        <div><el-link>停用</el-link></div>
+                        <div><el-link>删除</el-link></div>
+                        <el-link slot="reference" type="warning">更多</el-link>
+                      </el-popover>
+                    </div>
                   </template>
                 </el-table-column>
               </el-table>
@@ -167,5 +169,10 @@ export default {
 }
 .head,.tableOp{
    margin-bottom: 20px;
+}
+.result-btn-wrapper{
+  .el-link{
+    margin-right: 10px;
+  }
 }
 </style>

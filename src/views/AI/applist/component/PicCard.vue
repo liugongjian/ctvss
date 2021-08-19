@@ -2,12 +2,19 @@
 <template>
   <el-card>
     <div class="pic-wrapper">
-      <el-image src="static/svg/u1851.svg" />
+      <el-image :src="pic.url" />
     </div>
     <div class="content-wrapper">
-      <div class="prod-name">{{ pic.time }}</div>
-      <div class="prod-desc">{{ pic.device }}</div>
-      <div class="prod-desc">{{ pic.rate }}</div>
+      <div class="info-left">
+        <div>截图时间：</div>
+        <div>设备名称：</div>
+        <div>置信度：</div>
+      </div>
+      <div class="info-right">
+        <div>{{ pic.time }}</div>
+        <div>{{ pic.device }}</div>
+        <div>{{ pic.rate }}</div>
+      </div>
     </div>
   </el-card>
 </template>
@@ -25,58 +32,48 @@ export default {
 </script>
 <style lang='scss' scoped>
 .el-card{
-    width:30%;
-    height:40%;
+    width:400px;
+    height:400px;
     min-width: 100px;
     margin-top: 2%;
+    margin-right: 2%;
     display: inline-block;
-    ::v-deep .el-card__body{
-        height: 100%;
-    }
+    position: relative;
     .pic-wrapper{
-        width: 50px;
-        height: 50px;
-        display: inline-block;
-        float: left;
-        border-radius: 50%;
-        background-color: #f2f2f2;;
-        position: relative;
-        margin-right: 3%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 70%;
         .el-image{
-            width:70%;
-            height: 70%;
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%,-50%);
+          width: 100%;
+          height: 100%;
         }
-
     }
     .content-wrapper{
-        display: inline-block;
-        width:80%;
-        height: 100%;
-        position: relative;
-        .prod-name{
-            font-weight: bold;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 30%;
+        padding-top: 5%;
+        .info-left{
+          float: left;
+          width: 30%;
+          height: 100%;
+          &>div{
+            float: right;
             margin-bottom: 15px;
+          }
         }
-        .prod-desc{
-            font-size: 14px;
+        .info-right{
+          float: left;
+          width: 60%;
+          height: 100%;
+          &>div{
+            margin-bottom: 15px;
+          }
         }
-        .oprator{
-            position: absolute;
-            bottom: 2%;
-            width: 100%;
-            .el-button{
-                margin-bottom: 2%;
-                margin-right: 14%;
-                width: 90px;
-                height: 25px;
-                padding: 4px 9px;
-            }
-        }
-
     }
 }
 </style>
