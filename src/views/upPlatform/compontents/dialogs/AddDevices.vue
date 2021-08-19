@@ -102,7 +102,7 @@ export default class extends Vue {
       })
       this.dirList = []
       res.groups.forEach((group: any) => {
-        group.inProtocol === 'gb28181' && (
+        (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome') && (
           this.dirList.push({
             id: group.groupId,
             groupId: group.groupId,
@@ -141,7 +141,7 @@ export default class extends Vue {
     try {
       let params: any = {
         platformId: this.platformId,
-        inProtocol: 'gb28181',
+        inProtocol: node.data.inProtocol,
         groupId: node.data.groupId,
         dirId: node.data.type === 'group' ? 0 : node.data.id,
         dirType: '0',
@@ -152,7 +152,6 @@ export default class extends Vue {
       const shareDeviceIds = shareDevices.devices.map((device: any) => {
         return device.deviceId
       })
-      console.log(shareDeviceIds, 'shareDeviceIds')
       const devices: any = await getDeviceTree({
         groupId: node.data.groupId,
         id: node.data.type === 'group' ? 0 : node.data.id,
@@ -241,11 +240,12 @@ export default class extends Vue {
       this.deviceList.forEach((item: any) => {
         // 构建group
         const groupId = item.path[0].id
+        const inProtocol = item.path[0].inProtocol
         let currentGroup = groups.find((group: any) => group.groupId === groupId)
         if (!currentGroup) {
           currentGroup = {
             groupId: groupId,
-            inProtocol: 'gb28181',
+            inProtocol: inProtocol,
             dirs: []
           }
           groups.push(currentGroup)
