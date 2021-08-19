@@ -9,6 +9,7 @@ import MoveDir from '../components/dialogs/MoveDir.vue'
 import UploadExcel from '../components/dialogs/UploadExcel.vue'
 import Resource from '../components/dialogs/Resource.vue'
 import { checkPermission } from '@/utils/permission'
+import { VGroupModule } from '@/store/modules/vgroup'
 
 @Component({
   components: {
@@ -146,6 +147,10 @@ export default class ListMixin extends Vue {
     return GroupModule.group?.groupId
   }
 
+  public get realGroupId() {
+    return VGroupModule.realGroupId
+  }
+
   public get groupData() {
     return GroupModule.group
   }
@@ -191,6 +196,12 @@ export default class ListMixin extends Vue {
 
   @Watch('groupId')
   public onGroupIdChange() {
+    this.reset()
+  }
+
+  @Watch('realGroupId')
+  public onRealGroupIdChange(realGroupId: string, oldRealGroupId: string) {
+    if (!realGroupId || oldRealGroupId) return
     this.reset()
   }
 
