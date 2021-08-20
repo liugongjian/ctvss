@@ -9,6 +9,7 @@
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="基本信息" name="info">
           <div>
+            <el-button @click="openCanvasDialog">画图</el-button>
             <info-list v-if="info && !isNVRChannel" label-width="110">
               <info-list-item label="设备类型:">{{ deviceType[info.deviceType] }}</info-list-item>
               <info-list-item label="设备名称:">{{ info.deviceName }}</info-list-item>
@@ -99,6 +100,7 @@
           <template-bind v-if="activeName==='template'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
       </el-tabs>
+      <canvas-draw v-if="canvasDialog" :device-id="deviceId" :in-protocol="inProtocol" :canvas-if="canvasDialog" />
     </div>
     <SetAuthConfig v-if="dialog.setAuthConfig" @on-close="closeDialog('setAuthConfig')" />
   </div>
@@ -119,6 +121,14 @@ export default class extends Mixins(detailMixin) {
     let provinceCode: number = parseInt(info.gbRegion.substring(0, 2))
     let cityCode: number = parseInt(info.gbRegion.substring(0, 4))
     return provinceMapping[provinceCode] + ' / ' + cityMapping[cityCode]
+  }
+
+  private canvasDialog = false;
+  private openCanvasDialog() {
+    this.canvasDialog = true
+  }
+  private closeCanvasDialog() {
+    this.canvasDialog = false
   }
 }
 </script>

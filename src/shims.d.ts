@@ -33,3 +33,7 @@ declare module 'vue2-timepicker'
 declare module 'js-base64'
 
 declare const CtcloudLayout: any
+
+declare module '*.jpg' {
+  export const jpg: any
+}

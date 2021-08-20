@@ -12,13 +12,15 @@ import { checkPermission } from '@/utils/permission'
 import { regionList } from '@/assets/region/lianzhouRegion'
 import copy from 'copy-to-clipboard'
 import { isThisHour } from 'date-fns'
+import CanvasDraw from '../components/canvasDraw/index.vue'
 
 @Component({
   components: {
     TemplateBind,
     SetAuthConfig,
     StatusBadge,
-    AntiTheftChain
+    AntiTheftChain,
+    CanvasDraw
   }
 })
 export default class DetailMixin extends Vue {
