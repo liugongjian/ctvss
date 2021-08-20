@@ -40,13 +40,13 @@
                 <el-table-column label="操作">
                   <template slot-scope="scope">
                     <div class="result-btn-wrapper">
-                      <el-link type="warning">分析结果</el-link>
+                      <el-link type="warning" @click="appDetail(scope.row, 1)">分析结果</el-link>
                       <el-popover
                         placement="bottom"
                         popper-class="more"
                         trigger="click"
                       >
-                        <div><el-link @click="appDetail(scope.row)">应用详情</el-link></div>
+                        <div><el-link @click="appDetail(scope.row, 0)">应用详情</el-link></div>
                         <div><el-link @click="editApp(scope.row)">编辑</el-link></div>
                         <div v-if="!parseInt(scope.row.status)"><el-link @click="handleButtonClick('on-single', scope.row)">启用</el-link></div>
                         <div v-if="parseInt(scope.row.status)"><el-link @click="handleButtonClick('off-single', scope.row)">停用</el-link></div>
@@ -166,11 +166,12 @@ export default class extends Vue {
   private addApp() {
     this.$router.push({ path: '/AI/addapp', params: { appType: 1 } })
   }
-  private appDetail(appinfo: any) {
+  private appDetail(appinfo: any, tabNum: number) {
     this.$router.push({
       name: `AI-AppDetail`,
       query: {
-        appname: appinfo.name
+        appname: appinfo.name,
+        tabNum
       }
     })
   }

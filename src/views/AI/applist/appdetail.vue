@@ -1,9 +1,9 @@
 <template>
   <div class="app-container">
     <el-card v-loading="isLoading">
-      <el-tabs type="border-card" @tab-click="handleTabClick">
-        <el-tab-pane label="基本信息">用户管理</el-tab-pane>
-        <el-tab-pane label="分析结果">
+      <el-tabs :value="this.$route.query.tabNum ? 'result' : 'basic'" type="border-card" @tab-click="handleTabClick">
+        <el-tab-pane label="基本信息" name="basic">用户管理</el-tab-pane>
+        <el-tab-pane label="分析结果" name="result">
           <div class="face-filter">
             <span>人脸库：</span>
             <el-select v-model="value" placeholder="请选择">
