@@ -795,6 +795,49 @@ export const asyncRoutes: RouteConfig[] = [
           activeMenu: '/AI',
           perms: ['*']
         }
+      },
+      {
+        path: 'AIAppList',
+        component: () => import(/* webpackChunkName: "AI" */ '@/views/AI/applist/index.vue'),
+        name: 'AI-AppList',
+        meta: {
+          id: '20210424150201010003',
+          title: 'AI应用列表',
+          icon: 'dot',
+          hidden: false,
+          breadcrumb: false,
+          only: true,
+          activeMenu: '/AI-AppList',
+          perms: ['*']
+        }
+      },
+      {
+        path: 'addapp',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/AI/applist/addapp.vue'),
+        name: 'AI-AddApp',
+        meta: {
+          id: '20210424150201010004',
+          title: '添加应用',
+          icon: 'dot',
+          hidden: true,
+          breadcrumb: true,
+          activeMenu: '/AI-AppList',
+          perms: ['*']
+        }
+      },
+      {
+        path: 'appdetail',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/AI/applist/appdetail.vue'),
+        name: 'AI-AppDetail',
+        meta: {
+          id: '20210424150201010004',
+          title: '应用详情',
+          icon: 'dot',
+          hidden: true,
+          breadcrumb: false,
+          activeMenu: '/AI-AppList',
+          perms: ['*']
+        }
       }
     ]
   },

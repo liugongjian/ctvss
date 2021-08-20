@@ -65,3 +65,10 @@ export default class extends Vue {
   }
 }
 </script>
+
+<style>
+.more{
+    min-width: 0 !important;
+    text-align: center;
+}
+</style>

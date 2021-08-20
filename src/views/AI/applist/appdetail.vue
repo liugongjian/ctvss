@@ -1,0 +1,368 @@
+<template>
+  <div class="app-container">
+    <el-card v-loading="isLoading">
+      <el-tabs type="border-card" @tab-click="handleTabClick">
+        <el-tab-pane label="基本信息">用户管理</el-tab-pane>
+        <el-tab-pane label="分析结果">
+          <div class="face-filter">
+            <span>人脸库：</span>
+            <el-select v-model="value" placeholder="请选择">
+              <el-option
+                v-for="item in options"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+            <div ref="faceoptions" class="face-options">
+              <div v-for="(item, index) in faceInfos" :id="item.id" :key="index" class="option" @click="handleFaceSelect(item)">
+                <el-image :src="item.url" />
+                <div class="option-info">
+                  <span>{{ item.name }}</span>
+                  <input type="checkbox">
+                </div>
+              </div>
+            </div>
+            <div class="link-wrapper">
+              <el-link type="warning" @click="handleExpand">{{ isExpand ? '- 收起' : '+ 展开' }}</el-link>
+            </div>
+          </div>
+          <div class="query-wrapper">
+            <span>设备：
+              <el-select v-model="value" placeholder="请选择">
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </span>
+            <span>截图时间：
+              <el-radio-group v-model="radio2" size="medium">
+                <el-radio-button label="今天" />
+                <el-radio-button label="近3天" />
+                <el-radio-button label="自定义时间" />
+              </el-radio-group>
+            </span>
+            <span>间隔频率：
+              <el-select v-model="value" placeholder="请选择">
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </span>
+          </div>
+          <div class="chart-wrapper">
+            <div class="title">
+              <div class="title-block" />
+              <span>人员聚集趋势</span>
+            </div>
+            <PeopleTrendChart
+              :height="34"
+            />
+          </div>
+
+          <div class="pic-wrapper">
+            <div class="title">
+              <div class="title-block" />
+              <span>视频截图</span>
+            </div>
+            <div class="card-wrapper">
+              <PicCard v-for="(pic, index) in picinfos" :key="index" :pic="pic" />
+            </div>
+            <el-pagination
+              :hide-on-single-page="false"
+              :total="5"
+              layout="prev, pager, next"
+            />
+          </div>
+        </el-tab-pane>
+      </el-tabs>
+    </el-card>
+  </div>
+</template>
+<script>
+// @ts-ignore
+import PicCard from './component/PicCard.vue'
+import PeopleTrendChart from './component/PeopleTrendChart.vue'
+
+export default {
+  components: { PicCard, PeopleTrendChart },
+  data() {
+    return {
+      appName: null,
+      isExpand: false,
+      value: '',
+      faceSelected: [],
+      faceInfos: [{
+        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+        name: '高手高手',
+        id: '1'
+      }, {
+        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+        name: '高手高手',
+        id: '2'
+      }, {
+        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+        name: '高手高手',
+        id: '3'
+      }, {
+        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+        name: '高手高手',
+        id: '4'
+      }, {
+        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+        name: '高手高手',
+        id: '5'
+      }, {
+        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+        name: '高手高手',
+        id: '6'
+      }, {
+        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+        name: '高手高手',
+        id: '7'
+      }, {
+        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+        name: '高手高手',
+        id: '8'
+      }, {
+        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+        name: '高手高手',
+        id: '9'
+      }, {
+        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+        name: '高手高手',
+        id: '10'
+      }, {
+        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+        name: '高手高手',
+        id: '11'
+      }, {
+        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+        name: '高手高手',
+        id: '12'
+      }, {
+        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+        name: '高手高手',
+        id: '13'
+      }, {
+        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+        name: '高手高手',
+        id: '14'
+      }, {
+        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+        name: '高手高手',
+        id: '15'
+      }, {
+        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+        name: '高手高手',
+        id: '16'
+      }],
+      isLoading: false,
+      options: [{
+        value: '选项1',
+        label: '全部人脸库'
+      }, {
+        value: '选项2',
+        label: '第一人脸库'
+      }, {
+        value: '选项3',
+        label: '第二人脸库'
+      }],
+      radio2: '今天',
+      picinfos: [{
+        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+        time: '2021-07-07 08:56:45',
+        device: 'IPC球机',
+        rate: 0.65
+      }, {
+        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+        time: '2021-07-07 08:56:45',
+        device: 'IPC球机',
+        rate: 0.65
+      }, {
+        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+        time: '2021-07-07 08:56:45',
+        device: 'IPC球机',
+        rate: 0.65
+      }, {
+        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+        time: '2021-07-07 08:56:45',
+        device: 'IPC球机',
+        rate: 0.65
+      }, {
+        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+        time: '2021-07-07 08:56:45',
+        device: 'IPC球机',
+        rate: 0.65
+      }, {
+        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+        time: '2021-07-07 08:56:45',
+        device: 'IPC球机',
+        rate: 0.65
+      }, {
+        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+        time: '2021-07-07 08:56:45',
+        device: 'IPC球机',
+        rate: 0.65
+      }, {
+        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+        time: '2021-07-07 08:56:45',
+        device: 'IPC球机',
+        rate: 0.65
+      }]
+    }
+  },
+  computed: {
+  },
+  watch: {
+    faceSelected: function(newArr, oldArr) {
+      let difference = newArr.concat(oldArr).filter(v => !newArr.includes(v) || !oldArr.includes(v))
+      if (newArr.length < oldArr.length) {
+        document.getElementById(difference[0]).classList.remove('selected')
+      } else {
+        newArr.forEach(element => {
+          document.getElementById(element).classList.add('selected')
+        })
+      }
+    }
+  },
+  created() {
+  },
+  methods: {
+    handleFaceSelect(option) {
+      if (this.faceSelected.includes(option.id)) {
+        this.faceSelected = this.faceSelected.filter(item => item !== option.id)
+      } else {
+        this.faceSelected.push(option.id)
+      }
+    },
+    handleTabClick() {
+      const e = document.createEvent('Event')
+      e.initEvent('resize', true, true)
+      window.dispatchEvent(e)
+    },
+    handleExpand() {
+      let expandDom = this.$refs.faceoptions
+      if (this.isExpand) {
+        expandDom.style.height = '86px'
+        expandDom.style.overflow = 'hidden'
+        expandDom.scrollTop = 0
+      } else {
+        if (this.faceInfos.length > 10) {
+          expandDom.style.overflowY = 'auto'
+          expandDom.style.height = '240px'
+        } else {
+          expandDom.style.height = '150px'
+          expandDom.style.overflow = 'hidden'
+        }
+      }
+      this.isExpand = !this.isExpand
+    }
+  }
+}
+</script>
+
+<style lang='scss' scoped>
+
+.el-card{
+    .face-filter{
+        margin-bottom: 20px;
+        .face-options{
+            width: 88%;
+            height: 86px;
+            margin-left: 56px;
+            overflow: hidden;
+            transition: height .2s;
+            &::-webkit-scrollbar {
+                /*滚动条整体样式*/
+                width : 10px;  /*高宽分别对应横竖滚动条的尺寸*/
+                height: 1px;
+            }
+            &::-webkit-scrollbar-thumb {
+                /*滚动条里面小方块*/
+                border-radius   : 10px;
+                background-color: #fff;
+            }
+            &::-webkit-scrollbar-track {
+            /*滚动条里面轨道*/
+                background   : #fff;
+                border-radius: 10px;
+            }
+            .selected{
+                border: rgba(250,184,236) solid .5px !important;
+            }
+            .option{
+                cursor: pointer;
+                display: inline-block;
+                width: 15%;
+                min-width: 167px;
+                max-width: 222px;
+                height: 54px;
+                border: rgb(192,196,204) solid .5px;
+                border-radius: 5px;
+                margin:20px 20px 0 0;
+                overflow: hidden;
+                padding:0;
+                .el-image{
+                    display: inline-block;
+                    height: 100%;
+                    width: 40%;
+                    min-width: 65px;
+                    max-width: 70px;
+                }
+                .option-info{
+                    float: right;
+                    display: flex;
+                    line-height: 54px;
+                    width: 60%;
+                    justify-content: space-around;
+                    align-items: center;
+                }
+            }
+        }
+        .link-wrapper{
+            margin-top: 10px;
+            text-align: center;
+        }
+    }
+    .query-wrapper{
+        margin-bottom: 20px;
+        padding-left: 10px;
+        &>span{
+            margin-right: 20px;
+        }
+    }
+    .pic-wrapper{
+        .card-wrapper{
+            height: 40vh;
+            overflow-y: scroll;
+        }
+    }
+    .title{
+            height: 50px;
+            vertical-align: middle;
+            &>div{
+                // display: inline-block;
+                padding-top: 5px;
+            }
+            .title-block{
+                width: 7px;
+                height: 15px;
+                background-color: rgba(250, 131, 52, 1);
+                border: none;
+                margin-top: 2px;
+                margin-right: 5px;
+                display: inline-block;
+            }
+            span {
+                font-weight: bold;
+            }
+        }
+}
+</style>
