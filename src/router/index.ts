@@ -813,7 +813,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'addapp',
-        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/AI/applist/addapp.vue'),
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/AI/applist/addApp.vue'),
         name: 'AI-AddApp',
         meta: {
           id: '20210424150201010004',
