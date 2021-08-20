@@ -47,7 +47,7 @@
                         trigger="click"
                       >
                         <div><el-link @click="appDetail(scope.row)">应用详情</el-link></div>
-                        <div><el-link>编辑</el-link></div>
+                        <div><el-link @click="editApp(scope.row)">编辑</el-link></div>
                         <div v-if="!parseInt(scope.row.status)"><el-link @click="handleButtonClick('on-single', scope.row)">启用</el-link></div>
                         <div v-if="parseInt(scope.row.status)"><el-link @click="handleButtonClick('off-single', scope.row)">停用</el-link></div>
                         <div><el-link @click="handleButtonClick('del-single', scope.row)">删除</el-link></div>
@@ -225,7 +225,15 @@ export default class extends Vue {
   }
   private async handleTabType() {
     console.log(this.activeTabName)
-    //await this.getData() 
+    // await this.getData()
+  }
+  private editApp(appinfo) {
+    this.$router.push({
+      name: `AI-EditApp`,
+      query: {
+        appinfo
+      }
+    })
   }
 }
 </script>

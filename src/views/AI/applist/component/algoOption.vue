@@ -6,10 +6,10 @@
           <div class="card-container">
             <ProdCard v-for="prod in prodInfo" :key="prod.id" :prod="prod" @changeStep="changeStep" />
           </div>
-          <el-button>取消</el-button>
+          <el-button @click="cancel">取消</el-button>
         </el-tab-pane>
       </el-tabs>
-      <el-input v-model="input3" placeholder="请输入应用名称 / 描述" class="input-with-select">
+      <el-input v-model="searchApp" placeholder="请输入应用名称 / 描述" class="input-with-select">
         <el-button slot="append" icon="el-icon-search" />
       </el-input>
     </el-row>
@@ -29,6 +29,7 @@ export default class extends Vue {
   @Prop({ default: 0 }) private step!: number
 
   private activeName: String = 'all'
+  private searchApp: String
   private tabInfo: any = [
     { label: '全部', name: 'all' },
     { label: '人脸识别', name: 'face' },
@@ -47,6 +48,12 @@ export default class extends Vue {
   private changeStep(val: any) {
     this.$emit('update:step', val.step)
     val.prod && this.$emit('update:prod', val.prod)
+  }
+  private cancel() {
+    this.$router.push({ name: 'AI-AppList' })
+  }
+  private handleTabType() {
+
   }
 }
 </script>

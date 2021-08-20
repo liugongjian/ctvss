@@ -826,6 +826,20 @@ export const asyncRoutes: RouteConfig[] = [
         }
       },
       {
+        path: 'editapp',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/AI/applist/addapp.vue'),
+        name: 'AI-EditApp',
+        meta: {
+          id: '20210424150201010005',
+          title: '编辑应用',
+          icon: 'dot',
+          hidden: true,
+          breadcrumb: true,
+          activeMenu: '/AI-AppList',
+          perms: ['*']
+        }
+      },
+      {
         path: 'appdetail',
         component: () => import(/* webpackChunkName: "accessManage" */ '@/views/AI/applist/appdetail.vue'),
         name: 'AI-AppDetail',

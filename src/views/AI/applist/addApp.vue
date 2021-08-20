@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-card v-loading="isLoading">
-      <div class="head">
+      <div v-if="!this.$route.query.appinfo" class="head">
         <el-row>
           <el-col :span="8">
             <el-steps :active="step+1" simple>
@@ -11,10 +11,10 @@
           </el-col>
         </el-row>
       </div>
-      <div v-show="!step">
+      <div v-if="!step && !this.$route.query.appinfo">
         <AlgoOption :step.sync="step" :prod.sync="prod" />
       </div>
-      <div v-show="step">
+      <div v-if="step || this.$route.query.appinfo">
         <AlgoDetail :step.sync="step" :prod="prod" />
       </div>
     </el-card>
@@ -35,7 +35,8 @@ import AlgoDetail from './component/AlgoDetail.vue'
 })
 export default class extends Vue {
     private step: Number = 0
-    private prod: any = {}
+    private prod: any = {}// 新建时传入组件的参数
+    private isLoading: boolean = false
 }
 </script>
 <style scoped>

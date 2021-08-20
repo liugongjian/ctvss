@@ -61,9 +61,9 @@
           <el-input v-model="form.name" type="textarea" :rows="2" />
         </el-form-item>
         <el-form-item>
-          <el-button>上一步</el-button>
+          <el-button @click="changeStep({step: 0})">上一步</el-button>
           <el-button type="primary" @click="onSubmit">立即创建</el-button>
-          <el-button>取消</el-button>
+          <el-button @click="cancel">取消</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -79,19 +79,33 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 })
 export default class extends Vue {
   @Prop() private prod!: any
-
   private breadCrumbContent: String = ''
   private form: any = {
     name: '算法1'
   }
   private rules: any = {
     name: [
-      { required: true, message: '请输入活动名称', trigger: 'blur' },
+      { required: true, message: '请输入', trigger: 'blur' },
       { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
     ],
     region: [
-      { required: true, message: '请选择活动区域', trigger: 'change' }
+      { required: true, message: '请输入', trigger: 'blur' }
     ]
+  }
+
+  private mounted() {
+    this.prod && (this.form.name = this.prod.name)
+    this.$route.query.appinfo && (this.form.name = this.$route.query.appinfo.name)
+  }
+  // private updated() {
+  //   this.prod && (this.form.name = this.prod.name)
+  //   this.$route.query.appinfo && (this.form.name = this.appinfo.name)
+  // }
+  private changeStep(val: any) {
+    this.$emit('update:step', val.step)
+  }
+  private cancel() {
+    this.$router.push({ name: 'AI-AppList' })
   }
 }
 </script>

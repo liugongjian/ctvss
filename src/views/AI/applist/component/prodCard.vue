@@ -34,6 +34,7 @@ export default {
     width:30%;
     height:40%;
     min-width: 100px;
+    min-height: 240px;
     margin-top: 2%;
     ::v-deep .el-card__body{
         height: 100%;
@@ -64,10 +65,12 @@ export default {
         position: relative;
         .prod-name{
             font-weight: bold;
+            font-size: 20px;
             margin-bottom: 15px;
         }
         .prod-desc{
-            font-size: 14px;
+            font-size: 18px;
+            line-height: 24px;
         }
         .oprator{
             position: absolute;
@@ -76,8 +79,8 @@ export default {
             .el-button{
                 margin-bottom: 2%;
                 margin-right: 14%;
-                width: 90px;
-                height: 25px;
+                width: 100px;
+                height: 30px;
                 padding: 4px 9px;
             }
         }
