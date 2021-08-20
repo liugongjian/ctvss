@@ -69,25 +69,29 @@
     </el-card>
   </div>
 </template>
-<script>
-export default {
-  props: ['prod'],
-  data() {
-    return {
-      breadCrumbContent: '',
-      form: {
-        name: '算法1'
-      },
-      rules: {
-        name: [
-          { required: true, message: '请输入活动名称', trigger: 'blur' },
-          { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
-        ],
-        region: [
-          { required: true, message: '请选择活动区域', trigger: 'change' }
-        ]
-      }
-    }
+<script lang='ts'>
+import { Component, Vue, Prop } from 'vue-property-decorator'
+
+@Component({
+  name: 'AlgoDetail',
+  components: {
+  }
+})
+export default class extends Vue {
+  @Prop() private prod!: any
+
+  private breadCrumbContent: String = ''
+  private form: any = {
+    name: '算法1'
+  }
+  private rules: any = {
+    name: [
+      { required: true, message: '请输入活动名称', trigger: 'blur' },
+      { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+    ],
+    region: [
+      { required: true, message: '请选择活动区域', trigger: 'change' }
+    ]
   }
 }
 </script>

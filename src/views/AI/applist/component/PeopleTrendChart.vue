@@ -9,11 +9,9 @@ import { Component, Mixins, Prop } from 'vue-property-decorator'
 import { Chart } from '@antv/g2'
 import DashboardMixin from '@/views/dashboard/mixin/DashboardMixin'
 import DashboardContainer from '@/views/dashboard/components/DashboardContainer.vue'
-import { getDeviceData, getDeviceTotal } from '@/api/dashboard'
-import DataSet from '@antv/data-set'
 
 @Component({
-  name: 'DashboardDeviceChart',
+  name: 'PeopleTrendChart',
   components: { DashboardContainer }
 })
 export default class extends Mixins(DashboardMixin) {

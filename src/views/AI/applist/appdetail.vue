@@ -85,169 +85,166 @@
     </el-card>
   </div>
 </template>
-<script>
-// @ts-ignore
+<script lang="ts">
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import PicCard from './component/PicCard.vue'
 import PeopleTrendChart from './component/PeopleTrendChart.vue'
+@Component({
+  name: 'AppDetail',
+  components: {
+    PicCard,
+    PeopleTrendChart
+  }
+})
+export default class extends Vue {
+    private appName: String = null
+    private isExpand: boolean = false
+    private value: String = ''
+    private faceSelected: any = []
+    private faceInfos: any = [{
+      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+      name: '高手高手',
+      id: '1'
+    }, {
+      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+      name: '高手高手',
+      id: '2'
+    }, {
+      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+      name: '高手高手',
+      id: '3'
+    }, {
+      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+      name: '高手高手',
+      id: '4'
+    }, {
+      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+      name: '高手高手',
+      id: '5'
+    }, {
+      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+      name: '高手高手',
+      id: '6'
+    }, {
+      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+      name: '高手高手',
+      id: '7'
+    }, {
+      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+      name: '高手高手',
+      id: '8'
+    }, {
+      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+      name: '高手高手',
+      id: '9'
+    }, {
+      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+      name: '高手高手',
+      id: '10'
+    }, {
+      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+      name: '高手高手',
+      id: '11'
+    }, {
+      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+      name: '高手高手',
+      id: '12'
+    }, {
+      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+      name: '高手高手',
+      id: '13'
+    }, {
+      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+      name: '高手高手',
+      id: '14'
+    }, {
+      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+      name: '高手高手',
+      id: '15'
+    }, {
+      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+      name: '高手高手',
+      id: '16'
+    }]
+    private isLoading: boolean = false
+    private options: any = [{
+      value: '选项1',
+      label: '全部人脸库'
+    }, {
+      value: '选项2',
+      label: '第一人脸库'
+    }, {
+      value: '选项3',
+      label: '第二人脸库'
+    }]
+    private radio2: String = '今天'
+    private picinfos: any = [{
+      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+      time: '2021-07-07 08:56:45',
+      device: 'IPC球机',
+      rate: 0.65
+    }, {
+      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+      time: '2021-07-07 08:56:45',
+      device: 'IPC球机',
+      rate: 0.65
+    }, {
+      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+      time: '2021-07-07 08:56:45',
+      device: 'IPC球机',
+      rate: 0.65
+    }, {
+      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+      time: '2021-07-07 08:56:45',
+      device: 'IPC球机',
+      rate: 0.65
+    }, {
+      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+      time: '2021-07-07 08:56:45',
+      device: 'IPC球机',
+      rate: 0.65
+    }, {
+      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+      time: '2021-07-07 08:56:45',
+      device: 'IPC球机',
+      rate: 0.65
+    }, {
+      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+      time: '2021-07-07 08:56:45',
+      device: 'IPC球机',
+      rate: 0.65
+    }, {
+      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
+      time: '2021-07-07 08:56:45',
+      device: 'IPC球机',
+      rate: 0.65
+    }]
 
-export default {
-  components: { PicCard, PeopleTrendChart },
-  data() {
-    return {
-      appName: null,
-      isExpand: false,
-      value: '',
-      faceSelected: [],
-      faceInfos: [{
-        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手',
-        id: '1'
-      }, {
-        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手',
-        id: '2'
-      }, {
-        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手',
-        id: '3'
-      }, {
-        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手',
-        id: '4'
-      }, {
-        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手',
-        id: '5'
-      }, {
-        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手',
-        id: '6'
-      }, {
-        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手',
-        id: '7'
-      }, {
-        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手',
-        id: '8'
-      }, {
-        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手',
-        id: '9'
-      }, {
-        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手',
-        id: '10'
-      }, {
-        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手',
-        id: '11'
-      }, {
-        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手',
-        id: '12'
-      }, {
-        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手',
-        id: '13'
-      }, {
-        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手',
-        id: '14'
-      }, {
-        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手',
-        id: '15'
-      }, {
-        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        name: '高手高手',
-        id: '16'
-      }],
-      isLoading: false,
-      options: [{
-        value: '选项1',
-        label: '全部人脸库'
-      }, {
-        value: '选项2',
-        label: '第一人脸库'
-      }, {
-        value: '选项3',
-        label: '第二人脸库'
-      }],
-      radio2: '今天',
-      picinfos: [{
-        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        time: '2021-07-07 08:56:45',
-        device: 'IPC球机',
-        rate: 0.65
-      }, {
-        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        time: '2021-07-07 08:56:45',
-        device: 'IPC球机',
-        rate: 0.65
-      }, {
-        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        time: '2021-07-07 08:56:45',
-        device: 'IPC球机',
-        rate: 0.65
-      }, {
-        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        time: '2021-07-07 08:56:45',
-        device: 'IPC球机',
-        rate: 0.65
-      }, {
-        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        time: '2021-07-07 08:56:45',
-        device: 'IPC球机',
-        rate: 0.65
-      }, {
-        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        time: '2021-07-07 08:56:45',
-        device: 'IPC球机',
-        rate: 0.65
-      }, {
-        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        time: '2021-07-07 08:56:45',
-        device: 'IPC球机',
-        rate: 0.65
-      }, {
-        url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-        time: '2021-07-07 08:56:45',
-        device: 'IPC球机',
-        rate: 0.65
-      }]
-    }
-  },
-  computed: {
-  },
-  watch: {
-    faceSelected: function(newArr, oldArr) {
-      let difference = newArr.concat(oldArr).filter(v => !newArr.includes(v) || !oldArr.includes(v))
+    @Watch('faceSelected')
+    selectFace(newArr :any, oldArr :any) {
+      let difference = newArr.concat(oldArr).filter((v: any) => !newArr.includes(v) || !oldArr.includes(v))
       if (newArr.length < oldArr.length) {
         document.getElementById(difference[0]).classList.remove('selected')
       } else {
-        newArr.forEach(element => {
+        newArr.forEach((element: any) => {
           document.getElementById(element).classList.add('selected')
         })
       }
     }
-  },
-  created() {
-  },
-  methods: {
-    handleFaceSelect(option) {
+
+    private handleFaceSelect(option: any) {
       if (this.faceSelected.includes(option.id)) {
-        this.faceSelected = this.faceSelected.filter(item => item !== option.id)
+        this.faceSelected = this.faceSelected.filter((item: any) => item !== option.id)
       } else {
         this.faceSelected.push(option.id)
       }
-    },
-    handleTabClick() {
+    }
+    private handleTabClick() {
       const e = document.createEvent('Event')
       e.initEvent('resize', true, true)
       window.dispatchEvent(e)
-    },
-    handleExpand() {
+    }
+    private handleExpand() {
       let expandDom = this.$refs.faceoptions
       if (this.isExpand) {
         expandDom.style.height = '86px'
@@ -264,7 +261,6 @@ export default {
       }
       this.isExpand = !this.isExpand
     }
-  }
 }
 </script>
 

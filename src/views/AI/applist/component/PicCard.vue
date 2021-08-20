@@ -18,16 +18,16 @@
     </div>
   </el-card>
 </template>
-<script>
-/* eslint-disable vue/require-prop-types */
-export default {
-  props: ['pic'],
-  data() {
-    return {
-    }
-  },
-  methods: {
+<script lang='ts'>
+import { Component, Vue, Prop } from 'vue-property-decorator'
+
+@Component({
+  name: 'PicCard',
+  components: {
   }
+})
+export default class extends Vue {
+  @Prop() private pic!: any
 }
 </script>
 <style lang='scss' scoped>

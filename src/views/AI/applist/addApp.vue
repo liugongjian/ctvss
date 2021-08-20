@@ -20,19 +20,22 @@
     </el-card>
   </div>
 </template>
-<script>
-import AlgoOption from './component/algoOption.vue'
-import AlgoDetail from './component/algoDetail.vue'
-export default {
-  components: { AlgoOption, AlgoDetail },
-  data() {
-    return {
-      step: 0,
-      prod: {}
-    }
-  },
-  methods: {
+
+<script lang="ts">
+import { Component, Vue } from 'vue-property-decorator'
+import AlgoOption from './component/AlgoOption.vue'
+import AlgoDetail from './component/AlgoDetail.vue'
+
+@Component({
+  name: 'AddApp',
+  components: {
+    AlgoOption,
+    AlgoDetail
   }
+})
+export default class extends Vue {
+    private step: Number = 0
+    private prod: any = {}
 }
 </script>
 <style scoped>
