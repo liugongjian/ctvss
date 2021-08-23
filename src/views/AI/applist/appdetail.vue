@@ -100,6 +100,7 @@ export default class extends Vue {
     private appName: String = null
     private isExpand: boolean = false
     private value: String = 'all'
+    private expandBtnVisible: boolean = null
     private faceSelected: any = []
     private faceInfos: any = [{
       url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
@@ -238,6 +239,12 @@ export default class extends Vue {
 
     }
 
+    private mounted() {
+      window.onload = function() {
+        let expandDom: any = this.$refs.faceoptions
+      }
+    }
+
     private handleFaceSelect(option: any) {
       if (this.faceSelected.includes(option.id)) {
         this.faceSelected = this.faceSelected.filter((item: any) => item !== option.id)
@@ -258,11 +265,11 @@ export default class extends Vue {
         expandDom.style.overflow = 'hidden'
         expandDom.scrollTop = 0
       } else {
-        if (this.faceInfos.length > 10) {
+        if (expandDom.scrollHeight > 220) {
           expandDom.style.overflowY = 'auto'
-          expandDom.style.height = '240px'
+          expandDom.style.height = '225px'
         } else {
-          expandDom.style.height = '150px'
+          expandDom.style.height = expandDom.scrollHeight
           expandDom.style.overflow = 'hidden'
         }
       }
@@ -295,7 +302,7 @@ export default class extends Vue {
             transition: height .2s;
             &::-webkit-scrollbar {
                 /*滚动条整体样式*/
-                width : 10px;  /*高宽分别对应横竖滚动条的尺寸*/
+                width : 1px;  /*高宽分别对应横竖滚动条的尺寸*/
                 height: 1px;
             }
             &::-webkit-scrollbar-thumb {
@@ -310,7 +317,6 @@ export default class extends Vue {
             }
             .selected{
                 border: rgba(250,131,52) solid 2px !important;
-                box-shadow: 3px 3px 1px #888888;
             }
             .option{
                 cursor: pointer;

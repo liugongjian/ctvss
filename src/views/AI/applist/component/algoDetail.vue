@@ -62,6 +62,15 @@
             <el-option label="区域二" value="beijing" />
           </el-select>
         </el-form-item>
+        <el-form-item label="围栏区域">
+          <el-alert
+            title="业务组是一个监控业务类型的集合，集中对业务进行设置与管理。"
+            type="info"
+            show-icon
+            :closable="false"
+            class="mb5"
+          />
+        </el-form-item>
         <el-form-item label="回调地址">
           <el-input v-model="form.name" />
         </el-form-item>
@@ -147,5 +156,8 @@ export default class extends Vue {
 }
 .tabrow-add{
   padding-left: 180px;
+}
+.mb5{
+  width: 500px;
 }
 </style>
