@@ -1,4 +1,4 @@
-<!-- 分屏预览 -->
+<!-- 实时预览 -->
 <template>
   <div v-loading="loading.group" class="app-container">
     <el-card ref="deviceWrap" class="device-list-wrap">
@@ -290,6 +290,7 @@ import PtzControl from './components/ptzControl.vue'
 import StreamSelector from './components/StreamSelector.vue'
 import { getDeviceTree } from '@/api/device'
 import { renderAlertType } from '@/utils/device'
+import { VGroupModule } from '@/store/modules/vgroup'
 
 @Component({
   name: 'Screen',
@@ -388,6 +389,7 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   private destroyed() {
+    VGroupModule.resetVGroupInfo()
     this.screenList.forEach(screen => {
       screen.reset()
     })

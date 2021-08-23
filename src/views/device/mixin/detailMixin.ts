@@ -84,7 +84,11 @@ export default class DetailMixin extends Vue {
   public lianzhouAddress: string = ''
 
   public get isGb() {
-    return this.$route.query.inProtocol === 'gb28181'
+    return this.$route.query.inProtocol === 'gb28181' || this.$route.query.realGroupInProtocol === 'gb28181'
+  }
+
+  public get isVGroup() {
+    return this.$route.query.inProtocol === 'vgroup'
   }
 
   public get isNVRChannel() {

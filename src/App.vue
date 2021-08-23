@@ -12,7 +12,6 @@ import { isIE } from '@/utils/browser'
 import { Component, Vue } from 'vue-property-decorator'
 import ServiceWorkerUpdatePopup from '@/pwa/components/ServiceWorkerUpdatePopup.vue'
 import { UserModule } from '@/store/modules/user'
-import { getConsoleDropdownTree } from '@/utils/request'
 
 @Component({
   name: 'App',
@@ -31,34 +30,7 @@ export default class extends Vue {
       }, false)
     }
 
-    if (this.ctLogin) {
-      const dropdownPromise = new Promise((resolve) => {
-        getConsoleDropdownTree().then(res => {
-          const data = res.data.data
-          data.list.splice(data.list.length - 1, 0, {
-            domain: 'console.dropdown',
-            enable: 'true',
-            href: '/vss/changeRole',
-            hrefLocal: '/vss/changeRole',
-            id: '2021072910001001',
-            menuCode: 'changeRole',
-            menuId: '2021072910001001',
-            name: '切换角色',
-            note: '切换角色',
-            order: '79',
-            parentId: '0',
-            plist: '*',
-            renderer: 'menu',
-            state: 'online',
-            target: '_self'
-          })
-          resolve(data.list)
-        })
-      })
-      CtcloudLayout.consoleLayout.init({
-        getDropdownMenuPromise: dropdownPromise
-      })
-    }
+    !!this.ctLogin && CtcloudLayout.consoleLayout.init()
   }
   get ctLogin() {
     return !!UserModule.ctLoginId
