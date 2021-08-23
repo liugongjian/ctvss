@@ -6,7 +6,7 @@
         <el-tab-pane label="分析结果" name="result">
           <div class="face-filter">
             <span>人脸库：</span>
-            <el-select v-model="value" placeholder="请选择">
+            <el-select v-model="value" placeholder="请选择" @change="handleSelectFaceLib">
               <el-option
                 v-for="item in options"
                 :key="item.value"
@@ -19,7 +19,7 @@
                 <el-image :src="item.url" />
                 <div class="option-info">
                   <span>{{ item.name }}</span>
-                  <input type="checkbox">
+                  <input :id="item.id+'input'" type="checkbox">
                 </div>
               </div>
             </div>
@@ -99,7 +99,7 @@ import PeopleTrendChart from './component/PeopleTrendChart.vue'
 export default class extends Vue {
     private appName: String = null
     private isExpand: boolean = false
-    private value: String = ''
+    private value: String = 'all'
     private faceSelected: any = []
     private faceInfos: any = [{
       url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
@@ -168,13 +168,13 @@ export default class extends Vue {
     }]
     private isLoading: boolean = false
     private options: any = [{
-      value: '选项1',
+      value: 'all',
       label: '全部人脸库'
     }, {
-      value: '选项2',
+      value: 'lib1',
       label: '第一人脸库'
     }, {
-      value: '选项3',
+      value: 'lib2',
       label: '第二人脸库'
     }]
     private radio2: String = '今天'
@@ -222,14 +222,20 @@ export default class extends Vue {
 
     @Watch('faceSelected')
     selectFace(newArr :any, oldArr :any) {
-      let difference = newArr.concat(oldArr).filter((v: any) => !newArr.includes(v) || !oldArr.includes(v))
+      let difference: any = newArr.concat(oldArr).filter((v: any) => !newArr.includes(v) || !oldArr.includes(v))
       if (newArr.length < oldArr.length) {
         document.getElementById(difference[0]).classList.remove('selected')
+        document.getElementById(difference[0] + 'input').checked = false
       } else {
         newArr.forEach((element: any) => {
           document.getElementById(element).classList.add('selected')
+          document.getElementById(element + 'input').checked = true
         })
       }
+    }
+
+    private getData() {
+
     }
 
     private handleFaceSelect(option: any) {
@@ -238,6 +244,7 @@ export default class extends Vue {
       } else {
         this.faceSelected.push(option.id)
       }
+      this.getData()
     }
     private handleTabClick() {
       const e = document.createEvent('Event')
@@ -245,7 +252,7 @@ export default class extends Vue {
       window.dispatchEvent(e)
     }
     private handleExpand() {
-      let expandDom = this.$refs.faceoptions
+      let expandDom: any = this.$refs.faceoptions
       if (this.isExpand) {
         expandDom.style.height = '86px'
         expandDom.style.overflow = 'hidden'
@@ -260,6 +267,17 @@ export default class extends Vue {
         }
       }
       this.isExpand = !this.isExpand
+    }
+    private handleSelectFaceLib(val) {
+      // 请求后端数据并赋值给this.faceInfos
+      switch (val) {
+        case 'all':
+          break
+        case 'lib1':
+          break
+        case 'lib2':
+          break
+      }
     }
 }
 </script>
@@ -291,7 +309,8 @@ export default class extends Vue {
                 border-radius: 10px;
             }
             .selected{
-                border: rgba(250,184,236) solid .5px !important;
+                border: rgba(250,131,52) solid 2px !important;
+                box-shadow: 3px 3px 1px #888888;
             }
             .option{
                 cursor: pointer;

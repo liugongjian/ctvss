@@ -24,20 +24,37 @@
           <el-table
             ref="policyList"
             max-height="500"
-            @selection-change="handleSelectionChange"
-            @row-click="rowClick"
+            :data="form.availableperiod"
           >
             <el-table-column
-              prop="policyName"
               label="生效时间段"
+              prop="period"
+              width="380"
             >
-              <template slot-scope="scope" />
+              <template slot-scope="scope">
+                <el-time-picker
+                  v-model="scope.row.period"
+                  is-range
+                  range-separator="~"
+                  start-placeholder="开始时间"
+                  end-placeholder="结束时间"
+                  placeholder="选择时间范围"
+                />
+              </template>
             </el-table-column>
             <el-table-column
               prop="policyDescribe"
               label="操作"
-            />
+              width="50"
+            >
+              <template slot-scope="scope">
+                <el-link type="warning" @click="deletePeriod(scope.$index, scope.row)">移除</el-link>
+              </template>
+            </el-table-column>
           </el-table>
+          <div class="tabrow-add">
+            <el-link type="warning" @click="addPeriod">+ 增加生效时间段</el-link>
+          </div>
         </el-form-item>
         <el-form-item label="人脸库">
           <el-select v-model="form.region" placeholder="请选择人脸库">
@@ -80,6 +97,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 export default class extends Vue {
   @Prop() private prod!: any
   private breadCrumbContent: String = ''
+  private value2: any = [{ period: [new Date(2016, 9, 10, 8, 50), new Date(2016, 9, 10, 9, 40)] }, { period: [new Date(2016, 9, 10, 8, 40), new Date(2016, 9, 10, 9, 40)] }]
   private form: any = {
     name: '算法1'
   }
@@ -94,8 +112,9 @@ export default class extends Vue {
   }
 
   private mounted() {
-    this.prod && (this.form.name = this.prod.name)
-    this.$route.query.appinfo && (this.form.name = this.$route.query.appinfo.name)
+    this.prod && (this.form = this.prod)
+    this.$route.query.appinfo && (this.form = this.$route.query.appinfo)
+    this.form.availableperiod = this.value2
   }
   // private updated() {
   //   this.prod && (this.form.name = this.prod.name)
@@ -107,13 +126,26 @@ export default class extends Vue {
   private cancel() {
     this.$router.push({ name: 'AI-AppList' })
   }
+  private onSubmit() {
+    console.log(this.form.availableperiod)
+  }
+  private handleTimeChange() {
+    console.log('arg')
+  }
+  private addPeriod() {
+    this.form.availableperiod.push({ period: [] })
+  }
+  private deletePeriod(index) {
+    console.log(index)
+    this.form.availableperiod.splice(index, 1)
+  }
 }
 </script>
 <style scoped>
 .el-input,.el-textarea,.el-table {
     width: 500px
 }
-.el-table {
-    width: 700px;
+.tabrow-add{
+  padding-left: 180px;
 }
 </style>
