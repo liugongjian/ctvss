@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-card v-loading="isLoading">
       <el-tabs :value="this.$route.query.tabNum ? 'result' : 'basic'" type="border-card" @tab-click="handleTabClick">
-        <el-tab-pane label="基本信息" name="basic">用户管理</el-tab-pane>
+        <el-tab-pane label="基本信息" name="basic"><BasicAppInfo /></el-tab-pane>
         <el-tab-pane label="分析结果" name="result">
           <div class="face-filter">
             <span>人脸库：</span>
@@ -23,7 +23,7 @@
                 </div>
               </div>
             </div>
-            <div class="link-wrapper">
+            <div id="expand-btn" class="link-wrapper">
               <el-link type="warning" @click="handleExpand">{{ isExpand ? '- 收起' : '+ 展开' }}</el-link>
             </div>
           </div>
@@ -89,11 +89,14 @@
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import PicCard from './component/PicCard.vue'
 import PeopleTrendChart from './component/PeopleTrendChart.vue'
+import BasicAppInfo from './component/BasicAppInfo.vue'
+
 @Component({
   name: 'AppDetail',
   components: {
     PicCard,
-    PeopleTrendChart
+    PeopleTrendChart,
+    BasicAppInfo
   }
 })
 export default class extends Vue {
@@ -130,42 +133,6 @@ export default class extends Vue {
       url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
       name: '高手高手',
       id: '7'
-    }, {
-      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-      name: '高手高手',
-      id: '8'
-    }, {
-      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-      name: '高手高手',
-      id: '9'
-    }, {
-      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-      name: '高手高手',
-      id: '10'
-    }, {
-      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-      name: '高手高手',
-      id: '11'
-    }, {
-      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-      name: '高手高手',
-      id: '12'
-    }, {
-      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-      name: '高手高手',
-      id: '13'
-    }, {
-      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-      name: '高手高手',
-      id: '14'
-    }, {
-      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-      name: '高手高手',
-      id: '15'
-    }, {
-      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-      name: '高手高手',
-      id: '16'
     }]
     private isLoading: boolean = false
     private options: any = [{
@@ -240,9 +207,8 @@ export default class extends Vue {
     }
 
     private mounted() {
-      window.onload = function() {
-        let expandDom: any = this.$refs.faceoptions
-      }
+      this.handleExpandShow()
+      window.addEventListener('resize', this.handleExpandShow.bind(this), false)
     }
 
     private handleFaceSelect(option: any) {
@@ -254,6 +220,7 @@ export default class extends Vue {
       this.getData()
     }
     private handleTabClick() {
+      // resize 为了让图表触发刷新从而自适应尺寸
       const e = document.createEvent('Event')
       e.initEvent('resize', true, true)
       window.dispatchEvent(e)
@@ -269,11 +236,19 @@ export default class extends Vue {
           expandDom.style.overflowY = 'auto'
           expandDom.style.height = '225px'
         } else {
-          expandDom.style.height = expandDom.scrollHeight
+          expandDom.style.height = expandDom.scrollHeight + 'px'
           expandDom.style.overflow = 'hidden'
         }
       }
       this.isExpand = !this.isExpand
+    }
+    private handleExpandShow() {
+      const faceWrapperDom: any = document.getElementsByClassName('face-options')[0]
+      if (faceWrapperDom.scrollHeight > faceWrapperDom.offsetHeight) {
+        document.getElementById('expand-btn').style.display = 'block'
+      } else {
+        document.getElementById('expand-btn').style.display = 'none'
+      }
     }
     private handleSelectFaceLib(val) {
       // 请求后端数据并赋值给this.faceInfos
