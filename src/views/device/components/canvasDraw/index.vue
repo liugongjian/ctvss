@@ -121,7 +121,7 @@ export default class extends Vue {
         const canvasHeight = math.divide!(img.height, ratio)
         backgroundLayer.height = canvasHeight
         canvasDom.height = canvasHeight
-        canvasDraw.setAttribute('style', `width:${backgroundLayer.width},height:${canvasHeight}`)
+        canvasDraw.setAttribute('style', `width:${backgroundLayer.width}px;height:${canvasHeight}px`)
         backgroundCtx.drawImage(img, 0, 0, backgroundLayer.width, backgroundLayer.height)
       }
 
