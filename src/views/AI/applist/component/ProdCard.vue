@@ -42,7 +42,7 @@ export default {
     .pic-wrapper{
         width: 50px;
         height: 50px;
-        display: inline-block;
+        // display: inline-block;
         float: left;
         border-radius: 50%;
         background-color: #f2f2f2;;

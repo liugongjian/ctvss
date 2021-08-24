@@ -1,9 +1,9 @@
 <template>
   <div>
     <el-row>
-      <el-button>停用</el-button>
-      <el-button>编辑</el-button>
-      <el-button>删除</el-button>
+      <el-button @click="handleButtonClick('off')">停用</el-button>
+      <el-button @click="handleButtonClick('edit')">编辑</el-button>
+      <el-button @click="handleButtonClick('del')">删除</el-button>
     </el-row>
     <el-row>
       <div class="title">
@@ -74,11 +74,30 @@ export default class extends Vue {
       device: '3',
       status: '-1'
     }
-    private getData() {
-
+    private getAppInfo(appname) {
+      console.log(appname)
     }
 
     private mounted() {
+      this.getAppInfo(this.$route.query.appname)
+    }
+    private handleButtonClick(option) {
+      switch (option) {
+        case 'on':
+          break
+        case 'off':
+          break
+        case 'edit':
+          this.$router.push({
+            name: `AI-EditApp`,
+            query: {
+              appinfo: this.appInfo
+            }
+          })
+          break
+        case 'del':
+          break
+      }
     }
 }
 </script>
@@ -115,9 +134,12 @@ export default class extends Vue {
     .left,.right{
         width:40%;
         display: flex;
-        justify-content: space-around;
+        justify-content: flex-start;
         flex-direction: column;
         height: 100%;
+        &>div{
+            margin-bottom: 5%;
+        }
     }
 }
 </style>

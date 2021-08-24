@@ -5,8 +5,8 @@
         <el-row>
           <el-col :span="8">
             <el-steps :active="step+1" simple>
-              <el-step title="选择AI算法" />
-              <el-step title="创建AI应用" />
+              <el-step title="选择AI算法"><span slot="icon">1</span></el-step>
+              <el-step title="创建AI应用"><span slot="icon">2</span></el-step>
             </el-steps>
           </el-col>
         </el-row>
