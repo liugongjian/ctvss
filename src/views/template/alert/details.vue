@@ -4,7 +4,7 @@
     <el-card v-loading="loading">
       <info-list label-width="110">
         <info-list-item label="告警模版名称:">{{ details.templateName }}</info-list-item>
-        <info-list-item label="报警级别:">{{ getLabel('alarmPriority', details.alarmPriority)[0] }}</info-list-item>
+        <info-list-item label="报警级别:">{{ details.alarmPriority && getLabel('alarmPriority', details.alarmPriority)[0] }}</info-list-item>
         <info-list-item label="报警方式:">
           <div v-for="(item, index) in getLabel('alarmMethod', details.alarmMethod)" :key="index">{{ item }}</div>
         </info-list-item>
@@ -115,20 +115,30 @@ export default class extends Vue {
     this.$router.push('/template/alert')
   }
   private getLabel(type: string, value: any) {
-    if (!value) {
-      return value
+    if (!value) return
+    let arr: any = []
+    switch (type) {
+      case 'alarmPriority':
+        arr.push(value)
+        break
+      case 'alarmMethod':
+        value && (value = JSON.parse(value))
+        arr = Object.keys(value)
+        break
     }
-    let arr: any = value.split(',')
-    let res: any = arr.map((str: any) => {
-      let obj = this[`${type}Options`].find((item: any) => item.value === str.slice(0, 1))
-      let resStr = obj.label
-      if (obj.children) {
-        resStr += '/' + obj.children.find((item: any) => item.value === str.split('-')[1])?.label
-      }
+    let res: any = []
+    arr.forEach((str: any) => {
+      let obj = this[`${type}Options`].find((item: any) => item.value === str)
       if (obj) {
-        return resStr
-      } else {
-        return 'undefined'
+        let resStr = obj.label
+        if (value[str] && Object.keys(value[str]).length) {
+          Object.keys(value[str]).forEach((str1: any) => {
+            let resStr1 = resStr + '/' + obj.children.find((item: any) => item.value === str1)?.label
+            res.push(resStr1)
+          })
+        } else {
+          res.push(resStr)
+        }
       }
     })
     return res

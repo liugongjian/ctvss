@@ -12,17 +12,17 @@
       </div>
       <div class="filter-container__right">
         <el-date-picker
-          class="data-picker"
           v-model="searchFrom.timeRange"
+          class="data-picker"
           type="datetimerange"
           range-separator="至"
           start-placeholder="开始日期"
-          end-placeholder="结束日期">
-        </el-date-picker>
-        <el-input v-model="searchFrom.templateName" class="filter-container__search-group" placeholder="请输入设备名称">
-          <el-button slot="append" class="el-button-rect"><svg-icon name="search" /></el-button>
+          end-placeholder="结束日期"
+        />
+        <el-input v-model="searchFrom.deviceName" class="filter-container__search-group" placeholder="请输入设备名称">
+          <el-button slot="append" class="el-button-rect" @click="search"><svg-icon name="search" /></el-button>
         </el-input>
-        <el-button class="el-button-rect" @click="1"><svg-icon name="refresh" /></el-button>
+        <el-button class="el-button-rect" @click="getList"><svg-icon name="refresh" /></el-button>
       </div>
     </div>
     <el-table
@@ -94,7 +94,7 @@
         min-width="240"
       >
         <template slot="header">
-          <span class="filter">报警方式</span>
+          <span class="filter">报警类型</span>
           <!-- <svg-icon class="filter" name="filter" width="15" height="15" /> -->
         </template>
         <template slot-scope="{row}">
@@ -131,7 +131,8 @@
   </div>
 </template>
 <script lang="ts">
-import { Vue, Component, Watch } from 'vue-property-decorator'
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import { getAlarmRules } from '@/api/alarm'
 
 @Component({
   name: 'alarm-list'
@@ -142,7 +143,7 @@ export default class extends Vue {
   private currentTemplateId: any = ''
   private selectedDeviceList: any = []
   private searchFrom: any = {
-    templateName: '',
+    deviceName: '',
     timeRange: [],
     alarmPriority: [],
     alarmMethod: [],
@@ -234,9 +235,16 @@ export default class extends Vue {
     total: 0
   }
 
+  @Prop({ default: '' }) private groupId!: string
+
+  @Watch('groupId')
+  public onGroupIdChange() {
+    this.getList()
+  }
+
   @Watch('$route.query')
   public onRouterChange() {
-    console.log(this.$route.query)
+    this.getList()
   }
 
   private mounted() {
@@ -248,17 +256,25 @@ export default class extends Vue {
   }
   private async getList() {
     let params = {
-      templateName: this.searchFrom.templateName,
+      inProtocol: this.$route.query.inProtocol,
+      deviceName: this.searchFrom.deviceName,
+      startTime: this.searchFrom.timeRange[0] ? this.searchFrom.timeRange[0].getTime() : '',
+      endTime: this.searchFrom.timeRange[1] ? this.searchFrom.timeRange[1].getTime() : '',
       sortBy: this.searchFrom.sortBy,
       sortDirection: this.searchFrom.sortDirection,
       pageNum: this.pager.pageNum,
       pageSize: this.pager.pageSize
     }
+    if (this.$route.query.deviceId) {
+      this.$set(params, 'deviceId', this.$route.query.deviceId)
+    } else {
+      this.$set(params, 'groupId', this.groupId)
+    }
     try {
       this.loading = true
-      // let res: any = await getAlertTemplates(params)
-      // this.templateList = res.alarmTemplates
-      // this.pager.total = res.totalPage
+      let res: any = await getAlarmRules(params)
+      this.templateList = res.alarmTemplates
+      this.pager.total = res.totalPage
     } catch (e) {
       this.$message.error(`获取模板列表失败，原因：${e && e.message}`)
     } finally {
@@ -266,12 +282,19 @@ export default class extends Vue {
     }
   }
   private getLabel(type: string, value: any) {
-    let arr: any = value.split(',')
+    let arr: any = []
+    switch (type) {
+      case 'alarmPriority':
+        arr.push(value)
+        break
+      case 'alarmMethod':
+        arr = Object.keys(value)
+        break
+    }
     let res: any = arr.map((str: any) => {
-      let obj = this[`${type}Options`].find((item: any) => item.value === str.slice(0, 1))
-      let resStr = obj.label
+      let obj = this[`${type}Options`].find((item: any) => item.value === str)
       if (obj) {
-        return resStr
+        return obj.label
       } else {
         return 'undefined'
       }

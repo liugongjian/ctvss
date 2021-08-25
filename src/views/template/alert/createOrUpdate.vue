@@ -154,9 +154,7 @@ export default class extends Vue {
         const res = await getAlertTemplateDetails({ templateId: query.templateId })
         this.form.templateName = res.templateName
         this.form.alarmPriority = res.alarmPriority
-        this.form.alarmMethod = res.alarmMethod.split(',').map((item: any) => {
-          return item.split('-')
-        })
+        this.form.alarmMethod = this.getAlarmMethodArray(JSON.parse(res.alarmMethod))
         this.description = res.description
       } catch (e) {
         this.$message.error(`获取模板详情失败，原因：${e && e.message}`)
@@ -180,6 +178,34 @@ export default class extends Vue {
     this.$router.push('/template/alert')
   }
 
+  private getAlarmMethodArray(value: any) {
+    let arr: any = []
+    Object.keys(value).forEach((key: any) => {
+      Object.keys(value[key]).forEach((item: any) => {
+        let arr1 = [key]
+        item && arr1.push(item)
+        arr.push(arr1)
+      })
+    })
+    return arr
+  }
+
+  private alarmMethodData() {
+    let obj: any = {}
+    this.form.alarmMethod.forEach((item: any) => {
+      if (item.length === 1) {
+        this.$set(obj, item[0], {})
+      } else {
+        // eslint-disable-next-line no-prototype-builtins
+        if (!obj.hasOwnProperty(item[0])) {
+          this.$set(obj, item[0], {})
+        }
+        this.$set(obj[item[0]], item[1], parseInt(item[1]))
+      }
+    })
+    return obj
+  }
+
   private submit() {
     const form: any = this.$refs.dataForm
     form.validate(async(valid: any) => {
@@ -189,9 +215,7 @@ export default class extends Vue {
           templateId: this.form.templateId || undefined,
           templateName: this.form.templateName,
           alarmPriority: this.form.alarmPriority,
-          alarmMethod: this.form.alarmMethod.map((item: any) => {
-            return item.join('-')
-          }).join(','),
+          alarmMethod: JSON.stringify(this.alarmMethodData()),
           description: this.form.description
         }
         try {

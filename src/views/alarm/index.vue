@@ -62,7 +62,7 @@
             </span>
           </div>
           <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
-            <router-view />
+            <router-view :group-id="currentGroupId" />
           </div>
         </div>
       </div>
