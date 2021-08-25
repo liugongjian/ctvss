@@ -114,7 +114,6 @@ import { provinceMapping, cityMapping } from '@/assets/region/cities'
 })
 export default class extends Mixins(detailMixin) {
   public get address() {
-    console.log('---address, this.info: ', this.info)
     let info: any = this.info
     if (!info.gbRegion) return null
     let provinceCode: number = parseInt(info.gbRegion.substring(0, 2))
