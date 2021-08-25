@@ -6,7 +6,7 @@
         <el-tab-pane label="分析结果" name="result">
           <div class="face-filter">
             <span>人脸库：</span>
-            <el-select v-model="value" placeholder="请选择" @change="handleSelectFaceLib">
+            <el-select v-model="faceLib" placeholder="请选择" @change="handleSelectFaceLib">
               <el-option
                 v-for="item in options"
                 :key="item.value"
@@ -29,7 +29,7 @@
           </div>
           <div class="query-wrapper">
             <span>设备：
-              <el-select v-model="value" placeholder="请选择">
+              <el-select v-model="queryParam.device" placeholder="请选择">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -39,23 +39,22 @@
               </el-select>
             </span>
             <span>截图时间：
-              <el-radio-group v-model="radio2" size="medium">
+              <el-radio-group v-model="queryParam.periodType" size="medium">
                 <el-radio-button label="今天" />
                 <el-radio-button label="近3天" />
                 <el-radio-button label="自定义时间" />
               </el-radio-group>
-              <el-time-picker
-                v-if="radio2 === '自定义时间'"
-                v-model="value1"
-                is-range
+              <el-date-picker
+                v-if="queryParam.periodType === '自定义时间'"
+                v-model="queryParam.period"
+                type="daterange"
                 range-separator="至"
-                start-placeholder="开始时间"
-                end-placeholder="结束时间"
-                placeholder="选择时间范围"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
               />
             </span>
             <span>间隔频率：
-              <el-select v-model="value" placeholder="请选择">
+              <el-select v-model="queryParam.frequency" placeholder="请选择">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -72,6 +71,7 @@
             </div>
             <PeopleTrendChart
               :height="34"
+              :param="queryParam"
             />
           </div>
 
@@ -112,9 +112,15 @@ import debounce from '@/utils/debounce'
 export default class extends Vue {
     private appName: String = null
     private isExpand: boolean = false
-    private value: String = 'all'
     private expandBtnVisible: boolean = null
+    private faceLib: String = 'all'
     private faceSelected: any = []
+    private queryParam: any = {
+      periodType: '今天',
+      period: '',
+      device: 'all',
+      frequency: 'all'
+    }
     private faceInfos: any = [{
       url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
       name: '高手高手',
@@ -215,7 +221,7 @@ export default class extends Vue {
       console.log(this.faceSelected)
     }
     // 防抖
-    private debounceHandle = debounce(this.getData, 1000)
+    private debounceHandle = debounce(this.getData, 500)
 
     private mounted() {
       this.handleExpandShow()

@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Mixins, Prop } from 'vue-property-decorator'
+import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
 import { Chart } from '@antv/g2'
 import DashboardMixin from '@/views/dashboard/mixin/DashboardMixin'
 import DashboardContainer from '@/views/dashboard/components/DashboardContainer.vue'
@@ -15,8 +15,8 @@ import DashboardContainer from '@/views/dashboard/components/DashboardContainer.
   components: { DashboardContainer }
 })
 export default class extends Mixins(DashboardMixin) {
-  @Prop({ default: false })
   private isLight?: boolean
+  @Prop() private param!: Object
   private deviceTimeRange = '近7天'
   private loading = false
 
@@ -53,8 +53,18 @@ export default class extends Mixins(DashboardMixin) {
     { time: '24:00', value: 108, type: '人员聚集' }
   ]
 
+  @Watch('param', { deep: true })
+  private paramUpdated(newVal) {
+    console.log(newVal)
+    if (newVal.periodType === '自定义时间' && newVal.period.length === 0) {
+      // 不请求
+      return
+    }
+    this.getData()// newVal是查询条件
+  }
   private mounted() {
     // this.timeChange()
+    console.log('mounted:', this.param)// 使用param查询更新图表
     this.getData()
   }
   /**
