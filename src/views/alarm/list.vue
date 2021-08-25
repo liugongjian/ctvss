@@ -28,7 +28,7 @@
     <el-table
       ref="table"
       v-loading="loading"
-      :data="templateList"
+      :data="alarmList"
       fit
       class="template__table"
       empty-text="暂无告警信息"
@@ -98,7 +98,7 @@
           <!-- <svg-icon class="filter" name="filter" width="15" height="15" /> -->
         </template>
         <template slot-scope="{row}">
-          {{ getLabel('alarmType', row.alarmType) }}
+          {{ getLabel('alarmType', row.alarmMethod + '-' + row.alarmType) }}
         </template>
       </el-table-column>
       <el-table-column
@@ -106,7 +106,7 @@
         column-key="AlarmTime"
         prop="alarmTime"
         sortable="custom"
-        label="创建时间"
+        label="报警时间"
         min-width="240"
       >
         <template slot-scope="{row}">
@@ -116,7 +116,7 @@
       <el-table-column prop="alarmDescription" label="报警内容" min-width="240" />
       <el-table-column prop="action" class-name="col-action" label="操作" width="250" fixed="right">
         <template slot-scope="{row}">
-          <el-button type="text" @click.stop="1">删除</el-button>
+          <el-button type="text" @click.stop="deleteAlarm(row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -132,7 +132,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import { getAlarmRules } from '@/api/alarm'
+import { deleteAlarmInfo, getAlarmRules } from '@/api/alarm'
 
 @Component({
   name: 'alarm-list'
@@ -228,7 +228,7 @@ export default class extends Vue {
       label: '其他报警'
     }
   ]
-  private templateList: any = []
+  private alarmList: any = []
   private pager = {
     pageNum: 1,
     pageSize: 10,
@@ -237,18 +237,13 @@ export default class extends Vue {
 
   @Prop({ default: '' }) private groupId!: string
 
-  @Watch('groupId')
-  public onGroupIdChange() {
-    this.getList()
-  }
-
-  @Watch('$route.query')
+  @Watch('$route.query', { deep: true })
   public onRouterChange() {
-    this.getList()
+    this.$route.query.inProtocol && this.getList()
   }
 
   private mounted() {
-    this.getList()
+    this.$route.query.inProtocol && this.getList()
   }
   private search() {
     this.pager.pageNum = 1
@@ -273,7 +268,24 @@ export default class extends Vue {
     try {
       this.loading = true
       let res: any = await getAlarmRules(params)
-      this.templateList = res.alarmTemplates
+      this.alarmList = res.alarms
+      // this.alarmList = [
+      //   {
+      //     alarmId: 1,
+      //     deviceId: '262118976459849728',
+      //     deviceName: 'ceShi',
+      //     sn: 'ceShi',
+      //     cmdType: '262118976459849728',
+      //     alarmPriority: '2',
+      //     alarmMethod: '2',
+      //     alarmType: '2',
+      //     eventType: '2',
+      //     longitude: 2,
+      //     latitude: 2,
+      //     alarmTime: '2021-08-01 10:20:32',
+      //     alarmDescription: 'ceShi'
+      //   }
+      // ]
       this.pager.total = res.totalPage
     } catch (e) {
       this.$message.error(`获取模板列表失败，原因：${e && e.message}`)
@@ -288,19 +300,49 @@ export default class extends Vue {
         arr.push(value)
         break
       case 'alarmMethod':
-        arr = Object.keys(value)
+        arr.push(value)
+        break
+      case 'alarmType':
+        arr = (() => {
+          let key = value.split('-')[0]
+          let obj = this['alarmMethodOptions'].find((item: any) => item.value === key)
+          if (obj) {
+            return obj.children
+          } else {
+            return undefined
+          }
+        })()
         break
     }
-    let res: any = arr.map((str: any) => {
-      let obj = this[`${type}Options`].find((item: any) => item.value === str)
+    if (!arr) return 'undefined'
+    if (type === 'alarmType') {
+      let obj = arr.find((item: any) => item.value === value.split('-')[1])
       if (obj) {
         return obj.label
       } else {
         return 'undefined'
       }
+    } else {
+      let res: any = arr.map((str: any) => {
+        let obj = this[`${type}Options`].find((item: any) => item.value === str)
+        if (obj) {
+          return obj.label
+        } else {
+          return 'undefined'
+        }
+      })
+      res = [...new Set(res)].join('，')
+      return res
+    }
+  }
+  private async deleteAlarm(row: any) {
+    this.$alertDelete({
+      type: '告警信息',
+      msg: `确定删除该告警信息`,
+      method: deleteAlarmInfo,
+      payload: { alarmId: row.alarmId },
+      onSuccess: this.getList
     })
-    res = [...new Set(res)].join('，')
-    return res
   }
   private filterChange(filters: any) {
     for (let key in filters) {
@@ -325,15 +367,6 @@ export default class extends Vue {
   private handleSelectionChange(alarms: any) {
     this.selectedDeviceList = alarms
   }
-  // private async deleteTemplate(row: any) {
-  //   this.$alertDelete({
-  //     type: '告警模板',
-  //     msg: `确定删除告警模板"${row.templateName}"`,
-  //     method: deleteAlertTemplate,
-  //     payload: { templateId: row.templateId },
-  //     onSuccess: this.getList
-  //   })
-  // }
 
   private async handleSizeChange(val: number) {
     this.pager.pageSize = val
