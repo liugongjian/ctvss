@@ -79,8 +79,10 @@ export const getDeviceTree = (params: any): Promise<any> => {
 /**
  * 获取设备预览地址
  */
-export const getDevicePreview = (params: any, cancelToken?: any): Promise<any> =>
-  request({
+export const getDevicePreview = (params: any, cancelToken?: any): Promise<any> => {
+  const headers = params['self-defined-headers']
+  delete params['self-defined-headers']
+  return request({
     url: '/device/preview',
     method: 'get',
     params: {
@@ -88,8 +90,10 @@ export const getDevicePreview = (params: any, cancelToken?: any): Promise<any> =
       type: params.type || 'live',
       ...params
     },
+    headers: headers,
     cancelToken
   })
+}
 
 /**
  * 获取设备录像列表
