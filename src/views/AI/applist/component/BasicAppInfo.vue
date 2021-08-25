@@ -55,6 +55,20 @@
         </div>
       </div>
     </el-row>
+    <el-dialog
+      :title="dialogTitle"
+      :visible="dialogVisible"
+      :close-on-click-modal="false"
+      center
+      width="500px"
+      @close="closeDialog"
+    >
+      <span>您确定要{{ dialogTitle }}吗？</span>
+      <div slot="footer" align="center">
+        <el-button type="primary" @click="handleConfirm">{{ '确定' }}</el-button>
+        <el-button @click="closeDialog">取消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script lang="ts">
@@ -66,6 +80,8 @@ import { Component, Vue } from 'vue-property-decorator'
 })
 export default class extends Vue {
     private appName: String = null
+    private dialogVisible: boolean = false
+    private dialogTitle: String = ''
     private appInfo: any = {
       date: '人员布控03',
       name: '人员聚集',
@@ -84,8 +100,12 @@ export default class extends Vue {
     private handleButtonClick(option) {
       switch (option) {
         case 'on':
+          this.dialogVisible = true
+          this.dialogTitle = '启用该应用'
           break
         case 'off':
+          this.dialogVisible = true
+          this.dialogTitle = '停用该应用'
           break
         case 'edit':
           this.$router.push({
@@ -96,8 +116,13 @@ export default class extends Vue {
           })
           break
         case 'del':
+          this.dialogVisible = true
+          this.dialogTitle = '删除该应用'
           break
       }
+    }
+    private closeDialog() {
+      this.dialogVisible = false
     }
 }
 </script>
@@ -141,5 +166,9 @@ export default class extends Vue {
             margin-bottom: 5%;
         }
     }
+}
+::v-deep .el-dialog__body{
+    text-align: center;
+    margin-bottom: 30px;
 }
 </style>

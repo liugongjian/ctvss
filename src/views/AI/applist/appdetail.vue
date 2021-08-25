@@ -44,6 +44,15 @@
                 <el-radio-button label="近3天" />
                 <el-radio-button label="自定义时间" />
               </el-radio-group>
+              <el-time-picker
+                v-if="radio2 === '自定义时间'"
+                v-model="value1"
+                is-range
+                range-separator="至"
+                start-placeholder="开始时间"
+                end-placeholder="结束时间"
+                placeholder="选择时间范围"
+              />
             </span>
             <span>间隔频率：
               <el-select v-model="value" placeholder="请选择">
@@ -90,6 +99,7 @@ import { Component, Vue, Watch } from 'vue-property-decorator'
 import PicCard from './component/PicCard.vue'
 import PeopleTrendChart from './component/PeopleTrendChart.vue'
 import BasicAppInfo from './component/BasicAppInfo.vue'
+import debounce from '@/utils/debounce'
 
 @Component({
   name: 'AppDetail',
@@ -201,10 +211,11 @@ export default class extends Vue {
         })
       }
     }
-
     private getData() {
-
+      console.log(this.faceSelected)
     }
+    // 防抖
+    private debounceHandle = debounce(this.getData, 1000)
 
     private mounted() {
       this.handleExpandShow()
@@ -217,7 +228,7 @@ export default class extends Vue {
       } else {
         this.faceSelected.push(option.id)
       }
-      this.getData()
+      this.debounceHandle()
     }
     private handleTabClick() {
       // resize 为了让图表触发刷新从而自适应尺寸
@@ -332,6 +343,10 @@ export default class extends Vue {
         padding-left: 10px;
         &>span{
             margin-right: 20px;
+        }
+        .el-date-editor{
+          margin-left: 10px;
+          padding-top: 2px;
         }
     }
     .pic-wrapper{
