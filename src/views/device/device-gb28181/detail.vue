@@ -15,7 +15,7 @@
               <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
               <info-list-item label="设备地址:">{{ (lianzhouFlag ? lianzhouAddress : address) || '-' }}</info-list-item>
-              <info-list-item v-if="lianzhouFlag" label="经纬度:">{{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}</info-list-item>
+              <info-list-item v-if="lianzhouFlag" label="经纬度:">{{ `${info.deviceLongitude || '-'} : ${info.deviceLatitude || '-'}` }}</info-list-item>
               <info-list-item label="设备IP:">{{ info.deviceIp || '-' }}</info-list-item>
               <info-list-item label="端口:">{{ info.devicePort || '-' }}</info-list-item>
               <template v-if="info.deviceType === 'ipc' || info.deviceType === 'platform'">
@@ -113,7 +113,8 @@ import { provinceMapping, cityMapping } from '@/assets/region/cities'
   name: 'DeviceGb28181Detail'
 })
 export default class extends Mixins(detailMixin) {
-  private get address() {
+  public get address() {
+    console.log('---address, this.info: ', this.info)
     let info: any = this.info
     if (!info.gbRegion) return null
     let provinceCode: number = parseInt(info.gbRegion.substring(0, 2))
