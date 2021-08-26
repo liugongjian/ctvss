@@ -1,7 +1,7 @@
 <template>
   <div class="device-list__container min-contaniner">
     <div class="filter-container clearfix">
-      <div class="filter-container__left">
+      <!-- <div class="filter-container__left">
         <el-button type="primary" @click="1">一键删除</el-button>
         <el-dropdown key="dropdown" placement="bottom" @command="handleBatch">
           <el-button>批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
@@ -9,7 +9,7 @@
             <el-dropdown-item command="delete">删除</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
-      </div>
+      </div> -->
       <div class="filter-container__right">
         <el-date-picker
           v-model="searchFrom.timeRange"
@@ -36,8 +36,8 @@
       @filter-change="filterChange"
       @sort-change="sortChange"
     >
-      <el-table-column type="selection" prop="selection" class-name="col-selection" width="55" />
-      <el-table-column label="设备ID/名称" min-width="200">
+      <!-- <el-table-column type="selection" prop="selection" class-name="col-selection" width="55" /> -->
+      <el-table-column label="设备ID/名称" min-width="240">
         <template slot-scope="{row}">
           <div class="device-list__device-name">
             <div class="device-list__device-id">{{ row.deviceId }}</div>
@@ -84,7 +84,7 @@
           <!-- <svg-icon class="filter" name="filter" width="15" height="15" /> -->
         </template>
         <template slot-scope="{row}">
-          {{ getLabel('alarmMethod', row.alarmMethod) }}
+          {{ getLabel('alarmMethod', row.alarmMethod) || '-' }}
         </template>
       </el-table-column>
       <el-table-column
@@ -98,7 +98,7 @@
           <!-- <svg-icon class="filter" name="filter" width="15" height="15" /> -->
         </template>
         <template slot-scope="{row}">
-          {{ getLabel('alarmType', row.alarmMethod + '-' + row.alarmType) }}
+          {{ getLabel('alarmType', row.alarmMethod + '-' + row.alarmType) || '-' }}
         </template>
       </el-table-column>
       <el-table-column
@@ -133,6 +133,7 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { deleteAlarmInfo, getAlarmRules } from '@/api/alarm'
+import { log } from 'console'
 
 @Component({
   name: 'alarm-list'
@@ -144,7 +145,7 @@ export default class extends Vue {
   private selectedDeviceList: any = []
   private searchFrom: any = {
     deviceName: '',
-    timeRange: [],
+    timeRange: null,
     alarmPriority: [],
     alarmMethod: [],
     sortBy: '',
@@ -253,8 +254,8 @@ export default class extends Vue {
     let params = {
       inProtocol: this.$route.query.inProtocol,
       deviceName: this.searchFrom.deviceName,
-      startTime: this.searchFrom.timeRange[0] ? this.searchFrom.timeRange[0].getTime() : '',
-      endTime: this.searchFrom.timeRange[1] ? this.searchFrom.timeRange[1].getTime() : '',
+      startTime: this.searchFrom.timeRange !== null ? this.searchFrom.timeRange[0].getTime() : '',
+      endTime: this.searchFrom.timeRange !== null ? this.searchFrom.timeRange[1].getTime() : '',
       sortBy: this.searchFrom.sortBy,
       sortDirection: this.searchFrom.sortDirection,
       pageNum: this.pager.pageNum,
@@ -269,23 +270,6 @@ export default class extends Vue {
       this.loading = true
       let res: any = await getAlarmRules(params)
       this.alarmList = res.alarms
-      // this.alarmList = [
-      //   {
-      //     alarmId: 1,
-      //     deviceId: '262118976459849728',
-      //     deviceName: 'ceShi',
-      //     sn: 'ceShi',
-      //     cmdType: '262118976459849728',
-      //     alarmPriority: '2',
-      //     alarmMethod: '2',
-      //     alarmType: '2',
-      //     eventType: '2',
-      //     longitude: 2,
-      //     latitude: 2,
-      //     alarmTime: '2021-08-01 10:20:32',
-      //     alarmDescription: 'ceShi'
-      //   }
-      // ]
       this.pager.total = res.totalPage
     } catch (e) {
       this.$message.error(`获取模板列表失败，原因：${e && e.message}`)
@@ -314,13 +298,13 @@ export default class extends Vue {
         })()
         break
     }
-    if (!arr) return 'undefined'
+    if (!arr) return undefined
     if (type === 'alarmType') {
       let obj = arr.find((item: any) => item.value === value.split('-')[1])
       if (obj) {
         return obj.label
       } else {
-        return 'undefined'
+        return undefined
       }
     } else {
       let res: any = arr.map((str: any) => {
@@ -328,7 +312,7 @@ export default class extends Vue {
         if (obj) {
           return obj.label
         } else {
-          return 'undefined'
+          return undefined
         }
       })
       res = [...new Set(res)].join('，')
