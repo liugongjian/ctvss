@@ -246,7 +246,7 @@ export default class extends Vue {
       this.loading = true
       let res: any = await getAlertTemplates(params)
       this.templateList = res.alarmTemplates
-      this.pager.total = res.totalPage
+      this.pager.total = res.totalNum
     } catch (e) {
       this.$message.error(`获取模板列表失败，原因：${e && e.message}`)
     } finally {
