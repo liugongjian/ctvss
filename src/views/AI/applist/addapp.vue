@@ -41,26 +41,26 @@ export default class extends Vue {
 </script>
 <style scoped>
 .input-with-select {
-    width: 260px;
-    position: absolute;
-    top:0;
-    right: 0;
+  width: 260px;
+  position: absolute;
+  top:0;
+  right: 0;
 }
 .el-row{
-    position: relative;
+  position: relative;
 }
 .card-container{
-    overflow: auto;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content:space-around;
-    align-content: flex-start;
-    height: 60vh;
-    min-width: 1200px;
-    min-height: 400px;
+  overflow: auto;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content:space-around;
+  align-content: flex-start;
+  height: 60vh;
+  min-width: 1200px;
+  min-height: 400px;
 }
 .head{
-   margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 </style>

@@ -55,15 +55,14 @@ export default class extends Mixins(DashboardMixin) {
 
   @Watch('param', { deep: true })
   private paramUpdated(newVal) {
-    console.log(newVal)
-    if (newVal.periodType === '自定义时间' && newVal.period.length === 0) {
+    if (newVal.periodType === '自定义时间' && !newVal.period.length) {
       // 不请求
       return
     }
-    this.getData()// newVal是查询条件
+    // 这里更新this.chartData
+    this.getData()
   }
   private mounted() {
-    // this.timeChange()
     console.log('mounted:', this.param)// 使用param查询更新图表
     this.getData()
   }

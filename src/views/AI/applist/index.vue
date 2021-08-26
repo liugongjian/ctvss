@@ -40,7 +40,7 @@
                 <el-table-column label="操作">
                   <template slot-scope="scope">
                     <div class="result-btn-wrapper">
-                      <el-link type="warning" @click="appDetail(scope.row, 1)">分析结果</el-link>
+                      <el-button type="text" @click="appDetail(scope.row, 1)">分析结果</el-button>
                       <el-popover
                         placement="bottom"
                         popper-class="more"
@@ -51,7 +51,7 @@
                         <div v-if="!parseInt(scope.row.status)"><el-link @click="handleButtonClick('on-single', scope.row)">启用</el-link></div>
                         <div v-if="parseInt(scope.row.status)"><el-link @click="handleButtonClick('off-single', scope.row)">停用</el-link></div>
                         <div><el-link @click="handleButtonClick('del-single', scope.row)">删除</el-link></div>
-                        <el-link slot="reference" type="warning">更多</el-link>
+                        <el-button slot="reference" type="text">更多</el-button>
                       </el-popover>
                     </div>
                   </template>
@@ -245,24 +245,24 @@ export default class extends Vue {
     width: 260px;
 }
 .el-table{
-    min-width: 1000px;
-    ::v-deep .el-table__row{
-        height: 57px;
-    }
+  min-width: 1000px;
+  ::v-deep .el-table__row{
+      height: 57px;
+  }
 }
 .tableOp{
-    min-width: 1000px;
+  min-width: 1000px;
 }
 .head,.tableOp{
-   margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 .result-btn-wrapper{
-  .el-link{
+  .el-button{
     margin-right: 10px;
   }
 }
 ::v-deep .el-dialog__body{
-    text-align: center;
-    margin-bottom: 30px;
+  text-align: center;
+  margin-bottom: 30px;
 }
 </style>
