@@ -51,7 +51,7 @@
         </div>
         <div class="device-list__right">
           <div class="breadcrumb">
-            <span class="breadcrumb__item" @click="gotoRoot">根目录1</span>
+            <span class="breadcrumb__item" @click="gotoRoot">根目录</span>
             <span
               v-for="item in breadcrumb"
               :key="item.id"

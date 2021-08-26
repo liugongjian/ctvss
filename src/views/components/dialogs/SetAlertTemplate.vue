@@ -21,7 +21,7 @@
       </el-table-column>
       <el-table-column prop="alarmMethod" label="报警方式">
         <template slot-scope="{row}">
-          {{ getLabel('alarmMethod', row.alarmMethod) | lengthFormat }}
+          {{ getLabel('alarmMethod', row.alarmMethod) }}
         </template>
       </el-table-column>
       <el-table-column label="操作">
@@ -130,7 +130,7 @@ export default class extends Vue {
         arr.push(value)
         break
       case 'alarmMethod':
-        arr = Object.keys(value)
+        arr = Object.keys(JSON.parse(value))
         break
     }
     let res: any = arr.map((str: any) => {
