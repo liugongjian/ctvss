@@ -77,6 +77,17 @@ export const getDeviceTree = (params: any): Promise<any> => {
 }
 
 /**
+ * 子目排序
+ */
+export const sortDeviceTree = (params: any): Promise<any> => {
+  return request({
+    url: '/device/location/move',
+    method: 'post',
+    data: params
+  })
+}
+
+/**
  * 获取设备预览地址
  */
 export const getDevicePreview = (params: any, cancelToken?: any): Promise<any> => {

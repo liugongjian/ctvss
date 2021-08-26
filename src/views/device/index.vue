@@ -13,6 +13,9 @@
         <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
           <div class="dir-list" :style="`width: ${dirDrag.width}px`">
             <div class="dir-list__tools">
+              <el-tooltip class="item" effect="dark" content="子目录排序" placement="top" :open-delay="300">
+                <el-button type="text" @click.stop="openDialog('sortChildren', {id: 0})"><svg-icon name="sort" /></el-button>
+              </el-tooltip>
               <el-tooltip class="item" effect="dark" content="刷新目录" placement="top" :open-delay="300">
                 <el-button type="text" @click="initDirs"><svg-icon name="refresh" /></el-button>
               </el-tooltip>
@@ -51,16 +54,23 @@
                     <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
                     {{ node.label }} <span class="alert-type">{{ renderAlertType(data) }}</span>
                   </span>
-                  <div v-if="data.type === 'dir' && !isVGroup && checkPermission(['*'])" class="tools">
-                    <el-tooltip class="item" effect="dark" content="添加子目录" placement="top" :open-delay="300">
-                      <el-button type="text" @click.stop="openDialog('createDir', data)"><svg-icon name="plus" /></el-button>
-                    </el-tooltip>
-                    <el-tooltip class="item" effect="dark" content="编辑目录" placement="top" :open-delay="300">
-                      <el-button type="text" @click.stop="openDialog('updateDir', data)"><svg-icon name="edit" /></el-button>
-                    </el-tooltip>
-                    <el-tooltip class="item" effect="dark" content="删除目录" placement="top" :open-delay="300">
-                      <el-button type="text" @click.stop="deleteDir(data)"><svg-icon name="trash" /></el-button>
-                    </el-tooltip>
+                  <div v-if="!isVGroup && checkPermission(['*'])" class="tools">
+                    <template v-if="data.type !== 'ipc'">
+                      <el-tooltip class="item" effect="dark" content="子目录排序" placement="top" :open-delay="300">
+                        <el-button type="text" @click.stop="openDialog('sortChildren', data)"><svg-icon name="sort" /></el-button>
+                      </el-tooltip>
+                    </template>
+                    <template v-if="data.type === 'dir'">
+                      <el-tooltip class="item" effect="dark" content="添加子目录" placement="top" :open-delay="300">
+                        <el-button type="text" @click.stop="openDialog('createDir', data)"><svg-icon name="plus" /></el-button>
+                      </el-tooltip>
+                      <el-tooltip class="item" effect="dark" content="编辑目录" placement="top" :open-delay="300">
+                        <el-button type="text" @click.stop="openDialog('updateDir', data)"><svg-icon name="edit" /></el-button>
+                      </el-tooltip>
+                      <el-tooltip class="item" effect="dark" content="删除目录" placement="top" :open-delay="300">
+                        <el-button type="text" @click.stop="deleteDir(data)"><svg-icon name="trash" /></el-button>
+                      </el-tooltip>
+                    </template>
                   </div>
                 </span>
               </el-tree>
@@ -86,6 +96,7 @@
       </div>
     </el-card>
     <create-dir v-if="dialog.createDir" :parent-dir="parentDir" :current-dir="currentDir" :group-id="currentGroupId" @on-close="closeDialog('createDir', ...arguments)" />
+    <sort-children v-if="dialog.sortChildren" :in-protocol="currentGroupInProtocol" :current-dir="currentDir" :group-id="currentGroupId" @on-close="closeDialog('sortChildren', ...arguments)" />
   </div>
 </template>
 <script lang="ts">
@@ -93,6 +104,7 @@ import { Component, Watch, Mixins } from 'vue-property-decorator'
 import DeviceMixin from './mixin/deviceMixin'
 import { DeviceModule } from '@/store/modules/device'
 import CreateDir from './components/dialogs/CreateDir.vue'
+import SortChildren from './components/dialogs/SortChildren.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { deleteDir } from '@/api/dir'
 import { renderAlertType } from '@/utils/device'
@@ -103,7 +115,8 @@ import { VGroupModule } from '@/store/modules/vgroup'
   name: 'Device',
   components: {
     CreateDir,
-    StatusBadge
+    StatusBadge,
+    SortChildren
   }
 })
 export default class extends Mixins(DeviceMixin) {
@@ -112,7 +125,8 @@ export default class extends Mixins(DeviceMixin) {
   private parentDir = null
   private currentDir = null
   private dialog = {
-    createDir: false
+    createDir: false,
+    sortChildren: false
   }
 
   private get defaultKey() {
@@ -185,6 +199,11 @@ export default class extends Mixins(DeviceMixin) {
         }
         this.dialog.createDir = true
         break
+      case 'sortChildren':
+        if (payload) {
+          this.currentDir = payload
+        }
+        this.dialog.sortChildren = true
     }
   }
 
@@ -195,6 +214,7 @@ export default class extends Mixins(DeviceMixin) {
     // @ts-ignore
     this.dialog[type] = false
     switch (type) {
+      case 'sortChildren':
       case 'createDir':
       case 'updateDir':
         this.currentDir = null
