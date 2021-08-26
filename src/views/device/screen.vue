@@ -421,6 +421,12 @@ export default class extends Mixins(ScreenMixin) {
       })
       return
     }
+
+    // 设置虚拟业务组相关信息
+    VGroupModule.SetRoleID(item.roleId || '')
+    VGroupModule.SetRealGroupId(item.realGroupId || '')
+    VGroupModule.SetRealGroupInProtocol(item.realGroupInProtocol || '')
+
     if (item.type === 'ipc' && item.deviceStatus === 'on') {
       const screen = this.screenList[this.currentIndex]
       if (screen.deviceId) {
@@ -431,6 +437,9 @@ export default class extends Mixins(ScreenMixin) {
       screen.deviceName = item.label
       screen.streamSize = item.multiStreamSize
       screen.streams = item.deviceStreams
+      screen.roleId = item.roleId || ''
+      screen.realGroupId = item.realGroupId || ''
+      screen.realGroupInProtocol = item.realGroupInProtocol || ''
       if (streamNum && !isNaN(streamNum)) {
         screen.streamNum = streamNum
       } else {

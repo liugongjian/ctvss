@@ -26,7 +26,7 @@ service.interceptors.request.use(
       config.headers['token'] = UserModule.token
       if (GroupModule.group && GroupModule.group.inProtocol === 'vgroup') {
         const pathname = window.location.pathname
-        if (pathname.startsWith('/vss/device') || pathname.startsWith('/vss/screen') || pathname.startsWith('/vss/replay')) {
+        if ((pathname.startsWith('/vss/device') || pathname.startsWith('/vss/screen') || pathname.startsWith('/vss/replay')) && !config.headers['role-id'] && !config.headers['real-group-id']) {
           config.headers['role-id'] = VGroupModule.roleId
           config.headers['real-group-id'] = VGroupModule.realGroupId
         }

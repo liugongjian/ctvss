@@ -180,6 +180,11 @@ export default class extends Mixins(ScreenMixin) {
    * 打开分屏视频
    */
   private openScreen(item: any) {
+    // 设置虚拟业务组相关信息
+    VGroupModule.SetRoleID(item.roleId || '')
+    VGroupModule.SetRealGroupId(item.realGroupId || '')
+    VGroupModule.SetRealGroupInProtocol(item.realGroupInProtocol || '')
+
     if (item.type === 'ipc' || item.type === 'stream') {
       const screen = this.screenList[this.currentIndex]
       if (screen.deviceId) {
