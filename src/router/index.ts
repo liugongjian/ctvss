@@ -448,12 +448,12 @@ export const asyncRoutes: RouteConfig[] = [
   {
     path: '/up-platform',
     component: Layout,
+    redirect: 'noredirect',
     meta: {
       id: '20210524150201007000',
       title: '向上级联',
       icon: 'platform',
       alwaysShow: true,
-      breadcrumb: false,
       perms: ['GET']
     },
     children: [
@@ -498,12 +498,12 @@ export const asyncRoutes: RouteConfig[] = [
     path: '/certificate',
     component: Layout,
     name: 'certificate',
+    redirect: 'noredirect',
     meta: {
       id: '20210424150201007000',
       title: '凭证管理',
       icon: 'key',
       alwaysShow: true,
-      breadcrumb: false,
       perms: ['*']
     },
     children: [
@@ -733,14 +733,13 @@ export const asyncRoutes: RouteConfig[] = [
   {
     path: '/AI',
     component: Layout,
-    redirect: '/AI/config',
+    redirect: 'noredirect',
     name: 'ai',
     meta: {
       id: '20210424150201010000',
       title: 'AI配置',
       icon: 'key',
       alwaysShow: true,
-      breadcrumb: false,
       perms: ['*']
     },
     children: [
@@ -893,12 +892,12 @@ export const asyncRoutes: RouteConfig[] = [
   {
     path: '/billing',
     component: Layout,
+    redirect: 'noredirect',
     meta: {
       id: '20210515200901012000',
       title: '计费详情',
       icon: 'billing',
       alwaysShow: true,
-      breadcrumb: false,
       perms: ['*']
     },
     children: [
