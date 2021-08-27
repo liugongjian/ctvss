@@ -229,7 +229,7 @@ export default class extends Mixins(DeviceMixin) {
     this.dialog[type] = false
     switch (type) {
       case 'sortChildren':
-        if (payload) {
+        if (payload === true) {
           if (this.sortDir.id === '0') {
             this.initDirs()
           } else {
@@ -242,7 +242,7 @@ export default class extends Mixins(DeviceMixin) {
       case 'updateDir':
         this.currentDir = null
         this.parentDir = null
-        if (payload) {
+        if (payload === true) {
           this.initDirs()
         }
     }
