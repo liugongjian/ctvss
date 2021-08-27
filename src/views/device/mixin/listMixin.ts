@@ -201,7 +201,7 @@ export default class ListMixin extends Vue {
 
   @Watch('isSorted')
   public onIsSortedChange() {
-    this.init()
+    DeviceModule.isSorted && this.init()
     DeviceModule.ResetIsSorted()
   }
 

@@ -8,6 +8,7 @@
     center
     @close="closeDialog"
   >
+    <div class="sort-tip">提示：仅支持对目录或NVR下同级设备进行排序</div>
     <div class="tree-container">
       <el-tree
         ref="dirTree"
@@ -141,5 +142,9 @@ export default class extends Vue {
     ::v-deep .custom-tree-node {
       cursor: move;
     }
+  }
+  .sort-tip {
+    margin-bottom: 10px;
+    color: $textGrey;
   }
 </style>
