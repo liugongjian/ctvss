@@ -24,7 +24,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import AlgoOption from './component/AlgoOption.vue'
-import AlgoDetail from './component/algoDetail.vue'
+import AlgoDetail from './component/AlgoDetail.vue'
 
 @Component({
   name: 'AddApp',
