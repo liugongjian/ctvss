@@ -14,18 +14,19 @@
     </div>
   </el-card>
 </template>
-<script>
-/* eslint-disable vue/require-prop-types */
-export default {
-  props: ['prod'],
-  data() {
-    return {
-    }
-  },
-  methods: {
-    onChooseProd() {
-      this.$emit('changeStep', { step: 1, prod: this.prod })
-    }
+<script lang='ts'>
+import { Component, Vue, Prop } from 'vue-property-decorator'
+
+@Component({
+  name: 'ProdCard',
+  components: {
+  }
+})
+export default class extends Vue {
+  @Prop() private prod!: any
+
+  private onChooseProd() {
+    this.$emit('changeStep', { step: 1, prod: this.prod })
   }
 }
 </script>
@@ -42,7 +43,7 @@ export default {
     .pic-wrapper{
         width: 50px;
         height: 50px;
-        display: inline-block;
+        // display: inline-block;
         float: left;
         border-radius: 50%;
         background-color: #f2f2f2;;
