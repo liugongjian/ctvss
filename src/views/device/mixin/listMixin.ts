@@ -324,10 +324,8 @@ export default class ListMixin extends Vue {
             }
             return true
           })
-          this.deviceList = deviceList.sort((left: any, right: any) => left.channelNum - right.channelNum)
-        } else {
-          this.deviceList = deviceList
         }
+        this.deviceList = deviceList
       } else if (type === 'ipc') {
         this.deviceInfo = res
         this.parentDeviceId = res.parentDeviceId
