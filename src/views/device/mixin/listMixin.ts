@@ -3,6 +3,7 @@ import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
 import { DeviceParams, DeviceStatus, StreamStatus, RecordStatus, DeviceGb28181Type, SipTransType, StreamTransType, TransPriority } from '@/dics'
 import { Device } from '@/type/device'
 import { GroupModule } from '@/store/modules/group'
+import { DeviceModule } from '@/store/modules/device'
 import { deleteDevice, startDevice, stopDevice, getDevice, getDevices, startRecord, stopRecord, syncDevice, syncDeviceStatus } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MoveDir from '../components/dialogs/MoveDir.vue'
@@ -147,6 +148,10 @@ export default class ListMixin extends Vue {
     return GroupModule.group?.groupId
   }
 
+  public get isSorted() {
+    return DeviceModule.isSorted
+  }
+
   public get realGroupId() {
     return VGroupModule.realGroupId
   }
@@ -192,6 +197,12 @@ export default class ListMixin extends Vue {
   @Watch('$route.query')
   public onRouterChange() {
     this.reset()
+  }
+
+  @Watch('isSorted')
+  public onIsSortedChange() {
+    this.init()
+    DeviceModule.ResetIsSorted()
   }
 
   @Watch('groupId')

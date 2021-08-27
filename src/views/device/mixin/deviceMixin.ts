@@ -51,6 +51,10 @@ export default class DeviceMixin extends Vue {
     return this.$route.query.type === 'dir' && this.$route.query.dirId === '0'
   }
 
+  public get isSorted() {
+    return DeviceModule.isSorted
+  }
+
   /**
    * 初始化目录
    */

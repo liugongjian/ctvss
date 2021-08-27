@@ -107,7 +107,7 @@ export default class extends Vue {
           id: item.id,
           type: item.type,
           inProtocol: this.inProtocol,
-          parentDeviceId: this.currentDir.id,
+          parentDeviceId: this.currentDir.type === 'nvr' ? this.currentDir.id : '',
           orderSequence: index
         }
       })
