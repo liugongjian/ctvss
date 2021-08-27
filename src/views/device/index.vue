@@ -230,8 +230,11 @@ export default class extends Mixins(DeviceMixin) {
     switch (type) {
       case 'sortChildren':
         if (payload) {
-          console.log(this.sortDir.id === this.$route.query.dirId)
-          this.loadDirChildren(this.sortDir.id, this.sortNode);
+          if (this.sortDir.id === '0') {
+            this.initDirs()
+          } else {
+            this.loadDirChildren(this.sortDir.id, this.sortNode)
+          }
           (this.sortDir.id === this.$route.query.dirId || this.sortDir.id === this.$route.query.deviceId) && DeviceModule.SetIsSorted(true)
         }
         break

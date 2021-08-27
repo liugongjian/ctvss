@@ -112,6 +112,10 @@ export default class extends Vue {
           orderSequence: index
         }
       })
+      if (sortArr.length === 0) {
+        this.closeDialog()
+        return
+      }
       let params = { orderDevices: sortArr }
       await sortDeviceTree(params)
       this.$message.success('排序保存成功！')
