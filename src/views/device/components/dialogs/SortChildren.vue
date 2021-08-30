@@ -1,15 +1,14 @@
 <template>
   <el-dialog
     title="子目录排序"
-    :v-loading="loading.dialog"
     :visible="dialogVisible"
     :close-on-click-modal="true"
     width="700px"
     center
     @close="closeDialog"
   >
-    <div class="sort-tip">提示：仅支持对目录或NVR下同级设备进行排序</div>
-    <div class="tree-container">
+    <div class="sort-tip">提示：仅支持对目录或NVR下同级设备进行拖拽排序</div>
+    <div v-loading="loading.dialog" class="tree-container">
       <el-tree
         ref="dirTree"
         node-key="id"
