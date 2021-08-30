@@ -224,7 +224,7 @@
                         @onFullscreen="screen.fullscreen();fullscreen()"
                         @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
                       />
-                      <div v-if="!screen.url && !screen.loading" class="tip-text">无信号</div>
+                      <div v-if="!screen.url && !screen.loading" class="tip-text">{{ screen.errorMsg || '无信号' }}</div>
                     </div>
                   </template>
                   <template v-else>
