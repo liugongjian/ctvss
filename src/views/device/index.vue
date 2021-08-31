@@ -89,8 +89,8 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Watch, Mixins } from 'vue-property-decorator'
-import DeviceMixin from './mixin/deviceMixin'
+import { Component, Watch, Mixins, Provide } from 'vue-property-decorator'
+import IndexMixin from './mixin/indexMixin'
 import { DeviceModule } from '@/store/modules/device'
 import CreateDir from './components/dialogs/CreateDir.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
@@ -105,7 +105,7 @@ import { checkPermission } from '@/utils/permission'
     StatusBadge
   }
 })
-export default class extends Mixins(DeviceMixin) {
+export default class extends Mixins(IndexMixin) {
   private checkPermission = checkPermission
   private renderAlertType = renderAlertType
   private parentDir = null
@@ -206,6 +206,7 @@ export default class extends Mixins(DeviceMixin) {
   /**
    * 返回根目录
    */
+  @Provide('gotoRoot')
   private async gotoRoot() {
     const dirTree: any = this.$refs.dirTree
     dirTree.setCurrentKey(null)

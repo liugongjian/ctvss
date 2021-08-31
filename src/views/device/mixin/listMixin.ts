@@ -1,9 +1,10 @@
 import axios from 'axios'
-import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
+import { Component, Watch, Mixins } from 'vue-property-decorator'
+import DeviceMixin from './deviceMixin'
 import { DeviceParams, DeviceStatus, StreamStatus, RecordStatus, DeviceGb28181Type, SipTransType, StreamTransType, TransPriority } from '@/dics'
 import { Device } from '@/type/device'
 import { GroupModule } from '@/store/modules/group'
-import { deleteDevice, startDevice, stopDevice, getDevice, getDevices, startRecord, stopRecord, syncDevice, syncDeviceStatus } from '@/api/device'
+import { deleteDevice, startDevice, stopDevice, getDevice, getDevices, syncDevice, syncDeviceStatus } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MoveDir from '../components/dialogs/MoveDir.vue'
 import UploadExcel from '../components/dialogs/UploadExcel.vue'
@@ -18,11 +19,7 @@ import { checkPermission } from '@/utils/permission'
     Resource
   }
 })
-export default class CreateMixin extends Vue {
-  @Inject('deviceRouter')
-  public deviceRouter!: Function
-  @Inject('initDirs')
-  public initDirs!: Function
+export default class ListMixin extends Mixins(DeviceMixin) {
   public checkPermission = checkPermission
   public deviceInfo: any = null
   public deviceList: Array<Device> = []
@@ -230,6 +227,13 @@ export default class CreateMixin extends Vue {
         this.getDeviceList()
         break
     }
+  }
+
+  /**
+   * 删除成功回调
+   */
+  public onDeleteDevice() {
+    this.init()
   }
 
   /**
@@ -491,57 +495,6 @@ export default class CreateMixin extends Vue {
   }
 
   /**
-   * 预览
-   */
-  public goToPreview(previewTab: string, device: Device) {
-    this.deviceRouter({
-      id: device.deviceId,
-      type: 'preview',
-      previewTab
-    })
-  }
-
-  /**
-   * 查看设备详情
-   */
-  public goToDetail(device: Device) {
-    this.deviceRouter({
-      id: device.deviceId,
-      type: 'detail'
-    })
-  }
-
-  /**
-   * 编辑设备
-   */
-  public goToUpdate(device: Device) {
-    this.deviceRouter({
-      id: device.deviceId,
-      type: 'update'
-    })
-  }
-
-  /**
-   * 删除设备
-   */
-  public deleteDevice(device: Device) {
-    this.$alertDelete({
-      type: '设备',
-      msg: `是否确认删除设备"${device.deviceName}"`,
-      method: deleteDevice,
-      payload: {
-        deviceId: device.deviceId,
-        inProtocol: this.inProtocol,
-        parentDeviceId: device.parentDeviceId
-      },
-      onSuccess: () => {
-        this.init()
-        this.initDirs()
-      }
-    })
-  }
-
-  /**
    * 批量删除设备
    */
   public batchDeleteDevice() {
@@ -581,79 +534,6 @@ export default class CreateMixin extends Vue {
         this.initDirs()
       }
     })
-  }
-
-  /**
-   * 启动设备
-   */
-  public async startDevice(device: Device) {
-    try {
-      const params: any = {
-        deviceId: device.deviceId,
-        inProtocol: this.inProtocol,
-        inType: device.inType,
-        streamNum: device.streamNum
-      }
-      await startDevice(params)
-      this.$message.success('已通知启用设备')
-    } catch (e) {
-      this.$message.error(e && e.message)
-    }
-  }
-
-  /**
-   * 停用设备
-   */
-  public async stopDevice(device: Device) {
-    try {
-      const params: any = {
-        deviceId: device.deviceId,
-        inProtocol: this.inProtocol,
-        inType: device.inType,
-        streamNum: device.streamNum
-      }
-      await stopDevice(params)
-      this.$message.success('已通知停用设备')
-    } catch (e) {
-      this.$message.error(e && e.message)
-    }
-  }
-
-  /**
-   * 开始录像
-   */
-  public async startRecord(device: Device) {
-    try {
-      const params: any = {
-        deviceId: device.deviceId,
-        inProtocol: this.inProtocol
-      }
-      await startRecord(params)
-      this.$message.success('已通知开始录制')
-      this.init()
-    } catch (e) {
-      this.$message.error(e && e.message)
-      console.error(e)
-    }
-  }
-
-  /**
-   * 停止录像
-   */
-  public async stopRecord(device: Device) {
-    try {
-      const params: any = {
-        deviceId: device.deviceId,
-        recordTaskId: device.recordTaskId,
-        inProtocol: this.inProtocol
-      }
-      await stopRecord(params)
-      this.$message.success('已通知停止录像')
-      this.init()
-    } catch (e) {
-      this.$message.error(e && e.message)
-      console.error(e)
-    }
   }
 
   /**
