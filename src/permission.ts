@@ -65,12 +65,7 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
           })
           // Hack: ensure addRoutes is complete
           // Set the replace: true, so the navigation will not leave a history record
-          // 角色登录后没有 /dashboard 的访问权限
-          if (UserModule.mainUserRoleId && to.path === '/dashboard') {
-            next({ path: '/group', replace: true })
-          } else {
-            next({ ...to, replace: true })
-          }
+          next({ ...to, replace: true })
         } catch (err) {
           // Remove token and redirect to login page
           UserModule.ResetToken()
@@ -79,13 +74,6 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
           NProgress.done()
         }
       } else {
-        if (to.path === '/404' && UserModule.mainUserRoleId) {
-          Message.info('已在其他终端使用角色，即将离开未授权页面！')
-          next({
-            path: '/changeRole',
-            replace: true
-          })
-        }
         // 单点登录菜单高亮
         UserModule.ctLoginId && (<any>window).CtcloudLayout && (<any>window).CtcloudLayout.consoleLayout.match({
           key: to.meta.activeMenu || ('/' + to.name)

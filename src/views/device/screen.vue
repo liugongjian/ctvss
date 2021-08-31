@@ -1,4 +1,4 @@
-<!-- 分屏预览 -->
+<!-- 实时预览 -->
 <template>
   <div v-loading="loading.group" class="app-container">
     <el-card ref="deviceWrap" class="device-list-wrap">
@@ -290,6 +290,7 @@ import PtzControl from './components/ptzControl.vue'
 import StreamSelector from './components/StreamSelector.vue'
 import { getDeviceTree } from '@/api/device'
 import { renderAlertType } from '@/utils/device'
+import { VGroupModule } from '@/store/modules/vgroup'
 
 @Component({
   name: 'Screen',
@@ -388,6 +389,7 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   private destroyed() {
+    VGroupModule.resetVGroupInfo()
     this.screenList.forEach(screen => {
       screen.reset()
     })
@@ -419,6 +421,12 @@ export default class extends Mixins(ScreenMixin) {
       })
       return
     }
+
+    // 设置虚拟业务组相关信息
+    VGroupModule.SetRoleID(item.roleId || '')
+    VGroupModule.SetRealGroupId(item.realGroupId || '')
+    VGroupModule.SetRealGroupInProtocol(item.realGroupInProtocol || '')
+
     if (item.type === 'ipc' && item.deviceStatus === 'on') {
       const screen = this.screenList[this.currentIndex]
       if (screen.deviceId) {
@@ -429,6 +437,9 @@ export default class extends Mixins(ScreenMixin) {
       screen.deviceName = item.label
       screen.streamSize = item.multiStreamSize
       screen.streams = item.deviceStreams
+      screen.roleId = item.roleId || ''
+      screen.realGroupId = item.realGroupId || ''
+      screen.realGroupInProtocol = item.realGroupInProtocol || ''
       if (streamNum && !isNaN(streamNum)) {
         screen.streamNum = streamNum
       } else {

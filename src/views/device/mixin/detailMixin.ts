@@ -1,4 +1,4 @@
-import { Component, Mixins, Inject } from 'vue-property-decorator'
+import { Component, Mixins, Inject, Watch } from 'vue-property-decorator'
 import DeviceMixin from './deviceMixin'
 import { Device } from '@/type/device'
 import { Group } from '@/type/group'
@@ -19,6 +19,7 @@ import { checkPermission } from '@/utils/permission'
 import { regionList } from '@/assets/region/lianzhouRegion'
 import copy from 'copy-to-clipboard'
 import CanvasDraw from '../components/canvasDraw/index.vue'
+import { VGroupModule } from '@/store/modules/vgroup'
 
 @Component({
   components: {
@@ -106,7 +107,15 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   public lianzhouAddress: string = ''
 
   public get isGb() {
-    return this.$route.query.inProtocol === 'gb28181'
+    return this.$route.query.inProtocol === 'gb28181' || this.$route.query.realGroupInProtocol === 'gb28181'
+  }
+
+  public get isVGroup() {
+    return this.$route.query.inProtocol === 'vgroup'
+  }
+
+  public get realGroupId() {
+    return VGroupModule.realGroupId
   }
 
   public get isNVR() {
@@ -359,5 +368,13 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   public copyUrl(text: string) {
     copy(text)
     this.$message.success('复制成功')
+  }
+
+  @Watch('realGroupId')
+  public async onRealGroupIdChange(realGroupId: string, oldRealGroupId: string) {
+    if (!realGroupId || oldRealGroupId) return
+    await this.getDevice()
+    await this.getDeviceResources()
+    this.lianzhouFlag && await this.getLianzhouAddress()
   }
 }

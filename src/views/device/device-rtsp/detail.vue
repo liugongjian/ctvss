@@ -3,7 +3,7 @@
     <div v-loading="loading.info" class="detail-wrap">
       <div v-if="info" class="btn-detail">
         <el-button @click="goToPreview"><svg-icon name="live" /> 实时预览</el-button>
-        <el-button v-if="checkPermission(['*'])" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
+        <el-button v-if="!isVGroup && checkPermission(['*'])" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
       </div>
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="基本信息" name="info">
@@ -15,8 +15,8 @@
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
               <template v-if="info.deviceType === 'nvr'">
                 <info-list-item label="自动创建子设备:">{{ createSubDevice[info.createSubDevice] }}</info-list-item>
-                <info-list-item :label="info.createSubDevice === 2 ? '实际通道数量:' : '通道数量:'">{{ info.deviceStats && info.deviceStats.channelSize }}</info-list-item>
-                <info-list-item v-if="info.createSubDevice === 2" label="可支持通道数量:">{{ info.deviceStats && info.deviceStats.maxChannelSize }}</info-list-item>
+                <info-list-item label="实际通道数量:">{{ info.deviceStats && info.deviceStats.channelSize }}</info-list-item>
+                <info-list-item label="可支持通道数量:">{{ info.deviceStats && info.deviceStats.maxChannelSize }}</info-list-item>
               </template>
             </info-list>
             <info-list v-if="info && isNVRChannel" label-width="110">
@@ -165,7 +165,7 @@
             <anti-theft-chain type="UA" :config="playConfig.anti.ua" />
           </info-list>
         </el-tab-pane>
-        <el-tab-pane label="模板配置" name="template">
+        <el-tab-pane v-if="!isVGroup" label="模板配置" name="template">
           <template-bind v-if="activeName==='template'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
       </el-tabs>
