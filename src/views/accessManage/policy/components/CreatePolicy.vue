@@ -287,7 +287,7 @@ export default class extends Vue {
         const _key = resource.split(':').slice(-1)[0]
         checkedKeys.push(_key)
       } else {
-        const keyPath = resource.split(':').slice(2)
+        const keyPath = resource.split(':').slice(2).join('/').split(/\//)
         if (keyPath && keyPath.length) {
           for (let i = 0; i < keyPath.length - 1; i++) {
             const _key = keyPath[i]
@@ -472,7 +472,7 @@ export default class extends Vue {
                     const inProtocol = resource.inProtocol
                     const type = resource.type
                     const pathIds = resource.path.map((obj: any) => obj.id)
-                    return `${mainUserID}:${inProtocol}-${type === 'group' ? 'vssgroup' : 'directory'}:${pathIds.join(':')}`
+                    return `${mainUserID}:${inProtocol}-${type === 'group' ? 'vssgroup' : 'directory'}:${pathIds[0]}${(pathIds.length > 1 ? ':' : '') + pathIds.slice(1).join('/')}`
                   })
                 }
               ]

@@ -38,6 +38,7 @@ class User extends VuexModule implements IUserState {
   public roles: string[] = []
   public perms: string[] = []
   public resources: string[] = []
+  public resourcesSet: Set<any> = new Set()
   public email = ''
   public type = ''
   public mainUserID = ''
@@ -76,8 +77,9 @@ class User extends VuexModule implements IUserState {
   }
 
   @Mutation
-  private SET_RESOURCES(resources: string[]) {
-    this.resources = resources
+  private SET_RESOURCES(data: any) {
+    this.resources = data.resources
+    this.resourcesSet = data.resourcesSet
   }
 
   @Mutation
@@ -162,7 +164,7 @@ class User extends VuexModule implements IUserState {
     this.SET_TOKEN('')
     this.SET_NAME('')
     this.SET_PERMS([])
-    this.SET_RESOURCES([])
+    this.SET_RESOURCES({ resources: [], resourcesSet: new Set() })
     this.SET_IAM_USER_ID('')
     this.SET_MAIN_USER_ADDRESS('')
     this.SET_MAIN_USER_TAGS('')
@@ -208,27 +210,36 @@ class User extends VuexModule implements IUserState {
       try {
         const actionList = policy.Statement[0].Action
         const resourceList = policy.Statement[0].Resource
-
+        debugger
         if (actionList[0] === 'vss:*') {
           data.perms = ['*']
           data.resource = ['*']
         } else if (actionList[0] === 'vss:Get*') {
           data.perms = ['DescribeGroup', 'DescribeDevice', 'ScreenPreview', 'ReplayRecord']
           data.resource = ['*']
+          data.resourcesSet = new Set()
         } else {
           data.perms = actionList
           data.resource = resourceList
+          const tempSet = new Set()
+          resourceList.forEach((resource: any) => {
+            const idArr = resource.split(':').slice(2).join('/').split(/\//).slice(0, -1)
+            idArr.forEach((id: any) => tempSet.add(id))
+          })
+          data.resourcesSet = tempSet
         }
       } catch (e) {
         data = {
           perms: ['*'],
-          resource: ['*']
+          resource: ['*'],
+          resourcesSet: new Set()
         }
       }
     } else {
       data = {
         perms: ['*'],
-        resource: ['*']
+        resource: ['*'],
+        resourcesSet: new Set()
       }
     }
     if (!data) {
@@ -240,7 +251,7 @@ class User extends VuexModule implements IUserState {
       throw Error('GetGlobalInfo: perms must be a non-null array!')
     }
     this.SET_PERMS(perms)
-    this.SET_RESOURCES(data.resource)
+    this.SET_RESOURCES(data)
   }
 
   @Action
@@ -310,7 +321,7 @@ class User extends VuexModule implements IUserState {
     this.SET_TOKEN('')
     this.SET_ROLES([])
     this.SET_PERMS([])
-    this.SET_RESOURCES([])
+    this.SET_RESOURCES({ resources: [], resourcesSet: new Set() })
     this.SET_NAME('')
 
     const result = {
