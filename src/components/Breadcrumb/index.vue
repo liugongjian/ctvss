@@ -47,7 +47,7 @@ export default class extends Vue {
   }
 
   get dashboardAllowed() {
-    return UserModule.perms[0] === 'vss:*'
+    return UserModule.perms[0] === '*'
   }
 
   created() {

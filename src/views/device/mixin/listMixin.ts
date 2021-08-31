@@ -85,6 +85,10 @@ export default class ListMixin extends Vue {
     return this.$route.query.inProtocol
   }
 
+  public get currentGroupId() {
+    return GroupModule.group?.groupId
+  }
+
   public get isGb() {
     return this.$route.query.inProtocol === 'gb28181' || this.$route.query.realGroupInProtocol === 'gb28181'
   }
