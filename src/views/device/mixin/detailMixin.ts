@@ -6,11 +6,13 @@ import { RecordTemplate } from '@/type/template'
 import { getDevice, getLianzhouArea } from '@/api/device'
 import { queryGroup } from '@/api/group'
 import { GroupModule } from '@/store/modules/group'
+import { VGroupModule } from '@/store/modules/vgroup'
 import { DeviceModule } from '@/store/modules/device'
 import { DeviceStatus, DeviceGb28181Type, RecordStatus, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType } from '@/dics'
 import { getDeviceResources } from '@/api/billing'
 import TemplateBind from '../../components/templateBind.vue'
 import SetAuthConfig from '../components/dialogs/SetAuthConfig.vue'
+import DetailConfig from '../components/DetailConfig.vue'
 import DetailPreview from '../components/DetailPreview.vue'
 import DetailReplay from '../components/DetailReplay.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
@@ -19,11 +21,12 @@ import { checkPermission } from '@/utils/permission'
 import { regionList } from '@/assets/region/lianzhouRegion'
 import copy from 'copy-to-clipboard'
 import CanvasDraw from '../components/canvasDraw/index.vue'
-import { VGroupModule } from '@/store/modules/vgroup'
+import { DeviceTips } from '@/dics/tips'
 
 @Component({
   components: {
     TemplateBind,
+    DetailConfig,
     DetailPreview,
     DetailReplay,
     SetAuthConfig,
@@ -55,12 +58,8 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   public groupInfo: Group | null = null
   public resources: any = []
 
-  public tips = {
-    createSubDevice: '当开启自动创建NVR子设备时，系统将自动为子设备分配通道号和通道名称。',
-    pullType: '当启用自动拉流，设备注册成功后自动启动拉流。关闭该选项后需要通过触发的方式启动拉流。',
-    pushType: '自动激活推流地址，设备创建完成后，平台立刻自动生成推流地址。关闭该选项后需要通过触发的方式生成推流地址。',
-    transPriority: '开启优先TCP传输时，设备进行视频邀约时优先使用TCP协议接入到视频监控服务中。关闭时则优先使用UDP协议接入。'
-  }
+  public tips = DeviceTips
+
   public pushConfig = {
     auth: true,
     key: '1a66a5c2317368a282ceb2b326767651',
