@@ -9,8 +9,8 @@ import { PermissionModule } from './permission'
 import { GroupModule } from './group'
 import { TagsViewModule } from './tags-view'
 import { DeviceModule } from '@/store/modules/device'
+import { VGroupModule } from '@/store/modules/vgroup'
 import store from '@/store'
-import { Message } from 'element-ui'
 
 export interface IUserState {
   token: string
@@ -42,8 +42,6 @@ class User extends VuexModule implements IUserState {
   public mainUserID = ''
   public mainUserAddress = ''
   public tags: any = null
-  public mainUserRoleId = ''
-  public mainUserRoleName = ''
   public ctLoginId = getLocalStorage('ctLoginId') || ''
 
   @Mutation
@@ -107,16 +105,6 @@ class User extends VuexModule implements IUserState {
   }
 
   @Mutation
-  private SET_MAIN_USER_ROLE_ID(roleId: string) {
-    this.mainUserRoleId = roleId
-  }
-
-  @Mutation
-  private SET_MAIN_USER_ROLE_NAME(roleName: string) {
-    this.mainUserRoleName = roleName
-  }
-
-  @Mutation
   private SET_CT_LOGIN_ID(ctLoginId: string) {
     this.ctLoginId = ctLoginId
   }
@@ -172,10 +160,10 @@ class User extends VuexModule implements IUserState {
     this.SET_MAIN_USER_ADDRESS('')
     this.SET_MAIN_USER_TAGS('')
     this.SET_MAIN_USER_ID('')
-    this.SET_MAIN_USER_ROLE_ID('')
-    this.SET_MAIN_USER_ROLE_NAME('')
     // 清空设备管理面包屑
     DeviceModule.ResetBreadcrumb()
+    // 清空虚拟业务组相关信息
+    VGroupModule.resetVGroupInfo()
   }
 
   @Action
@@ -223,10 +211,6 @@ class User extends VuexModule implements IUserState {
           perms: ['*']
         }
       }
-    } else if (this.mainUserRoleId) {
-      data = {
-        perms: ['ROLE']
-      }
     } else {
       data = {
         perms: ['*']
@@ -268,12 +252,6 @@ class User extends VuexModule implements IUserState {
   }
 
   @Action({ rawError: true })
-  public overrideRoleInfo(roleInfo: { roleId: string, roleName: string }) {
-    this.SET_MAIN_USER_ROLE_ID(roleInfo.roleId)
-    this.SET_MAIN_USER_ROLE_NAME(roleInfo.roleName)
-  }
-
-  @Action({ rawError: true })
   public async ChangePassword(form: { originalPwd: string, newPwd: string }) {
     let { originalPwd, newPwd } = form
     await changePassword({
@@ -311,6 +289,8 @@ class User extends VuexModule implements IUserState {
     TagsViewModule.delAllViews()
     // 清空设备管理面包屑
     DeviceModule.ResetBreadcrumb()
+    // 清空虚拟业务组相关信息
+    VGroupModule.resetVGroupInfo()
     this.SET_TOKEN('')
     this.SET_ROLES([])
     this.SET_PERMS([])
@@ -326,8 +306,6 @@ class User extends VuexModule implements IUserState {
     this.SET_MAIN_USER_ID('')
     this.SET_MAIN_USER_ADDRESS('')
     this.SET_MAIN_USER_TAGS('')
-    this.SET_MAIN_USER_ROLE_ID('')
-    this.SET_MAIN_USER_ROLE_NAME('')
 
     localStorage.clear()
     return result

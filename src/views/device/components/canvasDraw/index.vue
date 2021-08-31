@@ -193,7 +193,7 @@ export default class extends Vue {
           switch (shape) {
             case DRAW_MODES.RECT: {
               this.canvas.beginPath()
-              // @ts-ignore
+
               if (points && points.length > 2) {
                 this.drawPolygon(this.canvas, area, points, this.ratio)
                 break
@@ -456,33 +456,32 @@ export default class extends Vue {
 
 <style  lang="scss" scoped>
 .canvasBox{
-    ::v-deep.el-dialog{
-        .el-dialog__header{
-            padding: 20px;
-        }
-        .el-dialog__body{
-            padding: 0 20px 10px;
-        }
-        .el-dialog__footer{
-            text-align: center;
-        }
+  ::v-deep.el-dialog{
+    .el-dialog__header{
+      padding: 20px;
     }
-    .configureDetail{
-        padding: 10px 20px;
-        font-size: 14px;
-        .configureName{
-            color:#878887;
-        }
+    .el-dialog__body{
+      padding: 0 20px 10px;
     }
-    .canvasDraw{
-        position: relative;
-
+    .el-dialog__footer{
+      text-align: center;
     }
-    .canvasOperator{
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: 102;
+  }
+  .configureDetail{
+    padding: 10px 20px;
+    font-size: 14px;
+    .configureName{
+      color:#878887;
     }
+  }
+  .canvasDraw{
+    position: relative;
+  }
+  .canvasOperator{
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 102;
+  }
 }
 </style>

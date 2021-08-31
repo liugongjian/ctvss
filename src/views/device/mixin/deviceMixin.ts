@@ -1,352 +1,157 @@
-import { Component, Provide, Vue } from 'vue-property-decorator'
-import { DeviceModule } from '@/store/modules/device'
-import { GroupModule } from '@/store/modules/group'
-import { getDeviceTree } from '@/api/device'
+/**
+ * 设备常规操作：删除、启停录像、启停设备、查看详情、查看实时预览
+ */
+import { Component, Vue, Inject } from 'vue-property-decorator'
+import { Device } from '@/type/device'
+import { deleteDevice, startDevice, stopDevice, startRecord, stopRecord } from '@/api/device'
+import MoveDir from '../components/dialogs/MoveDir.vue'
 
-@Component
+@Component({
+  components: {
+    MoveDir
+  }
+})
 export default class DeviceMixin extends Vue {
-  public maxHeight = 1000
-  public dirList = []
-  public isExpanded = true
-  public dirDrag = {
-    isDragging: false,
-    start: 0,
-    offset: 0,
-    orginWidth: 200,
-    width: 250
-  }
-  public loading = {
-    dir: false,
-    device: false
-  }
+  @Inject('deviceRouter')
+  public deviceRouter!: Function
+  @Inject('initDirs')
+  public initDirs!: Function
 
-  public treeProp = {
-    label: 'label',
-    children: 'children',
-    isLeaf: 'isLeaf'
-  }
-
-  public get currentGroup() {
-    return GroupModule.group
-  }
-
-  public get currentGroupId() {
-    return GroupModule.group?.groupId
-  }
-
-  public get currentGroupInProtocol() {
-    return GroupModule.group?.inProtocol
-  }
-
-  public get breadcrumb() {
-    return DeviceModule.breadcrumb ? DeviceModule.breadcrumb : []
-  }
-
-  public get isRootDir() {
-    return this.$route.query.type === 'dir' && this.$route.query.dirId === '0'
+  public get inProtocol() {
+    return this.$route.query.inProtocol
   }
 
   /**
-   * 初始化目录
+   * 初始化
    */
-  @Provide('initDirs')
-  public async initDirs() {
-    try {
-      this.loading.dir = true
-      await DeviceModule.ResetBreadcrumb()
-      const res = await getDeviceTree({
-        groupId: this.currentGroupId,
-        id: 0
-      })
-      this.dirList = this.setDirsStreamStatus(res.dirs)
-      this.$nextTick(() => {
-        console.log('this.initTreeStatus()')
-        this.initTreeStatus()
-      })
-    } catch (e) {
-      this.dirList = []
-      console.log(e)
-    } finally {
-      this.loading.dir = false
-    }
-  }
+  public init() {}
 
   /**
-   * 计算最大高度
+   * 删除成功回调
    */
-  public calMaxHeight() {
-    const deviceWrap: any = this.$refs.deviceWrap
-    const size = deviceWrap.$el.getBoundingClientRect()
-    const top = size.top
-    const documentHeight = document.body.offsetHeight
-    this.maxHeight = documentHeight - top - 65
-  }
+  public onDeleteDevice() {}
 
   /**
-   * 初始化目录状态
+   * 预览
    */
-  public async initTreeStatus() {
-    const dirTree: any = this.$refs.dirTree
-    const path: string | (string | null)[] | null = this.$route.query.path
-    const keyPath = path ? path.toString().split(',') : null
-    if (keyPath) {
-      for (let i = 0; i < keyPath.length; i++) {
-        const _key = keyPath[i]
-        const node = dirTree.getNode(_key)
-        if (node) {
-          await this.loadDirChildren(_key, node)
-          if (i === keyPath.length - 1) {
-            DeviceModule.SetBreadcrumb(this.getDirPath(node).reverse())
-          }
-        }
-      }
-    } else if (this.dirList.length && this.dirList.every((dir: any) => dir.type === 'dir')) {
-      // 如果根目录下无设备，则跳转至第一个目录下
-      this.deviceRouter(this.dirList[0])
-    } else {
-      this.dealTzTree()
-    }
-  }
-
-  // TODO: 对泰州用户单独处理，后续需删除
-  public async dealTzTree() {
-    if (this.currentGroupId === '80337930297556992') {
-      const dirTree: any = this.$refs.dirTree
-      const keyPath = ['29942060635128281', '85528278015803392']
-      for (let i = 0; i < keyPath.length; i++) {
-        const _key = keyPath[i]
-        const node = dirTree.getNode(_key)
-        if (node) {
-          await this.loadDirChildren(_key, node)
-          if (i === keyPath.length - 1) {
-            DeviceModule.SetBreadcrumb(this.getDirPath(node).reverse())
-          }
-        }
-      }
-    }
-  }
-
-  /**
-   * 加载子目录
-   */
-  public async loadDirChildren(key: string, node: any) {
-    try {
-      const dirTree: any = this.$refs.dirTree
-      let data = await getDeviceTree({
-        groupId: this.currentGroupId,
-        id: node.data.id,
-        type: node.data.type
-      })
-      if (data.dirs) {
-        if (node.data.type === 'nvr') {
-          data.dirs = this.setDirsStreamStatus(data.dirs)
-        }
-        dirTree.updateKeyChildren(key, data.dirs)
-      }
-      node.expanded = true
-      node.loaded = true
-    } catch (e) {
-      console.log(e)
-    }
-  }
-
-  /**
-   * 获取树菜单路径
-   */
-  @Provide('getDirPath')
-  public getDirPath(node: any) {
-    let path: any = []
-    const _getPath = (node: any, path: any) => {
-      const data = node.data
-      if (data && data.id) {
-        path.push({
-          id: data.id,
-          label: data.label,
-          type: data.type
-        })
-      }
-      if (node.parent) {
-        _getPath(node.parent, path)
-      }
-    }
-    _getPath(node, path)
-    return path
-  }
-
-  /**
-   * 设备页面路由
-   */
-  @Provide('deviceRouter')
-  public async deviceRouter(item: any, node?: any) {
-    const dirTree: any = this.$refs.dirTree
-    let _node: any
-    if (!node) {
-      _node = dirTree.getNode(item.id)
-      if (_node) {
-        if (!_node.loaded) {
-          this.loadDirChildren(item.id, _node)
-        }
-        _node.parent.expanded = true
-        dirTree.setCurrentKey(item.id)
-      }
-    } else {
-      _node = node
-      _node.expanded = true
-    }
-    _node && DeviceModule.SetBreadcrumb(this.getDirPath(_node).reverse())
-    let router: any
-    let query: any = {}
-    switch (item.type) {
-      case 'platformDir':
-      case 'dir':
-        router = {
-          name: 'device-list'
-        }
-        query = {
-          dirId: item.id
-        }
-        break
-      case 'platform':
-        router = {
-          name: 'device-list'
-        }
-        query = {
-          dirId: item.id,
-          deviceId: item.id
-        }
-        break
-      case 'nvr':
-        router = {
-          name: 'device-list'
-        }
-        query = {
-          deviceId: item.id
-        }
-        break
-      case 'ipc':
-        router = {
-          name: 'device-list'
-        }
-        query = {
-          deviceId: item.id
-        }
-        break
-      case 'preview':
-        router = {
-          name: 'device-preview'
-        }
-        query = {
-          deviceId: item.id,
-          previewTab: item.previewTab
-        }
-        break
-      case 'detail':
-        router = {
-          name: 'device-detail'
-        }
-        query = {
-          deviceId: item.id
-        }
-        break
-      case 'create':
-        router = {
-          name: 'device-create'
-        }
-        query = {
-          dirId: item.id,
-          deviceId: item.deviceId,
-          isChannel: item.isChannel && item.isChannel.toString()
-        }
-        break
-      case 'update':
-        router = {
-          name: 'device-update'
-        }
-        query = {
-          deviceId: item.id
-        }
-        break
-    }
-    router.query = {
-      inProtocol: this.currentGroup!.inProtocol,
-      type: item.type,
-      path: this.breadcrumb.map((item: any) => item.id).join(','),
-      ...query
-    }
-    if (JSON.stringify(this.$route.query) === JSON.stringify(router.query)) return
-    this.$router.push(router)
-  }
-
-  /**
-   * 收起/展开目录列表
-   */
-  public toggledirList() {
-    this.isExpanded = !this.isExpanded
-  }
-
-  /**
-   * 设置左侧宽度
-   */
-  public changeWidthStart(e: MouseEvent) {
-    const $dirList: any = this.$refs.dirList
-    this.dirDrag.isDragging = true
-    this.dirDrag.start = e.x
-    this.dirDrag.orginWidth = $dirList.clientWidth
-
-    window.addEventListener('mousemove', (e) => {
-      if (!this.dirDrag.isDragging) return
-      this.dirDrag.offset = this.dirDrag.start - e.x
-      const width = this.dirDrag.orginWidth - this.dirDrag.offset
-      if (width < 50) return
-      this.dirDrag.width = width
-    })
-    window.addEventListener('mouseup', () => {
-      this.dirDrag.isDragging = false
+  public goToPreview(previewTab: string, device: Device) {
+    this.deviceRouter({
+      id: device.deviceId,
+      type: 'preview',
+      previewTab
     })
   }
 
   /**
-   * 加载目录
+   * 查看设备详情
    */
-  public async loadDirs(node: any, resolve: Function) {
-    if (node.level === 0) return resolve([])
-    try {
-      const res = await getDeviceTree({
-        groupId: this.currentGroupId,
-        id: node.data.id,
-        type: node.data.type
-      })
-      if (node.data.type === 'nvr') {
-        res.dirs = this.sortDirs(res.dirs)
+  public goToDetail(device: Device) {
+    this.deviceRouter({
+      id: device.deviceId,
+      type: 'detail'
+    })
+  }
+
+  /**
+   * 编辑设备
+   */
+  public goToUpdate(device: Device) {
+    this.deviceRouter({
+      id: device.deviceId,
+      type: 'update'
+    })
+  }
+
+  /**
+   * 删除设备
+   */
+  public deleteDevice(device: Device) {
+    this.$alertDelete({
+      type: '设备',
+      msg: `是否确认删除设备"${device.deviceName}"`,
+      method: deleteDevice,
+      payload: {
+        deviceId: device.deviceId,
+        inProtocol: this.inProtocol,
+        parentDeviceId: device.parentDeviceId
+      },
+      onSuccess: () => {
+        this.onDeleteDevice()
+        this.initDirs()
       }
-      res.dirs = this.setDirsStreamStatus(res.dirs)
-      resolve(res.dirs)
+    })
+  }
+
+  /**
+   * 启动设备
+   */
+  public async startDevice(device: Device) {
+    try {
+      const params: any = {
+        deviceId: device.deviceId,
+        inProtocol: this.inProtocol,
+        inType: device.inType,
+        streamNum: device.streamNum
+      }
+      await startDevice(params)
+      this.$message.success('已通知启用设备')
     } catch (e) {
-      resolve([])
+      this.$message.error(e && e.message)
     }
   }
 
   /**
-   * 排序目录树
+   * 停用设备
    */
-  public sortDirs(dirs: any) {
-    return dirs.sort((left: any, right: any) => left.channelNum - right.channelNum)
+  public async stopDevice(device: Device) {
+    try {
+      const params: any = {
+        deviceId: device.deviceId,
+        inProtocol: this.inProtocol,
+        inType: device.inType,
+        streamNum: device.streamNum
+      }
+      await stopDevice(params)
+      this.$message.success('已通知停用设备')
+    } catch (e) {
+      this.$message.error(e && e.message)
+    }
   }
 
   /**
-   * 设置目录树设备流状态
+   * 开始录像
    */
-  public setDirsStreamStatus(dirs: any) {
-    return dirs.map((dir: any) => {
-      if (!dir.streamStatus && dir.deviceStreams && dir.deviceStreams.length > 0) {
-        const hasOnline = dir.deviceStreams.some((stream: any) => {
-          return stream.streamStatus === 'on'
-        })
-        if (hasOnline) {
-          dir.streamStatus = 'on'
-        }
+  public async startRecord(device: Device) {
+    try {
+      const params: any = {
+        deviceId: device.deviceId,
+        inProtocol: this.inProtocol
       }
-      return dir
-    })
+      await startRecord(params)
+      this.$message.success('已通知开始录制')
+      this.init()
+    } catch (e) {
+      this.$message.error(e && e.message)
+      console.error(e)
+    }
+  }
+
+  /**
+   * 停止录像
+   */
+  public async stopRecord(device: Device) {
+    try {
+      const params: any = {
+        deviceId: device.deviceId,
+        recordTaskId: device.recordTaskId,
+        inProtocol: this.inProtocol
+      }
+      await stopRecord(params)
+      this.$message.success('已通知停止录像')
+      this.init()
+    } catch (e) {
+      this.$message.error(e && e.message)
+      console.error(e)
+    }
   }
 }

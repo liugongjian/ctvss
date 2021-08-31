@@ -158,7 +158,13 @@ export default class extends Vue {
       const res = await getResources({
         type
       })
-      return res.resPkgList
+      // 过滤已过期的资源包
+      const list = res.resPkgList.filter((resource: any) => {
+        if (new Date().getTime() < new Date(resource.expireTime).getTime()) {
+          return resource
+        }
+      })
+      return list
     } catch (e) {
       this.$message.error(e.message)
     } finally {

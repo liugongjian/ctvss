@@ -40,7 +40,7 @@
             </info-list>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="模板配置" name="template">
+        <el-tab-pane v-if="!isVGroup" label="模板配置" name="template">
           <template-bind v-if="activeName==='template'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
       </el-tabs>

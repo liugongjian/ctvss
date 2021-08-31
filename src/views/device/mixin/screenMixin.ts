@@ -1,10 +1,10 @@
 import { Component, Mixins } from 'vue-property-decorator'
-import DeviceMixin from './deviceMixin'
+import IndexMixin from './indexMixin'
 import FullscreenMixin from './fullscreenMixin'
 import Screen from '../models/Screen'
 
 @Component
-export default class ScreenMixin extends Mixins(DeviceMixin, FullscreenMixin) {
+export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
   public screenList: Array<Screen> = []
   public maxSize = 4
   public currentIndex = 0

@@ -301,8 +301,8 @@ export default class CreateMixin extends Vue {
    * 校验设备/通道名称
    */
   public validateDeviceName(rule: any, value: string, callback: Function) {
-    if (!/^[\u4e00-\u9fa50-9a-zA-Z-]{2,16}$/.test(value)) {
-      callback(new Error('设备或通道名称格式错误。2-16位，可包含大小写字母、数字、中文、中划线。'))
+    if (!/^[\u4e00-\u9fa50-9a-zA-Z-\s]{2,32}$/.test(value)) {
+      callback(new Error('设备或通道名称格式错误。2-32位，可包含大小写字母、数字、中文、中划线、空格。'))
     } else {
       callback()
     }
@@ -327,7 +327,7 @@ export default class CreateMixin extends Vue {
       callback(new Error('请填写经度及纬度坐标'))
     } else if (!/^[-+]?(0(\.\d{1,10})?|([1-9](\d)?)(\.\d{1,10})?|1[0-7]\d{1}(\.\d{1,10})?|180\.0{1,10})$/.test(this.form.deviceLongitude)) {
       callback(new Error('经度坐标格式错误'))
-    } else if (!/^[-+]?((0|([1-8]\d?))(\.\d{1,10})?|90(\.0{1,10})?)$/.test(this.form.deviceLatitude)) {
+    } else if (!/^[-+]?((0|([1-9]\d?))(\.\d{1,10})?|90(\.0{1,10})?)$/.test(this.form.deviceLatitude)) {
       callback(new Error('纬度坐标格式错误'))
     } else {
       callback()

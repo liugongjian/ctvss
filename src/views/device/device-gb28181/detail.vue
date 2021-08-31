@@ -4,105 +4,189 @@
       <div v-if="info" class="btn-detail">
         <el-button v-if="info.deviceType === 'ipc'" @click="goToPreview"><svg-icon name="live" /> 实时预览</el-button>
         <el-button v-if="info.deviceType === 'nvr'" @click="goToChannels"><svg-icon name="list" /> 查看通道</el-button>
-        <el-button v-if="checkPermission(['*'])" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
+        <el-button v-if="!isVGroup && checkPermission(['*'])" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
       </div>
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="基本信息" name="info">
-          <div>
-            <el-button @click="openCanvasDialog">画图</el-button>
-            <info-list v-if="info && !isNVRChannel" label-width="110">
-              <info-list-item label="设备类型:">{{ deviceType[info.deviceType] }}</info-list-item>
-              <info-list-item label="设备名称:">{{ info.deviceName }}</info-list-item>
-              <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
-              <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
-              <info-list-item label="设备地址:">{{ (lianzhouFlag ? lianzhouAddress : address) || '-' }}</info-list-item>
-              <info-list-item v-if="lianzhouFlag" label="经纬度:">{{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}</info-list-item>
-              <info-list-item label="设备IP:">{{ info.deviceIp || '-' }}</info-list-item>
-              <info-list-item label="端口:">{{ info.devicePort || '-' }}</info-list-item>
-              <template v-if="info.deviceType === 'ipc' || info.deviceType === 'platform'">
-                <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
+          <div v-if="info">
+            <div class="detail__buttons">
+              <el-button @click="goSuperior"><svg-icon name="superior" /> 返回上级</el-button>
+              <el-button v-if="info.deviceType === 'nvr'" @click="goToChannels"><svg-icon name="list" /> 查看通道</el-button>
+              <el-button v-if="(!isNVR && info.parentDeviceId === '-1') && checkPermission(['*'])" @click="moveDir"><svg-icon name="move" /> 移动至</el-button>
+              <el-button v-if="checkPermission(['*'])" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
+              <!--自动创建的子通道不允许删除-->
+              <el-button v-if="!isAutoCreated && checkPermission(['*'])" @click="deleteDevice(info)"><svg-icon name="trash" /> 删除</el-button>
+            </div>
+            <el-descriptions title="状态信息" :column="2">
+              <template v-if="true">
+                <el-descriptions-item label="设备状态">
+                  <status-badge :status="info.deviceStatus" />
+                  {{ deviceStatus[info.deviceStatus] || '-' }}
+                </el-descriptions-item>
+                <el-descriptions-item label="流状态">
+                  <status-badge :status="info.streamStatus" />
+                  {{ deviceStatus[info.streamStatus] }}
+                  <el-button v-if="info.streamStatus === 'on' && checkPermission(['*'])" type="text" @click="stopDevice(info)">停用流</el-button>
+                  <el-button v-else-if="checkPermission(['*'])" type="text" @click="startDevice(info)">启用流</el-button>
+                </el-descriptions-item>
+                <el-descriptions-item label="录制状态">
+                  <status-badge :status="info.recordStatus === 1 ? 'on' : ''" />
+                  {{ recordStatus[info.recordStatus] }}
+                  <el-button v-if="info.recordStatus === 1 && checkPermission(['*'])" type="text" @click="stopRecord(info)">停止录像</el-button>
+                  <el-button v-else-if="checkPermission(['*'])" type="text" @click="startRecord(info)">开始录像</el-button>
+                </el-descriptions-item>
               </template>
+            </el-descriptions>
+            <el-descriptions title="设备信息" :column="2">
+              <!--通用信息-->
+              <el-descriptions-item label="设备ID">
+                {{ info.deviceId }}
+              </el-descriptions-item>
+              <template v-if="info && !isNVRChannel">
+                <el-descriptions-item label="设备名称">
+                  {{ info.deviceName }}
+                </el-descriptions-item>
+                <el-descriptions-item label="设备类型">
+                  {{ deviceType[info.deviceType] }}
+                </el-descriptions-item>
+                <el-descriptions-item label="设备厂商">
+                  {{ info.deviceVendor || '-' }}
+                </el-descriptions-item>
+                <el-descriptions-item label="设备地址">
+                  {{ (lianzhouFlag ? lianzhouAddress : address) || '-' }}
+                </el-descriptions-item>
+                <el-descriptions-item v-if="lianzhouFlag" label="经纬度">
+                  {{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}
+                </el-descriptions-item>
+                <el-descriptions-item label="设备IP">
+                  {{ info.deviceIp || '-' }}
+                </el-descriptions-item>
+                <el-descriptions-item label="设备端口">
+                  {{ info.devicePort || '-' }}
+                </el-descriptions-item>
+              </template>
+              <!--子通道信息-->
+              <template v-if="info && isNVRChannel">
+                <el-descriptions-item v-if="info.deviceChannels.length" label="通道号">
+                  {{ 'D' + info.deviceChannels[0].channelNum }}
+                </el-descriptions-item>
+                <el-descriptions-item v-if="info.deviceChannels.length" label="通道名称">
+                  {{ info.deviceChannels[0].channelName }}
+                </el-descriptions-item>
+                <el-descriptions-item label="设备厂商">
+                  {{ info.deviceVendor || '-' }}
+                </el-descriptions-item>
+              </template>
+              <!--通用信息-->
+              <el-descriptions-item label="设备国标ID">
+                {{ info.gbId || '-' }}
+              </el-descriptions-item>
+              <el-descriptions-item label="GB28181账号">
+                {{ info.userName }}
+              </el-descriptions-item>
+              <!--NVR信息-->
               <template v-if="info.deviceType === 'nvr'">
-                <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
-                <info-list-item label="自动创建子设备:">{{ createSubDevice[info.createSubDevice] }}</info-list-item>
-                <info-list-item :label="info.createSubDevice === 2 ? '实际通道数量:' : '通道数量:'">{{ info.deviceStats && info.deviceStats.channelSize }}</info-list-item>
-                <info-list-item v-if="info.createSubDevice === 2" label="可支持通道数量:">{{ info.deviceStats && info.deviceStats.maxChannelSize }}</info-list-item>
-                <info-list-item label="在线流数量:">{{ info.deviceStats && info.deviceStats.onlineSize }}</info-list-item>
+                <el-descriptions-item label="自动创建子设备">
+                  {{ createSubDevice[info.createSubDevice] }}
+                </el-descriptions-item>
+                <el-descriptions-item :label="info.createSubDevice === 2 ? '实际通道数量' : '通道数量'">
+                  {{ info.deviceStats && info.deviceStats.channelSize }}
+                </el-descriptions-item>
+                <el-descriptions-item v-if="info.createSubDevice === 2" label="可支持通道数量">
+                  {{ info.deviceStats && info.deviceStats.maxChannelSize }}
+                </el-descriptions-item>
+                <el-descriptions-item label="在线流数量">
+                  {{ info.deviceStats && info.deviceStats.onlineSize }}
+                </el-descriptions-item>
               </template>
+              <!--平台信息-->
               <template v-if="info.deviceType === 'platform'">
-                <info-list-item label="通道数量:">{{ info.deviceStats && info.deviceStats.channelSize }}</info-list-item>
-                <info-list-item label="在线流数量:">{{ info.deviceStats && info.deviceStats.onlineSize }}</info-list-item>
+                <el-descriptions-item label="通道数量">
+                  {{ info.deviceStats && info.deviceStats.channelSize }}
+                </el-descriptions-item>
+                <el-descriptions-item label="在线流数量">
+                  {{ info.deviceStats && info.deviceStats.onlineSize }}
+                </el-descriptions-item>
               </template>
-              <info-list-item label="GB28181账号:">{{ info.userName }}</info-list-item>
-            </info-list>
-            <info-list v-if="info && isNVRChannel" label-width="110">
-              <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
-              <info-list-item v-if="info.deviceChannels.length" label="通道号:">{{ 'D' + info.deviceChannels[0].channelNum }}</info-list-item>
-              <info-list-item v-if="info.deviceChannels.length" label="通道名称:">{{ info.deviceChannels[0].channelName }}</info-list-item>
-              <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
-              <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
-            </info-list>
-            <info-list v-if="info" label-width="110">
-              <info-list-item label="自动拉流:">{{ pullType[info.pullType] }}</info-list-item>
-              <info-list-item label="设备状态:">
-                <div class="info-list__edit">
-                  <div class="info-list__edit--value">
-                    <status-badge :status="info.deviceStatus" />
-                    {{ deviceStatus[info.deviceStatus] || '-' }}
-                  </div>
-                </div>
-              </info-list-item>
-              <template v-if="info.deviceType === 'ipc' || info.deviceType === 'platform'">
-                <info-list-item label="流状态:">
-                  <div class="info-list__edit">
-                    <div class="info-list__edit--value">
-                      <status-badge :status="info.streamStatus" />
-                      {{ deviceStatus[info.streamStatus] }}
-                    </div>
-                  </div>
-                </info-list-item>
-                <info-list-item label="录制状态:">
-                  <div class="info-list__edit">
-                    <div class="info-list__edit--value">
-                      <status-badge :status="info.recordStatus === 1 ? 'red' : ''" />
-                      {{ recordStatus[info.recordStatus] }}
-                    </div>
-                  </div>
-                </info-list-item>
-              </template>
-              <info-list-item label="信令传输模式:">
-                <div class="info-list__edit">
-                  <div class="info-list__edit--value">
-                    {{ sipTransType[info.sipTransType] || '-' }}
-                  </div>
-                </div>
-              </info-list-item>
-              <info-list-item label="流传输模式:">
-                <div class="info-list__edit">
-                  <div class="info-list__edit--value">
-                    {{ streamTransType[info.streamTransType] || '-' }}
-                  </div>
-                </div>
-              </info-list-item>
-              <info-list-item v-if="info.deviceType === 'nvr' || info.deviceType === 'ipc'" label="优先TCP传输:">
-                <div class="info-list__edit">
-                  <div class="info-list__edit--value">
-                    {{ transPriority[info.transPriority] || '-' }}
-                  </div>
-                </div>
-              </info-list-item>
-              <info-list-item v-for="resource in resources" :key="resource.label" :label="`${resourceType[resource.label]}:`">{{ (resource.value && '已绑定') || '未绑定' }}</info-list-item>
-              <info-list-item label="设备描述:">{{ info.description || '-' }}</info-list-item>
-            </info-list>
+              <!--通用信息-->
+              <el-descriptions-item>
+                <template slot="label">
+                  自动拉流
+                  <el-popover
+                    placement="top-start"
+                    title="自动拉流"
+                    width="400"
+                    trigger="hover"
+                    :open-delay="300"
+                    :content="tips.pullType"
+                  >
+                    <svg-icon slot="reference" class="form-question" name="help" />
+                  </el-popover>
+                </template>
+                {{ pullType[info.pullType] }}
+              </el-descriptions-item>
+              <el-descriptions-item label="信令传输模式">
+                {{ sipTransType[info.sipTransType] || '-' }}
+              </el-descriptions-item>
+              <el-descriptions-item label="流传输模式">
+                {{ streamTransType[info.streamTransType] || '-' }}
+              </el-descriptions-item>
+              <el-descriptions-item v-if="info.deviceType === 'nvr' || info.deviceType === 'ipc'">
+                <template slot="label">
+                  优先TCP传输
+                  <el-popover
+                    placement="top-start"
+                    title="优先TCP传输"
+                    width="400"
+                    trigger="hover"
+                    :open-delay="300"
+                    :content="tips.transPriority"
+                  >
+                    <svg-icon slot="reference" class="form-question" name="help" />
+                  </el-popover>
+                </template>
+                {{ transPriority[info.transPriority] || '-' }}
+              </el-descriptions-item>
+              <el-descriptions-item label="设备描述">
+                {{ info.description || '-' }}
+              </el-descriptions-item>
+            </el-descriptions>
+            <el-descriptions v-if="groupInfo" title="SIP服务信息" :column="2">
+              <el-descriptions-item label="接入区域">
+                {{ groupInfo.regionName || '-' }}
+              </el-descriptions-item>
+              <el-descriptions-item label="SIP服务器ID">
+                {{ groupInfo.sipId || '-' }}
+              </el-descriptions-item>
+              <el-descriptions-item label="SIP服务器域">
+                {{ groupSipDomain || '-' }}
+              </el-descriptions-item>
+              <el-descriptions-item label="SIP服务器地址">
+                {{ groupInfo.sipIp || '-' }}
+              </el-descriptions-item>
+              <el-descriptions-item label="SIP服务器TCP端口">
+                {{ groupInfo.sipTcpPort || '-' }}
+              </el-descriptions-item>
+              <el-descriptions-item label="SIP服务器UDP端口">
+                {{ groupInfo.sipUdpPort || '-' }}
+              </el-descriptions-item>
+            </el-descriptions>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="模板配置" name="template">
+        <el-tab-pane v-if="!isVGroup" label="模板配置" name="template">
           <template-bind v-if="activeName==='template'" :device-id="deviceId" :in-protocol="inProtocol" />
+        </el-tab-pane>
+        <el-tab-pane label="实时预览" name="preview">
+          <detail-preview v-if="activeName==='preview'" :device-id="deviceId" :in-protocol="inProtocol" />
+        </el-tab-pane>
+        <el-tab-pane label="录像回放" name="replay">
+          <detail-replay v-if="activeName==='replay'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
       </el-tabs>
       <canvas-draw v-if="canvasDialog" :device-id="deviceId" :in-protocol="inProtocol" :canvas-if="canvasDialog" />
     </div>
-    <SetAuthConfig v-if="dialog.setAuthConfig" @on-close="closeDialog('setAuthConfig')" />
+    <set-auth-config v-if="dialog.setAuthConfig" @on-close="closeDialog('setAuthConfig')" />
+    <move-dir v-if="dialog.moveDir" :in-protocol="inProtocol" :device="info" :is-batch="false" @on-close="closeDialog('moveDir', ...arguments)" />
   </div>
 </template>
 
@@ -115,6 +199,10 @@ import { provinceMapping, cityMapping } from '@/assets/region/cities'
   name: 'DeviceGb28181Detail'
 })
 export default class extends Mixins(detailMixin) {
+  public async mounted() {
+    this.getGroup()
+  }
+
   private get address() {
     let info: any = this.info
     if (!info.gbRegion) return null
@@ -149,6 +237,9 @@ export default class extends Mixins(detailMixin) {
       top: -12px;
       right: 0;
       z-index: 9;
+    }
+    ::v-deep .el-descriptions-item__label {
+      width: 130px;
     }
   }
 

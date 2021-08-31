@@ -1,30 +1,41 @@
-import { Component, Vue, Inject } from 'vue-property-decorator'
+import { Component, Mixins, Inject, Watch } from 'vue-property-decorator'
+import DeviceMixin from './deviceMixin'
 import { Device } from '@/type/device'
+import { Group } from '@/type/group'
 import { RecordTemplate } from '@/type/template'
 import { getDevice, getLianzhouArea } from '@/api/device'
+import { queryGroup } from '@/api/group'
+import { GroupModule } from '@/store/modules/group'
+import { DeviceModule } from '@/store/modules/device'
 import { DeviceStatus, DeviceGb28181Type, RecordStatus, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType } from '@/dics'
 import { getDeviceResources } from '@/api/billing'
 import TemplateBind from '../../components/templateBind.vue'
 import SetAuthConfig from '../components/dialogs/SetAuthConfig.vue'
+import DetailPreview from '../components/DetailPreview.vue'
+import DetailReplay from '../components/DetailReplay.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AntiTheftChain from '../components/AntiTheftChain.vue'
 import { checkPermission } from '@/utils/permission'
 import { regionList } from '@/assets/region/lianzhouRegion'
 import copy from 'copy-to-clipboard'
-import { isThisHour } from 'date-fns'
 import CanvasDraw from '../components/canvasDraw/index.vue'
+import { VGroupModule } from '@/store/modules/vgroup'
 
 @Component({
   components: {
     TemplateBind,
+    DetailPreview,
+    DetailReplay,
     SetAuthConfig,
     StatusBadge,
     AntiTheftChain,
     CanvasDraw
   }
 })
-export default class DetailMixin extends Vue {
-  @Inject('deviceRouter') public deviceRouter!: Function
+export default class DetailMixin extends Mixins(DeviceMixin) {
+  @Inject('gotoRoot')
+  public gotoRoot!: Function
+
   public checkPermission = checkPermission
   public activeName = 'info'
   public deviceStatus = DeviceStatus
@@ -41,7 +52,15 @@ export default class DetailMixin extends Vue {
   public resourceType = ResourceType
   public createSubDevice = CreateSubDevice
   public info: Device | null = null
+  public groupInfo: Group | null = null
   public resources: any = []
+
+  public tips = {
+    createSubDevice: '当开启自动创建NVR子设备时，系统将自动为子设备分配通道号和通道名称。',
+    pullType: '当启用自动拉流，设备注册成功后自动启动拉流。关闭该选项后需要通过触发的方式启动拉流。',
+    pushType: '自动激活推流地址，设备创建完成后，平台立刻自动生成推流地址。关闭该选项后需要通过触发的方式生成推流地址。',
+    transPriority: '开启优先TCP传输时，设备进行视频邀约时优先使用TCP协议接入到视频监控服务中。关闭时则优先使用UDP协议接入。'
+  }
   public pushConfig = {
     auth: true,
     key: '1a66a5c2317368a282ceb2b326767651',
@@ -69,10 +88,12 @@ export default class DetailMixin extends Vue {
     recordTemplate: []
   }
   public dialog = {
-    setAuthConfig: false
+    setAuthConfig: false,
+    moveDir: false
   }
   public loading = {
     info: false,
+    groupInfo: false,
     template: false
   }
   public recordTemplateId = ''
@@ -86,7 +107,19 @@ export default class DetailMixin extends Vue {
   public lianzhouAddress: string = ''
 
   public get isGb() {
-    return this.$route.query.inProtocol === 'gb28181'
+    return this.$route.query.inProtocol === 'gb28181' || this.$route.query.realGroupInProtocol === 'gb28181'
+  }
+
+  public get isVGroup() {
+    return this.$route.query.inProtocol === 'vgroup'
+  }
+
+  public get realGroupId() {
+    return VGroupModule.realGroupId
+  }
+
+  public get isNVR() {
+    return this.info && this.info.deviceType === 'nvr'
   }
 
   public get isNVRChannel() {
@@ -101,6 +134,10 @@ export default class DetailMixin extends Vue {
     return this.$route.query.inProtocol
   }
 
+  public get currentGroupId() {
+    return GroupModule.group?.groupId
+  }
+
   public get isAutoCreated() {
     return this.info && this.info.parentDeviceId !== '-1' && this.info.createSubDevice === 1
   }
@@ -113,7 +150,16 @@ export default class DetailMixin extends Vue {
     }
   }
 
+  public get groupSipDomain() {
+    return this.groupInfo.sipId && this.groupInfo.sipId.toString().substr(0, 10)
+  }
+
   public async mounted() {
+    if (this.$route.query.tab) {
+      this.activeName = this.$route.query.tab.toString()
+    } else {
+      this.activeName = 'info'
+    }
     // TODO: 连州教育局一机一档专用
     this.lianzhouFlag = this.$store.state.user.tags.isLianZhouEdu === 'Y'
     await this.getDevice()
@@ -224,6 +270,22 @@ export default class DetailMixin extends Vue {
   }
 
   /**
+   * 获取业务组信息
+   */
+  public async getGroup() {
+    try {
+      this.loading.groupInfo = true
+      this.groupInfo = await queryGroup({
+        groupId: this.currentGroupId
+      })
+    } catch (e) {
+      console.error(e)
+    } finally {
+      this.loading.groupInfo = false
+    }
+  }
+
+  /**
    * 实时预览
    */
   public goToPreview() {
@@ -241,6 +303,36 @@ export default class DetailMixin extends Vue {
       id: this.deviceId,
       type: 'nvr'
     })
+  }
+
+  /**
+   * 查看通道
+   */
+  public moveDir() {
+    this.openDialog('moveDir')
+  }
+
+  /**
+   * 返回上一级
+   */
+  public goSuperior() {
+    const breadcrumb: Array<any> = DeviceModule.breadcrumb
+    if (breadcrumb.length > 1) {
+      const superior: any = breadcrumb.slice(-2, -1)[0]
+      this.deviceRouter({
+        id: superior.id,
+        type: superior.type
+      })
+    } else {
+      this.gotoRoot()
+    }
+  }
+
+  /**
+   * 设备删除后返回上一级
+   */
+  public onDeleteDevice() {
+    this.goSuperior()
   }
 
   /**
@@ -276,5 +368,13 @@ export default class DetailMixin extends Vue {
   public copyUrl(text: string) {
     copy(text)
     this.$message.success('复制成功')
+  }
+
+  @Watch('realGroupId')
+  public async onRealGroupIdChange(realGroupId: string, oldRealGroupId: string) {
+    if (!realGroupId || oldRealGroupId) return
+    await this.getDevice()
+    await this.getDeviceResources()
+    this.lianzhouFlag && await this.getLianzhouAddress()
   }
 }

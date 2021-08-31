@@ -1,14 +1,10 @@
 import axios from 'axios'
-import { MessageBox, Message } from 'element-ui'
+import { MessageBox } from 'element-ui'
 import { UserModule } from '@/store/modules/user'
+import { GroupModule } from '@/store/modules/group'
+import { VGroupModule } from '@/store/modules/vgroup'
 import { getLocalStorage } from '@/utils/storage'
 import settings from '@/settings'
-
-export const getConsoleDropdownTree = (): Promise<any> =>
-  axios({
-    url: '/gw/v1/portal/menu/GetTree?domain=console.dropdown&locale=zh-cn',
-    method: 'get'
-  })
 
 class VSSError extends Error {
   constructor(public code: string, message: string) {
@@ -28,6 +24,13 @@ service.interceptors.request.use(
   (config) => {
     if (UserModule.token) {
       config.headers['token'] = UserModule.token
+      if (GroupModule.group && GroupModule.group.inProtocol === 'vgroup') {
+        const pathname = window.location.pathname
+        if ((pathname.startsWith('/vss/device') || pathname.startsWith('/vss/screen') || pathname.startsWith('/vss/replay')) && !config.headers['role-id'] && !config.headers['real-group-id']) {
+          config.headers['role-id'] = VGroupModule.roleId
+          config.headers['real-group-id'] = VGroupModule.realGroupId
+        }
+      }
     }
     console.log('config:', config)
     return config
@@ -50,23 +53,6 @@ service.interceptors.response.use(
 
 function responseHandler(response: any) {
   if (response && (response.status === 200) && response.data && !response.data.code) {
-    const url = (response && response.config && response.config.url) || ''
-    if (!UserModule.iamUserId && url && !url.endsWith('/user/logout')) {
-      const mainUserRoleId = response.headers['x-role-id'] || response.headers['X-Role-Id'] || ''
-      const mainUserRoleName = decodeURIComponent(response.headers['x-role-name'] || response.headers['X-Role-Name'] || '')
-      if (!url.endsWith('/iam/role/switch') && !url.endsWith('/iam/role/exit')) {
-        if (UserModule.mainUserRoleId !== mainUserRoleId) {
-          // 当前 角色id 为空
-          if (mainUserRoleId === '') {
-            Message.info('授权角色已被删除，或已在其他终端退出角色！')
-          }
-          UserModule.overrideRoleInfo({ roleId: mainUserRoleId, roleName: mainUserRoleName })
-          UserModule.switchRole({ role: false, needWebRequest: false })
-        }
-      } else {
-        UserModule.overrideRoleInfo({ roleId: mainUserRoleId, roleName: mainUserRoleName })
-      }
-    }
     return response.data
   } else {
     if (!timeoutPromise && response && response.data && response.data.code === 16) {

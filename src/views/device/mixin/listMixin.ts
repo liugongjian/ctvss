@@ -1,14 +1,17 @@
 import axios from 'axios'
-import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
+import { Component, Watch, Mixins } from 'vue-property-decorator'
+import DeviceMixin from './deviceMixin'
 import { DeviceParams, DeviceStatus, StreamStatus, RecordStatus, DeviceGb28181Type, SipTransType, StreamTransType, TransPriority } from '@/dics'
 import { Device } from '@/type/device'
 import { GroupModule } from '@/store/modules/group'
-import { deleteDevice, startDevice, stopDevice, getDevice, getDevices, startRecord, stopRecord, syncDevice, syncDeviceStatus } from '@/api/device'
+import { deleteDevice, startDevice, stopDevice, getDevice, getDevices, syncDevice, syncDeviceStatus } from '@/api/device'
+import { DeviceModule } from '@/store/modules/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MoveDir from '../components/dialogs/MoveDir.vue'
 import UploadExcel from '../components/dialogs/UploadExcel.vue'
 import Resource from '../components/dialogs/Resource.vue'
 import { checkPermission } from '@/utils/permission'
+import { VGroupModule } from '@/store/modules/vgroup'
 
 @Component({
   components: {
@@ -18,11 +21,7 @@ import { checkPermission } from '@/utils/permission'
     Resource
   }
 })
-export default class CreateMixin extends Vue {
-  @Inject('deviceRouter')
-  public deviceRouter!: Function
-  @Inject('initDirs')
-  public initDirs!: Function
+export default class ListMixin extends Mixins(DeviceMixin) {
   public checkPermission = checkPermission
   public deviceInfo: any = null
   public deviceList: Array<Device> = []
@@ -84,7 +83,11 @@ export default class CreateMixin extends Vue {
   }
 
   public get isGb() {
-    return this.$route.query.inProtocol === 'gb28181'
+    return this.$route.query.inProtocol === 'gb28181' || this.$route.query.realGroupInProtocol === 'gb28181'
+  }
+
+  public get isVGroup() {
+    return this.$route.query.inProtocol === 'vgroup'
   }
 
   public get type() {
@@ -93,6 +96,15 @@ export default class CreateMixin extends Vue {
 
   public get isNVR() {
     return this.$route.query.type === 'nvr'
+  }
+
+  public get showRole() {
+    const query = this.$route.query
+    return query.inProtocol === 'vgroup' && query.type === 'dir' && query.dirId === '0'
+  }
+
+  public get showRealGroup() {
+    return this.$route.query.type === 'role'
   }
 
   public get isChannel() {
@@ -111,6 +123,10 @@ export default class CreateMixin extends Vue {
     return this.$route.query.type === 'dir'
   }
 
+  public get isRealGroup() {
+    return this.$route.query.type === 'group'
+  }
+
   public get isPlatformDir() {
     return this.$route.query.type === 'platformDir'
   }
@@ -127,6 +143,14 @@ export default class CreateMixin extends Vue {
 
   public get groupId() {
     return GroupModule.group?.groupId
+  }
+
+  public get isSorted() {
+    return DeviceModule.isSorted
+  }
+
+  public get realGroupId() {
+    return VGroupModule.realGroupId
   }
 
   public get groupData() {
@@ -172,8 +196,20 @@ export default class CreateMixin extends Vue {
     this.reset()
   }
 
+  @Watch('isSorted')
+  public onIsSortedChange() {
+    DeviceModule.isSorted && this.init()
+    DeviceModule.ResetIsSorted()
+  }
+
   @Watch('groupId')
   public onGroupIdChange() {
+    this.reset()
+  }
+
+  @Watch('realGroupId')
+  public onRealGroupIdChange(realGroupId: string, oldRealGroupId: string) {
+    if (!realGroupId || oldRealGroupId) return
     this.reset()
   }
 
@@ -233,6 +269,13 @@ export default class CreateMixin extends Vue {
   }
 
   /**
+   * 删除成功回调
+   */
+  public onDeleteDevice() {
+    this.init()
+  }
+
+  /**
    * 获取设备流信息
    */
   public getStreamStatus(statusArr: any, num: any) {
@@ -285,10 +328,8 @@ export default class CreateMixin extends Vue {
             }
             return true
           })
-          this.deviceList = deviceList.sort((left: any, right: any) => left.channelNum - right.channelNum)
-        } else {
-          this.deviceList = deviceList
         }
+        this.deviceList = deviceList
       } else if (type === 'ipc') {
         this.deviceInfo = res
         this.parentDeviceId = res.parentDeviceId
@@ -319,6 +360,7 @@ export default class CreateMixin extends Vue {
       let params: any = {
         groupId: this.groupId,
         inProtocol: this.inProtocol,
+        type: this.type === 'role' || this.type === 'group' ? this.type : undefined,
         pageNum: this.pager.pageNum,
         pageSize: this.pager.pageSize,
         deviceType: this.filter.deviceType,
@@ -405,7 +447,7 @@ export default class CreateMixin extends Vue {
    */
   public rowClick(device: Device, column: any) {
     if (column.property !== 'action' && column.property !== 'selection') {
-      const type = device.deviceType === 'ipc' ? 'detail' : device.deviceType
+      const type = device.deviceType === 'ipc' ? 'detail' : device.deviceType || (this.showRole ? 'role' : this.showRealGroup ? 'group' : '')
       this.deviceRouter({
         id: device.deviceId,
         type
@@ -491,57 +533,6 @@ export default class CreateMixin extends Vue {
   }
 
   /**
-   * 预览
-   */
-  public goToPreview(previewTab: string, device: Device) {
-    this.deviceRouter({
-      id: device.deviceId,
-      type: 'preview',
-      previewTab
-    })
-  }
-
-  /**
-   * 查看设备详情
-   */
-  public goToDetail(device: Device) {
-    this.deviceRouter({
-      id: device.deviceId,
-      type: 'detail'
-    })
-  }
-
-  /**
-   * 编辑设备
-   */
-  public goToUpdate(device: Device) {
-    this.deviceRouter({
-      id: device.deviceId,
-      type: 'update'
-    })
-  }
-
-  /**
-   * 删除设备
-   */
-  public deleteDevice(device: Device) {
-    this.$alertDelete({
-      type: '设备',
-      msg: `是否确认删除设备"${device.deviceName}"`,
-      method: deleteDevice,
-      payload: {
-        deviceId: device.deviceId,
-        inProtocol: this.inProtocol,
-        parentDeviceId: device.parentDeviceId
-      },
-      onSuccess: () => {
-        this.init()
-        this.initDirs()
-      }
-    })
-  }
-
-  /**
    * 批量删除设备
    */
   public batchDeleteDevice() {
@@ -581,79 +572,6 @@ export default class CreateMixin extends Vue {
         this.initDirs()
       }
     })
-  }
-
-  /**
-   * 启动设备
-   */
-  public async startDevice(device: Device) {
-    try {
-      const params: any = {
-        deviceId: device.deviceId,
-        inProtocol: this.inProtocol,
-        inType: device.inType,
-        streamNum: device.streamNum
-      }
-      await startDevice(params)
-      this.$message.success('已通知启用设备')
-    } catch (e) {
-      this.$message.error(e && e.message)
-    }
-  }
-
-  /**
-   * 停用设备
-   */
-  public async stopDevice(device: Device) {
-    try {
-      const params: any = {
-        deviceId: device.deviceId,
-        inProtocol: this.inProtocol,
-        inType: device.inType,
-        streamNum: device.streamNum
-      }
-      await stopDevice(params)
-      this.$message.success('已通知停用设备')
-    } catch (e) {
-      this.$message.error(e && e.message)
-    }
-  }
-
-  /**
-   * 开始录像
-   */
-  public async startRecord(device: Device) {
-    try {
-      const params: any = {
-        deviceId: device.deviceId,
-        inProtocol: this.inProtocol
-      }
-      await startRecord(params)
-      this.$message.success('已通知开始录制')
-      this.init()
-    } catch (e) {
-      this.$message.error(e && e.message)
-      console.error(e)
-    }
-  }
-
-  /**
-   * 停止录像
-   */
-  public async stopRecord(device: Device) {
-    try {
-      const params: any = {
-        deviceId: device.deviceId,
-        recordTaskId: device.recordTaskId,
-        inProtocol: this.inProtocol
-      }
-      await stopRecord(params)
-      this.$message.success('已通知停止录像')
-      this.init()
-    } catch (e) {
-      this.$message.error(e && e.message)
-      console.error(e)
-    }
   }
 
   /**
