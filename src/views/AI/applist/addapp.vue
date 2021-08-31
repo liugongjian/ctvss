@@ -39,7 +39,7 @@ export default class extends Vue {
     private isLoading: boolean = false
 }
 </script>
-<style scoped>
+<style lang="scss" scoped>
 .input-with-select {
   width: 260px;
   position: absolute;
@@ -62,5 +62,8 @@ export default class extends Vue {
 }
 .head{
   margin-bottom: 20px;
+  .el-steps {
+    background: #fff !important;
+  }
 }
 </style>

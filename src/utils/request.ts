@@ -29,6 +29,7 @@ service.interceptors.request.use(
     if (UserModule.token) {
       config.headers['token'] = UserModule.token
     }
+    console.log('config:', config)
     return config
   },
   (error) => {

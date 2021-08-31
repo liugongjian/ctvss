@@ -7,12 +7,12 @@
         </el-row>
       </div>
       <el-row>
-        <el-tabs v-model="activeTabName" type="border-card" @tab-click="handleTabType">
+        <el-tabs v-model="activeTabName" @tab-click="handleTabType">
           <el-tab-pane v-for="item in tabInfo" :key="item.name" :label="item.label" :name="item.name">
             <div class="tableOp">
-              <el-button @click="handleButtonClick('on-batch')">启用</el-button>
-              <el-button @click="handleButtonClick('off-batch')">停用</el-button>
-              <el-button @click="handleButtonClick('del-batch')">删除</el-button>
+              <el-button :disabled="disabled" @click="handleButtonClick('on-batch')">启用</el-button>
+              <el-button :disabled="disabled" @click="handleButtonClick('off-batch')">停用</el-button>
+              <el-button :disabled="disabled" @click="handleButtonClick('del-batch')">删除</el-button>
               <el-input v-model="searchInput" placeholder="请输入应用名称 / 描述" class="input-with-select" @keyup.enter.native="handleSearch">
                 <el-button slot="append" icon="el-icon-search" @click="handleSearch" />
               </el-input>
@@ -28,14 +28,14 @@
               >
                 <el-table-column type="selection" width="55" />
                 <el-table-column label="应用名称" width="120">
-                  <template slot-scope="scope">{{ scope.row.date }}</template>
+                  <template slot-scope="scope">{{ scope.row.name }}</template>
                 </el-table-column>
                 <el-table-column prop="name" label="算法类型" width="120" />
-                <el-table-column prop="address" label="分析类型" />
+                <el-table-column prop="name" label="分析类型" />
                 <el-table-column prop="description" label="描述" show-overflow-tooltip />
-                <el-table-column prop="device" label="关联设备数" />
-                <el-table-column prop="status" label="状态">
-                  <template slot-scope="scope"><span>{{ parseInt(scope.row.status) ? '启用' : '未启用' }}</span></template>
+                <el-table-column prop="name" label="关联设备数" />
+                <el-table-column prop="appEnabled" label="状态">
+                  <template slot-scope="scope"><span>{{ parseInt(scope.row.appEnabled) ? '启用' : '未启用' }}</span></template>
                 </el-table-column>
                 <el-table-column label="操作">
                   <template slot-scope="scope">
@@ -88,6 +88,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import { getAppList } from '@/api/aiApp'
 @Component({
   name: 'AppList',
   components: {
@@ -163,6 +164,12 @@ export default class extends Vue {
   $router: any
   private oprateApp: any
 
+  private async mounted() {
+    let { aiApps } = await getAppList()
+    this.tableData = aiApps
+    console.log(aiApps)
+  }
+
   private addApp() {
     this.$router.push({ path: '/AI/addapp', params: { appType: 1 } })
   }
@@ -235,6 +242,9 @@ export default class extends Vue {
         appinfo
       }
     })
+  }
+  get disabled() {
+    return this.multipleSelection.length === 0
   }
 }
 </script>

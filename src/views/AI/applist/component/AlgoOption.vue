@@ -16,6 +16,7 @@
   </div>
 </template>
 <script lang='ts'>
+import { getAlgorithmList } from '@/api/aiApp'
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import ProdCard from './ProdCard.vue'
 
@@ -36,14 +37,15 @@ export default class extends Vue {
     { label: '人体识别', name: 'body' },
     { label: '场景识别', name: 'scene' }
   ]
-  private prodInfo: any = [
-    { id: 1, name: '人脸比对', description: '两张人脸进行 1：1 比对，得到人脸相似度，分析图片中人脸的遮挡度、模糊度、光照强度、姿态角度、完整度，基于输出的符合质量标准的图片，返回准确的相似度评分。' },
-    { id: 2, name: '人流量统计', description: '适用于3米以上的中远距离俯拍，以头部为识别目标统计图片中的瞬时人数；无人数上限，广泛适用于机场、车站、商场、展会、景区等人群密集场所。' },
-    { id: 3, name: '手势识别', description: '识别图片中的手部位置和手势类型，可识别24种常见手势，包括拳头、OK、比心、作揖、作别、祈祷、我爱你、点赞、Diss、Rock、竖中指、数字等。' },
-    { id: 4, name: '人脸属性识别', description: '检测出授权图像中人脸数量，输出人脸概率、性别、年龄、表情（中性/微笑）、是否戴眼镜、是否佩戴口罩六种属性和人脸的1024维深度学习特征，可实现高性能的人脸识别。' },
-    { id: 4, name: '人流量统计', description: '适用于3米以上的中远距离俯拍，以头部为识别目标统计图片中的瞬时人数；无人数上限，广泛适用于机场、车站、商场、展会、景区等人群密集场所。' },
-    { id: 4, name: '手势识别', description: '识别图片中的手部位置和手势类型，可识别24种常见手势，包括拳头、OK、比心、作揖、作别、祈祷、我爱你、点赞、Diss、Rock、竖中指、数字等。' }
-  ]
+  private prodInfo: any = [{ id: 1, name: '人流量统计', detail: '适用于3米以上的中远距离俯拍，以头部为识别目标统计图片中的瞬时人数；无人数上限，广泛适用于机场、车站、商场、展会、景区等人群密集场所。' },
+    { id: 2, name: '人流量统计', detail: '适用于3米以上的中远距离俯拍，以头部为识别目标统计图片中的瞬时人数；无人数上限，广泛适用于机场、车站、商场、展会、景区等人群密集场所。' }, 
+    { id: 3, name: '人流量统计', detail: '适用于3米以上的中远距离俯拍，以头部为识别目标统计图片中的瞬时人数；无人数上限，广泛适用于机场、车站、商场、展会、景区等人群密集场所。' }]
+
+  private async mounted() {
+    const { algorithms } = await getAlgorithmList('')
+    this.prodInfo = algorithms
+    console.log(algorithms)
+  }
 
   private changeStep(val: any) {
     this.$emit('update:step', val.step)
@@ -61,7 +63,7 @@ export default class extends Vue {
 .input-with-select {
     width: 260px;
     position: absolute;
-    top:0;
+    top:-7px;
     right: 0;
 }
 .el-row{
@@ -72,7 +74,7 @@ export default class extends Vue {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content:space-around;
+    justify-content:flex-start;
     align-content: flex-start;
     height: 60vh;
     min-width: 1200px;

@@ -6,7 +6,7 @@
     </div>
     <div class="content-wrapper">
       <div class="prod-name">{{ prod.name }}</div>
-      <div class="prod-desc">{{ prod.description }}</div>
+      <div class="prod-desc">{{ prod.detail }}</div>
       <div class="oprator">
         <el-button type="warning" size="small" @click="onChooseProd">选择</el-button>
         <el-link type="warning">查看算法介绍</el-link>
@@ -37,6 +37,7 @@ export default class extends Vue {
     min-width: 100px;
     min-height: 240px;
     margin-top: 2%;
+    margin-right: 2%;
     ::v-deep .el-card__body{
         height: 100%;
     }
@@ -70,8 +71,8 @@ export default class extends Vue {
             margin-bottom: 15px;
         }
         .prod-desc{
-            font-size: 18px;
-            line-height: 24px;
+            font-size: 23px;
+            line-height: 35px;
         }
         .oprator{
             position: absolute;
