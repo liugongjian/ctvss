@@ -71,7 +71,7 @@
           <template slot-scope="{row}">
             <template v-if="!row.edit">
               <span>{{ row.templateName }}</span>
-              <el-button v-if="!isVGroup && checkPermission(['*'])" type="text" icon="el-icon-edit" class="edit-button" @click="editRecordName(row)" />
+              <el-button v-if="!isVGroup && checkPermission(['AdminRecord'])" type="text" icon="el-icon-edit" class="edit-button" @click="editRecordName(row)" />
             </template>
             <template v-else>
               <el-input v-model="recordName" size="small" class="edit-input" />
@@ -84,7 +84,7 @@
         <el-table-column label="时长" prop="duration" :formatter="durationFormatInTable" />
         <el-table-column prop="action" label="操作" width="200" fixed="right">
           <template slot-scope="{row}">
-            <el-button v-if="!isVGroup && checkPermission(['*'])" :disabled="row.loading" type="text" @click="downloadReplay(row)">下载录像</el-button>
+            <el-button v-if="!isVGroup && checkPermission(['AdminRecord'])" :disabled="row.loading" type="text" @click="downloadReplay(row)">下载录像</el-button>
             <el-button type="text" @click="playReplay(row)">播放录像</el-button>
           </template>
         </el-table-column>

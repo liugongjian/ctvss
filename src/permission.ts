@@ -59,6 +59,10 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
           PermissionModule.GenerateRoutes({ perms, iamUserId })
           // Dynamically add accessible routes
           router.addRoutes(PermissionModule.dynamicRoutes)
+          if (to.path === '/dashboard' && PermissionModule.dynamicRoutes[0].path !== 'dashboard') {
+            // @ts-ignore
+            to = PermissionModule.dynamicRoutes[0]
+          }
           // 单点登录菜单高亮
           UserModule.ctLoginId && (<any>window).CtcloudLayout && (<any>window).CtcloudLayout.consoleLayout.match({
             key: to.meta.activeMenu || ('/' + to.name)

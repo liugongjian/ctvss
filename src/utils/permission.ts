@@ -4,7 +4,7 @@ export const checkPermission = (value: string[]): boolean => {
   if (value && value instanceof Array && value.length > 0) {
     const perms = UserModule.perms
     const permissions = value
-    const hasPermission = perms.some((perm: string) => {
+    const hasPermission = perms.indexOf('*') !== -1 || perms.some((perm: string) => {
       return permissions.includes(perm)
     })
     return hasPermission

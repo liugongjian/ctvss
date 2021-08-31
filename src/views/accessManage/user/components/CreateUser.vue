@@ -59,11 +59,33 @@
               <el-table-column
                 prop="policyName"
                 label="策略名"
+                min-width="100"
+                :show-overflow-tooltip="true"
               />
               <el-table-column
-                prop="policyDescribe"
+                prop="scope"
+                label="策略归属域"
+                width="120"
+              >
+                <template slot-scope="scope">
+                  <el-button v-if="scope.row.policyScope === 'ctyun'" type="danger" size="mini">系统策略</el-button>
+                  <el-button v-else type="success" size="mini">自定义策略</el-button>
+                </template>
+              </el-table-column>
+              <el-table-column
+                prop="policyDesc"
                 label="策略描述"
+                :show-overflow-tooltip="true"
+                min-width="180"
               />
+              <el-table-column
+                label="操作"
+                width="80"
+              >
+                <template slot-scope="{row}">
+                  <el-button type="text" size="mini" @click="editPolicy(row)">{{ row.policyScope === 'ctyun' ? '查看策略' : '编辑策略' }}</el-button>
+                </template>
+              </el-table-column>
             </el-table>
           </el-form-item>
           <el-form-item prop="resetPwdEnabled" label="是否重置密码：">
@@ -146,7 +168,9 @@ import { Component, Vue } from 'vue-property-decorator'
 import copy from 'copy-to-clipboard'
 import ExcelJS from 'exceljs'
 import { createUser, getUser, modifyUser, getPolicyList } from '@/api/accessManage'
+import templateBind from '@/views/components/templateBind.vue'
 @Component({
+  components: { templateBind },
   name: 'CreateUser'
 })
 export default class extends Vue {
@@ -182,6 +206,16 @@ export default class extends Vue {
   private newUserData: Array<object> = []
   private showPasswords: boolean = false
   private showSecretKey: boolean = false
+
+  private editPolicy(row: any) {
+    this.$router.push({
+      path: '/accessManage/policy/edit',
+      query: {
+        policyId: row.policyId,
+        policyScope: row.policyScope
+      }
+    })
+  }
 
   private accessTypeChange() {
     this.form.accessType = this.form.consoleEnabled || this.form.apiEnabled
@@ -255,15 +289,7 @@ export default class extends Vue {
     }
     try {
       let res: any = await getPolicyList(params)
-      this.policyList = []
-      for (let i = 0; i < res.iamPolices.length; i++) {
-        let obj: object = {
-          policyName: res.iamPolices[i].policyName,
-          policyDescribe: res.iamPolices[i].policyDesc,
-          policyId: res.iamPolices[i].policyId
-        }
-        this.policyList.push(obj)
-      }
+      this.policyList = res.iamPolices
     } catch (e) {
       this.$message.error(e && e.message)
     }

@@ -79,7 +79,7 @@
           <el-table v-loading="loading.body" :data="userList">
             <el-table-column prop="iamUserName" label="用户名" />
             <el-table-column prop="iamUserId" label="账号ID" />
-            <el-table-column prop="policyName" label="策略" />
+            <el-table-column prop="policyName" label="策略名" />
             <el-table-column prop="createdTime" label="创建时间" />
             <el-table-column label="操作" fixed="right" width="260">
               <template slot-scope="scope">
