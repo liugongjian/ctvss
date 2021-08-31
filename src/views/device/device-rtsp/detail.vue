@@ -2,7 +2,7 @@
   <div class="app-container">
     <div v-loading="loading.info" class="detail-wrap">
       <div v-if="info" class="btn-detail">
-        <el-button @click="goToPreview"><svg-icon name="live" /> 实时预览</el-button>
+        <el-button v-if="checkPermission(['ScreenPreview', 'ReplayRecord'])" @click="goToPreview"><svg-icon name="live" /> 实时预览</el-button>
         <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
       </div>
       <el-tabs v-model="activeName" @tab-click="handleClick">
