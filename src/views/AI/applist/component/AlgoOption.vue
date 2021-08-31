@@ -16,7 +16,7 @@
   </div>
 </template>
 <script lang='ts'>
-import { getAlgorithmList } from '@/api/aiApp'
+import { getAlgorithmList } from '@/api/ai-app'
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import ProdCard from './ProdCard.vue'
 

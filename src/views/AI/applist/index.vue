@@ -88,7 +88,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { getAppList } from '@/api/aiApp'
+import { getAppList } from '@/api/ai-app'
 @Component({
   name: 'AppList',
   components: {
@@ -106,10 +106,10 @@ export default class extends Vue {
   private clickType: String = ''
   private dialogTitle: String = ''
   private searchInput: String = ''
-  private tabInfo: any = [{ label: '全部', name: 'all' },
-    { label: '人脸识别', name: 'face' },
-    { label: '人体识别', name: 'body' },
-    { label: '场景识别', name: 'scene' }]
+  private tabInfo: any = [{ label: '全部 ' + '(4)', name: 'all' },
+    { label: '人脸识别 ' + '(1)', name: 'face' },
+    { label: '人体识别 ' + '(2)', name: 'body' },
+    { label: '场景识别 ' + '(1)', name: 'scene' }]
   private tableData: any = [{
     date: '人员布控03',
     name: '人员聚集',
@@ -171,7 +171,7 @@ export default class extends Vue {
   }
 
   private addApp() {
-    this.$router.push({ path: '/AI/addapp', params: { appType: 1 } })
+    this.$router.push({ path: '/AI/create', params: { appType: 1 } })
   }
   private appDetail(appinfo: any, tabNum: number) {
     this.$router.push({

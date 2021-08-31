@@ -771,7 +771,7 @@ export const asyncRoutes: RouteConfig[] = [
         }
       },
       {
-        path: 'AIAppList',
+        path: 'ai-app-list',
         component: () => import(/* webpackChunkName: "AI" */ '@/views/AI/applist/index.vue'),
         name: 'AI-AppList',
         meta: {
@@ -786,8 +786,8 @@ export const asyncRoutes: RouteConfig[] = [
         }
       },
       {
-        path: 'addapp',
-        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/AI/applist/addapp.vue'),
+        path: 'create',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/AI/applist/AddApp.vue'),
         name: 'AI-AddApp',
         meta: {
           id: '20210424150201010004',
@@ -800,8 +800,8 @@ export const asyncRoutes: RouteConfig[] = [
         }
       },
       {
-        path: 'editapp',
-        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/AI/applist/addapp.vue'),
+        path: 'edit',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/AI/applist/AddApp.vue'),
         name: 'AI-EditApp',
         meta: {
           id: '20210424150201010005',
@@ -814,8 +814,8 @@ export const asyncRoutes: RouteConfig[] = [
         }
       },
       {
-        path: 'appdetail',
-        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/AI/applist/appdetail.vue'),
+        path: 'detail',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/AI/applist/AppDetail.vue'),
         name: 'AI-AppDetail',
         meta: {
           id: '20210424150201010004',
