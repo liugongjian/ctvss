@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-page-header :content="breadCrumbContent" @back="back" />
-    <el-card>
+    <el-card v-loading="loading.resource">
       <el-form ref="form" class="form" :rules="rules" :model="form" label-width="100px">
         <el-form-item v-if="isUpdate" label="策略ID：" prop="policyId">
           <el-input v-model="form.policyId" class="form__input" :disabled="isUpdate" />
@@ -27,6 +27,7 @@
             :data="systemActionList"
             tooltip-effect="dark"
             @selection-change="handleSelectionChange"
+            @row-click="handleRowClick"
           >
             <el-table-column
               type="selection"
@@ -225,6 +226,16 @@ export default class extends Vue {
     this.form.actionList = actions.map((action: any) => action.actionValue)
   }
 
+  private handleRowClick(row: any) {
+    const index = this.form.actionList.indexOf(row.actionValue)
+    if (index === -1) {
+      this.form.actionList.push(row.actionValue)
+    } else {
+      this.form.actionList.splice(index, 1)
+    }
+    const actionTable: any = this.$refs.actionTable
+    actionTable.toggleRowSelection(row, index === -1)
+  }
   /*
    * 获取策略详情
    */

@@ -47,7 +47,7 @@
             <svg-icon name="snapshot" width="18px" height="18px" />
           </div>
         </el-tooltip>
-        <el-tooltip content="录像回放" placement="top">
+        <el-tooltip v-if="checkPermission(['ReplayRecord'])" content="录像回放" placement="top">
           <div v-if="isLive && hasPlayback" class="controls__btn controls__snapshot" @click.stop.prevent="playback">
             <svg-icon name="playback2" width="18px" height="18px" />
           </div>
@@ -78,6 +78,7 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { UserModule } from '@/store/modules/user'
 import { createPlayer } from '../models/Ctplayer'
 import { durationFormatInVideo } from '@/utils/date'
+import { checkPermission } from '@/utils/permission'
 
 @Component({
   name: 'Player'
@@ -170,6 +171,7 @@ export default class extends Vue {
   @Prop()
   private deviceName?: string
 
+  private checkPermission = checkPermission
   private isDragging: boolean = false
   public player?: any
   public paused?: boolean = true
