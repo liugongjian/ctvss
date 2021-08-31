@@ -210,7 +210,6 @@ class User extends VuexModule implements IUserState {
       try {
         const actionList = policy.Statement[0].Action
         const resourceList = policy.Statement[0].Resource
-        debugger
         if (actionList[0] === 'vss:*') {
           data.perms = ['*']
           data.resource = ['*']
