@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-table v-loading="loading" class="resource-table" :data="dataList">
+    <el-table v-loading="loading" class="resource-table" :data="dataList" @row-click="rowClick($event, 'downloadBandwidth')">
       <el-table-column prop="id" label="编号">
         <template slot-scope="scope">
           <span class="device-id">{{ scope.row.resourceId.substr(0, 10) }}</span>
