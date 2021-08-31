@@ -51,6 +51,10 @@ export default class DeviceMixin extends Vue {
     return this.$route.query.type === 'dir' && this.$route.query.dirId === '0'
   }
 
+  public get isSorted() {
+    return DeviceModule.isSorted
+  }
+
   /**
    * 初始化目录
    */
@@ -379,21 +383,11 @@ export default class DeviceMixin extends Vue {
           dir.realGroupInProtocol = node.data.realGroupInProtocol || ''
         })
       }
-      if (node.data.type === 'nvr') {
-        res.dirs = this.sortDirs(res.dirs)
-      }
       res.dirs = this.setDirsStreamStatus(res.dirs)
       resolve(res.dirs)
     } catch (e) {
       resolve([])
     }
-  }
-
-  /**
-   * 排序目录树
-   */
-  public sortDirs(dirs: any) {
-    return dirs.sort((left: any, right: any) => left.channelNum - right.channelNum)
   }
 
   /**

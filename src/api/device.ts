@@ -18,7 +18,11 @@ export const getDevices = (params: any, cancelToken?: any): Promise<any> =>
   request({
     url: '/device/list',
     method: 'get',
-    params,
+    params: {
+      ...params,
+      sortBy: 'OrderSequence',
+      sortDirection: 'asc'
+    },
     cancelToken
   })
 
@@ -29,7 +33,11 @@ export const getChannels = (params: any): Promise<any> =>
   request({
     url: '/device/channel',
     method: 'get',
-    params
+    params: {
+      ...params,
+      sortBy: 'OrderSequence',
+      sortDirection: 'asc'
+    }
   })
 
 /**
@@ -71,8 +79,23 @@ export const getDeviceTree = (params: any): Promise<any> => {
   return request({
     url: '/device/tree',
     method: 'get',
-    params,
+    params: {
+      ...params,
+      sortBy: 'OrderSequence',
+      sortDirection: 'asc'
+    },
     headers: headers
+  })
+}
+
+/**
+ * 子目排序
+ */
+export const sortDeviceTree = (params: any): Promise<any> => {
+  return request({
+    url: '/device/location/move',
+    method: 'post',
+    data: params
   })
 }
 
