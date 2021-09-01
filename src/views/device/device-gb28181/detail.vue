@@ -187,7 +187,7 @@
         </el-tab-pane>
         <el-tab-pane v-if="!isVGroup" label="模板配置" name="config">
           <detail-config v-if="activeName==='config'" :device-id="deviceId" :in-protocol="inProtocol" />
-          <template-bind v-if="activeName==='config'" :device-id="deviceId" :in-protocol="inProtocol" />
+          <!-- <template-bind v-if="activeName==='config'" :device-id="deviceId" :in-protocol="inProtocol" /> -->
         </el-tab-pane>
         <el-tab-pane label="实时预览" name="preview">
           <detail-preview v-if="activeName==='preview'" :device-id="deviceId" :in-protocol="inProtocol" />
@@ -252,7 +252,7 @@ export default class extends Mixins(detailMixin) {
       z-index: 9;
     }
     ::v-deep .el-descriptions-item__label {
-      width: 130px;
+      min-width: 130px;
     }
   }
 

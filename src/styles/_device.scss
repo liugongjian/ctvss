@@ -358,7 +358,7 @@
       margin-bottom: 15px;
     }
     .detail__section {
-      margin-bottom: 15px;
+      padding-bottom: 15px;
     }
     .detail__title {
       position: relative;
@@ -381,19 +381,13 @@
         margin-left: 10px;
       }
     }
-    .detail__empty-card {
-      .el-card__body {
-        padding: 20px;
-        text-align: center;
-        color: $textGrey;
-      }
-    }
+
     .el-descriptions {
       &__header {
         margin: 10px 0;
       }
       &-item__label {
-        width: 100px;
+        min-width: 100px;
         text-align: right;
         color: $textGrey;
       }
@@ -402,6 +396,27 @@
       }
       .el-link {
         margin-left: 10px;
+      }
+    }
+    
+    .el-card {
+      margin: 15px 0;
+      .el-card__header {
+        font-weight: bold;
+        .el-link--inner {
+          margin-left: 10px;
+        }
+      }
+      .el-card__body {
+        padding: 10px;
+      }
+    }
+
+    .el-card.detail__empty-card {
+      .el-card__body {
+        padding: 20px;
+        text-align: center;
+        color: $textGrey;
       }
     }
   }
