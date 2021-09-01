@@ -55,7 +55,7 @@
       </el-card>
     </div>
     <!--录制模版信息-->
-    <div class="detail__section">
+    <div v-loading="loading.recordTemplate" class="detail__section">
       <div class="detail__title">
         录制模版信息
         <el-link @click="setRecordTemplate">配置</el-link>
@@ -73,9 +73,12 @@
           {{ template.recordTemplate.mpParam.enable ? 'mp4': '' }}
         </el-descriptions-item>
       </el-descriptions>
+      <div v-else-if="!loading.recordTemplate" class="detail__empty-card">
+        暂未绑定录制模版
+      </div>
     </div>
     <!--回调模版信息-->
-    <div class="detail__section">
+    <div v-loading="loading.callbackTemplate" class="detail__section">
       <div class="detail__title">
         回调模版信息
         <el-link @click="setCallbackTemplate">配置</el-link>
@@ -91,9 +94,9 @@
           {{ template.recordTemplate.callbackKey }}
         </el-descriptions-item>
       </el-descriptions>
-      <el-card v-else class="detail__empty-card">
-        暂未绑定回调模版, <el-link @click="setCallbackTemplate">立即配置</el-link>
-      </el-card>
+      <div v-else-if="!loading.callbackTemplate" class="detail__empty-card">
+        暂未绑定回调模版
+      </div>
     </div>
 
     <!-- canvas画线 -->
@@ -142,21 +145,21 @@ export default class extends Vue {
   private resourceAiType = ResourceAiType
 
   private loading = {
-    record: false,
-    callback: false,
-    ai: false
+    recordTemplate: false,
+    callbackTemplate: false,
+    aiTemplate: false
   }
-
-  private setRecordTemplateDialog = false
-  private setCallbackTemplateDialog = false
-  private recordTemplateId = ''
-  private callbackTemplateId = ''
 
   private template: any = {
     recordTemplate: null,
     callbackTemplate: null,
     aiTemplate: null
   }
+
+  private setRecordTemplateDialog = false
+  private setCallbackTemplateDialog = false
+  private recordTemplateId = ''
+  private callbackTemplateId = ''
 
   private aiList = [
     {
@@ -188,7 +191,7 @@ export default class extends Vue {
    */
   private async getRecordTemplate() {
     try {
-      this.loading.record = true
+      this.loading.recordTemplate = true
       this.template.recordTemplate = null
       const res = await getDeviceRecordTemplate({ deviceId: this.deviceId, inProtocol: this.inProtocol })
       this.template.recordTemplate = res
@@ -197,7 +200,7 @@ export default class extends Vue {
         this.$message.error(e && e.message)
       }
     } finally {
-      this.loading.record = false
+      this.loading.recordTemplate = false
     }
   }
 
@@ -206,7 +209,7 @@ export default class extends Vue {
    */
   private async getCallbackTemplate() {
     try {
-      this.loading.callback = true
+      this.loading.callbackTemplate = true
       this.template.callbackTemplate = null
       const res = await getDeviceCallbackTemplate({ deviceId: this.deviceId, inProtocol: this.inProtocol })
       this.template.callbackTemplate = res
@@ -215,7 +218,7 @@ export default class extends Vue {
         this.$message.error(e && e.message)
       }
     } finally {
-      this.loading.callback = false
+      this.loading.callbackTemplate = false
     }
   }
 
