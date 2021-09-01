@@ -9,7 +9,7 @@
         :key="item.path"
       >
         <span
-          v-if="item.redirect === 'noredirect' || index === breadcrumbs.length-1"
+          v-if="item.redirect === 'noredirect' || index === breadcrumbs.length-1 || (item.path === '/' && !dashboardAllowed)"
           class="no-redirect"
         >{{ item.meta.title }}</span>
         <a
@@ -25,6 +25,7 @@
 import { compile } from 'path-to-regexp'
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { RouteRecord, Route } from 'vue-router'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'Breadcrumb'
@@ -43,6 +44,10 @@ export default class extends Vue {
 
   get isLight() {
     return this.$route.query.isLight
+  }
+
+  get dashboardAllowed() {
+    return UserModule.perms[0] === '*'
   }
 
   created() {

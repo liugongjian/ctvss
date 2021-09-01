@@ -2,9 +2,9 @@
   <div class="app-container">
     <div v-loading="loading.info" class="detail-wrap">
       <div v-if="info" class="btn-detail">
-        <el-button v-if="info.deviceType === 'ipc'" @click="goToPreview"><svg-icon name="live" /> 实时预览</el-button>
+        <el-button v-if="info.deviceType === 'ipc' && checkPermission(['ScreenPreview', 'ReplayRecord'])" @click="goToPreview(checkPermission(['ScreenPriview']) ? 'preview' : 'replay')"><svg-icon name="live" /> 实时预览</el-button>
         <el-button v-if="info.deviceType === 'nvr'" @click="goToChannels"><svg-icon name="list" /> 查看通道</el-button>
-        <el-button v-if="!isVGroup && checkPermission(['*'])" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
+        <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
       </div>
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="基本信息" name="info">

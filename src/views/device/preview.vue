@@ -4,7 +4,7 @@
     <div class="preview-wrap">
       <el-button class="btn-detail" @click="goToDetail"><svg-icon name="documentation" /> 查看设备详情</el-button>
       <el-tabs v-model="activeName" @tab-click="handleClick">
-        <el-tab-pane lazy label="实时预览" name="preview">
+        <el-tab-pane v-if="checkPermission(['ScreenPreview'])" lazy label="实时预览" name="preview">
           <player-container :on-can-play="onCanPlay">
             <live-view
               v-if="activeName === 'preview'"
@@ -18,7 +18,7 @@
             />
           </player-container>
         </el-tab-pane>
-        <el-tab-pane lazy label="录像回放" name="replay">
+        <el-tab-pane v-if="checkPermission(['ReplayRecord'])" lazy label="录像回放" name="replay">
           <player-container :on-can-play="onCanPlay" :calendar-focus="calendarFocus">
             <replay-view
               v-if="activeName === 'replay'"
@@ -114,6 +114,7 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 import ReplayView from './components/ReplayView.vue'
 import LiveView from './components/LiveView.vue'
 import PlayerContainer from './components/PlayerContainer.vue'
+import { checkPermission } from '@/utils/permission'
 
 @Component({
   name: 'DevicePreview',
@@ -137,6 +138,7 @@ export default class extends Mixins(FullscreenMixin) {
   private template = {
     snapshotTemplate: '123'
   }
+  private checkPermission = checkPermission
   private setRecordTemplateDialog = false
   private setSnapshotTemplateDialog = false
   private previewFullscreen = {
