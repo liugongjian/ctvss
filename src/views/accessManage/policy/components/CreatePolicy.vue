@@ -27,7 +27,6 @@
             :data="systemActionList"
             tooltip-effect="dark"
             @selection-change="handleSelectionChange"
-            @row-click="handleRowClick"
           >
             <el-table-column
               type="selection"
@@ -182,6 +181,9 @@ export default class extends Vue {
       { required: true, message: '请输入策略名称', trigger: 'blur' },
       { validator: this.validatePolicyName, trigger: 'blur' }
     ],
+    actionList: [
+      { validator: this.validatorActionList, trigger: 'blur' }
+    ],
     resourceList: [
       { validator: this.validateResourceList, trigger: 'blur' }
     ]
@@ -194,6 +196,15 @@ export default class extends Vue {
       callback()
     }
   }
+
+  private validatorActionList(rule: any, value: string, callback: Function) {
+    if (!this.form.actionList.length) {
+      callback(new Error('操作列表不能为空！'))
+    } else {
+      callback()
+    }
+  }
+
   private validateResourceList(rule: any, value: string, callback: Function) {
     if (this.resourceType === 'selected' && !this.form.resourceList.length) {
       callback(new Error('资源列表不能为空！'))
@@ -223,6 +234,18 @@ export default class extends Vue {
   }
 
   private handleSelectionChange(actions: any) {
+    const actionTable: any = this.$refs.actionTable
+    actions.forEach((action: any) => {
+      if (action.actionValue === 'AdminGroup') {
+        actionTable.toggleRowSelection(this.systemActionList[0], true)
+      }
+      if (action.actionValue === 'AdminDevice') {
+        actionTable.toggleRowSelection(this.systemActionList[2], true)
+      }
+      if (action.actionValue === 'AdminRecord') {
+        actionTable.toggleRowSelection(this.systemActionList[5], true)
+      }
+    })
     this.form.actionList = actions.map((action: any) => action.actionValue)
   }
 
@@ -283,8 +306,12 @@ export default class extends Vue {
   /**
    * 检测是否禁用
    */
-  private checkSelectable() {
-    return !this.isCtyunPolicy
+  private checkSelectable(row: any) {
+    const actionList = this.form.actionList
+    return !(this.isCtyunPolicy ||
+            (row.actionValue === 'DescribeGroup' && actionList.indexOf('AdminGroup') !== -1) ||
+            (row.actionValue === 'DescribeDevice' && actionList.indexOf('AdminDevice') !== -1) ||
+            (row.actionValue === 'ReplayRecord' && actionList.indexOf('AdminRecord') !== -1))
   }
   /**
    * 初始化资源选中状态
