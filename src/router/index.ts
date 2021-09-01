@@ -454,12 +454,8 @@ export const asyncRoutes: RouteConfig[] = [
       title: '向上级联',
       icon: 'platform',
       alwaysShow: true,
-<<<<<<< HEAD
-      perms: ['GET']
-=======
-      breadcrumb: false,
+      breadcrumb: true,
       perms: ['*']
->>>>>>> master
     },
     children: [
       {
@@ -749,19 +745,6 @@ export const asyncRoutes: RouteConfig[] = [
     },
     children: [
       {
-        path: 'config',
-        component: () => import(/* webpackChunkName: "AI" */ '@/views/AI/aiconfig/index.vue'),
-        name: 'aiconfig',
-        meta: {
-          id: '20210424150201010001',
-          title: '人脸库',
-          icon: 'dot',
-          breadcrumb: true,
-          activeMenu: '/AI/config',
-          perms: ['*']
-        }
-      },
-      {
         path: 'maskRecognation',
         component: () => import(/* webpackChunkName: "AI" */ '@/views/AI/maskRecognation/index.vue'),
         name: 'AI-MaskRecognation',
@@ -781,12 +764,12 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'AI-AppList',
         meta: {
           id: '20210424150201010003',
-          title: 'AI应用列表',
+          title: 'AI应用管理',
           icon: 'dot',
           hidden: false,
-          breadcrumb: false,
+          breadcrumb: true,
           only: true,
-          activeMenu: '/AI-AppList',
+          activeMenu: '/AI/ai-app-list',
           perms: ['*']
         }
       },
@@ -800,7 +783,7 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           breadcrumb: true,
-          activeMenu: '/AI-AppList',
+          activeMenu: '/AI/ai-app-list',
           perms: ['*']
         }
       },
@@ -814,7 +797,7 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           breadcrumb: true,
-          activeMenu: '/AI-AppList',
+          activeMenu: '/AI/ai-app-list',
           perms: ['*']
         }
       },
@@ -828,7 +811,20 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           breadcrumb: false,
-          activeMenu: '/AI-AppList',
+          activeMenu: '/AI/ai-app-list',
+          perms: ['*']
+        }
+      },
+      {
+        path: 'config',
+        component: () => import(/* webpackChunkName: "AI" */ '@/views/AI/aiconfig/index.vue'),
+        name: 'aiconfig',
+        meta: {
+          id: '20210424150201010001',
+          title: '人脸库',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/AI/config',
           perms: ['*']
         }
       }
