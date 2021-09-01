@@ -403,6 +403,7 @@
       margin: 15px 0;
       .el-card__header {
         font-weight: bold;
+        padding: 15px 20px;
         .el-link--inner {
           margin-left: 10px;
         }
@@ -412,12 +413,9 @@
       }
     }
 
-    .el-card.detail__empty-card {
-      .el-card__body {
-        padding: 20px;
-        text-align: center;
-        color: $textGrey;
-      }
+    .detail__empty-card {
+      padding: 5px 15px;
+      color: $textGrey;
     }
   }
 
