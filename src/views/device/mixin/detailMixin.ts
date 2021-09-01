@@ -287,10 +287,11 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   /**
    * 实时预览
    */
-  public goToPreview() {
+  public goToPreview(previewTab: string) {
     this.deviceRouter({
       id: this.deviceId,
-      type: 'preview'
+      type: 'preview',
+      previewTab
     })
   }
 

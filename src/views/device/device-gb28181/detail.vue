@@ -185,14 +185,14 @@
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane v-if="!isVGroup" label="模板配置" name="config">
+        <el-tab-pane v-if="!isVGroup" label="配置信息" name="config">
           <detail-config v-if="activeName==='config'" :device-id="deviceId" :in-protocol="inProtocol" />
           <!-- <template-bind v-if="activeName==='config'" :device-id="deviceId" :in-protocol="inProtocol" /> -->
         </el-tab-pane>
-        <el-tab-pane label="实时预览" name="preview">
+        <el-tab-pane v-if="info.deviceType === 'ipc' && checkPermission(['ScreenPreview'])" label="实时预览" name="preview">
           <detail-preview v-if="activeName==='preview'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
-        <el-tab-pane label="录像回放" name="replay">
+        <el-tab-pane v-if="info.deviceType === 'ipc' && checkPermission(['ReplayRecord'])" label="录像回放" name="replay">
           <detail-replay v-if="activeName==='replay'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
       </el-tabs>

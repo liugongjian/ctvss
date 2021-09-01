@@ -6,7 +6,7 @@ function checkPermission(el: any, binding: any) {
   const perms = UserModule.perms
   if (value && value instanceof Array && value.length > 0) {
     const permissions = value
-    const hasPermission = perms.some((perm: any) => {
+    const hasPermission = perms.indexOf('*') !== -1 || perms.some((perm: any) => {
       return permissions.includes(perm)
     })
     if (!hasPermission) {

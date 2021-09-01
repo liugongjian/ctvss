@@ -24,7 +24,7 @@
           <el-radio-button label="list"><svg-icon name="list" width="16px" height="16px" /></el-radio-button>
         </el-tooltip>
       </el-radio-group>
-      <el-tooltip v-if="replayType === 'cloud'" content="录像文件下载" placement="top">
+      <el-tooltip v-if="replayType === 'cloud' && checkPermission(['AdminRecord'])" content="录像文件下载" placement="top">
         <el-button class="filter-container__slice" size="small" @click="sliceDownload"><svg-icon name="download" width="16px" height="16px" /></el-button>
       </el-tooltip>
     </div>
@@ -71,7 +71,7 @@
           <template slot-scope="{row}">
             <template v-if="!row.edit">
               <span>{{ row.templateName }}</span>
-              <el-button v-if="!isVGroup && checkPermission(['*'])" type="text" icon="el-icon-edit" class="edit-button" @click="editRecordName(row)" />
+              <el-button v-if="!isVGroup && checkPermission(['AdminRecord'])" type="text" icon="el-icon-edit" class="edit-button" @click="editRecordName(row)" />
             </template>
             <template v-else>
               <el-input v-model="recordName" size="small" class="edit-input" />
@@ -84,7 +84,7 @@
         <el-table-column label="时长" prop="duration" :formatter="durationFormatInTable" />
         <el-table-column prop="action" label="操作" width="200" fixed="right">
           <template slot-scope="{row}">
-            <el-button v-if="!isVGroup && checkPermission(['*'])" :disabled="row.loading" type="text" @click="downloadReplay(row)">下载录像</el-button>
+            <el-button v-if="!isVGroup && checkPermission(['AdminRecord'])" :disabled="row.loading" type="text" @click="downloadReplay(row)">下载录像</el-button>
             <el-button type="text" @click="playReplay(row)">播放录像</el-button>
           </template>
         </el-table-column>

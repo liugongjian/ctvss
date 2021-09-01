@@ -91,13 +91,6 @@ export const delFromGroup = (params: any): Promise<any> =>
     data: params
   })
 
-export const getPolicyList = (params: any): Promise<any> =>
-  request({
-    url: '/iam/policy/list',
-    method: 'get',
-    params
-  })
-
 export const iamCreateRole = (params: any): Promise<any> =>
   request({
     url: '/iam/role/create',
@@ -151,4 +144,56 @@ export const exitUserRole = (): Promise<any> =>
   request({
     url: '/iam/role/exit',
     method: 'post'
+  })
+
+export const getPolicyList = (params: any): Promise<any> =>
+  request({
+    url: '/iam/policy/list',
+    method: 'get',
+    params
+  })
+
+export const getPolicyInfo = (params: any): Promise<any> =>
+  request({
+    url: '/iam/policy',
+    method: 'get',
+    params
+  })
+
+export const createPolicy = (data: any): Promise<any> =>
+  request({
+    url: '/iam/policy/create',
+    method: 'post',
+    data
+  })
+
+export const editPolicy = (data: any): Promise<any> =>
+  request({
+    url: '/iam/policy/update',
+    method: 'post',
+    data
+  })
+
+export const deletePolicy = (data: any): Promise<any> =>
+  request({
+    url: '/iam/policy/delete',
+    method: 'post',
+    data
+  })
+
+/*
+ * 查询策略绑定的主体信息
+ */
+export const getPolicyPrincipals = (params: any): Promise<any> =>
+  request({
+    url: '/iam/policy/principals',
+    method: 'get',
+    params
+  })
+
+export const detachUserPolicy = (data: any): Promise<any> =>
+  request({
+    url: '/iam/policy/detachUser',
+    method: 'post',
+    data
   })
