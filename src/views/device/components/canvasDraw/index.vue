@@ -465,6 +465,7 @@ export default class extends Vue {
     }
     .el-dialog__footer{
       text-align: center;
+      margin-top: 0;
     }
   }
   .configureDetail{

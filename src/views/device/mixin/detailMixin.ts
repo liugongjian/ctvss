@@ -20,7 +20,6 @@ import AntiTheftChain from '../components/AntiTheftChain.vue'
 import { checkPermission } from '@/utils/permission'
 import { regionList } from '@/assets/region/lianzhouRegion'
 import copy from 'copy-to-clipboard'
-import CanvasDraw from '../components/canvasDraw/index.vue'
 import { DeviceTips } from '@/dics/tips'
 
 @Component({
@@ -31,8 +30,7 @@ import { DeviceTips } from '@/dics/tips'
     DetailReplay,
     SetAuthConfig,
     StatusBadge,
-    AntiTheftChain,
-    CanvasDraw
+    AntiTheftChain
   }
 })
 export default class DetailMixin extends Mixins(DeviceMixin) {

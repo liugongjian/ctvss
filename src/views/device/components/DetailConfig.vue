@@ -45,7 +45,7 @@
               </el-table-column>
               <el-table-column label="操作" min-width="130">
                 <template>
-                  <el-button type="text">算法配置</el-button>
+                  <el-button type="text" @click="openCanvasDialog">算法配置</el-button>
                   <el-button type="text">解除绑定</el-button>
                 </template>
               </el-table-column>
@@ -96,6 +96,9 @@
       </el-card>
     </div>
 
+    <!-- canvas画线 -->
+    <canvas-draw v-if="canvasDialog" :device-id="deviceId" :in-protocol="inProtocol" :canvas-if="canvasDialog" />
+
     <SetRecordTemplate
       v-if="setRecordTemplateDialog"
       :group-id="groupId"
@@ -122,12 +125,14 @@ import { GroupModule } from '@/store/modules/group'
 import { getDeviceRecordTemplate, getDeviceCallbackTemplate } from '@/api/device'
 import SetRecordTemplate from '@/views/components/dialogs/SetRecordTemplate.vue'
 import SetCallBackTemplate from '@/views/components/dialogs/SetCallBackTemplate.vue'
+import CanvasDraw from './canvasDraw/index.vue'
 
 @Component({
   name: 'DeviceConfig',
   components: {
     SetRecordTemplate,
-    SetCallBackTemplate
+    SetCallBackTemplate,
+    CanvasDraw
   }
 })
 export default class extends Vue {
@@ -159,6 +164,15 @@ export default class extends Vue {
       aiType: 'AI-100'
     }
   ]
+
+  private canvasDialog = false;
+
+  private openCanvasDialog() {
+    this.canvasDialog = true
+  }
+  private closeCanvasDialog() {
+    this.canvasDialog = false
+  }
 
   public get groupId() {
     return GroupModule.group?.groupId
