@@ -27,7 +27,6 @@
             v-model="form.alarmMethod"
             :options="alarmMethodOptions"
             :props="props"
-            clearable
           />
           <el-popover
             placement="top-start"
@@ -155,6 +154,8 @@ export default class extends Vue {
         this.form.templateName = res.templateName
         this.form.alarmPriority = res.alarmPriority
         this.form.alarmMethod = this.getAlarmMethodArray(JSON.parse(res.alarmMethod))
+        console.log(this.form.alarmMethod);
+        
         this.form.description = res.description
       } catch (e) {
         this.$message.error(`获取模板详情失败，原因：${e && e.message}`)
@@ -181,11 +182,15 @@ export default class extends Vue {
   private getAlarmMethodArray(value: any) {
     let arr: any = []
     Object.keys(value).forEach((key: any) => {
-      Object.keys(value[key]).forEach((item: any) => {
-        let arr1 = [key]
-        item && arr1.push(item)
-        arr.push(arr1)
-      })
+      if (Object.keys(value[key]).length === 0) {
+        arr.push([key])
+      } else {
+        Object.keys(value[key]).forEach((item: any) => {
+          let arr1 = [key]
+          item && arr1.push(item)
+          arr.push(arr1)
+        })
+      }
     })
     return arr
   }
