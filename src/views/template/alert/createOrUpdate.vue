@@ -154,8 +154,6 @@ export default class extends Vue {
         this.form.templateName = res.templateName
         this.form.alarmPriority = res.alarmPriority
         this.form.alarmMethod = this.getAlarmMethodArray(JSON.parse(res.alarmMethod))
-        console.log(this.form.alarmMethod);
-        
         this.form.description = res.description
       } catch (e) {
         this.$message.error(`获取模板详情失败，原因：${e && e.message}`)

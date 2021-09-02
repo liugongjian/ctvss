@@ -244,10 +244,11 @@ export default class extends Vue {
   }
 
   private mounted() {
-    this.$route.query.inProtocol && this.getList() && this.setTimer()
+    this.$route.query.inProtocol && this.getList()
+    this.setTimer()
   }
 
-  private deactivated() {
+  private destroyed() {
     this.timer && clearInterval(this.timer)
   }
 
