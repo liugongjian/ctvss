@@ -44,7 +44,7 @@
         </el-table>
       </info-list>
     </el-card>
-    <el-card style="margin-top: 20px;">
+    <el-card v-if="inProtocol === 'gb28181'" style="margin-top: 20px;">
       <el-button v-permission="['*']" type="text" class="template-edit" @click="setAlertTemplate">编辑</el-button>
       <info-list title="告警模板">
         <el-table v-loading="loading.alert" :data="template.alertTemplate" empty-text="该设备或组没有绑定告警模板" fit>
