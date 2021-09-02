@@ -62,6 +62,10 @@ export default class extends Vue {
 }
 .head{
   margin-bottom: 20px;
+  .el-col-8 {
+    max-width: 455px;
+    min-width: 350px;
+  }
   .el-steps {
     background: #fff !important;
   }

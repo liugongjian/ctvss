@@ -2,7 +2,7 @@
   <div>
     <el-row>
       <el-tabs v-model="activeName" @tab-click="handleTabType">
-        <el-tab-pane v-for="tab in tabInfo" :key="tab.name" :label="tab.label" :name="tab.name">
+        <el-tab-pane v-for="tab in tabInfo" :key="tab.id" :label="tab.name" :name="tab.id">
           <div class="card-container">
             <ProdCard v-for="prod in prodInfo" :key="prod.id" :prod="prod" @changeStep="changeStep" />
           </div>
@@ -16,7 +16,7 @@
   </div>
 </template>
 <script lang='ts'>
-import { getAlgorithmList } from '@/api/ai-app'
+import { getAbilityList, getAlgorithmList } from '@/api/ai-app'
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import ProdCard from './ProdCard.vue'
 
@@ -29,22 +29,18 @@ import ProdCard from './ProdCard.vue'
 export default class extends Vue {
   @Prop({ default: 0 }) private step!: number
 
-  private activeName: String = 'all'
-  private searchApp: String
-  private tabInfo: any = [
-    { label: '全部', name: 'all' },
-    { label: '人脸识别', name: 'face' },
-    { label: '人体识别', name: 'body' },
-    { label: '场景识别', name: 'scene' }
-  ]
-  private prodInfo: any = [{ id: 1, name: '人流量统计', detail: '适用于3米以上的中远距离俯拍，以头部为识别目标统计图片中的瞬时人数；无人数上限，广泛适用于机场、车站、商场、展会、景区等人群密集场所。' },
-    { id: 2, name: '人流量统计', detail: '适用于3米以上的中远距离俯拍，以头部为识别目标统计图片中的瞬时人数；无人数上限，广泛适用于机场、车站、商场、展会、景区等人群密集场所。' }, 
-    { id: 3, name: '人流量统计', detail: '适用于3米以上的中远距离俯拍，以头部为识别目标统计图片中的瞬时人数；无人数上限，广泛适用于机场、车站、商场、展会、景区等人群密集场所。' }]
+  private test: any = {}
+  private activeName: String = '0'
+  private searchApp: String = ''
+  private tabInfo: any = []
+  private prodInfo: any = []
 
   private async mounted() {
-    const { algorithms } = await getAlgorithmList('')
-    this.prodInfo = algorithms
-    console.log(algorithms)
+    const { aiAbilityList } = await getAbilityList()
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    this.tabInfo = [ { id: '0', name: '全部' }, ...aiAbilityList ]
+    const { aiAbilityAlgorithms } = await getAlgorithmList({ abilityName: this.searchApp, abilityId: this.activeName })
+    this.prodInfo = aiAbilityAlgorithms
   }
 
   private changeStep(val: any) {
@@ -54,8 +50,9 @@ export default class extends Vue {
   private cancel() {
     this.$router.push({ name: 'AI-AppList' })
   }
-  private handleTabType() {
-
+  private async handleTabType() {
+    const { aiAbilityAlgorithms } = await getAlgorithmList({ abilityName: this.searchApp, abilityId: this.activeName })
+    this.prodInfo = aiAbilityAlgorithms
   }
 }
 </script>

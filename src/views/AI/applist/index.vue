@@ -8,7 +8,7 @@
       </div>
       <el-row>
         <el-tabs v-model="activeTabName" @tab-click="handleTabType">
-          <el-tab-pane v-for="item in tabInfo" :key="item.name" :label="item.label" :name="item.name">
+          <el-tab-pane v-for="item in tabInfo" :key="item.id" :label="item.name+' ('+item.aiApps+')'" :name="item.id">
             <div class="tableOp">
               <el-button :disabled="disabled" @click="handleButtonClick('on-batch')">启用</el-button>
               <el-button :disabled="disabled" @click="handleButtonClick('off-batch')">停用</el-button>
@@ -30,10 +30,12 @@
                 <el-table-column label="应用名称" width="120">
                   <template slot-scope="scope">{{ scope.row.name }}</template>
                 </el-table-column>
-                <el-table-column prop="name" label="算法类型" width="120" />
-                <el-table-column prop="name" label="分析类型" />
+                <el-table-column prop="name" label="算法类型" width="120">
+                  <template slot-scope="scope">{{ scope.row.algorithm.type }}</template>
+                </el-table-column>
+                <el-table-column prop="analyseType" label="分析类型" />
                 <el-table-column prop="description" label="描述" show-overflow-tooltip />
-                <el-table-column prop="name" label="关联设备数" />
+                <el-table-column prop="joinDeviceNum" label="关联设备数" />
                 <el-table-column prop="appEnabled" label="状态">
                   <template slot-scope="scope"><span>{{ parseInt(scope.row.appEnabled) ? '启用' : '未启用' }}</span></template>
                 </el-table-column>
@@ -46,11 +48,11 @@
                         popper-class="more"
                         trigger="click"
                       >
-                        <div><el-link @click="appDetail(scope.row, 0)">应用详情</el-link></div>
-                        <div><el-link @click="editApp(scope.row)">编辑</el-link></div>
-                        <div v-if="!parseInt(scope.row.status)"><el-link @click="handleButtonClick('on-single', scope.row)">启用</el-link></div>
-                        <div v-if="parseInt(scope.row.status)"><el-link @click="handleButtonClick('off-single', scope.row)">停用</el-link></div>
-                        <div><el-link @click="handleButtonClick('del-single', scope.row)">删除</el-link></div>
+                        <div class="poper-wrapper"><el-button type="text" @click="appDetail(scope.row, 0)">应用详情</el-button></div>
+                        <div class="poper-wrapper"><el-button type="text" @click="editApp(scope.row)">编辑</el-button></div>
+                        <div v-if="!parseInt(scope.row.appEnabled)" class="poper-wrapper"><el-button type="text" @click="handleButtonClick('on-single', scope.row)">启用</el-button></div>
+                        <div v-if="parseInt(scope.row.appEnabled)" class="poper-wrapper"><el-button type="text" @click="handleButtonClick('off-single', scope.row)">停用</el-button></div>
+                        <div class="poper-wrapper"><el-button type="text" @click="handleButtonClick('del-single', scope.row)">删除</el-button></div>
                         <el-button slot="reference" type="text">更多</el-button>
                       </el-popover>
                     </div>
@@ -60,7 +62,7 @@
               <el-pagination
                 :current-page="pager.pageNum"
                 :page-size="pager.pageSize"
-                :total="pager.total"
+                :total="pager.totalNum"
                 layout="total, sizes, prev, pager, next, jumper"
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
@@ -88,7 +90,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { getAppList } from '@/api/ai-app'
+import { getAppList, getAbilityList, startOrStopApps, deleteApps } from '@/api/ai-app'
 @Component({
   name: 'AppList',
   components: {
@@ -98,76 +100,35 @@ export default class extends Vue {
   private pager = {
     pageNum: 1,
     pageSize: 10,
-    total: 0
+    totalNum: 0
   }
   private isLoading: boolean = false
-  private activeTabName: String = 'all'
+  private activeTabName: Number = 0
   private dialogVisible: boolean = false
   private clickType: String = ''
   private dialogTitle: String = ''
   private searchInput: String = ''
-  private tabInfo: any = [{ label: '全部 ' + '(4)', name: 'all' },
-    { label: '人脸识别 ' + '(1)', name: 'face' },
-    { label: '人体识别 ' + '(2)', name: 'body' },
-    { label: '场景识别 ' + '(1)', name: 'scene' }]
-  private tableData: any = [{
-    date: '人员布控03',
-    name: '人员聚集',
-    address: '分钟级',
-    description: 'xxxxxxxxxxx',
-    device: '3',
-    status: '-1'
-  }, {
-    date: '人员布控03',
-    name: '人员聚集',
-    address: '分钟级',
-    description: 'xxxxxxxxxxx',
-    device: '3',
-    status: '0'
-  }, {
-    date: '人员布控04',
-    name: '人脸比对',
-    address: '高算力',
-    description: 'xxxxxxxxxxx',
-    device: '3',
-    status: '1'
-  }, {
-    date: '人员布控01',
-    name: '人脸比对',
-    address: '秒级',
-    description: 'xxxxxxxxxxx',
-    device: '3',
-    status: '1'
-  }, {
-    date: '人员布控08',
-    name: '人脸比对',
-    address: '秒级',
-    description: 'xxxxxxxxxxx',
-    device: '3',
-    status: '1'
-  }, {
-    date: '人员布控06',
-    name: '人脸比对',
-    address: '秒级',
-    description: 'xxxxxxxxxxx',
-    device: '3',
-    status: '1'
-  }, {
-    date: '人员布控07',
-    name: '人脸比对',
-    address: '秒级',
-    description: 'xxxxxxxxxxx',
-    device: '3',
-    status: '1'
-  }]
+  private tabInfo: any = []
+  private tableData: any = []
   private multipleSelection: any = []
   $router: any
   private oprateApp: any
 
   private async mounted() {
-    let { aiApps } = await getAppList()
+    const { aiAbilityList } = await getAbilityList()
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    let totalApps = 0
+    aiAbilityList.forEach(element => {
+      typeof element.aiApps === 'string' ? totalApps += Number(element.aiApps) : totalApps += element.aiApps
+    })
+    this.tabInfo = [ { aiApps: totalApps, id: '0', name: '全部' }, ...aiAbilityList ]
+    this.queryTableData()
+  }
+
+  private async queryTableData() {
+    const { aiApps, pageNum, pageSize, totalNum } = await getAppList({ name: this.searchInput, pageNum: this.pager.pageNum, pageSize: this.pager.pageSize, abilityId: this.activeTabName })
+    this.pager = { pageNum, pageSize, totalNum }
     this.tableData = aiApps
-    console.log(aiApps)
   }
 
   private addApp() {
@@ -191,49 +152,50 @@ export default class extends Vue {
     btnType.startsWith('on') ? (this.dialogTitle = '启用应用') : (btnType.startsWith('off') ? this.dialogTitle = '停用应用' : this.dialogTitle = '删除应用')
     app && (this.oprateApp = app)
   }
-  private handleConfirm() {
+  private async handleConfirm() {
     switch (this.clickType) {
       // 批量操作使用multipleSelection
       case 'on-batch':
-        console.log('接口：打开')
+        await startOrStopApps({ id: this.multipleSelection.map(item => item.id), startOrStop: 1 })
         break
       case 'off-batch':
-        console.log('接口：关闭')
+        await startOrStopApps({ id: this.multipleSelection.map(item => item.id), startOrStop: 0 })
         break
       case 'del-batch':
-        console.log('接口：删除')
+        await deleteApps({ id: this.multipleSelection.map(item => item.id) })
         break
       // 批量删除使用
       case 'on-single':
-        console.log('接口：打开')
+        await startOrStopApps({ id: [this.oprateApp.id], startOrStop: 1 })
         break
       case 'off-single':
-        console.log(this.oprateApp)
+        await startOrStopApps({ id: [this.oprateApp.id], startOrStop: 0 })
         break
       case 'del-single':
-        console.log('接口：删除')
+        await deleteApps({ id: [this.oprateApp.id] })
         break
     }
+    this.queryTableData()
+    this.dialogVisible = false
   }
   private closeDialog() {
     this.dialogVisible = false
   }
   private handleSearch() {
-    console.log(this.searchInput)
-    // await this.getData()
+    this.pager.pageNum = 1
+    this.queryTableData()
   }
-  private async handleSizeChange(val: number) {
+  private handleSizeChange(val: number) {
     this.pager.pageSize = val
-    // await this.getData()
+    this.queryTableData()
   }
 
-  private async handleCurrentChange(val: number) {
+  private handleCurrentChange(val: number) {
     this.pager.pageNum = val
-    // await this.getData()
+    this.queryTableData()
   }
-  private async handleTabType() {
-    console.log(this.activeTabName)
-    // await this.getData()
+  private handleTabType() {
+    this.queryTableData()
   }
   private editApp(appinfo) {
     this.$router.push({
@@ -267,8 +229,13 @@ export default class extends Vue {
   margin-bottom: 20px;
 }
 .result-btn-wrapper{
-  .el-button{
+  & > .el-button{
     margin-right: 10px;
+  }
+}
+.poper-wrapper{
+  & > .el-button{
+    color: #000;
   }
 }
 ::v-deep .el-dialog__body{

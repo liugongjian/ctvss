@@ -32,7 +32,6 @@ service.interceptors.request.use(
         }
       }
     }
-    console.log('config:', config)
     return config
   },
   (error) => {
