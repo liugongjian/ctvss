@@ -95,23 +95,23 @@ export const filterAsyncRoutes = (routes: RouteConfig[], perms: string[]) => {
   const res: RouteConfig[] = []
   routes.forEach(route => {
     const r = { ...route }
-    // 子用户重构后注释掉原先逻辑，改为下面的代码
-    // if (hasPermission(perms, r)) {
-    //   if (r.children) {
-    //     r.children = filterAsyncRoutes(r.children, perms)
-    //   }
-    //   res.push(r)
-    // }
-    if (r.children) {
-      r.children = filterAsyncRoutes(r.children, perms)
-      if (r.children && r.children.length > 0) {
-        res.push(r)
+    if (hasPermission(perms, r)) {
+      if (r.children) {
+        r.children = filterAsyncRoutes(r.children, perms)
       }
-    } else {
-      if (hasPermission(perms, r)) {
-        res.push(r)
-      }
+      res.push(r)
     }
+    // iam3.0 分权分域版本注销该部分，改为使用原先的判断逻辑，自顶向下判断
+    // if (r.children) {
+    //   r.children = filterAsyncRoutes(r.children, perms)
+    //   if (r.children && r.children.length > 0) {
+    //     res.push(r)
+    //   }
+    // } else {
+    //   if (hasPermission(perms, r)) {
+    //     res.push(r)
+    //   }
+    // }
   })
   return res
 }

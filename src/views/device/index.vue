@@ -13,13 +13,13 @@
         <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
           <div class="dir-list" :style="`width: ${dirDrag.width}px`">
             <div class="dir-list__tools">
-              <el-tooltip class="item" effect="dark" content="子目录排序" placement="top" :open-delay="300">
+              <el-tooltip v-if="!isVGroup && checkPermission(['AdminDevice'], {id: currentGroupId})" class="item" effect="dark" content="子目录排序" placement="top" :open-delay="300">
                 <el-button type="text" @click.stop="openDialog('sortChildren', {id: '0'})"><svg-icon name="sort" /></el-button>
               </el-tooltip>
               <el-tooltip class="item" effect="dark" content="刷新目录" placement="top" :open-delay="300">
                 <el-button type="text" @click="initDirs"><svg-icon name="refresh" /></el-button>
               </el-tooltip>
-              <el-tooltip v-if="!isVGroup && checkPermission(['*'])" class="item" effect="dark" content="添加目录" placement="top" :open-delay="300">
+              <el-tooltip v-if="!isVGroup && checkPermission(['AdminDevice'], {id: currentGroupId})" class="item" effect="dark" content="添加目录" placement="top" :open-delay="300">
                 <el-button type="text" @click="openDialog('createDir')"><svg-icon name="plus" /></el-button>
               </el-tooltip>
               <el-tooltip v-if="false" class="item" effect="dark" content="目录设置" placement="top" :open-delay="300">
@@ -54,13 +54,13 @@
                     <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
                     {{ node.label + getSums(data) }} <span class="alert-type">{{ renderAlertType(data) }}</span>
                   </span>
-                  <div v-if="!isVGroup && checkPermission(['*'])" class="tools">
+                  <div v-if="!isVGroup && checkPermission(['AdminDevice'], data)" class="tools">
                     <template v-if="data.type !== 'ipc'">
                       <el-tooltip class="item" effect="dark" content="子目录排序" placement="top" :open-delay="300">
                         <el-button type="text" @click.stop="openDialog('sortChildren', data, node)"><svg-icon name="sort" /></el-button>
                       </el-tooltip>
                     </template>
-                    <template v-if="data.type === 'dir'">
+                    <template v-if="data.type === 'dir' && !isVGroup && checkPermission(['AdminDevice'])">
                       <el-tooltip class="item" effect="dark" content="添加子目录" placement="top" :open-delay="300">
                         <el-button type="text" @click.stop="openDialog('createDir', data)"><svg-icon name="plus" /></el-button>
                       </el-tooltip>

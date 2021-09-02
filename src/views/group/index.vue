@@ -9,6 +9,7 @@
     />
     <el-card>
       <div class="filter-container">
+        <!-- 为避免拥有AdminGroup权限的子账号创建的业务组自己无法查看，此处改为具有 * 权限才能创建业务组 -->
         <el-button v-permission="['*']" type="primary" @click="handleCreate">新建业务组</el-button>
         <div class="filter-container__right">
           <el-input v-model="groupName" class="filter-container__search-group" placeholder="请输入业务组名称" clearable @keyup.enter.native="handleFilter" @clear="handleFilter">
@@ -67,9 +68,9 @@
         <el-table-column prop="createdTime" label="创建时间" min-width="170" />
         <el-table-column prop="action" class-name="col-action" label="操作" width="250" fixed="right">
           <template slot-scope="scope">
-            <el-button type="text" @click="goToConfig(scope.row)">业务组配置</el-button>
-            <el-button type="text" @click="goToDevices(scope.row)">设备管理</el-button>
-            <el-dropdown v-if="checkPermission(['*'])" @command="handleMore">
+            <el-button v-if="checkPermission(['DescribeGroup'])" type="text" @click="goToConfig(scope.row)">业务组配置</el-button>
+            <el-button v-if="checkPermission(['DescribeDevice'])" type="text" @click="goToDevices(scope.row)">设备管理</el-button>
+            <el-dropdown v-if="checkPermission(['AdminGroup'])" @command="handleMore">
               <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item v-if="scope.row.inProtocol !== 'vgroup' && scope.row.groupStatus === 'on'" :command="{type: 'stop', group: scope.row}">停用</el-dropdown-item>
