@@ -263,11 +263,11 @@ export default class extends Vue {
   private setTimer() {
     this.timer && clearInterval(this.timer)
     this.timer = setInterval(() => {
-      this.getList()
+      this.getList(true)
     }, 5000)
   }
 
-  private async getList() {
+  private async getList(forbitLoading?: boolean) {
     let params = {
       inProtocol: this.$route.query.inProtocol,
       deviceName: this.searchFrom.deviceName,
@@ -284,7 +284,7 @@ export default class extends Vue {
       this.$set(params, 'groupId', this.groupId)
     }
     try {
-      this.loading = true
+      !forbitLoading && (this.loading = true)
       let res: any = await getAlarmRules(params)
       this.alarmList = res.alarms
       this.pager.total = res.totalNum
