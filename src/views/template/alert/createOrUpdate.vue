@@ -63,7 +63,7 @@ export default class extends Vue {
   private loading = false
   private rules = {
     templateName: [
-      { required: true, message: '请输入回调模板名称', trigger: 'blur' },
+      { required: true, message: '请输入告警模板名称', trigger: 'blur' },
       { validator: this.validateTemplateName, trigger: 'blur' }
     ],
     alarmPriority: [

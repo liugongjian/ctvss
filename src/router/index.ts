@@ -315,7 +315,7 @@ export const asyncRoutes: RouteConfig[] = [
     meta: {
       id: '20210424150201003100',
       title: '告警管理',
-      icon: 'component',
+      icon: 'alarm',
       perms: ['GET'],
       alwaysShow: false,
       only: true,
@@ -329,7 +329,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           id: '20210424150201003101',
           title: '告警管理',
-          icon: 'component',
+          icon: 'alarm',
           breadcrumb: false,
           perms: ['GET'],
           groupSelector: true

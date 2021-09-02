@@ -133,7 +133,6 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { deleteAlarmInfo, getAlarmRules } from '@/api/alarm'
-import { log } from 'console'
 
 @Component({
   name: 'alarm-list'
@@ -230,6 +229,7 @@ export default class extends Vue {
     }
   ]
   private alarmList: any = []
+  private timer: any = null
   private pager = {
     pageNum: 1,
     pageSize: 10,
@@ -244,12 +244,29 @@ export default class extends Vue {
   }
 
   private mounted() {
-    this.$route.query.inProtocol && this.getList()
+    this.$route.query.inProtocol && this.getList() && this.setTimer()
   }
+
+  private deactivated() {
+    this.timer && clearInterval(this.timer)
+  }
+
   private search() {
     this.pager.pageNum = 1
     this.getList()
+    this.setTimer()
   }
+
+  /**
+   * 定时刷新
+   */
+  private setTimer() {
+    this.timer && clearInterval(this.timer)
+    this.timer = setInterval(() => {
+      this.getList()
+    }, 5000)
+  }
+
   private async getList() {
     let params = {
       inProtocol: this.$route.query.inProtocol,

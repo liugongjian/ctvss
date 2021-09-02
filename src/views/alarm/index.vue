@@ -194,8 +194,8 @@ export default class extends Mixins(DeviceMixin) {
   /**
    * deviceRouter-改alarmRouter
    */
-	private async alarmRouter(item: any, node?: any) {
-		const dirTree: any = this.$refs.dirTree
+  private async alarmRouter(item: any, node?: any) {
+    const dirTree: any = this.$refs.dirTree
     let _node: any
     if (!node) {
       _node = dirTree.getNode(item.id)
@@ -213,7 +213,7 @@ export default class extends Mixins(DeviceMixin) {
     _node && DeviceModule.SetBreadcrumb(this.getDirPath(_node).reverse())
     let router: any
     let query: any = {}
-		switch (item.type) {
+    switch (item.type) {
       case 'platformDir':
       case 'dir':
         router = {
@@ -248,8 +248,8 @@ export default class extends Mixins(DeviceMixin) {
           deviceId: item.id
         }
         break
-		}
-		router.query = {
+    }
+    router.query = {
       inProtocol: this.currentGroup!.inProtocol,
       type: item.type,
       path: this.breadcrumb.map((item: any) => item.id).join(','),
@@ -257,6 +257,6 @@ export default class extends Mixins(DeviceMixin) {
     }
     if (JSON.stringify(this.$route.query) === JSON.stringify(router.query)) return
     this.$router.push(router)
-	}
+  }
 }
 </script>
