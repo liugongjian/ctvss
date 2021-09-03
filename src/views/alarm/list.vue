@@ -240,6 +240,19 @@ export default class extends Vue {
 
   @Watch('$route.query', { deep: true })
   public onRouterChange() {
+    this.searchFrom = {
+      deviceName: '',
+      timeRange: null,
+      alarmPriority: [],
+      alarmMethod: [],
+      sortBy: '',
+      sortDirection: ''
+    }
+    this.pager = {
+      pageNum: 1,
+      pageSize: 10,
+      total: 0
+    }
     this.$route.query.inProtocol && this.getList()
   }
 
