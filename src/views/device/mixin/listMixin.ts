@@ -806,6 +806,7 @@ export default class ListMixin extends Vue {
         inProtocol: this.inProtocol
       })
       this.init()
+      this.initDirs()
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
