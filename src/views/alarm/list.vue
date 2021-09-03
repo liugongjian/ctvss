@@ -253,6 +253,9 @@ export default class extends Vue {
       pageSize: 10,
       total: 0
     }
+    const tableDom: any = this.$refs.table
+    tableDom.clearSort()
+    tableDom.clearFilter()
     this.$route.query.inProtocol && this.getList()
   }
 
