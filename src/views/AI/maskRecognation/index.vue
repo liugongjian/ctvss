@@ -197,7 +197,7 @@ export default class extends Vue {
     await this.getAlertList()
   }
 
-  private rowClick(alertItem: any, column: any) {
+  private rowClick(alertItem: any) {
     console.log('rowclick')
     this.openDialog(alertItem)
   }

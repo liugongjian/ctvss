@@ -24,7 +24,7 @@
   </el-dialog>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop, Mixins, Watch } from 'vue-property-decorator'
+import { Component, Prop, Mixins, Watch } from 'vue-property-decorator'
 import { dateFormat } from '@/utils/date'
 import FullscreenMixin from '../../mixin/fullscreenMixin'
 import Player from '../Player.vue'

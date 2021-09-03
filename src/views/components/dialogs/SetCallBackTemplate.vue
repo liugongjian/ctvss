@@ -30,7 +30,6 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { getRecordTemplates, setGroupCallBackTemplate, unbindGroupCallBackTemplate } from '@/api/group'
 import { setDeviceCallbackTemplate, unbindDeviceCallbackTemplate } from '@/api/device'
 import { getCallBackTemplates } from '@/api/stream'
 import { formatSeconds } from '@/utils/interval'
