@@ -160,6 +160,25 @@
           </template>
           <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" />
         </el-form-item>
+        <template v-if="lianzhouFlag">
+          <el-form-item label="设备地址:" prop="address">
+            <el-cascader
+              ref="addressCascader"
+              v-model="form.address"
+              class="lainzhou-cascader"
+              expand-trigger="click"
+              :disabled="isUpdate"
+              :options="regionList"
+              :props="lianzhouRegionProps"
+              @active-item-change="regionChange"
+              @change="lianzhouAddressChange"
+            />
+          </el-form-item>
+          <el-form-item label="经纬度:" prop="longlat">
+            <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
+            <el-input v-model="form.deviceLatitude" class="longlat-input" />
+          </el-form-item>
+        </template>
         <el-form-item label="配置资源包:" prop="resources">
           <ResourceTabs v-model="form.resources" :is-update="isUpdate" :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" @on-change="onResourceChange" />
         </el-form-item>
@@ -248,6 +267,13 @@ export default class extends Mixins(createMixin) {
     devicePort: [
       { required: true, message: '请输入设备端口', trigger: 'blur' }
     ],
+    address: [
+      { required: true, message: '请选择设备地址', trigger: 'blur' }
+    ],
+    longlat: [
+      { required: true, message: '请选择经纬度', trigger: 'blur' },
+      { validator: this.validateLonglat, trigger: 'blur' }
+    ],
     resources: [
       { required: true, validator: this.validateResources, trigger: 'blur' }
     ]
@@ -281,6 +307,12 @@ export default class extends Mixins(createMixin) {
     pullUrl: '',
     transPriority: 'udp',
     parentDeviceId: '',
+    address: [],
+    longlat: 'required',
+    deviceLongitude: '0.000000',
+    deviceLatitude: '0.000000',
+    gbRegion: '',
+    gbRegionLevel: null,
     resources: []
   }
   protected minChannelSize = 1
@@ -322,6 +354,8 @@ export default class extends Mixins(createMixin) {
   ]
 
   private async mounted() {
+    // TODO: 连州教育局一机一档专用
+    this.lianzhouFlag = this.$store.state.user.tags.isLianZhouEdu === 'Y'
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
     } else {
