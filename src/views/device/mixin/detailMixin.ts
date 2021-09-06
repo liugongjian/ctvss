@@ -148,7 +148,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   }
 
   public get groupSipDomain() {
-    return this.groupInfo.sipId && this.groupInfo.sipId.toString().substr(0, 10)
+    return this.groupInfo && this.groupInfo.sipId && this.groupInfo.sipId.toString().substr(0, 10)
   }
 
   public async mounted() {

@@ -231,6 +231,16 @@ export default class extends Vue {
     //     })
     //   }
     // }
+    @Watch('queryParam.periodType')
+    private periodTypeUpdated(newVal) {
+      switch (newVal) {
+        case '今天':
+          // this.queryParam = {}
+          break
+        case '近3天':
+          break
+      }
+    }
     private getData() {
       console.log(this.faceSelected)
     }

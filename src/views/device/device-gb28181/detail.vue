@@ -1,11 +1,6 @@
 <template>
   <div class="app-container">
     <div v-loading="loading.info" class="detail-wrap">
-      <!-- <div v-if="info" class="btn-detail">
-        <el-button v-if="info.deviceType === 'ipc'" @click="goToPreview"><svg-icon name="live" /> 实时预览</el-button>
-        <el-button v-if="info.deviceType === 'nvr'" @click="goToChannels"><svg-icon name="list" /> 查看通道</el-button>
-        <el-button v-if="!isVGroup && checkPermission(['*'])" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
-      </div> -->
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="基本信息" name="info">
           <div v-if="info">
@@ -21,11 +16,11 @@
             <div class="detail__section">
               <div class="detail__title">状态信息</div>
               <el-descriptions :column="2">
-                <template v-if="true">
-                  <el-descriptions-item label="设备状态">
-                    <status-badge :status="info.deviceStatus" />
-                    {{ deviceStatus[info.deviceStatus] || '-' }}
-                  </el-descriptions-item>
+                <el-descriptions-item label="设备状态">
+                  <status-badge :status="info.deviceStatus" />
+                  {{ deviceStatus[info.deviceStatus] || '-' }}
+                </el-descriptions-item>
+                <template v-if="info && !isNVR">
                   <el-descriptions-item label="流状态">
                     <status-badge :status="info.streamStatus" />
                     {{ deviceStatus[info.streamStatus] || '-' }}
@@ -234,60 +229,9 @@ export default class extends Mixins(detailMixin) {
 }
 </script>
 <style lang="scss" scoped>
-  .app-container {
-    ::v-deep {
-      .info-list__title {
-        margin: 10px 5px 0 5px;
-      }
-    }
-  }
-
   .detail-wrap {
-    position: relative;
-    padding-top: 6px;
-    .btn-detail {
-      position: absolute;
-      top: -12px;
-      right: 0;
-      z-index: 9;
-    }
     ::v-deep .el-descriptions-item__label {
       min-width: 130px;
     }
   }
-
-  .info-edit {
-    position: absolute;
-    right: 40px;
-    z-index: 10;
-  }
-
-  .address-maker {
-    background: $borderGrey;
-    border-radius: 5px;
-    padding: 15px 0;
-    margin-bottom: 20px;
-
-    .el-button--text {
-      padding: 0;
-    }
-  }
-
-  .auth-config {
-    position: relative;
-
-    &__edit {
-      position: absolute;
-      top: 0;
-      right: 10px;
-      padding: 0;
-    }
-  }
-
-  .template-edit {
-    float: right;
-    padding: 0;
-    margin: 0;
-  }
-
 </style>

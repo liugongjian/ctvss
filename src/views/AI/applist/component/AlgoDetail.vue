@@ -9,17 +9,18 @@
       </el-form-item>
       <el-form-item label="分析类型">
         <el-select v-model="form.analyseType" placeholder="请选择分析类型">
-          <el-option label="区域一" value="shanghai" />
-          <el-option label="区域二" value="beijing" />
+          <el-option label="分钟级" value="分钟级AI-100" />
+          <el-option label="秒级" value="秒级AI-200" />
+          <el-option label="高算力" value="高算力AI-300" />
         </el-select>
       </el-form-item>
       <el-form-item label="生效时段">
-        <el-radio-group v-model="form.resource">
+        <el-radio-group v-model="form.effectPeriod">
           <el-radio label="全天" />
           <el-radio label="时间段" />
         </el-radio-group>
       </el-form-item>
-      <el-form-item>
+      <el-form-item v-if="form.effectPeriod === '时间段'">
         <el-table
           ref="policyList"
           max-height="500"
@@ -55,15 +56,16 @@
           <el-link type="warning" @click="addPeriod">+ 增加生效时间段</el-link>
         </div>
       </el-form-item>
-      <el-form-item label="人脸库">
-        <el-select v-model="form.region" placeholder="请选择人脸库">
-          <el-option label="区域一" value="shanghai" />
-          <el-option label="区域二" value="beijing" />
+      <el-form-item v-if="prod.code === '10001'" label="人脸库">
+        <el-select v-model="form.region" placeholder="请选择人脸库" :loading="isfaceLibLoading">
+          <el-option v-for="item in faceLibs" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
+        <i class="el-icon-refresh" @click="refreshFaceLib" />
+        <el-button type="text">+新建人脸库</el-button>
       </el-form-item>
-      <el-form-item label="围栏区域">
+      <el-form-item v-if="prod.code === '10006'" label="围栏区域">
         <el-alert
-          title="业务组是一个监控业务类型的集合，集中对业务进行设置与管理。"
+          title="围栏区域需在绑定设备后，在设备详情中进行设置。"
           type="info"
           show-icon
           :closable="false"
@@ -74,13 +76,13 @@
         <el-input v-model="form.callbackUrl" />
       </el-form-item>
       <el-form-item label="验证类型">
-        <el-radio-group v-model="form.resource">
+        <el-radio-group v-model="form.validateType">
           <el-radio label="无验证" />
           <el-radio label="签名验证" />
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="回调key">
-        <el-input v-model="form.callbackkey" />
+      <el-form-item v-if="form.validateType === '签名验证'" label="回调key">
+        <el-input v-model="form.callbackKey" />
       </el-form-item>
       <el-form-item label="描述">
         <el-input v-model="form.description" type="textarea" :rows="2" />
@@ -95,6 +97,8 @@
 </template>
 <script lang='ts'>
 import { Component, Vue, Prop } from 'vue-property-decorator'
+import { getAIConfigGroupData } from '@/api/aiConfig'
+import { getAppInfo, updateAppInfo, createApp } from '@/api/ai-app'
 
 @Component({
   name: 'AlgoDetail',
@@ -104,24 +108,34 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 export default class extends Vue {
   @Prop() private prod!: any
   private breadCrumbContent: String = ''
-  private value2: any = []
   private form: any = {}
+  private faceLibs = []
+  private isfaceLibLoading = false
   private rules: any = {
     name: [
-      { required: true, message: '请输入', trigger: 'blur' },
-      { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
-    ],
-    region: [
       { required: true, message: '请输入', trigger: 'blur' }
     ]
   }
+  private effectiveTime: any = []
 
-  private mounted() {
+  private async mounted() {
     console.log(this.prod)
-    this.prod && (this.form = { id: this.prod.id, algoName: this.prod.name })
-    this.$route.query.appinfo && (this.form = this.$route.query.appinfo)
-    console.log(this.form)
-    this.form.availableperiod = this.value2
+    if (this.prod) { // 新建
+      this.form = { algoName: this.prod.name }
+    }
+    if (this.$route.query.appinfo) { // 编辑
+      const { id } = this.$route.query.appinfo
+      this.form = await getAppInfo({ id })
+      this.$set(this.form, 'algoName', this.form.algorithm.name)
+      if (this.form.callbackKey) {
+        this.$set(this.form, 'validateType', '签名验证')
+      } else {
+        this.$set(this.form, 'validateType', '无验证证')
+      }
+    }
+    this.$set(this.form, 'availableperiod', [])
+    const { groups } = await getAIConfigGroupData({ })
+    this.faceLibs = groups
   }
   // private updated() {
   //   this.prod && (this.form.name = this.prod.name)
@@ -133,22 +147,45 @@ export default class extends Vue {
   private cancel() {
     this.$router.push({ name: 'AI-AppList' })
   }
-  private onSubmit() {
-    console.log(this.form.availableperiod)
-  }
-  private handleTimeChange() {
-    console.log('arg')
+  private async onSubmit() {
+    this.generateEffectiveTime()
+    if (this.$route.query.appinfo) {
+      await updateAppInfo({ ...this.form, effectiveTime: this.effectiveTime })
+      this.$message.success('修改应用成功')
+    }
+    if (this.prod) {
+      await createApp({ ...this.form, effectiveTime: this.effectiveTime })
+      this.$message.success('新建应用成功')
+    }
+    this.$router.push({ name: 'AI-AppList' })
   }
   private addPeriod() {
-    this.form.availableperiod.push({ period: [] })
+    this.form.availableperiod.push({ period: [new Date(2016, 9, 10, 8, 40), new Date(2016, 9, 10, 9, 40)] })
   }
   private deletePeriod(index) {
-    console.log(index)
     this.form.availableperiod.splice(index, 1)
+  }
+  private async refreshFaceLib() {
+    this.isfaceLibLoading = true
+    const { groups } = await getAIConfigGroupData({ })
+    this.faceLibs = groups
+    this.isfaceLibLoading = false
+  }
+  private generateEffectiveTime() {
+    if (this.form.effectPeriod === '全天') {
+      this.effectiveTime = [{ starttime: '00:00:00', endtime: '24:00:00' }]
+    } else {
+      this.effectiveTime = this.form.availableperiod.map(element => {
+        return {
+          starttime: element.period[0],
+          endtime: element.period[1]
+        }
+      })
+    }
   }
 }
 </script>
-<style scoped>
+<style lang="scss" scoped>
 .el-input,.el-textarea,.el-table {
     width: 500px
 }
@@ -157,5 +194,15 @@ export default class extends Vue {
 }
 .mb5{
   width: 500px;
+}
+.el-icon-refresh{
+  margin-left: 20px;
+  font-size: 16px;
+  &:hover{
+    cursor: pointer;
+  }
+}
+.el-button--text {
+  margin-left: 15px;
 }
 </style>

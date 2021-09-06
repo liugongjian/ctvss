@@ -30,8 +30,8 @@ import PlayerContainer from './PlayerContainer.vue'
 export default class extends Mixins(FullscreenMixin) {
   @Inject('deviceRouter') private deviceRouter!: Function
 
-  @Prop() private deviceId: string
-  @Prop() private inProtocol: string
+  @Prop() private deviceId?: string
+  @Prop() private inProtocol?: string
 
   private onCanPlay = false
   private calendarFocus = false
