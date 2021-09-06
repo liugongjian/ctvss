@@ -513,6 +513,10 @@ export default class extends Mixins(createMixin) {
     width: 400px;
   }
 
+  .longlat-input {
+    width: 193px;
+  }
+
   .in-protocol {
     color: $textGrey;
   }
