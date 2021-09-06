@@ -35,6 +35,20 @@
               <el-tooltip
                 class="item"
                 effect="dark"
+                content="一键播放根目录"
+                placement="top"
+                :open-delay="300"
+              >
+                <el-button
+                  type="text"
+                  @click="videosOnAutoPlay(null, false)"
+                >
+                  <svg-icon name="auto-play" />
+                </el-button>
+              </el-tooltip>
+              <el-tooltip
+                class="item"
+                effect="dark"
                 content="刷新目录"
                 placement="top"
                 :open-delay="300"
@@ -93,7 +107,7 @@
                       placement="top"
                       :open-delay="300"
                     >
-                      <OperateSelector v-if="data.type === 'nvr' || data.type === 'dir'" @onSetOperateValue="setOperateValue($event, node)"/>
+                      <OperateSelector v-if="data.type === 'nvr' || data.type === 'dir'" @onSetOperateValue="setOperateValue($event, node)" />
                     </el-tooltip>
                   </div>
                 </span>
@@ -414,7 +428,6 @@ export default class extends Mixins(ScreenMixin) {
       })
       return
     }
-
     // 设置虚拟业务组相关信息
     VGroupModule.SetRoleID(item.roleId || '')
     VGroupModule.SetRealGroupId(item.realGroupId || '')
@@ -472,7 +485,7 @@ export default class extends Mixins(ScreenMixin) {
         this.videosOnPolling(node, true)
         break
       case 'autoPlay':
-        this.videosOnAutoPlay(node)
+        this.videosOnAutoPlay(node, true)
         break
     }
   }
@@ -484,6 +497,10 @@ export default class extends Mixins(ScreenMixin) {
     this.pollingDevices = []
     if (node) {
       this.currentNode = node
+      // 设置虚拟业务组相关信息
+      VGroupModule.SetRoleID(this.currentNode!.data.roleId || '')
+      VGroupModule.SetRealGroupId(this.currentNode!.data.realGroupId || '')
+      VGroupModule.SetRealGroupInProtocol(this.currentNode!.data.realGroupInProtocol || '')
     }
     if (!isDir) {
       this.dirList.forEach((item: any) => {
@@ -532,26 +549,49 @@ export default class extends Mixins(ScreenMixin) {
   /**
    * 一键播放
    */
-  private async videosOnAutoPlay(node: any) {
+  private async videosOnAutoPlay(node: any, isDir: boolean) {
     this.autoPlayDevices = []
-    let data = await getDeviceTree({
-      groupId: this.currentGroupId,
-      id: node!.data.id,
-      type: node!.data.type
-    })
-    const dirs = this.setDirsStreamStatus(data.dirs)
-    dirs.forEach((item: any) => {
-      if (item.type === 'ipc' && item.streamStatus === 'on') {
-        this.autoPlayDevices.push(item)
-      }
-    })
-    if (!this.autoPlayDevices.length) return
+    if (node) {
+      this.currentNode = node
+      // 设置虚拟业务组相关信息
+      VGroupModule.SetRoleID(this.currentNode!.data.roleId || '')
+      VGroupModule.SetRealGroupId(this.currentNode!.data.realGroupId || '')
+      VGroupModule.SetRealGroupInProtocol(this.currentNode!.data.realGroupInProtocol || '')
+    }
+    if (!isDir) {
+      this.dirList.forEach((item: any) => {
+        if (item.type === 'ipc' && item.streamStatus === 'on') {
+          this.autoPlayDevices.push(item)
+        }
+      })
+    } else {
+      let data = await getDeviceTree({
+        groupId: this.currentGroupId,
+        id: node!.data.id,
+        type: node!.data.type
+      })
+      const dirs = this.setDirsStreamStatus(data.dirs)
+      dirs.forEach((item: any) => {
+        if (item.type === 'ipc' && item.streamStatus === 'on') {
+          this.autoPlayDevices.push(item)
+        }
+      })
+    }
+    if (!this.autoPlayDevices.length) {
+      this.$alert(`当前设备数需大于0才可开始自动播放`, '提示', {
+        confirmButtonText: '确定'
+      })
+    }
     for (let i = 0; i < this.maxSize; i++) {
       this.screenList[i].reset()
-      this.screenList[i].deviceId = this.autoPlayDevices[i].id
-      this.screenList[i].type = this.autoPlayDevices[i].type
-      this.screenList[i].deviceName = this.autoPlayDevices[i].label
-      this.screenList[i].inProtocol = this.currentGroupInProtocol!
+      if (!this.autoPlayDevices[i]) {
+        continue
+      } else {
+        this.screenList[i].deviceId = this.autoPlayDevices[i].id
+        this.screenList[i].type = this.autoPlayDevices[i].type
+        this.screenList[i].deviceName = this.autoPlayDevices[i].label
+        this.screenList[i].inProtocol = this.currentGroupInProtocol!
+      }
       this.screenList[i].getUrl()
     }
   }
