@@ -100,7 +100,7 @@
     </div>
 
     <!-- canvas画线 -->
-    <canvas-draw v-if="canvasDialog" :device-id="deviceId" :in-protocol="inProtocol" :canvas-if="canvasDialog" />
+    <algo-config v-if="canvasDialog" :device-id="deviceId" :in-protocol="inProtocol" :canvas-if="canvasDialog" />
 
     <SetRecordTemplate
       v-if="setRecordTemplateDialog"
@@ -128,14 +128,14 @@ import { GroupModule } from '@/store/modules/group'
 import { getDeviceRecordTemplate, getDeviceCallbackTemplate } from '@/api/device'
 import SetRecordTemplate from '@/views/components/dialogs/SetRecordTemplate.vue'
 import SetCallBackTemplate from '@/views/components/dialogs/SetCallBackTemplate.vue'
-import CanvasDraw from './canvasDraw/index.vue'
+import AlgoConfig from './AlgoConfig/index.vue'
 
 @Component({
   name: 'DeviceConfig',
   components: {
     SetRecordTemplate,
     SetCallBackTemplate,
-    CanvasDraw
+    AlgoConfig
   }
 })
 export default class extends Vue {

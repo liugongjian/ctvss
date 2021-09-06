@@ -65,7 +65,7 @@ interface ValueObject<> {
 }
 
 @Component({
-  name: 'CanvasDraw',
+  name: 'AlgoConfig',
   components: {
   }
 })
