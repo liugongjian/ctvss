@@ -297,6 +297,8 @@ export default class extends Vue {
     }
     if (this.$route.query.deviceId) {
       this.$set(params, 'deviceId', this.$route.query.deviceId)
+    } else if (this.$route.query.dirId) {
+      this.$set(params, 'dirId', this.$route.query.dirId)
     } else {
       this.$set(params, 'groupId', this.groupId)
     }
