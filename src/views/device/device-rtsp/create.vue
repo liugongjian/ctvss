@@ -388,7 +388,7 @@ export default class extends Mixins(createMixin) {
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'deviceType', 'createSubDevice', 'deviceVendor',
           'enableDomain', 'deviceDomain', 'deviceIp', 'devicePort', 'description', 'inType', 'userName', 'password', 'multiStreamSize', 'autoStreamNum',
-          'pullType', 'pushType', 'pullUrl', 'transPriority', 'parentDeviceId']))
+          'pullType', 'pushType', 'pullUrl', 'transPriority', 'parentDeviceId', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel']))
         if (this.form.deviceVendor === '其他') {
           this.form.deviceCustomUrl = this.form.deviceDomain
         }
@@ -451,7 +451,7 @@ export default class extends Mixins(createMixin) {
       }
       if (!this.isChannel) {
         // 通用参数
-        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'enableDomain', 'deviceDomain', 'deviceIp', 'devicePort', 'inType', 'transPriority']))
+        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'enableDomain', 'deviceDomain', 'deviceIp', 'devicePort', 'inType', 'transPriority', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel']))
         // 判断inType类型
         if (this.form.inType === 'push') {
           params = Object.assign(params, pick(this.form, ['pushType']))
