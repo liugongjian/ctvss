@@ -163,6 +163,7 @@ export default class extends Vue {
       this.nodeKeyPath = this.$route.params.nodeKeyPath
     )
     this.initGroupTree('')
+    // console.log(this.handleDrag)
   }
 
   private changeHandle(e: any) {

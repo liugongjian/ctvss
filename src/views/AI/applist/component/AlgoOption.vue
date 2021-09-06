@@ -56,7 +56,7 @@ export default class extends Vue {
   }
 }
 </script>
-<style scoped>
+<style lang="scss" scoped>
 .input-with-select {
     width: 260px;
     position: absolute;
@@ -76,5 +76,8 @@ export default class extends Vue {
     height: 60vh;
     min-width: 1200px;
     min-height: 400px;
+    &+.el-button{
+      margin-top: 20px;
+    }
 }
 </style>

@@ -30,8 +30,8 @@
                 <el-table-column label="应用名称" width="120">
                   <template slot-scope="scope">{{ scope.row.name }}</template>
                 </el-table-column>
-                <el-table-column prop="name" label="算法类型" width="120">
-                  <template slot-scope="scope">{{ scope.row.algorithm.type }}</template>
+                <el-table-column label="算法类型" width="120">
+                  <template slot-scope="scope">{{ scope.row.algorithm.name }}</template>
                 </el-table-column>
                 <el-table-column prop="analyseType" label="分析类型" />
                 <el-table-column prop="description" label="描述" show-overflow-tooltip />
@@ -201,7 +201,7 @@ export default class extends Vue {
     this.$router.push({
       name: `AI-EditApp`,
       query: {
-        appinfo
+        id: appinfo.id
       }
     })
   }

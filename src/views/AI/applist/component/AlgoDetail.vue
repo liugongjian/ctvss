@@ -39,6 +39,7 @@
                 start-placeholder="开始时间"
                 end-placeholder="结束时间"
                 placeholder="选择时间范围"
+                value-format="HH:mm:ss"
               />
             </template>
           </el-table-column>
@@ -89,7 +90,7 @@
       </el-form-item>
       <el-form-item>
         <el-button @click="changeStep({step: 0})">上一步</el-button>
-        <el-button type="primary" @click="onSubmit">立即创建</el-button>
+        <el-button type="primary" @click="onSubmit">立即{{ this.$route.query.id ? '更新' : '创建' }}</el-button>
         <el-button @click="cancel">取消</el-button>
       </el-form-item>
     </el-form>
@@ -119,21 +120,21 @@ export default class extends Vue {
   private effectiveTime: any = []
 
   private async mounted() {
-    console.log(this.prod)
-    if (this.prod) { // 新建
-      this.form = { algoName: this.prod.name }
-    }
-    if (this.$route.query.appinfo) { // 编辑
-      const { id } = this.$route.query.appinfo
+    if (this.$route.query.id) { // 编辑
+      const id = this.$route.query.id
       this.form = await getAppInfo({ id })
       this.$set(this.form, 'algoName', this.form.algorithm.name)
-      if (this.form.callbackKey) {
-        this.$set(this.form, 'validateType', '签名验证')
+      if (this.form.callbackKey.length === 0) {
+        this.$set(this.form, 'validateType', '无验证')
       } else {
-        this.$set(this.form, 'validateType', '无验证证')
+        this.$set(this.form, 'validateType', '签名验证')
       }
+      // 处理生效时间段
+      this.editTransformEffectiveTime()
+    } else { // 新建
+      this.form = { algoName: this.prod.name }
+      this.$set(this.form, 'availableperiod', [])
     }
-    this.$set(this.form, 'availableperiod', [])
     const { groups } = await getAIConfigGroupData({ })
     this.faceLibs = groups
   }
@@ -141,6 +142,18 @@ export default class extends Vue {
   //   this.prod && (this.form.name = this.prod.name)
   //   this.$route.query.appinfo && (this.form.name = this.appinfo.name)
   // }
+  private editTransformEffectiveTime() {
+    const effectiveTime = JSON.parse(this.form.effectiveTime)
+    const period = effectiveTime.map(item => ({ period: [item.starttime, item.endtime] }))
+    this.$set(this.form, 'availableperiod', period)
+    if (effectiveTime.starttime === '00:00:00' && effectiveTime.endtime === '23:59:59') {
+      this.$set(this.form, 'effectPeriod', '全天')
+    } else {
+      this.$set(this.form, 'effectPeriod', '时间段')
+    }
+    console.log(effectiveTime)
+    console.log(this.form)
+  }
   private changeStep(val: any) {
     this.$emit('update:step', val.step)
   }
@@ -149,18 +162,18 @@ export default class extends Vue {
   }
   private async onSubmit() {
     this.generateEffectiveTime()
-    if (this.$route.query.appinfo) {
-      await updateAppInfo({ ...this.form, effectiveTime: this.effectiveTime })
+    const param = { ...this.form, effectiveTime: this.effectiveTime, callbackKey: this.form.validateType === '无验证' ? '' : this.form.callbackKey }
+    if (this.$route.query.id) {
+      await updateAppInfo(param)
       this.$message.success('修改应用成功')
-    }
-    if (this.prod) {
-      await createApp({ ...this.form, effectiveTime: this.effectiveTime })
+    } else {
+      await createApp(param)
       this.$message.success('新建应用成功')
     }
     this.$router.push({ name: 'AI-AppList' })
   }
   private addPeriod() {
-    this.form.availableperiod.push({ period: [new Date(2016, 9, 10, 8, 40), new Date(2016, 9, 10, 9, 40)] })
+    this.form.availableperiod.push({ period: ['08:40:00', '09:40:00'] })
   }
   private deletePeriod(index) {
     this.form.availableperiod.splice(index, 1)
@@ -182,6 +195,7 @@ export default class extends Vue {
         }
       })
     }
+    this.effectiveTime = JSON.stringify(this.effectiveTime)
   }
 }
 </script>

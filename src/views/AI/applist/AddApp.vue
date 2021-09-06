@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-card v-loading="isLoading">
-      <div v-if="!this.$route.query.appinfo" class="head">
+      <div v-if="!this.$route.query.id" class="head">
         <el-row>
           <el-col :span="8">
             <el-steps :active="step+1" simple>
@@ -11,10 +11,10 @@
           </el-col>
         </el-row>
       </div>
-      <div v-if="!step && !this.$route.query.appinfo">
+      <div v-if="!step && !this.$route.query.id">
         <AlgoOption :step.sync="step" :prod.sync="prod" />
       </div>
-      <div v-if="step || this.$route.query.appinfo">
+      <div v-if="step || this.$route.query.id">
         <AlgoDetail :step.sync="step" :prod="prod" />
       </div>
     </el-card>
