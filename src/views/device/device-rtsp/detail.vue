@@ -13,6 +13,7 @@
               <info-list-item label="设备名称:">{{ info.deviceName }}</info-list-item>
               <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
+              <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
               <info-list-item v-if="lianzhouFlag" label="设备地址:">{{ lianzhouAddress || '-' }}</info-list-item>
               <info-list-item v-if="lianzhouFlag" label="经纬度:">{{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}</info-list-item>
               <template v-if="info.deviceType === 'nvr'">
