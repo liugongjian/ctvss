@@ -27,6 +27,9 @@
               <info-list-item v-if="info.deviceChannels.length" label="通道号:">{{ 'D' + info.deviceChannels[0].channelNum }}</info-list-item>
               <info-list-item v-if="info.deviceChannels.length" label="通道名称:">{{ info.deviceChannels[0].channelName }}</info-list-item>
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
+              <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
+              <info-list-item v-if="lianzhouFlag" label="设备地址:">{{ lianzhouAddress || '-' }}</info-list-item>
+              <info-list-item v-if="lianzhouFlag" label="经纬度:">{{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}</info-list-item>
             </info-list>
             <info-list v-if="info" label-width="110">
               <info-list-item label="视频流接入方式:">{{ inType[info.inType] }}</info-list-item>
