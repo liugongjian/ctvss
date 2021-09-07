@@ -298,12 +298,14 @@ export default class extends Vue {
     if (this.$route.query.deviceId) {
       this.$set(params, 'deviceId', this.$route.query.deviceId)
     } else if (this.$route.query.dirId) {
-      this.$set(params, 'dirId', this.$route.query.dirId)
-    } else {
-      this.$set(params, 'groupId', this.groupId)
+      if (this.$route.query.dirId === '0') {
+        this.$set(params, 'groupId', this.groupId)
+      } else {
+        this.$set(params, 'dirId', this.$route.query.dirId)
+      }
     }
     try {
-      !forbitLoading && (this.loading = true)
+      !forbitLoading && (this.loading = true) && (this.alarmList = [])
       let res: any = await getAlarmRules(params)
       this.alarmList = res.alarms
       this.pager.total = res.totalNum
