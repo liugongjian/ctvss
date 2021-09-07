@@ -9,7 +9,7 @@
         :key="item.path"
       >
         <span
-          v-if="item.redirect === 'noredirect' || index === breadcrumbs.length-1 || inRole"
+          v-if="item.redirect === 'noredirect' || index === breadcrumbs.length-1 || (item.path === '/' && !dashboardAllowed)"
           class="no-redirect"
         >{{ item.meta.title }}</span>
         <a
@@ -46,8 +46,8 @@ export default class extends Vue {
     return this.$route.query.isLight
   }
 
-  get inRole() {
-    return !!UserModule.mainUserRoleId
+  get dashboardAllowed() {
+    return UserModule.perms[0] === '*'
   }
 
   created() {

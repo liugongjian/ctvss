@@ -17,7 +17,7 @@
           <el-input v-model="form.sipId" placeholder="请输入20位SIP服务国标编码" @change="onSipIdChange" />
         </el-form-item>
         <el-form-item label="SIP服务国标域:" prop="sipDomain">
-          <el-input v-model="form.sipDomain" placeholder="SIP服务国标域默认截取SIP服务国标编码的前10位" disabled />
+          <el-input v-model="form.sipDomain" placeholder="SIP服务国标域默认截取SIP服务国标编码的前10位" />
         </el-form-item>
         <el-form-item label="SIP服务IP:" prop="sipIp">
           <el-input v-model="form.sipIp" />

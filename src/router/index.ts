@@ -104,7 +104,7 @@ export const asyncRoutes: RouteConfig[] = [
       title: '概览',
       icon: 'dashboard',
       breadcrumb: false,
-      perms: ['GET'],
+      perms: ['*'],
       alwaysShow: false
     },
     children: [
@@ -117,7 +117,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '概览',
           icon: 'dashboard',
           breadcrumb: true,
-          perms: ['GET']
+          perms: ['*']
         }
       },
       {
@@ -130,7 +130,7 @@ export const asyncRoutes: RouteConfig[] = [
           hidden: true,
           icon: 'dashboard',
           breadcrumb: false,
-          perms: ['GET']
+          perms: ['*']
         }
       },
       {
@@ -143,7 +143,7 @@ export const asyncRoutes: RouteConfig[] = [
           hidden: true,
           icon: 'dashboard',
           breadcrumb: false,
-          perms: ['GET']
+          perms: ['*']
         }
       }
     ]
@@ -155,7 +155,7 @@ export const asyncRoutes: RouteConfig[] = [
       id: '20210424150201002000',
       title: '业务组管理',
       icon: 'tree',
-      perms: ['GET', 'ROLE'],
+      perms: ['DescribeGroup'],
       alwaysShow: false
     },
     children: [
@@ -168,7 +168,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '业务组管理',
           icon: 'tree',
           breadcrumb: false,
-          perms: ['GET', 'ROLE'],
+          perms: ['DescribeGroup'],
           activeMenu: '/group'
         }
       },
@@ -181,7 +181,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '新建业务组',
           icon: 'tree',
           hidden: true,
-          perms: ['*'],
+          perms: ['AdminGroup'],
           activeMenu: '/group'
         }
       },
@@ -194,7 +194,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '编辑业务组',
           icon: 'tree',
           hidden: true,
-          perms: ['*'],
+          perms: ['AdminGroup'],
           activeMenu: '/group'
         }
       },
@@ -207,7 +207,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '业务组配置',
           icon: 'tree',
           hidden: true,
-          perms: ['GET', 'ROLE'],
+          perms: ['DescribeGroup'],
           activeMenu: '/group'
         }
       }
@@ -220,7 +220,7 @@ export const asyncRoutes: RouteConfig[] = [
       id: '20210424150201003000',
       title: '设备管理',
       icon: 'component',
-      perms: ['GET', 'ROLE'],
+      perms: ['DescribeDevice'],
       alwaysShow: false,
       only: true,
       groupSelector: true
@@ -235,7 +235,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '设备管理',
           icon: 'component',
           breadcrumb: false,
-          perms: ['GET', 'ROLE'],
+          perms: ['DescribeDevice'],
           groupSelector: true
         },
         children: [
@@ -247,7 +247,7 @@ export const asyncRoutes: RouteConfig[] = [
               id: '20210424150201003002',
               title: '设备列表',
               breadcrumb: false,
-              perms: ['GET', 'ROLE'],
+              perms: ['DescribeDevice'],
               activeMenu: '/device',
               groupSelector: true
             }
@@ -260,7 +260,7 @@ export const asyncRoutes: RouteConfig[] = [
               id: '20210424150201003003',
               title: '添加设备',
               hidden: true,
-              perms: ['*'],
+              perms: ['AdminDevice'],
               activeMenu: '/device',
               groupSelector: true
             }
@@ -273,7 +273,7 @@ export const asyncRoutes: RouteConfig[] = [
               id: '20210424150201003004',
               title: '编辑设备',
               hidden: true,
-              perms: ['*'],
+              perms: ['AdminDevice'],
               activeMenu: '/device',
               groupSelector: true
             }
@@ -286,7 +286,7 @@ export const asyncRoutes: RouteConfig[] = [
               id: '20210424150201003005',
               title: '设备详情',
               hidden: true,
-              perms: ['GET', 'ROLE'],
+              perms: ['DescribeDevice'],
               activeMenu: '/device',
               groupSelector: true
             }
@@ -299,7 +299,7 @@ export const asyncRoutes: RouteConfig[] = [
               id: '20210424150201003006',
               title: '监控查看',
               hidden: true,
-              perms: ['GET', 'ROLE'],
+              perms: ['DescribeDevice'],
               activeMenu: '/device',
               groupSelector: true
             }
@@ -358,7 +358,7 @@ export const asyncRoutes: RouteConfig[] = [
   //   meta: {
   //     title: '流管理',
   //     icon: 'stream',
-  //     perms: ['GET', 'ROLE'],
+  //     perms: ['GET'],
   //     alwaysShow: false,
   //     only: true,
   //     groupSelector: true
@@ -372,7 +372,7 @@ export const asyncRoutes: RouteConfig[] = [
   //         title: '流管理',
   //         icon: 'stream',
   //         breadcrumb: false,
-  //         perms: ['GET', 'ROLE'],
+  //         perms: ['GET'],
   //         activeMenu: '/stream',
   //         groupSelector: true
   //       }
@@ -385,7 +385,7 @@ export const asyncRoutes: RouteConfig[] = [
   //         title: '流详情',
   //         icon: 'stream',
   //         hidden: true,
-  //         perms: ['GET', 'ROLE'],
+  //         perms: ['GET'],
   //         activeMenu: '/stream',
   //         groupSelector: true
   //       }
@@ -425,7 +425,7 @@ export const asyncRoutes: RouteConfig[] = [
       id: '20210424150201004000',
       title: '实时预览',
       icon: 'ipc',
-      perms: ['GET', 'ROLE'],
+      perms: ['ScreenPreview'],
       alwaysShow: false,
       groupSelector: true
     },
@@ -439,7 +439,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '实时预览',
           icon: 'ipc',
           breadcrumb: false,
-          perms: ['GET', 'ROLE'],
+          perms: ['ScreenPreview'],
           activeMenu: '/screen',
           groupSelector: true
         }
@@ -466,7 +466,7 @@ export const asyncRoutes: RouteConfig[] = [
       id: '20210424150201006000',
       title: '录像回放',
       icon: 'video',
-      perms: ['GET', 'ROLE'],
+      perms: ['ReplayRecord'],
       alwaysShow: false,
       groupSelector: true
     },
@@ -480,7 +480,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '录像回放',
           icon: 'video',
           breadcrumb: false,
-          perms: ['GET', 'ROLE'],
+          perms: ['ReplayRecord'],
           activeMenu: '/replay',
           groupSelector: true
         }
@@ -497,7 +497,7 @@ export const asyncRoutes: RouteConfig[] = [
       icon: 'platform',
       alwaysShow: true,
       breadcrumb: false,
-      perms: ['GET']
+      perms: ['*']
     },
     children: [
       {
@@ -506,9 +506,9 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'up-platform',
         meta: {
           id: '20210524150201007001',
-          title: 'GB28181级联',
+          title: '国标级联',
           icon: 'dot',
-          perms: ['GET']
+          perms: ['*']
         }
       },
       {
@@ -519,7 +519,7 @@ export const asyncRoutes: RouteConfig[] = [
           id: '20210524150201007002',
           title: '新建国标级联',
           hidden: true,
-          perms: ['GET'],
+          perms: ['*'],
           activeMenu: '/up-platform/gb28121'
         }
       },
@@ -531,7 +531,7 @@ export const asyncRoutes: RouteConfig[] = [
           id: '20210524150201007003',
           title: '编辑国标级联',
           hidden: true,
-          perms: ['GET'],
+          perms: ['*'],
           activeMenu: '/up-platform/gb28121'
         }
       }
@@ -816,32 +816,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '修改密码',
           icon: 'tree',
           breadcrumb: false,
-          perms: ['*', 'ROLE']
-        }
-      }
-    ]
-  },
-  {
-    path: '/changeRole',
-    component: Layout,
-    meta: {
-      id: '20210716171623013000',
-      title: '切换角色',
-      icon: 'tree',
-      hidden: true,
-      breadcrumb: true,
-      perms: ['*']
-    },
-    children: [
-      {
-        path: '/',
-        component: () => import(/* webpackChunkName: "changeRole" */ '@/views/changeRole/index.vue'),
-        meta: {
-          id: '20210716171623013001',
-          title: '切换角色',
-          icon: 'tree',
-          breadcrumb: false,
-          perms: ['*', 'ROLE']
+          perms: ['*']
         }
       }
     ]
@@ -955,12 +930,12 @@ export const asyncRoutes: RouteConfig[] = [
         }
       },
       {
-        path: 'policy/view',
-        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/policy/components/ViewPolicy.vue'),
-        name: 'accessManage-policy-view',
+        path: 'policy/edit/:id?',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/policy/components/CreatePolicy.vue'),
+        name: 'accessManage-policy-edit',
         meta: {
           id: '20210424150201011005',
-          title: '策略详情',
+          title: '查看&编辑策略',
           icon: 'dot',
           hidden: true,
           activeMenu: '/accessManage/policy',

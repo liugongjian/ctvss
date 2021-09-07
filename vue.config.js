@@ -3,7 +3,7 @@ const environment = process.argv[3] === '--env' ? process.argv[4] : 'dev'
 const isHttps = process.argv[process.argv.length - 1] === '--https'
 const name = '天翼云视频云网平台-客户控制台'
 const serverAddressMapping = {
-  local: 'http://192.168.30.48:8081', // 本地环境
+  local: 'http://172.24.6.4:8081', // 本地环境
   dev: 'http://182.43.127.35:9190', // 开发环境
   dev2: 'http://182.43.127.35:9050', // 开发环境2
   test: 'https://182.43.127.35:9180', // 测试环境
