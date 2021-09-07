@@ -14,7 +14,7 @@
         </el-form-item>
         <el-form-item label="录制模板名称:" prop="templateName" class="form-with-tip">
           <el-input v-model="form.templateName" class="fixed-width" :disabled="!createOrUpdateFlag" />
-          <div class="form-tip">4-16位，可包含大小写字母、数字、中文、中划线。模板名称不能重复。</div>
+          <div class="form-tip">4-32位，可包含大小写字母、数字、中文、中划线、空格。模板名称不能重复。</div>
         </el-form-item>
         <el-form-item label="录制类别:" required prop="recordType">
           <el-radio-group v-model="form.recordType">
@@ -79,6 +79,10 @@ export default class extends Vue {
     ]
   }
   private storageTimeList = [
+    {
+      label: '3天',
+      value: 3 * 24 * 60
+    },
     {
       label: '7天',
       value: 7 * 24 * 60
@@ -237,7 +241,7 @@ export default class extends Vue {
   }
 
   private validateTemplateName(rule: any, value: string, callback: Function) {
-    if (!/^[\u4e00-\u9fa50-9a-zA-Z-]{4,16}$/u.test(value)) {
+    if (!/^[\u4e00-\u9fa50-9a-zA-Z-\s]{4,32}$/u.test(value)) {
       callback(new Error('录制模板名称格式错误'))
     } else {
       callback()

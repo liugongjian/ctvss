@@ -2,9 +2,13 @@ import axios from 'axios'
 import { getDevicePreview } from '@/api/device'
 
 export default class Screen {
+  [x: string]: any
   public deviceId: string
   public inProtocol: string
   public deviceName?: string
+  public roleId?: string
+  public realGroupId?: string
+  public realGroupInProtocol?: string
   public url?: string
   public type?: string
   public codec?: string
@@ -23,6 +27,9 @@ export default class Screen {
   constructor() {
     this.deviceId = ''
     this.inProtocol = ''
+    this.roleId = ''
+    this.realGroupId = ''
+    this.realGroupInProtocol = ''
     this.url = ''
     this.type = ''
     this.codec = ''
@@ -50,10 +57,15 @@ export default class Screen {
       this.loading = true
       this.loaded = true
       this.axiosSource = axios.CancelToken.source()
+
       const res: any = await getDevicePreview({
         deviceId: this.deviceId,
         inProtocol: this.inProtocol,
-        streamNum: this.streamNum
+        streamNum: this.streamNum,
+        'self-defined-headers': {
+          'role-id': this.roleId || '',
+          'real-group-id': this.realGroupId || ''
+        }
       }, this.axiosSource.token)
       if (res.playUrl) {
         this.url = res.playUrl.flvUrl
@@ -71,6 +83,9 @@ export default class Screen {
 
   public reset() {
     this.deviceId = ''
+    this.roleId = ''
+    this.realGroupId = ''
+    this.realGroupInProtocol = ''
     this.url = ''
     this.type = ''
     this.codec = ''

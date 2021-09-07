@@ -14,12 +14,12 @@
         </el-form-item>
         <el-form-item label="业务组名称:" prop="groupName" class="form-with-tip">
           <el-input v-model="form.groupName" />
-          <div class="form-tip">4-16位，可包含大小写字母、数字、中文、中划线。空间名称不能重复。</div>
+          <div class="form-tip">4-32位，可包含大小写字母、数字、中文、中划线、空格。空间名称不能重复。</div>
         </el-form-item>
         <el-form-item label="业务组描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入业务组描述，如业务介绍或用途" />
         </el-form-item>
-        <el-form-item prop="region" class="form-with-tip">
+        <el-form-item v-if="!isVGroup" prop="region" class="form-with-tip">
           <template slot="label">
             接入区域:
             <el-popover
@@ -40,12 +40,12 @@
             :disabled="isEdit"
           />
         </el-form-item>
-        <el-form-item label="接入类型:" prop="inProtocol">
+        <el-form-item v-if="!isVGroup" label="接入类型:" prop="inProtocol">
           <el-radio-group v-model="form.inProtocol" :disabled="isEdit">
             <el-radio v-for="protocol in inProtocolList" :key="protocol" :label="protocol.toLocaleLowerCase()">{{ protocol }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="播放类型:" prop="outProtocol">
+        <el-form-item v-if="!isVGroup" label="播放类型:" prop="outProtocol">
           <el-checkbox-group v-model="form.outProtocol">
             <el-checkbox
               v-for="protocol in outProtocolList"
@@ -103,7 +103,7 @@
               <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
           </template>
-          <el-radio-group v-model="form.inNetworkType" :disabled="isEdit">
+          <el-radio-group v-model="form.inNetworkType" :disabled="isEdit && !isVGroup">
             <el-radio label="public">互联网</el-radio>
             <el-radio label="private">专线网络</el-radio>
           </el-radio-group>
@@ -121,7 +121,7 @@
               <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
           </template>
-          <el-radio-group v-model="form.outNetworkType" :disabled="isEdit">
+          <el-radio-group v-model="form.outNetworkType" :disabled="isEdit && !isVGroup">
             <el-radio label="public">互联网</el-radio>
             <el-radio label="private">专线网络</el-radio>
           </el-radio-group>
@@ -195,6 +195,10 @@ export default class extends Vue {
     return !!this.form.groupId
   }
 
+  private get isVGroup() {
+    return this.form.inProtocol === 'vgroup'
+  }
+
   private async mounted() {
     await this.getRegionList()
     this.breadCrumbContent = this.$route.meta.title
@@ -255,8 +259,8 @@ export default class extends Vue {
   }
 
   private validateGroupName(rule: any, value: string, callback: Function) {
-    if (!/^[\u4e00-\u9fa50-9a-zA-Z-]{4,16}$/u.test(value)) {
-      callback(new Error('业务组名称格式错误。4-16位，可包含大小写字母、数字、中文、中划线。'))
+    if (!/^[\u4e00-\u9fa50-9a-zA-Z-\s]{4,32}$/u.test(value)) {
+      callback(new Error('业务组名称格式错误。4-32位，可包含大小写字母、数字、中文、中划线、空格。'))
     } else {
       callback()
     }

@@ -102,18 +102,18 @@ export default class extends Vue {
       })
       this.dirList = []
       res.groups.forEach((group: any) => {
-        group.inProtocol === 'gb28181' && (
+        (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome' || group.inProtocol === 'vgroup') && (
           this.dirList.push({
             id: group.groupId,
             groupId: group.groupId,
             label: group.groupName,
             inProtocol: group.inProtocol,
-            type: 'group',
+            type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
             disabled: true,
             path: [{
               id: group.groupId,
               label: group.groupName,
-              type: 'group'
+              type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group'
             }]
           })
         )
@@ -139,26 +139,42 @@ export default class extends Vue {
    */
   private async getTree(node: any) {
     try {
-      let params: any = {
-        platformId: this.platformId,
-        inProtocol: 'gb28181',
-        groupId: node.data.groupId,
-        dirId: node.data.type === 'group' ? 0 : node.data.id,
-        dirType: '0',
-        pageNum: 1,
-        pageSize: 1000
+      if (node.data.type === 'role') {
+        node.data.roleId = node.data.id
+      } else if (node.data.type === 'group') {
+        node.data.realGroupId = node.data.id
+        node.data.realGroupInProtocol = node.data.inProtocol
       }
-      const shareDevices: any = await describeShareDevices(params)
-      const shareDeviceIds = shareDevices.devices.map((device: any) => {
-        return device.deviceId
-      })
-      console.log(shareDeviceIds, 'shareDeviceIds')
+      let shareDeviceIds: any = []
+      if (node.data.type !== 'vgroup' && node.data.type !== 'role') {
+        let params: any = {
+          platformId: this.platformId,
+          inProtocol: node.data.inProtocol,
+          groupId: node.data.realGroupId || node.data.groupId,
+          dirId: node.data.type === 'top-group' || node.data.type === 'group' ? 0 : node.data.id,
+          dirType: '0',
+          pageNum: 1,
+          pageSize: 1000
+        }
+        const shareDevices: any = await describeShareDevices(params)
+        shareDeviceIds = shareDevices.devices.map((device: any) => {
+          return device.deviceId
+        })
+      }
+
       const devices: any = await getDeviceTree({
         groupId: node.data.groupId,
-        id: node.data.type === 'group' ? 0 : node.data.id,
+        id: node.data.type === 'top-group' || node.data.type === 'vgroup' ? 0 : node.data.id,
         inProtocol: node.data.inProtocol,
-        type: node.data.type === 'group' ? undefined : node.data.type
+        type: node.data.type === 'top-group' || node.data.type === 'vgroup' ? undefined : node.data.type,
+        'self-defined-headers': {
+          'role-id': node.data.roleId,
+          'real-group-id': node.data.realGroupId
+        }
       })
+      if (node.data.type === 'role') {
+        devices.dirs = devices.dirs.filter((dir: any) => dir.inProtocol === 'gb28181' || dir.inProtocol === 'ehome')
+      }
       const dirTree: any = this.$refs.dirTree
       let checkedKeys = dirTree.getCheckedKeys()
       let dirs: any = devices.dirs.map((dir: any) => {
@@ -172,12 +188,15 @@ export default class extends Vue {
           id: dir.id,
           groupId: node.data.groupId,
           label: dir.label,
-          inProtocol: node.data.inProtocol,
+          inProtocol: dir.inProtocol || node.data.inProtocol,
           isLeaf: dir.isLeaf,
           type: dir.type,
           disabled: dir.type !== 'ipc' || sharedFlag,
           path: node.data.path.concat([dir]),
-          sharedFlag: sharedFlag
+          sharedFlag: sharedFlag,
+          roleId: node.data.roleId || '',
+          realGroupId: node.data.realGroupId || '',
+          realGroupInProtocol: node.data.realGroupInProtocol || ''
         }
       })
       return dirs
@@ -240,12 +259,19 @@ export default class extends Vue {
       const groups: any = []
       this.deviceList.forEach((item: any) => {
         // 构建group
+        if (item.path[0].type === 'vgroup') {
+          item = {
+            ...item,
+            path: item.path.slice(2)
+          }
+        }
         const groupId = item.path[0].id
+        const inProtocol = item.path[0].inProtocol
         let currentGroup = groups.find((group: any) => group.groupId === groupId)
         if (!currentGroup) {
           currentGroup = {
             groupId: groupId,
-            inProtocol: 'gb28181',
+            inProtocol: inProtocol,
             dirs: []
           }
           groups.push(currentGroup)

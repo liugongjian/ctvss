@@ -17,7 +17,7 @@
     >
       <el-form-item label="目录名称:" prop="dirName" class="form-with-tip">
         <el-input v-model="form.dirName" @keyup.enter.native="submit" />
-        <div class="form-tip">不超过64个字符，可包含大小写字母、数字、中文、中划线。</div>
+        <div class="form-tip">不超过64个字符，可包含大小写字母、数字、中文、中划线、空格。</div>
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -71,8 +71,8 @@ export default class extends Vue {
   }
 
   private validateDirName(rule: any, value: string, callback: Function) {
-    if (!/^[\u4e00-\u9fa50-9a-zA-Z-]{0,64}$/u.test(value)) {
-      callback(new Error('目录名称格式错误。不超过64个字符，可包含大小写字母、数字、中文、中划线。'))
+    if (!/^[\u4e00-\u9fa50-9a-zA-Z-\s]{0,64}$/u.test(value)) {
+      callback(new Error('目录名称格式错误。不超过64个字符，可包含大小写字母、数字、中文、中划线、空格。'))
     } else {
       callback()
     }

@@ -9,8 +9,8 @@ import { PermissionModule } from './permission'
 import { GroupModule } from './group'
 import { TagsViewModule } from './tags-view'
 import { DeviceModule } from '@/store/modules/device'
+import { VGroupModule } from '@/store/modules/vgroup'
 import store from '@/store'
-import { Message } from 'element-ui'
 
 export interface IUserState {
   token: string
@@ -37,13 +37,13 @@ class User extends VuexModule implements IUserState {
   public iamUserId = getIamUserId() || ''
   public roles: string[] = []
   public perms: string[] = []
+  public resources: string[] = []
+  public resourcesSet: Set<any> = new Set()
   public email = ''
   public type = ''
   public mainUserID = ''
   public mainUserAddress = ''
   public tags: any = null
-  public mainUserRoleId = ''
-  public mainUserRoleName = ''
   public ctLoginId = getLocalStorage('ctLoginId') || ''
 
   @Mutation
@@ -77,6 +77,12 @@ class User extends VuexModule implements IUserState {
   }
 
   @Mutation
+  private SET_RESOURCES(data: any) {
+    this.resources = data.resources
+    this.resourcesSet = data.resourcesSet
+  }
+
+  @Mutation
   private SET_ROLES(roles: string[]) {
     this.roles = roles
   }
@@ -104,16 +110,6 @@ class User extends VuexModule implements IUserState {
   @Mutation
   private SET_MAIN_USER_TAGS(tags: any) {
     this.tags = tags
-  }
-
-  @Mutation
-  private SET_MAIN_USER_ROLE_ID(roleId: string) {
-    this.mainUserRoleId = roleId
-  }
-
-  @Mutation
-  private SET_MAIN_USER_ROLE_NAME(roleName: string) {
-    this.mainUserRoleName = roleName
   }
 
   @Mutation
@@ -168,14 +164,15 @@ class User extends VuexModule implements IUserState {
     this.SET_TOKEN('')
     this.SET_NAME('')
     this.SET_PERMS([])
+    this.SET_RESOURCES({ resources: [], resourcesSet: new Set() })
     this.SET_IAM_USER_ID('')
     this.SET_MAIN_USER_ADDRESS('')
     this.SET_MAIN_USER_TAGS('')
     this.SET_MAIN_USER_ID('')
-    this.SET_MAIN_USER_ROLE_ID('')
-    this.SET_MAIN_USER_ROLE_NAME('')
     // 清空设备管理面包屑
     DeviceModule.ResetBreadcrumb()
+    // 清空虚拟业务组相关信息
+    VGroupModule.resetVGroupInfo()
   }
 
   @Action
@@ -211,25 +208,37 @@ class User extends VuexModule implements IUserState {
       data = await getIAMUserInfo({ iamUserId: this.iamUserId })
       const policy = JSON.parse(data.policyDocument || '{}')
       try {
-        const actionStr = policy.Statement[0].Action[0].split(':')[1]
-        console.log('actionStr: ', actionStr)
-        if (actionStr === 'Get*') {
-          data.perms = ['GET']
-        } else {
+        const actionList = policy.Statement[0].Action
+        const resourceList = policy.Statement[0].Resource
+        if (actionList[0] === 'vss:*') {
           data.perms = ['*']
+          data.resource = ['*']
+        } else if (actionList[0] === 'vss:Get*') {
+          data.perms = ['DescribeGroup', 'DescribeDevice', 'ScreenPreview', 'ReplayRecord']
+          data.resource = ['*']
+          data.resourcesSet = new Set()
+        } else {
+          data.perms = actionList
+          data.resource = resourceList
+          const tempSet = new Set()
+          resourceList.forEach((resource: any) => {
+            const idArr = resource.split(':').slice(2).join('/').split(/\//).slice(0, -1)
+            idArr.forEach((id: any) => tempSet.add(id))
+          })
+          data.resourcesSet = tempSet
         }
       } catch (e) {
         data = {
-          perms: ['*']
+          perms: ['*'],
+          resource: ['*'],
+          resourcesSet: new Set()
         }
-      }
-    } else if (this.mainUserRoleId) {
-      data = {
-        perms: ['ROLE']
       }
     } else {
       data = {
-        perms: ['*']
+        perms: ['*'],
+        resource: ['*'],
+        resourcesSet: new Set()
       }
     }
     if (!data) {
@@ -241,6 +250,7 @@ class User extends VuexModule implements IUserState {
       throw Error('GetGlobalInfo: perms must be a non-null array!')
     }
     this.SET_PERMS(perms)
+    this.SET_RESOURCES(data)
   }
 
   @Action
@@ -265,12 +275,6 @@ class User extends VuexModule implements IUserState {
     router.addRoutes(PermissionModule.dynamicRoutes)
     // Reset visited views and cached views
     TagsViewModule.delAllViews()
-  }
-
-  @Action({ rawError: true })
-  public overrideRoleInfo(roleInfo: { roleId: string, roleName: string }) {
-    this.SET_MAIN_USER_ROLE_ID(roleInfo.roleId)
-    this.SET_MAIN_USER_ROLE_NAME(roleInfo.roleName)
   }
 
   @Action({ rawError: true })
@@ -311,9 +315,12 @@ class User extends VuexModule implements IUserState {
     TagsViewModule.delAllViews()
     // 清空设备管理面包屑
     DeviceModule.ResetBreadcrumb()
+    // 清空虚拟业务组相关信息
+    VGroupModule.resetVGroupInfo()
     this.SET_TOKEN('')
     this.SET_ROLES([])
     this.SET_PERMS([])
+    this.SET_RESOURCES({ resources: [], resourcesSet: new Set() })
     this.SET_NAME('')
 
     const result = {
@@ -326,8 +333,6 @@ class User extends VuexModule implements IUserState {
     this.SET_MAIN_USER_ID('')
     this.SET_MAIN_USER_ADDRESS('')
     this.SET_MAIN_USER_TAGS('')
-    this.SET_MAIN_USER_ROLE_ID('')
-    this.SET_MAIN_USER_ROLE_NAME('')
 
     localStorage.clear()
     return result
