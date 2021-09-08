@@ -1,7 +1,8 @@
 <template>
   <div v-loading="loading.group" class="app-container">
     <el-card ref="deviceWrap" class="device-list-wrap">
-      <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
+      <div v-if="$route.query.inProtocol !== 'gb28181'" class="warning-info">暂仅支持国标协议的设备告警信息查询</div>
+      <div v-show="$route.query.inProtocol === 'gb28181'" class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
         <el-button class="device-list__expand" @click="toggledirList">
           <svg-icon name="hamburger" />
         </el-button>
@@ -85,6 +86,7 @@ export default class extends Mixins(DeviceMixin) {
   private renderAlertType = renderAlertType
   private parentDir = null
   private currentDir = null
+  private inProtocol: any = null
   private dialog = {
     createDir: false
   }
@@ -109,7 +111,9 @@ export default class extends Mixins(DeviceMixin) {
 
   @Watch('$route.query')
   private onRouterChange() {
-    !this.defaultKey && this.gotoRoot()
+    this.$nextTick(() => {
+      !this.defaultKey && this.gotoRoot()
+    })
   }
 
   @Watch('currentGroupId', { immediate: true })
@@ -260,3 +264,10 @@ export default class extends Mixins(DeviceMixin) {
   }
 }
 </script>
+<style scoped>
+  .warning-info {
+    text-align: center;
+    line-height: 10vh;
+    height: 10vh;
+  }
+</style>
