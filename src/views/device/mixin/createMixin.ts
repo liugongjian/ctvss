@@ -327,7 +327,7 @@ export default class CreateMixin extends Vue {
       callback(new Error('请填写经度及纬度坐标'))
     } else if (!/^[-+]?(0(\.\d{1,10})?|([1-9](\d)?)(\.\d{1,10})?|1[0-7]\d{1}(\.\d{1,10})?|180\.0{1,10})$/.test(this.form.deviceLongitude)) {
       callback(new Error('经度坐标格式错误'))
-    } else if (!/^[-+]?((0|([1-8]\d?))(\.\d{1,10})?|90(\.0{1,10})?)$/.test(this.form.deviceLatitude)) {
+    } else if (!/^[-+]?((0|([1-9]\d?))(\.\d{1,10})?|90(\.0{1,10})?)$/.test(this.form.deviceLatitude)) {
       callback(new Error('纬度坐标格式错误'))
     } else {
       callback()
