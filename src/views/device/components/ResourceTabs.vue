@@ -73,6 +73,27 @@
         <div class="resource-tabs__none">
           <el-radio v-model="form.resouceAiId" :label="-1" @change="onFormChange(false)">不绑定任何AI包</el-radio>
         </div>
+        <el-tabs v-if="form.resouceAiId !== -1" v-model="algoTabType" type="card" class="algoTab" @tab-click="changeTabType">
+          <el-tab-pane v-for="item in aiAbilityTab" :key="item.id" :label="item.name" :name="item.id">
+            <el-table :data="algoListData.aiApps" @selection-change="selectAlgoChange">
+              <el-table-column type="selection" width="55" />
+              <el-table-column prop="name" label="应用名称" />
+              <el-table-column label="算法类型" width="120">
+                <template slot-scope="scope">{{ scope.row.algorithm.name }}</template>
+              </el-table-column>
+              <el-table-column prop="analyseType" label="分析类型" />
+              <el-table-column prop="description" label="描述" show-overflow-tooltip />
+            </el-table>
+          </el-tab-pane>
+        </el-tabs>
+        <div v-if="showTips" class="algoWarning algoWarningTip">
+          <i class="el-icon-warning" />
+          <span>已选择{{ selectAlgoId.length }}种AI应用，将扣除{{ chooseData.name }}包中{{ selectAlgoId.length }}路资源。</span>
+        </div>
+        <div v-if="showError" class="algoWarning algoWarningError">
+          <i class="el-icon-warning" />
+          <span>已选择{{ selectAlgoId.length }}种AI应用，{{ chooseData.name }}包接入余量不足。</span>
+        </div>
       </div>
     </el-tab-pane>
     <el-tab-pane v-if="!isPrivateInNetwork" label="上行带宽包" name="upload">
@@ -110,8 +131,11 @@
 <script lang='ts'>
 import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
 import { ResourceAiType } from '@/dics'
-import { getResources } from '@/api/billing'
+import { getResources
+// getAlgoList, getAbilityTab
+} from '@/api/billing'
 import { UserModule } from '@/store/modules/user'
+import { getAbilityList, getAppList } from '@/api/ai-app'
 
 @Component({
   name: 'ResourceTabs'
@@ -138,6 +162,16 @@ export default class extends Vue {
   private resouceAiList = []
   private resouceUploadList = []
 
+  private algoListData = {}
+  private algoTabType = '1'
+  private totalDeviceConfigCount = 0
+  private remainDeviceConfigCount = 0
+  private selectAlgoId = []
+  private showError = false
+  private showTips = false
+  private aiAbilityTab = []
+  private chooseData = []
+
   public get isFreeUser() {
     return UserModule.tags && UserModule.tags.resourceFree === '1'
   }
@@ -146,6 +180,7 @@ export default class extends Vue {
     this.resouceVideoList = await this.getResouces('VSS_VIDEO', 'resouceVideoList')
     this.resouceAiList = await this.getResouces('VSS_AI', 'resouceAiList')
     this.resouceUploadList = await this.getResouces('VSS_UPLOAD_BW', 'resouceUploadList')
+    this.ifHasCheceked()
     this.onFormChange(true)
   }
 
@@ -235,12 +270,60 @@ export default class extends Vue {
         break
       case 'ai':
         this.form.resouceAiId = row.resourceId
+        this.onRadioChange(type, row)
         break
       case 'upload':
         this.form.resouceUploadId = row.resourceId
         break
     }
     this.onFormChange(false)
+  }
+
+  // 判断是否是编辑进入
+  private ifHasCheceked() {
+    if (this.value.length > 0) {
+      const temp = this.resouceAiList.find(item => {
+        return this.value.map(val => {
+          return val.resourceId === item.resourceId
+        })
+      })
+      if (Object.keys(temp).length > 0) {
+        this.getAiAlgoList(temp)
+      }
+    }
+  }
+
+  // AI包radio事件
+  private onRadioChange(type: string, row: any) {
+    this.getAiAlgoList(row)
+    this.totalDeviceConfigCount = row.totalDeviceCount
+    this.remainDeviceConfigCount = row.remainDeviceCount
+  }
+
+  private async getAiAlgoList(row:any) {
+    const { aiAbilityList } = await getAbilityList()
+    this.aiAbilityTab = aiAbilityList
+    this.getAlgoList()
+    this.chooseData = row
+  }
+
+  private async getAlgoList() {
+    const algoListData = await getAppList({ abilityId: this.algoTabType })
+    this.algoListData = algoListData
+  }
+
+  private changeTabType() {
+    this.getAlgoList()
+  }
+
+  private selectAlgoChange(val:any) {
+    this.selectAlgoId = val
+    const temp = this.remainDeviceConfigCount + this.selectAlgoId.length
+    if (temp > this.totalDeviceConfigCount) {
+      this.showError = true
+    } else {
+      this.showTips = true
+    }
   }
 }
 </script>
@@ -287,6 +370,32 @@ export default class extends Vue {
 
     ::v-deep .el-table .el-table__row {
       cursor: pointer;
+    }
+  }
+  .algoTab{
+    margin-top: 10px;
+  }
+  .algoWarning{
+    padding: 5px 10px;
+    border: 1px solid;
+    span{
+      margin-left: 12px;
+      font-size: 12px;
+      display: inline-block;
+    }
+    ::v-deep .el-icon-warning{
+      font-size: 18px;
+      vertical-align: middle;
+    }
+    &.algoWarningError{
+      border-color: #950012;
+      color: #950012;
+      background: #FADEE0;
+    }
+    &.algoWarningTip{
+      border-color: #4A88DB;
+      color: #4A88DB;
+      background: #EDF4FE;
     }
   }
 </style>
