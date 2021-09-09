@@ -262,6 +262,30 @@ export default class extends Mixins(DeviceMixin) {
     if (JSON.stringify(this.$route.query) === JSON.stringify(router.query)) return
     this.$router.push(router)
   }
+
+  /**
+   * 初始化目录状态
+   */
+  public async initTreeStatus() {
+    const dirTree: any = this.$refs.dirTree
+    const path: string | (string | null)[] | null = this.$route.query.path
+    const keyPath = path ? path.toString().split(',') : null
+    if (keyPath) {
+      for (let i = 0; i < keyPath.length; i++) {
+        const _key = keyPath[i]
+        const node = dirTree.getNode(_key)
+        if (node) {
+          await this.loadDirChildren(_key, node)
+          if (i === keyPath.length - 1) {
+            DeviceModule.SetBreadcrumb(this.getDirPath(node).reverse())
+          }
+        }
+      }
+    } else if (this.dirList.length && this.dirList.every((dir: any) => dir.type === 'dir')) {
+      // 如果根目录下无设备，则跳转至第一个目录下
+      this.alarmRouter(this.dirList[0])
+    }
+  }
 }
 </script>
 <style scoped>
