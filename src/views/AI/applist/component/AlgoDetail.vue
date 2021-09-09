@@ -9,9 +9,9 @@
       </el-form-item>
       <el-form-item label="分析类型">
         <el-select v-model="form.analyseType" placeholder="请选择分析类型">
-          <el-option label="分钟级" value="分钟级AI-100" />
-          <el-option label="秒级" value="秒级AI-200" />
-          <el-option label="高算力" value="高算力AI-300" />
+          <el-option label="分钟级" value="AI-100" />
+          <el-option label="秒级" value="AI-200" />
+          <el-option label="高算力" value="AI-300" />
         </el-select>
       </el-form-item>
       <el-form-item label="生效时段">
@@ -141,10 +141,11 @@ export default class extends Vue {
   //   this.$route.query.appinfo && (this.form.name = this.appinfo.name)
   // }
   private editTransformEffectiveTime() {
+    console.log('处理时间')
     const effectiveTime = JSON.parse(this.form.effectiveTime)
     const period = effectiveTime.map(item => ({ period: [item.starttime, item.endtime] }))
     this.$set(this.form, 'availableperiod', period)
-    if (effectiveTime.starttime === '00:00:00' && effectiveTime.endtime === '23:59:59') {
+    if (effectiveTime.length === 1 && effectiveTime[0].starttime === '00:00:00' && effectiveTime[0].endtime === '23:59:59') {
       this.$set(this.form, 'effectPeriod', '全天')
     } else {
       this.$set(this.form, 'effectPeriod', '时间段')
@@ -194,7 +195,7 @@ export default class extends Vue {
   }
   private generateEffectiveTime() {
     if (this.form.effectPeriod === '全天') {
-      this.effectiveTime = [{ starttime: '00:00:00', endtime: '24:00:00' }]
+      this.effectiveTime = [{ starttime: '00:00:00', endtime: '23:59:59' }]
     } else {
       this.effectiveTime = this.form.availableperiod.map(element => {
         return {
