@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="basic-info-wrapper">
     <el-row>
-      <el-button @click="handleButtonClick('off')">停用</el-button>
+      <el-button @click="handleButtonClick(Number(appInfo.appEnabled) ? 'off' : 'on')">{{ Number(appInfo.appEnabled) ? '停用' : '启用' }}</el-button>
       <el-button @click="handleButtonClick('edit')">编辑</el-button>
       <el-button @click="handleButtonClick('del')">删除</el-button>
     </el-row>
@@ -12,7 +12,7 @@
       </div>
       <div>
         <span>应用状态：</span>
-        <span>{{ appInfo.status }}</span>
+        <span>{{ Number(appInfo.appEnabled) ? '启动中' : '未启动' }}</span>
       </div>
     </el-row>
     <el-row>
@@ -24,29 +24,25 @@
         <div class="left">
           <div>
             <span>算法类型：</span>
-            <span>{{ appInfo.status }}</span>
+            <span>{{ appInfo.algorithm.name }}</span>
           </div>
           <div>
             <span>截帧频率：</span>
-            <span>{{ appInfo.status }}</span>
-          </div>
-          <div>
-            <span>存储周期：</span>
-            <span>{{ appInfo.status }}</span>
+            <span>{{ appInfo.analyseType }}</span>
           </div>
           <div>
             <span>描述：</span>
-            <span>{{ appInfo.status }}</span>
+            <span>{{ appInfo.description }}</span>
           </div>
         </div>
         <div class="right">
           <div>
             <span>应用名称：</span>
-            <span>{{ appInfo.status }}</span>
+            <span>{{ appInfo.name }}</span>
           </div>
           <div>
             <span>生效时段：</span>
-            <span>{{ appInfo.status }}</span>
+            <span v-for="(item, index) in appInfo.effectiveTime" :key="index">{{ item.starttime }} - {{ item.endtime }}</span>
           </div>
           <div>
             <span>人脸库：</span>
@@ -73,6 +69,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import { getAppInfo, startOrStopApps, deleteApps } from '@/api/ai-app'
 @Component({
   name: 'BasicAppInfo',
   components: {
@@ -82,6 +79,7 @@ export default class extends Vue {
     private appName: String = null
     private dialogVisible: boolean = false
     private dialogTitle: String = ''
+    private btnFlag: String
     private appInfo: any = {
       date: '人员布控03',
       name: '人员聚集',
@@ -90,36 +88,40 @@ export default class extends Vue {
       device: '3',
       status: '-1'
     }
-    private getAppInfo(appname) {
-      console.log(appname)
-    }
-
+    private confirmFn: Function
     private mounted() {
-      this.getAppInfo(this.$route.query.appname)
+      this.initData()
+    }
+    private async initData() {
+      let res = await getAppInfo({ id: this.$route.query.appid })
+      this.appInfo = { ...res, effectiveTime: JSON.parse(res.effectiveTime) }
+      console.log(res)
     }
     private handleButtonClick(option) {
-      switch (option) {
-        case 'on':
-          this.dialogVisible = true
-          this.dialogTitle = '启用该应用'
-          break
-        case 'off':
-          this.dialogVisible = true
-          this.dialogTitle = '停用该应用'
-          break
-        case 'edit':
-          this.$router.push({
-            name: `AI-EditApp`,
-            query: {
-              appinfo: this.appInfo
-            }
-          })
-          break
-        case 'del':
-          this.dialogVisible = true
-          this.dialogTitle = '删除该应用'
-          break
+      if (option === 'edit') {
+        this.$router.push({
+          name: `AI-EditApp`,
+          query: {
+            id: this.appInfo.id
+          }
+        })
+      } else {
+        this.dialogVisible = true
+        this.btnFlag = option
+        this.dialogTitle = option === 'on' ? '启用该应用' : (option === 'off' ? '停用该应用' : '删除该应用')
       }
+    }
+
+    private async handleConfirm() {
+      if (this.btnFlag === 'del') {
+        await deleteApps({ id: [this.appInfo.id] })
+        this.$router.push({ name: 'AI-AppList' })
+      } else {
+        await startOrStopApps({ id: [this.appInfo.id], startOrStop: this.btnFlag === 'on' ? 1 : 0 })
+        this.initData()
+      }
+      this.dialogVisible = false
+      this.$message.success('操作成功')
     }
     private closeDialog() {
       this.dialogVisible = false
@@ -128,8 +130,11 @@ export default class extends Vue {
 </script>
 
 <style lang='scss' scoped>
-.el-row{
-    padding-left: 20px;
+.basic-info-wrapper{
+  width: 100%;
+  .el-row{
+      padding-left: 20px;
+  }
 }
 .title{
     margin-top: 30px;
@@ -137,7 +142,10 @@ export default class extends Vue {
     vertical-align: middle;
     &>div{
         // display: inline-block;
-        padding-top: 5px;
+      padding-top: 5px;
+    }
+    & + div {
+      margin-left: 10px;
     }
     .title-block{
         width: 7px;
@@ -156,6 +164,7 @@ export default class extends Vue {
     display: flex;
     align-items: flex-start;
     height: 200px;
+    width: 100%;
     .left,.right{
         width:40%;
         display: flex;
@@ -163,8 +172,11 @@ export default class extends Vue {
         flex-direction: column;
         height: 100%;
         &>div{
-            margin-bottom: 5%;
+            margin-bottom: 30px;
         }
+    }
+    .left{
+      margin-right: 8%;
     }
 }
 ::v-deep .el-dialog__body{

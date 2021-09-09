@@ -9,9 +9,9 @@
       </el-form-item>
       <el-form-item label="分析类型">
         <el-select v-model="form.analyseType" placeholder="请选择分析类型">
-          <el-option label="分钟级" value="分钟级AI-100" />
-          <el-option label="秒级" value="秒级AI-200" />
-          <el-option label="高算力" value="高算力AI-300" />
+          <el-option label="分钟级" value="AI-100" />
+          <el-option label="秒级" value="AI-200" />
+          <el-option label="高算力" value="AI-300" />
         </el-select>
       </el-form-item>
       <el-form-item label="生效时段">
@@ -57,14 +57,14 @@
           <el-link type="warning" @click="addPeriod">+ 增加生效时间段</el-link>
         </div>
       </el-form-item>
-      <el-form-item v-if="prod.code === '10001'" label="人脸库">
-        <el-select v-model="form.region" placeholder="请选择人脸库" :loading="isfaceLibLoading">
+      <el-form-item v-if="prod.code === '10001' || (form.algorithm && form.algorithm.code === '10001')" label="人脸库">
+        <el-select v-model="form.algorithmMetadata.FaceDbName" placeholder="请选择人脸库" :loading="isfaceLibLoading">
           <el-option v-for="item in faceLibs" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
         <i class="el-icon-refresh" @click="refreshFaceLib" />
         <el-button type="text">+新建人脸库</el-button>
       </el-form-item>
-      <el-form-item v-if="prod.code === '10006'" label="围栏区域">
+      <el-form-item v-if="prod.code === '10006' || (form.algorithm && form.algorithm.code === '10006')" label="围栏区域">
         <el-alert
           title="围栏区域需在绑定设备后，在设备详情中进行设置。"
           type="info"
@@ -72,6 +72,18 @@
           :closable="false"
           class="mb5"
         />
+      </el-form-item>
+      <el-form-item label="置信度">
+        <el-slider
+          v-model="form.confidence"
+          show-input
+          :show-input-controls="false"
+        />
+        <div class="confidence-info">
+          <span>%</span>
+          <span>~</span>
+          <span>100%</span>
+        </div>
       </el-form-item>
       <el-form-item label="回调地址">
         <el-input v-model="form.callbackUrl" />
@@ -89,7 +101,7 @@
         <el-input v-model="form.description" type="textarea" :rows="2" />
       </el-form-item>
       <el-form-item>
-        <el-button @click="changeStep({step: 0})">上一步</el-button>
+        <el-button v-if="!this.$route.query.id" @click="changeStep({step: 0})">上一步</el-button>
         <el-button type="primary" @click="onSubmit">立即{{ this.$route.query.id ? '更新' : '创建' }}</el-button>
         <el-button @click="cancel">取消</el-button>
       </el-form-item>
@@ -112,11 +124,7 @@ export default class extends Vue {
   private form: any = {}
   private faceLibs = []
   private isfaceLibLoading = false
-  private rules: any = {
-    name: [
-      { required: true, message: '请输入', trigger: 'blur' }
-    ]
-  }
+  private rules: any = {}
   private effectiveTime: any = []
 
   private async mounted() {
@@ -131,11 +139,16 @@ export default class extends Vue {
       }
       // 处理生效时间段
       this.editTransformEffectiveTime()
+      // 处理人脸库选项
+      this.editTransformFaceData()
+      // 处理置信度
+      this.form = { ...this.form, confidence: this.form.confidence * 100 }
+      console.log(this.form)
     } else { // 新建
-      this.form = { algoName: this.prod.name }
-      this.$set(this.form, 'availableperiod', [])
+      const algorithmMetadata = { FaceDbName: '' }
+      this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [] }
     }
-    const { groups } = await getAIConfigGroupData({ })
+    const { groups } = await getAIConfigGroupData({})
     this.faceLibs = groups
   }
   // private updated() {
@@ -146,13 +159,16 @@ export default class extends Vue {
     const effectiveTime = JSON.parse(this.form.effectiveTime)
     const period = effectiveTime.map(item => ({ period: [item.starttime, item.endtime] }))
     this.$set(this.form, 'availableperiod', period)
-    if (effectiveTime.starttime === '00:00:00' && effectiveTime.endtime === '23:59:59') {
+    if (effectiveTime.length === 1 && effectiveTime[0].starttime === '00:00:00' && effectiveTime[0].endtime === '23:59:59') {
       this.$set(this.form, 'effectPeriod', '全天')
     } else {
       this.$set(this.form, 'effectPeriod', '时间段')
     }
-    console.log(effectiveTime)
-    console.log(this.form)
+  }
+  private editTransformFaceData() {
+    this.form.algorithmMetadata.length !== 0
+      ? (this.form.algorithmMetadata = JSON.parse(this.form.algorithmMetadata))
+      : (this.form = { ...this.form, algorithmMetadata: { FaceDbName: '' } })
   }
   private changeStep(val: any) {
     this.$emit('update:step', val.step)
@@ -162,11 +178,19 @@ export default class extends Vue {
   }
   private async onSubmit() {
     this.generateEffectiveTime()
-    const param = { ...this.form, effectiveTime: this.effectiveTime, callbackKey: this.form.validateType === '无验证' ? '' : this.form.callbackKey }
+    let param = {
+      ...this.form,
+      effectiveTime: this.effectiveTime,
+      callbackKey: this.form.validateType === '无验证' ? '' : this.form.callbackKey,
+      algorithmMetadata: JSON.stringify(this.form.algorithmMetadata),
+      confidence: this.form.confidence / 100
+    }
     if (this.$route.query.id) {
       await updateAppInfo(param)
       this.$message.success('修改应用成功')
     } else {
+      // 新建时带上算法ID
+      param = { ...param, algorithmsId: this.prod.id }
       await createApp(param)
       this.$message.success('新建应用成功')
     }
@@ -186,7 +210,7 @@ export default class extends Vue {
   }
   private generateEffectiveTime() {
     if (this.form.effectPeriod === '全天') {
-      this.effectiveTime = [{ starttime: '00:00:00', endtime: '24:00:00' }]
+      this.effectiveTime = [{ starttime: '00:00:00', endtime: '23:59:59' }]
     } else {
       this.effectiveTime = this.form.availableperiod.map(element => {
         return {
@@ -200,23 +224,44 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-.el-input,.el-textarea,.el-table {
-    width: 500px
-}
-.tabrow-add{
-  padding-left: 180px;
-}
-.mb5{
-  width: 500px;
-}
-.el-icon-refresh{
-  margin-left: 20px;
-  font-size: 16px;
-  &:hover{
-    cursor: pointer;
+.app-container {
+  .confidence-info{
+    display: inline-block;
+    height: 45px;
+    line-height: 100%;
+    vertical-align: middle;
+    margin-left: -71px;
+    &>span:nth-child(2){
+      margin-left: 10px;
+      margin-right: 10px;
+    }
   }
-}
-.el-button--text {
-  margin-left: 15px;
+  .el-slider{
+    width:500px;
+    display: inline-block;
+    ::v-deep .el-slider__input{
+      width:60px;
+      margin-right:80px;
+    }
+  }
+  .el-input,.el-textarea,.el-table {
+      width: 500px
+  }
+  .tabrow-add{
+    padding-left: 180px;
+  }
+  .mb5{
+    width: 500px;
+  }
+  .el-icon-refresh{
+    margin-left: 20px;
+    font-size: 16px;
+    &:hover{
+      cursor: pointer;
+    }
+  }
+  .el-button--text {
+    margin-left: 15px;
+  }
 }
 </style>
