@@ -448,6 +448,7 @@ export const asyncRoutes: RouteConfig[] = [
   {
     path: '/up-platform',
     component: Layout,
+    redirect: 'noredirect',
     meta: {
       id: '20210524150201007000',
       title: '向上级联',
@@ -498,12 +499,12 @@ export const asyncRoutes: RouteConfig[] = [
     path: '/certificate',
     component: Layout,
     name: 'certificate',
+    redirect: 'noredirect',
     meta: {
       id: '20210424150201007000',
       title: '凭证管理',
       icon: 'key',
       alwaysShow: true,
-      breadcrumb: false,
       perms: ['*']
     },
     children: [
@@ -667,6 +668,54 @@ export const asyncRoutes: RouteConfig[] = [
           perms: ['*'],
           activeMenu: '/template/ai'
         }
+      },
+      {
+        path: 'alert',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/alert/index.vue'),
+        name: 'alert',
+        meta: {
+          id: '20210424150201008010',
+          title: '告警模板',
+          icon: 'dot',
+          perms: ['*'],
+          activeMenu: '/template/alert'
+        }
+      },
+      {
+        path: 'alert/create',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/alert/createOrUpdate.vue'),
+        name: 'alert-create',
+        meta: {
+          id: '20210424150201008011',
+          title: '新建告警模板',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/template/alert'
+        }
+      },
+      {
+        path: 'alert/update/:id?',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/alert/createOrUpdate.vue'),
+        name: 'alert-update',
+        meta: {
+          id: '20210424150201008012',
+          title: '编辑告警模板',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/template/alert'
+        }
+      },
+      {
+        path: 'alert/details/:id?',
+        component: () => import(/* webpackChunkName: "template" */ '@/views/template/alert/details.vue'),
+        name: 'alert-details',
+        meta: {
+          id: '20210424150201008013',
+          title: '模板详情',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/template/alert'
+        }
       }
       // ,
       // {
@@ -733,14 +782,13 @@ export const asyncRoutes: RouteConfig[] = [
   {
     path: '/AI',
     component: Layout,
-    redirect: '/AI/config',
+    redirect: 'noredirect',
     name: 'ai',
     meta: {
       id: '20210424150201010000',
       title: 'AI配置',
       icon: 'key',
       alwaysShow: true,
-      breadcrumb: false,
       perms: ['*']
     },
     children: [
@@ -891,14 +939,57 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
+    path: '/alarm',
+    component: Layout,
+    meta: {
+      id: '20210424150201003100',
+      title: '告警管理',
+      icon: 'alarm',
+      perms: ['GET'],
+      alwaysShow: false,
+      only: true,
+      groupSelector: true
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "alarm" */ '@/views/alarm/index.vue'),
+        name: 'alarm',
+        meta: {
+          id: '20210424150201003101',
+          title: '告警管理',
+          icon: 'alarm',
+          breadcrumb: false,
+          perms: ['GET'],
+          groupSelector: true
+        },
+        children: [
+          {
+            path: '',
+            component: () => import(/* webpackChunkName: "alarm" */ '@/views/alarm/list.vue'),
+            name: 'alarm-list',
+            meta: {
+              id: '20210424150201003102',
+              title: '告警信息列表',
+              breadcrumb: false,
+              perms: ['GET'],
+              activeMenu: '/alarm',
+              groupSelector: true
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
     path: '/billing',
     component: Layout,
+    redirect: 'noredirect',
     meta: {
       id: '20210515200901012000',
       title: '计费详情',
       icon: 'billing',
       alwaysShow: true,
-      breadcrumb: false,
       perms: ['*']
     },
     children: [

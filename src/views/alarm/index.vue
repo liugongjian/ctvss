@@ -1,7 +1,8 @@
 <template>
   <div v-loading="loading.group" class="app-container">
     <el-card ref="deviceWrap" class="device-list-wrap">
-      <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
+      <div v-if="$route.query.inProtocol !== 'gb28181'" class="warning-info">暂仅支持国标协议的设备告警信息查询</div>
+      <div v-show="$route.query.inProtocol === 'gb28181'" class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
         <el-button class="device-list__expand" @click="toggledirList">
           <svg-icon name="hamburger" />
         </el-button>
@@ -13,17 +14,8 @@
         <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
           <div class="dir-list" :style="`width: ${dirDrag.width}px`">
             <div class="dir-list__tools">
-              <el-tooltip v-if="!isVGroup && checkPermission(['AdminDevice'], {id: currentGroupId})" class="item" effect="dark" content="子目录排序" placement="top" :open-delay="300">
-                <el-button type="text" @click.stop="openDialog('sortChildren', {id: '0'})"><svg-icon name="sort" /></el-button>
-              </el-tooltip>
               <el-tooltip class="item" effect="dark" content="刷新目录" placement="top" :open-delay="300">
                 <el-button type="text" @click="initDirs"><svg-icon name="refresh" /></el-button>
-              </el-tooltip>
-              <el-tooltip v-if="!isVGroup && checkPermission(['AdminDevice'], {id: currentGroupId})" class="item" effect="dark" content="添加目录" placement="top" :open-delay="300">
-                <el-button type="text" @click="openDialog('createDir')"><svg-icon name="plus" /></el-button>
-              </el-tooltip>
-              <el-tooltip v-if="false" class="item" effect="dark" content="目录设置" placement="top" :open-delay="300">
-                <el-button type="text"><i class="el-icon-setting" /></el-button>
               </el-tooltip>
             </div>
             <div v-loading="loading.dir" class="dir-list__tree device-list__max-height" :style="{height: `${maxHeight}px`}">
@@ -38,7 +30,7 @@
                 :load="loadDirs"
                 :props="treeProp"
                 :current-node-key="defaultKey"
-                @node-click="deviceRouter"
+                @node-click="alarmRouter"
               >
                 <span
                   slot-scope="{node, data}"
@@ -51,29 +43,8 @@
                       <svg-icon name="dir" width="15" height="15" />
                       <svg-icon name="dir-close" width="15" height="15" />
                     </span>
-                    <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
-                    {{ node.label }}
-                    <span class="sum-icon">{{ getSums(data) }}</span>
-                    <span class="alert-type">{{ renderAlertType(data) }}</span>
+                    {{ node.label }} <span class="alert-type">{{ renderAlertType(data) }}</span>
                   </span>
-                  <div v-if="!isVGroup && checkPermission(['AdminDevice'], data)" class="tools">
-                    <template v-if="data.type !== 'ipc'">
-                      <el-tooltip class="item" effect="dark" content="子目录排序" placement="top" :open-delay="300">
-                        <el-button type="text" @click.stop="openDialog('sortChildren', data, node)"><svg-icon name="sort" /></el-button>
-                      </el-tooltip>
-                    </template>
-                    <template v-if="data.type === 'dir' && !isVGroup && checkPermission(['AdminDevice'])">
-                      <el-tooltip class="item" effect="dark" content="添加子目录" placement="top" :open-delay="300">
-                        <el-button type="text" @click.stop="openDialog('createDir', data)"><svg-icon name="plus" /></el-button>
-                      </el-tooltip>
-                      <el-tooltip class="item" effect="dark" content="编辑目录" placement="top" :open-delay="300">
-                        <el-button type="text" @click.stop="openDialog('updateDir', data)"><svg-icon name="edit" /></el-button>
-                      </el-tooltip>
-                      <el-tooltip class="item" effect="dark" content="删除目录" placement="top" :open-delay="300">
-                        <el-button type="text" @click.stop="deleteDir(data)"><svg-icon name="trash" /></el-button>
-                      </el-tooltip>
-                    </template>
-                  </div>
                 </span>
               </el-tree>
             </div>
@@ -86,52 +57,38 @@
               v-for="item in breadcrumb"
               :key="item.id"
               class="breadcrumb__item"
-              @click="deviceRouter(item)"
+              @click="alarmRouter(item)"
             >
               {{ item.label }}
             </span>
           </div>
           <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
-            <router-view />
+            <router-view :group-id="currentGroupId" />
           </div>
         </div>
       </div>
     </el-card>
-    <create-dir v-if="dialog.createDir" :parent-dir="parentDir" :current-dir="currentDir" :group-id="currentGroupId" @on-close="closeDialog('createDir', ...arguments)" />
-    <sort-children v-if="dialog.sortChildren" :in-protocol="currentGroupInProtocol" :current-dir="sortDir" :group-id="currentGroupId" @on-close="closeDialog('sortChildren', ...arguments)" />
   </div>
 </template>
 <script lang="ts">
 import { Component, Watch, Mixins } from 'vue-property-decorator'
-import DeviceMixin from './mixin/deviceMixin'
+import DeviceMixin from '@/views/device/mixin/deviceMixin'
 import { DeviceModule } from '@/store/modules/device'
-import CreateDir from './components/dialogs/CreateDir.vue'
-import SortChildren from './components/dialogs/SortChildren.vue'
-import StatusBadge from '@/components/StatusBadge/index.vue'
 import { deleteDir } from '@/api/dir'
-import { renderAlertType, getSums } from '@/utils/device'
+import { renderAlertType } from '@/utils/device'
 import { checkPermission } from '@/utils/permission'
-import { VGroupModule } from '@/store/modules/vgroup'
 
 @Component({
-  name: 'Device',
-  components: {
-    CreateDir,
-    StatusBadge,
-    SortChildren
-  }
+  name: 'Alarm'
 })
 export default class extends Mixins(DeviceMixin) {
   private checkPermission = checkPermission
   private renderAlertType = renderAlertType
-  private getSums = getSums
   private parentDir = null
   private currentDir = null
-  private sortDir: any = null
-  private sortNode = null
+  private inProtocol: any = null
   private dialog = {
-    createDir: false,
-    sortChildren: false
+    createDir: false
   }
 
   private get defaultKey() {
@@ -149,13 +106,14 @@ export default class extends Mixins(DeviceMixin) {
   }
 
   private destroyed() {
-    VGroupModule.resetVGroupInfo()
     window.removeEventListener('resize', this.calMaxHeight)
   }
 
   @Watch('$route.query')
   private onRouterChange() {
-    !this.defaultKey && this.gotoRoot()
+    this.$nextTick(() => {
+      !this.defaultKey && this.gotoRoot()
+    })
   }
 
   @Watch('currentGroupId', { immediate: true })
@@ -190,7 +148,7 @@ export default class extends Mixins(DeviceMixin) {
   /**
    * 打开对话框
    */
-  private openDialog(type: string, payload: any, node?: any) {
+  private openDialog(type: string, payload: any) {
     switch (type) {
       case 'createDir':
         if (payload) {
@@ -204,12 +162,6 @@ export default class extends Mixins(DeviceMixin) {
         }
         this.dialog.createDir = true
         break
-      case 'sortChildren':
-        if (payload) {
-          this.sortDir = payload
-          this.sortNode = node
-        }
-        this.dialog.sortChildren = true
     }
   }
 
@@ -220,21 +172,11 @@ export default class extends Mixins(DeviceMixin) {
     // @ts-ignore
     this.dialog[type] = false
     switch (type) {
-      case 'sortChildren':
-        if (payload === true) {
-          if (this.sortDir.id === '0') {
-            this.initDirs()
-          } else {
-            this.loadDirChildren(this.sortDir.id, this.sortNode)
-          }
-          (this.sortDir.id === this.$route.query.dirId || this.sortDir.id === this.$route.query.deviceId) && DeviceModule.SetIsSorted(true)
-        }
-        break
       case 'createDir':
       case 'updateDir':
         this.currentDir = null
         this.parentDir = null
-        if (payload === true) {
+        if (payload) {
           this.initDirs()
         }
     }
@@ -247,11 +189,109 @@ export default class extends Mixins(DeviceMixin) {
     const dirTree: any = this.$refs.dirTree
     dirTree.setCurrentKey(null)
     await DeviceModule.ResetBreadcrumb()
-    await VGroupModule.resetVGroupInfo()
-    this.deviceRouter({
+    this.alarmRouter({
       id: '0',
       type: 'dir'
     })
   }
+
+  /**
+   * deviceRouter-改alarmRouter
+   */
+  private async alarmRouter(item: any, node?: any) {
+    const dirTree: any = this.$refs.dirTree
+    let _node: any
+    if (!node) {
+      _node = dirTree.getNode(item.id)
+      if (_node) {
+        if (!_node.loaded) {
+          this.loadDirChildren(item.id, _node)
+        }
+        _node.parent.expanded = true
+        dirTree.setCurrentKey(item.id)
+      }
+    } else {
+      _node = node
+      _node.expanded = true
+    }
+    _node && DeviceModule.SetBreadcrumb(this.getDirPath(_node).reverse())
+    let router: any
+    let query: any = {}
+    switch (item.type) {
+      case 'platformDir':
+      case 'dir':
+        router = {
+          name: 'alarm-list'
+        }
+        query = {
+          dirId: item.id
+        }
+        break
+      case 'platform':
+        router = {
+          name: 'alarm-list'
+        }
+        query = {
+          dirId: item.id,
+          deviceId: item.id
+        }
+        break
+      case 'nvr':
+        router = {
+          name: 'alarm-list'
+        }
+        query = {
+          deviceId: item.id
+        }
+        break
+      case 'ipc':
+        router = {
+          name: 'alarm-list'
+        }
+        query = {
+          deviceId: item.id
+        }
+        break
+    }
+    router.query = {
+      inProtocol: this.currentGroup!.inProtocol,
+      type: item.type,
+      path: this.breadcrumb.map((item: any) => item.id).join(','),
+      ...query
+    }
+    if (JSON.stringify(this.$route.query) === JSON.stringify(router.query)) return
+    this.$router.push(router)
+  }
+
+  /**
+   * 初始化目录状态
+   */
+  public async initTreeStatus() {
+    const dirTree: any = this.$refs.dirTree
+    const path: string | (string | null)[] | null = this.$route.query.path
+    const keyPath = path ? path.toString().split(',') : null
+    if (keyPath) {
+      for (let i = 0; i < keyPath.length; i++) {
+        const _key = keyPath[i]
+        const node = dirTree.getNode(_key)
+        if (node) {
+          await this.loadDirChildren(_key, node)
+          if (i === keyPath.length - 1) {
+            DeviceModule.SetBreadcrumb(this.getDirPath(node).reverse())
+          }
+        }
+      }
+    } else if (this.dirList.length && this.dirList.every((dir: any) => dir.type === 'dir')) {
+      // 如果根目录下无设备，则跳转至第一个目录下
+      this.alarmRouter(this.dirList[0])
+    }
+  }
 }
 </script>
+<style scoped>
+  .warning-info {
+    text-align: center;
+    line-height: 10vh;
+    height: 10vh;
+  }
+</style>

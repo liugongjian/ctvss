@@ -37,7 +37,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 import { getAITemplates, bindAITemplates, unbindAITemplates } from '@/api/template'
 
 @Component({
-  name: 'SetRecordTemplate'
+  name: 'SetAITemplate'
 })
 export default class extends Vue {
   @Prop() private groupId?: string

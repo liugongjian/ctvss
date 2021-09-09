@@ -2,6 +2,7 @@
 import './404'
 import './ai-camera'
 import './ai-camera2'
+import './alarm'
 import './alert'
 import './arrow-down'
 import './arrow-down2'

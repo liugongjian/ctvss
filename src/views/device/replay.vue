@@ -42,7 +42,9 @@
                       <svg-icon name="dir-close" width="15" height="15" />
                     </span>
                     <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
-                    {{ node.label }} <span class="alert-type">{{ renderAlertType(data) }}</span>
+                    {{ node.label }}
+                    <span class="sum-icon">{{ getSums(data) }}</span>
+                    <span class="alert-type">{{ renderAlertType(data) }}</span>
                     <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
                   </span>
                 </span>
@@ -120,7 +122,7 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 import ReplayView from './components/ReplayView.vue'
 import PlayerContainer from './components/PlayerContainer.vue'
 import DeviceDir from './components/dialogs/DeviceDir.vue'
-import { renderAlertType } from '@/utils/device'
+import { renderAlertType, getSums } from '@/utils/device'
 import { VGroupModule } from '@/store/modules/vgroup'
 
 @Component({
@@ -134,6 +136,7 @@ import { VGroupModule } from '@/store/modules/vgroup'
 })
 export default class extends Mixins(ScreenMixin) {
   private renderAlertType = renderAlertType
+  private getSums = getSums
   public maxSize = 1
 
   private get deviceId() {
