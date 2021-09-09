@@ -1,20 +1,20 @@
 <template>
   <div class="app-container">
-    <el-form ref="form" :model="form" :rules="rules" label-width="160px">
-      <el-form-item label="算法类型" prop="name">
+    <el-form ref="appForm" :model="form" :rules="rules" label-width="160px">
+      <el-form-item label="算法类型" prop="algoName">
         <el-input v-model="form.algoName" :disabled="true" />
       </el-form-item>
-      <el-form-item label="应用名称" prop="region">
+      <el-form-item label="应用名称" prop="name">
         <el-input v-model="form.name" />
       </el-form-item>
-      <el-form-item label="分析类型">
+      <el-form-item label="分析类型" prop="analyseType">
         <el-select v-model="form.analyseType" placeholder="请选择分析类型">
           <el-option label="分钟级" value="AI-100" />
           <el-option label="秒级" value="AI-200" />
           <el-option label="高算力" value="AI-300" />
         </el-select>
       </el-form-item>
-      <el-form-item label="生效时段">
+      <el-form-item label="生效时段" prop="effectPeriod">
         <el-radio-group v-model="form.effectPeriod">
           <el-radio label="全天" />
           <el-radio label="时间段" />
@@ -57,7 +57,7 @@
           <el-link type="warning" @click="addPeriod">+ 增加生效时间段</el-link>
         </div>
       </el-form-item>
-      <el-form-item v-if="prod.code === '10001' || (form.algorithm && form.algorithm.code === '10001')" label="人脸库">
+      <el-form-item v-if="prod.code === '10001' || (form.algorithm && form.algorithm.code === '10001')" prop="algorithmMetadata.FaceDbName" label="人脸库">
         <el-select v-model="form.algorithmMetadata.FaceDbName" placeholder="请选择人脸库" :loading="isfaceLibLoading">
           <el-option v-for="item in faceLibs" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
@@ -73,7 +73,7 @@
           class="mb5"
         />
       </el-form-item>
-      <el-form-item label="置信度">
+      <el-form-item label="置信度" prop="confidence">
         <el-slider
           v-model="form.confidence"
           show-input
@@ -113,6 +113,9 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 import { getAIConfigGroupData } from '@/api/aiConfig'
 import { getAppInfo, updateAppInfo, createApp } from '@/api/ai-app'
 
+const getRule = (msg) => {
+  return [{ required: true, trigger: 'blur', message: msg }]
+}
 @Component({
   name: 'AlgoDetail',
   components: {
@@ -121,10 +124,20 @@ import { getAppInfo, updateAppInfo, createApp } from '@/api/ai-app'
 export default class extends Vue {
   @Prop() private prod!: any
   private breadCrumbContent: String = ''
-  private form: any = {}
+  private form: any = {
+    algorithmMetadata: {
+      FaceDbName: ''
+    }
+  }
   private faceLibs = []
   private isfaceLibLoading = false
-  private rules: any = {}
+  private rules: any = {
+    name: getRule('请输入应用名称'),
+    analyseType: getRule('请输入分析类型'),
+    effectPeriod: getRule('请输入生效时段'),
+    'algorithmMetadata.FaceDbName': getRule('请输入人脸库'),
+    confidence: getRule('请输入置信度')
+  }
   private effectiveTime: any = []
 
   private async mounted() {
@@ -143,10 +156,10 @@ export default class extends Vue {
       this.editTransformFaceData()
       // 处理置信度
       this.form = { ...this.form, confidence: this.form.confidence * 100 }
-      console.log(this.form)
     } else { // 新建
       const algorithmMetadata = { FaceDbName: '' }
       this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [] }
+      console.log(this.form)
     }
     const { groups } = await getAIConfigGroupData({})
     this.faceLibs = groups
@@ -176,7 +189,16 @@ export default class extends Vue {
   private cancel() {
     this.$router.push({ name: 'AI-AppList' })
   }
-  private async onSubmit() {
+  private onSubmit() {
+    console.log(this.form)
+    const form: any = this.$refs.appForm
+    form.validate(async(valid: any) => {
+      if (valid) {
+        this.submitValidAppInfo()
+      }
+    })
+  }
+  private async submitValidAppInfo() {
     this.generateEffectiveTime()
     let param = {
       ...this.form,
