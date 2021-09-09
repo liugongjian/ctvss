@@ -348,6 +348,7 @@ export default class CreateMixin extends Vue {
    */
   public validateResources(rule: any, value: string, callback: Function) {
     let hasVideo = false
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let hasUpload = false
     const remainError: any = []
     this.form.resources.forEach((resource: any) => {
