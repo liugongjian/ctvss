@@ -165,9 +165,7 @@ export default class DeviceMixin extends Vue {
             dir.realGroupInProtocol = node.data.realGroupInProtocol || ''
           })
         }
-        if (node.data.type === 'nvr') {
-          data.dirs = this.setDirsStreamStatus(data.dirs)
-        }
+        data.dirs = this.setDirsStreamStatus(data.dirs)
         dirTree.updateKeyChildren(key, data.dirs)
       }
       node.expanded = true
