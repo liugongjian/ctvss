@@ -135,10 +135,11 @@ export default class extends Vue {
     this.$router.push({ path: '/AI/create', params: { appType: 1 } })
   }
   private appDetail(appinfo: any, tabNum: number) {
+    console.log(appinfo)
     this.$router.push({
       name: `AI-AppDetail`,
       query: {
-        appname: appinfo.name,
+        appid: appinfo.id,
         tabNum
       }
     })
@@ -164,7 +165,7 @@ export default class extends Vue {
       case 'del-batch':
         await deleteApps({ id: this.multipleSelection.map(item => item.id) })
         break
-      // 批量删除使用
+      // 单个删除使用
       case 'on-single':
         await startOrStopApps({ id: [this.oprateApp.id], startOrStop: 1 })
         break

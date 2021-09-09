@@ -57,14 +57,14 @@
           <el-link type="warning" @click="addPeriod">+ 增加生效时间段</el-link>
         </div>
       </el-form-item>
-      <el-form-item v-if="prod.code === '10001'" label="人脸库">
-        <el-select v-model="form.region" placeholder="请选择人脸库" :loading="isfaceLibLoading">
+      <el-form-item v-if="prod.code === '10001' || (form.algorithm && form.algorithm.code === '10001')" label="人脸库">
+        <el-select v-model="form.algorithmMetadata.FaceDbName" placeholder="请选择人脸库" :loading="isfaceLibLoading">
           <el-option v-for="item in faceLibs" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
         <i class="el-icon-refresh" @click="refreshFaceLib" />
         <el-button type="text">+新建人脸库</el-button>
       </el-form-item>
-      <el-form-item v-if="prod.code === '10006'" label="围栏区域">
+      <el-form-item v-if="prod.code === '10006' || (form.algorithm && form.algorithm.code === '10006')" label="围栏区域">
         <el-alert
           title="围栏区域需在绑定设备后，在设备详情中进行设置。"
           type="info"
@@ -89,7 +89,7 @@
         <el-input v-model="form.description" type="textarea" :rows="2" />
       </el-form-item>
       <el-form-item>
-        <el-button @click="changeStep({step: 0})">上一步</el-button>
+        <el-button v-if="!this.$route.query.id" @click="changeStep({step: 0})">上一步</el-button>
         <el-button type="primary" @click="onSubmit">立即{{ this.$route.query.id ? '更新' : '创建' }}</el-button>
         <el-button @click="cancel">取消</el-button>
       </el-form-item>
@@ -112,11 +112,7 @@ export default class extends Vue {
   private form: any = {}
   private faceLibs = []
   private isfaceLibLoading = false
-  private rules: any = {
-    name: [
-      { required: true, message: '请输入', trigger: 'blur' }
-    ]
-  }
+  private rules: any = {}
   private effectiveTime: any = []
 
   private async mounted() {
@@ -131,11 +127,13 @@ export default class extends Vue {
       }
       // 处理生效时间段
       this.editTransformEffectiveTime()
+      // 处理人脸库选项
+      this.editTransformFaceData()
     } else { // 新建
-      this.form = { algoName: this.prod.name }
-      this.$set(this.form, 'availableperiod', [])
+      const algorithmMetadata = { FaceDbName: '' }
+      this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [] }
     }
-    const { groups } = await getAIConfigGroupData({ })
+    const { groups } = await getAIConfigGroupData({})
     this.faceLibs = groups
   }
   // private updated() {
@@ -151,8 +149,11 @@ export default class extends Vue {
     } else {
       this.$set(this.form, 'effectPeriod', '时间段')
     }
-    console.log(effectiveTime)
-    console.log(this.form)
+  }
+  private editTransformFaceData() {
+    this.form.algorithmMetadata.length !== 0
+      ? (this.form.algorithmMetadata = JSON.parse(this.form.algorithmMetadata))
+      : (this.form = { ...this.form, algorithmMetadata: { FaceDbName: '' } })
   }
   private changeStep(val: any) {
     this.$emit('update:step', val.step)
@@ -162,11 +163,18 @@ export default class extends Vue {
   }
   private async onSubmit() {
     this.generateEffectiveTime()
-    const param = { ...this.form, effectiveTime: this.effectiveTime, callbackKey: this.form.validateType === '无验证' ? '' : this.form.callbackKey }
+    let param = {
+      ...this.form,
+      effectiveTime: this.effectiveTime,
+      callbackKey: this.form.validateType === '无验证' ? '' : this.form.callbackKey,
+      algorithmMetadata: JSON.stringify(this.form.algorithmMetadata)
+    }
     if (this.$route.query.id) {
       await updateAppInfo(param)
       this.$message.success('修改应用成功')
     } else {
+      // 新建时带上算法ID
+      param = { ...param, algorithmsId: this.prod.id }
       await createApp(param)
       this.$message.success('新建应用成功')
     }
