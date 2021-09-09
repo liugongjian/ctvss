@@ -87,7 +87,9 @@
                       <svg-icon name="dir-close" width="15" height="15" />
                     </span>
                     <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
-                    {{ node.label }} <span class="alert-type">{{ renderAlertType(data) }}</span>
+                    {{ node.label }}
+                    <span class="sum-icon">{{ getSums(data) }}</span>
+                    <span class="alert-type">{{ renderAlertType(data) }}</span>
                     <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
                   </span>
                   <div class="tools" @click.stop.prevent>
@@ -294,7 +296,7 @@ import PtzControl from './components/ptzControl.vue'
 import StreamSelector from './components/StreamSelector.vue'
 import OperateSelector from './components/OperateSelector.vue'
 import { getDeviceTree } from '@/api/device'
-import { renderAlertType } from '@/utils/device'
+import { renderAlertType, getSums } from '@/utils/device'
 import { VGroupModule } from '@/store/modules/vgroup'
 
 @Component({
@@ -312,6 +314,7 @@ import { VGroupModule } from '@/store/modules/vgroup'
 })
 export default class extends Mixins(ScreenMixin) {
   private renderAlertType = renderAlertType
+  private getSums = getSums
   public maxSize = 4;
   private selectedDeviceId = '';
   private currentPollingIndex = 0;

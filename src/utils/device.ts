@@ -26,3 +26,14 @@ export const renderAlertType = (node: any) => {
     return resultStr ? '(' + resultStr + ')' : ''
   }
 }
+
+/**
+ * 获取目录设备数统计信息
+ */
+export const getSums = (data: any) => {
+  if (data.type === 'nvr' || data.type === 'dir') {
+    return ` (${data.onlineSize}/${data.totalSize})`
+  } else {
+    return ''
+  }
+}
