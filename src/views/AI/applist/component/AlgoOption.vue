@@ -9,8 +9,13 @@
           <el-button @click="cancel">取消</el-button>
         </el-tab-pane>
       </el-tabs>
-      <el-input v-model="searchApp" placeholder="请输入应用名称 / 描述" class="input-with-select">
-        <el-button slot="append" icon="el-icon-search" />
+      <el-input
+        v-model="searchApp"
+        placeholder="请输入应用名称 / 描述"
+        class="input-with-select"
+        @keyup.enter.native="handleSearch"
+      >
+        <el-button slot="append" icon="el-icon-search" @click="handleSearch" />
       </el-input>
     </el-row>
   </div>
@@ -51,6 +56,11 @@ export default class extends Vue {
     this.$router.push({ name: 'AI-AppList' })
   }
   private async handleTabType() {
+    this.searchApp = ''
+    const { aiAbilityAlgorithms } = await getAlgorithmList({ abilityName: this.searchApp, abilityId: this.activeName })
+    this.prodInfo = aiAbilityAlgorithms
+  }
+  private async handleSearch() {
     const { aiAbilityAlgorithms } = await getAlgorithmList({ abilityName: this.searchApp, abilityId: this.activeName })
     this.prodInfo = aiAbilityAlgorithms
   }
