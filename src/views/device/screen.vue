@@ -507,7 +507,7 @@ export default class extends Mixins(ScreenMixin) {
     }
     if (!isDir) {
       this.dirList.forEach((item: any) => {
-        if (item.type === 'ipc' && item.streamStatus === 'on') {
+        if (item.type === 'ipc' && item.deviceStatus === 'on') {
           this.pollingDevices.push(item)
         }
       })
@@ -519,7 +519,7 @@ export default class extends Mixins(ScreenMixin) {
       })
       const dirs = this.setDirsStreamStatus(data.dirs)
       dirs.forEach((item: any) => {
-        if (item.type === 'ipc' && item.streamStatus === 'on') {
+        if (item.type === 'ipc' && item.deviceStatus === 'on') {
           this.pollingDevices.push(item)
         }
       })
@@ -563,7 +563,7 @@ export default class extends Mixins(ScreenMixin) {
     }
     if (!isDir) {
       this.dirList.forEach((item: any) => {
-        if (item.type === 'ipc' && item.streamStatus === 'on') {
+        if (item.type === 'ipc' && item.deviceStatus === 'on') {
           this.autoPlayDevices.push(item)
         }
       })
@@ -575,7 +575,7 @@ export default class extends Mixins(ScreenMixin) {
       })
       const dirs = this.setDirsStreamStatus(data.dirs)
       dirs.forEach((item: any) => {
-        if (item.type === 'ipc' && item.streamStatus === 'on') {
+        if (item.type === 'ipc' && item.deviceStatus === 'on') {
           this.autoPlayDevices.push(item)
         }
       })
