@@ -1,4 +1,4 @@
-import request from '@/utils/request-origin'
+import request from '@/utils/request'
 
 export const getAbilityList = (): Promise<any> =>
   request({
