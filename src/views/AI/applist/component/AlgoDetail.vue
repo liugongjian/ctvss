@@ -73,6 +73,18 @@
           class="mb5"
         />
       </el-form-item>
+      <el-form-item label="置信度">
+        <el-slider
+          v-model="form.confidence"
+          show-input
+          :show-input-controls="false"
+        />
+        <div class="confidence-info">
+          <span>%</span>
+          <span>~</span>
+          <span>100%</span>
+        </div>
+      </el-form-item>
       <el-form-item label="回调地址">
         <el-input v-model="form.callbackUrl" />
       </el-form-item>
@@ -129,6 +141,9 @@ export default class extends Vue {
       this.editTransformEffectiveTime()
       // 处理人脸库选项
       this.editTransformFaceData()
+      // 处理置信度
+      this.form = { ...this.form, confidence: this.form.confidence * 100 }
+      console.log(this.form)
     } else { // 新建
       const algorithmMetadata = { FaceDbName: '' }
       this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [] }
@@ -141,7 +156,6 @@ export default class extends Vue {
   //   this.$route.query.appinfo && (this.form.name = this.appinfo.name)
   // }
   private editTransformEffectiveTime() {
-    console.log('处理时间')
     const effectiveTime = JSON.parse(this.form.effectiveTime)
     const period = effectiveTime.map(item => ({ period: [item.starttime, item.endtime] }))
     this.$set(this.form, 'availableperiod', period)
@@ -168,7 +182,8 @@ export default class extends Vue {
       ...this.form,
       effectiveTime: this.effectiveTime,
       callbackKey: this.form.validateType === '无验证' ? '' : this.form.callbackKey,
-      algorithmMetadata: JSON.stringify(this.form.algorithmMetadata)
+      algorithmMetadata: JSON.stringify(this.form.algorithmMetadata),
+      confidence: this.form.confidence / 100
     }
     if (this.$route.query.id) {
       await updateAppInfo(param)
@@ -209,23 +224,44 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-.el-input,.el-textarea,.el-table {
-    width: 500px
-}
-.tabrow-add{
-  padding-left: 180px;
-}
-.mb5{
-  width: 500px;
-}
-.el-icon-refresh{
-  margin-left: 20px;
-  font-size: 16px;
-  &:hover{
-    cursor: pointer;
+.app-container {
+  .confidence-info{
+    display: inline-block;
+    height: 45px;
+    line-height: 100%;
+    vertical-align: middle;
+    margin-left: -71px;
+    &>span:nth-child(2){
+      margin-left: 10px;
+      margin-right: 10px;
+    }
   }
-}
-.el-button--text {
-  margin-left: 15px;
+  .el-slider{
+    width:500px;
+    display: inline-block;
+    ::v-deep .el-slider__input{
+      width:60px;
+      margin-right:80px;
+    }
+  }
+  .el-input,.el-textarea,.el-table {
+      width: 500px
+  }
+  .tabrow-add{
+    padding-left: 180px;
+  }
+  .mb5{
+    width: 500px;
+  }
+  .el-icon-refresh{
+    margin-left: 20px;
+    font-size: 16px;
+    &:hover{
+      cursor: pointer;
+    }
+  }
+  .el-button--text {
+    margin-left: 15px;
+  }
 }
 </style>
