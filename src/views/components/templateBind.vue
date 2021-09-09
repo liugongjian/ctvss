@@ -190,21 +190,21 @@ export default class extends Vue {
 
   private async getAITemplate() {
     try {
-      this.loading.alert = true
-      this.template.alertTemplate = []
+      this.loading.ai = true
+      this.template.aiTemplate = []
       if (this.groupId) {
         const res = await getAIBind({ groupId: this.groupId })
-        this.template.alertTemplate.push(res)
+        this.template.aiTemplate.push(res)
       } else {
         const res = await getAIBind({ deviceId: this.deviceId, inProtocol: this.inProtocol })
-        this.template.alertTemplate.push(res)
+        this.template.aiTemplate.push(res)
       }
     } catch (e) {
       if (e && e.code !== 5) {
         this.$message.error(e && e.message)
       }
     } finally {
-      this.loading.alert = false
+      this.loading.ai = false
     }
   }
 
