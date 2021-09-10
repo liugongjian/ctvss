@@ -33,7 +33,9 @@
                 <el-table-column label="算法类型" width="120">
                   <template slot-scope="scope">{{ scope.row.algorithm.name }}</template>
                 </el-table-column>
-                <el-table-column prop="analyseType" label="分析类型" />
+                <el-table-column prop="analyseType" label="分析类型">
+                  <template slot-scope="scope"><span>{{ ResourceAiType[scope.row.analyseType] }}</span></template>
+                </el-table-column>
                 <el-table-column prop="description" label="描述" show-overflow-tooltip />
                 <el-table-column prop="joinDeviceNum" label="关联设备数" />
                 <el-table-column prop="appEnabled" label="状态">
@@ -91,6 +93,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { getAppList, getAbilityList, startOrStopApps, deleteApps } from '@/api/ai-app'
+import { ResourceAiType } from '@/dics'
 @Component({
   name: 'AppList',
   components: {
@@ -104,6 +107,7 @@ export default class extends Vue {
   }
   private isLoading: boolean = false
   private activeTabName: Number = 0
+  private ResourceAiType: any = ResourceAiType
   private dialogVisible: boolean = false
   private clickType: String = ''
   private dialogTitle: String = ''
@@ -135,7 +139,6 @@ export default class extends Vue {
     this.$router.push({ path: '/AI/create', params: { appType: 1 } })
   }
   private appDetail(appinfo: any, tabNum: number) {
-    console.log(appinfo)
     this.$router.push({
       name: `AI-AppDetail`,
       query: {

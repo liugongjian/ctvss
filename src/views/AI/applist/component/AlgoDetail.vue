@@ -9,9 +9,7 @@
       </el-form-item>
       <el-form-item label="分析类型" prop="analyseType">
         <el-select v-model="form.analyseType" placeholder="请选择分析类型">
-          <el-option label="分钟级" value="AI-100" />
-          <el-option label="秒级" value="AI-200" />
-          <el-option label="高算力" value="AI-300" />
+          <el-option v-for="(val, key) in ResourceAiType" :key="key" :label="val" :value="key" />
         </el-select>
       </el-form-item>
       <el-form-item label="生效时段" prop="effectPeriod">
@@ -112,6 +110,7 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { getAIConfigGroupData } from '@/api/aiConfig'
 import { getAppInfo, updateAppInfo, createApp } from '@/api/ai-app'
+import { ResourceAiType } from '@/dics'
 
 const getRule = (msg) => {
   return [{ required: true, trigger: 'blur', message: msg }]
@@ -124,6 +123,7 @@ const getRule = (msg) => {
 export default class extends Vue {
   @Prop() private prod!: any
   private breadCrumbContent: String = ''
+  private ResourceAiType: any = ResourceAiType
   private form: any = {
     algorithmMetadata: {
       FaceDbName: ''
@@ -159,7 +159,6 @@ export default class extends Vue {
     } else { // 新建
       const algorithmMetadata = { FaceDbName: '' }
       this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [] }
-      console.log(this.form)
     }
     const { groups } = await getAIConfigGroupData({})
     this.faceLibs = groups
@@ -190,7 +189,6 @@ export default class extends Vue {
     this.$router.push({ name: 'AI-AppList' })
   }
   private onSubmit() {
-    console.log(this.form)
     const form: any = this.$refs.appForm
     form.validate(async(valid: any) => {
       if (valid) {
@@ -200,6 +198,7 @@ export default class extends Vue {
   }
   private async submitValidAppInfo() {
     this.generateEffectiveTime()
+    console.log(this.form)
     let param = {
       ...this.form,
       effectiveTime: this.effectiveTime,

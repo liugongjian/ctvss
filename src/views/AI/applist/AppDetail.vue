@@ -30,14 +30,7 @@
         <div class="right">
           <div class="face-filter">
             <span>人脸库：</span>
-            <el-select v-model="faceLib" placeholder="请选择" @change="handleSelectFaceLib">
-              <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
+            <span>第一人脸库</span>
             <!-- <div ref="faceoptions" class="face-options">
               <div v-for="(item, index) in faceInfos" :id="item.id" :key="index" class="option" @click="handleFaceSelect(item)">
                 <el-image :src="item.url" />
@@ -51,11 +44,13 @@
               <el-link type="warning" @click="handleExpand">{{ isExpand ? '- 收起' : '+ 展开' }}</el-link>
             </div> -->
             <div style="margin-top: 20px">
-              <el-checkbox-group v-model="checkboxGroup1" size="mdedium">
-                <el-checkbox v-for="(item, index) in faceInfos" :key="index" :label="index" border>
+              <el-checkbox-group v-model="queryParam.faces" size="mdedium">
+                <el-checkbox v-for="item in faceInfos" :key="item.id" :label="item.id" border>
                   <div class="checkbox-content">
-                    <img :src="item.url" alt="">
-                    <span>{{ item.name }}</span>
+                    <img :src="decodeBase64(item.imageString)" alt="">
+                    <div>
+                      <span>{{ item.labels.name }}</span>
+                    </div>
                   </div>
                 </el-checkbox>
               </el-checkbox-group>
@@ -77,6 +72,14 @@
                 start-placeholder="开始日期"
                 end-placeholder="结束日期"
               />
+            </span>
+            <span>置信度：
+              <div class="confidence-slider">
+                <el-slider
+                  v-model="queryParam.confidence"
+                  range
+                />
+              </div>
             </span>
             <span>间隔频率：
               <el-select v-model="queryParam.frequency" placeholder="请选择">
@@ -127,6 +130,8 @@ import BasicAppInfo from './component/BasicAppInfo.vue'
 import { describeShareDevices } from '@/api/upPlatform'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
+import { getPersonalList } from '@/api/aiConfig'
+import { decodeBase64 } from '@/utils/base64'
 // import debounce from '@/utils/debounce'
 
 @Component({
@@ -138,6 +143,7 @@ import { getGroups } from '@/api/group'
   }
 })
 export default class extends Vue {
+    private decodeBase64: Function = decodeBase64
     private treeProp = {
       label: 'label',
       children: 'children',
@@ -153,42 +159,15 @@ export default class extends Vue {
     private expandBtnVisible: boolean = null
     private faceLib: String = 'all'
     private faceSelected: any = []
-    private checkboxGroup1: any = []
     private queryParam: any = {
       periodType: '今天',
       period: '',
       device: 'all',
-      frequency: 'all'
+      frequency: 'all',
+      confidence: [0, 100],
+      faces: []
     }
-    private faceInfos: any = [{
-      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-      name: '高手高手',
-      id: '1'
-    }, {
-      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-      name: '高手高手',
-      id: '2'
-    }, {
-      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-      name: '高手高手',
-      id: '3'
-    }, {
-      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-      name: '高手高手',
-      id: '4'
-    }, {
-      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-      name: '高手高手',
-      id: '5'
-    }, {
-      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-      name: '高手高手',
-      id: '6'
-    }, {
-      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-      name: '高手高手',
-      id: '7'
-    }]
+    private faceInfos: any = []
     private isLoading: boolean = false
     private options: any = [{
       value: 'all',
@@ -273,9 +252,15 @@ export default class extends Vue {
     // private debounceHandle = debounce(this.getData, 500)
 
     private mounted() {
+      console.log(this.queryParam)
       this.initDirs()
-      // this.handleExpandShow()
-      // window.addEventListener('resize', this.handleExpandShow.bind(this), false)
+      this.initQueryParam()
+    }
+    private async initQueryParam() {
+      const { faces }: any = await getPersonalList({ pageSize: 12 })
+      this.faceInfos = faces.map(item => ({ ...item, labels: JSON.parse(item.labels) }))
+      console.log(faces)
+      console.log(this.faceInfos)
     }
 
     public async initDirs() {
@@ -502,12 +487,14 @@ export default class extends Vue {
               flex-direction: row;
               justify-content:space-between;
               align-items: center;
-            }
-            img{
-              height: 100%;
-            }
-            span{
-              display: inline-block;
+              img {
+                width: 50%;
+                height: 100%;
+              }
+              div {
+                width: 50%;
+                text-align: center;
+              }
             }
           }
         }
@@ -583,6 +570,13 @@ export default class extends Vue {
       .el-date-editor{
         margin-left: 10px;
         padding-top: 2px;
+      }
+      .confidence-slider{
+        display: inline-block;
+        line-height: 100%;
+        vertical-align: middle;
+        width:200px;
+        margin-right: 20px;
       }
   }
   .pic-wrapper{
