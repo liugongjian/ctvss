@@ -3,7 +3,7 @@
     <el-page-header :content="breadCrumbContent" @back="back" />
     <el-tabs :value="this.$route.query.tabNum ? 'result' : 'basic'" type="border-card" @tab-click="handleTabClick">
       <el-tab-pane label="基本信息" name="basic">
-        <BasicAppInfo />
+        <BasicAppInfo v-if="appInfo" :app-info="appInfo" />
       </el-tab-pane>
       <el-tab-pane label="分析结果" name="result">
         <div class="left">
@@ -30,7 +30,7 @@
         <div class="right">
           <div class="face-filter">
             <span>人脸库：</span>
-            <span>第一人脸库</span>
+            <span>{{ faceLib.name }}</span>
             <!-- <div ref="faceoptions" class="face-options">
               <div v-for="(item, index) in faceInfos" :id="item.id" :key="index" class="option" @click="handleFaceSelect(item)">
                 <el-image :src="item.url" />
@@ -44,7 +44,7 @@
               <el-link type="warning" @click="handleExpand">{{ isExpand ? '- 收起' : '+ 展开' }}</el-link>
             </div> -->
             <div style="margin-top: 20px">
-              <el-checkbox-group v-model="queryParam.faces" size="mdedium">
+              <el-checkbox-group v-model="queryParam.faceSelected" size="mdedium" @change="handleChange">
                 <el-checkbox v-for="item in faceInfos" :key="item.id" :label="item.id" border>
                   <div class="checkbox-content">
                     <img :src="decodeBase64(item.imageString)" alt="">
@@ -59,7 +59,7 @@
 
           <div class="query-wrapper">
             <span>截图时间：
-              <el-radio-group v-model="queryParam.periodType" size="medium">
+              <el-radio-group v-model="queryParam.periodType" size="medium" @change="handleChange">
                 <el-radio-button label="今天" />
                 <el-radio-button label="近3天" />
                 <el-radio-button label="自定义时间" />
@@ -68,9 +68,11 @@
                 v-if="queryParam.periodType === '自定义时间'"
                 v-model="queryParam.period"
                 type="daterange"
+                value-format="timestamp"
                 range-separator="至"
                 start-placeholder="开始日期"
                 end-placeholder="结束日期"
+                @change="handleChange"
               />
             </span>
             <span>置信度：
@@ -78,11 +80,12 @@
                 <el-slider
                   v-model="queryParam.confidence"
                   range
+                  @change="handleChange"
                 />
               </div>
             </span>
             <span>间隔频率：
-              <el-select v-model="queryParam.frequency" placeholder="请选择">
+              <el-select v-model="queryParam.frequency" placeholder="请选择" @change="handleChange">
                 <el-option
                   v-for="item in options"
                   :key="item.value"
@@ -130,9 +133,10 @@ import BasicAppInfo from './component/BasicAppInfo.vue'
 import { describeShareDevices } from '@/api/upPlatform'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
-import { getPersonalList } from '@/api/aiConfig'
+import { getAppInfo } from '@/api/ai-app'
+import { getGroupPersonAlready, getAIConfigGroupData } from '@/api/aiConfig'
 import { decodeBase64 } from '@/utils/base64'
-// import debounce from '@/utils/debounce'
+import debounce from '@/utils/debounce'
 
 @Component({
   name: 'AppDetail',
@@ -153,19 +157,16 @@ export default class extends Vue {
       dir: false
     }
     private dirList: any = []
+    private appInfo: any = null
     private breadCrumbContent: String = '应用详情'
-    private appName: String = null
-    private isExpand: boolean = false
-    private expandBtnVisible: boolean = null
-    private faceLib: String = 'all'
-    private faceSelected: any = []
+    private faceLib: String = ''
     private queryParam: any = {
       periodType: '今天',
-      period: '',
+      period: 0,
       device: 'all',
       frequency: 'all',
       confidence: [0, 100],
-      faces: []
+      faceSelected: []
     }
     private faceInfos: any = []
     private isLoading: boolean = false
@@ -246,21 +247,26 @@ export default class extends Vue {
       }
     }
     private getData() {
-      console.log(this.faceSelected)
+      // console.log(this.queryParam)
     }
     // 防抖
-    // private debounceHandle = debounce(this.getData, 500)
+    private debounceHandle = debounce(this.getData, 500)
 
-    private mounted() {
-      console.log(this.queryParam)
+    private async mounted() {
+      const { groups }: any = await getAIConfigGroupData({})
+      this.appInfo = await getAppInfo({ id: this.$route.query.appid })
       this.initDirs()
-      this.initQueryParam()
+      this.initFaceInfos(groups)
     }
-    private async initQueryParam() {
-      const { faces }: any = await getPersonalList({ pageSize: 12 })
-      this.faceInfos = faces.map(item => ({ ...item, labels: JSON.parse(item.labels) }))
-      console.log(faces)
-      console.log(this.faceInfos)
+    private async initFaceInfos(groups) {
+      const algorithmMetadata = JSON.parse(this.appInfo.algorithmMetadata)
+      if (algorithmMetadata.FaceDbName) {
+        this.faceLib = groups.filter(item => item.id === algorithmMetadata.FaceDbName)[0]
+        const res = await getGroupPersonAlready({ id: algorithmMetadata.FaceDbName })
+        console.log(res)
+      }
+      // const { faces }: any = await getGroupPersonAlready({ id: 12 })
+      // this.faceInfos = faces.map(item => ({ ...item, labels: JSON.parse(item.labels) }))
     }
 
     public async initDirs() {
@@ -287,7 +293,7 @@ export default class extends Vue {
             })
           )
         })
-        console.log('this.dirList:', this.dirList)
+        // console.log('this.dirList:', this.dirList)
       } catch (e) {
         this.dirList = []
       } finally {
@@ -385,13 +391,8 @@ export default class extends Vue {
       }
     }
 
-    private handleFaceSelect(option: any) {
-      if (this.faceSelected.includes(option.id)) {
-        this.faceSelected = this.faceSelected.filter((item: any) => item !== option.id)
-      } else {
-        this.faceSelected.push(option.id)
-      }
-      // this.debounceHandle()
+    private handleChange() {
+      this.debounceHandle()
     }
     private handleTabClick() {
       // resize 为了让图表触发刷新从而自适应尺寸
