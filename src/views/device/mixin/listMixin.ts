@@ -551,7 +551,7 @@ export default class ListMixin extends Mixins(DeviceMixin) {
         ),
         h(
           'div',
-          { class: 'batch-device-list' },
+          { class: 'batch-list' },
           this.selectedDeviceList.map((device: Device) => {
             return h('p', undefined, [
               h('span', { class: 'device-name' }, device.deviceName)
@@ -593,7 +593,7 @@ export default class ListMixin extends Mixins(DeviceMixin) {
       message: h('div', undefined, [
         h(
           'div',
-          { class: 'batch-device-list' },
+          { class: 'batch-list' },
           deviceList.map((device: Device) => {
             return h('p', undefined, [
               h('span', { class: 'device-name' }, device.deviceName)

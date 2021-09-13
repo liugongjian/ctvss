@@ -68,7 +68,7 @@ export default class DeviceMixin extends Vue {
   public deleteDevice(device: Device) {
     this.$alertDelete({
       type: '设备',
-      msg: `是否确认删除设备"${device.deviceName}"`,
+      msg: `删除操作不能恢复，确认删除设备"${device.deviceName}"吗？`,
       method: deleteDevice,
       payload: {
         deviceId: device.deviceId,
