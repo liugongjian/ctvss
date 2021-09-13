@@ -180,7 +180,7 @@
 </template>
 
 <script lang='ts'>
-import { Component, Vue, Provide } from 'vue-property-decorator'
+import { Component, Vue, Provide, Watch } from 'vue-property-decorator'
 import { describeShareGroups, describeShareDirs, describeShareDevices, getPlatforms, deletePlatform, cancleShareDevice, cancleShareDir, startShareDevice, stopShareDevice } from '@/api/upPlatform'
 import { DeviceStatus, StreamStatus, PlatformStatus } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
@@ -247,6 +247,11 @@ export default class extends Vue {
   }
   public tips = {
     addDevices: '下方列表显示已共享的设备，点击"添加资源"添加想要共享的设备。'
+  }
+
+  @Watch('dataList.length')
+  private onDataListChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
   }
 
   private get filteredPlatformList() {

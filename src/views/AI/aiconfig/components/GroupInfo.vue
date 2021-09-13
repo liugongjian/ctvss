@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import AddGroupDialog from './dialogs/AddGroup.vue'
 import CorrelationWith from './dialogs/CorrelationWith.vue'
 import { getAIConfigGroupData } from '@/api/aiConfig'
@@ -48,6 +48,11 @@ export default class extends Vue {
   private loading = false
   private groupId = ''
   private dataList: any = []
+
+  @Watch('dataList.length')
+  private onDataListChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
+  }
 
   private async getData() {
     try {

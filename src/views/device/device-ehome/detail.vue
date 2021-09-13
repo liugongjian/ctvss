@@ -7,10 +7,10 @@
             <div class="detail__buttons">
               <el-button @click="goSuperior"><svg-icon name="superior" /> 返回上级</el-button>
               <el-button v-if="info.deviceType === 'nvr'" @click="goToChannels"><svg-icon name="list" /> 查看通道</el-button>
-              <el-button v-if="(!isNVR && info.parentDeviceId === '-1') && checkPermission(['*'])" @click="moveDir"><svg-icon name="move" /> 移动至</el-button>
-              <el-button v-if="checkPermission(['*'])" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
+              <el-button v-if="(!isNVR && info.parentDeviceId === '-1') && checkPermission(['AdminDevice'])" @click="moveDir"><svg-icon name="move" /> 移动至</el-button>
+              <el-button v-if="checkPermission(['AdminDevice'])" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
               <!--自动创建的子通道不允许删除-->
-              <el-button v-if="!isAutoCreated && checkPermission(['*'])" @click="deleteDevice(info)"><svg-icon name="trash" /> 删除</el-button>
+              <el-button v-if="!isAutoCreated && checkPermission(['AdminDevice'])" @click="deleteDevice(info)"><svg-icon name="trash" /> 删除</el-button>
             </div>
             <!--状态信息-->
             <div class="detail__section">

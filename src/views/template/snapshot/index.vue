@@ -40,7 +40,7 @@
 </template>
 
 <script lang='ts'>
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import { SnapshotTemplate } from '@/type/template'
 import { dateFormatInTable } from '@/utils/date'
 import { SnapshotStorageType } from '@/dics'
@@ -60,6 +60,11 @@ export default class extends Vue {
   }
   private snapshotStorageType = SnapshotStorageType
   private dateFormatInTable = dateFormatInTable
+
+  @Watch('dataList.length')
+  private onDataListChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
+  }
 
   private async mounted() {
     await this.getList()
