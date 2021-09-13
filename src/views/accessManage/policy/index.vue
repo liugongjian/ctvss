@@ -1,33 +1,39 @@
 <template>
   <div class="app-container">
     <el-card v-loading="isLoading">
-      <!-- <div class="head">
+      <div class="head">
         <div class="head__left">
-          <el-button type="primary" @click="createPolicy">{{ `创建${this.typeObj[this.type]}策略` }}</el-button>
+          <el-button type="primary" @click="createPolicy">{{ `新建自定义策略` }}</el-button>
         </div>
         <div class="head__right">
-          <el-input v-model="policyNameSearch" placeholder="请输入策略名" @keyup.enter.native="search">
+          <el-input v-model="policyNameSearch" placeholder="请输入策略名" clearable @keyup.enter.native="search">
             <el-button slot="append" class="el-button-rect" @click="search"><svg-icon name="search" /></el-button>
           </el-input>
-          <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
+          <!-- <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button> -->
         </div>
-      </div> -->
+      </div>
       <el-table :data="policyList">
-        <el-table-column prop="policyName" label="策略名" />
-        <el-table-column prop="describe" label="策略描述" />
-        <el-table-column prop="policyType" label="策略类型">
+        <el-table-column prop="policyName" label="策略名" min-width="100" />
+        <el-table-column prop="policyDesc" label="策略描述" :show-overflow-tooltip="true" min-width="160" />
+        <el-table-column prop="scope" label="策略归属域" width="140">
+          <template slot-scope="scope">
+            <el-button v-if="scope.row.policyScope === 'ctyun'" type="danger" size="mini">系统策略</el-button>
+            <el-button v-else type="success" size="mini">自定义策略</el-button>
+          </template>
+        </el-table-column>
+        <el-table-column prop="policyType" label="策略类型" width="140">
           <template slot-scope="scope">
             {{ scope.row.policyType === 'subUser' ? '子用户策略' : '角色策略' }}
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" label="创建时间" />
-        <!-- <el-table-column label="操作" width="140">
+        <el-table-column prop="createdTime" label="创建时间" width="180" />
+        <el-table-column label="操作" width="280">
           <template slot-scope="scope">
-            <el-button type="text" @click="viewPolicy">查看</el-button>
-            <el-button type="text" @click="policyList.splice(scope.$index, 1)">管理</el-button>
-            <el-button style="color: #A5A5A5" type="text" @click="policyList.splice(scope.$index, 1)">删除</el-button>
+            <el-button type="text" @click="viewBind(scope.row)">查看绑定关系</el-button>
+            <el-button type="text" @click="editPolicy(scope.row)">{{ scope.row.policyScope === 'local' ? '编辑策略' : '查看策略' }}</el-button>
+            <el-button v-if="scope.row.policyScope === 'local'" style="color: #A5A5A5" type="text" @click="deletePolicy(scope.row)">删除策略</el-button>
           </template>
-        </el-table-column> -->
+        </el-table-column>
       </el-table>
       <el-pagination
         :current-page="pager.pageNum"
@@ -38,16 +44,21 @@
         @current-change="handleCurrentChange"
       />
     </el-card>
+    <view-bind v-if="showViewBindDialog" :policy-id="currentPolicyId" @on-close="closeViewBind" />
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator'
-import { getPolicyList } from '@/api/accessManage'
+import { Component, Vue } from 'vue-property-decorator'
+import { getPolicyList, deletePolicy } from '@/api/accessManage'
+import ViewBind from './components/viewBind.vue'
 @Component({
+  components: { ViewBind },
   name: 'AccessManagePolicy'
 })
 export default class extends Vue {
+  private showViewBindDialog = false
+  private currentPolicyId = ''
   private isLoading: boolean = false
   private policyList: any = []
   private policyNameSearch: string = ''
@@ -57,44 +68,64 @@ export default class extends Vue {
     total: 0
   }
 
-  @Watch('policyList.length')
-  private onPolicyListChange(data: any) {
-    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
-  }
-
   private mounted() {
     this.getList()
+  }
+  /**
+   * 查看绑定关系
+   */
+  private async viewBind(row: any) {
+    this.currentPolicyId = row.policyId
+    this.showViewBindDialog = true
+  }
+  private async closeViewBind() {
+    this.currentPolicyId = ''
+    this.showViewBindDialog = false
   }
 
   private createPolicy() {
     this.$router.push(`/accessManage/policy/create`)
   }
-  private viewPolicy() {
-    this.$router.push(`/accessManage/policy/view`)
+  private editPolicy(row: any) {
+    this.$router.push({
+      path: '/accessManage/policy/edit',
+      query: {
+        policyId: row.policyId,
+        policyScope: row.policyScope
+      }
+    })
+  }
+
+  private deletePolicy(row: any) {
+    if (row.policyScope === 'Ctyun') {
+      this.$message.error('无法删除系统内置策略!')
+      return
+    }
+    this.$alertDelete({
+      type: '自定义策略',
+      msg: `是否确认删除自定义策略"${row.policyName}"`,
+      method: deletePolicy,
+      payload: { policyId: row.policyId },
+      onSuccess: () => {
+        this.getList()
+      }
+    })
   }
   private search() {
-  }
-  private refresh() {
+    this.getList()
   }
   private async getList() {
     try {
       let params: any = {
         pageNum: this.pager.pageNum,
-        pageSize: this.pager.pageSize
+        pageSize: this.pager.pageSize,
+        policyName: this.policyNameSearch,
+        policyType: 'subUser'
       }
       this.isLoading = true
       let res: any = await getPolicyList(params)
-      this.policyList = []
-      for (let i = 0; i < res.iamPolices.length; i++) {
-        let obj: object = {
-          policyName: res.iamPolices[i].policyName,
-          describe: res.iamPolices[i].policyDesc,
-          policyType: res.iamPolices[i].policyType,
-          createTime: res.iamPolices[i].createdTime
-        }
-        this.policyList.push(obj)
-      }
-      this.pager.total = res.iamPolices.length || 0
+      this.policyList = res.iamPolices
+      this.pager.total = res.totalNum
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
@@ -123,7 +154,7 @@ export default class extends Vue {
     &__right {
       display: flex;
       .el-input {
-        margin-right: 10px
+        margin-right: 0px
       }
     }
   }

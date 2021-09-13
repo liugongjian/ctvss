@@ -1,4 +1,4 @@
-import { Component, Vue, Inject } from 'vue-property-decorator'
+import { Component, Vue, Inject, Watch } from 'vue-property-decorator'
 import { Device } from '@/type/device'
 import { RecordTemplate } from '@/type/template'
 import { getDevice, getLianzhouArea } from '@/api/device'
@@ -11,7 +11,7 @@ import AntiTheftChain from '../components/AntiTheftChain.vue'
 import { checkPermission } from '@/utils/permission'
 import { regionList } from '@/assets/region/lianzhouRegion'
 import copy from 'copy-to-clipboard'
-
+import { VGroupModule } from '@/store/modules/vgroup'
 @Component({
   components: {
     TemplateBind,
@@ -83,7 +83,15 @@ export default class DetailMixin extends Vue {
   public lianzhouAddress: string = ''
 
   public get isGb() {
-    return this.$route.query.inProtocol === 'gb28181'
+    return this.$route.query.inProtocol === 'gb28181' || this.$route.query.realGroupInProtocol === 'gb28181'
+  }
+
+  public get isVGroup() {
+    return this.$route.query.inProtocol === 'vgroup'
+  }
+
+  public get realGroupId() {
+    return VGroupModule.realGroupId
   }
 
   public get isNVRChannel() {
@@ -223,10 +231,11 @@ export default class DetailMixin extends Vue {
   /**
    * 实时预览
    */
-  public goToPreview() {
+  public goToPreview(previewTab: string) {
     this.deviceRouter({
       id: this.deviceId,
-      type: 'preview'
+      type: 'preview',
+      previewTab
     })
   }
 
@@ -273,5 +282,13 @@ export default class DetailMixin extends Vue {
   public copyUrl(text: string) {
     copy(text)
     this.$message.success('复制成功')
+  }
+
+  @Watch('realGroupId')
+  public async onRealGroupIdChange(realGroupId: string, oldRealGroupId: string) {
+    if (!realGroupId || oldRealGroupId) return
+    await this.getDevice()
+    await this.getDeviceResources()
+    this.lianzhouFlag && await this.getLianzhouAddress()
   }
 }

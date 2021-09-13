@@ -2,9 +2,9 @@
   <div class="app-container">
     <div v-loading="loading.info" class="detail-wrap">
       <div v-if="info" class="btn-detail">
-        <el-button v-if="info.deviceType === 'ipc'" @click="goToPreview"><svg-icon name="live" /> 实时预览</el-button>
+        <el-button v-if="info.deviceType === 'ipc' && checkPermission(['ScreenPreview', 'ReplayRecord'])" @click="goToPreview(checkPermission(['ScreenPreview']) ? 'preview' : 'replay')"><svg-icon name="live" /> 实时预览</el-button>
         <el-button v-if="info.deviceType === 'nvr'" @click="goToChannels"><svg-icon name="list" /> 查看通道</el-button>
-        <el-button v-if="checkPermission(['*'])" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
+        <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
       </div>
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="基本信息" name="info">
@@ -15,7 +15,7 @@
               <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
               <info-list-item label="设备地址:">{{ (lianzhouFlag ? lianzhouAddress : address) || '-' }}</info-list-item>
-              <info-list-item v-if="lianzhouFlag" label="经纬度:">{{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}</info-list-item>
+              <info-list-item v-if="lianzhouFlag" label="经纬度:">{{ `${info.deviceLongitude || '-'} : ${info.deviceLatitude || '-'}` }}</info-list-item>
               <info-list-item label="设备IP:">{{ info.deviceIp || '-' }}</info-list-item>
               <info-list-item label="端口:">{{ info.devicePort || '-' }}</info-list-item>
               <template v-if="info.deviceType === 'ipc' || info.deviceType === 'platform'">
@@ -24,8 +24,8 @@
               <template v-if="info.deviceType === 'nvr'">
                 <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
                 <info-list-item label="自动创建子设备:">{{ createSubDevice[info.createSubDevice] }}</info-list-item>
-                <info-list-item :label="info.createSubDevice === 2 ? '实际通道数量:' : '通道数量:'">{{ info.deviceStats && info.deviceStats.channelSize }}</info-list-item>
-                <info-list-item v-if="info.createSubDevice === 2" label="可支持通道数量:">{{ info.deviceStats && info.deviceStats.maxChannelSize }}</info-list-item>
+                <info-list-item label="实际通道数量:">{{ info.deviceStats && info.deviceStats.channelSize }}</info-list-item>
+                <info-list-item label="可支持通道数量:">{{ info.deviceStats && info.deviceStats.maxChannelSize }}</info-list-item>
                 <info-list-item label="在线流数量:">{{ info.deviceStats && info.deviceStats.onlineSize }}</info-list-item>
               </template>
               <template v-if="info.deviceType === 'platform'">
@@ -95,7 +95,7 @@
             </info-list>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="模板配置" name="template">
+        <el-tab-pane v-if="!isVGroup" label="模板配置" name="template">
           <template-bind v-if="activeName==='template'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
       </el-tabs>
@@ -113,7 +113,7 @@ import { provinceMapping, cityMapping } from '@/assets/region/cities'
   name: 'DeviceGb28181Detail'
 })
 export default class extends Mixins(detailMixin) {
-  private get address() {
+  public get address() {
     let info: any = this.info
     if (!info.gbRegion) return null
     let provinceCode: number = parseInt(info.gbRegion.substring(0, 2))

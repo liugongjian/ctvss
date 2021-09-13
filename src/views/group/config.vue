@@ -8,11 +8,13 @@
           <info-list-item label="业务组ID:">{{ form.groupId }}</info-list-item>
           <info-list-item label="业务组名称:">{{ form.groupName }}</info-list-item>
           <info-list-item label="业务组描述:">{{ form.description }}</info-list-item>
-          <info-list-item label="接入区域:">{{ form.regionName }}</info-list-item>
-          <info-list-item label="接入类型:">{{ InProtocolType[form.inProtocol] }}</info-list-item>
-          <info-list-item label="播放类型:">
-            {{ form.outProtocol.map(item => OutProtocolType[item]).join(',') }}
-          </info-list-item>
+          <template v-if="!isVGroup">
+            <info-list-item label="接入区域:">{{ form.regionName }}</info-list-item>
+            <info-list-item label="接入类型:">{{ InProtocolType[form.inProtocol] }}</info-list-item>
+            <info-list-item label="播放类型:">
+              {{ form.outProtocol.map(item => OutProtocolType[item]).join(',') }}
+            </info-list-item>
+          </template>
           <!-- 以下字段仅在国标业务组中显示 -->
           <template v-if="form.inProtocol === 'gb28181'">
             <info-list-item label="自动拉流:">{{ PullType[form.pullType] }}</info-list-item>
@@ -43,7 +45,7 @@
           </info-list-item>
         </info-list>
       </el-tab-pane>
-      <el-tab-pane label="模板配置" name="template">
+      <el-tab-pane v-if="!isVGroup" label="模板配置" name="template">
         <template-bind v-if="activeName==='template'" :group-id="form.groupId" :in-protocol="form.inProtocol" />
       </el-tab-pane>
     </el-tabs>
@@ -88,6 +90,10 @@ export default class extends Vue {
 
   private get sipDomain() {
     return this.form.sipId && this.form.sipId.toString().substr(0, 10)
+  }
+
+  private get isVGroup() {
+    return this.form.inProtocol === '' || this.form.inProtocol === 'vgroup'
   }
 
   private back() {

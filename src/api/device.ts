@@ -18,7 +18,11 @@ export const getDevices = (params: any, cancelToken?: any): Promise<any> =>
   request({
     url: '/device/list',
     method: 'get',
-    params,
+    params: {
+      ...params,
+      sortBy: 'OrderSequence',
+      sortDirection: 'asc'
+    },
     cancelToken
   })
 
@@ -29,7 +33,11 @@ export const getChannels = (params: any): Promise<any> =>
   request({
     url: '/device/channel',
     method: 'get',
-    params
+    params: {
+      ...params,
+      sortBy: 'OrderSequence',
+      sortDirection: 'asc'
+    }
   })
 
 /**
@@ -65,18 +73,39 @@ export const deleteDevice = (params: any): Promise<any> =>
 /**
  * 获取设备目录树
  */
-export const getDeviceTree = (params: any): Promise<any> =>
-  request({
+export const getDeviceTree = (params: any): Promise<any> => {
+  const headers = params['self-defined-headers']
+  delete params['self-defined-headers']
+  return request({
     url: '/device/tree',
     method: 'get',
-    params
+    params: {
+      ...params,
+      sortBy: 'OrderSequence',
+      sortDirection: 'asc'
+    },
+    headers: headers
   })
+}
+
+/**
+ * 子目排序
+ */
+export const sortDeviceTree = (params: any): Promise<any> => {
+  return request({
+    url: '/device/location/move',
+    method: 'post',
+    data: params
+  })
+}
 
 /**
  * 获取设备预览地址
  */
-export const getDevicePreview = (params: any, cancelToken?: any): Promise<any> =>
-  request({
+export const getDevicePreview = (params: any, cancelToken?: any): Promise<any> => {
+  const headers = params['self-defined-headers']
+  delete params['self-defined-headers']
+  return request({
     url: '/device/preview',
     method: 'get',
     params: {
@@ -84,8 +113,10 @@ export const getDevicePreview = (params: any, cancelToken?: any): Promise<any> =
       type: params.type || 'live',
       ...params
     },
+    headers: headers,
     cancelToken
   })
+}
 
 /**
  * 获取设备录像列表

@@ -2,7 +2,7 @@
   <div class="app-container">
     <div v-loading="loading.info" class="detail-wrap">
       <div v-if="info" class="btn-detail">
-        <el-button @click="goToPreview"><svg-icon name="live" /> 实时预览</el-button>
+        <el-button v-if="checkPermission(['ScreenPreview', 'ReplayRecord'])" @click="goToPreview(checkPermission(['ScreenPreview']) ? 'preview' : 'replay')"><svg-icon name="live" /> 实时预览</el-button>
       </div>
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="基本信息" name="info">
@@ -40,7 +40,7 @@
             </info-list>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="模板配置" name="template">
+        <el-tab-pane v-if="!isVGroup" label="模板配置" name="template">
           <template-bind v-if="activeName==='template'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
       </el-tabs>

@@ -3,12 +3,14 @@ import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
 import { DeviceParams, DeviceStatus, StreamStatus, RecordStatus, DeviceGb28181Type, SipTransType, StreamTransType, TransPriority } from '@/dics'
 import { Device } from '@/type/device'
 import { GroupModule } from '@/store/modules/group'
+import { DeviceModule } from '@/store/modules/device'
 import { deleteDevice, startDevice, stopDevice, getDevice, getDevices, startRecord, stopRecord, syncDevice, syncDeviceStatus } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MoveDir from '../components/dialogs/MoveDir.vue'
 import UploadExcel from '../components/dialogs/UploadExcel.vue'
 import Resource from '../components/dialogs/Resource.vue'
 import { checkPermission } from '@/utils/permission'
+import { VGroupModule } from '@/store/modules/vgroup'
 
 @Component({
   components: {
@@ -18,7 +20,7 @@ import { checkPermission } from '@/utils/permission'
     Resource
   }
 })
-export default class CreateMixin extends Vue {
+export default class ListMixin extends Vue {
   @Inject('deviceRouter')
   public deviceRouter!: Function
   @Inject('initDirs')
@@ -83,8 +85,16 @@ export default class CreateMixin extends Vue {
     return this.$route.query.inProtocol
   }
 
+  public get currentGroupId() {
+    return GroupModule.group?.groupId
+  }
+
   public get isGb() {
-    return this.$route.query.inProtocol === 'gb28181'
+    return this.$route.query.inProtocol === 'gb28181' || this.$route.query.realGroupInProtocol === 'gb28181'
+  }
+
+  public get isVGroup() {
+    return this.$route.query.inProtocol === 'vgroup'
   }
 
   public get type() {
@@ -93,6 +103,15 @@ export default class CreateMixin extends Vue {
 
   public get isNVR() {
     return this.$route.query.type === 'nvr'
+  }
+
+  public get showRole() {
+    const query = this.$route.query
+    return query.inProtocol === 'vgroup' && query.type === 'dir' && query.dirId === '0'
+  }
+
+  public get showRealGroup() {
+    return this.$route.query.type === 'role'
   }
 
   public get isChannel() {
@@ -111,6 +130,10 @@ export default class CreateMixin extends Vue {
     return this.$route.query.type === 'dir'
   }
 
+  public get isRealGroup() {
+    return this.$route.query.type === 'group'
+  }
+
   public get isPlatformDir() {
     return this.$route.query.type === 'platformDir'
   }
@@ -127,6 +150,14 @@ export default class CreateMixin extends Vue {
 
   public get groupId() {
     return GroupModule.group?.groupId
+  }
+
+  public get isSorted() {
+    return DeviceModule.isSorted
+  }
+
+  public get realGroupId() {
+    return VGroupModule.realGroupId
   }
 
   public get groupData() {
@@ -172,8 +203,20 @@ export default class CreateMixin extends Vue {
     this.reset()
   }
 
+  @Watch('isSorted')
+  public onIsSortedChange() {
+    DeviceModule.isSorted && this.init()
+    DeviceModule.ResetIsSorted()
+  }
+
   @Watch('groupId')
   public onGroupIdChange() {
+    this.reset()
+  }
+
+  @Watch('realGroupId')
+  public onRealGroupIdChange(realGroupId: string, oldRealGroupId: string) {
+    if (!realGroupId || oldRealGroupId) return
     this.reset()
   }
 
@@ -290,10 +333,8 @@ export default class CreateMixin extends Vue {
             }
             return true
           })
-          this.deviceList = deviceList.sort((left: any, right: any) => left.channelNum - right.channelNum)
-        } else {
-          this.deviceList = deviceList
         }
+        this.deviceList = deviceList
       } else if (type === 'ipc') {
         this.deviceInfo = res
         this.parentDeviceId = res.parentDeviceId
@@ -324,6 +365,7 @@ export default class CreateMixin extends Vue {
       let params: any = {
         groupId: this.groupId,
         inProtocol: this.inProtocol,
+        type: this.type === 'role' || this.type === 'group' ? this.type : undefined,
         pageNum: this.pager.pageNum,
         pageSize: this.pager.pageSize,
         deviceType: this.filter.deviceType,
@@ -410,7 +452,7 @@ export default class CreateMixin extends Vue {
    */
   public rowClick(device: Device, column: any) {
     if (column.property !== 'action' && column.property !== 'selection') {
-      const type = device.deviceType === 'ipc' ? 'detail' : device.deviceType
+      const type = device.deviceType === 'ipc' ? 'detail' : device.deviceType || (this.showRole ? 'role' : this.showRealGroup ? 'group' : '')
       this.deviceRouter({
         id: device.deviceId,
         type
@@ -769,6 +811,7 @@ export default class CreateMixin extends Vue {
         inProtocol: this.inProtocol
       })
       this.init()
+      this.initDirs()
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {

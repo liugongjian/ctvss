@@ -327,7 +327,7 @@ export default class CreateMixin extends Vue {
       callback(new Error('请填写经度及纬度坐标'))
     } else if (!/^[-+]?(0(\.\d{1,10})?|([1-9](\d)?)(\.\d{1,10})?|1[0-7]\d{1}(\.\d{1,10})?|180\.0{1,10})$/.test(this.form.deviceLongitude)) {
       callback(new Error('经度坐标格式错误'))
-    } else if (!/^[-+]?((0|([1-8]\d?))(\.\d{1,10})?|90(\.0{1,10})?)$/.test(this.form.deviceLatitude)) {
+    } else if (!/^[-+]?((0|([1-9]\d?))(\.\d{1,10})?|90(\.0{1,10})?)$/.test(this.form.deviceLatitude)) {
       callback(new Error('纬度坐标格式错误'))
     } else {
       callback()
@@ -348,6 +348,7 @@ export default class CreateMixin extends Vue {
    */
   public validateResources(rule: any, value: string, callback: Function) {
     let hasVideo = false
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let hasUpload = false
     const remainError: any = []
     this.form.resources.forEach((resource: any) => {
@@ -375,12 +376,12 @@ export default class CreateMixin extends Vue {
     })
     if (remainError.length) {
       callback(new Error(`${remainError.join(',')}接入设备余量不足，请增加包资源！`))
-    } else if (!this.isUpdate && !hasVideo && !hasUpload && !this.isPrivateInNetwork && !this.isFreeUser) {
-      callback(new Error('资源包必须配置视频包与上行带宽包'))
+    // } else if (!this.isUpdate && !hasVideo && !hasUpload && !this.isPrivateInNetwork && !this.isFreeUser) {
+    //   callback(new Error('资源包必须配置视频包与上行带宽包'))
     } else if (!this.isUpdate && !hasVideo && !this.isFreeUser) {
       callback(new Error('必须配置视频包'))
-    } else if (!this.isUpdate && !hasUpload && !this.isPrivateInNetwork && !this.isFreeUser) {
-      callback(new Error('必须配置上行带宽包'))
+    // } else if (!this.isUpdate && !hasUpload && !this.isPrivateInNetwork && !this.isFreeUser) {
+    //   callback(new Error('必须配置上行带宽包'))
     } else {
       callback()
     }

@@ -79,12 +79,17 @@
           <el-table v-loading="loading.body" :data="userList">
             <el-table-column prop="iamUserName" label="用户名" />
             <el-table-column prop="iamUserId" label="账号ID" />
-            <el-table-column prop="policyName" label="策略" />
+            <el-table-column prop="policyName" label="策略名">
+              <template slot-scope="{row}">
+                {{ row.policyName || '-' }}
+              </template>
+            </el-table-column>
             <el-table-column prop="createdTime" label="创建时间" />
-            <el-table-column label="操作" fixed="right" width="200">
+            <el-table-column label="操作" fixed="right" width="260">
               <template slot-scope="scope">
                 <el-button type="text" @click="editUser(scope.row)">编辑</el-button>
                 <el-button type="text" @click="copyLink(scope.row)">复制登录链接</el-button>
+                <el-button type="text" @click="resetSubPwd(scope.row)">重置密码</el-button>
                 <el-button type="text" @click="deleteUser(scope.row)">删除</el-button>
               </template>
             </el-table-column>
@@ -108,6 +113,7 @@
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import UserGroupDialog from './components/dialogs/userGroupDialog.vue'
 import { getGroupList, getUserList, deleteUser } from '@/api/accessManage'
+import { changeIAMPassword } from '@/api/users'
 import copy from 'copy-to-clipboard'
 import settings from '@/settings'
 @Component({
@@ -309,6 +315,35 @@ export default class extends Vue {
     this.getSubuserLoginLink(row.iamUserName)
     copy(this.subUserLoginLink)
     this.$message.success('复制成功')
+  }
+
+  private resetSubPwd(row: any) {
+    this.$prompt('请输入新密码', '重置子账号密码', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      inputPattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[.@$!%*#_~?&^])[A-Za-z0-9.@$!%*#_~?&^]{8,20}$/,
+      inputErrorMessage: '密码长度为8-20位，必须同时包含大写字母、小写字母、数字、特殊字符',
+      inputPlaceholder: '8-20位，必须同时包含大小写字母、数字、特殊字符',
+      closeOnClickModal: false,
+      beforeClose: async(action, instance, done) => {
+        if (action === 'confirm') {
+          try {
+            await changeIAMPassword({
+              newPassword: instance.inputValue,
+              subUserName: row.iamUserName
+            })
+            this.$message.success(`重置子账号 ${row.iamUserName} 密码成功！`)
+            done()
+          } catch (err) {
+            this.$message.error(`重置子账号 ${row.iamUserName} 密码失败，原因：${err && err.message}！`)
+          }
+        } else {
+          done()
+        }
+      }
+    }).catch(err => {
+      console.log('err: ', err)
+    })
   }
 
   private async deleteUser(user: any) {

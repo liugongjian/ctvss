@@ -1,4 +1,4 @@
-<!-- 分屏预览 -->
+<!-- 录像回放 -->
 <template>
   <div v-loading="loading.group" class="app-container">
     <el-card ref="deviceWrap" class="device-list-wrap">
@@ -42,7 +42,9 @@
                       <svg-icon name="dir-close" width="15" height="15" />
                     </span>
                     <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
-                    {{ node.label }} <span class="alert-type">{{ renderAlertType(data) }}</span>
+                    {{ node.label }}
+                    <span class="sum-icon">{{ getSums(data) }}</span>
+                    <span class="alert-type">{{ renderAlertType(data) }}</span>
                     <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
                   </span>
                 </span>
@@ -120,7 +122,8 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 import ReplayView from './components/ReplayView.vue'
 import PlayerContainer from './components/PlayerContainer.vue'
 import DeviceDir from './components/dialogs/DeviceDir.vue'
-import { renderAlertType } from '@/utils/device'
+import { renderAlertType, getSums } from '@/utils/device'
+import { VGroupModule } from '@/store/modules/vgroup'
 
 @Component({
   name: 'Record',
@@ -133,6 +136,7 @@ import { renderAlertType } from '@/utils/device'
 })
 export default class extends Mixins(ScreenMixin) {
   private renderAlertType = renderAlertType
+  private getSums = getSums
   public maxSize = 1
 
   private get deviceId() {
@@ -159,6 +163,7 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   private destroyed() {
+    VGroupModule.resetVGroupInfo()
     this.screenList.forEach(screen => {
       screen.reset()
     })
@@ -178,6 +183,11 @@ export default class extends Mixins(ScreenMixin) {
    * 打开分屏视频
    */
   private openScreen(item: any) {
+    // 设置虚拟业务组相关信息
+    VGroupModule.SetRoleID(item.roleId || '')
+    VGroupModule.SetRealGroupId(item.realGroupId || '')
+    VGroupModule.SetRealGroupInProtocol(item.realGroupInProtocol || '')
+
     if (item.type === 'ipc' || item.type === 'stream') {
       const screen = this.screenList[this.currentIndex]
       if (screen.deviceId) {

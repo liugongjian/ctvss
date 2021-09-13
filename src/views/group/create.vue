@@ -19,7 +19,7 @@
         <el-form-item label="业务组描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入业务组描述，如业务介绍或用途" />
         </el-form-item>
-        <el-form-item prop="region" class="form-with-tip">
+        <el-form-item v-if="!isVGroup" prop="region" class="form-with-tip">
           <template slot="label">
             接入区域:
             <el-popover
@@ -40,12 +40,12 @@
             :disabled="isEdit"
           />
         </el-form-item>
-        <el-form-item label="接入类型:" prop="inProtocol">
+        <el-form-item v-if="!isVGroup" label="接入类型:" prop="inProtocol">
           <el-radio-group v-model="form.inProtocol" :disabled="isEdit">
             <el-radio v-for="protocol in inProtocolList" :key="protocol" :label="protocol.toLocaleLowerCase()">{{ protocol }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="播放类型:" prop="outProtocol">
+        <el-form-item v-if="!isVGroup" label="播放类型:" prop="outProtocol">
           <el-checkbox-group v-model="form.outProtocol">
             <el-checkbox
               v-for="protocol in outProtocolList"
@@ -103,7 +103,7 @@
               <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
           </template>
-          <el-radio-group v-model="form.inNetworkType" :disabled="isEdit">
+          <el-radio-group v-model="form.inNetworkType" :disabled="isEdit && !isVGroup">
             <el-radio label="public">互联网</el-radio>
             <el-radio label="private">专线网络</el-radio>
           </el-radio-group>
@@ -121,7 +121,7 @@
               <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
           </template>
-          <el-radio-group v-model="form.outNetworkType" :disabled="isEdit">
+          <el-radio-group v-model="form.outNetworkType" :disabled="isEdit && !isVGroup">
             <el-radio label="public">互联网</el-radio>
             <el-radio label="private">专线网络</el-radio>
           </el-radio-group>
@@ -193,6 +193,10 @@ export default class extends Vue {
 
   private get isEdit() {
     return !!this.form.groupId
+  }
+
+  private get isVGroup() {
+    return this.form.inProtocol === 'vgroup'
   }
 
   private async mounted() {
