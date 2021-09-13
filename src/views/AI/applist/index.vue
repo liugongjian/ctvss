@@ -1,11 +1,16 @@
 <template>
   <div class="app-container">
-    <div class="list__head">
-      <el-button type="warning" @click="addApp">新建AI应用</el-button>
-    </div>
+    <el-alert
+      title="设备与AI应用关联后，即可获得相应的AI算法分析能力。"
+      type="info"
+      show-icon
+      :closable="false"
+      class="mb10"
+    />
     <el-tabs v-model="activeTabName" v-loading="loading.abilityList" type="border-card" @tab-click="handleTabType">
       <el-tab-pane v-for="item in tabInfo" :key="item.id" :label="item.name+' ('+item.aiApps+')'" :name="item.id">
         <div class="filter-container">
+          <el-button type="primary" @click="addApp">新建AI应用</el-button>
           <el-button :disabled="batchDisabled" @click="batchStartOrStopApps(1)">启用</el-button>
           <el-button :disabled="batchDisabled" @click="batchStartOrStopApps(0)">停用</el-button>
           <el-button :disabled="batchDisabled" @click="batchDeleteApps()">删除</el-button>
@@ -359,7 +364,7 @@ export default class extends Vue {
 .list__buttons {
   min-width: 1000px;
 }
-.list__head, .list__op {
+.list__op {
   margin-bottom: 10px;
 }
 ::v-deep .el-dialog__body {
