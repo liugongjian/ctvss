@@ -297,8 +297,8 @@ export default class CreateMixin extends Vue {
    * 校验设备/通道名称
    */
   public validateDeviceName(rule: any, value: string, callback: Function) {
-    if (!/^[\u4e00-\u9fa50-9a-zA-Z-\s]{2,32}$/.test(value)) {
-      callback(new Error('设备或通道名称格式错误。2-32位，可包含大小写字母、数字、中文、中划线、空格。'))
+    if (!/^[\u4e00-\u9fa50-9a-zA-Z-()（）_]{2,64}$/.test(value)) {
+      callback(new Error('设备或通道名称格式错误。2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号。'))
     } else {
       callback()
     }
@@ -344,6 +344,7 @@ export default class CreateMixin extends Vue {
    */
   public validateResources(rule: any, value: string, callback: Function) {
     let hasVideo = false
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let hasUpload = false
     const remainError: any = []
     this.form.resources.forEach((resource: any) => {
@@ -371,12 +372,12 @@ export default class CreateMixin extends Vue {
     })
     if (remainError.length) {
       callback(new Error(`${remainError.join(',')}接入设备余量不足，请增加包资源！`))
-    } else if (!this.isUpdate && !hasVideo && !hasUpload && !this.isPrivateInNetwork && !this.isFreeUser) {
-      callback(new Error('资源包必须配置视频包与上行带宽包'))
+    // } else if (!this.isUpdate && !hasVideo && !hasUpload && !this.isPrivateInNetwork && !this.isFreeUser) {
+    //   callback(new Error('资源包必须配置视频包与上行带宽包'))
     } else if (!this.isUpdate && !hasVideo && !this.isFreeUser) {
       callback(new Error('必须配置视频包'))
-    } else if (!this.isUpdate && !hasUpload && !this.isPrivateInNetwork && !this.isFreeUser) {
-      callback(new Error('必须配置上行带宽包'))
+    // } else if (!this.isUpdate && !hasUpload && !this.isPrivateInNetwork && !this.isFreeUser) {
+    //   callback(new Error('必须配置上行带宽包'))
     } else {
       callback()
     }

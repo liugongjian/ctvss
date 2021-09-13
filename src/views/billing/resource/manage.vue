@@ -58,7 +58,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import { getResourceDevices } from '@/api/billing'
 import Resource from '@/views/device/components/dialogs/Resource.vue'
 
@@ -82,6 +82,11 @@ export default class extends Vue {
     pageNum: 1,
     pageSize: 10,
     total: 0
+  }
+
+  @Watch('dataList.length')
+  private onDataListChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
   }
 
   private back() {

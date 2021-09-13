@@ -87,6 +87,11 @@ export default class extends Vue {
     })
   }
 
+  @Watch('streamList.length')
+  private onStreamListChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
+  }
+
   private handleCreate() {
     this.$router.push({
       path: '/stream/create'

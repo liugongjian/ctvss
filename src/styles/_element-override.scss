@@ -134,6 +134,12 @@
   z-index: 100;
 }
 
+.el-dropdown-menu {
+  &__item {
+    text-align: center;
+  }
+}
+
 .ie .el-dialog.is-fullscreen {
   overflow: visible;
 }

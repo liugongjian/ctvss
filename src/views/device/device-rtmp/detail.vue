@@ -1,19 +1,15 @@
 <template>
   <div class="app-container">
     <div v-loading="loading.info" class="detail-wrap">
-      <div v-if="info" class="btn-detail">
-        <el-button v-if="checkPermission(['ScreenPreview', 'ReplayRecord'])" @click="goToPreview(checkPermission(['ScreenPriview']) ? 'preview' : 'replay')"><svg-icon name="live" /> 实时预览</el-button>
-        <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
-      </div>
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="基本信息" name="info">
           <div v-if="info">
             <div class="detail__buttons">
               <el-button @click="goSuperior"><svg-icon name="superior" /> 返回上级</el-button>
-              <el-button v-if="(!isNVR && info.parentDeviceId === '-1') && checkPermission(['*'])" @click="moveDir"><svg-icon name="move" /> 移动至</el-button>
-              <el-button v-if="checkPermission(['*'])" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
+              <el-button v-if="(!isNVR && info.parentDeviceId === '-1') && checkPermission(['AdminDevice'])" @click="moveDir"><svg-icon name="move" /> 移动至</el-button>
+              <el-button v-if="checkPermission(['AdminDevice'])" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
               <!--自动创建的子通道不允许删除-->
-              <el-button v-if="!isAutoCreated && checkPermission(['*'])" @click="deleteDevice(info)"><svg-icon name="trash" /> 删除</el-button>
+              <el-button v-if="!isAutoCreated && checkPermission(['AdminDevice'])" @click="deleteDevice(info)"><svg-icon name="trash" /> 删除</el-button>
             </div>
             <!--状态信息-->
             <div class="detail__section">

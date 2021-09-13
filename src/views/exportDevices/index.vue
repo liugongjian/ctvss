@@ -45,7 +45,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Mixins } from 'vue-property-decorator'
+import { Component, Vue, Mixins, Watch } from 'vue-property-decorator'
 import { columnList } from './assets/column-list/qingyuan'
 import { deviceParamsMap } from './assets/dicts/qingyuan'
 import { getDetailList, getDetailExport } from '@/api/exportDevices'
@@ -64,6 +64,11 @@ export default class extends Mixins(Vue, excelMixin) {
     total: 0
   }
   private deviceParamsMap: any = deviceParamsMap
+
+  @Watch('deviceList.length')
+  public onDeviceListChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
+  }
 
   private mounted() {
     this.getDeviceList()

@@ -21,7 +21,6 @@ import { checkPermission } from '@/utils/permission'
 import { regionList } from '@/assets/region/lianzhouRegion'
 import copy from 'copy-to-clipboard'
 import { DeviceTips } from '@/dics/tips'
-
 @Component({
   components: {
     TemplateBind,
