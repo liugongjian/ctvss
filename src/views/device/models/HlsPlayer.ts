@@ -4,8 +4,6 @@ import { BasePlayer } from './BasePlayer'
 
 export class HlsPlayer extends BasePlayer {
   public hls?: any
-  private manifestLoadingTimeOutMaxRetry = 3
-  private manifestLoadingTimeOutRetryTimes = 0
 
   public init() {
     if (!Hls.isSupported()) {
@@ -16,23 +14,12 @@ export class HlsPlayer extends BasePlayer {
     this.wrap.innerHTML = ''
     this.wrap.append(videoElement)
     const hls = new Hls({
-      manifestLoadingTimeOut: 5000,
-      manifestLoadingMaxRetry: 3,
-      maxBufferLength: 30
+      manifestLoadingMaxRetry: 2
     })
     hls.loadSource(this.source)
     hls.attachMedia(videoElement)
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
       this.autoPlayVideo(videoElement)
-    })
-    hls.on(Hls.Events.MANIFEST_LOADED, () => {
-      this.manifestLoadingTimeOutRetryTimes = 0
-    })
-    hls.on(Hls.Events.ERROR, (event: string, data: any) => {
-      if (data.details === Hls.ErrorDetails.MANIFEST_LOAD_TIMEOUT && this.manifestLoadingTimeOutRetryTimes < this.manifestLoadingTimeOutMaxRetry) {
-        this.manifestLoadingTimeOutRetryTimes++
-        hls.loadSource(this.source)
-      }
     })
     this.hls = hls
     this.player = videoElement
@@ -43,9 +30,13 @@ export class HlsPlayer extends BasePlayer {
    */
   public bindEvent() {
     this.player.addEventListener('play', this.onPlay.bind(this))
+    // 添加音量控制 在 baseplayer 里面声明方法
+    // 这里的绑定都是将每个播放器的方法绑定到 baseplayer 上面。base player 里面只有几个共有的方法
+    // 后期 可能需要调整 base player 和各个播放器之间的属性、方法关系
     this.player.addEventListener('pause', this.onPause.bind(this))
     this.player.addEventListener('timeupdate', this.onTimeUpdate.bind(this))
     this.player.addEventListener('durationchange', this.onDurationChange.bind(this))
+    this.player.addEventListener('volumechange', this.onVolumeChange.bind(this))
     this.player.addEventListener('ended', this.onEnded.bind(this))
     this.player.addEventListener('seeked', this.onSeeked.bind(this))
     this.player.addEventListener('progress', this.onBuffered.bind(this))
@@ -118,6 +109,7 @@ export class HlsPlayer extends BasePlayer {
     this.player.removeEventListener('progress', this.onBuffered)
     this.player.removeEventListener('loadstart', this.onLoadStart)
     this.player.removeEventListener('canplay', this.onCanplay)
+    this.player.removeEventListener('volumechange', this.onVolumeChange)
     this.hls && this.hls.destroy()
   }
 }
