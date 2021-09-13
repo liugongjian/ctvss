@@ -61,7 +61,7 @@ export default class extends Mixins(DashboardMixin) {
       // 不请求
       return
     }
-    // this.chartData + 防抖处理
+    // getchartData + 防抖处理
     this.debounceHandle()
   }
   private mounted() {
