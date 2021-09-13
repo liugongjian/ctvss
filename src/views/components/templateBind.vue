@@ -44,7 +44,7 @@
         </el-table>
       </info-list>
     </el-card>
-    <el-card style="margin-top: 20px;">
+    <el-card v-if="inProtocol === 'gb28181'" style="margin-top: 20px;">
       <el-button v-permission="['*']" type="text" class="template-edit" @click="setAlertTemplate">编辑</el-button>
       <info-list title="告警模板">
         <el-table v-loading="loading.alert" :data="template.alertTemplate" empty-text="该设备或组没有绑定告警模板" fit>
@@ -143,73 +143,11 @@ export default class extends Vue {
   private recordTemplateId = ''
   private callbackTemplateId = ''
   private aiTemplateId = ''
-  // private alarmPriorityOptions: any = [
-  //   { label: '一级警情', value: '1' },
-  //   { label: '二级警情', value: '2' },
-  //   { label: '三级警情', value: '3' },
-  //   { label: '四级警情', value: '4' }
-  // ]
-  // private alarmMethodOptions: any = [
-  //   {
-  //     value: '1',
-  //     label: '电话报警'
-  //   },
-  //   {
-  //     value: '2',
-  //     label: '设备报警',
-  //     children: [
-  //       { value: '1', label: '视频丢失报警' },
-  //       { value: '2', label: '设备防拆报警' },
-  //       { value: '3', label: '存储设备磁盘满报警' },
-  //       { value: '4', label: '设备高温报警' },
-  //       { value: '5', label: '设备低温报警' }
-  //     ]
-  //   },
-  //   {
-  //     value: '3',
-  //     label: '短信报警'
-  //   },
-  //   {
-  //     value: '4',
-  //     label: 'GPS报警'
-  //   },
-  //   {
-  //     value: '5',
-  //     label: '视频报警',
-  //     children: [
-  //       { value: '1', label: '人工视频报警' },
-  //       { value: '2', label: '运动目标检测报警' },
-  //       { value: '3', label: '遗留物检测报警' },
-  //       { value: '4', label: '物体移除检测报警' },
-  //       { value: '5', label: '绊线检测报警' },
-  //       { value: '6', label: '入侵检测报警' },
-  //       { value: '7', label: '逆行检测报警' },
-  //       { value: '8', label: '徘徊检测报警' },
-  //       { value: '9', label: '流量统计报警' },
-  //       { value: '10', label: '密度检测报警' },
-  //       { value: '11', label: '视频异常检测报警' },
-  //       { value: '12', label: '快速移动报警' }
-  //     ]
-  //   },
-  //   {
-  //     value: '6',
-  //     label: '设备故障报警',
-  //     children: [
-  //       { value: '1', label: '存储设备磁盘故障报警' },
-  //       { value: '2', label: '存储设备风扇故障报警' }
-  //     ]
-  //   },
-  //   {
-  //     value: '7',
-  //     label: '其他报警'
-  //   }
-  // ]
-
   private async mounted() {
     this.getStreamTemplate()
     this.getRecordTemplate()
     this.getAITemplate()
-    this.getAlertTemplate()
+    this.inProtocol === 'gb28181' && this.getAlertTemplate()
   }
 
   private setRecordTemplate() {
@@ -252,21 +190,21 @@ export default class extends Vue {
 
   private async getAITemplate() {
     try {
-      this.loading.alert = true
-      this.template.alertTemplate = []
+      this.loading.ai = true
+      this.template.aiTemplate = []
       if (this.groupId) {
         const res = await getAIBind({ groupId: this.groupId })
-        this.template.alertTemplate.push(res)
+        this.template.aiTemplate.push(res)
       } else {
         const res = await getAIBind({ deviceId: this.deviceId, inProtocol: this.inProtocol })
-        this.template.alertTemplate.push(res)
+        this.template.aiTemplate.push(res)
       }
     } catch (e) {
       if (e && e.code !== 5) {
         this.$message.error(e && e.message)
       }
     } finally {
-      this.loading.alert = false
+      this.loading.ai = false
     }
   }
 

@@ -133,7 +133,6 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { deleteAlarmInfo, getAlarmRules } from '@/api/alarm'
-import { log } from 'console'
 
 @Component({
   name: 'alarm-list'
@@ -230,6 +229,7 @@ export default class extends Vue {
     }
   ]
   private alarmList: any = []
+  private timer: any = null
   private pager = {
     pageNum: 1,
     pageSize: 10,
@@ -240,17 +240,51 @@ export default class extends Vue {
 
   @Watch('$route.query', { deep: true })
   public onRouterChange() {
+    this.searchFrom = {
+      deviceName: '',
+      timeRange: null,
+      alarmPriority: [],
+      alarmMethod: [],
+      sortBy: '',
+      sortDirection: ''
+    }
+    this.pager = {
+      pageNum: 1,
+      pageSize: 10,
+      total: 0
+    }
+    const tableDom: any = this.$refs.table
+    tableDom.clearSort()
+    tableDom.clearFilter()
     this.$route.query.inProtocol && this.getList()
   }
 
   private mounted() {
     this.$route.query.inProtocol && this.getList()
+    this.setTimer()
   }
+
+  private destroyed() {
+    this.timer && clearInterval(this.timer)
+  }
+
   private search() {
     this.pager.pageNum = 1
     this.getList()
+    this.setTimer()
   }
-  private async getList() {
+
+  /**
+   * 定时刷新
+   */
+  private setTimer() {
+    this.timer && clearInterval(this.timer)
+    this.timer = setInterval(() => {
+      this.getList(true)
+    }, 5000)
+  }
+
+  private async getList(forbitLoading?: boolean) {
     let params = {
       inProtocol: this.$route.query.inProtocol,
       deviceName: this.searchFrom.deviceName,
@@ -263,11 +297,15 @@ export default class extends Vue {
     }
     if (this.$route.query.deviceId) {
       this.$set(params, 'deviceId', this.$route.query.deviceId)
-    } else {
-      this.$set(params, 'groupId', this.groupId)
+    } else if (this.$route.query.dirId) {
+      if (this.$route.query.dirId === '0') {
+        this.$set(params, 'groupId', this.groupId)
+      } else {
+        this.$set(params, 'dirId', this.$route.query.dirId)
+      }
     }
     try {
-      this.loading = true
+      !forbitLoading && (this.loading = true) && (this.alarmList = [])
       let res: any = await getAlarmRules(params)
       this.alarmList = res.alarms
       this.pager.total = res.totalNum

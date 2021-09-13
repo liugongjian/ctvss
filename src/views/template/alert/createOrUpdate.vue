@@ -27,7 +27,6 @@
             v-model="form.alarmMethod"
             :options="alarmMethodOptions"
             :props="props"
-            clearable
           />
           <el-popover
             placement="top-start"
@@ -63,7 +62,7 @@ export default class extends Vue {
   private loading = false
   private rules = {
     templateName: [
-      { required: true, message: '请输入回调模板名称', trigger: 'blur' },
+      { required: true, message: '请输入告警模板名称', trigger: 'blur' },
       { validator: this.validateTemplateName, trigger: 'blur' }
     ],
     alarmPriority: [
@@ -181,11 +180,15 @@ export default class extends Vue {
   private getAlarmMethodArray(value: any) {
     let arr: any = []
     Object.keys(value).forEach((key: any) => {
-      Object.keys(value[key]).forEach((item: any) => {
-        let arr1 = [key]
-        item && arr1.push(item)
-        arr.push(arr1)
-      })
+      if (Object.keys(value[key]).length === 0) {
+        arr.push([key])
+      } else {
+        Object.keys(value[key]).forEach((item: any) => {
+          let arr1 = [key]
+          item && arr1.push(item)
+          arr.push(arr1)
+        })
+      }
     })
     return arr
   }

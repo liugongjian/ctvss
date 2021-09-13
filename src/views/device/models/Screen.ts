@@ -23,6 +23,7 @@ export default class Screen {
   private axiosSource: any
   public onCanPlay?: boolean
   public calendarFocus?: boolean
+  public errorMsg?: string
 
   constructor() {
     this.deviceId = ''
@@ -44,6 +45,7 @@ export default class Screen {
     this.axiosSource = null
     this.onCanPlay = false
     this.calendarFocus = false
+    this.errorMsg = ''
   }
 
   public async getUrl() {
@@ -74,6 +76,7 @@ export default class Screen {
       this.retry = false
     } catch (e) {
       if (e.code === 5) {
+        this.errorMsg = e.message
         this.retry = true
       }
     } finally {

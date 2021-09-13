@@ -1,7 +1,8 @@
 <template>
   <div v-loading="loading.group" class="app-container">
     <el-card ref="deviceWrap" class="device-list-wrap">
-      <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
+      <div v-if="$route.query.inProtocol !== 'gb28181'" class="warning-info">暂仅支持国标协议的设备告警信息查询</div>
+      <div v-show="$route.query.inProtocol === 'gb28181'" class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
         <el-button class="device-list__expand" @click="toggledirList">
           <svg-icon name="hamburger" />
         </el-button>
@@ -85,6 +86,7 @@ export default class extends Mixins(DeviceMixin) {
   private renderAlertType = renderAlertType
   private parentDir = null
   private currentDir = null
+  private inProtocol: any = null
   private dialog = {
     createDir: false
   }
@@ -109,7 +111,9 @@ export default class extends Mixins(DeviceMixin) {
 
   @Watch('$route.query')
   private onRouterChange() {
-    !this.defaultKey && this.gotoRoot()
+    this.$nextTick(() => {
+      !this.defaultKey && this.gotoRoot()
+    })
   }
 
   @Watch('currentGroupId', { immediate: true })
@@ -194,8 +198,8 @@ export default class extends Mixins(DeviceMixin) {
   /**
    * deviceRouter-改alarmRouter
    */
-	private async alarmRouter(item: any, node?: any) {
-		const dirTree: any = this.$refs.dirTree
+  private async alarmRouter(item: any, node?: any) {
+    const dirTree: any = this.$refs.dirTree
     let _node: any
     if (!node) {
       _node = dirTree.getNode(item.id)
@@ -213,7 +217,7 @@ export default class extends Mixins(DeviceMixin) {
     _node && DeviceModule.SetBreadcrumb(this.getDirPath(_node).reverse())
     let router: any
     let query: any = {}
-		switch (item.type) {
+    switch (item.type) {
       case 'platformDir':
       case 'dir':
         router = {
@@ -248,8 +252,8 @@ export default class extends Mixins(DeviceMixin) {
           deviceId: item.id
         }
         break
-		}
-		router.query = {
+    }
+    router.query = {
       inProtocol: this.currentGroup!.inProtocol,
       type: item.type,
       path: this.breadcrumb.map((item: any) => item.id).join(','),
@@ -257,6 +261,37 @@ export default class extends Mixins(DeviceMixin) {
     }
     if (JSON.stringify(this.$route.query) === JSON.stringify(router.query)) return
     this.$router.push(router)
-	}
+  }
+
+  /**
+   * 初始化目录状态
+   */
+  public async initTreeStatus() {
+    const dirTree: any = this.$refs.dirTree
+    const path: string | (string | null)[] | null = this.$route.query.path
+    const keyPath = path ? path.toString().split(',') : null
+    if (keyPath) {
+      for (let i = 0; i < keyPath.length; i++) {
+        const _key = keyPath[i]
+        const node = dirTree.getNode(_key)
+        if (node) {
+          await this.loadDirChildren(_key, node)
+          if (i === keyPath.length - 1) {
+            DeviceModule.SetBreadcrumb(this.getDirPath(node).reverse())
+          }
+        }
+      }
+    } else if (this.dirList.length && this.dirList.every((dir: any) => dir.type === 'dir')) {
+      // 如果根目录下无设备，则跳转至第一个目录下
+      this.alarmRouter(this.dirList[0])
+    }
+  }
 }
 </script>
+<style scoped>
+  .warning-info {
+    text-align: center;
+    line-height: 10vh;
+    height: 10vh;
+  }
+</style>

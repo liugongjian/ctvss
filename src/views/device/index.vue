@@ -52,7 +52,9 @@
                       <svg-icon name="dir-close" width="15" height="15" />
                     </span>
                     <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
-                    {{ node.label + getSums(data) }} <span class="alert-type">{{ renderAlertType(data) }}</span>
+                    {{ node.label }}
+                    <span class="sum-icon">{{ getSums(data) }}</span>
+                    <span class="alert-type">{{ renderAlertType(data) }}</span>
                   </span>
                   <div v-if="!isVGroup && checkPermission(['AdminDevice'], data)" class="tools">
                     <template v-if="data.type !== 'ipc'">
@@ -107,7 +109,7 @@ import CreateDir from './components/dialogs/CreateDir.vue'
 import SortChildren from './components/dialogs/SortChildren.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { deleteDir } from '@/api/dir'
-import { renderAlertType } from '@/utils/device'
+import { renderAlertType, getSums } from '@/utils/device'
 import { checkPermission } from '@/utils/permission'
 import { VGroupModule } from '@/store/modules/vgroup'
 
@@ -122,6 +124,7 @@ import { VGroupModule } from '@/store/modules/vgroup'
 export default class extends Mixins(DeviceMixin) {
   private checkPermission = checkPermission
   private renderAlertType = renderAlertType
+  private getSums = getSums
   private parentDir = null
   private currentDir = null
   private sortDir: any = null
@@ -164,17 +167,6 @@ export default class extends Mixins(DeviceMixin) {
       }
       this.initDirs()
     })
-  }
-
-  /**
-   * 获取目录设备数统计信息
-   */
-  private getSums(data: any) {
-    if (data.type === 'nvr' || data.type === 'dir') {
-      return ` (${data.onlineSize}/${data.totalSize})`
-    } else {
-      return ''
-    }
   }
 
   /**
