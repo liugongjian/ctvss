@@ -9,6 +9,7 @@ import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
 import { Chart } from '@antv/g2'
 import DashboardMixin from '@/views/dashboard/mixin/DashboardMixin'
 import DashboardContainer from '@/views/dashboard/components/DashboardContainer.vue'
+import debounce from '@/utils/debounce'
 
 @Component({
   name: 'PeopleTrendChart',
@@ -19,6 +20,7 @@ export default class extends Mixins(DashboardMixin) {
   @Prop() private param!: Object
   private deviceTimeRange = '近7天'
   private loading = false
+  private debounceHandle = debounce(this.getData, 500)
 
   private timeList: Array<{ label: string; value: number }> = [
     {
@@ -59,8 +61,8 @@ export default class extends Mixins(DashboardMixin) {
       // 不请求
       return
     }
-    // 这里更新this.chartData
-    this.getData()
+    // getchartData + 防抖处理
+    this.debounceHandle()
   }
   private mounted() {
     console.log('mounted:', this.param)// 使用param查询更新图表
@@ -71,6 +73,7 @@ export default class extends Mixins(DashboardMixin) {
    */
   private async getData() {
     try {
+      console.log(this.param)
       // this.trendView = new DataSet.DataView().source(this.chartData)
       // this.trendView.transform({
       //   type: 'regression',

@@ -28,7 +28,7 @@
           </div>
           <div>
             <span>截帧频率：</span>
-            <span>{{ appInfo.analyseType }}</span>
+            <span>{{ ResourceAiType[appInfo.analyseType] }}</span>
           </div>
           <div>
             <span>描述：</span>
@@ -42,7 +42,7 @@
           </div>
           <div>
             <span>生效时段：</span>
-            <span v-for="(item, index) in appInfo.effectiveTime" :key="index">{{ item.starttime }} - {{ item.endtime }}</span>
+            <span v-for="(item, index) in JSON.parse(appInfo.effectiveTime)" :key="index">{{ item.starttime }} - {{ item.endtime }}</span>
           </div>
           <div>
             <span>人脸库：</span>
@@ -68,34 +68,26 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
-import { getAppInfo, startOrStopApps, deleteApps } from '@/api/ai-app'
+import { Component, Prop, Vue } from 'vue-property-decorator'
+import { startOrStopApps, deleteApps } from '@/api/ai-app'
+import { ResourceAiType } from '@/dics'
 @Component({
   name: 'BasicAppInfo',
   components: {
   }
 })
 export default class extends Vue {
-    private appName: String = null
+    @Prop() private appInfo!: any
     private dialogVisible: boolean = false
     private dialogTitle: String = ''
     private btnFlag: String
-    private appInfo: any = {
-      date: '人员布控03',
-      name: '人员聚集',
-      address: '分钟级',
-      description: 'xxxxxxxxxxx',
-      device: '3',
-      status: '-1'
-    }
     private confirmFn: Function
+    private ResourceAiType: any = ResourceAiType
     private mounted() {
-      this.initData()
+      this.initEffectiveTime()
     }
-    private async initData() {
-      let res = await getAppInfo({ id: this.$route.query.appid })
-      this.appInfo = { ...res, effectiveTime: JSON.parse(res.effectiveTime) }
-      console.log(res)
+    private initEffectiveTime() {
+      // this.appInfo = { ...this.appInfo, effectiveTime: JSON.parse(this.appInfo.effectiveTime) }
     }
     private handleButtonClick(option) {
       if (option === 'edit') {
