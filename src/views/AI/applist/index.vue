@@ -160,7 +160,7 @@ export default class extends Vue {
    */
   private appDetail(app: any, tabNum: number) {
     this.$router.push({
-      name: `AI-AppDetail`,
+      name: 'AI-AppDetail',
       query: {
         appid: app.id,
         tabNum
@@ -173,7 +173,7 @@ export default class extends Vue {
    */
   private editApp(app) {
     this.$router.push({
-      name: `AI-EditApp`,
+      name: 'AI-EditApp',
       query: {
         id: app.id
       }
