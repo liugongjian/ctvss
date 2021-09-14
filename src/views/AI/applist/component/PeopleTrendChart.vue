@@ -1,6 +1,7 @@
 <template>
   <div>
-    <div id="device-container" :style="`height:${height}vh`" />
+    <div v-if="chartData.length > 0" id="device-container" :style="`height:${height}vh`" />
+    <div v-else class="no-data">暂无数据</div>
   </div>
 </template>
 
@@ -23,7 +24,6 @@ export default class extends Mixins(DashboardMixin) {
   private loading = false
   private debounceHandle = debounce(this.getData, 500)
   private deviceData: any = []
-  private userType = 7 * 24 * 3600 * 1000
   private chart: any = null
   public intervalTime = 60 * 1000
 
@@ -34,7 +34,6 @@ export default class extends Mixins(DashboardMixin) {
     this.debounceHandle()
   }
   private mounted() {
-    console.log('mounted:', this.param)// 使用param查询更新图表
     this.getData()
   }
   /**
@@ -147,4 +146,11 @@ export default class extends Mixins(DashboardMixin) {
 }
 </script>
 <style lang="scss" scoped>
+.no-data{
+  height: 200px;
+  line-height: 200px;
+  vertical-align: middle;
+  text-align: center;
+  color: rgba(186,198,198);
+}
 </style>

@@ -82,7 +82,7 @@
                 />
               </div>
             </span>
-            <span>间隔频率：
+            <!-- <span>间隔频率：
               <el-select v-model="queryParam.frequency" placeholder="请选择" @change="handleChange">
                 <el-option
                   v-for="item in options"
@@ -91,7 +91,7 @@
                   :value="item.value"
                 />
               </el-select>
-            </span>
+            </span> -->
           </div>
           <div class="chart-wrapper">
             <div class="title">
@@ -99,11 +99,12 @@
               <span>人员聚集趋势</span>
             </div>
             <PeopleTrendChart
+              v-if="queryParam.deviceId !== ''"
               :height="34"
               :param="queryParam"
               :face-lib="faceLib"
             />
-            <!-- <div class="no-data">请</div> -->
+            <div v-else class="no-data">请选择设备</div>
           </div>
 
           <div class="pic-wrapper">
@@ -111,13 +112,21 @@
               <div class="title-block" />
               <span>视频截图</span>
             </div>
-            <div class="card-wrapper">
-              <PicCard v-for="(pic, index) in picinfos" :key="index" :pic="pic" />
+            <div v-if="queryParam.deviceId !== '' && picInfos.length > 0" class="card-wrapper">
+              <PicCard
+                v-for="(pic, index) in picInfos"
+                :key="index"
+                :pic="pic"
+              />
             </div>
+            <div v-else class="no-data">{{ queryParam.deviceId !== '' ? '暂无数据' : '请选择设备' }}</div>
             <el-pagination
-              :hide-on-single-page="false"
-              :total="5"
-              layout="prev, pager, next"
+              :current-page="pager.pageNum"
+              :page-size="pager.pageSize"
+              :total="pager.totalNum"
+              layout="total, sizes, prev, pager, next, jumper"
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
             />
           </div>
         </div>
@@ -155,6 +164,11 @@ export default class extends Vue {
     public loading = {
       dir: false
     }
+    private pager = {
+      pageNum: 1,
+      pageSize: 10,
+      totalNum: 0
+    }
     private dirList: any = []
     private appInfo: any = null
     private breadCrumbContent: String = '应用详情'
@@ -169,19 +183,9 @@ export default class extends Vue {
       inProtocol: ''
     }
     private faceInfos: any = []
-    private isLoading: boolean = false
-    private options: any = [{
-      value: 'all',
-      label: '全部人脸库'
-    }, {
-      value: 'lib1',
-      label: '第一人脸库'
-    }, {
-      value: 'lib2',
-      label: '第二人脸库'
-    }]
-    private radio2: String = '今天'
-    private picinfos: any = []
+    private picInfos: any = []
+    // 防抖
+    private debounceHandle = debounce(this.getScreenShot, 500)
 
     @Watch('queryParam.periodType')
     private periodTypeUpdated(newVal) {
@@ -194,31 +198,6 @@ export default class extends Vue {
           break
       }
     }
-    private getDateBefore(dayCount) {
-      let dd = new Date()
-      dd.setDate(dd.getDate() + dayCount)
-      let time = dd.getTime()
-      return time
-    }
-
-    private async getScreenShot() {
-      console.log(this.queryParam)
-      const [startTime, endTime] = this.queryParam.period
-      const [confidenceMin, confidenceMax] = this.queryParam.confidence
-      const query = { startTime,
-        endTime,
-        confidenceMin,
-        confidenceMax,
-        faceDb: this.faceLib.id,
-        faceIdList: this.queryParam.faceSelected,
-        appId: this.$route.query.appid,
-        deviceId: this.queryParam.deviceId,
-        inProtocol: this.queryParam.inProtocol }
-      const res = await getAppScreenShot(query)
-      console.log(res)
-    }
-    // 防抖
-    private debounceHandle = debounce(this.getScreenShot, 500)
 
     private async mounted() {
       const { groups }: any = await getAIConfigGroupData({})
@@ -226,6 +205,43 @@ export default class extends Vue {
       this.initDirs()
       this.initFaceInfos(groups)
     }
+
+    /**
+     * 得到N天前的时间戳
+     */
+    private getDateBefore(dayCount) {
+      let dd = new Date()
+      dd.setDate(dd.getDate() + dayCount)
+      let time = dd.getTime()
+      return time
+    }
+
+    /**
+     * 请求截屏
+     */
+    private async getScreenShot() {
+      const [startTime, endTime] = this.queryParam.period
+      const [confidenceMin, confidenceMax] = this.queryParam.confidence
+      const query = {
+        startTime,
+        endTime,
+        confidenceMin,
+        confidenceMax,
+        faceDb: this.faceLib.id,
+        faceIdList: this.queryParam.faceSelected,
+        appId: this.$route.query.appid,
+        deviceId: this.queryParam.deviceId,
+        inProtocol: this.queryParam.inProtocol,
+        pageNum: this.pager.pageNum,
+        pageSize: this.pager.pageSize }
+      const res = await getAppScreenShot(query)
+      this.pager.totalNum = res.totalNum
+      this.picInfos = res.screenShotList
+    }
+
+    /**
+     * 初始化人脸选项图片
+     */
     private async initFaceInfos(groups) {
       const algorithmMetadata = JSON.parse(this.appInfo.algorithmMetadata)
       if (algorithmMetadata.FaceDbName) {
@@ -237,6 +253,9 @@ export default class extends Vue {
       }
     }
 
+    /**
+     * 初始化设备列表
+     */
     public async initDirs() {
       try {
         this.loading.dir = true
@@ -268,12 +287,18 @@ export default class extends Vue {
       }
     }
 
+    /**
+     * 展开设备列表时Load子树
+     */
     private async loadDirs(node: any, resolve: Function) {
       if (node.level === 0) return resolve([])
       const dirs = await this.getTree(node)
       resolve(dirs)
     }
 
+    /**
+     * 获取设备列表时Load子树数据
+     */
     private async getTree(node: any) {
       try {
         if (node.data.type === 'role') {
@@ -318,6 +343,9 @@ export default class extends Vue {
       }
     }
 
+    /**
+     * 获取设备列表时Load子树数据
+     */
     private selectDevice(data: any) {
       if (data.isLeaf) {
         this.queryParam = { ...this.queryParam, deviceId: data.id, inProtocol: data.inProtocol }
@@ -359,6 +387,15 @@ export default class extends Vue {
     //     document.getElementById('expand-btn').style.display = 'none'
     //   }
     // }
+    private handleSizeChange(val: number) {
+      this.pager.pageSize = val
+      this.getScreenShot()
+    }
+
+    private handleCurrentChange(val: number) {
+      this.pager.pageNum = val
+      this.getScreenShot()
+    }
     private back() {
       this.$router.push({ name: 'AI-AppList' })
     }
@@ -533,5 +570,12 @@ export default class extends Vue {
               font-weight: bold;
           }
       }
+}
+.no-data{
+  height: 200px;
+  line-height: 200px;
+  vertical-align: middle;
+  text-align: center;
+  color: rgba(186,198,198);
 }
 </style>
