@@ -1,178 +1,107 @@
 <template>
-  <div class="basic-info-wrapper">
-    <el-row>
-      <el-button @click="handleButtonClick(Number(appInfo.appEnabled) ? 'off' : 'on')">{{ Number(appInfo.appEnabled) ? '停用' : '启用' }}</el-button>
-      <el-button @click="handleButtonClick('edit')">编辑</el-button>
-      <el-button @click="handleButtonClick('del')">删除</el-button>
-    </el-row>
-    <el-row>
-      <div class="title">
-        <div class="title-block" />
-        <span>人员聚集趋势</span>
-      </div>
-      <div>
-        <span>应用状态：</span>
-        <span>{{ Number(appInfo.appEnabled) ? '启动中' : '未启动' }}</span>
-      </div>
-    </el-row>
-    <el-row>
-      <div class="title">
-        <div class="title-block" />
-        <span>人员聚集趋势</span>
-      </div>
-      <div class="content-wrapper">
-        <div class="left">
-          <div>
-            <span>算法类型：</span>
-            <span>{{ appInfo.algorithm.name }}</span>
-          </div>
-          <div>
-            <span>截帧频率：</span>
-            <span>{{ ResourceAiType[appInfo.analyseType] }}</span>
-          </div>
-          <div>
-            <span>描述：</span>
-            <span>{{ appInfo.description }}</span>
-          </div>
-        </div>
-        <div class="right">
-          <div>
-            <span>应用名称：</span>
-            <span>{{ appInfo.name }}</span>
-          </div>
-          <div>
-            <span>生效时段：</span>
-            <span v-for="(item, index) in JSON.parse(appInfo.effectiveTime)" :key="index">{{ item.starttime }} - {{ item.endtime }}</span>
-          </div>
-          <div>
-            <span>人脸库：</span>
-            <span>{{ appInfo.status }}</span>
-          </div>
-        </div>
-      </div>
-    </el-row>
-    <el-dialog
-      :title="dialogTitle"
-      :visible="dialogVisible"
-      :close-on-click-modal="false"
-      center
-      width="500px"
-      @close="closeDialog"
-    >
-      <span>您确定要{{ dialogTitle }}吗？</span>
-      <div slot="footer" align="center">
-        <el-button type="primary" @click="handleConfirm">{{ '确定' }}</el-button>
-        <el-button @click="closeDialog">取消</el-button>
-      </div>
-    </el-dialog>
+  <div class="detail-wrap">
+    <div class="detail__buttons">
+      <el-button @click="editApp(appInfo)"><svg-icon name="edit" /> 编辑</el-button>
+      <el-button @click="deleteApp(appInfo)"><svg-icon name="trash" /> 删除</el-button>
+    </div>
+    <el-descriptions title="应用状态" :column="2">
+      <el-descriptions-item label="应用状态">
+        <status-badge :status="Number(appInfo.appEnabled)" />
+        {{ Number(appInfo.appEnabled) ? '已启用' : '未启用' }}
+        <el-link v-if="Number(appInfo.appEnabled) && checkPermission(['*'])" @click="startOrStopApp(appInfo, 0)">停用</el-link>
+        <el-link v-else-if="checkPermission(['*'])" @click="startOrStopApp(appInfo, 1)">启用</el-link>
+      </el-descriptions-item>
+    </el-descriptions>
+    <el-descriptions title="AI算法信息" :column="2">
+      <el-descriptions-item label="应用名称">
+        {{ appInfo.name }}
+      </el-descriptions-item>
+      <el-descriptions-item label="算法类型">
+        {{ appInfo.algorithm.name }}
+      </el-descriptions-item>
+      <el-descriptions-item label="截帧频率">
+        {{ resourceAiType[appInfo.analyseType] }}
+      </el-descriptions-item>
+      <el-descriptions-item label="生效时段">
+        <span v-for="(item, index) in JSON.parse(appInfo.effectiveTime)" :key="index">{{ item.starttime }} - {{ item.endtime }}</span>
+      </el-descriptions-item>
+      <el-descriptions-item label="人脸库">
+        TODO!!
+      </el-descriptions-item>
+      <el-descriptions-item label="描述">
+        {{ appInfo.description || '-' }}
+      </el-descriptions-item>
+    </el-descriptions>
   </div>
 </template>
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
-import { startOrStopApps, deleteApps } from '@/api/ai-app'
+import { Component, Prop, Mixins } from 'vue-property-decorator'
+import AppMixin from '../../mixin/app-mixin'
+import StatusBadge from '@/components/StatusBadge/index.vue'
 import { ResourceAiType } from '@/dics'
+
 @Component({
   name: 'BasicAppInfo',
   components: {
+    StatusBadge
   }
 })
-export default class extends Vue {
-    @Prop() private appInfo!: any
-    private dialogVisible: boolean = false
-    private dialogTitle: String = ''
-    private btnFlag: String
-    private confirmFn: Function
-    private ResourceAiType: any = ResourceAiType
-    private mounted() {
-      this.initEffectiveTime()
-    }
-    private initEffectiveTime() {
-      // this.appInfo = { ...this.appInfo, effectiveTime: JSON.parse(this.appInfo.effectiveTime) }
-    }
-    private handleButtonClick(option) {
-      if (option === 'edit') {
-        this.$router.push({
-          name: `AI-EditApp`,
-          query: {
-            id: this.appInfo.id
-          }
-        })
-      } else {
-        this.dialogVisible = true
-        this.btnFlag = option
-        this.dialogTitle = option === 'on' ? '启用该应用' : (option === 'off' ? '停用该应用' : '删除该应用')
-      }
-    }
+export default class extends Mixins(AppMixin) {
+  @Prop() private appInfo!: any
+  private resourceAiType: any = ResourceAiType
 
-    private async handleConfirm() {
-      if (this.btnFlag === 'del') {
-        await deleteApps({ id: [this.appInfo.id] })
-        this.$router.push({ name: 'AI-AppList' })
-      } else {
-        await startOrStopApps({ id: [this.appInfo.id], startOrStop: this.btnFlag === 'on' ? 1 : 0 })
-        this.initData()
-      }
-      this.dialogVisible = false
-      this.$message.success('操作成功')
-    }
-    private closeDialog() {
-      this.dialogVisible = false
-    }
+  /**
+   * 刷新数据
+   */
+  public refresh() {
+  }
+
+  /**
+   * 删除应用回调
+   */
+  public onDeleteApp() {
+  }
 }
 </script>
 
 <style lang='scss' scoped>
-.basic-info-wrapper{
-  width: 100%;
-  .el-row{
-      padding-left: 20px;
-  }
-}
-.title{
-    margin-top: 30px;
-    height: 50px;
-    vertical-align: middle;
-    &>div{
-        // display: inline-block;
-      padding-top: 5px;
+  .detail-wrap {
+    padding: 5px;
+
+    .detail__buttons {
+      border-bottom: 1px solid $borderGrey;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
     }
-    & + div {
-      margin-left: 10px;
-    }
-    .title-block{
-        width: 7px;
-        height: 15px;
-        background-color: rgba(250, 131, 52, 1);
-        border: none;
-        margin-top: 2px;
-        margin-right: 5px;
-        display: inline-block;
-    }
-    span {
+    ::v-deep .el-descriptions {
+      &__header {
+        margin: 10px 0;
+      }
+      &__title {
+        position: relative;
+        padding-left: 15px;
+        margin: 10px 0;
+        font-size: 16px;
         font-weight: bold;
-    }
-    }
-.content-wrapper{
-    display: flex;
-    align-items: flex-start;
-    height: 200px;
-    width: 100%;
-    .left,.right{
-        width:40%;
-        display: flex;
-        justify-content: flex-start;
-        flex-direction: column;
-        height: 100%;
-        &>div{
-            margin-bottom: 30px;
+        &::before {
+          content: ' ';
+          display: block;
+          position: absolute;
+          left: 0;
+          top: 0;
+          background: $primary;
+          width: 6px;
+          height: 18px;
         }
+      }
+      &-item__label {
+        min-width: 100px;
+        text-align: right;
+        color: $textGrey;
+      }
+      .el-link {
+        margin-left: 10px;
+      }
     }
-    .left{
-      margin-right: 8%;
-    }
-}
-::v-deep .el-dialog__body{
-    text-align: center;
-    margin-bottom: 30px;
-}
+  }
 </style>
