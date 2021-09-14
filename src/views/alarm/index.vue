@@ -86,7 +86,6 @@ export default class extends Mixins(DeviceMixin) {
   private renderAlertType = renderAlertType
   private parentDir = null
   private currentDir = null
-  private inProtocol: any = null
   private dialog = {
     createDir: false
   }
