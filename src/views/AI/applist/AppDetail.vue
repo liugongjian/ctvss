@@ -11,12 +11,10 @@
             ref="dirTree"
             node-key="id"
             lazy
-            show-checkbox
             :data="dirList"
             :load="loadDirs"
             :props="treeProp"
             :check-strictly="false"
-            @check-change="onCheckDevice"
             @node-click="selectDevice"
           >
             <span slot-scope="{node, data}" class="custom-tree-node" :class="`custom-tree-node__${data.type}`">
@@ -45,7 +43,7 @@
             </div> -->
             <div style="margin-top: 20px">
               <el-checkbox-group v-model="queryParam.faceSelected" size="mdedium" @change="handleChange">
-                <el-checkbox v-for="item in faceInfos" :key="item.id" :label="item.id" border>
+                <el-checkbox v-for="item in faceInfos" :key="item.faceSampleId" :label="item.faceSampleId" border>
                   <div class="checkbox-content">
                     <img :src="decodeBase64(item.imageString)" alt="">
                     <div>
@@ -84,7 +82,7 @@
                 />
               </div>
             </span>
-            <span>间隔频率：
+            <!-- <span>间隔频率：
               <el-select v-model="queryParam.frequency" placeholder="请选择" @change="handleChange">
                 <el-option
                   v-for="item in options"
@@ -93,7 +91,7 @@
                   :value="item.value"
                 />
               </el-select>
-            </span>
+            </span> -->
           </div>
           <div class="chart-wrapper">
             <div class="title">
@@ -101,9 +99,12 @@
               <span>人员聚集趋势</span>
             </div>
             <PeopleTrendChart
+              v-if="queryParam.deviceId !== ''"
               :height="34"
               :param="queryParam"
+              :face-lib="faceLib"
             />
+            <div v-else class="no-data">请选择设备</div>
           </div>
 
           <div class="pic-wrapper">
@@ -111,13 +112,21 @@
               <div class="title-block" />
               <span>视频截图</span>
             </div>
-            <div class="card-wrapper">
-              <PicCard v-for="(pic, index) in picinfos" :key="index" :pic="pic" />
+            <div v-if="queryParam.deviceId !== '' && picInfos.length > 0" class="card-wrapper">
+              <PicCard
+                v-for="(pic, index) in picInfos"
+                :key="index"
+                :pic="pic"
+              />
             </div>
+            <div v-else class="no-data">{{ queryParam.deviceId !== '' ? '暂无数据' : '请选择设备' }}</div>
             <el-pagination
-              :hide-on-single-page="false"
-              :total="5"
-              layout="prev, pager, next"
+              :current-page="pager.pageNum"
+              :page-size="pager.pageSize"
+              :total="pager.totalNum"
+              layout="total, sizes, prev, pager, next, jumper"
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
             />
           </div>
         </div>
@@ -130,10 +139,9 @@ import { Component, Vue, Watch } from 'vue-property-decorator'
 import PicCard from './component/PicCard.vue'
 import PeopleTrendChart from './component/PeopleTrendChart.vue'
 import BasicAppInfo from './component/BasicAppInfo.vue'
-import { describeShareDevices } from '@/api/upPlatform'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
-import { getAppInfo } from '@/api/ai-app'
+import { getAppInfo, getAppScreenShot } from '@/api/ai-app'
 import { getGroupPersonAlready, getAIConfigGroupData } from '@/api/aiConfig'
 import { decodeBase64 } from '@/utils/base64'
 import debounce from '@/utils/debounce'
@@ -156,101 +164,40 @@ export default class extends Vue {
     public loading = {
       dir: false
     }
+    private pager = {
+      pageNum: 1,
+      pageSize: 10,
+      totalNum: 0
+    }
     private dirList: any = []
     private appInfo: any = null
     private breadCrumbContent: String = '应用详情'
-    private faceLib: String = ''
+    private faceLib: any
     private queryParam: any = {
       periodType: '今天',
-      period: 0,
-      device: 'all',
+      period: [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)],
+      deviceId: '',
       frequency: 'all',
       confidence: [0, 100],
-      faceSelected: []
+      faceSelected: [],
+      inProtocol: ''
     }
     private faceInfos: any = []
-    private isLoading: boolean = false
-    private options: any = [{
-      value: 'all',
-      label: '全部人脸库'
-    }, {
-      value: 'lib1',
-      label: '第一人脸库'
-    }, {
-      value: 'lib2',
-      label: '第二人脸库'
-    }]
-    private radio2: String = '今天'
-    private picinfos: any = [{
-      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-      time: '2021-07-07 08:56:45',
-      device: 'IPC球机',
-      rate: 0.65
-    }, {
-      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-      time: '2021-07-07 08:56:45',
-      device: 'IPC球机',
-      rate: 0.65
-    }, {
-      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-      time: '2021-07-07 08:56:45',
-      device: 'IPC球机',
-      rate: 0.65
-    }, {
-      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-      time: '2021-07-07 08:56:45',
-      device: 'IPC球机',
-      rate: 0.65
-    }, {
-      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-      time: '2021-07-07 08:56:45',
-      device: 'IPC球机',
-      rate: 0.65
-    }, {
-      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-      time: '2021-07-07 08:56:45',
-      device: 'IPC球机',
-      rate: 0.65
-    }, {
-      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-      time: '2021-07-07 08:56:45',
-      device: 'IPC球机',
-      rate: 0.65
-    }, {
-      url: 'https://img2.baidu.com/it/u=2708550806,1693850416&fm=26&fmt=auto&gp=0.jpg',
-      time: '2021-07-07 08:56:45',
-      device: 'IPC球机',
-      rate: 0.65
-    }]
+    private picInfos: any = []
+    // 防抖
+    private debounceHandle = debounce(this.getScreenShot, 500)
 
-    // @Watch('faceSelected')
-    // selectFace(newArr :any, oldArr :any) {
-    //   let difference: any = newArr.concat(oldArr).filter((v: any) => !newArr.includes(v) || !oldArr.includes(v))
-    //   if (newArr.length < oldArr.length) {
-    //     document.getElementById(difference[0]).classList.remove('selected')
-    //     document.getElementById(difference[0] + 'input').checked = false
-    //   } else {
-    //     newArr.forEach((element: any) => {
-    //       document.getElementById(element).classList.add('selected')
-    //       document.getElementById(element + 'input').checked = true
-    //     })
-    //   }
-    // }
     @Watch('queryParam.periodType')
     private periodTypeUpdated(newVal) {
       switch (newVal) {
         case '今天':
-          // this.queryParam = {}
+          this.$set(this.queryParam, 'period', [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)])
           break
         case '近3天':
+          this.$set(this.queryParam, 'period', [this.getDateBefore(3), new Date().setHours(23, 59, 59, 999)])
           break
       }
     }
-    private getData() {
-      // console.log(this.queryParam)
-    }
-    // 防抖
-    private debounceHandle = debounce(this.getData, 500)
 
     private async mounted() {
       const { groups }: any = await getAIConfigGroupData({})
@@ -258,17 +205,57 @@ export default class extends Vue {
       this.initDirs()
       this.initFaceInfos(groups)
     }
+
+    /**
+     * 得到N天前的时间戳
+     */
+    private getDateBefore(dayCount) {
+      let dd = new Date()
+      dd.setDate(dd.getDate() + dayCount)
+      let time = dd.getTime()
+      return time
+    }
+
+    /**
+     * 请求截屏
+     */
+    private async getScreenShot() {
+      const [startTime, endTime] = this.queryParam.period
+      const [confidenceMin, confidenceMax] = this.queryParam.confidence
+      const query = {
+        startTime,
+        endTime,
+        confidenceMin,
+        confidenceMax,
+        faceDb: this.faceLib.id,
+        faceIdList: this.queryParam.faceSelected,
+        appId: this.$route.query.appid,
+        deviceId: this.queryParam.deviceId,
+        inProtocol: this.queryParam.inProtocol,
+        pageNum: this.pager.pageNum,
+        pageSize: this.pager.pageSize }
+      const res = await getAppScreenShot(query)
+      this.pager.totalNum = res.totalNum
+      this.picInfos = res.screenShotList
+    }
+
+    /**
+     * 初始化人脸选项图片
+     */
     private async initFaceInfos(groups) {
       const algorithmMetadata = JSON.parse(this.appInfo.algorithmMetadata)
       if (algorithmMetadata.FaceDbName) {
         this.faceLib = groups.filter(item => item.id === algorithmMetadata.FaceDbName)[0]
-        const res = await getGroupPersonAlready({ id: algorithmMetadata.FaceDbName })
-        console.log(res)
+        const { faces }: any = await getGroupPersonAlready({ id: algorithmMetadata.FaceDbName })
+        this.faceInfos = faces.map(face => {
+          return { ...face, labels: JSON.parse(face.labels) }
+        })
       }
-      // const { faces }: any = await getGroupPersonAlready({ id: 12 })
-      // this.faceInfos = faces.map(item => ({ ...item, labels: JSON.parse(item.labels) }))
     }
 
+    /**
+     * 初始化设备列表
+     */
     public async initDirs() {
       try {
         this.loading.dir = true
@@ -293,7 +280,6 @@ export default class extends Vue {
             })
           )
         })
-        // console.log('this.dirList:', this.dirList)
       } catch (e) {
         this.dirList = []
       } finally {
@@ -301,12 +287,18 @@ export default class extends Vue {
       }
     }
 
+    /**
+     * 展开设备列表时Load子树
+     */
     private async loadDirs(node: any, resolve: Function) {
       if (node.level === 0) return resolve([])
       const dirs = await this.getTree(node)
       resolve(dirs)
     }
 
+    /**
+     * 获取设备列表时Load子树数据
+     */
     private async getTree(node: any) {
       try {
         if (node.data.type === 'role') {
@@ -315,23 +307,6 @@ export default class extends Vue {
           node.data.realGroupId = node.data.id
           node.data.realGroupInProtocol = node.data.inProtocol
         }
-        let shareDeviceIds: any = []
-        if (node.data.type !== 'vgroup' && node.data.type !== 'role') {
-          let params: any = {
-            platformId: this.platformId,
-            inProtocol: node.data.inProtocol,
-            groupId: node.data.realGroupId || node.data.groupId,
-            dirId: node.data.type === 'top-group' || node.data.type === 'group' ? 0 : node.data.id,
-            dirType: '0',
-            pageNum: 1,
-            pageSize: 1000
-          }
-          const shareDevices: any = await describeShareDevices(params)
-          shareDeviceIds = shareDevices.devices.map((device: any) => {
-            return device.deviceId
-          })
-        }
-
         const devices: any = await getDeviceTree({
           groupId: node.data.groupId,
           id: node.data.type === 'top-group' || node.data.type === 'vgroup' ? 0 : node.data.id,
@@ -345,15 +320,8 @@ export default class extends Vue {
         if (node.data.type === 'role') {
           devices.dirs = devices.dirs.filter((dir: any) => dir.inProtocol === 'gb28181' || dir.inProtocol === 'ehome')
         }
-        const dirTree: any = this.$refs.dirTree
-        let checkedKeys = dirTree.getCheckedKeys()
         let dirs: any = devices.dirs.map((dir: any) => {
           let sharedFlag = false
-          if (shareDeviceIds.includes(dir.id) && dir.type === 'ipc') {
-            sharedFlag = true
-            checkedKeys.push(dir.id)
-            dirTree.setCheckedKeys(checkedKeys)
-          }
           return {
             id: dir.id,
             groupId: node.data.groupId,
@@ -375,19 +343,13 @@ export default class extends Vue {
       }
     }
 
-    private onCheckDevice() {
-      const dirTree: any = this.$refs.dirTree
-      const nodes = dirTree.getCheckedNodes()
-      this.deviceList = nodes.filter((node: any) => {
-        return (node.type === 'ipc' && !node.sharedFlag)
-      })
-    }
-
+    /**
+     * 获取设备列表时Load子树数据
+     */
     private selectDevice(data: any) {
-      if (data.type === 'ipc' && !data.sharedFlag) {
-        const dirTree: any = this.$refs.dirTree
-        const node = dirTree.getNode(data.id)
-        dirTree.setChecked(data.id, !node.checked)
+      if (data.isLeaf) {
+        this.queryParam = { ...this.queryParam, deviceId: data.id, inProtocol: data.inProtocol }
+        this.debounceHandle()
       }
     }
 
@@ -425,16 +387,14 @@ export default class extends Vue {
     //     document.getElementById('expand-btn').style.display = 'none'
     //   }
     // }
-    private handleSelectFaceLib(val) {
-      // 请求后端数据并赋值给this.faceInfos
-      switch (val) {
-        case 'all':
-          break
-        case 'lib1':
-          break
-        case 'lib2':
-          break
-      }
+    private handleSizeChange(val: number) {
+      this.pager.pageSize = val
+      this.getScreenShot()
+    }
+
+    private handleCurrentChange(val: number) {
+      this.pager.pageNum = val
+      this.getScreenShot()
     }
     private back() {
       this.$router.push({ name: 'AI-AppList' })
@@ -610,5 +570,12 @@ export default class extends Vue {
               font-weight: bold;
           }
       }
+}
+.no-data{
+  height: 200px;
+  line-height: 200px;
+  vertical-align: middle;
+  text-align: center;
+  color: rgba(186,198,198);
 }
 </style>

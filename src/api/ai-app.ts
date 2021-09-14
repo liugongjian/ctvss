@@ -53,3 +53,17 @@ export const createApp = (params: any): Promise<any> =>
     method: 'post',
     data: params
   })
+
+export const getPeopleTrendChart = (params: any): Promise<any> =>
+  request({
+    url: '/ai/analysis/result',
+    method: 'get',
+    params
+  })
+
+export const getAppScreenShot = (params: any): Promise<any> =>
+  request({
+    url: '/ai/analysis/result/screenshot',
+    method: 'get',
+    params
+  })
