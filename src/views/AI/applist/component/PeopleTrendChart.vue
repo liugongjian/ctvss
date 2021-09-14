@@ -21,6 +21,7 @@ export default class extends Mixins(DashboardMixin) {
   private isLight?: boolean
   @Prop() private param!: any
   @Prop() private faceLib!: any
+  @Prop() private device!: any
   private loading = false
   private debounceHandle = debounce(this.getData, 500)
   private deviceData: any = []
@@ -31,11 +32,19 @@ export default class extends Mixins(DashboardMixin) {
 
   @Watch('param', { deep: true })
   private paramUpdated() {
+    if (!this.device) {
+      this.debounceHandle()
+    }
+  }
+
+  @Watch('device', {
+    immediate: true,
+    deep: true
+  })
+  private deviceIdUpdate() {
     this.debounceHandle()
   }
-  private mounted() {
-    this.getData()
-  }
+
   /**
    * 获取数据
    */
@@ -51,8 +60,8 @@ export default class extends Mixins(DashboardMixin) {
         confidenceMax,
         faceDb: this.faceLib.id,
         faceIdList: this.param.faceSelected,
-        deviceId: this.param.deviceId,
-        inProtocol: this.param.inProtocol }
+        deviceId: this.device.deviceId,
+        inProtocol: this.device.inProtocol }
       const { aiReusltDate } = await getPeopleTrendChart(query)
       this.chartData = aiReusltDate.map(item => ({ value: item.count, time: item.Date + item.timeInterval, type: '' }))
       this.chart ? this.updateChart() : this.drawChart()
