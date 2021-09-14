@@ -3,7 +3,7 @@
     <el-page-header :content="breadCrumbContent" @back="back" />
     <el-tabs :value="this.$route.query.tabNum ? 'result' : 'basic'" type="border-card" @tab-click="handleTabClick">
       <el-tab-pane label="基本信息" name="basic">
-        <BasicAppInfo v-if="appInfo" :app-info="appInfo" />
+        <BasicAppInfo v-if="appInfo.name" :app-info="appInfo" />
       </el-tab-pane>
       <el-tab-pane label="分析结果" name="result">
         <div class="left">
@@ -26,7 +26,7 @@
           </el-tree>
         </div>
         <div class="right">
-          <AppSubDetail v-if="appInfo" :device="device" :app-info="appInfo" />
+          <AppSubDetail v-if="appInfo.name" :device="device" :app-info="appInfo" />
         </div>
       </el-tab-pane>
     </el-tabs>
@@ -58,7 +58,7 @@ export default class extends Vue {
     }
     private dirList: any = []
     private breadCrumbContent: String = '应用详情'
-    private appInfo: any
+    private appInfo: any = {}
     private device: any = {
       deviceId: '',
       inProtocol: ''
@@ -163,11 +163,7 @@ export default class extends Vue {
      * 获取设备列表时Load子树数据
      */
     private selectDevice(data: any) {
-      if (data.isLeaf) {
-        this.device.deviceId = data.id
-        this.device.inProtocol = data.inProtocol
-        // console.log(this.device)
-      }
+      data.isLeaf && (this.device = { deviceId: data.id, inProtocol: data.inProtocol })
     }
     private handleTabClick() {
       // resize 为了让图表触发刷新从而自适应尺寸

@@ -2,7 +2,7 @@
   <div>
     <div class="face-filter">
       <span>人脸库：</span>
-      <span>{{ faceLib ? faceLib.name : '' }}</span>
+      <span>{{ faceLib.name ? faceLib.name : '' }}</span>
       <div style="margin-top: 20px">
         <el-checkbox-group v-model="queryParam.faceSelected" size="mdedium" @change="handleChange">
           <el-checkbox v-for="item in faceInfos" :key="item.faceSampleId" :label="item.faceSampleId" border>
@@ -51,7 +51,7 @@
         <span>人员聚集趋势</span>
       </div>
       <PeopleTrendChart
-        v-if="device && faceLib"
+        v-if="device.deviceId.length > 0"
         :height="34"
         :param="queryParam"
         :face-lib="faceLib"
@@ -65,7 +65,7 @@
         <div class="title-block" />
         <span>视频截图</span>
       </div>
-      <div v-if="device && picInfos.length > 0" class="card-wrapper">
+      <div v-if="device.deviceId.length > 0 && picInfos.length > 0" class="card-wrapper">
         <PicCard
           v-for="(pic, index) in picInfos"
           :key="index"
@@ -110,7 +110,7 @@ export default class extends Vue {
       totalNum: 0
     }
     private breadCrumbContent: String = '应用详情'
-    private faceLib: any
+    private faceLib: any = {}
     private queryParam: any = {
       periodType: '今天',
       period: [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)],
@@ -136,7 +136,6 @@ export default class extends Vue {
     }
 
     @Watch('device', {
-      immediate: true,
       deep: true
     })
     private deviceIdUpdate() {
@@ -196,10 +195,11 @@ export default class extends Vue {
     }
 
     private handleChange() {
-      if (!this.device) {
+      if (this.device.deviceId.length > 0) {
         this.debounceHandle()
+      } else {
+        this.$message.error('请先选择设备')
       }
-      this.$message.error('请先选择设备')
     }
     // private handleExpand() {
     //   let expandDom: any = this.$refs.faceoptions

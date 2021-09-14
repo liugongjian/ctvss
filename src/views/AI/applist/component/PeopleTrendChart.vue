@@ -32,15 +32,10 @@ export default class extends Mixins(DashboardMixin) {
 
   @Watch('param', { deep: true })
   private paramUpdated() {
-    if (!this.device) {
-      this.debounceHandle()
-    }
+    this.debounceHandle()
   }
 
-  @Watch('device', {
-    immediate: true,
-    deep: true
-  })
+  @Watch('device', { deep: true })
   private deviceIdUpdate() {
     this.debounceHandle()
   }
