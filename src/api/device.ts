@@ -80,9 +80,9 @@ export const getDeviceTree = (params: any): Promise<any> => {
     url: '/device/tree',
     method: 'get',
     params: {
-      ...params,
-      sortBy: 'OrderSequence',
-      sortDirection: 'asc'
+      ...params
+      // sortBy: 'OrderSequence',
+      // sortDirection: 'asc'
     },
     headers: headers
   })

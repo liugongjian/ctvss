@@ -198,7 +198,6 @@ export default class extends Vue {
   }
   private async submitValidAppInfo() {
     this.generateEffectiveTime()
-    console.log(this.form)
     let param = {
       ...this.form,
       effectiveTime: this.effectiveTime,
