@@ -18,7 +18,7 @@
             <el-input v-model="searchInput" class="filter-container__search-group" placeholder="请输入应用名称 / 描述" clearable @keyup.enter.native="handleSearch" @clear="handleSearch">
               <el-button slot="append" class="el-button-rect" @click="handleSearch"><svg-icon name="search" /></el-button>
             </el-input>
-            <el-button class="el-button-rect" @click="getAppList"><svg-icon name="refresh" /></el-button>
+            <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
           </div>
         </div>
         <el-row>
@@ -79,14 +79,15 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Mixins } from 'vue-property-decorator'
 import { getAppList, getAbilityList, startOrStopApps, deleteApps } from '@/api/ai-app'
 import { ResourceAiType } from '@/dics'
+import AppMixin from '../mixin/app-mixin'
 
 @Component({
   name: 'AppList'
 })
-export default class extends Vue {
+export default class extends Mixins(AppMixin) {
   private pager = {
     pageNum: 1,
     pageSize: 10,
@@ -135,7 +136,7 @@ export default class extends Vue {
   /**
    * 查询应用列表
    */
-  private async getAppList() {
+  public async getAppList() {
     try {
       this.loading.appList = true
       const { aiApps, pageNum, pageSize, totalNum } = await getAppList({ name: this.searchInput, pageNum: this.pager.pageNum, pageSize: this.pager.pageSize, abilityId: this.activeTabName })
@@ -153,46 +154,6 @@ export default class extends Vue {
    */
   private addApp() {
     this.$router.push({ path: '/AI/create', params: { appType: 1 } })
-  }
-
-  /**
-   * 查看详情
-   */
-  private appDetail(app: any, tabNum: number) {
-    this.$router.push({
-      name: `AI-AppDetail`,
-      query: {
-        appid: app.id,
-        tabNum
-      }
-    })
-  }
-
-  /**
-   * 编辑
-   */
-  private editApp(app) {
-    this.$router.push({
-      name: `AI-EditApp`,
-      query: {
-        id: app.id
-      }
-    })
-  }
-
-  /**
-   * 删除应用
-   */
-  public deleteApp(app) {
-    this.$alertDelete({
-      type: '应用',
-      msg: `删除操作不能恢复，确认删除AI应用"${app.name}"吗？`,
-      method: deleteApps,
-      payload: { id: [app.id] },
-      onSuccess: () => {
-        this.getAppList()
-      }
-    })
   }
 
   /**
@@ -264,23 +225,6 @@ export default class extends Vue {
   }
 
   /**
-   * 启动/停用设备
-   */
-  public async startOrStopApp(app, startOrStop) {
-    try {
-      const params: any = {
-        id: [app.id],
-        startOrStop
-      }
-      await startOrStopApps(params)
-      const method = startOrStop ? '启用' : '停用'
-      this.$message.success(`已通知${method}AI应用`)
-    } catch (e) {
-      this.$message.error(e && e.message)
-    }
-  }
-
-  /**
    * 表格行多选回调
    */
   private handleSelectionChange(val: any) {
@@ -315,6 +259,20 @@ export default class extends Vue {
    */
   private handleSearch() {
     this.pager.pageNum = 1
+    this.getAppList()
+  }
+
+  /**
+   * 刷新列表
+   */
+  public refresh() {
+    this.getAppList()
+  }
+
+  /**
+   * 删除应用回调
+   */
+  public onDeleteApp() {
     this.getAppList()
   }
 

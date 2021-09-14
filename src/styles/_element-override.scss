@@ -73,6 +73,13 @@
   margin-top: 20px;
 }
 
+.el-tabs {
+  .el-tabs__item {
+    height: 45px;
+    line-height: 45px;
+  }
+}
+
 .el-form-item {
   margin-bottom: 25px;
 }
@@ -162,6 +169,10 @@
   &__item {
     text-align: center;
   }
+}
+
+.el-tabs__nav-wrap::after {
+  background-color: $borderGrey2;
 }
 
 .ie .el-dialog.is-fullscreen {

@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <el-card>
     <el-form ref="appForm" :model="form" :rules="rules" label-width="160px">
       <el-form-item label="算法类型" prop="algoName">
         <el-input v-model="form.algoName" :disabled="true" />
@@ -100,11 +100,11 @@
       </el-form-item>
       <el-form-item>
         <el-button v-if="!this.$route.query.id" @click="changeStep({step: 0})">上一步</el-button>
-        <el-button type="primary" @click="onSubmit">立即{{ this.$route.query.id ? '更新' : '创建' }}</el-button>
+        <el-button type="primary" @click="onSubmit">确定</el-button>
         <el-button @click="cancel">取消</el-button>
       </el-form-item>
     </el-form>
-  </div>
+  </el-card>
 </template>
 <script lang='ts'>
 import { Component, Vue, Prop } from 'vue-property-decorator'
