@@ -1,8 +1,11 @@
 <template>
   <div>
     <div class="face-filter">
-      <span>人脸库：</span>
-      <span>{{ faceLib.name ? faceLib.name : '' }}</span>
+      <el-descriptions :column="1">
+        <el-descriptions-item label="人脸库">
+          {{ faceLib.name ? faceLib.name : '' }}
+        </el-descriptions-item>
+      </el-descriptions>
       <div style="margin-top: 20px">
         <el-checkbox-group v-model="queryParam.faceSelected" size="mdedium" @change="handleChange">
           <el-checkbox v-for="item in faceInfos" :key="item.faceSampleId" :label="item.faceSampleId" border>
@@ -19,7 +22,7 @@
 
     <div class="query-wrapper">
       <span>截图时间：
-        <el-radio-group v-model="queryParam.periodType" size="medium" @change="handleChange(1)">
+        <el-radio-group v-model="queryParam.periodType" size="medium" @change="handleChange">
           <el-radio-button label="今天" />
           <el-radio-button label="近3天" />
           <el-radio-button label="自定义时间" />
@@ -55,6 +58,7 @@
         :param="queryParam"
         :face-lib="faceLib"
         :device="device"
+        :app-info="appInfo"
       />
     </div>
 
@@ -136,11 +140,13 @@ export default class extends Vue {
       }
     }
 
-    @Watch('device', {
-      deep: true
-    })
+    @Watch('device', { deep: true })
     private deviceIdUpdate() {
       this.debounceHandle()
+    }
+    @Watch('appInfo', { deep: true })
+    private appInfoUpdate() {
+      this.device.deviceId.length > 0 && this.debounceHandle()
     }
 
     private async mounted() {
@@ -170,7 +176,7 @@ export default class extends Vue {
         confidenceMax,
         faceDb: this.faceLib.id,
         faceIdList: this.queryParam.faceSelected,
-        appId: this.$route.query.appid,
+        appId: this.appInfo.id,
         deviceId: this.device.deviceId,
         inProtocol: this.device.inProtocol,
         pageNum: this.pager.pageNum,
@@ -193,15 +199,11 @@ export default class extends Vue {
       }
     }
 
-    private handleChange(type: Number = 0) {
-      if (!type) {
-        if (this.device.deviceId.length > 0) {
-          this.debounceHandle()
-        } else {
-          this.$message.error('请先选择设备')
-        }
-      } else {
+    private handleChange() {
+      if (this.device.deviceId.length > 0) {
         (this.queryParam.periodType !== '自定义时间' || this.queryParam.period.length !== 0) && this.debounceHandle()
+      } else {
+        this.$message.error('请先选择设备')
       }
     }
     // private handleExpand() {
@@ -245,109 +247,111 @@ export default class extends Vue {
 
 .face-filter{
   margin-bottom: 20px;
-    .el-checkbox-group{
-      padding-left: 55px;
-      .el-checkbox{
-        line-height: 63px;
-        height: 84px;
-        width: 200px;
-        position: relative;
-        padding:0;
-        margin: 0 58px 20px 0;
-        ::v-deep .el-checkbox__input{
-          position: absolute;
-          right: 20px;
-          top: 50%;
-          transform: translateY(-41%);
-        }
-        ::v-deep .el-checkbox__label{
-          position: absolute;
-          padding: 0;
-          width: 160px;
-          height: 100%;
-          vertical-align: middle;
-          .checkbox-content{
-            display: flex;
-            flex-direction: row;
-            justify-content:space-between;
-            align-items: center;
-            img {
-              width: 50%;
-              height: 100%;
-            }
-            div {
-              width: 50%;
-              text-align: center;
-            }
+  ::v-deep .el-descriptions-item__label {
+    min-width: 48px !important;
+  }
+  .el-checkbox-group{
+    padding-left: 55px;
+    .el-checkbox{
+      line-height: 63px;
+      height: 84px;
+      width: 200px;
+      position: relative;
+      padding:0;
+      margin: 0 58px 20px 0;
+      ::v-deep .el-checkbox__input{
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-41%);
+      }
+      ::v-deep .el-checkbox__label{
+        position: absolute;
+        padding: 0;
+        width: 160px;
+        height: 100%;
+        vertical-align: middle;
+        .checkbox-content{
+          display: flex;
+          flex-direction: row;
+          justify-content:space-between;
+          align-items: center;
+          img {
+            width: 50%;
+            height: 100%;
+          }
+          div {
+            width: 50%;
+            text-align: center;
           }
         }
       }
     }
-    .checkbox-content{
-      width: 100%;
-      height: 100%;
-    }
-    .face-options{
-        width: 88%;
-        height: 86px;
-        margin-left: 56px;
-        overflow: hidden;
-        transition: height .2s;
-        &::-webkit-scrollbar {
-            /*滚动条整体样式*/
-            width : 1px;  /*高宽分别对应横竖滚动条的尺寸*/
-            height: 1px;
-        }
-        &::-webkit-scrollbar-thumb {
-            /*滚动条里面小方块*/
-            border-radius   : 10px;
-            background-color: #fff;
-        }
-        &::-webkit-scrollbar-track {
-        /*滚动条里面轨道*/
-            background   : #fff;
-            border-radius: 10px;
-        }
-        .selected{
-            border: rgba(250,131,52) solid 2px !important;
-        }
-        .option{
-            cursor: pointer;
-            display: inline-block;
-            width: 15%;
-            min-width: 167px;
-            max-width: 222px;
-            height: 54px;
-            border: rgb(192,196,204) solid .5px;
-            border-radius: 5px;
-            margin:20px 20px 0 0;
-            overflow: hidden;
-            padding:0;
-            .el-image{
-                display: inline-block;
-                height: 100%;
-                width: 40%;
-                min-width: 65px;
-                max-width: 70px;
-            }
-            .option-info{
-                float: right;
-                display: flex;
-                line-height: 54px;
-                width: 60%;
-                justify-content: space-around;
-                align-items: center;
-            }
-        }
-    }
-    .link-wrapper{
-        margin-top: 10px;
-        text-align: center;
-    }
+  }
+  .checkbox-content{
+    width: 100%;
+    height: 100%;
+  }
+  .face-options{
+      width: 88%;
+      height: 86px;
+      margin-left: 56px;
+      overflow: hidden;
+      transition: height .2s;
+      &::-webkit-scrollbar {
+          /*滚动条整体样式*/
+          width : 1px;  /*高宽分别对应横竖滚动条的尺寸*/
+          height: 1px;
+      }
+      &::-webkit-scrollbar-thumb {
+          /*滚动条里面小方块*/
+          border-radius   : 10px;
+          background-color: #fff;
+      }
+      &::-webkit-scrollbar-track {
+      /*滚动条里面轨道*/
+          background   : #fff;
+          border-radius: 10px;
+      }
+      .selected{
+          border: rgba(250,131,52) solid 2px !important;
+      }
+      .option{
+          cursor: pointer;
+          display: inline-block;
+          width: 15%;
+          min-width: 167px;
+          max-width: 222px;
+          height: 54px;
+          border: rgb(192,196,204) solid .5px;
+          border-radius: 5px;
+          margin:20px 20px 0 0;
+          overflow: hidden;
+          padding:0;
+          .el-image{
+              display: inline-block;
+              height: 100%;
+              width: 40%;
+              min-width: 65px;
+              max-width: 70px;
+          }
+          .option-info{
+              float: right;
+              display: flex;
+              line-height: 54px;
+              width: 60%;
+              justify-content: space-around;
+              align-items: center;
+          }
+      }
+  }
+  .link-wrapper{
+      margin-top: 10px;
+      text-align: center;
+  }
 }
 .query-wrapper{
     margin-bottom: 20px;
-    padding-left: 10px;
     &>span{
         margin-right: 20px;
     }
@@ -359,7 +363,7 @@ export default class extends Vue {
       display: inline-block;
       line-height: 100%;
       vertical-align: middle;
-      width:200px;
+      width:11vw;
       margin-right: 20px;
     }
 }
