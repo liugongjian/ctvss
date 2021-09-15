@@ -64,6 +64,7 @@ export default class extends Vue {
     .prod__desc {
       line-height: 150%;
       color: $textGrey;
+      min-height: 50px;
     }
     .prod__buttons {
       margin-top: 15px;
