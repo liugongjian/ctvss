@@ -32,7 +32,9 @@ export default class extends Mixins(DashboardMixin) {
 
   @Watch('param', { deep: true })
   private paramUpdated() {
-    this.debounceHandle()
+    if (this.device.deviceId.length > 0) {
+      (this.param.periodType !== '自定义时间' || this.param.period.length !== 0) && this.debounceHandle()
+    }
   }
 
   @Watch('device', { deep: true })

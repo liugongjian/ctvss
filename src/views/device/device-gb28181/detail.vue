@@ -190,6 +190,9 @@
         <el-tab-pane v-if="info.deviceType === 'ipc' && checkPermission(['ReplayRecord'])" label="录像回放" name="replay">
           <detail-replay v-if="activeName==='replay'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
+        <el-tab-pane label="AI分析" name="ai">
+          <detail-ai v-if="activeName==='ai'" :device-id="deviceId" :in-protocol="inProtocol" />
+        </el-tab-pane>
       </el-tabs>
       <canvas-draw v-if="canvasDialog" :device-id="deviceId" :in-protocol="inProtocol" :canvas-if="canvasDialog" />
     </div>
@@ -202,9 +205,13 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import detailMixin from '../mixin/detailMixin'
 import { provinceMapping, cityMapping } from '@/assets/region/cities'
+import DetailAi from '../components/DetailAi.vue'
 
 @Component({
-  name: 'DeviceGb28181Detail'
+  name: 'DeviceGb28181Detail',
+  components: {
+    DetailAi
+  }
 })
 export default class extends Mixins(detailMixin) {
   public async mounted() {

@@ -3,7 +3,7 @@
     <el-page-header :content="breadCrumbContent" @back="back" />
     <el-tabs :value="this.$route.query.tabNum ? 'result' : 'basic'" type="border-card" @tab-click="handleTabClick">
       <el-tab-pane label="基本信息" name="basic">
-        <BasicAppInfo v-if="appInfo.name" :app-info="appInfo" />
+        <BasicAppInfo v-if="appInfo.name" :app-info="appInfo" :face-lib="faceLib" />
       </el-tab-pane>
       <el-tab-pane label="分析结果" name="result">
         <div class="left">
@@ -26,7 +26,7 @@
           </el-tree>
         </div>
         <div class="right">
-          <AppSubDetail v-if="appInfo.name" :device="device" :app-info="appInfo" />
+          <AppSubDetail v-if="appInfo.name" :device="device" :app-info="appInfo" :face-lib="faceLib" />
         </div>
       </el-tab-pane>
     </el-tabs>
@@ -39,6 +39,7 @@ import AppSubDetail from './component/AppSubDetail.vue'
 import { getAppInfo } from '@/api/ai-app'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
+import { getAIConfigGroupData } from '@/api/aiConfig'
 
 @Component({
   name: 'AppDetail',
@@ -63,10 +64,21 @@ export default class extends Vue {
       deviceId: '',
       inProtocol: ''
     }
+    private faceLib: any = {}
 
     private async mounted() {
       this.appInfo = await getAppInfo({ id: this.$route.query.appid })
       this.initDirs()
+      const { groups }: any = await getAIConfigGroupData({})
+      this.initFaceLib(groups)
+      console.log(this.appInfo)
+    }
+
+    private initFaceLib(groups) {
+      const algorithmMetadata = JSON.parse(this.appInfo.algorithmMetadata)
+      if (algorithmMetadata.FaceDbName) {
+        this.faceLib = groups.filter(item => item.id === algorithmMetadata.FaceDbName)[0]
+      }
     }
 
     /**

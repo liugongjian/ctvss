@@ -38,7 +38,6 @@
 import { Component, Prop, Mixins } from 'vue-property-decorator'
 import AppMixin from '../../mixin/app-mixin'
 import StatusBadge from '@/components/StatusBadge/index.vue'
-import { getAIConfigGroupData } from '@/api/aiConfig'
 import { ResourceAiType } from '@/dics'
 
 @Component({
@@ -49,15 +48,10 @@ import { ResourceAiType } from '@/dics'
 })
 export default class extends Mixins(AppMixin) {
   @Prop() private appInfo!: any
+  @Prop() private faceLib: any
   private resourceAiType: any = ResourceAiType
-  private faceLib: any = {}
 
   private async mounted() {
-    const { groups }: any = await getAIConfigGroupData({})
-    const algorithmMetadata = JSON.parse(this.appInfo.algorithmMetadata)
-    if (algorithmMetadata.FaceDbName) {
-      this.faceLib = groups.filter(item => item.id === algorithmMetadata.FaceDbName)[0]
-    }
   }
   /**
    * 刷新数据

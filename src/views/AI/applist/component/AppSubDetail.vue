@@ -19,7 +19,7 @@
 
     <div class="query-wrapper">
       <span>截图时间：
-        <el-radio-group v-model="queryParam.periodType" size="medium" @change="handleChange">
+        <el-radio-group v-model="queryParam.periodType" size="medium" @change="handleChange(1)">
           <el-radio-button label="今天" />
           <el-radio-button label="近3天" />
           <el-radio-button label="自定义时间" />
@@ -51,13 +51,11 @@
         <span>人员聚集趋势</span>
       </div>
       <PeopleTrendChart
-        v-if="device.deviceId.length > 0"
         :height="34"
         :param="queryParam"
         :face-lib="faceLib"
         :device="device"
       />
-      <div v-else class="no-data">请选择设备</div>
     </div>
 
     <div class="pic-wrapper">
@@ -89,7 +87,7 @@ import { Component, Vue, Watch, Prop } from 'vue-property-decorator'
 import PicCard from './PicCard.vue'
 import PeopleTrendChart from './PeopleTrendChart.vue'
 import { getAppScreenShot } from '@/api/ai-app'
-import { getGroupPersonAlready, getAIConfigGroupData } from '@/api/aiConfig'
+import { getGroupPersonAlready } from '@/api/aiConfig'
 import { decodeBase64 } from '@/utils/base64'
 import debounce from '@/utils/debounce'
 
@@ -103,6 +101,7 @@ import debounce from '@/utils/debounce'
 export default class extends Vue {
     @Prop() private device!: any
     @Prop() private appInfo!: any
+    @Prop() private faceLib!: any
     private decodeBase64: Function = decodeBase64
     private pager = {
       pageNum: 1,
@@ -110,7 +109,6 @@ export default class extends Vue {
       totalNum: 0
     }
     private breadCrumbContent: String = '应用详情'
-    private faceLib: any = {}
     private queryParam: any = {
       periodType: '今天',
       period: [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)],
@@ -132,6 +130,9 @@ export default class extends Vue {
         case '近3天':
           this.$set(this.queryParam, 'period', [this.getDateBefore(3), new Date().setHours(23, 59, 59, 999)])
           break
+        case '自定义时间':
+          this.$set(this.queryParam, 'period', [])
+          break
       }
     }
 
@@ -143,8 +144,7 @@ export default class extends Vue {
     }
 
     private async mounted() {
-      const { groups }: any = await getAIConfigGroupData({})
-      this.initFaceInfos(groups)
+      this.initFaceInfos()
     }
 
     /**
@@ -183,10 +183,9 @@ export default class extends Vue {
     /**
      * 初始化人脸选项图片
      */
-    private async initFaceInfos(groups) {
+    private async initFaceInfos() {
       const algorithmMetadata = JSON.parse(this.appInfo.algorithmMetadata)
       if (algorithmMetadata.FaceDbName) {
-        this.faceLib = groups.filter(item => item.id === algorithmMetadata.FaceDbName)[0]
         const { faces }: any = await getGroupPersonAlready({ id: algorithmMetadata.FaceDbName })
         this.faceInfos = faces.map(face => {
           return { ...face, labels: JSON.parse(face.labels) }
@@ -194,11 +193,15 @@ export default class extends Vue {
       }
     }
 
-    private handleChange() {
-      if (this.device.deviceId.length > 0) {
-        this.debounceHandle()
+    private handleChange(type: Number = 0) {
+      if (!type) {
+        if (this.device.deviceId.length > 0) {
+          this.debounceHandle()
+        } else {
+          this.$message.error('请先选择设备')
+        }
       } else {
-        this.$message.error('请先选择设备')
+        (this.queryParam.periodType !== '自定义时间' || this.queryParam.period.length !== 0) && this.debounceHandle()
       }
     }
     // private handleExpand() {
