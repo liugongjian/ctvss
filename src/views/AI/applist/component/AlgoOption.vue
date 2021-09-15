@@ -136,10 +136,6 @@ export default class extends Vue {
     display: grid;
     grid-gap: 1rem;
     grid-template-columns: repeat(auto-fit, minmax(30%, 1fr));
-
-    ::v-deep .el-card {
-      display: grid;
-    }
   }
 }
 </style>
