@@ -24,7 +24,7 @@
           <el-radio-button label="list"><svg-icon name="list" width="16px" height="16px" /></el-radio-button>
         </el-tooltip>
       </el-radio-group>
-      <el-tooltip v-if="replayType === 'cloud' && checkPermission(['AdminRecord'])" content="录像文件下载" placement="top">
+      <el-tooltip v-if="replayType === 'cloud' && !isVGroup && checkPermission(['AdminRecord'])" content="录像文件下载" placement="top">
         <el-button class="filter-container__slice" size="small" @click="sliceDownload"><svg-icon name="download" width="16px" height="16px" /></el-button>
       </el-tooltip>
     </div>
@@ -204,6 +204,11 @@ export default class extends Vue {
   @Watch('replayType')
   private onReplayTypeChange() {
     this.viewType = 'timeline'
+  }
+
+  @Watch('recordListSlice.length')
+  private onRecordListSliceChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
   }
 
   /**

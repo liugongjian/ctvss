@@ -35,6 +35,20 @@
               <el-tooltip
                 class="item"
                 effect="dark"
+                content="一键播放根目录"
+                placement="top"
+                :open-delay="300"
+              >
+                <el-button
+                  type="text"
+                  @click="videosOnAutoPlay(null, false)"
+                >
+                  <svg-icon name="auto-play" />
+                </el-button>
+              </el-tooltip>
+              <el-tooltip
+                class="item"
+                effect="dark"
                 content="刷新目录"
                 placement="top"
                 :open-delay="300"
@@ -73,7 +87,9 @@
                       <svg-icon name="dir-close" width="15" height="15" />
                     </span>
                     <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
-                    {{ node.label }} <span class="alert-type">{{ renderAlertType(data) }}</span>
+                    {{ node.label }}
+                    <span class="sum-icon">{{ getSums(data) }}</span>
+                    <span class="alert-type">{{ renderAlertType(data) }}</span>
                     <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
                   </span>
                   <div class="tools" @click.stop.prevent>
@@ -89,21 +105,11 @@
                     <el-tooltip
                       class="item"
                       effect="dark"
-                      content="轮巡当前目录"
+                      content="更多操作"
                       placement="top"
                       :open-delay="300"
                     >
-                      <i
-                        v-if="data.type === 'nvr' || data.type === 'dir'"
-                        class="polling"
-                        @click="videosOnPolling(node, true)"
-                      >
-                        <svg-icon
-                          name="polling-play"
-                          width="16px"
-                          height="16px"
-                        />
-                      </i>
+                      <OperateSelector v-if="data.type === 'nvr' || data.type === 'dir'" @onSetOperateValue="setOperateValue($event, node)" />
                     </el-tooltip>
                   </div>
                 </span>
@@ -288,8 +294,9 @@ import ReplayView from './components/ReplayView.vue'
 import DeviceDir from './components/dialogs/DeviceDir.vue'
 import PtzControl from './components/ptzControl.vue'
 import StreamSelector from './components/StreamSelector.vue'
+import OperateSelector from './components/OperateSelector.vue'
 import { getDeviceTree } from '@/api/device'
-import { renderAlertType } from '@/utils/device'
+import { renderAlertType, getSums } from '@/utils/device'
 import { VGroupModule } from '@/store/modules/vgroup'
 
 @Component({
@@ -301,11 +308,13 @@ import { VGroupModule } from '@/store/modules/vgroup'
     StatusBadge,
     PtzControl,
     StreamSelector,
+    OperateSelector,
     PlayerContainer
   }
 })
 export default class extends Mixins(ScreenMixin) {
   private renderAlertType = renderAlertType
+  private getSums = getSums
   public maxSize = 4;
   private selectedDeviceId = '';
   private currentPollingIndex = 0;
@@ -322,6 +331,7 @@ export default class extends Mixins(ScreenMixin) {
     data: {}
   };
   private pollingDevices: Record<string, any>[] = [];
+  private autoPlayDevices: Record<string, any>[] = [];
   private pollingInterval = [
     {
       value: 5,
@@ -421,7 +431,6 @@ export default class extends Mixins(ScreenMixin) {
       })
       return
     }
-
     // 设置虚拟业务组相关信息
     VGroupModule.SetRoleID(item.roleId || '')
     VGroupModule.SetRealGroupId(item.realGroupId || '')
@@ -471,16 +480,34 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   /**
+   * 更多操作
+   */
+  private setOperateValue(value: string, node: any) {
+    switch (value) {
+      case 'polling':
+        this.videosOnPolling(node, true)
+        break
+      case 'autoPlay':
+        this.videosOnAutoPlay(node, true)
+        break
+    }
+  }
+
+  /**
    * 需要轮巡的视频
    */
   private async videosOnPolling(node: any, isDir: boolean) {
     this.pollingDevices = []
     if (node) {
       this.currentNode = node
+      // 设置虚拟业务组相关信息
+      VGroupModule.SetRoleID(this.currentNode!.data.roleId || '')
+      VGroupModule.SetRealGroupId(this.currentNode!.data.realGroupId || '')
+      VGroupModule.SetRealGroupInProtocol(this.currentNode!.data.realGroupInProtocol || '')
     }
     if (!isDir) {
       this.dirList.forEach((item: any) => {
-        if (item.type === 'ipc' && item.streamStatus === 'on') {
+        if (item.type === 'ipc' && item.deviceStatus === 'on') {
           this.pollingDevices.push(item)
         }
       })
@@ -492,7 +519,7 @@ export default class extends Mixins(ScreenMixin) {
       })
       const dirs = this.setDirsStreamStatus(data.dirs)
       dirs.forEach((item: any) => {
-        if (item.type === 'ipc' && item.streamStatus === 'on') {
+        if (item.type === 'ipc' && item.deviceStatus === 'on') {
           this.pollingDevices.push(item)
         }
       })
@@ -519,6 +546,56 @@ export default class extends Mixins(ScreenMixin) {
         this.pollingVideos,
         this.polling.interval * 1000
       )
+    }
+  }
+
+  /**
+   * 一键播放
+   */
+  private async videosOnAutoPlay(node: any, isDir: boolean) {
+    this.autoPlayDevices = []
+    if (node) {
+      this.currentNode = node
+      // 设置虚拟业务组相关信息
+      VGroupModule.SetRoleID(this.currentNode!.data.roleId || '')
+      VGroupModule.SetRealGroupId(this.currentNode!.data.realGroupId || '')
+      VGroupModule.SetRealGroupInProtocol(this.currentNode!.data.realGroupInProtocol || '')
+    }
+    if (!isDir) {
+      this.dirList.forEach((item: any) => {
+        if (item.type === 'ipc' && item.deviceStatus === 'on') {
+          this.autoPlayDevices.push(item)
+        }
+      })
+    } else {
+      let data = await getDeviceTree({
+        groupId: this.currentGroupId,
+        id: node!.data.id,
+        type: node!.data.type
+      })
+      const dirs = this.setDirsStreamStatus(data.dirs)
+      dirs.forEach((item: any) => {
+        if (item.type === 'ipc' && item.deviceStatus === 'on') {
+          this.autoPlayDevices.push(item)
+        }
+      })
+    }
+    if (!this.autoPlayDevices.length) {
+      this.$alert(`当前设备数需大于0才可开始自动播放`, '提示', {
+        confirmButtonText: '确定'
+      })
+    }
+    for (let i = 0; i < this.maxSize; i++) {
+      this.screenList[i].reset()
+      if (!this.autoPlayDevices[i]) {
+        continue
+      } else {
+        this.screenList[i].deviceId = this.autoPlayDevices[i].id
+        this.screenList[i].type = this.autoPlayDevices[i].type
+        this.screenList[i].deviceName = this.autoPlayDevices[i].label
+        this.screenList[i].inProtocol = this.currentGroupInProtocol!
+      }
+      this.screenList[i].getUrl()
     }
   }
 
@@ -652,6 +729,7 @@ export default class extends Mixins(ScreenMixin) {
       display: block;
       background: #fff;
       right: -10px;
+      line-height: 26px;
       padding-right: 10px;
       i {
         display: block;

@@ -2,7 +2,7 @@
 <template>
   <el-card>
     <div class="pic-wrapper">
-      <el-image :src="pic.url" />
+      <el-image :src="decodeBase64(pic.image)" />
     </div>
     <div class="content-wrapper">
       <div class="info-left">
@@ -12,14 +12,15 @@
       </div>
       <div class="info-right">
         <div>{{ pic.time }}</div>
-        <div>{{ pic.device }}</div>
-        <div>{{ pic.rate }}</div>
+        <div>{{ pic.deviceName }}</div>
+        <div>{{ pic.confidence }}</div>
       </div>
     </div>
   </el-card>
 </template>
 <script lang='ts'>
 import { Component, Vue, Prop } from 'vue-property-decorator'
+import { decodeBase64 } from '@/utils/base64'
 
 @Component({
   name: 'PicCard',
@@ -28,6 +29,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 })
 export default class extends Vue {
   @Prop() private pic!: any
+  private decodeBase64: Function = decodeBase64
 }
 </script>
 <style lang='scss' scoped>

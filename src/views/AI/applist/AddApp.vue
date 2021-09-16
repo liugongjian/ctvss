@@ -1,23 +1,18 @@
 <template>
   <div class="app-container">
-    <el-card v-loading="isLoading">
-      <div v-if="!this.$route.query.id" class="head">
-        <el-row>
-          <el-col :span="8">
-            <el-steps :active="step+1" simple>
-              <el-step title="选择AI算法"><span slot="icon">1</span></el-step>
-              <el-step title="创建AI应用"><span slot="icon">2</span></el-step>
-            </el-steps>
-          </el-col>
-        </el-row>
-      </div>
-      <div v-if="!step && !this.$route.query.id">
-        <AlgoOption :step.sync="step" :prod.sync="prod" />
-      </div>
-      <div v-if="step || this.$route.query.id">
-        <AlgoDetail :step.sync="step" :prod="prod" />
-      </div>
-    </el-card>
+    <el-page-header content="创建AI应用" @back="back" />
+    <div v-if="!this.$route.query.id" class="process">
+      <el-steps :active="step" simple>
+        <el-step title="选择AI算法"><span slot="icon">1</span></el-step>
+        <el-step title="创建AI应用"><span slot="icon">2</span></el-step>
+      </el-steps>
+    </div>
+    <div v-if="!step && !this.$route.query.id">
+      <AlgoOption :step.sync="step" :prod.sync="prod" />
+    </div>
+    <div v-if="step || this.$route.query.id">
+      <AlgoDetail :step.sync="step" :prod="prod" />
+    </div>
   </div>
 </template>
 
@@ -37,6 +32,12 @@ export default class extends Vue {
     private step: Number = 0
     private prod: any = {}// 新建时传入组件的参数
     private isLoading: boolean = false
+
+    private back() {
+      this.$router.push({
+        name: 'AI-AppList'
+      })
+    }
 }
 </script>
 <style lang="scss" scoped>
@@ -46,10 +47,12 @@ export default class extends Vue {
   top:0;
   right: 0;
 }
-.el-row{
+
+.el-row {
   position: relative;
 }
-.card-container{
+
+.card-container {
   overflow: auto;
   display: flex;
   flex-direction: row;
@@ -60,14 +63,54 @@ export default class extends Vue {
   min-width: 1200px;
   min-height: 400px;
 }
-.head{
+
+.process {
   margin-bottom: 20px;
-  .el-col-8 {
-    max-width: 455px;
-    min-width: 350px;
-  }
-  .el-steps {
-    background: #fff !important;
+  padding: 20px 0 5px 0;
+  border-top: 1px solid $borderGrey2;
+
+  .el-steps--simple {
+    width: 400px;
+    background: none;
+    padding: 0;
+    ::v-deep {
+      .el-step.is-simple .el-step__head {
+        padding-right: 15px;
+      }
+      .el-step.is-simple .el-step__arrow::before, .el-step.is-simple .el-step__arrow::after {
+        background: $textGrey;
+        width: 2px;
+      }
+      .el-step__title {
+        font-weight: bold;
+      }
+      .el-step__icon {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
+        font-weight: bold;
+      }
+      .is-process {
+        .el-step__icon {
+          background: $primary;
+          color: #fff;
+          border-color: $primary;
+        }
+      }
+      .is-wait, .is-finish {
+        color: $textGrey;
+        .el-step__icon {
+          border-color: $textGrey;
+        }
+      }
+      .is-finish {
+        .el-step__icon {
+          background: #bbb;
+          color: #fff;
+          border-color: #bbb;
+        }
+      }
+    }
   }
 }
 </style>

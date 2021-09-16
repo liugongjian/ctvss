@@ -1,23 +1,25 @@
 <template>
-  <div>
-    <el-row>
-      <el-tabs v-model="activeName" @tab-click="handleTabType">
-        <el-tab-pane v-for="tab in tabInfo" :key="tab.id" :label="tab.name" :name="tab.id">
-          <div class="card-container">
-            <ProdCard v-for="prod in prodInfo" :key="prod.id" :prod="prod" @changeStep="changeStep" />
-          </div>
-          <el-button @click="cancel">取消</el-button>
-        </el-tab-pane>
-      </el-tabs>
-      <el-input
-        v-model="searchApp"
-        placeholder="请输入应用名称 / 描述"
-        class="input-with-select"
-        @keyup.enter.native="handleSearch"
-      >
-        <el-button slot="append" icon="el-icon-search" @click="handleSearch" />
-      </el-input>
-    </el-row>
+  <div class="algo">
+    <el-tabs v-model="activeName" type="border-card" @tab-click="handleTabType">
+      <el-tab-pane v-for="tab in abilityList" :key="tab.id" :label="tab.name" :name="tab.id">
+        <div v-loading="loading.algoList" class="algo__container">
+          <ProdCard v-for="prod in algoList" :key="prod.id" :prod="prod" @changeStep="changeStep" />
+        </div>
+        <div class="algo__return">
+          <el-button size="large" @click="cancel">取消</el-button>
+        </div>
+      </el-tab-pane>
+    </el-tabs>
+    <el-input
+      v-model="searchApp"
+      placeholder="请输入算法名称 / 描述"
+      class="algo__search"
+      clearable
+      @keyup.enter.native="handleSearch"
+      @clear="handleSearch"
+    >
+      <el-button slot="append" class="el-button-rect" @click="handleSearch"><svg-icon name="refresh" /></el-button>
+    </el-input>
   </div>
 </template>
 <script lang='ts'>
@@ -34,60 +36,106 @@ import ProdCard from './ProdCard.vue'
 export default class extends Vue {
   @Prop({ default: 0 }) private step!: number
 
-  private test: any = {}
+  private loading = {
+    algoList: false,
+    abilityList: false
+  }
   private activeName: String = '0'
   private searchApp: String = ''
-  private tabInfo: any = []
-  private prodInfo: any = []
+  private abilityList: any = []
+  private algoList: any = []
 
   private async mounted() {
-    const { aiAbilityList } = await getAbilityList()
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    this.tabInfo = [ { id: '0', name: '全部' }, ...aiAbilityList ]
-    const { aiAbilityAlgorithms } = await getAlgorithmList({ abilityName: this.searchApp, abilityId: this.activeName })
-    this.prodInfo = aiAbilityAlgorithms
+    await this.getAbilityList()
+    this.getAlgorithmList()
   }
 
+  /**
+   * 获取能力分类
+   */
+  private async getAbilityList() {
+    try {
+      this.loading.abilityList = true
+      const { aiAbilityList } = await getAbilityList()
+      this.abilityList = [ { id: '0', name: '全部' }, ...aiAbilityList ]
+    } catch (e) {
+      this.$alertError(e && e.message)
+    } finally {
+      this.loading.abilityList = false
+    }
+  }
+
+  /**
+   * 获取算法列表
+   */
+  private async getAlgorithmList() {
+    try {
+      this.loading.algoList = true
+      const { aiAbilityAlgorithms } = await getAlgorithmList({ abilityName: this.searchApp, abilityId: this.activeName })
+      this.algoList = aiAbilityAlgorithms
+    } catch (e) {
+      this.$alertError(e && e.message)
+    } finally {
+      this.loading.algoList = false
+    }
+  }
+
+  /**
+   * 切换步骤
+   */
   private changeStep(val: any) {
     this.$emit('update:step', val.step)
     val.prod && this.$emit('update:prod', val.prod)
   }
-  private cancel() {
-    this.$router.push({ name: 'AI-AppList' })
-  }
+
+  /**
+   * 切换能力类型
+   */
   private async handleTabType() {
     this.searchApp = ''
-    const { aiAbilityAlgorithms } = await getAlgorithmList({ abilityName: this.searchApp, abilityId: this.activeName })
-    this.prodInfo = aiAbilityAlgorithms
+    this.getAlgorithmList()
   }
+
+  /**
+   * TODO: 搜索算法
+   */
   private async handleSearch() {
-    const { aiAbilityAlgorithms } = await getAlgorithmList({ abilityName: this.searchApp, abilityId: this.activeName })
-    this.prodInfo = aiAbilityAlgorithms
+    this.getAlgorithmList()
+  }
+
+  /**
+   * 返回应用列表
+   */
+  private cancel() {
+    this.$router.push({ name: 'AI-AppList' })
   }
 }
 </script>
 <style lang="scss" scoped>
-.input-with-select {
+.algo {
+  position: relative;
+
+  .algo__search {
     width: 260px;
     position: absolute;
-    top:-7px;
-    right: 0;
-}
-.el-row{
-    position: relative;
-}
-.card-container{
-    overflow: auto;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content:flex-start;
-    align-content: flex-start;
-    height: 60vh;
-    min-width: 1200px;
-    min-height: 400px;
-    &+.el-button{
-      margin-top: 20px;
+    top: 4px;
+    right: 4px;
+  }
+
+  .algo__return {
+    border-top: 1px solid $borderGrey;
+    margin-top: 15px;
+    padding-top: 15px;
+
+    ::v-deep .el-button {
+      padding: 12px 40px;
     }
+  }
+
+  .algo__container {
+    display: grid;
+    grid-gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(30%, 1fr));
+  }
 }
 </style>

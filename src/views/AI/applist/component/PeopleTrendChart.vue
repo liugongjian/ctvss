@@ -1,14 +1,19 @@
 <template>
   <div>
-    <div id="device-container" :style="`height:${height}vh`" />
+    <div v-show="chartData.length > 0" id="device-container" :style="`height:${height}vh`" />
+    <div v-show="chartData.length === 0" class="no-data">暂无数据</div>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
 import { Chart } from '@antv/g2'
+import { getPeopleTrendChart } from '@/api/ai-app'
 import DashboardMixin from '@/views/dashboard/mixin/DashboardMixin'
 import DashboardContainer from '@/views/dashboard/components/DashboardContainer.vue'
+import debounce from '@/utils/debounce'
+import json from '../testdata/terrorism.json'
+import json2 from '../testdata/terrorism2.json'
 
 @Component({
   name: 'PeopleTrendChart',
@@ -16,71 +21,65 @@ import DashboardContainer from '@/views/dashboard/components/DashboardContainer.
 })
 export default class extends Mixins(DashboardMixin) {
   private isLight?: boolean
-  @Prop() private param!: Object
-  private deviceTimeRange = '近7天'
-  private loading = false
-
-  private timeList: Array<{ label: string; value: number }> = [
-    {
-      label: '近7天',
-      value: 7 * 24 * 3600 * 1000
-    },
-    {
-      label: '近30天',
-      value: 30 * 24 * 3600 * 1000
-    }
-  ]
-  private deviceData: any = []
-  private userType = 7 * 24 * 3600 * 1000
+  @Prop() private param!: any
+  @Prop() private faceLib!: any
+  @Prop() private device!: any
+  @Prop() private appInfo!: any
+  private debounceHandle = debounce(this.getData, 500)
   private chart: any = null
-  public intervalTime = 60 * 1000
 
-  private chartData: any = [
-    { time: '00:00', value: 11, type: '人员聚集' },
-    { time: '00:15', value: 12, type: '人员聚集' },
-    { time: '00:30', value: 20, type: '人员聚集' },
-    { time: '00:40', value: 40, type: '人员聚集' },
-    { time: '00:50', value: 51, type: '人员聚集' },
-    { time: '01:00', value: 61, type: '人员聚集' },
-    { time: '02:10', value: 81, type: '人员聚集' },
-    { time: '03:20', value: 19, type: '人员聚集' },
-    { time: '04:10', value: 31, type: '人员聚集' },
-    { time: '05:50', value: 61, type: '人员聚集' },
-    { time: '06:00', value: 81, type: '人员聚集' },
-    { time: '07:00', value: 91, type: '人员聚集' },
-    { time: '12:20', value: 101, type: '人员聚集' },
-    { time: '20:00', value: 102, type: '人员聚集' },
-    { time: '24:00', value: 108, type: '人员聚集' }
-  ]
+  private chartData: any = []
 
   @Watch('param', { deep: true })
-  private paramUpdated(newVal) {
-    if (newVal.periodType === '自定义时间' && !newVal.period.length) {
-      // 不请求
-      return
+  private paramUpdated() {
+    this.conditionalDebounce()
+  }
+  @Watch('appInfo', { deep: true })
+  private appInfoUpdated() {
+    this.conditionalDebounce()
+  }
+
+  @Watch('device', { deep: true })
+  private deviceIdUpdate() {
+    this.debounceHandle()
+  }
+
+  /**
+   * 限制只有device信息才能请求数据
+   */
+  private conditionalDebounce() {
+    if (this.device.deviceId.length > 0) {
+      (this.param.periodType !== '自定义时间' || this.param.period.length !== 0) && this.debounceHandle()
     }
-    // 这里更新this.chartData
-    this.getData()
   }
-  private mounted() {
-    console.log('mounted:', this.param)// 使用param查询更新图表
-    this.getData()
-  }
+
   /**
    * 获取数据
    */
   private async getData() {
     try {
-      // this.trendView = new DataSet.DataView().source(this.chartData)
-      // this.trendView.transform({
-      //   type: 'regression',
-      //   method: 'polynomial',
-      //   fields: ['time', 'value'],
-      //   bandwidth: 1,
-      //   // extent: [0, 4],
-      //   as: ['time', 'value']
-      // })
+      const [startTime, endTime] = this.param.period
+      const [confidenceMin, confidenceMax] = this.param.confidence
+      const query = {
+        appId: this.appInfo.id,
+        startTime,
+        endTime,
+        confidenceMin,
+        confidenceMax,
+        faceDb: this.faceLib.id,
+        faceIdList: this.param.faceSelected,
+        deviceId: this.device.deviceId,
+        inProtocol: this.device.inProtocol }
+      const { aiReusltDate } = await getPeopleTrendChart(query)
+      this.chartData = aiReusltDate.map(item => ({ value: item.count, time: item.Date + item.timeInterval, type: '人员聚集' }))
+      // 测试
+      if (this.chart) {
+        this.chartData = json.map(item => ({ value: item.count, time: item.Date + item.timeInterval, type: '人员聚集' }))
+      } else {
+        this.chartData = json2.map(item => ({ value: item.count, time: item.Date + item.timeInterval, type: '人员聚集' }))
+      }
       this.chart ? this.updateChart() : this.drawChart()
+      this.refreshChart()
     } catch (e) {
       // 异常处理
       console.log(e)
@@ -111,7 +110,7 @@ export default class extends Mixins(DashboardMixin) {
   /**
    * 更新图表
    */
-  private async drawChart() {
+  private drawChart() {
     this.chart = new Chart({
       container: 'device-container',
       autoFit: true,
@@ -150,7 +149,10 @@ export default class extends Mixins(DashboardMixin) {
       label: {
         style: {
           fill: '#333',
-          fontSize: 12
+          fontSize: 8
+        },
+        formatter: (val: any) => {
+          return val.substring(10, 15) + '\n' + val.substring(0, 10)
         }
       }
     })
@@ -168,7 +170,21 @@ export default class extends Mixins(DashboardMixin) {
   private updateChart() {
     this.chart.changeData(this.chartData)
   }
+
+  private refreshChart() {
+    // resize 为了让图表触发刷新从而自适应尺寸
+    const e = document.createEvent('Event')
+    e.initEvent('resize', true, true)
+    window.dispatchEvent(e)
+  }
 }
 </script>
 <style lang="scss" scoped>
+.no-data{
+  height: 200px;
+  line-height: 200px;
+  vertical-align: middle;
+  text-align: center;
+  color: rgba(186,198,198);
+}
 </style>

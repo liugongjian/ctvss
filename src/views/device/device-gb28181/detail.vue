@@ -7,10 +7,10 @@
             <div class="detail__buttons">
               <el-button @click="goSuperior"><svg-icon name="superior" /> 返回上级</el-button>
               <el-button v-if="info.deviceType === 'nvr'" @click="goToChannels"><svg-icon name="list" /> 查看通道</el-button>
-              <el-button v-if="(!isNVR && info.parentDeviceId === '-1') && checkPermission(['*'])" @click="moveDir"><svg-icon name="move" /> 移动至</el-button>
-              <el-button v-if="checkPermission(['*'])" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
+              <el-button v-if="(!isNVR && info.parentDeviceId === '-1') && checkPermission(['AdminDevice'])" @click="moveDir"><svg-icon name="move" /> 移动至</el-button>
+              <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
               <!--自动创建的子通道不允许删除-->
-              <el-button v-if="!isAutoCreated && checkPermission(['*'])" @click="deleteDevice(info)"><svg-icon name="trash" /> 删除</el-button>
+              <el-button v-if="!isAutoCreated && checkPermission(['AdminDevice'])" @click="deleteDevice(info)"><svg-icon name="trash" /> 删除</el-button>
             </div>
             <!--状态信息-->
             <div class="detail__section">
@@ -190,6 +190,9 @@
         <el-tab-pane v-if="info.deviceType === 'ipc' && checkPermission(['ReplayRecord'])" label="录像回放" name="replay">
           <detail-replay v-if="activeName==='replay'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
+        <el-tab-pane label="AI分析" name="ai">
+          <detail-ai v-if="activeName==='ai'" :device-id="deviceId" :in-protocol="inProtocol" />
+        </el-tab-pane>
       </el-tabs>
       <canvas-draw v-if="canvasDialog" :device-id="deviceId" :in-protocol="inProtocol" :canvas-if="canvasDialog" />
     </div>
@@ -202,9 +205,13 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import detailMixin from '../mixin/detailMixin'
 import { provinceMapping, cityMapping } from '@/assets/region/cities'
+import DetailAi from '../components/DetailAi.vue'
 
 @Component({
-  name: 'DeviceGb28181Detail'
+  name: 'DeviceGb28181Detail',
+  components: {
+    DetailAi
+  }
 })
 export default class extends Mixins(detailMixin) {
   public async mounted() {

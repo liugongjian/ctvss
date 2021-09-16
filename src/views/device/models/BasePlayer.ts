@@ -26,7 +26,6 @@ export class BasePlayer {
     this.isLive = config.isLive
     this.isWs = config.isWs
     this.playbackRate = config.playbackRate || 1
-
     this.init()
     this.bindEvent()
     this.setDefault()
@@ -48,12 +47,34 @@ export class BasePlayer {
   public setDefault() {}
 
   /**
+   * 静音
+   * @param muted
+   */
+  public switchMuteStatus(isMute: boolean) {
+    this.player.muted = isMute
+  }
+
+  /**
+   * 调整音量
+   */
+  public setPlayVolume(volume: number) {
+    this.player.volume = volume / 100
+  }
+
+  /**
    * 回调-开始播放
    */
   public onPlay() {
-    this.config.onPlay && this.config.onPlay()
+    this.config.onPlay && this.config.onPlay() // 触发 player 里的方法
   }
 
+  /**
+   * 调整音量-回调
+   * 触发 player 里的方法
+   */
+  public onVolumeChange() {
+    this.config.onVolumeChange && this.config.onVolumeChange(this.player.volume, this.player.muted)
+  }
   /**
    * 回调-暂停
    */
@@ -116,6 +137,7 @@ export class BasePlayer {
    * 回调-已加载
    */
   public onCanplay() {
+    this.testHasAudio()
     this.config.onCanplay && this.config.onCanplay()
   }
 
@@ -152,7 +174,8 @@ export class BasePlayer {
   }
 
   /**
-   * 自动播放
+   * 自动播放视频和音频
+   * H265\HLS\RTC 拥有该方法， FLV 等没有
    */
   public autoPlayVideo(player: any) {
     if (this.autoPlay) {
@@ -197,5 +220,13 @@ export class BasePlayer {
         onLoad(false)
       })
     })
+  }
+
+  /**
+   * 检测是否有音频
+   */
+  public testHasAudio() {
+    const hasAudio = this.player.mozHasAudio || Boolean(this.player.webkitAudioDecodedByteCount) || Boolean(this.player.audioTracks && this.player.audioTracks.length) || this.codec === 'h265'
+    this.config.onTestHasAudio && this.config.onTestHasAudio(hasAudio)
   }
 }
