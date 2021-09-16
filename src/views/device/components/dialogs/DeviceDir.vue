@@ -18,10 +18,10 @@
         :props="treeProp"
         @node-click="selectDevice"
       >
-        <span slot-scope="{node, data}" class="custom-tree-node">
+        <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}">
           <span class="node-name">
             <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
-            <svg-icon :name="data.type" color="#6e7c89" />
+            <svg-icon :name="data.type" />
             {{ node.label }}
           </span>
         </span>
@@ -80,7 +80,10 @@ export default class extends Vue {
         groupId: this.groupId,
         id: 0
       })
-      this.dirList = res.dirs
+      this.dirList = this.setDirsStreamStatus(res.dirs)
+      this.$nextTick(() => {
+        this.initTreeStatus()
+      })
     } catch (e) {
       this.dirList = []
       console.log(e)
@@ -116,10 +119,28 @@ export default class extends Vue {
         dir.realGroupId = node.data.realGroupId || ''
         dir.realGroupInProtocol = node.data.realGroupInProtocol || ''
       })
+      res.dirs = this.setDirsStreamStatus(res.dirs)
       resolve(res.dirs)
     } catch (e) {
       resolve([])
     }
+  }
+
+  /**
+   * 设置目录树设备流状态
+   */
+  private setDirsStreamStatus(dirs: any) {
+    return dirs.map((dir: any) => {
+      if (!dir.streamStatus && dir.deviceStreams && dir.deviceStreams.length > 0) {
+        const hasOnline = dir.deviceStreams.some((stream: any) => {
+          return stream.streamStatus === 'on'
+        })
+        if (hasOnline) {
+          dir.streamStatus = 'on'
+        }
+      }
+      return dir
+    })
   }
 
   private selectDevice(dir: any) {
@@ -138,6 +159,15 @@ export default class extends Vue {
   .tree-wrap {
     height: 300px;
     overflow: auto;
+    .svg-icon {
+      margin-right: 5px;
+      color: #6e7c89;
+    }
+    .online {
+      .svg-icon {
+        color: #65c465;
+      }
+    }
     .node-name {
       position: relative;
     }
