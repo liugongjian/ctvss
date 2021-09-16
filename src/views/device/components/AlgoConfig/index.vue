@@ -263,7 +263,7 @@ export default class extends Vue {
     // this.clearPointInner(canvas, x, y);
     }
 
-    drawPolygon(canvas:CanvasRenderingContext2D, area:ValueObject, points:Array<Array<number>>, ratio:number) {
+    private drawPolygon(canvas:CanvasRenderingContext2D, area:ValueObject, points:Array<Array<number>>, ratio:number) {
       const curRatio = area.origin ? ratio : 1
       const toRatio = (x:number) => math.divide!(x, curRatio)
       const startPoint = [toRatio(points[0][0]), toRatio(points[0][1])]
@@ -283,7 +283,7 @@ export default class extends Vue {
       }
     }
 
-    closePolygon() {
+    private closePolygon() {
       const newArea = {
         shape: DRAW_MODES.POLYGON,
         points: this.points,

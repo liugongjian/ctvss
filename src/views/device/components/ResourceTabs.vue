@@ -75,7 +75,7 @@
         </div>
         <el-tabs v-if="form.resouceAiId !== -1" v-model="algoTabType" type="card" class="algoTab" @tab-click="changeTabType">
           <el-tab-pane v-for="item in aiAbilityTab" :key="item.id" :label="item.name" :name="item.id">
-            <el-table :data="algoListData.aiApps" @selection-change="selectAlgoChange">
+            <el-table :data="algoListData.aiApps" empty-text="暂无AI应用，请在AI应用管理中创建" @selection-change="selectAlgoChange">
               <el-table-column type="selection" width="55" />
               <el-table-column prop="name" label="应用名称" />
               <el-table-column label="算法类型" width="120">
@@ -170,7 +170,7 @@ export default class extends Vue {
   private showError = false
   private showTips = false
   private aiAbilityTab = []
-  private chooseData = []
+  private chooseData = {}
 
   public get isFreeUser() {
     return UserModule.tags && UserModule.tags.resourceFree === '1'
@@ -309,6 +309,7 @@ export default class extends Vue {
 
   private async getAlgoList() {
     const algoListData = await getAppList({ abilityId: this.algoTabType })
+    // todo 根据分析类型，处理禁选逻辑  分析类型向下兼容：高算力的包可以选高算力、秒级、分钟级的应用；秒级的包可以选秒级、分钟级的应用
     this.algoListData = algoListData
   }
 
