@@ -76,7 +76,7 @@
         <Tags v-model="form.tags" class="tags" />
       </el-form-item>
       <el-form-item label="配置资源包:" prop="resources">
-        <ResourceTabs v-model="form.resources" :is-update="isUpdate" :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" @on-change="onResourceChange" />
+        <ResourceTabs v-model="form.resources" :is-update="isUpdate" :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" :vss-ai-apps="form.vssAIApps" @on-change="onResourceChange" @changevssaiapps="changeVSSAIApps" />
       </el-form-item>
       <el-form-item label="设备描述:" prop="description">
         <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
@@ -136,7 +136,9 @@ export default class extends Mixins(createMixin) {
     pushType: 1,
     pullUrl: '',
     tags: '',
-    resources: []
+    resources: [],
+    vssAIApps: [],
+    aIApps: []
   }
 
   private inTypeList = InType
@@ -188,9 +190,9 @@ export default class extends Mixins(createMixin) {
       this.submitting = true
       let params: any = pick(this.form, ['groupId', 'dirId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor', 'description', 'inType', 'tags'])
       if (this.isUpdate) {
-        params = Object.assign(params, pick(this.form, ['deviceId']))
+        params = Object.assign(params, pick(this.form, ['deviceId', 'aIApps']))
       } else {
-        params = Object.assign(params, pick(this.form, ['resources']))
+        params = Object.assign(params, pick(this.form, ['resources', 'vssAIApps']))
       }
       if (this.form.inType === 'push') {
         params = Object.assign(params, pick(this.form, ['pushType']))

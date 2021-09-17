@@ -161,7 +161,7 @@
           <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" />
         </el-form-item>
         <el-form-item label="配置资源包:" prop="resources">
-          <ResourceTabs v-model="form.resources" :is-update="isUpdate" :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" @on-change="onResourceChange" />
+          <ResourceTabs v-model="form.resources" :is-update="isUpdate" :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" :vss-ai-apps="form.vssAIApps" @on-change="onResourceChange" @changevssaiapps="changeVSSAIApps" />
         </el-form-item>
         <el-form-item label="设备描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
@@ -183,7 +183,7 @@
           <div class="form-tip">2-32位，可包含大小写字母、数字、中文、中划线、空格。</div>
         </el-form-item>
         <el-form-item v-if="isUpdate" label="配置资源包:" prop="resources">
-          <ResourceTabs v-model="form.resources" :is-update="isUpdate" :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" @on-change="onResourceChange" />
+          <ResourceTabs v-model="form.resources" :is-update="isUpdate" :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" :vss-ai-apps="form.vssAIApps" @on-change="onResourceChange" @changevssaiapps="changeVSSAIApps" />
         </el-form-item>
       </template>
       <el-form-item label="">
@@ -281,7 +281,9 @@ export default class extends Mixins(createMixin) {
     pullUrl: '',
     transPriority: 'udp',
     parentDeviceId: '',
-    resources: []
+    resources: [],
+    vssAIApps: [],
+    aIApps: []
   }
   protected minChannelSize = 1
   private availableChannels: Array<number> = []
@@ -411,9 +413,9 @@ export default class extends Mixins(createMixin) {
       this.submitting = true
       let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceVendor', 'description'])
       if (this.isUpdate) {
-        params = Object.assign(params, pick(this.form, ['deviceId']))
+        params = Object.assign(params, pick(this.form, ['deviceId', 'aIApps']))
       } else {
-        params = Object.assign(params, pick(this.form, ['resources']))
+        params = Object.assign(params, pick(this.form, ['resources', 'vssAIApps']))
       }
       if (!this.isChannel) {
         // 通用参数

@@ -75,13 +75,17 @@
         </div>
         <el-tabs v-if="form.resouceAiId !== -1" v-model="algoTabType" type="card" class="algoTab" @tab-click="changeTabType">
           <el-tab-pane v-for="item in aiAbilityTab" :key="item.id" :label="item.name" :name="item.id">
-            <el-table class="algoTabTable" :data="algoListData.aiApps" empty-text="暂无AI应用，请在AI应用管理中创建" @selection-change="selectAlgoChange">
-              <el-table-column type="selection" width="55" />
+            <el-table class="algoTabTable" :data="algoListData" empty-text="暂无AI应用，请在AI应用管理中创建" @selection-change="selectAlgoChange">
+              <el-table-column v-model="vssAiApps" type="selection" width="55" :selectable="ifDisable" />
               <el-table-column prop="name" label="应用名称" />
               <el-table-column label="算法类型" width="120">
                 <template slot-scope="scope">{{ scope.row.algorithm.name }}</template>
               </el-table-column>
-              <el-table-column prop="analyseType" label="分析类型" />
+              <el-table-column prop="analyseType" label="分析类型">
+                <template slot-scope="scope">
+                  {{ resourceAiType[scope.row.analyseType] }}
+                </template>
+              </el-table-column>
               <el-table-column prop="description" label="描述" show-overflow-tooltip />
             </el-table>
           </el-tab-pane>
@@ -145,6 +149,7 @@ export default class extends Vue {
   @Prop() private isUpdate?: boolean
   @Prop() private inProtocol?: string
   @Prop() private isPrivateInNetwork?: string
+  @Prop() private vssAiApps?:any
 
   private resourceTabType = 'video'
   private resourceAiType = ResourceAiType
@@ -162,7 +167,7 @@ export default class extends Vue {
   private resouceAiList = []
   private resouceUploadList = []
 
-  private algoListData = {}
+  private algoListData:any = []
   private algoTabType = '1'
   private totalDeviceConfigCount = 0
   private remainDeviceConfigCount = 0
@@ -170,7 +175,7 @@ export default class extends Vue {
   private showError = false
   private showTips = false
   private aiAbilityTab = []
-  private chooseData = {}
+  private chooseData:any = {}
 
   public get isFreeUser() {
     return UserModule.tags && UserModule.tags.resourceFree === '1'
@@ -240,6 +245,7 @@ export default class extends Vue {
     const resources = [resouceVideo, resouceAi, resouceUpload]
     const result: any = []
     const mapping: any = []
+
     resources.forEach((resource: any) => {
       if (resource) {
         const resourceResult = {
@@ -297,7 +303,7 @@ export default class extends Vue {
   private onRadioChange(type: string, row: any) {
     this.getAiAlgoList(row)
 
-    console.log('row-=--->', row)
+    // console.log('row-=--->', row)
     this.totalDeviceConfigCount = row.totalDeviceCount
     this.remainDeviceConfigCount = row.remainDeviceCount
   }
@@ -310,11 +316,22 @@ export default class extends Vue {
     this.chooseData = row
   }
 
+  private closeTips() {
+    this.showError = false
+    this.showTips = false
+  }
+
   private async getAlgoList() {
+    this.closeTips()
     const algoListData = await getAppList({ abilityId: this.algoTabType })
     // todo 根据分析类型，处理禁选逻辑  分析类型向下兼容：高算力的包可以选高算力、秒级、分钟级的应用；秒级的包可以选秒级、分钟级的应用
     // 'AI-100': '分钟级','AI-200': '秒级','AI-300': '高算力型'
-    this.algoListData = algoListData
+
+    this.algoListData = algoListData.aiApps
+  }
+
+  private ifDisable(row:any) {
+    return row.analyseType <= this.chooseData.aiType
   }
 
   private changeTabType() {
@@ -322,13 +339,22 @@ export default class extends Vue {
   }
 
   private selectAlgoChange(val:any) {
-    this.selectAlgoId = val
-    const temp = this.remainDeviceConfigCount + this.selectAlgoId.length
-    if (temp > this.totalDeviceConfigCount) {
+    this.selectAlgoId = val.map(item => item.id)
+    if (!this.selectAlgoId.length) {
+      this.showError = false
+      this.showTips = false
+    } else if (this.selectAlgoId.length > this.remainDeviceConfigCount) {
       this.showError = true
     } else {
       this.showTips = true
     }
+    const result = val.map(item => {
+      return {
+        appId: item.id,
+        analyseType: item.analyseType
+      }
+    })
+    this.$emit('changevssaiapps', result)
   }
 }
 </script>
