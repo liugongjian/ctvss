@@ -187,3 +187,8 @@ div:focus {
     margin: 7px 0;
   }
 }
+
+// 针对弹框内容过长不换行
+.el-message-box__content {
+  word-break: break-all;
+}
