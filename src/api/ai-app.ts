@@ -1,9 +1,10 @@
 import request from '@/utils/request'
 
-export const getAbilityList = (): Promise<any> =>
+export const getAbilityList = (params: any): Promise<any> =>
   request({
     url: '/ai/aiAbility/describelist',
-    method: 'get'
+    method: 'get',
+    params
   })
 
 export const getAppList = (params: any): Promise<any> =>

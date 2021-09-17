@@ -75,7 +75,7 @@
         </div>
         <el-tabs v-if="form.resouceAiId !== -1" v-model="algoTabType" type="card" class="algoTab" @tab-click="changeTabType">
           <el-tab-pane v-for="item in aiAbilityTab" :key="item.id" :label="item.name" :name="item.id">
-            <el-table :data="algoListData.aiApps" empty-text="暂无AI应用，请在AI应用管理中创建" @selection-change="selectAlgoChange">
+            <el-table class="algoTabTable" :data="algoListData.aiApps" empty-text="暂无AI应用，请在AI应用管理中创建" @selection-change="selectAlgoChange">
               <el-table-column type="selection" width="55" />
               <el-table-column prop="name" label="应用名称" />
               <el-table-column label="算法类型" width="120">
@@ -296,13 +296,16 @@ export default class extends Vue {
   // AI包radio事件
   private onRadioChange(type: string, row: any) {
     this.getAiAlgoList(row)
+
+    console.log('row-=--->', row)
     this.totalDeviceConfigCount = row.totalDeviceCount
     this.remainDeviceConfigCount = row.remainDeviceCount
   }
 
   private async getAiAlgoList(row:any) {
-    const { aiAbilityList } = await getAbilityList()
+    const { aiAbilityList } = await getAbilityList({ id: row.id })
     this.aiAbilityTab = aiAbilityList
+    this.algoTabType = '1'
     this.getAlgoList()
     this.chooseData = row
   }
@@ -310,6 +313,7 @@ export default class extends Vue {
   private async getAlgoList() {
     const algoListData = await getAppList({ abilityId: this.algoTabType })
     // todo 根据分析类型，处理禁选逻辑  分析类型向下兼容：高算力的包可以选高算力、秒级、分钟级的应用；秒级的包可以选秒级、分钟级的应用
+    // 'AI-100': '分钟级','AI-200': '秒级','AI-300': '高算力型'
     this.algoListData = algoListData
   }
 
@@ -375,6 +379,9 @@ export default class extends Vue {
   }
   .algoTab{
     margin-top: 10px;
+    .algoTabTable{
+      margin-top: 10px;
+    }
   }
   .algoWarning{
     padding: 5px 10px;
