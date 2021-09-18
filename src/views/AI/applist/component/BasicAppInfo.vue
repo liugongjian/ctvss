@@ -67,9 +67,7 @@ export default class extends Mixins(AppMixin) {
    * 删除应用回调
    */
   public onDeleteApp() {
-    this.$router.push({
-      name: 'AI-AppList'
-    })
+    this.backToAppList()
   }
 }
 </script>

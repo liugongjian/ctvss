@@ -164,7 +164,7 @@ export default class extends Vue {
     }
 
     /**
-     * 请求截屏
+     * 请求截屏数据
      */
     private async getScreenShot() {
       const [startTime, endTime] = this.queryParam.period
@@ -198,7 +198,9 @@ export default class extends Vue {
         })
       }
     }
-
+    /**
+     * 拦截所有操作，并防抖发起查询请求
+     */
     private handleChange() {
       if (this.device.deviceId.length > 0) {
         (this.queryParam.periodType !== '自定义时间' || this.queryParam.period.length !== 0) && this.debounceHandle()
@@ -206,36 +208,16 @@ export default class extends Vue {
         this.$message.error('请先选择设备')
       }
     }
-    // private handleExpand() {
-    //   let expandDom: any = this.$refs.faceoptions
-    //   if (this.isExpand) {
-    //     expandDom.style.height = '86px'
-    //     expandDom.style.overflow = 'hidden'
-    //     expandDom.scrollTop = 0
-    //   } else {
-    //     if (expandDom.scrollHeight > 220) {
-    //       expandDom.style.overflowY = 'auto'
-    //       expandDom.style.height = '225px'
-    //     } else {
-    //       expandDom.style.height = expandDom.scrollHeight + 'px'
-    //       expandDom.style.overflow = 'hidden'
-    //     }
-    //   }
-    //   this.isExpand = !this.isExpand
-    // }
-    // private handleExpandShow() {
-    //   const faceWrapperDom: any = document.getElementsByClassName('face-options')[0]
-    //   if (faceWrapperDom.scrollHeight > faceWrapperDom.offsetHeight) {
-    //     document.getElementById('expand-btn').style.display = 'block'
-    //   } else {
-    //     document.getElementById('expand-btn').style.display = 'none'
-    //   }
-    // }
+    /**
+     * 分页操作
+     */
     private handleSizeChange(val: number) {
       this.pager.pageSize = val
       this.getScreenShot()
     }
-
+    /**
+     * 分页操作
+     */
     private handleCurrentChange(val: number) {
       this.pager.pageNum = val
       this.getScreenShot()
