@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="face-filter">
+    <div v-if="isFaceAlgoCode" class="face-filter">
       <el-descriptions :column="1">
         <el-descriptions-item label="人脸库">
           {{ faceLib.name ? faceLib.name : '' }}
@@ -149,8 +149,13 @@ export default class extends Vue {
       this.device.deviceId.length > 0 && this.debounceHandle()
     }
 
+    private get isFaceAlgoCode() {
+      return this.appInfo.algorithm.code === '10001'
+    }
+
     private async mounted() {
       this.initFaceInfos()
+      console.log(this.appInfo)
     }
 
     /**

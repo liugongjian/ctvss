@@ -1,5 +1,12 @@
 <template>
   <div class="app-container">
+    <el-alert
+      title="数据与设备绑定，如查询，需优先选择设备"
+      type="info"
+      show-icon
+      :closable="false"
+      class="mb10"
+    />
     <el-page-header :content="breadCrumbContent" @back="back" />
     <el-tabs :value="this.$route.query.tabNum ? 'result' : 'basic'" type="border-card" @tab-click="handleTabClick">
       <el-tab-pane label="基本信息" name="basic">
