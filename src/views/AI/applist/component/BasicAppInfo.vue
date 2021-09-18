@@ -1,35 +1,35 @@
 <template>
   <div class="detail-wrap">
     <div class="detail__buttons">
-      <el-button @click="editApp(appInfo)"><svg-icon name="edit" /> 编辑</el-button>
-      <el-button @click="deleteApp(appInfo)"><svg-icon name="trash" /> 删除</el-button>
+      <el-button @click="editApp(app)"><svg-icon name="edit" /> 编辑</el-button>
+      <el-button @click="deleteApp(app)"><svg-icon name="trash" /> 删除</el-button>
     </div>
     <el-descriptions title="应用状态" :column="2">
       <el-descriptions-item label="应用状态">
-        <status-badge :status="Number(appInfo.appEnabled)" />
-        {{ Number(appInfo.appEnabled) ? '已启用' : '未启用' }}
-        <el-link v-if="Number(appInfo.appEnabled) && checkPermission(['*'])" @click="startOrStopApp(appInfo, 0)">停用</el-link>
-        <el-link v-else-if="checkPermission(['*'])" @click="startOrStopApp(appInfo, 1)">启用</el-link>
+        <status-badge :status="Number(app.appEnabled)" />
+        {{ Number(app.appEnabled) ? '已启用' : '未启用' }}
+        <el-link v-if="Number(app.appEnabled) && checkPermission(['*'])" @click="startOrStopApp(app, 0)">停用</el-link>
+        <el-link v-else-if="checkPermission(['*'])" @click="startOrStopApp(app, 1)">启用</el-link>
       </el-descriptions-item>
     </el-descriptions>
     <el-descriptions title="AI算法信息" :column="2">
       <el-descriptions-item label="应用名称">
-        {{ appInfo.name }}
+        {{ app.name }}
       </el-descriptions-item>
       <el-descriptions-item label="算法类型">
-        {{ appInfo.algorithm.name }}
+        {{ app.algorithm.name }}
       </el-descriptions-item>
       <el-descriptions-item label="截帧频率">
-        {{ resourceAiType[appInfo.analyseType] }}
+        {{ resourceAiType[app.analyseType] }}
       </el-descriptions-item>
       <el-descriptions-item label="生效时段">
-        <span v-for="(item, index) in JSON.parse(appInfo.effectiveTime)" :key="index">{{ item.starttime }} - {{ item.endtime }}</span>
+        <span v-for="(item, index) in JSON.parse(app.effectiveTime)" :key="index">{{ item.starttime }} - {{ item.endtime }}</span>
       </el-descriptions-item>
       <el-descriptions-item label="人脸库">
         {{ faceLib.name || '' }}
       </el-descriptions-item>
       <el-descriptions-item label="描述">
-        {{ appInfo.description || '-' }}
+        {{ app.description || '-' }}
       </el-descriptions-item>
     </el-descriptions>
   </div>
@@ -37,6 +37,7 @@
 <script lang="ts">
 import { Component, Prop, Mixins } from 'vue-property-decorator'
 import AppMixin from '../../mixin/app-mixin'
+import { getAppInfo } from '@/api/ai-app'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { ResourceAiType } from '@/dics'
 
@@ -49,14 +50,17 @@ import { ResourceAiType } from '@/dics'
 export default class extends Mixins(AppMixin) {
   @Prop() private appInfo!: any
   @Prop() private faceLib: any
+  private app: any = {}
   private resourceAiType: any = ResourceAiType
 
-  private async mounted() {
+  public created() {
+    this.app = this.appInfo
   }
   /**
    * 刷新数据
    */
-  public refresh() {
+  public async refresh() {
+    this.app = await getAppInfo({ id: this.appInfo.id })
   }
 
   /**

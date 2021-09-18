@@ -120,7 +120,7 @@ export default class extends Mixins(AppMixin) {
   private async getAbilityList() {
     try {
       this.loading.abilityList = true
-      const { aiAbilityList } = await getAbilityList()
+      const { aiAbilityList } = await getAbilityList({})
       let totalApps = 0
       aiAbilityList.forEach(element => {
         typeof element.aiApps === 'string' ? totalApps += Number(element.aiApps) : totalApps += element.aiApps
