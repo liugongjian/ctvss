@@ -78,7 +78,6 @@ export default class extends Vue {
       this.initDirs()
       const { groups }: any = await getAIConfigGroupData({})
       this.initFaceLib(groups)
-      console.log(this.appInfo)
     }
 
     private initFaceLib(groups) {

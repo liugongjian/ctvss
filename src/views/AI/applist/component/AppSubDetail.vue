@@ -155,7 +155,6 @@ export default class extends Vue {
 
     private async mounted() {
       this.initFaceInfos()
-      console.log(this.appInfo)
     }
 
     /**
@@ -259,6 +258,8 @@ export default class extends Vue {
         height: 100%;
         vertical-align: middle;
         .checkbox-content{
+          width: 100%;
+          height: 100%;
           display: flex;
           flex-direction: row;
           justify-content:space-between;
@@ -274,67 +275,6 @@ export default class extends Vue {
         }
       }
     }
-  }
-  .checkbox-content{
-    width: 100%;
-    height: 100%;
-  }
-  .face-options{
-      width: 88%;
-      height: 86px;
-      margin-left: 56px;
-      overflow: hidden;
-      transition: height .2s;
-      &::-webkit-scrollbar {
-          /*滚动条整体样式*/
-          width : 1px;  /*高宽分别对应横竖滚动条的尺寸*/
-          height: 1px;
-      }
-      &::-webkit-scrollbar-thumb {
-          /*滚动条里面小方块*/
-          border-radius   : 10px;
-          background-color: #fff;
-      }
-      &::-webkit-scrollbar-track {
-      /*滚动条里面轨道*/
-          background   : #fff;
-          border-radius: 10px;
-      }
-      .selected{
-          border: rgba(250,131,52) solid 2px !important;
-      }
-      .option{
-          cursor: pointer;
-          display: inline-block;
-          width: 15%;
-          min-width: 167px;
-          max-width: 222px;
-          height: 54px;
-          border: rgb(192,196,204) solid .5px;
-          border-radius: 5px;
-          margin:20px 20px 0 0;
-          overflow: hidden;
-          padding:0;
-          .el-image{
-              display: inline-block;
-              height: 100%;
-              width: 40%;
-              min-width: 65px;
-              max-width: 70px;
-          }
-          .option-info{
-              float: right;
-              display: flex;
-              line-height: 54px;
-              width: 60%;
-              justify-content: space-around;
-              align-items: center;
-          }
-      }
-  }
-  .link-wrapper{
-      margin-top: 10px;
-      text-align: center;
   }
 }
 .query-wrapper{
