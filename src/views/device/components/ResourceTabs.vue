@@ -314,7 +314,7 @@ export default class extends Vue {
     if (this.isUpdate) {
       this.selectAlgoId = this.vssAiApps
       const result = this.resouceAiList.find(item => {
-        return this.value.map(val => {
+        return this.value.map((val:any) => {
           return val.resourceId === item.resourceId
         })
       })
@@ -367,7 +367,7 @@ export default class extends Vue {
     const algoListResult = await getAppList({ abilityId: this.algoTabType })
     this.algoListData = algoListResult.aiApps
     if (this.isUpdate) {
-      const result = this.algoListData.filter(item => { this.selectAlgoId.some(val => item.id === val.id) })
+      const result = this.algoListData.filter((item:any) => { this.selectAlgoId.some(val => item.id === val.id) })
       this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = result
     }
     this.setChecked()
@@ -389,7 +389,7 @@ export default class extends Vue {
 
   // 能力checkbox点击
   private selectHandle(selection:any, row:any) {
-    const result = selection.filter(item => item.id === row.id)
+    const result = selection.filter((item:any) => item.id === row.id)
     if (result.length > 0) {
       this.setChecked()
     } else {
@@ -404,7 +404,7 @@ export default class extends Vue {
   private selectAlgoChange(val:any) {
     this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = val
     const result = Object.values(this.checkInfoObj[this.chooseData.resourceId]).map((item:any) => {
-      return item.map(ele => {
+      return item.map((ele:any) => {
         return {
           appId: ele.id,
           analyseType: ele.analyseType
@@ -415,7 +415,6 @@ export default class extends Vue {
     this.setChecked()
     this.$emit('changevssaiapps', this.selectAlgoId)
 
-    // this.$refs[`algoTable${this.algoTabType}`][0].doLayout()
     if (!this.selectAlgoId.length) {
       this.showError = false
       this.showTips = false
@@ -428,14 +427,16 @@ export default class extends Vue {
 
   // 设置选中状态
   private setChecked() {
-    const result = this.algoListData.filter(item => {
-      return this.checkInfoObj[this.chooseData.resourceId][this.algoTabType]?.some(val => {
+    const result = this.algoListData.filter((item:any) => {
+      return this.checkInfoObj[this.chooseData.resourceId][this.algoTabType]?.some((val:any) => {
         return val.id === item.id
       })
     })
     this.$nextTick(() => {
-      result.forEach(element => {
-        this.$refs[`algoTable${this.algoTabType}`][0].toggleRowSelection(element, true)
+      result.forEach((element:any) => {
+        if (this.$refs[`algoTable${this.algoTabType}`]) {
+          this.$refs[`algoTable${this.algoTabType}`][0].toggleRowSelection(element, true)
+        }
       })
     })
   }
