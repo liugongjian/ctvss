@@ -18,7 +18,7 @@
       @keyup.enter.native="handleSearch"
       @clear="handleSearch"
     >
-      <el-button slot="append" class="el-button-rect" @click="handleSearch"><svg-icon name="refresh" /></el-button>
+      <el-button slot="append" class="el-button-rect" @click="handleSearch"><svg-icon name="search" /></el-button>
     </el-input>
   </div>
 </template>
