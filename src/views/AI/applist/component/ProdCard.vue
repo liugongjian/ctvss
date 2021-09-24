@@ -9,7 +9,7 @@
       <div class="prod__desc">{{ prod.summary }}</div>
       <div class="prod__buttons">
         <el-button type="primary" class="prod__buttons--select" @click="onChooseProd">选择</el-button>
-        <el-button type="text" class="ml10">查看算法介绍</el-button>
+        <!-- <el-button type="text" class="ml10">查看算法介绍</el-button> -->
       </div>
     </div>
   </el-card>
