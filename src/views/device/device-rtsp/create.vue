@@ -413,7 +413,7 @@ export default class extends Mixins(createMixin) {
       this.submitting = true
       let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceVendor', 'description'])
       if (this.isUpdate) {
-        params = Object.assign(params, pick(this.form, ['deviceId', 'aIApps']))
+        params = Object.assign(params, pick(this.form, ['deviceId']))
       } else {
         params = Object.assign(params, pick(this.form, ['resources', 'vssAIApps']))
       }
@@ -456,7 +456,8 @@ export default class extends Mixins(createMixin) {
           deviceId: this.deviceId,
           deviceType: this.form.deviceType,
           inProtocol: this.inProtocol,
-          resources: this.form.resources
+          resources: this.form.resources,
+          aIApps: this.form.aIApps
         })
         await updateDevice(params)
         this.$message.success('修改设备成功！')

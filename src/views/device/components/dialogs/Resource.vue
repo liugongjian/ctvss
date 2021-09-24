@@ -15,7 +15,7 @@
       @submit.native.prevent
     >
       <el-form-item label="" prop="resources">
-        <ResourceTabs v-model="form.resources" :is-update="isUpdate" :in-protocol="device.inProtocol" :is-private-in-network="isPrivateInNetwork" @on-change="onResourceChange" />
+        <ResourceTabs v-model="form.resources" :is-update="isUpdate" :in-protocol="device.inProtocol" :is-private-in-network="isPrivateInNetwork" :vss-ai-apps="form.vssAIApps" @on-change="onResourceChange" @changevssaiapps="changeVSSAIApps" />
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -43,7 +43,8 @@ export default class extends Mixins(createMixin) {
   private dialogVisible = true
   public form: any = {
     resources: [],
-    ...this.device
+    ...this.device,
+    aIApps: []
   }
 
   private rules = {
@@ -76,7 +77,8 @@ export default class extends Mixins(createMixin) {
         deviceId: this.device.deviceId,
         deviceType: this.device.deviceType,
         inProtocol: this.device.inProtocol,
-        resources: this.form.resources
+        resources: this.form.resources,
+        aIApps: this.form.aIApps
       }
       await updateDeviceResources(params)
       this.closeDialog(true)
