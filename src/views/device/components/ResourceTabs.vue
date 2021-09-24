@@ -71,12 +71,21 @@
           <el-table-column prop="expireTime" label="到期时间" min-width="170" />
         </el-table>
         <div class="resource-tabs__none">
-          <el-radio v-model="form.resouceAiId" :label="-1" @change="onFormChange(false)">不绑定任何AI包</el-radio>
+          <el-radio v-model="form.resouceAiId" :label="-1" @change="doNotBind">不绑定任何AI包</el-radio>
         </div>
         <el-tabs v-if="form.resouceAiId !== -1" v-model="algoTabType" type="card" class="algoTab" @tab-click="changeTabType">
-          <el-tab-pane v-for="item in aiAbilityTab" :key="item.id" :label="item.name" :name="item.id">
-            <el-table class="algoTabTable" :data="algoListData" empty-text="暂无AI应用，请在AI应用管理中创建" @selection-change="selectAlgoChange">
-              <el-table-column v-model="vssAiApps" type="selection" width="55" :selectable="ifDisable" />
+          <el-tab-pane v-for="item in aiAbilityTab" :key="item.id" :label="`${item.name}(${item.aiApps})`" :name="item.id">
+            <el-table
+              :ref="`algoTable${Number(item.id)}`"
+              class="algoTabTable"
+              tooltip-effect="dark"
+              :data="algoListData"
+              style="width: 100%"
+              empty-text="暂无AI应用，请在AI应用管理中创建"
+              @selection-change="selectAlgoChange"
+              @select="selectHandle"
+            >
+              <el-table-column type="selection" width="55" :selectable="ifDisable" prop="selection" />
               <el-table-column prop="name" label="应用名称" />
               <el-table-column label="算法类型" width="120">
                 <template slot-scope="scope">{{ scope.row.algorithm.name }}</template>
@@ -136,7 +145,7 @@
 import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
 import { ResourceAiType } from '@/dics'
 import { getResources
-// getAlgoList, getAbilityTab
+  , getResourceIdAttachedAppIds
 } from '@/api/billing'
 import { UserModule } from '@/store/modules/user'
 import { getAbilityList, getAppList } from '@/api/ai-app'
@@ -176,6 +185,10 @@ export default class extends Vue {
   private showTips = false
   private aiAbilityTab = []
   private chooseData:any = {}
+  // private checkIds = []
+  private checkInfoObj:any = {}
+  private resourceAlgo:any = {}
+  private resourceHasAppIds = []
 
   public get isFreeUser() {
     return UserModule.tags && UserModule.tags.resourceFree === '1'
@@ -185,7 +198,7 @@ export default class extends Vue {
     this.resouceVideoList = await this.getResouces('VSS_VIDEO', 'resouceVideoList')
     this.resouceAiList = await this.getResouces('VSS_AI', 'resouceAiList')
     this.resouceUploadList = await this.getResouces('VSS_UPLOAD_BW', 'resouceUploadList')
-    this.ifHasCheceked()
+    this.handleResourceAppIds()
     this.onFormChange(true)
   }
 
@@ -285,61 +298,123 @@ export default class extends Vue {
     this.onFormChange(false)
   }
 
+  private handleResourceAppIds() {
+    this.ifHasCheceked()
+    this.createCheckInfo()
+  }
+
+  private createCheckInfo() {
+    this.resouceAiList.forEach(item => {
+      this.checkInfoObj[item.resourceId] = {}
+    })
+  }
+
   // 判断是否是编辑进入
   private ifHasCheceked() {
-    if (this.value.length > 0) {
-      const temp = this.resouceAiList.find(item => {
-        return this.value.map(val => {
+    if (this.isUpdate) {
+      this.selectAlgoId = this.vssAiApps
+      const result = this.resouceAiList.find(item => {
+        return this.value.map((val:any) => {
           return val.resourceId === item.resourceId
         })
       })
-      if (Object.keys(temp).length > 0) {
-        this.getAiAlgoList(temp)
+      if (Object.keys(result).length > 0) {
+        this.getAiAlgoList(result)
       }
     }
   }
 
-  // AI包radio事件
-  private onRadioChange(type: string, row: any) {
-    this.getAiAlgoList(row)
-
-    // console.log('row-=--->', row)
-    this.totalDeviceConfigCount = row.totalDeviceCount
-    this.remainDeviceConfigCount = row.remainDeviceCount
+  // 不绑定AI包单独处理
+  private doNotBind() {
+    this.onFormChange(false)
+    this.$emit('changevssaiapps', [])
   }
 
+  // AI包radio事件
+  private onRadioChange(type: string, row: any) {
+    this.closeTips()
+    this.chooseData = row
+    this.getAiAlgoList(row)
+    this.totalDeviceConfigCount = row.totalDeviceCount
+    this.remainDeviceConfigCount = row.remainDeviceCount
+    if (this.isUpdate) {
+      this.getResourceIdAttachedAppIds(row)
+    }
+  }
+
+  private async getResourceIdAttachedAppIds(row:any) {
+    this.resourceHasAppIds = await getResourceIdAttachedAppIds({ resourceId: row.resourceId })
+    this.selectAlgoId = this.resourceHasAppIds
+    // this.checkInfoObj[this.chooseData.resourceId][this.algoTabType]
+  }
+
+  // 获取算法名
   private async getAiAlgoList(row:any) {
     const { aiAbilityList } = await getAbilityList({ id: row.id })
     this.aiAbilityTab = aiAbilityList
-    this.algoTabType = '1'
+    this.algoTabType = aiAbilityList[0]?.id
     this.getAlgoList()
-    this.chooseData = row
   }
 
+  // 关闭两个tips
   private closeTips() {
     this.showError = false
     this.showTips = false
   }
 
+  // 获取算法能力
   private async getAlgoList() {
-    this.closeTips()
-    const algoListData = await getAppList({ abilityId: this.algoTabType })
-    // todo 根据分析类型，处理禁选逻辑  分析类型向下兼容：高算力的包可以选高算力、秒级、分钟级的应用；秒级的包可以选秒级、分钟级的应用
-    // 'AI-100': '分钟级','AI-200': '秒级','AI-300': '高算力型'
-
-    this.algoListData = algoListData.aiApps
+    const algoListResult = await getAppList({ abilityId: this.algoTabType })
+    this.algoListData = algoListResult.aiApps
+    if (this.isUpdate) {
+      const result = this.algoListData.filter((item:any) => { this.selectAlgoId.some(val => item.id === val.id) })
+      this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = result
+    }
+    this.setChecked()
   }
 
+  // 判断当前table列是否可选
   private ifDisable(row:any) {
     return row.analyseType <= this.chooseData.aiType
   }
-
+  // tab切换回调
   private changeTabType() {
     this.getAlgoList()
   }
 
+  // 获取rowkey
+  private getTableRowKey(row:any) {
+    return row.id
+  }
+
+  // 能力checkbox点击
+  private selectHandle(selection:any, row:any) {
+    const result = selection.filter((item:any) => item.id === row.id)
+    if (result.length > 0) {
+      this.setChecked()
+    } else {
+      this.selectAlgoId = this.selectAlgoId.filter(item => item.appId !== row.id)
+      this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].filter(item => item.id !== row.id)
+      this.setChecked()
+      this.$emit('changevssaiapps', this.selectAlgoId)
+    }
+  }
+
+  // 能力checkbox改变逻辑
   private selectAlgoChange(val:any) {
-    this.selectAlgoId = val.map(item => item.id)
+    this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = val
+    const result = Object.values(this.checkInfoObj[this.chooseData.resourceId]).map((item:any) => {
+      return item.map((ele:any) => {
+        return {
+          appId: ele.id,
+          analyseType: ele.analyseType
+        }
+      })
+    })
+    this.selectAlgoId = result.flat()
+    this.setChecked()
+    this.$emit('changevssaiapps', this.selectAlgoId)
+
     if (!this.selectAlgoId.length) {
       this.showError = false
       this.showTips = false
@@ -348,13 +423,22 @@ export default class extends Vue {
     } else {
       this.showTips = true
     }
-    const result = val.map(item => {
-      return {
-        appId: item.id,
-        analyseType: item.analyseType
-      }
+  }
+
+  // 设置选中状态
+  private setChecked() {
+    const result = this.algoListData.filter((item:any) => {
+      return this.checkInfoObj[this.chooseData.resourceId][this.algoTabType]?.some((val:any) => {
+        return val.id === item.id
+      })
     })
-    this.$emit('changevssaiapps', result)
+    this.$nextTick(() => {
+      result.forEach((element:any) => {
+        if (this.$refs[`algoTable${this.algoTabType}`]) {
+          this.$refs[`algoTable${this.algoTabType}`][0].toggleRowSelection(element, true)
+        }
+      })
+    })
   }
 }
 </script>
