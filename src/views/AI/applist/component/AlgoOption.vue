@@ -72,7 +72,7 @@ export default class extends Mixins(AppMixin) {
   private async getAlgorithmList() {
     try {
       this.loading.algoList = true
-      const { aiAbilityAlgorithms } = await getAlgorithmList({ abilityName: this.searchApp, abilityId: this.activeName })
+      const { aiAbilityAlgorithms } = await getAlgorithmList({ name: this.searchApp, abilityId: this.activeName })
       this.algoList = aiAbilityAlgorithms
     } catch (e) {
       this.$alertError(e && e.message)
