@@ -24,8 +24,9 @@
 </template>
 <script lang='ts'>
 import { getAbilityList, getAlgorithmList } from '@/api/ai-app'
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Prop, Mixins } from 'vue-property-decorator'
 import ProdCard from './ProdCard.vue'
+import AppMixin from '../../mixin/app-mixin'
 
 @Component({
   name: 'AlgoOption',
@@ -33,7 +34,7 @@ import ProdCard from './ProdCard.vue'
     ProdCard
   }
 })
-export default class extends Vue {
+export default class extends Mixins(AppMixin) {
   @Prop({ default: 0 }) private step!: number
 
   private loading = {
@@ -56,7 +57,7 @@ export default class extends Vue {
   private async getAbilityList() {
     try {
       this.loading.abilityList = true
-      const { aiAbilityList } = await getAbilityList()
+      const { aiAbilityList } = await getAbilityList({})
       this.abilityList = [ { id: '0', name: '全部' }, ...aiAbilityList ]
     } catch (e) {
       this.$alertError(e && e.message)
@@ -107,7 +108,7 @@ export default class extends Vue {
    * 返回应用列表
    */
   private cancel() {
-    this.$router.push({ name: 'AI-AppList' })
+    this.backToAppList()
   }
 }
 </script>

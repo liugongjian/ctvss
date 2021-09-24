@@ -107,10 +107,11 @@
   </el-card>
 </template>
 <script lang='ts'>
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Mixins, Prop } from 'vue-property-decorator'
 import { getAIConfigGroupData } from '@/api/aiConfig'
 import { getAppInfo, updateAppInfo, createApp } from '@/api/ai-app'
 import { ResourceAiType } from '@/dics'
+import AppMixin from '../../mixin/app-mixin'
 
 const getRule = (msg) => {
   return [{ required: true, trigger: 'blur', message: msg }]
@@ -120,7 +121,7 @@ const getRule = (msg) => {
   components: {
   }
 })
-export default class extends Vue {
+export default class extends Mixins(AppMixin) {
   @Prop() private prod!: any
   private breadCrumbContent: String = ''
   private ResourceAiType: any = ResourceAiType
@@ -163,10 +164,10 @@ export default class extends Vue {
     const { groups } = await getAIConfigGroupData({})
     this.faceLibs = groups
   }
-  // private updated() {
-  //   this.prod && (this.form.name = this.prod.name)
-  //   this.$route.query.appinfo && (this.form.name = this.appinfo.name)
-  // }
+
+  /**
+   * 处理生效时间段
+   */
   private editTransformEffectiveTime() {
     const effectiveTime = JSON.parse(this.form.effectiveTime)
     const period = effectiveTime.map(item => ({ period: [item.starttime, item.endtime] }))
@@ -177,17 +178,33 @@ export default class extends Vue {
       this.$set(this.form, 'effectPeriod', '时间段')
     }
   }
+
+  /**
+   * 处理人脸选项信息
+   */
   private editTransformFaceData() {
     this.form.algorithmMetadata.length !== 0
       ? (this.form.algorithmMetadata = JSON.parse(this.form.algorithmMetadata))
       : (this.form = { ...this.form, algorithmMetadata: { FaceDbName: '' } })
   }
+
+  /**
+   * 步进控制
+   */
   private changeStep(val: any) {
     this.$emit('update:step', val.step)
   }
+
+  /**
+   * 步进控制
+   */
   private cancel() {
-    this.$router.push({ name: 'AI-AppList' })
+    this.backToAppList()
   }
+
+  /**
+   * 提交
+   */
   private onSubmit() {
     const form: any = this.$refs.appForm
     form.validate(async(valid: any) => {
@@ -196,6 +213,10 @@ export default class extends Vue {
       }
     })
   }
+
+  /**
+   * 提交
+   */
   private async submitValidAppInfo() {
     this.generateEffectiveTime()
     let param = {
@@ -214,20 +235,33 @@ export default class extends Vue {
       await createApp(param)
       this.$message.success('新建应用成功')
     }
-    this.$router.push({ name: 'AI-AppList' })
+    this.backToAppList()
   }
+  /**
+   * 增加生效时间段选项
+   */
   private addPeriod() {
     this.form.availableperiod.push({ period: ['08:40:00', '09:40:00'] })
   }
+
+  /**
+   * 删除生效时间段选项
+   */
   private deletePeriod(index) {
     this.form.availableperiod.splice(index, 1)
   }
+  /**
+   * 刷新获取最新的人脸库
+   */
   private async refreshFaceLib() {
     this.isfaceLibLoading = true
     const { groups } = await getAIConfigGroupData({ })
     this.faceLibs = groups
     this.isfaceLibLoading = false
   }
+  /**
+   * 提交信息前，转换时间
+   */
   private generateEffectiveTime() {
     if (this.form.effectPeriod === '全天') {
       this.effectiveTime = [{ starttime: '00:00:00', endtime: '23:59:59' }]

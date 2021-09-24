@@ -133,9 +133,6 @@
             </div>
           </div>
 
-
-
-
           <div v-if="info">
             <info-list v-if="info && !isNVRChannel" label-width="110">
               <info-list-item label="设备类型:">{{ deviceType[info.deviceType] }}</info-list-item>

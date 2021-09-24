@@ -73,4 +73,10 @@ export default class AppMixin extends Vue {
       this.$message.error(e && e.message)
     }
   }
+
+  public backToAppList() {
+    this.$router.push({
+      name: 'AI-AppList'
+    })
+  }
 }

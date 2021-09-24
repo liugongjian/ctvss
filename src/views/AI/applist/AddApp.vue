@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-page-header content="创建AI应用" @back="back" />
+    <el-page-header :content="`${header}AI应用`" @back="back" />
     <div v-if="!this.$route.query.id" class="process">
       <el-steps :active="step" simple>
         <el-step title="选择AI算法"><span slot="icon">1</span></el-step>
@@ -17,9 +17,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Mixins } from 'vue-property-decorator'
 import AlgoOption from './component/AlgoOption.vue'
 import AlgoDetail from './component/AlgoDetail.vue'
+import AppMixin from '../mixin/app-mixin'
 
 @Component({
   name: 'AddApp',
@@ -28,15 +29,16 @@ import AlgoDetail from './component/AlgoDetail.vue'
     AlgoDetail
   }
 })
-export default class extends Vue {
+export default class extends Mixins(AppMixin) {
     private step: Number = 0
     private prod: any = {}// 新建时传入组件的参数
     private isLoading: boolean = false
+    private get header() {
+      return this.$route.query.id ? '编辑' : '创建'
+    }
 
     private back() {
-      this.$router.push({
-        name: 'AI-AppList'
-      })
+      this.backToAppList()
     }
 }
 </script>

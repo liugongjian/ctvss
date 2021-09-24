@@ -45,7 +45,7 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   /**
-   * 限制只有device信息才能请求数据
+   * 限制只有device信息才能请求数据,并且点击自定义时间，但未选择具体时间时，不请求数据
    */
   private conditionalDebounce() {
     if (this.device.deviceId.length > 0) {
@@ -171,6 +171,9 @@ export default class extends Mixins(DashboardMixin) {
     this.chart.changeData(this.chartData)
   }
 
+  /**
+   * 解决载入或刷新数据时，图表尺寸不更新的问题
+   */
   private refreshChart() {
     // resize 为了让图表触发刷新从而自适应尺寸
     const e = document.createEvent('Event')

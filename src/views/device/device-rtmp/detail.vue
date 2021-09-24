@@ -132,8 +132,6 @@
             </div>
           </div>
 
-
-
           <div v-if="info">
             <info-list abel-width="100">
               <info-list-item label="设备类型:">{{ deviceType[info.deviceType] }}</info-list-item>
