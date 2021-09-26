@@ -12,8 +12,8 @@ import { getPeopleTrendChart } from '@/api/ai-app'
 import DashboardMixin from '@/views/dashboard/mixin/DashboardMixin'
 import DashboardContainer from '@/views/dashboard/components/DashboardContainer.vue'
 import debounce from '@/utils/debounce'
-import json from '../testdata/terrorism.json'
-import json2 from '../testdata/terrorism2.json'
+// import json from '../testdata/terrorism.json'
+// import json2 from '../testdata/terrorism2.json'
 
 @Component({
   name: 'PeopleTrendChart',
@@ -73,11 +73,11 @@ export default class extends Mixins(DashboardMixin) {
       const { aiReusltDate } = await getPeopleTrendChart(query)
       this.chartData = aiReusltDate.map(item => ({ value: item.count, time: item.Date + item.timeInterval, type: '人员聚集' }))
       // 测试
-      if (this.chart) {
-        this.chartData = json.map(item => ({ value: item.count, time: item.Date + item.timeInterval, type: '人员聚集' }))
-      } else {
-        this.chartData = json2.map(item => ({ value: item.count, time: item.Date + item.timeInterval, type: '人员聚集' }))
-      }
+      // if (this.chart) {
+      //   this.chartData = json.map(item => ({ value: item.count, time: item.Date + item.timeInterval, type: '人员聚集' }))
+      // } else {
+      //   this.chartData = json2.map(item => ({ value: item.count, time: item.Date + item.timeInterval, type: '人员聚集' }))
+      // }
       this.chart ? this.updateChart() : this.drawChart()
       this.refreshChart()
     } catch (e) {
