@@ -153,6 +153,8 @@ export default class extends Mixins(createMixin) {
         deviceChannels: this.selectChannels
       }
       await configChannels(params)
+      this.$message.success('配置子通道成功！')
+      this.back()
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
