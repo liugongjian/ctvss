@@ -444,7 +444,6 @@ export default class ListMixin extends Vue {
 
   // ehome配置子通道
   private goToCreateChannel() {
-    console.log('芜湖')
     this.deviceRouter({
       id: this.dirId,
       deviceId: this.deviceId,
