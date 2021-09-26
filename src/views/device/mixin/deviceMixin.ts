@@ -307,6 +307,16 @@ export default class DeviceMixin extends Vue {
           deviceId: item.id
         }
         break
+      case 'createChannel':
+        router = {
+          name: 'create-channel'
+        }
+        query = {
+          dirId: item.id,
+          deviceId: item.deviceId,
+          isChannel: item.isChannel && item.isChannel.toString()
+        }
+        break
     }
     router.query = {
       inProtocol: this.currentGroup!.inProtocol,

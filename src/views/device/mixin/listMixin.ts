@@ -442,6 +442,17 @@ export default class ListMixin extends Vue {
     })
   }
 
+  // ehome添加子通道
+  private goToCreateChannel() {
+    console.log('芜湖')
+    this.deviceRouter({
+      id: this.dirId,
+      deviceId: this.deviceId,
+      type: 'createChannel',
+      isChannel: this.isNVR
+    })
+  }
+
   /**
    * 根据类型进入下一级页面
    */

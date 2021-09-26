@@ -303,6 +303,19 @@ export const asyncRoutes: RouteConfig[] = [
               activeMenu: '/device',
               groupSelector: true
             }
+          },
+          {
+            path: 'create-channel',
+            component: () => import(/* webpackChunkName: "device" */ '@/views/device/CreateChannel.vue'),
+            name: 'create-channel',
+            meta: {
+              id: '20210424150201003007',
+              title: '添加子通道',
+              hidden: true,
+              perms: ['AdminDevice'],
+              activeMenu: '/device',
+              groupSelector: true
+            }
           }
         ]
       }
