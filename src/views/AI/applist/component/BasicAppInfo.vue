@@ -8,8 +8,8 @@
       <el-descriptions-item label="应用状态">
         <status-badge :status="Number(app.appEnabled)" />
         {{ Number(app.appEnabled) ? '已启用' : '未启用' }}
-        <el-link v-if="Number(app.appEnabled) && checkPermission(['*'])" @click="startOrStopApp(app, 0)">停用</el-link>
-        <el-link v-else-if="checkPermission(['*'])" @click="startOrStopApp(app, 1)">启用</el-link>
+        <!-- <el-link v-if="Number(app.appEnabled) && checkPermission(['*'])" @click="startOrStopApp(app, 0)">停用</el-link>
+        <el-link v-else-if="checkPermission(['*'])" @click="startOrStopApp(app, 1)">启用</el-link> -->
       </el-descriptions-item>
     </el-descriptions>
     <el-descriptions title="AI算法信息" :column="2">

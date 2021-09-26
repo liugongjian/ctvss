@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="isFaceAlgoCode" class="face-filter">
+    <!-- <div v-if="isFaceAlgoCode" class="face-filter">
       <el-descriptions :column="1">
         <el-descriptions-item label="人脸库">
           {{ faceLib.name ? faceLib.name : '' }}
@@ -18,7 +18,7 @@
           </el-checkbox>
         </el-checkbox-group>
       </div>
-    </div>
+    </div> -->
 
     <div class="query-wrapper">
       <span>截图时间：
@@ -150,6 +150,7 @@ export default class extends Vue {
     }
 
     private get isFaceAlgoCode() {
+      console.log(this.appInfo)
       return this.appInfo.algorithm.code === '10001'
     }
 
