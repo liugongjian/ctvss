@@ -95,7 +95,6 @@ export default class extends Mixins(createMixin) {
           return val === item.channelNum
         })
       })
-      console.log('this,channelNumListresult=============>', result)
       this.selectChannels = result
       this.setChecked()
     }
@@ -128,7 +127,6 @@ export default class extends Mixins(createMixin) {
   // 手动勾选checkbox逻辑
   private selectHandle(selection:any, row:any) {
     const result = selection.filter((item:any) => item.channelNum === row.channelNum)
-    console.log('result==>', result)
     if (result.length > 0) {
       this.setChecked()
     } else {
