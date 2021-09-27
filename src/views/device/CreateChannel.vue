@@ -3,6 +3,7 @@
     <el-page-header :content="breadCrumbContent" @back="back" />
     <el-table
       ref="channelTable"
+      v-loading="tableLoading"
       :data="channelData"
       empty-text="暂无通道"
       @selection-change="selectChannel"
@@ -72,6 +73,8 @@ export default class extends Mixins(createMixin) {
   }
   private dialogVisible = false
 
+  private tableLoading = false
+
   private selectChannels:any = []
 
   private async mounted() {
@@ -80,31 +83,55 @@ export default class extends Mixins(createMixin) {
 
   // 获取子通道列表
   private async getChannels() {
-    const params = {
-      inProtocol: this.inProtocol,
-      parentDeviceId: this.deviceId
-    }
+    try {
+      this.tableLoading = true
+      const params = {
+        inProtocol: this.inProtocol,
+        parentDeviceId: this.deviceId
+      }
 
-    const { deviceChannels } = await getChannelList(params)
-
-    // 如果有通道号传入，即为编辑过子通道
-    if (this.$route.query.channelNumList) {
-      const channelNumList = (this.$route.query.channelNumList as string).split(',').map(Number)
-      const result = deviceChannels.filter((item:any) => {
-        return channelNumList.some((val:any) => {
-          return val === item.channelNum
+      const { deviceChannels } = await getChannelList(params)
+      // 如果有通道号传入，即为编辑过子通道
+      if (this.$route.query.channelNumList) {
+        const channelNumList = (this.$route.query.channelNumList as string).split(',').map(Number)
+        const result = deviceChannels.filter((item:any) => {
+          return channelNumList.some((val:any) => {
+            return val === item.channelNum
+          })
         })
-      })
-      this.selectChannels = result
-      this.setChecked()
-    }
+        this.selectChannels = result
+        this.setChecked()
+      }
 
-    this.channelData = deviceChannels
+      if (this.$route.query.channelSize) {
+        this.channelSize = this.$route.query.channelSize
+      }
+      this.channelData = deviceChannels
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.tableLoading = false
+    }
   }
 
   // 通道checkbox状态改变
   private selectChannel(selection:any) {
-    if (selection.length > 0) {
+    if (selection.length > this.channelSize) {
+      this.selectChannels = selection.slice(0, this.channelSize)
+      this.setChecked()
+      const temp = selection.slice(this.channelSize)
+      if (temp.length > 0) {
+        this.$message({
+          message: `可配置子通道数量不可超过${this.channelSize}个`,
+          type: 'warning'
+        })
+        temp.forEach((ele:any) => {
+          if (this.$refs.channelTable) {
+            (this.$refs.channelTable as any).toggleRowSelection(ele, false)
+          }
+        })
+      }
+    } else if (selection.length > 0 && selection.length <= this.channelSize) {
       this.selectChannels = selection
       this.setChecked()
     } else {
@@ -131,7 +158,6 @@ export default class extends Mixins(createMixin) {
       this.setChecked()
     } else {
       // 取消逻辑
-
       this.$confirm('确定取消此通道么？', '提示', {
         confirmButtonText: '关闭',
         cancelButtonText: '确定取消',
@@ -190,6 +216,9 @@ export default class extends Mixins(createMixin) {
     .createChannelBtnBox{
       margin-top: 20px;
       text-align: center;
+    }
+    v::deep .el-table__header .el-table-column--selection{
+      display: none;
     }
   }
 

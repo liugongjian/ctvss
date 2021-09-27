@@ -42,6 +42,7 @@ export default class ListMixin extends Vue {
   public transPriority = TransPriority
   public parentDeviceId = ''
   public axiosSources: any[] = []
+  private channelSize:any = null
 
   public loading = {
     info: false,
@@ -315,6 +316,7 @@ export default class ListMixin extends Vue {
           return channel
         })
         if (type === 'nvr') {
+          this.channelSize = res.channelSize
           // nvr通道后端全量返回，前端做筛选
           deviceList = deviceList.filter((device: any) => {
             if (this.filter.deviceStatus && device.deviceStatus !== this.filter.deviceStatus) {
@@ -450,7 +452,8 @@ export default class ListMixin extends Vue {
       deviceId: this.deviceId,
       type: 'createChannel',
       isChannel: this.isNVR,
-      channelNumList: result
+      channelNumList: result,
+      channelSize: this.channelSize
     })
   }
 
