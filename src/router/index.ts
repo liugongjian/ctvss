@@ -305,9 +305,9 @@ export const asyncRoutes: RouteConfig[] = [
             }
           },
           {
-            path: 'create-channel',
-            component: () => import(/* webpackChunkName: "device" */ '@/views/device/CreateChannel.vue'),
-            name: 'create-channel',
+            path: 'config-channel',
+            component: () => import(/* webpackChunkName: "device" */ '@/views/device/ConfigChannel.vue'),
+            name: 'config-channel',
             meta: {
               id: '20210424150201003007',
               title: '配置子通道',

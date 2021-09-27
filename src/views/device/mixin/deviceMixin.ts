@@ -307,9 +307,9 @@ export default class DeviceMixin extends Vue {
           deviceId: item.id
         }
         break
-      case 'createChannel':
+      case 'configChannel':
         router = {
-          name: 'create-channel'
+          name: 'config-channel'
         }
         query = {
           dirId: item.id,

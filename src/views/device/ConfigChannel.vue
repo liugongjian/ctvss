@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container createChannelBox">
+  <div class="app-container configChannelBox">
     <el-page-header :content="breadCrumbContent" @back="back" />
     <el-table
       ref="channelTable"
@@ -9,24 +9,25 @@
       @selection-change="selectChannel"
       @select="selectHandle"
     >
-      <el-table-column type="selection" width="55" prop="selection" />
+      <el-table-column type="selection" width="55" prop="selection" :selectable="ifDisabled" />
       <el-table-column prop="channelNum" label="通道号" />
       <el-table-column prop="channelName" label="通道名称" />
-      <el-table-column prop="deviceStatus" label="接入状态">
+      <!-- <el-table-column prop="deviceStatus" label="接入状态">
+        <template slot-scope="scope">
+          <status-badge :status="scope.row.deviceStatus === 'on' ? 'on' : 'warning'" />
+          {{ statusToText[scope.row.deviceStatus] || '未知' }}
+        </template>
+      </el-table-column> -->
+      <el-table-column prop="deviceStatus" label="设备本地状态">
         <template slot-scope="scope">
           <status-badge :status="scope.row.deviceStatus === 'on' ? 'on' : 'warning'" />
           {{ statusToText[scope.row.deviceStatus] || '未知' }}
         </template>
       </el-table-column>
-      <el-table-column prop="deviceStatus" label="设备本地状态">
-        <template slot-scope="scope">
-          {{ statusToText[scope.row.deviceStatus] || '未知' }}
-        </template>
-      </el-table-column>
       <el-table-column prop="deviceVendor" label="厂家" />
-      <el-table-column prop="createdTime" label="创建时间" />
+      <!-- <el-table-column prop="createdTime" label="接入时间" /> -->
     </el-table>
-    <div class="createChannelBtnBox">
+    <div class="configChannelBtnBox">
       <el-button type="primary" :loading="submitting" :disabled="selectChannels.length===0" @click="sureConfig">确定</el-button>
       <el-button @click="cancelConfig">取消</el-button>
     </div>
@@ -40,7 +41,7 @@ import { getChannelList, configChannels } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 
 @Component({
-  name: 'CreateEhomeDevice',
+  name: 'ConfigEhomeNvrChannel',
   components: {
     StatusBadge
   }
@@ -89,7 +90,6 @@ export default class extends Mixins(createMixin) {
         inProtocol: this.inProtocol,
         parentDeviceId: this.deviceId
       }
-
       const { deviceChannels } = await getChannelList(params)
       // 如果有通道号传入，即为编辑过子通道
       if (this.$route.query.channelNumList) {
@@ -112,6 +112,10 @@ export default class extends Mixins(createMixin) {
     } finally {
       this.tableLoading = false
     }
+  }
+
+  private ifDisabled(row:any) {
+    return row.deviceStatus === 'on'
   }
 
   // 通道checkbox状态改变
@@ -212,13 +216,10 @@ export default class extends Mixins(createMixin) {
 </script>
 
 <style lang="scss" scoped>
-  .createChannelBox{
-    .createChannelBtnBox{
+  .configChannelBox{
+    .configChannelBtnBox{
       margin-top: 20px;
       text-align: center;
-    }
-    v::deep .el-table__header .el-table-column--selection{
-      display: none;
     }
   }
 

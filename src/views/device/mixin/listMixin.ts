@@ -445,12 +445,12 @@ export default class ListMixin extends Vue {
   }
 
   // ehome配置子通道
-  private goToCreateChannel() {
+  private goToConfigChannel() {
     const result = this.deviceList.map(item => item.channelNum)
     this.deviceRouter({
       id: this.dirId,
       deviceId: this.deviceId,
-      type: 'createChannel',
+      type: 'configChannel',
       isChannel: this.isNVR,
       channelNumList: result,
       channelSize: this.channelSize
