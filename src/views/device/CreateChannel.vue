@@ -46,24 +46,24 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 })
 export default class extends Mixins(createMixin) {
   private channelData = [
-    {
-      channelNum: '1',
-      channelName: '通道名称1',
-      deviceStatus: 'on',
-      deviceVendor: '海康'
-    },
-    {
-      channelNum: '2',
-      channelName: '通道名称2',
-      deviceStatus: 'off',
-      deviceVendor: '海康'
-    },
-    {
-      channelNum: '3',
-      channelName: '通道名称3',
-      deviceStatus: 'on',
-      deviceVendor: '海康'
-    }
+    // {
+    //   channelNum: '1',
+    //   channelName: '通道名称1',
+    //   deviceStatus: 'on',
+    //   deviceVendor: '海康'
+    // },
+    // {
+    //   channelNum: '2',
+    //   channelName: '通道名称2',
+    //   deviceStatus: 'off',
+    //   deviceVendor: '海康'
+    // },
+    // {
+    //   channelNum: '3',
+    //   channelName: '通道名称3',
+    //   deviceStatus: 'on',
+    //   deviceVendor: '海康'
+    // }
   ]
 
   private statusToText = {
