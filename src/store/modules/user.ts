@@ -175,6 +175,7 @@ class User extends VuexModule implements IUserState {
     VGroupModule.resetVGroupInfo()
   }
 
+  // 该方法已弃用
   @Action
   public async GetUserInfo() {
     if (this.token === '') {
@@ -202,6 +203,8 @@ class User extends VuexModule implements IUserState {
       this.SET_MAIN_USER_ID(userInfo.userId)
       this.SET_MAIN_USER_ADDRESS(userInfo.address)
       this.SET_MAIN_USER_TAGS(userInfo.tags)
+      this.SET_NAME(userInfo.userName)
+      setUsername(userInfo.userName)
     }
     let data: any = null
     if (this.iamUserId) {
