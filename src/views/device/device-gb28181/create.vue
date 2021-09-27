@@ -29,7 +29,7 @@
             <el-option v-for="item in deviceTypeList" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item v-if="form.deviceType === 'nvr'" label="自动创建子设备:" prop="createSubDevice" class="form-with-tip">
+        <!-- <el-form-item v-if="form.deviceType === 'nvr'" label="自动创建子设备:" prop="createSubDevice" class="form-with-tip">
           <template slot="label">
             自动创建子设备:
             <el-popover
@@ -44,7 +44,7 @@
             </el-popover>
           </template>
           <el-switch v-model="form.createSubDevice" :active-value="1" :inactive-value="2" :disabled="isUpdate" />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item v-if="form.deviceType === 'nvr'" label="子设备数量:" prop="channelSize">
           <el-input-number v-model="form.channelSize" :min="minChannelSize" type="number" />
         </el-form-item>
