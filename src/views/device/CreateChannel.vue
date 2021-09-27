@@ -46,24 +46,24 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 })
 export default class extends Mixins(createMixin) {
   private channelData = [
-    // {
-    //   channelNum: '1',
-    //   channelName: '通道名称1',
-    //   deviceStatus: 'on',
-    //   deviceVendor: '海康'
-    // },
-    // {
-    //   channelNum: '2',
-    //   channelName: '通道名称2',
-    //   deviceStatus: 'off',
-    //   deviceVendor: '海康'
-    // },
-    // {
-    //   channelNum: '3',
-    //   channelName: '通道名称3',
-    //   deviceStatus: 'on',
-    //   deviceVendor: '海康'
-    // }
+    {
+      channelNum: '1',
+      channelName: '通道名称1',
+      deviceStatus: 'on',
+      deviceVendor: '海康'
+    },
+    {
+      channelNum: '2',
+      channelName: '通道名称2',
+      deviceStatus: 'off',
+      deviceVendor: '海康'
+    },
+    {
+      channelNum: '3',
+      channelName: '通道名称3',
+      deviceStatus: 'on',
+      deviceVendor: '海康'
+    }
   ]
 
   private statusToText = {
@@ -86,6 +86,20 @@ export default class extends Mixins(createMixin) {
     }
 
     const { deviceChannels } = await getChannelList(params)
+
+    // 如果有通道号传入，即为编辑过子通道
+    if (this.$route.query.channelNumList) {
+      const channelNumList = (this.$route.query.channelNumList as string).split(',').map(Number)
+      const result = deviceChannels.filter((item:any) => {
+        return channelNumList.some((val:any) => {
+          return val === item.channelNum
+        })
+      })
+      console.log('this,channelNumListresult=============>', result)
+      this.selectChannels = result
+      this.setChecked()
+    }
+
     this.channelData = deviceChannels
   }
 
@@ -103,6 +117,7 @@ export default class extends Mixins(createMixin) {
       }).then(() => {
         this.setChecked()
       }).catch(() => {
+        this.selectChannels = selection
         if (this.$refs.channelTable) {
           (this.$refs.channelTable as any).clearSelection()
         }
@@ -113,10 +128,12 @@ export default class extends Mixins(createMixin) {
   // 手动勾选checkbox逻辑
   private selectHandle(selection:any, row:any) {
     const result = selection.filter((item:any) => item.channelNum === row.channelNum)
+    console.log('result==>', result)
     if (result.length > 0) {
       this.setChecked()
     } else {
       // 取消逻辑
+
       this.$confirm('确定取消此通道么？', '提示', {
         confirmButtonText: '关闭',
         cancelButtonText: '确定取消',
@@ -155,6 +172,7 @@ export default class extends Mixins(createMixin) {
       await configChannels(params)
       this.$message.success('配置子通道成功！')
       this.back()
+      this.initDirs()
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {

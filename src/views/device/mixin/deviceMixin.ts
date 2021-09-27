@@ -314,7 +314,8 @@ export default class DeviceMixin extends Vue {
         query = {
           dirId: item.id,
           deviceId: item.deviceId,
-          isChannel: item.isChannel && item.isChannel.toString()
+          isChannel: item.isChannel && item.isChannel.toString(),
+          channelNumList: item.channelNumList && item.channelNumList.toString()
         }
         break
     }
