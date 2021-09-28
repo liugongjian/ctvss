@@ -36,7 +36,7 @@
               @change="setIDQuery"
             />
           </el-form-item>
-          <el-form-item prop="userName">
+          <el-form-item v-if="subUserLogin" prop="userName">
             <span class="svg-container">
               <svg-icon name="user" />
             </span>
@@ -45,6 +45,21 @@
               v-model="loginForm.userName"
               placeholder="账号"
               name="userName"
+              type="text"
+              tabindex="1"
+              autocomplete="on"
+              @change="setNameQuery"
+            />
+          </el-form-item>
+          <el-form-item v-else prop="mainUserName">
+            <span class="svg-container">
+              <svg-icon name="user" />
+            </span>
+            <el-input
+              ref="mainUserName"
+              v-model="loginForm.mainUserName"
+              placeholder="邮箱"
+              name="mainUserName"
               type="text"
               tabindex="1"
               autocomplete="on"
@@ -171,6 +186,13 @@ export default class extends Vue {
       callback()
     }
   }
+  private validateMainUsername = (rule: any, value: string, callback: Function) => {
+    if (!value) {
+      callback(new Error('邮箱不能为空'))
+    } else {
+      callback()
+    }
+  }
   private validatePassword = (rule: any, value: string, callback: Function) => {
     if (!value) {
       callback(new Error('密码不能为空'))
@@ -180,12 +202,14 @@ export default class extends Vue {
   }
   private loginForm = {
     mainUserID: '',
+    mainUserName: '',
     userName: '',
     password: ''
   }
   private loginRules = {
     mainUserID: [{ validator: this.validateMainUserId, trigger: 'blur' }],
     userName: [{ validator: this.validateUsername, trigger: 'blur' }],
+    mainUserName: [{ validator: this.validateMainUsername, trigger: 'blur' }],
     password: [{ validator: this.validatePassword, trigger: 'blur' }]
   }
   private passwordType = 'password'
@@ -290,11 +314,13 @@ export default class extends Vue {
           await GroupModule.ResetGroup()
           await GroupModule.ResetGroupList()
           const loginData: any = {
-            userName: this.loginForm.userName,
             password: this.loginForm.password
           }
           if (this.subUserLogin) {
             loginData.mainUserID = this.loginForm.mainUserID
+            loginData.userName = this.loginForm.userName
+          } else {
+            loginData.userName = this.loginForm.mainUserName
           }
           const result: any = await UserModule.Login(loginData)
           removeTicket()
