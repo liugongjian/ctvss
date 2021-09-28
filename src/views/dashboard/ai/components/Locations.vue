@@ -17,7 +17,7 @@
         <div v-if="type === '4'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
           匹配度:{{ location.score }}%
         </div>
-        <div v-if="type === '17'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning, 'ai-recognation__images__item__mask__text--top': location.clientTopPercent > 80, 'ai-recognation__images__item__mask__text--left': location.clientLeftPercent > 80}">
+        <div v-if="type === '17'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning, 'ai-recognation__images__item__mask__text--top': location.clientTopPercent + location.clientHeightPercent > 80, 'ai-recognation__images__item__mask__text--left': location.clientLeftPercent + location.clientWidthPercent> 80}">
           {{ location.text }}
         </div>
       </div>
