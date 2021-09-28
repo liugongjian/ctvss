@@ -17,6 +17,9 @@
         <div v-if="type === '4'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
           匹配度:{{ location.score }}%
         </div>
+        <div v-if="type === '17'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning, 'ai-recognation__images__item__mask__text--top': location.clientTopPercent > 80, 'ai-recognation__images__item__mask__text--left': location.clientLeftPercent > 80}">
+          {{ location.text }}
+        </div>
       </div>
       <div v-else class="ai-recognation__images__item__mask--zone">
         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" :viewBox="`0 0 ${location.imgNaturalWidth} ${location.imgNaturalHeight}`" style="enable-background:new 0 0 100 50.5;" xml:space="preserve">
@@ -109,6 +112,14 @@ export default class extends Vue {
         opacity: 0.8;
         &--warning {
           background: $white;
+        }
+        &--top {
+          top: -19px !important;
+          bottom: auto;
+        }
+        &--left {
+          right: -2px !important;
+          left: auto;
         }
       }
       &--selected {
