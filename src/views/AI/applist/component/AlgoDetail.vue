@@ -161,8 +161,12 @@ export default class extends Mixins(AppMixin) {
       const algorithmMetadata = { FaceDbName: '' }
       this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [] }
     }
-    const { groups } = await getAIConfigGroupData({})
-    this.faceLibs = groups
+    try {
+      const { groups } = await getAIConfigGroupData({})
+      this.faceLibs = groups
+    } catch (e) {
+      this.$alertError(e && e.message)
+    }
   }
 
   /**
@@ -170,9 +174,9 @@ export default class extends Mixins(AppMixin) {
    */
   private editTransformEffectiveTime() {
     const effectiveTime = JSON.parse(this.form.effectiveTime)
-    const period = effectiveTime.map(item => ({ period: [item.starttime, item.endtime] }))
+    const period = effectiveTime.map(item => ({ period: [item.start_time, item.end_time] }))
     this.$set(this.form, 'availableperiod', period)
-    if (effectiveTime.length === 1 && effectiveTime[0].starttime === '00:00:00' && effectiveTime[0].endtime === '23:59:59') {
+    if (effectiveTime.length === 1 && effectiveTime[0].start_time === '00:00:00' && effectiveTime[0].end_time === '23:59:59') {
       this.$set(this.form, 'effectPeriod', '全天')
     } else {
       this.$set(this.form, 'effectPeriod', '时间段')
@@ -226,15 +230,18 @@ export default class extends Mixins(AppMixin) {
       algorithmMetadata: JSON.stringify(this.form.algorithmMetadata),
       confidence: this.form.confidence / 100
     }
-    if (this.$route.query.id) {
-      await updateAppInfo(param)
-      this.$message.success('修改应用成功')
-    } else {
-      // 新建时带上算法ID
-      param = { ...param, algorithmsId: this.prod.id }
-      await createApp(param)
-      this.$message.success('新建应用成功')
+    try {
+      if (this.$route.query.id) {
+        await updateAppInfo(param)
+      } else {
+        // 新建时带上算法ID
+        param = { ...param, algorithmsId: this.prod.id }
+        await createApp(param)
+      }
+    } catch (e) {
+      this.$alertError(e && e.message)
     }
+    this.$message.success(`${this.$route.query.id ? '修改' : '新建'}应用成功`)
     this.backToAppList()
   }
   /**
@@ -264,12 +271,12 @@ export default class extends Mixins(AppMixin) {
    */
   private generateEffectiveTime() {
     if (this.form.effectPeriod === '全天') {
-      this.effectiveTime = [{ starttime: '00:00:00', endtime: '23:59:59' }]
+      this.effectiveTime = [{ start_time: '00:00:00', end_time: '23:59:59' }]
     } else {
       this.effectiveTime = this.form.availableperiod.map(element => {
         return {
-          starttime: element.period[0],
-          endtime: element.period[1]
+          start_time: element.period[0],
+          end_time: element.period[1]
         }
       })
     }

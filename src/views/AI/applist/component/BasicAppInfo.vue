@@ -23,7 +23,7 @@
         {{ resourceAiType[app.analyseType] }}
       </el-descriptions-item>
       <el-descriptions-item label="生效时段">
-        <span v-for="(item, index) in JSON.parse(app.effectiveTime)" :key="index">{{ item.starttime }} - {{ item.endtime }}</span>
+        <span v-for="(item, index) in JSON.parse(app.effectiveTime)" :key="index">{{ `${item.start_time}-${item.end_time}` }}&nbsp;&nbsp;</span>
       </el-descriptions-item>
       <el-descriptions-item label="人脸库">
         {{ faceLib.name || '' }}
@@ -60,7 +60,11 @@ export default class extends Mixins(AppMixin) {
    * 刷新数据
    */
   public async refresh() {
-    this.app = await getAppInfo({ id: this.appInfo.id })
+    try {
+      this.app = await getAppInfo({ id: this.appInfo.id })
+    } catch (e) {
+      this.$alertError(e && e.message)
+    }
   }
 
   /**
