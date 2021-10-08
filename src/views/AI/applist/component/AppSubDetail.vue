@@ -155,7 +155,7 @@ export default class extends Vue {
 
     private async mounted() {
       this.initFaceInfos()
-      this.getScreenShot()
+      this.device && this.getScreenShot()
     }
 
     /**
@@ -163,8 +163,8 @@ export default class extends Vue {
      */
     private getDateBefore(dayCount) {
       let dd = new Date()
-      dd.setDate(dd.getDate() + dayCount)
-      let time = dd.getTime()
+      dd.setDate(dd.getDate() - dayCount)
+      let time = dd.setHours(23, 59, 59, 999)
       return time
     }
 
