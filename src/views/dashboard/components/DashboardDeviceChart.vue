@@ -203,7 +203,7 @@ export default class extends Mixins(DashboardMixin) {
         formatter: (text: any, item: any) => item.name
       }
     })
-    this.chart.line().position('time*value').color('type', ['#6780B2', '#E4BC00']).shape('smooth')
+    this.chart.line().position('time*value').color('type', ['#6780B2', '#E4BC00'])
     this.chart.render()
   }
   /**
