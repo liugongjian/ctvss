@@ -62,4 +62,11 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
+.el-radio-group{
+  margin-bottom: 20px;
+  ::v-deep .el-radio-button__inner {
+    display: inline-block;
+    min-width: 160px;
+  }
+}
 </style>

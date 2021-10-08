@@ -53,9 +53,10 @@ export default class extends Vue {
   }
   .content-wrapper {
     display: inline-block;
+    position: relative;
     width:80%;
     height: 100%;
-    position: relative;
+    min-height: 150px;
     .prod__name {
       font-size: 16px;
       font-weight: bold;
@@ -67,7 +68,8 @@ export default class extends Vue {
       min-height: 50px;
     }
     .prod__buttons {
-      margin-top: 15px;
+      position: absolute;
+      bottom:0;
       &--select {
         padding: 10px 30px;
       }

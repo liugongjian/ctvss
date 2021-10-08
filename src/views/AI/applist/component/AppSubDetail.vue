@@ -150,12 +150,12 @@ export default class extends Vue {
     }
 
     private get isFaceAlgoCode() {
-      console.log(this.appInfo)
       return this.appInfo.algorithm.code === '10001'
     }
 
     private async mounted() {
       this.initFaceInfos()
+      this.getScreenShot()
     }
 
     /**
