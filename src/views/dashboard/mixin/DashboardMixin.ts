@@ -1,6 +1,6 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { UserModule } from '@/store/modules/user'
-
+import { getAppList } from '@/api/ai-app'
 @Component
 export default class DashboardMixin extends Vue {
   @Prop() public height: any
@@ -23,5 +23,30 @@ export default class DashboardMixin extends Vue {
   public setInterval(func: Function) {
     func()
     this.intervalInstance = setInterval(func, this.intervalTime)
+  }
+  public goRouter(appid: any) {
+    const addr = this.$router.resolve({
+      name: 'AI-AppDetail',
+      query: {
+        appid,
+        tabNum: '1'
+      }
+    })
+    window.open(addr.href, '_blank')
+  }
+
+  public async getAiApps() {
+    const { aiApps } = await getAppList({ pageSize: 3000 })
+    let algoSet = new Set()
+    let aiInfos = []
+    aiApps.forEach(app => {
+      if (algoSet.has(app.algorithm.id)) {
+        aiInfos[aiInfos.findIndex(value => value.id === app.algorithm.id)].apps.push(app)
+      } else {
+        aiInfos.push({ id: app.algorithm.id, name: app.algorithm.name, apps: [app] })
+      }
+      algoSet.add(app.algorithm.id)
+    })
+    return aiInfos
   }
 }

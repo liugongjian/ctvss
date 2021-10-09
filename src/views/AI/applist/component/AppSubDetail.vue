@@ -155,7 +155,7 @@ export default class extends Vue {
 
     private async mounted() {
       this.initFaceInfos()
-      this.device && this.getScreenShot()
+      this.device.deviceId.length > 0 && this.getScreenShot()
     }
 
     /**

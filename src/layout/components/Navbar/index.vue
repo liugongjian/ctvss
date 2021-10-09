@@ -102,7 +102,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Watch, Vue } from 'vue-property-decorator'
+import { Component, Watch, Mixins } from 'vue-property-decorator'
 import { trim } from 'lodash'
 import { AppModule } from '@/store/modules/app'
 import { UserModule } from '@/store/modules/user'
@@ -119,7 +119,7 @@ import Screenfull from '@/components/Screenfull/index.vue'
 import SizeSelect from '@/components/SizeSelect/index.vue'
 import TemplateBind from '@/views/components/templateBind.vue'
 import { checkPermission } from '@/utils/permission'
-import { getAppList } from '@/api/ai-app'
+import DashboardMixin from '@/views/dashboard/mixin/DashboardMixin'
 
 @Component({
   name: 'Navbar',
@@ -133,7 +133,7 @@ import { getAppList } from '@/api/ai-app'
     TemplateBind
   }
 })
-export default class extends Vue {
+export default class extends Mixins(DashboardMixin) {
   private checkPermission = checkPermission
   private alertType = AlertType
   private aiGroups = AiGroups
@@ -219,33 +219,9 @@ export default class extends Vue {
     this.groupId = groupId
   }
 
-  private mounted() {
+  private async mounted() {
     GroupModule.GetGroupList()
-    this.getAiApps()
-  }
-
-  private async getAiApps() {
-    const { aiApps } = await getAppList({ pageSize: 3000 })
-    let algoSet = new Set()
-    aiApps.forEach(app => {
-      if (algoSet.has(app.algorithm.id)) {
-        this.aiInfos[this.aiInfos.findIndex(value => value.id === app.algorithm.id)].apps.push(app)
-      } else {
-        this.aiInfos.push({ id: app.algorithm.id, name: app.algorithm.name, apps: [app] })
-      }
-      algoSet.add(app.algorithm.id)
-    })
-  }
-
-  private goRouter(appid: any) {
-    const addr = this.$router.resolve({
-      name: 'AI-AppDetail',
-      query: {
-        appid,
-        tabNum: '1'
-      }
-    })
-    window.open(addr.href, '_blank')
+    this.aiInfos = await this.getAiApps()
   }
 
   /**

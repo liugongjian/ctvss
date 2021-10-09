@@ -23,11 +23,11 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Mixins } from 'vue-property-decorator'
 import DashboardLightContainer from './DashboardLightContainer.vue'
 import { AlertType } from '@/dics'
 import { AiGroups } from '../helper/aiGroups'
-import { getAppList } from '@/api/ai-app'
+import DashboardMixin from '../mixin/DashboardMixin'
 
 @Component({
   name: 'DashboardAIAbility',
@@ -35,7 +35,7 @@ import { getAppList } from '@/api/ai-app'
     DashboardLightContainer
   }
 })
-export default class extends Vue {
+export default class extends Mixins(DashboardMixin) {
   private alertType = AlertType
   private aiGroups = AiGroups
   private aiInfos = []
@@ -44,31 +44,8 @@ export default class extends Vue {
     return 'DashboardLightContainer'
   }
 
-  private goRouter(appid: any) {
-    const addr = this.$router.resolve({
-      name: 'AI-AppDetail',
-      query: {
-        appid,
-        tabNum: '1'
-      }
-    })
-    window.open(addr.href, '_blank')
-  }
-  private mounted() {
-    this.getAiApps()
-  }
-
-  private async getAiApps() {
-    const { aiApps } = await getAppList({ pageSize: 3000 })
-    let algoSet = new Set()
-    aiApps.forEach(app => {
-      if (algoSet.has(app.algorithm.id)) {
-        this.aiInfos[this.aiInfos.findIndex(value => value.id === app.algorithm.id)].apps.push(app)
-      } else {
-        this.aiInfos.push({ id: app.algorithm.id, name: app.algorithm.name, apps: [app] })
-      }
-      algoSet.add(app.algorithm.id)
-    })
+  private async mounted() {
+    this.aiInfos = await this.getAiApps()
   }
 }
 </script>
