@@ -15,7 +15,9 @@
       </div>
     </div>
     <div>
-      <el-button class="applist-btn" size="medium" type="text" @click="$router.push({name: 'AI-AppList'})">查看全部>></el-button>
+      <el-button class="applist-btn" size="medium" type="text" @click="$router.push({name: 'AI-AppList'})">
+        查看全部<svg-icon name="arrow-right" />
+      </el-button>
     </div>
   </component>
 </template>
@@ -82,5 +84,10 @@ export default class extends Vue {
   .applist-btn {
     float: right;
     margin-top: -20px;
+    span{
+      svg {
+        margin-left: 5px;
+      }
+    }
   }
 </style>
