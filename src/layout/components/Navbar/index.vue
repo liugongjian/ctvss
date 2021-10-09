@@ -45,11 +45,17 @@
       <template v-if="(routerName === 'dashboardAI' && !isLight) || routerName === 'visualizationDashboard'">
         <div class="links">
           <a :class="{'actived': !queryAlertType}" @click="routeToHome()">可视化大屏</a>
-          <div v-for="group in aiGroups" :key="group.name" class="dropdown">
+          <!-- <div v-for="group in aiGroups" :key="group.name" class="dropdown">
             {{ group.name }} <svg-icon name="arrow-down2" width="8" height="8" />
-            <ul class="dropdown__menu">
-              <li v-for="aiType in group.children" :key="aiType" :class="{'actived': queryAlertType === aiType.toString()}" @click="routeToAI(aiType)">
+             -->
+          <div v-for="item in aiInfos" :key="item.name" class="dropdown" :style="{width: `${item.name.length * 16 + 56}px`}">
+            {{ item.name }} <svg-icon name="arrow-down2" width="8" height="8" />
+            <ul class="dropdown__menu" :style="{width: `${item.name.length * 16 + 56}px`}">
+              <!-- <li v-for="aiType in group.children" :key="aiType" :class="{'actived': queryAlertType === aiType.toString()}" @click="routeToAI(aiType)">
                 {{ alertType[aiType] }}
+              </li> -->
+              <li v-for="app in item.apps" :key="app.id" @click="goRouter(app.id)">
+                {{ app.name }}
               </li>
             </ul>
           </div>
@@ -113,6 +119,7 @@ import Screenfull from '@/components/Screenfull/index.vue'
 import SizeSelect from '@/components/SizeSelect/index.vue'
 import TemplateBind from '@/views/components/templateBind.vue'
 import { checkPermission } from '@/utils/permission'
+import { getAppList } from '@/api/ai-app'
 
 @Component({
   name: 'Navbar',
@@ -130,6 +137,7 @@ export default class extends Vue {
   private checkPermission = checkPermission
   private alertType = AlertType
   private aiGroups = AiGroups
+  private aiInfos = []
   public searchForm = {
     deviceId: ''
   }
@@ -213,6 +221,31 @@ export default class extends Vue {
 
   private mounted() {
     GroupModule.GetGroupList()
+    this.getAiApps()
+  }
+
+  private async getAiApps() {
+    const { aiApps } = await getAppList({ pageSize: 3000 })
+    let algoSet = new Set()
+    aiApps.forEach(app => {
+      if (algoSet.has(app.algorithm.id)) {
+        this.aiInfos[this.aiInfos.findIndex(value => value.id === app.algorithm.id)].apps.push(app)
+      } else {
+        this.aiInfos.push({ id: app.algorithm.id, name: app.algorithm.name, apps: [app] })
+      }
+      algoSet.add(app.algorithm.id)
+    })
+  }
+
+  private goRouter(appid: any) {
+    const addr = this.$router.resolve({
+      name: 'AI-AppDetail',
+      query: {
+        appid,
+        tabNum: '1'
+      }
+    })
+    window.open(addr.href, '_blank')
   }
 
   /**

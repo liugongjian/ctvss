@@ -4,8 +4,8 @@ const isHttps = process.argv[process.argv.length - 1] === '--https'
 const name = '天翼云视频云网平台-客户控制台'
 const serverAddressMapping = {
   local: 'http://172.24.6.4:8081', // 本地环境
-  dev: 'http://182.43.127.35:9190', // 开发环境
-  dev2: 'http://182.43.127.35:9050', // 开发环境2
+  dev: 'http://182.43.127.35:9190', // 开发环境---对应后端deploy-dev
+  dev2: 'http://182.43.127.35:9050', // 开发环境2---对应后端deploy-dev-1
   test: 'https://182.43.127.35:9180', // 测试环境
   test2: 'https://182.43.127.35:9160', // 测试环境2
   prod: 'https://182.43.127.45' // 生产环境

@@ -114,7 +114,12 @@ import { ResourceAiType } from '@/dics'
 import AppMixin from '../../mixin/app-mixin'
 
 const getRule = (msg) => {
-  return [{ required: true, trigger: 'blur', message: msg }]
+  let rule = []
+  if (msg === '应用名称') {
+    rule.push({ min: 1, max: 10, message: '名称需在 1 到 10 个字符之间', trigger: 'blur' })
+  }
+  rule.push({ required: true, trigger: 'blur', message: '请输入' + msg })
+  return rule
 }
 @Component({
   name: 'AlgoDetail',
@@ -132,12 +137,12 @@ export default class extends Mixins(AppMixin) {
   }
   private faceLibs = []
   private isfaceLibLoading = false
-  private rules: any = {
-    name: getRule('请输入应用名称'),
-    analyseType: getRule('请输入分析类型'),
-    effectPeriod: getRule('请输入生效时段'),
-    'algorithmMetadata.FaceDbName': getRule('请输入人脸库'),
-    confidence: getRule('请输入置信度')
+  public rules: any = {
+    name: getRule('应用名称'),
+    analyseType: getRule('分析类型'),
+    effectPeriod: getRule('生效时段'),
+    'algorithmMetadata.FaceDbName': getRule('人脸库'),
+    confidence: getRule('置信度')
   }
   private effectiveTime: any = []
 
