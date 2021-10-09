@@ -48,7 +48,7 @@ export default class extends Mixins(AppMixin) {
 
   private async mounted() {
     await this.getAbilityList()
-    this.getAlgorithmList()
+    await this.getAlgorithmList()
   }
 
   /**

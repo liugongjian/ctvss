@@ -48,7 +48,7 @@
         </div>
       </span>
     </div>
-    <div class="chart-wrapper">
+    <div v-if="isGatheringCode" class="chart-wrapper">
       <div class="title">
         <div class="title-block" />
         <span>人员聚集趋势</span>
@@ -151,6 +151,9 @@ export default class extends Vue {
 
     private get isFaceAlgoCode() {
       return this.appInfo.algorithm.code === '10001'
+    }
+    private get isGatheringCode() {
+      return this.appInfo.algorithm.code === '10005'
     }
 
     private async mounted() {
