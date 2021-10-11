@@ -37,15 +37,16 @@ export default class DashboardMixin extends Vue {
 
   public async getAiApps() {
     const { aiApps } = await getAppList({ pageSize: 3000 })
+    console.log(aiApps)
     let algoSet = new Set()
     let aiInfos = []
     aiApps.forEach(app => {
-      if (algoSet.has(app.algorithm.id)) {
-        aiInfos[aiInfos.findIndex(value => value.id === app.algorithm.id)].apps.push(app)
+      if (algoSet.has(app.abilityId)) {
+        aiInfos[aiInfos.findIndex(value => value.id === app.abilityId)].apps.push(app)
       } else {
-        aiInfos.push({ id: app.algorithm.id, name: app.algorithm.name, apps: [app] })
+        aiInfos.push({ id: app.abilityId, name: app.abilityName, apps: [app] })
       }
-      algoSet.add(app.algorithm.id)
+      algoSet.add(app.abilityId)
     })
     return aiInfos
   }

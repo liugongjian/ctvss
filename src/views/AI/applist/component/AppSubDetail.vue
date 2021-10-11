@@ -177,6 +177,8 @@ export default class extends Vue {
     private async getScreenShot() {
       const [startTime, endTime] = this.queryParam.period
       const [confidenceMin, confidenceMax] = this.queryParam.confidence
+      const { deviceId, inProtocol } = this.device
+      const { pageNum, pageSize } = this.pager
       const query = {
         startTime,
         endTime,
@@ -185,10 +187,10 @@ export default class extends Vue {
         faceDb: this.faceLib.id,
         faceIdList: this.queryParam.faceSelected,
         appId: this.appInfo.id,
-        deviceId: this.device.deviceId,
-        inProtocol: this.device.inProtocol,
-        pageNum: this.pager.pageNum,
-        pageSize: this.pager.pageSize }
+        deviceId,
+        inProtocol,
+        pageNum,
+        pageSize }
       const res = await getAppScreenShot(query)
       this.pager.totalNum = res.totalNum
       this.picInfos = res.screenShotList
