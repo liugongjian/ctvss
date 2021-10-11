@@ -36,18 +36,25 @@
             2022-03-02 12:23:30
           </el-descriptions-item>
           <el-descriptions-item content-class-name="detail__table-row" label="AI应用">
-            <el-table :data="aiList" empty-text="暂无AI应用">
-              <el-table-column label="应用名称" min-width="200" prop="appName" />
-              <el-table-column label="算法类型" min-width="200">
+            <el-table :data="algoListData" empty-text="暂无AI应用，请在AI应用管理中创建">
+              <el-table-column label="应用名称" min-width="100" prop="appName" />
+              <el-table-column label="算法类型" min-width="100">
                 <template slot-scope="scope">
                   {{ resourceAiType[scope.row.aiType] }}
                 </template>
               </el-table-column>
-              <el-table-column label="操作" min-width="130">
-                <template>
-                  <el-button type="text" @click="openCanvasDialog">算法配置</el-button>
-                  <el-button type="text">解除绑定</el-button>
+              <el-table-column prop="appEnabled" label="状态">
+                <template slot-scope="scope">
+                  <status-badge :status="scope.row.appEnabled ? 'on' : 'off'" />
+                  <span>
+                    {{ parseInt(scope.row.appEnabled) ? '启用' : '停用' }}
+                  </span>
                 </template>
+              </el-table-column>
+              <el-table-column label="操作" min-width="200">
+                <el-button type="text" @click="openCanvasDialog">算法配置</el-button>
+                <el-button type="text">解除绑定</el-button>
+                <el-button type="text">启用</el-button>
               </el-table-column>
             </el-table>
           </el-descriptions-item>
@@ -126,8 +133,10 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import { ResourceAiType } from '@/dics'
 import { GroupModule } from '@/store/modules/group'
 import { getDeviceRecordTemplate, getDeviceCallbackTemplate } from '@/api/device'
+import { getAppList } from '@/api/ai-app'
 import SetRecordTemplate from '@/views/components/dialogs/SetRecordTemplate.vue'
 import SetCallBackTemplate from '@/views/components/dialogs/SetCallBackTemplate.vue'
+import StatusBadge from '@/components/StatusBadge/index.vue'
 import AlgoConfig from './AlgoConfig/index.vue'
 
 @Component({
@@ -135,7 +144,8 @@ import AlgoConfig from './AlgoConfig/index.vue'
   components: {
     SetRecordTemplate,
     SetCallBackTemplate,
-    AlgoConfig
+    AlgoConfig,
+    StatusBadge
   }
 })
 export default class extends Vue {
@@ -168,6 +178,11 @@ export default class extends Vue {
     }
   ]
 
+  private algoListData:any = [{
+    appName: '人员布控',
+    aiType: 'AI-100'
+  }]
+
   private canvasDialog = false;
 
   private openCanvasDialog() {
@@ -184,6 +199,7 @@ export default class extends Vue {
   private async mounted() {
     this.getCallbackTemplate()
     this.getRecordTemplate()
+    this.getAlgoList()
   }
 
   /**
@@ -253,6 +269,22 @@ export default class extends Vue {
     this.setCallbackTemplateDialog = false
     this.getCallbackTemplate()
   }
+
+  // 获取算法能力
+  private async getAlgoList() {
+    try {
+      this.loading.recordTemplate = true
+      const algoListResult = await getAppList({ deviceId: this.deviceId })
+      this.algoListData = algoListResult.aiApps
+      console.log('algoListResult.aiApps--->', algoListResult.aiApps)
+    } catch (e) {
+      if (e && e.code !== 5) {
+        this.$message.error(e && e.message)
+      }
+    } finally {
+      this.loading.recordTemplate = false
+    }
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -265,6 +297,7 @@ export default class extends Vue {
     }
     ::v-deep .detail__table-row {
       padding-right: 15px;
+      flex: 1;
     }
   }
 </style>
