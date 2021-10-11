@@ -5,11 +5,11 @@
       ref="channelTable"
       v-loading="tableLoading"
       :data="channelData"
-      empty-text="暂无通道"
+      empty-text="暂时无法获得通道列表"
       @selection-change="selectChannel"
       @select="selectHandle"
     >
-      <el-table-column type="selection" width="55" prop="selection" :selectable="ifDisabled" />
+      <el-table-column type="selection" width="55" prop="selection" />
       <el-table-column prop="channelNum" label="通道号" />
       <el-table-column prop="channelName" label="通道名称" />
       <!-- <el-table-column prop="deviceStatus" label="接入状态">
