@@ -218,15 +218,15 @@ export default class extends Vue {
   }
 
   private async checkNodes(dirTree: any, node: any) {
-    if (node.loaded) {
-      node.expanded = true
-      return
-    }
     if (node.checked) {
-      const dirs = await this.getTree(node)
-      dirTree.updateKeyChildren(node.data.id, dirs)
-      node.expanded = true
-      node.loaded = true
+      if (node.loaded) {
+        node.expanded = true
+      } else {
+        const dirs = await this.getTree(node)
+        dirTree.updateKeyChildren(node.data.id, dirs)
+        node.expanded = true
+        node.loaded = true
+      }
       node.childNodes.forEach((child: any) => {
         child.checked = true
         if (child.data.type !== 'ipc') {
