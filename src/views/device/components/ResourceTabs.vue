@@ -77,6 +77,7 @@
           <el-tab-pane v-for="item in aiAbilityTab" :key="item.id" :label="`${item.name}(${item.aiApps})`" :name="item.id">
             <el-table
               :ref="`algoTable${Number(item.id)}`"
+              v-loading="loading.resouceAiTable"
               class="algoTabTable"
               tooltip-effect="dark"
               :data="algoListData"
@@ -170,7 +171,8 @@ export default class extends Vue {
   private loading:any = {
     resouceVideoList: false,
     resouceAiList: false,
-    resouceUploadList: false
+    resouceUploadList: false,
+    resouceAiTable: false
   }
   private resouceVideoList = []
   private resouceAiList = []
@@ -312,14 +314,16 @@ export default class extends Vue {
   // 判断是否是编辑进入
   private ifHasCheceked() {
     if (this.isUpdate) {
-      this.selectAlgoId = this.vssAiApps
+      this.selectAlgoId = this.vssAiApps.length ? this.vssAiApps : []
       const result = this.resouceAiList.find(item => {
         return this.value.map((val:any) => {
           return val.resourceId === item.resourceId
         })
       })
+
       if (Object.keys(result).length > 0) {
-        this.getAiAlgoList(result)
+        // this.getAiAlgoList(result)
+        this.onRadioChange('ai', result)
       }
     }
   }
@@ -343,9 +347,13 @@ export default class extends Vue {
   }
 
   private async getResourceIdAttachedAppIds(row:any) {
-    this.resourceHasAppIds = await getResourceIdAttachedAppIds({ resourceId: row.resourceId })
-    this.selectAlgoId = this.resourceHasAppIds
-    // this.checkInfoObj[this.chooseData.resourceId][this.algoTabType]
+    if (this.checkInfoObj[row.resourceId] && Object.values(this.checkInfoObj[row.resourceId]).length === 0) {
+      const { appIdList } = await getResourceIdAttachedAppIds({ resourceId: row.resourceId })
+      this.resourceHasAppIds = appIdList
+      if (this.selectAlgoId.length === 0) {
+        this.selectAlgoId = this.resourceHasAppIds
+      }
+    }
   }
 
   // 获取算法名
@@ -364,13 +372,28 @@ export default class extends Vue {
 
   // 获取算法能力
   private async getAlgoList() {
-    const algoListResult = await getAppList({ abilityId: this.algoTabType })
-    this.algoListData = algoListResult.aiApps
-    if (this.isUpdate) {
-      const result = this.algoListData.filter((item:any) => { this.selectAlgoId.some(val => item.id === val.id) })
-      this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = result
+    try {
+      this.loading.resouceAiTable = true
+      const algoListResult = await getAppList({ abilityId: this.algoTabType })
+      this.algoListData = algoListResult.aiApps
+      if (this.isUpdate) {
+        if (this.resourceHasAppIds.length > 0) {
+          const result = this.algoListData.filter((item:any) => { this.resourceHasAppIds.some(val => item.id === val.id) })
+          // 过滤已选中数据和已编辑过得数据
+          const resultFinal = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].filter((item:any) => { result.some((val:any) => val.id !== item.id) })
+          if (resultFinal.length > 0) {
+            this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].push(resultFinal)
+          }
+        }
+      }
+      this.setChecked()
+    } catch (e) {
+      if (e && e.code !== 5) {
+        this.$message.error(e && e.message)
+      }
+    } finally {
+      this.loading.resouceAiTable = false
     }
-    this.setChecked()
   }
 
   // 判断当前table列是否可选
@@ -438,6 +461,7 @@ export default class extends Vue {
           this.$refs[`algoTable${this.algoTabType}`][0].toggleRowSelection(element, true)
         }
       })
+      console.log('this.checkInfoObj==>', this.checkInfoObj)
     })
   }
 }
