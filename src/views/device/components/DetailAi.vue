@@ -1,16 +1,19 @@
 <template>
   <div>
-    <el-radio-group v-model="app" @change="appChange">
-      <el-radio-button v-for="item in apps" :key="item.id" :label="item.name" :name="item.id" />
-    </el-radio-group>
-    <app-sub-detail v-if="appInfo.name" :device="device" :app-info="appInfo" :face-lib="faceLib" />
+    <div>
+      <el-radio-group v-model="app" @change="appChange">
+        <el-radio-button v-for="item in apps" :key="item.id" :label="item.name" :name="item.id" />
+      </el-radio-group>
+      <app-sub-detail v-if="appInfo.name" :device="device" :app-info="appInfo" :face-lib="faceLib" />
+    </div>
+    <div v-if="noapp" class="no-data">暂时无绑定的应用</div>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import AppSubDetail from '@/views/AI/applist/component/AppSubDetail.vue'
-// import { getAppInfo } from '@/api/ai-app'
+import { getAppList } from '@/api/ai-app'
 import { getAIConfigGroupData } from '@/api/aiConfig'
 
 @Component({
@@ -30,6 +33,9 @@ export default class extends Vue {
   private get device() {
     return { deviceId: this.deviceId, inProtocol: this.inProtocol }
   }
+  private get noapp() {
+    return this.apps.length === 0
+  }
 
   private async mounted() {
     // this.apps = await getAppInfo({ id: this.$route.query.appid })
@@ -38,11 +44,11 @@ export default class extends Vue {
     this.initFaceLib(groups)
   }
 
-  private initDeviceApp() {
-    // this.apps = await getAppInfo({ id: this.$route.query.appid })
-    this.apps = [{ id: '13', name: '人脸', description: 'dsf', analyseType: 'AI-100', effectiveTime: '[{"starttime":"00:00:00","endtime":"23:59:59"}]', confidence: 0, callbackUrl: 'sdf', callbackKey: '', appEnabled: '1', deleted: 'N', userId: '20720016', iamGroupId: '0', admUserId: '0', createTime: '2021-09-13 14:19:09', updateTime: '2021-09-14 19:26:47', joinDeviceNum: '0', user: '', mainUserId: '', innerIamUserId: '', algorithmsId: '0', associateDevices: '0', algorithm: { id: '1', name: '人脸识别', summary: '通过比对人脸库中的照片，进行1:N比对，得到人脸相似度，分析图片中人脸的遮挡度、模糊度、光照强度、姿态角度、完整度，基于输出的符合质量标准的图片，返回被识别的人员信息。', code: '10001', icon: '人脸识别', type: '', publishFlag: '人脸识别', detail: '人脸识别', labels: '人脸识别', needConfig: '1', aiAbility: null, createTime: '2021-03-30 10:46:53', updateTime: '2021-03-30 10:46:53', aiAbilityId: '1' }, algorithmMetadata: '{"FaceDbName":"163263019880431616"}', abilityId: '0' },
-      { id: '14', name: '脸', description: 'dsf', analyseType: 'AI-100', effectiveTime: '[{"starttime":"00:00:00","endtime":"23:59:59"}]', confidence: 0, callbackUrl: 'sdf', callbackKey: '', appEnabled: '1', deleted: 'N', userId: '20720016', iamGroupId: '0', admUserId: '0', createTime: '2021-09-13 14:19:09', updateTime: '2021-09-14 19:26:47', joinDeviceNum: '0', user: '', mainUserId: '', innerIamUserId: '', algorithmsId: '0', associateDevices: '0', algorithm: { id: '1', name: '人脸识别', summary: '通过比对人脸库中的照片，进行1:N比对，得到人脸相似度，分析图片中人脸的遮挡度、模糊度、光照强度、姿态角度、完整度，基于输出的符合质量标准的图片，返回被识别的人员信息。', code: '10001', icon: '人脸识别', type: '', publishFlag: '人脸识别', detail: '人脸识别', labels: '人脸识别', needConfig: '1', aiAbility: null, createTime: '2021-03-30 10:46:53', updateTime: '2021-03-30 10:46:53', aiAbilityId: '1' }, algorithmMetadata: '{"FaceDbName":"163263019880431616"}', abilityId: '0' }]
-    this.apps.length > 0 && (this.appInfo = this.apps[0])
+  private async initDeviceApp() {
+    const { aiApps } = await getAppList({ deviceId: this.$route.query.deviceId })
+    console.log(aiApps)
+    aiApps.length > 0 && (this.appInfo = aiApps[0])
+    this.apps = aiApps
     this.app = this.appInfo.name
   }
 
@@ -68,5 +74,12 @@ export default class extends Vue {
     display: inline-block;
     min-width: 160px;
   }
+}
+.no-data{
+  height: 400px;
+  line-height: 200px;
+  vertical-align: middle;
+  text-align: center;
+  color: rgba(186,198,198);
 }
 </style>
