@@ -37,15 +37,13 @@
           </el-descriptions-item>
           <el-descriptions-item content-class-name="detail__table-row" label="AI应用">
             <el-table :data="algoListData" empty-text="暂无AI应用，请在AI应用管理中创建">
-              <el-table-column label="应用名称" min-width="100" prop="appName" />
+              <el-table-column label="应用名称" min-width="100" prop="name" />
               <el-table-column label="算法类型" min-width="100">
-                <template slot-scope="scope">
-                  {{ resourceAiType[scope.row.aiType] }}
-                </template>
+                <template slot-scope="scope">{{ scope.row.algorithm.name }}</template>
               </el-table-column>
               <el-table-column prop="appEnabled" label="状态">
                 <template slot-scope="scope">
-                  <status-badge :status="scope.row.appEnabled ? 'on' : 'off'" />
+                  <status-badge :status="parseInt(scope.row.appEnabled) ? 'on' : 'off'" />
                   <span>
                     {{ parseInt(scope.row.appEnabled) ? '启用' : '停用' }}
                   </span>
