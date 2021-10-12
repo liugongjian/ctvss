@@ -6,7 +6,7 @@
         资源包
         <el-link @click="changeResourceDialog">配置</el-link>
       </div>
-      <el-card>
+      <el-card v-if="resources.VSS_VIDEO">
         <template slot="header">
           视频包
           <el-link @click="changeResourceDialog">配置视频包</el-link>
@@ -23,7 +23,7 @@
           </el-descriptions-item>
         </el-descriptions>
       </el-card>
-      <el-card>
+      <el-card v-if="resources.VSS_AI">
         <template slot="header">
           AI包
           <el-link @click="changeResourceDialog('AI')">配置AI包</el-link>
@@ -57,6 +57,23 @@
                 </template>
               </el-table-column>
             </el-table>
+          </el-descriptions-item>
+        </el-descriptions>
+      </el-card>
+      <el-card v-if="resources.VSS_UPLOAD_BW">
+        <template slot="header">
+          带宽包
+          <el-link @click="changeResourceDialog">配置带宽包</el-link>
+        </template>
+        <el-descriptions :column="2">
+          <el-descriptions-item label="码率">
+            1Mbps
+          </el-descriptions-item>
+          <el-descriptions-item label="存储周期">
+            180天
+          </el-descriptions-item>
+          <el-descriptions-item label="到期时间">
+            2022-03-02 12:23:30
           </el-descriptions-item>
         </el-descriptions>
       </el-card>
@@ -191,12 +208,6 @@ export default class extends Vue {
   private showResourceDialog = false;
 
   private algoTabTypeDefault = '';
-
-  private ifShowThis = {
-    'VSS_VIDEO': false,
-    'VSS_AI': false,
-    'VSS_UPLOAD_BW': false
-  }
 
   private resources:any = {}
 
@@ -334,21 +345,13 @@ export default class extends Vue {
       deviceType: this.deviceInfo.deviceType,
       inProtocol: this.inProtocol
     })
-    console.log('resourcesRes==>', resourcesRes)
-    // 判断 资源包 AI包 带宽包是否展示
-    // const result = resourcesRes.resources.map((item:any) => item.resourceType)
-    // this.ifShowThis = {
-    //   'VSS_VIDEO': result.indexOf('VSS_VIDEO') > -1,
-    //   'VSS_AI': result.indexOf('VSS_AI') > -1,
-    //   'VSS_UPLOAD_BW': result.indexOf('VSS_UPLOAD_BW') > -1
-    // }
-    // this.resources =
-    const result = resourcesRes.resources.map((item:any) => {
-      return {
-        [item.workOrderId]: item
-      }
+    const result = {}
+    // 以workOrderId 为key 重组数据，渲染使用
+    resourcesRes.resources.forEach((ele:any) => {
+      result[ele.workOrderId] = ele
     })
-    console.log('result=========>', result)
+
+    this.resources = result
   }
 }
 </script>
