@@ -1,12 +1,12 @@
 <template>
   <div>
-    <div>
+    <div v-if="!noapp">
       <el-radio-group v-model="app" @change="appChange">
-        <el-radio-button v-for="item in apps" :key="item.id" :label="item.name" :name="item.id" />
+        <el-radio-button v-for="(item, index) in apps" :key="item.id" :label="item.id">{{ apps[index].name }}</el-radio-button>
       </el-radio-group>
       <app-sub-detail v-if="appInfo.name" :device="device" :app-info="appInfo" :face-lib="faceLib" />
     </div>
-    <div v-if="noapp" class="no-data">暂时无绑定的应用</div>
+    <div v-else class="no-data">暂无绑定的应用</div>
   </div>
 </template>
 
@@ -38,7 +38,6 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    // this.apps = await getAppInfo({ id: this.$route.query.appid })
     this.initDeviceApp()
     const { groups }: any = await getAIConfigGroupData({})
     this.initFaceLib(groups)
@@ -46,10 +45,11 @@ export default class extends Vue {
 
   private async initDeviceApp() {
     const { aiApps } = await getAppList({ deviceId: this.$route.query.deviceId })
-    console.log(aiApps)
-    aiApps.length > 0 && (this.appInfo = aiApps[0])
-    this.apps = aiApps
-    this.app = this.appInfo.name
+    if (aiApps.length > 0) {
+      this.appInfo = aiApps[0]
+      this.apps = aiApps
+      this.app = this.appInfo.id
+    }
   }
 
   private initFaceLib(groups) {
@@ -60,7 +60,8 @@ export default class extends Vue {
   }
 
   private appChange(val) {
-    const temp = this.apps.filter(item => item.name === val)
+    const temp = this.apps.filter(item => item.id === val)
+    console.log(temp)
     if (temp.length > 0) {
       this.appInfo = temp[0]
     }
