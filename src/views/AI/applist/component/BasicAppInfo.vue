@@ -4,14 +4,14 @@
       <el-button @click="editApp(app)"><svg-icon name="edit" /> 编辑</el-button>
       <el-button @click="deleteApp(app)"><svg-icon name="trash" /> 删除</el-button>
     </div>
-    <el-descriptions title="应用状态" :column="2">
+    <!-- <el-descriptions title="应用状态" :column="2">
       <el-descriptions-item label="应用状态">
         <status-badge :status="Number(app.appEnabled)" />
         {{ Number(app.appEnabled) ? '已启用' : '未启用' }}
-        <!-- <el-link v-if="Number(app.appEnabled) && checkPermission(['*'])" @click="startOrStopApp(app, 0)">停用</el-link>
-        <el-link v-else-if="checkPermission(['*'])" @click="startOrStopApp(app, 1)">启用</el-link> -->
+        <el-link v-if="Number(app.appEnabled) && checkPermission(['*'])" @click="startOrStopApp(app, 0)">停用</el-link>
+        <el-link v-else-if="checkPermission(['*'])" @click="startOrStopApp(app, 1)">启用</el-link>
       </el-descriptions-item>
-    </el-descriptions>
+    </el-descriptions> -->
     <el-descriptions title="AI算法信息" :column="2">
       <el-descriptions-item label="应用名称">
         {{ app.name }}
@@ -25,7 +25,7 @@
       <el-descriptions-item label="生效时段">
         <span v-for="(item, index) in JSON.parse(app.effectiveTime)" :key="index">{{ `${item.start_time}-${item.end_time}` }}&nbsp;&nbsp;</span>
       </el-descriptions-item>
-      <el-descriptions-item label="人脸库">
+      <el-descriptions-item v-if="isFaceAlgoCode" label="人脸库">
         {{ faceLib.name || '' }}
       </el-descriptions-item>
       <el-descriptions-item label="描述">
@@ -53,6 +53,10 @@ export default class extends Mixins(AppMixin) {
   private app: any = {}
   private resourceAiType: any = ResourceAiType
 
+  private get isFaceAlgoCode() {
+    return this.app.algorithm.code === '10001'
+  }
+
   public created() {
     this.app = this.appInfo
   }
@@ -65,6 +69,9 @@ export default class extends Mixins(AppMixin) {
     } catch (e) {
       this.$alertError(e && e.message)
     }
+  }
+  private mounted() {
+    console.log(this.app)
   }
 
   /**

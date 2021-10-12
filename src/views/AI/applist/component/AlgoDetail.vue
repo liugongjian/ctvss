@@ -60,7 +60,7 @@
           <el-option v-for="item in faceLibs" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
         <i class="el-icon-refresh" @click="refreshFaceLib" />
-        <el-button type="text">+新建人脸库</el-button>
+        <el-button type="text" @click="goFaceLib">+新建人脸库</el-button>
       </el-form-item>
       <el-form-item v-if="prod.code === '10006' || (form.algorithm && form.algorithm.code === '10006')" label="围栏区域">
         <el-alert
@@ -92,7 +92,7 @@
           <el-radio label="签名验证" />
         </el-radio-group>
       </el-form-item>
-      <el-form-item v-if="form.validateType === '签名验证'" label="回调key">
+      <el-form-item v-if="form.validateType === '签名验证'" label="回调key" prop="callbackKey">
         <el-input v-model="form.callbackKey" />
       </el-form-item>
       <el-form-item label="描述">
@@ -142,7 +142,8 @@ export default class extends Mixins(AppMixin) {
     analyseType: getRule('分析类型'),
     effectPeriod: getRule('生效时段'),
     'algorithmMetadata.FaceDbName': getRule('人脸库'),
-    confidence: getRule('置信度')
+    confidence: getRule('置信度'),
+    callbackKey: getRule('回调key')
   }
   private effectiveTime: any = []
 
@@ -286,6 +287,16 @@ export default class extends Mixins(AppMixin) {
       })
     }
     this.effectiveTime = JSON.stringify(this.effectiveTime)
+  }
+
+  /**
+   * 新窗口前往人脸库
+   */
+  private goFaceLib() {
+    const addr = this.$router.resolve({
+      name: 'aiconfig'
+    })
+    window.open(addr.href, '_blank')
   }
 }
 </script>

@@ -46,9 +46,9 @@
             </el-table-column>
             <el-table-column prop="description" label="描述" show-overflow-tooltip />
             <el-table-column prop="joinDeviceNum" label="关联设备数" />
-            <el-table-column prop="appEnabled" label="状态">
+            <!-- <el-table-column prop="appEnabled" label="状态">
               <template slot-scope="scope"><span>{{ parseInt(scope.row.appEnabled) ? '启用' : '未启用' }}</span></template>
-            </el-table-column>
+            </el-table-column> -->
             <el-table-column label="操作" prop="action" class-name="col-action" width="150" fixed="right">
               <template slot-scope="scope">
                 <el-button type="text" @click="appDetail(scope.row, 1)">分析结果</el-button>
