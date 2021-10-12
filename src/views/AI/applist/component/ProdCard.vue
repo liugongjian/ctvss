@@ -69,7 +69,7 @@ export default class extends Vue {
     }
     .prod__buttons {
       position: absolute;
-      bottom:0;
+      bottom:-8px;
       &--select {
         padding: 10px 30px;
       }
