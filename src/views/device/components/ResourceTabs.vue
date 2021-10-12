@@ -160,6 +160,7 @@ export default class extends Vue {
   @Prop() private inProtocol?: string
   @Prop() private isPrivateInNetwork?: string
   @Prop() private vssAiApps?:any
+  @Prop() private algoTabTypeDefault?:string
 
   private resourceTabType = 'video'
   private resourceAiType = ResourceAiType
@@ -202,6 +203,7 @@ export default class extends Vue {
     this.resouceUploadList = await this.getResouces('VSS_UPLOAD_BW', 'resouceUploadList')
     this.handleResourceAppIds()
     this.onFormChange(true)
+    this.defaultTab()
   }
 
   /**
@@ -314,7 +316,7 @@ export default class extends Vue {
   // 判断是否是编辑进入
   private ifHasCheceked() {
     if (this.isUpdate) {
-      this.selectAlgoId = this.vssAiApps.length ? this.vssAiApps : []
+      this.selectAlgoId = this.vssAiApps && this.vssAiApps.length ? this.vssAiApps : []
       const result = this.resouceAiList.find(item => {
         return this.value.map((val:any) => {
           return val.resourceId === item.resourceId
@@ -336,22 +338,22 @@ export default class extends Vue {
 
   // AI包radio事件
   private onRadioChange(type: string, row: any) {
+    if (this.isUpdate) {
+      this.getResourceIdAttachedAppIds(row)
+    }
     this.closeTips()
     this.chooseData = row
     this.getAiAlgoList(row)
     this.totalDeviceConfigCount = row.totalDeviceCount
     this.remainDeviceConfigCount = row.remainDeviceCount
-    if (this.isUpdate) {
-      this.getResourceIdAttachedAppIds(row)
-    }
   }
 
   private async getResourceIdAttachedAppIds(row:any) {
-    if (this.checkInfoObj[row.resourceId] && Object.values(this.checkInfoObj[row.resourceId]).length === 0) {
+    if (!this.checkInfoObj[row.resourceId] || Object.values(this.checkInfoObj[row.resourceId]).length === 0) {
       const { appIdList } = await getResourceIdAttachedAppIds({ resourceId: row.resourceId })
       this.resourceHasAppIds = appIdList
       if (this.selectAlgoId.length === 0) {
-        this.selectAlgoId = this.resourceHasAppIds
+        this.selectAlgoId = this.resourceHasAppIds.map((item:any) => item.appId)
       }
     }
   }
@@ -378,11 +380,17 @@ export default class extends Vue {
       this.algoListData = algoListResult.aiApps
       if (this.isUpdate) {
         if (this.resourceHasAppIds.length > 0) {
-          const result = this.algoListData.filter((item:any) => { this.resourceHasAppIds.some(val => item.id === val.id) })
+          const result = this.algoListData.filter((item:any) => this.resourceHasAppIds.some(val => item.id === val.appId))
           // 过滤已选中数据和已编辑过得数据
-          const resultFinal = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].filter((item:any) => { result.some((val:any) => val.id !== item.id) })
-          if (resultFinal.length > 0) {
-            this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].push(resultFinal)
+          // const resultFinal = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] && this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].filter((item:any) => result.some((val:any) => val.id !== item.id))
+
+          if (this.checkInfoObj[this.chooseData.resourceId][this.algoTabType]) {
+            const resultFinal = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] && this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].filter((item:any) => result.some((val:any) => val.id !== item.id))
+            if (resultFinal && resultFinal.length > 0) {
+              this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].push(resultFinal)
+            }
+          } else {
+            this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = result
           }
         }
       }
@@ -405,6 +413,12 @@ export default class extends Vue {
     this.getAlgoList()
   }
 
+  private defaultTab() {
+    if (this.algoTabTypeDefault === 'AI') {
+      this.resourceTabType = 'ai'
+    }
+  }
+
   // 获取rowkey
   private getTableRowKey(row:any) {
     return row.id
@@ -417,7 +431,7 @@ export default class extends Vue {
       this.setChecked()
     } else {
       this.selectAlgoId = this.selectAlgoId.filter(item => item.appId !== row.id)
-      this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].filter(item => item.id !== row.id)
+      this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].filter((item:any) => item.id !== row.id)
       this.setChecked()
       this.$emit('changevssaiapps', this.selectAlgoId)
     }
@@ -434,9 +448,9 @@ export default class extends Vue {
         }
       })
     })
-    this.selectAlgoId = result.flat()
+    this.selectAlgoInfo = result.flat()
     this.setChecked()
-    this.$emit('changevssaiapps', this.selectAlgoId)
+    this.$emit('changevssaiapps', this.selectAlgoInfo)
 
     if (!this.selectAlgoId.length) {
       this.showError = false
@@ -461,7 +475,6 @@ export default class extends Vue {
           this.$refs[`algoTable${this.algoTabType}`][0].toggleRowSelection(element, true)
         }
       })
-      console.log('this.checkInfoObj==>', this.checkInfoObj)
     })
   }
 }

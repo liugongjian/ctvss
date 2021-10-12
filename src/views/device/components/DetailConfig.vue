@@ -4,12 +4,12 @@
     <div class="detail__section">
       <div class="detail__title">
         资源包
-        <el-link @click="setRecordTemplate">配置</el-link>
+        <el-link @click="changeResourceDialog">配置</el-link>
       </div>
       <el-card>
         <template slot="header">
           视频包
-          <el-link @click="setRecordTemplate">配置视频包</el-link>
+          <el-link @click="changeResourceDialog">配置视频包</el-link>
         </template>
         <el-descriptions :column="2">
           <el-descriptions-item label="码率">
@@ -26,7 +26,7 @@
       <el-card>
         <template slot="header">
           AI包
-          <el-link @click="setRecordTemplate">配置AI包</el-link>
+          <el-link @click="changeResourceDialog('AI')">配置AI包</el-link>
         </template>
         <el-descriptions :column="2">
           <el-descriptions-item label="分析类型">
@@ -36,7 +36,7 @@
             2022-03-02 12:23:30
           </el-descriptions-item>
           <el-descriptions-item content-class-name="detail__table-row" label="AI应用">
-            <el-table :data="algoListData" empty-text="暂无AI应用，请在AI应用管理中创建">
+            <el-table :data="algoListData" empty-text="当前设备暂未绑定AI应用">
               <el-table-column label="应用名称" min-width="100" prop="name" />
               <el-table-column label="算法类型" min-width="100">
                 <template slot-scope="scope">{{ scope.row.algorithm.name }}</template>
@@ -50,9 +50,11 @@
                 </template>
               </el-table-column>
               <el-table-column label="操作" min-width="200">
-                <el-button type="text" @click="openCanvasDialog">算法配置</el-button>
-                <el-button type="text">解除绑定</el-button>
-                <el-button type="text">启用</el-button>
+                <template slot-scope="scope">
+                  <el-button type="text" @click="openCanvasDialog">算法配置</el-button>
+                  <el-button type="text">解除绑定</el-button>
+                  <el-button type="text">{{ parseInt(scope.row.appEnabled) ? '停用' : '启用' }}</el-button>
+                </template>
               </el-table-column>
             </el-table>
           </el-descriptions-item>
@@ -123,6 +125,8 @@
       :template-id="callbackTemplateId"
       @on-close="closeCallbackTemplateDialog"
     />
+
+    <resource v-if="showResourceDialog" :device="deviceInfo" :algo-tab-type-default="algoTabTypeDefault" @on-close="closeResourceDialog" />
   </div>
 </template>
 
@@ -130,10 +134,13 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { ResourceAiType } from '@/dics'
 import { GroupModule } from '@/store/modules/group'
-import { getDeviceRecordTemplate, getDeviceCallbackTemplate } from '@/api/device'
+import { getDeviceRecordTemplate, getDeviceCallbackTemplate, getDevice } from '@/api/device'
 import { getAppList } from '@/api/ai-app'
+import { getDeviceResources } from '@/api/billing'
 import SetRecordTemplate from '@/views/components/dialogs/SetRecordTemplate.vue'
 import SetCallBackTemplate from '@/views/components/dialogs/SetCallBackTemplate.vue'
+import Resource from '@/views/device/components/dialogs/Resource.vue'
+
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AlgoConfig from './AlgoConfig/index.vue'
 
@@ -143,7 +150,8 @@ import AlgoConfig from './AlgoConfig/index.vue'
     SetRecordTemplate,
     SetCallBackTemplate,
     AlgoConfig,
-    StatusBadge
+    StatusBadge,
+    Resource
   }
 })
 export default class extends Vue {
@@ -176,12 +184,21 @@ export default class extends Vue {
     }
   ]
 
-  private algoListData:any = [{
-    appName: '人员布控',
-    aiType: 'AI-100'
-  }]
+  private algoListData:any = []
 
   private canvasDialog = false;
+
+  private showResourceDialog = false;
+
+  private algoTabTypeDefault = '';
+
+  private ifShowThis = {
+    'VSS_VIDEO': false,
+    'VSS_AI': false,
+    'VSS_UPLOAD_BW': false
+  }
+
+  private resources:any = {}
 
   private openCanvasDialog() {
     this.canvasDialog = true
@@ -195,9 +212,13 @@ export default class extends Vue {
   }
 
   private async mounted() {
+    // 需要设备信息，传给resource组件 弹窗使用
+
     this.getCallbackTemplate()
     this.getRecordTemplate()
     this.getAlgoList()
+    await this.getDeviceInfo()
+    await this.getDeviceResource()
   }
 
   /**
@@ -282,6 +303,52 @@ export default class extends Vue {
     } finally {
       this.loading.recordTemplate = false
     }
+  }
+
+  // 获取设备信息
+  private async getDeviceInfo() {
+    this.deviceInfo = await getDevice({
+      deviceId: this.deviceId,
+      inProtocol: this.inProtocol
+    })
+  }
+
+  // 打开算法配置弹窗
+  private changeResourceDialog(kind:String) {
+    this.showResourceDialog = true
+    if (kind && kind === 'AI') {
+      this.algoTabTypeDefault = 'AI'
+    }
+  }
+
+  // 关闭算法配置弹窗
+  private closeResourceDialog() {
+    this.showResourceDialog = false
+    this.getAlgoList()
+  }
+
+  // 获取资源包
+  private async getDeviceResource() {
+    const resourcesRes = await getDeviceResources({
+      deviceId: this.deviceId,
+      deviceType: this.deviceInfo.deviceType,
+      inProtocol: this.inProtocol
+    })
+    console.log('resourcesRes==>', resourcesRes)
+    // 判断 资源包 AI包 带宽包是否展示
+    // const result = resourcesRes.resources.map((item:any) => item.resourceType)
+    // this.ifShowThis = {
+    //   'VSS_VIDEO': result.indexOf('VSS_VIDEO') > -1,
+    //   'VSS_AI': result.indexOf('VSS_AI') > -1,
+    //   'VSS_UPLOAD_BW': result.indexOf('VSS_UPLOAD_BW') > -1
+    // }
+    // this.resources =
+    const result = resourcesRes.resources.map((item:any) => {
+      return {
+        [item.workOrderId]: item
+      }
+    })
+    console.log('result=========>', result)
   }
 }
 </script>
