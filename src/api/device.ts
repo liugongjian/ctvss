@@ -338,3 +338,25 @@ export const getLianzhouArea = (params: any): Promise<any> =>
     method: 'get',
     params
   })
+
+// 启用
+export const startAppResource = (params: any): Promise<any> =>
+  request({
+    url: '/aitask/device/start',
+    method: 'post',
+    data: params
+  })
+// 停用
+export const stopAppResource = (params: any): Promise<any> =>
+  request({
+    url: '/aitask/device/stop',
+    method: 'post',
+    data: params
+  })
+// 解绑
+export const unBindAppResource = (params: any): Promise<any> =>
+  request({
+    url: '/ai/aiAPP/bindorunbind',
+    method: 'post',
+    data: params
+  })

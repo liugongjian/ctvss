@@ -91,6 +91,8 @@ export default class extends Vue {
       })
     }
 
+    // 获取已编辑过的划线
+
     private initCanvas() {
       const that = this
       let img = new Image()

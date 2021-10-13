@@ -16,7 +16,7 @@
     >
       <el-form-item label="" prop="resources">
         <ResourceTabs v-model="form.resources" :is-update="isUpdate" :in-protocol="device.inProtocol"
-                      :is-private-in-network="isPrivateInNetwork" :vss-ai-apps="form.vssAIApps"
+                      :is-private-in-network="isPrivateInNetwork" :vss-ai-apps="form.vssAIApps" :device-id="device.deviceId"
                       :algo-tab-type-default="algoTabTypeDefault" @on-change="onResourceChange" @changevssaiapps="changeVSSAIApps"
         />
       </el-form-item>

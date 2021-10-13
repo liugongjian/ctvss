@@ -76,7 +76,10 @@
         <Tags v-model="form.tags" class="tags" />
       </el-form-item>
       <el-form-item label="配置资源包:" prop="resources">
-        <ResourceTabs v-model="form.resources" :is-update="isUpdate" :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" :vss-ai-apps="form.vssAIApps" @on-change="onResourceChange" @changevssaiapps="changeVSSAIApps" />
+        <ResourceTabs v-model="form.resources" :is-update="isUpdate"
+                      :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" :device-id="form.deviceId"
+                      :vss-ai-apps="form.vssAIApps" @on-change="onResourceChange" @changevssaiapps="changeVSSAIApps"
+        />
       </el-form-item>
       <el-form-item label="设备描述:" prop="description">
         <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
