@@ -339,7 +339,6 @@ export default class extends Vue {
 
   // AI包radio事件
   private onRadioChange(type: string, row: any) {
-    console.log('onRadioChangeRow===>', row)
     if (this.isUpdate) {
       this.getResourceIdAttachedAppIds(row)
     }

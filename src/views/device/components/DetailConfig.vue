@@ -30,10 +30,10 @@
         </template>
         <el-descriptions :column="2">
           <el-descriptions-item label="分析类型">
-            高算力型
+            {{ resourceAiType[resources.VSS_AI.aiType] }}
           </el-descriptions-item>
           <el-descriptions-item label="到期时间">
-            2022-03-02 12:23:30
+            {{ resources.VSS_AI.expTime }}
           </el-descriptions-item>
           <el-descriptions-item content-class-name="detail__table-row" label="AI应用">
             <el-table :data="algoListData" empty-text="当前设备暂未绑定AI应用">
