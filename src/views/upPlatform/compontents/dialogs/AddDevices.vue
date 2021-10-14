@@ -18,12 +18,13 @@
           :load="loadDirs"
           :props="treeProp"
           :check-strictly="false"
+          @check="checkCallback"
           @check-change="onCheckDevice"
           @node-click="selectDevice"
         >
-          <span slot-scope="{node, data}" class="custom-tree-node" :class="`custom-tree-node__${data.type}`">
+          <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}">
             <span class="node-name">
-              <svg-icon :name="data.type" color="#6e7c89" />
+              <svg-icon :name="data.type" />
               {{ node.label }}
             </span>
           </span>
@@ -109,7 +110,7 @@ export default class extends Vue {
             label: group.groupName,
             inProtocol: group.inProtocol,
             type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
-            disabled: true,
+            disabled: false,
             path: [{
               id: group.groupId,
               label: group.groupName,
@@ -184,6 +185,9 @@ export default class extends Vue {
           checkedKeys.push(dir.id)
           dirTree.setCheckedKeys(checkedKeys)
         }
+        if (dir.type === 'ipc') {
+          node.data.disabled = false
+        }
         return {
           id: dir.id,
           groupId: node.data.groupId,
@@ -191,7 +195,9 @@ export default class extends Vue {
           inProtocol: dir.inProtocol || node.data.inProtocol,
           isLeaf: dir.isLeaf,
           type: dir.type,
-          disabled: dir.type !== 'ipc' || sharedFlag,
+          deviceStatus: dir.deviceStatus,
+          // disabled: dir.type !== 'ipc' || sharedFlag,
+          disabled: sharedFlag,
           path: node.data.path.concat([dir]),
           sharedFlag: sharedFlag,
           roleId: node.data.roleId || '',
@@ -202,6 +208,32 @@ export default class extends Vue {
       return dirs
     } catch (e) {
       console.log(e)
+    }
+  }
+
+  private async checkCallback(data: any) {
+    const dirTree: any = this.$refs.dirTree
+    const node = dirTree.getNode(data.id)
+    this.checkNodes(dirTree, node)
+  }
+
+  private async checkNodes(dirTree: any, node: any) {
+    if (node.checked) {
+      if (node.loaded) {
+        node.expanded = true
+      } else {
+        const dirs = await this.getTree(node)
+        dirTree.updateKeyChildren(node.data.id, dirs)
+        node.expanded = true
+        node.loaded = true
+      }
+      node.childNodes.forEach((child: any) => {
+        child.checked = true
+        if (child.data.type !== 'ipc') {
+          this.checkNodes(dirTree, child)
+        }
+      })
+      this.onCheckDevice()
     }
   }
 
@@ -291,7 +323,6 @@ export default class extends Vue {
             const ids = parentPath.map((path: any) => {
               return path.id
             })
-            console.log(ids)
             parentDirId = ids.join(',')
           }
           dirId = pathDirs[pathDirs.length - 1].id
@@ -354,6 +385,23 @@ export default class extends Vue {
     overflow: auto;
     border-right: 1px solid $borderGrey;
 
+    .custom-tree-node {
+      width: auto;
+      .node-name {
+        position: relative;
+        .svg-icon {
+          color: $textGrey;
+        }
+      }
+      &.online {
+        .node-name {
+          position: relative;
+          .svg-icon {
+            color: #65c465;
+          }
+        }
+      }
+    }
     .is-disabled + .custom-tree-node__ipc {
       cursor: not-allowed;
     }
