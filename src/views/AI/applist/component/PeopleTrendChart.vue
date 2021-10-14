@@ -74,9 +74,9 @@ export default class extends Mixins(DashboardMixin) {
       this.chartData = aiReusltDate.map(item => ({ value: item.count, time: item.Date + item.timeInterval, type: '人员聚集' }))
       // 测试
       // if (this.chart) {
-      //   this.chartData = json.map(item => ({ value: item.count, time: item.Date + item.timeInterval, type: '人员聚集' }))
+      //   this.chartData = json.map(item => ({ value: item.count, time: item.Date + ' ' + item.timeInterval, type: '人员聚集' }))
       // } else {
-      //   this.chartData = json2.map(item => ({ value: item.count, time: item.Date + item.timeInterval, type: '人员聚集' }))
+      //   this.chartData = json2.map(item => ({ value: item.count, time: item.Date + ' ' + item.timeInterval, type: '人员聚集' }))
       // }
       this.chart ? this.updateChart() : this.drawChart()
       this.refreshChart()
@@ -89,7 +89,7 @@ export default class extends Mixins(DashboardMixin) {
   /**
    * 自适应获取图标y轴刻度
    */
-  private getTickInterval(tickCount: number, scale: any): Array<number> {
+  private getYTickInterval(tickCount: number, scale: any): Array<number> {
     let maxValue = Math.max(...scale.values)
     let vnum = maxValue % tickCount
     let interval = (maxValue - vnum) / tickCount
@@ -97,7 +97,7 @@ export default class extends Mixins(DashboardMixin) {
       interval = 1
     }
     if (vnum > interval) {
-      return this.getTickInterval(tickCount - 1, scale)
+      return this.getYTickInterval(tickCount - 1, scale)
     }
     let intervalArr = []
     for (let i = 1; i <= tickCount; i++) {
@@ -106,7 +106,6 @@ export default class extends Mixins(DashboardMixin) {
     }
     return intervalArr
   }
-
   /**
    * 更新图表
    */
@@ -124,8 +123,13 @@ export default class extends Mixins(DashboardMixin) {
       // },
       range: [0, 1],
       tickMethod: (scale: any) => {
-        return this.getTickInterval(5, scale)
+        return this.getYTickInterval(5, scale)
       }
+    })
+    this.chart.scale('time', {
+      alias: ' ',
+      type: 'time',
+      mask: 'YYYY-MM-DD hh:mm:ss'
     })
     this.chart.axis('value', {
       label: {
@@ -152,7 +156,8 @@ export default class extends Mixins(DashboardMixin) {
           fontSize: 8
         },
         formatter: (val: any) => {
-          return val.substring(10, 15) + '\n' + val.substring(0, 10)
+          const datearr = val.split(' ')
+          return datearr[1] + '\n' + datearr[0]
         }
       }
     })
