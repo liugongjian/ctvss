@@ -51,7 +51,7 @@
               </el-table-column>
               <el-table-column label="操作" min-width="200">
                 <template slot-scope="scope">
-                  <el-button type="text" @click="openCanvasDialog">算法配置</el-button>
+                  <el-button type="text" @click="openCanvasDialog(scope.row)">算法配置</el-button>
                   <el-button type="text" @click="changeBindStatus(scope.row)">解除绑定</el-button>
                   <el-button type="text" @click="changeRunningStatus(scope.row)">{{ parseInt(scope.row.appEnabled) ? '停用' : '启用' }}</el-button>
                 </template>
@@ -124,7 +124,10 @@
     </div>
 
     <!-- canvas画线 -->
-    <algo-config v-if="canvasDialog" :device-id="deviceId" :in-protocol="inProtocol" :canvas-if="canvasDialog" />
+    <algo-config v-if="canvasDialog" :device-id="deviceId"
+                 :in-protocol="inProtocol" :canvas-if="canvasDialog"
+                 :config-algo-info="configAlgoInfo"
+    />
 
     <SetRecordTemplate
       v-if="setRecordTemplateDialog"
@@ -213,11 +216,17 @@ export default class extends Vue {
 
   private resources:any = {}
 
-  private openCanvasDialog() {
+  private configAlgoInfo:any = {}
+
+  private openCanvasDialog(rowInfo:any) {
     this.canvasDialog = true
+    this.configAlgoInfo = rowInfo
   }
   private closeCanvasDialog() {
     this.canvasDialog = false
+    this.getAlgoList()
+    this.getDeviceInfo()
+    this.getDeviceResource()
   }
 
   public get groupId() {

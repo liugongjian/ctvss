@@ -9,18 +9,25 @@
       <div class="configureInfo">
         <div class="configureDetail">
           <span class="configureName">应用名称：</span>
-          <span class="configureValue">人员聚集</span>
+          <span class="configureValue">{{ configAlgoInfo.name }}</span>
         </div>
         <div class="configureDetail">
           <span class="configureName">生效时段：</span>
-          <span class="configureValue">08:00 ~ 12:00    14:00 ~ 18:00</span>
+          <span class="configureValue">
+            {{
+              JSON.parse(configAlgoInfo.effectiveTime)[0].start_time
+            }} ~
+            {{
+              JSON.parse(configAlgoInfo.effectiveTime)[0].end_time
+            }}
+          </span>
         </div>
         <div class="configureDetail">
           <span class="configureName">检测区域：</span>
           <span class="configureValue">
-            <el-button @click="chooseMode('line')">画直线</el-button>
-            <el-button @click="chooseMode('rect')">画矩形</el-button>
-            <el-button @click="chooseMode('polygon')">画多边形</el-button>
+            <el-button :disabled="cannotDraw" @click="chooseMode('line')">画直线</el-button>
+            <el-button :disabled="cannotDraw" @click="chooseMode('rect')">画矩形</el-button>
+            <el-button :disabled="cannotDraw" @click="chooseMode('polygon')">画多边形</el-button>
             <el-button @click="clear">清除</el-button>
           </span>
         </div>
@@ -53,6 +60,7 @@ import math from './utils/math'
 import { getRectPropFromPoints
 //   getVerticalLinePoints
 } from './utils/index'
+import { getAppDescribeLine, sendAppDescribeLine } from '@/api/ai-app'
 import plate from './plate4.jpg'
 import { DRAW_MODES
 //   DRAW_MODES_TEXT
@@ -74,6 +82,7 @@ export default class extends Vue {
     @Prop() private inProtocol?: string
     @Prop() private deviceId?: string
     @Prop() private canvasIf?: boolean
+    @Prop() private configAlgoInfo?:any
 
     private mode = ''
     private isDraw = false;
@@ -83,8 +92,10 @@ export default class extends Vue {
     private areas:any[] = []
     private points:any[] = []
     private ratio = 1
+    private cannotDraw = false
 
     private mounted() {
+      console.log('this.configAlgoInfo==>', this.configAlgoInfo)
       this.$nextTick(() => {
         // 看接口，如果返回base64 就直接调用initCanvas，若不是，先调用img2Base64把图片转成base64再调用initCanvas
         this.img2Base64(plate)
@@ -92,6 +103,47 @@ export default class extends Vue {
     }
 
     // 获取已编辑过的划线
+    private getHasLine() {
+      // console.log('configAlgoInfo', this.configAlgoInfo)
+      const param = {
+        appId: this.configAlgoInfo.id,
+        deviceId: this.deviceId
+      }
+      getAppDescribeLine(param).then(res => {
+        console.log('res==>', res)
+        if (res) {
+          const { algorithmMetadata } = res
+          const algorithmMetadataParse = algorithmMetadata ? JSON.parse(algorithmMetadata) : {}
+          const { DangerZone = '[]' } = algorithmMetadataParse
+          const DangerZoneParse = DangerZone
+          console.log('algorithmMetadataParse', DangerZoneParse, DangerZoneParse.length)
+          if (DangerZoneParse.length) {
+            this.cannotDraw = true
+            const shape = () => {
+              if (DangerZoneParse.length === 2) {
+                return 'line'
+              } else if (DangerZoneParse.length === 4) {
+                return 'rect'
+              } else if (DangerZoneParse.length > 4) {
+                return 'polygon'
+              }
+            }
+            this.areas = [
+              {
+                shape: shape(),
+                points: DangerZoneParse,
+                ratio: 1,
+                imageHeight: this.imageHeight,
+                imageWidth: this.imageWidth,
+                name: `area-${this.areas.length}`
+              }
+            ]
+          }
+        }
+      }).catch(e => {
+        this.$message.error(e && e.message)
+      })
+    }
 
     private initCanvas() {
       const that = this
@@ -125,6 +177,7 @@ export default class extends Vue {
         canvasDom.height = canvasHeight
         canvasDraw.setAttribute('style', `width:${backgroundLayer.width}px;height:${canvasHeight}px`)
         backgroundCtx.drawImage(img, 0, 0, backgroundLayer.width, backgroundLayer.height)
+        that.getHasLine()
       }
 
       //   this.image = img
@@ -168,7 +221,41 @@ export default class extends Vue {
     }
 
     private sureThis() {
-      this.$parent.closeCanvasDialog()
+      console.log('points===>', this.areas[0].points, this.mode)
+      // const pointsInfo = JSON.stringify(this.areas[0].points)
+      // const param = {
+      //   algorithmMetadata: pointsInfo,
+      //   deviceId: this.deviceId,
+      //   appId: this.configAlgoInfo.id
+      // }
+      // sendAppDescribeLine(param).then((res) => {
+      //   console.log(res)
+      // })
+      // this.$parent.closeCanvasDialog()
+      let pointsInfo = []
+      // 过滤 rect 矩形数据
+      if (this.mode === 'rect') {
+        const { points: [x, y] } = this.areas[0]
+        pointsInfo = [
+          [x[0], y[0]], [x[0], y[1]], [x[1], y[0]], [x[1], y[1]]
+        ]
+      } else {
+        pointsInfo = this.areas[0].points
+      }
+      console.log('pointsInfo', pointsInfo)
+      const param = {
+        algorithmMetadata: JSON.stringify({ DangerZone: JSON.stringify(pointsInfo) }),
+        deviceId: this.deviceId,
+        appId: this.configAlgoInfo.id
+      }
+      sendAppDescribeLine(param).then((res) => {
+        if (res) {
+          this.$message.success(`算法 ${this.configAlgoInfo.name} 区域划线配置成功！`)
+          this.$parent.closeCanvasDialog()
+        }
+      }).catch(e => {
+        this.$message.error(e && e.message)
+      })
     }
 
     private clear() {
@@ -177,6 +264,7 @@ export default class extends Vue {
       this.areas = []
       this.isDraw = false
       this.mode = ''
+      this.cannotDraw = false
       this.canvas.clearRect(0, 0, this.canvasDom.width, this.canvasDom.height)
     }
 
