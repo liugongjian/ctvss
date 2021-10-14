@@ -85,6 +85,7 @@
               empty-text="暂无AI应用，请在AI应用管理中创建"
               @selection-change="selectAlgoChange"
               @select="selectHandle"
+              @row-click="onResourceTabsRowClick"
             >
               <el-table-column type="selection" width="55" :selectable="ifDisable" prop="selection" />
               <el-table-column prop="name" label="应用名称" />
@@ -160,6 +161,8 @@ export default class extends Vue {
   @Prop() private inProtocol?: string
   @Prop() private isPrivateInNetwork?: string
   @Prop() private vssAiApps?:any
+  @Prop() private algoTabTypeDefault?:string
+  @Prop() private deviceId?:string
 
   private resourceTabType = 'video'
   private resourceAiType = ResourceAiType
@@ -202,6 +205,7 @@ export default class extends Vue {
     this.resouceUploadList = await this.getResouces('VSS_UPLOAD_BW', 'resouceUploadList')
     this.handleResourceAppIds()
     this.onFormChange(true)
+    this.defaultTab()
   }
 
   /**
@@ -314,13 +318,12 @@ export default class extends Vue {
   // 判断是否是编辑进入
   private ifHasCheceked() {
     if (this.isUpdate) {
-      this.selectAlgoId = this.vssAiApps.length ? this.vssAiApps : []
+      this.selectAlgoId = this.vssAiApps && this.vssAiApps.length ? this.vssAiApps : []
       const result = this.resouceAiList.find(item => {
-        return this.value.map((val:any) => {
-          return val.resourceId === item.resourceId
+        return this.value.some((val:any) => {
+          return item.resourceId === val.resourceId
         })
       })
-
       if (Object.keys(result).length > 0) {
         // this.getAiAlgoList(result)
         this.onRadioChange('ai', result)
@@ -336,22 +339,22 @@ export default class extends Vue {
 
   // AI包radio事件
   private onRadioChange(type: string, row: any) {
+    if (this.isUpdate) {
+      this.getResourceIdAttachedAppIds(row)
+    }
     this.closeTips()
     this.chooseData = row
     this.getAiAlgoList(row)
     this.totalDeviceConfigCount = row.totalDeviceCount
     this.remainDeviceConfigCount = row.remainDeviceCount
-    if (this.isUpdate) {
-      this.getResourceIdAttachedAppIds(row)
-    }
   }
 
   private async getResourceIdAttachedAppIds(row:any) {
-    if (this.checkInfoObj[row.resourceId] && Object.values(this.checkInfoObj[row.resourceId]).length === 0) {
-      const { appIdList } = await getResourceIdAttachedAppIds({ resourceId: row.resourceId })
+    if (!this.checkInfoObj[row.resourceId] || Object.values(this.checkInfoObj[row.resourceId]).length === 0) {
+      const { appIdList } = await getResourceIdAttachedAppIds({ resourceId: row.resourceId, deviceId: this.deviceId })
       this.resourceHasAppIds = appIdList
       if (this.selectAlgoId.length === 0) {
-        this.selectAlgoId = this.resourceHasAppIds
+        this.selectAlgoId = this.resourceHasAppIds.map((item:any) => item.appId)
       }
     }
   }
@@ -378,15 +381,22 @@ export default class extends Vue {
       this.algoListData = algoListResult.aiApps
       if (this.isUpdate) {
         if (this.resourceHasAppIds.length > 0) {
-          const result = this.algoListData.filter((item:any) => { this.resourceHasAppIds.some(val => item.id === val.id) })
+          const result = this.algoListData.filter((item:any) => this.resourceHasAppIds.some(val => item.id === val.appId))
           // 过滤已选中数据和已编辑过得数据
-          const resultFinal = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].filter((item:any) => { result.some((val:any) => val.id !== item.id) })
-          if (resultFinal.length > 0) {
-            this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].push(resultFinal)
+          // const resultFinal = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] && this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].filter((item:any) => result.some((val:any) => val.id !== item.id))
+
+          if (this.checkInfoObj[this.chooseData.resourceId][this.algoTabType]) {
+            const resultFinal = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] && this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].filter((item:any) => result.some((val:any) => val.id !== item.id))
+            if (resultFinal && resultFinal.length > 0) {
+              this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].push(resultFinal)
+            }
+          } else {
+            this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = result
           }
         }
       }
       this.setChecked()
+      this.$emit('changevssaiapps', this.selectAlgoInfo)
     } catch (e) {
       if (e && e.code !== 5) {
         this.$message.error(e && e.message)
@@ -405,9 +415,20 @@ export default class extends Vue {
     this.getAlgoList()
   }
 
+  private defaultTab() {
+    if (this.algoTabTypeDefault === 'AI') {
+      this.resourceTabType = 'ai'
+    }
+  }
+
   // 获取rowkey
   private getTableRowKey(row:any) {
     return row.id
+  }
+
+  // 能力列表 行点击
+  private onResourceTabsRowClick(row:any) {
+    this.$refs[`algoTable${this.algoTabType}`][0].toggleRowSelection(row, true)
   }
 
   // 能力checkbox点击
@@ -417,26 +438,15 @@ export default class extends Vue {
       this.setChecked()
     } else {
       this.selectAlgoId = this.selectAlgoId.filter(item => item.appId !== row.id)
-      this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].filter(item => item.id !== row.id)
-      this.setChecked()
-      this.$emit('changevssaiapps', this.selectAlgoId)
+      this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].filter((item:any) => item.id !== row.id)
+      this.filterCheckedStatus()
     }
   }
 
   // 能力checkbox改变逻辑
   private selectAlgoChange(val:any) {
     this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = val
-    const result = Object.values(this.checkInfoObj[this.chooseData.resourceId]).map((item:any) => {
-      return item.map((ele:any) => {
-        return {
-          appId: ele.id,
-          analyseType: ele.analyseType
-        }
-      })
-    })
-    this.selectAlgoId = result.flat()
-    this.setChecked()
-    this.$emit('changevssaiapps', this.selectAlgoId)
+    this.filterCheckedStatus()
 
     if (!this.selectAlgoId.length) {
       this.showError = false
@@ -446,6 +456,42 @@ export default class extends Vue {
     } else {
       this.showTips = true
     }
+  }
+
+  // 过滤编辑过的选中和当前选中
+  private filterCheckedStatus() {
+    const temp = Object.values(this.checkInfoObj[this.chooseData.resourceId]).map((item:any) => {
+      return item.map((ele:any) => ele)
+    })
+    // this.selectAlgoInfo = result.flat() this.resourceHasAppIds
+    if (this.resourceHasAppIds && this.resourceHasAppIds.length > 0) {
+      const result = temp.flat().filter((item:any) => {
+        return this.resourceHasAppIds.some((val:any) => {
+          return val.appId !== item.appId
+        })
+      })
+      const resultFinal = result.map((item:any) => {
+        return {
+          appId: item.id,
+          analyseType: item.analyseType
+        }
+      })
+      this.selectAlgoInfo = resultFinal
+    } else {
+      const result = Object.values(this.checkInfoObj[this.chooseData.resourceId]).map((item:any) => {
+        return item.map((ele:any) => {
+          return {
+            appId: ele.id,
+            analyseType: ele.analyseType
+          }
+        })
+      })
+      this.selectAlgoInfo = result.flat()
+    }
+
+    this.selectAlgoId = this.selectAlgoInfo.map((item:any) => item.appId)
+    this.setChecked()
+    this.$emit('changevssaiapps', this.selectAlgoInfo)
   }
 
   // 设置选中状态
@@ -461,7 +507,6 @@ export default class extends Vue {
           this.$refs[`algoTable${this.algoTabType}`][0].toggleRowSelection(element, true)
         }
       })
-      console.log('this.checkInfoObj==>', this.checkInfoObj)
     })
   }
 }

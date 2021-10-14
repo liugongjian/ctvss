@@ -4,59 +4,80 @@
     <div class="detail__section">
       <div class="detail__title">
         资源包
-        <el-link @click="setRecordTemplate">配置</el-link>
+        <el-link @click="changeResourceDialog">配置</el-link>
       </div>
-      <el-card>
+      <el-card v-if="resources.VSS_VIDEO">
         <template slot="header">
           视频包
-          <el-link @click="setRecordTemplate">配置视频包</el-link>
+          <el-link @click="changeResourceDialog">配置视频包</el-link>
         </template>
         <el-descriptions :column="2">
           <el-descriptions-item label="码率">
-            1Mbps
+            {{ resources.VSS_VIDEO.codeRate || '- ' }}Mbps
           </el-descriptions-item>
           <el-descriptions-item label="存储周期">
-            180天
+            {{ resources.VSS_VIDEO.storageTime || '- ' }}天
           </el-descriptions-item>
           <el-descriptions-item label="到期时间">
-            2022-03-02 12:23:30
+            {{ resources.VSS_VIDEO.expTime || '-' }}
           </el-descriptions-item>
         </el-descriptions>
       </el-card>
-      <el-card>
+      <el-card v-if="resources.VSS_AI" v-loading="loading.AITable">
         <template slot="header">
           AI包
-          <el-link @click="setRecordTemplate">配置AI包</el-link>
+          <el-link @click="changeResourceDialog('AI')">配置AI包</el-link>
         </template>
         <el-descriptions :column="2">
           <el-descriptions-item label="分析类型">
-            高算力型
+            {{ resourceAiType[resources.VSS_AI.aiType] }}
           </el-descriptions-item>
           <el-descriptions-item label="到期时间">
-            2022-03-02 12:23:30
+            {{ resources.VSS_AI.expTime }}
           </el-descriptions-item>
           <el-descriptions-item content-class-name="detail__table-row" label="AI应用">
-            <el-table :data="algoListData" empty-text="暂无AI应用，请在AI应用管理中创建">
-              <el-table-column label="应用名称" min-width="100" prop="appName" />
+            <el-table :data="algoListData" empty-text="当前设备暂未绑定AI应用">
+              <el-table-column label="应用名称" min-width="100" prop="name" />
               <el-table-column label="算法类型" min-width="100">
-                <template slot-scope="scope">
-                  {{ resourceAiType[scope.row.aiType] }}
-                </template>
+                <template slot-scope="scope">{{ scope.row.algorithm.name }}</template>
               </el-table-column>
               <el-table-column prop="appEnabled" label="状态">
                 <template slot-scope="scope">
-                  <status-badge :status="scope.row.appEnabled ? 'on' : 'off'" />
+                  <status-badge :status="parseInt(scope.row.appEnabled) ? 'on' : 'off'" />
                   <span>
                     {{ parseInt(scope.row.appEnabled) ? '启用' : '停用' }}
                   </span>
                 </template>
               </el-table-column>
               <el-table-column label="操作" min-width="200">
-                <el-button type="text" @click="openCanvasDialog">算法配置</el-button>
-                <el-button type="text">解除绑定</el-button>
-                <el-button type="text">启用</el-button>
+                <template slot-scope="scope">
+                  <el-tooltip class="item" effect="dark" content="设备离线时不可配置算法" placement="top-start" :disabled="deviceInfo.deviceStatus === 'on'">
+                    <div class="disableBtnBox">
+                      <el-button type="text" :disabled="deviceInfo.deviceStatus !== 'on'" @click="openCanvasDialog(scope.row)">算法配置</el-button>
+                    </div>
+                  </el-tooltip>
+                  <el-button type="text" @click="changeBindStatus(scope.row)">解除绑定</el-button>
+                  <el-button type="text" @click="changeRunningStatus(scope.row)">{{ parseInt(scope.row.appEnabled) ? '停用' : '启用' }}</el-button>
+                </template>
               </el-table-column>
             </el-table>
+          </el-descriptions-item>
+        </el-descriptions>
+      </el-card>
+      <el-card v-if="resources.VSS_UPLOAD_BW">
+        <template slot="header">
+          带宽包
+          <el-link @click="changeResourceDialog">配置带宽包</el-link>
+        </template>
+        <el-descriptions :column="2">
+          <el-descriptions-item label="码率">
+            {{ resources.VSS_UPLOAD_BW.codeRate || '- ' }}Mbps
+          </el-descriptions-item>
+          <el-descriptions-item label="上行带宽总量">
+            {{ resources.VSS_UPLOAD_BW.bwDeviceCount || '- ' }}Mbps
+          </el-descriptions-item>
+          <el-descriptions-item label="到期时间">
+            {{ resources.VSS_UPLOAD_BW.expTime || '-' }}
           </el-descriptions-item>
         </el-descriptions>
       </el-card>
@@ -107,7 +128,10 @@
     </div>
 
     <!-- canvas画线 -->
-    <algo-config v-if="canvasDialog" :device-id="deviceId" :in-protocol="inProtocol" :canvas-if="canvasDialog" />
+    <algo-config v-if="canvasDialog" :device-id="deviceId"
+                 :in-protocol="inProtocol" :canvas-if="canvasDialog"
+                 :config-algo-info="configAlgoInfo"
+    />
 
     <SetRecordTemplate
       v-if="setRecordTemplateDialog"
@@ -125,6 +149,8 @@
       :template-id="callbackTemplateId"
       @on-close="closeCallbackTemplateDialog"
     />
+
+    <resource v-if="showResourceDialog" :device="deviceInfo" :algo-tab-type-default="algoTabTypeDefault" @on-close="closeResourceDialog" />
   </div>
 </template>
 
@@ -132,10 +158,14 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { ResourceAiType } from '@/dics'
 import { GroupModule } from '@/store/modules/group'
-import { getDeviceRecordTemplate, getDeviceCallbackTemplate } from '@/api/device'
+import { getDeviceRecordTemplate, getDeviceCallbackTemplate, getDevice,
+  unBindAppResource, startAppResource, stopAppResource } from '@/api/device'
 import { getAppList } from '@/api/ai-app'
+import { getDeviceResources } from '@/api/billing'
 import SetRecordTemplate from '@/views/components/dialogs/SetRecordTemplate.vue'
 import SetCallBackTemplate from '@/views/components/dialogs/SetCallBackTemplate.vue'
+import Resource from '@/views/device/components/dialogs/Resource.vue'
+
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AlgoConfig from './AlgoConfig/index.vue'
 
@@ -145,7 +175,8 @@ import AlgoConfig from './AlgoConfig/index.vue'
     SetRecordTemplate,
     SetCallBackTemplate,
     AlgoConfig,
-    StatusBadge
+    StatusBadge,
+    Resource
   }
 })
 export default class extends Vue {
@@ -157,7 +188,8 @@ export default class extends Vue {
   private loading = {
     recordTemplate: false,
     callbackTemplate: false,
-    aiTemplate: false
+    aiTemplate: false,
+    AITable: false
   }
 
   private template: any = {
@@ -178,18 +210,27 @@ export default class extends Vue {
     }
   ]
 
-  private algoListData:any = [{
-    appName: '人员布控',
-    aiType: 'AI-100'
-  }]
+  private algoListData:any = []
 
   private canvasDialog = false;
 
-  private openCanvasDialog() {
+  private showResourceDialog = false;
+
+  private algoTabTypeDefault = '';
+
+  private resources:any = {}
+
+  private configAlgoInfo:any = {}
+
+  private openCanvasDialog(rowInfo:any) {
     this.canvasDialog = true
+    this.configAlgoInfo = rowInfo
   }
   private closeCanvasDialog() {
     this.canvasDialog = false
+    this.getAlgoList()
+    this.getDeviceInfo()
+    this.getDeviceResource()
   }
 
   public get groupId() {
@@ -197,9 +238,13 @@ export default class extends Vue {
   }
 
   private async mounted() {
+    // 需要设备信息，传给resource组件 弹窗使用
+
     this.getCallbackTemplate()
     this.getRecordTemplate()
     this.getAlgoList()
+    await this.getDeviceInfo()
+    await this.getDeviceResource()
   }
 
   /**
@@ -276,7 +321,6 @@ export default class extends Vue {
       this.loading.recordTemplate = true
       const algoListResult = await getAppList({ deviceId: this.deviceId })
       this.algoListData = algoListResult.aiApps
-      console.log('algoListResult.aiApps--->', algoListResult.aiApps)
     } catch (e) {
       if (e && e.code !== 5) {
         this.$message.error(e && e.message)
@@ -284,6 +328,98 @@ export default class extends Vue {
     } finally {
       this.loading.recordTemplate = false
     }
+  }
+
+  // 获取设备信息
+  private async getDeviceInfo() {
+    this.deviceInfo = await getDevice({
+      deviceId: this.deviceId,
+      inProtocol: this.inProtocol
+    })
+  }
+
+  // 打开算法配置弹窗
+  private changeResourceDialog(kind:String) {
+    this.showResourceDialog = true
+    if (kind && kind === 'AI') {
+      this.algoTabTypeDefault = 'AI'
+    }
+  }
+
+  // 关闭算法配置弹窗
+  private closeResourceDialog() {
+    this.showResourceDialog = false
+    this.getAlgoList()
+  }
+
+  // 获取资源包
+  private async getDeviceResource() {
+    this.loading.AITable = true
+    try {
+      const resourcesRes = await getDeviceResources({
+        deviceId: this.deviceId,
+        deviceType: this.deviceInfo.deviceType,
+        inProtocol: this.inProtocol
+      })
+      const result = {}
+      // 以workOrderId 为key 重组数据，渲染使用
+      resourcesRes.resources.forEach((ele:any) => {
+        result[ele.resourceType] = ele
+      })
+      this.resources = result
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.loading.AITable = false
+    }
+  }
+
+  // 启用停用
+  private async changeRunningStatus(rowInfo:any) {
+    this.loading.AITable = true
+    const status = parseInt(rowInfo.appEnabled)
+    const param = {
+      inProtocol: this.inProtocol,
+      deviceId: this.deviceId,
+      appIds: [rowInfo.id]
+    }
+    // startAppResource
+    if (status) {
+      stopAppResource(param).then(() => {
+        this.loading.AITable = false
+        this.$message.success(`停用 ${rowInfo.name} 成功！`)
+        this.getAlgoList()
+      }).catch(e => {
+        this.loading.AITable = false
+        this.$message.error(`停用 ${rowInfo.name} 失败，原因：${e && e.message}`)
+      })
+    } else {
+      startAppResource(param).then(() => {
+        this.loading.AITable = false
+        this.$message.success(`启用 ${rowInfo.name} 成功！`)
+        this.getAlgoList()
+      }).catch(e => {
+        this.loading.AITable = false
+        this.$message.error(`启用 ${rowInfo.name} 失败，原因：${e && e.message}`)
+      })
+    }
+  }
+
+  // 解绑
+  private changeBindStatus(rowInfo:any) {
+    this.loading.AITable = true
+    const param = {
+      deviceId: this.deviceId,
+      appId: [rowInfo.id]
+    }
+    unBindAppResource(param).then(() => {
+      this.loading.AITable = false
+      this.$message.success(`解除 ${rowInfo.name} 绑定成功！`)
+      this.getAlgoList()
+    }).catch(e => {
+      this.loading.AITable = false
+      this.$message.error(`解除 ${rowInfo.name} 绑定失败，原因：${e && e.message}`)
+    })
   }
 }
 </script>
@@ -299,5 +435,9 @@ export default class extends Vue {
       padding-right: 15px;
       flex: 1;
     }
+  }
+  .disableBtnBox{
+    display: inline-block;
+    padding: 0 10px;
   }
 </style>

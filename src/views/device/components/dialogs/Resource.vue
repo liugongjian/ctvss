@@ -15,7 +15,10 @@
       @submit.native.prevent
     >
       <el-form-item label="" prop="resources">
-        <ResourceTabs v-model="form.resources" :is-update="isUpdate" :in-protocol="device.inProtocol" :is-private-in-network="isPrivateInNetwork" :vss-ai-apps="form.vssAIApps" @on-change="onResourceChange" @changevssaiapps="changeVSSAIApps" />
+        <ResourceTabs v-model="form.resources" :is-update="isUpdate" :in-protocol="device.inProtocol"
+                      :is-private-in-network="isPrivateInNetwork" :vss-ai-apps="form.vssAIApps" :device-id="device.deviceId"
+                      :algo-tab-type-default="algoTabTypeDefault" @on-change="onResourceChange" @changevssaiapps="changeVSSAIApps"
+        />
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -40,6 +43,7 @@ import { Device } from '@/type/device'
 export default class extends Mixins(createMixin) {
   @Prop()
   private device!: Device
+  @Prop() private algoTabTypeDefault?:String
   private dialogVisible = true
   public form: any = {
     resources: [],

@@ -68,3 +68,27 @@ export const getAppScreenShot = (params: any): Promise<any> =>
     method: 'get',
     params
   })
+
+// 获取 已编辑过的区域划线
+export const getAppDescribeLine = (params: any): Promise<any> =>
+  request({
+    url: '/ai/aiAPP/describe',
+    method: 'get',
+    params
+  })
+
+// 提交 区域划线
+export const sendAppDescribeLine = (params: any): Promise<any> =>
+  request({
+    url: '/ai/algorithms/configure',
+    method: 'post',
+    data: params
+  })
+
+// 获取视频截图接口 stream/frame
+export const getAlgoStreamFrame = (params: any): Promise<any> =>
+  request({
+    url: '/stream/frame',
+    method: 'get',
+    params
+  })
