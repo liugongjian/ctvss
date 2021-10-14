@@ -51,7 +51,11 @@
               </el-table-column>
               <el-table-column label="操作" min-width="200">
                 <template slot-scope="scope">
-                  <el-button type="text" @click="openCanvasDialog(scope.row)">算法配置</el-button>
+                  <el-tooltip class="item" effect="dark" content="设备离线时不可配置算法" placement="top-start" :disabled="deviceInfo.deviceStatus === 'on'">
+                    <div class="disableBtnBox">
+                      <el-button type="text" :disabled="deviceInfo.deviceStatus !== 'on'" @click="openCanvasDialog(scope.row)">算法配置</el-button>
+                    </div>
+                  </el-tooltip>
                   <el-button type="text" @click="changeBindStatus(scope.row)">解除绑定</el-button>
                   <el-button type="text" @click="changeRunningStatus(scope.row)">{{ parseInt(scope.row.appEnabled) ? '停用' : '启用' }}</el-button>
                 </template>
@@ -431,5 +435,9 @@ export default class extends Vue {
       padding-right: 15px;
       flex: 1;
     }
+  }
+  .disableBtnBox{
+    display: inline-block;
+    padding: 0 10px;
   }
 </style>

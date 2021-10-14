@@ -84,3 +84,11 @@ export const sendAppDescribeLine = (params: any): Promise<any> =>
     method: 'post',
     data: params
   })
+
+// 获取视频截图接口 stream/frame
+export const getAlgoStreamFrame = (params: any): Promise<any> =>
+  request({
+    url: '/stream/frame',
+    method: 'get',
+    params
+  })
