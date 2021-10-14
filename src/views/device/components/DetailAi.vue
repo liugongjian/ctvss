@@ -61,7 +61,6 @@ export default class extends Vue {
 
   private appChange(val) {
     const temp = this.apps.filter(item => item.id === val)
-    console.log(temp)
     if (temp.length > 0) {
       this.appInfo = temp[0]
     }

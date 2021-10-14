@@ -45,7 +45,7 @@
               <template slot-scope="scope"><span>{{ resourceAiType[scope.row.analyseType] }}</span></template>
             </el-table-column>
             <el-table-column prop="description" label="描述" show-overflow-tooltip />
-            <el-table-column prop="joinDeviceNum" label="关联设备数" />
+            <el-table-column prop="associateDevices" label="关联设备数" />
             <!-- <el-table-column prop="appEnabled" label="状态">
               <template slot-scope="scope"><span>{{ parseInt(scope.row.appEnabled) ? '启用' : '未启用' }}</span></template>
             </el-table-column> -->
