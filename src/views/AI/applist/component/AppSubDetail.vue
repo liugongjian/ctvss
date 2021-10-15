@@ -191,21 +191,28 @@ export default class extends Vue {
         inProtocol,
         pageNum,
         pageSize }
-      const res = await getAppScreenShot(query)
-      this.pager.totalNum = res.totalNum
-      this.picInfos = res.screenShotList
+      try {
+        const res = await getAppScreenShot(query)
+        this.pager.totalNum = res.totalNum
+        this.picInfos = res.screenShotList
+      } catch (e) {
+        // 异常处理
+        console.log(e)
+      }
     }
 
     /**
      * 初始化人脸选项图片
      */
     private async initFaceInfos() {
-      const algorithmMetadata = JSON.parse(this.appInfo.algorithmMetadata)
-      if (algorithmMetadata.FaceDbName) {
-        const { faces }: any = await getGroupPersonAlready({ id: algorithmMetadata.FaceDbName })
-        this.faceInfos = faces.map(face => {
-          return { ...face, labels: JSON.parse(face.labels) }
-        })
+      if (this.appInfo.algorithmMetadata.length > 0) {
+        const algorithmMetadata = JSON.parse(this.appInfo.algorithmMetadata)
+        if (algorithmMetadata.FaceDbName) {
+          const { faces }: any = await getGroupPersonAlready({ id: algorithmMetadata.FaceDbName })
+          this.faceInfos = faces.map(face => {
+            return { ...face, labels: JSON.parse(face.labels) }
+          })
+        }
       }
     }
     /**

@@ -39,8 +39,12 @@ export default class extends Vue {
 
   private async mounted() {
     this.initDeviceApp()
-    const { groups }: any = await getAIConfigGroupData({})
-    this.initFaceLib(groups)
+    try {
+      const { groups }: any = await getAIConfigGroupData({})
+      this.initFaceLib(groups)
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   private async initDeviceApp() {
@@ -53,9 +57,11 @@ export default class extends Vue {
   }
 
   private initFaceLib(groups) {
-    const algorithmMetadata = JSON.parse(this.appInfo.algorithmMetadata)
-    if (algorithmMetadata.FaceDbName) {
-      this.faceLib = groups.filter(item => item.id === algorithmMetadata.FaceDbName)[0]
+    if (this.appInfo.algorithmMetadata.length > 0) {
+      const algorithmMetadata = JSON.parse(this.appInfo.algorithmMetadata)
+      if (algorithmMetadata.FaceDbName) {
+        this.faceLib = groups.filter(item => item.id === algorithmMetadata.FaceDbName)[0]
+      }
     }
   }
 
