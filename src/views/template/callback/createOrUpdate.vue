@@ -28,6 +28,10 @@
           <el-input v-model="form.streamStatusUrl" class="fixed-width" />
           <div class="form-tip">流状态回调URL，以http、https等开头</div>
         </el-form-item>
+        <el-form-item label="AI事件通知回调:" prop="aiEventNotifyUrl" class="form-with-tip">
+          <el-input v-model="form.aiEventNotifyUrl" class="fixed-width" />
+          <div class="form-tip">AI事件通知回调URL，以http、https等开头</div>
+        </el-form-item>
         <el-form-item label="回调KEY:" prop="callbackKey" class="form-with-tip">
           <el-input v-model="form.callbackKey" class="fixed-width" />
         </el-form-item>
@@ -68,6 +72,9 @@ export default class extends Vue {
     streamStatusUrl: [
       { validator: this.validateStreamStatusCallbackUrl, trigger: 'blur' }
     ],
+    aiEventNotifyUrl: [
+      { validator: this.validateAiEventNotifyCallbackUrl, trigger: 'blur' }
+    ],
     callbackKey: [
       { required: true, message: '请输入回调KEY', trigger: 'blur' }
     ]
@@ -79,6 +86,7 @@ export default class extends Vue {
     recordNotifyUrl: '',
     deviceStatusUrl: '',
     streamStatusUrl: '',
+    aiEventNotifyUrl: '',
     callbackKey: '',
     description: ''
   }
@@ -130,12 +138,20 @@ export default class extends Vue {
     }
   }
 
+  private validateAiEventNotifyCallbackUrl(rule: any, value: string, callback: Function) {
+    if (!this.urlReg.test(value)) {
+      callback(new Error('AI事件通知回调地址格式不正确，请重新输入'))
+    } else {
+      callback()
+    }
+  }
+
   private back() {
     this.$router.push('/template/callback')
   }
 
   private submit() {
-    if (!this.form.recordNotifyUrl && !this.form.deviceStatusUrl && !this.form.streamStatusUrl) {
+    if (!this.form.recordNotifyUrl && !this.form.deviceStatusUrl && !this.form.streamStatusUrl && !this.form.aiEventNotifyUrl) {
       this.$message.error('请至少填写一个回调地址！')
       return
     }
@@ -149,6 +165,7 @@ export default class extends Vue {
           recordNotifyUrl: this.form.recordNotifyUrl,
           deviceStatusUrl: this.form.deviceStatusUrl,
           streamStatusUrl: this.form.streamStatusUrl,
+          aiEventNotifyUrl: this.form.aiEventNotifyUrl,
           callbackKey: this.form.callbackKey,
           description: this.form.description
         }
