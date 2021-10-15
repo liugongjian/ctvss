@@ -129,7 +129,7 @@ export default class extends Mixins(DashboardMixin) {
     this.chart.scale('time', {
       alias: ' ',
       type: 'time',
-      mask: 'YYYY-MM-DD hh:mm:ss'
+      mask: 'YYYY-MM-DD HH:mm:ss'
     })
     this.chart.axis('value', {
       label: {
