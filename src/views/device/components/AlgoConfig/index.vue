@@ -4,6 +4,8 @@
       :visible.sync="canvasIf"
       title="算法配置" width="800px"
       :destroy-on-close="true"
+      :modal-append-to-body="false"
+      top="7vh"
       @close="closeThis"
     >
       <div class="configureInfo">
@@ -95,10 +97,10 @@ export default class extends Vue {
     private cannotDraw = false
 
     private mounted() {
-      /** this.$nextTick(() => {
-        // 看接口，如果返回base64 就直接调用initCanvas，若不是，先调用img2Base64把图片转成base64再调用initCanvas
-        this.img2Base64(plate)
-      }) */
+      // this.$nextTick(() => {
+      //   // 看接口，如果返回base64 就直接调用initCanvas，若不是，先调用img2Base64把图片转成base64再调用initCanvas
+      //   this.img2Base64(plate)
+      // })
       this.initCanvas()
     }
 
@@ -108,12 +110,27 @@ export default class extends Vue {
         id: this.configAlgoInfo.id,
         deviceId: this.deviceId
       }
+
+      // 一维数组变成二维数组 后续有时间优化此函数
+      const oneToTwo = (arr:any) => {
+        const len = arr.length
+        const n = 2
+        const lineNum = len % n === 0 ? len / n : Math.floor(len / n + 1)
+        const res = []
+        for (let i = 0; i < lineNum; i++) {
+          let temp = arr.slice(i * n, i * n + n)
+          res.push(temp)
+        }
+        return res
+      }
+
       getAppDescribeLine(param).then(res => {
         if (res) {
           const { algorithmMetadata } = res
           const algorithmMetadataParse = algorithmMetadata ? JSON.parse(algorithmMetadata) : {}
           const { DangerZone = '[]' } = algorithmMetadataParse
-          const DangerZoneParse = JSON.parse(DangerZone)
+          // const DangerZoneParse = JSON.parse(DangerZone)
+          const DangerZoneParse = oneToTwo(DangerZone)
           if (DangerZoneParse.length) {
             this.cannotDraw = true
             const shape = () => {
@@ -144,55 +161,66 @@ export default class extends Vue {
     }
 
     private initCanvas() {
+      // console.log('this.deviceId', this.deviceId)
+
       const that = this
       // let img = new Image()
       // img.src = that.dataURL
       const param = {
+        // streams: JSON.stringify([Number(this.deviceId)])
         streams: [this.deviceId]
       }
+      // getAlgoStreamFrame(param)
       getAlgoStreamFrame(param).then(res => {
-        const { frames = [] } = res
-        const { frame } = frames[0]
-        this.imgSrc = frame
-        const img = new Image()
-        img.src = `data:image/png;base64,${this.imgSrc}`
+        if (res) {
+          const { frames = [] } = res
+          const { frame = '' } = frames[0] || []
+          // if (!frame) {
+          //   return
+          // }
+          this.imgSrc = frame
+          const img = new Image()
+          img.src = `data:image/png;base64,${this.imgSrc}`
+          // let img = new Image()
+          // img.src = that.dataURL
 
-        const backgroundLayer = document.querySelector('#canvasWrapper') as HTMLCanvasElement
-        const backgroundCtx = backgroundLayer.getContext('2d')!
+          const backgroundLayer = document.querySelector('#canvasWrapper') as HTMLCanvasElement
+          const backgroundCtx = backgroundLayer.getContext('2d')!
 
-        const canvasDom = document.querySelector('#drawLine') as HTMLCanvasElement
-        const canvas = canvasDom.getContext('2d')
+          const canvasDom = document.querySelector('#drawLine') as HTMLCanvasElement
+          const canvas = canvasDom.getContext('2d')
 
-        backgroundCtx.font = '24px bold 黑体'
-        backgroundCtx.fillStyle = 'black'
-        backgroundCtx.textAlign = 'center'
-        backgroundCtx.textBaseline = 'middle'
-        backgroundCtx.fillText('图片正在加载中', 300, 200)
+          backgroundCtx.font = '24px bold 黑体'
+          backgroundCtx.fillStyle = 'black'
+          backgroundCtx.textAlign = 'center'
+          backgroundCtx.textBaseline = 'middle'
+          backgroundCtx.fillText('图片正在加载中', 300, 200)
 
-        this.canvasDom = canvasDom
-        this.canvas = canvas
+          this.canvasDom = canvasDom
+          this.canvas = canvas
 
-        img.onload = () => {
-          const ratio = math.divide!(img.width, backgroundLayer.width)
-          that.ratio = ratio
-          that.imageHeight = img.height
-          that.imageWidth = img.width
+          img.onload = () => {
+            const ratio = math.divide!(img.width, backgroundLayer.width)
+            that.ratio = ratio
+            that.imageHeight = img.height
+            that.imageWidth = img.width
 
-          const canvasDraw = document.querySelector('#canvasDraw') as HTMLDivElement
-          const canvasHeight = math.divide!(img.height, ratio)
-          backgroundLayer.height = canvasHeight
-          canvasDom.height = canvasHeight
-          canvasDraw.setAttribute('style', `width:${backgroundLayer.width}px;height:${canvasHeight}px`)
-          backgroundCtx.drawImage(img, 0, 0, backgroundLayer.width, backgroundLayer.height)
-          that.getHasLine()
-        }
+            const canvasDraw = document.querySelector('#canvasDraw') as HTMLDivElement
+            const canvasHeight = math.divide!(img.height, ratio)
+            backgroundLayer.height = canvasHeight
+            canvasDom.height = canvasHeight
+            canvasDraw.setAttribute('style', `width:${backgroundLayer.width}px;height:${canvasHeight}px`)
+            backgroundCtx.drawImage(img, 0, 0, backgroundLayer.width, backgroundLayer.height)
+            that.getHasLine()
+          }
 
-        //   this.image = img
-        // 右键菜单禁用
-        this.canvasDom.oncontextmenu = function() {
-          const w = window.event
-          if (w) {
-            w.returnValue = false
+          //   this.image = img
+          // 右键菜单禁用
+          this.canvasDom.oncontextmenu = function() {
+            const w = window.event
+            if (w) {
+              w.returnValue = false
+            }
           }
         }
       }).catch(e => {
@@ -240,7 +268,7 @@ export default class extends Vue {
         pointsInfo = this.areas[0].points
       }
       const param = {
-        algorithmMetadata: JSON.stringify({ DangerZone: JSON.stringify(pointsInfo) }),
+        algorithmMetadata: JSON.stringify({ DangerZone: pointsInfo.flat().map(item => Math.round(item).toString()) }),
         deviceId: this.deviceId,
         appId: this.configAlgoInfo.id
       }

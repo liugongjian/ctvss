@@ -56,6 +56,7 @@
                       <el-button type="text" :disabled="deviceInfo.deviceStatus !== 'on'" @click="openCanvasDialog(scope.row)">算法配置</el-button>
                     </div>
                   </el-tooltip>
+                  <!-- <el-button type="text" @click="openCanvasDialog(scope.row)">算法配置</el-button> -->
                   <el-button type="text" @click="changeBindStatus(scope.row)">解除绑定</el-button>
                   <el-button type="text" @click="changeRunningStatus(scope.row)">{{ parseInt(scope.row.appEnabled) ? '停用' : '启用' }}</el-button>
                 </template>
