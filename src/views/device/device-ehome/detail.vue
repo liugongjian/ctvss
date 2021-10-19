@@ -55,7 +55,7 @@
                 <info-list-item label="录制状态:">
                   <div class="info-list__edit">
                     <div class="info-list__edit--value">
-                      <status-badge :status="info.recordStatus === 1 ? 'red' : ''" />
+                      <status-badge :status="info.recordStatus === 0 ? 'red' : ''" />
                       {{ recordStatus[info.recordStatus] }}
                     </div>
                   </div>
