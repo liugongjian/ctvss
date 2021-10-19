@@ -16,12 +16,7 @@
         <div class="configureDetail">
           <span class="configureName">生效时段：</span>
           <span class="configureValue">
-            {{
-              JSON.parse(configAlgoInfo.effectiveTime)[0].start_time
-            }} ~
-            {{
-              JSON.parse(configAlgoInfo.effectiveTime)[0].end_time
-            }}
+            {{ configAlgoInfo.effectiveTime ? `${JSON.parse(configAlgoInfo.effectiveTime)[0].start_time} ~ ${JSON.parse(configAlgoInfo.effectiveTime)[0].end_time}` : '' }}
           </span>
         </div>
         <div class="configureDetail">
@@ -128,31 +123,33 @@ export default class extends Vue {
         if (res) {
           const { algorithmMetadata } = res
           const algorithmMetadataParse = algorithmMetadata ? JSON.parse(algorithmMetadata) : {}
-          const { DangerZone = '[]' } = algorithmMetadataParse
+          const { DangerZone } = algorithmMetadataParse
           // const DangerZoneParse = JSON.parse(DangerZone)
-          const DangerZoneParse = oneToTwo(DangerZone)
-          if (DangerZoneParse.length) {
-            this.cannotDraw = true
-            const shape = () => {
-              if (DangerZoneParse.length === 2) {
-                return 'line'
-              } else if (DangerZoneParse.length === 4) {
-                return 'rect'
-              } else if (DangerZoneParse.length > 4) {
-                return 'polygon'
+          if (DangerZone) {
+            const DangerZoneParse = oneToTwo(DangerZone)
+            if (DangerZoneParse.length) {
+              this.cannotDraw = true
+              const shape = () => {
+                if (DangerZoneParse.length === 2) {
+                  return 'line'
+                } else if (DangerZoneParse.length === 4) {
+                  return 'rect'
+                } else if (DangerZoneParse.length > 4) {
+                  return 'polygon'
+                }
               }
+              this.areas = [
+                {
+                  shape: shape(),
+                  points: DangerZoneParse,
+                  ratio: 1,
+                  imageHeight: this.imageHeight,
+                  imageWidth: this.imageWidth,
+                  name: `area-${this.areas.length}`
+                }
+              ]
+              this.renderBeforeAreas()
             }
-            this.areas = [
-              {
-                shape: shape(),
-                points: DangerZoneParse,
-                ratio: 1,
-                imageHeight: this.imageHeight,
-                imageWidth: this.imageWidth,
-                name: `area-${this.areas.length}`
-              }
-            ]
-            this.renderBeforeAreas()
           }
         }
       }).catch(e => {
@@ -175,9 +172,10 @@ export default class extends Vue {
         if (res) {
           const { frames = [] } = res
           const { frame = '' } = frames[0] || []
-          // if (!frame) {
-          //   return
-          // }
+          if (!frame) {
+            this.$message.warning('暂时获取不到截图，请稍后再试')
+            this.$parent.closeCanvasDialog()
+          }
           this.imgSrc = frame
           const img = new Image()
           img.src = `data:image/png;base64,${this.imgSrc}`

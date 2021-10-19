@@ -13,13 +13,13 @@
         </template>
         <el-descriptions :column="2">
           <el-descriptions-item label="码率">
-            {{ resources.VSS_VIDEO.codeRate || '- ' }}Mbps
+            {{ resources.VSS_VIDEO.codeRate ? `${resources.VSS_VIDEO.codeRate}Mbpx` : '' }}
           </el-descriptions-item>
           <el-descriptions-item label="存储周期">
-            {{ resources.VSS_VIDEO.storageTime || '- ' }}天
+            {{ resources.VSS_VIDEO.storageTime ? `${resources.VSS_VIDEO.storageTime}天` : '' }}
           </el-descriptions-item>
           <el-descriptions-item label="到期时间">
-            {{ resources.VSS_VIDEO.expTime || '-' }}
+            {{ resources.VSS_VIDEO.expTime }}
           </el-descriptions-item>
         </el-descriptions>
       </el-card>
@@ -72,13 +72,13 @@
         </template>
         <el-descriptions :column="2">
           <el-descriptions-item label="码率">
-            {{ resources.VSS_UPLOAD_BW.codeRate || '- ' }}Mbps
+            {{ resources.VSS_UPLOAD_BW.codeRate ? `${resources.VSS_UPLOAD_BW.codeRate}Mbps` : '' }}
           </el-descriptions-item>
           <el-descriptions-item label="上行带宽总量">
-            {{ resources.VSS_UPLOAD_BW.bwDeviceCount || '- ' }}Mbps
+            {{ resources.VSS_UPLOAD_BW.bwDeviceCount ? `${resources.VSS_UPLOAD_BW.bwDeviceCount}Mbps` :'' }}
           </el-descriptions-item>
           <el-descriptions-item label="到期时间">
-            {{ resources.VSS_UPLOAD_BW.expTime || '-' }}
+            {{ resources.VSS_UPLOAD_BW.expTime }}
           </el-descriptions-item>
         </el-descriptions>
       </el-card>
@@ -97,9 +97,9 @@
           {{ template.recordTemplate.recordType === 1 ? '是':'否' }}
         </el-descriptions-item>
         <el-descriptions-item label="录制格式">
-          {{ template.recordTemplate.flvParam.enable ? 'flv': '' }}
-          {{ template.recordTemplate.hlsParam.enable ? 'hls': '' }}
-          {{ template.recordTemplate.mpParam.enable ? 'mp4': '' }}
+          {{ template.recordTemplate.flvParam && template.recordTemplate.flvParam.enable ? 'flv': '' }}
+          {{ template.recordTemplate.hlsParam && template.recordTemplate.hlsParam.enable ? 'hls': '' }}
+          {{ template.recordTemplate.hlsParam && template.recordTemplate.hlsParam.enable ? 'mp4': '' }}
         </el-descriptions-item>
       </el-descriptions>
       <div v-else-if="!loading.recordTemplate" class="detail__empty-card">
@@ -117,10 +117,10 @@
           {{ template.callbackTemplate.templateName }}
         </el-descriptions-item>
         <el-descriptions-item label="回调URL">
-          {{ template.recordTemplate.recordNotifyUrl }}
+          {{ template.callbackTemplate.recordNotifyUrl }}
         </el-descriptions-item>
         <el-descriptions-item label="回调Key">
-          {{ template.recordTemplate.callbackKey }}
+          {{ template.callbackTemplate.callbackKey }}
         </el-descriptions-item>
       </el-descriptions>
       <div v-else-if="!loading.callbackTemplate" class="detail__empty-card">
@@ -129,9 +129,10 @@
     </div>
 
     <!-- canvas画线 -->
-    <algo-config v-if="canvasDialog" :device-id="deviceId"
-                 :in-protocol="inProtocol" :canvas-if="canvasDialog"
-                 :config-algo-info="configAlgoInfo"
+    <algo-config
+      v-if="canvasDialog" :device-id="deviceId"
+      :in-protocol="inProtocol" :canvas-if="canvasDialog"
+      :config-algo-info="configAlgoInfo"
     />
 
     <SetRecordTemplate
@@ -194,9 +195,9 @@ export default class extends Vue {
   }
 
   private template: any = {
-    recordTemplate: null,
-    callbackTemplate: null,
-    aiTemplate: null
+    recordTemplate: {},
+    callbackTemplate: {},
+    aiTemplate: {}
   }
 
   private setRecordTemplateDialog = false
@@ -254,7 +255,7 @@ export default class extends Vue {
   private async getRecordTemplate() {
     try {
       this.loading.recordTemplate = true
-      this.template.recordTemplate = null
+      this.template.recordTemplate = {}
       const res = await getDeviceRecordTemplate({ deviceId: this.deviceId, inProtocol: this.inProtocol })
       this.template.recordTemplate = res
     } catch (e) {
@@ -272,7 +273,7 @@ export default class extends Vue {
   private async getCallbackTemplate() {
     try {
       this.loading.callbackTemplate = true
-      this.template.callbackTemplate = null
+      this.template.callbackTemplate = {}
       const res = await getDeviceCallbackTemplate({ deviceId: this.deviceId, inProtocol: this.inProtocol })
       this.template.callbackTemplate = res
     } catch (e) {
@@ -319,15 +320,16 @@ export default class extends Vue {
   // 获取算法能力
   private async getAlgoList() {
     try {
-      this.loading.recordTemplate = true
+      this.loading.AITable = true
       const algoListResult = await getAppList({ deviceId: this.deviceId })
       this.algoListData = algoListResult.aiApps
     } catch (e) {
       if (e && e.code !== 5) {
         this.$message.error(e && e.message)
       }
+      this.algoListData = []
     } finally {
-      this.loading.recordTemplate = false
+      this.loading.AITable = false
     }
   }
 
@@ -363,7 +365,7 @@ export default class extends Vue {
         inProtocol: this.inProtocol
       })
       const result = {}
-      // 以workOrderId 为key 重组数据，渲染使用
+      // 以resourceType 为key 重组数据，渲染使用
       resourcesRes.resources.forEach((ele:any) => {
         result[ele.resourceType] = ele
       })

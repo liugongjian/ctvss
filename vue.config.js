@@ -8,6 +8,7 @@ const serverAddressMapping = {
   dev2: 'http://182.43.127.35:9050', // 开发环境2---对应后端deploy-dev-1
   test: 'https://182.43.127.35:9180', // 测试环境
   test2: 'https://182.43.127.35:9160', // 测试环境2
+  testTemp: 'http://182.43.127.35:9080', // 9080测试环境
   prod: 'https://182.43.127.45' // 生产环境
 }
 const portMapping = {
@@ -16,6 +17,7 @@ const portMapping = {
   dev2: 9050,
   test: 9180,
   test2: 9160,
+  testTemp: 9080,
   prod: 443
 }
 const serverAddress = serverAddressMapping[environment]

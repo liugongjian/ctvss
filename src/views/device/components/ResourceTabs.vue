@@ -324,7 +324,7 @@ export default class extends Vue {
           return item.resourceId === val.resourceId
         })
       })
-      if (Object.keys(result).length > 0) {
+      if (result && Object.keys(result).length > 0) {
         // this.getAiAlgoList(result)
         this.onRadioChange('ai', result)
       }
