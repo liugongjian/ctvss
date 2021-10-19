@@ -43,9 +43,9 @@
               </el-table-column>
               <el-table-column prop="appEnabled" label="状态">
                 <template slot-scope="scope">
-                  <status-badge :status="parseInt(scope.row.appEnabled) ? 'on' : 'off'" />
+                  <status-badge :status="parseInt(scope.row.status) ? 'on' : 'off'" />
                   <span>
-                    {{ parseInt(scope.row.appEnabled) ? '启用' : '停用' }}
+                    {{ parseInt(scope.row.status) ? '启用' : '停用' }}
                   </span>
                 </template>
               </el-table-column>
@@ -58,7 +58,7 @@
                   </el-tooltip>
                   <!-- <el-button type="text" @click="openCanvasDialog(scope.row)">算法配置</el-button> -->
                   <el-button type="text" @click="changeBindStatus(scope.row)">解除绑定</el-button>
-                  <el-button type="text" @click="changeRunningStatus(scope.row)">{{ parseInt(scope.row.appEnabled) ? '停用' : '启用' }}</el-button>
+                  <el-button type="text" @click="changeRunningStatus(scope.row)">{{ parseInt(scope.row.status) ? '停用' : '启用' }}</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -380,7 +380,7 @@ export default class extends Vue {
   // 启用停用
   private async changeRunningStatus(rowInfo:any) {
     this.loading.AITable = true
-    const status = parseInt(rowInfo.appEnabled)
+    const status = parseInt(rowInfo.status)
     const param = {
       inProtocol: this.inProtocol,
       deviceId: this.deviceId,
