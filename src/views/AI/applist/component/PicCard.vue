@@ -2,19 +2,20 @@
 <template>
   <el-card>
     <div class="pic-wrapper">
-      <el-image :src="decodeBase64(pic.image)" />
+      <el-image :src="pic.image" />
     </div>
     <div class="content-wrapper">
-      <div class="info-left">
-        <div>截图时间：</div>
-        <div>设备名称：</div>
-        <div>置信度：</div>
-      </div>
-      <div class="info-right">
-        <div>{{ pic.time }}</div>
-        <div>{{ pic.deviceName }}</div>
-        <div>{{ pic.confidence }}</div>
-      </div>
+      <el-descriptions :column="1">
+        <el-descriptions-item label="截图时间">
+          {{ pic.time }}
+        </el-descriptions-item>
+        <el-descriptions-item label="设备名称">
+          {{ pic.deviceName }}
+        </el-descriptions-item>
+        <el-descriptions-item label="置信度">
+          {{ pic.confidence * 100 }}%
+        </el-descriptions-item>
+      </el-descriptions>
     </div>
   </el-card>
 </template>
@@ -34,11 +35,11 @@ export default class extends Vue {
 </script>
 <style lang='scss' scoped>
 .el-card{
-    width:400px;
+    // width:400px;
     height:400px;
     min-width: 100px;
-    margin-top: 2%;
-    margin-right: 2%;
+    margin-top: 2% !important;
+    margin-right: 2% !important;
     display: inline-block;
     position: relative;
     .pic-wrapper{
@@ -56,25 +57,12 @@ export default class extends Vue {
         position: absolute;
         bottom: 0;
         left: 0;
-        width: 100%;
         height: 30%;
-        padding-top: 5%;
-        .info-left{
-          float: left;
-          width: 30%;
-          height: 100%;
-          &>div{
-            float: right;
-            margin-bottom: 15px;
-          }
-        }
-        .info-right{
-          float: left;
-          width: 60%;
-          height: 100%;
-          &>div{
-            margin-bottom: 15px;
-          }
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        .el-descriptions{
+          width: 80%;
         }
     }
 }

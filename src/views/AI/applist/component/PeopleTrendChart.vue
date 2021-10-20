@@ -62,8 +62,8 @@ export default class extends Mixins(DashboardMixin) {
       const [confidenceMin, confidenceMax] = this.param.confidence
       const query = {
         appId: this.appInfo.id,
-        startTime,
-        endTime,
+        startTime: Math.floor(startTime / 1000),
+        endTime: Math.floor(endTime / 1000),
         confidenceMin,
         confidenceMax,
         faceDb: this.faceLib.id,
@@ -71,7 +71,7 @@ export default class extends Mixins(DashboardMixin) {
         deviceId: this.device.deviceId,
         inProtocol: this.device.inProtocol }
       const { aiReusltDate } = await getPeopleTrendChart(query)
-      this.chartData = aiReusltDate.map(item => ({ value: item.count, time: item.Date + item.timeInterval, type: '人员聚集' }))
+      this.chartData = aiReusltDate.map(item => ({ value: item.count, time: item.date + ' ' + item.timeInterval, type: '人员聚集' }))
       // 测试
       // if (this.chart) {
       //   this.chartData = json.map(item => ({ value: item.count, time: item.Date + ' ' + item.timeInterval, type: '人员聚集' }))

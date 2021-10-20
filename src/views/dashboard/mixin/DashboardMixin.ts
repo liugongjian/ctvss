@@ -37,7 +37,6 @@ export default class DashboardMixin extends Vue {
 
   public async getAiApps() {
     const { aiApps } = await getAppList({ pageSize: 3000 })
-    console.log(aiApps)
     let algoSet = new Set()
     let aiInfos = []
     aiApps.forEach(app => {

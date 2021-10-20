@@ -180,8 +180,8 @@ export default class extends Vue {
       const { deviceId, inProtocol } = this.device
       const { pageNum, pageSize } = this.pager
       const query = {
-        startTime,
-        endTime,
+        startTime: Math.floor(startTime / 1000),
+        endTime: Math.floor(endTime / 1000),
         confidenceMin,
         confidenceMax,
         faceDb: this.faceLib.id,
@@ -309,12 +309,10 @@ export default class extends Vue {
 }
 .pic-wrapper{
     .card-wrapper{
-        // height: 40vh;
-        // overflow-y: scroll;
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        flex-wrap: wrap;
+      display: grid;
+      grid-gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(20%, 1fr));
+      overflow-y: auto;
     }
 }
 .title{

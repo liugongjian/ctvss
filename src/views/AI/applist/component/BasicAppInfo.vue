@@ -70,9 +70,6 @@ export default class extends Mixins(AppMixin) {
       this.$alertError(e && e.message)
     }
   }
-  private mounted() {
-    console.log(this.app)
-  }
 
   /**
    * 删除应用回调
