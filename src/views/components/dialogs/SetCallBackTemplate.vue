@@ -14,7 +14,14 @@
       max-height="500"
     >
       <el-table-column prop="templateName" label="模板名称" />
-      <el-table-column prop="recordNotifyUrl" label="回调URL" />
+      <el-table-column label="回调URL">
+        <template slot-scope="{row}">
+          <span v-if="row.recordNotifyUrl">录制回调: {{ row.recordNotifyUrl }}</span>
+          <span v-if="row.deviceStatusUrl">设备状态回调: {{ row.deviceStatusUrl }}</span>
+          <span v-if="row.streamStatusUrl">流状态回调: {{ row.streamStatusUrl }}</span>
+          <span v-if="row.aiEventNotifyUrl">AI事件通知回调: {{ row.aiEventNotifyUrl }}</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="callbackKey" label="回调Key" />
       <el-table-column label="操作">
         <template slot-scope="{row}">
