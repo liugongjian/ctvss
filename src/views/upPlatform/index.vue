@@ -109,8 +109,8 @@
                 {{ item.label }}
               </span>
             </div>
-            <div v-if="hasDir" class="device-list__max-height" :style="{height: `${maxHeight}px`}">
-              <div class="device-list__tools">
+            <div v-if="hasDir" ref="listWrap" class="device-list__max-height" :style="{height: `${maxHeight}px`}">
+              <div ref="toolWrap" class="device-list__tools">
                 <el-button class="cancle-btn" @click="cancleShareDevice(selectedList)">移除选中设备</el-button>
                 <el-input v-model="searchDeviceName" class="filter-container__search-group" placeholder="请输入关键词" clearable @keyup.enter.native="handleFilter" @clear="handleFilter">
                   <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
@@ -120,6 +120,7 @@
               <el-table
                 v-loading="loading.sharedDevices"
                 :data="dataList"
+                :height="tableMaxHeight"
                 fit
                 @selection-change="handleSelectionChange"
               >
@@ -164,7 +165,7 @@
                 @current-change="handleCurrentChange"
               />
             </div>
-            <div v-else class="empty-text">
+            <div v-else ref="listWrap" class="empty-text">
               暂无数据
             </div>
           </div>
@@ -213,6 +214,8 @@ export default class extends Vue {
   private currentPlatformDetail = null
   public isExpanded = true
   public maxHeight = 1000
+  private tableMaxHeight: any = null
+  private observer: any = null
   public dirDrag = {
     isDragging: false,
     start: 0,
@@ -267,6 +270,21 @@ export default class extends Vue {
     await this.getPlatformList()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
+    this.calTableMaxHeight()
+    // @ts-ignore
+    this.observer = new ResizeObserver(() => {
+      this.calTableMaxHeight()
+    })
+    const listWrap: any = this.$refs.listWrap
+    listWrap && this.observer.observe(listWrap)
+  }
+
+  private calTableMaxHeight() {
+    const listWrap: any = this.$refs.listWrap
+    if (!listWrap) return
+    const toolWrap: any = this.$refs.toolWrap
+    const documentHeight = listWrap.offsetHeight - (toolWrap ? toolWrap.offsetHeight : 0) - 90
+    this.tableMaxHeight = documentHeight
   }
 
   // 面包屑导航
@@ -282,6 +300,8 @@ export default class extends Vue {
 
   private destroyed() {
     window.removeEventListener('resize', this.calMaxHeight)
+    const listWrap: any = this.$refs.listWrap
+    listWrap && this.observer.unobserve(listWrap)
   }
 
   private handleSelectionChange(rows: any) {
@@ -314,7 +334,7 @@ export default class extends Vue {
       } else {
         this.initPlatform()
       }
-    } catch (e) {
+    } catch (e: any) {
       this.$message.error(e && e.message)
     } finally {
       this.loading.platform = false
@@ -380,7 +400,7 @@ export default class extends Vue {
       })
       this.$message.success('已通知启动级联')
       setTimeout(this.getPlatformList, 2000)
-    } catch (e) {
+    } catch (e: any) {
       this.$message.error(e && e.message)
     } finally {
       this.getPlatformList()
@@ -399,7 +419,7 @@ export default class extends Vue {
       })
       this.$message.success('已通知停用级联')
       setTimeout(this.getPlatformList, 2000)
-    } catch (e) {
+    } catch (e: any) {
       this.$message.error(e && e.message)
     } finally {
       this.getPlatformList()
@@ -439,11 +459,11 @@ export default class extends Vue {
             dirId: node.dirId
           })
           this.initDirs()
-        } catch (e) {
+        } catch (e: any) {
           this.$message.error(e && e.message)
         }
       }
-    } catch (e) {
+    } catch (e: any) {
       this.$message.error(e && e.message)
     } finally {
       this.loading.sharedDevices = false
@@ -610,7 +630,7 @@ export default class extends Vue {
     const size = deviceWrap.$el.getBoundingClientRect()
     const top = size.top
     const documentHeight = document.body.offsetHeight
-    this.maxHeight = documentHeight - top - 129
+    this.maxHeight = documentHeight - top - 130
   }
 
   /**
@@ -666,7 +686,7 @@ export default class extends Vue {
 
   .platform {
     margin-right: 10px;
-    width: 250px;
+    min-width: 260px;
 
     &__header {
       border-bottom: 1px solid $borderGrey;
