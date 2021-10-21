@@ -40,7 +40,8 @@
         </div>
       </div>
     </el-tab-pane>
-    <el-tab-pane v-if="inProtocol === 'gb28181'" label="AI包" name="ai">
+    <!-- <el-tab-pane v-if="inProtocol === 'gb28181'" label="AI包" name="ai"> -->
+    <el-tab-pane label="AI包" name="ai">
       <!--AI包-->
       <div v-loading="loading.resouceAiList" class="resource-tabs__content">
         <el-table :data="resouceAiList" fit @row-click="onResourceRowClick('ai', ...arguments)">
