@@ -47,7 +47,7 @@ export default class extends Vue {
       top: 0;
       left: 0;
       width: 100%;
-      height: 70%;
+      height: 67%;
         .el-image{
           width: 100%;
           height: 100%;
@@ -57,7 +57,7 @@ export default class extends Vue {
         position: absolute;
         bottom: 0;
         left: 0;
-        height: 30%;
+        height: 33%;
         padding-top: 10px;
         ::v-deep .el-descriptions-item__container{
           display: grid;
