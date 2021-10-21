@@ -13,7 +13,7 @@
           {{ pic.deviceName }}
         </el-descriptions-item>
         <el-descriptions-item label="置信度">
-          {{ pic.confidence * 100 }}%
+          {{ Math.floor(pic.confidence * 100) }}%
         </el-descriptions-item>
       </el-descriptions>
     </div>
@@ -58,11 +58,16 @@ export default class extends Vue {
         bottom: 0;
         left: 0;
         height: 30%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        .el-descriptions{
-          width: 80%;
+        padding-top: 10px;
+        ::v-deep .el-descriptions-item__container{
+          display: grid;
+          grid-template-columns: 40% 60%;
+          .el-descriptions-item__label.has-colon{
+            text-align: end;
+          }
+          .el-descriptions-item__label{
+            min-width: 0 !important;
+          }
         }
     }
 }

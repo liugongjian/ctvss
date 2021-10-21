@@ -34,7 +34,7 @@ export default class extends Mixins(DashboardMixin) {
   private paramUpdated() {
     this.conditionalDebounce()
   }
-  @Watch('appInfo', { deep: true })
+  @Watch('appInfo', { deep: true, immediate: true })
   private appInfoUpdated() {
     this.conditionalDebounce()
   }
