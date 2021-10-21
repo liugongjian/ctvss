@@ -1,6 +1,6 @@
 <template>
-  <div class="device-list__container">
-    <div v-if="isNVR" v-loading="loading.info" class="device-info">
+  <div ref="listWrap" class="device-list__container">
+    <div v-if="isNVR" ref="infoWrap" v-loading="loading.info" class="device-info">
       <info-list v-if="deviceInfo" label-width="80">
         <info-list-item label="设备名称:">{{ deviceInfo.deviceName }}</info-list-item>
         <info-list-item label="国标ID:">{{ deviceInfo.gbId }}</info-list-item>
@@ -14,7 +14,7 @@
         <info-list-item label="在线流数量:">{{ deviceInfo.deviceStats.onlineSize }}</info-list-item>
       </info-list>
     </div>
-    <div v-if="isPlatform" v-loading="loading.info" class="device-info">
+    <div v-if="isPlatform" ref="infoWrap" v-loading="loading.info" class="device-info">
       <info-list v-if="deviceInfo" label-width="80">
         <info-list-item label="平台名称:">{{ deviceInfo.deviceName }}</info-list-item>
         <info-list-item label="国标ID:">{{ deviceInfo.gbId }}</info-list-item>
@@ -25,7 +25,7 @@
         <info-list-item label="创建时间:">{{ deviceInfo.createdTime }}</info-list-item>
       </info-list>
     </div>
-    <div v-if="false" v-loading="loading.list" class="device-info">
+    <div v-if="false" ref="infoWrap" v-loading="loading.list" class="device-info">
       <info-list v-if="dirStats" label-width="80">
         <info-list-item label="设备总数:">{{ dirStats.deviceSize }}</info-list-item>
         <info-list-item label="IPC数量:">{{ dirStats.ipcSize }}</info-list-item>
@@ -41,7 +41,7 @@
         </info-list-item>
       </info-list>
     </div>
-    <div class="filter-container clearfix">
+    <div ref="filterWrap" class="filter-container clearfix">
       <div class="filter-container__left">
         <el-button v-if="!isVGroup && isDir && checkPermission(['AdminDevice'], {id: dirId !== '0' ? dirId : currentGroupId})" key="dir-button" type="primary" @click="goToCreate">{{ '添加设备' }}</el-button>
         <el-button v-if="!isVGroup && isNVR && checkPermission(['AdminDevice'])" key="dir-button" type="primary" @click="goToCreate">{{ '添加子设备' }}</el-button>
@@ -86,7 +86,7 @@
         <el-button v-if="!isVGroup && !isChannel" class="el-button-rect filter-container__sync-button" :disabled="loading.syncDeviceStatus" :class="{'loading': loading.syncDeviceStatus}" @click="syncDeviceStatus"><svg-icon name="refresh" />同步设备状态</el-button>
       </div>
     </div>
-    <div v-if="hasFiltered" class="filter-container filter-buttons">
+    <div v-if="hasFiltered" ref="filterBtnWrap" class="filter-container filter-buttons">
       <div v-for="{key, value} in filterButtons" :key="key" class="filter-button" @click="clearFilter(key)">
         <label>{{ deviceParams[key] }}</label>
         <span v-if="key === 'deviceType'">{{ deviceType[value] }}</span>
@@ -97,7 +97,7 @@
       </div>
     </div>
     <div v-loading="loading.list || loading.info" class="device-list__wrap">
-      <el-table v-show="deviceList.length" ref="deviceTable" :data="deviceList" empty-text="暂无设备" fit class="device-list__table" @row-click="rowClick" @selection-change="handleSelectionChange" @filter-change="filterChange">
+      <el-table v-show="deviceList.length" ref="deviceTable" :height="tableMaxHeight" :data="deviceList" empty-text="暂无设备" fit class="device-list__table" @row-click="rowClick" @selection-change="handleSelectionChange" @filter-change="filterChange">
         <el-table-column type="selection" prop="selection" class-name="col-selection" width="55" />
         <el-table-column label="设备ID/名称" min-width="200">
           <template slot-scope="{row}">
