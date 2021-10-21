@@ -1,6 +1,6 @@
 <template>
-  <div class="device-list__container">
-    <div v-if="isNVR" v-loading="loading.info" class="device-info">
+  <div ref="listWrap" class="device-list__container">
+    <div v-if="isNVR" ref="infoWrap" v-loading="loading.info" class="device-info">
       <info-list v-if="deviceInfo" label-width="80">
         <info-list-item label="设备名称:">{{ deviceInfo.deviceName }}</info-list-item>
         <info-list-item label="创建时间:">{{ deviceInfo.createdTime }}</info-list-item>
@@ -9,7 +9,7 @@
         <info-list-item label="在线流数量:">{{ deviceInfo.deviceStats.onlineSize }}</info-list-item>
       </info-list>
     </div>
-    <div v-if="isPlatform" v-loading="loading.info" class="device-info">
+    <div v-if="isPlatform" ref="infoWrap" v-loading="loading.info" class="device-info">
       <info-list v-if="deviceInfo" label-width="80">
         <info-list-item label="平台名称:">{{ deviceInfo.deviceName }}</info-list-item>
         <info-list-item label="设备状态:">
@@ -19,7 +19,7 @@
         <info-list-item label="创建时间:">{{ deviceInfo.createdTime }}</info-list-item>
       </info-list>
     </div>
-    <div class="filter-container clearfix">
+    <div ref="filterWrap" class="filter-container clearfix">
       <div class="filter-container__left">
         <el-button v-if="!isVGroup && (isDir || isNVR) && checkPermission(['AdminDevice'])" key="dir-button" type="primary" @click="goToCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
         <el-button v-if="isNVR" key="check-nvr-detail" @click="goToDetail(deviceInfo)">查看NVR设备详情</el-button>
@@ -63,7 +63,7 @@
         <el-button class="el-button-rect" @click="init"><svg-icon name="refresh" /></el-button>
       </div>
     </div>
-    <div v-if="hasFiltered" class="filter-container filter-buttons">
+    <div v-if="hasFiltered" ref="filterBtnWrap" class="filter-container filter-buttons">
       <div v-for="{key, value} in filterButtons" :key="key" class="filter-button" @click="clearFilter(key)">
         <label>{{ deviceParams[key] }}</label>
         <span v-if="key === 'deviceType'">{{ deviceType[value] }}</span>
@@ -74,7 +74,7 @@
       </div>
     </div>
     <div v-loading="loading.list || loading.info" class="device-list__wrap">
-      <el-table v-show="deviceList.length" ref="deviceTable" :data="deviceList" empty-text="暂无设备" fit class="device-list__table" @row-click="rowClick" @selection-change="handleSelectionChange" @filter-change="filterChange">
+      <el-table v-show="deviceList.length" ref="deviceTable" :height="tableMaxHeight" :data="deviceList" empty-text="暂无设备" fit class="device-list__table" @row-click="rowClick" @selection-change="handleSelectionChange" @filter-change="filterChange">
         <el-table-column type="selection" prop="selection" class-name="col-selection" width="55" />
         <el-table-column label="设备ID/名称" min-width="200">
           <template slot-scope="{row}">
