@@ -37,7 +37,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { getRecordTemplates, setGroupCallBackTemplate, unbindGroupCallBackTemplate } from '@/api/group'
+import { setGroupCallBackTemplate, unbindGroupCallBackTemplate } from '@/api/group'
 import { setDeviceCallbackTemplate, unbindDeviceCallbackTemplate } from '@/api/device'
 import { getCallBackTemplates } from '@/api/stream'
 import { formatSeconds } from '@/utils/interval'
@@ -63,13 +63,19 @@ export default class extends Vue {
   }
 
   private async bind(row: any) {
+    let params = {
+      groupId: this.groupId,
+      deviceId: this.deviceId,
+      templateId: row.templateId,
+      inProtocol: this.inProtocol
+    }
     try {
       this.loading = true
-      await setDeviceCallbackTemplate({
-        deviceId: this.deviceId,
-        templateId: row.templateId,
-        inProtocol: this.inProtocol
-      })
+      if (this.groupId) {
+        await setGroupCallBackTemplate(params)
+      } else if (this.deviceId) {
+        await setDeviceCallbackTemplate(params)
+      }
       this.bindTemplateId = row.templateId
     } catch (e) {
       this.$message.error(e && e.message)
@@ -79,13 +85,19 @@ export default class extends Vue {
   }
 
   private async unbind(row: any) {
+    let params = {
+      groupId: this.groupId,
+      deviceId: this.deviceId,
+      templateId: row.templateId,
+      inProtocol: this.inProtocol
+    }
     try {
       this.loading = true
-      await unbindDeviceCallbackTemplate({
-        deviceId: this.deviceId,
-        templateId: row.templateId,
-        inProtocol: this.inProtocol
-      })
+      if (this.groupId) {
+        await unbindGroupCallBackTemplate(params)
+      } else if (this.deviceId) {
+        await unbindDeviceCallbackTemplate(params)
+      }
       this.bindTemplateId = ''
     } catch (e) {
       this.$message.error(e && e.message)
