@@ -117,6 +117,7 @@ export const StreamStatus = {
 }
 
 export const RecordStatus = {
+  0: '-',
   1: '录制中',
   2: '未录制'
 }
