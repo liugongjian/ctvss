@@ -13,17 +13,17 @@
       highlight-current-row
       max-height="500"
     >
-      <el-table-column prop="templateName" label="模板名称" />
+      <el-table-column prop="templateName" label="模板名称" min-width="50" />
       <el-table-column label="回调URL">
         <template slot-scope="{row}">
-          <span v-if="row.recordNotifyUrl">录制回调: {{ row.recordNotifyUrl }}</span>
-          <span v-if="row.deviceStatusUrl">设备状态回调: {{ row.deviceStatusUrl }}</span>
-          <span v-if="row.streamStatusUrl">流状态回调: {{ row.streamStatusUrl }}</span>
-          <span v-if="row.aiEventNotifyUrl">AI事件通知回调: {{ row.aiEventNotifyUrl }}</span>
+          <div v-if="row.recordNotifyUrl">录制回调: {{ row.recordNotifyUrl }}</div>
+          <div v-if="row.deviceStatusUrl">设备状态回调: {{ row.deviceStatusUrl }}</div>
+          <div v-if="row.streamStatusUrl">流状态回调: {{ row.streamStatusUrl }}</div>
+          <div v-if="row.aiEventNotifyUrl">AI事件通知回调: {{ row.aiEventNotifyUrl }}</div>
         </template>
       </el-table-column>
       <el-table-column prop="callbackKey" label="回调Key" />
-      <el-table-column label="操作">
+      <el-table-column label="操作" width="100">
         <template slot-scope="{row}">
           <el-button v-if="row.templateId !== bindTemplateId" type="text" :disabled="bindTemplateId.length !== 0" @click="bind(row)">绑定</el-button>
           <el-button v-else type="text" @click="unbind(row)">解绑</el-button>
