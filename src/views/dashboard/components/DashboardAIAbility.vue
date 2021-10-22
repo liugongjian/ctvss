@@ -17,6 +17,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import DashboardLightContainer from './DashboardLightContainer.vue'
+import { UserModule } from '@/store/modules/user'
 import { AlertType } from '@/dics'
 import { AiGroups } from '../helper/aiGroups'
 
@@ -32,6 +33,24 @@ export default class extends Vue {
 
   private get container() {
     return 'DashboardLightContainer'
+  }
+
+  private mounted() {
+    // TODO: Hardcode 300015
+    if (UserModule.mainUserID === '300015') {
+      this.aiGroups = [
+        {
+          name: '人脸识别',
+          children: [4]
+        }, {
+          name: '人体识别',
+          children: [8]
+        }, {
+          name: '场景识别',
+          children: [10, 17]
+        }
+      ]
+    }
   }
 
   private goRouter(type: any) {
