@@ -132,7 +132,7 @@ export default class extends Vue {
           this.$set(this.queryParam, 'period', [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)])
           break
         case '近3天':
-          this.$set(this.queryParam, 'period', [this.getDateBefore(3), new Date().setHours(23, 59, 59, 999)])
+          this.$set(this.queryParam, 'period', [this.getDateBefore(2), new Date().setHours(23, 59, 59, 999)])
           break
         case '自定义时间':
           this.$set(this.queryParam, 'period', [])
@@ -167,7 +167,7 @@ export default class extends Vue {
     private getDateBefore(dayCount) {
       let dd = new Date()
       dd.setDate(dd.getDate() - dayCount)
-      let time = dd.setHours(23, 59, 59, 999)
+      let time = dd.setHours(0, 0, 0)
       return time
     }
 
