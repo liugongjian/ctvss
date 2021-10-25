@@ -10,6 +10,7 @@
     "serve:dev2": "vue-cli-service serve --env dev2",
     "serve:test": "vue-cli-service serve --env test",
     "serve:test2": "vue-cli-service serve --env test2",
+    "serve:testTemp": "vue-cli-service serve --env testTemp",
     "serve:prod": "vue-cli-service serve --env prod",
     "serve:local-https": "vue-cli-service serve --env local --https",
     "serve:dev-https": "vue-cli-service serve --env dev --https",
