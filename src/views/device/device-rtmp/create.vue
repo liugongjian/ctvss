@@ -166,7 +166,7 @@ export default class extends Mixins(createMixin) {
         'description', 'inType', 'pullType', 'pushType', 'pullUrl', 'tags']))
       // 获取绑定资源包列表
       this.getDeviceResources(info.deviceId, info.deviceType!, info.inProtocol!)
-    } catch (e) {
+    } catch (e: any) {
       this.$message.error(e.message)
     } finally {
       this.loading.device = false
@@ -215,7 +215,7 @@ export default class extends Mixins(createMixin) {
       }
       this.back()
       this.initDirs()
-    } catch (e) {
+    } catch (e: any) {
       this.$message.error(e && e.message)
     } finally {
       this.submitting = false
