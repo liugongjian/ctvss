@@ -353,9 +353,9 @@ export default class extends Mixins(createMixin) {
         // 获取绑定资源包列表
         this.getDeviceResources(info.deviceId, info.deviceType!, info.inProtocol!)
         if (info.deviceStats) {
-          this.form.channelSize = info.deviceStats.channelSize
+          this.form.channelSize = info.deviceStats.maxChannelSize
           // 编辑的时候，设置数量不得小于已创建的子通道channelSize或1
-          this.minChannelSize = Math.max(this.form.channelSize, 1)
+          this.minChannelSize = Math.max(info.deviceStats.channelSize, 1)
           // this.orginalChannelSize = this.form.channelSize
         }
         if (this.isChannel) {
