@@ -62,6 +62,9 @@
         <i class="el-icon-refresh" @click="refreshFaceLib" />
         <el-button type="text" @click="goFaceLib">+新建人脸库</el-button>
       </el-form-item>
+      <el-form-item v-if="prod.code === '10005' || (form.algorithm && form.algorithm.code === '10005')" prop="algorithmMetadata.pedThreshold" label="人员数量阈值">
+        <el-input v-model="form.algorithmMetadata.pedThreshold" />
+      </el-form-item>
       <el-form-item v-if="prod.code === '10006' || (form.algorithm && form.algorithm.code === '10006')" label="围栏区域">
         <el-alert
           title="围栏区域需在绑定设备后，在设备详情中进行设置。"
@@ -117,6 +120,8 @@ const getRule = (msg) => {
   let rule = []
   if (msg === '应用名称') {
     rule.push({ min: 1, max: 10, message: '名称需在 1 到 10 个字符之间', trigger: 'blur' })
+  } else if (msg === '人员数量阈值') {
+    // rule.push({ type: 'number', message: '人员数量阈值必须为数字' })
   }
   rule.push({ required: true, trigger: 'blur', message: '请输入' + msg })
   return rule
@@ -132,7 +137,8 @@ export default class extends Mixins(AppMixin) {
   private ResourceAiType: any = ResourceAiType
   private form: any = {
     algorithmMetadata: {
-      FaceDbName: ''
+      FaceDbName: '',
+      pedThreshold: ''
     }
   }
   private faceLibs = []
@@ -142,6 +148,7 @@ export default class extends Mixins(AppMixin) {
     analyseType: getRule('分析类型'),
     effectPeriod: getRule('生效时段'),
     'algorithmMetadata.FaceDbName': getRule('人脸库'),
+    'algorithmMetadata.pedThreshold': getRule('人员数量阈值'),
     confidence: getRule('置信度'),
     callbackKey: getRule('回调key')
   }
@@ -164,7 +171,7 @@ export default class extends Mixins(AppMixin) {
       // 处理置信度
       this.form = { ...this.form, confidence: this.form.confidence * 100 }
     } else { // 新建
-      const algorithmMetadata = { FaceDbName: '' }
+      const algorithmMetadata = { FaceDbName: '', pedThreshold: '' }
       this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [] }
     }
     try {
@@ -195,7 +202,7 @@ export default class extends Mixins(AppMixin) {
   private editTransformFaceData() {
     this.form.algorithmMetadata.length !== 0
       ? (this.form.algorithmMetadata = JSON.parse(this.form.algorithmMetadata))
-      : (this.form = { ...this.form, algorithmMetadata: { FaceDbName: '' } })
+      : (this.form = { ...this.form, algorithmMetadata: { FaceDbName: '', pedThreshold: '' } })
   }
 
   /**
@@ -229,11 +236,16 @@ export default class extends Mixins(AppMixin) {
    */
   private async submitValidAppInfo() {
     this.generateEffectiveTime()
+    let algorithmMetadata = this.form.algorithmMetadata
+    Object.keys(algorithmMetadata).forEach(key => algorithmMetadata[key] === '' && delete algorithmMetadata[key])
+    if (this.form.algorithm?.code === '10003' || this.prod?.code === '10003') {
+      algorithmMetadata.faceRatio = 70
+    }
     let param = {
       ...this.form,
       effectiveTime: this.effectiveTime,
       callbackKey: this.form.validateType === '无验证' ? '' : this.form.callbackKey,
-      algorithmMetadata: JSON.stringify(this.form.algorithmMetadata),
+      algorithmMetadata: JSON.stringify(algorithmMetadata),
       confidence: this.form.confidence / 100
     }
     try {
