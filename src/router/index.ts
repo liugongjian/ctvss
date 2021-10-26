@@ -633,18 +633,18 @@ export const asyncRoutes: RouteConfig[] = [
           activeMenu: '/template/callback'
         }
       },
-      {
-        path: 'ai',
-        component: () => import(/* webpackChunkName: "template" */ '@/views/template/ai/index.vue'),
-        name: 'ai',
-        meta: {
-          id: '20210424150201008007',
-          title: 'AI模板',
-          icon: 'dot',
-          perms: ['*'],
-          activeMenu: '/template/ai'
-        }
-      },
+      // {
+      //   path: 'ai',
+      //   component: () => import(/* webpackChunkName: "template" */ '@/views/template/ai/index.vue'),
+      //   name: 'ai',
+      //   meta: {
+      //     id: '20210424150201008007',
+      //     title: 'AI模板',
+      //     icon: 'dot',
+      //     perms: ['*'],
+      //     activeMenu: '/template/ai'
+      //   }
+      // },
       {
         path: 'ai/create',
         component: () => import(/* webpackChunkName: "template" */ '@/views/template/ai/createOrUpdate.vue'),

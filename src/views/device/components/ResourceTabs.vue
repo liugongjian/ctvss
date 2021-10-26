@@ -429,6 +429,10 @@ export default class extends Vue {
 
   // 能力列表 行点击
   private onResourceTabsRowClick(row:any) {
+    const ifDisableFlag = row.analyseType >= this.chooseData.aiType
+    if (ifDisableFlag) {
+      return false
+    }
     this.$refs[`algoTable${this.algoTabType}`][0].toggleRowSelection(row, true)
   }
 
