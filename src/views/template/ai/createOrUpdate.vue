@@ -54,7 +54,7 @@
               <el-table-column prop="threshold" label="算法阈值（百分比）" min-width="160" align="center">
                 <template slot-scope="{row, $index}">
                   <el-form-item :rules="thresholdRules" :prop="'templateAbilityList.' + abilityIndex + '.algorithms.' + $index + '.threshold'" :inline-message="true">
-                    <el-input v-model="row.threshold" size="mini" :disabled="row.threshold === null" />
+                    <el-input v-model="row.threshold" size="mini" :disabled="row.threshold === null || row.code === '10014'" />
                   </el-form-item>
                 </template>
               </el-table-column>
