@@ -195,6 +195,7 @@ export default class extends Vue {
   private checkInfoObj:any = {}
   private resourceAlgo:any = {}
   private resourceHasAppIds = []
+  private selectAlgoInfo = []
 
   public get isFreeUser() {
     return UserModule.tags && UserModule.tags.resourceFree === '1'
@@ -351,12 +352,13 @@ export default class extends Vue {
   }
 
   private async getResourceIdAttachedAppIds(row:any) {
-    if (!this.checkInfoObj[row.resourceId] || Object.values(this.checkInfoObj[row.resourceId]).length === 0) {
-      const { appIdList } = await getResourceIdAttachedAppIds({ resourceId: row.resourceId, deviceId: this.deviceId })
-      this.resourceHasAppIds = appIdList
-      if (this.selectAlgoId.length === 0) {
-        this.selectAlgoId = this.resourceHasAppIds.map((item:any) => item.appId)
-      }
+    // if (!this.checkInfoObj[row.resourceId] || Object.values(this.checkInfoObj[row.resourceId]).length === 0) {
+
+    // }
+    const { appIdList } = await getResourceIdAttachedAppIds({ resourceId: row.resourceId, deviceId: this.deviceId })
+    this.resourceHasAppIds = appIdList
+    if (this.selectAlgoId.length === 0) {
+      this.selectAlgoId = this.resourceHasAppIds.map((item:any) => item.appId)
     }
   }
 
@@ -429,7 +431,11 @@ export default class extends Vue {
 
   // 能力列表 行点击
   private onResourceTabsRowClick(row:any) {
-    this.$refs[`algoTable${this.algoTabType}`][0].toggleRowSelection(row, true)
+    const ifDisableFlag = row.analyseType <= this.chooseData.aiType
+    if (!ifDisableFlag) {
+      return false
+    }
+    this.$refs[`algoTable${this.algoTabType}`][0].toggleRowSelection(row)
   }
 
   // 能力checkbox点击
@@ -438,9 +444,9 @@ export default class extends Vue {
     if (result.length > 0) {
       this.setChecked()
     } else {
-      this.selectAlgoId = this.selectAlgoId.filter(item => item.appId !== row.id)
+      // this.selectAlgoId = this.selectAlgoInfo.filter((item:any) => item.appId !== row.id)
       this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].filter((item:any) => item.id !== row.id)
-      this.filterCheckedStatus()
+      // this.filterCheckedStatus()
     }
   }
 
@@ -461,16 +467,14 @@ export default class extends Vue {
 
   // 过滤编辑过的选中和当前选中
   private filterCheckedStatus() {
-    const temp = Object.values(this.checkInfoObj[this.chooseData.resourceId]).map((item:any) => {
-      return item.map((ele:any) => ele)
-    })
-    // this.selectAlgoInfo = result.flat() this.resourceHasAppIds
+    const temp = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType]
     if (this.resourceHasAppIds && this.resourceHasAppIds.length > 0) {
-      const result = temp.flat().filter((item:any) => {
+      const result = temp.filter((item:any) => {
         return this.resourceHasAppIds.some((val:any) => {
           return val.appId !== item.appId
         })
       })
+
       const resultFinal = result.map((item:any) => {
         return {
           appId: item.id,
@@ -479,15 +483,13 @@ export default class extends Vue {
       })
       this.selectAlgoInfo = resultFinal
     } else {
-      const result = Object.values(this.checkInfoObj[this.chooseData.resourceId]).map((item:any) => {
-        return item.map((ele:any) => {
-          return {
-            appId: ele.id,
-            analyseType: ele.analyseType
-          }
-        })
+      const result = Object.values(this.checkInfoObj[this.chooseData.resourceId][this.algoTabType]).map((item:any) => {
+        return {
+          appId: item.id,
+          analyseType: item.analyseType
+        }
       })
-      this.selectAlgoInfo = result.flat()
+      this.selectAlgoInfo = result
     }
 
     this.selectAlgoId = this.selectAlgoInfo.map((item:any) => item.appId)
