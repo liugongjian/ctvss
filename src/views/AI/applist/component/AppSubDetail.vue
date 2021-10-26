@@ -311,7 +311,7 @@ export default class extends Vue {
     .card-wrapper{
       display: grid;
       grid-gap: 1rem;
-      grid-template-columns: repeat(auto-fit, minmax(20%, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(20%, 1fr));
       overflow-y: auto;
     }
 }

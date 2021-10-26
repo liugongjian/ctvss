@@ -103,7 +103,7 @@ export default class extends Mixins(DashboardMixin) {
     const raw = rawArr.map(item => ({
       ...item,
       time: parse(
-        item.Date + ' ' + item.timeInterval,
+        item.date + ' ' + item.timeInterval,
         'yyyy-MM-dd HH:mm:ss',
         new Date()
       )
