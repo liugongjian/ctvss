@@ -14,6 +14,14 @@
             <el-input v-model="form.iamUserName" placeholder="请填写用户名" />
             <el-row class="form-tip">2-16位，可包含大小写字母、数字、中文、中划线，用户名称不能重复。</el-row>
           </el-form-item>
+          <el-form-item prop="phoneNumber" label="电话：">
+            <el-input v-model="form.phoneNumber" placeholder="请填写用户电话" />
+            <!-- <el-row class="form-tip">2-16位，可包含大小写字母、数字、中文、中划线，用户名称不能重复。</el-row> -->
+          </el-form-item>
+          <el-form-item prop="email" label="邮箱：">
+            <el-input v-model="form.email" placeholder="请填写用户邮箱" />
+            <!-- <el-row class="form-tip">2-16位，可包含大小写字母、数字、中文、中划线，用户名称不能重复。</el-row> -->
+          </el-form-item>
           <el-form-item prop="accessType" label="访问方式：">
             <template>
               <el-checkbox v-model="form.consoleEnabled" :disabled="type === 'edit'" @change="accessTypeChange">控制台访问</el-checkbox>
@@ -194,6 +202,8 @@ export default class extends Vue {
     consoleEnabled: true,
     apiEnabled: false,
     policy: null,
+    email: '',
+    phoneNumber: '',
     resetPwdEnabled: true
   }
   private rules: any = {
@@ -206,6 +216,13 @@ export default class extends Vue {
     ],
     accessType: [
       { required: true, validator: this.validateAccessType, trigger: 'change' }
+    ],
+    email: [
+      { required: true, message: '请填写邮箱', trigger: 'blur' },
+      { validator: this.validateEmail, trigger: 'blur' }
+    ],
+    phoneNumber: [
+      { validator: this.validatePhone, trigger: 'blur' }
     ]
   }
   private policyList: Array<object> = []
@@ -422,6 +439,22 @@ export default class extends Vue {
   private validateAccessType(rule: any, value: any, callback: Function) {
     if (!value) {
       callback(new Error('请至少选择一种访问方式'))
+    } else {
+      callback()
+    }
+  }
+
+  private validateEmail(rule: any, value: string, callback: Function) {
+    if (value && !/^[\w-]+@[a-zA-Z\d-]+(\.[a-zA-Z]{2,8}){1,2}$/ig.test(value)) {
+      callback(new Error('请输入正确的邮箱'))
+    } else {
+      callback()
+    }
+  }
+
+  private validatePhone(rule: any, value: string, callback: Function) {
+    if (value && !/^\d{11}$/.test(value)) {
+      callback(new Error('请输入正确的手机号'))
     } else {
       callback()
     }

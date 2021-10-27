@@ -3,19 +3,19 @@
     <el-page-header content="成员详情" @back="back" />
     <el-card class="dashboard-wrap-overview__detail__card">
       <div class="dashboard-wrap-overview__detail__head">
-        <div class="dashboard-wrap-overview__detail__name">张三</div>
+        <div class="dashboard-wrap-overview__detail__name">{{ detail.iamUserName }}</div>
         <div class="dashboard-wrap-overview__detail__button">
           <el-button @click="gotoEdit">编辑基本信息</el-button>
           <el-button @click="goDelete">删除成员</el-button>
         </div>
       </div>
       <el-descriptions class="detail" column="2">
-        <el-descriptions-item label="账号ID"><p class="detail__content">kooriookami</p></el-descriptions-item>
-        <el-descriptions-item label="访问方式"><p class="detail__content">kooriookami</p></el-descriptions-item>
-        <el-descriptions-item label="创建时间"><p class="detail__content">kooriookami</p></el-descriptions-item>
-        <el-descriptions-item label="手机"><p class="detail__content">kooriookami</p></el-descriptions-item>
-        <el-descriptions-item label="备注"><p class="detail__content">kooriookami</p></el-descriptions-item>
-        <el-descriptions-item label="登录链接"><p class="detail__content">kooriookami</p></el-descriptions-item>
+        <el-descriptions-item label="账号ID"><p class="detail__content">{{ detail.iamUserId || '-' }}</p></el-descriptions-item>
+        <el-descriptions-item label="访问方式"><p class="detail__content">{{ detail.visit || '-' }}</p></el-descriptions-item>
+        <el-descriptions-item label="创建时间"><p class="detail__content">{{ detail.createdTime || '-' }}</p></el-descriptions-item>
+        <el-descriptions-item label="手机"><p class="detail__content">{{ detail.phone || '-' }}</p></el-descriptions-item>
+        <el-descriptions-item label="邮箱"><p class="detail__content">{{ detail.email || '-' }}</p></el-descriptions-item>
+        <el-descriptions-item label="登录链接"><p class="detail__content">{{ subUserLoginLink || '-' }}</p></el-descriptions-item>
       </el-descriptions>
       <!-- <div class="dashboard-wrap-overview__detail__info">
         <div class="dashboard-wrap-overview__detail__list">
@@ -55,6 +55,7 @@ export default class extends Mixins(DashboardMixin) {
     policyName: '',
     policyDocument: '',
     policyId: '',
+    visit: '',
     phone: '',
     email: ''
   }
@@ -66,7 +67,13 @@ export default class extends Mixins(DashboardMixin) {
     return 'DashboardLightContainer'
   }
 
+  private get query() {
+    return this.$route.query
+  }
+
   private mounted() {
+    console.log('...')
+    console.log(this.query)
     this.intervalTime = 10 * 60 * 1000
     this.setInterval(this.getData)
   }
@@ -82,12 +89,11 @@ export default class extends Mixins(DashboardMixin) {
    * 获取用户详情
    */
   private async getUserDetail() {
-    this.detail['iamUserId'] = '199052089002737664' // 测试 编辑跳转
-    this.detail['iamUserName'] = 'res.iamUserName' // 测试 编辑跳转
-    const res = await getUserDetail(null)
-    // console.log('用户详情')
-    // console.log(res)
-    this.detail['iamUserId'] = '199052089002737664'
+    const params = {
+      iamUserId: this.query.userId
+    }
+    const res = await getUserDetail(params)
+    this.detail['iamUserId'] = res.iamUserId
     this.detail['iamUserName'] = res.iamUserName
     this.detail['createdTime'] = res.createdTime
     this.detail['updatedTime'] = res.updatedTime
@@ -96,6 +102,16 @@ export default class extends Mixins(DashboardMixin) {
     this.detail['policyId'] = res.policyId
     this.detail['phone'] = res.phone
     this.detail['email'] = res.email
+    if (res.consoleEnabled === '1' && res.apiEnabled === '1') {
+      this.detail['visit'] = '控制台登录、编程访问'
+    } else if (res.consoleEnabled === '1' && res.apiEnabled === '2') {
+      this.detail['visit'] = '控制台登录'
+    } else if (res.consoleEnabled === '2' && res.apiEnabled === '2') {
+      this.detail['visit'] = ''
+    } else if (res.consoleEnabled === '2' && res.apiEnabled === '1') {
+      this.detail['visit'] = '编程访问'
+    }
+    this.getSubuserLoginLink(this.detail['iamUserName'])
   }
 
   /**
@@ -152,6 +168,7 @@ export default class extends Mixins(DashboardMixin) {
   min-width: 90px;
 }
 .detail__content {
+  margin-top: 0;
   color: #000000;
 }
 </style>

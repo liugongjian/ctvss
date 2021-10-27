@@ -89,7 +89,7 @@
               </template>
             </el-table-column>
             <el-table-column prop="createdTime" label="创建时间" />
-            <el-table-column label="操作" fixed="right" width="260">
+            <el-table-column label="操作" fixed="right" width="300">
               <template slot-scope="scope">
                 <el-button type="text" @click="getDetail(scope.row)">详情</el-button>
                 <el-button type="text" @click="editUser(scope.row)">编辑</el-button>

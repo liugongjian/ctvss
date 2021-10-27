@@ -10,7 +10,7 @@ export const getIamInfo = (params: any): Promise<any> =>
 
 export const getUserDetail = (params: any): Promise<any> =>
   request({
-    url: '/iam/info/stat',
+    url: '/iam/user',
     method: 'get',
     params
   })

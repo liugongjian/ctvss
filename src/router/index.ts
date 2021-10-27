@@ -843,7 +843,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '概览',
           icon: 'dot',
           breadcrumb: true,
-          activeMenu: '/accessManage/user',
+          activeMenu: '/accessManage/dashboard',
           perms: ['*']
         }
       },
