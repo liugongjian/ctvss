@@ -836,7 +836,7 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: 'dashboard',
-        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/user/dashboard.vue'),
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/user/Dashboard.vue'),
         name: 'accessManage-dashboard',
         meta: {
           id: '20210424150201011005',
