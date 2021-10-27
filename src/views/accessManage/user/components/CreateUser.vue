@@ -169,10 +169,16 @@ import copy from 'copy-to-clipboard'
 import ExcelJS from 'exceljs'
 import { createUser, getUser, modifyUser, getPolicyList } from '@/api/accessManage'
 import templateBind from '@/views/components/templateBind.vue'
+
+Component.registerHooks([
+  'beforeRouteEnter'
+])
+
 @Component({
   components: { templateBind },
   name: 'CreateUser'
 })
+
 export default class extends Vue {
   private type: any = ''
   private loading: any = {
@@ -206,6 +212,7 @@ export default class extends Vue {
   private newUserData: Array<object> = []
   private showPasswords: boolean = false
   private showSecretKey: boolean = false
+  private fromUrl: string = ''
 
   private editPolicy(row: any) {
     this.$router.push({
@@ -254,14 +261,24 @@ export default class extends Vue {
     this.$message.success('复制成功')
   }
 
-  private back() {
-    let query: any = this.$route.query
-    this.$router.push({
-      name: 'accessManage-user',
-      params: {
-        nodeKeyPath: query.nodeKeyPath
-      }
+  private beforeRouteEnter(to: any, from: any, next: any) {
+    next((vm: any) => {
+      vm.fromUrl = from.name
     })
+  }
+
+  private back() {
+    if (this.fromUrl === 'accessManage-dashboard') {
+      this.$router.go(-1)
+    } else {
+      let query: any = this.$route.query
+      this.$router.push({
+        name: 'accessManage-user',
+        params: {
+          nodeKeyPath: query.nodeKeyPath
+        }
+      })
+    }
   }
 
   private async mounted() {

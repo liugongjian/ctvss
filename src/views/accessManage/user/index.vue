@@ -77,7 +77,11 @@
             </div>
           </div>
           <el-table v-loading="loading.body" :data="userList">
-            <el-table-column prop="iamUserName" label="用户名" />
+            <el-table-column prop="iamUserName" label="用户名">
+              <template slot-scope="{row}">
+                <span class="click__user" @click="getDetail(row)">{{ row.iamUserName || '-' }}</span>
+              </template>
+            </el-table-column>
             <el-table-column prop="iamUserId" label="账号ID" />
             <el-table-column prop="policyName" label="策略名">
               <template slot-scope="{row}">
@@ -87,6 +91,7 @@
             <el-table-column prop="createdTime" label="创建时间" />
             <el-table-column label="操作" fixed="right" width="260">
               <template slot-scope="scope">
+                <el-button type="text" @click="getDetail(scope.row)">详情</el-button>
                 <el-button type="text" @click="editUser(scope.row)">编辑</el-button>
                 <el-button type="text" @click="copyLink(scope.row)">复制登录链接</el-button>
                 <el-button type="text" @click="resetSubPwd(scope.row)">重置密码</el-button>
@@ -380,6 +385,8 @@ export default class extends Vue {
   }
   private editUser(row: any) {
     this.getSubuserLoginLink(row.iamUserName)
+    console.log('111')
+    console.log(row)
     this.$router.push({
       name: `accessManage-user-create`,
       query: {
@@ -400,6 +407,21 @@ export default class extends Vue {
     const pager: any = this.pager
     pager.pageNum = val
     this.getUserList()
+  }
+  private getDetail(user: any) {
+    this.getSubuserLoginLink(user.iamUserName)
+    // 传递参数去获取用户详情数据
+    this.$router.push({
+      name: `accessManage-user-detail`,
+      query: {
+        type: 'edit',
+        userId: user.iamUserId,
+        subUserLoginLink: this.subUserLoginLink,
+        nodeKeyPath: this.nodeKeyPath
+      }
+    })
+    console.log('猪猪')
+    console.log(user)
   }
 }
 </script>
@@ -546,5 +568,8 @@ export default class extends Vue {
         margin-right: 10px
       }
     }
+  }
+  :hover .click__user {
+    cursor: pointer;
   }
 </style>

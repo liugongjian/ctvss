@@ -835,6 +835,19 @@ export const asyncRoutes: RouteConfig[] = [
     },
     children: [
       {
+        path: 'dashboard',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/user/dashboard.vue'),
+        name: 'accessManage-dashboard',
+        meta: {
+          id: '20210424150201011005',
+          title: '概览',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/accessManage/user',
+          perms: ['*']
+        }
+      },
+      {
         path: 'user',
         component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/user/index.vue'),
         name: 'accessManage-user',
@@ -854,6 +867,19 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           id: '20210424150201011002',
           title: '创建用户',
+          icon: 'dot',
+          hidden: true,
+          activeMenu: '/accessManage/user',
+          perms: ['*']
+        }
+      },
+      {
+        path: 'user/detail',
+        component: () => import(/* webpackChunkName: "accessManage" */ '@/views/accessManage/user/components/UserDetail.vue'),
+        name: 'accessManage-user-detail',
+        meta: {
+          id: '20210424150201011006',
+          title: '成员详情',
           icon: 'dot',
           hidden: true,
           activeMenu: '/accessManage/user',

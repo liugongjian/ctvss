@@ -176,9 +176,10 @@ export default class extends Vue {
   }
 
   private back() {
-    this.$router.push({
-      name: 'accessManage-role'
-    })
+    this.$router.go(-1)
+    // this.$router.push({
+    //   name: 'accessManage-role'
+    // })
   }
 
   private rowClick(row: any) {
