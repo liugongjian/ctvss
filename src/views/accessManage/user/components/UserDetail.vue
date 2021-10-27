@@ -9,7 +9,7 @@
           <el-button @click="goDelete">删除成员</el-button>
         </div>
       </div>
-      <el-descriptions class="detail" column="2">
+      <el-descriptions class="detail" :column="column">
         <el-descriptions-item label="账号ID"><p class="detail__content">{{ detail.iamUserId || '-' }}</p></el-descriptions-item>
         <el-descriptions-item label="访问方式"><p class="detail__content">{{ detail.visit || '-' }}</p></el-descriptions-item>
         <el-descriptions-item label="创建时间"><p class="detail__content">{{ detail.createdTime || '-' }}</p></el-descriptions-item>
@@ -17,18 +17,6 @@
         <el-descriptions-item label="邮箱"><p class="detail__content">{{ detail.email || '-' }}</p></el-descriptions-item>
         <el-descriptions-item label="登录链接"><p class="detail__content">{{ subUserLoginLink || '-' }}</p></el-descriptions-item>
       </el-descriptions>
-      <!-- <div class="dashboard-wrap-overview__detail__info">
-        <div class="dashboard-wrap-overview__detail__list">
-          <p class="dashboard-wrap-overview__detail__message">账号ID：</p>
-          <p class="dashboard-wrap-overview__detail__message">访问方式：</p>
-          <p class="dashboard-wrap-overview__detail__message">创建时间：</p>
-        </div>
-        <div class="dashboard-wrap-overview__detail__list">
-          <p class="dashboard-wrap-overview__detail__message">手机：</p>
-          <p class="dashboard-wrap-overview__detail__message">备注：</p>
-          <p class="dashboard-wrap-overview__detail__message">登录链接：</p>
-        </div>
-      </div> -->
     </el-card>
   </div>
 </template>
@@ -47,6 +35,7 @@ import { getUserDetail, deleteUser } from '@/api/iamDashboard'
   }
 })
 export default class extends Mixins(DashboardMixin) {
+  private column = 2
   private detail: any = {
     iamUserId: '',
     iamUserName: '',
@@ -116,7 +105,6 @@ export default class extends Mixins(DashboardMixin) {
    * 回退
    */
   private back() {
-    // this.$router.push(`/accessManage/policy`)
     this.$router.go(-1)
   }
 
@@ -131,7 +119,6 @@ export default class extends Mixins(DashboardMixin) {
         type: 'edit',
         userId: this.detail['iamUserId'],
         subUserLoginLink: this.subUserLoginLink
-        // nodeKeyPath: this.nodeKeyPath
       }
     })
   }

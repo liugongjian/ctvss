@@ -14,13 +14,11 @@
             <el-input v-model="form.iamUserName" placeholder="请填写用户名" />
             <el-row class="form-tip">2-16位，可包含大小写字母、数字、中文、中划线，用户名称不能重复。</el-row>
           </el-form-item>
-          <el-form-item prop="phoneNumber" label="电话：">
-            <el-input v-model="form.phoneNumber" placeholder="请填写用户电话" />
-            <!-- <el-row class="form-tip">2-16位，可包含大小写字母、数字、中文、中划线，用户名称不能重复。</el-row> -->
+          <el-form-item prop="phone" label="电话：">
+            <el-input v-model="form.phone" placeholder="请填写用户电话" />
           </el-form-item>
           <el-form-item prop="email" label="邮箱：">
             <el-input v-model="form.email" placeholder="请填写用户邮箱" />
-            <!-- <el-row class="form-tip">2-16位，可包含大小写字母、数字、中文、中划线，用户名称不能重复。</el-row> -->
           </el-form-item>
           <el-form-item prop="accessType" label="访问方式：">
             <template>
@@ -203,7 +201,7 @@ export default class extends Vue {
     apiEnabled: false,
     policy: null,
     email: '',
-    phoneNumber: '',
+    phone: '',
     resetPwdEnabled: true
   }
   private rules: any = {
@@ -221,7 +219,7 @@ export default class extends Vue {
       { required: true, message: '请填写邮箱', trigger: 'blur' },
       { validator: this.validateEmail, trigger: 'blur' }
     ],
-    phoneNumber: [
+    phone: [
       { validator: this.validatePhone, trigger: 'blur' }
     ]
   }
