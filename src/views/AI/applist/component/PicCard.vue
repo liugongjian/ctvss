@@ -2,7 +2,8 @@
 <template>
   <el-card>
     <div class="pic-wrapper">
-      <el-image :src="pic.image" />
+      <el-image ref="img" :src="pic.image" @load="onload" />
+      <Locations :type="type" :img="pic" />
     </div>
     <div class="content-wrapper">
       <el-descriptions :column="1">
@@ -22,15 +23,34 @@
 <script lang='ts'>
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { decodeBase64 } from '@/utils/base64'
+import Locations from '@/views/dashboard/ai/components/Locations.vue'
+import { parseMetaData, transformLocation } from '@/utils/ai'
 
 @Component({
   name: 'PicCard',
   components: {
+    Locations
   }
 })
 export default class extends Vue {
   @Prop() private pic!: any
+  private picInfo = null
+  private type = '4'
   private decodeBase64: Function = decodeBase64
+
+  private onload() {
+    console.log('onload')
+    if (!this.pic || !this.pic.image) {
+      return
+    }
+    const metaData = JSON.parse(this.pic.metadata)
+    console.log('metaData:', metaData)
+    const locations = parseMetaData(this.type, metaData)
+    console.log('locations:', locations)
+    const img = this.$refs.img
+    this.picInfo = { ...this.pic, locations: transformLocation(locations, img) }
+    console.log(this.picInfo)
+  }
 }
 </script>
 <style lang='scss' scoped>
