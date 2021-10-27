@@ -117,8 +117,6 @@ export default class extends Mixins(DashboardMixin) {
 
   private async getInfo() {
     const res = await getIamInfo(null)
-    console.log('⭐')
-    console.log(res)
     this.info.iamUserCnt = res.iamUserCnt
     this.info.iamGroupCnt = res.iamGroupCnt
     this.info.iamRoleCnt = res.iamRoleCnt
@@ -151,7 +149,6 @@ export default class extends Mixins(DashboardMixin) {
    * 创建成员
    */
   private createMember() {
-    console.log('创建成员')
     this.$router.push({
       name: `accessManage-user-create`,
       query: {
@@ -163,15 +160,14 @@ export default class extends Mixins(DashboardMixin) {
   /**
    * 创建部门
    */
-  private createDepartment() {
-    console.log('创建部门')
-  }
+  // private createDepartment() {
+  //   console.log('创建部门')
+  // }
 
   /**
    * 创建自定义策略
    */
   private createPolicy() {
-    console.log('创建自定义策略')
     this.$router.push({
       name: `accessManage-policy-create`
     })
@@ -181,7 +177,6 @@ export default class extends Mixins(DashboardMixin) {
    * 创建角色
    */
   private createRole() {
-    console.log('创建角色')
     // 创建角色 返回跳转不是 回退一个
     this.$router.push({
       name: `accessManage-role-create`
@@ -192,7 +187,6 @@ export default class extends Mixins(DashboardMixin) {
    * 复制链接
    */
   private copyLink() {
-    console.log('复制链接')
     this.getUserLoginLink()
     copy(this.userLoginLink)
     this.$message.success('复制成功')

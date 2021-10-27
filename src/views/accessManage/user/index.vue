@@ -385,8 +385,6 @@ export default class extends Vue {
   }
   private editUser(row: any) {
     this.getSubuserLoginLink(row.iamUserName)
-    console.log('111')
-    console.log(row)
     this.$router.push({
       name: `accessManage-user-create`,
       query: {
@@ -420,8 +418,6 @@ export default class extends Vue {
         nodeKeyPath: this.nodeKeyPath
       }
     })
-    console.log('猪猪')
-    console.log(user)
   }
 }
 </script>

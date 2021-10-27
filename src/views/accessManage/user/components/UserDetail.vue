@@ -72,8 +72,6 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   private mounted() {
-    console.log('...')
-    console.log(this.query)
     this.intervalTime = 10 * 60 * 1000
     this.setInterval(this.getData)
   }
