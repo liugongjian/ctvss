@@ -738,6 +738,9 @@ export default class extends Mixins(ScreenMixin) {
 .covid {
   .sreen-wrap {
     height: 80vh;
+    .screen-item {
+      border: 1px solid #222
+    }
   }
   img {
     width: 100%;
