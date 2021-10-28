@@ -133,6 +133,10 @@
     }
   }
 
+  &__container {
+    margin-top: 20px;
+  }
+
   &__num {
     font-size: 24px;
     &__light {
@@ -141,7 +145,6 @@
   }
 
   &__item {
-    // flex: 2;
     padding: 10px;
     
     &__card {

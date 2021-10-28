@@ -1,14 +1,21 @@
 <template>
-  <component :is="container">
-    <el-card>
+  <el-card>
+    <el-card class="dashboard-wrap-overview__container">
       <div class="dashboard-wrap-overview__item__card__content">
         <div class="dashboard-wrap-overview__cell">
-          <p class="dashboard-wrap-overview__cell__head">成员</p>
+          <p class="dashboard-wrap-overview__cell__head">主账号 ID</p>
+          <p class="dashboard-wrap-overview__cell__content">
+            <span class="dashboard-wrap-overview__num">{{ mainUserID }}</span>
+          </p>
+        </div>
+        <div class="column-line" />
+        <div class="dashboard-wrap-overview__cell">
+          <p class="dashboard-wrap-overview__cell__head">子用户</p>
           <p class="dashboard-wrap-overview__cell__content">
             <span class="dashboard-wrap-overview__num">{{ info.iamUserCnt }}</span>
           </p>
           <p class="dashboard-wrap-overview__cell__content dashboard-wrap-overview__cell__content__click" @click="createMember">
-            <span class="dashboard-wrap-overview__cell__head">创建成员</span>
+            <span class="dashboard-wrap-overview__cell__head">创建子用户</span>
           </p>
         </div>
         <div class="column-line" />
@@ -17,9 +24,9 @@
           <p class="dashboard-wrap-overview__cell__content">
             <span class="dashboard-wrap-overview__num">{{ info.iamGroupCnt }}</span>
           </p>
-          <!-- <p class="dashboard-wrap-overview__cell__content dashboard-wrap-overview__cell__content__click" @click="createDepartment">
+          <p class="dashboard-wrap-overview__cell__content dashboard-wrap-overview__cell__content__click" @click="createDepartment">
             <span class="dashboard-wrap-overview__cell__head">创建部门</span>
-          </p> -->
+          </p>
         </div>
         <div class="column-line" />
         <div class="dashboard-wrap-overview__cell">
@@ -51,18 +58,17 @@
       </div> -->
       </div>
     </el-card>
-    <el-divider />
-    <el-card>
+    <el-card class="dashboard-wrap-overview__container">
       <div class="dashboard-wrap-overview__item__card__content">
         <div class="dashboard-wrap-overview__cell">
-          <p class="dashboard-wrap-overview__cell__head">登陆链接</p>
+          <p class="dashboard-wrap-overview__cell__head">登录链接</p>
           <p class="dashboard-wrap-overview__cell__content">
             <span class="dashboard-wrap-overview__cell__link">成员登录链接：</span> {{ userLoginLink }} <svg-icon class="dashboard-wrap-overview__cell__content__click dashboard-wrap-overview__cell__copy" name="copy" @click="copyLink" />
           </p>
         </div>
       </div>
     </el-card>
-  </component>
+  </el-card>
 </template>
 
 <script lang="ts">
@@ -88,14 +94,8 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   private userLoginLink: any = ''
-  // private stats: any = {
-  //   realUpstreamBandwidth: 0,
-  //   realDownstreamBandwidth: 0,
-  //   upstreamBandwidth: 0,
-  //   downstreamBandwidth: 0,
-  //   sum: 0,
-  //   online: 0
-  // }
+  private mainUserID: any = ''
+
   private get container() {
     return 'DashboardLightContainer'
   }
@@ -111,8 +111,6 @@ export default class extends Mixins(DashboardMixin) {
   private getData() {
     this.getInfo()
     this.getUserLoginLink()
-    // this.getDeviceStates()
-    // this.getBandwidthStates()
   }
 
   private async getInfo() {
@@ -124,33 +122,11 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   /**
-   * 获取带宽数据
-   */
-  // private async getBandwidthStates() {
-  //   const res = await getBandwidthStates(null)
-  //   this.stats['realUpstreamBandwidth'] = res.realUpstreamBandwidth
-  //   this.stats['realDownstreamBandwidth'] = res.realDownstreamBandwidth
-  //   this.stats['upstreamBandwidth'] = res.upstreamBandwidth
-  //   this.stats['downstreamBandwidth'] = res.downstreamBandwidth
-  // }
-
-  /**
-   * 获取设备数据
-   */
-  // private async getDeviceStates() {
-  //   const res = await getDeviceStates(null)
-  //   const sum = Math.max(parseInt(res.sum), parseInt(res.online))
-  //   const online = Math.min(parseInt(res.sum), parseInt(res.online))
-  //   this.stats['sum'] = sum
-  //   this.stats['online'] = online
-  // }
-
-  /**
-   * 创建成员
+   * 创建成员，跳转到用户页面
    */
   private createMember() {
     this.$router.push({
-      name: `accessManage-user-create`,
+      name: `accessManage-user`,
       query: {
         type: 'add'
       }
@@ -158,11 +134,16 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   /**
-   * 创建部门
+   * 创建部门，跳转到用户页面
    */
-  // private createDepartment() {
-  //   console.log('创建部门')
-  // }
+  private createDepartment() {
+    this.$router.push({
+      name: `accessManage-user`,
+      query: {
+        type: 'add'
+      }
+    })
+  }
 
   /**
    * 创建自定义策略
@@ -193,8 +174,8 @@ export default class extends Mixins(DashboardMixin) {
   }
   private getUserLoginLink() {
     const origin = window.location.origin
-    const mainUserID = this.$store.state.user.mainUserID
-    const link: string = `${origin}${settings.projectPrefix}/login/subAccount?&mainUserID=${mainUserID}`
+    this.mainUserID = this.$store.state.user.mainUserID
+    const link: string = `${origin}${settings.projectPrefix}/login/subAccount?&mainUserID=${this.mainUserID}`
     this.userLoginLink = link
   }
 }

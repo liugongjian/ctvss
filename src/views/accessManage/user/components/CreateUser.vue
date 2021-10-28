@@ -335,7 +335,9 @@ export default class extends Vue {
         consoleEnabled: res.consoleEnabled === '1',
         apiEnabled: res.apiEnabled === '1',
         resetPwdEnabled: res.resetPwdEnabled === '1',
-        accessType: res.apiEnabled === '1' || res.consoleEnabled === '1'
+        accessType: res.apiEnabled === '1' || res.consoleEnabled === '1',
+        email: res.email,
+        phone: res.phone
       }
       let selectRow = this.policyList.find((policy: any) => {
         return policy.policyId === res.policyId
@@ -355,7 +357,9 @@ export default class extends Vue {
         policyId: this.form.policy.policyId,
         consoleEnabled: this.form.consoleEnabled ? '1' : '2',
         apiEnabled: this.form.apiEnabled ? '1' : '2',
-        resetPwdEnabled: this.form.resetPwdEnabled ? '1' : '2'
+        resetPwdEnabled: this.form.resetPwdEnabled ? '1' : '2',
+        phone: this.form.phone || undefined,
+        email: this.form.email
       }
       try {
         if (valid) {
