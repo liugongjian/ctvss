@@ -9,6 +9,7 @@ import { Component, Mixins, Prop } from 'vue-property-decorator'
 import DashboardMixin from '../mixin/DashboardMixin'
 import DashboardContainer from './DashboardContainer.vue'
 import DashboardLightContainer from './DashboardLightContainer.vue'
+import { UserModule } from '@/store/modules/user'
 import { Chart } from '@antv/g2'
 import { getAuditTrend } from '@/api/dashboard'
 
@@ -48,6 +49,15 @@ export default class extends Mixins(DashboardMixin) {
       this.chartData.push({ type: '蜜蜂密度', value: parseInt(data.trend[13] || 0) })
     } else {
       this.chartData.push({ type: '安全帽反光服检测', value: parseInt(data.trend[7] || 0) })
+    }
+    // TODO: Hardcode 300015
+    if (UserModule.mainUserID === '300015') {
+      this.chartData = [
+        { type: '人员布控', value: parseInt(data.trend[4] || 0) },
+        { type: '人员聚集', value: parseInt(data.trend[8] || 0) },
+        { type: '烟雾明火', value: parseInt(data.trend[10] || 0) },
+        { type: '车牌识别', value: parseInt(data.trend[17] || 0) }
+      ]
     }
     this.chart ? this.updateChart() : this.drawChart()
   }
