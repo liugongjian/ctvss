@@ -11,10 +11,10 @@
         :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
         @click="clickLocation(locationIndex)"
       >
-        <div v-if="type === '6'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
+        <div v-if="type === '6' || type === '10003'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
           <!-- {{ aiMaskType[location.type] }} -->
         </div>
-        <div v-if="type === '4'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
+        <div v-if="type === '4' || type === '10001'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
           匹配度:{{ location.score }}%
         </div>
       </div>
@@ -24,8 +24,8 @@
         </svg>
       </div>
     </div>
-    <div v-if="type === '8' && img" class="ai-recognation__images__item__count" :class="{'ai-recognation__images__item__count--warning': img && img.locations && img.locations.length > 10}">聚集人数: {{ img && img.locations && img.locations.length || '-' }}</div>
-    <div v-if="type === '13' && img" class="ai-recognation__images__item__count">蜜蜂密度: {{ img && img.locations && img.locations[0].beeDensity }}</div>
+    <div v-if="(type === '8' || type === '10005') && img" class="ai-recognation__images__item__count" :class="{'ai-recognation__images__item__count--warning': img && img.locations && img.locations.length > 10}">聚集人数: {{ img && img.locations && img.locations.length || '-' }}</div>
+    <div v-if="(type === '13' || type === '10010') && img" class="ai-recognation__images__item__count">蜜蜂密度: {{ img && img.locations && img.locations[0].beeDensity }}</div>
   </div>
 </template>
 <script lang="ts">

@@ -38,8 +38,8 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    this.initDeviceApp()
     try {
+      this.initDeviceApp()
       const { groups }: any = await getAIConfigGroupData({})
       this.initFaceLib(groups)
     } catch (e) {
@@ -57,7 +57,7 @@ export default class extends Vue {
   }
 
   private initFaceLib(groups) {
-    if (this.appInfo.algorithmMetadata.length > 0) {
+    if (this.appInfo.algorithmMetadata?.length > 0) {
       const algorithmMetadata = JSON.parse(this.appInfo.algorithmMetadata)
       if (algorithmMetadata.FaceDbName) {
         this.faceLib = groups.filter(item => item.id === algorithmMetadata.FaceDbName)[0]

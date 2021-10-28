@@ -1,9 +1,9 @@
 
 <template>
-  <el-card>
+  <el-card @click.native="viewDetail">
     <div class="pic-wrapper">
-      <el-image ref="img" :src="pic.image" @load="onload" />
-      <Locations :type="type" :img="pic" />
+      <img ref="img" :src="pic.image" @load="onload">
+      <Locations :type="type" :img="picInfo" />
     </div>
     <div class="content-wrapper">
       <el-descriptions :column="1">
@@ -24,43 +24,45 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { decodeBase64 } from '@/utils/base64'
 import Locations from '@/views/dashboard/ai/components/Locations.vue'
-import { parseMetaData, transformLocation } from '@/utils/ai'
+import Attributes from '@/views/dashboard/ai/components/Attributes.vue'
+import { parseMetaDataNewAi, transformLocationAi } from '@/utils/ai'
 
 @Component({
   name: 'PicCard',
   components: {
-    Locations
+    Locations,
+    Attributes
   }
 })
 export default class extends Vue {
   @Prop() private pic!: any
+  @Prop() private type!: any
   private picInfo = null
-  private type = '4'
   private decodeBase64: Function = decodeBase64
 
   private onload() {
-    console.log('onload')
     if (!this.pic || !this.pic.image) {
       return
     }
     const metaData = JSON.parse(this.pic.metadata)
-    console.log('metaData:', metaData)
-    const locations = parseMetaData(this.type, metaData)
-    console.log('locations:', locations)
+    const locations = parseMetaDataNewAi(this.type, metaData)
     const img = this.$refs.img
-    this.picInfo = { ...this.pic, locations: transformLocation(locations, img) }
-    console.log(this.picInfo)
+    this.picInfo = { ...this.pic, locations: transformLocationAi(locations, img) }
+  }
+  private viewDetail() {
+    this.$emit('showDialogue', this.pic)
   }
 }
 </script>
 <style lang='scss' scoped>
 .el-card{
     // width:400px;
+    cursor: pointer;
     height:400px;
-    min-width: 100px;
-    margin-top: 2% !important;
-    margin-right: 2% !important;
-    display: inline-block;
+    // min-width: 100px;
+    // margin-top: 2% !important;
+    // margin-right: 2% !important;
+    // display: inline-block;
     position: relative;
     .pic-wrapper{
       position: absolute;
@@ -68,7 +70,7 @@ export default class extends Vue {
       left: 0;
       width: 100%;
       height: 67%;
-        .el-image{
+        img{
           width: 100%;
           height: 100%;
         }
