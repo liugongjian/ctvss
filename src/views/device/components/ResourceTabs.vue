@@ -80,6 +80,7 @@
               :ref="`algoTable${Number(item.id)}`"
               v-loading="loading.resouceAiTable"
               class="algoTabTable"
+              :class="ifHiddenThis()"
               tooltip-effect="dark"
               :data="algoListData"
               style="width: 100%"
@@ -376,6 +377,14 @@ export default class extends Vue {
     this.showTips = false
   }
 
+  private ifHiddenThis() {
+    const result = this.algoListData.filter((item:any) => item.analyseType <= this.chooseData.aiType)
+    if (result.length === 0) {
+      return 'algoTabTableHidden'
+    }
+    return ''
+  }
+
   // 获取算法能力
   private async getAlgoList() {
     try {
@@ -467,9 +476,11 @@ export default class extends Vue {
 
   // 过滤编辑过的选中和当前选中
   private filterCheckedStatus() {
-    const temp = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType]
+    const temp = Object.values(this.checkInfoObj[this.chooseData.resourceId]).map((item:any) => {
+      return item.map((ele:any) => ele)
+    })
     if (this.resourceHasAppIds && this.resourceHasAppIds.length > 0) {
-      const result = temp.filter((item:any) => {
+      const result = temp.flat().filter((item:any) => {
         return this.resourceHasAppIds.some((val:any) => {
           return val.appId !== item.appId
         })
@@ -483,13 +494,15 @@ export default class extends Vue {
       })
       this.selectAlgoInfo = resultFinal
     } else {
-      const result = Object.values(this.checkInfoObj[this.chooseData.resourceId][this.algoTabType]).map((item:any) => {
-        return {
-          appId: item.id,
-          analyseType: item.analyseType
-        }
+      const result = Object.values(this.checkInfoObj[this.chooseData.resourceId]).map((item:any) => {
+        return item.map((ele:any) => {
+          return {
+            appId: ele.id,
+            analyseType: ele.analyseType
+          }
+        })
       })
-      this.selectAlgoInfo = result
+      this.selectAlgoInfo = result.flat()
     }
 
     this.selectAlgoId = this.selectAlgoInfo.map((item:any) => item.appId)
@@ -586,6 +599,11 @@ export default class extends Vue {
       border-color: #4A88DB;
       color: #4A88DB;
       background: #EDF4FE;
+    }
+  }
+  .algoTabTableHidden{
+    ::v-deep .el-table__header-wrapper .el-checkbox{
+      display: none;
     }
   }
 </style>
