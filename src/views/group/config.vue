@@ -8,6 +8,12 @@
           <info-list-item label="业务组ID:">{{ form.groupId }}</info-list-item>
           <info-list-item label="业务组名称:">{{ form.groupName }}</info-list-item>
           <info-list-item label="业务组描述:">{{ form.description }}</info-list-item>
+          <info-list-item label="国标ID:">{{ form.gbId || '-' }}</info-list-item>
+          <info-list-item v-if="form.address" label="设备地址:">{{ form.address }}</info-list-item>
+          <info-list-item v-if="form.industryCode" label="所属行业:">{{ industryMap[form.industryCode] }}</info-list-item>
+          <info-list-item v-if="form.networkCode" label="网络标识">{{ networkMap[form.networkCode] }}</info-list-item>
+          <info-list-item label="业务组描述:">{{ form.description }}</info-list-item>
+          <info-list-item label="业务组描述:">{{ form.description }}</info-list-item>
           <template v-if="!isVGroup">
             <info-list-item label="接入区域:">{{ form.regionName }}</info-list-item>
             <info-list-item label="接入类型:">{{ InProtocolType[form.inProtocol] }}</info-list-item>
@@ -58,7 +64,11 @@ import { Group } from '@/type/group'
 import { OutProtocolType, InProtocolType, PullType, PushType } from '@/dics'
 import { queryGroup } from '@/api/group'
 import { formatSeconds } from '@/utils/interval'
+import { industryMap } from '@/assets/region/industry'
+import { networkMap } from '@/assets/region/network'
+import { allRegionList } from '@/assets/region/region'
 import TemplateBind from '../components/templateBind.vue'
+import { getAddressArea } from '@/api/device'
 
 @Component({
   name: 'GroupConfig',
@@ -67,6 +77,8 @@ import TemplateBind from '../components/templateBind.vue'
   }
 })
 export default class extends Vue {
+  private industryMap = industryMap
+  private networkMap = networkMap
   private activeName = 'info'
   private InProtocolType = InProtocolType
   private OutProtocolType = OutProtocolType
@@ -82,7 +94,12 @@ export default class extends Vue {
     sipId: undefined,
     sipIp: '',
     sipTcpPort: undefined,
-    sipUdpPort: undefined
+    sipUdpPort: undefined,
+    gbId: '',
+    address: '',
+    gbRegion: '',
+    industryCode: '',
+    networkCode: ''
   }
   private loading = false
 
@@ -94,6 +111,60 @@ export default class extends Vue {
 
   private get isVGroup() {
     return this.form.inProtocol === '' || this.form.inProtocol === 'vgroup'
+  }
+
+  /**
+   * 针对连州设备管理
+   */
+  private get lianzhouFlag() {
+    return this.$store.state.user.tags.isLianZhouEdu === 'Y'
+  }
+
+  private async getAddress(gbRegion: any) {
+    this.form.address = ''
+    if (this.lianzhouFlag) {
+      let res = await getAddressArea({
+        pid: 441882,
+        level: 5
+      })
+      this.form.address = '广州省/清远市/连州市'
+      let lianzhouArea = res.areas.map((item: any) => {
+        return {
+          name: item.name,
+          code: item.id,
+          level: item.level
+        }
+      })
+      lianzhouArea.forEach((item: any) => {
+        if (item.code === gbRegion) {
+          this.form.address += `/${item.name}`
+        }
+      })
+    } else {
+      const list = [
+        parseInt(gbRegion!.substring(0, 2)),
+        parseInt(gbRegion!.substring(0, 4)),
+        parseInt(gbRegion!.substring(0, 6))
+      ]
+      let region0 = allRegionList.find((item0: any) => {
+        return item0.code === list[0]
+      })
+      if (region0) {
+        this.form.address += region0.name
+        let region1 = region0.children.find((item1: any) => {
+          return item1.code === list[1]
+        })
+        if (region1) {
+          this.form.address += '/' + region1.name
+          let region2 = region1.children.find((item2: any) => {
+            return item2.code === list[2]
+          })
+          if (region2) {
+            this.form.address += '/' + region2.name
+          }
+        }
+      }
+    }
   }
 
   private back() {
@@ -121,6 +192,7 @@ export default class extends Vue {
         const res = await queryGroup({ groupId: this.form.groupId })
         res.outProtocol = res.outProtocol.split(',')
         this.form = res
+        this.getAddress(this.form.gbRegion)
       } catch (e) {
         this.$message.error(e && e.message)
       }
