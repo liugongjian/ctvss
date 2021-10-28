@@ -41,7 +41,7 @@ export default class extends Vue {
   }
 
   private showAttribute() {
-    if (this.img && this.attributesIndex > -1) {
+    if (this.img && this.img.locations && this.attributesIndex > -1) {
       this.currentAttributes = this.img.locations[this.attributesIndex].attributes
     }
   }
