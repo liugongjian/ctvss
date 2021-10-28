@@ -1,7 +1,7 @@
 import { Component, Vue, Inject, Watch } from 'vue-property-decorator'
 import { Device } from '@/type/device'
 import { RecordTemplate } from '@/type/template'
-import { getDevice, getLianzhouArea } from '@/api/device'
+import { getDevice, getAddressArea } from '@/api/device'
 import { DeviceStatus, DeviceGb28181Type, RecordStatus, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType } from '@/dics'
 import { getDeviceResources } from '@/api/billing'
 import TemplateBind from '../../components/templateBind.vue'
@@ -133,7 +133,7 @@ export default class DetailMixin extends Vue {
   public async getLianzhouAddress() {
     let info: any = this.info
     if (!info || !info.gbRegion) return null
-    let res = await getLianzhouArea({
+    let res = await getAddressArea({
       pid: 441882,
       level: 5
     })

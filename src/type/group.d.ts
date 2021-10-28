@@ -19,4 +19,10 @@ export interface Group {
   pushType?: number;
   inNetworkType?: string;
   outNetworkType?: string;
+  address?: any;
+  gbId?: any;
+  gbRegion?: string;
+  gbRegionLevel?: string;
+  industryCode?: string;
+  networkCode?: string;
 }

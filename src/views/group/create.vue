@@ -40,6 +40,27 @@
             :disabled="isEdit"
           />
         </el-form-item>
+        <el-form-item label="设备地址:" prop="address">
+          <el-cascader
+            ref="addressCascader"
+            v-model="form.address"
+            expand-trigger="click"
+            :disabled="form.gbId !== ''"
+            :options="allRegionList"
+            :props="addressProps"
+            @change="addressChange"
+          />
+        </el-form-item>
+        <el-form-item label="所属行业:" prop="industryCode">
+          <el-select v-model="form.industryCode" :disabled="form.gbId !== ''" placeholder="请选择所属行业">
+            <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="网络标识:" prop="networkCode">
+          <el-select v-model="form.networkCode" :disabled="form.gbId !== ''" placeholder="请选择网络标识">
+            <el-option v-for="(item, index) in networkList" :key="index" :label="item.name" :value="item.value" />
+          </el-select>
+        </el-form-item>
         <el-form-item v-if="!isVGroup" label="接入类型:" prop="inProtocol">
           <el-radio-group v-model="form.inProtocol" :disabled="isEdit">
             <el-radio v-for="protocol in inProtocolList" :key="protocol" :label="protocol.toLocaleLowerCase()">{{ protocol }}</el-radio>
@@ -143,6 +164,9 @@ import { GroupModule } from '@/store/modules/group'
 import { InProtocolType, OutProtocolType } from '@/dics'
 import { createGroup, queryGroup, updateGroup } from '@/api/group'
 import { getRegions } from '@/api/region'
+import { industryMap } from '@/assets/region/industry'
+import { networkMap } from '@/assets/region/network'
+import { allRegionList } from '@/assets/region/region'
 import templateBind from '../components/templateBind.vue'
 
 @Component({
@@ -153,6 +177,12 @@ export default class extends Vue {
   private breadCrumbContent = ''
   private loading = false
   private submitting = false
+  public allRegionList = allRegionList
+  public addressProps: any = {
+    value: 'code',
+    label: 'name',
+    children: 'children'
+  }
   private rules = {
     groupName: [
       { required: true, message: '请输入业务组名称', trigger: 'blur' },
@@ -160,6 +190,15 @@ export default class extends Vue {
     ],
     region: [
       { required: true, message: '请选择区域', trigger: 'change' }
+    ],
+    address: [
+      { required: true, message: '请选设备地址', trigger: 'blur' }
+    ],
+    industryCode: [
+      { required: true, message: '请选择所属行业', trigger: 'blur' }
+    ],
+    networkCode: [
+      { required: true, message: '请选择网络标识', trigger: 'blur' }
     ],
     inProtocol: [
       { required: true, message: '请选择接入类型', trigger: 'change' }
@@ -186,10 +225,34 @@ export default class extends Vue {
     pullType: 1,
     pushType: 1,
     inNetworkType: 'public',
-    outNetworkType: 'public'
+    outNetworkType: 'public',
+    address: [],
+    gbId: '',
+    gbRegion: '',
+    gbRegionLevel: '',
+    industryCode: '',
+    networkCode: ''
   }
 
   private regionList = []
+
+  private get industryList() {
+    return Object.keys(industryMap).map((key: any) => {
+      return {
+        name: industryMap[key],
+        value: key
+      }
+    })
+  }
+
+  private get networkList() {
+    return Object.keys(networkMap).map((key: any) => {
+      return {
+        name: networkMap[key],
+        value: key
+      }
+    })
+  }
 
   private get isEdit() {
     return !!this.form.groupId
@@ -213,11 +276,41 @@ export default class extends Vue {
         res.inNetworkType = res.inNetworkType || 'public'
         res.outNetworkType = res.outNetworkType || 'public'
         this.form = res
+        this.cascaderInit()
       } catch (e) {
         this.$message.error(e && e.message)
       } finally {
         this.loading = false
       }
+    }
+  }
+
+  /**
+   * 设备地址
+   */
+  private async cascaderInit() {
+    if (!this.form.gbRegion) return
+    let list = [
+      parseInt(this.form.gbRegion!.substring(0, 2)),
+      parseInt(this.form.gbRegion!.substring(0, 4)),
+      parseInt(this.form.gbRegion!.substring(0, 6))
+    ]
+    // await this.regionChange(list)
+    this.$nextTick(() => {
+      this.form.address = list
+      this.$nextTick(() => {
+        this.addressChange()
+      })
+    })
+  }
+
+  private addressChange() {
+    if (!this.form.address) return
+    const addressCascader: any = this.$refs['addressCascader']
+    if (addressCascader && addressCascader.getCheckedNodes()[0]) {
+      const currentAddress = addressCascader.getCheckedNodes()[0].data
+      this.form.gbRegion = currentAddress.code + '00'
+      this.form.gbRegionLevel = currentAddress.level
     }
   }
 

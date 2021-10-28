@@ -150,6 +150,17 @@
             <el-input v-model="form.deviceLatitude" class="longlat-input" />
           </el-form-item>
         </template>
+        <el-form-item v-else label="设备地址:" prop="address">
+          <el-cascader
+            ref="addressCascader"
+            v-model="form.address"
+            expand-trigger="hover"
+            :disabled="isUpdate"
+            :options="cities"
+            :props="citiesProps"
+            @change="addressChange"
+          />
+        </el-form-item>
         <!-- <el-form-item prop="transPriority">
           <template slot="label">
             TCP传输:
@@ -315,8 +326,6 @@ export default class extends Mixins(createMixin) {
   ]
 
   private async mounted() {
-    // TODO: 连州教育局一机一档专用
-    this.lianzhouFlag = this.$store.state.user.tags.isLianZhouEdu === 'Y'
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
       this.lianzhouFlag && this.lianzhouCascaderInit()
