@@ -200,7 +200,7 @@
             :class="[`screen-size--${maxSize}`, {'fullscreen': isFullscreen, 'covid': isCovidLiving && isFullscreen}]"
           >
             <img v-if="isCovidLiving && isFullscreen" src="@/assets/images/covid_banner.png">
-            <span v-if="isCovidLiving && isFullscreen" class="covid__title">庆阳市核酸监测调度指挥云平台</span>
+            <span v-if="isCovidLiving && isFullscreen" class="covid__title">{{ `${currentRegion}核酸监测调度指挥云平台` }}</span>
             <div class="sreen-wrap">
               <div
                 v-for="(screen, index) in screenList"
@@ -319,6 +319,7 @@ import { VGroupModule } from '@/store/modules/vgroup'
 export default class extends Mixins(ScreenMixin) {
   private renderAlertType = renderAlertType
   private getSums = getSums
+  private currentRegion = ''
   public maxSize = 4;
   private selectedDeviceId = '';
   private currentPollingIndex = 0;
@@ -392,7 +393,8 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   private get isCovidLiving() {
-    return this.$store.state.user.tags.isCovidLiving === 'Y'
+    this.currentRegion = this.$store.state.user.tags.isCovidLiving
+    return this.$store.state.user.tags.isCovidLiving !== ''
   }
 
   private mounted() {
@@ -730,11 +732,13 @@ export default class extends Mixins(ScreenMixin) {
 <style lang="scss" scoped>
 .sreen-wrap {
   flex-grow: 1;
-  height: 80vh;
   display: flex;
   flex-wrap: wrap;
 }
 .covid {
+  .sreen-wrap {
+    height: 80vh;
+  }
   img {
     width: 100%;
   }
