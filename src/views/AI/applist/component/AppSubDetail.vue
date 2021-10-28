@@ -129,7 +129,7 @@ export default class extends Vue {
     @Prop() private device!: any
     @Prop() private appInfo!: any
     @Prop() private faceLib!: any
-    private dialoguePic: any = {}
+    private dialoguePic: any = null
     private currentLocationIndex: number = -1
     private visibile = false
     private decodeBase64: Function = decodeBase64

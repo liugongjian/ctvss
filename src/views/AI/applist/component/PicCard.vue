@@ -3,7 +3,7 @@
   <el-card @click.native="viewDetail">
     <div class="pic-wrapper">
       <img ref="img" :src="pic.image" @load="onload">
-      <Locations :type="type" :img="picInfo" />
+      <Locations v-if="picInfo" :type="type" :img="picInfo" />
     </div>
     <div class="content-wrapper">
       <el-descriptions :column="1">
