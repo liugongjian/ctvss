@@ -197,79 +197,83 @@
           </div>
           <div
             class="screen-list"
-            :class="[`screen-size--${maxSize}`, {'fullscreen': isFullscreen}]"
+            :class="[`screen-size--${maxSize}`, {'fullscreen': isFullscreen, 'covid': isCovidLiving && isFullscreen}]"
           >
-            <div
-              v-for="(screen, index) in screenList"
-              :key="index"
-              v-loading="screen.loading"
-              class="screen-item screen-item--live"
-              :class="[{'actived': index === currentIndex && screenList.length > 1 && !polling.isStart}, {'fullscreen': screen.isFullscreen}]"
-              @click="selectScreen(index)"
-            >
-              <template v-if="screen.loaded">
-                <player-container :on-can-play="screen.onCanPlay" :calendar-focus="screen.calendarFocus">
-                  <template v-if="screen.isLive">
-                    <div class="live-view">
-                      <player
-                        v-if="screen.url"
-                        type="flv"
-                        :codec="screen.codec"
-                        :url="screen.url"
-                        :is-live="true"
-                        :is-ws="true"
+            <img v-if="isCovidLiving && isFullscreen" src="@/assets/images/covid_banner.png">
+            <span v-if="isCovidLiving && isFullscreen" class="covid__title">庆阳市核酸检测调度指挥云平台</span>
+            <div class="sreen-wrap">
+              <div
+                v-for="(screen, index) in screenList"
+                :key="index"
+                v-loading="screen.loading"
+                class="screen-item screen-item--live"
+                :class="[{'actived': index === currentIndex && screenList.length > 1 && !polling.isStart}, {'fullscreen': screen.isFullscreen}]"
+                @click="selectScreen(index)"
+              >
+                <template v-if="screen.loaded">
+                  <player-container :on-can-play="screen.onCanPlay" :calendar-focus="screen.calendarFocus">
+                    <template v-if="screen.isLive">
+                      <div class="live-view">
+                        <player
+                          v-if="screen.url"
+                          type="flv"
+                          :codec="screen.codec"
+                          :url="screen.url"
+                          :is-live="true"
+                          :is-ws="true"
+                          :is-fullscreen="screen.isFullscreen"
+                          :auto-play="true"
+                          :has-control="false"
+                          :has-playback="true"
+                          :device-name="screen.deviceName"
+                          :stream-num="screen.streamNum"
+                          @onCanPlay="playEvent(screen, ...arguments)"
+                          @onRetry="onRetry(screen, ...arguments)"
+                          @onPlayback="onPlayback(screen)"
+                          @onFullscreen="screen.fullscreen();fullscreen()"
+                          @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
+                        />
+                        <div v-if="!screen.url && !screen.loading" class="tip-text">{{ screen.errorMsg || '无信号' }}</div>
+                      </div>
+                    </template>
+                    <template v-else>
+                      <replay-view
+                        :device-id="screen.deviceId"
+                        :in-protocol="currentGroupInProtocol"
+                        :has-playlive="true"
                         :is-fullscreen="screen.isFullscreen"
-                        :auto-play="true"
-                        :has-control="false"
-                        :has-playback="true"
-                        :device-name="screen.deviceName"
-                        :stream-num="screen.streamNum"
+                        @onCalendarFocus="onCalendarFocus(screen, ...arguments)"
                         @onCanPlay="playEvent(screen, ...arguments)"
-                        @onRetry="onRetry(screen, ...arguments)"
-                        @onPlayback="onPlayback(screen)"
+                        @onPlaylive="onPlaylive(screen)"
                         @onFullscreen="screen.fullscreen();fullscreen()"
                         @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
                       />
-                      <div v-if="!screen.url && !screen.loading" class="tip-text">{{ screen.errorMsg || '无信号' }}</div>
+                    </template>
+                    <div slot="header" class="screen-header">
+                      <div class="device-name">
+                        <!-- {{ screen.isLive ? "" : screen.deviceName }} -->
+                        <StreamSelector
+                          v-if="screen.isLive"
+                          class="set-stream"
+                          :stream-size="screen.streamSize"
+                          :stream-num="screen.streamNum"
+                          :streams="screen.streams"
+                          @onSetStreamNum="onSetStreamNum(screen, ...arguments)"
+                        />
+                      </div>
+                      <div class="screen__tools">
+                        <el-tooltip content="关闭视频">
+                          <el-button class="screen__close" type="text" @click="closeScreen(screen)">
+                            <svg-icon name="close" width="12" height="12" />
+                          </el-button>
+                        </el-tooltip>
+                      </div>
                     </div>
-                  </template>
-                  <template v-else>
-                    <replay-view
-                      :device-id="screen.deviceId"
-                      :in-protocol="currentGroupInProtocol"
-                      :has-playlive="true"
-                      :is-fullscreen="screen.isFullscreen"
-                      @onCalendarFocus="onCalendarFocus(screen, ...arguments)"
-                      @onCanPlay="playEvent(screen, ...arguments)"
-                      @onPlaylive="onPlaylive(screen)"
-                      @onFullscreen="screen.fullscreen();fullscreen()"
-                      @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
-                    />
-                  </template>
-                  <div slot="header" class="screen-header">
-                    <div class="device-name">
-                      <!-- {{ screen.isLive ? "" : screen.deviceName }} -->
-                      <StreamSelector
-                        v-if="screen.isLive"
-                        class="set-stream"
-                        :stream-size="screen.streamSize"
-                        :stream-num="screen.streamNum"
-                        :streams="screen.streams"
-                        @onSetStreamNum="onSetStreamNum(screen, ...arguments)"
-                      />
-                    </div>
-                    <div class="screen__tools">
-                      <el-tooltip content="关闭视频">
-                        <el-button class="screen__close" type="text" @click="closeScreen(screen)">
-                          <svg-icon name="close" width="12" height="12" />
-                        </el-button>
-                      </el-tooltip>
-                    </div>
-                  </div>
-                </player-container>
-              </template>
-              <div v-else class="tip-text tip-select-device">
-                <el-button type="text" @click="selectDevice(screen)">请选择设备</el-button>
+                  </player-container>
+                </template>
+                <div v-else class="tip-text tip-select-device">
+                  <el-button type="text" @click="selectDevice(screen)">请选择设备</el-button>
+                </div>
               </div>
             </div>
           </div>
@@ -385,6 +389,10 @@ export default class extends Mixins(ScreenMixin) {
     if (this.screenList.length) {
       this.selectedDeviceId = this.screenList[newValue]!.deviceId
     }
+  }
+
+  private get isCovidLiving() {
+    return this.$store.state.user.tags.isCovidLiving === 'Y'
   }
 
   private mounted() {
@@ -720,6 +728,26 @@ export default class extends Mixins(ScreenMixin) {
 }
 </script>
 <style lang="scss" scoped>
+.sreen-wrap {
+  flex-grow: 1;
+  height: 80vh;
+  display: flex;
+  flex-wrap: wrap;
+}
+.covid {
+  img {
+    width: 100%;
+  }
+  &__title {
+    position: absolute;
+    right: 20vw;
+    top: 8vh;
+    color: #fff;
+    font-size: 5vh;
+  }
+  padding: 0 2vw 0 2vw;
+  background: #050926;
+}
 .device-list {
   &__left {
     .playing {
