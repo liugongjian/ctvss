@@ -14,6 +14,12 @@
             <el-input v-model="form.iamUserName" placeholder="请填写用户名" />
             <el-row class="form-tip">2-16位，可包含大小写字母、数字、中文、中划线，用户名称不能重复。</el-row>
           </el-form-item>
+          <el-form-item prop="phone" label="电话：">
+            <el-input v-model="form.phone" placeholder="请填写用户电话" />
+          </el-form-item>
+          <el-form-item prop="email" label="邮箱：">
+            <el-input v-model="form.email" placeholder="请填写用户邮箱" />
+          </el-form-item>
           <el-form-item prop="accessType" label="访问方式：">
             <template>
               <el-checkbox v-model="form.consoleEnabled" :disabled="type === 'edit'" @change="accessTypeChange">控制台访问</el-checkbox>
@@ -169,10 +175,16 @@ import copy from 'copy-to-clipboard'
 import ExcelJS from 'exceljs'
 import { createUser, getUser, modifyUser, getPolicyList } from '@/api/accessManage'
 import templateBind from '@/views/components/templateBind.vue'
+
+Component.registerHooks([
+  'beforeRouteEnter'
+])
+
 @Component({
   components: { templateBind },
   name: 'CreateUser'
 })
+
 export default class extends Vue {
   private type: any = ''
   private loading: any = {
@@ -188,6 +200,8 @@ export default class extends Vue {
     consoleEnabled: true,
     apiEnabled: false,
     policy: null,
+    email: '',
+    phone: '',
     resetPwdEnabled: true
   }
   private rules: any = {
@@ -200,12 +214,20 @@ export default class extends Vue {
     ],
     accessType: [
       { required: true, validator: this.validateAccessType, trigger: 'change' }
+    ],
+    email: [
+      { required: true, message: '请填写邮箱', trigger: 'blur' },
+      { validator: this.validateEmail, trigger: 'blur' }
+    ],
+    phone: [
+      { validator: this.validatePhone, trigger: 'blur' }
     ]
   }
   private policyList: Array<object> = []
   private newUserData: Array<object> = []
   private showPasswords: boolean = false
   private showSecretKey: boolean = false
+  private fromUrl: string = ''
 
   private editPolicy(row: any) {
     this.$router.push({
@@ -254,14 +276,24 @@ export default class extends Vue {
     this.$message.success('复制成功')
   }
 
-  private back() {
-    let query: any = this.$route.query
-    this.$router.push({
-      name: 'accessManage-user',
-      params: {
-        nodeKeyPath: query.nodeKeyPath
-      }
+  private beforeRouteEnter(to: any, from: any, next: any) {
+    next((vm: any) => {
+      vm.fromUrl = from.name
     })
+  }
+
+  private back() {
+    if (this.fromUrl === 'accessManage-dashboard') {
+      this.$router.go(-1)
+    } else {
+      let query: any = this.$route.query
+      this.$router.push({
+        name: 'accessManage-user',
+        params: {
+          nodeKeyPath: query.nodeKeyPath
+        }
+      })
+    }
   }
 
   private async mounted() {
@@ -303,7 +335,9 @@ export default class extends Vue {
         consoleEnabled: res.consoleEnabled === '1',
         apiEnabled: res.apiEnabled === '1',
         resetPwdEnabled: res.resetPwdEnabled === '1',
-        accessType: res.apiEnabled === '1' || res.consoleEnabled === '1'
+        accessType: res.apiEnabled === '1' || res.consoleEnabled === '1',
+        email: res.email,
+        phone: res.phone
       }
       let selectRow = this.policyList.find((policy: any) => {
         return policy.policyId === res.policyId
@@ -323,7 +357,9 @@ export default class extends Vue {
         policyId: this.form.policy.policyId,
         consoleEnabled: this.form.consoleEnabled ? '1' : '2',
         apiEnabled: this.form.apiEnabled ? '1' : '2',
-        resetPwdEnabled: this.form.resetPwdEnabled ? '1' : '2'
+        resetPwdEnabled: this.form.resetPwdEnabled ? '1' : '2',
+        phone: this.form.phone || undefined,
+        email: this.form.email
       }
       try {
         if (valid) {
@@ -405,6 +441,22 @@ export default class extends Vue {
   private validateAccessType(rule: any, value: any, callback: Function) {
     if (!value) {
       callback(new Error('请至少选择一种访问方式'))
+    } else {
+      callback()
+    }
+  }
+
+  private validateEmail(rule: any, value: string, callback: Function) {
+    if (value && !/^[\w-]+@[a-zA-Z\d-]+(\.[a-zA-Z]{2,8}){1,2}$/ig.test(value)) {
+      callback(new Error('请输入正确的邮箱'))
+    } else {
+      callback()
+    }
+  }
+
+  private validatePhone(rule: any, value: string, callback: Function) {
+    if (value && !/^\d{11}$/.test(value)) {
+      callback(new Error('请输入正确的手机号'))
     } else {
       callback()
     }
