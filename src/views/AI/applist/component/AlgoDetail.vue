@@ -172,7 +172,7 @@ export default class extends Mixins(AppMixin) {
       this.form = { ...this.form, confidence: this.form.confidence * 100 }
     } else { // 新建
       const algorithmMetadata = { FaceDbName: '', pedThreshold: '' }
-      this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [] }
+      this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [], validateType: '无验证' }
     }
     try {
       const { groups } = await getAIConfigGroupData({})
