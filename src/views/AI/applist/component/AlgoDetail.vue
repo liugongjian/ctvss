@@ -239,7 +239,7 @@ export default class extends Mixins(AppMixin) {
     let algorithmMetadata = this.form.algorithmMetadata
     Object.keys(algorithmMetadata).forEach(key => algorithmMetadata[key] === '' && delete algorithmMetadata[key])
     if (this.form.algorithm?.code === '10003' || this.prod?.code === '10003') {
-      algorithmMetadata.faceRatio = 70
+      algorithmMetadata.faceRatio = '70'
     }
     let param = {
       ...this.form,
