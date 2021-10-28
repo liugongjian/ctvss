@@ -72,6 +72,8 @@
           v-for="(pic, index) in picInfos"
           :key="index"
           :pic="pic"
+          :type="appInfo.algorithm.code"
+          @showDialogue="showDialogue"
         />
       </div>
       <div v-else class="no-data">{{ device ? '暂无数据' : '请选择设备' }}</div>
@@ -84,12 +86,31 @@
         @current-change="handleCurrentChange"
       />
     </div>
+    <el-dialog
+      v-if="visibile"
+      :visible="visibile"
+      :fullscreen="true"
+      :custom-class="`light-ai-image-fullscreen`"
+      @close="dialogueOprate"
+    >
+      <div slot="title">{{ dialoguePic && dialoguePic.deviceName }} | {{ dialoguePic && dialoguePic.time }}</div>
+      <div class="ai-recognation__images__item__wrap ai-image-fullscreen__img">
+        <div class="ai-recognation__images__item__img--wrap ai-image-fullscreen__img--wrap">
+          <img v-if="dialoguePic" ref="dialogue" :src="dialoguePic.image" @load="onload">
+          <Locations :type="appInfo.algorithm.code" :img="dialoguePic" :clickable="true" @click-location="onLocationChanged" />
+        </div>
+        <Attributes v-if="appInfo.algorithm.code === '10009'" class="ai-image-fullscreen__img--attributes" :type="appInfo.algorithm.code" :img="dialoguePic" :attributes-index="currentLocationIndex" />
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue, Watch, Prop } from 'vue-property-decorator'
 import PicCard from './PicCard.vue'
 import PeopleTrendChart from './PeopleTrendChart.vue'
+import Locations from '@/views/dashboard/ai/components/Locations.vue'
+import Attributes from '@/views/dashboard/ai/components/Attributes.vue'
+import { parseMetaDataNewAi, transformLocationAi } from '@/utils/ai'
 import { getAppScreenShot } from '@/api/ai-app'
 import { getGroupPersonAlready } from '@/api/aiConfig'
 import { decodeBase64 } from '@/utils/base64'
@@ -99,13 +120,18 @@ import debounce from '@/utils/debounce'
   name: 'AppSubDetail',
   components: {
     PicCard,
-    PeopleTrendChart
+    PeopleTrendChart,
+    Locations,
+    Attributes
   }
 })
 export default class extends Vue {
     @Prop() private device!: any
     @Prop() private appInfo!: any
     @Prop() private faceLib!: any
+    private dialoguePic: any = {}
+    private currentLocationIndex: number = -1
+    private visibile = false
     private decodeBase64: Function = decodeBase64
     private pager = {
       pageNum: 1,
@@ -239,6 +265,22 @@ export default class extends Vue {
       this.pager.pageNum = val
       this.getScreenShot()
     }
+    private dialogueOprate() {
+      this.visibile = !this.visibile
+    }
+    private showDialogue(val) {
+      this.visibile = true
+      this.dialoguePic = val
+    }
+    private onload() {
+      const metaData = JSON.parse(this.dialoguePic.metadata)
+      const locations = parseMetaDataNewAi(this.appInfo.algorithm.code, metaData)
+      const img = this.$refs.dialogue
+      this.dialoguePic = { ...this.dialoguePic, locations: transformLocationAi(locations, img) }
+    }
+    private onLocationChanged(index: number) {
+      this.currentLocationIndex = index
+    }
 }
 </script>
 
@@ -342,5 +384,22 @@ export default class extends Vue {
   vertical-align: middle;
   text-align: center;
   color: rgba(186,198,198);
+}
+
+.ai-image-fullscreen__img {
+  width: 100%;
+  display: flex;
+  &--wrap {
+    position: relative;
+    flex: 4;
+  }
+  &--attributes {
+    flex: 1;
+    background: #f7f7f7;
+    padding: 20px 15px;
+  }
+  img {
+    width: 100%;
+  }
 }
 </style>
