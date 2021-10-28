@@ -50,7 +50,7 @@ export default class extends Vue {
   })
   private onImgChanged(img: any) {
     // 默认选取人体属性的第一个位置
-    if (this.type === '12' && this.clickable && img && img.locations && img.locations.length) {
+    if ((this.type === '12' || this.type === '10009') && this.clickable && img && img.locations && img.locations.length) {
       this.currentIndex = 0
       this.clickLocation(this.currentIndex)
     }

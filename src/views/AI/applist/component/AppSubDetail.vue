@@ -97,10 +97,9 @@
       <div class="ai-recognation__images__item__wrap ai-image-fullscreen__img">
         <div class="ai-recognation__images__item__img--wrap ai-image-fullscreen__img--wrap">
           <img v-if="dialoguePic" ref="dialogue" :src="dialoguePic.image" @load="onload">
-          <!-- <Locations :type="appInfo.algorithm.code" :img="dialoguePic" :clickable="true" @click-location="onLocationChanged" /> -->
-          <Locations :type="appInfo.algorithm.code" :img="dialoguePic" :clickable="true" />
+          <Locations :type="appInfo.algorithm.code" :img="dialoguePic" :clickable="true" @click-location="onLocationChanged" />
         </div>
-        <!-- <Attributes v-if="appInfo.algorithm.code === '10009'" class="ai-image-fullscreen__img--attributes" :type="appInfo.algorithm.code" :img="dialoguePic" :attributes-index="currentLocationIndex" /> -->
+        <Attributes v-if="appInfo.algorithm.code === '10009'" class="ai-image-fullscreen__img--attributes" :type="appInfo.algorithm.code" :img="dialoguePic" :attributes-index="currentLocationIndex" />
       </div>
     </el-dialog>
   </div>
@@ -131,6 +130,7 @@ export default class extends Vue {
     @Prop() private appInfo!: any
     @Prop() private faceLib!: any
     private dialoguePic: any = {}
+    private currentLocationIndex: number = -1
     private visibile = false
     private decodeBase64: Function = decodeBase64
     private pager = {
@@ -277,6 +277,9 @@ export default class extends Vue {
       const locations = parseMetaDataNewAi(this.appInfo.algorithm.code, metaData)
       const img = this.$refs.dialogue
       this.dialoguePic = { ...this.dialoguePic, locations: transformLocationAi(locations, img) }
+    }
+    private onLocationChanged(index: number) {
+      this.currentLocationIndex = index
     }
 }
 </script>
