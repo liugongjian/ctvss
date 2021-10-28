@@ -200,7 +200,7 @@
             :class="[`screen-size--${maxSize}`, {'fullscreen': isFullscreen, 'covid': isCovidLiving && isFullscreen}]"
           >
             <img v-if="isCovidLiving && isFullscreen" src="@/assets/images/covid_banner.png">
-            <span v-if="isCovidLiving && isFullscreen" class="covid__title">庆阳市核酸检测调度指挥云平台</span>
+            <span v-if="isCovidLiving && isFullscreen" class="covid__title">庆阳市核酸监测调度指挥云平台</span>
             <div class="sreen-wrap">
               <div
                 v-for="(screen, index) in screenList"
