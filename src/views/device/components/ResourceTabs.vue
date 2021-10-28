@@ -358,9 +358,10 @@ export default class extends Vue {
     // }
     const { appIdList } = await getResourceIdAttachedAppIds({ resourceId: row.resourceId, deviceId: this.deviceId })
     this.resourceHasAppIds = appIdList
-    if (this.selectAlgoId.length === 0) {
-      this.selectAlgoId = this.resourceHasAppIds.map((item:any) => item.appId)
-    }
+    this.selectAlgoInfo = this.resourceHasAppIds
+    // if (this.selectAlgoId.length === 0) {
+    this.selectAlgoId = this.resourceHasAppIds.map((item:any) => item.appId)
+    // }
   }
 
   // 获取算法名
@@ -395,8 +396,6 @@ export default class extends Vue {
         if (this.resourceHasAppIds.length > 0) {
           const result = this.algoListData.filter((item:any) => this.resourceHasAppIds.some(val => item.id === val.appId))
           // 过滤已选中数据和已编辑过得数据
-          // const resultFinal = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] && this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].filter((item:any) => result.some((val:any) => val.id !== item.id))
-
           if (this.checkInfoObj[this.chooseData.resourceId][this.algoTabType]) {
             const resultFinal = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] && this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].filter((item:any) => result.some((val:any) => val.id !== item.id))
             if (resultFinal && resultFinal.length > 0) {
@@ -407,7 +406,8 @@ export default class extends Vue {
           }
         }
       }
-      this.setChecked()
+      // this.setChecked()
+      this.filterCheckedStatus()
       this.$emit('changevssaiapps', this.selectAlgoInfo)
     } catch (e) {
       if (e && e.code !== 5) {
@@ -476,33 +476,57 @@ export default class extends Vue {
 
   // 过滤编辑过的选中和当前选中
   private filterCheckedStatus() {
-    const temp = Object.values(this.checkInfoObj[this.chooseData.resourceId]).map((item:any) => {
-      return item.map((ele:any) => ele)
-    })
-    if (this.resourceHasAppIds && this.resourceHasAppIds.length > 0) {
-      const result = temp.flat().filter((item:any) => {
-        return this.resourceHasAppIds.some((val:any) => {
-          return val.appId !== item.appId
-        })
+    // 判断编辑进入时，有tab未被选择但是有上次编辑的数据
+    if (this.resourceHasAppIds && this.resourceHasAppIds.length && Object.values(this.checkInfoObj[this.chooseData.resourceId]).length < this.aiAbilityTab.length) {
+      const temp = Object.values(this.checkInfoObj[this.chooseData.resourceId]).map((item:any) => {
+        return item.map((ele:any) => ele)
       })
-
-      const resultFinal = result.map((item:any) => {
+      const result = temp.flat().map((item:any) => {
         return {
           appId: item.id,
           analyseType: item.analyseType
         }
       })
-      this.selectAlgoInfo = resultFinal
+
+      const selectResult = [...result, ...this.resourceHasAppIds]
+      let hash = {} // 去重
+      let arr = selectResult.reduce((preVal, curVal) => {
+        // eslint-disable-next-line no-unused-expressions
+        hash[curVal.appId]
+          ? ''
+          : (hash[curVal.appId] = true && preVal.push(curVal))
+        return preVal
+      }, [])
+      this.selectAlgoInfo = arr
     } else {
-      const result = Object.values(this.checkInfoObj[this.chooseData.resourceId]).map((item:any) => {
-        return item.map((ele:any) => {
+      const temp = Object.values(this.checkInfoObj[this.chooseData.resourceId]).map((item:any) => {
+        return item.map((ele:any) => ele)
+      })
+      if (this.resourceHasAppIds && this.resourceHasAppIds.length > 0) {
+        const result = temp.flat().filter((item:any) => {
+          return this.resourceHasAppIds.some((val:any) => {
+            return val.appId !== item.appId
+          })
+        })
+
+        const resultFinal = result.map((item:any) => {
           return {
-            appId: ele.id,
-            analyseType: ele.analyseType
+            appId: item.id,
+            analyseType: item.analyseType
           }
         })
-      })
-      this.selectAlgoInfo = result.flat()
+        this.selectAlgoInfo = resultFinal
+      } else {
+        const result = Object.values(this.checkInfoObj[this.chooseData.resourceId]).map((item:any) => {
+          return item.map((ele:any) => {
+            return {
+              appId: ele.id,
+              analyseType: ele.analyseType
+            }
+          })
+        })
+        this.selectAlgoInfo = result.flat()
+      }
     }
 
     this.selectAlgoId = this.selectAlgoInfo.map((item:any) => item.appId)
