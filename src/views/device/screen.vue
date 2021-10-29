@@ -199,8 +199,10 @@
             class="screen-list"
             :class="[`screen-size--${maxSize}`, {'fullscreen': isFullscreen, 'covid': isCovidLiving && isFullscreen}]"
           >
-            <img v-if="isCovidLiving && isFullscreen" src="@/assets/images/covid_banner.png">
-            <span v-if="isCovidLiving && isFullscreen" class="covid__title">{{ `${currentRegion}核酸监测调度指挥云平台` }}</span>
+            <div v-if="isCovidLiving && isFullscreen" class="screen-banner">
+              <img src="@/assets/images/covid_banner.png">
+              <span class="covid__title">{{ `${currentRegion}核酸监测调度指挥云平台` }}</span>
+            </div>
             <div class="sreen-wrap">
               <div
                 v-for="(screen, index) in screenList"
@@ -739,20 +741,26 @@ export default class extends Mixins(ScreenMixin) {
   .sreen-wrap {
     height: 80vh;
     .screen-item {
-      border: 1px solid #222
+      border: 1px solid #050926;
     }
   }
-  img {
+  .screen-banner {
+    text-align: center;
     width: 100%;
+    img {
+      width: auto;
+      height: 20vh;
+    }
   }
   &__title {
     position: absolute;
     right: 20vw;
-    top: 8vh;
+    top: 8.8vh;
     color: #fff;
-    font-size: 5vh;
+    font-size: 4.2vh;
+    letter-spacing: 0.1em;
   }
-  padding: 0 2vw 0 2vw;
+  padding: 0 2vw;
   background: #050926;
 }
 .device-list {
