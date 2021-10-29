@@ -396,7 +396,7 @@ export default class extends Mixins(ScreenMixin) {
 
   private get isCovidLiving() {
     this.currentRegion = this.$store.state.user.tags.isCovidLiving
-    return this.$store.state.user.tags.isCovidLiving !== ''
+    return this.$store.state.user.tags.isCovidLiving !== undefined
   }
 
   private mounted() {
