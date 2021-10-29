@@ -136,28 +136,16 @@
             @change="addressChange"
           />
         </el-form-item>
-        <!-- <el-form-item label="设备地址:" prop="address">
-          <el-cascader
-            ref="addressCascader"
-            v-model="form.address"
-            expand-trigger="click"
-            :disabled="isUpdate"
-            :options="regionList"
-            :props="lianzhouRegionProps"
-            @active-item-change="regionChange"
-            @change="lianzhouAddressChange"
-          />
-        </el-form-item> -->
         <el-form-item v-if="lianzhouFlag" label="经纬度:" prop="longlat">
           <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
           <el-input v-model="form.deviceLatitude" class="longlat-input" />
         </el-form-item>
-        <el-form-item label="所属行业:" prop="industryCode">
+        <el-form-item v-if="!isUpdate || form.industryCode" label="所属行业:" prop="industryCode">
           <el-select v-model="form.industryCode" :disabled="form.gbId !== ''" placeholder="请选择所属行业">
             <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="网络标识:" prop="networkCode">
+        <el-form-item v-if="!isUpdate || form.networkCode" label="网络标识:" prop="networkCode">
           <el-select v-model="form.networkCode" :disabled="form.gbId !== ''" placeholder="请选择网络标识">
             <el-option v-for="(item, index) in networkList" :key="index" :label="item.name" :value="item.value" />
           </el-select>
@@ -243,6 +231,12 @@ export default class extends Mixins(createMixin) {
     gbId: [
       { required: true, message: '请填写国标ID', trigger: 'blur' },
       { validator: this.validateGbId, trigger: 'blur' }
+    ],
+    industryCode: [
+      { required: true, message: '请选择所属行业', trigger: 'blur' }
+    ],
+    networkCode: [
+      { required: true, message: '请选择网络标识', trigger: 'blur' }
     ],
     userName: [
       { required: true, message: '请选择账号', trigger: 'change' }
@@ -335,7 +329,7 @@ export default class extends Mixins(createMixin) {
       })
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
-          'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel']))
+          'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
         this.cascaderInit()
         // 获取绑定资源包列表
         this.getDeviceResources(info.deviceId, info.deviceType!, info.inProtocol!)

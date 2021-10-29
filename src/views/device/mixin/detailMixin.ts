@@ -12,6 +12,9 @@ import { checkPermission } from '@/utils/permission'
 import { regionList } from '@/assets/region/lianzhouRegion'
 import copy from 'copy-to-clipboard'
 import { VGroupModule } from '@/store/modules/vgroup'
+import { industryMap } from '@/assets/region/industry'
+import { networkMap } from '@/assets/region/network'
+import { allRegionList } from '@/assets/region/region'
 
 @Component({
   components: {
@@ -39,6 +42,8 @@ export default class DetailMixin extends Vue {
   public resourceType = ResourceType
   public createSubDevice = CreateSubDevice
   public info: Device | null = null
+  public industryMap = industryMap
+  public networkMap = networkMap
   public resources: any = []
   public pushConfig = {
     auth: true,
@@ -124,32 +129,59 @@ export default class DetailMixin extends Vue {
     this.lianzhouFlag = this.$store.state.user.tags.isLianZhouEdu === 'Y'
     await this.getDevice()
     await this.getDeviceResources()
-    this.lianzhouFlag && await this.getLianzhouAddress()
+    await this.getAddress(this.info!.gbRegion)
   }
 
   /**
    * 获取连州region
    */
-  public async getLianzhouAddress() {
-    let info: any = this.info
-    if (!info || !info.gbRegion) return null
-    let res = await getAddressArea({
-      pid: 441882,
-      level: 5
-    })
-    this.lianzhouAddress = '广州省/清远市/连州市'
-    let lianzhouArea = res.areas.map((item: any) => {
-      return {
-        name: item.name,
-        code: item.id,
-        level: item.level
+  public async getAddress(gbRegion: any) {
+    this.$set(this.info!, 'address', '')
+    if (this.lianzhouFlag) {
+      let res = await getAddressArea({
+        pid: 441882,
+        level: 5
+      })
+      this.info!.address = '广州省/清远市/连州市'
+      let lianzhouArea = res.areas.map((item: any) => {
+        return {
+          name: item.name,
+          code: item.id,
+          level: item.level
+        }
+      })
+      lianzhouArea.forEach((item: any) => {
+        if (item.code === gbRegion) {
+          this.info!.address += `/${item.name}`
+        }
+      })
+    } else {
+      const list = [
+        parseInt(gbRegion!.substring(0, 2)),
+        parseInt(gbRegion!.substring(0, 4)),
+        parseInt(gbRegion!.substring(0, 6))
+      ]
+      let region0 = allRegionList.find((item0: any) => {
+        return item0.code === list[0]
+      })
+      if (region0) {
+        this.info!.address += region0.name
+        let region1 = region0.children.find((item1: any) => {
+          return item1.code === list[1]
+        })
+        if (region1) {
+          this.info!.address += '/' + region1.name
+          let region2 = region1.children.find((item2: any) => {
+            return item2.code === list[2]
+          })
+          if (region2) {
+            this.info!.address += '/' + region2.name
+          }
+        } else {
+          this.info!.address += '/' + region0.children[0].name + '/' + region0.children[0].children[0].name
+        }
       }
-    })
-    lianzhouArea.forEach((item: any) => {
-      if (item.code === info.gbRegion) {
-        this.lianzhouAddress += `/${item.name}`
-      }
-    })
+    }
   }
 
   public get isPrivateInNetwork() {
@@ -290,6 +322,6 @@ export default class DetailMixin extends Vue {
     if (!realGroupId || oldRealGroupId) return
     await this.getDevice()
     await this.getDeviceResources()
-    this.lianzhouFlag && await this.getLianzhouAddress()
+    await this.getAddress(this.info!.gbRegion)
   }
 }
