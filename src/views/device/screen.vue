@@ -744,6 +744,9 @@ export default class extends Mixins(ScreenMixin) {
       border: 1px solid #050926;
     }
   }
+  .video-wrap {
+    border: none;
+  }
   .screen-banner {
     text-align: center;
     width: 100%;
@@ -760,7 +763,7 @@ export default class extends Mixins(ScreenMixin) {
     font-size: 4.2vh;
     letter-spacing: 0.1em;
   }
-  padding: 0 2vw;
+  padding: 0 10.1vw;
   background: #050926;
 }
 .device-list {
