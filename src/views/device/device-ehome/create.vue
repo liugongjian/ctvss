@@ -131,35 +131,33 @@
           </template>
           <el-switch v-model="form.pushType" :active-value="1" :inactive-value="2" />
         </el-form-item>
+        <el-form-item label="设备地址:" prop="address">
+          <el-cascader
+            ref="addressCascader"
+            v-model="form.address"
+            expand-trigger="click"
+            :disabled="form.gbId !== ''"
+            :options="regionList"
+            :props="addressProps"
+            @active-item-change="regionChange"
+            @change="addressChange"
+          />
+        </el-form-item>
         <template v-if="lianzhouFlag">
-          <el-form-item label="设备地址:" prop="address">
-            <el-cascader
-              ref="addressCascader"
-              v-model="form.address"
-              class="lainzhou-cascader"
-              expand-trigger="click"
-              :disabled="isUpdate"
-              :options="regionList"
-              :props="lianzhouRegionProps"
-              @active-item-change="regionChange"
-              @change="lianzhouAddressChange"
-            />
-          </el-form-item>
           <el-form-item label="经纬度:" prop="longlat">
             <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
             <el-input v-model="form.deviceLatitude" class="longlat-input" />
           </el-form-item>
         </template>
-        <el-form-item v-else label="设备地址:" prop="address">
-          <el-cascader
-            ref="addressCascader"
-            v-model="form.address"
-            expand-trigger="hover"
-            :disabled="isUpdate"
-            :options="cities"
-            :props="citiesProps"
-            @change="addressChange"
-          />
+        <el-form-item v-if="!isUpdate || form.industryCode" label="所属行业:" prop="industryCode">
+          <el-select v-model="form.industryCode" :disabled="form.gbId !== ''" placeholder="请选择所属行业">
+            <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item v-if="!isUpdate || form.networkCode" label="网络标识:" prop="networkCode">
+          <el-select v-model="form.networkCode" :disabled="form.gbId !== ''" placeholder="请选择网络标识">
+            <el-option v-for="(item, index) in networkList" :key="index" :label="item.name" :value="item.value" />
+          </el-select>
         </el-form-item>
         <!-- <el-form-item prop="transPriority">
           <template slot="label">
@@ -248,6 +246,12 @@ export default class extends Mixins(createMixin) {
     address: [
       { required: true, message: '请选择设备地址', trigger: 'blur' }
     ],
+    industryCode: [
+      { required: true, message: '请选择所属行业', trigger: 'blur' }
+    ],
+    networkCode: [
+      { required: true, message: '请选择网络标识', trigger: 'blur' }
+    ],
     longlat: [
       { required: true, message: '请选择经纬度', trigger: 'blur' },
       { validator: this.validateLonglat, trigger: 'blur' }
@@ -278,12 +282,15 @@ export default class extends Mixins(createMixin) {
     pullType: 1,
     transPriority: 'tcp',
     parentDeviceId: '',
+    gbId: '',
     address: [],
     longlat: 'required',
     deviceLongitude: '0.000000',
     deviceLatitude: '0.000000',
     gbRegion: '',
     gbRegionLevel: null,
+    industryCode: '',
+    networkCode: '',
     resources: []
   }
   protected minChannelSize = 1
@@ -358,7 +365,8 @@ export default class extends Mixins(createMixin) {
       })
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'deviceType', 'ehomeVersion', 'createSubDevice', 'deviceVendor',
-          'deviceIp', 'devicePort', 'description', 'multiStreamSize', 'autoStreamNum', 'pullType', 'transPriority', 'parentDeviceId', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel']))
+          'deviceIp', 'devicePort', 'description', 'multiStreamSize', 'autoStreamNum', 'pullType', 'transPriority', 'parentDeviceId', 'deviceLongitude', 'deviceLatitude', 'gbId', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
+        this.cascaderInit()
         // 获取绑定资源包列表
         this.getDeviceResources(info.deviceId, info.deviceType!, info.inProtocol!)
         if (info.deviceStats) {
@@ -468,7 +476,7 @@ export default class extends Mixins(createMixin) {
 </script>
 
 <style lang="scss" scoped>
-  .el-input, .el-select, .el-textarea {
+  .el-input, .el-select, .el-textarea, .el-cascader {
     width: 400px;
   }
 

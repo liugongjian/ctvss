@@ -109,19 +109,11 @@
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import detailMixin from '../mixin/detailMixin'
-import { provinceMapping, cityMapping } from '@/assets/region/cities'
 
 @Component({
   name: 'DeviceGb28181Detail'
 })
 export default class extends Mixins(detailMixin) {
-  public get address() {
-    let info: any = this.info
-    if (!info.gbRegion) return null
-    let provinceCode: number = parseInt(info.gbRegion.substring(0, 2))
-    let cityCode: number = parseInt(info.gbRegion.substring(0, 4))
-    return provinceMapping[provinceCode] + ' / ' + cityMapping[cityCode]
-  }
 }
 </script>
 <style lang="scss" scoped>

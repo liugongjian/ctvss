@@ -13,7 +13,9 @@
               <info-list-item label="设备名称:">{{ info.deviceName }}</info-list-item>
               <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
-              <info-list-item v-if="lianzhouFlag" label="设备地址:">{{ lianzhouAddress || '-' }}</info-list-item>
+              <info-list-item v-if="info.address" label="设备地址:">{{ info.address }}</info-list-item>
+              <info-list-item v-if="info.industryCode" label="所属行业:">{{ industryMap[info.industryCode] }}</info-list-item>
+              <info-list-item v-if="info.networkCode" label="网络标识">{{ networkMap[info.networkCode] }}</info-list-item>
               <info-list-item v-if="lianzhouFlag" label="经纬度:">{{ `${info.deviceLongitude || '-'} : ${info.deviceLatitude || '-'}` }}</info-list-item>
               <template v-if="info.deviceType === 'nvr'">
                 <info-list-item label="自动创建子设备:">{{ createSubDevice[info.createSubDevice] }}</info-list-item>
