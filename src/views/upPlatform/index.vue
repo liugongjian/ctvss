@@ -334,7 +334,7 @@ export default class extends Vue {
       } else {
         this.initPlatform()
       }
-    } catch (e: any) {
+    } catch (e) {
       this.$message.error(e && e.message)
     } finally {
       this.loading.platform = false
@@ -400,7 +400,7 @@ export default class extends Vue {
       })
       this.$message.success('已通知启动级联')
       setTimeout(this.getPlatformList, 2000)
-    } catch (e: any) {
+    } catch (e) {
       this.$message.error(e && e.message)
     } finally {
       this.getPlatformList()
@@ -419,7 +419,7 @@ export default class extends Vue {
       })
       this.$message.success('已通知停用级联')
       setTimeout(this.getPlatformList, 2000)
-    } catch (e: any) {
+    } catch (e) {
       this.$message.error(e && e.message)
     } finally {
       this.getPlatformList()
@@ -459,11 +459,11 @@ export default class extends Vue {
             dirId: node.dirId
           })
           this.initDirs()
-        } catch (e: any) {
+        } catch (e) {
           this.$message.error(e && e.message)
         }
       }
-    } catch (e: any) {
+    } catch (e) {
       this.$message.error(e && e.message)
     } finally {
       this.loading.sharedDevices = false

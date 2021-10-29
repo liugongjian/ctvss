@@ -382,7 +382,7 @@ export default class extends Mixins(createMixin) {
       } else if (this.isUpdate && info.deviceChannels.length) {
         this.availableChannels = usedChannelNum
       }
-    } catch (e: any) {
+    } catch (e) {
       this.$message.error(e.message)
     } finally {
       this.loading.device = false
@@ -449,7 +449,7 @@ export default class extends Mixins(createMixin) {
       }
       this.back()
       this.initDirs()
-    } catch (e: any) {
+    } catch (e) {
       this.$message.error(e && e.message)
     } finally {
       this.submitting = false
