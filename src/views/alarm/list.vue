@@ -329,7 +329,7 @@ export default class extends Vue {
       let res: any = await getAlarmRules(params)
       this.alarmList = res.alarms
       this.pager.total = res.totalNum
-    } catch (e: any) {
+    } catch (e) {
       this.$message.error(`获取模板列表失败，原因：${e && e.message}`)
     } finally {
       this.loading = false
