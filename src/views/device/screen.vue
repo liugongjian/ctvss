@@ -201,7 +201,7 @@
           >
             <div v-if="isCovidLiving && isFullscreen" class="screen-banner">
               <img src="@/assets/images/covid_banner.png">
-              <span class="covid__title">{{ `${currentRegion}核酸监测调度指挥云平台` }}</span>
+              <span class="covid__title">{{ `${currentRegion}核酸检测调度指挥云平台` }}</span>
             </div>
             <div class="sreen-wrap">
               <div
