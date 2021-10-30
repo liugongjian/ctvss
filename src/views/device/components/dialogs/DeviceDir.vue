@@ -18,10 +18,14 @@
         :props="treeProp"
         @node-click="selectDevice"
       >
-        <span slot-scope="{node, data}" class="custom-tree-node">
+        <span
+          slot-scope="{node, data}"
+          class="custom-tree-node"
+          :class="{'online': data.deviceStatus === 'on'}"
+        >
           <span class="node-name">
             <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
-            <svg-icon :name="data.type" color="#6e7c89" />
+            <svg-icon :name="data.type" />
             {{ node.label }}
           </span>
         </span>
@@ -138,6 +142,15 @@ export default class extends Vue {
   .tree-wrap {
     height: 300px;
     overflow: auto;
+    .svg-icon {
+      margin-right: 5px;
+      color: #6e7c89;
+    }
+    .custom-tree-node.online .node-name {
+      .svg-icon {
+        color: #65c465;
+      }
+    }
     .node-name {
       position: relative;
     }
