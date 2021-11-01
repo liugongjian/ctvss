@@ -234,6 +234,7 @@
                           @onPlayback="onPlayback(screen)"
                           @onFullscreen="screen.fullscreen();fullscreen()"
                           @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
+                          @onIntercom="onIntercom(screen,true)"
                         />
                         <div v-if="!screen.url && !screen.loading" class="tip-text">{{ screen.errorMsg || '无信号' }}</div>
                       </div>
@@ -284,6 +285,7 @@
       </div>
     </el-card>
 
+    <intercom-dialog v-if="ifIntercom" :if-intercom="ifIntercom" :intercom-info="intercomInfo" @onIntercom="onIntercom(intercomInfo,false)" />
     <div id="mouse-right" class="mouse-right" @click="videosOnPolling(null, true)">轮巡当前目录</div>
     <device-dir v-if="dialogs.deviceDir" @on-close="onDeviceDirClose" />
   </div>
@@ -304,6 +306,7 @@ import OperateSelector from './components/OperateSelector.vue'
 import { getDeviceTree } from '@/api/device'
 import { renderAlertType, getSums } from '@/utils/device'
 import { VGroupModule } from '@/store/modules/vgroup'
+import IntercomDialog from './components/dialogs/Intercom.vue'
 
 @Component({
   name: 'Screen',
@@ -315,7 +318,8 @@ import { VGroupModule } from '@/store/modules/vgroup'
     PtzControl,
     StreamSelector,
     OperateSelector,
-    PlayerContainer
+    PlayerContainer,
+    IntercomDialog
   }
 })
 export default class extends Mixins(ScreenMixin) {
@@ -369,6 +373,9 @@ export default class extends Mixins(ScreenMixin) {
       label: '5分钟'
     }
   ]
+
+  private ifIntercom = false
+  private intercomInfo = {}
 
   @Watch('currentGroupId', { immediate: true })
   private onCurrentGroupChange(groupId: String) {
@@ -694,6 +701,12 @@ export default class extends Mixins(ScreenMixin) {
    */
   private onPlayback(screen: Screen) {
     screen.isLive = false
+  }
+
+  // 实时对讲
+  private onIntercom(screen:any, flag:boolean) {
+    this.intercomInfo = screen
+    this.ifIntercom = flag
   }
 
   /**

@@ -24,6 +24,11 @@
         </template>
       </div>
       <div class="controls__right">
+        <el-tooltip content="开启语音对讲" placement="top">
+          <div class="controls__btn" :class="{'selected': isZoom}" @click.stop.prevent="toIntercom">
+            <svg-icon name="user" width="16px" height="16px" />
+          </div>
+        </el-tooltip>
         <div v-if="!isLive && codec !== 'h265'" class="controls__btn controls__playback">
           {{ playbackRate === 1 ? '倍速' : `${playbackRate}x` }}
           <ul class="controls__popup">
@@ -552,6 +557,10 @@ export default class extends Vue {
    */
   public toggleZoom() {
     this.isZoom = !this.isZoom
+  }
+  // 实时对讲
+  public toIntercom() {
+    this.$emit('onIntercom')
   }
 
   /**
