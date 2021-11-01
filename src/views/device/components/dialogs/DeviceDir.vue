@@ -100,8 +100,9 @@ export default class extends Mixins(DeviceMixin) {
       width: 6px;
       height: 6px;
       opacity: 0.7;
-      &--, &--off, &--failed {
-        display: none;
+      display: none;
+      &--on {
+        display: block;
       }
     }
   }
