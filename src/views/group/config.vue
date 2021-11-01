@@ -9,7 +9,7 @@
           <info-list-item label="业务组名称:">{{ form.groupName }}</info-list-item>
           <info-list-item label="业务组描述:">{{ form.description }}</info-list-item>
           <info-list-item label="国标ID:">{{ form.gbId || '-' }}</info-list-item>
-          <info-list-item v-if="form.address" label="设备地址:">{{ form.address }}</info-list-item>
+          <info-list-item label="设备地址:">{{ form.address || '-' }}</info-list-item>
           <info-list-item v-if="form.industryCode" label="所属行业:">{{ industryMap[form.industryCode] }}</info-list-item>
           <info-list-item v-if="form.networkCode && networkFlag" label="网络标识:">{{ networkMap[form.networkCode] }}</info-list-item>
           <info-list-item label="业务组描述:">{{ form.description }}</info-list-item>
@@ -127,14 +127,30 @@ export default class extends Vue {
     return this.$store.state.user.tags.isLianZhouEdu === 'Y'
   }
 
+  private async mounted() {
+    let query: any = this.$route.query
+    if (query.groupId) {
+      this.$set(this.form, 'groupId', query.groupId)
+      try {
+        const res = await queryGroup({ groupId: this.form.groupId })
+        res.outProtocol = res.outProtocol.split(',')
+        this.form = res
+        await this.getAddress(this.form.gbRegion)
+      } catch (e) {
+        this.$message.error(e && e.message)
+      }
+    }
+  }
+
   private async getAddress(gbRegion: any) {
-    this.form.address = ''
+    let address = ''
+    if (!gbRegion) return
     if (this.lianzhouFlag) {
       let res = await getAddressArea({
         pid: 441882,
         level: 5
       })
-      this.form.address = '广州省/清远市/连州市'
+      address = '广州省/清远市/连州市'
       let lianzhouArea = res.areas.map((item: any) => {
         return {
           name: item.name,
@@ -144,7 +160,7 @@ export default class extends Vue {
       })
       lianzhouArea.forEach((item: any) => {
         if (item.code === gbRegion) {
-          this.form.address += `/${item.name}`
+          address += `/${item.name}`
         }
       })
     } else {
@@ -157,21 +173,22 @@ export default class extends Vue {
         return item0.code === list[0]
       })
       if (region0) {
-        this.form.address += region0.name
+        address += region0.name
         let region1 = region0.children.find((item1: any) => {
           return item1.code === list[1]
         })
         if (region1) {
-          this.form.address += '/' + region1.name
+          address += '/' + region1.name
           let region2 = region1.children.find((item2: any) => {
             return item2.code === list[2]
           })
           if (region2) {
-            this.form.address += '/' + region2.name
+            address += '/' + region2.name
           }
         }
       }
     }
+    this.$set(this.form, 'address', address)
   }
 
   private back() {
@@ -189,21 +206,6 @@ export default class extends Vue {
         groupId: this.form.groupId!.toString()
       }
     })
-  }
-
-  private async mounted() {
-    let query: any = this.$route.query
-    if (query.groupId) {
-      this.$set(this.form, 'groupId', query.groupId)
-      try {
-        const res = await queryGroup({ groupId: this.form.groupId })
-        res.outProtocol = res.outProtocol.split(',')
-        this.form = res
-        this.getAddress(this.form.gbRegion)
-      } catch (e) {
-        this.$message.error(e && e.message)
-      }
-    }
   }
 }
 </script>

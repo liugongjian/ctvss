@@ -40,23 +40,24 @@
             :disabled="isEdit"
           />
         </el-form-item>
-        <el-form-item label="设备地址:" prop="address">
+        <el-form-item v-if="!isEdit || !form.gbId || form.gbRegion" label="设备地址:" prop="address">
           <el-cascader
             ref="addressCascader"
             v-model="form.address"
             expand-trigger="click"
             :disabled="form.gbId !== ''"
-            :options="allRegionList"
+            :options="gbRegionList"
             :props="addressProps"
+            @active-item-change="regionChange"
             @change="addressChange"
           />
         </el-form-item>
-        <el-form-item label="所属行业:" prop="industryCode">
+        <el-form-item v-if="!isEdit || !!form.industryCode" label="所属行业:" prop="industryCode">
           <el-select v-model="form.industryCode" :disabled="form.gbId !== ''" placeholder="请选择所属行业">
             <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item v-if="networkFlag && networkFlag" label="网络标识:" prop="networkCode">
+        <el-form-item v-if="(!isEdit || !!form.industryCode) && networkFlag" label="网络标识:" prop="networkCode">
           <el-select v-model="form.networkCode" :disabled="form.gbId !== ''" placeholder="请选择网络标识">
             <el-option v-for="(item, index) in networkList" :key="index" :label="item.name" :value="item.value" />
           </el-select>
@@ -167,6 +168,8 @@ import { getRegions } from '@/api/region'
 import { industryMap } from '@/assets/region/industry'
 import { networkMap } from '@/assets/region/network'
 import { allRegionList } from '@/assets/region/region'
+import { regionList } from '@/assets/region/lianzhouRegion'
+import { getAddressArea } from '@/api/device'
 import templateBind from '../components/templateBind.vue'
 
 @Component({
@@ -177,7 +180,6 @@ export default class extends Vue {
   private breadCrumbContent = ''
   private loading = false
   private submitting = false
-  public allRegionList = allRegionList
   public addressProps: any = {
     value: 'code',
     label: 'name',
@@ -235,6 +237,17 @@ export default class extends Vue {
   }
 
   private regionList = []
+
+  /**
+   * 针对连州设备管理
+   */
+  public get lianzhouFlag() {
+    return this.$store.state.user.tags.isLianZhouEdu === 'Y'
+  }
+
+  private get gbRegionList() {
+    return this.lianzhouFlag ? regionList : allRegionList
+  }
 
   private get industryList() {
     return Object.keys(industryMap).map((key: any) => {
@@ -302,13 +315,55 @@ export default class extends Vue {
       parseInt(this.form.gbRegion!.substring(0, 4)),
       parseInt(this.form.gbRegion!.substring(0, 6))
     ]
-    // await this.regionChange(list)
+    await this.regionChange(list)
+    this.form.address = this.lianzhouFlag ? [ ...list, this.form.gbRegion ] : [
+      parseInt(this.form.gbRegion!.substring(0, 2)),
+      parseInt(this.form.gbRegion!.substring(0, 4)),
+      parseInt(this.form.gbRegion!.substring(0, 6))
+    ]
     this.$nextTick(() => {
-      this.form.address = list
-      this.$nextTick(() => {
-        this.addressChange()
-      })
+      this.addressChange()
     })
+  }
+
+  private async regionChange(val: any) {
+    if (val.length !== 3 || !val[0] || !val[1] || !val[2]) {
+      return
+    }
+    let index1 = this.gbRegionList.findIndex((item: any) => {
+      return item.code === val[0]
+    })
+    if (index1 !== -1) {
+      let index2 = this.gbRegionList[index1].children.findIndex((item: any) => {
+        return item.code === val[1]
+      })
+      if (index2 !== -1) {
+        let index3 = this.gbRegionList[index1].children[index2].children.findIndex((item: any) => {
+          return item.code === val[2]
+        })
+        if (index2 !== -1 && this.lianzhouFlag) {
+          this.gbRegionList[index1].children[index2].children[index3].children = await this.getExpandList(val[2])
+        }
+      } else {
+        this.form.gbRegion = this.gbRegionList[index1].children[0].children[0].code + '00'
+      }
+    }
+  }
+  private async getExpandList(id: any) {
+    let params: any = {
+      pid: id,
+      level: this.lianzhouFlag ? 5 : 4
+    }
+    let res = await getAddressArea(params)
+    if (res.areas.length) {
+      return res.areas.map((item: any) => {
+        return {
+          name: item.name,
+          code: item.id,
+          level: item.level
+        }
+      })
+    }
   }
 
   private addressChange() {
@@ -316,7 +371,7 @@ export default class extends Vue {
     const addressCascader: any = this.$refs['addressCascader']
     if (addressCascader && addressCascader.getCheckedNodes()[0]) {
       const currentAddress = addressCascader.getCheckedNodes()[0].data
-      this.form.gbRegion = currentAddress.code + '00'
+      this.form.gbRegion = this.lianzhouFlag ? currentAddress.code : currentAddress.code + '00'
       this.form.gbRegionLevel = currentAddress.level
     }
   }
