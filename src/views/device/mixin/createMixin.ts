@@ -118,6 +118,13 @@ export default class CreateMixin extends Vue {
     return this.$store.state.user.tags.isLianZhouEdu === 'Y'
   }
 
+  /**
+   * 针对网络标识
+   */
+  public get networkFlag() {
+    return this.$store.state.user.tags.isNeedDeviceNetworkCode === true
+  }
+
   @Watch('currentGroup', { immediate: true, deep: true })
   public onGroupChange() {
     if (this.currentGroup && !this.isUpdate) {
@@ -125,6 +132,13 @@ export default class CreateMixin extends Vue {
       this.form.pushType = this.currentGroup.pushType
       this.form.groupId = this.currentGroup.groupId
     }
+  }
+
+  public mounted() {
+    this.form.gbRegion = this.currentGroup!.gbRegion
+    this.cascaderInit()
+    this.form.industryCode = this.currentGroup!.industryCode
+    this.form.networkCode = this.currentGroup!.networkCode
   }
 
   // 设备地址动态变化

@@ -14,9 +14,6 @@
               <info-list-item label="设备名称:">{{ info.deviceName }}</info-list-item>
               <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
-              <info-list-item v-if="info.address" label="设备地址:">{{ info.address }}</info-list-item>
-              <info-list-item v-if="info.industryCode" label="所属行业:">{{ industryMap[info.industryCode] }}</info-list-item>
-              <info-list-item v-if="info.networkCode" label="网络标识">{{ networkMap[info.networkCode] }}</info-list-item>
               <info-list-item v-if="lianzhouFlag" label="经纬度:">{{ `${info.deviceLongitude || '-'} : ${info.deviceLatitude || '-'}` }}</info-list-item>
               <info-list-item label="设备IP:">{{ info.deviceIp || '-' }}</info-list-item>
               <info-list-item label="端口:">{{ info.devicePort || '-' }}</info-list-item>
@@ -44,6 +41,9 @@
               <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
             </info-list>
             <info-list v-if="info" label-width="110">
+              <info-list-item v-if="info.address" label="设备地址:">{{ info.address }}</info-list-item>
+              <info-list-item v-if="info.industryCode" label="所属行业:">{{ industryMap[info.industryCode] }}</info-list-item>
+              <info-list-item v-if="info.networkCode && networkFlag" label="网络标识:">{{ networkMap[info.networkCode] }}</info-list-item>
               <info-list-item label="自动拉流:">{{ pullType[info.pullType] }}</info-list-item>
               <info-list-item label="设备状态:">
                 <div class="info-list__edit">

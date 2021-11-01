@@ -56,7 +56,7 @@
             <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="网络标识:" prop="networkCode">
+        <el-form-item v-if="networkFlag && networkFlag" label="网络标识:" prop="networkCode">
           <el-select v-model="form.networkCode" :disabled="form.gbId !== ''" placeholder="请选择网络标识">
             <el-option v-for="(item, index) in networkList" :key="index" :label="item.name" :value="item.value" />
           </el-select>
@@ -260,6 +260,13 @@ export default class extends Vue {
 
   private get isVGroup() {
     return this.form.inProtocol === 'vgroup'
+  }
+
+  /**
+   * 针对网络标识
+   */
+  private get networkFlag() {
+    return this.$store.state.user.tags.isNeedDeviceNetworkCode === true
   }
 
   private async mounted() {

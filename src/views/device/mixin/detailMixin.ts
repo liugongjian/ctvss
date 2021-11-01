@@ -124,6 +124,13 @@ export default class DetailMixin extends Vue {
     }
   }
 
+  /**
+   * 针对网络标识
+   */
+  private get networkFlag() {
+    return this.$store.state.user.tags.isNeedDeviceNetworkCode === true
+  }
+
   public async mounted() {
     // TODO: 连州教育局一机一档专用
     this.lianzhouFlag = this.$store.state.user.tags.isLianZhouEdu === 'Y'

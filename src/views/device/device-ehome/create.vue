@@ -154,7 +154,7 @@
             <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item v-if="!isUpdate || form.networkCode" label="网络标识:" prop="networkCode">
+        <el-form-item v-if="(!isUpdate || form.networkCode) && networkFlag" label="网络标识:" prop="networkCode">
           <el-select v-model="form.networkCode" :disabled="form.gbId !== ''" placeholder="请选择网络标识">
             <el-option v-for="(item, index) in networkList" :key="index" :label="item.name" :value="item.value" />
           </el-select>
@@ -332,10 +332,9 @@ export default class extends Mixins(createMixin) {
     }
   ]
 
-  private async mounted() {
+  public async mounted() {
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
-      this.lianzhouFlag && this.lianzhouCascaderInit()
     } else {
       this.form.dirId = this.dirId
     }
@@ -427,7 +426,7 @@ export default class extends Mixins(createMixin) {
       }
       if (!this.isChannel) {
         // 通用参数
-        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'deviceIp', 'devicePort', 'pullType', 'ehomeVersion', 'transPriority', 'multiStreamSize', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel']))
+        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'deviceIp', 'devicePort', 'pullType', 'ehomeVersion', 'transPriority', 'multiStreamSize', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
         if (this.form.pullType === 1) {
           params = Object.assign(params, pick(this.form, ['autoStreamNum']))
         }

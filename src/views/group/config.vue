@@ -11,7 +11,7 @@
           <info-list-item label="国标ID:">{{ form.gbId || '-' }}</info-list-item>
           <info-list-item v-if="form.address" label="设备地址:">{{ form.address }}</info-list-item>
           <info-list-item v-if="form.industryCode" label="所属行业:">{{ industryMap[form.industryCode] }}</info-list-item>
-          <info-list-item v-if="form.networkCode" label="网络标识">{{ networkMap[form.networkCode] }}</info-list-item>
+          <info-list-item v-if="form.networkCode && networkFlag" label="网络标识:">{{ networkMap[form.networkCode] }}</info-list-item>
           <info-list-item label="业务组描述:">{{ form.description }}</info-list-item>
           <info-list-item label="业务组描述:">{{ form.description }}</info-list-item>
           <template v-if="!isVGroup">
@@ -111,6 +111,13 @@ export default class extends Vue {
 
   private get isVGroup() {
     return this.form.inProtocol === '' || this.form.inProtocol === 'vgroup'
+  }
+
+  /**
+   * 针对网络标识
+   */
+  private get networkFlag() {
+    return this.$store.state.user.tags.isNeedDeviceNetworkCode === true
   }
 
   /**

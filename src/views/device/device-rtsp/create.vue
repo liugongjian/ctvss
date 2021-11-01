@@ -160,6 +160,28 @@
           </template>
           <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" />
         </el-form-item>
+        <el-form-item label="设备地址:" prop="address">
+          <el-cascader
+            ref="addressCascader"
+            v-model="form.address"
+            expand-trigger="click"
+            :disabled="form.gbId !== ''"
+            :options="regionList"
+            :props="addressProps"
+            @active-item-change="regionChange"
+            @change="addressChange"
+          />
+        </el-form-item>
+        <el-form-item v-if="!isUpdate || !!form.industryCode" label="所属行业:" prop="industryCode">
+          <el-select v-model="form.industryCode" :disabled="form.gbId !== ''" placeholder="请选择所属行业">
+            <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item v-if="(!isUpdate || !!form.industryCode) && networkFlag" label="网络标识:" prop="networkCode">
+          <el-select v-model="form.networkCode" :disabled="form.gbId !== ''" placeholder="请选择网络标识">
+            <el-option v-for="(item, index) in networkList" :key="index" :label="item.name" :value="item.value" />
+          </el-select>
+        </el-form-item>
         <el-form-item label="配置资源包:" prop="resources">
           <ResourceTabs v-model="form.resources" :is-update="isUpdate" :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" @on-change="onResourceChange" />
         </el-form-item>
@@ -248,6 +270,15 @@ export default class extends Mixins(createMixin) {
     devicePort: [
       { required: true, message: '请输入设备端口', trigger: 'blur' }
     ],
+    address: [
+      { required: true, message: '请选择设备地址', trigger: 'blur' }
+    ],
+    industryCode: [
+      { required: true, message: '请选择所属行业', trigger: 'blur' }
+    ],
+    networkCode: [
+      { required: true, message: '请选择网络标识', trigger: 'blur' }
+    ],
     resources: [
       { required: true, validator: this.validateResources, trigger: 'blur' }
     ]
@@ -281,6 +312,12 @@ export default class extends Mixins(createMixin) {
     pullUrl: '',
     transPriority: 'udp',
     parentDeviceId: '',
+    address: [],
+    gbId: '',
+    gbRegion: '',
+    gbRegionLevel: null,
+    industryCode: '',
+    networkCode: '',
     resources: []
   }
   protected minChannelSize = 1
@@ -321,7 +358,7 @@ export default class extends Mixins(createMixin) {
     }
   ]
 
-  private async mounted() {
+  public async mounted() {
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
     } else {
@@ -354,10 +391,11 @@ export default class extends Mixins(createMixin) {
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'deviceType', 'createSubDevice', 'deviceVendor',
           'enableDomain', 'deviceDomain', 'deviceIp', 'devicePort', 'description', 'inType', 'userName', 'password', 'multiStreamSize', 'autoStreamNum',
-          'pullType', 'pushType', 'pullUrl', 'transPriority', 'parentDeviceId']))
+          'pullType', 'pushType', 'pullUrl', 'transPriority', 'parentDeviceId', 'gbId', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
         if (this.form.deviceVendor === '其他') {
           this.form.deviceCustomUrl = this.form.deviceDomain
         }
+        this.cascaderInit()
         // 获取绑定资源包列表
         this.getDeviceResources(info.deviceId, info.deviceType!, info.inProtocol!)
         if (info.deviceStats) {
@@ -390,7 +428,7 @@ export default class extends Mixins(createMixin) {
         this.availableChannels = usedChannelNum
       }
     } catch (e) {
-      this.$message.error(e.message)
+      this.$message.error(e && e.message)
     } finally {
       this.loading.device = false
     }
@@ -417,7 +455,7 @@ export default class extends Mixins(createMixin) {
       }
       if (!this.isChannel) {
         // 通用参数
-        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'enableDomain', 'deviceDomain', 'deviceIp', 'devicePort', 'inType', 'transPriority']))
+        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'enableDomain', 'deviceDomain', 'deviceIp', 'devicePort', 'inType', 'transPriority', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
         // 判断inType类型
         if (this.form.inType === 'push') {
           params = Object.assign(params, pick(this.form, ['pushType']))
@@ -474,7 +512,7 @@ export default class extends Mixins(createMixin) {
 </script>
 
 <style lang="scss" scoped>
-  .el-input, .el-select, .el-textarea {
+  .el-input, .el-select, .el-textarea, .el-cascader {
     width: 400px;
   }
 

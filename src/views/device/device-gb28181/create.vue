@@ -145,7 +145,7 @@
             <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item v-if="!isUpdate || form.networkCode" label="网络标识:" prop="networkCode">
+        <el-form-item v-if="(!isUpdate || form.networkCode) && networkFlag" label="网络标识:" prop="networkCode">
           <el-select v-model="form.networkCode" :disabled="form.gbId !== ''" placeholder="请选择网络标识">
             <el-option v-for="(item, index) in networkList" :key="index" :label="item.name" :value="item.value" />
           </el-select>
@@ -303,7 +303,7 @@ export default class extends Mixins(createMixin) {
     createGb28181Certificate: false
   }
 
-  private async mounted() {
+  public async mounted() {
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
     } else {
@@ -366,7 +366,7 @@ export default class extends Mixins(createMixin) {
         this.availableChannels = usedChannelNum
       }
     } catch (e) {
-      this.$message.error(e.message)
+      this.$message.error(e && e.message)
     } finally {
       this.loading.device = false
     }
@@ -447,7 +447,7 @@ export default class extends Mixins(createMixin) {
       }
       if (!this.isChannel) {
         // 通用参数
-        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'inProtocol', 'deviceIp', 'devicePort', 'pullType', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel']))
+        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'inProtocol', 'deviceIp', 'devicePort', 'pullType', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
         // IPC类型添加额外参数
         if (this.form.deviceType === 'ipc') {
           params = Object.assign(params, {
@@ -508,7 +508,7 @@ export default class extends Mixins(createMixin) {
 </script>
 
 <style lang="scss" scoped>
-  .el-input, .el-select, .el-textarea {
+  .el-input, .el-select, .el-textarea, .el-cascader {
     width: 400px;
   }
 
@@ -527,8 +527,5 @@ export default class extends Mixins(createMixin) {
   }
   .longlat-input {
     width: 193px;
-  }
-  .el-cascader {
-    width: 400px
   }
 </style>
