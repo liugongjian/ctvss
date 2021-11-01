@@ -117,8 +117,10 @@ export const StreamStatus = {
 }
 
 export const RecordStatus = {
+  0: '未录制',
   1: '录制中',
-  2: '未录制'
+  2: '录制中',
+  3: '录制失败'
 }
 
 export const StreamType = {
