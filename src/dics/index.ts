@@ -123,6 +123,19 @@ export const RecordStatus = {
   3: '录制失败'
 }
 
+export const RecordStatusType = {
+  0: 'off',
+  1: 'on',
+  2: 'on',
+  3: 'error'
+}
+
+export const RecordStatusFilterType = {
+  'off': '未录制',
+  'on': '录制中',
+  'error': '录制失败'
+}
+
 export const StreamType = {
   1: '全量视频',
   2: '移动侦测'

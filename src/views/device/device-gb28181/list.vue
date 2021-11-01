@@ -180,7 +180,7 @@
           </template>
           <template slot-scope="{row}">
             <span v-if="row.deviceType === 'nvr'">-</span>
-            <span v-else><status-badge :status="row.recordStatus === 1 ? 'red' : ''" />{{ recordStatus[row.recordStatus] || '-' }}</span>
+            <span v-else><status-badge :status="recordStatusType[row.recordStatus]" />{{ recordStatus[row.recordStatus] || '-' }}</span>
           </template>
         </el-table-column>
         <el-table-column key="deviceVendor" prop="deviceVendor" label="厂商">
@@ -242,7 +242,7 @@
                 <template v-if="scope.row.deviceType === 'ipc'">
                   <el-dropdown-item v-if="!isVGroup && scope.row.streamStatus === 'on' && checkPermission(['AdminDevice'])" :command="{type: 'stopDevice', device: scope.row}">停用流</el-dropdown-item>
                   <el-dropdown-item v-else-if="!isVGroup && checkPermission(['AdminDevice'])" :command="{type: 'startDevice', device: scope.row}">启用流</el-dropdown-item>
-                  <el-dropdown-item v-if="!isVGroup && scope.row.recordStatus === 1 && checkPermission(['AdminDevice'])" :command="{type: 'stopRecord', device: scope.row}">停止录像</el-dropdown-item>
+                  <el-dropdown-item v-if="!isVGroup && recordStatusType[scope.row.recordStatus] === 'on' && checkPermission(['AdminDevice'])" :command="{type: 'stopRecord', device: scope.row}">停止录像</el-dropdown-item>
                   <el-dropdown-item v-else-if="!isVGroup && checkPermission(['AdminDevice'])" :command="{type: 'startRecord', device: scope.row}">开始录像</el-dropdown-item>
                 </template>
                 <el-dropdown-item v-if="!isVGroup && checkPermission(['AdminDevice'])" :command="{type: 'updateResource', device: scope.row}">配置资源包</el-dropdown-item>

@@ -2,7 +2,7 @@ import { Component, Vue, Inject, Watch } from 'vue-property-decorator'
 import { Device } from '@/type/device'
 import { RecordTemplate } from '@/type/template'
 import { getDevice, getLianzhouArea } from '@/api/device'
-import { DeviceStatus, DeviceGb28181Type, RecordStatus, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType } from '@/dics'
+import { DeviceStatus, DeviceGb28181Type, RecordStatus, RecordStatusType, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType } from '@/dics'
 import { getDeviceResources } from '@/api/billing'
 import TemplateBind from '../../components/templateBind.vue'
 import SetAuthConfig from '../components/dialogs/SetAuthConfig.vue'
@@ -26,6 +26,7 @@ export default class DetailMixin extends Vue {
   public checkPermission = checkPermission
   public activeName = 'info'
   public deviceStatus = DeviceStatus
+  public recordStatusType = RecordStatusType
   public deviceType = DeviceGb28181Type
   public recordStatus = RecordStatus
   public authStatus = AuthStatus
