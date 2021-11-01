@@ -38,6 +38,8 @@ import { Component, Prop, Mixins } from 'vue-property-decorator'
 import DeviceMixin from '../../mixin/deviceMixin'
 import { GroupModule } from '@/store/modules/group'
 import { Device } from '@/type/device'
+import { getDeviceTree } from '@/api/device'
+import { VGroupModule } from '@/store/modules/vgroup'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 
 @Component({
@@ -63,6 +65,23 @@ export default class extends Mixins(DeviceMixin) {
 
   private async mounted() {
     await this.initDirs()
+  }
+
+  public async initDirs() {
+    try {
+      VGroupModule.resetVGroupInfo()
+      this.loading.dir = true
+      const res = await getDeviceTree({
+        groupId: this.currentGroupId,
+        id: 0
+      })
+      this.dirList = this.setDirsStreamStatus(res.dirs)
+    } catch (e) {
+      this.dirList = []
+      console.log(e)
+    } finally {
+      this.loading.dir = false
+    }
   }
 
   private selectDevice(dir: any) {
