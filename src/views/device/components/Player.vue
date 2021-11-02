@@ -26,7 +26,7 @@
       <div class="controls__right">
         <el-tooltip content="开启语音对讲" placement="top">
           <div class="controls__btn" :class="{'selected': isZoom}" @click.stop.prevent="toIntercom">
-            <svg-icon name="user" width="16px" height="16px" />
+            <svg-icon name="micro" width="16px" height="16px" />
           </div>
         </el-tooltip>
         <div v-if="!isLive && codec !== 'h265'" class="controls__btn controls__playback">
@@ -560,7 +560,21 @@ export default class extends Vue {
   }
   // 实时对讲
   public toIntercom() {
-    this.$emit('onIntercom')
+    if (window.navigator.mediaDevices) {
+      window.navigator.mediaDevices
+      // 获取浏览器麦克风权限
+        .getUserMedia({ 'audio': true })
+      // 用户同意赋予麦克风权限
+        .then(() => {
+          this.$emit('onIntercom')
+        })
+      // 用户拒绝麦克风权限，或者当前浏览器不支持
+        .catch(e => {
+          this.$message.error(`获取麦克风权限失败,原因：${e}`)
+        })
+    } else {
+      this.$message.error('您当前浏览器或者浏览器版本暂不支持麦克风')
+    }
   }
 
   /**
