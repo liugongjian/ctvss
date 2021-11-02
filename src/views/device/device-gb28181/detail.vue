@@ -17,9 +17,7 @@
               <info-list-item v-if="lianzhouFlag" label="经纬度:">{{ `${info.deviceLongitude || '-'} : ${info.deviceLatitude || '-'}` }}</info-list-item>
               <info-list-item label="设备IP:">{{ info.deviceIp || '-' }}</info-list-item>
               <info-list-item label="端口:">{{ info.devicePort || '-' }}</info-list-item>
-              <template v-if="info.deviceType === 'ipc' || info.deviceType === 'platform'">
-                <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
-              </template>
+              <info-list-item label="设备国标ID:">{{ info.gbId || '=' }}</info-list-item>
               <template v-if="info.deviceType === 'nvr'">
                 <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
                 <info-list-item label="自动创建子设备:">{{ createSubDevice[info.createSubDevice] }}</info-list-item>
