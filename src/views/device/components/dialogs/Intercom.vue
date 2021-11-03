@@ -68,10 +68,18 @@ export default class extends Mixins(ScreenMixin) {
   private maxVol=0
   private scriptProcessor:any
 
+  private recBuffers:Array<any> = []
+  private recLength = 0
+
   @Watch('maxVol')
   private getVolStyle(val:any) {
+    console.log('val', val)
     const dom = document.querySelector('.intercomMicroVolCtx') as HTMLElement
-    dom.style.height = `${val * 2.6 + 10}px`
+    if (val > 0) {
+      dom.style.height = `${val * 2.6 + 10}px`
+    } else {
+      dom.style.height = '0'
+    }
   }
 
   private closeThis() {
@@ -117,7 +125,33 @@ export default class extends Mixins(ScreenMixin) {
     // this.analyserNode = null
     this.sourceAudio = null
     this.scriptProcessor = null
+    this.maxVol = 0
   }
+
+  private writeString(view:DataView, offset:number, string:string) {
+    for (let i = 0; i < string.length; i++) {
+      view.setUint8(offset + i, string.charCodeAt(i))
+    }
+  }
+
+  // 如果处理多channel时放开，暂不需要
+
+  // private handleChannelBuffer(inputBuffer:any) {
+  //   for (let channel = 0; channel < 2; channel++) {
+  //     this.recBuffers[channel].push(inputBuffer[channel])
+  //   }
+  //   this.recLength += inputBuffer[0].length
+  // }
+
+  // private mergeBuffers(recBuffers:any, recLength:number) {
+  //   let result = new Float32Array(recLength)
+  //   let offset = 0
+  //   for (let i = 0; i < recBuffers.length; i++) {
+  //     result.set(recBuffers[i], offset)
+  //     offset += recBuffers[i].length
+  //   }
+  //   return result
+  // }
 
   private initRecordMicro(stream:any) {
     this.streamAudio = stream
@@ -127,19 +161,45 @@ export default class extends Mixins(ScreenMixin) {
     this.scriptProcessor = this.ctxAudio.createScriptProcessor(4096, 1, 1)
     this.sourceAudio.connect(this.scriptProcessor)
     this.scriptProcessor.connect(this.ctxAudio.destination)
-    this.scriptProcessor.onaudioprocess = (e:any) => {
+    this.scriptProcessor.onaudioprocess = (audioProcessingEvent:any) => {
       // buffer处理
-      const buffer = e.inputBuffer.getChannelData(0)
+      const buffer = audioProcessingEvent.inputBuffer.getChannelData(0)
+      // let inputBuffer = []
+      // for (let channel = 0; channel < 2; channel++) {
+      //   inputBuffer.push(audioProcessingEvent.inputBuffer(channel))
+      // }
+      // this.handleChannelBuffer(inputBuffer)
+
       let sum = 0
+      let outputData:any = []
       for (let i = 0; i < buffer.length; i++) {
         sum += buffer[i] * buffer[i]
       }
-      this.maxVol = Math.round(Math.sqrt(sum / buffer.length) * 100)
-    }
 
-    // this.analyserNode = this.ctxAudio.createAnalyser()
-    // this.analyserNode.fftSize = 4096
-    // this.sourceAudio.connect(this.analyserNode)
+      this.maxVol = Math.round(Math.sqrt(sum / buffer.length) * 100)
+
+      // 和流对接使用
+      outputData = this.encodeBuffer(buffer)
+      console.log('outputData==>', outputData)
+    }
+  }
+
+  private encodeBuffer(bufferArray:[]) {
+    const buffer = new ArrayBuffer(44 + bufferArray.length * 2)
+    const view = new DataView(buffer)
+    const dataview = this.floatTo16BitPCM(view, 44, bufferArray)
+    const result = new Int16Array(dataview.buffer)
+    return result
+  }
+
+  private floatTo16BitPCM(output:DataView, offset:number, input:[]) {
+    for (let i = 0; i < input.length; i++, offset += 2) {
+      // 保证采样帧的值在-1到1之间
+      let s = Math.max(-1, Math.min(1, input[i]))
+      // 将32位浮点映射为16位整形 值
+      output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true)
+    }
+    return output
   }
 }
 </script>
