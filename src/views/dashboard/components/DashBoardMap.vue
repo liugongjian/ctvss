@@ -10,6 +10,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { getDeviceDirInfo } from '@/api/dashboard'
 import { DirInfo } from '@/type/dirInfo'
+// import { cityMapping } from '@/assets/region/cities'
 declare let AMap: any
 
 @Component({
@@ -38,7 +39,6 @@ export default class extends Vue {
         pitch: 60,
         skyColor: '#080f32'
       })
-
       // const onMarkOpen = (e: any) => {
       //   const data = e.target.getExtData()
       //   const sum = Math.max(data.sum, data.online)
@@ -102,13 +102,14 @@ export default class extends Vue {
         markList.push(text)
       }
       this.amap.add(markList)
+      // this.setCenter()
     }
 
     await this.getDirInfo()
     const script = document.createElement('script')
     script.type = 'text/javascript'
     script.src =
-      'https://webapi.amap.com/maps?v=1.4.15&key=f94d6b44b13dddb7d32c48302cd6f794&callback=scriptLoad'
+      'https://webapi.amap.com/maps?v=1.4.15&key=f94d6b44b13dddb7d32c48302cd6f794&callback=scriptLoad&plugin=AMap.Geocoder'
     document.head.appendChild(script)
   }
 
@@ -120,6 +121,23 @@ export default class extends Vue {
       this.$message.error(e && e.message)
     }
   }
+
+  // private async setCenter() {
+  //   const cityCode: any = this.$store.state.user.mainUserAddress
+  //   const cityName = cityCode > 0 ? cityMapping[cityCode] : ''
+  //   let geocoder = new AMap.Geocoder({})
+  //   const _this = this
+  //   geocoder.getLocation(cityName, function(status, result) {
+  //     if (status === 'complete' && result.info === 'OK') {
+  //       // console.log(result)
+  //       const { lat, lng } = result.geocodes[0].location
+  //       _this.amap.setCenter([lng, lat])
+  //     } else {
+  //       _this.amap.destroy()
+  //     // 这里设置左右组件各占满50%宽度
+  //     }
+  //   })
+  // }
 }
 </script>
 <style lang="scss" scoped>
