@@ -55,7 +55,7 @@
         </el-form-item>
         <el-form-item label="设备名称:" prop="deviceName" class="form-with-tip">
           <el-input v-model="form.deviceName" />
-          <div class="form-tip">2-32位，可包含大小写字母、数字、中文、中划线、空格。</div>
+          <div class="form-tip">2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号。</div>
         </el-form-item>
         <el-form-item label="视频流接入方式:" prop="inType">
           <el-radio-group v-model="form.inType" @change="clearValidate">
@@ -180,7 +180,7 @@
         </el-form-item>
         <el-form-item label="通道名称:" prop="channelName" class="form-with-tip">
           <el-input v-model="form.channelName" />
-          <div class="form-tip">2-32位，可包含大小写字母、数字、中文、中划线、空格。</div>
+          <div class="form-tip">2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号。</div>
         </el-form-item>
         <el-form-item v-if="isUpdate" label="配置资源包:" prop="resources">
           <ResourceTabs v-model="form.resources" :is-update="isUpdate" :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" @on-change="onResourceChange" />

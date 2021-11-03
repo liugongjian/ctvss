@@ -5,6 +5,7 @@ export class H265Player extends BasePlayer {
   public h265?: any
   public onLoading = true
   public seekTime = 0
+  public muteTimeout: any = null
 
   public init() {
     const videoElement = document.createElement('div')
@@ -13,8 +14,10 @@ export class H265Player extends BasePlayer {
     videoElement.id = `h265_player_${new Date().getTime()}`
     // @ts-ignore
     const h265 = new WasmPlayer(null, videoElement.id, this.callbackfun.bind(this), {
-      Height: true
+      Height: true,
+      enableAudio: true
     })
+    console.log(h265)
     this.player = h265
     this.config.onLoadStart && this.onLoadStart()
     this.config.autoPlay && this.play()
@@ -107,11 +110,29 @@ export class H265Player extends BasePlayer {
     this.onLoading = false
     this.onCanplay && this.onCanplay()
   }
+
   /**
    * 停止
    */
   public stop() {
     this.player.stop()
+  }
+
+  /**
+   * 静音
+   * @param isMute
+   */
+  public switchMuteStatus(isMute: boolean) {
+    clearTimeout(this.muteTimeout)
+    if (isMute) {
+      this.player.closeAudio()
+    } else {
+      this.player.openAudio()
+      this.muteTimeout = setTimeout(() => {
+        this.player.openAudio()
+      }, 1000)
+    }
+    this.config.onVolumeChange && this.config.onVolumeChange(1, isMute)
   }
 
   /**

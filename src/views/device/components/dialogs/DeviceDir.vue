@@ -84,6 +84,57 @@ export default class extends Mixins(DeviceMixin) {
     }
   }
 
+  /**
+   * 加载目录
+   */
+  private async loadDirs(node: any, resolve: Function) {
+    if (node.level === 0) return resolve([])
+
+    if (node.data.type === 'role') {
+      node.data.roleId = node.data.id
+    } else if (node.data.type === 'group') {
+      node.data.realGroupId = node.data.id
+      node.data.realGroupInProtocol = node.data.inProtocol
+    }
+    VGroupModule.SetRoleID(node.data.roleId || '')
+    VGroupModule.SetRealGroupId(node.data.realGroupId || '')
+    VGroupModule.SetRealGroupInProtocol(node.data.realGroupInProtocol || '')
+
+    try {
+      const res = await getDeviceTree({
+        groupId: this.groupId,
+        id: node.data.id,
+        type: node.data.type
+      })
+      res.dirs.forEach((dir: any) => {
+        dir.roleId = node.data.roleId || ''
+        dir.realGroupId = node.data.realGroupId || ''
+        dir.realGroupInProtocol = node.data.realGroupInProtocol || ''
+      })
+      res.dirs = this.setDirsStreamStatus(res.dirs)
+      resolve(res.dirs)
+    } catch (e) {
+      resolve([])
+    }
+  }
+
+  /**
+   * 设置目录树设备流状态
+   */
+  private setDirsStreamStatus(dirs: any) {
+    return dirs.map((dir: any) => {
+      if (!dir.streamStatus && dir.deviceStreams && dir.deviceStreams.length > 0) {
+        const hasOnline = dir.deviceStreams.some((stream: any) => {
+          return stream.streamStatus === 'on'
+        })
+        if (hasOnline) {
+          dir.streamStatus = 'on'
+        }
+      }
+      return dir
+    })
+  }
+
   private selectDevice(dir: any) {
     if (dir.type === 'ipc') {
       this.closeDialog(dir)
