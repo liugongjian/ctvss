@@ -303,6 +303,19 @@ export const asyncRoutes: RouteConfig[] = [
               activeMenu: '/device',
               groupSelector: true
             }
+          },
+          {
+            path: 'config-channel',
+            component: () => import(/* webpackChunkName: "device" */ '@/views/device/ConfigChannel.vue'),
+            name: 'config-channel',
+            meta: {
+              id: '20210424150201003007',
+              title: '配置子通道',
+              hidden: true,
+              perms: ['AdminDevice'],
+              activeMenu: '/device',
+              groupSelector: true
+            }
           }
         ]
       }

@@ -338,3 +338,19 @@ export const getLianzhouArea = (params: any): Promise<any> =>
     method: 'get',
     params
   })
+
+// 获取ehomenvr子通道列表
+export const getChannelList = (params: any): Promise<any> =>
+  request({
+    url: '/device/nvrChannels',
+    method: 'get',
+    params
+  })
+
+// 编辑ehomenvr子通道列表
+export const configChannels = (params: any): Promise<any> =>
+  request({
+    url: '/device/configChannels',
+    method: 'post',
+    data: params
+  })

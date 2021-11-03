@@ -27,6 +27,7 @@
             <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
             <svg-icon :name="data.type" />
             {{ node.label }}
+            <span class="sum-icon">{{ getSums(data) }}</span>
           </span>
         </span>
       </el-tree>
@@ -40,6 +41,7 @@ import { GroupModule } from '@/store/modules/group'
 import { Device } from '@/type/device'
 import { getDeviceTree } from '@/api/device'
 import { VGroupModule } from '@/store/modules/vgroup'
+import { getSums } from '@/utils/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 
 @Component({
@@ -55,6 +57,7 @@ export default class extends Mixins(DeviceMixin) {
   private submitting = false
   public dirList = []
   private currentDir: any = null
+  private getSums = getSums
 
   /**
    * 当前业务组ID
@@ -84,57 +87,6 @@ export default class extends Mixins(DeviceMixin) {
     }
   }
 
-  /**
-   * 加载目录
-   */
-  private async loadDirs(node: any, resolve: Function) {
-    if (node.level === 0) return resolve([])
-
-    if (node.data.type === 'role') {
-      node.data.roleId = node.data.id
-    } else if (node.data.type === 'group') {
-      node.data.realGroupId = node.data.id
-      node.data.realGroupInProtocol = node.data.inProtocol
-    }
-    VGroupModule.SetRoleID(node.data.roleId || '')
-    VGroupModule.SetRealGroupId(node.data.realGroupId || '')
-    VGroupModule.SetRealGroupInProtocol(node.data.realGroupInProtocol || '')
-
-    try {
-      const res = await getDeviceTree({
-        groupId: this.groupId,
-        id: node.data.id,
-        type: node.data.type
-      })
-      res.dirs.forEach((dir: any) => {
-        dir.roleId = node.data.roleId || ''
-        dir.realGroupId = node.data.realGroupId || ''
-        dir.realGroupInProtocol = node.data.realGroupInProtocol || ''
-      })
-      res.dirs = this.setDirsStreamStatus(res.dirs)
-      resolve(res.dirs)
-    } catch (e) {
-      resolve([])
-    }
-  }
-
-  /**
-   * 设置目录树设备流状态
-   */
-  private setDirsStreamStatus(dirs: any) {
-    return dirs.map((dir: any) => {
-      if (!dir.streamStatus && dir.deviceStreams && dir.deviceStreams.length > 0) {
-        const hasOnline = dir.deviceStreams.some((stream: any) => {
-          return stream.streamStatus === 'on'
-        })
-        if (hasOnline) {
-          dir.streamStatus = 'on'
-        }
-      }
-      return dir
-    })
-  }
-
   private selectDevice(dir: any) {
     if (dir.type === 'ipc') {
       this.closeDialog(dir)
@@ -159,6 +111,9 @@ export default class extends Mixins(DeviceMixin) {
       .svg-icon {
         color: #65c465;
       }
+    }
+    .custom-tree-node .sum-icon {
+      color: $textGrey;
     }
     .node-name {
       position: relative;
