@@ -47,6 +47,18 @@
           />
         </div>
       </span>
+      <span>间隔频率：
+        <div class="confidence-slider">
+          <el-select v-model="queryParam.resultTimeInterval" placeholder="请选择" @change="handleChange">
+            <el-option
+              v-for="(value,key) in timeInterval"
+              :key="value"
+              :label="key"
+              :value="value"
+            />
+          </el-select>
+        </div>
+      </span>
     </div>
     <div v-if="isGatheringCode" class="chart-wrapper">
       <div class="title">
@@ -54,7 +66,7 @@
         <span>人员聚集趋势</span>
       </div>
       <PeopleTrendChart
-        :height="34"
+        :height="24"
         :param="queryParam"
         :face-lib="faceLib"
         :device="device"
@@ -115,6 +127,7 @@ import { getAppScreenShot } from '@/api/ai-app'
 import { getGroupPersonAlready } from '@/api/aiConfig'
 import { decodeBase64 } from '@/utils/base64'
 import debounce from '@/utils/debounce'
+import { ResultTimeInterval } from '@/dics/index'
 
 @Component({
   name: 'AppSubDetail',
@@ -133,6 +146,7 @@ export default class extends Vue {
     private currentLocationIndex: number = -1
     private visibile = false
     private decodeBase64: Function = decodeBase64
+    private timeInterval = ResultTimeInterval
     private pager = {
       pageNum: 1,
       pageSize: 10,
@@ -142,9 +156,9 @@ export default class extends Vue {
     private queryParam: any = {
       periodType: '今天',
       period: [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)],
-      frequency: 'all',
       confidence: [0, 100],
-      faceSelected: []
+      faceSelected: [],
+      resultTimeInterval: 1
     }
     private faceInfos: any = []
     private picInfos: any = []
@@ -212,6 +226,7 @@ export default class extends Vue {
         confidenceMax,
         faceDb: this.faceLib.id,
         faceIdList: this.queryParam.faceSelected,
+        resultTimeInterval: this.queryParam.resultTimeInterval,
         appId: this.appInfo.id,
         deviceId,
         inProtocol,

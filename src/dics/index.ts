@@ -201,3 +201,15 @@ export const ResourceAiType = {
   'AI-200': '秒级',
   'AI-300': '高算力型'
 }
+
+// AI分析频率
+export const ResultTimeInterval = {
+  '1秒': 1,
+  '5秒': 5,
+  '10秒': 10,
+  '20秒': 20,
+  '30秒': 30,
+  '1分钟': 60,
+  '5分钟': 300,
+  '10分钟': 600
+}
