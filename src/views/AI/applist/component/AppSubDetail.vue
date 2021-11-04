@@ -48,7 +48,7 @@
         </div>
       </span>
       <span>间隔频率：
-        <div class="confidence-slider">
+        <div class="time-interval">
           <el-select v-model="queryParam.resultTimeInterval" placeholder="请选择" @change="handleChange">
             <el-option
               v-for="(value,key) in timeInterval"
@@ -362,6 +362,10 @@ export default class extends Vue {
       vertical-align: middle;
       width:11vw;
       margin-right: 20px;
+    }
+    .time-interval{
+      display: inline-block;
+      width: 5vw;
     }
 }
 .pic-wrapper{
