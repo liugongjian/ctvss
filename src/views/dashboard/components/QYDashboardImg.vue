@@ -18,12 +18,6 @@ import DashboardMixin from '../mixin/DashboardMixin'
 import DashboardContainer from './DashboardContainer.vue'
 import { getRecordAuditEvents } from '@/api/dashboard'
 
-declare module 'vue/types/vue' {
-    interface Vue {
-        [key: string]: any,
-    }
-}
-
 @Component({
   name: 'DashboardWeeklyTrend',
   components: { DashboardContainer }
