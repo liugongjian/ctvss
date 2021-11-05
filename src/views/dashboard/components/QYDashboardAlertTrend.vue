@@ -9,15 +9,7 @@ import { Component, Mixins } from 'vue-property-decorator'
 import { Chart } from '@antv/g2'
 import DashboardMixin from '../mixin/DashboardMixin'
 import DashboardContainer from './DashboardContainer.vue'
-import { getAuditTrend } from '@/api/dashboard'
 import { AlertType } from '@/dics'
-import { dateFormatInTable } from '@/utils/date'
-
-declare module 'vue/types/vue' {
-    interface Vue {
-        [key: string]: any,
-    }
-}
 
 @Component({
   name: 'DashboardWeeklyTrend',
