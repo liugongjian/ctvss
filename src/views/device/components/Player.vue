@@ -570,7 +570,22 @@ export default class extends Vue {
         })
       // 用户拒绝麦克风权限，或者当前浏览器不支持
         .catch(e => {
-          this.$message.error(`获取麦克风权限失败,原因：${e}`)
+          switch (e.message || e.name) {
+            case 'PERMISSION_DENIED':
+            case 'PermissionDeniedError':
+              this.$message.error('用户拒绝提供权限')
+              break
+            case 'NOT_SUPPORTED_ERROR':
+            case 'NotSupportedError':
+              this.$message.error('浏览器不支持您当前选择的设备')
+              break
+            case 'MANDATORY_UNSATISFIED_ERROR':
+            case 'MandatoryUnsatisfiedError':
+              this.$message.error('无法发现指定的硬件设备')
+              break
+            default:
+              this.$message.error(`无法打开麦克风,原因：${e.code || e.name}`)
+          }
         })
     } else {
       this.$message.error('您当前浏览器或者浏览器版本暂不支持麦克风')

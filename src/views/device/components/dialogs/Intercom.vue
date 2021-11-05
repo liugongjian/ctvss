@@ -8,23 +8,23 @@
     @close="closeThis"
   >
     <div class="intercomContent">
-      <template v-if="screen.isLive">
+      <template v-if="intercomInfo.isLive">
         <div class="intercomPlayer live-view">
           <player
-            v-if="screen.url"
+            v-if="intercomInfo.url"
             type="flv"
-            :codec="screen.codec"
-            :url="screen.url"
+            :codec="intercomInfo.codec"
+            :url="intercomInfo.url"
             :is-live="true"
             :is-ws="true"
             :is-fullscreen="false"
             :auto-play="true"
             :has-control="false"
             :has-playback="true"
-            :device-name="screen.deviceName"
-            :stream-num="screen.streamNum"
+            :device-name="intercomInfo.deviceName"
+            :stream-num="intercomInfo.streamNum"
           />
-          <div v-if="!screen.url && !screen.loading" class="tip-text">{{ screen.errorMsg || '无信号' }}</div>
+          <div v-if="!intercomInfo.url && !intercomInfo.loading" class="tip-text">{{ intercomInfo.errorMsg || '无信号' }}</div>
         </div>
       </template>
       <div class="intercomMicro">
@@ -60,20 +60,18 @@ export default class extends Mixins(ScreenMixin) {
  @Prop() private intercomInfo?: any
  @Prop() private ifIntercom?:false
 
-  private screen = {}
   private streamAudio:any
   private ctxAudio:any
   private sourceAudio:any
   private analyserNode:any
   private maxVol=0
   private scriptProcessor:any
-
+  private ws:any
   private recBuffers:Array<any> = []
   private recLength = 0
 
   @Watch('maxVol')
   private getVolStyle(val:any) {
-    console.log('val', val)
     const dom = document.querySelector('.intercomMicroVolCtx') as HTMLElement
     if (val > 0) {
       dom.style.height = `${val * 2.6 + 10}px`
@@ -87,11 +85,30 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   private mounted() {
-    this.screen = this.intercomInfo
+    // this.connectSocket()
   }
 
+  // private connectSocket() {
+  //   console.log(this.intercomInfo)
+  //   this.ws = new WebSocket('ws://172.24.6.162:18004')
+  //   this.ws.onopen = (e:any) => {
+  //     console.log('连接建立', e)
+  //     this.ws.send(this.intercomInfo.deviceId)
+  //   }
+  // }
+
   private intercomMousedown() {
-    this.startRecord()
+    this.ws = new WebSocket('ws://172.24.6.162:18004')
+    this.ws.onopen = (e:any) => {
+      console.log('连接建立', e)
+      this.ws.send(this.intercomInfo.deviceId)
+      // this.ws.send('1111111111111111111111111')
+      this.startRecord()
+    }
+    this.ws.onerror = (e:any) => {
+      console.log(e)
+    }
+    // this.startRecord()
   }
 
   private intercomMouseup() {
@@ -126,6 +143,7 @@ export default class extends Mixins(ScreenMixin) {
     this.sourceAudio = null
     this.scriptProcessor = null
     this.maxVol = 0
+    this.ws.close()
   }
 
   private writeString(view:DataView, offset:number, string:string) {
@@ -134,41 +152,25 @@ export default class extends Mixins(ScreenMixin) {
     }
   }
 
-  // 如果处理多channel时放开，暂不需要
-
-  // private handleChannelBuffer(inputBuffer:any) {
-  //   for (let channel = 0; channel < 2; channel++) {
-  //     this.recBuffers[channel].push(inputBuffer[channel])
-  //   }
-  //   this.recLength += inputBuffer[0].length
-  // }
-
-  // private mergeBuffers(recBuffers:any, recLength:number) {
-  //   let result = new Float32Array(recLength)
-  //   let offset = 0
-  //   for (let i = 0; i < recBuffers.length; i++) {
-  //     result.set(recBuffers[i], offset)
-  //     offset += recBuffers[i].length
-  //   }
-  //   return result
-  // }
+  // 判断端字节序
+  private littleEdian = () => {
+    let buffer = new ArrayBuffer(2)
+    new DataView(buffer).setInt16(0, 256, true)
+    return new Int16Array(buffer)[0] === 256
+  }
 
   private initRecordMicro(stream:any) {
     this.streamAudio = stream
     this.ctxAudio = new window.AudioContext()
     this.sourceAudio = this.ctxAudio.createMediaStreamSource(this.streamAudio)
     // 通过 AudioContext 获取麦克风中音频音量
+    // 256, 512, 1024, 2048, 4096, 8192, 16384
     this.scriptProcessor = this.ctxAudio.createScriptProcessor(4096, 1, 1)
     this.sourceAudio.connect(this.scriptProcessor)
     this.scriptProcessor.connect(this.ctxAudio.destination)
     this.scriptProcessor.onaudioprocess = (audioProcessingEvent:any) => {
       // buffer处理
       const buffer = audioProcessingEvent.inputBuffer.getChannelData(0)
-      // let inputBuffer = []
-      // for (let channel = 0; channel < 2; channel++) {
-      //   inputBuffer.push(audioProcessingEvent.inputBuffer(channel))
-      // }
-      // this.handleChannelBuffer(inputBuffer)
 
       let sum = 0
       let outputData:any = []
@@ -178,28 +180,55 @@ export default class extends Mixins(ScreenMixin) {
 
       this.maxVol = Math.round(Math.sqrt(sum / buffer.length) * 100)
 
-      // 和流对接使用
-      outputData = this.encodeBuffer(buffer)
-      console.log('outputData==>', outputData)
+      // 浏览器麦克风采样率为 this.ctxAudio.sampleRate 一般是44100
+      const inputSampleRate = this.ctxAudio.sampleRate
+      // 流需要输出的是8000采样率的，所以需要压缩一次
+      outputData = this.compress(buffer, inputSampleRate, 8000)
+
+      console.log('outputData', outputData)
+      // const toSocketData = [...outputData]
+      // console.log('outputData==>', [this.intercomInfo.deviceId.length, this.intercomInfo.deviceId, ...outputData],outputData)
+
+      this.ws.send(outputData)
     }
   }
 
-  private encodeBuffer(bufferArray:[]) {
-    const buffer = new ArrayBuffer(44 + bufferArray.length * 2)
-    const view = new DataView(buffer)
-    const dataview = this.floatTo16BitPCM(view, 44, bufferArray)
-    const result = new Int16Array(dataview.buffer)
-    return result
-  }
+  private floatTo16BitPCM(bytes:any) {
+    let offset = 0
+    const dataLen = bytes.length
+    // 默认采样率以16计算，而不是8位
+    const buffer = new ArrayBuffer(dataLen * 2)
+    const data = new DataView(buffer)
 
-  private floatTo16BitPCM(output:DataView, offset:number, input:[]) {
-    for (let i = 0; i < input.length; i++, offset += 2) {
+    for (let i = 0; i < bytes.length; i++, offset += 2) {
       // 保证采样帧的值在-1到1之间
-      let s = Math.max(-1, Math.min(1, input[i]))
+      let s = Math.max(-1, Math.min(1, bytes[i]))
       // 将32位浮点映射为16位整形 值
-      output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true)
+      // 16位的划分的是 2^16=65536，范围是-32768到32767
+      //  获取到的数据范围是[-1,1]之间，所以要转成16位的话，需要负数*32768，正数*32767，就可以得到[-32768，32767]范围内的数据
+      // 第三个参数，true 含义是  是否是小端字节序 这里设置为true
+      data.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true)
     }
-    return output
+    return data
+  }
+
+  private compress(data:any, inputSampleRate:number, outputSampleRate:number) {
+    const rate = inputSampleRate / outputSampleRate
+    const compression = Math.max(rate, 1)
+    const length = Math.floor(data.length / rate)
+    const result = new Float32Array(length)
+    let index = 0
+    let j = 0
+    // 循环间隔 compression 位取一位数据
+    while (index < length) {
+      // 取整是因为存在比例compression不是整数的情况
+      let temp = Math.floor(j)
+      result[index] = data[temp]
+      index++
+      j += compression
+    }
+    // 将压缩过的数据转成pcm格式数据
+    return this.floatTo16BitPCM(result)
   }
 }
 </script>
