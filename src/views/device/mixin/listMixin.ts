@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
-import { DeviceParams, DeviceStatus, StreamStatus, RecordStatus, DeviceGb28181Type, SipTransType, StreamTransType, TransPriority } from '@/dics'
+import { DeviceParams, DeviceStatus, StreamStatus, RecordStatus, RecordStatusType, RecordStatusFilterType, DeviceGb28181Type, SipTransType, StreamTransType, TransPriority } from '@/dics'
 import { Device } from '@/type/device'
 import { GroupModule } from '@/store/modules/group'
 import { DeviceModule } from '@/store/modules/device'
@@ -35,7 +35,8 @@ export default class ListMixin extends Vue {
   public deviceParams = DeviceParams
   public deviceStatus = DeviceStatus
   public streamStatus = StreamStatus
-  private recordStatus = RecordStatus
+  public recordStatus = RecordStatus
+  public recordStatusType = RecordStatusType
   public deviceType = DeviceGb28181Type
   public sipTransType = SipTransType
   public streamTransType = StreamTransType
@@ -74,7 +75,7 @@ export default class ListMixin extends Vue {
     deviceType: this.dictToFilterArray(DeviceGb28181Type),
     deviceStatus: this.dictToFilterArray(DeviceStatus),
     streamStatus: this.dictToFilterArray(StreamStatus),
-    recordStatus: this.dictToFilterArray(RecordStatus)
+    recordStatus: this.dictToFilterArray(RecordStatusFilterType)
   }
   public autoStreamNumObj = {
     1: '主码流',

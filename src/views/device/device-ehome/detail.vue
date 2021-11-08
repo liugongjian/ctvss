@@ -39,7 +39,7 @@
               <info-list-item label="设备状态:">
                 <div class="info-list__edit">
                   <div class="info-list__edit--value">
-                    <status-badge :status="info.deviceStatus" />
+                    <status-badge :status="recordStatusType[info.recordStatus]" />
                     {{ deviceStatus[info.deviceStatus] || '-' }}
                   </div>
                 </div>
@@ -57,7 +57,7 @@
                 <info-list-item label="录制状态:">
                   <div class="info-list__edit">
                     <div class="info-list__edit--value">
-                      <status-badge :status="info.recordStatus === 1 ? 'red' : ''" />
+                      <status-badge :status="recordStatusType[info.recordStatus]" />
                       {{ recordStatus[info.recordStatus] }}
                     </div>
                   </div>

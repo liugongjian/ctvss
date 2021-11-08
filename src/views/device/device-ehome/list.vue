@@ -178,7 +178,7 @@
           </template>
           <template slot-scope="{row}">
             <span v-if="row.deviceType === 'nvr'">-</span>
-            <span v-else><status-badge :status="row.recordStatus === 1 ? 'red' : ''" />{{ recordStatus[row.recordStatus] || '-' }}</span>
+            <span v-else><status-badge :status="recordStatusType[row.recordStatus]" />{{ recordStatus[row.recordStatus] || '-' }}</span>
           </template>
         </el-table-column>
         <el-table-column key="deviceVendor" prop="deviceVendor" label="厂商">
