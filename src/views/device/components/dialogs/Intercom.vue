@@ -48,6 +48,9 @@ import { Component, Prop, Mixins, Watch } from 'vue-property-decorator'
 // import { dateFormat } from '@/utils/date'
 import ScreenMixin from '../../mixin/screenMixin'
 import Player from '../Player.vue'
+import { getDevice } from '@/api/device'
+import { startTalk, stopTalk } from '@/api/intercom'
+import { Device } from '@/type/device'
 
 @Component({
   name: 'IntercomDialog',
@@ -63,12 +66,11 @@ export default class extends Mixins(ScreenMixin) {
   private streamAudio:any
   private ctxAudio:any
   private sourceAudio:any
-  private analyserNode:any
   private maxVol=0
   private scriptProcessor:any
   private ws:any
-  private recBuffers:Array<any> = []
-  private recLength = 0
+  private deviceInfo?:Device
+  private transPriority:any
 
   @Watch('maxVol')
   private getVolStyle(val:any) {
@@ -85,34 +87,54 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   private mounted() {
-    // this.connectSocket()
+    this.getDeviceInfo()
   }
 
-  // private connectSocket() {
-  //   console.log(this.intercomInfo)
-  //   this.ws = new WebSocket('ws://172.24.6.162:18004')
-  //   this.ws.onopen = (e:any) => {
-  //     console.log('连接建立', e)
-  //     this.ws.send(this.intercomInfo.deviceId)
-  //   }
-  // }
+  private getDeviceInfo() {
+    const param = {
+      deviceId: this.intercomInfo.deviceId,
+      inProtocol: this.intercomInfo.inProtocol
+    }
+    getDevice(param).then((res) => {
+      this.deviceInfo = res
+      // 默认用UDP ，流侧只处理了UDP，暂未处理TCP
+      this.transPriority = res.transPriority
+    })
+  }
 
   private intercomMousedown() {
-    this.ws = new WebSocket('ws://172.24.6.162:18004')
-    this.ws.onopen = (e:any) => {
-      console.log('连接建立', e)
-      this.ws.send(this.intercomInfo.deviceId)
-      // this.ws.send('1111111111111111111111111')
-      this.startRecord()
+    const param = {
+      deviceId: this.intercomInfo.deviceId,
+      transPriority: 'UDP', // 先使用UDP，等流媒体侧兼容之后再使用参数
+      inProtocol: this.intercomInfo.inProtocol
     }
-    this.ws.onerror = (e:any) => {
-      console.log(e)
-    }
-    // this.startRecord()
+    startTalk(param).then((res:any) => {
+      console.log('res===>', res)
+      const { streamServerAddr } = res
+      const wsUrl = `ws://${streamServerAddr}`
+      this.ws = new WebSocket(wsUrl)
+      this.ws.onopen = (e:any) => {
+        console.log('连接建立', e)
+        this.ws.send(this.intercomInfo.deviceId)
+        this.startRecord()
+      }
+      this.ws.onerror = (e:any) => {
+        console.log(e)
+      }
+    }).catch((err:any) => {
+      this.$message.error(`${err},请稍后再试`)
+    })
   }
 
   private intercomMouseup() {
-    this.stopRecord()
+    const param = {
+      deviceId: this.intercomInfo.deviceId
+    }
+    stopTalk(param).then((res:any) => {
+      this.stopRecord()
+    }).catch((err:any) => {
+      this.$message.error(err)
+    })
   }
 
   private startRecord() {
@@ -132,31 +154,18 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   private stopRecord() {
-    const tracks = this.streamAudio.getAudioTracks()
-    for (let i = 0, len = tracks.length; i < len; i++) {
-      tracks[i].stop()
+    if (this.streamAudio && this.streamAudio.getAudioTracks()) {
+      const tracks = this.streamAudio.getAudioTracks()
+      for (let i = 0, len = tracks.length; i < len; i++) {
+        tracks[i].stop()
+      }
+      this.sourceAudio.disconnect()
+      this.scriptProcessor.disconnect()
+      this.sourceAudio = null
+      this.scriptProcessor = null
+      this.maxVol = 0
+      this.ws.close()
     }
-    // this.analyserNode.disconnect()
-    this.sourceAudio.disconnect()
-    this.scriptProcessor.disconnect()
-    // this.analyserNode = null
-    this.sourceAudio = null
-    this.scriptProcessor = null
-    this.maxVol = 0
-    this.ws.close()
-  }
-
-  private writeString(view:DataView, offset:number, string:string) {
-    for (let i = 0; i < string.length; i++) {
-      view.setUint8(offset + i, string.charCodeAt(i))
-    }
-  }
-
-  // 判断端字节序
-  private littleEdian = () => {
-    let buffer = new ArrayBuffer(2)
-    new DataView(buffer).setInt16(0, 256, true)
-    return new Int16Array(buffer)[0] === 256
   }
 
   private initRecordMicro(stream:any) {
@@ -184,10 +193,6 @@ export default class extends Mixins(ScreenMixin) {
       const inputSampleRate = this.ctxAudio.sampleRate
       // 流需要输出的是8000采样率的，所以需要压缩一次
       outputData = this.compress(buffer, inputSampleRate, 8000)
-
-      console.log('outputData', outputData)
-      // const toSocketData = [...outputData]
-      // console.log('outputData==>', [this.intercomInfo.deviceId.length, this.intercomInfo.deviceId, ...outputData],outputData)
 
       this.ws.send(outputData)
     }
