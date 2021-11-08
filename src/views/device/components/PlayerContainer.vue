@@ -4,6 +4,7 @@
     :class="{'player-container--hidden': isHiddenTools}"
     @mouseover="onMouseOver"
     @mouseout="onMouseOut"
+    @mousemove="onMouseMove"
   >
     <slot name="header" />
     <slot />
@@ -50,6 +51,10 @@ export default class extends Vue {
 
   private onMouseOut() {
     !this.calendarFocus && this.setMouseEvent(500)
+  }
+
+  private onMouseMove() {
+    this.setMouseEvent(3000)
   }
 
   private setMouseEvent(timeout: any) {
