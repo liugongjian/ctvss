@@ -84,6 +84,7 @@
         padding: 10px;
 
         &--root {
+          position: relative;
           border-bottom: 1px solid $borderGrey;
           padding: 5px 5px 7px 5px;
           margin-bottom: 5px;
@@ -135,8 +136,9 @@
             width: 6px;
             height: 6px;
             opacity: 0.7;
-            &--, &--off, &--failed {
-              display: none;
+            display: none;
+            &--on {
+              display: block;
             }
           }
           .tools {
@@ -408,6 +410,7 @@
   flex-grow: 1;
   display: flex;
   flex-wrap: wrap;
+  height: 0;
   .screen-item {
     display: flex;
     flex: 1 0 50%;
@@ -538,8 +541,12 @@
       color: #fff;
     }
   }
+  &.screen-size--1 .screen-item {
+    height: 100%;
+  }
   &.screen-size--2 .screen-item {
     flex-basis: 50%;
+    height: 100%;
     max-width: 50%;
   }
   &.screen-size--4 .screen-item {

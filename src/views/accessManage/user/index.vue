@@ -110,7 +110,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import UserGroupDialog from './components/dialogs/userGroupDialog.vue'
 import { getGroupList, getUserList, deleteUser } from '@/api/accessManage'
 import { changeIAMPassword } from '@/api/users'
@@ -144,7 +144,7 @@ export default class extends Vue {
   }
   private userList: any = []
   private userSearch: string = ''
-  private pager: object = {
+  private pager: any = {
     pageNum: 1,
     pageSize: 10,
     total: 0
@@ -157,6 +157,11 @@ export default class extends Vue {
     }
   }
   private subUserLoginLink: string = ''
+
+  @Watch('userList.length')
+  private onUserListChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
+  }
 
   private mounted() {
     this.$route.params.nodeKeyPath && (

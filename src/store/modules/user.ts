@@ -175,6 +175,7 @@ class User extends VuexModule implements IUserState {
     VGroupModule.resetVGroupInfo()
   }
 
+  // 该方法已弃用
   @Action
   public async GetUserInfo() {
     if (this.token === '') {
@@ -206,6 +207,8 @@ class User extends VuexModule implements IUserState {
     let data: any = null
     if (this.iamUserId) {
       data = await getIAMUserInfo({ iamUserId: this.iamUserId })
+      this.SET_NAME(data.iamUserName)
+      setUsername(data.iamUserName)
       const policy = JSON.parse(data.policyDocument || '{}')
       try {
         const actionList = policy.Statement[0].Action
@@ -240,6 +243,8 @@ class User extends VuexModule implements IUserState {
         resource: ['*'],
         resourcesSet: new Set()
       }
+      this.SET_NAME(userInfo.userName)
+      setUsername(userInfo.userName)
     }
     if (!data) {
       throw Error('Verification failed, please Login again.')

@@ -213,6 +213,22 @@ export default class extends Vue {
 
   private mounted() {
     GroupModule.GetGroupList()
+
+    // TODO: Hardcode 300015
+    if (UserModule.mainUserID === '300015') {
+      this.aiGroups = [
+        {
+          name: '人脸识别',
+          children: [4]
+        }, {
+          name: '人体识别',
+          children: [8]
+        }, {
+          name: '场景识别',
+          children: [10, 17]
+        }
+      ]
+    }
   }
 
   /**

@@ -1,7 +1,7 @@
 <template>
   <div ref="videoWrap" v-loading="waiting" class="video-wrap" :class="{'dragging': isDragging}">
     <div class="error">{{ error }}</div>
-    <div ref="video" @wheel="zoom" @mousedown="mouseDownHandle($event)" @mouseup="mouseUpHandle($event)" />
+    <div ref="video" class="video-ref" @wheel="zoom" @mousedown="mouseDownHandle($event)" @mouseup="mouseUpHandle($event)" />
     <div class="controls" :class="{'controls--large': hasProgress}">
       <div v-if="codec === 'h265'" class="controls__h265">
         <svg-icon name="h265" width="40px" height="22px" />
@@ -24,6 +24,25 @@
         </template>
       </div>
       <div class="controls__right">
+        <div v-if="hasAudio" class="controls__btn controls__playback volume">
+          <span @click="switchMuteStatus">
+            <svg-icon v-if="volume === 0 || isMute" name="mute" width="18px" height="18px" />
+            <svg-icon v-else name="volume" width="18px" height="18px" />
+          </span>
+          <div v-if="codec !== 'h265'" class="controls__popup controls__volume">
+            <el-slider
+              :value="volume"
+              :show-tooltip="false"
+              class="volume"
+              vertical
+              height="165px"
+              @input="setPlayVolume"
+            />
+          </div>
+        </div>
+        <div v-else class="controls__btn kill__volume">
+          <svg-icon name="mute" class="mute_gray" width="18px" height="18px" />
+        </div>
         <div v-if="!isLive && codec !== 'h265'" class="controls__btn controls__playback">
           {{ playbackRate === 1 ? '倍速' : `${playbackRate}x` }}
           <ul class="controls__popup">
@@ -174,10 +193,13 @@ export default class extends Vue {
   private checkPermission = checkPermission
   private isDragging: boolean = false
   public player?: any
+  public hasAudio: boolean = true
   public paused?: boolean = true
+  public isMute?: boolean = this.codec === 'h265'
   public waiting = false
   private isZoom = false
   private playbackRate = 1
+  private volume = 30
   private playbackRateList = [16, 8, 4, 2, 1.5, 1, 0.5, 0.25]
   private videoMoveData: any = {
     x: null,
@@ -218,6 +240,7 @@ export default class extends Vue {
     //   this.isWs = false
     // }
     this.createPlayer()
+    this.setPlayVolume(this.volume)
     if (this.isLive) document.addEventListener('visibilitychange', this.reloadPlayer)
   }
 
@@ -266,6 +289,7 @@ export default class extends Vue {
         isLive: this.isLive,
         isWs: this.isWs,
         playbackRate: this.playbackRate,
+        volume: this.volume,
         onTimeUpdate: this.onTimeUpdate,
         onDurationChange: this.onDurationChange,
         onBuffered: this.onBuffered,
@@ -274,6 +298,8 @@ export default class extends Vue {
         onEnded: this.onEnded,
         onPlay: this.setStatus,
         onPause: this.setStatus,
+        onVolumeChange: this.onVolumeChange,
+        onTestHasAudio: this.onTestHasAudio,
         onResizeScreen: (originWidth: number, originHeight: number) => {
           const $video: HTMLDivElement = this.$refs.video as HTMLDivElement
           const $canvas: HTMLCanvasElement | null = $video.querySelector('canvas')
@@ -302,15 +328,13 @@ export default class extends Vue {
       this.$nextTick(() => {
         const $video: any = this.$refs.video
         const mainBox: any = this.$refs.videoWrap
-        var player = $video.querySelector('video')
-        if (this.type === 'h265-flv' || this.codec === 'h265') {
-          player = $video.querySelector('canvas')
-          if (this.codec === 'h265') {
-            player = $video.querySelector('.player-box')
-          }
+        let player = $video.querySelector('video')
+        if (this.codec === 'h265') {
+          player = $video.querySelector('.player-box')
           this.playerFS()
           window.addEventListener('resize', this.playerFS, false)
           var targetNode = mainBox
+          // 监听video-wrap
           // @ts-ignore
           this.resizeObserver = new ResizeObserver(() => {
             this.playerFS()
@@ -328,24 +352,18 @@ export default class extends Vue {
   public playerFS() {
     const mainBox: any = this.$refs.videoWrap
     if (!mainBox) return
-    var player = mainBox.querySelector('canvas')
-    if (this.codec === 'h265') {
-      player = mainBox.querySelector('.player-box')
-    }
+    const player = mainBox.querySelector('.player-box')
     this.playerFitSize(mainBox.clientWidth, mainBox.clientHeight, player)
   }
 
   public playerFitSize(width: number, height: number, player: any) {
     if (width / height > 16 / 9) {
-      player.style.height = height + 'px'
+      player.style.height = '100%'
       player.style.width = height * 16 / 9 + 'px'
     } else {
-      player.style.width = width + 'px'
+      player.style.width = '100%'
       player.style.height = width * 9 / 16 + 'px'
     }
-    player.style.position = 'absolute'
-    player.style.left = (width - player.clientWidth) / 2 + 'px'
-    player.style.top = (height - player.clientHeight) / 2 + 'px'
   }
 
   public disposePlayer() {
@@ -548,6 +566,13 @@ export default class extends Vue {
   }
 
   /**
+   * 开关静音状态
+   */
+  public switchMuteStatus() {
+    this.player!.switchMuteStatus(!this.isMute)
+  }
+
+  /**
    * Zoom开关
    */
   public toggleZoom() {
@@ -594,7 +619,6 @@ export default class extends Vue {
    * 视频加载中
    */
   public onLoadStart() {
-    this.$emit('onCanPlay', false)
     this.waiting = true
   }
 
@@ -603,7 +627,6 @@ export default class extends Vue {
    */
   public onCanplay() {
     this.waiting = false
-    this.$emit('onCanPlay', true)
   }
 
   /**
@@ -644,9 +667,50 @@ export default class extends Vue {
     this.player!.setPlaybackRate(playbackRate)
     this.$emit('onSetPlaybackRate', playbackRate)
   }
+
+  /**
+   * 控制音量
+   */
+  public setPlayVolume(volume: number) {
+    // h264拖动音量后解除静音
+    this.codec !== 'h265' && volume && this.isMute && this.player!.switchMuteStatus(false)
+    // 调用的是 每个 player 绑定到 baseplayer 里的方法 & this.player 是 baseplayer
+    !this.isMute && this.player!.setPlayVolume(volume)
+  }
+
+  /**
+   * 音轨判断、音量调整
+   */
+  public onVolumeChange(volume: number, isMute: boolean) {
+    this.isMute = isMute
+    if (isMute) {
+      this.volume = 0
+    } else {
+      this.volume = volume * 100
+    }
+  }
+
+  /**
+   * 判断是否包含音轨
+   */
+  public onTestHasAudio(hasAudio: boolean) {
+    this.hasAudio = hasAudio
+  }
 }
 </script>
 <style lang="scss" scoped>
+  .volume {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: aliceblue;
+    ::v-deep .el-slider.is-vertical .el-slider__runway {
+      margin: 0px auto;
+      background-color: gray;
+    }
+    ::v-deep .el-slider__bar{
+      background-color: aliceblue;
+    }
+  }
   .dragging {
     * {
       user-select:none;
@@ -679,6 +743,12 @@ export default class extends Vue {
       width: 100%;
       text-align: center;
     }
+    .video-ref {
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
     ::v-deep .player-box {
       div{
         display: none !important;
@@ -687,6 +757,13 @@ export default class extends Vue {
     video, canvas {
       margin: auto;
       display: block;
+    }
+    .mute_gray {
+      opacity: 0.4;
+      color: aliceblue;
+    }
+    .kill__volume {
+      cursor: not-allowed !important; //优先级
     }
     .controls {
       * {
@@ -728,7 +805,7 @@ export default class extends Vue {
           position: absolute;
           bottom: 34px;
           left: -10px;
-          margin: 0;
+          margin: auto 0;
           padding: 5px 0;
           min-width: 50px;
           list-style: none;
@@ -744,6 +821,10 @@ export default class extends Vue {
               color: $primary;
             }
           }
+        }
+        .controls__volume {
+          left: -3px;
+          min-width: 35px;
         }
         &:hover {
           .controls__popup {

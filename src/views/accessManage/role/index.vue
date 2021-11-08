@@ -40,7 +40,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import { iamDeleteRole, getIamRoleList } from '@/api/accessManage'
 @Component({
   name: 'AccessManageRole'
@@ -54,6 +54,11 @@ export default class extends Vue {
     pageNum: 1,
     pageSize: 10,
     total: 0
+  }
+
+  @Watch('roleList.length')
+  private onRoleListChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
   }
 
   private mounted() {
