@@ -29,20 +29,6 @@ export default class extends Vue {
   private onCanPlayChange(onCanPlay: boolean) {
     !this.calendarFocus && onCanPlay && this.setMouseEvent(3000)
   }
-  // @Watch('calendarFocus')
-  // private oncalendarFocus(calendarFocus: boolean) {
-  //   console.log(calendarFocus);
-
-  //   if (calendarFocus) {
-  //     this.timer && clearTimeout(this.timer)
-  //     this.isHiddenTools = false
-  //   } else {
-  //     const eventTarget: any = window.event?.target
-  //     if (!['VIDEO', 'CANVAS'].includes(eventTarget.nodeName)) {
-  //       this.setMouseEvent()
-  //     }
-  //   }
-  // }
 
   private onMouseOver() {
     this.timer && clearTimeout(this.timer)
@@ -54,7 +40,14 @@ export default class extends Vue {
   }
 
   private onMouseMove() {
-    this.setMouseEvent(3000)
+    this.timer && clearTimeout(this.timer)
+    this.isHiddenTools = false
+    const eventTarget: any = window.event?.target
+    if (['VIDEO', 'CANVAS'].includes(eventTarget.nodeName)) {
+      this.timer = setTimeout(() => {
+        !this.calendarFocus && (this.isHiddenTools = true)
+      }, 3000)
+    }
   }
 
   private setMouseEvent(timeout: any) {
