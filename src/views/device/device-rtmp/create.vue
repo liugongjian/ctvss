@@ -30,7 +30,7 @@
       </el-form-item>
       <el-form-item label="设备名称:" prop="deviceName" class="form-with-tip">
         <el-input v-model="form.deviceName" />
-        <div class="form-tip">2-32位，可包含大小写字母、数字、中文、中划线、空格。</div>
+        <div class="form-tip">2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号。</div>
       </el-form-item>
       <el-form-item label="视频流接入方式:" prop="inType">
         <el-radio-group v-model="form.inType" @change="clearValidate">
@@ -166,7 +166,7 @@ export default class extends Mixins(createMixin) {
         'description', 'inType', 'pullType', 'pushType', 'pullUrl', 'tags']))
       // 获取绑定资源包列表
       this.getDeviceResources(info.deviceId, info.deviceType!, info.inProtocol!)
-    } catch (e: any) {
+    } catch (e) {
       this.$message.error(e.message)
     } finally {
       this.loading.device = false
@@ -215,7 +215,7 @@ export default class extends Mixins(createMixin) {
       }
       this.back()
       this.initDirs()
-    } catch (e: any) {
+    } catch (e) {
       this.$message.error(e && e.message)
     } finally {
       this.submitting = false

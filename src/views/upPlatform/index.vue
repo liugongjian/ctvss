@@ -181,7 +181,7 @@
 </template>
 
 <script lang='ts'>
-import { Component, Vue, Provide } from 'vue-property-decorator'
+import { Component, Vue, Provide, Watch } from 'vue-property-decorator'
 import { describeShareGroups, describeShareDirs, describeShareDevices, getPlatforms, deletePlatform, cancleShareDevice, cancleShareDir, startShareDevice, stopShareDevice } from '@/api/upPlatform'
 import { DeviceStatus, StreamStatus, PlatformStatus } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
@@ -250,6 +250,11 @@ export default class extends Vue {
   }
   public tips = {
     addDevices: '下方列表显示已共享的设备，点击"添加资源"添加想要共享的设备。'
+  }
+
+  @Watch('dataList.length')
+  private onDataListChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
   }
 
   private get filteredPlatformList() {
@@ -334,7 +339,7 @@ export default class extends Vue {
       } else {
         this.initPlatform()
       }
-    } catch (e: any) {
+    } catch (e) {
       this.$message.error(e && e.message)
     } finally {
       this.loading.platform = false
@@ -400,7 +405,7 @@ export default class extends Vue {
       })
       this.$message.success('已通知启动级联')
       setTimeout(this.getPlatformList, 2000)
-    } catch (e: any) {
+    } catch (e) {
       this.$message.error(e && e.message)
     } finally {
       this.getPlatformList()
@@ -419,7 +424,7 @@ export default class extends Vue {
       })
       this.$message.success('已通知停用级联')
       setTimeout(this.getPlatformList, 2000)
-    } catch (e: any) {
+    } catch (e) {
       this.$message.error(e && e.message)
     } finally {
       this.getPlatformList()
@@ -459,11 +464,11 @@ export default class extends Vue {
             dirId: node.dirId
           })
           this.initDirs()
-        } catch (e: any) {
+        } catch (e) {
           this.$message.error(e && e.message)
         }
       }
-    } catch (e: any) {
+    } catch (e) {
       this.$message.error(e && e.message)
     } finally {
       this.loading.sharedDevices = false

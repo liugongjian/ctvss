@@ -44,6 +44,7 @@ export default class ListMixin extends Vue {
   public axiosSources: any[] = []
   public tableMaxHeight: any = null
   public observer: any = null
+  private channelSize:any = null
 
   public loading = {
     info: false,
@@ -233,6 +234,11 @@ export default class ListMixin extends Vue {
     if (this.type === 'nvr') this.getDeviceInfo(this.type)
   }
 
+  @Watch('deviceList.length')
+  public onDeviceListChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
+  }
+
   public reset() {
     this.deviceInfo = null
     this.deviceList = []
@@ -342,6 +348,7 @@ export default class ListMixin extends Vue {
           return channel
         })
         if (type === 'nvr') {
+          this.channelSize = res.channelSize
           // nvr通道后端全量返回，前端做筛选
           deviceList = deviceList.filter((device: any) => {
             if (this.filter.deviceStatus && device.deviceStatus !== this.filter.deviceStatus) {
@@ -466,6 +473,19 @@ export default class ListMixin extends Vue {
       deviceId: this.deviceId,
       type: 'create',
       isChannel: this.isNVR
+    })
+  }
+
+  // ehome配置子通道
+  private goToConfigChannel() {
+    const result = this.deviceList.map(item => item.channelNum)
+    this.deviceRouter({
+      id: this.dirId,
+      deviceId: this.deviceId,
+      type: 'configChannel',
+      isChannel: this.isNVR,
+      channelNumList: result,
+      channelSize: this.channelSize
     })
   }
 

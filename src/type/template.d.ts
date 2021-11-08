@@ -19,6 +19,7 @@ export interface CallbackTemplate {
   recordNotifyUrl: string;
   deviceStatusUrl?: string;
   streamStatusUrl?: string;
+  aiEventNotifyUrl?: string;
   callbackKey: string;
   description?: string;
   createdTime?: string;

@@ -117,6 +117,7 @@ export const StreamStatus = {
 }
 
 export const RecordStatus = {
+  0: '-',
   1: '录制中',
   2: '未录制'
 }
@@ -162,7 +163,9 @@ export const AlertType: any = {
   12: '人体属性',
   13: '蜜蜂密度',
   14: '机房设备检测',
-  15: '铁塔天线检测'
+  15: '铁塔天线检测',
+  17: '车牌识别',
+  18: '棉花检测'
 }
 
 export const AiMaskType: any = {

@@ -25,7 +25,7 @@
               <el-tooltip content="点击放大">
                 <div class="ai-recognation__images__item__img--wrap ai-recognation__images__item__img--wrap--left" @click="fullscreenImage()">
                   <img v-if="currentImg" class="ai-recognation__images__item__img" :src="currentImg && currentImg.url">
-                  <img :src="require('@/assets/dashboard/image-placeholder.png')">
+                  <!-- <img :src="require('@/assets/dashboard/image-placeholder.png')"> -->
                   <Locations :type="type" :img="currentImg" />
                   <div v-if="currentImg" class="ai-recognation__images__item--datetime">{{ currentImg && currentImg.deviceName }} | {{ currentImg && currentImg.timestamp }}</div>
                 </div>
@@ -57,10 +57,10 @@
               <div class="ai-recognation__images__item__decorator--bottom" />
               <div class="ai-recognation__images__item__wrap">
                 <img ref="img" class="ai-recognation__images__item__img" :src="img.url" @load="onload(index)">
-                <img :src="require('@/assets/dashboard/image-placeholder.png')">
+                <!-- <img :src="require('@/assets/dashboard/image-placeholder.png')"> -->
                 <Locations :type="type" :img="img" />
+                <div class="ai-recognation__images__item--datetime">{{ img.timestamp }}</div>
               </div>
-              <div class="ai-recognation__images__item--datetime">{{ img.timestamp }}</div>
             </div>
           </div>
           <div v-if="imageList.length" class="ai-recognation__bottom">
@@ -105,6 +105,7 @@ import Player from '@/views/device/components/Player.vue'
 import Locations from './components/Locations.vue'
 import Attributes from './components/Attributes.vue'
 import { AiGroups } from '../helper/aiGroups'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'DashboardAI',
@@ -134,6 +135,11 @@ export default class extends Vue {
   }
   private imageList = []
 
+  @Watch('imageList.length')
+  private onImageListChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
+  }
+
   private get type() {
     let params: any = this.$route.query
     return params.type.toString()
@@ -145,6 +151,21 @@ export default class extends Vue {
 
   private mounted() {
     this.getRecordAuditEvents()
+    // TODO: Hardcode 300015
+    if (UserModule.mainUserID === '300015') {
+      this.aiGroups = [
+        {
+          name: '人脸识别',
+          children: [4]
+        }, {
+          name: '人体识别',
+          children: [8]
+        }, {
+          name: '场景识别',
+          children: [10, 17]
+        }
+      ]
+    }
   }
 
   private goRouter(type: any) {
@@ -488,19 +509,19 @@ export default class extends Vue {
       flex-direction: column;
     }
     &__images {
-      flex: 1;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: flex-start;
+      display: grid;
+      grid-gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(30%, 1fr));
       &__item {
         position: relative;
-        width: 31%;
         margin: 1%;
         border: 1px solid #0187ee;
         border-left: 5px solid #0187ee;
         border-right: 5px solid #0187ee;
         padding: 10px;
         cursor: pointer;
+        display: flex;
+        align-items: center;
         &__wrap {
           position: relative;
           width: 100%;
@@ -513,8 +534,6 @@ export default class extends Vue {
           }
         }
         &__img {
-          position: absolute;
-          top: 0;
           width: 100%;
         }
         &__count {

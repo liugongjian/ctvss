@@ -12,7 +12,6 @@ import { checkPermission } from '@/utils/permission'
 import { regionList } from '@/assets/region/lianzhouRegion'
 import copy from 'copy-to-clipboard'
 import { VGroupModule } from '@/store/modules/vgroup'
-
 @Component({
   components: {
     TemplateBind,
