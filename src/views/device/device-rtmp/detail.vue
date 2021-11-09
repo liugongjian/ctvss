@@ -27,7 +27,7 @@
                     <el-link v-else-if="checkPermission(['*'])" @click="startDevice(info)">启用{{ autoStreamNumObj[num] }}</el-link>
                   </el-descriptions-item>
                   <el-descriptions-item label="录制状态">
-                    <status-badge :status="info.recordStatus === 1 ? 'on' : ''" />
+                    <status-badge :status="recordStatusType[info.recordStatus]" />
                     {{ recordStatus[info.recordStatus] || '-' }}
                     <el-link v-if="info.recordStatus === 1 && checkPermission(['*'])" @click="stopRecord(info)">停止录像</el-link>
                     <el-link v-else-if="checkPermission(['*'])" @click="startRecord(info)">开始录像</el-link>
