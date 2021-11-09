@@ -7,7 +7,7 @@
           <el-table-column show-overflow-tooltip prop="resourceId" label="订单号" min-width="120">
             <template slot-scope="scope">
               <span class="resource-id">
-                <el-radio v-model="form.resouceVideoId" :label="scope.row.workOrderNo" />
+                <el-radio v-model="form.resouceVideoId" :label="scope.row.resourceId" />
                 {{ scope.row.workOrderNo }}
               </span>
             </template>
@@ -44,10 +44,10 @@
       <!--AI包-->
       <div v-loading="loading.resouceAiList" class="resource-tabs__content">
         <el-table :data="resouceAiList" fit @row-click="onResourceRowClick('ai', ...arguments)">
-          <el-table-column show-overflow-tooltip prop="resourceId" label="订单号" min-width="120">
+          <el-table-column prop="resourceId" label="订单号" min-width="120">
             <template slot-scope="scope">
               <span class="resource-id">
-                <el-radio v-model="form.resouceAiId" :label="scope.row.workOrderNo" />
+                <el-radio v-model="form.resouceAiId" :label="scope.row.resourceId" />
                 {{ scope.row.workOrderNo }}
               </span>
             </template>
@@ -79,10 +79,10 @@
       <!--上行带宽包-->
       <div v-loading="loading.resouceUploadList" class="resource-tabs__content">
         <el-table :data="resouceUploadList" fit @row-click="onResourceRowClick('upload', ...arguments)">
-          <el-table-column show-overflow-tooltip prop="resourceId" label="订单号" min-width="120">
+          <el-table-column prop="resourceId" label="订单号" min-width="120">
             <template slot-scope="scope">
               <span class="resource-id">
-                <el-radio v-model="form.resouceUploadId" :label="scope.row.workOrderNo" />
+                <el-radio v-model="form.resouceUploadId" :label="scope.row.resourceId" />
                 {{ scope.row.workOrderNo }}
               </span>
             </template>
