@@ -6,17 +6,35 @@
     <div class="dashboard-wrap__header">
       {{ title }}
     </div>
-    <DashboardMapBee v-if="mainUserId === '90015'" />
-    <DashboardMap v-else />
-    <div class="dashboard-wrap__col dashboard-wrap__col--left">
-      <DashboardDevice height="19" />
-      <DashboardFlow height="19" />
-      <DashboardIntegrityRate height="19" />
+    <!--庆阳铁塔公司-->
+    <div v-if="mainUserId === '180008'">
+      <QYDashBoardMap />
+      <div class="dashboard-wrap__col dashboard-wrap__col--left">
+        <QYDashboardRoom height="18" />
+        <QYDashboardAlertTrend height="18" />
+        <QYDashboardDeviceTrend height="18" />
+      </div>
+      <div class="dashboard-wrap__col dashboard-wrap__col--center">
+        <QYDashboardDevice height="19" />
+      </div>
+      <div class="dashboard-wrap__col dashboard-wrap__col--right">
+        <DashboardAlertLive height="19" />
+        <QYDashboardImg height="48" />
+      </div>
     </div>
-    <div class="dashboard-wrap__col dashboard-wrap__col--right">
-      <DashboardAlertLive height="19" />
-      <DashboardAlertToday height="19" />
-      <DashboardAlertTrend height="19" />
+    <div v-else>
+      <DashboardMapBee v-if="mainUserId === '90015'" />
+      <DashboardMap v-else />
+      <div class="dashboard-wrap__col dashboard-wrap__col--left">
+        <DashboardDevice height="19" />
+        <DashboardFlow height="19" />
+        <DashboardIntegrityRate height="19" />
+      </div>
+      <div class="dashboard-wrap__col dashboard-wrap__col--right">
+        <DashboardAlertLive height="19" />
+        <DashboardAlertToday height="19" />
+        <DashboardAlertTrend height="19" />
+      </div>
     </div>
   </div>
 </template>
@@ -32,6 +50,12 @@ import DashboardIntegrityRate from '@/views/dashboard/components/DashboardIntegr
 import DashboardMap from '@/views/dashboard/components/DashBoardMap.vue'
 import DashboardMapBee from '@/views/dashboard/components/DashBoardMapBee.vue'
 import DashboardAlertTrend from '@/views/dashboard/components/DashboardAlertTrend.vue'
+import QYDashBoardMap from '@/views/dashboard/components/QYDashBoardMap.vue'
+import QYDashboardDevice from '@/views/dashboard/components/QYDashboardDevice.vue'
+import QYDashboardAlertTrend from '@/views/dashboard/components/QYDashboardAlertTrend.vue'
+import QYDashboardDeviceTrend from '@/views/dashboard/components/QYDashboardDeviceTrend.vue'
+import QYDashboardImg from '@/views/dashboard/components/QYDashboardImg.vue'
+import QYDashboardRoom from '@/views/dashboard/components/QYDashboardRoom.vue'
 
 @Component({
   name: 'VisualizationDashboard',
@@ -43,7 +67,13 @@ import DashboardAlertTrend from '@/views/dashboard/components/DashboardAlertTren
     DashboardMap,
     DashboardMapBee,
     DashboardIntegrityRate,
-    DashboardAlertTrend
+    DashboardAlertTrend,
+    QYDashBoardMap,
+    QYDashboardDevice,
+    QYDashboardAlertTrend,
+    QYDashboardDeviceTrend,
+    QYDashboardImg,
+    QYDashboardRoom
   }
 })
 export default class extends Vue {
@@ -54,6 +84,9 @@ export default class extends Vue {
   get title() {
     let title = ''
     switch (this.mainUserId) {
+      case '180008':
+        title = '庆阳铁塔基站智能运维管理平台'
+        break
       case '90015':
         title = '两当县智慧蜂业视频AI能力平台'
         break
@@ -109,6 +142,12 @@ export default class extends Vue {
       top: 5vh;
       &--left {
         left: 0.5em;
+      }
+      &--center {
+        width: 40%;
+        left: 30%;
+        bottom: 8vh;
+        top: auto;
       }
       &--right {
         position: absolute;

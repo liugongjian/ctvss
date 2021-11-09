@@ -3,7 +3,6 @@ export const columnList: any = [
   { prop: 'gbId', label: '设备编码' },
   { prop: 'deviceName', label: '设备名称' },
   { prop: 'gbRegion', label: '行政区划编码' },
-  { prop: 'gbRegionLevel', label: '行政区划等级' },
   { prop: 'devicePointType', label: '监控点位类型' },
   { prop: 'hasPickUp', label: '拾音器' },
   { prop: 'parentDevice', label: '父设备' },

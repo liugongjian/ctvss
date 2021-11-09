@@ -160,6 +160,25 @@
           </template>
           <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" />
         </el-form-item>
+        <template v-if="lianzhouFlag">
+          <el-form-item label="设备地址:" prop="address">
+            <el-cascader
+              ref="addressCascader"
+              v-model="form.address"
+              class="lainzhou-cascader"
+              expand-trigger="click"
+              :disabled="isUpdate"
+              :options="regionList"
+              :props="lianzhouRegionProps"
+              @active-item-change="regionChange"
+              @change="lianzhouAddressChange"
+            />
+          </el-form-item>
+          <el-form-item label="经纬度:" prop="longlat">
+            <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
+            <el-input v-model="form.deviceLatitude" class="longlat-input" />
+          </el-form-item>
+        </template>
         <el-form-item label="配置资源包:" prop="resources">
           <ResourceTabs v-model="form.resources" :is-update="isUpdate"
                         :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" :device-id="form.deviceId"
@@ -183,7 +202,7 @@
         </el-form-item>
         <el-form-item label="通道名称:" prop="channelName" class="form-with-tip">
           <el-input v-model="form.channelName" />
-          <div class="form-tip">2-32位，可包含大小写字母、数字、中文、中划线、空格。</div>
+          <div class="form-tip">2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号。</div>
         </el-form-item>
         <el-form-item v-if="isUpdate" label="配置资源包:" prop="resources">
           <ResourceTabs v-model="form.resources" :is-update="isUpdate"
@@ -254,6 +273,13 @@ export default class extends Mixins(createMixin) {
     devicePort: [
       { required: true, message: '请输入设备端口', trigger: 'blur' }
     ],
+    address: [
+      { required: true, message: '请选择设备地址', trigger: 'blur' }
+    ],
+    longlat: [
+      { required: true, message: '请选择经纬度', trigger: 'blur' },
+      { validator: this.validateLonglat, trigger: 'blur' }
+    ],
     resources: [
       { required: true, validator: this.validateResources, trigger: 'blur' }
     ]
@@ -289,7 +315,13 @@ export default class extends Mixins(createMixin) {
     parentDeviceId: '',
     resources: [],
     vssAIApps: [],
-    aIApps: []
+    aIApps: [],
+    address: [],
+    longlat: 'required',
+    deviceLongitude: '0.000000',
+    deviceLatitude: '0.000000',
+    gbRegion: '',
+    gbRegionLevel: null
   }
   protected minChannelSize = 1
   private availableChannels: Array<number> = []
@@ -330,8 +362,11 @@ export default class extends Mixins(createMixin) {
   ]
 
   private async mounted() {
+    // TODO: 连州教育局一机一档专用
+    this.lianzhouFlag = this.$store.state.user.tags.isLianZhouEdu === 'Y'
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
+      this.lianzhouFlag && this.lianzhouCascaderInit()
     } else {
       this.form.dirId = this.dirId
     }
@@ -362,7 +397,7 @@ export default class extends Mixins(createMixin) {
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'deviceType', 'createSubDevice', 'deviceVendor',
           'enableDomain', 'deviceDomain', 'deviceIp', 'devicePort', 'description', 'inType', 'userName', 'password', 'multiStreamSize', 'autoStreamNum',
-          'pullType', 'pushType', 'pullUrl', 'transPriority', 'parentDeviceId']))
+          'pullType', 'pushType', 'pullUrl', 'transPriority', 'parentDeviceId', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel']))
         if (this.form.deviceVendor === '其他') {
           this.form.deviceCustomUrl = this.form.deviceDomain
         }
@@ -425,7 +460,7 @@ export default class extends Mixins(createMixin) {
       }
       if (!this.isChannel) {
         // 通用参数
-        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'enableDomain', 'deviceDomain', 'deviceIp', 'devicePort', 'inType', 'transPriority']))
+        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'enableDomain', 'deviceDomain', 'deviceIp', 'devicePort', 'inType', 'transPriority', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel']))
         // 判断inType类型
         if (this.form.inType === 'push') {
           params = Object.assign(params, pick(this.form, ['pushType']))
@@ -483,8 +518,12 @@ export default class extends Mixins(createMixin) {
 </script>
 
 <style lang="scss" scoped>
-  .el-input, .el-select, .el-textarea {
+  .el-input, .el-select, .el-textarea, .el-cascader {
     width: 400px;
+  }
+
+  .longlat-input {
+    width: 193px;
   }
 
   .in-protocol {

@@ -39,6 +39,7 @@ export default class ListMixin extends Mixins(DeviceMixin) {
   public transPriority = TransPriority
   public parentDeviceId = ''
   public axiosSources: any[] = []
+  private channelSize:any = null
 
   public loading = {
     info: false,
@@ -324,6 +325,7 @@ export default class ListMixin extends Mixins(DeviceMixin) {
           return channel
         })
         if (type === 'nvr') {
+          this.channelSize = res.channelSize
           // nvr通道后端全量返回，前端做筛选
           deviceList = deviceList.filter((device: any) => {
             if (this.filter.deviceStatus && device.deviceStatus !== this.filter.deviceStatus) {
@@ -448,6 +450,19 @@ export default class ListMixin extends Mixins(DeviceMixin) {
       deviceId: this.deviceId,
       type: 'create',
       isChannel: this.isNVR
+    })
+  }
+
+  // ehome配置子通道
+  private goToConfigChannel() {
+    const result = this.deviceList.map(item => item.channelNum)
+    this.deviceRouter({
+      id: this.dirId,
+      deviceId: this.deviceId,
+      type: 'configChannel',
+      isChannel: this.isNVR,
+      channelNumList: result,
+      channelSize: this.channelSize
     })
   }
 

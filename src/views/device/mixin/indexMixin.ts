@@ -307,6 +307,18 @@ export default class IndexMixin extends Vue {
           deviceId: item.id
         }
         break
+      case 'configChannel':
+        router = {
+          name: 'config-channel'
+        }
+        query = {
+          dirId: item.id,
+          deviceId: item.deviceId,
+          isChannel: item.isChannel && item.isChannel.toString(),
+          channelNumList: item.channelNumList && item.channelNumList.toString(),
+          channelSize: item.channelSize
+        }
+        break
     }
     router.query = {
       inProtocol: this.currentGroup!.inProtocol,

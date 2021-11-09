@@ -21,7 +21,8 @@
     </div>
     <div class="filter-container clearfix">
       <div class="filter-container__left">
-        <el-button v-if="!isVGroup && (isDir || isNVR) && checkPermission(['AdminDevice'], {id: dirId !== '0' ? dirId : currentGroupId})" key="dir-button" type="primary" @click="goToCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
+        <el-button v-if="!isVGroup && (isDir) && checkPermission(['AdminDevice'], {id: dirId !== '0' ? dirId : currentGroupId})" key="dir-button" type="primary" @click="goToCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
+        <el-button v-if="isNVR" type="primary" @click="goToConfigChannel">配置子通道</el-button>
         <el-button v-if="isNVR" key="check-nvr-detail" @click="goToDetail(deviceInfo)">查看NVR设备详情</el-button>
         <el-button v-if="!isVGroup && isNVR && checkPermission(['AdminDevice'])" key="edit-nvr" @click="goToUpdate(deviceInfo)">编辑NVR设备</el-button>
         <el-button v-if="isPlatform" @click="goToDetail(deviceInfo)">查看Platform详情</el-button>

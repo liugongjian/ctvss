@@ -24,6 +24,7 @@ export default class DashboardMixin extends Vue {
     func()
     this.intervalInstance = setInterval(func, this.intervalTime)
   }
+
   public goRouter(appid: any) {
     const addr = this.$router.resolve({
       name: 'AI-AppDetail',
