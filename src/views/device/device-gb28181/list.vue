@@ -118,12 +118,12 @@
           column-key="deviceType"
           prop="deviceType"
           label="类型"
-          :filters="filtersArray.deviceType"
+          :filters="isIPC ? [] : filtersArray.deviceType"
           :filter-multiple="false"
         >
           <template slot="header">
             <span class="filter">类型</span>
-            <svg-icon class="filter" name="filter" width="15" height="15" />
+            <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
           </template>
           <template slot-scope="{row}">
             {{ deviceType[row.deviceType] }}
@@ -135,12 +135,12 @@
           column-key="deviceStatus"
           label="设备状态"
           min-width="110"
-          :filters="filtersArray.deviceStatus"
+          :filters="isIPC ? [] : filtersArray.deviceStatus"
           :filter-multiple="false"
         >
           <template slot="header">
             <span class="filter">设备状态</span>
-            <svg-icon class="filter" name="filter" width="15" height="15" />
+            <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
           </template>
           <template slot-scope="{row}">
             <status-badge :status="row.deviceStatus" />
@@ -153,12 +153,12 @@
           prop="streamStatus"
           label="流状态"
           min-width="110"
-          :filters="filtersArray.streamStatus"
+          :filters="isIPC ? [] : filtersArray.streamStatus"
           :filter-multiple="false"
         >
           <template slot="header">
             <span class="filter">流状态</span>
-            <svg-icon class="filter" name="filter" width="15" height="15" />
+            <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
           </template>
           <template slot-scope="{row}">
             <status-badge :status="row.streamStatus" />
@@ -171,12 +171,12 @@
           prop="recordStatus"
           label="录制状态"
           min-width="110"
-          :filters="filtersArray.recordStatus"
+          :filters="isIPC ? [] : filtersArray.recordStatus"
           :filter-multiple="false"
         >
           <template slot="header">
             <span class="filter">录制状态</span>
-            <svg-icon class="filter" name="filter" width="15" height="15" />
+            <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
           </template>
           <template slot-scope="{row}">
             <span v-if="row.deviceType === 'nvr'">-</span>

@@ -204,6 +204,8 @@ export default class ListMixin extends Vue {
   @Watch('$route.query')
   public onRouterChange() {
     this.reset()
+    console.log(this.isIPC);
+    
   }
 
   @Watch('isSorted')
@@ -333,7 +335,7 @@ export default class ListMixin extends Vue {
             if (this.filter.streamStatus && device.streamStatus !== this.filter.streamStatus) {
               return false
             }
-            if (this.filter.recordStatus && RecordStatusType[device.recordStatus] !== this.filter.recordStatus) {
+            if (this.filter.recordStatus && RecordStatusType[device.recordStatus!] !== this.filter.recordStatus) {
               return false
             }
             return true
