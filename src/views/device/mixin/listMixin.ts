@@ -37,6 +37,7 @@ export default class ListMixin extends Vue {
   public streamStatus = StreamStatus
   public recordStatus = RecordStatus
   public recordStatusType = RecordStatusType
+  public recordStatusFilterType = RecordStatusFilterType
   public deviceType = DeviceGb28181Type
   public sipTransType = SipTransType
   public streamTransType = StreamTransType
@@ -245,6 +246,7 @@ export default class ListMixin extends Vue {
     this.axiosSources.forEach((axiosSource: any) => {
       axiosSource.cancel()
     })
+    this.clearAllFilter()
     this.init()
   }
 
@@ -324,14 +326,14 @@ export default class ListMixin extends Vue {
         if (type === 'nvr') {
           this.channelSize = res.channelSize
           // nvr通道后端全量返回，前端做筛选
-          deviceList = deviceList.filter((device: any) => {
+          deviceList = deviceList.filter((device: Device) => {
             if (this.filter.deviceStatus && device.deviceStatus !== this.filter.deviceStatus) {
               return false
             }
             if (this.filter.streamStatus && device.streamStatus !== this.filter.streamStatus) {
               return false
             }
-            if (this.filter.recordStatus && device.recordStatus.toString() !== this.filter.recordStatus.toString()) {
+            if (this.filter.recordStatus && RecordStatusType[device.recordStatus] !== this.filter.recordStatus) {
               return false
             }
             return true
@@ -892,9 +894,20 @@ export default class ListMixin extends Vue {
    * 清空指定筛选条件
    */
   public clearFilter(key: string) {
+    if (this.filter[key]) {
+      const deviceTable: any = this.$refs.deviceTable
+      deviceTable && deviceTable.clearFilter(key)
+    }
     this.filter[key] = undefined
-    const deviceTable: any = this.$refs.deviceTable
-    deviceTable.clearFilter(key)
+  }
+
+  /**
+   * 清空所有筛选条件
+   */
+  public clearAllFilter() {
+    for (const key in this.filter) {
+      this.clearFilter(key)
+    }
   }
 
   /**

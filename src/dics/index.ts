@@ -123,7 +123,7 @@ export const RecordStatus = {
   3: '录制失败'
 }
 
-export const RecordStatusType = {
+export const RecordStatusType: { [key: number]: any } = {
   0: 'off',
   1: 'on',
   2: 'on',
