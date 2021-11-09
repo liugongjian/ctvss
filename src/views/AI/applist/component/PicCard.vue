@@ -2,6 +2,7 @@
 <template>
   <el-card @click.native="viewDetail">
     <div class="pic-wrapper">
+      <!-- <img ref="img" :src="pic.image" @load="onload" @error="onerror"> -->
       <img ref="img" :src="pic.image" @load="onload">
       <Locations v-if="picInfo" :type="type" :img="picInfo" />
     </div>
@@ -49,6 +50,11 @@ export default class extends Vue {
     const img = this.$refs.img
     this.picInfo = { ...this.pic, locations: transformLocationAi(locations, img) }
   }
+  // private onerror() {
+  //   const img: any = this.$refs.img
+  //   img.src = require('@/assets/dashboard/image-placeholder.png')
+  //   img.onerror = null // 防止闪图
+  // }
   private viewDetail() {
     this.$emit('showDialogue', this.pic)
   }
