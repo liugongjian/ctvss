@@ -117,8 +117,23 @@ export const StreamStatus = {
 }
 
 export const RecordStatus = {
+  0: '未录制',
   1: '录制中',
-  2: '未录制'
+  2: '录制中',
+  3: '录制失败'
+}
+
+export const RecordStatusType: { [key: number]: any } = {
+  0: 'off',
+  1: 'on',
+  2: 'on',
+  3: 'error'
+}
+
+export const RecordStatusFilterType = {
+  'off': '未录制',
+  'on': '录制中',
+  'error': '录制失败'
 }
 
 export const StreamType = {
@@ -162,8 +177,10 @@ export const AlertType: any = {
   12: '人体属性', // 10009
   13: '蜜蜂密度', // 10010
   14: '机房设备检测',
-  15: '铁塔天线检测' // 10012
+  15: '铁塔天线检测', // 10012
   // 冲压机并未在后端的返回数据中
+  17: '车牌识别',
+  18: '棉花检测'
 }
 
 export const AiMaskType: any = {

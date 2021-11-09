@@ -339,24 +339,51 @@ export const getLianzhouArea = (params: any): Promise<any> =>
     params
   })
 
-// 启用
+/**
+ * 启用AI应用
+ */
 export const startAppResource = (params: any): Promise<any> =>
   request({
     url: '/aitask/device/start',
     method: 'post',
     data: params
   })
-// 停用
+
+/**
+ * 停用AI应用
+ */
 export const stopAppResource = (params: any): Promise<any> =>
   request({
     url: '/aitask/device/stop',
     method: 'post',
     data: params
   })
-// 解绑
+
+/**
+ * 解绑AI应用
+ */
 export const unBindAppResource = (params: any): Promise<any> =>
   request({
     url: '/ai/aiAPP/bindorunbind',
+    data: params
+  })
+
+/**
+ * 获取ehome NVR子通道列表
+ */
+export const getChannelList = (params: any): Promise<any> =>
+  request({
+    url: '/device/nvrChannels',
+    method: 'get',
+    params
+  })
+
+/**
+ * 编辑ehome NVR子通道列表
+ */
+export const configChannels = (params: any): Promise<any> =>
+  request({
+    url: '/device/configChannels',
     method: 'post',
     data: params
   })

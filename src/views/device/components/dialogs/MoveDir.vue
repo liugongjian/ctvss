@@ -175,33 +175,39 @@ export default class extends Vue {
       this.$message.error('未选择目标目录')
       return
     }
-    try {
-      this.submitting = true
-      if (this.isBatch) {
-        await Promise.all(
-          this.devices.map((device: Device) => {
-            return bindDir({
-              dirId: this.currentDir.id,
-              deviceId: device.deviceId,
-              inProtocol: this.inProtocol
+    this.$confirm(`移动此设备后，如果存在上级级联则需要重新添加。是否确定要移动此设备？`, '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }).then(async() => {
+      try {
+        this.submitting = true
+        if (this.isBatch) {
+          await Promise.all(
+            this.devices.map((device: Device) => {
+              return bindDir({
+                dirId: this.currentDir.id,
+                deviceId: device.deviceId,
+                inProtocol: this.inProtocol
+              })
             })
+          )
+        } else {
+          await bindDir({
+            dirId: this.currentDir.id,
+            deviceId: this.device.deviceId,
+            inProtocol: this.inProtocol
           })
-        )
-      } else {
-        await bindDir({
-          dirId: this.currentDir.id,
-          deviceId: this.device.deviceId,
-          inProtocol: this.inProtocol
-        })
+        }
+        this.initDirs()
+        this.$message.success('移动设备成功！')
+      } catch (e) {
+        this.$message.error(e && e.message)
+      } finally {
+        this.submitting = false
       }
-      this.initDirs()
-      this.$message.success('移动设备成功！')
-    } catch (e) {
-      this.$message.error(e && e.message)
-    } finally {
-      this.submitting = false
-    }
-    this.closeDialog(true)
+      this.closeDialog(true)
+    })
   }
 
   private closeDialog(isRefresh: boolean = false) {

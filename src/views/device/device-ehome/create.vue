@@ -29,7 +29,7 @@
             <el-option v-for="item in deviceTypeList" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item v-if="form.deviceType === 'nvr'" label="自动创建子设备:" prop="createSubDevice" class="form-with-tip">
+        <!-- <el-form-item v-if="form.deviceType === 'nvr'" label="自动创建子设备:" prop="createSubDevice" class="form-with-tip">
           <template slot="label">
             自动创建子设备:
             <el-popover
@@ -44,7 +44,7 @@
             </el-popover>
           </template>
           <el-switch v-model="form.createSubDevice" :active-value="1" :inactive-value="2" :disabled="isUpdate" />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item v-if="form.deviceType === 'nvr'" label="子设备数量:" prop="channelSize">
           <el-input-number v-model="form.channelSize" :min="minChannelSize" type="number" />
         </el-form-item>
@@ -189,7 +189,7 @@
         </el-form-item>
         <el-form-item label="通道名称:" prop="channelName" class="form-with-tip">
           <el-input v-model="form.channelName" />
-          <div class="form-tip">2-32位，可包含大小写字母、数字、中文、中划线、空格。</div>
+          <div class="form-tip">2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号。</div>
         </el-form-item>
         <el-form-item v-if="isUpdate" label="配置资源包:" prop="resources">
           <ResourceTabs v-model="form.resources" :is-update="isUpdate"
@@ -352,19 +352,19 @@ export default class extends Mixins(createMixin) {
         deviceId: this.form.deviceId,
         inProtocol: this.inProtocol
       })
-      const usedChannelNum = info.deviceChannels.map((channel: any) => {
-        return channel.channelNum
-      })
+      // const usedChannelNum = info.deviceChannels.map((channel: any) => {
+      //   return channel.channelNum
+      // })
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'deviceType', 'ehomeVersion', 'createSubDevice', 'deviceVendor',
           'deviceIp', 'devicePort', 'description', 'multiStreamSize', 'autoStreamNum', 'pullType', 'transPriority', 'parentDeviceId', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel']))
         // 获取绑定资源包列表
         this.getDeviceResources(info.deviceId, info.deviceType!, info.inProtocol!)
         if (info.deviceStats) {
-          // 编辑的时候，设置数量不得小于已创建的子通道中最大通道号或1
-          this.minChannelSize = Math.max(...usedChannelNum, 1)
           this.form.channelSize = info.deviceStats.maxChannelSize
-          this.orginalChannelSize = this.form.channelSize
+          // 编辑的时候，设置数量不得小于已创建的子通道channelSize或1
+          this.minChannelSize = Math.max(info.deviceStats.channelSize, 1)
+          // this.orginalChannelSize = this.form.channelSize
         }
         if (this.isChannel) {
           if (info.deviceChannels.length) {
@@ -378,18 +378,18 @@ export default class extends Mixins(createMixin) {
         this.form.deviceName = info.deviceName
       }
       // 构建可选择的通道，排除已选择通道
-      if (this.isChannel && info.deviceStats) {
-        const channelSize = info.deviceStats.maxChannelSize
-        const availableChannels = []
-        for (let i = 1; i <= channelSize; i++) {
-          if (!~usedChannelNum.indexOf(i)) {
-            availableChannels.push(i)
-          }
-        }
-        this.availableChannels = availableChannels
-      } else if (this.isUpdate && info.deviceChannels.length) {
-        this.availableChannels = usedChannelNum
-      }
+      // if (this.isChannel && info.deviceStats) {
+      //   const channelSize = info.deviceStats.maxChannelSize
+      //   const availableChannels = []
+      //   for (let i = 1; i <= channelSize; i++) {
+      //     if (!~usedChannelNum.indexOf(i)) {
+      //       availableChannels.push(i)
+      //     }
+      //   }
+      //   this.availableChannels = availableChannels
+      // } else if (this.isUpdate && info.deviceChannels.length) {
+      //   this.availableChannels = usedChannelNum
+      // }
     } catch (e) {
       this.$message.error(e.message)
     } finally {
@@ -468,7 +468,7 @@ export default class extends Mixins(createMixin) {
 </script>
 
 <style lang="scss" scoped>
-  .el-input, .el-select, .el-textarea {
+  .el-input, .el-select, .el-textarea, .el-cascader {
     width: 400px;
   }
 

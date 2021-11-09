@@ -25,6 +25,7 @@
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import DashboardLightContainer from './DashboardLightContainer.vue'
+import { UserModule } from '@/store/modules/user'
 import { AlertType } from '@/dics'
 import { AiGroups } from '../helper/aiGroups'
 import DashboardMixin from '../mixin/DashboardMixin'
@@ -46,6 +47,32 @@ export default class extends Mixins(DashboardMixin) {
 
   private async mounted() {
     this.aiInfos = await this.getAiApps()
+    // TODO: Hardcode 300015
+    if (UserModule.mainUserID === '300015') {
+      this.aiGroups = [
+        {
+          name: '人脸识别',
+          children: [4]
+        }, {
+          name: '人体识别',
+          children: [8]
+        }, {
+          name: '场景识别',
+          children: [10, 17]
+        }
+      ]
+    }
+  }
+
+  public goRouter(type: any) {
+    let params: any = {
+      path: '/dashboard/ai',
+      query: {
+        type,
+        isLight: true
+      }
+    }
+    this.$router.push(params)
   }
 }
 </script>

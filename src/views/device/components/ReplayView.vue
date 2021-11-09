@@ -132,14 +132,11 @@ export default class extends Vue {
     default: false
   })
   private isFullscreen?: boolean
-  @Prop({
-    default: false
-  })
   private get isVGroup() {
     return GroupModule.group?.inProtocol === 'vgroup'
   }
   private checkPermission = checkPermission
-  private hasPlaylive?: boolean
+  private hasPlaylive?: boolean = false
   private player?: any
   private dateFormatInTable = dateFormatInTable
   private durationFormatInTable = durationFormatInTable
@@ -521,7 +518,7 @@ export default class extends Vue {
     }
   }
   .replay-time-list {
-    flex: 2;
+    flex: 1;
     margin-left: 15px;
     overflow: auto;
 

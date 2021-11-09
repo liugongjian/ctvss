@@ -1,7 +1,7 @@
 <template>
   <div ref="videoWrap" v-loading="waiting" class="video-wrap" :class="{'dragging': isDragging}">
     <div class="error">{{ error }}</div>
-    <div ref="video" @wheel="zoom" @mousedown="mouseDownHandle($event)" @mouseup="mouseUpHandle($event)" />
+    <div ref="video" class="video-ref" @wheel="zoom" @mousedown="mouseDownHandle($event)" @mouseup="mouseUpHandle($event)" />
     <div class="controls" :class="{'controls--large': hasProgress}">
       <div v-if="codec === 'h265'" class="controls__h265">
         <svg-icon name="h265" width="40px" height="22px" />
@@ -328,15 +328,13 @@ export default class extends Vue {
       this.$nextTick(() => {
         const $video: any = this.$refs.video
         const mainBox: any = this.$refs.videoWrap
-        var player = $video.querySelector('video')
-        if (this.type === 'h265-flv' || this.codec === 'h265') {
-          player = $video.querySelector('canvas')
-          if (this.codec === 'h265') {
-            player = $video.querySelector('.player-box')
-          }
+        let player = $video.querySelector('video')
+        if (this.codec === 'h265') {
+          player = $video.querySelector('.player-box')
           this.playerFS()
           window.addEventListener('resize', this.playerFS, false)
           var targetNode = mainBox
+          // 监听video-wrap
           // @ts-ignore
           this.resizeObserver = new ResizeObserver(() => {
             this.playerFS()
@@ -354,23 +352,18 @@ export default class extends Vue {
   public playerFS() {
     const mainBox: any = this.$refs.videoWrap
     if (!mainBox) return
-    var player = mainBox.querySelector('canvas')
-    if (this.codec === 'h265') {
-      player = mainBox.querySelector('.player-box')
-    }
+    const player = mainBox.querySelector('.player-box')
     this.playerFitSize(mainBox.clientWidth, mainBox.clientHeight, player)
   }
 
   public playerFitSize(width: number, height: number, player: any) {
     if (width / height > 16 / 9) {
-      player.style.height = height + 'px'
+      player.style.height = '100%'
       player.style.width = height * 16 / 9 + 'px'
     } else {
-      player.style.width = width + 'px'
+      player.style.width = '100%'
       player.style.height = width * 9 / 16 + 'px'
     }
-    player.style.left = (width - player.clientWidth) / 2 + 'px'
-    player.style.top = (height - player.clientHeight) / 2 + 'px'
   }
 
   public disposePlayer() {
@@ -749,6 +742,12 @@ export default class extends Vue {
       top: 50%;
       width: 100%;
       text-align: center;
+    }
+    .video-ref {
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
     ::v-deep .player-box {
       div{

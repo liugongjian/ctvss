@@ -13,10 +13,17 @@
       highlight-current-row
       max-height="500"
     >
-      <el-table-column prop="templateName" label="模板名称" />
-      <el-table-column prop="recordNotifyUrl" label="回调URL" />
+      <el-table-column prop="templateName" label="模板名称" min-width="50" />
+      <el-table-column label="回调URL">
+        <template slot-scope="{row}">
+          <div v-if="row.recordNotifyUrl">录制回调: {{ row.recordNotifyUrl }}</div>
+          <div v-if="row.deviceStatusUrl">设备状态回调: {{ row.deviceStatusUrl }}</div>
+          <div v-if="row.streamStatusUrl">流状态回调: {{ row.streamStatusUrl }}</div>
+          <div v-if="row.aiEventNotifyUrl">AI事件通知回调: {{ row.aiEventNotifyUrl }}</div>
+        </template>
+      </el-table-column>
       <el-table-column prop="callbackKey" label="回调Key" />
-      <el-table-column label="操作">
+      <el-table-column label="操作" width="100">
         <template slot-scope="{row}">
           <el-button v-if="row.templateId !== bindTemplateId" type="text" :disabled="!!bindTemplateId" @click="bind(row)">绑定</el-button>
           <el-button v-else type="text" @click="unbind(row)">解绑</el-button>
@@ -30,6 +37,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
+import { setGroupCallBackTemplate, unbindGroupCallBackTemplate } from '@/api/group'
 import { setDeviceCallbackTemplate, unbindDeviceCallbackTemplate } from '@/api/device'
 import { getCallBackTemplates } from '@/api/stream'
 import { formatSeconds } from '@/utils/interval'
@@ -55,13 +63,19 @@ export default class extends Vue {
   }
 
   private async bind(row: any) {
+    let params = {
+      groupId: this.groupId,
+      deviceId: this.deviceId,
+      templateId: row.templateId,
+      inProtocol: this.inProtocol
+    }
     try {
       this.loading = true
-      await setDeviceCallbackTemplate({
-        deviceId: this.deviceId,
-        templateId: row.templateId,
-        inProtocol: this.inProtocol
-      })
+      if (this.groupId) {
+        await setGroupCallBackTemplate(params)
+      } else if (this.deviceId) {
+        await setDeviceCallbackTemplate(params)
+      }
       this.bindTemplateId = row.templateId
     } catch (e) {
       this.$message.error(e && e.message)
@@ -71,13 +85,19 @@ export default class extends Vue {
   }
 
   private async unbind(row: any) {
+    let params = {
+      groupId: this.groupId,
+      deviceId: this.deviceId,
+      templateId: row.templateId,
+      inProtocol: this.inProtocol
+    }
     try {
       this.loading = true
-      await unbindDeviceCallbackTemplate({
-        deviceId: this.deviceId,
-        templateId: row.templateId,
-        inProtocol: this.inProtocol
-      })
+      if (this.groupId) {
+        await unbindGroupCallBackTemplate(params)
+      } else if (this.deviceId) {
+        await unbindDeviceCallbackTemplate(params)
+      }
       this.bindTemplateId = ''
     } catch (e) {
       this.$message.error(e && e.message)
