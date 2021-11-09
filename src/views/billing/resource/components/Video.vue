@@ -1,9 +1,9 @@
 <template>
   <div>
     <el-table v-loading="loading" class="resource-table" :data="dataList" @row-click="rowClick($event, 'video')">
-      <el-table-column prop="id" label="编号">
+      <el-table-column prop="workOrderNo" label="订单号">
         <template slot-scope="scope">
-          <span class="device-id">{{ scope.row.resourceId.substr(0, 10) }}</span>
+          <span class="device-id">{{ scope.row.workOrderNo }}</span>
         </template>
       </el-table-column>
       <el-table-column prop="totalDeviceCount" label="可接入设备总数">

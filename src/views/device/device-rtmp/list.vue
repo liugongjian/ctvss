@@ -55,7 +55,7 @@
         <span v-if="key === 'deviceType'">{{ deviceType[value] }}</span>
         <span v-if="key === 'deviceStatus'">{{ deviceStatus[value] }}</span>
         <span v-if="key === 'streamStatus'">{{ streamStatus[value] }}</span>
-        <span v-if="key === 'recordStatus'">{{ recordStatus[value] }}</span>
+        <span v-if="key === 'recordStatus'">{{ recordStatusFilterType[value] }}</span>
         <svg-icon class="filter-button__close" name="close" width="10" height="10" />
       </div>
     </div>
@@ -120,7 +120,11 @@
           </template>
           <template slot-scope="{row}">
             <span v-if="row.deviceType === 'nvr'">-</span>
+<<<<<<< HEAD
             <span v-else><status-badge :status="row.recordStatus === 1 ? 'on' : ''" />{{ recordStatus[row.recordStatus] || '-' }}</span>
+=======
+            <span v-else><status-badge :status="recordStatusType[row.recordStatus]" />{{ recordStatus[row.recordStatus] || '-' }}</span>
+>>>>>>> hotfix-1111
           </template>
         </el-table-column>
         <el-table-column key="deviceVendor" prop="deviceVendor" label="厂商">

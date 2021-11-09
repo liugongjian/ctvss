@@ -203,7 +203,6 @@ export default class extends Vue {
   }
 
   private rowClick(alertItem: any) {
-    console.log('rowclick')
     this.openDialog(alertItem)
   }
 

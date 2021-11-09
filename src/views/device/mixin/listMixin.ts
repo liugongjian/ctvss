@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { Component, Watch, Mixins } from 'vue-property-decorator'
 import DeviceMixin from './deviceMixin'
-import { DeviceParams, DeviceStatus, StreamStatus, RecordStatus, DeviceGb28181Type, SipTransType, StreamTransType, TransPriority } from '@/dics'
+import { DeviceParams, DeviceStatus, StreamStatus, RecordStatus, RecordStatusType, RecordStatusFilterType, DeviceGb28181Type, SipTransType, StreamTransType, TransPriority } from '@/dics'
 import { Device } from '@/type/device'
 import { GroupModule } from '@/store/modules/group'
 import { deleteDevice, startDevice, stopDevice, getDevice, getDevices, syncDevice, syncDeviceStatus } from '@/api/device'
@@ -32,7 +32,9 @@ export default class ListMixin extends Mixins(DeviceMixin) {
   public deviceParams = DeviceParams
   public deviceStatus = DeviceStatus
   public streamStatus = StreamStatus
-  private recordStatus = RecordStatus
+  public recordStatus = RecordStatus
+  public recordStatusType = RecordStatusType
+  public recordStatusFilterType = RecordStatusFilterType
   public deviceType = DeviceGb28181Type
   public sipTransType = SipTransType
   public streamTransType = StreamTransType
@@ -71,7 +73,7 @@ export default class ListMixin extends Mixins(DeviceMixin) {
     deviceType: this.dictToFilterArray(DeviceGb28181Type),
     deviceStatus: this.dictToFilterArray(DeviceStatus),
     streamStatus: this.dictToFilterArray(StreamStatus),
-    recordStatus: this.dictToFilterArray(RecordStatus)
+    recordStatus: this.dictToFilterArray(RecordStatusFilterType)
   }
   public autoStreamNumObj = {
     1: '主码流',
@@ -241,6 +243,7 @@ export default class ListMixin extends Mixins(DeviceMixin) {
     this.axiosSources.forEach((axiosSource: any) => {
       axiosSource.cancel()
     })
+    this.clearAllFilter()
     this.init()
   }
 
@@ -327,14 +330,14 @@ export default class ListMixin extends Mixins(DeviceMixin) {
         if (type === 'nvr') {
           this.channelSize = res.channelSize
           // nvr通道后端全量返回，前端做筛选
-          deviceList = deviceList.filter((device: any) => {
+          deviceList = deviceList.filter((device: Device) => {
             if (this.filter.deviceStatus && device.deviceStatus !== this.filter.deviceStatus) {
               return false
             }
             if (this.filter.streamStatus && device.streamStatus !== this.filter.streamStatus) {
               return false
             }
-            if (this.filter.recordStatus && device.recordStatus.toString() !== this.filter.recordStatus.toString()) {
+            if (this.filter.recordStatus && RecordStatusType[device.recordStatus] !== this.filter.recordStatus) {
               return false
             }
             return true
@@ -771,9 +774,20 @@ export default class ListMixin extends Mixins(DeviceMixin) {
    * 清空指定筛选条件
    */
   public clearFilter(key: string) {
+    if (this.filter[key]) {
+      const deviceTable: any = this.$refs.deviceTable
+      deviceTable && deviceTable.clearFilter(key)
+    }
     this.filter[key] = undefined
-    const deviceTable: any = this.$refs.deviceTable
-    deviceTable.clearFilter(key)
+  }
+
+  /**
+   * 清空所有筛选条件
+   */
+  public clearAllFilter() {
+    for (const key in this.filter) {
+      this.clearFilter(key)
+    }
   }
 
   /**

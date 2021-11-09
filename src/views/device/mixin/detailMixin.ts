@@ -8,7 +8,7 @@ import { queryGroup } from '@/api/group'
 import { GroupModule } from '@/store/modules/group'
 import { VGroupModule } from '@/store/modules/vgroup'
 import { DeviceModule } from '@/store/modules/device'
-import { DeviceStatus, DeviceGb28181Type, RecordStatus, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType } from '@/dics'
+import { DeviceStatus, DeviceGb28181Type, RecordStatus, RecordStatusType, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType } from '@/dics'
 import { getDeviceResources } from '@/api/billing'
 import TemplateBind from '../../components/templateBind.vue'
 import SetAuthConfig from '../components/dialogs/SetAuthConfig.vue'
@@ -39,6 +39,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   public checkPermission = checkPermission
   public activeName = 'info'
   public deviceStatus = DeviceStatus
+  public recordStatusType = RecordStatusType
   public deviceType = DeviceGb28181Type
   public recordStatus = RecordStatus
   public authStatus = AuthStatus
