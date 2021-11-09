@@ -204,8 +204,6 @@ export default class ListMixin extends Vue {
   @Watch('$route.query')
   public onRouterChange() {
     this.reset()
-    console.log(this.isIPC);
-    
   }
 
   @Watch('isSorted')
