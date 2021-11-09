@@ -120,11 +120,7 @@
           </template>
           <template slot-scope="{row}">
             <span v-if="row.deviceType === 'nvr'">-</span>
-<<<<<<< HEAD
-            <span v-else><status-badge :status="row.recordStatus === 1 ? 'on' : ''" />{{ recordStatus[row.recordStatus] || '-' }}</span>
-=======
             <span v-else><status-badge :status="recordStatusType[row.recordStatus]" />{{ recordStatus[row.recordStatus] || '-' }}</span>
->>>>>>> hotfix-1111
           </template>
         </el-table-column>
         <el-table-column key="deviceVendor" prop="deviceVendor" label="厂商">
