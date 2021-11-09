@@ -588,7 +588,7 @@ export default class extends Vue {
           }
         })
     } else {
-      this.$message.error('您当前浏览器或者浏览器版本暂不支持麦克风')
+      this.$message.error('您当前浏览器或者协议暂不支持麦克风')
     }
   }
 

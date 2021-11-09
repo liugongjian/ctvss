@@ -109,7 +109,6 @@ export default class extends Mixins(ScreenMixin) {
       inProtocol: this.intercomInfo.inProtocol
     }
     startTalk(param).then((res:any) => {
-      console.log('res===>', res)
       const { streamServerAddr } = res
       const wsUrl = `ws://${streamServerAddr}`
       this.ws = new WebSocket(wsUrl)
@@ -130,7 +129,7 @@ export default class extends Mixins(ScreenMixin) {
     const param = {
       deviceId: this.intercomInfo.deviceId
     }
-    stopTalk(param).then((res:any) => {
+    stopTalk(param).then(() => {
       this.stopRecord()
     }).catch((err:any) => {
       this.$message.error(err)
