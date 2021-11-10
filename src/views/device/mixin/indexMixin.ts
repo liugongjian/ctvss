@@ -266,7 +266,7 @@ export default class IndexMixin extends Vue {
         break
       case 'ipc':
         router = {
-          name: 'device-list'
+          name: 'device-detail'
         }
         query = {
           deviceId: item.id

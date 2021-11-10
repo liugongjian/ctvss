@@ -21,6 +21,7 @@ import { checkPermission } from '@/utils/permission'
 import { regionList } from '@/assets/region/lianzhouRegion'
 import copy from 'copy-to-clipboard'
 import { DeviceTips } from '@/dics/tips'
+import Resource from '@/views/device/components/dialogs/Resource.vue'
 @Component({
   components: {
     TemplateBind,
@@ -29,7 +30,8 @@ import { DeviceTips } from '@/dics/tips'
     DetailReplay,
     SetAuthConfig,
     StatusBadge,
-    AntiTheftChain
+    AntiTheftChain,
+    Resource
   }
 })
 export default class DetailMixin extends Mixins(DeviceMixin) {
@@ -55,6 +57,8 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   public info: Device | null = null
   public groupInfo: Group | null = null
   public resources: any = []
+  public algoTabTypeDefault = ''
+  public showResourceDialog = false
 
   public tips = DeviceTips
 
@@ -151,7 +155,16 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     return this.groupInfo && this.groupInfo.sipId && this.groupInfo.sipId.toString().substr(0, 10)
   }
 
+  @Watch('$route.query')
+  public onRouterChange() {
+    this.detailInit()
+  }
+
   public async mounted() {
+    this.detailInit()
+  }
+
+  private async detailInit() {
     if (this.$route.query.tab) {
       this.activeName = this.$route.query.tab.toString()
     } else {
@@ -264,6 +277,19 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     } finally {
       this.loading.info = false
     }
+  }
+
+  /**
+   * 打开算法配置弹窗
+   */
+  private changeResourceDialog() {
+    this.showResourceDialog = true
+  }
+
+  // 关闭算法配置弹窗
+  private closeResourceDialog(isRefresh: boolean) {
+    this.showResourceDialog = false
+    isRefresh && this.detailInit()
   }
 
   /**
