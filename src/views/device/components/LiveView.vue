@@ -186,7 +186,7 @@ export default class extends Vue {
         inProtocol: this.inProtocol,
         isLive: true
       }
-    } catch (e:any) {
+    } catch (e) {
       if (e.code === 5) {
         this.retry = true
       }
