@@ -2,7 +2,8 @@
   <el-dialog
     title="语音对讲"
     :visible="ifIntercom"
-    :close-on-click-modal="false"
+    :close-on-click-modal="true"
+    :append-to-body="true"
     class="intercomBox"
     width="80%"
     @close="closeThis"
@@ -241,9 +242,13 @@ export default class extends Mixins(ScreenMixin) {
   .intercomPlayer{
     video{
       width: 100%;
+      position: static; // 清空device/preview 中使用liveview组件的副作用
     }
     .controls{
       display: none;
+    }
+    .video-wrap{
+      position: static; // 清空device/preview 中使用liveview组件的副作用
     }
   }
 }
@@ -251,9 +256,9 @@ export default class extends Mixins(ScreenMixin) {
 </style>
 <style lang="scss" scoped>
 .intercomBox{
-  .el-dialog__body{
-    height: 70%;
-  }
+  ::v-deep .el-dialog__body{
+      height: 70%;
+    }
 }
 .intercomPlayer{
   width: 70%;
