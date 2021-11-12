@@ -10,6 +10,10 @@ export interface Device {
   deviceIp?: string;
   devicePort?: number;
   gbId?: string;
+  gbRegion?: string;
+  address?: string;
+  industryCode?: string;
+  networkCode?: string;
   gbAccount?: string;
   tunnelNum?: number | null;
   createSubDevice?: number;

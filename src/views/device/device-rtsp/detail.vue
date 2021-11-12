@@ -32,6 +32,10 @@
               <info-list-item v-if="lianzhouFlag" label="经纬度:">{{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}</info-list-item>
             </info-list>
             <info-list v-if="info" label-width="110">
+              <info-list-item label="设备国标ID:">{{ info.gbId || '=' }}</info-list-item>
+              <info-list-item v-if="info.address" label="设备地址:">{{ info.address }}</info-list-item>
+              <info-list-item v-if="info.industryCode" label="所属行业:">{{ industryMap[info.industryCode] }}</info-list-item>
+              <info-list-item v-if="info.networkCode && networkFlag" label="网络标识:">{{ networkMap[info.networkCode] }}</info-list-item>
               <info-list-item label="视频流接入方式:">{{ inType[info.inType] }}</info-list-item>
               <template v-if="info.deviceVendor === '其他'">
                 <info-list-item v-if="info.inType === 'pull'" label="自定义拉流地址:">{{ info.deviceDomain }}</info-list-item>
