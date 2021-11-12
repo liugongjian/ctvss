@@ -92,7 +92,7 @@
         <span v-if="key === 'deviceType'">{{ deviceType[value] }}</span>
         <span v-if="key === 'deviceStatus'">{{ deviceStatus[value] }}</span>
         <span v-if="key === 'streamStatus'">{{ streamStatus[value] }}</span>
-        <span v-if="key === 'recordStatus'">{{ recordStatus[value] }}</span>
+        <span v-if="key === 'recordStatus'">{{ recordStatusFilterType[value] }}</span>
         <svg-icon class="filter-button__close" name="close" width="10" height="10" />
       </div>
     </div>
@@ -118,12 +118,12 @@
           column-key="deviceType"
           prop="deviceType"
           label="类型"
-          :filters="filtersArray.deviceType"
+          :filters="isIPC ? [] : filtersArray.deviceType"
           :filter-multiple="false"
         >
           <template slot="header">
             <span class="filter">类型</span>
-            <svg-icon class="filter" name="filter" width="15" height="15" />
+            <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
           </template>
           <template slot-scope="{row}">
             {{ deviceType[row.deviceType] }}
@@ -135,12 +135,12 @@
           column-key="deviceStatus"
           label="设备状态"
           min-width="110"
-          :filters="filtersArray.deviceStatus"
+          :filters="isIPC ? [] : filtersArray.deviceStatus"
           :filter-multiple="false"
         >
           <template slot="header">
             <span class="filter">设备状态</span>
-            <svg-icon class="filter" name="filter" width="15" height="15" />
+            <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
           </template>
           <template slot-scope="{row}">
             <status-badge :status="row.deviceStatus" />
@@ -153,12 +153,12 @@
           prop="streamStatus"
           label="流状态"
           min-width="110"
-          :filters="filtersArray.streamStatus"
+          :filters="isIPC ? [] : filtersArray.streamStatus"
           :filter-multiple="false"
         >
           <template slot="header">
             <span class="filter">流状态</span>
-            <svg-icon class="filter" name="filter" width="15" height="15" />
+            <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
           </template>
           <template slot-scope="{row}">
             <status-badge :status="row.streamStatus" />
@@ -171,16 +171,16 @@
           prop="recordStatus"
           label="录制状态"
           min-width="110"
-          :filters="filtersArray.recordStatus"
+          :filters="isIPC ? [] : filtersArray.recordStatus"
           :filter-multiple="false"
         >
           <template slot="header">
             <span class="filter">录制状态</span>
-            <svg-icon class="filter" name="filter" width="15" height="15" />
+            <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
           </template>
           <template slot-scope="{row}">
             <span v-if="row.deviceType === 'nvr'">-</span>
-            <span v-else><status-badge :status="row.recordStatus === 1 ? 'red' : ''" />{{ recordStatus[row.recordStatus] || '-' }}</span>
+            <span v-else><status-badge :status="recordStatusType[row.recordStatus]" />{{ recordStatus[row.recordStatus] || '-' }}</span>
           </template>
         </el-table-column>
         <el-table-column key="deviceVendor" prop="deviceVendor" label="厂商">
@@ -242,7 +242,7 @@
                 <template v-if="scope.row.deviceType === 'ipc'">
                   <el-dropdown-item v-if="!isVGroup && scope.row.streamStatus === 'on' && checkPermission(['AdminDevice'])" :command="{type: 'stopDevice', device: scope.row}">停用流</el-dropdown-item>
                   <el-dropdown-item v-else-if="!isVGroup && checkPermission(['AdminDevice'])" :command="{type: 'startDevice', device: scope.row}">启用流</el-dropdown-item>
-                  <el-dropdown-item v-if="!isVGroup && scope.row.recordStatus === 1 && checkPermission(['AdminDevice'])" :command="{type: 'stopRecord', device: scope.row}">停止录像</el-dropdown-item>
+                  <el-dropdown-item v-if="!isVGroup && recordStatusType[scope.row.recordStatus] === 'on' && checkPermission(['AdminDevice'])" :command="{type: 'stopRecord', device: scope.row}">停止录像</el-dropdown-item>
                   <el-dropdown-item v-else-if="!isVGroup && checkPermission(['AdminDevice'])" :command="{type: 'startRecord', device: scope.row}">开始录像</el-dropdown-item>
                 </template>
                 <el-dropdown-item v-if="!isVGroup && checkPermission(['AdminDevice'])" :command="{type: 'updateResource', device: scope.row}">配置资源包</el-dropdown-item>

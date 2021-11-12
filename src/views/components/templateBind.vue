@@ -24,8 +24,15 @@
       <el-button v-permission="['*']" type="text" class="template-edit" @click="setCallbackTemplate">编辑</el-button>
       <info-list title="回调模板">
         <el-table v-loading="loading.callback" :data="template.callbackTemplate" fit empty-text="该设备或组没有绑定回调模板">
-          <el-table-column prop="templateName" label="模板名称" />
-          <el-table-column prop="recordNotifyUrl" label="回调URL" />
+          <el-table-column prop="templateName" label="模板名称" min-width="50" />
+          <el-table-column label="回调URL">
+            <template slot-scope="{row}">
+              <div v-if="row.recordNotifyUrl">录制回调: {{ row.recordNotifyUrl }}</div>
+              <div v-if="row.deviceStatusUrl">设备状态回调: {{ row.deviceStatusUrl }}</div>
+              <div v-if="row.streamStatusUrl">流状态回调: {{ row.streamStatusUrl }}</div>
+              <div v-if="row.aiEventNotifyUrl">AI事件通知回调: {{ row.aiEventNotifyUrl }}</div>
+            </template>
+          </el-table-column>
           <el-table-column prop="callbackKey" label="回调Key" />
         </el-table>
       </info-list>

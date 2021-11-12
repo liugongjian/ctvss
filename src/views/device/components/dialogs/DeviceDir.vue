@@ -18,11 +18,16 @@
         :props="treeProp"
         @node-click="selectDevice"
       >
-        <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}">
+        <span
+          slot-scope="{node, data}"
+          class="custom-tree-node"
+          :class="{'online': data.deviceStatus === 'on'}"
+        >
           <span class="node-name">
-            <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
+            <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
             <svg-icon :name="data.type" />
             {{ node.label }}
+            <span class="sum-icon">{{ getSums(data) }}</span>
           </span>
         </span>
       </el-tree>
@@ -30,12 +35,14 @@
   </el-dialog>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop, Inject } from 'vue-property-decorator'
+import { Component, Prop, Mixins } from 'vue-property-decorator'
+import DeviceMixin from '../../mixin/deviceMixin'
 import { GroupModule } from '@/store/modules/group'
 import { Device } from '@/type/device'
 import { getDeviceTree } from '@/api/device'
-import StatusBadge from '@/components/StatusBadge/index.vue'
 import { VGroupModule } from '@/store/modules/vgroup'
+import { getSums } from '@/utils/device'
+import StatusBadge from '@/components/StatusBadge/index.vue'
 
 @Component({
   name: 'DeviceDir',
@@ -43,23 +50,14 @@ import { VGroupModule } from '@/store/modules/vgroup'
     StatusBadge
   }
 })
-export default class extends Vue {
-  @Inject('getDirPath') private getDirPath!: Function
+export default class extends Mixins(DeviceMixin) {
   @Prop()
   private device!: Device
   private dialogVisible = true
   private submitting = false
   public dirList = []
   private currentDir: any = null
-  public loading = {
-    dir: false
-  }
-
-  private treeProp = {
-    label: 'label',
-    children: 'children',
-    isLeaf: 'isLeaf'
-  }
+  private getSums = getSums
 
   /**
    * 当前业务组ID
@@ -72,75 +70,21 @@ export default class extends Vue {
     await this.initDirs()
   }
 
-  private async initDirs() {
+  public async initDirs() {
     try {
       VGroupModule.resetVGroupInfo()
       this.loading.dir = true
       const res = await getDeviceTree({
-        groupId: this.groupId,
+        groupId: this.currentGroupId,
         id: 0
       })
       this.dirList = this.setDirsStreamStatus(res.dirs)
-      this.$nextTick(() => {
-        this.initTreeStatus()
-      })
     } catch (e) {
       this.dirList = []
       console.log(e)
     } finally {
       this.loading.dir = false
     }
-  }
-
-  /**
-   * 加载目录
-   */
-  private async loadDirs(node: any, resolve: Function) {
-    if (node.level === 0) return resolve([])
-
-    if (node.data.type === 'role') {
-      node.data.roleId = node.data.id
-    } else if (node.data.type === 'group') {
-      node.data.realGroupId = node.data.id
-      node.data.realGroupInProtocol = node.data.inProtocol
-    }
-    VGroupModule.SetRoleID(node.data.roleId || '')
-    VGroupModule.SetRealGroupId(node.data.realGroupId || '')
-    VGroupModule.SetRealGroupInProtocol(node.data.realGroupInProtocol || '')
-
-    try {
-      const res = await getDeviceTree({
-        groupId: this.groupId,
-        id: node.data.id,
-        type: node.data.type
-      })
-      res.dirs.forEach((dir: any) => {
-        dir.roleId = node.data.roleId || ''
-        dir.realGroupId = node.data.realGroupId || ''
-        dir.realGroupInProtocol = node.data.realGroupInProtocol || ''
-      })
-      res.dirs = this.setDirsStreamStatus(res.dirs)
-      resolve(res.dirs)
-    } catch (e) {
-      resolve([])
-    }
-  }
-
-  /**
-   * 设置目录树设备流状态
-   */
-  private setDirsStreamStatus(dirs: any) {
-    return dirs.map((dir: any) => {
-      if (!dir.streamStatus && dir.deviceStreams && dir.deviceStreams.length > 0) {
-        const hasOnline = dir.deviceStreams.some((stream: any) => {
-          return stream.streamStatus === 'on'
-        })
-        if (hasOnline) {
-          dir.streamStatus = 'on'
-        }
-      }
-      return dir
-    })
   }
 
   private selectDevice(dir: any) {
@@ -163,10 +107,13 @@ export default class extends Vue {
       margin-right: 5px;
       color: #6e7c89;
     }
-    .online {
+    .custom-tree-node.online .node-name {
       .svg-icon {
         color: #65c465;
       }
+    }
+    .custom-tree-node .sum-icon {
+      color: $textGrey;
     }
     .node-name {
       position: relative;
@@ -178,6 +125,10 @@ export default class extends Vue {
       width: 6px;
       height: 6px;
       opacity: 0.7;
+      display: none;
+      &--on {
+        display: block;
+      }
     }
   }
 </style>

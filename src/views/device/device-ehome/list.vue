@@ -21,7 +21,8 @@
     </div>
     <div ref="filterWrap" class="filter-container clearfix">
       <div class="filter-container__left">
-        <el-button v-if="!isVGroup && (isDir || isNVR) && checkPermission(['AdminDevice'], {id: dirId !== '0' ? dirId : currentGroupId})" key="dir-button" type="primary" @click="goToCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
+        <el-button v-if="!isVGroup && (isDir) && checkPermission(['AdminDevice'], {id: dirId !== '0' ? dirId : currentGroupId})" key="dir-button" type="primary" @click="goToCreate">{{ isNVR ? '添加子设备' : '添加设备' }}</el-button>
+        <el-button v-if="isNVR" type="primary" @click="goToConfigChannel">配置子通道</el-button>
         <el-button v-if="isNVR" key="check-nvr-detail" @click="goToDetail(deviceInfo)">查看NVR设备详情</el-button>
         <el-button v-if="!isVGroup && isNVR && checkPermission(['AdminDevice'])" key="edit-nvr" @click="goToUpdate(deviceInfo)">编辑NVR设备</el-button>
         <el-button v-if="isPlatform" @click="goToDetail(deviceInfo)">查看Platform详情</el-button>
@@ -67,7 +68,7 @@
         <span v-if="key === 'deviceType'">{{ deviceType[value] }}</span>
         <span v-if="key === 'deviceStatus'">{{ deviceStatus[value] }}</span>
         <span v-if="key === 'streamStatus'">{{ streamStatus[value] }}</span>
-        <span v-if="key === 'recordStatus'">{{ recordStatus[value] }}</span>
+        <span v-if="key === 'recordStatus'">{{ recordStatusFilterType[value] }}</span>
         <svg-icon class="filter-button__close" name="close" width="10" height="10" />
       </div>
     </div>
@@ -88,12 +89,12 @@
           column-key="deviceType"
           prop="deviceType"
           label="类型"
-          :filters="filtersArray.deviceType"
+          :filters="isIPC ? [] : filtersArray.deviceType"
           :filter-multiple="false"
         >
           <template slot="header">
             <span class="filter">类型</span>
-            <svg-icon class="filter" name="filter" width="15" height="15" />
+            <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
           </template>
           <template slot-scope="{row}">
             {{ deviceType[row.deviceType] }}
@@ -104,12 +105,12 @@
           column-key="deviceStatus"
           label="设备状态"
           min-width="110"
-          :filters="filtersArray.deviceStatus"
+          :filters="isIPC ? [] : filtersArray.deviceStatus"
           :filter-multiple="false"
         >
           <template slot="header">
             <span class="filter">设备状态</span>
-            <svg-icon class="filter" name="filter" width="15" height="15" />
+            <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
           </template>
           <template slot-scope="{row}">
             <status-badge :status="row.deviceStatus" />
@@ -168,16 +169,16 @@
           prop="recordStatus"
           label="录制状态"
           min-width="110"
-          :filters="filtersArray.recordStatus"
+          :filters="isIPC ? [] : filtersArray.recordStatus"
           :filter-multiple="false"
         >
           <template slot="header">
             <span class="filter">录制状态</span>
-            <svg-icon class="filter" name="filter" width="15" height="15" />
+            <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
           </template>
           <template slot-scope="{row}">
             <span v-if="row.deviceType === 'nvr'">-</span>
-            <span v-else><status-badge :status="row.recordStatus === 1 ? 'red' : ''" />{{ recordStatus[row.recordStatus] || '-' }}</span>
+            <span v-else><status-badge :status="recordStatusType[row.recordStatus]" />{{ recordStatus[row.recordStatus] || '-' }}</span>
           </template>
         </el-table-column>
         <el-table-column key="deviceVendor" prop="deviceVendor" label="厂商">
