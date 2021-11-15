@@ -130,8 +130,9 @@ export default class extends Mixins(ScreenMixin) {
     const param = {
       deviceId: this.intercomInfo.deviceId
     }
+    this.stopRecord()
     stopTalk(param).then(() => {
-      this.stopRecord()
+      // this.stopRecord()
     }).catch((err:any) => {
       this.$message.error(err)
     })
