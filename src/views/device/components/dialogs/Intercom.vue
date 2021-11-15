@@ -36,7 +36,7 @@
           <div class="intercomMicroBtn"
                @mousedown.prevent="intercomMousedown"
                @mouseup.prevent="intercomMouseup"
-               @click="forbiddenClick"
+               @click="intercomClick"
           >
             <svg-icon name="microphone" width="66px" height="66px" />
           </div>
@@ -92,6 +92,10 @@ export default class extends Mixins(ScreenMixin) {
     this.getDeviceInfo()
   }
 
+  private destroyed() {
+    this.stopRecord()
+  }
+
   private getDeviceInfo() {
     const param = {
       deviceId: this.intercomInfo.deviceId,
@@ -113,34 +117,44 @@ export default class extends Mixins(ScreenMixin) {
     startTalk(param).then((res:any) => {
       const { streamServerAddr } = res
       const wsUrl = `ws://${streamServerAddr}`
-      this.ws = new WebSocket(wsUrl)
-      this.ws.onopen = (e:any) => {
-        console.log('连接建立', e)
-        this.ws.send(this.intercomInfo.deviceId)
-        this.startRecord()
-      }
-      this.ws.onerror = (e:any) => {
-        console.log(e)
+      if (!this.ws) {
+        this.ws = new WebSocket(wsUrl)
+        this.ws.onopen = (e:any) => {
+          console.log('连接建立', e)
+          this.ws.send(this.intercomInfo.deviceId)
+          this.startRecord()
+        }
+        this.ws.onerror = (e:any) => {
+          console.log(`连接错误：${e}`)
+        }
       }
     }).catch((err:any) => {
       this.$message.error(`${err},请稍后再试`)
     })
   }
 
-  private forbiddenClick() {
-    return false
-  }
-
-  private intercomMouseup() {
+  private intercomClick() {
+    this.stopRecord()
     const param = {
       deviceId: this.intercomInfo.deviceId
     }
-    this.stopRecord()
     stopTalk(param).then(() => {
       // this.stopRecord()
     }).catch((err:any) => {
       this.$message.error(err)
     })
+  }
+
+  private intercomMouseup() {
+    // this.stopRecord()
+    // const param = {
+    //   deviceId: this.intercomInfo.deviceId
+    // }
+    // stopTalk(param).then(() => {
+    //   // this.stopRecord()
+    // }).catch((err:any) => {
+    //   this.$message.error(err)
+    // })
   }
 
   private startRecord() {
@@ -160,6 +174,10 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   private stopRecord() {
+    if (this.ws) {
+      this.ws.close()
+    }
+    this.ws = null
     if (this.streamAudio && this.streamAudio.getAudioTracks()) {
       const tracks = this.streamAudio.getAudioTracks()
       for (let i = 0, len = tracks.length; i < len; i++) {
@@ -171,10 +189,6 @@ export default class extends Mixins(ScreenMixin) {
     this.sourceAudio = null
     this.scriptProcessor = null
     this.maxVol = 0
-    if (this.ws) {
-      this.ws.close()
-    }
-    this.ws = null
   }
 
   private initRecordMicro(stream:any) {
