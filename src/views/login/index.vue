@@ -2,7 +2,8 @@
   <div class="login-container">
     <div class="header">
       <div class="logo">
-        <img src="@/assets/images/logo.png">
+        <img src="@/assets/images/logo.svg">
+        <span class="logo__subtitle">视频监控</span>
       </div>
     </div>
     <div class="login-container__body">
@@ -410,7 +411,7 @@ export default class extends Vue {
 
 <style lang="scss" scoped>
 .login-container {
-  height: 100%;
+  height: 100vh;
   width: 100%;
   overflow: hidden;
   background-color: $loginBg;
@@ -418,18 +419,29 @@ export default class extends Vue {
   .header {
     height: 50px;
     width: 100%;
-    background-color: #31313b;
+    background-color: #f7f7f7;
+    border-bottom: 1px solid #eee;
     line-height: 50px;
     position: fixed;
     z-index: 100;
 
     .logo {
       float: left;
-      color: #fff;
+      font-weight: bold;
       margin-left: 15px;
       height: 100%;
       display: flex;
       align-items: center;
+
+      &__subtitle {
+        color: $text;
+        font-size: 16px;
+        border-left: 1px solid #aaa;
+        height: 20px;
+        line-height: 20px;
+        margin-left: 15px;
+        padding-left: 15px;
+      }
       img {
         height: 30px;
       }
