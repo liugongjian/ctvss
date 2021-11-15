@@ -36,6 +36,7 @@
           <div class="intercomMicroBtn"
                @mousedown.prevent="intercomMousedown"
                @mouseup.prevent="intercomMouseup"
+               @click="forbiddenClick"
           >
             <svg-icon name="microphone" width="66px" height="66px" />
           </div>
@@ -126,6 +127,10 @@ export default class extends Mixins(ScreenMixin) {
     })
   }
 
+  private forbiddenClick() {
+    return false
+  }
+
   private intercomMouseup() {
     const param = {
       deviceId: this.intercomInfo.deviceId
@@ -160,13 +165,16 @@ export default class extends Mixins(ScreenMixin) {
       for (let i = 0, len = tracks.length; i < len; i++) {
         tracks[i].stop()
       }
-      this.sourceAudio.disconnect()
-      this.scriptProcessor.disconnect()
-      this.sourceAudio = null
-      this.scriptProcessor = null
-      this.maxVol = 0
+    }
+    this.sourceAudio && this.sourceAudio.disconnect()
+    this.scriptProcessor && this.scriptProcessor.disconnect()
+    this.sourceAudio = null
+    this.scriptProcessor = null
+    this.maxVol = 0
+    if (this.ws) {
       this.ws.close()
     }
+    this.ws = null
   }
 
   private initRecordMicro(stream:any) {
