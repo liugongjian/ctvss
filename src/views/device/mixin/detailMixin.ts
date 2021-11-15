@@ -129,7 +129,7 @@ export default class DetailMixin extends Vue {
    * 针对网络标识
    */
   private get networkFlag() {
-    return this.$store.state.user.tags.isNeedDeviceNetworkCode === true
+    return this.$store.state.user.tags.isNeedDeviceNetworkCode === 'Y'
   }
 
   public async mounted() {

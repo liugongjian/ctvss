@@ -122,7 +122,7 @@ export default class CreateMixin extends Vue {
    * 针对网络标识
    */
   public get networkFlag() {
-    return this.$store.state.user.tags.isNeedDeviceNetworkCode === true
+    return this.$store.state.user.tags.isNeedDeviceNetworkCode === 'Y'
   }
 
   @Watch('currentGroup', { immediate: true, deep: true })

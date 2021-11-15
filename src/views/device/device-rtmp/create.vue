@@ -179,8 +179,6 @@ export default class extends Mixins(createMixin) {
   private inTypeList = InType
 
   public async mounted() {
-    console.log(!this.isUpdate || !!this.form.industryCode);
-    
     if (this.isUpdate) {
       await this.getDeviceInfo()
     } else {

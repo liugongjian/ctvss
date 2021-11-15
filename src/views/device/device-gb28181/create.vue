@@ -68,9 +68,9 @@
         <el-form-item label="设备端口:" prop="devicePort">
           <el-input v-model.number="form.devicePort" />
         </el-form-item>
-        <el-form-item v-if="form.deviceType === 'platform'" label="设备国标编号:" prop="gbId">
+        <!-- <el-form-item v-if="form.deviceType === 'platform'" label="设备国标编号:" prop="gbId">
           <el-input v-model="form.gbId" />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="GB28181账号:" prop="userName">
           <el-select v-model="form.userName" :loading="loading.account">
             <el-option-group label="匿名">
@@ -136,7 +136,7 @@
             @change="addressChange"
           />
         </el-form-item>
-        <el-form-item v-if="lianzhouFlag" label="经纬度:" prop="longlat">
+        <el-form-item v-if="lianzhouFlag" v-show="form.deviceType !== 'platform'" label="经纬度:" prop="longlat">
           <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
           <el-input v-model="form.deviceLatitude" class="longlat-input" />
         </el-form-item>
@@ -228,10 +228,10 @@ export default class extends Mixins(createMixin) {
       { required: true, message: '请填写通道号', trigger: 'change' },
       { validator: this.validateChannelNum, trigger: 'change' }
     ],
-    gbId: [
-      { required: true, message: '请填写国标ID', trigger: 'blur' },
-      { validator: this.validateGbId, trigger: 'blur' }
-    ],
+    // gbId: [
+    //   { required: true, message: '请填写国标ID', trigger: 'blur' },
+    //   { validator: this.validateGbId, trigger: 'blur' }
+    // ],
     industryCode: [
       { required: true, message: '请选择所属行业', trigger: 'blur' }
     ],
