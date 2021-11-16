@@ -25,7 +25,6 @@
               <info-list-item v-if="info.deviceChannels.length" label="通道号:">{{ 'D' + info.deviceChannels[0].channelNum }}</info-list-item>
               <info-list-item v-if="info.deviceChannels.length" label="通道名称:">{{ info.deviceChannels[0].channelName }}</info-list-item>
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
-              <info-list-item label="设备地址:">{{ address || '-' }}</info-list-item>
               <info-list-item label="经纬度:">{{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}</info-list-item>
             </info-list>
             <info-list v-if="info" label-width="110">
