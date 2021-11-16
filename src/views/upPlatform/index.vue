@@ -172,7 +172,7 @@
           </div>
         </div>
       </div>
-      <div v-else class="empty-text">
+      <div v-else class="empty-text" :style="{height: `${maxHeight + 55}px`}">
         请选择或创建一个向上级联平台
       </div>
     </el-card>

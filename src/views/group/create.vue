@@ -295,13 +295,13 @@ export default class extends Vue {
         res.inNetworkType = res.inNetworkType || 'public'
         res.outNetworkType = res.outNetworkType || 'public'
         this.form = res
+        this.cascaderInit()
       } catch (e) {
         this.$message.error(e && e.message)
       } finally {
         this.loading = false
       }
     }
-    this.cascaderInit()
   }
 
   /**
