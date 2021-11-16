@@ -73,6 +73,7 @@ export default class extends Mixins(ScreenMixin) {
   private ws:any
   private deviceInfo?:Device
   private transPriority:any
+  private ifCloseStatus = 0
 
   @Watch('maxVol')
   private getVolStyle(val:any) {
@@ -104,6 +105,7 @@ export default class extends Mixins(ScreenMixin) {
     getDevice(param).then((res) => {
       this.deviceInfo = res
       // 默认用UDP ，流侧只处理了UDP，暂未处理TCP
+      this.ifCloseStatus = 0
       this.transPriority = res.transPriority
     })
   }
@@ -114,19 +116,27 @@ export default class extends Mixins(ScreenMixin) {
       transPriority: 'UDP', // 先使用UDP，等流媒体侧兼容之后再使用参数
       inProtocol: this.intercomInfo.inProtocol
     }
+
+    this.ifCloseStatus = 0
     startTalk(param).then((res:any) => {
       const { streamServerAddr } = res
       const wsUrl = `ws://${streamServerAddr}`
-      if (!this.ws) {
+      try {
         this.ws = new WebSocket(wsUrl)
         this.ws.onopen = (e:any) => {
-          console.log('连接建立', e)
-          this.ws.send(this.intercomInfo.deviceId)
-          this.startRecord()
+          console.log('连接建立', e, this.ifCloseStatus)
+          if (this.ifCloseStatus !== 1) {
+            this.ws.send(this.intercomInfo.deviceId)
+            this.startRecord()
+          } else {
+            this.ws.close()
+          }
         }
-        this.ws.onerror = (e:any) => {
-          console.log(`连接错误：${e}`)
-        }
+      } catch (e) {
+        // this.ws.onerror = (e:any) => {
+        //   console.log(`连接错误：${e}`)
+        // }
+        console.log(`连接错误：${e}`)
       }
     }).catch((err:any) => {
       this.$message.error(`${err},请稍后再试`)
@@ -134,6 +144,10 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   private intercomClick() {
+    this.stopRecord()
+  }
+
+  private intercomMouseup() {
     this.stopRecord()
     const param = {
       deviceId: this.intercomInfo.deviceId
@@ -143,18 +157,6 @@ export default class extends Mixins(ScreenMixin) {
     }).catch((err:any) => {
       this.$message.error(err)
     })
-  }
-
-  private intercomMouseup() {
-    // this.stopRecord()
-    // const param = {
-    //   deviceId: this.intercomInfo.deviceId
-    // }
-    // stopTalk(param).then(() => {
-    //   // this.stopRecord()
-    // }).catch((err:any) => {
-    //   this.$message.error(err)
-    // })
   }
 
   private startRecord() {
@@ -174,6 +176,7 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   private stopRecord() {
+    this.ifCloseStatus = 1
     if (this.ws) {
       this.ws.close()
     }
