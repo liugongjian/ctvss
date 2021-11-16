@@ -112,7 +112,9 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   private intercomMouseleave() {
-    this.intercomMouseup()
+    if (this.ws || this.sourceAudio) {
+      this.intercomMouseup()
+    }
   }
 
   private intercomMousedown() {
