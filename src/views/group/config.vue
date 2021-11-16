@@ -12,8 +12,6 @@
           <info-list-item label="设备地址:">{{ form.address || '-' }}</info-list-item>
           <info-list-item v-if="form.industryCode" label="所属行业:">{{ industryMap[form.industryCode] }}</info-list-item>
           <info-list-item v-if="form.networkCode && networkFlag" label="网络标识:">{{ networkMap[form.networkCode] }}</info-list-item>
-          <info-list-item label="业务组描述:">{{ form.description }}</info-list-item>
-          <info-list-item label="业务组描述:">{{ form.description }}</info-list-item>
           <template v-if="!isVGroup">
             <info-list-item label="接入区域:">{{ form.regionName }}</info-list-item>
             <info-list-item label="接入类型:">{{ InProtocolType[form.inProtocol] }}</info-list-item>
