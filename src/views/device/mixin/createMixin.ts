@@ -143,6 +143,9 @@ export default class CreateMixin extends Vue {
 
   // 设备地址动态变化
   public async cascaderInit() {
+    if (this.lianzhouFlag) {
+      this.regionList[0].children[0].children[0].children = await this.getExpandList(441882)
+    }
     if (!this.form.gbRegion) return
     let list = [
       parseInt(this.form.gbRegion!.substring(0, 2)),

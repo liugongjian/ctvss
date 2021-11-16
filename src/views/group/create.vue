@@ -48,7 +48,6 @@
             :disabled="form.gbId !== ''"
             :options="gbRegionList"
             :props="addressProps"
-            @active-item-change="regionChange"
             @change="addressChange"
           />
         </el-form-item>
@@ -279,7 +278,7 @@ export default class extends Vue {
    * 针对网络标识
    */
   private get networkFlag() {
-    return this.$store.state.user.tags.isNeedDeviceNetworkCode === true
+    return this.$store.state.user.tags.isNeedDeviceNetworkCode === 'Y'
   }
 
   private async mounted() {
@@ -296,19 +295,22 @@ export default class extends Vue {
         res.inNetworkType = res.inNetworkType || 'public'
         res.outNetworkType = res.outNetworkType || 'public'
         this.form = res
-        this.cascaderInit()
       } catch (e) {
         this.$message.error(e && e.message)
       } finally {
         this.loading = false
       }
     }
+    this.cascaderInit()
   }
 
   /**
    * 设备地址
    */
   private async cascaderInit() {
+    if (this.lianzhouFlag) {
+      this.gbRegionList[0].children[0].children[0].children = await this.getExpandList(441882)
+    }
     if (!this.form.gbRegion) return
     let list = [
       parseInt(this.form.gbRegion!.substring(0, 2)),

@@ -132,7 +132,6 @@
             :disabled="form.gbId !== ''"
             :options="regionList"
             :props="addressProps"
-            @active-item-change="regionChange"
             @change="addressChange"
           />
         </el-form-item>

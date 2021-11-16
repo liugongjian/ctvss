@@ -160,12 +160,6 @@
           </template>
           <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" />
         </el-form-item>
-        <template v-if="lianzhouFlag">
-          <el-form-item label="经纬度:" prop="longlat">
-            <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
-            <el-input v-model="form.deviceLatitude" class="longlat-input" />
-          </el-form-item>
-        </template>
         <el-form-item label="设备地址:" prop="address">
           <el-cascader
             ref="addressCascader"
@@ -174,10 +168,15 @@
             :disabled="form.gbId !== ''"
             :options="regionList"
             :props="addressProps"
-            @active-item-change="regionChange"
             @change="addressChange"
           />
         </el-form-item>
+        <template v-if="lianzhouFlag">
+          <el-form-item label="经纬度:" prop="longlat">
+            <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
+            <el-input v-model="form.deviceLatitude" class="longlat-input" />
+          </el-form-item>
+        </template>
         <el-form-item v-if="!isUpdate || !!form.industryCode" label="所属行业:" prop="industryCode">
           <el-select v-model="form.industryCode" :disabled="form.gbId !== ''" placeholder="请选择所属行业">
             <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
