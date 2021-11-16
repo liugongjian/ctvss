@@ -36,6 +36,7 @@
           <div class="intercomMicroBtn"
                @mousedown.prevent="intercomMousedown"
                @mouseup.prevent="intercomMouseup"
+               @mouseleave="intercomMouseleave"
                @click="intercomClick"
           >
             <svg-icon name="microphone" width="66px" height="66px" />
@@ -108,6 +109,10 @@ export default class extends Mixins(ScreenMixin) {
       this.ifCloseStatus = 0
       this.transPriority = res.transPriority
     })
+  }
+
+  private intercomMouseleave() {
+    this.intercomMouseup()
   }
 
   private intercomMousedown() {
