@@ -146,7 +146,9 @@ export default class extends Mixins(ScreenMixin) {
         console.log(`连接错误：${e}`)
       }
     }).catch((err:any) => {
-      this.$message.error(`${err},请稍后再试`)
+      if (this.ifCloseStatus !== 1) {
+        this.$message.error(`${err},请稍后再试`)
+      }
     })
   }
 
