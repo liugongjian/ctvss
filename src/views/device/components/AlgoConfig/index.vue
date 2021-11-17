@@ -258,15 +258,28 @@ export default class extends Vue {
 
     private sureThis() {
       let pointsInfo = []
-      // 过滤 rect 矩形数据
-      if (this.mode === 'rect') {
-        const { points: [x, y] } = this.areas[0]
-        pointsInfo = this.getRectPoints(x, y)
+      if (this.areas && this.areas[0] && Object.keys(this.areas[0]).length > 0) {
+        // 过滤 rect 矩形数据
+        if (this.mode === 'rect') {
+          const { points: [x, y] } = this.areas[0]
+          pointsInfo = this.getRectPoints(x, y)
+        } else {
+          pointsInfo = this.areas[0].points
+        }
       } else {
-        pointsInfo = this.areas[0].points
+        pointsInfo = []
       }
+
+      const metaData = () => {
+        if (pointsInfo.length > 0) {
+          return JSON.stringify({ DangerZone: pointsInfo.flat().map(item => Math.round(item).toString()) })
+        } else {
+          return JSON.stringify({ DangerZone: [] })
+        }
+      }
+
       const param = {
-        algorithmMetadata: JSON.stringify({ DangerZone: pointsInfo.flat().map(item => Math.round(item).toString()) }),
+        algorithmMetadata: metaData(),
         deviceId: this.deviceId,
         appId: this.configAlgoInfo.id
       }
