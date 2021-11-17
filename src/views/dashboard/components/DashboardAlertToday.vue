@@ -9,9 +9,10 @@ import { Component, Mixins, Prop } from 'vue-property-decorator'
 import DashboardMixin from '../mixin/DashboardMixin'
 import DashboardContainer from './DashboardContainer.vue'
 import DashboardLightContainer from './DashboardLightContainer.vue'
-import { UserModule } from '@/store/modules/user'
+// import { UserModule } from '@/store/modules/user'
 import { Chart } from '@antv/g2'
 import { getAuditTrend } from '@/api/dashboard'
+import { AlertType } from '@/dics/index'
 
 @Component({
   name: 'DashboardAlertToday',
@@ -37,28 +38,29 @@ export default class extends Mixins(DashboardMixin) {
    */
   private async getDeviceStates() {
     const data = await getAuditTrend({ form: 'day' })
-    this.chartData = [
-      { type: '未带口罩', value: parseInt(data.trend[6] || 0) },
-      { type: '人员聚集', value: parseInt(data.trend[8] || 0) },
-      { type: '人员布控', value: parseInt(data.trend[4] || 0) },
-      { type: '吸烟检测', value: parseInt(data.trend[5] || 0) },
-      { type: '危险区域检测', value: parseInt(data.trend[9] || 0) }
-    ]
+    this.chartData = Object.keys(data.trend).map(key => ({ type: AlertType[key], value: parseInt(data.trend[key]) }))
+    // this.chartData = [
+    //   { type: '未带口罩', value: parseInt(data.trend[6] || 0) },
+    //   { type: '人员聚集', value: parseInt(data.trend[8] || 6) },
+    //   { type: '人员布控', value: parseInt(data.trend[4] || 0) },
+    //   { type: '吸烟检测', value: parseInt(data.trend[5] || 0) },
+    //   { type: '危险区域检测', value: parseInt(data.trend[9] || 0) }
+    // ]
     // TODO: 两当县智慧蜂业特殊处理
-    if (this.mainUserId === '90015') {
-      this.chartData.push({ type: '蜜蜂密度', value: parseInt(data.trend[13] || 0) })
-    } else {
-      this.chartData.push({ type: '安全帽反光服检测', value: parseInt(data.trend[7] || 0) })
-    }
+    // if (this.mainUserId === '90015') {
+    //   this.chartData.push({ type: '蜜蜂密度', value: parseInt(data.trend[13] || 0) })
+    // } else {
+    //   this.chartData.push({ type: '安全帽反光服检测', value: parseInt(data.trend[7] || 0) })
+    // }
     // TODO: Hardcode 300015
-    if (UserModule.mainUserID === '300015') {
-      this.chartData = [
-        { type: '人员布控', value: parseInt(data.trend[4] || 0) },
-        { type: '人员聚集', value: parseInt(data.trend[8] || 0) },
-        { type: '烟雾明火', value: parseInt(data.trend[10] || 0) },
-        { type: '车牌识别', value: parseInt(data.trend[17] || 0) }
-      ]
-    }
+    // if (UserModule.mainUserID === '300015') {
+    //   this.chartData = [
+    //     { type: '人员布控', value: parseInt(data.trend[4] || 0) },
+    //     { type: '人员聚集', value: parseInt(data.trend[8] || 0) },
+    //     { type: '烟雾明火', value: parseInt(data.trend[10] || 0) },
+    //     { type: '车牌识别', value: parseInt(data.trend[17] || 0) }
+    //   ]
+    // }
     this.chart ? this.updateChart() : this.drawChart()
   }
 
@@ -72,7 +74,8 @@ export default class extends Mixins(DashboardMixin) {
       container: $container,
       autoFit: true,
       height: 120,
-      padding: [10, 50, 10, 140]
+      padding: [10, 50, 10, 140],
+      theme: { maxColumnWidth: 30 }
     })
 
     this.chart.axis('type', {
