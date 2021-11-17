@@ -178,8 +178,12 @@ export default class CreateMixin extends Vue {
         let index3 = this.regionList[index1].children[index2].children.findIndex((item: any) => {
           return item.code === val[2]
         })
-        if (index2 !== -1 && this.lianzhouFlag) {
-          this.regionList[index1].children[index2].children[index3].children = await this.getExpandList(val[2])
+        if (index3 !== -1) {
+          if (this.lianzhouFlag) {
+            this.regionList[index1].children[index2].children[index3].children = await this.getExpandList(val[2])
+          }
+        } else {
+          this.form.gbRegion = this.regionList[index1].children[index2].children[0].code + '00'
         }
       } else {
         this.form.gbRegion = this.regionList[index1].children[0].children[0].code + '00'

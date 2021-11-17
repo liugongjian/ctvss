@@ -177,12 +177,12 @@
             <el-input v-model="form.deviceLatitude" class="longlat-input" />
           </el-form-item>
         </template>
-        <el-form-item v-if="!isUpdate || !!form.industryCode" label="所属行业:" prop="industryCode">
+        <el-form-item v-if="!isUpdate || !!form.industryCode || !form.gbId" label="所属行业:" prop="industryCode">
           <el-select v-model="form.industryCode" :disabled="form.gbId !== ''" placeholder="请选择所属行业">
             <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item v-if="(!isUpdate || !!form.industryCode) && networkFlag" label="网络标识:" prop="networkCode">
+        <el-form-item v-if="(!isUpdate || !!form.industryCode || !form.gbId) && networkFlag" label="网络标识:" prop="networkCode">
           <el-select v-model="form.networkCode" :disabled="form.gbId !== ''" placeholder="请选择网络标识">
             <el-option v-for="(item, index) in networkList" :key="index" :label="item.name" :value="item.value" />
           </el-select>
