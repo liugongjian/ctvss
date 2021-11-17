@@ -183,7 +183,7 @@ export default class extends Vue {
           if (region2) {
             address += '/' + region2.name
           } else {
-            address += '/' + region1.name + '/' + region1.children[0].name
+            address += '/' + region1.children[0].name
           }
         } else {
           address += '/' + region0.children[0].name + '/' + region0.children[0].children[0].name

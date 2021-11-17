@@ -185,7 +185,7 @@ export default class DetailMixin extends Vue {
           if (region2) {
             this.info!.address += '/' + region2.name
           } else {
-            this.info!.address += '/' + region1.name + '/' + region1.children[0].name
+            this.info!.address += '/' + region1.children[0].name
           }
         } else {
           this.info!.address += '/' + region0.children[0].name + '/' + region0.children[0].children[0].name
