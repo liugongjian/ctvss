@@ -124,7 +124,7 @@
           </template>
           <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" />
         </el-form-item>
-        <el-form-item label="设备地址:" prop="address">
+        <el-form-item v-if="(!isUpdate || form.gbRegion || !form.gbId)" label="设备地址:" prop="address">
           <el-cascader
             ref="addressCascader"
             v-model="form.address"

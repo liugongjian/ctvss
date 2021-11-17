@@ -75,7 +75,7 @@
       <el-form-item label="视频标签:" prop="description">
         <Tags v-model="form.tags" class="tags" />
       </el-form-item>
-      <el-form-item label="设备地址:" prop="address">
+      <el-form-item v-if="(!isUpdate || form.gbRegion || !form.gbId)" label="设备地址:" prop="address">
         <el-cascader
           ref="addressCascader"
           v-model="form.address"

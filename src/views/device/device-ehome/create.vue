@@ -131,7 +131,7 @@
           </template>
           <el-switch v-model="form.pushType" :active-value="1" :inactive-value="2" />
         </el-form-item>
-        <el-form-item label="设备地址:" prop="address">
+        <el-form-item v-if="(!isUpdate || form.gbRegion || !form.gbId)" label="设备地址:" prop="address">
           <el-cascader
             ref="addressCascader"
             v-model="form.address"
