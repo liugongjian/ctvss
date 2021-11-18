@@ -2,9 +2,8 @@
 <template>
   <el-card @click.native="viewDetail">
     <div class="pic-wrapper">
-      <!-- <img ref="img" :src="pic.image" @load="onload" @error="onerror"> -->
-      <img ref="img" :src="pic.image" @load="onload">
-      <Locations v-if="picInfo" :type="type" :img="picInfo" />
+      <img ref="img" :src="pic.image" @load="onload" @error="nopic">
+      <Locations v-if="picInfo && isPicLoaded" :type="type" :img="picInfo" />
     </div>
     <div class="content-wrapper">
       <el-descriptions :column="1">
@@ -39,9 +38,11 @@ export default class extends Vue {
   @Prop() private pic!: any
   @Prop() private type!: any
   private picInfo = null
+  private isPicLoaded:boolean = true
   private decodeBase64: Function = decodeBase64
 
   private onload() {
+    console.log('onload')
     if (!this.pic || !this.pic.image) {
       return
     }
@@ -50,11 +51,12 @@ export default class extends Vue {
     const img = this.$refs.img
     this.picInfo = { ...this.pic, locations: transformLocationAi(locations, img) }
   }
-  // private onerror() {
-  //   const img: any = this.$refs.img
-  //   img.src = require('@/assets/dashboard/image-placeholder.png')
-  //   img.onerror = null // 防止闪图
-  // }
+  private nopic() {
+    const img: any = this.$refs.img
+    this.isPicLoaded = false
+    img.src = require('@/assets/dashboard/image-placeholder.png')
+    img.onerror = null // 防止闪图
+  }
   private viewDetail() {
     this.$emit('showDialogue', this.pic)
   }

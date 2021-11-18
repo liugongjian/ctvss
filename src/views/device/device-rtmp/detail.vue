@@ -271,6 +271,9 @@
         <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ReplayRecord'])" label="录像回放" name="replay">
           <detail-replay v-if="activeName==='replay'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
+        <el-tab-pane label="AI分析" name="ai">
+          <detail-ai v-if="activeName==='ai'" :device-id="deviceId" :in-protocol="inProtocol" />
+        </el-tab-pane>
       </el-tabs>
     </div>
     <SetAuthConfig v-if="dialog.setAuthConfig" @on-close="closeDialog('setAuthConfig')" />
@@ -281,9 +284,13 @@
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import detailMixin from '../mixin/detailMixin'
+import DetailAi from '../components/DetailAi.vue'
 
 @Component({
-  name: 'DeviceRtmpDetail'
+  name: 'DeviceRtmpDetail',
+  components: {
+    DetailAi
+  }
 })
 export default class extends Mixins(detailMixin) {}
 </script>

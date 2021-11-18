@@ -7,7 +7,7 @@
       <p class="dashboard-wrap-overview__cell__head">{{ item.name }}</p>
       <div class="dashboard-wrap-overview__cell__list">
         <span v-for="app in item.apps.slice(0,5)" :key="app.id">
-          <el-button size="medium" type="text" @click="goRouter(app.id)">{{ app.name }}</el-button>
+          <el-button size="medium" type="text" @click="goToApp(app.id)">{{ app.name }}</el-button>
         </span>
         <span v-if="item.apps.length > 5">
           <el-button class="dashboard-wrap-overview__cell__list__more-text" size="medium" type="text">...</el-button>

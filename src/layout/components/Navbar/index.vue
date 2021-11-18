@@ -55,7 +55,7 @@
               <!-- <li v-for="aiType in group.children" :key="aiType" :class="{'actived': queryAlertType === aiType.toString()}" @click="routeToAI(aiType)">
                 {{ alertType[aiType] }}
               </li> -->
-              <li v-for="app in item.apps" :key="app.id" @click="goRouter(app.id)">
+              <li v-for="app in item.apps" :key="app.id" @click="goToApp(app.id)">
                 {{ app.name }}
               </li>
             </ul>
