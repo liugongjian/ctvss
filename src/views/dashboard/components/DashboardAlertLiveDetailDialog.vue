@@ -11,8 +11,9 @@
     <div v-loading="loading" class="alert" :class="{theme: true, 'light-alert': isLight}">
       <div class="alert-header">
         <div class="alert-header__type">事件类型: {{ alertType[audit.event] }}</div>
-        <div class="alert-header__device">{{ audit.deviceName }}</div>
-        <div class="alert-header__datetime">{{ audit.timestamp }}</div>
+        <div class="alert-header__device">设备: {{ `${audit.deviceName}${(audit.channelName && audit.channelName!==audit.deviceName) ? ('-'+audit.channelName) : ''}` }}</div>
+        <div class="alert-header__device">应用: {{ audit.appName || '无' }}</div>
+        <div class="alert-header__datetime">时间:{{ audit.timestamp }}</div>
       </div>
       <div v-if="error" class="alert-error">{{ error }}</div>
       <div v-if="audit" class="alert-body">
@@ -175,7 +176,7 @@ export default class extends Vue {
     }
     &__device {
       flex: 1;
-      text-align: right;
+      text-align: center;
     }
     &__datetime {
       flex: 1;
