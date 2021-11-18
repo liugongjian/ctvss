@@ -5,7 +5,8 @@ import store from '@/store'
 
 export interface IGroupState {
   group?: Group,
-  groups?: Array<Group>
+  groups?: Array<Group>,
+  groupListIndex?: number
 }
 
 @Module({ dynamic: true, store, name: 'group' })
@@ -16,6 +17,8 @@ class GroupStore extends VuexModule implements IGroupState {
 
   public groups?: Array<Group> = []
 
+  public groupListIndex?: number = 1
+
   @Mutation
   public SET_GROUP(payload: any) {
     this.group = payload
@@ -25,6 +28,11 @@ class GroupStore extends VuexModule implements IGroupState {
   @Mutation
   public SET_GROUP_LIST(payload: Array<Group>) {
     this.groups = payload
+  }
+
+  @Mutation
+  public SET_GROUP_LIST_INDEX(payload: number) {
+    this.groupListIndex = payload
   }
 
   @Action
@@ -49,10 +57,21 @@ class GroupStore extends VuexModule implements IGroupState {
   }
 
   @Action
+  public SetGroupListIndex(payload: number) {
+    this.SET_GROUP_LIST_INDEX(payload)
+  }
+
+  @Action
+  public ResetGroupListIndex() {
+    this.SET_GROUP_LIST_INDEX(1)
+  }
+
+  @Action
   public async GetGroupList() {
     try {
       let params = {
-        pageSize: 1000
+        pageNum: 1,
+        pageSize: 10 * this.groupListIndex
       }
       const res = await getGroups(params)
       const groupList = res.groups
@@ -69,6 +88,21 @@ class GroupStore extends VuexModule implements IGroupState {
       } else {
         this.ResetGroup()
       }
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  @Action
+  public async LoadmoreGroups() {
+    try {
+      let params = {
+        pageNum: this.groupListIndex,
+        pageSize: 10
+      }
+      const res = await getGroups(params)
+      const groups = res.groups
+      this.SET_GROUP_LIST([...this.groups, ...groups])
     } catch (e) {
       console.error(e)
     }
