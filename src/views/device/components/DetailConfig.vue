@@ -13,7 +13,7 @@
         </template>
         <el-descriptions :column="2">
           <el-descriptions-item label="码率">
-            {{ resources.VSS_VIDEO.codeRate ? `${resources.VSS_VIDEO.codeRate}Mbpx` : '' }}
+            {{ resources.VSS_VIDEO.codeRate ? `${resources.VSS_VIDEO.codeRate}Mbps` : '' }}
           </el-descriptions-item>
           <el-descriptions-item label="存储周期">
             {{ resources.VSS_VIDEO.storageTime ? `${resources.VSS_VIDEO.storageTime}天` : '' }}
