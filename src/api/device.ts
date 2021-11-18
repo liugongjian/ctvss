@@ -365,6 +365,7 @@ export const stopAppResource = (params: any): Promise<any> =>
 export const unBindAppResource = (params: any): Promise<any> =>
   request({
     url: '/ai/aiAPP/bindorunbind',
+    method: 'post',
     data: params
   })
 
