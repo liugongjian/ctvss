@@ -362,8 +362,10 @@ export default class CreateMixin extends Vue {
    * 校验设备/通道名称
    */
   public validateDeviceName(rule: any, value: string, callback: Function) {
-    if (!/^[\u4e00-\u9fa50-9a-zA-Z-()（）_]{2,64}$/.test(value)) {
-      callback(new Error('设备或通道名称格式错误。2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号。'))
+    if (!/^[\u4e00-\u9fa50-9a-zA-Z-()（）_\s]{2,64}$/.test(value)) {
+      callback(new Error('设备或通道名称格式错误。2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。'))
+    } else if (/^[\s]|[\s]$/.test(value)) {
+      callback(new Error('不能以空格作为名称的首尾。'))
     } else {
       callback()
     }
