@@ -86,7 +86,7 @@
           <span>100%</span>
         </div>
       </el-form-item>
-      <el-form-item label="回调地址">
+      <!-- <el-form-item label="回调地址">
         <el-input v-model="form.callbackUrl" />
       </el-form-item>
       <el-form-item label="验证类型">
@@ -97,7 +97,7 @@
       </el-form-item>
       <el-form-item v-if="form.validateType === '签名验证'" label="回调key" prop="callbackKey">
         <el-input v-model="form.callbackKey" />
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="描述">
         <el-input v-model="form.description" type="textarea" :rows="2" />
       </el-form-item>
