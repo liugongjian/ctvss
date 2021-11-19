@@ -13,7 +13,7 @@
         <BasicAppInfo v-if="appInfo.name" :app-info="appInfo" :face-lib="faceLib" />
       </el-tab-pane>
       <el-tab-pane label="关联设备" name="device">
-        <DetachedDevice />
+        <AtachedDevice />
       </el-tab-pane>
       <el-tab-pane label="分析结果" name="result">
         <div class="left">
@@ -46,7 +46,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import BasicAppInfo from './component/BasicAppInfo.vue'
 import AppSubDetail from './component/AppSubDetail.vue'
-import DetachedDevice from './component/DetachedDevice.vue'
+import AtachedDevice from './component/AtachedDevice.vue'
 import { getAppInfo } from '@/api/ai-app'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
@@ -57,7 +57,7 @@ import { getAIConfigGroupData } from '@/api/aiConfig'
   components: {
     BasicAppInfo,
     AppSubDetail,
-    DetachedDevice
+    AtachedDevice
   }
 })
 export default class extends Vue {
