@@ -10,7 +10,7 @@
     >
       <el-table-column label="名称">
         <template slot-scope="scope">
-          <svg-icon v-if="scope.row.type !== 'dir' && scope.row.type !== 'platformDir'" :name="scope.row.type" width="20" height="20" :class="{'online': scope.row.deviceStatus === 'on'}" />
+          <svg-icon :name="scope.row.deviceType" width="20" height="20" :class="{'online': scope.row.deviceStatus === '1'}" />
           <div class="device-list__device-name">
             <div class="device-list__device-id">{{ scope.row.deviceName }}</div>
           </div>
