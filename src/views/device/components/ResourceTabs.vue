@@ -197,6 +197,7 @@ export default class extends Vue {
   private resourceAlgo:any = {}
   private resourceHasAppIds = []
   private selectAlgoInfo = []
+  private appIdsWithAllData = []
 
   public get isFreeUser() {
     return UserModule.tags && UserModule.tags.resourceFree === '1'
@@ -392,8 +393,19 @@ export default class extends Vue {
       this.loading.resouceAiTable = true
       const algoListResult = await getAppList({ abilityId: this.algoTabType })
       this.algoListData = algoListResult.aiApps
+
       if (this.isUpdate) {
         if (this.resourceHasAppIds.length > 0) {
+          const tempArr = [...algoListResult.aiApps, ...this.appIdsWithAllData]
+          let hash = {}
+
+          this.appIdsWithAllData = tempArr.reduce((preVal, curVal) => {
+            // eslint-disable-next-line no-unused-expressions
+            hash[curVal.id]
+              ? ''
+              : (hash[curVal.id] = true && preVal.push(curVal))
+            return preVal
+          }, [])
           const result = this.algoListData.filter((item:any) => this.resourceHasAppIds.some(val => item.id === val.appId))
           // 过滤已选中数据和已编辑过得数据
           if (this.checkInfoObj[this.chooseData.resourceId][this.algoTabType]) {
@@ -408,7 +420,7 @@ export default class extends Vue {
       }
       // this.setChecked()
       this.filterCheckedStatus()
-      this.$emit('changevssaiapps', this.selectAlgoInfo)
+      // this.$emit('changevssaiapps', this.selectAlgoInfo)
     } catch (e) {
       if (e && e.code !== 5) {
         this.$message.error(e && e.message)
@@ -453,9 +465,7 @@ export default class extends Vue {
     if (result.length > 0) {
       this.setChecked()
     } else {
-      // this.selectAlgoId = this.selectAlgoInfo.filter((item:any) => item.appId !== row.id)
       this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].filter((item:any) => item.id !== row.id)
-      // this.filterCheckedStatus()
     }
   }
 
@@ -476,8 +486,17 @@ export default class extends Vue {
 
   // 过滤编辑过的选中和当前选中
   private filterCheckedStatus() {
+    // console.log('this.appIdsWithAllData', this.appIdsWithAllData)
+
+    const filterArr = this.resourceHasAppIds.filter((item:any) => {
+      return this.appIdsWithAllData.every((val:any) => {
+        return item.appId !== val.id
+      })
+    })
+
+    /*
     // 判断编辑进入时，有tab未被选择但是有上次编辑的数据
-    if (this.resourceHasAppIds && this.resourceHasAppIds.length && Object.values(this.checkInfoObj[this.chooseData.resourceId]).length < this.aiAbilityTab.length) {
+    if (this.resourceHasAppIds && this.resourceHasAppIds.length && filterArr.length > 0) {
       const temp = Object.values(this.checkInfoObj[this.chooseData.resourceId]).map((item:any) => {
         return item.map((ele:any) => ele)
       })
@@ -489,7 +508,9 @@ export default class extends Vue {
       })
 
       const selectResult = [...result, ...this.resourceHasAppIds]
-      let hash = {} // 去重
+      let hash = {}
+
+      // 去重
       let arr = selectResult.reduce((preVal, curVal) => {
         // eslint-disable-next-line no-unused-expressions
         hash[curVal.appId]
@@ -528,10 +549,40 @@ export default class extends Vue {
         this.selectAlgoInfo = result.flat()
       }
     }
+*/
+    const temp = Object.values(this.checkInfoObj[this.chooseData.resourceId]).map((item:any) => {
+      return item.map((ele:any) => ele)
+    })
+    if (this.resourceHasAppIds && this.resourceHasAppIds.length > 0) {
+      const result = temp.flat().filter((item:any) => {
+        return this.resourceHasAppIds.some((val:any) => {
+          return val.appId !== item.appId
+        })
+      })
 
+      const resultFinal = result.map((item:any) => {
+        return {
+          appId: item.id,
+          analyseType: item.analyseType
+        }
+      })
+      this.selectAlgoInfo = resultFinal
+    } else {
+      const result = Object.values(this.checkInfoObj[this.chooseData.resourceId]).map((item:any) => {
+        return item.map((ele:any) => {
+          return {
+            appId: ele.id,
+            analyseType: ele.analyseType
+          }
+        })
+      })
+      this.selectAlgoInfo = result.flat()
+    }
+    this.selectAlgoInfo = [...filterArr, ...this.selectAlgoInfo]
     this.selectAlgoId = this.selectAlgoInfo.map((item:any) => item.appId)
     this.setChecked()
     this.$emit('changevssaiapps', this.selectAlgoInfo)
+    // console.log('this.selectAlgoInfo', this.selectAlgoInfo)
   }
 
   // 设置选中状态
