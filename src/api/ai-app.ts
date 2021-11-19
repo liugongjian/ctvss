@@ -92,3 +92,10 @@ export const getAlgoStreamFrame = (params: any): Promise<any> =>
     method: 'get',
     params
   })
+
+export const getAttachedDevice = (params: any): Promise<any> =>
+  request({
+    url: '/ai/aiAPP/relation',
+    method: 'get',
+    params
+  })

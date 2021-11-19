@@ -10,6 +10,7 @@
     <el-select
       v-if="hasGroupSelector"
       v-model="groupId"
+      v-el-select-loadmore="loadmore"
       class="filter-group"
       filterable
       placeholder="请选择业务组"
@@ -131,6 +132,19 @@ import DashboardMixin from '@/views/dashboard/mixin/DashboardMixin'
     Screenfull,
     SizeSelect,
     TemplateBind
+  },
+  directives: {
+    'el-select-loadmore': {
+      bind(el, binding) {
+        const SELECTWRAP_DOM = el.querySelector('.filter-group .el-select-dropdown .el-select-dropdown__wrap')
+        SELECTWRAP_DOM?.addEventListener('scroll', () => {
+          const condition = SELECTWRAP_DOM.scrollHeight - SELECTWRAP_DOM.scrollTop < SELECTWRAP_DOM.clientHeight
+          if (condition) {
+            binding.value()
+          }
+        })
+      }
+    }
   }
 })
 export default class extends Mixins(DashboardMixin) {
@@ -186,6 +200,14 @@ export default class extends Mixins(DashboardMixin) {
     return GroupModule.groups || []
   }
 
+  set groupListIndex(val: number) {
+    GroupModule.SetGroupListIndex(val)
+  }
+
+  get groupListIndex() {
+    return GroupModule.groupListIndex
+  }
+
   private toggleSideBar() {
     AppModule.ToggleSideBar(false)
   }
@@ -238,6 +260,14 @@ export default class extends Mixins(DashboardMixin) {
         }
       ]
     }
+  }
+
+  /**
+   * 懒加载顶部用户下拉框
+   */
+  private loadmore() {
+    this.groupListIndex = this.groupListIndex + 1
+    GroupModule.LoadmoreGroups()
   }
 
   /**

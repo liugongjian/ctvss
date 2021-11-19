@@ -12,6 +12,9 @@
       <el-tab-pane label="基本信息" name="basic">
         <BasicAppInfo v-if="appInfo.name" :app-info="appInfo" :face-lib="faceLib" />
       </el-tab-pane>
+      <el-tab-pane label="关联设备" name="device">
+        <AtachedDevice />
+      </el-tab-pane>
       <el-tab-pane label="分析结果" name="result">
         <div class="left">
           <el-tree
@@ -25,8 +28,8 @@
             @node-click="selectDevice"
           >
             <span slot-scope="{node, data}" class="custom-tree-node" :class="`custom-tree-node__${data.type}`">
-              <span class="node-name">
-                <svg-icon :name="data.type" color="#6e7c89" />
+              <span class="node-name" :class="data.deviceStatus === 'on' ? 'online': 'offline'">
+                <svg-icon :name="data.type" />
                 {{ node.label }}
               </span>
             </span>
@@ -43,6 +46,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import BasicAppInfo from './component/BasicAppInfo.vue'
 import AppSubDetail from './component/AppSubDetail.vue'
+import AtachedDevice from './component/AtachedDevice.vue'
 import { getAppInfo } from '@/api/ai-app'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
@@ -52,7 +56,8 @@ import { getAIConfigGroupData } from '@/api/aiConfig'
   name: 'AppDetail',
   components: {
     BasicAppInfo,
-    AppSubDetail
+    AppSubDetail,
+    AtachedDevice
   }
 })
 export default class extends Vue {
@@ -110,7 +115,8 @@ export default class extends Vue {
                 id: group.groupId,
                 label: group.groupName,
                 type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group'
-              }]
+              }],
+              deviceStatus: group.deviceStatus
             })
           )
         })
@@ -168,7 +174,8 @@ export default class extends Vue {
             sharedFlag: sharedFlag,
             roleId: node.data.roleId || '',
             realGroupId: node.data.realGroupId || '',
-            realGroupInProtocol: node.data.realGroupInProtocol || ''
+            realGroupInProtocol: node.data.realGroupInProtocol || '',
+            deviceStatus: dir.deviceStatus || ''
           }
         })
         return dirs
@@ -214,6 +221,16 @@ export default class extends Vue {
   flex: 1 1;
   padding-left: 20px;
   border-left: 1px solid $borderGrey;
+}
+.online{
+  .svg-icon {
+    color: #65c465;
+  }
+}
+.offline{
+  .svg-icon {
+    color: #6e7c89;
+  }
 }
 .no-data{
   height: 200px;

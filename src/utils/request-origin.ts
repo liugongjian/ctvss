@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2021-11-09 14:34:44
+ * @LastEditTime: 2021-11-19 09:21:25
+ * @LastEditors: your name
+ * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ * @FilePath: \vss-user-web\src\utils\request-origin.ts
+ */
 import axios from 'axios'
 import { Message, MessageBox } from 'element-ui'
 import { UserModule } from '@/store/modules/user'
@@ -5,7 +13,7 @@ import { UserModule } from '@/store/modules/user'
 axios.defaults.withCredentials = false
 
 const service = axios.create({
-  baseURL: 'http://172.24.6.47:8081/v1/', // url = base url + request url
+  baseURL: 'http://172.24.6.146:9094/v1/', // url = base url + request url
   // http://182.43.127.71:9280/devops/v1/ai/aiAbility/describelist
   timeout: 5000,
   withCredentials: true // send cookies when cross-domain requests
