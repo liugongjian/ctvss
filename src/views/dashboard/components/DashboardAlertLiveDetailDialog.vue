@@ -38,7 +38,7 @@
         </div>
       </div>
       <div v-if="confirm" class="alert-footer alert-buttons">
-        <el-button type="success" :loading="confirming" @click="auditEventConfirm">正常确认</el-button>
+        <el-button type="success" :loading="confirming" @click="auditEventConfirm">确认正常</el-button>
         <el-button type="danger" @click="closeDialog">异常挂起</el-button>
       </div>
     </div>
