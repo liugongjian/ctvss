@@ -91,7 +91,7 @@ export default class extends Vue {
       await auditEventConfirm({
         event: this.audit.event,
         streamName: this.audit.streamName,
-        timeStamp: this.audit.timestamp,
+        timestamp: this.audit.timestamp,
         confirm: 1
       })
       this.closeDialog(true)

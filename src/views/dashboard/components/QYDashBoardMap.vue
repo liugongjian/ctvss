@@ -116,14 +116,14 @@ export default class extends Vue {
           lat: '35.712557',
           status: 'on',
           label: '铁塔1',
-          url: 'http://console.vcn.ctyun.cn/vss/device/preview?inProtocol=gb28181&type=preview&path=219714128769400832,219846516841332737,29942026275401080&deviceId=29942026275401080&previewTab=preview'
+          url: 'http://console.vcn.ctyun.cn/vss/device/preview?inProtocol=gb28181&type=preview&path=219714128769400832,219846516841332737,29942024127917430&deviceId=29942024127917430&previewTab=preview'
         },
         {
           lng: '107.662291',
           lat: '35.662326',
           status: 'on',
           label: '铁塔2',
-          url: 'http://console.vcn.ctyun.cn/vss/device/preview?inProtocol=gb28181&type=preview&path=219714128769400832,219846516841332737,29942024127917430&deviceId=29942024127917430&previewTab=preview'
+          url: 'http://console.vcn.ctyun.cn/vss/device/preview?inProtocol=gb28181&type=preview&path=219714128769400832,219846516841332737,29942026275401080&deviceId=29942026275401080&previewTab=preview'
         }
       ]
     } catch (e) {
