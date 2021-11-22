@@ -107,7 +107,8 @@ export default class extends Mixins(DashboardMixin) {
       timestamp: item.timeStamp,
       metaData: item.metaData,
       url: item.url,
-      deviceName: item.deviceName
+      deviceName: item.deviceName,
+      appName: item.appName
     }
   }
 
