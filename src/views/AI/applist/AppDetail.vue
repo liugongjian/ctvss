@@ -12,9 +12,9 @@
       <el-tab-pane label="基本信息" name="basic">
         <BasicAppInfo v-if="appInfo.name" :app-info="appInfo" :face-lib="faceLib" />
       </el-tab-pane>
-      <!-- <el-tab-pane label="关联设备" name="device">
+      <el-tab-pane label="关联设备" name="device">
         <AtachedDevice />
-      </el-tab-pane> -->
+      </el-tab-pane>
       <el-tab-pane label="分析结果" name="result">
         <div class="left">
           <el-tree
