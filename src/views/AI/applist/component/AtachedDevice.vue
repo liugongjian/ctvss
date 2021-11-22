@@ -10,14 +10,24 @@
     >
       <el-table-column label="名称">
         <template slot-scope="scope">
-          <svg-icon :name="scope.row.deviceType" width="20" height="20" :class="{'online': scope.row.deviceStatus === '1'}" />
+          <svg-icon :name="scope.row.deviceType" width="20" height="20" :class="scope.row.deviceStatus+'line'" />
           <div class="device-list__device-name">
             <div class="device-list__device-id">{{ scope.row.deviceName }}</div>
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="所在位置">
-        <template slot-scope="scope">{{ scope.row.deviceDir }}</template>
+      <el-table-column label="设备ID">
+        <template slot-scope="scope">{{ scope.row.deviceId }}</template>
+      </el-table-column>
+      <el-table-column label="业务组ID/名称">
+        <template slot-scope="scope">
+          <div>
+            <div>{{ scope.row.groupId }}</div>
+            <div>
+              {{ scope.row.groupName }}
+            </div>
+          </div>
+        </template>
       </el-table-column>
       <el-table-column label="AI启用状态">
         <template slot-scope="scope">
@@ -184,6 +194,9 @@ export default class extends Vue {
 }
 .online{
   color: #65c465;
+}
+.offline{
+  color: #6e7c89;
 }
 ::v-deep .tableCell{
   cursor: pointer;
