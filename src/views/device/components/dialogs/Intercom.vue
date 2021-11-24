@@ -120,7 +120,6 @@ export default class extends Mixins(ScreenMixin) {
 
   private intercomMousedown() {
     const nowTime = Date.now()
-    console.log(this.last, 'nowTime===>', nowTime)
     if (this.last && nowTime - this.last < 1500) {
       this.$message.warning('点的太快了，请稍后再点击~')
       return false
