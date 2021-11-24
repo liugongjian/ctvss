@@ -24,7 +24,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="空间状态" align="center">
+        <el-table-column label="业务组状态" align="center">
           <template slot-scope="{row}">
             <status-badge :status="row.deviceEnabled ? 'on' : 'off'" />
             {{ groupStatus[row.deviceEnabled ? 'on' : 'off'] }}

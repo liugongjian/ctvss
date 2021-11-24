@@ -14,7 +14,7 @@
         </el-form-item>
         <el-form-item label="业务组名称:" prop="groupName" class="form-with-tip">
           <el-input v-model="form.groupName" />
-          <div class="form-tip">4-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号。空间名称不能重复。</div>
+          <div class="form-tip">4-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号。业务组名称不能重复。</div>
         </el-form-item>
         <el-form-item label="业务组描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入业务组描述，如业务介绍或用途" />
@@ -158,7 +158,7 @@
   </div>
 </template>
 <script lang='ts'>
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import { Group } from '@/type/group'
 import { GroupModule } from '@/store/modules/group'
 import { InProtocolType, OutProtocolType } from '@/dics'
@@ -234,6 +234,7 @@ export default class extends Vue {
     industryCode: '',
     networkCode: ''
   }
+  private gbRegionList: any = []
 
   private regionList = []
 
@@ -242,10 +243,6 @@ export default class extends Vue {
    */
   public get lianzhouFlag() {
     return this.$store.state.user.tags.isLianZhouEdu === 'Y'
-  }
-
-  private get gbRegionList() {
-    return this.lianzhouFlag ? regionList : allRegionList
   }
 
   private get industryList() {
@@ -283,6 +280,12 @@ export default class extends Vue {
 
   private async mounted() {
     await this.getRegionList()
+    if (this.lianzhouFlag) {
+      this.gbRegionList = regionList
+      this.gbRegionList[0].children[0].children[0].children = await this.getExpandList(441882)
+    } else {
+      this.gbRegionList = allRegionList
+    }
     this.breadCrumbContent = this.$route.meta.title
     let query: any = this.$route.query
     if (query.groupId) {
@@ -308,9 +311,6 @@ export default class extends Vue {
    * 设备地址
    */
   private async cascaderInit() {
-    if (this.lianzhouFlag) {
-      this.gbRegionList[0].children[0].children[0].children = await this.getExpandList(441882)
-    }
     if (!this.form.gbRegion) return
     let list = [
       parseInt(this.form.gbRegion!.substring(0, 2)),
