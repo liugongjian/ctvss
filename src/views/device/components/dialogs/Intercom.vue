@@ -119,48 +119,50 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   private intercomMousedown() {
-    if (this.isClick) {
+    const nowTime = Date.now()
+    console.log(this.last, 'nowTime===>', nowTime)
+    if (this.last && nowTime - this.last < 1500) {
       this.$message.warning('点的太快了，请稍后再点击~')
       return false
-    }
-
-    const param = {
-      deviceId: this.intercomInfo.deviceId,
-      transPriority: 'UDP', // 先使用UDP，等流媒体侧兼容之后再使用参数
-      inProtocol: this.intercomInfo.inProtocol
-    }
-
-    this.ifCloseStatus = 0
-    startTalk(param).then((res:any) => {
-      if (this.ws) {
-        this.stopRecord()
+    } else {
+      const param = {
+        deviceId: this.intercomInfo.deviceId,
+        transPriority: 'UDP', // 先使用UDP，等流媒体侧兼容之后再使用参数
+        inProtocol: this.intercomInfo.inProtocol
       }
-      // if (this.ifCloseStatus !== 1) {
-      const { streamServerAddr } = res
-      const wsUrl = `ws://${streamServerAddr}`
-      try {
-        this.ws = new WebSocket(wsUrl)
-        this.ws.onopen = (e:any) => {
-          console.log('连接建立', e, this.ifCloseStatus)
-          if (this.ifCloseStatus !== 1) {
-            this.ws.send(this.intercomInfo.deviceId)
-            this.startRecord()
-          } else {
-            this.ws.close()
-          }
+
+      this.ifCloseStatus = 0
+      startTalk(param).then((res:any) => {
+        if (this.ws) {
+          this.stopRecord()
         }
-      } catch (e) {
+        // if (this.ifCloseStatus !== 1) {
+        const { streamServerAddr } = res
+        const wsUrl = `ws://${streamServerAddr}`
+        try {
+          this.ws = new WebSocket(wsUrl)
+          this.ws.onopen = (e:any) => {
+            console.log('连接建立', e, this.ifCloseStatus)
+            if (this.ifCloseStatus !== 1) {
+              this.ws.send(this.intercomInfo.deviceId)
+              this.startRecord()
+            } else {
+              this.ws.close()
+            }
+          }
+        } catch (e) {
         // this.ws.onerror = (e:any) => {
         //   console.log(`连接错误：${e}`)
         // }
-        console.log(`连接错误：${e}`)
-      }
+          console.log(`连接错误：${e}`)
+        }
       // }
-    }).catch((err:any) => {
-      if (this.ifCloseStatus !== 1) {
-        this.$message.error(`${err},请稍后再试`)
-      }
-    })
+      }).catch((err:any) => {
+        if (this.ifCloseStatus !== 1) {
+          this.$message.error(`${err},请稍后再试`)
+        }
+      })
+    }
   }
 
   private intercomClick() {
@@ -169,19 +171,24 @@ export default class extends Mixins(ScreenMixin) {
 
   private intercomMouseup() {
     const nowTime = Date.now()
-    if (this.last && nowTime - this.last < 1000) {
-      this.isClick = true
-    } else {
-      this.isClick = false
+    if (!this.last) {
       this.last = nowTime
-      const param = {
-        deviceId: this.intercomInfo.deviceId
+    } else {
+      if (nowTime - this.last > 1500) {
+        this.last = Date.now()
+        this.isClick = false
+        this.last = nowTime
+        const param = {
+          deviceId: this.intercomInfo.deviceId
+        }
+        stopTalk(param).then(() => {
+          // this.stopRecord()
+          this.last = Date.now()
+        }).catch((err:any) => {
+          this.last = Date.now()
+          this.$message.error(err)
+        })
       }
-      stopTalk(param).then(() => {
-      // this.stopRecord()
-      }).catch((err:any) => {
-        this.$message.error(err)
-      })
     }
   }
 
