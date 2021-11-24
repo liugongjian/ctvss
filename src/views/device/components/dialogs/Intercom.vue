@@ -75,6 +75,7 @@ export default class extends Mixins(ScreenMixin) {
   private deviceInfo?:Device
   private transPriority:any
   private ifCloseStatus = 0
+  private last:any
 
   @Watch('maxVol')
   private getVolStyle(val:any) {
@@ -118,6 +119,11 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   private intercomMousedown() {
+    if (this.isClick) {
+      this.$message.warning('点的太快了，请稍后再点击~')
+      return false
+    }
+
     const param = {
       deviceId: this.intercomInfo.deviceId,
       transPriority: 'UDP', // 先使用UDP，等流媒体侧兼容之后再使用参数
@@ -129,27 +135,27 @@ export default class extends Mixins(ScreenMixin) {
       if (this.ws) {
         this.stopRecord()
       }
-      if (this.ifCloseStatus !== 1) {
-        const { streamServerAddr } = res
-        const wsUrl = `ws://${streamServerAddr}`
-        try {
-          this.ws = new WebSocket(wsUrl)
-          this.ws.onopen = (e:any) => {
-            console.log('连接建立', e, this.ifCloseStatus)
-            if (this.ifCloseStatus !== 1) {
-              this.ws.send(this.intercomInfo.deviceId)
-              this.startRecord()
-            } else {
-              this.ws.close()
-            }
+      // if (this.ifCloseStatus !== 1) {
+      const { streamServerAddr } = res
+      const wsUrl = `ws://${streamServerAddr}`
+      try {
+        this.ws = new WebSocket(wsUrl)
+        this.ws.onopen = (e:any) => {
+          console.log('连接建立', e, this.ifCloseStatus)
+          if (this.ifCloseStatus !== 1) {
+            this.ws.send(this.intercomInfo.deviceId)
+            this.startRecord()
+          } else {
+            this.ws.close()
           }
-        } catch (e) {
+        }
+      } catch (e) {
         // this.ws.onerror = (e:any) => {
         //   console.log(`连接错误：${e}`)
         // }
-          console.log(`连接错误：${e}`)
-        }
+        console.log(`连接错误：${e}`)
       }
+      // }
     }).catch((err:any) => {
       if (this.ifCloseStatus !== 1) {
         this.$message.error(`${err},请稍后再试`)
@@ -162,15 +168,21 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   private intercomMouseup() {
-    this.stopRecord()
-    const param = {
-      deviceId: this.intercomInfo.deviceId
-    }
-    stopTalk(param).then(() => {
+    const nowTime = Date.now()
+    if (this.last && nowTime - this.last < 1000) {
+      this.isClick = true
+    } else {
+      this.isClick = false
+      this.last = nowTime
+      const param = {
+        deviceId: this.intercomInfo.deviceId
+      }
+      stopTalk(param).then(() => {
       // this.stopRecord()
-    }).catch((err:any) => {
-      this.$message.error(err)
-    })
+      }).catch((err:any) => {
+        this.$message.error(err)
+      })
+    }
   }
 
   private startRecord() {
