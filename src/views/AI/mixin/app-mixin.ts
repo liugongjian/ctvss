@@ -15,6 +15,10 @@ export default class AppMixin extends Vue {
    * 删除回调
    */
   public onDeleteApp() {}
+  /**
+   * 更新能力回调
+   */
+  public getAbilityList() {}
 
   /**
    * 查看详情
@@ -52,6 +56,7 @@ export default class AppMixin extends Vue {
       payload: { id: [app.id] },
       onSuccess: () => {
         this.onDeleteApp()
+        this.getAbilityList()
       }
     })
   }

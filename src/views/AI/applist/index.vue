@@ -117,7 +117,7 @@ export default class extends Mixins(AppMixin) {
   /**
    * 获取能力类型
    */
-  private async getAbilityList() {
+  public async getAbilityList() {
     try {
       this.loading.abilityList = true
       const { aiAbilityList } = await getAbilityList({})
@@ -183,6 +183,7 @@ export default class extends Mixins(AppMixin) {
       payload: { id: this.multipleSelection.map(item => item.id) },
       onSuccess: () => {
         this.getAppList()
+        this.getAbilityList()
       }
     })
   }
