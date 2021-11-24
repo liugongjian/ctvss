@@ -120,7 +120,7 @@ export default class extends Mixins(ScreenMixin) {
 
   private intercomMousedown() {
     const nowTime = Date.now()
-    if (this.last && nowTime - this.last < 1500) {
+    if (this.last && nowTime - this.last < 1000) {
       this.$message.warning('点的太快了，请稍后再点击~')
       return false
     } else {
@@ -173,7 +173,7 @@ export default class extends Mixins(ScreenMixin) {
     if (!this.last) {
       this.last = nowTime
     } else {
-      if (nowTime - this.last > 1500) {
+      if (nowTime - this.last > 1000) {
         this.last = Date.now()
         this.isClick = false
         this.last = nowTime
@@ -187,6 +187,8 @@ export default class extends Mixins(ScreenMixin) {
           this.last = Date.now()
           this.$message.error(err)
         })
+      } else {
+        this.last = Date.now()
       }
     }
   }
