@@ -40,9 +40,7 @@ export default class CreateMixin extends Vue {
     transPriority: '开启优先TCP传输时，设备进行视频邀约时优先使用TCP协议接入到视频监控服务中。关闭时则优先使用UDP协议接入。'
   }
 
-  public get regionList() {
-    return this.lianzhouFlag ? regionList : allRegionList
-  }
+  public regionList: any = []
 
   public get currentGroup() {
     return GroupModule.group
@@ -144,7 +142,10 @@ export default class CreateMixin extends Vue {
   // 设备地址动态变化
   public async cascaderInit() {
     if (this.lianzhouFlag) {
+      this.regionList = regionList
       this.regionList[0].children[0].children[0].children = await this.getExpandList(441882)
+    } else {
+      this.regionList = allRegionList
     }
     if (!this.form.gbRegion) return
     let list = [
