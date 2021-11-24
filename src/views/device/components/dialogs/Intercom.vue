@@ -126,24 +126,29 @@ export default class extends Mixins(ScreenMixin) {
 
     this.ifCloseStatus = 0
     startTalk(param).then((res:any) => {
-      const { streamServerAddr } = res
-      const wsUrl = `ws://${streamServerAddr}`
-      try {
-        this.ws = new WebSocket(wsUrl)
-        this.ws.onopen = (e:any) => {
-          console.log('连接建立', e, this.ifCloseStatus)
-          if (this.ifCloseStatus !== 1) {
-            this.ws.send(this.intercomInfo.deviceId)
-            this.startRecord()
-          } else {
-            this.ws.close()
+      if (this.ws) {
+        this.stopRecord()
+      }
+      if (this.ifCloseStatus !== 1) {
+        const { streamServerAddr } = res
+        const wsUrl = `ws://${streamServerAddr}`
+        try {
+          this.ws = new WebSocket(wsUrl)
+          this.ws.onopen = (e:any) => {
+            console.log('连接建立', e, this.ifCloseStatus)
+            if (this.ifCloseStatus !== 1) {
+              this.ws.send(this.intercomInfo.deviceId)
+              this.startRecord()
+            } else {
+              this.ws.close()
+            }
           }
-        }
-      } catch (e) {
+        } catch (e) {
         // this.ws.onerror = (e:any) => {
         //   console.log(`连接错误：${e}`)
         // }
-        console.log(`连接错误：${e}`)
+          console.log(`连接错误：${e}`)
+        }
       }
     }).catch((err:any) => {
       if (this.ifCloseStatus !== 1) {
