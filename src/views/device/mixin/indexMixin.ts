@@ -75,6 +75,7 @@ export default class IndexMixin extends Vue {
         id: 0
       })
       this.dirList = this.setDirsStreamStatus(res.dirs)
+      this.getRootSums(this.dirList)
       this.$nextTick(() => {
         this.initTreeStatus()
       })
