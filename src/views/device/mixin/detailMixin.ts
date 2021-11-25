@@ -3,12 +3,12 @@ import DeviceMixin from './deviceMixin'
 import { Device } from '@/type/device'
 import { Group } from '@/type/group'
 import { RecordTemplate } from '@/type/template'
-import { getDevice, getLianzhouArea } from '@/api/device'
 import { queryGroup } from '@/api/group'
 import { GroupModule } from '@/store/modules/group'
-import { VGroupModule } from '@/store/modules/vgroup'
 import { DeviceModule } from '@/store/modules/device'
-import { DeviceStatus, DeviceGb28181Type, RecordStatus, RecordStatusType, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType } from '@/dics'
+// import { DeviceStatus, DeviceGb28181Type, RecordStatus, RecordStatusType, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType } from '@/dics'
+import { getDevice, getAddressArea } from '@/api/device'
+import { DeviceStatus, DeviceGb28181Type, RecordStatus, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType, RecordStatusType } from '@/dics'
 import { getDeviceResources } from '@/api/billing'
 import TemplateBind from '../../components/templateBind.vue'
 import SetAuthConfig from '../components/dialogs/SetAuthConfig.vue'
@@ -22,6 +22,11 @@ import { regionList } from '@/assets/region/lianzhouRegion'
 import copy from 'copy-to-clipboard'
 import { DeviceTips } from '@/dics/tips'
 import Resource from '@/views/device/components/dialogs/Resource.vue'
+import { VGroupModule } from '@/store/modules/vgroup'
+import { industryMap } from '@/assets/region/industry'
+import { networkMap } from '@/assets/region/network'
+import { allRegionList } from '@/assets/region/region'
+
 @Component({
   components: {
     TemplateBind,
@@ -56,6 +61,8 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   public createSubDevice = CreateSubDevice
   public info: Device | null = null
   public groupInfo: Group | null = null
+  public industryMap = industryMap
+  public networkMap = networkMap
   public resources: any = []
   public algoTabTypeDefault = ''
   public showResourceDialog = false
@@ -160,6 +167,13 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     this.detailInit()
   }
 
+  /**
+   * 针对网络标识
+   */
+  private get networkFlag() {
+    return this.$store.state.user.tags.isNeedDeviceNetworkCode === 'Y'
+  }
+
   public async mounted() {
     this.detailInit()
   }
@@ -174,32 +188,61 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     this.lianzhouFlag = this.$store.state.user.tags.isLianZhouEdu === 'Y'
     await this.getDevice()
     await this.getDeviceResources()
-    this.lianzhouFlag && await this.getLianzhouAddress()
+    await this.getAddress(this.info!.gbRegion)
   }
 
   /**
    * 获取连州region
    */
-  public async getLianzhouAddress() {
-    let info: any = this.info
-    if (!info || !info.gbRegion) return null
-    let res = await getLianzhouArea({
-      pid: 441882,
-      level: 5
-    })
-    this.lianzhouAddress = '广州省/清远市/连州市'
-    let lianzhouArea = res.areas.map((item: any) => {
-      return {
-        name: item.name,
-        code: item.id,
-        level: item.level
+  public async getAddress(gbRegion: any) {
+    this.$set(this.info!, 'address', '')
+    if (this.lianzhouFlag) {
+      let res = await getAddressArea({
+        pid: 441882,
+        level: 5
+      })
+      this.info!.address = '广州省/清远市/连州市'
+      let lianzhouArea = res.areas.map((item: any) => {
+        return {
+          name: item.name,
+          code: item.id,
+          level: item.level
+        }
+      })
+      lianzhouArea.forEach((item: any) => {
+        if (item.code === gbRegion) {
+          this.info!.address += `/${item.name}`
+        }
+      })
+    } else {
+      const list = [
+        parseInt(gbRegion!.substring(0, 2)),
+        parseInt(gbRegion!.substring(0, 4)),
+        parseInt(gbRegion!.substring(0, 6))
+      ]
+      let region0 = allRegionList.find((item0: any) => {
+        return item0.code === list[0]
+      })
+      if (region0) {
+        this.info!.address += region0.name
+        let region1 = region0.children.find((item1: any) => {
+          return item1.code === list[1]
+        })
+        if (region1) {
+          this.info!.address += '/' + region1.name
+          let region2 = region1.children.find((item2: any) => {
+            return item2.code === list[2]
+          })
+          if (region2) {
+            this.info!.address += '/' + region2.name
+          } else {
+            this.info!.address += '/' + region1.children[0].name
+          }
+        } else {
+          this.info!.address += '/' + region0.children[0].name + '/' + region0.children[0].children[0].name
+        }
       }
-    })
-    lianzhouArea.forEach((item: any) => {
-      if (item.code === info.gbRegion) {
-        this.lianzhouAddress += `/${item.name}`
-      }
-    })
+    }
   }
 
   public get isPrivateInNetwork() {
@@ -399,6 +442,6 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     if (!realGroupId || oldRealGroupId) return
     await this.getDevice()
     await this.getDeviceResources()
-    this.lianzhouFlag && await this.getLianzhouAddress()
+    await this.getAddress(this.info!.gbRegion)
   }
 }

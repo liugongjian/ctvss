@@ -55,8 +55,14 @@
                   <el-descriptions-item label="设备厂商">
                     {{ info.deviceVendor || '-' }}
                   </el-descriptions-item>
-                  <el-descriptions-item label="设备地址">
-                    {{ (lianzhouFlag ? lianzhouAddress : address) || '-' }}
+                  <el-descriptions-item v-if="info.address" label="设备地址">
+                    {{ info.address }}
+                  </el-descriptions-item>
+                  <el-descriptions-item v-if="info.industryCode" label="所属行业">
+                    {{ industryMap[info.industryCode] }}
+                  </el-descriptions-item>
+                  <el-descriptions-item v-if="info.networkCode && networkFlag" label="网络标识">
+                    {{ networkMap[info.networkCode] }}
                   </el-descriptions-item>
                   <el-descriptions-item v-if="lianzhouFlag" label="经纬度">
                     {{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}
@@ -206,7 +212,6 @@
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import detailMixin from '../mixin/detailMixin'
-import { provinceMapping, cityMapping } from '@/assets/region/cities'
 import DetailAi from '../components/DetailAi.vue'
 
 @Component({
@@ -218,22 +223,6 @@ import DetailAi from '../components/DetailAi.vue'
 export default class extends Mixins(detailMixin) {
   public async mounted() {
     this.getGroup()
-  }
-
-  private get address() {
-    let info: any = this.info
-    if (!info.gbRegion) return null
-    let provinceCode: number = parseInt(info.gbRegion.substring(0, 2))
-    let cityCode: number = parseInt(info.gbRegion.substring(0, 4))
-    return provinceMapping[provinceCode] + ' / ' + cityMapping[cityCode]
-  }
-
-  private canvasDialog = false;
-  private openCanvasDialog() {
-    this.canvasDialog = true
-  }
-  private closeCanvasDialog() {
-    this.canvasDialog = false
   }
 }
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <div class="device-list__container min-contaniner">
+  <div ref="listWrap" class="device-list__container min-contaniner">
     <div class="filter-container clearfix">
       <!-- <div class="filter-container__left">
         <el-button type="primary" @click="1">一键删除</el-button>
@@ -10,7 +10,7 @@
           </el-dropdown-menu>
         </el-dropdown>
       </div> -->
-      <div class="filter-container__right">
+      <div ref="filterWrap" class="filter-container__right">
         <el-date-picker
           v-model="searchFrom.timeRange"
           class="data-picker"
@@ -28,6 +28,7 @@
     <el-table
       ref="table"
       v-loading="loading"
+      :height="tableMaxHeight"
       :data="alarmList"
       fit
       class="template__table"
@@ -142,6 +143,8 @@ export default class extends Vue {
   private showViewBindDialog = false
   private currentTemplateId: any = ''
   private selectedDeviceList: any = []
+  private tableMaxHeight: any = null
+  private observer: any = null
   private searchFrom: any = {
     deviceName: '',
     timeRange: null,
@@ -262,10 +265,27 @@ export default class extends Vue {
   private mounted() {
     this.$route.query.inProtocol && this.getList()
     this.setTimer()
+    this.calTableMaxHeight()
+    // @ts-ignore
+    this.observer = new ResizeObserver(() => {
+      this.calTableMaxHeight()
+    })
+    const listWrap: any = this.$refs.listWrap
+    listWrap && this.observer.observe(listWrap)
   }
 
   private destroyed() {
     this.timer && clearInterval(this.timer)
+    const listWrap: any = this.$refs.listWrap
+    listWrap && this.observer.unobserve(listWrap)
+  }
+
+  private calTableMaxHeight() {
+    const listWrap: any = this.$refs.listWrap
+    if (!listWrap) return
+    const filterWrap: any = this.$refs.filterWrap
+    const documentHeight = listWrap.offsetHeight - (filterWrap ? filterWrap.offsetHeight : 0) - 90
+    this.tableMaxHeight = documentHeight
   }
 
   private search() {

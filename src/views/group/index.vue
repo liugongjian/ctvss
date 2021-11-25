@@ -29,7 +29,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="空间状态">
+        <el-table-column label="业务组状态">
           <template slot-scope="{row}">
             <status-badge :status="row.groupStatus" />
             {{ groupStatus[row.groupStatus] }}

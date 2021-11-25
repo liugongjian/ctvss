@@ -60,7 +60,7 @@
         </el-form-item>
         <el-form-item label="设备名称:" prop="deviceName" class="form-with-tip">
           <el-input v-model="form.deviceName" />
-          <div class="form-tip">2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号。</div>
+          <div class="form-tip">2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。</div>
         </el-form-item>
         <el-form-item label="设备IP:" prop="deviceIp">
           <el-input v-model="form.deviceIp" />
@@ -68,9 +68,9 @@
         <el-form-item label="设备端口:" prop="devicePort">
           <el-input v-model.number="form.devicePort" />
         </el-form-item>
-        <el-form-item v-if="form.deviceType === 'platform'" label="设备国标编号:" prop="gbId">
+        <!-- <el-form-item v-if="form.deviceType === 'platform'" label="设备国标编号:" prop="gbId">
           <el-input v-model="form.gbId" />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="GB28181账号:" prop="userName">
           <el-select v-model="form.userName" :loading="loading.account">
             <el-option-group label="匿名">
@@ -124,35 +124,30 @@
           </template>
           <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" />
         </el-form-item>
-        <template v-if="lianzhouFlag">
-          <el-form-item label="设备地址:" prop="address">
-            <el-cascader
-              ref="addressCascader"
-              v-model="form.address"
-              class="lainzhou-cascader"
-              expand-trigger="click"
-              :disabled="isUpdate"
-              :options="regionList"
-              :props="lianzhouRegionProps"
-              @active-item-change="regionChange"
-              @change="lianzhouAddressChange"
-            />
-          </el-form-item>
-          <el-form-item label="经纬度:" prop="longlat">
-            <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
-            <el-input v-model="form.deviceLatitude" class="longlat-input" />
-          </el-form-item>
-        </template>
-        <el-form-item v-else label="设备地址:" prop="address">
+        <el-form-item v-if="(!isUpdate || form.gbRegion || !form.gbId)" label="设备地址:" prop="address">
           <el-cascader
             ref="addressCascader"
             v-model="form.address"
-            expand-trigger="hover"
-            :disabled="isUpdate"
-            :options="cities"
-            :props="citiesProps"
+            expand-trigger="click"
+            :disabled="form.gbId !== ''"
+            :options="regionList"
+            :props="addressProps"
             @change="addressChange"
           />
+        </el-form-item>
+        <el-form-item v-if="lianzhouFlag" v-show="form.deviceType !== 'platform'" label="经纬度:" prop="longlat">
+          <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
+          <el-input v-model="form.deviceLatitude" class="longlat-input" />
+        </el-form-item>
+        <el-form-item v-if="!isUpdate || form.industryCode || !form.gbId" label="所属行业:" prop="industryCode">
+          <el-select v-model="form.industryCode" :disabled="form.gbId !== ''" placeholder="请选择所属行业">
+            <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item v-if="(!isUpdate || form.networkCode || !form.gbId) && networkFlag" label="网络标识:" prop="networkCode">
+          <el-select v-model="form.networkCode" :disabled="form.gbId !== ''" placeholder="请选择网络标识">
+            <el-option v-for="(item, index) in networkList" :key="index" :label="item.name" :value="item.value" />
+          </el-select>
         </el-form-item>
         <el-form-item label="配置资源包:" prop="resources">
           <ResourceTabs v-model="form.resources" :is-update="isUpdate"
@@ -177,7 +172,7 @@
         </el-form-item>
         <el-form-item label="通道名称:" prop="channelName" class="form-with-tip">
           <el-input v-model="form.channelName" />
-          <div class="form-tip">2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号。</div>
+          <div class="form-tip">2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。</div>
         </el-form-item>
         <el-form-item v-if="isUpdate" label="配置资源包:" prop="resources">
           <ResourceTabs v-model="form.resources" :is-update="isUpdate"
@@ -204,7 +199,6 @@ import { updateDeviceResources } from '@/api/billing'
 import { getList as getGbList } from '@/api/certificate/gb28181'
 import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
 import ResourceTabs from '../components/ResourceTabs.vue'
-import { cities, provinceMapping, cityMapping } from '@/assets/region/cities'
 
 @Component({
   name: 'CreateGb28181Device',
@@ -214,13 +208,6 @@ import { cities, provinceMapping, cityMapping } from '@/assets/region/cities'
   }
 })
 export default class extends Mixins(createMixin) {
-  private cities = cities
-  private citiesProps: any = {
-    value: 'code',
-    label: 'name',
-    children: 'cities'
-  }
-
   private rules = {
     deviceName: [
       { required: true, message: '请输入设备名称', trigger: 'blur' },
@@ -246,9 +233,15 @@ export default class extends Mixins(createMixin) {
       { required: true, message: '请填写通道号', trigger: 'change' },
       { validator: this.validateChannelNum, trigger: 'change' }
     ],
-    gbId: [
-      { required: true, message: '请填写国标ID', trigger: 'blur' },
-      { validator: this.validateGbId, trigger: 'blur' }
+    // gbId: [
+    //   { required: true, message: '请填写国标ID', trigger: 'blur' },
+    //   { validator: this.validateGbId, trigger: 'blur' }
+    // ],
+    industryCode: [
+      { required: true, message: '请选择所属行业', trigger: 'blur' }
+    ],
+    networkCode: [
+      { required: true, message: '请选择网络标识', trigger: 'blur' }
     ],
     userName: [
       { required: true, message: '请选择账号', trigger: 'change' }
@@ -307,7 +300,9 @@ export default class extends Mixins(createMixin) {
     gbRegionLevel: null,
     resources: [],
     vssAIApps: [],
-    aIApps: []
+    aIApps: [],
+    industryCode: '',
+    networkCode: ''
   }
   private minChannelSize = 1
   private availableChannels: Array<number> = []
@@ -315,68 +310,15 @@ export default class extends Mixins(createMixin) {
     createGb28181Certificate: false
   }
 
-  private async mounted() {
-    // TODO: 连州教育局一机一档专用
-    this.lianzhouFlag = this.$store.state.user.tags.isLianZhouEdu === 'Y'
+  public async mounted() {
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
-      this.lianzhouFlag && this.lianzhouCascaderInit()
     } else {
-      this.addressCascaderInit()
       this.form.dirId = this.dirId
     }
     this.form.inProtocol = this.inProtocol
     this.getGbAccounts()
     this.onGroupChange()
-  }
-
-  /**
-   * 初始化设备地址
-   */
-  private addressCascaderInit() {
-    const mainUserAddress: any = this.$store.state.user.mainUserAddress
-    if (mainUserAddress) {
-      const mainUserAddresses = mainUserAddress.split(',')
-      let proArr: any = mainUserAddresses.map((adress: any) => {
-        return (adress.substring(0, 2) + '00')
-      })
-      this.cities = [...new Set(proArr)].map((pro: any) => {
-        return {
-          name: provinceMapping[pro.substring(0, 2)],
-          level: '1',
-          code: pro,
-          cities: []
-        }
-      })
-      this.cities.forEach((city: any) => {
-        mainUserAddresses.forEach((adress: any) => {
-          if (adress.substring(0, 2) === city.code.substring(0, 2)) {
-            let cityObj: any = {
-              name: cityMapping[adress],
-              level: '3',
-              code: adress
-            }
-            adress.substring(2, 4) === '00' && (cityObj.level = '1')
-            adress.substring(2, 4) === '01' && (cityObj.level = '2')
-            city.cities.push(cityObj)
-          }
-        })
-      })
-      this.form.address = [proArr[0], mainUserAddresses[0]]
-    }
-    this.$nextTick(() => {
-      this.addressChange()
-    })
-  }
-
-  private addressChange() {
-    const addressCascader: any = this.$refs['addressCascader']
-    if (addressCascader && addressCascader.getCheckedNodes()[0]) {
-      const currentAddress = addressCascader.getCheckedNodes()[0].data
-      this.form.gbRegion = currentAddress.code + '0000'
-      this.form.gbRegionLevel = currentAddress.level
-      console.log(this.form.gbRegion, this.form.gbRegionLevel)
-    }
   }
 
   /**
@@ -394,12 +336,13 @@ export default class extends Mixins(createMixin) {
       })
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
-          'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel']))
+          'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
+        this.cascaderInit()
         // 获取绑定资源包列表
         this.getDeviceResources(info.deviceId, info.deviceType!, info.inProtocol!)
         // 设备地址参数转换
-        let gbCode = this.form.gbRegion.substring(0, 4)
-        this.form.address = [gbCode.substring(0, 2) + '00', gbCode]
+        // let gbCode = this.form.gbRegion.substring(0, 4)
+        // this.form.address = [gbCode.substring(0, 2) + '00', gbCode]
         if (info.deviceStats) {
           // 编辑的时候，设置数量不得小于已创建的子通道中最大通道号或1
           this.minChannelSize = Math.max(...usedChannelNum, 1)
@@ -430,7 +373,7 @@ export default class extends Mixins(createMixin) {
         this.availableChannels = usedChannelNum
       }
     } catch (e) {
-      this.$message.error(e.message)
+      this.$message.error(e && e.message)
     } finally {
       this.loading.device = false
     }
@@ -511,7 +454,7 @@ export default class extends Mixins(createMixin) {
       }
       if (!this.isChannel) {
         // 通用参数
-        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'inProtocol', 'deviceIp', 'devicePort', 'pullType', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel']))
+        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'inProtocol', 'deviceIp', 'devicePort', 'pullType', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
         // IPC类型添加额外参数
         if (this.form.deviceType === 'ipc') {
           params = Object.assign(params, {
@@ -592,8 +535,5 @@ export default class extends Mixins(createMixin) {
   }
   .longlat-input {
     width: 193px;
-  }
-  .lainzhou-cascader {
-    width: 400px
   }
 </style>

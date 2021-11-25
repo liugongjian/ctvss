@@ -80,8 +80,6 @@ function responseHandler(response: any) {
     const data = response && response.data
     const code = data && data.code ? data.code : '-1'
     let message = data && data.message ? data.message : '服务器异常，请稍后再试。'
-    // TODO: 临时替换，后续需中台改
-    message = message.replace('改设备', '该设备')
     console.log('code: ', code, ' message: ', message)
     return Promise.reject(new VSSError(code, message))
   }

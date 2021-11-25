@@ -61,7 +61,7 @@ export default class extends Mixins(createMixin) {
     return true
   }
 
-  private async mounted() {
+  public async mounted() {
     try {
       this.orginalChannelSize = this.device.channelSize || 0
       this.getDeviceResources(this.device.deviceId, this.device.deviceType!, this.device.inProtocol!)

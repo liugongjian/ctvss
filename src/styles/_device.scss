@@ -93,6 +93,10 @@
           &.actived {
             background: #f3f3f3;
           }
+
+          .sum-icon {
+            color: $textGrey;
+          }
         }
 
         .polling-button {
@@ -191,6 +195,7 @@
     }
   }
   &__container {
+    height: 100%;
     padding: 15px;
     min-width: 910px;
     .filter-container {

@@ -140,7 +140,6 @@
               <info-list-item label="设备名称:">{{ info.deviceName }}</info-list-item>
               <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
               <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
-              <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
               <info-list-item v-if="lianzhouFlag" label="设备地址:">{{ lianzhouAddress || '-' }}</info-list-item>
               <info-list-item v-if="lianzhouFlag" label="经纬度:">{{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}</info-list-item>
               <template v-if="info.deviceType === 'nvr'">
@@ -153,12 +152,14 @@
               <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
               <info-list-item v-if="info.deviceChannels.length" label="通道号:">{{ 'D' + info.deviceChannels[0].channelNum }}</info-list-item>
               <info-list-item v-if="info.deviceChannels.length" label="通道名称:">{{ info.deviceChannels[0].channelName }}</info-list-item>
-              <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
-              <info-list-item label="设备国标ID:">{{ info.gbId }}</info-list-item>
               <info-list-item v-if="lianzhouFlag" label="设备地址:">{{ lianzhouAddress || '-' }}</info-list-item>
               <info-list-item v-if="lianzhouFlag" label="经纬度:">{{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}</info-list-item>
             </info-list>
             <info-list v-if="info" label-width="110">
+              <info-list-item label="设备国标ID:">{{ info.gbId || '-' }}</info-list-item>
+              <info-list-item v-if="info.address" label="设备地址:">{{ info.address }}</info-list-item>
+              <info-list-item v-if="info.industryCode" label="所属行业:">{{ industryMap[info.industryCode] }}</info-list-item>
+              <info-list-item v-if="info.networkCode && networkFlag" label="网络标识:">{{ networkMap[info.networkCode] }}</info-list-item>
               <info-list-item label="视频流接入方式:">{{ inType[info.inType] }}</info-list-item>
               <template v-if="info.deviceVendor === '其他'">
                 <info-list-item v-if="info.inType === 'pull'" label="自定义拉流地址:">{{ info.deviceDomain }}</info-list-item>

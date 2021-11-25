@@ -54,7 +54,7 @@ export default class extends Mixins(AppMixin) {
   /**
    * 获取能力分类
    */
-  private async getAbilityList() {
+  public async getAbilityList() {
     try {
       this.loading.abilityList = true
       const { aiAbilityList } = await getAbilityList({})

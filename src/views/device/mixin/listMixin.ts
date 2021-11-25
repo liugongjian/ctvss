@@ -41,6 +41,8 @@ export default class ListMixin extends Mixins(DeviceMixin) {
   public transPriority = TransPriority
   public parentDeviceId = ''
   public axiosSources: any[] = []
+  public tableMaxHeight: any = null
+  public observer: any = null
   private channelSize:any = null
 
   public loading = {
@@ -245,6 +247,7 @@ export default class ListMixin extends Mixins(DeviceMixin) {
     })
     this.clearAllFilter()
     this.init()
+    this.calTableMaxHeight()
   }
 
   public mounted() {
@@ -256,6 +259,30 @@ export default class ListMixin extends Mixins(DeviceMixin) {
     ) && (
       uploadDiv.style.marginRight = '10px'
     )
+    this.calTableMaxHeight()
+    // @ts-ignore
+    this.observer = new ResizeObserver(() => {
+      this.calTableMaxHeight()
+    })
+    const listWrap: any = this.$refs.listWrap
+    listWrap && this.observer.observe(listWrap)
+  }
+
+  public updated() {
+    this.calTableMaxHeight()
+  }
+
+  public beforeDestroy() {
+    const listWrap: any = this.$refs.listWrap
+    listWrap && this.observer.unobserve(listWrap)
+  }
+  public calTableMaxHeight() {
+    const listWrap: any = this.$refs.listWrap
+    const filterWrap: any = this.$refs.filterWrap
+    const filterBtnWrap: any = this.$refs.filterBtnWrap
+    const infoWrap: any = this.$refs.infoWrap
+    const documentHeight = listWrap.offsetHeight - (filterWrap ? filterWrap.offsetHeight : 0) - (filterBtnWrap ? filterBtnWrap.offsetHeight : 0) - (infoWrap ? infoWrap.offsetHeight : 0) - 90
+    this.tableMaxHeight = documentHeight
   }
 
   /**
@@ -337,7 +364,7 @@ export default class ListMixin extends Mixins(DeviceMixin) {
             if (this.filter.streamStatus && device.streamStatus !== this.filter.streamStatus) {
               return false
             }
-            if (this.filter.recordStatus && RecordStatusType[device.recordStatus] !== this.filter.recordStatus) {
+            if (this.filter.recordStatus && RecordStatusType[device.recordStatus!] !== this.filter.recordStatus) {
               return false
             }
             return true
