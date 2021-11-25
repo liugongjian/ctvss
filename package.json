@@ -116,6 +116,7 @@
     "fibers": "^4.0.2",
     "jest": "^25.1.0",
     "lint-staged": "^10.0.7",
+    "mathjs": "^9.4.4",
     "patch-package": "^6.2.2",
     "sass": "^1.25.0",
     "sass-loader": "^8.0.2",
