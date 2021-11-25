@@ -137,7 +137,7 @@ export default class extends Mixins(ScreenMixin) {
         }
         // if (this.ifCloseStatus !== 1) {
         const { streamServerAddr } = res
-        const wsUrl = `ws://${streamServerAddr}`
+        const wsUrl = `ws://${streamServerAddr}/talk/${this.intercomInfo.deviceId}`
         try {
           this.ws = new WebSocket(wsUrl)
           this.ws.onopen = (e:any) => {
