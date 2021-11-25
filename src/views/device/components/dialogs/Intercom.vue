@@ -170,26 +170,22 @@ export default class extends Mixins(ScreenMixin) {
 
   private intercomMouseup() {
     const nowTime = Date.now()
-    if (!this.last) {
+    if (!this.last || nowTime - this.last > 1000) {
+      this.last = Date.now()
+      this.isClick = false
       this.last = nowTime
-    } else {
-      if (nowTime - this.last > 1000) {
-        this.last = Date.now()
-        this.isClick = false
-        this.last = nowTime
-        const param = {
-          deviceId: this.intercomInfo.deviceId
-        }
-        stopTalk(param).then(() => {
-          // this.stopRecord()
-          this.last = Date.now()
-        }).catch((err:any) => {
-          this.last = Date.now()
-          this.$message.error(err)
-        })
-      } else {
-        this.last = Date.now()
+      const param = {
+        deviceId: this.intercomInfo.deviceId
       }
+      stopTalk(param).then(() => {
+        // this.stopRecord()
+        this.last = Date.now()
+      }).catch((err:any) => {
+        this.last = Date.now()
+        this.$message.error(err)
+      })
+    } else {
+      this.last = Date.now()
     }
   }
 

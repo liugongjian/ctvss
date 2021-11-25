@@ -25,7 +25,7 @@
       </div>
       <div class="controls__right">
         <el-tooltip content="开启语音对讲" placement="top">
-          <div class="controls__btn" :class="{'selected': isZoom}" @click.stop.prevent="toIntercom">
+          <div class="controls__btn" @click.stop.prevent="toIntercom">
             <svg-icon name="micro" width="16px" height="16px" />
           </div>
         </el-tooltip>
