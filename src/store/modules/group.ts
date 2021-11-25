@@ -2,6 +2,7 @@ import { VuexModule, Module, Mutation, Action, getModule } from 'vuex-module-dec
 import { Group } from '@/type/group'
 import { getGroups } from '@/api/group'
 import store from '@/store'
+import { setLocalStorage, getLocalStorage } from '@/utils/storage'
 
 export interface IGroupState {
   group?: Group,
@@ -33,6 +34,7 @@ class GroupStore extends VuexModule implements IGroupState {
   @Mutation
   public SET_GROUP_LIST_INDEX(payload: number) {
     this.groupListIndex = payload
+    setLocalStorage('groupListIndex', this.groupListIndex)
   }
 
   @Action
@@ -68,10 +70,12 @@ class GroupStore extends VuexModule implements IGroupState {
 
   @Action
   public async GetGroupList() {
+    const storageGroupListIndex: number = parseInt(getLocalStorage('groupListIndex')!)
+    storageGroupListIndex && (this.SET_GROUP_LIST_INDEX(storageGroupListIndex))
     try {
       let params = {
         pageNum: 1,
-        pageSize: 10 * this.groupListIndex
+        pageSize: 10 * this.groupListIndex!
       }
       const res = await getGroups(params)
       const groupList = res.groups
@@ -102,7 +106,7 @@ class GroupStore extends VuexModule implements IGroupState {
       }
       const res = await getGroups(params)
       const groups = res.groups
-      this.SET_GROUP_LIST([...this.groups, ...groups])
+      this.SET_GROUP_LIST([...this.groups!, ...groups])
     } catch (e) {
       console.error(e)
     }

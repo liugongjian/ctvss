@@ -139,6 +139,7 @@ class User extends VuexModule implements IUserState {
     this.SET_EMAIL(email)
     this.SET_TYPE(type)
     this.SET_IAM_USER_ID(data.iamUserId)
+    GroupModule.ResetGroupListIndex()
     // this.SET_AVATAR(avatar)
     return data
   }
