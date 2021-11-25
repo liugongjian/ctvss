@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import AddPersonal from './dialogs/AddPersonal.vue'
 import { getPersonalList, deletePersonalInfo } from '@/api/aiConfig'
 import { decodeBase64 } from '@/utils/base64'
@@ -54,6 +54,12 @@ export default class extends Vue {
     pageSize: 10,
     total: 20
   }
+
+  @Watch('dataList.length')
+  private onDataListChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
+  }
+
   private created() {
     this.getPersonalList()
   }

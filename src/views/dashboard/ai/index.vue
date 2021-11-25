@@ -135,6 +135,11 @@ export default class extends Vue {
   }
   private imageList = []
 
+  @Watch('imageList.length')
+  private onImageListChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
+  }
+
   private get type() {
     let params: any = this.$route.query
     return params.type.toString()

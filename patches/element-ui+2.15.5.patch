@@ -1,5 +1,5 @@
 diff --git a/node_modules/element-ui/lib/element-ui.common.js b/node_modules/element-ui/lib/element-ui.common.js
-index a425343..f91e7bd 100644
+index 6534063..2031b19 100644
 --- a/node_modules/element-ui/lib/element-ui.common.js
 +++ b/node_modules/element-ui/lib/element-ui.common.js
 @@ -1156,7 +1156,9 @@ var util_ = __webpack_require__(2);
@@ -13,7 +13,7 @@ index a425343..f91e7bd 100644
        }
        this.userChangePageSize = false;
      }
-@@ -18385,9 +18387,11 @@ date_table_component.options.__file = "packages/date-picker/src/basic/date-table
+@@ -18392,9 +18394,11 @@ date_table_component.options.__file = "packages/date-picker/src/basic/date-table
  
      prevMonth: function prevMonth() {
        this.date = Object(date_util_["prevMonth"])(this.date);
@@ -25,7 +25,7 @@ index a425343..f91e7bd 100644
      },
      prevYear: function prevYear() {
        if (this.currentView === 'year') {
-@@ -18395,6 +18399,7 @@ date_table_component.options.__file = "packages/date-picker/src/basic/date-table
+@@ -18402,6 +18406,7 @@ date_table_component.options.__file = "packages/date-picker/src/basic/date-table
        } else {
          this.date = Object(date_util_["prevYear"])(this.date);
        }
@@ -33,7 +33,7 @@ index a425343..f91e7bd 100644
      },
      nextYear: function nextYear() {
        if (this.currentView === 'year') {
-@@ -18402,6 +18407,7 @@ date_table_component.options.__file = "packages/date-picker/src/basic/date-table
+@@ -18409,6 +18414,7 @@ date_table_component.options.__file = "packages/date-picker/src/basic/date-table
        } else {
          this.date = Object(date_util_["nextYear"])(this.date);
        }
@@ -41,3 +41,13 @@ index a425343..f91e7bd 100644
      },
      handleShortcutClick: function handleShortcutClick(shortcut) {
        if (shortcut.onClick) {
+@@ -42425,7 +42431,8 @@ var descriptions_row_extends = Object.assign || function (target) { for (var i =
+                 }, _ref3[item.labelClassName] = true, _ref3),
+                 style: item.labelStyle
+               },
+-              [item.props.label]
++              // 修复label slot问题
++              [item.label]
+             ), h(
+               'span',
+               {

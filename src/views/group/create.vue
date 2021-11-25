@@ -14,7 +14,7 @@
         </el-form-item>
         <el-form-item label="业务组名称:" prop="groupName" class="form-with-tip">
           <el-input v-model="form.groupName" />
-          <div class="form-tip">4-32位，可包含大小写字母、数字、中文、中划线、空格。空间名称不能重复。</div>
+          <div class="form-tip">4-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号。空间名称不能重复。</div>
         </el-form-item>
         <el-form-item label="业务组描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入业务组描述，如业务介绍或用途" />
@@ -39,6 +39,27 @@
             :options="regionList"
             :disabled="isEdit"
           />
+        </el-form-item>
+        <el-form-item v-if="(!isEdit || !form.gbId || form.gbRegion) && form.inProtocol !== 'vgroup'" label="设备地址:" prop="address">
+          <el-cascader
+            ref="addressCascader"
+            v-model="form.address"
+            expand-trigger="click"
+            :disabled="form.gbId !== ''"
+            :options="gbRegionList"
+            :props="addressProps"
+            @change="addressChange"
+          />
+        </el-form-item>
+        <el-form-item v-if="(!isEdit || !form.gbId || !!form.industryCode) && form.inProtocol !== 'vgroup'" label="所属行业:" prop="industryCode">
+          <el-select v-model="form.industryCode" :disabled="form.gbId !== ''" placeholder="请选择所属行业">
+            <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item v-if="(!isEdit || !form.gbId || !!form.industryCode) && networkFlag && form.inProtocol !== 'vgroup'" label="网络标识:" prop="networkCode">
+          <el-select v-model="form.networkCode" :disabled="form.gbId !== ''" placeholder="请选择网络标识">
+            <el-option v-for="(item, index) in networkList" :key="index" :label="item.name" :value="item.value" />
+          </el-select>
         </el-form-item>
         <el-form-item v-if="!isVGroup" label="接入类型:" prop="inProtocol">
           <el-radio-group v-model="form.inProtocol" :disabled="isEdit">
@@ -143,6 +164,11 @@ import { GroupModule } from '@/store/modules/group'
 import { InProtocolType, OutProtocolType } from '@/dics'
 import { createGroup, queryGroup, updateGroup } from '@/api/group'
 import { getRegions } from '@/api/region'
+import { industryMap } from '@/assets/region/industry'
+import { networkMap } from '@/assets/region/network'
+import { allRegionList } from '@/assets/region/region'
+import { regionList } from '@/assets/region/lianzhouRegion'
+import { getAddressArea } from '@/api/device'
 import templateBind from '../components/templateBind.vue'
 
 @Component({
@@ -153,6 +179,11 @@ export default class extends Vue {
   private breadCrumbContent = ''
   private loading = false
   private submitting = false
+  public addressProps: any = {
+    value: 'code',
+    label: 'name',
+    children: 'children'
+  }
   private rules = {
     groupName: [
       { required: true, message: '请输入业务组名称', trigger: 'blur' },
@@ -160,6 +191,15 @@ export default class extends Vue {
     ],
     region: [
       { required: true, message: '请选择区域', trigger: 'change' }
+    ],
+    address: [
+      { required: true, message: '请选设备地址', trigger: 'blur' }
+    ],
+    industryCode: [
+      { required: true, message: '请选择所属行业', trigger: 'blur' }
+    ],
+    networkCode: [
+      { required: true, message: '请选择网络标识', trigger: 'blur' }
     ],
     inProtocol: [
       { required: true, message: '请选择接入类型', trigger: 'change' }
@@ -186,10 +226,45 @@ export default class extends Vue {
     pullType: 1,
     pushType: 1,
     inNetworkType: 'public',
-    outNetworkType: 'public'
+    outNetworkType: 'public',
+    address: [],
+    gbId: '',
+    gbRegion: '',
+    gbRegionLevel: '',
+    industryCode: '',
+    networkCode: ''
   }
 
   private regionList = []
+
+  /**
+   * 针对连州设备管理
+   */
+  public get lianzhouFlag() {
+    return this.$store.state.user.tags.isLianZhouEdu === 'Y'
+  }
+
+  private get gbRegionList() {
+    return this.lianzhouFlag ? regionList : allRegionList
+  }
+
+  private get industryList() {
+    return Object.keys(industryMap).map((key: any) => {
+      return {
+        name: industryMap[key],
+        value: key
+      }
+    })
+  }
+
+  private get networkList() {
+    return Object.keys(networkMap).map((key: any) => {
+      return {
+        name: networkMap[key],
+        value: key
+      }
+    })
+  }
 
   private get isEdit() {
     return !!this.form.groupId
@@ -197,6 +272,13 @@ export default class extends Vue {
 
   private get isVGroup() {
     return this.form.inProtocol === 'vgroup'
+  }
+
+  /**
+   * 针对网络标识
+   */
+  private get networkFlag() {
+    return this.$store.state.user.tags.isNeedDeviceNetworkCode === 'Y'
   }
 
   private async mounted() {
@@ -213,11 +295,90 @@ export default class extends Vue {
         res.inNetworkType = res.inNetworkType || 'public'
         res.outNetworkType = res.outNetworkType || 'public'
         this.form = res
+        this.cascaderInit()
       } catch (e) {
         this.$message.error(e && e.message)
       } finally {
         this.loading = false
       }
+    }
+  }
+
+  /**
+   * 设备地址
+   */
+  private async cascaderInit() {
+    if (this.lianzhouFlag) {
+      this.gbRegionList[0].children[0].children[0].children = await this.getExpandList(441882)
+    }
+    if (!this.form.gbRegion) return
+    let list = [
+      parseInt(this.form.gbRegion!.substring(0, 2)),
+      parseInt(this.form.gbRegion!.substring(0, 4)),
+      parseInt(this.form.gbRegion!.substring(0, 6))
+    ]
+    await this.regionChange(list)
+    this.form.address = this.lianzhouFlag ? [ ...list, this.form.gbRegion ] : [
+      parseInt(this.form.gbRegion!.substring(0, 2)),
+      parseInt(this.form.gbRegion!.substring(0, 4)),
+      parseInt(this.form.gbRegion!.substring(0, 6))
+    ]
+    this.$nextTick(() => {
+      this.addressChange()
+    })
+  }
+
+  private async regionChange(val: any) {
+    if (val.length !== 3 || !val[0] || !val[1] || !val[2]) {
+      return
+    }
+    let index1 = this.gbRegionList.findIndex((item: any) => {
+      return item.code === val[0]
+    })
+    if (index1 !== -1) {
+      let index2 = this.gbRegionList[index1].children.findIndex((item: any) => {
+        return item.code === val[1]
+      })
+      if (index2 !== -1) {
+        let index3 = this.gbRegionList[index1].children[index2].children.findIndex((item: any) => {
+          return item.code === val[2]
+        })
+        if (index3 !== -1) {
+          if (this.lianzhouFlag) {
+            this.gbRegionList[index1].children[index2].children[index3].children = await this.getExpandList(val[2])
+          }
+        } else {
+          this.form.gbRegion = this.gbRegionList[index1].children[index2].children[0].code + '00'
+        }
+      } else {
+        this.form.gbRegion = this.gbRegionList[index1].children[0].children[0].code + '00'
+      }
+    }
+  }
+  private async getExpandList(id: any) {
+    let params: any = {
+      pid: id,
+      level: this.lianzhouFlag ? 5 : 4
+    }
+    let res = await getAddressArea(params)
+    if (res.areas.length) {
+      return res.areas.map((item: any) => {
+        return {
+          name: item.name,
+          code: item.id,
+          level: item.level
+        }
+      })
+    }
+  }
+
+  private addressChange() {
+    if (!this.form.address) return
+    const addressCascader: any = this.$refs['addressCascader']
+    if (addressCascader && addressCascader.getCheckedNodes()[0]) {
+      const currentAddress = addressCascader.getCheckedNodes()[0].data
+      this.form.gbRegion = this.lianzhouFlag ? currentAddress.code : currentAddress.code + '00'
+      this.form.gbRegionLevel = currentAddress.level
     }
   }
 
@@ -259,8 +420,8 @@ export default class extends Vue {
   }
 
   private validateGroupName(rule: any, value: string, callback: Function) {
-    if (!/^[\u4e00-\u9fa50-9a-zA-Z-\s]{4,32}$/u.test(value)) {
-      callback(new Error('业务组名称格式错误。4-32位，可包含大小写字母、数字、中文、中划线、空格。'))
+    if (!/^[\u4e00-\u9fa50-9a-zA-Z-()（）_]{4,64}$/u.test(value)) {
+      callback(new Error('业务组名称格式错误。4-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号。'))
     } else {
       callback()
     }

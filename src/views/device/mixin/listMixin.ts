@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
-import { DeviceParams, DeviceStatus, StreamStatus, RecordStatus, DeviceGb28181Type, SipTransType, StreamTransType, TransPriority } from '@/dics'
+import { DeviceParams, DeviceStatus, StreamStatus, RecordStatus, RecordStatusType, RecordStatusFilterType, DeviceGb28181Type, SipTransType, StreamTransType, TransPriority } from '@/dics'
 import { Device } from '@/type/device'
 import { GroupModule } from '@/store/modules/group'
 import { DeviceModule } from '@/store/modules/device'
@@ -35,13 +35,18 @@ export default class ListMixin extends Vue {
   public deviceParams = DeviceParams
   public deviceStatus = DeviceStatus
   public streamStatus = StreamStatus
-  private recordStatus = RecordStatus
+  public recordStatus = RecordStatus
+  public recordStatusType = RecordStatusType
+  public recordStatusFilterType = RecordStatusFilterType
   public deviceType = DeviceGb28181Type
   public sipTransType = SipTransType
   public streamTransType = StreamTransType
   public transPriority = TransPriority
   public parentDeviceId = ''
   public axiosSources: any[] = []
+  public tableMaxHeight: any = null
+  public observer: any = null
+  private channelSize:any = null
 
   public loading = {
     info: false,
@@ -73,7 +78,7 @@ export default class ListMixin extends Vue {
     deviceType: this.dictToFilterArray(DeviceGb28181Type),
     deviceStatus: this.dictToFilterArray(DeviceStatus),
     streamStatus: this.dictToFilterArray(StreamStatus),
-    recordStatus: this.dictToFilterArray(RecordStatus)
+    recordStatus: this.dictToFilterArray(RecordStatusFilterType)
   }
   public autoStreamNumObj = {
     1: '主码流',
@@ -231,6 +236,11 @@ export default class ListMixin extends Vue {
     if (this.type === 'nvr') this.getDeviceInfo(this.type)
   }
 
+  @Watch('deviceList.length')
+  public onDeviceListChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
+  }
+
   public reset() {
     this.deviceInfo = null
     this.deviceList = []
@@ -238,7 +248,9 @@ export default class ListMixin extends Vue {
     this.axiosSources.forEach((axiosSource: any) => {
       axiosSource.cancel()
     })
+    this.clearAllFilter()
     this.init()
+    this.calTableMaxHeight()
   }
 
   public mounted() {
@@ -250,6 +262,30 @@ export default class ListMixin extends Vue {
     ) && (
       uploadDiv.style.marginRight = '10px'
     )
+    this.calTableMaxHeight()
+    // @ts-ignore
+    this.observer = new ResizeObserver(() => {
+      this.calTableMaxHeight()
+    })
+    const listWrap: any = this.$refs.listWrap
+    listWrap && this.observer.observe(listWrap)
+  }
+
+  public updated() {
+    this.calTableMaxHeight()
+  }
+
+  public beforeDestroy() {
+    const listWrap: any = this.$refs.listWrap
+    listWrap && this.observer.unobserve(listWrap)
+  }
+  public calTableMaxHeight() {
+    const listWrap: any = this.$refs.listWrap
+    const filterWrap: any = this.$refs.filterWrap
+    const filterBtnWrap: any = this.$refs.filterBtnWrap
+    const infoWrap: any = this.$refs.infoWrap
+    const documentHeight = listWrap.offsetHeight - (filterWrap ? filterWrap.offsetHeight : 0) - (filterBtnWrap ? filterBtnWrap.offsetHeight : 0) - (infoWrap ? infoWrap.offsetHeight : 0) - 90
+    this.tableMaxHeight = documentHeight
   }
 
   /**
@@ -315,15 +351,16 @@ export default class ListMixin extends Vue {
           return channel
         })
         if (type === 'nvr') {
+          this.channelSize = res.channelSize
           // nvr通道后端全量返回，前端做筛选
-          deviceList = deviceList.filter((device: any) => {
+          deviceList = deviceList.filter((device: Device) => {
             if (this.filter.deviceStatus && device.deviceStatus !== this.filter.deviceStatus) {
               return false
             }
             if (this.filter.streamStatus && device.streamStatus !== this.filter.streamStatus) {
               return false
             }
-            if (this.filter.recordStatus && device.recordStatus.toString() !== this.filter.recordStatus.toString()) {
+            if (this.filter.recordStatus && RecordStatusType[device.recordStatus!] !== this.filter.recordStatus) {
               return false
             }
             return true
@@ -439,6 +476,19 @@ export default class ListMixin extends Vue {
       deviceId: this.deviceId,
       type: 'create',
       isChannel: this.isNVR
+    })
+  }
+
+  // ehome配置子通道
+  private goToConfigChannel() {
+    const result = this.deviceList.map(item => item.channelNum)
+    this.deviceRouter({
+      id: this.dirId,
+      deviceId: this.deviceId,
+      type: 'configChannel',
+      isChannel: this.isNVR,
+      channelNumList: result,
+      channelSize: this.channelSize
     })
   }
 
@@ -871,9 +921,20 @@ export default class ListMixin extends Vue {
    * 清空指定筛选条件
    */
   public clearFilter(key: string) {
+    if (this.filter[key]) {
+      const deviceTable: any = this.$refs.deviceTable
+      deviceTable && deviceTable.clearFilter(key)
+    }
     this.filter[key] = undefined
-    const deviceTable: any = this.$refs.deviceTable
-    deviceTable.clearFilter(key)
+  }
+
+  /**
+   * 清空所有筛选条件
+   */
+  public clearAllFilter() {
+    for (const key in this.filter) {
+      this.clearFilter(key)
+    }
   }
 
   /**

@@ -3,8 +3,11 @@ import { GroupModule } from '@/store/modules/group'
 import { UserModule } from '@/store/modules/user'
 import { DeviceModule } from '@/store/modules/device'
 import { regionList } from '@/assets/region/lianzhouRegion'
-import { getLianzhouArea } from '@/api/device'
+import { getAddressArea } from '@/api/device'
 import { getDeviceResources } from '@/api/billing'
+import { industryMap } from '@/assets/region/industry'
+import { networkMap } from '@/assets/region/network'
+import { allRegionList } from '@/assets/region/region'
 
 @Component
 export default class CreateMixin extends Vue {
@@ -15,6 +18,11 @@ export default class CreateMixin extends Vue {
   public orginalResourceIdList: Array<string> = []
   public orginalChannelSize = 0
   public inNetworkType = ''
+  public addressProps: any = {
+    value: 'code',
+    label: 'name',
+    children: 'children'
+  }
 
   public loading = {
     account: false,
@@ -30,6 +38,10 @@ export default class CreateMixin extends Vue {
     pullType: '当启用自动拉流，设备注册成功后自动启动拉流。关闭该选项后需要通过触发的方式启动拉流。',
     pushType: '自动激活推流地址，设备创建完成后，平台立刻自动生成推流地址。关闭该选项后需要通过触发的方式生成推流地址。',
     transPriority: '开启优先TCP传输时，设备进行视频邀约时优先使用TCP协议接入到视频监控服务中。关闭时则优先使用UDP协议接入。'
+  }
+
+  public get regionList() {
+    return this.lianzhouFlag ? regionList : allRegionList
   }
 
   public get currentGroup() {
@@ -81,6 +93,38 @@ export default class CreateMixin extends Vue {
     return title
   }
 
+  public get industryList() {
+    return Object.keys(industryMap).map((key: any) => {
+      return {
+        name: industryMap[key],
+        value: key
+      }
+    })
+  }
+
+  public get networkList() {
+    return Object.keys(networkMap).map((key: any) => {
+      return {
+        name: networkMap[key],
+        value: key
+      }
+    })
+  }
+
+  /**
+   * 针对连州设备管理
+   */
+  public get lianzhouFlag() {
+    return this.$store.state.user.tags.isLianZhouEdu === 'Y'
+  }
+
+  /**
+   * 针对网络标识
+   */
+  public get networkFlag() {
+    return this.$store.state.user.tags.isNeedDeviceNetworkCode === 'Y'
+  }
+
   @Watch('currentGroup', { immediate: true, deep: true })
   public onGroupChange() {
     if (this.currentGroup && !this.isUpdate) {
@@ -90,25 +134,35 @@ export default class CreateMixin extends Vue {
     }
   }
 
-  /**
-   * 针对连州设备管理
-   */
-  public lianzhouFlag: boolean = false
-  public regionList = regionList
-  public lianzhouRegionProps: any = {
-    value: 'code',
-    label: 'name',
-    children: 'children'
+  public mounted() {
+    this.form.gbRegion = this.currentGroup!.gbRegion
+    this.cascaderInit()
+    this.form.industryCode = this.currentGroup!.industryCode
+    this.form.networkCode = this.currentGroup!.networkCode
   }
-  // 动态变化
-  public lianzhouAddressChange() {
-    const addressCascader: any = this.$refs['addressCascader']
-    if (addressCascader) {
-      const currentAddress = addressCascader.getCheckedNodes()[0].data
-      this.form.gbRegion = currentAddress.code
-      this.form.gbRegionLevel = currentAddress.level
+
+  // 设备地址动态变化
+  public async cascaderInit() {
+    if (this.lianzhouFlag) {
+      this.regionList[0].children[0].children[0].children = await this.getExpandList(441882)
     }
+    if (!this.form.gbRegion) return
+    let list = [
+      parseInt(this.form.gbRegion!.substring(0, 2)),
+      parseInt(this.form.gbRegion!.substring(0, 4)),
+      parseInt(this.form.gbRegion!.substring(0, 6))
+    ]
+    await this.regionChange(list)
+    this.form.address = this.lianzhouFlag ? [ ...list, this.form.gbRegion ] : [
+      parseInt(this.form.gbRegion!.substring(0, 2)),
+      parseInt(this.form.gbRegion!.substring(0, 4)),
+      parseInt(this.form.gbRegion!.substring(0, 6))
+    ]
+    this.$nextTick(() => {
+      this.addressChange()
+    })
   }
+
   public async regionChange(val: any) {
     if (val.length !== 3 || !val[0] || !val[1] || !val[2]) {
       return
@@ -124,36 +178,43 @@ export default class CreateMixin extends Vue {
         let index3 = this.regionList[index1].children[index2].children.findIndex((item: any) => {
           return item.code === val[2]
         })
-        if (index2 !== -1) {
-          this.regionList[index1].children[index2].children[index3].children = await this.getExpandList()
+        if (index3 !== -1) {
+          if (this.lianzhouFlag) {
+            this.regionList[index1].children[index2].children[index3].children = await this.getExpandList(val[2])
+          }
+        } else {
+          this.form.gbRegion = this.regionList[index1].children[index2].children[0].code + '00'
         }
+      } else {
+        this.form.gbRegion = this.regionList[index1].children[0].children[0].code + '00'
       }
     }
   }
-  /**
-   * 加载公安局列表（连州）
-   */
-  public async getExpandList() {
-    let res = await getLianzhouArea({
-      pid: 441882,
-      level: 5
-    })
-    return res.areas.map((item: any) => {
-      return {
-        name: item.name,
-        code: item.id,
-        level: item.level
-      }
-    })
+  public async getExpandList(id: any) {
+    let params: any = {
+      pid: id,
+      level: this.lianzhouFlag ? 5 : 4
+    }
+    let res = await getAddressArea(params)
+    if (res.areas.length) {
+      return res.areas.map((item: any) => {
+        return {
+          name: item.name,
+          code: item.id,
+          level: item.level
+        }
+      })
+    }
   }
-  public async lianzhouCascaderInit() {
-    let list = [
-      parseInt(this.form.gbRegion.substring(0, 2)),
-      parseInt(this.form.gbRegion.substring(0, 4)),
-      parseInt(this.form.gbRegion.substring(0, 6))
-    ]
-    await this.regionChange(list)
-    this.form.address = [...list, this.form.gbRegion]
+
+  public addressChange() {
+    if (!this.form.address) return
+    const addressCascader: any = this.$refs['addressCascader']
+    if (addressCascader && addressCascader.getCheckedNodes()[0]) {
+      const currentAddress = addressCascader.getCheckedNodes()[0].data
+      this.form.gbRegion = this.lianzhouFlag ? currentAddress.code : currentAddress.code + '00'
+      this.form.gbRegionLevel = currentAddress.level
+    }
   }
 
   /*
@@ -301,8 +362,10 @@ export default class CreateMixin extends Vue {
    * 校验设备/通道名称
    */
   public validateDeviceName(rule: any, value: string, callback: Function) {
-    if (!/^[\u4e00-\u9fa50-9a-zA-Z-\s]{2,32}$/.test(value)) {
-      callback(new Error('设备或通道名称格式错误。2-32位，可包含大小写字母、数字、中文、中划线、空格。'))
+    if (!/^[\u4e00-\u9fa50-9a-zA-Z-()（）_\s]{2,64}$/.test(value)) {
+      callback(new Error('设备或通道名称格式错误。2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。'))
+    } else if (/^[\s]|[\s]$/.test(value)) {
+      callback(new Error('不能以空格作为名称的首尾。'))
     } else {
       callback()
     }
@@ -340,6 +403,8 @@ export default class CreateMixin extends Vue {
   public validateDeviceDomain(rule: any, value: string, callback: Function) {
     if (value && !/^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\.?$/.test(value)) {
       callback(new Error('设备域名格式不正确。正确域名格式例如: www.domain.com'))
+    } else {
+      callback()
     }
   }
 

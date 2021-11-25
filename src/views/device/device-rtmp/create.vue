@@ -30,7 +30,7 @@
       </el-form-item>
       <el-form-item label="设备名称:" prop="deviceName" class="form-with-tip">
         <el-input v-model="form.deviceName" />
-        <div class="form-tip">2-32位，可包含大小写字母、数字、中文、中划线、空格。</div>
+        <div class="form-tip">2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。</div>
       </el-form-item>
       <el-form-item label="视频流接入方式:" prop="inType">
         <el-radio-group v-model="form.inType" @change="clearValidate">
@@ -75,6 +75,27 @@
       <el-form-item label="视频标签:" prop="description">
         <Tags v-model="form.tags" class="tags" />
       </el-form-item>
+      <el-form-item v-if="(!isUpdate || form.gbRegion || !form.gbId)" label="设备地址:" prop="address">
+        <el-cascader
+          ref="addressCascader"
+          v-model="form.address"
+          expand-trigger="click"
+          :disabled="form.gbId !== ''"
+          :options="regionList"
+          :props="addressProps"
+          @change="addressChange"
+        />
+      </el-form-item>
+      <el-form-item v-if="!isUpdate || !!form.industryCode || !form.gbId" label="所属行业:" prop="industryCode">
+        <el-select v-model="form.industryCode" :disabled="form.gbId !== ''" placeholder="请选择所属行业">
+          <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
+        </el-select>
+      </el-form-item>
+      <el-form-item v-if="(!isUpdate || !!form.industryCode || !form.gbId) && networkFlag" label="网络标识:" prop="networkCode">
+        <el-select v-model="form.networkCode" :disabled="form.gbId !== ''" placeholder="请选择网络标识">
+          <el-option v-for="(item, index) in networkList" :key="index" :label="item.name" :value="item.value" />
+        </el-select>
+      </el-form-item>
       <el-form-item label="配置资源包:" prop="resources">
         <ResourceTabs v-model="form.resources" :is-update="isUpdate" :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" @on-change="onResourceChange" />
       </el-form-item>
@@ -117,6 +138,15 @@ export default class extends Mixins(createMixin) {
     pullUrl: [
       { required: true, message: '请输入拉流地址', trigger: 'blur' }
     ],
+    address: [
+      { required: true, message: '请选择设备地址', trigger: 'blur' }
+    ],
+    industryCode: [
+      { required: true, message: '请选择所属行业', trigger: 'blur' }
+    ],
+    networkCode: [
+      { required: true, message: '请选择网络标识', trigger: 'blur' }
+    ],
     resources: [
       { required: true, validator: this.validateResources, trigger: 'blur' }
     ]
@@ -136,12 +166,18 @@ export default class extends Mixins(createMixin) {
     pushType: 1,
     pullUrl: '',
     tags: '',
+    address: [],
+    gbId: '',
+    gbRegion: '',
+    gbRegionLevel: null,
+    industryCode: '',
+    networkCode: '',
     resources: []
   }
 
   private inTypeList = InType
 
-  private async mounted() {
+  public async mounted() {
     if (this.isUpdate) {
       await this.getDeviceInfo()
     } else {
@@ -163,11 +199,12 @@ export default class extends Mixins(createMixin) {
         inProtocol: this.inProtocol
       })
       this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
-        'description', 'inType', 'pullType', 'pushType', 'pullUrl', 'tags']))
+        'description', 'inType', 'pullType', 'pushType', 'pullUrl', 'tags', 'gbId', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
+      this.cascaderInit()
       // 获取绑定资源包列表
       this.getDeviceResources(info.deviceId, info.deviceType!, info.inProtocol!)
     } catch (e) {
-      this.$message.error(e.message)
+      this.$message.error(e && e.message)
     } finally {
       this.loading.device = false
     }
@@ -186,7 +223,7 @@ export default class extends Mixins(createMixin) {
   private async doSubmit() {
     try {
       this.submitting = true
-      let params: any = pick(this.form, ['groupId', 'dirId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor', 'description', 'inType', 'tags'])
+      let params: any = pick(this.form, ['groupId', 'dirId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor', 'description', 'inType', 'tags', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode'])
       if (this.isUpdate) {
         params = Object.assign(params, pick(this.form, ['deviceId']))
       } else {
@@ -225,7 +262,7 @@ export default class extends Mixins(createMixin) {
 </script>
 
 <style lang="scss" scoped>
-  .el-input, .el-select, .el-textarea, .tags {
+  .el-input, .el-select, .el-textarea, .tags, .el-cascader {
     width: 400px;
   }
 

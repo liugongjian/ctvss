@@ -3,10 +3,10 @@
     <el-card>
       <div class="filter-container">
         <div class="filter-container__right">
-          <el-button type="primary" @click="exportInfo">导出设备信息</el-button>
+          <el-button :loading="loading.export" type="primary" @click="exportInfo">导出设备信息</el-button>
         </div>
       </div>
-      <el-table ref="deviceTable" v-loading="loading" :data="deviceList" fit>
+      <el-table ref="deviceTable" v-loading="loading.list" :data="deviceList" fit>
         <template
           v-for="(item, index) in columnList"
         >
@@ -45,7 +45,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Mixins } from 'vue-property-decorator'
+import { Component, Vue, Mixins, Watch } from 'vue-property-decorator'
 import { columnList } from './assets/column-list/qingyuan'
 import { deviceParamsMap } from './assets/dicts/qingyuan'
 import { getDetailList, getDetailExport } from '@/api/exportDevices'
@@ -55,7 +55,10 @@ import excelMixin from './mixin/excelMixin'
 })
 
 export default class extends Mixins(Vue, excelMixin) {
-  private loading = false
+  private loading = {
+    list: false,
+    export: false
+  }
   private deviceList: any = []
   private columnList: any = columnList
   private pager = {
@@ -64,6 +67,11 @@ export default class extends Mixins(Vue, excelMixin) {
     total: 0
   }
   private deviceParamsMap: any = deviceParamsMap
+
+  @Watch('deviceList.length')
+  public onDeviceListChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
+  }
 
   private mounted() {
     this.getDeviceList()
@@ -80,6 +88,7 @@ export default class extends Mixins(Vue, excelMixin) {
   }
 
   private async getDeviceList() {
+    this.loading.list = true
     let params = {
       pageNum: this.pager.pageNum,
       pageSize: this.pager.pageSize
@@ -87,6 +96,7 @@ export default class extends Mixins(Vue, excelMixin) {
     let res = await getDetailList(params)
     this.deviceList = res.devices
     this.pager.total = res.totalNum
+    this.loading.list = false
   }
 
   private async getExportDevices() {
@@ -98,10 +108,12 @@ export default class extends Mixins(Vue, excelMixin) {
   }
 
   private async exportInfo() {
+    this.loading.export = true
     this.columns = this.columnList
     this.exportData = await this.getExportDevices()
     this.exelName = '设备信息表'
     // this.exportExel()
+    this.loading.export = false
   }
 }
 </script>

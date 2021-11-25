@@ -83,6 +83,7 @@
                   <span
                     slot-scope="{node, data}"
                     class="custom-tree-node"
+                    :class="{'online': data.deviceStatus === 'on'}"
                   >
                     <span class="node-name">
                       <svg-icon v-if="data.type !== 'dir'" :name="data.type" width="15" height="15" />
@@ -109,8 +110,8 @@
                 {{ item.label }}
               </span>
             </div>
-            <div v-if="hasDir" class="device-list__max-height" :style="{height: `${maxHeight}px`}">
-              <div class="device-list__tools">
+            <div v-if="hasDir" ref="listWrap" class="device-list__max-height" :style="{height: `${maxHeight}px`}">
+              <div ref="toolWrap" class="device-list__tools">
                 <el-button class="cancle-btn" @click="cancleShareDevice(selectedList)">移除选中设备</el-button>
                 <el-input v-model="searchDeviceName" class="filter-container__search-group" placeholder="请输入关键词" clearable @keyup.enter.native="handleFilter" @clear="handleFilter">
                   <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
@@ -120,6 +121,7 @@
               <el-table
                 v-loading="loading.sharedDevices"
                 :data="dataList"
+                :height="tableMaxHeight"
                 fit
                 @selection-change="handleSelectionChange"
               >
@@ -164,13 +166,13 @@
                 @current-change="handleCurrentChange"
               />
             </div>
-            <div v-else class="empty-text">
+            <div v-else ref="listWrap" class="empty-text">
               暂无数据
             </div>
           </div>
         </div>
       </div>
-      <div v-else class="empty-text">
+      <div v-else class="empty-text" :style="{height: `${maxHeight + 55}px`}">
         请选择或创建一个向上级联平台
       </div>
     </el-card>
@@ -180,7 +182,7 @@
 </template>
 
 <script lang='ts'>
-import { Component, Vue, Provide } from 'vue-property-decorator'
+import { Component, Vue, Provide, Watch } from 'vue-property-decorator'
 import { describeShareGroups, describeShareDirs, describeShareDevices, getPlatforms, deletePlatform, cancleShareDevice, cancleShareDir, startShareDevice, stopShareDevice } from '@/api/upPlatform'
 import { DeviceStatus, StreamStatus, PlatformStatus } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
@@ -213,6 +215,8 @@ export default class extends Vue {
   private currentPlatformDetail = null
   public isExpanded = true
   public maxHeight = 1000
+  private tableMaxHeight: any = null
+  private observer: any = null
   public dirDrag = {
     isDragging: false,
     start: 0,
@@ -249,6 +253,11 @@ export default class extends Vue {
     addDevices: '下方列表显示已共享的设备，点击"添加资源"添加想要共享的设备。'
   }
 
+  @Watch('dataList.length')
+  private onDataListChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
+  }
+
   private get filteredPlatformList() {
     if (!this.platformKeyword) {
       return this.platformList
@@ -267,6 +276,21 @@ export default class extends Vue {
     await this.getPlatformList()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
+    this.calTableMaxHeight()
+    // @ts-ignore
+    this.observer = new ResizeObserver(() => {
+      this.calTableMaxHeight()
+    })
+    const listWrap: any = this.$refs.listWrap
+    listWrap && this.observer.observe(listWrap)
+  }
+
+  private calTableMaxHeight() {
+    const listWrap: any = this.$refs.listWrap
+    if (!listWrap) return
+    const toolWrap: any = this.$refs.toolWrap
+    const documentHeight = listWrap.offsetHeight - (toolWrap ? toolWrap.offsetHeight : 0) - 90
+    this.tableMaxHeight = documentHeight
   }
 
   // 面包屑导航
@@ -282,6 +306,8 @@ export default class extends Vue {
 
   private destroyed() {
     window.removeEventListener('resize', this.calMaxHeight)
+    const listWrap: any = this.$refs.listWrap
+    listWrap && this.observer.unobserve(listWrap)
   }
 
   private handleSelectionChange(rows: any) {
@@ -611,7 +637,7 @@ export default class extends Vue {
     const size = deviceWrap.$el.getBoundingClientRect()
     const top = size.top
     const documentHeight = document.body.offsetHeight
-    this.maxHeight = documentHeight - top - 129
+    this.maxHeight = documentHeight - top - 130
   }
 
   /**
@@ -667,7 +693,7 @@ export default class extends Vue {
 
   .platform {
     margin-right: 10px;
-    width: 250px;
+    min-width: 260px;
 
     &__header {
       border-bottom: 1px solid $borderGrey;

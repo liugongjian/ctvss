@@ -77,7 +77,11 @@
             </div>
           </div>
           <el-table v-loading="loading.body" :data="userList">
-            <el-table-column prop="iamUserName" label="用户名" />
+            <el-table-column prop="iamUserName" label="用户名">
+              <template slot-scope="{row}">
+                <span class="click__user" @click="getDetail(row)">{{ row.iamUserName || '-' }}</span>
+              </template>
+            </el-table-column>
             <el-table-column prop="iamUserId" label="账号ID" />
             <el-table-column prop="policyName" label="策略名">
               <template slot-scope="{row}">
@@ -85,8 +89,9 @@
               </template>
             </el-table-column>
             <el-table-column prop="createdTime" label="创建时间" />
-            <el-table-column label="操作" fixed="right" width="260">
+            <el-table-column label="操作" fixed="right" width="300">
               <template slot-scope="scope">
+                <el-button type="text" @click="getDetail(scope.row)">详情</el-button>
                 <el-button type="text" @click="editUser(scope.row)">编辑</el-button>
                 <el-button type="text" @click="copyLink(scope.row)">复制登录链接</el-button>
                 <el-button type="text" @click="resetSubPwd(scope.row)">重置密码</el-button>
@@ -110,7 +115,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import UserGroupDialog from './components/dialogs/userGroupDialog.vue'
 import { getGroupList, getUserList, deleteUser } from '@/api/accessManage'
 import { changeIAMPassword } from '@/api/users'
@@ -144,7 +149,7 @@ export default class extends Vue {
   }
   private userList: any = []
   private userSearch: string = ''
-  private pager: object = {
+  private pager: any = {
     pageNum: 1,
     pageSize: 10,
     total: 0
@@ -157,6 +162,11 @@ export default class extends Vue {
     }
   }
   private subUserLoginLink: string = ''
+
+  @Watch('userList.length')
+  private onUserListChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
+  }
 
   private mounted() {
     this.$route.params.nodeKeyPath && (
@@ -401,6 +411,19 @@ export default class extends Vue {
     pager.pageNum = val
     this.getUserList()
   }
+  private getDetail(user: any) {
+    this.getSubuserLoginLink(user.iamUserName)
+    // 传递参数去获取用户详情数据
+    this.$router.push({
+      name: `accessManage-user-detail`,
+      query: {
+        type: 'edit',
+        userId: user.iamUserId,
+        subUserLoginLink: this.subUserLoginLink,
+        nodeKeyPath: this.nodeKeyPath
+      }
+    })
+  }
 }
 </script>
 
@@ -546,5 +569,8 @@ export default class extends Vue {
         margin-right: 10px
       }
     }
+  }
+  :hover .click__user {
+    cursor: pointer;
   }
 </style>

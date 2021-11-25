@@ -14,7 +14,7 @@
         </el-form-item>
         <el-form-item label="回调模板名称:" prop="templateName" class="form-with-tip">
           <el-input v-model="form.templateName" class="fixed-width" :disabled="!createOrUpdateFlag" />
-          <div class="form-tip">4-32位，可包含大小写字母、数字、中文、中划线、空格。模板名称不能重复。</div>
+          <div class="form-tip">4-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。模板名称不能重复。</div>
         </el-form-item>
         <el-form-item label="录制回调:" prop="recordNotifyUrl" class="form-with-tip">
           <el-input v-model="form.recordNotifyUrl" class="fixed-width" />
@@ -27,6 +27,10 @@
         <el-form-item label="流状态回调:" prop="streamStatusUrl" class="form-with-tip">
           <el-input v-model="form.streamStatusUrl" class="fixed-width" />
           <div class="form-tip">流状态回调URL，以http、https等开头</div>
+        </el-form-item>
+        <el-form-item label="AI事件通知回调:" prop="aiEventNotifyUrl" class="form-with-tip">
+          <el-input v-model="form.aiEventNotifyUrl" class="fixed-width" />
+          <div class="form-tip">AI事件通知回调URL，以http、https等开头</div>
         </el-form-item>
         <el-form-item label="回调KEY:" prop="callbackKey" class="form-with-tip">
           <el-input v-model="form.callbackKey" class="fixed-width" />
@@ -68,6 +72,9 @@ export default class extends Vue {
     streamStatusUrl: [
       { validator: this.validateStreamStatusCallbackUrl, trigger: 'blur' }
     ],
+    aiEventNotifyUrl: [
+      { validator: this.validateAiEventNotifyCallbackUrl, trigger: 'blur' }
+    ],
     callbackKey: [
       { required: true, message: '请输入回调KEY', trigger: 'blur' }
     ]
@@ -79,6 +86,7 @@ export default class extends Vue {
     recordNotifyUrl: '',
     deviceStatusUrl: '',
     streamStatusUrl: '',
+    aiEventNotifyUrl: '',
     callbackKey: '',
     description: ''
   }
@@ -99,8 +107,10 @@ export default class extends Vue {
   }
 
   private validateTemplateName(rule: any, value: string, callback: Function) {
-    if (!/^[\u4e00-\u9fa50-9a-zA-Z-\s]{4,32}$/u.test(value)) {
+    if (!/^[\u4e00-\u9fa50-9a-zA-Z-()（）_\s]{4,64}$/u.test(value)) {
       callback(new Error('回调模板名称格式错误'))
+    } else if (/^[\s]|[\s]$/.test(value)) {
+      callback(new Error('不能以空格作为名称的首尾。'))
     } else {
       callback()
     }
@@ -130,12 +140,20 @@ export default class extends Vue {
     }
   }
 
+  private validateAiEventNotifyCallbackUrl(rule: any, value: string, callback: Function) {
+    if (!this.urlReg.test(value)) {
+      callback(new Error('AI事件通知回调地址格式不正确，请重新输入'))
+    } else {
+      callback()
+    }
+  }
+
   private back() {
     this.$router.push('/template/callback')
   }
 
   private submit() {
-    if (!this.form.recordNotifyUrl && !this.form.deviceStatusUrl && !this.form.streamStatusUrl) {
+    if (!this.form.recordNotifyUrl && !this.form.deviceStatusUrl && !this.form.streamStatusUrl && !this.form.aiEventNotifyUrl) {
       this.$message.error('请至少填写一个回调地址！')
       return
     }
@@ -149,6 +167,7 @@ export default class extends Vue {
           recordNotifyUrl: this.form.recordNotifyUrl,
           deviceStatusUrl: this.form.deviceStatusUrl,
           streamStatusUrl: this.form.streamStatusUrl,
+          aiEventNotifyUrl: this.form.aiEventNotifyUrl,
           callbackKey: this.form.callbackKey,
           description: this.form.description
         }

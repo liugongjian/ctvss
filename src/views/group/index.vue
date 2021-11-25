@@ -29,7 +29,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="空间状态">
+        <el-table-column label="业务组状态">
           <template slot-scope="{row}">
             <status-badge :status="row.groupStatus" />
             {{ groupStatus[row.groupStatus] }}
@@ -97,7 +97,7 @@
 </template>
 
 <script lang='ts'>
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import { GroupModule } from '@/store/modules/group'
 import { Group } from '@/type/group'
 import { GroupStatus, InProtocolType } from '@/dics'
@@ -125,8 +125,12 @@ export default class extends Vue {
     pageSize: 10,
     total: 20
   }
-
   private dateFormatInTable = dateFormatInTable
+
+  @Watch('dataList.length')
+  private onDataListChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
+  }
 
   private async mounted() {
     await this.getList()

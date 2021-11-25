@@ -127,6 +127,11 @@ export default class extends Vue {
     this.getAlertList()
   }
 
+  @Watch('alertList.length')
+  private onAlertListChange(data: any) {
+    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
+  }
+
   private handleCreate() {
     this.$router.push({
       path: '/stream/create'
@@ -197,8 +202,7 @@ export default class extends Vue {
     await this.getAlertList()
   }
 
-  private rowClick(alertItem: any, column: any) {
-    console.log('rowclick')
+  private rowClick(alertItem: any) {
     this.openDialog(alertItem)
   }
 
