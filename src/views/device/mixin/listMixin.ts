@@ -679,7 +679,7 @@ export default class ListMixin extends Mixins(DeviceMixin) {
       }
     }).then(() => {
       this.$message.success(`已通知${methodStr}设备`)
-    }).catch((e: any) => {
+    }).catch((e) => {
       if (e === 'cancel' || e === 'close') return
       this.$message.error(e && e.message)
     })

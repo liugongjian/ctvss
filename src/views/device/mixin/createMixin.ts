@@ -342,7 +342,7 @@ export default class CreateMixin extends Vue {
                 done()
               }
             }
-          }).catch((e: any) => {
+          }).catch((e) => {
             if (e === 'cancel' || e === 'close') return
             this.$message.error(e)
           })

@@ -48,7 +48,7 @@ const install = function(Vue: any) {
         type: 'success',
         message: `${params.handleName}${params.type}成功`
       })
-    }).catch((e: any) => {
+    }).catch((e) => {
       if (e === 'cancel' || e === 'close') return
       this.$message.error(e)
     })
