@@ -303,9 +303,23 @@ export default class extends Mixins(ScreenMixin) {
     .controls{
       display: none;
     }
+    .video-ref{
+      width: 100%;
+    }
     .video-wrap{
       position: static; // 清空device/preview 中使用liveview组件的副作用
     }
+    // 清空h265 中使用canvas播放H265 行内样式的副作用 -start-
+    .player-box{
+      width: 100% !important;
+      height: 100% !important;
+      position: static !important;
+    }
+    canvas{
+      width: 100% !important;
+      position: static !important;
+    }
+    // 清空h265 中使用canvas播放H265 行内样式的副作用 -end-
   }
 }
 
@@ -319,9 +333,7 @@ export default class extends Mixins(ScreenMixin) {
 .intercomPlayer{
   width: 70%;
   height: 70%;
-  /* display: flex; */
   background-color: #000;
-
 }
 .intercomContent{
   display: flex;
