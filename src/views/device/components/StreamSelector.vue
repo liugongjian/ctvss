@@ -125,7 +125,7 @@ export default class extends Vue {
           width: 6px;
           height: 6px;
         }
-        .status-badge--off {
+        .status-badge--off, .status-badge--on, .status-badge--failed {
           display: inline-block;
         }
       }

@@ -30,7 +30,7 @@ export default class extends Vue {
       background-color: $primary;
     }
     &--red, &--failed, &--error {
-      background-color: $red;
+      background-color: #ccc;
     }
   }
 </style>

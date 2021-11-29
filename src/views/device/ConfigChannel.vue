@@ -78,7 +78,7 @@ export default class extends Mixins(createMixin) {
 
   private selectChannels:any = []
 
-  private async mounted() {
+  public async mounted() {
     await this.getChannels()
   }
 

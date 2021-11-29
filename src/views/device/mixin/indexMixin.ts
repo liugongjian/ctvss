@@ -16,6 +16,12 @@ export default class IndexMixin extends Vue {
     orginWidth: 200,
     width: 250
   }
+
+  private rootSums = {
+    online: 0,
+    total: 0
+  }
+
   public loading = {
     dir: false,
     device: false
@@ -69,6 +75,7 @@ export default class IndexMixin extends Vue {
         id: 0
       })
       this.dirList = this.setDirsStreamStatus(res.dirs)
+      this.getRootSums(this.dirList)
       this.$nextTick(() => {
         this.initTreeStatus()
       })
@@ -78,6 +85,23 @@ export default class IndexMixin extends Vue {
     } finally {
       this.loading.dir = false
     }
+  }
+
+  /**
+   * 计算根目录设备数统计
+   */
+  public getRootSums(dirList: any) {
+    this.rootSums.online = 0
+    this.rootSums.total = 0
+    dirList.forEach((dir: any) => {
+      if (dir.type === 'ipc') {
+        dir.deviceStatus === 'on' && this.rootSums.online++
+        this.rootSums.total++
+      } else {
+        this.rootSums.online += dir.onlineSize
+        this.rootSums.total += dir.totalSize
+      }
+    })
   }
 
   /**

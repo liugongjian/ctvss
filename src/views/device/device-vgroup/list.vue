@@ -1,10 +1,10 @@
 <template>
-  <div class="device-list__container">
+  <div ref="listWrap" class="device-list__container">
     <template v-if="!showRole && !showRealGroup">
-      <component :is="realGroupInProtocol" />
+      <component :is="realGroupInProtocol" ref="filterWrap" />
     </template>
     <template v-else-if="showRole">
-      <el-table v-show="deviceList.length" key="show-role-table" :data="deviceList" empty-text="暂无授权角色" fit class="device-list__table" @row-click="rowClick">
+      <el-table v-show="deviceList.length" key="show-role-table" :height="tableMaxHeight" :data="deviceList" empty-text="暂无授权角色" fit class="device-list__table" @row-click="rowClick">
         <el-table-column label="角色ID" prop="deviceId" />
         <el-table-column label="角色名" prop="deviceName" />
         <el-table-column label="角色描述" prop="description" />
@@ -13,7 +13,7 @@
       </el-table>
     </template>
     <template v-else-if="showRealGroup">
-      <el-table v-show="deviceList.length" key="show-real-group-table" :data="deviceList" empty-text="暂无业务组" fit class="device-list__table" @row-click="rowClick">
+      <el-table v-show="deviceList.length" key="show-real-group-table" :height="tableMaxHeight" :data="deviceList" empty-text="暂无业务组" fit class="device-list__table" @row-click="rowClick">
         <el-table-column label="业务组ID/名称">
           <template slot-scope="{row}">
             <div class="group-name">
@@ -24,7 +24,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="空间状态" align="center">
+        <el-table-column label="业务组状态" align="center">
           <template slot-scope="{row}">
             <status-badge :status="row.deviceEnabled ? 'on' : 'off'" />
             {{ groupStatus[row.deviceEnabled ? 'on' : 'off'] }}
