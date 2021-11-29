@@ -175,7 +175,7 @@ export default class extends Vue {
           this.$set(this.queryParam, 'period', [this.getDateBefore(2), new Date().setHours(23, 59, 59, 999)])
           break
         case '自定义时间':
-          this.$set(this.queryParam, 'period', [])
+          this.$set(this.queryParam, 'period', [this.getDateBefore(6), new Date().setHours(23, 59, 59, 999)])
           break
       }
     }
