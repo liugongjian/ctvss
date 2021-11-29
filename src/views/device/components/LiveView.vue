@@ -26,8 +26,10 @@
         @onRetry="onRetry"
         @onFullscreen="fullscreen"
         @onExitFullscreen="exitFullscreen"
+        @onIntercom="onIntercom(intercomInfo,true)"
       />
     </div>
+
     <!-- <info-list v-if="address" label-width="70" title="播放地址" class="address">
       <info-list-item v-if="address.rtmpUrl" label="RTMP:">
         {{ address.rtmpUrl }}
@@ -54,6 +56,7 @@
         </el-tooltip>
       </info-list-item>
     </info-list> -->
+    <intercom-dialog v-if="ifIntercom" :if-intercom="ifIntercom" :intercom-info="intercomInfo" @onIntercom="onIntercom(intercomInfo,false)" />
   </div>
 </template>
 
@@ -63,12 +66,14 @@ import { getDevicePreview, getDevice } from '@/api/device'
 import copy from 'copy-to-clipboard'
 import Player from './Player.vue'
 import StreamSelector from './StreamSelector.vue'
+import IntercomDialog from './dialogs/Intercom.vue'
 
 @Component({
   name: 'LiveView',
   components: {
     Player,
-    StreamSelector
+    StreamSelector,
+    IntercomDialog
   }
 })
 export default class extends Vue {
@@ -90,6 +95,9 @@ export default class extends Vue {
   private streams?: Array<any> = []
   private streamNum?: number | null = null
   private streamSize?: number | null = null
+
+  private intercomInfo = {}
+  private ifIntercom = false
 
   @Watch('$route.query')
   private onRouterChange() {
@@ -113,6 +121,12 @@ export default class extends Vue {
   private destroy() {
     const $video: any = this.$refs.video
     $video && $video.disposePlayer()
+  }
+
+  // 实时对讲
+  private onIntercom(screen:any, flag:boolean) {
+    this.intercomInfo = screen
+    this.ifIntercom = flag
   }
 
   /**
@@ -165,6 +179,13 @@ export default class extends Vue {
       this.address = res.playUrl
       this.codec = res.video.codec
       this.retry = false
+      this.intercomInfo = {
+        url: this.address.flvUrl,
+        codec: this.codec,
+        deviceId: this.deviceId,
+        inProtocol: this.inProtocol,
+        isLive: true
+      }
     } catch (e) {
       if (e.code === 5) {
         this.retry = true

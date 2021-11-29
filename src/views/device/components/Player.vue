@@ -43,6 +43,11 @@
         <div v-else class="controls__btn kill__volume">
           <svg-icon name="mute" class="mute_gray" width="18px" height="18px" />
         </div>
+        <el-tooltip content="开启语音对讲" placement="top">
+          <div class="controls__btn" @click.stop.prevent="toIntercom">
+            <svg-icon name="micro" width="16px" height="16px" />
+          </div>
+        </el-tooltip>
         <div v-if="!isLive && codec !== 'h265'" class="controls__btn controls__playback">
           {{ playbackRate === 1 ? '倍速' : `${playbackRate}x` }}
           <ul class="controls__popup">
@@ -577,6 +582,39 @@ export default class extends Vue {
    */
   public toggleZoom() {
     this.isZoom = !this.isZoom
+  }
+  // 实时对讲
+  public toIntercom() {
+    if (window.navigator.mediaDevices) {
+      window.navigator.mediaDevices
+      // 获取浏览器麦克风权限
+        .getUserMedia({ 'audio': true })
+      // 用户同意赋予麦克风权限
+        .then(() => {
+          this.$emit('onIntercom')
+        })
+      // 用户拒绝麦克风权限，或者当前浏览器不支持
+        .catch(e => {
+          switch (e.message || e.name) {
+            case 'PERMISSION_DENIED':
+            case 'PermissionDeniedError':
+              this.$message.error('用户拒绝提供权限')
+              break
+            case 'NOT_SUPPORTED_ERROR':
+            case 'NotSupportedError':
+              this.$message.error('浏览器不支持您当前选择的设备')
+              break
+            case 'MANDATORY_UNSATISFIED_ERROR':
+            case 'MandatoryUnsatisfiedError':
+              this.$message.error('无法发现指定的硬件设备')
+              break
+            default:
+              this.$message.error(`无法打开麦克风,原因：${e.code || e.name}`)
+          }
+        })
+    } else {
+      this.$message.error('您当前浏览器或者协议暂不支持麦克风')
+    }
   }
 
   /**
