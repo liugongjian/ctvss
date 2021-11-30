@@ -140,7 +140,6 @@
 
     <SetRecordTemplate
       v-if="setRecordTemplateDialog"
-      :group-id="groupId"
       :device-id="deviceId"
       :in-protocol="inProtocol"
       :template-id="recordTemplateId"
@@ -150,7 +149,6 @@
       v-if="setCallbackTemplateDialog"
       :in-protocol="inProtocol"
       :device-id="deviceId"
-      :group-id="groupId"
       :template-id="callbackTemplateId"
       @on-close="closeCallbackTemplateDialog"
     />

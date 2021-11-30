@@ -55,9 +55,9 @@
                   <el-descriptions-item label="设备厂商">
                     {{ info.deviceVendor || '-' }}
                   </el-descriptions-item>
-                  <el-descriptions-item label="设备国标ID">
+                  <!-- <el-descriptions-item label="设备国标ID">
                     {{ info.gbId || '-' }}
-                  </el-descriptions-item>
+                  </el-descriptions-item> -->
                   <el-descriptions-item v-if="info.address" label="设备地址">
                     {{ info.address }}
                   </el-descriptions-item>
