@@ -70,7 +70,7 @@ export default class extends Mixins(DashboardMixin) {
       const res = await getAuditList({
         limit: 6
       })
-      this.list = res.audit
+      this.list = res.Result
       this.list.forEach((item:any) => {
         item.id = Math.random().toString(16).slice(-10)
         item.level = this.checkLevel(item)
