@@ -678,6 +678,8 @@ export default class extends Vue {
    * 播放直播
    */
   public playlive() {
+    console.log('player');
+    
     this.$emit('onPlaylive')
   }
 
