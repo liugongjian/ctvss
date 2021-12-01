@@ -6,7 +6,7 @@
     <div class="dashboard-wrap__header">
       {{ title }}
     </div>
-    <!--庆阳铁塔公司-->
+    <!--庆阳铁塔公司180008-->
     <div v-if="mainUserId === '180008'">
       <QYDashBoardMap />
       <div class="dashboard-wrap__col dashboard-wrap__col--left">
@@ -84,6 +84,7 @@ export default class extends Vue {
   get title() {
     let title = ''
     switch (this.mainUserId) {
+      // case '180008':
       case '180008':
         title = '庆阳铁塔基站智能运维管理平台'
         break
