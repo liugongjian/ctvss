@@ -8,7 +8,6 @@
           <info-list-item label="业务组ID:">{{ form.groupId }}</info-list-item>
           <info-list-item label="业务组名称:">{{ form.groupName }}</info-list-item>
           <info-list-item label="业务组描述:">{{ form.description }}</info-list-item>
-          <info-list-item v-if="form.inProtocol !== 'vgroup'" label="国标ID:">{{ form.gbId || '-' }}</info-list-item>
           <info-list-item v-if="form.inProtocol !== 'vgroup'" label="设备地址:">{{ form.address || '-' }}</info-list-item>
           <info-list-item v-if="form.industryCode" label="所属行业:">{{ industryMap[form.industryCode] }}</info-list-item>
           <info-list-item v-if="form.networkCode && networkFlag" label="网络标识:">{{ networkMap[form.networkCode] }}</info-list-item>
