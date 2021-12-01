@@ -381,7 +381,6 @@ export default class extends Mixins(createMixin) {
   public async mounted() {
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
-      this.lianzhouFlag && this.lianzhouCascaderInit()
     } else {
       this.form.dirId = this.dirId
     }
