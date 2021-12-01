@@ -6,6 +6,7 @@
       :device-id="deviceId"
       :in-protocol="inProtocol"
       :is-fullscreen="isFullscreen"
+      :has-playlive="false"
       @onCalendarFocus="onCalendarFocus"
       @onCanPlay="playEvent"
       @onFullscreen="isFullscreen = true; fullscreen()"
