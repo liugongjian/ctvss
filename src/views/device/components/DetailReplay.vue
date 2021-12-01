@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Mixins, Inject } from 'vue-property-decorator'
+import { Component, Prop, Mixins, Inject, Watch } from 'vue-property-decorator'
 import FullscreenMixin from '../mixin/fullscreenMixin'
 import ReplayView from './ReplayView.vue'
 import PlayerContainer from './PlayerContainer.vue'
@@ -33,6 +33,11 @@ export default class extends Mixins(FullscreenMixin) {
 
   @Prop() private deviceId?: string
   @Prop() private inProtocol?: string
+
+  @Watch('isFullscreen')
+  private isFullscreenChange(val: any) {
+    !val && this.$nextTick(this.resizeReplayVideo)
+  }
 
   private onCanPlay = false
   private calendarFocus = false

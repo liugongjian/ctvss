@@ -72,7 +72,7 @@
 </template>
 <script lang="ts">
 import { Component, Watch, Mixins } from 'vue-property-decorator'
-import DeviceMixin from '@/views/device/mixin/deviceMixin'
+import IndexMixin from '@/views/device/mixin/indexMixin'
 import { DeviceModule } from '@/store/modules/device'
 import { deleteDir } from '@/api/dir'
 import { renderAlertType } from '@/utils/device'
@@ -81,7 +81,7 @@ import { checkPermission } from '@/utils/permission'
 @Component({
   name: 'Alarm'
 })
-export default class extends Mixins(DeviceMixin) {
+export default class extends Mixins(IndexMixin) {
   private checkPermission = checkPermission
   private renderAlertType = renderAlertType
   private parentDir = null
