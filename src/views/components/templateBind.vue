@@ -37,7 +37,7 @@
         </el-table>
       </info-list>
     </el-card>
-    <el-card style="margin-top: 20px;">
+    <!-- <el-card style="margin-top: 20px;">
       <el-button v-permission="['*']" type="text" class="template-edit" @click="setAITemplate">编辑</el-button>
       <info-list title="AI模板">
         <el-table v-loading="loading.ai" :data="template.aiTemplate" empty-text="该设备或组没有绑定AI模板" fit>
@@ -50,7 +50,7 @@
           </el-table-column>
         </el-table>
       </info-list>
-    </el-card>
+    </el-card> -->
     <el-card v-if="inProtocol === 'gb28181'" style="margin-top: 20px;">
       <el-button v-permission="['*']" type="text" class="template-edit" @click="setAlertTemplate">编辑</el-button>
       <info-list title="告警模板">
@@ -81,14 +81,14 @@
       :template-id="callbackTemplateId"
       @on-close="closeCallbackTemplateDialog"
     />
-    <SetAITemplate
+    <!-- <SetAITemplate
       v-if="setAITemplateDialog"
       :in-protocol="inProtocol"
       :group-id="groupId"
       :device-id="deviceId"
       :template-id="aiTemplateId"
       @on-close="closeSetAITemplateDialog"
-    />
+    /> -->
     <SetAlertTemplate
       v-if="setAlertTemplateDialog"
       :in-protocol="inProtocol"
@@ -153,7 +153,7 @@ export default class extends Vue {
   private async mounted() {
     this.getStreamTemplate()
     this.getRecordTemplate()
-    this.getAITemplate()
+    // this.getAITemplate()
     this.inProtocol === 'gb28181' && this.getAlertTemplate()
   }
 
