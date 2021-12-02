@@ -543,7 +543,7 @@ export default class extends Vue {
     .titleBar__menu {
       width: 50px !important;
     }
-    .content__menu {
+    .user-content__menu {
       width: 0px !important;
       padding-left: 0;
       padding-right: 0;
@@ -553,7 +553,7 @@ export default class extends Vue {
   .dragging {
     cursor: ew-resize;
 
-    .titleBar__menu, .content__menu {
+    .titleBar__menu, .user-content__menu {
       transition: none;
     }
     * {
