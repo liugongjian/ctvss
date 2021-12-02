@@ -25,7 +25,7 @@
                   <el-descriptions-item v-for="num in info.multiStreamSize" :key="num" :label="`${autoStreamNumObj[num]}状态`">
                     <status-badge :status="getStreamStatus(info.deviceStreams, num) || 'false'" />
                     {{ deviceStatus[getStreamStatus(info.deviceStreams, num)] || '-' }}
-                    <el-link v-if="getStreamStatus(info.deviceStreams, num) && checkPermission(['*'])" @click="stopDevice(info)">停用{{ autoStreamNumObj[num] }}</el-link>
+                    <el-link v-if="getStreamStatus(info.deviceStreams, num) === 'on' && checkPermission(['*'])" @click="stopDevice(info)">停用{{ autoStreamNumObj[num] }}</el-link>
                     <el-link v-else-if="checkPermission(['*'])" @click="startDevice(info)">启用{{ autoStreamNumObj[num] }}</el-link>
                   </el-descriptions-item>
                   <el-descriptions-item label="录制状态">

@@ -260,6 +260,8 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     if (!statusObj) {
       return false
     } else {
+      console.log(statusObj.streamStatus);
+      
       return statusObj.streamStatus
     }
   }
