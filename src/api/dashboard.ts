@@ -84,3 +84,10 @@ export const getRecordAudits = (params: any): Promise<any> =>
     method: 'get',
     params
   })
+
+export const auditEventConfirm = (params: any): Promise<any> =>
+  request({
+    url: '/record/auditEventConfirm',
+    method: 'get',
+    params
+  })

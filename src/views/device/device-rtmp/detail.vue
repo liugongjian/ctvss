@@ -8,9 +8,9 @@
               <el-button @click="goSuperior"><svg-icon name="superior" /> 返回上级</el-button>
               <el-button v-if="(!isNVR && info.parentDeviceId === '-1') && checkPermission(['AdminDevice'])" @click="moveDir"><svg-icon name="move" /> 移动至</el-button>
               <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" @click="changeResourceDialog">配置资源包</el-button>
-              <el-button v-if="checkPermission(['AdminDevice'])" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
+              <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
               <!--自动创建的子通道不允许删除-->
-              <el-button v-if="!isAutoCreated && checkPermission(['AdminDevice'])" @click="deleteDevice(info)"><svg-icon name="trash" /> 删除</el-button>
+              <el-button v-if="!isAutoCreated && checkPermission(['AdminDevice']) && !isVGroup" @click="deleteDevice(info)"><svg-icon name="trash" /> 删除</el-button>
             </div>
             <!--状态信息-->
             <div class="detail__section">
@@ -24,14 +24,14 @@
                   <el-descriptions-item v-for="num in info.multiStreamSize" :key="num" :label="`${autoStreamNumObj[num]}状态`">
                     <status-badge :status="getStreamStatus(info.deviceStreams, num) || 'false'" />
                     {{ deviceStatus[getStreamStatus(info.deviceStreams, num)] || '-' }}
-                    <el-link v-if="info.streamStatus === 'on' && checkPermission(['*'])" @click="stopDevice(info)">停用{{ autoStreamNumObj[num] }}</el-link>
-                    <el-link v-else-if="checkPermission(['*'])" @click="startDevice(info)">启用{{ autoStreamNumObj[num] }}</el-link>
+                    <el-link v-if="info.streamStatus === 'on' && checkPermission(['AdminDevice']) && !isVGroup" @click="stopDevice(info)">停用{{ autoStreamNumObj[num] }}</el-link>
+                    <el-link v-else-if="checkPermission(['AdminDevice']) && !isVGroup" @click="startDevice(info)">启用{{ autoStreamNumObj[num] }}</el-link>
                   </el-descriptions-item>
                   <el-descriptions-item label="录制状态">
                     <status-badge :status="recordStatusType[info.recordStatus]" />
                     {{ recordStatus[info.recordStatus] || '-' }}
-                    <el-link v-if="info.recordStatus === 1 && checkPermission(['*'])" @click="stopRecord(info)">停止录像</el-link>
-                    <el-link v-else-if="checkPermission(['*'])" @click="startRecord(info)">开始录像</el-link>
+                    <el-link v-if="info.recordStatus === 1 && checkPermission(['AdminDevice']) && !isVGroup" @click="stopRecord(info)">停止录像</el-link>
+                    <el-link v-else-if="checkPermission(['AdminDevice']) && !isVGroup" @click="startRecord(info)">开始录像</el-link>
                   </el-descriptions-item>
                 </template>
               </el-descriptions>
@@ -44,7 +44,7 @@
                 <el-descriptions-item label="设备ID">
                   {{ info.deviceId }}
                 </el-descriptions-item>
-                <template v-if="info && !isNVRChannel">
+                <template v-if="info">
                   <el-descriptions-item label="设备名称">
                     {{ info.deviceName }}
                   </el-descriptions-item>
@@ -53,6 +53,15 @@
                   </el-descriptions-item>
                   <el-descriptions-item label="设备厂商">
                     {{ info.deviceVendor || '-' }}
+                  </el-descriptions-item>
+                  <el-descriptions-item v-if="info.address" label="设备地址">
+                    {{ info.address }}
+                  </el-descriptions-item>
+                  <el-descriptions-item v-if="info.industryCode" label="所属行业">
+                    {{ industryMap[info.industryCode] }}
+                  </el-descriptions-item>
+                  <el-descriptions-item v-if="info.networkCode && networkFlag" label="网络标识">
+                    {{ networkMap[info.networkCode] }}
                   </el-descriptions-item>
                   <el-descriptions-item label="视频流接入方式">
                     {{ inType[info.inType] }}
@@ -131,56 +140,6 @@
                 </el-descriptions-item>
               </el-descriptions>
             </div>
-          </div>
-
-          <div v-if="info">
-            <info-list abel-width="100">
-              <info-list-item label="设备类型:">{{ deviceType[info.deviceType] }}</info-list-item>
-              <info-list-item label="设备名称:">{{ info.deviceName }}</info-list-item>
-              <info-list-item label="设备ID:">{{ info.deviceId }}</info-list-item>
-              <info-list-item label="厂商:">{{ info.deviceVendor || '-' }}</info-list-item>
-              <!-- <info-list-item label="设备国标ID:">{{ info.gbId || '-' }}</info-list-item> -->
-              <info-list-item v-if="info.address" label="设备地址:">{{ info.address }}</info-list-item>
-              <info-list-item v-if="info.industryCode" label="所属行业:">{{ industryMap[info.industryCode] }}</info-list-item>
-              <info-list-item v-if="info.networkCode && networkFlag" label="网络标识:">{{ networkMap[info.networkCode] }}</info-list-item>
-              <info-list-item label="视频流接入方式:">{{ inType[info.inType] }}</info-list-item>
-              <info-list-item v-if="info.inType === 'push'" label="自动激活推流地址:">{{ pushType[info.pushType] || '-' }}</info-list-item>
-              <info-list-item v-else label="自动拉流:">{{ pullType[info.pullType] || '-' }}</info-list-item>
-              <info-list-item label="流状态:">
-                <div class="info-list__edit">
-                  <div class="info-list__edit--value">
-                    <status-badge :status="info.streamStatus" />
-                    {{ deviceStatus[info.streamStatus] || '-' }}
-                  </div>
-                </div>
-              </info-list-item>
-              <info-list-item label="录制状态:">
-                <div class="info-list__edit">
-                  <div class="info-list__edit--value">
-                    <status-badge :status="recordStatusType[info.recordStatus]" />
-                    {{ recordStatus[info.recordStatus] }}
-                  </div>
-                </div>
-              </info-list-item>
-              <info-list-item label="视频标签:">
-                <el-tag v-for="tag in tags" :key="tag" type="info">{{ tag }}</el-tag>
-                <span v-if="!tags">-</span>
-              </info-list-item>
-              <info-list-item v-for="resource in resources" :key="resource.label" :label="`${resourceType[resource.label]}:`">{{ (resource.value && '已绑定') || '未绑定' }}</info-list-item>
-              <info-list-item label="设备描述:">{{ info.description || '-' }}</info-list-item>
-              <info-list-item v-if="info.inType === 'push'" label="推流地址:">
-                {{ info.pushUrl || '-' }}
-                <el-tooltip v-if="info.pushUrl" class="item" effect="dark" content="复制链接" placement="top">
-                  <el-button type="text" @click="copyUrl(info.pushUrl)"><svg-icon name="copy" /></el-button>
-                </el-tooltip>
-              </info-list-item>
-              <info-list-item v-else label="拉流地址:">
-                {{ info.pullUrl || '-' }}
-                <el-tooltip v-if="info.pullUrl" class="item" effect="dark" content="复制链接" placement="top">
-                  <el-button type="text" @click="copyUrl(info.pullUrl)"><svg-icon name="copy" /></el-button>
-                </el-tooltip>
-              </info-list-item>
-            </info-list>
           </div>
         </el-tab-pane>
         <el-tab-pane v-if="false" label="推流配置" name="push">
@@ -266,7 +225,7 @@
             <anti-theft-chain type="UA" :config="playConfig.anti.ua" />
           </info-list>
         </el-tab-pane>
-        <el-tab-pane v-if="!isVGroup" label="配置信息" name="config">
+        <el-tab-pane label="配置信息" name="config">
           <detail-config v-if="activeName==='config'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
         <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ScreenPreview'])" label="实时预览" name="preview">

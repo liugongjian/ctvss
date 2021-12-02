@@ -38,12 +38,16 @@
           </div>
         </div>
       </div>
+      <div v-if="confirm" class="alert-footer alert-buttons">
+        <el-button type="success" :loading="confirming" @click="auditEventConfirm">确认正常</el-button>
+        <el-button type="danger" @click="closeDialog">异常挂起</el-button>
+      </div>
     </div>
   </el-dialog>
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { getRecordAudits } from '@/api/dashboard'
+import { getRecordAudits, auditEventConfirm } from '@/api/dashboard'
 import { AlertType, AlertLevel, AlertIcon, AiMaskType } from '@/dics'
 import { parseMetaData, transformLocation } from '@/utils/ai'
 import Player from '@/views/device/components/Player.vue'
@@ -59,6 +63,10 @@ import Locations from '@/views/dashboard/ai/components/Locations.vue'
 export default class extends Vue {
   @Prop() private audit: any
   @Prop() private theme: any
+  @Prop({
+    default: false
+  })
+  private confirm: any
   private alertType = AlertType
   private alertLevel = AlertLevel
   private alertIcon = AlertIcon
@@ -66,12 +74,34 @@ export default class extends Vue {
   private dialogVisible = true
   private auditDetail: any = null
   private loading = false
+  private confirming = false
   private error: any = null
   @Prop({ default: false })
   private isLight?: boolean
 
   private mounted() {
     // this.getRecordAudits()
+  }
+
+  /**
+   * 正常确认
+   */
+  private async auditEventConfirm() {
+    try {
+      this.confirming = true
+      await auditEventConfirm({
+        event: this.audit.event,
+        streamName: this.audit.streamName,
+        timestamp: this.audit.timestamp,
+        confirm: 1
+      })
+      this.closeDialog(true)
+      this.$alertSuccess('确认成功')
+    } catch (e) {
+      this.$alertError('确认失败')
+    } finally {
+      this.confirming = false
+    }
   }
 
   private async getRecordAudits() {
@@ -284,6 +314,11 @@ export default class extends Vue {
         width: 100%;
       }
     }
+  }
+
+  .alert-buttons {
+    margin-top: 10px;
+    text-align: center;
   }
 
   .dashboard-alert-live-dialog {
