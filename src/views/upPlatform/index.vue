@@ -538,16 +538,17 @@ export default class extends Vue {
       if (res.groups.length) {
         this.hasDir = true
         res.groups.forEach((group: any) => {
-          (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome') && (
-            this.dirList.push({
-              id: group.groupId,
-              groupId: group.groupId,
-              label: group.groupName,
-              inProtocol: group.inProtocol,
-              gbId: group.gbId,
-              type: 'group'
-            })
-          )
+          // 放开rtsp rtmp
+          // (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome') && (
+          this.dirList.push({
+            id: group.groupId,
+            groupId: group.groupId,
+            label: group.groupName,
+            inProtocol: group.inProtocol,
+            gbId: group.gbId,
+            type: 'group'
+          })
+          // )
         })
         this.$nextTick(() => {
           // 默认展开第一个组
