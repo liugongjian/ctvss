@@ -267,7 +267,7 @@ export default class extends Vue {
    * 整行可点
    */
   private rowClick(group: Group, column: any) {
-    (column.label !== '操作') && this.goToConfig(group)
+    (column.property !== 'action') && this.goToConfig(group)
   }
 
   /**
