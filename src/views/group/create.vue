@@ -66,7 +66,7 @@
             <el-radio v-for="protocol in inProtocolList" :key="protocol" :label="protocol.toLocaleLowerCase()">{{ protocol }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item v-if="!isVGroup" label="播放类型:" prop="outProtocol">
+        <el-form-item v-if="!isVGroup && form.inProtocol !== 'ga1400'" label="播放类型:" prop="outProtocol">
           <el-checkbox-group v-model="form.outProtocol">
             <el-checkbox
               v-for="protocol in outProtocolList"
@@ -129,7 +129,7 @@
             <el-radio label="private">专线网络</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item prop="outNetworkType">
+        <el-form-item v-if="form.inProtocol !== 'ga1400'" prop="outNetworkType">
           <template slot="label">
             播放网络:
             <el-popover

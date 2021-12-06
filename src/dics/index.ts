@@ -35,7 +35,8 @@ export const InProtocolType = {
   'rtmp': 'RTMP',
   'onvif': 'ONVIF',
   'rtsp': 'RTSP',
-  'ehome': 'EHOME'
+  'ehome': 'EHOME',
+  'ga1400': 'GA1400'
 }
 
 export const OutProtocolType = {

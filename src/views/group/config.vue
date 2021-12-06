@@ -14,7 +14,7 @@
           <template v-if="!isVGroup">
             <info-list-item label="接入区域:">{{ form.regionName }}</info-list-item>
             <info-list-item label="接入类型:">{{ InProtocolType[form.inProtocol] }}</info-list-item>
-            <info-list-item label="播放类型:">
+            <info-list-item v-if="form.inProtocol !== 'ga1400'" label="播放类型:">
               {{ form.outProtocol.map(item => OutProtocolType[item]).join(',') }}
             </info-list-item>
           </template>
@@ -40,10 +40,15 @@
             <info-list-item label="自动拉流:">{{ PullType[form.pullType] }}</info-list-item>
             <info-list-item label="自动激活推流地址:">{{ PushType[form.pushType] }}</info-list-item>
           </template>
+          <!-- 以下字段仅在GA1400业务组中显示 -->
+          <template v-if="form.inProtocol === 'ga1400'">
+            <info-list-item label="服务器IP地址:">{{ form.ip }}</info-list-item>
+            <info-list-item label="端口:">{{ form.port }}</info-list-item>
+          </template>
           <info-list-item label="接入网络:">
             {{ form.inNetworkType === 'private' ? '专线网络' : '互联网' }}
           </info-list-item>
-          <info-list-item label="播放网络:">
+          <info-list-item v-if="form.inProtocol !== 'ga1400'" label="播放网络:">
             {{ form.outNetworkType === 'private' ? '专线网络' : '互联网' }}
           </info-list-item>
         </info-list>

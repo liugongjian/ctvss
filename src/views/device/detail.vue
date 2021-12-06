@@ -8,6 +8,7 @@ import rtmp from './device-rtmp/detail.vue'
 import rtsp from './device-rtsp/detail.vue'
 import onvif from './device-onvif/detail.vue'
 import ehome from './device-ehome/detail.vue'
+import ga1400 from './device-ga1400/detail.vue'
 import vgroup from './device-vgroup/detail.vue'
 
 @Component({
@@ -18,6 +19,7 @@ import vgroup from './device-vgroup/detail.vue'
     rtsp,
     onvif,
     ehome,
+    ga1400,
     vgroup
   }
 })

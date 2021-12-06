@@ -7,6 +7,7 @@ import gb28181 from './device-gb28181/create.vue'
 import rtmp from './device-rtmp/create.vue'
 import rtsp from './device-rtsp/create.vue'
 import ehome from './device-ehome/create.vue'
+import ga1400 from './device-ga1400/create.vue'
 
 @Component({
   name: 'DeviceList',
@@ -14,7 +15,8 @@ import ehome from './device-ehome/create.vue'
     gb28181,
     rtmp,
     rtsp,
-    ehome
+    ehome,
+    ga1400
   }
 })
 export default class extends Vue {

@@ -1,0 +1,447 @@
+<template>
+  <div v-loading="loading.device" class="app-container">
+    <el-page-header :content="breadCrumbContent" @back="back" />
+    <el-form
+      ref="dataForm"
+      :rules="rules"
+      :model="form"
+      label-position="right"
+      label-width="150px"
+    >
+      <template v-if="!isChannel">
+        <el-form-item v-if="currentGroup" label="业务组:">
+          {{ currentGroup.groupName }}
+          <span class="in-protocol">({{ inProtocolUpper }})</span>
+        </el-form-item>
+        <el-form-item v-if="breadcrumb && !isUpdate" label="当前目录:">
+          <div class="breadcrumb">
+            <span
+              v-for="item in breadcrumb"
+              :key="item.id"
+              class="breadcrumb__item"
+            >
+              {{ item.label }}
+            </span>
+          </div>
+        </el-form-item>
+        <el-form-item label="设备类型:" prop="deviceType">
+          <el-select v-model="form.deviceType" placeholder="请选择" :disabled="isUpdate" @change="clearValidate">
+            <el-option v-for="item in deviceTypeList" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="设备名称:" prop="deviceName" class="form-with-tip">
+          <el-input v-model="form.deviceName" />
+          <div class="form-tip">2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。</div>
+        </el-form-item>
+        <el-form-item label="GA1400账号:" prop="userName">
+          <el-select v-model="form.userName" :loading="loading.account">
+            <el-option-group label="匿名">
+              <el-option
+                v-for="item in gbAccountList.anonymous"
+                :key="item.userName"
+                :label="item.userName"
+                :value="item.userName"
+              />
+            </el-option-group>
+            <el-option-group label="非匿名">
+              <el-option
+                v-for="item in gbAccountList.normal"
+                :key="item.userName"
+                :label="item.userName"
+                :value="item.userName"
+              />
+            </el-option-group>
+          </el-select>
+          <el-button type="text" class="ml10" @click="openDialog('createGb28181Certificate')">新建账号</el-button>
+        </el-form-item>
+        <el-form-item label="IP地址:" prop="deviceIp">
+          <el-input v-model="form.deviceIp" />
+        </el-form-item>
+        <el-form-item label="端口:" prop="devicePort">
+          <el-input v-model.number="form.devicePort" />
+        </el-form-item>
+        <el-form-item v-if="(!isUpdate || form.gbRegion || !form.gbId)" label="设备地址:" prop="address">
+          <el-cascader
+            ref="addressCascader"
+            v-model="form.address"
+            expand-trigger="click"
+            :disabled="form.gbId !== ''"
+            :options="regionList"
+            :props="addressProps"
+            @change="addressChange"
+          />
+        </el-form-item>
+        <el-form-item v-if="lianzhouFlag" v-show="form.deviceType !== 'platform'" label="经纬度:" prop="longlat">
+          <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
+          <el-input v-model="form.deviceLatitude" class="longlat-input" />
+        </el-form-item>
+        <el-form-item v-if="!isUpdate || form.industryCode || !form.gbId" label="所属行业:" prop="industryCode">
+          <el-select v-model="form.industryCode" :disabled="form.gbId !== ''" placeholder="请选择所属行业">
+            <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item v-if="(!isUpdate || form.networkCode || !form.gbId) && networkFlag" label="网络标识:" prop="networkCode">
+          <el-select v-model="form.networkCode" :disabled="form.gbId !== ''" placeholder="请选择网络标识">
+            <el-option v-for="(item, index) in networkList" :key="index" :label="item.name" :value="item.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="设备描述:" prop="description">
+          <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
+        </el-form-item>
+      </template>
+      <el-form-item label="">
+        <el-button type="primary" :loading="submitting" @click="submit">确 定</el-button>
+        <el-button @click="back">取 消</el-button>
+      </el-form-item>
+    </el-form>
+    <create-gb28181-certificate v-if="dialog.createGb28181Certificate" @on-close="closeDialog('createGb28181Certificate', ...arguments)" />
+  </div>
+</template>
+<script lang='ts'>
+import { Component, Mixins } from 'vue-property-decorator'
+import createMixin from '../mixin/createMixin'
+import { pick } from 'lodash'
+import { DeviceGb28181Type } from '@/dics'
+import { createDevice, updateDevice, getDevice } from '@/api/device'
+import { updateDeviceResources } from '@/api/billing'
+import { getList as getGbList } from '@/api/certificate/gb28181'
+import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
+import ResourceTabs from '../components/ResourceTabs.vue'
+
+@Component({
+  name: 'CreateGb28181Device',
+  components: {
+    CreateGb28181Certificate,
+    ResourceTabs
+  }
+})
+export default class extends Mixins(createMixin) {
+  private rules = {
+    deviceName: [
+      { required: true, message: '请输入设备名称', trigger: 'blur' },
+      { validator: this.validateDeviceName, trigger: 'blur' }
+    ],
+    channelName: [
+      { required: true, message: '请输入通道名称', trigger: 'blur' },
+      { validator: this.validateDeviceName, trigger: 'blur' }
+    ],
+    deviceType: [
+      { required: true, message: '请选择设备类型', trigger: 'change' }
+    ],
+    gbVersion: [
+      { required: true, message: '请选择国标版本', trigger: 'change' }
+    ],
+    deviceVendor: [
+      { required: true, message: '请选择厂商', trigger: 'change' }
+    ],
+    channelSize: [
+      { required: true, message: '请填写子设备数量', trigger: 'blur' }
+    ],
+    channelNum: [
+      { required: true, message: '请填写通道号', trigger: 'change' },
+      { validator: this.validateChannelNum, trigger: 'change' }
+    ],
+    // gbId: [
+    //   { required: true, message: '请填写国标ID', trigger: 'blur' },
+    //   { validator: this.validateGbId, trigger: 'blur' }
+    // ],
+    industryCode: [
+      { required: true, message: '请选择所属行业', trigger: 'blur' }
+    ],
+    networkCode: [
+      { required: true, message: '请选择网络标识', trigger: 'blur' }
+    ],
+    userName: [
+      { required: true, message: '请选择账号', trigger: 'change' }
+    ],
+    deviceIp: [
+      { validator: this.validateDeviceIp, trigger: 'blur' }
+    ],
+    address: [
+      { required: true, message: '请选择设备地址', trigger: 'blur' }
+    ],
+    longlat: [
+      { required: true, message: '请选择经纬度', trigger: 'blur' },
+      { validator: this.validateLonglat, trigger: 'blur' }
+    ],
+    resources: [
+      { required: true, validator: this.validateResources, trigger: 'blur' }
+    ]
+  }
+  private gbVersionList = ['2011', '2016']
+  private deviceTypeList = Object.values(DeviceGb28181Type).map(type => {
+    return {
+      label: type,
+      value: type.toLowerCase()
+    }
+  })
+  private gbAccountList = {
+    normal: [],
+    anonymous: []
+  }
+  public form: any = {
+    dirId: '',
+    groupId: '',
+    inProtocol: '',
+    deviceId: '',
+    deviceName: '',
+    deviceType: '',
+    deviceVendor: '',
+    gbVersion: '2016',
+    deviceIp: '',
+    devicePort: null,
+    channelSize: '',
+    channelNum: '',
+    channelName: '',
+    description: '',
+    createSubDevice: 1,
+    pullType: 1,
+    transPriority: 'tcp',
+    parentDeviceId: '',
+    gbId: '',
+    userName: '',
+    address: [],
+    longlat: 'required',
+    deviceLongitude: '0.000000',
+    deviceLatitude: '0.000000',
+    gbRegion: '',
+    gbRegionLevel: null,
+    resources: [],
+    vssAIApps: [],
+    aIApps: [],
+    industryCode: '',
+    networkCode: ''
+  }
+  private minChannelSize = 1
+  private availableChannels: Array<number> = []
+  private dialog = {
+    createGb28181Certificate: false
+  }
+
+  public async mounted() {
+    if (this.isUpdate || this.isChannel) {
+      await this.getDeviceInfo()
+    } else {
+      this.form.dirId = this.dirId
+    }
+    this.form.inProtocol = this.inProtocol
+    this.getGbAccounts()
+    this.onGroupChange()
+  }
+
+  /**
+   * 加载设备信息
+   */
+  private async getDeviceInfo() {
+    try {
+      this.loading.device = true
+      this.form.deviceId = this.deviceId
+      const info = await getDevice({
+        deviceId: this.form.deviceId
+      })
+      const usedChannelNum = info.deviceChannels.map((channel: any) => {
+        return channel.channelNum
+      })
+      if (this.isUpdate) {
+        this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
+          'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
+        this.cascaderInit()
+        // 获取绑定资源包列表
+        this.getDeviceResources(info.deviceId, info.deviceType!, info.inProtocol!)
+        // 设备地址参数转换
+        // let gbCode = this.form.gbRegion.substring(0, 4)
+        // this.form.address = [gbCode.substring(0, 2) + '00', gbCode]
+        if (info.deviceStats) {
+          // 编辑的时候，设置数量不得小于已创建的子通道中最大通道号或1
+          this.minChannelSize = Math.max(...usedChannelNum, 1)
+          this.form.channelSize = info.deviceStats.maxChannelSize
+          this.orginalChannelSize = this.form.channelSize
+        }
+        if (this.isChannel) {
+          if (info.deviceChannels.length) {
+            const channel = info.deviceChannels[0]
+            this.form.channelNum = channel.channelNum
+            this.form.channelName = channel.channelName
+          }
+        }
+      } else {
+        this.form = Object.assign(this.form, pick(info, ['userName']))
+      }
+      // 构建可选择的通道，排除已选择通道
+      if (this.isChannel && info.deviceStats) {
+        const channelSize = info.deviceStats.maxChannelSize
+        const availableChannels = []
+        for (let i = 1; i <= channelSize; i++) {
+          if (!~usedChannelNum.indexOf(i)) {
+            availableChannels.push(i)
+          }
+        }
+        this.availableChannels = availableChannels
+      } else if (this.isUpdate && info.deviceChannels.length) {
+        this.availableChannels = usedChannelNum
+      }
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.loading.device = false
+    }
+  }
+
+  /**
+   * 校验设备国标编号
+   */
+  private validateGbId(rule: any, value: string, callback: Function) {
+    if (value && !/^[0-9]{20}$/.test(value)) {
+      callback(new Error('设备国标编号为20位数字'))
+    } else {
+      callback()
+    }
+  }
+
+  /**
+   * 打开弹出框
+   */
+  private openDialog(type: string) {
+    // @ts-ignore
+    this.dialog[type] = true
+  }
+
+  /**
+   * 关闭弹出框
+   */
+  private closeDialog(type: string, payload: any) {
+    // @ts-ignore
+    this.dialog[type] = false
+    if (type === 'createGb28181Certificate' && payload === true) {
+      this.getGbAccounts()
+    }
+  }
+
+  /**
+   * 获取国标账号
+   */
+  private async getGbAccounts() {
+    try {
+      this.loading.account = true
+      const res = await getGbList({
+        pageSize: 1000
+      })
+      this.gbAccountList = {
+        normal: [],
+        anonymous: []
+      }
+      res.gbCerts.forEach((account: any) => {
+        // @ts-ignore
+        this.gbAccountList[account.userType].push(account)
+      })
+    } catch (e) {
+      console.error(e)
+    } finally {
+      this.loading.account = false
+    }
+  }
+
+  /**
+   * 提交
+   */
+  private submit() {
+    this.beforeSubmit(this.doSubmit)
+  }
+
+  /**
+   * 执行提交
+   */
+  private async doSubmit() {
+    try {
+      this.submitting = true
+      let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceVendor', 'description'])
+      if (this.isUpdate) {
+        params = Object.assign(params, pick(this.form, ['deviceId']))
+      } else {
+        params = Object.assign(params, pick(this.form, ['resources', 'vssAIApps']))
+      }
+      if (!this.isChannel) {
+        // 通用参数
+        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'inProtocol', 'deviceIp', 'devicePort', 'pullType', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
+        // IPC类型添加额外参数
+        if (this.form.deviceType === 'ipc') {
+          params = Object.assign(params, {
+            gbVersion: this.form.gbVersion,
+            transPriority: this.form.transPriority
+          })
+        }
+        // NVR类型添加额外参数
+        if (this.form.deviceType === 'nvr') {
+          params = Object.assign(params, {
+            gbVersion: this.form.gbVersion,
+            transPriority: this.form.transPriority,
+            channelSize: this.form.channelSize,
+            createSubDevice: this.form.createSubDevice
+          })
+        }
+        // Platform类型添加额外参数
+        if (this.form.deviceType === 'platform') {
+          params = Object.assign(params, {
+            gbId: this.form.gbId
+          })
+        }
+      } else {
+        // NVR通道
+        params = Object.assign(params, {
+          deviceType: 'ipc',
+          createSubDevice: this.isUpdate ? null : '2',
+          parentDeviceId: this.isUpdate ? this.form.parentDeviceId : this.deviceId,
+          channelName: this.form.channelName,
+          channelNum: this.form.channelNum
+        }, pick(this.form, ['userName']))
+      }
+      if (this.isUpdate) {
+        delete params.deviceType
+        // 获取设备资源包
+        await updateDeviceResources({
+          deviceId: this.deviceId,
+          deviceType: this.form.deviceType,
+          inProtocol: this.inProtocol,
+          resources: this.form.resources,
+          aIApps: this.form.aIApps
+        })
+        // 更新设备详情
+        await updateDevice(params)
+        this.$message.success('修改设备成功！')
+      } else {
+        await createDevice(params)
+        this.$message.success('添加设备成功！')
+      }
+      this.back()
+      this.initDirs()
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.submitting = false
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+  .el-input, .el-select, .el-textarea, .el-cascader {
+    width: 400px;
+  }
+
+  .in-protocol {
+    color: $textGrey;
+  }
+
+  .breadcrumb {
+    &__item:after {
+      content: '/';
+      color: $textGrey;
+    }
+    &__item:last-child:after {
+      content: '';
+    }
+  }
+  .longlat-input {
+    width: 193px;
+  }
+</style>
