@@ -66,8 +66,11 @@
                   <el-descriptions-item label="视频流接入方式">
                     {{ inType[info.inType] }}
                   </el-descriptions-item>
+                  <el-descriptions-item v-if="info.inType === 'push'" label="自动激活推流地址">
+                    {{ pushType[info.pushType] || '-' }}
+                  </el-descriptions-item>
                   <template v-if="info.deviceVendor === '其他'">
-                    <el-descriptions-item v-if="info.inType === 'pull'" label="自定义拉流地址:">{{ info.deviceDomain }}</el-descriptions-item>
+                    <el-descriptions-item v-if="info.inType === 'pull'" label="自定义拉流地址">{{ info.deviceDomain }}</el-descriptions-item>
                   </template>
                   <template v-else>
                     <el-descriptions-item v-if="info.inType === 'pull'" label="用户名">{{ info.userName }}</el-descriptions-item>

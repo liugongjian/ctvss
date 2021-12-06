@@ -138,11 +138,7 @@ import DashboardMixin from '@/views/dashboard/mixin/DashboardMixin'
       bind(el, binding) {
         const SELECTWRAP_DOM = el.querySelector('.filter-group .el-select-dropdown .el-select-dropdown__wrap')
         SELECTWRAP_DOM?.addEventListener('scroll', () => {
-          console.log('scrollHeight', SELECTWRAP_DOM.scrollHeight);
-          console.log('scrollTop', SELECTWRAP_DOM.scrollTop);
-          console.log('clientHeight', SELECTWRAP_DOM.clientHeight);
-          
-          const condition = SELECTWRAP_DOM.scrollHeight - SELECTWRAP_DOM.scrollTop <= SELECTWRAP_DOM.clientHeight + 2
+          const condition = SELECTWRAP_DOM.scrollHeight - SELECTWRAP_DOM.scrollTop <= SELECTWRAP_DOM.clientHeight
           if (condition) {
             binding.value()
           }
