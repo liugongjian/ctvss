@@ -44,8 +44,8 @@
           <svg-icon name="mute" class="mute_gray" width="18px" height="18px" />
         </div>
         <el-tooltip content="开启语音对讲" placement="top">
-          <div class="controls__btn" @click.stop.prevent="toIntercom">
-            <svg-icon name="micro" width="16px" height="16px" />
+          <div class="controls__btn controls__snapshot" @click.stop.prevent="toIntercom">
+            <svg-icon name="micro" width="18px" height="18px" />
           </div>
         </el-tooltip>
         <div v-if="!isLive && codec !== 'h265'" class="controls__btn controls__playback">
@@ -584,7 +584,8 @@ export default class extends Vue {
     this.isZoom = !this.isZoom
   }
   // 实时对讲
-  public toIntercom() {
+  public toIntercom(event:any) {
+    event.currentTarget.blur()
     if (window.navigator.mediaDevices) {
       window.navigator.mediaDevices
       // 获取浏览器麦克风权限
@@ -678,8 +679,8 @@ export default class extends Vue {
    * 播放直播
    */
   public playlive() {
-    console.log('player');
-    
+    console.log('player')
+
     this.$emit('onPlaylive')
   }
 
