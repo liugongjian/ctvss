@@ -12,6 +12,7 @@
               <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
               <!--自动创建的子通道不允许删除-->
               <el-button v-if="!isAutoCreated && checkPermission(['AdminDevice']) && !isVGroup" @click="deleteDevice(info)"><svg-icon name="trash" /> 删除</el-button>
+              <el-button class="el-button-rect" @click="detailInit"><svg-icon name="refresh" /></el-button>
             </div>
             <!--状态信息-->
             <div class="detail__section">
@@ -25,14 +26,14 @@
                   <el-descriptions-item v-for="num in info.multiStreamSize" :key="num" :label="`${autoStreamNumObj[num]}状态`">
                     <status-badge :status="getStreamStatus(info.deviceStreams, num) || 'false'" />
                     {{ deviceStatus[getStreamStatus(info.deviceStreams, num)] || '-' }}
-                    <el-link v-if="getStreamStatus(info.deviceStreams, num) === 'on' && checkPermission(['*']) && !isVGroup" @click="stopDevice(info)">停用{{ autoStreamNumObj[num] }}</el-link>
-                    <el-link v-else-if="checkPermission(['*']) && !isVGroup" @click="startDevice(info)">启用{{ autoStreamNumObj[num] }}</el-link>
+                    <el-link v-if="getStreamStatus(info.deviceStreams, num) === 'on' && checkPermission(['*']) && !isVGroup" @click="detailOperate('stopDevice', num)">停用{{ autoStreamNumObj[num] }}</el-link>
+                    <el-link v-else-if="checkPermission(['*']) && !isVGroup" @click="detailOperate('startDevice', num)">启用{{ autoStreamNumObj[num] }}</el-link>
                   </el-descriptions-item>
                   <el-descriptions-item label="录制状态">
                     <status-badge :status="recordStatusType[info.recordStatus]" />
                     {{ recordStatus[info.recordStatus] || '-' }}
-                    <el-link v-if="info.recordStatus === 1 && checkPermission(['*']) && !isVGroup" @click="stopRecord(info)">停止录像</el-link>
-                    <el-link v-else-if="checkPermission(['*']) && !isVGroup" @click="startRecord(info)">开始录像</el-link>
+                    <el-link v-if="info.recordStatus === 1 && checkPermission(['*']) && !isVGroup" @click="detailOperate('stopRecord')">停止录像</el-link>
+                    <el-link v-else-if="checkPermission(['*']) && !isVGroup" @click="detailOperate('startRecord')">开始录像</el-link>
                   </el-descriptions-item>
                 </template>
               </el-descriptions>

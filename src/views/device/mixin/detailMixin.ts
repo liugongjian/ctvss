@@ -191,6 +191,44 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     await this.getAddress(this.info!.gbRegion)
   }
 
+  public delayDetailInit() {
+    setTimeout(() => {
+      this.detailInit()
+    }, 5000)
+  }
+
+  // 详情页操作
+  public async detailOperate(type, num?) {
+    let result = false
+    let params: Device
+    num && (params = {
+      ...this.info,
+      streamNum: num
+    })
+    try {
+      switch (type) {
+        case 'startDevice':
+          result = await this.startDevice(params)
+          break
+        case 'stopDevice':
+          result = await this.stopDevice(params)
+          break
+        case 'startRecord':
+          result = await this.startRecord(params)
+          break
+        case 'stopRecord':
+          result = await this.stopRecord(params)
+          break
+        default:
+      }
+      console.log(result);
+      
+      result && this.delayDetailInit()
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
   /**
    * 获取连州region
    */
