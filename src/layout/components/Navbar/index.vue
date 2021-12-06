@@ -137,11 +137,16 @@ import DashboardMixin from '@/views/dashboard/mixin/DashboardMixin'
     'el-select-loadmore': {
       bind(el, binding) {
         const SELECTWRAP_DOM = el.querySelector('.filter-group .el-select-dropdown .el-select-dropdown__wrap')
+        let beforeScrollTop = SELECTWRAP_DOM.scrollTop
         SELECTWRAP_DOM?.addEventListener('scroll', () => {
-          const condition = SELECTWRAP_DOM.scrollHeight - SELECTWRAP_DOM.scrollTop <= SELECTWRAP_DOM.clientHeight + 2
-          if (condition) {
-            binding.value()
+          // 判断为滚动条为下滑
+          if (beforeScrollTop < SELECTWRAP_DOM.scrollTop) {
+            const condition = SELECTWRAP_DOM.scrollHeight - SELECTWRAP_DOM.scrollTop <= SELECTWRAP_DOM.clientHeight + 2
+            if (condition) {
+              binding.value()
+            }
           }
+          beforeScrollTop = SELECTWRAP_DOM.scrollTop
         })
       }
     }
@@ -268,6 +273,7 @@ export default class extends Mixins(DashboardMixin) {
    */
   private loadmore() {
     this.groupListIndex = this.groupListIndex + 1
+    // 加宽下拉加载触发限制时，会触发多次，在这使用节流限制
     !this.lazyloadTimer && GroupModule.LoadmoreGroups()
     this.lazyloadTimer = setTimeout(() => {
       clearTimeout(this.lazyloadTimer)
