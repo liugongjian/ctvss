@@ -103,21 +103,22 @@ export default class extends Vue {
       })
       this.dirList = []
       res.groups.forEach((group: any) => {
-        (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome' || group.inProtocol === 'vgroup') && (
-          this.dirList.push({
+        // 放开rtsp rtmp
+        // (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome' || group.inProtocol === 'vgroup') && (
+        this.dirList.push({
+          id: group.groupId,
+          groupId: group.groupId,
+          label: group.groupName,
+          inProtocol: group.inProtocol,
+          type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
+          disabled: false,
+          path: [{
             id: group.groupId,
-            groupId: group.groupId,
             label: group.groupName,
-            inProtocol: group.inProtocol,
-            type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
-            disabled: false,
-            path: [{
-              id: group.groupId,
-              label: group.groupName,
-              type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group'
-            }]
-          })
-        )
+            type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group'
+          }]
+        })
+
       })
       console.log('this.dirList:', this.dirList)
     } catch (e) {

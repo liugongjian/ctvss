@@ -396,10 +396,16 @@
       &__header {
         margin: 10px 0;
       }
-      &-item__label {
-        min-width: 100px;
-        text-align: right;
-        color: $textGrey;
+      &-item {
+        vertical-align: top;
+        &__content {
+          word-break: break-all;
+        }
+        &__label {
+          min-width: 100px;
+          text-align: right;
+          color: $textGrey;
+        }
       }
       td {
         padding: 10px 0;
