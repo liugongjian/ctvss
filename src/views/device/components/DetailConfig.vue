@@ -297,7 +297,7 @@ export default class extends Vue {
    */
   private setRecordTemplate() {
     this.setRecordTemplateDialog = true
-    this.recordTemplateId = this.template.recordTemplate.templateId
+    this.recordTemplateId = this.template.recordTemplate ? this.template.recordTemplate.templateId : null
   }
 
   /**
@@ -305,7 +305,7 @@ export default class extends Vue {
    */
   private setCallbackTemplate() {
     this.setCallbackTemplateDialog = true
-    this.callbackTemplateId = this.template.callbackTemplate.templateId
+    this.callbackTemplateId = this.template.callbackTemplate ? this.template.callbackTemplate.templateId : null
   }
 
   /**
