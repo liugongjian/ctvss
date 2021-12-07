@@ -76,6 +76,7 @@ export default class extends Mixins(ScreenMixin) {
   private transPriority:any
   private ifCloseStatus = 0
   private last:any
+  private cannotStop:boolean
 
   @Watch('maxVol')
   private getVolStyle(val:any) {
@@ -135,6 +136,7 @@ export default class extends Mixins(ScreenMixin) {
         if (this.ws) {
           this.stopRecord()
         }
+        this.cannotStop = false
         // if (this.ifCloseStatus !== 1) {
         const { streamServerAddr } = res
         const ifwss = window.location.protocol === 'https:' ? 'wss' : 'ws'
@@ -158,6 +160,11 @@ export default class extends Mixins(ScreenMixin) {
         }
       // }
       }).catch((err:any) => {
+        console.log('err=》====', err)
+        if (err.message.indexOf('不支持') > -1) {
+          this.cannotStop = true
+          console.log('cannotStop')
+        }
         if (this.ifCloseStatus !== 1) {
           this.$message.error(`${err},请稍后再试`)
         }
@@ -170,23 +177,26 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   private intercomMouseup() {
-    const nowTime = Date.now()
-    if (!this.last || nowTime - this.last > 1000) {
-      this.last = Date.now()
-      this.isClick = false
-      this.last = nowTime
-      const param = {
-        deviceId: this.intercomInfo.deviceId
-      }
-      stopTalk(param).then(() => {
+    console.log('this.cannotStop==intercomMouseup', this.cannotStop)
+    if (!this.cannotStop) {
+      const nowTime = Date.now()
+      if (!this.last || nowTime - this.last > 1000) {
+        this.last = Date.now()
+        this.isClick = false
+        this.last = nowTime
+        const param = {
+          deviceId: this.intercomInfo.deviceId
+        }
+        stopTalk(param).then(() => {
         // this.stopRecord()
+          this.last = Date.now()
+        }).catch((err:any) => {
+          this.last = Date.now()
+          this.$message.error(err)
+        })
+      } else {
         this.last = Date.now()
-      }).catch((err:any) => {
-        this.last = Date.now()
-        this.$message.error(err)
-      })
-    } else {
-      this.last = Date.now()
+      }
     }
   }
 
