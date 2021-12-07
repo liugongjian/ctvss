@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-card>
       <div class="filter-container">
-        <el-button type="primary" @click="handleCreate">新建GB28181凭证</el-button>
+        <el-button type="primary" @click="handleCreate">新建GA1400凭证</el-button>
         <div class="filter-container__right">
           <el-input v-model="userName" class="filter-container__search-group" placeholder="请输入凭证用户名" @keyup.enter.native="handleFilter">
             <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
