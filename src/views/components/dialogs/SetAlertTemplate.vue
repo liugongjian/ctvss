@@ -124,25 +124,29 @@ export default class extends Vue {
   ]
 
   private getLabel(type: string, value: any) {
-    let arr: any = []
-    switch (type) {
-      case 'alarmPriority':
-        arr.push(value)
-        break
-      case 'alarmMethod':
-        arr = Object.keys(JSON.parse(value))
-        break
-    }
-    let res: any = arr.map((str: any) => {
-      let obj = this[`${type}Options`].find((item: any) => item.value === str)
-      if (obj) {
-        return obj.label
-      } else {
-        return 'undefined'
+    try {
+      let arr: any = []
+      switch (type) {
+        case 'alarmPriority':
+          arr.push(value)
+          break
+        case 'alarmMethod':
+          arr = Object.keys(JSON.parse(value))
+          break
       }
-    })
-    res = [...new Set(res)].join('，')
-    return res
+      let res: any = arr.map((str: any) => {
+        let obj = this[`${type}Options`].find((item: any) => item.value === str)
+        if (obj) {
+          return obj.label
+        } else {
+          return 'undefined'
+        }
+      })
+      res = [...new Set(res)].join('，')
+      return res
+    } catch (err) {
+      // console.log(err)
+    }
   }
 
   private closeDialog() {
