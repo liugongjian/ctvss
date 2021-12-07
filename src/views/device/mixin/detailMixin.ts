@@ -200,7 +200,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   // 详情页操作
   public async detailOperate(type, num?) {
     let result = false
-    let params: Device
+    let params: Device = this.info
     num && (params = {
       ...this.info,
       streamNum: num
@@ -221,8 +221,6 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
           break
         default:
       }
-      console.log(result);
-      
       result && this.delayDetailInit()
     } catch (e) {
       console.log(e)
