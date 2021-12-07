@@ -15,6 +15,11 @@ export const DeviceGb28181Type = {
   'platform': 'Platform'
 }
 
+export const DeviceGa1400Type = {
+  'ape': '采集设备',
+  'aps': '采集系统'
+}
+
 export const DeviceRtmpType = {
   'ipc': 'IPC',
   'platform': 'Platform'

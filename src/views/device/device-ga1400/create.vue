@@ -52,7 +52,7 @@
               />
             </el-option-group>
           </el-select>
-          <el-button type="text" class="ml10" @click="openDialog('createGb28181Certificate')">新建账号</el-button>
+          <el-button type="text" class="ml10" @click="openDialog('createGa1400Certificate')">新建账号</el-button>
         </el-form-item>
         <el-form-item label="IP地址:" prop="deviceIp">
           <el-input v-model="form.deviceIp" />
@@ -94,25 +94,21 @@
         <el-button @click="back">取 消</el-button>
       </el-form-item>
     </el-form>
-    <create-gb28181-certificate v-if="dialog.createGb28181Certificate" @on-close="closeDialog('createGb28181Certificate', ...arguments)" />
+    <create-ga1400-certificate v-if="dialog.createGa1400Certificate" @on-close="closeDialog('createGa1400Certificate', ...arguments)" />
   </div>
 </template>
 <script lang='ts'>
 import { Component, Mixins } from 'vue-property-decorator'
 import createMixin from '../mixin/createMixin'
 import { pick } from 'lodash'
-import { DeviceGb28181Type } from '@/dics'
+import { DeviceGa1400Type } from '@/dics'
 import { createDevice, updateDevice, getDevice } from '@/api/device'
-import { updateDeviceResources } from '@/api/billing'
-import { getList as getGbList } from '@/api/certificate/gb28181'
-import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
-import ResourceTabs from '../components/ResourceTabs.vue'
+import CreateGa1400Certificate from '@/views/certificate/ga1400/components/CreateDialog.vue'
 
 @Component({
-  name: 'CreateGb28181Device',
+  name: 'CreateGa1400Device',
   components: {
-    CreateGb28181Certificate,
-    ResourceTabs
+    CreateGa1400Certificate
   }
 })
 export default class extends Mixins(createMixin) {
@@ -128,29 +124,6 @@ export default class extends Mixins(createMixin) {
     deviceType: [
       { required: true, message: '请选择设备类型', trigger: 'change' }
     ],
-    gbVersion: [
-      { required: true, message: '请选择国标版本', trigger: 'change' }
-    ],
-    deviceVendor: [
-      { required: true, message: '请选择厂商', trigger: 'change' }
-    ],
-    channelSize: [
-      { required: true, message: '请填写子设备数量', trigger: 'blur' }
-    ],
-    channelNum: [
-      { required: true, message: '请填写通道号', trigger: 'change' },
-      { validator: this.validateChannelNum, trigger: 'change' }
-    ],
-    // gbId: [
-    //   { required: true, message: '请填写国标ID', trigger: 'blur' },
-    //   { validator: this.validateGbId, trigger: 'blur' }
-    // ],
-    industryCode: [
-      { required: true, message: '请选择所属行业', trigger: 'blur' }
-    ],
-    networkCode: [
-      { required: true, message: '请选择网络标识', trigger: 'blur' }
-    ],
     userName: [
       { required: true, message: '请选择账号', trigger: 'change' }
     ],
@@ -163,16 +136,12 @@ export default class extends Mixins(createMixin) {
     longlat: [
       { required: true, message: '请选择经纬度', trigger: 'blur' },
       { validator: this.validateLonglat, trigger: 'blur' }
-    ],
-    resources: [
-      { required: true, validator: this.validateResources, trigger: 'blur' }
     ]
   }
-  private gbVersionList = ['2011', '2016']
-  private deviceTypeList = Object.values(DeviceGb28181Type).map(type => {
+  private deviceTypeList = Object.keys(DeviceGa1400Type).map(type => {
     return {
-      label: type,
-      value: type.toLowerCase()
+      label: DeviceGa1400Type[type],
+      value: type
     }
   })
   private gbAccountList = {
@@ -186,36 +155,20 @@ export default class extends Mixins(createMixin) {
     deviceId: '',
     deviceName: '',
     deviceType: '',
-    deviceVendor: '',
-    gbVersion: '2016',
     deviceIp: '',
     devicePort: null,
-    channelSize: '',
-    channelNum: '',
-    channelName: '',
     description: '',
-    createSubDevice: 1,
-    pullType: 1,
-    transPriority: 'tcp',
     parentDeviceId: '',
-    gbId: '',
     userName: '',
     address: [],
     longlat: 'required',
     deviceLongitude: '0.000000',
     deviceLatitude: '0.000000',
     gbRegion: '',
-    gbRegionLevel: null,
-    resources: [],
-    vssAIApps: [],
-    aIApps: [],
-    industryCode: '',
-    networkCode: ''
+    gbRegionLevel: null
   }
-  private minChannelSize = 1
-  private availableChannels: Array<number> = []
   private dialog = {
-    createGb28181Certificate: false
+    createGa1400Certificate: false
   }
 
   public async mounted() {
@@ -246,55 +199,13 @@ export default class extends Mixins(createMixin) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
           'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
         this.cascaderInit()
-        // 获取绑定资源包列表
-        this.getDeviceResources(info.deviceId, info.deviceType!, info.inProtocol!)
-        // 设备地址参数转换
-        // let gbCode = this.form.gbRegion.substring(0, 4)
-        // this.form.address = [gbCode.substring(0, 2) + '00', gbCode]
-        if (info.deviceStats) {
-          // 编辑的时候，设置数量不得小于已创建的子通道中最大通道号或1
-          this.minChannelSize = Math.max(...usedChannelNum, 1)
-          this.form.channelSize = info.deviceStats.maxChannelSize
-          this.orginalChannelSize = this.form.channelSize
-        }
-        if (this.isChannel) {
-          if (info.deviceChannels.length) {
-            const channel = info.deviceChannels[0]
-            this.form.channelNum = channel.channelNum
-            this.form.channelName = channel.channelName
-          }
-        }
       } else {
         this.form = Object.assign(this.form, pick(info, ['userName']))
-      }
-      // 构建可选择的通道，排除已选择通道
-      if (this.isChannel && info.deviceStats) {
-        const channelSize = info.deviceStats.maxChannelSize
-        const availableChannels = []
-        for (let i = 1; i <= channelSize; i++) {
-          if (!~usedChannelNum.indexOf(i)) {
-            availableChannels.push(i)
-          }
-        }
-        this.availableChannels = availableChannels
-      } else if (this.isUpdate && info.deviceChannels.length) {
-        this.availableChannels = usedChannelNum
       }
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
       this.loading.device = false
-    }
-  }
-
-  /**
-   * 校验设备国标编号
-   */
-  private validateGbId(rule: any, value: string, callback: Function) {
-    if (value && !/^[0-9]{20}$/.test(value)) {
-      callback(new Error('设备国标编号为20位数字'))
-    } else {
-      callback()
     }
   }
 
@@ -312,32 +223,8 @@ export default class extends Mixins(createMixin) {
   private closeDialog(type: string, payload: any) {
     // @ts-ignore
     this.dialog[type] = false
-    if (type === 'createGb28181Certificate' && payload === true) {
+    if (type === 'createGa1400Certificate' && payload === true) {
       this.getGbAccounts()
-    }
-  }
-
-  /**
-   * 获取国标账号
-   */
-  private async getGbAccounts() {
-    try {
-      this.loading.account = true
-      const res = await getGbList({
-        pageSize: 1000
-      })
-      this.gbAccountList = {
-        normal: [],
-        anonymous: []
-      }
-      res.gbCerts.forEach((account: any) => {
-        // @ts-ignore
-        this.gbAccountList[account.userType].push(account)
-      })
-    } catch (e) {
-      console.error(e)
-    } finally {
-      this.loading.account = false
     }
   }
 
@@ -360,51 +247,8 @@ export default class extends Mixins(createMixin) {
       } else {
         params = Object.assign(params, pick(this.form, ['resources', 'vssAIApps']))
       }
-      if (!this.isChannel) {
-        // 通用参数
-        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'inProtocol', 'deviceIp', 'devicePort', 'pullType', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
-        // IPC类型添加额外参数
-        if (this.form.deviceType === 'ipc') {
-          params = Object.assign(params, {
-            gbVersion: this.form.gbVersion,
-            transPriority: this.form.transPriority
-          })
-        }
-        // NVR类型添加额外参数
-        if (this.form.deviceType === 'nvr') {
-          params = Object.assign(params, {
-            gbVersion: this.form.gbVersion,
-            transPriority: this.form.transPriority,
-            channelSize: this.form.channelSize,
-            createSubDevice: this.form.createSubDevice
-          })
-        }
-        // Platform类型添加额外参数
-        if (this.form.deviceType === 'platform') {
-          params = Object.assign(params, {
-            gbId: this.form.gbId
-          })
-        }
-      } else {
-        // NVR通道
-        params = Object.assign(params, {
-          deviceType: 'ipc',
-          createSubDevice: this.isUpdate ? null : '2',
-          parentDeviceId: this.isUpdate ? this.form.parentDeviceId : this.deviceId,
-          channelName: this.form.channelName,
-          channelNum: this.form.channelNum
-        }, pick(this.form, ['userName']))
-      }
       if (this.isUpdate) {
         delete params.deviceType
-        // 获取设备资源包
-        await updateDeviceResources({
-          deviceId: this.deviceId,
-          deviceType: this.form.deviceType,
-          inProtocol: this.inProtocol,
-          resources: this.form.resources,
-          aIApps: this.form.aIApps
-        })
         // 更新设备详情
         await updateDevice(params)
         this.$message.success('修改设备成功！')

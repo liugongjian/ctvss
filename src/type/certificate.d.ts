@@ -11,3 +11,8 @@ export interface GB28181 extends Certificate {
   newPassword?: string;
   confirmPassword?: string;
 }
+export interface GA1400 extends Certificate {
+  password?: string;
+  newPassword?: string;
+  confirmPassword?: string;
+}

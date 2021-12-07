@@ -58,7 +58,7 @@ import { Component, Mixins } from 'vue-property-decorator'
 import detailMixin from '../mixin/detailMixin'
 
 @Component({
-  name: 'DeviceGb28181Detail'
+  name: 'DeviceGa1400Detail'
 })
 export default class extends Mixins(detailMixin) {
   public async mounted() {
