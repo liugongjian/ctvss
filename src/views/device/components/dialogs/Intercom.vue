@@ -76,7 +76,7 @@ export default class extends Mixins(ScreenMixin) {
   private transPriority:any
   private ifCloseStatus = 0
   private last:any
-  private cannotStop = true
+  private cannotStop:boolean
 
   @Watch('maxVol')
   private getVolStyle(val:any) {
@@ -218,7 +218,6 @@ export default class extends Mixins(ScreenMixin) {
       this.ws.close()
     }
     this.ws = null
-    this.cannotStop = false
     if (this.streamAudio && this.streamAudio.getAudioTracks()) {
       const tracks = this.streamAudio.getAudioTracks()
       for (let i = 0, len = tracks.length; i < len; i++) {
