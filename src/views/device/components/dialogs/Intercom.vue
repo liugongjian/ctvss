@@ -76,7 +76,7 @@ export default class extends Mixins(ScreenMixin) {
   private transPriority:any
   private ifCloseStatus = 0
   private last:any
-  private cannotStop:boolean
+  private cannotStop = true
 
   @Watch('maxVol')
   private getVolStyle(val:any) {
@@ -153,14 +153,10 @@ export default class extends Mixins(ScreenMixin) {
             }
           }
         } catch (e) {
-        // this.ws.onerror = (e:any) => {
-        //   console.log(`连接错误：${e}`)
-        // }
           console.log(`连接错误：${e}`)
         }
       // }
       }).catch((err:any) => {
-        console.log('err=》====', err)
         if (err.message.indexOf('不支持') > -1) {
           this.cannotStop = true
         }
@@ -176,7 +172,6 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   private intercomMouseup() {
-    console.log('this.cannotStop==intercomMouseup', this.cannotStop)
     if (!this.cannotStop) {
       const nowTime = Date.now()
       if (!this.last || nowTime - this.last > 1000) {
@@ -223,6 +218,7 @@ export default class extends Mixins(ScreenMixin) {
       this.ws.close()
     }
     this.ws = null
+    this.cannotStop = false
     if (this.streamAudio && this.streamAudio.getAudioTracks()) {
       const tracks = this.streamAudio.getAudioTracks()
       for (let i = 0, len = tracks.length; i < len; i++) {
