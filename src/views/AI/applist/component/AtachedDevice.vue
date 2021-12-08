@@ -43,7 +43,7 @@
           <el-button type="text" @click.stop="startOrStop(scope.row)">
             {{ parseInt(scope.row.status) ? '停用' : '启用' }}
           </el-button>
-          <el-button type="text" @click.stop="detach(scope.row)">
+          <el-button type="text" :disabled="scope.row.status === '1' ? true : false" @click.stop="detach(scope.row)">
             解绑
           </el-button>
         </template>
@@ -89,7 +89,6 @@ export default class extends Vue {
       pageNum: this.pager.pageNum,
       pageSize: this.pager.pageSize
     })
-    console.log(deviceList)
     this.devices = deviceList
     this.pager.pageNum = pageNum
     this.pager.pageSize = pageSize
