@@ -272,13 +272,15 @@ export default class extends Mixins(DashboardMixin) {
    * 懒加载顶部用户下拉框
    */
   private loadmore() {
-    this.groupListIndex = this.groupListIndex + 1
     // 加宽下拉加载触发限制时，会触发多次，在这使用节流限制
-    !this.lazyloadTimer && GroupModule.LoadmoreGroups()
-    this.lazyloadTimer = setTimeout(() => {
-      clearTimeout(this.lazyloadTimer)
-      this.lazyloadTimer = null
-    }, 1000)
+    if (!this.lazyloadTimer) {
+      GroupModule.LoadmoreGroups()
+      this.groupListIndex = this.groupListIndex + 1
+      this.lazyloadTimer = setTimeout(() => {
+        clearTimeout(this.lazyloadTimer)
+        this.lazyloadTimer = null
+      }, 1000)
+    }
   }
 
   /**
