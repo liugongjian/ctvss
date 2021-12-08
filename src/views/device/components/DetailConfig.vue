@@ -130,6 +130,27 @@
         暂未绑定回调模版
       </div>
     </div>
+    <!-- 告警模板信息 -->
+    <div class="detail__section">
+      <div class="detail__title">
+        告警模板信息
+        <el-link v-if="inProtocol === 'gb28181' && checkPermission(['AdminDevice'])" v-permission="['*']" @click="setAlertTemplate">配置</el-link>
+      </div>
+      <el-descriptions v-if="template.alertTemplate" :column="2">
+        <el-descriptions-item label="模版名称">
+          {{ template.alertTemplate.templateName }}
+        </el-descriptions-item>
+        <el-descriptions-item label="模板概要">
+          {{ template.alertTemplate.recordNotifyUrl }}
+        </el-descriptions-item>
+        <el-descriptions-item label="启动方式">
+          {{ template.alertTemplate.enableType === 1 ? '自动开启' : '手动开启' }}
+        </el-descriptions-item>
+      </el-descriptions>
+      <div v-else-if="!loading.alertTemplate" class="detail__empty-card">
+        暂未绑定告警模板
+      </div>
+    </div>
 
     <!-- canvas画线 -->
     <algo-config
@@ -153,6 +174,14 @@
       @on-close="closeCallbackTemplateDialog"
     />
 
+    <SetAlertTemplate
+      v-if="setAlertTemplateDialog"
+      :in-protocol="inProtocol"
+      :device-id="deviceId"
+      :template-id="alertTemplateId"
+      @on-close="closeAlertTemplateDialog"
+    />
+
     <resource v-if="showResourceDialog" :device="deviceInfo" :algo-tab-type-default="algoTabTypeDefault" @on-close="closeResourceDialog" />
   </div>
 </template>
@@ -163,10 +192,12 @@ import { ResourceAiType } from '@/dics'
 import { GroupModule } from '@/store/modules/group'
 import { getDeviceRecordTemplate, getDeviceCallbackTemplate, getDevice,
   unBindAppResource, startAppResource, stopAppResource } from '@/api/device'
+import { getAlertBind } from '@/api/template'
 import { getAppList } from '@/api/ai-app'
 import { getDeviceResources } from '@/api/billing'
 import SetRecordTemplate from '@/views/components/dialogs/SetRecordTemplate.vue'
 import SetCallBackTemplate from '@/views/components/dialogs/SetCallBackTemplate.vue'
+import SetAlertTemplate from '@/views/components/dialogs/SetAlertTemplate.vue'
 import Resource from '@/views/device/components/dialogs/Resource.vue'
 import { checkPermission } from '@/utils/permission'
 
@@ -178,6 +209,7 @@ import AlgoConfig from './AlgoConfig/index.vue'
   components: {
     SetRecordTemplate,
     SetCallBackTemplate,
+    SetAlertTemplate,
     AlgoConfig,
     StatusBadge,
     Resource
@@ -194,7 +226,8 @@ export default class extends Vue {
     recordTemplate: false,
     callbackTemplate: false,
     aiTemplate: false,
-    AITable: false
+    AITable: false,
+    alertTemplate: false
   }
 
   private template: any = {
@@ -205,8 +238,10 @@ export default class extends Vue {
 
   private setRecordTemplateDialog = false
   private setCallbackTemplateDialog = false
+  private setAlertTemplateDialog = false
   private recordTemplateId = ''
   private callbackTemplateId = ''
+  private alertTemplateId = ''
 
   private aiList = [
     {
@@ -251,6 +286,7 @@ export default class extends Vue {
 
     this.getCallbackTemplate()
     this.getRecordTemplate()
+    this.getAlertTemplate()
     this.getAlgoList()
     await this.getDeviceInfo()
     await this.getDeviceResource()
@@ -292,12 +328,34 @@ export default class extends Vue {
     }
   }
 
+  private async getAlertTemplate() {
+    try {
+      this.loading.alertTemplate = true
+      this.template.alertTemplate = null
+      // if (this.groupId) {
+      //   const res = await getAlertBind({ groupId: this.groupId })
+      //   this.template.alertTemplate.push(res)
+      // } else {
+      //   const res = await getAlertBind({ deviceId: this.deviceId, inProtocol: this.inProtocol })
+      //   this.template.alertTemplate.push(res)
+      // }
+      const res = await getAlertBind({ deviceId: this.deviceId, inProtocol: this.inProtocol })
+      this.template.alertTemplate = res
+    } catch (e) {
+      if (e && e.code !== 5) {
+        this.$message.error(e && e.message)
+      }
+    } finally {
+      this.loading.alertTemplate = false
+    }
+  }
+
   /**
    * 设置录制模版
    */
   private setRecordTemplate() {
     this.setRecordTemplateDialog = true
-    this.recordTemplateId = this.template.recordTemplate.templateId
+    this.recordTemplateId = this.template.recordTemplate ? this.template.recordTemplate.templateId : null
   }
 
   /**
@@ -305,7 +363,13 @@ export default class extends Vue {
    */
   private setCallbackTemplate() {
     this.setCallbackTemplateDialog = true
-    this.callbackTemplateId = this.template.callbackTemplate.templateId
+    this.callbackTemplateId = this.template.callbackTemplate ? this.template.callbackTemplate.templateId : null
+  }
+
+  // 设置告警模板
+  private setAlertTemplate() {
+    this.setAlertTemplateDialog = true
+    this.setAlertTemplateId = this.template.alertTemplate ? this.template.alertTemplate.templateId : null
   }
 
   /**
@@ -322,6 +386,12 @@ export default class extends Vue {
   private closeCallbackTemplateDialog() {
     this.setCallbackTemplateDialog = false
     this.getCallbackTemplate()
+  }
+
+  // 关闭告警模板
+  private closeAlertTemplateDialog() {
+    this.setAlertTemplateDialog = false
+    this.getAlertTemplate()
   }
 
   // 获取算法能力

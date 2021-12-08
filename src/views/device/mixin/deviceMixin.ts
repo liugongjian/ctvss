@@ -95,6 +95,7 @@ export default class DeviceMixin extends Vue {
       }
       await startDevice(params)
       this.$message.success('已通知启用设备')
+      return true
     } catch (e) {
       this.$message.error(e && e.message)
     }
@@ -113,6 +114,7 @@ export default class DeviceMixin extends Vue {
       }
       await stopDevice(params)
       this.$message.success('已通知停用设备')
+      return true
     } catch (e) {
       this.$message.error(e && e.message)
     }
@@ -130,6 +132,7 @@ export default class DeviceMixin extends Vue {
       await startRecord(params)
       this.$message.success('已通知开始录制')
       this.init()
+      return true
     } catch (e) {
       this.$message.error(e && e.message)
       console.error(e)
@@ -149,6 +152,7 @@ export default class DeviceMixin extends Vue {
       await stopRecord(params)
       this.$message.success('已通知停止录像')
       this.init()
+      return true
     } catch (e) {
       this.$message.error(e && e.message)
       console.error(e)

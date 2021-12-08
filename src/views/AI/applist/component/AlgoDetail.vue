@@ -256,11 +256,11 @@ export default class extends Mixins(AppMixin) {
         param = { ...param, algorithmsId: this.prod.id }
         await createApp(param)
       }
+      this.$message.success(`${this.$route.query.id ? '修改' : '新建'}应用成功`)
+      this.backToAppList()
     } catch (e) {
       this.$alertError(e && e.message)
     }
-    this.$message.success(`${this.$route.query.id ? '修改' : '新建'}应用成功`)
-    this.backToAppList()
   }
   /**
    * 增加生效时间段选项
