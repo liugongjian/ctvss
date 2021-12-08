@@ -8,13 +8,13 @@
           <info-list-item label="业务组ID:">{{ form.groupId }}</info-list-item>
           <info-list-item label="业务组名称:">{{ form.groupName }}</info-list-item>
           <info-list-item label="业务组描述:">{{ form.description }}</info-list-item>
-          <info-list-item v-if="form.inProtocol !== 'vgroup'" label="设备地址:">{{ form.address || '-' }}</info-list-item>
+          <info-list-item v-if="!['vgroup', 'ga1400'].includes(form.inProtocol)" label="设备地址:">{{ form.address || '-' }}</info-list-item>
           <info-list-item v-if="form.industryCode" label="所属行业:">{{ industryMap[form.industryCode] }}</info-list-item>
           <info-list-item v-if="form.networkCode && networkFlag" label="网络标识:">{{ networkMap[form.networkCode] }}</info-list-item>
           <template v-if="!isVGroup">
             <info-list-item label="接入区域:">{{ form.regionName }}</info-list-item>
             <info-list-item label="接入类型:">{{ InProtocolType[form.inProtocol] }}</info-list-item>
-            <info-list-item v-if="form.inProtocol !== 'ga1400'" label="播放类型:">
+            <info-list-item v-if="!['ga1400'].includes(form.inProtocol)" label="播放类型:">
               {{ form.outProtocol.map(item => OutProtocolType[item]).join(',') }}
             </info-list-item>
           </template>

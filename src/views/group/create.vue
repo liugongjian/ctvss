@@ -40,7 +40,7 @@
             :disabled="isEdit"
           />
         </el-form-item>
-        <el-form-item v-if="(!isEdit || !form.gbId || form.gbRegion) && form.inProtocol !== 'vgroup'" label="设备地址:" prop="address">
+        <el-form-item v-if="(!isEdit || !form.gbId || form.gbRegion) && !['vgroup', 'ga1400'].includes(form.inProtocol)" label="设备地址:" prop="address">
           <el-cascader
             ref="addressCascader"
             v-model="form.address"
@@ -51,12 +51,12 @@
             @change="addressChange"
           />
         </el-form-item>
-        <el-form-item v-if="(!isEdit || !form.gbId || !!form.industryCode) && form.inProtocol !== 'vgroup'" label="所属行业:" prop="industryCode">
+        <el-form-item v-if="(!isEdit || !form.gbId || !!form.industryCode) && !['vgroup', 'ga1400'].includes(form.inProtocol)" label="所属行业:" prop="industryCode">
           <el-select v-model="form.industryCode" :disabled="form.gbId !== ''" placeholder="请选择所属行业">
             <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item v-if="(!isEdit || !form.gbId || !!form.industryCode) && networkFlag && form.inProtocol !== 'vgroup'" label="网络标识:" prop="networkCode">
+        <el-form-item v-if="(!isEdit || !form.gbId || !!form.industryCode) && networkFlag && !['vgroup', 'ga1400'].includes(form.inProtocol)" label="网络标识:" prop="networkCode">
           <el-select v-model="form.networkCode" :disabled="form.gbId !== ''" placeholder="请选择网络标识">
             <el-option v-for="(item, index) in networkList" :key="index" :label="item.name" :value="item.value" />
           </el-select>
@@ -66,7 +66,7 @@
             <el-radio v-for="protocol in inProtocolList" :key="protocol" :label="protocol.toLocaleLowerCase()">{{ protocol }}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item v-if="!isVGroup && form.inProtocol !== 'ga1400'" label="播放类型:" prop="outProtocol">
+        <el-form-item v-if="!['vgroup', 'ga1400'].includes(form.inProtocol)" label="播放类型:" prop="outProtocol">
           <el-checkbox-group v-model="form.outProtocol">
             <el-checkbox
               v-for="protocol in outProtocolList"

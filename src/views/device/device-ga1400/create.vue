@@ -65,7 +65,6 @@
             ref="addressCascader"
             v-model="form.address"
             expand-trigger="click"
-            :disabled="form.gbId !== ''"
             :options="regionList"
             :props="addressProps"
             @change="addressChange"
@@ -74,16 +73,6 @@
         <el-form-item v-if="lianzhouFlag" v-show="form.deviceType !== 'platform'" label="经纬度:" prop="longlat">
           <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
           <el-input v-model="form.deviceLatitude" class="longlat-input" />
-        </el-form-item>
-        <el-form-item v-if="!isUpdate || form.industryCode || !form.gbId" label="所属行业:" prop="industryCode">
-          <el-select v-model="form.industryCode" :disabled="form.gbId !== ''" placeholder="请选择所属行业">
-            <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item v-if="(!isUpdate || form.networkCode || !form.gbId) && networkFlag" label="网络标识:" prop="networkCode">
-          <el-select v-model="form.networkCode" :disabled="form.gbId !== ''" placeholder="请选择网络标识">
-            <el-option v-for="(item, index) in networkList" :key="index" :label="item.name" :value="item.value" />
-          </el-select>
         </el-form-item>
         <el-form-item label="设备描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
@@ -178,7 +167,7 @@ export default class extends Mixins(createMixin) {
       this.form.dirId = this.dirId
     }
     this.form.inProtocol = this.inProtocol
-    this.getGbAccounts()
+    this.getGa1400Accounts()
     this.onGroupChange()
   }
 
@@ -192,9 +181,6 @@ export default class extends Mixins(createMixin) {
       const info = await getDevice({
         deviceId: this.form.deviceId
       })
-      const usedChannelNum = info.deviceChannels.map((channel: any) => {
-        return channel.channelNum
-      })
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
           'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
@@ -206,6 +192,30 @@ export default class extends Mixins(createMixin) {
       this.$message.error(e && e.message)
     } finally {
       this.loading.device = false
+    }
+  }
+
+  /**
+   * 获取国标账号
+   */
+  private async getGa1400Accounts() {
+    try {
+      this.loading.account = true
+      const res = await getGbList({
+        pageSize: 1000
+      })
+      this.gbAccountList = {
+        normal: [],
+        anonymous: []
+      }
+      res.gbCerts.forEach((account: any) => {
+        // @ts-ignore
+        this.gbAccountList[account.userType].push(account)
+      })
+    } catch (e) {
+      console.error(e)
+    } finally {
+      this.loading.account = false
     }
   }
 
@@ -224,7 +234,7 @@ export default class extends Mixins(createMixin) {
     // @ts-ignore
     this.dialog[type] = false
     if (type === 'createGa1400Certificate' && payload === true) {
-      this.getGbAccounts()
+      this.getGa1400Accounts()
     }
   }
 
