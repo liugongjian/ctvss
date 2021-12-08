@@ -163,7 +163,6 @@ export default class extends Mixins(ScreenMixin) {
         console.log('err=》====', err)
         if (err.message.indexOf('不支持') > -1) {
           this.cannotStop = true
-          console.log('cannotStop')
         }
         if (this.ifCloseStatus !== 1) {
           this.$message.error(`${err},请稍后再试`)
@@ -197,6 +196,8 @@ export default class extends Mixins(ScreenMixin) {
       } else {
         this.last = Date.now()
       }
+    } else {
+      this.last = Date.now()
     }
   }
 
