@@ -17,8 +17,8 @@
       @change="changeGroup"
     >
       <el-option
-        v-for="item in groupList"
-        :key="item.groupId"
+        v-for="(item, index) in groupList"
+        :key="index"
         :label="item.groupName"
         :value="item.groupId"
       >
