@@ -89,7 +89,6 @@ export default class extends Vue {
       pageNum: this.pager.pageNum,
       pageSize: this.pager.pageSize
     })
-    console.log(deviceList)
     this.devices = deviceList
     this.pager.pageNum = pageNum
     this.pager.pageSize = pageSize
