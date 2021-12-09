@@ -111,7 +111,7 @@ export default class IndexMixin extends Vue {
     const deviceWrap: any = this.$refs.deviceWrap
     const size = deviceWrap.$el.getBoundingClientRect()
     const top = size.top
-    const documentHeight = document.body.offsetHeight
+    const documentHeight = document.body?.offsetHeight
     this.maxHeight = documentHeight - top - 65
   }
 
@@ -306,6 +306,8 @@ export default class IndexMixin extends Vue {
         }
         break
       case 'detail':
+        console.log(22);
+        
         router = {
           name: 'device-detail'
         }
@@ -344,6 +346,8 @@ export default class IndexMixin extends Vue {
         }
         break
     }
+    console.log(router);
+    
     router.query = {
       inProtocol: this.currentGroup!.inProtocol,
       type: item.type,

@@ -49,7 +49,6 @@ import { GA1400 } from '@/type/certificate'
 })
 export default class extends Vue {
   private anonymousType = AnonymousType
-  private userType = ''
   private userName = ''
   private loading = false
   private dataList: Array<GA1400> = []
@@ -77,13 +76,12 @@ export default class extends Vue {
     this.loading = true
     let params = {
       userName: this.userName,
-      userType: this.userType,
       pageNum: this.pager.pageNum,
       pageSize: this.pager.pageSize
     }
     try {
       const res = await getList(params)
-      this.dataList = res.gbCerts
+      this.dataList = res.ga1400Certs
       this.pager.total = res.totalNum
       this.pager.pageSize = res.pageSize
     } catch (e) {

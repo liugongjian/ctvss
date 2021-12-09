@@ -13,6 +13,12 @@
             <!--状态信息-->
             <div class="detail__section">
               <div class="detail__title">状态信息</div>
+              <el-descriptions :column="2">
+                <el-descriptions-item label="设备状态">
+                  <status-badge :status="info.deviceStatus" />
+                  {{ deviceStatus[info.deviceStatus] || '-' }}
+                </el-descriptions-item>
+              </el-descriptions>
             </div>
             <!--设备信息-->
             <div class="detail__section">
@@ -28,8 +34,8 @@
                 <el-descriptions-item label="设备类型">
                   {{ deviceType[info.deviceType] }}
                 </el-descriptions-item>
-                <el-descriptions-item label="设备厂商">
-                  {{ info.deviceVendor || '-' }}
+                <el-descriptions-item label="GA1400账号">
+                  {{ info.userName }}
                 </el-descriptions-item>
                 <el-descriptions-item v-if="info.address" label="设备地址">
                   {{ info.address }}
@@ -42,6 +48,9 @@
                 </el-descriptions-item>
                 <el-descriptions-item label="设备端口">
                   {{ info.devicePort || '-' }}
+                </el-descriptions-item>
+                <el-descriptions-item label="设备描述">
+                  {{ info.description || '-' }}
                 </el-descriptions-item>
               </el-descriptions>
             </div>

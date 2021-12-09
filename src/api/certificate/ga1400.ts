@@ -2,35 +2,35 @@ import request from '@/utils/request'
 
 export const getList = (params: any): Promise<any> =>
   request({
-    url: '/certificate/gb28181/list',
+    url: '/ga1400/cert/list',
     method: 'get',
     params
   })
 
 export const createCertificate = (params: any): Promise<any> =>
   request({
-    url: '/certificate/gb28181/create',
+    url: '/ga1400/cert/create',
     method: 'post',
     data: params
   })
 
 export const deleteCertificate = (params: any): Promise<any> =>
   request({
-    url: '/certificate/gb28181/delete',
+    url: '/ga1400/cert/delete',
     method: 'post',
     data: params
   })
 
 export const updateCertificate = (params: any): Promise<any> =>
   request({
-    url: '/certificate/gb28181/update',
+    url: '/ga1400/cert/update',
     method: 'post',
     data: params
   })
 
 export const queryCertificate = (params: any): Promise<any> =>
   request({
-    url: '/certificate/gb28181',
+    url: '/ga1400/cert/des',
     method: 'get',
     params
   })

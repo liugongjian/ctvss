@@ -85,20 +85,6 @@ export default class extends Vue {
     }
   }
 
-  private validateUserName(rule: any, value: string, callback: any) {
-    if (!value) {
-      callback(new Error('请输入用户名'))
-    } else if (this.form.userType === 'normal') {
-      if (!/^[0-9]+$/.test(value)) {
-        callback(new Error('非匿名用户ID仅能填写数字'))
-      } else {
-        callback()
-      }
-    } else {
-      callback()
-    }
-  }
-
   private validateOldPass(rule: any, value: string, callback: any) {
     if (this.form.newPassword && !value) {
       callback(new Error('更改密码时必须输入旧密码'))
@@ -117,7 +103,6 @@ export default class extends Vue {
           if (this.disabled) {
             data = {
               userName: this.form.userName,
-              userType: this.form.userType,
               description: this.form.description,
               password: 'YTVjIX' + Base64.encode(this.form.password as string) + 'ZmZUBl',
               newPassword: 'YmNjIW' + Base64.encode(this.form.newPassword as string) + '1mZSNl'
@@ -127,7 +112,6 @@ export default class extends Vue {
             this.form.password = this.form.newPassword
             data = {
               userName: this.form.userName,
-              userType: this.form.userType,
               description: this.form.description,
               password: 'YTVjIX' + Base64.encode(this.form.password as string) + 'ZmZUBl'
             }
@@ -158,7 +142,6 @@ export default class extends Vue {
       this.$set(this.form, 'userName', params.userName)
       try {
         const res = await queryCertificate({ userName: this.form.userName })
-        this.$set(this.form, 'userType', res.userType)
         this.$set(this.form, 'description', res.description)
       } catch (e) {
         this.$message.error(e && e.message)

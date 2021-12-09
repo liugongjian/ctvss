@@ -35,22 +35,12 @@
         </el-form-item>
         <el-form-item label="GA1400账号:" prop="userName">
           <el-select v-model="form.userName" :loading="loading.account">
-            <el-option-group label="匿名">
-              <el-option
-                v-for="item in gbAccountList.anonymous"
-                :key="item.userName"
-                :label="item.userName"
-                :value="item.userName"
-              />
-            </el-option-group>
-            <el-option-group label="非匿名">
-              <el-option
-                v-for="item in gbAccountList.normal"
-                :key="item.userName"
-                :label="item.userName"
-                :value="item.userName"
-              />
-            </el-option-group>
+            <el-option
+              v-for="item in ga1400AccountList"
+              :key="item.userName"
+              :label="item.userName"
+              :value="item.userName"
+            />
           </el-select>
           <el-button type="text" class="ml10" @click="openDialog('createGa1400Certificate')">新建账号</el-button>
         </el-form-item>
@@ -60,7 +50,7 @@
         <el-form-item label="端口:" prop="devicePort">
           <el-input v-model.number="form.devicePort" />
         </el-form-item>
-        <el-form-item v-if="(!isUpdate || form.gbRegion || !form.gbId)" label="设备地址:" prop="address">
+        <el-form-item v-if="form.deviceType === 'ape'" label="设备地址:" prop="address">
           <el-cascader
             ref="addressCascader"
             v-model="form.address"
@@ -70,7 +60,7 @@
             @change="addressChange"
           />
         </el-form-item>
-        <el-form-item v-if="lianzhouFlag" v-show="form.deviceType !== 'platform'" label="经纬度:" prop="longlat">
+        <el-form-item v-if="form.deviceType === 'ape'" label="经纬度:" prop="longlat">
           <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
           <el-input v-model="form.deviceLatitude" class="longlat-input" />
         </el-form-item>
@@ -91,7 +81,8 @@ import { Component, Mixins } from 'vue-property-decorator'
 import createMixin from '../mixin/createMixin'
 import { pick } from 'lodash'
 import { DeviceGa1400Type } from '@/dics'
-import { createDevice, updateDevice, getDevice } from '@/api/device'
+import { createGa1400Device, updateGa1400Device, getGa1400Device } from '@/api/device'
+import { getList as getGa1400List } from '@/api/certificate/ga1400'
 import CreateGa1400Certificate from '@/views/certificate/ga1400/components/CreateDialog.vue'
 
 @Component({
@@ -101,6 +92,8 @@ import CreateGa1400Certificate from '@/views/certificate/ga1400/components/Creat
   }
 })
 export default class extends Mixins(createMixin) {
+  private IPv4Reg = /^((25[0-5]|2[0-4]\d|[0-1]?\d{1,2})\.){3}(25[0-5]|2[0-4]\d|[0-1]?\d{1,2})$/
+  private IPv6Reg = /^\s*((([0-9A-Fa-f]{1,4}:){7}(([0-9A-Fa-f]{1,4})|:))|(([0-9A-Fa-f]{1,4}:){6}(:|((25[0-5]|2[0-4]\d|[01]?\d{1,2})(\.(25[0-5]|2[0-4]\d|[01]?\d{1,2})){3})|(:[0-9A-Fa-f]{1,4})))|(([0-9A-Fa-f]{1,4}:){5}((:((25[0-5]|2[0-4]\d|[01]?\d{1,2})(\.(25[0-5]|2[0-4]\d|[01]?\d{1,2})){3})?)|((:[0-9A-Fa-f]{1,4}){1,2})))|(([0-9A-Fa-f]{1,4}:){4}(:[0-9A-Fa-f]{1,4}){0,1}((:((25[0-5]|2[0-4]\d|[01]?\d{1,2})(\.(25[0-5]|2[0-4]\d|[01]?\d{1,2})){3})?)|((:[0-9A-Fa-f]{1,4}){1,2})))|(([0-9A-Fa-f]{1,4}:){3}(:[0-9A-Fa-f]{1,4}){0,2}((:((25[0-5]|2[0-4]\d|[01]?\d{1,2})(\.(25[0-5]|2[0-4]\d|[01]?\d{1,2})){3})?)|((:[0-9A-Fa-f]{1,4}){1,2})))|(([0-9A-Fa-f]{1,4}:){2}(:[0-9A-Fa-f]{1,4}){0,3}((:((25[0-5]|2[0-4]\d|[01]?\d{1,2})(\.(25[0-5]|2[0-4]\d|[01]?\d{1,2})){3})?)|((:[0-9A-Fa-f]{1,4}){1,2})))|(([0-9A-Fa-f]{1,4}:)(:[0-9A-Fa-f]{1,4}){0,4}((:((25[0-5]|2[0-4]\d|[01]?\d{1,2})(\.(25[0-5]|2[0-4]\d|[01]?\d{1,2})){3})?)|((:[0-9A-Fa-f]{1,4}){1,2})))|(:(:[0-9A-Fa-f]{1,4}){0,5}((:((25[0-5]|2[0-4]\d|[01]?\d{1,2})(\.(25[0-5]|2[0-4]\d|[01]?\d{1,2})){3})?)|((:[0-9A-Fa-f]{1,4}){1,2})))|(((25[0-5]|2[0-4]\d|[01]?\d{1,2})(\.(25[0-5]|2[0-4]\d|[01]?\d{1,2})){3})))(%.+)?\s*$/
   private rules = {
     deviceName: [
       { required: true, message: '请输入设备名称', trigger: 'blur' },
@@ -117,7 +110,7 @@ export default class extends Mixins(createMixin) {
       { required: true, message: '请选择账号', trigger: 'change' }
     ],
     deviceIp: [
-      { validator: this.validateDeviceIp, trigger: 'blur' }
+      { validator: this.validateGa1400DeviceIp, trigger: 'blur' }
     ],
     address: [
       { required: true, message: '请选择设备地址', trigger: 'blur' }
@@ -133,10 +126,7 @@ export default class extends Mixins(createMixin) {
       value: type
     }
   })
-  private gbAccountList = {
-    normal: [],
-    anonymous: []
-  }
+  private ga1400AccountList = []
   public form: any = {
     dirId: '',
     groupId: '',
@@ -178,12 +168,14 @@ export default class extends Mixins(createMixin) {
     try {
       this.loading.device = true
       this.form.deviceId = this.deviceId
-      const info = await getDevice({
+      const info = await getGa1400Device({
         deviceId: this.form.deviceId
       })
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
-          'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
+          'gbVersion', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
+        // 对ga1400的deviceIp进行特殊处理
+        this.$set(this.form, 'deviceIp', info.deviceIp || info.deviceIpv6)
         this.cascaderInit()
       } else {
         this.form = Object.assign(this.form, pick(info, ['userName']))
@@ -201,17 +193,10 @@ export default class extends Mixins(createMixin) {
   private async getGa1400Accounts() {
     try {
       this.loading.account = true
-      const res = await getGbList({
+      const res = await getGa1400List({
         pageSize: 1000
       })
-      this.gbAccountList = {
-        normal: [],
-        anonymous: []
-      }
-      res.gbCerts.forEach((account: any) => {
-        // @ts-ignore
-        this.gbAccountList[account.userType].push(account)
-      })
+      this.ga1400AccountList = res.ga1400Certs
     } catch (e) {
       console.error(e)
     } finally {
@@ -251,19 +236,23 @@ export default class extends Mixins(createMixin) {
   private async doSubmit() {
     try {
       this.submitting = true
-      let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceVendor', 'description'])
-      if (this.isUpdate) {
-        params = Object.assign(params, pick(this.form, ['deviceId']))
-      } else {
-        params = Object.assign(params, pick(this.form, ['resources', 'vssAIApps']))
+      let params: any = pick(this.form, ['groupId', 'dirId', 'deviceType', 'deviceName', 'userName', 'devicePort', 'deviceLongitude', 'deviceLatitude', 'inProtocol', 'description'])
+      // 对ga1400的deviceIp进行特殊处理
+      if (this.IPv4Reg.test(this.form.deviceIp)) {
+        this.$set(params, 'deviceIp', this.form.deviceIp)
+        this.$set(params, 'deviceIpv6', '')
+      } else if (this.IPv6Reg.test(this.form.deviceIp)) {
+        this.$set(params, 'deviceIpv6', this.form.deviceIp)
+        this.$set(params, 'deviceIp', '')
       }
       if (this.isUpdate) {
         delete params.deviceType
         // 更新设备详情
-        await updateDevice(params)
+        Object.assign(params, pick(this.form, ['deviceId']))
+        await updateGa1400Device(params)
         this.$message.success('修改设备成功！')
       } else {
-        await createDevice(params)
+        await createGa1400Device(params)
         this.$message.success('添加设备成功！')
       }
       this.back()

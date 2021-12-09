@@ -3,7 +3,7 @@
  */
 import { Component, Vue, Inject } from 'vue-property-decorator'
 import { Device } from '@/type/device'
-import { deleteDevice, startDevice, stopDevice, startRecord, stopRecord } from '@/api/device'
+import { deleteDevice, deleteGa1400Device, startDevice, stopDevice, startRecord, stopRecord } from '@/api/device'
 import MoveDir from '../components/dialogs/MoveDir.vue'
 
 @Component({
@@ -69,7 +69,7 @@ export default class DeviceMixin extends Vue {
     this.$alertDelete({
       type: '设备',
       msg: `删除操作不能恢复，确认删除设备"${device.deviceName}"吗？`,
-      method: deleteDevice,
+      method: device.inProtocol === 'ga1400' ? deleteGa1400Device : deleteDevice,
       payload: {
         deviceId: device.deviceId,
         inProtocol: this.inProtocol,

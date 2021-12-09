@@ -41,6 +41,60 @@ export const getChannels = (params: any): Promise<any> =>
   })
 
 /**
+ * 创建ga1400设备
+ */
+export const createGa1400Device = (params: any): Promise<any> =>
+  request({
+    url: '/ga1400/device/create',
+    method: 'post',
+    data: params
+  })
+
+/**
+ * 更新ga1400设备
+ */
+export const updateGa1400Device = (params: any): Promise<any> =>
+  request({
+    url: '/ga1400/device/update',
+    method: 'post',
+    data: params
+  })
+
+/**
+* 查询ga1400设备
+*/
+export const getGa1400Device = (params: any): Promise<any> =>
+  request({
+    url: '/ga1400/device/des',
+    method: 'get',
+    params
+  })
+
+/**
+* 删除ga1400设备
+*/
+export const deleteGa1400Device = (params: any): Promise<any> =>
+  request({
+    url: '/ga1400/device/delete',
+    method: 'post',
+    data: params
+  })
+
+/**
+* 查询ga1400设备列表
+*/
+export const getGa1400Devices = (params: any): Promise<any> =>
+  request({
+    url: '/ga1400/device/list',
+    method: 'get',
+    params: {
+      ...params,
+      sortBy: 'OrderSequence',
+      sortDirection: 'asc'
+    }
+  })
+
+/**
  * 创建设备
  */
 export const createDevice = (params: any): Promise<any> =>

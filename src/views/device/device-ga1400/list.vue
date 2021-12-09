@@ -23,19 +23,19 @@
           <el-button>导入</el-button>
         </el-upload> -->
         <!-- <el-button v-if="!isVGroup && checkPermission(['AdminDevice'], {id: dirId !== '0' ? dirId : currentGroupId}) && (isDir || isManulNVR)" @click="exportTemplate">下载模板</el-button> -->
-        <el-dropdown v-if="!isVGroup && checkPermission(['AdminDevice'], {id: dirId !== '0' ? dirId : currentGroupId})" key="dropdown" placement="bottom" @command="handleBatch">
+        <!-- <el-dropdown v-if="!isVGroup && checkPermission(['AdminDevice'], {id: dirId !== '0' ? dirId : currentGroupId})" key="dropdown" placement="bottom" @command="handleBatch">
           <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item v-if="!isNVR && !isPlatform && !isChannel" command="move">移动至</el-dropdown-item>
             <el-dropdown-item v-if="isAllowedDelete" command="delete">删除</el-dropdown-item>
           </el-dropdown-menu>
-        </el-dropdown>
+        </el-dropdown> -->
       </div>
       <div class="filter-container__right">
         <el-input v-show="false" v-model="keyword" class="filter-container__search-group" placeholder="请输入关键词">
           <el-button slot="append" class="el-button-rect"><svg-icon name="search" /></el-button>
         </el-input>
-        <el-button v-if="!isVGroup && !isChannel" class="el-button-rect filter-container__sync-button" :disabled="loading.syncDeviceStatus" :class="{'loading': loading.syncDeviceStatus}" @click="syncDeviceStatus"><svg-icon name="refresh" />同步设备状态</el-button>
+        <!-- <el-button v-if="!isVGroup && !isChannel" class="el-button-rect filter-container__sync-button" :disabled="loading.syncDeviceStatus" :class="{'loading': loading.syncDeviceStatus}" @click="syncDeviceStatus"><svg-icon name="refresh" />同步设备状态</el-button> -->
       </div>
     </div>
     <div v-if="hasFiltered" ref="filterBtnWrap" class="filter-container filter-buttons">
@@ -60,17 +60,14 @@
           </template>
         </el-table-column>
         <el-table-column
-          v-if="isGb"
           key="deviceStatus"
           column-key="deviceStatus"
           label="设备状态"
           min-width="110"
-          :filters="isIPC ? [] : filtersArray.deviceStatus"
-          :filter-multiple="false"
         >
           <template slot="header">
             <span class="filter">设备状态</span>
-            <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
+            <!-- <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" /> -->
           </template>
           <template slot-scope="{row}">
             <status-badge :status="row.deviceStatus" />
@@ -82,23 +79,21 @@
           column-key="deviceType"
           prop="deviceType"
           label="类型"
-          :filters="isIPC ? [] : filtersArray.deviceType"
-          :filter-multiple="false"
         >
           <template slot="header">
             <span class="filter">类型</span>
-            <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
+            <!-- <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" /> -->
           </template>
           <template slot-scope="{row}">
             {{ deviceType[row.deviceType] }}
           </template>
         </el-table-column>
-        <el-table-column v-if="isGb && !isNVR" key="deviceIp" label="IP" min-width="130">
+        <el-table-column key="deviceIp" label="IP" min-width="130">
           <template slot-scope="{row}">
             {{ row.deviceIp || '-' }}
           </template>
         </el-table-column>
-        <el-table-column v-if="isGb && !isNVR" key="devicePort" label="端口">
+        <el-table-column key="devicePort" label="端口">
           <template slot-scope="{row}">
             {{ row.devicePort || '-' }}
           </template>
@@ -106,6 +101,15 @@
         <el-table-column key="createdTime" label="创建时间" min-width="180">
           <template slot-scope="{row}">
             {{ row.createdTime }}
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" prop="action" class-name="col-action" width="270" fixed="right">
+          <template slot-scope="scope">
+            <el-button type="text" @click="deviceRouter({id: scope.row.deviceId, type: 'detail'})">设备详情</el-button>
+            <!-- <el-button v-if="!isVGroup && scope.row.recordStatus === 1 && checkPermission(['AdminDevice'])" @click="1">停止</el-button>
+            <el-button v-else-if="!isVGroup && checkPermission(['AdminDevice'])" @click="1">启用</el-button> -->
+            <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" type="text" @click="deviceRouter({id: scope.row.deviceId, type: 'update'})">编辑</el-button>
+            <el-button v-if="!isVGroup && isAllowedDelete && checkPermission(['AdminDevice'])" type="text" @click="deleteDevice(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

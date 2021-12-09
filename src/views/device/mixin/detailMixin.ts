@@ -7,7 +7,7 @@ import { queryGroup } from '@/api/group'
 import { GroupModule } from '@/store/modules/group'
 import { DeviceModule } from '@/store/modules/device'
 // import { DeviceStatus, DeviceGb28181Type, RecordStatus, RecordStatusType, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType } from '@/dics'
-import { getDevice, getAddressArea } from '@/api/device'
+import { getDevice, getGa1400Device, getAddressArea } from '@/api/device'
 import { DeviceStatus, DeviceGb28181Type, RecordStatus, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType, RecordStatusType } from '@/dics'
 import { getDeviceResources } from '@/api/billing'
 import TemplateBind from '../../components/templateBind.vue'
@@ -187,7 +187,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     // TODO: 连州教育局一机一档专用
     this.lianzhouFlag = this.$store.state.user.tags.isLianZhouEdu === 'Y'
     await this.getDevice()
-    await this.getDeviceResources()
+    this.inProtocol !== 'ga1400' && await this.getDeviceResources()
     await this.getAddress(this.info!.gbRegion)
   }
 
@@ -306,10 +306,17 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   public async getDevice() {
     try {
       this.loading.info = true
-      this.info = await getDevice({
-        deviceId: this.deviceId,
-        inProtocol: this.inProtocol
-      })
+      if (this.inProtocol === 'ga1400') {
+        this.info = await getGa1400Device({
+          deviceId: this.deviceId,
+          inProtocol: this.inProtocol
+        })
+      } else {
+        this.info = await getDevice({
+          deviceId: this.deviceId,
+          inProtocol: this.inProtocol
+        })
+      }
     } catch (e) {
       console.error(e)
     } finally {
