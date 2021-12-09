@@ -80,6 +80,7 @@ export default class extends Vue {
     @Prop() private deviceId?: string
     @Prop() private canvasIf?: boolean
     @Prop() private configAlgoInfo?:any
+    @Prop() private deviceInfo?:any
 
     private mode = ''
     private isDraw = false;
@@ -159,13 +160,15 @@ export default class extends Vue {
 
     private initCanvas() {
       // console.log('this.deviceId', this.deviceId)
-
+      console.log('deviceInfo', this.deviceInfo)
+      const streamNum = this.deviceInfo?.deviceStreams[0]?.streamNum
+      const deviceId = this.inProtocol === 'ehome' ? `${this.deviceId}_${streamNum}` : this.deviceId
       const that = this
       // let img = new Image()
       // img.src = that.dataURL
       const param = {
         // streams: JSON.stringify([Number(this.deviceId)])
-        streams: [this.deviceId]
+        streams: [deviceId]
       }
       // getAlgoStreamFrame(param)
       getAlgoStreamFrame(param).then(res => {

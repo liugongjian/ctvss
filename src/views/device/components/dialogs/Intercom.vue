@@ -48,7 +48,6 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Mixins, Watch } from 'vue-property-decorator'
-// import { dateFormat } from '@/utils/date'
 import ScreenMixin from '../../mixin/screenMixin'
 import Player from '../Player.vue'
 import { getDevice } from '@/api/device'
@@ -77,6 +76,7 @@ export default class extends Mixins(ScreenMixin) {
   private ifCloseStatus = 0
   private last:any
   private cannotStop:boolean
+  private audioKey:string
 
   @Watch('maxVol')
   private getVolStyle(val:any) {
@@ -121,6 +121,7 @@ export default class extends Mixins(ScreenMixin) {
 
   private intercomMousedown() {
     const nowTime = Date.now()
+    this.audioKey = this.randomKey()
     if (this.last && nowTime - this.last < 1000) {
       this.$message.warning('点的太快了，请稍后再点击~')
       return false
@@ -128,7 +129,8 @@ export default class extends Mixins(ScreenMixin) {
       const param = {
         deviceId: this.intercomInfo.deviceId,
         transPriority: 'UDP', // 先使用UDP，等流媒体侧兼容之后再使用参数
-        inProtocol: this.intercomInfo.inProtocol
+        inProtocol: this.intercomInfo.inProtocol,
+        audioKey: this.audioKey
       }
 
       this.ifCloseStatus = 0
@@ -137,7 +139,6 @@ export default class extends Mixins(ScreenMixin) {
           this.stopRecord()
         }
         this.cannotStop = false
-        // if (this.ifCloseStatus !== 1) {
         const { streamServerAddr } = res
         const ifwss = window.location.protocol === 'https:' ? 'wss' : 'ws'
         const wsUrl = `${ifwss}://${streamServerAddr}/talk/${this.intercomInfo.deviceId}`
@@ -155,7 +156,6 @@ export default class extends Mixins(ScreenMixin) {
         } catch (e) {
           console.log(`连接错误：${e}`)
         }
-      // }
       }).catch((err:any) => {
         if (err.message.indexOf('不支持') > -1) {
           this.cannotStop = true
@@ -179,10 +179,11 @@ export default class extends Mixins(ScreenMixin) {
         this.isClick = false
         this.last = nowTime
         const param = {
-          deviceId: this.intercomInfo.deviceId
+          deviceId: this.intercomInfo.deviceId,
+          audioKey: this.audioKey
         }
         stopTalk(param).then(() => {
-        // this.stopRecord()
+          this.stopRecord()
           this.last = Date.now()
         }).catch((err:any) => {
           this.last = Date.now()
@@ -194,6 +195,20 @@ export default class extends Mixins(ScreenMixin) {
     } else {
       this.last = Date.now()
     }
+  }
+
+  private randomKey(len:any = 10) {
+    let str = ''
+    const arr = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
+      'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+      'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
+      'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' ]
+
+    for (let i = 0; i < len; i++) {
+      const pos = Math.round(Math.random() * (arr.length - 1))
+      str += arr[pos]
+    }
+    return str
   }
 
   private startRecord() {

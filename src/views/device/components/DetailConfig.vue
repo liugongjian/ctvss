@@ -157,6 +157,7 @@
       v-if="canvasDialog" :device-id="deviceId"
       :in-protocol="inProtocol" :canvas-if="canvasDialog"
       :config-algo-info="configAlgoInfo"
+      :device-info="deviceInfo"
     />
 
     <SetRecordTemplate
@@ -429,6 +430,7 @@ export default class extends Vue {
   // 关闭算法配置弹窗
   private closeResourceDialog() {
     this.showResourceDialog = false
+    this.algoTabTypeDefault = ''
     this.getAlgoList()
   }
 
