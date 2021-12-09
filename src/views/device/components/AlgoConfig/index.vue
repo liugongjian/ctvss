@@ -159,8 +159,6 @@ export default class extends Vue {
     }
 
     private initCanvas() {
-      // console.log('this.deviceId', this.deviceId)
-      console.log('deviceInfo', this.deviceInfo)
       const streamNum = this.deviceInfo?.deviceStreams[0]?.streamNum
       const deviceId = this.inProtocol === 'ehome' ? `${this.deviceId}_${streamNum}` : this.deviceId
       const that = this

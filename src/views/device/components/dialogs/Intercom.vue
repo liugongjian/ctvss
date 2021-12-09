@@ -123,8 +123,10 @@ export default class extends Mixins(ScreenMixin) {
     const nowTime = Date.now()
     this.audioKey = this.randomKey()
     if (this.last && nowTime - this.last < 1000) {
-      this.$message.warning('点的太快了，请稍后再点击~')
-      return false
+      if (document.querySelectorAll('.el-message').length === 0) {
+        this.$message.warning('点的太快了，请稍后再点击~')
+        return false
+      }
     } else {
       const param = {
         deviceId: this.intercomInfo.deviceId,
@@ -190,10 +192,10 @@ export default class extends Mixins(ScreenMixin) {
           this.$message.error(err)
         })
       } else {
-        this.last = Date.now()
+        // this.last = Date.now()
       }
     } else {
-      this.last = Date.now()
+      // this.last = Date.now()
     }
   }
 
