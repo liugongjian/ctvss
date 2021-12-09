@@ -245,6 +245,23 @@ export const parseMetaData = (type: string, metaData: any) => {
         }
       }
       break
+      // 医疗防护服
+    case '16':
+      if (metaData.Data && metaData.Data.DetectBoxes) {
+        const boxes = metaData.Data.DetectBoxes
+        for (let i = 0; i < boxes.length; i += 4) {
+          locations.push(
+            {
+              top: boxes[i + 1],
+              left: boxes[i],
+              width: boxes[i + 2],
+              height: boxes[i + 3],
+              isWarning: !!metaData.Data.DetectClses[i / 4]
+            }
+          )
+        }
+      }
+      break
       // 研发二车牌识别
     case '17':
       if (metaData.Data && metaData.Data.Boxes) {
@@ -448,15 +465,17 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
     case '10013':
       if (metaData.Data && metaData.Data.DetectBoxes) {
         const boxes = metaData.Data.DetectBoxes
-        boxes.forEach((box, index) => {
-          locations.push({
-            top: box[1],
-            left: box[0],
-            width: box[2],
-            height: box[3],
-            isWarning: !!metaData.Data.DetectClses[index]
-          })
-        })
+        for (let i = 0; i < boxes.length; i += 4) {
+          locations.push(
+            {
+              top: boxes[i + 1],
+              left: boxes[i],
+              width: boxes[i + 2],
+              height: boxes[i + 3],
+              isWarning: !!metaData.Data.DetectClses[i / 4]
+            }
+          )
+        }
       }
       break
     // 研发二人体识别

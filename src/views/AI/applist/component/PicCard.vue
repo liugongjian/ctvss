@@ -10,9 +10,13 @@
         <el-descriptions-item label="截图时间">
           {{ pic.time }}
         </el-descriptions-item>
+
         <el-descriptions-item label="设备名称">
-          {{ pic.deviceName }}
+          <el-tooltip class="item" effect="dark" :content="pic.deviceName" placement="bottom">
+            <span>{{ (pic.deviceName && pic.deviceName.length > 10) ? pic.deviceName.slice(0,10) + '...' : pic.deviceName }}</span>
+          </el-tooltip>
         </el-descriptions-item>
+
         <el-descriptions-item label="置信度">
           {{ Math.floor(pic.confidence * 100) }}%
         </el-descriptions-item>
@@ -42,7 +46,6 @@ export default class extends Vue {
   private decodeBase64: Function = decodeBase64
 
   private onload() {
-    console.log('onload')
     if (!this.pic || !this.pic.image) {
       return
     }
