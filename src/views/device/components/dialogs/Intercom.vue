@@ -153,17 +153,12 @@ export default class extends Mixins(ScreenMixin) {
             }
           }
         } catch (e) {
-        // this.ws.onerror = (e:any) => {
-        //   console.log(`连接错误：${e}`)
-        // }
           console.log(`连接错误：${e}`)
         }
       // }
       }).catch((err:any) => {
-        console.log('err=》====', err)
         if (err.message.indexOf('不支持') > -1) {
           this.cannotStop = true
-          console.log('cannotStop')
         }
         if (this.ifCloseStatus !== 1) {
           this.$message.error(`${err},请稍后再试`)
@@ -177,7 +172,6 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   private intercomMouseup() {
-    console.log('this.cannotStop==intercomMouseup', this.cannotStop)
     if (!this.cannotStop) {
       const nowTime = Date.now()
       if (!this.last || nowTime - this.last > 1000) {
@@ -197,6 +191,8 @@ export default class extends Mixins(ScreenMixin) {
       } else {
         this.last = Date.now()
       }
+    } else {
+      this.last = Date.now()
     }
   }
 

@@ -118,7 +118,6 @@ export default class extends Vue {
             type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group'
           }]
         })
-
       })
       console.log('this.dirList:', this.dirList)
     } catch (e) {
@@ -175,9 +174,9 @@ export default class extends Vue {
           'real-group-id': node.data.realGroupId
         }
       })
-      if (node.data.type === 'role') {
-        devices.dirs = devices.dirs.filter((dir: any) => dir.inProtocol === 'gb28181' || dir.inProtocol === 'ehome')
-      }
+      // if (node.data.type === 'role') {
+      //   devices.dirs = devices.dirs.filter((dir: any) => dir.inProtocol === 'gb28181' || dir.inProtocol === 'ehome')
+      // }
       const dirTree: any = this.$refs.dirTree
       let checkedKeys = dirTree.getCheckedKeys()
       let dirs: any = devices.dirs.map((dir: any) => {

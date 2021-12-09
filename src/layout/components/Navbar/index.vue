@@ -14,11 +14,12 @@
       class="filter-group"
       filterable
       placeholder="请选择业务组"
+      @visible-change="visibleChange"
       @change="changeGroup"
     >
       <el-option
-        v-for="item in groupList"
-        :key="item.groupId"
+        v-for="(item, index) in groupList"
+        :key="index"
         :label="item.groupName"
         :value="item.groupId"
       >
@@ -269,16 +270,24 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   /**
+   * 下拉框出现时刷新下拉列表
+   */
+  private visibleChange(val) {
+    val && GroupModule.GetGroupList()
+  }
+
+  /**
    * 懒加载顶部用户下拉框
    */
   private loadmore() {
-    this.groupListIndex = this.groupListIndex + 1
     // 加宽下拉加载触发限制时，会触发多次，在这使用节流限制
-    !this.lazyloadTimer && GroupModule.LoadmoreGroups()
-    this.lazyloadTimer = setTimeout(() => {
-      clearTimeout(this.lazyloadTimer)
-      this.lazyloadTimer = null
-    }, 1000)
+    if (!this.lazyloadTimer) {
+      GroupModule.LoadmoreGroups()
+      this.lazyloadTimer = setTimeout(() => {
+        clearTimeout(this.lazyloadTimer)
+        this.lazyloadTimer = null
+      }, 300)
+    }
   }
 
   /**
