@@ -14,6 +14,7 @@
       class="filter-group"
       filterable
       placeholder="请选择业务组"
+      @visible-change="visibleChange"
       @change="changeGroup"
     >
       <el-option
@@ -266,6 +267,13 @@ export default class extends Mixins(DashboardMixin) {
         }
       ]
     }
+  }
+
+  /**
+   * 下拉框出现时刷新下拉列表
+   */
+  private visibleChange(val) {
+    val && GroupModule.GetGroupList()
   }
 
   /**
