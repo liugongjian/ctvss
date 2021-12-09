@@ -1,9 +1,20 @@
 <template>
   <div>
     <div v-if="!noapp">
-      <el-radio-group v-model="app" @change="appChange">
+      <div class="select">
+        应用名称：
+        <el-select v-model="app" placeholder="请选择" @change="appChange">
+          <el-option
+            v-for="item in apps"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          />
+        </el-select>
+      </div>
+      <!-- <el-radio-group v-model="app" @change="appChange">
         <el-radio-button v-for="(item, index) in apps" :key="item.id" :label="item.id">{{ apps[index].name }}</el-radio-button>
-      </el-radio-group>
+      </el-radio-group> -->
       <app-sub-detail v-if="appInfo.name" :device="device" :app-info="appInfo" :face-lib="faceLib" />
     </div>
     <div v-else class="no-data">暂无绑定的应用</div>
@@ -74,11 +85,21 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-.el-radio-group{
-  margin-bottom: 20px;
-  ::v-deep .el-radio-button__inner {
-    display: inline-block;
-    min-width: 160px;
+// .el-radio-group{
+//   margin-bottom: 20px;
+//   ::v-deep .el-radio-button__inner {
+//     display: inline-block;
+//     min-width: 160px;
+//   }
+// }
+.select{
+  float: left;
+  padding-right: 20px;
+  .el-select {
+    width: 120px;
+    ::v-deep .el-input{
+      padding-top: 2px;
+    }
   }
 }
 .no-data{

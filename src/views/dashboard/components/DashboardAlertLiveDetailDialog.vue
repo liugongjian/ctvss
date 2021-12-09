@@ -11,7 +11,9 @@
     <div v-loading="loading" class="alert" :class="{theme: true, 'light-alert': isLight}">
       <div class="alert-header">
         <div class="alert-header__type">事件类型: {{ alertType[audit.event] }}</div>
-        <div class="alert-header__device">设备: {{ `${audit.deviceName}${(audit.channelName && audit.channelName!==audit.deviceName) ? ('-'+audit.channelName) : ''}` }}</div>
+        <el-tooltip class="item" effect="dark" :content="deviceNameAndChannelFull" placement="bottom">
+          <div class="alert-header__device">设备: {{ deviceNameAndChannel }}</div>
+        </el-tooltip>
         <div class="alert-header__device">应用: {{ audit.appName || '无' }}</div>
         <div class="alert-header__datetime">时间:{{ audit.timestamp }}</div>
       </div>
@@ -83,6 +85,23 @@ export default class extends Vue {
     // this.getRecordAudits()
   }
 
+  get deviceNameAndChannel() {
+    let temp: string
+    if (this.audit.channelName && this.audit.channelName !== this.audit.deviceName) {
+      temp = this.audit.deviceName + '-' + this.audit.channelName
+    } else {
+      temp = this.audit.deviceName
+    }
+    return temp.length > 5 ? temp.slice(0, 5) + '...' : temp
+  }
+
+  get deviceNameAndChannelFull() {
+    if (this.audit.channelName && this.audit.channelName !== this.audit.deviceName) {
+      return this.audit.deviceName + '-' + this.audit.channelName
+    } else {
+      return this.audit.deviceName
+    }
+  }
   /**
    * 正常确认
    */
