@@ -275,11 +275,10 @@ export default class extends Mixins(DashboardMixin) {
     // 加宽下拉加载触发限制时，会触发多次，在这使用节流限制
     if (!this.lazyloadTimer) {
       GroupModule.LoadmoreGroups()
-      this.groupListIndex = this.groupListIndex + 1
       this.lazyloadTimer = setTimeout(() => {
         clearTimeout(this.lazyloadTimer)
         this.lazyloadTimer = null
-      }, 1000)
+      }, 300)
     }
   }
 

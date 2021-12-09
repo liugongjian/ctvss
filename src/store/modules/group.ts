@@ -101,12 +101,13 @@ class GroupStore extends VuexModule implements IGroupState {
   public async LoadmoreGroups() {
     try {
       let params = {
-        pageNum: this.groupListIndex,
+        pageNum: this.groupListIndex + 1,
         pageSize: 10
       }
       const res = await getGroups(params)
       const groups = res.groups
       this.SET_GROUP_LIST([...this.groups!, ...groups])
+      this.SET_GROUP_LIST_INDEX(this.groupListIndex + 1)
     } catch (e) {
       console.error(e)
     }
