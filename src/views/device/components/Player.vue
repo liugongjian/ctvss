@@ -44,7 +44,7 @@
           <svg-icon name="mute" class="mute_gray" width="18px" height="18px" />
         </div>
         <el-tooltip content="开启语音对讲" placement="top">
-          <div class="controls__btn controls__snapshot" @click.stop.prevent="toIntercom">
+          <div v-if="isLive" class="controls__btn controls__snapshot" @click.stop.prevent="toIntercom">
             <svg-icon name="micro" width="18px" height="18px" />
           </div>
         </el-tooltip>

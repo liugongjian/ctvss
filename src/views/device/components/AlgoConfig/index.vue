@@ -80,6 +80,7 @@ export default class extends Vue {
     @Prop() private deviceId?: string
     @Prop() private canvasIf?: boolean
     @Prop() private configAlgoInfo?:any
+    @Prop() private deviceInfo?:any
 
     private mode = ''
     private isDraw = false;
@@ -138,10 +139,15 @@ export default class extends Vue {
                   return 'polygon'
                 }
               }
+              const perDangerZoneParse = DangerZoneParse.map((item:any) => {
+                const [x, y] = item
+                return [Math.floor(x / this.ratio * this.imageWidth / 100), Math.floor(y / this.ratio * this.imageHeight / 100)]
+              })
+
               this.areas = [
                 {
                   shape: shape(),
-                  points: DangerZoneParse,
+                  points: perDangerZoneParse,
                   ratio: 1,
                   imageHeight: this.imageHeight,
                   imageWidth: this.imageWidth,
@@ -158,14 +164,14 @@ export default class extends Vue {
     }
 
     private initCanvas() {
-      // console.log('this.deviceId', this.deviceId)
-
+      const streamNum = this.deviceInfo?.deviceStreams[0]?.streamNum
+      const deviceId = this.inProtocol === 'ehome' ? `${this.deviceId}_${streamNum}` : this.deviceId
       const that = this
       // let img = new Image()
       // img.src = that.dataURL
       const param = {
         // streams: JSON.stringify([Number(this.deviceId)])
-        streams: [this.deviceId]
+        streams: [deviceId]
       }
       // getAlgoStreamFrame(param)
       getAlgoStreamFrame(param).then(res => {
@@ -209,6 +215,8 @@ export default class extends Vue {
             canvasDom.height = canvasHeight
             canvasDraw.setAttribute('style', `width:${backgroundLayer.width}px;height:${canvasHeight}px`)
             backgroundCtx.drawImage(img, 0, 0, backgroundLayer.width, backgroundLayer.height)
+            // that.imageHeight = backgroundLayer.height * this.ratio
+            // that.imageWidth = backgroundLayer.width * this.ratio
             that.getHasLine()
           }
 
@@ -270,9 +278,19 @@ export default class extends Vue {
         pointsInfo = []
       }
 
+      const perPoints = pointsInfo.map((item:any) => {
+        const [x, y] = item
+        return [Math.floor(x * this.ratio / this.imageWidth * 100), Math.floor(y * this.ratio / this.imageHeight * 100)]
+      })
+
       const metaData = () => {
-        if (pointsInfo.length > 0) {
-          return JSON.stringify({ DangerZone: pointsInfo.flat().map(item => Math.round(item).toString()) })
+        // if (pointsInfo.length > 0) {
+        //   return JSON.stringify({ DangerZone: pointsInfo.flat().map(item => Math.round(item).toString()) })
+        // } else {
+        //   return JSON.stringify({ DangerZone: [] })
+        // }
+        if (perPoints.length > 0) {
+          return JSON.stringify({ DangerZone: perPoints.flat().map(item => item.toString()) })
         } else {
           return JSON.stringify({ DangerZone: [] })
         }
