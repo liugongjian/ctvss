@@ -23,11 +23,11 @@
                   {{ deviceStatus[info.deviceStatus] || '-' }}
                 </el-descriptions-item>
                 <template v-if="info && !isNVR">
-                  <el-descriptions-item v-for="num in info.multiStreamSize" :key="num" :label="`${autoStreamNumObj[num]}状态`">
-                    <status-badge :status="getStreamStatus(info.deviceStreams, num) || 'false'" />
-                    {{ deviceStatus[getStreamStatus(info.deviceStreams, num)] || '-' }}
-                    <el-link v-if="getStreamStatus(info.deviceStreams, num) === 'on' && checkPermission(['*']) && !isVGroup" @click="detailOperate('stopDevice', num)">停用{{ autoStreamNumObj[num] }}</el-link>
-                    <el-link v-else-if="checkPermission(['*']) && !isVGroup" @click="detailOperate('startDevice', num)">启用{{ autoStreamNumObj[num] }}</el-link>
+                  <el-descriptions-item label="流状态">
+                    <status-badge :status="info.streamStatus" />
+                    {{ deviceStatus[info.streamStatus] || '-' }}
+                    <el-link v-if="info.streamStatus === 'on' && checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('stopDevice')">停用流</el-link>
+                    <el-link v-else-if="checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('startDevice')">启用流</el-link>
                   </el-descriptions-item>
                   <el-descriptions-item label="录制状态">
                     <status-badge :status="recordStatusType[info.recordStatus]" />

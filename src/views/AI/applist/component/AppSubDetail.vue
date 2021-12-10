@@ -60,7 +60,7 @@
         </div>
       </span>
     </div>
-    <div v-if="isGatheringCode" class="chart-wrapper">
+    <div v-if="isGatheringCode" v-loading="queryLoading" class="chart-wrapper">
       <div class="title">
         <div class="title-block" />
         <span>人员聚集趋势</span>
@@ -74,7 +74,7 @@
       />
     </div>
 
-    <div class="pic-wrapper">
+    <div v-loading="queryLoading" class="pic-wrapper">
       <div class="title">
         <div class="title-block" />
         <span>视频截图</span>
@@ -92,6 +92,7 @@
       <el-pagination
         :current-page="pager.pageNum"
         :page-size="pager.pageSize"
+        :page-sizes="[12,24,36,48,60]"
         :total="pager.totalNum"
         layout="total, sizes, prev, pager, next, jumper"
         @size-change="handleSizeChange"
@@ -143,13 +144,14 @@ export default class extends Vue {
     @Prop() private appInfo!: any
     @Prop() private faceLib!: any
     private dialoguePic: any = null
+    private queryLoading: boolean = false
     private currentLocationIndex: number = -1
     private visibile = false
     private decodeBase64: Function = decodeBase64
     private timeInterval = ResultTimeInterval
     private pager = {
       pageNum: 1,
-      pageSize: 10,
+      pageSize: 12,
       totalNum: 0
     }
     private breadCrumbContent: String = '应用详情'
@@ -215,6 +217,7 @@ export default class extends Vue {
      * 请求截屏数据
      */
     private async getScreenShot() {
+      this.picInfos = []
       const [startTime, endTime] = this.queryParam.period
       const [confidenceMin, confidenceMax] = this.queryParam.confidence
       const { deviceId, inProtocol } = this.device
@@ -233,12 +236,15 @@ export default class extends Vue {
         pageNum,
         pageSize }
       try {
+        this.queryLoading = true
         const res = await getAppScreenShot(query)
         this.pager.totalNum = res.totalNum
         this.picInfos = res.screenShotList
       } catch (e) {
         // 异常处理
         console.log(e)
+      } finally {
+        this.queryLoading = false
       }
     }
 
@@ -348,6 +354,7 @@ export default class extends Vue {
   }
 }
 .query-wrapper{
+    height: 36px;
     margin-bottom: 20px;
     &>span{
         margin-right: 20px;
@@ -372,7 +379,7 @@ export default class extends Vue {
     .card-wrapper{
       display: grid;
       grid-gap: 1rem;
-      grid-template-columns: repeat(auto-fill, minmax(20%, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
       overflow-y: auto;
     }
 }

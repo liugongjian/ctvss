@@ -122,6 +122,15 @@ const getRule = (msg) => {
     rule.push({ min: 1, max: 10, message: '名称需在 1 到 10 个字符之间', trigger: 'blur' })
   } else if (msg === '人员数量阈值') {
     // rule.push({ type: 'number', message: '人员数量阈值必须为数字' })
+    rule.push({
+      validator: (rule, value, callback) => {
+        if (/^(?:[0-9]\d*)$/.test(value) === false) {
+          callback(new Error('需大于等于0的整数'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'blur' })
   }
   rule.push({ required: true, trigger: 'blur', message: '请输入' + msg })
   return rule

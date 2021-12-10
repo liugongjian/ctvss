@@ -136,19 +136,20 @@ export default class extends Vue {
    */
   public detach(device) {
     const h: Function = this.$createElement
-    this.$alertDelete({
+    this.$alertHandle({
+      handleName: '解绑',
       type: '应用',
       msg: h('div', undefined, [
         h(
           'span',
           undefined,
           '确定要在该设备上解绑当前AI应用吗？'
-        ),
-        h(
-          'div',
-          { class: 'batch-list' },
-          [h('p', undefined, [h('span', undefined, device.name)])]
         )
+        // h(
+        //   'div',
+        //   { class: 'batch-list' },
+        //   [h('p', undefined, [h('span', undefined, device.name)])]
+        // )
       ]),
       method: unBindAppResource,
       payload: {

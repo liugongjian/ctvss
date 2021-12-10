@@ -38,7 +38,8 @@ export default class extends Mixins(DashboardMixin) {
    */
   private async getDeviceStates() {
     const data = await getAuditTrend({ form: 'day' })
-    this.chartData = Object.keys(data.trend).map(key => ({ type: AlertType[key], value: parseInt(data.trend[key]) }))
+    const chartData = Object.keys(data.trend).map(key => ({ type: AlertType[key], value: parseInt(data.trend[key]) }))
+    this.chartData = chartData.length > 5 ? chartData.sort((x, y) => y.value - x.value).slice(0, 5) : chartData.sort((x, y) => y.value - x.value)
     // this.chartData = [
     //   { type: '未带口罩', value: parseInt(data.trend[6] || 0) },
     //   { type: '人员聚集', value: parseInt(data.trend[8] || 6) },
@@ -78,6 +79,8 @@ export default class extends Mixins(DashboardMixin) {
       theme: { maxColumnWidth: 30 }
     })
 
+    // this.chart.option('scrollbar', { type: 'vertical', categorySize: 44 })
+
     this.chart.axis('type', {
       title: null,
       tickLine: null,
@@ -114,6 +117,7 @@ export default class extends Mixins(DashboardMixin) {
       .legend(false)
       .coordinate()
       .transpose()
+      .reflect('y')
 
     this.chart
       .interval()
@@ -125,6 +129,7 @@ export default class extends Mixins(DashboardMixin) {
         },
         offset: 10
       })
+      .adjust({ type: 'stack', reverseOrder: true })
     this.chart.render()
   }
 
