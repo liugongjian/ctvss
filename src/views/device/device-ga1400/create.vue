@@ -84,6 +84,7 @@ import { DeviceGa1400Type } from '@/dics'
 import { createGa1400Device, updateGa1400Device, getGa1400Device } from '@/api/device'
 import { getList as getGa1400List } from '@/api/certificate/ga1400'
 import CreateGa1400Certificate from '@/views/certificate/ga1400/components/CreateDialog.vue'
+import { allRegionList } from '@/assets/region/region'
 
 @Component({
   name: 'CreateGa1400Device',
@@ -143,8 +144,7 @@ export default class extends Mixins(createMixin) {
     longlat: 'required',
     deviceLongitude: '0.000000',
     deviceLatitude: '0.000000',
-    gbRegion: '',
-    gbRegionLevel: null
+    placeCode: ''
   }
   private dialog = {
     createGa1400Certificate: false
@@ -173,7 +173,7 @@ export default class extends Mixins(createMixin) {
       })
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
-          'gbVersion', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
+          'gbVersion', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'placeCode']))
         // 对ga1400的deviceIp进行特殊处理
         this.$set(this.form, 'deviceIp', info.deviceIp || info.deviceIpv6)
         this.cascaderInit()
@@ -184,6 +184,35 @@ export default class extends Mixins(createMixin) {
       this.$message.error(e && e.message)
     } finally {
       this.loading.device = false
+    }
+  }
+
+  // 设备地址动态变化
+  public async cascaderInit() {
+    this.regionList = allRegionList
+    if (!this.form.placeCode) return
+    let list = [
+      parseInt(this.form.placeCode!.substring(0, 2)),
+      parseInt(this.form.placeCode!.substring(0, 4)),
+      parseInt(this.form.placeCode!.substring(0, 6))
+    ]
+    await this.regionChange(list)
+    this.form.address = [
+      parseInt(this.form.placeCode!.substring(0, 2)),
+      parseInt(this.form.placeCode!.substring(0, 4)),
+      parseInt(this.form.placeCode!.substring(0, 6))
+    ]
+    this.$nextTick(() => {
+      this.addressChange()
+    })
+  }
+
+  public addressChange() {
+    if (!this.form.address) return
+    const addressCascader: any = this.$refs['addressCascader']
+    if (addressCascader && addressCascader.getCheckedNodes()[0]) {
+      const currentAddress = addressCascader.getCheckedNodes()[0].data
+      this.form.placeCode = currentAddress.code + ''
     }
   }
 
@@ -236,7 +265,7 @@ export default class extends Mixins(createMixin) {
   private async doSubmit() {
     try {
       this.submitting = true
-      let params: any = pick(this.form, ['groupId', 'dirId', 'deviceType', 'deviceName', 'userName', 'devicePort', 'deviceLongitude', 'deviceLatitude', 'inProtocol', 'description'])
+      let params: any = pick(this.form, ['groupId', 'dirId', 'deviceType', 'deviceName', 'userName', 'devicePort', 'placeCode', 'deviceLongitude', 'deviceLatitude', 'inProtocol', 'description'])
       // 对ga1400的deviceIp进行特殊处理
       if (this.IPv4Reg.test(this.form.deviceIp)) {
         this.$set(params, 'deviceIp', this.form.deviceIp)
@@ -261,6 +290,19 @@ export default class extends Mixins(createMixin) {
       this.$message.error(e && e.message)
     } finally {
       this.submitting = false
+    }
+  }
+
+  /**
+   * 校验ga1400设备IPv4及IPv6格式
+   */
+  private validateGa1400DeviceIp(rule: any, value: string, callback: Function) {
+    const IPv4Reg = /^((25[0-5]|2[0-4]\d|[0-1]?\d{1,2})\.){3}(25[0-5]|2[0-4]\d|[0-1]?\d{1,2})$/
+    const IPv6Reg = /^\s*((([0-9A-Fa-f]{1,4}:){7}(([0-9A-Fa-f]{1,4})|:))|(([0-9A-Fa-f]{1,4}:){6}(:|((25[0-5]|2[0-4]\d|[01]?\d{1,2})(\.(25[0-5]|2[0-4]\d|[01]?\d{1,2})){3})|(:[0-9A-Fa-f]{1,4})))|(([0-9A-Fa-f]{1,4}:){5}((:((25[0-5]|2[0-4]\d|[01]?\d{1,2})(\.(25[0-5]|2[0-4]\d|[01]?\d{1,2})){3})?)|((:[0-9A-Fa-f]{1,4}){1,2})))|(([0-9A-Fa-f]{1,4}:){4}(:[0-9A-Fa-f]{1,4}){0,1}((:((25[0-5]|2[0-4]\d|[01]?\d{1,2})(\.(25[0-5]|2[0-4]\d|[01]?\d{1,2})){3})?)|((:[0-9A-Fa-f]{1,4}){1,2})))|(([0-9A-Fa-f]{1,4}:){3}(:[0-9A-Fa-f]{1,4}){0,2}((:((25[0-5]|2[0-4]\d|[01]?\d{1,2})(\.(25[0-5]|2[0-4]\d|[01]?\d{1,2})){3})?)|((:[0-9A-Fa-f]{1,4}){1,2})))|(([0-9A-Fa-f]{1,4}:){2}(:[0-9A-Fa-f]{1,4}){0,3}((:((25[0-5]|2[0-4]\d|[01]?\d{1,2})(\.(25[0-5]|2[0-4]\d|[01]?\d{1,2})){3})?)|((:[0-9A-Fa-f]{1,4}){1,2})))|(([0-9A-Fa-f]{1,4}:)(:[0-9A-Fa-f]{1,4}){0,4}((:((25[0-5]|2[0-4]\d|[01]?\d{1,2})(\.(25[0-5]|2[0-4]\d|[01]?\d{1,2})){3})?)|((:[0-9A-Fa-f]{1,4}){1,2})))|(:(:[0-9A-Fa-f]{1,4}){0,5}((:((25[0-5]|2[0-4]\d|[01]?\d{1,2})(\.(25[0-5]|2[0-4]\d|[01]?\d{1,2})){3})?)|((:[0-9A-Fa-f]{1,4}){1,2})))|(((25[0-5]|2[0-4]\d|[01]?\d{1,2})(\.(25[0-5]|2[0-4]\d|[01]?\d{1,2})){3})))(%.+)?\s*$/
+    if (value && !IPv4Reg.test(value) && !IPv6Reg.test(value)) {
+      callback(new Error('设备IP格式不正确'))
+    } else {
+      callback()
     }
   }
 }

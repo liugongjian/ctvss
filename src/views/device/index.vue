@@ -61,7 +61,7 @@
                     <span class="alert-type">{{ renderAlertType(data) }}</span>
                   </span>
                   <div v-if="!isVGroup && checkPermission(['AdminDevice'], data)" class="tools">
-                    <template v-if="data.type !== 'ipc'">
+                    <template v-if="!['ipc', 'ape', 'aps'].includes(data.type)">
                       <el-tooltip class="item" effect="dark" content="子目录排序" placement="top" :open-delay="300">
                         <el-button type="text" @click.stop="openDialog('sortChildren', data, node)"><svg-icon name="sort" /></el-button>
                       </el-tooltip>

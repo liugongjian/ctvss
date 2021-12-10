@@ -11,6 +11,7 @@ export interface Device {
   devicePort?: number;
   gbId?: string;
   gbRegion?: string;
+  placeCode?: string;
   address?: string;
   industryCode?: string;
   networkCode?: string;

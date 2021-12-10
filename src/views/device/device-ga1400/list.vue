@@ -49,8 +49,8 @@
       </div>
     </div>
     <div v-loading="loading.list || loading.info" class="device-list__wrap">
-      <el-table v-show="deviceList.length" ref="deviceTable" :height="tableMaxHeight" :data="deviceList" empty-text="暂无设备" fit class="device-list__table" @row-click="rowClick" @selection-change="handleSelectionChange" @filter-change="filterChange">
-        <el-table-column type="selection" prop="selection" class-name="col-selection" width="55" />
+      <el-table v-show="deviceList.length" ref="deviceTable" :height="tableMaxHeight" :data="deviceList" empty-text="暂无设备" fit class="device-list__table" @row-click="rowClick">
+        <!-- <el-table-column type="selection" prop="selection" class-name="col-selection" width="55" /> -->
         <el-table-column label="设备ID/名称" min-width="200">
           <template slot-scope="{row}">
             <div class="device-list__device-name">
@@ -70,8 +70,8 @@
             <!-- <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" /> -->
           </template>
           <template slot-scope="{row}">
-            <status-badge :status="row.deviceStatus" />
-            {{ deviceStatus[row.deviceStatus] || '-' }}
+            <status-badge :status="row.isOnline === '1' ? 'on' : 'off'" />
+            {{ isOnline[row.isOnline] || '-' }}
           </template>
         </el-table-column>
         <el-table-column
@@ -85,12 +85,12 @@
             <!-- <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" /> -->
           </template>
           <template slot-scope="{row}">
-            {{ deviceType[row.deviceType] }}
+            {{ deviceGa1400Type[row.deviceType] }}
           </template>
         </el-table-column>
         <el-table-column key="deviceIp" label="IP" min-width="130">
           <template slot-scope="{row}">
-            {{ row.deviceIp || '-' }}
+            {{ row.deviceIp || row.deviceIpv6 || '-' }}
           </template>
         </el-table-column>
         <el-table-column key="devicePort" label="端口">
@@ -131,7 +131,11 @@
   </div>
 </template>
 <script lang="ts">
+import axios from 'axios'
 import { Component, Mixins } from 'vue-property-decorator'
+import { DeviceGa1400Type } from '@/dics'
+import { getGa1400Devices } from '@/api/device'
+import { Device } from '@/type/device'
 import listMixin from '../mixin/listMixin'
 import excelMixin from '../mixin/excelMixin'
 
@@ -140,6 +144,56 @@ import excelMixin from '../mixin/excelMixin'
 })
 export default class extends Mixins(listMixin, excelMixin) {
   private exportLoading = false
+  private deviceGa1400Type = DeviceGa1400Type
+
+  /**
+   * 根据类型进入下一级页面
+   */
+  public rowClick(device: Device, column: any) {
+    if (column.property !== 'action' && column.property !== 'selection') {
+      const type = 'detail'
+      this.deviceRouter({
+        id: device.deviceId,
+        type
+      })
+    }
+  }
+
+  /**
+   * 加载设备列表
+   */
+  public async getDeviceList() {
+    try {
+      let params: any = {
+        groupId: this.groupId,
+        inProtocol: this.inProtocol,
+        type: this.type === 'role' || this.type === 'group' ? this.type : undefined,
+        pageNum: this.pager.pageNum,
+        pageSize: this.pager.pageSize,
+        deviceType: this.filter.deviceType,
+        deviceStatus: this.filter.deviceStatus,
+        streamStatus: this.filter.streamStatus,
+        recordStatus: this.filter.recordStatus
+      }
+      let res: any
+      this.loading.list = true
+      params.dirId = this.dirId ? this.dirId : 0
+      const axiosSource = axios.CancelToken.source()
+      this.axiosSources.push(axiosSource)
+      res = await getGa1400Devices(params)
+      this.deviceList = res.devices
+      this.dirStats = res.dirStats
+      this.pager = {
+        pageNum: res.pageNum,
+        pageSize: res.pageSize,
+        total: res.totalNum
+      }
+    } catch (e) {
+      this.deviceList = []
+    } finally {
+      this.loading.list = false
+    }
+  }
   /**
    * 导入设备表
    */

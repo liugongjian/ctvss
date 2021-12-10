@@ -8,6 +8,7 @@ export interface IGroupState {
   group?: Group,
   groups?: Array<Group>,
   groupListIndex?: number
+  isFilter?: boolean
 }
 
 @Module({ dynamic: true, store, name: 'group' })
@@ -19,6 +20,8 @@ class GroupStore extends VuexModule implements IGroupState {
   public groups?: Array<Group> = []
 
   public groupListIndex?: number = 1
+
+  public isFilter?: boolean = false
 
   @Mutation
   public SET_GROUP(payload: any) {
@@ -35,6 +38,11 @@ class GroupStore extends VuexModule implements IGroupState {
   public SET_GROUP_LIST_INDEX(payload: number) {
     this.groupListIndex = payload
     setLocalStorage('groupListIndex', this.groupListIndex)
+  }
+
+  @Mutation
+  public SET_IS_FILTER(payload: boolean) {
+    this.isFilter = payload
   }
 
   @Action
@@ -75,10 +83,14 @@ class GroupStore extends VuexModule implements IGroupState {
     try {
       let params = {
         pageNum: 1,
-        pageSize: 10 * this.groupListIndex!
+        pageSize: 20 * this.groupListIndex!
       }
       const res = await getGroups(params)
-      const groupList = res.groups
+      let groupList = res.groups
+      // 过滤业务组
+      if (this.isFilter) {
+        groupList = groupList.filter(group => !['ga1400'].includes(group.inProtocol))
+      }
       this.SET_GROUP_LIST(groupList)
       if (groupList.length) {
         let group
@@ -102,7 +114,7 @@ class GroupStore extends VuexModule implements IGroupState {
     try {
       let params = {
         pageNum: this.groupListIndex + 1,
-        pageSize: 10
+        pageSize: 20
       }
       const res = await getGroups(params)
       const groups = res.groups

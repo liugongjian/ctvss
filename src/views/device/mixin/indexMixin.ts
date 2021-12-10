@@ -94,7 +94,7 @@ export default class IndexMixin extends Vue {
     this.rootSums.online = 0
     this.rootSums.total = 0
     dirList.forEach((dir: any) => {
-      if (dir.type === 'ipc') {
+      if (['ipc', 'ape', 'aps'].includes(dir.type)) {
         dir.deviceStatus === 'on' && this.rootSums.online++
         this.rootSums.total++
       } else {
@@ -288,6 +288,8 @@ export default class IndexMixin extends Vue {
           deviceId: item.id
         }
         break
+      case 'ape':
+      case 'aps':
       case 'ipc':
         router = {
           name: 'device-detail'
@@ -306,8 +308,6 @@ export default class IndexMixin extends Vue {
         }
         break
       case 'detail':
-        console.log(22);
-        
         router = {
           name: 'device-detail'
         }
@@ -346,8 +346,6 @@ export default class IndexMixin extends Vue {
         }
         break
     }
-    console.log(router);
-    
     router.query = {
       inProtocol: this.currentGroup!.inProtocol,
       type: item.type,

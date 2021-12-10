@@ -9,6 +9,11 @@ export const DeviceStatus = {
   'new': '未注册'
 }
 
+export const IsOnline = {
+  '1': '在线',
+  '2': '离线'
+}
+
 export const DeviceGb28181Type = {
   'ipc': 'IPC',
   'nvr': 'NVR',

@@ -103,21 +103,22 @@ export default class extends Vue {
       })
       this.dirList = []
       res.groups.forEach((group: any) => {
-        // 放开rtsp rtmp
-        // (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome' || group.inProtocol === 'vgroup') && (
-        this.dirList.push({
-          id: group.groupId,
-          groupId: group.groupId,
-          label: group.groupName,
-          inProtocol: group.inProtocol,
-          type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
-          disabled: false,
-          path: [{
+        // 过滤ga1400
+        (group.inProtocol !== 'ga1400') && (
+          this.dirList.push({
             id: group.groupId,
+            groupId: group.groupId,
             label: group.groupName,
-            type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group'
-          }]
-        })
+            inProtocol: group.inProtocol,
+            type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
+            disabled: false,
+            path: [{
+              id: group.groupId,
+              label: group.groupName,
+              type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group'
+            }]
+          })
+        )
       })
       console.log('this.dirList:', this.dirList)
     } catch (e) {
@@ -174,9 +175,10 @@ export default class extends Vue {
           'real-group-id': node.data.realGroupId
         }
       })
-      // if (node.data.type === 'role') {
-      //   devices.dirs = devices.dirs.filter((dir: any) => dir.inProtocol === 'gb28181' || dir.inProtocol === 'ehome')
-      // }
+      // 过滤ga1400
+      if (node.data.type === 'role') {
+        devices.dirs = devices.dirs.filter((dir: any) => dir.inProtocol !== 'ga1400')
+      }
       const dirTree: any = this.$refs.dirTree
       let checkedKeys = dirTree.getCheckedKeys()
       let dirs: any = devices.dirs.map((dir: any) => {

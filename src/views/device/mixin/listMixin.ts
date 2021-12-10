@@ -1,10 +1,10 @@
 import axios from 'axios'
 import { Component, Watch, Mixins } from 'vue-property-decorator'
 import DeviceMixin from './deviceMixin'
-import { DeviceParams, DeviceStatus, StreamStatus, RecordStatus, RecordStatusType, RecordStatusFilterType, DeviceGb28181Type, SipTransType, StreamTransType, TransPriority } from '@/dics'
+import { DeviceParams, DeviceStatus, IsOnline, StreamStatus, RecordStatus, RecordStatusType, RecordStatusFilterType, DeviceGb28181Type, SipTransType, StreamTransType, TransPriority } from '@/dics'
 import { Device } from '@/type/device'
 import { GroupModule } from '@/store/modules/group'
-import { deleteDevice, startDevice, stopDevice, getDevice, getDevices, syncDevice, syncDeviceStatus, getGa1400Devices } from '@/api/device'
+import { deleteDevice, startDevice, stopDevice, getDevice, getDevices, syncDevice, syncDeviceStatus } from '@/api/device'
 import { DeviceModule } from '@/store/modules/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MoveDir from '../components/dialogs/MoveDir.vue'
@@ -31,6 +31,7 @@ export default class ListMixin extends Mixins(DeviceMixin) {
 
   public deviceParams = DeviceParams
   public deviceStatus = DeviceStatus
+  public isOnline = IsOnline
   public streamStatus = StreamStatus
   public recordStatus = RecordStatus
   public recordStatusType = RecordStatusType
@@ -414,11 +415,7 @@ export default class ListMixin extends Mixins(DeviceMixin) {
       params.dirId = this.dirId ? this.dirId : 0
       const axiosSource = axios.CancelToken.source()
       this.axiosSources.push(axiosSource)
-      if (this.inProtocol === 'ga1400') {
-        res = await getGa1400Devices(params)
-      } else {
-        res = await getDevices(params, axiosSource.token)
-      }
+      res = await getDevices(params, axiosSource.token)
       this.deviceList = res.devices
       this.dirStats = res.dirStats
       this.pager = {
@@ -505,7 +502,7 @@ export default class ListMixin extends Mixins(DeviceMixin) {
    */
   public rowClick(device: Device, column: any) {
     if (column.property !== 'action' && column.property !== 'selection') {
-      const type = (device.deviceType === 'ipc' || device.inProtocol === 'ga1400') ? 'detail' : device.deviceType || (this.showRole ? 'role' : this.showRealGroup ? 'group' : '')
+      const type = device.deviceType === 'ipc' ? 'detail' : device.deviceType || (this.showRole ? 'role' : this.showRealGroup ? 'group' : '')
       this.deviceRouter({
         id: device.deviceId,
         type

@@ -19,12 +19,16 @@
     >
       <el-option
         v-for="(item, index) in groupList"
+        v-show="!['ga1400'].includes(item.inProtocol) || !isFilter"
         :key="index"
         :label="item.groupName"
         :value="item.groupId"
       >
         <span class="filter-group__label">{{ item.groupName }}</span>
         <span class="filter-group__in">{{ item.inProtocol }}</span>
+      </el-option>
+      <el-option v-if="loading.group" value="null">
+        加载中<i class="el-icon-loading" />
       </el-option>
     </el-select>
     <breadcrumb
@@ -215,6 +219,10 @@ export default class extends Mixins(DashboardMixin) {
     return GroupModule.groupListIndex
   }
 
+  get isFilter() {
+    return GroupModule.isFilter
+  }
+
   private toggleSideBar() {
     AppModule.ToggleSideBar(false)
   }
@@ -248,6 +256,15 @@ export default class extends Mixins(DashboardMixin) {
     this.groupId = groupId
   }
 
+  @Watch('$route.query', { immediate: true })
+  private onQueryChange(query: any) {
+    // 判断是否过滤业务组
+    query.inProtocol ? GroupModule.SET_IS_FILTER(false) : GroupModule.SET_IS_FILTER(true)
+    if (['ga1400'].includes(this.currentGroup.inProtocol)) {
+      GroupModule.GetGroupList()
+    }
+  }
+
   private async mounted() {
     GroupModule.GetGroupList()
     this.aiInfos = await this.getAiApps()
@@ -272,8 +289,12 @@ export default class extends Mixins(DashboardMixin) {
   /**
    * 下拉框出现时刷新下拉列表
    */
-  private visibleChange(val) {
-    val && GroupModule.GetGroupList()
+  private async visibleChange(val) {
+    if (val) {
+      this.loading.group = true
+      await GroupModule.GetGroupList()
+      this.loading.group = false
+    }
   }
 
   /**
