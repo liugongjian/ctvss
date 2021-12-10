@@ -8,14 +8,14 @@
       class="mb10"
     />
     <el-page-header :content="breadCrumbContent" @back="back" />
-    <el-tabs :value="this.$route.query.tabNum ? 'result' : 'basic'" type="border-card" @tab-click="handleTabClick">
-      <el-tab-pane label="基本信息" name="basic">
+    <el-tabs v-model="tabNum" type="border-card" @tab-click="handleTabClick">
+      <el-tab-pane label="基本信息" :name="'0'">
         <BasicAppInfo v-if="appInfo.name" :app-info="appInfo" :face-lib="faceLib" />
       </el-tab-pane>
-      <el-tab-pane label="关联设备" name="device">
+      <el-tab-pane label="关联设备" :name="'1'">
         <AtachedDevice />
       </el-tab-pane>
-      <el-tab-pane label="分析结果" name="result">
+      <el-tab-pane label="分析结果" :name="'2'">
         <div class="left">
           <el-tree
             ref="dirTree"
@@ -43,7 +43,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Mixins } from 'vue-property-decorator'
 import BasicAppInfo from './component/BasicAppInfo.vue'
 import AppSubDetail from './component/AppSubDetail.vue'
 import AtachedDevice from './component/AtachedDevice.vue'
@@ -51,6 +51,7 @@ import { getAppInfo } from '@/api/ai-app'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
 import { getAIConfigGroupData } from '@/api/aiConfig'
+import AppMixin from '../mixin/app-mixin'
 
 @Component({
   name: 'AppDetail',
@@ -60,7 +61,7 @@ import { getAIConfigGroupData } from '@/api/aiConfig'
     AtachedDevice
   }
 })
-export default class extends Vue {
+export default class extends Mixins(AppMixin) {
     private treeProp = {
       label: 'label',
       children: 'children',
@@ -77,8 +78,10 @@ export default class extends Vue {
       inProtocol: ''
     }
     private faceLib: any = {}
+    private tabNum: string | string[] = ''
 
     private async mounted() {
+      this.tabNum = this.$route.query.tabNum
       this.appInfo = await getAppInfo({ id: this.$route.query.appid })
       this.initDirs()
       const { groups }: any = await getAIConfigGroupData({})
@@ -189,12 +192,15 @@ export default class extends Vue {
      */
     private selectDevice(data: any) {
       data.isLeaf && (this.device = { deviceId: data.id, inProtocol: data.inProtocol })
+      const dirTree: any = this.$refs.dirTree
+      dirTree.setCurrentKey(data.id)
     }
     private handleTabClick() {
       // resize 为了让图表触发刷新从而自适应尺寸
       const e = document.createEvent('Event')
       e.initEvent('resize', true, true)
       window.dispatchEvent(e)
+      this.appDetail({ id: this.$route.query.appid }, this.tabNum)
     }
 
     private back() {

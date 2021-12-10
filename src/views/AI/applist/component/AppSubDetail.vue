@@ -1,6 +1,8 @@
 <template>
   <div>
-    <!-- <div v-if="isFaceAlgoCode" class="face-filter">
+    <div v-if="!device.deviceId" class="no-device">请先选择设备</div>
+    <div v-else>
+      <!-- <div v-if="isFaceAlgoCode" class="face-filter">
       <el-descriptions :column="1">
         <el-descriptions-item label="人脸库">
           {{ faceLib.name ? faceLib.name : '' }}
@@ -20,101 +22,102 @@
       </div>
     </div> -->
 
-    <div class="query-wrapper">
-      <span>截图时间：
-        <el-radio-group v-model="queryParam.periodType" size="medium" @change="handleChange">
-          <el-radio-button label="今天" />
-          <el-radio-button label="近3天" />
-          <el-radio-button label="自定义时间" />
-        </el-radio-group>
-        <el-date-picker
-          v-if="queryParam.periodType === '自定义时间'"
-          v-model="queryParam.period"
-          type="daterange"
-          value-format="timestamp"
-          range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-          @change="handleChange"
-        />
-      </span>
-      <span>置信度：
-        <div class="confidence-slider">
-          <el-slider
-            v-model="queryParam.confidence"
-            range
+      <div class="query-wrapper">
+        <span>截图时间：
+          <el-radio-group v-model="queryParam.periodType" size="medium" @change="handleChange">
+            <el-radio-button label="今天" />
+            <el-radio-button label="近3天" />
+            <el-radio-button label="自定义时间" />
+          </el-radio-group>
+          <el-date-picker
+            v-if="queryParam.periodType === '自定义时间'"
+            v-model="queryParam.period"
+            type="daterange"
+            value-format="timestamp"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
             @change="handleChange"
           />
-        </div>
-      </span>
-      <span>间隔频率：
-        <div class="time-interval">
-          <el-select v-model="queryParam.resultTimeInterval" placeholder="请选择" @change="handleChange">
-            <el-option
-              v-for="(value,key) in timeInterval"
-              :key="value"
-              :label="key"
-              :value="value"
+        </span>
+        <span>置信度：
+          <div class="confidence-slider">
+            <el-slider
+              v-model="queryParam.confidence"
+              range
+              @change="handleChange"
             />
-          </el-select>
+          </div>
+        </span>
+        <span>间隔频率：
+          <div class="time-interval">
+            <el-select v-model="queryParam.resultTimeInterval" placeholder="请选择" @change="handleChange">
+              <el-option
+                v-for="(value,key) in timeInterval"
+                :key="value"
+                :label="key"
+                :value="value"
+              />
+            </el-select>
+          </div>
+        </span>
+      </div>
+      <div v-if="isGatheringCode" v-loading="queryLoading" class="chart-wrapper">
+        <div class="title">
+          <div class="title-block" />
+          <span>人员聚集趋势</span>
         </div>
-      </span>
-    </div>
-    <div v-if="isGatheringCode" v-loading="queryLoading" class="chart-wrapper">
-      <div class="title">
-        <div class="title-block" />
-        <span>人员聚集趋势</span>
-      </div>
-      <PeopleTrendChart
-        :height="24"
-        :param="queryParam"
-        :face-lib="faceLib"
-        :device="device"
-        :app-info="appInfo"
-      />
-    </div>
-
-    <div v-loading="queryLoading" class="pic-wrapper">
-      <div class="title">
-        <div class="title-block" />
-        <span>视频截图</span>
-      </div>
-      <div v-if="device.deviceId.length > 0 && picInfos.length > 0" class="card-wrapper">
-        <PicCard
-          v-for="(pic, index) in picInfos"
-          :key="index"
-          :pic="pic"
-          :type="appInfo.algorithm.code"
-          @showDialogue="showDialogue"
+        <PeopleTrendChart
+          :height="24"
+          :param="queryParam"
+          :face-lib="faceLib"
+          :device="device"
+          :app-info="appInfo"
         />
       </div>
-      <div v-else class="no-data">{{ device ? '暂无数据' : '请选择设备' }}</div>
-      <el-pagination
-        :current-page="pager.pageNum"
-        :page-size="pager.pageSize"
-        :page-sizes="[12,24,36,48,60]"
-        :total="pager.totalNum"
-        layout="total, sizes, prev, pager, next, jumper"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
-    </div>
-    <el-dialog
-      v-if="visibile"
-      :visible="visibile"
-      :fullscreen="true"
-      :custom-class="`light-ai-image-fullscreen`"
-      @close="dialogueOprate"
-    >
-      <div slot="title">{{ dialoguePic && dialoguePic.deviceName }} | {{ dialoguePic && dialoguePic.time }}</div>
-      <div class="ai-recognation__images__item__wrap ai-image-fullscreen__img">
-        <div class="ai-recognation__images__item__img--wrap ai-image-fullscreen__img--wrap">
-          <img v-if="dialoguePic" ref="dialogue" :src="dialoguePic.image" @load="onload">
-          <Locations :type="appInfo.algorithm.code" :img="dialoguePic" :clickable="true" @click-location="onLocationChanged" />
+
+      <div v-loading="queryLoading" class="pic-wrapper">
+        <div class="title">
+          <div class="title-block" />
+          <span>视频截图</span>
         </div>
-        <Attributes v-if="appInfo.algorithm.code === '10009'" class="ai-image-fullscreen__img--attributes" :type="appInfo.algorithm.code" :img="dialoguePic" :attributes-index="currentLocationIndex" />
+        <div v-if="device.deviceId.length > 0 && picInfos.length > 0" class="card-wrapper">
+          <PicCard
+            v-for="(pic, index) in picInfos"
+            :key="index"
+            :pic="pic"
+            :type="appInfo.algorithm.code"
+            @showDialogue="showDialogue"
+          />
+        </div>
+        <div v-else class="no-data">{{ device ? '暂无数据' : '请选择设备' }}</div>
+        <el-pagination
+          :current-page="pager.pageNum"
+          :page-size="pager.pageSize"
+          :page-sizes="[12,24,36,48,60]"
+          :total="pager.totalNum"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
       </div>
-    </el-dialog>
+      <el-dialog
+        v-if="visibile"
+        :visible="visibile"
+        :fullscreen="true"
+        :custom-class="`light-ai-image-fullscreen`"
+        @close="dialogueOprate"
+      >
+        <div slot="title">{{ dialoguePic && dialoguePic.deviceName }} | {{ dialoguePic && dialoguePic.time }}</div>
+        <div class="ai-recognation__images__item__wrap ai-image-fullscreen__img">
+          <div class="ai-recognation__images__item__img--wrap ai-image-fullscreen__img--wrap">
+            <img v-if="dialoguePic" ref="dialogue" :src="dialoguePic.image" @load="onload">
+            <Locations :type="appInfo.algorithm.code" :img="dialoguePic" :clickable="true" @click-location="onLocationChanged" />
+          </div>
+          <Attributes v-if="appInfo.algorithm.code === '10009'" class="ai-image-fullscreen__img--attributes" :type="appInfo.algorithm.code" :img="dialoguePic" :attributes-index="currentLocationIndex" />
+        </div>
+      </el-dialog>
+    </div>
   </div>
 </template>
 <script lang="ts">
@@ -427,5 +430,12 @@ export default class extends Vue {
   img {
     width: 100%;
   }
+}
+.no-device{
+  height: 70vh;
+  color: rgba(186,198,198);
+  line-height: 50vh;
+  text-align: center;
+  font-size: 25px;
 }
 </style>

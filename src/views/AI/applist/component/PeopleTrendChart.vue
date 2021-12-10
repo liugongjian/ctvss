@@ -40,7 +40,7 @@ export default class extends Mixins(DashboardMixin) {
     this.conditionalDebounce()
   }
 
-  @Watch('device', { deep: true })
+  @Watch('device', { deep: true, immediate: true })
   private deviceIdUpdate() {
     this.debounceHandle()
   }
@@ -201,6 +201,10 @@ export default class extends Mixins(DashboardMixin) {
     this.chart.legend(false)
     this.chart.line().position('time*value').color('type', ['#6780B2', '#E4BC00']).shape('smooth')
     this.chart.render()
+    window.onresize = () => {
+      console.log('resize')
+      this.chart.forceFit()
+    }
   }
   /**
    * 更新图表

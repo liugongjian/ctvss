@@ -51,7 +51,7 @@
             </el-table-column> -->
             <el-table-column label="操作" prop="action" class-name="col-action" width="150" fixed="right">
               <template slot-scope="scope">
-                <el-button type="text" @click="appDetail(scope.row, 1)">分析结果</el-button>
+                <el-button type="text" @click="appDetail(scope.row, '2')">分析结果</el-button>
                 <el-dropdown @command="handleMore">
                   <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
                   <el-dropdown-menu slot="dropdown">
@@ -238,7 +238,7 @@ export default class extends Mixins(AppMixin) {
   private handleMore(command: any) {
     switch (command.type) {
       case 'detail':
-        this.appDetail(command.app, 0)
+        this.appDetail(command.app, '0')
         break
       case 'edit':
         this.editApp(command.app)
@@ -289,7 +289,7 @@ export default class extends Mixins(AppMixin) {
    */
   private rowClick(row: any, column: any) {
     if (column.property !== 'action' && column.property !== 'selection') {
-      this.appDetail(row, 0)
+      this.appDetail(row, '0')
     }
   }
 
