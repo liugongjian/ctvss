@@ -31,7 +31,7 @@ export default class extends Mixins(DashboardMixin) {
 
   private chartData: any = []
 
-  @Watch('param', { deep: true })
+  @Watch('param', { deep: true, immediate: true })
   private paramUpdated() {
     this.conditionalDebounce()
   }
@@ -72,8 +72,10 @@ export default class extends Mixins(DashboardMixin) {
         deviceId: this.device.deviceId,
         inProtocol: this.device.inProtocol
       }
-      const { aiReusltDate } = await getPeopleTrendChart(query)
-      this.chartData = this.fillChartData(startTime, endTime, aiReusltDate)
+
+      const { aiResultDate } = await getPeopleTrendChart(query)
+      // this.chartData = await getPeopleTrendChart(query)
+      this.chartData = this.fillChartData(startTime, endTime, aiResultDate)
       // this.chartData = aiReusltDate.map(item => ({ value: item.count, time: item.date + ' ' + item.timeInterval, type: '人员聚集' }))
       // 测试
       // if (this.chart) {
@@ -94,7 +96,7 @@ export default class extends Mixins(DashboardMixin) {
   /**
    * 将后端返回的图表数据中缺少的时间点进行补零操作
    */
-  private fillChartData(startTime, endTime, rawArr) {
+  public fillChartData(startTime, endTime, rawArr) {
     // 输入为毫秒时间戳，输出为date数组
     const interval = eachHourOfInterval({
       start: startTime,
