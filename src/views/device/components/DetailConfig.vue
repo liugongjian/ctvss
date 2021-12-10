@@ -158,6 +158,7 @@
       :in-protocol="inProtocol" :canvas-if="canvasDialog"
       :config-algo-info="configAlgoInfo"
       :device-info="deviceInfo"
+      :frame-image="frameImage"
     />
 
     <SetRecordTemplate
@@ -194,7 +195,7 @@ import { GroupModule } from '@/store/modules/group'
 import { getDeviceRecordTemplate, getDeviceCallbackTemplate, getDevice,
   unBindAppResource, startAppResource, stopAppResource } from '@/api/device'
 import { getAlertBind } from '@/api/template'
-import { getAppList } from '@/api/ai-app'
+import { getAppList, getAlgoStreamFrame } from '@/api/ai-app'
 import { getDeviceResources } from '@/api/billing'
 import SetRecordTemplate from '@/views/components/dialogs/SetRecordTemplate.vue'
 import SetCallBackTemplate from '@/views/components/dialogs/SetCallBackTemplate.vue'
@@ -263,9 +264,38 @@ export default class extends Vue {
 
   private configAlgoInfo:any = {}
 
+  private async mounted() {
+    // 需要设备信息，传给resource组件 弹窗使用
+    this.getCallbackTemplate()
+    this.getRecordTemplate()
+    this.getAlertTemplate()
+    this.getAlgoList()
+    await this.getDeviceInfo()
+    await this.getDeviceResource()
+  }
+
   private openCanvasDialog(rowInfo:any) {
-    this.canvasDialog = true
-    this.configAlgoInfo = rowInfo
+    const streamNum = this.deviceInfo?.deviceStreams[0]?.streamNum
+    const deviceId = this.inProtocol === 'ehome' ? `${this.deviceId}_${streamNum}` : this.deviceId
+    const param = {
+      // streams: JSON.stringify([Number(this.deviceId)])
+      streams: [deviceId]
+    }
+    getAlgoStreamFrame(param).then(res => {
+      if (res) {
+        const { frames = [] } = res
+        const { frame = '' } = frames[0] || []
+        if (!frame) {
+          this.$message.warning('暂时获取不到截图，请稍后再试')
+        } else {
+          this.canvasDialog = true
+          this.configAlgoInfo = rowInfo
+          this.frameImage = frame
+        }
+      }
+    }).catch(e => {
+      this.$message.error(e && e.message)
+    })
   }
   private closeCanvasDialog() {
     this.canvasDialog = false
@@ -283,19 +313,7 @@ export default class extends Vue {
   }
 
   public get ifNvrChannel() {
-    console.log('this.deviceInfo.parentDeviceId !== -1', this.deviceInfo.parentDeviceId !== '-1')
     return this.deviceInfo.parentDeviceId !== '-1'
-  }
-
-  private async mounted() {
-    // 需要设备信息，传给resource组件 弹窗使用
-
-    this.getCallbackTemplate()
-    this.getRecordTemplate()
-    this.getAlertTemplate()
-    this.getAlgoList()
-    await this.getDeviceInfo()
-    await this.getDeviceResource()
   }
 
   /**
