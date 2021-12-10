@@ -81,6 +81,7 @@ export default class extends Vue {
     @Prop() private canvasIf?: boolean
     @Prop() private configAlgoInfo?:any
     @Prop() private deviceInfo?:any
+    @Prop() private frameImage?:any
 
     private mode = ''
     private isDraw = false;
@@ -97,7 +98,9 @@ export default class extends Vue {
       //   // 看接口，如果返回base64 就直接调用initCanvas，若不是，先调用img2Base64把图片转成base64再调用initCanvas
       //   this.img2Base64(plate)
       // })
-      this.initCanvas()
+      this.$nextTick(() => {
+        this.initCanvas()
+      })
     }
 
     // 获取已编辑过的划线
@@ -164,74 +167,54 @@ export default class extends Vue {
     }
 
     private initCanvas() {
-      const streamNum = this.deviceInfo?.deviceStreams[0]?.streamNum
-      const deviceId = this.inProtocol === 'ehome' ? `${this.deviceId}_${streamNum}` : this.deviceId
+      // this.frameImage
+      this.imgSrc = this.frameImage
       const that = this
+      const img = new Image()
+      img.src = `data:image/png;base64,${this.imgSrc}`
       // let img = new Image()
       // img.src = that.dataURL
-      const param = {
-        // streams: JSON.stringify([Number(this.deviceId)])
-        streams: [deviceId]
+
+      const backgroundLayer = document.querySelector('#canvasWrapper') as HTMLCanvasElement
+      const backgroundCtx = backgroundLayer.getContext('2d')!
+
+      const canvasDom = document.querySelector('#drawLine') as HTMLCanvasElement
+      const canvas = canvasDom.getContext('2d')
+
+      backgroundCtx.font = '24px bold 黑体'
+      backgroundCtx.fillStyle = 'black'
+      backgroundCtx.textAlign = 'center'
+      backgroundCtx.textBaseline = 'middle'
+      backgroundCtx.fillText('图片正在加载中', 300, 200)
+
+      this.canvasDom = canvasDom
+      this.canvas = canvas
+
+      img.onload = () => {
+        const ratio = math.divide!(img.width, backgroundLayer.width)
+        that.ratio = ratio
+        that.imageHeight = img.height
+        that.imageWidth = img.width
+
+        const canvasDraw = document.querySelector('#canvasDraw') as HTMLDivElement
+        const canvasHeight = math.divide!(img.height, ratio)
+        backgroundLayer.height = canvasHeight
+        canvasDom.height = canvasHeight
+        canvasDraw.setAttribute('style', `width:${backgroundLayer.width}px;height:${canvasHeight}px`)
+        backgroundCtx.drawImage(img, 0, 0, backgroundLayer.width, backgroundLayer.height)
+        // that.imageHeight = backgroundLayer.height * this.ratio
+        // that.imageWidth = backgroundLayer.width * this.ratio
+        that.getHasLine()
       }
-      // getAlgoStreamFrame(param)
-      getAlgoStreamFrame(param).then(res => {
-        if (res) {
-          const { frames = [] } = res
-          const { frame = '' } = frames[0] || []
-          if (!frame) {
-            this.$message.warning('暂时获取不到截图，请稍后再试')
-            this.$parent.closeCanvasDialog()
-          }
-          this.imgSrc = frame
-          const img = new Image()
-          img.src = `data:image/png;base64,${this.imgSrc}`
-          // let img = new Image()
-          // img.src = that.dataURL
 
-          const backgroundLayer = document.querySelector('#canvasWrapper') as HTMLCanvasElement
-          const backgroundCtx = backgroundLayer.getContext('2d')!
-
-          const canvasDom = document.querySelector('#drawLine') as HTMLCanvasElement
-          const canvas = canvasDom.getContext('2d')
-
-          backgroundCtx.font = '24px bold 黑体'
-          backgroundCtx.fillStyle = 'black'
-          backgroundCtx.textAlign = 'center'
-          backgroundCtx.textBaseline = 'middle'
-          backgroundCtx.fillText('图片正在加载中', 300, 200)
-
-          this.canvasDom = canvasDom
-          this.canvas = canvas
-
-          img.onload = () => {
-            const ratio = math.divide!(img.width, backgroundLayer.width)
-            that.ratio = ratio
-            that.imageHeight = img.height
-            that.imageWidth = img.width
-
-            const canvasDraw = document.querySelector('#canvasDraw') as HTMLDivElement
-            const canvasHeight = math.divide!(img.height, ratio)
-            backgroundLayer.height = canvasHeight
-            canvasDom.height = canvasHeight
-            canvasDraw.setAttribute('style', `width:${backgroundLayer.width}px;height:${canvasHeight}px`)
-            backgroundCtx.drawImage(img, 0, 0, backgroundLayer.width, backgroundLayer.height)
-            // that.imageHeight = backgroundLayer.height * this.ratio
-            // that.imageWidth = backgroundLayer.width * this.ratio
-            that.getHasLine()
-          }
-
-          //   this.image = img
-          // 右键菜单禁用
-          this.canvasDom.oncontextmenu = function() {
-            const w = window.event
-            if (w) {
-              w.returnValue = false
-            }
-          }
+      //   this.image = img
+      // 右键菜单禁用
+      this.canvasDom.oncontextmenu = function() {
+        const w = window.event
+        if (w) {
+          w.returnValue = false
         }
-      }).catch(e => {
-        this.$message.error(e && e.message)
-      })
+      }
     }
 
     private img2Base64(img:any) {
