@@ -17,7 +17,12 @@
       </el-tab-pane>
       <el-tab-pane label="分析结果" :name="'2'">
         <div class="app-container__result">
-          <div class="left">
+          <div
+            class="device-list__handle"
+            :style="`left: ${dirDrag.width}px`"
+            @mousedown="changeWidthStartAndResize($event)"
+          />
+          <div ref="dirList" class="left" :style="`width: ${dirDrag.width}px`">
             <el-tree
               ref="dirTree"
               node-key="id"
@@ -36,7 +41,8 @@
               </span>
             </el-tree>
           </div>
-          <div class="right">
+          <div class="o-left" :style="`width: ${dirDrag.width}px`" />
+          <div class="right" :style="`width: calc(100% - ${dirDrag.width}px)`">
             <AppSubDetail v-if="appInfo.name" :device="device" :app-info="appInfo" :face-lib="faceLib" />
           </div>
         </div>
@@ -54,6 +60,7 @@ import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
 import { getAIConfigGroupData } from '@/api/aiConfig'
 import AppMixin from '../mixin/app-mixin'
+import IndexMixin from '@/views/device/mixin/indexMixin'
 
 @Component({
   name: 'AppDetail',
@@ -63,16 +70,13 @@ import AppMixin from '../mixin/app-mixin'
     AtachedDevice
   }
 })
-export default class extends Mixins(AppMixin) {
-    private treeProp = {
-      label: 'label',
-      children: 'children',
-      isLeaf: 'isLeaf'
-    }
-    public loading = {
-      dir: false
-    }
-    private dirList: any = []
+export default class extends Mixins(AppMixin, IndexMixin) {
+    // private treeProp = {
+    //   label: 'label',
+    //   children: 'children',
+    //   isLeaf: 'isLeaf'
+    // }
+    // private dirList: any = []
     private breadCrumbContent: String = '应用详情'
     private appInfo: any = {}
     private device: any = {
@@ -95,6 +99,14 @@ export default class extends Mixins(AppMixin) {
       if (algorithmMetadata.FaceDbName) {
         this.faceLib = groups.filter(item => item.id === algorithmMetadata.FaceDbName)[0]
       }
+    }
+
+    public changeWidthStartAndResize(ev) {
+      this.changeWidthStart(ev)
+      // 改变宽度后触发一次resize事件，调整chart
+      const e = document.createEvent('Event')
+      e.initEvent('resize', true, true)
+      window.dispatchEvent(e)
     }
 
     /**
@@ -135,7 +147,7 @@ export default class extends Mixins(AppMixin) {
     /**
      * 展开设备列表时Load子树
      */
-    private async loadDirs(node: any, resolve: Function) {
+    public async loadDirs(node: any, resolve: Function) {
       if (node.level === 0) return resolve([])
       const dirs = await this.getTree(node)
       resolve(dirs)
@@ -216,24 +228,30 @@ export default class extends Mixins(AppMixin) {
   display: flex;
 }
 .app-container__result{
+  position: relative;
   width:100%;
   .left {
     display: inline-block;
-    width: 15%;
+    // width: 15%;
+    position: absolute;
     vertical-align: top;
       // flex: 0 0 20%;
       height: 100%;
       // padding: 10px;
-      overflow: auto;
+      // overflow: auto;
       .is-disabled + .custom-tree-node__ipc {
         cursor: not-allowed;
       }
   }
+  .o-left{
+    display: inline-block;
+  }
   .right{
     // flex: 1 1;
+    // position: absolute;
     padding-left: 20px;
     display: inline-block;
-    width: 83%;
+    // width: 83%;
     border-left: 1px solid $borderGrey;
   }
 }
