@@ -57,7 +57,9 @@ import math from './utils/math'
 import { getRectPropFromPoints
 //   getVerticalLinePoints
 } from './utils/index'
-import { getAppDescribeLine, sendAppDescribeLine, getAlgoStreamFrame } from '@/api/ai-app'
+import { getAppDescribeLine, sendAppDescribeLine
+// getAlgoStreamFrame
+} from '@/api/ai-app'
 // import plate from './plate4.jpg'
 import { DRAW_MODES
 //   DRAW_MODES_TEXT
@@ -196,7 +198,7 @@ export default class extends Vue {
         that.imageHeight = img.height
         that.imageWidth = img.width
 
-        const canvasDraw = document.querySelector('#canvasDraw') as HTMLDivElement
+        const canvasDraw = document.querySelector('#canvasDraw') as HTMLCanvasElement
         const canvasHeight = math.divide!(img.height, ratio)
         backgroundLayer.height = canvasHeight
         canvasDom.height = canvasHeight
