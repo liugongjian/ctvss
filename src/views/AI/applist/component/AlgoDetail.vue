@@ -8,7 +8,7 @@
         <el-input v-model="form.name" />
       </el-form-item>
       <el-form-item label="分析类型" prop="analyseType">
-        <el-select v-model="form.analyseType" placeholder="请选择分析类型">
+        <el-select v-model="form.analyseType" placeholder="请选择分析类型" :disabled="parseInt(form.associateDevices) > 0">
           <el-option v-for="(val, key) in ResourceAiType" :key="key" :label="val" :value="key" />
         </el-select>
       </el-form-item>
@@ -181,7 +181,7 @@ export default class extends Mixins(AppMixin) {
       this.form = { ...this.form, confidence: this.form.confidence * 100 }
     } else { // 新建
       const algorithmMetadata = { FaceDbName: '', pedThreshold: '' }
-      this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [], validateType: '无验证' }
+      this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [], validateType: '无验证', confidence: 60 }
     }
     try {
       const { groups } = await getAIConfigGroupData({})
@@ -259,6 +259,10 @@ export default class extends Mixins(AppMixin) {
     }
     try {
       if (this.$route.query.id) {
+        // 如果有关联的设备则不能传analyseType参数
+        if (parseInt(param.associateDevices) > 0) {
+          delete param.analyseType
+        }
         await updateAppInfo(param)
       } else {
         // 新建时带上算法ID

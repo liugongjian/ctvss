@@ -153,7 +153,7 @@ export default class extends Mixins(AppMixin) {
    * 创建应用
    */
   private addApp() {
-    this.$router.push({ path: '/AI/create', params: { appType: 1 } })
+    this.$router.push({ path: '/AI/create', query: { appType: 1, abilityId: this.activeTabName } })
   }
 
   /**

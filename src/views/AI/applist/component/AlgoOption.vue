@@ -47,6 +47,7 @@ export default class extends Mixins(AppMixin) {
   private algoList: any = []
 
   private async mounted() {
+    this.activeName = this.$route.query.abilityId + ''
     await this.getAbilityList()
     await this.getAlgorithmList()
   }
