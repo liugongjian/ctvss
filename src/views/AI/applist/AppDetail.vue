@@ -16,27 +16,29 @@
         <AtachedDevice />
       </el-tab-pane>
       <el-tab-pane label="分析结果" :name="'2'">
-        <div class="left">
-          <el-tree
-            ref="dirTree"
-            node-key="id"
-            lazy
-            :data="dirList"
-            :load="loadDirs"
-            :props="treeProp"
-            :check-strictly="false"
-            @node-click="selectDevice"
-          >
-            <span slot-scope="{node, data}" class="custom-tree-node" :class="`custom-tree-node__${data.type}`">
-              <span class="node-name" :class="data.deviceStatus === 'on' ? 'online': 'offline'">
-                <svg-icon :name="data.type" />
-                {{ node.label }}
+        <div class="app-container__result">
+          <div class="left">
+            <el-tree
+              ref="dirTree"
+              node-key="id"
+              lazy
+              :data="dirList"
+              :load="loadDirs"
+              :props="treeProp"
+              :check-strictly="false"
+              @node-click="selectDevice"
+            >
+              <span slot-scope="{node, data}" class="custom-tree-node" :class="`custom-tree-node__${data.type}`">
+                <span class="node-name" :class="data.deviceStatus === 'on' ? 'online': 'offline'">
+                  <svg-icon :name="data.type" />
+                  {{ node.label }}
+                </span>
               </span>
-            </span>
-          </el-tree>
-        </div>
-        <div class="right">
-          <AppSubDetail v-if="appInfo.name" :device="device" :app-info="appInfo" :face-lib="faceLib" />
+            </el-tree>
+          </div>
+          <div class="right">
+            <AppSubDetail v-if="appInfo.name" :device="device" :app-info="appInfo" :face-lib="faceLib" />
+          </div>
         </div>
       </el-tab-pane>
     </el-tabs>
@@ -213,20 +215,27 @@ export default class extends Mixins(AppMixin) {
 .el-tab-pane{
   display: flex;
 }
-.left {
-    flex: 0 0 20%;
+.app-container__result{
+  width:100%;
+  .left {
+    display: inline-block;
+    width: 15%;
     vertical-align: top;
-    height: 100%;
-    padding: 10px;
-    overflow: auto;
-    .is-disabled + .custom-tree-node__ipc {
-      cursor: not-allowed;
-    }
-}
-.right{
-  flex: 1 1;
-  padding-left: 20px;
-  border-left: 1px solid $borderGrey;
+      // flex: 0 0 20%;
+      height: 100%;
+      // padding: 10px;
+      overflow: auto;
+      .is-disabled + .custom-tree-node__ipc {
+        cursor: not-allowed;
+      }
+  }
+  .right{
+    // flex: 1 1;
+    padding-left: 20px;
+    display: inline-block;
+    width: 83%;
+    border-left: 1px solid $borderGrey;
+  }
 }
 .online{
   .svg-icon {

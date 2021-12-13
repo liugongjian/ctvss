@@ -69,29 +69,33 @@ export default class extends Vue {
 .el-card{
     // width:400px;
     cursor: pointer;
-    height:400px;
+    // height:400px;
     // min-width: 100px;
     // margin-top: 2% !important;
     // margin-right: 2% !important;
     // display: inline-block;
-    position: relative;
+    ::v-deep &__body{
+      padding: 0 !important;
+    }
     .pic-wrapper{
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 67%;
+      position: relative;
+      // position: absolute;
+      // top: 0;
+      // left: 0;
+      // width: 100%;
+      // height: 67%;
         img{
           width: 100%;
-          height: 100%;
+          // height: 100%;
+          height: auto;
         }
     }
     .content-wrapper{
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        height: 33%;
-        padding-top: 10px;
+        // position: absolute;
+        // bottom: 0;
+        // left: 0;
+        // height: 33%;
+        padding: 10px 0;
         ::v-deep .el-descriptions-item__container{
           display: grid;
           grid-template-columns: 40% 60%;
