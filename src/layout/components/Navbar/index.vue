@@ -27,9 +27,6 @@
         <span class="filter-group__label">{{ item.groupName }}</span>
         <span class="filter-group__in">{{ item.inProtocol }}</span>
       </el-option>
-      <el-option v-if="loading.group" value="null">
-        加载中<i class="el-icon-loading" />
-      </el-option>
     </el-select>
     <breadcrumb
       id="breadcrumb-container"
@@ -291,9 +288,7 @@ export default class extends Mixins(DashboardMixin) {
    */
   private async visibleChange(val) {
     if (val) {
-      this.loading.group = true
       await GroupModule.GetGroupList()
-      this.loading.group = false
     }
   }
 
