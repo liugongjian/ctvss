@@ -287,9 +287,7 @@ export default class extends Mixins(DashboardMixin) {
    * 下拉框出现时刷新下拉列表
    */
   private async visibleChange(val) {
-    if (val) {
-      await GroupModule.GetGroupList()
-    }
+    val && GroupModule.GetGroupList()
   }
 
   /**
