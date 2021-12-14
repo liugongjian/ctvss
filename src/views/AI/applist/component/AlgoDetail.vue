@@ -279,7 +279,11 @@ export default class extends Mixins(AppMixin) {
    * 增加生效时间段选项
    */
   private addPeriod() {
-    this.form.availableperiod.push({ period: ['08:40:00', '09:40:00'] })
+    if (this.form.availableperiod.length > 4) {
+      this.$message.error('不能设置超过5个时间段')
+    } else {
+      this.form.availableperiod.push({ period: ['08:40:00', '09:40:00'] })
+    }
   }
 
   /**
