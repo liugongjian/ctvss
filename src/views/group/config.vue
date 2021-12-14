@@ -42,8 +42,8 @@
           </template>
           <!-- 以下字段仅在GA1400业务组中显示 -->
           <template v-if="form.inProtocol === 'ga1400'">
-            <info-list-item label="服务器IP地址:">{{ form.ip }}</info-list-item>
-            <info-list-item label="端口:">{{ form.port }}</info-list-item>
+            <info-list-item label="服务器IP地址:">{{ form.gaServerIp }}</info-list-item>
+            <info-list-item label="端口:">{{ form.gaServerPort }}</info-list-item>
           </template>
           <info-list-item label="接入网络:">
             {{ form.inNetworkType === 'private' ? '专线网络' : '互联网' }}
@@ -53,7 +53,7 @@
           </info-list-item>
         </info-list>
       </el-tab-pane>
-      <el-tab-pane v-if="!isVGroup" label="模板配置" name="template">
+      <el-tab-pane v-if="!['ga1400', 'vgroup'].includes(form.inProtocol)" label="模板配置" name="template">
         <template-bind v-if="activeName==='template'" :group-id="form.groupId" :in-protocol="form.inProtocol" />
       </el-tab-pane>
     </el-tabs>

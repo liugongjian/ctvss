@@ -230,7 +230,7 @@ export default class extends Vue {
     address: [],
     gbId: '',
     gbRegion: '',
-    gbRegionLevel: '',
+    gbRegionLevel: null,
     industryCode: '',
     networkCode: ''
   }
