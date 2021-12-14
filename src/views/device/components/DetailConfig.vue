@@ -41,7 +41,7 @@
               <el-table-column label="算法类型" min-width="100">
                 <template slot-scope="scope">{{ scope.row.algorithm.name }}</template>
               </el-table-column>
-              <el-table-column v-if="!ifNvrChannel" prop="appEnabled" label="状态">
+              <el-table-column v-if="!isNvr" prop="appEnabled" label="状态">
                 <template slot-scope="scope">
                   <status-badge :status="parseInt(scope.row.status) ? 'on' : 'off'" />
                   <span>
@@ -49,7 +49,7 @@
                   </span>
                 </template>
               </el-table-column>
-              <el-table-column v-if=" !ifNvrChannel && !isVGroup && checkPermission(['AdminDevice'])" label="操作" min-width="200">
+              <el-table-column v-if=" !isNvr && !isVGroup && checkPermission(['AdminDevice'])" label="操作" min-width="200">
                 <template slot-scope="scope">
                   <el-tooltip v-if="scope.row.algorithm.code === '10006'" class="item" effect="dark" content="设备离线时不可配置算法" placement="top-start" :disabled="deviceInfo.deviceStatus === 'on'">
                     <div class="disableBtnBox">
@@ -314,6 +314,10 @@ export default class extends Vue {
 
   public get ifNvrChannel() {
     return this.deviceInfo.parentDeviceId !== '-1'
+  }
+
+  public get isNvr() {
+    return this.deviceInfo && this.deviceInfo.deviceType === 'nvr'
   }
 
   /**
