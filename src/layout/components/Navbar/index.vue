@@ -26,6 +26,14 @@
         <span class="filter-group__label">{{ item.groupName }}</span>
         <span class="filter-group__in">{{ item.inProtocol }}</span>
       </el-option>
+      <el-option
+        v-if="loading.group"
+        class="loading-option"
+        disabled
+        value=""
+      >
+        加载中<i class="el-icon-loading" />
+      </el-option>
     </el-select>
     <breadcrumb
       id="breadcrumb-container"
@@ -279,10 +287,12 @@ export default class extends Mixins(DashboardMixin) {
   /**
    * 懒加载顶部用户下拉框
    */
-  private loadmore() {
+  private async loadmore() {
     // 加宽下拉加载触发限制时，会触发多次，在这使用节流限制
-    if (!this.lazyloadTimer) {
-      GroupModule.LoadmoreGroups()
+    if (!this.loading.group && !this.lazyloadTimer) {
+      this.loading.group = true
+      await GroupModule.LoadmoreGroups()
+      this.loading.group = false
       this.lazyloadTimer = setTimeout(() => {
         clearTimeout(this.lazyloadTimer)
         this.lazyloadTimer = null

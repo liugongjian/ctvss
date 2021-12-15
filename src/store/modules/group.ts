@@ -75,7 +75,7 @@ class GroupStore extends VuexModule implements IGroupState {
     try {
       let params = {
         pageNum: 1,
-        pageSize: 10 * this.groupListIndex!
+        pageSize: 20 * this.groupListIndex!
       }
       const res = await getGroups(params)
       const groupList = res.groups
@@ -102,7 +102,7 @@ class GroupStore extends VuexModule implements IGroupState {
     try {
       let params = {
         pageNum: this.groupListIndex + 1,
-        pageSize: 10
+        pageSize: 20
       }
       const res = await getGroups(params)
       const groups = res.groups
