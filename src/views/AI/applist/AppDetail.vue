@@ -41,7 +41,7 @@
               </span>
             </el-tree>
           </div>
-          <div class="o-left" :style="`width: ${dirDrag.width}px`" />
+          <!-- <div class="o-left" :style="`width: ${dirDrag.width}px`" /> -->
           <div class="right" :style="`width: calc(100% - ${dirDrag.width}px)`">
             <AppSubDetail v-if="appInfo.name" :device="device" :app-info="appInfo" :face-lib="faceLib" />
           </div>
@@ -229,29 +229,26 @@ export default class extends Mixins(AppMixin, IndexMixin) {
 }
 .app-container__result{
   position: relative;
-  width:100%;
+  width: 100%;
   .left {
     display: inline-block;
-    // width: 15%;
-    position: absolute;
     vertical-align: top;
-      // flex: 0 0 20%;
-      height: 100%;
-      // padding: 10px;
-      // overflow: auto;
-      .is-disabled + .custom-tree-node__ipc {
-        cursor: not-allowed;
+    height: 100%;
+    overflow: auto;
+    .el-tree{
+      min-width: 100%;
+      display: inline-block !important;
+      ::v-deep .el-tree-node > .el-tree-node__children {
+        overflow: visible;
       }
-  }
-  .o-left{
-    display: inline-block;
+    }
+    .is-disabled + .custom-tree-node__ipc {
+      cursor: not-allowed;
+    }
   }
   .right{
-    // flex: 1 1;
-    // position: absolute;
     padding-left: 20px;
     display: inline-block;
-    // width: 83%;
     border-left: 1px solid $borderGrey;
   }
 }
