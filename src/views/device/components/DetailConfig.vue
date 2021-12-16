@@ -129,7 +129,7 @@
           {{ template.callbackTemplate.templateName }}
         </el-descriptions-item>
         <el-descriptions-item label="回调URL">
-          {{ template.callbackTemplate.recordNotifyUrl }}
+          {{ template.callbackTemplate.aiEventNotifyUrl }}
         </el-descriptions-item>
         <el-descriptions-item label="回调Key">
           {{ template.callbackTemplate.callbackKey }}
