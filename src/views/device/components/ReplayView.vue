@@ -204,6 +204,7 @@ export default class extends Vue {
   @Watch('replayType')
   private onReplayTypeChange() {
     this.viewType = 'timeline'
+    this.init()
   }
 
   @Watch('recordListSlice.length')
@@ -222,7 +223,7 @@ export default class extends Vue {
     this.getRecordStatistic(startTime, endTime)
     clearInterval(this.recordInterval)
     this.recordList = []
-    await this.getRecordList()
+    this.replayType === 'cloud' && await this.getRecordList()
     // 定时轮询新录像
     this.getLatestRecord()
   }
@@ -333,6 +334,7 @@ export default class extends Vue {
   private async getRecordStatistic(startTime: number, endTime: number) {
     try {
       const res = await getDeviceRecordStatistic({
+        type: this.replayType,
         deviceId: this.deviceId,
         inProtocol: this.inProtocol,
         startTime: startTime,

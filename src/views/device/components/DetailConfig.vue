@@ -64,6 +64,15 @@
                   <el-button type="text" @click="changeRunningStatus(scope.row)">{{ parseInt(scope.row.status) ? '停用' : '启用' }}</el-button>
                 </template>
               </el-table-column>
+              <el-table-column v-if=" isNvr && !isVGroup && checkPermission(['AdminDevice'])" label="操作" min-width="200">
+                <template slot-scope="scope">
+                  <el-tooltip class="item" effect="dark" content="应用启用时不可解绑" placement="top-start" :disabled="scope.row.status === '0'">
+                    <div class="disableBtnBox">
+                      <el-button type="text" :disabled="scope.row.status === '1'" @click="changeBindStatus(scope.row)">解除绑定</el-button>
+                    </div>
+                  </el-tooltip>
+                </template>
+              </el-table-column>
             </el-table>
           </el-descriptions-item>
         </el-descriptions>
@@ -120,7 +129,7 @@
           {{ template.callbackTemplate.templateName }}
         </el-descriptions-item>
         <el-descriptions-item label="回调URL">
-          {{ template.callbackTemplate.recordNotifyUrl }}
+          {{ template.callbackTemplate.aiEventNotifyUrl }}
         </el-descriptions-item>
         <el-descriptions-item label="回调Key">
           {{ template.callbackTemplate.callbackKey }}
@@ -131,10 +140,10 @@
       </div>
     </div>
     <!-- 告警模板信息 -->
-    <div class="detail__section">
+    <div v-if="inProtocol === 'gb28181'" class="detail__section">
       <div class="detail__title">
         告警模板信息
-        <el-link v-if="inProtocol === 'gb28181' && checkPermission(['AdminDevice'])" v-permission="['*']" @click="setAlertTemplate">配置</el-link>
+        <el-link v-if="checkPermission(['AdminDevice'])" v-permission="['*']" @click="setAlertTemplate">配置</el-link>
       </div>
       <el-descriptions v-if="template.alertTemplate" :column="2">
         <el-descriptions-item label="模版名称">
@@ -519,8 +528,11 @@ export default class extends Vue {
     this.loading.AITable = true
     const param = {
       deviceId: this.deviceId,
-      appId: [rowInfo.id]
+      appId: [rowInfo.id],
+      deviceType: this.deviceInfo.deviceType,
+      inProtocol: this.inProtocol
     }
+
     unBindAppResource(param).then(() => {
       this.loading.AITable = false
       this.$message.success(`解除 ${rowInfo.name} 绑定成功！`)

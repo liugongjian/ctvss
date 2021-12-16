@@ -37,7 +37,6 @@
                @mousedown.prevent="intercomMousedown"
                @mouseup.prevent="intercomMouseup"
                @mouseleave="intercomMouseleave"
-               @click="intercomClick"
           >
             <svg-icon name="microphone" width="66px" height="66px" />
           </div>
@@ -121,13 +120,12 @@ export default class extends Mixins(ScreenMixin) {
 
   private intercomMousedown() {
     const nowTime = Date.now()
-    this.audioKey = this.randomKey()
     if (this.last && nowTime - this.last < 1000) {
       if (document.querySelectorAll('.el-message').length === 0) {
         this.$message.warning('点的太快了，请稍后再点击~')
-        return false
       }
     } else {
+      this.audioKey = this.randomKey()
       const param = {
         deviceId: this.intercomInfo.deviceId,
         transPriority: 'UDP', // 先使用UDP，等流媒体侧兼容之后再使用参数
@@ -163,21 +161,17 @@ export default class extends Mixins(ScreenMixin) {
           this.cannotStop = true
         }
         if (this.ifCloseStatus !== 1) {
-          this.$message.error(`${err},请稍后再试`)
+          this.$message.error(`${err.message ? err.message : err}`)
         }
       })
     }
-  }
-
-  private intercomClick() {
-    this.stopRecord()
   }
 
   private intercomMouseup() {
     if (!this.cannotStop) {
       const nowTime = Date.now()
       if (!this.last || nowTime - this.last > 1000) {
-        this.last = Date.now()
+        // this.last = Date.now()
         this.isClick = false
         this.last = nowTime
         const param = {
@@ -189,7 +183,7 @@ export default class extends Mixins(ScreenMixin) {
           this.last = Date.now()
         }).catch((err:any) => {
           this.last = Date.now()
-          this.$message.error(err)
+          this.$message.error(`${err.message ? err.message : err}`)
         })
       } else {
         // this.last = Date.now()
