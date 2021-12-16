@@ -11,7 +11,8 @@ export const DeviceStatus = {
 
 export const IsOnline = {
   '1': '在线',
-  '2': '离线'
+  '2': '离线',
+  '9': '未注册'
 }
 
 export const DeviceGb28181Type = {
