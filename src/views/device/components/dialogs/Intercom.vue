@@ -37,7 +37,6 @@
                @mousedown.prevent="intercomMousedown"
                @mouseup.prevent="intercomMouseup"
                @mouseleave="intercomMouseleave"
-               @click="intercomClick"
           >
             <svg-icon name="microphone" width="66px" height="66px" />
           </div>
@@ -124,7 +123,6 @@ export default class extends Mixins(ScreenMixin) {
     if (this.last && nowTime - this.last < 1000) {
       if (document.querySelectorAll('.el-message').length === 0) {
         this.$message.warning('点的太快了，请稍后再点击~')
-        return false
       }
     } else {
       this.audioKey = this.randomKey()
@@ -169,15 +167,11 @@ export default class extends Mixins(ScreenMixin) {
     }
   }
 
-  private intercomClick() {
-    this.stopRecord()
-  }
-
   private intercomMouseup() {
     if (!this.cannotStop) {
       const nowTime = Date.now()
       if (!this.last || nowTime - this.last > 1000) {
-        this.last = Date.now()
+        // this.last = Date.now()
         this.isClick = false
         this.last = nowTime
         const param = {
@@ -189,7 +183,7 @@ export default class extends Mixins(ScreenMixin) {
           this.last = Date.now()
         }).catch((err:any) => {
           this.last = Date.now()
-          this.$message.error(err)
+          this.$message.error(`${err.message ? err.message : err}`)
         })
       } else {
         // this.last = Date.now()
