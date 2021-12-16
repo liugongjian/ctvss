@@ -88,6 +88,7 @@
               @selection-change="selectAlgoChange"
               @select="selectHandle"
               @row-click="onResourceTabsRowClick"
+              @select-all="selectAllHandle"
             >
               <el-table-column type="selection" width="55" :selectable="ifDisable" prop="selection" />
               <el-table-column prop="name" label="应用名称" />
@@ -203,6 +204,8 @@ export default class extends Vue {
   private removeCheckedIds = []
   private tipsText = ''
   private hasValueAppIds = ''
+  private shouldRemove = []
+  private shouldAdd = []
 
   public get isFreeUser() {
     return UserModule.tags && UserModule.tags.resourceFree === '1'
@@ -514,25 +517,28 @@ export default class extends Vue {
     if (!ifDisableFlag) {
       return false
     }
-    this.tipsTextHandle(row)
+    // this.tipsTextHandle(row)
     this.$refs[`algoTable${this.algoTabType}`][0].toggleRowSelection(row)
   }
 
   // 能力checkbox点击
   private selectHandle(selection:any, row:any) {
-    // const result = selection.filter((item:any) => item.id === row.id)
-    // if (result.length > 0) {
-    //   this.setChecked()
-    // } else {
-    //   this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].filter((item:any) => item.id !== row.id)
-    // }
+    const result = selection.filter((item:any) => item.id === row.id)
+    if (result.length > 0) {
+      this.setChecked()
+    } else {
+      this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].filter((item:any) => item.id !== row.id)
+    }
 
-    this.tipsTextHandle(row)
-    this.$refs[`algoTable${this.algoTabType}`][0].toggleRowSelection(row)
+    // this.tipsTextHandle(row)
   }
 
   // 能力checkbox改变逻辑
   private selectAlgoChange(val:any) {
+    // if (val.length === 0) {
+
+    // }
+
     this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = val
     this.filterCheckedStatus()
     if (!this.selectAlgoId.length) {
@@ -547,10 +553,27 @@ export default class extends Vue {
     }
   }
 
+  // 全选全不选
+  private selectAllHandle(selection:any) {
+
+  }
+
+  private distinct(arr:any, key:any) {
+    let hash = {}
+    const result = arr.reduce((preVal, curVal) => {
+      // eslint-disable-next-line no-unused-expressions
+      hash[curVal[key]]
+        ? ''
+        : (hash[curVal[key]] = true && preVal.push(curVal))
+      return preVal
+    }, [])
+    return result
+  }
+
   // 过滤编辑过的选中和当前选中
   private filterCheckedStatus() {
     const filterArr = this.resourceHasAppIds.filter((item:any) => {
-      return this.appIdsWithAllData.every((val:any) => {
+      return this.appIdsWithAllData.some((val:any) => {
         return item.appId !== val.id
       })
     })
@@ -558,7 +581,48 @@ export default class extends Vue {
     const temp = Object.values(this.checkInfoObj[this.chooseData.resourceId]).map((item:any) => {
       return item.map((ele:any) => ele)
     })
+
     if (this.resourceHasAppIds && this.resourceHasAppIds.length > 0) {
+      const selectVal = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].map((item:any) => ({
+        appId: item.id,
+        analyseType: item.analyseType
+      }))
+      const hasIdsInThisType = this.algoListData.filter((item:any) => {
+        return this.resourceHasAppIds.some((val:any) => {
+          return item.id === val.appId
+        })
+      }).map((item:any) => {
+        return {
+          appId: item.id,
+          analyseType: item.analyseType
+        }
+      })
+      this.shouldRemove = hasIdsInThisType.filter((item:any) => {
+        return selectVal.every((val:any) => {
+          return item.appId !== val.appId
+        })
+      })
+      this.shouldAdd = selectVal.filter((item:any) => {
+        return hasIdsInThisType.every((val:any) => {
+          return item.appId !== val.appId
+        })
+      })
+      // console.log('selectVal===========>', selectVal)
+      // console.log('hasIdsInThisType===>', hasIdsInThisType)
+
+      this.addCheckedIds = this.distinct([...this.shouldAdd, ...this.addCheckedIds], 'appId')
+      this.removeCheckedIds = this.distinct([...this.shouldRemove, ...this.removeCheckedIds], 'appId')
+      // console.log('shouldAdd======>', this.shouldAdd)
+      // console.log('shouldRemove---------->', this.shouldRemove)
+      // console.log('removeCheckedIds---------->', this.removeCheckedIds)
+      // console.log('addCheckedIds======>', this.addCheckedIds)
+
+      // if (this.isUpdate) {
+      this.changeTipsText()
+      // } else {
+      //   this.tipsText = `将扣除${this.chooseData.workOrderNo}包中${this.selectAlgoId.length}路资源。`
+      // }
+
       const result = temp.flat().filter((item:any) => {
         return this.resourceHasAppIds.some((val:any) => {
           return val.appId !== item.id
@@ -593,10 +657,17 @@ export default class extends Vue {
       this.showTipsAlgoId = this.selectAlgoInfo
     }
 
-    this.selectAlgoInfo = [...filterArr, ...this.selectAlgoInfo]
+    let hash = {}
+    const tempArr = [...filterArr, ...this.selectAlgoInfo]
+    this.selectAlgoInfo = tempArr.reduce((preVal, curVal) => {
+      // eslint-disable-next-line no-unused-expressions
+      hash[curVal.appId]
+        ? ''
+        : (hash[curVal.appId] = true && preVal.push(curVal))
+      return preVal
+    }, [])
+
     this.selectAlgoId = this.selectAlgoInfo.map((item:any) => item.appId)
-    // this.showTipsAlgoId = this.showTipsAlgoId.map((item:any) => item.appId)
-    // console.log('selectAlgoInfo====>', this.selectAlgoInfo)
     if (this.isUpdate && (this.hasValueAppIds === this.chooseData.resourceId)) {
       this.changeTipsText()
     } else {
@@ -604,6 +675,7 @@ export default class extends Vue {
     }
     this.setChecked()
     this.$emit('changevssaiapps', this.selectAlgoInfo)
+    // console.log('this.selectAlgoInfo====>', this.selectAlgoInfo)
   }
 
   // 设置选中状态
