@@ -64,6 +64,15 @@
                   <el-button type="text" @click="changeRunningStatus(scope.row)">{{ parseInt(scope.row.status) ? '停用' : '启用' }}</el-button>
                 </template>
               </el-table-column>
+              <el-table-column v-if=" isNvr && !isVGroup && checkPermission(['AdminDevice'])" label="操作" min-width="200">
+                <template slot-scope="scope">
+                  <el-tooltip class="item" effect="dark" content="应用启用时不可解绑" placement="top-start" :disabled="scope.row.status === '0'">
+                    <div class="disableBtnBox">
+                      <el-button type="text" :disabled="scope.row.status === '1'" @click="changeBindStatus(scope.row)">解除绑定</el-button>
+                    </div>
+                  </el-tooltip>
+                </template>
+              </el-table-column>
             </el-table>
           </el-descriptions-item>
         </el-descriptions>
@@ -519,8 +528,11 @@ export default class extends Vue {
     this.loading.AITable = true
     const param = {
       deviceId: this.deviceId,
-      appId: [rowInfo.id]
+      appId: [rowInfo.id],
+      deviceType: this.deviceInfo.deviceType,
+      inProtocol: this.inProtocol
     }
+
     unBindAppResource(param).then(() => {
       this.loading.AITable = false
       this.$message.success(`解除 ${rowInfo.name} 绑定成功！`)
