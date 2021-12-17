@@ -180,7 +180,7 @@ export default class extends Vue {
       this.loading.record = true
       this.template.recordTemplate = []
       if (this.groupId) {
-        const res = await getGroupRecordTemplate({ groupId: this.groupId })
+        const res = await getGroupRecordTemplate({ groupId: this.groupId, inProtocol: this.inProtocol })
         this.template.recordTemplate.push(res)
       } else {
         const res = await getDeviceRecordTemplate({ deviceId: this.deviceId, inProtocol: this.inProtocol })

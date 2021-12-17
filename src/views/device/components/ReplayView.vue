@@ -43,7 +43,7 @@
         @onFullscreen="fullscreen()"
         @onExitFullscreen="exitFullscreen()"
       />
-      <div v-if="replayType === 'cloud' && !recordList.length && !loading" class="replay-player">
+      <div v-if="replayType === 'cloud' && isEmpty && !loading" class="replay-player">
         <div class="empty-text">
           该时段暂无云端录像
           <div v-if="hasPlaylive">
@@ -150,6 +150,7 @@ export default class extends Vue {
   private currentListRecord: any = null
   private currentDate = getLocaleDate().getTime()
   private loading = false
+  private isEmpty = false
   private recordName = ''
   private recordList: Array<any> = []
   private recordListSlice: Array<any> = []
@@ -204,6 +205,7 @@ export default class extends Vue {
   @Watch('replayType')
   private onReplayTypeChange() {
     this.viewType = 'timeline'
+    this.init()
   }
 
   @Watch('recordListSlice.length')
@@ -215,16 +217,20 @@ export default class extends Vue {
    * 初始化
    */
   private async init() {
-    // 获得最近两月录像统计
-    const current = new Date()
-    const startTime = Math.floor(new Date(current.getFullYear(), current.getMonth() - 1).getTime() / 1000)
-    const endTime = Math.floor(new Date().getTime() / 1000)
-    this.getRecordStatistic(startTime, endTime)
-    clearInterval(this.recordInterval)
-    this.recordList = []
-    await this.getRecordList()
-    // 定时轮询新录像
-    this.getLatestRecord()
+    try {
+      // 获得最近两月录像统计
+      const current = new Date()
+      const startTime = Math.floor(new Date(current.getFullYear(), current.getMonth() - 1).getTime() / 1000)
+      const endTime = Math.floor(new Date().getTime() / 1000)
+      this.getRecordStatistic(startTime, endTime)
+      clearInterval(this.recordInterval)
+      this.recordList = []
+      this.replayType === 'cloud' && await this.getRecordList()
+      // 定时轮询新录像
+      this.getLatestRecord()
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   /**
@@ -232,7 +238,9 @@ export default class extends Vue {
    */
   private changeDate() {
     this.axiosSource.cancel()
-    this.init()
+    setTimeout(() => {
+      this.init()
+    })
   }
 
   /**
@@ -319,6 +327,7 @@ export default class extends Vue {
         })
         this.pager.total = res.totalNum
       }
+      this.isEmpty = !this.recordList.length
       this.getRecordListByPage()
     } catch (e) {
       console.log(e)
@@ -333,6 +342,7 @@ export default class extends Vue {
   private async getRecordStatistic(startTime: number, endTime: number) {
     try {
       const res = await getDeviceRecordStatistic({
+        type: this.replayType,
         deviceId: this.deviceId,
         inProtocol: this.inProtocol,
         startTime: startTime,
@@ -364,10 +374,10 @@ export default class extends Vue {
       })
       const interval = res.interval
       if (interval) {
-        this.recordInterval = setInterval(() => {
+        this.recordInterval = setInterval(async() => {
           const lastRecord = this.recordList[recordListLength - 1]
           const startTime = Math.floor(new Date(lastRecord.endTime).getTime() / 1000 - 3 * 60)
-          this.getRecordList(startTime)
+          await this.getRecordList(startTime)
         }, interval * 1000)
       }
     } catch (e) {
@@ -461,8 +471,6 @@ export default class extends Vue {
    * 播放直播
    */
   public playlive() {
-    console.log('replayView');
-    
     this.$emit('onPlaylive')
   }
 
