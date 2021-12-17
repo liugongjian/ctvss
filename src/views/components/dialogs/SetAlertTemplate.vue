@@ -26,7 +26,6 @@
       </el-table-column>
       <el-table-column label="操作">
         <template slot-scope="{row}">
-          {{ bindTemplateId }}
           <el-button v-if="row.templateId !== bindTemplateId" type="text" :disabled="!!bindTemplateId" @click="bind(row)">绑定</el-button>
           <el-button v-else type="text" @click="unbind(row)">解绑</el-button>
         </template>
