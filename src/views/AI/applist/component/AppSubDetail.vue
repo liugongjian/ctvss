@@ -62,7 +62,7 @@
           </div>
         </span>
       </div>
-      <div v-if="isGatheringCode" v-loading="queryLoading" class="chart-wrapper">
+      <div v-if="isGatheringCode" class="chart-wrapper">
         <div class="title">
           <div class="title-block" />
           <span>人员聚集趋势</span>
@@ -76,7 +76,7 @@
         />
       </div>
 
-      <div v-loading="queryLoading" class="pic-wrapper">
+      <div v-loading="queryLoading.pic" class="pic-wrapper">
         <div class="title">
           <div class="title-block" />
           <span>视频截图</span>
@@ -147,7 +147,9 @@ export default class extends Vue {
     @Prop() private appInfo!: any
     @Prop() private faceLib!: any
     private dialoguePic: any = null
-    private queryLoading: boolean = false
+    private queryLoading: any = {
+      pic: false
+    }
     private currentLocationIndex: number = -1
     private visibile = false
     private decodeBase64: Function = decodeBase64
@@ -239,7 +241,7 @@ export default class extends Vue {
         pageNum,
         pageSize }
       try {
-        this.queryLoading = true
+        this.queryLoading.pic = true
         const res = await getAppScreenShot(query)
         this.pager.totalNum = res.totalNum
         this.picInfos = res.screenShotList
@@ -247,7 +249,7 @@ export default class extends Vue {
         // 异常处理
         console.log(e)
       } finally {
-        this.queryLoading = false
+        this.queryLoading.pic = false
       }
     }
 
