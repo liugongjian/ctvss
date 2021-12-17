@@ -229,6 +229,7 @@
                           :has-playback="true"
                           :device-name="screen.deviceName"
                           :stream-num="screen.streamNum"
+                          :all-address="screen.allAddress"
                           @onCanPlay="playEvent(screen, ...arguments)"
                           @onRetry="onRetry(screen, ...arguments)"
                           @onPlayback="onPlayback(screen)"
@@ -705,7 +706,6 @@ export default class extends Mixins(ScreenMixin) {
 
   // 实时对讲
   private onIntercom(screen:any, flag:boolean) {
-    console.log('intercomInfo-------------------->', screen)
     this.intercomInfo = screen
     this.ifIntercom = flag
   }

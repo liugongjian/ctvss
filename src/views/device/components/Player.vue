@@ -43,6 +43,16 @@
         <div v-else class="controls__btn kill__volume">
           <svg-icon name="mute" class="mute_gray" width="18px" height="18px" />
         </div>
+        <el-tooltip v-if="ifCanRTC" placement="top">
+          <div slot="content" class="videoTypeBox">
+            <el-button type="text" size="mini" :class="videoType === 'FLV' ? 'activeVideoType' : ''" @click.stop.prevent="(e) => getVideoType(e,'FLV')">FLV</el-button>
+            <br>
+            <el-button type="text" size="mini" :class="videoType === 'RTC' ? 'activeVideoType' : ''" @click.stop.prevent="(e) => getVideoType(e,'RTC')">RTC</el-button>
+          </div>
+          <div class="controls__btn controls__snapshot videoTypeBtn">
+            <span>{{ videoType }}</span>
+          </div>
+        </el-tooltip>
         <el-tooltip content="开启语音对讲" placement="top">
           <div v-if="isLive" class="controls__btn controls__snapshot" @click.stop.prevent="toIntercom">
             <svg-icon name="micro" width="18px" height="18px" />
@@ -103,6 +113,7 @@ import { UserModule } from '@/store/modules/user'
 import { createPlayer } from '../models/Ctplayer'
 import { durationFormatInVideo } from '@/utils/date'
 import { checkPermission } from '@/utils/permission'
+import { ifWebRTC } from '@/utils/browser'
 
 @Component({
   name: 'Player'
@@ -195,6 +206,10 @@ export default class extends Vue {
   @Prop()
   private deviceName?: string
 
+  // 视频流全部address
+    @Prop()
+  private allAddress?: any
+
   private checkPermission = checkPermission
   private isDragging: boolean = false
   public player?: any
@@ -221,6 +236,8 @@ export default class extends Vue {
   private durationFormatInVideo = durationFormatInVideo
   private resizeObserver?: any
   private error = ''
+  private videoType=''
+  private ifCanRTC = false
 
   get username() {
     return UserModule.name
@@ -244,9 +261,37 @@ export default class extends Vue {
     //   this.type = 'flv'
     //   this.isWs = false
     // }
+    this.getVideoType()
     this.createPlayer()
     this.setPlayVolume(this.volume)
     if (this.isLive) document.addEventListener('visibilitychange', this.reloadPlayer)
+  }
+
+  private getVideoType(eve:any = '', kind:any = '') {
+    if (eve) {
+      eve.currentTarget.blur()
+    }
+    if (!kind) {
+      if (ifWebRTC() && this.allAddress.webrtcUrl) {
+        this.videoType = 'RTC'
+        this.ifCanRTC = true
+      } else {
+        this.videoType = 'FLV'
+        this.ifCanRTC = false
+      }
+    } else {
+      this.videoType = kind
+      this.disposePlayer()
+      console.log('this.$refs.video.src--------------->', this.$refs.video)
+      // const $video:any = this.$refs.video
+      // $video.innerHtml = ''
+      // if (this.isLive) document.removeEventListener('visibilitychange', this.reloadPlayer)
+      // window.removeEventListener('resize', this.playerFS)
+      // if (this.resizeObserver) this.resizeObserver.disconnect()
+      this.$nextTick(() => {
+        this.createPlayer()
+      })
+    }
   }
 
   private beforeDestroy() {
@@ -295,6 +340,8 @@ export default class extends Vue {
         isWs: this.isWs,
         playbackRate: this.playbackRate,
         volume: this.volume,
+        allAddress: this.allAddress,
+        videoType: this.videoType,
         onTimeUpdate: this.onTimeUpdate,
         onDurationChange: this.onDurationChange,
         onBuffered: this.onBuffered,
@@ -953,5 +1000,16 @@ export default class extends Vue {
         opacity: 1;
       }
     }
+    .videoTypeBtn{
+      color: #fff;
+    }
   }
+.videoTypeBox{
+  ::v-deep .el-button--mini{
+    color: #fff;
+    &.activeVideoType{
+      color: #FA8334;
+    }
+  }
+}
 </style>

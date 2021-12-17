@@ -2,6 +2,7 @@ import { FlvPlayer } from './FlvPlayer'
 import { HlsPlayer } from './HlsPlayer'
 import { RtcPlayer } from './RtcPlayer'
 import { H265Player } from './H265Player'
+import { ifWebRTC } from '@/utils/browser'
 
 export const createPlayer = (config: any) => {
   const wrapElement: HTMLDivElement = config.wrap
@@ -24,11 +25,17 @@ export const createPlayer = (config: any) => {
  * 初始化播放器
  */
 const initPlayer = (config: any) => {
+  const { allAddress, videoType } = config
+  console.log(allAddress, videoType)
   if (config.codec === 'h265') {
     return new H265Player(config)
   } else {
+    if (videoType === 'RTC' && ifWebRTC() && allAddress.webrtcUrl) {
+      return new RtcPlayer(config)
+    }
     switch (config.type) {
       case 'flv':
+        console.log('I`m here')
         return new FlvPlayer(config)
       case 'hls':
         return new HlsPlayer(config)

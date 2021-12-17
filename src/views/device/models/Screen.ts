@@ -24,6 +24,7 @@ export default class Screen {
   public onCanPlay?: boolean
   public calendarFocus?: boolean
   public errorMsg?: string
+  public allAddress?:any
 
   constructor() {
     this.deviceId = ''
@@ -46,6 +47,7 @@ export default class Screen {
     this.onCanPlay = false
     this.calendarFocus = false
     this.errorMsg = ''
+    this.allAddress = ''
   }
 
   public async getUrl() {
@@ -71,6 +73,7 @@ export default class Screen {
       }, this.axiosSource.token)
       if (res.playUrl) {
         this.url = res.playUrl.flvUrl
+        this.allAddress = res.playUrl
         this.codec = res.video.codec
       }
       this.retry = false
@@ -101,6 +104,7 @@ export default class Screen {
     this.isLive = true
     this.axiosSource && this.axiosSource.cancel()
     this.axiosSource = null
+    this.allAddress = ''
   }
 
   public fullscreen() {

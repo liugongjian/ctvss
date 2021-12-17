@@ -14,11 +14,13 @@ export class BasePlayer {
   public isWs?: boolean
   public playbackRate?: number
   public wrapElement?: HTMLDivElement
+  public allAddress? : any
 
   constructor(config: any) {
     this.config = config
     this.wrap = config.wrap
     this.source = config.source
+    this.allAddress = config.allAddress
     this.autoPlay = config.autoPlay
     this.hasControl = config.hasControl
     this.type = config.type

@@ -126,7 +126,6 @@ export default class extends Vue {
 
   // 实时对讲
   private onIntercom(screen:any, flag:boolean) {
-    console.log('intercomInfo============>', this.intercomInfo)
     this.intercomInfo = screen
     this.ifIntercom = flag
   }

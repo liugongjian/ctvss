@@ -24,6 +24,7 @@
             :has-playback="true"
             :device-name="intercomInfo.deviceName"
             :stream-num="intercomInfo.streamNum"
+            :all-address="intercomInfo.allAddress"
           />
           <div v-if="!intercomInfo.url && !intercomInfo.loading" class="tip-text">{{ intercomInfo.errorMsg || '无信号' }}</div>
         </div>
