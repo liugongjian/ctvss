@@ -98,7 +98,7 @@ export default class extends Vue {
         padding: 10px 0;
         ::v-deep .el-descriptions-item__container{
           display: grid;
-          grid-template-columns: 40% 60%;
+          grid-template-columns: 35% 65%;
           .el-descriptions-item__label.has-colon{
             text-align: end;
           }
