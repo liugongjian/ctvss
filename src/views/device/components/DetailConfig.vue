@@ -128,7 +128,16 @@
         <el-descriptions-item label="模版名称">
           {{ template.callbackTemplate.templateName }}
         </el-descriptions-item>
-        <el-descriptions-item label="回调URL">
+        <el-descriptions-item v-if="template.callbackTemplate.recordNotifyUrl" label="录制回调URL">
+          {{ template.callbackTemplate.recordNotifyUrl }}
+        </el-descriptions-item>
+        <el-descriptions-item v-if="template.callbackTemplate.deviceStatusUrl" label="设备状态回调URL">
+          {{ template.callbackTemplate.deviceStatusUrl }}
+        </el-descriptions-item>
+        <el-descriptions-item v-if="template.callbackTemplate.streamStatusUrl" label="流状态回调URL">
+          {{ template.callbackTemplate.streamStatusUrl }}
+        </el-descriptions-item>
+        <el-descriptions-item v-if="template.callbackTemplate.aiEventNotifyUrl" label="AI事件通知回调URL">
           {{ template.callbackTemplate.aiEventNotifyUrl }}
         </el-descriptions-item>
         <el-descriptions-item label="回调Key">
@@ -467,6 +476,7 @@ export default class extends Vue {
   private closeResourceDialog() {
     this.showResourceDialog = false
     this.algoTabTypeDefault = ''
+    this.getDeviceResource()
     this.getAlgoList()
   }
 

@@ -105,7 +105,7 @@
         </el-tabs>
         <div v-if="showTips" class="algoWarning algoWarningTip">
           <i class="el-icon-warning" />
-          <span>已选择{{ selectAlgoId.length }}种AI应用</span><span v-if="tipsText.length">，{{ tipsText }}</span>
+          <span>已选择{{ selectAlgoId.length }}种AI应用</span><span v-if="!isNvr && tipsText.length">，{{ tipsText }}</span>
         </div>
         <div v-if="showError" class="algoWarning algoWarningError">
           <i class="el-icon-warning" />
@@ -151,6 +151,7 @@ import { ResourceAiType } from '@/dics'
 import { getResources
   , getResourceIdAttachedAppIds
 } from '@/api/billing'
+import { getDevice } from '@/api/device'
 import { UserModule } from '@/store/modules/user'
 import { getAbilityList, getAppList } from '@/api/ai-app'
 
@@ -205,12 +206,14 @@ export default class extends Vue {
   private hasValueAppIds = ''
   private shouldRemove:any = {}
   private shouldAdd:any = {}
+  private deviceInfo:any = {}
 
   public get isFreeUser() {
     return UserModule.tags && UserModule.tags.resourceFree === '1'
   }
 
   private async mounted() {
+    this.getDeviceInfo()
     this.resouceVideoList = await this.getResouces('VSS_VIDEO', 'resouceVideoList')
     this.resouceAiList = await this.getResouces('VSS_AI', 'resouceAiList')
     this.resouceUploadList = await this.getResouces('VSS_UPLOAD_BW', 'resouceUploadList')
@@ -313,6 +316,18 @@ export default class extends Vue {
         break
     }
     this.onFormChange(false)
+  }
+
+  // 获取设备信息
+  private async getDeviceInfo() {
+    this.deviceInfo = await getDevice({
+      deviceId: this.deviceId,
+      inProtocol: this.inProtocol
+    })
+  }
+
+  public get isNvr() {
+    return this.deviceInfo && this.deviceInfo.deviceType === 'nvr'
   }
 
   private handleResourceAppIds() {
@@ -499,21 +514,31 @@ export default class extends Vue {
   private selectAlgoChange(val:any) {
     this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = val
     this.filterCheckedStatus()
-    if (!this.selectAlgoId.length) {
-      this.showError = false
-      this.showTips = false
-    } else if (this.selectAlgoId.length > this.remainDeviceConfigCount || (this.addCheckedIds.length - this.removeCheckedIds.length - this.remainDeviceConfigCount > 0)) {
-      this.showError = true
-      this.showTips = false
+    if (this.resourceHasAppIds && this.resourceHasAppIds.length) {
+      if (this.addCheckedIds.length - this.removeCheckedIds.length - this.remainDeviceConfigCount > 0) {
+        this.showError = true
+        this.showTips = false
+      } else {
+        this.showTips = true
+        this.showError = false
+      }
     } else {
-      this.showTips = true
-      this.showError = false
+      if (!this.selectAlgoId.length) {
+        this.showError = false
+        this.showTips = false
+      } else if (this.selectAlgoId.length > this.remainDeviceConfigCount) {
+        this.showError = true
+        this.showTips = false
+      } else {
+        this.showTips = true
+        this.showError = false
+      }
     }
   }
 
   private distinct(arr:any, key:any) {
     let hash = {}
-    const result = arr.reduce((preVal, curVal) => {
+    const result = arr.reduce((preVal:any, curVal:any) => {
       // eslint-disable-next-line no-unused-expressions
       hash[curVal[key]]
         ? ''
