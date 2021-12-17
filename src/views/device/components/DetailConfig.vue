@@ -476,6 +476,7 @@ export default class extends Vue {
   private closeResourceDialog() {
     this.showResourceDialog = false
     this.algoTabTypeDefault = ''
+    this.getDeviceResource()
     this.getAlgoList()
   }
 
