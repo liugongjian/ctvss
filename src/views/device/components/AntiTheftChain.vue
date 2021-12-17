@@ -116,9 +116,9 @@ export default class extends Vue {
     // @ts-ignore
     const type = this.typeDic[this.type]
     const reg = type.reg
-    const refArray: Array<string> = value ? value.split('\n').filter((item, index, arr) => {
+    const refArray: Array<string> = value ? value.split('\n').filter((item) => {
       return item.trim() !== ''
-    }).map((item, index, arr) => {
+    }).map((item) => {
       return item.trim()
     }) : []
     if (!value) {
@@ -127,7 +127,7 @@ export default class extends Vue {
       callback(new Error('名单列表不超过20个'))
     } else if (this.isRepeat(refArray)) {
       callback(new Error('名单列表包含重复内容'))
-    } else if (reg && !refArray.every((item, index, array) => reg.test(item))) {
+    } else if (reg && !refArray.every((item) => reg.test(item))) {
       callback(new Error(type.error))
     } else {
       callback()
