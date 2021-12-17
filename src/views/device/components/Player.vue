@@ -43,7 +43,7 @@
         <div v-else class="controls__btn kill__volume">
           <svg-icon name="mute" class="mute_gray" width="18px" height="18px" />
         </div>
-        <el-tooltip v-if="ifCanRTC" placement="top">
+        <el-tooltip v-if="ifCanRTC && codec !== 'h265'" placement="top">
           <div slot="content" class="videoTypeBox">
             <el-button type="text" size="mini" :class="videoType === 'FLV' ? 'activeVideoType' : ''" @click.stop.prevent="(e) => getVideoType(e,'FLV')">FLV</el-button>
             <br>
@@ -282,12 +282,8 @@ export default class extends Vue {
     } else {
       this.videoType = kind
       this.disposePlayer()
-      console.log('this.$refs.video.src--------------->', this.$refs.video)
-      // const $video:any = this.$refs.video
-      // $video.innerHtml = ''
-      // if (this.isLive) document.removeEventListener('visibilitychange', this.reloadPlayer)
-      // window.removeEventListener('resize', this.playerFS)
-      // if (this.resizeObserver) this.resizeObserver.disconnect()
+      const $video:any = this.$refs.video
+      $video.innerHtml = ''
       this.$nextTick(() => {
         this.createPlayer()
       })
