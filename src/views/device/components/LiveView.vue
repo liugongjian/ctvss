@@ -22,6 +22,7 @@
         :is-live="true"
         :is-fullscreen="isFullscreen"
         :has-control="false"
+        :in-in-protocol="inProtocol"
         @onCanPlay="onCanPlay"
         @onRetry="onRetry"
         @onFullscreen="fullscreen"

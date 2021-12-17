@@ -43,7 +43,7 @@
         <div v-else class="controls__btn kill__volume">
           <svg-icon name="mute" class="mute_gray" width="18px" height="18px" />
         </div>
-        <el-tooltip content="开启语音对讲" placement="top">
+        <el-tooltip v-if="inProtocol === 'gb28181'" content="开启语音对讲" placement="top">
           <div v-if="isLive" class="controls__btn controls__snapshot" @click.stop.prevent="toIntercom">
             <svg-icon name="micro" width="18px" height="18px" />
           </div>
@@ -194,6 +194,9 @@ export default class extends Vue {
    */
   @Prop()
   private deviceName?: string
+
+  // inProtocol
+  @Prop() private inProtocol?:string
 
   private checkPermission = checkPermission
   private isDragging: boolean = false
