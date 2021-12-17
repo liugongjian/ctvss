@@ -200,8 +200,6 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    console.log(this.templateId);
-    
     this.bindTemplateId = this.templateId!
     try {
       this.loading = true
