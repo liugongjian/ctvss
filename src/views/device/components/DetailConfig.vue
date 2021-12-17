@@ -415,7 +415,7 @@ export default class extends Vue {
   // 设置告警模板
   private setAlertTemplate() {
     this.setAlertTemplateDialog = true
-    this.setAlertTemplateId = this.template.alertTemplate ? this.template.alertTemplate.templateId : null
+    this.alertTemplateId = this.template.alertTemplate ? this.template.alertTemplate.templateId : null
   }
 
   /**
