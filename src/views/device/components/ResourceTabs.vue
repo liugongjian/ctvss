@@ -499,21 +499,31 @@ export default class extends Vue {
   private selectAlgoChange(val:any) {
     this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = val
     this.filterCheckedStatus()
-    if (!this.selectAlgoId.length) {
-      this.showError = false
-      this.showTips = false
-    } else if (this.selectAlgoId.length > this.remainDeviceConfigCount || (this.addCheckedIds.length - this.removeCheckedIds.length - this.remainDeviceConfigCount > 0)) {
-      this.showError = true
-      this.showTips = false
+    if (this.resourceHasAppIds && this.resourceHasAppIds.length) {
+      if (this.addCheckedIds.length - this.removeCheckedIds.length - this.remainDeviceConfigCount > 0) {
+        this.showError = true
+        this.showTips = false
+      } else {
+        this.showTips = true
+        this.showError = false
+      }
     } else {
-      this.showTips = true
-      this.showError = false
+      if (!this.selectAlgoId.length) {
+        this.showError = false
+        this.showTips = false
+      } else if (this.selectAlgoId.length > this.remainDeviceConfigCount) {
+        this.showError = true
+        this.showTips = false
+      } else {
+        this.showTips = true
+        this.showError = false
+      }
     }
   }
 
   private distinct(arr:any, key:any) {
     let hash = {}
-    const result = arr.reduce((preVal, curVal) => {
+    const result = arr.reduce((preVal:any, curVal:any) => {
       // eslint-disable-next-line no-unused-expressions
       hash[curVal[key]]
         ? ''
