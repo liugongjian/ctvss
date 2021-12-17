@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading="queryLoading.chart">
     <div v-show="chartData.length > 0" id="device-container" :style="`height:${height}vh`" />
     <div v-show="chartData.length === 0" class="no-data">暂无数据</div>
   </div>
@@ -26,6 +26,9 @@ export default class extends Mixins(DashboardMixin) {
   @Prop() private faceLib!: any
   @Prop() private device!: any
   @Prop() private appInfo!: any
+  private queryLoading: any = {
+    chart: false
+  }
   private debounceHandle = debounce(this.getData, 500)
   private chart: any = null
 
@@ -72,7 +75,7 @@ export default class extends Mixins(DashboardMixin) {
         deviceId: this.device.deviceId,
         inProtocol: this.device.inProtocol
       }
-
+      this.queryLoading.chart = true
       const { aiResultDate } = await getPeopleTrendChart(query)
       // this.chartData = await getPeopleTrendChart(query)
       this.chartData = this.fillChartData(startTime, endTime, aiResultDate)
@@ -90,6 +93,8 @@ export default class extends Mixins(DashboardMixin) {
     } catch (e) {
       // 异常处理
       console.log(e)
+    } finally {
+      this.queryLoading.chart = false
     }
   }
 
