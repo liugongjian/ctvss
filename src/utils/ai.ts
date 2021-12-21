@@ -501,7 +501,7 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
     case '10010':
       if (metaData.Data && metaData.Data.BeeDensity) {
         locations.push({
-          beeDensity: Math.round(metaData.Data.BeeDensity * 100)
+          beeDensity: Math.round(metaData.Data.BeeDensity)
         })
       }
       break
