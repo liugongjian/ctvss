@@ -183,6 +183,16 @@
             <span v-else><status-badge :status="recordStatusType[row.recordStatus]" />{{ recordStatus[row.recordStatus] || '-' }}</span>
           </template>
         </el-table-column>
+        <el-table-column key="rate" prop="rate" label="当前码率">
+          <template slot-scope="{row}">
+            {{ row.rate || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column key="msg" prop="msg" label="异常提示">
+          <template slot-scope="{row}">
+            {{ row.msg || '-' }}
+          </template>
+        </el-table-column>
         <el-table-column key="deviceVendor" prop="deviceVendor" label="厂商">
           <template slot-scope="{row}">
             {{ row.deviceVendor || '-' }}

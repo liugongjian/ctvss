@@ -188,6 +188,9 @@
             </div>
           </div>
         </el-tab-pane>
+        <el-tab-pane label="设备/流事件" name="events">
+          <detail-events v-if="activeName==='events'" :device-id="deviceId" :in-protocol="inProtocol" />
+        </el-tab-pane>
         <el-tab-pane label="配置信息" name="config">
           <detail-config v-if="activeName==='config'" :device-id="deviceId" :in-protocol="inProtocol" />
           <!-- <template-bind v-if="activeName==='config'" :device-id="deviceId" :in-protocol="inProtocol" /> -->
