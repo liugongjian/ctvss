@@ -54,55 +54,57 @@
           </div>
         </el-tooltip>
         <el-tooltip content="开启语音对讲" placement="top">
-          <div v-if="isLive" class="controls__btn controls__snapshot" @click.stop.prevent="toIntercom">
-            <svg-icon name="micro" width="18px" height="18px" />
-          </div>
-        </el-tooltip>
-        <div v-if="!isLive && codec !== 'h265'" class="controls__btn controls__playback">
-          {{ playbackRate === 1 ? '倍速' : `${playbackRate}x` }}
-          <ul class="controls__popup">
-            <li
-              v-for="rate in playbackRateList"
-              :key="rate"
-              :class="{'selected': rate === playbackRate}"
-              @click="setPlaybackRate(rate)"
-            >
-              {{ rate }}x
-            </li>
-          </ul>
-        </div>
-        <el-tooltip :content="isZoom ? '关闭电子缩放' : '开启电子缩放'" placement="top">
-          <div class="controls__btn controls__zoom" :class="{'selected': isZoom}" @click.stop.prevent="toggleZoom">
-            <svg-icon name="zoom" width="16px" height="16px" />
-          </div>
-        </el-tooltip>
-        <el-tooltip content="保存截图" placement="top">
-          <div class="controls__btn controls__snapshot" @click.stop.prevent="snapshot">
-            <svg-icon name="snapshot" width="18px" height="18px" />
-          </div>
-        </el-tooltip>
-        <el-tooltip v-if="checkPermission(['ReplayRecord'])" content="录像回放" placement="top">
-          <div v-if="isLive && hasPlayback" class="controls__btn controls__snapshot" @click.stop.prevent="playback">
-            <svg-icon name="playback2" width="18px" height="18px" />
-          </div>
-        </el-tooltip>
-        <el-tooltip content="播放实时监控" placement="top">
-          <div v-if="!isLive && hasPlaylive" class="controls__btn controls__snapshot" @click.stop.prevent="playlive">
-            <svg-icon name="ipc" width="18px" height="18px" />
-          </div>
-        </el-tooltip>
-        <template v-if="hasFullscreen">
-          <el-tooltip v-if="!isFullscreen" content="进入全屏" placement="top">
-            <div class="controls__btn controls__fullscreen" @click.stop.prevent="fullscreen">
-              <svg-icon name="fullscreen" width="15px" height="15px" />
+          <el-tooltip v-if="inProtocol === 'gb28181'" content="开启语音对讲" placement="top">
+            <div v-if="isLive" class="controls__btn controls__snapshot" @click.stop.prevent="toIntercom">
+              <svg-icon name="micro" width="18px" height="18px" />
             </div>
           </el-tooltip>
-          <el-tooltip v-else content="退出全屏" placement="top">
-            <div class="controls__btn controls__exit-fullscreen" @click.stop.prevent="exitFullscreen">
-              <svg-icon name="exit-fullscreen" width="15px" height="15px" />
+          <div v-if="!isLive && codec !== 'h265'" class="controls__btn controls__playback">
+            {{ playbackRate === 1 ? '倍速' : `${playbackRate}x` }}
+            <ul class="controls__popup">
+              <li
+                v-for="rate in playbackRateList"
+                :key="rate"
+                :class="{'selected': rate === playbackRate}"
+                @click="setPlaybackRate(rate)"
+              >
+                {{ rate }}x
+              </li>
+            </ul>
+          </div>
+          <el-tooltip :content="isZoom ? '关闭电子缩放' : '开启电子缩放'" placement="top">
+            <div class="controls__btn controls__zoom" :class="{'selected': isZoom}" @click.stop.prevent="toggleZoom">
+              <svg-icon name="zoom" width="16px" height="16px" />
             </div>
           </el-tooltip>
-        </template>
+          <el-tooltip content="保存截图" placement="top">
+            <div class="controls__btn controls__snapshot" @click.stop.prevent="snapshot">
+              <svg-icon name="snapshot" width="18px" height="18px" />
+            </div>
+          </el-tooltip>
+          <el-tooltip v-if="checkPermission(['ReplayRecord'])" content="录像回放" placement="top">
+            <div v-if="isLive && hasPlayback" class="controls__btn controls__snapshot" @click.stop.prevent="playback">
+              <svg-icon name="playback2" width="18px" height="18px" />
+            </div>
+          </el-tooltip>
+          <el-tooltip content="播放实时监控" placement="top">
+            <div v-if="!isLive && hasPlaylive" class="controls__btn controls__snapshot" @click.stop.prevent="playlive">
+              <svg-icon name="ipc" width="18px" height="18px" />
+            </div>
+          </el-tooltip>
+          <template v-if="hasFullscreen">
+            <el-tooltip v-if="!isFullscreen" content="进入全屏" placement="top">
+              <div class="controls__btn controls__fullscreen" @click.stop.prevent="fullscreen">
+                <svg-icon name="fullscreen" width="15px" height="15px" />
+              </div>
+            </el-tooltip>
+            <el-tooltip v-else content="退出全屏" placement="top">
+              <div class="controls__btn controls__exit-fullscreen" @click.stop.prevent="exitFullscreen">
+                <svg-icon name="exit-fullscreen" width="15px" height="15px" />
+              </div>
+            </el-tooltip>
+          </template>
+        </el-tooltip>
       </div>
     </div>
   </div>
@@ -209,6 +211,8 @@ export default class extends Vue {
   // 视频流全部address
     @Prop()
   private allAddress?: any
+  // inProtocol
+  @Prop() private inProtocol?:string
 
   private checkPermission = checkPermission
   private isDragging: boolean = false

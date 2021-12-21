@@ -23,6 +23,7 @@
         :is-fullscreen="isFullscreen"
         :has-control="false"
         :all-address="address"
+        :in-protocol="inProtocol"
         @onCanPlay="onCanPlay"
         @onRetry="onRetry"
         @onFullscreen="fullscreen"

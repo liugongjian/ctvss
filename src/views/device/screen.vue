@@ -224,6 +224,7 @@
                           :is-live="true"
                           :is-ws="true"
                           :is-fullscreen="screen.isFullscreen"
+                          :in-protocol="screen.inProtocol"
                           :auto-play="true"
                           :has-control="false"
                           :has-playback="true"
