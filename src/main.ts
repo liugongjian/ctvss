@@ -75,11 +75,10 @@ try {
       const href = window.location.href
       if (href.indexOf('userId=') !== -1) {
         const userId = href.slice(href.indexOf('userId=') + 'userId='.length)
-        if (userId === '20720089') {
+        if (userId === '570006') {
           try {
-            const token = await getWhiteListUserAccessToken({ userId })
-            console.log('token: ', token.token)
-            UserModule.SetToken(token.token)
+            const res = await getWhiteListUserAccessToken({ userId })
+            UserModule.SetToken(res.token)
             new Vue({
               router,
               store,
