@@ -79,3 +79,10 @@ export const changeIAMPassword = (data: any) =>
     method: 'post',
     data
   })
+
+export const getWhiteListUserAccessToken = (params: any): Promise<any> =>
+  request({
+    url: '/user/white',
+    method: 'get',
+    params
+  })

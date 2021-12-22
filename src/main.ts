@@ -26,6 +26,7 @@ import * as directives from '@/directives'
 import * as filters from '@/filters'
 import settings from './settings'
 import { getLocalStorage, setLocalStorage } from '@/utils/storage'
+import { getWhiteListUserAccessToken } from '@/api/users'
 
 // @ts-ignore
 window._typeof = (e: any) => {
@@ -66,9 +67,32 @@ if (isIE()) {
 try {
   // 从localstorage中读取选中的业务组
   GroupModule.GetGroupFromLs()
-  CtcloudLayout.getPublicInfo().authCurrentPromise.then((data :any) => {
+  CtcloudLayout.getPublicInfo().authCurrentPromise.then(async(data :any) => {
     if (!data.isLoggedIn) {
       // 天翼云未登录
+
+      // 海南特殊用户处理
+      const href = window.location.href
+      if (href.indexOf('userId=') !== -1) {
+        const userId = href.slice(href.indexOf('userId=') + 'userId='.length)
+        if (userId === '20720089') {
+          try {
+            const token = await getWhiteListUserAccessToken({ userId })
+            console.log('token: ', token.token)
+            UserModule.SetToken(token.token)
+            new Vue({
+              router,
+              store,
+              render: (h) => h(App)
+            }).$mount('#app')
+            window.history.replaceState(null, '', href.slice(0, href.indexOf('?userId=')))
+            return
+          } catch (err) {
+            // 接口报错，执行原先初始化流程
+            console.log('err: ', err)
+          }
+        }
+      }
       const loginType = getLocalStorage('loginType')
       switch (loginType) {
         case 'main':
