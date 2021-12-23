@@ -339,13 +339,19 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
     // 研发二部人员布控
     case '10001':
       locations = metaData.Data && metaData.Data.MatchList.map((person: any) => {
-        return {
-          top: person.Location.Y,
-          left: person.Location.X,
-          width: person.Location.Width,
-          height: person.Location.Height,
-          isWarning: person.FaceItems.length > 0 && person.FaceItems[0].Score > 60,
-          score: person.FaceItems.length > 0 && Math.round(person.FaceItems[0].Score)
+        try {
+          const name = person.FaceItems.length > 0 ? JSON.parse(person.FaceItems[0].Labels)?.name : '-'
+          return {
+            top: person.Location.Y,
+            left: person.Location.X,
+            width: person.Location.Width,
+            height: person.Location.Height,
+            isWarning: person.FaceItems.length > 0 && person.FaceItems[0].Score > 60,
+            score: person.FaceItems.length > 0 && Math.round(person.FaceItems[0].Score),
+            name
+          }
+        } catch (error) {
+          console.log(error)
         }
       })
       break

@@ -12,7 +12,8 @@
         @click="clickLocation(locationIndex)"
       >
         <div v-if="type === '4' || type === '10001'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
-          置信度:{{ location.score }}%
+          置信度:{{ location.score }}%<br>
+          姓名:{{ location.name }}
         </div>
         <div v-if="type === '17'|| type === '10014'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning, 'ai-recognation__images__item__mask__text--top': location.clientTopPercent + location.clientHeightPercent > 80, 'ai-recognation__images__item__mask__text--left': location.clientLeftPercent + location.clientWidthPercent> 80}">
           {{ location.text }}
@@ -103,7 +104,7 @@ export default class extends Vue {
         background: $dashboardGreen;
         color: #000;
         word-break: keep-all;
-        bottom: -19px;
+        bottom: -32px;
         left: -2px;
         padding: 2px;
         opacity: 0.8;
