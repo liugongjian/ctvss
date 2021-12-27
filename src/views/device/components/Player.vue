@@ -372,6 +372,8 @@ export default class extends Vue {
       player.style.width = '100%'
       player.style.height = width * 9 / 16 + 'px'
     }
+    player.style.left = (width - player.clientWidth) / 2 + 'px'
+    player.style.top = (height - player.clientHeight) / 2 + 'px'
   }
 
   public disposePlayer() {
@@ -790,8 +792,6 @@ export default class extends Vue {
     .video-ref {
       height: 100%;
       display: flex;
-      justify-content: center;
-      align-items: center;
     }
     ::v-deep .player-box {
       div{
