@@ -147,7 +147,7 @@ export default class extends Vue {
         pid: 441882,
         level: 5
       })
-      address = '广州省/清远市/连州市'
+      address = '广东省/清远市/连州市'
       let lianzhouArea = res.areas.map((item: any) => {
         return {
           name: item.name,
