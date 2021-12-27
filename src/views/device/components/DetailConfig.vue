@@ -51,7 +51,7 @@
               </el-table-column>
               <el-table-column v-if=" !isNvr && !isVGroup && checkPermission(['AdminDevice'])" label="操作" min-width="200">
                 <template slot-scope="scope">
-                  <el-tooltip v-if="scope.row.algorithm.code === '10006'" class="item" effect="dark" content="设备离线时不可配置算法" placement="top-start" :disabled="deviceInfo.deviceStatus === 'on'">
+                  <el-tooltip v-if="scope.row.algorithm.code === '10006' || scope.row.algorithm.code === '10005'" class="item" effect="dark" content="设备离线时不可配置算法" placement="top-start" :disabled="deviceInfo.deviceStatus === 'on'">
                     <div class="disableBtnBox">
                       <el-button type="text" :disabled="deviceInfo.deviceStatus !== 'on'" @click="openCanvasDialog(scope.row)">算法配置</el-button>
                     </div>
