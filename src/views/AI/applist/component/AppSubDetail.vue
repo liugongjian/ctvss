@@ -359,7 +359,7 @@ export default class extends Vue {
   }
 }
 .query-wrapper{
-    height: 36px;
+    // height: 36px;
     margin-bottom: 20px;
     &>span{
         margin-right: 20px;
