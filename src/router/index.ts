@@ -1142,6 +1142,31 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
+    path: '/sysconfig',
+    component: Layout,
+    meta: {
+      id: '20210515200901013001',
+      title: '系统设置',
+      breadcrumb: true,
+      perms: ['*'],
+      hidden: true
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "exportDevices" */ '@/views/sysconfig/index.vue'),
+        name: 'exportDevices',
+        meta: {
+          id: '20210515200901013002',
+          title: '系统设置',
+          breadcrumb: false,
+          perms: ['*'],
+          hidden: true
+        }
+      }
+    ]
+  },
+  {
     path: '*',
     redirect: '/404',
     meta: { hidden: true }
