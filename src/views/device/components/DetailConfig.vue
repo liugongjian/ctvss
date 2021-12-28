@@ -554,12 +554,17 @@ export default class extends Vue {
   }
 
   private ifShowAlgoBtn(rowCode:any) {
-    console.log('rowCode===========>', rowCode)
     /** algorithm.code
-     * 10006 危险区域
+     * 危险区域: code 10006
+     * 人脸搜索: code 10001
+     * 车牌检测: code 10014
+     * 棉花检测: code 10015
      */
     switch (rowCode) {
       case '10006':
+      case '10001':
+      case '10014':
+      case '10015':
         return true
       default:
         return false
