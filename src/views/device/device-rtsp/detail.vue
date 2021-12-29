@@ -32,7 +32,7 @@
                   <el-descriptions-item label="录制状态">
                     <status-badge :status="recordStatusType[info.recordStatus]" />
                     {{ recordStatus[info.recordStatus] || '-' }}
-                    <el-link v-if="info.recordStatus === 1 && checkPermission(['*']) && !isVGroup" @click="detailOperate('stopRecord')">停止录像</el-link>
+                    <el-link v-if="[1, 2].includes(info.recordStatus) && checkPermission(['*']) && !isVGroup" @click="detailOperate('stopRecord')">停止录像</el-link>
                     <el-link v-else-if="checkPermission(['*']) && !isVGroup" @click="detailOperate('startRecord')">开始录像</el-link>
                   </el-descriptions-item>
                 </template>
