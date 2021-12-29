@@ -22,7 +22,7 @@
         <div class="configureDetail">
           <span class="configureName">检测区域：</span>
           <span class="configureValue">
-            <el-button :disabled="cannotDraw" @click="chooseMode('line')">画直线</el-button>
+            <!-- <el-button :disabled="cannotDraw" @click="chooseMode('line')">画直线</el-button> -->
             <el-button :disabled="cannotDraw" @click="chooseMode('rect')">画矩形</el-button>
             <el-button :disabled="cannotDraw" @click="chooseMode('polygon')">画多边形</el-button>
             <el-button @click="clear">清除</el-button>

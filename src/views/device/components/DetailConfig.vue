@@ -51,7 +51,7 @@
               </el-table-column>
               <el-table-column v-if=" !isNvr && !isVGroup && checkPermission(['AdminDevice'])" label="操作" min-width="200">
                 <template slot-scope="scope">
-                  <el-tooltip v-if="scope.row.algorithm.code === '10006' || scope.row.algorithm.code === '10005'" class="item" effect="dark" content="设备离线时不可配置算法" placement="top-start" :disabled="deviceInfo.deviceStatus === 'on'">
+                  <el-tooltip v-if="ifShowAlgoBtn(scope.row.algorithm.code)" class="item" effect="dark" content="设备离线时不可配置算法" placement="top-start" :disabled="deviceInfo.deviceStatus === 'on'">
                     <div class="disableBtnBox">
                       <el-button type="text" :disabled="deviceInfo.deviceStatus !== 'on'" @click="openCanvasDialog(scope.row)">算法配置</el-button>
                     </div>
@@ -551,6 +551,24 @@ export default class extends Vue {
       this.loading.AITable = false
       this.$message.error(`解除 ${rowInfo.name} 绑定失败，原因：${e && e.message}`)
     })
+  }
+
+  private ifShowAlgoBtn(rowCode:any) {
+    /** algorithm.code
+     * 危险区域: code 10006
+     * 人脸搜索: code 10001
+     * 车牌检测: code 10014
+     * 棉花检测: code 10015
+     */
+    switch (rowCode) {
+      case '10006':
+      case '10001':
+      case '10014':
+      case '10015':
+        return true
+      default:
+        return false
+    }
   }
 }
 </script>
