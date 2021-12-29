@@ -63,6 +63,7 @@ export default class extends Mixins(DashboardMixin) {
     //   ]
     // }
     this.chart ? this.updateChart() : this.drawChart()
+    this.updateChart()// update，否则第一次加载图标后显示缺少色块
   }
 
   /**

@@ -340,7 +340,7 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
     case '10001':
       locations = metaData.Data && metaData.Data.MatchList.map((person: any) => {
         try {
-          const name = person.FaceItems.length > 0 ? JSON.parse(person.FaceItems[0].Labels)?.name : '-'
+          const name = (person.FaceItems.length > 0 && person.FaceItems[0].Labels.length > 0) ? JSON.parse(person.FaceItems[0].Labels).name : '-'
           return {
             top: person.Location.Y,
             left: person.Location.X,
@@ -597,6 +597,7 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
     // 在场人员+口罩检测
     case '10017':
       if (metaData.Data && metaData.Data.FaceRectangles) {
+        console.log(metaData)
         const boxes = metaData.Data.FaceRectangles
         for (let i = 0; i < boxes.length; i += 4) {
           const type = metaData.Data.ClassList[i / 4]

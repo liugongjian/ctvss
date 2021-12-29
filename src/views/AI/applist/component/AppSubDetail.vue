@@ -81,7 +81,7 @@
           <div class="title-block" />
           <span>视频截图</span>
         </div>
-        <div v-if="device.deviceId.length > 0 && picInfos.length > 0" class="card-wrapper">
+        <div v-if="device.deviceId.length > 0 && picInfos.length > 0 && !queryLoading.pic" class="card-wrapper">
           <PicCard
             v-for="(pic, index) in picInfos"
             :key="index"
