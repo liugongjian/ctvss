@@ -40,7 +40,9 @@ export default class extends Mixins(DashboardMixin) {
     const data = await getAuditTrend({ form: 'day' })
     const temp1 = Object.keys(data.trend).map(key => ({ type: AlertType[key], value: parseInt(data.trend[key]) }))
     const temp2 = temp1.length > 5 ? temp1.sort((x, y) => y.value - x.value).slice(0, 5) : temp1.sort((x, y) => y.value - x.value)
-    this.chartData = temp2.map(item => item.type.length > 4 ? { ...item, type: item.type.slice(0, 4) + '\n\n' + item.type.slice(4) } : item)
+    // this.chartData = temp1.length > 5 ? temp1.sort((x, y) => y.value - x.value).slice(0, 5) : temp1.sort((x, y) => y.value - x.value)
+    this.chartData = temp2.map(item => item.type.length > 8 ? { ...item, type: item.type.slice(0, 4) + '\n' + item.type.slice(4) } : item)
+
     // this.chartData = [
     //   { type: '未带口罩', value: parseInt(data.trend[6] || 0) },
     //   { type: '人员聚集', value: parseInt(data.trend[8] || 6) },
