@@ -13,7 +13,7 @@
       >
         <div v-if="['4', '10001'].includes(type) && !!location.score" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
           置信度:{{ location.score }}%<br>
-          姓名:{{ location.name }}
+          <span v-if="type === '10001'">姓名:{{ location.name }}</span>
         </div>
         <div v-if="type === '17'|| type === '10014'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning, 'ai-recognation__images__item__mask__text--top': location.clientTopPercent + location.clientHeightPercent > 80, 'ai-recognation__images__item__mask__text--left': location.clientLeftPercent + location.clientWidthPercent> 80}">
           {{ location.text }}

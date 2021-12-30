@@ -83,7 +83,6 @@ export default class extends Vue {
 
   private mounted() {
     // this.getRecordAudits()
-    console.log(this.audit)
   }
 
   get deviceNameAndChannel() {
