@@ -95,7 +95,8 @@ export default class extends Mixins(DashboardMixin) {
         offset: 25,
         style: {
           fill: this.isLight ? '#333' : '#D8D8D8',
-          fontSize: 14
+          fontSize: 14,
+          lineHeight: 18
         }
       }
     })

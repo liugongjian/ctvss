@@ -17,7 +17,7 @@
       </el-tab-pane>
       <el-tab-pane label="分析结果" :name="'2'">
         <div class="app-container__result">
-          <div
+          <!-- <div
             class="device-list__handle"
             :style="`left: ${dirDrag.width}px`"
             @mousedown="changeWidthStartAndResize($event)"
@@ -40,9 +40,20 @@
                 </span>
               </span>
             </el-tree>
+          </div> -->
+          <div class="app-container__result__device">
+            <span>设备:</span>
+            <el-select v-model="device" placeholder="请选择" value-key="deviceId">
+              <el-option
+                v-for="value in deviceList"
+                :key="value.deviceId"
+                :label="value.deviceType === 'nvr' ? `NVR / ${value.deviceName}` : value.deviceName"
+                :value="value"
+              />
+            </el-select>
           </div>
-          <!-- <div class="o-left" :style="`width: ${dirDrag.width}px`" /> -->
-          <div class="right" :style="`width: calc(100% - ${dirDrag.width}px)`">
+          <!-- <div class="right" :style="`width: calc(100% - ${dirDrag.width}px)`"> -->
+          <div class="right">
             <AppSubDetail v-if="appInfo.name" :device="device" :app-info="appInfo" :face-lib="faceLib" />
           </div>
         </div>
@@ -55,13 +66,12 @@ import { Component, Mixins } from 'vue-property-decorator'
 import BasicAppInfo from './component/BasicAppInfo.vue'
 import AppSubDetail from './component/AppSubDetail.vue'
 import AtachedDevice from './component/AtachedDevice.vue'
-import { getAppInfo } from '@/api/ai-app'
+import { getAppInfo, getAttachedDevice } from '@/api/ai-app'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
 import { getAIConfigGroupData } from '@/api/aiConfig'
 import AppMixin from '../mixin/app-mixin'
 import IndexMixin from '@/views/device/mixin/indexMixin'
-
 @Component({
   name: 'AppDetail',
   components: {
@@ -85,6 +95,7 @@ export default class extends Mixins(AppMixin, IndexMixin) {
     }
     private faceLib: any = {}
     private tabNum: string | string[] = ''
+    private deviceList:any = []
 
     private async mounted() {
       this.tabNum = this.$route.query.tabNum
@@ -92,6 +103,12 @@ export default class extends Mixins(AppMixin, IndexMixin) {
       this.initDirs()
       const { groups }: any = await getAIConfigGroupData({})
       this.initFaceLib(groups)
+      const { deviceList } = await getAttachedDevice({
+        appId: this.$route.query.appid,
+        pageSize: 3000
+      })
+      this.deviceList = deviceList
+      deviceList.length > 0 && (this.device = deviceList[0])
     }
 
     private initFaceLib(groups) {
@@ -230,6 +247,16 @@ export default class extends Mixins(AppMixin, IndexMixin) {
 .app-container__result{
   position: relative;
   width: 100%;
+  &__device{
+    float: left;
+    padding: 0 20px;
+    & > span{
+      margin-right: 10px;
+    }
+    .el-select {
+      max-width: 120px;
+    }
+  }
   .left {
     display: inline-block;
     vertical-align: top;
@@ -248,8 +275,8 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   }
   .right{
     padding-left: 20px;
-    display: inline-block;
-    border-left: 1px solid $borderGrey;
+    // display: inline-block;
+    // border-left: 1px solid $borderGrey;
   }
 }
 .online{

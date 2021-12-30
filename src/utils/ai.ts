@@ -629,7 +629,6 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
     // 在场人员+口罩检测
     case '10017':
       if (metaData.Data && metaData.Data.FaceRectangles) {
-        console.log(metaData)
         const boxes = metaData.Data.FaceRectangles
         for (let i = 0; i < boxes.length; i += 4) {
           const type = metaData.Data.ClassList[i / 4]
