@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     title="告警详情"
-    :custom-class="{theme: !isLight}"
+    :custom-class="!isLight ? theme : ''"
     :visible="dialogVisible"
     :close-on-click-modal="true"
     width="50%"
@@ -83,6 +83,7 @@ export default class extends Vue {
 
   private mounted() {
     // this.getRecordAudits()
+    console.log(this.audit)
   }
 
   get deviceNameAndChannel() {
