@@ -212,6 +212,10 @@ export default class extends Vue {
   // inProtocol
   @Prop() private inProtocol?:string
 
+  @Prop({
+    default: 30
+  }) private volume?:number
+
   private checkPermission = checkPermission
   private isDragging: boolean = false
   public player?: any
@@ -221,7 +225,7 @@ export default class extends Vue {
   public waiting = false
   private isZoom = false
   private playbackRate = 1
-  private volume = 30
+  // private volume = 30
   private playbackRateList = [16, 8, 4, 2, 1.5, 1, 0.5, 0.25]
   private videoMoveData: any = {
     x: null,

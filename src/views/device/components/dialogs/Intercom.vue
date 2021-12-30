@@ -34,13 +34,13 @@
           <div class="intercomMicroVol">
             <div ref="intercomMicroVolCtx" class="intercomMicroVolCtx" />
           </div>
-          <div class="intercomMicroBtn"
-               @mousedown.prevent="intercomMousedown"
-               @mouseup.prevent="intercomMouseup"
-               @mouseleave="intercomMouseleave"
+          <a class="intercomMicroBtn"
+             @mousedown.prevent="intercomMousedown"
+             @mouseup.prevent="intercomMouseup"
+             @mouseleave="intercomMouseleave"
           >
             <svg-icon name="microphone" width="66px" height="66px" />
-          </div>
+          </a>
         </div>
       </div>
     </div>
@@ -152,6 +152,17 @@ export default class extends Mixins(ScreenMixin) {
               this.startRecord()
             } else {
               this.ws.close()
+            }
+          }
+          this.ws.onerror = () => {
+            this.$message.error('连接已被提前终止')
+            this.intercomMouseup()
+          }
+          this.ws.onmessage = (e:any) => {
+            const { data } = e
+            console.log('message-data=======>', data)
+            if (data === 'streamserver error') {
+              this.intercomMouseup()
             }
           }
         } catch (e) {
@@ -369,6 +380,7 @@ export default class extends Mixins(ScreenMixin) {
     transform:translate(-50%,-50%)
   }
   .intercomMicroBtn{
+    display: inline-block;
     cursor: pointer;
     width: 70px;
     height: 70px;

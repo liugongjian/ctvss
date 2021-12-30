@@ -25,6 +25,7 @@ export default class Screen {
   public calendarFocus?: boolean
   public errorMsg?: string
   public allAddress?:any
+  public volume?:any
 
   constructor() {
     this.deviceId = ''
@@ -48,6 +49,7 @@ export default class Screen {
     this.calendarFocus = false
     this.errorMsg = ''
     this.allAddress = ''
+    this.volume = 30
   }
 
   public async getUrl() {
@@ -105,6 +107,7 @@ export default class Screen {
     this.axiosSource && this.axiosSource.cancel()
     this.axiosSource = null
     this.allAddress = ''
+    this.volume = 30
   }
 
   public fullscreen() {
