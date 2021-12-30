@@ -81,7 +81,7 @@
           <div class="title-block" />
           <span>视频截图</span>
         </div>
-        <div v-if="device.deviceId.length > 0 && picInfos.length > 0" class="card-wrapper">
+        <div v-if="device.deviceId.length > 0 && picInfos.length > 0 && !queryLoading.pic" class="card-wrapper">
           <PicCard
             v-for="(pic, index) in picInfos"
             :key="index"
@@ -359,7 +359,7 @@ export default class extends Vue {
   }
 }
 .query-wrapper{
-    height: 36px;
+    // height: 36px;
     margin-bottom: 20px;
     &>span{
         margin-right: 20px;

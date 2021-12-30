@@ -27,6 +27,17 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { addAIConfigGroupData } from '@/api/aiConfig'
+
+const validate = (rule, value, callback) => {
+  const regu = /^[\u4e00-\u9fa50-9a-zA-Z-()（）_]{2,64}$/
+  const re = new RegExp(regu)
+  if (!re.test(value)) {
+    callback(new Error('只能包含大小写字母、数字、中文、中划线、下划线、小括号'))
+  } else {
+    callback()
+  }
+}
+
 @Component({
   name: 'AddGroup'
 })
@@ -39,7 +50,9 @@ export default class extends Vue {
   }
   private rules = {
     name: [
-      { required: true, message: '请输入组名', trigger: 'blur' }
+      { required: true, message: '请输入组名', trigger: 'blur' },
+      { min: 2, max: 64, message: '长度需在 2 到 64 个字符', trigger: 'blur' },
+      { validator: validate, trigger: 'blur' }
     ]
   }
 
