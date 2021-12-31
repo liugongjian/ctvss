@@ -34,13 +34,14 @@
           <div class="intercomMicroVol">
             <div ref="intercomMicroVolCtx" class="intercomMicroVolCtx" />
           </div>
-          <a class="intercomMicroBtn"
-             @mousedown.prevent="intercomMousedown"
-             @mouseup.prevent="intercomMouseup"
-             @mouseleave="intercomMouseleave"
+          <div class="intercomMicroBtn"
+
+               @mousedown="intercomMousedown"
+               @mouseup="intercomMouseup"
+               @mouseleave="intercomMouseleave"
           >
             <svg-icon name="microphone" width="66px" height="66px" />
-          </a>
+          </div>
         </div>
       </div>
     </div>
