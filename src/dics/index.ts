@@ -231,3 +231,23 @@ export const ResultTimeInterval = {
   '5分钟': 300,
   '10分钟': 600
 }
+
+/**
+ *  设备事件级别
+ */
+export const errorLevel = {
+  '0': '全部',
+  '1': '异常',
+  '2': '正常'
+}
+
+/**
+ *  设备事件类型
+ */
+export const eventsType = {
+  'all': '全部',
+  'device': '设备事件',
+  'stream': '流事件',
+  'record': '录制事件',
+  'coderate_overflow': '超码率'
+}

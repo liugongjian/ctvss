@@ -1,31 +1,42 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <div class="filter-container__right">
-        <span>时间区间：</span>
-        <el-date-picker
-          v-model="search.timeRange"
-          type="datetimerange"
-          range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
+      <span>时间区间:</span>
+      <el-date-picker
+        v-model="search.timeRange"
+        type="datetimerange"
+        range-separator="至"
+        start-placeholder="开始日期"
+        end-placeholder="结束日期"
+      />
+      <span>事件级别:</span>
+      <el-select v-model="search.errorLevel">
+        <el-option
+          v-for="(item, index) in errorLevelList"
+          :key="index"
+          :label="item.label"
+          :value="item.value"
         />
-        <span>设备/流事件：</span>
-        <el-select v-model="search.eventType">
-          <el-option
-            v-for="(item, index) in eventsTypeList"
-            :key="index"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
-        <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
+      </el-select>
+      <span>事件类型:</span>
+      <el-select v-model="search.eventType">
+        <el-option
+          v-for="(item, index) in eventsTypeList"
+          :key="index"
+          :label="item.label"
+          :value="item.value"
+        />
+      </el-select>
+      <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
+      <div class="filter-container__right">
+        <el-button type="primary" @click="searchEvents">搜索</el-button>
       </div>
     </div>
     <el-table ref="table" v-loading="loading" :data="dataList" fit class="template__table">
       <el-table-column prop="number" label="序号" />
-      <el-table-column prop="time" label="时间" min-width="200" />
-      <el-table-column prop="events" label="设备/流事件" min-width="300" />
+      <el-table-column prop="createdTime" label="时间" min-width="200" />
+      <el-table-column prop="events" label="事件级别" min-width="300" />
+      <el-table-column prop="errorType" label="事件类型" min-width="300" />
     </el-table>
     <el-pagination
       :current-page="pager.pageNum"
@@ -39,8 +50,9 @@
 </template>
 
 <script lang='ts'>
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { dateFormatInTable } from '@/utils/date'
+import { Component, Vue, Prop } from 'vue-property-decorator'
+import { getDeviceEvents } from '@/api/device'
+import { errorLevel, eventsType } from '@/dics/index'
 
 @Component({
   name: 'DeviceEvents'
@@ -49,40 +61,29 @@ export default class extends Vue {
   @Prop() private deviceId?: String
   @Prop() private inProtocol?: String
   private loading = false
-  private callbackTemplateName = ''
   private search = {
-    timeRange: null,
-    eventType: ''
+    timeRange: [],
+    errorLevel: '0',
+    eventType: 'all'
   }
-  private eventsTypeList: Array<any> = [
-    {
-      label: '全部',
-      value: ''
-    },
-    {
-      label: '设备/流上下线',
-      value: '1'
-    },
-    {
-      label: '录制事件',
-      value: '2'
-    },
-    {
-      label: '超码率',
-      value: '3'
+  private errorLevelList: Array<any> = Object.keys(errorLevel).map(error => {
+    return {
+      label: errorLevel[error],
+      value: error
     }
-  ]
-  private pager = {
+  })
+  private eventsTypeList: Array<any> = Object.keys(eventsType).map(event => {
+    return {
+      label: eventsType[event],
+      value: event
+    }
+  })
+  private dataList = []
+  private pager: any = {
     pageNum: 1,
     pageSize: 10,
     total: 0
   }
-  private dateFormatInTable = dateFormatInTable
-
-  // @Watch('dataList.length')
-  // private onDataListChange(data: any) {
-  //   data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
-  // }
 
   private async mounted() {
     await this.getList()
@@ -91,15 +92,37 @@ export default class extends Vue {
   private async refresh() {
     await this.getList()
   }
+
+  private searchEvents() {
+    this.pager = {
+      pageNum: 1,
+      pageSize: 10,
+      total: 0
+    }
+    this.getList()
+  }
+
   private async getList() {
     try {
       this.loading = true
       let params = {
+        deviceId: this.deviceId,
+        inProtocal: this.inProtocol,
+        startTime: this.search.timeRange[0]?.getTime(),
+        endTime: this.search.timeRange[1]?.getTime(),
+        errorLevel: this.search.errorLevel,
+        eventType: this.search.eventType,
         pageNum: this.pager.pageNum,
         pageSize: this.pager.pageSize
       }
-      // const res = await getCallbackTemplates(params)
-      // this.dataList = res.templates
+      const res = await getDeviceEvents(params)
+      this.dataList = res?.desDeviceEvent.map(event => {
+        return {
+          createdTime: event.createdTime,
+          errorLevel: this.errorLevelList.find(error => error.value === event.errorLevel)?.label,
+          eventType: this.eventsTypeList.find(error => error.value === event.eventType)?.label
+        }
+      })
     } catch (e) {
       this.$message.error(`获取事件列表失败，原因：${e && e.message}`)
     } finally {
@@ -125,8 +148,14 @@ export default class extends Vue {
     margin-left: 10px;
   }
 }
-.filter-container__search-group {
-  margin-right: 10px;
+.filter-container {
+  > * {
+    margin-right: 15px;
+    margin-bottom: 10px;
+  }
+  .el-select {
+    width: 150px;
+  }
 }
 .template__table {
   ::v-deep .el-table__body {

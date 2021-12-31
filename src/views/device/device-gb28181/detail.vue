@@ -35,6 +35,12 @@
                     <el-link v-if="info.recordStatus === 1 && checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('stopRecord')">停止录像</el-link>
                     <el-link v-else-if="checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('startRecord')">开始录像</el-link>
                   </el-descriptions-item>
+                  <el-descriptions-item label="当前码率">
+                    {{ info.rate ? info.rate + 'M' : '-' }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="异常提示">
+                    {{ info.errorMessage || '-' }}
+                  </el-descriptions-item>
                 </template>
               </el-descriptions>
             </div>

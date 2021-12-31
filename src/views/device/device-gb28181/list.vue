@@ -185,12 +185,12 @@
         </el-table-column>
         <el-table-column key="rate" prop="rate" label="当前码率">
           <template slot-scope="{row}">
-            {{ row.rate || '-' }}
+            {{ row.rate + 'M' || '-' }}
           </template>
         </el-table-column>
         <el-table-column key="msg" prop="msg" label="异常提示">
           <template slot-scope="{row}">
-            {{ row.msg || '-' }}
+            {{ row.rate ? info.rate + 'M' : '-' }}
           </template>
         </el-table-column>
         <el-table-column key="deviceVendor" prop="deviceVendor" label="厂商">
@@ -242,7 +242,26 @@
           <template slot-scope="scope">
             <el-button v-if="checkPermission(['ScreenPreview'])" type="text" :disabled="scope.row.deviceType === 'nvr' || scope.row.deviceType === 'platform'" @click="goToPreview('preview', scope.row)">实时预览</el-button>
             <el-button v-if="checkPermission(['ReplayRecord'])" type="text" :disabled="scope.row.deviceType === 'nvr' || scope.row.deviceType === 'platform'" @click="goToPreview('replay', scope.row)">录像回放</el-button>
-            <el-button type="text" disabled @click="goToPreview('snapshot', scope.row)">查看截图</el-button>
+            <!-- <el-button type="text" disabled @click="goToPreview('snapshot', scope.row)">查看截图</el-button> -->
+            <el-popover
+              width="350"
+              :open-delay="800"
+              trigger="hover"
+              @show="getEventsList(scope.row)"
+            >
+              <el-table
+                v-loading="loading.events"
+                :show-header="false"
+                :data="eventsList"
+                :height="170"
+                empty-text="未查询到事件"
+              >
+                <!-- <el-table-column property="number" /> -->
+                <el-table-column property="createdTime" />
+                <el-table-column property="eventType" />
+              </el-table>
+              <el-button slot="reference" type="text" @click="deviceRouter({id: scope.row.deviceId, type: 'detail', activeName: 'events'})">设备事件</el-button>
+            </el-popover>
             <el-dropdown @command="handleMore">
               <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
               <el-dropdown-menu slot="dropdown">

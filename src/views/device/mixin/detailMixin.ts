@@ -46,7 +46,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   public gotoRoot!: Function
 
   public checkPermission = checkPermission
-  public activeName = 'info'
+  public activeName: any = 'info'
   public deviceStatus = DeviceStatus
   public recordStatusType = RecordStatusType
   public deviceType = DeviceGb28181Type
@@ -178,6 +178,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
 
   public async mounted() {
     this.detailInit()
+    this.activeName = this.$route.query.activeName || 'info'
   }
 
   private async detailInit() {
