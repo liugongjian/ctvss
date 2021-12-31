@@ -35,7 +35,6 @@
             <div ref="intercomMicroVolCtx" class="intercomMicroVolCtx" />
           </div>
           <div class="intercomMicroBtn"
-
                @mousedown="intercomMousedown"
                @mouseup="intercomMouseup"
                @mouseleave="intercomMouseleave"
@@ -191,8 +190,8 @@ export default class extends Mixins(ScreenMixin) {
           deviceId: this.intercomInfo.deviceId,
           audioKey: this.audioKey
         }
+        this.stopRecord()
         stopTalk(param).then(() => {
-          this.stopRecord()
           this.last = Date.now()
         }).catch((err:any) => {
           this.last = Date.now()
