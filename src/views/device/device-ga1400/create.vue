@@ -256,7 +256,7 @@ export default class extends Mixins(createMixin) {
    * 提交
    */
   private submit() {
-    this.beforeSubmit(this.doSubmit)
+    this.doSubmit()
   }
 
   /**

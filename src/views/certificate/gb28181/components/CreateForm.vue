@@ -51,9 +51,11 @@ export default class extends Vue {
       { validator: this.validateUserName, trigger: 'blur' }
     ],
     newPassword: [
+      { required: true, message: '请输入密码', trigger: 'blur' },
       { validator: this.validatePass, trigger: 'blur' }
     ],
     confirmPassword: [
+      { required: true, message: '请再次输入密码', trigger: 'blur' },
       { validator: this.validatePass2, trigger: 'blur' }
     ],
     password: [

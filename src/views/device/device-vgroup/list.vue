@@ -52,6 +52,7 @@ import rtmp from '../device-rtmp/list.vue'
 import rtsp from '../device-rtsp/list.vue'
 import onvif from '../device-onvif/list.vue'
 import ehome from '../device-ehome/list.vue'
+import ga1400 from '../device-ga1400/list.vue'
 
 @Component({
   name: 'DeviceVGroupList',
@@ -61,7 +62,8 @@ import ehome from '../device-ehome/list.vue'
     rtmp,
     rtsp,
     onvif,
-    ehome
+    ehome,
+    ga1400
   }
 })
 export default class extends Mixins(listMixin, excelMixin) {

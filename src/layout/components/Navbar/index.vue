@@ -205,7 +205,15 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   get groupList() {
-    return GroupModule.groups || []
+    if (GroupModule.defaultGroup.groupName) {
+      return [GroupModule.defaultGroup, ...GroupModule.groups]
+    } else {
+      return GroupModule.groups || []
+    }
+  }
+
+  get defaultGroup() {
+    return GroupModule.defaultGroup
   }
 
   set groupListIndex(val: number) {
@@ -254,9 +262,9 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   @Watch('$route.query', { immediate: true })
-  private onQueryChange(query: any) {
+  private onQueryChange() {
     // 判断是否过滤业务组
-    query.inProtocol ? GroupModule.SET_IS_FILTER(false) : GroupModule.SET_IS_FILTER(true)
+    ['screen', 'replay'].includes(this.$route.name) ? GroupModule.SET_IS_FILTER(true) : GroupModule.SET_IS_FILTER(false)
     if (['ga1400'].includes(this.currentGroup.inProtocol)) {
       GroupModule.GetGroupList()
     }

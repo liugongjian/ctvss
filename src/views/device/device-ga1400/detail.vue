@@ -38,7 +38,7 @@
                   {{ info.userName }}
                 </el-descriptions-item>
                 <el-descriptions-item v-if="['ape'].includes(info.deviceType)" label="设备地址">
-                  {{ address || '-' }}
+                  {{ address ? address + `（行政区代码：${info.placeCode}）` : '-' }}
                 </el-descriptions-item>
                 <el-descriptions-item v-if="['ape'].includes(info.deviceType)" label="经纬度">
                   {{ `${info.deviceLongitude || '-'} : ${info.deviceLatitude || '-'}` }}
