@@ -35,6 +35,12 @@
                     <el-link v-if="info.recordStatus === 1 && checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('stopRecord')">停止录像</el-link>
                     <el-link v-else-if="checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('startRecord')">开始录像</el-link>
                   </el-descriptions-item>
+                  <el-descriptions-item label="当前码率">
+                    {{ info.bitrate ? (info.bitrate / 1024).toFixed(2) + 'Mbps' : '-' }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="异常提示">
+                    {{ info.errorMessage || '-' }}
+                  </el-descriptions-item>
                 </template>
               </el-descriptions>
             </div>
@@ -155,6 +161,9 @@
               </el-descriptions>
             </div>
           </div>
+        </el-tab-pane>
+        <el-tab-pane label="设备/流事件" name="events">
+          <detail-events v-if="activeName==='events'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
         <el-tab-pane label="配置信息" name="config">
           <detail-config v-if="activeName==='config'" :device-id="deviceId" :in-protocol="inProtocol" />

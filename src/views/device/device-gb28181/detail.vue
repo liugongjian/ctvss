@@ -36,7 +36,7 @@
                     <el-link v-else-if="checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('startRecord')">开始录像</el-link>
                   </el-descriptions-item>
                   <el-descriptions-item label="当前码率">
-                    {{ info.rate ? info.rate + 'M' : '-' }}
+                    {{ info.bitrate ? (info.bitrate / 1024).toFixed(2) + 'Mbps' : '-' }}
                   </el-descriptions-item>
                   <el-descriptions-item label="异常提示">
                     {{ info.errorMessage || '-' }}

@@ -33,10 +33,10 @@
       </div>
     </div>
     <el-table ref="table" v-loading="loading" :data="dataList" fit class="template__table">
-      <el-table-column prop="number" label="序号" />
       <el-table-column prop="createdTime" label="时间" min-width="200" />
-      <el-table-column prop="events" label="事件级别" min-width="300" />
-      <el-table-column prop="errorType" label="事件类型" min-width="300" />
+      <el-table-column prop="errorLevel" label="事件级别" min-width="100" />
+      <el-table-column prop="eventType" label="事件类型" min-width="100" />
+      <el-table-column prop="errorMessage" label="异常提示" min-width="300" />
     </el-table>
     <el-pagination
       :current-page="pager.pageNum"
@@ -116,11 +116,13 @@ export default class extends Vue {
         pageSize: this.pager.pageSize
       }
       const res = await getDeviceEvents(params)
-      this.dataList = res?.desDeviceEvent.map(event => {
+      this.pager.total = res.totalNum
+      this.dataList = res.desDeviceEvent?.map(event => {
         return {
           createdTime: event.createdTime,
           errorLevel: this.errorLevelList.find(error => error.value === event.errorLevel)?.label,
-          eventType: this.eventsTypeList.find(error => error.value === event.eventType)?.label
+          eventType: this.eventsTypeList.find(error => error.value === event.eventType)?.label,
+          errorMessage: event.errorMessage || '-'
         }
       })
     } catch (e) {

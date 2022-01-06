@@ -524,30 +524,17 @@ export default class ListMixin extends Mixins(DeviceMixin) {
         pageSize: 8
       }
       this.eventsList = []
-      await setTimeout(() => {
-        this.eventsList = [
-          { number: '8', createdTime: '2021.12.16 14:13:23', eventType: '超码率，流下线' },
-          { number: '7', createdTime: '2021.12.16 14:13:23', eventType: '超码率，流下线' },
-          { number: '6', createdTime: '2021.12.16 14:13:23', eventType: '超码率，流下线' },
-          { number: '5', createdTime: '2021.12.16 14:13:23', eventType: '超码率，流下线' },
-          { number: '4', createdTime: '2021.12.16 14:13:23', eventType: '超码率，流下线' },
-          { number: '3', createdTime: '2021.12.16 14:13:23', eventType: '超码率，流下线' },
-          { number: '2', createdTime: '2021.12.16 14:13:23', eventType: '超码率，流下线' },
-          { number: '1', createdTime: '2021.12.16 14:13:23', eventType: '超码率，流下线' }
-        ]
-        this.loading.events = false
-      }, 2000)
-      // const res = await getDeviceEvents(params)
-      // this.eventsList = res?.desDeviceEvent.map(event => {
-      //   return {
-      //     createdTime: event.createdTime,
-      //     errorLevel: this.errorLevelList.find(error => error.value === event.errorLevel)?.label,
-      //   }
-      // })
+      const res = await getDeviceEvents(params)
+      this.eventsList = res?.desDeviceEvent.map(event => {
+        return {
+          createdTime: event.createdTime,
+          errorMessage: event.errorMessage
+        }
+      })
     } catch (e) {
       this.$message.error(`获取事件列表失败，原因：${e && e.message}`)
     } finally {
-      
+      this.loading.events = false
     }
   }
 
