@@ -154,7 +154,7 @@
             <span v-else><status-badge :status="recordStatusType[row.recordStatus]" />{{ recordStatus[row.recordStatus] || '-' }}</span>
           </template>
         </el-table-column>
-        <el-table-column key="bitrate" prop="bitrate" label="当前码率">
+        <el-table-column key="bitrate" min-width="100" prop="bitrate" label="当前码率">
           <template slot-scope="{row}">
             {{ row.bitrate ? (row.bitrate / 1024).toFixed(2) + 'Mbps' : '-' }}
           </template>
