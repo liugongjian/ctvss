@@ -178,7 +178,6 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
 
   public async mounted() {
     this.detailInit()
-    this.activeName = this.$route.query.activeName || 'info'
   }
 
   private async detailInit() {
