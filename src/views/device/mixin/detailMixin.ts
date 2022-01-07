@@ -239,7 +239,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
         pid: 441882,
         level: 5
       })
-      this.info!.address = '广州省/清远市/连州市'
+      this.info!.address = '广东省/清远市/连州市'
       let lianzhouArea = res.areas.map((item: any) => {
         return {
           name: item.name,

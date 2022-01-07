@@ -31,7 +31,7 @@
                   <el-descriptions-item label="录制状态">
                     <status-badge :status="recordStatusType[info.recordStatus]" />
                     {{ recordStatus[info.recordStatus] || '-' }}
-                    <el-link v-if="info.recordStatus === 1 && checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('stopRecord')">停止录像</el-link>
+                    <el-link v-if="[1, 2].includes(info.recordStatus) && checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('stopRecord')">停止录像</el-link>
                     <el-link v-else-if="checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('startRecord')">开始录像</el-link>
                   </el-descriptions-item>
                   <el-descriptions-item label="当前码率">
@@ -85,33 +85,6 @@
                     <el-descriptions-item v-if="info.inType === 'pull' && info.enableDomain === 2" label="设备IP">{{ info.deviceIp }}</el-descriptions-item>
                     <el-descriptions-item v-if="info.inType === 'pull'" label="设备端口">{{ info.devicePort }}</el-descriptions-item>
                   </template>
-                </template>
-                <!--子通道信息-->
-                <template v-if="info && isNVRChannel">
-                  <el-descriptions-item v-if="info.deviceChannels.length" label="通道号">
-                    {{ 'D' + info.deviceChannels[0].channelNum }}
-                  </el-descriptions-item>
-                  <el-descriptions-item v-if="info.deviceChannels.length" label="通道名称">
-                    {{ info.deviceChannels[0].channelName }}
-                  </el-descriptions-item>
-                  <el-descriptions-item label="设备厂商">
-                    {{ info.deviceVendor || '-' }}
-                  </el-descriptions-item>
-                </template>
-                <!--NVR信息-->
-                <template v-if="info.deviceType === 'nvr'">
-                  <el-descriptions-item label="自动创建子设备">
-                    {{ createSubDevice[info.createSubDevice] }}
-                  </el-descriptions-item>
-                  <el-descriptions-item :label="info.createSubDevice === 2 ? '实际通道数量' : '通道数量'">
-                    {{ info.deviceStats && info.deviceStats.channelSize }}
-                  </el-descriptions-item>
-                  <el-descriptions-item v-if="info.createSubDevice === 2" label="可支持通道数量">
-                    {{ info.deviceStats && info.deviceStats.maxChannelSize }}
-                  </el-descriptions-item>
-                  <el-descriptions-item label="在线流数量">
-                    {{ info.deviceStats && info.deviceStats.onlineSize }}
-                  </el-descriptions-item>
                 </template>
                 <!--通用信息-->
                 <el-descriptions-item label="主子码流数量">

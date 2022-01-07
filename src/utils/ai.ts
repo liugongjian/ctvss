@@ -298,6 +298,38 @@ export const parseMetaData = (type: string, metaData: any) => {
         }
       }
       break
+      // 入侵检测
+    case '19':
+      locations = metaData.Data && metaData.Data.MatchList.map((person: any) => {
+        return {
+          top: person.Location.Y,
+          left: person.Location.X,
+          width: person.Location.Width,
+          height: person.Location.Height,
+          isWarning: person.FaceItems.length > 0 && person.FaceItems[0].Score > 60,
+          score: person.FaceItems.length > 0 && Math.round(person.FaceItems[0].Score)
+        }
+      })
+      break
+    // 在场人员+口罩检测
+    case '20':
+      if (metaData.Data && metaData.Data.FaceRectangles) {
+        const boxes = metaData.Data.FaceRectangles
+        for (let i = 0; i < boxes.length; i += 4) {
+          const type = metaData.Data.ClassList[i / 4]
+          locations.push(
+            {
+              top: boxes[i + 1],
+              left: boxes[i],
+              width: boxes[i + 2],
+              height: boxes[i + 3],
+              isWarning: type === 0 || type === 2,
+              type
+            }
+          )
+        }
+      }
+      break
   }
   return locations
 }
@@ -339,13 +371,19 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
     // 研发二部人员布控
     case '10001':
       locations = metaData.Data && metaData.Data.MatchList.map((person: any) => {
-        return {
-          top: person.Location.Y,
-          left: person.Location.X,
-          width: person.Location.Width,
-          height: person.Location.Height,
-          isWarning: person.FaceItems.length > 0 && person.FaceItems[0].Score > 60,
-          score: person.FaceItems.length > 0 && Math.round(person.FaceItems[0].Score)
+        try {
+          const name = (person.FaceItems.length > 0 && person.FaceItems[0].Labels.length > 0) ? JSON.parse(person.FaceItems[0].Labels).name : '-'
+          return {
+            top: person.Location.Y,
+            left: person.Location.X,
+            width: person.Location.Width,
+            height: person.Location.Height,
+            isWarning: person.FaceItems.length > 0 && person.FaceItems[0].Score > 60,
+            score: person.FaceItems.length > 0 && Math.round(person.FaceItems[0].Score),
+            name
+          }
+        } catch (error) {
+          console.log(error)
         }
       })
       break
@@ -501,7 +539,7 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
     case '10010':
       if (metaData.Data && metaData.Data.BeeDensity) {
         locations.push({
-          beeDensity: Math.round(metaData.Data.BeeDensity * 100)
+          beeDensity: Math.round(metaData.Data.BeeDensity)
         })
       }
       break
@@ -570,6 +608,38 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
               width: boxes[i].BottomRightX - boxes[i].TopLeftX,
               height: boxes[i].BottomRightY - boxes[i].TopLeftY,
               isWarning: true
+            }
+          )
+        }
+      }
+      break
+      // 入侵检测
+    case '10016':
+      locations = metaData.Data && metaData.Data.MatchList.map((person: any) => {
+        return {
+          top: person.Location.Y,
+          left: person.Location.X,
+          width: person.Location.Width,
+          height: person.Location.Height,
+          isWarning: true,
+          score: person.FaceItems.length > 0 && Math.round(person.FaceItems[0].Score)
+        }
+      })
+      break
+    // 在场人员+口罩检测
+    case '10017':
+      if (metaData.Data && metaData.Data.FaceRectangles) {
+        const boxes = metaData.Data.FaceRectangles
+        for (let i = 0; i < boxes.length; i += 4) {
+          const type = metaData.Data.ClassList[i / 4]
+          locations.push(
+            {
+              top: boxes[i + 1],
+              left: boxes[i],
+              width: boxes[i + 2],
+              height: boxes[i + 3],
+              isWarning: type === 0 || type === 2,
+              type
             }
           )
         }

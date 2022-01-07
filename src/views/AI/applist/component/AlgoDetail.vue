@@ -55,17 +55,17 @@
           <el-link type="warning" @click="addPeriod">+ 增加生效时间段</el-link>
         </div>
       </el-form-item>
-      <el-form-item v-if="prod.code === '10001' || (form.algorithm && form.algorithm.code === '10001')" prop="algorithmMetadata.FaceDbName" label="人脸库">
+      <el-form-item v-if="ifShow('10001','10016','10017')" prop="algorithmMetadata.FaceDbName" label="人脸库">
         <el-select v-model="form.algorithmMetadata.FaceDbName" placeholder="请选择人脸库" :loading="isfaceLibLoading">
           <el-option v-for="item in faceLibs" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
         <i class="el-icon-refresh" @click="refreshFaceLib" />
         <el-button type="text" @click="goFaceLib">+新建人脸库</el-button>
       </el-form-item>
-      <el-form-item v-if="prod.code === '10005' || (form.algorithm && form.algorithm.code === '10005')" prop="algorithmMetadata.pedThreshold" label="人员数量阈值">
+      <el-form-item v-if="ifShow('10005')" prop="algorithmMetadata.pedThreshold" label="人员数量阈值">
         <el-input v-model="form.algorithmMetadata.pedThreshold" />
       </el-form-item>
-      <el-form-item v-if="prod.code === '10006' || (form.algorithm && form.algorithm.code === '10006')" label="围栏区域">
+      <el-form-item v-if="ifShow('10006')" label="围栏区域">
         <el-alert
           title="围栏区域需在绑定设备后，在设备详情中进行设置。"
           type="info"
@@ -163,6 +163,10 @@ export default class extends Mixins(AppMixin) {
   }
   private effectiveTime: any = []
 
+  private ifShow(...codes) {
+    let res = codes.filter(code => this.prod?.code === code || (this.form.algorithm && this.form.algorithm.code === code))
+    return res.length > 0
+  }
   private async mounted() {
     if (this.$route.query.id) { // 编辑
       const id = this.$route.query.id
