@@ -13,6 +13,7 @@ import { getDeviceResources } from '@/api/billing'
 import TemplateBind from '../../components/templateBind.vue'
 import SetAuthConfig from '../components/dialogs/SetAuthConfig.vue'
 import DetailConfig from '../components/DetailConfig.vue'
+import DetailEvents from '../components/DetailEvents.vue'
 import DetailPreview from '../components/DetailPreview.vue'
 import DetailReplay from '../components/DetailReplay.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
@@ -30,6 +31,7 @@ import { allRegionList } from '@/assets/region/region'
 @Component({
   components: {
     TemplateBind,
+    DetailEvents,
     DetailConfig,
     DetailPreview,
     DetailReplay,
@@ -44,7 +46,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   public gotoRoot!: Function
 
   public checkPermission = checkPermission
-  public activeName = 'info'
+  public activeName: any = 'info'
   public deviceStatus = DeviceStatus
   public recordStatusType = RecordStatusType
   public deviceType = DeviceGb28181Type
