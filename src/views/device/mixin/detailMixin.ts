@@ -192,8 +192,11 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   }
 
   public delayDetailInit() {
-    setTimeout(() => {
-      this.detailInit()
+    setTimeout(async() => {
+      this.info = await getDevice({
+        deviceId: this.deviceId,
+        inProtocol: this.inProtocol
+      })
     }, 5000)
   }
 
