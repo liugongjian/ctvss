@@ -15,10 +15,10 @@
             </div>
           </template>
           <template v-else>
-            <el-dropdown-item v-if="info.streamStatus === 'on' && checkPermission(['AdminDevice']) && !isVGroup" :command="{type: 'stopDevice'}">停用流</el-dropdown-item>
+            <el-dropdown-item v-if="info.streamStatus === 'on' && checkPermission(['AdminDevice']) && !isVgroup" :command="{type: 'stopDevice'}">停用流</el-dropdown-item>
             <el-dropdown-item v-else-if="!isVgroup && checkPermission(['AdminDevice'])" :command="{type: 'startDevice'}">启用流</el-dropdown-item>
           </template>
-          <el-dropdown-item v-if="[1, 2].includes(info.recordStatus) && checkPermission(['AdminDevice']) && !isVGroup" :command="{type: 'stopRecord', device: info}">停止录像</el-dropdown-item>
+          <el-dropdown-item v-if="[1, 2].includes(info.recordStatus) && checkPermission(['AdminDevice']) && !isVgroup" :command="{type: 'stopRecord', device: info}">停止录像</el-dropdown-item>
           <el-dropdown-item v-else-if="!isVgroup && checkPermission(['AdminDevice'])" :command="{type: 'startRecord', device: info}">开始录像</el-dropdown-item>
         </template>
         <el-dropdown-item v-if="(!isNvr && info.parentDeviceId === '-1') && checkPermission(['AdminDevice'])" :command="{type: 'move'}">移动至</el-dropdown-item>
