@@ -4,16 +4,22 @@
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="基本信息" name="info">
           <div v-if="info">
-            <div class="detail__buttons">
+            <detail-operation
+              :in-protocol="inProtocol"
+              :info="info"
+              :is-vgroup="isVGroup"
+              :is-nvr="isNVR"
+              :is-auto-created="isAutoCreated"
+            />
+            <!-- <div class="detail__buttons">
               <el-button @click="goSuperior"><svg-icon name="superior" /> 返回上级</el-button>
               <el-button v-if="info.deviceType === 'nvr'" @click="goToChannels"><svg-icon name="list" /> 查看通道</el-button>
               <el-button v-if="(!isNVR && info.parentDeviceId === '-1') && checkPermission(['AdminDevice'])" @click="moveDir"><svg-icon name="move" /> 移动至</el-button>
               <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" @click="changeResourceDialog">配置资源包</el-button>
               <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
-              <!--自动创建的子通道不允许删除-->
               <el-button v-if="!isAutoCreated && checkPermission(['AdminDevice']) && !isVGroup" @click="deleteDevice(info)"><svg-icon name="trash" /> 删除</el-button>
               <el-button class="el-button-rect" @click="detailInit"><svg-icon name="refresh" /></el-button>
-            </div>
+            </div> -->
             <!--状态信息-->
             <div class="detail__section">
               <div class="detail__title">状态信息</div>
@@ -26,14 +32,14 @@
                   <el-descriptions-item v-for="num in info.multiStreamSize" :key="num" :label="`${autoStreamNumObj[num]}状态`">
                     <status-badge :status="getStreamStatus(info.deviceStreams, num) || 'false'" />
                     {{ deviceStatus[getStreamStatus(info.deviceStreams, num)] || '-' }}
-                    <el-link v-if="getStreamStatus(info.deviceStreams, num) === 'on' && checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('stopDevice', num)">停用{{ autoStreamNumObj[num] }}</el-link>
-                    <el-link v-else-if="checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('startDevice', num)">启用{{ autoStreamNumObj[num] }}</el-link>
+                    <!-- <el-link v-if="getStreamStatus(info.deviceStreams, num) === 'on' && checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('stopDevice', num)">停用{{ autoStreamNumObj[num] }}</el-link>
+                    <el-link v-else-if="checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('startDevice', num)">启用{{ autoStreamNumObj[num] }}</el-link> -->
                   </el-descriptions-item>
                   <el-descriptions-item label="录制状态">
                     <status-badge :status="recordStatusType[info.recordStatus]" />
                     {{ recordStatus[info.recordStatus] || '-' }}
-                    <el-link v-if="[1, 2].includes(info.recordStatus) && checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('stopRecord')">停止录像</el-link>
-                    <el-link v-else-if="checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('startRecord')">开始录像</el-link>
+                    <!-- <el-link v-if="[1, 2].includes(info.recordStatus) && checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('stopRecord')">停止录像</el-link>
+                    <el-link v-else-if="checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('startRecord')">开始录像</el-link> -->
                   </el-descriptions-item>
                 </template>
               </el-descriptions>
@@ -172,6 +178,7 @@
     </div>
     <resource v-if="showResourceDialog" :device="info" :algo-tab-type-default="algoTabTypeDefault" @on-close="closeResourceDialog" />
     <SetAuthConfig v-if="dialog.setAuthConfig" @on-close="closeDialog('setAuthConfig')" />
+    <move-dir v-if="dialog.moveDir" :in-protocol="inProtocol" :device="info" @on-close="closeDialog('moveDir')" />
   </div>
 </template>
 

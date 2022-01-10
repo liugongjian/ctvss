@@ -1,4 +1,4 @@
-import { Component, Mixins, Inject, Watch } from 'vue-property-decorator'
+import { Component, Mixins, Inject, Watch, Provide } from 'vue-property-decorator'
 import DeviceMixin from './deviceMixin'
 import { Device } from '@/type/device'
 import { Group } from '@/type/group'
@@ -26,6 +26,8 @@ import { VGroupModule } from '@/store/modules/vgroup'
 import { industryMap } from '@/assets/region/industry'
 import { networkMap } from '@/assets/region/network'
 import { allRegionList } from '@/assets/region/region'
+import MoveDir from '../components/dialogs/MoveDir.vue'
+import DetailOperation from '../components/DetailOperation.vue'
 
 @Component({
   components: {
@@ -36,7 +38,9 @@ import { allRegionList } from '@/assets/region/region'
     SetAuthConfig,
     StatusBadge,
     AntiTheftChain,
-    Resource
+    Resource,
+    MoveDir,
+    DetailOperation
   }
 })
 export default class DetailMixin extends Mixins(DeviceMixin) {
@@ -178,6 +182,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     this.detailInit()
   }
 
+  @Provide('detailInit')
   private async detailInit() {
     if (this.$route.query.tab) {
       this.activeName = this.$route.query.tab.toString()
@@ -201,6 +206,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   }
 
   // 详情页操作
+  @Provide('detailOperate')
   public async detailOperate(type, num?) {
     let result = false
     let params: Device = this.info
@@ -291,6 +297,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   /**
    * 获取设备流信息
    */
+  @Provide('getStreamStatus')
   public getStreamStatus(statusArr: any, num: any) {
     if (!statusArr) {
       return false
@@ -364,6 +371,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   /**
    * 打开算法配置弹窗
    */
+  @Provide('changeResourceDialog')
   private changeResourceDialog() {
     this.showResourceDialog = true
   }
@@ -404,6 +412,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   /**
    * 查看通道
    */
+  @Provide('goToChannels')
   public goToChannels() {
     this.deviceRouter({
       id: this.deviceId,
@@ -414,6 +423,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   /**
    * 查看通道
    */
+  @Provide('moveDir')
   public moveDir() {
     this.openDialog('moveDir')
   }
@@ -421,6 +431,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   /**
    * 返回上一级
    */
+  @Provide('goSuperior')
   public goSuperior() {
     const breadcrumb: Array<any> = DeviceModule.breadcrumb
     if (breadcrumb.length > 1) {
@@ -451,6 +462,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   /**
    * 编辑
    */
+  @Provide('edit')
   public edit() {
     this.deviceRouter({
       id: this.deviceId,
