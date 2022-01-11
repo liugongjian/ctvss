@@ -123,7 +123,6 @@ import SizeSelect from '@/components/SizeSelect/index.vue'
 import TemplateBind from '@/views/components/templateBind.vue'
 import { checkPermission } from '@/utils/permission'
 import DashboardMixin from '@/views/dashboard/mixin/DashboardMixin'
-import { getGroups } from '@/api/group'
 
 @Component({
   name: 'Navbar',
@@ -161,7 +160,6 @@ export default class extends Mixins(DashboardMixin) {
   private alertType = AlertType
   private aiGroups = AiGroups
   private aiInfos = []
-  private filterGroupList = []
   public searchForm = {
     deviceId: ''
   }
@@ -207,6 +205,8 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   get groupList() {
+    console.log(111);
+    
     if (GroupModule.defaultGroup.groupName) {
       return [GroupModule.defaultGroup, ...GroupModule.groups]
     } else {
@@ -288,19 +288,6 @@ export default class extends Mixins(DashboardMixin) {
           children: [10, 17]
         }
       ]
-    }
-  }
-
-  private async onFilter(groupName?: string) {
-    try {
-      let params = {
-        groupName,
-        pageSize: 999
-      }
-      const res = await getGroups(params)
-      res.groups && (this.filterGroupList = res.groups)
-    } catch (e) {
-      console.error(e)
     }
   }
 
