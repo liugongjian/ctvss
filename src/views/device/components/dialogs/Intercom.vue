@@ -22,6 +22,7 @@
             :auto-play="true"
             :has-control="false"
             :has-playback="true"
+            :volume="30"
             :device-name="intercomInfo.deviceName"
             :stream-num="intercomInfo.streamNum"
             :all-address="intercomInfo.allAddress"
