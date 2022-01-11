@@ -123,6 +123,7 @@ import SizeSelect from '@/components/SizeSelect/index.vue'
 import TemplateBind from '@/views/components/templateBind.vue'
 import { checkPermission } from '@/utils/permission'
 import DashboardMixin from '@/views/dashboard/mixin/DashboardMixin'
+import { getGroups } from '@/api/group'
 
 @Component({
   name: 'Navbar',
@@ -160,6 +161,7 @@ export default class extends Mixins(DashboardMixin) {
   private alertType = AlertType
   private aiGroups = AiGroups
   private aiInfos = []
+  private filterGroupList = []
   public searchForm = {
     deviceId: ''
   }
@@ -265,9 +267,7 @@ export default class extends Mixins(DashboardMixin) {
   private onQueryChange() {
     // 判断是否过滤业务组
     ['screen', 'replay'].includes(this.$route.name) ? GroupModule.SET_IS_FILTER(true) : GroupModule.SET_IS_FILTER(false)
-    if (['ga1400'].includes(this.currentGroup.inProtocol)) {
-      GroupModule.GetGroupList()
-    }
+    GroupModule.GetGroupList()
   }
 
   private async mounted() {
@@ -288,6 +288,19 @@ export default class extends Mixins(DashboardMixin) {
           children: [10, 17]
         }
       ]
+    }
+  }
+
+  private async onFilter(groupName?: string) {
+    try {
+      let params = {
+        groupName,
+        pageSize: 999
+      }
+      const res = await getGroups(params)
+      res.groups && (this.filterGroupList = res.groups)
+    } catch (e) {
+      console.error(e)
     }
   }
 
