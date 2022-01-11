@@ -1,16 +1,16 @@
 <template>
   <div class="app-container">
     <el-card>
-      <el-form ref="form" :model="form" label-width="200px">
+      <el-form ref="form" :model="form" :rules="rules" label-width="200px">
         <el-form-item label="是否启用短信告警">
-          <el-switch v-model="form.enable" @change="enable" />
+          <el-switch v-model="form.active" />
         </el-form-item>
-        <el-form-item v-if="form.enable" label="手机号">
-          <el-input v-model="form.phone" />
+        <el-form-item v-if="form.active" label="手机号" prop="phoneNumber">
+          <el-input v-model="form.phoneNumber" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="submit">提交</el-button>
-          <el-button>取消</el-button>
+          <el-button @click="back">取消</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -19,25 +19,57 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import { getPhoneNumberForAISMS, activatePhone } from '@/api/ai-app'
 
+function isvalidPhone(str) {
+  const reg = /^1[3|4|5|7|8][0-9]\d{8}$/
+  return reg.test(str)
+}
+const validPhone = (rule, value, callback) => {
+  if (!value) {
+    callback(new Error('请输入电话号码'))
+  } else if (!isvalidPhone(value)) {
+    callback(new Error('请输入正确的11位手机号码'))
+  } else {
+    callback()
+  }
+}
 @Component({
-  name: 'App'
+  name: 'Sysconfig'
 })
 export default class extends Vue {
   public form:any = {
-    enable: false,
-    phone: ''
+    active: false,
+    phoneNumber: ''
   }
-  private enable(value) {
-    value && this.getPhoneNumber()
+  public rules = {
+    phoneNumber: [{ required: true, trigger: 'blur', validator: validPhone }]
   }
-  private getPhoneNumber() {
-    this.form.phone = '15'
+  private async mounted() {
+    this.form = await getPhoneNumberForAISMS({})
   }
-  private submit() {
-    console.log('submit')
+  private back() {
+    this.$router.back()
+  }
+  private async submit() {
+    const form: any = this.$refs.form
+    form.validate(async(valid: any) => {
+      if (!valid) return
+      try {
+        await activatePhone({
+          phoneNumber: this.form.phoneNumber,
+          active: this.form.active
+        })
+        this.$message.success('操作成功')
+      } catch (e) {
+        this.$message.success('操作失败')
+      } finally {
+        this.form = await getPhoneNumberForAISMS({})
+      }
+    })
   }
 }
+
 </script>
 
 <style lang='scss' scoped>
