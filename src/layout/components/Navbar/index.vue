@@ -92,6 +92,9 @@
         </div>
         <div :class="['links', ctLogin ? 'ct-login' : '']">
           <a target="_blank" href="https://vcn.ctyun.cn/document/api/">API文档</a>
+          <span class="links__split"> | </span>
+          <router-link to="/sysconfig">系统设置</router-link>
+          <span v-if="!ctLogin" class="links__split"> | </span>
         </div>
       </template>
       <div v-if="!ctLogin" class="user-container">
@@ -428,6 +431,10 @@ export default class extends Mixins(DashboardMixin) {
     a:hover {
       color: $primary;
     }
+    &__split {
+      color: $borderGrey2;
+      padding: 0 10px;
+    }
   }
   .links.ct-login {
     margin-right: 10px;
@@ -445,7 +452,7 @@ export default class extends Mixins(DashboardMixin) {
 
     .user-container {
       position: relative;
-      padding: 0 20px;
+      padding: 0 20px 0 5px;
       color: $text;
 
       &__menu {
