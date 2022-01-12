@@ -9,7 +9,8 @@ export interface IGroupState {
   defaultGroup?: Group,
   groups?: Array<Group>,
   groupListIndex?: number
-  isFilter?: boolean
+  isFilter?: boolean,
+  searchContent?: String
 }
 
 @Module({ dynamic: true, store, name: 'group' })
@@ -27,6 +28,8 @@ class GroupStore extends VuexModule implements IGroupState {
   public groupListIndex?: number = 1
 
   public isFilter?: boolean = false
+
+  public searchContent? :String = ''
 
   @Mutation
   public SET_GROUP(payload: any) {
@@ -53,6 +56,11 @@ class GroupStore extends VuexModule implements IGroupState {
   @Mutation
   public SET_IS_FILTER(payload: boolean) {
     this.isFilter = payload
+  }
+
+  @Mutation
+  public SET_SEARCH_CONTENT(payload: String) {
+    this.searchContent = payload
   }
 
   @Action
@@ -87,11 +95,25 @@ class GroupStore extends VuexModule implements IGroupState {
   }
 
   @Action
+  public SetSearchContent(payload: String) {
+    this.SET_SEARCH_CONTENT(payload)
+    this.SET_GROUP_LIST_INDEX(1)
+    this.GetGroupList()
+  }
+
+  @Action
+  public ResetSearchContent() {
+    this.SET_SEARCH_CONTENT('')
+    this.GetGroupList()
+  }
+
+  @Action
   public async GetGroupList() {
     const storageGroupListIndex: number = parseInt(getLocalStorage('groupListIndex')!)
     storageGroupListIndex && (this.SET_GROUP_LIST_INDEX(storageGroupListIndex))
     try {
       let params = {
+        groupName: this.searchContent,
         pageNum: 1,
         pageSize: 20 * this.groupListIndex!
       }
@@ -137,6 +159,7 @@ class GroupStore extends VuexModule implements IGroupState {
   public async LoadmoreGroups() {
     try {
       let params = {
+        groupName: this.searchContent,
         pageNum: this.groupListIndex + 1,
         pageSize: 20
       }

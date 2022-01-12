@@ -13,14 +13,17 @@
       v-el-select-loadmore="loadmore"
       class="filter-group"
       filterable
+      remote
+      :remote-method="onSearch"
       placeholder="请选择业务组"
       @visible-change="visibleChange"
       @change="changeGroup"
+      @blur="onBlur"
     >
       <el-option
-        v-for="(item, index) in groupList"
-        v-show="!['ga1400'].includes(item.inProtocol) || !isFilter"
-        :key="index"
+        v-for="item in groupList"
+        v-show="(!['ga1400'].includes(item.inProtocol) || !isFilter) && item.groupId !==groupId"
+        :key="item.groupId"
         :label="item.groupName"
         :value="item.groupId"
       >
@@ -205,8 +208,6 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   get groupList() {
-    console.log(111);
-    
     if (GroupModule.defaultGroup.groupName) {
       return [GroupModule.defaultGroup, ...GroupModule.groups]
     } else {
@@ -291,6 +292,15 @@ export default class extends Mixins(DashboardMixin) {
     }
   }
 
+  // 失去焦点后清空搜索内容
+  private onBlur() {
+    GroupModule.ResetSearchContent()
+  }
+
+  private onSearch(groupName: String) {
+    GroupModule.SetSearchContent(groupName)
+  }
+
   /**
    * 下拉框出现时刷新下拉列表
    */
@@ -318,6 +328,8 @@ export default class extends Mixins(DashboardMixin) {
   public async changeGroup() {
     const currentGroup = this.groupList.find((group: Group) => group.groupId === this.groupId)
     await GroupModule.SetGroup(currentGroup)
+    // 选择业务组后清空搜索内容
+    GroupModule.ResetSearchContent()
   }
 
   private async logout() {
