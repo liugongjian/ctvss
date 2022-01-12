@@ -167,7 +167,7 @@
             <label>分屏数:</label>
             <el-tooltip content="单分屏" placement="top">
               <el-button type="text" @click="changeMaxSize(1)">
-                <svg-icon name="screen1" />
+                <svg-icon name="screen" />
               </el-button>
             </el-tooltip>
             <template v-if="currentGroupId !== '80337930297556992'">
