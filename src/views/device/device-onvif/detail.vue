@@ -41,7 +41,7 @@
           </div>
         </el-tab-pane>
         <el-tab-pane v-if="!isVGroup" label="模板配置" name="template">
-          <template-bind v-if="activeName==='template'" :device-id="deviceId" :in-protocol="inProtocol" />
+          <template-bind v-if="activeName==='template'" :device-id="deviceId" :in-protocol="info.inProtocol" />
         </el-tab-pane>
         <!-- <el-tab-pane label="AI分析" name="ai">
           <detail-ai v-if="activeName==='ai'" :device-id="deviceId" :in-protocol="inProtocol" />

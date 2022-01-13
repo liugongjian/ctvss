@@ -1148,8 +1148,8 @@ export const asyncRoutes: RouteConfig[] = [
       id: '20210515200901013001',
       title: '系统设置',
       breadcrumb: true,
-      perms: ['*'],
-      hidden: true
+      icon: 'config',
+      perms: ['*']
     },
     children: [
       {
@@ -1160,8 +1160,8 @@ export const asyncRoutes: RouteConfig[] = [
           id: '20210515200901013002',
           title: '系统设置',
           breadcrumb: false,
-          perms: ['*'],
-          hidden: true
+          icon: 'config',
+          perms: ['*']
         }
       }
     ]
