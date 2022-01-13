@@ -164,34 +164,11 @@
         </div>
         <div class="device-list__right">
           <div class="device__tools">
-            <!-- <label>分屏数:</label> -->
-            <!-- <el-tooltip content="单分屏" placement="top">
-              <el-button type="text" @click="changeMaxSize(1)">
-                <svg-icon name="screen" />
-              </el-button>
-            </el-tooltip>
-            <template v-if="currentGroupId !== '80337930297556992'">
-              <el-tooltip content="四分屏" placement="top">
-                <el-button type="text" @click="changeMaxSize(4)">
-                  <svg-icon name="screen4" />
-                </el-button>
-              </el-tooltip>
-              <el-tooltip content="九分屏" placement="top">
-                <el-button type="text" @click="changeMaxSize(9)">
-                  <svg-icon name="screen9" />
-                </el-button>
-              </el-tooltip>
-              <el-tooltip content="十六分屏" placement="top">
-                <el-button type="text" @click="changeMaxSize(16)">
-                  <svg-icon name="screen16" />
-                </el-button>
-              </el-tooltip>
-            </template> -->
             <div class="device__tools--right">
               <el-dropdown trigger="click" placement="bottom-start" @command="handleScreenSize">
                 <el-tooltip content="选择分屏" placement="top">
                   <el-button>
-                    <svg-icon :aria-disabled="true" name="screen9" />
+                    <svg-icon name="screen" />
                   </el-button>
                 </el-tooltip>
                 <el-dropdown-menu slot="dropdown">
@@ -201,7 +178,7 @@
                     :command="item.value"
                     :class="{'el-dropdown-item__active': item.value === screenSize}"
                   >
-                    <span class="el-dropdown-menu__screen-icon"><svg-icon :aria-disabled="true" name="screen9" /></span>
+                    <span class="el-dropdown-menu__screen-icon"><svg-icon :name="`screen${item.value}`" /></span>
                     <label>{{ item.label }}</label>
                   </el-dropdown-item>
                 </el-dropdown-menu>
@@ -215,7 +192,7 @@
           </div>
           <div
             class="screen-list"
-            :class="[`screen-size--${maxSize}`, {'fullscreen': isFullscreen, 'covid': isCovidLiving && isFullscreen}]"
+            :class="[{'fullscreen': isFullscreen, 'covid': isCovidLiving && isFullscreen}]"
           >
             <div v-if="isCovidLiving && isFullscreen" class="screen-banner">
               <img src="@/assets/images/covid_banner.png">
@@ -765,11 +742,6 @@ export default class extends Mixins(ScreenMixin) {
 }
 </script>
 <style lang="scss" scoped>
-// .screen-wrap {
-//   flex-grow: 1;
-//   display: flex;
-//   flex-wrap: wrap;
-// }
 .covid {
   .screen-wrap {
     height: 80vh;

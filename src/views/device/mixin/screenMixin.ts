@@ -35,19 +35,34 @@ export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
     },
     {
       label: '1+3分屏',
-      value: '1-3'
+      value: '1_3'
     },
     {
       label: '1+5分屏',
-      value: '1-5'
+      value: '1_5'
     },
     {
       label: '1+7分屏',
-      value: '1-7'
+      value: '1_7'
     },
     {
       label: '1+15分屏',
-      value: '1-15'
+      value: '1_15'
+    }
+  ]
+
+  public replayScreenSizeList = [
+    {
+      label: '1分屏',
+      value: '1'
+    },
+    {
+      label: '2分屏',
+      value: '2'
+    },
+    {
+      label: '4分屏',
+      value: '4'
     }
   ]
 
@@ -77,6 +92,10 @@ export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
         this.maxSize = 1
         this.screenSize = '1'
         break
+      case '2':
+        this.maxSize = 2
+        this.screenSize = '2'
+        break
       case '3':
         this.maxSize = 3
         this.screenSize = '3'
@@ -93,21 +112,21 @@ export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
         this.maxSize = 16
         this.screenSize = '16'
         break
-      case '1-3':
+      case '1_3':
         this.maxSize = 4
-        this.screenSize = '1-3'
+        this.screenSize = '1_3'
         break
-      case '1-5':
+      case '1_5':
         this.maxSize = 6
-        this.screenSize = '1-5'
+        this.screenSize = '1_5'
         break
-      case '1-7':
+      case '1_7':
         this.maxSize = 8
-        this.screenSize = '1-7'
+        this.screenSize = '1_7'
         break
-      case '1-15':
+      case '1_15':
         this.maxSize = 16
-        this.screenSize = '1-15'
+        this.screenSize = '1_15'
         break
       default:
         break
