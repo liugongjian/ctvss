@@ -164,8 +164,8 @@
         </div>
         <div class="device-list__right">
           <div class="device__tools">
-            <label>分屏数:</label>
-            <el-tooltip content="单分屏" placement="top">
+            <!-- <label>分屏数:</label> -->
+            <!-- <el-tooltip content="单分屏" placement="top">
               <el-button type="text" @click="changeMaxSize(1)">
                 <svg-icon name="screen1" />
               </el-button>
@@ -186,8 +186,26 @@
                   <svg-icon name="screen16" />
                 </el-button>
               </el-tooltip>
-            </template>
+            </template> -->
             <div class="device__tools--right">
+              <el-dropdown trigger="click" placement="bottom-start" @command="handleScreenSize">
+                <el-tooltip content="选择分屏" placement="top">
+                  <el-button>
+                    <svg-icon :aria-disabled="true" name="screen9" />
+                  </el-button>
+                </el-tooltip>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item
+                    v-for="(item, index) in screenSizeList"
+                    :key="index"
+                    :command="item.value"
+                    :class="{'el-dropdown-item__active': item.value === screenSize}"
+                  >
+                    <span class="el-dropdown-menu__screen-icon"><svg-icon :aria-disabled="true" name="screen9" /></span>
+                    <label>{{ item.label }}</label>
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
               <el-tooltip content="全屏" placement="top">
                 <el-button type="text" @click="fullscreen">
                   <svg-icon name="fullscreen" />
@@ -203,12 +221,13 @@
               <img src="@/assets/images/covid_banner.png">
               <span class="covid__title">{{ `${currentRegion}核酸检测调度指挥云平台` }}</span>
             </div>
-            <div class="sreen-wrap">
+            <div class="screen-wrap" :class="`screen-size--${screenSize}`">
               <div
                 v-for="(screen, index) in screenList"
                 :key="index"
                 v-loading="screen.loading"
                 class="screen-item screen-item--live"
+                :style="`grid-area: item${index}`"
                 :class="[{'actived': index === currentIndex && screenList.length > 1 && !polling.isStart}, {'fullscreen': screen.isFullscreen}]"
                 @click="selectScreen(index)"
               >
@@ -746,13 +765,13 @@ export default class extends Mixins(ScreenMixin) {
 }
 </script>
 <style lang="scss" scoped>
-.sreen-wrap {
-  flex-grow: 1;
-  display: flex;
-  flex-wrap: wrap;
-}
+// .screen-wrap {
+//   flex-grow: 1;
+//   display: flex;
+//   flex-wrap: wrap;
+// }
 .covid {
-  .sreen-wrap {
+  .screen-wrap {
     height: 80vh;
     .screen-item {
       border: 1px solid #050926;
