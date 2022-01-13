@@ -92,8 +92,6 @@
         </div>
         <div :class="['links', ctLogin ? 'ct-login' : '']">
           <a target="_blank" href="https://vcn.ctyun.cn/document/api/">API文档</a>
-          <span class="links__split"> | </span>
-          <router-link to="/sysconfig">系统设置</router-link>
           <span v-if="!ctLogin" class="links__split"> | </span>
         </div>
       </template>
