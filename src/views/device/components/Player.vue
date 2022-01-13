@@ -81,6 +81,15 @@
             <svg-icon name="ipc" width="18px" height="18px" />
           </div>
         </el-tooltip>
+        <el-tooltip placement="top">
+          <div slot="content" class="videoScaleBox">
+            <el-button v-for="item in scaleKind" :key="item.kind" type="text" size="mini" @click.stop.prevent="(e) => scaleVideo(e,item.kind)">{{ item.label }}</el-button>
+          </div>
+          <div class="controls__btn controls__snapshot videoTypeBtn">
+            <span>缩放</span>
+          </div>
+        </el-tooltip>
+
         <template v-if="hasFullscreen">
           <el-tooltip v-if="!isFullscreen" content="进入全屏" placement="top">
             <div class="controls__btn controls__fullscreen" @click.stop.prevent="fullscreen">
@@ -225,6 +234,14 @@ export default class extends Vue {
   private resizeObserver?: any
   private error = ''
 
+  private scaleKind:any=[
+    { label: '16:9', kind: 16 / 9 },
+    { label: '4:3', kind: 4 / 3 },
+    { label: '原始比例', kind: 'normal' },
+    { label: '拉伸', kind: 'fit' }
+  ]
+  private scaleVal:any
+
   get username() {
     return UserModule.name
   }
@@ -334,8 +351,10 @@ export default class extends Vue {
         }
       })
       this.$nextTick(() => {
-        const $video: any = this.$refs.video
+        const $video = this.$refs.video as HTMLDivElement
         const mainBox: any = this.$refs.videoWrap
+        const videoSize = $video.getBoundingClientRect()
+        const { height, width } = videoSize
         let player = $video.querySelector('video')
         if (this.codec === 'h265') {
           player = $video.querySelector('.player-box')
@@ -348,6 +367,12 @@ export default class extends Vue {
             this.playerFS()
           })
           this.resizeObserver.observe(targetNode)
+          // console.log('this.playerH265------->', width, height)
+        } else {
+          this.playerFS()
+          // const { clientHeight, clientWidth } = this.player.flv._mediaElement
+          // console.log('this.player._mediaElement--=->', clientWidth, clientHeight)
+          // console.log('this.player-->H264------->', width, height)
         }
         this.videoMoveData.player = player
         this.videoMoveData.mainBox = mainBox
@@ -358,20 +383,61 @@ export default class extends Vue {
   }
 
   public playerFS() {
-    const mainBox: any = this.$refs.videoWrap
-    if (!mainBox) return
-    const player = mainBox.querySelector('.player-box')
-    this.playerFitSize(mainBox.clientWidth, mainBox.clientHeight, player)
+    // const mainBox: any = this.$refs.videoWrap
+    // if (!mainBox) return
+    // const player = mainBox.querySelector('.player-box')
+    // this.playerFitSize(mainBox.clientWidth, mainBox.clientHeight, player)
+    if (this.codec === 'h265') {
+      const mainBox: any = this.$refs.videoWrap
+      if (!mainBox) return
+      const player = mainBox.querySelector('.player-box')
+      this.playerFitSize(mainBox.clientWidth, mainBox.clientHeight, player)
+    } else {
+      const $video: any = this.$refs.video
+      const player = $video.querySelector('video')
+      this.playerFitSize($video.clientWidth, $video.clientHeight, player)
+    }
   }
 
   public playerFitSize(width: number, height: number, player: any) {
-    if (width / height > 16 / 9) {
-      player.style.height = '100%'
-      player.style.width = height * 16 / 9 + 'px'
-    } else {
-      player.style.width = '100%'
-      player.style.height = width * 9 / 16 + 'px'
+    // console.log('width--------->', width, 'height===>', height)
+
+    const videoContain = this.codec === 'h265' ? player.querySelector('canvas') : player
+
+    if (!this.scaleVal) {
+      if (width / height > 16 / 9) {
+        player.style.height = '100%'
+        player.style.width = height * 16 / 9 + 'px'
+      } else {
+        player.style.width = '100%'
+        player.style.height = width * 9 / 16 + 'px'
+      }
+      videoContain.style.objectFit = 'initial'
+    } else if (this.scaleVal === 16 / 9 || this.scaleVal === 4 / 3) {
+      if (width / height > this.scaleVal) {
+        player.style.height = '100%'
+        player.style.width = height * this.scaleVal + 'px'
+      } else {
+        player.style.width = '100%'
+        player.style.height = width * (1 / this.scaleVal) + 'px'
+      }
+      videoContain.style.objectFit = 'initial'
+    } else if (this.scaleVal === 'normal') {
+      player.style.height = `${height}px`
+      player.style.width = `${width}px`
+      videoContain.style.objectFit = 'contain'
+    } else if (this.scaleVal === 'fit') {
+      player.style.height = `${height}px`
+      player.style.width = `${width}px`
+      videoContain.style.objectFit = 'fill'
     }
+    // if (width / height > 16 / 9) {
+    //   player.style.height = '100%'
+    //   player.style.width = height * 16 / 9 + 'px'
+    // } else {
+    //   player.style.width = '100%'
+    //   player.style.height = width * 9 / 16 + 'px'
+    // }
     player.style.left = (width - player.clientWidth) / 2 + 'px'
     player.style.top = (height - player.clientHeight) / 2 + 'px'
   }
@@ -621,6 +687,25 @@ export default class extends Vue {
     } else {
       this.$message.error('您当前浏览器或者协议暂不支持麦克风')
     }
+  }
+  // 视频缩放
+  public scaleVideo(event:any, kind:any) {
+    event.currentTarget.blur()
+    console.log('kind======>', kind)
+    this.scaleVal = kind
+    this.playerFS()
+    // switch (kind) {
+    //   case '16:9':
+    //     break
+    //   case '4:3':
+    //     break
+    //   case 'normal':
+    //     break
+    //   case 'fit':
+    //     break
+    //   default:
+    //     break
+    // }
   }
 
   /**
@@ -956,5 +1041,18 @@ export default class extends Vue {
         opacity: 1;
       }
     }
+  }
+  .videoScaleBox{
+      width: 50px;
+      ::v-deep .el-button--mini{
+        display: block;
+        width: 80%;
+        color: #fff;
+        margin-left:0;
+        text-align: left;
+        &:hover{
+          color: #FA8334;
+        }
+      }
   }
 </style>
