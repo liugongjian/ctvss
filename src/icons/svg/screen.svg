@@ -5,8 +5,9 @@
 <style type="text/css">
 	.st0{fill:#2C2C2C;}
 </style>
-<rect class="st0" width="105.4" height="106.4"/>
-<rect x="121.5" class="st0" width="105.4" height="106.4"/>
-<rect y="121.5" class="st0" width="105.4" height="106.4"/>
-<rect x="121.5" y="121.5" class="st0" width="105.4" height="106.4"/>
+<rect class="st0" width="105" height="104.8"/>
+<rect y="121.7" class="st0" width="105.3" height="104.8"/>
+<rect x="121.3" y="0.4" class="st0" width="105.7" height="64.1"/>
+<rect x="121.3" y="80.8" class="st0" width="105.7" height="64.1"/>
+<rect x="121.3" y="162.8" class="st0" width="105.7" height="64.1"/>
 </svg>
