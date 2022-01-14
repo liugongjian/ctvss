@@ -1,5 +1,5 @@
 <template>
-  <component :is="container" title="实时告警信息"  class="widder-padding">
+  <component :is="container" title="实时告警信息">
     <ul v-loading="loading && !list.length" class="alert-list" :class="{'light': isLight}" :style="`height:${height}vh`">
       <div v-if="!list.length && !loading" class="empty-text">暂无数据</div>
       <li v-for="item in list" :key="item.id" :class="{'new-alert': item.isNew}" @click="openDialog(item)">
