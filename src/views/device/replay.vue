@@ -54,58 +54,67 @@
         </div>
         <div class="device-list__right">
           <div class="device__tools">
-            <label>分屏数:</label>
-            <el-tooltip content="单分屏" placement="top">
-              <el-button type="text" @click="changeMaxSize(1)"><svg-icon name="screen1" /></el-button>
-            </el-tooltip>
-            <template v-if="currentGroupId !== '80337930297556992'">
-              <el-tooltip content="两分屏" placement="top">
-                <el-button type="text" @click="changeMaxSize(2)"><svg-icon name="screen2" /></el-button>
-              </el-tooltip>
-              <el-tooltip content="四分屏" placement="top">
-                <el-button type="text" @click="changeMaxSize(4)"><svg-icon name="screen4" /></el-button>
-              </el-tooltip>
-            </template>
             <div class="device__tools--right">
+              <el-dropdown trigger="click" placement="bottom-start" @command="handleScreenSize">
+                <el-tooltip content="选择分屏" placement="top">
+                  <el-button>
+                    <svg-icon name="screen" />
+                  </el-button>
+                </el-tooltip>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item
+                    v-for="(item, index) in replayScreenSizeList"
+                    :key="index"
+                    :command="item.value"
+                    :class="{'el-dropdown-item__active': item.value === screenSize}"
+                  >
+                    <span class="el-dropdown-menu__screen-icon"><svg-icon :name="`screen${item.value}`" /></span>
+                    <label>{{ item.label }}</label>
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
               <el-tooltip content="全屏" placement="top">
                 <el-button type="text" @click="fullscreen"><svg-icon name="fullscreen" /></el-button>
               </el-tooltip>
             </div>
           </div>
-          <div class="screen-list" :class="[`screen-size--${maxSize}`, {'fullscreen': isFullscreen}]">
-            <div
-              v-for="(screen, index) in screenList"
-              :key="index"
-              class="screen-item"
-              :class="[{'actived': index === currentIndex && screenList.length > 1}, {'fullscreen': screen.isFullscreen}]"
-              @click="selectScreen(index)"
-            >
-              <template v-if="screen.loaded">
-                <player-container :on-can-play="screen.onCanPlay" :calendar-focus="screen.calendarFocus">
-                  <div slot="header" class="screen-header">
-                    <!-- <div class="device-name">{{ screen.deviceName }}</div> -->
-                    <div class="screen__tools">
-                      <el-tooltip content="关闭视频">
-                        <el-button class="screen__close" type="text" @click="screen.reset()">
-                          <svg-icon name="close" width="12" height="12" />
-                        </el-button>
-                      </el-tooltip>
+          <div class="screen-list" :class="[{'fullscreen': isFullscreen}]">
+            <div class="screen-wrap" :class="`screen-size--${screenSize}`">
+              <div
+                v-for="(screen, index) in screenList"
+                :key="index"
+                class="screen-item"
+                :style="`grid-area: item${index}`"
+                :class="[{'actived': index === currentIndex && screenList.length > 1}, {'fullscreen': screen.isFullscreen}]"
+                @click="selectScreen(index)"
+              >
+                <template v-if="screen.loaded">
+                  <player-container :on-can-play="screen.onCanPlay" :calendar-focus="screen.calendarFocus">
+                    <div slot="header" class="screen-header">
+                      <!-- <div class="device-name">{{ screen.deviceName }}</div> -->
+                      <div class="screen__tools">
+                        <el-tooltip content="关闭视频">
+                          <el-button class="screen__close" type="text" @click="screen.reset()">
+                            <svg-icon name="close" width="12" height="12" />
+                          </el-button>
+                        </el-tooltip>
+                      </div>
                     </div>
-                  </div>
-                  <replay-view
-                    :device-id="screen.deviceId"
-                    :in-protocol="currentGroupInProtocol"
-                    :is-fullscreen="screen.isFullscreen"
-                    :has-playlive="false"
-                    @onCalendarFocus="onCalendarFocus(screen, ...arguments)"
-                    @onCanPlay="playEvent(screen, ...arguments)"
-                    @onFullscreen="screen.fullscreen();fullscreen()"
-                    @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
-                  />
-                </player-container>
-              </template>
-              <div v-else class="tip-text tip-select-device">
-                <el-button type="text" @click="selectDevice(screen)">请选择设备</el-button>
+                    <replay-view
+                      :device-id="screen.deviceId"
+                      :in-protocol="currentGroupInProtocol"
+                      :is-fullscreen="screen.isFullscreen"
+                      :has-playlive="false"
+                      @onCalendarFocus="onCalendarFocus(screen, ...arguments)"
+                      @onCanPlay="playEvent(screen, ...arguments)"
+                      @onFullscreen="screen.fullscreen();fullscreen()"
+                      @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
+                    />
+                  </player-container>
+                </template>
+                <div v-else class="tip-text tip-select-device">
+                  <el-button type="text" @click="selectDevice(screen)">请选择设备</el-button>
+                </div>
               </div>
             </div>
           </div>
@@ -138,7 +147,7 @@ import { VGroupModule } from '@/store/modules/vgroup'
 export default class extends Mixins(ScreenMixin) {
   private renderAlertType = renderAlertType
   private getSums = getSums
-  public maxSize = 1
+  public screenSize = '1'
 
   private get deviceId() {
     return this.$route.query.deviceId || null

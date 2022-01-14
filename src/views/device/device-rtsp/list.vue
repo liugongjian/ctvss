@@ -154,6 +154,16 @@
             <span v-else><status-badge :status="recordStatusType[row.recordStatus]" />{{ recordStatus[row.recordStatus] || '-' }}</span>
           </template>
         </el-table-column>
+        <el-table-column key="bitrate" min-width="100" prop="bitrate" label="当前码率">
+          <template slot-scope="{row}">
+            {{ row.bitrate ? (row.bitrate / 1024).toFixed(2) + 'Mbps' : '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column key="errorMessage" prop="errorMessage" label="异常提示">
+          <template slot-scope="{row}">
+            {{ row.errorMessage || '-' }}
+          </template>
+        </el-table-column>
         <el-table-column key="deviceVendor" prop="deviceVendor" label="厂商">
           <template slot-scope="{row}">
             {{ row.deviceVendor || '-' }}
@@ -183,7 +193,25 @@
           <template slot-scope="scope">
             <el-button v-if="checkPermission(['ScreenPreview'])" type="text" :disabled="scope.row.deviceType === 'nvr'" @click="goToPreview('preview', scope.row)">实时预览</el-button>
             <el-button v-if="checkPermission(['ReplayRecord'])" type="text" :disabled="scope.row.deviceType === 'nvr'" @click="goToPreview('replay', scope.row)">录像回放</el-button>
-            <el-button type="text" disabled @click="goToPreview('snapshot', scope.row)">查看截图</el-button>
+            <!-- <el-button type="text" disabled @click="goToPreview('snapshot', scope.row)">查看截图</el-button> -->
+            <el-popover
+              width="400"
+              :open-delay="800"
+              trigger="hover"
+              @show="getEventsList(scope.row)"
+            >
+              <el-table
+                v-loading="loading.events"
+                :show-header="false"
+                :data="eventsList"
+                :height="170"
+                empty-text="暂无设备事件"
+              >
+                <el-table-column property="createdTime" />
+                <el-table-column property="errorMessage" />
+              </el-table>
+              <el-button slot="reference" type="text" @click="deviceRouter({id: scope.row.deviceId, type: 'detail', activeName: 'events'})">设备事件</el-button>
+            </el-popover>
             <el-dropdown @command="handleMore">
               <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
               <el-dropdown-menu slot="dropdown">
