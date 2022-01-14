@@ -799,7 +799,7 @@ export const asyncRoutes: RouteConfig[] = [
     name: 'ai',
     meta: {
       id: '20210424150201010000',
-      title: 'AI配置',
+      title: 'AI管理',
       icon: 'key',
       alwaysShow: true,
       perms: ['*']
