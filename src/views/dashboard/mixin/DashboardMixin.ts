@@ -26,14 +26,13 @@ export default class DashboardMixin extends Vue {
   }
 
   public goToApp(appid: any) {
-    const addr = this.$router.resolve({
+    this.$router.push({
       name: 'AI-AppDetail',
       query: {
         appid,
-        tabNum: '1'
+        tabNum: '2'
       }
     })
-    window.open(addr.href, '_blank')
   }
 
   public async getAiApps() {
