@@ -38,82 +38,82 @@ export default class ExcelMixin extends Vue {
   private columnsTemplate: any = {
     gb28181: {
       template: [
-        { header: '设备类型', key: 'deviceType', width: 10 },
-        { header: '国标版本', key: 'gbVersion', width: 10 },
-        { header: '设备厂商', key: 'deviceVendor', width: 10 },
-        { header: '设备名称', key: 'deviceName', width: 16 },
+        { header: '设备类型', key: 'deviceType', width: 16 },
+        { header: '国标版本', key: 'gbVersion', width: 16 },
+        { header: '设备厂商', key: 'deviceVendor', width: 16 },
+        { header: '设备名称', key: 'deviceName', width: 24 },
         { header: '设备描述', key: 'description', width: 16 },
         { header: '设备IP', key: 'deviceIp', width: 24 },
-        { header: '设备端口', key: 'devicePort', width: 10 },
+        { header: '设备端口', key: 'devicePort', width: 16 },
         { header: '设备用户名', key: 'userName', width: 16 },
-        { header: '是否启用自动拉流', key: 'pullType', width: 16 },
+        { header: '是否启用自动拉流', key: 'pullType', width: 30 },
         { header: '国标ID', key: 'gbId', width: 24 },
-        { header: '设备视频流优先传输协议', key: 'transPriority', width: 24 },
+        { header: '设备视频流优先传输协议', key: 'transPriority', width: 30 },
         { header: '设备通道数量', key: 'channelSize', width: 16 },
-        { header: '预设城市', key: 'city', width: 16 }
-        // { header: '视频包', key: 'videoPackage', width: 24 },
-        // { header: 'AI包', key: 'AIPackage', width: 24 },
-        // { header: '上行带宽包', key: 'BWPackage', width: 24 }
+        // { header: '预设城市', key: 'city', width: 16 },
+        { header: '视频包', key: 'videoPackage', width: 24 },
+        { header: 'AI包', key: 'AIPackage', width: 24 },
+        { header: '上行带宽包', key: 'BWPackage', width: 24 }
       ]
     },
     rtmp: {
       template: [
         { header: '视频流接入方式', key: 'inType', width: 16 },
-        { header: '设备类型', key: 'deviceType', width: 10 },
-        { header: '设备厂商', key: 'deviceVendor', width: 10 },
-        { header: '设备名称', key: 'deviceName', width: 16 },
+        { header: '设备类型', key: 'deviceType', width: 16 },
+        { header: '设备厂商', key: 'deviceVendor', width: 16 },
+        { header: '设备名称', key: 'deviceName', width: 24 },
         { header: '设备描述', key: 'description', width: 16 },
-        { header: '是否启用自动拉流', key: 'pullType', width: 24 },
-        { header: '是否启用自动激活推流地址', key: 'pushType', width: 24 },
+        { header: '是否启用自动拉流', key: 'pullType', width: 30 },
+        { header: '是否启用自动激活推流地址', key: 'pushType', width: 30 },
         { header: '拉流地址', key: 'pullUrl', width: 24 },
-        { header: '视频流标签', key: 'tags', width: 24 }
-        // { header: '视频包', key: 'videoPackage', width: 24 },
-        // { header: 'AI包', key: 'AIPackage', width: 24 },
-        // { header: '上行带宽包', key: 'BWPackage', width: 24 }
+        { header: '视频流标签', key: 'tags', width: 24 },
+        { header: '视频包', key: 'videoPackage', width: 24 },
+        { header: 'AI包', key: 'AIPackage', width: 24 },
+        { header: '上行带宽包', key: 'BWPackage', width: 24 }
       ]
     },
     rtsp: {
       template: [
         { header: '视频流接入方式', key: 'inType', width: 16 },
-        { header: '设备类型', key: 'deviceType', width: 10 },
-        { header: '设备厂商', key: 'deviceVendor', width: 10 },
+        { header: '设备类型', key: 'deviceType', width: 16 },
+        { header: '设备厂商', key: 'deviceVendor', width: 16 },
         { header: '设备名称', key: 'deviceName', width: 16 },
         { header: '设备描述', key: 'description', width: 16 },
-        { header: '用户名', key: 'userName', width: 10 },
-        { header: '密码', key: 'password', width: 10 },
+        { header: '用户名', key: 'userName', width: 16 },
+        { header: '密码', key: 'password', width: 16 },
         { header: '设备IP', key: 'deviceIp', width: 24 },
-        { header: '设备端口', key: 'devicePort', width: 10 },
+        { header: '设备端口', key: 'devicePort', width: 16 },
         { header: '设备通道数量', key: 'channelSize', width: 16 },
         { header: '主子码流数量', key: 'multiStreamSize', width: 16 },
         { header: '自动拉取第几个码流', key: 'AutoStreamNum', width: 24 },
         { header: '是否启用自动拉流', key: 'pullType', width: 24 },
-        { header: '是否启用自动激活推流地址', key: 'pushType', width: 24 },
-        { header: '设备视频流优先传输协议', key: 'transPriority', width: 24 }
-        // { header: '视频包', key: 'videoPackage', width: 24 },
-        // { header: 'AI包', key: 'AIPackage', width: 24 },
-        // { header: '上行带宽包', key: 'BWPackage', width: 24 }
+        { header: '是否启用自动激活推流地址', key: 'pushType', width: 30 },
+        { header: '设备视频流优先传输协议', key: 'transPriority', width: 30 },
+        { header: '视频包', key: 'videoPackage', width: 24 },
+        { header: 'AI包', key: 'AIPackage', width: 24 },
+        { header: '上行带宽包', key: 'BWPackage', width: 24 }
       ]
     },
     ehome: {
       template: [
-        { header: '设备类型', key: 'deviceType', width: 10 },
+        { header: '设备类型', key: 'deviceType', width: 16 },
         { header: '设备名称', key: 'deviceName', width: 16 },
         { header: '设备描述', key: 'description', width: 16 },
         { header: '设备IP', key: 'deviceIp', width: 24 },
-        { header: '设备端口', key: 'devicePort', width: 10 },
+        { header: '设备端口', key: 'devicePort', width: 16 },
         { header: '主子码流数量', key: 'multiStreamSize', width: 16 },
-        { header: '自动拉流', key: 'pullType', width: 10 },
+        { header: '自动拉流', key: 'pullType', width: 16 },
         { header: '自动拉取码流', key: 'AutoStreamNum', width: 16 },
-        { header: '设备通道数量', key: 'channelSize', width: 16 }
-        // { header: '视频包', key: 'videoPackage', width: 24 },
-        // { header: 'AI包', key: 'AIPackage', width: 24 },
-        // { header: '上行带宽包', key: 'BWPackage', width: 24 }
+        { header: '设备通道数量', key: 'channelSize', width: 16 },
+        { header: '视频包', key: 'videoPackage', width: 24 },
+        { header: 'AI包', key: 'AIPackage', width: 24 },
+        { header: '上行带宽包', key: 'BWPackage', width: 24 }
       ]
     },
     nvr: {
       template: [
         { header: '通道号', key: 'channelNum', width: 10 },
-        { header: '厂商', key: 'deviceVendor', width: 10 },
+        { header: '厂商', key: 'deviceVendor', width: 16 },
         { header: '通道名称', key: 'channelName', width: 16 }
       ]
     }
@@ -346,16 +346,16 @@ export default class ExcelMixin extends Vue {
     })
     worksheet.dataValidations.add('K2:K9999', this.validation.transPriority)
     worksheet.dataValidations.add('L2:L9999', this.validation.channelSize)
-    worksheet.dataValidations.add('M2:M9999', {
-      type: 'list',
-      allowBlank: false,
-      showErrorMessage: true,
-      formulae: [`"${this.cityList.join(',')}"`],
-      error: '请选择预设城市'
-    })
-    worksheet.dataValidations.add('N2:N9999', this.getVideoPackageValidation(this.VIDEOList))
-    worksheet.dataValidations.add('O2:O9999', this.getAIPackageValidation(this.AIList))
-    worksheet.dataValidations.add('P2:P9999', this.getBWPackageValidation(this.BWList))
+    // worksheet.dataValidations.add('M2:M9999', {
+    //   type: 'list',
+    //   allowBlank: false,
+    //   showErrorMessage: true,
+    //   formulae: [`"${this.cityList.join(',')}"`],
+    //   error: '请选择预设城市'
+    // })
+    worksheet.dataValidations.add('M2:M9999', this.getVideoPackageValidation(this.VIDEOList))
+    worksheet.dataValidations.add('N2:N9999', this.getAIPackageValidation(this.AIList))
+    worksheet.dataValidations.add('O2:O9999', this.getBWPackageValidation(this.BWList))
   }
 
   private rtmpOptionsInit(worksheet: any) {
