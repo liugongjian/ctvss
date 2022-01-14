@@ -1,5 +1,5 @@
 <template>
-  <component :is="container" title="实时告警信息">
+  <component :is="container" title="实时告警信息"  class="widder-padding">
     <ul v-loading="loading && !list.length" class="alert-list" :class="{'light': isLight}" :style="`height:${height}vh`">
       <div v-if="!list.length && !loading" class="empty-text">暂无数据</div>
       <li v-for="item in list" :key="item.id" :class="{'new-alert': item.isNew}" @click="openDialog(item)">
@@ -118,6 +118,9 @@ export default class extends Mixins(DashboardMixin) {
 }
 </script>
 <style lang="scss" scoped>
+.widder-padding{
+  padding: 2.7vh 4vw 4vh 4vw !important;
+}
   .alert-list {
     min-height: 180px;
     list-style: none;
