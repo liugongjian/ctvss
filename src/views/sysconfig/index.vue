@@ -4,9 +4,10 @@
       <el-form ref="form" :model="form" :rules="rules" label-width="200px">
         <el-form-item>
           <template slot="label">
-            AI告警功能:
+            是否启用短信告警:
             <el-popover
               placement="top-start"
+              title="是否启用短信告警"
               width="400"
               trigger="hover"
               :open-delay="300"
@@ -17,7 +18,7 @@
           </template>
           <el-switch v-model="form.active" />
         </el-form-item>
-        <el-form-item v-if="form.active" label="手机号" prop="phoneNumber">
+        <el-form-item v-if="form.active" label="手机号:" prop="phoneNumber">
           <el-input v-model="form.phoneNumber" />
         </el-form-item>
         <el-form-item>
