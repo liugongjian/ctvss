@@ -112,6 +112,7 @@ import { UserModule } from '@/store/modules/user'
 import { createPlayer } from '../models/Ctplayer'
 import { durationFormatInVideo } from '@/utils/date'
 import { checkPermission } from '@/utils/permission'
+import { scaleKind } from '@/dics/index'
 
 @Component({
   name: 'Player'
@@ -234,12 +235,7 @@ export default class extends Vue {
   private resizeObserver?: any
   private error = ''
 
-  private scaleKind:any=[
-    { label: '16:9', kind: 16 / 9 },
-    { label: '4:3', kind: 4 / 3 },
-    { label: '原始比例', kind: 'normal' },
-    { label: '拉伸', kind: 'fit' }
-  ]
+  private scaleKind=scaleKind
   private scaleVal:any
 
   get username() {
@@ -370,9 +366,8 @@ export default class extends Vue {
           // console.log('this.playerH265------->', width, height)
         } else {
           this.playerFS()
-          // const { clientHeight, clientWidth } = this.player.flv._mediaElement
-          // console.log('this.player._mediaElement--=->', clientWidth, clientHeight)
-          // console.log('this.player-->H264------->', width, height)
+          const { clientHeight, clientWidth } = this.player.flv._mediaElement
+          console.log('this.player._mediaElement--=->', clientWidth, clientHeight)
         }
         this.videoMoveData.player = player
         this.videoMoveData.mainBox = mainBox
@@ -400,36 +395,48 @@ export default class extends Vue {
   }
 
   public playerFitSize(width: number, height: number, player: any) {
-    // console.log('width--------->', width, 'height===>', height)
-
     const videoContain = this.codec === 'h265' ? player.querySelector('canvas') : player
 
-    if (!this.scaleVal) {
-      if (width / height > 16 / 9) {
-        player.style.height = '100%'
-        player.style.width = height * 16 / 9 + 'px'
-      } else {
-        player.style.width = '100%'
-        player.style.height = width * 9 / 16 + 'px'
-      }
-      videoContain.style.objectFit = 'initial'
-    } else if (this.scaleVal === 16 / 9 || this.scaleVal === 4 / 3) {
-      if (width / height > this.scaleVal) {
-        player.style.height = '100%'
-        player.style.width = height * this.scaleVal + 'px'
-      } else {
-        player.style.width = '100%'
-        player.style.height = width * (1 / this.scaleVal) + 'px'
-      }
-      videoContain.style.objectFit = 'initial'
-    } else if (this.scaleVal === 'normal') {
-      player.style.height = `${height}px`
-      player.style.width = `${width}px`
-      videoContain.style.objectFit = 'contain'
-    } else if (this.scaleVal === 'fit') {
-      player.style.height = `${height}px`
-      player.style.width = `${width}px`
-      videoContain.style.objectFit = 'fill'
+    // 替代eval，计算字符串
+    const replaceEvalByFunction = (obj:any) => {
+      return window.Function('"use strict";return (' + obj + ')')()
+    }
+
+    switch (this.scaleVal) {
+      case '16 / 9':
+      case '4 / 3':
+        {
+          const tempScale = replaceEvalByFunction(this.scaleVal)
+          if (width / height > tempScale) {
+            player.style.height = '100%'
+            player.style.width = height * tempScale + 'px'
+          } else {
+            player.style.width = '100%'
+            player.style.height = width * (1 / tempScale) + 'px'
+          }
+          videoContain.style.objectFit = 'initial'
+        }
+        break
+      case 'normal':
+        player.style.height = `${height}px`
+        player.style.width = `${width}px`
+        videoContain.style.objectFit = 'contain'
+        break
+      case 'fit':
+        player.style.height = `${height}px`
+        player.style.width = `${width}px`
+        videoContain.style.objectFit = 'fill'
+        break
+      default:
+        if (width / height > 16 / 9) {
+          player.style.height = '100%'
+          player.style.width = height * 16 / 9 + 'px'
+        } else {
+          player.style.width = '100%'
+          player.style.height = width * 9 / 16 + 'px'
+        }
+        videoContain.style.objectFit = 'initial'
+        break
     }
     // if (width / height > 16 / 9) {
     //   player.style.height = '100%'

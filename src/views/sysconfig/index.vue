@@ -1,18 +1,35 @@
 <template>
   <div class="app-container">
     <el-card>
-      <el-form ref="form" :model="form" :rules="rules" label-width="200px">
-        <el-form-item label="是否启用短信告警">
-          <el-switch v-model="form.active" />
-        </el-form-item>
-        <el-form-item v-if="form.active" label="手机号" prop="phoneNumber">
-          <el-input v-model="form.phoneNumber" />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="submit">提交</el-button>
-          <el-button @click="back">取消</el-button>
-        </el-form-item>
-      </el-form>
+      <el-tabs v-model="activeName" type="border-card">
+        <el-tab-pane label="通用" name="currency">
+          <el-form ref="form" :model="form" :rules="rules" label-width="200px">
+            <el-form-item label="是否启用短信告警">
+              <el-switch v-model="form.active" />
+            </el-form-item>
+            <el-form-item v-if="form.active" label="手机号" prop="phoneNumber">
+              <el-input v-model="form.phoneNumber" />
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" @click="submit">提交</el-button>
+              <el-button @click="back">取消</el-button>
+            </el-form-item>
+          </el-form>
+        </el-tab-pane>
+        <el-tab-pane label="画面" name="frame">
+          <el-form ref="formFrame" :model="formFrame" label-width="120px">
+            <el-form-item label="默认画面比例">
+              <el-select v-model="formFrame.scaleVal" placeholder="请选择默认画面比例" @change="selectChange">
+                <el-option v-for="item in scaleKind" :key="item.kind" :label="item.label" :value="item.kind" />
+              </el-select>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" @click="save">保存</el-button>
+              <el-button @click="back">取消</el-button>
+            </el-form-item>
+          </el-form>
+        </el-tab-pane>
+      </el-tabs>
     </el-card>
   </div>
 </template>
@@ -20,6 +37,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { getPhoneNumberForAISMS, activatePhone } from '@/api/ai-app'
+import { scaleKind } from '@/dics/index'
 
 function isvalidPhone(str) {
   const reg = /^1[3|4|5|7|8][0-9]\d{8}$/
@@ -38,6 +56,11 @@ const validPhone = (rule, value, callback) => {
   name: 'Sysconfig'
 })
 export default class extends Vue {
+  private scaleKind = scaleKind
+  private activeName = 'currency'
+  private formFrame:any={
+    scaleVal: ''
+  }
   public form:any = {
     active: false,
     phoneNumber: ''
@@ -45,7 +68,9 @@ export default class extends Vue {
   public rules = {
     phoneNumber: [{ required: true, trigger: 'blur', validator: validPhone }]
   }
+
   private async mounted() {
+    this.formFrame.scaleVal = '16 / 9'
     this.form = await getPhoneNumberForAISMS({})
   }
   private back() {
@@ -66,6 +91,18 @@ export default class extends Vue {
       } finally {
         this.form = await getPhoneNumberForAISMS({})
       }
+    })
+  }
+
+  private selectChange(val:any) {
+    // this.scaleVal = val
+    console.log('this.formFrame.scaleVal------->', this.formFrame.scaleVal)
+  }
+
+  private async save() {
+    const form:any = this.$refs.formFrame
+    form.validate((valid:any) => {
+      if (!valid) return
     })
   }
 }
