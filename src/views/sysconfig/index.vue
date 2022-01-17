@@ -75,7 +75,7 @@ export default class extends Vue {
         })
         this.$message.success('操作成功')
       } catch (e) {
-        this.$message.success('操作失败')
+        this.$message.error('操作失败')
       } finally {
         this.form = await getPhoneNumberForAISMS({})
       }
