@@ -2,7 +2,19 @@
   <div class="app-container">
     <el-card>
       <el-form ref="form" :model="form" :rules="rules" label-width="200px">
-        <el-form-item label="是否启用短信告警">
+        <el-form-item>
+          <template slot="label">
+            AI告警功能:
+            <el-popover
+              placement="top-start"
+              width="400"
+              trigger="hover"
+              :open-delay="300"
+              content="设备/流绑定AI应用后，出现AI告警信息会向客户手机发送短信提醒，默认开启"
+            >
+              <svg-icon slot="reference" class="form-question" name="help" />
+            </el-popover>
+          </template>
           <el-switch v-model="form.active" />
         </el-form-item>
         <el-form-item v-if="form.active" label="手机号" prop="phoneNumber">
@@ -76,6 +88,9 @@ export default class extends Vue {
 .el-form{
   .el-input{
     width: 250px;
+  }
+  ::v-deep .el-form-item__content{
+    line-height: 33px !important;
   }
 }
 </style>
