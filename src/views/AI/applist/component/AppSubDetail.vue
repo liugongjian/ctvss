@@ -76,6 +76,43 @@
         />
       </div>
 
+      <div v-if="isFaceAlgoCode" class="chart-wrapper car-spec">
+        <div class="title">
+          <div class="title-block" />
+          <span>车流量统计结果</span>
+        </div>
+        <CarFlowChart
+          :height="24"
+          :param="queryParam"
+          :face-lib="faceLib"
+          :device="device"
+          :app-info="appInfo"
+        />
+      </div>
+      <div v-if="isFaceAlgoCode" class="table-wrapper">
+        <div class="title">
+          <div class="title-block" />
+          <span>告警列表</span>
+        </div>
+        <el-table
+          ref="multipleTable"
+          :data="alarms"
+          tooltip-effect="dark"
+          style="width: 100%"
+        >
+          <el-table-column type="index" label="序号" align="center" />
+          <el-table-column prop="alarmcars" label="告警车辆" align="center" />
+          <el-table-column prop="time" label="时间" align="center" />
+        </el-table>
+        <el-pagination
+          :current-page="chartPager.pageNum"
+          :page-size="chartPager.pageSize"
+          :total="chartPager.totalNum"
+          layout="total, prev, pager, next, jumper"
+          @current-change="handleChartTableCurrentChange"
+        />
+      </div>
+
       <div v-loading="queryLoading.pic" class="pic-wrapper">
         <div class="title">
           <div class="title-block" />
@@ -124,6 +161,7 @@
 import { Component, Vue, Watch, Prop } from 'vue-property-decorator'
 import PicCard from './PicCard.vue'
 import PeopleTrendChart from './PeopleTrendChart.vue'
+import CarFlowChart from './CarFlowChart.vue'
 import Locations from '@/views/dashboard/ai/components/Locations.vue'
 import Attributes from '@/views/dashboard/ai/components/Attributes.vue'
 import { parseMetaDataNewAi, transformLocationAi } from '@/utils/ai'
@@ -139,7 +177,8 @@ import { ResultTimeInterval } from '@/dics/index'
     PicCard,
     PeopleTrendChart,
     Locations,
-    Attributes
+    Attributes,
+    CarFlowChart
   }
 })
 export default class extends Vue {
@@ -159,6 +198,11 @@ export default class extends Vue {
       pageSize: 12,
       totalNum: 0
     }
+    private chartPager = {
+      pageNum: 1,
+      pageSize: 5,
+      totalNum: 0
+    }
     private breadCrumbContent: String = '应用详情'
     private queryParam: any = {
       periodType: '今天',
@@ -169,6 +213,10 @@ export default class extends Vue {
     }
     private faceInfos: any = []
     private picInfos: any = []
+    private alarms: any = [
+      {alarmcars: 25, time:'2022.01.13 04:00:09'},
+      {alarmcars: 40, time:'2022.01.13 04:00:09'},
+    ]
     // 防抖
     private debounceHandle = debounce(this.getScreenShot, 500)
 
@@ -291,6 +339,14 @@ export default class extends Vue {
       this.pager.pageNum = val
       this.getScreenShot()
     }
+
+    /**
+     * 分页操作
+     */
+    private handleChartTableCurrentChange(val: number) {
+      this.chartPager.pageNum = val
+    }
+
     private dialogueOprate() {
       this.visibile = !this.visibile
     }
@@ -388,6 +444,14 @@ export default class extends Vue {
       overflow-y: auto;
     }
 }
+.table-wrapper,.chart-wrapper{
+  display: inline-block;
+  vertical-align: top;
+}
+.table-wrapper{
+  width: 360px;
+}
+
 .title{
         height: 50px;
         vertical-align: middle;
@@ -439,5 +503,8 @@ export default class extends Vue {
   line-height: 50vh;
   text-align: center;
   font-size: 25px;
+}
+.car-spec{
+  width: calc(100% - 370px);
 }
 </style>
