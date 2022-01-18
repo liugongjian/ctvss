@@ -147,26 +147,20 @@ export default class extends Mixins(DashboardMixin) {
     this.chart = new Chart({
       container: 'car-container',
       autoFit: true,
-      padding: [20, 30, 45, 70]
+      padding: [20, 30, 45, 20]
     })
     this.chart.data(this.chartData)
     this.chart.scale('value', {
       tickLine: null
     })
-    this.chart.axis('time', {
-      tickLine: null
-    })
+    this.chart.axis('time')
 
     this.chart.axis('value', {
-      label: {
-        formatter: text => {
-          return text.replace(/(\d)(?=(?:\d{3})+$)/g, '$1,')
-        }
-      },
-      title: {
-        offset: 80,
+      grid: null,
+      label: null,
+      line: {
         style: {
-          fill: '#aaaaaa'
+          stroke: '#D9D9D9'
         }
       }
     })
