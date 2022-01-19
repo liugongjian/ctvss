@@ -310,7 +310,8 @@ export default class IndexMixin extends Vue {
           name: 'device-detail'
         }
         query = {
-          deviceId: item.id
+          deviceId: item.id,
+          tab: item.activeName
         }
         break
       case 'create':

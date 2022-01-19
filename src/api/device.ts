@@ -388,3 +388,13 @@ export const configChannels = (params: any): Promise<any> =>
     method: 'post',
     data: params
   })
+
+/**
+ * 获取设备事件列表
+ */
+export const getDeviceEvents = (params: any): Promise<any> =>
+  request({
+    url: '/device/event',
+    method: 'get',
+    params
+  })

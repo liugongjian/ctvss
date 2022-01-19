@@ -341,6 +341,11 @@
     .filter {
       cursor: pointer;
     }
+    .el-popover__reference-wrapper {
+      .el-button {
+        margin: 0 10px;
+      }
+    }
   }
 
   .device-info {
