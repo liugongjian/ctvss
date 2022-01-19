@@ -1083,7 +1083,7 @@ export const asyncRoutes: RouteConfig[] = [
     redirect: 'noredirect',
     meta: {
       id: '20210515200901012000',
-      title: '计费详情',
+      title: '计费管理',
       icon: 'billing',
       alwaysShow: true,
       perms: ['*']
