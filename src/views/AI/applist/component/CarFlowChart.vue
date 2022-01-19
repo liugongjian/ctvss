@@ -13,8 +13,6 @@ import DashboardMixin from '@/views/dashboard/mixin/DashboardMixin'
 import DashboardContainer from '@/views/dashboard/components/DashboardContainer.vue'
 import debounce from '@/utils/debounce'
 import { eachHourOfInterval, parse, isEqual, format } from 'date-fns'
-// import json from '../testdata/terrorism.json'
-// import json2 from '../testdata/terrorism2.json'
 
 @Component({
   name: 'CarFlowChart',
@@ -89,20 +87,22 @@ export default class extends Mixins(DashboardMixin) {
       //   this.chartData = this.fillChartData(startTime, endTime, json2)
       // }
       this.chartData = [
-        { time: '03-19', type: '11-30', value: 27000 },
-        { time: '03-19', type: '1-10', value: 24000 },
-        { time: '03-20', type: '11-30', value: 30000 },
-        { time: '03-20', type: '1-10', value: 27000 },
-        { time: '03-21', type: '11-30', value: 34000 },
-        { time: '03-21', type: '1-10', value: 30000 },
-        { time: '03-22', type: '11-30', value: 38000 },
-        { time: '03-22', type: '1-10', value: 34000 },
-        { time: '03-23', type: '11-30', value: 40000 },
-        { time: '03-23', type: '1-10', value: 36000 },
-        { time: '03-24', type: '11-30', value: 42000 },
-        { time: '03-24', type: '1-10', value: 38000 },
-        { time: '03-25', type: '11-30', value: 44000 },
-        { time: '03-25', type: '1-10', value: 38000 }
+        { time: '03-19', type: 'cars', value: 24000 },
+        { time: '03-20', type: 'cars', value: 27000 },
+        { time: '03-21', type: 'cars', value: 30000 },
+        { time: '03-22', type: 'cars', value: 34000 },
+        { time: '03-23', type: 'cars', value: 36000 },
+        { time: '03-24', type: 'cars', value: 38000 },
+        { time: '03-25', type: 'cars', value: 12000 },
+        { time: '03-25', type: 'threshold', value: 15000 }
+        // { time: '03-19', cars: 24 },
+        // { time: '03-20', cars: 27 },
+        // { time: '03-21', cars: 30 },
+        // { time: '03-22', cars: 34 },
+        // { time: '03-23', cars: 36 },
+        // { time: '03-24', cars: 38 },
+        // { time: '03-25', cars: 12 },
+        // { time: '03-25', threshold: 15 }
       ]
       this.chart ? this.updateChart() : this.drawChart()
       this.refreshChart()
@@ -174,10 +174,15 @@ export default class extends Mixins(DashboardMixin) {
     this.chart
       .legend(false)
       .interval()
-      .adjust('stack')
+      // .adjust([{ type: 'stack', reverseOrder: false }])
       .position('time*value')
-      .color('type', ['#FF0000', '#40a9ff'])
+      // .color('type', ['#40a9ff', '#FF0000']) // ['#FF0000', '#40a9ff']
+      .color('type', (type) => {
+        return type === 'cars' ? '#40a9ff' : '#FF0000'
+      })
       .size(2)
+    // this.chart.interval().position('time*threshold').color('#FF0000').size(2)
+    // this.chart.interval().position('time*cars').color('#40a9ff').size(2)
     this.chart.render()
     window.onresize = () => {
       this.chart.forceFit()
