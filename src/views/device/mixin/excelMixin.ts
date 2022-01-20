@@ -53,9 +53,11 @@ export default class ExcelMixin extends Vue {
         { header: '设备视频流优先传输协议', key: 'transPriority', width: 30 },
         { header: '设备通道数量', key: 'channelSize', width: 16 },
         // { header: '预设城市', key: 'city', width: 16 },
-        { header: '视频包', key: 'videoPackage', width: 24 },
-        { header: 'AI包', key: 'AIPackage', width: 24 },
-        { header: '上行带宽包', key: 'BWPackage', width: 24 }
+        { header: '经度', key: 'deviceLongitude', width: 16 },
+        { header: '纬度', key: 'deviceLatitude', width: 16 },
+        { header: '视频包', key: 'videoPackage', width: 40 },
+        { header: 'AI包', key: 'AIPackage', width: 40 },
+        { header: '上行带宽包', key: 'BWPackage', width: 40 }
       ]
     },
     rtmp: {
@@ -71,9 +73,11 @@ export default class ExcelMixin extends Vue {
         { header: '是否启用自动激活推流地址', key: 'pushType', width: 30 },
         { header: '拉流地址', key: 'pullUrl', width: 24 },
         { header: '视频流标签', key: 'tags', width: 24 },
-        { header: '视频包', key: 'videoPackage', width: 24 },
-        { header: 'AI包', key: 'AIPackage', width: 24 },
-        { header: '上行带宽包', key: 'BWPackage', width: 24 }
+        { header: '经度', key: 'deviceLongitude', width: 16 },
+        { header: '纬度', key: 'deviceLatitude', width: 16 },
+        { header: '视频包', key: 'videoPackage', width: 40 },
+        { header: 'AI包', key: 'AIPackage', width: 40 },
+        { header: '上行带宽包', key: 'BWPackage', width: 40 }
       ]
     },
     rtsp: {
@@ -97,9 +101,11 @@ export default class ExcelMixin extends Vue {
         { header: '是否启用自动拉流', key: 'pullType', width: 24 },
         { header: '是否启用自动激活推流地址', key: 'pushType', width: 30 },
         { header: '设备视频流优先传输协议', key: 'transPriority', width: 30 },
-        { header: '视频包', key: 'videoPackage', width: 24 },
-        { header: 'AI包', key: 'AIPackage', width: 24 },
-        { header: '上行带宽包', key: 'BWPackage', width: 24 }
+        { header: '经度', key: 'deviceLongitude', width: 16 },
+        { header: '纬度', key: 'deviceLatitude', width: 16 },
+        { header: '视频包', key: 'videoPackage', width: 40 },
+        { header: 'AI包', key: 'AIPackage', width: 40 },
+        { header: '上行带宽包', key: 'BWPackage', width: 40 }
       ]
     },
     ehome: {
@@ -115,9 +121,11 @@ export default class ExcelMixin extends Vue {
         { header: '自动拉流', key: 'pullType', width: 16 },
         { header: '自动拉取码流', key: 'AutoStreamNum', width: 16 },
         { header: '设备通道数量', key: 'channelSize', width: 16 },
-        { header: '视频包', key: 'videoPackage', width: 24 },
-        { header: 'AI包', key: 'AIPackage', width: 24 },
-        { header: '上行带宽包', key: 'BWPackage', width: 24 }
+        { header: '经度', key: 'deviceLongitude', width: 16 },
+        { header: '纬度', key: 'deviceLatitude', width: 16 },
+        { header: '视频包', key: 'videoPackage', width: 40 },
+        { header: 'AI包', key: 'AIPackage', width: 40 },
+        { header: '上行带宽包', key: 'BWPackage', width: 40 }
       ]
     },
     nvr: {
@@ -245,15 +253,15 @@ export default class ExcelMixin extends Vue {
     try {
       let VIDEORes: any = await getResources({ type: 'VSS_VIDEO' })
       this.VIDEOList = VIDEORes.resPkgList ? VIDEORes.resPkgList.map((item: any) => {
-        return `${item.id}||${item.totalDeviceCount}:${item.remainDeviceCount}:${item.bitRate}M:${item.storageTime}天`
+        return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${item.bitRate}M:${item.storageTime}天||${item.id}`
       }) : []
       let AIRes: any = await getResources({ type: 'VSS_AI' })
       this.AIList = AIRes.resPkgList ? AIRes.resPkgList.map((item: any) => {
-        return `${item.id}||${item.totalDeviceCount}:${item.remainDeviceCount}:${this.resourceAiType[item.aiType]}`
+        return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${this.resourceAiType[item.aiType]}||${item.id}`
       }) : []
       let BWRes: any = await getResources({ type: 'VSS_UPLOAD_BW' })
       this.BWList = BWRes.resPkgList ? BWRes.resPkgList.map((item: any) => {
-        return `${item.id}`
+        return `${item.bitRate}M||${item.id}`
       }) : []
     } catch (e) {
       console.error(e)
@@ -271,38 +279,38 @@ export default class ExcelMixin extends Vue {
         console.error(e)
       }
       // 获取预设城市选项
-      const mainUserAddress: any = this.$store.state.user.mainUserAddress
-      this.cityList = mainUserAddress.split(',').map((addressCode: any) => {
-        if (!addressCode) {
-          let findKey = (value: any, compare = (a: any, b: any) => a.substring(0, 2) === b.substring(0, 2)) => {
-            return Object.keys(cityMapping).find(k => compare(cityMapping[k], value))
-          }
-          addressCode = findKey(this.regionName)
-          if (!addressCode) {
-            return []
-          }
-        }
-        let provincelevelCities = [
-          '北京市',
-          '天津市',
-          '上海市',
-          '重庆市',
-          '台湾省',
-          '香港特别行政区',
-          '澳门特别行政区'
-        ]
-        let city = cityMapping[addressCode]
-        if (provincelevelCities.includes(city)) {
-          return city
-        } else {
-          return provinceMapping[addressCode.substring(0, 2)] + city
-          // let test = []
-          // for (let i = 0; i < 20; i++) {
-          //   test.push('广东省清远市连州派出所')
-          // }
-          // return test
-        }
-      })
+      // const mainUserAddress: any = this.$store.state.user.mainUserAddress
+      // this.cityList = mainUserAddress.split(',').map((addressCode: any) => {
+      //   if (!addressCode) {
+      //     let findKey = (value: any, compare = (a: any, b: any) => a.substring(0, 2) === b.substring(0, 2)) => {
+      //       return Object.keys(cityMapping).find(k => compare(cityMapping[k], value))
+      //     }
+      //     addressCode = findKey(this.regionName)
+      //     if (!addressCode) {
+      //       return []
+      //     }
+      //   }
+      //   let provincelevelCities = [
+      //     '北京市',
+      //     '天津市',
+      //     '上海市',
+      //     '重庆市',
+      //     '台湾省',
+      //     '香港特别行政区',
+      //     '澳门特别行政区'
+      //   ]
+      //   let city = cityMapping[addressCode]
+      //   if (provincelevelCities.includes(city)) {
+      //     return city
+      //   } else {
+      //     return provinceMapping[addressCode.substring(0, 2)] + city
+      //     // let test = []
+      //     // for (let i = 0; i < 20; i++) {
+      //     //   test.push('广东省清远市连州派出所')
+      //     // }
+      //     // return test
+      //   }
+      // })
     } else if (this.exelDeviceType === 'nvr') {
       // 构建可选择的通道，排除已选择通道
       const info = await getDevice({
@@ -363,9 +371,9 @@ export default class ExcelMixin extends Vue {
     //   formulae: [`"${this.cityList.join(',')}"`],
     //   error: '请选择预设城市'
     // })
-    worksheet.dataValidations.add('M2:M9999', this.getVideoPackageValidation(this.VIDEOList))
-    worksheet.dataValidations.add('N2:N9999', this.getAIPackageValidation(this.AIList))
-    worksheet.dataValidations.add('O2:O9999', this.getBWPackageValidation(this.BWList))
+    worksheet.dataValidations.add('O2:O9999', this.getVideoPackageValidation(this.VIDEOList))
+    worksheet.dataValidations.add('P2:P9999', this.getAIPackageValidation(this.AIList))
+    worksheet.dataValidations.add('Q2:Q9999', this.getBWPackageValidation(this.BWList))
   }
 
   private rtmpOptionsInit(worksheet: any) {
@@ -382,9 +390,9 @@ export default class ExcelMixin extends Vue {
     worksheet.dataValidations.add('F2:F9999', this.validation.pullType)
     worksheet.dataValidations.add('G2:G9999', this.validation.pushType)
     worksheet.dataValidations.add('I2:I9999', this.validation.tags)
-    worksheet.dataValidations.add('J2:J9999', this.getVideoPackageValidation(this.VIDEOList))
-    worksheet.dataValidations.add('K2:K9999', this.getAIPackageValidation(this.AIList))
-    worksheet.dataValidations.add('L2:L9999', this.getBWPackageValidation(this.BWList))
+    worksheet.dataValidations.add('L2:L9999', this.getVideoPackageValidation(this.VIDEOList))
+    worksheet.dataValidations.add('M2:M9999', this.getAIPackageValidation(this.AIList))
+    worksheet.dataValidations.add('N2:N9999', this.getBWPackageValidation(this.BWList))
   }
 
   private rtspOptionsInit(worksheet: any) {
@@ -411,9 +419,9 @@ export default class ExcelMixin extends Vue {
     worksheet.dataValidations.add('M2:M9999', this.validation.pullType)
     worksheet.dataValidations.add('N2:N9999', this.validation.pushType)
     worksheet.dataValidations.add('O2:O9999', this.validation.transPriority)
-    worksheet.dataValidations.add('P2:P9999', this.getVideoPackageValidation(this.VIDEOList))
-    worksheet.dataValidations.add('Q2:Q9999', this.getAIPackageValidation(this.AIList))
-    worksheet.dataValidations.add('R2:R9999', this.getBWPackageValidation(this.BWList))
+    worksheet.dataValidations.add('R2:R9999', this.getVideoPackageValidation(this.VIDEOList))
+    worksheet.dataValidations.add('S2:S9999', this.getAIPackageValidation(this.AIList))
+    worksheet.dataValidations.add('T2:T9999', this.getBWPackageValidation(this.BWList))
   }
 
   private ehomeOptionsInit(worksheet: any) {
@@ -436,9 +444,9 @@ export default class ExcelMixin extends Vue {
       prompt: '1、自动拉流的情况下，“自动拉取码流”项才会生效；2、自动拉取码流的范围不得超过主子码流数量'
     })
     worksheet.dataValidations.add('I2:I9999', this.validation.channelSize)
-    worksheet.dataValidations.add('J2:J9999', this.getVideoPackageValidation(this.VIDEOList))
-    worksheet.dataValidations.add('K2:K9999', this.getAIPackageValidation(this.AIList))
-    worksheet.dataValidations.add('L2:L9999', this.getBWPackageValidation(this.BWList))
+    worksheet.dataValidations.add('L2:L9999', this.getVideoPackageValidation(this.VIDEOList))
+    worksheet.dataValidations.add('M2:M9999', this.getAIPackageValidation(this.AIList))
+    worksheet.dataValidations.add('N2:N9999', this.getBWPackageValidation(this.BWList))
   }
 
   private nvrOptionsInit(worksheet: any) {
