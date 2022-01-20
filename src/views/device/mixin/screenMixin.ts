@@ -136,13 +136,13 @@ export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
     }
     this.initScreen()
   }
-  public changeMaxSize(size: number) {
-    this.maxSize = size
-    if (this.currentIndex >= this.maxSize) {
-      this.currentIndex = this.maxSize - 1
-    }
-    this.initScreen()
-  }
+  // public changeMaxSize(size: number) {
+  //   this.maxSize = size
+  //   if (this.currentIndex >= this.maxSize) {
+  //     this.currentIndex = this.maxSize - 1
+  //   }
+  //   this.initScreen()
+  // }
 
   /**
    * 检查是否全屏
