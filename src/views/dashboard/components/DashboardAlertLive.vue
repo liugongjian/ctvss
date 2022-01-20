@@ -118,6 +118,9 @@ export default class extends Mixins(DashboardMixin) {
 }
 </script>
 <style lang="scss" scoped>
+.widder-padding{
+  padding: 2.7vh 4vw 4vh 4vw !important;
+}
   .alert-list {
     min-height: 180px;
     list-style: none;
