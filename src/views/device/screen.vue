@@ -561,6 +561,7 @@ export default class extends Mixins(ScreenMixin) {
       this.$alert(`当前设备数需大于分屏数才可开始轮巡`, '提示', {
         confirmButtonText: '确定'
       })
+      this.polling.isStart = false
     } else {
       // 刷新
       this.polling.isStart = true
