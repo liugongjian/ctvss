@@ -26,6 +26,7 @@ export interface IUserState {
   mainUserAddress: string,
   tags: any,
   ctLoginId: string
+  settings: any
 }
 
 @Module({ dynamic: true, store, name: 'user' })
@@ -45,6 +46,9 @@ class User extends VuexModule implements IUserState {
   public mainUserAddress = ''
   public tags: any = null
   public ctLoginId = getLocalStorage('ctLoginId') || ''
+  public settings: any = {
+    screenCache: {}
+  }
 
   @Mutation
   private SET_TOKEN(token: string) {
@@ -117,6 +121,12 @@ class User extends VuexModule implements IUserState {
     this.ctLoginId = ctLoginId
   }
 
+  @Mutation
+  private SET_SETTINGS(settings: any) {
+    this.settings = settings
+    setLocalStorage('settings', JSON.stringify(settings))
+  }
+
   @Action({ rawError: true })
   public async Login(userInfo: { mainUserID?: string, userName: string, password: string}) {
     let { mainUserID, userName, password } = userInfo
@@ -141,6 +151,11 @@ class User extends VuexModule implements IUserState {
     this.SET_IAM_USER_ID(data.iamUserId)
     GroupModule.ResetGroupListIndex()
     // this.SET_AVATAR(avatar)
+    // 设置视频记录保存配置项
+    this.SetScreenCacheSettings({
+      screen: true,
+      replay: true
+    })
     return data
   }
 
@@ -174,6 +189,31 @@ class User extends VuexModule implements IUserState {
     DeviceModule.ResetBreadcrumb()
     // 清空虚拟业务组相关信息
     VGroupModule.resetVGroupInfo()
+  }
+
+  // 设置视频记录保存配置项
+  @Action
+  public SetScreenCacheSettings(screenCacheSettings: any) {
+    this.SET_SETTINGS({
+      ...this.settings,
+      screenCache: screenCacheSettings
+    })
+    if (!getLocalStorage('screenCache')) {
+      let screenCache = {
+        mainUserID: null,
+        screen: {
+          screenList: [],
+          screenSize: '4',
+          dateList: []
+        },
+        replay: {
+          screenList: [],
+          screenSize: '1',
+          dateList: []
+        }
+      }
+      setLocalStorage('screenCache', screenCache)
+    }
   }
 
   // 该方法已弃用

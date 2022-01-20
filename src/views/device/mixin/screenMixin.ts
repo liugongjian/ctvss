@@ -2,6 +2,8 @@ import { Component, Mixins } from 'vue-property-decorator'
 import IndexMixin from './indexMixin'
 import FullscreenMixin from './fullscreenMixin'
 import Screen from '../models/Screen'
+import { getLocalStorage, setLocalStorage } from '@/utils/storage'
+import { UserModule } from '@/store/modules/user'
 
 @Component
 export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
@@ -81,6 +83,107 @@ export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
       screenList.push(screen)
     }
     this.screenList = screenList
+  }
+
+  /**
+   * 初始化储存播放记录
+   */
+  public initScreenCache(type: string) {
+    // 判断是否启用视频记录保存配置
+    if (!getLocalStorage('settings') || !JSON.parse(getLocalStorage('settings')).screenCache[type]) {
+      return
+    }
+    // 针对页面刷新存储播放记录
+    window.addEventListener('beforeunload', () => this.setScreenCache({ params: type }))
+    if (this.screenCache[this.$route.name]!.screenSize) {
+      this.handleScreenSize(this.screenCache[this.$route.name]!.screenSize)
+      this.initScreen()
+    }
+    // screen.vue、replay.vue在watche监听到currentGroupId变化时会reset各个screen，故须在reset之后初始化
+    this.$nextTick(() => {
+      this.screenList.forEach((screen, index) => {
+        let cacheScreen = this.screenCache[this.$route.name]!.screenList[index]
+        if (cacheScreen && cacheScreen.deviceId) {
+          screen.deviceId = cacheScreen.deviceId
+          screen.inProtocol = cacheScreen.inProtocol || this.currentGroup!.inProtocol
+          screen.realGroupInProtocol = cacheScreen.realGroupInProtocol || ''
+          screen.streamNum = cacheScreen.streamNum
+          screen.roleId = cacheScreen.roleId
+          screen.realGroupId = cacheScreen.realGroupId
+          screen.isLive = cacheScreen.isLive
+          screen.replayType = cacheScreen.replayType
+          screen.currentDate = cacheScreen.currentDate
+          screen.currentTime = cacheScreen.currentTime
+          screen.isCache = cacheScreen.isCache
+          screen.getUrl()
+        }
+      })
+    })
+  }
+
+  public get screenCache() {
+    // 判断观看记录是否存在且当前用户是否与观看记录对应
+    if (getLocalStorage('screenCache') && JSON.parse(getLocalStorage('screenCache')).mainUserID === UserModule.mainUserID) {
+      return JSON.parse(getLocalStorage('screenCache'))
+    } else {
+      return {
+        mainUserID: null,
+        screen: {
+          screenList: [],
+          screenSize: '4'
+        },
+        replay: {
+          screenList: [],
+          screenSize: '1'
+        }
+      }
+    }
+  }
+
+  public setScreenCache(params: any) {
+    let cacheType = params.type || this.$route.name
+    this.screenCache.mainUserID = UserModule.mainUserID
+    this.screenCache[cacheType] = {
+      ...this.screenCache[cacheType],
+      screenList: this.screenList.map(screen => {
+        return {
+          ...screen,
+          isCache: true
+        }
+      }),
+      screenSize: this.screenSize
+    }
+    setLocalStorage('screenCache', JSON.stringify(this.screenCache))
+  }
+
+  /**
+   * screen的currentTime改变
+   */
+  public onCurrentTimeChange(screen: any, params: any) {
+    if (screen) {
+      screen.currentTime = params.currentTime
+      if (params.resetIsCache) {
+        screen.isCache = false
+      }
+    }
+  }
+
+  /**
+   * screen的currentDate改变
+   */
+  public onCurrentDateChange(screen: any, val: number) {
+    if (screen) {
+      screen.currentDate = val
+    }
+  }
+
+  /**
+   * screen的replayType改变
+   */
+  public onReplayTypeChange(screen: any, val: string) {
+    if (screen) {
+      screen.replayType = val
+    }
   }
 
   /**

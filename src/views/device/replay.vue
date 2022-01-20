@@ -105,6 +105,10 @@
                       :in-protocol="currentGroupInProtocol"
                       :is-fullscreen="screen.isFullscreen"
                       :has-playlive="false"
+                      :screen="screen"
+                      @onCurrentDateChange="onCurrentDateChange(screen, ...arguments)"
+                      @onCurrentTimeChange="onCurrentTimeChange(screen, ...arguments)"
+                      @onReplayTypeChange="onReplayTypeChange(screen, ...arguments)"
                       @onCalendarFocus="onCalendarFocus(screen, ...arguments)"
                       @onCanPlay="playEvent(screen, ...arguments)"
                       @onFullscreen="screen.fullscreen();fullscreen()"
@@ -168,8 +172,13 @@ export default class extends Mixins(ScreenMixin) {
   private mounted() {
     this.initScreen()
     this.calMaxHeight()
+    this.initScreenCache('replay')
     window.addEventListener('resize', this.calMaxHeight)
     window.addEventListener('resize', this.checkFullscreen)
+  }
+
+  private beforeDestroy() {
+    this.setScreenCache({ type: 'replay' })
   }
 
   private destroyed() {
@@ -179,6 +188,7 @@ export default class extends Mixins(ScreenMixin) {
     })
     window.removeEventListener('resize', this.calMaxHeight)
     window.removeEventListener('resize', this.checkFullscreen)
+    // window.removeEventListener('beforeunload', () => this.setScreenCache('replay'))
   }
 
   /**
