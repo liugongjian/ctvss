@@ -167,7 +167,7 @@
             <div class="device__tools--right">
               <el-dropdown trigger="click" placement="bottom-start" @command="handleScreenSize">
                 <el-tooltip content="选择分屏" placement="top">
-                  <el-button>
+                  <el-button :disabled="polling.isStart">
                     <svg-icon name="screen" />
                   </el-button>
                 </el-tooltip>
