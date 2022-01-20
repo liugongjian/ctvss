@@ -781,6 +781,10 @@
       height: 100%;
       cursor: pointer;
     }
+    &__bar_heatmap {
+      border-top-color: red;
+      z-index: 9;
+    }
     &.dragging * {
       cursor: grabbing;
     }

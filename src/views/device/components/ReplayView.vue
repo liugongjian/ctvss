@@ -35,6 +35,7 @@
         ref="replayPlayer"
         :current-date="currentDate"
         :record-list="recordList"
+        :heatmap-list="heatmapList"
         :has-playlive="hasPlaylive"
         :is-fullscreen="isFullscreen"
         :replay-type="replayType"
@@ -106,7 +107,7 @@
 import axios from 'axios'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { dateFormatInTable, dateFormat, durationFormatInTable, prefixZero, getLocaleDate, getTimestamp } from '@/utils/date'
-import { getDeviceRecords, getDeviceRecord, getDeviceRecordStatistic, editRecordName, getDeviceRecordRule } from '@/api/device'
+import { getDeviceRecords, getDeviceRecord, getDeviceRecordStatistic, editRecordName, getDeviceRecordRule, describeHeatMap } from '@/api/device'
 import ReplayPlayerDialog from './dialogs/ReplayPlayer.vue'
 import SliceDownloadDialog from './dialogs/SliceDownload.vue'
 import ReplayPlayer from './ReplayPlayer.vue'
@@ -153,6 +154,7 @@ export default class extends Vue {
   private isEmpty = false
   private recordName = ''
   private recordList: Array<any> = []
+  private heatmapList: Array<any> = []
   private recordListSlice: Array<any> = []
   private recordStatistic: Map<string, any> = new Map()
   private pickerOptions = {
@@ -186,6 +188,7 @@ export default class extends Vue {
   }
   private recordInterval: any = null
   private axiosSource: any = null
+  private axiosSourceHeatMap: any = null
 
   private async mounted() {
     await this.init()
@@ -194,6 +197,7 @@ export default class extends Vue {
   private async destroyed() {
     clearInterval(this.recordInterval)
     this.axiosSource && this.axiosSource.cancel()
+    this.axiosSourceHeatMap && this.axiosSourceHeatMap.cancel()
   }
 
   @Watch('$route.query')
@@ -225,7 +229,11 @@ export default class extends Vue {
       this.getRecordStatistic(startTime, endTime)
       clearInterval(this.recordInterval)
       this.recordList = []
-      this.replayType === 'cloud' && await this.getRecordList()
+      this.heatmapList = []
+      if (this.replayType === 'cloud') {
+        await this.getRecordList()
+        await this.describeHeatMap()
+      }
       // 定时轮询新录像
       this.getLatestRecord()
     } catch (e) {
@@ -238,6 +246,7 @@ export default class extends Vue {
    */
   private changeDate() {
     this.axiosSource.cancel()
+    this.axiosSourceHeatMap.cancel()
     setTimeout(() => {
       this.init()
     })
@@ -284,6 +293,73 @@ export default class extends Vue {
   private cancelEdit(row: any) {
     this.recordName = ''
     row.edit = false
+  }
+
+  /**
+   * 获取行人时间段列表
+   */
+  private async describeHeatMap(startTime?: number) {
+    try {
+      this.loading = true
+      this.axiosSourceHeatMap = axios.CancelToken.source()
+      // const res = await describeHeatMap({
+      //   deviceId: this.deviceId,
+      //   inProtocol: this.inProtocol,
+      //   startTime: startTime || this.currentDate / 1000,
+      //   endTime: this.currentDate / 1000 + 24 * 60 * 60,
+      //   aiCode: '10006'
+      // }, this.axiosSourceHeatMap.token)
+      const res = {
+        heatMap: [
+          {
+            startTime: '2022-01-16 00:00:01',
+            endTime: '2022-01-16 00:05:07',
+            duration: 306
+          },
+          {
+            startTime: '2022-01-16 00:05:07',
+            endTime: '2022-01-16 00:10:13',
+            duration: 306
+          },
+          {
+            startTime: '2022-01-16 04:05:07',
+            endTime: '2022-01-16 04:11:13',
+            duration: 366
+          },
+          {
+            startTime: '2022-01-16 08:05:07',
+            endTime: '2022-01-16 08:16:13',
+            duration: 666
+          }
+        ]
+      }
+      // 追加最新的行人时间段
+      if (startTime) {
+        const heatmapLength = this.heatmapList.length
+        res.heatMap.forEach((heatmap: any, index: number) => {
+          heatmap.startAt = getTimestamp(heatmap.startTime)
+          heatmap.loading = false
+          heatmap.index = heatmapLength + index
+          if (!~this.heatmapList.findIndex(_heatmap => {
+            return heatmap.startTime === _heatmap.startTime
+          })) {
+            this.heatmapList.push(heatmap)
+          }
+        })
+      } else {
+        console.log('res.heatMap: ', res.heatMap)
+        this.heatmapList = res.heatMap.map((heatmap: any, index: number) => {
+          // heatmap.startAt = getTimestamp(heatmap.startTime)
+          heatmap.loading = false
+          heatmap.index = index
+          return heatmap
+        })
+      }
+    } catch (e) {
+      console.log(e)
+    } finally {
+      this.loading = false
+    }
   }
 
   /**
@@ -362,7 +438,7 @@ export default class extends Vue {
   }
 
   /**
-   * 定时轮询新录像
+   * 定时轮询新录像 && 录像中行人时间段信息
    */
   private async getLatestRecord() {
     const recordListLength = this.recordList.length
@@ -378,6 +454,10 @@ export default class extends Vue {
           const lastRecord = this.recordList[recordListLength - 1]
           const startTime = Math.floor(new Date(lastRecord.endTime).getTime() / 1000 - 3 * 60)
           await this.getRecordList(startTime)
+
+          const lastHeatMap = this.heatmapList[this.heatmapList.length - 1]
+          const startTimeHeatMap = Math.floor(new Date(lastHeatMap.endTime).getTime() / 1000 - 3 * 60)
+          await this.describeHeatMap(startTimeHeatMap)
         }, interval * 1000)
       }
     } catch (e) {
