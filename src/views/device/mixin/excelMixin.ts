@@ -243,15 +243,15 @@ export default class ExcelMixin extends Vue {
     try {
       let VIDEORes: any = await getResources({ type: 'VSS_VIDEO' })
       this.VIDEOList = VIDEORes.resPkgList ? VIDEORes.resPkgList.map((item: any) => {
-        return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${item.bitRate}M:${item.storageTime}天||${item.id}`
+        return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${item.bitRate}M:${item.storageTime}天||${item.resourceId}`
       }) : []
       let AIRes: any = await getResources({ type: 'VSS_AI' })
       this.AIList = AIRes.resPkgList ? AIRes.resPkgList.map((item: any) => {
-        return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${this.resourceAiType[item.aiType]}||${item.id}`
+        return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${this.resourceAiType[item.aiType]}||${item.resourceId}`
       }) : []
       let BWRes: any = await getResources({ type: 'VSS_UPLOAD_BW' })
       this.BWList = BWRes.resPkgList ? BWRes.resPkgList.map((item: any) => {
-        return `${item.bitRate}M||${item.id}`
+        return `${item.bitRate}M||${item.resourceId}`
       }) : []
     } catch (e) {
       console.error(e)
@@ -400,6 +400,7 @@ export default class ExcelMixin extends Vue {
       type: 'list',
       allowBlank: true,
       showErrorMessage: true,
+      formulae: ['"是,否"'],
       error: '请选择是否启动域名'
     })
     worksheet.dataValidations.add('L2:L9999', {
@@ -445,7 +446,7 @@ export default class ExcelMixin extends Vue {
       formulae: ['"主码流,子码流,第三码流"'],
       prompt: '1、自动拉流的情况下，“自动拉取码流”项才会生效；2、自动拉取码流的范围不得超过主子码流数量'
     })
-    worksheet.dataValidations.add('K2:I9999', this.validation.channelSize)
+    worksheet.dataValidations.add('K2:K9999', this.validation.channelSize)
     worksheet.dataValidations.add('L2:L9999', this.getVideoPackageValidation(this.VIDEOList))
     worksheet.dataValidations.add('M2:M9999', this.getAIPackageValidation(this.AIList))
     worksheet.dataValidations.add('N2:N9999', this.getBWPackageValidation(this.BWList))
