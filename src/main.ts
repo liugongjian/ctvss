@@ -68,30 +68,33 @@ try {
   // 从localstorage中读取选中的业务组
   GroupModule.GetGroupFromLs()
   CtcloudLayout.getPublicInfo().authCurrentPromise.then(async(data :any) => {
-    if (!data.isLoggedIn) {
-      // 天翼云未登录
-
-      // 海南特殊用户处理
-      const href = window.location.href
-      if (href.indexOf('userId=') !== -1) {
-        const userId = href.slice(href.indexOf('userId=') + 'userId='.length)
-        if (userId === '570006') {
-          try {
-            const res = await getWhiteListUserAccessToken({ userId })
-            UserModule.SetToken(res.token)
-            new Vue({
-              router,
-              store,
-              render: (h) => h(App)
-            }).$mount('#app')
-            window.history.replaceState(null, '', href.slice(0, href.indexOf('?userId=')))
-            return
-          } catch (err) {
-            // 接口报错，执行原先初始化流程
-            console.log('err: ', err)
-          }
+    // 海南特殊用户处理
+    const href = window.location.href
+    if (href.indexOf('userId=') !== -1) {
+      const userId = href.slice(href.indexOf('userId=') + 'userId='.length)
+      if (userId === '570006') {
+        try {
+          // 清空所有外部登录信息
+          UserModule.ResetToken()
+          const res = await getWhiteListUserAccessToken({ userId })
+          UserModule.SetToken(res.token)
+          new Vue({
+            router,
+            store,
+            render: (h) => h(App)
+          }).$mount('#app')
+          window.history.replaceState(null, '', href.slice(0, href.indexOf('?userId=')))
+          return
+        } catch (err) {
+          // 接口报错，执行原先初始化流程
+          console.log('err: ', err)
         }
       }
+    }
+
+    // 默认路径
+    if (!data.isLoggedIn) {
+      // 天翼云未登录
       const loginType = getLocalStorage('loginType')
       switch (loginType) {
         case 'main':
