@@ -38,6 +38,19 @@ export default class CreateMixin extends Vue {
 
   public regionList: any = []
 
+  public get longLatRules() {
+    console.log(this.lianzhouFlag);
+    
+    if (this.lianzhouFlag) {
+      return [
+        { required: true, message: '请选择经纬度', trigger: 'blur' },
+        { validator: this.validateLonglat, trigger: 'blur' }
+      ]
+    } else {
+      return []
+    }
+  }
+
   public get currentGroup() {
     return GroupModule.group
   }

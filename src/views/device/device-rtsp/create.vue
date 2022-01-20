@@ -171,12 +171,10 @@
             @change="addressChange"
           />
         </el-form-item>
-        <template v-if="lianzhouFlag">
-          <el-form-item label="经纬度:" prop="longlat">
-            <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
-            <el-input v-model="form.deviceLatitude" class="longlat-input" />
-          </el-form-item>
-        </template>
+        <el-form-item :rules="longLatRules" label="经纬度:" prop="longlat">
+          <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
+          <el-input v-model="form.deviceLatitude" class="longlat-input" />
+        </el-form-item>
         <el-form-item v-if="!isUpdate || !!form.industryCode || !form.gbId" label="所属行业:" prop="industryCode">
           <el-select v-model="form.industryCode" :disabled="form.gbId !== ''" placeholder="请选择所属行业">
             <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
@@ -283,10 +281,6 @@ export default class extends Mixins(createMixin) {
     ],
     address: [
       { required: true, message: '请选择设备地址', trigger: 'blur' }
-    ],
-    longlat: [
-      { required: true, message: '请选择经纬度', trigger: 'blur' },
-      { validator: this.validateLonglat, trigger: 'blur' }
     ],
     industryCode: [
       { required: true, message: '请选择所属行业', trigger: 'blur' }

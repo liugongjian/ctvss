@@ -86,6 +86,10 @@
           @change="addressChange"
         />
       </el-form-item>
+      <el-form-item v-show="form.deviceType !== 'platform'" :rules="longLatRules" label="经纬度:" prop="longlat">
+        <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
+        <el-input v-model="form.deviceLatitude" class="longlat-input" />
+      </el-form-item>
       <el-form-item v-if="!isUpdate || !!form.industryCode || !form.gbId" label="所属行业:" prop="industryCode">
         <el-select v-model="form.industryCode" :disabled="form.gbId !== ''" placeholder="请选择所属行业">
           <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
@@ -173,6 +177,9 @@ export default class extends Mixins(createMixin) {
     vssAIApps: [],
     aIApps: [],
     address: [],
+    longlat: 'required',
+    deviceLongitude: '0.000000',
+    deviceLatitude: '0.000000',
     gbId: '',
     gbRegion: '',
     gbRegionLevel: null,
@@ -204,7 +211,7 @@ export default class extends Mixins(createMixin) {
         inProtocol: this.inProtocol
       })
       this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
-        'description', 'inType', 'pullType', 'pushType', 'pullUrl', 'tags', 'gbId', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
+        'description', 'inType', 'pullType', 'pushType', 'pullUrl', 'tags', 'gbId', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
       this.cascaderInit()
       // 获取绑定资源包列表
       this.getDeviceResources(info.deviceId, info.deviceType!, info.inProtocol!)
@@ -228,7 +235,7 @@ export default class extends Mixins(createMixin) {
   private async doSubmit() {
     try {
       this.submitting = true
-      let params: any = pick(this.form, ['groupId', 'dirId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor', 'description', 'inType', 'tags', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode'])
+      let params: any = pick(this.form, ['groupId', 'dirId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor', 'description', 'inType', 'tags', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode'])
       if (this.isUpdate) {
         params = Object.assign(params, pick(this.form, ['deviceId']))
       } else {
@@ -284,5 +291,8 @@ export default class extends Mixins(createMixin) {
     &__item:last-child:after {
       content: '';
     }
+  }
+  .longlat-input {
+    width: 193px;
   }
 </style>

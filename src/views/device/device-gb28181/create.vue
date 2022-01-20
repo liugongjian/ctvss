@@ -135,7 +135,7 @@
             @change="addressChange"
           />
         </el-form-item>
-        <el-form-item v-if="lianzhouFlag" v-show="form.deviceType !== 'platform'" label="经纬度:" prop="longlat">
+        <el-form-item v-show="form.deviceType !== 'platform'" :rules="longLatRules" label="经纬度:" prop="longlat">
           <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
           <el-input v-model="form.deviceLatitude" class="longlat-input" />
         </el-form-item>
@@ -251,10 +251,6 @@ export default class extends Mixins(createMixin) {
     ],
     address: [
       { required: true, message: '请选择设备地址', trigger: 'blur' }
-    ],
-    longlat: [
-      { required: true, message: '请选择经纬度', trigger: 'blur' },
-      { validator: this.validateLonglat, trigger: 'blur' }
     ],
     resources: [
       { required: true, validator: this.validateResources, trigger: 'blur' }
