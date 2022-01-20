@@ -27,7 +27,7 @@
                   <status-badge :status="info.deviceStatus" />
                   {{ deviceStatus[info.deviceStatus] || '-' }}
                 </el-descriptions-item>
-                <template v-if="info && !isNVR && !isPlatform">
+                <template v-if="info && !isNVR">
                   <el-descriptions-item label="流状态">
                     <status-badge :status="info.streamStatus" />
                     {{ deviceStatus[info.streamStatus] || '-' }}

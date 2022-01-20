@@ -28,7 +28,7 @@
                   <status-badge :status="info.deviceStatus" />
                   {{ deviceStatus[info.deviceStatus] || '-' }}
                 </el-descriptions-item>
-                <template v-if="info && !isNVR && !isPlatform">
+                <template v-if="info && !isNVR">
                   <el-descriptions-item v-for="num in info.multiStreamSize" :key="num" :label="`${autoStreamNumObj[num]}状态`">
                     <status-badge :status="getStreamStatus(info.deviceStreams, num) || 'false'" />
                     {{ deviceStatus[getStreamStatus(info.deviceStreams, num)] || '-' }}
