@@ -134,7 +134,7 @@ export const getDeviceRecords = (params: any, cancelToken?: any): Promise<any> =
  */
 export const describeHeatMap = (data: any, cancelToken?: any): Promise<any> =>
   request({
-    url: 'aimanage/record/describeheatmap',
+    url: '/record/describeheatmap',
     method: 'post',
     data,
     cancelToken

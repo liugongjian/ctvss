@@ -49,14 +49,14 @@
             v-for="(time, index) in timePositionList"
             :key="index"
             class="timeline__bar"
-            :style="`left: ${time.left}%; width: ${time.width}%;`"
+            :style="`left: ${time.left}%; width: ${time.width}%; min-width: 1px;`"
             @click="handleTimeline($event, time)"
           />
           <div
             v-for="heatmapTime in heatmapTimePositionList"
             :key="heatmapTime.startTime"
             class="timeline__bar timeline__bar_heatmap"
-            :style="`left: ${heatmapTime.left}%; width: ${heatmapTime.width}%;`"
+            :style="`left: ${heatmapTime.left}%; width: ${heatmapTime.width}%; min-width: 1px;`"
             @click="handleHeatMapTimeline($event, heatmapTime)"
           />
         </div>
@@ -142,11 +142,10 @@ export default class extends Mixins(ReplayPlayerMixin) {
     const recordList = this.recordList
     const recordListLength = recordList.length
     const formattedList = []
-    let index = 0
     list.forEach((record: any) => {
       let startTime = record.startTime
       let endTime = record.endTime
-      for (let i = index; i < recordListLength; i++) {
+      for (let i = 0; i < recordListLength; i++) {
         const cur = recordList[i]
         const curStartTime = cur.startTime
         const curEndTime = cur.endTime
@@ -165,9 +164,8 @@ export default class extends Mixins(ReplayPlayerMixin) {
             duration: new Date(endTime).getTime() / 1000 - new Date(startTime).getTime() / 1000,
             origi: recordList[i]
           })
-          index++
           break
-        } else {
+        } else if (startTime < curEndTime) {
           formattedList.push({
             ...record,
             startAt: getTimestamp(startTime),
@@ -176,11 +174,10 @@ export default class extends Mixins(ReplayPlayerMixin) {
             duration: new Date(curEndTime).getTime() / 1000 - new Date(startTime).getTime() / 1000,
             origi: recordList[i]
           })
-          index++
           startTime = curEndTime
         }
 
-        if (startTime > endTime) {
+        if (startTime >= endTime) {
           break
         }
       }

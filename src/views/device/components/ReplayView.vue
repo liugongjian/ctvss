@@ -300,39 +300,45 @@ export default class extends Vue {
    */
   private async describeHeatMap(startTime?: number) {
     try {
-      this.loading = true
+      // this.loading = true
       this.axiosSourceHeatMap = axios.CancelToken.source()
-      // const res = await describeHeatMap({
-      //   deviceId: this.deviceId,
-      //   inProtocol: this.inProtocol,
-      //   startTime: startTime || this.currentDate / 1000,
-      //   endTime: this.currentDate / 1000 + 24 * 60 * 60,
-      //   aiCode: '10006'
-      // }, this.axiosSourceHeatMap.token)
-      const res = {
-        heatMap: [
-          {
-            startTime: '2022-01-16 00:00:01',
-            endTime: '2022-01-16 00:05:07',
-            duration: 306
-          },
-          {
-            startTime: '2022-01-16 00:05:07',
-            endTime: '2022-01-16 00:10:13',
-            duration: 306
-          },
-          {
-            startTime: '2022-01-16 04:05:07',
-            endTime: '2022-01-16 04:11:13',
-            duration: 366
-          },
-          {
-            startTime: '2022-01-16 08:05:07',
-            endTime: '2022-01-16 08:16:13',
-            duration: 666
-          }
-        ]
-      }
+      const res = await describeHeatMap({
+        deviceId: this.deviceId,
+        inProtocol: this.inProtocol,
+        startTime: startTime || this.currentDate / 1000,
+        endTime: this.currentDate / 1000 + 24 * 60 * 60,
+        aiCode: '10006'
+      }, this.axiosSourceHeatMap.token)
+      console.log('res: ', res)
+      // const res = {
+      //   heatMap: [
+      //     {
+      //       startTime: '2022-01-16 00:00:01',
+      //       endTime: '2022-01-16 00:05:07',
+      //       duration: 306
+      //     },
+      //     {
+      //       startTime: '2022-01-16 00:05:07',
+      //       endTime: '2022-01-16 00:10:13',
+      //       duration: 306
+      //     },
+      //     {
+      //       startTime: '2022-01-16 04:05:07',
+      //       endTime: '2022-01-16 04:11:13',
+      //       duration: 366
+      //     },
+      //     {
+      //       startTime: '2022-01-16 08:05:07',
+      //       endTime: '2022-01-16 08:16:13',
+      //       duration: 666
+      //     },
+      //     {
+      //       startTime: '2022-01-16 11:05:07',
+      //       endTime: '2022-01-16 11:05:09',
+      //       duration: 2
+      //     }
+      //   ]
+      // }
       // 追加最新的行人时间段
       if (startTime) {
         const heatmapLength = this.heatmapList.length
@@ -358,7 +364,7 @@ export default class extends Vue {
     } catch (e) {
       console.log(e)
     } finally {
-      this.loading = false
+      // this.loading = false
     }
   }
 
