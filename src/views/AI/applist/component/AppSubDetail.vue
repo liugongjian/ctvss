@@ -61,6 +61,9 @@
             </el-select>
           </div>
         </span>
+        <span>
+          <el-button class="el-button-rect"><svg-icon name="refresh" /></el-button>
+        </span>
       </div>
       <div v-if="isGatheringCode" class="chart-wrapper">
         <div class="title">
@@ -201,7 +204,7 @@ export default class extends Vue {
     private chartPager = {
       pageNum: 1,
       pageSize: 5,
-      totalNum: 0
+      totalNum: 300
     }
     private breadCrumbContent: String = '应用详情'
     private queryParam: any = {
@@ -448,6 +451,9 @@ export default class extends Vue {
   display: inline-block;
   vertical-align: top;
 }
+.chart-wrapper{
+  width: 100%;
+}
 .table-wrapper{
   width: 360px;
 }
@@ -505,6 +511,6 @@ export default class extends Vue {
   font-size: 25px;
 }
 .car-spec{
-  width: calc(100% - 370px);
+  width: calc(100% - 370px) !important;
 }
 </style>

@@ -86,24 +86,63 @@ export default class extends Mixins(DashboardMixin) {
       //   // this.chartData = json2.map(item => ({ value: item.count, time: item.Date + ' ' + item.timeInterval, type: '人员聚集' }))
       //   this.chartData = this.fillChartData(startTime, endTime, json2)
       // }
-      this.chartData = [
-        { time: '03-19', type: 'cars', value: 24000 },
-        { time: '03-20', type: 'cars', value: 27000 },
-        { time: '03-21', type: 'cars', value: 30000 },
-        { time: '03-22', type: 'cars', value: 34000 },
-        { time: '03-23', type: 'cars', value: 36000 },
-        { time: '03-24', type: 'cars', value: 38000 },
-        { time: '03-25', type: 'cars', value: 12000 },
-        { time: '03-25', type: 'threshold', value: 15000 }
-        // { time: '03-19', cars: 24 },
-        // { time: '03-20', cars: 27 },
-        // { time: '03-21', cars: 30 },
-        // { time: '03-22', cars: 34 },
-        // { time: '03-23', cars: 36 },
-        // { time: '03-24', cars: 38 },
-        // { time: '03-25', cars: 12 },
-        // { time: '03-25', threshold: 15 }
-      ]
+      this.chartData = [{
+        time: '13:00',
+        type: '101-1000',
+        value: 0
+      }, {
+        time: '13:00',
+        type: '1-10',
+        value: 10000
+      }, {
+        time: '13:30',
+        type: '101-1000',
+        value: 0
+      }, {
+        time: '13:30',
+        type: '1-10',
+        value: 10000
+      }, {
+        time: '14:00',
+        type: '101-1000',
+        value: 0
+      }, {
+        time: '14:00',
+        type: '1-10',
+        value: 10000
+      }, {
+        time: '14:30',
+        type: '101-1000',
+        value: 0
+      }, {
+        time: '14:30',
+        type: '1-10',
+        value: 10000
+      }, {
+        time: '15:00',
+        type: '101-1000',
+        value: 0
+      }, {
+        time: '15:00',
+        type: '1-10',
+        value: 10000
+      }, {
+        time: '15:30',
+        type: '101-1000',
+        value: 0
+      }, {
+        time: '15:30',
+        type: '1-10',
+        value: 10000
+      }, {
+        time: '16:00',
+        type: '101-1000',
+        value: 50000
+      }, {
+        time: '16:00',
+        type: '1-10',
+        value: 10000
+      }]
       this.chart ? this.updateChart() : this.drawChart()
       this.refreshChart()
     } catch (e) {
@@ -142,6 +181,7 @@ export default class extends Mixins(DashboardMixin) {
 
   /**
    * 更新图表
+   * https://antv-2018.alipay.com/zh-cn/g2/3.x/demo/column/column7.html
    */
   private drawChart() {
     this.chart = new Chart({
@@ -151,36 +191,42 @@ export default class extends Mixins(DashboardMixin) {
     })
     this.chart.data(this.chartData)
     this.chart.scale('value', {
+      alias: '金额(元)',
       tickLine: null
     })
-    this.chart.axis('time')
+    this.chart.axis('time', {
+      label: {
+        textStyle: {
+          fill: '#aaaaaa'
+        }
+      },
+      tickLine: {
+        alignWithLabel: false,
+        length: 0
+      }
+    })
 
     this.chart.axis('value', {
       grid: null,
       label: null,
-      line: {
-        style: {
-          stroke: '#D9D9D9'
-        }
+      title: {
+        offset: 80
       }
     })
-
-    this.chart.tooltip({
-      shared: true,
-      showMarkers: false
-    })
-    this.chart.interaction('active-region')
-
+    this.chart.legend(false)
+    // this.chart.interaction('active-region')
     this.chart
-      .legend(false)
       .interval()
-      // .adjust([{ type: 'stack', reverseOrder: false }])
       .position('time*value')
-      // .color('type', ['#40a9ff', '#FF0000']) // ['#FF0000', '#40a9ff']
-      .color('type', (type) => {
-        return type === 'cars' ? '#40a9ff' : '#FF0000'
+      .color('type', ['#FF0000', '#40a9ff'])
+      .label('value', {
+        content: (data) => {
+          // 过滤补0的数据
+          return data.type === '101-1000' && data.value === 0 ? '' : data.value
+        }
       })
       .size(2)
+
     // this.chart.interval().position('time*threshold').color('#FF0000').size(2)
     // this.chart.interval().position('time*cars').color('#40a9ff').size(2)
     this.chart.render()
