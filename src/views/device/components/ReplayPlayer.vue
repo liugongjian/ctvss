@@ -197,7 +197,7 @@ export default class extends Mixins(ReplayPlayerMixin) {
    */
   public async init() {
     this.timePositionList = this.calcVideoPosition(this.recordList)
-    this.heatmapTimePositionList = this.calcVideoPosition(this.heatmapList)
+    this.heatmapTimePositionList = this.calcHeatMapVideoPosition(this.heatmapList)
     this.initVideoPlayer()
   }
 
