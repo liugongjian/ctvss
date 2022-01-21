@@ -330,7 +330,7 @@ export const parseMetaData = (type: string, metaData: any) => {
         }
       }
       break
-      // 工业垃圾
+      // 垃圾检测
     case '21':
       if (metaData.Data && metaData.Data.DetectBoxes) {
         const boxes = metaData.Data.DetectBoxes
@@ -693,7 +693,7 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
         }
       }
       break
-      // 工业垃圾
+      // 垃圾检测
     case '10018':
       if (metaData.Data && metaData.Data.DetectBoxes) {
         const boxes = metaData.Data.DetectBoxes
