@@ -1,6 +1,6 @@
 import { VuexModule, Module, Action, Mutation, getModule } from 'vuex-module-decorators'
 import { Base64 } from 'js-base64'
-import { login, logout, getMainUserInfo, getIAMUserInfo, changePassword, resetIAMPassword } from '@/api/users'
+import { login, logout, getMainUserInfo, getIAMUserInfo, changePassword, resetIAMPassword, getUserConfig } from '@/api/users'
 import { switchUserRole, exitUserRole } from '@/api/accessManage'
 import { getToken, setToken, removeToken, getUsername, setUsername, removeUsername, getIamUserId, setIamUserId, removeIamUserId } from '@/utils/cookies'
 import { setLocalStorage, getLocalStorage } from '@/utils/storage'
@@ -152,11 +152,31 @@ class User extends VuexModule implements IUserState {
     GroupModule.ResetGroupListIndex()
     // this.SET_AVATAR(avatar)
     // 设置视频记录保存配置项
-    this.SetScreenCacheSettings({
-      screen: true,
-      replay: true
-    })
+    this.getUserConfigInfo()
     return data
+  }
+
+  // 获取用户配置信息
+  @Action
+  public async getUserConfigInfo() {
+    // 前后端参数不一致，设置转换字典
+    let dic = {
+      live: 'screen',
+      record: 'replay'
+    }
+    try {
+      let defaultConfig = {
+        screen: 'false',
+        replay: 'false'
+      }
+      let res = await getUserConfig()
+      res.userConfig && res.userConfig.forEach(config => {
+        defaultConfig[dic[config.type] || config.type] = config.enable
+      })
+      this.SetScreenCacheSettings(defaultConfig)
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   @Action({ rawError: true })
@@ -203,13 +223,11 @@ class User extends VuexModule implements IUserState {
         mainUserID: null,
         screen: {
           screenList: [],
-          screenSize: '4',
-          dateList: []
+          screenSize: '4'
         },
         replay: {
           screenList: [],
-          screenSize: '1',
-          dateList: []
+          screenSize: '1'
         }
       }
       setLocalStorage('screenCache', screenCache)

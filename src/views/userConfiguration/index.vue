@@ -8,7 +8,7 @@
       label-width="170px"
       class="user-configuration-form"
     >
-      <el-form-item prop="preview">
+      <el-form-item prop="screen">
         <template slot="label">
           实时预览记录功能:
           <el-popover
@@ -17,12 +17,12 @@
             width="400"
             trigger="hover"
             :open-delay="300"
-            :content="tips.preview"
+            :content="tips.screen"
           >
             <svg-icon slot="reference" class="form-question" name="help" />
           </el-popover>
         </template>
-        <el-switch v-model="form.preview" :active-value="1" :inactive-value="2" />
+        <el-switch v-model="form.screen" active-value="true" inactive-value="false" />
       </el-form-item>
       <el-form-item prop="replay">
         <template slot="label">
@@ -38,7 +38,7 @@
             <svg-icon slot="reference" class="form-question" name="help" />
           </el-popover>
         </template>
-        <el-switch v-model="form.replay" :active-value="1" :inactive-value="2" />
+        <el-switch v-model="form.replay" active-value="true" inactive-value="false" />
       </el-form-item>
       <el-form-item label="">
         <el-button type="primary" @click="handleChangeSettings">提 交</el-button>
@@ -50,24 +50,56 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { UserModule } from '@/store/modules/user'
+import { updatetUserConfig } from '@/api/users'
 
 @Component({
   name: 'userConfiguration'
 })
 export default class extends Vue {
   private tips = {
-    preview: '除首次实时预览需要打开指定摄像头外，后续切换回实时预览模块，都会直接播放上一次摄像头实时画面，默认关闭',
+    screen: '除首次实时预览需要打开指定摄像头外，后续切换回实时预览模块，都会直接播放上一次摄像头实时画面，默认关闭',
     replay: '除首次录像回放需要打开指定摄像头外，后续切换回录像回放模块，都会自动打开上一次摄像头录像回放界面，默认关闭'
   }
   private form = {
-    preview: 1,
-    replay: 1
+    screen: 'false',
+    replay: 'false'
   }
   private loading: boolean = false
 
-  private handleChangeSettings() {
-    console.log(this.form);
-    
+  private get screenCacheSettings() {
+    return UserModule.settings.screenCache
+  }
+
+  private async mounted() {
+    await UserModule.getUserConfigInfo()
+    this.form = this.screenCacheSettings
+  }
+
+  private async handleChangeSettings() {
+    try {
+      this.loading = true
+      let params = []
+      // 前后端参数不一致，设置转换字典
+      let dic = {
+        screen: 'live',
+        replay: 'record'
+      }
+      Object.keys(this.form).forEach(item => {
+        params.push({
+          type: dic[item],
+          enable: this.form[item]
+        })
+      })
+      await updatetUserConfig({
+        userConfig: params
+      })
+      await UserModule.getUserConfigInfo()
+      this.$message.success('修改用户配置成功！')
+    } catch (err) {
+      this.$message.error('修改用户配置失败，失败原因：' + err.message)
+    } finally {
+      this.loading = false
+    }
   }
 }
 </script>
