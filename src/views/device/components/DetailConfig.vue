@@ -559,12 +559,14 @@ export default class extends Vue {
      * 人脸搜索: code 10001
      * 车牌检测: code 10014
      * 棉花检测: code 10015
+     * 电瓶车进电梯 code 10020
      */
     switch (rowCode) {
       case '10006':
       case '10001':
       case '10014':
       case '10015':
+      case '10020':
         return true
       default:
         return false
