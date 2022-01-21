@@ -12,6 +12,15 @@
           <el-option v-for="(val, key) in ResourceAiType" :key="key" :label="val" :value="key" />
         </el-select>
       </el-form-item>
+      <el-form-item label="时间阈值" prop="timeThreshold">
+        <el-select v-model="form.timeThreshold" placeholder="请选择分析类型">
+          <el-option v-for="(val,key) in getHourInterval(1,24)" :key="key" :label="val" :value="val" />
+        </el-select>
+        <span style="padding-left:10px">小时</span>
+      </el-form-item>
+      <el-form-item label="车辆数量阈值" prop="carsThreshold">
+        <el-input v-model="form.carsThreshold" />
+      </el-form-item>
       <el-form-item label="生效时段" prop="effectPeriod">
         <el-radio-group v-model="form.effectPeriod">
           <el-radio label="全天" />
@@ -120,7 +129,7 @@ const getRule = (msg) => {
   let rule = []
   if (msg === '应用名称') {
     rule.push({ min: 1, max: 10, message: '名称需在 1 到 10 个字符之间', trigger: 'blur' })
-  } else if (msg === '人员数量阈值') {
+  } else if (msg === '人员数量阈值' || msg === '车辆数量阈值') {
     // rule.push({ type: 'number', message: '人员数量阈值必须为数字' })
     rule.push({
       validator: (rule, value, callback) => {
@@ -159,7 +168,9 @@ export default class extends Mixins(AppMixin) {
     'algorithmMetadata.FaceDbName': getRule('人脸库'),
     'algorithmMetadata.pedThreshold': getRule('人员数量阈值'),
     confidence: getRule('置信度'),
-    callbackKey: getRule('回调key')
+    callbackKey: getRule('回调key'),
+    timeThreshold: getRule('时间阈值'),
+    carsThreshold: getRule('车辆数量阈值')
   }
   private effectiveTime: any = []
 
@@ -185,7 +196,7 @@ export default class extends Mixins(AppMixin) {
       this.form = { ...this.form, confidence: this.form.confidence * 100 }
     } else { // 新建
       const algorithmMetadata = { FaceDbName: '', pedThreshold: '' }
-      this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [], validateType: '无验证', confidence: 60 }
+      this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [], validateType: '无验证', confidence: 60, timeThreshold: 1 }
     }
     try {
       const { groups } = await getAIConfigGroupData({})
@@ -216,6 +227,16 @@ export default class extends Mixins(AppMixin) {
     this.form.algorithmMetadata.length !== 0
       ? (this.form.algorithmMetadata = JSON.parse(this.form.algorithmMetadata))
       : (this.form = { ...this.form, algorithmMetadata: { FaceDbName: '', pedThreshold: '' } })
+  }
+
+  private getHourInterval = (min, max) => {
+    let pivot = min
+    const arr = []
+    while (pivot <= max) {
+      arr.push(pivot)
+      ++pivot
+    }
+    return arr
   }
 
   /**
