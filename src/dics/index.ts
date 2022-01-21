@@ -182,7 +182,9 @@ export const AlertType: any = {
   17: '车牌识别',
   18: '棉花检测',
   19: '入侵检测',
-  20: '在场人员+口罩检测'
+  20: '在场人员+口罩检测',
+  21: '工业垃圾',
+  23: '电动车'
 }
 
 export const AiMaskType: any = {
