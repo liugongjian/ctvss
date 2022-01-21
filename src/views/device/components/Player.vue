@@ -2,6 +2,7 @@
   <div ref="videoWrap" v-loading="waiting" class="video-wrap" :class="{'dragging': isDragging}">
     <div class="error">{{ error }}</div>
     <div ref="video" class="video-ref" @wheel="zoom" @mousedown="mouseDownHandle($event)" @mouseup="mouseUpHandle($event)" />
+    <div v-if="showCanvasBox" class="canvasScaleBox"><canvas /></div>
     <div class="controls" :class="{'controls--large': hasProgress}">
       <div v-if="codec === 'h265'" class="controls__h265">
         <svg-icon name="h265" width="40px" height="22px" />
@@ -86,10 +87,14 @@
             <el-button v-for="item in scaleKind" :key="item.kind" type="text" size="mini" @click.stop.prevent="(e) => scaleVideo(e,item.kind)">{{ item.label }}</el-button>
           </div>
           <div class="controls__btn controls__snapshot videoTypeBtn">
-            <span>缩放</span>
+            <svg-icon name="screenratio" width="18px" height="18px" />
           </div>
         </el-tooltip>
-
+        <el-tooltip placement="top" :content="showCanvasBox ? '关闭缩放比例修改' : '开启缩放比例修改'">
+          <div class="controls__btn controls__snapshot videoTypeBtn" :class="{'selected': showCanvasBox}" @click.stop.prevent="changeScaleCanvas">
+            <svg-icon name="screenscale" width="18px" height="18px" />
+          </div>
+        </el-tooltip>
         <template v-if="hasFullscreen">
           <el-tooltip v-if="!isFullscreen" content="进入全屏" placement="top">
             <div class="controls__btn controls__fullscreen" @click.stop.prevent="fullscreen">
@@ -113,6 +118,7 @@ import { createPlayer } from '../models/Ctplayer'
 import { durationFormatInVideo } from '@/utils/date'
 import { checkPermission } from '@/utils/permission'
 import { scaleKind } from '@/dics/index'
+import { dragCanvasZoom } from '@/api/device'
 
 @Component({
   name: 'Player'
@@ -237,6 +243,11 @@ export default class extends Vue {
 
   private scaleKind=scaleKind
   private scaleVal:any
+  private showCanvasBox = false
+  private canvasShape:any={}
+  private oCanvas:any
+  private ctxShape:any
+  private ctxDrawState = false
 
   get username() {
     return UserModule.name
@@ -349,8 +360,8 @@ export default class extends Vue {
       this.$nextTick(() => {
         const $video = this.$refs.video as HTMLDivElement
         const mainBox: any = this.$refs.videoWrap
-        const videoSize = $video.getBoundingClientRect()
-        const { height, width } = videoSize
+        // const videoSize = $video.getBoundingClientRect()
+        // const { height, width } = videoSize
         let player = $video.querySelector('video')
         if (this.codec === 'h265') {
           player = $video.querySelector('.player-box')
@@ -447,6 +458,112 @@ export default class extends Vue {
     // }
     player.style.left = (width - player.clientWidth) / 2 + 'px'
     player.style.top = (height - player.clientHeight) / 2 + 'px'
+  }
+
+  public changeScaleCanvas() {
+    this.showCanvasBox = !this.showCanvasBox
+    if (this.showCanvasBox) {
+      let player, ctxBox
+      if (this.codec === 'h265') {
+        ctxBox = this.$refs.videoWrap
+        player = ctxBox.querySelector('.player-box')
+      } else {
+        ctxBox = this.$refs.video
+        player = ctxBox.querySelector('video')
+      }
+      console.log('ctxBox=====>', ctxBox.clientWidth, ctxBox.clientHeight, 'player----->', player.clientHeight, player.clientWidth)
+      this.$nextTick(() => {
+        const oDom = document.querySelector('.canvasScaleBox')
+        this.oCanvas = oDom.querySelector('canvas')
+        this.ctxShape = this.oCanvas.getContext('2d')
+        this.oCanvas.addEventListener('mousedown', (e) => { this.canvasMouseDown(e) })
+        this.oCanvas.addEventListener('mousemove', (e) => { this.canvasMouseMove(e) })
+        this.oCanvas.addEventListener('mouseup', () => { this.canvasMouseUp() })
+        console.log('oDom==>', oDom)
+      })
+    }
+  }
+  // 获取canvas坐标
+  private getCanvasMousePos(e:any) {
+    let rect = this.oCanvas.getBoundingClientRect()
+    let x = (e.clientX - rect.left) * this.oCanvas.width / rect.width
+    let y = (e.clientY - rect.top) * this.oCanvas.height / rect.height
+
+    return {
+      'x': x,
+      'y': y
+    }
+  }
+  // 画矩形
+  private drawRect() {
+    if (this.oShape) {
+      this.ctxShape.clearRect(0, 0, this.oCanvas.width, this.oCanvas.height)// 清除画板
+      this.ctxShape.strokeStyle = '#50E3C2'
+      this.ctxShape.beginPath()
+      this.ctxShape.rect(this.oShape.startX, this.oShape.startY, this.oShape.endX - this.oShape.startX,
+        this.oShape.endY - this.oShape.startY)
+      this.ctxShape.stroke()
+    }
+  }
+
+  // 判断鼠标是否在有效区域
+  isMouseInShape(e:any) {
+    this.ctxShape.beginPath()
+    this.ctxShape.rect(this.oShape.startX, this.oShape.startY, this.oShape.endX - this.oShape.startX,
+      this.oShape.endY - this.oShape.startY)
+    return this.ctxShape.isPointInPath(e.x, e.y)
+  }
+
+  private canvasMouseDown(e:any) {
+    const mousePos = this.getCanvasMousePos(e)
+    this.ctxDrawState = true
+    // console.log('downMousePos----->', mousePos)
+    this.oShape = {
+      startX: mousePos.x,
+      startY: mousePos.y
+    }
+  }
+
+  private canvasMouseMove(e:any) {
+    if (this.oShape && this.ctxDrawState) {
+      const mousePos = this.getCanvasMousePos(e)
+      console.log('moveMousePos----->', mousePos)
+      // 鼠标结束的位置
+      this.oShape.endX = mousePos.x
+      this.oShape.endY = mousePos.y
+      this.drawRect()
+    }
+  }
+
+  private canvasMouseUp() {
+    this.ctxDrawState = false
+    this.oCanvas.removeEventListener('mousedown', (e) => { this.canvasMouseDown(e) })
+    this.oCanvas.removeEventListener('mousemove', (e) => { this.canvasMouseMove(e) })
+    this.oCanvas.removeEventListener('mouseup', () => { this.canvasMouseUp() })
+
+    const { startX, startY, endX, endY } = this.oShape
+    const lengthX = endX - startX
+    const lengthY = endY - startY
+    const midPointX = (endX + startX) / 2
+    const midPointY = (endY + startY) / 2
+
+    console.log('endINfo--->', lengthX, lengthY, midPointX, midPointY)
+
+    // const param = {
+    //   deviceId: '',
+    //   command: '',
+    //   length: '',
+    //   width: '',
+    //   midPointX: '',
+    //   midPointY: '',
+    //   lengthX: '',
+    //   lengthY: ''
+    // }
+    // dragCanvasZoom(param).then(() => {
+    //   console.log('this.oShape', this.oShape)
+    // }).catch(err => {
+    //   this.$message.error(err)
+    // })
   }
 
   public disposePlayer() {
@@ -1061,5 +1178,12 @@ export default class extends Vue {
           color: #FA8334;
         }
       }
+  }
+  .canvasScaleBox{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height:100%;
   }
 </style>

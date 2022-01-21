@@ -96,14 +96,15 @@ export default class extends Vue {
 
   private selectChange(val:any) {
     // this.scaleVal = val
-    console.log('this.formFrame.scaleVal------->', this.formFrame.scaleVal)
+    // console.log('this.formFrame.scaleVal------->', this.formFrame.scaleVal)
   }
 
   private async save() {
-    const form:any = this.$refs.formFrame
-    form.validate((valid:any) => {
-      if (!valid) return
-    })
+    // const form:any = this.$refs.formFrame
+    // form.validate((valid:any) => {
+    //   if (!valid) return
+    // })
+    console.log('this.formFrame.scaleVal------->', this.formFrame.scaleVal)
   }
 }
 

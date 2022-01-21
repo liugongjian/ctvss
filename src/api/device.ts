@@ -388,3 +388,11 @@ export const configChannels = (params: any): Promise<any> =>
     method: 'post',
     data: params
   })
+
+// player组件  缩放
+export const dragCanvasZoom = (params:any): Promise<any> =>
+  request({
+    url: '/ptz/dragzoom',
+    method: 'post',
+    data: params
+  })
