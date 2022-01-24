@@ -164,7 +164,6 @@ export default class ExcelMixin extends Vue {
       type: 'whole',
       allowBlank: true,
       showInputMessage: true,
-      showErrorMessage: true,
       prompt: 'nvr设备时该项为必填'
     },
     inType: {
