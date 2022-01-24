@@ -54,6 +54,13 @@ export const parseMetaData = (type: string, metaData: any) => {
           score: person.FaceItems.length > 0 && Math.round(person.FaceItems[0].Score)
         }
       })
+      if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+        locations.push(
+          {
+            zone: metaData.DangerZoneBox
+          }
+        )
+      }
       break
     // 抽烟检测
     case '5':
@@ -280,6 +287,13 @@ export const parseMetaData = (type: string, metaData: any) => {
           }
         })
       }
+      if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+        locations.push(
+          {
+            zone: metaData.DangerZoneBox
+          }
+        )
+      }
       break
     // 棉花
     case '18':
@@ -293,6 +307,14 @@ export const parseMetaData = (type: string, metaData: any) => {
               width: boxes[i].BottomRightX - boxes[i].TopLeftX,
               height: boxes[i].BottomRightY - boxes[i].TopLeftY,
               isWarning: true
+            }
+          )
+        }
+        const zoneBoxes = metaData.DangerZoneBox
+        if (zoneBoxes && zoneBoxes.length) {
+          locations.push(
+            {
+              zone: zoneBoxes
             }
           )
         }
@@ -434,6 +456,13 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
           console.log(error)
         }
       })
+      if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+        locations.push(
+          {
+            zone: metaData.DangerZoneBox
+          }
+        )
+      }
       break
     // 吸烟检测
     case '10002':
@@ -643,6 +672,13 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
           }
         })
       }
+      if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+        locations.push(
+          {
+            zone: metaData.DangerZoneBox
+          }
+        )
+      }
       break
     // 棉花
     case '10015':
@@ -656,6 +692,14 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
               width: boxes[i].BottomRightX - boxes[i].TopLeftX,
               height: boxes[i].BottomRightY - boxes[i].TopLeftY,
               isWarning: true
+            }
+          )
+        }
+        const zoneBoxes = metaData.DangerZoneBox
+        if (zoneBoxes && zoneBoxes.length) {
+          locations.push(
+            {
+              zone: zoneBoxes
             }
           )
         }
