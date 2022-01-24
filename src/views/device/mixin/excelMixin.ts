@@ -242,15 +242,15 @@ export default class ExcelMixin extends Vue {
     // 获取资源包选项
     try {
       let VIDEORes: any = await getResources({ type: 'VSS_VIDEO' })
-      this.VIDEOList = VIDEORes.resPkgList ? VIDEORes.resPkgList.map((item: any) => {
+      this.VIDEOList = VIDEORes.resPkgList ? VIDEORes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
         return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${item.bitRate}M:${item.storageTime}天||${item.resourceId}`
       }) : []
       let AIRes: any = await getResources({ type: 'VSS_AI' })
-      this.AIList = AIRes.resPkgList ? AIRes.resPkgList.map((item: any) => {
+      this.AIList = AIRes.resPkgList ? AIRes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
         return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${this.resourceAiType[item.aiType]}||${item.resourceId}`
       }) : []
       let BWRes: any = await getResources({ type: 'VSS_UPLOAD_BW' })
-      this.BWList = BWRes.resPkgList ? BWRes.resPkgList.map((item: any) => {
+      this.BWList = BWRes.resPkgList ? BWRes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
         return `${item.bitRate}M||${item.resourceId}`
       }) : []
     } catch (e) {
