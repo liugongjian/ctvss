@@ -45,6 +45,12 @@ class User extends VuexModule implements IUserState {
   public mainUserAddress = ''
   public tags: any = null
   public ctLoginId = getLocalStorage('ctLoginId') || ''
+  public whiteListFlag = getLocalStorage('whiteListFlag') || ''
+
+  @Mutation
+  private SET_WHITELIST(flag: string) {
+    this.whiteListFlag = flag
+  }
 
   @Mutation
   private SET_TOKEN(token: string) {
@@ -148,6 +154,12 @@ class User extends VuexModule implements IUserState {
   public async SetToken(token: string) {
     setToken(token)
     this.SET_TOKEN(token)
+  }
+
+  @Action({ rawError: true })
+  public async SetWhiteList(flag: string) {
+    setLocalStorage('whiteListFlag', flag)
+    this.SET_WHITELIST(flag)
   }
 
   @Action({ rawError: true })
@@ -323,6 +335,7 @@ class User extends VuexModule implements IUserState {
     DeviceModule.ResetBreadcrumb()
     // 清空虚拟业务组相关信息
     VGroupModule.resetVGroupInfo()
+    this.SET_WHITELIST('')
     this.SET_TOKEN('')
     this.SET_ROLES([])
     this.SET_PERMS([])
