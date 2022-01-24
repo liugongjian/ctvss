@@ -352,6 +352,54 @@ export const parseMetaData = (type: string, metaData: any) => {
         }
       }
       break
+      // 垃圾检测
+    case '21':
+      if (metaData.Data && metaData.Data.DetectBoxes) {
+        const boxes = metaData.Data.DetectBoxes
+        for (let i = 0; i < boxes.length; i += 4) {
+          locations.push(
+            {
+              top: boxes[i + 1],
+              left: boxes[i],
+              width: boxes[i + 2],
+              height: boxes[i + 3],
+              isWarning: !!metaData.Data.DetectClses[i / 4]
+            }
+          )
+        }
+        if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+          locations.push(
+            {
+              zone: metaData.DangerZoneBox
+            }
+          )
+        }
+      }
+      break
+    // 电动车
+    case '23':
+      if (metaData.Data && metaData.Data.DetectBoxes) {
+        const boxes = metaData.Data.DetectBoxes
+        for (let i = 0; i < boxes.length; i += 4) {
+          locations.push(
+            {
+              top: boxes[i + 1],
+              left: boxes[i],
+              width: boxes[i + 2],
+              height: boxes[i + 3],
+              isWarning: !!metaData.Data.DetectClses[i / 4]
+            }
+          )
+        }
+      }
+      if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+        locations.push(
+          {
+            zone: metaData.DangerZoneBox
+          }
+        )
+      }
+      break
   }
   return locations
 }
@@ -684,6 +732,54 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
               height: boxes[i + 3],
               isWarning: type === 0 || type === 2,
               type
+            }
+          )
+        }
+      }
+      break
+      // 垃圾检测
+    case '10018':
+      if (metaData.Data && metaData.Data.DetectBoxes) {
+        const boxes = metaData.Data.DetectBoxes
+        for (let i = 0; i < boxes.length; i += 4) {
+          locations.push(
+            {
+              top: boxes[i + 1],
+              left: boxes[i],
+              width: boxes[i + 2],
+              height: boxes[i + 3],
+              isWarning: !!metaData.Data.DetectClses[i / 4]
+            }
+          )
+        }
+        if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+          locations.push(
+            {
+              zone: metaData.DangerZoneBox
+            }
+          )
+        }
+      }
+      break
+      // 电动车
+    case '10020':
+      if (metaData.Data && metaData.Data.DetectBoxes) {
+        const boxes = metaData.Data.DetectBoxes
+        for (let i = 0; i < boxes.length; i += 4) {
+          locations.push(
+            {
+              top: boxes[i + 1],
+              left: boxes[i],
+              width: boxes[i + 2],
+              height: boxes[i + 3],
+              isWarning: !!metaData.Data.DetectClses[i / 4]
+            }
+          )
+        }
+        if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+          locations.push(
+            {
+              zone: metaData.DangerZoneBox
             }
           )
         }
