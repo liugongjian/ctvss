@@ -35,7 +35,7 @@
   </el-dialog>
 </template>
 <script lang="ts">
-import { Component, Prop, Mixins } from 'vue-property-decorator'
+import { Component, Prop, Mixins, Inject } from 'vue-property-decorator'
 import IndexMixin from '../../mixin/indexMixin'
 import { GroupModule } from '@/store/modules/group'
 import { Device } from '@/type/device'
@@ -51,6 +51,7 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
   }
 })
 export default class extends Mixins(IndexMixin) {
+  @Inject('outerSearch')private outerSearch?: any
   @Prop()
   private device!: Device
   private dialogVisible = true
@@ -76,9 +77,15 @@ export default class extends Mixins(IndexMixin) {
       this.loading.dir = true
       const res = await getDeviceTree({
         groupId: this.currentGroupId,
+        searchKey: this.outerSearch.searchKey || undefined,
         id: 0
       })
       this.dirList = this.setDirsStreamStatus(res.dirs)
+
+      // 根据搜索结果 组装 目录树（柳州搜索新增功能）
+      if (this.outerSearch.searchKey) {
+        this.dirList = this.transformDirList(this.dirList)
+      }
     } catch (e) {
       this.dirList = []
       console.log(e)

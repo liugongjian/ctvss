@@ -28,6 +28,7 @@
                 lazy
                 :load="loadDirs"
                 :props="treeProp"
+                :default-expand-all="!!search.searchKey"
                 @node-click="openScreen"
               >
                 <span
@@ -49,6 +50,13 @@
                   </span>
                 </span>
               </el-tree>
+            </div>
+            <div class="dir-list__search">
+              <el-input v-model="search.inputKey" size="mini" placeholder="支持设备名、国标ID、设备IP查询" />
+              <el-button class="dir-list__search-button" type="primary" size="mini" icon="el-icon-search" :disabled="!search.inputKey.length" @click="filterSearchResult" />
+              <el-button v-if="search.revertSearchFlag" class="dir-list__search-button" type="primary" size="mini" @click="revertSearchResult">
+                <svg-icon name="revert" />
+              </el-button>
             </div>
           </div>
         </div>
@@ -170,14 +178,6 @@ export default class extends Mixins(ScreenMixin) {
     })
     window.removeEventListener('resize', this.calMaxHeight)
     window.removeEventListener('resize', this.checkFullscreen)
-  }
-
-  /**
-   * 清空初始化树状态默认方法
-   */
-  public async initTreeStatus() {
-    // TODO: 对泰州用户单独处理，后续需删除
-    this.dealTzTree()
   }
 
   /**

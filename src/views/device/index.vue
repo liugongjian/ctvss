@@ -42,6 +42,7 @@
                 :load="loadDirs"
                 :props="treeProp"
                 :current-node-key="defaultKey"
+                :default-expand-all="!!search.searchKey"
                 @node-click="deviceRouter"
               >
                 <span
@@ -80,6 +81,13 @@
                   </div>
                 </span>
               </el-tree>
+            </div>
+            <div class="dir-list__search">
+              <el-input v-model="search.inputKey" size="mini" placeholder="支持设备名、国标ID、设备IP查询" />
+              <el-button class="dir-list__search-button" type="primary" size="mini" icon="el-icon-search" :disabled="!search.inputKey.length" @click="filterSearchResult" />
+              <el-button v-if="search.revertSearchFlag" class="dir-list__search-button" type="primary" size="mini" @click="revertSearchResult">
+                <svg-icon name="revert" />
+              </el-button>
             </div>
           </div>
         </div>

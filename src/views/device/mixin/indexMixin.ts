@@ -3,9 +3,17 @@ import { DeviceModule } from '@/store/modules/device'
 import { GroupModule } from '@/store/modules/group'
 import { getDeviceTree } from '@/api/device'
 import { VGroupModule } from '@/store/modules/vgroup'
+import { isThisSecond } from 'date-fns'
+import { data } from './data'
 
 @Component
 export default class IndexMixin extends Vue {
+  @Provide('outerSearch')
+  public search = {
+    searchKey: '',
+    inputKey: '',
+    revertSearchFlag: false
+  }
   public maxHeight = 1000
   public dirList = []
   public isExpanded = true
@@ -62,6 +70,31 @@ export default class IndexMixin extends Vue {
   }
 
   /**
+   * 搜索过滤
+   */
+  private async filterSearchResult() {
+    const query = {
+      inProtocol: this.$route.query.inProtocal
+    }
+    this.$router.replace({
+      query
+    })
+    this.search.searchKey = this.search.inputKey
+    await this.initDirs()
+    this.search.revertSearchFlag = true
+  }
+
+  /**
+   * 退出“搜索过滤”
+   */
+  private async revertSearchResult() {
+    this.search.inputKey = ''
+    this.search.searchKey = ''
+    await this.initDirs()
+    this.search.revertSearchFlag = false
+  }
+
+  /**
    * 初始化目录
    */
   @Provide('initDirs')
@@ -72,7 +105,8 @@ export default class IndexMixin extends Vue {
       await DeviceModule.ResetBreadcrumb()
       const res = await getDeviceTree({
         groupId: this.currentGroupId,
-        id: 0
+        id: 0,
+        searchKey: this.search.searchKey || undefined
       })
       this.dirList = this.setDirsStreamStatus(res.dirs)
       this.getRootSums(this.dirList)
@@ -112,51 +146,64 @@ export default class IndexMixin extends Vue {
     const size = deviceWrap.$el.getBoundingClientRect()
     const top = size.top
     const documentHeight = document.body.offsetHeight
-    this.maxHeight = documentHeight - top - 65
+    // 底部搜索框占据40px
+    this.maxHeight = documentHeight - top - 65 - 40
   }
 
   /**
    * 初始化目录状态
    */
   public async initTreeStatus() {
-    const dirTree: any = this.$refs.dirTree
-    const path: string | (string | null)[] | null = this.$route.query.path
-    const keyPath = path ? path.toString().split(',') : null
-    if (keyPath) {
-      for (let i = 0; i < keyPath.length; i++) {
-        const _key = keyPath[i]
-        const node = dirTree.getNode(_key)
-        if (node) {
-          await this.loadDirChildren(_key, node)
-          if (i === keyPath.length - 1) {
-            DeviceModule.SetBreadcrumb(this.getDirPath(node).reverse())
+    const blackList = ['/screen', '/replay']
+    const path = this.$route.path
+    if (this.search.searchKey) {
+      // 根据搜索结果 组装 目录树
+      this.dirList = this.transformDirList(this.dirList)
+      if (blackList.indexOf(path) === -1 && this.dirList.length) {
+        let nonLeafNode: any = this.dirList[0]
+        while (nonLeafNode && nonLeafNode.children) {
+          nonLeafNode = nonLeafNode.children
+        }
+        this.deviceRouter(nonLeafNode)
+      }
+    } else if (blackList.indexOf(path) === -1) {
+      const dirTree: any = this.$refs.dirTree
+      const path: string | (string | null)[] | null = this.$route.query.path
+      const keyPath = path ? path.toString().split(',') : null
+      if (keyPath) {
+        for (let i = 0; i < keyPath.length; i++) {
+          const _key = keyPath[i]
+          const node = dirTree.getNode(_key)
+          if (node) {
+            await this.loadDirChildren(_key, node)
+            if (i === keyPath.length - 1) {
+              DeviceModule.SetBreadcrumb(this.getDirPath(node).reverse())
+            }
           }
         }
+      } else if (this.dirList.length && this.dirList.every((dir: any) => dir.type === 'dir')) {
+        // 如果根目录下无设备，则跳转至第一个目录下
+        this.deviceRouter(this.dirList[0])
       }
-    } else if (this.dirList.length && this.dirList.every((dir: any) => dir.type === 'dir')) {
-      // 如果根目录下无设备，则跳转至第一个目录下
-      this.deviceRouter(this.dirList[0])
-    } else {
-      this.dealTzTree()
     }
   }
 
-  // TODO: 对泰州用户单独处理，后续需删除
-  public async dealTzTree() {
-    if (this.currentGroupId === '80337930297556992') {
-      const dirTree: any = this.$refs.dirTree
-      const keyPath = ['29942060635128281', '85528278015803392']
-      for (let i = 0; i < keyPath.length; i++) {
-        const _key = keyPath[i]
-        const node = dirTree.getNode(_key)
-        if (node) {
-          await this.loadDirChildren(_key, node)
-          if (i === keyPath.length - 1) {
-            DeviceModule.SetBreadcrumb(this.getDirPath(node).reverse())
-          }
+  /**
+   * 转化搜索目录树
+   */
+  public transformDirList(dirList: any) {
+    return dirList.map(dir => {
+      if (dir.dirs) {
+        return {
+          ...dir,
+          children: this.transformDirList(dir.dirs)
+        }
+      } else {
+        return {
+          ...dir
         }
       }
-    }
+    })
   }
 
   /**
@@ -227,6 +274,8 @@ export default class IndexMixin extends Vue {
    */
   @Provide('deviceRouter')
   public async deviceRouter(item: any, node?: any) {
+    console.log('item: ', item)
+    console.log('node: ', node)
     const dirTree: any = this.$refs.dirTree
     let _node: any
     if (!node) {
@@ -349,6 +398,7 @@ export default class IndexMixin extends Vue {
       inProtocol: this.currentGroup!.inProtocol,
       type: item.type,
       path: this.breadcrumb.map((item: any) => item.id).join(','),
+      seachKey: this.search.searchKey,
       ...query
     }
 
