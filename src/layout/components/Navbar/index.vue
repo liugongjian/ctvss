@@ -348,7 +348,8 @@ export default class extends Mixins(DashboardMixin) {
             type: 'detail',
             deviceId: deviceId,
             groupId: res.groupId,
-            inProtocol: res.inProtocol
+            inProtocol: res.inProtocol,
+            isSearch: '1'
           }
         })
       })

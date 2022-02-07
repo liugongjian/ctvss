@@ -1,6 +1,6 @@
 <template>
   <div class="detail__buttons">
-    <el-button size="small" @click="goSuperior"><svg-icon name="superior" /> 返回上级</el-button>
+    <el-button v-if="!isSearch" size="small" @click="goSuperior"><svg-icon name="superior" /> 返回上级</el-button>
     <el-button v-if="info.deviceType === 'nvr'" size="small" @click="goToChannels"><svg-icon name="list" /> 查看通道</el-button>
     <el-button v-if="!isVgroup && checkPermission(['AdminDevice'])" size="small" @click="changeResourceDialog">配置资源包</el-button>
     <el-button v-if="!isVgroup && checkPermission(['AdminDevice'])" size="small" @click="edit"><svg-icon name="edit" /> 编辑</el-button>
@@ -90,7 +90,11 @@ export default class extends Vue {
 
   private checkPermission = checkPermission
 
-  private /**
+  private get isSearch() {
+    return this.$route.query.isSearch
+  }
+
+  /**
    * 更多菜单
    */
   public handleMore(command: any) {
