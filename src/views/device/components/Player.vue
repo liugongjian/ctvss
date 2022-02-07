@@ -82,14 +82,14 @@
             <svg-icon name="ipc" width="18px" height="18px" />
           </div>
         </el-tooltip>
-        <el-tooltip placement="top">
+        <!-- <el-tooltip placement="top">
           <div slot="content" class="videoScaleBox">
             <el-button v-for="item in scaleKind" :key="item.kind" type="text" size="mini" @click.stop.prevent="(e) => scaleVideo(e,item.kind)">{{ item.label }}</el-button>
           </div>
           <div class="controls__btn controls__snapshot videoTypeBtn">
             <svg-icon name="screenratio" width="18px" height="18px" />
           </div>
-        </el-tooltip>
+        </el-tooltip> -->
         <el-tooltip placement="top" :content="showCanvasBox ? '关闭缩放比例修改' : '开启缩放比例修改'">
           <div class="controls__btn controls__snapshot videoTypeBtn" :class="{'selected': showCanvasBox}" @click.stop.prevent="changeScaleCanvas">
             <svg-icon name="screenscale" width="18px" height="18px" />
@@ -213,6 +213,8 @@ export default class extends Vue {
 
   // inProtocol
   @Prop() private inProtocol?:string
+  @Prop() private deviceId?: number | string
+  @Prop() private videoInfo?:string
 
   private checkPermission = checkPermission
   private isDragging: boolean = false
@@ -248,6 +250,8 @@ export default class extends Vue {
   private oCanvas:any
   private ctxShape:any
   private ctxDrawState = false
+  private oCanvasWidth?:number
+  private oCanvasHeight?:number
 
   get username() {
     return UserModule.name
@@ -462,8 +466,9 @@ export default class extends Vue {
 
   public changeScaleCanvas() {
     this.showCanvasBox = !this.showCanvasBox
+    this.isZoom = false
     if (this.showCanvasBox) {
-      let player, ctxBox
+      let player:any, ctxBox:any
       if (this.codec === 'h265') {
         ctxBox = this.$refs.videoWrap
         player = ctxBox.querySelector('.player-box')
@@ -471,33 +476,57 @@ export default class extends Vue {
         ctxBox = this.$refs.video
         player = ctxBox.querySelector('video')
       }
-      console.log('ctxBox=====>', ctxBox.clientWidth, ctxBox.clientHeight, 'player----->', player.clientHeight, player.clientWidth)
       this.$nextTick(() => {
         const oDom = document.querySelector('.canvasScaleBox')
         this.oCanvas = oDom.querySelector('canvas')
+        this.oCanvas.style.width = `${player.clientWidth}px`
+        this.oCanvas.style.height = `${player.clientHeight}px`
+        this.oCanvasWidth = player.clientWidth
+        this.oCanvasHeight = player.clientHeight
+        this.oCanvas.style.position = 'absolute'
+        this.oCanvas.style.left = `${(ctxBox.clientWidth - player.clientWidth) / 2}px`
+        this.oCanvas.style.top = `${(ctxBox.clientHeight - player.clientHeight) / 2}px`
         this.ctxShape = this.oCanvas.getContext('2d')
         this.oCanvas.addEventListener('mousedown', (e) => { this.canvasMouseDown(e) })
         this.oCanvas.addEventListener('mousemove', (e) => { this.canvasMouseMove(e) })
-        this.oCanvas.addEventListener('mouseup', () => { this.canvasMouseUp() })
-        console.log('oDom==>', oDom)
+        this.oCanvas.addEventListener('mouseup', (e) => { this.canvasMouseUp(e) })
+        this.oCanvas.addEventListener('mouseleave', this.canvasMouseleave)
       })
+    } else {
+      this.removeListener()
     }
   }
-  // 获取canvas坐标
-  private getCanvasMousePos(e:any) {
-    let rect = this.oCanvas.getBoundingClientRect()
-    let x = (e.clientX - rect.left) * this.oCanvas.width / rect.width
-    let y = (e.clientY - rect.top) * this.oCanvas.height / rect.height
 
-    return {
-      'x': x,
-      'y': y
+  // 解绑canvas缩放事件
+  private removeListener() {
+    this.oCanvas.removeEventListener('mousedown', (e) => { this.canvasMouseDown(e) })
+    this.oCanvas.removeEventListener('mousemove', (e) => { this.canvasMouseMove(e) })
+    this.oCanvas.removeEventListener('mouseup', (e) => { this.canvasMouseUp(e) })
+    this.oCanvas.removeEventListener('mouseleave', this.canvasMouseleave)
+  }
+
+  // 获取canvas 点坐标
+  private getCanvasMousePos(e:any) {
+    // e.clientX, e.clientY
+    const {
+      x: canvasClientX, y: canvasClientY, width, height, left, top
+    } = this.oCanvas?.getBoundingClientRect()
+    const pointX = (e.clientX - left) * this.oCanvas.width / width
+    const pointY = (e.clientY - top) * this.oCanvas.height / height
+    const curPoint = [ pointX, pointY ]
+    // 超出边界
+    if (pointX > canvasClientX + width || pointX < 0) {
+      return false
     }
+    if (pointY > canvasClientY + height || pointY < 0) {
+      return false
+    }
+    return curPoint
   }
   // 画矩形
   private drawRect() {
-    if (this.oShape) {
-      this.ctxShape.clearRect(0, 0, this.oCanvas.width, this.oCanvas.height)// 清除画板
+    if (this.oShape && Object.keys(this.oShape).length > 0) {
+      this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
       this.ctxShape.strokeStyle = '#50E3C2'
       this.ctxShape.beginPath()
       this.ctxShape.rect(this.oShape.startX, this.oShape.startY, this.oShape.endX - this.oShape.startX,
@@ -509,61 +538,105 @@ export default class extends Vue {
   // 判断鼠标是否在有效区域
   isMouseInShape(e:any) {
     this.ctxShape.beginPath()
-    this.ctxShape.rect(this.oShape.startX, this.oShape.startY, this.oShape.endX - this.oShape.startX,
-      this.oShape.endY - this.oShape.startY)
+    this.ctxShape.rect(0, 0, this.oCanvasWidth, this.oCanvasHeight)
     return this.ctxShape.isPointInPath(e.x, e.y)
   }
 
   private canvasMouseDown(e:any) {
     const mousePos = this.getCanvasMousePos(e)
-    this.ctxDrawState = true
-    // console.log('downMousePos----->', mousePos)
-    this.oShape = {
-      startX: mousePos.x,
-      startY: mousePos.y
+    if (!mousePos) return
+    const [x, y] = mousePos
+    // console.log('isMouseInShape==>', this.isMouseInShape(e))
+    if (!this.iShape || Object.keys(this.oShape).length === 0) {
+      this.ctxDrawState = true
+      this.oShape = {
+        startX: x,
+        startY: y
+      }
     }
   }
 
   private canvasMouseMove(e:any) {
     if (this.oShape && this.ctxDrawState) {
       const mousePos = this.getCanvasMousePos(e)
-      console.log('moveMousePos----->', mousePos)
+      if (!mousePos) {
+        this.removeListener()
+        return
+      }
+      const [x, y] = mousePos
       // 鼠标结束的位置
-      this.oShape.endX = mousePos.x
-      this.oShape.endY = mousePos.y
+      this.oShape.endX = x
+      this.oShape.endY = y
       this.drawRect()
     }
   }
 
-  private canvasMouseUp() {
-    this.ctxDrawState = false
-    this.oCanvas.removeEventListener('mousedown', (e) => { this.canvasMouseDown(e) })
-    this.oCanvas.removeEventListener('mousemove', (e) => { this.canvasMouseMove(e) })
-    this.oCanvas.removeEventListener('mouseup', () => { this.canvasMouseUp() })
-
+  private canvasMouseUp(e:any) {
+    // TODO 鼠标移入黑色区域，取消画框
+    const mousePos = this.getCanvasMousePos(e)
+    if (!mousePos) return
+    // const [x, y] = mousePos
     const { startX, startY, endX, endY } = this.oShape
-    const lengthX = endX - startX
-    const lengthY = endY - startY
-    const midPointX = (endX + startX) / 2
-    const midPointY = (endY + startY) / 2
+    const { Width, Height } = JSON.parse(this.videoInfo)
 
-    console.log('endINfo--->', lengthX, lengthY, midPointX, midPointY)
+    console.log('JSON.parse(this.videoInfo)===>', Width, Height)
+    if (!endX || !endY) {
+      return
+    }
 
-    // const param = {
-    //   deviceId: '',
-    //   command: '',
-    //   length: '',
-    //   width: '',
-    //   midPointX: '',
-    //   midPointY: '',
-    //   lengthX: '',
-    //   lengthY: ''
-    // }
-    // dragCanvasZoom(param).then(() => {
-    //   console.log('this.oShape', this.oShape)
-    // }).catch(err => {
-    //   this.$message.error(err)
-    // })
+    // const cvsInfo = this.oCanvas.getImageData()
+
+    // // console.log('cvsInfo---->', cvsInfo)
+
+    // const oCanvasWidth = parseInt(this.oCanvas.style.width, 10)
+    // const oCanvasHeight = parseInt(this.oCanvas.style.height, 10)
+    const tempRatioWidth = this.oCanvas.width / Width
+    const tempRatioHeight = this.oCanvas.height / Height
+
+    const lengthX = Math.round(Math.abs(endX - startX) / tempRatioWidth).toString()
+    const lengthY = Math.round(Math.abs(endY - startY) / tempRatioHeight).toString()
+    const midPointX = Math.round((endX + startX) / 2 / tempRatioWidth).toString()
+    const midPointY = Math.round((endY + startY) / 2 / tempRatioHeight).toString()
+    const command = endX > startX ? 'zoomIn' : 'zoomOut'
+
+    this.oShape = {}
+    this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
+    this.ctxDrawState = false
+    this.removeListener()
+
+    // console.log('oShapeInfo===>', startX, startY, endX, endY)
+    console.log('endINfo--->', lengthX, lengthY, midPointX, midPointY, command)
+    // console.log('deviceId------>', this.deviceId)
+
+    // console.log('videoInfo----->', this.videoInfo)
+
+    // console.log('--=--<==Width----->', Width)
+    // console.log('this.oCanvas---Info--->', this.oCanvasWidth, this.oCanvasHeight)
+
+    const param = {
+      deviceId: this.deviceId,
+      command,
+      length: Height.toString(),
+      width: Width.toString(),
+      midPointX,
+      midPointY,
+      lengthX,
+      lengthY
+    }
+    dragCanvasZoom(param).then(() => {
+      console.log('this.oShape', this.oShape)
+    }).catch(err => {
+      this.$message.error(err)
+    })
+  }
+
+  public canvasMouseleave() {
+    if (this.oShape && Object.keys(this.oShape).length > 0) {
+      this.oShape = {}
+      this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
+      this.ctxDrawState = false
+    }
+    this.removeListener()
   }
 
   public disposePlayer() {
@@ -777,6 +850,7 @@ export default class extends Vue {
    */
   public toggleZoom() {
     this.isZoom = !this.isZoom
+    this.showCanvasBox = false
   }
   // 实时对讲
   public toIntercom(event:any) {

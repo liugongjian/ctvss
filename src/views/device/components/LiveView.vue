@@ -23,6 +23,8 @@
         :is-fullscreen="isFullscreen"
         :has-control="false"
         :in-protocol="inProtocol"
+        :device-id="deviceId"
+        :video-info="videoInfo"
         @onCanPlay="onCanPlay"
         @onRetry="onRetry"
         @onFullscreen="fullscreen"
@@ -99,6 +101,7 @@ export default class extends Vue {
 
   private intercomInfo = {}
   private ifIntercom = false
+  private videoInfo = {}
 
   @Watch('$route.query')
   private onRouterChange() {
@@ -180,6 +183,7 @@ export default class extends Vue {
       this.address = res.playUrl
       this.codec = res.video.codec
       this.retry = false
+      this.videoInfo = res.videoInfo
       this.intercomInfo = {
         url: this.address.flvUrl,
         codec: this.codec,

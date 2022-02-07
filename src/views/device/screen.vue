@@ -230,6 +230,8 @@
                           :has-playback="true"
                           :device-name="screen.deviceName"
                           :stream-num="screen.streamNum"
+                          :device-id="screen.deviceId"
+                          :video-info="screen.videoInfo"
                           @onCanPlay="playEvent(screen, ...arguments)"
                           @onRetry="onRetry(screen, ...arguments)"
                           @onPlayback="onPlayback(screen)"
@@ -469,6 +471,7 @@ export default class extends Mixins(ScreenMixin) {
       screen.roleId = item.roleId || ''
       screen.realGroupId = item.realGroupId || ''
       screen.realGroupInProtocol = item.realGroupInProtocol || ''
+
       if (streamNum && !isNaN(streamNum)) {
         screen.streamNum = streamNum
       } else {

@@ -24,6 +24,7 @@ export default class Screen {
   public onCanPlay?: boolean
   public calendarFocus?: boolean
   public errorMsg?: string
+  public videoInfo?: string
 
   constructor() {
     this.deviceId = ''
@@ -46,6 +47,7 @@ export default class Screen {
     this.onCanPlay = false
     this.calendarFocus = false
     this.errorMsg = ''
+    this.videoInfo = ''
   }
 
   public async getUrl() {
@@ -72,6 +74,7 @@ export default class Screen {
       if (res.playUrl) {
         this.url = res.playUrl.flvUrl
         this.codec = res.video.codec
+        this.videoInfo = res.videoInfo
       }
       this.retry = false
     } catch (e) {
