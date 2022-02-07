@@ -44,11 +44,11 @@ export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
     {
       label: '1+7分屏',
       value: '1_7'
-    },
-    {
-      label: '1+15分屏',
-      value: '1_15'
     }
+    // {
+    //   label: '1+15分屏',
+    //   value: '1_15'
+    // }
   ]
 
   public replayScreenSizeList = [
