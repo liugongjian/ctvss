@@ -3,7 +3,7 @@
     <el-page-header :content="breadCrumbContent" @back="back" />
     <el-card v-loading="loading">
       <info-list label-width="110">
-        <info-list-item label="告警模版名称:">{{ details.templateName }}</info-list-item>
+        <info-list-item label="告警模板名称:">{{ details.templateName }}</info-list-item>
         <info-list-item label="报警级别:">{{ details.alarmPriority && getLabel('alarmPriority', details.alarmPriority)[0] }}</info-list-item>
         <info-list-item label="报警方式:">
           <div v-for="(item, index) in getLabel('alarmMethod', details.alarmMethod)" :key="index">{{ item }}</div>
