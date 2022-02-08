@@ -21,13 +21,13 @@
         <el-table-column label="密钥" min-width="250">
           <template slot-scope="{row}">
             <div>
-              <span>{{ 'SecretId: ' + row.accessKey }}</span>
+              <span>{{ 'AccessKeyId: ' + row.accessKey }}</span>
               <el-button v-clipboard:copy="row.accessKey" v-clipboard:success="copySuccess" v-clipboard:error="copyError" type="text" class="ml10">
                 <svg-icon name="copy" />
               </el-button>
             </div>
             <div>
-              <span>{{ 'SecretKey: ' + (row.hidden ? '******' : row.secretKey) }}</span>
+              <span>{{ 'SecretAccessKey: ' + (row.hidden ? '******' : row.secretKey) }}</span>
               <el-button class="ml10" type="text" @click="toggleHidden(row)">{{ row.hidden ? '显示' : '隐藏' }}</el-button>
             </div>
           </template>
