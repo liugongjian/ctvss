@@ -143,17 +143,17 @@
           <el-table-column prop="secrets" label="密钥">
             <template slot-scope="scope">
               <div>
-                <span>SecretId：</span>
+                <span>AccessKeyId：</span>
                 <span>{{ scope.row.secretId ? scope.row.secretId : '--' }}</span>
               </div>
               <div v-if="scope.row.secretKey">
-                <span>SecretKey：</span>
+                <span>SecretAccessKey：</span>
                 <span>{{ showSecretKey ? scope.row.secretKey : '****' }}</span>
                 <span v-if="showSecretKey" class="text-btn" @click="showSecretKey = false">隐藏</span>
                 <span v-else class="text-btn" @click="showSecretKey = true">显示</span>
               </div>
               <div v-else>
-                <span>SecretKey：--</span>
+                <span>SecretAccessKey：--</span>
               </div>
             </template>
           </el-table-column>
@@ -264,8 +264,8 @@ export default class extends Vue {
       主账号ID：${row.mainUserId}
       用户名：${row.userName}
       登录密码：${row.passwords}
-      SecretId：${row.secretId}
-      SecretKey：${row.secretKey}
+      AccessKeyId：${row.secretId}
+      SecretAccessKey：${row.secretKey}
       
       `
       copy(str)
