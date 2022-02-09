@@ -1,6 +1,6 @@
 import { VuexModule, Module, Action, Mutation, getModule } from 'vuex-module-decorators'
 import { Base64 } from 'js-base64'
-import { login, logout, getMainUserInfo, getIAMUserInfo, changePassword, resetIAMPassword } from '@/api/users'
+import { login, logout, getMainUserInfo, getIAMUserInfo, changePassword, resetIAMPassword, getUserConfig } from '@/api/users'
 import { switchUserRole, exitUserRole } from '@/api/accessManage'
 import { getToken, setToken, removeToken, getUsername, setUsername, removeUsername, getIamUserId, setIamUserId, removeIamUserId } from '@/utils/cookies'
 import { setLocalStorage, getLocalStorage } from '@/utils/storage'
@@ -26,6 +26,7 @@ export interface IUserState {
   mainUserAddress: string,
   tags: any,
   ctLoginId: string
+  settings: any
 }
 
 @Module({ dynamic: true, store, name: 'user' })
@@ -45,6 +46,15 @@ class User extends VuexModule implements IUserState {
   public mainUserAddress = ''
   public tags: any = null
   public ctLoginId = getLocalStorage('ctLoginId') || ''
+  public whiteListFlag = getLocalStorage('whiteListFlag') || ''
+  public settings: any = {
+    screenCache: {}
+  }
+
+  @Mutation
+  private SET_WHITELIST(flag: string) {
+    this.whiteListFlag = flag
+  }
 
   @Mutation
   private SET_TOKEN(token: string) {
@@ -117,6 +127,12 @@ class User extends VuexModule implements IUserState {
     this.ctLoginId = ctLoginId
   }
 
+  @Mutation
+  private SET_SETTINGS(settings: any) {
+    this.settings = settings
+    setLocalStorage('settings', JSON.stringify(settings))
+  }
+
   @Action({ rawError: true })
   public async Login(userInfo: { mainUserID?: string, userName: string, password: string}) {
     let { mainUserID, userName, password } = userInfo
@@ -141,13 +157,44 @@ class User extends VuexModule implements IUserState {
     this.SET_IAM_USER_ID(data.iamUserId)
     GroupModule.ResetGroupListIndex()
     // this.SET_AVATAR(avatar)
+    // 设置视频记录保存配置项
+    this.getUserConfigInfo()
     return data
+  }
+
+  // 获取用户配置信息
+  @Action
+  public async getUserConfigInfo() {
+    // 前后端参数不一致，设置转换字典
+    let dic = {
+      live: 'screen',
+      record: 'replay'
+    }
+    try {
+      let defaultConfig = {
+        screen: 'false',
+        replay: 'false'
+      }
+      let res = await getUserConfig()
+      res.userConfig && res.userConfig.forEach(config => {
+        defaultConfig[dic[config.type] || config.type] = config.enable
+      })
+      this.SetScreenCacheSettings(defaultConfig)
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   @Action({ rawError: true })
   public async SetToken(token: string) {
     setToken(token)
     this.SET_TOKEN(token)
+  }
+
+  @Action({ rawError: true })
+  public async SetWhiteList(flag: string) {
+    setLocalStorage('whiteListFlag', flag)
+    this.SET_WHITELIST(flag)
   }
 
   @Action({ rawError: true })
@@ -174,6 +221,30 @@ class User extends VuexModule implements IUserState {
     DeviceModule.ResetBreadcrumb()
     // 清空虚拟业务组相关信息
     VGroupModule.resetVGroupInfo()
+  }
+
+  // 设置视频记录保存配置项
+  @Action
+  public SetScreenCacheSettings(screenCacheSettings: any) {
+    this.SET_SETTINGS({
+      ...this.settings,
+      screenCache: screenCacheSettings
+    })
+    if (!getLocalStorage('screenCache')) {
+      let screenCache = {
+        mainUserID: null,
+        currentGroupId: null,
+        screen: {
+          screenList: [],
+          screenSize: '4'
+        },
+        replay: {
+          screenList: [],
+          screenSize: '1'
+        }
+      }
+      setLocalStorage('screenCache', screenCache)
+    }
   }
 
   // 该方法已弃用
@@ -323,6 +394,7 @@ class User extends VuexModule implements IUserState {
     DeviceModule.ResetBreadcrumb()
     // 清空虚拟业务组相关信息
     VGroupModule.resetVGroupInfo()
+    this.SET_WHITELIST('')
     this.SET_TOKEN('')
     this.SET_ROLES([])
     this.SET_PERMS([])

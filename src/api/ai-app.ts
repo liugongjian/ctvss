@@ -99,3 +99,17 @@ export const getAttachedDevice = (params: any): Promise<any> =>
     method: 'get',
     params
   })
+
+export const getPhoneNumberForAISMS = (params: any): Promise<any> =>
+  request({
+    url: '/ai/aiAPP/describePhoneNumberForAISMS',
+    method: 'get',
+    params
+  })
+
+export const activatePhone = (params: any): Promise<any> =>
+  request({
+    url: '/ai/aiAPP/activatePhoneNumberForAISMS',
+    method: 'get',
+    params
+  })

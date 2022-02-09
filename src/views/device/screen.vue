@@ -165,7 +165,7 @@
         <div class="device-list__right">
           <div class="device__tools">
             <div class="device__tools--right">
-              <el-dropdown trigger="click" placement="bottom-start" @command="handleScreenSize">
+              <el-dropdown trigger="click" placement="bottom-start" @command="handleLiveScreenSize">
                 <el-tooltip content="选择分屏" placement="top">
                   <el-button>
                     <svg-icon name="screen" />
@@ -242,6 +242,10 @@
                         :in-protocol="currentGroupInProtocol"
                         :has-playlive="true"
                         :is-fullscreen="screen.isFullscreen"
+                        :screen="screen"
+                        @onCurrentDateChange="onCurrentDateChange(screen, ...arguments)"
+                        @onCurrentTimeChange="onCurrentTimeChange(screen, ...arguments)"
+                        @onReplayTypeChange="onReplayTypeChange(screen, ...arguments)"
                         @onCalendarFocus="onCalendarFocus(screen, ...arguments)"
                         @onCanPlay="playEvent(screen, ...arguments)"
                         @onPlaylive="onPlaylive(screen)"
@@ -253,7 +257,7 @@
                       <div class="device-name">
                         <!-- {{ screen.isLive ? "" : screen.deviceName }} -->
                         <StreamSelector
-                          v-if="screen.isLive"
+                          v-if="true"
                           class="set-stream"
                           :stream-size="screen.streamSize"
                           :stream-num="screen.streamNum"
@@ -406,12 +410,14 @@ export default class extends Mixins(ScreenMixin) {
   private mounted() {
     this.initScreen()
     this.calMaxHeight()
+    this.initScreenCache('screen')
     window.addEventListener('resize', this.calMaxHeight)
     window.addEventListener('resize', this.checkFullscreen)
   }
 
   private beforeDestroy() {
     this.interval && clearInterval(this.interval)
+    this.setScreenCache({ type: 'screen' })
   }
 
   private destroyed() {
@@ -421,6 +427,7 @@ export default class extends Mixins(ScreenMixin) {
     })
     window.removeEventListener('resize', this.calMaxHeight)
     window.removeEventListener('resize', this.checkFullscreen)
+    // window.removeEventListener('beforeunload', this.handleSetScreenCache)
   }
 
   private closeScreen(screen: Screen) {
@@ -482,18 +489,25 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   /**
-   * @override 切换分屏数量
+   *  切换分屏数量
    */
-  public changeMaxSize(size: number) {
-    this.maxSize = size
-    if (this.currentIndex >= this.maxSize) {
-      this.currentIndex = this.maxSize - 1
-    }
-    this.initScreen()
+  public handleLiveScreenSize(size: String) {
+    this.handleScreenSize(size)
     if (this.polling.isStart) {
       this.doPolling()
     }
   }
+
+  // public changeMaxSize(size: number) {
+  //   this.maxSize = size
+  //   if (this.currentIndex >= this.maxSize) {
+  //     this.currentIndex = this.maxSize - 1
+  //   }
+  //   this.initScreen()
+  //   if (this.polling.isStart) {
+  //     this.doPolling()
+  //   }
+  // }
 
   /**
    * 更多操作
@@ -554,6 +568,7 @@ export default class extends Mixins(ScreenMixin) {
       this.$alert(`当前设备数需大于分屏数才可开始轮巡`, '提示', {
         confirmButtonText: '确定'
       })
+      this.polling.isStart = false
     } else {
       // 刷新
       this.polling.isStart = true

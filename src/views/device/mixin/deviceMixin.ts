@@ -1,7 +1,7 @@
 /**
  * 设备常规操作：删除、启停录像、启停设备、查看详情、查看实时预览
  */
-import { Component, Vue, Inject } from 'vue-property-decorator'
+import { Component, Vue, Inject, Provide } from 'vue-property-decorator'
 import { Device } from '@/type/device'
 import { deleteDevice, startDevice, stopDevice, startRecord, stopRecord } from '@/api/device'
 import MoveDir from '../components/dialogs/MoveDir.vue'
@@ -65,6 +65,7 @@ export default class DeviceMixin extends Vue {
   /**
    * 删除设备
    */
+  @Provide('deleteDevice')
   public deleteDevice(device: Device) {
     this.$alertDelete({
       type: '设备',
@@ -85,6 +86,7 @@ export default class DeviceMixin extends Vue {
   /**
    * 启动设备
    */
+  @Provide('startDevice')
   public async startDevice(device: Device) {
     try {
       const params: any = {
@@ -104,6 +106,7 @@ export default class DeviceMixin extends Vue {
   /**
    * 停用设备
    */
+  @Provide('stopDevice')
   public async stopDevice(device: Device) {
     try {
       const params: any = {
@@ -123,6 +126,7 @@ export default class DeviceMixin extends Vue {
   /**
    * 开始录像
    */
+  @Provide('startRecord')
   public async startRecord(device: Device) {
     try {
       const params: any = {
@@ -142,6 +146,7 @@ export default class DeviceMixin extends Vue {
   /**
    * 停止录像
    */
+  @Provide('stopRecord')
   public async stopRecord(device: Device) {
     try {
       const params: any = {

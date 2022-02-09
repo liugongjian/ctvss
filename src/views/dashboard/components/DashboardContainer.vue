@@ -28,7 +28,7 @@ export default class extends Vue {
   .dashboard-container {
     position: relative;
     color: #fff;
-    padding: 2.7vh 5vw 4vh 5vw;
+    padding: 2.7vh 4vw 4vh 4vw;
     background: url('../images/box.png') no-repeat;
     background-size: 100% 100%;
 

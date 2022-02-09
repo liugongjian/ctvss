@@ -106,7 +106,15 @@ export default class extends Mixins(ReplayPlayerMixin) {
     this.initVideoPlayer()
   }
 
-  private mounted() {
+  public mounted() {
+    // if (this.screen && this.screen.isCache && this.screen.replayType === 'local' && this.screen.currentTime) {
+    //   this.startTime = this.screen.currentTimestamp
+    //   // 清除screen中isCache
+    //   this.$emit('onCurrentTimeChange', {
+    //     currentTime: this.startTime,
+    //     resetIsCache: true
+    //   })
+    // }
     this.initVideoPlayer()
   }
 
