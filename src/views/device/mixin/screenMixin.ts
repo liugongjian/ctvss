@@ -125,11 +125,12 @@ export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
 
   public get screenCache() {
     // 判断观看记录是否存在且当前用户是否与观看记录对应
-    if (getLocalStorage('screenCache') && JSON.parse(getLocalStorage('screenCache')).mainUserID === UserModule.mainUserID) {
+    if (getLocalStorage('screenCache') && JSON.parse(getLocalStorage('screenCache')).mainUserID === UserModule.mainUserID && JSON.parse(getLocalStorage('screenCache')).currentGroupId === this.currentGroupId) {
       return JSON.parse(getLocalStorage('screenCache'))
     } else {
       return {
         mainUserID: null,
+        currentGroupId: null,
         screen: {
           screenList: [],
           screenSize: '4'
@@ -145,6 +146,7 @@ export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
   public setScreenCache(params: any) {
     let cacheType = params.type || this.$route.name
     this.screenCache.mainUserID = UserModule.mainUserID
+    this.screenCache.currentGroupId = this.currentGroupId
     this.screenCache[cacheType] = {
       ...this.screenCache[cacheType],
       screenList: this.screenList.map(screen => {

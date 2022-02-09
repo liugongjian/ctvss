@@ -233,6 +233,7 @@ class User extends VuexModule implements IUserState {
     if (!getLocalStorage('screenCache')) {
       let screenCache = {
         mainUserID: null,
+        currentGroupId: null,
         screen: {
           screenList: [],
           screenSize: '4'
