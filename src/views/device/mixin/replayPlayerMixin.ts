@@ -41,6 +41,7 @@ export default class extends Vue {
   public startTime = 0
   public handlePos = 0
   public timePositionList: Array<any> = []
+
   // 时间轴缩放比例
   public timelineRatio = 1
   public dialog = {
