@@ -267,7 +267,13 @@ export default class extends Vue {
     //   this.type = 'flv'
     //   this.isWs = false
     // }
-    this.getVideoType()
+
+    if (!this.allAddress.comefrom || this.allAddress.comefrom !== 'bugger') {
+      this.getVideoType()
+    }
+
+    console.log('this.url===>', this.url)
+
     this.createPlayer()
     this.setPlayVolume(this.volume)
     if (this.isLive) document.addEventListener('visibilitychange', this.reloadPlayer)
@@ -277,6 +283,7 @@ export default class extends Vue {
     if (eve) {
       eve.currentTarget.blur()
     }
+
     if (!kind) {
       if (ifWebRTC() && this.allAddress.webrtcUrl) {
         this.videoType = 'RTC'

@@ -26,7 +26,8 @@ export const createPlayer = (config: any) => {
  */
 const initPlayer = (config: any) => {
   const { allAddress, videoType } = config
-  console.log(allAddress, videoType)
+
+  console.log('config=-==>', config)
   if (config.codec === 'h265') {
     return new H265Player(config)
   } else {
@@ -35,7 +36,6 @@ const initPlayer = (config: any) => {
     }
     switch (config.type) {
       case 'flv':
-        console.log('I`m here')
         return new FlvPlayer(config)
       case 'hls':
         return new HlsPlayer(config)
