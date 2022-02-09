@@ -108,6 +108,8 @@ export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
           screen.inProtocol = cacheScreen.inProtocol || this.currentGroup!.inProtocol
           screen.realGroupInProtocol = cacheScreen.realGroupInProtocol || ''
           screen.streamNum = cacheScreen.streamNum
+          screen.streams = cacheScreen.streams
+          screen.streamSize = cacheScreen.streamSize
           screen.roleId = cacheScreen.roleId
           screen.realGroupId = cacheScreen.realGroupId
           screen.isLive = cacheScreen.isLive

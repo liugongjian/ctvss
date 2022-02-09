@@ -159,7 +159,10 @@ export default class extends Vue {
       } catch (e) {
         this.$message.error('操作失败')
       } finally {
-        this.form = await getPhoneNumberForAISMS({})
+        this.form = {
+          ...this.form,
+          ...await getPhoneNumberForAISMS({})
+        }
         this.loading = false
       }
     })

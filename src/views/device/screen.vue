@@ -257,7 +257,7 @@
                       <div class="device-name">
                         <!-- {{ screen.isLive ? "" : screen.deviceName }} -->
                         <StreamSelector
-                          v-if="screen.isLive"
+                          v-if="true"
                           class="set-stream"
                           :stream-size="screen.streamSize"
                           :stream-num="screen.streamNum"
