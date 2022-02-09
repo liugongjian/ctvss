@@ -130,6 +130,17 @@ export const getDeviceRecords = (params: any, cancelToken?: any): Promise<any> =
   })
 
 /**
+ * 获取检测到行人的时间段信息
+ */
+export const describeHeatMap = (data: any, cancelToken?: any): Promise<any> =>
+  request({
+    url: '/record/describeheatmap',
+    method: 'post',
+    data,
+    cancelToken
+  })
+
+/**
  * 获取设备录像详情
  */
 export const getDeviceRecord = (params: any): Promise<any> =>
@@ -180,7 +191,7 @@ export const setRecordScale = (params: any): Promise<any> =>
   })
 
 /**
- * 获取设备录制模版
+ * 获取设备录制模板
  */
 export const getDeviceRecordTemplate = (params: any): Promise<any> =>
   request({
@@ -190,7 +201,7 @@ export const getDeviceRecordTemplate = (params: any): Promise<any> =>
   })
 
 /**
- * 获取设备回调模版
+ * 获取设备回调模板
  */
 export const getDeviceCallbackTemplate = (params: any): Promise<any> =>
   request({
@@ -200,7 +211,7 @@ export const getDeviceCallbackTemplate = (params: any): Promise<any> =>
   })
 
 /**
- * 设置设备录制模版
+ * 设置设备录制模板
  */
 export const setDeviceRecordTemplate = (params: any): Promise<any> =>
   request({
@@ -210,7 +221,7 @@ export const setDeviceRecordTemplate = (params: any): Promise<any> =>
   })
 
 /**
- * 设置设备回调模版
+ * 设置设备回调模板
  */
 export const setDeviceCallbackTemplate = (params: any): Promise<any> =>
   request({
@@ -220,7 +231,7 @@ export const setDeviceCallbackTemplate = (params: any): Promise<any> =>
   })
 
 /**
- * 解绑设备录制模版
+ * 解绑设备录制模板
  */
 export const unbindDeviceRecordTemplate = (params: any): Promise<any> =>
   request({
@@ -230,7 +241,7 @@ export const unbindDeviceRecordTemplate = (params: any): Promise<any> =>
   })
 
 /**
- * 解绑设备回调模版
+ * 解绑设备回调模板
  */
 export const unbindDeviceCallbackTemplate = (params: any): Promise<any> =>
   request({
