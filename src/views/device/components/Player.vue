@@ -302,10 +302,11 @@ export default class extends Vue {
         // const mainBox: any = this.$refs.videoWrap
         this.playerFitSize(mainBox.clientWidth, mainBox.clientHeight, player)
       } else {
-        player.style.width = ''
-        player.style.height = ''
-        player.style.top = ''
-        player.style.left = ''
+        // player.style.width = ''
+        // player.style.height = ''
+        // player.style.top = ''
+        // player.style.left = ''
+        this.playerFitSize(mainBox.clientWidth, mainBox.clientHeight, player)
       }
     }
   }
@@ -364,8 +365,6 @@ export default class extends Vue {
       this.$nextTick(() => {
         const $video = this.$refs.video as HTMLDivElement
         const mainBox: any = this.$refs.videoWrap
-        // const videoSize = $video.getBoundingClientRect()
-        // const { height, width } = videoSize
         let player = $video.querySelector('video')
         if (this.codec === 'h265') {
           player = $video.querySelector('.player-box')
@@ -378,11 +377,9 @@ export default class extends Vue {
             this.playerFS()
           })
           this.resizeObserver.observe(targetNode)
-          // console.log('this.playerH265------->', width, height)
         } else {
           this.playerFS()
-          const { clientHeight, clientWidth } = this.player.flv._mediaElement
-          console.log('this.player._mediaElement--=->', clientWidth, clientHeight)
+          // const { clientHeight, clientWidth } = this.player.flv._mediaElement
         }
         this.videoMoveData.player = player
         this.videoMoveData.mainBox = mainBox
@@ -393,10 +390,6 @@ export default class extends Vue {
   }
 
   public playerFS() {
-    // const mainBox: any = this.$refs.videoWrap
-    // if (!mainBox) return
-    // const player = mainBox.querySelector('.player-box')
-    // this.playerFitSize(mainBox.clientWidth, mainBox.clientHeight, player)
     if (this.codec === 'h265') {
       const mainBox: any = this.$refs.videoWrap
       if (!mainBox) return
@@ -579,17 +572,10 @@ export default class extends Vue {
     const { startX, startY, endX, endY } = this.oShape
     const { Width, Height } = JSON.parse(this.videoInfo)
 
-    console.log('JSON.parse(this.videoInfo)===>', Width, Height)
     if (!endX || !endY) {
       return
     }
 
-    // const cvsInfo = this.oCanvas.getImageData()
-
-    // // console.log('cvsInfo---->', cvsInfo)
-
-    // const oCanvasWidth = parseInt(this.oCanvas.style.width, 10)
-    // const oCanvasHeight = parseInt(this.oCanvas.style.height, 10)
     const tempRatioWidth = this.oCanvas.width / Width
     const tempRatioHeight = this.oCanvas.height / Height
 
@@ -604,14 +590,7 @@ export default class extends Vue {
     this.ctxDrawState = false
     this.removeListener()
 
-    // console.log('oShapeInfo===>', startX, startY, endX, endY)
-    console.log('endINfo--->', lengthX, lengthY, midPointX, midPointY, command)
-    // console.log('deviceId------>', this.deviceId)
-
-    // console.log('videoInfo----->', this.videoInfo)
-
-    // console.log('--=--<==Width----->', Width)
-    // console.log('this.oCanvas---Info--->', this.oCanvasWidth, this.oCanvasHeight)
+    // console.log('endINfo--->', lengthX, lengthY, midPointX, midPointY, command)
 
     const param = {
       deviceId: this.deviceId,

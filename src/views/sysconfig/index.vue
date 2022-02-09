@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-card>
-      <!-- <el-tabs v-model="activeName" type="border-card">
+      <el-tabs v-model="activeName" type="border-card">
         <el-tab-pane label="通用" name="currency">
           <el-form ref="form" :model="form" :rules="rules" label-width="200px">
             <el-form-item label="是否启用短信告警">
@@ -29,8 +29,8 @@
             </el-form-item>
           </el-form>
         </el-tab-pane>
-      </el-tabs> -->
-      <el-form ref="form" :model="form" :rules="rules" label-width="200px">
+      </el-tabs>
+      <!-- <el-form ref="form" :model="form" :rules="rules" label-width="200px">
         <el-form-item label="是否启用短信告警">
           <el-switch v-model="form.active" />
         </el-form-item>
@@ -41,7 +41,7 @@
           <el-button type="primary" @click="submit">提交</el-button>
           <el-button @click="back">取消</el-button>
         </el-form-item>
-      </el-form>
+      </el-form> -->
     </el-card>
   </div>
 </template>
