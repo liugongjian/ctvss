@@ -39,6 +39,8 @@
         :has-playlive="hasPlaylive"
         :is-fullscreen="isFullscreen"
         :replay-type="replayType"
+        :screen="screen"
+        @onCurrentTimeChange="onCurrentTimeChange"
         @onCanPlay="onCanPlay"
         @onPlaylive="playlive"
         @onFullscreen="fullscreen()"
@@ -60,6 +62,8 @@
         :replay-type="replayType"
         :device-id="deviceId"
         :in-protocol="inProtocol"
+        :screen="screen"
+        @onCurrentTimeChange="onCurrentTimeChange"
         @onCanPlay="onCanPlay"
         @onPlaylive="playlive"
         @onFullscreen="fullscreen()"
@@ -137,6 +141,8 @@ export default class extends Vue {
     default: true
   })
   private hasPlaylive?: boolean
+  @Prop()
+  private screen: any
   private get isVGroup() {
     return GroupModule.group?.inProtocol === 'vgroup'
   }
@@ -191,7 +197,24 @@ export default class extends Vue {
   private axiosSourceHeatMap: any = null
 
   private async mounted() {
-    await this.init()
+    // 判断是否读取观看记录
+    if (this.screen && this.screen.isCache) {
+      if (this.screen.replayType) {
+        this.replayType = this.screen.replayType
+      }
+      if (this.screen.currentDate) {
+        this.currentDate = this.screen.currentDate
+        this.changeDate(this.currentDate)
+      } else {
+        await this.init()
+      }
+      console.log('getReplayType', this.replayType);
+    } else {
+      await this.init()
+    }
+  }
+
+  private beforeDestroyed() {
   }
 
   private async destroyed() {
@@ -207,7 +230,8 @@ export default class extends Vue {
   }
 
   @Watch('replayType')
-  private onReplayTypeChange() {
+  private onReplayTypeChange(val: string) {
+    this.$emit('onReplayTypeChange', val)
     this.viewType = 'timeline'
     this.init()
   }
@@ -216,6 +240,17 @@ export default class extends Vue {
   private onRecordListSliceChange(data: any) {
     data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
   }
+
+  /**
+   * 缓存录像观看记录
+   */
+  // private setReplayCache() {
+  //   let screenCache = { ...this.screenCache }
+  //   this.$set(screenCache.replay.dateList[this.screenIndex], 'currentDate', this.currentDate)
+  //   setLocalStorage('screenCache', JSON.stringify(this.screenCache))
+  //   console.log('update', getLocalStorage('screenCache'));
+  //   debugger
+  // }
 
   /**
    * 初始化
@@ -244,9 +279,10 @@ export default class extends Vue {
   /**
    * 切换日期
    */
-  private changeDate() {
-    this.axiosSource.cancel()
-    this.axiosSourceHeatMap.cancel()
+  private changeDate(val: number) {
+    this.axiosSource && this.axiosSource.cancel()
+    // screen同步currentDate
+    this.$emit('onCurrentDateChange', val)
     setTimeout(() => {
       this.init()
     })
@@ -551,6 +587,13 @@ export default class extends Vue {
    */
   public onCanPlay(val: boolean) {
     this.$emit('onCanPlay', val)
+  }
+
+  /**
+   * 视频当前时间更新
+   */
+  public onCurrentTimeChange(params: any) {
+    this.$emit('onCurrentTimeChange', params)
   }
 
   /**

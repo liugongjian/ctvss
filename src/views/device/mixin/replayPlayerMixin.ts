@@ -1,4 +1,4 @@
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { dateFormat } from '@/utils/date'
 import Player from '../components/Player.vue'
 
@@ -22,6 +22,17 @@ export default class extends Vue {
   // 录像类型(cloud: 云端, local: 本地)
   @Prop()
   public replayType?: string
+  @Prop()
+  public screen: any
+
+  @Watch('currentTime')
+  private currentTiemChange(val: number) {
+    this.$emit('onCurrentTimeChange', {
+      currentTime: val
+    })
+    console.log('currentTimeChange', val);
+    
+  }
 
   public dateFormat = dateFormat
   public currentRecord: any = null

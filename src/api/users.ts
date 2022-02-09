@@ -86,3 +86,22 @@ export const getWhiteListUserAccessToken = (params: any): Promise<any> =>
     method: 'get',
     params
   })
+
+/**
+ * 查询用户配置
+ */
+export const getUserConfig = (): Promise<any> =>
+  request({
+    url: '/user/config',
+    method: 'get'
+  })
+
+/**
+ * 保存用户配置
+ */
+export const updatetUserConfig = (params: any): Promise<any> =>
+  request({
+    url: '/user/config/createOrUpdate',
+    method: 'post',
+    data: params
+  })

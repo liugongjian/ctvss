@@ -98,7 +98,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch, Inject } from 'vue-property-decorator'
 import { UserModule } from '@/store/modules/user'
 import { createPlayer } from '../models/Ctplayer'
 import { durationFormatInVideo } from '@/utils/date'
@@ -197,6 +197,11 @@ export default class extends Vue {
 
   // inProtocol
   @Prop() private inProtocol?:string
+
+  /**
+   * 隐藏视频工具栏
+   */
+  @Inject('hideTools') private hideTools: Function
 
   private checkPermission = checkPermission
   private isDragging: boolean = false
@@ -695,6 +700,7 @@ export default class extends Vue {
   public fullscreen() {
     this.$emit('onFullscreen')
     this.isZoom = false
+    this.hideTools()
   }
 
   /**

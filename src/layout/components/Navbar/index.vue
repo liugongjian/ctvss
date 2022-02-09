@@ -102,6 +102,10 @@
         </div>
         <div class="header-dropdown">
           <div v-if="isMainUser">
+            <router-link to="/userConfiguration"><i><svg-icon name="config" /></i> 配置</router-link>
+            <div class="header-dropdown__divided" />
+          </div>
+          <div v-if="isMainUser">
             <router-link to="/changePassword"><i><svg-icon name="password" /></i> 修改密码</router-link>
             <div class="header-dropdown__divided" />
           </div>
