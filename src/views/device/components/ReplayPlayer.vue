@@ -78,9 +78,18 @@ export default class extends Mixins(ReplayPlayerMixin) {
       return []
     }
   })
+
   public recordList!: Array<any>
 
   public async mounted() {
+    if (this.screen && this.screen.isCache && this.screen.replayType === 'cloud' && this.screen.currentTime) {
+      this.startTime = this.screen.currentTime
+      // 获取一次记录后将不再获取记录，置resetIsCache: true
+      this.$emit('onCurrentTimeChange', {
+        currentTime: this.startTime,
+        resetIsCache: true
+      })
+    }
     await this.init()
   }
 

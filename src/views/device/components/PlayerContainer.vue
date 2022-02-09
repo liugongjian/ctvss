@@ -1,7 +1,7 @@
 <template>
   <div
     class="player-container"
-    :class="{'player-container--hidden': isHiddenTools}"
+    :class="{'player-container--hidden': isHiddenTools, 'cursor--hidden': isHiddenCursor}"
     @mouseover="onMouseOver"
     @mouseout="onMouseOut"
     @mousemove="onMouseMove"
@@ -12,13 +12,15 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
+import { Component, Prop, Vue, Watch, Provide } from 'vue-property-decorator'
 @Component({
   name: 'PlayerContainer'
 })
 export default class extends Vue {
   private isHiddenTools: boolean = true
   private timer: any
+  private hiddenTimer: any
+  private isHiddenCursor: boolean = false
 
   @Prop()
   private onCanPlay?: false
@@ -44,6 +46,7 @@ export default class extends Vue {
 
   // 鼠标移动回调
   private onMouseMove() {
+    this.isHiddenCursor = false
     const eventTarget: any = window.event?.target
     if (this.checkIsVideo(eventTarget)) {
       this.setMouseEvent(3000)
@@ -51,8 +54,23 @@ export default class extends Vue {
       this.timer && clearTimeout(this.timer)
       this.isHiddenTools = false
     } else {
-      this.setMouseEvent(500)
+      this.setMouseEvent(3000)
     }
+  }
+
+  // 隐藏工具栏
+  @Provide('hideTools')
+  private hideTools() {
+    this.hiddenTimer && clearTimeout(this.hiddenTimer)
+    this.hiddenTimer = setTimeout(() => {
+      !this.calendarFocus && (this.isHiddenTools = true)
+      this.isHiddenCursor = true
+      // 全屏后去除tooltip（可能出现tooltip隐藏不了）
+      let tooltipDoms = document.getElementsByClassName('el-tooltip__popper')
+      Array.from(tooltipDoms).forEach((dom: any) => {
+        dom.style.display = 'none'
+      })
+    }, 500)
   }
 
   // 延时隐藏工具栏
@@ -61,6 +79,7 @@ export default class extends Vue {
     this.isHiddenTools = false
     this.timer = setTimeout(() => {
       !this.calendarFocus && (this.isHiddenTools = true)
+      this.isHiddenCursor = true
     }, timeout)
   }
 

@@ -793,6 +793,31 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
+    path: '/userConfiguration',
+    component: Layout,
+    meta: {
+      id: '20210424150201009100',
+      title: '配置',
+      icon: 'tree',
+      hidden: true,
+      breadcrumb: true,
+      perms: ['*']
+    },
+    children: [
+      {
+        path: '/',
+        component: () => import(/* webpackChunkName: "userConfiguration" */ '@/views/userConfiguration/index.vue'),
+        meta: {
+          id: '20210424150201009101',
+          title: '配置',
+          icon: 'tree',
+          breadcrumb: false,
+          perms: ['*']
+        }
+      }
+    ]
+  },
+  {
     path: '/AI',
     component: Layout,
     redirect: 'noredirect',
