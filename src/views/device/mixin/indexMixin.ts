@@ -398,7 +398,7 @@ export default class IndexMixin extends Vue {
       inProtocol: this.currentGroup!.inProtocol,
       type: item.type,
       path: this.breadcrumb.map((item: any) => item.id).join(','),
-      seachKey: this.search.searchKey,
+      searchKey: this.search.searchKey,
       ...query
     }
 
