@@ -282,6 +282,9 @@ export default class extends Mixins(DashboardMixin) {
    * 下拉框出现时刷新下拉列表
    */
   private visibleChange(val) {
+    
+    console.log(111);
+    
     val && GroupModule.GetGroupList()
   }
 
@@ -297,7 +300,7 @@ export default class extends Mixins(DashboardMixin) {
       this.lazyloadTimer = setTimeout(() => {
         clearTimeout(this.lazyloadTimer)
         this.lazyloadTimer = null
-      }, 300)
+      }, 1000)
     }
   }
 
