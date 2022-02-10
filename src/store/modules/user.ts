@@ -157,8 +157,6 @@ class User extends VuexModule implements IUserState {
     this.SET_IAM_USER_ID(data.iamUserId)
     GroupModule.ResetGroupListIndex()
     // this.SET_AVATAR(avatar)
-    // 设置视频记录保存配置项
-    this.getUserConfigInfo()
     return data
   }
 
@@ -270,6 +268,8 @@ class User extends VuexModule implements IUserState {
     if (this.token === '') {
       throw Error('GetGlobalInfo: token is undefined!')
     }
+    // 设置视频记录保存配置项
+    this.getUserConfigInfo()
     let userInfo: any = await getMainUserInfo()
     if (userInfo.userId) {
       this.SET_MAIN_USER_ID(userInfo.userId)
