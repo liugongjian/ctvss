@@ -282,16 +282,18 @@ export default class extends Mixins(DashboardMixin) {
    * 下拉框出现时刷新下拉列表
    */
   private visibleChange(val) {
-    
-    console.log(111);
-    
-    val && GroupModule.GetGroupList()
+    // 当条目数为20倍数时不需要首次加载
+    if (this.groupList.length % 20 !== 0) {
+      val && GroupModule.GetGroupList()
+    }
   }
 
   /**
    * 懒加载顶部用户下拉框
    */
   private async loadmore() {
+    // 当条目数不为20倍数时不需要懒加载
+    if (this.groupList.length % 20 !== 0) return
     // 加宽下拉加载触发限制时，会触发多次，在这使用节流限制
     if (!this.loading.group && !this.lazyloadTimer) {
       this.loading.group = true
