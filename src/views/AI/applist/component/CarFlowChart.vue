@@ -212,9 +212,9 @@ export default class extends Mixins(DashboardMixin) {
 
     this.chart.axis('value', {
       line: {
-        lineWidth: 2, // 设置线的宽度
-        stroke: '#eee', // 设置线的颜色
-        opacity: 0.5
+        style: {
+          stroke: '#eee'
+        }
       },
       grid: null,
       label: null,
