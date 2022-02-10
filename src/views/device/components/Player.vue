@@ -272,8 +272,6 @@ export default class extends Vue {
       this.getVideoType()
     }
 
-    console.log('this.url===>', this.url)
-
     this.createPlayer()
     this.setPlayVolume(this.volume)
     if (this.isLive) document.addEventListener('visibilitychange', this.reloadPlayer)
@@ -286,12 +284,13 @@ export default class extends Vue {
 
     if (!kind) {
       if (ifWebRTC() && this.allAddress.webrtcUrl) {
-        this.videoType = 'RTC'
+        // this.videoType = 'RTC'
         this.ifCanRTC = true
       } else {
-        this.videoType = 'FLV'
+        // this.videoType = 'FLV'
         this.ifCanRTC = false
       }
+      this.videoType = 'FLV'
     } else {
       this.videoType = kind
       this.disposePlayer()
