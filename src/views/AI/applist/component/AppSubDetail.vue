@@ -217,8 +217,8 @@ export default class extends Vue {
     private faceInfos: any = []
     private picInfos: any = []
     private alarms: any = [
-      {alarmcars: 25, time:'2022.01.13 04:00:09'},
-      {alarmcars: 40, time:'2022.01.13 04:00:09'},
+      { alarmcars: 25, time: '2022.01.13 04:00:09' },
+      { alarmcars: 40, time: '2022.01.13 04:00:09' }
     ]
     // 防抖
     private debounceHandle = debounce(this.getScreenShot, 500)

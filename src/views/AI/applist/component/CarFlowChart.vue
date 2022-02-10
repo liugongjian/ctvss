@@ -1,5 +1,7 @@
 <template>
   <div v-loading="queryLoading.chart">
+    <el-tag style="margin-right:20px;">车辆数阈值：20</el-tag>
+    <el-tag>时间阈值：2小时</el-tag>
     <div v-show="chartData.length > 0" id="car-container" :style="`height:${height}vh`" />
     <div v-show="chartData.length === 0" class="no-data">暂无数据</div>
   </div>
@@ -143,8 +145,10 @@ export default class extends Mixins(DashboardMixin) {
         type: '1-10',
         value: 10000
       }]
-      this.chart ? this.updateChart() : this.drawChart()
-      this.refreshChart()
+      this.$nextTick(() => {
+        this.chart ? this.updateChart() : this.drawChart()
+        this.refreshChart()
+      })
     } catch (e) {
       // 异常处理
       console.log(e)
@@ -207,6 +211,11 @@ export default class extends Mixins(DashboardMixin) {
     })
 
     this.chart.axis('value', {
+      line: {
+        lineWidth: 2, // 设置线的宽度
+        stroke: '#eee', // 设置线的颜色
+        opacity: 0.5
+      },
       grid: null,
       label: null,
       title: {
