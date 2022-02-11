@@ -1,5 +1,6 @@
 <template>
-  <div v-if="deviceId" class="container">
+  <!-- <div v-if="deviceId" class="container"> -->
+  <div v-if="true" class="container">
     <div v-show="!isClosed" class="container__ptz">
       <div class="container__ptz__title">
         <label>云台控制</label>
@@ -65,26 +66,75 @@
               input-size="mini"
             />
           </div>
-          <div v-loading="loading" class="ptz-preset">
-            <template v-for="(preset, index) in presets">
-              <div
-                :key="index"
-                :class="['preset-line', {'preset-line__select': currentIndex === index, 'preset-line__no-set': !preset.setFlag}]"
-                @click="currentIndex = index"
-              >
-                <span class="index">{{ index + 1 }}</span>
-                <div :title="preset.name" class="name">
-                  <span v-if="!preset.editNameFlag" @dblclick="enterEdit(preset, index)">{{ preset.name }}</span>
-                  <el-input v-else :ref="'nameinput' + index" v-model="preset.name" size="mini" @blur="closeEdit(preset, index)" />
-                </div>
-                <span v-if="currentIndex === index" class="handle">
-                  <i v-if="preset.setFlag" title="删除" class="handle-delete" @click="deletePreset(index + 1)" />
-                  <i title="设置" class="handle-edit" @click="setPreset(index + 1, preset.name)" />
-                  <i v-if="preset.setFlag" title="调用" class="handle-goto" @click="gotoPreset(index + 1)" />
-                </span>
+          <el-tabs v-model="tabName">
+            <el-tab-pane label="预置位" name="preset">
+              <div v-loading="loading" class="ptz-preset">
+                <template v-for="(preset, index) in presets">
+                  <div
+                    :key="index"
+                    :class="['preset-line', {'preset-line__select': currentIndex === index, 'preset-line__no-set': !preset.setFlag}]"
+                    @click="currentIndex = index"
+                  >
+                    <span class="index">{{ index + 1 }}</span>
+                    <div :title="preset.name" class="name">
+                      <span v-if="!preset.editNameFlag" @dblclick="enterEdit(preset, index)">{{ preset.name }}</span>
+                      <el-input v-else :ref="'nameinput' + index" v-model="preset.name" size="mini" @blur="closeEdit(preset, index)" />
+                    </div>
+                    <span v-if="currentIndex === index" class="handle">
+                      <i v-if="preset.setFlag" title="删除" class="handle-delete" @click="deletePreset(index + 1)" />
+                      <i title="设置" class="handle-edit" @click="setPreset(index + 1, preset.name)" />
+                      <i v-if="preset.setFlag" title="调用" class="handle-goto" @click="gotoPreset(index + 1)" />
+                    </span>
+                  </div>
+                </template>
               </div>
-            </template>
-          </div>
+            </el-tab-pane>
+            <el-tab-pane label=" 巡航" name="cruise">
+              <div v-loading="loading" class="ptz-preset">
+                <template v-for="(preset, index) in presets">
+                  <div
+                    :key="index"
+                    :class="['preset-line', {'preset-line__select': currentIndex === index, 'preset-line__no-set': !preset.setFlag}]"
+                    @click="currentIndex = index"
+                  >
+                    <span class="index">{{ index + 1 }}</span>
+                    <div :title="preset.name" class="name">
+                      <span v-if="!preset.editNameFlag" @dblclick="enterEdit(preset, index)">{{ preset.name }}</span>
+                      <el-input v-else :ref="'nameinput' + index" v-model="preset.name" size="mini" @blur="closeEdit(preset, index)" />
+                    </div>
+                    <span v-if="currentIndex === index" class="handle">
+                      <i v-if="preset.setFlag" title="删除" class="handle-delete" @click="deletePreset(index + 1)" />
+                      <i title="设置" class="handle-edit" @click="setPreset(index + 1, preset.name)" />
+                      <i v-if="preset.setFlag" title="调用" class="handle-goto" @click="gotoPreset(index + 1)" />
+                    </span>
+                  </div>
+                </template>
+              </div>
+            </el-tab-pane>
+            <el-tab-pane label=" 守望" name="homeposition">
+              <el-form ref="homepositionForm" size="mini" :model="homepositionForm" label-position="left" label-width="70px">
+                <el-form-item label="启用:" prop="enabled">
+                  <el-switch
+                    v-model="homepositionForm.enabled"
+                    active-value="true"
+                    inactive-value="false"
+                  />
+                </el-form-item>
+                <el-form-item label="等待时间:" prop="resetTime">
+                  <el-input v-model="homepositionForm.resetTime" /> 秒
+                </el-form-item>
+                <el-form-item label="守望位置:" prop="presetIndex">
+                  <el-select v-model="homepositionForm.presetIndex">
+                    <el-option
+                      :key="1"
+                      label="预置位255"
+                      value="1"
+                    />
+                  </el-select>
+                </el-form-item>
+              </el-form>
+            </el-tab-pane>
+          </el-tabs>
         </div>
       </div>
     </div>
@@ -104,9 +154,18 @@ export default class extends Vue {
   private deviceId!: string
   private speed = 5
   private isClosed = true
-  private loading = false
+  private loading: {
+    preset: false,
+    cruise: false
+  }
   private currentIndex = null
   private presets: Array<any> = []
+  private tabName: string = 'preset'
+  private homepositionForm: any = {
+    enabled: 'true',
+    resetTime: '12',
+    presetIndex: '1'
+  }
   @Watch('deviceId')
   private async onDeviceIdChange(newValue: string) {
     if (newValue) {
@@ -529,6 +588,36 @@ export default class extends Vue {
       height: 100%;
       overflow: hidden;
       background: url("~@/assets/ptz/expand.png") -10px 50% no-repeat;
+    }
+  }
+
+  .el-tabs {
+    clear: both;
+    ::v-deep .el-tabs__item {
+      font-size: 12px;
+      padding: 0 15px;
+    }
+
+    ::v-deep .el-tabs__nav-scroll {
+      width: 100%;
+    }
+    .el-form {
+      margin-left: 10px;
+      .el-input {
+        width: 50px;
+        font-size: 12px;
+        margin-right: 10px;
+      }
+      .el-select {
+        width: 105px;
+      }
+      ::v-deep .el-form-item__content {
+        font-size: 12px;
+      }
+      ::v-deep .el-form-item__label {
+        font-size: 12px;
+        padding-right: 5px;
+      }
     }
   }
 }
