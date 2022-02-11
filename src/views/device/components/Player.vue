@@ -94,7 +94,7 @@
         </el-tooltip>
         <el-tooltip placement="top">
           <div slot="content" class="videoScaleBox">
-            <el-button v-for="item in scaleKind" :key="item.kind" type="text" size="mini" @click.stop.prevent="(e) => scaleVideo(e,item.kind)">{{ item.label }}</el-button>
+            <el-button v-for="item in scaleKind" :key="item.kind" :class="{'selected': selectThis}" type="text" size="mini" @click.stop.prevent="(e) => scaleVideo(e,item.kind)">{{ item.label }}</el-button>
           </div>
           <div class="controls__btn controls__snapshot videoTypeBtn">
             <svg-icon name="screenratio" width="18px" height="18px" />
@@ -272,6 +272,8 @@ export default class extends Vue {
   private ctxDrawState = false
   private oCanvasWidth?:number
   private oCanvasHeight?:number
+  private selectThis = false
+  private userScaleConfig:any
 
   get username() {
     return UserModule.name
@@ -299,7 +301,7 @@ export default class extends Vue {
     if (!this.allAddress.comefrom || this.allAddress.comefrom !== 'bugger') {
       this.getVideoType()
     }
-
+    this.getUserScaleConfig()
     this.createPlayer()
     this.setPlayVolume(this.volume)
     if (this.isLive) document.addEventListener('visibilitychange', this.reloadPlayer)
@@ -441,6 +443,13 @@ export default class extends Vue {
     }
   }
 
+  public getUserScaleConfig() {
+    console.log('this.$store.state.app.userConfigInfo', this.$store.state.app.userConfigInfo)
+    // const userScaleConfig:Array<any> = this.$store.state.app.userConfigInfo
+    // const scaleNum = userScaleConfig.find((item:any) => item.key === 'scale').value
+    // this.userScaleConfig = scaleNum || '-1'
+  }
+
   public playerFS() {
     if (this.codec === 'h265') {
       const mainBox: any = this.$refs.videoWrap
@@ -462,7 +471,18 @@ export default class extends Vue {
       return window.Function('"use strict";return (' + obj + ')')()
     }
 
-    switch (this.scaleVal) {
+    let thisScale = ''
+
+    if (this.scaleVal) {
+      thisScale = this.scaleVal
+    } else if (this.userScaleConfig > 0) {
+      const scaleValue = this.scaleKind.find((item:any) => item.num === this.userScaleConfig)
+      thisScale = scaleValue.kind
+    } else {
+      thisScale = 'fit'
+    }
+
+    switch (thisScale) {
       case '16 / 9':
       case '4 / 3':
         {
@@ -511,6 +531,10 @@ export default class extends Vue {
     player.style.left = (width - player.clientWidth) / 2 + 'px'
     player.style.top = (height - player.clientHeight) / 2 + 'px'
   }
+
+  // private get selectThis(){
+
+  // }
 
   public changeScaleCanvas() {
     this.showCanvasBox = !this.showCanvasBox

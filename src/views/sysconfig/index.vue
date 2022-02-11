@@ -121,6 +121,7 @@ export default class extends Vue {
     const param = [{ key: 'videoScale', value: this.formFrame.scaleVal }]
     setUserConfig(param).then(res => {
       console.log(res)
+      this.$store.state.app.userConfigInfo = this.formFrame.scaleVal
     })
   }
 }

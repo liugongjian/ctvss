@@ -228,7 +228,10 @@ export class BasePlayer {
    * 检测是否有音频
    */
   public testHasAudio() {
-    const hasAudio = this.player.mozHasAudio || Boolean(this.player.webkitAudioDecodedByteCount) || Boolean(this.player.audioTracks && this.player.audioTracks.length) || this.codec === 'h265'
+    const hasAudio = this.player.mozHasAudio || Boolean(this.player.webkitAudioDecodedByteCount) ||
+      Boolean(this.player.audioTracks && this.player.audioTracks.length) ||
+      Boolean(this.player.srcObject && this.player.srcObject.getAudioTracks && this.player.srcObject.getAudioTracks().length) || // rtc格式音频信息获取
+      this.codec === 'h265'
     this.config.onTestHasAudio && this.config.onTestHasAudio(hasAudio)
   }
 }
