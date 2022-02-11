@@ -86,3 +86,16 @@ export const getWhiteListUserAccessToken = (params: any): Promise<any> =>
     method: 'get',
     params
   })
+
+export const getUserConfig = () =>
+  request({
+    url: '/user/config',
+    method: 'get'
+  })
+
+export const setUserConfig = (data: any): Promise<any> =>
+  request({
+    url: '/user/config/createOrUpdate',
+    method: 'post',
+    data
+  })

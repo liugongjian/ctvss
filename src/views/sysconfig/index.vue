@@ -20,7 +20,7 @@
           <el-form ref="formFrame" :model="formFrame" label-width="120px">
             <el-form-item label="默认画面比例">
               <el-select v-model="formFrame.scaleVal" placeholder="请选择默认画面比例" @change="selectChange">
-                <el-option v-for="item in scaleKind" :key="item.kind" :label="item.label" :value="item.kind" />
+                <el-option v-for="item in scaleKind" :key="item.kind" :label="item.label" :value="item.num" />
               </el-select>
             </el-form-item>
             <el-form-item>
@@ -49,6 +49,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { getPhoneNumberForAISMS, activatePhone } from '@/api/ai-app'
+import { setUserConfig } from '@/api/users'
 import { scaleKind } from '@/dics/index'
 
 function isvalidPhone(str) {
@@ -82,7 +83,7 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    this.formFrame.scaleVal = '16 / 9'
+    this.getUserConfigInfo()
     this.form = await getPhoneNumberForAISMS({})
   }
   private back() {
@@ -106,17 +107,21 @@ export default class extends Vue {
     })
   }
 
-  private selectChange(val:any) {
-    // this.scaleVal = val
-    // console.log('this.formFrame.scaleVal------->', this.formFrame.scaleVal)
+  private getUserConfigInfo() {
+    console.log('this.userConfigInfo', this.$store.state.app.userConfigInfo)
+    const userScaleConfig = this.$store.state.app.userConfigInfo
+    if (userScaleConfig.length > 0) {
+      this.formFrame.scaleVal = userScaleConfig.find((item:any) => item.key === 'videoScale').value
+    } else {
+      this.formFrame.scaleVal = '1'
+    }
   }
 
   private async save() {
-    // const form:any = this.$refs.formFrame
-    // form.validate((valid:any) => {
-    //   if (!valid) return
-    // })
-    console.log('this.formFrame.scaleVal------->', this.formFrame.scaleVal)
+    const param = [{ key: 'videoScale', value: this.formFrame.scaleVal }]
+    setUserConfig(param).then(res => {
+      console.log(res)
+    })
   }
 }
 

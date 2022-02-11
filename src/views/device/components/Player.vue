@@ -82,14 +82,14 @@
             <svg-icon name="ipc" width="18px" height="18px" />
           </div>
         </el-tooltip>
-        <!-- <el-tooltip placement="top">
+        <el-tooltip placement="top">
           <div slot="content" class="videoScaleBox">
             <el-button v-for="item in scaleKind" :key="item.kind" type="text" size="mini" @click.stop.prevent="(e) => scaleVideo(e,item.kind)">{{ item.label }}</el-button>
           </div>
           <div class="controls__btn controls__snapshot videoTypeBtn">
             <svg-icon name="screenratio" width="18px" height="18px" />
           </div>
-        </el-tooltip> -->
+        </el-tooltip>
         <el-tooltip placement="top" :content="showCanvasBox ? '关闭缩放比例修改' : '开启缩放比例修改'">
           <div class="controls__btn controls__snapshot videoTypeBtn" :class="{'selected': showCanvasBox}" @click.stop.prevent="changeScaleCanvas">
             <svg-icon name="screenscale" width="18px" height="18px" />
@@ -436,14 +436,17 @@ export default class extends Vue {
         videoContain.style.objectFit = 'fill'
         break
       default:
-        if (width / height > 16 / 9) {
-          player.style.height = '100%'
-          player.style.width = height * 16 / 9 + 'px'
-        } else {
-          player.style.width = '100%'
-          player.style.height = width * 9 / 16 + 'px'
-        }
-        videoContain.style.objectFit = 'initial'
+        // if (width / height > 16 / 9) {
+        //   player.style.height = '100%'
+        //   player.style.width = height * 16 / 9 + 'px'
+        // } else {
+        //   player.style.width = '100%'
+        //   player.style.height = width * 9 / 16 + 'px'
+        // }
+        // videoContain.style.objectFit = 'initial'
+        player.style.height = `${height}px`
+        player.style.width = `${width}px`
+        videoContain.style.objectFit = 'fill'
         break
     }
     // if (width / height > 16 / 9) {
