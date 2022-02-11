@@ -30,16 +30,18 @@
             width="380"
           >
             <template slot-scope="scope">
-              <el-time-picker
-                v-model="scope.row.period"
-                is-range
-                range-separator="~"
-                start-placeholder="开始时间"
-                end-placeholder="结束时间"
-                placeholder="选择时间范围"
-                value-format="HH:mm:ss"
-                format="HH:mm"
-              />
+              <el-form-item :prop="'availableperiod.' + scope.$index + '.period'" :rules="rules.period">
+                <el-time-picker
+                  v-model="scope.row.period"
+                  is-range
+                  range-separator="~"
+                  start-placeholder="开始时间"
+                  end-placeholder="结束时间"
+                  placeholder="选择时间范围"
+                  value-format="HH:mm:ss"
+                  format="HH:mm"
+                />
+              </el-form-item>
             </template>
           </el-table-column>
           <el-table-column
@@ -160,7 +162,12 @@ export default class extends Mixins(AppMixin) {
     'algorithmMetadata.FaceDbName': getRule('人脸库'),
     'algorithmMetadata.pedThreshold': getRule('人员数量阈值'),
     confidence: getRule('置信度'),
-    callbackKey: getRule('回调key')
+    callbackKey: getRule('回调key'),
+    period: [{
+      validator: (rule, value, callback) => {
+        value[0] === value[1] ? callback(new Error('起始时间不能相同')) : callback()
+      },
+      trigger: 'blur' }]
   }
   private effectiveTime: any = []
 
@@ -373,6 +380,9 @@ export default class extends Mixins(AppMixin) {
   }
   .el-button--text {
     margin-left: 15px;
+  }
+  .el-form-item.is-error.el-form-item--medium {
+    margin-bottom: 20px;
   }
 }
 </style>
