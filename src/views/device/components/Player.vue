@@ -94,7 +94,7 @@
         </el-tooltip>
         <el-tooltip placement="top">
           <div slot="content" class="videoScaleBox">
-            <el-button v-for="item in scaleKind" :key="item.kind" :class="{'selected': selectThis}" type="text" size="mini" @click.stop.prevent="(e) => scaleVideo(e,item.kind)">{{ item.label }}</el-button>
+            <el-button v-for="item in scaleKind" :key="item.kind" :class="scaleVal === item.kind ? 'selected' : ''" type="text" size="mini" @click.stop.prevent="(e) => scaleVideo(e,item.kind)">{{ item.label }}</el-button>
           </div>
           <div class="controls__btn controls__snapshot videoTypeBtn">
             <svg-icon name="screenratio" width="18px" height="18px" />
@@ -263,16 +263,15 @@ export default class extends Vue {
   private videoType=''
   private ifCanRTC = false
 
-  private scaleKind=scaleKind
-  private scaleVal:any
+  private scaleKind = scaleKind
+  private scaleVal = ''
   private showCanvasBox = false
-  private canvasShape:any={}
+  private canvasShape:any = {}
   private oCanvas:any
   private ctxShape:any
   private ctxDrawState = false
   private oCanvasWidth?:number
   private oCanvasHeight?:number
-  private selectThis = false
   private userScaleConfig:any
 
   get username() {
@@ -444,10 +443,10 @@ export default class extends Vue {
   }
 
   public getUserScaleConfig() {
-    console.log('this.$store.state.app.userConfigInfo', this.$store.state.app.userConfigInfo)
-    // const userScaleConfig:Array<any> = this.$store.state.app.userConfigInfo
-    // const scaleNum = userScaleConfig.find((item:any) => item.key === 'scale').value
-    // this.userScaleConfig = scaleNum || '-1'
+    const userScaleConfig:Array<any> = this.$store.state.app.userConfigInfo || []
+    const scaleInfo = userScaleConfig.find((item:any) => item.key === 'scale')
+    const scaleNum = scaleInfo ? scaleInfo.value : '-1'
+    this.userScaleConfig = scaleNum
   }
 
   public playerFS() {
@@ -478,8 +477,10 @@ export default class extends Vue {
     } else if (this.userScaleConfig > 0) {
       const scaleValue = this.scaleKind.find((item:any) => item.num === this.userScaleConfig)
       thisScale = scaleValue.kind
+      this.scaleVal = scaleValue.kind
     } else {
       thisScale = 'fit'
+      this.scaleVal = 'fit'
     }
 
     switch (thisScale) {
@@ -532,9 +533,9 @@ export default class extends Vue {
     player.style.top = (height - player.clientHeight) / 2 + 'px'
   }
 
-  // private get selectThis(){
+  private ifSelectThis() {
 
-  // }
+  }
 
   public changeScaleCanvas() {
     this.showCanvasBox = !this.showCanvasBox
@@ -607,13 +608,6 @@ export default class extends Vue {
     }
   }
 
-  // 判断鼠标是否在有效区域
-  isMouseInShape(e:any) {
-    this.ctxShape.beginPath()
-    this.ctxShape.rect(0, 0, this.oCanvasWidth, this.oCanvasHeight)
-    return this.ctxShape.isPointInPath(e.x, e.y)
-  }
-
   private canvasMouseDown(e:any) {
     const mousePos = this.getCanvasMousePos(e)
     if (!mousePos) return
@@ -649,7 +643,7 @@ export default class extends Vue {
     if (!mousePos) return
     // const [x, y] = mousePos
     const { startX, startY, endX, endY } = this.oShape
-    const { Width, Height } = JSON.parse(this.videoInfo)
+    const { Width = 0, Height = 0 } = this.videoInfo ? JSON.parse(this.videoInfo) : {}
 
     if (!endX || !endY) {
       return
@@ -682,9 +676,11 @@ export default class extends Vue {
       lengthY
     }
     dragCanvasZoom(param).then(() => {
-      console.log('this.oShape', this.oShape)
+      this.$message.success('请等待设备调整角度')
+      this.showCanvasBox = false
     }).catch(err => {
       this.$message.error(err)
+      this.showCanvasBox = false
     })
   }
 
@@ -947,21 +943,8 @@ export default class extends Vue {
   // 视频缩放
   public scaleVideo(event:any, kind:any) {
     event.currentTarget.blur()
-    console.log('kind======>', kind)
     this.scaleVal = kind
     this.playerFS()
-    // switch (kind) {
-    //   case '16:9':
-    //     break
-    //   case '4:3':
-    //     break
-    //   case 'normal':
-    //     break
-    //   case 'fit':
-    //     break
-    //   default:
-    //     break
-    // }
   }
 
   /**
@@ -1310,6 +1293,9 @@ export default class extends Vue {
         margin-left:0;
         text-align: left;
         &:hover{
+          color: #FA8334;
+        }
+        &.selected{
           color: #FA8334;
         }
       }
