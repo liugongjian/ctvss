@@ -12,7 +12,10 @@ export class RtcPlayer extends BasePlayer {
     this.wrap.innerHTML = ''
     this.wrap.append(videoElement)
 
-    const conf = prepareUrl(this.source)
+    const tempURL = this.allAddress.webrtcUrl ? this.allAddress.webrtcUrl : this.source
+
+    const conf = prepareUrl(tempURL)
+    console.log('webrtcUrl------>prepareUrl', conf)
     const sdk = srsRtcPlayerAsync()
     sdk.onaddstream = (event: any) => {
       videoElement.srcObject = event.stream
