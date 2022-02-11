@@ -175,7 +175,7 @@ class User extends VuexModule implements IUserState {
       }
       let res = await getUserConfig()
       res.userConfig && res.userConfig.forEach(config => {
-        defaultConfig[dic[config.type] || config.type] = config.enable
+        defaultConfig[dic[config.key] || config.key] = config.value
       })
       this.SetScreenCacheSettings(defaultConfig)
     } catch (e) {
