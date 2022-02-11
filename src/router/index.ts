@@ -1146,10 +1146,10 @@ export const asyncRoutes: RouteConfig[] = [
     component: Layout,
     meta: {
       id: '20210515200901013001',
-      title: '系统设置',
+      title: '配置',
       breadcrumb: true,
-      perms: ['*'],
-      hidden: true
+      icon: 'config',
+      perms: ['*']
     },
     children: [
       {
@@ -1158,10 +1158,10 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'exportDevices',
         meta: {
           id: '20210515200901013002',
-          title: '系统设置',
+          title: '配置',
           breadcrumb: false,
-          perms: ['*'],
-          hidden: true
+          icon: 'config',
+          perms: ['*']
         }
       }
     ]

@@ -130,6 +130,17 @@ export const getDeviceRecords = (params: any, cancelToken?: any): Promise<any> =
   })
 
 /**
+ * 获取检测到行人的时间段信息
+ */
+export const describeHeatMap = (data: any, cancelToken?: any): Promise<any> =>
+  request({
+    url: '/record/describeheatmap',
+    method: 'post',
+    data,
+    cancelToken
+  })
+
+/**
  * 获取设备录像详情
  */
 export const getDeviceRecord = (params: any): Promise<any> =>
