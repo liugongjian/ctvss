@@ -67,20 +67,20 @@
             />
           </div>
           <el-tabs v-model="tabName">
-            <el-tab-pane label="预置位" name="preset" :style="{height: `${maxHeight}px`}">
-              <div v-loading="loading.preset" class="ptz-preset">
+            <el-tab-pane label="预置位" name="preset">
+              <div v-loading="loading.preset" class="ptz-tab-container">
                 <template v-for="(preset, index) in presets">
                   <div
                     :key="index"
-                    :class="['preset-line', {'preset-line__select': currentIndex === index, 'preset-line__no-set': !preset.setFlag}]"
-                    @click="currentIndex = index"
+                    :class="['preset-line', {'preset-line__select': currentIndex.preset === index, 'preset-line__no-set': !preset.setFlag}]"
+                    @click="currentIndex.preset = index"
                   >
                     <span class="index">{{ index + 1 }}</span>
                     <div :title="preset.name" class="name">
                       <span v-if="!preset.editNameFlag" @dblclick="enterEdit(preset, index)">{{ preset.name }}</span>
                       <el-input v-else :ref="'nameinput' + index" v-model="preset.name" size="mini" @blur="closeEdit(preset, index)" />
                     </div>
-                    <span v-if="currentIndex === index" class="handle">
+                    <span v-if="currentIndex.preset === index" class="handle">
                       <i v-if="preset.setFlag" title="删除" class="handle-delete" @click="deletePreset(index + 1)" />
                       <i title="设置" class="handle-edit" @click="setPreset(index + 1, preset.name)" />
                       <i v-if="preset.setFlag" title="调用" class="handle-goto" @click="gotoPreset(index + 1)" />
@@ -90,49 +90,53 @@
               </div>
             </el-tab-pane>
             <el-tab-pane label=" 巡航" name="cruise">
-              <div v-loading="loading.cruise" class="ptz-preset">
+              <div v-loading="loading.cruise" class="ptz-tab-container">
                 <template v-for="(preset, index) in presets">
                   <div
                     :key="index"
-                    :class="['preset-line', {'preset-line__select': currentIndex === index, 'preset-line__no-set': !preset.setFlag}]"
-                    @click="currentIndex = index"
+                    :class="['preset-line', {'preset-line__select': currentIndex.cruise === index}]"
+                    @click="currentIndex.cruise = index"
                   >
                     <span class="index">{{ index + 1 }}</span>
                     <div :title="preset.name" class="name">
-                      <span v-if="!preset.editNameFlag" @dblclick="enterEdit(preset, index)">{{ preset.name }}</span>
-                      <el-input v-else :ref="'nameinput' + index" v-model="preset.name" size="mini" @blur="closeEdit(preset, index)" />
+                      <span>{{ preset.name | filterLength }}</span>
                     </div>
-                    <span v-if="currentIndex === index" class="handle">
-                      <i v-if="preset.setFlag" title="删除" class="handle-delete" @click="deletePreset(index + 1)" />
-                      <i title="设置" class="handle-edit" @click="setPreset(index + 1, preset.name)" />
-                      <i v-if="preset.setFlag" title="调用" class="handle-goto" @click="gotoPreset(index + 1)" />
+                    <span v-if="currentIndex.cruise === index" class="handle">
+                      <i title="删除" class="handle-delete" @click="deleteCruise(1)" />
+                      <i title="设置" class="handle-edit" @click="editCruise(1)" />
+                      <i title="启用" class="handle-goto" @click="handleCruise(1)" />
                     </span>
                   </div>
                 </template>
               </div>
             </el-tab-pane>
             <el-tab-pane label=" 守望" name="homeposition">
-              <el-form ref="homepositionForm" size="mini" :model="homepositionForm" label-position="left" label-width="70px">
-                <el-form-item label="启用:" prop="enabled">
-                  <el-switch
-                    v-model="homepositionForm.enabled"
-                    active-value="true"
-                    inactive-value="false"
-                  />
-                </el-form-item>
-                <el-form-item label="等待时间:" prop="resetTime">
-                  <el-input v-model="homepositionForm.resetTime" /> 秒
-                </el-form-item>
-                <el-form-item label="守望位置:" prop="presetIndex">
-                  <el-select v-model="homepositionForm.presetIndex">
-                    <el-option
-                      :key="1"
-                      label="预置位255"
-                      value="1"
+              <div v-loading="loading.homeposition" class="ptz-tab-container">
+                <el-form ref="homepositionForm" :rules="homepositionRules" size="mini" :model="homepositionForm" label-position="left" label-width="70px">
+                  <el-form-item label="启用:" prop="enabled">
+                    <el-switch
+                      v-model="homepositionForm.enabled"
+                      active-value="true"
+                      inactive-value="false"
                     />
-                  </el-select>
-                </el-form-item>
-              </el-form>
+                  </el-form-item>
+                  <el-form-item label="等待时间:" prop="resetTime">
+                    <el-input v-model="homepositionForm.resetTime" /> 秒
+                  </el-form-item>
+                  <el-form-item label="守望位置:" prop="presetIndex">
+                    <el-select v-model="homepositionForm.presetIndex">
+                      <el-option
+                        :key="1"
+                        label="预置位255"
+                        value="1"
+                      />
+                    </el-select>
+                  </el-form-item>
+                  <el-form-item label-width="50px">
+                    <el-button type="primary" @click="saveHomeposition">保存</el-button>
+                  </el-form-item>
+                </el-form>
+              </div>
             </el-tab-pane>
           </el-tabs>
         </div>
@@ -141,13 +145,31 @@
     <div v-show="isClosed" class="container__ptz--shrink">
       <div title="打开" class="toggle-icon__closed" @click="isClosed = false" />
     </div>
+    <update-cruise v-if="dialog.cruise"
+      :current-index="currentIndex.cruise"
+      :is-create="isCreate"
+      @on-close="closeCruiseDialog"
+    />
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { startDeviceMove, endDeviceMove, startDeviceAdjust, endDeviceAdjust, setDevicePreset, gotoDevicePreset, deleteDevicePreset, describeDevicePresets } from '@/api/ptz_control'
+import UpdateCruise from './dialogs/UpdateCruise.vue'
 @Component({
-  name: 'ptz-control'
+  name: 'ptz-control',
+  components: {
+    UpdateCruise
+  },
+	filters: {
+		filterLength(value: string) {
+      if (value.length > 6) {
+        return value.slice(0, 6) + '...'
+      } else {
+        return value
+      }
+    }
+	}
 })
 export default class extends Vue {
   @Prop({ default: '' })
@@ -156,9 +178,17 @@ export default class extends Vue {
   private isClosed = true
   private loading: any = {
     preset: false,
+    cruise: false,
+    homeposition: false
+  }
+  private currentIndex: any = {
+    preset: null,
+    cruise: null
+  }
+  private dialog: any = {
     cruise: false
   }
-  private currentIndex = null
+  private isCreate: boolean = true
   private presets: Array<any> = []
   private tabName: string = 'preset'
   private homepositionForm: any = {
@@ -166,10 +196,20 @@ export default class extends Vue {
     resetTime: '12',
     presetIndex: '1'
   }
-  private maxHeight = 1000
+  private homepositionRules: any = {
+    resetTime: [
+      { required: true, message: '请填写守望时间', trigger: 'blur' },
+      { validator: this.validateHomepositionTime, trigger: 'blur' }
+    ],
+    presetIndex: [
+      { required: true, message: '请选择守望位置', trigger: 'blur' }
+    ],
+  }
+
   @Watch('deviceId')
   private async onDeviceIdChange(newValue: string) {
     if (newValue) {
+      // 获取预置位信息
       try {
         this.loading.preset = true
         const res = await describeDevicePresets({ deviceId: newValue })
@@ -188,15 +228,41 @@ export default class extends Vue {
         this.loading.preset = false
         this.$message.error(`查询预置位失败，原因：${e && e.message}`)
       }
+      // 获取巡航列表信息
+      try {
+        this.loading.cruise = true
+        // const res = await describeDevicePresets({ deviceId: newValue })
+        // this.presets = Array.from({ length: 255 }, (value, index) => {
+        //   const found = res.presets.find((preset: any) => Number(preset.presetId) === index + 1)
+        //   return {
+        //     setFlag: !!found,
+        //     name: found?.presetName || `预置位 ${index + 1}`,
+        //     editNameFlag: false
+        //   }
+        // })
+      } catch (e) {
+        this.$message.error(`查询巡航列表失败，原因：${e && e.message}`)
+      } finally {
+        this.loading.cruise = false
+      }
+      // 获取守望信息
+      try {
+        this.loading.homeposition = true
+        // const res = await describeDevicePresets({ deviceId: newValue })
+        // this.presets = Array.from({ length: 255 }, (value, index) => {
+        //   const found = res.presets.find((preset: any) => Number(preset.presetId) === index + 1)
+        //   return {
+        //     setFlag: !!found,
+        //     name: found?.presetName || `预置位 ${index + 1}`,
+        //     editNameFlag: false
+        //   }
+        // })
+      } catch (e) {
+        this.$message.error(`查询守望信息失败，原因：${e && e.message}`)
+      } finally {
+        this.loading.homeposition = false
+      }
     }
-  }
-  private mounted() {
-    this.calMaxHeight()
-    window.addEventListener('resize', this.calMaxHeight)
-  }
-
-  private destroyed() {
-    window.removeEventListener('resize', this.calMaxHeight)
   }
   private async deletePreset(presetId: number) {
     await deleteDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId) })
@@ -358,14 +424,77 @@ export default class extends Vue {
     return '云台速度 ' + this.speed
   }
 
-  private calMaxHeight() {
-    console.log(123);
-    
-    const deviceWrap: any = this.$refs.deviceWrap
-    const size = deviceWrap.$el.getBoundingClientRect()
-    const top = size.top
-    const documentHeight = document.body.offsetHeight
-    this.maxHeight = documentHeight - top - 200
+  // 巡航操作
+  private handleCruise(cruiseId: any) {
+    try {
+      // const res = await describeDevicePresets({ deviceId: newValue })
+      // this.presets = Array.from({ length: 255 }, (value, index) => {
+      //   const found = res.presets.find((preset: any) => Number(preset.presetId) === index + 1)
+      //   return {
+      //     setFlag: !!found,
+      //     name: found?.presetName || `预置位 ${index + 1}`,
+      //     editNameFlag: false
+      //   }
+      // })
+    } catch (e) {
+      this.$message.error(`启用巡航失败，原因：${e && e.message}`)
+    }
+  }
+
+  private editCruise(cruiseId: any) {
+    this.isCreate = false
+    this.dialog.cruise = true
+  }
+
+  private closeCruiseDialog() {
+    this.dialog.cruise = false
+  }
+
+  private deleteCruise(cruiseId: any) {
+    try {
+      // const res = await describeDevicePresets({ deviceId: newValue })
+      // this.presets = Array.from({ length: 255 }, (value, index) => {
+      //   const found = res.presets.find((preset: any) => Number(preset.presetId) === index + 1)
+      //   return {
+      //     setFlag: !!found,
+      //     name: found?.presetName || `预置位 ${index + 1}`,
+      //     editNameFlag: false
+      //   }
+      // })
+    } catch (e) {
+      this.$message.error(`删除巡航失败，原因：${e && e.message}`)
+    }
+  }
+
+  // 守望操作
+  private saveHomeposition() {
+    const form: any = this.$refs.homepositionForm
+    form.validate(async(valid: any) => {
+      if (!valid) return
+      try {
+        // const res = await describeDevicePresets({ deviceId: newValue })
+        // this.presets = Array.from({ length: 255 }, (value, index) => {
+        //   const found = res.presets.find((preset: any) => Number(preset.presetId) === index + 1)
+        //   return {
+        //     setFlag: !!found,
+        //     name: found?.presetName || `预置位 ${index + 1}`,
+        //     editNameFlag: false
+        //   }
+        // })
+      } catch (e) {
+        this.$message.error(`保存守望信息失败，原因：${e && e.message}`)
+      }
+    })
+  }
+
+  private validateHomepositionTime(rule: any, value: any, callback: Function) {
+    if (!/^[0-9]*$/.test(value)) {
+      callback(new Error('时间格式错误'))
+    } else if (value < 5 || value > 720) {
+      callback(new Error('仅支持5-720秒'))
+    } else {
+      callback()
+    }
   }
 }
 </script>
@@ -523,25 +652,17 @@ export default class extends Vue {
           height: calc(100% - 160px);
           ::v-deep .el-tabs__content {
             height: calc(100% - 60px);
-            .el-tab-pane {
-              height: 100%;
-              overflow: hidden;
-            }
           }
         }
-        .ptz-preset {
-          // position: absolute;
-          // height: 100%;
+        .ptz-tab-container {
+          position: absolute;
           height: 100%;
           overflow: auto;
-          display: none; 
           font-size: 12px;
-          // top: 160px;
-          // left: 0;
-          // right: 0;
-          // bottom: 0;
-          // overflow-y: scroll;
-          // border: 1px solid #aaaaaa;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
           .preset-line {
             height: 30px;
             line-height: 30px;
@@ -640,7 +761,7 @@ export default class extends Vue {
     .el-form {
       margin-left: 10px;
       .el-input {
-        width: 50px;
+        width: 70px;
         font-size: 12px;
         margin-right: 10px;
       }
