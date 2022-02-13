@@ -1,6 +1,6 @@
 <template>
-  <!-- <div v-if="deviceId" class="container"> -->
-  <div v-if="true" class="container">
+  <div v-if="deviceId" class="container">
+  <!-- <div v-if="true" class="container"> -->
     <div v-show="!isClosed" class="container__ptz">
       <div class="container__ptz__title">
         <label>云台控制</label>
@@ -67,8 +67,8 @@
             />
           </div>
           <el-tabs v-model="tabName">
-            <el-tab-pane label="预置位" name="preset">
-              <div v-loading="loading" class="ptz-preset">
+            <el-tab-pane label="预置位" name="preset" :style="{height: `${maxHeight}px`}">
+              <div v-loading="loading.preset" class="ptz-preset">
                 <template v-for="(preset, index) in presets">
                   <div
                     :key="index"
@@ -90,7 +90,7 @@
               </div>
             </el-tab-pane>
             <el-tab-pane label=" 巡航" name="cruise">
-              <div v-loading="loading" class="ptz-preset">
+              <div v-loading="loading.cruise" class="ptz-preset">
                 <template v-for="(preset, index) in presets">
                   <div
                     :key="index"
@@ -154,7 +154,7 @@ export default class extends Vue {
   private deviceId!: string
   private speed = 5
   private isClosed = true
-  private loading: {
+  private loading: any = {
     preset: false,
     cruise: false
   }
@@ -166,11 +166,12 @@ export default class extends Vue {
     resetTime: '12',
     presetIndex: '1'
   }
+  private maxHeight = 1000
   @Watch('deviceId')
   private async onDeviceIdChange(newValue: string) {
     if (newValue) {
       try {
-        this.loading = true
+        this.loading.preset = true
         const res = await describeDevicePresets({ deviceId: newValue })
         this.presets = Array.from({ length: 255 }, (value, index) => {
           const found = res.presets.find((preset: any) => Number(preset.presetId) === index + 1)
@@ -180,12 +181,22 @@ export default class extends Vue {
             editNameFlag: false
           }
         })
-        this.loading = false
+        console.log( this.presets);
+        
+        this.loading.preset = false
       } catch (e) {
-        this.loading = false
+        this.loading.preset = false
         this.$message.error(`查询预置位失败，原因：${e && e.message}`)
       }
     }
+  }
+  private mounted() {
+    this.calMaxHeight()
+    window.addEventListener('resize', this.calMaxHeight)
+  }
+
+  private destroyed() {
+    window.removeEventListener('resize', this.calMaxHeight)
   }
   private async deletePreset(presetId: number) {
     await deleteDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId) })
@@ -346,6 +357,16 @@ export default class extends Vue {
   private formatToolTip() {
     return '云台速度 ' + this.speed
   }
+
+  private calMaxHeight() {
+    console.log(123);
+    
+    const deviceWrap: any = this.$refs.deviceWrap
+    const size = deviceWrap.$el.getBoundingClientRect()
+    const top = size.top
+    const documentHeight = document.body.offsetHeight
+    this.maxHeight = documentHeight - top - 200
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -380,6 +401,7 @@ export default class extends Vue {
         }
       }
       .content-right {
+        height: 100%;
         margin-left: 5px;
         position: relative;
         .ptz-ctrl {
@@ -497,15 +519,29 @@ export default class extends Vue {
             }
           }
         }
+        .el-tabs {
+          height: calc(100% - 160px);
+          ::v-deep .el-tabs__content {
+            height: calc(100% - 60px);
+            .el-tab-pane {
+              height: 100%;
+              overflow: hidden;
+            }
+          }
+        }
         .ptz-preset {
-          position: absolute;
+          // position: absolute;
+          // height: 100%;
+          height: 100%;
+          overflow: auto;
+          display: none; 
           font-size: 12px;
-          top: 160px;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          overflow-y: scroll;
-          border: 1px solid #aaaaaa;
+          // top: 160px;
+          // left: 0;
+          // right: 0;
+          // bottom: 0;
+          // overflow-y: scroll;
+          // border: 1px solid #aaaaaa;
           .preset-line {
             height: 30px;
             line-height: 30px;
