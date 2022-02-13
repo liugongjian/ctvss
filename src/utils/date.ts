@@ -77,7 +77,7 @@ export const getTimestamp = (time: string) => {
 }
 
 /**
- * 补零
+ * 前置补零
  * @param num 数字
  * @param n 位数
  */

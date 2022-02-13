@@ -2,13 +2,13 @@ import { Component, Watch, Vue, Inject } from 'vue-property-decorator'
 import { GroupModule } from '@/store/modules/group'
 import { UserModule } from '@/store/modules/user'
 import { DeviceModule } from '@/store/modules/device'
-import { regionList } from '@/assets/region/lianzhouRegion'
-import { getAddressArea } from '@/api/device'
+import { getChildAddress } from '@/api/device'
 import { getDeviceResources } from '@/api/billing'
 import { DeviceTips } from '@/dics/tips'
 import { industryMap } from '@/assets/region/industry'
 import { networkMap } from '@/assets/region/network'
 import { allRegionList } from '@/assets/region/region'
+import { suffixZero } from '@/utils/number'
 
 @Component
 export default class CreateMixin extends Vue {
@@ -22,7 +22,10 @@ export default class CreateMixin extends Vue {
   public addressProps: any = {
     value: 'code',
     label: 'name',
-    children: 'children'
+    children: 'children',
+    checkStrictly: 'true',
+    lazy: true,
+    lazyLoad: this.loadChildAddress
   }
 
   public loading = {
@@ -106,13 +109,6 @@ export default class CreateMixin extends Vue {
   }
 
   /**
-   * 针对连州设备管理
-   */
-  public get lianzhouFlag() {
-    return this.$store.state.user.tags.isLianZhouEdu === 'Y'
-  }
-
-  /**
    * 针对网络标识
    */
   public get networkFlag() {
@@ -135,33 +131,30 @@ export default class CreateMixin extends Vue {
     this.form.networkCode = this.currentGroup!.networkCode
   }
 
-  // 设备地址动态变化
+  /**
+   * 将gbRegion转成el-cascader格式的数组
+   */
   public async cascaderInit() {
-    if (this.lianzhouFlag) {
-      this.regionList = regionList
-      this.regionList[0].children[0].children[0].children = await this.getExpandList(441882)
-    } else {
-      this.regionList = allRegionList
-    }
+    this.regionList = allRegionList
     if (!this.form.gbRegion) return
-    let list = [
-      parseInt(this.form.gbRegion!.substring(0, 2)),
-      parseInt(this.form.gbRegion!.substring(0, 4)),
-      parseInt(this.form.gbRegion!.substring(0, 6))
-    ]
+    const list = []
+    for (let i = 0; i < 4; i++) {
+      if (parseInt(this.form.gbRegion!.substring(i * 2, i * 2 + 2)) !== 0) {
+        list.push(parseInt(this.form.gbRegion!.substring(0, (i + 1) * 2)))
+      }
+    }
     await this.regionChange(list)
-    this.form.address = this.lianzhouFlag ? [ ...list, this.form.gbRegion ] : [
-      parseInt(this.form.gbRegion!.substring(0, 2)),
-      parseInt(this.form.gbRegion!.substring(0, 4)),
-      parseInt(this.form.gbRegion!.substring(0, 6))
-    ]
     this.$nextTick(() => {
+      this.form.address = list
       this.addressChange()
     })
   }
 
+  /**
+   * 填充需要动态设置的第4级地址列表
+   */
   public async regionChange(val: any) {
-    if (val.length !== 3 || !val[0] || !val[1] || !val[2]) {
+    if (val.length !== 4 || !val[0] || !val[1] || !val[2] || !val[3]) {
       return
     }
     let index1 = this.regionList.findIndex((item: any) => {
@@ -176,42 +169,39 @@ export default class CreateMixin extends Vue {
           return item.code === val[2]
         })
         if (index3 !== -1) {
-          if (this.lianzhouFlag) {
-            this.regionList[index1].children[index2].children[index3].children = await this.getExpandList(val[2])
-          }
+          this.regionList[index1].children[index2].children[index3].children = await getChildAddress(val[2], 4)
         } else {
-          this.form.gbRegion = this.regionList[index1].children[index2].children[0].code + '00'
+          // this.form.gbRegion = this.regionList[index1].children[index2].children[0].code + '00'
         }
       } else {
-        this.form.gbRegion = this.regionList[index1].children[0].children[0].code + '00'
+        // this.form.gbRegion = this.regionList[index1].children[0].children[0].code + '00'
       }
     }
   }
-  public async getExpandList(id: any) {
-    let params: any = {
-      pid: id,
-      level: this.lianzhouFlag ? 5 : 4
-    }
-    let res = await getAddressArea(params)
-    if (res.areas.length) {
-      return res.areas.map((item: any) => {
-        return {
-          name: item.name,
-          code: item.id,
-          level: item.level
-        }
-      })
-    }
-  }
 
-  public addressChange() {
+  /**
+   * 当选中设备地址变化时触发
+   */
+  public async addressChange() {
     if (!this.form.address) return
     const addressCascader: any = this.$refs['addressCascader']
     if (addressCascader && addressCascader.getCheckedNodes()[0]) {
       const currentAddress = addressCascader.getCheckedNodes()[0].data
-      this.form.gbRegion = this.lianzhouFlag ? currentAddress.code : currentAddress.code + '00'
+      this.form.gbRegion = suffixZero(currentAddress.code, 8) // 不足8位的补0
       this.form.gbRegionLevel = currentAddress.level
     }
+  }
+
+  /**
+   * 动态加载级联地址子集
+   */
+  public async loadChildAddress(node, resolve) {
+    if (node.level < 3) { // level1-3是前端保存的静态省市区数据
+      resolve()
+      return
+    }
+    let list = await getChildAddress(node.data.code, node.level + 1)
+    resolve(list)
   }
 
   /*

@@ -7,7 +7,7 @@ import { queryGroup } from '@/api/group'
 import { GroupModule } from '@/store/modules/group'
 import { DeviceModule } from '@/store/modules/device'
 // import { DeviceStatus, DeviceGb28181Type, RecordStatus, RecordStatusType, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType } from '@/dics'
-import { getDevice, getAddressArea } from '@/api/device'
+import { getDevice, getChildAddress } from '@/api/device'
 import { DeviceStatus, DeviceGb28181Type, RecordStatus, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType, RecordStatusType } from '@/dics'
 import { getDeviceResources } from '@/api/billing'
 import TemplateBind from '../../components/templateBind.vue'
@@ -116,7 +116,6 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     2: '子码流',
     3: '第三码流'
   }
-  public lianzhouFlag: boolean = false
   public regionList = regionList
   public lianzhouAddress: string = ''
 
@@ -195,8 +194,6 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     } else {
       this.activeName = 'info'
     }
-    // TODO: 连州教育局一机一档专用
-    this.lianzhouFlag = this.$store.state.user.tags.isLianZhouEdu === 'Y'
     await this.getDevice()
     await this.getDeviceResources()
     await this.getAddress(this.info!.gbRegion)
@@ -243,59 +240,49 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   }
 
   /**
-   * 获取连州region
+   * 获取设备地址
    */
   public async getAddress(gbRegion: any) {
     this.$set(this.info!, 'address', '')
-    if (this.lianzhouFlag) {
-      let res = await getAddressArea({
-        pid: 441882,
-        level: 5
+    const list = []
+    for (let i = 0; i < 4; i++) {
+      if (gbRegion!.substring(i * 2, i * 2 + 2) !== '00') {
+        list.push(parseInt(gbRegion!.substring(0, (i + 1) * 2)))
+      }
+    }
+    const region0 = allRegionList.find((item0: any) => {
+      return item0.code === list[0]
+    })
+    if (region0) {
+      this.info!.address += region0.name
+      const region1 = region0.children.find((item1: any) => {
+        return item1.code === list[1]
       })
-      this.info!.address = '广东省/清远市/连州市'
-      let lianzhouArea = res.areas.map((item: any) => {
-        return {
-          name: item.name,
-          code: item.id,
-          level: item.level
-        }
-      })
-      lianzhouArea.forEach((item: any) => {
-        if (item.code === gbRegion) {
-          this.info!.address += `/${item.name}`
-        }
-      })
-    } else {
-      const list = [
-        parseInt(gbRegion!.substring(0, 2)),
-        parseInt(gbRegion!.substring(0, 4)),
-        parseInt(gbRegion!.substring(0, 6))
-      ]
-      let region0 = allRegionList.find((item0: any) => {
-        return item0.code === list[0]
-      })
-      if (region0) {
-        this.info!.address += region0.name
-        let region1 = region0.children.find((item1: any) => {
-          return item1.code === list[1]
+      if (region1) {
+        this.info!.address += '/' + region1.name
+        const region2 = region1.children.find((item2: any) => {
+          return item2.code === list[2]
         })
-        if (region1) {
-          this.info!.address += '/' + region1.name
-          let region2 = region1.children.find((item2: any) => {
-            return item2.code === list[2]
-          })
-          if (region2) {
-            this.info!.address += '/' + region2.name
-          } else {
-            this.info!.address += '/' + region1.children[0].name
+        if (region2) {
+          this.info!.address += '/' + region2.name
+          // 四级数据从后端获取
+          if (list.length === 4) {
+            const level4List = getChildAddress(list[2], 4)
+            const region3 = (await level4List).find((item3: any) => {
+              return item3.code === list[3]
+            })
+            if (region3) {
+              this.info!.address += '/' + region3.name
+            }
           }
-        } else {
-          this.info!.address += '/' + region0.children[0].name + '/' + region0.children[0].children[0].name
         }
       }
     }
   }
 
+  /**
+   * 判断是否为专线
+   */
   public get isPrivateInNetwork() {
     return this.inNetworkType && this.inNetworkType !== 'public'
   }

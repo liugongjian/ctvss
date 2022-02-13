@@ -128,14 +128,14 @@
           <el-cascader
             ref="addressCascader"
             v-model="form.address"
-            expand-trigger="click"
+            expand-trigger="hover"
             :disabled="form.gbId !== ''"
             :options="regionList"
             :props="addressProps"
             @change="addressChange"
           />
         </el-form-item>
-        <el-form-item v-if="lianzhouFlag" v-show="form.deviceType !== 'platform'" label="经纬度:" prop="longlat">
+        <el-form-item  v-show="form.deviceType !== 'platform'" label="经纬度:" prop="longlat">
           <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
           <el-input v-model="form.deviceLatitude" class="longlat-input" />
         </el-form-item>
