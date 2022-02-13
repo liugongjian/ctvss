@@ -186,6 +186,7 @@ export default class CreateMixin extends Vue {
     if (!this.form.address) return
     const addressCascader: any = this.$refs['addressCascader']
     if (addressCascader && addressCascader.getCheckedNodes()[0]) {
+      addressCascader.dropDownVisible = false // 选择后自动关闭弹框
       const currentAddress = addressCascader.getCheckedNodes()[0].data
       this.form.gbRegion = suffixZero(currentAddress.code, 8) // 不足8位的补0
       this.form.gbRegionLevel = currentAddress.level
