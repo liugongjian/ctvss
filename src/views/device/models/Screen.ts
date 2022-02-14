@@ -29,6 +29,8 @@ export default class Screen {
   public currentDate?: any
   public currentTime?: number
   public isCache?: boolean
+  public allAddress?:any
+  public volume?:any
 
   constructor() {
     this.deviceId = ''
@@ -55,6 +57,8 @@ export default class Screen {
     this.currentDate = null
     this.currentTime = null
     this.isCache = false
+    this.allAddress = ''
+    this.volume = 30
   }
 
   public async getUrl() {
@@ -79,6 +83,7 @@ export default class Screen {
       }, this.axiosSource.token)
       if (res.playUrl) {
         this.url = res.playUrl.flvUrl
+        this.allAddress = res.playUrl
         this.codec = res.video.codec
       }
       this.retry = false
@@ -113,6 +118,8 @@ export default class Screen {
     this.currentDate = null
     this.currentTime = null
     this.isCache = false
+    this.allAddress = ''
+    this.volume = 30
   }
 
   public fullscreen() {

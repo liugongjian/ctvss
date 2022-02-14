@@ -43,6 +43,16 @@
         <div v-else class="controls__btn kill__volume">
           <svg-icon name="mute" class="mute_gray" width="18px" height="18px" />
         </div>
+        <el-tooltip v-if="ifCanRTC && codec !== 'h265'" placement="top">
+          <div slot="content" class="videoTypeBox">
+            <el-button type="text" size="mini" :class="videoType === 'FLV' ? 'activeVideoType' : ''" @click.stop.prevent="(e) => getVideoType(e,'FLV')">FLV</el-button>
+            <br>
+            <el-button type="text" size="mini" :class="videoType === 'RTC' ? 'activeVideoType' : ''" @click.stop.prevent="(e) => getVideoType(e,'RTC')">RTC</el-button>
+          </div>
+          <div class="controls__btn controls__snapshot videoTypeBtn">
+            <span>{{ videoType }}</span>
+          </div>
+        </el-tooltip>
         <el-tooltip v-if="inProtocol === 'gb28181'" content="开启语音对讲" placement="top">
           <div v-if="isLive" class="controls__btn controls__snapshot" @click.stop.prevent="toIntercom">
             <svg-icon name="micro" width="18px" height="18px" />
@@ -103,6 +113,7 @@ import { UserModule } from '@/store/modules/user'
 import { createPlayer } from '../models/Ctplayer'
 import { durationFormatInVideo } from '@/utils/date'
 import { checkPermission } from '@/utils/permission'
+import { ifWebRTC } from '@/utils/browser'
 
 @Component({
   name: 'Player'
@@ -195,6 +206,9 @@ export default class extends Vue {
   @Prop()
   private deviceName?: string
 
+  // 视频流全部address
+    @Prop()
+  private allAddress?: any
   // inProtocol
   @Prop() private inProtocol?:string
 
@@ -202,6 +216,9 @@ export default class extends Vue {
    * 隐藏视频工具栏
    */
   @Inject('hideTools') private hideTools: Function
+  @Prop({
+    default: 30
+  }) private volume?:number
 
   private checkPermission = checkPermission
   private isDragging: boolean = false
@@ -212,7 +229,7 @@ export default class extends Vue {
   public waiting = false
   private isZoom = false
   private playbackRate = 1
-  private volume = 30
+  // private volume = 30
   private playbackRateList = [16, 8, 4, 2, 1.5, 1, 0.5, 0.25]
   private videoMoveData: any = {
     x: null,
@@ -229,6 +246,8 @@ export default class extends Vue {
   private durationFormatInVideo = durationFormatInVideo
   private resizeObserver?: any
   private error = ''
+  private videoType=''
+  private ifCanRTC = false
 
   get username() {
     return UserModule.name
@@ -252,9 +271,39 @@ export default class extends Vue {
     //   this.type = 'flv'
     //   this.isWs = false
     // }
+
+    if (!this.allAddress.comefrom || this.allAddress.comefrom !== 'bugger') {
+      this.getVideoType()
+    }
+
     this.createPlayer()
     this.setPlayVolume(this.volume)
     if (this.isLive) document.addEventListener('visibilitychange', this.reloadPlayer)
+  }
+
+  private getVideoType(eve:any = '', kind:any = '') {
+    if (eve) {
+      eve.currentTarget.blur()
+    }
+
+    if (!kind) {
+      if (ifWebRTC() && this.allAddress.webrtcUrl) {
+        // this.videoType = 'RTC'
+        this.ifCanRTC = true
+      } else {
+        // this.videoType = 'FLV'
+        this.ifCanRTC = false
+      }
+      this.videoType = 'FLV'
+    } else {
+      this.videoType = kind
+      this.disposePlayer()
+      const $video:any = this.$refs.video
+      $video.innerHtml = ''
+      this.$nextTick(() => {
+        this.createPlayer()
+      })
+    }
   }
 
   private beforeDestroy() {
@@ -303,6 +352,8 @@ export default class extends Vue {
         isWs: this.isWs,
         playbackRate: this.playbackRate,
         volume: this.volume,
+        allAddress: this.allAddress,
+        videoType: this.videoType,
         onTimeUpdate: this.onTimeUpdate,
         onDurationChange: this.onDurationChange,
         onBuffered: this.onBuffered,
@@ -962,5 +1013,16 @@ export default class extends Vue {
         opacity: 1;
       }
     }
+    .videoTypeBtn{
+      color: #fff;
+    }
   }
+.videoTypeBox{
+  ::v-deep .el-button--mini{
+    color: #fff;
+    &.activeVideoType{
+      color: #FA8334;
+    }
+  }
+}
 </style>

@@ -226,6 +226,8 @@
                           :has-playback="true"
                           :device-name="screen.deviceName"
                           :stream-num="screen.streamNum"
+                          :all-address="screen.allAddress"
+                          :volume="screen.volume"
                           @onCanPlay="playEvent(screen, ...arguments)"
                           @onRetry="onRetry(screen, ...arguments)"
                           @onPlayback="onPlayback(screen)"
@@ -717,6 +719,9 @@ export default class extends Mixins(ScreenMixin) {
 
   // 实时对讲
   private onIntercom(screen:any, flag:boolean) {
+    for (let i = 0; i < this.screenList.length; i++) {
+      this.screenList[i].volume = 0
+    }
     this.intercomInfo = screen
     this.ifIntercom = flag
   }

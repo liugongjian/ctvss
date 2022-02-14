@@ -22,7 +22,9 @@
         :is-live="true"
         :is-fullscreen="isFullscreen"
         :has-control="false"
+        :all-address="address"
         :in-protocol="inProtocol"
+        :volume="volume"
         @onCanPlay="onCanPlay"
         @onRetry="onRetry"
         @onFullscreen="fullscreen"
@@ -99,6 +101,7 @@ export default class extends Vue {
 
   private intercomInfo = {}
   private ifIntercom = false
+  private volume = 30
 
   @Watch('$route.query')
   private onRouterChange() {
@@ -126,6 +129,7 @@ export default class extends Vue {
 
   // 实时对讲
   private onIntercom(screen:any, flag:boolean) {
+    this.volume = 0
     this.intercomInfo = screen
     this.ifIntercom = flag
   }
@@ -185,7 +189,8 @@ export default class extends Vue {
         codec: this.codec,
         deviceId: this.deviceId,
         inProtocol: this.inProtocol,
-        isLive: true
+        isLive: true,
+        allAddress: this.address
       }
     } catch (e) {
       if (e.code === 5) {
