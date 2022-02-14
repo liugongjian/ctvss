@@ -103,7 +103,7 @@
                 <el-descriptions-item label="设备国标ID">
                   {{ info.gbId || '-' }}
                 </el-descriptions-item>
-                <el-descriptions-item label="GB28181账号">
+                <el-descriptions-item label="GB28181凭证注册用户名">
                   {{ info.userName }}
                 </el-descriptions-item>
                 <!--NVR信息-->
@@ -243,9 +243,9 @@ export default class extends Mixins(detailMixin) {
 }
 </script>
 <style lang="scss" scoped>
-  .detail-wrap {
-    ::v-deep .el-descriptions-item__label {
-      min-width: 130px;
-    }
+.detail-wrap {
+  ::v-deep .el-descriptions-item__label {
+    min-width: 130px;
   }
+}
 </style>
