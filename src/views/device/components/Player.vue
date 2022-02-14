@@ -2,6 +2,7 @@
   <div ref="videoWrap" v-loading="waiting" class="video-wrap" :class="{'dragging': isDragging}">
     <div class="error">{{ error }}</div>
     <div ref="video" class="video-ref" @wheel="zoom" @mousedown="mouseDownHandle($event)" @mouseup="mouseUpHandle($event)" />
+    <div v-if="showCanvasBox" class="canvasScaleBox"><canvas /></div>
     <div class="controls" :class="{'controls--large': hasProgress}">
       <div v-if="codec === 'h265'" class="controls__h265">
         <svg-icon name="h265" width="40px" height="22px" />
@@ -91,6 +92,19 @@
             <svg-icon name="ipc" width="18px" height="18px" />
           </div>
         </el-tooltip>
+        <el-tooltip placement="top">
+          <div slot="content" class="videoScaleBox">
+            <el-button v-for="item in scaleKind" :key="item.kind" :class="scaleVal === item.kind ? 'selected' : ''" type="text" size="mini" @click.stop.prevent="(e) => scaleVideo(e,item.kind)">{{ item.label }}</el-button>
+          </div>
+          <div class="controls__btn controls__snapshot videoTypeBtn">
+            <svg-icon name="screenratio" width="18px" height="18px" />
+          </div>
+        </el-tooltip>
+        <el-tooltip placement="top" :content="showCanvasBox ? '关闭缩放比例修改' : '开启缩放比例修改'">
+          <div class="controls__btn controls__snapshot videoTypeBtn" :class="{'selected': showCanvasBox}" @click.stop.prevent="changeScaleCanvas">
+            <svg-icon name="screenscale" width="18px" height="18px" />
+          </div>
+        </el-tooltip>
         <template v-if="hasFullscreen">
           <el-tooltip v-if="!isFullscreen" content="进入全屏" placement="top">
             <div class="controls__btn controls__fullscreen" @click.stop.prevent="fullscreen">
@@ -113,6 +127,8 @@ import { UserModule } from '@/store/modules/user'
 import { createPlayer } from '../models/Ctplayer'
 import { durationFormatInVideo } from '@/utils/date'
 import { checkPermission } from '@/utils/permission'
+import { scaleKind } from '@/dics/index'
+import { dragCanvasZoom } from '@/api/device'
 import { ifWebRTC } from '@/utils/browser'
 
 @Component({
@@ -211,6 +227,8 @@ export default class extends Vue {
   private allAddress?: any
   // inProtocol
   @Prop() private inProtocol?:string
+   @Prop() private deviceId?: number | string
+  @Prop() private videoInfo?:string
 
   /**
    * 隐藏视频工具栏
@@ -249,6 +267,17 @@ export default class extends Vue {
   private videoType=''
   private ifCanRTC = false
 
+  private scaleKind = scaleKind
+  private scaleVal = ''
+  private showCanvasBox = false
+  private canvasShape:any = {}
+  private oCanvas:any
+  private ctxShape:any
+  private ctxDrawState = false
+  private oCanvasWidth?:number
+  private oCanvasHeight?:number
+  private userScaleConfig:any
+
   get username() {
     return UserModule.name
   }
@@ -275,7 +304,7 @@ export default class extends Vue {
     if (!this.allAddress.comefrom || this.allAddress.comefrom !== 'bugger') {
       this.getVideoType()
     }
-
+    this.getUserScaleConfig()
     this.createPlayer()
     this.setPlayVolume(this.volume)
     if (this.isLive) document.addEventListener('visibilitychange', this.reloadPlayer)
@@ -328,10 +357,11 @@ export default class extends Vue {
         // const mainBox: any = this.$refs.videoWrap
         this.playerFitSize(mainBox.clientWidth, mainBox.clientHeight, player)
       } else {
-        player.style.width = ''
-        player.style.height = ''
-        player.style.top = ''
-        player.style.left = ''
+        // player.style.width = ''
+        // player.style.height = ''
+        // player.style.top = ''
+        // player.style.left = ''
+        this.playerFitSize(mainBox.clientWidth, mainBox.clientHeight, player)
       }
     }
   }
@@ -390,7 +420,7 @@ export default class extends Vue {
         }
       })
       this.$nextTick(() => {
-        const $video: any = this.$refs.video
+        const $video = this.$refs.video as HTMLDivElement
         const mainBox: any = this.$refs.videoWrap
         let player = $video.querySelector('video')
         if (this.codec === 'h265') {
@@ -404,6 +434,9 @@ export default class extends Vue {
             this.playerFS()
           })
           this.resizeObserver.observe(targetNode)
+        } else {
+          this.playerFS()
+          // const { clientHeight, clientWidth } = this.player.flv._mediaElement
         }
         this.videoMoveData.player = player
         this.videoMoveData.mainBox = mainBox
@@ -413,23 +446,248 @@ export default class extends Vue {
     }
   }
 
+  public getUserScaleConfig() {
+    const userScaleConfig:Array<any> = this.$store.state.user.userConfigInfo || []
+    const scaleInfo = userScaleConfig.find((item:any) => item.key === 'videoScale')
+    const scaleNum = scaleInfo ? scaleInfo.value : '-1'
+    this.userScaleConfig = scaleNum
+  }
+
   public playerFS() {
-    const mainBox: any = this.$refs.videoWrap
-    if (!mainBox) return
-    const player = mainBox.querySelector('.player-box')
-    this.playerFitSize(mainBox.clientWidth, mainBox.clientHeight, player)
+    if (this.codec === 'h265') {
+      const mainBox: any = this.$refs.videoWrap
+      if (!mainBox) return
+      const player = mainBox.querySelector('.player-box')
+      this.playerFitSize(mainBox.clientWidth, mainBox.clientHeight, player)
+    } else {
+      const $video: any = this.$refs.video
+      const player = $video.querySelector('video')
+      this.playerFitSize($video.clientWidth, $video.clientHeight, player)
+    }
   }
 
   public playerFitSize(width: number, height: number, player: any) {
-    if (width / height > 16 / 9) {
-      player.style.height = '100%'
-      player.style.width = height * 16 / 9 + 'px'
-    } else {
-      player.style.width = '100%'
-      player.style.height = width * 9 / 16 + 'px'
+    const videoContain = this.codec === 'h265' ? player.querySelector('canvas') : player
+
+    // 替代eval，计算字符串
+    const replaceEvalByFunction = (obj:any) => {
+      return window.Function('"use strict";return (' + obj + ')')()
     }
+
+    let thisScale = ''
+
+    if (this.scaleVal) {
+      thisScale = this.scaleVal
+    } else if (this.userScaleConfig > 0) {
+      const scaleValue = this.scaleKind.find((item:any) => item.num === this.userScaleConfig)
+      thisScale = scaleValue.kind
+      this.scaleVal = scaleValue.kind
+    } else {
+      thisScale = 'fit'
+      this.scaleVal = 'fit'
+    }
+
+    switch (thisScale) {
+      case '16 / 9':
+      case '4 / 3':
+        {
+          const tempScale = replaceEvalByFunction(this.scaleVal)
+          if (width / height > tempScale) {
+            player.style.height = '100%'
+            player.style.width = height * tempScale + 'px'
+          } else {
+            player.style.width = '100%'
+            player.style.height = width * (1 / tempScale) + 'px'
+          }
+          videoContain.style.objectFit = 'initial'
+        }
+        break
+      case 'normal':
+        player.style.height = `${height}px`
+        player.style.width = `${width}px`
+        videoContain.style.objectFit = 'contain'
+        break
+      case 'fit':
+        player.style.height = `${height}px`
+        player.style.width = `${width}px`
+        videoContain.style.objectFit = 'fill'
+        break
+      default:
+        // if (width / height > 16 / 9) {
+        //   player.style.height = '100%'
+        //   player.style.width = height * 16 / 9 + 'px'
+        // } else {
+        //   player.style.width = '100%'
+        //   player.style.height = width * 9 / 16 + 'px'
+        // }
+        // videoContain.style.objectFit = 'initial'
+        player.style.height = `${height}px`
+        player.style.width = `${width}px`
+        videoContain.style.objectFit = 'fill'
+        break
+    }
+    // if (width / height > 16 / 9) {
+    //   player.style.height = '100%'
+    //   player.style.width = height * 16 / 9 + 'px'
+    // } else {
+    //   player.style.width = '100%'
+    //   player.style.height = width * 9 / 16 + 'px'
+    // }
     player.style.left = (width - player.clientWidth) / 2 + 'px'
     player.style.top = (height - player.clientHeight) / 2 + 'px'
+  }
+
+  public changeScaleCanvas() {
+    this.showCanvasBox = !this.showCanvasBox
+    this.isZoom = false
+    if (this.showCanvasBox) {
+      let player:any, ctxBox:any
+      if (this.codec === 'h265') {
+        ctxBox = this.$refs.videoWrap
+        player = ctxBox.querySelector('.player-box')
+      } else {
+        ctxBox = this.$refs.video
+        player = ctxBox.querySelector('video')
+      }
+      this.$nextTick(() => {
+        const oDom = document.querySelector('.canvasScaleBox')
+        this.oCanvas = oDom.querySelector('canvas')
+        this.oCanvas.style.width = `${player.clientWidth}px`
+        this.oCanvas.style.height = `${player.clientHeight}px`
+        this.oCanvasWidth = player.clientWidth
+        this.oCanvasHeight = player.clientHeight
+        this.oCanvas.style.position = 'absolute'
+        this.oCanvas.style.left = `${(ctxBox.clientWidth - player.clientWidth) / 2}px`
+        this.oCanvas.style.top = `${(ctxBox.clientHeight - player.clientHeight) / 2}px`
+        this.ctxShape = this.oCanvas.getContext('2d')
+        this.oCanvas.addEventListener('mousedown', (e) => { this.canvasMouseDown(e) })
+        this.oCanvas.addEventListener('mousemove', (e) => { this.canvasMouseMove(e) })
+        this.oCanvas.addEventListener('mouseup', (e) => { this.canvasMouseUp(e) })
+        this.oCanvas.addEventListener('mouseleave', this.canvasMouseleave)
+      })
+    } else {
+      this.removeListener()
+    }
+  }
+
+  // 解绑canvas缩放事件
+  private removeListener() {
+    this.oCanvas.removeEventListener('mousedown', (e) => { this.canvasMouseDown(e) })
+    this.oCanvas.removeEventListener('mousemove', (e) => { this.canvasMouseMove(e) })
+    this.oCanvas.removeEventListener('mouseup', (e) => { this.canvasMouseUp(e) })
+    this.oCanvas.removeEventListener('mouseleave', this.canvasMouseleave)
+  }
+
+  // 获取canvas 点坐标
+  private getCanvasMousePos(e:any) {
+    // e.clientX, e.clientY
+    const {
+      x: canvasClientX, y: canvasClientY, width, height, left, top
+    } = this.oCanvas?.getBoundingClientRect()
+    const pointX = (e.clientX - left) * this.oCanvas.width / width
+    const pointY = (e.clientY - top) * this.oCanvas.height / height
+    const curPoint = [ pointX, pointY ]
+    // 超出边界
+    if (pointX > canvasClientX + width || pointX < 0) {
+      return false
+    }
+    if (pointY > canvasClientY + height || pointY < 0) {
+      return false
+    }
+    return curPoint
+  }
+  // 画矩形
+  private drawRect() {
+    if (this.oShape && Object.keys(this.oShape).length > 0) {
+      this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
+      this.ctxShape.strokeStyle = '#50E3C2'
+      this.ctxShape.beginPath()
+      this.ctxShape.rect(this.oShape.startX, this.oShape.startY, this.oShape.endX - this.oShape.startX,
+        this.oShape.endY - this.oShape.startY)
+      this.ctxShape.stroke()
+    }
+  }
+
+  private canvasMouseDown(e:any) {
+    const mousePos = this.getCanvasMousePos(e)
+    if (!mousePos) return
+    const [x, y] = mousePos
+    if (!this.iShape || Object.keys(this.oShape).length === 0) {
+      this.ctxDrawState = true
+      this.oShape = {
+        startX: x,
+        startY: y
+      }
+    }
+  }
+
+  private canvasMouseMove(e:any) {
+    if (this.oShape && this.ctxDrawState) {
+      const mousePos = this.getCanvasMousePos(e)
+      if (!mousePos) {
+        this.removeListener()
+        return
+      }
+      const [x, y] = mousePos
+      // 鼠标结束的位置
+      this.oShape.endX = x
+      this.oShape.endY = y
+      this.drawRect()
+    }
+  }
+
+  private canvasMouseUp(e:any) {
+    // TODO 鼠标移入黑色区域，取消画框
+    const mousePos = this.getCanvasMousePos(e)
+    if (!mousePos) return
+    // const [x, y] = mousePos
+    const { startX, startY, endX, endY } = this.oShape
+    const { Width = 0, Height = 0 } = this.videoInfo ? JSON.parse(this.videoInfo) : {}
+
+    if (!endX || !endY) {
+      return
+    }
+
+    const tempRatioWidth = this.oCanvas.width / Width
+    const tempRatioHeight = this.oCanvas.height / Height
+
+    const lengthX = Math.round(Math.abs(endX - startX) / tempRatioWidth).toString()
+    const lengthY = Math.round(Math.abs(endY - startY) / tempRatioHeight).toString()
+    const midPointX = Math.round((endX + startX) / 2 / tempRatioWidth).toString()
+    const midPointY = Math.round((endY + startY) / 2 / tempRatioHeight).toString()
+    const command = endX > startX ? 'zoomIn' : 'zoomOut'
+
+    this.oShape = {}
+    this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
+    this.ctxDrawState = false
+    this.removeListener()
+
+    const param = {
+      deviceId: this.deviceId,
+      command,
+      length: Height.toString(),
+      width: Width.toString(),
+      midPointX,
+      midPointY,
+      lengthX,
+      lengthY
+    }
+    dragCanvasZoom(param).then(() => {
+      this.$message.success('请等待设备调整角度')
+      this.showCanvasBox = false
+    }).catch(err => {
+      this.$message.error(err)
+      this.showCanvasBox = false
+    })
+  }
+
+  public canvasMouseleave() {
+    if (this.oShape && Object.keys(this.oShape).length > 0) {
+      this.oShape = {}
+      this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
+      this.ctxDrawState = false
+    }
+    this.removeListener()
   }
 
   public disposePlayer() {
@@ -643,6 +901,7 @@ export default class extends Vue {
    */
   public toggleZoom() {
     this.isZoom = !this.isZoom
+    this.showCanvasBox = false
   }
   // 实时对讲
   public toIntercom(event:any) {
@@ -677,6 +936,13 @@ export default class extends Vue {
     } else {
       this.$message.error('您当前浏览器或者协议暂不支持麦克风')
     }
+  }
+
+  // 视频缩放
+  public scaleVideo(event:any, kind:any) {
+    event.currentTarget.blur()
+    this.scaleVal = kind
+    this.playerFS()
   }
 
   /**
@@ -1016,6 +1282,29 @@ export default class extends Vue {
     .videoTypeBtn{
       color: #fff;
     }
+  }
+    .videoScaleBox{
+      width: 50px;
+      ::v-deep .el-button--mini{
+        display: block;
+        width: 80%;
+        color: #fff;
+        margin-left:0;
+        text-align: left;
+        &:hover{
+          color: #FA8334;
+        }
+        &.selected{
+          color: #FA8334;
+        }
+      }
+  }
+  .canvasScaleBox{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height:100%;
   }
 .videoTypeBox{
   ::v-deep .el-button--mini{
