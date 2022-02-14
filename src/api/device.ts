@@ -409,3 +409,11 @@ export const getDeviceEvents = (params: any): Promise<any> =>
     method: 'get',
     params
   })
+
+// player组件  缩放
+export const dragCanvasZoom = (params:any): Promise<any> =>
+  request({
+    url: '/ptz/dragzoom',
+    method: 'post',
+    data: params
+  })

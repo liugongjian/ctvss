@@ -24,6 +24,8 @@
         :has-control="false"
         :all-address="address"
         :in-protocol="inProtocol"
+        :device-id="deviceId"
+        :video-info="videoInfo"
         :volume="volume"
         @onCanPlay="onCanPlay"
         @onRetry="onRetry"
@@ -101,6 +103,7 @@ export default class extends Vue {
 
   private intercomInfo = {}
   private ifIntercom = false
+  private videoInfo = {}
   private volume = 30
 
   @Watch('$route.query')
@@ -184,6 +187,7 @@ export default class extends Vue {
       this.address = res.playUrl
       this.codec = res.video.codec
       this.retry = false
+      this.videoInfo = res.videoInfo
       this.intercomInfo = {
         url: this.address.flvUrl,
         codec: this.codec,

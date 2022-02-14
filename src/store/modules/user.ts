@@ -11,7 +11,6 @@ import { TagsViewModule } from './tags-view'
 import { DeviceModule } from '@/store/modules/device'
 import { VGroupModule } from '@/store/modules/vgroup'
 import store from '@/store'
-
 export interface IUserState {
   token: string
   name: string
@@ -283,6 +282,10 @@ class User extends VuexModule implements IUserState {
       this.SET_MAIN_USER_ADDRESS(userInfo.address)
       this.SET_MAIN_USER_TAGS(userInfo.tags)
     }
+
+    const userConfigInfo:any = await getUserConfig()
+    this.SET_USER_CONFIG(userConfigInfo.userConfig)
+
     let data: any = null
     if (this.iamUserId) {
       data = await getIAMUserInfo({ iamUserId: this.iamUserId })
@@ -422,6 +425,12 @@ class User extends VuexModule implements IUserState {
     localStorage.clear()
     return result
   }
+
+  // @Action({ rawError: true })
+  // public async getUserConfig() {
+  //   const data:any = await getUserConfig()
+  //   this.SET_USER_CONFIG(data.userConfig)
+  // }
 }
 
 export const UserModule = getModule(User)

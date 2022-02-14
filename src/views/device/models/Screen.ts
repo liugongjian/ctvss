@@ -29,6 +29,7 @@ export default class Screen {
   public currentDate?: any
   public currentTime?: number
   public isCache?: boolean
+  public videoInfo?: string
   public allAddress?:any
   public volume?:any
 
@@ -57,6 +58,7 @@ export default class Screen {
     this.currentDate = null
     this.currentTime = null
     this.isCache = false
+    this.videoInfo = ''
     this.allAddress = ''
     this.volume = 30
   }
@@ -85,6 +87,7 @@ export default class Screen {
         this.url = res.playUrl.flvUrl
         this.allAddress = res.playUrl
         this.codec = res.video.codec
+        this.videoInfo = res.videoInfo
       }
       this.retry = false
     } catch (e) {
