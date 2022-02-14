@@ -105,8 +105,12 @@ export const sortDeviceTree = (params: any): Promise<any> => {
 export const getDevicePreview = (params: any, cancelToken?: any): Promise<any> => {
   const headers = params['self-defined-headers']
   delete params['self-defined-headers']
+  const url = params.isAi ? '/ai/preview' : '/device/preview'
+  if (params.isAi) {
+    params.deviceId = '29942112174762859'
+  }
   return request({
-    url: '/device/preview',
+    url,
     method: 'get',
     params: {
       outProtocol: 'rtmp,flv,hls',

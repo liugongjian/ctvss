@@ -43,6 +43,11 @@
         <div v-else class="controls__btn kill__volume">
           <svg-icon name="mute" class="mute_gray" width="18px" height="18px" />
         </div>
+        <el-tooltip content="开启AI分析" placement="top">
+          <div v-if="isLive" class="controls__btn controls__ai" :class="{'selected': isAi}" @click.stop.prevent="toggleAi">
+            <svg-icon name="ai-face" width="18px" height="18px" />
+          </div>
+        </el-tooltip>
         <el-tooltip v-if="inProtocol === 'gb28181'" content="开启语音对讲" placement="top">
           <div v-if="isLive" class="controls__btn controls__snapshot" @click.stop.prevent="toIntercom">
             <svg-icon name="micro" width="18px" height="18px" />
@@ -175,6 +180,13 @@ export default class extends Vue {
     default: false
   })
   private isWs?: boolean
+  /**
+   * 是否启用AI流
+   */
+  @Prop({
+    default: false
+  })
+  private isAi?: boolean
   /**
    * 是否支持全屏显示
    */
@@ -588,6 +600,15 @@ export default class extends Vue {
   public toggleZoom() {
     this.isZoom = !this.isZoom
   }
+
+  /**
+   * AI分析开关
+   * TODO: FLV AI
+   */
+  public toggleAi() {
+    this.$emit('onSetIsAi', !this.isAi)
+  }
+
   // 实时对讲
   public toIntercom(event:any) {
     event.currentTarget.blur()

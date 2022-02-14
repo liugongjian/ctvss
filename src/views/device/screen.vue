@@ -219,6 +219,7 @@
                           :url="screen.url"
                           :is-live="true"
                           :is-ws="true"
+                          :is-ai="screen.isAi"
                           :is-fullscreen="screen.isFullscreen"
                           :in-protocol="screen.inProtocol"
                           :auto-play="true"
@@ -232,6 +233,7 @@
                           @onFullscreen="screen.fullscreen();fullscreen()"
                           @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
                           @onIntercom="onIntercom(screen,true)"
+                          @onSetIsAi="onSetIsAi(screen, ...arguments)"
                         />
                         <div v-if="!screen.url && !screen.loading" class="tip-text">{{ screen.errorMsg || '无信号' }}</div>
                       </div>
@@ -704,6 +706,16 @@ export default class extends Mixins(ScreenMixin) {
   private onIntercom(screen:any, flag:boolean) {
     this.intercomInfo = screen
     this.ifIntercom = flag
+  }
+
+  /**
+   * 切换是否显示AI流
+   */
+  private onSetIsAi(screen: Screen, isAi: boolean) {
+    screen.isAi = isAi
+    console.log(screen)
+    screen.url = ''
+    screen.getUrl()
   }
 
   /**

@@ -20,6 +20,7 @@
         :auto-play="true"
         :is-ws="true"
         :is-live="true"
+        :is-ai="isAi"
         :is-fullscreen="isFullscreen"
         :has-control="false"
         :in-protocol="inProtocol"
@@ -28,6 +29,7 @@
         @onFullscreen="fullscreen"
         @onExitFullscreen="exitFullscreen"
         @onIntercom="onIntercom(intercomInfo,true)"
+        @onSetIsAi="onSetIsAi"
       />
     </div>
 
@@ -99,6 +101,7 @@ export default class extends Vue {
 
   private intercomInfo = {}
   private ifIntercom = false
+  private isAi = false
 
   @Watch('$route.query')
   private onRouterChange() {
@@ -175,7 +178,8 @@ export default class extends Vue {
       const res = await getDevicePreview({
         deviceId: this.deviceId,
         inProtocol: this.inProtocol,
-        streamNum: this.streamNum
+        streamNum: this.streamNum,
+        isAi: this.isAi
       })
       this.address = res.playUrl
       this.codec = res.video.codec
@@ -203,6 +207,15 @@ export default class extends Vue {
   private onSetStreamNum(streamNum: number) {
     this.address = ''
     this.streamNum = streamNum
+    this.getDevicePreview()
+  }
+
+  /**
+   * 切换是否显示AI流
+   */
+  private onSetIsAi(isAi: boolean) {
+    this.isAi = isAi
+    this.address = ''
     this.getDevicePreview()
   }
 
