@@ -443,8 +443,8 @@ export default class extends Vue {
   }
 
   public getUserScaleConfig() {
-    const userScaleConfig:Array<any> = this.$store.state.app.userConfigInfo || []
-    const scaleInfo = userScaleConfig.find((item:any) => item.key === 'scale')
+    const userScaleConfig:Array<any> = this.$store.state.user.userConfigInfo || []
+    const scaleInfo = userScaleConfig.find((item:any) => item.key === 'videoScale')
     const scaleNum = scaleInfo ? scaleInfo.value : '-1'
     this.userScaleConfig = scaleNum
   }
@@ -612,7 +612,6 @@ export default class extends Vue {
     const mousePos = this.getCanvasMousePos(e)
     if (!mousePos) return
     const [x, y] = mousePos
-    // console.log('isMouseInShape==>', this.isMouseInShape(e))
     if (!this.iShape || Object.keys(this.oShape).length === 0) {
       this.ctxDrawState = true
       this.oShape = {
@@ -662,8 +661,6 @@ export default class extends Vue {
     this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
     this.ctxDrawState = false
     this.removeListener()
-
-    // console.log('endINfo--->', lengthX, lengthY, midPointX, midPointY, command)
 
     const param = {
       deviceId: this.deviceId,

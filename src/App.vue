@@ -12,7 +12,6 @@ import { isIE } from '@/utils/browser'
 import { Component, Vue } from 'vue-property-decorator'
 import ServiceWorkerUpdatePopup from '@/pwa/components/ServiceWorkerUpdatePopup.vue'
 import { UserModule } from '@/store/modules/user'
-import { AppModule } from '@/store/modules/app'
 
 @Component({
   name: 'App',
@@ -32,7 +31,6 @@ export default class extends Vue {
     }
 
     !!this.ctLogin && CtcloudLayout.consoleLayout.init()
-    AppModule.getUserConfig()
   }
   get ctLogin() {
     return !!UserModule.ctLoginId

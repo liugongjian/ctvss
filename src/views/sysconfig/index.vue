@@ -19,7 +19,7 @@
         <el-tab-pane label="画面" name="frame">
           <el-form ref="formFrame" :model="formFrame" label-width="120px">
             <el-form-item label="默认画面比例">
-              <el-select v-model="formFrame.scaleVal" placeholder="请选择默认画面比例" @change="selectChange">
+              <el-select v-model="formFrame.scaleVal" placeholder="请选择默认画面比例">
                 <el-option v-for="item in scaleKind" :key="item.kind" :label="item.label" :value="item.num" />
               </el-select>
             </el-form-item>
@@ -108,8 +108,7 @@ export default class extends Vue {
   }
 
   private getUserConfigInfo() {
-    console.log('this.userConfigInfo', this.$store.state.app.userConfigInfo)
-    const userScaleConfig = this.$store.state.app.userConfigInfo
+    const userScaleConfig = this.$store.state.user.userConfigInfo
     if (userScaleConfig.length > 0) {
       this.formFrame.scaleVal = userScaleConfig.find((item:any) => item.key === 'videoScale').value
     } else {
@@ -118,11 +117,14 @@ export default class extends Vue {
   }
 
   private async save() {
-    const param = [{ key: 'videoScale', value: this.formFrame.scaleVal }]
-    setUserConfig(param).then(res => {
-      console.log(res)
-      this.$store.state.app.userConfigInfo = this.formFrame.scaleVal
-    })
+    const param = { 'userConfig': [{ key: 'videoScale', value: this.formFrame.scaleVal }] }
+    setUserConfig(param).then(() => {
+      const temp = this.$store.state.user.userConfigInfo
+      const result = temp.find((item:any) => item.key === 'videoScale')
+      result.value = this.formFrame.scaleVal
+      const final = [temp.find((item:any) => item.key !== 'videoScale'), result]
+      this.$store.state.user.userConfigInfo = final
+    }).catch(err => console.log('err->', err))
   }
 }
 

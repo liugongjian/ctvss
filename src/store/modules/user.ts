@@ -1,6 +1,6 @@
 import { VuexModule, Module, Action, Mutation, getModule } from 'vuex-module-decorators'
 import { Base64 } from 'js-base64'
-import { login, logout, getMainUserInfo, getIAMUserInfo, changePassword, resetIAMPassword } from '@/api/users'
+import { login, logout, getMainUserInfo, getIAMUserInfo, changePassword, resetIAMPassword, getUserConfig } from '@/api/users'
 import { switchUserRole, exitUserRole } from '@/api/accessManage'
 import { getToken, setToken, removeToken, getUsername, setUsername, removeUsername, getIamUserId, setIamUserId, removeIamUserId } from '@/utils/cookies'
 import { setLocalStorage, getLocalStorage } from '@/utils/storage'
@@ -11,7 +11,6 @@ import { TagsViewModule } from './tags-view'
 import { DeviceModule } from '@/store/modules/device'
 import { VGroupModule } from '@/store/modules/vgroup'
 import store from '@/store'
-
 export interface IUserState {
   token: string
   name: string
@@ -45,6 +44,7 @@ class User extends VuexModule implements IUserState {
   public mainUserAddress = ''
   public tags: any = null
   public ctLoginId = getLocalStorage('ctLoginId') || ''
+  public userConfigInfo:any = []
 
   @Mutation
   private SET_TOKEN(token: string) {
@@ -115,6 +115,11 @@ class User extends VuexModule implements IUserState {
   @Mutation
   private SET_CT_LOGIN_ID(ctLoginId: string) {
     this.ctLoginId = ctLoginId
+  }
+
+  @Mutation
+  private SET_USER_CONFIG(userConfig:any) {
+    this.userConfigInfo = userConfig
   }
 
   @Action({ rawError: true })
@@ -205,6 +210,10 @@ class User extends VuexModule implements IUserState {
       this.SET_MAIN_USER_ADDRESS(userInfo.address)
       this.SET_MAIN_USER_TAGS(userInfo.tags)
     }
+
+    const userConfigInfo:any = await getUserConfig()
+    this.SET_USER_CONFIG(userConfigInfo.userConfig)
+
     let data: any = null
     if (this.iamUserId) {
       data = await getIAMUserInfo({ iamUserId: this.iamUserId })
@@ -342,6 +351,12 @@ class User extends VuexModule implements IUserState {
 
     localStorage.clear()
     return result
+  }
+
+  @Action({ rawError: true })
+  public async getUserConfig() {
+    const data:any = await getUserConfig()
+    this.SET_USER_CONFIG(data.userConfig)
   }
 }
 
