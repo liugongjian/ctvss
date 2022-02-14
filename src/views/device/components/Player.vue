@@ -665,8 +665,8 @@ export default class extends Vue {
     const param = {
       deviceId: this.deviceId,
       command,
-      length: Height.toString(),
-      width: Width.toString(),
+      length: Width.toString(),
+      width: Height.toString(),
       midPointX,
       midPointY,
       lengthX,
