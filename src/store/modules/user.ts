@@ -50,6 +50,7 @@ class User extends VuexModule implements IUserState {
   public settings: any = {
     screenCache: {}
   }
+  public userConfigInfo:any = []
 
   @Mutation
   private SET_WHITELIST(flag: string) {
@@ -133,6 +134,11 @@ class User extends VuexModule implements IUserState {
     setLocalStorage('settings', JSON.stringify(settings))
   }
 
+  @Mutation
+  private SET_USER_CONFIG(userConfig:any) {
+    this.userConfigInfo = userConfig
+  }
+
   @Action({ rawError: true })
   public async Login(userInfo: { mainUserID?: string, userName: string, password: string}) {
     let { mainUserID, userName, password } = userInfo
@@ -174,6 +180,7 @@ class User extends VuexModule implements IUserState {
         replay: 'false'
       }
       let res = await getUserConfig()
+      this.SET_USER_CONFIG(res.userConfig)
       res.userConfig && res.userConfig.forEach(config => {
         defaultConfig[dic[config.key] || config.key] = config.value
       })
