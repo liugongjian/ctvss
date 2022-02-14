@@ -1,92 +1,73 @@
 <template>
   <div class="app-container">
-    <el-card>
+    <el-form ref="form" :model="form" :rules="rules">
       <el-tabs v-model="activeName" type="border-card">
-        <el-tab-pane label="通用" name="currency">
-          <el-form ref="form" :model="form" :rules="rules" label-width="200px">
-            <el-form-item label="是否启用短信告警">
-              <template slot="label">
-                是否启用短信告警:
-                <el-popover
-                  placement="top-start"
-                  title="是否启用短信告警"
-                  width="400"
-                  trigger="hover"
-                  :open-delay="300"
-                  content="设备/流绑定AI应用后，出现AI告警信息会向客户手机发送短信提醒，默认开启"
-                >
-                  <svg-icon slot="reference" class="form-question" name="help" />
-                </el-popover>
-              </template>
-            </el-form-item>
-            <el-form-item v-if="form.active" label="手机号" prop="phoneNumber">
-              <el-input v-model="form.phoneNumber" />
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" @click="submit">提交</el-button>
-              <el-button @click="back">取消</el-button>
-            </el-form-item>
-          </el-form>
+        <el-tab-pane label="通用" name="common">
+          <el-form-item label="是否启用短信告警" label-width="200px">
+            <template slot="label">
+              是否启用短信告警:
+              <el-popover
+                placement="top-start"
+                title="是否启用短信告警"
+                width="400"
+                trigger="hover"
+                :open-delay="300"
+                content="设备/流绑定AI应用后，出现AI告警信息会向客户手机发送短信提醒，默认开启"
+              >
+                <svg-icon slot="reference" class="form-question" name="help" />
+              </el-popover>
+            </template>
+            <el-switch v-model="form.active" />
+          </el-form-item>
+          <el-form-item v-if="form.active" label="手机号" prop="phoneNumber">
+            <el-input v-model="form.phoneNumber" />
+          </el-form-item>
+          <el-form-item prop="screen" label-width="200px">
+            <template slot="label">
+              实时预览记录功能:
+              <el-popover
+                placement="top-start"
+                title="实时预览记录功能"
+                width="400"
+                trigger="hover"
+                :open-delay="300"
+                :content="tips.screen"
+              >
+                <svg-icon slot="reference" class="form-question" name="help" />
+              </el-popover>
+            </template>
+            <el-switch v-model="form.screen" active-value="true" inactive-value="false" />
+          </el-form-item>
+          <el-form-item prop="replay" label-width="200px">
+            <template slot="label">
+              录像回看记录功能:
+              <el-popover
+                placement="top-start"
+                title="录像回看记录功能"
+                width="400"
+                trigger="hover"
+                :open-delay="300"
+                :content="tips.replay"
+              >
+                <svg-icon slot="reference" class="form-question" name="help" />
+              </el-popover>
+            </template>
+            <el-switch v-model="form.replay" active-value="true" inactive-value="false" />
+          </el-form-item>
         </el-tab-pane>
         <el-tab-pane label="画面" name="frame">
-          <el-form ref="formFrame" :model="formFrame" label-width="120px">
-            <el-form-item label="默认画面比例">
-              <el-select v-model="formFrame.scaleVal" placeholder="请选择默认画面比例">
-                <el-option v-for="item in scaleKind" :key="item.kind" :label="item.label" :value="item.num" />
-              </el-select>
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" @click="save">保存</el-button>
-              <el-button @click="back">取消</el-button>
-            </el-form-item>
-          </el-form>
+          <el-form-item label="默认画面比例">
+            <el-select v-model="form.scaleVal" placeholder="请选择默认画面比例">
+              <el-option v-for="item in scaleKind" :key="item.kind" :label="item.label" :value="item.num" />
+            </el-select>
+          </el-form-item>
         </el-tab-pane>
       </el-tabs>
-      <!-- <el-form ref="form" :model="form" :rules="rules" label-width="200px">
-        <el-form-item label="是否启用短信告警">
-          <el-switch v-model="form.active" />
-        </el-form-item>
-        <el-form-item v-if="form.active" label="手机号:" prop="phoneNumber">
-          <el-input v-model="form.phoneNumber" />
-        </el-form-item>
-        <el-form-item prop="screen">
-          <template slot="label">
-            实时预览记录功能:
-            <el-popover
-              placement="top-start"
-              title="实时预览记录功能"
-              width="400"
-              trigger="hover"
-              :open-delay="300"
-              :content="tips.screen"
-            >
-              <svg-icon slot="reference" class="form-question" name="help" />
-            </el-popover>
-          </template>
-          <el-switch v-model="form.screen" active-value="true" inactive-value="false" />
-        </el-form-item>
-        <el-form-item prop="replay">
-          <template slot="label">
-            录像回看记录功能:
-            <el-popover
-              placement="top-start"
-              title="录像回看记录功能"
-              width="400"
-              trigger="hover"
-              :open-delay="300"
-              :content="tips.replay"
-            >
-              <svg-icon slot="reference" class="form-question" name="help" />
-            </el-popover>
-          </template>
-          <el-switch v-model="form.replay" active-value="true" inactive-value="false" />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="submit">提交</el-button>
-          <el-button @click="back">取消</el-button>
-        </el-form-item>
-      </el-form> -->
-    </el-card>
+      <el-form-item>
+        <el-button type="primary" @click="submitThis">保存</el-button>
+        <el-button @click="back">取消</el-button>
+      </el-form-item>
+    </el-form>
   </div>
 </template>
 
@@ -115,7 +96,7 @@ const validPhone = (rule, value, callback) => {
 })
 export default class extends Vue {
   private scaleKind = scaleKind
-  private activeName = 'currency'
+  private activeName = 'common'
   private formFrame:any={
     scaleVal: ''
   }
@@ -123,7 +104,8 @@ export default class extends Vue {
     active: false,
     phoneNumber: '',
     screen: 'false',
-    replay: 'false'
+    replay: 'false',
+    scaleVal: ''
   }
   public rules = {
     phoneNumber: [{ required: true, trigger: 'blur', validator: validPhone }]
@@ -163,6 +145,15 @@ export default class extends Vue {
   private back() {
     this.$router.back()
   }
+
+  private submitThis() {
+    if (this.activeName === 'common') {
+      this.submit()
+    } else if (this.activeName === 'frame') {
+      this.save()
+    }
+  }
+
   private async submit() {
     const form: any = this.$refs.form
     form.validate(async(valid: any) => {
@@ -232,18 +223,18 @@ export default class extends Vue {
   private getUserConfigInfo() {
     const userScaleConfig = this.$store.state.user.userConfigInfo
     if (userScaleConfig.length > 0) {
-      this.formFrame.scaleVal = userScaleConfig.find((item:any) => item.key === 'videoScale').value
+      this.form.scaleVal = userScaleConfig.find((item:any) => item.key === 'videoScale').value
     } else {
-      this.formFrame.scaleVal = '1'
+      this.form.scaleVal = '1'
     }
   }
 
-  private async save() {
-    const param = { 'userConfig': [{ key: 'videoScale', value: this.formFrame.scaleVal }] }
+  private save() {
+    const param = { 'userConfig': [{ key: 'videoScale', value: this.form.scaleVal }] }
     updatetUserConfig(param).then(() => {
       const temp = this.$store.state.user.userConfigInfo
       const result = temp.find((item:any) => item.key === 'videoScale')
-      result.value = this.formFrame.scaleVal
+      result.value = this.form.scaleVal
       const final = [temp.find((item:any) => item.key !== 'videoScale'), result]
       this.$store.state.user.userConfigInfo = final
     }).catch(err => console.log('err->', err))
@@ -259,6 +250,9 @@ export default class extends Vue {
   }
   ::v-deep .el-form-item__content{
     line-height: 33px !important;
+  }
+  ::v-deep .el-form-item--medium{
+    margin-top: 20px;
   }
 }
 </style>
