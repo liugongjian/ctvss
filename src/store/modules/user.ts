@@ -166,7 +166,7 @@ class User extends VuexModule implements IUserState {
   }
 
   // 获取用户配置信息
-  @Action
+  @Action({ rawError: true })
   public async getUserConfigInfo() {
     // 前后端参数不一致，设置转换字典
     let dic = {
@@ -178,8 +178,10 @@ class User extends VuexModule implements IUserState {
         screen: 'false',
         replay: 'false'
       }
+
       let res = await getUserConfig()
-      this.SET_USER_CONFIG(res.userConfig)
+      this.SET_USER_CONFIG(res.userConfig) // 设置vuex属性
+
       res.userConfig && res.userConfig.forEach(config => {
         defaultConfig[dic[config.key] || config.key] = config.value
       })
@@ -282,9 +284,6 @@ class User extends VuexModule implements IUserState {
       this.SET_MAIN_USER_ADDRESS(userInfo.address)
       this.SET_MAIN_USER_TAGS(userInfo.tags)
     }
-
-    const userConfigInfo:any = await getUserConfig()
-    this.SET_USER_CONFIG(userConfigInfo.userConfig)
 
     let data: any = null
     if (this.iamUserId) {
@@ -425,12 +424,6 @@ class User extends VuexModule implements IUserState {
     localStorage.clear()
     return result
   }
-
-  // @Action({ rawError: true })
-  // public async getUserConfig() {
-  //   const data:any = await getUserConfig()
-  //   this.SET_USER_CONFIG(data.userConfig)
-  // }
 }
 
 export const UserModule = getModule(User)
