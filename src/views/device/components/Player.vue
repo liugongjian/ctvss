@@ -665,7 +665,7 @@ export default class extends Vue {
     const param = {
       deviceId: this.deviceId,
       command,
-      length: Width.toString(),
+      length: Width.toString(), // 信令侧要求左右为length，上下为width
       width: Height.toString(),
       midPointX,
       midPointY,
