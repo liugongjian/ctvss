@@ -65,7 +65,7 @@ import { industryMap } from '@/assets/region/industry'
 import { networkMap } from '@/assets/region/network'
 import { allRegionList } from '@/assets/region/region'
 import TemplateBind from '../components/templateBind.vue'
-import { getAddressArea } from '@/api/device'
+import { getChildAddress } from '@/api/device'
 
 @Component({
   name: 'GroupConfig',
@@ -117,13 +117,6 @@ export default class extends Vue {
     return this.$store.state.user.tags.isNeedDeviceNetworkCode === true
   }
 
-  /**
-   * 针对连州设备管理
-   */
-  private get lianzhouFlag() {
-    return this.$store.state.user.tags.isLianZhouEdu === 'Y'
-  }
-
   private async mounted() {
     let query: any = this.$route.query
     if (query.groupId) {
@@ -139,53 +132,43 @@ export default class extends Vue {
     }
   }
 
+  /**
+   * 获取设备地址
+   */
   private async getAddress(gbRegion: any) {
     let address = ''
     if (!gbRegion) return
-    if (this.lianzhouFlag) {
-      let res = await getAddressArea({
-        pid: 441882,
-        level: 5
+    const list = []
+    for (let i = 0; i < 4; i++) {
+      if (gbRegion!.substring(i * 2, i * 2 + 2) !== '00') {
+        list.push(parseInt(gbRegion!.substring(0, (i + 1) * 2)))
+      }
+    }
+    const region0 = allRegionList.find((item0: any) => {
+      return item0.code === list[0]
+    })
+    if (region0) {
+      address += region0.name
+      const region1 = region0.children.find((item1: any) => {
+        return item1.code === list[1]
       })
-      address = '广东省/清远市/连州市'
-      let lianzhouArea = res.areas.map((item: any) => {
-        return {
-          name: item.name,
-          code: item.id,
-          level: item.level
-        }
-      })
-      lianzhouArea.forEach((item: any) => {
-        if (item.code === gbRegion) {
-          address += `/${item.name}`
-        }
-      })
-    } else {
-      const list = [
-        parseInt(gbRegion!.substring(0, 2)),
-        parseInt(gbRegion!.substring(0, 4)),
-        parseInt(gbRegion!.substring(0, 6))
-      ]
-      let region0 = allRegionList.find((item0: any) => {
-        return item0.code === list[0]
-      })
-      if (region0) {
-        address += region0.name
-        let region1 = region0.children.find((item1: any) => {
-          return item1.code === list[1]
+      if (region1) {
+        address += '/' + region1.name
+        const region2 = region1.children.find((item2: any) => {
+          return item2.code === list[2]
         })
-        if (region1) {
-          address += '/' + region1.name
-          let region2 = region1.children.find((item2: any) => {
-            return item2.code === list[2]
-          })
-          if (region2) {
-            address += '/' + region2.name
-          } else {
-            address += '/' + region1.children[0].name
+        if (region2) {
+          address += '/' + region2.name
+          // 四级数据从后端获取
+          if (list.length === 4) {
+            const level4List = getChildAddress(list[2], 4)
+            const region3 = (await level4List).find((item3: any) => {
+              return item3.code === list[3]
+            })
+            if (region3) {
+              address += '/' + region3.name
+            }
           }
-        } else {
-          address += '/' + region0.children[0].name + '/' + region0.children[0].children[0].name
         }
       }
     }
