@@ -563,7 +563,7 @@ export default class extends Vue {
         this.oCanvas.addEventListener('mousedown', (e) => { this.canvasMouseDown(e) })
         this.oCanvas.addEventListener('mousemove', (e) => { this.canvasMouseMove(e) })
         this.oCanvas.addEventListener('mouseup', (e) => { this.canvasMouseUp(e) })
-        this.oCanvas.addEventListener('mouseleave', this.canvasMouseleave)
+        this.oCanvas.addEventListener('mouseleave', (e) => { this.canvasMouseleave(e) })
       })
     } else {
       this.removeListener()
@@ -575,7 +575,7 @@ export default class extends Vue {
     this.oCanvas.removeEventListener('mousedown', (e) => { this.canvasMouseDown(e) })
     this.oCanvas.removeEventListener('mousemove', (e) => { this.canvasMouseMove(e) })
     this.oCanvas.removeEventListener('mouseup', (e) => { this.canvasMouseUp(e) })
-    this.oCanvas.removeEventListener('mouseleave', this.canvasMouseleave)
+    this.oCanvas.removeEventListener('mouseleave', (e) => { this.canvasMouseleave(e) })
   }
 
   // 获取canvas 点坐标
@@ -681,7 +681,8 @@ export default class extends Vue {
     })
   }
 
-  public canvasMouseleave() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public canvasMouseleave(e:any) {
     if (this.oShape && Object.keys(this.oShape).length > 0) {
       this.oShape = {}
       this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
