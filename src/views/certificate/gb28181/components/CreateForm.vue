@@ -119,7 +119,7 @@ export default class extends Vue {
   private submit(onSuccess: Function) {
     const form: any = this.$refs.dataForm
     let data: any = {}
-    form.validate(async (valid: any) => {
+    form.validate(async(valid: any) => {
       if (valid) {
         this.loading = true
         try {
@@ -173,11 +173,6 @@ export default class extends Vue {
     let params: any = this.$route.params
     if (params.userName) {
       this.editDisable = !/^[0-9a-z]+$/.test(params.userName)
-      if (this.editDisable) {
-        this.$message.error(
-          '现GB28181凭证注册用户名规则改为小写字母+数字，建议您删除当前凭证后重新新建'
-        )
-      }
       this.$emit('editDisabled', this.editDisable)
       this.disabled = true
       this.$set(this.form, 'userName', params.userName)
