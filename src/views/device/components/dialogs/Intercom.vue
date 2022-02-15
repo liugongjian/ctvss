@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     title="语音对讲"
-    :visible="ifIntercom"
+    :visible="true"
     :close-on-click-modal="true"
     :append-to-body="true"
     class="intercomBox"
@@ -13,7 +13,7 @@
         <div class="intercomPlayer live-view">
           <player
             v-if="intercomInfo.url"
-            type="flv"
+            :type="intercomInfo.type"
             :codec="intercomInfo.codec"
             :url="intercomInfo.url"
             :is-live="true"
@@ -90,7 +90,7 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   private closeThis() {
-    this.$emit('onIntercom')
+    this.$emit('close')
   }
 
   private mounted() {

@@ -14,7 +14,7 @@
       <player
         v-if="address"
         ref="video"
-        type="flv"
+        :type="type"
         :codec="codec"
         :url="address.flvUrl"
         :auto-play="true"
@@ -31,7 +31,7 @@
         @onRetry="onRetry"
         @onFullscreen="fullscreen"
         @onExitFullscreen="exitFullscreen"
-        @onIntercom="onIntercom(intercomInfo,true)"
+        @onIntercom="onIntercom(intercomInfo, ...arguments)"
       />
     </div>
 
@@ -61,7 +61,7 @@
         </el-tooltip>
       </info-list-item>
     </info-list> -->
-    <intercom-dialog v-if="ifIntercom" :if-intercom="ifIntercom" :intercom-info="intercomInfo" @onIntercom="onIntercom(intercomInfo,false)" />
+    <intercom-dialog v-if="ifIntercom" :intercom-info="intercomInfo" @close="closeIntercom" />
   </div>
 </template>
 
@@ -91,6 +91,7 @@ export default class extends Vue {
   @Prop()
   private inProtocol?: string
   private address?: any = null
+  private type?: string = 'flv'
   private codec?: string = ''
   private playerTimer: any = null
   private loading = false
@@ -131,10 +132,20 @@ export default class extends Vue {
   }
 
   // 实时对讲
-  private onIntercom(screen:any, flag:boolean) {
+  private onIntercom(screen:any, type: string) {
     this.volume = 0
+    this.type = type.toLowerCase()
+    screen.type = type.toLowerCase()
     this.intercomInfo = screen
-    this.ifIntercom = flag
+    this.ifIntercom = true
+  }
+
+  /**
+   * 关闭实时对讲
+   */
+  private closeIntercom() {
+    this.volume = 30
+    this.ifIntercom = false
   }
 
   /**

@@ -214,7 +214,7 @@
                       <div class="live-view">
                         <player
                           v-if="screen.url"
-                          type="flv"
+                          :type="screen.type || 'flv'"
                           :codec="screen.codec"
                           :url="screen.url"
                           :is-live="true"
@@ -235,7 +235,7 @@
                           @onPlayback="onPlayback(screen)"
                           @onFullscreen="screen.fullscreen();fullscreen()"
                           @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
-                          @onIntercom="onIntercom(screen,true)"
+                          @onIntercom="onIntercom(screen, ...arguments)"
                         />
                         <div v-if="!screen.url && !screen.loading" class="tip-text">{{ screen.errorMsg || '无信号' }}</div>
                       </div>
@@ -290,7 +290,7 @@
       </div>
     </el-card>
 
-    <intercom-dialog v-if="ifIntercom" :if-intercom="ifIntercom" :intercom-info="intercomInfo" @onIntercom="onIntercom(intercomInfo,false)" />
+    <intercom-dialog v-if="ifIntercom" :intercom-info="intercomInfo" @close="closeIntercom" />
     <div id="mouse-right" class="mouse-right" @click="videosOnPolling(null, true)">轮巡当前目录</div>
     <device-dir v-if="dialogs.deviceDir" @on-close="onDeviceDirClose" />
   </div>
@@ -720,13 +720,26 @@ export default class extends Mixins(ScreenMixin) {
     screen.isLive = false
   }
 
-  // 实时对讲
-  private onIntercom(screen:any, flag:boolean) {
+  /**
+   * 实时对讲
+   */
+  private onIntercom(screen: any, type: string) {
     for (let i = 0; i < this.screenList.length; i++) {
       this.screenList[i].volume = 0
     }
+    screen.type = type.toLowerCase()
     this.intercomInfo = screen
-    this.ifIntercom = flag
+    this.ifIntercom = true
+  }
+
+  /**
+   * 关闭实时对讲
+   */
+  private closeIntercom() {
+    for (let i = 0; i < this.screenList.length; i++) {
+      this.screenList[i].volume = 30
+    }
+    this.ifIntercom = false
   }
 
   /**

@@ -223,11 +223,11 @@ export default class extends Vue {
   private deviceName?: string
 
   // 视频流全部address
-    @Prop()
+  @Prop()
   private allAddress?: any
   // inProtocol
   @Prop() private inProtocol?:string
-   @Prop() private deviceId?: number | string
+  @Prop() private deviceId?: number | string
   @Prop() private videoInfo?:string
 
   /**
@@ -323,7 +323,7 @@ export default class extends Vue {
         // this.videoType = 'FLV'
         this.ifCanRTC = false
       }
-      this.videoType = 'FLV'
+      this.videoType = this.type.toUpperCase()
     } else {
       this.videoType = kind
       this.disposePlayer()
@@ -913,7 +913,7 @@ export default class extends Vue {
         .getUserMedia({ 'audio': true })
       // 用户同意赋予麦克风权限
         .then(() => {
-          this.$emit('onIntercom')
+          this.$emit('onIntercom', this.videoType)
         })
       // 用户拒绝麦克风权限，或者当前浏览器不支持
         .catch(e => {
