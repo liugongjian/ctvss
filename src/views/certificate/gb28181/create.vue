@@ -2,8 +2,8 @@
   <div class="app-container">
     <el-page-header :content="breadCrumbContent" @back="back" />
     <el-card>
-      <create-form ref="createForm">
-        <el-button type="primary" @click="submit">确定</el-button>
+      <create-form ref="createForm" @editDisabled="editstate">
+        <el-button type="primary" :disabled="editDisable" @click="submit">确定</el-button>
         <el-button @click="back">取 消</el-button>
       </create-form>
     </el-card>
@@ -21,6 +21,7 @@ import CreateForm from './components/CreateForm.vue'
 })
 export default class extends Vue {
   private breadCrumbContent = ''
+  private editDisable = false
 
   private mounted() {
     this.breadCrumbContent = this.$route.meta.title
@@ -28,6 +29,10 @@ export default class extends Vue {
 
   private back() {
     this.$router.push('/certificate/gb28181')
+  }
+
+  private editstate(value) {
+    this.editDisable = value
   }
 
   private submit() {
@@ -41,7 +46,8 @@ export default class extends Vue {
 
 <style lang="scss" scoped>
 .app-container {
-  ::v-deep .el-input, ::v-deep .el-textarea {
+  ::v-deep .el-input,
+  ::v-deep .el-textarea {
     width: 400px;
   }
 }
