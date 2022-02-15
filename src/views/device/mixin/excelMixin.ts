@@ -130,7 +130,7 @@ export default class ExcelMixin extends Vue {
       type: 'list',
       allowBlank: false,
       showErrorMessage: true,
-      formulae: ['"海康,大华,宇视,其他"'],
+      formulae: ['"海康,大华,宇视,科达,华为,其他"'],
       error: '请选择厂商'
     },
     deviceName: {
