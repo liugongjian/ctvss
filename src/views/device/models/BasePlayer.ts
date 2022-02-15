@@ -14,11 +14,13 @@ export class BasePlayer {
   public isWs?: boolean
   public playbackRate?: number
   public wrapElement?: HTMLDivElement
+  public allAddress? : any
 
   constructor(config: any) {
     this.config = config
     this.wrap = config.wrap
     this.source = config.source
+    this.allAddress = config.allAddress
     this.autoPlay = config.autoPlay
     this.hasControl = config.hasControl
     this.type = config.type
@@ -226,7 +228,10 @@ export class BasePlayer {
    * 检测是否有音频
    */
   public testHasAudio() {
-    const hasAudio = this.player.mozHasAudio || Boolean(this.player.webkitAudioDecodedByteCount) || Boolean(this.player.audioTracks && this.player.audioTracks.length) || this.codec === 'h265'
+    const hasAudio = this.player.mozHasAudio || Boolean(this.player.webkitAudioDecodedByteCount) ||
+      Boolean(this.player.audioTracks && this.player.audioTracks.length) ||
+      Boolean(this.player.srcObject && this.player.srcObject.getAudioTracks && this.player.srcObject.getAudioTracks().length) || // rtc格式音频信息获取
+      this.codec === 'h265'
     this.config.onTestHasAudio && this.config.onTestHasAudio(hasAudio)
   }
 }

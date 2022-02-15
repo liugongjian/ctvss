@@ -11,7 +11,6 @@ import { TagsViewModule } from './tags-view'
 import { DeviceModule } from '@/store/modules/device'
 import { VGroupModule } from '@/store/modules/vgroup'
 import store from '@/store'
-
 export interface IUserState {
   token: string
   name: string
@@ -50,6 +49,7 @@ class User extends VuexModule implements IUserState {
   public settings: any = {
     screenCache: {}
   }
+  public userConfigInfo:any = []
 
   @Mutation
   private SET_WHITELIST(flag: string) {
@@ -133,6 +133,11 @@ class User extends VuexModule implements IUserState {
     setLocalStorage('settings', JSON.stringify(settings))
   }
 
+  @Mutation
+  private SET_USER_CONFIG(userConfig:any) {
+    this.userConfigInfo = userConfig
+  }
+
   @Action({ rawError: true })
   public async Login(userInfo: { mainUserID?: string, userName: string, password: string}) {
     let { mainUserID, userName, password } = userInfo
@@ -161,7 +166,7 @@ class User extends VuexModule implements IUserState {
   }
 
   // 获取用户配置信息
-  @Action
+  @Action({ rawError: true })
   public async getUserConfigInfo() {
     // 前后端参数不一致，设置转换字典
     let dic = {
@@ -173,9 +178,12 @@ class User extends VuexModule implements IUserState {
         screen: 'false',
         replay: 'false'
       }
+
       let res = await getUserConfig()
+      this.SET_USER_CONFIG(res.userConfig) // 设置vuex属性
+
       res.userConfig && res.userConfig.forEach(config => {
-        defaultConfig[dic[config.type] || config.type] = config.enable
+        defaultConfig[dic[config.key] || config.key] = config.value
       })
       this.SetScreenCacheSettings(defaultConfig)
     } catch (e) {
@@ -276,6 +284,7 @@ class User extends VuexModule implements IUserState {
       this.SET_MAIN_USER_ADDRESS(userInfo.address)
       this.SET_MAIN_USER_TAGS(userInfo.tags)
     }
+
     let data: any = null
     if (this.iamUserId) {
       data = await getIAMUserInfo({ iamUserId: this.iamUserId })

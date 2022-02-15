@@ -22,7 +22,11 @@
         :is-live="true"
         :is-fullscreen="isFullscreen"
         :has-control="false"
+        :all-address="address"
         :in-protocol="inProtocol"
+        :device-id="deviceId"
+        :video-info="videoInfo"
+        :volume="volume"
         @onCanPlay="onCanPlay"
         @onRetry="onRetry"
         @onFullscreen="fullscreen"
@@ -99,6 +103,8 @@ export default class extends Vue {
 
   private intercomInfo = {}
   private ifIntercom = false
+  private videoInfo = {}
+  private volume = 30
 
   @Watch('$route.query')
   private onRouterChange() {
@@ -126,6 +132,7 @@ export default class extends Vue {
 
   // 实时对讲
   private onIntercom(screen:any, flag:boolean) {
+    this.volume = 0
     this.intercomInfo = screen
     this.ifIntercom = flag
   }
@@ -180,12 +187,14 @@ export default class extends Vue {
       this.address = res.playUrl
       this.codec = res.video.codec
       this.retry = false
+      this.videoInfo = res.videoInfo
       this.intercomInfo = {
         url: this.address.flvUrl,
         codec: this.codec,
         deviceId: this.deviceId,
         inProtocol: this.inProtocol,
-        isLive: true
+        isLive: true,
+        allAddress: this.address
       }
     } catch (e) {
       if (e.code === 5) {
