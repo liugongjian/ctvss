@@ -337,11 +337,7 @@ export default class extends Vue {
         })
         if (index3 !== -1) {
           this.gbRegionList[index1].children[index2].children[index3].children = await getChildAddress(val[2], 4)
-        } else {
-          // this.form.gbRegion = this.gbRegionList[index1].children[index2].children[0].code + '00'
         }
-      } else {
-        // this.form.gbRegion = this.gbRegionList[index1].children[0].children[0].code + '00'
       }
     }
   }

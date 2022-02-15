@@ -226,6 +226,10 @@
                           :has-playback="true"
                           :device-name="screen.deviceName"
                           :stream-num="screen.streamNum"
+                          :device-id="screen.deviceId"
+                          :video-info="screen.videoInfo"
+                          :all-address="screen.allAddress"
+                          :volume="screen.volume"
                           @onCanPlay="playEvent(screen, ...arguments)"
                           @onRetry="onRetry(screen, ...arguments)"
                           @onPlayback="onPlayback(screen)"
@@ -472,6 +476,7 @@ export default class extends Mixins(ScreenMixin) {
       screen.roleId = item.roleId || ''
       screen.realGroupId = item.realGroupId || ''
       screen.realGroupInProtocol = item.realGroupInProtocol || ''
+
       if (streamNum && !isNaN(streamNum)) {
         screen.streamNum = streamNum
       } else {
@@ -717,6 +722,9 @@ export default class extends Mixins(ScreenMixin) {
 
   // 实时对讲
   private onIntercom(screen:any, flag:boolean) {
+    for (let i = 0; i < this.screenList.length; i++) {
+      this.screenList[i].volume = 0
+    }
     this.intercomInfo = screen
     this.ifIntercom = flag
   }

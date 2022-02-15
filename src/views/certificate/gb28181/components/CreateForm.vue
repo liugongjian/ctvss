@@ -7,14 +7,13 @@
     label-position="right"
     label-width="140px"
   >
-    <el-form-item label="是否匿名:" prop="userType" class="form-with-tip">
-      <el-switch v-model="form.userType" active-value="anonymous" inactive-value="normal" :disabled="disabled" />
-      <div class="form-tip">当选择匿名密码为国标设备凭证时，设备注册时将使用国标ID作为SIP用户认证ID。</div>
-    </el-form-item>
-    <el-form-item :label="form.userType === 'anonymous' ? '用户别名:' : 'SIP用户认证ID:'" prop="userName" class="form-with-tip">
+    <el-form-item label="注册用户名" prop="userName" class="form-with-tip">
       <el-input v-model="form.userName" :disabled="disabled" />
-      <div v-if="form.userType === 'anonymous'" class="form-tip">当选择匿名密码为国标设备凭证时，用户别名仅用于凭证管理，便于记忆。</div>
-      <div v-else class="form-tip">设备注册时将使用当前输入值作为SIP用户认证ID。</div>
+      <div class="form-tip">
+        用于设备注册时的SIP用户认证，仅支持输入小写字母和数字
+      </div>
+      <!-- <div v-if="form.userType === 'anonymous'" class="form-tip">当选择匿名密码为国标设备凭证时，用户别名仅用于凭证管理，便于记忆。</div>
+      <div v-else class="form-tip">设备注册时将使用当前输入值作为SIP用户认证ID。</div> -->
     </el-form-item>
     <el-form-item v-if="disabled" label="旧密码:" prop="password">
       <el-input v-model="form.password" show-password />
@@ -26,7 +25,12 @@
       <el-input v-model="form.confirmPassword" show-password />
     </el-form-item>
     <el-form-item label="描述:" prop="description">
-      <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入凭证描述，如凭证介绍或用途" />
+      <el-input
+        v-model="form.description"
+        type="textarea"
+        :rows="3"
+        placeholder="请输入凭证描述，如凭证介绍或用途"
+      />
     </el-form-item>
     <el-form-item label="">
       <slot />
@@ -36,7 +40,11 @@
 <script lang='ts'>
 import { Base64 } from 'js-base64'
 import { Component, Vue } from 'vue-property-decorator'
-import { createCertificate, queryCertificate, updateCertificate } from '@/api/certificate/gb28181'
+import {
+  createCertificate,
+  queryCertificate,
+  updateCertificate
+} from '@/api/certificate/gb28181'
 import { GB28181 } from '@/type/certificate'
 
 @Component({
@@ -45,23 +53,18 @@ import { GB28181 } from '@/type/certificate'
 export default class extends Vue {
   private loading = false
   private disabled = false
+  private editDisable = false
   private rules = {
     userName: [
       { required: true, message: '请输入用户名', trigger: 'blur' },
       { validator: this.validateUserName, trigger: 'blur' }
     ],
-    newPassword: [
-      { validator: this.validatePass, trigger: 'blur' }
-    ],
-    confirmPassword: [
-      { validator: this.validatePass2, trigger: 'blur' }
-    ],
-    password: [
-      { validator: this.validateOldPass, trigger: 'blur' }
-    ]
+    newPassword: [{ validator: this.validatePass, trigger: 'blur' }],
+    confirmPassword: [{ validator: this.validatePass2, trigger: 'blur' }],
+    password: [{ validator: this.validateOldPass, trigger: 'blur' }]
   }
   private form: GB28181 = {
-    userType: 'anonymous',
+    userType: 'normal',
     userName: '',
     password: '',
     newPassword: '',
@@ -95,8 +98,8 @@ export default class extends Vue {
     if (!value) {
       callback(new Error('请输入用户名'))
     } else if (this.form.userType === 'normal') {
-      if (!/^[0-9]+$/.test(value)) {
-        callback(new Error('非匿名用户ID仅能填写数字'))
+      if (!/^[0-9a-z]+$/.test(value)) {
+        callback(new Error('用户名仅支持小写字母和数字'))
       } else {
         callback()
       }
@@ -116,7 +119,7 @@ export default class extends Vue {
   private submit(onSuccess: Function) {
     const form: any = this.$refs.dataForm
     let data: any = {}
-    form.validate(async(valid: any) => {
+    form.validate(async (valid: any) => {
       if (valid) {
         this.loading = true
         try {
@@ -125,8 +128,14 @@ export default class extends Vue {
               userName: this.form.userName,
               userType: this.form.userType,
               description: this.form.description,
-              password: 'YTVjIX' + Base64.encode(this.form.password as string) + 'ZmZUBl',
-              newPassword: 'YmNjIW' + Base64.encode(this.form.newPassword as string) + '1mZSNl'
+              password:
+                'YTVjIX' +
+                Base64.encode(this.form.password as string) +
+                'ZmZUBl',
+              newPassword:
+                'YmNjIW' +
+                Base64.encode(this.form.newPassword as string) +
+                '1mZSNl'
             }
             await updateCertificate(data)
           } else {
@@ -135,7 +144,10 @@ export default class extends Vue {
               userName: this.form.userName,
               userType: this.form.userType,
               description: this.form.description,
-              password: 'YTVjIX' + Base64.encode(this.form.password as string) + 'ZmZUBl'
+              password:
+                'YTVjIX' +
+                Base64.encode(this.form.password as string) +
+                'ZmZUBl'
             }
             await createCertificate(data)
           }
@@ -160,6 +172,13 @@ export default class extends Vue {
   private async mounted() {
     let params: any = this.$route.params
     if (params.userName) {
+      this.editDisable = !/^[0-9a-z]+$/.test(params.userName)
+      if (this.editDisable) {
+        this.$message.error(
+          '现GB28181凭证注册用户名规则改为小写字母+数字，建议您删除当前凭证后重新新建'
+        )
+      }
+      this.$emit('editDisabled', this.editDisable)
       this.disabled = true
       this.$set(this.form, 'userName', params.userName)
       try {
