@@ -286,9 +286,7 @@
         </el-form-item>
       </template>
       <el-form-item label="">
-        <el-button type="primary" :loading="submitting" @click="submit"
-          >确 定</el-button
-        >
+        <el-button type="primary" :loading="submitting" @click="submit">确 定</el-button>
         <el-button @click="back">取 消</el-button>
       </el-form-item>
     </el-form>

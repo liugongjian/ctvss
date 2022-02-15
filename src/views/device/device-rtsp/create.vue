@@ -171,7 +171,7 @@
             @change="addressChange"
           />
         </el-form-item>
-        <template >
+        <template>
           <el-form-item label="经纬度:" prop="longlat">
             <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
             <el-input v-model="form.deviceLatitude" class="longlat-input" />
