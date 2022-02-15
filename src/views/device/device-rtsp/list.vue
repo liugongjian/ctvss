@@ -169,9 +169,14 @@
             {{ row.deviceVendor || '-' }}
           </template>
         </el-table-column>
-        <el-table-column key="deviceIp" label="设备IP" min-width="130">
+        <el-table-column key="deviceIp" label="设备IP/域名" min-width="130">
           <template slot-scope="{row}">
-            {{ row.deviceIp || '-' }}
+            <template v-if="row.deviceVendor === '其他'">
+              {{ row.deviceDomain || row.deviceIp || '-' }}
+            </template>
+            <template v-else>
+              {{ row.enableDomain === 1 ? row.deviceDomain : row.deviceIp }}
+            </template>
           </template>
         </el-table-column>
         <el-table-column key="devicePort" label="设备端口">

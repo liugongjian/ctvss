@@ -77,7 +77,7 @@
                   <el-descriptions-item v-if="info.networkCode && networkFlag" label="网络标识">
                     {{ networkMap[info.networkCode] }}
                   </el-descriptions-item>
-                  <el-descriptions-item  label="经纬度">
+                  <el-descriptions-item label="经纬度">
                     {{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}
                   </el-descriptions-item>
                   <el-descriptions-item label="视频流接入方式">
@@ -87,7 +87,9 @@
                     {{ pushType[info.pushType] || '-' }}
                   </el-descriptions-item>
                   <template v-if="info.deviceVendor === '其他'">
-                    <el-descriptions-item v-if="info.inType === 'pull'" label="自定义拉流地址:">{{ info.deviceDomain }}</el-descriptions-item>
+                    <el-descriptions-item v-if="info.inType === 'pull'" label="设备域名">{{ info.deviceDomain }}</el-descriptions-item>
+                    <el-descriptions-item v-if="info.inType === 'pull'" label="设备IP">{{ info.deviceIp }}</el-descriptions-item>
+                    <el-descriptions-item v-if="info.inType === 'pull'" label="设备端口">{{ info.devicePort }}</el-descriptions-item>
                   </template>
                   <template v-else>
                     <el-descriptions-item v-if="info.inType === 'pull'" label="用户名">{{ info.userName }}</el-descriptions-item>

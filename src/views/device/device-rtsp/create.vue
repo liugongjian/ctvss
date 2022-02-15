@@ -104,8 +104,8 @@
           </el-radio-group>
         </el-form-item>
         <template v-if="form.deviceVendor === '其他'">
-          <el-form-item label="自定义拉流地址:" prop="deviceCustomUrl">
-            <el-input v-model="form.deviceCustomUrl" />
+          <el-form-item label="自定义拉流地址:" prop="pullUrl">
+            <el-input v-model="form.pullUrl" />
           </el-form-item>
         </template>
         <template v-else>
@@ -410,7 +410,7 @@ export default class extends Mixins(createMixin) {
       { required: true, message: '请填写通道号', trigger: 'change' },
       { validator: this.validateChannelNum, trigger: 'change' }
     ],
-    pullUrl: [{ required: true, message: '请输入拉流地址', trigger: 'blur' }],
+    pullUrl: [{ required: true, message: '请输入自定义设备拉流地址', trigger: 'blur' }],
     userName: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
     password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
     deviceDomain: [
@@ -420,9 +420,6 @@ export default class extends Mixins(createMixin) {
     deviceIp: [
       { required: true, message: '请输入设备IP', trigger: 'blur' },
       { validator: this.validateDeviceIp, trigger: 'blur' }
-    ],
-    deviceCustomUrl: [
-      { required: true, message: '请输入自定义设备拉流地址', trigger: 'blur' }
     ],
     devicePort: [
       { required: true, message: '请输入设备端口', trigger: 'blur' }
@@ -457,7 +454,6 @@ export default class extends Mixins(createMixin) {
     enableDomain: 2,
     deviceDomain: '',
     deviceIp: '',
-    deviceCustomUrl: '',
     devicePort: null,
     deviceVendor: '',
     description: '',
@@ -587,9 +583,6 @@ export default class extends Mixins(createMixin) {
             'networkCode'
           ])
         )
-        if (this.form.deviceVendor === '其他') {
-          this.form.deviceCustomUrl = this.form.deviceDomain
-        }
         this.cascaderInit()
         // 获取绑定资源包列表
         this.getDeviceResources(
@@ -670,6 +663,7 @@ export default class extends Mixins(createMixin) {
             'deviceType',
             'enableDomain',
             'deviceDomain',
+            'pullUrl',
             'deviceIp',
             'devicePort',
             'inType',
@@ -699,9 +693,9 @@ export default class extends Mixins(createMixin) {
             params = Object.assign(params, pick(this.form, ['autoStreamNum']))
           }
         }
-        if (params.deviceVendor === '其他') {
-          params.deviceDomain = this.form.deviceCustomUrl
-        }
+        // if (params.deviceVendor === '其他') {
+        //   params.deviceDomain = this.form.deviceCustomUrl
+        // }
         // NVR类型添加额外参数
         if (this.form.deviceType === 'nvr') {
           params = Object.assign(params, {
