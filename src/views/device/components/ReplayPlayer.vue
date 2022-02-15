@@ -49,8 +49,15 @@
             v-for="(time, index) in timePositionList"
             :key="index"
             class="timeline__bar"
-            :style="`left: ${time.left}%; width: ${time.width}%;`"
+            :style="`left: ${time.left}%; width: ${time.width}%; min-width: 1px;`"
             @click="handleTimeline($event, time)"
+          />
+          <div
+            v-for="heatmapTime in heatmapTimePositionList"
+            :key="heatmapTime.startTime"
+            class="timeline__bar timeline__bar_heatmap"
+            :style="`left: ${heatmapTime.left}%; width: ${heatmapTime.width}%; min-width: 1px;`"
+            @click="handleHeatMapTimeline($event, heatmapTime)"
           />
         </div>
       </div>
@@ -68,6 +75,8 @@
 <script lang="ts">
 import { Component, Watch, Prop, Mixins } from 'vue-property-decorator'
 import ReplayPlayerMixin from '@/views/device/mixin/replayPlayerMixin'
+import { getTimestamp } from '@/utils/date'
+import { start } from 'repl'
 
 @Component({
   name: 'ReplayPlayer'
@@ -78,9 +87,27 @@ export default class extends Mixins(ReplayPlayerMixin) {
       return []
     }
   })
+
   public recordList!: Array<any>
 
+  @Prop({
+    default: () => {
+      return []
+    }
+  })
+  public heatmapList!: Array<any>
+
+  public heatmapTimePositionList: Array<any> = []
+
   public async mounted() {
+    if (this.screen && this.screen.isCache && this.screen.replayType === 'cloud' && this.screen.currentTime) {
+      this.startTime = this.screen.currentTime
+      // 获取一次记录后将不再获取记录，置resetIsCache: true
+      this.$emit('onCurrentTimeChange', {
+        currentTime: this.startTime,
+        resetIsCache: true
+      })
+    }
     await this.init()
   }
 
@@ -89,11 +116,97 @@ export default class extends Mixins(ReplayPlayerMixin) {
     this.timePositionList = this.calcVideoPosition(this.recordList)
   }
 
+  @Watch('heatmapList')
+  public onHeatMapListChanged() {
+    this.heatmapTimePositionList = this.calcHeatMapVideoPosition(this.heatmapList)
+  }
+
+  /**
+   * 计算检测到行人在时间轴中的位置
+   */
+  public calcHeatMapVideoPosition(list: Array<any>) {
+    console.log('list: ', list)
+    // const recordStartEndTimeList = []
+    // let startTime = ''
+    // let endTime = ''
+    // this.recordList.forEach((record, index) => {
+    //   if (index === 0) {
+    //     startTime = record.startTime
+    //   } else {
+    //     const prevRecord = this.recordList[index - 1]
+    //     const curRecord = this.recordList[index]
+    //     if (prevRecord.endTime !== curRecord.startTime) {
+    //       endTime = prevRecord.endTime
+    //       recordStartEndTimeList.push({ startTime, endTime })
+    //       startTime = curRecord.startTime
+    //     }
+    //     if (index === this.recordList.length - 1) {
+    //       endTime = this.recordList[index].endTime
+    //       recordStartEndTimeList.push({ startTime, endTime })
+    //     }
+    //   }
+    // })
+    // console.log('recordStartEndTimeList: ', recordStartEndTimeList)
+    // const recordStartEndTimeListLength = recordStartEndTimeList.length
+    const recordList = this.recordList
+    const recordListLength = recordList.length
+    const formattedList = []
+    list.forEach((record: any) => {
+      let startTime = record.startTime
+      let endTime = record.endTime
+      for (let i = 0; i < recordListLength; i++) {
+        const cur = recordList[i]
+        const curStartTime = cur.startTime
+        const curEndTime = cur.endTime
+        if (startTime < curStartTime) {
+          startTime = curStartTime
+        } else if (startTime > curEndTime) {
+          continue
+        }
+
+        if (endTime <= curEndTime) {
+          formattedList.push({
+            ...record,
+            startAt: getTimestamp(startTime),
+            startTime,
+            endTime,
+            duration: new Date(endTime).getTime() / 1000 - new Date(startTime).getTime() / 1000,
+            origi: recordList[i]
+          })
+          break
+        } else if (startTime < curEndTime) {
+          formattedList.push({
+            ...record,
+            startAt: getTimestamp(startTime),
+            startTime,
+            endTime: curEndTime,
+            duration: new Date(curEndTime).getTime() / 1000 - new Date(startTime).getTime() / 1000,
+            origi: recordList[i]
+          })
+          startTime = curEndTime
+        }
+
+        if (startTime >= endTime) {
+          break
+        }
+      }
+    })
+    console.log('formattedList: ', formattedList)
+    return formattedList.map((record: any) => {
+      return {
+        width: this.scale(record.duration + 1).toFixed(6),
+        left: this.scale(Math.round((record.startAt - this.currentDate!) / 1000)).toFixed(6),
+        ...record
+      }
+    })
+  }
+
   /**
    * 初始化
    */
   public async init() {
     this.timePositionList = this.calcVideoPosition(this.recordList)
+    this.heatmapTimePositionList = this.calcHeatMapVideoPosition(this.heatmapList)
     this.initVideoPlayer()
   }
 
@@ -149,6 +262,12 @@ export default class extends Mixins(ReplayPlayerMixin) {
     }
   }
 
+  /**
+   * 点击行人位置
+   */
+  public handleHeatMapTimeline(e: any, record: any) {
+    this.handleTimeline(e, record.origi)
+  }
   /**
    * 点击时间轴位置
    */

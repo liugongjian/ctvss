@@ -79,7 +79,7 @@
         <el-cascader
           ref="addressCascader"
           v-model="form.address"
-          expand-trigger="click"
+          expand-trigger="hover"
           :disabled="form.gbId !== ''"
           :options="regionList"
           :props="addressProps"

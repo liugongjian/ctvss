@@ -95,14 +95,14 @@
         </el-descriptions>
       </el-card>
     </div>
-    <!--录制模版信息-->
+    <!--录制模板信息-->
     <div v-loading="loading.recordTemplate" class="detail__section">
       <div class="detail__title">
-        录制模版信息
+        录制模板信息
         <el-link v-if="!isVGroup && checkPermission(['AdminDevice'])" v-permission="['*']" @click="setRecordTemplate">配置</el-link>
       </div>
       <el-descriptions v-if="template.recordTemplate" :column="2">
-        <el-descriptions-item label="模版名称">
+        <el-descriptions-item label="模板名称">
           {{ template.recordTemplate.templateName }}
         </el-descriptions-item>
         <el-descriptions-item label="是否启用自动录制">
@@ -115,17 +115,17 @@
         </el-descriptions-item>
       </el-descriptions>
       <div v-else-if="!loading.recordTemplate" class="detail__empty-card">
-        暂未绑定录制模版
+        暂未绑定录制模板
       </div>
     </div>
-    <!--回调模版信息-->
+    <!--回调模板信息-->
     <div v-loading="loading.callbackTemplate" class="detail__section">
       <div class="detail__title">
-        回调模版信息
+        回调模板信息
         <el-link v-if="!isVGroup && checkPermission(['AdminDevice'])" v-permission="['*']" @click="setCallbackTemplate">配置</el-link>
       </div>
       <el-descriptions v-if="template.callbackTemplate" :column="2">
-        <el-descriptions-item label="模版名称">
+        <el-descriptions-item label="模板名称">
           {{ template.callbackTemplate.templateName }}
         </el-descriptions-item>
         <el-descriptions-item v-if="template.callbackTemplate.recordNotifyUrl" label="录制回调URL">
@@ -145,17 +145,17 @@
         </el-descriptions-item>
       </el-descriptions>
       <div v-else-if="!loading.recordTemplate" class="detail__empty-card">
-        暂未绑定回调模版
+        暂未绑定回调模板
       </div>
     </div>
     <!-- 告警模板信息 -->
     <div v-if="inProtocol === 'gb28181'" class="detail__section">
       <div class="detail__title">
         告警模板信息
-        <el-link v-if="checkPermission(['AdminDevice'])" v-permission="['*']" @click="setAlertTemplate">配置</el-link>
+        <el-link v-if="!isVGroup && checkPermission(['AdminDevice'])" v-permission="['*']" @click="setAlertTemplate">配置</el-link>
       </div>
       <el-descriptions v-if="template.alertTemplate" :column="2">
-        <el-descriptions-item label="模版名称">
+        <el-descriptions-item label="模板名称">
           {{ template.alertTemplate.templateName }}
         </el-descriptions-item>
         <el-descriptions-item label="模板概要">
@@ -339,7 +339,7 @@ export default class extends Vue {
   }
 
   /**
-   * 获取录制模版
+   * 获取录制模板
    */
   private async getRecordTemplate() {
     try {
@@ -357,7 +357,7 @@ export default class extends Vue {
   }
 
   /**
-   * 获取回调模版
+   * 获取回调模板
    */
   private async getCallbackTemplate() {
     try {
@@ -397,7 +397,7 @@ export default class extends Vue {
   }
 
   /**
-   * 设置录制模版
+   * 设置录制模板
    */
   private setRecordTemplate() {
     this.setRecordTemplateDialog = true
@@ -405,7 +405,7 @@ export default class extends Vue {
   }
 
   /**
-   * 设置回调模版
+   * 设置回调模板
    */
   private setCallbackTemplate() {
     this.setCallbackTemplateDialog = true
@@ -419,7 +419,7 @@ export default class extends Vue {
   }
 
   /**
-   * 关闭设置录制模版
+   * 关闭设置录制模板
    */
   private closeSetRecordTemplateDialog() {
     this.setRecordTemplateDialog = false
@@ -427,7 +427,7 @@ export default class extends Vue {
   }
 
   /**
-   * 关闭设置回调模版
+   * 关闭设置回调模板
    */
   private closeCallbackTemplateDialog() {
     this.setCallbackTemplateDialog = false
@@ -559,12 +559,14 @@ export default class extends Vue {
      * 人脸搜索: code 10001
      * 车牌检测: code 10014
      * 棉花检测: code 10015
+     * 电瓶车进电梯 code 10020
      */
     switch (rowCode) {
       case '10006':
       case '10001':
       case '10014':
       case '10015':
+      case '10020':
         return true
       default:
         return false

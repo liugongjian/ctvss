@@ -92,6 +92,7 @@
         </div>
         <div :class="['links', ctLogin ? 'ct-login' : '']">
           <a target="_blank" href="https://vcn.ctyun.cn/document/api/">API文档</a>
+          <span v-if="!ctLogin" class="links__split"> | </span>
         </div>
       </template>
       <div v-if="!ctLogin" class="user-container">
@@ -281,13 +282,18 @@ export default class extends Mixins(DashboardMixin) {
    * 下拉框出现时刷新下拉列表
    */
   private visibleChange(val) {
-    val && GroupModule.GetGroupList()
+    // 当条目数为20倍数时不需要首次加载
+    if (this.groupList.length % 20 !== 0) {
+      val && GroupModule.GetGroupList()
+    }
   }
 
   /**
    * 懒加载顶部用户下拉框
    */
   private async loadmore() {
+    // 当条目数不为20倍数时不需要懒加载
+    if (this.groupList.length % 20 !== 0) return
     // 加宽下拉加载触发限制时，会触发多次，在这使用节流限制
     if (!this.loading.group && !this.lazyloadTimer) {
       this.loading.group = true
@@ -296,7 +302,7 @@ export default class extends Mixins(DashboardMixin) {
       this.lazyloadTimer = setTimeout(() => {
         clearTimeout(this.lazyloadTimer)
         this.lazyloadTimer = null
-      }, 300)
+      }, 1000)
     }
   }
 
@@ -347,7 +353,8 @@ export default class extends Mixins(DashboardMixin) {
             type: 'detail',
             deviceId: deviceId,
             groupId: res.groupId,
-            inProtocol: res.inProtocol
+            inProtocol: res.inProtocol,
+            isSearch: '1'
           }
         })
       })
@@ -428,6 +435,10 @@ export default class extends Mixins(DashboardMixin) {
     a:hover {
       color: $primary;
     }
+    &__split {
+      color: $borderGrey2;
+      padding: 0 10px;
+    }
   }
   .links.ct-login {
     margin-right: 10px;
@@ -445,7 +456,7 @@ export default class extends Mixins(DashboardMixin) {
 
     .user-container {
       position: relative;
-      padding: 0 20px;
+      padding: 0 20px 0 5px;
       color: $text;
 
       &__menu {

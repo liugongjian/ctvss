@@ -35,7 +35,18 @@
       </el-form>
     </div>
     <div class="player__body">
-      <player v-if="url" ref="player" :type="type" :codec="codec" :url="url" :auto-play="true" :has-control="false" :is-live="isLive" :is-ws="isWs" />
+      <player
+        v-if="url"
+        ref="player"
+        :url="url"
+        :type="type"
+        :codec="codec"
+        :auto-play="true"
+        :has-control="false"
+        :is-live="isLive"
+        :is-ws="isWs"
+        :all-address="allAddress"
+      />
     </div>
   </div>
 </template>
@@ -56,15 +67,18 @@ export default class extends Vue {
   private url = ''
   private isLive = false
   private isWs = false
+  private allAddress = {}
 
   private generate() {
     this.url = ''
+
     this.$nextTick(() => {
       this.codec = this.form.codec
       this.type = this.form.type
       this.url = this.form.url
       this.isLive = this.form.isLive
       this.isWs = this.form.isWs
+      this.allAddress['comefrom'] = 'bugger'
     })
   }
 }

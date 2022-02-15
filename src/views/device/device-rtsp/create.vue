@@ -164,17 +164,19 @@
           <el-cascader
             ref="addressCascader"
             v-model="form.address"
-            expand-trigger="click"
+            expand-trigger="hover"
             :disabled="form.gbId !== ''"
             :options="regionList"
             :props="addressProps"
             @change="addressChange"
           />
         </el-form-item>
-        <el-form-item :rules="longLatRules" label="经纬度:" prop="longlat">
-          <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
-          <el-input v-model="form.deviceLatitude" class="longlat-input" />
-        </el-form-item>
+        <template >
+          <el-form-item label="经纬度:" prop="longlat">
+            <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
+            <el-input v-model="form.deviceLatitude" class="longlat-input" />
+          </el-form-item>
+        </template>
         <el-form-item v-if="!isUpdate || !!form.industryCode || !form.gbId" label="所属行业:" prop="industryCode">
           <el-select v-model="form.industryCode" :disabled="form.gbId !== ''" placeholder="请选择所属行业">
             <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />

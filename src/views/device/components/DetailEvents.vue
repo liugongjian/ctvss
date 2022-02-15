@@ -63,7 +63,7 @@ export default class extends Vue {
   private loading = false
   private search = {
     timeRange: [],
-    errorLevel: '0',
+    errorLevel: '1',
     eventType: 'all'
   }
   private errorLevelList: Array<any> = Object.keys(errorLevel).map(error => {

@@ -50,7 +50,8 @@ export default class IndexMixin extends Vue {
   }
 
   public get breadcrumb() {
-    return DeviceModule.breadcrumb ? DeviceModule.breadcrumb : []
+    // 当为查询设备时，面包屑重置为根目录
+    return DeviceModule.breadcrumb && !this.$route.query.isSearch ? DeviceModule.breadcrumb : []
   }
 
   public get isRootDir() {
@@ -134,6 +135,8 @@ export default class IndexMixin extends Vue {
         }
       }
     } else if (this.dirList.length && this.dirList.every((dir: any) => dir.type === 'dir')) {
+      // 如果为查找设备则不执行任何操作
+      if (this.$route.query.isSearch === '1') return
       // 如果根目录下无设备，则跳转至第一个目录下
       this.deviceRouter(this.dirList[0])
     } else {

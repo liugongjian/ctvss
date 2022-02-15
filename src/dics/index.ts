@@ -182,7 +182,9 @@ export const AlertType: any = {
   17: '车牌识别',
   18: '棉花检测',
   19: '入侵检测',
-  20: '在场人员+口罩检测'
+  20: '在场人员+口罩检测',
+  21: '垃圾检测',
+  23: '电动车检测'
 }
 
 export const AiMaskType: any = {
@@ -252,3 +254,10 @@ export const eventsType = {
   'record': '录制事件',
   'coderate_overflow': '超码率'
 }
+// 视频播放比例
+export const scaleKind = [
+  { label: '16:9', kind: '16 / 9', num: '3' },
+  { label: '4:3', kind: '4 / 3', num: '4' },
+  { label: '原始比例', kind: 'normal', num: '2' },
+  { label: '拉伸', kind: 'fit', num: '1' }
+]

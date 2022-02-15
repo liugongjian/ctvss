@@ -42,10 +42,10 @@ export default class extends Vue {
 </script>
 
 <style lang="scss" scoped>
-  .dialog {
-    ::v-deep .el-dialog__body {
-      padding-bottom: 0;
-      padding-right: 50px;
-    }
+.dialog {
+  ::v-deep .el-dialog__body {
+    padding-bottom: 0;
+    padding-right: 50px;
   }
+}
 </style>

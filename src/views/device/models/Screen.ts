@@ -24,6 +24,14 @@ export default class Screen {
   public onCanPlay?: boolean
   public calendarFocus?: boolean
   public errorMsg?: string
+  // 为录像组件时存储观看记录需要用到以下参数
+  public replayType?: string
+  public currentDate?: any
+  public currentTime?: number
+  public isCache?: boolean
+  public videoInfo?: string
+  public allAddress?:any
+  public volume?:any
 
   constructor() {
     this.deviceId = ''
@@ -46,6 +54,13 @@ export default class Screen {
     this.onCanPlay = false
     this.calendarFocus = false
     this.errorMsg = ''
+    this.replayType = 'cloud'
+    this.currentDate = null
+    this.currentTime = null
+    this.isCache = false
+    this.videoInfo = ''
+    this.allAddress = ''
+    this.volume = 30
   }
 
   public async getUrl() {
@@ -59,7 +74,6 @@ export default class Screen {
       this.loading = true
       this.loaded = true
       this.axiosSource = axios.CancelToken.source()
-
       const res: any = await getDevicePreview({
         deviceId: this.deviceId,
         inProtocol: this.inProtocol,
@@ -71,7 +85,9 @@ export default class Screen {
       }, this.axiosSource.token)
       if (res.playUrl) {
         this.url = res.playUrl.flvUrl
+        this.allAddress = res.playUrl
         this.codec = res.video.codec
+        this.videoInfo = res.videoInfo
       }
       this.retry = false
     } catch (e) {
@@ -101,6 +117,12 @@ export default class Screen {
     this.isLive = true
     this.axiosSource && this.axiosSource.cancel()
     this.axiosSource = null
+    this.replayType = 'cloud'
+    this.currentDate = null
+    this.currentTime = null
+    this.isCache = false
+    this.allAddress = ''
+    this.volume = 30
   }
 
   public fullscreen() {
