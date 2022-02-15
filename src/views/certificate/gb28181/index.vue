@@ -4,22 +4,6 @@
       <div class="filter-container">
         <el-button type="primary" @click="handleCreate">新建GB28181凭证</el-button>
         <div class="filter-container__right">
-          <div class="filter-container__select">
-            <el-select
-              v-model="userType"
-              placeholder="选择匿名方式"
-              clearable
-              @change="handleFilter"
-            >
-              <el-option label="全部" value="" />
-              <el-option
-                v-for="(value, key) in anonymousType"
-                :key="key"
-                :label="value"
-                :value="key"
-              />
-            </el-select>
-          </div>
           <el-input
             v-model="userName"
             class="filter-container__search-group"
@@ -68,7 +52,6 @@
 
 <script lang='ts'>
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import { AnonymousType } from '@/dics'
 import { dateFormatInTable } from '@/utils/date'
 import { getList, deleteCertificate } from '@/api/certificate/gb28181'
 import { GB28181 } from '@/type/certificate'
@@ -77,7 +60,6 @@ import { GB28181 } from '@/type/certificate'
   name: 'CertificateGb28181List'
 })
 export default class extends Vue {
-  private anonymousType = AnonymousType
   private userType = ''
   private userName = ''
   private loading = false
