@@ -341,7 +341,7 @@ export const exportDeviceOption = (params: any): Promise<any> =>
   })
 
 /**
- * 获取连州公安局列表
+ * 获取子地址列表，返回Promise
  */
 export const getAddressArea = (params: any): Promise<any> =>
   request({
@@ -349,6 +349,29 @@ export const getAddressArea = (params: any): Promise<any> =>
     method: 'get',
     params
   })
+
+/**
+ * 获取子地址列表, 返回地址列表
+ */
+export const getChildAddress = async(id: any, level: number) => {
+  let params: any = {
+    pid: id,
+    level
+  }
+  let res = await getAddressArea(params)
+  let list = []
+  if (res.areas.length) {
+    list = res.areas.map((item: any) => {
+      return {
+        name: item.name,
+        code: parseInt(item.id),
+        level: parseInt(item.level),
+        leaf: true
+      }
+    })
+  }
+  return list
+}
 
 /**
  * 启用AI应用
