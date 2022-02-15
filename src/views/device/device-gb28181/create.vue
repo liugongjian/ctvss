@@ -102,6 +102,9 @@
         <el-form-item label="设备端口:" prop="devicePort">
           <el-input v-model.number="form.devicePort" />
         </el-form-item>
+        <el-form-item label="设备MAC地址:" prop="macAddr">
+          <el-input v-model="form.macAddr" />
+        </el-form-item>
         <!-- <el-form-item v-if="form.deviceType === 'platform'" label="设备国标编号:" prop="gbId">
           <el-input v-model="form.gbId" />
         </el-form-item> -->
@@ -380,6 +383,7 @@ export default class extends Mixins(createMixin) {
     gbVersion: '2016',
     deviceIp: '',
     devicePort: null,
+    macAddr: '',
     channelSize: '',
     channelNum: '',
     channelName: '',
@@ -446,6 +450,7 @@ export default class extends Mixins(createMixin) {
             'gbVersion',
             'deviceIp',
             'devicePort',
+            'macAddr',
             'channelNum',
             'channelName',
             'description',
@@ -470,9 +475,6 @@ export default class extends Mixins(createMixin) {
           info.deviceType!,
           info.inProtocol!
         )
-        // 设备地址参数转换
-        // let gbCode = this.form.gbRegion.substring(0, 4)
-        // this.form.address = [gbCode.substring(0, 2) + '00', gbCode]
         if (info.deviceStats) {
           // 编辑的时候，设置数量不得小于已创建的子通道中最大通道号或1
           this.minChannelSize = Math.max(...usedChannelNum, 1)
@@ -594,6 +596,7 @@ export default class extends Mixins(createMixin) {
             'inProtocol',
             'deviceIp',
             'devicePort',
+            'macAddr',
             'pullType',
             'userName',
             'deviceLongitude',

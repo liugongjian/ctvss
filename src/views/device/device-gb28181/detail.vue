@@ -77,7 +77,7 @@
                   <el-descriptions-item v-if="info.networkCode && networkFlag" label="网络标识">
                     {{ networkMap[info.networkCode] }}
                   </el-descriptions-item>
-                  <el-descriptions-item  label="经纬度">
+                  <el-descriptions-item label="经纬度">
                     {{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}
                   </el-descriptions-item>
                   <el-descriptions-item label="设备IP">
@@ -85,6 +85,9 @@
                   </el-descriptions-item>
                   <el-descriptions-item label="设备端口">
                     {{ info.devicePort || '-' }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="设备MAC地址">
+                    {{ info.macAddr || '-' }}
                   </el-descriptions-item>
                 </template>
                 <!--子通道信息-->
