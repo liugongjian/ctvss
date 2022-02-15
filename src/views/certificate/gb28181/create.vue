@@ -3,6 +3,7 @@
     <el-page-header :content="breadCrumbContent" @back="back" />
     <el-card>
       <create-form ref="createForm" @editDisabled="editstate">
+        <el-alert v-if="editDisable" class="alert" title="现GB28181凭证注册用户名规则改为小写字母+数字，建议您删除当前凭证后重新新建" type="error" show-icon :closable="false" />
         <el-button type="primary" :disabled="editDisable" @click="submit">确定</el-button>
         <el-button @click="back">取 消</el-button>
       </create-form>
@@ -46,9 +47,12 @@ export default class extends Vue {
 
 <style lang="scss" scoped>
 .app-container {
-  ::v-deep .el-input,
-  ::v-deep .el-textarea {
-    width: 400px;
-  }
+::v-deep .el-input,
+::v-deep .el-textarea {
+width: 400px;
+}
+}
+.alert {
+  margin-bottom: 10px;
 }
 </style>
