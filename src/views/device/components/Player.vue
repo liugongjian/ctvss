@@ -25,7 +25,7 @@
         </template>
       </div>
       <div class="controls__right">
-        <div v-if="hasAudio" class="controls__btn controls__playback volume">
+        <div v-if="hasAudio && !waiting" class="controls__btn controls__playback volume">
           <span @click="switchMuteStatus">
             <svg-icon v-if="volume === 0 || isMute" name="mute" width="18px" height="18px" />
             <svg-icon v-else name="volume" width="18px" height="18px" />
@@ -1196,7 +1196,7 @@ export default class extends Vue {
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 4px;
+        margin: 0 3px;
         padding: 0 4px;
         height: 35px;
         font-size: 12px;
@@ -1313,25 +1313,25 @@ export default class extends Vue {
         opacity: 1;
       }
     }
-    .videoTypeBtn{
+    .videoTypeBtn {
       color: #fff;
     }
   }
-    .videoScaleBox{
-      width: 50px;
-      ::v-deep .el-button--mini{
-        display: block;
-        width: 80%;
-        color: #fff;
-        margin-left:0;
-        text-align: left;
-        &:hover{
-          color: #FA8334;
-        }
-        &.selected{
-          color: #FA8334;
-        }
+  .videoScaleBox {
+    width: 50px;
+    ::v-deep .el-button--mini{
+      display: block;
+      width: 80%;
+      color: #fff;
+      margin-left:0;
+      text-align: left;
+      &:hover{
+        color: #FA8334;
       }
+      &.selected{
+        color: #FA8334;
+      }
+    }
   }
   .canvasScaleBox{
     position: absolute;
@@ -1340,12 +1340,12 @@ export default class extends Vue {
     width: 100%;
     height:100%;
   }
-.videoTypeBox{
-  ::v-deep .el-button--mini{
-    color: #fff;
-    &.activeVideoType{
-      color: #FA8334;
+  .videoTypeBox {
+    ::v-deep .el-button--mini {
+      color: #fff;
+      &.activeVideoType {
+        color: #FA8334;
+      }
     }
   }
-}
 </style>
