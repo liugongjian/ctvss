@@ -77,6 +77,11 @@
             <svg-icon name="zoom" width="16px" height="16px" />
           </div>
         </el-tooltip>
+        <el-tooltip placement="top" :content="showCanvasBox ? '关闭云台局部缩放' : '云台局部缩放(需设备侧支持)'">
+          <div class="controls__btn controls__snapshot videoTypeBtn" :class="{'selected': showCanvasBox}" @click.stop.prevent="changeScaleCanvas">
+            <svg-icon name="screenscale" width="18px" height="18px" />
+          </div>
+        </el-tooltip>
         <el-tooltip content="保存截图" placement="top">
           <div class="controls__btn controls__snapshot" @click.stop.prevent="snapshot">
             <svg-icon name="snapshot" width="18px" height="18px" />
@@ -98,11 +103,6 @@
           </div>
           <div class="controls__btn controls__snapshot videoTypeBtn">
             <svg-icon name="screenratio" width="18px" height="18px" />
-          </div>
-        </el-tooltip>
-        <el-tooltip placement="top" :content="showCanvasBox ? '关闭缩放比例修改' : '开启缩放比例修改'">
-          <div class="controls__btn controls__snapshot videoTypeBtn" :class="{'selected': showCanvasBox}" @click.stop.prevent="changeScaleCanvas">
-            <svg-icon name="screenscale" width="18px" height="18px" />
           </div>
         </el-tooltip>
         <template v-if="hasFullscreen">
@@ -427,7 +427,7 @@ export default class extends Vue {
           player = $video.querySelector('.player-box')
           this.playerFS()
           window.addEventListener('resize', this.playerFS, false)
-          var targetNode = mainBox
+          const targetNode = mainBox
           // 监听video-wrap
           // @ts-ignore
           this.resizeObserver = new ResizeObserver(() => {
@@ -435,8 +435,17 @@ export default class extends Vue {
           })
           this.resizeObserver.observe(targetNode)
         } else {
+          // this.playerFS()
+          player = $video.querySelector('video')
           this.playerFS()
-          // const { clientHeight, clientWidth } = this.player.flv._mediaElement
+          window.addEventListener('resize', this.playerFS, false)
+          const targetNode = this.$refs.video
+          // 监听video-wrap
+          // @ts-ignore
+          this.resizeObserver = new ResizeObserver(() => {
+            this.playerFS()
+          })
+          this.resizeObserver.observe(targetNode)
         }
         this.videoMoveData.player = player
         this.videoMoveData.mainBox = mainBox
@@ -540,6 +549,7 @@ export default class extends Vue {
   public changeScaleCanvas() {
     this.showCanvasBox = !this.showCanvasBox
     this.isZoom = false
+
     if (this.showCanvasBox) {
       let player:any, ctxBox:any
       if (this.codec === 'h265') {
@@ -552,6 +562,7 @@ export default class extends Vue {
       this.$nextTick(() => {
         const oDom = document.querySelector('.canvasScaleBox')
         this.oCanvas = oDom.querySelector('canvas')
+        this.oCanvas.style.cursor = 'crosshair'
         this.oCanvas.style.width = `${player.clientWidth}px`
         this.oCanvas.style.height = `${player.clientHeight}px`
         this.oCanvasWidth = player.clientWidth
@@ -564,6 +575,7 @@ export default class extends Vue {
         this.oCanvas.addEventListener('mousemove', (e) => { this.canvasMouseMove(e) })
         this.oCanvas.addEventListener('mouseup', (e) => { this.canvasMouseUp(e) })
         this.oCanvas.addEventListener('mouseleave', (e) => { this.canvasMouseleave(e) })
+        this.oCanvas.addEventListener('click', (e) => { this.canvasClickHandle(e) })
       })
     } else {
       this.removeListener()
@@ -576,6 +588,7 @@ export default class extends Vue {
     this.oCanvas.removeEventListener('mousemove', (e) => { this.canvasMouseMove(e) })
     this.oCanvas.removeEventListener('mouseup', (e) => { this.canvasMouseUp(e) })
     this.oCanvas.removeEventListener('mouseleave', (e) => { this.canvasMouseleave(e) })
+    this.oCanvas.removeEventListener('click', (e) => { this.canvasClickHandle(e) })
   }
 
   // 获取canvas 点坐标
@@ -605,6 +618,19 @@ export default class extends Vue {
       this.ctxShape.rect(this.oShape.startX, this.oShape.startY, this.oShape.endX - this.oShape.startX,
         this.oShape.endY - this.oShape.startY)
       this.ctxShape.stroke()
+    }
+  }
+
+  private canvasClickHandle(e:any) {
+    const mousePos = this.getCanvasMousePos(e)
+    if (!mousePos) return
+    const [x, y] = mousePos
+    console.log(x, y, this.oShape)
+    if (x === this.oShape.startX && y === this.oShape.startY) {
+      this.oShape = {}
+      this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
+      this.ctxDrawState = false
+      this.removeListener()
     }
   }
 
@@ -661,6 +687,7 @@ export default class extends Vue {
     this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
     this.ctxDrawState = false
     this.removeListener()
+    this.oCanvas.style.cursor = 'auto'
 
     const param = {
       deviceId: this.deviceId,
@@ -672,13 +699,15 @@ export default class extends Vue {
       lengthX,
       lengthY
     }
-    dragCanvasZoom(param).then(() => {
-      this.$message.success('请等待设备调整角度')
-      this.showCanvasBox = false
-    }).catch(err => {
-      this.$message.error(err)
-      this.showCanvasBox = false
-    })
+    if (lengthX !== '0' || lengthY !== '0') {
+      dragCanvasZoom(param).then(() => {
+        this.$message.success('请等待设备调整角度')
+        this.showCanvasBox = false
+      }).catch(err => {
+        this.$message.error(err)
+        this.showCanvasBox = false
+      })
+    }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
