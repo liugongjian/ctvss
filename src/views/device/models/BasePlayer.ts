@@ -1,5 +1,6 @@
 import { dateFormat } from '@/utils/date'
 import { isIE } from '@/utils/browser'
+import { debug } from 'console'
 
 export class BasePlayer {
   public config: any
