@@ -1,6 +1,5 @@
 <template>
   <div v-if="deviceId" class="container">
-  <!-- <div v-if="true" class="container"> -->
     <div v-show="!isClosed" class="container__ptz">
       <div class="container__ptz__title">
         <label>云台控制</label>
@@ -226,28 +225,30 @@ export default class extends Vue {
   @Watch('deviceId')
   private async onDeviceIdChange(newValue: string) {
     if (newValue) {
-      // 获取预置位信息
-      try {
-        this.loading.preset = true
-        const res = await describeDevicePresets({ deviceId: newValue })
-        this.presets = Array.from({ length: 255 }, (value, index) => {
-          const found = res.presets.find((preset: any) => preset.presetId === (index + 1).toString())
-          return {
-            setFlag: !!found,
-            name: found?.presetName || `预置位 ${index + 1}`,
-            index: (index + 1).toString(),
-            editNameFlag: false
-          }
-        })
-        this.homepositionList.length && (this.homepositionForm.presetId = this.homepositionList[0].index)
-        this.loading.preset = false
-      } catch (e) {
-        this.loading.preset = false
-        this.$message.error(`查询预置位失败，原因：${e && e.message}`)
-      }
-
+      this.getPresets()
       this.getCruises()
       this.getKeepWatchInfo()
+    }
+  }
+  // 获取预置位信息
+  private async getPresets() {
+    try {
+      this.loading.preset = true
+      const res = await describeDevicePresets({ deviceId: this.deviceId })
+      this.presets = Array.from({ length: 255 }, (value, index) => {
+        const found = res.presets.find((preset: any) => preset.presetId === (index + 1).toString())
+        return {
+          setFlag: !!found,
+          name: found?.presetName || `预置位 ${index + 1}`,
+          index: (index + 1).toString(),
+          editNameFlag: false
+        }
+      })
+      this.homepositionList.length && (this.homepositionForm.presetId = this.homepositionList[0].index)
+    } catch (e) {
+      this.$message.error(`查询预置位失败，原因：${e && e.message}`)
+    } finally {
+      this.loading.preset = false
     }
   }
 
@@ -301,11 +302,12 @@ export default class extends Vue {
   }
   private async setPreset(presetId: number, presetName: string) {
     await setDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId), presetName })
-    this.$set(this.presets, presetId - 1, {
-      'setFlag': true,
-      'name': presetName,
-      'editNameFlag': false
-    })
+    // this.$set(this.presets, presetId - 1, {
+    //   'setFlag': true,
+    //   'name': presetName,
+    //   'editNameFlag': false
+    // })
+    this.getPresets()
   }
   private enterEdit(preset: any, index: number) {
     preset.editNameFlag = true
