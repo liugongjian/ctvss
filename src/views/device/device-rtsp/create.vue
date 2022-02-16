@@ -422,7 +422,8 @@ export default class extends Mixins(createMixin) {
       { validator: this.validateDeviceIp, trigger: 'blur' }
     ],
     devicePort: [
-      { required: true, message: '请输入设备端口', trigger: 'blur' }
+      { required: true, message: '请输入设备端口', trigger: 'blur' },
+      { validator: this.validateDevicePort, trigger: 'blur' }
     ],
     address: [{ required: true, message: '请选择设备地址', trigger: 'blur' }],
     longlat: [
