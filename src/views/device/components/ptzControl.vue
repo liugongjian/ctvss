@@ -126,7 +126,7 @@
                   <el-form-item label="等待时间:" prop="waitTime">
                     <el-input v-model="homepositionForm.waitTime" :disabled="homepositionForm.enable !== '1'" /> 秒
                   </el-form-item>
-                  <el-form-item required label="守望位置:" prop="presetId">
+                  <el-form-item label="守望位置:" prop="presetId">
                     <el-select v-model="homepositionForm.presetId" :disabled="homepositionForm.enable !== '1'">
                       <el-option
                         v-for="(item, index) in homepositionList"
@@ -207,7 +207,7 @@ export default class extends Vue {
   }
   private homepositionRules: any = {
     waitTime: [
-      { required: true, message: '请填写守望时间', trigger: 'blur' },
+      // { required: true, message: '请填写守望时间', trigger: 'blur' },
       { validator: this.validateHomepositionTime, trigger: 'blur' }
     ],
     presetId: [
@@ -244,7 +244,9 @@ export default class extends Vue {
           editNameFlag: false
         }
       })
-      this.homepositionList.length && (this.homepositionForm.presetId = this.homepositionList[0].index)
+      if (res.presets.length === 0) {
+        this.homepositionForm.presetId = ''
+      }
     } catch (e) {
       this.$message.error(`查询预置位失败，原因：${e && e.message}`)
     } finally {
@@ -294,11 +296,12 @@ export default class extends Vue {
 
   private async deletePreset(presetId: number) {
     await deleteDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId) })
-    this.$set(this.presets, presetId - 1, {
-      'setFlag': false,
-      'name': `预置位 ${presetId}`,
-      'editNameFlag': false
-    })
+    // this.$set(this.presets, presetId - 1, {
+    //   'setFlag': false,
+    //   'name': `预置位 ${presetId}`,
+    //   'editNameFlag': false
+    // })
+    this.getPresets()
   }
   private async setPreset(presetId: number, presetName: string) {
     await setDevicePreset({ 'deviceId': this.deviceId, presetId: String(presetId), presetName })
@@ -520,7 +523,11 @@ export default class extends Vue {
   }
 
   private validateHomepositionTime(rule: any, value: any, callback: Function) {
-    if (!/^[0-9]*$/.test(value)) {
+    if (this.homepositionForm.enable === '0') {
+      callback()
+    } else if (!value) {
+      callback(new Error('请填写等待时间'))
+    } else if (!/^[0-9]*$/.test(value)) {
       callback(new Error('时间格式错误'))
     } else if (value < 5 || value > 720) {
       callback(new Error('仅支持5-720秒'))
@@ -530,7 +537,9 @@ export default class extends Vue {
   }
 
   private validateHomeposition(rule: any, value: any, callback: Function) {
-    if (this.homepositionList.length === 0) {
+    if (this.homepositionForm.enable === '0') {
+      callback()
+    } else if (this.homepositionList.length === 0) {
       callback(new Error('请先配置预置位再选择守望位置'))
     } else if (!value) {
       callback(new Error('请选择守望位置'))
