@@ -333,6 +333,7 @@ export default class extends Vue {
         this.createPlayer()
       })
     }
+    this.$emit('onTypeChange', this.videoType)
   }
 
   private beforeDestroy() {
