@@ -13,13 +13,13 @@
         <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
           <div class="dir-list" :style="`width: ${dirDrag.width}px`">
             <div class="dir-list__tools">
-              <el-tooltip v-if="!isVGroup && checkPermission(['AdminDevice'], {id: currentGroupId})" class="item" effect="dark" content="子目录排序" placement="top" :open-delay="300">
+              <el-tooltip v-if="!isVGroup && checkPermission(['AdminDevice'], {id: currentGroupId}) && !search.revertSearchFlag" class="item" effect="dark" content="子目录排序" placement="top" :open-delay="300">
                 <el-button type="text" @click.stop="openDialog('sortChildren', {id: '0'})"><svg-icon name="sort" /></el-button>
               </el-tooltip>
               <el-tooltip class="item" effect="dark" content="刷新目录" placement="top" :open-delay="300">
                 <el-button type="text" @click="initDirs"><svg-icon name="refresh" /></el-button>
               </el-tooltip>
-              <el-tooltip v-if="!isVGroup && checkPermission(['AdminDevice'], {id: currentGroupId})" class="item" effect="dark" content="添加目录" placement="top" :open-delay="300">
+              <el-tooltip v-if="!isVGroup && checkPermission(['AdminDevice'], {id: currentGroupId}) && !search.revertSearchFlag" class="item" effect="dark" content="添加目录" placement="top" :open-delay="300">
                 <el-button type="text" @click="openDialog('createDir')"><svg-icon name="plus" /></el-button>
               </el-tooltip>
               <el-tooltip v-if="false" class="item" effect="dark" content="目录设置" placement="top" :open-delay="300">
@@ -33,6 +33,8 @@
                 <span class="sum-icon">{{ `(${rootSums.online}/${rootSums.total})` }}</span>
               </div>
               <el-tree
+                v-if="!search.revertSearchFlag"
+                key="device-el-tree-original"
                 ref="dirTree"
                 empty-text="暂无目录或设备"
                 :data="dirList"
@@ -42,7 +44,6 @@
                 :load="loadDirs"
                 :props="treeProp"
                 :current-node-key="defaultKey"
-                :default-expand-all="!!search.searchKey"
                 @node-click="deviceRouter"
               >
                 <span
@@ -81,9 +82,54 @@
                   </div>
                 </span>
               </el-tree>
+              <el-tree
+                v-else
+                key="device-el-tree-filter"
+                ref="dirTree"
+                empty-text="暂无目录或设备"
+                :data="dirList"
+                node-key="id"
+                highlight-current
+                :props="treeProp"
+                :current-node-key="defaultKey"
+                default-expand-all
+                @node-click="deviceRouter"
+              >
+                <span
+                  slot-scope="{node, data}"
+                  class="custom-tree-node"
+                  :class="{'online': data.deviceStatus === 'on'}"
+                >
+                  <span class="node-name">
+                    <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
+                    <span v-else class="node-dir">
+                      <svg-icon name="dir" width="15" height="15" />
+                      <svg-icon name="dir-close" width="15" height="15" />
+                    </span>
+                    <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
+                    {{ node.label }}
+                    <span class="sum-icon">{{ getSums(data) }}</span>
+                    <span class="alert-type">{{ renderAlertType(data) }}</span>
+                  </span>
+                </span>
+              </el-tree>
             </div>
-            <div class="dir-list__search">
-              <el-input v-model="search.inputKey" size="mini" placeholder="支持设备名、国标ID、设备IP查询" />
+            <!-- 国标才展示 -->
+            <div v-if="currentGroup.inProtocol === 'gb28181'" class="dir-list__search">
+              <el-dropdown placement="top-start" @command="changeSearchStatus">
+                <el-button class="dir-list__search-button" :type="search.statusKey === 'all' ? 'default': 'primary'" size="mini" style="margin-right: 5px!important">
+                  <svg-icon name="filter" />
+                </el-button>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item v-for="option in search.statusOptions" :key="option.label" :command="option.value">
+                    <i v-if="search.statusKey === option.value" class="el-icon-check" />{{ option.label }}
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+              <el-tooltip class="item" effect="dark" content="支持国标ID、设备IP、设备名查询" placement="top-start">
+                <!-- TIPS 需要处理为空时候的直接回车 -->
+                <el-input v-model="search.inputKey" size="mini" placeholder="支持国标ID、设备IP、设备名查询" @keyup.enter.native="enterKeySearch" />
+              </el-tooltip>
               <el-button class="dir-list__search-button" type="primary" size="mini" icon="el-icon-search" :disabled="!search.inputKey.length" @click="filterSearchResult" />
               <el-button v-if="search.revertSearchFlag" class="dir-list__search-button" type="primary" size="mini" @click="revertSearchResult">
                 <svg-icon name="revert" />
@@ -146,15 +192,8 @@ export default class extends Mixins(IndexMixin) {
     sortChildren: false
   }
 
-  private get defaultKey() {
-    const id = this.$route.query.deviceId || this.$route.query.dirId
-    if (!id) {
-      return null
-    }
-    return id
-  }
-
   private mounted() {
+    this.initSearchStatus()
     // this.getGroupList()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
@@ -172,6 +211,13 @@ export default class extends Mixins(IndexMixin) {
 
   @Watch('currentGroupId', { immediate: true })
   private onCurrentGroupChange(groupId: string, oldGroupId: string) {
+    this.search = {
+      ...this.search,
+      inputKey: '',
+      searchKey: '',
+      statusKey: 'all',
+      revertSearchFlag: false
+    }
     if (!groupId) return
     this.$nextTick(() => {
       if (oldGroupId || !this.defaultKey) {

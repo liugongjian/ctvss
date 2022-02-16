@@ -414,11 +414,13 @@ export default class ListMixin extends Mixins(DeviceMixin) {
       let res: any
       this.loading.list = true
       params.dirId = this.dirId ? this.dirId : 0
-      console.log('this.$route.query: ', this.$route.query)
       const searchKey = this.$route.query.searchKey
-      console.log('searchKey: ', searchKey)
       if (searchKey) {
         params.searchKey = searchKey
+      }
+      const statusKey = this.$route.query.statusKey
+      if (statusKey !== 'all') {
+        params.statusKey = statusKey
       }
       const axiosSource = axios.CancelToken.source()
       this.axiosSources.push(axiosSource)

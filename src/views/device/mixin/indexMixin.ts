@@ -5,13 +5,29 @@ import { getDeviceTree } from '@/api/device'
 import { VGroupModule } from '@/store/modules/vgroup'
 import { isThisSecond } from 'date-fns'
 import { data } from './data'
+import { dir } from 'console'
 
 @Component
 export default class IndexMixin extends Vue {
   @Provide('outerSearch')
   public search = {
-    searchKey: '',
-    inputKey: '',
+    searchKey: '', // 目录树搜索框当前生效内容
+    statusKey: 'all', // 目录树搜索框快捷搜索内容
+    statusOptions: [
+      {
+        label: '在线',
+        value: 'on'
+      },
+      {
+        label: '离线',
+        value: 'off'
+      },
+      {
+        label: '全部',
+        value: 'all'
+      }
+    ],
+    inputKey: '', // 目录树搜索框当前输入内容
     revertSearchFlag: false
   }
   public maxHeight = 1000
@@ -39,6 +55,14 @@ export default class IndexMixin extends Vue {
     label: 'label',
     children: 'children',
     isLeaf: 'isLeaf'
+  }
+
+  public get defaultKey() {
+    const id = this.$route.query.deviceId || this.$route.query.dirId
+    if (!id) {
+      return null
+    }
+    return id
   }
 
   public get currentGroup() {
@@ -69,19 +93,55 @@ export default class IndexMixin extends Vue {
     return DeviceModule.isSorted
   }
 
+  public initSearchStatus() {
+    const query: any = this.$route.query
+    this.search.inputKey = query.searchKey || ''
+    this.search.searchKey = query.searchKey || ''
+    this.search.statusKey = query.statusKey || 'all'
+    this.search.revertSearchFlag = (!!this.search.searchKey || this.search.statusKey !== 'all')
+  }
+
+  private async changeSearchStatus(command: string) {
+    // 重置搜索框内容为搜索关键字
+    this.search.inputKey = this.search.searchKey
+    this.search.statusKey = command
+    this.search.revertSearchFlag = (!!this.search.searchKey || this.search.statusKey !== 'all')
+    const query = {
+      inProtocol: this.$route.query.inProtocal,
+      searchKey: this.search.searchKey,
+      statusKey: this.search.statusKey
+    }
+    this.$router.replace({
+      query
+    })
+    await this.initDirs()
+  }
+
+  /**
+   * 回车键搜索（需额外处理输入框为空的情况）
+   */
+  private enterKeySearch() {
+    if (!this.search.inputKey) {
+      return
+    }
+    this.filterSearchResult()
+  }
+
   /**
    * 搜索过滤
    */
   private async filterSearchResult() {
     const query = {
-      inProtocol: this.$route.query.inProtocal
+      inProtocol: this.$route.query.inProtocal,
+      searchKey: this.search.inputKey,
+      statusKey: this.search.statusKey
     }
     this.$router.replace({
       query
     })
     this.search.searchKey = this.search.inputKey
-    await this.initDirs()
     this.search.revertSearchFlag = true
+    await this.initDirs()
   }
 
   /**
@@ -90,8 +150,18 @@ export default class IndexMixin extends Vue {
   private async revertSearchResult() {
     this.search.inputKey = ''
     this.search.searchKey = ''
-    await this.initDirs()
+    this.search.statusKey = 'all'
     this.search.revertSearchFlag = false
+    // 退出搜索时不清空当前所在路径，便于initDirs后直接定位到之前路径
+    const query = {
+      ...this.$route.query,
+      searchKey: '',
+      statusKey: 'all'
+    }
+    this.$router.replace({
+      query
+    })
+    await this.initDirs()
   }
 
   /**
@@ -106,7 +176,8 @@ export default class IndexMixin extends Vue {
       const res = await getDeviceTree({
         groupId: this.currentGroupId,
         id: 0,
-        searchKey: this.search.searchKey || undefined
+        searchKey: this.search.searchKey || undefined,
+        statusKey: this.search.statusKey !== 'all' ? this.search.statusKey : undefined
       })
       this.dirList = this.setDirsStreamStatus(res.dirs)
       this.getRootSums(this.dirList)
@@ -156,15 +227,15 @@ export default class IndexMixin extends Vue {
   public async initTreeStatus() {
     const blackList = ['/screen', '/replay']
     const path = this.$route.path
-    if (this.search.searchKey) {
+    if (this.search.searchKey || this.search.statusKey !== 'all') {
       // 根据搜索结果 组装 目录树
       this.dirList = this.transformDirList(this.dirList)
       if (blackList.indexOf(path) === -1 && this.dirList.length) {
         let nonLeafNode: any = this.dirList[0]
-        while (nonLeafNode && nonLeafNode.children) {
-          nonLeafNode = nonLeafNode.children
+        while (nonLeafNode && nonLeafNode.children && nonLeafNode.children.length) {
+          nonLeafNode = nonLeafNode.children[0]
         }
-        this.deviceRouter(nonLeafNode)
+        this.$nextTick(() => this.deviceRouter(nonLeafNode))
       }
     } else if (blackList.indexOf(path) === -1) {
       const dirTree: any = this.$refs.dirTree
@@ -177,6 +248,8 @@ export default class IndexMixin extends Vue {
           if (node) {
             await this.loadDirChildren(_key, node)
             if (i === keyPath.length - 1) {
+              // 避免刷新目录后无法选中
+              dirTree.setCurrentKey(this.defaultKey)
               DeviceModule.SetBreadcrumb(this.getDirPath(node).reverse())
             }
           }
@@ -274,14 +347,13 @@ export default class IndexMixin extends Vue {
    */
   @Provide('deviceRouter')
   public async deviceRouter(item: any, node?: any) {
-    console.log('item: ', item)
-    console.log('node: ', node)
     const dirTree: any = this.$refs.dirTree
     let _node: any
     if (!node) {
       _node = dirTree.getNode(item.id)
       if (_node) {
-        if (!_node.loaded) {
+        // 过滤状态全量返回,不需要手动加载
+        if (!_node.loaded && !this.search.revertSearchFlag) {
           this.loadDirChildren(item.id, _node)
         }
         _node.parent.expanded = true
@@ -399,6 +471,7 @@ export default class IndexMixin extends Vue {
       type: item.type,
       path: this.breadcrumb.map((item: any) => item.id).join(','),
       searchKey: this.search.searchKey,
+      statusKey: this.search.statusKey,
       ...query
     }
 
