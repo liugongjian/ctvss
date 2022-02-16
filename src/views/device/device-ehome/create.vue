@@ -356,6 +356,7 @@ export default class extends Mixins(createMixin) {
       { validator: this.validateChannelNum, trigger: 'change' }
     ],
     deviceIp: [{ validator: this.validateDeviceIp, trigger: 'blur' }],
+    devicePort: [{ validator: this.validateDevicePort, trigger: 'blur' }],
     address: [{ required: true, message: '请选择设备地址', trigger: 'blur' }],
     industryCode: [
       { required: true, message: '请选择所属行业', trigger: 'blur' }
@@ -600,6 +601,8 @@ export default class extends Mixins(createMixin) {
             'networkCode'
           ])
         )
+        // 强制转换设备端口字段类型
+        params.devicePort = parseInt(params.devicePort)
         if (this.form.pullType === 1) {
           params = Object.assign(params, pick(this.form, ['autoStreamNum']))
         }
