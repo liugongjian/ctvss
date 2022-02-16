@@ -26,7 +26,7 @@
         :in-protocol="inProtocol"
         :device-id="deviceId"
         :video-info="videoInfo"
-        :volume="volume"
+        :default-volume="volume"
         @onCanPlay="onCanPlay"
         @onRetry="onRetry"
         @onFullscreen="fullscreen"
