@@ -32,6 +32,7 @@
         @onFullscreen="fullscreen"
         @onExitFullscreen="exitFullscreen"
         @onIntercom="onIntercom(intercomInfo, ...arguments)"
+        @onTypeChange="onTypeChange"
       />
     </div>
 
@@ -146,6 +147,13 @@ export default class extends Vue {
   private closeIntercom() {
     this.volume = 30
     this.ifIntercom = false
+  }
+
+  /**
+   * 切换播放格式
+   */
+  private onTypeChange(type: string) {
+    this.type = type.toLowerCase()
   }
 
   /**
