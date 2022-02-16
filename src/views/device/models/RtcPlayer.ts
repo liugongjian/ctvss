@@ -38,6 +38,7 @@ export class RtcPlayer extends BasePlayer {
     this.player.addEventListener('play', this.onPlay.bind(this))
     this.player.addEventListener('pause', this.onPause.bind(this))
     this.player.addEventListener('timeupdate', this.onTimeUpdate.bind(this))
+    this.player.addEventListener('volumechange', this.onVolumeChange.bind(this))
     this.player.addEventListener('durationchange', this.onDurationChange.bind(this))
     this.player.addEventListener('ended', this.onEnded.bind(this))
     this.player.addEventListener('seeked', this.onSeeked.bind(this))
@@ -110,5 +111,6 @@ export class RtcPlayer extends BasePlayer {
     this.player.removeEventListener('progress', this.onBuffered)
     this.player.removeEventListener('loadstart', this.onLoadStart)
     this.player.removeEventListener('canplay', this.onCanplay)
+    this.player.removeEventListener('volumechange', this.onVolumeChange)
   }
 }
