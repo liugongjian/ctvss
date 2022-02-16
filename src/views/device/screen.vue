@@ -392,12 +392,8 @@ export default class extends Mixins(ScreenMixin) {
         this.currentIndex = 0
       })
       this.initDirs()
+      this.stopPolling()
     })
-
-    // TODO: 泰州专属
-    if (groupId === '80337930297556992') {
-      this.maxSize = 1
-    }
   }
 
   @Watch('currentIndex')
@@ -628,7 +624,6 @@ export default class extends Mixins(ScreenMixin) {
         continue
       } else {
         this.screenList[i].deviceId = this.autoPlayDevices[i].id
-        this.screenList[i].type = this.autoPlayDevices[i].type
         this.screenList[i].deviceName = this.autoPlayDevices[i].label
         this.screenList[i].inProtocol = this.currentGroupInProtocol!
       }
