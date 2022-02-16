@@ -229,7 +229,7 @@
                           :device-id="screen.deviceId"
                           :video-info="screen.videoInfo"
                           :all-address="screen.allAddress"
-                          :volume="screen.volume"
+                          :default-volume="screen.volume"
                           @onCanPlay="playEvent(screen, ...arguments)"
                           @onRetry="onRetry(screen, ...arguments)"
                           @onPlayback="onPlayback(screen)"
