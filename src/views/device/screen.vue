@@ -287,7 +287,7 @@
             </div>
           </div>
         </div>
-        <ptz-control v-if="!polling.isStart" :device-id="selectedDeviceId" />
+        <ptz-control v-if="!polling.isStart && currentGroupInProtocol === 'gb28181'" :device-id="selectedDeviceId" />
       </div>
     </el-card>
 
