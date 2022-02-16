@@ -77,7 +77,7 @@
             <svg-icon name="zoom" width="16px" height="16px" />
           </div>
         </el-tooltip>
-        <el-tooltip v-if="isLive" placement="top" :content="showCanvasBox ? '关闭云台局部缩放' : '云台局部缩放(需设备侧支持)'">
+        <el-tooltip v-if="isLive && inProtocol === 'gb28181'" placement="top" :content="showCanvasBox ? '关闭云台局部缩放' : '云台局部缩放(需设备侧支持)'">
           <div class="controls__btn controls__snapshot videoTypeBtn" :class="{'selected': showCanvasBox}" @click.stop.prevent="changeScaleCanvas">
             <svg-icon name="screenscale" width="18px" height="18px" />
           </div>

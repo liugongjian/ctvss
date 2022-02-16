@@ -97,6 +97,12 @@
                     <el-descriptions-item v-if="info.inType === 'pull' && info.enableDomain === 2" label="设备IP">{{ info.deviceIp }}</el-descriptions-item>
                     <el-descriptions-item v-if="info.inType === 'pull'" label="设备端口">{{ info.devicePort }}</el-descriptions-item>
                   </template>
+                  <el-descriptions-item v-if="info.deviceVendor === '其他'" label="自定义拉流地址">
+                    {{ info.pullUrl || '-' }}
+                    <el-tooltip v-if="info.pullUrl" class="item" effect="dark" content="复制链接" placement="top">
+                      <el-button type="text" class="copy-button" @click="copyUrl(info.pullUrl)"><svg-icon name="copy" /></el-button>
+                    </el-tooltip>
+                  </el-descriptions-item>
                 </template>
                 <!--子通道信息-->
                 <template v-if="info && isNVRChannel">
@@ -158,12 +164,6 @@
                   {{ info.pushUrl || '-' }}
                   <el-tooltip v-if="info.pushUrl" class="item" effect="dark" content="复制链接" placement="top">
                     <el-button type="text" class="copy-button" @click="copyUrl(info.pushUrl)"><svg-icon name="copy" /></el-button>
-                  </el-tooltip>
-                </el-descriptions-item>
-                <el-descriptions-item v-else label="拉流地址">
-                  {{ info.pullUrl || '-' }}
-                  <el-tooltip v-if="info.pullUrl" class="item" effect="dark" content="复制链接" placement="top">
-                    <el-button type="text" class="copy-button" @click="copyUrl(info.pullUrl)"><svg-icon name="copy" /></el-button>
                   </el-tooltip>
                 </el-descriptions-item>
               </el-descriptions>
