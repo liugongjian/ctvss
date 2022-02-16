@@ -3,6 +3,7 @@ import { DeviceModule } from '@/store/modules/device'
 import { GroupModule } from '@/store/modules/group'
 import { getDeviceTree } from '@/api/device'
 import { VGroupModule } from '@/store/modules/vgroup'
+import { setDirsStreamStatus } from '@/utils/device'
 
 @Component
 export default class IndexMixin extends Vue {
@@ -61,6 +62,8 @@ export default class IndexMixin extends Vue {
   public get isSorted() {
     return DeviceModule.isSorted
   }
+
+  public setDirsStreamStatus = setDirsStreamStatus
 
   /**
    * 初始化目录
@@ -426,22 +429,5 @@ export default class IndexMixin extends Vue {
     } catch (e) {
       resolve([])
     }
-  }
-
-  /**
-   * 设置目录树设备流状态
-   */
-  public setDirsStreamStatus(dirs: any) {
-    return dirs.map((dir: any) => {
-      if (!dir.streamStatus && dir.deviceStreams && dir.deviceStreams.length > 0) {
-        const hasOnline = dir.deviceStreams.some((stream: any) => {
-          return stream.streamStatus === 'on'
-        })
-        if (hasOnline) {
-          dir.streamStatus = 'on'
-        }
-      }
-      return dir
-    })
   }
 }

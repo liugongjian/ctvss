@@ -222,7 +222,7 @@ export default class extends Vue {
   // }
   private getUserConfigInfo() {
     const userScaleConfig = this.$store.state.user.userConfigInfo
-    if (userScaleConfig.length > 0) {
+    if (userScaleConfig.length > 0 && userScaleConfig.find((item:any) => item.key === 'videoScale').value) {
       this.form.scaleVal = userScaleConfig.find((item:any) => item.key === 'videoScale').value
     } else {
       this.form.scaleVal = '1'
@@ -232,12 +232,16 @@ export default class extends Vue {
   private save() {
     const param = { 'userConfig': [{ key: 'videoScale', value: this.form.scaleVal }] }
     updatetUserConfig(param).then(() => {
+      this.$message.success('操作成功')
       const temp = this.$store.state.user.userConfigInfo
       const result = temp.find((item:any) => item.key === 'videoScale')
       result.value = this.form.scaleVal
       const final = [temp.find((item:any) => item.key !== 'videoScale'), result]
       this.$store.state.user.userConfigInfo = final
-    }).catch(err => console.log('err->', err))
+    }).catch(err => {
+      this.$message.error('操作失败')
+      console.log('err->', err)
+    })
   }
 }
 

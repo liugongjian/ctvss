@@ -35,7 +35,8 @@ export default class CreateMixin extends Vue {
 
   public submitting = false
 
-  public deviceVendorList = ['海康', '大华', '宇视', '科达', '华为', '其他']
+  public deviceVendorList = ['海康', '大华', '宇视', '其他']
+  // public deviceVendorList = ['海康', '大华', '宇视', '科达', '华为', '其他']
 
   public tips = DeviceTips
 
