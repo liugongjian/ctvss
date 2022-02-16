@@ -77,7 +77,7 @@
             <svg-icon name="zoom" width="16px" height="16px" />
           </div>
         </el-tooltip>
-        <el-tooltip placement="top" :content="showCanvasBox ? '关闭云台局部缩放' : '云台局部缩放(需设备侧支持)'">
+        <el-tooltip v-if="isLive" placement="top" :content="showCanvasBox ? '关闭云台局部缩放' : '云台局部缩放(需设备侧支持)'">
           <div class="controls__btn controls__snapshot videoTypeBtn" :class="{'selected': showCanvasBox}" @click.stop.prevent="changeScaleCanvas">
             <svg-icon name="screenscale" width="18px" height="18px" />
           </div>
@@ -296,7 +296,7 @@ export default class extends Vue {
     // 初始化状态
     this.volume = this.defaultVolume
 
-    if (!this.allAddress.comefrom || this.allAddress.comefrom !== 'bugger') {
+    if (!this.allAddress || !this.allAddress.comefrom || this.allAddress.comefrom !== 'bugger') {
       this.getVideoType()
     }
     this.getUserScaleConfig()
@@ -311,7 +311,7 @@ export default class extends Vue {
     }
 
     if (!kind) {
-      if (ifWebRTC() && this.allAddress.webrtcUrl) {
+      if (ifWebRTC() && this.allAddress && this.allAddress.webrtcUrl) {
         // this.videoType = 'RTC'
         this.ifCanRTC = true
       } else {
@@ -453,6 +453,7 @@ export default class extends Vue {
 
   public getUserScaleConfig() {
     const userScaleConfig:Array<any> = this.$store.state.user.userConfigInfo || []
+    console.log('userScaleConfig--->', userScaleConfig)
     const scaleInfo = userScaleConfig.find((item:any) => item.key === 'videoScale')
     const scaleNum = scaleInfo ? scaleInfo.value : '-1'
     this.userScaleConfig = scaleNum
@@ -631,6 +632,7 @@ export default class extends Vue {
   }
 
   private canvasMouseDown(e:any) {
+    e.stopPropagation()
     const mousePos = this.getCanvasMousePos(e)
     if (!mousePos) return
     const [x, y] = mousePos
@@ -644,6 +646,7 @@ export default class extends Vue {
   }
 
   private canvasMouseMove(e:any) {
+    e.stopPropagation()
     if (this.oShape && this.ctxDrawState) {
       const mousePos = this.getCanvasMousePos(e)
       if (!mousePos) {
@@ -659,6 +662,7 @@ export default class extends Vue {
   }
 
   private canvasMouseUp(e:any) {
+    e.stopPropagation()
     // TODO 鼠标移入黑色区域，取消画框
     const mousePos = this.getCanvasMousePos(e)
     if (!mousePos) return
