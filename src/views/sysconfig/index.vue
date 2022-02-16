@@ -58,7 +58,7 @@
         <el-tab-pane label="画面" name="frame">
           <el-form-item label="默认画面比例">
             <el-select v-model="form.scaleVal" placeholder="请选择默认画面比例">
-              <el-option v-for="item in scaleKind" :key="item.kind" :label="item.label" :value="item.num" />
+              <el-option v-for="item in scaleKind" :key="item.kind" :label="item.label" :value="item.num" @change="changeThis" />
             </el-select>
           </el-form-item>
         </el-tab-pane>
@@ -97,15 +97,12 @@ const validPhone = (rule, value, callback) => {
 export default class extends Vue {
   private scaleKind = scaleKind
   private activeName = 'common'
-  private formFrame:any={
-    scaleVal: ''
-  }
   public form:any = {
     active: false,
     phoneNumber: '',
     screen: 'false',
     replay: 'false',
-    scaleVal: ''
+    scaleVal: '1'
   }
   public rules = {
     phoneNumber: [{ required: true, trigger: 'blur', validator: validPhone }]
@@ -126,7 +123,6 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    this.getUserConfigInfo()
     try {
       this.form = await getPhoneNumberForAISMS({})
     } catch (e) {
@@ -138,6 +134,11 @@ export default class extends Vue {
         ...this.form,
         ...this.screenCacheSettings
       }
+    } catch (e) {
+      console.log(e)
+    }
+    try {
+      await this.getUserConfigInfo()
     } catch (e) {
       console.log(e)
     }
@@ -220,13 +221,18 @@ export default class extends Vue {
   //     this.loading = false
   //   }
   // }
-  private getUserConfigInfo() {
+  private async getUserConfigInfo() {
     const userScaleConfig = this.$store.state.user.userConfigInfo
     if (userScaleConfig.length > 0 && userScaleConfig.find((item:any) => item.key === 'videoScale').value) {
       this.form.scaleVal = userScaleConfig.find((item:any) => item.key === 'videoScale').value
     } else {
       this.form.scaleVal = '1'
     }
+    console.log(this.form)
+  }
+
+  private changeThis() {
+    console.log(this.form.scaleVal)
   }
 
   private save() {
@@ -236,10 +242,11 @@ export default class extends Vue {
       const temp = this.$store.state.user.userConfigInfo
       const result = temp.find((item:any) => item.key === 'videoScale')
       result.value = this.form.scaleVal
-      const final = [temp.find((item:any) => item.key !== 'videoScale'), result]
+      const tempObj = temp.find((item:any) => item.key !== 'videoScale') || {}
+      const final = [...tempObj, result]
       this.$store.state.user.userConfigInfo = final
     }).catch(err => {
-      this.$message.error('操作失败')
+      // this.$message.error('操作失败')
       console.log('err->', err)
     })
   }

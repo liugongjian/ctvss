@@ -296,7 +296,7 @@ export default class extends Vue {
     // 初始化状态
     this.volume = this.defaultVolume
 
-    if (!this.allAddress.comefrom || this.allAddress.comefrom !== 'bugger') {
+    if (!this.allAddress || !this.allAddress.comefrom || this.allAddress.comefrom !== 'bugger') {
       this.getVideoType()
     }
     this.getUserScaleConfig()
@@ -311,7 +311,7 @@ export default class extends Vue {
     }
 
     if (!kind) {
-      if (ifWebRTC() && this.allAddress.webrtcUrl) {
+      if (ifWebRTC() && this.allAddress && this.allAddress.webrtcUrl) {
         // this.videoType = 'RTC'
         this.ifCanRTC = true
       } else {
@@ -453,6 +453,7 @@ export default class extends Vue {
 
   public getUserScaleConfig() {
     const userScaleConfig:Array<any> = this.$store.state.user.userConfigInfo || []
+    console.log('userScaleConfig--->', userScaleConfig)
     const scaleInfo = userScaleConfig.find((item:any) => item.key === 'videoScale')
     const scaleNum = scaleInfo ? scaleInfo.value : '-1'
     this.userScaleConfig = scaleNum
