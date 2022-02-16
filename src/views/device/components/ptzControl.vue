@@ -1,6 +1,5 @@
 <template>
   <div v-if="deviceId" class="container">
-  <!-- <div v-if="true" class="container"> -->
     <div v-show="!isClosed" class="container__ptz">
       <div class="container__ptz__title">
         <label>云台控制</label>
