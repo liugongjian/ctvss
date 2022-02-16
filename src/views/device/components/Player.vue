@@ -729,6 +729,7 @@ export default class extends Vue {
 
   public reloadPlayer() {
     this.player && this.player.reloadPlayer()
+    this.playerFS()
   }
 
   public reset() {
