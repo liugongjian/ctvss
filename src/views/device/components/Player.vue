@@ -610,9 +610,11 @@ export default class extends Vue {
   private drawRect() {
     if (this.oShape && Object.keys(this.oShape).length > 0) {
       this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
-      this.ctxShape.strokeStyle = '#50E3C2'
+      this.ctxShape.strokeStyle = '#FFFFFF'
+      this.ctxShape.lineCap = 'square'
+      this.ctxShape.lineWidth = 1
       this.ctxShape.beginPath()
-      this.ctxShape.rect(this.oShape.startX, this.oShape.startY, this.oShape.endX - this.oShape.startX,
+      this.ctxShape.rect(Math.floor(this.oShape.startX) + 0.5, this.oShape.startY, Math.floor(this.oShape.endX - this.oShape.startX) + 0.5,
         this.oShape.endY - this.oShape.startY)
       this.ctxShape.stroke()
     }
@@ -622,7 +624,6 @@ export default class extends Vue {
     const mousePos = this.getCanvasMousePos(e)
     if (!mousePos) return
     const [x, y] = mousePos
-    console.log(x, y, this.oShape)
     if (x === this.oShape.startX && y === this.oShape.startY) {
       this.oShape = {}
       this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
@@ -685,9 +686,8 @@ export default class extends Vue {
 
     this.oShape = {}
     this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
-    this.ctxDrawState = false
     this.removeListener()
-    this.oCanvas.style.cursor = 'auto'
+    this.ctxDrawState = false
 
     const param = {
       deviceId: this.deviceId,
@@ -699,13 +699,16 @@ export default class extends Vue {
       lengthX,
       lengthY
     }
+    console.log(lengthX, lengthY)
     if (lengthX !== '0' || lengthY !== '0') {
       dragCanvasZoom(param).then(() => {
         this.$message.success('请等待设备调整角度')
         this.showCanvasBox = false
+        this.oCanvas.style.cursor = 'auto'
       }).catch(err => {
         this.$message.error(err)
         this.showCanvasBox = false
+        this.oCanvas.style.cursor = 'auto'
       })
     }
   }
