@@ -229,13 +229,14 @@
                           :device-id="screen.deviceId"
                           :video-info="screen.videoInfo"
                           :all-address="screen.allAddress"
-                          :volume="screen.volume"
+                          :default-volume="screen.volume"
                           @onCanPlay="playEvent(screen, ...arguments)"
                           @onRetry="onRetry(screen, ...arguments)"
                           @onPlayback="onPlayback(screen)"
                           @onFullscreen="screen.fullscreen();fullscreen()"
                           @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
                           @onIntercom="onIntercom(screen, ...arguments)"
+                          @onTypeChange="onTypeChange(screen, ...arguments)"
                         />
                         <div v-if="!screen.url && !screen.loading" class="tip-text">{{ screen.errorMsg || '无信号' }}</div>
                       </div>
@@ -723,7 +724,7 @@ export default class extends Mixins(ScreenMixin) {
   /**
    * 实时对讲
    */
-  private onIntercom(screen: any, type: string) {
+  private onIntercom(screen: Screen, type: string) {
     for (let i = 0; i < this.screenList.length; i++) {
       this.screenList[i].volume = 0
     }
@@ -740,6 +741,13 @@ export default class extends Mixins(ScreenMixin) {
       this.screenList[i].volume = 30
     }
     this.ifIntercom = false
+  }
+
+  /**
+   * 切换播放格式
+   */
+  private onTypeChange(screen: Screen, type: string) {
+    screen.type = type.toLowerCase()
   }
 
   /**

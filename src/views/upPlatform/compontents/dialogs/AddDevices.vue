@@ -24,6 +24,7 @@
         >
           <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}">
             <span class="node-name">
+              <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
               <svg-icon :name="data.type" />
               {{ node.label }}
             </span>
@@ -62,10 +63,13 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
 import { shareDevice, describeShareDevices } from '@/api/upPlatform'
+import { setDirsStreamStatus } from '@/utils/device'
+import StatusBadge from '@/components/StatusBadge/index.vue'
 
 @Component({
   name: 'AddDevices',
   components: {
+    StatusBadge
   }
 })
 export default class extends Vue {
@@ -197,6 +201,7 @@ export default class extends Vue {
           isLeaf: dir.isLeaf,
           type: dir.type,
           deviceStatus: dir.deviceStatus,
+          streamStatus: dir.streamStatus,
           // disabled: dir.type !== 'ipc' || sharedFlag,
           disabled: sharedFlag,
           path: node.data.path.concat([dir]),
@@ -206,6 +211,8 @@ export default class extends Vue {
           realGroupInProtocol: node.data.realGroupInProtocol || ''
         }
       })
+      dirs = setDirsStreamStatus(dirs)
+      console.log(dirs)
       return dirs
     } catch (e) {
       console.log(e)
@@ -400,6 +407,18 @@ export default class extends Vue {
           .svg-icon {
             color: #65c465;
           }
+        }
+      }
+      .status-badge {
+        position: absolute;
+        top: -1px;
+        left: -3px;
+        width: 6px;
+        height: 6px;
+        opacity: 0.7;
+        display: none;
+        &--on {
+          display: block;
         }
       }
     }

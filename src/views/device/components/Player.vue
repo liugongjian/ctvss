@@ -236,7 +236,7 @@ export default class extends Vue {
   @Inject('hideTools') private hideTools: Function
   @Prop({
     default: 30
-  }) private volume?:number
+  }) private defaultVolume?:number
 
   private checkPermission = checkPermission
   private isDragging: boolean = false
@@ -247,7 +247,7 @@ export default class extends Vue {
   public waiting = false
   private isZoom = false
   private playbackRate = 1
-  // private volume = 30
+  private volume: number = 0
   private playbackRateList = [16, 8, 4, 2, 1.5, 1, 0.5, 0.25]
   private videoMoveData: any = {
     x: null,
@@ -293,13 +293,8 @@ export default class extends Vue {
   }
 
   private mounted() {
-    // TODO 泰州业务需求，将h265转成h264播放
-    // if (this.username === 'tzszf' && this.type === 'h265-flv' && this.isLive) {
-    //   const execRes: any = /\.[^\\.]+$/.exec(this.url)
-    //   this.url = `${this.url.substring(0, execRes.index)}_264conv${execRes[0]}`
-    //   this.type = 'flv'
-    //   this.isWs = false
-    // }
+    // 初始化状态
+    this.volume = this.defaultVolume
 
     if (!this.allAddress.comefrom || this.allAddress.comefrom !== 'bugger') {
       this.getVideoType()
@@ -333,6 +328,7 @@ export default class extends Vue {
         this.createPlayer()
       })
     }
+    this.$emit('onTypeChange', this.videoType)
   }
 
   private beforeDestroy() {
