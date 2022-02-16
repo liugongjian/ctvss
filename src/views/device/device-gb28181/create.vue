@@ -355,6 +355,7 @@ export default class extends Mixins(createMixin) {
     ],
     userName: [{ required: true, message: '请选择账号', trigger: 'change' }],
     deviceIp: [{ validator: this.validateDeviceIp, trigger: 'blur' }],
+    devicePort: [{ validator: this.validateDevicePort, trigger: 'blur' }],
     address: [{ required: true, message: '请选择设备地址', trigger: 'blur' }],
     longlat: [
       { required: true, message: '请选择经纬度', trigger: 'blur' },
@@ -607,6 +608,8 @@ export default class extends Mixins(createMixin) {
             'networkCode'
           ])
         )
+        // 强制转换设备端口字段类型
+        params.devicePort = parseInt(params.devicePort)
         // IPC类型添加额外参数
         if (this.form.deviceType === 'ipc') {
           params = Object.assign(params, {

@@ -1,6 +1,5 @@
 <template>
   <el-dialog
-    :loading="loading.dialog"
     :title="isCreate ? '创建巡航路径' : `${currentName}配置`"
     :visible="dialogVisible"
     :close-on-click-modal="false"
@@ -10,6 +9,7 @@
   >
     <el-form
       ref="dataForm"
+      v-loading="loading.form"
       :model="form"
       :rules="rules"
       label-position="right"
@@ -70,7 +70,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { describePTZCruise, updatePTZCruise } from '@/api/ptz_control'
+import { describeDevicePresets, describePTZCruise, updatePTZCruise } from '@/api/ptz_control'
 
 @Component({
   name: 'CreateDir'
@@ -86,7 +86,7 @@ export default class extends Vue {
   private deviceId?: any
   private dialogVisible = true
   private loading: any = {
-    ialog: false,
+    form: false,
     submit: false
   }
   private form: any = {
@@ -119,11 +119,16 @@ export default class extends Vue {
     return !!this.currentDir
   }
 
-  private async mounted() {
+  private mounted() {
+    this.init()
+  }
+
+  private async init() {
     this.form.cruiseName = `巡航路径${this.currentIndex}`
-    if (!this.isCreate) {
-      try {
-        this.loading.dialog = TextTrackCue
+    try {
+      this.loading.form = true
+      await this.initPresets()
+      if (!this.isCreate) {
         let res: any = await describePTZCruise({
           deviceId: this.deviceId,
           cruiseId: this.currentIndex
@@ -137,16 +142,22 @@ export default class extends Vue {
           pathList: cruisePath,
           path: cruisePath ? cruisePath.join(',') : ''
         }
-      } catch (e) {
-        this.$message.error(e && e.message)
-      } finally {
-        this.loading.dialog = false
       }
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.loading.form = false
     }
-    // 初始化预置位列表
+  }
+
+  // 初始化预置位列表
+  private async initPresets() {
+    const res = await describeDevicePresets({ deviceId: this.deviceId })
     this.presets = Array.from({ length: 255 }, (value, index) => {
+      const found = res.presets.find((preset: any) => preset.presetId === (index + 1).toString())
       return {
-        name: `预置位 ${index + 1}`,
+        setFlag: !!found,
+        name: found?.presetName || `预置位 ${index + 1}`,
         value: (index + 1).toString()
       }
     })

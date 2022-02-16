@@ -448,6 +448,17 @@ export default class CreateMixin extends Vue {
     }
   }
 
+  /**
+   * 校验端口号
+   */
+  public validateDevicePort(rule: any, value: string, callback: Function) {
+    if (value && !/^[0-9]+$/.test(value)) {
+      callback(new Error('设备端口仅支持数字'))
+    } else {
+      callback()
+    }
+  }
+
   // 接受子组件传来的VSSAIApps
   private changeVSSAIApps(res:any) {
     if (this.isUpdate) {
