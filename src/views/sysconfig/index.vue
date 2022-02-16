@@ -57,8 +57,8 @@
         </el-tab-pane>
         <el-tab-pane label="画面" name="frame">
           <el-form-item label="默认画面比例">
-            <el-select v-model="form.scaleVal" placeholder="请选择默认画面比例">
-              <el-option v-for="item in scaleKind" :key="item.kind" :label="item.label" :value="item.num" @change="changeThis" />
+            <el-select v-model="form.scaleVal" placeholder="请选择默认画面比例" @change="changeThis">
+              <el-option v-for="item in scaleKind" :key="item.kind" :label="item.label" :value="item.num" />
             </el-select>
           </el-form-item>
         </el-tab-pane>
@@ -228,11 +228,12 @@ export default class extends Vue {
     } else {
       this.form.scaleVal = '1'
     }
-    console.log(this.form)
   }
 
   private changeThis() {
-    console.log(this.form.scaleVal)
+    // console.log(this.form.scaleVal)
+    console.log(this.form)
+    this.$forceUpdate()
   }
 
   private save() {
