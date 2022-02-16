@@ -668,14 +668,12 @@ export default class extends Mixins(ScreenMixin) {
    * 轮巡
    */
   private pollingVideos() {
-    console.log('轮巡')
     const length = this.pollingDevices.length
     this.currentPollingIndex = this.currentPollingIndex % length
     this.currentIndex = 0
     for (let i = 0; i < this.maxSize; i++) {
       this.screenList[i].reset()
       this.screenList[i].deviceId = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].id
-      this.screenList[i].type = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].type
       this.screenList[i].deviceName = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].label
       this.screenList[i].inProtocol = this.currentGroupInProtocol!
       this.screenList[i].getUrl()
