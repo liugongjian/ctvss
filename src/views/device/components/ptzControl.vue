@@ -284,9 +284,9 @@ export default class extends Vue {
         waitTime: res.waitTime,
         presetId: res.presetId === '0' ? '' : res.presetId
       }
-      if (this.homepositionList.length === 0) {
-        this.homepositionForm.presetId = ''
-      }
+      // if (this.homepositionList.length === 0) {
+      //   this.homepositionForm.presetId = ''
+      // }
     } catch (e) {
       this.$message.error(`查询守望信息失败，原因：${e && e.message}`)
     } finally {
