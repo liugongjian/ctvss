@@ -147,6 +147,8 @@ export default class extends Vue {
   private closeIntercom() {
     this.volume = 30
     this.ifIntercom = false
+    const $video: any = this.$refs.video
+    $video && $video.reloadPlayer()
   }
 
   /**
