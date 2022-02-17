@@ -148,6 +148,7 @@ export default class extends Mixins(ScreenMixin) {
   private renderAlertType = renderAlertType
   private getSums = getSums
   public screenSize = '1'
+  public maxSize = 1
 
   private get deviceId() {
     return this.$route.query.deviceId || null
