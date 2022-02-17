@@ -113,6 +113,7 @@ export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
           screen.roleId = cacheScreen.roleId
           screen.realGroupId = cacheScreen.realGroupId
           screen.isLive = cacheScreen.isLive
+          screen.type = cacheScreen.type
           screen.replayType = cacheScreen.replayType
           screen.currentDate = cacheScreen.currentDate
           screen.currentTime = cacheScreen.currentTime
