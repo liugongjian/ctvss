@@ -435,7 +435,7 @@ export default class extends Vue {
           player = $video.querySelector('video')
           this.playerFS()
           window.addEventListener('resize', this.playerFS, false)
-          const targetNode = this.$refs.video
+          const targetNode = mainBox
           // 监听video-wrap
           // @ts-ignore
           this.resizeObserver = new ResizeObserver(() => {
@@ -453,7 +453,6 @@ export default class extends Vue {
 
   public getUserScaleConfig() {
     const userScaleConfig:Array<any> = this.$store.state.user.userConfigInfo || []
-    console.log('userScaleConfig--->', userScaleConfig)
     const scaleInfo = userScaleConfig.find((item:any) => item.key === 'videoScale')
     const scaleNum = scaleInfo ? scaleInfo.value : '-1'
     this.userScaleConfig = scaleNum
@@ -466,9 +465,12 @@ export default class extends Vue {
       const player = mainBox.querySelector('.player-box')
       this.playerFitSize(mainBox.clientWidth, mainBox.clientHeight, player)
     } else {
+      const mainBox: any = this.$refs.videoWrap
       const $video: any = this.$refs.video
       const player = $video.querySelector('video')
-      this.playerFitSize($video.clientWidth, $video.clientHeight, player)
+      const { width, height } = mainBox.getBoundingClientRect()
+      console.log('testF------->', width, height, mainBox.clientWidth, mainBox.clientHeight)
+      this.playerFitSize(mainBox.clientWidth, mainBox.clientHeight, player)
     }
   }
 
@@ -492,7 +494,6 @@ export default class extends Vue {
       thisScale = 'fit'
       this.scaleVal = 'fit'
     }
-
     switch (thisScale) {
       case '16 / 9':
       case '4 / 3':
@@ -594,6 +595,10 @@ export default class extends Vue {
     const {
       x: canvasClientX, y: canvasClientY, width, height, left, top
     } = this.oCanvas?.getBoundingClientRect()
+
+    // const ratio = window.devicePixelRatio
+    //   const devide = (point:number) => point / ratio
+
     const pointX = (e.clientX - left) * this.oCanvas.width / width
     const pointY = (e.clientY - top) * this.oCanvas.height / height
     const curPoint = [ pointX, pointY ]
@@ -611,12 +616,15 @@ export default class extends Vue {
     if (this.oShape && Object.keys(this.oShape).length > 0) {
       this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
       this.ctxShape.strokeStyle = '#FFFFFF'
-      this.ctxShape.lineCap = 'square'
+      // this.ctxShape.lineCap = 'square'
       this.ctxShape.lineWidth = 1
       this.ctxShape.beginPath()
       this.ctxShape.rect(Math.floor(this.oShape.startX) + 0.5, this.oShape.startY, Math.floor(this.oShape.endX - this.oShape.startX) + 0.5,
-        this.oShape.endY - this.oShape.startY)
+        Math.floor(this.oShape.endY - this.oShape.startY) + 0.5)
       this.ctxShape.stroke()
+      // this.ctxShape.strokeRect(Math.floor(devide(this.oShape.startX)), Math.floor(devide(this.oShape.startY)), this.oShape.endX - this.oShape.startX,
+      //   this.oShape.endY - this.oShape.startY)
+      this.ctxShape.closePath()
     }
   }
 
