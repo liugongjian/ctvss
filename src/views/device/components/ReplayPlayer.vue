@@ -15,11 +15,13 @@
       :auto-play="true"
       :has-control="false"
       :has-playlive="hasPlaylive"
+      :default-volume="defaultVolume"
       :is-fullscreen="isFullscreen"
       @onCanPlay="onCanPlay"
       @onTimeUpdate="setCurrentTime"
       @onEnded="playNextRecord"
       @onPlaylive="playlive"
+      @onVolumeChange="onVolumeChange"
       @onFullscreen="fullscreen()"
       @onExitFullscreen="exitFullscreen()"
     />
@@ -76,7 +78,6 @@
 import { Component, Watch, Prop, Mixins } from 'vue-property-decorator'
 import ReplayPlayerMixin from '@/views/device/mixin/replayPlayerMixin'
 import { getTimestamp } from '@/utils/date'
-import { start } from 'repl'
 
 @Component({
   name: 'ReplayPlayer'
