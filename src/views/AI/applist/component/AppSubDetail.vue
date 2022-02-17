@@ -62,10 +62,10 @@
           </div>
         </span>
         <span>
-          <el-button class="el-button-rect"><svg-icon name="refresh" /></el-button>
+          <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
         </span>
       </div>
-      <div v-if="isGatheringCode" class="chart-wrapper">
+      <div v-if="isGatheringCode && !forceRefresh" class="chart-wrapper">
         <div class="title">
           <div class="title-block" />
           <span>人员聚集趋势</span>
@@ -79,7 +79,7 @@
         />
       </div>
 
-      <div v-if="isFaceAlgoCode" class="chart-wrapper car-spec">
+      <div v-if="!forceRefresh" class="chart-wrapper car-spec">
         <div class="title">
           <div class="title-block" />
           <span>车流量统计结果</span>
@@ -92,7 +92,7 @@
           :app-info="appInfo"
         />
       </div>
-      <div v-if="isFaceAlgoCode" class="table-wrapper">
+      <div v-if="!forceRefresh" class="table-wrapper">
         <div class="title">
           <div class="title-block" />
           <span>告警列表</span>
@@ -220,6 +220,7 @@ export default class extends Vue {
       { alarmcars: 25, time: '2022.01.13 04:00:09' },
       { alarmcars: 40, time: '2022.01.13 04:00:09' }
     ]
+    private forceRefresh: boolean = false
     // 防抖
     private debounceHandle = debounce(this.getScreenShot, 500)
 
@@ -365,6 +366,13 @@ export default class extends Vue {
     }
     private onLocationChanged(index: number) {
       this.currentLocationIndex = index
+    }
+    private refresh() {
+      this.debounceHandle()
+      this.forceRefresh = true
+      this.$nextTick(() => {
+        this.forceRefresh = false
+      })
     }
 }
 </script>

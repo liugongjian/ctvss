@@ -12,15 +12,6 @@
           <el-option v-for="(val, key) in ResourceAiType" :key="key" :label="val" :value="key" />
         </el-select>
       </el-form-item>
-      <el-form-item label="时间阈值" prop="timeThreshold">
-        <el-select v-model="form.timeThreshold" placeholder="请选择分析类型">
-          <el-option v-for="(val,key) in getHourInterval(1,24)" :key="key" :label="val" :value="val" />
-        </el-select>
-        <span style="padding-left:10px">小时</span>
-      </el-form-item>
-      <el-form-item label="车辆数量阈值" prop="carsThreshold">
-        <el-input v-model="form.carsThreshold" />
-      </el-form-item>
       <el-form-item label="生效时段" prop="effectPeriod">
         <el-radio-group v-model="form.effectPeriod">
           <el-radio label="全天" />
@@ -64,6 +55,44 @@
           <el-link type="warning" @click="addPeriod">+ 增加生效时间段</el-link>
         </div>
       </el-form-item>
+      <!-- 算法定制项--meta数据，考虑单独提取组件 -->
+      <!-- 人群感应检测 -->
+      <el-form-item v-if="ifShow('10023')" label="人员数量阈值" prop="algorithmMetadata.crowdThreShold">
+        <el-input v-model="form.algorithmMetadata.crowdThreShold" />
+      </el-form-item>
+      <!-- 车辆统计 -->
+      <el-form-item v-if="ifShow('10019')" label="时间阈值" prop="algorithmMetadata.timeThreshold">
+        <el-select v-model="form.algorithmMetadata.timeThreshold" placeholder="请选择分析类型">
+          <el-option v-for="(val,key) in getHourInterval(1,24)" :key="key" :label="val" :value="val" />
+        </el-select>
+        <span class="comment">小时</span>
+      </el-form-item>
+      <el-form-item v-if="ifShow('10019')" label="车辆数量阈值" prop="algorithmMetadata.carsThreshold">
+        <el-input v-model="form.algorithmMetadata.carsThreshold" />
+      </el-form-item>
+      <!-- 实时在岗检测 -->
+      <el-form-item v-if="ifShow('10024')" label="脱岗超时时间" prop="algorithmMetadata.offDutyThreShold">
+        <el-input v-model="form.algorithmMetadata.offDutyThreShold" />
+        <span class="comment">分钟</span>
+        <span class="comment">不能超过600分钟</span>
+      </el-form-item>
+      <el-form-item v-if="ifShow('10024')" label="睡岗超时时间" prop="algorithmMetadata.sleepOnDutyThreShold">
+        <el-input v-model="form.algorithmMetadata.sleepOnDutyThreShold" />
+        <span class="comment">分钟</span>
+        <span class="comment">不能超过600分钟</span>
+      </el-form-item>
+      <!-- 车辆违停 -->
+      <el-form-item v-if="ifShow('10021')" label="临停时间" prop="algorithmMetadata.pv_time">
+        <el-input v-model="form.algorithmMetadata.pv_time" />
+        <span class="comment">分钟</span>
+        <span class="comment">超过临停时间阈值车辆未行驶离开拍摄区域即被定义违停，默认时间为10分钟，只可以输入整数</span>
+      </el-form-item>
+      <!-- 车辆拥堵 -->
+      <el-form-item v-if="ifShow('10022')" label="拥堵车辆阈值" prop="algorithmMetadata.jamThreshold">
+        <el-input v-model="form.algorithmMetadata.jamThreshold" />
+        <span class="comment">辆</span>
+        <span class="comment">通过拍摄区域的车辆低于“拥堵车辆阈值”即视为拥堵</span>
+      </el-form-item>
       <el-form-item v-if="ifShow('10001','10016','10017')" prop="algorithmMetadata.FaceDbName" label="人脸库">
         <el-select v-model="form.algorithmMetadata.FaceDbName" placeholder="请选择人脸库" :loading="isfaceLibLoading">
           <el-option v-for="item in faceLibs" :key="item.id" :label="item.name" :value="item.id" />
@@ -83,6 +112,7 @@
           class="mb5"
         />
       </el-form-item>
+      <!---->
       <el-form-item label="置信度" prop="confidence">
         <el-slider
           v-model="form.confidence"
@@ -129,7 +159,11 @@ const getRule = (msg) => {
   let rule = []
   if (msg === '应用名称') {
     rule.push({ min: 1, max: 10, message: '名称需在 1 到 10 个字符之间', trigger: 'blur' })
-  } else if (msg === '人员数量阈值' || msg === '车辆数量阈值') {
+  } else if (msg === '人员数量阈值' || msg === '车辆数量阈值' ||
+             msg === '临停时间' || msg === '拥堵车辆阈值' ||
+             msg === '人员数量阈值' || msg === '脱岗超时时间' ||
+             msg === '睡岗超时时间' || msg === '临停时间' ||
+             msg === '拥堵车辆阈值') {
     // rule.push({ type: 'number', message: '人员数量阈值必须为数字' })
     rule.push({
       validator: (rule, value, callback) => {
@@ -140,6 +174,27 @@ const getRule = (msg) => {
         }
       },
       trigger: 'blur' })
+    if (msg === '人员数量阈值') {
+      rule.push({
+        validator: (rule, value, callback) => {
+          if (parseInt(value) > 100) {
+            callback(new Error('需小于100'))
+          } else {
+            callback()
+          }
+        },
+        trigger: 'blur' })
+    } else if (msg === '脱岗超时时间' || msg === '睡岗超时时间') {
+      rule.push({
+        validator: (rule, value, callback) => {
+          if (parseInt(value) > 600) {
+            callback(new Error('需小于600'))
+          } else {
+            callback()
+          }
+        },
+        trigger: 'blur' })
+    }
   }
   rule.push({ required: true, trigger: 'blur', message: '请输入' + msg })
   return rule
@@ -169,8 +224,13 @@ export default class extends Mixins(AppMixin) {
     'algorithmMetadata.pedThreshold': getRule('人员数量阈值'),
     confidence: getRule('置信度'),
     callbackKey: getRule('回调key'),
-    timeThreshold: getRule('时间阈值'),
-    carsThreshold: getRule('车辆数量阈值')
+    'algorithmMetadata.crowdThreShold': getRule('人员数量阈值'),
+    'algorithmMetadata.offDutyThreShold': getRule('脱岗超时时间'),
+    'algorithmMetadata.sleepOnDutyThreShold': getRule('睡岗超时时间'),
+    'algorithmMetadata.pv_time': getRule('临停时间'),
+    'algorithmMetadata.jamThreshold': getRule('拥堵车辆阈值'),
+    'algorithmMetadata.timeThreshold': getRule('时间阈值'),
+    'algorithmMetadata.carsThreshold': getRule('车辆数量阈值')
   }
   private effectiveTime: any = []
 
@@ -196,7 +256,7 @@ export default class extends Mixins(AppMixin) {
       this.form = { ...this.form, confidence: this.form.confidence * 100 }
     } else { // 新建
       const algorithmMetadata = { FaceDbName: '', pedThreshold: '' }
-      this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [], validateType: '无验证', confidence: 60, timeThreshold: 1 }
+      this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [], validateType: '无验证', confidence: 60 }
     }
     try {
       const { groups } = await getAIConfigGroupData({})
@@ -393,6 +453,10 @@ export default class extends Mixins(AppMixin) {
   }
   .el-button--text {
     margin-left: 15px;
+  }
+  .comment {
+    padding-left: 10px;
+    color: $textGrey;
   }
 }
 </style>

@@ -1,5 +1,30 @@
 <template>
   <div class="device-wrapper">
+    <div class="alarm-container">
+      <div class="alarm-container__time">
+        告警时间：
+        <el-radio-group v-model="period.periodType" size="medium" @change="handleChange">
+          <!-- <el-radio-group> -->
+          <el-radio-button label="今天" />
+          <el-radio-button label="近3天" />
+          <el-radio-button label="自定义时间" />
+        </el-radio-group>
+        <el-date-picker
+          v-if="period.periodType === '自定义时间'"
+          v-model="period.period"
+          type="daterange"
+          value-format="timestamp"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          @change="handleChange"
+        />
+      </div>
+      <div class="alarm-container__alarm">
+        <div>总告警次数：</div>
+        <div>135次</div>
+      </div>
+    </div>
     <el-table
       ref="multipleTable"
       v-loading="loading"
@@ -61,16 +86,17 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Mixins, Watch } from 'vue-property-decorator'
 import StatusBadge from '@/components/StatusBadge/index.vue'
-import { getAttachedDevice } from '@/api/ai-app'
+import { getAttachedDevice, getAiAlarm } from '@/api/ai-app'
 import { startAppResource, stopAppResource, unBindAppResource } from '@/api/device'
+import AppMixin from '../../mixin/app-mixin'
 
 @Component({
   name: 'AtachedDevice',
   components: { StatusBadge }
 })
-export default class extends Vue {
+export default class extends Mixins(AppMixin) {
   private pager = {
     pageNum: 1,
     pageSize: 10,
@@ -79,8 +105,24 @@ export default class extends Vue {
   private loading = false
   private devices: any = []
 
+  @Watch('period.periodType')
+  private periodTypeUpdated(newVal) {
+    switch (newVal) {
+      case '今天':
+        this.period.period = [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)]
+        break
+      case '近3天':
+        this.period.period = [this.getDateBefore(2), new Date().setHours(23, 59, 59, 999)]
+        break
+      case '自定义时间':
+        this.period.period = [this.getDateBefore(6), new Date().setHours(23, 59, 59, 999)]
+        break
+    }
+  }
+
   private async mounted() {
-    this.getAttachedDevice()
+    await this.getAttachedDevice()
+    this.getAlarms()
   }
 
   private async getAttachedDevice() {
@@ -171,14 +213,27 @@ export default class extends Vue {
     })
   }
 
-  private handleSizeChange(val: number) {
+  private async handleSizeChange(val: number) {
     this.pager.pageSize = val
-    this.getAttachedDevice()
+    await this.getAttachedDevice()
+    this.getAlarms()
   }
 
-  private handleCurrentChange(val: number) {
+  private async handleCurrentChange(val: number) {
     this.pager.pageNum = val
-    this.getAttachedDevice()
+    await this.getAttachedDevice()
+    this.getAlarms()
+  }
+
+  public getAlarms() {
+    console.log(this.devices)
+    console.log(this.$route.query.appid)
+    const promiseArray = this.devices.map(item => this.getAlarm(this.$route.query.appid, item.deviceId, this.period.period))
+    Promise.all(promiseArray)
+  }
+  public async getAlarm(appId, deviceId, period) {
+    const res = await getAiAlarm({ appId, deviceId, period })
+    console.log(res)
   }
 }
 </script>
@@ -190,6 +245,23 @@ export default class extends Vue {
   flex:1 1 auto;
   .svg-icon{
     margin: 0 8px;
+  }
+  .alarm-container{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    &__alarm {
+      & > div{
+        display: inline-block;
+        height: 36px;
+        line-height: 36px;
+        vertical-align: middle;
+      }
+      & >div:nth-of-type(2){
+        background: $primary;
+        margin-left: 5px
+      }
+    }
   }
 }
 .online{
