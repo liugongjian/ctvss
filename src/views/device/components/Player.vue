@@ -226,9 +226,9 @@ export default class extends Vue {
   @Prop()
   private allAddress?: any
   // inProtocol
-  @Prop() private inProtocol?:string
+  @Prop() private inProtocol?: string
   @Prop() private deviceId?: number | string
-  @Prop() private videoInfo?:string
+  @Prop() private videoInfo?: string
 
   /**
    * 隐藏视频工具栏
@@ -236,7 +236,7 @@ export default class extends Vue {
   @Inject('hideTools') private hideTools: Function
   @Prop({
     default: 30
-  }) private defaultVolume?:number
+  }) private defaultVolume?: number
 
   private checkPermission = checkPermission
   private isDragging: boolean = false
@@ -280,6 +280,11 @@ export default class extends Vue {
 
   get username() {
     return UserModule.name
+  }
+
+  @Watch('defaultVolume')
+  private onDefaultVolumeChanged() {
+    this.volume = this.defaultVolume
   }
 
   private get progressRate() {
@@ -1099,6 +1104,7 @@ export default class extends Vue {
     } else {
       this.volume = volume * 100
     }
+    this.$emit('onVolumeChange', this.volume)
   }
 
   /**

@@ -39,10 +39,12 @@
         :has-playlive="hasPlaylive"
         :is-fullscreen="isFullscreen"
         :replay-type="replayType"
+        :default-volume="defaultVolume"
         :screen="screen"
         @onCurrentTimeChange="onCurrentTimeChange"
         @onCanPlay="onCanPlay"
         @onPlaylive="playlive"
+        @onVolumeChange="onVolumeChange"
         @onFullscreen="fullscreen()"
         @onExitFullscreen="exitFullscreen()"
       />
@@ -66,6 +68,7 @@
         @onCurrentTimeChange="onCurrentTimeChange"
         @onCanPlay="onCanPlay"
         @onPlaylive="playlive"
+        @onVolumeChange="onVolumeChange"
         @onFullscreen="fullscreen()"
         @onExitFullscreen="exitFullscreen()"
       />
@@ -143,6 +146,8 @@ export default class extends Vue {
   private hasPlaylive?: boolean
   @Prop()
   private screen: any
+  @Prop()
+  private defaultVolume?: number
   private get isVGroup() {
     return GroupModule.group?.inProtocol === 'vgroup'
   }
@@ -208,7 +213,6 @@ export default class extends Vue {
       } else {
         await this.init()
       }
-      console.log('getReplayType', this.replayType);
     } else {
       await this.init()
     }
@@ -345,36 +349,6 @@ export default class extends Vue {
         endTime: this.currentDate / 1000 + 24 * 60 * 60,
         aiCode: '10006'
       }, this.axiosSourceHeatMap.token)
-      console.log('res: ', res)
-      // const res = {
-      //   heatMap: [
-      //     {
-      //       startTime: '2022-01-16 00:00:01',
-      //       endTime: '2022-01-16 00:05:07',
-      //       duration: 306
-      //     },
-      //     {
-      //       startTime: '2022-01-16 00:05:07',
-      //       endTime: '2022-01-16 00:10:13',
-      //       duration: 306
-      //     },
-      //     {
-      //       startTime: '2022-01-16 04:05:07',
-      //       endTime: '2022-01-16 04:11:13',
-      //       duration: 366
-      //     },
-      //     {
-      //       startTime: '2022-01-16 08:05:07',
-      //       endTime: '2022-01-16 08:16:13',
-      //       duration: 666
-      //     },
-      //     {
-      //       startTime: '2022-01-16 11:05:07',
-      //       endTime: '2022-01-16 11:05:09',
-      //       duration: 2
-      //     }
-      //   ]
-      // }
       // 追加最新的行人时间段
       if (startTime) {
         const heatmapLength = this.heatmapList.length
@@ -389,7 +363,6 @@ export default class extends Vue {
           }
         })
       } else {
-        console.log('res.heatMap: ', res.heatMap)
         this.heatmapList = res.heatMap.map((heatmap: any, index: number) => {
           // heatmap.startAt = getTimestamp(heatmap.startTime)
           heatmap.loading = false
@@ -601,6 +574,13 @@ export default class extends Vue {
    */
   public playlive() {
     this.$emit('onPlaylive')
+  }
+
+  /**
+   * 播放器音量变化回调
+   */
+  public onVolumeChange(volume: number) {
+    this.$emit('onVolumeChange', volume)
   }
 
   /**
