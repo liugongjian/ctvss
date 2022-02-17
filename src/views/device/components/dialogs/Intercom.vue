@@ -360,11 +360,8 @@ export default class extends Mixins(ScreenMixin) {
 </style>
 <style lang="scss" scoped>
 .intercomBox{
-  ::v-deep .el-dialog{
-    height: calc(100% - 30vh);
-    .el-dialog__body{
-      height: 70%;
-    }
+  ::v-deep .el-dialog__body{
+    height: 70%;
   }
 }
 .intercomPlayer{
