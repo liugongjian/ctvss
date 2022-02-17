@@ -734,7 +734,6 @@ export default class extends Mixins(ScreenMixin) {
   private closeIntercom() {
     for (let i = 0; i < this.screenList.length; i++) {
       this.screenList[i].volume = 30
-      this.screenList[i].reset()
     }
     this.ifIntercom = false
   }
