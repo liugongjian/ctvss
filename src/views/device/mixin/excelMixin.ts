@@ -1,7 +1,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { getList as getGbList } from '@/api/certificate/gb28181'
 import { exportDeviceAll, exportDeviceOption, getDevice } from '@/api/device'
-import { cityMapping, provinceMapping } from '@/assets/region/cities'
+// import { cityMapping, provinceMapping } from '@/assets/region/cities'
 import { getResources } from '@/api/billing'
 import { ResourceAiType } from '@/dics'
 import ExcelJS from 'exceljs'
@@ -38,82 +38,95 @@ export default class ExcelMixin extends Vue {
   private columnsTemplate: any = {
     gb28181: {
       template: [
-        { header: '设备类型', key: 'deviceType', width: 10 },
-        { header: '国标版本', key: 'gbVersion', width: 10 },
-        { header: '设备厂商', key: 'deviceVendor', width: 10 },
-        { header: '设备名称', key: 'deviceName', width: 16 },
+        { header: '*设备类型', key: 'deviceType', width: 16 },
+        { header: '*国标版本', key: 'gbVersion', width: 16 },
+        { header: '*设备厂商', key: 'deviceVendor', width: 16 },
+        { header: '*设备名称', key: 'deviceName', width: 24 },
         { header: '设备描述', key: 'description', width: 16 },
         { header: '设备IP', key: 'deviceIp', width: 24 },
-        { header: '设备端口', key: 'devicePort', width: 10 },
-        { header: '设备用户名', key: 'userName', width: 16 },
-        { header: '是否启用自动拉流', key: 'pullType', width: 16 },
-        { header: '国标ID', key: 'gbId', width: 24 },
-        { header: '设备视频流优先传输协议', key: 'transPriority', width: 24 },
-        { header: '设备通道数量', key: 'channelSize', width: 16 },
-        { header: '预设城市', key: 'city', width: 16 }
-        // { header: '视频包', key: 'videoPackage', width: 24 },
-        // { header: 'AI包', key: 'AIPackage', width: 24 },
-        // { header: '上行带宽包', key: 'BWPackage', width: 24 }
+        { header: '设备端口', key: 'devicePort', width: 16 },
+        { header: '*国标用户名', key: 'userName', width: 16 },
+        { header: '设备MAC地址', key: 'mac', width: 24 },
+        { header: '经度', key: 'deviceLongitude', width: 16 },
+        { header: '纬度', key: 'deviceLatitude', width: 16 },
+        { header: '*是否启用自动拉流', key: 'pullType', width: 30 },
+        { header: '*设备视频流优先传输协议', key: 'transPriority', width: 30 },
+        { header: '*设备通道数量（设备类型为NVR时，该项必填）', key: 'channelSize', width: 16 },
+        { header: '*视频包', key: 'videoPackage', width: 40 },
+        { header: 'AI包', key: 'AIPackage', width: 40 },
+        { header: '上行带宽包', key: 'BWPackage', width: 40 }
       ]
     },
     rtmp: {
       template: [
-        { header: '视频流接入方式', key: 'inType', width: 16 },
-        { header: '设备类型', key: 'deviceType', width: 10 },
-        { header: '设备厂商', key: 'deviceVendor', width: 10 },
-        { header: '设备名称', key: 'deviceName', width: 16 },
+        { header: '*视频流接入方式', key: 'inType', width: 24 },
+        // { header: '*设备类型', key: 'deviceType', width: 16 },
+        { header: '*设备厂商', key: 'deviceVendor', width: 16 },
+        { header: '*设备名称', key: 'deviceName', width: 24 },
+        { header: '经度', key: 'deviceLongitude', width: 16 },
+        { header: '纬度', key: 'deviceLatitude', width: 16 },
         { header: '设备描述', key: 'description', width: 16 },
-        { header: '是否启用自动拉流', key: 'pullType', width: 24 },
-        { header: '是否启用自动激活推流地址', key: 'pushType', width: 24 },
-        { header: '拉流地址', key: 'pullUrl', width: 24 },
-        { header: '视频流标签', key: 'tags', width: 24 }
-        // { header: '视频包', key: 'videoPackage', width: 24 },
-        // { header: 'AI包', key: 'AIPackage', width: 24 },
-        // { header: '上行带宽包', key: 'BWPackage', width: 24 }
+        { header: '*是否启用自动拉流（接入方式为拉流，该项必填）', key: 'pullType', width: 30 },
+        { header: '*是否启用自动激活推流地址（接入方式为推流，该项必填）', key: 'pushType', width: 30 },
+        { header: '*拉流地址（接入方式为推流，该项必填）', key: 'pullUrl', width: 24 },
+        { header: '视频流标签', key: 'tags', width: 24 },
+        { header: '*视频包', key: 'videoPackage', width: 40 },
+        { header: 'AI包', key: 'AIPackage', width: 40 },
+        { header: '上行带宽包', key: 'BWPackage', width: 40 }
       ]
     },
     rtsp: {
       template: [
-        { header: '视频流接入方式', key: 'inType', width: 16 },
-        { header: '设备类型', key: 'deviceType', width: 10 },
-        { header: '设备厂商', key: 'deviceVendor', width: 10 },
-        { header: '设备名称', key: 'deviceName', width: 16 },
+        { header: '*视频流接入方式', key: 'inType', width: 24 },
+        { header: '*设备类型', key: 'deviceType', width: 16 },
+        { header: '*设备厂商', key: 'deviceVendor', width: 16 },
+        { header: '*设备名称', key: 'deviceName', width: 16 },
         { header: '设备描述', key: 'description', width: 16 },
-        { header: '用户名', key: 'userName', width: 10 },
-        { header: '密码', key: 'password', width: 10 },
-        { header: '设备IP', key: 'deviceIp', width: 24 },
-        { header: '设备端口', key: 'devicePort', width: 10 },
-        { header: '设备通道数量', key: 'channelSize', width: 16 },
-        { header: '主子码流数量', key: 'multiStreamSize', width: 16 },
-        { header: '自动拉取第几个码流', key: 'AutoStreamNum', width: 24 },
+        { header: '*用户名（视频接入方式为拉流时，该项必填）', key: 'userName', width: 16 },
+        { header: '*密码（视频接入方式为拉流时，该项必填）', key: 'password', width: 16 },
+        { header: '经度', key: 'deviceLongitude', width: 16 },
+        { header: '纬度', key: 'deviceLatitude', width: 16 },
+        { header: '*是否启动域名', key: 'enableDomain', width: 16 },
+        { header: '*自定义拉流地址（设备厂商选择其他时，该项必填）', key: 'deviceIp', width: 24 },
+        { header: '*设备IP（未启动域名必填）', key: 'deviceIp', width: 24 },
+        { header: '*设备域名（启动域名必填）', key: 'deviceDomain', width: 24 },
+        { header: '*设备端口', key: 'devicePort', width: 16 },
+        { header: '*设备通道数量（设备类型为NVR，必填）', key: 'channelSize', width: 16 },
+        { header: '*主子码流数量', key: 'multiStreamSize', width: 16 },
         { header: '是否启用自动拉流', key: 'pullType', width: 24 },
-        { header: '是否启用自动激活推流地址', key: 'pushType', width: 24 },
-        { header: '设备视频流优先传输协议', key: 'transPriority', width: 24 }
-        // { header: '视频包', key: 'videoPackage', width: 24 },
-        // { header: 'AI包', key: 'AIPackage', width: 24 },
-        // { header: '上行带宽包', key: 'BWPackage', width: 24 }
+        { header: '*自动拉取第几个码流（开启自动拉流时，该项必填）', key: 'AutoStreamNum', width: 24 },
+        { header: '是否启用自动激活推流地址', key: 'pushType', width: 30 },
+        { header: '设备视频流优先传输协议', key: 'transPriority', width: 30 },
+        { header: '*视频包', key: 'videoPackage', width: 40 },
+        { header: 'AI包', key: 'AIPackage', width: 40 },
+        { header: '上行带宽包', key: 'BWPackage', width: 40 }
       ]
     },
     ehome: {
       template: [
-        { header: '设备类型', key: 'deviceType', width: 10 },
-        { header: '设备名称', key: 'deviceName', width: 16 },
+        { header: '*设备类型', key: 'deviceType', width: 16 },
+        { header: '*版本', key: 'ehomeVersion', width: 16, style: { numFmt: '0.0' } },
+        { header: '*设备厂商', key: 'ehomeVendor', width: 16 },
+        { header: '*设备名称', key: 'deviceName', width: 16 },
         { header: '设备描述', key: 'description', width: 16 },
         { header: '设备IP', key: 'deviceIp', width: 24 },
-        { header: '设备端口', key: 'devicePort', width: 10 },
-        { header: '主子码流数量', key: 'multiStreamSize', width: 16 },
-        { header: '自动拉流', key: 'pullType', width: 10 },
-        { header: '自动拉取码流', key: 'AutoStreamNum', width: 16 },
-        { header: '设备通道数量', key: 'channelSize', width: 16 }
-        // { header: '视频包', key: 'videoPackage', width: 24 },
-        // { header: 'AI包', key: 'AIPackage', width: 24 },
-        // { header: '上行带宽包', key: 'BWPackage', width: 24 }
+        { header: '设备端口', key: 'devicePort', width: 16 },
+        { header: 'MAC地址', key: 'mac', width: 24 },
+        { header: '经度', key: 'deviceLongitude', width: 16 },
+        { header: '纬度', key: 'deviceLatitude', width: 16 },
+        { header: '*主子码流数量', key: 'multiStreamSize', width: 16 },
+        { header: '*自动拉流', key: 'pullType', width: 16 },
+        { header: '*自动拉取码流（开启自动拉流，该项必填）', key: 'AutoStreamNum', width: 16 },
+        { header: '*设备通道数量（设备类型为NVR时，该项必填）', key: 'channelSize', width: 16 },
+        { header: '*视频包', key: 'videoPackage', width: 40 },
+        { header: 'AI包', key: 'AIPackage', width: 40 },
+        { header: '上行带宽包', key: 'BWPackage', width: 40 }
       ]
     },
     nvr: {
       template: [
         { header: '通道号', key: 'channelNum', width: 10 },
-        { header: '厂商', key: 'deviceVendor', width: 10 },
+        { header: '厂商', key: 'deviceVendor', width: 16 },
         { header: '通道名称', key: 'channelName', width: 16 }
       ]
     }
@@ -157,7 +170,6 @@ export default class ExcelMixin extends Vue {
       type: 'whole',
       allowBlank: true,
       showInputMessage: true,
-      showErrorMessage: true,
       prompt: 'nvr设备时该项为必填'
     },
     inType: {
@@ -235,16 +247,16 @@ export default class ExcelMixin extends Vue {
     // 获取资源包选项
     try {
       let VIDEORes: any = await getResources({ type: 'VSS_VIDEO' })
-      this.VIDEOList = VIDEORes.resPkgList ? VIDEORes.resPkgList.map((item: any) => {
-        return `${item.id}||${item.totalDeviceCount}:${item.remainDeviceCount}:${item.bitRate}M:${item.storageTime}天`
+      this.VIDEOList = VIDEORes.resPkgList ? VIDEORes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
+        return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${item.bitRate}M:${item.storageTime}天||${item.resourceId}`
       }) : []
       let AIRes: any = await getResources({ type: 'VSS_AI' })
-      this.AIList = AIRes.resPkgList ? AIRes.resPkgList.map((item: any) => {
-        return `${item.id}||${item.totalDeviceCount}:${item.remainDeviceCount}:${this.resourceAiType[item.aiType]}`
+      this.AIList = AIRes.resPkgList ? AIRes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
+        return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${this.resourceAiType[item.aiType]}||${item.resourceId}`
       }) : []
       let BWRes: any = await getResources({ type: 'VSS_UPLOAD_BW' })
-      this.BWList = BWRes.resPkgList ? BWRes.resPkgList.map((item: any) => {
-        return `${item.id}`
+      this.BWList = BWRes.resPkgList ? BWRes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
+        return `${item.bitRate}M||${item.resourceId}`
       }) : []
     } catch (e) {
       console.error(e)
@@ -262,38 +274,38 @@ export default class ExcelMixin extends Vue {
         console.error(e)
       }
       // 获取预设城市选项
-      const mainUserAddress: any = this.$store.state.user.mainUserAddress
-      this.cityList = mainUserAddress.split(',').map((addressCode: any) => {
-        if (!addressCode) {
-          let findKey = (value: any, compare = (a: any, b: any) => a.substring(0, 2) === b.substring(0, 2)) => {
-            return Object.keys(cityMapping).find(k => compare(cityMapping[k], value))
-          }
-          addressCode = findKey(this.regionName)
-          if (!addressCode) {
-            return []
-          }
-        }
-        let provincelevelCities = [
-          '北京市',
-          '天津市',
-          '上海市',
-          '重庆市',
-          '台湾省',
-          '香港特别行政区',
-          '澳门特别行政区'
-        ]
-        let city = cityMapping[addressCode]
-        if (provincelevelCities.includes(city)) {
-          return city
-        } else {
-          return provinceMapping[addressCode.substring(0, 2)] + city
-          // let test = []
-          // for (let i = 0; i < 20; i++) {
-          //   test.push('广东省清远市连州派出所')
-          // }
-          // return test
-        }
-      })
+      // const mainUserAddress: any = this.$store.state.user.mainUserAddress
+      // this.cityList = mainUserAddress.split(',').map((addressCode: any) => {
+      //   if (!addressCode) {
+      //     let findKey = (value: any, compare = (a: any, b: any) => a.substring(0, 2) === b.substring(0, 2)) => {
+      //       return Object.keys(cityMapping).find(k => compare(cityMapping[k], value))
+      //     }
+      //     addressCode = findKey(this.regionName)
+      //     if (!addressCode) {
+      //       return []
+      //     }
+      //   }
+      //   let provincelevelCities = [
+      //     '北京市',
+      //     '天津市',
+      //     '上海市',
+      //     '重庆市',
+      //     '台湾省',
+      //     '香港特别行政区',
+      //     '澳门特别行政区'
+      //   ]
+      //   let city = cityMapping[addressCode]
+      //   if (provincelevelCities.includes(city)) {
+      //     return city
+      //   } else {
+      //     return provinceMapping[addressCode.substring(0, 2)] + city
+      //     // let test = []
+      //     // for (let i = 0; i < 20; i++) {
+      //     //   test.push('广东省清远市连州派出所')
+      //     // }
+      //     // return test
+      //   }
+      // })
     } else if (this.exelDeviceType === 'nvr') {
       // 构建可选择的通道，排除已选择通道
       const info = await getDevice({
@@ -332,50 +344,50 @@ export default class ExcelMixin extends Vue {
       allowBlank: false,
       showErrorMessage: true,
       formulae: [`"${this.gbAccountList.join(',')}"`],
-      error: '请选择设备用户名'
+      error: '请选择国标用户名'
     })
-    worksheet.dataValidations.add('I2:I9999', this.validation.pullType)
-    worksheet.dataValidations.add('J2:J9999', {
-      type: 'textLength',
-      allowBlank: true,
-      operator: 'equal',
-      formulae: [20],
-      showInputMessage: true,
-      showErrorMessage: true,
-      prompt: '当选择 “Platform” 设备类型时为必选',
-      error: '请检查国标ID格式是否正确'
-    })
-    worksheet.dataValidations.add('K2:K9999', this.validation.transPriority)
-    worksheet.dataValidations.add('L2:L9999', this.validation.channelSize)
-    worksheet.dataValidations.add('M2:M9999', {
-      type: 'list',
-      allowBlank: false,
-      showErrorMessage: true,
-      formulae: [`"${this.cityList.join(',')}"`],
-      error: '请选择预设城市'
-    })
-    worksheet.dataValidations.add('N2:N9999', this.getVideoPackageValidation(this.VIDEOList))
-    worksheet.dataValidations.add('O2:O9999', this.getAIPackageValidation(this.AIList))
-    worksheet.dataValidations.add('P2:P9999', this.getBWPackageValidation(this.BWList))
+    worksheet.dataValidations.add('L2:L9999', this.validation.pullType)
+    // worksheet.dataValidations.add('L2:L9999', {
+    //   type: 'textLength',
+    //   allowBlank: true,
+    //   operator: 'equal',
+    //   formulae: [20],
+    //   showInputMessage: true,
+    //   showErrorMessage: true,
+    //   prompt: '当选择 “Platform” 设备类型时为必选',
+    //   error: '请检查国标ID格式是否正确'
+    // })
+    worksheet.dataValidations.add('M2:M9999', this.validation.transPriority)
+    worksheet.dataValidations.add('N2:N9999', this.validation.channelSize)
+    // worksheet.dataValidations.add('M2:M9999', {
+    //   type: 'list',
+    //   allowBlank: false,
+    //   showErrorMessage: true,
+    //   formulae: [`"${this.cityList.join(',')}"`],
+    //   error: '请选择预设城市'
+    // })
+    worksheet.dataValidations.add('O2:O9999', this.getVideoPackageValidation(this.VIDEOList))
+    worksheet.dataValidations.add('P2:P9999', this.getAIPackageValidation(this.AIList))
+    worksheet.dataValidations.add('Q2:Q9999', this.getBWPackageValidation(this.BWList))
   }
 
   private rtmpOptionsInit(worksheet: any) {
     worksheet.dataValidations.add('A2:A9999', this.validation.inType)
-    worksheet.dataValidations.add('B2:B9999', {
-      type: 'list',
-      allowBlank: false,
-      showErrorMessage: true,
-      formulae: ['"IPC"'],
-      error: '请选择设备类型'
-    })
-    worksheet.dataValidations.add('C2:C9999', this.validation.deviceVendor)
-    worksheet.dataValidations.add('D2:D9999', this.validation.deviceName)
-    worksheet.dataValidations.add('F2:F9999', this.validation.pullType)
-    worksheet.dataValidations.add('G2:G9999', this.validation.pushType)
+    // worksheet.dataValidations.add('B2:B9999', {
+    //   type: 'list',
+    //   allowBlank: false,
+    //   showErrorMessage: true,
+    //   formulae: ['"IPC"'],
+    //   error: '请选择设备类型'
+    // })
+    worksheet.dataValidations.add('B2:B9999', this.validation.deviceVendor)
+    worksheet.dataValidations.add('C2:C9999', this.validation.deviceName)
+    worksheet.dataValidations.add('G2:G9999', this.validation.pullType)
+    worksheet.dataValidations.add('H2:H9999', this.validation.pushType)
     worksheet.dataValidations.add('I2:I9999', this.validation.tags)
-    worksheet.dataValidations.add('J2:J9999', this.getVideoPackageValidation(this.VIDEOList))
-    worksheet.dataValidations.add('K2:K9999', this.getAIPackageValidation(this.AIList))
-    worksheet.dataValidations.add('L2:L9999', this.getBWPackageValidation(this.BWList))
+    worksheet.dataValidations.add('K2:K9999', this.getVideoPackageValidation(this.VIDEOList))
+    worksheet.dataValidations.add('L2:L9999', this.getAIPackageValidation(this.AIList))
+    worksheet.dataValidations.add('M2:M9999', this.getBWPackageValidation(this.BWList))
   }
 
   private rtspOptionsInit(worksheet: any) {
@@ -389,9 +401,17 @@ export default class ExcelMixin extends Vue {
     })
     worksheet.dataValidations.add('C2:C9999', this.validation.deviceVendor)
     worksheet.dataValidations.add('D2:D9999', this.validation.deviceName)
-    worksheet.dataValidations.add('J2:J9999', this.validation.channelSize)
-    worksheet.dataValidations.add('K2:K9999', this.validation.multiStreamSize)
-    worksheet.dataValidations.add('L2:L9999', {
+    worksheet.dataValidations.add('J2:J9999', {
+      type: 'list',
+      allowBlank: true,
+      showErrorMessage: true,
+      formulae: ['"是,否"'],
+      error: '请选择是否启动域名'
+    })
+    worksheet.dataValidations.add('O2:O9999', this.validation.channelSize)
+    worksheet.dataValidations.add('P2:P9999', this.validation.multiStreamSize)
+    worksheet.dataValidations.add('Q2:Q9999', this.validation.pullType)
+    worksheet.dataValidations.add('R2:R9999', {
       type: 'list',
       allowBlank: true,
       showInputMessage: true,
@@ -399,12 +419,11 @@ export default class ExcelMixin extends Vue {
       formulae: ['"主码流,子码流,第三码流"'],
       prompt: '如果启用自动拉流，该项为必选'
     })
-    worksheet.dataValidations.add('M2:M9999', this.validation.pullType)
-    worksheet.dataValidations.add('N2:N9999', this.validation.pushType)
-    worksheet.dataValidations.add('O2:O9999', this.validation.transPriority)
-    worksheet.dataValidations.add('P2:P9999', this.getVideoPackageValidation(this.VIDEOList))
-    worksheet.dataValidations.add('Q2:Q9999', this.getAIPackageValidation(this.AIList))
-    worksheet.dataValidations.add('R2:R9999', this.getBWPackageValidation(this.BWList))
+    worksheet.dataValidations.add('S2:S9999', this.validation.pushType)
+    worksheet.dataValidations.add('T2:T9999', this.validation.transPriority)
+    worksheet.dataValidations.add('U2:U9999', this.getVideoPackageValidation(this.VIDEOList))
+    worksheet.dataValidations.add('V2:V9999', this.getAIPackageValidation(this.AIList))
+    worksheet.dataValidations.add('W2:W9999', this.getBWPackageValidation(this.BWList))
   }
 
   private ehomeOptionsInit(worksheet: any) {
@@ -415,10 +434,24 @@ export default class ExcelMixin extends Vue {
       formulae: ['"IPC,NVR"'],
       error: '请选择设备类型'
     })
-    worksheet.dataValidations.add('B2:B9999', this.validation.deviceName)
-    worksheet.dataValidations.add('F2:F9999', this.validation.multiStreamSize)
-    worksheet.dataValidations.add('G2:G9999', this.validation.pullType)
-    worksheet.dataValidations.add('H2:H9999', {
+    worksheet.dataValidations.add('B2:B9999', {
+      type: 'list',
+      allowBlank: false,
+      showErrorMessage: true,
+      formulae: ['"2.0"'],
+      error: '请选择版本'
+    })
+    worksheet.dataValidations.add('C2:C9999', {
+      type: 'list',
+      allowBlank: false,
+      showErrorMessage: true,
+      formulae: ['"海康"'],
+      error: '请选择厂商'
+    })
+    worksheet.dataValidations.add('D2:D9999', this.validation.deviceName)
+    worksheet.dataValidations.add('K2:K9999', this.validation.multiStreamSize)
+    worksheet.dataValidations.add('L2:L9999', this.validation.pullType)
+    worksheet.dataValidations.add('M2:M9999', {
       type: 'list',
       allowBlank: true,
       showInputMessage: true,
@@ -426,10 +459,10 @@ export default class ExcelMixin extends Vue {
       formulae: ['"主码流,子码流,第三码流"'],
       prompt: '1、自动拉流的情况下，“自动拉取码流”项才会生效；2、自动拉取码流的范围不得超过主子码流数量'
     })
-    worksheet.dataValidations.add('I2:I9999', this.validation.channelSize)
-    worksheet.dataValidations.add('J2:J9999', this.getVideoPackageValidation(this.VIDEOList))
-    worksheet.dataValidations.add('K2:K9999', this.getAIPackageValidation(this.AIList))
-    worksheet.dataValidations.add('L2:L9999', this.getBWPackageValidation(this.BWList))
+    worksheet.dataValidations.add('N2:N9999', this.validation.channelSize)
+    worksheet.dataValidations.add('O2:O9999', this.getVideoPackageValidation(this.VIDEOList))
+    worksheet.dataValidations.add('P2:P9999', this.getAIPackageValidation(this.AIList))
+    worksheet.dataValidations.add('Q2:Q9999', this.getBWPackageValidation(this.BWList))
   }
 
   private nvrOptionsInit(worksheet: any) {
@@ -477,13 +510,19 @@ export default class ExcelMixin extends Vue {
     if (this.exelDeviceType === 'nvr') this.nvrOptionsInit(worksheet)
     // 调整样式
     worksheet._columns.forEach((column: any) => {
-      column.style = {
-        alignment: {
-          horizontal: 'left'
-        }
-      }
+      // column.style = {
+      //   alignment: {
+      //     vertical: 'middle',
+      //     horizontal: 'center'
+      //   }
+      // }
       if (column._number === 10) {
         column.numFmt = '@'
+      }
+      column.alignment = {
+        vertical: 'middle',
+        horizontal: 'center',
+        wrapText: true
       }
     })
     // 添加过滤器

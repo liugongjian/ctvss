@@ -364,10 +364,6 @@ export default class extends Mixins(createMixin) {
     networkCode: [
       { required: true, message: '请选择网络标识', trigger: 'blur' }
     ],
-    longlat: [
-      { required: true, message: '请选择经纬度', trigger: 'blur' },
-      { validator: this.validateLonglat, trigger: 'blur' }
-    ],
     resources: [
       { required: true, validator: this.validateResources, trigger: 'blur' }
     ]

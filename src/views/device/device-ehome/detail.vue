@@ -107,9 +107,9 @@
                 </template>
                 <!--NVR信息-->
                 <template v-if="info.deviceType === 'nvr'">
-                  <el-descriptions-item label="自动创建子设备">
+                  <!-- <el-descriptions-item label="自动创建子设备">
                     {{ createSubDevice[info.createSubDevice] }}
-                  </el-descriptions-item>
+                  </el-descriptions-item> -->
                   <el-descriptions-item :label="info.createSubDevice === 2 ? '实际通道数量' : '通道数量'">
                     {{ info.deviceStats && info.deviceStats.channelSize }}
                   </el-descriptions-item>
@@ -143,9 +143,9 @@
                 <el-descriptions-item v-if="info.pullType === 1" label="自动拉取码流">
                   {{ autoStreamNumObj[info.autoStreamNum] }}
                 </el-descriptions-item>
-                <el-descriptions-item label="优先TCP传输">
+                <!-- <el-descriptions-item label="优先TCP传输">
                   {{ transPriority[info.transPriority] || '-' }}
-                </el-descriptions-item>
+                </el-descriptions-item> -->
                 <el-descriptions-item label="设备描述">
                   {{ info.description || '-' }}
                 </el-descriptions-item>
