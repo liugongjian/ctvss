@@ -4,6 +4,7 @@
     :visible="true"
     :close-on-click-modal="true"
     :append-to-body="true"
+    :destroy-on-close="true"
     class="intercomBox"
     width="80%"
     @close="closeThis"
@@ -328,17 +329,22 @@ export default class extends Mixins(ScreenMixin) {
 .intercomBox{
   .intercomPlayer{
     video{
-      width: 100%;
+      width: 100% !important;
       position: static; // 清空device/preview 中使用liveview组件的副作用
     }
     .controls{
       display: none;
     }
     .video-ref{
-      width: 100%;
+      width: 100% !important;
+      height: 100% !important;
+      position: static !important;
     }
     .video-wrap{
-      position: static; // 清空device/preview 中使用liveview组件的副作用
+      /* width: 100%;
+      height: 100%;
+      min-height: 400px; */
+      /* position: static; // 清空device/preview 中使用liveview组件的副作用 */
     }
     // 清空h265 中使用canvas播放H265 行内样式的副作用 -start-
     .player-box{
@@ -358,12 +364,13 @@ export default class extends Mixins(ScreenMixin) {
 <style lang="scss" scoped>
 .intercomBox{
   ::v-deep .el-dialog__body{
-      height: 70%;
-    }
+    height: 70%;
+  }
 }
 .intercomPlayer{
   width: 70%;
   height: 70%;
+  /* min-height: 400px; */
   background-color: #000;
 }
 .intercomContent{
