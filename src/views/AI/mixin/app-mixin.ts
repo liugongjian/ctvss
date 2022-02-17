@@ -5,6 +5,7 @@ import { checkPermission } from '@/utils/permission'
 @Component
 export default class AppMixin extends Vue {
   public checkPermission = checkPermission
+  public alarms: any = []
   public period:any = {
     periodType: '今天',
     period: [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)]
@@ -105,7 +106,6 @@ export default class AppMixin extends Vue {
    * 告警搜索时间
    */
   public handleChange() {
-    console.log('this.period:', this.period)
     this.getAlarms()
   }
 }

@@ -102,7 +102,7 @@ export const getAttachedDevice = (params: any): Promise<any> =>
 
 export const getAiAlarm = (params: any): Promise<any> =>
   request({
-    url: '/ai/aiAPP/relation',
+    url: '/ai/result/count',
     method: 'get',
     params
   })

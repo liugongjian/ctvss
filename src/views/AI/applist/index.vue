@@ -71,6 +71,7 @@
               <template slot-scope="scope"><span>{{ resourceAiType[scope.row.analyseType] }}</span></template>
             </el-table-column>
             <el-table-column prop="description" label="描述" show-overflow-tooltip />
+            <el-table-column prop="count" label="告警次数" />
             <el-table-column prop="associateDevices" label="关联设备数" />
             <!-- <el-table-column prop="appEnabled" label="状态">
               <template slot-scope="scope"><span>{{ parseInt(scope.row.appEnabled) ? '启用' : '未启用' }}</span></template>
@@ -354,13 +355,21 @@ export default class extends Mixins(AppMixin) {
   }
 
   public async getAlarms() {
+    this.loading.appList = true
+    // 每次请求先清空
+    this.alarms = []
     const promiseArray = this.aiApps.map(item => this.getAlarm(item.id, this.period.period))
     await Promise.all(promiseArray)
+    this.aiApps = this.aiApps.map(app => {
+      const result = this.alarms.filter(alarm => alarm.appId === app.id)
+      return { ...app, count: result[0].count }
+    })
+    this.loading.appList = false
   }
 
   public async getAlarm(appId, period) {
-    const res = await getAiAlarm({ appId, period })
-    console.log(res)// 这里将res 放入到统一的data里，组合好之后，再统一放到table的data里
+    const res = await getAiAlarm({ appId, startTime: period[0], endTime: period[1] })
+    this.alarms.push(res)
   }
 }
 </script>

@@ -60,6 +60,7 @@
           <span>{{ parseInt(scope.row.status) ? '启用' : '停用' }}</span>
         </template>
       </el-table-column>
+      <el-table-column prop="count" label="告警次数" />
       <el-table-column label="操作" prop="action" class-name="col-action">
         <template slot-scope="scope">
           <el-button type="text" @click="rowClick(scope.row)">
@@ -126,6 +127,7 @@ export default class extends Mixins(AppMixin) {
   }
 
   private async getAttachedDevice() {
+    this.loading = true
     const { deviceList, pageNum, pageSize, totalNum } = await getAttachedDevice({
       appId: this.$route.query.appid,
       pageNum: this.pager.pageNum,
@@ -135,6 +137,7 @@ export default class extends Mixins(AppMixin) {
     this.pager.pageNum = pageNum
     this.pager.pageSize = pageSize
     this.pager.totalNum = totalNum
+    this.loading = false
   }
   /**
    * 启停用应用
@@ -225,15 +228,19 @@ export default class extends Mixins(AppMixin) {
     this.getAlarms()
   }
 
-  public getAlarms() {
-    console.log(this.devices)
-    console.log(this.$route.query.appid)
+  public async getAlarms() {
+    this.loading = true
     const promiseArray = this.devices.map(item => this.getAlarm(this.$route.query.appid, item.deviceId, this.period.period))
-    Promise.all(promiseArray)
+    await Promise.all(promiseArray)
+    this.devices = this.devices.map(device => {
+      const result = this.alarms.filter(alarm => alarm.deviceId === device.deviceId)
+      return { ...device, count: result[0].count }
+    })
+    this.loading = false
   }
   public async getAlarm(appId, deviceId, period) {
-    const res = await getAiAlarm({ appId, deviceId, period })
-    console.log(res)
+    const res = await getAiAlarm({ appId, deviceId, startTime: period[0], endTime: period[1] })
+    this.alarms.push(res)
   }
 }
 </script>
