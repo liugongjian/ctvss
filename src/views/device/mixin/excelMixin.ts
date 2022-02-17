@@ -384,10 +384,10 @@ export default class ExcelMixin extends Vue {
     worksheet.dataValidations.add('D2:D9999', this.validation.deviceName)
     worksheet.dataValidations.add('H2:H9999', this.validation.pullType)
     worksheet.dataValidations.add('I2:I9999', this.validation.pushType)
-    worksheet.dataValidations.add('J2:J9999', this.validation.tags)
-    worksheet.dataValidations.add('K2:K9999', this.getVideoPackageValidation(this.VIDEOList))
-    worksheet.dataValidations.add('L2:L9999', this.getAIPackageValidation(this.AIList))
-    worksheet.dataValidations.add('M2:M9999', this.getBWPackageValidation(this.BWList))
+    worksheet.dataValidations.add('K2:K9999', this.validation.tags)
+    worksheet.dataValidations.add('L2:L9999', this.getVideoPackageValidation(this.VIDEOList))
+    worksheet.dataValidations.add('M2:M9999', this.getAIPackageValidation(this.AIList))
+    worksheet.dataValidations.add('N2:N9999', this.getBWPackageValidation(this.BWList))
   }
 
   private rtspOptionsInit(worksheet: any) {
