@@ -24,14 +24,14 @@ export default class extends Vue {
   public replayType?: string
   @Prop()
   public screen: any
+  @Prop()
+  public defaultVolume?: number
 
   @Watch('currentTime')
   private currentTiemChange(val: number) {
     this.$emit('onCurrentTimeChange', {
       currentTime: val
     })
-    console.log('currentTimeChange', val);
-    
   }
 
   public dateFormat = dateFormat
@@ -218,6 +218,13 @@ export default class extends Vue {
    */
   public playlive() {
     this.$emit('onPlaylive')
+  }
+
+  /**
+   * 播放器音量变化回调
+   */
+  public onVolumeChange(volume: number) {
+    this.$emit('onVolumeChange', volume)
   }
 
   /**

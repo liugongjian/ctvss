@@ -3,6 +3,7 @@ import { prepareUrl, srsRtcPlayerAsync } from '@/utils/webrtc'
 import { BasePlayer } from './BasePlayer'
 
 export class RtcPlayer extends BasePlayer {
+  public rtcInfo?: any
   public init() {
     if (!window.RTCPeerConnection) {
       throw new Error('当前浏览器不支持Webrtc播放器')
@@ -28,6 +29,7 @@ export class RtcPlayer extends BasePlayer {
       sdk.close()
       throw new Error(error)
     })
+    this.rtcInfo = sdk
     this.player = videoElement
   }
 
@@ -112,5 +114,8 @@ export class RtcPlayer extends BasePlayer {
     this.player.removeEventListener('loadstart', this.onLoadStart)
     this.player.removeEventListener('canplay', this.onCanplay)
     this.player.removeEventListener('volumechange', this.onVolumeChange)
+    this.rtcInfo.pc.removeStream(this.player.srcObject)
+    this.rtcInfo.pc.close()
+    this.rtcInfo.pc = null
   }
 }

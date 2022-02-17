@@ -237,6 +237,7 @@
                           @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
                           @onIntercom="onIntercom(screen, ...arguments)"
                           @onTypeChange="onTypeChange(screen, ...arguments)"
+                          @onVolumeChange="onVolumeChange(screen, ...arguments)"
                         />
                         <div v-if="!screen.url && !screen.loading" class="tip-text">{{ screen.errorMsg || '无信号' }}</div>
                       </div>
@@ -254,6 +255,7 @@
                         @onCalendarFocus="onCalendarFocus(screen, ...arguments)"
                         @onCanPlay="playEvent(screen, ...arguments)"
                         @onPlaylive="onPlaylive(screen)"
+                        @onVolumeChange="onVolumeChange(screen, ...arguments)"
                         @onFullscreen="screen.fullscreen();fullscreen()"
                         @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
                       />

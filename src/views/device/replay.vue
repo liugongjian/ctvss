@@ -106,11 +106,13 @@
                       :is-fullscreen="screen.isFullscreen"
                       :has-playlive="false"
                       :screen="screen"
+                      :default-volume="screen.volume"
                       @onCurrentDateChange="onCurrentDateChange(screen, ...arguments)"
                       @onCurrentTimeChange="onCurrentTimeChange(screen, ...arguments)"
                       @onReplayTypeChange="onReplayTypeChange(screen, ...arguments)"
                       @onCalendarFocus="onCalendarFocus(screen, ...arguments)"
                       @onCanPlay="playEvent(screen, ...arguments)"
+                      @onVolumeChange="onVolumeChange(screen, ...arguments)"
                       @onFullscreen="screen.fullscreen();fullscreen()"
                       @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
                     />
