@@ -192,3 +192,9 @@ div:focus {
 .el-message-box__content {
   word-break: break-all;
 }
+
+.dir-list__search .el-dropdown-menu__item .el-icon-check {
+  position: absolute;
+  left: 0;
+  top: 15px;
+}

@@ -20,6 +20,8 @@
             </div>
             <div v-loading="loading.dir" class="dir-list__tree device-list__max-height" :style="{height: `${maxHeight}px`}">
               <el-tree
+                v-if="!search.revertSearchFlag"
+                key="replay-el-tree-original"
                 ref="dirTree"
                 empty-text="暂无目录或设备"
                 :data="dirList"
@@ -28,6 +30,7 @@
                 lazy
                 :load="loadDirs"
                 :props="treeProp"
+                :default-expand-all="!!search.searchKey"
                 @node-click="openScreen"
               >
                 <span
@@ -49,6 +52,57 @@
                   </span>
                 </span>
               </el-tree>
+              <el-tree
+                v-else
+                key="replay-el-tree-filter"
+                ref="dirTree"
+                empty-text="暂无目录或设备"
+                :data="dirList"
+                node-key="id"
+                highlight-current
+                :props="treeProp"
+                default-expand-all
+                @node-click="openScreen"
+              >
+                <span
+                  slot-scope="{node, data}"
+                  class="custom-tree-node"
+                  :class="{'online': data.deviceStatus === 'on', 'offline': (data.deviceStatus !== 'on' && data.type === 'ipc')}"
+                >
+                  <span class="node-name">
+                    <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
+                    <span v-else class="node-dir">
+                      <svg-icon name="dir" width="15" height="15" />
+                      <svg-icon name="dir-close" width="15" height="15" />
+                    </span>
+                    <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
+                    {{ node.label }}
+                    <span class="sum-icon">{{ getSums(data) }}</span>
+                    <span class="alert-type">{{ renderAlertType(data) }}</span>
+                    <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
+                  </span>
+                </span>
+              </el-tree>
+            </div>
+            <div v-if="currentGroup.inProtocol === 'gb28181'" class="dir-list__search">
+              <el-dropdown placement="top-start" @command="changeSearchStatus">
+                <el-button class="dir-list__search-button" :type="search.statusKey === 'all' ? 'default': 'primary'" size="mini" style="margin-right: 5px!important">
+                  <svg-icon name="filter" />
+                </el-button>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item v-for="option in search.statusOptions" :key="option.label" :command="option.value">
+                    <i v-if="search.statusKey === option.value" class="el-icon-check" />{{ option.label }}
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+              <el-tooltip class="item" effect="dark" content="支持国标ID、设备IP、设备名查询" placement="top-start">
+                <!-- TIPS 需要处理为空时候的直接回车 -->
+                <el-input v-model="search.inputKey" size="mini" placeholder="支持国标ID、设备IP、设备名查询" @keyup.enter.native="enterKeySearch" />
+              </el-tooltip>
+              <el-button class="dir-list__search-button" type="primary" size="mini" icon="el-icon-search" :disabled="!search.inputKey.length" @click="filterSearchResult" />
+              <el-button v-if="search.revertSearchFlag" class="dir-list__search-button" type="primary" size="mini" @click="revertSearchResult">
+                <svg-icon name="revert" />
+              </el-button>
             </div>
           </div>
         </div>
@@ -162,6 +216,13 @@ export default class extends Mixins(ScreenMixin) {
 
   @Watch('currentGroupId', { immediate: true })
   private onCurrentGroupChange(groupId: String) {
+    this.search = {
+      ...this.search,
+      inputKey: '',
+      searchKey: '',
+      statusKey: 'all',
+      revertSearchFlag: false
+    }
     if (!groupId) return
     this.$nextTick(() => {
       this.currentIndex = 0
@@ -173,6 +234,7 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   private mounted() {
+    this.initSearchStatus()
     this.initScreen()
     this.calMaxHeight()
     this.initScreenCache('replay')
@@ -192,14 +254,6 @@ export default class extends Mixins(ScreenMixin) {
     window.removeEventListener('resize', this.calMaxHeight)
     window.removeEventListener('resize', this.checkFullscreen)
     // window.removeEventListener('beforeunload', () => this.setScreenCache('replay'))
-  }
-
-  /**
-   * 清空初始化树状态默认方法
-   */
-  public async initTreeStatus() {
-    // TODO: 对泰州用户单独处理，后续需删除
-    this.dealTzTree()
   }
 
   /**

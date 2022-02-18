@@ -72,7 +72,8 @@
         </div>
       </template>
       <template v-else>
-        <div class="search-box">
+        <!-- 柳州版本暂时隐藏全局搜索入口 -->
+        <!-- <div class="search-box">
           <div v-if="!isLight" class="search-box__form" @click.stop="focusSearch">
             <span class="search-box__placeholder">搜索设备</span>
             <span class="search-box__icon"><svg-icon name="search" width="15" height="15" /></span>
@@ -89,7 +90,7 @@
               </el-button>
             </el-form>
           </div>
-        </div>
+        </div> -->
         <div :class="['links', ctLogin ? 'ct-login' : '']">
           <a target="_blank" href="https://vcn.ctyun.cn/document/api/">API文档</a>
           <span v-if="!ctLogin" class="links__split"> | </span>
