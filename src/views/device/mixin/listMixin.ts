@@ -750,6 +750,13 @@ export default class ListMixin extends Mixins(DeviceMixin) {
         deviceId: this.deviceId,
         devicieType: 'nvr'
       })
+    } else if (this.isPlatform) {
+      deviceIdAndTypes = this.deviceList.map(device => {
+        return {
+          deviceId: device.deviceId,
+          deviceType: 'platform,' + device.deviceType
+        }
+      })
     } else {
       deviceIdAndTypes = this.deviceList.map(device => {
         return {
