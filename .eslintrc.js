@@ -28,7 +28,8 @@ module.exports = {
     'vue/object-curly-spacing': 'error',
     'vue/singleline-html-element-content-newline': 'off',
     'vue/max-attributes-per-line': 'off',
-    '@typescript-eslint/no-unused-vars': ['error']
+    '@typescript-eslint/no-unused-vars': ['error'],
+    '@typescript-eslint/type-annotation-spacing': 'error'
   },
   parserOptions: {
     parser: '@typescript-eslint/parser'
