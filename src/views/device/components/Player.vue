@@ -1063,6 +1063,7 @@ export default class extends Vue {
   public fullscreen() {
     this.$emit('onFullscreen')
     this.isZoom = false
+    this.showCanvasBox = false
     this.hideTools()
   }
 
