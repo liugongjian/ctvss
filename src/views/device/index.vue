@@ -111,6 +111,13 @@
                     <span class="sum-icon">{{ getSums(data) }}</span>
                     <span class="alert-type">{{ renderAlertType(data) }}</span>
                   </span>
+                  <div v-if="!isVGroup && checkPermission(['AdminDevice'], data)" class="tools">
+                    <template v-if="data.type === 'dir' && !isVGroup && checkPermission(['AdminDevice'])">
+                      <el-tooltip class="item" effect="dark" content="编辑目录" placement="top" :open-delay="300">
+                        <el-button type="text" @click.stop="openDialog('updateDir', data)"><svg-icon name="edit" /></el-button>
+                      </el-tooltip>
+                    </template>
+                  </div>
                 </span>
               </el-tree>
             </div>

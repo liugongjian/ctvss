@@ -41,8 +41,8 @@ export class RtcPlayer extends BasePlayer {
    * 进行WebRTC SDP协商
    */
   private connectRtc() {
-    this.rtc.play(this.rtcConf.apiUrl, this.rtcConf.streamUrl).then((session: any) => {
-      console.log(session)
+    this.rtc.play(this.rtcConf.apiUrl, this.rtcConf.streamUrl).then(() => {
+      // console.log(session)
     }).catch(() => {
       this.retry()
     })
@@ -141,7 +141,7 @@ export class RtcPlayer extends BasePlayer {
     this.player.removeEventListener('canplay', this.onCanplay)
     this.player.removeEventListener('volumechange', this.onVolumeChange)
     if (this.rtc) {
-      this.rtc.pc && this.rtc.pc.removeStream(this.player.srcObject)
+      this.rtc.pc && this.rtc.pc.connectionState !== 'close' && this.rtc.pc.removeStream(this.player.srcObject)
       this.rtc.close()
       this.rtc.pc = null
     }
