@@ -739,8 +739,11 @@ export default class extends Vue {
   }
 
   public reloadPlayer() {
-    this.player && this.player.reloadPlayer()
-    this.playerFS()
+    // 如果是webrtc协议不重新加载播放器
+    if (this.type !== 'rtc' && this.videoType !== 'RTC') { // TODO: 待重构
+      this.player && this.player.reloadPlayer()
+      this.playerFS()
+    }
   }
 
   public reset() {
@@ -1060,6 +1063,7 @@ export default class extends Vue {
   public fullscreen() {
     this.$emit('onFullscreen')
     this.isZoom = false
+    this.showCanvasBox = false
     this.hideTools()
   }
 

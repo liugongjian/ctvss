@@ -68,6 +68,7 @@ export class RtcPlayer extends BasePlayer {
    */
   public reloadPlayer() {
     this.player = null
+    this.rtcInfo.pc.close()
     this.init()
   }
 
