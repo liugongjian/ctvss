@@ -739,8 +739,11 @@ export default class extends Vue {
   }
 
   public reloadPlayer() {
-    this.player && this.player.reloadPlayer()
-    this.playerFS()
+    // 如果是webrtc协议不重新加载播放器
+    if (this.type !== 'rtc' && this.videoType !== 'RTC') { // TODO: 待重构
+      this.player && this.player.reloadPlayer()
+      this.playerFS()
+    }
   }
 
   public reset() {
@@ -1051,8 +1054,6 @@ export default class extends Vue {
    * 播放直播
    */
   public playlive() {
-    console.log('player')
-
     this.$emit('onPlaylive')
   }
 
@@ -1062,6 +1063,7 @@ export default class extends Vue {
   public fullscreen() {
     this.$emit('onFullscreen')
     this.isZoom = false
+    this.showCanvasBox = false
     this.hideTools()
   }
 
@@ -1096,13 +1098,16 @@ export default class extends Vue {
    * 音轨判断、音量调整
    */
   public onVolumeChange(volume: number, isMute: boolean) {
-    this.isMute = isMute
-    if (isMute) {
-      this.volume = 0
-    } else {
-      this.volume = volume * 100
+    // 判断视频数据已加载完成，HTMLMediaElement.readyState = 4 时才触发音量变化，不然播放器初始化时会将音量设为0
+    if (this.player.player.readyState === 4) {
+      this.isMute = isMute
+      if (isMute) {
+        this.volume = 0
+      } else {
+        this.volume = volume * 100
+      }
+      this.$emit('onVolumeChange', this.volume)
     }
-    this.$emit('onVolumeChange', this.volume)
   }
 
   /**
