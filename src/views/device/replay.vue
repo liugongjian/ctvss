@@ -215,13 +215,20 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   @Watch('currentGroupId', { immediate: true })
-  private onCurrentGroupChange(groupId: String) {
-    this.search = {
-      ...this.search,
-      inputKey: '',
-      searchKey: '',
-      statusKey: 'all',
-      revertSearchFlag: false
+  private onCurrentGroupChange(groupId: String, oldGroupId: String) {
+    // search为inject变量，不能直接整体赋值为其他，否则inject会失效
+    this.search.inputKey = ''
+    this.search.searchKey = ''
+    this.search.statusKey = 'all'
+    this.search.revertSearchFlag = false
+    if (oldGroupId) {
+      const query = {
+        searchKey: '',
+        statusKey: 'all'
+      }
+      this.$router.replace({
+        query
+      })
     }
     if (!groupId) return
     this.$nextTick(() => {

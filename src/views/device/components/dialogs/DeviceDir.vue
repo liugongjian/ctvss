@@ -77,7 +77,7 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
   }
 })
 export default class extends Mixins(IndexMixin) {
-  @Inject('outerSearch')private outerSearch?: any
+  @Inject('outerSearch') private outerSearch?: any
   @Prop()
   private device!: Device
   private dialogVisible = true
