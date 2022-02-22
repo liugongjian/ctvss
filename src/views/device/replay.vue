@@ -112,6 +112,23 @@
                     <span class="alert-type">{{ renderAlertType(data) }}</span>
                     <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
                   </span>
+                  <div class="tools" @click.stop.prevent>
+                    <el-tooltip
+                      class="item"
+                      effect="dark"
+                      content="一键播放"
+                      placement="top"
+                      :open-delay="300"
+                    >
+                      <el-button
+                        v-if="data.type === 'nvr' || data.type === 'dir' || data.type === 'group'"
+                        type="text"
+                        @click="videosOnAutoPlay(node, true)"
+                      >
+                        <svg-icon name="auto-play" />
+                      </el-button>
+                    </el-tooltip>
+                  </div>
                 </span>
               </el-tree>
             </div>
@@ -226,7 +243,6 @@ import DeviceDir from './components/dialogs/DeviceDir.vue'
 import { renderAlertType, getSums } from '@/utils/device'
 import { VGroupModule } from '@/store/modules/vgroup'
 import { getDeviceTree } from '@/api/device'
-import { log } from 'console'
 
 @Component({
   name: 'Record',
@@ -315,7 +331,7 @@ export default class extends Mixins(ScreenMixin) {
   /**
    * 一键播放
    */
-  private async videosOnAutoPlay(node: any, isDir: boolean) {
+  private async videosOnAutoPlay(node: any, isRoot: boolean) {
     this.autoPlayDevices = []
     if (node) {
       this.currentNode = node
@@ -324,24 +340,32 @@ export default class extends Mixins(ScreenMixin) {
       VGroupModule.SetRealGroupId(this.currentNode!.data.realGroupId || '')
       VGroupModule.SetRealGroupInProtocol(this.currentNode!.data.realGroupInProtocol || '')
     }
-    if (!isDir) {
+    if (!isRoot) {
       this.dirList.forEach((item: any) => {
         if (item.type === 'ipc') {
           this.autoPlayDevices.push(item)
         }
       })
     } else {
-      let data = await getDeviceTree({
-        groupId: this.currentGroupId,
-        id: node!.data.id,
-        type: node!.data.type
-      })
-      const dirs = this.setDirsStreamStatus(data.dirs)
-      dirs.forEach((item: any) => {
-        if (item.type === 'ipc') {
-          this.autoPlayDevices.push(item)
-        }
-      })
+      if (this.$route.query.searchKey) {
+        node.data.children.forEach((item: any) => {
+          if (item.type === 'ipc') {
+            this.autoPlayDevices.push(item)
+          }
+        })
+      } else {
+        let data = await getDeviceTree({
+          groupId: this.currentGroupId,
+          id: node!.data.id,
+          type: node!.data.type
+        })
+        const dirs = this.setDirsStreamStatus(data.dirs)
+        dirs.forEach((item: any) => {
+          if (item.type === 'ipc') {
+            this.autoPlayDevices.push(item)
+          }
+        })
+      }
     }
     if (!this.autoPlayDevices.length) {
       this.$alert(`当前设备数需大于0才可开始自动播放`, '提示', {
