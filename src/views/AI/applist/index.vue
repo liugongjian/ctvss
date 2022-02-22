@@ -44,7 +44,7 @@
           </div>
           <div class="alarm-container__alarm">
             <div>总告警次数：</div>
-            <div>135次</div>
+            <div>{{ totalAlarm }}次</div>
           </div>
         </div>
         <el-row>
@@ -131,6 +131,7 @@ export default class extends Mixins(AppMixin) {
   private aiApps: any = []
   private multipleSelection: any = []
   public $router: any
+  public totalAlarm: number = 0
 
   private get batchDisabled() {
     return this.multipleSelection.length === 0
@@ -155,6 +156,7 @@ export default class extends Mixins(AppMixin) {
     await this.getAbilityList()
     await this.getAppList()
     this.getAlarms()
+    this.getAlarm(0, this.period.period)
   }
 
   /**
@@ -373,8 +375,13 @@ export default class extends Mixins(AppMixin) {
   }
 
   public async getAlarm(appId, period) {
-    const res = await getAiAlarm({ appId, startTime: period[0], endTime: period[1] })
-    this.alarms.push(res)
+    if (appId) {
+      const res = await getAiAlarm({ appId, startTime: period[0], endTime: period[1] })
+      this.alarms.push(res)
+    } else {
+      const { count } = await getAiAlarm({ appId, startTime: period[0], endTime: period[1] })
+      this.totalAlarm = count
+    }
   }
 }
 </script>

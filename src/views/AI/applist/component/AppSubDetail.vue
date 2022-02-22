@@ -320,8 +320,7 @@ export default class extends Vue {
         appId: this.appInfo.id,
         startTime: Math.floor(startTime / 1000),
         endTime: Math.floor(endTime / 1000),
-        // deviceId: this.device.deviceId
-        deviceId: '10086'
+        deviceId: this.device.deviceId
       }
       const res = await getVehiclesAlarmStatic(query)
       this.alarms = res.vehiclesAlarmList

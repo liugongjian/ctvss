@@ -42,7 +42,7 @@ export default class extends Vue {
   @Prop() private pic!: any
   @Prop() private type!: any
   private picInfo = null
-  private isPicLoaded:boolean = true
+  private isPicLoaded: boolean = true
   private decodeBase64: Function = decodeBase64
 
   private onload() {
