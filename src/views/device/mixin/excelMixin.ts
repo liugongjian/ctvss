@@ -153,7 +153,7 @@ export default class ExcelMixin extends Vue {
       operator: 'between',
       showInputMessage: true,
       showErrorMessage: true,
-      formulae: [2, 16],
+      formulae: [2, 64],
       prompt: '2至64位，可包含大小写字母、数字、中文、中划线。',
       error: '2至64位，可包含大小写字母、数字、中文、中划线。'
     },
