@@ -54,6 +54,13 @@ export const parseMetaData = (type: string, metaData: any) => {
           score: person.FaceItems.length > 0 && Math.round(person.FaceItems[0].Score)
         }
       })
+      if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+        locations.push(
+          {
+            zone: metaData.DangerZoneBox
+          }
+        )
+      }
       break
     // 抽烟检测
     case '5':
@@ -280,6 +287,13 @@ export const parseMetaData = (type: string, metaData: any) => {
           }
         })
       }
+      if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+        locations.push(
+          {
+            zone: metaData.DangerZoneBox
+          }
+        )
+      }
       break
     // 棉花
     case '18':
@@ -293,6 +307,14 @@ export const parseMetaData = (type: string, metaData: any) => {
               width: boxes[i].BottomRightX - boxes[i].TopLeftX,
               height: boxes[i].BottomRightY - boxes[i].TopLeftY,
               isWarning: true
+            }
+          )
+        }
+        const zoneBoxes = metaData.DangerZoneBox
+        if (zoneBoxes && zoneBoxes.length) {
+          locations.push(
+            {
+              zone: zoneBoxes
             }
           )
         }
@@ -330,6 +352,30 @@ export const parseMetaData = (type: string, metaData: any) => {
         }
       }
       break
+    // 垃圾检测
+    case '21':
+      if (metaData.Data && metaData.Data.DetectBoxes) {
+        const boxes = metaData.Data.DetectBoxes
+        for (let i = 0; i < boxes.length; i += 4) {
+          locations.push(
+            {
+              top: boxes[i + 1],
+              left: boxes[i],
+              width: boxes[i + 2],
+              height: boxes[i + 3],
+              isWarning: !!metaData.Data.DetectClses[i / 4]
+            }
+          )
+        }
+        if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+          locations.push(
+            {
+              zone: metaData.DangerZoneBox
+            }
+          )
+        }
+      }
+      break
     // 车辆统计
     case '22':
       if (metaData.Data && metaData.Data.DetectBoxes) {
@@ -352,6 +398,30 @@ export const parseMetaData = (type: string, metaData: any) => {
             }
           )
         }
+      }
+      break
+      // 电动车
+    case '23':
+      if (metaData.Data && metaData.Data.DetectBoxes) {
+        const boxes = metaData.Data.DetectBoxes
+        for (let i = 0; i < boxes.length; i += 4) {
+          locations.push(
+            {
+              top: boxes[i + 1],
+              left: boxes[i],
+              width: boxes[i + 2],
+              height: boxes[i + 3],
+              isWarning: !!metaData.Data.DetectClses[i / 4]
+            }
+          )
+        }
+      }
+      if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+        locations.push(
+          {
+            zone: metaData.DangerZoneBox
+          }
+        )
       }
       break
       // 车辆违停
@@ -506,6 +576,13 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
           console.log(error)
         }
       })
+      if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+        locations.push(
+          {
+            zone: metaData.DangerZoneBox
+          }
+        )
+      }
       break
     // 吸烟检测
     case '10002':
@@ -715,6 +792,13 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
           }
         })
       }
+      if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+        locations.push(
+          {
+            zone: metaData.DangerZoneBox
+          }
+        )
+      }
       break
     // 棉花
     case '10015':
@@ -728,6 +812,14 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
               width: boxes[i].BottomRightX - boxes[i].TopLeftX,
               height: boxes[i].BottomRightY - boxes[i].TopLeftY,
               isWarning: true
+            }
+          )
+        }
+        const zoneBoxes = metaData.DangerZoneBox
+        if (zoneBoxes && zoneBoxes.length) {
+          locations.push(
+            {
+              zone: zoneBoxes
             }
           )
         }
@@ -760,6 +852,54 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
               height: boxes[i + 3],
               isWarning: type === 0 || type === 2,
               type
+            }
+          )
+        }
+      }
+      break
+      // 垃圾检测
+    case '10018':
+      if (metaData.Data && metaData.Data.DetectBoxes) {
+        const boxes = metaData.Data.DetectBoxes
+        for (let i = 0; i < boxes.length; i += 4) {
+          locations.push(
+            {
+              top: boxes[i + 1],
+              left: boxes[i],
+              width: boxes[i + 2],
+              height: boxes[i + 3],
+              isWarning: !!metaData.Data.DetectClses[i / 4]
+            }
+          )
+        }
+        if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+          locations.push(
+            {
+              zone: metaData.DangerZoneBox
+            }
+          )
+        }
+      }
+      break
+      // 电动车
+    case '10020':
+      if (metaData.Data && metaData.Data.DetectBoxes) {
+        const boxes = metaData.Data.DetectBoxes
+        for (let i = 0; i < boxes.length; i += 4) {
+          locations.push(
+            {
+              top: boxes[i + 1],
+              left: boxes[i],
+              width: boxes[i + 2],
+              height: boxes[i + 3],
+              isWarning: !!metaData.Data.DetectClses[i / 4]
+            }
+          )
+        }
+        if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+          locations.push(
+            {
+              zone: metaData.DangerZoneBox
             }
           )
         }
@@ -948,10 +1088,10 @@ export const transformLocationAi = (locations: any, img: any) => {
     } else {
       const ratioW = img.clientWidth / img.naturalWidth
       const ratioH = img.clientHeight / img.naturalHeight
-      location.clientTopPercent = location.top * ratioH / img.clientHeight * 100
-      location.clientLeftPercent = location.left * ratioW / img.clientWidth * 100
-      location.clientWidthPercent = location.width * ratioW / img.clientWidth * 100
-      location.clientHeightPercent = location.height * ratioH / img.clientHeight * 100
+      location.clientTopPercent = Math.floor(location.top * ratioH / img.clientHeight * 100)
+      location.clientLeftPercent = Math.floor(location.left * ratioW / img.clientWidth * 100)
+      location.clientWidthPercent = Math.floor(location.width * ratioW / img.clientWidth * 100)
+      location.clientHeightPercent = Math.floor(location.height * ratioH / img.clientHeight * 100)
     }
   })
   return locations

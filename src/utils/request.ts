@@ -26,7 +26,8 @@ service.interceptors.request.use(
       config.headers['token'] = UserModule.token
       if (GroupModule.group && GroupModule.group.inProtocol === 'vgroup') {
         const pathname = window.location.pathname
-        if ((pathname.startsWith('/vss/device') || pathname.startsWith('/vss/screen') || pathname.startsWith('/vss/replay')) && !config.headers['role-id'] && !config.headers['real-group-id']) {
+        // 防止虚拟业务组页面加载groupList时带role-id与real-group-id
+        if (config.url !== '/group/list' && (pathname.startsWith('/vss/device') || pathname.startsWith('/vss/screen') || pathname.startsWith('/vss/replay')) && !config.headers['role-id'] && !config.headers['real-group-id']) {
           config.headers['role-id'] = VGroupModule.roleId
           config.headers['real-group-id'] = VGroupModule.realGroupId
         }

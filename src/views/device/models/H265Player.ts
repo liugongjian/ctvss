@@ -95,7 +95,7 @@ export class H265Player extends BasePlayer {
    * 回调-H265更新时间
    */
   public onTimeUpdate() {
-    console.log('onTimeUpdate', this.player.currentTime)
+    // console.log('onTimeUpdate', this.player.currentTime)
     this.config.onTimeUpdate && this.config.onTimeUpdate(this.player.currentTime)
     if (this.player.currentTime === 0) {
       this.onCanplay && this.onCanplay()

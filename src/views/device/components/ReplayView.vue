@@ -35,11 +35,16 @@
         ref="replayPlayer"
         :current-date="currentDate"
         :record-list="recordList"
+        :heatmap-list="heatmapList"
         :has-playlive="hasPlaylive"
         :is-fullscreen="isFullscreen"
         :replay-type="replayType"
+        :default-volume="defaultVolume"
+        :screen="screen"
+        @onCurrentTimeChange="onCurrentTimeChange"
         @onCanPlay="onCanPlay"
         @onPlaylive="playlive"
+        @onVolumeChange="onVolumeChange"
         @onFullscreen="fullscreen()"
         @onExitFullscreen="exitFullscreen()"
       />
@@ -59,8 +64,11 @@
         :replay-type="replayType"
         :device-id="deviceId"
         :in-protocol="inProtocol"
+        :screen="screen"
+        @onCurrentTimeChange="onCurrentTimeChange"
         @onCanPlay="onCanPlay"
         @onPlaylive="playlive"
+        @onVolumeChange="onVolumeChange"
         @onFullscreen="fullscreen()"
         @onExitFullscreen="exitFullscreen()"
       />
@@ -106,7 +114,7 @@
 import axios from 'axios'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { dateFormatInTable, dateFormat, durationFormatInTable, prefixZero, getLocaleDate, getTimestamp } from '@/utils/date'
-import { getDeviceRecords, getDeviceRecord, getDeviceRecordStatistic, editRecordName, getDeviceRecordRule } from '@/api/device'
+import { getDeviceRecords, getDeviceRecord, getDeviceRecordStatistic, editRecordName, getDeviceRecordRule, describeHeatMap } from '@/api/device'
 import ReplayPlayerDialog from './dialogs/ReplayPlayer.vue'
 import SliceDownloadDialog from './dialogs/SliceDownload.vue'
 import ReplayPlayer from './ReplayPlayer.vue'
@@ -136,6 +144,10 @@ export default class extends Vue {
     default: true
   })
   private hasPlaylive?: boolean
+  @Prop()
+  private screen: any
+  @Prop()
+  private defaultVolume?: number
   private get isVGroup() {
     return GroupModule.group?.inProtocol === 'vgroup'
   }
@@ -153,6 +165,7 @@ export default class extends Vue {
   private isEmpty = false
   private recordName = ''
   private recordList: Array<any> = []
+  private heatmapList: Array<any> = []
   private recordListSlice: Array<any> = []
   private recordStatistic: Map<string, any> = new Map()
   private pickerOptions = {
@@ -186,14 +199,32 @@ export default class extends Vue {
   }
   private recordInterval: any = null
   private axiosSource: any = null
+  private axiosSourceHeatMap: any = null
 
   private async mounted() {
-    await this.init()
+    // 判断是否读取观看记录
+    if (this.screen && this.screen.isCache) {
+      if (this.screen.replayType) {
+        this.replayType = this.screen.replayType
+      }
+      if (this.screen.currentDate) {
+        this.currentDate = this.screen.currentDate
+        this.changeDate(this.currentDate)
+      } else {
+        await this.init()
+      }
+    } else {
+      await this.init()
+    }
+  }
+
+  private beforeDestroyed() {
   }
 
   private async destroyed() {
     clearInterval(this.recordInterval)
     this.axiosSource && this.axiosSource.cancel()
+    this.axiosSourceHeatMap && this.axiosSourceHeatMap.cancel()
   }
 
   @Watch('$route.query')
@@ -203,7 +234,8 @@ export default class extends Vue {
   }
 
   @Watch('replayType')
-  private onReplayTypeChange() {
+  private onReplayTypeChange(val: string) {
+    this.$emit('onReplayTypeChange', val)
     this.viewType = 'timeline'
     this.init()
   }
@@ -212,6 +244,17 @@ export default class extends Vue {
   private onRecordListSliceChange(data: any) {
     data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
   }
+
+  /**
+   * 缓存录像观看记录
+   */
+  // private setReplayCache() {
+  //   let screenCache = { ...this.screenCache }
+  //   this.$set(screenCache.replay.dateList[this.screenIndex], 'currentDate', this.currentDate)
+  //   setLocalStorage('screenCache', JSON.stringify(this.screenCache))
+  //   console.log('update', getLocalStorage('screenCache'));
+  //   debugger
+  // }
 
   /**
    * 初始化
@@ -225,7 +268,11 @@ export default class extends Vue {
       this.getRecordStatistic(startTime, endTime)
       clearInterval(this.recordInterval)
       this.recordList = []
-      this.replayType === 'cloud' && await this.getRecordList()
+      this.heatmapList = []
+      if (this.replayType === 'cloud') {
+        await this.getRecordList()
+        await this.describeHeatMap()
+      }
       // 定时轮询新录像
       this.getLatestRecord()
     } catch (e) {
@@ -236,8 +283,10 @@ export default class extends Vue {
   /**
    * 切换日期
    */
-  private changeDate() {
-    this.axiosSource.cancel()
+  private changeDate(val: number) {
+    this.axiosSource && this.axiosSource.cancel()
+    // screen同步currentDate
+    this.$emit('onCurrentDateChange', val)
     setTimeout(() => {
       this.init()
     })
@@ -284,6 +333,48 @@ export default class extends Vue {
   private cancelEdit(row: any) {
     this.recordName = ''
     row.edit = false
+  }
+
+  /**
+   * 获取行人时间段列表
+   */
+  private async describeHeatMap(startTime?: number) {
+    try {
+      // this.loading = true
+      this.axiosSourceHeatMap = axios.CancelToken.source()
+      const res = await describeHeatMap({
+        deviceId: this.deviceId,
+        inProtocol: this.inProtocol,
+        startTime: startTime || this.currentDate / 1000,
+        endTime: this.currentDate / 1000 + 24 * 60 * 60,
+        aiCode: '10006'
+      }, this.axiosSourceHeatMap.token)
+      // 追加最新的行人时间段
+      if (startTime) {
+        const heatmapLength = this.heatmapList.length
+        res.heatMap.forEach((heatmap: any, index: number) => {
+          heatmap.startAt = getTimestamp(heatmap.startTime)
+          heatmap.loading = false
+          heatmap.index = heatmapLength + index
+          if (!~this.heatmapList.findIndex(_heatmap => {
+            return heatmap.startTime === _heatmap.startTime
+          })) {
+            this.heatmapList.push(heatmap)
+          }
+        })
+      } else {
+        this.heatmapList = res.heatMap.map((heatmap: any, index: number) => {
+          // heatmap.startAt = getTimestamp(heatmap.startTime)
+          heatmap.loading = false
+          heatmap.index = index
+          return heatmap
+        })
+      }
+    } catch (e) {
+      console.log(e)
+    } finally {
+      // this.loading = false
+    }
   }
 
   /**
@@ -362,7 +453,7 @@ export default class extends Vue {
   }
 
   /**
-   * 定时轮询新录像
+   * 定时轮询新录像 && 录像中行人时间段信息
    */
   private async getLatestRecord() {
     const recordListLength = this.recordList.length
@@ -378,6 +469,10 @@ export default class extends Vue {
           const lastRecord = this.recordList[recordListLength - 1]
           const startTime = Math.floor(new Date(lastRecord.endTime).getTime() / 1000 - 3 * 60)
           await this.getRecordList(startTime)
+
+          const lastHeatMap = this.heatmapList[this.heatmapList.length - 1]
+          const startTimeHeatMap = Math.floor(new Date(lastHeatMap.endTime).getTime() / 1000 - 3 * 60)
+          await this.describeHeatMap(startTimeHeatMap)
         }, interval * 1000)
       }
     } catch (e) {
@@ -468,10 +563,24 @@ export default class extends Vue {
   }
 
   /**
+   * 视频当前时间更新
+   */
+  public onCurrentTimeChange(params: any) {
+    this.$emit('onCurrentTimeChange', params)
+  }
+
+  /**
    * 播放直播
    */
   public playlive() {
     this.$emit('onPlaylive')
+  }
+
+  /**
+   * 播放器音量变化回调
+   */
+  public onVolumeChange(volume: number) {
+    this.$emit('onVolumeChange', volume)
   }
 
   /**

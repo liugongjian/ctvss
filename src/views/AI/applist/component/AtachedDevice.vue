@@ -35,7 +35,10 @@
     >
       <el-table-column label="名称">
         <template slot-scope="scope">
-          <svg-icon :name="scope.row.deviceType" width="20" height="20" :class="scope.row.deviceStatus+'line'" />
+          <div class="device-list__device-type">
+            <status-badge v-if="scope.row.deviceType === 'ipc'" :status="scope.row.deviceStatus" />
+            <svg-icon :name="scope.row.deviceType" width="20" height="20" :class="scope.row.deviceStatus+'line'" />
+          </div>
           <div class="device-list__device-name">
             <div class="device-list__device-id">{{ scope.row.deviceName }}</div>
           </div>
@@ -246,12 +249,22 @@ export default class extends Mixins(AppMixin) {
 </script>
 <style lang="scss" scoped>
 .device-wrapper{
+  .device-list__device-type{
+    display: inline-block;
+    position: relative;
+    margin: 2px 8px;
+    .status-badge{
+      position: absolute;
+      top: -2px;
+      left: -6px;
+    }
+  }
   .device-list__device-name{
     display: inline-block;
   }
   flex:1 1 auto;
   .svg-icon{
-    margin: 0 8px;
+    // margin: 0 8px;
   }
   .alarm-container{
     display: flex;

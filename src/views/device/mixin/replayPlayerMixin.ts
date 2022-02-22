@@ -1,4 +1,4 @@
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { dateFormat } from '@/utils/date'
 import Player from '../components/Player.vue'
 
@@ -22,6 +22,17 @@ export default class extends Vue {
   // 录像类型(cloud: 云端, local: 本地)
   @Prop()
   public replayType?: string
+  @Prop()
+  public screen: any
+  @Prop()
+  public defaultVolume?: number
+
+  @Watch('currentTime')
+  private currentTiemChange(val: number) {
+    this.$emit('onCurrentTimeChange', {
+      currentTime: val
+    })
+  }
 
   public dateFormat = dateFormat
   public currentRecord: any = null
@@ -30,6 +41,7 @@ export default class extends Vue {
   public startTime = 0
   public handlePos = 0
   public timePositionList: Array<any> = []
+
   // 时间轴缩放比例
   public timelineRatio = 1
   public dialog = {
@@ -206,6 +218,13 @@ export default class extends Vue {
    */
   public playlive() {
     this.$emit('onPlaylive')
+  }
+
+  /**
+   * 播放器音量变化回调
+   */
+  public onVolumeChange(volume: number) {
+    this.$emit('onVolumeChange', volume)
   }
 
   /**

@@ -793,13 +793,38 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
+    path: '/userConfiguration',
+    component: Layout,
+    meta: {
+      id: '20210424150201009100',
+      title: '配置',
+      icon: 'tree',
+      hidden: true,
+      breadcrumb: true,
+      perms: ['*']
+    },
+    children: [
+      {
+        path: '/',
+        component: () => import(/* webpackChunkName: "userConfiguration" */ '@/views/userConfiguration/index.vue'),
+        meta: {
+          id: '20210424150201009101',
+          title: '配置',
+          icon: 'tree',
+          breadcrumb: false,
+          perms: ['*']
+        }
+      }
+    ]
+  },
+  {
     path: '/AI',
     component: Layout,
     redirect: 'noredirect',
     name: 'ai',
     meta: {
       id: '20210424150201010000',
-      title: 'AI配置',
+      title: 'AI管理',
       icon: 'key',
       alwaysShow: true,
       perms: ['*']
@@ -1083,7 +1108,7 @@ export const asyncRoutes: RouteConfig[] = [
     redirect: 'noredirect',
     meta: {
       id: '20210515200901012000',
-      title: '计费详情',
+      title: '计费管理',
       icon: 'billing',
       alwaysShow: true,
       perms: ['*']
@@ -1148,8 +1173,8 @@ export const asyncRoutes: RouteConfig[] = [
       id: '20210515200901013001',
       title: '系统设置',
       breadcrumb: true,
-      perms: ['*'],
-      hidden: true
+      icon: 'config',
+      perms: ['*']
     },
     children: [
       {
@@ -1160,8 +1185,8 @@ export const asyncRoutes: RouteConfig[] = [
           id: '20210515200901013002',
           title: '系统设置',
           breadcrumb: false,
-          perms: ['*'],
-          hidden: true
+          icon: 'config',
+          perms: ['*']
         }
       }
     ]

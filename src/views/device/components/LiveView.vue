@@ -14,7 +14,7 @@
       <player
         v-if="address"
         ref="video"
-        type="flv"
+        :type="type"
         :codec="codec"
         :url="address.flvUrl"
         :auto-play="true"
@@ -22,12 +22,17 @@
         :is-live="true"
         :is-fullscreen="isFullscreen"
         :has-control="false"
+        :all-address="address"
         :in-protocol="inProtocol"
+        :device-id="deviceId"
+        :video-info="videoInfo"
+        :default-volume="volume"
         @onCanPlay="onCanPlay"
         @onRetry="onRetry"
         @onFullscreen="fullscreen"
         @onExitFullscreen="exitFullscreen"
-        @onIntercom="onIntercom(intercomInfo,true)"
+        @onIntercom="onIntercom(intercomInfo, ...arguments)"
+        @onTypeChange="onTypeChange"
       />
     </div>
 
@@ -57,7 +62,12 @@
         </el-tooltip>
       </info-list-item>
     </info-list> -->
-    <intercom-dialog v-if="ifIntercom" :if-intercom="ifIntercom" :intercom-info="intercomInfo" @onIntercom="onIntercom(intercomInfo,false)" />
+    <intercom-dialog
+      v-if="ifIntercom"
+      :intercom-info="intercomInfo"
+      @onRetry="onRetry(intercomInfo, ...arguments)"
+      @close="closeIntercom"
+    />
   </div>
 </template>
 
@@ -87,6 +97,7 @@ export default class extends Vue {
   @Prop()
   private inProtocol?: string
   private address?: any = null
+  private type?: string = 'flv'
   private codec?: string = ''
   private playerTimer: any = null
   private loading = false
@@ -99,6 +110,8 @@ export default class extends Vue {
 
   private intercomInfo = {}
   private ifIntercom = false
+  private videoInfo = {}
+  private volume = 30
 
   @Watch('$route.query')
   private onRouterChange() {
@@ -125,9 +138,29 @@ export default class extends Vue {
   }
 
   // 实时对讲
-  private onIntercom(screen:any, flag:boolean) {
+  private onIntercom(screen:any, type: string) {
+    this.volume = 0
+    this.type = type.toLowerCase()
+    screen.type = type.toLowerCase()
     this.intercomInfo = screen
-    this.ifIntercom = flag
+    this.ifIntercom = true
+  }
+
+  /**
+   * 关闭实时对讲
+   */
+  private closeIntercom() {
+    this.volume = 30
+    this.ifIntercom = false
+    const $video: any = this.$refs.video
+    $video && $video.reloadPlayer()
+  }
+
+  /**
+   * 切换播放格式
+   */
+  private onTypeChange(type: string) {
+    this.type = type.toLowerCase()
   }
 
   /**
@@ -180,12 +213,14 @@ export default class extends Vue {
       this.address = res.playUrl
       this.codec = res.video.codec
       this.retry = false
+      this.videoInfo = res.videoInfo
       this.intercomInfo = {
         url: this.address.flvUrl,
         codec: this.codec,
         deviceId: this.deviceId,
         inProtocol: this.inProtocol,
-        isLive: true
+        isLive: true,
+        allAddress: this.address
       }
     } catch (e) {
       if (e.code === 5) {

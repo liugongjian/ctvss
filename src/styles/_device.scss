@@ -18,6 +18,18 @@
   }
 }
 
+// 分屏下拉框图标
+.el-dropdown-menu {
+  .el-dropdown-menu__screen-icon {
+    float: left;
+    line-height: 28px;
+    margin-right: 5px
+  }
+  .el-dropdown-item__active {
+    color: $primary;
+  }
+}
+
 // 设备列表
 .device-list {
   position: relative;
@@ -60,6 +72,7 @@
 
     .dir-list {
       height: 100%;
+      position: relative;
       display: flex;
       flex-direction: column;
       
@@ -81,6 +94,8 @@
         }
       }
       &__tree {
+        position: relative;
+        margin-bottom: 40px;
         padding: 10px;
 
         &--root {
@@ -181,6 +196,27 @@
           }
         }
       }
+      &__search {
+        position: absolute;
+        bottom: 0px;
+        left: 0px;
+        right: 0px;
+
+        padding: 5px;
+        border-top: 1px solid #eee;
+        display: flex;
+        .el-input--suffix .el-input__inner {
+          padding-right: 0px;
+        }
+
+        .el-button--mini {
+          padding: 7px 7px;
+        }
+
+        &-button {
+          margin-left: 5px!important;
+        }
+      }
     }
     .el-tree {
       flex: 1;
@@ -272,7 +308,7 @@
     background: #f8f8f8;
     transition: padding-left .2s;
     label {
-      margin-right: 10px;
+      margin-left: 10px;
     }
     .el-button {
       color: #5a5e66;
@@ -282,6 +318,9 @@
       float: right;
       .el-button {
         font-size: 16px;
+      }
+      .el-dropdown {
+        margin-right: 10px;
       }
     }
   }
@@ -341,6 +380,11 @@
     .filter {
       cursor: pointer;
     }
+    .el-popover__reference-wrapper {
+      .el-button {
+        margin: 0 10px;
+      }
+    }
   }
 
   .device-info {
@@ -366,6 +410,12 @@
       border-bottom: 1px solid $borderGrey;
       padding-bottom: 10px;
       margin-bottom: 15px;
+      .el-button + .el-button {
+        margin-left: 10px;
+      }
+      .el-dropdown + .el-button {
+        margin-left: 10px;
+      }
     }
     .detail__section {
       padding-bottom: 15px;
@@ -481,6 +531,7 @@
     .controls {
       opacity: 0 !important;
     }
+    cursor: none !important;
   }
 }
 
@@ -490,12 +541,99 @@
   display: flex;
   flex-wrap: wrap;
   height: 0;
+  .screen-wrap {
+    box-sizing: content-box;
+    height: 100%;
+    width: 100%;
+    display: grid;
+    &.screen-size--1 {
+      grid-template-columns: 100%;
+      grid-template-rows: 100%;
+      grid-template-areas: 
+        "item0";
+    }
+    &.screen-size--2 {
+      grid-template-columns: 50% 50%;
+      grid-template-rows: 100%;
+      grid-template-areas: 
+        "item0 item1";
+    }
+    &.screen-size--3 {
+      grid-template-columns: 33.33% 33.33% 33.33%;
+      grid-template-rows: 100%;
+      grid-template-areas: 
+        "item0 item1 item2";
+    }
+    &.screen-size--4 {
+      grid-template-columns: 50% 50%;
+      grid-template-rows: 50% 50%;
+      grid-template-areas:
+        "item0 item1"
+        "item2 item3";
+    }
+    &.screen-size--9 {
+      grid-template-columns: 33.33% 33.33% 33.33%;
+      grid-template-rows: 33.33% 33.33% 33.33%;
+      grid-template-areas: 
+        "item0 item1 item2"
+        "item3 item4 item5"
+        "item6 item7 item8";
+    }
+    &.screen-size--16 {
+      grid-template-columns: 25% 25% 25% 25%;
+      grid-template-rows: 25% 25% 25% 25%;
+      grid-template-areas:
+        "item0 item1 item2 item3"
+        "item4 item5 item6 item7"
+        "item8 item9 item10 item11"
+        "item12 item13 item14 item15";
+    }
+    &.screen-size--1_3 {
+      grid-template-columns: 33.33% 33.33% 33.33%;
+      grid-template-rows: 33.33% 33.33% 33.33%;
+      grid-template-areas:
+        "item0 item0 item0"
+        "item0 item0 item0"
+        "item1 item2 item3"
+    }
+    &.screen-size--1_5 {
+      grid-template-columns: 33.33% 33.33% 33.33%;
+      grid-template-rows: 33.33% 33.33% 33.33%;
+      grid-template-areas:
+        "item0 item0 item1"
+        "item0 item0 item2"
+        "item3 item4 item5"
+    }
+    &.screen-size--1_7 {
+      grid-template-columns: 25% 25% 25% 25%;
+      grid-template-rows: 25% 25% 25% 25%;
+      grid-template-areas:
+        "item0 item0 item0 item1"
+        "item0 item0 item0 item2"
+        "item0 item0 item0 item3"
+        "item4 item5 item6 item7";
+    }
+    &.screen-size--1_15 {
+      grid-template-columns: 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5%;
+      grid-template-rows: 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5%;
+      grid-template-areas:
+        "item0 item0 item0 item0 item0 item0 item0 item1"
+        "item0 item0 item0 item0 item0 item0 item0 item2"
+        "item0 item0 item0 item0 item0 item0 item0 item3"
+        "item0 item0 item0 item0 item0 item0 item0 item4"
+        "item0 item0 item0 item0 item0 item0 item0 item5"
+        "item0 item0 item0 item0 item0 item0 item0 item6"
+        "item0 item0 item0 item0 item0 item0 item0 item7"
+        "item8 item9 item10 item11 item12 item13 item14 item15"
+    }
+  }
+  
   .screen-item {
     display: flex;
     flex: 1 0 50%;
     position: relative;
     background: #333;
-    border: 3px solid #fff;
+    border: 0.5px solid #444;
     justify-content: center;
     align-items: center;
     overflow: hidden;
@@ -619,29 +757,6 @@
       top: 11px;
       color: #fff;
     }
-  }
-  &.screen-size--1 .screen-item {
-    height: 100%;
-  }
-  &.screen-size--2 .screen-item {
-    flex-basis: 50%;
-    height: 100%;
-    max-width: 50%;
-  }
-  &.screen-size--4 .screen-item {
-    flex-basis: 50%;
-    height: 50%;
-    max-width: 50%;
-  }
-  &.screen-size--9 .screen-item {
-    flex-basis: 33.333%;
-    height: 33.333%;
-    max-width: 33.333%;
-  }
-  &.screen-size--16 .screen-item {
-    flex-basis: 25%;
-    height: 25%;
-    max-width: 25%;
   }
   &.fullscreen, .screen-item.fullscreen {
     position: fixed;
@@ -774,6 +889,10 @@
       border-top: 12px solid #3e80c1;
       height: 100%;
       cursor: pointer;
+    }
+    &__bar_heatmap {
+      border-top-color: red;
+      z-index: 9;
     }
     &.dragging * {
       cursor: grabbing;

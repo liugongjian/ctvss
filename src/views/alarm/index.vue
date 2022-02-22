@@ -90,14 +90,6 @@ export default class extends Mixins(IndexMixin) {
     createDir: false
   }
 
-  private get defaultKey() {
-    const id = this.$route.query.deviceId || this.$route.query.dirId
-    if (!id) {
-      return null
-    }
-    return id
-  }
-
   private mounted() {
     // this.getGroupList()
     this.calMaxHeight()

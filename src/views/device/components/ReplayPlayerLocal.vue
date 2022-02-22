@@ -15,10 +15,12 @@
       :auto-play="true"
       :has-control="false"
       :has-playlive="hasPlaylive"
+      :default-volume="defaultVolume"
       :is-fullscreen="isFullscreen"
       @onCanPlay="onCanPlay"
       @onTimeUpdate="setCurrentTime"
       @onPlaylive="playlive"
+      @onVolumeChange="onVolumeChange"
       @onFullscreen="fullscreen()"
       @onExitFullscreen="exitFullscreen()"
       @onSetPlaybackRate="setPlaybackRate"
@@ -106,7 +108,15 @@ export default class extends Mixins(ReplayPlayerMixin) {
     this.initVideoPlayer()
   }
 
-  private mounted() {
+  public mounted() {
+    // if (this.screen && this.screen.isCache && this.screen.replayType === 'local' && this.screen.currentTime) {
+    //   this.startTime = this.screen.currentTimestamp
+    //   // 清除screen中isCache
+    //   this.$emit('onCurrentTimeChange', {
+    //     currentTime: this.startTime,
+    //     resetIsCache: true
+    //   })
+    // }
     this.initVideoPlayer()
   }
 

@@ -113,3 +113,17 @@ export const getVehiclesAlarmStatic = (params: any): Promise<any> =>
     method: 'post',
     data: params
   })
+
+export const getPhoneNumberForAISMS = (params: any): Promise<any> =>
+  request({
+    url: '/ai/aiAPP/describePhoneNumberForAISMS',
+    method: 'get',
+    params
+  })
+
+export const activatePhone = (params: any): Promise<any> =>
+  request({
+    url: '/ai/aiAPP/activatePhoneNumberForAISMS',
+    method: 'get',
+    params
+  })

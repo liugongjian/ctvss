@@ -183,6 +183,8 @@ export const AlertType: any = {
   18: '棉花检测',
   19: '入侵检测',
   20: '在场人员+口罩检测',
+  21: '垃圾检测',
+  23: '电动车检测',
   22: '车辆统计',
   24: '车辆违停',
   25: '车辆拥堵',
@@ -237,3 +239,30 @@ export const ResultTimeInterval = {
   '5分钟': 300,
   '10分钟': 600
 }
+
+/**
+ *  设备事件级别
+ */
+export const errorLevel = {
+  '0': '全部',
+  '1': '异常',
+  '2': '正常'
+}
+
+/**
+ *  设备事件类型
+ */
+export const eventsType = {
+  'all': '全部',
+  'device': '设备事件',
+  'stream': '流事件',
+  'record': '录制事件',
+  'coderate_overflow': '超码率'
+}
+// 视频播放比例
+export const scaleKind = [
+  { label: '16:9', kind: '16 / 9', num: '3' },
+  { label: '4:3', kind: '4 / 3', num: '4' },
+  { label: '原始比例', kind: 'normal', num: '2' },
+  { label: '拉伸', kind: 'fit', num: '1' }
+]

@@ -4,7 +4,7 @@ import DeviceMixin from './deviceMixin'
 import { DeviceParams, DeviceStatus, StreamStatus, RecordStatus, RecordStatusType, RecordStatusFilterType, DeviceGb28181Type, SipTransType, StreamTransType, TransPriority } from '@/dics'
 import { Device } from '@/type/device'
 import { GroupModule } from '@/store/modules/group'
-import { deleteDevice, startDevice, stopDevice, getDevice, getDevices, syncDevice, syncDeviceStatus } from '@/api/device'
+import { deleteDevice, startDevice, stopDevice, getDevice, getDevices, syncDevice, syncDeviceStatus, getDeviceEvents } from '@/api/device'
 import { DeviceModule } from '@/store/modules/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MoveDir from '../components/dialogs/MoveDir.vue'
@@ -49,13 +49,15 @@ export default class ListMixin extends Mixins(DeviceMixin) {
     info: false,
     list: false,
     syncDevice: false,
-    syncDeviceStatus: false
+    syncDeviceStatus: false,
+    events: false
   }
   public dialog = {
     moveDir: false,
     uploadExcel: false,
     resource: false
   }
+  public eventsList = []
   public keyword = ''
   public filter: any = {
     deviceType: undefined,
@@ -412,6 +414,14 @@ export default class ListMixin extends Mixins(DeviceMixin) {
       let res: any
       this.loading.list = true
       params.dirId = this.dirId ? this.dirId : 0
+      const searchKey = this.$route.query.searchKey
+      if (searchKey) {
+        params.searchKey = searchKey
+      }
+      const statusKey = this.$route.query.statusKey
+      if (statusKey !== 'all') {
+        params.statusKey = statusKey
+      }
       const axiosSource = axios.CancelToken.source()
       this.axiosSources.push(axiosSource)
       res = await getDevices(params, axiosSource.token)
@@ -506,6 +516,33 @@ export default class ListMixin extends Mixins(DeviceMixin) {
         id: device.deviceId,
         type
       })
+    }
+  }
+
+  /**
+   * 获取设备事件列表
+   */
+  public async getEventsList(device) {
+    try {
+      this.loading.events = true
+      let params = {
+        deviceId: device.deviceId,
+        inProtocal: device.inProtocol,
+        pageNum: 0,
+        pageSize: 8
+      }
+      this.eventsList = []
+      const res = await getDeviceEvents(params)
+      this.eventsList = res?.desDeviceEvent.map(event => {
+        return {
+          createdTime: event.createdTime,
+          errorMessage: event.errorMessage
+        }
+      })
+    } catch (e) {
+      this.$message.error(`获取事件列表失败，原因：${e && e.message}`)
+    } finally {
+      this.loading.events = false
     }
   }
 
@@ -720,6 +757,13 @@ export default class ListMixin extends Mixins(DeviceMixin) {
       deviceIdAndTypes.push({
         deviceId: this.deviceId,
         devicieType: 'nvr'
+      })
+    } else if (this.isPlatform) {
+      deviceIdAndTypes = this.deviceList.map(device => {
+        return {
+          deviceId: device.deviceId,
+          deviceType: 'platform,' + device.deviceType
+        }
       })
     } else {
       deviceIdAndTypes = this.deviceList.map(device => {
