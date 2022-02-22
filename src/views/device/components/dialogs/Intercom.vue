@@ -27,6 +27,7 @@
             :device-name="intercomInfo.deviceName"
             :stream-num="intercomInfo.streamNum"
             :all-address="intercomInfo.allAddress"
+            @onRetry="onRetry"
           />
           <div v-if="!intercomInfo.url && !intercomInfo.loading" class="tip-text">{{ intercomInfo.errorMsg || '无信号' }}</div>
         </div>
@@ -322,6 +323,10 @@ export default class extends Mixins(ScreenMixin) {
     }
     // 将压缩过的数据转成pcm格式数据
     return this.floatTo16BitPCM(result)
+  }
+
+  private onRetry(aruments) {
+    this.$emit('onRetry', aruments)
   }
 }
 </script>
