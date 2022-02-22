@@ -193,8 +193,11 @@ div:focus {
   word-break: break-all;
 }
 
-.dir-list__search .el-dropdown-menu__item .el-icon-check {
+.el-dropdown-menu--medium .el-dropdown-menu__item {
+  position: relative;
+}
+.el-dropdown-menu__item .el-icon-check.search-check {
   position: absolute;
   left: 0;
-  top: 15px;
+  top: 8px;
 }

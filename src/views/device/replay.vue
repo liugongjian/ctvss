@@ -91,7 +91,7 @@
                 </el-button>
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item v-for="option in search.statusOptions" :key="option.label" :command="option.value">
-                    <i v-if="search.statusKey === option.value" class="el-icon-check" />{{ option.label }}
+                    <i v-if="search.statusKey === option.value" class="el-icon-check search-check" />{{ option.label }}
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
