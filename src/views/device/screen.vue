@@ -367,7 +367,12 @@
       </div>
     </el-card>
 
-    <intercom-dialog v-if="ifIntercom" :intercom-info="intercomInfo" @close="closeIntercom" />
+    <intercom-dialog
+      v-if="ifIntercom"
+      :intercom-info="intercomInfo"
+      @onRetry="onRetry(intercomInfo, ...arguments)"
+      @close="closeIntercom"
+    />
     <div id="mouse-right" class="mouse-right" @click="videosOnPolling(null, true)">轮巡当前目录</div>
     <device-dir v-if="dialogs.deviceDir" @on-close="onDeviceDirClose" />
   </div>
