@@ -106,3 +106,10 @@ export const getAiAlarm = (params: any): Promise<any> =>
     method: 'get',
     params
   })
+
+export const getVehiclesAlarmStatic = (params: any): Promise<any> =>
+  request({
+    url: '/ai/result/describevehicleschart',
+    method: 'post',
+    data: params
+  })

@@ -9,7 +9,7 @@
       </el-form-item>
       <el-form-item label="分析类型" prop="analyseType">
         <el-select v-model="form.analyseType" placeholder="请选择分析类型" :disabled="parseInt(form.associateDevices) > 0">
-          <el-option v-for="(val, key) in ResourceAiType" :key="key" :label="val" :value="key" />
+          <el-option v-for="(val, key) in analyseAiType" :key="key" :label="val" :value="key" />
         </el-select>
       </el-form-item>
       <el-form-item label="生效时段" prop="effectPeriod">
@@ -61,37 +61,81 @@
         <el-input v-model="form.algorithmMetadata.crowdThreShold" />
       </el-form-item>
       <!-- 车辆统计 -->
-      <el-form-item v-if="ifShow('10019')" label="时间阈值" prop="algorithmMetadata.timeThreshold">
-        <el-select v-model="form.algorithmMetadata.timeThreshold" placeholder="请选择分析类型">
+      <el-form-item v-if="ifShow('10019')" label="时间窗口" prop="algorithmMetadata.timeSlide">
+        <el-select v-model="form.algorithmMetadata.timeSlide" placeholder="请选择时间窗口">
           <el-option v-for="(val,key) in getHourInterval(1,24)" :key="key" :label="val" :value="val" />
         </el-select>
         <span class="comment">小时</span>
       </el-form-item>
-      <el-form-item v-if="ifShow('10019')" label="车辆数量阈值" prop="algorithmMetadata.carsThreshold">
-        <el-input v-model="form.algorithmMetadata.carsThreshold" />
+      <el-form-item v-if="ifShow('10019')" label="车辆数量阈值" prop="algorithmMetadata.vehiclesThreshold">
+        <el-input v-model.number="form.algorithmMetadata.vehiclesThreshold" />
       </el-form-item>
       <!-- 实时在岗检测 -->
       <el-form-item v-if="ifShow('10024')" label="脱岗超时时间" prop="algorithmMetadata.offDutyThreShold">
-        <el-input v-model="form.algorithmMetadata.offDutyThreShold" />
+        <el-input v-model.number="form.algorithmMetadata.offDutyThreShold" />
         <span class="comment">分钟</span>
-        <span class="comment">不能超过600分钟</span>
+        <template slot="label">
+          脱岗超时时间
+          <el-popover
+            placement="top-start"
+            width="400"
+            trigger="hover"
+            :open-delay="300"
+            :content="tips.offDutyThreShold"
+          >
+            <svg-icon slot="reference" class="form-question" name="help" />
+          </el-popover>
+        </template>
       </el-form-item>
       <el-form-item v-if="ifShow('10024')" label="睡岗超时时间" prop="algorithmMetadata.sleepOnDutyThreShold">
-        <el-input v-model="form.algorithmMetadata.sleepOnDutyThreShold" />
+        <el-input v-model.number="form.algorithmMetadata.sleepOnDutyThreShold" />
         <span class="comment">分钟</span>
-        <span class="comment">不能超过600分钟</span>
+        <template slot="label">
+          睡岗超时时间
+          <el-popover
+            placement="top-start"
+            width="400"
+            trigger="hover"
+            :open-delay="300"
+            :content="tips.sleepOnDutyThreShold"
+          >
+            <svg-icon slot="reference" class="form-question" name="help" />
+          </el-popover>
+        </template>
       </el-form-item>
       <!-- 车辆违停 -->
-      <el-form-item v-if="ifShow('10021')" label="临停时间" prop="algorithmMetadata.pv_time">
-        <el-input v-model="form.algorithmMetadata.pv_time" />
+      <el-form-item v-if="ifShow('10021')" label="临停时间" prop="algorithmMetadata.pvTime">
+        <el-input v-model.number="form.algorithmMetadata.pvTime" />
         <span class="comment">分钟</span>
-        <span class="comment">超过临停时间阈值车辆未行驶离开拍摄区域即被定义违停，默认时间为10分钟，只可以输入整数</span>
+        <template slot="label">
+          临停时间
+          <el-popover
+            placement="top-start"
+            width="400"
+            trigger="hover"
+            :open-delay="300"
+            :content="tips.pvTime"
+          >
+            <svg-icon slot="reference" class="form-question" name="help" />
+          </el-popover>
+        </template>
       </el-form-item>
       <!-- 车辆拥堵 -->
       <el-form-item v-if="ifShow('10022')" label="拥堵车辆阈值" prop="algorithmMetadata.jamThreshold">
-        <el-input v-model="form.algorithmMetadata.jamThreshold" />
+        <el-input v-model.number="form.algorithmMetadata.jamThreshold" />
         <span class="comment">辆</span>
-        <span class="comment">通过拍摄区域的车辆低于“拥堵车辆阈值”即视为拥堵</span>
+        <template slot="label">
+          拥堵车辆阈值
+          <el-popover
+            placement="top-start"
+            width="400"
+            trigger="hover"
+            :open-delay="300"
+            :content="tips.jamThreshold"
+          >
+            <svg-icon slot="reference" class="form-question" name="help" />
+          </el-popover>
+        </template>
       </el-form-item>
       <el-form-item v-if="ifShow('10001','10016','10017')" prop="algorithmMetadata.FaceDbName" label="人脸库">
         <el-select v-model="form.algorithmMetadata.FaceDbName" placeholder="请选择人脸库" :loading="isfaceLibLoading">
@@ -227,12 +271,24 @@ export default class extends Mixins(AppMixin) {
     'algorithmMetadata.crowdThreShold': getRule('人员数量阈值'),
     'algorithmMetadata.offDutyThreShold': getRule('脱岗超时时间'),
     'algorithmMetadata.sleepOnDutyThreShold': getRule('睡岗超时时间'),
-    'algorithmMetadata.pv_time': getRule('临停时间'),
+    'algorithmMetadata.pvTime': getRule('临停时间'),
     'algorithmMetadata.jamThreshold': getRule('拥堵车辆阈值'),
-    'algorithmMetadata.timeThreshold': getRule('时间阈值'),
-    'algorithmMetadata.carsThreshold': getRule('车辆数量阈值')
+    'algorithmMetadata.timeSlide': getRule('时间窗口'),
+    'algorithmMetadata.vehiclesThreshold': getRule('车辆数量阈值')
   }
   private effectiveTime: any = []
+  private tips: any = {
+    offDutyThreShold: '不能超过600分钟',
+    sleepOnDutyThreShold: '不能超过600分钟',
+    pvTime: '超过临停时间阈值车辆未行驶离开拍摄区域即被定义违停，默认时间为10分钟，只可以输入整数',
+    jamThreshold: '通过拍摄区域的车辆低于“拥堵车辆阈值”即视为拥堵'
+  }
+
+  get analyseAiType() {
+    let lessMinuteType = Object.assign({}, ResourceAiType)
+    delete lessMinuteType['AI-100']
+    return this.ifShow('10019', '10024') ? lessMinuteType : ResourceAiType
+  }
 
   private ifShow(...codes) {
     let res = codes.filter(code => this.prod?.code === code || (this.form.algorithm && this.form.algorithm.code === code))
@@ -255,7 +311,7 @@ export default class extends Mixins(AppMixin) {
       // 处理置信度
       this.form = { ...this.form, confidence: this.form.confidence * 100 }
     } else { // 新建
-      const algorithmMetadata = { FaceDbName: '', pedThreshold: '' }
+      const algorithmMetadata = { FaceDbName: '', pedThreshold: '', pvTime: 10 }
       this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [], validateType: '无验证', confidence: 60 }
     }
     try {

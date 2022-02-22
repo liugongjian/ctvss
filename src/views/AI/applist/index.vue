@@ -320,10 +320,10 @@ export default class extends Mixins(AppMixin) {
   /**
    * 删除应用回调
    */
-  // public async onDeleteApp() {
-  //   await this.getAppList()
-  //   this.getAlarms()
-  // }
+  public async onDeleteApp() {
+    await this.getAppList()
+    this.getAlarms()
+  }
 
   /**
    * 切换Tab
@@ -358,13 +358,18 @@ export default class extends Mixins(AppMixin) {
     this.loading.appList = true
     // 每次请求先清空
     this.alarms = []
-    const promiseArray = this.aiApps.map(item => this.getAlarm(item.id, this.period.period))
-    await Promise.all(promiseArray)
-    this.aiApps = this.aiApps.map(app => {
-      const result = this.alarms.filter(alarm => alarm.appId === app.id)
-      return { ...app, count: result[0].count }
-    })
-    this.loading.appList = false
+    try {
+      const promiseArray = this.aiApps.map(item => this.getAlarm(item.id, this.period.period))
+      await Promise.all(promiseArray)
+      this.aiApps = this.aiApps.map(app => {
+        const result = this.alarms.filter(alarm => alarm.appId === app.id)
+        return { ...app, count: result[0].count }
+      })
+    } catch (e) {
+      console.log(e)
+    } finally {
+      this.loading.appList = false
+    }
   }
 
   public async getAlarm(appId, period) {

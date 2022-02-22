@@ -2,6 +2,7 @@
   <div>
     <div v-if="!device.deviceId" class="no-device">请先选择设备</div>
     <div v-else>
+      <!-- <div> -->
       <!-- <div v-if="isFaceAlgoCode" class="face-filter">
       <el-descriptions :column="1">
         <el-descriptions-item label="人脸库">
@@ -79,7 +80,7 @@
         />
       </div>
 
-      <div v-if="!forceRefresh" class="chart-wrapper car-spec">
+      <div v-if="!forceRefresh && isCarFlowCode" class="chart-wrapper car-spec">
         <div class="title">
           <div class="title-block" />
           <span>车流量统计结果</span>
@@ -92,28 +93,31 @@
           :app-info="appInfo"
         />
       </div>
-      <div v-if="!forceRefresh" class="table-wrapper">
+      <div v-if="!forceRefresh && isCarFlowCode" class="table-wrapper">
         <div class="title">
           <div class="title-block" />
           <span>告警列表</span>
         </div>
         <el-table
+          v-if="alarms.length"
           ref="multipleTable"
           :data="alarms"
           tooltip-effect="dark"
           style="width: 100%"
+          height="300"
         >
           <el-table-column type="index" label="序号" align="center" />
-          <el-table-column prop="alarmcars" label="告警车辆" align="center" />
-          <el-table-column prop="time" label="时间" align="center" />
+          <el-table-column prop="AlarmCount" label="告警车辆" align="center" />
+          <el-table-column prop="AlarmTime" label="时间" align="center" />
         </el-table>
-        <el-pagination
+        <div v-else class="no-data">暂无数据</div>
+        <!-- <el-pagination
           :current-page="chartPager.pageNum"
           :page-size="chartPager.pageSize"
           :total="chartPager.totalNum"
           layout="total, prev, pager, next, jumper"
           @current-change="handleChartTableCurrentChange"
-        />
+        /> -->
       </div>
 
       <div v-loading="queryLoading.pic" class="pic-wrapper">
@@ -168,7 +172,7 @@ import CarFlowChart from './CarFlowChart.vue'
 import Locations from '@/views/dashboard/ai/components/Locations.vue'
 import Attributes from '@/views/dashboard/ai/components/Attributes.vue'
 import { parseMetaDataNewAi, transformLocationAi } from '@/utils/ai'
-import { getAppScreenShot } from '@/api/ai-app'
+import { getAppScreenShot, getVehiclesAlarmStatic } from '@/api/ai-app'
 import { getGroupPersonAlready } from '@/api/aiConfig'
 import { decodeBase64 } from '@/utils/base64'
 import debounce from '@/utils/debounce'
@@ -216,13 +220,10 @@ export default class extends Vue {
     }
     private faceInfos: any = []
     private picInfos: any = []
-    private alarms: any = [
-      { alarmcars: 25, time: '2022.01.13 04:00:09' },
-      { alarmcars: 40, time: '2022.01.13 04:00:09' }
-    ]
+    private alarms: any = []
     private forceRefresh: boolean = false
     // 防抖
-    private debounceHandle = debounce(this.getScreenShot, 500)
+    private debounceHandle = debounce(() => { this.getScreenShot(); this.getAlarmsList() }, 500)
 
     @Watch('queryParam.periodType')
     private periodTypeUpdated(newVal) {
@@ -255,9 +256,15 @@ export default class extends Vue {
       return this.appInfo.algorithm.code === '10005'
     }
 
+    private get isCarFlowCode() {
+      return this.appInfo.algorithm.code === '10019'
+    }
     private async mounted() {
       this.initFaceInfos()
-      this.device.deviceId.length > 0 && this.getScreenShot()
+      if (this.device.deviceId.length > 0) {
+        this.getScreenShot()
+        this.getAlarmsList()
+      }
     }
 
     /**
@@ -303,6 +310,20 @@ export default class extends Vue {
       } finally {
         this.queryLoading.pic = false
       }
+    }
+
+    private async getAlarmsList() {
+      this.alarms = []
+      const [startTime, endTime] = this.queryParam.period
+      const query = {
+        appId: this.appInfo.id,
+        startTime: Math.floor(startTime / 1000),
+        endTime: Math.floor(endTime / 1000),
+        // deviceId: this.device.deviceId
+        deviceId: '10086'
+      }
+      const res = await getVehiclesAlarmStatic(query)
+      this.alarms = res.vehiclesAlarmList
     }
 
     /**
@@ -463,29 +484,29 @@ export default class extends Vue {
   width: 100%;
 }
 .table-wrapper{
-  width: 360px;
+  width: 400px;
 }
 
 .title{
-        height: 50px;
-        vertical-align: middle;
-        &>div{
-            // display: inline-block;
-            padding-top: 5px;
-        }
-        .title-block{
-            width: 7px;
-            height: 15px;
-            background-color: rgba(250, 131, 52, 1);
-            border: none;
-            margin-top: 2px;
-            margin-right: 5px;
-            display: inline-block;
-        }
-        span {
-            font-weight: bold;
-        }
+    height: 50px;
+    vertical-align: middle;
+    &>div{
+        // display: inline-block;
+        padding-top: 5px;
     }
+    .title-block{
+        width: 7px;
+        height: 15px;
+        background-color: rgba(250, 131, 52, 1);
+        border: none;
+        margin-top: 2px;
+        margin-right: 5px;
+        display: inline-block;
+    }
+    span {
+        font-weight: bold;
+    }
+}
 
 .no-data{
   height: 200px;
@@ -519,6 +540,6 @@ export default class extends Vue {
   font-size: 25px;
 }
 .car-spec{
-  width: calc(100% - 370px) !important;
+  width: calc(100% - 400px) !important;
 }
 </style>

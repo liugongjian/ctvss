@@ -835,6 +835,10 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
             }
           )
         }
+        // @ts-ignore
+        metaData.Data.JamCount && (locations.JamCount = metaData.Data.JamCount)
+        // @ts-ignore
+        metaData.Data.JamThreshold && (locations.JamThreshold = metaData.Data.JamThreshold)
       }
       break
     // 人群感应检测
