@@ -111,7 +111,7 @@
           <el-table-column prop="AlarmTime" label="时间" align="center" />
         </el-table>
         <div v-else class="no-data">暂无数据</div>
-        <!-- <el-pagination
+      <!-- <el-pagination
           :current-page="chartPager.pageNum"
           :page-size="chartPager.pageSize"
           :total="chartPager.totalNum"
