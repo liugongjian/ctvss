@@ -60,7 +60,7 @@ export default class ExcelMixin extends Vue {
     rtmp: {
       template: [
         { header: '*视频流接入方式', key: 'inType', width: 24 },
-        // { header: '*设备类型', key: 'deviceType', width: 16 },
+        { header: '*设备类型', key: 'deviceType', width: 16 },
         { header: '*设备厂商', key: 'deviceVendor', width: 16 },
         { header: '*设备名称', key: 'deviceName', width: 24 },
         { header: '经度', key: 'deviceLongitude', width: 16 },
@@ -68,7 +68,7 @@ export default class ExcelMixin extends Vue {
         { header: '设备描述', key: 'description', width: 16 },
         { header: '*是否启用自动拉流（接入方式为拉流，该项必填）', key: 'pullType', width: 30 },
         { header: '*是否启用自动激活推流地址（接入方式为推流，该项必填）', key: 'pushType', width: 30 },
-        { header: '*拉流地址（接入方式为推流，该项必填）', key: 'pullUrl', width: 24 },
+        { header: '*拉流地址（接入方式为拉流，该项必填）', key: 'pullUrl', width: 24 },
         { header: '视频流标签', key: 'tags', width: 24 },
         { header: '*视频包', key: 'videoPackage', width: 40 },
         { header: 'AI包', key: 'AIPackage', width: 40 },
@@ -87,14 +87,15 @@ export default class ExcelMixin extends Vue {
         { header: '经度', key: 'deviceLongitude', width: 16 },
         { header: '纬度', key: 'deviceLatitude', width: 16 },
         { header: '*是否启动域名', key: 'enableDomain', width: 16 },
-        { header: '*自定义拉流地址（设备厂商选择其他时，该项必填）', key: 'deviceIp', width: 24 },
+        // { header: '*自定义拉流地址（设备厂商选择其他时，该项必填）', key: 'deviceIp', width: 24 },
         { header: '*设备IP（未启动域名必填）', key: 'deviceIp', width: 24 },
         { header: '*设备域名（启动域名必填）', key: 'deviceDomain', width: 24 },
         { header: '*设备端口', key: 'devicePort', width: 16 },
         { header: '*设备通道数量（设备类型为NVR，必填）', key: 'channelSize', width: 16 },
         { header: '*主子码流数量', key: 'multiStreamSize', width: 16 },
-        { header: '是否启用自动拉流', key: 'pullType', width: 24 },
+        // { header: '是否启用自动拉流', key: 'pullType', width: 24 },
         { header: '*自动拉取第几个码流（开启自动拉流时，该项必填）', key: 'AutoStreamNum', width: 24 },
+        { header: '是否启用自动拉流', key: 'pullType', width: 24 },
         { header: '是否启用自动激活推流地址', key: 'pushType', width: 30 },
         { header: '设备视频流优先传输协议', key: 'transPriority', width: 30 },
         { header: '*视频包', key: 'videoPackage', width: 40 },
@@ -372,21 +373,21 @@ export default class ExcelMixin extends Vue {
 
   private rtmpOptionsInit(worksheet: any) {
     worksheet.dataValidations.add('A2:A9999', this.validation.inType)
-    // worksheet.dataValidations.add('B2:B9999', {
-    //   type: 'list',
-    //   allowBlank: false,
-    //   showErrorMessage: true,
-    //   formulae: ['"IPC"'],
-    //   error: '请选择设备类型'
-    // })
-    worksheet.dataValidations.add('B2:B9999', this.validation.deviceVendor)
-    worksheet.dataValidations.add('C2:C9999', this.validation.deviceName)
-    worksheet.dataValidations.add('G2:G9999', this.validation.pullType)
-    worksheet.dataValidations.add('H2:H9999', this.validation.pushType)
-    worksheet.dataValidations.add('I2:I9999', this.validation.tags)
-    worksheet.dataValidations.add('K2:K9999', this.getVideoPackageValidation(this.VIDEOList))
-    worksheet.dataValidations.add('L2:L9999', this.getAIPackageValidation(this.AIList))
-    worksheet.dataValidations.add('M2:M9999', this.getBWPackageValidation(this.BWList))
+    worksheet.dataValidations.add('B2:B9999', {
+      type: 'list',
+      allowBlank: false,
+      showErrorMessage: true,
+      formulae: ['"IPC"'],
+      error: '请选择设备类型'
+    })
+    worksheet.dataValidations.add('C2:C9999', this.validation.deviceVendor)
+    worksheet.dataValidations.add('D2:D9999', this.validation.deviceName)
+    worksheet.dataValidations.add('H2:H9999', this.validation.pullType)
+    worksheet.dataValidations.add('I2:I9999', this.validation.pushType)
+    worksheet.dataValidations.add('K2:K9999', this.validation.tags)
+    worksheet.dataValidations.add('L2:L9999', this.getVideoPackageValidation(this.VIDEOList))
+    worksheet.dataValidations.add('M2:M9999', this.getAIPackageValidation(this.AIList))
+    worksheet.dataValidations.add('N2:N9999', this.getBWPackageValidation(this.BWList))
   }
 
   private rtspOptionsInit(worksheet: any) {
@@ -407,10 +408,9 @@ export default class ExcelMixin extends Vue {
       formulae: ['"是,否"'],
       error: '请选择是否启动域名'
     })
-    worksheet.dataValidations.add('O2:O9999', this.validation.channelSize)
-    worksheet.dataValidations.add('P2:P9999', this.validation.multiStreamSize)
-    worksheet.dataValidations.add('Q2:Q9999', this.validation.pullType)
-    worksheet.dataValidations.add('R2:R9999', {
+    worksheet.dataValidations.add('N2:N9999', this.validation.channelSize)
+    worksheet.dataValidations.add('O2:O9999', this.validation.multiStreamSize)
+    worksheet.dataValidations.add('P2:P9999', {
       type: 'list',
       allowBlank: true,
       showInputMessage: true,
@@ -418,11 +418,12 @@ export default class ExcelMixin extends Vue {
       formulae: ['"主码流,子码流,第三码流"'],
       prompt: '如果启用自动拉流，该项为必选'
     })
-    worksheet.dataValidations.add('S2:S9999', this.validation.pushType)
-    worksheet.dataValidations.add('T2:T9999', this.validation.transPriority)
-    worksheet.dataValidations.add('U2:U9999', this.getVideoPackageValidation(this.VIDEOList))
-    worksheet.dataValidations.add('V2:V9999', this.getAIPackageValidation(this.AIList))
-    worksheet.dataValidations.add('W2:W9999', this.getBWPackageValidation(this.BWList))
+    worksheet.dataValidations.add('Q2:Q9999', this.validation.pullType)
+    worksheet.dataValidations.add('R2:R9999', this.validation.pushType)
+    worksheet.dataValidations.add('S2:S999', this.validation.transPriority)
+    worksheet.dataValidations.add('T2:T9999', this.getVideoPackageValidation(this.VIDEOList))
+    worksheet.dataValidations.add('U2:U9999', this.getAIPackageValidation(this.AIList))
+    worksheet.dataValidations.add('V2:V9999', this.getBWPackageValidation(this.BWList))
   }
 
   private ehomeOptionsInit(worksheet: any) {
