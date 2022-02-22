@@ -62,7 +62,12 @@
         </el-tooltip>
       </info-list-item>
     </info-list> -->
-    <intercom-dialog v-if="ifIntercom" :intercom-info="intercomInfo" @close="closeIntercom" />
+    <intercom-dialog
+      v-if="ifIntercom"
+      :intercom-info="intercomInfo"
+      @onRetry="onRetry(intercomInfo, ...arguments)"
+      @close="closeIntercom"
+    />
   </div>
 </template>
 
