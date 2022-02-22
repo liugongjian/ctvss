@@ -42,16 +42,16 @@ export default class CreateMixin extends Vue {
 
   public regionList: any = []
 
-  public get longLatRules() {
-    if (this.lianzhouFlag) {
-      return [
-        { required: true, message: '请选择经纬度', trigger: 'blur' },
-        { validator: this.validateLonglat, trigger: 'blur' }
-      ]
-    } else {
-      return []
-    }
-  }
+  // public get longLatRules() {
+  //   if (this.lianzhouFlag) {
+  //     return [
+  //       { required: true, message: '请选择经纬度', trigger: 'blur' },
+  //       { validator: this.validateLonglat, trigger: 'blur' }
+  //     ]
+  //   } else {
+  //     return []
+  //   }
+  // }
 
   public get currentGroup() {
     return GroupModule.group
@@ -137,10 +137,12 @@ export default class CreateMixin extends Vue {
   }
 
   public mounted() {
-    this.form.gbRegion = this.currentGroup!.gbRegion
-    this.cascaderInit()
-    this.form.industryCode = this.currentGroup!.industryCode
-    this.form.networkCode = this.currentGroup!.networkCode
+    if (!this.isUpdate) {
+      this.form.gbRegion = this.currentGroup!.gbRegion
+      this.form.industryCode = this.currentGroup!.industryCode
+      this.form.networkCode = this.currentGroup!.networkCode
+      this.cascaderInit()
+    }
   }
 
   /**

@@ -5,7 +5,10 @@ module.exports = {
     node: true,
     es6: true
   },
-  'extends': [
+  plugins: [
+    '@typescript-eslint',
+  ],
+  extends: [
     'eslint:recommended',
     'plugin:vue/recommended',
     '@vue/standard',
@@ -15,6 +18,7 @@ module.exports = {
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'space-before-function-paren': [2, 'never'],
+    'space-infix-ops': 'off',
     'vue/array-bracket-spacing': 'error',
     'vue/arrow-spacing': 'error',
     'vue/block-spacing': 'error',
@@ -29,7 +33,8 @@ module.exports = {
     'vue/singleline-html-element-content-newline': 'off',
     'vue/max-attributes-per-line': 'off',
     '@typescript-eslint/no-unused-vars': ['error'],
-    '@typescript-eslint/type-annotation-spacing': 'error'
+    '@typescript-eslint/type-annotation-spacing': ['error', { before: false, after: true }],
+    '@typescript-eslint/space-infix-ops': ['error', { 'int32Hint': false }]
   },
   parserOptions: {
     parser: '@typescript-eslint/parser'
