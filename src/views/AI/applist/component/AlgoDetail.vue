@@ -226,6 +226,8 @@ const getRule = (msg) => {
         validator: (rule, value, callback) => {
           if (parseInt(value) > 100) {
             callback(new Error('需小于100'))
+          } else if (parseInt(value) === 0) {
+            callback(new Error('需大于等于0的整数'))
           } else {
             callback()
           }
@@ -236,6 +238,8 @@ const getRule = (msg) => {
         validator: (rule, value, callback) => {
           if (parseInt(value) > 600) {
             callback(new Error('需小于600'))
+          } else if (parseInt(value) === 0) {
+            callback(new Error('需大于等于0的整数'))
           } else {
             callback()
           }
