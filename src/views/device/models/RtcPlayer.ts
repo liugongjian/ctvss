@@ -140,7 +140,7 @@ export class RtcPlayer extends BasePlayer {
     this.player.removeEventListener('canplay', this.onCanplay)
     this.player.removeEventListener('volumechange', this.onVolumeChange)
     if (this.rtc) {
-      this.rtc.pc && this.rtc.pc.connectionState !== 'close' && this.rtc.pc.removeStream(this.player.srcObject)
+      this.rtc.pc && this.rtc.pc.connectionState !== 'close' && this.player.srcObject && this.rtc.pc.removeStream(this.player.srcObject)
       this.rtc.close()
       this.rtc.pc = null
     }
