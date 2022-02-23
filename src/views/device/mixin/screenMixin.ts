@@ -126,7 +126,7 @@ export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
    */
   public initScreenCache(type: string) {
     // 判断是否启用视频记录保存配置
-    if (!getLocalStorage('settings') || !(JSON.parse(getLocalStorage('settings')).screenCache[type] === 'true')) {
+    if (this.currentGroupInProtocol === 'vgroup' || !getLocalStorage('settings') || !(JSON.parse(getLocalStorage('settings')).screenCache[type] === 'true')) {
       return
     }
     // 针对页面刷新存储播放记录
