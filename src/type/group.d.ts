@@ -19,7 +19,8 @@ export interface Group {
   pushType?: number;
   inNetworkType?: string;
   outNetworkType?: string;
-  address?: any;
+  address?: Array<string>;
+  gbRegionNames?: Array<string>;
   gbId?: any;
   gbRegion?: string;
   gbRegionLevel?: string;

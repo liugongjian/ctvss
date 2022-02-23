@@ -44,9 +44,8 @@
           <el-cascader
             ref="addressCascader"
             v-model="form.address"
-            expand-trigger="hover"
             :disabled="form.gbId !== ''"
-            :options="gbRegionList"
+            :options="selectedRegionList"
             :props="addressProps"
             @change="addressChange"
           />
@@ -166,8 +165,7 @@ import { createGroup, queryGroup, updateGroup } from '@/api/group'
 import { getRegions } from '@/api/region'
 import { industryMap } from '@/assets/region/industry'
 import { networkMap } from '@/assets/region/network'
-import { allRegionList } from '@/assets/region/region'
-import { getChildAddress } from '@/api/device'
+import { getChildAddress, getAddressAreaDir } from '@/api/device'
 import templateBind from '../components/templateBind.vue'
 import { suffixZero } from '@/utils/number'
 
@@ -184,6 +182,7 @@ export default class extends Vue {
     label: 'name',
     children: 'children',
     checkStrictly: 'true',
+    expandTrigger: 'hover',
     lazy: true,
     lazyLoad: this.loadChildAddress
   }
@@ -237,9 +236,9 @@ export default class extends Vue {
     industryCode: '',
     networkCode: ''
   }
-  private gbRegionList: any = []
 
   private regionList = []
+  private selectedRegionList = []
 
   private get industryList() {
     return Object.keys(industryMap).map((key: any) => {
@@ -274,9 +273,15 @@ export default class extends Vue {
     return this.$store.state.user.tags.isNeedDeviceNetworkCode === 'Y'
   }
 
+  /**
+   * 显示设备地址
+   */
+  private get deviceAddress() {
+    return this.form.gbRegionNames && this.form.gbRegionNames.reverse().join('/')
+  }
+
   private async mounted() {
     await this.getRegionList()
-    this.gbRegionList = allRegionList
     this.breadCrumbContent = this.$route.meta.title
     let query: any = this.$route.query
     if (query.groupId) {
@@ -299,18 +304,27 @@ export default class extends Vue {
   }
 
   /**
-   * 设备地址
+   * 初始化回显设备地址, 将gbRegion转成el-cascader格式的数组
    */
   public async cascaderInit() {
-    this.gbRegionList = allRegionList
     if (!this.form.gbRegion) return
+    const res = await getAddressAreaDir({
+      code: parseInt(this.form.gbRegionLevel) < 4 ? this.form.gbRegion.substring(0, 6) : this.form.gbRegion
+    })
+    this.selectedRegionList = res.area
+    // 解析gb region
     const list = []
     for (let i = 0; i < 4; i++) {
       if (parseInt(this.form.gbRegion!.substring(i * 2, i * 2 + 2)) !== 0) {
-        list.push(parseInt(this.form.gbRegion!.substring(0, (i + 1) * 2)))
+        let code = this.form.gbRegion!.substring(0, (i + 1) * 2)
+        if (i < 3) {
+          code = suffixZero(code, 6)
+        } else {
+          code = suffixZero(code, 8)
+        }
+        list.push(code)
       }
     }
-    await this.regionChange(list)
     this.$nextTick(() => {
       this.form.address = list
       this.addressChange()
@@ -318,34 +332,6 @@ export default class extends Vue {
   }
 
   /**
-   * 填充需要动态设置的第4级地址列表
-   */
-  public async regionChange(val: any) {
-    if (val.length !== 4 || !val[0] || !val[1] || !val[2] || !val[3]) {
-      return
-    }
-    let index1 = this.gbRegionList.findIndex((item: any) => {
-      return item.code === val[0]
-    })
-    if (index1 !== -1) {
-      let index2 = this.gbRegionList[index1].children.findIndex((item: any) => {
-        return item.code === val[1]
-      })
-      if (index2 !== -1) {
-        let index3 = this.gbRegionList[index1].children[index2].children.findIndex((item: any) => {
-          return item.code === val[2]
-        })
-        if (index3 !== -1) {
-          this.gbRegionList[index1].children[index2].children[index3].children = await getChildAddress(val[2], 4)
-        } else {
-          // this.form.gbRegion = this.gbRegionList[index1].children[index2].children[0].code + '00'
-        }
-      } else {
-        // this.form.gbRegion = this.gbRegionList[index1].children[0].children[0].code + '00'
-      }
-    }
-  }
-
   /**
    * 当选中设备地址变化时触发
    */
@@ -361,14 +347,14 @@ export default class extends Vue {
   }
 
   /**
-   * 动态加载级联地址子集
+   * 动态加载设备地址列表
    */
   public async loadChildAddress(node, resolve) {
-    if (node.level < 3) { // level1-3是前端保存的静态省市区数据
-      resolve()
+    if (node.data && node.data.leaf) {
+      resolve([])
       return
     }
-    let list = await getChildAddress(node.data.code, node.level + 1)
+    let list = await getChildAddress(node.data && node.data.code, node.level + 1)
     resolve(list)
   }
 
@@ -396,7 +382,7 @@ export default class extends Vue {
   }
 
   /**
-   * 获取区域列表
+   * 获取接入区域列表
    */
   private async getRegionList() {
     this.loading = true

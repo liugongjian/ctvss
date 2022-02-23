@@ -367,12 +367,22 @@ export const getChildAddress = async(id: any, level: number) => {
         name: item.name,
         code: parseInt(item.id),
         level: parseInt(item.level),
-        leaf: true
+        leaf: item.level === '4' ? true : undefined
       }
     })
   }
   return list
 }
+
+/**
+ * 获取设备地址父级树结构，用户修改时回显
+ */
+export const getAddressAreaDir = (params: any): Promise<any> =>
+  request({
+    url: '/area/dir',
+    method: 'get',
+    params
+  })
 
 /**
  * 启用AI应用

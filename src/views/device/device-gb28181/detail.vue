@@ -69,7 +69,7 @@
                     {{ info.deviceVendor || '-' }}
                   </el-descriptions-item>
                   <el-descriptions-item v-if="info.address" label="设备地址">
-                    {{ info.address }}
+                    {{ deviceAddress || '-' }}
                   </el-descriptions-item>
                   <el-descriptions-item v-if="info.industryCode" label="所属行业">
                     {{ industryMap[info.industryCode] || '-' }}
@@ -77,7 +77,7 @@
                   <el-descriptions-item v-if="info.networkCode && networkFlag" label="网络标识">
                     {{ networkMap[info.networkCode] }}
                   </el-descriptions-item>
-                  <el-descriptions-item  label="经纬度">
+                  <el-descriptions-item label="经纬度">
                     {{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}
                   </el-descriptions-item>
                   <el-descriptions-item label="设备IP">

@@ -68,7 +68,7 @@
                     {{ info.deviceVendor || '-' }}
                   </el-descriptions-item>
                   <el-descriptions-item v-if="info.address" label="设备地址">
-                    {{ info.address }}
+                    {{ deviceAddress || '-' }}
                   </el-descriptions-item>
                   <el-descriptions-item v-if="info.industryCode" label="所属行业">
                     {{ industryMap[info.industryCode] }}

@@ -2,12 +2,11 @@ import { Component, Watch, Vue, Inject } from 'vue-property-decorator'
 import { GroupModule } from '@/store/modules/group'
 import { UserModule } from '@/store/modules/user'
 import { DeviceModule } from '@/store/modules/device'
-import { getChildAddress } from '@/api/device'
+import { getChildAddress, getAddressAreaDir } from '@/api/device'
 import { getDeviceResources } from '@/api/billing'
 import { DeviceTips } from '@/dics/tips'
 import { industryMap } from '@/assets/region/industry'
 import { networkMap } from '@/assets/region/network'
-import { allRegionList } from '@/assets/region/region'
 import { suffixZero } from '@/utils/number'
 
 @Component
@@ -24,6 +23,7 @@ export default class CreateMixin extends Vue {
     label: 'name',
     children: 'children',
     checkStrictly: 'true',
+    expandTrigger: 'hover',
     lazy: true,
     lazyLoad: this.loadChildAddress
   }
@@ -39,7 +39,7 @@ export default class CreateMixin extends Vue {
 
   public tips = DeviceTips
 
-  public regionList: any = []
+  private selectedRegionList = []
 
   public get currentGroup() {
     return GroupModule.group
@@ -125,58 +125,40 @@ export default class CreateMixin extends Vue {
   }
 
   public mounted() {
-    this.form.gbRegion = this.currentGroup!.gbRegion
+    if (!this.isUpdate) {
+      this.form.gbRegion = this.currentGroup!.gbRegion
+    }
     this.cascaderInit()
     this.form.industryCode = this.currentGroup!.industryCode
     this.form.networkCode = this.currentGroup!.networkCode
   }
 
   /**
-   * 将gbRegion转成el-cascader格式的数组
+   * 初始化回显设备地址, 将gbRegion转成el-cascader格式的数组
    */
   public async cascaderInit() {
-    this.regionList = allRegionList
     if (!this.form.gbRegion) return
+    const res = await getAddressAreaDir({
+      code: parseInt(this.form.gbRegionLevel) < 4 ? this.form.gbRegion.substring(0, 6) : this.form.gbRegion
+    })
+    this.selectedRegionList = res.area
+    // 解析gb region
     const list = []
     for (let i = 0; i < 4; i++) {
       if (parseInt(this.form.gbRegion!.substring(i * 2, i * 2 + 2)) !== 0) {
-        list.push(parseInt(this.form.gbRegion!.substring(0, (i + 1) * 2)))
+        let code = this.form.gbRegion!.substring(0, (i + 1) * 2)
+        if (i < 3) {
+          code = suffixZero(code, 6)
+        } else {
+          code = suffixZero(code, 8)
+        }
+        list.push(code)
       }
     }
-    await this.regionChange(list)
     this.$nextTick(() => {
       this.form.address = list
       this.addressChange()
     })
-  }
-
-  /**
-   * 填充需要动态设置的第4级地址列表
-   */
-  public async regionChange(val: any) {
-    if (val.length !== 4 || !val[0] || !val[1] || !val[2] || !val[3]) {
-      return
-    }
-    let index1 = this.regionList.findIndex((item: any) => {
-      return item.code === val[0]
-    })
-    if (index1 !== -1) {
-      let index2 = this.regionList[index1].children.findIndex((item: any) => {
-        return item.code === val[1]
-      })
-      if (index2 !== -1) {
-        let index3 = this.regionList[index1].children[index2].children.findIndex((item: any) => {
-          return item.code === val[2]
-        })
-        if (index3 !== -1) {
-          this.regionList[index1].children[index2].children[index3].children = await getChildAddress(val[2], 4)
-        } else {
-          // this.form.gbRegion = this.regionList[index1].children[index2].children[0].code + '00'
-        }
-      } else {
-        // this.form.gbRegion = this.regionList[index1].children[0].children[0].code + '00'
-      }
-    }
   }
 
   /**
@@ -194,14 +176,14 @@ export default class CreateMixin extends Vue {
   }
 
   /**
-   * 动态加载级联地址子集
+   * 动态加载设备地址列表
    */
   public async loadChildAddress(node, resolve) {
-    if (node.level < 3) { // level1-3是前端保存的静态省市区数据
-      resolve()
+    if (node.data && node.data.leaf) {
+      resolve([])
       return
     }
-    let list = await getChildAddress(node.data.code, node.level + 1)
+    let list = await getChildAddress(node.data && node.data.code, node.level + 1)
     resolve(list)
   }
 

@@ -171,6 +171,13 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     return this.groupInfo && this.groupInfo.sipId && this.groupInfo.sipId.toString().substr(0, 10)
   }
 
+  /**
+   * 显示设备地址
+   */
+  public get deviceAddress() {
+    return this.info.gbRegionNames && this.info.gbRegionNames.reverse().join('/')
+  }
+
   @Watch('$route.query')
   public onRouterChange() {
     this.detailInit()

@@ -128,9 +128,8 @@
           <el-cascader
             ref="addressCascader"
             v-model="form.address"
-            expand-trigger="hover"
             :disabled="form.gbId !== ''"
-            :options="regionList"
+            :options="selectedRegionList"
             :props="addressProps"
             @change="addressChange"
           />

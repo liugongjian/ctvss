@@ -1,14 +1,14 @@
 <template>
   <div class="app-container">
     <el-page-header content="业务组管理" @back="back" />
-    <el-tabs v-model="activeName" type="border-card" @tab-click="handleClick">
+    <el-tabs v-model="activeName" type="border-card" @tab-click="switchTab">
       <el-tab-pane label="基本信息" name="info">
         <el-button v-permission="['*']" class="info-edit" @click="editForm"><svg-icon name="edit" /> 编辑</el-button>
         <info-list label-width="150">
           <info-list-item label="业务组ID:">{{ form.groupId }}</info-list-item>
           <info-list-item label="业务组名称:">{{ form.groupName }}</info-list-item>
           <info-list-item label="业务组描述:">{{ form.description }}</info-list-item>
-          <info-list-item v-if="form.inProtocol !== 'vgroup'" label="设备地址:">{{ form.address || '-' }}</info-list-item>
+          <info-list-item v-if="form.inProtocol !== 'vgroup'" label="设备地址:">{{ deviceAddress || '-' }}</info-list-item>
           <info-list-item v-if="form.industryCode" label="所属行业:">{{ industryMap[form.industryCode] }}</info-list-item>
           <info-list-item v-if="form.networkCode && networkFlag" label="网络标识:">{{ networkMap[form.networkCode] }}</info-list-item>
           <template v-if="!isVGroup">
@@ -63,9 +63,7 @@ import { queryGroup } from '@/api/group'
 import { formatSeconds } from '@/utils/interval'
 import { industryMap } from '@/assets/region/industry'
 import { networkMap } from '@/assets/region/network'
-import { allRegionList } from '@/assets/region/region'
 import TemplateBind from '../components/templateBind.vue'
-import { getChildAddress } from '@/api/device'
 
 @Component({
   name: 'GroupConfig',
@@ -92,8 +90,8 @@ export default class extends Vue {
     sipIp: '',
     sipTcpPort: undefined,
     sipUdpPort: undefined,
+    gbRegionNames: [],
     gbId: '',
-    address: '',
     gbRegion: '',
     industryCode: '',
     networkCode: ''
@@ -102,10 +100,16 @@ export default class extends Vue {
 
   private formatSeconds = formatSeconds
 
+  /**
+   * SIP Domain
+   */
   private get sipDomain() {
     return this.form.sipId && this.form.sipId.toString().substr(0, 10)
   }
 
+  /**
+   * 是否为虚拟组
+   */
   private get isVGroup() {
     return this.form.inProtocol === '' || this.form.inProtocol === 'vgroup'
   }
@@ -117,6 +121,13 @@ export default class extends Vue {
     return this.$store.state.user.tags.isNeedDeviceNetworkCode === true
   }
 
+  /**
+   * 显示设备地址
+   */
+  private get deviceAddress() {
+    return this.form.gbRegionNames && this.form.gbRegionNames.reverse().join('/')
+  }
+
   private async mounted() {
     let query: any = this.$route.query
     if (query.groupId) {
@@ -125,7 +136,6 @@ export default class extends Vue {
         const res = await queryGroup({ groupId: this.form.groupId })
         res.outProtocol = res.outProtocol.split(',')
         this.form = res
-        await this.getAddress(this.form.gbRegion)
       } catch (e) {
         this.$message.error(e && e.message)
       }
@@ -133,56 +143,22 @@ export default class extends Vue {
   }
 
   /**
-   * 获取设备地址
+   * 返回上页
    */
-  private async getAddress(gbRegion: any) {
-    let address = ''
-    if (!gbRegion) return
-    const list = []
-    for (let i = 0; i < 4; i++) {
-      if (gbRegion!.substring(i * 2, i * 2 + 2) !== '00') {
-        list.push(parseInt(gbRegion!.substring(0, (i + 1) * 2)))
-      }
-    }
-    const region0 = allRegionList.find((item0: any) => {
-      return item0.code === list[0]
-    })
-    if (region0) {
-      address += region0.name
-      const region1 = region0.children.find((item1: any) => {
-        return item1.code === list[1]
-      })
-      if (region1) {
-        address += '/' + region1.name
-        const region2 = region1.children.find((item2: any) => {
-          return item2.code === list[2]
-        })
-        if (region2) {
-          address += '/' + region2.name
-          // 四级数据从后端获取
-          if (list.length === 4) {
-            const level4List = getChildAddress(list[2], 4)
-            const region3 = (await level4List).find((item3: any) => {
-              return item3.code === list[3]
-            })
-            if (region3) {
-              address += '/' + region3.name
-            }
-          }
-        }
-      }
-    }
-    this.$set(this.form, 'address', address)
-  }
-
   private back() {
     this.$router.push('/group')
   }
 
-  private async handleClick(tab: any) {
+  /**
+   * 切换页面Tab
+   */
+  private async switchTab(tab: any) {
     this.activeName = tab.name
   }
 
+  /**
+   * 提交表单
+   */
   private editForm() {
     this.$router.push({
       path: '/group/update',
