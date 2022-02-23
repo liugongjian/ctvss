@@ -44,16 +44,17 @@
         <div v-else class="controls__btn kill__volume">
           <svg-icon name="mute" class="mute_gray" width="18px" height="18px" />
         </div>
-        <el-tooltip v-if="ifCanRTC && codec !== 'h265'" placement="top">
-          <div slot="content" class="videoTypeBox">
-            <el-button type="text" size="mini" :class="videoType === 'FLV' ? 'activeVideoType' : ''" @click.stop.prevent="(e) => getVideoType(e,'FLV')">FLV</el-button>
-            <br>
-            <el-button type="text" size="mini" :class="videoType === 'RTC' ? 'activeVideoType' : ''" @click.stop.prevent="(e) => getVideoType(e,'RTC')">RTC</el-button>
-          </div>
-          <div class="controls__btn controls__snapshot videoTypeBtn">
-            <span>{{ videoType }}</span>
-          </div>
-        </el-tooltip>
+        <div v-if="ifCanRTC && codec !== 'h265'" class="controls__btn controls__playback">
+          {{ videoType }}
+          <ul class="controls__popup">
+            <li :class="{'selected': videoType === 'FLV'}" @click.stop.prevent="(e) => getVideoType(e,'FLV')">
+              FLV
+            </li>
+            <li :class="{'selected': videoType === 'RTC'}" @click.stop.prevent="(e) => getVideoType(e,'RTC')">
+              RTC
+            </li>
+          </ul>
+        </div>
         <el-tooltip v-if="inProtocol === 'gb28181'" content="开启语音对讲" placement="top">
           <div v-if="isLive" class="controls__btn controls__snapshot" @click.stop.prevent="toIntercom">
             <svg-icon name="micro" width="18px" height="18px" />
@@ -97,14 +98,19 @@
             <svg-icon name="ipc" width="18px" height="18px" />
           </div>
         </el-tooltip>
-        <el-tooltip placement="top">
-          <div slot="content" class="videoScaleBox">
-            <el-button v-for="item in scaleKind" :key="item.kind" :class="scaleVal === item.kind ? 'selected' : ''" type="text" size="mini" @click.stop.prevent="(e) => scaleVideo(e,item.kind)">{{ item.label }}</el-button>
-          </div>
-          <div class="controls__btn controls__snapshot videoTypeBtn">
-            <svg-icon name="screenratio" width="18px" height="18px" />
-          </div>
-        </el-tooltip>
+        <div class="controls__btn controls__playback">
+          <svg-icon name="screenratio" width="18px" height="18px" />
+          <ul class="controls__popup videoScaleBox">
+            <li
+              v-for="item in scaleKind"
+              :key="item.kind"
+              :class="{'selected': scaleVal === item.kind}"
+              @click.stop.prevent="(e) => scaleVideo(e,item.kind)"
+            >
+              {{ item.label }}
+            </li>
+          </ul>
+        </div>
         <template v-if="hasFullscreen">
           <el-tooltip v-if="!isFullscreen" content="进入全屏" placement="top">
             <div class="controls__btn controls__fullscreen" @click.stop.prevent="fullscreen">
@@ -264,7 +270,7 @@ export default class extends Vue {
   private durationFormatInVideo = durationFormatInVideo
   private resizeObserver?: any
   private error = ''
-  private videoType=''
+  private videoType = ''
   private ifCanRTC = false
 
   private scaleKind = scaleKind
@@ -311,7 +317,7 @@ export default class extends Vue {
     if (this.isLive) document.addEventListener('visibilitychange', this.reloadPlayer)
   }
 
-  private getVideoType(eve:any = '', kind:any = '') {
+  private getVideoType(eve: any = '', kind: any = '') {
     if (eve) {
       eve.currentTarget.blur()
     }
@@ -328,7 +334,7 @@ export default class extends Vue {
     } else {
       this.videoType = kind
       this.disposePlayer()
-      const $video:any = this.$refs.video
+      const $video: any = this.$refs.video
       $video.innerHtml = ''
       this.$nextTick(() => {
         this.createPlayer()
@@ -465,8 +471,8 @@ export default class extends Vue {
   }
 
   public getUserScaleConfig() {
-    const userScaleConfig:Array<any> = this.$store.state.user.userConfigInfo || []
-    const scaleInfo = userScaleConfig.find((item:any) => item.key === 'videoScale')
+    const userScaleConfig: Array<any> = this.$store.state.user.userConfigInfo || []
+    const scaleInfo = userScaleConfig.find((item: any) => item.key === 'videoScale')
     const scaleNum = scaleInfo ? scaleInfo.value : '-1'
     this.userScaleConfig = scaleNum
   }
@@ -490,7 +496,7 @@ export default class extends Vue {
     const videoContain = this.codec === 'h265' ? player.querySelector('canvas') : player
 
     // 替代eval，计算字符串
-    const replaceEvalByFunction = (obj:any) => {
+    const replaceEvalByFunction = (obj: any) => {
       return window.Function('"use strict";return (' + obj + ')')()
     }
 
@@ -499,7 +505,7 @@ export default class extends Vue {
     if (this.scaleVal) {
       thisScale = this.scaleVal
     } else if (this.userScaleConfig > 0) {
-      const scaleValue = this.scaleKind.find((item:any) => item.num === this.userScaleConfig)
+      const scaleValue = this.scaleKind.find((item: any) => item.num === this.userScaleConfig)
       thisScale = scaleValue.kind
       this.scaleVal = scaleValue.kind
     } else {
@@ -561,7 +567,7 @@ export default class extends Vue {
     this.isZoom = false
 
     if (this.showCanvasBox) {
-      let player:any, ctxBox:any
+      let player: any, ctxBox: any
       if (this.codec === 'h265') {
         ctxBox = this.$refs.videoWrap
         player = ctxBox.querySelector('.player-box')
@@ -602,7 +608,7 @@ export default class extends Vue {
   }
 
   // 获取canvas 点坐标
-  private getCanvasMousePos(e:any) {
+  private getCanvasMousePos(e: any) {
     // e.clientX, e.clientY
     const {
       x: canvasClientX, y: canvasClientY, width, height, left, top
@@ -640,7 +646,7 @@ export default class extends Vue {
     }
   }
 
-  private canvasClickHandle(e:any) {
+  private canvasClickHandle(e: any) {
     const mousePos = this.getCanvasMousePos(e)
     if (!mousePos) return
     const [x, y] = mousePos
@@ -652,7 +658,7 @@ export default class extends Vue {
     }
   }
 
-  private canvasMouseDown(e:any) {
+  private canvasMouseDown(e: any) {
     e.stopPropagation()
     const mousePos = this.getCanvasMousePos(e)
     if (!mousePos) return
@@ -666,7 +672,7 @@ export default class extends Vue {
     }
   }
 
-  private canvasMouseMove(e:any) {
+  private canvasMouseMove(e: any) {
     e.stopPropagation()
     if (this.oShape && this.ctxDrawState) {
       const mousePos = this.getCanvasMousePos(e)
@@ -682,7 +688,7 @@ export default class extends Vue {
     }
   }
 
-  private canvasMouseUp(e:any) {
+  private canvasMouseUp(e: any) {
     e.stopPropagation()
     // TODO 鼠标移入黑色区域，取消画框
     const mousePos = this.getCanvasMousePos(e)
@@ -733,7 +739,7 @@ export default class extends Vue {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public canvasMouseleave(e:any) {
+  public canvasMouseleave(e: any) {
     if (this.oShape && Object.keys(this.oShape).length > 0) {
       this.oShape = {}
       this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
@@ -960,7 +966,7 @@ export default class extends Vue {
     this.showCanvasBox = false
   }
   // 实时对讲
-  public toIntercom(event:any) {
+  public toIntercom(event: any) {
     event.currentTarget.blur()
     if (window.navigator.mediaDevices) {
       window.navigator.mediaDevices
@@ -995,7 +1001,7 @@ export default class extends Vue {
   }
 
   // 视频缩放
-  public scaleVideo(event:any, kind:any) {
+  public scaleVideo(event: any, kind: any) {
     event.currentTarget.blur()
     this.scaleVal = kind
     this.playerFS()
@@ -1343,20 +1349,7 @@ export default class extends Vue {
     }
   }
   .videoScaleBox {
-    width: 50px;
-    ::v-deep .el-button--mini{
-      display: block;
-      width: 80%;
-      color: #fff;
-      margin-left:0;
-      text-align: left;
-      &:hover{
-        color: #FA8334;
-      }
-      &.selected{
-        color: #FA8334;
-      }
-    }
+    width: 80px;
   }
   .canvasScaleBox{
     position: absolute;
@@ -1364,13 +1357,5 @@ export default class extends Vue {
     left: 0;
     width: 100%;
     height:100%;
-  }
-  .videoTypeBox {
-    ::v-deep .el-button--mini {
-      color: #fff;
-      &.activeVideoType {
-        color: #FA8334;
-      }
-    }
   }
 </style>

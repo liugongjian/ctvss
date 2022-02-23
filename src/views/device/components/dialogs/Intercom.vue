@@ -37,10 +37,11 @@
           <div class="intercomMicroVol">
             <div ref="intercomMicroVolCtx" class="intercomMicroVolCtx" />
           </div>
-          <div class="intercomMicroBtn"
-               @mousedown="intercomMousedown"
-               @mouseup="intercomMouseup"
-               @mouseleave="intercomMouseleave"
+          <div
+            class="intercomMicroBtn"
+            @mousedown="intercomMousedown"
+            @mouseup="intercomMouseup"
+            @mouseleave="intercomMouseleave"
           >
             <svg-icon name="microphone" width="66px" height="66px" />
           </div>
@@ -66,23 +67,23 @@ import { Device } from '@/type/device'
 
 export default class extends Mixins(ScreenMixin) {
  @Prop() private intercomInfo?: any
- @Prop() private ifIntercom?:false
+ @Prop() private ifIntercom?: false
 
-  private streamAudio:any
-  private ctxAudio:any
-  private sourceAudio:any
-  private maxVol=0
-  private scriptProcessor:any
-  private ws:any
-  private deviceInfo?:Device
-  private transPriority:any
+  private streamAudio: any
+  private ctxAudio: any
+  private sourceAudio: any
+  private maxVol = 0
+  private scriptProcessor: any
+  private ws: any
+  private deviceInfo?: Device
+  private transPriority: any
   private ifCloseStatus = 0
-  private last:any
-  private cannotStop:boolean
-  private audioKey:string
+  private last: any
+  private cannotStop: boolean
+  private audioKey: string
 
   @Watch('maxVol')
-  private getVolStyle(val:any) {
+  private getVolStyle(val: any) {
     const dom = document.querySelector('.intercomMicroVolCtx') as HTMLElement
     if (val > 0) {
       dom.style.height = `${val * 2.6 + 10}px`
@@ -138,7 +139,7 @@ export default class extends Mixins(ScreenMixin) {
       }
 
       this.ifCloseStatus = 0
-      startTalk(param).then((res:any) => {
+      startTalk(param).then((res: any) => {
         if (this.ws) {
           this.stopRecord()
         }
@@ -148,7 +149,7 @@ export default class extends Mixins(ScreenMixin) {
         const wsUrl = `${ifwss}://${streamServerAddr}/talk/${this.intercomInfo.deviceId}`
         try {
           this.ws = new WebSocket(wsUrl)
-          this.ws.onopen = (e:any) => {
+          this.ws.onopen = (e: any) => {
             console.log('连接建立', e, this.ifCloseStatus)
             if (this.ifCloseStatus !== 1) {
               this.ws.send(this.intercomInfo.deviceId)
@@ -161,7 +162,7 @@ export default class extends Mixins(ScreenMixin) {
             this.$message.error('连接已被提前终止')
             this.intercomMouseup()
           }
-          this.ws.onmessage = (e:any) => {
+          this.ws.onmessage = (e: any) => {
             const { data } = e
             console.log('message-data=======>', data)
             if (data === 'streamserver error') {
@@ -171,7 +172,7 @@ export default class extends Mixins(ScreenMixin) {
         } catch (e) {
           console.log(`连接错误：${e}`)
         }
-      }).catch((err:any) => {
+      }).catch((err: any) => {
         if (err.message.indexOf('不支持') > -1) {
           this.cannotStop = true
         }
@@ -196,7 +197,7 @@ export default class extends Mixins(ScreenMixin) {
         this.stopRecord()
         stopTalk(param).then(() => {
           this.last = Date.now()
-        }).catch((err:any) => {
+        }).catch((err: any) => {
           this.last = Date.now()
           this.$message.error(`${err.message ? err.message : err}`)
         })
@@ -208,7 +209,7 @@ export default class extends Mixins(ScreenMixin) {
     }
   }
 
-  private randomKey(len:any = 10) {
+  private randomKey(len: any = 10) {
     let str = ''
     const arr = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
       'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
@@ -257,7 +258,7 @@ export default class extends Mixins(ScreenMixin) {
     this.maxVol = 0
   }
 
-  private initRecordMicro(stream:any) {
+  private initRecordMicro(stream: any) {
     this.streamAudio = stream
     this.ctxAudio = new window.AudioContext()
     this.sourceAudio = this.ctxAudio.createMediaStreamSource(this.streamAudio)
@@ -266,12 +267,12 @@ export default class extends Mixins(ScreenMixin) {
     this.scriptProcessor = this.ctxAudio.createScriptProcessor(4096, 1, 1)
     this.sourceAudio.connect(this.scriptProcessor)
     this.scriptProcessor.connect(this.ctxAudio.destination)
-    this.scriptProcessor.onaudioprocess = (audioProcessingEvent:any) => {
+    this.scriptProcessor.onaudioprocess = (audioProcessingEvent: any) => {
       // buffer处理
       const buffer = audioProcessingEvent.inputBuffer.getChannelData(0)
 
       let sum = 0
-      let outputData:any = []
+      let outputData: any = []
       for (let i = 0; i < buffer.length; i++) {
         sum += buffer[i] * buffer[i]
       }
@@ -287,7 +288,7 @@ export default class extends Mixins(ScreenMixin) {
     }
   }
 
-  private floatTo16BitPCM(bytes:any) {
+  private floatTo16BitPCM(bytes: any) {
     let offset = 0
     const dataLen = bytes.length
     // 默认采样率以16计算，而不是8位
@@ -306,7 +307,7 @@ export default class extends Mixins(ScreenMixin) {
     return data
   }
 
-  private compress(data:any, inputSampleRate:number, outputSampleRate:number) {
+  private compress(data: any, inputSampleRate: number, outputSampleRate: number) {
     const rate = inputSampleRate / outputSampleRate
     const compression = Math.max(rate, 1)
     const length = Math.floor(data.length / rate)

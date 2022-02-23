@@ -33,7 +33,6 @@ export class RtcPlayer extends BasePlayer {
     }
 
     this.connectRtc()
-
     this.player = videoElement
   }
 
