@@ -616,7 +616,7 @@ export default class extends Mixins(ScreenMixin) {
   /**
    * 需要轮巡的视频
    */
-  private async videosOnPolling(node: any, isDir: boolean) {
+  private async videosOnPolling(node: any, isRoot: boolean) {
     this.pollingDevices = []
     if (node) {
       this.currentNode = node
@@ -625,24 +625,32 @@ export default class extends Mixins(ScreenMixin) {
       VGroupModule.SetRealGroupId(this.currentNode!.data.realGroupId || '')
       VGroupModule.SetRealGroupInProtocol(this.currentNode!.data.realGroupInProtocol || '')
     }
-    if (!isDir) {
+    if (!isRoot) {
       this.dirList.forEach((item: any) => {
         if (item.type === 'ipc' && item.deviceStatus === 'on') {
           this.pollingDevices.push(item)
         }
       })
     } else {
-      let data = await getDeviceTree({
-        groupId: this.currentGroupId,
-        id: this.currentNode!.data.id,
-        type: this.currentNode!.data.type
-      })
-      const dirs = this.setDirsStreamStatus(data.dirs)
-      dirs.forEach((item: any) => {
-        if (item.type === 'ipc' && item.deviceStatus === 'on') {
-          this.pollingDevices.push(item)
-        }
-      })
+      if (this.$route.query.searchKey) {
+        node.data.children.forEach((item: any) => {
+          if (item.type === 'ipc' && item.deviceStatus === 'on') {
+            this.pollingDevices.push(item)
+          }
+        })
+      } else {
+        let data = await getDeviceTree({
+          groupId: this.currentGroupId,
+          id: this.currentNode!.data.id,
+          type: this.currentNode!.data.type
+        })
+        const dirs = this.setDirsStreamStatus(data.dirs)
+        dirs.forEach((item: any) => {
+          if (item.type === 'ipc' && item.deviceStatus === 'on') {
+            this.pollingDevices.push(item)
+          }
+        })
+      }
     }
     this.currentPollingIndex = 0
     this.doPolling()
@@ -673,7 +681,7 @@ export default class extends Mixins(ScreenMixin) {
   /**
    * 一键播放
    */
-  private async videosOnAutoPlay(node: any, isDir: boolean) {
+  private async videosOnAutoPlay(node: any, isRoot: boolean) {
     this.autoPlayDevices = []
     if (node) {
       this.currentNode = node
@@ -682,24 +690,32 @@ export default class extends Mixins(ScreenMixin) {
       VGroupModule.SetRealGroupId(this.currentNode!.data.realGroupId || '')
       VGroupModule.SetRealGroupInProtocol(this.currentNode!.data.realGroupInProtocol || '')
     }
-    if (!isDir) {
+    if (!isRoot) {
       this.dirList.forEach((item: any) => {
         if (item.type === 'ipc' && item.deviceStatus === 'on') {
           this.autoPlayDevices.push(item)
         }
       })
     } else {
-      let data = await getDeviceTree({
-        groupId: this.currentGroupId,
-        id: node!.data.id,
-        type: node!.data.type
-      })
-      const dirs = this.setDirsStreamStatus(data.dirs)
-      dirs.forEach((item: any) => {
-        if (item.type === 'ipc' && item.deviceStatus === 'on') {
-          this.autoPlayDevices.push(item)
-        }
-      })
+      if (this.$route.query.searchKey) {
+        node.data.children.forEach((item: any) => {
+          if (item.type === 'ipc' && item.deviceStatus === 'on') {
+            this.autoPlayDevices.push(item)
+          }
+        })
+      } else {
+        let data = await getDeviceTree({
+          groupId: this.currentGroupId,
+          id: node!.data.id,
+          type: node!.data.type
+        })
+        const dirs = this.setDirsStreamStatus(data.dirs)
+        dirs.forEach((item: any) => {
+          if (item.type === 'ipc' && item.deviceStatus === 'on') {
+            this.autoPlayDevices.push(item)
+          }
+        })
+      }
     }
     if (!this.autoPlayDevices.length) {
       this.$alert(`当前设备数需大于0才可开始自动播放`, '提示', {

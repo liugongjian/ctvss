@@ -139,8 +139,12 @@ export default class CreateMixin extends Vue {
   public mounted() {
     if (!this.isUpdate) {
       this.form.gbRegion = this.currentGroup!.gbRegion
-      this.form.industryCode = this.currentGroup!.industryCode
-      this.form.networkCode = this.currentGroup!.networkCode
+      if (Object.keys(industryMap).indexOf(this.currentGroup!.industryCode) > -1) {
+        this.form.industryCode = this.currentGroup!.industryCode
+      }
+      if (Object.keys(networkMap).indexOf(this.currentGroup!.networkCode) > -1) {
+        this.form.networkCode = this.currentGroup!.networkCode
+      }
       this.cascaderInit()
     }
   }
