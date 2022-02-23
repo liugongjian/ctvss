@@ -324,6 +324,9 @@ export default class extends Mixins(ScreenMixin) {
         screen.deviceId = item.id
         screen.deviceName = item.label
         screen.loaded = true
+        screen.roleId = item.roleId || ''
+        screen.realGroupId = item.realGroupId || ''
+        screen.realGroupInProtocol = item.realGroupInProtocol || ''
       })
     }
   }
@@ -335,10 +338,6 @@ export default class extends Mixins(ScreenMixin) {
     this.autoPlayDevices = []
     if (node) {
       this.currentNode = node
-      // 设置虚拟业务组相关信息
-      VGroupModule.SetRoleID(this.currentNode!.data.roleId || '')
-      VGroupModule.SetRealGroupId(this.currentNode!.data.realGroupId || '')
-      VGroupModule.SetRealGroupInProtocol(this.currentNode!.data.realGroupInProtocol || '')
     }
     if (!isRoot) {
       this.dirList.forEach((item: any) => {
@@ -361,6 +360,15 @@ export default class extends Mixins(ScreenMixin) {
         })
         const dirs = this.setDirsStreamStatus(data.dirs)
         dirs.forEach((item: any) => {
+          if (node.data.type === 'group') {
+            item.roleId = node.data.roleId
+            item.realGroupId = node.data.id
+            item.realGroupInProtocol = node.data.inProtocol
+          } else {
+            item.roleId = node.data.roleId
+            item.realGroupId = node.data.realGroupId
+            item.realGroupInProtocol = node.data.realGroupInProtocol
+          }
           if (item.type === 'ipc') {
             this.autoPlayDevices.push(item)
           }
