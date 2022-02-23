@@ -224,7 +224,10 @@ export default class extends Vue {
     private alarms: any = []
     private forceRefresh: boolean = false
     // 防抖
-    private debounceHandle = debounce(() => { this.getScreenShot(); this.getAlarmsList() }, 500)
+    private debounceHandle = debounce(() => {
+      this.getScreenShot()
+      this.isCarFlowCode && this.getAlarmsList()
+    }, 500)
 
     @Watch('queryParam.periodType')
     private periodTypeUpdated(newVal) {
@@ -264,7 +267,7 @@ export default class extends Vue {
       this.initFaceInfos()
       if (this.device.deviceId.length > 0) {
         this.getScreenShot()
-        this.getAlarmsList()
+        this.isCarFlowCode && this.getAlarmsList()
       }
     }
 

@@ -241,6 +241,7 @@ export default class extends Mixins(AppMixin) {
     })
     this.loading = false
   }
+
   public async getAlarm(appId, deviceId, period) {
     const res = await getAiAlarm({ appId, deviceId, startTime: period[0], endTime: period[1] })
     this.alarms.push(res)
