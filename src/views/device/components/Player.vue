@@ -24,7 +24,7 @@
           <div v-if="hasProgress && duration" class="controls__time">{{ durationFormatInVideo(Math.floor(currentTime)) }} / {{ durationFormatInVideo(duration) }}</div>
         </template>
       </div>
-      <div v-if="isHiddenTools" class="controls__right">
+      <div v-if="!isHiddenTools" class="controls__right">
         <div v-if="hasAudio && !waiting" class="controls__btn controls__playback volume">
           <span @click="switchMuteStatus">
             <svg-icon v-if="volume === 0 || isMute" name="mute" width="18px" height="18px" />
@@ -433,35 +433,25 @@ export default class extends Vue {
         let player = $video.querySelector('video')
         if (this.codec === 'h265') {
           player = $video.querySelector('.player-box')
-          this.playerFS()
-          window.addEventListener('resize', this.playerFS, false)
-          const targetNode = mainBox
-          // 监听video-wrap
-          // @ts-ignore
-          this.resizeObserver = new ResizeObserver(() => {
-            this.playerFS()
-          })
-          this.resizeObserver.observe(targetNode)
         } else {
-          // this.playerFS()
           player = $video.querySelector('video')
-          this.playerFS()
-          window.addEventListener('resize', this.playerFS, false)
-          const targetNode = mainBox
-          // 监听video-wrap
-          // @ts-ignore
-          this.resizeObserver = new ResizeObserver((e) => {
-            this.playerFS()
-            const mainBox: any = this.$refs.videoWrap
-            // 针对小屏幕隐藏工具栏
-            if (mainBox.clientHeight < 100 || mainBox.clientWidth < 300) {
-              this.isHiddenTools = false
-            } else {
-              this.isHiddenTools = true
-            }
-          })
-          this.resizeObserver.observe(targetNode)
         }
+        this.playerFS()
+        window.addEventListener('resize', this.playerFS, false)
+        const targetNode = mainBox
+        // 监听video-wrap
+        // @ts-ignore
+        this.resizeObserver = new ResizeObserver(() => {
+          this.playerFS()
+          const mainBox: any = this.$refs.videoWrap
+          // 针对小屏幕隐藏工具栏
+          if (mainBox.clientHeight < 100 || mainBox.clientWidth < 300) {
+            this.isHiddenTools = true
+          } else {
+            this.isHiddenTools = false
+          }
+        })
+        this.resizeObserver.observe(targetNode)
         this.videoMoveData.player = player
         this.videoMoveData.mainBox = mainBox
       })
