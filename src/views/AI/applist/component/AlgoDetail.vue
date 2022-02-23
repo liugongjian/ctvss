@@ -71,11 +71,11 @@
         <span class="comment">小时</span>
       </el-form-item>
       <el-form-item v-if="ifShow('10019')" label="车辆数量阈值" prop="algorithmMetadata.vehiclesThreshold">
-        <el-input v-model.number="form.algorithmMetadata.vehiclesThreshold" />
+        <el-input v-model="form.algorithmMetadata.vehiclesThreshold" />
       </el-form-item>
       <!-- 实时在岗检测 -->
       <el-form-item v-if="ifShow('10024')" label="脱岗超时时间" prop="algorithmMetadata.offDutyThreShold">
-        <el-input v-model.number="form.algorithmMetadata.offDutyThreShold" />
+        <el-input v-model="form.algorithmMetadata.offDutyThreShold" />
         <span class="comment">分钟</span>
         <template slot="label">
           脱岗超时时间
@@ -91,7 +91,7 @@
         </template>
       </el-form-item>
       <el-form-item v-if="ifShow('10024')" label="睡岗超时时间" prop="algorithmMetadata.sleepOnDutyThreShold">
-        <el-input v-model.number="form.algorithmMetadata.sleepOnDutyThreShold" />
+        <el-input v-model="form.algorithmMetadata.sleepOnDutyThreShold" />
         <span class="comment">分钟</span>
         <template slot="label">
           睡岗超时时间
@@ -108,7 +108,7 @@
       </el-form-item>
       <!-- 车辆违停 -->
       <el-form-item v-if="ifShow('10021')" label="临停时间" prop="algorithmMetadata.pvTime">
-        <el-input v-model.number="form.algorithmMetadata.pvTime" />
+        <el-input v-model="form.algorithmMetadata.pvTime" />
         <span class="comment">分钟</span>
         <template slot="label">
           临停时间
@@ -125,7 +125,7 @@
       </el-form-item>
       <!-- 车辆拥堵 -->
       <el-form-item v-if="ifShow('10022')" label="拥堵车辆阈值" prop="algorithmMetadata.jamThreshold">
-        <el-input v-model.number="form.algorithmMetadata.jamThreshold" />
+        <el-input v-model="form.algorithmMetadata.jamThreshold" />
         <span class="comment">辆</span>
         <template slot="label">
           拥堵车辆阈值
@@ -260,10 +260,7 @@ export default class extends Mixins(AppMixin) {
   private breadCrumbContent: String = ''
   private ResourceAiType: any = ResourceAiType
   private form: any = {
-    algorithmMetadata: {
-      FaceDbName: '',
-      pedThreshold: ''
-    }
+    algorithmMetadata: {}
   }
   private faceLibs = []
   private isfaceLibLoading = false
@@ -323,7 +320,7 @@ export default class extends Mixins(AppMixin) {
       // 处理置信度
       this.form = { ...this.form, confidence: this.form.confidence * 100 }
     } else { // 新建
-      const algorithmMetadata = { FaceDbName: '', pedThreshold: '', pvTime: 10 }
+      const algorithmMetadata = this.ifShow('10021') ? { pvTime: '10' } : {}
       this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [], validateType: '无验证', confidence: 60 }
     }
     try {
@@ -361,7 +358,7 @@ export default class extends Mixins(AppMixin) {
     let pivot = min
     const arr = []
     while (pivot <= max) {
-      arr.push(pivot)
+      arr.push(pivot + '')
       ++pivot
     }
     return arr
