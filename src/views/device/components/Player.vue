@@ -24,7 +24,7 @@
           <div v-if="hasProgress && duration" class="controls__time">{{ durationFormatInVideo(Math.floor(currentTime)) }} / {{ durationFormatInVideo(duration) }}</div>
         </template>
       </div>
-      <div class="controls__right">
+      <div v-if="isHiddenTools" class="controls__right">
         <div v-if="hasAudio && !waiting" class="controls__btn controls__playback volume">
           <span @click="switchMuteStatus">
             <svg-icon v-if="volume === 0 || isMute" name="mute" width="18px" height="18px" />
@@ -270,13 +270,14 @@ export default class extends Vue {
   private scaleKind = scaleKind
   private scaleVal = ''
   private showCanvasBox = false
-  private canvasShape:any = {}
-  private oCanvas:any
-  private ctxShape:any
+  private canvasShape: any = {}
+  private oCanvas: any
+  private ctxShape: any
   private ctxDrawState = false
-  private oCanvasWidth?:number
-  private oCanvasHeight?:number
-  private userScaleConfig:any
+  private oCanvasWidth?: number
+  private oCanvasHeight?: number
+  private userScaleConfig: any
+  private isHiddenTools: boolean = false
 
   get username() {
     return UserModule.name
@@ -443,8 +444,15 @@ export default class extends Vue {
           const targetNode = mainBox
           // 监听video-wrap
           // @ts-ignore
-          this.resizeObserver = new ResizeObserver(() => {
+          this.resizeObserver = new ResizeObserver((e) => {
             this.playerFS()
+            const mainBox: any = this.$refs.videoWrap
+            // 针对小屏幕隐藏工具栏
+            if (mainBox.clientHeight < 100 || mainBox.clientWidth < 300) {
+              this.isHiddenTools = false
+            } else {
+              this.isHiddenTools = true
+            }
           })
           this.resizeObserver.observe(targetNode)
         }
