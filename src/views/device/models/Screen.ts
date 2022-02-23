@@ -30,8 +30,9 @@ export default class Screen {
   public currentTime?: number
   public isCache?: boolean
   public videoInfo?: string
-  public allAddress?:any
-  public volume?:any
+  public allAddress?: any
+  public volume?: any
+  public ifScalePTZ?: boolean
 
   constructor() {
     this.deviceId = ''
@@ -61,6 +62,7 @@ export default class Screen {
     this.videoInfo = ''
     this.allAddress = ''
     this.volume = 30
+    this.ifScalePTZ = false
   }
 
   public async getUrl() {
@@ -123,6 +125,7 @@ export default class Screen {
     this.isCache = false
     this.allAddress = ''
     this.volume = 30
+    this.ifScalePTZ = false
   }
 
   public fullscreen() {
