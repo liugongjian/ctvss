@@ -646,6 +646,15 @@ export default class extends Mixins(ScreenMixin) {
         })
         const dirs = this.setDirsStreamStatus(data.dirs)
         dirs.forEach((item: any) => {
+          if (node.data.type === 'group') {
+            item.roleId = node.data.roleId
+            item.realGroupId = node.data.id
+            item.realGroupInProtocol = node.data.inProtocol
+          } else {
+            item.roleId = node.data.roleId
+            item.realGroupId = node.data.realGroupId
+            item.realGroupInProtocol = node.data.realGroupInProtocol
+          }
           if (item.type === 'ipc' && item.deviceStatus === 'on') {
             this.pollingDevices.push(item)
           }
@@ -711,6 +720,15 @@ export default class extends Mixins(ScreenMixin) {
         })
         const dirs = this.setDirsStreamStatus(data.dirs)
         dirs.forEach((item: any) => {
+          if (node.data.type === 'group') {
+            item.roleId = node.data.roleId
+            item.realGroupId = node.data.id
+            item.realGroupInProtocol = node.data.inProtocol
+          } else {
+            item.roleId = node.data.roleId
+            item.realGroupId = node.data.realGroupId
+            item.realGroupInProtocol = node.data.realGroupInProtocol
+          }
           if (item.type === 'ipc' && item.deviceStatus === 'on') {
             this.autoPlayDevices.push(item)
           }
@@ -730,6 +748,9 @@ export default class extends Mixins(ScreenMixin) {
         this.screenList[i].deviceId = this.autoPlayDevices[i].id
         this.screenList[i].deviceName = this.autoPlayDevices[i].label
         this.screenList[i].inProtocol = this.currentGroupInProtocol!
+        this.screenList[i].roleId = this.autoPlayDevices[i].roleId
+        this.screenList[i].realGroupId = this.autoPlayDevices[i].realGroupId
+        this.screenList[i].realGroupInProtocol = this.autoPlayDevices[i].realGroupInProtocol
       }
       this.screenList[i].getUrl()
     }
@@ -775,6 +796,9 @@ export default class extends Mixins(ScreenMixin) {
       this.screenList[i].deviceId = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].id
       this.screenList[i].deviceName = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].label
       this.screenList[i].inProtocol = this.currentGroupInProtocol!
+      this.screenList[i].roleId = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].roleId
+      this.screenList[i].realGroupId = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].realGroupId
+      this.screenList[i].realGroupInProtocol = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].realGroupInProtocol
       this.screenList[i].getUrl()
       if (this.currentIndex < this.maxSize - 1) {
         this.currentIndex++
