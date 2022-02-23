@@ -235,7 +235,7 @@ export default class extends Vue {
   @Prop() private inProtocol?: string
   @Prop() private deviceId?: number | string
   @Prop() private videoInfo?: string
-
+  @Prop() private scaleStatus?: boolean
   /**
    * 隐藏视频工具栏
    */
@@ -372,6 +372,10 @@ export default class extends Vue {
         this.playerFitSize(mainBox.clientWidth, mainBox.clientHeight, player)
       }
     }
+  }
+  @Watch('scaleStatus')
+  getScaleStatus(val: boolean) {
+    this.showCanvasBox = val
   }
 
   /**
@@ -565,7 +569,7 @@ export default class extends Vue {
   public changeScaleCanvas() {
     this.showCanvasBox = !this.showCanvasBox
     this.isZoom = false
-
+    this.$emit('onChangeScalePTZStatus', this.showCanvasBox)
     if (this.showCanvasBox) {
       let player: any, ctxBox: any
       if (this.codec === 'h265') {
