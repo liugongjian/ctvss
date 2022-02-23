@@ -14,7 +14,7 @@ export class BasePlayer {
   public isWs?: boolean
   public playbackRate?: number
   public wrapElement?: HTMLDivElement
-  public allAddress? : any
+  public allAddress?: any
 
   constructor(config: any) {
     this.config = config
