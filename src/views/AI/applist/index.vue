@@ -156,7 +156,6 @@ export default class extends Mixins(AppMixin) {
     await this.getAbilityList()
     await this.getAppList()
     this.getAlarms()
-    this.getAlarm(0, this.period.period)
   }
 
   /**
@@ -367,6 +366,8 @@ export default class extends Mixins(AppMixin) {
         const result = this.alarms.filter(alarm => alarm.appId === app.id)
         return { ...app, count: result[0].count }
       })
+      // 获取总告警数
+      this.getAlarm(0, this.period.period)
     } catch (e) {
       console.log(e)
     } finally {
