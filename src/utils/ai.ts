@@ -519,6 +519,10 @@ export const parseMetaData = (type: string, metaData: any) => {
           )
         }
       }
+      // @ts-ignore
+      locations.IsOffDuty = metaData.Data?.IsOffDuty
+      // @ts-ignore
+      locations.IsSleepOnDuty = metaData.Data?.IsSleepOnDuty
       break
   }
   return locations
