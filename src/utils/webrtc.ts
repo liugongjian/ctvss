@@ -124,7 +124,7 @@ export const prepareUrl = (url: string) => {
   // @see https://github.com/rtcdn/rtcdn-draft
   // var api = urlObject.userQuery.play || '/rtc/v1/play/'
   var api = urlObject.userQuery.play || '/streamingserver/v1/webrtc/sdp'
-  if (api.lastIndexOf('/') !== api.length - 1) {
+  if (urlObject.userQuery.play && api.lastIndexOf('/') !== api.length - 1) {
     api += '/'
   }
 

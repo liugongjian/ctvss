@@ -284,6 +284,7 @@ export default class extends Vue {
   private oCanvasHeight?: number
   private userScaleConfig: any
   private isHiddenTools: boolean = false
+  private ifMountedMute?: boolean = false
 
   get username() {
     return UserModule.name
@@ -314,6 +315,11 @@ export default class extends Vue {
     this.getUserScaleConfig()
     this.createPlayer()
     this.setPlayVolume(this.volume)
+    if (this.volume === 0) {
+      this.ifMountedMute = true
+    } else {
+      this.ifMountedMute = false
+    }
     if (this.isLive) document.addEventListener('visibilitychange', this.reloadPlayer)
   }
 
@@ -434,7 +440,7 @@ export default class extends Vue {
       this.$nextTick(() => {
         const $video = this.$refs.video as HTMLDivElement
         const mainBox: any = this.$refs.videoWrap
-        let player = $video.querySelector('video')
+        let player: any
         if (this.codec === 'h265') {
           player = $video.querySelector('.player-box')
         } else {
@@ -472,13 +478,13 @@ export default class extends Vue {
   }
 
   public playerFS() {
+    const mainBox: any = this.$refs.videoWrap
     if (this.codec === 'h265') {
-      const mainBox: any = this.$refs.videoWrap
       if (!mainBox) return
       const player = mainBox.querySelector('.player-box')
+      player.style.height = `${mainBox.clientHeight - 40}px`
       this.playerFitSize(mainBox.clientWidth, mainBox.clientHeight, player)
     } else {
-      const mainBox: any = this.$refs.videoWrap
       const $video: any = this.$refs.video
       if (!$video) return
       const player = $video.querySelector('video')
@@ -949,7 +955,22 @@ export default class extends Vue {
    * 开关静音状态
    */
   public switchMuteStatus() {
-    this.player!.switchMuteStatus(!this.isMute)
+    if (this.ifMountedMute) { // 缓存为静音或者声音为0的视频时，静音按键点击无效，增加修改声音为30
+      this.player!.switchMuteStatus(false)
+      this.volume = 30
+      this.isMute = true
+      this.player!.setPlayVolume(30)
+      this.ifMountedMute = false
+    } else {
+      this.player!.switchMuteStatus(!this.isMute) // 处理--缓存的是有声音的视频，点击静音按键无效。
+      if (this.isMute) {
+        this.volume = 30
+        this.player!.setPlayVolume(30)
+      } else {
+        this.volume = 0
+        this.player!.setPlayVolume(0)
+      }
+    }
   }
 
   /**
