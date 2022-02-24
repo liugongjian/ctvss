@@ -22,7 +22,7 @@
       </div>
       <div class="alarm-container__alarm">
         <div>总告警次数：</div>
-        <div>135次</div>
+        <div>{{ totalAlarm }}次</div>
       </div>
     </div>
     <el-table
@@ -108,6 +108,7 @@ export default class extends Mixins(AppMixin) {
   }
   private loading = false
   private devices: any = []
+  private totalAlarm = 0
 
   @Watch('period.periodType')
   private periodTypeUpdated(newVal) {
@@ -172,9 +173,10 @@ export default class extends Mixins(AppMixin) {
         appIds: [this.$route.query.appid],
         deviceId: device.deviceId
       },
-      onSuccess: () => {
+      onSuccess: async() => {
         this.$message.success(`已通知${method}AI应用`)
-        this.getAttachedDevice()
+        await this.getAttachedDevice()
+        this.getAlarms()
       }
     })
   }
@@ -239,12 +241,18 @@ export default class extends Mixins(AppMixin) {
       const result = this.alarms.filter(alarm => alarm.deviceId === device.deviceId)
       return { ...device, count: result[0].count }
     })
+    this.getAlarm(this.$route.query.appid, null, this.period.period)
     this.loading = false
   }
 
   public async getAlarm(appId, deviceId, period) {
-    const res = await getAiAlarm({ appId, deviceId, startTime: period[0], endTime: period[1] })
-    this.alarms.push(res)
+    if (deviceId) {
+      const res = await getAiAlarm({ appId, deviceId, startTime: period[0], endTime: period[1] })
+      this.alarms.push(res)
+    } else {
+      const { count } = await getAiAlarm({ appId, startTime: period[0], endTime: period[1] })
+      this.totalAlarm = count
+    }
   }
 }
 </script>

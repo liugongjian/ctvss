@@ -907,16 +907,16 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
       break
     // 车辆统计
     case '10019':
-      if (metaData.Data && metaData.Data.DetectBoxes) {
-        const boxes = metaData.Data.DetectBoxes
+      if (metaData.Data && metaData.Data.Boxes) {
+        const boxes = metaData.Data.Boxes
         for (let i = 0; i < boxes.length; i += 4) {
           locations.push(
             {
               top: boxes[i + 1],
               left: boxes[i],
               width: boxes[i + 2],
-              height: boxes[i + 3],
-              isWarning: !!metaData.Data.DetectClses[i / 4]
+              height: boxes[i + 3]
+              // isWarning: !!metaData.Data.DetectClses[i / 4]
             }
           )
         }
@@ -931,16 +931,16 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
       break
       // 车辆违停
     case '10021':
-      if (metaData.Data && metaData.Data.DetectBoxes) {
-        const boxes = metaData.Data.DetectBoxes
+      if (metaData.Data && metaData.Data.Boxes) {
+        const boxes = metaData.Data.Boxes
         for (let i = 0; i < boxes.length; i += 4) {
           locations.push(
             {
               top: boxes[i + 1],
               left: boxes[i],
               width: boxes[i + 2],
-              height: boxes[i + 3],
-              isWarning: !!metaData.Data.DetectClses[i / 4]
+              height: boxes[i + 3]
+              // isWarning: !!metaData.Data.DetectClses[i / 4]
             }
           )
         }
@@ -955,16 +955,16 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
       break
       // 车辆拥堵
     case '10022':
-      if (metaData.Data && metaData.Data.DetectBoxes) {
-        const boxes = metaData.Data.DetectBoxes
+      if (metaData.Data && metaData.Data.Boxes) {
+        const boxes = metaData.Data.Boxes
         for (let i = 0; i < boxes.length; i += 4) {
           locations.push(
             {
               top: boxes[i + 1],
               left: boxes[i],
               width: boxes[i + 2],
-              height: boxes[i + 3],
-              isWarning: !!metaData.Data.DetectClses[i / 4]
+              height: boxes[i + 3]
+              // isWarning: !!metaData.Data.DetectClses[i / 4]
             }
           )
         }
@@ -1027,11 +1027,11 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
             }
           )
         }
-        // @ts-ignore
-        metaData.Data.IsOffDuty && (locations.IsOffDuty = metaData.Data.IsOffDuty)
-        // @ts-ignore
-        metaData.Data.IsSleepOnDuty && (locations.IsSleepOnDuty = metaData.Data.IsSleepOnDuty)
       }
+      // @ts-ignore
+      locations.IsOffDuty = metaData.Data?.IsOffDuty
+      // @ts-ignore
+      locations.IsSleepOnDuty = metaData.Data?.IsSleepOnDuty
       break
   }
   return locations
@@ -1112,7 +1112,7 @@ const parseBodyAttributes = (attributes: any) => {
   return attributesArray
 }
 
-// const standardMetaDataParse = (metaData) => {
+// const standardMetaDataParse = (metaData, ...features) => {
 //   let locations = []
 //   if (metaData.Data && metaData.Data.DetectBoxes) {
 //     const boxes = metaData.Data.DetectBoxes
@@ -1133,6 +1133,11 @@ const parseBodyAttributes = (attributes: any) => {
 //           zone: metaData.DangerZoneBox
 //         }
 //       )
+//     }
+//     if (features.length) {
+//       features.forEach(item => {
+//         metaData.Data[item] && (locations[item] = metaData.Data[item])
+//       })
 //     }
 //   }
 //   return locations
