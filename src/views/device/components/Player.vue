@@ -434,7 +434,7 @@ export default class extends Vue {
       this.$nextTick(() => {
         const $video = this.$refs.video as HTMLDivElement
         const mainBox: any = this.$refs.videoWrap
-        let player = $video.querySelector('video')
+        let player: any
         if (this.codec === 'h265') {
           player = $video.querySelector('.player-box')
         } else {
@@ -472,13 +472,13 @@ export default class extends Vue {
   }
 
   public playerFS() {
+    const mainBox: any = this.$refs.videoWrap
     if (this.codec === 'h265') {
-      const mainBox: any = this.$refs.videoWrap
       if (!mainBox) return
       const player = mainBox.querySelector('.player-box')
+      player.style.height = `${mainBox.clientHeight - 40}px`
       this.playerFitSize(mainBox.clientWidth, mainBox.clientHeight, player)
     } else {
-      const mainBox: any = this.$refs.videoWrap
       const $video: any = this.$refs.video
       if (!$video) return
       const player = $video.querySelector('video')
