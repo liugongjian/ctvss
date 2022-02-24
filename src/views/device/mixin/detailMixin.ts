@@ -6,8 +6,7 @@ import { RecordTemplate } from '@/type/template'
 import { queryGroup } from '@/api/group'
 import { GroupModule } from '@/store/modules/group'
 import { DeviceModule } from '@/store/modules/device'
-// import { DeviceStatus, DeviceGb28181Type, RecordStatus, RecordStatusType, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType } from '@/dics'
-import { getDevice, getChildAddress } from '@/api/device'
+import { getDevice } from '@/api/device'
 import { DeviceStatus, DeviceGb28181Type, RecordStatus, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType, RecordStatusType } from '@/dics'
 import { getDeviceResources } from '@/api/billing'
 import TemplateBind from '../../components/templateBind.vue'
@@ -180,6 +179,13 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   @Watch('$route.query')
   public onRouterChange() {
     this.detailInit()
+  }
+
+  @Watch('realGroupId')
+  public async onRealGroupIdChange(realGroupId: string, oldRealGroupId: string) {
+    if (!realGroupId || oldRealGroupId) return
+    await this.getDevice()
+    await this.getDeviceResources()
   }
 
   /**
@@ -443,13 +449,5 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   public copyUrl(text: string) {
     copy(text)
     this.$message.success('复制成功')
-  }
-
-  @Watch('realGroupId')
-  public async onRealGroupIdChange(realGroupId: string, oldRealGroupId: string) {
-    if (!realGroupId || oldRealGroupId) return
-    await this.getDevice()
-    await this.getDeviceResources()
-    await this.getAddress(this.info!.gbRegion)
   }
 }
