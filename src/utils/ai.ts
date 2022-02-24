@@ -1027,6 +1027,10 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
             }
           )
         }
+        // @ts-ignore
+        metaData.Data.IsOffDuty && (locations.IsOffDuty = metaData.Data.IsOffDuty)
+        // @ts-ignore
+        metaData.Data.IsSleepOnDuty && (locations.IsSleepOnDuty = metaData.Data.IsSleepOnDuty)
       }
       break
   }
@@ -1107,3 +1111,29 @@ const parseBodyAttributes = (attributes: any) => {
   }
   return attributesArray
 }
+
+// const standardMetaDataParse = (metaData) => {
+//   let locations = []
+//   if (metaData.Data && metaData.Data.DetectBoxes) {
+//     const boxes = metaData.Data.DetectBoxes
+//     for (let i = 0; i < boxes.length; i += 4) {
+//       locations.push(
+//         {
+//           top: boxes[i + 1],
+//           left: boxes[i],
+//           width: boxes[i + 2],
+//           height: boxes[i + 3],
+//           isWarning: !!metaData.Data.DetectClses[i / 4]
+//         }
+//       )
+//     }
+//     if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+//       locations.push(
+//         {
+//           zone: metaData.DangerZoneBox
+//         }
+//       )
+//     }
+//   }
+//   return locations
+// }
