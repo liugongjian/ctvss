@@ -284,7 +284,7 @@ export default class extends Vue {
   private oCanvasHeight?: number
   private userScaleConfig: any
   private isHiddenTools: boolean = false
-  private ifMountedMute?: boolean
+  private ifMountedMute?: boolean = false
 
   get username() {
     return UserModule.name
@@ -961,8 +961,16 @@ export default class extends Vue {
       this.isMute = true
       this.player!.setPlayVolume(30)
       this.ifMountedMute = false
+    } else {
+      this.player!.switchMuteStatus(!this.isMute) // 处理--缓存的是有声音的视频，点击静音按键无效。
+      if (this.isMute) {
+        this.volume = 30
+        this.player!.setPlayVolume(30)
+      } else {
+        this.volume = 0
+        this.player!.setPlayVolume(0)
+      }
     }
-    this.player!.switchMuteStatus(!this.isMute)
   }
 
   /**
