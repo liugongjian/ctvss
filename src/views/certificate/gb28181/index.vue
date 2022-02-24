@@ -4,27 +4,29 @@
       <div class="filter-container">
         <el-button type="primary" @click="handleCreate">新建GB28181凭证</el-button>
         <div class="filter-container__right">
-          <div class="filter-container__select">
-            <el-select v-model="userType" placeholder="选择匿名方式" clearable @change="handleFilter">
-              <el-option label="全部" value="" />
-              <el-option v-for="(value, key) in anonymousType" :key="key" :label="value" :value="key" />
-            </el-select>
-          </div>
-          <el-input v-model="userName" class="filter-container__search-group" placeholder="请输入SIP用户认证ID/用户别名" @keyup.enter.native="handleFilter">
-            <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
+          <el-input
+            v-model="userName"
+            class="filter-container__search-group"
+            placeholder="请输入注册用户名"
+            @keyup.enter.native="handleFilter"
+          >
+            <el-button
+              slot="append"
+              class="el-button-rect"
+              @click="handleFilter"
+            >
+              <svg-icon name="search" />
+            </el-button>
           </el-input>
-          <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
+          <el-button class="el-button-rect" @click="refresh">
+            <svg-icon name="refresh" />
+          </el-button>
         </div>
       </div>
       <el-table v-loading="loading" :data="dataList" fit>
-        <el-table-column label="SIP用户认证ID/用户别名" min-width="100">
+        <el-table-column label="注册用户名" min-width="100">
           <template slot-scope="{row}">
             {{ row.userName || '-' }}
-          </template>
-        </el-table-column>
-        <el-table-column label="是否匿名">
-          <template slot-scope="{row}">
-            {{ anonymousType[row.userType] }}
           </template>
         </el-table-column>
         <el-table-column prop="description" label="描述" min-width="160" />
@@ -50,7 +52,6 @@
 
 <script lang='ts'>
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import { AnonymousType } from '@/dics'
 import { dateFormatInTable } from '@/utils/date'
 import { getList, deleteCertificate } from '@/api/certificate/gb28181'
 import { GB28181 } from '@/type/certificate'
@@ -59,7 +60,6 @@ import { GB28181 } from '@/type/certificate'
   name: 'CertificateGb28181List'
 })
 export default class extends Vue {
-  private anonymousType = AnonymousType
   private userType = ''
   private userName = ''
   private loading = false
@@ -73,7 +73,9 @@ export default class extends Vue {
 
   @Watch('dataList.length')
   private onDataListChange(data: any) {
-    data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
+    data === 0 &&
+      this.pager.pageNum > 1 &&
+      this.handleCurrentChange(this.pager.pageNum - 1)
   }
 
   private async refresh() {

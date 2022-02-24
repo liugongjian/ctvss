@@ -113,6 +113,8 @@ export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
           screen.roleId = cacheScreen.roleId
           screen.realGroupId = cacheScreen.realGroupId
           screen.isLive = cacheScreen.isLive
+          screen.type = cacheScreen.type
+          screen.volume = cacheScreen.volume
           screen.replayType = cacheScreen.replayType
           screen.currentDate = cacheScreen.currentDate
           screen.currentTime = cacheScreen.currentTime
@@ -299,5 +301,12 @@ export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
    */
   public onCalendarFocus(screen: any, val: boolean) {
     screen.calendarFocus = val
+  }
+
+  /**
+   * 播放器音量变化回调
+   */
+  public onVolumeChange(screen: Screen, volume: number) {
+    screen.volume = volume
   }
 }

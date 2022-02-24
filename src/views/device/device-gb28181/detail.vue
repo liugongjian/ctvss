@@ -72,12 +72,12 @@
                     {{ info.address }}
                   </el-descriptions-item>
                   <el-descriptions-item v-if="info.industryCode" label="所属行业">
-                    {{ industryMap[info.industryCode] }}
+                    {{ industryMap[info.industryCode] || '-' }}
                   </el-descriptions-item>
                   <el-descriptions-item v-if="info.networkCode && networkFlag" label="网络标识">
                     {{ networkMap[info.networkCode] }}
                   </el-descriptions-item>
-                  <el-descriptions-item v-if="lianzhouFlag" label="经纬度">
+                  <el-descriptions-item label="经纬度">
                     {{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}
                   </el-descriptions-item>
                   <el-descriptions-item label="设备IP">
@@ -85,6 +85,9 @@
                   </el-descriptions-item>
                   <el-descriptions-item label="设备端口">
                     {{ info.devicePort || '-' }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="设备MAC地址">
+                    {{ info.macAddr || '-' }}
                   </el-descriptions-item>
                 </template>
                 <!--子通道信息-->
@@ -103,7 +106,7 @@
                 <el-descriptions-item label="设备国标ID">
                   {{ info.gbId || '-' }}
                 </el-descriptions-item>
-                <el-descriptions-item label="GB28181账号">
+                <el-descriptions-item label="GB28181凭证注册用户名">
                   {{ info.userName }}
                 </el-descriptions-item>
                 <!--NVR信息-->
@@ -243,9 +246,9 @@ export default class extends Mixins(detailMixin) {
 }
 </script>
 <style lang="scss" scoped>
-  .detail-wrap {
-    ::v-deep .el-descriptions-item__label {
-      min-width: 130px;
-    }
+.detail-wrap {
+  ::v-deep .el-descriptions-item__label {
+    min-width: 130px;
   }
+}
 </style>

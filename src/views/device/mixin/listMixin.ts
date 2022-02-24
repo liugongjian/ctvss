@@ -414,6 +414,14 @@ export default class ListMixin extends Mixins(DeviceMixin) {
       let res: any
       this.loading.list = true
       params.dirId = this.dirId ? this.dirId : 0
+      const searchKey = this.$route.query.searchKey
+      if (searchKey) {
+        params.searchKey = searchKey
+      }
+      const statusKey = this.$route.query.statusKey
+      if (statusKey !== 'all') {
+        params.statusKey = statusKey
+      }
       const axiosSource = axios.CancelToken.source()
       this.axiosSources.push(axiosSource)
       res = await getDevices(params, axiosSource.token)
@@ -749,6 +757,13 @@ export default class ListMixin extends Mixins(DeviceMixin) {
       deviceIdAndTypes.push({
         deviceId: this.deviceId,
         devicieType: 'nvr'
+      })
+    } else if (this.isPlatform) {
+      deviceIdAndTypes = this.deviceList.map(device => {
+        return {
+          deviceId: device.deviceId,
+          deviceType: 'platform,' + device.deviceType
+        }
       })
     } else {
       deviceIdAndTypes = this.deviceList.map(device => {

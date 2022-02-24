@@ -37,3 +37,20 @@ export const getSums = (data: any) => {
     return ''
   }
 }
+
+/**
+ * 设置目录树设备流状态
+ */
+export const setDirsStreamStatus = (dirs: any) => {
+  return dirs.map((dir: any) => {
+    if (!dir.streamStatus && dir.deviceStreams && dir.deviceStreams.length > 0) {
+      const hasOnline = dir.deviceStreams.some((stream: any) => {
+        return stream.streamStatus === 'on'
+      })
+      if (hasOnline) {
+        dir.streamStatus = 'on'
+      }
+    }
+    return dir
+  })
+}

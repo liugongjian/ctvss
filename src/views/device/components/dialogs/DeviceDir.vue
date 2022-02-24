@@ -9,6 +9,8 @@
   >
     <div v-loading="loading.dir" class="tree-wrap">
       <el-tree
+        v-if="!outerSearch.revertSearchFlag"
+        key="device-dir-el-tree-original"
         ref="dirTree"
         node-key="id"
         highlight-current
@@ -31,11 +33,35 @@
           </span>
         </span>
       </el-tree>
+      <el-tree
+        v-else
+        key="device-dir-el-tree-filter"
+        ref="dirTree"
+        node-key="id"
+        highlight-current
+        :data="dirList"
+        :props="treeProp"
+        default-expand-all
+        @node-click="selectDevice"
+      >
+        <span
+          slot-scope="{node, data}"
+          class="custom-tree-node"
+          :class="{'online': data.deviceStatus === 'on'}"
+        >
+          <span class="node-name">
+            <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
+            <svg-icon :name="data.type" />
+            {{ node.label }}
+            <span class="sum-icon">{{ getSums(data) }}</span>
+          </span>
+        </span>
+      </el-tree>
     </div>
   </el-dialog>
 </template>
 <script lang="ts">
-import { Component, Prop, Mixins } from 'vue-property-decorator'
+import { Component, Prop, Mixins, Inject } from 'vue-property-decorator'
 import IndexMixin from '../../mixin/indexMixin'
 import { GroupModule } from '@/store/modules/group'
 import { Device } from '@/type/device'
@@ -51,6 +77,7 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
   }
 })
 export default class extends Mixins(IndexMixin) {
+  @Inject('outerSearch') private outerSearch?: any
   @Prop()
   private device!: Device
   private dialogVisible = true
@@ -76,9 +103,16 @@ export default class extends Mixins(IndexMixin) {
       this.loading.dir = true
       const res = await getDeviceTree({
         groupId: this.currentGroupId,
+        searchKey: this.outerSearch.searchKey || undefined,
+        statusKey: this.outerSearch.statusKey !== 'all' ? this.outerSearch.statusKey : undefined,
         id: 0
       })
       this.dirList = this.setDirsStreamStatus(res.dirs)
+
+      // 根据搜索结果 组装 目录树（柳州搜索新增功能）
+      if (this.outerSearch.searchKey || this.outerSearch.statusKey !== 'all') {
+        this.dirList = this.transformDirList(this.dirList)
+      }
     } catch (e) {
       this.dirList = []
       console.log(e)

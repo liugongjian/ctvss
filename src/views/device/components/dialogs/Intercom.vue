@@ -1,9 +1,10 @@
 <template>
   <el-dialog
     title="语音对讲"
-    :visible="ifIntercom"
+    :visible="true"
     :close-on-click-modal="true"
     :append-to-body="true"
+    :destroy-on-close="true"
     class="intercomBox"
     width="80%"
     @close="closeThis"
@@ -13,7 +14,7 @@
         <div class="intercomPlayer live-view">
           <player
             v-if="intercomInfo.url"
-            type="flv"
+            :type="intercomInfo.type"
             :codec="intercomInfo.codec"
             :url="intercomInfo.url"
             :is-live="true"
@@ -22,8 +23,11 @@
             :auto-play="true"
             :has-control="false"
             :has-playback="true"
+            :default-volume="30"
             :device-name="intercomInfo.deviceName"
             :stream-num="intercomInfo.streamNum"
+            :all-address="intercomInfo.allAddress"
+            @onRetry="onRetry"
           />
           <div v-if="!intercomInfo.url && !intercomInfo.loading" class="tip-text">{{ intercomInfo.errorMsg || '无信号' }}</div>
         </div>
@@ -34,8 +38,8 @@
             <div ref="intercomMicroVolCtx" class="intercomMicroVolCtx" />
           </div>
           <div class="intercomMicroBtn"
-               @mousedown.prevent="intercomMousedown"
-               @mouseup.prevent="intercomMouseup"
+               @mousedown="intercomMousedown"
+               @mouseup="intercomMouseup"
                @mouseleave="intercomMouseleave"
           >
             <svg-icon name="microphone" width="66px" height="66px" />
@@ -88,7 +92,7 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   private closeThis() {
-    this.$emit('onIntercom')
+    this.$emit('close')
   }
 
   private mounted() {
@@ -153,6 +157,17 @@ export default class extends Mixins(ScreenMixin) {
               this.ws.close()
             }
           }
+          this.ws.onerror = () => {
+            this.$message.error('连接已被提前终止')
+            this.intercomMouseup()
+          }
+          this.ws.onmessage = (e:any) => {
+            const { data } = e
+            console.log('message-data=======>', data)
+            if (data === 'streamserver error') {
+              this.intercomMouseup()
+            }
+          }
         } catch (e) {
           console.log(`连接错误：${e}`)
         }
@@ -178,8 +193,8 @@ export default class extends Mixins(ScreenMixin) {
           deviceId: this.intercomInfo.deviceId,
           audioKey: this.audioKey
         }
+        this.stopRecord()
         stopTalk(param).then(() => {
-          this.stopRecord()
           this.last = Date.now()
         }).catch((err:any) => {
           this.last = Date.now()
@@ -309,20 +324,26 @@ export default class extends Mixins(ScreenMixin) {
     // 将压缩过的数据转成pcm格式数据
     return this.floatTo16BitPCM(result)
   }
+
+  private onRetry(aruments) {
+    this.$emit('onRetry', aruments)
+  }
 }
 </script>
 <style lang="scss">
 .intercomBox{
   .intercomPlayer{
     video{
-      width: 100%;
+      width: 100% !important;
       position: static; // 清空device/preview 中使用liveview组件的副作用
     }
     .controls{
       display: none;
     }
     .video-ref{
-      width: 100%;
+      width: 100% !important;
+      height: 100% !important;
+      position: static !important;
     }
     .video-wrap{
       position: static; // 清空device/preview 中使用liveview组件的副作用
@@ -345,8 +366,8 @@ export default class extends Mixins(ScreenMixin) {
 <style lang="scss" scoped>
 .intercomBox{
   ::v-deep .el-dialog__body{
-      height: 70%;
-    }
+    height: 70%;
+  }
 }
 .intercomPlayer{
   width: 70%;
@@ -368,6 +389,7 @@ export default class extends Mixins(ScreenMixin) {
     transform:translate(-50%,-50%)
   }
   .intercomMicroBtn{
+    display: inline-block;
     cursor: pointer;
     width: 70px;
     height: 70px;

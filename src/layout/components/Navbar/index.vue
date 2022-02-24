@@ -72,7 +72,8 @@
         </div>
       </template>
       <template v-else>
-        <div class="search-box">
+        <!-- 柳州版本暂时隐藏全局搜索入口 -->
+        <!-- <div class="search-box">
           <div v-if="!isLight" class="search-box__form" @click.stop="focusSearch">
             <span class="search-box__placeholder">搜索设备</span>
             <span class="search-box__icon"><svg-icon name="search" width="15" height="15" /></span>
@@ -89,7 +90,7 @@
               </el-button>
             </el-form>
           </div>
-        </div>
+        </div> -->
         <div :class="['links', ctLogin ? 'ct-login' : '']">
           <a target="_blank" href="https://vcn.ctyun.cn/document/api/">API文档</a>
           <span v-if="!ctLogin" class="links__split"> | </span>
@@ -282,16 +283,18 @@ export default class extends Mixins(DashboardMixin) {
    * 下拉框出现时刷新下拉列表
    */
   private visibleChange(val) {
-    
-    console.log(111);
-    
-    val && GroupModule.GetGroupList()
+    // 当条目数为20倍数时不需要首次加载
+    if (this.groupList.length % 20 !== 0) {
+      val && GroupModule.GetGroupList()
+    }
   }
 
   /**
    * 懒加载顶部用户下拉框
    */
   private async loadmore() {
+    // 当条目数不为20倍数时不需要懒加载
+    if (this.groupList.length % 20 !== 0) return
     // 加宽下拉加载触发限制时，会触发多次，在这使用节流限制
     if (!this.loading.group && !this.lazyloadTimer) {
       this.loading.group = true

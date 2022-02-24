@@ -3,6 +3,9 @@ import { prepareUrl, srsRtcPlayerAsync } from '@/utils/webrtc'
 import { BasePlayer } from './BasePlayer'
 
 export class RtcPlayer extends BasePlayer {
+  private rtc?: any
+  private rtcConf: any
+
   public init() {
     if (!window.RTCPeerConnection) {
       throw new Error('当前浏览器不支持Webrtc播放器')
@@ -12,20 +15,47 @@ export class RtcPlayer extends BasePlayer {
     this.wrap.innerHTML = ''
     this.wrap.append(videoElement)
 
-    const conf = prepareUrl(this.source)
-    const sdk = srsRtcPlayerAsync()
-    sdk.onaddstream = (event: any) => {
+    const tempURL = this.allAddress.webrtcUrl ? this.allAddress.webrtcUrl : this.source
+
+    this.rtcConf = prepareUrl(tempURL)
+    this.rtc = srsRtcPlayerAsync()
+
+    this.rtc.onaddstream = (event: any) => {
       videoElement.srcObject = event.stream
       this.autoPlayVideo(videoElement)
     }
 
-    sdk.play(conf.apiUrl, conf.streamUrl).then((session: any) => {
-      console.log(session)
-    }).catch((error: any) => {
-      sdk.close()
-      throw new Error(error)
-    })
+    // 断连后尝试重新连接
+    this.rtc.onconnectionstatechange = (state: string) => {
+      if (state === 'disconnected') {
+        this.retry(true)
+      }
+    }
+
+    this.connectRtc()
+
     this.player = videoElement
+  }
+
+  /**
+   * 进行WebRTC SDP协商
+   */
+  private connectRtc() {
+    this.rtc.play(this.rtcConf.apiUrl, this.rtcConf.streamUrl).then(() => {
+      // console.log(session)
+    }).catch(() => {
+      this.retry()
+    })
+  }
+
+  /**
+   * 重新拉流
+   */
+  private retry(immediate: boolean = false) {
+    this.rtc.close()
+    this.onRetry({
+      immediate
+    })
   }
 
   /**
@@ -35,6 +65,7 @@ export class RtcPlayer extends BasePlayer {
     this.player.addEventListener('play', this.onPlay.bind(this))
     this.player.addEventListener('pause', this.onPause.bind(this))
     this.player.addEventListener('timeupdate', this.onTimeUpdate.bind(this))
+    this.player.addEventListener('volumechange', this.onVolumeChange.bind(this))
     this.player.addEventListener('durationchange', this.onDurationChange.bind(this))
     this.player.addEventListener('ended', this.onEnded.bind(this))
     this.player.addEventListener('seeked', this.onSeeked.bind(this))
@@ -62,6 +93,7 @@ export class RtcPlayer extends BasePlayer {
    */
   public reloadPlayer() {
     this.player = null
+    this.rtc.close()
     this.init()
   }
 
@@ -107,5 +139,11 @@ export class RtcPlayer extends BasePlayer {
     this.player.removeEventListener('progress', this.onBuffered)
     this.player.removeEventListener('loadstart', this.onLoadStart)
     this.player.removeEventListener('canplay', this.onCanplay)
+    this.player.removeEventListener('volumechange', this.onVolumeChange)
+    if (this.rtc) {
+      this.rtc.pc && this.rtc.pc.connectionState !== 'close' && this.rtc.pc.removeStream(this.player.srcObject)
+      this.rtc.close()
+      this.rtc.pc = null
+    }
   }
 }

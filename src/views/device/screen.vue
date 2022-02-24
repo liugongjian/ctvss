@@ -64,6 +64,8 @@
               :style="{height: `${maxHeight}px`}"
             >
               <el-tree
+                v-if="!search.revertSearchFlag"
+                key="screen-el-tree-original"
                 ref="dirTree"
                 empty-text="暂无目录或设备"
                 :data="dirList"
@@ -72,6 +74,58 @@
                 lazy
                 :load="loadDirs"
                 :props="treeProp"
+                @node-click="openScreen"
+              >
+                <span
+                  slot-scope="{node, data}"
+                  class="custom-tree-node"
+                  :class="{'online': data.deviceStatus === 'on', 'offline': (data.deviceStatus !== 'on' && data.type === 'ipc')}"
+                  @contextmenu="($event, node)"
+                >
+                  <span class="node-name">
+                    <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
+                    <span v-else class="node-dir">
+                      <svg-icon name="dir" width="15" height="15" />
+                      <svg-icon name="dir-close" width="15" height="15" />
+                    </span>
+                    <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
+                    {{ node.label }}
+                    <span class="sum-icon">{{ getSums(data) }}</span>
+                    <span class="alert-type">{{ renderAlertType(data) }}</span>
+                    <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
+                  </span>
+                  <div class="tools" @click.stop.prevent>
+                    <el-tooltip
+                      class="item"
+                      effect="dark"
+                      content="切换主子码流"
+                      placement="top"
+                      :open-delay="500"
+                    >
+                      <StreamSelector v-if="data.type === 'ipc'" class="set-stream" :stream-size="data.multiStreamSize" :streams="data.deviceStreams" @onSetStreamNum="openScreen(data, ...arguments)" />
+                    </el-tooltip>
+                    <el-tooltip
+                      class="item"
+                      effect="dark"
+                      content="更多操作"
+                      placement="top"
+                      :open-delay="300"
+                    >
+                      <OperateSelector v-if="data.type === 'nvr' || data.type === 'dir' || data.type === 'group'" @onSetOperateValue="setOperateValue($event, node)" />
+                    </el-tooltip>
+                  </div>
+                </span>
+              </el-tree>
+              <el-tree
+                v-else
+                key="screen-el-tree-filter"
+                ref="dirTree"
+                empty-text="暂无目录或设备"
+                :data="dirList"
+                node-key="id"
+                highlight-current
+                :props="treeProp"
+                default-expand-all
                 @node-click="openScreen"
               >
                 <span
@@ -160,6 +214,26 @@
                 </div>
               </div>
             </div>
+            <div v-if="currentGroup.inProtocol === 'gb28181'" class="dir-list__search">
+              <el-dropdown placement="top-start" @command="changeSearchStatus">
+                <el-button class="dir-list__search-button" :type="search.statusKey === 'all' ? 'default': 'primary'" size="mini" style="margin-right: 5px!important">
+                  <svg-icon name="filter" />
+                </el-button>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item v-for="option in search.statusOptions" :key="option.label" :command="option.value">
+                    <i v-if="search.statusKey === option.value" class="el-icon-check search-check" />{{ option.label }}
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+              <el-tooltip class="item" effect="dark" content="支持国标ID、设备IP、设备名查询" placement="top-start">
+                <!-- TIPS 需要处理为空时候的直接回车 -->
+                <el-input v-model="search.inputKey" size="mini" placeholder="支持国标ID、设备IP、设备名查询" @keyup.enter.native="enterKeySearch" />
+              </el-tooltip>
+              <el-button class="dir-list__search-button" type="primary" size="mini" icon="el-icon-search" :disabled="!search.inputKey.length" @click="filterSearchResult" />
+              <el-button v-if="search.revertSearchFlag" class="dir-list__search-button" type="primary" size="mini" @click="revertSearchResult">
+                <svg-icon name="revert" />
+              </el-button>
+            </div>
           </div>
         </div>
         <div class="device-list__right">
@@ -214,7 +288,7 @@
                       <div class="live-view">
                         <player
                           v-if="screen.url"
-                          type="flv"
+                          :type="screen.type || 'flv'"
                           :codec="screen.codec"
                           :url="screen.url"
                           :is-live="true"
@@ -226,12 +300,18 @@
                           :has-playback="true"
                           :device-name="screen.deviceName"
                           :stream-num="screen.streamNum"
+                          :device-id="screen.deviceId"
+                          :video-info="screen.videoInfo"
+                          :all-address="screen.allAddress"
+                          :default-volume="screen.volume"
                           @onCanPlay="playEvent(screen, ...arguments)"
                           @onRetry="onRetry(screen, ...arguments)"
                           @onPlayback="onPlayback(screen)"
                           @onFullscreen="screen.fullscreen();fullscreen()"
                           @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
-                          @onIntercom="onIntercom(screen,true)"
+                          @onIntercom="onIntercom(screen, ...arguments)"
+                          @onTypeChange="onTypeChange(screen, ...arguments)"
+                          @onVolumeChange="onVolumeChange(screen, ...arguments)"
                         />
                         <div v-if="!screen.url && !screen.loading" class="tip-text">{{ screen.errorMsg || '无信号' }}</div>
                       </div>
@@ -249,6 +329,7 @@
                         @onCalendarFocus="onCalendarFocus(screen, ...arguments)"
                         @onCanPlay="playEvent(screen, ...arguments)"
                         @onPlaylive="onPlaylive(screen)"
+                        @onVolumeChange="onVolumeChange(screen, ...arguments)"
                         @onFullscreen="screen.fullscreen();fullscreen()"
                         @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
                       />
@@ -282,11 +363,16 @@
             </div>
           </div>
         </div>
-        <ptz-control v-if="!polling.isStart" :device-id="selectedDeviceId" />
+        <ptz-control v-if="!polling.isStart && currentGroupInProtocol === 'gb28181'" :device-id="selectedDeviceId" />
       </div>
     </el-card>
 
-    <intercom-dialog v-if="ifIntercom" :if-intercom="ifIntercom" :intercom-info="intercomInfo" @onIntercom="onIntercom(intercomInfo,false)" />
+    <intercom-dialog
+      v-if="ifIntercom"
+      :intercom-info="intercomInfo"
+      @onRetry="onRetry(intercomInfo, ...arguments)"
+      @close="closeIntercom"
+    />
     <div id="mouse-right" class="mouse-right" @click="videosOnPolling(null, true)">轮巡当前目录</div>
     <device-dir v-if="dialogs.deviceDir" @on-close="onDeviceDirClose" />
   </div>
@@ -379,7 +465,21 @@ export default class extends Mixins(ScreenMixin) {
   private intercomInfo = {}
 
   @Watch('currentGroupId', { immediate: true })
-  private onCurrentGroupChange(groupId: String) {
+  private onCurrentGroupChange(groupId: String, oldGroupId: String) {
+    // search为inject变量，不能直接整体赋值为其他，否则inject会失效
+    this.search.inputKey = ''
+    this.search.searchKey = ''
+    this.search.statusKey = 'all'
+    this.search.revertSearchFlag = false
+    if (oldGroupId) {
+      const query = {
+        searchKey: '',
+        statusKey: 'all'
+      }
+      this.$router.replace({
+        query
+      })
+    }
     if (!groupId) return
     this.$nextTick(() => {
       this.screenList.forEach(screen => {
@@ -387,12 +487,8 @@ export default class extends Mixins(ScreenMixin) {
         this.currentIndex = 0
       })
       this.initDirs()
+      this.stopPolling()
     })
-
-    // TODO: 泰州专属
-    if (groupId === '80337930297556992') {
-      this.maxSize = 1
-    }
   }
 
   @Watch('currentIndex')
@@ -408,6 +504,7 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   private mounted() {
+    this.initSearchStatus()
     this.initScreen()
     this.calMaxHeight()
     this.initScreenCache('screen')
@@ -433,14 +530,6 @@ export default class extends Mixins(ScreenMixin) {
   private closeScreen(screen: Screen) {
     this.selectedDeviceId = ''
     screen.reset()
-  }
-
-  /**
-   * 清空初始化树状态默认方法
-   */
-  public async initTreeStatus() {
-    // TODO: 对泰州用户单独处理，后续需删除
-    this.dealTzTree()
   }
 
   /**
@@ -472,6 +561,7 @@ export default class extends Mixins(ScreenMixin) {
       screen.roleId = item.roleId || ''
       screen.realGroupId = item.realGroupId || ''
       screen.realGroupInProtocol = item.realGroupInProtocol || ''
+
       if (streamNum && !isNaN(streamNum)) {
         screen.streamNum = streamNum
       } else {
@@ -622,7 +712,6 @@ export default class extends Mixins(ScreenMixin) {
         continue
       } else {
         this.screenList[i].deviceId = this.autoPlayDevices[i].id
-        this.screenList[i].type = this.autoPlayDevices[i].type
         this.screenList[i].deviceName = this.autoPlayDevices[i].label
         this.screenList[i].inProtocol = this.currentGroupInProtocol!
       }
@@ -662,14 +751,12 @@ export default class extends Mixins(ScreenMixin) {
    * 轮巡
    */
   private pollingVideos() {
-    console.log('轮巡')
     const length = this.pollingDevices.length
     this.currentPollingIndex = this.currentPollingIndex % length
     this.currentIndex = 0
     for (let i = 0; i < this.maxSize; i++) {
       this.screenList[i].reset()
       this.screenList[i].deviceId = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].id
-      this.screenList[i].type = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].type
       this.screenList[i].deviceName = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].label
       this.screenList[i].inProtocol = this.currentGroupInProtocol!
       this.screenList[i].getUrl()
@@ -715,10 +802,33 @@ export default class extends Mixins(ScreenMixin) {
     screen.isLive = false
   }
 
-  // 实时对讲
-  private onIntercom(screen:any, flag:boolean) {
+  /**
+   * 实时对讲
+   */
+  private onIntercom(screen: Screen, type: string) {
+    for (let i = 0; i < this.screenList.length; i++) {
+      this.screenList[i].volume = 0
+    }
+    screen.type = type.toLowerCase()
     this.intercomInfo = screen
-    this.ifIntercom = flag
+    this.ifIntercom = true
+  }
+
+  /**
+   * 关闭实时对讲
+   */
+  private closeIntercom() {
+    for (let i = 0; i < this.screenList.length; i++) {
+      this.screenList[i].volume = 30
+    }
+    this.ifIntercom = false
+  }
+
+  /**
+   * 切换播放格式
+   */
+  private onTypeChange(screen: Screen, type: string) {
+    screen.type = type.toLowerCase()
   }
 
   /**
