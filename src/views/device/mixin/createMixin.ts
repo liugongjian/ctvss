@@ -1,16 +1,21 @@
 import { Component, Watch, Vue, Inject } from 'vue-property-decorator'
+import { DeviceAddress } from '@/type/device'
 import { GroupModule } from '@/store/modules/group'
 import { UserModule } from '@/store/modules/user'
 import { DeviceModule } from '@/store/modules/device'
-import { getChildAddress } from '@/api/device'
 import { getDeviceResources } from '@/api/billing'
 import { DeviceTips } from '@/dics/tips'
 import { industryMap } from '@/assets/region/industry'
 import { networkMap } from '@/assets/region/network'
-import { allRegionList } from '@/assets/region/region'
-import { suffixZero } from '@/utils/number'
+import AddressCascader from '@/views/components/AddressCascader.vue'
+import ResourceTabs from '../components/ResourceTabs.vue'
 
-@Component
+@Component({
+  components: {
+    AddressCascader,
+    ResourceTabs
+  }
+})
 export default class CreateMixin extends Vue {
   @Inject({ from: 'deviceRouter', default: null }) public deviceRouter!: Function
   @Inject({ from: 'initDirs', default: null }) public initDirs!: Function
@@ -19,14 +24,6 @@ export default class CreateMixin extends Vue {
   public orginalResourceIdList: Array<string> = []
   public orginalChannelSize = 0
   public inNetworkType = ''
-  public addressProps: any = {
-    value: 'code',
-    label: 'name',
-    children: 'children',
-    checkStrictly: 'true',
-    lazy: true,
-    lazyLoad: this.loadChildAddress
-  }
 
   public loading = {
     account: false,
@@ -39,19 +36,6 @@ export default class CreateMixin extends Vue {
   // public deviceVendorList = ['海康', '大华', '宇视', '科达', '华为', '其他']
 
   public tips = DeviceTips
-
-  public regionList: any = []
-
-  // public get longLatRules() {
-  //   if (this.lianzhouFlag) {
-  //     return [
-  //       { required: true, message: '请选择经纬度', trigger: 'blur' },
-  //       { validator: this.validateLonglat, trigger: 'blur' }
-  //     ]
-  //   } else {
-  //     return []
-  //   }
-  // }
 
   public get currentGroup() {
     return GroupModule.group
@@ -139,84 +123,22 @@ export default class CreateMixin extends Vue {
   public mounted() {
     if (!this.isUpdate) {
       this.form.gbRegion = this.currentGroup!.gbRegion
+      this.form.gbRegionLevel = this.currentGroup!.gbRegionLevel
       if (Object.keys(industryMap).indexOf(this.currentGroup!.industryCode) > -1) {
         this.form.industryCode = this.currentGroup!.industryCode
       }
       if (Object.keys(networkMap).indexOf(this.currentGroup!.networkCode) > -1) {
         this.form.networkCode = this.currentGroup!.networkCode
       }
-      this.cascaderInit()
     }
   }
 
   /**
-   * 将gbRegion转成el-cascader格式的数组
+   * 选择设备地址
    */
-  public async cascaderInit() {
-    this.regionList = allRegionList
-    if (!this.form.gbRegion) return
-    const list = []
-    for (let i = 0; i < 4; i++) {
-      if (parseInt(this.form.gbRegion!.substring(i * 2, i * 2 + 2)) !== 0) {
-        list.push(parseInt(this.form.gbRegion!.substring(0, (i + 1) * 2)))
-      }
-    }
-    await this.regionChange(list)
-    this.$nextTick(() => {
-      this.form.address = list
-      this.addressChange()
-    })
-  }
-
-  /**
-   * 填充需要动态设置的第4级地址列表
-   */
-  public async regionChange(val: any) {
-    if (val.length !== 4 || !val[0] || !val[1] || !val[2] || !val[3]) {
-      return
-    }
-    let index1 = this.regionList.findIndex((item: any) => {
-      return item.code === val[0]
-    })
-    if (index1 !== -1) {
-      let index2 = this.regionList[index1].children.findIndex((item: any) => {
-        return item.code === val[1]
-      })
-      if (index2 !== -1) {
-        let index3 = this.regionList[index1].children[index2].children.findIndex((item: any) => {
-          return item.code === val[2]
-        })
-        if (index3 !== -1) {
-          this.regionList[index1].children[index2].children[index3].children = await getChildAddress(val[2], 4)
-        }
-      }
-    }
-  }
-
-  /**
-   * 当选中设备地址变化时触发
-   */
-  public async addressChange() {
-    if (!this.form.address) return
-    const addressCascader: any = this.$refs['addressCascader']
-    if (addressCascader && addressCascader.getCheckedNodes()[0]) {
-      addressCascader.dropDownVisible = false // 选择后自动关闭弹框
-      const currentAddress = addressCascader.getCheckedNodes()[0].data
-      this.form.gbRegion = suffixZero(currentAddress.code, 8) // 不足8位的补0
-      this.form.gbRegionLevel = currentAddress.level
-    }
-  }
-
-  /**
-   * 动态加载级联地址子集
-   */
-  public async loadChildAddress(node, resolve) {
-    if (node.level < 3) { // level1-3是前端保存的静态省市区数据
-      resolve()
-      return
-    }
-    let list = await getChildAddress(node.data.code, node.level + 1)
-    resolve(list)
+  public onDeviceAddressChange(region: DeviceAddress) {
+    this.form.gbRegion = region.code
+    this.form.gbRegionLevel = region.level
   }
 
   /*
@@ -416,7 +338,6 @@ export default class CreateMixin extends Vue {
   public validateResources(rule: any, value: string, callback: Function) {
     let hasVideo = false
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    let hasUpload = false
     const remainError: any = []
     this.form.resources.forEach((resource: any) => {
       // 剩余可接入设备数
@@ -437,7 +358,6 @@ export default class CreateMixin extends Vue {
           }
           break
         case 'VSS_UPLOAD_BW':
-          hasUpload = true
           break
       }
     })
@@ -477,7 +397,7 @@ export default class CreateMixin extends Vue {
   }
 
   // 接受子组件传来的VSSAIApps
-  private changeVSSAIApps(res:any) {
+  private changeVSSAIApps(res: any) {
     if (this.isUpdate) {
       this.form.aIApps = res
     }
