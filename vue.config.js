@@ -1,4 +1,5 @@
 const path = require('path')
+const styleLintPlugin = require('stylelint-webpack-plugin')
 const environment = process.argv[3] === '--env' ? process.argv[4] : 'dev'
 const isHttps = process.argv[process.argv.length - 1] === '--https'
 const name = '天翼云视频云网平台-客户控制台'
@@ -26,7 +27,7 @@ const serverAddress = serverAddressMapping[environment]
 const devServerPort = portMapping[environment]
 
 console.info(`启动${environment}环境:`, serverAddress)
-console.info(`是否开启https:`, isHttps)
+console.info('是否开启https:', isHttps)
 
 module.exports = {
   publicPath: process.env.NODE_ENV === 'production' ? '/vss/' : '/',
@@ -123,6 +124,15 @@ module.exports = {
     config.plugins.delete('progress')
     // replace with another progress output plugin to solve the this bug:
     // https://github.com/vuejs/vue-cli/issues/4557
+    config.plugin('stylelint').use(styleLintPlugin, [
+      {
+        files: ['**/*.{html,vue,css,sass,scss}'],
+        // fix: true, // 自动修复
+        cache: true,
+        emitError: true,
+        failOnError: false
+      }
+    ])
     config.plugin('simple-progress-webpack-plugin')
       .use(require.resolve('simple-progress-webpack-plugin'), [{
         format: 'compact'

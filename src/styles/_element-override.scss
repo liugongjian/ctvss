@@ -6,6 +6,7 @@
 
   &:hover {
     color: $primaryHover;
+
     &:after {
       border: none;
     }
@@ -26,7 +27,8 @@
   padding: 10px;
 }
 
-.el-input-group__append, .el-input-group__prepend {
+.el-input-group__append,
+.el-input-group__prepend {
   color: inherit;
 }
 
@@ -34,7 +36,8 @@
   background-color: #f3f3f3;
 }
 
-.el-table .el-table__header tr, .el-table .el-table__header th {
+.el-table .el-table__header tr,
+.el-table .el-table__header th {
   background-color: #f3f3f3;
 }
 
@@ -50,15 +53,19 @@
 .el-page-header {
   margin-bottom: 15px;
 }
+
 .el-page-header__left {
   margin-right: 0;
+
   .el-icon-back:hover {
     color: $primary;
   }
-  &::after {
+
+  &:after {
     display: none;
   }
 }
+
 .el-page-header__title {
   display: none;
 }
@@ -108,7 +115,7 @@
   color: $textGrey;
 }
 
-.el-select-group__title  {
+.el-select-group__title {
   color: #bbb;
 }
 
@@ -124,6 +131,7 @@
 
 .el-date-picker .has-records {
   position: relative;
+
   &:after {
     content: ' ';
     background: $success;
@@ -143,20 +151,25 @@
 
 .el-message-box {
   padding-bottom: 20px;
+
   .el-message-box__header {
     padding: 20px;
     padding-bottom: 10px;
     text-align: center;
+
     .el-message-box__close {
       color: #888;
     }
   }
+
   .el-message-box__content {
     padding: 10px 20px;
   }
+
   .el-message-box__btns {
     text-align: center;
     padding-top: 10px;
+
     .el-button--small {
       padding: 10px 20px;
       font-size: 14px;
@@ -171,7 +184,7 @@
   }
 }
 
-.el-tabs__nav-wrap::after {
+.el-tabs__nav-wrap:after {
   background-color: $borderGrey2;
 }
 
