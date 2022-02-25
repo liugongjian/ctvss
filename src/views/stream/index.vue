@@ -171,18 +171,21 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-.stream-list__table {
+.stream-list__lable {
   ::v-deep .el-table__body {
     td {
       cursor: pointer;
     }
+
     .col-action {
       cursor: default;
     }
   }
 }
+
 .stream-name {
   cursor: pointer;
+
   &__id {
     color: $primary;
   }
