@@ -107,7 +107,6 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   private beforeunloadHandler(e: any) {
-    e.returnValue = '关闭提示'
     this.intercomMouseup()
   }
 
