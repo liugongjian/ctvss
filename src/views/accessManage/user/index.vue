@@ -429,8 +429,9 @@ export default class extends Vue {
 </script>
 
 <style lang='scss' scoped>
-  $borderGrey: #EEEEEE;
-  $titleBackground: #F8F8F8;
+  $borderGrey: #eee;
+  $titleBackground: #f8f8f8;
+
   ::v-deep {
     .el-card {
       &__body {
@@ -438,16 +439,19 @@ export default class extends Vue {
         position: relative;
       }
     }
+
     .titleBar .el-button {
       &--medium {
         border-radius: 0;
         border: none;
         height: 100%;
       }
+
       &--default {
         background: $titleBackground;
       }
     }
+
     .el-tree {
       .el-tree-node {
         &__content {
@@ -456,27 +460,32 @@ export default class extends Vue {
       }
     }
   }
+
   .handle {
     height: 100%;
     position: absolute;
     width: 8px;
     border-right: 1px solid $borderGrey;
     cursor: ew-resize;
+
     &:hover {
       border-right-color: #ccc;
     }
   }
+
   .titleBar {
     height: 40px;
     border-bottom: 1px solid $borderGrey;
     display: flex;
     background: $titleBackground;
+
     &__menu {
       width: 250px;
       overflow: hidden;
-      transition: .2s;
+      transition: 0.2s;
       display: flex;
       justify-content: space-between;
+
       &__tools {
         .el-button {
           border: none;
@@ -484,51 +493,60 @@ export default class extends Vue {
           margin-right: 10px;
           font-size: 20px;
         }
+
         &__icon {
           width: 16px !important;
           height: 16px !important;
-          color: #000000;
+          color: #000;
         }
       }
     }
+
     &__title {
       padding-left: 20px;
       display: flex;
       align-items: center;
     }
   }
+
   .user-content {
     height: 85vh;
     min-height: 0;
     display: flex;
+
     &__menu {
       overflow-x: auto;
       width: 250px;
       height: 100%;
       flex-shrink: 0;
-      transition: .2s;
+      transition: 0.2s;
       padding: 10px;
+
       &__item {
         flex: 1;
         position: relative;
         overflow: hidden;
         font-size: 14px;
         padding-right: 8px;
+
         &__btns {
-          background: #F5F7FA;
+          background: #f5f7fa;
           position: absolute;
           right: 5px;
           top: -10px;
           display: none;
+
           &__icon {
-            color: #6E7C89;
+            color: #6e7c89;
           }
         }
+
         &:hover .user-content__menu__item__btns {
           display: block;
         }
       }
     }
+
     &__body {
       overflow: auto;
       width: 100%;
@@ -536,41 +554,51 @@ export default class extends Vue {
       flex-shrink: 1;
     }
   }
+
   .collapsed {
     .handle {
       display: none;
     }
+
     .titleBar__menu {
       width: 50px !important;
     }
+
     .user-content__menu {
-      width: 0px !important;
+      width: 0 !important;
       padding-left: 0;
       padding-right: 0;
-      border-right: 0px
+      border-right: 0;
     }
   }
+
   .dragging {
     cursor: ew-resize;
 
-    .titleBar__menu, .user-content__menu {
+    .titleBar__menu,
+    .user-content__menu {
       transition: none;
     }
+
     * {
-      user-select:none;
+      user-select: none;
     }
   }
+
   .head {
     display: flex;
     justify-content: space-between;
     margin-bottom: 20px;
+
     &__right {
       display: flex;
+
       .el-input {
-        margin-right: 10px
+        margin-right: 10px;
       }
     }
   }
+
   :hover .click__user {
     cursor: pointer;
   }

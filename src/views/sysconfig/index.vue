@@ -95,9 +95,13 @@ const validPhone = (rule, value, callback) => {
   name: 'Sysconfig'
 })
 export default class extends Vue {
+<<<<<<< Updated upstream
   private scaleKind = scaleKind
   private activeName = 'common'
   public form:any = {
+=======
+  public form: any = {
+>>>>>>> Stashed changes
     active: false,
     phoneNumber: '',
     screen: 'false',
