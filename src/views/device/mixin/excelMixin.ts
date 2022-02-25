@@ -96,12 +96,19 @@ export default class ExcelMixin extends Vue {
           }
         },
         {
-          title: { header: '设备MAC地址', key: 'mac', width: 24 },
+          title: { header: '设备MAC地址', key: 'macAddr', width: 24 },
           validation: null
         },
         {
-          title: { header: '杆号', key: 'num', width: 24 },
-          validation: null
+          title: { header: '杆号', key: 'poleId', width: 24, style: { numFmt: '@' } },
+          validation: {
+            type: 'textLength',
+            allowBlank: false,
+            operator: 'between',
+            showErrorMessage: true,
+            formulae: [1, 21],
+            error: '请输入规范杆号。'
+          }
         },
         {
           title: { header: '经度', key: 'deviceLongitude', width: 16 },

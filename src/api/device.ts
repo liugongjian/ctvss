@@ -451,3 +451,13 @@ export const dragCanvasZoom = (params:any): Promise<any> =>
     method: 'post',
     data: params
   })
+
+/**
+ * 校验国标ID
+ */
+export const validGbId = (params: any): Promise<any> =>
+  request({
+    url: '/device/customGbId',
+    method: 'get',
+    params
+  })
