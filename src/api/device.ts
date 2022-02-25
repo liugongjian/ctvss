@@ -365,8 +365,8 @@ export const getChildAddress = async(id: any, level: number) => {
     list = res.areas.map((item: any) => {
       return {
         name: item.name,
-        code: parseInt(item.id),
-        level: parseInt(item.level),
+        code: item.id,
+        level: item.level,
         leaf: item.level === '4' ? true : undefined
       }
     })

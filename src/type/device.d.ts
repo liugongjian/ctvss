@@ -12,7 +12,6 @@ export interface Device {
   gbId?: string;
   gbRegion?: string;
   gbRegionNames?: Array<string>;
-  address?: string;
   industryCode?: string;
   networkCode?: string;
   gbAccount?: string;
@@ -32,4 +31,9 @@ export interface Device {
   streamNum?: number;
   channelNum?: number;
   channelSize?: number;
+}
+
+export interface DeviceAddress {
+  code: string;
+  level: string;
 }

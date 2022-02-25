@@ -1,4 +1,5 @@
-import { Component, Watch, Mixins, Inject } from 'vue-property-decorator'
+import { Component, Watch, Vue, Inject } from 'vue-property-decorator'
+import { DeviceAddress } from '@/type/device'
 import { GroupModule } from '@/store/modules/group'
 import { UserModule } from '@/store/modules/user'
 import { DeviceModule } from '@/store/modules/device'
@@ -6,11 +7,16 @@ import { getDeviceResources } from '@/api/billing'
 import { DeviceTips } from '@/dics/tips'
 import { industryMap } from '@/assets/region/industry'
 import { networkMap } from '@/assets/region/network'
-// 设备地址Mixin
-import deviceAddressMixin from '@/views/mixin/deviceAddressMixin'
+import AddressCascader from '@/views/components/AddressCascader.vue'
+import ResourceTabs from '../components/ResourceTabs.vue'
 
-@Component
-export default class CreateMixin extends Mixins(deviceAddressMixin) {
+@Component({
+  components: {
+    AddressCascader,
+    ResourceTabs
+  }
+})
+export default class CreateMixin extends Vue {
   @Inject({ from: 'deviceRouter', default: null }) public deviceRouter!: Function
   @Inject({ from: 'initDirs', default: null }) public initDirs!: Function
   public form: any = {}
@@ -116,10 +122,18 @@ export default class CreateMixin extends Mixins(deviceAddressMixin) {
   public mounted() {
     if (!this.isUpdate) {
       this.form.gbRegion = this.currentGroup!.gbRegion
+      this.form.gbRegionLevel = this.currentGroup!.gbRegionLevel
     }
-    this.cascaderInit()
     this.form.industryCode = this.currentGroup!.industryCode
     this.form.networkCode = this.currentGroup!.networkCode
+  }
+
+  /**
+   * 选择设备地址
+   */
+  public onDeviceAddressChange(region: DeviceAddress) {
+    this.form.gbRegion = region.code
+    this.form.gbRegionLevel = region.level
   }
 
   /*

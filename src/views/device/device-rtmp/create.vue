@@ -75,14 +75,12 @@
       <el-form-item label="视频标签:" prop="description">
         <Tags v-model="form.tags" class="tags" />
       </el-form-item>
-      <el-form-item v-if="(!isUpdate || form.gbRegion || !form.gbId)" label="设备地址:" prop="address">
-        <el-cascader
-          ref="addressCascader"
-          v-model="form.address"
+      <el-form-item v-if="(!isUpdate || form.gbRegion || !form.gbId)" label="设备地址:" prop="gbRegion">
+        <AddressCascader
+          :code="form.gbRegion"
+          :level="form.gbRegionLevel"
           :disabled="form.gbId !== ''"
-          :options="selectedRegionList"
-          :props="addressProps"
-          @change="addressChange"
+          @change="onDeviceAddressChange"
         />
       </el-form-item>
       <el-form-item v-if="!isUpdate || !!form.industryCode || !form.gbId" label="所属行业:" prop="industryCode">
@@ -97,7 +95,7 @@
       </el-form-item>
       <el-form-item label="配置资源包:" prop="resources">
         <ResourceTabs v-model="form.resources" :is-update="isUpdate"
-                      :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" :device-id="form.deviceId"
+                      :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" :device-id="deviceId"
                       :vss-ai-apps="form.vssAIApps" @on-change="onResourceChange" @changevssaiapps="changeVSSAIApps"
         />
       </el-form-item>
@@ -119,13 +117,11 @@ import { pick } from 'lodash'
 import { createDevice, updateDevice, getDevice } from '@/api/device'
 import { updateDeviceResources } from '@/api/billing'
 import Tags from '@/components/Tags/index.vue'
-import ResourceTabs from '../components/ResourceTabs.vue'
 
 @Component({
   name: 'CreateRtmpDevice',
   components: {
-    Tags,
-    ResourceTabs
+    Tags
   }
 })
 export default class extends Mixins(createMixin) {
@@ -140,14 +136,14 @@ export default class extends Mixins(createMixin) {
     pullUrl: [
       { required: true, message: '请输入拉流地址', trigger: 'blur' }
     ],
-    address: [
-      { required: true, message: '请选择设备地址', trigger: 'blur' }
+    gbRegion: [
+      { required: true, message: '请选择设备地址', trigger: 'change' }
     ],
     industryCode: [
-      { required: true, message: '请选择所属行业', trigger: 'blur' }
+      { required: true, message: '请选择所属行业', trigger: 'change' }
     ],
     networkCode: [
-      { required: true, message: '请选择网络标识', trigger: 'blur' }
+      { required: true, message: '请选择网络标识', trigger: 'change' }
     ],
     resources: [
       { required: true, validator: this.validateResources, trigger: 'blur' }
@@ -171,7 +167,6 @@ export default class extends Mixins(createMixin) {
     resources: [],
     vssAIApps: [],
     aIApps: [],
-    address: [],
     gbId: '',
     gbRegion: '',
     gbRegionLevel: null,
@@ -204,7 +199,6 @@ export default class extends Mixins(createMixin) {
       })
       this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
         'description', 'inType', 'pullType', 'pushType', 'pullUrl', 'tags', 'gbId', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
-      this.cascaderInit()
       // 获取绑定资源包列表
       this.getDeviceResources(info.deviceId, info.deviceType!, info.inProtocol!)
     } catch (e) {

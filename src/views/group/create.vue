@@ -40,14 +40,12 @@
             :disabled="isEdit"
           />
         </el-form-item>
-        <el-form-item v-if="(!isEdit || !form.gbId || form.gbRegion) && form.inProtocol !== 'vgroup'" label="设备地址:" prop="address">
-          <el-cascader
-            ref="addressCascader"
-            v-model="form.address"
+        <el-form-item v-if="(!isEdit || !form.gbId || form.gbRegion) && form.inProtocol !== 'vgroup'" label="设备地址:" prop="gbRegion">
+          <AddressCascader
+            :code="form.gbRegion"
+            :level="form.gbRegionLevel"
             :disabled="form.gbId !== ''"
-            :options="selectedRegionList"
-            :props="addressProps"
-            @change="addressChange"
+            @change="onDeviceAddressChange"
           />
         </el-form-item>
         <el-form-item v-if="(!isEdit || !form.gbId || !!form.industryCode) && form.inProtocol !== 'vgroup'" label="所属行业:" prop="industryCode">
@@ -157,8 +155,9 @@
   </div>
 </template>
 <script lang='ts'>
-import { Component, Mixins } from 'vue-property-decorator'
+import { Component, Vue } from 'vue-property-decorator'
 import { Group } from '@/type/group'
+import { DeviceAddress } from '@/type/device'
 import { GroupModule } from '@/store/modules/group'
 import { InProtocolType, OutProtocolType } from '@/dics'
 import { createGroup, queryGroup, updateGroup } from '@/api/group'
@@ -166,14 +165,13 @@ import { getRegions } from '@/api/region'
 import { industryMap } from '@/assets/region/industry'
 import { networkMap } from '@/assets/region/network'
 import templateBind from '../components/templateBind.vue'
-// 设备地址Mixin
-import deviceAddressMixin from '@/views/mixin/deviceAddressMixin'
+import AddressCascader from '@/views/components/AddressCascader.vue'
 
 @Component({
-  components: { templateBind },
+  components: { templateBind, AddressCascader },
   name: 'CreateGroup'
 })
-export default class extends Mixins(deviceAddressMixin) {
+export default class extends Vue {
   private breadCrumbContent = ''
   private loading = false
   private submitting = false
@@ -185,14 +183,14 @@ export default class extends Mixins(deviceAddressMixin) {
     region: [
       { required: true, message: '请选择区域', trigger: 'change' }
     ],
-    address: [
-      { required: true, message: '请选设备地址', trigger: 'blur' }
+    gbRegion: [
+      { required: true, message: '请选设备地址', trigger: 'change' }
     ],
     industryCode: [
-      { required: true, message: '请选择所属行业', trigger: 'blur' }
+      { required: true, message: '请选择所属行业', trigger: 'change' }
     ],
     networkCode: [
-      { required: true, message: '请选择网络标识', trigger: 'blur' }
+      { required: true, message: '请选择网络标识', trigger: 'change' }
     ],
     inProtocol: [
       { required: true, message: '请选择接入类型', trigger: 'change' }
@@ -221,7 +219,6 @@ export default class extends Mixins(deviceAddressMixin) {
     pushType: 1,
     inNetworkType: 'public',
     outNetworkType: 'public',
-    address: [],
     gbId: '',
     gbRegion: '',
     gbRegionLevel: '',
@@ -278,7 +275,6 @@ export default class extends Mixins(deviceAddressMixin) {
         res.inNetworkType = res.inNetworkType || 'public'
         res.outNetworkType = res.outNetworkType || 'public'
         this.form = res
-        this.cascaderInit()
       } catch (e) {
         this.$message.error(e && e.message)
       } finally {
@@ -322,6 +318,14 @@ export default class extends Mixins(deviceAddressMixin) {
     } finally {
       this.loading = false
     }
+  }
+
+  /**
+   * 选择设备地址
+   */
+  public onDeviceAddressChange(region: DeviceAddress) {
+    this.form.gbRegion = region.code
+    this.form.gbRegionLevel = region.level
   }
 
   private validateGroupName(rule: any, value: string, callback: Function) {

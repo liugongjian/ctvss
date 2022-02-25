@@ -124,14 +124,12 @@
           </template>
           <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" />
         </el-form-item>
-        <el-form-item v-if="(!isUpdate || form.gbRegion || !form.gbId)" label="设备地址:" prop="address">
-          <el-cascader
-            ref="addressCascader"
-            v-model="form.address"
+        <el-form-item v-if="(!isUpdate || form.gbRegion || !form.gbId)" label="设备地址:" prop="gbRegion">
+          <AddressCascader
+            :code="form.gbRegion"
+            :level="form.gbRegionLevel"
             :disabled="form.gbId !== ''"
-            :options="selectedRegionList"
-            :props="addressProps"
-            @change="addressChange"
+            @change="onDeviceAddressChange"
           />
         </el-form-item>
         <el-form-item v-show="form.deviceType !== 'platform'" label="经纬度:" prop="longlat">
@@ -175,7 +173,7 @@
         </el-form-item>
         <el-form-item v-if="isUpdate" label="配置资源包:" prop="resources">
           <ResourceTabs v-model="form.resources" :is-update="isUpdate"
-                        :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" :device-id="form.deviceId"
+                        :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" :device-id="deviceId"
                         :vss-ai-apps="form.vssAIApps" @on-change="onResourceChange" @changevssaiapps="changeVSSAIApps"
           />
         </el-form-item>
@@ -197,13 +195,11 @@ import { createDevice, updateDevice, getDevice } from '@/api/device'
 import { updateDeviceResources } from '@/api/billing'
 import { getList as getGbList } from '@/api/certificate/gb28181'
 import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
-import ResourceTabs from '../components/ResourceTabs.vue'
 
 @Component({
   name: 'CreateGb28181Device',
   components: {
-    CreateGb28181Certificate,
-    ResourceTabs
+    CreateGb28181Certificate
   }
 })
 export default class extends Mixins(createMixin) {
@@ -248,8 +244,8 @@ export default class extends Mixins(createMixin) {
     deviceIp: [
       { validator: this.validateDeviceIp, trigger: 'blur' }
     ],
-    address: [
-      { required: true, message: '请选择设备地址', trigger: 'blur' }
+    gbRegion: [
+      { required: true, message: '请选择设备地址', trigger: 'change' }
     ],
     longlat: [
       { required: true, message: '请选择经纬度', trigger: 'blur' },
@@ -291,7 +287,6 @@ export default class extends Mixins(createMixin) {
     parentDeviceId: '',
     gbId: '',
     userName: '',
-    address: [],
     longlat: 'required',
     deviceLongitude: '0.000000',
     deviceLatitude: '0.000000',
@@ -336,12 +331,8 @@ export default class extends Mixins(createMixin) {
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
           'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
-        this.cascaderInit()
         // 获取绑定资源包列表
         this.getDeviceResources(info.deviceId, info.deviceType!, info.inProtocol!)
-        // 设备地址参数转换
-        // let gbCode = this.form.gbRegion.substring(0, 4)
-        // this.form.address = [gbCode.substring(0, 2) + '00', gbCode]
         if (info.deviceStats) {
           // 编辑的时候，设置数量不得小于已创建的子通道中最大通道号或1
           this.minChannelSize = Math.max(...usedChannelNum, 1)
