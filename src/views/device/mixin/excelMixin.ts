@@ -75,6 +75,17 @@ export default class ExcelMixin extends Vue {
           validation: null
         },
         {
+          title: { header: '国标ID', key: 'gbId', width: 24, style: { numFmt: '@' } },
+          validation: {
+            type: 'textLength',
+            allowBlank: false,
+            operator: 'equal',
+            showErrorMessage: true,
+            formulae: [20],
+            error: '请输入规范国标ID。'
+          }
+        },
+        {
           title: { header: '*国标用户名', key: 'userName', width: 16 },
           validation: {
             type: 'list',
@@ -86,6 +97,10 @@ export default class ExcelMixin extends Vue {
         },
         {
           title: { header: '设备MAC地址', key: 'mac', width: 24 },
+          validation: null
+        },
+        {
+          title: { header: '杆号', key: 'num', width: 24 },
           validation: null
         },
         {
@@ -653,9 +668,6 @@ export default class ExcelMixin extends Vue {
     this.optionsInit(worksheet, this.exelDeviceType)
     // 调整样式
     worksheet._columns.forEach((column: any) => {
-      if (column._number === 10) {
-        column.numFmt = '@'
-      }
       column.alignment = {
         vertical: 'middle',
         horizontal: 'center',

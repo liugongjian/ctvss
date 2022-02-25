@@ -102,12 +102,12 @@
         <el-form-item label="设备端口:" prop="devicePort">
           <el-input v-model.number="form.devicePort" />
         </el-form-item>
-        <el-form-item label="设备MAC地址:" prop="macAddr">
-          <el-input v-model="form.macAddr" />
-        </el-form-item>
-        <!-- <el-form-item v-if="form.deviceType === 'platform'" label="设备国标编号:" prop="gbId">
+        <el-form-item v-if="form.deviceType !== 'platform'" label="国标ID:" prop="gbId">
           <el-input v-model="form.gbId" />
-        </el-form-item> -->
+          <div class="form-tip">
+            用户可自行录入规范国标ID，未录入该项，平台会自动生成规范国标ID。
+          </div>
+        </el-form-item>
         <el-form-item label="GB28181凭证:" prop="userName">
           <el-select v-model="form.userName" :loading="loading.account">
             <el-option
@@ -182,6 +182,9 @@
             :props="addressProps"
             @change="addressChange"
           />
+        </el-form-item>
+        <el-form-item label="设备MAC地址:" prop="macAddr">
+          <el-input v-model="form.macAddr" />
         </el-form-item>
         <el-form-item v-show="form.deviceType !== 'platform'" label="经纬度:" prop="longlat">
           <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
@@ -343,10 +346,9 @@ export default class extends Mixins(createMixin) {
       { required: true, message: '请填写通道号', trigger: 'change' },
       { validator: this.validateChannelNum, trigger: 'change' }
     ],
-    // gbId: [
-    //   { required: true, message: '请填写国标ID', trigger: 'blur' },
-    //   { validator: this.validateGbId, trigger: 'blur' }
-    // ],
+    gbId: [
+      { validator: this.validateGbId, trigger: 'blur' }
+    ],
     industryCode: [
       { required: true, message: '请选择所属行业', trigger: 'blur' }
     ],
@@ -517,7 +519,7 @@ export default class extends Mixins(createMixin) {
    */
   private validateGbId(rule: any, value: string, callback: Function) {
     if (value && !/^[0-9]{20}$/.test(value)) {
-      callback(new Error('设备国标编号为20位数字'))
+      callback(new Error('请输入规范国标ID'))
     } else {
       callback()
     }
