@@ -1,6 +1,5 @@
 /* Global transition */
 // See https://vuejs.org/v2/guide/transitions.html for detail
-
 // fade
 .fade-enter-active,
 .fade-leave-active {
@@ -12,10 +11,10 @@
   opacity: 0;
 }
 
-// fade-transform
+/* fade-transform */
 .fade-transform-leave-active,
 .fade-transform-enter-active {
-  transition: all .5s;
+  transition: all 0.5s;
 }
 
 .fade-transform-enter {
@@ -31,7 +30,7 @@
 // breadcrumb
 .breadcrumb-enter-active,
 .breadcrumb-leave-active {
-  transition: all .5s;
+  transition: all 0.5s;
 }
 
 .breadcrumb-enter,
@@ -41,7 +40,7 @@
 }
 
 .breadcrumb-move {
-  transition: all .5s;
+  transition: all 0.5s;
 }
 
 .breadcrumb-leave-active {

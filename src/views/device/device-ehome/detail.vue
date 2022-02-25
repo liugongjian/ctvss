@@ -71,8 +71,8 @@
                   <!-- <el-descriptions-item label="设备国标ID">
                     {{ info.gbId || '-' }}
                   </el-descriptions-item> -->
-                  <el-descriptions-item v-if="info.address" label="设备地址">
-                    {{ info.address }}
+                  <el-descriptions-item label="设备地址">
+                    {{ deviceAddress || '-' }}
                   </el-descriptions-item>
                   <el-descriptions-item v-if="info.industryCode" label="所属行业">
                     {{ industryMap[info.industryCode] }}
