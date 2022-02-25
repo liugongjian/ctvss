@@ -1,20 +1,31 @@
 module.exports = {
-  root: true,
   env: {
     browser: true,
-    node: true,
-    es6: true
+    es6: true,
+    node: true
   },
-  'extends': [
-    'eslint:recommended',
+  extends: [
     'plugin:vue/recommended',
-    '@vue/standard',
-    '@vue/typescript'
+    'eslint:recommended'
+  ],
+  parser: 'vue-eslint-parser',
+  parserOptions: {
+    parser: '@typescript-eslint/parser',
+    ecmaVersion: '2021',
+    sourceType: 'module'
+  },
+  plugins: [
+    'vue',
+    '@typescript-eslint'
   ],
   rules: {
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-    'space-before-function-paren': [2, 'never'],
+    'indent': ['error', 2],
+    'space-before-function-paren': [2, 'never'], //不允许括号前面有空格
+    'block-spacing': ['error', 'always'],
+    'key-spacing': 'error',
+    'quotes': ['error', 'single'],
     'vue/array-bracket-spacing': 'error',
     'vue/arrow-spacing': 'error',
     'vue/block-spacing': 'error',
@@ -28,20 +39,15 @@ module.exports = {
     'vue/object-curly-spacing': 'error',
     'vue/singleline-html-element-content-newline': 'off',
     'vue/max-attributes-per-line': 'off',
-    '@typescript-eslint/no-unused-vars': ['error']
-  },
-  parserOptions: {
-    parser: '@typescript-eslint/parser'
-  },
-  overrides: [
-    {
-      files: [
-        '**/__tests__/*.{j,t}s?(x)',
-        '**/tests/unit/**/*.spec.{j,t}s?(x)'
-      ],
-      env: {
-        jest: true
-      }
-    }
-  ]
+    'keyword-spacing': 'off',
+    '@typescript-eslint/keyword-spacing': ['error'],
+    '@typescript-eslint/no-unused-vars': ['error'],
+    '@typescript-eslint/type-annotation-spacing': ['error', { before: false, after: true }],
+    'space-infix-ops': 'off',
+    '@typescript-eslint/space-infix-ops': ['error', { 'int32Hint': false }],
+    'comma-spacing': 'off',
+    '@typescript-eslint/comma-spacing': ['error', { 'before': false, 'after': true }],
+    'object-curly-spacing': 'off',
+    '@typescript-eslint/object-curly-spacing': ['error', 'always']
+  }
 }
