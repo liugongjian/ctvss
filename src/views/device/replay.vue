@@ -14,6 +14,20 @@
         <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
           <div class="dir-list" :style="`width: ${dirDrag.width}px`">
             <div class="dir-list__tools">
+              <el-tooltip
+                class="item"
+                effect="dark"
+                content="一键播放根目录"
+                placement="top"
+                :open-delay="300"
+              >
+                <el-button
+                  type="text"
+                  @click="videosOnAutoPlay(null, false)"
+                >
+                  <svg-icon name="auto-play" />
+                </el-button>
+              </el-tooltip>
               <el-tooltip class="item" effect="dark" content="刷新目录" placement="top" :open-delay="300">
                 <el-button type="text" @click="initDirs"><svg-icon name="refresh" /></el-button>
               </el-tooltip>
@@ -50,6 +64,23 @@
                     <span class="alert-type">{{ renderAlertType(data) }}</span>
                     <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
                   </span>
+                  <div class="tools" @click.stop.prevent>
+                    <el-tooltip
+                      class="item"
+                      effect="dark"
+                      content="一键播放"
+                      placement="top"
+                      :open-delay="300"
+                    >
+                      <el-button
+                        v-if="data.type === 'nvr' || data.type === 'dir' || data.type === 'group'"
+                        type="text"
+                        @click="videosOnAutoPlay(node, true)"
+                      >
+                        <svg-icon name="auto-play" />
+                      </el-button>
+                    </el-tooltip>
+                  </div>
                 </span>
               </el-tree>
               <el-tree
@@ -81,6 +112,23 @@
                     <span class="alert-type">{{ renderAlertType(data) }}</span>
                     <svg-icon v-if="checkTreeItemStatus(data)" name="playing" class="playing" />
                   </span>
+                  <div class="tools" @click.stop.prevent>
+                    <el-tooltip
+                      class="item"
+                      effect="dark"
+                      content="一键播放"
+                      placement="top"
+                      :open-delay="300"
+                    >
+                      <el-button
+                        v-if="data.type === 'nvr' || data.type === 'dir' || data.type === 'group'"
+                        type="text"
+                        @click="videosOnAutoPlay(node, true)"
+                      >
+                        <svg-icon name="auto-play" />
+                      </el-button>
+                    </el-tooltip>
+                  </div>
                 </span>
               </el-tree>
             </div>
@@ -194,6 +242,7 @@ import PlayerContainer from './components/PlayerContainer.vue'
 import DeviceDir from './components/dialogs/DeviceDir.vue'
 import { renderAlertType, getSums } from '@/utils/device'
 import { VGroupModule } from '@/store/modules/vgroup'
+import { getDeviceTree } from '@/api/device'
 
 @Component({
   name: 'Record',
@@ -270,12 +319,75 @@ export default class extends Mixins(ScreenMixin) {
       if (screen.deviceId) {
         screen.reset()
       }
+      if (this.currentIndex < (this.maxSize - 1)) this.currentIndex++
       this.$nextTick(() => {
         screen.deviceId = item.id
         screen.deviceName = item.label
         screen.loaded = true
-        if (this.currentIndex < (this.maxSize - 1)) this.currentIndex++
+        screen.roleId = item.roleId || ''
+        screen.realGroupId = item.realGroupId || ''
+        screen.realGroupInProtocol = item.realGroupInProtocol || ''
       })
+    }
+  }
+
+  /**
+   * 一键播放
+   */
+  private async videosOnAutoPlay(node: any, isRoot: boolean) {
+    this.autoPlayDevices = []
+    if (node) {
+      this.currentNode = node
+    }
+    if (!isRoot) {
+      this.dirList.forEach((item: any) => {
+        if (item.type === 'ipc') {
+          this.autoPlayDevices.push(item)
+        }
+      })
+    } else {
+      if (this.$route.query.searchKey) {
+        node.data.children.forEach((item: any) => {
+          if (item.type === 'ipc') {
+            this.autoPlayDevices.push(item)
+          }
+        })
+      } else {
+        let data = await getDeviceTree({
+          groupId: this.currentGroupId,
+          id: node!.data.id,
+          type: node!.data.type
+        })
+        const dirs = this.setDirsStreamStatus(data.dirs)
+        dirs.forEach((item: any) => {
+          if (node.data.type === 'group') {
+            item.roleId = node.data.roleId
+            item.realGroupId = node.data.id
+            item.realGroupInProtocol = node.data.inProtocol
+          } else {
+            item.roleId = node.data.roleId
+            item.realGroupId = node.data.realGroupId
+            item.realGroupInProtocol = node.data.realGroupInProtocol
+          }
+          if (item.type === 'ipc') {
+            this.autoPlayDevices.push(item)
+          }
+        })
+      }
+    }
+    if (!this.autoPlayDevices.length) {
+      this.$alert(`当前设备数需大于0才可开始自动播放`, '提示', {
+        confirmButtonText: '确定'
+      })
+    }
+    this.currentIndex = 0
+    for (let i = 0; i < this.maxSize; i++) {
+      this.screenList[i].reset()
+      if (!this.autoPlayDevices[i]) {
+        continue
+      } else {
+        this.openScreen(this.autoPlayDevices[i])
+      }
     }
   }
 
@@ -294,6 +406,36 @@ export default class extends Mixins(ScreenMixin) {
     &__left {
       .playing {
         color: $success;
+      }
+      .custom-tree-node .tools {
+        display: block;
+        background: #fff;
+        right: -10px;
+        line-height: 26px;
+        padding-right: 10px;
+        i {
+          display: block;
+          padding: 5px 0;
+
+          &:hover {
+            .svg-icon {
+              margin-right: 5px;
+              color: #313941;
+            }
+          }
+        }
+        .set-stream {
+          ::v-deep .controls__popup {
+            left: auto;
+            right: -5px;
+          }
+        }
+      }
+      .el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content,
+      .dir-list__tree .el-tree-node__content:hover {
+        .custom-tree-node .tools {
+          background: #F5F7FA;
+        }
       }
     }
 

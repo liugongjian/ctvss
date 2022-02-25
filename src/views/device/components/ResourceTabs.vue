@@ -320,10 +320,12 @@ export default class extends Vue {
 
   // 获取设备信息
   private async getDeviceInfo() {
-    this.deviceInfo = await getDevice({
-      deviceId: this.deviceId,
-      inProtocol: this.inProtocol
-    })
+    if (this.deviceId) {
+      this.deviceInfo = await getDevice({
+        deviceId: this.deviceId,
+        inProtocol: this.inProtocol
+      })
+    }
   }
 
   public get isNvr() {

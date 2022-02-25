@@ -304,12 +304,14 @@
                           :video-info="screen.videoInfo"
                           :all-address="screen.allAddress"
                           :default-volume="screen.volume"
+                          :scale-status="screen.ifScalePTZ"
                           @onCanPlay="playEvent(screen, ...arguments)"
                           @onRetry="onRetry(screen, ...arguments)"
                           @onPlayback="onPlayback(screen)"
                           @onFullscreen="screen.fullscreen();fullscreen()"
                           @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
                           @onIntercom="onIntercom(screen, ...arguments)"
+                          @onChangeScalePTZStatus="changeScalePTZStatus(screen,...arguments)"
                           @onTypeChange="onTypeChange(screen, ...arguments)"
                           @onVolumeChange="onVolumeChange(screen, ...arguments)"
                         />
@@ -367,7 +369,12 @@
       </div>
     </el-card>
 
-    <intercom-dialog v-if="ifIntercom" :intercom-info="intercomInfo" @close="closeIntercom" />
+    <intercom-dialog
+      v-if="ifIntercom"
+      :intercom-info="intercomInfo"
+      @onRetry="onRetry(intercomInfo, ...arguments)"
+      @close="closeIntercom"
+    />
     <div id="mouse-right" class="mouse-right" @click="videosOnPolling(null, true)">轮巡当前目录</div>
     <device-dir v-if="dialogs.deviceDir" @on-close="onDeviceDirClose" />
   </div>
@@ -549,6 +556,7 @@ export default class extends Mixins(ScreenMixin) {
       screen.roleId = item.roleId || ''
       screen.realGroupId = item.realGroupId || ''
       screen.realGroupInProtocol = item.realGroupInProtocol || ''
+      screen.ifScalePTZ = false
 
       if (streamNum && !isNaN(streamNum)) {
         screen.streamNum = streamNum
@@ -604,7 +612,7 @@ export default class extends Mixins(ScreenMixin) {
   /**
    * 需要轮巡的视频
    */
-  private async videosOnPolling(node: any, isDir: boolean) {
+  private async videosOnPolling(node: any, isRoot: boolean) {
     this.pollingDevices = []
     if (node) {
       this.currentNode = node
@@ -613,24 +621,41 @@ export default class extends Mixins(ScreenMixin) {
       VGroupModule.SetRealGroupId(this.currentNode!.data.realGroupId || '')
       VGroupModule.SetRealGroupInProtocol(this.currentNode!.data.realGroupInProtocol || '')
     }
-    if (!isDir) {
+    if (!isRoot) {
       this.dirList.forEach((item: any) => {
         if (item.type === 'ipc' && item.deviceStatus === 'on') {
           this.pollingDevices.push(item)
         }
       })
     } else {
-      let data = await getDeviceTree({
-        groupId: this.currentGroupId,
-        id: this.currentNode!.data.id,
-        type: this.currentNode!.data.type
-      })
-      const dirs = this.setDirsStreamStatus(data.dirs)
-      dirs.forEach((item: any) => {
-        if (item.type === 'ipc' && item.deviceStatus === 'on') {
-          this.pollingDevices.push(item)
-        }
-      })
+      if (this.$route.query.searchKey) {
+        node.data.children.forEach((item: any) => {
+          if (item.type === 'ipc' && item.deviceStatus === 'on') {
+            this.pollingDevices.push(item)
+          }
+        })
+      } else {
+        let data = await getDeviceTree({
+          groupId: this.currentGroupId,
+          id: this.currentNode!.data.id,
+          type: this.currentNode!.data.type
+        })
+        const dirs = this.setDirsStreamStatus(data.dirs)
+        dirs.forEach((item: any) => {
+          if (node.data.type === 'group') {
+            item.roleId = node.data.roleId
+            item.realGroupId = node.data.id
+            item.realGroupInProtocol = node.data.inProtocol
+          } else {
+            item.roleId = node.data.roleId
+            item.realGroupId = node.data.realGroupId
+            item.realGroupInProtocol = node.data.realGroupInProtocol
+          }
+          if (item.type === 'ipc' && item.deviceStatus === 'on') {
+            this.pollingDevices.push(item)
+          }
+        })
+      }
     }
     this.currentPollingIndex = 0
     this.doPolling()
@@ -661,7 +686,7 @@ export default class extends Mixins(ScreenMixin) {
   /**
    * 一键播放
    */
-  private async videosOnAutoPlay(node: any, isDir: boolean) {
+  private async videosOnAutoPlay(node: any, isRoot: boolean) {
     this.autoPlayDevices = []
     if (node) {
       this.currentNode = node
@@ -670,24 +695,41 @@ export default class extends Mixins(ScreenMixin) {
       VGroupModule.SetRealGroupId(this.currentNode!.data.realGroupId || '')
       VGroupModule.SetRealGroupInProtocol(this.currentNode!.data.realGroupInProtocol || '')
     }
-    if (!isDir) {
+    if (!isRoot) {
       this.dirList.forEach((item: any) => {
         if (item.type === 'ipc' && item.deviceStatus === 'on') {
           this.autoPlayDevices.push(item)
         }
       })
     } else {
-      let data = await getDeviceTree({
-        groupId: this.currentGroupId,
-        id: node!.data.id,
-        type: node!.data.type
-      })
-      const dirs = this.setDirsStreamStatus(data.dirs)
-      dirs.forEach((item: any) => {
-        if (item.type === 'ipc' && item.deviceStatus === 'on') {
-          this.autoPlayDevices.push(item)
-        }
-      })
+      if (this.$route.query.searchKey) {
+        node.data.children.forEach((item: any) => {
+          if (item.type === 'ipc' && item.deviceStatus === 'on') {
+            this.autoPlayDevices.push(item)
+          }
+        })
+      } else {
+        let data = await getDeviceTree({
+          groupId: this.currentGroupId,
+          id: node!.data.id,
+          type: node!.data.type
+        })
+        const dirs = this.setDirsStreamStatus(data.dirs)
+        dirs.forEach((item: any) => {
+          if (node.data.type === 'group') {
+            item.roleId = node.data.roleId
+            item.realGroupId = node.data.id
+            item.realGroupInProtocol = node.data.inProtocol
+          } else {
+            item.roleId = node.data.roleId
+            item.realGroupId = node.data.realGroupId
+            item.realGroupInProtocol = node.data.realGroupInProtocol
+          }
+          if (item.type === 'ipc' && item.deviceStatus === 'on') {
+            this.autoPlayDevices.push(item)
+          }
+        })
+      }
     }
     if (!this.autoPlayDevices.length) {
       this.$alert(`当前设备数需大于0才可开始自动播放`, '提示', {
@@ -702,6 +744,9 @@ export default class extends Mixins(ScreenMixin) {
         this.screenList[i].deviceId = this.autoPlayDevices[i].id
         this.screenList[i].deviceName = this.autoPlayDevices[i].label
         this.screenList[i].inProtocol = this.currentGroupInProtocol!
+        this.screenList[i].roleId = this.autoPlayDevices[i].roleId
+        this.screenList[i].realGroupId = this.autoPlayDevices[i].realGroupId
+        this.screenList[i].realGroupInProtocol = this.autoPlayDevices[i].realGroupInProtocol
       }
       this.screenList[i].getUrl()
     }
@@ -747,6 +792,9 @@ export default class extends Mixins(ScreenMixin) {
       this.screenList[i].deviceId = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].id
       this.screenList[i].deviceName = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].label
       this.screenList[i].inProtocol = this.currentGroupInProtocol!
+      this.screenList[i].roleId = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].roleId
+      this.screenList[i].realGroupId = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].realGroupId
+      this.screenList[i].realGroupInProtocol = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].realGroupInProtocol
       this.screenList[i].getUrl()
       if (this.currentIndex < this.maxSize - 1) {
         this.currentIndex++
@@ -810,6 +858,16 @@ export default class extends Mixins(ScreenMixin) {
       this.screenList[i].volume = 30
     }
     this.ifIntercom = false
+  }
+
+  /**
+   * 修改ptz缩放状态，子组件缩放互斥
+   */
+  private changeScalePTZStatus(screen: Screen, status: boolean) {
+    for (let i = 0; i < this.screenList.length; i++) {
+      this.screenList[i].ifScalePTZ = false
+    }
+    screen.ifScalePTZ = status
   }
 
   /**

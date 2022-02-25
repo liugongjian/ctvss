@@ -3,7 +3,9 @@ import { prepareUrl, srsRtcPlayerAsync } from '@/utils/webrtc'
 import { BasePlayer } from './BasePlayer'
 
 export class RtcPlayer extends BasePlayer {
-  public rtcInfo?: any
+  private rtc?: any
+  private rtcConf: any
+
   public init() {
     if (!window.RTCPeerConnection) {
       throw new Error('当前浏览器不支持Webrtc播放器')
@@ -15,22 +17,44 @@ export class RtcPlayer extends BasePlayer {
 
     const tempURL = this.allAddress.webrtcUrl ? this.allAddress.webrtcUrl : this.source
 
-    const conf = prepareUrl(tempURL)
-    // console.log('webrtcUrl------>prepareUrl', conf)
-    const sdk = srsRtcPlayerAsync()
-    sdk.onaddstream = (event: any) => {
+    this.rtcConf = prepareUrl(tempURL)
+    this.rtc = srsRtcPlayerAsync()
+
+    this.rtc.onaddstream = (event: any) => {
       videoElement.srcObject = event.stream
       this.autoPlayVideo(videoElement)
     }
 
-    sdk.play(conf.apiUrl, conf.streamUrl).then((session: any) => {
-      console.log(session)
-    }).catch((error: any) => {
-      sdk.close()
-      throw new Error(error)
-    })
-    this.rtcInfo = sdk
+    // 断连后尝试重新连接
+    this.rtc.onconnectionstatechange = (state: string) => {
+      if (state === 'disconnected') {
+        this.retry(true)
+      }
+    }
+
+    this.connectRtc()
     this.player = videoElement
+  }
+
+  /**
+   * 进行WebRTC SDP协商
+   */
+  private connectRtc() {
+    this.rtc.play(this.rtcConf.apiUrl, this.rtcConf.streamUrl).then(() => {
+      // console.log(session)
+    }).catch(() => {
+      this.retry()
+    })
+  }
+
+  /**
+   * 重新拉流
+   */
+  private retry(immediate: boolean = false) {
+    this.rtc.close()
+    this.onRetry({
+      immediate
+    })
   }
 
   /**
@@ -68,7 +92,7 @@ export class RtcPlayer extends BasePlayer {
    */
   public reloadPlayer() {
     this.player = null
-    this.rtcInfo.pc.close()
+    this.rtc.close()
     this.init()
   }
 
@@ -115,8 +139,10 @@ export class RtcPlayer extends BasePlayer {
     this.player.removeEventListener('loadstart', this.onLoadStart)
     this.player.removeEventListener('canplay', this.onCanplay)
     this.player.removeEventListener('volumechange', this.onVolumeChange)
-    this.rtcInfo.pc.removeStream(this.player.srcObject)
-    this.rtcInfo.pc.close()
-    this.rtcInfo.pc = null
+    if (this.rtc) {
+      this.rtc.pc && this.rtc.pc.connectionState !== 'close' && this.player.srcObject && this.rtc.pc.removeStream(this.player.srcObject)
+      this.rtc.close()
+      this.rtc.pc = null
+    }
   }
 }
