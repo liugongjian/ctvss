@@ -126,7 +126,7 @@ export default class extends Mixins(DashboardMixin) {
    */
   private createMember() {
     this.$router.push({
-      name: `accessManage-user`,
+      name: 'accessManage-user',
       query: {
         type: 'add'
       }
@@ -138,7 +138,7 @@ export default class extends Mixins(DashboardMixin) {
    */
   private createDepartment() {
     this.$router.push({
-      name: `accessManage-user`,
+      name: 'accessManage-user',
       query: {
         type: 'add'
       }
@@ -150,7 +150,7 @@ export default class extends Mixins(DashboardMixin) {
    */
   private createPolicy() {
     this.$router.push({
-      name: `accessManage-policy-create`
+      name: 'accessManage-policy-create'
     })
   }
 
@@ -160,7 +160,10 @@ export default class extends Mixins(DashboardMixin) {
   private createRole() {
     // 创建角色 返回跳转不是 回退一个
     this.$router.push({
-      name: `accessManage-role-create`
+      name: 'accessManage-role-create',
+      query: {
+        type: 'add'
+      }
     })
   }
 
