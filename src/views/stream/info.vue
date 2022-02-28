@@ -114,25 +114,28 @@ export default class extends Vue {
 <style lang="scss" scoped>
 .title {
   padding-bottom: 10px;
-  border-bottom: 1px solid rgba(227, 227, 227, 1);
+  border-bottom: 1px solid rgba(227, 227, 227, 100%);
 }
-.address {
-    margin-top: 20px;
-    ::v-deep .info-item {
-      padding: 15px 0 5px 0;
-    }
-    ::v-deep .info-item--val {
-      overflow: hidden;
-      text-overflow:ellipsis;
-      white-space: nowrap;
-      position: relative;
-      padding-right: 20px;
 
-      .el-button--text {
-        position: absolute;
-        padding: 0;
-        right: 0;
-      }
+.address {
+  margin-top: 20px;
+
+  ::v-deep .info-item {
+    padding: 15px 0 5px;
+  }
+
+  ::v-deep .info-item--val {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    position: relative;
+    padding-right: 20px;
+
+    .el-button--text {
+      position: absolute;
+      padding: 0;
+      right: 0;
     }
   }
+}
 </style>

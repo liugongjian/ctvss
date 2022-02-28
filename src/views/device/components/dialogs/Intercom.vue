@@ -98,10 +98,16 @@ export default class extends Mixins(ScreenMixin) {
 
   private mounted() {
     this.getDeviceInfo()
+    window.addEventListener('beforeunload', (e) => this.beforeunloadHandler(e))
   }
 
   private destroyed() {
-    this.stopRecord()
+    this.intercomMouseup()
+    window.removeEventListener('beforeunload', (e) => this.beforeunloadHandler(e))
+  }
+
+  private beforeunloadHandler(e: any) {
+    this.intercomMouseup()
   }
 
   private getDeviceInfo() {

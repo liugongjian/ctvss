@@ -15,6 +15,7 @@ export default class Screen {
   public loaded: boolean
   public retry?: boolean
   public isLive?: boolean
+  public isAi?: boolean
   public isFullscreen?: boolean
   public streamSize?: number
   public streamNum?: number
@@ -50,6 +51,7 @@ export default class Screen {
     this.loaded = false
     this.retry = false
     this.isLive = true
+    this.isAi = false
     this.isFullscreen = false
     this.axiosSource = null
     this.onCanPlay = false
@@ -80,6 +82,7 @@ export default class Screen {
         deviceId: this.deviceId,
         inProtocol: this.inProtocol,
         streamNum: this.streamNum,
+        isAi: this.isAi,
         'self-defined-headers': {
           'role-id': this.roleId || '',
           'real-group-id': this.realGroupId || ''
@@ -117,6 +120,7 @@ export default class Screen {
     this.loaded = false
     this.retry = false
     this.isLive = true
+    this.isAi = false
     this.axiosSource && this.axiosSource.cancel()
     this.axiosSource = null
     this.replayType = 'cloud'

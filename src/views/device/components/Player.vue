@@ -38,6 +38,7 @@
               vertical
               height="165px"
               @input="setPlayVolume"
+              @change="cancelMountedMute"
             />
           </div>
         </div>
@@ -422,7 +423,7 @@ export default class extends Vue {
             const proportion = width / originWidth!
             $canvas.style.position = 'absolute'
             $canvas.style.transform = `scale(${proportion})`
-            $canvas.style.transformOrigin = `top left`
+            $canvas.style.transformOrigin = 'top left'
             $canvas.style.top = (height - originHeight) / 2 * proportion + 'px'
           }
         },
@@ -958,17 +959,13 @@ export default class extends Vue {
     if (this.ifMountedMute) { // 缓存为静音或者声音为0的视频时，静音按键点击无效，增加修改声音为30
       this.player!.switchMuteStatus(false)
       this.volume = 30
-      this.isMute = true
       this.player!.setPlayVolume(30)
       this.ifMountedMute = false
-    } else {
-      this.player!.switchMuteStatus(!this.isMute) // 处理--缓存的是有声音的视频，点击静音按键无效。
-      if (this.isMute) {
-        this.volume = 30
-        this.player!.setPlayVolume(30)
+    } else { // 处理--缓存的是有声音的视频，点击静音按键无效。
+      if (this.isMute || this.volume === 0) {
+        this.player!.switchMuteStatus(false)
       } else {
-        this.volume = 0
-        this.player!.setPlayVolume(0)
+        this.player!.switchMuteStatus(true)
       }
     }
   }
@@ -1121,6 +1118,10 @@ export default class extends Vue {
     this.codec !== 'h265' && volume && this.isMute && this.player!.switchMuteStatus(false)
     // 调用的是 每个 player 绑定到 baseplayer 里的方法 & this.player 是 baseplayer
     !this.isMute && this.player!.setPlayVolume(volume)
+  }
+
+  public cancelMountedMute() {
+    this.ifMountedMute = false
   }
 
   /**
