@@ -577,7 +577,6 @@ export default class extends Mixins(createMixin) {
             'networkCode'
           ])
         )
-        this.cascaderInit()
         // 获取绑定资源包列表
         this.getDeviceResources(
           info.deviceId,
@@ -757,6 +756,7 @@ export default class extends Mixins(createMixin) {
     content: '/';
     color: $textGrey;
   }
+
   &__item:last-child:after {
     content: '';
   }
