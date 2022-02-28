@@ -83,7 +83,7 @@
               :class="ifHiddenThis()"
               tooltip-effect="dark"
               :data="algoListData"
-              style="width: 100%"
+              style="width: 100%;"
               empty-text="暂无AI应用，请在AI应用管理中创建"
               @selection-change="selectAlgoChange"
               @select="selectHandle"
@@ -148,10 +148,7 @@
 <script lang='ts'>
 import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
 import { ResourceAiType } from '@/dics'
-import { getResources
-  , getResourceIdAttachedAppIds
-} from '@/api/billing'
-import { getDevice } from '@/api/device'
+import { getResources, getResourceIdAttachedAppIds } from '@/api/billing'
 import { UserModule } from '@/store/modules/user'
 import { getAbilityList, getAppList } from '@/api/ai-app'
 
@@ -634,6 +631,7 @@ export default class extends Vue {
       ::v-deep .el-radio__label {
         display: none;
       }
+
       ::v-deep .el-radio__input {
         margin-right: 3px;
       }
@@ -656,12 +654,14 @@ export default class extends Vue {
     &__none {
       line-height: 23px;
       transition: 'background' 0.2s;
+
       label {
         padding: 10px;
         display: block;
       }
+
       &:hover {
-        background: #F5F7FA;
+        background: #f5f7fa;
       }
     }
 
@@ -669,37 +669,45 @@ export default class extends Vue {
       cursor: pointer;
     }
   }
-  .algoTab{
+
+  .algoTab {
     margin-top: 10px;
-    .algoTabTable{
+
+    .algoTabTable {
       margin-top: 10px;
     }
   }
-  .algoWarning{
+
+  .algoWarning {
     padding: 5px 10px;
     border: 1px solid;
-    span{
+
+    span {
       margin-left: 12px;
       font-size: 12px;
       display: inline-block;
     }
-    ::v-deep .el-icon-warning{
+
+    ::v-deep .el-icon-warning {
       font-size: 18px;
       vertical-align: middle;
     }
-    &.algoWarningError{
+
+    &.algoWarningError {
       border-color: #950012;
       color: #950012;
-      background: #FADEE0;
+      background: #fadee0;
     }
-    &.algoWarningTip{
-      border-color: #4A88DB;
-      color: #4A88DB;
-      background: #EDF4FE;
+
+    &.algoWarningTip {
+      border-color: #4a88db;
+      color: #4a88db;
+      background: #edf4fe;
     }
   }
-  .algoTabTableHidden{
-    ::v-deep .el-table__header-wrapper .el-checkbox{
+
+  .algoTabTableHidden {
+    ::v-deep .el-table__header-wrapper .el-checkbox {
       display: none;
     }
   }
