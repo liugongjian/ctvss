@@ -92,13 +92,6 @@ module.exports = {
     historyApiFallback: true,
     disableHostCheck: true
   },
-  pwa: {
-    name: name,
-    workboxPluginMode: 'InjectManifest',
-    workboxOptions: {
-      swSrc: path.resolve(__dirname, 'src/pwa/service-worker.js')
-    }
-  },
   pluginOptions: {
     'style-resources-loader': {
       preProcessor: 'scss',
