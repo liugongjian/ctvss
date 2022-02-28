@@ -1096,10 +1096,10 @@ export const transformLocationAi = (locations: any, img: any) => {
     } else {
       const ratioW = img.clientWidth / img.naturalWidth
       const ratioH = img.clientHeight / img.naturalHeight
-      location.clientTopPercent = Math.floor(location.top * ratioH / img.clientHeight * 100)
-      location.clientLeftPercent = Math.floor(location.left * ratioW / img.clientWidth * 100)
-      location.clientWidthPercent = Math.floor(location.width * ratioW / img.clientWidth * 100)
-      location.clientHeightPercent = Math.floor(location.height * ratioH / img.clientHeight * 100)
+      location.clientTopPercent = location.top * ratioH / img.clientHeight * 100
+      location.clientLeftPercent = location.left * ratioW / img.clientWidth * 100
+      location.clientWidthPercent = location.width * ratioW / img.clientWidth * 100
+      location.clientHeightPercent = location.height * ratioH / img.clientHeight * 100
     }
   })
   return locations

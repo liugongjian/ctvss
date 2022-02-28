@@ -24,7 +24,7 @@
         <el-divider />
         <div class="alarm-container">
           <div class="alarm-container__time">
-            告警时间：
+            统计时间：
             <el-radio-group v-model="period.periodType" size="medium" @change="handleChange">
               <!-- <el-radio-group> -->
               <el-radio-button label="今天" />

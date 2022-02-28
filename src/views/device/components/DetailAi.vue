@@ -95,6 +95,7 @@ export default class extends Vue {
 .select{
   float: left;
   padding-right: 20px;
+  line-height: 50px;
   .el-select {
     width: 120px;
     ::v-deep .el-input{
