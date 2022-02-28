@@ -423,7 +423,7 @@ export default class extends Vue {
             const proportion = width / originWidth!
             $canvas.style.position = 'absolute'
             $canvas.style.transform = `scale(${proportion})`
-            $canvas.style.transformOrigin = `top left`
+            $canvas.style.transformOrigin = 'top left'
             $canvas.style.top = (height - originHeight) / 2 * proportion + 'px'
           }
         },
