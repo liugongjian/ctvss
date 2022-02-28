@@ -1,7 +1,7 @@
 /* Mixins */
 @mixin clearfix {
   &:after {
-    content: "";
+    content: '';
     display: table;
     clear: both;
   }
@@ -10,6 +10,7 @@
 @mixin filter-buttons {
   .filter-buttons {
     display: flex;
+
     .filter-button {
       position: relative;
       border: 1px solid #ddd;
@@ -20,6 +21,7 @@
       overflow: hidden;
       transition: border 100ms;
       cursor: pointer;
+
       label {
         display: inline-block;
         background: #f1f1f1;
@@ -27,6 +29,7 @@
         margin-right: 8px;
         cursor: pointer;
       }
+
       &__close {
         position: absolute;
         right: 6px;
@@ -34,8 +37,10 @@
         color: #bbb;
         transition: border 100ms;
       }
+
       &:hover {
         border-color: $primary;
+
         .filter-button__close {
           color: $primary;
         }

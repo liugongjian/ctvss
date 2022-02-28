@@ -97,7 +97,7 @@ const validPhone = (rule, value, callback) => {
 export default class extends Vue {
   private scaleKind = scaleKind
   private activeName = 'common'
-  public form:any = {
+  public form: any = {
     active: false,
     phoneNumber: '',
     screen: 'false',

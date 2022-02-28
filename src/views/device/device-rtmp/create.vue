@@ -151,6 +151,7 @@
           :in-protocol="form.inProtocol"
           :is-private-in-network="isPrivateInNetwork"
           :device-id="deviceId"
+          :form-info="form"
           :vss-ai-apps="form.vssAIApps"
           @on-change="onResourceChange"
           @changevssaiapps="changeVSSAIApps"

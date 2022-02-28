@@ -163,9 +163,10 @@ export default class extends Vue {
   @Prop() private isUpdate?: boolean
   @Prop() private inProtocol?: string
   @Prop() private isPrivateInNetwork?: string
-  @Prop() private vssAiApps?:any
-  @Prop() private algoTabTypeDefault?:string
-  @Prop() private deviceId?:string
+  @Prop() private vssAiApps?: any
+  @Prop() private algoTabTypeDefault?: string
+  @Prop() private deviceId?: string
+  @Prop() private formInfo?: any
 
   private resourceTabType = 'video'
   private resourceAiType = ResourceAiType
@@ -174,7 +175,7 @@ export default class extends Vue {
     resouceAiId: -1,
     resouceUploadId: -1
   }
-  private loading:any = {
+  private loading: any = {
     resouceVideoList: false,
     resouceAiList: false,
     resouceUploadList: false,
@@ -184,7 +185,7 @@ export default class extends Vue {
   private resouceAiList = []
   private resouceUploadList = []
 
-  private algoListData:any = []
+  private algoListData: any = []
   private algoTabType = '1'
   private totalDeviceConfigCount = 0
   private remainDeviceConfigCount = 0
@@ -192,10 +193,10 @@ export default class extends Vue {
   private showError = false
   private showTips = false
   private aiAbilityTab = []
-  private chooseData:any = {}
+  private chooseData: any = {}
   // private checkIds = []
-  private checkInfoObj:any = {}
-  private resourceAlgo:any = {}
+  private checkInfoObj: any = {}
+  private resourceAlgo: any = {}
   private resourceHasAppIds = []
   private selectAlgoInfo = []
   private appIdsWithAllData = []
@@ -204,22 +205,23 @@ export default class extends Vue {
   private removeCheckedIds = []
   private tipsText = ''
   private hasValueAppIds = ''
-  private shouldRemove:any = {}
-  private shouldAdd:any = {}
-  private deviceInfo:any = {}
+  private shouldRemove: any = {}
+  private shouldAdd: any = {}
+  private deviceInfo: any = {}
 
   public get isFreeUser() {
     return UserModule.tags && UserModule.tags.resourceFree === '1'
   }
 
   private async mounted() {
-    this.getDeviceInfo()
+    this.deviceInfo = this.formInfo
     this.resouceVideoList = await this.getResouces('VSS_VIDEO', 'resouceVideoList')
     this.resouceAiList = await this.getResouces('VSS_AI', 'resouceAiList')
     this.resouceUploadList = await this.getResouces('VSS_UPLOAD_BW', 'resouceUploadList')
     this.handleResourceAppIds()
     this.onFormChange(true)
     this.defaultTab()
+    // this.getDeviceInfo()
   }
 
   /**
@@ -266,6 +268,13 @@ export default class extends Vue {
       }
     })
     this.onFormChange(true)
+  }
+
+  @Watch('formInfo', {
+    deep: true
+  })
+  private onFormInfoChange(val: any) {
+    this.deviceInfo = val
   }
 
   /**
@@ -318,16 +327,6 @@ export default class extends Vue {
     this.onFormChange(false)
   }
 
-  // 获取设备信息
-  private async getDeviceInfo() {
-    if (this.deviceId) {
-      this.deviceInfo = await getDevice({
-        deviceId: this.deviceId,
-        inProtocol: this.inProtocol
-      })
-    }
-  }
-
   public get isNvr() {
     return this.deviceInfo && this.deviceInfo.deviceType === 'nvr'
   }
@@ -350,7 +349,7 @@ export default class extends Vue {
     if (this.isUpdate) {
       this.selectAlgoId = this.vssAiApps && this.vssAiApps.length ? this.vssAiApps : []
       const result = this.resouceAiList.find(item => {
-        return this.value.some((val:any) => {
+        return this.value.some((val: any) => {
           return item.resourceId === val.resourceId
         })
       })
@@ -381,7 +380,7 @@ export default class extends Vue {
     this.closeTips()
   }
 
-  private async getResourceIdAttachedAppIds(row:any) {
+  private async getResourceIdAttachedAppIds(row: any) {
     // if (!this.checkInfoObj[row.resourceId] || Object.values(this.checkInfoObj[row.resourceId]).length === 0) {
 
     // }
@@ -389,12 +388,12 @@ export default class extends Vue {
     this.resourceHasAppIds = appIdList
     this.selectAlgoInfo = this.resourceHasAppIds
     // if (this.selectAlgoId.length === 0) {
-    this.selectAlgoId = this.resourceHasAppIds.map((item:any) => item.appId)
+    this.selectAlgoId = this.resourceHasAppIds.map((item: any) => item.appId)
     // }
   }
 
   // 获取算法名
-  private async getAiAlgoList(row:any) {
+  private async getAiAlgoList(row: any) {
     const { aiAbilityList } = await getAbilityList({ id: row.id })
     this.aiAbilityTab = aiAbilityList
     this.algoTabType = aiAbilityList[0]?.id
@@ -408,7 +407,7 @@ export default class extends Vue {
   }
 
   private ifHiddenThis() {
-    const result = this.algoListData.filter((item:any) => item.analyseType <= this.chooseData.aiType)
+    const result = this.algoListData.filter((item: any) => item.analyseType <= this.chooseData.aiType)
     if (result.length === 0) {
       return 'algoTabTableHidden'
     }
@@ -434,10 +433,10 @@ export default class extends Vue {
               : (hash[curVal.id] = true && preVal.push(curVal))
             return preVal
           }, [])
-          const result = this.algoListData.filter((item:any) => this.resourceHasAppIds.some(val => item.id === val.appId))
+          const result = this.algoListData.filter((item: any) => this.resourceHasAppIds.some(val => item.id === val.appId))
           // 过滤已选中数据和已编辑过得数据
           if (this.checkInfoObj[this.chooseData.resourceId][this.algoTabType]) {
-            const resultFinal = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] && this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].filter((item:any) => result.some((val:any) => val.id !== item.id))
+            const resultFinal = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] && this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].filter((item: any) => result.some((val: any) => val.id !== item.id))
             if (resultFinal && resultFinal.length > 0) {
               this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].push(resultFinal)
             }
@@ -459,7 +458,7 @@ export default class extends Vue {
   }
 
   // 判断当前table列是否可选
-  private ifDisable(row:any) {
+  private ifDisable(row: any) {
     return row.analyseType <= this.chooseData.aiType
   }
   // tab切换回调
@@ -474,7 +473,7 @@ export default class extends Vue {
   }
 
   // 获取rowkey
-  private getTableRowKey(row:any) {
+  private getTableRowKey(row: any) {
     return row.id
   }
 
@@ -494,7 +493,7 @@ export default class extends Vue {
   }
 
   // 能力列表 行点击
-  private onResourceTabsRowClick(row:any) {
+  private onResourceTabsRowClick(row: any) {
     const ifDisableFlag = row.analyseType <= this.chooseData.aiType
     if (!ifDisableFlag) {
       return false
@@ -503,17 +502,17 @@ export default class extends Vue {
   }
 
   // 能力checkbox点击
-  private selectHandle(selection:any, row:any) {
-    const result = selection.filter((item:any) => item.id === row.id)
+  private selectHandle(selection: any, row: any) {
+    const result = selection.filter((item: any) => item.id === row.id)
     if (result.length > 0) {
       this.setChecked()
     } else {
-      this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].filter((item:any) => item.id !== row.id)
+      this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].filter((item: any) => item.id !== row.id)
     }
   }
 
   // 能力checkbox改变逻辑
-  private selectAlgoChange(val:any) {
+  private selectAlgoChange(val: any) {
     this.checkInfoObj[this.chooseData.resourceId][this.algoTabType] = val
     this.filterCheckedStatus()
     if (this.resourceHasAppIds && this.resourceHasAppIds.length) {
@@ -538,9 +537,9 @@ export default class extends Vue {
     }
   }
 
-  private distinct(arr:any, key:any) {
+  private distinct(arr: any, key: any) {
     let hash = {}
-    const result = arr.reduce((preVal:any, curVal:any) => {
+    const result = arr.reduce((preVal: any, curVal: any) => {
       // eslint-disable-next-line no-unused-expressions
       hash[curVal[key]]
         ? ''
@@ -553,27 +552,27 @@ export default class extends Vue {
   // 过滤编辑过的选中和当前选中
   private filterCheckedStatus() {
     if (this.resourceHasAppIds && this.resourceHasAppIds.length > 0) {
-      const selectVal = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].map((item:any) => ({
+      const selectVal = this.checkInfoObj[this.chooseData.resourceId][this.algoTabType].map((item: any) => ({
         appId: item.id,
         analyseType: item.analyseType
       }))
-      const hasIdsInThisType = this.algoListData.filter((item:any) => {
-        return this.resourceHasAppIds.some((val:any) => {
+      const hasIdsInThisType = this.algoListData.filter((item: any) => {
+        return this.resourceHasAppIds.some((val: any) => {
           return item.id === val.appId
         })
-      }).map((item:any) => {
+      }).map((item: any) => {
         return {
           appId: item.id,
           analyseType: item.analyseType
         }
       })
-      const shouldRemove = hasIdsInThisType.filter((item:any) => {
-        return selectVal.every((val:any) => {
+      const shouldRemove = hasIdsInThisType.filter((item: any) => {
+        return selectVal.every((val: any) => {
           return item.appId !== val.appId
         })
       })
-      const shouldAdd = selectVal.filter((item:any) => {
-        return hasIdsInThisType.every((val:any) => {
+      const shouldAdd = selectVal.filter((item: any) => {
+        return hasIdsInThisType.every((val: any) => {
           return item.appId !== val.appId
         })
       })
@@ -581,18 +580,18 @@ export default class extends Vue {
       this.shouldRemove[this.chooseData.resourceId][this.algoTabType] = shouldRemove
       this.shouldAdd[this.chooseData.resourceId][this.algoTabType] = shouldAdd
 
-      this.addCheckedIds = Object.values(this.shouldAdd[this.chooseData.resourceId]).map((item:any) => item).flat()
-      this.removeCheckedIds = Object.values(this.shouldRemove[this.chooseData.resourceId]).map((item:any) => item).flat()
+      this.addCheckedIds = Object.values(this.shouldAdd[this.chooseData.resourceId]).map((item: any) => item).flat()
+      this.removeCheckedIds = Object.values(this.shouldRemove[this.chooseData.resourceId]).map((item: any) => item).flat()
 
-      const tempAlgoIds = [...this.resourceHasAppIds, ...this.addCheckedIds].filter((item:any) => {
-        return this.removeCheckedIds.every((val:any) => {
+      const tempAlgoIds = [...this.resourceHasAppIds, ...this.addCheckedIds].filter((item: any) => {
+        return this.removeCheckedIds.every((val: any) => {
           return item.appId !== val.appId
         })
       })
       this.selectAlgoInfo = tempAlgoIds
     } else {
-      const result = Object.values(this.checkInfoObj[this.chooseData.resourceId]).map((item:any) => {
-        return item.map((ele:any) => {
+      const result = Object.values(this.checkInfoObj[this.chooseData.resourceId]).map((item: any) => {
+        return item.map((ele: any) => {
           return {
             appId: ele.id,
             analyseType: ele.analyseType
@@ -602,7 +601,7 @@ export default class extends Vue {
       this.selectAlgoInfo = result.flat()
     }
 
-    this.selectAlgoId = this.selectAlgoInfo.map((item:any) => item.appId)
+    this.selectAlgoId = this.selectAlgoInfo.map((item: any) => item.appId)
     this.changeTipsText()
     this.setChecked()
     this.$emit('changevssaiapps', this.selectAlgoInfo)
@@ -610,13 +609,13 @@ export default class extends Vue {
 
   // 设置选中状态
   private setChecked() {
-    const result = this.algoListData.filter((item:any) => {
-      return this.checkInfoObj[this.chooseData.resourceId][this.algoTabType]?.some((val:any) => {
+    const result = this.algoListData.filter((item: any) => {
+      return this.checkInfoObj[this.chooseData.resourceId][this.algoTabType]?.some((val: any) => {
         return val.id === item.id
       })
     })
     this.$nextTick(() => {
-      result.forEach((element:any) => {
+      result.forEach((element: any) => {
         if (this.$refs[`algoTable${this.algoTabType}`]) {
           this.$refs[`algoTable${this.algoTabType}`][0].toggleRowSelection(element, true)
         }
