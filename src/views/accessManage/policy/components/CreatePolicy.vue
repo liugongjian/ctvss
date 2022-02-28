@@ -214,7 +214,7 @@ export default class extends Vue {
   }
 
   private get isUpdate() {
-    return this.$route.name !== 'accessManage-policy-create'
+    return this.$route.name === 'accessManage-policy-edit'
   }
   private async mounted() {
     this.isCtyunPolicy = this.$route.query.policyScope === 'ctyun'
