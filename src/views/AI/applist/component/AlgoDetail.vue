@@ -215,7 +215,7 @@ const getRule = (msg) => {
     rule.push({
       validator: (rule, value, callback) => {
         if (/^(?:[0-9]\d*)$/.test(value) === false) {
-          callback(new Error('需大于等于0的整数'))
+          callback(new Error('请输入合理的整数'))
         } else {
           callback()
         }
@@ -227,7 +227,7 @@ const getRule = (msg) => {
           if (parseInt(value) > 100) {
             callback(new Error('需小于100'))
           } else if (parseInt(value) === 0) {
-            callback(new Error('需大于等于0的整数'))
+            callback(new Error('请输入合理的整数'))
           } else {
             callback()
           }
@@ -246,6 +246,12 @@ const getRule = (msg) => {
         },
         trigger: 'blur' })
     }
+  } else if (msg === '起始时间') {
+    rule.push({
+      validator: (rule, value, callback) => {
+        value[0] === value[1] ? callback(new Error('起始时间不能相同')) : callback()
+      },
+      trigger: 'blur' })
   }
   rule.push({ required: true, trigger: 'blur', message: '请输入' + msg })
   return rule
@@ -279,11 +285,7 @@ export default class extends Mixins(AppMixin) {
     'algorithmMetadata.jamThreshold': getRule('拥堵车辆阈值'),
     'algorithmMetadata.timeSlide': getRule('时间窗口'),
     'algorithmMetadata.vehiclesThreshold': getRule('车辆数量阈值'),
-    period: [{
-      validator: (rule, value, callback) => {
-        value[0] === value[1] ? callback(new Error('起始时间不能相同')) : callback()
-      },
-      trigger: 'blur' }]
+    period: getRule('起始时间')
   }
   private effectiveTime: any = []
   private tips: any = {

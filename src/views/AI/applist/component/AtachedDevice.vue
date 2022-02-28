@@ -235,13 +235,13 @@ export default class extends Mixins(AppMixin) {
 
   public async getAlarms() {
     this.loading = true
+    this.getAlarm(this.$route.query.appid, null, this.period.period)
     const promiseArray = this.devices.map(item => this.getAlarm(this.$route.query.appid, item.deviceId, this.period.period))
     await Promise.all(promiseArray)
     this.devices = this.devices.map(device => {
       const result = this.alarms.filter(alarm => alarm.deviceId === device.deviceId)
       return { ...device, count: result[0].count }
     })
-    this.getAlarm(this.$route.query.appid, null, this.period.period)
     this.loading = false
   }
 

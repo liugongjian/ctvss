@@ -44,7 +44,7 @@
           </div>
           <div class="alarm-container__alarm">
             <div>总告警次数：</div>
-            <div>{{ totalAlarm }}次</div>
+            <div v-loading="loading.appList">{{ totalAlarm === 0 ? '-' : totalAlarm + '次' }}</div>
           </div>
         </div>
         <el-row>
@@ -131,7 +131,7 @@ export default class extends Mixins(AppMixin) {
   private aiApps: any = []
   private multipleSelection: any = []
   public $router: any
-  public totalAlarm: number = 0
+  public totalAlarm = 0
 
   private get batchDisabled() {
     return this.multipleSelection.length === 0
@@ -360,6 +360,7 @@ export default class extends Mixins(AppMixin) {
     // 每次请求先清空
     this.alarms = []
     try {
+      this.getAlarm(0, this.period.period)
       const promiseArray = this.aiApps.map(item => this.getAlarm(item.id, this.period.period))
       await Promise.all(promiseArray)
       this.aiApps = this.aiApps.map(app => {
@@ -367,7 +368,6 @@ export default class extends Mixins(AppMixin) {
         return { ...app, count: result[0].count }
       })
       // 获取总告警数
-      this.getAlarm(0, this.period.period)
     } catch (e) {
       console.log(e)
     } finally {

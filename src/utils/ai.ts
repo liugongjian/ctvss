@@ -495,6 +495,8 @@ export const parseMetaData = (type: string, metaData: any) => {
           )
         }
       }
+      // @ts-ignore
+      locations.PersonNum = metaData.Data?.PersonNum
       break
     // 实时在岗检测
     case '27':
@@ -1008,6 +1010,8 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
           )
         }
       }
+      // @ts-ignore
+      locations.PersonNum = metaData.Data?.PersonNum
       break
     // 实时在岗检测
     case '10024':
