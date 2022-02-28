@@ -81,29 +81,24 @@ export default class extends Vue {
     }
     this.$nextTick(() => {
       this.address = list
-      this.addressChange()
     })
   }
 
   /**
    * 当选中设备地址变化时触发
    */
-  private async addressChange() {
-    if (!this.address) return
+  private async addressChange(address) {
+    if (!address.length) return
     const addressCascader: any = this.$refs['addressCascader']
-    if (addressCascader && addressCascader.getCheckedNodes()[0]) {
-      addressCascader.dropDownVisible = false // 选择后自动关闭弹框
-      const currentAddress = addressCascader.getCheckedNodes()[0].data
-      if (currentAddress) {
-        const code = suffixZero(currentAddress.code, 8) // 不足8位的补0
-        const level = currentAddress.level
-        this._code = code
-        this.$emit('change', {
-          code,
-          level
-        })
-      }
-    }
+    addressCascader.dropDownVisible = false // 选择后自动关闭弹框
+    const lastCode = address[address.length - 1]
+    const code = suffixZero(lastCode, 8) // 不足8位的补0
+    const level = address.length
+    this._code = code
+    this.$emit('change', {
+      code,
+      level
+    })
   }
 
   /**
@@ -117,5 +112,15 @@ export default class extends Vue {
     let list = await getChildAddress(node.data && node.data.code, node.level + 1)
     resolve(list)
   }
+
+  /**
+   * 根据关键词搜索
+   */
+  // private async beforeFilter() {
+  //   const res = await getAddressAreaDir({
+  //     code: '140213'
+  //   })
+  //   this.selectedRegionList = res.area
+  // }
 }
 </script>
