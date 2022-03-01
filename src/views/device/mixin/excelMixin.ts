@@ -666,12 +666,21 @@ export default class ExcelMixin extends Vue {
     workbook.views = this.excelViews
     const worksheet: any = workbook.addWorksheet('My Sheet')
     worksheet.name = exelName
-    worksheet.columns = this.excelTemplate[this.exelDeviceType].map(item => {
+    let template = this.excelTemplate[this.exelDeviceType]
+    // 过滤template
+    let filters: Array<string> = ['gbId']
+    if (this.$store.state.user.tags.enabled_input_gbid === 'Y') {
+      filters = filters.filter(item => item !== 'gbId')
+    }
+    template = template.filter(item => !filters.includes(item.title.key))
+    // 插入表格列对应title
+    worksheet.columns = template.map(item => {
       return item.title
     })
     this.exportData.map((device: any) => {
       worksheet.addRow(device)
     })
+    // 添加校验规则
     this.optionsInit(worksheet, this.exelDeviceType)
     // 调整样式
     worksheet._columns.forEach((column: any) => {
