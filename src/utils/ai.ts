@@ -379,15 +379,15 @@ export const parseMetaData = (type: string, metaData: any) => {
     // 车辆统计
     case '22':
       if (metaData.Data && metaData.Data.DetectBoxes) {
-        const boxes = metaData.Data.DetectBoxes
-        for (let i = 0; i < boxes.length; i += 4) {
+        const boxes = metaData.Data.Boxes
+        for (let i = 0; i < boxes.length; i++) {
           locations.push(
             {
-              top: boxes[i + 1],
-              left: boxes[i],
-              width: boxes[i + 2],
-              height: boxes[i + 3],
-              isWarning: !!metaData.Data.DetectClses[i / 4]
+              top: boxes[i].TopLeftY,
+              left: boxes[i].TopLeftX,
+              width: boxes[i].BottomRightX - boxes[i].TopLeftX,
+              height: boxes[i].BottomRightY - boxes[i].TopLeftY,
+              isWarning: true
             }
           )
         }
@@ -403,15 +403,15 @@ export const parseMetaData = (type: string, metaData: any) => {
       // 电动车
     case '23':
       if (metaData.Data && metaData.Data.DetectBoxes) {
-        const boxes = metaData.Data.DetectBoxes
-        for (let i = 0; i < boxes.length; i += 4) {
+        const boxes = metaData.Data.Boxes
+        for (let i = 0; i < boxes.length; i++) {
           locations.push(
             {
-              top: boxes[i + 1],
-              left: boxes[i],
-              width: boxes[i + 2],
-              height: boxes[i + 3],
-              isWarning: !!metaData.Data.DetectClses[i / 4]
+              top: boxes[i].TopLeftY,
+              left: boxes[i].TopLeftX,
+              width: boxes[i].BottomRightX - boxes[i].TopLeftX,
+              height: boxes[i].BottomRightY - boxes[i].TopLeftY,
+              isWarning: true
             }
           )
         }
@@ -427,15 +427,15 @@ export const parseMetaData = (type: string, metaData: any) => {
       // 车辆违停
     case '24':
       if (metaData.Data && metaData.Data.DetectBoxes) {
-        const boxes = metaData.Data.DetectBoxes
-        for (let i = 0; i < boxes.length; i += 4) {
+        const boxes = metaData.Data.Boxes
+        for (let i = 0; i < boxes.length; i++) {
           locations.push(
             {
-              top: boxes[i + 1],
-              left: boxes[i],
-              width: boxes[i + 2],
-              height: boxes[i + 3],
-              isWarning: !!metaData.Data.DetectClses[i / 4]
+              top: boxes[i].TopLeftY,
+              left: boxes[i].TopLeftX,
+              width: boxes[i].BottomRightX - boxes[i].TopLeftX,
+              height: boxes[i].BottomRightY - boxes[i].TopLeftY,
+              isWarning: true
             }
           )
         }
@@ -451,15 +451,15 @@ export const parseMetaData = (type: string, metaData: any) => {
       // 车辆拥堵
     case '25':
       if (metaData.Data && metaData.Data.DetectBoxes) {
-        const boxes = metaData.Data.DetectBoxes
-        for (let i = 0; i < boxes.length; i += 4) {
+        const boxes = metaData.Data.Boxes
+        for (let i = 0; i < boxes.length; i++) {
           locations.push(
             {
-              top: boxes[i + 1],
-              left: boxes[i],
-              width: boxes[i + 2],
-              height: boxes[i + 3],
-              isWarning: !!metaData.Data.DetectClses[i / 4]
+              top: boxes[i].TopLeftY,
+              left: boxes[i].TopLeftX,
+              width: boxes[i].BottomRightX - boxes[i].TopLeftX,
+              height: boxes[i].BottomRightY - boxes[i].TopLeftY,
+              isWarning: true
             }
           )
         }
@@ -915,14 +915,14 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
     case '10019':
       if (metaData.Data && metaData.Data.Boxes) {
         const boxes = metaData.Data.Boxes
-        for (let i = 0; i < boxes.length; i += 4) {
+        for (let i = 0; i < boxes.length; i++) {
           locations.push(
             {
-              top: boxes[i + 1],
-              left: boxes[i],
-              width: boxes[i + 2],
-              height: boxes[i + 3]
-              // isWarning: !!metaData.Data.DetectClses[i / 4]
+              top: boxes[i].TopLeftY,
+              left: boxes[i].TopLeftX,
+              width: boxes[i].BottomRightX - boxes[i].TopLeftX,
+              height: boxes[i].BottomRightY - boxes[i].TopLeftY,
+              isWarning: true
             }
           )
         }
@@ -939,14 +939,14 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
     case '10021':
       if (metaData.Data && metaData.Data.Boxes) {
         const boxes = metaData.Data.Boxes
-        for (let i = 0; i < boxes.length; i += 4) {
+        for (let i = 0; i < boxes.length; i++) {
           locations.push(
             {
-              top: boxes[i + 1],
-              left: boxes[i],
-              width: boxes[i + 2],
-              height: boxes[i + 3]
-              // isWarning: !!metaData.Data.DetectClses[i / 4]
+              top: boxes[i].TopLeftY,
+              left: boxes[i].TopLeftX,
+              width: boxes[i].BottomRightX - boxes[i].TopLeftX,
+              height: boxes[i].BottomRightY - boxes[i].TopLeftY,
+              isWarning: true
             }
           )
         }
@@ -963,14 +963,14 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
     case '10022':
       if (metaData.Data && metaData.Data.Boxes) {
         const boxes = metaData.Data.Boxes
-        for (let i = 0; i < boxes.length; i += 4) {
+        for (let i = 0; i < boxes.length; i++) {
           locations.push(
             {
-              top: boxes[i + 1],
-              left: boxes[i],
-              width: boxes[i + 2],
-              height: boxes[i + 3]
-              // isWarning: !!metaData.Data.DetectClses[i / 4]
+              top: boxes[i].TopLeftY,
+              left: boxes[i].TopLeftX,
+              width: boxes[i].BottomRightX - boxes[i].TopLeftX,
+              height: boxes[i].BottomRightY - boxes[i].TopLeftY,
+              isWarning: true
             }
           )
         }
