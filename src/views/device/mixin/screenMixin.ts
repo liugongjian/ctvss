@@ -34,6 +34,10 @@ export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
       value: '16'
     },
     {
+      label: '32分屏',
+      value: '32'
+    },
+    {
       label: '1+3分屏',
       value: '1_3'
     },
@@ -61,8 +65,40 @@ export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
       value: '2'
     },
     {
+      label: '3分屏',
+      value: '3'
+    },
+    {
       label: '4分屏',
       value: '4'
+    },
+    {
+      label: '9分屏',
+      value: '9'
+    },
+    {
+      label: '16分屏',
+      value: '16'
+    },
+    {
+      label: '32分屏',
+      value: '32'
+    },
+    {
+      label: '1+3分屏',
+      value: '1_3'
+    },
+    {
+      label: '1+5分屏',
+      value: '1_5'
+    },
+    {
+      label: '1+7分屏',
+      value: '1_7'
+    },
+    {
+      label: '1+15分屏',
+      value: '1_15'
     }
   ]
 
@@ -111,6 +147,10 @@ export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
       case '16':
         this.maxSize = 16
         this.screenSize = '16'
+        break
+      case '32':
+        this.maxSize = 32
+        this.screenSize = '32'
         break
       case '1_3':
         this.maxSize = 4

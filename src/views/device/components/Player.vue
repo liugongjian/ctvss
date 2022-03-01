@@ -23,7 +23,7 @@
           <div v-if="hasProgress && duration" class="controls__time">{{ durationFormatInVideo(Math.floor(currentTime)) }} / {{ durationFormatInVideo(duration) }}</div>
         </template>
       </div>
-      <div class="controls__right">
+      <div v-if="!isHiddenTools" class="controls__right">
         <div v-if="hasAudio" class="controls__btn controls__playback volume">
           <span @click="switchMuteStatus">
             <svg-icon v-if="volume === 0 || isMute" name="mute" width="18px" height="18px" />
@@ -235,6 +235,7 @@ export default class extends Vue {
   private buffered = 0
   private durationFormatInVideo = durationFormatInVideo
   private resizeObserver?: any
+  private isHiddenTools: boolean = false
   private error = ''
 
   get username() {
@@ -346,21 +347,30 @@ export default class extends Vue {
         }
       })
       this.$nextTick(() => {
-        const $video: any = this.$refs.video
+        const $video = this.$refs.video as HTMLDivElement
         const mainBox: any = this.$refs.videoWrap
-        let player = $video.querySelector('video')
+        let player: any
         if (this.codec === 'h265') {
           player = $video.querySelector('.player-box')
-          this.playerFS()
-          window.addEventListener('resize', this.playerFS, false)
-          var targetNode = mainBox
-          // 监听video-wrap
-          // @ts-ignore
-          this.resizeObserver = new ResizeObserver(() => {
-            this.playerFS()
-          })
-          this.resizeObserver.observe(targetNode)
+        } else {
+          player = $video.querySelector('video')
         }
+        this.playerFS()
+        window.addEventListener('resize', this.playerFS, false)
+        const targetNode = mainBox
+        // 监听video-wrap
+        // @ts-ignore
+        this.resizeObserver = new ResizeObserver(() => {
+          this.playerFS()
+          const mainBox: any = this.$refs.videoWrap
+          // 针对小屏幕隐藏工具栏
+          if (mainBox.clientHeight < 100 || mainBox.clientWidth < 300) {
+            this.isHiddenTools = true
+          } else {
+            this.isHiddenTools = false
+          }
+        })
+        this.resizeObserver.observe(targetNode)
         this.videoMoveData.player = player
         this.videoMoveData.mainBox = mainBox
       })
@@ -371,9 +381,17 @@ export default class extends Vue {
 
   public playerFS() {
     const mainBox: any = this.$refs.videoWrap
-    if (!mainBox) return
-    const player = mainBox.querySelector('.player-box')
-    this.playerFitSize(mainBox.clientWidth, mainBox.clientHeight, player)
+    if (this.codec === 'h265') {
+      if (!mainBox) return
+      const player = mainBox.querySelector('.player-box')
+      player.style.height = `${mainBox.clientHeight - 40}px`
+      this.playerFitSize(mainBox.clientWidth, mainBox.clientHeight, player)
+    } else {
+      const $video: any = this.$refs.video
+      if (!$video) return
+      const player = $video.querySelector('video')
+      this.playerFitSize(mainBox.clientWidth, mainBox.clientHeight, player)
+    }
   }
 
   public playerFitSize(width: number, height: number, player: any) {
