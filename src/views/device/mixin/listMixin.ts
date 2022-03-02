@@ -43,7 +43,7 @@ export default class ListMixin extends Mixins(DeviceMixin) {
   public axiosSources: any[] = []
   public tableMaxHeight: any = null
   public observer: any = null
-  private channelSize:any = null
+  private channelSize: any = null
 
   public loading = {
     info: false,
@@ -399,6 +399,7 @@ export default class ListMixin extends Mixins(DeviceMixin) {
    * 加载设备列表
    */
   public async getDeviceList() {
+    const query = this.$route.query
     try {
       let params: any = {
         groupId: this.groupId,
@@ -414,14 +415,14 @@ export default class ListMixin extends Mixins(DeviceMixin) {
       let res: any
       this.loading.list = true
       params.dirId = this.dirId ? this.dirId : 0
-      const searchKey = this.$route.query.searchKey
+      const searchKey = query.searchKey
       if (searchKey) {
         params.searchKey = searchKey
       }
-      const statusKey = this.$route.query.statusKey
-      if (statusKey !== 'all') {
-        params.statusKey = statusKey
-      }
+      params.deviceStatusKeys = query.deviceStatusKeys || undefined
+      params.streamStatusKeys = query.streamStatusKeys || undefined
+      params.deviceAddresses = (query.deviceAddresses && (<string>query.deviceAddresses).split(',')[0]) || undefined
+      params.matchKeys = query.matchKeys
       const axiosSource = axios.CancelToken.source()
       this.axiosSources.push(axiosSource)
       res = await getDevices(params, axiosSource.token)

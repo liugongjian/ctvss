@@ -5,6 +5,7 @@
     :disabled="disabled"
     :options="selectedRegionList"
     :props="addressProps"
+    clearable
     @change="addressChange"
   />
 </template>
@@ -88,12 +89,17 @@ export default class extends Vue {
    * 当选中设备地址变化时触发
    */
   private async addressChange(address) {
-    if (!address.length) return
-    const addressCascader: any = this.$refs['addressCascader']
-    addressCascader.dropDownVisible = false // 选择后自动关闭弹框
-    const lastCode = address[address.length - 1]
-    const code = suffixZero(lastCode, 8) // 不足8位的补0
-    const level = address.length
+    console.log('----address: ', address)
+    let code = ''
+    let level = ''
+    if (address.length) {
+      const addressCascader: any = this.$refs['addressCascader']
+      addressCascader.dropDownVisible = false // 选择后自动关闭弹框
+      const lastCode = address[address.length - 1]
+      code = suffixZero(lastCode, 8) // 不足8位的补0
+      level = address.length
+    }
+
     this._code = code
     this.$emit('change', {
       code,

@@ -13,13 +13,13 @@
         <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
           <div class="dir-list" :style="`width: ${dirDrag.width}px`">
             <div class="dir-list__tools">
-              <el-tooltip v-if="!isVGroup && checkPermission(['AdminDevice'], {id: currentGroupId}) && !search.revertSearchFlag" class="item" effect="dark" content="子目录排序" placement="top" :open-delay="300">
+              <el-tooltip v-if="!isVGroup && checkPermission(['AdminDevice'], {id: currentGroupId}) && !advancedSearchForm.revertSearchFlag" class="item" effect="dark" content="子目录排序" placement="top" :open-delay="300">
                 <el-button type="text" @click.stop="openDialog('sortChildren', {id: '0'})"><svg-icon name="sort" /></el-button>
               </el-tooltip>
               <el-tooltip class="item" effect="dark" content="刷新目录" placement="top" :open-delay="300">
                 <el-button type="text" @click="initDirs"><svg-icon name="refresh" /></el-button>
               </el-tooltip>
-              <el-tooltip v-if="!isVGroup && checkPermission(['AdminDevice'], {id: currentGroupId}) && !search.revertSearchFlag" class="item" effect="dark" content="添加目录" placement="top" :open-delay="300">
+              <el-tooltip v-if="!isVGroup && checkPermission(['AdminDevice'], {id: currentGroupId}) && !advancedSearchForm.revertSearchFlag" class="item" effect="dark" content="添加目录" placement="top" :open-delay="300">
                 <el-button type="text" @click="openDialog('createDir')"><svg-icon name="plus" /></el-button>
               </el-tooltip>
               <el-tooltip v-if="false" class="item" effect="dark" content="目录设置" placement="top" :open-delay="300">
@@ -33,7 +33,7 @@
                 <span class="sum-icon">{{ `(${rootSums.online}/${rootSums.total})` }}</span>
               </div>
               <el-tree
-                v-if="!search.revertSearchFlag"
+                v-if="!advancedSearchForm.revertSearchFlag"
                 key="device-el-tree-original"
                 ref="dirTree"
                 empty-text="暂无目录或设备"
@@ -122,25 +122,8 @@
               </el-tree>
             </div>
             <!-- 国标才展示 -->
-            <div v-if="currentGroup.inProtocol === 'gb28181'" class="dir-list__search">
-              <el-dropdown placement="top-start" @command="changeSearchStatus">
-                <el-button class="dir-list__search-button" :type="search.statusKey === 'all' ? 'default': 'primary'" size="mini" style="margin-right: 5px!important">
-                  <svg-icon name="filter" />
-                </el-button>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item v-for="option in search.statusOptions" :key="option.label" :command="option.value">
-                    <i v-if="search.statusKey === option.value" class="el-icon-check search-check" />{{ option.label }}
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
-              <el-tooltip class="item" effect="dark" content="支持国标ID、设备IP、设备名查询" placement="top-start">
-                <!-- TIPS 需要处理为空时候的直接回车 -->
-                <el-input v-model="search.inputKey" size="mini" placeholder="支持国标ID、设备IP、设备名查询" @keyup.enter.native="enterKeySearch" />
-              </el-tooltip>
-              <el-button class="dir-list__search-button" type="primary" size="mini" icon="el-icon-search" :disabled="!search.inputKey.length" @click="filterSearchResult" />
-              <el-button v-if="search.revertSearchFlag" class="dir-list__search-button" type="primary" size="mini" @click="revertSearchResult">
-                <svg-icon name="revert" />
-              </el-button>
+            <div v-if="currentGroup.inProtocol === 'gb28181'">
+              <advanced-search :search-form="advancedSearchForm" @search="doSearch" />
             </div>
           </div>
         </div>
@@ -172,6 +155,7 @@ import IndexMixin from './mixin/indexMixin'
 import { DeviceModule } from '@/store/modules/device'
 import CreateDir from './components/dialogs/CreateDir.vue'
 import SortChildren from './components/dialogs/SortChildren.vue'
+import AdvancedSearch from '@/views/device/components/AdvancedSearch.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { deleteDir } from '@/api/dir'
 import { renderAlertType, getSums } from '@/utils/device'
@@ -183,7 +167,8 @@ import { VGroupModule } from '@/store/modules/vgroup'
   components: {
     CreateDir,
     StatusBadge,
-    SortChildren
+    SortChildren,
+    AdvancedSearch
   }
 })
 export default class extends Mixins(IndexMixin) {
@@ -200,7 +185,9 @@ export default class extends Mixins(IndexMixin) {
   }
 
   private mounted() {
+    console.log('index.vue mounted....')
     this.initSearchStatus()
+    console.log('this.advancedSearchForm: ', this.advancedSearchForm)
     // this.getGroupList()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
@@ -218,13 +205,16 @@ export default class extends Mixins(IndexMixin) {
 
   @Watch('currentGroupId', { immediate: true })
   private onCurrentGroupChange(groupId: string, oldGroupId: string) {
-    this.search = {
-      ...this.search,
-      inputKey: '',
-      searchKey: '',
-      statusKey: 'all',
-      revertSearchFlag: false
+    this.advancedSearchForm.deviceStatusKeys = []
+    this.advancedSearchForm.streamStatusKeys = []
+    this.advancedSearchForm.deviceAddresses = {
+      code: '',
+      level: ''
     }
+    this.advancedSearchForm.matchKeys = []
+    this.advancedSearchForm.inputKey = ''
+    this.advancedSearchForm.searchKey = ''
+    this.advancedSearchForm.revertSearchFlag = false
     if (!groupId) return
     this.$nextTick(() => {
       if (oldGroupId || !this.defaultKey) {
@@ -302,6 +292,7 @@ export default class extends Mixins(IndexMixin) {
         if (payload === true) {
           this.initDirs()
         }
+        break
     }
   }
 

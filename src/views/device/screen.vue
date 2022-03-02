@@ -64,7 +64,7 @@
               :style="{height: `${maxHeight}px`}"
             >
               <el-tree
-                v-if="!search.revertSearchFlag"
+                v-if="!advancedSearchForm.revertSearchFlag"
                 key="screen-el-tree-original"
                 ref="dirTree"
                 empty-text="暂无目录或设备"
@@ -214,25 +214,9 @@
                 </div>
               </div>
             </div>
-            <div v-if="currentGroup.inProtocol === 'gb28181'" class="dir-list__search">
-              <el-dropdown placement="top-start" @command="changeSearchStatus">
-                <el-button class="dir-list__search-button" :type="search.statusKey === 'all' ? 'default': 'primary'" size="mini" style="margin-right: 5px!important">
-                  <svg-icon name="filter" />
-                </el-button>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item v-for="option in search.statusOptions" :key="option.label" :command="option.value">
-                    <i v-if="search.statusKey === option.value" class="el-icon-check search-check" />{{ option.label }}
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
-              <el-tooltip class="item" effect="dark" content="支持国标ID、设备IP、设备名查询" placement="top-start">
-                <!-- TIPS 需要处理为空时候的直接回车 -->
-                <el-input v-model="search.inputKey" size="mini" placeholder="支持国标ID、设备IP、设备名查询" @keyup.enter.native="enterKeySearch" />
-              </el-tooltip>
-              <el-button class="dir-list__search-button" type="primary" size="mini" icon="el-icon-search" :disabled="!search.inputKey.length" @click="filterSearchResult" />
-              <el-button v-if="search.revertSearchFlag" class="dir-list__search-button" type="primary" size="mini" @click="revertSearchResult">
-                <svg-icon name="revert" />
-              </el-button>
+            <!-- 国标才展示 -->
+            <div v-if="currentGroup.inProtocol === 'gb28181'">
+              <advanced-search :search-form="advancedSearchForm" @search="doSearch" />
             </div>
           </div>
         </div>
@@ -396,6 +380,7 @@ import { getDeviceTree } from '@/api/device'
 import { renderAlertType, getSums } from '@/utils/device'
 import { VGroupModule } from '@/store/modules/vgroup'
 import IntercomDialog from './components/dialogs/Intercom.vue'
+import AdvancedSearch from '@/views/device/components/AdvancedSearch.vue'
 
 @Component({
   name: 'Screen',
@@ -408,30 +393,31 @@ import IntercomDialog from './components/dialogs/Intercom.vue'
     StreamSelector,
     OperateSelector,
     PlayerContainer,
-    IntercomDialog
+    IntercomDialog,
+    AdvancedSearch
   }
 })
 export default class extends Mixins(ScreenMixin) {
   private renderAlertType = renderAlertType
   private getSums = getSums
   private currentRegion = ''
-  public maxSize = 4;
-  private selectedDeviceId = '';
-  private currentPollingIndex = 0;
-  private isZoom = false;
-  private isClosed = false;
-  private speed = 1;
+  public maxSize = 4
+  private selectedDeviceId = ''
+  private currentPollingIndex = 0
+  private isZoom = false
+  private isClosed = false
+  private speed = 1
   private polling = {
     interval: 10,
     isStart: false,
     isPause: false
-  };
-  private interval?: NodeJS.Timeout;
+  }
+  private interval?: NodeJS.Timeout
   private currentNode?: Record<string, any> = {
     data: {}
-  };
-  private pollingDevices: Record<string, any>[] = [];
-  private autoPlayDevices: Record<string, any>[] = [];
+  }
+  private pollingDevices: Record<string, any>[] = []
+  private autoPlayDevices: Record<string, any>[] = []
   private pollingInterval = [
     {
       value: 5,
@@ -469,14 +455,23 @@ export default class extends Mixins(ScreenMixin) {
   @Watch('currentGroupId', { immediate: true })
   private onCurrentGroupChange(groupId: String, oldGroupId: String) {
     // search为inject变量，不能直接整体赋值为其他，否则inject会失效
-    this.search.inputKey = ''
-    this.search.searchKey = ''
-    this.search.statusKey = 'all'
-    this.search.revertSearchFlag = false
+    this.advancedSearchForm.deviceStatusKeys = []
+    this.advancedSearchForm.streamStatusKeys = []
+    this.advancedSearchForm.deviceAddresses = {
+      code: '',
+      level: ''
+    }
+    this.advancedSearchForm.matchKeys = []
+    this.advancedSearchForm.inputKey = ''
+    this.advancedSearchForm.searchKey = ''
+    this.advancedSearchForm.revertSearchFlag = false
     if (oldGroupId) {
       const query = {
         searchKey: '',
-        statusKey: 'all'
+        deviceStatusKeys: '',
+        streamStatusKeys: '',
+        deviceAddresses: '',
+        matchKeys: ''
       }
       this.$router.replace({
         query
@@ -675,7 +670,7 @@ export default class extends Mixins(ScreenMixin) {
     // 不刷新
     this.interval && clearInterval(this.interval)
     if (this.pollingDevices.length - 1 < this.maxSize) {
-      this.$alert(`当前设备数需大于分屏数才可开始轮巡`, '提示', {
+      this.$alert('当前设备数需大于分屏数才可开始轮巡', '提示', {
         confirmButtonText: '确定'
       })
       this.polling.isStart = false
@@ -739,7 +734,7 @@ export default class extends Mixins(ScreenMixin) {
       }
     }
     if (!this.autoPlayDevices.length) {
-      this.$alert(`当前设备数需大于0才可开始自动播放`, '提示', {
+      this.$alert('当前设备数需大于0才可开始自动播放', '提示', {
         confirmButtonText: '确定'
       })
     }
@@ -923,21 +918,26 @@ export default class extends Mixins(ScreenMixin) {
 .covid {
   .screen-wrap {
     height: 80vh;
+
     .screen-item {
       border: 1px solid #050926;
     }
   }
+
   .video-wrap {
     border: none;
   }
+
   .screen-banner {
     text-align: center;
     width: 100%;
+
     img {
       width: auto;
       height: 20vh;
     }
   }
+
   &__title {
     position: absolute;
     right: 20vw;
@@ -946,20 +946,24 @@ export default class extends Mixins(ScreenMixin) {
     font-size: 4.2vh;
     letter-spacing: 0.1em;
   }
+
   padding: 0 10.1vw;
   background: #050926;
 }
+
 .device-list {
   &__left {
     .playing {
       color: $success;
     }
+
     .custom-tree-node .tools {
       display: block;
       background: #fff;
       right: -10px;
       line-height: 26px;
       padding-right: 10px;
+
       i {
         display: block;
         padding: 5px 0;
@@ -971,6 +975,7 @@ export default class extends Mixins(ScreenMixin) {
           }
         }
       }
+
       .set-stream {
         ::v-deep .controls__popup {
           left: auto;
@@ -978,10 +983,11 @@ export default class extends Mixins(ScreenMixin) {
         }
       }
     }
+
     .el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content,
     .dir-list__tree .el-tree-node__content:hover {
       .custom-tree-node .tools {
-        background: #F5F7FA;
+        background: #f5f7fa;
       }
     }
   }
@@ -994,10 +1000,12 @@ export default class extends Mixins(ScreenMixin) {
 
   .dir-list__tree {
     position: relative;
+
     .offline .node-name {
       cursor: not-allowed;
     }
   }
+
   .dir-list {
     position: relative;
 
@@ -1008,30 +1016,37 @@ export default class extends Mixins(ScreenMixin) {
       width: 100%;
       top: 0;
       left: 0;
-      background: rgba(255, 255, 255, 0.75);
+      background: rgba(255, 255, 255, 75%);
       align-items: center;
+
       &__tools {
         width: 100%;
         text-align: center;
         font-size: 12px;
         margin-top: -30%;
+
         &__item {
           margin-bottom: 15px;
         }
+
         &__clock {
           vertical-align: middle;
         }
+
         &__status {
           font-size: 14px;
           font-weight: bold;
           margin-bottom: 30px;
         }
+
         &__select {
           width: 80px;
         }
+
         .el-button--mini {
           width: 100px;
         }
+
         .svg-icon {
           color: inherit;
         }
