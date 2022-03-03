@@ -418,7 +418,7 @@ export const asyncRoutes: RouteConfig[] = [
   },
   {
     path: '/player-debug',
-    component: () => import(/* webpackChunkName: "device" */ '@/views/device/debug.vue'),
+    component: () => import(/* webpackChunkName: "debug" */ '@/components/VssPlayer/Debug.vue'),
     name: 'device-debug',
     meta: {
       id: '20210424150201005000',
