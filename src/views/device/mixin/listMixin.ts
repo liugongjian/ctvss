@@ -12,6 +12,7 @@ import UploadExcel from '../components/dialogs/UploadExcel.vue'
 import Resource from '../components/dialogs/Resource.vue'
 import { checkPermission } from '@/utils/permission'
 import { VGroupModule } from '@/store/modules/vgroup'
+import ExcelMixin from '../mixin/excelMixin'
 
 @Component({
   components: {
@@ -21,7 +22,7 @@ import { VGroupModule } from '@/store/modules/vgroup'
     Resource
   }
 })
-export default class ListMixin extends Mixins(DeviceMixin) {
+export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
   public checkPermission = checkPermission
   public deviceInfo: any = null
   public deviceList: Array<Device> = []
@@ -44,8 +45,11 @@ export default class ListMixin extends Mixins(DeviceMixin) {
   public tableMaxHeight: any = null
   public observer: any = null
   private channelSize: any = null
+  public exportLoading: boolean = false
+  public selectedFile: any = null
+  public fileData: any = {}
 
-  public loading = {
+  public loading: any = {
     info: false,
     list: false,
     syncDevice: false,
@@ -884,5 +888,81 @@ export default class ListMixin extends Mixins(DeviceMixin) {
   public async handleCurrentChange(val: number) {
     this.pager.pageNum = val
     await this.getDeviceList()
+  }
+
+  /**
+   * 导入设备表
+   */
+  public uploadExcel(data: any) {
+    if (data.file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || data.file.type === 'application/vnd.ms-excel') {
+      this.dialog.uploadExcel = true
+      this.selectedFile = data.file
+      this.fileData = {
+        groupId: this.groupId,
+        inProtocol: this.inProtocol,
+        dirId: this.dirId,
+        fileName: data.file.name
+      }
+      if (this.isNVR) {
+        this.fileData.parentDeviceId = this.deviceInfo.deviceId
+        delete this.fileData.dirId
+      }
+    } else {
+      this.$message.error('导入文件必须为表格')
+    }
+  }
+
+  /**
+   * 导出设备表
+   */
+  public async exportExcel(command: any) {
+    this.exportLoading = true
+    try {
+      let params: any = {
+        groupId: this.groupId,
+        inProtocol: this.inProtocol,
+        dirId: this.dirId,
+        parentDeviceId: this.deviceId
+      }
+      // this.isNVR && (params.parentDeviceId = this.deviceInfo.parentDeviceId)
+      if (command === 'exportAll') {
+        params.command = 'all'
+      } else {
+        params.command = 'selected'
+        let deviceArr: any = []
+        if (command === 'exportCurrentPage') {
+          deviceArr = this.deviceList
+        } else if (command === 'exportSelect') {
+          deviceArr = this.selectedDeviceList
+        }
+        params.deviceIds = deviceArr.map((device: any) => {
+          return { deviceId: device.deviceId }
+        })
+      }
+      await this.exportDevicesExcel(params)
+    } catch (e) {
+      this.$message.error('导出失败')
+      console.log(e)
+    }
+    this.exportLoading = false
+  }
+
+  /**
+   * 导出模板
+   */
+  public exportTemplate() {
+    let currentInProtocal: any = ['ehome', 'gb28181', 'rtsp', 'rtmp'].includes(this.inProtocol.toString()) ? this.inProtocol : 'gb28181'
+    this.exelType = 'template'
+    this.exelDeviceType = currentInProtocal
+    this.exelName = `${currentInProtocal}导入模板`
+    this.regionName = this.groupData?.regionName || ''
+    this.excelGroupDate = this.groupData
+    if (this.isNVR) {
+      this.exelDeviceType = 'nvr'
+      this.exelName = 'NVR添加子设备导入模板'
+      this.excelInProtocol = this.deviceInfo.inProtocol
+      this.parentDeviceId = this.deviceInfo.deviceId
+    }
+    this.exportExel()
   }
 }
