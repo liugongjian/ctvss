@@ -22,6 +22,9 @@ export class Player {
   /* 播放器实例(Private) */
   public video: EnhanceHTMLVideoElement
 
+  /* H265播放器画布 */
+  public canvas: HTMLCanvasElement
+
   constructor(config: PlayerConfig) {
     this.config = config
     this.container = config.container

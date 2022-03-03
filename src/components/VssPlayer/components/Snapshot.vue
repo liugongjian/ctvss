@@ -21,17 +21,15 @@ export default class extends ComponentMixin {
    * 截图保存
    */
   private snapshot() {
+    if (!this.player) return
+    console.log('snapshot', this.player.type)
     const name = this.videoName || 'snapshot'
-    const $video = this.player.video
-    if (!$video) return
-    let $canvas: any | null = document.createElement('canvas')
-    $canvas.width = $video.videoWidth
-    $canvas.height = $video.videoHeight
-    $canvas!.getContext('2d').drawImage($video, 0, 0, $canvas.width, $canvas.height)
+    const canvas = this.getCanvas()
+
     // IE兼容下载、未加载出视频时点击截图无效
     // 修改
     if (isIE()) {
-      let arr = $canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream').split(',')
+      let arr = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream').split(',')
       if (arr[0] === 'data:') return
       let mime = arr[0].match(/:(.*?);/)[1]
       let bstr = atob(arr[1])
@@ -46,9 +44,24 @@ export default class extends ComponentMixin {
     } else {
       let $link: any = document.createElement('a')
       $link.download = `${name}_${dateFormat(new Date(), 'yyyy-MM-dd_HH-mm-ss')}.png`
-      $link.href = $canvas.toDataURL('image/png')
+      $link.href = canvas.toDataURL('image/png')
       $link.click()
     }
+  }
+
+  private getCanvas(): HTMLCanvasElement {
+    let canvas: HTMLCanvasElement
+    if (this.player.type === 'h265') {
+      canvas = this.player.canvas
+    } else {
+      const $video = this.player.video
+      if (!$video) return
+      canvas = document.createElement('canvas')
+      canvas.width = $video.videoWidth
+      canvas.height = $video.videoHeight
+      canvas!.getContext('2d').drawImage($video, 0, 0, canvas.width, canvas.height)
+    }
+    return canvas
   }
 }
 </script>
