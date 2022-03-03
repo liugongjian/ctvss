@@ -8,15 +8,19 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
 import { Player } from './models/Player'
 
 @Component({
   name: 'PlayPause'
 })
 export default class extends Vue {
-  @Prop()
-  private player: Player
+  @Inject('getPlayer')
+  private getPlayer: any
+
+  private get player(): Player {
+    return this.getPlayer()
+  }
 
   /* 是否暂停 */
   private isPaused = true
@@ -26,6 +30,7 @@ export default class extends Vue {
    */
   @Watch('player')
   private onPlayerCreate() {
+    console.log('onPlayerCreate')
     this.player.config.onPlay = this.onStatusChange
     this.player.config.onPause = this.onStatusChange
   }

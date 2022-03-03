@@ -5,7 +5,7 @@
       <slot name="body" />
       <div class="controls__left">
         <template v-if="!isLive">
-          <PlayPause :player="player" />
+          <PlayPause />
           <!-- <div v-if="hasProgress && duration" class="controls__time">{{ durationFormatInVideo(Math.floor(currentTime)) }} / {{ durationFormatInVideo(duration) }}</div> -->
         </template>
       </div>
@@ -17,7 +17,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Provide } from 'vue-property-decorator'
 import { createPlayer } from './models/PlayerFactory'
 import { PlayerType } from './models/Player.d'
 import { Player } from './models/Player'
@@ -78,8 +78,13 @@ export default class extends Vue {
   })
   private hasProgress: boolean
 
-  /* 播放器实例 */
   private player: Player = null
+
+  /* 播放器实例 */
+  @Provide('getPlayer')
+  private getPlayer() {
+    return this.player
+  }
 
   /* Loading */
   private loading: boolean = false
