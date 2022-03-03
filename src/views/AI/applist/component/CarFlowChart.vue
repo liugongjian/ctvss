@@ -156,6 +156,38 @@ export default class extends Mixins(DashboardMixin) {
                 </div>
               `
     })
+
+    this.registerChartInteraction()
+    this.chart.getCanvas().on('mousewheel', ev => { ev.preventDefault() })
+
+    this.chart
+      .interval()
+      .position('time*value')
+      .color('type', type => type === 'normal' ? '#40a9ff' : '#FF0000')
+      .tooltip('time*value*type', (time, value, type) => {
+        return {
+          time,
+          value,
+          type: type === 'normal' ? '正常值' : '告警值'
+        }
+      })
+      .size(1)
+
+    this.chart.annotation().line({
+      start: ['min', this.chartInfo.vehiclesThreshold],
+      end: ['max', this.chartInfo.vehiclesThreshold],
+      style: {
+        stroke: '#ff4d4f',
+        lineWidth: 1
+      }
+    })
+    this.chart.render()
+    window.onresize = () => {
+      this.chart.forceFit()
+    }
+  }
+
+  private registerChartInteraction() {
     registerAction('scale-translate-x', ScaleTranslate)
     registerInteraction('drag-move-x', {
       start: [{ trigger: 'plot:mousedown', action: 'scale-translate-x:start' }],
@@ -186,33 +218,6 @@ export default class extends Mixins(DashboardMixin) {
     this.chart.interaction('drag-move-x')
     this.chart.interaction('active-region')
     this.chart.interaction('view-zoom-x')
-    this.chart.getCanvas().on('mousewheel', ev => { ev.preventDefault() })
-
-    this.chart
-      .interval()
-      .position('time*value')
-      .color('type', type => type === 'normal' ? '#40a9ff' : '#FF0000')
-      .tooltip('time*value*type', (time, value, type) => {
-        return {
-          time,
-          value,
-          type: type === 'normal' ? '正常值' : '告警值'
-        }
-      })
-      .size(1)
-
-    this.chart.annotation().line({
-      start: ['min', this.chartInfo.vehiclesThreshold],
-      end: ['max', this.chartInfo.vehiclesThreshold],
-      style: {
-        stroke: '#ff4d4f',
-        lineWidth: 1
-      }
-    })
-    this.chart.render()
-    window.onresize = () => {
-      this.chart.forceFit()
-    }
   }
   /**
    * 更新图表
