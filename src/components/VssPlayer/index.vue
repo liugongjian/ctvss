@@ -2,7 +2,7 @@
   <div class="vss-player__wrap">
     <Player
       ref="player"
-      :type="type"
+      :type="playerType"
       :url="url"
       :codec="codec"
       :is-debug="true"
@@ -12,7 +12,7 @@
         <H265Icon :codec="codec" />
       </template>
       <template slot="right">
-        <Snapshot :player="player" />
+        <Snapshot :video-name="videoName" />
       </template>
     </Player>
   </div>
@@ -50,6 +50,10 @@ export default class extends Vue {
   })
   private codec: string
 
+  /* 视频名称 */
+  @Prop()
+  private videoName: string
+
   /* 播放器实例 */
   private player: Player = null
 
@@ -57,6 +61,11 @@ export default class extends Vue {
   @Provide('getPlayer')
   private getPlayer() {
     return this.player
+  }
+
+  /* 如视频编码为H265，播放器类型变为h265 */
+  private get playerType() {
+    return this.codec === 'h265' ? 'h265' : this.type
   }
 
   /* 当播放器实例创建 */

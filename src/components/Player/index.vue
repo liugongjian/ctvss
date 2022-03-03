@@ -112,7 +112,8 @@ export default class extends Vue {
       })
       this.$emit('onCreate', this.player)
     } catch (e) {
-      this.error = e.message
+      this.isDebug && console.log(e.message)
+      this.error = '浏览器创建失败'
     }
   }
 

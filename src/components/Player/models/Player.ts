@@ -20,7 +20,7 @@ export class Player {
   public playbackRate?: number
 
   /* 播放器实例(Private) */
-  protected video: EnhanceHTMLVideoElement
+  public video: EnhanceHTMLVideoElement
 
   constructor(config: PlayerConfig) {
     this.config = config

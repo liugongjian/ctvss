@@ -1,5 +1,6 @@
 import { FlvPlayer } from './FlvPlayer'
 import { HlsPlayer } from './HlsPlayer'
+import { H265Player } from './H265Player'
 import { PlayerConfig } from './Player.d'
 
 export const createPlayer = (config: PlayerConfig) => {
@@ -29,5 +30,7 @@ const initPlayer = (config: PlayerConfig) => {
       return new FlvPlayer(config)
     case 'hls':
       return new HlsPlayer(config)
+    case 'h265':
+      return new H265Player(config)
   }
 }
