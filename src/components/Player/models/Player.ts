@@ -146,9 +146,8 @@ export class Player {
    * H265和RTC需要单独判断
    */
   protected testHasAudio() {
-    const hasAudio = this.video.mozHasAudio ||
-      Boolean(this.video.webkitAudioDecodedByteCount) ||
-      Boolean(this.video.audioTracks && this.video.audioTracks.length)
+    // @ts-ignore
+    const hasAudio = this.video.mozHasAudio || Boolean(this.video.webkitAudioDecodedByteCount) || Boolean(this.video.audioTracks && this.video.audioTracks.length)
     this.config.onTestHasAudio && this.config.onTestHasAudio(hasAudio)
   }
 

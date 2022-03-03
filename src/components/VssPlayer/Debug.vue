@@ -64,7 +64,7 @@ export default class extends Vue {
     type: 'hls',
     isLive: false,
     isWs: false,
-    url: 'https://guangzhou.vcn.ctyun.cn/vss-work_order_10-2/29941953260967657/record/1646150401_signed.m3u8?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GAA6CGT2MMHD06Z2KWQX%2F20220302%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20220302T062925Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=a22bc457ca6bbc3d2da1224ab8120b1be28b81530e1a0583dcbf1974a6644b81'
+    url: 'https://guangzhou.vcn.ctyun.cn/vss-work_order_10-2/29941953260967657/record/1646236800_signed.m3u8?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=GAA6CGT2MMHD06Z2KWQX%2F20220303%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20220303T090101Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=316c9c1e39bc00f9a94a4cf2a143b8711a5762ed4ce772311cedca06372e3a6d'
   }
   private url = ''
 

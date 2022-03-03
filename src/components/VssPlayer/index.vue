@@ -18,14 +18,14 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Provide } from 'vue-property-decorator'
 import { PlayerType } from '../Player/models/Player.d'
 import Player from '../Player/index.vue'
 /**
  * 子组件库
  */
-import H265Icon from './H265Icon.vue'
-import Snapshot from './Snapshot.vue'
+import H265Icon from './components/H265Icon.vue'
+import Snapshot from './components/Snapshot.vue'
 
 @Component({
   name: 'VssPlayer',
@@ -50,8 +50,16 @@ export default class extends Vue {
   })
   private codec: string
 
+  /* 播放器实例 */
   private player: Player = null
 
+  /* 获取播放器实例Provide */
+  @Provide('getPlayer')
+  private getPlayer() {
+    return this.player
+  }
+
+  /* 当播放器实例创建 */
   private onPlayerCreate(player) {
     console.log(player)
     this.player = player

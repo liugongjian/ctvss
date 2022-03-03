@@ -25,8 +25,8 @@ import './styles/index.scss'
 /**
  * 子组件库
  */
-import PlayPause from './PlayPause.vue'
-import Volume from './Volume.vue'
+import PlayPause from './compontents/PlayPause.vue'
+import Volume from './compontents/Volume.vue'
 
 @Component({
   name: 'Player',
@@ -78,9 +78,10 @@ export default class extends Vue {
   })
   private hasProgress: boolean
 
+  /* 播放器实例 */
   private player: Player = null
 
-  /* 播放器实例 */
+  /* 获取播放器实例Provide */
   @Provide('getPlayer')
   private getPlayer() {
     return this.player

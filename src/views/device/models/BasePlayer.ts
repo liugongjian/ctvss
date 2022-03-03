@@ -46,7 +46,7 @@ export class BasePlayer {
   /**
    * 设置默认值
    */
-  public setDefault() {}
+  private setDefault() {}
 
   /**
    * 静音

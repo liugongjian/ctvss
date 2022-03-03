@@ -5,19 +5,18 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
-import { Player } from '../Player/models/Player'
+import { Component } from 'vue-property-decorator'
+import ComponentMixin from './mixin'
 
 @Component({
-  name: 'PlaybackRate'
+  name: 'Snapshot'
 })
-export default class extends Vue {
-  @Prop()
-  private player: Player
-
+export default class extends ComponentMixin {
   /**
    * 截图保存
    */
-  private snapshot() {}
+  private snapshot() {
+    console.log(this.player)
+  }
 }
 </script>

@@ -8,7 +8,6 @@ export type OnRetryParams = {
 export interface EnhanceHTMLVideoElement extends HTMLVideoElement {
   mozHasAudio?: boolean;
   webkitAudioDecodedByteCount?: number;
-  audioTracks?: any;
 }
 
 export interface PlayerConfig {

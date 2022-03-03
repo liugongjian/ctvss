@@ -8,20 +8,13 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Watch, Inject } from 'vue-property-decorator'
-import { Player } from './models/Player'
+import { Component, Watch } from 'vue-property-decorator'
+import ComponentMixin from './mixin'
 
 @Component({
   name: 'PlayPause'
 })
-export default class extends Vue {
-  @Inject('getPlayer')
-  private getPlayer: any
-
-  private get player(): Player {
-    return this.getPlayer()
-  }
-
+export default class extends ComponentMixin {
   /* 是否暂停 */
   private isPaused = true
 

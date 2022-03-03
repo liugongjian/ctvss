@@ -5,14 +5,12 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
-import { Player } from './models/Player'
+import { Component } from 'vue-property-decorator'
+import ComponentMixin from './mixin'
 
 @Component({
   name: 'Progress'
 })
-export default class extends Vue {
-  @Prop()
-  private player: Player
+export default class extends ComponentMixin {
 }
 </script>
