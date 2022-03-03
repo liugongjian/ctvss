@@ -10,6 +10,7 @@ export default class AppMixin extends Vue {
     periodType: '今天',
     period: [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)]
   }
+  public msOfADay = 864 * 100000
 
   /**
    * 刷新数据

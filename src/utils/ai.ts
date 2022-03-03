@@ -470,7 +470,12 @@ export const parseMetaData = (type: string, metaData: any) => {
             }
           )
         }
+        // @ts-ignore
+        metaData.Data.JamCount && (locations.JamCount = metaData.Data.JamCount)
+        // @ts-ignore
+        metaData.Data.JamThreshold && (locations.JamThreshold = metaData.Data.JamThreshold)
       }
+
       break
     // 人群感应检测
     case '26':
@@ -1104,6 +1109,12 @@ export const transformLocationAi = (locations: any, img: any) => {
       location.clientLeftPercent = location.left * ratioW / img.clientWidth * 100
       location.clientWidthPercent = location.width * ratioW / img.clientWidth * 100
       location.clientHeightPercent = location.height * ratioH / img.clientHeight * 100
+      if (location.clientTopPercent + location.clientHeightPercent >= 100) {
+        location.clientHeightPercent = 100 - location.clientTopPercent
+      }
+      if (location.clientWidthPercent + location.clientLeftPercent >= 100) {
+        location.clientWidthPercent = 100 - location.clientLeftPercent
+      }
     }
   })
   return locations
@@ -1119,34 +1130,3 @@ const parseBodyAttributes = (attributes: any) => {
   }
   return attributesArray
 }
-
-// const standardMetaDataParse = (metaData, ...features) => {
-//   let locations = []
-//   if (metaData.Data && metaData.Data.DetectBoxes) {
-//     const boxes = metaData.Data.DetectBoxes
-//     for (let i = 0; i < boxes.length; i += 4) {
-//       locations.push(
-//         {
-//           top: boxes[i + 1],
-//           left: boxes[i],
-//           width: boxes[i + 2],
-//           height: boxes[i + 3],
-//           isWarning: !!metaData.Data.DetectClses[i / 4]
-//         }
-//       )
-//     }
-//     if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
-//       locations.push(
-//         {
-//           zone: metaData.DangerZoneBox
-//         }
-//       )
-//     }
-//     if (features.length) {
-//       features.forEach(item => {
-//         metaData.Data[item] && (locations[item] = metaData.Data[item])
-//       })
-//     }
-//   }
-//   return locations
-// }

@@ -44,7 +44,7 @@
           </div>
           <div class="alarm-container__alarm">
             <div>总告警次数：</div>
-            <div v-loading="loading.appList">{{ totalAlarm === 0 ? '-' : totalAlarm + '次' }}</div>
+            <div v-loading="loading.appList" style="min-width:31px">{{ totalAlarm + '次' }}</div>
           </div>
         </div>
         <el-row>
@@ -147,7 +147,7 @@ export default class extends Mixins(AppMixin) {
         this.period.period = [this.getDateBefore(2), new Date().setHours(23, 59, 59, 999)]
         break
       case '自定义时间':
-        this.period.period = [this.getDateBefore(6), new Date().setHours(23, 59, 59, 999)]
+        this.period.period = [this.getDateBefore(6), new Date().setHours(0, 0, 0, 0)]
         break
     }
   }
@@ -377,10 +377,10 @@ export default class extends Mixins(AppMixin) {
 
   public async getAlarm(appId, period) {
     if (appId) {
-      const res = await getAiAlarm({ appId, startTime: period[0], endTime: period[1] })
+      const res = await getAiAlarm({ appId, startTime: period[0], endTime: this.period.periodType === '自定义时间' ? period[1] + this.msOfADay : period[1] })
       this.alarms.push(res)
     } else {
-      const { count } = await getAiAlarm({ appId, startTime: period[0], endTime: period[1] })
+      const { count } = await getAiAlarm({ appId, abilityId: this.activeTabName, startTime: period[0], endTime: this.period.periodType === '自定义时间' ? period[1] + this.msOfADay : period[1] })
       this.totalAlarm = count
     }
   }

@@ -71,7 +71,7 @@ export default class extends Mixins(DashboardMixin) {
       }
       this.queryLoading.chart = true
       const res = await getVehiclesAlarmStatic(query)
-      this.chartData = res.alarmChartData.map(item => ({ ...item, value: parseInt(item.value) }))
+      this.prioritiseAlarm(res)
       this.chartInfo.vehiclesThreshold = res.vehiclesThreshold
       this.chartInfo.timeSlide = res.timeSlide
       this.$nextTick(() => {
@@ -86,9 +86,16 @@ export default class extends Mixins(DashboardMixin) {
     }
   }
 
+  /** 调整数据顺序
+   * 优先绘制alarm */
+  private prioritiseAlarm(res) {
+    const temp = res.alarmChartData.map(item => ({ ...item, value: parseInt(item.value) }))
+    const alarms = temp.filter(item => item.type === 'alarm')
+    const normal = temp.filter(item => item.type === 'normal')
+    this.chartData = [...alarms, ...normal]
+  }
   /**
    * 更新图表
-   * https://antv-2018.alipay.com/zh-cn/g2/3.x/demo/column/column7.html
    */
   private drawChart() {
     this.chart = new Chart({
@@ -118,35 +125,52 @@ export default class extends Mixins(DashboardMixin) {
     })
     this.chart.axis('value', false)
 
-    // this.chart.axis('value', {
-    //   line: {
-    //     style: {
-    //       stroke: '#eee'
-    //     }
-    //   },
-    //   grid: null,
-    //   label: null,
-    //   title: {
-    //     offset: 80
-    //   }
-    // })
     this.chart.legend(false)
-    // this.chart.interaction('active-region')
-    this.chart.tooltip(false)
+    this.chart.tooltip({
+      shared: true,
+      // showMarkers: true,
+      title: (title, datum) => {
+        return datum.time
+      },
+      // customItems: items => items.map(item => {
+      //   const temp = { ...item,
+      //     type: item.type === 'normal' ? '正常值' : '告警值'
+      //   }
+      //   console.log(temp)
+      //   return temp
+      // })
+      itemTpl: `
+                <div style="margin-bottom: 10px;list-style:none;">
+                  <span style="background-color:{color};" class="g2-tooltip-marker"></span>
+                  {type}: {value}
+                </div>
+              `
+    })
+
+    this.chart.getCanvas().on('mousewheel', ev => { ev.preventDefault() })
+    this.chart.interaction('active-region')
+
     this.chart
       .interval()
       .position('time*value')
-      .color('type', ['#FF0000', '#40a9ff'])
-      .label('value', {
-        content: (data) => {
-          // 过滤补0的数据
-          return data.type === 'alarm' && data.value === '0' ? '' : data.value
+      .color('type', type => type === 'normal' ? '#40a9ff' : '#FF0000')
+      .tooltip('time*value*type', (time, value, type) => {
+        return {
+          time,
+          value,
+          type: type === 'normal' ? '正常值' : '告警值'
         }
       })
-      .size(2)
+      .size(1)
 
-    // this.chart.interval().position('time*threshold').color('#FF0000').size(2)
-    // this.chart.interval().position('time*cars').color('#40a9ff').size(2)
+    this.chart.annotation().line({
+      start: ['min', this.chartInfo.vehiclesThreshold],
+      end: ['max', this.chartInfo.vehiclesThreshold],
+      style: {
+        stroke: '#ff4d4f',
+        lineWidth: 1
+      }
+    })
     this.chart.render()
     window.onresize = () => {
       this.chart.forceFit()

@@ -120,7 +120,7 @@ export default class extends Mixins(AppMixin) {
         this.period.period = [this.getDateBefore(2), new Date().setHours(23, 59, 59, 999)]
         break
       case '自定义时间':
-        this.period.period = [this.getDateBefore(6), new Date().setHours(23, 59, 59, 999)]
+        this.period.period = [this.getDateBefore(6), new Date().setHours(0, 0, 0, 0)]
         break
     }
   }
@@ -235,6 +235,7 @@ export default class extends Mixins(AppMixin) {
 
   public async getAlarms() {
     this.loading = true
+    this.alarms = []
     this.getAlarm(this.$route.query.appid, null, this.period.period)
     const promiseArray = this.devices.map(item => this.getAlarm(this.$route.query.appid, item.deviceId, this.period.period))
     await Promise.all(promiseArray)
@@ -247,10 +248,10 @@ export default class extends Mixins(AppMixin) {
 
   public async getAlarm(appId, deviceId, period) {
     if (deviceId) {
-      const res = await getAiAlarm({ appId, deviceId, startTime: period[0], endTime: period[1] })
+      const res = await getAiAlarm({ appId, deviceId, startTime: period[0], endTime: this.period.periodType === '自定义时间' ? period[1] + this.msOfADay : period[1] })
       this.alarms.push(res)
     } else {
-      const { count } = await getAiAlarm({ appId, startTime: period[0], endTime: period[1] })
+      const { count } = await getAiAlarm({ appId, startTime: period[0], endTime: this.period.periodType === '自定义时间' ? period[1] + this.msOfADay : period[1] })
       this.totalAlarm = count
     }
   }

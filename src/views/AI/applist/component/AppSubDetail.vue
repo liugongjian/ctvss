@@ -391,9 +391,10 @@ export default class extends Vue {
     private onLocationChanged(index: number) {
       this.currentLocationIndex = index
     }
-    private refresh() {
-      this.debounceHandle()
+    private async refresh() {
       this.forceRefresh = true
+      await this.getScreenShot()
+      this.isCarFlowCode && await this.getAlarmsList()
       this.$nextTick(() => {
         this.forceRefresh = false
       })
@@ -466,6 +467,7 @@ export default class extends Vue {
       vertical-align: middle;
       width:11vw;
       margin-right: 20px;
+      padding: 0 5px;
     }
     .time-interval{
       display: inline-block;
