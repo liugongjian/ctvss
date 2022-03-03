@@ -9,11 +9,15 @@
 
 <script lang="ts">
 import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
-import { Chart } from '@antv/g2'
+import { Chart, registerAction, registerInteraction } from '@antv/g2'
+import ScaleZoom from './chartAction/scale-zoom'
+import ScaleTranslate from './chartAction/scale-translate'
+import isWheelDown from './chartAction/mouse-util'
 import { getVehiclesAlarmStatic } from '@/api/ai-app'
 import DashboardMixin from '@/views/dashboard/mixin/DashboardMixin'
 import DashboardContainer from '@/views/dashboard/components/DashboardContainer.vue'
 import debounce from '@/utils/debounce'
+import { fromUnixTime, format } from 'date-fns'
 
 @Component({
   name: 'CarFlowChart',
@@ -89,7 +93,8 @@ export default class extends Mixins(DashboardMixin) {
   /** 调整数据顺序
    * 优先绘制alarm */
   private prioritiseAlarm(res) {
-    const temp = res.alarmChartData.map(item => ({ ...item, value: parseInt(item.value) }))
+    // @ts-ignore
+    const temp = res.alarmChartData.map(item => ({ ...item, value: parseInt(item.value), time: Date.parse(new Date(item.time)) }))
     const alarms = temp.filter(item => item.type === 'alarm')
     const normal = temp.filter(item => item.type === 'normal')
     this.chartData = [...alarms, ...normal]
@@ -101,21 +106,26 @@ export default class extends Mixins(DashboardMixin) {
     this.chart = new Chart({
       container: 'car-container',
       autoFit: true,
-      padding: [20, 50, 45, 50]
+      padding: [20, 50, 45, 50],
+      limitInPlot: true
     })
     this.chart.data(this.chartData)
     this.chart.scale('value', {
       tickLine: null
     })
-    this.chart.scale('time', {
-      type: 'time',
-      mask: 'HH:mm:ss\nYYYY-MM-DD',
-      nice: true
-    })
+    // this.chart.scale('time', {
+    //   type: 'time',
+    //   mask: 'HH:mm:ss\nYYYY-MM-DD',
+    //   nice: true
+    // })
     this.chart.axis('time', {
       label: {
         textStyle: {
           fill: '#aaaaaa'
+        },
+        formatter: text => {
+          const timestr = format(fromUnixTime(text / 1000), 'HH:mm:ss yyyy-MM-dd')
+          return timestr.split(' ')[0] + '\n' + timestr.split(' ')[1]
         }
       },
       tickLine: {
@@ -130,7 +140,7 @@ export default class extends Mixins(DashboardMixin) {
       shared: true,
       // showMarkers: true,
       title: (title, datum) => {
-        return datum.time
+        return format(fromUnixTime(datum.time / 1000), 'yyyy-MM-dd HH:mm:ss')
       },
       // customItems: items => items.map(item => {
       //   const temp = { ...item,
@@ -146,9 +156,37 @@ export default class extends Mixins(DashboardMixin) {
                 </div>
               `
     })
-
-    this.chart.getCanvas().on('mousewheel', ev => { ev.preventDefault() })
+    registerAction('scale-translate-x', ScaleTranslate)
+    registerInteraction('drag-move-x', {
+      start: [{ trigger: 'plot:mousedown', action: 'scale-translate-x:start' }],
+      processing: [{ trigger: 'plot:mousemove', action: 'scale-translate-x:translate', throttle: { wait: 100, leading: true, trailing: false } }],
+      end: [{ trigger: 'plot:mouseup', action: 'scale-translate-x:end' }]
+    })
+    registerAction('scale-zoom-x', ScaleZoom)
+    registerInteraction('view-zoom-x', {
+      start: [
+        {
+          trigger: 'plot:mousewheel',
+          isEnable(context) {
+            return isWheelDown(context.event)
+          },
+          action: 'scale-zoom-x:zoomOut',
+          throttle: { wait: 100, leading: true, trailing: false }
+        },
+        {
+          trigger: 'plot:mousewheel',
+          isEnable(context) {
+            return !isWheelDown(context.event)
+          },
+          action: 'scale-zoom-x:zoomIn',
+          throttle: { wait: 100, leading: true, trailing: false }
+        }
+      ]
+    })
+    this.chart.interaction('drag-move-x')
     this.chart.interaction('active-region')
+    this.chart.interaction('view-zoom-x')
+    this.chart.getCanvas().on('mousewheel', ev => { ev.preventDefault() })
 
     this.chart
       .interval()
