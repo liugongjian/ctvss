@@ -421,7 +421,7 @@ export default class ListMixin extends Mixins(DeviceMixin) {
       }
       params.deviceStatusKeys = query.deviceStatusKeys || undefined
       params.streamStatusKeys = query.streamStatusKeys || undefined
-      params.deviceAddresses = (query.deviceAddresses && (<string>query.deviceAddresses).split(',')[0]) || undefined
+      params.deviceAddresses = query.deviceAddresses || undefined
       params.matchKeys = query.matchKeys
       const axiosSource = axios.CancelToken.source()
       this.axiosSources.push(axiosSource)

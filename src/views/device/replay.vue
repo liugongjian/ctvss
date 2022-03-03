@@ -32,7 +32,7 @@
                 <el-button type="text" @click="initDirs"><svg-icon name="refresh" /></el-button>
               </el-tooltip>
             </div>
-            <div v-loading="loading.dir" class="dir-list__tree device-list__max-height" :style="{height: `${maxHeight}px`}">
+            <div v-loading="loading.dir" class="dir-list__tree device-list__max-height" :style="{height: `${maxHeight - (currentGroup.inProtocol === 'gb28181' ? 40 : 0)}px`, marginBottom: currentGroup.inProtocol === 'gb28181' ? '40px' : '0px'}">
               <el-tree
                 v-if="!advancedSearchForm.revertSearchFlag"
                 key="replay-el-tree-original"
