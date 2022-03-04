@@ -199,6 +199,10 @@
           <el-input v-model="form.channelName" />
           <div class="form-tip">2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。</div>
         </el-form-item>
+        <el-form-item label="经纬度:" prop="longlat">
+          <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
+          <el-input v-model="form.deviceLatitude" class="longlat-input" />
+        </el-form-item>
         <el-form-item v-if="isUpdate" label="配置资源包:" prop="resources">
           <ResourceTabs v-model="form.resources" :is-update="isUpdate"
                         :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" :device-id="form.deviceId"
@@ -388,6 +392,9 @@ export default class extends Mixins(createMixin) {
             this.form.channelName = channel.channelName
           }
         }
+      }else{
+        this.form.deviceLatitude = info.deviceLatitude
+        this.form.deviceLongitude = info.deviceLongitude
       }
       if (this.isChannel) {
         this.form.deviceName = info.deviceName
