@@ -378,7 +378,7 @@ export const parseMetaData = (type: string, metaData: any) => {
       break
     // 车辆统计
     case '22':
-      if (metaData.Data && metaData.Data.DetectBoxes) {
+      if (metaData.Data && metaData.Data.Boxes) {
         const boxes = metaData.Data.Boxes
         for (let i = 0; i < boxes.length; i++) {
           locations.push(
@@ -426,7 +426,7 @@ export const parseMetaData = (type: string, metaData: any) => {
       break
       // 车辆违停
     case '24':
-      if (metaData.Data && metaData.Data.DetectBoxes) {
+      if (metaData.Data && metaData.Data.Boxes) {
         const boxes = metaData.Data.Boxes
         for (let i = 0; i < boxes.length; i++) {
           locations.push(
@@ -439,18 +439,18 @@ export const parseMetaData = (type: string, metaData: any) => {
             }
           )
         }
-        if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
-          locations.push(
-            {
-              zone: metaData.DangerZoneBox
-            }
-          )
-        }
+      }
+      if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+        locations.push(
+          {
+            zone: metaData.DangerZoneBox
+          }
+        )
       }
       break
       // 车辆拥堵
     case '25':
-      if (metaData.Data && metaData.Data.DetectBoxes) {
+      if (metaData.Data && metaData.Data.Boxes) {
         const boxes = metaData.Data.Boxes
         for (let i = 0; i < boxes.length; i++) {
           locations.push(
@@ -463,19 +463,18 @@ export const parseMetaData = (type: string, metaData: any) => {
             }
           )
         }
-        if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
-          locations.push(
-            {
-              zone: metaData.DangerZoneBox
-            }
-          )
-        }
-        // @ts-ignore
-        metaData.Data.JamCount && (locations.JamCount = metaData.Data.JamCount)
-        // @ts-ignore
-        metaData.Data.JamThreshold && (locations.JamThreshold = metaData.Data.JamThreshold)
       }
-
+      if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+        locations.push(
+          {
+            zone: metaData.DangerZoneBox
+          }
+        )
+      }
+      // @ts-ignore
+      metaData.Data.JamCount && (locations.JamCount = metaData.Data.JamCount)
+      // @ts-ignore
+      metaData.Data.JamThreshold && (locations.JamThreshold = metaData.Data.JamThreshold)
       break
     // 人群感应检测
     case '26':
@@ -979,18 +978,18 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
             }
           )
         }
-        if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
-          locations.push(
-            {
-              zone: metaData.DangerZoneBox
-            }
-          )
-        }
-        // @ts-ignore
-        metaData.Data.JamCount && (locations.JamCount = metaData.Data.JamCount)
-        // @ts-ignore
-        metaData.Data.JamThreshold && (locations.JamThreshold = metaData.Data.JamThreshold)
       }
+      if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+        locations.push(
+          {
+            zone: metaData.DangerZoneBox
+          }
+        )
+      }
+      // @ts-ignore
+      metaData.Data.JamCount && (locations.JamCount = metaData.Data.JamCount)
+      // @ts-ignore
+      metaData.Data.JamThreshold && (locations.JamThreshold = metaData.Data.JamThreshold)
       break
     // 人群感应检测
     case '10023':
