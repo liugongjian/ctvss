@@ -5,6 +5,7 @@
  * EasyPlayer.js H5播放器，是一款能够同时支持HTTP、RTMP、HTTP-FLV、HLS（m3u8）视频直播与视频点播等多种协议，支持H.264、H.265、AAC等多种音视频编码格式，支持mse、wasm等多种解码方式，支持Windows、Linux、Android、iOS全平台终端的H5播放器。
  */
 
+import { Timeline } from 'element-ui'
 import { Player } from './Player'
 
 export class H265Player extends Player {
@@ -157,6 +158,7 @@ export class H265Player extends Player {
    * 更新时间
    */
   protected onTimeUpdate() {
+    this.getDuration()
     this.config.onTimeUpdate && this.config.onTimeUpdate(this.wasmPlayer.currentTime)
     // if (this.wasmPlayer.currentTime === 0) {
     //   this.onCanplay && this.onCanplay()
@@ -165,9 +167,17 @@ export class H265Player extends Player {
 
   /**
    * 回调事件
+   * 当更新时长
+   */
+  protected onDurationChange() {
+    this.config.onDurationChange && this.config.onDurationChange(this.wasmPlayer.duration)
+  }
+
+  /**
+   * 回调事件
    * Loading完成
    */
-  public onEndLoading() {
+  private onEndLoading() {
     if (this.loading && this.seekTime) {
       this.wasmPlayer.seekToSecs(this.seekTime)
     }
@@ -179,7 +189,23 @@ export class H265Player extends Player {
   /**
    * 检测是否有音频
    */
-  public testHasAudio() {
+  protected testHasAudio() {
     this.config.onTestHasAudio && this.config.onTestHasAudio(true)
+  }
+
+  /**
+   * 获取视频时长
+   * H265播放器没有返回duration属性，只能通过timeLabel中的string解析
+   */
+  private getDuration() {
+    // 如已获得duration则不再解析
+    if (this.wasmPlayer.duration) return
+    const timeLabel = this.wasmPlayer.timeLabel.innerHTML
+    if (timeLabel) {
+      const durationString = timeLabel.split('/')[1]
+      const time = durationString.split(':')
+      this.wasmPlayer.duration = parseInt(time[0]) * 60 * 60 + parseInt(time[1]) * 60 + parseInt(time[2])
+      this.onDurationChange()
+    }
   }
 }

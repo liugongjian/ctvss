@@ -1,6 +1,7 @@
 <template>
   <div v-loading="loading" class="player__wrap">
     <div ref="playerContainer" />
+    <slot name="container" />
     <div class="controls" :class="{'controls--large': hasProgress}">
       <slot name="body" />
       <div class="controls__left">
