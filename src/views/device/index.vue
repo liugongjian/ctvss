@@ -13,27 +13,30 @@
         <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
           <div class="dir-list" :style="`width: ${dirDrag.width}px`">
             <div class="dir-list__tools">
-              <el-tooltip v-if="!isVGroup && checkPermission(['AdminDevice'], {id: currentGroupId}) && !search.revertSearchFlag" class="item" effect="dark" content="子目录排序" placement="top" :open-delay="300">
+              <el-tooltip v-if="!isVGroup && checkPermission(['AdminDevice'], {id: currentGroupId}) && !advancedSearchForm.revertSearchFlag" class="item" effect="dark" content="子目录排序" placement="top" :open-delay="300">
                 <el-button type="text" @click.stop="openDialog('sortChildren', {id: '0'})"><svg-icon name="sort" /></el-button>
               </el-tooltip>
               <el-tooltip class="item" effect="dark" content="刷新目录" placement="top" :open-delay="300">
                 <el-button type="text" @click="initDirs"><svg-icon name="refresh" /></el-button>
               </el-tooltip>
-              <el-tooltip v-if="!isVGroup && checkPermission(['AdminDevice'], {id: currentGroupId}) && !search.revertSearchFlag" class="item" effect="dark" content="添加目录" placement="top" :open-delay="300">
+              <el-tooltip v-if="!isVGroup && checkPermission(['AdminDevice'], {id: currentGroupId}) && !advancedSearchForm.revertSearchFlag" class="item" effect="dark" content="添加目录" placement="top" :open-delay="300">
                 <el-button type="text" @click="openDialog('createDir')"><svg-icon name="plus" /></el-button>
               </el-tooltip>
               <el-tooltip v-if="false" class="item" effect="dark" content="目录设置" placement="top" :open-delay="300">
                 <el-button type="text"><i class="el-icon-setting" /></el-button>
               </el-tooltip>
             </div>
-            <div v-loading="loading.dir" class="dir-list__tree device-list__max-height" :style="{height: `${maxHeight}px`}">
+            <div v-loading="loading.dir" class="dir-list__tree device-list__max-height" :style="{height: `${maxHeight - (currentGroup.inProtocol === 'gb28181' ? 40 : 0)}px`, marginBottom: currentGroup.inProtocol === 'gb28181' ? '40px' : '0px'}">
               <div class="dir-list__tree--root" :class="{'actived': isRootDir}" @click="gotoRoot">
                 <svg-icon name="component" width="12px" />
                 根目录
                 <span class="sum-icon">{{ `(${rootSums.online}/${rootSums.total})` }}</span>
+                <el-tooltip v-if="advancedSearchForm.revertSearchFlag" class="item" effect="dark" content="下载搜索结果" placement="top" :open-delay="300">
+                  <el-button type="text" style="float: right; padding-top: 0; padding-bottom: 0;" @click.stop="exportSearchResult">下载<i class="el-icon-download" /></el-button>
+                </el-tooltip>
               </div>
               <el-tree
-                v-if="!search.revertSearchFlag"
+                v-if="!advancedSearchForm.revertSearchFlag"
                 key="device-el-tree-original"
                 ref="dirTree"
                 empty-text="暂无目录或设备"
@@ -122,25 +125,8 @@
               </el-tree>
             </div>
             <!-- 国标才展示 -->
-            <div v-if="currentGroup.inProtocol === 'gb28181'" class="dir-list__search">
-              <el-dropdown placement="top-start" @command="changeSearchStatus">
-                <el-button class="dir-list__search-button" :type="search.statusKey === 'all' ? 'default': 'primary'" size="mini" style="margin-right: 5px!important">
-                  <svg-icon name="filter" />
-                </el-button>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item v-for="option in search.statusOptions" :key="option.label" :command="option.value">
-                    <i v-if="search.statusKey === option.value" class="el-icon-check search-check" />{{ option.label }}
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
-              <el-tooltip class="item" effect="dark" content="支持国标ID、设备IP、设备名查询" placement="top-start">
-                <!-- TIPS 需要处理为空时候的直接回车 -->
-                <el-input v-model="search.inputKey" size="mini" placeholder="支持国标ID、设备IP、设备名查询" @keyup.enter.native="enterKeySearch" />
-              </el-tooltip>
-              <el-button class="dir-list__search-button" type="primary" size="mini" icon="el-icon-search" :disabled="!search.inputKey.length" @click="filterSearchResult" />
-              <el-button v-if="search.revertSearchFlag" class="dir-list__search-button" type="primary" size="mini" @click="revertSearchResult">
-                <svg-icon name="revert" />
-              </el-button>
+            <div v-if="currentGroup.inProtocol === 'gb28181'">
+              <advanced-search :search-form="advancedSearchForm" @search="doSearch" />
             </div>
           </div>
         </div>
@@ -172,18 +158,21 @@ import IndexMixin from './mixin/indexMixin'
 import { DeviceModule } from '@/store/modules/device'
 import CreateDir from './components/dialogs/CreateDir.vue'
 import SortChildren from './components/dialogs/SortChildren.vue'
+import AdvancedSearch from '@/views/device/components/AdvancedSearch.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { deleteDir } from '@/api/dir'
 import { renderAlertType, getSums } from '@/utils/device'
 import { checkPermission } from '@/utils/permission'
 import { VGroupModule } from '@/store/modules/vgroup'
+import { exportSearchResult } from '@/api/device'
 
 @Component({
   name: 'Device',
   components: {
     CreateDir,
     StatusBadge,
-    SortChildren
+    SortChildren,
+    AdvancedSearch
   }
 })
 export default class extends Mixins(IndexMixin) {
@@ -218,13 +207,16 @@ export default class extends Mixins(IndexMixin) {
 
   @Watch('currentGroupId', { immediate: true })
   private onCurrentGroupChange(groupId: string, oldGroupId: string) {
-    this.search = {
-      ...this.search,
-      inputKey: '',
-      searchKey: '',
-      statusKey: 'all',
-      revertSearchFlag: false
+    this.advancedSearchForm.deviceStatusKeys = []
+    this.advancedSearchForm.streamStatusKeys = []
+    this.advancedSearchForm.deviceAddresses = {
+      code: '',
+      level: ''
     }
+    this.advancedSearchForm.matchKeys = []
+    this.advancedSearchForm.inputKey = ''
+    this.advancedSearchForm.searchKey = ''
+    this.advancedSearchForm.revertSearchFlag = false
     if (!groupId) return
     this.$nextTick(() => {
       if (oldGroupId || !this.defaultKey) {
@@ -302,6 +294,7 @@ export default class extends Mixins(IndexMixin) {
         if (payload === true) {
           this.initDirs()
         }
+        break
     }
   }
 
@@ -318,6 +311,50 @@ export default class extends Mixins(IndexMixin) {
       id: '0',
       type: 'dir'
     })
+  }
+
+  // 导出搜索结果
+  public async exportSearchResult() {
+    try {
+      const search = this.advancedSearchForm
+      let data: any = {
+        groupId: this.currentGroupId,
+        inProtocol: this.currentGroupInProtocol,
+        deviceStatusKeys: search.deviceStatusKeys.join(',') || undefined,
+        streamStatusKeys: search.streamStatusKeys.join(',') || undefined,
+        matchKeys: search.matchKeys.join(',') || undefined,
+        deviceAddresses: search.deviceAddresses.code ? search.deviceAddresses.code + ',' + search.deviceAddresses.level : undefined,
+        searchKey: search.searchKey || undefined,
+        pageSize: 5000,
+        pageNum: 1
+      }
+      var res = await exportSearchResult(data)
+      this.downloadFileUrl(`${data.inProtocol}导出设备表格`, res.exportFile)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  // 下载表格
+  public downloadFileUrl(fileName: string, file: any) {
+    const blob = this.base64ToBlob(`data:application/zip;base64,${file}`)
+    var link = document.createElement('a')
+    link.href = window.URL.createObjectURL(blob)
+    link.download = `${fileName}.xlsx`
+    link.click()
+  }
+
+  // base64转blob
+  public base64ToBlob(base64: any) {
+    var arr = base64.split(',')
+    var mime = arr[0].match(/:(.*?);/)[1]
+    var bstr = atob(arr[1])
+    var n = bstr.length
+    var u8arr = new Uint8Array(n)
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n)
+    }
+    return new Blob([u8arr], { type: mime })
   }
 }
 </script>

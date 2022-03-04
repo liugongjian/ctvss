@@ -100,7 +100,6 @@
 
       &__tree {
         position: relative;
-        margin-bottom: 40px;
         padding: 10px;
 
         &--root {
@@ -213,25 +212,26 @@
           }
         }
       }
+
       &__search {
         position: absolute;
-        bottom: 0px;
-        left: 0px;
-        right: 0px;
-
+        bottom: 0;
+        left: 0;
+        right: 0;
         padding: 5px;
         border-top: 1px solid #eee;
         display: flex;
+
         .el-input--suffix .el-input__inner {
-          padding-right: 0px;
+          padding-right: 0;
         }
 
         .el-button--mini {
-          padding: 7px 7px;
+          padding: 7px;
         }
 
         &-button {
-          margin-left: 5px!important;
+          margin-left: 5px !important;
         }
       }
     }
@@ -320,14 +320,14 @@
       cursor: pointer;
     }
 
-    &__item::after {
-      content: "/";
+    &__item:after {
+      content: '/';
       color: $textGrey;
       margin: 0 10px;
     }
 
-    &__item:last-child::after {
-      content: "";
+    &__item:last-child:after {
+      content: '';
     }
   }
 
@@ -480,8 +480,8 @@
       font-size: 16px;
       font-weight: bold;
 
-      &::before {
-        content: " ";
+      &:before {
+        content: ' ';
         display: block;
         position: absolute;
         left: 0;
@@ -623,97 +623,98 @@
     &.screen-size--1 {
       grid-template-columns: 100%;
       grid-template-rows: 100%;
-      grid-template-areas: "item0";
+      grid-template-areas: 'item0';
     }
 
     &.screen-size--2 {
       grid-template-columns: 50% 50%;
       grid-template-rows: 100%;
-      grid-template-areas: "item0 item1";
+      grid-template-areas: 'item0 item1';
     }
 
     &.screen-size--3 {
       grid-template-columns: 33.33% 33.33% 33.33%;
       grid-template-rows: 100%;
-      grid-template: "item0 item1 item2";
+      grid-template: 'item0 item1 item2';
     }
 
     &.screen-size--4 {
       grid-template-columns: 50% 50%;
       grid-template-rows: 50% 50%;
       grid-template-areas:
-        "item0 item1"
-        "item2 item3";
+        'item0 item1'
+        'item2 item3';
     }
 
     &.screen-size--9 {
       grid-template-columns: 33.33% 33.33% 33.33%;
       grid-template-rows: 33.33% 33.33% 33.33%;
       grid-template-areas:
-        "item0 item1 item2"
-        "item3 item4 item5"
-        "item6 item7 item8";
+        'item0 item1 item2'
+        'item3 item4 item5'
+        'item6 item7 item8';
     }
 
     &.screen-size--16 {
       grid-template-columns: 25% 25% 25% 25%;
       grid-template-rows: 25% 25% 25% 25%;
       grid-template-areas:
-        "item0 item1 item2 item3"
-        "item4 item5 item6 item7"
-        "item8 item9 item10 item11"
-        "item12 item13 item14 item15";
+        'item0 item1 item2 item3'
+        'item4 item5 item6 item7'
+        'item8 item9 item10 item11'
+        'item12 item13 item14 item15';
     }
+
     &.screen-size--32 {
       grid-template-columns: 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5%;
       grid-template-rows: 25% 25% 25% 25%;
       grid-template-areas:
-        "item0 item1 item2 item3 item4 item5 item6 item7"
-        "item8 item9 item10 item11 item12 item13 item14 item15"
-        "item16 item17 item18 item19 item20 item21 item22 item23"
-        "item24 item25 item26 item27 item28 item29 item30 item31";
+        'item0 item1 item2 item3 item4 item5 item6 item7'
+        'item8 item9 item10 item11 item12 item13 item14 item15'
+        'item16 item17 item18 item19 item20 item21 item22 item23'
+        'item24 item25 item26 item27 item28 item29 item30 item31';
     }
 
     &.screen-size--1_3 {
       grid-template-columns: 33.33% 33.33% 33.33%;
       grid-template-rows: 33.33% 33.33% 33.33%;
       grid-template-areas:
-        "item0 item0 item0"
-        "item0 item0 item0"
-        "item1 item2 item3";
+        'item0 item0 item0'
+        'item0 item0 item0'
+        'item1 item2 item3';
     }
 
     &.screen-size--1_5 {
       grid-template-columns: 33.33% 33.33% 33.33%;
       grid-template-rows: 33.33% 33.33% 33.33%;
       grid-template-areas:
-        "item0 item0 item1"
-        "item0 item0 item2"
-        "item3 item4 item5";
+        'item0 item0 item1'
+        'item0 item0 item2'
+        'item3 item4 item5';
     }
 
     &.screen-size--1_7 {
       grid-template-columns: 25% 25% 25% 25%;
       grid-template-rows: 25% 25% 25% 25%;
       grid-template-areas:
-        "item0 item0 item0 item1"
-        "item0 item0 item0 item2"
-        "item0 item0 item0 item3"
-        "item4 item5 item6 item7";
+        'item0 item0 item0 item1'
+        'item0 item0 item0 item2'
+        'item0 item0 item0 item3'
+        'item4 item5 item6 item7';
     }
 
     &.screen-size--1_15 {
       grid-template-columns: 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5%;
       grid-template-rows: 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5%;
       grid-template-areas:
-        "item0 item0 item0 item0 item0 item0 item0 item1"
-        "item0 item0 item0 item0 item0 item0 item0 item2"
-        "item0 item0 item0 item0 item0 item0 item0 item3"
-        "item0 item0 item0 item0 item0 item0 item0 item4"
-        "item0 item0 item0 item0 item0 item0 item0 item5"
-        "item0 item0 item0 item0 item0 item0 item0 item6"
-        "item0 item0 item0 item0 item0 item0 item0 item7"
-        "item8 item9 item10 item11 item12 item13 item14 item15";
+        'item0 item0 item0 item0 item0 item0 item0 item1'
+        'item0 item0 item0 item0 item0 item0 item0 item2'
+        'item0 item0 item0 item0 item0 item0 item0 item3'
+        'item0 item0 item0 item0 item0 item0 item0 item4'
+        'item0 item0 item0 item0 item0 item0 item0 item5'
+        'item0 item0 item0 item0 item0 item0 item0 item6'
+        'item0 item0 item0 item0 item0 item0 item0 item7'
+        'item8 item9 item10 item11 item12 item13 item14 item15';
     }
   }
 

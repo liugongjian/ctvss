@@ -32,9 +32,9 @@
                 <el-button type="text" @click="initDirs"><svg-icon name="refresh" /></el-button>
               </el-tooltip>
             </div>
-            <div v-loading="loading.dir" class="dir-list__tree device-list__max-height" :style="{height: `${maxHeight}px`}">
+            <div v-loading="loading.dir" class="dir-list__tree device-list__max-height" :style="{height: `${maxHeight - (currentGroup.inProtocol === 'gb28181' ? 40 : 0)}px`, marginBottom: currentGroup.inProtocol === 'gb28181' ? '40px' : '0px'}">
               <el-tree
-                v-if="!search.revertSearchFlag"
+                v-if="!advancedSearchForm.revertSearchFlag"
                 key="replay-el-tree-original"
                 ref="dirTree"
                 empty-text="暂无目录或设备"
@@ -44,7 +44,6 @@
                 lazy
                 :load="loadDirs"
                 :props="treeProp"
-                :default-expand-all="!!search.searchKey"
                 @node-click="openScreen"
               >
                 <span
@@ -132,25 +131,9 @@
                 </span>
               </el-tree>
             </div>
-            <div v-if="currentGroup.inProtocol === 'gb28181'" class="dir-list__search">
-              <el-dropdown placement="top-start" @command="changeSearchStatus">
-                <el-button class="dir-list__search-button" :type="search.statusKey === 'all' ? 'default': 'primary'" size="mini" style="margin-right: 5px!important">
-                  <svg-icon name="filter" />
-                </el-button>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item v-for="option in search.statusOptions" :key="option.label" :command="option.value">
-                    <i v-if="search.statusKey === option.value" class="el-icon-check search-check" />{{ option.label }}
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
-              <el-tooltip class="item" effect="dark" content="支持国标ID、设备IP、设备名查询" placement="top-start">
-                <!-- TIPS 需要处理为空时候的直接回车 -->
-                <el-input v-model="search.inputKey" size="mini" placeholder="支持国标ID、设备IP、设备名查询" @keyup.enter.native="enterKeySearch" />
-              </el-tooltip>
-              <el-button class="dir-list__search-button" type="primary" size="mini" icon="el-icon-search" :disabled="!search.inputKey.length" @click="filterSearchResult" />
-              <el-button v-if="search.revertSearchFlag" class="dir-list__search-button" type="primary" size="mini" @click="revertSearchResult">
-                <svg-icon name="revert" />
-              </el-button>
+            <!-- 国标才展示 -->
+            <div v-if="currentGroup.inProtocol === 'gb28181'">
+              <advanced-search :search-form="advancedSearchForm" @search="doSearch" />
             </div>
           </div>
         </div>
@@ -243,6 +226,7 @@ import DeviceDir from './components/dialogs/DeviceDir.vue'
 import { renderAlertType, getSums } from '@/utils/device'
 import { VGroupModule } from '@/store/modules/vgroup'
 import { getDeviceTree } from '@/api/device'
+import AdvancedSearch from '@/views/device/components/AdvancedSearch.vue'
 
 @Component({
   name: 'Record',
@@ -250,7 +234,8 @@ import { getDeviceTree } from '@/api/device'
     ReplayView,
     StatusBadge,
     DeviceDir,
-    PlayerContainer
+    PlayerContainer,
+    AdvancedSearch
   }
 })
 export default class extends Mixins(ScreenMixin) {
@@ -266,14 +251,23 @@ export default class extends Mixins(ScreenMixin) {
   @Watch('currentGroupId', { immediate: true })
   private onCurrentGroupChange(groupId: String, oldGroupId: String) {
     // search为inject变量，不能直接整体赋值为其他，否则inject会失效
-    this.search.inputKey = ''
-    this.search.searchKey = ''
-    this.search.statusKey = 'all'
-    this.search.revertSearchFlag = false
+    this.advancedSearchForm.deviceStatusKeys = []
+    this.advancedSearchForm.streamStatusKeys = []
+    this.advancedSearchForm.deviceAddresses = {
+      code: '',
+      level: ''
+    }
+    this.advancedSearchForm.matchKeys = []
+    this.advancedSearchForm.inputKey = ''
+    this.advancedSearchForm.searchKey = ''
+    this.advancedSearchForm.revertSearchFlag = false
     if (oldGroupId) {
       const query = {
         searchKey: '',
-        statusKey: 'all'
+        deviceStatusKeys: '',
+        streamStatusKeys: '',
+        deviceAddresses: '',
+        matchKeys: ''
       }
       this.$router.replace({
         query
@@ -383,7 +377,7 @@ export default class extends Mixins(ScreenMixin) {
       }
     }
     if (!this.autoPlayDevices.length) {
-      this.$alert(`当前设备数需大于0才可开始自动播放`, '提示', {
+      this.$alert('当前设备数需大于0才可开始自动播放', '提示', {
         confirmButtonText: '确定'
       })
     }
@@ -414,12 +408,14 @@ export default class extends Mixins(ScreenMixin) {
       .playing {
         color: $success;
       }
+
       .custom-tree-node .tools {
         display: block;
         background: #fff;
         right: -10px;
         line-height: 26px;
         padding-right: 10px;
+
         i {
           display: block;
           padding: 5px 0;
@@ -431,6 +427,7 @@ export default class extends Mixins(ScreenMixin) {
             }
           }
         }
+
         .set-stream {
           ::v-deep .controls__popup {
             left: auto;
@@ -438,10 +435,11 @@ export default class extends Mixins(ScreenMixin) {
           }
         }
       }
+
       .el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content,
       .dir-list__tree .el-tree-node__content:hover {
         .custom-tree-node .tools {
-          background: #F5F7FA;
+          background: #f5f7fa;
         }
       }
     }

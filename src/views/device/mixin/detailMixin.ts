@@ -404,6 +404,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
         type: superior.type
       })
     } else {
+      console.log('goSuperior: we are goto root')
       this.gotoRoot()
     }
   }
