@@ -100,10 +100,6 @@ export default class extends Vue {
 
     ::v-deep .player-box {
       height: 300px !important;
-
-      div {
-        display: none !important;
-      }
     }
   }
 }

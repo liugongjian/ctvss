@@ -23,7 +23,6 @@ export default class extends ComponentMixin {
    */
   @Watch('player')
   private onPlayerCreate() {
-    console.log('onPlayerCreate')
     this.player.config.onPlay = this.onStatusChange
     this.player.config.onPause = this.onStatusChange
   }
@@ -47,6 +46,7 @@ export default class extends ComponentMixin {
    * 当播放状态变更
    */
   private onStatusChange() {
+    console.log(this.player.isPaused)
     this.isPaused = this.player.isPaused
   }
 }

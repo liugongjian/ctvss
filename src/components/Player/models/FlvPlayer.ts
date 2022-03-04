@@ -12,6 +12,9 @@ export class FlvPlayer extends Player {
   private mseError = false
   private mseErrorCount = 0
 
+  /**
+   * 初始化
+   */
   protected init() {
     if (!FlvJS.isSupported()) {
       throw new Error('当前浏览器不支持Flv播放器')

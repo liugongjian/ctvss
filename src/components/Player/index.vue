@@ -110,7 +110,9 @@ export default class extends Vue {
         onLoadStart: this.onLoadStart,
         onCanplay: this.onCanplay
       })
-      this.$emit('onCreate', this.player)
+      this.$nextTick(() => {
+        this.$emit('onCreate', this.player)
+      })
     } catch (e) {
       this.isDebug && console.log(e.message)
       this.error = '浏览器创建失败'

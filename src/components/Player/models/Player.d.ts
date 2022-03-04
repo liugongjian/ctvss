@@ -18,8 +18,8 @@ export interface PlayerConfig {
   isAutoPlay: boolean;
   playbackRate?: number;
   onPlay?: () => void;
-  onVolumeChange?: (volume: number, muted: boolean) => void;
   onPause?: () => void;
+  onVolumeChange?: (volume: number, muted: boolean) => void;
   onRetry?: (immediate: OnRetryParams) => void;
   onTimeUpdate?: (currentTime: number) => void;
   onDurationChange?: (duration: number) => void;

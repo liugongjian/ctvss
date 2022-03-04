@@ -6,6 +6,9 @@ import { EnhanceHTMLVideoElement } from './Player.d'
 export class HlsPlayer extends Player {
   private hls?: any
 
+  /**
+   * 初始化
+   */
   protected init() {
     if (!HlsJS.isSupported()) {
       throw new Error('当前浏览器不支持Hls播放器')

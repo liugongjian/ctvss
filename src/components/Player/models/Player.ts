@@ -185,18 +185,18 @@ export class Player {
 
   /**
    * 回调事件
-   * 当调整音量
-   */
-  protected onVolumeChange() {
-    this.config.onVolumeChange && this.config.onVolumeChange(this.video.volume, this.video.muted)
-  }
-
-  /**
-   * 回调事件
    * 当暂停
    */
   protected onPause() {
     this.config.onPause && this.config.onPause()
+  }
+
+  /**
+   * 回调事件
+   * 当调整音量
+   */
+  protected onVolumeChange() {
+    this.config.onVolumeChange && this.config.onVolumeChange(this.video.volume, this.video.muted)
   }
 
   /**

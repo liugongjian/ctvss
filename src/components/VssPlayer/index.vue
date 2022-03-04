@@ -11,7 +11,7 @@
       <template slot="body">
         <H265Icon :codec="codec" />
       </template>
-      <template slot="right">
+      <template v-if="player" slot="right">
         <Snapshot :video-name="videoName" />
       </template>
     </Player>
@@ -70,7 +70,6 @@ export default class extends Vue {
 
   /* 当播放器实例创建 */
   private onPlayerCreate(player) {
-    console.log(player)
     this.player = player
   }
 }
