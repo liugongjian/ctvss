@@ -211,7 +211,7 @@ const getRule = (msg) => {
              msg === '人员数量阈值' || msg === '脱岗超时时间' ||
              msg === '睡岗超时时间' || msg === '临停时间' ||
              msg === '拥堵车辆阈值') {
-    // rule.push({ type: 'number', message: '人员数量阈值必须为数字' })
+    rule.push({ required: true, message: '不能为空', trigger: 'blur' })
     rule.push({
       validator: (rule, value, callback) => {
         if (/^(?:[0-9]\d*)$/.test(value) === false) {

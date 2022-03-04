@@ -78,10 +78,8 @@ export default class extends Mixins(DashboardMixin) {
       this.prioritiseAlarm(res)
       this.chartInfo.vehiclesThreshold = res.vehiclesThreshold
       this.chartInfo.timeSlide = res.timeSlide
-      this.$nextTick(() => {
-        this.chart ? this.updateChart() : this.drawChart()
-        this.refreshChart()
-      })
+      this.chart ? this.updateChart() : this.drawChart()
+      this.refreshChart()
     } catch (e) {
       // 异常处理
       console.log(e)
@@ -113,11 +111,7 @@ export default class extends Mixins(DashboardMixin) {
     this.chart.scale('value', {
       tickLine: null
     })
-    // this.chart.scale('time', {
-    //   type: 'time',
-    //   mask: 'HH:mm:ss\nYYYY-MM-DD',
-    //   nice: true
-    // })
+
     this.chart.axis('time', {
       label: {
         textStyle: {

@@ -64,10 +64,10 @@
           </div>
         </span>
         <span>
-          <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
+          <el-button class="el-button-rect" :disabled="dataLoading" @click="refresh"><svg-icon name="refresh" /></el-button>
         </span>
       </div>
-      <div v-if="isGatheringCode && !forceRefresh" class="chart-wrapper">
+      <div v-if="isGatheringCode && !queryLoading.peopleChart" class="chart-wrapper">
         <div class="title">
           <div class="title-block" />
           <span>人员聚集趋势</span>
@@ -81,7 +81,7 @@
         />
       </div>
 
-      <div v-if="!forceRefresh && isCarFlowCode" class="chart-wrapper car-spec">
+      <div v-if="!queryLoading.carChart && isCarFlowCode" class="chart-wrapper car-spec">
         <div class="title">
           <div class="title-block" />
           <span>车流量统计结果</span>
@@ -94,7 +94,7 @@
           :app-info="appInfo"
         />
       </div>
-      <div v-if="!forceRefresh && isCarFlowCode" class="table-wrapper">
+      <div v-if="!queryLoading.carAlarmTable && isCarFlowCode" class="table-wrapper">
         <div class="title">
           <div class="title-block" />
           <span>告警列表</span>
@@ -195,7 +195,10 @@ export default class extends Vue {
     @Prop() private faceLib!: any
     private dialoguePic: any = null
     private queryLoading: any = {
-      pic: false
+      pic: false,
+      carChart: false,
+      peopleChart: false,
+      carAlarmTable: false
     }
     private currentLocationIndex: number = -1
     private visibile = false
@@ -222,12 +225,21 @@ export default class extends Vue {
     private faceInfos: any = []
     private picInfos: any = []
     private alarms: any = []
-    private forceRefresh: boolean = false
     // 防抖
     private debounceHandle = debounce(() => {
       this.getScreenShot()
       this.isCarFlowCode && this.getAlarmsList()
     }, 500)
+
+    get dataLoading() {
+      let loading = false
+      Object.keys(this.queryLoading).forEach(key => {
+        if (this.queryLoading[key]) {
+          loading = true
+        }
+      })
+      return loading
+    }
 
     @Watch('queryParam.periodType')
     private periodTypeUpdated(newVal) {
@@ -242,7 +254,6 @@ export default class extends Vue {
           this.$set(this.queryParam, 'period', [this.getDateBefore(6), new Date().setHours(23, 59, 59, 999)])
           break
       }
-      console.log(this.queryParam.period)
     }
 
     @Watch('device', { deep: true })
@@ -393,12 +404,10 @@ export default class extends Vue {
       this.currentLocationIndex = index
     }
     private async refresh() {
-      this.forceRefresh = true
+      Object.keys(this.queryLoading).forEach(key => { this.queryLoading[key] = true })
       await this.getScreenShot()
       this.isCarFlowCode && await this.getAlarmsList()
-      this.$nextTick(() => {
-        this.forceRefresh = false
-      })
+      Object.keys(this.queryLoading).forEach(key => { this.queryLoading[key] = false })
     }
 }
 </script>

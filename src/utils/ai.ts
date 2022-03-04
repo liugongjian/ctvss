@@ -1085,8 +1085,8 @@ export const transformLocation = (locations: any, img: any) => {
  */
 export const transformLocationAi = (locations: any, img: any) => {
   locations && locations.forEach((location: any) => {
-    location.imgNaturalWidth = img.naturalWidth
-    location.imgNaturalHeight = img.naturalHeight
+    location.imgNaturalWidth = img?.naturalWidth
+    location.imgNaturalHeight = img?.naturalHeight
     if (location.zone) {
       let zoneSvg = ''
       const zoneBoxes = location.zone.map((point: number, index: number) => {
