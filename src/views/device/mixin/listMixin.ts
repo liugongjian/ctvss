@@ -43,7 +43,7 @@ export default class ListMixin extends Mixins(DeviceMixin) {
   public axiosSources: any[] = []
   public tableMaxHeight: any = null
   public observer: any = null
-  private channelSize:any = null
+  private channelSize: any = null
 
   public loading = {
     info: false,

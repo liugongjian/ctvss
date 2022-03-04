@@ -30,8 +30,8 @@ export default class Screen {
   public currentTime?: number
   public isCache?: boolean
   public videoInfo?: string
-  public allAddress?:any
-  public volume?:any
+  public allAddress?: any
+  public volume?: any
 
   constructor() {
     this.deviceId = ''

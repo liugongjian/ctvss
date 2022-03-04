@@ -471,7 +471,7 @@ export default class CreateMixin extends Vue {
   }
 
   // 接受子组件传来的VSSAIApps
-  private changeVSSAIApps(res:any) {
+  private changeVSSAIApps(res: any) {
     if (this.isUpdate) {
       this.form.aIApps = res
     }

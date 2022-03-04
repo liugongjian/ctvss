@@ -270,13 +270,13 @@ export default class extends Vue {
   private scaleKind = scaleKind
   private scaleVal = ''
   private showCanvasBox = false
-  private canvasShape:any = {}
-  private oCanvas:any
-  private ctxShape:any
+  private canvasShape: any = {}
+  private oCanvas: any
+  private ctxShape: any
   private ctxDrawState = false
-  private oCanvasWidth?:number
-  private oCanvasHeight?:number
-  private userScaleConfig:any
+  private oCanvasWidth?: number
+  private oCanvasHeight?: number
+  private userScaleConfig: any
 
   get username() {
     return UserModule.name
@@ -310,7 +310,7 @@ export default class extends Vue {
     if (this.isLive) document.addEventListener('visibilitychange', this.reloadPlayer)
   }
 
-  private getVideoType(eve:any = '', kind:any = '') {
+  private getVideoType(eve: any = '', kind: any = '') {
     if (eve) {
       eve.currentTarget.blur()
     }
@@ -327,7 +327,7 @@ export default class extends Vue {
     } else {
       this.videoType = kind
       this.disposePlayer()
-      const $video:any = this.$refs.video
+      const $video: any = this.$refs.video
       $video.innerHtml = ''
       this.$nextTick(() => {
         this.createPlayer()
@@ -457,8 +457,8 @@ export default class extends Vue {
   }
 
   public getUserScaleConfig() {
-    const userScaleConfig:Array<any> = this.$store.state.user.userConfigInfo || []
-    const scaleInfo = userScaleConfig.find((item:any) => item.key === 'videoScale')
+    const userScaleConfig: Array<any> = this.$store.state.user.userConfigInfo || []
+    const scaleInfo = userScaleConfig.find((item: any) => item.key === 'videoScale')
     const scaleNum = scaleInfo ? scaleInfo.value : '-1'
     this.userScaleConfig = scaleNum
   }
@@ -482,7 +482,7 @@ export default class extends Vue {
     const videoContain = this.codec === 'h265' ? player.querySelector('canvas') : player
 
     // 替代eval，计算字符串
-    const replaceEvalByFunction = (obj:any) => {
+    const replaceEvalByFunction = (obj: any) => {
       return window.Function('"use strict";return (' + obj + ')')()
     }
 
@@ -491,7 +491,7 @@ export default class extends Vue {
     if (this.scaleVal) {
       thisScale = this.scaleVal
     } else if (this.userScaleConfig > 0) {
-      const scaleValue = this.scaleKind.find((item:any) => item.num === this.userScaleConfig)
+      const scaleValue = this.scaleKind.find((item: any) => item.num === this.userScaleConfig)
       thisScale = scaleValue.kind
       this.scaleVal = scaleValue.kind
     } else {
@@ -553,7 +553,7 @@ export default class extends Vue {
     this.isZoom = false
 
     if (this.showCanvasBox) {
-      let player:any, ctxBox:any
+      let player: any, ctxBox: any
       if (this.codec === 'h265') {
         ctxBox = this.$refs.videoWrap
         player = ctxBox.querySelector('.player-box')
@@ -594,7 +594,7 @@ export default class extends Vue {
   }
 
   // 获取canvas 点坐标
-  private getCanvasMousePos(e:any) {
+  private getCanvasMousePos(e: any) {
     // e.clientX, e.clientY
     const {
       x: canvasClientX, y: canvasClientY, width, height, left, top
@@ -632,7 +632,7 @@ export default class extends Vue {
     }
   }
 
-  private canvasClickHandle(e:any) {
+  private canvasClickHandle(e: any) {
     const mousePos = this.getCanvasMousePos(e)
     if (!mousePos) return
     const [x, y] = mousePos
@@ -644,7 +644,7 @@ export default class extends Vue {
     }
   }
 
-  private canvasMouseDown(e:any) {
+  private canvasMouseDown(e: any) {
     e.stopPropagation()
     const mousePos = this.getCanvasMousePos(e)
     if (!mousePos) return
@@ -658,7 +658,7 @@ export default class extends Vue {
     }
   }
 
-  private canvasMouseMove(e:any) {
+  private canvasMouseMove(e: any) {
     e.stopPropagation()
     if (this.oShape && this.ctxDrawState) {
       const mousePos = this.getCanvasMousePos(e)
@@ -674,7 +674,7 @@ export default class extends Vue {
     }
   }
 
-  private canvasMouseUp(e:any) {
+  private canvasMouseUp(e: any) {
     e.stopPropagation()
     // TODO 鼠标移入黑色区域，取消画框
     const mousePos = this.getCanvasMousePos(e)
@@ -725,7 +725,7 @@ export default class extends Vue {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public canvasMouseleave(e:any) {
+  public canvasMouseleave(e: any) {
     if (this.oShape && Object.keys(this.oShape).length > 0) {
       this.oShape = {}
       this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
@@ -952,7 +952,7 @@ export default class extends Vue {
     this.showCanvasBox = false
   }
   // 实时对讲
-  public toIntercom(event:any) {
+  public toIntercom(event: any) {
     event.currentTarget.blur()
     if (window.navigator.mediaDevices) {
       window.navigator.mediaDevices
@@ -987,7 +987,7 @@ export default class extends Vue {
   }
 
   // 视频缩放
-  public scaleVideo(event:any, kind:any) {
+  public scaleVideo(event: any, kind: any) {
     event.currentTarget.blur()
     this.scaleVal = kind
     this.playerFS()

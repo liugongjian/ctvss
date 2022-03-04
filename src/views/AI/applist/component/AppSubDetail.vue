@@ -242,6 +242,7 @@ export default class extends Vue {
           this.$set(this.queryParam, 'period', [this.getDateBefore(6), new Date().setHours(23, 59, 59, 999)])
           break
       }
+      console.log(this.queryParam.period)
     }
 
     @Watch('device', { deep: true })
@@ -467,7 +468,7 @@ export default class extends Vue {
       vertical-align: middle;
       width:11vw;
       margin-right: 20px;
-      padding: 0 5px;
+      padding-left: 8px;
     }
     .time-interval{
       display: inline-block;

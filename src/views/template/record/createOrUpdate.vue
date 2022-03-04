@@ -127,7 +127,7 @@ export default class extends Vue {
     return 'background: white'
   }
 
-  private defaultSelectable(row:any, index: any) {
+  private defaultSelectable(row: any, index: any) {
     if (index === 1 || index === 2) {
       return false
     } else {

@@ -97,7 +97,7 @@ const validPhone = (rule, value, callback) => {
 export default class extends Vue {
   private scaleKind = scaleKind
   private activeName = 'common'
-  public form:any = {
+  public form: any = {
     active: false,
     phoneNumber: '',
     screen: 'false',
@@ -223,8 +223,8 @@ export default class extends Vue {
   // }
   private async getUserConfigInfo() {
     const userScaleConfig = this.$store.state.user.userConfigInfo
-    if (userScaleConfig.length > 0 && userScaleConfig.find((item:any) => item.key === 'videoScale').value) {
-      this.form.scaleVal = userScaleConfig.find((item:any) => item.key === 'videoScale').value
+    if (userScaleConfig.length > 0 && userScaleConfig.find((item: any) => item.key === 'videoScale').value) {
+      this.form.scaleVal = userScaleConfig.find((item: any) => item.key === 'videoScale').value
     } else {
       this.form.scaleVal = '1'
     }
@@ -241,9 +241,9 @@ export default class extends Vue {
     updatetUserConfig(param).then(() => {
       this.$message.success('操作成功')
       const temp = this.$store.state.user.userConfigInfo
-      const result = temp.find((item:any) => item.key === 'videoScale')
+      const result = temp.find((item: any) => item.key === 'videoScale')
       result.value = this.form.scaleVal
-      const tempObj = temp.find((item:any) => item.key !== 'videoScale') || {}
+      const tempObj = temp.find((item: any) => item.key !== 'videoScale') || {}
       const final = [...tempObj, result]
       this.$store.state.user.userConfigInfo = final
     }).catch(err => {
