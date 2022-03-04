@@ -518,13 +518,13 @@ export const parseMetaData = (type: string, metaData: any) => {
             }
           )
         }
-        if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
-          locations.push(
-            {
-              zone: metaData.DangerZoneBox
-            }
-          )
-        }
+      }
+      if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+        locations.push(
+          {
+            zone: metaData.DangerZoneBox
+          }
+        )
       }
       // @ts-ignore
       locations.IsOffDuty = metaData.Data?.IsOffDuty
