@@ -31,8 +31,8 @@
                 <svg-icon name="component" width="12px" />
                 根目录
                 <span class="sum-icon">{{ `(${rootSums.online}/${rootSums.total})` }}</span>
-                <el-tooltip v-if="advancedSearchForm.revertSearchFlag" class="item" effect="dark" content="下载搜索结果" placement="top" :open-delay="300">
-                  <el-button type="text" style="float: right; padding-top: 0; padding-bottom: 0;" @click.stop="exportSearchResult">下载<i class="el-icon-download" /></el-button>
+                <el-tooltip v-if="currentGroup.inProtocol === 'gb28181'" class="item" effect="dark" content="导出全部搜索结果" placement="top" :open-delay="300">
+                  <el-button type="text" style="float: right; padding-top: 0; padding-bottom: 0;" :disabled="!advancedSearchForm.revertSearchFlag" @click.stop="exportSearchResult"><svg-icon :class="{export: !!advancedSearchForm.revertSearchFlag}" name="export" /></el-button>
                 </el-tooltip>
               </div>
               <el-tree

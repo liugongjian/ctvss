@@ -719,7 +719,7 @@ export default class extends Mixins(createMixin) {
     let validInfo: any
     try {
       validInfo = await validGbId({
-        deviceId: value,
+        deviceId: this.deviceId,
         inProtocol: this.form.inProtocol,
         gbId: this.form.gbId
       })
