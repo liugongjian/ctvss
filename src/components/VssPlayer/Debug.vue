@@ -95,8 +95,14 @@ export default class extends Vue {
   &__body {
     flex: 1;
 
-    ::v-deep .player__container {
-      height: 300px;
+    // ::v-deep video {
+    //   width: 100%;
+    //   height: 100%;
+    // }
+
+    ::v-deep .vss-player__wrap {
+      height: 400px;
+      width: 570px;
     }
   }
 }
