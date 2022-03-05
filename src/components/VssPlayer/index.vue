@@ -13,6 +13,7 @@
       </template>
       <template v-if="player" slot="right">
         <Snapshot :video-name="videoName" />
+        <DigitalZoom />
       </template>
     </Player>
   </div>
@@ -26,13 +27,15 @@ import Player from '../Player/index.vue'
  */
 import H265Icon from './components/H265Icon.vue'
 import Snapshot from './components/Snapshot.vue'
+import DigitalZoom from './components/DigitalZoom.vue'
 
 @Component({
   name: 'VssPlayer',
   components: {
     Player,
     H265Icon,
-    Snapshot
+    Snapshot,
+    DigitalZoom
   }
 })
 export default class extends Vue {

@@ -69,7 +69,7 @@ export default class extends Vue {
     videoName: 'TestVideo',
     isLive: false,
     isWs: false,
-    url: 'https://vss-resource10-1.chongqing.vcn.ctyun.cn/29941970440842640/record/1646269868_signed.m3u8?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=RKI80FWBGEJRBDCI6UE2%2F20220303%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20220303T101305Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=8bcac1bd098457c2e5b7d17f9c0306e23f52632033591c31ffde54443f779b8c'
+    url: 'https://vss-0b1056a46a878suejfc0a3d911da0596-58.guiyang.vcn.ctyun.cn/29941996210645967/record/1646064001_signed.m3u8?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=N5FPWMDNNA5HCWPZ0X61%2F20220304%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20220304T110748Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=d0106d5723560b3200af3bb7598a13613e3c9d32e73de010ab39b7635b17accd'
   }
   private url = ''
 
@@ -94,12 +94,14 @@ export default class extends Vue {
   &__body {
     flex: 1;
 
-    ::v-deep video {
-      width: 100%;
-    }
+    // ::v-deep video {
+    //   width: 100%;
+    //   height: 100%;
+    // }
 
-    ::v-deep .player-box {
-      height: 300px !important;
+    ::v-deep .vss-player__wrap {
+      height: 400px;
+      width: 570px;
     }
   }
 }
