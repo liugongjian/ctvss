@@ -12,9 +12,10 @@
         <H265Icon :codec="codec" />
       </template>
       <template v-if="player" slot="right">
+        <VideoType :type="type" @change="onTypeChange" />
         <Scale />
-        <Snapshot :video-name="videoName" />
         <DigitalZoom />
+        <Snapshot :video-name="videoName" />
       </template>
     </Player>
   </div>
@@ -30,6 +31,7 @@ import H265Icon from './components/H265Icon.vue'
 import Snapshot from './components/Snapshot.vue'
 import Scale from './components/Scale.vue'
 import DigitalZoom from './components/DigitalZoom.vue'
+import VideoType from './components/VideoType.vue'
 
 @Component({
   name: 'VssPlayer',
@@ -38,7 +40,8 @@ import DigitalZoom from './components/DigitalZoom.vue'
     H265Icon,
     Scale,
     Snapshot,
-    DigitalZoom
+    DigitalZoom,
+    VideoType
   }
 })
 export default class extends Vue {
@@ -74,9 +77,18 @@ export default class extends Vue {
     return this.codec === 'h265' ? 'h265' : this.type
   }
 
-  /* 当播放器实例创建 */
+  /**
+   * 当播放器实例创建
+   */
   private onPlayerCreate(player) {
     this.player = player
+  }
+
+  /**
+   * 当切换视频格式
+   */
+  private onTypeChange(type: string) {
+    this.$emit('onTypeChange', type)
   }
 }
 </script>
