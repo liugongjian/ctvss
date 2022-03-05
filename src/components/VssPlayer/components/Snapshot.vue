@@ -1,8 +1,10 @@
 <!-- 截图 -->
 <template>
-  <div class="controls__btn controls__snapshot" @click.stop.prevent="snapshot">
-    <svg-icon name="snapshot" width="18px" height="18px" />
-  </div>
+  <el-tooltip content="保存截图" placement="top">
+    <div class="controls__btn controls__snapshot" @click.stop.prevent="snapshot">
+      <svg-icon name="snapshot" width="18px" height="18px" />
+    </div>
+  </el-tooltip>
 </template>
 <script lang="ts">
 import { Component, Prop } from 'vue-property-decorator'

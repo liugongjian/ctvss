@@ -32,7 +32,6 @@ export class H265Player extends Player {
     console.log('wasmPlayer', this.wasmPlayer)
     this.canvas = this.wasmPlayer.canvas as HTMLCanvasElement
     this.canvas.parentElement.className = 'player__container'
-    this.canvas.style = ''
     this.config.onLoadStart && this.onLoadStart()
     this.wasmPlayer.play(this.url, this.config.isAutoPlay)
   }
