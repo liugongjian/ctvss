@@ -101,8 +101,8 @@ export default class extends Vue {
     // }
 
     ::v-deep .vss-player__wrap {
-      height: 400px;
-      width: 570px;
+      height: 500px;
+      width: 100%;
     }
   }
 }

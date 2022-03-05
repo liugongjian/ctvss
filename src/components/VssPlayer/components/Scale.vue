@@ -15,19 +15,21 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Watch, Prop } from 'vue-property-decorator'
+import { Component, Watch } from 'vue-property-decorator'
 import { UserModule } from '@/store/modules/user'
 import { scaleKind } from '@/dics/index'
 import ComponentMixin from './mixin'
+import { throttle } from 'lodash'
 
 @Component({
   name: 'Scale'
 })
 export default class extends ComponentMixin {
-  /* */
   private scale: string = 'fit'
 
   private scaleKind = scaleKind
+
+  private resizeObserver: ResizeObserver
 
   private get globalScale() {
     const num = UserModule.settings.screenCache.videoScale
@@ -37,6 +39,18 @@ export default class extends ComponentMixin {
     return scale.kind
   }
 
+  private mounted() {
+    // 监听播放器容器大小变化，触发比例缩放
+    this.resizeObserver = new ResizeObserver(throttle(() => {
+      this.scaleVideo(this.scale)
+    }, 300))
+    this.resizeObserver.observe(this.player.container)
+  }
+
+  private beforeDestroy() {
+    if (this.resizeObserver) this.resizeObserver.disconnect()
+  }
+
   /**
    * 获取全局系统配置中的缩放比例
    */
@@ -44,7 +58,6 @@ export default class extends ComponentMixin {
     immediate: true
   })
   private onGlobalScaleChange(globalScale) {
-    console.log('onGlobalScaleChange')
     this.scale = globalScale
     this.scaleVideo(this.scale)
   }
