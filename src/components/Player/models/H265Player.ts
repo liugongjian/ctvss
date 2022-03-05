@@ -13,9 +13,7 @@ export class H265Player extends Player {
   private seekTime = 0
   private muteTimeout: any = null
 
-  /**
-   * 是否已暂停
-   */
+  /* 是否已暂停 */
   private _isPaused: boolean = true
   public get isPaused(): boolean {
     return this._isPaused
@@ -33,6 +31,8 @@ export class H265Player extends Player {
     })
     console.log('wasmPlayer', this.wasmPlayer)
     this.canvas = this.wasmPlayer.canvas as HTMLCanvasElement
+    this.canvas.parentElement.className = 'player__container'
+    this.canvas.style = ''
     this.config.onLoadStart && this.onLoadStart()
     this.wasmPlayer.play(this.url, this.config.isAutoPlay)
   }
@@ -41,7 +41,7 @@ export class H265Player extends Player {
    * 绑定事件
    */
   private bindH265Event(...res: any) {
-    this.isDebug && console.log('H265播放器事件:', res)
+    // this.isDebug && console.log('H265播放器事件:', res)
     switch (res[0]) {
       case 'play':
         this.onPlay && this.onPlay()

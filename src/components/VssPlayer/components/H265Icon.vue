@@ -15,3 +15,11 @@ export default class extends Vue {
   private codec
 }
 </script>
+<style lang="scss" scoped>
+  .controls__h265 {
+    position: absolute;
+    top: -25px;
+    right: 10px;
+    opacity: 0.7;
+  }
+</style>

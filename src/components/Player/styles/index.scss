@@ -1,7 +1,12 @@
 .player__wrap {
   position: relative;
   background: #000;
-  overflow: hidden;
+
+  .player__container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
   .el-loading-mask {
     background: none !important;
@@ -28,17 +33,6 @@
     top: 50%;
     width: 100%;
     text-align: center;
-  }
-
-  .video-ref {
-    height: 100%;
-    display: flex;
-  }
-
-  video,
-  canvas {
-    margin: auto;
-    display: block;
   }
 
   .controls {
@@ -183,13 +177,6 @@
           opacity: 1;
         }
       }
-    }
-
-    &__h265 {
-      position: absolute;
-      top: -25px;
-      right: 10px;
-      opacity: 0.7;
     }
   }
 

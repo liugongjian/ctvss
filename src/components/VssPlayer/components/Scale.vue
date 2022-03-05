@@ -1,0 +1,105 @@
+<!-- 截图 -->
+<template>
+  <div class="controls__btn controls__scale">
+    <svg-icon name="screenratio" width="18px" height="18px" />
+    <ul class="controls__popup">
+      <li
+        v-for="item in scaleKind"
+        :key="item.kind"
+        :class="{'selected': scale === item.kind}"
+        @click.stop.prevent="scaleVideo(item.kind)"
+      >
+        {{ item.label }}
+      </li>
+    </ul>
+  </div>
+</template>
+<script lang="ts">
+import { Component, Watch, Prop } from 'vue-property-decorator'
+import { UserModule } from '@/store/modules/user'
+import { scaleKind } from '@/dics/index'
+import ComponentMixin from './mixin'
+
+@Component({
+  name: 'Scale'
+})
+export default class extends ComponentMixin {
+  /* */
+  private scale: string = 'fit'
+
+  private scaleKind = scaleKind
+
+  private get globalScale() {
+    const num = UserModule.settings.screenCache.videoScale
+    const scale = this.scaleKind.find(_scale => {
+      return _scale.num === num
+    })
+    return scale.kind
+  }
+
+  /**
+   * 获取全局系统配置中的缩放比例
+   */
+  @Watch('globalScale', {
+    immediate: true
+  })
+  private onGlobalScaleChange(globalScale) {
+    console.log('onGlobalScaleChange')
+    this.scale = globalScale
+    this.scaleVideo(this.scale)
+  }
+
+  /**
+   * 切换比例
+   */
+  private scaleVideo(scale) {
+    this.scale = scale
+    // h264使用video，h265使用canvas
+    const video = this.player.video || this.player.canvas
+    const width = this.player.container.clientWidth
+    const height = this.player.container.clientHeight
+    switch (scale) {
+      case '16 / 9':
+      case '4 / 3':
+        {
+          // 将字符串转为比例
+          const ratio = this.replaceEvalByFunction(scale)
+          if (width / height > ratio) {
+            video.style.height = '100%'
+            video.style.width = height * ratio + 'px'
+          } else {
+            video.style.width = '100%'
+            video.style.height = width * (1 / ratio) + 'px'
+          }
+          video.style.objectFit = 'initial'
+        }
+        break
+      case 'normal':
+        video.style.height = '100%'
+        video.style.width = '100%'
+        video.style.objectFit = 'contain'
+        break
+      case 'fit':
+      default:
+        video.style.height = '100%'
+        video.style.width = '100%'
+        video.style.objectFit = 'fill'
+        break
+    }
+  }
+
+  /**
+   * 替代eval，计算字符串
+   */
+  private replaceEvalByFunction(expression: string) {
+    return window.Function('"use strict";return (' + expression + ')')()
+  }
+}
+</script>
+<style lang="scss" scoped>
+  .controls__scale .controls__popup {
+    width: 78px;
+    left: -26px;
+    text-align: center;
+  }
+</style>

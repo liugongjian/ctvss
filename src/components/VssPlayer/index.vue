@@ -12,6 +12,7 @@
         <H265Icon :codec="codec" />
       </template>
       <template v-if="player" slot="right">
+        <Scale />
         <Snapshot :video-name="videoName" />
       </template>
     </Player>
@@ -19,19 +20,21 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Provide } from 'vue-property-decorator'
-import { PlayerType } from '../Player/models/Player.d'
-import Player from '../Player/index.vue'
+import { PlayerType } from '@/components/Player/models/Player.d'
+import Player from '@/components/Player/index.vue'
 /**
  * 子组件库
  */
 import H265Icon from './components/H265Icon.vue'
 import Snapshot from './components/Snapshot.vue'
+import Scale from './components/Scale.vue'
 
 @Component({
   name: 'VssPlayer',
   components: {
     Player,
     H265Icon,
+    Scale,
     Snapshot
   }
 })

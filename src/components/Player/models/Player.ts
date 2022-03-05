@@ -18,10 +18,8 @@ export class Player {
   public isAutoPlay: boolean
   /* 播放速率 */
   public playbackRate?: number
-
   /* 播放器实例(Private) */
   public video: EnhanceHTMLVideoElement
-
   /* H265播放器画布 */
   public canvas: HTMLCanvasElement
 
