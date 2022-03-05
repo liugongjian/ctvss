@@ -66,10 +66,10 @@ export default class extends ComponentMixin {
           const ratio = this.replaceEvalByFunction(scale)
           if (width / height > ratio) {
             video.style.height = '100%'
-            video.style.width = height * ratio + 'px'
+            video.style.width = height / width * ratio * 100 + '%'
           } else {
             video.style.width = '100%'
-            video.style.height = width * (1 / ratio) + 'px'
+            video.style.height = width / height * (1 / ratio) * 100 + '%'
           }
           video.style.objectFit = 'initial'
         }
