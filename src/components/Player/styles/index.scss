@@ -3,6 +3,16 @@
   background: #000;
   height: 100%;
   width: 100%;
+  /* 需要随开启电子所发再添加 */
+  overflow: hidden; 
+
+  .player__container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
   .el-loading-mask {
     background: none !important;
@@ -31,10 +41,12 @@
     text-align: center;
   }
 
+  /* 视频需要按16:9, 4:3缩放
   video {
     width: 100%;
     height: 100%;
   }
+  */
 
   .controls {
     * {
