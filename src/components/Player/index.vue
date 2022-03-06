@@ -1,6 +1,14 @@
 <template>
   <div v-loading="loading" class="player__wrap">
-    <div class="player__container" ref="playerContainer" />
+    <div class="header">
+      <div class="header__left">
+        <slot name="headerLeft" />
+      </div>
+      <div class="header__right">
+        <slot name="headerRight" />
+      </div>
+    </div>
+    <div ref="playerContainer" class="player__container" />
     <slot name="container" />
     <div class="controls" :class="{'controls--large': hasProgress}">
       <slot name="body" />

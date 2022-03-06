@@ -56,8 +56,7 @@ export default class extends ComponentMixin {
   @Watch('isZoom')
   getIsZoom(val: boolean) {
     if (!val) {
-      const playerWrapSize = this.playerWrap.getBoundingClientRect()
-      this.setPlayerSize(this.playerContainer, playerWrapSize.width, playerWrapSize.height, 0, 0)
+      this.setPlayerSize(this.playerContainer, '', '', '', '')
     }
   }
 
@@ -175,13 +174,11 @@ export default class extends ComponentMixin {
       left = playerContainer.offsetLeft + 0.1 * event.offsetX
       top = playerContainer.offsetTop + 0.1 * event.offsetY
       if (width <= playerWrapSize.width) {
-        width = playerWrapSize.width
-        height = playerWrapSize.height
-        left = 0
-        top = 0
+        this.setPlayerSize(this.playerContainer, '', '', '', '')
+        return
       }
     }
-    this.setPlayerSize(playerContainer, width, height, left, top)
+    this.setPlayerSize(playerContainer, width + 'px', height + 'px', left + 'px', top + 'px')
   }
   /**
    * 调整播放器尺寸及位置
@@ -191,12 +188,12 @@ export default class extends ComponentMixin {
    * @param left 播放器的相对左偏移
    * @param top 播放器的相对上偏移
    */
-  private setPlayerSize(player: HTMLDivElement, width: number, height: number, left: number, top: number) {
+  private setPlayerSize(player: HTMLDivElement, width: string, height: string, left: string, top: string) {
     player.style.position = 'absolute'
-    player.style.width = width + 'px'
-    player.style.height = height + 'px'
-    player.style.left = left + 'px'
-    player.style.top = top + 'px'
+    player.style.width = width
+    player.style.height = height
+    player.style.left = left
+    player.style.top = top
   }
 }
 

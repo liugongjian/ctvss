@@ -64,13 +64,13 @@ import VssPlayer from './index.vue'
 })
 export default class extends Vue {
   private form: any = {
-    codec: 'h264',
+    codec: 'h265',
     type: 'hls',
     videoName: 'TestVideo',
     isLive: false,
     isWs: false,
-    // url: 'https://changchun.vcn.ctyun.cn/vss-work_order_10-1/29941957555937375/record/1644292818_signed.m3u8?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=M5NB4DWSTUYHO2W5V3XZ%2F20220305%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20220305T015112Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=a2ae9b8d55952be9dd767a01bfab753f85f6b6b15102611564b57e8db9d84f7b'
-    url: 'https://vss-0b1056a46a878suejfc0a3d911da0596-1.guiyang.vcn.ctyun.cn/29941927491169158/record/1646112676_signed.m3u8?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=N5FPWMDNNA5HCWPZ0X61%2F20220304%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20220304T150311Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=94340963364e2bf74b4c0463d42e73329ce4545789c2c5a976ee327e6d3af389'
+    url: 'https://vss-0b1056a46a878suejfc0a3d911da0596-58.guiyang.vcn.ctyun.cn/29941996210645967/record/1646510378_signed.m3u8?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=N5FPWMDNNA5HCWPZ0X61%2F20220306%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20220306T050428Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=8f77c7738271d8bcbdc6d180f950064e2a78e35d98eafcd7f737433105623792'
+    // url: 'https://vss-0b1056a46a878suejfc0a3d911da0596-58.guiyang.vcn.ctyun.cn/29941948966005709/record/1646099860.ts?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=N5FPWMDNNA5HCWPZ0X61%2F20220306%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20220306T045815Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=169e032ba48fea2c61696aa0012f638101bbfaf772d93db95baade2d0586a512'
   }
   private url = ''
 

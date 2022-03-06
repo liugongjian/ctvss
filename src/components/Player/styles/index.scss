@@ -3,8 +3,48 @@
   background: #000;
   height: 100%;
   width: 100%;
+
   /* 需要随开启电子所发再添加 */
-  overflow: hidden; 
+  overflow: hidden;
+
+  &--hidden {
+    cursor: none !important;
+
+    .header,
+    .controls {
+      opacity: 0 !important;
+    }
+  }
+
+  .header {
+    * {
+      user-select: none;
+    }
+
+    position: absolute;
+    z-index: 15;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 35px;
+    background: rgba(0, 0, 0, 70%);
+    color: #fff;
+    opacity: 1;
+    transition: opacity 0.2s;
+
+    &__left,
+    &__right {
+      position: absolute;
+      left: 10px;
+      height: 100%;
+      display: flex;
+    }
+
+    &__right {
+      left: auto;
+      right: 10px;
+    }
+  }
 
   .player__container {
     height: 100%;

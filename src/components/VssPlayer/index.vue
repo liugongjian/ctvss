@@ -2,12 +2,19 @@
   <div class="vss-player__wrap">
     <Player
       ref="player"
+      v-adaptive-tools
       :type="playerType"
       :url="url"
       :codec="codec"
       :is-debug="true"
       @onCreate="onPlayerCreate"
     >
+      <template slot="headerLeft">
+        <StreamSelector />
+      </template>
+      <template slot="headerRight">
+        <Close />
+      </template>
       <template slot="body">
         <H265Icon :codec="codec" />
       </template>
@@ -23,6 +30,7 @@
 import { Component, Vue, Prop, Provide } from 'vue-property-decorator'
 import { PlayerType } from '@/components/Player/models/Player.d'
 import Player from '@/components/Player/index.vue'
+import { adaptiveTools } from './directives/adaptiveTools'
 /**
  * 子组件库
  */
@@ -30,6 +38,8 @@ import H265Icon from './components/H265Icon.vue'
 import Snapshot from './components/Snapshot.vue'
 import Scale from './components/Scale.vue'
 import DigitalZoom from './components/DigitalZoom.vue'
+import Close from './components/Close.vue'
+import StreamSelector from './components/StreamSelector.vue'
 
 @Component({
   name: 'VssPlayer',
@@ -38,7 +48,12 @@ import DigitalZoom from './components/DigitalZoom.vue'
     H265Icon,
     Scale,
     Snapshot,
-    DigitalZoom
+    DigitalZoom,
+    Close,
+    StreamSelector
+  },
+  directives: {
+    'adaptive-tools': adaptiveTools
   }
 })
 export default class extends Vue {
