@@ -8,8 +8,13 @@ export interface DeviceInfo {
   inProtocol: string;
   deviceName: string;
 }
+export interface Stream {
+  streamNum: number;
+  streamStatus: string;
+}
 
 export interface StreamInfo {
+  streams: Stream;
   /* 主子码流数量 */
   streamSize: number;
   /* 当前码流号 */
