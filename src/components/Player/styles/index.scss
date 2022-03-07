@@ -11,7 +11,7 @@
     cursor: none !important;
 
     .header,
-    .controls {
+    .control {
       opacity: 0 !important;
     }
   }
@@ -27,7 +27,7 @@
     left: 0;
     width: 100%;
     height: 35px;
-    background: rgba(0, 0, 0, 70%);
+    // background: rgba(0, 0, 0, 70%);
     color: #fff;
     opacity: 1;
     transition: opacity 0.2s;
@@ -88,7 +88,7 @@
   }
   */
 
-  .controls {
+  .control {
     * {
       user-select: none;
     }
@@ -128,7 +128,7 @@
       font-size: 12px;
       cursor: pointer;
 
-      .controls__popup {
+      .control__popup {
         display: none;
         position: absolute;
         bottom: 34px;
@@ -154,13 +154,13 @@
         }
       }
 
-      .controls__volume {
+      .control__volume {
         left: -3px;
         min-width: 35px;
       }
 
       &:hover {
-        .controls__popup {
+        .control__popup {
           display: block;
         }
       }
@@ -226,20 +226,20 @@
 
       &:hover,
       &.moving {
-        .controls__progress__played:after {
+        .control__progress__played:after {
           opacity: 1;
         }
       }
     }
   }
 
-  .controls--large {
+  .control--large {
     height: 55px;
     padding-top: 10px;
   }
 
   &:hover {
-    .controls {
+    .control {
       opacity: 1;
     }
   }

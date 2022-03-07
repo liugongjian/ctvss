@@ -1,7 +1,7 @@
 <!-- 电子缩放 -->
 <template>
   <el-tooltip :content="isZoom ? '关闭电子缩放' : '开启电子缩放'" placement="top">
-    <div class="controls__btn controls__zoom" :class="{'selected': isZoom}" @click.stop.prevent="toggleZoom">
+    <div class="control__btn control__zoom" :class="{'selected': isZoom}" @click.stop.prevent="toggleZoom">
       <svg-icon name="zoom" width="18px" height="18px" />
     </div>
   </el-tooltip>

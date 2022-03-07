@@ -1,6 +1,6 @@
 <!-- 进度条 -->
 <template>
-  <div class="controls__progress__bar">
+  <div class="control__progress__bar">
     progress bar
   </div>
 </template>

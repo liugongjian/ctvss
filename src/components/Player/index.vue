@@ -10,17 +10,17 @@
     </div>
     <div ref="playerContainer" class="player__container" />
     <slot name="container" />
-    <div class="controls" :class="{'controls--large': hasProgress}">
-      <slot name="body" />
-      <div class="controls__left">
+    <div class="control" :class="{'control--large': hasProgress}">
+      <slot name="controlBody" />
+      <div class="control__left">
         <template v-if="!isLive">
           <PlayPause />
           <!-- <div v-if="hasProgress && duration" class="controls__time">{{ durationFormatInVideo(Math.floor(currentTime)) }} / {{ durationFormatInVideo(duration) }}</div> -->
         </template>
       </div>
-      <div class="controls__right">
+      <div class="control__right">
         <Volume />
-        <slot name="right" />
+        <slot name="controlRight" />
       </div>
     </div>
   </div>

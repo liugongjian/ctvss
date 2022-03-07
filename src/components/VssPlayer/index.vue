@@ -9,17 +9,16 @@
       :is-debug="true"
       @onCreate="onPlayerCreate"
     >
-      <template slot="headerLeft">
-        <StreamSelector />
-      </template>
+      <template slot="headerLeft" />
       <template slot="headerRight">
-        <Close />
+        <Close @dispatch="dispatch" />
       </template>
-      <template slot="body">
+      <template slot="controlBody">
         <H265Icon :codec="codec" />
       </template>
-      <template v-if="player" slot="right">
-        <VideoType :type="type" @change="onTypeChange" />
+      <template v-if="player" slot="controlRight">
+        <StreamSelector />
+        <VideoType :type="type" @dispatch="dispatch" />
         <Scale />
         <DigitalZoom />
         <Snapshot :video-name="videoName" />
@@ -30,6 +29,7 @@
 <script lang="ts">
 import { Component, Vue, Prop, Provide } from 'vue-property-decorator'
 import { PlayerType } from '@/components/Player/models/Player.d'
+import { PlayerEvent } from '@/components/VssPlayer/models/VssPlayer.d'
 import Player from '@/components/Player/index.vue'
 import { adaptiveTools } from './directives/adaptiveTools'
 /**
@@ -56,6 +56,7 @@ import VideoType from './components/VideoType.vue'
     VideoType
   },
   directives: {
+    // 动态隐藏播放器工具栏与头部
     'adaptive-tools': adaptiveTools
   }
 })
@@ -102,8 +103,8 @@ export default class extends Vue {
   /**
    * 当切换视频格式
    */
-  private onTypeChange(type: string) {
-    this.$emit('onTypeChange', type)
+  private dispatch(event: PlayerEvent) {
+    this.$emit('dispatch', event)
   }
 }
 </script>

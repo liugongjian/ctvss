@@ -1,8 +1,8 @@
 <!-- 截图 -->
 <template>
-  <div class="controls__btn controls__video-type">
+  <div class="control__btn control__video-type">
     {{ types[type] }}
-    <ul class="controls__popup">
+    <ul class="control__popup">
       <li
         v-for="(label, key) in types"
         :key="key"
@@ -34,12 +34,15 @@ export default class extends ComponentMixin {
    * 切换视频格式
    */
   private changeType(type: string) {
-    this.$emit('change', type)
+    this.$emit('dispatch', {
+      eventType: 'typeChange',
+      payload: type
+    })
   }
 }
 </script>
 <style lang="scss" scoped>
-  .video-type .controls__popup {
+  .video-type .control__popup {
     width: 78px;
     left: -26px;
     text-align: center;

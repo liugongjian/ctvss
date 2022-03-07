@@ -8,7 +8,7 @@
         height="18px"
       />
       <span>{{ streamName }}</span>
-      <ul class="controls__popup">
+      <ul class="control__popup">
         <li
           v-for="stream in subStreamList"
           :key="stream.value"
@@ -94,7 +94,7 @@ export default class extends Vue {
     font-style: normal;
     line-height: 35px;
 
-    .controls__popup {
+    .control__popup {
       position: absolute;
       display: none;
       width: 105px;
@@ -143,7 +143,7 @@ export default class extends Vue {
     }
 
     &:hover {
-      .controls__popup {
+      .control__popup {
         display: block;
       }
     }

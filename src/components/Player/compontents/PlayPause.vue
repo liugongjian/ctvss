@@ -1,9 +1,9 @@
 <!-- 播放 / 暂停按钮 -->
 <template>
-  <div v-if="isPaused" class="controls__btn" @click="play">
+  <div v-if="isPaused" class="control__btn" @click="play">
     <svg-icon name="play" width="16px" height="16px" />
   </div>
-  <div v-else class="controls__btn" @click="pause">
+  <div v-else class="control__btn" @click="pause">
     <svg-icon name="pause" width="18px" height="18px" />
   </div>
 </template>

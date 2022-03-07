@@ -51,13 +51,14 @@
         :is-auto-play="true"
         :is-live="form.isLive"
         :is-ws="form.isWs"
-        @onTypeChange="onTypeChange"
+        @dispatch="onPlayerDispatch"
       />
     </div>
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import { PlayerEvent } from '@/components/VssPlayer/models/VssPlayer.d'
 import VssPlayer from './index.vue'
 
 @Component({
@@ -87,14 +88,15 @@ export default class extends Vue {
     })
   }
 
-  private onTypeChange(type: string) {
-    if (type === 'rtc') {
-      this.url = ''
+  private onPlayerDispatch(event: PlayerEvent) {
+    console.log(event)
+    // if (type === 'rtc') {
+    //   this.url = ''
 
-      this.$nextTick(() => {
-        this.url = this.form.rtcUrl
-      })
-    }
+    //   this.$nextTick(() => {
+    //     this.url = this.form.rtcUrl
+    //   })
+    // }
   }
 }
 </script>

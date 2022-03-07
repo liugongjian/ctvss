@@ -1,8 +1,8 @@
 <!-- 截图 -->
 <template>
-  <div class="controls__btn controls__scale">
+  <div class="control__btn control__scale">
     <svg-icon name="screenratio" width="18px" height="18px" />
-    <ul class="controls__popup">
+    <ul class="control__popup">
       <li
         v-for="item in scaleKind"
         :key="item.kind"
@@ -110,7 +110,7 @@ export default class extends ComponentMixin {
 }
 </script>
 <style lang="scss" scoped>
-  .controls__scale .controls__popup {
+  .control__scale .control__popup {
     width: 78px;
     left: -26px;
     text-align: center;
