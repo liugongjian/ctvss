@@ -9,6 +9,7 @@ export interface DeviceInfo {
   deviceName: string;
 }
 export interface Stream {
+  label?: string;
   streamNum: number;
   streamStatus: string;
 }
@@ -20,7 +21,7 @@ export interface StreamInfo {
   /* 当前码流号 */
   streamNum: number;
   /* 视频宽度 */
-  videoWidth: number;
+  videoWidth?: number;
   /* 视频高度 */
-  videoHeight: number;
+  videoHeight?: number;
 }
