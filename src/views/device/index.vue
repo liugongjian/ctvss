@@ -325,6 +325,8 @@ export default class extends Mixins(IndexMixin) {
         matchKeys: search.matchKeys.join(',') || undefined,
         deviceAddresses: search.deviceAddresses.code ? search.deviceAddresses.code + ',' + search.deviceAddresses.level : undefined,
         searchKey: search.searchKey || undefined,
+        sortBy: 'OrderSequence',
+        sortDirection: 'asc',
         pageSize: 5000,
         pageNum: 1
       }
