@@ -227,8 +227,10 @@ export default class extends Vue {
     private alarms: any = []
     // 防抖
     private debounceHandle = debounce(() => {
+      Object.keys(this.queryLoading).forEach(key => { this.queryLoading[key] = true })
       this.getScreenShot()
       this.isCarFlowCode && this.getAlarmsList()
+      Object.keys(this.queryLoading).forEach(key => { this.queryLoading[key] = false })
     }, 500)
 
     get dataLoading() {
@@ -404,10 +406,7 @@ export default class extends Vue {
       this.currentLocationIndex = index
     }
     private async refresh() {
-      Object.keys(this.queryLoading).forEach(key => { this.queryLoading[key] = true })
-      await this.getScreenShot()
-      this.isCarFlowCode && await this.getAlarmsList()
-      Object.keys(this.queryLoading).forEach(key => { this.queryLoading[key] = false })
+      this.debounceHandle()
     }
 }
 </script>

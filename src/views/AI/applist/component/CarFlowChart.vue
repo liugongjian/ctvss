@@ -89,7 +89,8 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   /** 调整数据顺序
-   * 优先绘制alarm */
+   * 优先绘制alarm
+   * */
   private prioritiseAlarm(res) {
     // @ts-ignore
     const temp = res.alarmChartData.map(item => ({ ...item, value: parseInt(item.value), time: Date.parse(new Date(item.time)) }))
@@ -101,6 +102,7 @@ export default class extends Mixins(DashboardMixin) {
    * 更新图表
    */
   private drawChart() {
+    console.log(this.chart)
     this.chart = new Chart({
       container: 'car-container',
       autoFit: true,
