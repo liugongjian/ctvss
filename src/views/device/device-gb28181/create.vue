@@ -102,7 +102,7 @@
         <el-form-item label="设备端口:" prop="devicePort">
           <el-input v-model.number="form.devicePort" />
         </el-form-item>
-        <el-form-item v-if="form.deviceType !== 'platform'" label="国标ID:" prop="gbId">
+        <el-form-item v-if="form.deviceType !== 'platform' && isShowGbIdEditor" label="国标ID:" prop="gbId">
           <el-input v-model="form.gbId" />
           <div class="form-tip">
             用户可自行录入规范国标ID，未录入该项，平台会自动生成规范国标ID。
@@ -168,11 +168,11 @@
             inactive-value="udp"
           />
         </el-form-item>
-        <el-form-item v-if="(!isUpdate || form.gbRegion || !form.gbId)" label="设备地址:" prop="gbRegion">
+        <el-form-item v-if="(!isUpdate || form.gbRegion || !deviceGbId)" label="设备地址:" prop="gbRegion">
           <AddressCascader
             :code="form.gbRegion"
             :level="form.gbRegionLevel"
-            :disabled="form.gbId !== ''"
+            :disabled="deviceGbId !== ''"
             @change="onDeviceAddressChange"
           />
         </el-form-item>
@@ -184,13 +184,13 @@
           <el-input v-model="form.deviceLatitude" class="longlat-input" />
         </el-form-item>
         <el-form-item
-          v-if="!isUpdate || form.industryCode || !form.gbId"
+          v-if="!isUpdate || form.industryCode || !deviceGbId"
           label="所属行业:"
           prop="industryCode"
         >
           <el-select
             v-model="form.industryCode"
-            :disabled="form.gbId !== ''"
+            :disabled="deviceGbId !== ''"
             placeholder="请选择所属行业"
           >
             <el-option
@@ -202,13 +202,13 @@
           </el-select>
         </el-form-item>
         <el-form-item
-          v-if="(!isUpdate || form.networkCode || !form.gbId) && networkFlag"
+          v-if="(!isUpdate || form.networkCode || !deviceGbId) && networkFlag"
           label="网络标识:"
           prop="networkCode"
         >
           <el-select
             v-model="form.networkCode"
-            :disabled="form.gbId !== ''"
+            :disabled="deviceGbId !== ''"
             placeholder="请选择网络标识"
           >
             <el-option
@@ -220,6 +220,7 @@
           </el-select>
         </el-form-item>
         <el-form-item
+          v-if="form.deviceType !== 'nvr'"
           label="杆号:"
           prop="poleId"
         >
@@ -415,6 +416,7 @@ export default class extends Mixins(createMixin) {
     transPriority: 'tcp',
     parentDeviceId: '',
     gbId: '',
+    poleId: '',
     userName: '',
     longlat: 'required',
     deviceLongitude: '0.000000',
@@ -490,6 +492,9 @@ export default class extends Mixins(createMixin) {
             'networkCode'
           ])
         )
+        // 记录当前设备gbid
+        this.deviceGbId = info.gbId
+
         // 获取绑定资源包列表
         this.getDeviceResources(
           info.deviceId,
@@ -714,7 +719,7 @@ export default class extends Mixins(createMixin) {
     let validInfo: any
     try {
       validInfo = await validGbId({
-        deviceId: value,
+        deviceId: this.deviceId,
         inProtocol: this.form.inProtocol,
         gbId: this.form.gbId
       })
@@ -723,7 +728,7 @@ export default class extends Mixins(createMixin) {
     }
     if (value && !/^[0-9]{20}$/.test(value)) {
       callback(new Error('请输入规范国标ID'))
-    } else if (value && validInfo && validInfo.isValidGbId) {
+    } else if (value && validInfo && !validInfo.isValidGbId) {
       callback(new Error('存在重复国标ID'))
     } else {
       callback()
@@ -749,10 +754,12 @@ export default class extends Mixins(createMixin) {
     content: '/';
     color: $textGrey;
   }
+
   &__item:last-child:after {
     content: '';
   }
 }
+
 .longlat-input {
   width: 193px;
 }

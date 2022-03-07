@@ -109,6 +109,9 @@
                 <el-descriptions-item label="GB28181凭证注册用户名">
                   {{ info.userName }}
                 </el-descriptions-item>
+                <el-descriptions-item v-if="info.deviceType !== 'nvr'" label="杆号">
+                  {{ info.poleId || '-' }}
+                </el-descriptions-item>
                 <!--NVR信息-->
                 <template v-if="info.deviceType === 'nvr'">
                   <el-descriptions-item label="自动创建子设备">
