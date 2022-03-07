@@ -1,26 +1,23 @@
 <!-- 码流选择 -->
 <template>
-  <span v-if="streamSize && streamSize > 1">
-    <i class="set-stream">
-      <svg-icon
-        name="branch"
-        width="18px"
-        height="18px"
-      />
-      <span>{{ streamName }}</span>
-      <ul class="control__popup">
-        <li
-          v-for="stream in subStreamList"
-          :key="stream.value"
-          :class="{'selected': stream.value === streamNum}"
-          @click="setStreamNum(stream.value)"
-        >
-          <status-badge v-if="stream.streamStatus" :status="stream.streamStatus" />
-          {{ stream.label }}
-        </li>
-      </ul>
-    </i>
-  </span>
+  <div class="control__btn control__stream-selector" :stream-num="streamNum">
+    <svg-icon
+      name="branch"
+      width="18px"
+      height="18px"
+    />
+    <ul class="control__popup">
+      <li
+        v-for="stream in subStreamList"
+        :key="stream.value"
+        :class="{'selected': stream.value === streamNum}"
+        @click.stop.prevent="setStreamNum(stream.value)"
+      >
+        <status-badge v-if="stream.streamStatus" :status="stream.streamStatus" />
+        {{ stream.label }}
+      </li>
+    </ul>
+  </div>
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
@@ -34,17 +31,12 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 })
 export default class extends Vue {
   @Prop({
-    default: false
-  })
-  private isShowLabel?: boolean
-  @Prop({
     default: 3
   })
   private streamSize?: number
   @Prop()
-  private streamNum?: number
-  @Prop()
   private streams?: Array<any>
+  private streamNum: number = 1
   private streamList = [
     {
       label: '主码流',
@@ -82,70 +74,24 @@ export default class extends Vue {
   }
 
   private setStreamNum(streamNum: number) {
-    this.$emit('onSetStreamNum', streamNum)
+    this.streamNum = streamNum
+    // this.$emit('onSetStreamNum', streamNum)
   }
 }
 </script>
 <style lang="scss" scoped>
-  .set-stream {
-    position: relative;
-    padding: 4px;
-    cursor: pointer;
-    font-style: normal;
-    line-height: 35px;
-
+  .control__stream-selector {
     .control__popup {
-      position: absolute;
-      display: none;
-      width: 105px;
-      left: -20px;
-      top: 25px;
-      z-index: 10;
-      background: #fff;
-      border: 1px solid #ddd;
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      border-radius: 4px;
-      box-shadow: 0 2px 12px 0 rgb(0 0 0 / 10%);
-
-      li {
-        margin: 0;
-        padding: 5px 15px;
-        list-style: none;
-        font-style: normal;
-        color: $text;
-        line-height: 14px;
-        cursor: pointer;
-
-        &:hover {
-          background: #eee;
-        }
-
-        &.selected {
-          color: $primary;
-        }
-
-        .status-badge {
-          position: relative;
-          top: 0;
-          left: 0;
-          width: 6px;
-          height: 6px;
-        }
-
-        .status-badge--off,
-        .status-badge--on,
-        .status-badge--failed {
-          display: inline-block;
-        }
-      }
+      width: 95px;
+      left: -36px;
+      text-align: center;
     }
 
-    &:hover {
-      .control__popup {
-        display: block;
-      }
+    &:after {
+      content: attr(stream-num);
+      position: absolute;
+      bottom: 3px;
+      right: 2px;
     }
   }
 </style>
