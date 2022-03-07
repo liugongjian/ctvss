@@ -39,7 +39,7 @@ export default class extends Mixins(DashboardMixin) {
   private chartData: any = []
 
   @Watch('param', { deep: true, immediate: true })
-  private paramUpdated() {
+  private async paramUpdated() {
     this.conditionalDebounce()
   }
   @Watch('appInfo', { deep: true, immediate: true })
@@ -214,10 +214,11 @@ export default class extends Mixins(DashboardMixin) {
     this.chart.interaction('view-zoom-x')
   }
   /**
-   * 更新图表
+   * 更新图表,由于changeData不能改变原有图表的度量值，会出现有数据但无图的情况，因此，每次更新图表都需要重绘
    */
   private updateChart() {
-    this.chart.changeData(this.chartData)
+    this.chart.destroy()
+    this.drawChart()
   }
 
   /**
