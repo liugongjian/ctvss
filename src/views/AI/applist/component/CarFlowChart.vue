@@ -102,7 +102,6 @@ export default class extends Mixins(DashboardMixin) {
    * 更新图表
    */
   private drawChart() {
-    console.log(this.chart)
     this.chart = new Chart({
       container: 'car-container',
       autoFit: true,
