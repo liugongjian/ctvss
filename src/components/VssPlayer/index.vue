@@ -21,7 +21,7 @@
         <VideoType :type="type" @dispatch="dispatch" />
         <Scale />
         <DigitalZoom />
-        <Snapshot :video-name="videoName" />
+        <Snapshot :name="deviceInfo.deviceName" />
       </template>
     </Player>
   </div>
@@ -29,7 +29,7 @@
 <script lang="ts">
 import { Component, Vue, Prop, Provide } from 'vue-property-decorator'
 import { PlayerType } from '@/components/Player/models/Player.d'
-import { PlayerEvent } from '@/components/VssPlayer/models/VssPlayer.d'
+import { PlayerEvent, DeviceInfo, StreamInfo } from '@/components/VssPlayer/models/VssPlayer.d'
 import Player from '@/components/Player/index.vue'
 import { adaptiveTools } from './directives/adaptiveTools'
 /**
@@ -75,9 +75,15 @@ export default class extends Vue {
   })
   private codec: string
 
-  /* 视频名称 */
+  /* 设备信息 */
+  @Prop({
+    default: {}
+  })
+  private deviceInfo: DeviceInfo
+
+  /* 设备信息 */
   @Prop()
-  private videoName: string
+  private streamInfo: StreamInfo
 
   /* 播放器实例 */
   private player: Player = null

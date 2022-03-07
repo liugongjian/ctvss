@@ -17,15 +17,14 @@ import ComponentMixin from './mixin'
 })
 export default class extends ComponentMixin {
   @Prop()
-  private videoName: string
+  private name: string
 
   /**
    * 截图保存
    */
   private snapshot() {
     if (!this.player) return
-    console.log('snapshot', this.player.type)
-    const name = this.videoName || 'snapshot'
+    const name = this.name || 'snapshot'
     const canvas = this.getCanvas()
 
     // IE兼容下载、未加载出视频时点击截图无效
