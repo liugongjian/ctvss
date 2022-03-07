@@ -1,7 +1,9 @@
+
+import { PlayerConfig } from './Player.d'
 import { FlvPlayer } from './FlvPlayer'
 import { HlsPlayer } from './HlsPlayer'
 import { H265Player } from './H265Player'
-import { PlayerConfig } from './Player.d'
+import { RtcPlayer } from './RtcPlayer'
 
 export const createPlayer = (config: PlayerConfig) => {
   const wrapElement: HTMLDivElement = config.container
@@ -32,5 +34,7 @@ const initPlayer = (config: PlayerConfig) => {
       return new HlsPlayer(config)
     case 'h265':
       return new H265Player(config)
+    case 'rtc':
+      return new RtcPlayer(config)
   }
 }

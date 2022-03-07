@@ -112,7 +112,9 @@ export class Player {
   /**
    * 设置默认值
    */
-  protected setDefault() {}
+  protected setDefault() {
+    this.video.playbackRate = this.playbackRate
+  }
 
   /**
    * 检测是否支持自动播放
