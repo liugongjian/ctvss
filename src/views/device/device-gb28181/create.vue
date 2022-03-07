@@ -492,7 +492,7 @@ export default class extends Mixins(createMixin) {
           parentDeviceId: this.isUpdate ? this.form.parentDeviceId : this.deviceId,
           channelName: this.form.channelName,
           channelNum: this.form.channelNum
-        }, pick(this.form, ['userName']))
+        }, pick(this.form, ['userName','deviceLongitude', 'deviceLatitude']))
       }
       if (this.isUpdate) {
         delete params.deviceType
