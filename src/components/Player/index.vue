@@ -8,7 +8,9 @@
         <slot name="headerRight" />
       </div>
     </div>
-    <div ref="playerContainer" class="player__container" />
+    <div class="player__border">
+      <div ref="playerContainer" class="player__container" />
+    </div>
     <slot name="container" />
     <div class="control" :class="{'control--large': hasProgress}">
       <slot name="controlBody" />
@@ -23,6 +25,7 @@
         <slot name="controlRight" />
       </div>
     </div>
+    <div>...</div>
   </div>
 </template>
 <script lang="ts">

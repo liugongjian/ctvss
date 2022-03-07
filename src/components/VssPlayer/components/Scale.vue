@@ -44,7 +44,7 @@ export default class extends ComponentMixin {
     this.resizeObserver = new ResizeObserver(throttle(() => {
       this.scaleVideo(this.scale)
     }, 300))
-    this.resizeObserver.observe(this.player.container)
+    this.resizeObserver.observe(this.player.container.parentElement)
   }
 
   private beforeDestroy() {
