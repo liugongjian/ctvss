@@ -13,12 +13,6 @@ export class H265Player extends Player {
   private seekTime = 0
   private muteTimeout: any = null
 
-  /* 是否已暂停 */
-  private _isPaused: boolean = true
-  public get isPaused(): boolean {
-    return this._isPaused
-  }
-
   /**
    * 初始化
    */
@@ -29,7 +23,6 @@ export class H265Player extends Player {
       Height: true,
       enableAudio: true
     })
-    console.log('wasmPlayer', this.wasmPlayer)
     this.canvas = this.wasmPlayer.canvas as HTMLCanvasElement
     this.canvas.parentElement.className = 'player__container'
     this.config.onLoadStart && this.onLoadStart()
@@ -100,12 +93,12 @@ export class H265Player extends Player {
   }
 
   /**
-   * 静音
-   * @param isMute
+   * 开关静音
+   * @param isMuted
    */
-  public switchMuteStatus(isMute: boolean) {
+  public toggleMuteStatus(isMuted: boolean) {
     clearTimeout(this.muteTimeout)
-    if (isMute) {
+    if (isMuted) {
       this.wasmPlayer.closeAudio()
     } else {
       this.wasmPlayer.openAudio()
@@ -113,7 +106,7 @@ export class H265Player extends Player {
         this.wasmPlayer.openAudio()
       }, 1000)
     }
-    this.config.onVolumeChange && this.config.onVolumeChange(1, isMute)
+    this.isMuted = isMuted
   }
 
   /**
@@ -128,7 +121,7 @@ export class H265Player extends Player {
    * 当开始播放
    */
   protected onPlay() {
-    this._isPaused = false
+    this.isPaused = false
     this.config.onLoadStart && this.onLoadStart()
     this.config.onPlay && this.config.onPlay()
   }
@@ -138,7 +131,7 @@ export class H265Player extends Player {
    * 当恢复播放
    */
   protected onResume() {
-    this._isPaused = false
+    this.isPaused = false
     this.config.onPlay && this.config.onPlay()
   }
 
@@ -147,7 +140,7 @@ export class H265Player extends Player {
    * 当暂停
    */
   protected onPause() {
-    this._isPaused = true
+    this.isPaused = true
     this.config.onPause && this.config.onPause()
   }
 
@@ -157,7 +150,8 @@ export class H265Player extends Player {
    */
   protected onTimeUpdate() {
     this.getDuration()
-    this.config.onTimeUpdate && this.config.onTimeUpdate(this.wasmPlayer.currentTime)
+    // this.config.onTimeUpdate && this.config.onTimeUpdate(this.wasmPlayer.currentTime)
+    this.currentTime = this.wasmPlayer.currentTime
     // if (this.wasmPlayer.currentTime === 0) {
     //   this.onCanplay && this.onCanplay()
     // }
@@ -168,7 +162,8 @@ export class H265Player extends Player {
    * 当更新时长
    */
   protected onDurationChange() {
-    this.config.onDurationChange && this.config.onDurationChange(this.wasmPlayer.duration)
+    this.duration = this.wasmPlayer.duration
+    // this.config.onDurationChange && this.config.onDurationChange(this.wasmPlayer.duration)
   }
 
   /**

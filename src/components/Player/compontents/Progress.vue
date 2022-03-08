@@ -1,7 +1,7 @@
 <!-- 进度条 -->
 <template>
   <div class="control__progress__bar">
-    progress bar
+    {{ player && player.currentTime }} / {{ player && player.duration }}
   </div>
 </template>
 <script lang="ts">

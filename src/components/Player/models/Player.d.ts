@@ -19,14 +19,12 @@ export interface PlayerConfig {
   playbackRate?: number;
   onPlay?: () => void;
   onPause?: () => void;
-  onVolumeChange?: (volume: number, muted: boolean) => void;
   onRetry?: (immediate: OnRetryParams) => void;
-  onTimeUpdate?: (currentTime: number) => void;
-  onDurationChange?: (duration: number) => void;
+  // onTimeUpdate?: (currentTime: number) => void;
+  // onDurationChange?: (duration: number) => void;
   onEnded?: () => void;
-  onSeeked?: (currentTime) => void;
+  // onSeeked?: (currentTime) => void;
   onBuffered?: (buffered: number) => void;
   onLoadStart?: () => void;
   onCanplay?: () => void;
-  onTestHasAudio?: (hasAudio: boolean) => void;
 }

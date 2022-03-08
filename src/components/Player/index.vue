@@ -14,6 +14,7 @@
     <slot name="container" />
     <div class="control" :class="{'control--large': hasProgress}">
       <slot name="controlBody" />
+      <Progress />
       <div class="control__left">
         <template v-if="!isLive">
           <PlayPause />
@@ -39,12 +40,14 @@ import './styles/index.scss'
  */
 import PlayPause from './compontents/PlayPause.vue'
 import Volume from './compontents/Volume.vue'
+import Progress from './compontents/Progress.vue'
 
 @Component({
   name: 'Player',
   components: {
     PlayPause,
-    Volume
+    Volume,
+    Progress
   }
 })
 export default class extends Vue {
