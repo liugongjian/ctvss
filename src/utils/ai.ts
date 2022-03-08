@@ -352,8 +352,9 @@ export const parseMetaData = (type: string, metaData: any) => {
         }
       }
       break
-    // 垃圾检测
-    case '21':
+
+    case '21':// 垃圾检测
+    case '23': // 电动车
       if (metaData.Data && metaData.Data.DetectBoxes) {
         const boxes = metaData.Data.DetectBoxes
         for (let i = 0; i < boxes.length; i += 4) {
@@ -376,80 +377,10 @@ export const parseMetaData = (type: string, metaData: any) => {
         }
       }
       break
-    // 车辆统计
-    case '22':
-      if (metaData.Data && metaData.Data.Boxes) {
-        const boxes = metaData.Data.Boxes
-        for (let i = 0; i < boxes.length; i++) {
-          locations.push(
-            {
-              top: boxes[i].TopLeftY,
-              left: boxes[i].TopLeftX,
-              width: boxes[i].BottomRightX - boxes[i].TopLeftX,
-              height: boxes[i].BottomRightY - boxes[i].TopLeftY,
-              isWarning: true
-            }
-          )
-        }
-        if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
-          locations.push(
-            {
-              zone: metaData.DangerZoneBox
-            }
-          )
-        }
-      }
-      break
-      // 电动车
-    case '23':
-      if (metaData.Data && metaData.Data.DetectBoxes) {
-        const boxes = metaData.Data.Boxes
-        for (let i = 0; i < boxes.length; i++) {
-          locations.push(
-            {
-              top: boxes[i].TopLeftY,
-              left: boxes[i].TopLeftX,
-              width: boxes[i].BottomRightX - boxes[i].TopLeftX,
-              height: boxes[i].BottomRightY - boxes[i].TopLeftY,
-              isWarning: true
-            }
-          )
-        }
-      }
-      if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
-        locations.push(
-          {
-            zone: metaData.DangerZoneBox
-          }
-        )
-      }
-      break
-      // 车辆违停
-    case '24':
-      if (metaData.Data && metaData.Data.Boxes) {
-        const boxes = metaData.Data.Boxes
-        for (let i = 0; i < boxes.length; i++) {
-          locations.push(
-            {
-              top: boxes[i].TopLeftY,
-              left: boxes[i].TopLeftX,
-              width: boxes[i].BottomRightX - boxes[i].TopLeftX,
-              height: boxes[i].BottomRightY - boxes[i].TopLeftY,
-              isWarning: true
-            }
-          )
-        }
-      }
-      if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
-        locations.push(
-          {
-            zone: metaData.DangerZoneBox
-          }
-        )
-      }
-      break
-      // 车辆拥堵
-    case '25':
+
+    case '22':// 车辆统计
+    case '24': // 车辆违停
+    case '25': // 车辆拥堵
       if (metaData.Data && metaData.Data.Boxes) {
         const boxes = metaData.Data.Boxes
         for (let i = 0; i < boxes.length; i++) {
@@ -472,38 +403,13 @@ export const parseMetaData = (type: string, metaData: any) => {
         )
       }
       // @ts-ignore
-      metaData.Data.JamCount && (locations.JamCount = metaData.Data.JamCount)
+      metaData.Data.JamCount && (locations.JamCount = metaData.Data.JamCount) // 车辆拥堵
       // @ts-ignore
-      metaData.Data.JamThreshold && (locations.JamThreshold = metaData.Data.JamThreshold)
+      metaData.Data.JamThreshold && (locations.JamThreshold = metaData.Data.JamThreshold) // 车辆拥堵
       break
-    // 人群感应检测
-    case '26':
-      if (metaData.Data && metaData.Data.DetectBoxes) {
-        const boxes = metaData.Data.DetectBoxes
-        for (let i = 0; i < boxes.length; i += 4) {
-          locations.push(
-            {
-              top: boxes[i + 1],
-              left: boxes[i],
-              width: boxes[i + 2],
-              height: boxes[i + 3],
-              isWarning: !!metaData.Data.DetectClses[i / 4]
-            }
-          )
-        }
-        if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
-          locations.push(
-            {
-              zone: metaData.DangerZoneBox
-            }
-          )
-        }
-      }
-      // @ts-ignore
-      locations.PersonNum = metaData.Data?.PersonNum
-      break
-    // 实时在岗检测
-    case '27':
+
+    case '26': // 人群感应检测
+    case '27': // 实时在岗检测
       if (metaData.Data && metaData.Data.DetectBoxes) {
         const boxes = metaData.Data.DetectBoxes
         for (let i = 0; i < boxes.length; i += 4) {
@@ -526,9 +432,11 @@ export const parseMetaData = (type: string, metaData: any) => {
         )
       }
       // @ts-ignore
-      locations.IsOffDuty = metaData.Data?.IsOffDuty
+      locations.PersonNum = metaData.Data?.PersonNum // 人群感应
       // @ts-ignore
-      locations.IsSleepOnDuty = metaData.Data?.IsSleepOnDuty
+      locations.IsOffDuty = metaData.Data?.IsOffDuty // 实时在岗检测
+      // @ts-ignore
+      locations.IsSleepOnDuty = metaData.Data?.IsSleepOnDuty // 实时在岗检测
       break
   }
   return locations
@@ -538,36 +446,6 @@ export const parseMetaData = (type: string, metaData: any) => {
 export const parseMetaDataNewAi = (type: string, metaData: any) => {
   let locations = []
   switch (type) {
-    // // 未带口罩
-    // case '1':
-    //   locations = metaData.face_list && metaData.face_list.map((face: any) => {
-    //     return {
-    //       ...face.face_location,
-    //       isWarning: !face.isMask
-    //     }
-    //   })
-    //   break
-    // // 人员聚集
-    // case '2':
-    //   locations = metaData.result && metaData.result.map((face: any) => {
-    //     return {
-    //       top: face.box[1],
-    //       left: face.box[0],
-    //       width: face.box[2] - face.box[0],
-    //       height: face.box[3] - face.box[1],
-    //       isWarning: metaData.result.length > 10
-    //     }
-    //   })
-    //   break
-    //   // 人员布控
-    // case '3':
-    //   locations = metaData.data && metaData.data.map((face: any) => {
-    //     return {
-    //       ...face.location,
-    //       isWarning: true
-    //     }
-    //   })
-    //   break
     // 研发二部人员布控
     case '10001':
       locations = metaData.Data && metaData.Data.MatchList.map((person: any) => {
@@ -867,8 +745,8 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
         }
       }
       break
-      // 垃圾检测
-    case '10018':
+    case '10018':// 垃圾检测
+    case '10020':// 电动车
       if (metaData.Data && metaData.Data.DetectBoxes) {
         const boxes = metaData.Data.DetectBoxes
         for (let i = 0; i < boxes.length; i += 4) {
@@ -891,32 +769,10 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
         }
       }
       break
-      // 电动车
-    case '10020':
-      if (metaData.Data && metaData.Data.DetectBoxes) {
-        const boxes = metaData.Data.DetectBoxes
-        for (let i = 0; i < boxes.length; i += 4) {
-          locations.push(
-            {
-              top: boxes[i + 1],
-              left: boxes[i],
-              width: boxes[i + 2],
-              height: boxes[i + 3],
-              isWarning: !!metaData.Data.DetectClses[i / 4]
-            }
-          )
-        }
-        if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
-          locations.push(
-            {
-              zone: metaData.DangerZoneBox
-            }
-          )
-        }
-      }
-      break
-    // 车辆统计
-    case '10019':
+
+    case '10019': // 车辆统计
+    case '10021': // 车辆违停
+    case '10022': // 车辆拥堵
       if (metaData.Data && metaData.Data.Boxes) {
         const boxes = metaData.Data.Boxes
         for (let i = 0; i < boxes.length; i++) {
@@ -926,55 +782,7 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
               left: boxes[i].TopLeftX,
               width: boxes[i].BottomRightX - boxes[i].TopLeftX,
               height: boxes[i].BottomRightY - boxes[i].TopLeftY,
-              isWarning: true
-            }
-          )
-        }
-        if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
-          locations.push(
-            {
-              zone: metaData.DangerZoneBox
-            }
-          )
-        }
-      }
-      break
-      // 车辆违停
-    case '10021':
-      if (metaData.Data && metaData.Data.Boxes) {
-        const boxes = metaData.Data.Boxes
-        for (let i = 0; i < boxes.length; i++) {
-          locations.push(
-            {
-              top: boxes[i].TopLeftY,
-              left: boxes[i].TopLeftX,
-              width: boxes[i].BottomRightX - boxes[i].TopLeftX,
-              height: boxes[i].BottomRightY - boxes[i].TopLeftY,
-              isWarning: true
-            }
-          )
-        }
-        if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
-          locations.push(
-            {
-              zone: metaData.DangerZoneBox
-            }
-          )
-        }
-      }
-      break
-      // 车辆拥堵
-    case '10022':
-      if (metaData.Data && metaData.Data.Boxes) {
-        const boxes = metaData.Data.Boxes
-        for (let i = 0; i < boxes.length; i++) {
-          locations.push(
-            {
-              top: boxes[i].TopLeftY,
-              left: boxes[i].TopLeftX,
-              width: boxes[i].BottomRightX - boxes[i].TopLeftX,
-              height: boxes[i].BottomRightY - boxes[i].TopLeftY,
-              isWarning: true
+              isWarning: metaData.Data.DetectClses ? metaData.Data.DetectClses[i / 4] : false
             }
           )
         }
@@ -991,34 +799,9 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
       // @ts-ignore
       metaData.Data.JamThreshold && (locations.JamThreshold = metaData.Data.JamThreshold)
       break
-    // 人群感应检测
-    case '10023':
-      if (metaData.Data && metaData.Data.DetectBoxes) {
-        const boxes = metaData.Data.DetectBoxes
-        for (let i = 0; i < boxes.length; i += 4) {
-          locations.push(
-            {
-              top: boxes[i + 1],
-              left: boxes[i],
-              width: boxes[i + 2],
-              height: boxes[i + 3],
-              isWarning: !!metaData.Data.DetectClses[i / 4]
-            }
-          )
-        }
-        if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
-          locations.push(
-            {
-              zone: metaData.DangerZoneBox
-            }
-          )
-        }
-      }
-      // @ts-ignore
-      locations.PersonNum = metaData.Data?.PersonNum
-      break
-    // 实时在岗检测
-    case '10024':
+
+    case '10023': // 人群感应检测
+    case '10024': // 实时在岗检测
       if (metaData.Data && metaData.Data.DetectBoxes) {
         const boxes = metaData.Data.DetectBoxes
         for (let i = 0; i < boxes.length; i += 4) {
@@ -1041,9 +824,11 @@ export const parseMetaDataNewAi = (type: string, metaData: any) => {
         )
       }
       // @ts-ignore
-      locations.IsOffDuty = metaData.Data?.IsOffDuty
+      locations.PersonNum = metaData.Data?.PersonNum// 人群感应
       // @ts-ignore
-      locations.IsSleepOnDuty = metaData.Data?.IsSleepOnDuty
+      locations.IsOffDuty = metaData.Data?.IsOffDuty// 实时在岗
+      // @ts-ignore
+      locations.IsSleepOnDuty = metaData.Data?.IsSleepOnDuty// 实时在岗
       break
   }
   return locations
