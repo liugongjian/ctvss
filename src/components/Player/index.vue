@@ -18,7 +18,7 @@
       <div class="control__left">
         <template v-if="!isLive">
           <PlayPause />
-          <!-- <div v-if="hasProgress && duration" class="controls__time">{{ durationFormatInVideo(Math.floor(currentTime)) }} / {{ durationFormatInVideo(duration) }}</div> -->
+          <Timer />
         </template>
       </div>
       <More class="control__more" />
@@ -39,6 +39,7 @@ import './styles/index.scss'
  * 子组件库
  */
 import PlayPause from './compontents/PlayPause.vue'
+import Timer from './compontents/Timer.vue'
 import Volume from './compontents/Volume.vue'
 import Progress from './compontents/Progress.vue'
 import More from './compontents/More.vue'
@@ -47,6 +48,7 @@ import More from './compontents/More.vue'
   name: 'Player',
   components: {
     PlayPause,
+    Timer,
     Volume,
     Progress,
     More
