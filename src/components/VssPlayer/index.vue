@@ -2,37 +2,62 @@
   <div class="vss-player__wrap">
     <Player
       ref="player"
+      v-adaptive-tools
       :type="playerType"
       :url="url"
       :codec="codec"
       :is-debug="true"
       @onCreate="onPlayerCreate"
     >
-      <template slot="body">
+      <template slot="headerLeft" />
+      <template slot="headerRight">
+        <Close @dispatch="dispatch" />
+      </template>
+      <template slot="controlBody">
         <H265Icon :codec="codec" />
       </template>
-      <template v-if="player" slot="right">
-        <Snapshot :video-name="videoName" />
+      <template v-if="player" slot="controlRight">
+        <StreamSelector />
+        <VideoType :type="type" @dispatch="dispatch" />
+        <Scale />
+        <DigitalZoom />
+        <Snapshot :name="deviceInfo.deviceName" />
       </template>
     </Player>
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Provide } from 'vue-property-decorator'
-import { PlayerType } from '../Player/models/Player.d'
-import Player from '../Player/index.vue'
+import { PlayerType } from '@/components/Player/models/Player.d'
+import { PlayerEvent, DeviceInfo, StreamInfo } from '@/components/VssPlayer/models/VssPlayer.d'
+import Player from '@/components/Player/index.vue'
+import { adaptiveTools } from './directives/adaptiveTools'
 /**
  * 子组件库
  */
 import H265Icon from './components/H265Icon.vue'
 import Snapshot from './components/Snapshot.vue'
+import Scale from './components/Scale.vue'
+import DigitalZoom from './components/DigitalZoom.vue'
+import Close from './components/Close.vue'
+import StreamSelector from './components/StreamSelector.vue'
+import VideoType from './components/VideoType.vue'
 
 @Component({
   name: 'VssPlayer',
   components: {
     Player,
     H265Icon,
-    Snapshot
+    Scale,
+    Snapshot,
+    DigitalZoom,
+    Close,
+    StreamSelector,
+    VideoType
+  },
+  directives: {
+    // 动态隐藏播放器工具栏与头部
+    'adaptive-tools': adaptiveTools
   }
 })
 export default class extends Vue {
@@ -50,9 +75,15 @@ export default class extends Vue {
   })
   private codec: string
 
-  /* 视频名称 */
+  /* 设备信息 */
+  @Prop({
+    default: {}
+  })
+  private deviceInfo: DeviceInfo
+
+  /* 设备信息 */
   @Prop()
-  private videoName: string
+  private streamInfo: StreamInfo
 
   /* 播放器实例 */
   private player: Player = null
@@ -68,9 +99,18 @@ export default class extends Vue {
     return this.codec === 'h265' ? 'h265' : this.type
   }
 
-  /* 当播放器实例创建 */
+  /**
+   * 当播放器实例创建
+   */
   private onPlayerCreate(player) {
     this.player = player
+  }
+
+  /**
+   * 当切换视频格式
+   */
+  private dispatch(event: PlayerEvent) {
+    this.$emit('dispatch', event)
   }
 }
 </script>

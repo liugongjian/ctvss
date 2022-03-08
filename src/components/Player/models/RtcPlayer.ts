@@ -1,32 +1,58 @@
 // @ts-ignore
-import HlsJS from 'hls.js'
+import { prepareUrl, srsRtcPlayerAsync } from '../libs/webrtc'
 import { Player } from './Player'
-import { EnhanceHTMLVideoElement } from './Player.d'
 
-export class HlsPlayer extends Player {
-  private hls?: any
+export class RtcPlayer extends Player {
+  private rtc?: any
+  private rtcConf: any
 
-  /**
-   * 初始化
-   */
   protected init() {
-    if (!HlsJS.isSupported()) {
-      throw new Error('当前浏览器不支持Hls播放器')
+    if (!window.RTCPeerConnection) {
+      throw new Error('当前浏览器不支持Webrtc播放器')
     }
-    const videoElement: EnhanceHTMLVideoElement = document.createElement('video')
+    const videoElement: HTMLVideoElement = document.createElement('video')
     videoElement.controls = false
     this.container.innerHTML = ''
     this.container.append(videoElement)
-    const hls = new HlsJS({
-      manifestLoadingMaxRetry: 2
-    })
-    hls.loadSource(this.url)
-    hls.attachMedia(videoElement)
-    hls.on(HlsJS.Events.MANIFEST_PARSED, () => {
+
+    this.rtcConf = prepareUrl(this.url)
+    this.rtc = srsRtcPlayerAsync()
+
+    this.rtc.onaddstream = (event: any) => {
+      videoElement.srcObject = event.stream
       this.startAutoPlay()
-    })
-    this.hls = hls
+    }
+
+    // 断连后尝试重新连接
+    this.rtc.onconnectionstatechange = (state: string) => {
+      if (state === 'disconnected') {
+        this.retry(true)
+      }
+    }
+
+    this.connectRtc()
     this.video = videoElement
+  }
+
+  /**
+   * 进行WebRTC SDP协商
+   */
+  private connectRtc() {
+    this.rtc.play(this.rtcConf.apiUrl, this.rtcConf.streamUrl).then(() => {
+      // console.log(session)
+    }).catch(() => {
+      this.retry()
+    })
+  }
+
+  /**
+   * 重新拉流
+   */
+  private retry(immediate: boolean = false) {
+    this.rtc.close()
+    this.onRetry({
+      immediate
+    })
   }
 
   /**
@@ -34,13 +60,10 @@ export class HlsPlayer extends Player {
    */
   protected bindEvent() {
     this.video.addEventListener('play', this.onPlay.bind(this))
-    // 添加音量控制 在 baseplayer 里面声明方法
-    // 这里的绑定都是将每个播放器的方法绑定到 baseplayer 上面。base player 里面只有几个共有的方法
-    // 后期 可能需要调整 base player 和各个播放器之间的属性、方法关系
     this.video.addEventListener('pause', this.onPause.bind(this))
     this.video.addEventListener('timeupdate', this.onTimeUpdate.bind(this))
-    this.video.addEventListener('durationchange', this.onDurationChange.bind(this))
     this.video.addEventListener('volumechange', this.onVolumeChange.bind(this))
+    this.video.addEventListener('durationchange', this.onDurationChange.bind(this))
     this.video.addEventListener('ended', this.onEnded.bind(this))
     this.video.addEventListener('seeked', this.onSeeked.bind(this))
     this.video.addEventListener('progress', this.onBuffered.bind(this))
@@ -52,16 +75,9 @@ export class HlsPlayer extends Player {
    * 重新加载视频
    */
   public reloadPlayer() {
-    this.disposePlayer()
+    this.video = null
+    this.rtc.close()
     this.init()
-  }
-
-  /**
-   * Seek
-   * @param time 秒
-   */
-  public seek(time: number) {
-    this.video.currentTime = time
   }
 
   /**
@@ -77,6 +93,10 @@ export class HlsPlayer extends Player {
     this.video.removeEventListener('loadstart', this.onLoadStart)
     this.video.removeEventListener('canplay', this.onCanplay)
     this.video.removeEventListener('volumechange', this.onVolumeChange)
-    this.hls && this.hls.destroy()
+    if (this.rtc) {
+      this.rtc.pc && this.rtc.pc.connectionState !== 'close' && this.video.srcObject && this.rtc.pc.removeStream(this.video.srcObject)
+      this.rtc.close()
+      this.rtc.pc = null
+    }
   }
 }

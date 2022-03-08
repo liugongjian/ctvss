@@ -1,19 +1,31 @@
 <template>
   <div v-loading="loading" class="player__wrap">
-    <div ref="playerContainer" />
-    <div class="controls" :class="{'controls--large': hasProgress}">
-      <slot name="body" />
-      <div class="controls__left">
+    <div class="header">
+      <div class="header__left">
+        <slot name="headerLeft" />
+      </div>
+      <div class="header__right">
+        <slot name="headerRight" />
+      </div>
+    </div>
+    <div class="player__border">
+      <div ref="playerContainer" class="player__container" />
+    </div>
+    <slot name="container" />
+    <div class="control" :class="{'control--large': hasProgress}">
+      <slot name="controlBody" />
+      <div class="control__left">
         <template v-if="!isLive">
           <PlayPause />
           <!-- <div v-if="hasProgress && duration" class="controls__time">{{ durationFormatInVideo(Math.floor(currentTime)) }} / {{ durationFormatInVideo(duration) }}</div> -->
         </template>
       </div>
-      <div class="controls__right">
+      <div class="control__right">
         <Volume />
-        <slot name="right" />
+        <slot name="controlRight" />
       </div>
     </div>
+    <div>...</div>
   </div>
 </template>
 <script lang="ts">

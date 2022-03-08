@@ -13,9 +13,7 @@ export class H265Player extends Player {
   private seekTime = 0
   private muteTimeout: any = null
 
-  /**
-   * 是否已暂停
-   */
+  /* 是否已暂停 */
   private _isPaused: boolean = true
   public get isPaused(): boolean {
     return this._isPaused
@@ -33,6 +31,7 @@ export class H265Player extends Player {
     })
     console.log('wasmPlayer', this.wasmPlayer)
     this.canvas = this.wasmPlayer.canvas as HTMLCanvasElement
+    this.canvas.parentElement.className = 'player__container'
     this.config.onLoadStart && this.onLoadStart()
     this.wasmPlayer.play(this.url, this.config.isAutoPlay)
   }
@@ -41,7 +40,7 @@ export class H265Player extends Player {
    * 绑定事件
    */
   private bindH265Event(...res: any) {
-    this.isDebug && console.log('H265播放器事件:', res)
+    // this.isDebug && console.log('H265播放器事件:', res)
     switch (res[0]) {
       case 'play':
         this.onPlay && this.onPlay()
@@ -157,6 +156,7 @@ export class H265Player extends Player {
    * 更新时间
    */
   protected onTimeUpdate() {
+    this.getDuration()
     this.config.onTimeUpdate && this.config.onTimeUpdate(this.wasmPlayer.currentTime)
     // if (this.wasmPlayer.currentTime === 0) {
     //   this.onCanplay && this.onCanplay()
@@ -165,9 +165,17 @@ export class H265Player extends Player {
 
   /**
    * 回调事件
+   * 当更新时长
+   */
+  protected onDurationChange() {
+    this.config.onDurationChange && this.config.onDurationChange(this.wasmPlayer.duration)
+  }
+
+  /**
+   * 回调事件
    * Loading完成
    */
-  public onEndLoading() {
+  private onEndLoading() {
     if (this.loading && this.seekTime) {
       this.wasmPlayer.seekToSecs(this.seekTime)
     }
@@ -181,5 +189,21 @@ export class H265Player extends Player {
    */
   protected testHasAudio() {
     this.hasAudio = true
+  }
+
+  /**
+   * 获取视频时长
+   * H265播放器没有返回duration属性，只能通过timeLabel中的string解析
+   */
+  private getDuration() {
+    // 如已获得duration则不再解析
+    if (this.wasmPlayer.duration) return
+    const timeLabel = this.wasmPlayer.timeLabel.innerHTML
+    if (timeLabel) {
+      const durationString = timeLabel.split('/')[1]
+      const time = durationString.split(':')
+      this.wasmPlayer.duration = parseInt(time[0]) * 60 * 60 + parseInt(time[1]) * 60 + parseInt(time[2])
+      this.onDurationChange()
+    }
   }
 }

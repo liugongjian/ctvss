@@ -1,7 +1,62 @@
 .player__wrap {
   position: relative;
   background: #000;
-  overflow: hidden;
+  height: 100%;
+  width: 100%;
+  
+  &--hidden {
+    cursor: none !important;
+
+    .header,
+    .control {
+      opacity: 0 !important;
+    }
+  }
+
+  .header {
+    * {
+      user-select: none;
+    }
+
+    position: absolute;
+    z-index: 15;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 35px;
+    // background: rgba(0, 0, 0, 70%);
+    color: #fff;
+    opacity: 1;
+    transition: opacity 0.2s;
+
+    &__left,
+    &__right {
+      position: absolute;
+      left: 10px;
+      height: 100%;
+      display: flex;
+    }
+
+    &__right {
+      left: auto;
+      right: 10px;
+    }
+  }
+
+  .player__border {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .player__container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
   .el-loading-mask {
     background: none !important;
@@ -30,18 +85,14 @@
     text-align: center;
   }
 
-  .video-ref {
+  /* 视频需要按16:9, 4:3缩放
+  video {
+    width: 100%;
     height: 100%;
-    display: flex;
   }
+  */
 
-  video,
-  canvas {
-    margin: auto;
-    display: block;
-  }
-
-  .controls {
+  .control {
     * {
       user-select: none;
     }
@@ -81,7 +132,7 @@
       font-size: 12px;
       cursor: pointer;
 
-      .controls__popup {
+      .control__popup {
         display: none;
         position: absolute;
         bottom: 34px;
@@ -107,13 +158,13 @@
         }
       }
 
-      .controls__volume {
+      .control__volume {
         left: -3px;
         min-width: 35px;
       }
 
       &:hover {
-        .controls__popup {
+        .control__popup {
           display: block;
         }
       }
@@ -179,27 +230,20 @@
 
       &:hover,
       &.moving {
-        .controls__progress__played:after {
+        .control__progress__played:after {
           opacity: 1;
         }
       }
     }
-
-    &__h265 {
-      position: absolute;
-      top: -25px;
-      right: 10px;
-      opacity: 0.7;
-    }
   }
 
-  .controls--large {
+  .control--large {
     height: 55px;
     padding-top: 10px;
   }
 
   &:hover {
-    .controls {
+    .control {
       opacity: 1;
     }
   }

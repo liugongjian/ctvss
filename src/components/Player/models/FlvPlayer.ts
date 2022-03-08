@@ -87,13 +87,6 @@ export class FlvPlayer extends Player {
   }
 
   /**
-   * 设置默认值
-   */
-  protected setDefault() {
-    this.video.playbackRate = this.playbackRate
-  }
-
-  /**
    * 重新加载视频
    */
   public reloadPlayer() {

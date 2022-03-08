@@ -23,7 +23,6 @@ export class Player {
 
   /* 播放器实例(Private) */
   public video: EnhanceHTMLVideoElement
-
   /* H265播放器画布 */
   public canvas: HTMLCanvasElement
 
@@ -116,7 +115,9 @@ export class Player {
   /**
    * 设置默认值
    */
-  protected setDefault() {}
+  protected setDefault() {
+    this.video.playbackRate = this.playbackRate
+  }
 
   /**
    * 检测是否支持自动播放

@@ -1,6 +1,6 @@
 <!-- 音量控制按钮 -->
 <template>
-  <div class="controls__btn controls__volume">
+  <div class="control__btn control__volume">
     <svg-icon name="volume" width="18px" height="18px" />
     {{ player.hasAudio }}
   </div>

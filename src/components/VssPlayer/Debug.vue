@@ -30,7 +30,10 @@
         <el-form-item label="视频地址">
           <el-input v-model="form.url" />
         </el-form-item>
-        <el-form-item label="视频名称">
+        <el-form-item label="RTC视频地址">
+          <el-input v-model="form.rtcUrl" />
+        </el-form-item>
+        <el-form-item label="设备名称">
           <el-input v-model="form.videoName" />
         </el-form-item>
         <el-button type="primary" @click="generate">生成</el-button>
@@ -43,17 +46,19 @@
         :url="url"
         :type="form.type"
         :codec="form.codec"
-        :video-name="form.videoName"
+        :device-info="form.deviceInfo"
         :is-debug="true"
         :is-auto-play="true"
         :is-live="form.isLive"
         :is-ws="form.isWs"
+        @dispatch="onPlayerDispatch"
       />
     </div>
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import { PlayerEvent } from '@/components/VssPlayer/models/VssPlayer.d'
 import VssPlayer from './index.vue'
 
 @Component({
@@ -64,12 +69,19 @@ import VssPlayer from './index.vue'
 })
 export default class extends Vue {
   private form: any = {
-    codec: 'h265',
-    type: 'hls',
+    codec: 'h264',
+    type: 'flv',
     videoName: 'TestVideo',
     isLive: false,
     isWs: false,
-    url: 'https://vss-resource10-1.chongqing.vcn.ctyun.cn/29941970440842640/record/1646269868_signed.m3u8?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=RKI80FWBGEJRBDCI6UE2%2F20220303%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20220303T101305Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=8bcac1bd098457c2e5b7d17f9c0306e23f52632033591c31ffde54443f779b8c'
+    deviceInfo: {
+      deviceName: 'TestVideo',
+      deviceId: '123',
+      inProtocol: 'gb281812'
+    },
+    url: 'https://liveplay.guangzhou.vcn.ctyun.cn/live/395591776819757060.flv'
+    // url: 'https://changchun.vcn.ctyun.cn/vss-work_order_10-1/29941957555937375/record/1644292818_signed.m3u8?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=M5NB4DWSTUYHO2W5V3XZ%2F20220305%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20220305T015112Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=a2ae9b8d55952be9dd767a01bfab753f85f6b6b15102611564b57e8db9d84f7b'
+    // url: 'https://vss-0b1056a46a878suejfc0a3d911da0596-1.guiyang.vcn.ctyun.cn/29941927491169158/record/1646112676_signed.m3u8?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=N5FPWMDNNA5HCWPZ0X61%2F20220304%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20220304T150311Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=94340963364e2bf74b4c0463d42e73329ce4545789c2c5a976ee327e6d3af389'
   }
   private url = ''
 
@@ -79,6 +91,17 @@ export default class extends Vue {
     this.$nextTick(() => {
       this.url = this.form.url
     })
+  }
+
+  private onPlayerDispatch(event: PlayerEvent) {
+    console.log(event)
+    // if (type === 'rtc') {
+    //   this.url = ''
+
+    //   this.$nextTick(() => {
+    //     this.url = this.form.rtcUrl
+    //   })
+    // }
   }
 }
 </script>
@@ -94,12 +117,14 @@ export default class extends Vue {
   &__body {
     flex: 1;
 
-    ::v-deep video {
-      width: 100%;
-    }
+    // ::v-deep video {
+    //   width: 100%;
+    //   height: 100%;
+    // }
 
-    ::v-deep .player-box {
-      height: 300px !important;
+    ::v-deep .vss-player__wrap {
+      height: 500px;
+      width: 100%;
     }
   }
 }

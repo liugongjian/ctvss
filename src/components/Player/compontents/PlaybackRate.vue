@@ -1,6 +1,6 @@
 <!-- 切换播放速率 -->
 <template>
-  <div class="controls__btn controls__playback-rate">
+  <div class="control__btn control__playback-rate">
     倍速
   </div>
 </template>
