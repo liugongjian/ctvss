@@ -21,6 +21,7 @@
         <VideoType :type="type" @dispatch="dispatch" />
         <Scale />
         <DigitalZoom />
+        <PtzZoom />
         <Snapshot :name="deviceInfo.deviceName" />
       </template>
     </Player>
@@ -42,6 +43,7 @@ import DigitalZoom from './components/DigitalZoom.vue'
 import Close from './components/Close.vue'
 import StreamSelector from './components/StreamSelector.vue'
 import VideoType from './components/VideoType.vue'
+import PtzZoom from './components/PtzZoom.vue'
 
 @Component({
   name: 'VssPlayer',
@@ -53,7 +55,8 @@ import VideoType from './components/VideoType.vue'
     DigitalZoom,
     Close,
     StreamSelector,
-    VideoType
+    VideoType,
+    PtzZoom
   },
   directives: {
     // 动态隐藏播放器工具栏与头部
