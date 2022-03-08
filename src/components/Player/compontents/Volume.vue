@@ -2,6 +2,7 @@
 <template>
   <div class="controls__btn controls__volume">
     <svg-icon name="volume" width="18px" height="18px" />
+    {{ player.hasAudio }}
   </div>
 </template>
 <script lang="ts">
@@ -12,5 +13,6 @@ import ComponentMixin from './mixin'
   name: 'Volume'
 })
 export default class extends ComponentMixin {
+
 }
 </script>

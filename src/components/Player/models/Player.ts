@@ -18,6 +18,8 @@ export class Player {
   public isAutoPlay: boolean
   /* 播放速率 */
   public playbackRate?: number
+  /* 是否有音轨 */
+  public hasAudio: boolean
 
   /* 播放器实例(Private) */
   public video: EnhanceHTMLVideoElement
@@ -150,8 +152,7 @@ export class Player {
    */
   protected testHasAudio() {
     // @ts-ignore
-    const hasAudio = this.video.mozHasAudio || Boolean(this.video.webkitAudioDecodedByteCount) || Boolean(this.video.audioTracks && this.video.audioTracks.length)
-    this.config.onTestHasAudio && this.config.onTestHasAudio(hasAudio)
+    this.hasAudio = this.video.mozHasAudio || Boolean(this.video.webkitAudioDecodedByteCount) || Boolean(this.video.audioTracks && this.video.audioTracks.length)
   }
 
   /**

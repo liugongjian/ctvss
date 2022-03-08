@@ -179,7 +179,7 @@ export class H265Player extends Player {
   /**
    * 检测是否有音频
    */
-  public testHasAudio() {
-    this.config.onTestHasAudio && this.config.onTestHasAudio(true)
+  protected testHasAudio() {
+    this.hasAudio = true
   }
 }
