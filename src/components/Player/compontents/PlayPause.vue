@@ -1,6 +1,6 @@
 <!-- 播放 / 暂停按钮 -->
 <template>
-  <div v-if="player && player.isPaused" class="control__btn" @click="play">
+  <div v-if="isPaused" class="control__btn" @click="play">
     <svg-icon name="play" width="16px" height="16px" />
   </div>
   <div v-else class="control__btn" @click="pause">
@@ -15,6 +15,11 @@ import ComponentMixin from './mixin'
   name: 'PlayPause'
 })
 export default class extends ComponentMixin {
+  /* 是否暂停状态 */
+  private get isPaused() {
+    return this.player && this.player.isPaused
+  }
+
   /**
    * 播放
    */

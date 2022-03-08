@@ -199,55 +199,6 @@
       line-height: 35px;
       margin-left: 10px;
     }
-
-    &__progress {
-      position: absolute;
-      width: 100%;
-      top: -13px;
-      height: 30px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-
-      &__bar {
-        width: 100%;
-        height: 4px;
-        background: rgba(255, 255, 255, 20%);
-      }
-
-      &__buffered {
-        position: absolute;
-        height: 4px;
-        background: rgba(255, 255, 255, 30%);
-        transition: width 100ms;
-      }
-
-      &__played {
-        position: absolute;
-        height: 4px;
-        background: $lightGray;
-
-        &:after {
-          content: ' ';
-          position: absolute;
-          width: 12px;
-          height: 12px;
-          background: $lightGray;
-          border-radius: 100%;
-          right: -5px;
-          top: -4px;
-          opacity: 0;
-          transition: opacity 100ms;
-        }
-      }
-
-      &:hover,
-      &.moving {
-        .control__progress__played:after {
-          opacity: 1;
-        }
-      }
-    }
   }
 
   .control--large {

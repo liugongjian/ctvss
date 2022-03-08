@@ -12,9 +12,9 @@
       <div ref="playerContainer" class="player__container" />
     </div>
     <slot name="container" />
-    <div id="control" class="control" :class="{'control--large': hasProgress}" @click.prevent.stop="">
+    <div id="control" class="control" :class="{'control--large': hasProgress}">
       <slot name="controlBody" />
-      <Progress />
+      <Progress v-if="hasProgress" />
       <div class="control__left">
         <template v-if="!isLive">
           <PlayPause />

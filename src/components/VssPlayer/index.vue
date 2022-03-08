@@ -6,6 +6,7 @@
       :type="playerType"
       :url="url"
       :codec="codec"
+      :has-progress="hasProgress"
       :is-debug="true"
       @onCreate="onPlayerCreate"
     >
@@ -77,6 +78,10 @@ export default class extends Vue {
     default: 'h264'
   })
   private codec: string
+
+  /* 是否显示进度条 */
+  @Prop()
+  private hasProgress: boolean
 
   /* 设备信息 */
   @Prop({
