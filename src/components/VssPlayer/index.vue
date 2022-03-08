@@ -6,6 +6,7 @@
       :type="playerType"
       :url="url"
       :codec="codec"
+      :volume="volume"
       :is-debug="true"
       @onCreate="onPlayerCreate"
     >
@@ -78,6 +79,12 @@ export default class extends Vue {
   })
   private codec: string
 
+  /* 默认音量 */
+  @Prop({
+    default: 0.3
+  })
+  private volume: number
+
   /* 设备信息 */
   @Prop({
     default: {}
@@ -105,7 +112,7 @@ export default class extends Vue {
   /**
    * 当播放器实例创建
    */
-  private onPlayerCreate(player) {
+  private onPlayerCreate(player: Player) {
     this.player = player
   }
 

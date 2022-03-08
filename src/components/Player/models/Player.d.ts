@@ -17,6 +17,7 @@ export interface PlayerConfig {
   isDebug: boolean;
   isAutoPlay: boolean;
   playbackRate?: number;
+  volume: number;
   onPlay?: () => void;
   onPause?: () => void;
   onVolumeChange?: (volume: number, muted: boolean) => void;

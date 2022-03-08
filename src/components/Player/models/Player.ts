@@ -40,9 +40,9 @@ export class Player {
     this.isDebug = config.isDebug
     this.isAutoPlay = config.isAutoPlay
     this.playbackRate = config.playbackRate || 1
+    this.volume = config.volume
     this.hasAudio = null
     this.isPaused = null
-    this.volume = null
     this.isMuted = null
     this.init()
     this.bindEvent()
@@ -83,8 +83,8 @@ export class Player {
    * 调整音量
    * @param volume 音量大小，取值0-1
    */
-  public setPlayVolume(volume: number) {
-    this.video.volume = volume / 100
+  public setVolume(volume: number) {
+    this.video.volume = volume
   }
 
   /**
@@ -120,6 +120,7 @@ export class Player {
    */
   protected setDefault() {
     this.video.playbackRate = this.playbackRate
+    this.video.volume = this.volume
   }
 
   /**
