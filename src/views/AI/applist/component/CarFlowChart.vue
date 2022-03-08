@@ -112,7 +112,7 @@ export default class extends Mixins(DashboardMixin) {
     this.chart = new Chart({
       container: 'car-container',
       autoFit: true,
-      padding: [20, 50, 45, 50]
+      padding: [5, 50, 45, 5]
       // limitInPlot: true
     })
     this.chart.data(this.chartData)
