@@ -7,6 +7,7 @@
       :url="url"
       :codec="codec"
       :volume="volume"
+      :has-progress="hasProgress"
       :is-debug="true"
       @onCreate="onPlayerCreate"
     >
@@ -18,7 +19,7 @@
         <H265Icon :codec="codec" />
       </template>
       <template v-if="player" slot="controlRight">
-        <StreamSelector />
+        <StreamSelector :stream-info="streamInfo" @dispatch="dispatch" />
         <VideoType :type="type" @dispatch="dispatch" />
         <Scale />
         <DigitalZoom />
@@ -84,6 +85,9 @@ export default class extends Vue {
     default: 0.3
   })
   private volume: number
+  /* 是否显示进度条 */
+  @Prop()
+  private hasProgress: boolean
 
   /* 设备信息 */
   @Prop({
