@@ -18,8 +18,14 @@ export class Player {
   public isAutoPlay: boolean
   /* 播放速率 */
   public playbackRate?: number
+  /* 是否已暂停 */
+  public isPaused: boolean
   /* 是否有音轨 */
   public hasAudio: boolean
+  /* 音量值 */
+  public volume: number
+  /* 是否已禁音 */
+  public isMuted: boolean
 
   /* 播放器实例(Private) */
   public video: EnhanceHTMLVideoElement
@@ -34,16 +40,13 @@ export class Player {
     this.isDebug = config.isDebug
     this.isAutoPlay = config.isAutoPlay
     this.playbackRate = config.playbackRate || 1
+    this.hasAudio = null
+    this.isPaused = null
+    this.volume = null
+    this.isMuted = null
     this.init()
     this.bindEvent()
     this.setDefault()
-  }
-
-  /**
-   * 是否已暂停
-   */
-  public get isPaused() {
-    return this.video.paused
   }
 
   /**
@@ -183,6 +186,7 @@ export class Player {
    */
   protected onPlay() {
     this.config.onPlay && this.config.onPlay()
+    this.isPaused = this.video.paused
   }
 
   /**
@@ -191,6 +195,7 @@ export class Player {
    */
   protected onPause() {
     this.config.onPause && this.config.onPause()
+    this.isPaused = this.video.paused
   }
 
   /**
@@ -198,7 +203,8 @@ export class Player {
    * 当调整音量
    */
   protected onVolumeChange() {
-    this.config.onVolumeChange && this.config.onVolumeChange(this.video.volume, this.video.muted)
+    this.volume = this.video.volume
+    this.isMuted = this.video.muted
   }
 
   /**
