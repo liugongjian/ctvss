@@ -17,7 +17,7 @@
         <H265Icon :codec="codec" />
       </template>
       <template v-if="player" slot="controlRight">
-        <StreamSelector />
+        <StreamSelector :stream-info="streamInfo" @dispatch="dispatch" />
         <VideoType :type="type" @dispatch="dispatch" />
         <Scale />
         <DigitalZoom />

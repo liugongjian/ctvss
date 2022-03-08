@@ -1,12 +1,10 @@
 import { DirectiveOptions } from 'vue'
 
-let timer: any
-
 /**
  * 鼠标进入回调
  */
 function onMouseOver() {
-  timer && clearTimeout(timer)
+  this.timer && clearTimeout(this.timer)
   showTools.call(this)
 }
 
@@ -32,9 +30,9 @@ function onMouseMove() {
  * @param delay 延时时间
  */
 function setMouseEvent(delay: number) {
-  timer && clearTimeout(timer)
+  this.timer && clearTimeout(this.timer)
   showTools.call(this)
-  timer = setTimeout(() => {
+  this.timer = setTimeout(() => {
     hiddenTools.call(this)
   }, delay)
 }
@@ -57,7 +55,7 @@ function checkIsVideo(dom: EventTarget) {
  */
 function hiddenTools() {
   let classVal = this.getAttribute('class')
-  classVal = classVal.concat(' player__wrap--hidden cursor--hidden')
+  classVal = classVal.concat(classVal.indexOf('player__wrap--hidden cursor--hidden') >= 0 ? '' : ' player__wrap--hidden cursor--hidden')
   this.setAttribute('class', classVal)
   // 去除tooltip（可能出现tooltip隐藏不了）
   let tooltipDoms = document.getElementsByClassName('el-tooltip__popper')
@@ -71,12 +69,13 @@ function hiddenTools() {
  */
 function showTools() {
   let classVal = this.getAttribute('class')
-  classVal = classVal.replace(' player__wrap--hidden cursor--hidden', '')
+  classVal = classVal.replace('player__wrap--hidden cursor--hidden', '')
   this.setAttribute('class', classVal)
 }
 
 export const adaptiveTools: DirectiveOptions = {
   bind(el: HTMLElement) {
+    el.setAttribute('timer', null)
     hiddenTools.call(el)
     el.addEventListener('mouseover', onMouseOver.bind(el))
     el.addEventListener('mouseout', onMouseOut.bind(el))

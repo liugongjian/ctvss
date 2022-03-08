@@ -54,6 +54,36 @@
         @dispatch="onPlayerDispatch"
       />
     </div>
+    <div class="player__body">
+      <VssPlayer
+        v-if="url"
+        ref="player"
+        :url="url"
+        :type="form.type"
+        :codec="form.codec"
+        :device-info="form.deviceInfo"
+        :is-debug="true"
+        :is-auto-play="true"
+        :is-live="form.isLive"
+        :is-ws="form.isWs"
+        @dispatch="onPlayerDispatch"
+      />
+    </div>
+    <div class="player__body">
+      <VssPlayer
+        v-if="url"
+        ref="player"
+        :url="url"
+        :type="form.type"
+        :codec="form.codec"
+        :device-info="form.deviceInfo"
+        :is-debug="true"
+        :is-auto-play="true"
+        :is-live="form.isLive"
+        :is-ws="form.isWs"
+        @dispatch="onPlayerDispatch"
+      />
+    </div>
   </div>
 </template>
 <script lang="ts">

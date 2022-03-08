@@ -12,7 +12,7 @@
       <div ref="playerContainer" class="player__container" />
     </div>
     <slot name="container" />
-    <div class="control" :class="{'control--large': hasProgress}">
+    <div id="control" class="control" :class="{'control--large': hasProgress}" @click.prevent.stop="">
       <slot name="controlBody" />
       <Progress />
       <div class="control__left">
@@ -21,12 +21,12 @@
           <!-- <div v-if="hasProgress && duration" class="controls__time">{{ durationFormatInVideo(Math.floor(currentTime)) }} / {{ durationFormatInVideo(duration) }}</div> -->
         </template>
       </div>
+      <More class="control__more" />
       <div class="control__right">
         <Volume />
         <slot name="controlRight" />
       </div>
     </div>
-    <div>...</div>
   </div>
 </template>
 <script lang="ts">
@@ -41,13 +41,15 @@ import './styles/index.scss'
 import PlayPause from './compontents/PlayPause.vue'
 import Volume from './compontents/Volume.vue'
 import Progress from './compontents/Progress.vue'
+import More from './compontents/More.vue'
 
 @Component({
   name: 'Player',
   components: {
     PlayPause,
     Volume,
-    Progress
+    Progress,
+    More
   }
 })
 export default class extends Vue {

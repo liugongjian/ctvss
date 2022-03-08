@@ -1,6 +1,6 @@
 <!-- 码流选择 -->
 <template>
-  <div class="control__btn control__stream-selector" :stream-num="streamNum">
+  <div v-if="streamSize > 1" class="control__btn control__stream-selector" :stream-num="streamNum">
     <svg-icon
       name="branch"
       width="18px"
@@ -8,10 +8,10 @@
     />
     <ul class="control__popup">
       <li
-        v-for="stream in subStreamList"
-        :key="stream.value"
-        :class="{'selected': stream.value === streamNum}"
-        @click.stop.prevent="setStreamNum(stream.value)"
+        v-for="(stream, index) in subStreamList"
+        :key="index"
+        :class="{'selected': stream.streamNum === streamNum}"
+        @click.stop.prevent="setStreamNum(stream.streamNum)"
       >
         <status-badge v-if="stream.streamStatus" :status="stream.streamStatus" />
         {{ stream.label }}
@@ -22,6 +22,7 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import StatusBadge from '@/components/StatusBadge/index.vue'
+import { Stream, StreamInfo } from '@/components/VssPlayer/models/VssPlayer.d'
 
 @Component({
   name: 'StreamSelector',
@@ -30,52 +31,56 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
   }
 })
 export default class extends Vue {
-  @Prop({
-    default: 3
-  })
-  private streamSize?: number
   @Prop()
-  private streams?: Array<any>
-  private streamNum: number = 1
-  private streamList = [
+  private streamInfo: StreamInfo
+  private streamNum: number
+  private streamList: Stream[] = [
     {
       label: '主码流',
-      value: 1,
+      streamNum: 1,
       streamStatus: 'off'
     }, {
       label: '第二码流',
-      value: 2,
+      streamNum: 2,
       streamStatus: 'off'
     }, {
       label: '第三码流',
-      value: 3,
+      streamNum: 3,
       streamStatus: 'off'
     }
   ]
 
-  private get subStreamList() {
+  private get streams(): Stream[] {
+    return this.streamInfo ? this.streamInfo.streams : []
+  }
+
+  private get streamSize(): number {
+    return this.streamInfo ? this.streamInfo.streamSize : 3
+  }
+
+  private get subStreamList(): Stream[] {
     return this.streamList.slice(0, this.streamSize)
   }
 
-  private get streamName() {
-    if (this.streamNum) {
-      return this.streamList[this.streamNum - 1].label
-    }
-    return '主码流'
-  }
-
-  @Watch('streams', {
+  @Watch('streamInfo', {
     immediate: true
   })
-  private onStreamsChanged() {
+  private onStreamsChanged(val: StreamInfo) {
+    this.streamNum = val ? val.streamNum : 1
     this.streams && this.streams.forEach((stream: any) => {
       this.streamList[stream.streamNum - 1].streamStatus = stream.streamStatus
     })
   }
 
+  /**
+   * 设置当前视频流
+   * @streamNum 视频流类型
+   */
   private setStreamNum(streamNum: number) {
-    this.streamNum = streamNum
-    // this.$emit('onSetStreamNum', streamNum)
+    this.$emit('dispatch', {
+      eventType: 'streamNumChange',
+      payload: streamNum
+    })
   }
 }
 </script>
