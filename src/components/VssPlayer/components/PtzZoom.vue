@@ -1,0 +1,226 @@
+<!--云台局部缩放-->
+<template>
+  <el-tooltip :content="showCanvasBox ? '关闭云台局部缩放' : '云台局部缩放(需设备侧支持)'" placement="top">
+    <div class="control__btn control__snapshot" :class="{'selected': showCanvasBox}" @click.stop.prevent="changeScaleCanvas">
+      <svg-icon name="screenscale" width="18px" height="18px" />
+    </div>
+  </el-tooltip>
+</template>
+<script lang="ts">
+import { Component, Prop } from 'vue-property-decorator'
+import { dragCanvasZoom } from '@/api/device'
+import ComponentMixin from './mixin'
+
+@Component({
+  name: 'PtzZoom'
+})
+
+export default class extends ComponentMixin {
+  @Prop({
+    default: {}
+  })
+  private deviceInfo!: {}
+
+  private showCanvasBox = false
+
+  private changeScaleCanvas() {
+    this.showCanvasBox = !this.showCanvasBox
+    console.log('this.player----->', this.player.container)
+    // todo screen中视频组件ptz缩放事件互斥
+    // todo 视频组件 电子缩放与ptz缩放事件互斥
+
+    // this.isZoom = false
+    // this.$emit('onChangeScalePTZStatus', this.showCanvasBox)
+
+    if (this.showCanvasBox) {
+      // let player: any, ctxBox: any
+      // if (this.codec === 'h265') {
+      //   ctxBox = this.$refs.videoWrap
+      //   player = ctxBox.querySelector('.player-box')
+      // } else {
+      //   ctxBox = this.$refs.video
+      //   player = ctxBox.querySelector('video')
+      // }
+
+      const video = this.player.video || this.player.canvas
+      const width = this.player.container.clientWidth
+      const height = this.player.container.clientHeight
+
+      this.$nextTick(() => {
+        // const oDom = document.querySelector('.canvasScaleBox')
+        const canvasEle = document.createElement('canvas')
+        this.player.container.appendChild(canvasEle)
+        // this.oCanvas = oDom.querySelector('canvas')
+        this.oCanvas = canvasEle
+        this.oCanvas.style.cursor = 'crosshair'
+        this.oCanvas.style.width = `${width}px`
+        this.oCanvas.style.height = `${height}px`
+        this.oCanvasWidth = width
+        this.oCanvasHeight = height
+        this.oCanvas.style.position = 'absolute'
+        this.oCanvas.style.left = `${(width - video.clientWidth) / 2}px`
+        this.oCanvas.style.top = `${(height - video.clientHeight) / 2}px`
+        this.ctxShape = this.oCanvas.getContext('2d')
+        this.oCanvas.addEventListener('mousedown', (e) => { this.canvasMouseDown(e) })
+        this.oCanvas.addEventListener('mousemove', (e) => { this.canvasMouseMove(e) })
+        this.oCanvas.addEventListener('mouseup', (e) => { this.canvasMouseUp(e) })
+        this.oCanvas.addEventListener('mouseleave', (e) => { this.canvasMouseleave(e) })
+        this.oCanvas.addEventListener('click', (e) => { this.canvasClickHandle(e) })
+      })
+    } else {
+      this.removeListener()
+      this.oCanvas.remove()
+    }
+  }
+
+  private destroyed() {
+    this.oCanvas.remove()
+  }
+
+  // 解绑canvas缩放事件
+  private removeListener() {
+    this.oCanvas.removeEventListener('mousedown', (e) => { this.canvasMouseDown(e) })
+    this.oCanvas.removeEventListener('mousemove', (e) => { this.canvasMouseMove(e) })
+    this.oCanvas.removeEventListener('mouseup', (e) => { this.canvasMouseUp(e) })
+    this.oCanvas.removeEventListener('mouseleave', (e) => { this.canvasMouseleave(e) })
+    this.oCanvas.removeEventListener('click', (e) => { this.canvasClickHandle(e) })
+  }
+
+  // 获取canvas 点坐标
+  private getCanvasMousePos(e: any) {
+    const {
+      x: canvasClientX, y: canvasClientY, width, height, left, top
+    } = this.oCanvas?.getBoundingClientRect()
+
+    const pointX = (e.clientX - left) * this.oCanvas.width / width
+    const pointY = (e.clientY - top) * this.oCanvas.height / height
+    const curPoint = [ pointX, pointY ]
+    // 超出边界
+    if (pointX > canvasClientX + width || pointX < 0) {
+      return false
+    }
+    if (pointY > canvasClientY + height || pointY < 0) {
+      return false
+    }
+    return curPoint
+  }
+
+  // 画矩形
+  private drawRect() {
+    if (this.oShape && Object.keys(this.oShape).length > 0) {
+      this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
+      this.ctxShape.strokeStyle = '#FFFFFF'
+      // this.ctxShape.lineCap = 'square'
+      this.ctxShape.lineWidth = 1
+      this.ctxShape.beginPath()
+      this.ctxShape.rect(Math.floor(this.oShape.startX) + 0.5, this.oShape.startY, Math.floor(this.oShape.endX - this.oShape.startX) + 0.5,
+        Math.floor(this.oShape.endY - this.oShape.startY) + 0.5)
+      this.ctxShape.stroke()
+      // this.ctxShape.strokeRect(Math.floor(devide(this.oShape.startX)), Math.floor(devide(this.oShape.startY)), this.oShape.endX - this.oShape.startX,
+      //   this.oShape.endY - this.oShape.startY)
+      this.ctxShape.closePath()
+    }
+  }
+
+  private canvasClickHandle(e: any) {
+    const mousePos = this.getCanvasMousePos(e)
+    if (!mousePos) return
+    const [x, y] = mousePos
+    if (x === this.oShape.startX && y === this.oShape.startY) {
+      this.oShape = {}
+      this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
+      this.ctxDrawState = false
+      this.removeListener()
+    }
+  }
+
+  private canvasMouseDown(e: any) {
+    e.stopPropagation()
+    const mousePos = this.getCanvasMousePos(e)
+    if (!mousePos) return
+    const [x, y] = mousePos
+    if (!this.iShape || Object.keys(this.oShape).length === 0) {
+      this.ctxDrawState = true
+      this.oShape = {
+        startX: x,
+        startY: y
+      }
+    }
+  }
+
+  private canvasMouseMove(e: any) {
+    e.stopPropagation()
+    if (this.oShape && this.ctxDrawState) {
+      const mousePos = this.getCanvasMousePos(e)
+      if (!mousePos) {
+        this.removeListener()
+        return
+      }
+      const [x, y] = mousePos
+      // 鼠标结束的位置
+      this.oShape.endX = x
+      this.oShape.endY = y
+      this.drawRect()
+    }
+  }
+  private canvasMouseUp(e: any) {
+    e.stopPropagation()
+    // TODO 鼠标移入黑色区域，取消画框
+    const mousePos = this.getCanvasMousePos(e)
+    if (!mousePos) return
+    // const [x, y] = mousePos
+    const { startX, startY, endX, endY } = this.oShape
+    const { Width = 0, Height = 0 } = this.videoInfo ? JSON.parse(this.videoInfo) : {}
+
+    if (!endX || !endY) {
+      return
+    }
+
+    const tempRatioWidth = this.oCanvas.width / Width
+    const tempRatioHeight = this.oCanvas.height / Height
+
+    const lengthX = Math.round(Math.abs(endX - startX) / tempRatioWidth).toString()
+    const lengthY = Math.round(Math.abs(endY - startY) / tempRatioHeight).toString()
+    const midPointX = Math.round((endX + startX) / 2 / tempRatioWidth).toString()
+    const midPointY = Math.round((endY + startY) / 2 / tempRatioHeight).toString()
+    const command = endX > startX ? 'zoomIn' : 'zoomOut'
+
+    this.oShape = {}
+    this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
+    this.removeListener()
+    this.ctxDrawState = false
+
+    const param = {
+      deviceId: this.deviceId,
+      command,
+      length: Width.toString(), // 信令侧要求左右为length，上下为width
+      width: Height.toString(),
+      midPointX,
+      midPointY,
+      lengthX,
+      lengthY
+    }
+    if (lengthX !== '0' || lengthY !== '0') {
+      dragCanvasZoom(param).then(() => {
+        this.$message.success('请等待设备调整角度')
+        this.showCanvasBox = false
+        this.oCanvas.style.cursor = 'auto'
+      }).catch(err => {
+        this.$message.error(err)
+        this.showCanvasBox = false
+        this.oCanvas.style.cursor = 'auto'
+      })
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public canvasMouseleave(e: any) {
+    if (this.oShape && Object.keys(this.oShape).length > 0) {
+      this.oShape = {}
+      this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
+      this.ctxDrawState = false
+    }
+    this.removeListener()
+  }
+}
+</script>
