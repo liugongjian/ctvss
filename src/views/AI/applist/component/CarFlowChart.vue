@@ -95,8 +95,15 @@ export default class extends Mixins(DashboardMixin) {
     // @ts-ignore
     const temp = res.alarmChartData.map(item => ({ ...item, value: parseInt(item.value), time: Date.parse(new Date(item.time)) }))
     const alarms = temp.filter(item => item.type === 'alarm')
-    const normal = temp.filter(item => item.type === 'normal')
-    this.chartData = [...alarms, ...normal]
+    const normals = temp.filter(item => item.type === 'normal')
+    const alarmsLessOrigin = []
+    normals.forEach(normal => {
+      const temp = alarms.filter(alarm => normal.time === alarm.time)
+      if (temp.length === 0) {
+        alarmsLessOrigin.push({ ...normal, type: 'alarm', value: 0 })
+      }
+    })
+    this.chartData = [...alarms, ...alarmsLessOrigin, ...normals]
   }
   /**
    * 更新图表
