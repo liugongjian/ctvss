@@ -24,6 +24,7 @@
       <More class="control__more" />
       <div class="control__right">
         <Volume />
+        <PlaybackRate v-if="!isLive && codec !== 'h265'" />
         <slot name="controlRight" />
       </div>
     </div>
@@ -41,6 +42,7 @@ import './styles/index.scss'
 import PlayPause from './compontents/PlayPause.vue'
 import Timer from './compontents/Timer.vue'
 import Volume from './compontents/Volume.vue'
+import PlaybackRate from './compontents/PlaybackRate.vue'
 import Progress from './compontents/Progress.vue'
 import More from './compontents/More.vue'
 
@@ -50,6 +52,7 @@ import More from './compontents/More.vue'
     PlayPause,
     Timer,
     Volume,
+    PlaybackRate,
     Progress,
     More
   }

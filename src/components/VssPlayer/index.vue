@@ -7,6 +7,7 @@
       :url="url"
       :codec="codec"
       :volume="volume"
+      :playback-rate="playbackRate"
       :has-progress="hasProgress"
       :is-debug="true"
       @onCreate="onPlayerCreate"
@@ -85,6 +86,13 @@ export default class extends Vue {
     default: 0.3
   })
   private volume: number
+
+  /* 默认倍速 */
+  @Prop({
+    default: 1
+  })
+  private playbackRate: number
+
   /* 是否显示进度条 */
   @Prop()
   private hasProgress: boolean
