@@ -19,6 +19,7 @@
       <template v-if="player" slot="controlRight">
         <StreamSelector />
         <VideoType :type="type" @dispatch="dispatch" />
+        <Intercom />
         <Scale />
         <DigitalZoom />
         <PtzZoom />
@@ -44,6 +45,7 @@ import Close from './components/Close.vue'
 import StreamSelector from './components/StreamSelector.vue'
 import VideoType from './components/VideoType.vue'
 import PtzZoom from './components/PtzZoom.vue'
+import Intercom from './components/Intercom.vue'
 
 @Component({
   name: 'VssPlayer',
@@ -56,7 +58,8 @@ import PtzZoom from './components/PtzZoom.vue'
     Close,
     StreamSelector,
     VideoType,
-    PtzZoom
+    PtzZoom,
+    Intercom
   },
   directives: {
     // 动态隐藏播放器工具栏与头部
