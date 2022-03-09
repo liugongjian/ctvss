@@ -7,6 +7,7 @@
       :url="videoUrl"
       :codec="codec"
       :volume="volume"
+      :playback-rate="playbackRate"
       :has-progress="hasProgress"
       :is-debug="true"
       @onCreate="onPlayerCreate"
@@ -94,6 +95,12 @@ export default class extends Vue {
     default: false
   })
   private isWs: boolean
+
+  /* 默认倍速 */
+  @Prop({
+    default: 1
+  })
+  private playbackRate: number
 
   /* 是否显示进度条 */
   @Prop()
