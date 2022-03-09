@@ -312,7 +312,7 @@ export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
       }
     } else {
       // 不为搜索树时需要调接口添加node的children
-      if (!this.$route.query.searchKey) {
+      if (!this.advancedSearchForm.revertSearchFlag) {
         let data = await getDeviceTree({
           groupId: this.currentGroupId,
           id: node!.data.id,

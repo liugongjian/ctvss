@@ -4,28 +4,21 @@ import { GroupModule } from '@/store/modules/group'
 import { getDeviceTree } from '@/api/device'
 import { VGroupModule } from '@/store/modules/vgroup'
 import { setDirsStreamStatus } from '@/utils/device'
+import { AdvancedSearch } from '@/type/advancedSearch'
 
 @Component
 export default class IndexMixin extends Vue {
   @Provide('outerSearch')
-  public search = {
-    searchKey: '', // 目录树搜索框当前生效内容
-    statusKey: 'all', // 目录树搜索框快捷搜索内容
-    statusOptions: [
-      {
-        label: '在线',
-        value: 'on'
-      },
-      {
-        label: '离线',
-        value: 'off'
-      },
-      {
-        label: '全部',
-        value: 'all'
-      }
-    ],
-    inputKey: '', // 目录树搜索框当前输入内容
+  public advancedSearchForm: AdvancedSearch = {
+    deviceStatusKeys: [],
+    streamStatusKeys: [],
+    deviceAddresses: {
+      code: '',
+      level: ''
+    },
+    matchKeys: [],
+    inputKey: '',
+    searchKey: '',
     revertSearchFlag: false
   }
   public maxHeight = 1000
@@ -94,75 +87,36 @@ export default class IndexMixin extends Vue {
 
   public setDirsStreamStatus = setDirsStreamStatus
 
+  public doSearch(payload: any) {
+    this.advancedSearchForm.deviceStatusKeys = payload.deviceStatusKeys
+    this.advancedSearchForm.streamStatusKeys = payload.streamStatusKeys
+    this.advancedSearchForm.matchKeys = payload.matchKeys
+    this.advancedSearchForm.deviceAddresses = payload.deviceAddresses
+    this.advancedSearchForm.inputKey = payload.inputKey
+    this.advancedSearchForm.searchKey = payload.searchKey
+    this.advancedSearchForm.revertSearchFlag = payload.revertSearchFlag
+
+    this.initDirs()
+  }
+
   public initSearchStatus() {
     const query: any = this.$route.query
-    this.search.inputKey = query.searchKey || ''
-    this.search.searchKey = query.searchKey || ''
-    this.search.statusKey = query.statusKey || 'all'
-    this.search.revertSearchFlag = (!!this.search.searchKey || this.search.statusKey !== 'all')
-  }
-
-  private async changeSearchStatus(command: string) {
-    // 重置搜索框内容为搜索关键字
-    this.search.inputKey = this.search.searchKey
-    this.search.statusKey = command
-    this.search.revertSearchFlag = (!!this.search.searchKey || this.search.statusKey !== 'all')
-    const query = {
-      inProtocol: this.$route.query.inProtocal,
-      searchKey: this.search.searchKey,
-      statusKey: this.search.statusKey
+    this.advancedSearchForm.deviceStatusKeys = (query.deviceStatusKeys && query.deviceStatusKeys.split(',')) || []
+    this.advancedSearchForm.streamStatusKeys = (query.streamStatusKeys && query.streamStatusKeys.split(',')) || []
+    if (query.deviceAddresses) {
+      const temp = query.deviceAddresses.split(',')
+      this.advancedSearchForm.deviceAddresses = {
+        code: temp[0],
+        level: temp[1]
+      }
     }
-    this.$router.replace({
-      query
-    })
-    await this.initDirs()
-  }
-
-  /**
-   * 回车键搜索（需额外处理输入框为空的情况）
-   */
-  private enterKeySearch() {
-    if (!this.search.inputKey) {
-      return
-    }
-    this.filterSearchResult()
-  }
-
-  /**
-   * 搜索过滤
-   */
-  private async filterSearchResult() {
-    const query = {
-      inProtocol: this.$route.query.inProtocal,
-      searchKey: this.search.inputKey,
-      statusKey: this.search.statusKey
-    }
-    this.$router.replace({
-      query
-    })
-    this.search.searchKey = this.search.inputKey
-    this.search.revertSearchFlag = true
-    await this.initDirs()
-  }
-
-  /**
-   * 退出“搜索过滤”
-   */
-  private async revertSearchResult() {
-    this.search.inputKey = ''
-    this.search.searchKey = ''
-    this.search.statusKey = 'all'
-    this.search.revertSearchFlag = false
-    // 退出搜索时不清空当前所在路径，便于initDirs后直接定位到之前路径
-    const query = {
-      ...this.$route.query,
-      searchKey: '',
-      statusKey: 'all'
-    }
-    this.$router.replace({
-      query
-    })
-    await this.initDirs()
+    this.advancedSearchForm.matchKeys = (query.matchKeys && query.matchKeys.split(',')) || []
+    this.advancedSearchForm.inputKey = query.searchKey || ''
+    this.advancedSearchForm.searchKey = query.searchKey || ''
+    this.advancedSearchForm.revertSearchFlag = Boolean(this.advancedSearchForm.searchKey ||
+                                                        this.advancedSearchForm.deviceStatusKeys.length ||
+                                                        this.advancedSearchForm.streamStatusKeys.length ||
+                                                        this.advancedSearchForm.deviceAddresses.code)
   }
 
   /**
@@ -177,8 +131,11 @@ export default class IndexMixin extends Vue {
       const res = await getDeviceTree({
         groupId: this.currentGroupId,
         id: 0,
-        searchKey: this.search.searchKey || undefined,
-        statusKey: this.search.statusKey !== 'all' ? this.search.statusKey : undefined
+        deviceStatusKeys: this.advancedSearchForm.deviceStatusKeys.join(',') || undefined,
+        streamStatusKeys: this.advancedSearchForm.streamStatusKeys.join(',') || undefined,
+        matchKeys: this.advancedSearchForm.matchKeys.join(',') || undefined,
+        deviceAddresses: this.advancedSearchForm.deviceAddresses.code ? this.advancedSearchForm.deviceAddresses.code + ',' + this.advancedSearchForm.deviceAddresses.level : undefined,
+        searchKey: this.advancedSearchForm.searchKey || undefined
       })
       this.dirList = this.setDirsStreamStatus(res.dirs)
       this.getRootSums(this.dirList)
@@ -218,8 +175,7 @@ export default class IndexMixin extends Vue {
     const size = deviceWrap.$el.getBoundingClientRect()
     const top = size.top
     const documentHeight = document.body.offsetHeight
-    // 底部搜索框占据40px
-    this.maxHeight = documentHeight - top - 65 - 40
+    this.maxHeight = documentHeight - top - 65
   }
 
   /**
@@ -228,7 +184,8 @@ export default class IndexMixin extends Vue {
   public async initTreeStatus() {
     const blackList = ['/screen', '/replay']
     const path = this.$route.path
-    if (this.search.searchKey || this.search.statusKey !== 'all') {
+    console.log('this.advancedSearchForm.revertSearchFlag: ', this.advancedSearchForm.revertSearchFlag)
+    if (this.advancedSearchForm.revertSearchFlag) {
       // 根据搜索结果 组装 目录树
       this.dirList = this.transformDirList(this.dirList)
       if (blackList.indexOf(path) === -1 && this.dirList.length) {
@@ -356,7 +313,7 @@ export default class IndexMixin extends Vue {
       _node = dirTree.getNode(item.id)
       if (_node) {
         // 过滤状态全量返回,不需要手动加载
-        if (!_node.loaded && !this.search.revertSearchFlag) {
+        if (!_node.loaded && !this.advancedSearchForm.revertSearchFlag) {
           this.loadDirChildren(item.id, _node)
         }
         _node.parent.expanded = true
@@ -473,8 +430,11 @@ export default class IndexMixin extends Vue {
       inProtocol: this.currentGroup!.inProtocol,
       type: item.type,
       path: this.breadcrumb.map((item: any) => item.id).join(','),
-      searchKey: this.search.searchKey,
-      statusKey: this.search.statusKey,
+      deviceStatusKeys: this.advancedSearchForm.deviceStatusKeys.join(',') || undefined,
+      streamStatusKeys: this.advancedSearchForm.streamStatusKeys.join(',') || undefined,
+      matchKeys: this.advancedSearchForm.matchKeys.join(',') || undefined,
+      deviceAddresses: this.advancedSearchForm.deviceAddresses.code ? this.advancedSearchForm.deviceAddresses.code + ',' + this.advancedSearchForm.deviceAddresses.level : undefined,
+      searchKey: this.advancedSearchForm.searchKey || undefined,
       ...query
     }
 
