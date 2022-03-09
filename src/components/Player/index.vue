@@ -12,20 +12,21 @@
       <div ref="playerContainer" class="player__container" />
     </div>
     <slot name="container" />
-    <div class="control" :class="{'control--large': hasProgress}">
+    <div id="control" class="control" :class="{'control--large': hasProgress}">
       <slot name="controlBody" />
+      <Progress v-if="hasProgress" />
       <div class="control__left">
         <template v-if="!isLive">
           <PlayPause />
-          <!-- <div v-if="hasProgress && duration" class="controls__time">{{ durationFormatInVideo(Math.floor(currentTime)) }} / {{ durationFormatInVideo(duration) }}</div> -->
+          <Timer />
         </template>
       </div>
+      <More class="control__more" />
       <div class="control__right">
         <Volume />
         <slot name="controlRight" />
       </div>
     </div>
-    <div>...</div>
   </div>
 </template>
 <script lang="ts">
@@ -38,13 +39,19 @@ import './styles/index.scss'
  * 子组件库
  */
 import PlayPause from './compontents/PlayPause.vue'
+import Timer from './compontents/Timer.vue'
 import Volume from './compontents/Volume.vue'
+import Progress from './compontents/Progress.vue'
+import More from './compontents/More.vue'
 
 @Component({
   name: 'Player',
   components: {
     PlayPause,
-    Volume
+    Timer,
+    Volume,
+    Progress,
+    More
   }
 })
 export default class extends Vue {
@@ -84,6 +91,10 @@ export default class extends Vue {
   @Prop()
   private playbackRate: number
 
+  /* 音量 */
+  @Prop()
+  private volume: number
+
   /* 是否显示进度条 */
   @Prop({
     default: false
@@ -118,7 +129,7 @@ export default class extends Vue {
         isDebug: this.isDebug,
         isAutoPlay: this.isAutoPlay,
         playbackRate: this.playbackRate,
-        // volume: this.volume
+        volume: this.volume,
         onLoadStart: this.onLoadStart,
         onCanplay: this.onCanplay
       })

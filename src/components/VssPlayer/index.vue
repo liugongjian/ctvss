@@ -6,6 +6,8 @@
       :type="playerType"
       :url="url"
       :codec="codec"
+      :volume="volume"
+      :has-progress="hasProgress"
       :is-debug="true"
       @onCreate="onPlayerCreate"
     >
@@ -17,7 +19,7 @@
         <H265Icon :codec="codec" />
       </template>
       <template v-if="player" slot="controlRight">
-        <StreamSelector />
+        <StreamSelector :stream-info="streamInfo" @dispatch="dispatch" />
         <VideoType :type="type" @dispatch="dispatch" />
         <Intercom />
         <Scale />
@@ -81,6 +83,15 @@ export default class extends Vue {
   })
   private codec: string
 
+  /* 默认音量 */
+  @Prop({
+    default: 0.3
+  })
+  private volume: number
+  /* 是否显示进度条 */
+  @Prop()
+  private hasProgress: boolean
+
   /* 设备信息 */
   @Prop({
     default: {}
@@ -108,7 +119,7 @@ export default class extends Vue {
   /**
    * 当播放器实例创建
    */
-  private onPlayerCreate(player) {
+  private onPlayerCreate(player: Player) {
     this.player = player
   }
 

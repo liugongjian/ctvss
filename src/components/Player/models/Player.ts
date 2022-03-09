@@ -8,6 +8,10 @@ export class Player {
   public config: PlayerConfig
   /* 播放器容器 */
   public container: HTMLDivElement
+  /* 播放器实例(Private) */
+  public video: EnhanceHTMLVideoElement
+  /* H265播放器画布 */
+  public canvas: HTMLCanvasElement
   /* 播放器类型 */
   public type: PlayerType
   /* 播放流地址 */
@@ -18,13 +22,20 @@ export class Player {
   public isAutoPlay: boolean
   /* 播放速率 */
   public playbackRate?: number
+  /* 是否已暂停 */
+  public isPaused: boolean
   /* 是否有音轨 */
   public hasAudio: boolean
-
-  /* 播放器实例(Private) */
-  public video: EnhanceHTMLVideoElement
-  /* H265播放器画布 */
-  public canvas: HTMLCanvasElement
+  /* 音量值 */
+  public volume: number
+  /* 是否已禁音 */
+  public isMuted: boolean
+  /* 视频播放的当前位置(秒) */
+  public currentTime: number
+  /* 视频的长度(秒) */
+  public duration: number
+  /* 预加载视频长度 */
+  public bufferedTime: number
 
   constructor(config: PlayerConfig) {
     this.config = config
@@ -34,16 +45,16 @@ export class Player {
     this.isDebug = config.isDebug
     this.isAutoPlay = config.isAutoPlay
     this.playbackRate = config.playbackRate || 1
+    this.volume = config.volume
+    this.hasAudio = null
+    this.isPaused = null
+    this.isMuted = null
+    this.currentTime = null
+    this.duration = null
+    this.bufferedTime = null
     this.init()
     this.bindEvent()
     this.setDefault()
-  }
-
-  /**
-   * 是否已暂停
-   */
-  public get isPaused() {
-    return this.video.paused
   }
 
   /**
@@ -70,18 +81,18 @@ export class Player {
 
   /**
    * 开关静音
-   * @param muted 是否静音
+   * @param isMuted 是否静音
    */
-  public toggleMuteStatus(muted: boolean) {
-    this.video.muted = muted
+  public toggleMuteStatus(isMuted: boolean) {
+    this.video.muted = isMuted
   }
 
   /**
    * 调整音量
    * @param volume 音量大小，取值0-1
    */
-  public setPlayVolume(volume: number) {
-    this.video.volume = volume / 100
+  public setVolume(volume: number) {
+    this.video.volume = volume
   }
 
   /**
@@ -117,6 +128,7 @@ export class Player {
    */
   protected setDefault() {
     this.video.playbackRate = this.playbackRate
+    this.video.volume = this.volume
   }
 
   /**
@@ -183,6 +195,7 @@ export class Player {
    */
   protected onPlay() {
     this.config.onPlay && this.config.onPlay()
+    this.isPaused = this.video.paused
   }
 
   /**
@@ -191,6 +204,7 @@ export class Player {
    */
   protected onPause() {
     this.config.onPause && this.config.onPause()
+    this.isPaused = this.video.paused
   }
 
   /**
@@ -198,12 +212,13 @@ export class Player {
    * 当调整音量
    */
   protected onVolumeChange() {
-    this.config.onVolumeChange && this.config.onVolumeChange(this.video.volume, this.video.muted)
+    this.volume = this.video.volume
+    this.isMuted = this.video.muted
   }
 
   /**
    * 回调事件
-   * 当重试
+   * 当发起重试
    */
   protected onRetry(params?: any) {
     this.config.onRetry && this.config.onRetry(params)
@@ -211,18 +226,19 @@ export class Player {
 
   /**
    * 回调事件
-   * 当更新时间
+   * 当更新视频播放的当前位置
    */
   protected onTimeUpdate() {
-    this.config.onTimeUpdate && this.config.onTimeUpdate(this.video.currentTime)
+    this.currentTime = this.video.currentTime
   }
 
   /**
    * 回调事件
-   * 当更新时长
+   * 当更新视频的长度
    */
   protected onDurationChange() {
-    this.config.onDurationChange && this.config.onDurationChange(this.video.duration)
+    console.log('onDurationChange', this.video.duration)
+    this.duration = this.video.duration
   }
 
   /**
@@ -238,7 +254,8 @@ export class Player {
    * 当跳跃视频时间
    */
   protected onSeeked() {
-    this.config.onSeeked && this.config.onSeeked(this.video.currentTime)
+    this.currentTime = this.video.currentTime
+    // this.config.onSeeked && this.config.onSeeked(this.video.currentTime)
   }
 
   /**
@@ -247,7 +264,8 @@ export class Player {
    */
   protected onBuffered() {
     if (this.video.buffered.length) {
-      this.config.onBuffered && this.config.onBuffered(this.video.buffered.end(this.video.buffered.length - 1))
+      this.bufferedTime = this.video.buffered.end(this.video.buffered.length - 1)
+      // this.config.onBuffered && this.config.onBuffered(this.video.buffered.end(this.video.buffered.length - 1))
     }
   }
 

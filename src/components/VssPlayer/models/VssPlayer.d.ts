@@ -15,7 +15,7 @@ export interface Stream {
 }
 
 export interface StreamInfo {
-  streams: Stream;
+  streams: Stream[];
   /* 主子码流数量 */
   streamSize: number;
   /* 当前码流号 */

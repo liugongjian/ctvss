@@ -31,7 +31,6 @@ export default class extends ComponentMixin {
 
   private mounted() {
     this.bindEvent(this.playerContainer)
-    console.log(this.playerWrap, 'playerWrap')
   }
 
   /**
@@ -68,7 +67,6 @@ export default class extends ComponentMixin {
     if (!this.isZoom) {
       return
     }
-    console.log('mouseDownHandle', event)
     // const player = this.videoMoveData.player
     this.containerMoveData.x = event.pageX - this.playerContainer.offsetLeft
     this.containerMoveData.y = event.pageY - this.playerContainer.offsetTop
@@ -87,7 +85,6 @@ export default class extends ComponentMixin {
     if (!this.isZoom) {
       return
     }
-    console.log('mouseUpHandle', event)
     // 取消鼠标移动监听
     window.onmousemove = null
     const currentTarget = event.currentTarget as HTMLElement
@@ -162,7 +159,6 @@ export default class extends ComponentMixin {
     let height
     let top
     let left
-    console.log(event)
     if (event.deltaY < 0) {
       width = 1.1 * playerContainer.offsetWidth
       height = 1.1 * playerContainer.offsetHeight
