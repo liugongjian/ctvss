@@ -79,6 +79,7 @@ export class FlvPlayer extends Player {
     this.video.addEventListener('pause', this.onPause.bind(this))
     this.video.addEventListener('timeupdate', this.onTimeUpdate.bind(this))
     this.video.addEventListener('volumechange', this.onVolumeChange.bind(this))
+    this.video.addEventListener('ratechange', this.onRateChange.bind(this))
     this.video.addEventListener('ended', this.onEnded.bind(this))
     this.video.addEventListener('seeked', this.onSeeked.bind(this))
     this.video.addEventListener('progress', this.onBuffered.bind(this))
@@ -102,12 +103,13 @@ export class FlvPlayer extends Player {
     this.video.removeEventListener('play', this.onPlay)
     this.video.removeEventListener('pause', this.onPause)
     this.video.removeEventListener('timeupdate', this.onTimeUpdate)
+    this.video.removeEventListener('volumechange', this.onVolumeChange)
+    this.video.removeEventListener('ratechange', this.onRateChange)
     this.video.removeEventListener('ended', this.onEnded)
     this.video.removeEventListener('seeked', this.onSeeked)
     this.video.removeEventListener('progress', this.onBuffered)
     this.video.removeEventListener('loadstart', this.onLoadStart)
     this.video.removeEventListener('canplay', this.onCanplay)
-    this.video.removeEventListener('volumechange', this.onVolumeChange)
     this.flv && this.flv.destroy()
   }
 }

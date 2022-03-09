@@ -44,7 +44,7 @@ export class Player {
     this.url = config.url
     this.isDebug = config.isDebug
     this.isAutoPlay = config.isAutoPlay
-    this.playbackRate = config.playbackRate || 1
+    this.playbackRate = config.playbackRate
     this.volume = config.volume
     this.hasAudio = null
     this.isPaused = null
@@ -209,15 +209,6 @@ export class Player {
 
   /**
    * 回调事件
-   * 当调整音量
-   */
-  protected onVolumeChange() {
-    this.volume = this.video.volume
-    this.isMuted = this.video.muted
-  }
-
-  /**
-   * 回调事件
    * 当发起重试
    */
   protected onRetry(params?: any) {
@@ -239,6 +230,23 @@ export class Player {
   protected onDurationChange() {
     console.log('onDurationChange', this.video.duration)
     this.duration = this.video.duration
+  }
+
+  /**
+   * 回调事件
+   * 当调整音量
+   */
+  protected onVolumeChange() {
+    this.volume = this.video.volume
+    this.isMuted = this.video.muted
+  }
+
+  /**
+   * 回调事件
+   * 当调整播放速率
+   */
+  protected onRateChange() {
+    this.playbackRate = this.video.playbackRate
   }
 
   /**

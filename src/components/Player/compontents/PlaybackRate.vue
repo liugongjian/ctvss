@@ -1,8 +1,8 @@
 <!-- 切换播放速率 -->
 <template>
-  <div class="control__btn control__playback-rate">
+  <div v-if="player" class="control__btn control__playback">
     {{ playbackRate === 1 ? '倍速' : `${playbackRate}x` }}
-    <ul class="controls__popup">
+    <ul class="control__popup">
       <li
         v-for="rate in playbackRateList"
         :key="rate"
@@ -37,8 +37,8 @@ export default class extends ComponentMixin {
 }
 </script>
 <style lang="scss" scoped>
-.control__btn {
-  .controls__popup {
+  .control__btn .control__popup {
+    display: none;
     position: absolute;
     bottom: 34px;
     left: -10px;
@@ -63,14 +63,13 @@ export default class extends ComponentMixin {
     }
   }
 
-  &:hover {
-    .controls__popup {
+  .control__btn:hover {
+    .control__popup {
       display: block;
     }
   }
 
-  &.selected {
+  .control__btn .selected {
     color: $primary;
   }
-}
 </style>
