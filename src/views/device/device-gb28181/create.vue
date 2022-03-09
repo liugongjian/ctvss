@@ -692,10 +692,12 @@ export default class extends Mixins(createMixin) {
     content: '/';
     color: $textGrey;
   }
+
   &__item:last-child:after {
     content: '';
   }
 }
+
 .longlat-input {
   width: 193px;
 }

@@ -134,7 +134,7 @@
             </div>
             <div v-if="currentGroup.inProtocol === 'gb28181'" class="dir-list__search">
               <el-dropdown placement="top-start" @command="changeSearchStatus">
-                <el-button class="dir-list__search-button" :type="search.statusKey === 'all' ? 'default': 'primary'" size="mini" style="margin-right: 5px!important">
+                <el-button class="dir-list__search-button" :type="search.statusKey === 'all' ? 'default': 'primary'" size="mini" style="margin-right: 5px !important;">
                   <svg-icon name="filter" />
                 </el-button>
                 <el-dropdown-menu slot="dropdown">
@@ -343,47 +343,55 @@ export default class extends Mixins(ScreenMixin) {
    */
   private async videosOnAutoPlay(node: any, isRoot: boolean) {
     this.autoPlayDevices = []
+    const dirTree: any = this.$refs.dirTree
     if (node) {
       this.currentNode = node
     }
     if (!isRoot) {
-      this.dirList.forEach((item: any) => {
-        if (item.type === 'ipc') {
-          this.autoPlayDevices.push(item)
-        }
-      })
-    } else {
-      if (this.$route.query.searchKey) {
-        node.data.children.forEach((item: any) => {
-          if (item.type === 'ipc') {
-            this.autoPlayDevices.push(item)
-          }
-        })
-      } else {
-        let data = await getDeviceTree({
-          groupId: this.currentGroupId,
-          id: node!.data.id,
-          type: node!.data.type
-        })
-        const dirs = this.setDirsStreamStatus(data.dirs)
-        dirs.forEach((item: any) => {
-          if (node.data.type === 'group') {
-            item.roleId = node.data.roleId
-            item.realGroupId = node.data.id
-            item.realGroupInProtocol = node.data.inProtocol
-          } else {
-            item.roleId = node.data.roleId
-            item.realGroupId = node.data.realGroupId
-            item.realGroupInProtocol = node.data.realGroupInProtocol
-          }
-          if (item.type === 'ipc') {
-            this.autoPlayDevices.push(item)
-          }
-        })
+      for (let i = 0, length = this.dirList.length; i < length; i++) {
+        await this.deepDispatchTree(dirTree, dirTree.getNode(this.dirList[i].id), this.autoPlayDevices, 'autoPlay', 'replay')
+        // 当为一键播放时，加载设备数超过最大屏幕数则终止遍历
+        if (this.autoPlayDevices.length >= this.maxSize) break
       }
+      // this.dirList.forEach((item: any) => {
+      //   if (item.type === 'ipc') {
+      //     this.autoPlayDevices.push(item)
+      //   }
+      // })
+    } else {
+      await this.deepDispatchTree(dirTree, node, this.autoPlayDevices, 'autoPlay', 'replay')
+      // if (this.$route.query.searchKey) {
+      //   node.data.children.forEach((item: any) => {
+      //     if (item.type === 'ipc') {
+      //       this.autoPlayDevices.push(item)
+      //     }
+      //   })
+      // } else {
+      //   let data = await getDeviceTree({
+      //     groupId: this.currentGroupId,
+      //     id: node!.data.id,
+      //     type: node!.data.type
+      //   })
+      //   const dirs = this.setDirsStreamStatus(data.dirs)
+      //   dirs.forEach((item: any) => {
+      //     if (node.data.type === 'group') {
+      //       item.roleId = node.data.roleId
+      //       item.realGroupId = node.data.id
+      //       item.realGroupInProtocol = node.data.inProtocol
+      //     } else {
+      //       item.roleId = node.data.roleId
+      //       item.realGroupId = node.data.realGroupId
+      //       item.realGroupInProtocol = node.data.realGroupInProtocol
+      //     }
+      //     if (item.type === 'ipc') {
+      //       this.autoPlayDevices.push(item)
+      //     }
+      //   })
+      // }
     }
+    console.log(this.autoPlayDevices, 'this.autoPlayDevices')
     if (!this.autoPlayDevices.length) {
-      this.$alert(`当前设备数需大于0才可开始自动播放`, '提示', {
+      this.$alert('当前设备数需大于0才可开始自动播放', '提示', {
         confirmButtonText: '确定'
       })
     }
@@ -414,12 +422,14 @@ export default class extends Mixins(ScreenMixin) {
       .playing {
         color: $success;
       }
+
       .custom-tree-node .tools {
         display: block;
         background: #fff;
         right: -10px;
         line-height: 26px;
         padding-right: 10px;
+
         i {
           display: block;
           padding: 5px 0;
@@ -431,6 +441,7 @@ export default class extends Mixins(ScreenMixin) {
             }
           }
         }
+
         .set-stream {
           ::v-deep .controls__popup {
             left: auto;
@@ -438,10 +449,11 @@ export default class extends Mixins(ScreenMixin) {
           }
         }
       }
+
       .el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content,
       .dir-list__tree .el-tree-node__content:hover {
         .custom-tree-node .tools {
-          background: #F5F7FA;
+          background: #f5f7fa;
         }
       }
     }
