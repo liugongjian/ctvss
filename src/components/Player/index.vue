@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="loading" class="player__wrap">
+  <div v-loading="isLoading" class="player__wrap">
     <div class="header">
       <div class="header__left">
         <slot name="headerLeft" />
@@ -30,7 +30,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop, Provide } from 'vue-property-decorator'
+import { Component, Vue, Prop, Provide, Watch } from 'vue-property-decorator'
 import { createPlayer } from './models/PlayerFactory'
 import { PlayerType } from './models/Player.d'
 import { Player } from './models/Player'
@@ -104,14 +104,23 @@ export default class extends Vue {
   /* 播放器实例 */
   private player: Player = null
 
+  /* 视频是否加载中 */
+  private get isLoading() {
+    return this.player && this.player.isLoading
+  }
+
   /* 获取播放器实例Provide */
   @Provide('getPlayer')
   private getPlayer() {
     return this.player
   }
 
-  /* Loading */
-  private loading: boolean = false
+  /* 当URL变化后重新创建播放器 */
+  @Watch('url')
+  private onUrlChange() {
+    this.player && this.player.disposePlayer()
+    this.createPlayer()
+  }
 
   private mounted() {
     this.createPlayer()
@@ -140,24 +149,6 @@ export default class extends Vue {
       this.isDebug && console.log(e.message)
       this.error = '浏览器创建失败'
     }
-  }
-
-  /**
-   * 回调事件
-   * 视频加载中
-   */
-  public onLoadStart() {
-    this.loading = true
-    this.isDebug && console.log('视频加载中: onLoadStart')
-  }
-
-  /**
-   * 回调事件
-   * 视频加载完成
-   */
-  public onCanplay() {
-    this.loading = false
-    this.isDebug && console.log('视频加载完成: onCanplay')
   }
 }
 </script>

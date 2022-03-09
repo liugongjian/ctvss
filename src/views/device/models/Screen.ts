@@ -1,15 +1,20 @@
 import axios from 'axios'
+import { DeviceInfo, StreamInfo } from '@/components/VssPlayer/models/VssPlayer'
 import { getDevicePreview } from '@/api/device'
+import { e } from 'mathjs'
 
 export default class Screen {
-  [x: string]: any
+  public deviceInfo: DeviceInfo // ok
+  public streamInfo: StreamInfo // ok
+  public url?: string // ok
+  public urlList: Array<string> // ok
+
   public deviceId: string
   public inProtocol: string
   public deviceName?: string
   public roleId?: string
   public realGroupId?: string
   public realGroupInProtocol?: string
-  public url?: string
   public type?: string
   public codec?: string
   public loaded: boolean
@@ -30,12 +35,24 @@ export default class Screen {
   public currentDate?: any
   public currentTime?: number
   public isCache?: boolean
-  public videoInfo?: string
   public allAddress?: any
   public volume?: any
   public ifScalePTZ?: boolean
 
   constructor() {
+    this.deviceInfo = {
+      deviceId: '',
+      inProtocol: '',
+      deviceName: ''
+    }
+    this.streamInfo = {
+      streams: [],
+      streamSize: null,
+      streamNum: null,
+      videoWidth: null,
+      videoHeight: null
+    }
+
     this.deviceId = ''
     this.inProtocol = ''
     this.roleId = ''
@@ -68,10 +85,10 @@ export default class Screen {
   }
 
   public async getUrl() {
-    if (!this.inProtocol) {
+    if (!this.deviceInfo.inProtocol) {
       throw new Error('未设置InProtocol')
     }
-    if (!this.deviceId) {
+    if (!this.deviceInfo.deviceId) {
       throw new Error('未设置DeviceId')
     }
     try {
@@ -79,10 +96,9 @@ export default class Screen {
       this.loaded = true
       this.axiosSource = axios.CancelToken.source()
       const res: any = await getDevicePreview({
-        deviceId: this.deviceId,
-        inProtocol: this.inProtocol,
-        streamNum: this.streamNum,
-        isAi: this.isAi,
+        deviceId: this.deviceInfo.deviceId,
+        inProtocol: this.deviceInfo.inProtocol,
+        streamNum: this.streamInfo.streamNum,
         'self-defined-headers': {
           'role-id': this.roleId || '',
           'real-group-id': this.realGroupId || ''
@@ -90,9 +106,11 @@ export default class Screen {
       }, this.axiosSource.token)
       if (res.playUrl) {
         this.url = res.playUrl.flvUrl
-        this.allAddress = res.playUrl
+        this.urlList = res.playUrl
         this.codec = res.video.codec
-        this.videoInfo = res.videoInfo
+        const videoInfo = this.parseVideoInfo(res.videoInfo)
+        this.streamInfo.videoWidth = videoInfo.videoWidth
+        this.streamInfo.videoHeight = videoInfo.videoHeight
       }
       this.retry = false
     } catch (e) {
@@ -138,5 +156,19 @@ export default class Screen {
 
   public exitFullscreen() {
     this.isFullscreen = false
+  }
+
+  private parseVideoInfo(videoInfoStr) {
+    let videoWidth = null
+    let videoHeight = null
+    if (videoInfoStr) {
+      const videoInfo = JSON.parse(videoInfoStr)
+      videoWidth = videoInfo.Width
+      videoHeight = videoInfo.Height
+    }
+    return {
+      videoWidth,
+      videoHeight
+    }
   }
 }

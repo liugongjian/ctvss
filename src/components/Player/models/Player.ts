@@ -36,6 +36,8 @@ export class Player {
   public duration: number
   /* 预加载视频长度 */
   public bufferedTime: number
+  /* 是否加载中 */
+  public isLoading: boolean
 
   constructor(config: PlayerConfig) {
     this.config = config
@@ -52,6 +54,7 @@ export class Player {
     this.currentTime = null
     this.duration = null
     this.bufferedTime = null
+    this.isLoading = false
     this.init()
     this.bindEvent()
     this.setDefault()
@@ -274,6 +277,7 @@ export class Player {
    * 当开始加载
    */
   protected onLoadStart() {
+    this.isLoading = true
     this.config.onLoadStart && this.config.onLoadStart()
   }
 
@@ -282,6 +286,7 @@ export class Player {
    * 当已加载完成可以播放
    */
   protected onCanplay() {
+    this.isLoading = false
     this.testHasAudio()
     this.config.onCanplay && this.config.onCanplay()
   }

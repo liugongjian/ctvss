@@ -4,7 +4,7 @@
       ref="player"
       v-adaptive-tools
       :type="playerType"
-      :url="url"
+      :url="videoUrl"
       :codec="codec"
       :volume="volume"
       :has-progress="hasProgress"
@@ -13,7 +13,7 @@
     >
       <template slot="headerLeft" />
       <template slot="headerRight">
-        <Close @dispatch="dispatch" />
+        <Close v-if="hasClose" @dispatch="dispatch" />
       </template>
       <template slot="controlBody">
         <H265Icon :codec="codec" />
@@ -88,9 +88,22 @@ export default class extends Vue {
     default: 0.3
   })
   private volume: number
+
+  /* 是否启用websocket */
+  @Prop({
+    default: false
+  })
+  private isWs: boolean
+
   /* 是否显示进度条 */
   @Prop()
   private hasProgress: boolean
+
+  /* 是否显示关闭按钮 */
+  @Prop({
+    default: false
+  })
+  private hasClose: boolean
 
   /* 设备信息 */
   @Prop({
@@ -105,17 +118,21 @@ export default class extends Vue {
   /* 播放器实例 */
   private player: Player = null
 
-  /* 获取播放器实例Provide */
-  @Provide('getPlayer')
-  private getPlayer() {
-    return this.player
-  }
-
   /* 如视频编码为H265，播放器类型变为h265 */
   private get playerType() {
     return this.codec === 'h265' ? 'h265' : this.type
   }
 
+  /* 获取转换协议后的URL */
+  private get videoUrl() {
+    return this.replaceProtocol(this.url, this.isWs)
+  }
+
+  /* 获取播放器实例Provide */
+  @Provide('getPlayer')
+  private getPlayer() {
+    return this.player
+  }
   /**
    * 当播放器实例创建
    */
@@ -128,6 +145,23 @@ export default class extends Vue {
    */
   private dispatch(event: PlayerEvent) {
     this.$emit('dispatch', event)
+  }
+
+  /* 替换播放地址协议 */
+  private replaceProtocol(url: string, isWs: boolean) {
+    let _url = url
+    const isHttps = window.location.protocol === 'https:'
+    if (isHttps) {
+      _url = _url.replace('http://', 'https://')
+    }
+    if (isWs) {
+      if (isHttps) {
+        _url = _url.replace('https://', 'wss://')
+      } else {
+        _url = _url.replace('http://', 'ws://')
+      }
+    }
+    return _url
   }
 }
 </script>

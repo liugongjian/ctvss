@@ -219,7 +219,7 @@ export default class IndexMixin extends Vue {
     const top = size.top
     const documentHeight = document.body.offsetHeight
     // 底部搜索框占据40px
-    this.maxHeight = documentHeight - top - 65 - 40
+    this.maxHeight = documentHeight - top - 65
   }
 
   /**

@@ -33,7 +33,7 @@ import { Stream, StreamInfo } from '@/components/VssPlayer/models/VssPlayer.d'
 export default class extends Vue {
   @Prop()
   private streamInfo: StreamInfo
-  private streamNum: number
+  private streamNum: number = null
   private streamList: Stream[] = [
     {
       label: '主码流',
@@ -63,7 +63,8 @@ export default class extends Vue {
   }
 
   @Watch('streamInfo', {
-    immediate: true
+    immediate: true,
+    deep: true
   })
   private onStreamsChanged(val: StreamInfo) {
     this.streamNum = val ? val.streamNum : 1
