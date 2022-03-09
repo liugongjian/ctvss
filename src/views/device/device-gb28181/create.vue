@@ -694,7 +694,9 @@ export default class extends Mixins(createMixin) {
    * 校验MAC地址
    */
   private async validateMacAddr(rule: any, value: string, callback: Function) {
-    if (value && !/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/.test(value)) {
+    let reg1 = /^([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})$/
+    let reg2 = /^([0-9A-Fa-f]{2}[-]){5}([0-9A-Fa-f]{2})$/
+    if (value && !reg1.test(value) && !reg2.test(value)) {
       callback(new Error('请输入规范MAC地址'))
     } else {
       callback()
