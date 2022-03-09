@@ -18,6 +18,7 @@ import DashboardMixin from '@/views/dashboard/mixin/DashboardMixin'
 import DashboardContainer from '@/views/dashboard/components/DashboardContainer.vue'
 import debounce from '@/utils/debounce'
 import { fromUnixTime, format } from 'date-fns'
+import _ from 'lodash'
 
 @Component({
   name: 'CarFlowChart',
@@ -37,6 +38,8 @@ export default class extends Mixins(DashboardMixin) {
   private chart: any = null
 
   private chartData: any = []
+
+  private unvisibleChartData: any = []
 
   @Watch('param', { deep: true, immediate: true })
   private async paramUpdated() {
@@ -96,13 +99,19 @@ export default class extends Mixins(DashboardMixin) {
     const temp = res.alarmChartData.map(item => ({ ...item, value: parseInt(item.value), time: Date.parse(new Date(item.time)) }))
     const alarms = temp.filter(item => item.type === 'alarm')
     const normals = temp.filter(item => item.type === 'normal')
-    const alarmsLessOrigin = []
+    const alarmsLessOrigin = []// 对没有alarm数值的时间进行补零
+    const normalEqualAlarm = []// 找出alarm === normal的时间点，单独调整顺序，优先渲染normal
     normals.forEach(normal => {
-      const temp = alarms.filter(alarm => normal.time === alarm.time)
-      if (temp.length === 0) {
-        alarmsLessOrigin.push({ ...normal, type: 'alarm', value: 0 })
+      const temp1 = alarms.filter(alarm => normal.time === alarm.time)
+      const temp2 = alarms.filter(alarm => normal.time === alarm.time && normal.value === alarm.value)
+      if (temp1.length === 0) {
+        alarmsLessOrigin.push({ time: normal.time, type: 'alarm', value: 0 })
+      }
+      if (temp2.length > 0) {
+        normalEqualAlarm.push(normal)
       }
     })
+    this.unvisibleChartData = normalEqualAlarm
     this.chartData = [...alarms, ...alarmsLessOrigin, ...normals]
   }
   /**
@@ -112,8 +121,8 @@ export default class extends Mixins(DashboardMixin) {
     this.chart = new Chart({
       container: 'car-container',
       autoFit: true,
-      padding: [5, 50, 45, 5]
-      // limitInPlot: true
+      padding: [5, 50, 45, 5],
+      limitInPlot: true
     })
     this.chart.data(this.chartData)
     this.chart.scale('value', {
@@ -140,16 +149,16 @@ export default class extends Mixins(DashboardMixin) {
     this.chart.legend(false)
     this.chart.tooltip({
       shared: true,
-      // showMarkers: true,
       title: (title, datum) => {
         return format(fromUnixTime(datum.time / 1000), 'yyyy-MM-dd HH:mm:ss')
       },
       // customItems: items => items.map(item => {
-      //   const temp = { ...item,
-      //     type: item.type === 'normal' ? '正常值' : '告警值'
-      //   }
-      //   console.log(temp)
-      //   return temp
+      //   // const temp = { ...item,
+      //   //   type: item.data.type === 'normal' ? '正常值' : '告警值'
+      //   // }
+      //   // console.log(temp)
+      //   console.log(item)
+      //   return item
       // })
       itemTpl: `
                 <div style="margin-bottom: 10px;list-style:none;">
@@ -174,16 +183,21 @@ export default class extends Mixins(DashboardMixin) {
         }
       })
       .size(1)
-
+      .style('time*value*type', (time, value, type) => {
+        const find = this.unvisibleChartData.filter(item => _.isEqual(item, { time, value, type }))
+        return find.length > 0 ? { fillOpacity: 0 } : { fillOpacity: 1 }
+      })
+    console.log(this.unvisibleChartData)
     this.chart.annotation().line({
       start: ['min', this.chartInfo.vehiclesThreshold],
       end: ['max', this.chartInfo.vehiclesThreshold],
       style: {
-        stroke: '#ff4d4f',
+        stroke: '#fa8334',
         lineWidth: 1
       }
     })
     this.chart.render()
+
     window.onresize = () => {
       this.chart.forceFit()
     }
@@ -191,12 +205,12 @@ export default class extends Mixins(DashboardMixin) {
 
   private registerChartInteraction() {
     registerAction('scale-translate-x', ScaleTranslate)
+    registerAction('scale-zoom-x', ScaleZoom)
     registerInteraction('drag-move-x', {
       start: [{ trigger: 'plot:mousedown', action: 'scale-translate-x:start' }],
       processing: [{ trigger: 'plot:mousemove', action: 'scale-translate-x:translate', throttle: { wait: 100, leading: true, trailing: false } }],
       end: [{ trigger: 'plot:mouseup', action: 'scale-translate-x:end' }]
     })
-    registerAction('scale-zoom-x', ScaleZoom)
     registerInteraction('view-zoom-x', {
       start: [
         {
