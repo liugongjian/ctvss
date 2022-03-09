@@ -111,6 +111,7 @@ export default class extends Mixins(DashboardMixin) {
         normalEqualAlarm.push(normal)
       }
     })
+    // 当normal === alarm时，normal透明
     this.unvisibleChartData = normalEqualAlarm
     this.chartData = [...alarms, ...alarmsLessOrigin, ...normals]
   }
@@ -152,14 +153,6 @@ export default class extends Mixins(DashboardMixin) {
       title: (title, datum) => {
         return format(fromUnixTime(datum.time / 1000), 'yyyy-MM-dd HH:mm:ss')
       },
-      // customItems: items => items.map(item => {
-      //   // const temp = { ...item,
-      //   //   type: item.data.type === 'normal' ? '正常值' : '告警值'
-      //   // }
-      //   // console.log(temp)
-      //   console.log(item)
-      //   return item
-      // })
       itemTpl: `
                 <div style="margin-bottom: 10px;list-style:none;">
                   <span style="background-color:{color};" class="g2-tooltip-marker"></span>
@@ -168,7 +161,9 @@ export default class extends Mixins(DashboardMixin) {
               `
     })
 
+    // 注册交互
     this.registerChartInteraction()
+    // 鼠标操作时，页面不滚动
     this.chart.getCanvas().on('mousewheel', ev => { ev.preventDefault() })
 
     this.chart
@@ -187,7 +182,7 @@ export default class extends Mixins(DashboardMixin) {
         const find = this.unvisibleChartData.filter(item => _.isEqual(item, { time, value, type }))
         return find.length > 0 ? { fillOpacity: 0 } : { fillOpacity: 1 }
       })
-    console.log(this.unvisibleChartData)
+
     this.chart.annotation().line({
       start: ['min', this.chartInfo.vehiclesThreshold],
       end: ['max', this.chartInfo.vehiclesThreshold],
