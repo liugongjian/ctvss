@@ -131,7 +131,8 @@ export default class extends Vue {
     },
     matchKeys: [],
     inputKey: '',
-    searchKey: ''
+    searchKey: '',
+    revertSearchFlag: false
   }
 
   private innerForm: any = {
@@ -178,7 +179,6 @@ export default class extends Vue {
     this.form.revertSearchFlag = Boolean(this.form.searchKey ||
                                           this.form.deviceStatusKeys.length ||
                                           this.form.streamStatusKeys.length ||
-                                          this.form.matchKeys.length ||
                                           this.form.deviceAddresses.code)
     this.$emit('search', this.form)
   }
