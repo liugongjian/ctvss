@@ -174,7 +174,7 @@ export default class extends Mixins(DashboardMixin) {
         return {
           time,
           value,
-          type: type === 'normal' ? '正常值' : '告警值'
+          type: type === 'normal' ? '新增车辆数' : '累计车辆数'
         }
       })
       .size(1)
