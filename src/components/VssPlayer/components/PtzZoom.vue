@@ -9,6 +9,7 @@
 <script lang="ts">
 import { Component, Prop } from 'vue-property-decorator'
 import { dragCanvasZoom } from '@/api/device'
+import { StreamInfo, DeviceInfo } from '@/components/VssPlayer/models/VssPlayer.d'
 import ComponentMixin from './mixin'
 
 @Component({
@@ -18,30 +19,23 @@ import ComponentMixin from './mixin'
 export default class extends ComponentMixin {
   @Prop({
     default: {}
-  })
-  private deviceInfo!: {}
+  }) private deviceInfo: DeviceInfo
+  @Prop({
+    default: {}
+  }) private streamInfo: StreamInfo
 
   private showCanvasBox = false
+
+  private mounted() {
+    console.log('playerINfo------>', this.streamInfo, this.deviceInfo)
+  }
 
   private changeScaleCanvas() {
     this.showCanvasBox = !this.showCanvasBox
     console.log('this.player----->', this.player.container)
-    // todo screen中视频组件ptz缩放事件互斥
     // todo 视频组件 电子缩放与ptz缩放事件互斥
 
-    // this.isZoom = false
-    // this.$emit('onChangeScalePTZStatus', this.showCanvasBox)
-
     if (this.showCanvasBox) {
-      // let player: any, ctxBox: any
-      // if (this.codec === 'h265') {
-      //   ctxBox = this.$refs.videoWrap
-      //   player = ctxBox.querySelector('.player-box')
-      // } else {
-      //   ctxBox = this.$refs.video
-      //   player = ctxBox.querySelector('video')
-      // }
-
       const video = this.player.video || this.player.canvas
       const width = this.player.container.clientWidth
       const height = this.player.container.clientHeight
@@ -170,14 +164,14 @@ export default class extends ComponentMixin {
     if (!mousePos) return
     // const [x, y] = mousePos
     const { startX, startY, endX, endY } = this.oShape
-    const { Width = 0, Height = 0 } = this.videoInfo ? JSON.parse(this.videoInfo) : {}
+    const { videoWidth = 0, videoHeight = 0 } = this.streamInfo
 
     if (!endX || !endY) {
       return
     }
 
-    const tempRatioWidth = this.oCanvas.width / Width
-    const tempRatioHeight = this.oCanvas.height / Height
+    const tempRatioWidth = this.oCanvas.width / videoWidth
+    const tempRatioHeight = this.oCanvas.height / videoHeight
 
     const lengthX = Math.round(Math.abs(endX - startX) / tempRatioWidth).toString()
     const lengthY = Math.round(Math.abs(endY - startY) / tempRatioHeight).toString()
@@ -190,11 +184,13 @@ export default class extends ComponentMixin {
     this.removeListener()
     this.ctxDrawState = false
 
+    const { deviceId } = this.deviceInfo
+
     const param = {
-      deviceId: this.deviceId,
+      deviceId,
       command,
-      length: Width.toString(), // 信令侧要求左右为length，上下为width
-      width: Height.toString(),
+      length: videoWidth.toString(), // 信令侧要求左右为length，上下为width
+      width: videoHeight.toString(),
       midPointX,
       midPointY,
       lengthX,

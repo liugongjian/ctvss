@@ -23,9 +23,9 @@
       <template v-if="player" slot="controlRight">
         <StreamSelector :stream-info="streamInfo" @dispatch="dispatch" />
         <TypeSelector v-if="hasTypeSelector" :type="type" @dispatch="dispatch" />
-        <Intercom />
+        <Intercom :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" />
         <DigitalZoom />
-        <PtzZoom />
+        <PtzZoom :stream-info="streamInfo" :device-info="deviceInfo" />
         <Snapshot :name="deviceInfo.deviceName" />
         <Scale />
         <Fullscreen @dispatch="dispatch" />
