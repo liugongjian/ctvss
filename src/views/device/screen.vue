@@ -304,12 +304,14 @@
                           :video-info="screen.videoInfo"
                           :all-address="screen.allAddress"
                           :default-volume="screen.volume"
+                          :scale-status="screen.ifScalePTZ"
                           @onCanPlay="playEvent(screen, ...arguments)"
                           @onRetry="onRetry(screen, ...arguments)"
                           @onPlayback="onPlayback(screen)"
                           @onFullscreen="screen.fullscreen();fullscreen()"
                           @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
                           @onIntercom="onIntercom(screen, ...arguments)"
+                          @onChangeScalePTZStatus="changeScalePTZStatus(screen,...arguments)"
                           @onTypeChange="onTypeChange(screen, ...arguments)"
                           @onVolumeChange="onVolumeChange(screen, ...arguments)"
                         />
@@ -561,6 +563,7 @@ export default class extends Mixins(ScreenMixin) {
       screen.roleId = item.roleId || ''
       screen.realGroupId = item.realGroupId || ''
       screen.realGroupInProtocol = item.realGroupInProtocol || ''
+      screen.ifScalePTZ = false
 
       if (streamNum && !isNaN(streamNum)) {
         screen.streamNum = streamNum
@@ -862,6 +865,16 @@ export default class extends Mixins(ScreenMixin) {
       this.screenList[i].volume = 30
     }
     this.ifIntercom = false
+  }
+
+  /**
+   * 修改ptz缩放状态，子组件缩放互斥
+   */
+  private changeScalePTZStatus(screen: Screen, status: boolean) {
+    for (let i = 0; i < this.screenList.length; i++) {
+      this.screenList[i].ifScalePTZ = false
+    }
+    screen.ifScalePTZ = status
   }
 
   /**

@@ -6,8 +6,7 @@ import { RecordTemplate } from '@/type/template'
 import { queryGroup } from '@/api/group'
 import { GroupModule } from '@/store/modules/group'
 import { DeviceModule } from '@/store/modules/device'
-// import { DeviceStatus, DeviceGb28181Type, RecordStatus, RecordStatusType, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType } from '@/dics'
-import { getDevice, getChildAddress } from '@/api/device'
+import { getDevice } from '@/api/device'
 import { DeviceStatus, DeviceGb28181Type, RecordStatus, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType, RecordStatusType } from '@/dics'
 import { getDeviceResources } from '@/api/billing'
 import TemplateBind from '../../components/templateBind.vue'
@@ -26,7 +25,6 @@ import Resource from '@/views/device/components/dialogs/Resource.vue'
 import { VGroupModule } from '@/store/modules/vgroup'
 import { industryMap } from '@/assets/region/industry'
 import { networkMap } from '@/assets/region/network'
-import { allRegionList } from '@/assets/region/region'
 import MoveDir from '../components/dialogs/MoveDir.vue'
 import DetailOperation from '../components/DetailOperation.vue'
 
@@ -171,9 +169,23 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     return this.groupInfo && this.groupInfo.sipId && this.groupInfo.sipId.toString().substr(0, 10)
   }
 
+  /**
+   * 显示设备地址
+   */
+  public get deviceAddress() {
+    return this.info.gbRegionNames && this.info.gbRegionNames.reverse().join('/')
+  }
+
   @Watch('$route.query')
   public onRouterChange() {
     this.detailInit()
+  }
+
+  @Watch('realGroupId')
+  public async onRealGroupIdChange(realGroupId: string, oldRealGroupId: string) {
+    if (!realGroupId || oldRealGroupId) return
+    await this.getDevice()
+    await this.getDeviceResources()
   }
 
   /**
@@ -196,7 +208,6 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     }
     await this.getDevice()
     await this.getDeviceResources()
-    await this.getAddress(this.info!.gbRegion)
   }
 
   public delayDetailInit() {
@@ -236,47 +247,6 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
       result && this.delayDetailInit()
     } catch (e) {
       console.log(e)
-    }
-  }
-
-  /**
-   * 获取设备地址
-   */
-  public async getAddress(gbRegion: any) {
-    this.$set(this.info!, 'address', '')
-    const list = []
-    for (let i = 0; i < 4; i++) {
-      if (gbRegion!.substring(i * 2, i * 2 + 2) !== '00') {
-        list.push(parseInt(gbRegion!.substring(0, (i + 1) * 2)))
-      }
-    }
-    const region0 = allRegionList.find((item0: any) => {
-      return item0.code === list[0]
-    })
-    if (region0) {
-      this.info!.address += region0.name
-      const region1 = region0.children.find((item1: any) => {
-        return item1.code === list[1]
-      })
-      if (region1) {
-        this.info!.address += '/' + region1.name
-        const region2 = region1.children.find((item2: any) => {
-          return item2.code === list[2]
-        })
-        if (region2) {
-          this.info!.address += '/' + region2.name
-          // 四级数据从后端获取
-          if (list.length === 4) {
-            const level4List = getChildAddress(list[2], 4)
-            const region3 = (await level4List).find((item3: any) => {
-              return item3.code === list[3]
-            })
-            if (region3) {
-              this.info!.address += '/' + region3.name
-            }
-          }
-        }
-      }
     }
   }
 
@@ -479,13 +449,5 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   public copyUrl(text: string) {
     copy(text)
     this.$message.success('复制成功')
-  }
-
-  @Watch('realGroupId')
-  public async onRealGroupIdChange(realGroupId: string, oldRealGroupId: string) {
-    if (!realGroupId || oldRealGroupId) return
-    await this.getDevice()
-    await this.getDeviceResources()
-    await this.getAddress(this.info!.gbRegion)
   }
 }

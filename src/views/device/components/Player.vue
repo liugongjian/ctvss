@@ -24,7 +24,7 @@
           <div v-if="hasProgress && duration" class="controls__time">{{ durationFormatInVideo(Math.floor(currentTime)) }} / {{ durationFormatInVideo(duration) }}</div>
         </template>
       </div>
-      <div v-if="isHiddenTools" class="controls__right">
+      <div v-if="!isHiddenTools" class="controls__right">
         <div v-if="hasAudio && !waiting" class="controls__btn controls__playback volume">
           <span @click="switchMuteStatus">
             <svg-icon v-if="volume === 0 || isMute" name="mute" width="18px" height="18px" />
@@ -38,6 +38,7 @@
               vertical
               height="165px"
               @input="setPlayVolume"
+              @change="cancelMountedMute"
             />
           </div>
         </div>
@@ -235,7 +236,7 @@ export default class extends Vue {
   @Prop() private inProtocol?: string
   @Prop() private deviceId?: number | string
   @Prop() private videoInfo?: string
-
+  @Prop() private scaleStatus?: boolean
   /**
    * 隐藏视频工具栏
    */
@@ -284,6 +285,7 @@ export default class extends Vue {
   private oCanvasHeight?: number
   private userScaleConfig: any
   private isHiddenTools: boolean = false
+  private ifMountedMute?: boolean = false
 
   get username() {
     return UserModule.name
@@ -314,6 +316,11 @@ export default class extends Vue {
     this.getUserScaleConfig()
     this.createPlayer()
     this.setPlayVolume(this.volume)
+    if (this.volume === 0) {
+      this.ifMountedMute = true
+    } else {
+      this.ifMountedMute = false
+    }
     if (this.isLive) document.addEventListener('visibilitychange', this.reloadPlayer)
   }
 
@@ -373,6 +380,10 @@ export default class extends Vue {
       }
     }
   }
+  @Watch('scaleStatus')
+  getScaleStatus(val: boolean) {
+    this.showCanvasBox = val
+  }
 
   /**
    * 创建播放器
@@ -412,7 +423,7 @@ export default class extends Vue {
             const proportion = width / originWidth!
             $canvas.style.position = 'absolute'
             $canvas.style.transform = `scale(${proportion})`
-            $canvas.style.transformOrigin = `top left`
+            $canvas.style.transformOrigin = 'top left'
             $canvas.style.top = (height - originHeight) / 2 * proportion + 'px'
           }
         },
@@ -430,38 +441,28 @@ export default class extends Vue {
       this.$nextTick(() => {
         const $video = this.$refs.video as HTMLDivElement
         const mainBox: any = this.$refs.videoWrap
-        let player = $video.querySelector('video')
+        let player: any
         if (this.codec === 'h265') {
           player = $video.querySelector('.player-box')
-          this.playerFS()
-          window.addEventListener('resize', this.playerFS, false)
-          const targetNode = mainBox
-          // 监听video-wrap
-          // @ts-ignore
-          this.resizeObserver = new ResizeObserver(() => {
-            this.playerFS()
-          })
-          this.resizeObserver.observe(targetNode)
         } else {
-          // this.playerFS()
           player = $video.querySelector('video')
-          this.playerFS()
-          window.addEventListener('resize', this.playerFS, false)
-          const targetNode = mainBox
-          // 监听video-wrap
-          // @ts-ignore
-          this.resizeObserver = new ResizeObserver((e) => {
-            this.playerFS()
-            const mainBox: any = this.$refs.videoWrap
-            // 针对小屏幕隐藏工具栏
-            if (mainBox.clientHeight < 100 || mainBox.clientWidth < 300) {
-              this.isHiddenTools = false
-            } else {
-              this.isHiddenTools = true
-            }
-          })
-          this.resizeObserver.observe(targetNode)
         }
+        this.playerFS()
+        window.addEventListener('resize', this.playerFS, false)
+        const targetNode = mainBox
+        // 监听video-wrap
+        // @ts-ignore
+        this.resizeObserver = new ResizeObserver(() => {
+          this.playerFS()
+          const mainBox: any = this.$refs.videoWrap
+          // 针对小屏幕隐藏工具栏
+          if (mainBox.clientHeight < 100 || mainBox.clientWidth < 300) {
+            this.isHiddenTools = true
+          } else {
+            this.isHiddenTools = false
+          }
+        })
+        this.resizeObserver.observe(targetNode)
         this.videoMoveData.player = player
         this.videoMoveData.mainBox = mainBox
       })
@@ -478,13 +479,13 @@ export default class extends Vue {
   }
 
   public playerFS() {
+    const mainBox: any = this.$refs.videoWrap
     if (this.codec === 'h265') {
-      const mainBox: any = this.$refs.videoWrap
       if (!mainBox) return
       const player = mainBox.querySelector('.player-box')
+      player.style.height = `${mainBox.clientHeight - 40}px`
       this.playerFitSize(mainBox.clientWidth, mainBox.clientHeight, player)
     } else {
-      const mainBox: any = this.$refs.videoWrap
       const $video: any = this.$refs.video
       if (!$video) return
       const player = $video.querySelector('video')
@@ -565,7 +566,7 @@ export default class extends Vue {
   public changeScaleCanvas() {
     this.showCanvasBox = !this.showCanvasBox
     this.isZoom = false
-
+    this.$emit('onChangeScalePTZStatus', this.showCanvasBox)
     if (this.showCanvasBox) {
       let player: any, ctxBox: any
       if (this.codec === 'h265') {
@@ -955,7 +956,18 @@ export default class extends Vue {
    * 开关静音状态
    */
   public switchMuteStatus() {
-    this.player!.switchMuteStatus(!this.isMute)
+    if (this.ifMountedMute) { // 缓存为静音或者声音为0的视频时，静音按键点击无效，增加修改声音为30
+      this.player!.switchMuteStatus(false)
+      this.volume = 30
+      this.player!.setPlayVolume(30)
+      this.ifMountedMute = false
+    } else { // 处理--缓存的是有声音的视频，点击静音按键无效。
+      if (this.isMute || this.volume === 0) {
+        this.player!.switchMuteStatus(false)
+      } else {
+        this.player!.switchMuteStatus(true)
+      }
+    }
   }
 
   /**
@@ -1106,6 +1118,10 @@ export default class extends Vue {
     this.codec !== 'h265' && volume && this.isMute && this.player!.switchMuteStatus(false)
     // 调用的是 每个 player 绑定到 baseplayer 里的方法 & this.player 是 baseplayer
     !this.isMute && this.player!.setPlayVolume(volume)
+  }
+
+  public cancelMountedMute() {
+    this.ifMountedMute = false
   }
 
   /**
