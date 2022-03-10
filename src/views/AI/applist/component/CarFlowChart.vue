@@ -150,7 +150,7 @@ export default class extends Mixins(DashboardMixin) {
     this.chart.legend(false)
     this.chart.tooltip({
       shared: true,
-      title: title => format(fromUnixTime(title / 1000), 'yyyy-MM-dd HH:mm:ss'),
+      title: title => title ? format(fromUnixTime(parseInt(title) / 1000), 'yyyy-MM-dd HH:mm:ss') : '',
       itemTpl: `
                 <div style="margin-bottom: 10px;list-style:none;">
                   <span style="background-color:{color};" class="g2-tooltip-marker"></span>
