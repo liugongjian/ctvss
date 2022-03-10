@@ -250,12 +250,8 @@
           </div>
           <div
             class="screen-list"
-            :class="[{'fullscreen': isFullscreen, 'covid': isCovidLiving && isFullscreen}]"
+            :class="[{'fullscreen': isFullscreen}]"
           >
-            <div v-if="isCovidLiving && isFullscreen" class="screen-banner">
-              <img src="@/assets/images/covid_banner.png">
-              <span class="covid__title">{{ `${currentRegion}核酸检测调度指挥云平台` }}</span>
-            </div>
             <div class="screen-wrap" :class="`screen-size--${screenSize}`">
               <div
                 v-for="(screen, index) in screenList"
@@ -266,81 +262,32 @@
                 :class="[{'actived': index === currentIndex && screenList.length > 1 && !polling.isStart}, {'fullscreen': screen.isFullscreen}]"
                 @click="selectScreen(index)"
               >
-                <template v-if="screen.loaded">
-                  <player-container :on-can-play="screen.onCanPlay" :calendar-focus="screen.calendarFocus">
-                    <template v-if="screen.isLive">
-                      <div class="live-view">
-                        <player
-                          v-if="screen.url"
-                          :type="screen.type || 'flv'"
-                          :codec="screen.codec"
-                          :url="screen.url"
-                          :is-live="true"
-                          :is-ws="true"
-                          :is-fullscreen="screen.isFullscreen"
-                          :in-protocol="screen.inProtocol"
-                          :auto-play="true"
-                          :has-control="false"
-                          :has-playback="true"
-                          :device-name="screen.deviceName"
-                          :stream-num="screen.streamNum"
-                          :device-id="screen.deviceId"
-                          :video-info="screen.videoInfo"
-                          :all-address="screen.allAddress"
-                          :default-volume="screen.volume"
-                          :scale-status="screen.ifScalePTZ"
-                          @onCanPlay="playEvent(screen, ...arguments)"
-                          @onRetry="onRetry(screen, ...arguments)"
-                          @onPlayback="onPlayback(screen)"
-                          @onFullscreen="screen.fullscreen();fullscreen()"
-                          @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
-                          @onIntercom="onIntercom(screen, ...arguments)"
-                          @onChangeScalePTZStatus="changeScalePTZStatus(screen,...arguments)"
-                          @onTypeChange="onTypeChange(screen, ...arguments)"
-                          @onVolumeChange="onVolumeChange(screen, ...arguments)"
-                        />
-                        <div v-if="!screen.url && !screen.loading" class="tip-text">{{ screen.errorMsg || '无信号' }}</div>
-                      </div>
-                    </template>
-                    <template v-else>
-                      <replay-view
-                        :device-id="screen.deviceId"
-                        :in-protocol="currentGroupInProtocol"
-                        :has-playlive="true"
-                        :is-fullscreen="screen.isFullscreen"
-                        :screen="screen"
-                        @onCurrentDateChange="onCurrentDateChange(screen, ...arguments)"
-                        @onCurrentTimeChange="onCurrentTimeChange(screen, ...arguments)"
-                        @onReplayTypeChange="onReplayTypeChange(screen, ...arguments)"
-                        @onCalendarFocus="onCalendarFocus(screen, ...arguments)"
-                        @onCanPlay="playEvent(screen, ...arguments)"
-                        @onPlaylive="onPlaylive(screen)"
-                        @onVolumeChange="onVolumeChange(screen, ...arguments)"
-                        @onFullscreen="screen.fullscreen();fullscreen()"
-                        @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
-                      />
-                    </template>
-                    <div slot="header" class="screen-header">
-                      <div class="device-name">
-                        <!-- {{ screen.isLive ? "" : screen.deviceName }} -->
-                        <StreamSelector
-                          v-if="true"
-                          class="set-stream"
-                          :stream-size="screen.streamSize"
-                          :stream-num="screen.streamNum"
-                          :streams="screen.streams"
-                          @onSetStreamNum="onSetStreamNum(screen, ...arguments)"
-                        />
-                      </div>
-                      <div class="screen__tools">
-                        <el-tooltip content="关闭视频">
-                          <el-button class="screen__close" type="text" @click="closeScreen(screen)">
-                            <svg-icon name="close" width="12" height="12" />
-                          </el-button>
-                        </el-tooltip>
-                      </div>
-                    </div>
-                  </player-container>
+                <template v-if="screen.deviceInfo.deviceId">
+                  <template v-if="screen.isLive">
+                    <live-player
+                      :screen="screen"
+                      :has-close="true"
+                      @close="closeScreen(screen)"
+                    />
+                  </template>
+                  <template v-else>
+                    <replay-view
+                      :device-id="screen.deviceId"
+                      :in-protocol="currentGroupInProtocol"
+                      :has-playlive="true"
+                      :is-fullscreen="screen.isFullscreen"
+                      :screen="screen"
+                      @onCurrentDateChange="onCurrentDateChange(screen, ...arguments)"
+                      @onCurrentTimeChange="onCurrentTimeChange(screen, ...arguments)"
+                      @onReplayTypeChange="onReplayTypeChange(screen, ...arguments)"
+                      @onCalendarFocus="onCalendarFocus(screen, ...arguments)"
+                      @onCanPlay="playEvent(screen, ...arguments)"
+                      @onPlaylive="onPlaylive(screen)"
+                      @onVolumeChange="onVolumeChange(screen, ...arguments)"
+                      @onFullscreen="screen.fullscreen();fullscreen()"
+                      @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
+                    />
+                  </template>
                 </template>
                 <div v-else class="tip-text tip-select-device">
                   <el-button type="text" @click="selectDevice(screen)">请选择设备</el-button>
@@ -359,7 +306,6 @@
       @onRetry="onRetry(intercomInfo, ...arguments)"
       @close="closeIntercom"
     />
-    <div id="mouse-right" class="mouse-right" @click="videosOnPolling(null, true)">轮巡当前目录</div>
     <device-dir v-if="dialogs.deviceDir" @on-close="onDeviceDirClose" />
   </div>
 </template>
@@ -369,7 +315,7 @@ import { Device } from '@/type/device'
 import ScreenMixin from './mixin/screenMixin'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import Screen from './models/Screen'
-import Player from './components/Player.vue'
+import LivePlayer from './components/LivePlayer.vue'
 import PlayerContainer from './components/PlayerContainer.vue'
 import ReplayView from './components/ReplayView.vue'
 import DeviceDir from './components/dialogs/DeviceDir.vue'
@@ -385,7 +331,7 @@ import AdvancedSearch from '@/views/device/components/AdvancedSearch.vue'
 @Component({
   name: 'Screen',
   components: {
-    Player,
+    LivePlayer,
     ReplayView,
     DeviceDir,
     StatusBadge,
@@ -400,13 +346,9 @@ import AdvancedSearch from '@/views/device/components/AdvancedSearch.vue'
 export default class extends Mixins(ScreenMixin) {
   private renderAlertType = renderAlertType
   private getSums = getSums
-  private currentRegion = ''
   public maxSize = 4
   private selectedDeviceId = ''
   private currentPollingIndex = 0
-  private isZoom = false
-  private isClosed = false
-  private speed = 1
   private polling = {
     interval: 10,
     isStart: false,
@@ -449,8 +391,8 @@ export default class extends Mixins(ScreenMixin) {
     }
   ]
 
-  private ifIntercom = false
-  private intercomInfo = {}
+  // private ifIntercom = false
+  // private intercomInfo = {}
 
   @Watch('currentGroupId', { immediate: true })
   private onCurrentGroupChange(groupId: String, oldGroupId: String) {
@@ -491,13 +433,8 @@ export default class extends Mixins(ScreenMixin) {
   @Watch('currentIndex')
   private onCurrentIndexChange(newValue: number) {
     if (this.screenList.length) {
-      this.selectedDeviceId = this.screenList[newValue]!.deviceId
+      this.selectedDeviceId = this.screenList[newValue]!.deviceInfo.deviceId
     }
-  }
-
-  private get isCovidLiving() {
-    this.currentRegion = this.$store.state.user.tags.isCovidLiving
-    return this.$store.state.user.tags.isCovidLiving !== undefined
   }
 
   private mounted() {
@@ -521,7 +458,6 @@ export default class extends Mixins(ScreenMixin) {
     })
     window.removeEventListener('resize', this.calMaxHeight)
     window.removeEventListener('resize', this.checkFullscreen)
-    // window.removeEventListener('beforeunload', this.handleSetScreenCache)
   }
 
   private closeScreen(screen: Screen) {
@@ -547,29 +483,32 @@ export default class extends Mixins(ScreenMixin) {
 
     if (item.type === 'ipc' && item.deviceStatus === 'on') {
       const screen = this.screenList[this.currentIndex]
-      if (screen.deviceId) {
+      if (screen.deviceInfo.deviceId) {
         screen.reset()
       }
-      screen.inProtocol = this.currentGroupInProtocol!
-      screen.deviceId = item.id
-      screen.deviceName = item.label
-      screen.streamSize = item.multiStreamSize
-      screen.streams = item.deviceStreams
+      screen.loaded = true
+      screen.type = 'flv'
+      screen.deviceInfo.inProtocol = this.currentGroupInProtocol!
+      screen.deviceInfo.deviceId = item.id
+      screen.deviceInfo.deviceName = item.label
+      screen.streamInfo.streamSize = item.multiStreamSize
+      screen.streamInfo.streams = item.deviceStreams
+
       screen.roleId = item.roleId || ''
       screen.realGroupId = item.realGroupId || ''
       screen.realGroupInProtocol = item.realGroupInProtocol || ''
-      screen.ifScalePTZ = false
+      // screen.ifScalePTZ = false
 
       if (streamNum && !isNaN(streamNum)) {
-        screen.streamNum = streamNum
+        screen.streamInfo.streamNum = streamNum
       } else {
-        screen.streamNum = item.autoStreamNum
+        screen.streamInfo.streamNum = item.autoStreamNum
       }
       if (this.currentIndex < this.maxSize - 1) {
         this.currentIndex++
       } else {
         if (this.screenList.length) {
-          this.selectedDeviceId = this.screenList[this.currentIndex]!.deviceId
+          this.selectedDeviceId = this.screenList[this.currentIndex]!.deviceInfo.deviceId
         }
       }
       await screen.getUrl()
@@ -585,17 +524,6 @@ export default class extends Mixins(ScreenMixin) {
       this.doPolling()
     }
   }
-
-  // public changeMaxSize(size: number) {
-  //   this.maxSize = size
-  //   if (this.currentIndex >= this.maxSize) {
-  //     this.currentIndex = this.maxSize - 1
-  //   }
-  //   this.initScreen()
-  //   if (this.polling.isStart) {
-  //     this.doPolling()
-  //   }
-  // }
 
   /**
    * 更多操作
@@ -887,24 +815,6 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   /**
-   * 右键菜单
-   */
-  private openMenu(event: MouseEvent, node: any) {
-    this.currentNode = node
-    if (node.data.type === 'dir' || node.data.type === 'nvr') {
-      event.preventDefault()
-      var context = document.getElementById('mouse-right')
-      context!.style.display = 'block'
-      context!.style.left = event.x + 'px'
-      context!.style.top = event.y + 'px'
-      document.onclick = function() {
-        var context = document.getElementById('mouse-right')
-        context!.style.display = 'none'
-      }
-    }
-  }
-
-  /**
    * 关闭视频选择对话框
    * @param device 设备
    */
@@ -915,42 +825,6 @@ export default class extends Mixins(ScreenMixin) {
 }
 </script>
 <style lang="scss" scoped>
-.covid {
-  .screen-wrap {
-    height: 80vh;
-
-    .screen-item {
-      border: 1px solid #050926;
-    }
-  }
-
-  .video-wrap {
-    border: none;
-  }
-
-  .screen-banner {
-    text-align: center;
-    width: 100%;
-
-    img {
-      width: auto;
-      height: 20vh;
-    }
-  }
-
-  &__title {
-    position: absolute;
-    right: 20vw;
-    top: 8.8vh;
-    color: #fff;
-    font-size: 4.2vh;
-    letter-spacing: 0.1em;
-  }
-
-  padding: 0 10.1vw;
-  background: #050926;
-}
-
 .device-list {
   &__left {
     .playing {
@@ -1053,16 +927,5 @@ export default class extends Mixins(ScreenMixin) {
       }
     }
   }
-}
-
-.mouse-right {
-  display: none;
-  position: fixed;
-  width: 140px;
-  border: 1px solid #ccc;
-  padding: 7px 10px;
-  background-color: #fff;
-  text-align: center;
-  box-shadow: 1px 1px 5px #ccc;
 }
 </style>

@@ -57,7 +57,9 @@ export default class extends Mixins(FullscreenMixin) {
       streamSize: this.streamSize,
       streamNum: 1
     }
+    screen.type = 'flv'
     this.screen = screen
+    screen.getUrl()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
   }
@@ -72,13 +74,6 @@ export default class extends Mixins(FullscreenMixin) {
   public calMaxHeight() {
     const deviceList: any = document.querySelector('.device-list__max-height')
     this.height = `${deviceList.clientHeight - 84}px`
-  }
-
-  /**
-   * 鼠标移入移出视频触发事件
-   */
-  private playEvent(val: boolean) {
-    this.onCanPlay = val
   }
 }
 </script>

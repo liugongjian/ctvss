@@ -90,7 +90,7 @@ export default class extends Vue {
     .control__popup {
       width: 95px;
       left: -36px;
-      text-align: center;
+      text-align: left;
     }
 
     &:after {

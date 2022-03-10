@@ -329,12 +329,12 @@ export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
     this.dialogs.deviceDir = true
   }
 
-  /**
-   * 鼠标移入移出视频触发事件
-   */
-  private playEvent(screen: any, val: boolean) {
-    screen.onCanPlay = val
-  }
+  // /**
+  //  * 鼠标移入移出视频触发事件
+  //  */
+  // private playEvent(screen: any, val: boolean) {
+  //   screen.onCanPlay = val
+  // }
 
   /**
    * 日历获取焦点

@@ -1,5 +1,5 @@
 <template>
-  <div class="vss-player__wrap">
+  <div v-loading="isLoading" class="vss-player__wrap">
     <Player
       ref="player"
       v-adaptive-tools
@@ -149,6 +149,11 @@ export default class extends Vue {
   /* 获取转换协议后的URL */
   private get videoUrl() {
     return this.replaceProtocol(this.url, this.isWs)
+  }
+
+  /* 视频是否加载中 */
+  private get isLoading() {
+    return this.player && this.player.isLoading
   }
 
   /* 获取播放器实例Provide */

@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="isLoading" class="player__wrap">
+  <div class="player__wrap">
     <div class="header">
       <div class="header__left">
         <slot name="headerLeft" />
@@ -106,11 +106,6 @@ export default class extends Vue {
 
   /* 播放器实例 */
   private player: Player = null
-
-  /* 视频是否加载中 */
-  private get isLoading() {
-    return this.player && this.player.isLoading
-  }
 
   /* 获取播放器实例Provide */
   @Provide('getPlayer')

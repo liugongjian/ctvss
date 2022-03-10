@@ -54,7 +54,7 @@ export class Player {
     this.currentTime = null
     this.duration = null
     this.bufferedTime = null
-    this.isLoading = false
+    this.isLoading = true
     this.init()
     this.bindEvent()
     this.setDefault()

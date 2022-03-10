@@ -6,7 +6,7 @@ export default class Screen {
   public deviceInfo: DeviceInfo // ok
   public streamInfo: StreamInfo // ok
   public url?: string // ok
-  public hasRtc?: boolean
+  public hasRtc?: boolean // ok
   // public urls?: any
 
   public deviceId: string
@@ -40,20 +40,7 @@ export default class Screen {
   public ifScalePTZ?: boolean
 
   constructor() {
-    this.deviceInfo = {
-      deviceId: '',
-      inProtocol: '',
-      deviceName: ''
-    }
-    this.streamInfo = {
-      streams: [],
-      streamSize: null,
-      streamNum: null,
-      videoWidth: null,
-      videoHeight: null
-    }
-    this.url = ''
-    this.hasRtc = false
+    this.reset()
 
     this.deviceId = ''
     this.inProtocol = ''
@@ -83,6 +70,23 @@ export default class Screen {
     this.allAddress = ''
     this.volume = 30
     this.ifScalePTZ = false
+  }
+
+  public reset() {
+    this.deviceInfo = {
+      deviceId: '',
+      inProtocol: '',
+      deviceName: ''
+    }
+    this.streamInfo = {
+      streams: [],
+      streamSize: null,
+      streamNum: null,
+      videoWidth: null,
+      videoHeight: null
+    }
+    this.url = ''
+    this.hasRtc = false
   }
 
   public async getUrl() {
@@ -123,33 +127,6 @@ export default class Screen {
     } finally {
       this.loading = false
     }
-  }
-
-  public reset() {
-    this.deviceId = ''
-    this.roleId = ''
-    this.realGroupId = ''
-    this.realGroupInProtocol = ''
-    this.url = ''
-    this.type = ''
-    this.codec = ''
-    this.streamSize = 0
-    this.streamNum = undefined
-    this.streams = []
-    this.loading = false
-    this.loaded = false
-    this.retry = false
-    this.isLive = true
-    this.isAi = false
-    this.axiosSource && this.axiosSource.cancel()
-    this.axiosSource = null
-    this.replayType = 'cloud'
-    this.currentDate = null
-    this.currentTime = null
-    this.isCache = false
-    this.allAddress = ''
-    this.volume = 30
-    this.ifScalePTZ = false
   }
 
   public fullscreen() {

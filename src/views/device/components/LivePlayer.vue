@@ -12,12 +12,13 @@
     :is-auto-play="true"
     :is-live="true"
     :is-ws="true"
+    :has-close="hasClose"
     :is-debug="true"
     @dispatch="onDispatch"
   />
 </template>
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 import { PlayerEvent } from '@/components/VssPlayer/models/VssPlayer.d'
 import Screen from '../models/Screen'
 import VssPlayer from '@/components/VssPlayer/index.vue'
@@ -32,11 +33,8 @@ export default class extends Vue {
   @Prop()
   private screen: Screen
 
-  @Watch('screen')
-  private onScreenChange() {
-    this.screen.type = 'flv'
-    this.screen.getUrl()
-  }
+  @Prop()
+  private hasClose: Boolean
 
   /**
    * 播放器事件路由
@@ -48,6 +46,9 @@ export default class extends Vue {
         break
       case 'typeChange':
         this.onTypeChange(event.payload)
+        break
+      case 'close':
+        this.onClose()
         break
     }
   }
@@ -67,7 +68,12 @@ export default class extends Vue {
     this.screen.type = type
     this.screen.getUrl()
   }
+
+  /**
+   * 关闭视频
+   */
+  private onClose() {
+    this.$emit('close')
+  }
 }
 </script>
-<style lang="scss" scoped>
-</style>
