@@ -321,7 +321,33 @@ export const asyncRoutes: RouteConfig[] = [
       }
     ]
   },
-
+  {
+    path: '/map',
+    component: Layout,
+    meta: {
+      id: '20210424150201004000',
+      title: '查看电子地图',
+      icon: 'component',
+      perms: ['DescribeMap'],
+      alwaysShow: false,
+      only: true,
+      groupSelector: true
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "map" */ '@/views/map/index.vue'),
+        name: 'map',
+        meta: {
+          id: '20210424150201004001',
+          title: '查看电子地图',
+          icon: 'component',
+          breadcrumb: false,
+          perms: ['DescribeMap'],
+          groupSelector: true
+        }
+      }]
+  },
   // {
   //   path: '/stream',
   //   component: Layout,
