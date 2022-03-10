@@ -142,14 +142,9 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
     return this.$route.query.type === 'group'
   }
 
-  public get isPlatformDir() {
-    return this.$route.query.type === 'platformDir'
-  }
-
   public get isAllowedDelete() {
     let validArr = [
       this.isPlatform,
-      this.isPlatformDir,
       this.isDir,
       this.deviceInfo && this.deviceInfo.createSubDevice !== 1
     ]

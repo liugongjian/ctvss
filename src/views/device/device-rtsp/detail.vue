@@ -31,7 +31,7 @@
                 <template v-if="info && !isNVR && !isPlatform">
                   <el-descriptions-item label="流状态">
                     <status-badge :status="info.streamStatus" />
-                    {{ deviceStatus[info.streamStatus] || '-' }}
+                    {{ streamStatus[info.streamStatus] || '-' }}
                     <!-- <el-link v-if="info.streamStatus === 'on' && checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('stopDevice')">停用流</el-link>
                     <el-link v-else-if="checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('startDevice')">启用流</el-link> -->
                   </el-descriptions-item>
@@ -296,6 +296,7 @@ export default class extends Mixins(detailMixin) {}
       min-width: 120px;
     }
   }
+
   .copy-button {
     padding: 0;
   }
