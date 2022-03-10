@@ -567,6 +567,11 @@ export default class extends Vue {
       case '10014':
       case '10015':
       case '10020':
+      case '10024':
+      case '10023':
+      case '10022':
+      case '10021':
+      case '10019':
         return true
       default:
         return false
