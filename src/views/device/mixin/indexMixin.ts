@@ -18,7 +18,8 @@ export default class IndexMixin extends Vue {
     },
     matchKeys: [],
     inputKey: '',
-    searchKey: ''
+    searchKey: '',
+    revertSearchFlag: false
   }
   public maxHeight = 1000
   public dirList = []
@@ -115,7 +116,6 @@ export default class IndexMixin extends Vue {
     this.advancedSearchForm.revertSearchFlag = Boolean(this.advancedSearchForm.searchKey ||
                                                         this.advancedSearchForm.deviceStatusKeys.length ||
                                                         this.advancedSearchForm.streamStatusKeys.length ||
-                                                        this.advancedSearchForm.matchKeys.length ||
                                                         this.advancedSearchForm.deviceAddresses.code)
   }
 
