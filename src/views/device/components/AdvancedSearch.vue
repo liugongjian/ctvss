@@ -98,7 +98,7 @@ export default class extends Vue {
     },
     {
       label: '失败',
-      value: 'fail'
+      value: 'failed'
     }
   ]
   private matchKeyList = [
