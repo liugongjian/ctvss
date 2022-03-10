@@ -151,7 +151,9 @@ export default class extends Mixins(DashboardMixin) {
     this.chart.tooltip({
       shared: true,
       title: (title, datum) => {
-        return format(fromUnixTime(datum.time / 1000), 'yyyy-MM-dd HH:mm:ss')
+        const formated_time = format(fromUnixTime(datum['time'] / 1000), 'yyyy-MM-dd HH:mm:ss')
+        console.log(formated_time)
+        return formated_time
       },
       itemTpl: `
                 <div style="margin-bottom: 10px;list-style:none;">
