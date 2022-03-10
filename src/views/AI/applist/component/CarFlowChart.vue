@@ -150,13 +150,33 @@ export default class extends Mixins(DashboardMixin) {
     this.chart.legend(false)
     this.chart.tooltip({
       shared: true,
-      title: title => title ? format(fromUnixTime(parseInt(title) / 1000), 'yyyy-MM-dd HH:mm:ss') : '',
-      itemTpl: `
-                <div style="margin-bottom: 10px;list-style:none;">
-                  <span style="background-color:{color};" class="g2-tooltip-marker"></span>
-                  {type}: {value}
-                </div>
-              `
+      // title: (title,datum) => format(fromUnixTime(parseInt(datum.time) / 1000), 'yyyy-MM-dd HH:mm:ss'),
+      // containerTpl: `<div class="g2-tooltip">
+      //                 <div class="g2-tooltip-title" style="margin:10px 0;">{time}</div>
+      //                 <ul class="g2-tooltip-list"></ul></div>`,
+      // itemTpl: `
+      //           <div style="margin-bottom: 10px;list-style:none;">
+      //             <span style="background-color:{color};" class="g2-tooltip-marker"></span>
+      //             {type}: {value}
+      //           </div>
+      //         `
+        customContent: (time, items) => {
+          const container = document.createElement('div');
+          container.className = 'g2-tooltip';
+          const temp = format(fromUnixTime(time / 1000), 'yyyy-MM-dd HH:mm:ss')
+          const title = `<div class="g2-tooltip-title" style="margin-top: 12px;margin-bottom: 12px;">${temp}</div>`;
+          let listItem = '';
+          items.forEach((item) => {
+            listItem += `<li class="g2-tooltip-list-item" data-index={index} style="margin-bottom:4px;display:flex;align-items: center;">
+                <span style="background-color:${item?.mappingData?.color || item?.color};" class="g2-tooltip-marker"></span>
+                <span style="display:inline-flex;flex:1;justify-content:space-between">
+                <span style="margin-right: 16px;">${item?.type}:</span><span>${item?.value}</span>
+                </span>
+            </li>`;
+          });
+          container.innerHTML = title + listItem;
+          return container;
+        }
     })
 
     // 注册交互
@@ -170,7 +190,7 @@ export default class extends Mixins(DashboardMixin) {
       .color('type', type => type === 'normal' ? '#40a9ff' : '#FF0000')
       .tooltip('time*value*type', (time, value, type) => {
         return {
-          time,
+          time: format(fromUnixTime(parseInt(time) / 1000), 'yyyy-MM-dd HH:mm:ss'),
           value,
           type: type === 'normal' ? '新增车辆数' : '累计车辆数'
         }
