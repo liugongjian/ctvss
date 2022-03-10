@@ -30,6 +30,7 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
+    "@amap/amap-jsapi-loader": "^1.0.1",
     "@antv/g2": "^4.1.4",
     "@easydarwin/easywasmplayer": "^4.0.11",
     "axios": "^0.19.2",

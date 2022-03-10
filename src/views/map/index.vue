@@ -113,7 +113,8 @@
                 </div>
               </el-form>
             </el-dialog>
-            <div><img src="./dashboard.png" alt=""></div>
+<!--            <div><img src="./dashboard.png" alt=""></div>-->
+            <map-view></map-view>
             <div class="map-info__right">
               <el-descriptions title="基本信息" :column="1">
                 <el-descriptions-item label="设备名称">
@@ -176,13 +177,15 @@ import SortChildren from '@/views/device/components/dialogs/SortChildren.vue'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { renderAlertType, getSums } from '@/utils/device'
 import { VGroupModule } from '@/store/modules/vgroup'
+import MapView from './mapview.vue'
 
 @Component({
   name: 'Map',
   components: {
     CreateDir,
     StatusBadge,
-    SortChildren
+    SortChildren,
+    MapView
   }
 })
 export default class extends Mixins(IndexMixin) {
