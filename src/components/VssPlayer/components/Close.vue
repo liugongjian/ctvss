@@ -11,7 +11,7 @@ import { Component } from 'vue-property-decorator'
 import ComponentMixin from './mixin'
 
 @Component({
-  name: 'Snapshot'
+  name: 'Close'
 })
 export default class extends ComponentMixin {
   private close() {

@@ -71,7 +71,7 @@ export default class extends Mixins(FullscreenMixin) {
    */
   public calMaxHeight() {
     const deviceList: any = document.querySelector('.device-list__max-height')
-    this.height = `${deviceList.clientHeight - 45}px`
+    this.height = `${deviceList.clientHeight - 84}px`
   }
 
   /**

@@ -1,13 +1,13 @@
 import axios from 'axios'
 import { DeviceInfo, StreamInfo } from '@/components/VssPlayer/models/VssPlayer'
 import { getDevicePreview } from '@/api/device'
-import { e } from 'mathjs'
 
 export default class Screen {
   public deviceInfo: DeviceInfo // ok
   public streamInfo: StreamInfo // ok
   public url?: string // ok
-  public urlList: Array<string> // ok
+  public hasRtc?: boolean
+  // public urls?: any
 
   public deviceId: string
   public inProtocol: string
@@ -52,13 +52,14 @@ export default class Screen {
       videoWidth: null,
       videoHeight: null
     }
+    this.url = ''
+    this.hasRtc = false
 
     this.deviceId = ''
     this.inProtocol = ''
     this.roleId = ''
     this.realGroupId = ''
     this.realGroupInProtocol = ''
-    this.url = ''
     this.type = ''
     this.codec = ''
     this.streamSize = 0
@@ -105,18 +106,19 @@ export default class Screen {
         }
       }, this.axiosSource.token)
       if (res.playUrl) {
-        this.url = res.playUrl.flvUrl
-        this.urlList = res.playUrl
+        this.url = this.getVideoUrl(res.playUrl)
+        this.hasRtc = !!res.playUrl.webrtcUrl
+        // this.urls = res.playUrl
         this.codec = res.video.codec
         const videoInfo = this.parseVideoInfo(res.videoInfo)
         this.streamInfo.videoWidth = videoInfo.videoWidth
         this.streamInfo.videoHeight = videoInfo.videoHeight
       }
-      this.retry = false
+      // this.retry = false
     } catch (e) {
       if (e.code === 5) {
         this.errorMsg = e.message
-        this.retry = true
+        // this.retry = true
       }
     } finally {
       this.loading = false
@@ -158,6 +160,11 @@ export default class Screen {
     this.isFullscreen = false
   }
 
+  /**
+   * 解析视频信息
+   * @param videoInfoStr 视频信息JSON字符串
+   * @returns { videoWidth, videoHeight }
+   */
   private parseVideoInfo(videoInfoStr) {
     let videoWidth = null
     let videoHeight = null
@@ -170,5 +177,19 @@ export default class Screen {
       videoWidth,
       videoHeight
     }
+  }
+
+  /**
+   * 根据视频类型获取URL
+   * @param urlList URL列表
+   * @returns url地址
+   */
+  private getVideoUrl(urlList: string[]) {
+    const dict = {
+      flv: 'flvUrl',
+      hls: 'hlsUrl',
+      rtc: 'webrtcUrl'
+    }
+    return urlList[dict[this.type]]
   }
 }

@@ -19,7 +19,7 @@ import { Component, Prop } from 'vue-property-decorator'
 import ComponentMixin from './mixin'
 
 @Component({
-  name: 'VideoType'
+  name: 'TypeSelector'
 })
 export default class extends ComponentMixin {
   @Prop()

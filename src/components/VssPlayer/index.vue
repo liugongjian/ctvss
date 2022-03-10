@@ -9,6 +9,7 @@
       :volume="volume"
       :playback-rate="playbackRate"
       :has-progress="hasProgress"
+      :is-live="isLive"
       :is-debug="true"
       @onCreate="onPlayerCreate"
     >
@@ -21,12 +22,13 @@
       </template>
       <template v-if="player" slot="controlRight">
         <StreamSelector :stream-info="streamInfo" @dispatch="dispatch" />
-        <VideoType :type="type" @dispatch="dispatch" />
+        <TypeSelector v-if="hasTypeSelector" :type="type" @dispatch="dispatch" />
         <Intercom />
-        <Scale />
         <DigitalZoom />
         <PtzZoom />
         <Snapshot :name="deviceInfo.deviceName" />
+        <Scale />
+        <Fullscreen @dispatch="dispatch" />
       </template>
     </Player>
   </div>
@@ -46,9 +48,10 @@ import Scale from './components/Scale.vue'
 import DigitalZoom from './components/DigitalZoom.vue'
 import Close from './components/Close.vue'
 import StreamSelector from './components/StreamSelector.vue'
-import VideoType from './components/VideoType.vue'
+import TypeSelector from './components/TypeSelector.vue'
 import PtzZoom from './components/PtzZoom.vue'
 import Intercom from './components/Intercom.vue'
+import Fullscreen from './components/Fullscreen.vue'
 
 @Component({
   name: 'VssPlayer',
@@ -60,9 +63,10 @@ import Intercom from './components/Intercom.vue'
     DigitalZoom,
     Close,
     StreamSelector,
-    VideoType,
+    TypeSelector,
     PtzZoom,
-    Intercom
+    Intercom,
+    Fullscreen
   },
   directives: {
     // 动态隐藏播放器工具栏与头部
@@ -90,6 +94,12 @@ export default class extends Vue {
   })
   private volume: number
 
+  /* 是否为直播 */
+  @Prop({
+    default: false
+  })
+  private isLive: boolean
+
   /* 是否启用websocket */
   @Prop({
     default: false
@@ -111,6 +121,12 @@ export default class extends Vue {
     default: false
   })
   private hasClose: boolean
+
+  /* 是否显示类型切换按钮 */
+  @Prop({
+    default: false
+  })
+  private hasTypeSelector: boolean
 
   /* 设备信息 */
   @Prop({

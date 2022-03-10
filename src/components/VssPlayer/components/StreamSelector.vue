@@ -3,8 +3,8 @@
   <div v-if="streamSize > 1" class="control__btn control__stream-selector" :stream-num="streamNum">
     <svg-icon
       name="branch"
-      width="18px"
-      height="18px"
+      width="16px"
+      height="16px"
     />
     <ul class="control__popup">
       <li
@@ -98,6 +98,7 @@ export default class extends Vue {
       position: absolute;
       bottom: 3px;
       right: 2px;
+      font-size: 11px;
     }
   }
 </style>

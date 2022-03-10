@@ -1,9 +1,7 @@
 import { Component, Vue, Inject } from 'vue-property-decorator'
 import { Player } from '../models/Player'
 
-@Component({
-  name: 'PlayPause'
-})
+@Component
 export default class ComponentMixin extends Vue {
   @Inject('getPlayer')
   public getPlayer: Function

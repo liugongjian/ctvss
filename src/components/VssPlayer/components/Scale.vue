@@ -51,6 +51,11 @@ export default class extends ComponentMixin {
     if (this.resizeObserver) this.resizeObserver.disconnect()
   }
 
+  @Watch('player.url')
+  private onUrlChange() {
+    this.scaleVideo(this.scale)
+  }
+
   /**
    * 获取全局系统配置中的缩放比例
    */

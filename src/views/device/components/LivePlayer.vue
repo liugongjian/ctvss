@@ -8,10 +8,11 @@
     :codec="screen.codec"
     :device-info="screen.deviceInfo"
     :stream-info="screen.streamInfo"
-    :is-debug="true"
+    :has-type-selector="screen.hasRtc"
     :is-auto-play="true"
     :is-live="true"
     :is-ws="true"
+    :is-debug="true"
     @dispatch="onDispatch"
   />
 </template>
@@ -45,6 +46,9 @@ export default class extends Vue {
       case 'streamNumChange':
         this.onStreamNumChange(event.payload)
         break
+      case 'typeChange':
+        this.onTypeChange(event.payload)
+        break
     }
   }
 
@@ -52,8 +56,15 @@ export default class extends Vue {
    * 切换主子码流
    */
   private onStreamNumChange(streamNum: number) {
-    console.log(streamNum)
     this.screen.streamInfo.streamNum = streamNum
+    this.screen.getUrl()
+  }
+
+  /**
+   * 切换播放格式
+   */
+  private onTypeChange(type: string) {
+    this.screen.type = type
     this.screen.getUrl()
   }
 }
