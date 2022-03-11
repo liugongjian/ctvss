@@ -314,7 +314,7 @@ import { Component, Watch, Mixins } from 'vue-property-decorator'
 import { Device } from '@/type/device'
 import ScreenMixin from './mixin/screenMixin'
 import StatusBadge from '@/components/StatusBadge/index.vue'
-import Screen from './models/Screen'
+import { LiveScreen as Screen } from './models/Screen/LiveScreen'
 import LivePlayer from './components/LivePlayer.vue'
 import PlayerContainer from './components/PlayerContainer.vue'
 import ReplayView from './components/ReplayView.vue'
@@ -347,7 +347,7 @@ export default class extends Mixins(ScreenMixin) {
   private renderAlertType = renderAlertType
   private getSums = getSums
   public maxSize = 4
-  private selectedDeviceId = ''
+  private selectedDeviceId = null
   private currentPollingIndex = 0
   private polling = {
     interval: 10,
@@ -421,10 +421,10 @@ export default class extends Mixins(ScreenMixin) {
     }
     if (!groupId) return
     this.$nextTick(() => {
-      this.screenList.forEach(screen => {
-        screen.reset()
-        this.currentIndex = 0
+      this.screenList.map(() => {
+        return new Screen()
       })
+      this.currentIndex = 0
       this.initDirs()
       this.stopPolling()
     })
@@ -453,8 +453,8 @@ export default class extends Mixins(ScreenMixin) {
 
   private destroyed() {
     VGroupModule.resetVGroupInfo()
-    this.screenList.forEach(screen => {
-      screen.reset()
+    this.screenList.map(() => {
+      return new Screen()
     })
     window.removeEventListener('resize', this.calMaxHeight)
     window.removeEventListener('resize', this.checkFullscreen)
@@ -462,7 +462,7 @@ export default class extends Mixins(ScreenMixin) {
 
   private closeScreen(screen: Screen) {
     this.selectedDeviceId = ''
-    screen.reset()
+    screen.init()
   }
 
   /**
@@ -484,7 +484,7 @@ export default class extends Mixins(ScreenMixin) {
     if (item.type === 'ipc' && item.deviceStatus === 'on') {
       const screen = this.screenList[this.currentIndex]
       if (screen.deviceInfo.deviceId) {
-        screen.reset()
+        screen.init()
       }
       screen.loaded = true
       screen.type = 'flv'
@@ -511,7 +511,7 @@ export default class extends Mixins(ScreenMixin) {
           this.selectedDeviceId = this.screenList[this.currentIndex]!.deviceInfo.deviceId
         }
       }
-      await screen.getUrl()
+      await screen.init()
     }
   }
 
@@ -667,7 +667,7 @@ export default class extends Mixins(ScreenMixin) {
       })
     }
     for (let i = 0; i < this.maxSize; i++) {
-      this.screenList[i].reset()
+      this.screenList[i] = new Screen()
       if (!this.autoPlayDevices[i]) {
         continue
       } else {
@@ -678,7 +678,7 @@ export default class extends Mixins(ScreenMixin) {
         this.screenList[i].realGroupId = this.autoPlayDevices[i].realGroupId
         this.screenList[i].realGroupInProtocol = this.autoPlayDevices[i].realGroupInProtocol
       }
-      this.screenList[i].getUrl()
+      this.screenList[i].init()
     }
   }
 
@@ -718,14 +718,14 @@ export default class extends Mixins(ScreenMixin) {
     this.currentPollingIndex = this.currentPollingIndex % length
     this.currentIndex = 0
     for (let i = 0; i < this.maxSize; i++) {
-      this.screenList[i].reset()
+      this.screenList[i] = new Screen()
       this.screenList[i].deviceId = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].id
       this.screenList[i].deviceName = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].label
       this.screenList[i].inProtocol = this.currentGroupInProtocol!
       this.screenList[i].roleId = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].roleId
       this.screenList[i].realGroupId = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].realGroupId
       this.screenList[i].realGroupInProtocol = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].realGroupInProtocol
-      this.screenList[i].getUrl()
+      this.screenList[i].init()
       if (this.currentIndex < this.maxSize - 1) {
         this.currentIndex++
       } else {
@@ -745,7 +745,7 @@ export default class extends Mixins(ScreenMixin) {
     }
     setTimeout(async() => {
       screen.url = ''
-      await screen.getUrl()
+      await screen.init()
       if (screen.retry) {
         this.onRetry(screen)
       }
@@ -758,7 +758,7 @@ export default class extends Mixins(ScreenMixin) {
   private onSetStreamNum(screen: Screen, streamNum: number) {
     screen.url = ''
     screen.streamNum = streamNum
-    screen.getUrl()
+    screen.init()
   }
 
   /**

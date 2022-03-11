@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="isLoading" class="vss-player__wrap">
+  <div v-loading="true" class="vss-player__wrap">
     <Player
       ref="player"
       v-adaptive-tools
@@ -23,9 +23,9 @@
       <template v-if="player" slot="controlRight">
         <StreamSelector :stream-info="streamInfo" @dispatch="dispatch" />
         <TypeSelector v-if="hasTypeSelector" :type="type" @dispatch="dispatch" />
-        <Intercom />
+        <Intercom v-if="isLive" />
         <DigitalZoom />
-        <PtzZoom />
+        <PtzZoom v-if="isLive" />
         <Snapshot :name="deviceInfo.deviceName" />
         <Scale />
         <Fullscreen @dispatch="dispatch" />
@@ -35,6 +35,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Provide } from 'vue-property-decorator'
+import './styles/index.scss'
 import { PlayerType } from '@/components/Player/models/Player.d'
 import { PlayerEvent, DeviceInfo, StreamInfo } from '@/components/VssPlayer/models/VssPlayer.d'
 import Player from '@/components/Player/index.vue'

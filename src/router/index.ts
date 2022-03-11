@@ -291,19 +291,19 @@ export const asyncRoutes: RouteConfig[] = [
               groupSelector: true
             }
           },
-          {
-            path: 'preview/:tab?',
-            component: () => import(/* webpackChunkName: "device" */ '@/views/device/preview.vue'),
-            name: 'device-preview',
-            meta: {
-              id: '20210424150201003006',
-              title: '监控查看',
-              hidden: true,
-              perms: ['DescribeDevice'],
-              activeMenu: '/device',
-              groupSelector: true
-            }
-          },
+          // {
+          //   path: 'preview/:tab?',
+          //   component: () => import(/* webpackChunkName: "device" */ '@/views/device/preview.vue'),
+          //   name: 'device-preview',
+          //   meta: {
+          //     id: '20210424150201003006',
+          //     title: '监控查看',
+          //     hidden: true,
+          //     perms: ['DescribeDevice'],
+          //     activeMenu: '/device',
+          //     groupSelector: true
+          //   }
+          // },
           {
             path: 'config-channel',
             component: () => import(/* webpackChunkName: "device" */ '@/views/device/ConfigChannel.vue'),
@@ -423,6 +423,19 @@ export const asyncRoutes: RouteConfig[] = [
     meta: {
       id: '20210424150201005000',
       title: '播放器调试',
+      icon: 'stream',
+      hidden: true,
+      perms: ['*'],
+      activeMenu: '/device'
+    }
+  },
+  {
+    path: '/replay-debug',
+    component: () => import(/* webpackChunkName: "debug" */ '@/views/device/components/ReplayPlayer/Debug.vue'),
+    name: 'replay-debug',
+    meta: {
+      id: '20210424150201005000',
+      title: '录像调试',
       icon: 'stream',
       hidden: true,
       perms: ['*'],

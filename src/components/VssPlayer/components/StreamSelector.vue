@@ -55,7 +55,7 @@ export default class extends Vue {
   }
 
   private get streamSize(): number {
-    return this.streamInfo ? this.streamInfo.streamSize : 3
+    return this.streamInfo ? this.streamInfo.streamSize : 1
   }
 
   private get subStreamList(): Stream[] {

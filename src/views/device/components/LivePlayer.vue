@@ -2,7 +2,7 @@
   <VssPlayer
     v-if="screen.url"
     ref="player"
-    v-loading="screen.loading"
+    v-loading="screen.isLoading"
     :url="screen.url"
     :type="screen.type"
     :codec="screen.codec"
@@ -20,7 +20,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { PlayerEvent } from '@/components/VssPlayer/models/VssPlayer.d'
-import Screen from '../models/Screen'
+import { LiveScreen as Screen } from '@/views/device/models/Screen/LiveScreen'
 import VssPlayer from '@/components/VssPlayer/index.vue'
 
 @Component({
@@ -58,7 +58,7 @@ export default class extends Vue {
    */
   private onStreamNumChange(streamNum: number) {
     this.screen.streamInfo.streamNum = streamNum
-    this.screen.getUrl()
+    this.screen.init()
   }
 
   /**
@@ -66,7 +66,7 @@ export default class extends Vue {
    */
   private onTypeChange(type: string) {
     this.screen.type = type
-    this.screen.getUrl()
+    this.screen.init()
   }
 
   /**

@@ -7,27 +7,20 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Mixins, Inject } from 'vue-property-decorator'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Stream } from '@/components/VssPlayer/models/VssPlayer'
-import FullscreenMixin from '../mixin/fullscreenMixin'
-import LiveView from './LiveView.vue'
 import LivePlayer from './LivePlayer.vue'
-import PlayerContainer from './PlayerContainer.vue'
-import Screen from '../models/Screen'
+import { LiveScreen as Screen } from '../models/Screen/LiveScreen'
 
 @Component({
   name: 'DevicePreview',
   components: {
-    LiveView,
-    LivePlayer,
-    PlayerContainer
+    LivePlayer
   }
 })
-export default class extends Mixins(FullscreenMixin) {
-  @Inject('deviceRouter') private deviceRouter!: Function
-
+export default class extends Vue {
   @Prop()
-  private deviceId?: string
+  private deviceId?: number
 
   @Prop()
   private inProtocol?: string
@@ -59,7 +52,7 @@ export default class extends Mixins(FullscreenMixin) {
     }
     screen.type = 'flv'
     this.screen = screen
-    screen.getUrl()
+    screen.init()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
   }

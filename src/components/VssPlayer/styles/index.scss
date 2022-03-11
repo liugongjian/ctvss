@@ -1,0 +1,12 @@
+.vss-player__wrap {
+  .el-loading-mask {
+    background: none !important;
+    top: 50px;
+    bottom: 50px;
+    z-index: 10;
+
+    .el-loading-spinner {
+      margin-top: 0;
+    }
+  }
+}

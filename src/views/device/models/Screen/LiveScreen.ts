@@ -1,87 +1,15 @@
 import axios from 'axios'
-import { DeviceInfo, StreamInfo } from '@/components/VssPlayer/models/VssPlayer'
+import { Screen } from './Screen'
+import { StreamInfo } from '@/components/VssPlayer/models/VssPlayer'
 import { getDevicePreview } from '@/api/device'
 
-export interface Record {
-  currentDate: number;
-  currentTIme: number;
-}
-export default class Screen {
-  public deviceInfo: DeviceInfo // ok
+export class LiveScreen extends Screen {
   public streamInfo: StreamInfo // ok
   public url?: string // ok
   public hasRtc?: boolean // ok
-  // public urls?: any
-
-  public deviceId: string
-  public inProtocol: string
-  public deviceName?: string
-  public roleId?: string
-  public realGroupId?: string
-  public realGroupInProtocol?: string
-  public type?: string
-  public codec?: string
-  public loaded: boolean
-  public retry?: boolean
-  public isLive?: boolean
-  public isAi?: boolean
-  public isFullscreen?: boolean
-  public streamSize?: number
-  public streamNum?: number
-  public streams?: Array<any>
-  private loading: boolean
-  private axiosSource: any
-  public onCanPlay?: boolean
-  public calendarFocus?: boolean
-  public errorMsg?: string
-  // 为录像组件时存储观看记录需要用到以下参数
-  public replayType?: string
-  public currentDate?: any
-  public currentTime?: number
-  public isCache?: boolean
-  public allAddress?: any
-  public volume?: any
-  public ifScalePTZ?: boolean
 
   constructor() {
-    this.reset()
-
-    this.deviceId = ''
-    this.inProtocol = ''
-    this.roleId = ''
-    this.realGroupId = ''
-    this.realGroupInProtocol = ''
-    this.type = ''
-    this.codec = ''
-    this.streamSize = 0
-    this.streamNum = undefined
-    this.streams = []
-    this.loading = false
-    this.loaded = false
-    this.retry = false
-    this.isLive = true
-    this.isAi = false
-    this.isFullscreen = false
-    this.axiosSource = null
-    this.onCanPlay = false
-    this.calendarFocus = false
-    this.errorMsg = ''
-    this.replayType = 'cloud'
-    this.currentDate = null
-    this.currentTime = null
-    this.isCache = false
-    this.videoInfo = ''
-    this.allAddress = ''
-    this.volume = 30
-    this.ifScalePTZ = false
-  }
-
-  public reset() {
-    this.deviceInfo = {
-      deviceId: '',
-      inProtocol: '',
-      deviceName: ''
-    }
+    super()
     this.streamInfo = {
       streams: [],
       streamSize: null,
@@ -93,7 +21,10 @@ export default class Screen {
     this.hasRtc = false
   }
 
-  public async getUrl() {
+  /**
+   * 初始化录像
+   */
+  public async init() {
     if (!this.deviceInfo.inProtocol) {
       throw new Error('未设置InProtocol')
     }
@@ -101,8 +32,8 @@ export default class Screen {
       throw new Error('未设置DeviceId')
     }
     try {
-      this.loading = true
-      this.loaded = true
+      this.isLoading = true
+      this.initialized = true
       this.axiosSource = axios.CancelToken.source()
       const res: any = await getDevicePreview({
         deviceId: this.deviceInfo.deviceId,
@@ -129,16 +60,8 @@ export default class Screen {
         // this.retry = true
       }
     } finally {
-      this.loading = false
+      this.isLoading = false
     }
-  }
-
-  public fullscreen() {
-    this.isFullscreen = true
-  }
-
-  public exitFullscreen() {
-    this.isFullscreen = false
   }
 
   /**

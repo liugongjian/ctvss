@@ -1,7 +1,7 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import IndexMixin from './indexMixin'
 import FullscreenMixin from './fullscreenMixin'
-import Screen from '../models/Screen'
+import { LiveScreen as Screen } from '../models/Screen/LiveScreen'
 import { getLocalStorage, setLocalStorage } from '@/utils/storage'
 import { UserModule } from '@/store/modules/user'
 
@@ -155,7 +155,7 @@ export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
           screen.currentDate = cacheScreen.currentDate
           screen.currentTime = cacheScreen.currentTime
           screen.isCache = cacheScreen.isCache
-          screen.getUrl()
+          screen.init()
         }
       })
     })
