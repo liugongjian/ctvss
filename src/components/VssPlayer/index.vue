@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="true" class="vss-player__wrap">
+  <div v-loading="isLoading" class="vss-player__wrap">
     <Player
       ref="player"
       v-adaptive-tools
@@ -23,9 +23,9 @@
       <template v-if="player" slot="controlRight">
         <StreamSelector :stream-info="streamInfo" @dispatch="dispatch" />
         <TypeSelector v-if="hasTypeSelector" :type="type" @dispatch="dispatch" />
-        <Intercom v-if="isLive" />
+        <Intercom v-if="isLive" :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="playerType" :codec="codec" />
         <DigitalZoom />
-        <PtzZoom v-if="isLive" />
+        <PtzZoom :stream-info="streamInfo" :device-info="deviceInfo" />
         <Snapshot :name="deviceInfo.deviceName" />
         <Scale />
         <Fullscreen @dispatch="dispatch" />

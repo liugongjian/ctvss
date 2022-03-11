@@ -21,8 +21,10 @@
       <div class="intercom-content">
         <!--  v-if="intercomInfo.isLive" -->
         <div class="intercom-player live-view">
-          <player
+          <Player
             v-if="intercomInfo.url"
+            ref="player"
+            v-adaptive-tools
             :type="intercomInfo.type"
             :codec="intercomInfo.codec"
             :url="intercomInfo.url"
@@ -35,8 +37,11 @@
             :default-volume="30"
             :device-name="intercomInfo.deviceName"
             :stream-num="intercomInfo.streamNum"
-            :all-address="intercomInfo.allAddress"
-            @onRetry="onRetry"
+            :volume="volume"
+            :playback-rate="playbackRate"
+            :has-progress="hasProgress"
+            :is-debug="true"
+            @onCreate="onPlayerCreate"
           />
           <div v-if="!intercomInfo.url && !intercomInfo.loading" class="tip-text">{{ intercomInfo.errorMsg || '无信号' }}</div>
         </div>
@@ -63,37 +68,54 @@
 <script lang="ts">
 import { Component, Prop, Watch } from 'vue-property-decorator'
 import { startTalk, stopTalk } from '@/api/intercom'
+import { StreamInfo, DeviceInfo } from '@/components/VssPlayer/models/VssPlayer.d'
+import Player from '@/components/Player/index.vue'
 import ComponentMixin from './mixin'
 
 @Component({
-  name: 'Intercom'
+  name: 'Intercom',
+  components: {
+    Player
+  }
 })
 
 export default class extends ComponentMixin {
   @Prop({
     default: {}
-  })
-  private deviceInfo!: {}
+  }) private deviceInfo: DeviceInfo
 
-  @Prop() private intercomInfo?: any = {}
-  @Prop() private ifIntercom?: false
+  @Prop({
+    default: {}
+  }) private streamInfo: StreamInfo
 
+  @Prop({
+    default: ''
+  }) private url: string
+
+  @Prop({
+    default: ''
+  }) private type: string
+
+  @Prop({
+    default: ''
+  }) private codec: string
+
+  private intercomInfo?: any = {}
   private showDialog: boolean = false
   private streamAudio: any
   private ctxAudio: any
   private sourceAudio: any
   private maxVol = 0
   private scriptProcessor: any
-  private ws: any
-  // private deviceInfo?: Device
+  private ws: WebSocket
   private transPriority: any
   private ifCloseStatus = 0
-  private last: any
+  private last: number
   private cannotStop: boolean
   private audioKey: string
 
   @Watch('maxVol')
-  private getVolStyle(val: any) {
+  private getVolStyle(val: number) {
     const dom = document.querySelector('.intercom-micro-vol-ctx') as HTMLElement
     if (val > 0) {
       dom.style.height = `${val * 2.6 + 10}px`
@@ -104,45 +126,33 @@ export default class extends ComponentMixin {
 
   private closeThis() {
     this.showDialog = false
-    // this.$emit('close')
-    this.intercomMouseup()
+    if (this.ws || this.sourceAudio) {
+      this.intercomMouseup()
+    }
   }
 
   private mounted() {
-    // this.getDeviceInfo()
-    window.addEventListener('beforeunload', () => this.beforeunloadHandler())
+    this.intercomInfo = { ...this.deviceInfo, ...this.streamInfo, ...{ type: this.type, url: this.url } }
   }
 
   private toIntercom() {
     this.showDialog = true
+    window.addEventListener('beforeunload', () => this.destroyIntercom())
   }
 
   private destroyed() {
-    this.intercomMouseup()
-    window.removeEventListener('beforeunload', () => this.beforeunloadHandler())
+    this.destroyIntercom()
+    window.removeEventListener('beforeunload', () => this.destroyIntercom())
   }
 
-  private beforeunloadHandler() {
-    this.intercomMouseup()
-  }
-
-  // private getDeviceInfo() {
-  //   const param = {
-  //     deviceId: this.intercomInfo.deviceId,
-  //     inProtocol: this.intercomInfo.inProtocol
-  //   }
-  //   getDevice(param).then((res) => {
-  //     this.deviceInfo = res
-  //     // 默认用UDP ，流侧只处理了UDP，暂未处理TCP
-  //     this.ifCloseStatus = 0
-  //     this.transPriority = res.transPriority
-  //   })
-  // }
-
-  private intercomMouseleave() {
+  private destroyIntercom() {
     if (this.ws || this.sourceAudio) {
       this.intercomMouseup()
     }
+  }
+
+  private intercomMouseleave() {
+    this.destroyIntercom()
   }
 
   private intercomMousedown() {
@@ -186,7 +196,6 @@ export default class extends ComponentMixin {
           }
           this.ws.onmessage = (e: any) => {
             const { data } = e
-            console.log('message-data=======>', data)
             if (data === 'streamserver error') {
               this.intercomMouseup()
             }

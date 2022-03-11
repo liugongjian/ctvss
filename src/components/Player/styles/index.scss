@@ -70,6 +70,17 @@
     align-items: center;
   }
 
+  .el-loading-mask {
+    background: none !important;
+    top: 50px;
+    bottom: 50px;
+    z-index: 10;
+
+    .el-loading-spinner {
+      margin-top: 0;
+    }
+  }
+
   .not-support {
     color: #fff;
     width: 100%;
