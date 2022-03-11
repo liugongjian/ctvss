@@ -21,8 +21,10 @@
       <div class="intercom-content">
         <!--  v-if="intercomInfo.isLive" -->
         <div class="intercom-player live-view">
-          <player
+          <Player
             v-if="intercomInfo.url"
+            ref="player"
+            v-adaptive-tools
             :type="intercomInfo.type"
             :codec="intercomInfo.codec"
             :url="intercomInfo.url"
@@ -35,8 +37,11 @@
             :default-volume="30"
             :device-name="intercomInfo.deviceName"
             :stream-num="intercomInfo.streamNum"
-            :all-address="intercomInfo.allAddress"
-            @onRetry="onRetry"
+            :volume="volume"
+            :playback-rate="playbackRate"
+            :has-progress="hasProgress"
+            :is-debug="true"
+            @onCreate="onPlayerCreate"
           />
           <div v-if="!intercomInfo.url && !intercomInfo.loading" class="tip-text">{{ intercomInfo.errorMsg || '无信号' }}</div>
         </div>
@@ -64,22 +69,36 @@
 import { Component, Prop, Watch } from 'vue-property-decorator'
 import { startTalk, stopTalk } from '@/api/intercom'
 import { StreamInfo, DeviceInfo } from '@/components/VssPlayer/models/VssPlayer.d'
+import Player from '@/components/Player/index.vue'
 import ComponentMixin from './mixin'
 
 @Component({
-  name: 'Intercom'
+  name: 'Intercom',
+  components: {
+    Player
+  }
 })
 
 export default class extends ComponentMixin {
   @Prop({
     default: {}
   }) private deviceInfo: DeviceInfo
+
   @Prop({
     default: {}
   }) private streamInfo: StreamInfo
+
   @Prop({
     default: ''
   }) private url: string
+
+  @Prop({
+    default: ''
+  }) private type: string
+
+  @Prop({
+    default: ''
+  }) private codec: string
 
   private intercomInfo?: any = {}
   private showDialog: boolean = false
@@ -113,31 +132,27 @@ export default class extends ComponentMixin {
   }
 
   private mounted() {
-    // window.addEventListener('beforeunload', () => this.beforeunloadHandler())
+    this.intercomInfo = { ...this.deviceInfo, ...this.streamInfo, ...{ type: this.type, url: this.url } }
   }
 
   private toIntercom() {
     this.showDialog = true
-    window.addEventListener('beforeunload', () => this.beforeunloadHandler())
+    window.addEventListener('beforeunload', () => this.destroyIntercom())
   }
 
   private destroyed() {
-    if (this.ws || this.sourceAudio) {
-      this.intercomMouseup()
-    }
-    window.removeEventListener('beforeunload', () => this.beforeunloadHandler())
+    this.destroyIntercom()
+    window.removeEventListener('beforeunload', () => this.destroyIntercom())
   }
 
-  private beforeunloadHandler() {
+  private destroyIntercom() {
     if (this.ws || this.sourceAudio) {
       this.intercomMouseup()
     }
   }
 
   private intercomMouseleave() {
-    if (this.ws || this.sourceAudio) {
-      this.intercomMouseup()
-    }
+    this.destroyIntercom()
   }
 
   private intercomMousedown() {
@@ -181,7 +196,6 @@ export default class extends ComponentMixin {
           }
           this.ws.onmessage = (e: any) => {
             const { data } = e
-            console.log('message-data=======>', data)
             if (data === 'streamserver error') {
               this.intercomMouseup()
             }

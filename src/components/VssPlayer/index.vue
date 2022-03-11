@@ -23,7 +23,7 @@
       <template v-if="player" slot="controlRight">
         <StreamSelector :stream-info="streamInfo" @dispatch="dispatch" />
         <TypeSelector v-if="hasTypeSelector" :type="type" @dispatch="dispatch" />
-        <Intercom :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" />
+        <Intercom v-if="isLive" :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="playerType" :codec="codec" />
         <DigitalZoom />
         <PtzZoom :stream-info="streamInfo" :device-info="deviceInfo" />
         <Snapshot :name="deviceInfo.deviceName" />
