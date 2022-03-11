@@ -69,9 +69,13 @@ export default class extends Vue {
   public setCurrentTime(offsetTime: number) {
     if (this.handleDrag.isDragging) return
     if (offsetTime === null) return
+    const duration = this.currentRecord.duration
     const currentTimestamp = this.currentRecord!.startAt + offsetTime * 1000
+    const startPos = (this.currentRecord!.startAt - this.currentDate) / 1000
+    const deltaTime = (this.currentRecord.endTime - this.currentRecord.startTime) / 1000
     this.currentTime = currentTimestamp
-    this.handlePos = this.scale(Math.round((currentTimestamp - this.currentDate!) / 1000))
+    // this.handlePos = this.scale(Math.round((currentTimestamp - this.currentDate!) / 1000))
+    this.handlePos = this.scale(startPos + this.calcCurrentSpeed(deltaTime, duration) * offsetTime)
     this.setHandlePosition()
   }
 
@@ -170,8 +174,9 @@ export default class extends Vue {
    */
   public calcVideoPosition(list: Array<any>) {
     return list.map((record: any) => {
+      const deltaTime = (new Date(record.endTime)).getTime() - (new Date(record.startTime)).getTime()
       return {
-        width: this.scale(record.duration + 1).toFixed(6),
+        width: this.scale(deltaTime / 1000 + 1).toFixed(6),
         left: this.scale(Math.round((record.startAt - this.currentDate!) / 1000)).toFixed(6),
         ...record
       }
@@ -183,6 +188,14 @@ export default class extends Vue {
    */
   public scale(sec: number) {
     return sec / (24 * 60 * 60) * 100
+  }
+
+  /**
+   * 播放速度（每一段 record 速度不一定一样）
+   * 一秒与当前 record 片段时长的比率
+   */
+  public calcCurrentSpeed(deltaTime: number, duration: number) {
+    return deltaTime / duration
   }
 
   /**

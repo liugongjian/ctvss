@@ -7,7 +7,7 @@
       </div>
     </div>
     <player
-      v-if="recordList.length && currentRecord"
+      v-if="recordList.length"
       ref="player"
       type="hls"
       :codec="currentRecord.video.codec"
@@ -76,7 +76,6 @@
 import { Component, Watch, Prop, Mixins } from 'vue-property-decorator'
 import ReplayPlayerMixin from '@/views/device/mixin/replayPlayerMixin'
 import { getTimestamp } from '@/utils/date'
-import { start } from 'repl'
 
 @Component({
   name: 'ReplayPlayer'
@@ -265,7 +264,9 @@ export default class extends Mixins(ReplayPlayerMixin) {
   public handleTimeline(e: any, record: any) {
     if (this.axisDrag.isMove) return
     const scale = e.offsetX / e.target.clientWidth
-    let offsetTime = Math.ceil(scale * record.duration)
+    // let offsetTime = Math.ceil(scale * record.duration)
+    const deltaTime = (new Date(record.endTime)).getTime() - (new Date(record.startTime)).getTime()
+    let offsetTime = Math.ceil(scale * deltaTime / 1000)
     offsetTime = offsetTime <= 0 ? 0 : offsetTime
     let isCurrent = true
     if (this.currentRecord !== record) {
