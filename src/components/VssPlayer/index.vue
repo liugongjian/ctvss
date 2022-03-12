@@ -25,7 +25,7 @@
         <TypeSelector v-if="hasTypeSelector" :type="type" @dispatch="dispatch" />
         <Intercom v-if="isLive" :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="playerType" :codec="codec" />
         <DigitalZoom />
-        <PtzZoom :stream-info="streamInfo" :device-info="deviceInfo" />
+        <PtzZoom v-if="isLive" :stream-info="streamInfo" :device-info="deviceInfo" />
         <Snapshot :name="deviceInfo.deviceName" />
         <Scale />
         <Fullscreen @dispatch="dispatch" />
@@ -162,11 +162,13 @@ export default class extends Vue {
   private getPlayer() {
     return this.player
   }
+
   /**
    * 当播放器实例创建
    */
-  private onPlayerCreate(player: Player) {
+  private onPlayerCreate(player) {
     this.player = player
+    this.$emit('onCreate', player)
   }
 
   /**

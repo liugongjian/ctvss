@@ -23,8 +23,8 @@ export class RecordManager {
   // public list?: Record[]
 
   private axiosSource
-  /* 当前客户端日期（时间戳/秒） */
-  private currentDate: number
+
+  private recordInterval
 
   private recordStatistic: Map<string, any> = new Map()
 
@@ -35,15 +35,15 @@ export class RecordManager {
     // this.startTime = params.startTime
     // this.endTime = params.endTime
     // this.list = []
-    this.currentDate = getLocaleDate().getTime() / 1000
   }
 
   /**
    * 获取回放列表
    * @param startTime 开始时间（时间戳/秒）
+   * @param endTime 结束时间（时间戳/秒）
    * @returns 录像文件列表(Promise)
    */
-  public async getRecordList(startTime?: number) {
+  public async getRecordList(startTime: number, endTime: number) {
     try {
       this.axiosSource && this.axiosSource.cancel()
       this.axiosSource = axios.CancelToken.source()
@@ -51,11 +51,11 @@ export class RecordManager {
         deviceId: this.deviceId,
         inProtocol: this.inProtocol,
         recordType: this.recordType,
-        startTime: startTime || this.currentDate,
-        endTime: this.currentDate + 24 * 60 * 60,
+        startTime,
+        endTime,
         pageSize: 9999
       }, this.axiosSource.token)
-      return res.records.map((record: any, index: number) => {
+      return res.records.map((record: any) => {
         return new Record({
           startTime: getTimestamp(record.startTime) / 1000,
           endTime: getTimestamp(record.endTime) / 1000,
@@ -63,8 +63,7 @@ export class RecordManager {
           url: record.playUrl.hlsUrl,
           codec: record.video.codec,
           templateName: record.templateName,
-          cover: record.cover,
-          index: index
+          cover: record.cover
         })
       })
     } catch (e) {
@@ -98,24 +97,28 @@ export class RecordManager {
   }
 
   /**
-   * 定时轮询新录像 && 录像中行人时间段信息
+   * 获取行人时间段列表
+   * 来自从化需求
    */
-  public getLatestRecord() {
+  public getHeatMapList() {
 
+  }
+
+  /**
+   * 获取录制规则时间间隔
+   * @returns 时间间隔（秒）
+   */
+  public async getRecordInterval() {
+    const res = await getDeviceRecordRule({
+      deviceId: this.deviceId
+    })
+    return res.interval
   }
 
   /**
    * 分页获取录像列表
    */
   public getRecordListByPage() {
-
-  }
-
-  /**
-   * 获取行人时间段列表
-   * 来自从化需求
-   */
-  public getHeatMap() {
 
   }
 

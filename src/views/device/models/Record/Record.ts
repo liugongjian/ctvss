@@ -16,8 +16,8 @@ export class Record {
   public templateName: string
   /* 视频缩略图 */
   public cover: string
-
-  public index: number
+  /* 起始播放位置（秒） */
+  public offsetTime?: number
 
   constructor(record: Record) {
     this.startTime = record.startTime
@@ -27,6 +27,5 @@ export class Record {
     this.codec = record.codec
     this.templateName = record.templateName
     this.cover = record.cover
-    this.index = record.index
   }
 }

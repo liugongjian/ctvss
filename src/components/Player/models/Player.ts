@@ -178,12 +178,12 @@ export class Player {
   protected startAutoPlay() {
     if (this.isAutoPlay) {
       try {
-        this.testAutoPlay().then(isSupport => {
+        this.testAutoPlay().then(async isSupport => {
           if (isSupport) {
-            this.video.play()
+            await this.video.play()
           } else {
             this.video.muted = true
-            this.video.play()
+            await this.video.play()
           }
         })
       } catch (e) {

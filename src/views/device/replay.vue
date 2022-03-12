@@ -179,7 +179,7 @@
                       <!-- <div class="device-name">{{ screen.deviceName }}</div> -->
                       <div class="screen__tools">
                         <el-tooltip content="关闭视频">
-                          <el-button class="screen__close" type="text" @click="screen.reset()">
+                          <el-button class="screen__close" type="text" @click="screen.init()">
                             <svg-icon name="close" width="12" height="12" />
                           </el-button>
                         </el-tooltip>
@@ -277,7 +277,7 @@ export default class extends Mixins(ScreenMixin) {
     this.$nextTick(() => {
       this.currentIndex = 0
       this.screenList.forEach(screen => {
-        screen.reset()
+        screen.init()
       })
       this.initDirs()
     })
@@ -297,9 +297,9 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   private destroyed() {
-    VGroupModule.resetVGroupInfo()
+    VGroupModule.initVGroupInfo()
     this.screenList.forEach(screen => {
-      screen.reset()
+      screen.init()
     })
     window.removeEventListener('resize', this.calMaxHeight)
     window.removeEventListener('resize', this.checkFullscreen)
@@ -318,7 +318,7 @@ export default class extends Mixins(ScreenMixin) {
     if (item.type === 'ipc' || item.type === 'stream') {
       const screen = this.screenList[this.currentIndex]
       if (screen.deviceId) {
-        screen.reset()
+        screen.init()
       }
       if (this.currentIndex < (this.maxSize - 1)) this.currentIndex++
       this.$nextTick(() => {
@@ -383,7 +383,7 @@ export default class extends Mixins(ScreenMixin) {
     }
     this.currentIndex = 0
     for (let i = 0; i < this.maxSize; i++) {
-      this.screenList[i].reset()
+      this.screenList[i].init()
       if (!this.autoPlayDevices[i]) {
         continue
       } else {

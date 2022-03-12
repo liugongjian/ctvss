@@ -136,9 +136,7 @@ export default class extends Vue {
         isDebug: this.isDebug,
         isAutoPlay: this.isAutoPlay,
         playbackRate: this.playbackRate,
-        volume: this.volume,
-        onLoadStart: this.onLoadStart,
-        onCanplay: this.onCanplay
+        volume: this.volume
       })
       this.$nextTick(() => {
         this.$emit('onCreate', this.player)

@@ -77,6 +77,16 @@ export const getTimestamp = (time: string) => {
 }
 
 /**
+ * 获取日期的时间戳
+ * @param timestamp 毫秒
+ */
+export const getDateByTimestamp = (timestamp: number) => {
+  const date = new Date(timestamp)
+  const zero = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+  return zero.getTime()
+}
+
+/**
  * 前置补零
  * @param num 数字
  * @param n 位数

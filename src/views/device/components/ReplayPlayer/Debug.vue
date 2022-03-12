@@ -20,15 +20,20 @@
           </el-select>
         </el-form-item>
         <el-button type="primary" @click="generate">生 成</el-button>
+        <el-button type="primary" @click="destroy">销毁</el-button>
       </el-form>
     </div>
     <div class="player__body">
-      <el-form label-position="top">
-        <el-form-item label="指定时间">
-          <el-input v-model.number="form.time" />
-          <el-button type="primary" @click="getRecordByTime">切换时间</el-button>
-        </el-form-item>
-      </el-form>
+      <div>
+        日期: <el-input v-model.number="form.date" placeholder="日期" @blur="changeDate" />
+      </div>
+      <div>
+        跳转: <el-input v-model.number="form.time" placeholder="片段时间" @blur="seek" />
+      </div>
+      <el-button type="primary" @click="playNextRecord">播放下一段</el-button>
+      <div>当前日期：{{ currentDate }}</div>
+      <div>当前时间：{{ currentTime }}</div>
+      <div>当前片段时间：{{ recordCurrentTime }}</div>
       <ReplayPlayer
         v-if="screen"
         ref="player"
@@ -42,6 +47,7 @@ import { Component, Vue } from 'vue-property-decorator'
 // import { PlayerEvent } from '@/components/VssPlayer/models/VssPlayer.d'
 import ReplayPlayer from './index.vue'
 import { ReplayScreen as Screen } from '@/views/device/models/Screen/ReplayScreen'
+import { dateFormat } from '@/utils/date'
 
 @Component({
   name: 'PlayerDebug',
@@ -56,9 +62,34 @@ export default class extends Vue {
       inProtocol: 'gb28181',
       recordType: 0
     },
-    time: 0
+    time: 0,
+    date: 0
   }
-  private screen = new Screen()
+  private screen = null
+
+  private get player() {
+    return this.screen && this.screen.player
+  }
+
+  private get recordCurrentTime() {
+    return this.player && this.player.currentTime
+  }
+
+  private get currentRecord() {
+    return this.screen && this.screen.currentRecord
+  }
+
+  private get currentTime() {
+    return this.currentRecord && dateFormat(new Date((this.currentRecord.startTime + this.recordCurrentTime) * 1000))
+  }
+
+  private get currentDate() {
+    return this.screen && dateFormat(new Date(this.screen.currentDate * 1000))
+  }
+
+  private changeDate() {
+    this.screen.changeDate(this.form.date)
+  }
 
   private generate() {
     this.screen = new Screen()
@@ -69,8 +100,16 @@ export default class extends Vue {
     })
   }
 
-  private getRecordByTime() {
-    this.screen.currentRecord = this.screen.getRecordByTime(this.form.time)
+  private destroy() {
+    this.screen = null
+  }
+
+  private seek() {
+    this.screen.seek(this.form.time)
+  }
+
+  private playNextRecord() {
+    this.screen.playNextRecord()
   }
 }
 </script>

@@ -12,6 +12,7 @@
     :has-close="hasClose"
     :is-debug="true"
     @dispatch="onDispatch"
+    @onCreate="onPlayerCreate"
   />
 </template>
 <script lang="ts">
@@ -34,6 +35,13 @@ export default class extends Vue {
   private hasClose: Boolean
 
   /**
+   * 销毁播放器
+   */
+  private beforeDestroy() {
+    this.screen.destroy()
+  }
+
+  /**
    * 播放器事件路由
    */
   private onDispatch(event: PlayerEvent) {
@@ -41,6 +49,20 @@ export default class extends Vue {
       case 'close':
         this.onClose()
         break
+    }
+  }
+
+  /**
+   * 当播放器实例创建
+   * 如果设为offsetTime，则seek到此时间
+   */
+  private onPlayerCreate(player) {
+    this.screen.player = player
+    // 片段播放完后播放下一段
+    this.screen.player.config.onEnded = this.screen.playNextRecord.bind(this.screen)
+    // 跳转到offsetTime
+    if (this.screen.currentRecord.offsetTime) {
+      this.screen.player.seek(this.screen.currentRecord.offsetTime)
     }
   }
 
