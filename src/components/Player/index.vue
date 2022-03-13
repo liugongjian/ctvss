@@ -18,7 +18,7 @@
       <div class="control__left">
         <template v-if="!isLive">
           <PlayPause />
-          <Timer />
+          <Timer v-if="hasProgress" />
         </template>
       </div>
       <More class="control__more" />

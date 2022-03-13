@@ -231,7 +231,7 @@ export class Player {
    * 当更新视频的长度
    */
   protected onDurationChange() {
-    console.log('onDurationChange', this.video.duration)
+    this.isDebug && console.log('onDurationChange', this.video.duration)
     this.duration = this.video.duration
   }
 

@@ -1,0 +1,343 @@
+<template>
+  <div ref="axisWrap" class="axis__wrap">
+    <div class="axis__middle" />
+    <div class="axis__time">{{ formatedCurrentTime }}</div>
+    <canvas ref="canvas" class="axis__canvas" :class="{'dragging': axisDrag.isDragging}" />
+    <div class="axis__zoom">
+      <div class="axis__zoom__btn" @click="zoom(1)"><svg-icon name="zoom-in" /></div>
+      <div class="axis__zoom__btn" @click="zoom(0)"><svg-icon name="zoom-out" /></div>
+    </div>
+  </div>
+</template>
+<script lang="ts">
+/**
+ * 刻度组件
+ * 1) 首先计算出秒/像素的比值，存为ratio，即每个像素包含多少秒，又可理解为每个像素的密度
+ * 2) 拖动时间轴后算出偏移量delatX的像素值，然后除ratio，计算出拖拽后的时间戳
+ * 3) 计算刻度位置时使用时间戳除ration，转换为像素值
+ */
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { dateFormat, getNextHour, prefixZero } from '@/utils/date'
+import { throttle } from 'lodash'
+
+@Component({
+  name: 'ReplayAxis'
+})
+export default class extends Vue {
+  /* 时间轴拖动数据 */
+  private axisDrag: any = {
+    isDragging: false,
+    deltaX: 0,
+    startX: 0
+  }
+  /* 时间轴设置 */
+  private settings = {
+    width: 0,
+    height: 0,
+    scale: 24, // 缩放比例，画布显示的小时数量
+    ratio: 0, // 比例尺(秒/每像素)
+    showTenMins: false,
+    hourWidth: 2,
+    hourHeight: 70,
+    halfHourWidth: 1,
+    halfHourHeight: 50,
+    tenMinsWidth: 0.5,
+    tenMinsHeight: 30
+  }
+  /* 刻度数据 */
+  private axisData = {
+    hours: [],
+    halfHours: [],
+    tenMins: []
+  }
+  /* 画布 */
+  private canvas: HTMLCanvasElement
+  /* 画布上下文 */
+  private ctx: CanvasRenderingContext2D
+  /* 尺寸监听器 */
+  private resizeObserver: ResizeObserver
+  /* 当前时间(时间戳/秒) */
+  @Prop()
+  private time: number
+  /* 当前时间(可修改) */
+  private currentTime: number = 0
+
+  private get formatedCurrentTime() {
+    return dateFormat(this.currentTime * 1000)
+  }
+
+  @Watch('time')
+  private onCurrentTimeChange() {
+    if (this.axisDrag.isDragging) return
+    this.currentTime = this.time
+    this.generateData()
+    this.draw()
+  }
+
+  private mounted() {
+    this.calcSize()
+    this.generateData()
+    this.initCanvas()
+
+    this.resizeObserver = new ResizeObserver(throttle(this.resize, 300))
+    this.resizeObserver.observe(this.$refs.axisWrap as HTMLDivElement)
+    window.addEventListener('keydown', this.onHotkey)
+  }
+
+  private beforeDestroy() {
+    this.canvas.removeEventListener('mousedown', this.moveAxisStart)
+    this.canvas.removeEventListener('wheel', this.onWheel)
+    window.removeEventListener('keydown', this.onHotkey)
+    if (this.resizeObserver) this.resizeObserver.disconnect()
+  }
+
+  /**
+   * 构建刻度数据
+   */
+  private generateData() {
+    /**
+     * 计算偏移量
+     * 1) 起始时间 = 当前时间 - 比例尺转换为秒
+     * 2) 计算出起始时间下一段的整点的时间戳
+     * 3) 计算出起始时间与开始时间的偏移量，并转成像素
+     */
+    const startTime = this.currentTime - this.settings.scale * 60 * 60 / 2
+    const nextHourTime = Math.floor(getNextHour(startTime * 1000) / 1000)
+    const offsetX = (nextHourTime - startTime) / this.settings.ratio
+    /* 计算小时刻度像素位置 */
+    const hours = []
+    const hourSpan = 60 * 60 / this.settings.ratio // 计算每小时间隔的像素值
+    for (let i = -1; i <= this.settings.scale; i++) {
+      hours.push({
+        x: i * hourSpan + offsetX - this.settings.hourWidth / 2, // 绘制时偏移刻度本身的宽度
+        y: 0
+      })
+    }
+    this.axisData.hours = hours
+
+    /* 计算半小时刻度像素位置 */
+    const halfHours = []
+    for (let i = -2; i <= this.settings.scale; i++) {
+      halfHours.push({
+        x: i * hourSpan + hourSpan / 2 + offsetX - this.settings.halfHourWidth / 2, // 绘制时偏移刻度本身的宽度,
+        y: 0
+      })
+    }
+    this.axisData.halfHours = halfHours
+
+    /* 计算10分钟刻度像素位置 */
+    const tenMins = []
+    if (this.settings.showTenMins) {
+      for (let i = -6; i <= this.settings.scale * 6; i++) {
+        if (!(i % 3)) continue // 将与半小时重复的线条排除
+        tenMins.push({
+          x: i * hourSpan / 6 + offsetX - this.settings.tenMinsWidth / 2, // 绘制时偏移刻度本身的宽度,
+          y: 0
+        })
+      }
+    }
+    this.axisData.tenMins = tenMins
+  }
+
+  /**
+   * 计算画布大小
+   */
+  private calcSize() {
+    const axisWrap = this.$refs.axisWrap as HTMLDivElement
+    this.settings.width = axisWrap.clientWidth
+    this.settings.height = axisWrap.clientHeight - 20
+    this.settings.ratio = this.settings.scale * 60 * 60 / axisWrap.clientWidth
+    this.settings.showTenMins = this.settings.ratio < 100 // 密度小与100秒/px则显示10分钟的刻度
+  }
+
+  /**
+   * 初始化画布
+   */
+  private initCanvas() {
+    this.canvas = this.$refs.canvas as HTMLCanvasElement
+    this.canvas.addEventListener('mousedown', this.moveAxisStart)
+    this.canvas.addEventListener('wheel', this.onWheel)
+    this.canvas.width = this.settings.width
+    this.canvas.height = this.settings.height
+    if (this.canvas.getContext) {
+      this.ctx = this.canvas.getContext('2d')
+      this.ctx.font = '11px arial'
+      this.draw()
+    }
+  }
+
+  /**
+   * 重新计算大小并重绘
+   */
+  private resize() {
+    this.calcSize()
+    this.generateData()
+    this.canvas.width = this.settings.width
+    this.canvas.height = this.settings.height
+    this.draw()
+  }
+
+  /**
+   * 绘制
+   */
+  private draw() {
+    this.ctx.clearRect(0, 0, this.settings.width, this.settings.height)
+    const startTime = this.currentTime - this.settings.scale * 60 * 60 / 2 // 计算画布的起始时间
+
+    for (let i in this.axisData.hours) {
+      const line = this.axisData.hours[i]
+      this.ctx.fillRect(line.x, line.y, this.settings.hourWidth, this.settings.hourHeight)
+      const timestamp = startTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
+      const datetime = new Date(getNextHour(timestamp * 1000)) // 取整点并转换成Date对象
+      /* 根据密度控制文字的疏密度 */
+      if (this.settings.ratio > 100 && datetime.getHours() % 2) {
+        continue
+      }
+      if (this.settings.ratio > 240 && datetime.getHours() % 4) {
+        continue
+      }
+      this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:00`, line.x - 13, this.settings.hourHeight + 15)
+    }
+
+    for (let i in this.axisData.halfHours) {
+      const line = this.axisData.halfHours[i]
+      this.ctx.fillRect(line.x, line.y, this.settings.halfHourWidth, this.settings.halfHourHeight)
+      if (this.settings.ratio < 15) {
+        const timestamp = startTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
+        const datetime = new Date(timestamp * 1000)
+        this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:30`, line.x - 13, this.settings.hourHeight + 15)
+      }
+    }
+
+    for (let i in this.axisData.tenMins) {
+      const line = this.axisData.tenMins[i]
+      this.ctx.fillRect(line.x, line.y, this.settings.tenMinsWidth, this.settings.tenMinsHeight)
+    }
+  }
+
+  /**
+   * 开始拖拽时间轴
+   */
+  private moveAxisStart(e: MouseEvent) {
+    this.axisDrag.isDragging = true
+    this.axisDrag.startX = e.x
+    window.addEventListener('mousemove', this.onAxisMove)
+    window.addEventListener('mouseup', this.onAxisMouseup)
+  }
+
+  /**
+   * 拖拽时间轴时移动鼠标
+   */
+  private onAxisMove(e: MouseEvent) {
+    if (!this.axisDrag.isDragging) return
+    this.axisDrag.deltaX = this.axisDrag.startX - e.x
+    this.axisDrag.startX = e.x
+    this.currentTime = Math.floor(this.currentTime + this.axisDrag.deltaX * this.settings.ratio) // 将偏移像素值转换成时间戳
+    this.generateData()
+    this.draw()
+  }
+
+  /**
+   * 拖拽时间轴后抬起鼠标
+   */
+  private onAxisMouseup() {
+    window.removeEventListener('mousemove', this.onAxisMove)
+    window.removeEventListener('mouseup', this.onAxisMouseup)
+    this.axisDrag.isDragging = false
+    this.$emit('change', this.currentTime)
+  }
+
+  /**
+   * 键盘热键
+   */
+  private onHotkey(e: KeyboardEvent) {
+    if (!this.currentTime) return
+    switch (e.code) {
+      case 'ArrowRight':
+        this.currentTime = this.currentTime + 1
+        this.$emit('change', this.currentTime)
+        break
+      case 'ArrowLeft':
+        this.currentTime = this.currentTime - 1
+        this.$emit('change', this.currentTime)
+        break
+    }
+  }
+
+  /**
+   * 滚动鼠标滑轮
+   */
+  private onWheel(e: WheelEvent) {
+    if (e.deltaY > 0) {
+      this.zoom(0)
+    } else {
+      this.zoom(1)
+    }
+  }
+
+  /**
+   * 缩放时间轴
+   * 0: 缩小
+   * 1: 放大
+   */
+  private zoom(type) {
+    if (type === 1) {
+      this.settings.scale = this.settings.scale * 0.9
+    } else if (this.settings.scale < 24) {
+      this.settings.scale = this.settings.scale * 1.1
+    }
+    this.resize()
+  }
+}
+</script>
+<style lang="scss" scoped>
+.axis {
+  &__wrap {
+    position: relative;
+    width: 100%;
+    height: 110px;
+  }
+
+  &__canvas {
+    width: 100%;
+    cursor: grab;
+
+    &.dragging {
+      cursor: grabbing;
+    }
+  }
+
+  &__middle {
+    position: absolute;
+    width: 2px;
+    height: 70px;
+    left: 50%;
+    margin-left: -1px;
+    width: 2px;
+    background: $primary;
+  }
+
+  &__time {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    margin-left: -100px;
+    width: 200px;
+    text-align: center;
+    color: $primary;
+    font-size: 12px;
+    font-weight: bold;
+    user-select: none;
+  }
+
+  &__zoom {
+    text-align: right;
+    &__btn {
+      display: inline-block;
+      padding: 4px;
+      cursor: pointer;
+    }
+  }
+}
+
+</style>

@@ -24,21 +24,25 @@
       </el-form>
     </div>
     <div class="player__body">
-      <div>
-        日期: <el-input v-model.number="form.date" placeholder="日期" @blur="changeDate" />
+      <div v-if="screen">
+        <div>
+          日期: <el-input v-model.number="form.date" placeholder="日期" @blur="changeDate" />
+        </div>
+        <div>
+          跳转: <el-input v-model.number="form.time" placeholder="片段时间" @blur="seek" />
+        </div>
+        <el-button type="primary" @click="playNextRecord">播放下一段</el-button>
+        <div>当前日期：{{ currentDate }}</div>
+        <div>当前时间：{{ formatedCurrentTime }}</div>
+        <div>当前片段时间：{{ recordCurrentTime }}</div>
+        <ReplayPlayer
+          ref="player"
+          :screen="screen"
+          :is-debug="true"
+        />
       </div>
-      <div>
-        跳转: <el-input v-model.number="form.time" placeholder="片段时间" @blur="seek" />
-      </div>
-      <el-button type="primary" @click="playNextRecord">播放下一段</el-button>
-      <div>当前日期：{{ currentDate }}</div>
-      <div>当前时间：{{ currentTime }}</div>
-      <div>当前片段时间：{{ recordCurrentTime }}</div>
-      <ReplayPlayer
-        v-if="screen"
-        ref="player"
-        :screen="screen"
-      />
+      <br><br><br>
+      <ReplayAxis :time="currentTime" @change="onAxisTimeChange" />
     </div>
   </div>
 </template>
@@ -46,19 +50,21 @@
 import { Component, Vue } from 'vue-property-decorator'
 // import { PlayerEvent } from '@/components/VssPlayer/models/VssPlayer.d'
 import ReplayPlayer from './index.vue'
+import ReplayAxis from './ReplayAxis.vue'
 import { ReplayScreen as Screen } from '@/views/device/models/Screen/ReplayScreen'
 import { dateFormat } from '@/utils/date'
 
 @Component({
   name: 'PlayerDebug',
   components: {
-    ReplayPlayer
+    ReplayPlayer,
+    ReplayAxis
   }
 })
 export default class extends Vue {
   private form: any = {
     deviceInfo: {
-      deviceId: '29941946818494646',
+      deviceId: '29942122912182913',
       inProtocol: 'gb28181',
       recordType: 0
     },
@@ -80,7 +86,16 @@ export default class extends Vue {
   }
 
   private get currentTime() {
-    return this.currentRecord && dateFormat(new Date((this.currentRecord.startTime + this.recordCurrentTime) * 1000))
+    if (this.currentRecord) {
+      const duration = this.currentRecord.offsetTime > this.recordCurrentTime ? this.currentRecord.offsetTime : this.recordCurrentTime
+      return this.currentRecord.startTime + duration
+    } else {
+      return null
+    }
+  }
+
+  private get formatedCurrentTime() {
+    return this.currentRecord && dateFormat(new Date(this.currentTime * 1000))
   }
 
   private get currentDate() {
@@ -110,6 +125,10 @@ export default class extends Vue {
 
   private playNextRecord() {
     this.screen.playNextRecord()
+  }
+
+  private onAxisTimeChange(time: number) {
+    this.screen.seek(time)
   }
 }
 </script>

@@ -1,5 +1,5 @@
 
-import { getLocaleDate, getDateByTimestamp } from '@/utils/date'
+import { getLocaleDate, getDateByTime } from '@/utils/date'
 import { Screen } from './Screen'
 import { RecordManager } from '../Record/RecordManager'
 import { Record } from '../Record/Record'
@@ -71,7 +71,9 @@ export class ReplayScreen extends Screen {
    * @param isConcat 是否合并到现有列表，如果false将覆盖现有列表并播放第一段
    */
   public async changeDate(date: number, isConcat = false) {
+    this.currentDate = date
     const records = await this.recordManager.getRecordList(date, date + 24 * 60 * 60)
+    if (!records) return
     if (isConcat) {
       // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
       if (date > this.currentDate) {
@@ -83,7 +85,6 @@ export class ReplayScreen extends Screen {
       this.recordList = records
       this.currentRecord = this.recordList[0]
     }
-    this.currentDate = date
   }
 
   /**
@@ -95,18 +96,22 @@ export class ReplayScreen extends Screen {
    */
   public async seek(time: number) {
     let record = this.getRecordByTime(time)
+    const date = getDateByTime(time * 1000) / 1000
     if (record) {
       if (!this.currentRecord || this.currentRecord.startTime !== record.startTime) {
         this.currentRecord = record
         this.currentRecord.offsetTime = time - record.startTime
       } else {
+        this.currentRecord.offsetTime = null
         this.player.seek(time - this.currentRecord.startTime)
       }
+      this.currentDate = date
     } else {
-      const date = getDateByTimestamp(time * 1000) / 1000
       await this.changeDate(date, true)
-      this.currentRecord = this.getRecordByTime(time)
-      this.currentRecord.offsetTime = time - this.currentRecord.startTime
+      this.currentRecord = this.getRecordByTime(time) || this.currentRecord
+      if (this.currentRecord) {
+        this.currentRecord.offsetTime = time - this.currentRecord.startTime
+      }
     }
   }
 
@@ -117,6 +122,8 @@ export class ReplayScreen extends Screen {
     const nextRecord = this.recordList.find(record => record.startTime >= this.currentRecord.endTime)
     if (nextRecord) {
       this.currentRecord = nextRecord
+      const date = getDateByTime(this.currentRecord.startTime * 1000) / 1000
+      this.currentDate = date
     }
   }
 
@@ -126,10 +133,9 @@ export class ReplayScreen extends Screen {
    * @returns 录像片段
    */
   private getRecordByTime(time: number) {
-    const record = this.recordList.find(record => {
+    return this.recordList.find(record => {
       return (time! >= record.startTime) && (time! < record.endTime)
     })
-    return record
   }
 
   /**

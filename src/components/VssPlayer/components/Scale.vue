@@ -36,7 +36,7 @@ export default class extends ComponentMixin {
     const scale = this.scaleKind.find(_scale => {
       return _scale.num === num
     })
-    return scale.kind
+    return scale && scale.kind
   }
 
   private mounted() {

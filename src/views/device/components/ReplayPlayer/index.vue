@@ -10,7 +10,8 @@
     :is-auto-play="true"
     :is-live="false"
     :has-close="hasClose"
-    :is-debug="true"
+    :has-progress="isDebug"
+    :is-debug="isDebug"
     @dispatch="onDispatch"
     @onCreate="onPlayerCreate"
   />
@@ -33,6 +34,9 @@ export default class extends Vue {
 
   @Prop()
   private hasClose: Boolean
+
+  @Prop()
+  private isDebug: Boolean
 
   /**
    * 销毁播放器

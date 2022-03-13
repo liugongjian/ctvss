@@ -117,15 +117,15 @@ module.exports = {
     config.plugins.delete('progress')
     // replace with another progress output plugin to solve the this bug:
     // https://github.com/vuejs/vue-cli/issues/4557
-    config.plugin('stylelint').use(styleLintPlugin, [
-      {
-        files: ['**/*.{html,vue,css,sass,scss}'],
-        // fix: true, // 自动修复
-        cache: true,
-        emitError: true,
-        failOnError: false
-      }
-    ])
+    // config.plugin('stylelint').use(styleLintPlugin, [
+    //   {
+    //     files: ['**/*.{html,vue,css,sass,scss}'],
+    //     // fix: true, // 自动修复
+    //     cache: true,
+    //     emitError: true,
+    //     failOnError: false
+    //   }
+    // ])
     config.plugin('simple-progress-webpack-plugin')
       .use(require.resolve('simple-progress-webpack-plugin'), [{
         format: 'compact'
