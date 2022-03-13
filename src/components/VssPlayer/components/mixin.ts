@@ -7,7 +7,6 @@ export default class ComponentMixin extends Vue {
   public getPlayer: Function
 
   public get player(): Player {
-    console.log('inject: getPlayer')
     return this.getPlayer()
   }
 }

@@ -125,6 +125,14 @@ export default class extends Vue {
   }
 
   /**
+   * 销毁播放器
+   */
+  private beforeDestroy() {
+    this.isDebug && console.log('销毁播放器')
+    this.player && this.player.disposePlayer()
+  }
+
+  /**
    * 创建播放器
    */
   private createPlayer() {
