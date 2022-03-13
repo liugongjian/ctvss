@@ -18,6 +18,7 @@
  */
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { dateFormat, getNextHour, prefixZero } from '@/utils/date'
+import { ReplayScreen as Screen } from '@/views/device/models/Screen/ReplayScreen'
 import { throttle } from 'lodash'
 
 @Component({
@@ -41,14 +42,16 @@ export default class extends Vue {
     hourHeight: 70,
     halfHourWidth: 1,
     halfHourHeight: 50,
-    tenMinsWidth: 0.5,
-    tenMinsHeight: 30
+    tenMinsWidth: 1,
+    tenMinsHeight: 30,
+    recordHeight: 20
   }
   /* 刻度数据 */
   private axisData = {
     hours: [],
     halfHours: [],
-    tenMins: []
+    tenMins: [],
+    records: []
   }
   /* 画布 */
   private canvas: HTMLCanvasElement
@@ -58,18 +61,24 @@ export default class extends Vue {
   private resizeObserver: ResizeObserver
   /* 当前时间(时间戳/秒) */
   @Prop()
-  private time: number
+  private screen: Screen
   /* 当前时间(可修改) */
   private currentTime: number = 0
-
+  /* 格式化当前时间 */
   private get formatedCurrentTime() {
     return dateFormat(this.currentTime * 1000)
   }
 
-  @Watch('time')
+  /* 监听播放器时间变化 */
+  @Watch('screen.player.currentTime')
   private onCurrentTimeChange() {
     if (this.axisDrag.isDragging) return
-    this.currentTime = this.time
+    if (this.screen && this.screen.player) {
+      const recordCurrentTime = this.screen.player.currentTime
+      const offsetTime = this.screen.currentRecord.offsetTime || 0
+      const duration = offsetTime > recordCurrentTime ? offsetTime : recordCurrentTime
+      this.currentTime = this.screen.currentRecord.startTime + duration
+    }
     this.generateData()
     this.draw()
   }
@@ -101,15 +110,16 @@ export default class extends Vue {
      * 2) 计算出起始时间下一段的整点的时间戳
      * 3) 计算出起始时间与开始时间的偏移量，并转成像素
      */
-    const startTime = this.currentTime - this.settings.scale * 60 * 60 / 2
-    const nextHourTime = Math.floor(getNextHour(startTime * 1000) / 1000)
-    const offsetX = (nextHourTime - startTime) / this.settings.ratio
+    const axisStartTime = this.currentTime - this.settings.scale * 60 * 60 / 2
+    const nextHourTime = Math.floor(getNextHour(axisStartTime * 1000) / 1000)
+    const offsetX = (nextHourTime - axisStartTime) / this.settings.ratio
+
     /* 计算小时刻度像素位置 */
     const hours = []
     const hourSpan = 60 * 60 / this.settings.ratio // 计算每小时间隔的像素值
     for (let i = -1; i <= this.settings.scale; i++) {
       hours.push({
-        x: i * hourSpan + offsetX - this.settings.hourWidth / 2, // 绘制时偏移刻度本身的宽度
+        x: Math.floor(i * hourSpan + offsetX - this.settings.hourWidth / 2), // 绘制时偏移刻度本身的宽度
         y: 0
       })
     }
@@ -119,7 +129,7 @@ export default class extends Vue {
     const halfHours = []
     for (let i = -2; i <= this.settings.scale; i++) {
       halfHours.push({
-        x: i * hourSpan + hourSpan / 2 + offsetX - this.settings.halfHourWidth / 2, // 绘制时偏移刻度本身的宽度,
+        x: Math.floor(i * hourSpan + hourSpan / 2 + offsetX - this.settings.halfHourWidth / 2), // 绘制时偏移刻度本身的宽度,
         y: 0
       })
     }
@@ -131,12 +141,29 @@ export default class extends Vue {
       for (let i = -6; i <= this.settings.scale * 6; i++) {
         if (!(i % 3)) continue // 将与半小时重复的线条排除
         tenMins.push({
-          x: i * hourSpan / 6 + offsetX - this.settings.tenMinsWidth / 2, // 绘制时偏移刻度本身的宽度,
+          x: Math.floor(i * hourSpan / 6 + offsetX - this.settings.tenMinsWidth / 2), // 绘制时偏移刻度本身的宽度,
           y: 0
         })
       }
     }
     this.axisData.tenMins = tenMins
+
+    /* 计算录像片段 */
+    const records = []
+    if (this.screen && this.screen.recordList) {
+      for (let i = 0; i < this.screen.recordList.length; i++) {
+        const record = this.screen.recordList[i]
+        const recordOffsetTime = record.startTime - axisStartTime
+        if (recordOffsetTime + record.endTime) {
+          records.push({
+            x: Math.floor(recordOffsetTime / this.settings.ratio),
+            y: 0,
+            width: Math.ceil((record.endTime - record.startTime) / this.settings.ratio)
+          })
+        }
+      }
+    }
+    this.axisData.records = records
   }
 
   /**
@@ -178,12 +205,21 @@ export default class extends Vue {
   }
 
   /**
-   * 绘制
+   * 绘制时间轴
    */
   private draw() {
     this.ctx.clearRect(0, 0, this.settings.width, this.settings.height)
     const startTime = this.currentTime - this.settings.scale * 60 * 60 / 2 // 计算画布的起始时间
 
+    /* 绘制录像线 */
+    this.ctx.fillStyle = '#b0c6da'
+    for (let i in this.axisData.records) {
+      const line = this.axisData.records[i]
+      this.ctx.fillRect(line.x, line.y, line.width, this.settings.recordHeight)
+    }
+
+    /* 绘制小时线 */
+    this.ctx.fillStyle = '#333'
     for (let i in this.axisData.hours) {
       const line = this.axisData.hours[i]
       this.ctx.fillRect(line.x, line.y, this.settings.hourWidth, this.settings.hourHeight)
@@ -199,6 +235,8 @@ export default class extends Vue {
       this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:00`, line.x - 13, this.settings.hourHeight + 15)
     }
 
+    /* 绘制半小时线 */
+    this.ctx.fillStyle = '#777'
     for (let i in this.axisData.halfHours) {
       const line = this.axisData.halfHours[i]
       this.ctx.fillRect(line.x, line.y, this.settings.halfHourWidth, this.settings.halfHourHeight)
@@ -209,6 +247,8 @@ export default class extends Vue {
       }
     }
 
+    /* 绘制10分钟线 */
+    this.ctx.fillStyle = '#777'
     for (let i in this.axisData.tenMins) {
       const line = this.axisData.tenMins[i]
       this.ctx.fillRect(line.x, line.y, this.settings.tenMinsWidth, this.settings.tenMinsHeight)

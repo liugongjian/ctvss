@@ -42,7 +42,10 @@
         />
       </div>
       <br><br><br>
-      <ReplayAxis :time="currentTime" @change="onAxisTimeChange" />
+      <ReplayAxis
+        :screen="screen"
+        @change="onAxisTimeChange"
+      />
     </div>
   </div>
 </template>

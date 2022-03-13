@@ -107,11 +107,14 @@ export class ReplayScreen extends Screen {
       }
       this.currentDate = date
     } else {
-      await this.changeDate(date, true)
-      this.currentRecord = this.getRecordByTime(time) || this.currentRecord
-      if (this.currentRecord) {
-        this.currentRecord.offsetTime = time - this.currentRecord.startTime
+      if (this.currentDate !== date) {
+        await this.changeDate(date, true)
       }
+      const record = this.getRecordByTime(time)
+      if (record) {
+        record.offsetTime = time - this.currentRecord.startTime
+      }
+      this.currentRecord = record || this.currentRecord
     }
   }
 
