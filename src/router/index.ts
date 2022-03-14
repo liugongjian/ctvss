@@ -402,7 +402,7 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "screen" */ '@/views/device/screen.vue'),
+        component: () => import(/* webpackChunkName: "screen" */ '@/views/device/newscreen.vue'),
         name: 'screen',
         meta: {
           id: '20210424150201004001',

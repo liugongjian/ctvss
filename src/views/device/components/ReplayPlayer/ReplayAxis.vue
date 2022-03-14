@@ -18,7 +18,7 @@
  */
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { dateFormat, getNextHour, prefixZero } from '@/utils/date'
-import { Screen } from '@/views/device/models/Screen'
+import { Screen } from '@/views/device/models/Screen/Screen'
 import { throttle } from 'lodash'
 
 @Component({
