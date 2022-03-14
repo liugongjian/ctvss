@@ -15,7 +15,7 @@ export class Screen {
   public isLive?: boolean
   public isLoading: Boolean
   public isFullscreen?: boolean
-  public initialized: boolean
+  public isInitialized: boolean
   public axiosSource: any
   public errorMsg?: string
   public isCache?: boolean
@@ -53,6 +53,8 @@ export class Screen {
   private currentDate: number
 
   constructor() {
+    this.type = null
+    this.player = null
     this.deviceInfo = {
       deviceId: null,
       inProtocol: '',
@@ -62,7 +64,7 @@ export class Screen {
     }
     this.isLive = null
     this.isLoading = false
-    this.initialized = false
+    this.isInitialized = false
     this.isFullscreen = false
     this.axiosSource = null
     this.errorMsg = ''
@@ -108,6 +110,7 @@ export class Screen {
    */
   public destroy() {
     clearInterval(this.recordInterval)
+    this.constructor()
   }
 
   /**
@@ -127,7 +130,7 @@ export class Screen {
     }
     try {
       this.isLoading = true
-      this.initialized = true
+      this.isInitialized = true
       this.axiosSource = axios.CancelToken.source()
       const res: any = await getDevicePreview({
         deviceId: this.deviceInfo.deviceId,

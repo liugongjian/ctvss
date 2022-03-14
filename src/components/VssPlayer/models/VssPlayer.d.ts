@@ -9,6 +9,7 @@ export interface DeviceInfo {
   deviceName: string;
   roleId?: string;
   realGroupId?: string;
+  realGroupInProtocol?: string;
 }
 export interface Stream {
   label?: string;

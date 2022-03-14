@@ -456,7 +456,7 @@ export default class extends Mixins(ScreenMixin) {
 
   private closeScreen(screen: Screen) {
     this.selectedDeviceId = ''
-    screen.init()
+    screen.destroy()
   }
 
   /**
@@ -477,22 +477,21 @@ export default class extends Mixins(ScreenMixin) {
 
     if (item.type === 'ipc' && item.deviceStatus === 'on') {
       const screen = this.screenList[this.currentIndex]
+      // 如果当前分屏已有播放器，先执行销毁操作
       if (screen.deviceInfo.deviceId) {
-        screen.init()
+        screen.destroy()
       }
-      screen.loaded = true
+      screen.isInitialized = true
       screen.type = 'flv'
+      screen.isLive = true
       screen.deviceInfo.inProtocol = this.currentGroupInProtocol!
       screen.deviceInfo.deviceId = item.id
       screen.deviceInfo.deviceName = item.label
+      screen.deviceInfo.roleId = item.roleId || ''
+      screen.deviceInfo.realGroupId = item.realGroupId || ''
+      screen.deviceInfo.realGroupInProtocol = item.realGroupInProtocol || ''
       screen.streamInfo.streamSize = item.multiStreamSize
       screen.streamInfo.streams = item.deviceStreams
-
-      screen.roleId = item.roleId || ''
-      screen.realGroupId = item.realGroupId || ''
-      screen.realGroupInProtocol = item.realGroupInProtocol || ''
-      // screen.ifScalePTZ = false
-
       if (streamNum && !isNaN(streamNum)) {
         screen.streamInfo.streamNum = streamNum
       } else {
@@ -749,11 +748,11 @@ export default class extends Mixins(ScreenMixin) {
   /**
    * 设置主子码流号
    */
-  private onSetStreamNum(screen: Screen, streamNum: number) {
-    screen.url = ''
-    screen.streamNum = streamNum
-    screen.init()
-  }
+  // private onSetStreamNum(screen: Screen, streamNum: number) {
+  //   screen.url = ''
+  //   screen.streamNum = streamNum
+  //   screen.init()
+  // }
 
   /**
    * 录像回放
@@ -765,41 +764,41 @@ export default class extends Mixins(ScreenMixin) {
   /**
    * 实时对讲
    */
-  private onIntercom(screen: Screen, type: string) {
-    for (let i = 0; i < this.screenList.length; i++) {
-      this.screenList[i].volume = 0
-    }
-    screen.type = type.toLowerCase()
-    this.intercomInfo = screen
-    this.ifIntercom = true
-  }
+  // private onIntercom(screen: Screen, type: string) {
+  //   for (let i = 0; i < this.screenList.length; i++) {
+  //     this.screenList[i].volume = 0
+  //   }
+  //   screen.type = type.toLowerCase()
+  //   this.intercomInfo = screen
+  //   this.ifIntercom = true
+  // }
 
   /**
    * 关闭实时对讲
    */
-  private closeIntercom() {
-    for (let i = 0; i < this.screenList.length; i++) {
-      this.screenList[i].volume = 30
-    }
-    this.ifIntercom = false
-  }
+  // private closeIntercom() {
+  //   for (let i = 0; i < this.screenList.length; i++) {
+  //     this.screenList[i].volume = 30
+  //   }
+  //   this.ifIntercom = false
+  // }
 
   /**
    * 修改ptz缩放状态，子组件缩放互斥
    */
-  private changeScalePTZStatus(screen: Screen, status: boolean) {
-    for (let i = 0; i < this.screenList.length; i++) {
-      this.screenList[i].ifScalePTZ = false
-    }
-    screen.ifScalePTZ = status
-  }
+  // private changeScalePTZStatus(screen: Screen, status: boolean) {
+  //   for (let i = 0; i < this.screenList.length; i++) {
+  //     this.screenList[i].ifScalePTZ = false
+  //   }
+  //   screen.ifScalePTZ = status
+  // }
 
   /**
    * 切换播放格式
    */
-  private onTypeChange(screen: Screen, type: string) {
-    screen.type = type.toLowerCase()
-  }
+  // private onTypeChange(screen: Screen, type: string) {
+  //   screen.type = type.toLowerCase()
+  // }
 
   /**
    * 播放直播
