@@ -10,7 +10,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Stream } from '@/components/VssPlayer/models/VssPlayer'
 import LivePlayer from './LivePlayer.vue'
-import { LiveScreen as Screen } from '../models/Screen/LiveScreen'
+import { Screen } from '../models/Screen'
 
 @Component({
   name: 'DevicePreview',

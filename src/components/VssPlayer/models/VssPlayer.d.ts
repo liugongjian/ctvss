@@ -7,6 +7,8 @@ export interface DeviceInfo {
   deviceId: number;
   inProtocol: string;
   deviceName: string;
+  roleId?: string;
+  realGroupId?: string;
 }
 export interface Stream {
   label?: string;
@@ -24,4 +26,6 @@ export interface StreamInfo {
   videoWidth?: number;
   /* 视频高度 */
   videoHeight?: number;
+  /* 编码格式 */
+  codec?: string;
 }

@@ -300,12 +300,6 @@
       </div>
     </el-card>
 
-    <intercom-dialog
-      v-if="ifIntercom"
-      :intercom-info="intercomInfo"
-      @onRetry="onRetry(intercomInfo, ...arguments)"
-      @close="closeIntercom"
-    />
     <device-dir v-if="dialogs.deviceDir" @on-close="onDeviceDirClose" />
   </div>
 </template>
@@ -314,7 +308,7 @@ import { Component, Watch, Mixins } from 'vue-property-decorator'
 import { Device } from '@/type/device'
 import ScreenMixin from './mixin/screenMixin'
 import StatusBadge from '@/components/StatusBadge/index.vue'
-import { LiveScreen as Screen } from './models/Screen/LiveScreen'
+import { Screen } from './models/Screen'
 import LivePlayer from './components/LivePlayer.vue'
 import PlayerContainer from './components/PlayerContainer.vue'
 import ReplayView from './components/ReplayView.vue'

@@ -1,7 +1,7 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import IndexMixin from './indexMixin'
 import FullscreenMixin from './fullscreenMixin'
-import { LiveScreen as Screen } from '../models/Screen/LiveScreen'
+import { Screen } from '../models/Screen'
 import { getLocalStorage, setLocalStorage } from '@/utils/storage'
 import { UserModule } from '@/store/modules/user'
 

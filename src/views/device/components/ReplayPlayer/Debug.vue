@@ -54,7 +54,7 @@ import { Component, Vue } from 'vue-property-decorator'
 // import { PlayerEvent } from '@/components/VssPlayer/models/VssPlayer.d'
 import ReplayPlayer from './index.vue'
 import ReplayAxis from './ReplayAxis.vue'
-import { ReplayScreen as Screen } from '@/views/device/models/Screen/ReplayScreen'
+import { Screen } from '@/views/device/models/Screen'
 import { dateFormat } from '@/utils/date'
 
 @Component({
@@ -67,7 +67,7 @@ import { dateFormat } from '@/utils/date'
 export default class extends Vue {
   private form: any = {
     deviceInfo: {
-      deviceId: '29942122912182913',
+      deviceId: '29941979030768445',
       inProtocol: 'gb28181',
       recordType: 0
     },
@@ -113,6 +113,7 @@ export default class extends Vue {
     this.screen = new Screen()
 
     this.$nextTick(() => {
+      this.screen.isLive = false
       this.screen.deviceInfo = this.form.deviceInfo
       this.screen.init()
     })

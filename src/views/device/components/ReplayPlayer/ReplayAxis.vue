@@ -18,7 +18,7 @@
  */
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { dateFormat, getNextHour, prefixZero } from '@/utils/date'
-import { ReplayScreen as Screen } from '@/views/device/models/Screen/ReplayScreen'
+import { Screen } from '@/views/device/models/Screen'
 import { throttle } from 'lodash'
 
 @Component({
@@ -353,7 +353,6 @@ export default class extends Vue {
     height: 70px;
     left: 50%;
     margin-left: -1px;
-    width: 2px;
     background: $primary;
   }
 
@@ -372,6 +371,7 @@ export default class extends Vue {
 
   &__zoom {
     text-align: right;
+
     &__btn {
       display: inline-block;
       padding: 4px;
