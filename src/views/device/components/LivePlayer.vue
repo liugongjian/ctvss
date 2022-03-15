@@ -20,7 +20,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { PlayerEvent } from '@/components/VssPlayer/models/VssPlayer.d'
-import { Screen } from '@/views/device/models/Screen'
+import { Screen } from '@/views/device/models/Screen/Screen'
 import VssPlayer from '@/components/VssPlayer/index.vue'
 
 @Component({

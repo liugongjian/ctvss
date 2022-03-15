@@ -1,15 +1,14 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import IndexMixin from './indexMixin'
 import FullscreenMixin from './fullscreenMixin'
-import { Screen } from '../models/Screen'
+import { Screen } from '../models/Screen/Screen'
 import { getLocalStorage, setLocalStorage } from '@/utils/storage'
 import { UserModule } from '@/store/modules/user'
 
 @Component
 export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
-  public screenList: Array<Screen> = []
   public maxSize = 4
-  public currentIndex = 0
+  // public currentIndex = 0
   public dialogs = {
     deviceDir: false
   }
@@ -108,94 +107,18 @@ export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
    * 初始化分屏
    */
   public initScreen() {
-    let screenList: Array<Screen> = []
-    let startIndex = 0
-    if (this.screenList.length) {
-      screenList = this.screenList.slice(0, this.maxSize)
-      startIndex = screenList.length
-    }
-    for (let i = startIndex; i < this.maxSize; i++) {
-      const screen = new Screen()
-      screenList.push(screen)
-    }
-    this.screenList = screenList
+
   }
 
   /**
    * 初始化储存播放记录
    */
-  public initScreenCache(type: string) {
-    // 判断是否启用视频记录保存配置
-    if (this.currentGroupInProtocol === 'vgroup' || !getLocalStorage('settings') || !(JSON.parse(getLocalStorage('settings')).screenCache[type] === 'true')) {
-      return
-    }
-    // 针对页面刷新存储播放记录
-    window.addEventListener('beforeunload', () => this.setScreenCache({ params: type }))
-    if (this.screenCache[this.$route.name]!.screenSize) {
-      this.handleScreenSize(this.screenCache[this.$route.name]!.screenSize)
-      this.initScreen()
-    }
-    // screen.vue、replay.vue在watche监听到currentGroupId变化时会reset各个screen，故须在reset之后初始化
-    this.$nextTick(() => {
-      this.screenList.forEach((screen, index) => {
-        let cacheScreen = this.screenCache[this.$route.name]!.screenList[index]
-        if (cacheScreen && cacheScreen.deviceId) {
-          screen.deviceId = cacheScreen.deviceId
-          screen.inProtocol = cacheScreen.inProtocol || this.currentGroup!.inProtocol
-          screen.realGroupInProtocol = cacheScreen.realGroupInProtocol || ''
-          screen.streamNum = cacheScreen.streamNum
-          screen.streams = cacheScreen.streams
-          screen.streamSize = cacheScreen.streamSize
-          screen.roleId = cacheScreen.roleId
-          screen.realGroupId = cacheScreen.realGroupId
-          screen.isLive = cacheScreen.isLive
-          screen.type = cacheScreen.type
-          screen.volume = cacheScreen.volume
-          screen.replayType = cacheScreen.replayType
-          screen.currentDate = cacheScreen.currentDate
-          screen.currentTime = cacheScreen.currentTime
-          screen.isCache = cacheScreen.isCache
-          screen.init()
-        }
-      })
-    })
+  public initScreenCache() {
+
   }
 
-  public get screenCache() {
-    // 判断观看记录是否存在且当前用户是否与观看记录对应
-    if (getLocalStorage('screenCache') && JSON.parse(getLocalStorage('screenCache')).mainUserID === UserModule.mainUserID && JSON.parse(getLocalStorage('screenCache')).currentGroupId === this.currentGroupId) {
-      return JSON.parse(getLocalStorage('screenCache'))
-    } else {
-      return {
-        mainUserID: null,
-        currentGroupId: null,
-        screen: {
-          screenList: [],
-          screenSize: '4'
-        },
-        replay: {
-          screenList: [],
-          screenSize: '1'
-        }
-      }
-    }
-  }
+  public setScreenCache() {
 
-  public setScreenCache(params: any) {
-    let cacheType = params.type || this.$route.name
-    this.screenCache.mainUserID = UserModule.mainUserID
-    this.screenCache.currentGroupId = this.currentGroupId
-    this.screenCache[cacheType] = {
-      ...this.screenCache[cacheType],
-      screenList: this.screenList.map(screen => {
-        return {
-          ...screen,
-          isCache: true
-        }
-      }),
-      screenSize: this.screenSize
-    }
-    setLocalStorage('screenCache', JSON.stringify(this.screenCache))
   }
 
   /**
@@ -293,33 +216,26 @@ export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
   //   this.initScreen()
   // }
 
-  /**
-   * 检查是否全屏
-   */
-  public checkFullscreen() {
-    const doc: any = document
-    this.isFullscreen = !!(doc.webkitIsFullScreen || doc.mozFullScreen || doc.msFullscreenElement || doc.fullscreenElement)
-    if (!this.isFullscreen) {
-      this.screenList.forEach((screen: Screen) => {
-        screen.exitFullscreen()
-      })
-    }
-  }
+  // /**
+  //  * 检查是否全屏
+  //  */
+  // public checkFullscreen() {
+  //   const doc: any = document
+  //   this.isFullscreen = !!(doc.webkitIsFullScreen || doc.mozFullScreen || doc.msFullscreenElement || doc.fullscreenElement)
+  //   if (!this.isFullscreen) {
+  //     this.screenList.forEach((screen: Screen) => {
+  //       screen.exitFullscreen()
+  //     })
+  //   }
+  // }
 
-  /**
-   * 检查设备树中的设备项是否选择
-   */
-  public checkTreeItemStatus(item: any) {
-    if (item.type !== 'ipc' && item.type !== 'stream') return false
-    return !!this.screenList.find(screen => screen.deviceId === item.id)
-  }
-
-  /**
-   * 选择分屏
-   */
-  public async selectScreen(index: number) {
-    this.currentIndex = index
-  }
+  // /**
+  //  * 检查设备树中的设备项是否选择
+  //  */
+  // public checkTreeItemStatus(item: any) {
+  //   if (item.type !== 'ipc' && item.type !== 'stream') return false
+  //   return !!this.screenList.find(screen => screen.deviceId === item.id)
+  // }
 
   /**
    * 选择视频

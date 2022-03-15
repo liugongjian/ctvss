@@ -19,7 +19,7 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { dateFormat, getNextHour, prefixZero } from '@/utils/date'
 import { ReplayScreen as Screen } from '@/views/device/models/Screen/ReplayScreen'
-import { debounce, throttle } from 'lodash'
+import { throttle } from 'lodash'
 
 @Component({
   name: 'ReplayAxis'
@@ -348,10 +348,11 @@ export default class extends Vue {
   private zoom(type) {
     if (type === 1) {
       this.settings.scale = this.settings.scale * 0.9 < 0.9 ? 0.9 : this.settings.scale * 0.9
+      this.resize()
     } else if (this.settings.scale < 24) {
       this.settings.scale = this.settings.scale * 1.1
+      this.resize()
     }
-    this.resize()
   }
 }
 </script>

@@ -19,7 +19,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { PlayerEvent } from '@/components/VssPlayer/models/VssPlayer.d'
-import { ReplayScreen as Screen } from '@/views/device/models/Screen/ReplayScreen'
+import { Screen } from '@/views/device/models/Screen/Screen'
 import VssPlayer from '@/components/VssPlayer/index.vue'
 
 @Component({

@@ -221,80 +221,8 @@
           </div>
         </div>
         <div class="device-list__right">
-          <div class="device__tools">
-            <div class="device__tools--right">
-              <el-dropdown trigger="click" placement="bottom-start" @command="handleLiveScreenSize">
-                <el-tooltip content="选择分屏" placement="top">
-                  <el-button>
-                    <svg-icon name="screen" />
-                  </el-button>
-                </el-tooltip>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item
-                    v-for="(item, index) in screenSizeList"
-                    :key="index"
-                    :command="item.value"
-                    :class="{'el-dropdown-item__active': item.value === screenSize}"
-                  >
-                    <span class="el-dropdown-menu__screen-icon"><svg-icon :name="`screen${item.value}`" /></span>
-                    <label>{{ item.label }}</label>
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
-              <el-tooltip content="全屏" placement="top">
-                <el-button type="text" @click="fullscreen">
-                  <svg-icon name="fullscreen" />
-                </el-button>
-              </el-tooltip>
-            </div>
-          </div>
-          <div
-            class="screen-list"
-            :class="[{'fullscreen': isFullscreen}]"
-          >
-            <div class="screen-wrap" :class="`screen-size--${screenSize}`">
-              <div
-                v-for="(screen, index) in screenList"
-                :key="index"
-                v-loading="screen.loading"
-                class="screen-item screen-item--live"
-                :style="`grid-area: item${index}`"
-                :class="[{'actived': index === currentIndex && screenList.length > 1 && !polling.isStart}, {'fullscreen': screen.isFullscreen}]"
-                @click="selectScreen(index)"
-              >
-                <template v-if="screen.deviceInfo.deviceId">
-                  <template v-if="screen.isLive">
-                    <live-player
-                      :screen="screen"
-                      :has-close="true"
-                      @close="closeScreen(screen)"
-                    />
-                  </template>
-                  <template v-else>
-                    <replay-view
-                      :device-id="screen.deviceId"
-                      :in-protocol="currentGroupInProtocol"
-                      :has-playlive="true"
-                      :is-fullscreen="screen.isFullscreen"
-                      :screen="screen"
-                      @onCurrentDateChange="onCurrentDateChange(screen, ...arguments)"
-                      @onCurrentTimeChange="onCurrentTimeChange(screen, ...arguments)"
-                      @onReplayTypeChange="onReplayTypeChange(screen, ...arguments)"
-                      @onCalendarFocus="onCalendarFocus(screen, ...arguments)"
-                      @onCanPlay="playEvent(screen, ...arguments)"
-                      @onPlaylive="onPlaylive(screen)"
-                      @onVolumeChange="onVolumeChange(screen, ...arguments)"
-                      @onFullscreen="screen.fullscreen();fullscreen()"
-                      @onExitFullscreen="screen.exitFullscreen();exitFullscreen()"
-                    />
-                  </template>
-                </template>
-                <div v-else class="tip-text tip-select-device">
-                  <el-button type="text" @click="selectDevice(screen)">请选择设备</el-button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <el-button @click="startPolling">开始轮巡</el-button>
+          <ScreenBoard ref="screenBoard" :is-live="true" :in-protocol="currentGroupInProtocol" />
         </div>
         <ptz-control v-if="!polling.isStart && currentGroupInProtocol === 'gb28181'" :device-id="selectedDeviceId" />
       </div>
@@ -322,22 +250,35 @@ import { VGroupModule } from '@/store/modules/vgroup'
 import IntercomDialog from './components/dialogs/Intercom.vue'
 import AdvancedSearch from '@/views/device/components/AdvancedSearch.vue'
 
+import ScreenBoard from './components/Screen/ScreenBoard.vue'
+
 @Component({
   name: 'Screen',
   components: {
-    LivePlayer,
-    ReplayView,
     DeviceDir,
     StatusBadge,
     PtzControl,
     StreamSelector,
     OperateSelector,
-    PlayerContainer,
-    IntercomDialog,
-    AdvancedSearch
+    AdvancedSearch,
+    ScreenBoard
   }
 })
 export default class extends Mixins(ScreenMixin) {
+  public openScreen(item: any, streamNum?: number) {
+    const screenBoard: any = this.$refs.screenBoard
+    screenBoard.openScreen(item, streamNum)
+  }
+
+  /**
+   * 检查设备树中的设备项是否选择
+   */
+  public checkTreeItemStatus(item: any) {
+    // if (item.type !== 'ipc' && item.type !== 'stream') return false
+    // return !!this.screenList.find(screen => screen.deviceInfo.deviceId === item.id)
+  }
+  /* NEW!!! */
+
   private renderAlertType = renderAlertType
   private getSums = getSums
   public maxSize = 4
@@ -415,12 +356,8 @@ export default class extends Mixins(ScreenMixin) {
     }
     if (!groupId) return
     this.$nextTick(() => {
-      this.screenList.map(() => {
-        return new Screen()
-      })
-      this.currentIndex = 0
       this.initDirs()
-      this.stopPolling()
+      // this.stopPolling()
     })
   }
 
@@ -431,25 +368,15 @@ export default class extends Mixins(ScreenMixin) {
     }
   }
 
-  private mounted() {
-    this.initSearchStatus()
-    this.initScreen()
-    this.calMaxHeight()
-    this.initScreenCache('screen')
-    window.addEventListener('resize', this.calMaxHeight)
-    window.addEventListener('resize', this.checkFullscreen)
-  }
-
   private beforeDestroy() {
     this.interval && clearInterval(this.interval)
-    this.setScreenCache({ type: 'screen' })
   }
 
   private destroyed() {
     VGroupModule.resetVGroupInfo()
-    this.screenList.map(() => {
-      return new Screen()
-    })
+    // this.screenList.map(() => {
+    //   return new Screen()
+    // })
     window.removeEventListener('resize', this.calMaxHeight)
     window.removeEventListener('resize', this.checkFullscreen)
   }
@@ -457,55 +384,6 @@ export default class extends Mixins(ScreenMixin) {
   private closeScreen(screen: Screen) {
     this.selectedDeviceId = ''
     screen.destroy()
-  }
-
-  /**
-   * 打开分屏视频
-   */
-  private async openScreen(item: any, streamNum?: number) {
-    if (this.polling.isStart) {
-      this.$message({
-        message: '请先关闭轮巡再进行选择',
-        type: 'warning'
-      })
-      return
-    }
-    // 设置虚拟业务组相关信息
-    VGroupModule.SetRoleID(item.roleId || '')
-    VGroupModule.SetRealGroupId(item.realGroupId || '')
-    VGroupModule.SetRealGroupInProtocol(item.realGroupInProtocol || '')
-
-    if (item.type === 'ipc' && item.deviceStatus === 'on') {
-      const screen = this.screenList[this.currentIndex]
-      // 如果当前分屏已有播放器，先执行销毁操作
-      if (screen.deviceInfo.deviceId) {
-        screen.destroy()
-      }
-      screen.isInitialized = true
-      screen.type = 'flv'
-      screen.isLive = true
-      screen.deviceInfo.inProtocol = this.currentGroupInProtocol!
-      screen.deviceInfo.deviceId = item.id
-      screen.deviceInfo.deviceName = item.label
-      screen.deviceInfo.roleId = item.roleId || ''
-      screen.deviceInfo.realGroupId = item.realGroupId || ''
-      screen.deviceInfo.realGroupInProtocol = item.realGroupInProtocol || ''
-      screen.streamInfo.streamSize = item.multiStreamSize
-      screen.streamInfo.streams = item.deviceStreams
-      if (streamNum && !isNaN(streamNum)) {
-        screen.streamInfo.streamNum = streamNum
-      } else {
-        screen.streamInfo.streamNum = item.autoStreamNum
-      }
-      if (this.currentIndex < this.maxSize - 1) {
-        this.currentIndex++
-      } else {
-        if (this.screenList.length) {
-          this.selectedDeviceId = this.screenList[this.currentIndex]!.deviceInfo.deviceId
-        }
-      }
-      await screen.init()
-    }
   }
 
   /**
@@ -814,6 +692,23 @@ export default class extends Mixins(ScreenMixin) {
   private onDeviceDirClose(device: Device) {
     this.dialogs.deviceDir = false
     if (device) this.openScreen(device)
+  }
+
+  private get screenManager() {
+    const screenBoard = this.$refs.screenBoard as ScreenBoard
+    return screenBoard.screenManager
+  }
+
+  private startPolling() {
+    const polling = this.screenManager.refs.polling
+    if (polling) {
+      const devicesQueue = [{
+        deviceId: 1,
+        deviceName: 'abc'
+      }]
+      this.screenManager.devicesQueue = devicesQueue
+      polling.startPolling()
+    }
   }
 }
 </script>
