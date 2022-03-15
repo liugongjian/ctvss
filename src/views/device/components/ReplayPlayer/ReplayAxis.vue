@@ -39,15 +39,15 @@ export default class extends Vue {
     ratio: 0, // 比例尺(秒/每像素)
     showTenMins: false,
     showFiveMins: false,
-    hourWidth: 2,
-    hourHeight: 70,
+    hourWidth: 1,
+    hourHeight: 25,
     halfHourWidth: 1,
-    halfHourHeight: 50,
+    halfHourHeight: 20,
     tenMinsWidth: 1,
-    tenMinsHeight: 30,
+    tenMinsHeight: 15,
     fiveMinsWidth: 1,
     fiveMinsHeight: 15,
-    recordHeight: 20
+    recordHeight: 15
   }
   /* 刻度数据 */
   private axisData = {
@@ -237,7 +237,7 @@ export default class extends Vue {
     }
 
     /* 绘制小时线 */
-    this.ctx.fillStyle = '#333'
+    this.ctx.fillStyle = '#222'
     for (let i in this.axisData.hours) {
       const line = this.axisData.hours[i]
       this.ctx.fillRect(line.x, line.y, this.settings.hourWidth, this.settings.hourHeight)
@@ -254,7 +254,7 @@ export default class extends Vue {
     }
 
     /* 绘制半小时线 */
-    this.ctx.fillStyle = '#777'
+    this.ctx.fillStyle = '#999'
     for (let i in this.axisData.halfHours) {
       const line = this.axisData.halfHours[i]
       this.ctx.fillRect(line.x, line.y, this.settings.halfHourWidth, this.settings.halfHourHeight)
@@ -266,7 +266,7 @@ export default class extends Vue {
     }
 
     /* 绘制10分钟线 */
-    this.ctx.fillStyle = '#777'
+    this.ctx.fillStyle = '#999'
     for (let i in this.axisData.tenMins) {
       const line = this.axisData.tenMins[i]
       this.ctx.fillRect(line.x, line.y, this.settings.tenMinsWidth, this.settings.tenMinsHeight)
@@ -278,7 +278,7 @@ export default class extends Vue {
     }
 
     /* 绘制5分钟线 */
-    this.ctx.fillStyle = '#777'
+    this.ctx.fillStyle = '#999'
     for (let i in this.axisData.fiveMins) {
       const line = this.axisData.fiveMins[i]
       this.ctx.fillRect(line.x, line.y, this.settings.fiveMinsWidth, this.settings.fiveMinsHeight)
@@ -385,9 +385,10 @@ export default class extends Vue {
 
   &__middle {
     position: absolute;
-    width: 2px;
-    height: 70px;
+    width: 3px;
+    height: 30px;
     left: 50%;
+    top: -5px;
     margin-left: -1px;
     background: $primary;
   }
