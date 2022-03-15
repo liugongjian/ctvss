@@ -2,6 +2,7 @@
  * 分屏管理器
  */
 import { Screen } from './Screen'
+import { Device } from '@/type/device'
 
 interface ScreenManagerConfig {
   size: number;
@@ -13,6 +14,8 @@ export class ScreenManager {
   public currentIndex: number
   public _size: number
   public isLive: boolean
+
+  public devicesQueue: Device[]
   // public pooling
 
   constructor(config: ScreenManagerConfig) {
@@ -24,12 +27,13 @@ export class ScreenManager {
       const screen = new Screen()
       this.screenList.push(screen)
     }
+    this.devicesQueue = null
   }
 
   /**
    * 获取分屏数量
   */
-  public get size() {
+  public get size(): number {
     return this._size
   }
 
@@ -49,4 +53,9 @@ export class ScreenManager {
       this.screenList.push(screen)
     }
   }
+
+  public startPolling() {
+    console.log('startPolling', this.devicesQueue)
+  }
+  public startAutoPlay() {}
 }

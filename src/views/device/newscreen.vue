@@ -221,6 +221,7 @@
           </div>
         </div>
         <div class="device-list__right">
+          <el-button @click="startPolling">开始轮巡</el-button>
           <ScreenBoard ref="screenBoard" />
         </div>
         <ptz-control v-if="!polling.isStart && currentGroupInProtocol === 'gb28181'" :device-id="selectedDeviceId" />
@@ -692,6 +693,17 @@ export default class extends Mixins(ScreenMixin) {
   private onDeviceDirClose(device: Device) {
     this.dialogs.deviceDir = false
     if (device) this.openScreen(device)
+  }
+
+  private startPolling() {
+    const screenBoard = this.$refs.screenBoard as ScreenBoard
+    const devicesQueue = [{
+      deviceId: 1,
+      deviceName: 'abc'
+    }]
+    console.log(screenBoard)
+    screenBoard.setDevicesQueue(devicesQueue)
+    screenBoard.startPolling()
   }
 }
 </script>

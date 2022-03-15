@@ -6,7 +6,7 @@ export interface Device {
   deviceStatus?: string;
   streamStatus?: string;
   deviceType?: string;
-  deviceVendor: string;
+  deviceVendor?: string;
   deviceIp?: string;
   devicePort?: number;
   gbId?: string;
