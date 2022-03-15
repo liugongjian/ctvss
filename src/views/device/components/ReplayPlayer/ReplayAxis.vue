@@ -230,7 +230,7 @@ export default class extends Vue {
     const startTime = this.currentTime - this.settings.scale * 60 * 60 / 2 // 计算画布的起始时间
 
     /* 绘制录像线 */
-    this.ctx.fillStyle = '#b0c6da'
+    this.ctx.fillStyle = '#f7c284'
     for (let i in this.axisData.records) {
       const line = this.axisData.records[i]
       this.ctx.fillRect(line.x, line.y, line.width, this.settings.recordHeight)
