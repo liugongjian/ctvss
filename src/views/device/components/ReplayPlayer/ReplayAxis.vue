@@ -158,7 +158,7 @@ export default class extends Vue {
     const fiveMins = []
     if (this.settings.showFiveMins) {
       for (let i = -12; i <= this.settings.scale * 12; i++) {
-        if (!(i % 6)) continue // 将与半小时重复的线条排除
+        if (!(i % 12)) continue // 将与半小时重复的线条排除
         fiveMins.push({
           x: Math.floor(i * hourSpan / 12 + offsetX - this.settings.fiveMinsWidth / 2), // 绘制时偏移刻度本身的宽度,
           y: 0
@@ -275,7 +275,10 @@ export default class extends Vue {
       if (this.settings.ratio < 5) {
         const timestamp = startTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
         const datetime = new Date(timestamp * 1000)
-        this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:${prefixZero(datetime.getMinutes() + 1, 2)}`, line.x - 13, this.settings.hourHeight + 15)
+        if ((datetime.getMinutes() + 1)) {
+          // 剔除整点
+          this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:${prefixZero(datetime.getMinutes() + 1, 2)}`, line.x - 13, this.settings.hourHeight + 15)
+        }
       }
     }
 
@@ -287,7 +290,10 @@ export default class extends Vue {
       if (this.settings.ratio < 4) {
         const timestamp = startTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
         const datetime = new Date(timestamp * 1000)
-        this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:${prefixZero(datetime.getMinutes() + 1, 2)}`, line.x - 13, this.settings.hourHeight + 15)
+        if ((datetime.getMinutes() + 1) % 10) {
+          // 剔除整十
+          this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:${prefixZero(datetime.getMinutes() + 1, 2)}`, line.x - 13, this.settings.hourHeight + 15)
+        }
       }
     }
   }
