@@ -695,15 +695,21 @@ export default class extends Mixins(ScreenMixin) {
     if (device) this.openScreen(device)
   }
 
-  private startPolling() {
+  private get screenManager() {
     const screenBoard = this.$refs.screenBoard as ScreenBoard
-    const devicesQueue = [{
-      deviceId: 1,
-      deviceName: 'abc'
-    }]
-    console.log(screenBoard)
-    screenBoard.setDevicesQueue(devicesQueue)
-    screenBoard.startPolling()
+    return screenBoard.screenManager
+  }
+
+  private startPolling() {
+    const polling = this.screenManager.refs.polling
+    if (polling) {
+      const devicesQueue = [{
+        deviceId: 1,
+        deviceName: 'abc'
+      }]
+      this.screenManager.devicesQueue = devicesQueue
+      polling.startPolling()
+    }
   }
 }
 </script>

@@ -24,7 +24,6 @@ import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
 import { VGroupModule } from '@/store/modules/vgroup'
 import LivePlayer from '../LivePlayer.vue'
 import Polling from './components/Polling.vue'
-import { Device } from '@/type/device'
 
 @Component({
   name: 'ScreenBoard',
@@ -34,7 +33,7 @@ import { Device } from '@/type/device'
   }
 })
 export default class extends Vue {
-  private screenManager: ScreenManager = null
+  public screenManager: ScreenManager = null
 
   private get screenList() {
     return this.screenManager && this.screenManager.screenList
@@ -59,6 +58,7 @@ export default class extends Vue {
       size: 4,
       isLive: true
     })
+    console.log(this)
   }
 
   /**
@@ -114,22 +114,6 @@ export default class extends Vue {
    */
   public selectScreen(index: number) {
     this.screenManager.currentIndex = index
-  }
-
-  /**
-   * 设置设备队列
-   */
-  public setDevicesQueue(devicesQueue: Device[]) {
-    console.log(devicesQueue)
-    this.screenManager.devicesQueue = devicesQueue
-  }
-
-  public startPolling() {
-    this.screenManager.startPolling()
-  }
-
-  public startAutoPlay() {
-    this.screenManager.startAutoPlay()
   }
 }
 </script>

@@ -9,7 +9,9 @@ import ComponentMixin from './mixin'
   name: 'Polling'
 })
 export default class extends ComponentMixin {
-
+  public startPolling() {
+    console.log('startPolling', this.screenManager.devicesQueue)
+  }
 }
 
 </script>

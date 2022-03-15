@@ -16,6 +16,7 @@ export class ScreenManager {
   public isLive: boolean
 
   public devicesQueue: Device[]
+  public refs: any
   // public pooling
 
   constructor(config: ScreenManagerConfig) {
@@ -28,6 +29,7 @@ export class ScreenManager {
       this.screenList.push(screen)
     }
     this.devicesQueue = null
+    this.refs = {}
   }
 
   /**
@@ -53,9 +55,4 @@ export class ScreenManager {
       this.screenList.push(screen)
     }
   }
-
-  public startPolling() {
-    console.log('startPolling', this.devicesQueue)
-  }
-  public startAutoPlay() {}
 }
