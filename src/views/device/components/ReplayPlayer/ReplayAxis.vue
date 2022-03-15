@@ -270,6 +270,11 @@ export default class extends Vue {
     for (let i in this.axisData.tenMins) {
       const line = this.axisData.tenMins[i]
       this.ctx.fillRect(line.x, line.y, this.settings.tenMinsWidth, this.settings.tenMinsHeight)
+      if (this.settings.ratio < 5) {
+        const timestamp = startTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
+        const datetime = new Date(timestamp * 1000)
+        this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:${prefixZero(datetime.getMinutes() + 1, 2)}`, line.x - 13, this.settings.hourHeight + 15)
+      }
     }
 
     /* 绘制5分钟线 */
@@ -277,6 +282,11 @@ export default class extends Vue {
     for (let i in this.axisData.fiveMins) {
       const line = this.axisData.fiveMins[i]
       this.ctx.fillRect(line.x, line.y, this.settings.fiveMinsWidth, this.settings.fiveMinsHeight)
+      if (this.settings.ratio < 4) {
+        const timestamp = startTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
+        const datetime = new Date(timestamp * 1000)
+        this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:${prefixZero(datetime.getMinutes() + 1, 2)}`, line.x - 13, this.settings.hourHeight + 15)
+      }
     }
   }
 
