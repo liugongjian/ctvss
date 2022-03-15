@@ -3,46 +3,52 @@
     class="screen-list"
   >
     <div class="screen-wrap" :class="`screen-size--${size}`">
-      <div
+      <ScreenItem
         v-for="(screen, index) in screenList"
         :key="index"
-        v-loading="screen.loading"
-        class="screen-item screen-item--live"
+        :screen="screen"
         :style="`grid-area: item${index}`"
         :class="[{'actived': index === currentIndex && screenList.length > 1}]"
         @click="selectScreen(index)"
-      >
-        <LivePlayer :screen="screen" />
-      </div>
+      />
     </div>
     <Polling />
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Provide } from 'vue-property-decorator'
+import { Component, Vue, Prop, Provide } from 'vue-property-decorator'
 import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
 import { VGroupModule } from '@/store/modules/vgroup'
-import LivePlayer from '../LivePlayer.vue'
+import ScreenItem from './ScreenItem.vue'
 import Polling from './components/Polling.vue'
 
 @Component({
   name: 'ScreenBoard',
   components: {
-    LivePlayer,
+    ScreenItem,
     Polling
   }
 })
 export default class extends Vue {
+  @Prop({
+    default: true
+  })
+  private isLive: boolean
+
+  /* 分屏管理器 */
   public screenManager: ScreenManager = null
 
+  /* 分屏列表 */
   private get screenList() {
     return this.screenManager && this.screenManager.screenList
   }
 
+  /* 当前选中的索引 */
   private get currentIndex() {
     return this.screenManager && this.screenManager.currentIndex
   }
 
+  /* 分屏数 */
   private get size() {
     return this.screenManager && this.screenManager.size
   }
@@ -56,9 +62,8 @@ export default class extends Vue {
   private mounted() {
     this.screenManager = new ScreenManager({
       size: 4,
-      isLive: true
+      isLive: this.isLive
     })
-    console.log(this)
   }
 
   /**
