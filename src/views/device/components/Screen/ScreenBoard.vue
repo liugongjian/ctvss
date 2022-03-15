@@ -10,6 +10,7 @@
         :style="`grid-area: item${index}`"
         :class="[{'actived': index === currentIndex && screenList.length > 1}]"
         @click="selectScreen(index)"
+        @openScreen="openScreen"
       />
     </div>
     <Polling />
@@ -34,6 +35,9 @@ export default class extends Vue {
     default: true
   })
   private isLive: boolean
+
+  @Prop()
+  private inProtocol: string
 
   /* 分屏管理器 */
   public screenManager: ScreenManager = null
@@ -93,7 +97,7 @@ export default class extends Vue {
       screen.type = 'flv'
       screen.isLive = true
       screen.deviceInfo = {
-        inProtocol: item.inProtocol,
+        inProtocol: this.inProtocol,
         deviceId: item.id,
         deviceName: item.label,
         roleId: item.roleId || '',

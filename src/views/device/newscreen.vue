@@ -222,7 +222,7 @@
         </div>
         <div class="device-list__right">
           <el-button @click="startPolling">开始轮巡</el-button>
-          <ScreenBoard ref="screenBoard" :is-live="true" />
+          <ScreenBoard ref="screenBoard" :is-live="true" :in-protocol="currentGroupInProtocol" />
         </div>
         <ptz-control v-if="!polling.isStart && currentGroupInProtocol === 'gb28181'" :device-id="selectedDeviceId" />
       </div>
@@ -267,7 +267,6 @@ import ScreenBoard from './components/Screen/ScreenBoard.vue'
 export default class extends Mixins(ScreenMixin) {
   public openScreen(item: any, streamNum?: number) {
     const screenBoard: any = this.$refs.screenBoard
-    item.inProtocol = this.currentGroupInProtocol!
     screenBoard.openScreen(item, streamNum)
   }
 
