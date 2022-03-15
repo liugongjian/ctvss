@@ -1,17 +1,17 @@
 <template>
-  <div
-    class="screen-list"
-  >
-    <div class="screen-wrap" :class="`screen-size--${size}`">
-      <ScreenItem
-        v-for="(screen, index) in screenList"
-        :key="index"
-        :screen="screen"
-        :style="`grid-area: item${index}`"
-        :class="[{'actived': index === currentIndex && screenList.length > 1}]"
-        @click="selectScreen(index)"
-        @openScreen="openScreen"
-      />
+  <div v-if="screenManager">
+    <div class="screen-list">
+      <div class="screen-wrap" :class="`screen-size--${size}`">
+        <ScreenItem
+          v-for="(screen, index) in screenList"
+          :key="index"
+          :screen="screen"
+          :style="`grid-area: item${index}`"
+          :class="[{'actived': index === currentIndex && screenList.length > 1}]"
+          @click="selectScreen(index)"
+          @openScreen="openScreen"
+        />
+      </div>
     </div>
     <ScreenTools />
   </div>

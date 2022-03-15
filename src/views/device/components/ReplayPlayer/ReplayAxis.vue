@@ -1,7 +1,9 @@
 <template>
   <div ref="axisWrap" class="axis__wrap">
-    <div class="axis__middle" />
-    <div class="axis__time">{{ formatedCurrentTime }}</div>
+    <template v-if="screen.deviceInfo.deviceId">
+      <div class="axis__middle" />
+      <div class="axis__time">{{ screen.isLoading ? '加载中' : formatedCurrentTime }}</div>
+    </template>
     <canvas ref="canvas" class="axis__canvas" :class="{'dragging': axisDrag.isDragging}" />
     <div class="axis__zoom">
       <div class="axis__zoom__btn" @click="zoom(1)"><svg-icon name="zoom-in" /></div>

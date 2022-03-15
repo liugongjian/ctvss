@@ -14,7 +14,9 @@ export class ScreenManager {
   public currentIndex: number
   public _size: number
   public isLive: boolean
-
+  /* 录像时间轴同步向 */
+  public isSync: boolean
+  /* 设备数队列（用于轮巡） */
   public devicesQueue: Device[]
   public refs: any
   // public pooling
@@ -22,6 +24,7 @@ export class ScreenManager {
   constructor(config: ScreenManagerConfig) {
     this._size = config.size
     this.isLive = config.isLive
+    this.isSync = false
     this.currentIndex = 0
     this.screenList = []
     for (let i = 0; i < this._size; i++) {
