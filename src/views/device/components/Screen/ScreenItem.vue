@@ -5,7 +5,8 @@
     @click="click"
   >
     <template v-if="screen.deviceInfo.deviceId">
-      <LivePlayer :screen="screen" :has-close="true" @close="close" />
+      <LivePlayer v-if="screen.isLive" :screen="screen" :has-close="true" :is-debug="true" @close="close" />
+      <ReplayPlayer v-else :screen="screen" :has-close="true" :is-debug="true" @close="close" />
     </template>
     <div v-else class="tip-text tip-select-device">
       <el-button type="text" @click="selectDevice">请选择设备</el-button>
@@ -17,12 +18,14 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 // import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
 import LivePlayer from '../LivePlayer.vue'
+import ReplayPlayer from '../ReplayPlayer/index.vue'
 import DeviceDir from '../dialogs/DeviceDir.vue'
 
 @Component({
   name: 'ScreenItem',
   components: {
     LivePlayer,
+    ReplayPlayer,
     DeviceDir
   }
 })

@@ -13,7 +13,7 @@
         @openScreen="openScreen"
       />
     </div>
-    <Polling />
+    <ScreenTools />
   </div>
 </template>
 <script lang="ts">
@@ -21,13 +21,13 @@ import { Component, Vue, Prop, Provide } from 'vue-property-decorator'
 import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
 import { VGroupModule } from '@/store/modules/vgroup'
 import ScreenItem from './ScreenItem.vue'
-import Polling from './components/Polling.vue'
+import ScreenTools from './ScreenTools.vue'
 
 @Component({
   name: 'ScreenBoard',
   components: {
     ScreenItem,
-    Polling
+    ScreenTools
   }
 })
 export default class extends Vue {
@@ -95,7 +95,7 @@ export default class extends Vue {
       }
       screen.isInitialized = true
       screen.type = 'flv'
-      screen.isLive = true
+      screen.isLive = false
       screen.deviceInfo = {
         inProtocol: this.inProtocol,
         deviceId: item.id,
