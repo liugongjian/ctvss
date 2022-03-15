@@ -14,12 +14,12 @@
  * 刻度组件
  * 1) 首先计算出秒/像素的比值，存为ratio，即每个像素包含多少秒，又可理解为每个像素的密度
  * 2) 拖动时间轴后算出偏移量delatX的像素值，然后除ratio，计算出拖拽后的时间戳
- * 3) 计算刻度位置时使用时间戳除ration，转换为像素值
+ * 3) 计算刻度位置时使用时间戳除ratio，转换为像素值
  */
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { dateFormat, getNextHour, prefixZero } from '@/utils/date'
-import { Screen } from '@/views/device/models/Screen'
-import { throttle } from 'lodash'
+import { ReplayScreen as Screen } from '@/views/device/models/Screen/ReplayScreen'
+import { debounce, throttle } from 'lodash'
 
 @Component({
   name: 'ReplayAxis'
@@ -38,12 +38,15 @@ export default class extends Vue {
     scale: 24, // 缩放比例，画布显示的小时数量
     ratio: 0, // 比例尺(秒/每像素)
     showTenMins: false,
+    showFiveMins: false,
     hourWidth: 2,
     hourHeight: 70,
     halfHourWidth: 1,
     halfHourHeight: 50,
     tenMinsWidth: 1,
     tenMinsHeight: 30,
+    fiveMinsWidth: 1,
+    fiveMinsHeight: 15,
     recordHeight: 20
   }
   /* 刻度数据 */
@@ -51,6 +54,7 @@ export default class extends Vue {
     hours: [],
     halfHours: [],
     tenMins: [],
+    fiveMins: [],
     records: []
   }
   /* 画布 */
@@ -148,6 +152,19 @@ export default class extends Vue {
     }
     this.axisData.tenMins = tenMins
 
+    /* 计算5分钟刻度像素位置 */
+    const fiveMins = []
+    if (this.settings.showFiveMins) {
+      for (let i = -12; i <= this.settings.scale * 12; i++) {
+        if (!(i % 6)) continue // 将与半小时重复的线条排除
+        fiveMins.push({
+          x: Math.floor(i * hourSpan / 12 + offsetX - this.settings.fiveMinsWidth / 2), // 绘制时偏移刻度本身的宽度,
+          y: 0
+        })
+      }
+    }
+    this.axisData.fiveMins = fiveMins
+
     /* 计算录像片段 */
     const records = []
     if (this.screen && this.screen.recordList) {
@@ -175,6 +192,7 @@ export default class extends Vue {
     this.settings.height = axisWrap.clientHeight - 20
     this.settings.ratio = this.settings.scale * 60 * 60 / axisWrap.clientWidth
     this.settings.showTenMins = this.settings.ratio < 100 // 密度小与100秒/px则显示10分钟的刻度
+    this.settings.showFiveMins = this.settings.ratio < 10 // 密度小与100秒/px则显示5分钟的刻度
   }
 
   /**
@@ -253,6 +271,13 @@ export default class extends Vue {
       const line = this.axisData.tenMins[i]
       this.ctx.fillRect(line.x, line.y, this.settings.tenMinsWidth, this.settings.tenMinsHeight)
     }
+
+    /* 绘制5分钟线 */
+    this.ctx.fillStyle = '#777'
+    for (let i in this.axisData.fiveMins) {
+      const line = this.axisData.fiveMins[i]
+      this.ctx.fillRect(line.x, line.y, this.settings.fiveMinsWidth, this.settings.fiveMinsHeight)
+    }
   }
 
   /**
@@ -322,7 +347,7 @@ export default class extends Vue {
    */
   private zoom(type) {
     if (type === 1) {
-      this.settings.scale = this.settings.scale * 0.9
+      this.settings.scale = this.settings.scale * 0.9 < 0.9 ? 0.9 : this.settings.scale * 0.9
     } else if (this.settings.scale < 24) {
       this.settings.scale = this.settings.scale * 1.1
     }
@@ -353,6 +378,7 @@ export default class extends Vue {
     height: 70px;
     left: 50%;
     margin-left: -1px;
+    width: 2px;
     background: $primary;
   }
 
