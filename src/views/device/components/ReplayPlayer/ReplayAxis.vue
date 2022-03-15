@@ -18,7 +18,7 @@
  */
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { dateFormat, getNextHour, prefixZero } from '@/utils/date'
-import { ReplayScreen as Screen } from '@/views/device/models/Screen/ReplayScreen'
+import { Screen } from '@/views/device/models/Screen/Screen'
 import { throttle } from 'lodash'
 
 @Component({
@@ -346,10 +346,10 @@ export default class extends Vue {
    * 1: 放大
    */
   private zoom(type) {
-    if (type === 1) {
-      this.settings.scale = this.settings.scale * 0.9 < 0.9 ? 0.9 : this.settings.scale * 0.9
+    if (type === 1 && this.settings.scale > 0.9) {
+      this.settings.scale = this.settings.scale * 0.9
       this.resize()
-    } else if (this.settings.scale < 24) {
+    } else if (type === 0 && this.settings.scale < 24) {
       this.settings.scale = this.settings.scale * 1.1
       this.resize()
     }
@@ -379,7 +379,6 @@ export default class extends Vue {
     height: 70px;
     left: 50%;
     margin-left: -1px;
-    width: 2px;
     background: $primary;
   }
 

@@ -95,7 +95,7 @@ export default class extends Vue {
       }
       screen.isInitialized = true
       screen.type = 'flv'
-      screen.isLive = false
+      screen.isLive = this.isLive
       screen.deviceInfo = {
         inProtocol: this.inProtocol,
         deviceId: item.id,
