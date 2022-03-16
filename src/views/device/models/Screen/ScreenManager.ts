@@ -9,6 +9,13 @@ interface ScreenManagerConfig {
   isLive: boolean;
 }
 
+export interface ExecuteQueueConfig {
+  policy: 'autoPlay' | 'polling';
+  interval: number;
+  isLive: boolean;
+  status: 'pause' | 'working' | 'free'
+}
+
 export class ScreenManager {
   public screenList: Screen[]
   public currentIndex: number
@@ -17,9 +24,9 @@ export class ScreenManager {
   /* 录像时间轴同步向 */
   public isSync: boolean
   /* 设备数队列（用于轮巡） */
-  public devicesQueue: Device[]
+  public devicesQueue: any[]
   public refs: any
-  // public pooling
+  public executeQueueConfig: ExecuteQueueConfig
 
   constructor(config: ScreenManagerConfig) {
     this._size = config.size
@@ -27,12 +34,25 @@ export class ScreenManager {
     this.isSync = false
     this.currentIndex = 0
     this.screenList = []
+    this.devicesQueue = null
+    this.refs = []
+    this.executeQueueConfig = {
+      policy: 'autoPlay',
+      interval: 10,
+      isLive: true,
+      status: 'free'
+    }
+    this.initScreenList()
+  }
+
+  /**
+   * 获取分屏数量
+  */
+  public initScreenList() {
     for (let i = 0; i < this._size; i++) {
       const screen = new Screen()
       this.screenList.push(screen)
     }
-    this.devicesQueue = null
-    this.refs = {}
   }
 
   /**

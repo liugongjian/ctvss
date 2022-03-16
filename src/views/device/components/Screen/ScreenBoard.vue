@@ -65,7 +65,7 @@ export default class extends Vue {
 
   private mounted() {
     this.screenManager = new ScreenManager({
-      size: 4,
+      size: 1,
       isLive: this.isLive
     })
   }
@@ -94,7 +94,6 @@ export default class extends Vue {
         screen.destroy()
       }
       screen.isInitialized = true
-      screen.type = 'flv'
       screen.isLive = this.isLive
       screen.inProtocol = this.inProtocol
       screen.deviceId = item.id

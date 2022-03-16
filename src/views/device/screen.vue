@@ -482,7 +482,6 @@ export default class extends Mixins(ScreenMixin) {
         screen.destroy()
       }
       screen.isInitialized = true
-      screen.type = 'flv'
       screen.isLive = true
       screen.inProtocol = this.currentGroupInProtocol!
       screen.deviceId = item.id

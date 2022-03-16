@@ -67,7 +67,7 @@ export class Screen {
   public currentDate: number
 
   constructor() {
-    this.type = null
+    this.type = 'flv'
     this.player = null
     this.deviceId = null
     this.inProtocol = ''
@@ -173,7 +173,7 @@ export class Screen {
         }
       }, this.axiosSource.token)
       if (res.playUrl) {
-        this.url = this.getVideoUrl(res.playUrl)
+        this.streamInfo.url = this.getVideoUrl(res.playUrl)
         this.hasRtc = !!res.playUrl.webrtcUrl
         this.streamInfo.codec = res.video.codec
         const videoInfo = this.parseVideoInfo(res.videoInfo)

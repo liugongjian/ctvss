@@ -2,7 +2,7 @@
   <div class="screen-tools">
     <div class="screen-tools__bar">
       <div class="screen-tools__bar__left">
-        <Polling />
+        <QueueExecutor />
         <Sync />
         <Datepicker :screen="screen" />
       </div>
@@ -17,7 +17,7 @@
 import { Component, Vue, Inject } from 'vue-property-decorator'
 import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
 import ReplayAxis from '../ReplayPlayer/ReplayAxis.vue'
-import Polling from './components/Polling.vue'
+import QueueExecutor from './components/Polling.vue'
 import Sync from './components/Sync.vue'
 import Datepicker from './components/Datepicker.vue'
 import Cleaner from './components/Cleaner.vue'
@@ -25,8 +25,8 @@ import Cleaner from './components/Cleaner.vue'
 @Component({
   name: 'ScreenTools',
   components: {
+    QueueExecutor,
     ReplayAxis,
-    Polling,
     Sync,
     Datepicker,
     Cleaner
