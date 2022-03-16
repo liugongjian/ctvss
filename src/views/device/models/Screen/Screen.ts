@@ -99,22 +99,22 @@ export class Screen {
 
   public get deviceInfo(): DeviceInfo {
     return {
-      deviceId: null,
-      inProtocol: '',
-      deviceName: '',
-      roleId: null,
-      realGroupId: null
+      deviceId: this.deviceId,
+      inProtocol: this.inProtocol,
+      deviceName: this.deviceName,
+      roleId: this.roleId,
+      realGroupId: this.realGroupId
     }
   }
 
   public get streamInfo(): StreamInfo {
     return {
-      streams: [],
-      streamSize: null,
-      streamNum: null,
-      videoWidth: null,
-      videoHeight: null,
-      codec: null
+      streams: this.streams,
+      streamSize: this.streamSize,
+      streamNum: this.streamNum,
+      videoWidth: this.videoWidth,
+      videoHeight: this.videoHeight,
+      codec: this.codec
     }
   }
 
@@ -164,21 +164,21 @@ export class Screen {
       this.isInitialized = true
       this.axiosSource = axios.CancelToken.source()
       const res: any = await getDevicePreview({
-        deviceId: this.deviceInfo.deviceId,
-        inProtocol: this.deviceInfo.inProtocol,
-        streamNum: this.streamInfo.streamNum,
+        deviceId: this.deviceId,
+        inProtocol: this.inProtocol,
+        streamNum: this.streamNum,
         'self-defined-headers': {
-          'role-id': this.deviceInfo.roleId || '',
-          'real-group-id': this.deviceInfo.realGroupId || ''
+          'role-id': this.roleId || '',
+          'real-group-id': this.realGroupId || ''
         }
       }, this.axiosSource.token)
       if (res.playUrl) {
-        this.streamInfo.url = this.getVideoUrl(res.playUrl)
+        this.url = this.getVideoUrl(res.playUrl)
         this.hasRtc = !!res.playUrl.webrtcUrl
-        this.streamInfo.codec = res.video.codec
+        this.codec = res.video.codec
         const videoInfo = this.parseVideoInfo(res.videoInfo)
-        this.streamInfo.videoWidth = videoInfo.videoWidth
-        this.streamInfo.videoHeight = videoInfo.videoHeight
+        this.videoWidth = videoInfo.videoWidth
+        this.videoHeight = videoInfo.videoHeight
       }
     } catch (e) {
       if (e.code === 5) {
@@ -237,8 +237,8 @@ export class Screen {
     try {
       this.isLoading = true
       this.recordManager = new RecordManager({
-        deviceId: this.deviceInfo.deviceId,
-        inProtocol: this.deviceInfo.inProtocol,
+        deviceId: this.deviceId,
+        inProtocol: this.inProtocol,
         recordType: this.recordType
       })
       this.recordManager.getRecordStatistic() // 获得最近两月录像统计

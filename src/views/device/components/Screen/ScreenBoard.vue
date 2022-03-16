@@ -65,7 +65,8 @@ export default class extends Vue {
 
   private mounted() {
     this.screenManager = new ScreenManager({
-      size: 1,
+      size: 4,
+      layout: '4',
       isLive: this.isLive
     })
   }

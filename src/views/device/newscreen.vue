@@ -168,6 +168,7 @@
                   </div>
                 </span>
               </el-tree>
+              <Datepicker v-if="currentScreen" :screen="currentScreen" />
             </div>
             <div v-if="polling.isLoading || pollingStatus !== 'free'" class="polling-mask">
               <div class="polling-mask__tools">
@@ -215,6 +216,7 @@
                 </div>
               </div>
             </div>
+
             <!-- 国标才展示 -->
             <div v-if="currentGroup.inProtocol === 'gb28181'">
               <advanced-search :search-form="advancedSearchForm" @search="doSearch" />
@@ -225,7 +227,7 @@
           <ScreenBoard
             ref="screenBoard"
             class="device-list__right"
-            :is-live="false"
+            :is-live="true"
             :in-protocol="currentGroupInProtocol"
           />
           <ptz-control v-if="pollingStatus !== 'working' && currentGroupInProtocol === 'gb28181'" :device-id="selectedDeviceId" />
@@ -257,6 +259,7 @@ import AdvancedSearch from '@/views/device/components/AdvancedSearch.vue'
 
 import ScreenBoard from './components/Screen/ScreenBoard.vue'
 import { ScreenManager } from './models/Screen/ScreenManager'
+import Datepicker from './components/Screen/components/Datepicker.vue'
 
 @Component({
   name: 'Screen',
@@ -267,7 +270,8 @@ import { ScreenManager } from './models/Screen/ScreenManager'
     StreamSelector,
     OperateSelector,
     AdvancedSearch,
-    ScreenBoard
+    ScreenBoard,
+    Datepicker
   }
 })
 export default class extends Mixins(ScreenMixin) {
@@ -617,6 +621,10 @@ export default class extends Mixins(ScreenMixin) {
   private onScreenManagerChange(screenManagerStatus) {
     console.log(screenManagerStatus.executeQueueConfig.status)
     this.pollingStatus = screenManagerStatus.executeQueueConfig.status
+  }
+
+  private get currentScreen() {
+    return this.screenManager && this.screenManager.screenList[this.screenManager.currentIndex]
   }
 
   private mounted() {

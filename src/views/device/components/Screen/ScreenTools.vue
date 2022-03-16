@@ -4,10 +4,10 @@
       <div class="screen-tools__bar__left">
         <QueueExecutor />
         <Sync />
-        <Datepicker :screen="screen" />
       </div>
       <div class="screen-tools__bar__left">
         <Cleaner />
+        <SizeSelector />
       </div>
     </div>
     <ReplayAxis :screen="screen" @change="onAxisTimeChange" />
@@ -19,8 +19,8 @@ import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
 import ReplayAxis from '../ReplayPlayer/ReplayAxis.vue'
 import QueueExecutor from './components/QueueExecutor.vue'
 import Sync from './components/Sync.vue'
-import Datepicker from './components/Datepicker.vue'
 import Cleaner from './components/Cleaner.vue'
+import SizeSelector from './components/SizeSelector.vue'
 
 @Component({
   name: 'ScreenTools',
@@ -28,8 +28,8 @@ import Cleaner from './components/Cleaner.vue'
     QueueExecutor,
     ReplayAxis,
     Sync,
-    Datepicker,
-    Cleaner
+    Cleaner,
+    SizeSelector
   }
 })
 export default class extends Vue {

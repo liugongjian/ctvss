@@ -11,15 +11,14 @@
   />
 </template>
 <script lang="ts">
-import { Component, Prop, Watch } from 'vue-property-decorator'
-import ComponentMixin from './mixin'
+import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
 import { prefixZero } from '@/utils/date'
 import { Screen } from '@/views/device/models/Screen/Screen'
 
 @Component({
   name: 'Datepicker'
 })
-export default class extends ComponentMixin {
+export default class extends Vue {
   @Prop()
   private screen: Screen
 

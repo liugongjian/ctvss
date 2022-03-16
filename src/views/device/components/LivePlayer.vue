@@ -1,9 +1,9 @@
 <template>
   <VssPlayer
-    v-if="screen.streamInfo.url"
+    v-if="screen.url"
     ref="player"
     v-loading="screen.isLoading"
-    :url="screen.streamInfo.url"
+    :url="screen.url"
     :type="screen.type"
     :codec="screen.codec"
     :device-info="screen.deviceInfo"

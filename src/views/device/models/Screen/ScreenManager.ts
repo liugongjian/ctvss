@@ -2,11 +2,11 @@
  * 分屏管理器
  */
 import { Screen } from './Screen'
-import { Device } from '@/type/device'
 
 interface ScreenManagerConfig {
   size: number;
   isLive: boolean;
+  layout: string;
 }
 
 export interface ExecuteQueueConfig {
@@ -18,7 +18,8 @@ export interface ExecuteQueueConfig {
 export class ScreenManager {
   public screenList: Screen[]
   public currentIndex: number
-  public _size: number
+  public layout: string
+  private _size: number
   public isLive: boolean
   /* 录像时间轴同步向 */
   public isSync: boolean
@@ -29,6 +30,7 @@ export class ScreenManager {
 
   constructor(config: ScreenManagerConfig) {
     this._size = config.size
+    this.layout = config.layout
     this.isLive = config.isLive
     this.isSync = false
     this.currentIndex = 0

@@ -1,15 +1,15 @@
 <template>
-  <el-dropdown trigger="click" placement="bottom-start" @command="handleLiveScreenSize">
+  <el-dropdown trigger="click" placement="bottom-start" @command="handleScreenSize">
     <el-tooltip content="选择分屏" placement="top">
       <el-button>
-        <svg-icon name="screen" />
+        <svg-icon :name="`screen${layout}`" />
       </el-button>
     </el-tooltip>
     <el-dropdown-menu slot="dropdown">
       <el-dropdown-item
         v-for="(item, index) in screenSizeList"
         :key="index"
-        :command="item.layout"
+        :command="item"
         :class="{'el-dropdown-item__active': item.layout === size}"
       >
         <span class="el-dropdown-menu__screen-icon"><svg-icon :name="`screen${item.layout}`" /></span>
@@ -81,6 +81,15 @@ export default class extends ComponentMixin {
 
   private get size() {
     return this.screenManager.size
+  }
+
+  private get layout() {
+    return this.screenManager.layout
+  }
+
+  private handleScreenSize(screenSize) {
+    this.screenManager.size = screenSize.size
+    this.screenManager.layout = screenSize.layout
   }
 }
 
