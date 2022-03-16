@@ -1,6 +1,6 @@
 <template>
   <div ref="axisWrap" class="axis__wrap">
-    <template v-if="screen.deviceInfo.deviceId">
+    <template v-if="screen.deviceId">
       <div class="axis__middle" />
       <div class="axis__time">{{ screen.isLoading ? '加载中' : formatedCurrentTime }}</div>
     </template>

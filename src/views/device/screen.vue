@@ -478,17 +478,17 @@ export default class extends Mixins(ScreenMixin) {
     if (item.type === 'ipc' && item.deviceStatus === 'on') {
       const screen = this.screenList[this.currentIndex]
       // 如果当前分屏已有播放器，先执行销毁操作
-      if (screen.deviceInfo.deviceId) {
+      if (screen.deviceId) {
         screen.destroy()
       }
       screen.isInitialized = true
       screen.isLive = true
-      screen.deviceInfo.inProtocol = this.currentGroupInProtocol!
-      screen.deviceInfo.deviceId = item.id
-      screen.deviceInfo.deviceName = item.label
-      screen.deviceInfo.roleId = item.roleId || ''
-      screen.deviceInfo.realGroupId = item.realGroupId || ''
-      screen.deviceInfo.realGroupInProtocol = item.realGroupInProtocol || ''
+      screen.inProtocol = this.currentGroupInProtocol!
+      screen.deviceId = item.id
+      screen.deviceName = item.label
+      screen.roleId = item.roleId || ''
+      screen.realGroupId = item.realGroupId || ''
+      screen.realGroupInProtocol = item.realGroupInProtocol || ''
       screen.streamInfo.streamSize = item.multiStreamSize
       screen.streamInfo.streams = item.deviceStreams
       if (streamNum && !isNaN(streamNum)) {

@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { DeviceInfo, StreamInfo } from '@/components/VssPlayer/models/VssPlayer'
+import { DeviceInfo, StreamInfo, Stream } from '@/components/VssPlayer/models/VssPlayer'
 import { RecordManager } from '../Record/RecordManager'
 import { Record } from '../Record/Record'
 import { Player } from '@/components/Player/models/Player'
@@ -11,7 +11,6 @@ export class Screen {
   public type?: string
   /* 播放器实例 */
   public player: Player
-  public deviceInfo: DeviceInfo
   public isLive?: boolean
   public isLoading: Boolean
   public isFullscreen?: boolean
@@ -22,13 +21,30 @@ export class Screen {
 
   /**
    * ----------------
+   * 设备相关属性
+   * ----------------
+   */
+  public deviceId?: number
+  public inProtocol?: string
+  public deviceName?: string
+  public roleId?: string
+  public realGroupId?: string
+
+  /**
+   * ----------------
    * 实时预览相关属性
    * ----------------
    */
-  /* 视频流信息 */
-  public streamInfo: StreamInfo
+  /* 直播视频地址 */
+  public url?: string
   /* 是否开启RTC切换 */
   public hasRtc?: boolean
+  public streams: Stream[]
+  public streamSize: number
+  public streamNum: number
+  public videoWidth: number
+  public videoHeight: number
+  public codec: string
 
   /**
    * ----------------
@@ -53,14 +69,11 @@ export class Screen {
   constructor() {
     this.type = 'flv'
     this.player = null
-    this.deviceInfo = {
-      deviceId: null,
-      inProtocol: '',
-      deviceName: '',
-      roleId: null,
-      realGroupId: null,
-      realGroupInProtocol: null
-    }
+    this.deviceId = null
+    this.inProtocol = ''
+    this.deviceName = ''
+    this.roleId = null
+    this.realGroupId = null
     this.isLive = null
     this.isLoading = false
     this.isInitialized = false
@@ -68,15 +81,13 @@ export class Screen {
     this.axiosSource = null
     this.errorMsg = ''
     this.isCache = false
-    this.streamInfo = {
-      streams: [],
-      streamSize: null,
-      streamNum: null,
-      videoWidth: null,
-      videoHeight: null,
-      codec: null,
-      url: ''
-    }
+    this.streams = []
+    this.streamSize = null
+    this.streamNum = null
+    this.videoWidth = null
+    this.videoHeight = null
+    this.codec = null
+    this.url = ''
     this.hasRtc = false
     this.recordManager = null
     this.recordList = []
@@ -84,6 +95,27 @@ export class Screen {
     this.currentTime = null
     this.recordInterval = null
     this.currentDate = Math.floor(getLocaleDate().getTime() / 1000)
+  }
+
+  public get deviceInfo(): DeviceInfo {
+    return {
+      deviceId: null,
+      inProtocol: '',
+      deviceName: '',
+      roleId: null,
+      realGroupId: null
+    }
+  }
+
+  public get streamInfo(): StreamInfo {
+    return {
+      streams: [],
+      streamSize: null,
+      streamNum: null,
+      videoWidth: null,
+      videoHeight: null,
+      codec: null
+    }
   }
 
   /**

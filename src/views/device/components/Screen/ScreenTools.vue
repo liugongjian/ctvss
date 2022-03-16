@@ -6,17 +6,21 @@
         <Sync />
         <Datepicker :screen="screen" />
       </div>
+      <div class="screen-tools__bar__left">
+        <Cleaner />
+      </div>
     </div>
     <ReplayAxis :screen="screen" @change="onAxisTimeChange" />
   </div>
 </template>
 <script lang="ts">
-import { Component, Prop, Vue, Inject } from 'vue-property-decorator'
+import { Component, Vue, Inject } from 'vue-property-decorator'
 import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
 import ReplayAxis from '../ReplayPlayer/ReplayAxis.vue'
 import QueueExecutor from './components/QueueExecutor.vue'
 import Sync from './components/Sync.vue'
 import Datepicker from './components/Datepicker.vue'
+import Cleaner from './components/Cleaner.vue'
 
 @Component({
   name: 'ScreenTools',
@@ -24,7 +28,8 @@ import Datepicker from './components/Datepicker.vue'
     QueueExecutor,
     ReplayAxis,
     Sync,
-    Datepicker
+    Datepicker,
+    Cleaner
   }
 })
 export default class extends Vue {
@@ -40,7 +45,6 @@ export default class extends Vue {
   }
 
   private onAxisTimeChange(time: number) {
-    console.log('this.screenManager.isSync', this.screenManager.isSync)
     if (this.screenManager.isSync) {
       this.screenManager.screenList.forEach(screen => {
         screen.seek(time)
