@@ -14,7 +14,7 @@
 import { Component, Prop, Vue, Inject } from 'vue-property-decorator'
 import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
 import ReplayAxis from '../ReplayPlayer/ReplayAxis.vue'
-import QueueExecutor from './components/Polling.vue'
+import QueueExecutor from './components/QueueExecutor.vue'
 import Sync from './components/Sync.vue'
 import Datepicker from './components/Datepicker.vue'
 

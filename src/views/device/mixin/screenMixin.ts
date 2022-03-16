@@ -274,12 +274,12 @@ export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
    * @dirTree 目录树DOM
    * @node 当前node节点
    * @deviceArr 存储有效设备的数组
-   * @playEvent 播放事件类型（一键播放/轮巡）
+   * @policy 播放事件策略（一键播放/轮巡）
    * @playType 播放视频类型（实时预览/录像回放）
    */
-  public async deepDispatchTree(dirTree: any, node: any, deviceArr: any[], playEvent?: string, playType?: string) {
+  public async deepDispatchTree(dirTree: any, node: any, deviceArr: any[], policy?: 'polling' | 'autoPlay', playType?: string) {
     // 当为一键播放时，加载设备数超过最大屏幕数则终止遍历
-    if (playEvent === 'autoPlay' && deviceArr.length >= this.maxSize) return
+    if (policy === 'autoPlay' && deviceArr.length >= this.maxSize) return
     if (node.data.type === 'ipc') {
       // 实时预览的一键播放和轮巡需要判断设备是否在线，录像回放的一键播放不需要
       if (node.data.deviceStatus === 'on' || playType === 'replay') {
@@ -316,9 +316,9 @@ export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
             item.realGroupId = node.data.realGroupId
             item.realGroupInProtocol = node.data.realGroupInProtocol
           }
-          await this.deepDispatchTree(dirTree, dirTree.getNode(item.id), deviceArr, playEvent, playType)
+          await this.deepDispatchTree(dirTree, dirTree.getNode(item.id), deviceArr, policy, playType)
           // 当为一键播放时，加载设备数超过最大屏幕数则终止遍历
-          if (playEvent === 'autoPlay' && deviceArr.length >= this.maxSize) return
+          if (policy === 'autoPlay' && deviceArr.length >= this.maxSize) return
         }
       }
     }

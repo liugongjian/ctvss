@@ -12,7 +12,6 @@ interface ScreenManagerConfig {
 export interface ExecuteQueueConfig {
   policy: 'autoPlay' | 'polling';
   interval: number;
-  isLive: boolean;
   status: 'pause' | 'working' | 'free'
 }
 
@@ -39,10 +38,15 @@ export class ScreenManager {
     this.executeQueueConfig = {
       policy: 'autoPlay',
       interval: 10,
-      isLive: true,
       status: 'free'
     }
     this.initScreenList()
+  }
+
+  public get screenManagerStatus() {
+    return {
+      executeQueueConfig: this.executeQueueConfig
+    }
   }
 
   /**

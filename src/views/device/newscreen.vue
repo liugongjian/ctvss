@@ -169,11 +169,11 @@
                 </span>
               </el-tree>
             </div>
-            <div v-if="isLoading || pollingStatus === 'working'" class="polling-mask">
+            <div v-if="polling.isLoading || pollingStatus !== 'free'" class="polling-mask">
               <div class="polling-mask__tools">
                 <div class="polling-mask__tools__status">
                   <span v-if="pollingStatus === 'pause'">轮巡已暂停</span>
-                  <span v-else>{{ isLoading ? '查询设备中...' : '当前轮巡中...' }}</span>
+                  <span v-else>{{ polling.isLoading ? '查询设备中...' : '当前轮巡中...' }}</span>
                 </div>
                 <div class="polling-mask__tools__item">
                   <svg-icon
@@ -187,7 +187,7 @@
                     class="polling-mask__tools__select"
                     size="mini"
                     placeholder="请选择"
-                    :disabled="isLoading"
+                    :disabled="polling.isLoading"
                     @change="intervalChange"
                   >
                     <el-option
@@ -199,17 +199,17 @@
                   </el-select>
                 </div>
                 <div v-if="pollingStatus === 'working'" class="polling-mask__tools__item">
-                  <el-button size="mini" :disabled="isLoading" @click="pausePolling()">
+                  <el-button size="mini" :disabled="polling.isLoading" @click="pausePolling()">
                     <svg-icon name="pause" />暂停
                   </el-button>
                 </div>
                 <div v-if="pollingStatus === 'pause'" class="polling-mask__tools__item">
-                  <el-button size="mini" :disabled="isLoading" @click="resumePolling()">
+                  <el-button size="mini" :disabled="polling.isLoading" @click="resumePolling()">
                     <svg-icon name="play" />继续
                   </el-button>
                 </div>
                 <div class="polling-mask__tools__item">
-                  <el-button size="mini" :disabled="isLoading" @click="stopPolling()">
+                  <el-button size="mini" :disabled="polling.isLoading" @click="stopPolling()">
                     <svg-icon name="stop" />结束
                   </el-button>
                 </div>
@@ -256,6 +256,7 @@ import IntercomDialog from './components/dialogs/Intercom.vue'
 import AdvancedSearch from '@/views/device/components/AdvancedSearch.vue'
 
 import ScreenBoard from './components/Screen/ScreenBoard.vue'
+import { ScreenManager } from './models/Screen/ScreenManager'
 
 @Component({
   name: 'Screen',
@@ -289,12 +290,6 @@ export default class extends Mixins(ScreenMixin) {
   public maxSize = 4
   private selectedDeviceId = null
   private currentPollingIndex = 0
-  private polling = {
-    interval: 10,
-    isStart: false,
-    isPause: false,
-    isLoading: false
-  }
   private isLoading: boolean = false
   private currentNode?: Record<string, any> = {
     data: {}
@@ -468,54 +463,6 @@ export default class extends Mixins(ScreenMixin) {
   // }
 
   /**
-   * 一键播放
-   */
-  private async videosOnAutoPlay(node: any, isRoot: boolean) {
-    this.autoPlayDevices = []
-    const dirTree: any = this.$refs.dirTree
-    if (node) {
-      this.currentNode = node
-      // 设置虚拟业务组相关信息
-      VGroupModule.SetRoleID(this.currentNode!.data.roleId || '')
-      VGroupModule.SetRealGroupId(this.currentNode!.data.realGroupId || '')
-      VGroupModule.SetRealGroupInProtocol(this.currentNode!.data.realGroupInProtocol || '')
-    }
-    if (!isRoot) {
-      for (let i = 0, length = this.dirList.length; i < length; i++) {
-        await this.deepDispatchTree(dirTree, dirTree.getNode(this.dirList[i].id), this.autoPlayDevices, 'autoPlay')
-        // 当为一键播放时，加载设备数超过最大屏幕数则终止遍历
-        if (this.autoPlayDevices.length >= this.maxSize) break
-      }
-    } else {
-      await this.deepDispatchTree(dirTree, node, this.autoPlayDevices, 'autoPlay')
-    }
-    // console.log(this.autoPlayDevices, 'this.autoPlayDevices')
-    if (!this.autoPlayDevices.length) {
-      this.$alert('当前设备数需大于0才可开始自动播放', '提示', {
-        confirmButtonText: '确定'
-      })
-    }
-    for (let i = 0; i < this.maxSize; i++) {
-      this.screenList[i] = new Screen()
-      if (!this.autoPlayDevices[i]) {
-        continue
-      } else {
-        this.screenList[i].deviceId = this.autoPlayDevices[i].id
-        this.screenList[i].deviceName = this.autoPlayDevices[i].label
-        this.screenList[i].inProtocol = this.currentGroupInProtocol!
-        this.screenList[i].roleId = this.autoPlayDevices[i].roleId
-        this.screenList[i].realGroupId = this.autoPlayDevices[i].realGroupId
-        this.screenList[i].realGroupInProtocol = this.autoPlayDevices[i].realGroupInProtocol
-      }
-      this.screenList[i].init()
-    }
-  }
-
-  private intervalChange(val: number) {
-    // this.executeQueueConfig.interval = val
-  }
-
-  /**
    * 轮巡
    */
   // private pollingVideos() {
@@ -660,25 +607,29 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   private pollingStatus: string = 'free'
-
-  @Watch('screenManager')
-  private onScreenManagerChange(screenManager) {
-    if (screenManager && screenManager.executeQueueConfig) {
-      console.log(screenManager.executeQueueConfig.status)
-      this.pollingStatus = screenManager.executeQueueConfig.status
-    }
+  private screenManager: ScreenManager = null
+  private polling = {
+    interval: 10,
+    isLoading: false
   }
 
-  private get screenManager() {
+  @Watch('screenManager.screenManagerStatus', { deep: true })
+  private onScreenManagerChange(screenManagerStatus) {
+    console.log(screenManagerStatus.executeQueueConfig.status)
+    this.pollingStatus = screenManagerStatus.executeQueueConfig.status
+  }
+
+  private mounted() {
     const screenBoard = this.$refs.screenBoard as ScreenBoard
-    if (screenBoard && screenBoard.screenManager) {
-      this.pollingStatus = screenBoard.screenManager.executeQueueConfig.status
-    }
-    return screenBoard.screenManager
+    this.screenManager = screenBoard!.screenManager
   }
 
   private get queueExecutor() {
     return this.screenManager && this.screenManager.refs.queueExecutor
+  }
+
+  private intervalChange(val: number) {
+    this.screenManager.executeQueueConfig.interval = val
   }
 
   /**
@@ -694,7 +645,7 @@ export default class extends Mixins(ScreenMixin) {
       VGroupModule.SetRealGroupId(this.currentNode!.data.realGroupId || '')
       VGroupModule.SetRealGroupInProtocol(this.currentNode!.data.realGroupInProtocol || '')
     }
-    this.isLoading = true
+    this.polling.isLoading = true
     if (!isRoot) {
       for (let i = 0, length = this.dirList.length; i < length; i++) {
         await this.deepDispatchTree(dirTree, dirTree.getNode(this.dirList[i].id), pollingDevices, 'polling')
@@ -703,12 +654,45 @@ export default class extends Mixins(ScreenMixin) {
       await this.deepDispatchTree(dirTree, node, pollingDevices, 'polling')
     }
     // console.log(this.pollingDevices, 'this.pollingDevices')
-    this.isLoading = false
-    this.startPolling(pollingDevices)
-    // this.doPolling()
+    this.polling.isLoading = false
+    this.executeQueue(pollingDevices, 'polling')
   }
 
-  private startPolling(devicesQueue: Device[]) {
+  /**
+   * 获取需要一键播放的视频
+   */
+  private async videosOnAutoPlay(node: any, isRoot: boolean) {
+    let autoPlayDevices = []
+    const dirTree: any = this.$refs.dirTree
+    if (node) {
+      this.currentNode = node
+      // 设置虚拟业务组相关信息
+      VGroupModule.SetRoleID(this.currentNode!.data.roleId || '')
+      VGroupModule.SetRealGroupId(this.currentNode!.data.realGroupId || '')
+      VGroupModule.SetRealGroupInProtocol(this.currentNode!.data.realGroupInProtocol || '')
+    }
+    if (!isRoot) {
+      for (let i = 0, length = this.dirList.length; i < length; i++) {
+        await this.deepDispatchTree(dirTree, dirTree.getNode(this.dirList[i].id), autoPlayDevices, 'autoPlay')
+        // 当为一键播放时，加载设备数超过最大屏幕数则终止遍历
+        if (autoPlayDevices.length >= this.maxSize) break
+      }
+    } else {
+      await this.deepDispatchTree(dirTree, node, autoPlayDevices, 'autoPlay')
+    }
+    // console.log(this.autoPlayDevices, 'this.autoPlayDevices')
+    this.executeQueue(autoPlayDevices, 'auotoPlay')
+  }
+
+  private executeQueue(devicesQueue: Device[], policy: 'polling' | 'auotoPlay') {
+    console.log(this.screenManager, devicesQueue)
+    if (this.queueExecutor) {
+      this.screenManager.devicesQueue = devicesQueue
+      this.queueExecutor.executeDevicesQueue(policy)
+    }
+  }
+
+  private startAutoPlay(devicesQueue: Device[]) {
     console.log(this.screenManager, devicesQueue)
     if (this.queueExecutor) {
       this.screenManager.devicesQueue = devicesQueue
@@ -723,16 +707,14 @@ export default class extends Mixins(ScreenMixin) {
   }
 
   private pausePolling() {
-    if (this.polling.isStart) {
-      this.polling.isPause = true
-      clearInterval(this.interval!)
+    if (this.queueExecutor) {
+      this.queueExecutor.pausePolling()
     }
   }
 
   private resumePolling() {
-    if (this.polling.isStart) {
-      this.polling.isPause = false
-      this.doPolling()
+    if (this.queueExecutor) {
+      this.queueExecutor.resumePolling()
     }
   }
 }
