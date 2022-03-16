@@ -27,8 +27,6 @@ export class Screen {
    */
   /* 视频流信息 */
   public streamInfo: StreamInfo
-  /* 直播视频地址 */
-  public url?: string
   /* 是否开启RTC切换 */
   public hasRtc?: boolean
 
@@ -53,14 +51,15 @@ export class Screen {
   private currentDate: number
 
   constructor() {
-    this.type = null
+    this.type = 'flv'
     this.player = null
     this.deviceInfo = {
       deviceId: null,
       inProtocol: '',
       deviceName: '',
       roleId: null,
-      realGroupId: null
+      realGroupId: null,
+      realGroupInProtocol: null
     }
     this.isLive = null
     this.isLoading = false
@@ -75,9 +74,9 @@ export class Screen {
       streamNum: null,
       videoWidth: null,
       videoHeight: null,
-      codec: null
+      codec: null,
+      url: ''
     }
-    this.url = ''
     this.hasRtc = false
     this.recordManager = null
     this.recordList = []
@@ -142,7 +141,7 @@ export class Screen {
         }
       }, this.axiosSource.token)
       if (res.playUrl) {
-        this.url = this.getVideoUrl(res.playUrl)
+        this.streamInfo.url = this.getVideoUrl(res.playUrl)
         this.hasRtc = !!res.playUrl.webrtcUrl
         this.streamInfo.codec = res.video.codec
         const videoInfo = this.parseVideoInfo(res.videoInfo)

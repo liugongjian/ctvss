@@ -50,7 +50,6 @@ export default class extends Vue {
       streamSize: this.streamSize,
       streamNum: 1
     }
-    screen.type = 'flv'
     this.screen = screen
     screen.init()
     this.calMaxHeight()

@@ -1,16 +1,16 @@
 <template>
   <div class="screen-tools">
-    <Polling />
+    <QueueExecutor />
   </div>
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import Polling from './components/Polling.vue'
+import QueueExecutor from './components/QueueExecutor.vue'
 
 @Component({
   name: 'ScreenTools',
   components: {
-    Polling
+    QueueExecutor
   }
 })
 export default class extends Vue {

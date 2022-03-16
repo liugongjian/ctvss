@@ -29,4 +29,6 @@ export interface StreamInfo {
   videoHeight?: number;
   /* 编码格式 */
   codec?: string;
+  /* 视频流地址 */
+  url?: string;
 }
