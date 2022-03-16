@@ -46,6 +46,7 @@ class User extends VuexModule implements IUserState {
   public tags: any = null
   public ctLoginId = getLocalStorage('ctLoginId') || ''
   public whiteListFlag = getLocalStorage('whiteListFlag') || ''
+  public outNetwork: 'internet' | 'vpn' = 'internet'
 
   @Mutation
   private SET_WHITELIST(flag: string) {
@@ -122,6 +123,12 @@ class User extends VuexModule implements IUserState {
   private SET_CT_LOGIN_ID(ctLoginId: string) {
     this.ctLoginId = ctLoginId
   }
+
+  @Mutation
+  private SET_OUTER_NETWORK(outNetwork: 'internet' | 'vpn') {
+    this.outNetwork = outNetwork
+  }
+
 
   @Action({ rawError: true })
   public async Login(userInfo: { mainUserID?: string, userName: string, password: string}) {
@@ -211,6 +218,19 @@ class User extends VuexModule implements IUserState {
     if (this.token === '') {
       throw Error('GetGlobalInfo: token is undefined!')
     }
+
+    // 获取用户的网络访问类型：专线 or 公网
+    const outNetworkWhiteList = [
+      '182.43.127.35',
+      'console.vcn.ctyun.cn'
+    ]
+    console.log('process.env: ', process.env.NODE_ENV)
+    if (process.env.NODE_ENV === 'development' || outNetworkWhiteList.indexOf(location.hostname) !== -1) {
+      this.SET_OUTER_NETWORK('internet')
+    } else {
+      this.SET_OUTER_NETWORK('vpn')
+    }
+
     let userInfo: any = await getMainUserInfo()
     if (userInfo.userId) {
       this.SET_MAIN_USER_ID(userInfo.userId)
