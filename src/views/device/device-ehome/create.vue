@@ -434,13 +434,13 @@ export default class extends Mixins(createMixin) {
       this.submitting = true
       let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceVendor', 'description'])
       if (this.isUpdate) {
-        params = Object.assign(params, pick(this.form, ['deviceId']))
+        params = Object.assign(params, pick(this.form, ['deviceId', 'deviceLongitude', 'deviceLatitude']))
       } else {
         params = Object.assign(params, pick(this.form, ['resources', 'vssAIApps']))
       }
       if (!this.isChannel) {
         // 通用参数
-        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'deviceIp', 'devicePort', 'pullType', 'ehomeVersion', 'transPriority', 'multiStreamSize', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
+        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'deviceIp', 'devicePort', 'pullType', 'ehomeVersion', 'transPriority', 'multiStreamSize', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
         if (this.form.pullType === 1) {
           params = Object.assign(params, pick(this.form, ['autoStreamNum']))
         }
@@ -459,7 +459,7 @@ export default class extends Mixins(createMixin) {
           parentDeviceId: this.isUpdate ? this.form.parentDeviceId : this.deviceId,
           channelName: this.form.channelName,
           channelNum: this.form.channelNum,
-          deviceName: this.form.deviceName
+          deviceName: this.form.deviceName,
         })
       }
       if (this.isUpdate) {
