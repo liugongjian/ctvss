@@ -4,77 +4,41 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
 import VMap from './models/vmap'
-import AMapLoader from '@amap/amap-jsapi-loader';
 
 @Component({
   name: 'MapView'
 })
 export default class MapView extends Vue {
   map = new VMap('mapContainer');
-  mapList = [
-    {
-      id: 1,
-      name: '地图1',
-      zoom: 12,
-      // center: [121.487207, 31.225348],
-      lng: 121.487207,
-      lat: 31.225348,
-      markerList: [
-        {
-          id: '001',
-          name: '设备1',
-          lng: 121.487207,
-          lat: 31.225348,
-          vRadius: 100,
-          vAngle: 120,
-          dAngle: 0,
-        },
-        {
-          id: '002',
-          name: '设备2',
-          lng: 121.527207,
-          lat: 31.215348,
-          vRadius: 80,
-          vAngle: 90,
-          dAngle: 20,
-        },
-        {
-          id: '003',
-          name: '设备3',
-          lng: 121.526207,
-          lat: 31.215148,
-          vRadius: 80,
-          vAngle: 90,
-          dAngle: 20,
-        }
-      ],
-    }
-  ]
-  mounted() {
-    // const { lng, lat, zoom, markerList } = this.mapList[0];
-    // AMapLoader.load({
-    //   "key": "7f0b2bbe4de7b251916b60012a6fbe3d",
-    //   "version": "2.0",
-    //   "plugins": [],
-    // }).then((AMap)=>{
-    //   const map = new AMap.Map('mapContainer', {
-    //     rotateEnable: false,
-    //     pitchEnable: false,
-    //     animateEnable: false,
-    //     viewMode:'3D',
-    //     pitch: 50,
-    //     rotation: 0,
-    //     zoom: zoom,
-    //     center:[lng, lat],
-    //   });
-    // }).catch((e)=>{
-    //   console.error(e);  //加载错误提示
-    // });
-    this.chooseMap(this.mapList[0])
-  }
+  mapOption = null;
+  markerlist = [];
 
   chooseMap(map) {
+    this.mapOption = map;
     this.map.renderMap(map);
+  }
+
+  changeEdit(status) {
+    this.map.changeEdit(status);
+  }
+
+  reMarker(markerOption) {
+    this.map.reSetMarker(markerOption);
+  }
+
+  // 标记点信息修改后处理
+  handleReMarker(markerOption) {
+    // 修改标记点信息
+    console.log(`修改标记点：地图${this.mapOption.id}, 标记信息${JSON.stringify(markerOption)}`);
+  }
+
+  addMarker(markerOption) {
+    this.map.addMarker(markerOption);
+    console.log(this.markerlist)
+  }
+  setMarkerList(markerList) {
+    this.markerlist = markerList;
+    this.map.setMarkerList(markerList);
   }
 }
 </script>
@@ -102,9 +66,13 @@ export default class MapView extends Vue {
   border-radius: 50%;
 }
 .marker-label{
+  display: block;
   position: absolute;
   bottom: 10px;
   font-size: 12px;
+}
+.hide-title .marker-label{
+  display: none;
 }
 .marker-center{
   position: absolute;

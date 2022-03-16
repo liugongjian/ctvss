@@ -57,6 +57,8 @@ declare namespace AMap {
   export class LngLat {
     /**构造一个地理坐标对象, lng、lat分别代表经度、纬度值**/
     constructor(lng: number, lat: number);
+    public lng: number;
+    public lat: number;
     /**当前经纬度坐标值经度移动w, 纬度移动s, 得到新的坐标。经度向右移为正值, 纬度向上移为正值, 单位为米。(自v1.2 新增)**/
     public offset(w: number, s: number): LngLat;
 
@@ -806,6 +808,24 @@ declare namespace AMap {
     public getExtData(): any;
 
 
+  }
+  export interface MarkerClusterOptions {
+    gridSize?: number;
+    maxZoom?: number;
+    averageCenter?: boolean;
+    clusterByZoomChange?: boolean;
+    styles?: Array<object>;
+    renderClusterMarker?: any;
+    renderMarker?: any;
+  }
+  export interface dataOptions {
+    lnglat: [number, number]
+    weight?: number
+  }
+  export class MarkerCluster extends Marker{
+    constructor(map: Map, dataOptions: dataOptions[], opt: MarkerClusterOptions);
+    setData: any;
+    addData: any;
   }
   /** TextOptions **/
   export interface TextOptions {
