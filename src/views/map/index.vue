@@ -23,63 +23,23 @@
           </div>
           <div v-loading="loading.dir" class="dir-list__tree device-list__max-height el-tree__content" :style="{height: `${maxHeight-230}px`}">
             <el-tree
-              v-if="!search.revertSearchFlag"
-              ref="tree"
-              key="device-el-tree-original"
-              empty-text="暂无目录或设备"
-              :data="dirList"
-              node-key="id"
-              highlight-current
-              lazy
-              :load="loadDirs"
-              :props="treeProps"
-              :default-expanded-keys="defaultExpandedKeys"
-            >
-              <span
-                slot-scope="{node, data}"
-                class="custom-tree-node"
-                :class="{'online': data.deviceStatus === 'on'}"
-              >
-                <span class="node-name">
-                  <svg-icon v-if="data.type !== 'dir'" :name="data.type" width="15" height="15" />
-                  <span v-else class="node-dir">
-                    <svg-icon name="dir" width="15" height="15" />
-                    <svg-icon name="dir-close" width="15" height="15" />
-                  </span>
-                  <!-- <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" /> -->
-                  {{ node.label }}
-                  <span class="sum-icon">{{ getSums(data) }}</span>
-                </span>
-              </span>
-            </el-tree>
-            <el-tree
-              v-else
-              key="device-el-tree-filter"
               ref="dirTree"
-              empty-text="暂无目录或设备"
-              :data="dirList"
               node-key="id"
-              highlight-current
+              lazy
+              show-checkbox
+              :data="dirList"
+              :load="loadDirs"
               :props="treeProp"
-              :current-node-key="defaultKey"
-              default-expand-all
-              @node-click="deviceRouter"
+              :check-strictly="false"
+              @check="checkCallback"
+              @check-change="onCheckDevice"
+              @node-click="selectDevice"
             >
-              <span
-                slot-scope="{node, data}"
-                class="custom-tree-node"
-                :class="{'online': data.deviceStatus === 'on'}"
-              >
+              <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}">
                 <span class="node-name">
-                  <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
-                  <span v-else class="node-dir">
-                    <svg-icon name="dir" width="15" height="15" />
-                    <svg-icon name="dir-close" width="15" height="15" />
-                  </span>
-                  <status-badge v-if="data.type === 'ipc'" :status="data.streamStatus" />
+                  <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
+                  <svg-icon :name="data.type" />
                   {{ node.label }}
-                  <span class="sum-icon">{{ getSums(data) }}</span>
-                  <span class="alert-type">{{ renderAlertType(data) }}</span>
                 </span>
               </span>
             </el-tree>
@@ -89,6 +49,7 @@
           <div class="breadcrumb">
             <span class="breadcrumb__item">
               <el-button size="small" @click="isEdit = true">开启编辑</el-button>
+              <svg-icon name="refresh" />
             </span>
           </div>
           <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
@@ -168,21 +129,18 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Watch, Mixins, Provide } from 'vue-property-decorator'
-import IndexMixin from '@/views/device/mixin/indexMixin'
-import { DeviceModule } from '@/store/modules/device'
-import CreateDir from '@/views/device/components/dialogs/CreateDir.vue'
-import SortChildren from '@/views/device/components/dialogs/SortChildren.vue'
+import { Component, Mixins, Prop } from 'vue-property-decorator'
+import IndexMixin from '../device/mixin/indexMixin'
+import { getGroups } from '@/api/group'
+import { setDirsStreamStatus, renderAlertType, getSums } from '@/utils/device'
+import { describeShareDevices } from '@/api/upPlatform'
+import { getDeviceTree } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
-import { renderAlertType, getSums } from '@/utils/device'
-import { VGroupModule } from '@/store/modules/vgroup'
 
 @Component({
   name: 'Map',
   components: {
-    CreateDir,
-    StatusBadge,
-    SortChildren
+    StatusBadge
   }
 })
 export default class extends Mixins(IndexMixin) {
@@ -192,42 +150,198 @@ export default class extends Mixins(IndexMixin) {
   private value = 3
   private isEdit = false
   private editValue = 'sss'
+  private breadcrumb: Array<any> = []
   private form = {
     name: '',
     longitude: '',
     latitude: ''
   }
-  @Watch('$route.query')
-  private onRouterChange() {
-    !this.defaultKey && this.gotoRoot()
+  private submitting = false
+  private dirList: any = []
+  private deviceList: any = []
+  private treeProp = {
+    label: 'label',
+    children: 'children',
+    isLeaf: 'isLeaf'
+  }
+  @Prop()
+  private platformId: any
+  private typeMapping: any = {
+    dir: 0,
+    nvr: 1
   }
 
-  @Watch('currentGroupId', { immediate: true })
-  private onCurrentGroupChange(groupId: string, oldGroupId: string) {
-    this.search = {
-      ...this.search,
-      inputKey: '',
-      searchKey: '',
-      statusKey: 'all',
-      revertSearchFlag: false
-    }
-    if (!groupId) return
-    this.$nextTick(() => {
-      if (oldGroupId || !this.defaultKey) {
-        this.gotoRoot()
-      }
-      this.initDirs()
-    })
+  private mounted() {
+    this.initDirs()
   }
-  @Provide('gotoRoot')
-  private async gotoRoot() {
+
+  /**
+   * 目录初始化
+   */
+  public async initDirs() {
+    try {
+      this.loading.dir = true
+      const res = await getGroups({
+        pageSize: 1000
+      })
+      this.dirList = []
+      res.groups.forEach((group: any) => {
+        // 放开rtsp rtmp
+        // (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome' || group.inProtocol === 'vgroup') && (
+        this.dirList.push({
+          id: group.groupId,
+          groupId: group.groupId,
+          label: group.groupName,
+          inProtocol: group.inProtocol,
+          type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
+          disabled: false,
+          path: [{
+            id: group.groupId,
+            label: group.groupName,
+            type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group'
+          }]
+        })
+      })
+    } catch (e) {
+      this.dirList = []
+    } finally {
+      this.loading.dir = false
+    }
+  }
+
+  /**
+   * 加载目录
+   */
+  private async loadDirs(node: any, resolve: Function) {
+    if (node.level === 0) return resolve([])
+    const dirs = await this.getTree(node)
+    resolve(dirs)
+  }
+
+  /**
+   * 获取菜单树
+   */
+  private async getTree(node: any) {
+    try {
+      if (node.data.type === 'role') {
+        node.data.roleId = node.data.id
+      } else if (node.data.type === 'group') {
+        node.data.realGroupId = node.data.id
+        node.data.realGroupInProtocol = node.data.inProtocol
+      }
+      let shareDeviceIds: any = []
+      if (node.data.type !== 'vgroup' && node.data.type !== 'role') {
+        let params: any = {
+          platformId: this.platformId,
+          inProtocol: node.data.inProtocol,
+          groupId: node.data.realGroupId || node.data.groupId,
+          dirId: node.data.type === 'top-group' || node.data.type === 'group' ? 0 : node.data.id,
+          dirType: '0',
+          pageNum: 1,
+          pageSize: 1000
+        }
+        const shareDevices: any = await describeShareDevices(params)
+        shareDeviceIds = shareDevices.devices.map((device: any) => {
+          return device.deviceId
+        })
+      }
+
+      const devices: any = await getDeviceTree({
+        groupId: node.data.groupId,
+        id: node.data.type === 'top-group' || node.data.type === 'vgroup' ? 0 : node.data.id,
+        inProtocol: node.data.inProtocol,
+        type: node.data.type === 'top-group' || node.data.type === 'vgroup' ? undefined : node.data.type,
+        'self-defined-headers': {
+          'role-id': node.data.roleId,
+          'real-group-id': node.data.realGroupId
+        }
+      })
+      // if (node.data.type === 'role') {
+      //   devices.dirs = devices.dirs.filter((dir: any) => dir.inProtocol === 'gb28181' || dir.inProtocol === 'ehome')
+      // }
+      const dirTree: any = this.$refs.dirTree
+      let checkedKeys = dirTree.getCheckedKeys()
+      let dirs: any = devices.dirs.map((dir: any) => {
+        let sharedFlag = false
+        if (shareDeviceIds.includes(dir.id) && dir.type === 'ipc') {
+          sharedFlag = true
+          checkedKeys.push(dir.id)
+          dirTree.setCheckedKeys(checkedKeys)
+        }
+        if (dir.type === 'ipc') {
+          node.data.disabled = false
+        }
+        return {
+          id: dir.id,
+          groupId: node.data.groupId,
+          label: dir.label,
+          inProtocol: dir.inProtocol || node.data.inProtocol,
+          isLeaf: dir.isLeaf,
+          type: dir.type,
+          deviceStatus: dir.deviceStatus,
+          streamStatus: dir.streamStatus,
+          // disabled: dir.type !== 'ipc' || sharedFlag,
+          disabled: sharedFlag,
+          path: node.data.path.concat([dir]),
+          sharedFlag: sharedFlag,
+          roleId: node.data.roleId || '',
+          realGroupId: node.data.realGroupId || '',
+          realGroupInProtocol: node.data.realGroupInProtocol || ''
+        }
+      })
+      dirs = setDirsStreamStatus(dirs)
+      console.log(dirs)
+      return dirs
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  private async checkCallback(data: any) {
     const dirTree: any = this.$refs.dirTree
-    dirTree.setCurrentKey(null)
-    await DeviceModule.ResetBreadcrumb()
-    await VGroupModule.resetVGroupInfo()
-    this.deviceRouter({
-      id: '0',
-      type: 'dir'
+    const node = dirTree.getNode(data.id)
+    this.checkNodes(dirTree, node)
+  }
+
+  private async checkNodes(dirTree: any, node: any) {
+    if (node.checked) {
+      if (node.loaded) {
+        node.expanded = true
+      } else {
+        const dirs = await this.getTree(node)
+        dirTree.updateKeyChildren(node.data.id, dirs)
+        node.expanded = true
+        node.loaded = true
+      }
+      node.childNodes.forEach((child: any) => {
+        child.checked = true
+        if (child.data.type !== 'ipc') {
+          this.checkNodes(dirTree, child)
+        }
+      })
+      this.onCheckDevice()
+    }
+  }
+
+  /**
+   * 单击ipc时直接勾选
+   */
+  private selectDevice(data: any) {
+    if (data.type === 'ipc' && !data.sharedFlag) {
+      const dirTree: any = this.$refs.dirTree
+      const node = dirTree.getNode(data.id)
+      dirTree.setChecked(data.id, !node.checked)
+    }
+  }
+
+  /**
+   * 当设备被选中时回调，将选中的设备列出
+   */
+  private onCheckDevice() {
+    const dirTree: any = this.$refs.dirTree
+    const nodes = dirTree.getCheckedNodes()
+    this.deviceList = nodes.filter((node: any) => {
+      return (node.type === 'ipc' && !node.sharedFlag)
     })
   }
 }

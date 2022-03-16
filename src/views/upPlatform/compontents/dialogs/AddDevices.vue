@@ -123,7 +123,6 @@ export default class extends Vue {
           }]
         })
       })
-      console.log('this.dirList:', this.dirList)
     } catch (e) {
       this.dirList = []
     } finally {
