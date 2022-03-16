@@ -1301,4 +1301,15 @@ declare namespace AMap {
     /** 获取信息窗体大小 */
     public getSize(): Size;
   }
+
+  export class HawkEyeOption {
+    opened?: boolean // 是否默认展开
+    width?: string
+    height?: string
+  }
+  export class HawkEye{
+    constructor(opt: HawkEyeOption)
+    public show: any
+    public hide: any
+  }
 }

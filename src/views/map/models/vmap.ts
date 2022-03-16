@@ -37,7 +37,7 @@ export const getAMapLoad = () => {
       AMapLoader.load({
         'key': '7f0b2bbe4de7b251916b60012a6fbe3d',
         'version': '2.0',
-        'plugins': ['AMap.MarkerCluster'],
+        'plugins': ['AMap.MarkerCluster', 'AMap.HawkEye'],
       }).then((AMap)=>{
         resolve(AMap);
       }).catch(e => {
@@ -54,6 +54,7 @@ export default class VMap {
   curMarkerList: markerObject[]
   container = ''
   isEdit = false
+  overView: AMap.HawkEye | null = null
   cluster: AMap.MarkerCluster | null = null
   constructor(container: string) {
     this.container = container;
@@ -70,7 +71,14 @@ export default class VMap {
         rotation: 0,
         zoom: zoom,
         center:[Number(lng), Number(lat)],
+        zooms: [3, 20]
       });
+      this.overView = new AMap.HawkEye({
+        opened: false,
+        width: '300px',
+        height: '200px',
+      });
+      map.addControl(this.overView);
       this.map = map;
     } catch(e) {
       console.log(e);
@@ -82,6 +90,14 @@ export default class VMap {
     this.setCluster(this.curMarkerList);
   }
 
+  toggleOverView(show) {
+    if (show) {
+      this.overView.show();
+    } else {
+      this.overView.hide();
+    }
+  }
+
   reSetMarker(id, options): void {
     this.curMarkerList = this.curMarkerList.map((item) => {
       if (id === item.deviceId) {
@@ -90,6 +106,10 @@ export default class VMap {
       return item
     })
     this.cluster.setData(this.curMarkerList);
+  }
+
+  getZoom(): number {
+    return this.map.getZoom();
   }
 
   addMarker(marker): void {
@@ -113,6 +133,9 @@ export default class VMap {
     if (this.map) {
       this.map.setZoomAndCenter(zoom, [longitude, latitude]);
       this.map.clearMap();
+      if (this.cluster) {
+        this.cluster.setMap(null);
+      }
     } else {
       this.creatMap(longitude, latitude, zoom);
     }
@@ -133,20 +156,14 @@ export default class VMap {
     });
     const count = markers.length;
     const _renderClusterMarker =  (context: any) => {
-      const factor = Math.pow(context.count / count, 1 / 18);
       const div = document.createElement('div');
-      const Hue = 180 - factor * 180;
-      const bgColor = 'hsla(' + Hue + ',100%,40%,0.7)';
-      const fontColor = 'hsla(' + Hue + ',100%,90%,1)';
-      const borderColor = 'hsla(' + Hue + ',100%,40%,1)';
-      const shadowColor = 'hsla(' + Hue + ',100%,90%,1)';
+      const bgColor = '#009dd9';
+      const fontColor = '#fff';
       div.style.backgroundColor = bgColor;
-      const size = Math.round(30 + Math.pow(context.count / count, 1 / 5) * 20);
+      const size = Math.round(100 + Math.pow(context.count / count, 1 / 5) * 20);
       div.style.width = div.style.height = size + 'px';
-      div.style.border = 'solid 1px ' + borderColor;
       div.style.borderRadius = size / 2 + 'px';
-      div.style.boxShadow = '0 0 5px ' + shadowColor;
-      div.innerHTML = context.count;
+      div.innerHTML = `${context.count}个监控点位`;
       div.style.lineHeight = size + 'px';
       div.style.color = fontColor;
       div.style.fontSize = '14px';
@@ -174,6 +191,22 @@ export default class VMap {
       renderClusterMarker: _renderClusterMarker, // 自定义聚合点样式
       renderMarker: _renderMarker, // 自定义非聚合点样式
     });
+
+    this.cluster.on('click', item => {
+      const len = item.clusterData.length;
+      if (len <= 1) {
+        return;
+      }
+      let alllng = 0;
+      let alllat = 0;
+      for (let mo of item.clusterData) {
+        alllng += mo.lnglat.lng;
+        alllat += mo.lnglat.lat;
+      }
+      const lat = alllat / len;
+      const lng = alllng / len;
+      this.map.setZoomAndCenter(this.map.getZoom() + 3, [lng, lat]);
+    })
   }
 
   buildContent(markerOptions: markerObject) {

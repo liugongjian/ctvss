@@ -51,7 +51,7 @@
               <el-button size="small" @click="changeEdit()">开启编辑</el-button>
               <el-button size="small" @click="addMarker()">添加标记</el-button>
               <el-button size="small" @click="changeTitleShow()">隐藏/显示title</el-button>
-              <el-button size="small" @click="changeTitleShow()">隐藏/显示信息栏</el-button>
+              <el-button size="small" @click="fntest()">测试</el-button>
             </span>
           </div>
           <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
@@ -178,6 +178,7 @@ export default class extends Mixins(IndexMixin) {
   private markerList = []
   private curMap = {}
   private test = 4
+  private overView = false
   @Prop()
   private platformId: any
   private typeMapping: any = {
@@ -366,6 +367,9 @@ export default class extends Mixins(IndexMixin) {
     this.isEdit = !this.isEdit
     this.$refs.mapview.changeEdit(this.isEdit);
   }
+  fntest() {
+    this.$refs.mapview.getZoom();
+  }
   addMarker() {
     const marker = {
       deviceId: `00${this.test++}`,
@@ -381,6 +385,19 @@ export default class extends Mixins(IndexMixin) {
       unitInfo: '单位信息'
     }
     this.$refs.mapview.addMarker(marker);
+  }
+  toggleOverView() {
+    this.overView = !this.overView;
+    this.$refs.mapview.toggleOverView(this.overView);
+  }
+  addMap() {
+    const map = {
+      name: '地图1',
+      longitude: 116.391467,
+      latitude: 39.927761,
+      zoom: 15,
+    }
+    this.$refs.mapview.chooseMap(map);
   }
   mounted() {
     this.initDirs()

@@ -26,6 +26,10 @@ export default class MapView extends Vue {
     this.map.reSetMarker(markerOption);
   }
 
+  getZoom() {
+    console.log(this.map.getZoom());
+  }
+
   // 标记点信息修改后处理
   handleReMarker(markerOption) {
     // 修改标记点信息
@@ -39,6 +43,9 @@ export default class MapView extends Vue {
   setMarkerList(markerList) {
     this.markerlist = markerList;
     this.map.setMarkerList(markerList);
+  }
+  toggleOverView(state) {
+    this.map.toggleOverView(state);
   }
 }
 </script>
