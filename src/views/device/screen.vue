@@ -177,6 +177,7 @@
                   <el-dropdown-item
                     v-for="(item, index) in screenSizeList"
                     :key="index"
+                    :disabled="polling.isStart"
                     :command="item.value"
                     :class="{'el-dropdown-item__active': item.value === screenSize}"
                   >
