@@ -1,7 +1,9 @@
 <template>
   <div ref="axisWrap" class="axis__wrap">
-    <div class="axis__middle" />
-    <div class="axis__time">{{ formatedCurrentTime }}</div>
+    <template v-if="screen.deviceInfo.deviceId">
+      <div class="axis__middle" />
+      <div class="axis__time">{{ screen.isLoading ? '加载中' : formatedCurrentTime }}</div>
+    </template>
     <canvas ref="canvas" class="axis__canvas" :class="{'dragging': axisDrag.isDragging}" />
     <div class="axis__zoom">
       <div class="axis__zoom__btn" @click="zoom(1)"><svg-icon name="zoom-in" /></div>
@@ -18,7 +20,7 @@
  */
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { dateFormat, getNextHour, prefixZero } from '@/utils/date'
-import { ReplayScreen as Screen } from '@/views/device/models/Screen/ReplayScreen'
+import { Screen } from '@/views/device/models/Screen/Screen'
 import { throttle } from 'lodash'
 
 @Component({
@@ -39,15 +41,15 @@ export default class extends Vue {
     ratio: 0, // 比例尺(秒/每像素)
     showTenMins: false,
     showFiveMins: false,
-    hourWidth: 2,
-    hourHeight: 70,
+    hourWidth: 1,
+    hourHeight: 25,
     halfHourWidth: 1,
-    halfHourHeight: 50,
+    halfHourHeight: 20,
     tenMinsWidth: 1,
-    tenMinsHeight: 30,
+    tenMinsHeight: 15,
     fiveMinsWidth: 1,
     fiveMinsHeight: 15,
-    recordHeight: 20
+    recordHeight: 15
   }
   /* 刻度数据 */
   private axisData = {
@@ -156,7 +158,7 @@ export default class extends Vue {
     const fiveMins = []
     if (this.settings.showFiveMins) {
       for (let i = -12; i <= this.settings.scale * 12; i++) {
-        if (!(i % 6)) continue // 将与半小时重复的线条排除
+        if (!(i % 12)) continue // 将与半小时重复的线条排除
         fiveMins.push({
           x: Math.floor(i * hourSpan / 12 + offsetX - this.settings.fiveMinsWidth / 2), // 绘制时偏移刻度本身的宽度,
           y: 0
@@ -230,14 +232,14 @@ export default class extends Vue {
     const startTime = this.currentTime - this.settings.scale * 60 * 60 / 2 // 计算画布的起始时间
 
     /* 绘制录像线 */
-    this.ctx.fillStyle = '#b0c6da'
+    this.ctx.fillStyle = '#f7c284'
     for (let i in this.axisData.records) {
       const line = this.axisData.records[i]
       this.ctx.fillRect(line.x, line.y, line.width, this.settings.recordHeight)
     }
 
     /* 绘制小时线 */
-    this.ctx.fillStyle = '#333'
+    this.ctx.fillStyle = '#222'
     for (let i in this.axisData.hours) {
       const line = this.axisData.hours[i]
       this.ctx.fillRect(line.x, line.y, this.settings.hourWidth, this.settings.hourHeight)
@@ -254,7 +256,7 @@ export default class extends Vue {
     }
 
     /* 绘制半小时线 */
-    this.ctx.fillStyle = '#777'
+    this.ctx.fillStyle = '#999'
     for (let i in this.axisData.halfHours) {
       const line = this.axisData.halfHours[i]
       this.ctx.fillRect(line.x, line.y, this.settings.halfHourWidth, this.settings.halfHourHeight)
@@ -266,17 +268,33 @@ export default class extends Vue {
     }
 
     /* 绘制10分钟线 */
-    this.ctx.fillStyle = '#777'
+    this.ctx.fillStyle = '#999'
     for (let i in this.axisData.tenMins) {
       const line = this.axisData.tenMins[i]
       this.ctx.fillRect(line.x, line.y, this.settings.tenMinsWidth, this.settings.tenMinsHeight)
+      if (this.settings.ratio < 5) {
+        const timestamp = startTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
+        const datetime = new Date(timestamp * 1000)
+        if ((datetime.getMinutes() + 1)) {
+          // 剔除整点
+          this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:${prefixZero(datetime.getMinutes() + 1, 2)}`, line.x - 13, this.settings.hourHeight + 15)
+        }
+      }
     }
 
     /* 绘制5分钟线 */
-    this.ctx.fillStyle = '#777'
+    this.ctx.fillStyle = '#999'
     for (let i in this.axisData.fiveMins) {
       const line = this.axisData.fiveMins[i]
       this.ctx.fillRect(line.x, line.y, this.settings.fiveMinsWidth, this.settings.fiveMinsHeight)
+      if (this.settings.ratio < 4) {
+        const timestamp = startTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
+        const datetime = new Date(timestamp * 1000)
+        if ((datetime.getMinutes() + 1) % 10) {
+          // 剔除整十
+          this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:${prefixZero(datetime.getMinutes() + 1, 2)}`, line.x - 13, this.settings.hourHeight + 15)
+        }
+      }
     }
   }
 
@@ -346,10 +364,10 @@ export default class extends Vue {
    * 1: 放大
    */
   private zoom(type) {
-    if (type === 1) {
-      this.settings.scale = this.settings.scale * 0.9 < 0.9 ? 0.9 : this.settings.scale * 0.9
+    if (type === 1 && this.settings.scale > 0.9) {
+      this.settings.scale = this.settings.scale * 0.9
       this.resize()
-    } else if (this.settings.scale < 24) {
+    } else if (type === 0 && this.settings.scale < 24) {
       this.settings.scale = this.settings.scale * 1.1
       this.resize()
     }
@@ -375,11 +393,11 @@ export default class extends Vue {
 
   &__middle {
     position: absolute;
-    width: 2px;
-    height: 70px;
+    width: 3px;
+    height: 30px;
     left: 50%;
+    top: -5px;
     margin-left: -1px;
-    width: 2px;
     background: $primary;
   }
 

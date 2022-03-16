@@ -48,7 +48,7 @@ export class Screen {
   /* 查找最新录像定时器 */
   private recordInterval: any
   /* 当前日期（时间戳/秒） */
-  private currentDate: number
+  public currentDate: number
 
   constructor() {
     this.type = 'flv'
@@ -82,7 +82,6 @@ export class Screen {
     this.recordList = []
     this.currentRecord = null
     this.currentTime = null
-    this.player = null
     this.recordInterval = null
     this.currentDate = Math.floor(getLocaleDate().getTime() / 1000)
   }
@@ -109,6 +108,7 @@ export class Screen {
    */
   public destroy() {
     clearInterval(this.recordInterval)
+    this.axiosSource && this.axiosSource.cancel()
     this.constructor()
   }
 
@@ -209,6 +209,7 @@ export class Screen {
         inProtocol: this.deviceInfo.inProtocol,
         recordType: this.recordType
       })
+      this.recordManager.getRecordStatistic() // 获得最近两月录像统计
       this.recordList = await this.recordManager.getRecordList(this.currentDate, this.currentDate + 24 * 60 * 60)
       this.currentRecord = this.recordList[0]
       this.getLatestRecord()
@@ -225,19 +226,26 @@ export class Screen {
    * @param isConcat 是否合并到现有列表，如果false将覆盖现有列表并播放第一段
    */
   public async changeDate(date: number, isConcat = false) {
-    this.currentDate = date
-    const records = await this.recordManager.getRecordList(date, date + 24 * 60 * 60)
-    if (!records) return
-    if (isConcat) {
-      // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
-      if (date > this.currentDate) {
-        this.recordList = this.recordList.concat(records)
+    try {
+      this.currentDate = date
+      this.isLoading = true
+      const records = await this.recordManager.getRecordList(date, date + 24 * 60 * 60)
+      if (!records) return
+      if (isConcat) {
+        // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
+        if (date > this.currentDate) {
+          this.recordList = this.recordList.concat(records)
+        } else {
+          this.recordList = records.concat(this.recordList)
+        }
       } else {
-        this.recordList = records.concat(this.recordList)
+        this.recordList = records
+        this.currentRecord = this.recordList[0]
       }
-    } else {
-      this.recordList = records
-      this.currentRecord = this.recordList[0]
+    } catch (e) {
+      console.log(e)
+    } finally {
+      this.isLoading = false
     }
   }
 

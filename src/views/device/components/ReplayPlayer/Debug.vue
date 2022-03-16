@@ -31,7 +31,6 @@
         <div>
           跳转: <el-input v-model.number="form.time" placeholder="片段时间" @blur="seek" />
         </div>
-        <el-button type="primary" @click="playNextRecord">播放下一段</el-button>
         <div>当前日期：{{ currentDate }}</div>
         <div>当前时间：{{ formatedCurrentTime }}</div>
         <div>当前片段时间：{{ recordCurrentTime }}</div>
@@ -125,10 +124,6 @@ export default class extends Vue {
 
   private seek() {
     this.screen.seek(this.form.time)
-  }
-
-  private playNextRecord() {
-    this.screen.playNextRecord()
   }
 
   private onAxisTimeChange(time: number) {

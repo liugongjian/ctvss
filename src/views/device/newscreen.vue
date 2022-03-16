@@ -222,10 +222,14 @@
           </div>
         </div>
         <div class="device-list__right">
-          <el-button @click="startPolling">开始轮巡</el-button>
-          <ScreenBoard ref="screenBoard" :is-live="true" :in-protocol="currentGroupInProtocol" />
+          <ScreenBoard
+            ref="screenBoard"
+            class="device-list__right"
+            :is-live="false"
+            :in-protocol="currentGroupInProtocol"
+          />
+          <ptz-control v-if="pollingStatus !== 'working' && currentGroupInProtocol === 'gb28181'" :device-id="selectedDeviceId" />
         </div>
-        <ptz-control v-if="pollingStatus !== 'working' && currentGroupInProtocol === 'gb28181'" :device-id="selectedDeviceId" />
       </div>
     </el-card>
 

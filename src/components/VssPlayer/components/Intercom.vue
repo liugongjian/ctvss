@@ -24,24 +24,13 @@
           <Player
             v-if="intercomInfo.url"
             ref="player"
-            v-adaptive-tools
             :type="intercomInfo.type"
             :codec="intercomInfo.codec"
             :url="intercomInfo.url"
             :is-live="true"
-            :is-ws="true"
-            :is-fullscreen="false"
-            :auto-play="true"
             :has-control="false"
             :has-playback="true"
-            :default-volume="30"
-            :device-name="intercomInfo.deviceName"
-            :stream-num="intercomInfo.streamNum"
             :volume="volume"
-            :playback-rate="playbackRate"
-            :has-progress="hasProgress"
-            :is-debug="true"
-            @onCreate="onPlayerCreate"
           />
           <div v-if="!intercomInfo.url && !intercomInfo.loading" class="tip-text">{{ intercomInfo.errorMsg || '无信号' }}</div>
         </div>
@@ -84,9 +73,7 @@ export default class extends ComponentMixin {
     default: {}
   }) private deviceInfo: DeviceInfo
 
-  @Prop({
-    default: {}
-  }) private streamInfo: StreamInfo
+  @Prop() private streamInfo: StreamInfo
 
   @Prop({
     default: ''
@@ -99,6 +86,9 @@ export default class extends ComponentMixin {
   @Prop({
     default: ''
   }) private codec: string
+  @Prop({
+    default: 30
+  }) private volume: number
 
   private intercomInfo?: any = {}
   private showDialog: boolean = false
