@@ -12,7 +12,7 @@ export class RecordManager {
   /* 设备协议 */
   public inProtocol: string
   /* 录像类型(0-云端，1-本地) */
-  public recordType: number
+  public recordType: 0 | 1
   /* 开始时间(时间戳/秒) */
   public startTime?: number
   /* 结束时间(时间戳/秒) */
@@ -26,12 +26,13 @@ export class RecordManager {
 
   private recordInterval
 
-  private recordStatistic: Map<string, any> = new Map()
+  public recordStatistic: Map<string, any>
 
   constructor(params: any) {
     this.deviceId = params.deviceId
     this.inProtocol = params.inProtocol
     this.recordType = params.recordType
+    this.recordStatistic = new Map()
     // this.startTime = params.startTime
     // this.endTime = params.endTime
     // this.list = []
@@ -74,8 +75,14 @@ export class RecordManager {
   /**
    * 获取日历统计
    */
-  public async getRecordStatistic(startTime: number, endTime: number) {
+  public async getRecordStatistic(startTime?: number, endTime?: number) {
     try {
+      if (!startTime) {
+        // 获得最近两月录像统计
+        const current = new Date()
+        startTime = Math.floor(new Date(current.getFullYear(), current.getMonth() - 1).getTime() / 1000)
+        endTime = Math.floor(new Date().getTime() / 1000)
+      }
       const res = await getDeviceRecordStatistic({
         type: this.recordType,
         deviceId: this.deviceId,

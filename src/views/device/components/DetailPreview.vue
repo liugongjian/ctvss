@@ -40,16 +40,12 @@ export default class extends Vue {
 
   private mounted() {
     const screen = new Screen()
-    screen.deviceInfo = {
-      deviceId: this.deviceId,
-      inProtocol: this.inProtocol,
-      deviceName: this.deviceName
-    }
-    screen.streamInfo = {
-      streams: this.streams,
-      streamSize: this.streamSize,
-      streamNum: 1
-    }
+    screen.deviceId = this.deviceId
+    screen.inProtocol = this.inProtocol
+    screen.deviceName = this.deviceName
+    screen.streams = this.streams
+    screen.streamSize = this.streamSize
+    screen.streamNum = 1
     screen.type = 'flv'
     this.screen = screen
     screen.init()

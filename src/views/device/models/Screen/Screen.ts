@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { DeviceInfo, StreamInfo } from '@/components/VssPlayer/models/VssPlayer'
+import { DeviceInfo, StreamInfo, Stream } from '@/components/VssPlayer/models/VssPlayer'
 import { RecordManager } from '../Record/RecordManager'
 import { Record } from '../Record/Record'
 import { Player } from '@/components/Player/models/Player'
@@ -11,7 +11,6 @@ export class Screen {
   public type?: string
   /* 播放器实例 */
   public player: Player
-  public deviceInfo: DeviceInfo
   public isLive?: boolean
   public isLoading: Boolean
   public isFullscreen?: boolean
@@ -22,15 +21,30 @@ export class Screen {
 
   /**
    * ----------------
+   * 设备相关属性
+   * ----------------
+   */
+  public deviceId?: number
+  public inProtocol?: string
+  public deviceName?: string
+  public roleId?: string
+  public realGroupId?: string
+
+  /**
+   * ----------------
    * 实时预览相关属性
    * ----------------
    */
-  /* 视频流信息 */
-  public streamInfo: StreamInfo
   /* 直播视频地址 */
   public url?: string
   /* 是否开启RTC切换 */
   public hasRtc?: boolean
+  public streams: Stream[]
+  public streamSize: number
+  public streamNum: number
+  public videoWidth: number
+  public videoHeight: number
+  public codec: string
 
   /**
    * ----------------
@@ -50,18 +64,16 @@ export class Screen {
   /* 查找最新录像定时器 */
   private recordInterval: any
   /* 当前日期（时间戳/秒） */
-  private currentDate: number
+  public currentDate: number
 
   constructor() {
-    this.type = null
+    this.type = 'flv'
     this.player = null
-    this.deviceInfo = {
-      deviceId: null,
-      inProtocol: '',
-      deviceName: '',
-      roleId: null,
-      realGroupId: null
-    }
+    this.deviceId = null
+    this.inProtocol = ''
+    this.deviceName = ''
+    this.roleId = null
+    this.realGroupId = null
     this.isLive = null
     this.isLoading = false
     this.isInitialized = false
@@ -69,7 +81,34 @@ export class Screen {
     this.axiosSource = null
     this.errorMsg = ''
     this.isCache = false
-    this.streamInfo = {
+    this.streams = []
+    this.streamSize = null
+    this.streamNum = null
+    this.videoWidth = null
+    this.videoHeight = null
+    this.codec = null
+    this.url = ''
+    this.hasRtc = false
+    this.recordManager = null
+    this.recordList = []
+    this.currentRecord = null
+    this.currentTime = null
+    this.recordInterval = null
+    this.currentDate = Math.floor(getLocaleDate().getTime() / 1000)
+  }
+
+  public get deviceInfo(): DeviceInfo {
+    return {
+      deviceId: null,
+      inProtocol: '',
+      deviceName: '',
+      roleId: null,
+      realGroupId: null
+    }
+  }
+
+  public get streamInfo(): StreamInfo {
+    return {
       streams: [],
       streamSize: null,
       streamNum: null,
@@ -77,15 +116,6 @@ export class Screen {
       videoHeight: null,
       codec: null
     }
-    this.url = ''
-    this.hasRtc = false
-    this.recordManager = null
-    this.recordList = []
-    this.currentRecord = null
-    this.currentTime = null
-    this.player = null
-    this.recordInterval = null
-    this.currentDate = Math.floor(getLocaleDate().getTime() / 1000)
   }
 
   /**
@@ -110,6 +140,7 @@ export class Screen {
    */
   public destroy() {
     clearInterval(this.recordInterval)
+    this.axiosSource && this.axiosSource.cancel()
     this.constructor()
   }
 
@@ -142,7 +173,7 @@ export class Screen {
         }
       }, this.axiosSource.token)
       if (res.playUrl) {
-        this.url = this.getVideoUrl(res.playUrl)
+        this.streamInfo.url = this.getVideoUrl(res.playUrl)
         this.hasRtc = !!res.playUrl.webrtcUrl
         this.streamInfo.codec = res.video.codec
         const videoInfo = this.parseVideoInfo(res.videoInfo)
@@ -210,6 +241,7 @@ export class Screen {
         inProtocol: this.deviceInfo.inProtocol,
         recordType: this.recordType
       })
+      this.recordManager.getRecordStatistic() // 获得最近两月录像统计
       this.recordList = await this.recordManager.getRecordList(this.currentDate, this.currentDate + 24 * 60 * 60)
       this.currentRecord = this.recordList[0]
       this.getLatestRecord()
@@ -226,19 +258,26 @@ export class Screen {
    * @param isConcat 是否合并到现有列表，如果false将覆盖现有列表并播放第一段
    */
   public async changeDate(date: number, isConcat = false) {
-    this.currentDate = date
-    const records = await this.recordManager.getRecordList(date, date + 24 * 60 * 60)
-    if (!records) return
-    if (isConcat) {
-      // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
-      if (date > this.currentDate) {
-        this.recordList = this.recordList.concat(records)
+    try {
+      this.currentDate = date
+      this.isLoading = true
+      const records = await this.recordManager.getRecordList(date, date + 24 * 60 * 60)
+      if (!records) return
+      if (isConcat) {
+        // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
+        if (date > this.currentDate) {
+          this.recordList = this.recordList.concat(records)
+        } else {
+          this.recordList = records.concat(this.recordList)
+        }
       } else {
-        this.recordList = records.concat(this.recordList)
+        this.recordList = records
+        this.currentRecord = this.recordList[0]
       }
-    } else {
-      this.recordList = records
-      this.currentRecord = this.recordList[0]
+    } catch (e) {
+      console.log(e)
+    } finally {
+      this.isLoading = false
     }
   }
 

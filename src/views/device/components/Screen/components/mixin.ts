@@ -10,9 +10,10 @@ export default class ComponentMixin extends Vue {
     return this.getScreenManager()
   }
 
-  @Watch('screenManager')
+  @Watch('screenManager', { immediate: true })
   public onScreenManagerCreate() {
-    const name = this.$vnode.componentOptions.tag.toLowerCase()
+    const tag: string = this.$vnode.componentOptions.tag
+    const name = tag.substring(0, 1).toLowerCase() + tag.substring(1)
     this.screenManager.refs[name] = this
   }
 }
