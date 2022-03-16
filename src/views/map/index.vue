@@ -134,7 +134,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Mixins, Prop } from 'vue-property-decorator'
+import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
 import IndexMixin from '../device/mixin/indexMixin'
 import { getGroups } from '@/api/group'
 import { setDirsStreamStatus, renderAlertType, getSums } from '@/utils/device'
@@ -142,16 +142,13 @@ import { describeShareDevices } from '@/api/upPlatform'
 import { getDeviceTree } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { renderAlertType, getSums } from '@/utils/device'
-import { VGroupModule } from '@/store/modules/vgroup'
 import MapView from './mapview.vue'
 import { getAMapLoad } from './models/vmap'
 
 @Component({
   name: 'Map',
   components: {
-    CreateDir,
     StatusBadge,
-    SortChildren,
     MapView
   }
 })
@@ -177,6 +174,10 @@ export default class extends Mixins(IndexMixin) {
     children: 'children',
     isLeaf: 'isLeaf'
   }
+  private mapList = []
+  private markerList = []
+  private curMap = {}
+  private test = 4
   @Prop()
   private platformId: any
   private typeMapping: any = {
@@ -216,10 +217,8 @@ export default class extends Mixins(IndexMixin) {
     } finally {
       this.loading.dir = false
     }
-  private mapList = []
-  private markerList = []
-  private curMap = {}
-  private test = 4
+  }
+
   @Watch('$route.query')
   private onRouterChange() {
     !this.defaultKey && this.gotoRoot()
@@ -445,10 +444,11 @@ export default class extends Mixins(IndexMixin) {
 }
 </script>
 <style lang="scss" scoped>
-.mapwrap{
+.mapwrap {
   width: 100%;
   height: 100%;
 }
+
 .device-list__left {
   position: relative;
 }
