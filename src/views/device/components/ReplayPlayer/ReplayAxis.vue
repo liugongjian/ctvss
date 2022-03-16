@@ -1,6 +1,6 @@
 <template>
   <div ref="axisWrap" class="axis__wrap">
-    <div class="axis__middle" />
+    <div class="axis__middle" :style="`height: ${settings.hourHeight + 5}px`" />
     <div class="axis__time">{{ formatedCurrentTime }}</div>
     <canvas ref="canvas" class="axis__canvas" :class="{'dragging': axisDrag.isDragging}" />
     <div class="axis__zoom">
@@ -37,17 +37,21 @@ export default class extends Vue {
     height: 0,
     scale: 24, // 缩放比例，画布显示的小时数量
     ratio: 0, // 比例尺(秒/每像素)
-    showTenMins: false,
-    showFiveMins: false,
+    // showTenMins: false,
+    // showFiveMins: false,
     hourWidth: 2,
-    hourHeight: 70,
+    hourHeight: 0,
     halfHourWidth: 1,
-    halfHourHeight: 50,
+    halfHourHeight: 0,
     tenMinsWidth: 1,
-    tenMinsHeight: 30,
+    tenMinsHeight: 0,
     fiveMinsWidth: 1,
-    fiveMinsHeight: 30,
-    recordHeight: 20
+    fiveMinsHeight: 0,
+    oneMinWidth: 1,
+    oneMinHeight: 0,
+    recordHeight: 0,
+    spanThreshold: 10,
+    hourSpan: null
   }
   /* 刻度数据 */
   private axisData = {
@@ -55,6 +59,7 @@ export default class extends Vue {
     halfHours: [],
     tenMins: [],
     fiveMins: [],
+    oneMins: [],
     records: []
   }
   /* 画布 */
@@ -68,6 +73,10 @@ export default class extends Vue {
   private screen: Screen
   /* 当前时间(可修改) */
   private currentTime: number = 0
+  /* 当前时间轴的头部时间 */
+  private axisStartTime: number
+  /* 当前时间轴的末尾时间 */
+  private axisEndTime: number
   /* 格式化当前时间 */
   private get formatedCurrentTime() {
     return dateFormat(this.currentTime * 1000)
@@ -114,34 +123,47 @@ export default class extends Vue {
      * 2) 计算出起始时间下一段的整点的时间戳
      * 3) 计算出起始时间与开始时间的偏移量，并转成像素
      */
-    const axisStartTime = this.currentTime - this.settings.scale * 60 * 60 / 2
-    const nextHourTime = Math.floor(getNextHour(axisStartTime * 1000) / 1000)
-    const offsetX = (nextHourTime - axisStartTime) / this.settings.ratio
+    this.axisStartTime = this.currentTime - this.settings.scale * 60 * 60 / 2
+    this.axisEndTime = this.currentTime + this.settings.scale * 60 * 60 / 2
+    const nextHourTime = Math.floor(getNextHour(this.axisStartTime * 1000) / 1000)
+    const offsetX = (nextHourTime - this.axisStartTime) / this.settings.ratio
 
     /* 计算小时刻度像素位置 */
     const hours = []
     const hourSpan = 60 * 60 / this.settings.ratio // 计算每小时间隔的像素值
     for (let i = -1; i <= this.settings.scale; i++) {
+      let showText = true
+      /* 根据密度控制文字的疏密度 */
+      if ((this.settings.ratio > 100 && i % 2) || (this.settings.ratio > 240 && i % 4)) {
+        showText = false
+      }
       hours.push({
         x: Math.floor(i * hourSpan + offsetX - this.settings.hourWidth / 2), // 绘制时偏移刻度本身的宽度
-        y: 0
+        y: 0,
+        showText
       })
     }
     this.axisData.hours = hours
 
     /* 计算半小时刻度像素位置 */
     const halfHours = []
-    for (let i = -2; i <= this.settings.scale; i++) {
-      halfHours.push({
-        x: Math.floor(i * hourSpan + hourSpan / 2 + offsetX - this.settings.halfHourWidth / 2), // 绘制时偏移刻度本身的宽度,
-        y: 0
-      })
+    // const halfHourSpan = hourSpan / 2
+    // if (halfHourSpan > this.settings.spanThreshold) {
+    if (hourSpan) {
+      for (let i = -2; i <= this.settings.scale; i++) {
+        halfHours.push({
+          x: Math.floor(i * hourSpan + hourSpan / 2 + offsetX - this.settings.halfHourWidth / 2), // 绘制时偏移刻度本身的宽度,
+          y: 0
+        })
+      }
     }
     this.axisData.halfHours = halfHours
 
     /* 计算10分钟刻度像素位置 */
     const tenMins = []
-    if (this.settings.showTenMins) {
+    // const tenMinSpan = hourSpan / 6
+    // if (tenMinSpan > this.settings.spanThreshold) {
+    if (hourSpan > this.settings.width / 28) {
       for (let i = -6; i <= this.settings.scale * 6; i++) {
         if (!(i % 3)) continue // 将与半小时重复的线条排除
         tenMins.push({
@@ -154,9 +176,11 @@ export default class extends Vue {
 
     /* 计算5分钟刻度像素位置 */
     const fiveMins = []
-    if (this.settings.showFiveMins) {
+    // const fiveMinSpan = hourSpan / 12
+    // if (fiveMinSpan > this.settings.spanThreshold) {
+    if (hourSpan > this.settings.width / 9) {
       for (let i = -12; i <= this.settings.scale * 12; i++) {
-        if (!(i % 12)) continue // 将与半小时重复的线条排除
+        if (!(i % 2)) continue // 将与半小时重复的线条排除
         fiveMins.push({
           x: Math.floor(i * hourSpan / 12 + offsetX - this.settings.fiveMinsWidth / 2), // 绘制时偏移刻度本身的宽度,
           y: 0
@@ -165,13 +189,28 @@ export default class extends Vue {
     }
     this.axisData.fiveMins = fiveMins
 
+    /* 计算1分钟刻度像素位置 */
+    const oneMins = []
+    // const oneMinSpan = hourSpan / 60
+    // if (oneMinSpan > this.settings.spanThreshold) {
+    if (hourSpan > this.settings.width / 5) {
+      for (let i = -60; i <= this.settings.scale * 60; i++) {
+        if (!(i % 5)) continue // 将与半小时重复的线条排除
+        oneMins.push({
+          x: Math.floor(i * hourSpan / 60 + offsetX - this.settings.oneMinWidth / 2), // 绘制时偏移刻度本身的宽度,
+          y: 0
+        })
+      }
+    }
+    this.axisData.oneMins = oneMins
+
     /* 计算录像片段 */
     const records = []
     if (this.screen && this.screen.recordList) {
       for (let i = 0; i < this.screen.recordList.length; i++) {
         const record = this.screen.recordList[i]
-        const recordOffsetTime = record.startTime - axisStartTime
-        if (recordOffsetTime + record.endTime) {
+        if (record.startTime < this.axisEndTime && record.endTime > this.axisStartTime) {
+          const recordOffsetTime = record.startTime - this.axisStartTime
           records.push({
             x: Math.floor(recordOffsetTime / this.settings.ratio),
             y: 0,
@@ -189,10 +228,15 @@ export default class extends Vue {
   private calcSize() {
     const axisWrap = this.$refs.axisWrap as HTMLDivElement
     this.settings.width = axisWrap.clientWidth
-    this.settings.height = axisWrap.clientHeight - 20
+    this.settings.height = axisWrap.clientHeight
     this.settings.ratio = this.settings.scale * 60 * 60 / axisWrap.clientWidth
-    this.settings.showTenMins = this.settings.ratio < 100 // 密度小与100秒/px则显示10分钟的刻度
-    this.settings.showFiveMins = this.settings.ratio < 10 // 密度小与100秒/px则显示5分钟的刻度
+    this.settings.hourSpan = axisWrap.clientWidth / this.settings.scale // 计算每小时间隔的像素值
+    this.settings.hourHeight = this.settings.height - 20
+    this.settings.halfHourHeight = 0.8 * this.settings.hourHeight
+    this.settings.tenMinsHeight = 0.7 * this.settings.halfHourHeight
+    this.settings.fiveMinsHeight = this.settings.tenMinsHeight
+    this.settings.oneMinHeight = 0.6 * this.settings.fiveMinsHeight
+    this.settings.recordHeight = this.settings.tenMinsHeight
   }
 
   /**
@@ -243,14 +287,7 @@ export default class extends Vue {
       this.ctx.fillRect(line.x, line.y, this.settings.hourWidth, this.settings.hourHeight)
       const timestamp = startTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
       const datetime = new Date(getNextHour(timestamp * 1000)) // 取整点并转换成Date对象
-      /* 根据密度控制文字的疏密度 */
-      if (this.settings.ratio > 100 && datetime.getHours() % 2) {
-        continue
-      }
-      if (this.settings.ratio > 240 && datetime.getHours() % 4) {
-        continue
-      }
-      this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:00`, line.x - 13, this.settings.hourHeight + 15)
+      line.showText && this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:00`, line.x - 13, this.settings.hourHeight + 15)
     }
 
     /* 绘制半小时线 */
@@ -258,7 +295,7 @@ export default class extends Vue {
     for (let i in this.axisData.halfHours) {
       const line = this.axisData.halfHours[i]
       this.ctx.fillRect(line.x, line.y, this.settings.halfHourWidth, this.settings.halfHourHeight)
-      if (this.settings.ratio < 15) {
+      if (this.settings.scale < 9.5) {
         const timestamp = startTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
         const datetime = new Date(timestamp * 1000)
         this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:30`, line.x - 13, this.settings.hourHeight + 15)
@@ -266,11 +303,10 @@ export default class extends Vue {
     }
 
     /* 绘制10分钟线 */
-    this.ctx.fillStyle = '#777'
     for (let i in this.axisData.tenMins) {
       const line = this.axisData.tenMins[i]
       this.ctx.fillRect(line.x, line.y, this.settings.tenMinsWidth, this.settings.tenMinsHeight)
-      if (this.settings.ratio < 5) {
+      if (this.settings.scale < (4 * 60 + 10) / 60) {
         const timestamp = startTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
         const datetime = new Date(timestamp * 1000)
         if ((datetime.getMinutes() + 1)) {
@@ -281,7 +317,6 @@ export default class extends Vue {
     }
 
     /* 绘制5分钟线 */
-    this.ctx.fillStyle = '#777'
     for (let i in this.axisData.fiveMins) {
       const line = this.axisData.fiveMins[i]
       this.ctx.fillRect(line.x, line.y, this.settings.fiveMinsWidth, this.settings.fiveMinsHeight)
@@ -289,6 +324,20 @@ export default class extends Vue {
         const timestamp = startTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
         const datetime = new Date(timestamp * 1000)
         if ((datetime.getMinutes() + 1) % 10) {
+          // 剔除整十
+          this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:${prefixZero(datetime.getMinutes() + 1, 2)}`, line.x - 13, this.settings.hourHeight + 15)
+        }
+      }
+    }
+
+    /* 绘制1分钟线 */
+    for (let i in this.axisData.oneMins) {
+      const line = this.axisData.oneMins[i]
+      this.ctx.fillRect(line.x, line.y, this.settings.oneMinWidth, this.settings.oneMinHeight)
+      if (this.settings.scale < 0.5) {
+        const timestamp = startTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
+        const datetime = new Date(timestamp * 1000)
+        if ((datetime.getMinutes() + 1) % 5) {
           // 剔除整十
           this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:${prefixZero(datetime.getMinutes() + 1, 2)}`, line.x - 13, this.settings.hourHeight + 15)
         }
@@ -362,7 +411,7 @@ export default class extends Vue {
    * 1: 放大
    */
   private zoom(type) {
-    if (type === 1 && this.settings.scale > 0.9) {
+    if (type === 1 && this.settings.scale > 0.1) {
       this.settings.scale = this.settings.scale * 0.9
       this.resize()
     } else if (type === 0 && this.settings.scale < 24) {
@@ -377,7 +426,7 @@ export default class extends Vue {
   &__wrap {
     position: relative;
     width: 100%;
-    height: 110px;
+    height: 50px;
   }
 
   &__canvas {
@@ -394,6 +443,7 @@ export default class extends Vue {
     width: 2px;
     height: 70px;
     left: 50%;
+    top: -5px;
     margin-left: -1px;
     background: $primary;
   }
