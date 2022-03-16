@@ -25,7 +25,7 @@
                 :open-delay="300"
               >
                 <el-button
-                  v-if="!polling.isStart"
+                  v-if="!polling.isStart && currentGroupInProtocol !== 'vgroup'"
                   type="text"
                   @click="videosOnPolling(null, false)"
                 >
@@ -40,6 +40,7 @@
                 :open-delay="300"
               >
                 <el-button
+                  v-if="currentGroupInProtocol !== 'vgroup'"
                   type="text"
                   @click="videosOnAutoPlay(null, false)"
                 >
