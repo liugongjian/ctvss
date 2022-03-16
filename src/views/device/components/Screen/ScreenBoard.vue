@@ -90,26 +90,24 @@ export default class extends Vue {
     if (item.type === 'ipc' && item.deviceStatus === 'on') {
       const screen = this.screenList[this.currentIndex]
       // 如果当前分屏已有播放器，先执行销毁操作
-      if (screen.deviceInfo.deviceId) {
+      if (screen.deviceId) {
         screen.destroy()
       }
       screen.isInitialized = true
       screen.type = 'flv'
       screen.isLive = this.isLive
-      screen.deviceInfo = {
-        inProtocol: this.inProtocol,
-        deviceId: item.id,
-        deviceName: item.label,
-        roleId: item.roleId || '',
-        realGroupId: item.realGroupId || '',
-        realGroupInProtocol: item.realGroupInProtocol || ''
-      }
-      screen.streamInfo.streamSize = item.multiStreamSize
-      screen.streamInfo.streams = item.deviceStreams
+      screen.inProtocol = this.inProtocol
+      screen.deviceId = item.id
+      screen.deviceName = item.label
+      screen.roleId = item.roleId || ''
+      screen.realGroupId = item.realGroupId || ''
+      // screen.realGroupInProtocol = item.realGroupInProtocol || ''
+      screen.streamSize = item.multiStreamSize
+      screen.streams = item.deviceStreams
       if (streamNum && !isNaN(streamNum)) {
-        screen.streamInfo.streamNum = streamNum
+        screen.streamNum = streamNum
       } else {
-        screen.streamInfo.streamNum = item.autoStreamNum
+        screen.streamNum = item.autoStreamNum
       }
       if (this.currentIndex < this.size - 1) {
         this.screenManager.currentIndex++

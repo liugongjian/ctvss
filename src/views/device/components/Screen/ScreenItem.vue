@@ -4,7 +4,7 @@
     class="screen-item"
     @click="click"
   >
-    <template v-if="screen.deviceInfo.deviceId">
+    <template v-if="screen.deviceId">
       <LivePlayer v-if="screen.isLive" :screen="screen" :has-close="true" :is-debug="true" @close="close" />
       <ReplayPlayer v-else :screen="screen" :has-close="true" :is-debug="true" @close="close" />
     </template>

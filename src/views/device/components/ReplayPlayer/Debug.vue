@@ -113,7 +113,10 @@ export default class extends Vue {
 
     this.$nextTick(() => {
       this.screen.isLive = false
-      this.screen.deviceInfo = this.form.deviceInfo
+      this.screen = {
+        ...this.screen,
+        ...this.form.deviceInfo
+      }
       this.screen.init()
     })
   }
