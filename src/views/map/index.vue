@@ -48,8 +48,10 @@
         <div class="device-list__right">
           <div class="breadcrumb">
             <span class="breadcrumb__item">
-              <el-button size="small" @click="isEdit = true">开启编辑</el-button>
-              <svg-icon name="refresh" />
+              <el-button size="small" @click="changeEdit()">开启编辑</el-button>
+              <el-button size="small" @click="addMarker()">添加标记</el-button>
+              <el-button size="small" @click="changeTitleShow()">隐藏/显示title</el-button>
+              <el-button size="small" @click="changeTitleShow()">隐藏/显示信息栏</el-button>
             </span>
           </div>
           <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
@@ -74,8 +76,11 @@
                 </div>
               </el-form>
             </el-dialog>
-            <div><img src="./dashboard.png" alt=""></div>
-            <div class="map-info__right">
+<!--            <div><img src="./dashboard.png" alt=""></div>-->
+            <div :class="['mapwrap', hideTitle?'hide-title':'']">
+              <map-view ref="mapview"></map-view>
+            </div>
+            <div class="map-info__right" v-show="showInfo">
               <el-descriptions title="基本信息" :column="1">
                 <el-descriptions-item label="设备名称">
                   <el-input v-model="editValue" disabled />
@@ -136,11 +141,18 @@ import { setDirsStreamStatus, renderAlertType, getSums } from '@/utils/device'
 import { describeShareDevices } from '@/api/upPlatform'
 import { getDeviceTree } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
+import { renderAlertType, getSums } from '@/utils/device'
+import { VGroupModule } from '@/store/modules/vgroup'
+import MapView from './mapview.vue'
+import { getAMapLoad } from './models/vmap'
 
 @Component({
   name: 'Map',
   components: {
-    StatusBadge
+    CreateDir,
+    StatusBadge,
+    SortChildren,
+    MapView
   }
 })
 export default class extends Mixins(IndexMixin) {
@@ -151,6 +163,7 @@ export default class extends Mixins(IndexMixin) {
   private isEdit = false
   private editValue = 'sss'
   private breadcrumb: Array<any> = []
+  private hideTitle = false
   private form = {
     name: '',
     longitude: '',
@@ -169,10 +182,6 @@ export default class extends Mixins(IndexMixin) {
   private typeMapping: any = {
     dir: 0,
     nvr: 1
-  }
-
-  private mounted() {
-    this.initDirs()
   }
 
   /**
@@ -207,6 +216,13 @@ export default class extends Mixins(IndexMixin) {
     } finally {
       this.loading.dir = false
     }
+  private mapList = []
+  private markerList = []
+  private curMap = {}
+  private test = 4
+  @Watch('$route.query')
+  private onRouterChange() {
+    !this.defaultKey && this.gotoRoot()
   }
 
   /**
@@ -344,9 +360,95 @@ export default class extends Mixins(IndexMixin) {
       return (node.type === 'ipc' && !node.sharedFlag)
     })
   }
+  changeTitleShow() {
+    this.hideTitle = !this.hideTitle;
+  }
+  changeEdit() {
+    this.isEdit = !this.isEdit
+    this.$refs.mapview.changeEdit(this.isEdit);
+  }
+  addMarker() {
+    const marker = {
+      deviceId: `00${this.test++}`,
+      inProtocol: 'rtsp',
+      deviceType: 'ipc',
+      // longitude: 121.487207,
+      // latitude: 31.225348,
+      viewRadius: 30,
+      viewAngle: 100,
+      deviceAngle: 0,
+      population: '人口信息',
+      houseInfo: '房屋信息',
+      unitInfo: '单位信息'
+    }
+    this.$refs.mapview.addMarker(marker);
+  }
+  mounted() {
+    this.initDirs()
+    // 获取地图信息
+    this.mapList = [
+      {
+        mapId: 1,
+        name: '地图1',
+        zoom: 12,
+        longitude: 121.487207,
+        latitude: 31.225348,
+      }
+    ]
+    this.markerList = [
+      {
+        deviceId: '001',
+        inProtocol: 'rtsp',
+        deviceType: 'ipc',
+        longitude: 121.487207,
+        latitude: 31.225348,
+        viewRadius: 100,
+        viewAngle: 120,
+        deviceAngle: 0,
+        population: '人口信息',
+        houseInfo: '房屋信息',
+        unitInfo: '单位信息'
+      },
+      {
+        deviceId: '002',
+        inProtocol: 'rtsp',
+        deviceType: 'ipc',
+        longitude: 121.527207,
+        latitude: 31.215348,
+        viewRadius: 80,
+        viewAngle: 90,
+        deviceAngle: 20,
+        population: '人口信息',
+        houseInfo: '房屋信息',
+        unitInfo: '单位信息'
+      },
+      {
+        deviceId: '003',
+        inProtocol: 'rtsp',
+        deviceType: 'ipc',
+        longitude: 121.526207,
+        latitude: 31.215148,
+        viewRadius: 80,
+        viewAngle: 90,
+        deviceAngle: 20,
+        population: '人口信息',
+        houseInfo: '房屋信息',
+        unitInfo: '单位信息'
+      },
+    ];
+    this.curMap = this.mapList[0];
+    getAMapLoad().then(() => {
+      this.$refs.mapview.chooseMap(this.curMap);
+      this.$refs.mapview.setMarkerList(this.markerList);
+    })
+  }
 }
 </script>
 <style lang="scss" scoped>
+.mapwrap{
+  width: 100%;
+  height: 100%;
+}
 .device-list__left {
   position: relative;
 }

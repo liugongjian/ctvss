@@ -1,26 +1,31 @@
 module.exports = {
-  root: true,
   env: {
     browser: true,
-    node: true,
-    es6: true
+    es6: true,
+    node: true
+  },
+  extends: [
+    'plugin:vue/recommended',
+    'eslint:recommended',
+    '@vue/standard',
+    '@vue/typescript'
+  ],
+  parser: 'vue-eslint-parser',
+  parserOptions: {
+    parser: '@typescript-eslint/parser',
+    ecmaVersion: '2021',
+    sourceType: 'module'
   },
   plugins: [
     'vue',
     '@typescript-eslint'
   ],
-  extends: [
-    'eslint:recommended',
-    'plugin:vue/recommended',
-    '@vue/standard',
-    '@vue/typescript'
-  ],
-  parser: 'vue-eslint-parser',
   rules: {
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-    // 'indent': ['error', 2],
-    'space-before-function-paren': [2, 'never'],
+    'indent': 'off',
+    '@typescript-eslint/indent': ['error', 2],
+    'space-before-function-paren': [2, 'never'], // 不允许括号前面有空格
     'block-spacing': ['error', 'always'],
     'key-spacing': 'error',
     'quotes': ['error', 'single'],
@@ -46,20 +51,8 @@ module.exports = {
     'comma-spacing': 'off',
     '@typescript-eslint/comma-spacing': ['error', { 'before': false, 'after': true }],
     'object-curly-spacing': 'off',
-    '@typescript-eslint/object-curly-spacing': ['error', 'always']
-  },
-  parserOptions: {
-    parser: '@typescript-eslint/parser'
-  },
-  overrides: [
-    {
-      files: [
-        '**/__tests__/*.{j,t}s?(x)',
-        '**/tests/unit/**/*.spec.{j,t}s?(x)'
-      ],
-      env: {
-        jest: true
-      }
-    }
-  ]
+    '@typescript-eslint/object-curly-spacing': ['error', 'always'],
+    'semi': 'off',
+    '@typescript-eslint/semi': ['error', 'never']
+  }
 }

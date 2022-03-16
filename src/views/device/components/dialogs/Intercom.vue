@@ -98,10 +98,16 @@ export default class extends Mixins(ScreenMixin) {
 
   private mounted() {
     this.getDeviceInfo()
+    window.addEventListener('beforeunload', (e) => this.beforeunloadHandler(e))
   }
 
   private destroyed() {
-    this.stopRecord()
+    this.intercomMouseup()
+    window.removeEventListener('beforeunload', (e) => this.beforeunloadHandler(e))
+  }
+
+  private beforeunloadHandler(e: any) {
+    this.intercomMouseup()
   }
 
   private getDeviceInfo() {
@@ -334,6 +340,8 @@ export default class extends Mixins(ScreenMixin) {
 <style lang="scss">
 .intercomBox{
   .intercomPlayer{
+    min-width: 700px;
+    min-height: 390px;
     video{
       width: 100% !important;
       position: static; // 清空device/preview 中使用liveview组件的副作用

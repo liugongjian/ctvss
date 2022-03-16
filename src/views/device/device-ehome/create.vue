@@ -183,19 +183,12 @@
             :inactive-value="2"
           />
         </el-form-item>
-        <el-form-item
-          v-if="!isUpdate || form.gbRegion || !form.gbId"
-          label="设备地址:"
-          prop="address"
-        >
-          <el-cascader
-            ref="addressCascader"
-            v-model="form.address"
-            expand-trigger="hover"
+        <el-form-item v-if="(!isUpdate || form.gbRegion || !form.gbId)" label="设备地址:" prop="gbRegion">
+          <AddressCascader
+            :code="form.gbRegion"
+            :level="form.gbRegionLevel"
             :disabled="form.gbId !== ''"
-            :options="regionList"
-            :props="addressProps"
-            @change="addressChange"
+            @change="onDeviceAddressChange"
           />
         </el-form-item>
         <template>
@@ -263,6 +256,7 @@
             :in-protocol="form.inProtocol"
             :is-private-in-network="isPrivateInNetwork"
             :device-id="form.deviceId"
+            :form-info="form"
             :vss-ai-apps="form.vssAIApps"
             @on-change="onResourceChange"
             @changevssaiapps="changeVSSAIApps"
@@ -309,7 +303,8 @@
             :is-update="isUpdate"
             :in-protocol="form.inProtocol"
             :is-private-in-network="isPrivateInNetwork"
-            :device-id="form.deviceId"
+            :device-id="deviceId"
+            :form-info="form"
             :vss-ai-apps="form.vssAIApps"
             @on-change="onResourceChange"
             @changevssaiapps="changeVSSAIApps"
@@ -330,13 +325,9 @@ import { InType, DeviceRtspType } from '@/dics'
 import { pick } from 'lodash'
 import { createDevice, updateDevice, getDevice } from '@/api/device'
 import { updateDeviceResources } from '@/api/billing'
-import ResourceTabs from '../components/ResourceTabs.vue'
 
 @Component({
-  name: 'CreateEhomeDevice',
-  components: {
-    ResourceTabs
-  }
+  name: 'CreateEhomeDevice'
 })
 export default class extends Mixins(createMixin) {
   private rules = {
@@ -355,9 +346,15 @@ export default class extends Mixins(createMixin) {
       { required: true, message: '请填写通道号', trigger: 'change' },
       { validator: this.validateChannelNum, trigger: 'change' }
     ],
-    deviceIp: [{ validator: this.validateDeviceIp, trigger: 'blur' }],
-    devicePort: [{ validator: this.validateDevicePort, trigger: 'blur' }],
-    address: [{ required: true, message: '请选择设备地址', trigger: 'blur' }],
+    deviceIp: [
+      { validator: this.validateDeviceIp, trigger: 'blur' }
+    ],
+    devicePort: [
+      { validator: this.validateDevicePort, trigger: 'change' }
+    ],
+    gbRegion: [
+      { required: true, message: '请选择设备地址', trigger: 'change' }
+    ],
     industryCode: [
       { required: true, message: '请选择所属行业', trigger: 'blur' }
     ],
@@ -392,7 +389,6 @@ export default class extends Mixins(createMixin) {
     transPriority: 'tcp',
     parentDeviceId: '',
     gbId: '',
-    address: [],
     longlat: 'required',
     deviceLongitude: '0.000000',
     deviceLatitude: '0.000000',
@@ -503,7 +499,6 @@ export default class extends Mixins(createMixin) {
             'networkCode'
           ])
         )
-        this.cascaderInit()
         // 获取绑定资源包列表
         this.getDeviceResources(
           info.deviceId,

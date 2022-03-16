@@ -105,8 +105,9 @@ export const sortDeviceTree = (params: any): Promise<any> => {
 export const getDevicePreview = (params: any, cancelToken?: any): Promise<any> => {
   const headers = params['self-defined-headers']
   delete params['self-defined-headers']
+  const url = params.isAi ? '/ai/preview' : '/device/preview'
   return request({
-    url: '/device/preview',
+    url,
     method: 'get',
     params: {
       outProtocol: 'rtmp,flv,hls',
@@ -364,14 +365,24 @@ export const getChildAddress = async(id: any, level: number) => {
     list = res.areas.map((item: any) => {
       return {
         name: item.name,
-        code: parseInt(item.id),
-        level: parseInt(item.level),
-        leaf: true
+        code: item.id,
+        level: item.level,
+        leaf: item.level === '4' ? true : undefined
       }
     })
   }
   return list
 }
+
+/**
+ * 获取设备地址父级树结构，用户修改时回显
+ */
+export const getAddressAreaDir = (params: any): Promise<any> =>
+  request({
+    url: '/area/dir',
+    method: 'get',
+    params
+  })
 
 /**
  * 启用AI应用

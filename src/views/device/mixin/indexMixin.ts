@@ -4,9 +4,6 @@ import { GroupModule } from '@/store/modules/group'
 import { getDeviceTree } from '@/api/device'
 import { VGroupModule } from '@/store/modules/vgroup'
 import { setDirsStreamStatus } from '@/utils/device'
-import { isThisSecond } from 'date-fns'
-import { data } from './data'
-import { dir } from 'console'
 
 @Component
 export default class IndexMixin extends Vue {
