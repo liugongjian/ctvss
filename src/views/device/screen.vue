@@ -110,7 +110,7 @@
                       placement="top"
                       :open-delay="300"
                     >
-                      <OperateSelector v-if="data.type === 'nvr' || data.type === 'dir' || data.type === 'group'" @onSetOperateValue="setOperateValue($event, node)" />
+                      <OperateSelector v-if="data.type !== 'ipc' && data.type !== 'role'" @onSetOperateValue="setOperateValue($event, node)" />
                     </el-tooltip>
                   </div>
                 </span>
@@ -551,6 +551,7 @@ export default class extends Mixins(ScreenMixin) {
       this.$alert(`当前设备数需大于分屏数才可开始轮巡`, '提示', {
         confirmButtonText: '确定'
       })
+      this.polling.isStart = false
     } else {
       // 刷新
       this.polling.isStart = true
