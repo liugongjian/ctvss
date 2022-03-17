@@ -26,13 +26,13 @@ export default class extends ComponentMixin {
 
   private showCanvasBox = false
 
-  private mounted() {
-    console.log('playerINfo------>', this.streamInfo, this.deviceInfo)
-  }
+  // private mounted() {
+  //   console.log('playerINfo------>', this.streamInfo, this.deviceInfo)
+  // }
 
   private changeScaleCanvas() {
     this.showCanvasBox = !this.showCanvasBox
-    console.log('this.player----->', this.player.container)
+    // console.log('this.player----->', this.player.container)
     // todo 视频组件 电子缩放与ptz缩放事件互斥
 
     if (this.showCanvasBox) {
@@ -182,6 +182,7 @@ export default class extends ComponentMixin {
     this.oShape = {}
     this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
     this.removeListener()
+    this.oCanvas && this.oCanvas.remove()
     this.ctxDrawState = false
 
     const { deviceId } = this.deviceInfo
@@ -217,6 +218,7 @@ export default class extends ComponentMixin {
       this.ctxDrawState = false
     }
     this.removeListener()
+    this.oCanvas && this.oCanvas.remove()
   }
 }
 </script>
