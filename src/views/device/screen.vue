@@ -718,9 +718,11 @@ export default class extends Mixins(ScreenMixin) {
       let pollingDeviceInfo = this.pollingDevices[(currentPollingIndex + (i % length)) % length]
       preLoadScreen.reset()
       preLoadScreen.deviceId = pollingDeviceInfo.id
-      preLoadScreen.type = pollingDeviceInfo.type
       preLoadScreen.deviceName = pollingDeviceInfo.label
       preLoadScreen.inProtocol = this.currentGroupInProtocol!
+      preLoadScreen.roleId = pollingDeviceInfo.roleId
+      preLoadScreen.realGroupId = pollingDeviceInfo.realGroupId
+      preLoadScreen.realGroupInProtocol = pollingDeviceInfo.realGroupInProtocol
       await preLoadScreen.getUrl()
       pollingDeviceInfo.url = preLoadScreen.url
       pollingDeviceInfo.codec = preLoadScreen.codec
