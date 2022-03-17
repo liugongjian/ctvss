@@ -631,6 +631,9 @@ export default class extends Mixins(ScreenMixin) {
         this.screenList[i].type = this.autoPlayDevices[i].type
         this.screenList[i].deviceName = this.autoPlayDevices[i].label
         this.screenList[i].inProtocol = this.currentGroupInProtocol!
+        this.screenList[i].roleId = this.autoPlayDevices[i].roleId
+        this.screenList[i].realGroupId = this.autoPlayDevices[i].realGroupId
+        this.screenList[i].realGroupInProtocol = this.autoPlayDevices[i].realGroupInProtocol
       }
       this.screenList[i].getUrl()
     }
@@ -676,9 +679,11 @@ export default class extends Mixins(ScreenMixin) {
       let pollingDeviceInfo = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length]
       this.screenList[i].reset()
       this.screenList[i].deviceId = pollingDeviceInfo.id
-      this.screenList[i].type = pollingDeviceInfo.type
       this.screenList[i].deviceName = pollingDeviceInfo.label
       this.screenList[i].inProtocol = this.currentGroupInProtocol!
+      this.screenList[i].roleId = pollingDeviceInfo.roleId
+      this.screenList[i].realGroupId = pollingDeviceInfo.realGroupId
+      this.screenList[i].realGroupInProtocol = pollingDeviceInfo.realGroupInProtocol
       // this.screenList[i].getUrl()
       if (pollingDeviceInfo.url && pollingDeviceInfo.codec) {
         this.$nextTick(() => {
