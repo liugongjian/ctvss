@@ -283,7 +283,7 @@
             </div>
           </div>
         </div>
-        <ptz-control v-if="!polling.isStart" :device-id="selectedDeviceId" />
+        <ptz-control v-if="!disablePTZ && !polling.isStart" :device-id="selectedDeviceId" />
       </div>
     </el-card>
 
@@ -307,6 +307,7 @@ import StreamSelector from './components/StreamSelector.vue'
 import OperateSelector from './components/OperateSelector.vue'
 import { renderAlertType, getSums } from '@/utils/device'
 import { VGroupModule } from '@/store/modules/vgroup'
+import { UserModule } from '@/store/modules/user'
 import IntercomDialog from './components/dialogs/Intercom.vue'
 
 @Component({
@@ -378,6 +379,10 @@ export default class extends Mixins(ScreenMixin) {
 
   private ifIntercom = false
   private intercomInfo = {}
+
+  private get disablePTZ() {
+    return UserModule.tags && UserModule.tags.disablePTZ === 'Y'
+  }
 
   @Watch('currentGroupId', { immediate: true })
   private onCurrentGroupChange(groupId: String) {
