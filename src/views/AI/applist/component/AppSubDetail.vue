@@ -172,7 +172,7 @@ import PeopleTrendChart from './PeopleTrendChart.vue'
 import CarFlowChart from './CarFlowChart.vue'
 import Locations from '@/views/dashboard/ai/components/Locations.vue'
 import Attributes from '@/views/dashboard/ai/components/Attributes.vue'
-import { parseMetaDataNewAi, transformLocationAi } from '@/utils/ai'
+import { parseMetaData, transformLocationAi } from '@/utils/ai'
 import { getAppScreenShot, getVehiclesAlarmStatic } from '@/api/ai-app'
 import { getGroupPersonAlready } from '@/api/aiConfig'
 import { decodeBase64 } from '@/utils/base64'
@@ -398,7 +398,7 @@ export default class extends Vue {
     }
     private onload() {
       const metaData = JSON.parse(this.dialoguePic.metadata)
-      const locations = parseMetaDataNewAi(this.appInfo.algorithm.code, metaData)
+      const locations = parseMetaData(this.appInfo.algorithm.code, metaData)
       const img = this.$refs.dialogue
       this.dialoguePic = { ...this.dialoguePic, locations: transformLocationAi(locations, img) }
     }

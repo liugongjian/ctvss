@@ -29,7 +29,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 import { decodeBase64 } from '@/utils/base64'
 import Locations from '@/views/dashboard/ai/components/Locations.vue'
 import Attributes from '@/views/dashboard/ai/components/Attributes.vue'
-import { parseMetaDataNewAi, transformLocationAi } from '@/utils/ai'
+import { parseMetaData, transformLocationAi } from '@/utils/ai'
 
 @Component({
   name: 'PicCard',
@@ -50,7 +50,7 @@ export default class extends Vue {
       return
     }
     const metaData = JSON.parse(this.pic.metadata)
-    const locations = parseMetaDataNewAi(this.type, metaData)
+    const locations = parseMetaData(this.type, metaData)
     const img = this.$refs.img
     this.picInfo = { ...this.pic, locations: transformLocationAi(locations, img) }
   }
