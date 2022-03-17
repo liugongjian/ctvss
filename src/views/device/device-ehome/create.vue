@@ -199,6 +199,10 @@
           <el-input v-model="form.channelName" />
           <div class="form-tip">2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。</div>
         </el-form-item>
+        <el-form-item label="经纬度:" prop="longlat">
+          <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
+          <el-input v-model="form.deviceLatitude" class="longlat-input" />
+        </el-form-item>
         <el-form-item v-if="isUpdate" label="配置资源包:" prop="resources">
           <ResourceTabs v-model="form.resources" :is-update="isUpdate"
                         :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" :device-id="form.deviceId"
@@ -388,6 +392,9 @@ export default class extends Mixins(createMixin) {
             this.form.channelName = channel.channelName
           }
         }
+      }else{
+        this.form.deviceLatitude = info.deviceLatitude
+        this.form.deviceLongitude = info.deviceLongitude
       }
       if (this.isChannel) {
         this.form.deviceName = info.deviceName
@@ -427,13 +434,13 @@ export default class extends Mixins(createMixin) {
       this.submitting = true
       let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceVendor', 'description'])
       if (this.isUpdate) {
-        params = Object.assign(params, pick(this.form, ['deviceId']))
+        params = Object.assign(params, pick(this.form, ['deviceId', 'deviceLongitude', 'deviceLatitude']))
       } else {
         params = Object.assign(params, pick(this.form, ['resources', 'vssAIApps']))
       }
       if (!this.isChannel) {
         // 通用参数
-        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'deviceIp', 'devicePort', 'pullType', 'ehomeVersion', 'transPriority', 'multiStreamSize', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
+        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'deviceIp', 'devicePort', 'pullType', 'ehomeVersion', 'transPriority', 'multiStreamSize', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
         if (this.form.pullType === 1) {
           params = Object.assign(params, pick(this.form, ['autoStreamNum']))
         }
@@ -452,7 +459,7 @@ export default class extends Mixins(createMixin) {
           parentDeviceId: this.isUpdate ? this.form.parentDeviceId : this.deviceId,
           channelName: this.form.channelName,
           channelNum: this.form.channelNum,
-          deviceName: this.form.deviceName
+          deviceName: this.form.deviceName,
         })
       }
       if (this.isUpdate) {

@@ -80,9 +80,6 @@
                   <el-descriptions-item v-if="info.networkCode && networkFlag" label="网络标识">
                     {{ networkMap[info.networkCode] }}
                   </el-descriptions-item>
-                  <el-descriptions-item  label="经纬度">
-                    {{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}
-                  </el-descriptions-item>
                   <el-descriptions-item label="设备IP">
                     {{ info.deviceIp || '-' }}
                   </el-descriptions-item>
@@ -118,6 +115,9 @@
                   </el-descriptions-item>
                 </template>
                 <!--通用信息-->
+                <el-descriptions-item  label="经纬度">
+                  {{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}
+                </el-descriptions-item>
                 <el-descriptions-item label="主子码流数量">
                   {{ info.multiStreamSize }}
                 </el-descriptions-item>
