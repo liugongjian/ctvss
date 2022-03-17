@@ -142,7 +142,7 @@
             @change="addressChange"
           />
         </el-form-item>
-        <template >
+        <template>
           <el-form-item label="经纬度:" prop="longlat">
             <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
             <el-input v-model="form.deviceLatitude" class="longlat-input" />
@@ -175,9 +175,10 @@
           <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" disabled />
         </el-form-item> -->
         <el-form-item label="配置资源包:" prop="resources">
-          <ResourceTabs v-model="form.resources" :is-update="isUpdate"
-                        :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" :device-id="form.deviceId"
-                        :vss-ai-apps="form.vssAIApps" @on-change="onResourceChange" @changevssaiapps="changeVSSAIApps"
+          <ResourceTabs
+            v-model="form.resources" :is-update="isUpdate"
+            :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" :device-id="form.deviceId"
+            :vss-ai-apps="form.vssAIApps" @on-change="onResourceChange" @changevssaiapps="changeVSSAIApps"
           />
         </el-form-item>
         <el-form-item label="设备描述:" prop="description">
@@ -204,9 +205,10 @@
           <el-input v-model="form.deviceLatitude" class="longlat-input" />
         </el-form-item>
         <el-form-item v-if="isUpdate" label="配置资源包:" prop="resources">
-          <ResourceTabs v-model="form.resources" :is-update="isUpdate"
-                        :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" :device-id="form.deviceId"
-                        :vss-ai-apps="form.vssAIApps" @on-change="onResourceChange" @changevssaiapps="changeVSSAIApps"
+          <ResourceTabs
+            v-model="form.resources" :is-update="isUpdate"
+            :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" :device-id="form.deviceId"
+            :vss-ai-apps="form.vssAIApps" @on-change="onResourceChange" @changevssaiapps="changeVSSAIApps"
           />
         </el-form-item>
       </template>
@@ -392,7 +394,7 @@ export default class extends Mixins(createMixin) {
             this.form.channelName = channel.channelName
           }
         }
-      }else{
+      } else {
         this.form.deviceLatitude = info.deviceLatitude
         this.form.deviceLongitude = info.deviceLongitude
       }
@@ -436,7 +438,7 @@ export default class extends Mixins(createMixin) {
       if (this.isUpdate) {
         params = Object.assign(params, pick(this.form, ['deviceId', 'deviceLongitude', 'deviceLatitude']))
       } else {
-        params = Object.assign(params, pick(this.form, ['resources', 'vssAIApps']))
+        params = Object.assign(params, pick(this.form, ['resources', 'vssAIApps', 'deviceLongitude', 'deviceLatitude']))
       }
       if (!this.isChannel) {
         // 通用参数
@@ -459,7 +461,7 @@ export default class extends Mixins(createMixin) {
           parentDeviceId: this.isUpdate ? this.form.parentDeviceId : this.deviceId,
           channelName: this.form.channelName,
           channelNum: this.form.channelNum,
-          deviceName: this.form.deviceName,
+          deviceName: this.form.deviceName
         })
       }
       if (this.isUpdate) {
