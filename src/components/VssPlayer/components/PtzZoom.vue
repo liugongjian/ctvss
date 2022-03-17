@@ -11,6 +11,7 @@ import { Component, Prop } from 'vue-property-decorator'
 import { dragCanvasZoom } from '@/api/device'
 import { StreamInfo, DeviceInfo } from '@/components/VssPlayer/models/VssPlayer.d'
 import ComponentMixin from './mixin'
+import { throttle } from 'lodash'
 
 @Component({
   name: 'PtzZoom'
@@ -29,6 +30,15 @@ export default class extends ComponentMixin {
   // private mounted() {
   //   console.log('playerINfo------>', this.streamInfo, this.deviceInfo)
   // }
+  private addResizeListener() {
+    this.resizeObserver = new ResizeObserver(throttle(() => {
+      const width = this.player.container.clientWidth
+      const height = this.player.container.clientHeight
+      this.oCanvas.width = width
+      this.oCanvas.height = height
+    }, 300))
+    this.resizeObserver.observe(this.player.container)
+  }
 
   private changeScaleCanvas() {
     this.showCanvasBox = !this.showCanvasBox
@@ -41,16 +51,19 @@ export default class extends ComponentMixin {
       const height = this.player.container.clientHeight
 
       this.$nextTick(() => {
-        // const oDom = document.querySelector('.canvasScaleBox')
+        // 监听播放器容器大小变化，触发比例缩放
         const canvasEle = document.createElement('canvas')
         this.player.container.appendChild(canvasEle)
         // this.oCanvas = oDom.querySelector('canvas')
         this.oCanvas = canvasEle
         this.oCanvas.style.cursor = 'crosshair'
-        this.oCanvas.style.width = `${width}px`
-        this.oCanvas.style.height = `${height}px`
+        // this.oCanvas.style.width = `${width}px`
+        // this.oCanvas.style.height = `${height}px`
+        this.oCanvas.width = width
+        this.oCanvas.height = height
         this.oCanvasWidth = width
         this.oCanvasHeight = height
+        this.addResizeListener()
         this.oCanvas.style.position = 'absolute'
         this.oCanvas.style.left = `${(width - video.clientWidth) / 2}px`
         this.oCanvas.style.top = `${(height - video.clientHeight) / 2}px`
@@ -69,6 +82,7 @@ export default class extends ComponentMixin {
 
   private destroyed() {
     this.oCanvas && this.oCanvas.remove()
+    if (this.resizeObserver) this.resizeObserver.disconnect()
   }
 
   // 解绑canvas缩放事件
@@ -105,12 +119,12 @@ export default class extends ComponentMixin {
       this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
       this.ctxShape.strokeStyle = '#FFFFFF'
       // this.ctxShape.lineCap = 'square'
-      this.ctxShape.lineWidth = 1
+      this.ctxShape.lineWidth = 2
       this.ctxShape.beginPath()
-      this.ctxShape.rect(Math.floor(this.oShape.startX) + 0.5, this.oShape.startY, Math.floor(this.oShape.endX - this.oShape.startX) + 0.5,
-        Math.floor(this.oShape.endY - this.oShape.startY) + 0.5)
-      // this.ctxShape.rect(Math.floor(this.oShape.startX) , this.oShape.startY, Math.floor(this.oShape.endX - this.oShape.startX),
-      //   Math.floor(this.oShape.endY - this.oShape.startY))
+      // this.ctxShape.rect(Math.floor(this.oShape.startX) + 0.5, this.oShape.startY, Math.floor(this.oShape.endX - this.oShape.startX) + 0.5,
+      //   Math.floor(this.oShape.endY - this.oShape.startY) + 0.5)
+      this.ctxShape.rect(Math.floor(this.oShape.startX), this.oShape.startY, Math.floor(this.oShape.endX - this.oShape.startX),
+        Math.floor(this.oShape.endY - this.oShape.startY))
       this.ctxShape.stroke()
       this.ctxShape.closePath()
     }
