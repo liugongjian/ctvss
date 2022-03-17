@@ -12,7 +12,7 @@
       <div ref="playerContainer" class="player__container" />
     </div>
     <slot name="container" />
-    <div id="control" class="control" :class="{'control--large': hasProgress}">
+    <div v-if="player" id="control" class="control" :class="{'control--large': hasProgress}">
       <slot name="controlBody" />
       <Progress v-if="hasProgress" />
       <div class="control__left">

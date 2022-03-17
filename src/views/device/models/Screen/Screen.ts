@@ -181,9 +181,7 @@ export class Screen {
         this.videoHeight = videoInfo.videoHeight
       }
     } catch (e) {
-      if (e.code === 5) {
-        this.errorMsg = e.message
-      }
+      this.errorMsg = e.message
     } finally {
       this.isLoading = false
     }

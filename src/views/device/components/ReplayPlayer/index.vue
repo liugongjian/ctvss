@@ -7,6 +7,7 @@
     type="hls"
     :codec="screen.codec"
     :device-info="screen.deviceInfo"
+    :error-msg="screen.errorMsg"
     :is-auto-play="true"
     :is-live="false"
     :has-close="hasClose"
