@@ -43,13 +43,6 @@ export default class extends Vue {
   private isDebug: Boolean
 
   /**
-   * 销毁播放器
-   */
-  private beforeDestroy() {
-    this.screen.destroy()
-  }
-
-  /**
    * 播放器事件路由
    */
   private onDispatch(event: PlayerEvent) {
@@ -58,7 +51,7 @@ export default class extends Vue {
         this.onClose()
         break
       case 'toggleLiveReplay':
-        this.toggleLiveReplay(event.payload)
+        this.toggleLiveReplay()
         break
     }
   }
@@ -80,8 +73,10 @@ export default class extends Vue {
   /**
    * 切换录像回放/实时预览
    */
-  private toggleLiveReplay(isLive: boolean) {
-    this.screen.isLive = !isLive
+  private toggleLiveReplay() {
+    console.log('toggleLiveReplay')
+    this.screen.isLive = true
+    this.screen.init()
   }
 
   /**

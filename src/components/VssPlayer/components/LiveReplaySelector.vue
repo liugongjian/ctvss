@@ -24,8 +24,7 @@ export default class extends ComponentMixin {
 
   private toggleLiveReplay() {
     this.$emit('dispatch', {
-      eventType: 'toggleLiveReplay',
-      payload: !this.isLive
+      eventType: 'toggleLiveReplay'
     })
   }
 }
