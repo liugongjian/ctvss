@@ -64,7 +64,7 @@ export default class extends Vue {
     return this.screenManager
   }
 
-  private mounted() {
+  private created() {
     this.screenManager = new ScreenManager({
       size: 4,
       layout: '4',

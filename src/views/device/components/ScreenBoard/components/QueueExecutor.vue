@@ -35,7 +35,7 @@ export default class extends ComponentMixin {
   }
 
   private get maxSize() {
-    return this.screenManager._size
+    return this.screenManager.size
   }
 
   /**
@@ -102,9 +102,9 @@ export default class extends ComponentMixin {
       if (!this.devicesQueue[i]) {
         continue
       } else {
-        this.screenList[i].deviceInfo.deviceId = this.devicesQueue[i].id
-        this.screenList[i].deviceInfo.deviceName = this.devicesQueue[i].label
-        this.screenList[i].deviceInfo.inProtocol = this.devicesQueue[i].inProtocol
+        this.screenList[i].deviceId = this.devicesQueue[i].id
+        this.screenList[i].deviceName = this.devicesQueue[i].label
+        this.screenList[i].inProtocol = this.devicesQueue[i].inProtocol
         this.screenList[i].isLive = this.screenManager.isLive
       }
       this.screenList[i].init()
@@ -167,14 +167,13 @@ export default class extends ComponentMixin {
     for (let i = 0; i < this.maxSize; i++) {
       this.screenList[i].destroy()
       let deviceInfo = this.devicesQueue[(this.currentPollingIndex + (i % length)) % length]
-      Object.assign(this.screenList[i].deviceInfo, pick(deviceInfo, ['inProtocol', 'roleId', 'realGroupId', 'realGroupInProtocol']))
-      this.screenList[i].deviceInfo.deviceId = deviceInfo.id
-      this.screenList[i].deviceInfo.deviceName = deviceInfo.label
+      Object.assign(this.screenList[i], pick(deviceInfo, ['inProtocol', 'roleId', 'realGroupId', 'realGroupInProtocol']))
+      this.screenList[i].deviceId = deviceInfo.id
+      this.screenList[i].deviceName = deviceInfo.label
       this.screenList[i].isLive = this.screenManager.isLive
       if (deviceInfo.url && deviceInfo.codec) {
         this.$nextTick(() => {
-          Object.assign(this.screenList[i].deviceInfo, pick(deviceInfo, ['codec', 'url']))
-          console.log(this.screenList[i].streamInfo.url, this.screenList[i].streamInfo.codec)
+          Object.assign(this.screenList[i], pick(deviceInfo, ['codec', 'url']))
         })
       } else {
         this.screenList[i].init()
@@ -200,13 +199,13 @@ export default class extends ComponentMixin {
     for (let i = 0; i < this.maxSize; i++) {
       let pollingDeviceInfo = this.devicesQueue[(currentPollingIndex + (i % length)) % length]
       preLoadScreen.destroy()
-      preLoadScreen.deviceInfo.deviceId = pollingDeviceInfo.id
-      preLoadScreen.deviceInfo.deviceName = pollingDeviceInfo.label
-      preLoadScreen.deviceInfo.inProtocol = pollingDeviceInfo.inProtocol
+      preLoadScreen.deviceId = pollingDeviceInfo.id
+      preLoadScreen.deviceName = pollingDeviceInfo.label
+      preLoadScreen.inProtocol = pollingDeviceInfo.inProtocol
       preLoadScreen.isLive = true
       await preLoadScreen.init()
-      pollingDeviceInfo.url = preLoadScreen.streamInfo.url
-      pollingDeviceInfo.codec = preLoadScreen.streamInfo.codec
+      pollingDeviceInfo.url = preLoadScreen.url
+      pollingDeviceInfo.codec = preLoadScreen.codec
 
       if (currentIndex < this.maxSize - 1) {
         currentIndex++

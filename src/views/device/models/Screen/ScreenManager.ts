@@ -36,7 +36,7 @@ export class ScreenManager {
     this.currentIndex = 0
     this.screenList = []
     this.devicesQueue = null
-    this.refs = []
+    this.refs = {}
     this.executeQueueConfig = {
       policy: 'autoPlay',
       interval: 10,
