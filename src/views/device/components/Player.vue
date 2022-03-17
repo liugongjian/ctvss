@@ -270,6 +270,7 @@ export default class extends Vue {
   private buffered = 0
   private durationFormatInVideo = durationFormatInVideo
   private resizeObserver?: any
+  private isHiddenTools: boolean = false
   private error = ''
   private videoType = ''
   private ifCanRTC = false
@@ -1153,32 +1154,39 @@ export default class extends Vue {
     margin-top: 10px;
     margin-bottom: 10px;
     color: aliceblue;
+
     ::v-deep .el-slider.is-vertical .el-slider__runway {
-      margin: 0px auto;
+      margin: 0 auto;
       background-color: gray;
     }
-    ::v-deep .el-slider__bar{
+
+    ::v-deep .el-slider__bar {
       background-color: aliceblue;
     }
   }
+
   .dragging {
     * {
-      user-select:none;
+      user-select: none;
     }
   }
+
   .video-wrap {
     position: relative;
     background: #000;
     overflow: hidden;
+
     ::v-deep .el-loading-mask {
       background: none !important;
       top: 50px;
       bottom: 50px;
       z-index: 10;
+
       .el-loading-spinner {
         margin-top: 0;
       }
     }
+
     ::v-deep .not-support {
       color: #fff;
       width: 100%;
@@ -1186,6 +1194,7 @@ export default class extends Vue {
       position: absolute;
       top: 50%;
     }
+
     .error {
       color: #fff;
       position: absolute;
@@ -1193,41 +1202,51 @@ export default class extends Vue {
       width: 100%;
       text-align: center;
     }
+
     .video-ref {
       height: 100%;
       display: flex;
     }
+
     ::v-deep .player-box {
-      div{
+      div {
         display: none !important;
       }
     }
-    video, canvas {
+
+    video,
+    canvas {
       margin: auto;
       display: block;
     }
+
     .mute_gray {
       opacity: 0.4;
       color: aliceblue;
     }
+
     .kill__volume {
       cursor: not-allowed !important; //优先级
     }
+
     .controls {
       * {
-        user-select:none;
+        user-select: none;
       }
+
       position: absolute;
       z-index: 15;
       bottom: 0;
       left: 0;
       width: 100%;
       height: 35px;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(0, 0, 0, 70%);
       color: #fff;
       opacity: 1;
-      transition: opacity .2s;
-      &__left, &__right {
+      transition: opacity 0.2s;
+
+      &__left,
+      &__right {
         position: absolute;
         left: 10px;
         height: 100%;
@@ -1238,6 +1257,7 @@ export default class extends Vue {
         left: auto;
         right: 10px;
       }
+
       &__btn {
         position: relative;
         display: flex;
@@ -1248,6 +1268,7 @@ export default class extends Vue {
         height: 35px;
         font-size: 12px;
         cursor: pointer;
+
         .controls__popup {
           display: none;
           position: absolute;
@@ -1257,51 +1278,63 @@ export default class extends Vue {
           padding: 5px 0;
           min-width: 50px;
           list-style: none;
-          background: rgba(0, 0, 0, 0.7);
+          background: rgba(0, 0, 0, 70%);
+
           li {
             margin: 0;
             padding: 5px 15px;
             list-style: none;
+
             &:hover {
               background: #444;
             }
+
             &.selected {
               color: $primary;
             }
           }
         }
+
         .controls__volume {
           left: -3px;
           min-width: 35px;
         }
+
         &:hover {
           .controls__popup {
             display: block;
           }
         }
+
         &.selected {
           color: $primary;
         }
       }
+
       &__playback {
         width: 32px;
+
         li {
           text-align: center;
         }
       }
+
       &__stream {
         .controls__popup {
           width: 80px;
           left: -30px;
+
           li {
             text-align: center;
           }
         }
       }
+
       &__time {
         line-height: 35px;
         margin-left: 10px;
       }
+
       &__progress {
         position: absolute;
         width: 100%;
@@ -1310,22 +1343,26 @@ export default class extends Vue {
         cursor: pointer;
         display: flex;
         align-items: center;
+
         &__bar {
           width: 100%;
           height: 4px;
-          background: rgba(255, 255, 255, 0.2);
+          background: rgba(255, 255, 255, 20%);
         }
+
         &__buffered {
           position: absolute;
           height: 4px;
-          background: rgba(255, 255, 255, 0.3);
+          background: rgba(255, 255, 255, 30%);
           transition: width 100ms;
         }
+
         &__played {
           position: absolute;
           height: 4px;
           background: $lightGray;
-          &::after {
+
+          &:after {
             content: ' ';
             position: absolute;
             width: 12px;
@@ -1338,12 +1375,15 @@ export default class extends Vue {
             transition: opacity 100ms;
           }
         }
-        &:hover, &.moving {
-          .controls__progress__played::after {
+
+        &:hover,
+        &.moving {
+          .controls__progress__played:after {
             opacity: 1;
           }
         }
       }
+
       &__h265 {
         position: absolute;
         top: -25px;
@@ -1351,27 +1391,32 @@ export default class extends Vue {
         opacity: 0.7;
       }
     }
+
     .controls--large {
       height: 55px;
       padding-top: 10px;
     }
+
     &:hover {
       .controls {
         opacity: 1;
       }
     }
+
     .videoTypeBtn {
       color: #fff;
     }
   }
+
   .videoScaleBox {
     width: 80px;
   }
-  .canvasScaleBox{
+
+  .canvasScaleBox {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height:100%;
+    height: 100%;
   }
 </style>

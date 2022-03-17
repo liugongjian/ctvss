@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import { UserModule } from '@/store/modules/user'
 
 /**
  * 获取设备详情
@@ -110,6 +111,7 @@ export const getDevicePreview = (params: any, cancelToken?: any): Promise<any> =
     url,
     method: 'get',
     params: {
+      outNetwork: UserModule.outNetwork || undefined,
       outProtocol: 'rtmp,flv,hls',
       type: params.type || 'live',
       ...params
@@ -126,7 +128,11 @@ export const getDeviceRecords = (params: any, cancelToken?: any): Promise<any> =
   request({
     url: '/record/list',
     method: 'get',
-    params,
+    params: {
+      outNetwork: UserModule.outNetwork || undefined,
+      ...params
+    },
+
     cancelToken
   })
 

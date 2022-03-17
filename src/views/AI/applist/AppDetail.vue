@@ -95,7 +95,7 @@ export default class extends Mixins(AppMixin, IndexMixin) {
     }
     private faceLib: any = {}
     private tabNum: string | string[] = ''
-    private deviceList:any = []
+    private deviceList: any = []
 
     private async mounted() {
       this.tabNum = this.$route.query.tabNum
@@ -250,6 +250,7 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   &__device{
     float: left;
     padding: 0 20px;
+    line-height: 50px;
     & > span{
       margin-right: 10px;
     }

@@ -126,6 +126,22 @@ export default class CreateMixin extends Vue {
       this.form.gbRegionLevel = this.currentGroup!.gbRegionLevel
       if (Object.keys(industryMap).indexOf(this.currentGroup!.industryCode) > -1) {
         this.form.industryCode = this.currentGroup!.industryCode
+        this.form.industryCode = this.currentGroup!.industryCode
+        this.form.networkCode = this.currentGroup!.networkCode
+        this.cascaderInit()
+      }
+    }
+  }
+
+  /**
+   * 将gbRegion转成el-cascader格式的数组
+   */
+  public async cascaderInit() {
+    if (!this.form.gbRegion) return
+    const list = []
+    for (let i = 0; i < 4; i++) {
+      if (parseInt(this.form.gbRegion!.substring(i * 2, i * 2 + 2)) !== 0) {
+        list.push(parseInt(this.form.gbRegion!.substring(0, (i + 1) * 2)))
       }
       if (Object.keys(networkMap).indexOf(this.currentGroup!.networkCode) > -1) {
         this.form.networkCode = this.currentGroup!.networkCode

@@ -411,6 +411,15 @@ export default class extends Vue {
         }
       } else {
         this.recordList = res.records.map((record: any, index: number) => {
+          const currentEnd = getTimestamp(record.endTime)
+          const threshold = +this.$store.state.user.tags.fixRecordGap
+          record.endTime = currentEnd
+          if (index + 1 < res.records.length) {
+            const nextStart = getTimestamp(res.records[index + 1]['startTime'])
+            record.endTime = (nextStart - currentEnd) / 1000 < threshold ? nextStart : currentEnd
+            record.testdelta = (nextStart - getTimestamp(record.startTime))
+          }
+          record.startTime = getTimestamp(record.startTime)
           record.startAt = getTimestamp(record.startTime)
           record.loading = false
           record.index = index

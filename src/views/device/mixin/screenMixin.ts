@@ -294,6 +294,60 @@ export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
   // }
 
   /**
+   * 深度优先遍历目录树
+   * @dirTree 目录树DOM
+   * @node 当前node节点
+   * @deviceArr 存储有效设备的数组
+   * @playEvent 播放事件类型（一键播放/轮巡）
+   * @playType 播放视频类型（实时预览/录像回放）
+   */
+  public async deepDispatchTree(dirTree: any, node: any, deviceArr: any[], playEvent?: string, playType?: string) {
+    // 当为一键播放时，加载设备数超过最大屏幕数则终止遍历
+    if (playEvent === 'autoPlay' && deviceArr.length >= this.maxSize) return
+    if (node.data.type === 'ipc') {
+      // 实时预览的一键播放和轮巡需要判断设备是否在线，录像回放的一键播放不需要
+      if (node.data.deviceStatus === 'on' || playType === 'replay') {
+        deviceArr.push(node.data)
+      }
+    } else {
+      // 不为搜索树时需要调接口添加node的children
+      // if (!this.advancedSearchForm.revertSearchFlag) {
+      let data = await getDeviceTree({
+        groupId: this.currentGroupId,
+        id: node!.data.id,
+        type: node!.data.type,
+        'self-defined-headers': {
+          'role-id': node!.data.roleId || '',
+          'real-group-id': node!.data.realGroupId || ''
+        }
+      })
+      const dirs = this.setDirsStreamStatus(data.dirs)
+      dirTree.updateKeyChildren(node.data.id, dirs)
+      node.expanded = true
+      node.loaded = true
+      // }
+      if (node.data.children && node.data.children.length) {
+        for (let i = 0, len = node.data.children.length; i < len; i++) {
+          const item = node.data.children[i]
+          // 子节点继承node的虚拟业务组信息
+          if (node!.data.type === 'group') {
+            item.roleId = node.data.roleId
+            item.realGroupId = node.data.id
+            item.realGroupInProtocol = node.data.inProtocol
+          } else {
+            item.roleId = node.data.roleId
+            item.realGroupId = node.data.realGroupId
+            item.realGroupInProtocol = node.data.realGroupInProtocol
+          }
+          await this.deepDispatchTree(dirTree, dirTree.getNode(item.id), deviceArr, playEvent, playType)
+          // 当为一键播放时，加载设备数超过最大屏幕数则终止遍历
+          if (playEvent === 'autoPlay' && deviceArr.length >= this.maxSize) return
+        }
+      }
+    }
+  }
+
+  /**
    * 检查是否全屏
    */
   public checkFullscreen() {

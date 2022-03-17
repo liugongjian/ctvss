@@ -42,7 +42,7 @@ export default class extends Vue {
   @Prop() private pic!: any
   @Prop() private type!: any
   private picInfo = null
-  private isPicLoaded:boolean = true
+  private isPicLoaded: boolean = true
   private decodeBase64: Function = decodeBase64
 
   private onload() {
@@ -79,11 +79,7 @@ export default class extends Vue {
     }
     .pic-wrapper{
       position: relative;
-      // position: absolute;
-      // top: 0;
-      // left: 0;
-      // width: 100%;
-      // height: 67%;
+      line-height: 0;
         img{
           width: 100%;
           // height: 100%;
