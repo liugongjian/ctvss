@@ -244,7 +244,7 @@ export class Screen {
       this.currentRecord = this.recordList[0]
       this.getLatestRecord()
     } catch (e) {
-      console.log(e)
+      this.errorMsg = e.message
     } finally {
       this.isLoading = false
     }
