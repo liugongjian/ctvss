@@ -285,7 +285,6 @@ export default class extends Vue {
   private oCanvasWidth?: number
   private oCanvasHeight?: number
   private userScaleConfig: any
-  private isHiddenTools: boolean = false
   private ifMountedMute?: boolean = false
 
   get username() {
