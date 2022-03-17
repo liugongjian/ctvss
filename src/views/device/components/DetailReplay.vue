@@ -1,31 +1,14 @@
 <template>
-  <player-container :on-can-play="onCanPlay" :calendar-focus="calendarFocus">
-    <replay-view
-      ref="replayView"
-      :class="{'fullscreen': isFullscreen}"
-      :device-id="deviceId"
-      :in-protocol="inProtocol"
-      :is-fullscreen="isFullscreen"
-      :has-playlive="false"
-      @onCalendarFocus="onCalendarFocus"
-      @onCanPlay="playEvent"
-      @onFullscreen="isFullscreen = true; fullscreen()"
-      @onExitFullscreen="exitFullscreen()"
-    />
-  </player-container>
+  <div>1</div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Mixins, Inject, Watch } from 'vue-property-decorator'
 import FullscreenMixin from '../mixin/fullscreenMixin'
-import ReplayView from './ReplayView.vue'
-import PlayerContainer from './PlayerContainer.vue'
 
 @Component({
   name: 'DevicePreview',
   components: {
-    ReplayView,
-    PlayerContainer
   }
 })
 export default class extends Mixins(FullscreenMixin) {
@@ -85,12 +68,14 @@ export default class extends Mixins(FullscreenMixin) {
     width: 100%;
     display: flex;
     flex-direction: column;
+
     ::v-deep .replay-player {
       flex: 1;
     }
   }
 
-  .fullscreen ::v-deep .preview-player .video-wrap, .fullscreen.replay-view {
+  .fullscreen ::v-deep .preview-player .video-wrap,
+  .fullscreen.replay-view {
     position: fixed;
     z-index: 1001;
     top: 0;

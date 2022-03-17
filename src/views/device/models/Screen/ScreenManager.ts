@@ -45,10 +45,20 @@ export class ScreenManager {
     this.initScreenList()
   }
 
+  /**
+   * 状态信息
+   */
   public get screenManagerStatus() {
     return {
       executeQueueConfig: this.executeQueueConfig
     }
+  }
+
+  /**
+   * 当前分屏
+   */
+  public get currentScreen() {
+    return this.screenList[this.currentIndex]
   }
 
   /**

@@ -51,10 +51,10 @@ export class Screen {
    * 录像回放相关操作
    * ----------------
    */
-  /* 录像类型 */
-  public recordType: number
   /* 录像管理器实例 */
   public recordManager: RecordManager
+  /* 录像类型 0-云端，1-本地 */
+  public recordType: 0 | 1
   /* 录像列表 */
   public recordList: Record[]
   /* 当前正在播放的录像片段 */
@@ -90,6 +90,7 @@ export class Screen {
     this.url = ''
     this.hasRtc = false
     this.recordManager = null
+    this.recordType = 0
     this.recordList = []
     this.currentRecord = null
     this.currentTime = null
@@ -115,6 +116,12 @@ export class Screen {
       videoWidth: this.videoWidth,
       videoHeight: this.videoHeight,
       codec: this.codec
+    }
+  }
+
+  public get recordInfo() {
+    return {
+      recordType: this.recordType
     }
   }
 
@@ -234,15 +241,19 @@ export class Screen {
   public async initReplay() {
     try {
       this.isLoading = true
+      this.recordList = []
+      this.currentRecord = null
       this.recordManager = new RecordManager({
         deviceId: this.deviceId,
         inProtocol: this.inProtocol,
-        recordType: this.recordType
+        recordInfo: this.recordInfo
       })
       this.recordManager.getRecordStatistic() // 获得最近两月录像统计
       this.recordList = await this.recordManager.getRecordList(this.currentDate, this.currentDate + 24 * 60 * 60)
-      this.currentRecord = this.recordList[0]
-      this.getLatestRecord()
+      if (this.recordList) {
+        this.currentRecord = this.recordList[0]
+        this.getLatestRecord()
+      }
     } catch (e) {
       this.errorMsg = e.message
     } finally {

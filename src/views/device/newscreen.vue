@@ -169,6 +169,7 @@
                 </span>
               </el-tree>
               <Datepicker v-if="currentScreen" :screen="currentScreen" />
+              <ReplayType v-if="currentScreen" :screen="currentScreen" />
             </div>
             <div v-if="polling.isLoading || pollingStatus !== 'free'" class="polling-mask">
               <div class="polling-mask__tools">
@@ -245,22 +246,18 @@ import { Device } from '@/type/device'
 import ScreenMixin from './mixin/screenMixin'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { Screen } from './models/Screen/Screen'
-import LivePlayer from './components/LivePlayer.vue'
-import PlayerContainer from './components/PlayerContainer.vue'
-import ReplayView from './components/ReplayView.vue'
 import DeviceDir from './components/dialogs/DeviceDir.vue'
 import PtzControl from './components/ptzControl.vue'
 import StreamSelector from './components/StreamSelector.vue'
 import OperateSelector from './components/OperateSelector.vue'
-import { getDeviceTree } from '@/api/device'
 import { renderAlertType, getSums } from '@/utils/device'
 import { VGroupModule } from '@/store/modules/vgroup'
-import IntercomDialog from './components/dialogs/Intercom.vue'
 import AdvancedSearch from '@/views/device/components/AdvancedSearch.vue'
 
 import { ScreenManager } from './models/Screen/ScreenManager'
 import ScreenBoard from './components/ScreenBoard/index.vue'
 import Datepicker from './components/ScreenBoard/components/Datepicker.vue'
+import ReplayType from './components/ScreenBoard/components/ReplayType.vue'
 
 @Component({
   name: 'Screen',
@@ -272,7 +269,8 @@ import Datepicker from './components/ScreenBoard/components/Datepicker.vue'
     OperateSelector,
     AdvancedSearch,
     ScreenBoard,
-    Datepicker
+    Datepicker,
+    ReplayType
   }
 })
 export default class extends Mixins(ScreenMixin) {
