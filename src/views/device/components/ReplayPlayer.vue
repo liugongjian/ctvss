@@ -7,7 +7,7 @@
       </div>
     </div>
     <player
-      v-if="recordList.length && currentRecord"
+      v-if="recordList.length"
       ref="player"
       type="hls"
       :codec="currentRecord.video.codec"
@@ -275,7 +275,9 @@ export default class extends Mixins(ReplayPlayerMixin) {
   public handleTimeline(e: any, record: any) {
     if (this.axisDrag.isMove) return
     const scale = e.offsetX / e.target.clientWidth
-    let offsetTime = Math.ceil(scale * record.duration)
+    // let offsetTime = Math.ceil(scale * record.duration)
+    const deltaTime = (new Date(record.endTime)).getTime() - (new Date(record.startTime)).getTime()
+    let offsetTime = Math.ceil(scale * deltaTime / 1000)
     offsetTime = offsetTime <= 0 ? 0 : offsetTime
     let isCurrent = true
     if (this.currentRecord !== record) {

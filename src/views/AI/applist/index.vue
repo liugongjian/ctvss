@@ -21,6 +21,32 @@
             <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
           </div>
         </div>
+        <el-divider />
+        <div class="alarm-container">
+          <div class="alarm-container__time">
+            统计时间：
+            <el-radio-group v-model="period.periodType" size="medium" @change="handleChange">
+              <!-- <el-radio-group> -->
+              <el-radio-button label="今天" />
+              <el-radio-button label="近3天" />
+              <el-radio-button label="自定义时间" />
+            </el-radio-group>
+            <el-date-picker
+              v-if="period.periodType === '自定义时间'"
+              v-model="period.period"
+              type="daterange"
+              value-format="timestamp"
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              @change="handleChange"
+            />
+          </div>
+          <div class="alarm-container__alarm">
+            <div>总告警次数：</div>
+            <div v-loading="loading.appList" style="min-width:31px">{{ totalAlarm + '次' }}</div>
+          </div>
+        </div>
         <el-row>
           <el-table
             ref="multipleTable"
@@ -45,6 +71,7 @@
               <template slot-scope="scope"><span>{{ resourceAiType[scope.row.analyseType] }}</span></template>
             </el-table-column>
             <el-table-column prop="description" label="描述" show-overflow-tooltip />
+            <el-table-column prop="count" label="告警次数" />
             <el-table-column prop="associateDevices" label="关联设备数" />
             <!-- <el-table-column prop="appEnabled" label="状态">
               <template slot-scope="scope"><span>{{ parseInt(scope.row.appEnabled) ? '启用' : '未启用' }}</span></template>
@@ -79,8 +106,8 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Mixins } from 'vue-property-decorator'
-import { getAppList, getAbilityList, startOrStopApps, deleteApps } from '@/api/ai-app'
+import { Component, Mixins, Watch } from 'vue-property-decorator'
+import { getAppList, getAbilityList, startOrStopApps, deleteApps, getAiAlarm } from '@/api/ai-app'
 import { ResourceAiType } from '@/dics'
 import AppMixin from '../mixin/app-mixin'
 
@@ -104,14 +131,31 @@ export default class extends Mixins(AppMixin) {
   private aiApps: any = []
   private multipleSelection: any = []
   public $router: any
+  public totalAlarm = 0
 
   private get batchDisabled() {
     return this.multipleSelection.length === 0
   }
 
+  @Watch('period.periodType')
+  private periodTypeUpdated(newVal) {
+    switch (newVal) {
+      case '今天':
+        this.period.period = [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)]
+        break
+      case '近3天':
+        this.period.period = [this.getDateBefore(2), new Date().setHours(23, 59, 59, 999)]
+        break
+      case '自定义时间':
+        this.period.period = [this.getDateBefore(6), new Date().setHours(0, 0, 0, 0)]
+        break
+    }
+  }
+
   private async mounted() {
     await this.getAbilityList()
-    this.getAppList()
+    await this.getAppList()
+    this.getAlarms()
   }
 
   /**
@@ -181,9 +225,10 @@ export default class extends Mixins(AppMixin) {
       ]),
       method: deleteApps,
       payload: { id: this.multipleSelection.map(item => item.id) },
-      onSuccess: () => {
-        this.getAppList()
-        this.getAbilityList()
+      onSuccess: async() => {
+        await this.getAbilityList()
+        await this.getAppList()
+        this.getAlarms()
       }
     })
   }
@@ -218,9 +263,10 @@ export default class extends Mixins(AppMixin) {
         id: this.multipleSelection.map(item => item.id),
         startOrStop
       },
-      onSuccess: () => {
+      onSuccess: async() => {
         this.$message.success(`已通知${method}AI应用`)
-        this.getAppList()
+        await this.getAppList()
+        this.getAlarms()
       }
     })
   }
@@ -258,30 +304,34 @@ export default class extends Mixins(AppMixin) {
   /**
    * 过滤搜索
    */
-  private handleSearch() {
+  private async handleSearch() {
     this.pager.pageNum = 1
-    this.getAppList()
+    await this.getAppList()
+    this.getAlarms()
   }
 
   /**
    * 刷新列表
    */
-  public refresh() {
-    this.getAppList()
+  public async refresh() {
+    await this.getAppList()
+    this.getAlarms()
   }
 
   /**
    * 删除应用回调
    */
-  public onDeleteApp() {
-    this.getAppList()
+  public async onDeleteApp() {
+    await this.getAppList()
+    this.getAlarms()
   }
 
   /**
    * 切换Tab
    */
-  private handleTabType() {
-    this.getAppList()
+  private async handleTabType() {
+    await this.getAppList()
+    this.getAlarms()
   }
 
   /**
@@ -293,14 +343,46 @@ export default class extends Mixins(AppMixin) {
     }
   }
 
-  private handleSizeChange(val: number) {
+  private async handleSizeChange(val: number) {
     this.pager.pageSize = val
-    this.getAppList()
+    await this.getAppList()
+    this.getAlarms()
   }
 
-  private handleCurrentChange(val: number) {
+  private async handleCurrentChange(val: number) {
     this.pager.pageNum = val
-    this.getAppList()
+    await this.getAppList()
+    this.getAlarms()
+  }
+
+  public async getAlarms() {
+    this.loading.appList = true
+    // 每次请求先清空
+    this.alarms = []
+    try {
+      this.getAlarm(0, this.period.period)
+      const promiseArray = this.aiApps.map(item => this.getAlarm(item.id, this.period.period))
+      await Promise.all(promiseArray)
+      this.aiApps = this.aiApps.map(app => {
+        const result = this.alarms.filter(alarm => alarm.appId === app.id)
+        return { ...app, count: result[0].count }
+      })
+      // 获取总告警数
+    } catch (e) {
+      console.log(e)
+    } finally {
+      this.loading.appList = false
+    }
+  }
+
+  public async getAlarm(appId, period) {
+    if (appId) {
+      const res = await getAiAlarm({ appId, startTime: period[0], endTime: this.period.periodType === '自定义时间' ? period[1] + this.msOfADay : period[1] })
+      this.alarms.push(res)
+    } else {
+      const { count } = await getAiAlarm({ appId, abilityId: this.activeTabName, startTime: period[0], endTime: this.period.periodType === '自定义时间' ? period[1] + this.msOfADay : period[1] })
+      this.totalAlarm = count
+    }
   }
 }
 </script>
@@ -329,5 +411,22 @@ export default class extends Mixins(AppMixin) {
 ::v-deep .el-dialog__body {
   text-align: center;
   margin-bottom: 30px;
+}
+.alarm-container{
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  &__alarm {
+    & > div{
+      display: inline-block;
+      height: 36px;
+      line-height: 36px;
+      vertical-align: middle;
+    }
+    & >div:nth-of-type(2){
+      background: $primary;
+      margin-left: 5px
+    }
+  }
 }
 </style>

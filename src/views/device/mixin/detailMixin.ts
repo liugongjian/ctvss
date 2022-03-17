@@ -284,6 +284,18 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
         deviceId: this.deviceId,
         inProtocol: this.inProtocol
       })
+      /**
+       * 2022-03-16修改
+       * 如果设备为子通道，使用channel下的设备状态、流状态、录制状态字段
+       */
+      if (this.info.parentDeviceId !== '-1') {
+        // @ts-ignore
+        const channel = this.info.deviceChannels[0]
+        this.info.deviceStatus = channel.deviceStatus
+        this.info.streamStatus = channel.streamStatus
+        this.info.recordStatus = channel.recordStatus
+      }
+
     } catch (e) {
       console.error(e)
     } finally {

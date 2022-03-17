@@ -225,7 +225,6 @@ import PlayerContainer from './components/PlayerContainer.vue'
 import DeviceDir from './components/dialogs/DeviceDir.vue'
 import { renderAlertType, getSums } from '@/utils/device'
 import { VGroupModule } from '@/store/modules/vgroup'
-import { getDeviceTree } from '@/api/device'
 import AdvancedSearch from '@/views/device/components/AdvancedSearch.vue'
 
 @Component({
@@ -337,45 +336,20 @@ export default class extends Mixins(ScreenMixin) {
    */
   private async videosOnAutoPlay(node: any, isRoot: boolean) {
     this.autoPlayDevices = []
+    const dirTree: any = this.$refs.dirTree
     if (node) {
       this.currentNode = node
     }
     if (!isRoot) {
-      this.dirList.forEach((item: any) => {
-        if (item.type === 'ipc') {
-          this.autoPlayDevices.push(item)
-        }
-      })
-    } else {
-      if (this.$route.query.searchKey) {
-        node.data.children.forEach((item: any) => {
-          if (item.type === 'ipc') {
-            this.autoPlayDevices.push(item)
-          }
-        })
-      } else {
-        let data = await getDeviceTree({
-          groupId: this.currentGroupId,
-          id: node!.data.id,
-          type: node!.data.type
-        })
-        const dirs = this.setDirsStreamStatus(data.dirs)
-        dirs.forEach((item: any) => {
-          if (node.data.type === 'group') {
-            item.roleId = node.data.roleId
-            item.realGroupId = node.data.id
-            item.realGroupInProtocol = node.data.inProtocol
-          } else {
-            item.roleId = node.data.roleId
-            item.realGroupId = node.data.realGroupId
-            item.realGroupInProtocol = node.data.realGroupInProtocol
-          }
-          if (item.type === 'ipc') {
-            this.autoPlayDevices.push(item)
-          }
-        })
+      for (let i = 0, length = this.dirList.length; i < length; i++) {
+        await this.deepDispatchTree(dirTree, dirTree.getNode(this.dirList[i].id), this.autoPlayDevices, 'autoPlay', 'replay')
+        // 当为一键播放时，加载设备数超过最大屏幕数则终止遍历
+        if (this.autoPlayDevices.length >= this.maxSize) break
       }
+    } else {
+      await this.deepDispatchTree(dirTree, node, this.autoPlayDevices, 'autoPlay', 'replay')
     }
+    // console.log(this.autoPlayDevices, 'this.autoPlayDevices')
     if (!this.autoPlayDevices.length) {
       this.$alert('当前设备数需大于0才可开始自动播放', '提示', {
         confirmButtonText: '确定'
