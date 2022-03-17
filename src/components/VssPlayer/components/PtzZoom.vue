@@ -63,12 +63,12 @@ export default class extends ComponentMixin {
       })
     } else {
       this.removeListener()
-      this.oCanvas.remove()
+      this.oCanvas && this.oCanvas.remove()
     }
   }
 
   private destroyed() {
-    this.oCanvas.remove()
+    this.oCanvas && this.oCanvas.remove()
   }
 
   // 解绑canvas缩放事件
