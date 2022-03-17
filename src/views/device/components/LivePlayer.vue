@@ -13,7 +13,8 @@
     :is-live="true"
     :is-ws="true"
     :has-close="hasClose"
-    :is-debug="true"
+    :has-live-replay-selector="hasLiveReplaySelector"
+    :is-debug="isDebug"
     @dispatch="onDispatch"
   />
 </template>
@@ -36,6 +37,12 @@ export default class extends Vue {
   @Prop()
   private hasClose: Boolean
 
+  @Prop()
+  private hasLiveReplaySelector: Boolean
+
+  @Prop()
+  private isDebug: Boolean
+
   /**
    * 播放器事件路由
    */
@@ -49,6 +56,9 @@ export default class extends Vue {
         break
       case 'close':
         this.onClose()
+        break
+      case 'toggleLiveReplay':
+        this.toggleLiveReplay(event.payload)
         break
     }
   }
@@ -67,6 +77,14 @@ export default class extends Vue {
   private onTypeChange(type: string) {
     this.screen.type = type
     this.screen.init()
+  }
+
+  /**
+   * 切换录像回放/实时预览
+   */
+  private toggleLiveReplay(isLive: boolean) {
+    console.log('toggleLiveReplay', isLive)
+    this.screen.isLive = !isLive
   }
 
   /**

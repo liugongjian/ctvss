@@ -12,6 +12,7 @@
     :has-close="hasClose"
     :has-progress="isDebug"
     :is-debug="isDebug"
+    :has-live-replay-selector="hasLiveReplaySelector"
     @dispatch="onDispatch"
     @onCreate="onPlayerCreate"
   />
@@ -36,6 +37,9 @@ export default class extends Vue {
   private hasClose: Boolean
 
   @Prop()
+  private hasLiveReplaySelector: Boolean
+
+  @Prop()
   private isDebug: Boolean
 
   /**
@@ -53,6 +57,9 @@ export default class extends Vue {
       case 'close':
         this.onClose()
         break
+      case 'toggleLiveReplay':
+        this.toggleLiveReplay(event.payload)
+        break
     }
   }
 
@@ -68,6 +75,13 @@ export default class extends Vue {
     if (this.screen.currentRecord.offsetTime) {
       this.screen.player.seek(this.screen.currentRecord.offsetTime)
     }
+  }
+
+  /**
+   * 切换录像回放/实时预览
+   */
+  private toggleLiveReplay(isLive: boolean) {
+    this.screen.isLive = !isLive
   }
 
   /**

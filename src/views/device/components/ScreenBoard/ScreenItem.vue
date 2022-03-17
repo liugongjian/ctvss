@@ -5,8 +5,22 @@
     @click="click"
   >
     <template v-if="screen.deviceId">
-      <LivePlayer v-if="screen.isLive" :screen="screen" :has-close="true" :is-debug="true" @close="close" />
-      <ReplayPlayer v-else :screen="screen" :has-close="true" :is-debug="true" @close="close" />
+      <LivePlayer
+        v-if="screen.isLive"
+        :screen="screen"
+        :has-close="true"
+        :is-debug="true"
+        :has-live-replay-selector="true"
+        @close="close"
+      />
+      <ReplayPlayer
+        v-else
+        :screen="screen"
+        :has-close="true"
+        :is-debug="true"
+        :has-live-replay-selector="true"
+        @close="close"
+      />
     </template>
     <div v-else class="tip-text tip-select-device">
       <el-button type="text" @click="selectDevice">请选择设备</el-button>

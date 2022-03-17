@@ -1,7 +1,7 @@
 <template>
   <div ref="axisWrap" class="axis__wrap">
     <div class="axis__middle" :style="`height: ${settings.hourHeight + 5}px`" />
-    <div class="axis__time">{{ screen.isLoading ? '加载中' : formatedCurrentTime }}</div>
+    <div class="axis__time">{{ screen && screen.isLoading ? '加载中' : formatedCurrentTime }}</div>
     <canvas ref="canvas" class="axis__canvas" :class="{'dragging': axisDrag.isDragging}" />
     <div class="axis__zoom">
       <div class="axis__zoom__btn" @click="zoom(1)"><svg-icon name="zoom-in" /></div>
@@ -274,7 +274,7 @@ export default class extends Vue {
     const startTime = this.currentTime - this.settings.scale * 60 * 60 / 2 // 计算画布的起始时间
 
     /* 绘制录像线 */
-    this.ctx.fillStyle = '#f7c284'
+    this.ctx.fillStyle = '#cfd9e7'
     for (let i in this.axisData.records) {
       const line = this.axisData.records[i]
       this.ctx.fillRect(line.x, line.y, line.width, this.settings.recordHeight)

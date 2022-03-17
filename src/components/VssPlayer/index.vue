@@ -28,6 +28,7 @@
         <PtzZoom v-if="isLive" :stream-info="streamInfo" :device-info="deviceInfo" />
         <Snapshot :name="deviceInfo.deviceName" />
         <Scale />
+        <LiveReplaySelector v-if="hasLiveReplaySelector" :is-live="isLive" @dispatch="dispatch" />
         <Fullscreen @dispatch="dispatch" />
       </template>
     </Player>
@@ -52,6 +53,7 @@ import StreamSelector from './components/StreamSelector.vue'
 import TypeSelector from './components/TypeSelector.vue'
 import PtzZoom from './components/PtzZoom.vue'
 import Intercom from './components/Intercom.vue'
+import LiveReplaySelector from './components/LiveReplaySelector.vue'
 import Fullscreen from './components/Fullscreen.vue'
 
 @Component({
@@ -67,6 +69,7 @@ import Fullscreen from './components/Fullscreen.vue'
     TypeSelector,
     PtzZoom,
     Intercom,
+    LiveReplaySelector,
     Fullscreen
   },
   directives: {
@@ -82,6 +85,16 @@ export default class extends Vue {
   /* 播放流地址 */
   @Prop()
   private url!: string
+
+  /* 设备信息 */
+  @Prop({
+    default: {}
+  })
+  private deviceInfo: DeviceInfo
+
+  /* 设备信息 */
+  @Prop()
+  private streamInfo: StreamInfo
 
   /* 播放流地址 */
   @Prop({
@@ -129,15 +142,11 @@ export default class extends Vue {
   })
   private hasTypeSelector: boolean
 
-  /* 设备信息 */
+  /* 是否显示录像回放/直播切换按钮 */
   @Prop({
-    default: {}
+    default: false
   })
-  private deviceInfo: DeviceInfo
-
-  /* 设备信息 */
-  @Prop()
-  private streamInfo: StreamInfo
+  private hasLiveReplaySelector: boolean
 
   /* 播放器实例 */
   private player: Player = null

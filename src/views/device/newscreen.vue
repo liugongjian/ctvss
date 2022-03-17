@@ -229,6 +229,7 @@
             class="device-list__right"
             :is-live="true"
             :in-protocol="currentGroupInProtocol"
+            :has-live-replay-selector="true"
           />
           <ptz-control v-if="pollingStatus !== 'working' && currentGroupInProtocol === 'gb28181'" :device-id="selectedDeviceId" />
         </div>

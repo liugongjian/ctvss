@@ -73,7 +73,7 @@ export default class extends Vue {
     time: 0,
     date: 0
   }
-  private screen = null
+  private screen: Screen = null
 
   private get player() {
     return this.screen && this.screen.player
@@ -113,10 +113,8 @@ export default class extends Vue {
 
     this.$nextTick(() => {
       this.screen.isLive = false
-      this.screen = {
-        ...this.screen,
-        ...this.form.deviceInfo
-      }
+      this.screen = Object.assign(this.screen, this.form.deviceInfo)
+      console.log(this.screen.init)
       this.screen.init()
     })
   }

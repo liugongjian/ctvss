@@ -6,6 +6,7 @@
           v-for="(screen, index) in screenList"
           :key="index"
           :screen="screen"
+          :has-live-replay-selector="true"
           :style="`grid-area: item${index}`"
           :class="[{'actived': index === currentIndex && screenList.length > 1}]"
           @click="selectScreen(index)"
