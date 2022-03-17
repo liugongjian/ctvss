@@ -18,6 +18,7 @@ export interface markerObject {
   population?: string,
   houseInfo?: string,
   unitInfo?: string,
+  selected?: boolean
 }
 
 export enum mapStatus {
@@ -27,6 +28,11 @@ export enum mapStatus {
 
 export interface events {
   reMarkerEvent: any
+}
+
+export interface markerEventHandlers {
+  onClick?: any
+  onChange?: any
 }
 
 export const getAMapLoad = () => {
@@ -56,6 +62,7 @@ export default class VMap {
   isEdit = false
   overView: AMap.HawkEye | null = null
   cluster: AMap.MarkerCluster | null = null
+  markerEventHandlers: markerEventHandlers
   constructor(container: string) {
     this.container = container;
   }
@@ -85,6 +92,16 @@ export default class VMap {
     }
   }
 
+  chooseMarker(marker) {
+    this.curMarkerList = this.curMarkerList.map((item) => {
+      if (item.deviceId === marker.deviceId) {
+        item.selected = true;
+      }
+      return item
+    })
+    this.setCluster(this.wrapMarkers(this.curMarkerList));
+  }
+
   changeEdit(status: boolean) {
     this.isEdit = status;
     this.setCluster(this.curMarkerList);
@@ -98,18 +115,13 @@ export default class VMap {
     }
   }
 
-  reSetMarker(id, options): void {
-    this.curMarkerList = this.curMarkerList.map((item) => {
-      if (id === item.deviceId) {
-        item = {...item, ...options};
-      }
-      return item
-    })
-    this.cluster.setData(this.curMarkerList);
-  }
-
-  getZoom(): number {
-    return this.map.getZoom();
+  getZoomAndCenter(): object {
+    const zoom = this.map.getZoom();
+    const center = this.map.getCenter();
+    return {
+      zoom,
+      center
+    }
   }
 
   addMarker(marker): void {
@@ -120,11 +132,8 @@ export default class VMap {
     if (!marker.latitude) {
       marker.latitude = lat;
     }
-    if (!marker.lnglat) {
-      marker.lnglat = [marker.longitude, marker.latitude];
-    }
     this.curMarkerList.push(marker);
-    this.cluster.addData([marker]);
+    this.cluster.addData(this.wrapMarkers([marker]));
   }
 
   renderMap(map: mapObject) {
@@ -140,20 +149,30 @@ export default class VMap {
       this.creatMap(longitude, latitude, zoom);
     }
   }
-  setMarkerList(markers: any[]) {
+  setMarkerList(markers: any[], handlers: markerEventHandlers) {
     this.curMarkerList = markers;
     this.setCluster(markers);
+    this.markerEventHandlers = handlers;
+  }
+
+  wrapMarkers(markers: any[]) {
+    const result = markers.map((marker) => {
+      return {
+        ...marker,
+        lnglat: [marker.longitude, marker.latitude]
+      }
+    })
+    return result;
+  }
+  updateMarkerList(markers) {
+    this.curMarkerList = markers;
+    this.cluster.setData(this.wrapMarkers(markers));
   }
 
   setCluster(markers: any[]) {
     if (this.cluster) {
       this.cluster.setMap(null);
     }
-    markers.forEach(item => {
-      if (!item.lnglat) {
-        item.lnglat = [item.longitude, item.latitude];
-      }
-    });
     const count = markers.length;
     const _renderClusterMarker =  (context: any) => {
       const div = document.createElement('div');
@@ -179,14 +198,21 @@ export default class VMap {
         context.marker.setDraggable(true);
         context.marker.setCursor('move');
         context.marker.on('dragend', (ev) => {
-          const deviceId = context.marker.getExtData().deviceId;
+          const marker = context.marker.getExtData();
           const {lng, lat} = context.marker.getPosition();
-          this.reSetMarker(deviceId, { lnglat: [lng, lat] });
+          marker.latitude = lat;
+          marker.longitude = lng;
+          this.markerEventHandlers.onChange && this.markerEventHandlers.onChange(marker);
         })
       }
+      context.marker.on('click', () => {
+        const marker = context.marker.getExtData();
+        this.chooseMarker(marker);
+        this.markerEventHandlers.onClick && this.markerEventHandlers.onClick(marker);
+      })
     }
 
-    this.cluster = new window.AMap.MarkerCluster(this.map, markers, {
+    this.cluster = new window.AMap.MarkerCluster(this.map, this.wrapMarkers(markers), {
       gridSize: 80,
       renderClusterMarker: _renderClusterMarker, // 自定义聚合点样式
       renderMarker: _renderMarker, // 自定义非聚合点样式
@@ -215,6 +241,17 @@ export default class VMap {
     const sector = this.drawSector(markerOptions);
     const marker = this.createNode('<img class="marker-center" width="19px" height="32px" src="//webapi.amap.com/theme/v1.3/markers/b/mark_bs.png">')
     const label = this.createNode(`<div class="marker-label">${markerOptions.deviceId}</div>`)
+    let wrapDiv;
+    const size = markerOptions.viewRadius * 2 + 60;
+    let wrapStyle = `width: ${size}px; height: ${size}px; top: ${(50 - size) / 2}px; left: ${(50 - size) / 2}px`;
+    if (this.isEdit) { // 编辑状态
+      wrapDiv = this.createNode(`<div class="marker-wrap" style="${wrapStyle}"><div class="marker-options"><i class="icon icon_delete">×</i></div></div>`)
+    } else {
+      wrapDiv = this.createNode(`<div class="marker-wrap" style="${wrapStyle}"><div class="marker-options"><i class="icon icon_preview">p</i><i class="icon icon_replay">r</i></img></div>`)
+    }
+    if (markerOptions.selected) {
+      markerContent.append(wrapDiv);
+    }
     markerContent.append(sector, marker, label);
     return markerContent;
   }

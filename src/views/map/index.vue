@@ -13,7 +13,11 @@
         <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
           <el-button class="map__add" size="small" @click="dialogVisible = true">添加地图</el-button>
           <el-card class="map__user">
-            <el-button class="map-item__user">我的地图</el-button>
+            <div v-for="map in mapList" :key="map.mapId">
+              <span @click="chooseMap(map)">{{ map.name }}></span>
+              <span @click="deleteMap(map.mapId)">删除</span>
+            </div>
+<!--            <el-button class="map-item__user">我的地图</el-button>-->
           </el-card>
           <div class="device-tree__title">
             <span class="device-tree__text">设备树</span>
@@ -51,7 +55,7 @@
               <el-button size="small" @click="changeEdit()">开启编辑</el-button>
               <el-button size="small" @click="addMarker()">添加标记</el-button>
               <el-button size="small" @click="changeTitleShow()">隐藏/显示title</el-button>
-              <el-button size="small" @click="fntest()">测试</el-button>
+              <el-button size="small" @click="addMap()">测试</el-button>
             </span>
           </div>
           <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
@@ -78,9 +82,17 @@
             </el-dialog>
 <!--            <div><img src="./dashboard.png" alt=""></div>-->
             <div :class="['mapwrap', hideTitle?'hide-title':'']">
-              <map-view ref="mapview"></map-view>
+              <map-view
+                v-if="mapList.length > 0 && curMap"
+                ref="mapview"
+                :mapOption="curMap"
+                @mapChange="modifyMapInfo"
+              ></map-view>
+              <div v-else>
+                <el-button @click="addMap">添加地图</el-button>
+              </div>
             </div>
-            <div class="map-info__right" v-show="showInfo">
+            <div class="map-info__right">
               <el-descriptions title="基本信息" :column="1">
                 <el-descriptions-item label="设备名称">
                   <el-input v-model="editValue" disabled />
@@ -139,11 +151,13 @@ import IndexMixin from '../device/mixin/indexMixin'
 import { getGroups } from '@/api/group'
 import { setDirsStreamStatus, renderAlertType, getSums } from '@/utils/device'
 import { describeShareDevices } from '@/api/upPlatform'
-import { getDeviceTree } from '@/api/device'
+import {getDeviceEvents, getDevices, getDeviceTree} from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { renderAlertType, getSums } from '@/utils/device'
 import MapView from './mapview.vue'
-import { getAMapLoad } from './models/vmap'
+// import { getAMapLoad } from './models/vmap'
+import { getMaps, createMap, deleteMap, modifyMap } from '@/api/map'
+import axios from "axios";
 
 @Component({
   name: 'Map',
@@ -175,8 +189,9 @@ export default class extends Mixins(IndexMixin) {
     isLeaf: 'isLeaf'
   }
   private mapList = []
+  private mapPager = {}
   private markerList = []
-  private curMap = {}
+  private curMap = null
   private test = 4
   private overView = false
   @Prop()
@@ -390,73 +405,87 @@ export default class extends Mixins(IndexMixin) {
     this.overView = !this.overView;
     this.$refs.mapview.toggleOverView(this.overView);
   }
-  addMap() {
-    const map = {
-      name: '地图1',
-      longitude: 116.391467,
-      latitude: 39.927761,
-      zoom: 15,
-    }
-    this.$refs.mapview.chooseMap(map);
-  }
-  mounted() {
-    this.initDirs()
-    // 获取地图信息
-    this.mapList = [
-      {
-        mapId: 1,
-        name: '地图1',
-        zoom: 12,
+  async addMap() {
+    try {
+      const map = {
+        name: '地图3',
         longitude: 121.487207,
         latitude: 31.225348,
+        zoom: 13,
       }
-    ]
-    this.markerList = [
-      {
-        deviceId: '001',
-        inProtocol: 'rtsp',
-        deviceType: 'ipc',
-        longitude: 121.487207,
-        latitude: 31.225348,
-        viewRadius: 100,
-        viewAngle: 120,
-        deviceAngle: 0,
-        population: '人口信息',
-        houseInfo: '房屋信息',
-        unitInfo: '单位信息'
-      },
-      {
-        deviceId: '002',
-        inProtocol: 'rtsp',
-        deviceType: 'ipc',
-        longitude: 121.527207,
-        latitude: 31.215348,
-        viewRadius: 80,
-        viewAngle: 90,
-        deviceAngle: 20,
-        population: '人口信息',
-        houseInfo: '房屋信息',
-        unitInfo: '单位信息'
-      },
-      {
-        deviceId: '003',
-        inProtocol: 'rtsp',
-        deviceType: 'ipc',
-        longitude: 121.526207,
-        latitude: 31.215148,
-        viewRadius: 80,
-        viewAngle: 90,
-        deviceAngle: 20,
-        population: '人口信息',
-        houseInfo: '房屋信息',
-        unitInfo: '单位信息'
-      },
-    ];
+      // const res = await createMap(map);
+      // const mapId = res.mapId;
+      const mapId = '00001111';
+      this.curMap = {...map, mapId}
+      this.mapList.push(this.curMap);
+    } catch(e) {
+      console.log('创建地图失败')
+    }
+  }
+
+  /**
+   * 加载地图列表
+   */
+  public async getMapList() {
+    try {
+      let params: any = {
+        pageNum: 0,
+        pageSize: 20
+      }
+      let res: any
+      res = await getMaps(params)
+      this.mapList = res.maps
+      this.mapPager = {
+        pageNum: res.pageNum,
+        pageSize: res.pageSize,
+        total: res.totalNum
+      }
+    } catch (e) {
+      console.log('获取地图列表失败');
+      this.mapList = []
+    }
+  }
+
+  private chooseMap(map) {
+    this.curMap = map;
+  }
+  private async deleteMap(id) {
+    try{
+      await deleteMap({ mapId: id });
+      this.mapList = this.mapList.filter(item => item.id !== id);
+      if (this.curMap.mapId === id) {
+        this.curMap = this.mapList[0] || null;
+      }
+    } catch(e) {
+      console.log('删除地图失败')
+    }
+  }
+  private modifyMapInfo(info) {
+    console.log('==================mapinfo===============');
+    console.log(info.zoom);
+    console.log(info.center);
+  }
+
+  private async modifyMap(map) {
+    try{
+      await modifyMap({ mapId: map.mapId });
+      this.curMap = map;
+      this.mapList = this.mapList.map(item => {
+        if (item.mapId === map.mapId){
+          return map;
+        } else {
+          return item;
+        }
+      });
+    } catch(e) {
+      console.log('修改地图失败')
+    }``
+  }
+
+  private async mounted() {
+    this.initDirs();
+    await this.getMapList();
     this.curMap = this.mapList[0];
-    getAMapLoad().then(() => {
-      this.$refs.mapview.chooseMap(this.curMap);
-      this.$refs.mapview.setMarkerList(this.markerList);
-    })
   }
 }
 </script>
