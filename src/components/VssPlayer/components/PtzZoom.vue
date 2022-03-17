@@ -109,9 +109,9 @@ export default class extends ComponentMixin {
       this.ctxShape.beginPath()
       this.ctxShape.rect(Math.floor(this.oShape.startX) + 0.5, this.oShape.startY, Math.floor(this.oShape.endX - this.oShape.startX) + 0.5,
         Math.floor(this.oShape.endY - this.oShape.startY) + 0.5)
+      // this.ctxShape.rect(Math.floor(this.oShape.startX) , this.oShape.startY, Math.floor(this.oShape.endX - this.oShape.startX),
+      //   Math.floor(this.oShape.endY - this.oShape.startY))
       this.ctxShape.stroke()
-      // this.ctxShape.strokeRect(Math.floor(devide(this.oShape.startX)), Math.floor(devide(this.oShape.startY)), this.oShape.endX - this.oShape.startX,
-      //   this.oShape.endY - this.oShape.startY)
       this.ctxShape.closePath()
     }
   }
@@ -218,7 +218,6 @@ export default class extends ComponentMixin {
       this.ctxDrawState = false
     }
     this.removeListener()
-    this.oCanvas && this.oCanvas.remove()
   }
 }
 </script>
