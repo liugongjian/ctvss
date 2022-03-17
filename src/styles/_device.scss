@@ -100,7 +100,6 @@
 
       &__tree {
         position: relative;
-        margin-bottom: 40px;
         padding: 10px;
 
         &--root {
@@ -136,6 +135,10 @@
         .svg-icon {
           margin-right: 5px;
           color: #6e7c89;
+        }
+
+        .svg-icon.export {
+          color: #65c465;
         }
 
         .custom-tree-node {
@@ -636,7 +639,7 @@
     &.screen-size--3 {
       grid-template-columns: 33.33% 33.33% 33.33%;
       grid-template-rows: 100%;
-      grid-template: 'item0 item1 item2';
+      grid-template-areas: 'item0 item1 item2';
     }
 
     &.screen-size--4 {

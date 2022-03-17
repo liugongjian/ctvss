@@ -77,7 +77,7 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
   }
 })
 export default class extends Mixins(IndexMixin) {
-  @Inject('outerSearch')private outerSearch?: any
+  @Inject('outerSearch') private outerSearch?: any
   @Prop()
   private device!: Device
   private dialogVisible = true
@@ -103,14 +103,16 @@ export default class extends Mixins(IndexMixin) {
       this.loading.dir = true
       const res = await getDeviceTree({
         groupId: this.currentGroupId,
+        deviceStatusKeys: this.outerSearch.deviceStatusKeys.join(',') || undefined,
+        streamStatusKeys: this.outerSearch.streamStatusKeys.join(',') || undefined,
+        matchKeys: this.outerSearch.matchKeys.join(',') || undefined,
         searchKey: this.outerSearch.searchKey || undefined,
-        statusKey: this.outerSearch.statusKey !== 'all' ? this.outerSearch.statusKey : undefined,
         id: 0
       })
       this.dirList = this.setDirsStreamStatus(res.dirs)
 
       // 根据搜索结果 组装 目录树（柳州搜索新增功能）
-      if (this.outerSearch.searchKey || this.outerSearch.statusKey !== 'all') {
+      if (this.outerSearch.revertSearchFlag) {
         this.dirList = this.transformDirList(this.dirList)
       }
     } catch (e) {
@@ -137,21 +139,26 @@ export default class extends Mixins(IndexMixin) {
   .tree-wrap {
     height: 300px;
     overflow: auto;
+
     .svg-icon {
       margin-right: 5px;
       color: #6e7c89;
     }
+
+    .node-name {
+      position: relative;
+    }
+
     .custom-tree-node.online .node-name {
       .svg-icon {
         color: #65c465;
       }
     }
+
     .custom-tree-node .sum-icon {
       color: $textGrey;
     }
-    .node-name {
-      position: relative;
-    }
+
     .status-badge {
       position: absolute;
       top: -1px;
@@ -160,6 +167,7 @@ export default class extends Mixins(IndexMixin) {
       height: 6px;
       opacity: 0.7;
       display: none;
+
       &--on {
         display: block;
       }

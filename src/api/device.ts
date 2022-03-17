@@ -328,6 +328,16 @@ export const importDevice = (params: any): Promise<any> =>
   })
 
 /**
+ * 导出搜索结果
+ */
+export const exportSearchResult = (data: any): Promise<any> =>
+  request({
+    url: '/device/search/export',
+    method: 'post',
+    data: data
+  })
+
+/**
  * 导出全部设备表格
  */
 export const exportDeviceAll = (params: any): Promise<any> =>
@@ -451,9 +461,19 @@ export const getDeviceEvents = (params: any): Promise<any> =>
   })
 
 // player组件  缩放
-export const dragCanvasZoom = (params:any): Promise<any> =>
+export const dragCanvasZoom = (params: any): Promise<any> =>
   request({
     url: '/ptz/dragzoom',
     method: 'post',
     data: params
+  })
+
+/**
+ * 校验国标ID
+ */
+export const validGbId = (params: any): Promise<any> =>
+  request({
+    url: '/device/customGbId',
+    method: 'get',
+    params
   })

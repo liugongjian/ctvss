@@ -24,6 +24,7 @@ export default class CreateMixin extends Vue {
   public orginalResourceIdList: Array<string> = []
   public orginalChannelSize = 0
   public inNetworkType = ''
+  public deviceGbId: string = ''
 
   public loading = {
     account: false,
@@ -109,6 +110,13 @@ export default class CreateMixin extends Vue {
    */
   public get networkFlag() {
     return this.$store.state.user.tags.isNeedDeviceNetworkCode === 'Y'
+  }
+
+  /**
+   * 是否显示自定义国标ID
+   */
+  public get isShowGbIdEditor() {
+    return this.$store.state.user.tags.enabled_input_gbid === 'Y'
   }
 
   @Watch('currentGroup', { immediate: true, deep: true })

@@ -102,12 +102,12 @@
         <el-form-item label="设备端口:" prop="devicePort">
           <el-input v-model.number="form.devicePort" />
         </el-form-item>
-        <el-form-item label="设备MAC地址:" prop="macAddr">
-          <el-input v-model="form.macAddr" />
-        </el-form-item>
-        <!-- <el-form-item v-if="form.deviceType === 'platform'" label="设备国标编号:" prop="gbId">
+        <el-form-item v-if="form.deviceType !== 'platform' && isShowGbIdEditor" label="国标ID:" prop="gbId">
           <el-input v-model="form.gbId" />
-        </el-form-item> -->
+          <div class="form-tip">
+            用户可自行录入规范国标ID，未录入该项，平台会自动生成规范国标ID。
+          </div>
+        </el-form-item>
         <el-form-item label="GB28181凭证:" prop="userName">
           <el-select v-model="form.userName" :loading="loading.account">
             <el-option
@@ -168,26 +168,29 @@
             inactive-value="udp"
           />
         </el-form-item>
-        <el-form-item v-if="(!isUpdate || form.gbRegion || !form.gbId)" label="设备地址:" prop="gbRegion">
+        <el-form-item v-if="(!isUpdate || form.gbRegion || !deviceGbId)" label="设备地址:" prop="gbRegion">
           <AddressCascader
             :code="form.gbRegion"
             :level="form.gbRegionLevel"
-            :disabled="form.gbId !== ''"
+            :disabled="deviceGbId !== ''"
             @change="onDeviceAddressChange"
           />
+        </el-form-item>
+        <el-form-item label="设备MAC地址:" prop="macAddr">
+          <el-input v-model="form.macAddr" />
         </el-form-item>
         <el-form-item v-show="form.deviceType !== 'platform'" label="经纬度:" prop="longlat">
           <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
           <el-input v-model="form.deviceLatitude" class="longlat-input" />
         </el-form-item>
         <el-form-item
-          v-if="!isUpdate || form.industryCode || !form.gbId"
+          v-if="!isUpdate || form.industryCode || !deviceGbId"
           label="所属行业:"
           prop="industryCode"
         >
           <el-select
             v-model="form.industryCode"
-            :disabled="form.gbId !== ''"
+            :disabled="deviceGbId !== ''"
             placeholder="请选择所属行业"
           >
             <el-option
@@ -199,13 +202,13 @@
           </el-select>
         </el-form-item>
         <el-form-item
-          v-if="(!isUpdate || form.networkCode || !form.gbId) && networkFlag"
+          v-if="(!isUpdate || form.networkCode || !deviceGbId) && networkFlag"
           label="网络标识:"
           prop="networkCode"
         >
           <el-select
             v-model="form.networkCode"
-            :disabled="form.gbId !== ''"
+            :disabled="deviceGbId !== ''"
             placeholder="请选择网络标识"
           >
             <el-option
@@ -215,6 +218,13 @@
               :value="item.value"
             />
           </el-select>
+        </el-form-item>
+        <el-form-item
+          v-if="form.deviceType !== 'nvr'"
+          label="杆号:"
+          prop="poleId"
+        >
+          <el-input v-model="form.poleId " />
         </el-form-item>
         <el-form-item label="配置资源包:" prop="resources">
           <ResourceTabs
@@ -269,6 +279,12 @@
             2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
           </div>
         </el-form-item>
+        <el-form-item
+          label="杆号:"
+          prop="poleId"
+        >
+          <el-input v-model="form.poleId " />
+        </el-form-item>
         <el-form-item v-if="isUpdate" label="配置资源包:" prop="resources">
           <ResourceTabs
             v-model="form.resources"
@@ -299,7 +315,7 @@ import { Component, Mixins } from 'vue-property-decorator'
 import createMixin from '../mixin/createMixin'
 import { pick } from 'lodash'
 import { DeviceGb28181Type } from '@/dics'
-import { createDevice, updateDevice, getDevice } from '@/api/device'
+import { createDevice, updateDevice, getDevice, validGbId } from '@/api/device'
 import { updateDeviceResources } from '@/api/billing'
 import { getList as getGbList } from '@/api/certificate/gb28181'
 import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
@@ -336,10 +352,9 @@ export default class extends Mixins(createMixin) {
       { required: true, message: '请填写通道号', trigger: 'change' },
       { validator: this.validateChannelNum, trigger: 'change' }
     ],
-    // gbId: [
-    //   { required: true, message: '请填写国标ID', trigger: 'blur' },
-    //   { validator: this.validateGbId, trigger: 'blur' }
-    // ],
+    gbId: [
+      { validator: this.validateGbId, trigger: 'blur' }
+    ],
     industryCode: [
       { required: true, message: '请选择所属行业', trigger: 'blur' }
     ],
@@ -361,6 +376,12 @@ export default class extends Mixins(createMixin) {
     longlat: [
       { required: true, message: '请选择经纬度', trigger: 'blur' },
       { validator: this.validateLonglat, trigger: 'blur' }
+    ],
+    macAddr: [
+      { validator: this.validateMacAddr, trigger: 'blur' }
+    ],
+    poleId: [
+      { validator: this.validatePoleId, trigger: 'blur' }
     ],
     resources: [
       { required: true, validator: this.validateResources, trigger: 'blur' }
@@ -395,6 +416,7 @@ export default class extends Mixins(createMixin) {
     transPriority: 'tcp',
     parentDeviceId: '',
     gbId: '',
+    poleId: '',
     userName: '',
     longlat: 'required',
     deviceLongitude: '0.000000',
@@ -459,6 +481,7 @@ export default class extends Mixins(createMixin) {
             'pullType',
             'transPriority',
             'parentDeviceId',
+            'poleId',
             'gbId',
             'userName',
             'deviceLongitude',
@@ -469,6 +492,9 @@ export default class extends Mixins(createMixin) {
             'networkCode'
           ])
         )
+        // 记录当前设备gbid
+        this.deviceGbId = info.gbId
+
         // 获取绑定资源包列表
         this.getDeviceResources(
           info.deviceId,
@@ -508,17 +534,6 @@ export default class extends Mixins(createMixin) {
       this.$message.error(e && e.message)
     } finally {
       this.loading.device = false
-    }
-  }
-
-  /**
-   * 校验设备国标编号
-   */
-  private validateGbId(rule: any, value: string, callback: Function) {
-    if (value && !/^[0-9]{20}$/.test(value)) {
-      callback(new Error('设备国标编号为20位数字'))
-    } else {
-      callback()
     }
   }
 
@@ -576,6 +591,7 @@ export default class extends Mixins(createMixin) {
         'deviceName',
         'inProtocol',
         'deviceVendor',
+        'poleId',
         'description'
       ])
       if (this.isUpdate) {
@@ -601,6 +617,7 @@ export default class extends Mixins(createMixin) {
             'userName',
             'deviceLongitude',
             'deviceLatitude',
+            'gbId',
             'gbRegion',
             'gbRegionLevel',
             'industryCode',
@@ -672,6 +689,53 @@ export default class extends Mixins(createMixin) {
       this.submitting = false
     }
   }
+
+  /**
+   * 校验MAC地址
+   */
+  private async validateMacAddr(rule: any, value: string, callback: Function) {
+    let reg1 = /^([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})$/
+    let reg2 = /^([0-9A-Fa-f]{2}[-]){5}([0-9A-Fa-f]{2})$/
+    if (value && !reg1.test(value) && !reg2.test(value)) {
+      callback(new Error('请输入规范MAC地址'))
+    } else {
+      callback()
+    }
+  }
+
+  /**
+   * 校验杆号
+   */
+  private async validatePoleId(rule: any, value: string, callback: Function) {
+    if (value && !/^[\w]{1,21}$/.test(value)) {
+      callback(new Error('请输入规范杆号'))
+    } else {
+      callback()
+    }
+  }
+
+  /**
+   * 校验设备国标ID
+   */
+  private async validateGbId(rule: any, value: string, callback: Function) {
+    let validInfo: any
+    try {
+      validInfo = await validGbId({
+        deviceId: this.deviceId,
+        inProtocol: this.form.inProtocol,
+        gbId: this.form.gbId
+      })
+    } catch (e) {
+      console.log(e)
+    }
+    if (value && !/^[0-9]{20}$/.test(value)) {
+      callback(new Error('请输入规范国标ID'))
+    } else if (value && validInfo && !validInfo.isValidGbId) {
+      callback(new Error('存在重复国标ID'))
+    } else {
+      callback()
+    }
+  }
 }
 </script>
 
@@ -692,10 +756,12 @@ export default class extends Mixins(createMixin) {
     content: '/';
     color: $textGrey;
   }
+
   &__item:last-child:after {
     content: '';
   }
 }
+
 .longlat-input {
   width: 193px;
 }

@@ -62,10 +62,10 @@
             <div
               v-loading="loading.dir"
               class="dir-list__tree device-list__max-height"
-              :style="{height: `${maxHeight}px`}"
+              :style="{height: `${maxHeight - (currentGroup.inProtocol === 'gb28181' ? 40 : 0)}px`, marginBottom: currentGroup.inProtocol === 'gb28181' ? '40px' : '0px'}"
             >
               <el-tree
-                v-if="!search.revertSearchFlag"
+                v-if="!advancedSearchForm.revertSearchFlag"
                 key="screen-el-tree-original"
                 ref="dirTree"
                 empty-text="暂无目录或设备"
@@ -216,25 +216,9 @@
                 </div>
               </div>
             </div>
-            <div v-if="currentGroup.inProtocol === 'gb28181'" class="dir-list__search">
-              <el-dropdown placement="top-start" @command="changeSearchStatus">
-                <el-button class="dir-list__search-button" :type="search.statusKey === 'all' ? 'default': 'primary'" size="mini" style="margin-right: 5px !important;">
-                  <svg-icon name="filter" />
-                </el-button>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item v-for="option in search.statusOptions" :key="option.label" :command="option.value">
-                    <i v-if="search.statusKey === option.value" class="el-icon-check" />{{ option.label }}
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
-              <el-tooltip class="item" effect="dark" content="支持国标ID、设备IP、设备名查询" placement="top-start">
-                <!-- TIPS 需要处理为空时候的直接回车 -->
-                <el-input v-model="search.inputKey" size="mini" placeholder="支持国标ID、设备IP、设备名查询" @keyup.enter.native="enterKeySearch" />
-              </el-tooltip>
-              <el-button class="dir-list__search-button" type="primary" size="mini" icon="el-icon-search" :disabled="!search.inputKey.length" @click="filterSearchResult" />
-              <el-button v-if="search.revertSearchFlag" class="dir-list__search-button" type="primary" size="mini" @click="revertSearchResult">
-                <svg-icon name="revert" />
-              </el-button>
+            <!-- 国标才展示 -->
+            <div v-if="currentGroup.inProtocol === 'gb28181'">
+              <advanced-search :search-form="advancedSearchForm" @search="doSearch" />
             </div>
           </div>
         </div>
@@ -398,6 +382,7 @@ import OperateSelector from './components/OperateSelector.vue'
 import { renderAlertType, getSums } from '@/utils/device'
 import { VGroupModule } from '@/store/modules/vgroup'
 import IntercomDialog from './components/dialogs/Intercom.vue'
+import AdvancedSearch from '@/views/device/components/AdvancedSearch.vue'
 
 @Component({
   name: 'Screen',
@@ -410,7 +395,8 @@ import IntercomDialog from './components/dialogs/Intercom.vue'
     StreamSelector,
     OperateSelector,
     PlayerContainer,
-    IntercomDialog
+    IntercomDialog,
+    AdvancedSearch
   }
 })
 export default class extends Mixins(ScreenMixin) {
@@ -470,13 +456,29 @@ export default class extends Mixins(ScreenMixin) {
   private intercomInfo = {}
 
   @Watch('currentGroupId', { immediate: true })
-  private onCurrentGroupChange(groupId: String) {
-    this.search = {
-      ...this.search,
-      inputKey: '',
-      searchKey: '',
-      statusKey: 'all',
-      revertSearchFlag: false
+  private onCurrentGroupChange(groupId: String, oldGroupId: String) {
+    // search为inject变量，不能直接整体赋值为其他，否则inject会失效
+    this.advancedSearchForm.deviceStatusKeys = []
+    this.advancedSearchForm.streamStatusKeys = []
+    this.advancedSearchForm.deviceAddresses = {
+      code: '',
+      level: ''
+    }
+    this.advancedSearchForm.matchKeys = []
+    this.advancedSearchForm.inputKey = ''
+    this.advancedSearchForm.searchKey = ''
+    this.advancedSearchForm.revertSearchFlag = false
+    if (oldGroupId) {
+      const query = {
+        searchKey: '',
+        deviceStatusKeys: '',
+        streamStatusKeys: '',
+        deviceAddresses: '',
+        matchKeys: ''
+      }
+      this.$router.replace({
+        query
+      })
     }
     if (!groupId) return
     this.$nextTick(() => {
@@ -625,41 +627,14 @@ export default class extends Mixins(ScreenMixin) {
       VGroupModule.SetRealGroupId(this.currentNode!.data.realGroupId || '')
       VGroupModule.SetRealGroupInProtocol(this.currentNode!.data.realGroupInProtocol || '')
     }
+    this.polling.isStart = true
+    this.polling.isLoading = true
     if (!isRoot) {
-      this.dirList.forEach((item: any) => {
-        if (item.type === 'ipc' && item.deviceStatus === 'on') {
-          this.pollingDevices.push(item)
-        }
-      })
-    } else {
-      if (this.$route.query.searchKey) {
-        node.data.children.forEach((item: any) => {
-          if (item.type === 'ipc' && item.deviceStatus === 'on') {
-            this.pollingDevices.push(item)
-          }
-        })
-      } else {
-        let data = await getDeviceTree({
-          groupId: this.currentGroupId,
-          id: this.currentNode!.data.id,
-          type: this.currentNode!.data.type
-        })
-        const dirs = this.setDirsStreamStatus(data.dirs)
-        dirs.forEach((item: any) => {
-          if (node.data.type === 'group') {
-            item.roleId = node.data.roleId
-            item.realGroupId = node.data.id
-            item.realGroupInProtocol = node.data.inProtocol
-          } else {
-            item.roleId = node.data.roleId
-            item.realGroupId = node.data.realGroupId
-            item.realGroupInProtocol = node.data.realGroupInProtocol
-          }
-          if (item.type === 'ipc' && item.deviceStatus === 'on') {
-            this.pollingDevices.push(item)
-          }
-        })
+      for (let i = 0, length = this.dirList.length; i < length; i++) {
+        await this.deepDispatchTree(dirTree, dirTree.getNode(this.dirList[i].id), this.pollingDevices, 'polling')
       }
+    } else {
+      await this.deepDispatchTree(dirTree, node, this.pollingDevices, 'polling')
     }
     // console.log(this.pollingDevices, 'this.pollingDevices')
     this.polling.isLoading = false
@@ -733,40 +708,13 @@ export default class extends Mixins(ScreenMixin) {
       VGroupModule.SetRealGroupInProtocol(this.currentNode!.data.realGroupInProtocol || '')
     }
     if (!isRoot) {
-      this.dirList.forEach((item: any) => {
-        if (item.type === 'ipc' && item.deviceStatus === 'on') {
-          this.autoPlayDevices.push(item)
-        }
-      })
-    } else {
-      if (this.$route.query.searchKey) {
-        node.data.children.forEach((item: any) => {
-          if (item.type === 'ipc' && item.deviceStatus === 'on') {
-            this.autoPlayDevices.push(item)
-          }
-        })
-      } else {
-        let data = await getDeviceTree({
-          groupId: this.currentGroupId,
-          id: node!.data.id,
-          type: node!.data.type
-        })
-        const dirs = this.setDirsStreamStatus(data.dirs)
-        dirs.forEach((item: any) => {
-          if (node.data.type === 'group') {
-            item.roleId = node.data.roleId
-            item.realGroupId = node.data.id
-            item.realGroupInProtocol = node.data.inProtocol
-          } else {
-            item.roleId = node.data.roleId
-            item.realGroupId = node.data.realGroupId
-            item.realGroupInProtocol = node.data.realGroupInProtocol
-          }
-          if (item.type === 'ipc' && item.deviceStatus === 'on') {
-            this.autoPlayDevices.push(item)
-          }
-        })
+      for (let i = 0, length = this.dirList.length; i < length; i++) {
+        await this.deepDispatchTree(dirTree, dirTree.getNode(this.dirList[i].id), this.autoPlayDevices, 'autoPlay')
+        // 当为一键播放时，加载设备数超过最大屏幕数则终止遍历
+        if (this.autoPlayDevices.length >= this.maxSize) break
       }
+    } else {
+      await this.deepDispatchTree(dirTree, node, this.autoPlayDevices, 'autoPlay')
     }
     // console.log(this.autoPlayDevices, 'this.autoPlayDevices')
     if (!this.autoPlayDevices.length) {
@@ -822,19 +770,29 @@ export default class extends Mixins(ScreenMixin) {
    * 轮巡
    */
   private pollingVideos() {
+    console.log('轮巡')
     const length = this.pollingDevices.length
     this.currentPollingIndex = this.currentPollingIndex % length
     this.currentIndex = 0
     for (let i = 0; i < this.maxSize; i++) {
       let pollingDeviceInfo = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length]
       this.screenList[i].reset()
-      this.screenList[i].deviceId = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].id
-      this.screenList[i].deviceName = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].label
+      this.screenList[i].deviceId = pollingDeviceInfo.id
+      this.screenList[i].type = pollingDeviceInfo.type
+      this.screenList[i].deviceName = pollingDeviceInfo.label
       this.screenList[i].inProtocol = this.currentGroupInProtocol!
-      this.screenList[i].roleId = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].roleId
-      this.screenList[i].realGroupId = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].realGroupId
-      this.screenList[i].realGroupInProtocol = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].realGroupInProtocol
-      this.screenList[i].getUrl()
+      // this.screenList[i].getUrl()
+      if (pollingDeviceInfo.url && pollingDeviceInfo.codec) {
+        this.$nextTick(() => {
+          this.screenList[i].codec = pollingDeviceInfo.codec
+          this.screenList[i].url = pollingDeviceInfo.url
+          this.screenList[i].loaded = true
+          console.log(this.screenList[i].url, this.screenList[i].codec)
+        })
+      } else {
+        this.screenList[i].getUrl()
+      }
+
       if (this.currentIndex < this.maxSize - 1) {
         this.currentIndex++
       } else {
