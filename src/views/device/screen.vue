@@ -778,10 +778,11 @@ export default class extends Mixins(ScreenMixin) {
       let pollingDeviceInfo = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length]
       this.screenList[i].reset()
       this.screenList[i].deviceId = pollingDeviceInfo.id
-      this.screenList[i].type = pollingDeviceInfo.type
       this.screenList[i].deviceName = pollingDeviceInfo.label
       this.screenList[i].inProtocol = this.currentGroupInProtocol!
-      // this.screenList[i].getUrl()
+      this.screenList[i].roleId = pollingDeviceInfo.roleId
+      this.screenList[i].realGroupId = pollingDeviceInfo.realGroupId
+      this.screenList[i].realGroupInProtocol = pollingDeviceInfo.realGroupInProtocol
       if (pollingDeviceInfo.url && pollingDeviceInfo.codec) {
         this.$nextTick(() => {
           this.screenList[i].codec = pollingDeviceInfo.codec
