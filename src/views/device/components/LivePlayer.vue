@@ -58,7 +58,7 @@ export default class extends Vue {
         this.onClose()
         break
       case 'toggleLiveReplay':
-        this.toggleLiveReplay(event.payload)
+        this.toggleLiveReplay()
         break
     }
   }
@@ -82,9 +82,9 @@ export default class extends Vue {
   /**
    * 切换录像回放/实时预览
    */
-  private toggleLiveReplay(isLive: boolean) {
-    console.log('toggleLiveReplay', isLive)
-    this.screen.isLive = !isLive
+  private toggleLiveReplay() {
+    this.screen.isLive = false
+    this.screen.init()
   }
 
   /**
