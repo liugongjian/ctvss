@@ -257,9 +257,9 @@ import { VGroupModule } from '@/store/modules/vgroup'
 import IntercomDialog from './components/dialogs/Intercom.vue'
 import AdvancedSearch from '@/views/device/components/AdvancedSearch.vue'
 
-import ScreenBoard from './components/Screen/ScreenBoard.vue'
 import { ScreenManager } from './models/Screen/ScreenManager'
-import Datepicker from './components/Screen/components/Datepicker.vue'
+import ScreenBoard from './components/ScreenBoard/index.vue'
+import Datepicker from './components/ScreenBoard/components/Datepicker.vue'
 
 @Component({
   name: 'Screen',
