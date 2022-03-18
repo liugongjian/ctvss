@@ -96,7 +96,8 @@ export default class MapView extends Vue {
     this.markerlist = markerList;
     this.vmap.setMarkerList(markerList, {
       onClick: this.handleMarkerClick,
-      onChange: this.handleMarkerModify
+      onChange: this.handleMarkerModify,
+      onDelete: this.handleMarkerDelete
     });
   }
   toggleOverView(state) {

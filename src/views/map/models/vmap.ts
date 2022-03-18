@@ -33,6 +33,7 @@ export interface events {
 export interface markerEventHandlers {
   onClick?: any
   onChange?: any
+  onDelete?: any
 }
 
 export const getAMapLoad = () => {
@@ -86,6 +87,9 @@ export default class VMap {
         height: '200px',
       });
       map.addControl(this.overView);
+      map.on('click', () => {
+        this.cancelChoose();
+      });
       this.map = map;
     } catch(e) {
       console.log(e);
@@ -169,6 +173,16 @@ export default class VMap {
     this.cluster.setData(this.wrapMarkers(markers));
   }
 
+  cancelChoose() {
+    if (this.curMarkerList.length > 0) {
+      this.curMarkerList = this.curMarkerList.map((item) => {
+        item.selected = false;
+        return item
+      })
+      this.setCluster(this.wrapMarkers(this.curMarkerList));
+    }
+  }
+
   setCluster(markers: any[]) {
     if (this.cluster) {
       this.cluster.setMap(null);
@@ -207,7 +221,10 @@ export default class VMap {
       }
       context.marker.on('click', () => {
         const marker = context.marker.getExtData();
-        this.chooseMarker(marker);
+        if (!marker.selected) {
+          this.cancelChoose();
+          this.chooseMarker(marker);
+        }
         this.markerEventHandlers.onClick && this.markerEventHandlers.onClick(marker);
       })
     }
@@ -241,15 +258,29 @@ export default class VMap {
     const sector = this.drawSector(markerOptions);
     const marker = this.createNode('<img class="marker-center" width="19px" height="32px" src="//webapi.amap.com/theme/v1.3/markers/b/mark_bs.png">')
     const label = this.createNode(`<div class="marker-label">${markerOptions.deviceId}</div>`)
-    let wrapDiv;
-    const size = markerOptions.viewRadius * 2 + 60;
-    let wrapStyle = `width: ${size}px; height: ${size}px; top: ${(50 - size) / 2}px; left: ${(50 - size) / 2}px`;
-    if (this.isEdit) { // 编辑状态
-      wrapDiv = this.createNode(`<div class="marker-wrap" style="${wrapStyle}"><div class="marker-options"><i class="icon icon_delete">×</i></div></div>`)
-    } else {
-      wrapDiv = this.createNode(`<div class="marker-wrap" style="${wrapStyle}"><div class="marker-options"><i class="icon icon_preview">p</i><i class="icon icon_replay">r</i></img></div>`)
-    }
     if (markerOptions.selected) {
+      const size = markerOptions.viewRadius * 2 + 60;
+      const wrapStyle = `width: ${size}px; height: ${size}px; top: ${(50 - size) / 2}px; left: ${(50 - size) / 2}px`;
+      let wrapDiv;
+      let optionDiv;
+      if (this.isEdit) { // 编辑状态
+        const previewIcon = `<i class="icon icon_preview" onclick="previewMarker(${markerOptions})">p</i>`
+        const replayIcon = `<i class="icon icon_replay" onclick="replayMarker(${markerOptions})">r</i>`
+        optionDiv = `<div class="marker-options">${previewIcon}${replayIcon}</div>`;
+      } else {
+        const deleteIcon = `<i class="icon icon_delete" onclick="deleteMarker(${markerOptions})">×</i>`
+        optionDiv = `<div class="marker-options">${deleteIcon}</div>`;
+      }
+      window.previewMarker = (id) => {
+        console.log('播放'+ id);
+      }
+      window.replayMarker = (id) => {
+        console.log('回放'+ id);
+      }
+      window.deleteMarker = (marker) => {
+        this.markerEventHandlers.onDelete(marker);
+      }
+      wrapDiv = this.createNode(`<div class="marker-wrap" style="${wrapStyle}">${optionDiv}</div>`);
       markerContent.append(wrapDiv);
     }
     markerContent.append(sector, marker, label);
