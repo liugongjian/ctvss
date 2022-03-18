@@ -4,7 +4,7 @@
 import axios from 'axios'
 import { Record } from './Record'
 import { getTimestamp } from '@/utils/date'
-import { getDeviceRecords, getDeviceRecord, getDeviceRecordStatistic, editRecordName, getDeviceRecordRule, describeHeatMap, getDevicePreview } from '@/api/device'
+import { getDeviceRecords, getDeviceRecord, getDeviceRecordStatistic, editRecordName, getDeviceRecordRule, describeHeatMap, getDevicePreview, setRecordScale } from '@/api/device'
 
 export class RecordManager {
   /* 设备ID */
@@ -142,7 +142,6 @@ export class RecordManager {
     const res: any = await getDevicePreview({
       deviceId: this.deviceId,
       inProtocol: this.inProtocol,
-      outNetwork: 'internet',
       type: 'vod',
       startTime,
       endTime,

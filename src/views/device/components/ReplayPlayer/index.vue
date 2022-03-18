@@ -46,15 +46,10 @@ export default class extends Vue {
   private type: string = null
   private codec: string = null
 
-  /* 录像类型 */
-  private get recordType() {
-    return this.screen.recordType
-  }
-
   @Watch('screen.currentRecord.url')
   @Watch('screen.url')
   private onChange() {
-    if (this.recordType === 0) {
+    if (this.screen.recordType === 0) {
       this.url = this.screen.currentRecord && this.screen.currentRecord.url
       this.type = 'hls'
       this.codec = this.screen.currentRecord && this.screen.currentRecord.codec
@@ -75,6 +70,9 @@ export default class extends Vue {
         break
       case 'toggleLiveReplay':
         this.toggleLiveReplay()
+        break
+      case 'setPlaybackRate':
+        this.setPlaybackRate(event.payload)
         break
     }
   }
@@ -97,9 +95,18 @@ export default class extends Vue {
    * 切换录像回放/实时预览
    */
   private toggleLiveReplay() {
-    console.log('toggleLiveReplay')
     this.screen.isLive = true
     this.screen.init()
+  }
+
+  /**
+   * 本地录像设置倍速播放
+   */
+  private setPlaybackRate(playbackRate: number) {
+    console.log(playbackRate)
+    if (this.screen.recordType === 1) {
+      this.screen.setPlaybackRate(playbackRate)
+    }
   }
 
   /**

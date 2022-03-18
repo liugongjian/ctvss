@@ -3,7 +3,7 @@ import { DeviceInfo, StreamInfo, Stream } from '@/components/VssPlayer/models/Vs
 import { RecordManager } from '../Record/RecordManager'
 import { Record } from '../Record/Record'
 import { Player } from '@/components/Player/models/Player'
-import { getDevicePreview } from '@/api/device'
+import { getDevicePreview, setRecordScale } from '@/api/device'
 import { getLocaleDate, getDateByTime, currentTimeZeroMsec } from '@/utils/date'
 
 export class Screen {
@@ -420,5 +420,16 @@ export class Screen {
     } catch (e) {
       console.log(e)
     }
+  }
+
+  /**
+   * 设置播放速率
+   */
+  public setPlaybackRate(playbackRate: number) {
+    setRecordScale({
+      deviceId: this.deviceId,
+      playUrl: this.url,
+      scale: playbackRate.toString()
+    })
   }
 }

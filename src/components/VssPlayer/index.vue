@@ -38,11 +38,12 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop, Provide } from 'vue-property-decorator'
+import { Component, Vue, Prop, Provide, Watch } from 'vue-property-decorator'
 import './styles/index.scss'
 import { PlayerType } from '@/components/Player/models/Player.d'
 import { PlayerEvent, DeviceInfo, StreamInfo } from '@/components/VssPlayer/models/VssPlayer.d'
 import Player from '@/components/Player/index.vue'
+import { Player as PlayerModel } from '@/components/Player/models/Player'
 import { adaptiveTools } from './directives/adaptiveTools'
 /**
  * 子组件库
@@ -158,7 +159,7 @@ export default class extends Vue {
   private hasLiveReplaySelector: boolean
 
   /* 播放器实例 */
-  private player: Player = null
+  private player: PlayerModel = null
 
   /* 如视频编码为H265，播放器类型变为h265 */
   private get playerType() {
@@ -179,6 +180,14 @@ export default class extends Vue {
   @Provide('getPlayer')
   private getPlayer() {
     return this.player
+  }
+
+  @Watch('player.playbackRate')
+  private onPlaybackRateChange() {
+    this.$emit('dispatch', {
+      eventType: 'setPlaybackRate',
+      payload: this.player.playbackRate
+    })
   }
 
   /**
