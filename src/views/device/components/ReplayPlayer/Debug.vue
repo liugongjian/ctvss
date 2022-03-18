@@ -127,7 +127,9 @@ export default class extends Vue {
     this.screen.seek(this.form.time)
   }
 
-  private onAxisTimeChange(time: number) {
+  private onAxisTimeChange(time: number, flag: any) {
+    console.log('onAxisTimeChange')
+    console.log(flag)
     this.screen.seek(time)
   }
 }

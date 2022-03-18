@@ -17,7 +17,7 @@
  * 3) 计算刻度位置时使用时间戳除ratio，转换为像素值
  */
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { dateFormat, getNextHour, prefixZero } from '@/utils/date'
+import { dateFormat, getNextHour, prefixZero, currentTimeZeroMsec } from '@/utils/date'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import { throttle } from 'lodash'
 
@@ -127,7 +127,9 @@ export default class extends Vue {
     this.axisEndTime = this.currentTime + this.settings.scale * 60 * 60 / 2
     const nextHourTime = Math.floor(getNextHour(this.axisStartTime * 1000) / 1000)
     const offsetX = (nextHourTime - this.axisStartTime) / this.settings.ratio
-
+    // this.screen.axisStartTime = this.axisStartTime
+    // this.screen.axisEndTime = this.axisEndTime
+    // this.screen.scale = this.scale
     /* 计算小时刻度像素位置 */
     const hours = []
     const hourSpan = 60 * 60 / this.settings.ratio // 计算每小时间隔的像素值
@@ -374,7 +376,7 @@ export default class extends Vue {
     window.removeEventListener('mousemove', this.onAxisMove)
     window.removeEventListener('mouseup', this.onAxisMouseup)
     this.axisDrag.isDragging = false
-    this.$emit('change', this.currentTime)
+    this.$emit('change', this.currentTime, this.loadingSeeker())
   }
 
   /**
@@ -385,11 +387,11 @@ export default class extends Vue {
     switch (e.code) {
       case 'ArrowRight':
         this.currentTime = this.currentTime + 1
-        this.$emit('change', this.currentTime)
+        this.$emit('change', this.currentTime, this.loadingSeeker())
         break
       case 'ArrowLeft':
         this.currentTime = this.currentTime - 1
-        this.$emit('change', this.currentTime)
+        this.$emit('change', this.currentTime, this.loadingSeeker())
         break
     }
   }
@@ -417,6 +419,23 @@ export default class extends Vue {
     } else if (type === 0 && this.settings.scale < 24) {
       this.settings.scale = this.settings.scale * 1.1
       this.resize()
+    }
+  }
+
+  /**
+   * loadingSeeker
+   * 判断当前时刻下是否需要加载前后一天的视频
+   */
+  public loadingSeeker() {
+    let thresholdStart = 0.5 * this.settings.scale * 60 * 60 // 单位 s
+    let thresholdEnd = 24 * 60 * 60 - 0.5 * this.settings.scale * 60 * 60
+    let deltaCurrentTime = currentTimeZeroMsec(this.currentTime * 1000) / 1000
+    if (thresholdEnd < deltaCurrentTime) {
+      return '加载后一天🚆'
+    } else if (thresholdStart > deltaCurrentTime) {
+      return '加载前一天✈'
+    } else {
+      return '不需要加载新的视频'
     }
   }
 }

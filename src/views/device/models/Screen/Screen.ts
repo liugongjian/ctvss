@@ -4,7 +4,7 @@ import { RecordManager } from '../Record/RecordManager'
 import { Record } from '../Record/Record'
 import { Player } from '@/components/Player/models/Player'
 import { getDevicePreview } from '@/api/device'
-import { getLocaleDate, getDateByTime } from '@/utils/date'
+import { getLocaleDate, getDateByTime, currentTimeZeroMsec } from '@/utils/date'
 
 export class Screen {
   /* 播放器类型 */
@@ -57,14 +57,16 @@ export class Screen {
   public recordType: 0 | 1
   /* 录像列表 */
   public recordList: Record[]
+  /* 已加载的录像日期 */
+  public loadedRecordDates: Set<number>
   /* 当前正在播放的录像片段 */
   public currentRecord: Record
-  /* 当前播放时间（时间戳/秒） */
-  public currentTime: number
   /* 查找最新录像定时器 */
   private recordInterval: any
   /* 当前日期（时间戳/秒） */
   public currentDate: number
+  /* 本地录像起始时间 */
+  public localStartTime: number
 
   /**
    * ----------------
@@ -101,8 +103,9 @@ export class Screen {
     this.recordManager = null
     this.recordType = 0
     this.recordList = []
+    this.loadedRecordDates = new Set()
     this.currentRecord = null
-    this.currentTime = null
+    // this.currentTime = null
     this.recordInterval = null
     this.currentDate = Math.floor(getLocaleDate().getTime() / 1000)
   }
@@ -246,7 +249,7 @@ export class Screen {
      * 初始化录像
      * 1) 初始化RecordManager录像管理器
      * 2) 获取当前所选日期一整天的录像列表
-     * 3) 获取第一段录像
+     * 3) 云端：获取第一段录像，本地：获取第一段时间的录像URL
      */
   public async initReplay() {
     try {
@@ -257,12 +260,24 @@ export class Screen {
       this.recordManager = new RecordManager({
         deviceId: this.deviceId,
         inProtocol: this.inProtocol,
+        roleId: this.roleId,
+        realGroupId: this.realGroupId,
         recordInfo: this.recordInfo
       })
       this.recordManager.getRecordStatistic() // 获得最近两月录像统计
       this.recordList = await this.recordManager.getRecordList(this.currentDate, this.currentDate + 24 * 60 * 60)
       if (this.recordList && this.recordList.length) {
-        this.currentRecord = this.recordList[0]
+        /**
+         * 0云端：获取第一段录像
+         * 1本地：获取URL
+         */
+        if (this.recordType === 0) {
+          this.currentRecord = this.recordList[0]
+        } else {
+          const res = await this.recordManager.getLocalUrl(this.recordList[0].startTime)
+          this.codec = res.codec
+          this.url = res.url
+        }
         this.getLatestRecord()
       } else {
         this.errorMsg = this.ERROR.NO_RECORD
@@ -275,35 +290,44 @@ export class Screen {
   }
 
   /**
-   * 切换日期
+   * 加载指定日期的录像数据
    * @param date 日期
    * @param isConcat 是否合并到现有列表，如果false将覆盖现有列表并播放第一段
+   * @param isSilence 静悄悄的更新，不出现Loading，不更新当前日期(currentDate)
    */
   public async getRecordListByDate(date: number, isConcat = false, isSilence = false) {
     try {
-      this.currentDate = date
-      this.errorMsg = null
-      if (!isSilence) this.isLoading = true
-      const records = await this.recordManager.getRecordList(date, date + 24 * 60 * 60)
-      if (!records) {
-        if (!isSilence) {
-          this.errorMsg = this.ERROR.NO_RECORD
-        }
+      /**
+       * 判断该日期是否存在SET中
+       */
+      if (this.loadedRecordDates.has(date)) {
         return
       }
-      if (isConcat) {
-        // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
-        if (date > this.currentDate) {
-          this.recordList = this.recordList.concat(records)
+      if (!isSilence) {
+        this.errorMsg = null
+        this.isLoading = true
+        this.currentDate = date
+      }
+      const records = await this.recordManager.getRecordList(date, date + 24 * 60 * 60)
+      if (records) {
+        // 存入日期
+        this.loadedRecordDates.add(date)
+        if (isConcat) {
+          // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
+          if (date > this.currentDate) {
+            this.recordList = this.recordList.concat(records)
+          } else {
+            this.recordList = records.concat(this.recordList)
+          }
         } else {
-          this.recordList = records.concat(this.recordList)
+          this.recordList = records
+          this.currentRecord = this.recordList[0]
         }
-      } else {
-        this.recordList = records
-        this.currentRecord = this.recordList[0]
+      } else if (!isSilence) {
+        this.errorMsg = this.ERROR.NO_RECORD
       }
     } catch (e) {
-      if (!isConcat) {
+      if (!isConcat && !isSilence) {
         this.errorMsg = e.message
       }
     } finally {
@@ -322,12 +346,16 @@ export class Screen {
     let record = this.getRecordByTime(time)
     const date = getDateByTime(time * 1000) / 1000
     if (record) {
-      if (!this.currentRecord || this.currentRecord.startTime !== record.startTime) {
-        this.currentRecord = record
-        this.currentRecord.offsetTime = time - record.startTime
-      } else {
-        this.currentRecord.offsetTime = null
-        this.player.seek(time - this.currentRecord.startTime)
+      switch (this.recordType) {
+        case 0:
+          if (!this.currentRecord || this.currentRecord.startTime !== record.startTime) {
+            this.currentRecord = record
+            this.currentRecord.offsetTime = time - record.startTime
+          } else {
+            this.currentRecord.offsetTime = null
+            this.player.seek(time - this.currentRecord.startTime)
+          }
+          break
       }
       this.currentDate = date
     } else {

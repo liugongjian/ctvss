@@ -3,8 +3,8 @@
  */
 import axios from 'axios'
 import { Record } from './Record'
-import { dateFormatInTable, dateFormat, durationFormatInTable, prefixZero, getLocaleDate, getTimestamp } from '@/utils/date'
-import { getDeviceRecords, getDeviceRecord, getDeviceRecordStatistic, editRecordName, getDeviceRecordRule, describeHeatMap } from '@/api/device'
+import { getTimestamp } from '@/utils/date'
+import { getDeviceRecords, getDeviceRecord, getDeviceRecordStatistic, editRecordName, getDeviceRecordRule, describeHeatMap, getDevicePreview } from '@/api/device'
 
 export class RecordManager {
   /* 设备ID */
@@ -13,14 +13,10 @@ export class RecordManager {
   public inProtocol: string
   /* 录像信息 */
   public recordInfo: any
-  /* 开始时间(时间戳/秒) */
-  public startTime?: number
-  /* 结束时间(时间戳/秒) */
-  public endTime?: number
+  public roleId: string
+  public realGroupId: string
   /* 分页大小 */
   public pageSize?: string
-  /* 录像片段列表 */
-  // public list?: Record[]
 
   private axiosSource
 
@@ -33,9 +29,6 @@ export class RecordManager {
     this.inProtocol = params.inProtocol
     this.recordInfo = params.recordInfo
     this.recordStatistic = new Map()
-    // this.startTime = params.startTime
-    // this.endTime = params.endTime
-    // this.list = []
   }
 
   /**
@@ -83,8 +76,9 @@ export class RecordManager {
         startTime = Math.floor(new Date(current.getFullYear(), current.getMonth() - 1).getTime() / 1000)
         endTime = Math.floor(new Date().getTime() / 1000)
       }
+      const type = ['cloud', 'local']
       const res = await getDeviceRecordStatistic({
-        type: this.recordInfo.recordType,
+        type: type[this.recordInfo.recordType],
         deviceId: this.deviceId,
         inProtocol: this.inProtocol,
         startTime: startTime,
@@ -137,9 +131,33 @@ export class RecordManager {
   }
 
   /**
-   * 播放录像
+   * 获取本地录像地址
    */
-  public playRecord() {
-
+  public async getLocalUrl(startTime: number) {
+    this.axiosSource && this.axiosSource.cancel()
+    this.axiosSource = axios.CancelToken.source()
+    const endTime = startTime + 24 * 60 * 60 - 1
+    let url
+    let codec
+    const res: any = await getDevicePreview({
+      deviceId: this.deviceId,
+      inProtocol: this.inProtocol,
+      outNetwork: 'internet',
+      type: 'vod',
+      startTime,
+      endTime,
+      'self-defined-headers': {
+        'role-id': this.roleId || '',
+        'real-group-id': this.realGroupId || ''
+      }
+    }, this.axiosSource.token)
+    if (res.playUrl) {
+      url = res.playUrl.flvUrl
+      codec = res.video.codec
+    }
+    return {
+      url,
+      codec
+    }
   }
 }
