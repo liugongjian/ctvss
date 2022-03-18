@@ -27,7 +27,7 @@
                 <el-button
                   v-if="!polling.isStart"
                   type="text"
-                  @click="videosOnPolling(null, false)"
+                  @click="executeQueue(null, true, 'polling')"
                 >
                   <svg-icon name="polling-play" />
                 </el-button>
@@ -41,7 +41,7 @@
               >
                 <el-button
                   type="text"
-                  @click="videosOnAutoPlay(null, false)"
+                  @click="executeQueue(null, true, 'autoPlay')"
                 >
                   <svg-icon name="auto-play" />
                 </el-button>
@@ -111,7 +111,7 @@
                       placement="top"
                       :open-delay="300"
                     >
-                      <OperateSelector v-if="data.type === 'nvr' || data.type === 'dir' || data.type === 'group'" @onSetOperateValue="setOperateValue($event, node)" />
+                      <OperateSelector v-if="data.type !== 'ipc' && data.type !== 'role'" @onSetOperateValue="setOperateValue($event, node)" />
                     </el-tooltip>
                   </div>
                 </span>
@@ -163,7 +163,7 @@
                       placement="top"
                       :open-delay="300"
                     >
-                      <OperateSelector v-if="data.type === 'nvr' || data.type === 'dir' || data.type === 'group'" @onSetOperateValue="setOperateValue($event, node)" />
+                      <OperateSelector v-if="data.type !== 'ipc' && data.type !== 'role'" @onSetOperateValue="setOperateValue($event, node)" />
                     </el-tooltip>
                   </div>
                 </span>
@@ -228,7 +228,7 @@
           <ScreenBoard
             ref="screenBoard"
             class="device-list__right"
-            :is-live="false"
+            :is-live="true"
             :in-protocol="currentGroupInProtocol"
             :has-live-replay-selector="true"
           />
@@ -393,133 +393,19 @@ export default class extends Mixins(ScreenMixin) {
   /**
    *  切换分屏数量
    */
-  public handleLiveScreenSize(size: String) {
-    this.handleScreenSize(size)
-    if (this.polling.isStart) {
-      this.doPolling()
-    }
-  }
+  // public handleLiveScreenSize(size: String) {
+  //   this.handleScreenSize(size)
+  //   if (this.polling.isStart) {
+  //     this.doPolling()
+  //   }
+  // }
 
   /**
    * 更多操作
    */
-  private setOperateValue(value: string, node: any) {
-    switch (value) {
-      case 'polling':
-        this.videosOnPolling(node, true)
-        break
-      case 'autoPlay':
-        this.videosOnAutoPlay(node, true)
-        break
-    }
+  private setOperateValue(value: 'polling' | 'autoPlay', node: any) {
+    this.executeQueue(node, false, value)
   }
-
-  /**
-   * 判断轮巡时是否需要刷新
-   */
-  // private doPolling() {
-  //   // 不刷新
-  //   this.interval && clearTimeout(this.interval)
-  //   if (this.pollingDevices.length - 1 < this.maxSize) {
-  //     this.$alert('当前设备数需大于分屏数才可开始轮巡', '提示', {
-  //       confirmButtonText: '确定'
-  //     })
-  //   } else {
-  //     // 刷新
-  //     this.polling.isStart = true
-  //     this.pollingVideos()
-  //     // 间隔时间大于预加载时间则执行预加载策略
-  //     let preLoadDelay = 5
-  //     if (this.polling.interval <= preLoadDelay) {
-  //       preLoadDelay = 0
-  //     }
-  //     let intervalPolling = () => {
-  //       this.interval = setTimeout(
-  //         () => {
-  //           this.interval && clearTimeout(this.interval)
-  //           if (preLoadDelay) {
-  //             this.preLoadPollingVideos()
-  //             this.interval = setTimeout(
-  //               () => {
-  //                 this.interval && clearTimeout(this.interval)
-  //                 this.pollingVideos()
-  //                 intervalPolling()
-  //               },
-  //               preLoadDelay * 1000
-  //             )
-  //           } else {
-  //             this.pollingVideos()
-  //             intervalPolling()
-  //           }
-  //         },
-  //         (this.polling.interval - preLoadDelay) * 1000
-  //       )
-  //     }
-  //     intervalPolling()
-  //     // } else {
-  //     //   this.interval = setInterval(
-  //     //     this.pollingVideos,
-  //     //     this.polling.interval * 1000
-  //     //   )
-  //     // }
-  //   }
-  // }
-
-  /**
-   * 轮巡
-   */
-  // private pollingVideos() {
-  //   const length = this.pollingDevices.length
-  //   this.currentPollingIndex = this.currentPollingIndex % length
-  //   this.currentIndex = 0
-  //   for (let i = 0; i < this.maxSize; i++) {
-  //     this.screenList[i] = new Screen()
-  //     this.screenList[i].deviceInfo.deviceId = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].id
-  //     this.screenList[i].deviceInfo.deviceName = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].label
-  //     this.screenList[i].deviceInfo.inProtocol = this.currentGroupInProtocol!
-  //     this.screenList[i].deviceInfo.roleId = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].roleId
-  //     this.screenList[i].deviceInfo.realGroupId = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].realGroupId
-  //     this.screenList[i].deviceInfo.realGroupInProtocol = this.pollingDevices[(this.currentPollingIndex + (i % length)) % length].realGroupInProtocol
-  //     this.screenList[i].init()
-  //     if (this.currentIndex < this.maxSize - 1) {
-  //       this.currentIndex++
-  //     } else {
-  //       this.currentIndex = 0
-  //     }
-  //   }
-  //   this.currentPollingIndex = this.currentPollingIndex + this.maxSize
-  // }
-
-  /**
-   * 轮巡预加载
-   */
-  // private async preLoadPollingVideos() {
-  //   console.log('轮巡预加载')
-  //   const length = this.pollingDevices.length
-  //   let currentPollingIndex = this.currentPollingIndex % length
-  //   let currentIndex = 0
-  //   let preLoadScreen = new Screen()
-  //   for (let i = 0; i < this.maxSize; i++) {
-  //     let pollingDeviceInfo = this.pollingDevices[(currentPollingIndex + (i % length)) % length]
-  //     preLoadScreen.destroy()
-  //     preLoadScreen.deviceInfo.deviceId = pollingDeviceInfo.id
-  //     preLoadScreen.deviceInfo.deviceName = pollingDeviceInfo.label
-  //     preLoadScreen.deviceInfo.inProtocol = this.currentGroupInProtocol!
-  //     preLoadScreen.type = pollingDeviceInfo.type
-  //     preLoadScreen.isLive = true
-  //     await preLoadScreen.init()
-  //     pollingDeviceInfo.url = preLoadScreen.streamInfo.url
-  //     pollingDeviceInfo.codec = preLoadScreen.streamInfo.codec
-
-  //     if (currentIndex < this.maxSize - 1) {
-  //       currentIndex++
-  //     } else {
-  //       currentIndex = 0
-  //     }
-  //   }
-  //   preLoadScreen = null
-  //   // this.currentPollingIndex = this.currentPollingIndex + this.maxSize
-  // }
 
   /**
    * 视频断流30秒后重试
@@ -609,6 +495,12 @@ export default class extends Mixins(ScreenMixin) {
     if (device) this.openScreen(device)
   }
 
+  /* 当前选中的分屏 */
+  private get currentScreen() {
+    return this.screenManager && this.screenManager.currentScreen
+  }
+
+  /* 轮巡及一键播放 */
   private pollingStatus: string = 'free'
   private screenManager: ScreenManager = null
   private polling = {
@@ -622,29 +514,24 @@ export default class extends Mixins(ScreenMixin) {
     this.pollingStatus = screenManagerStatus.executeQueueConfig.status
   }
 
-  /* 当前选中的分屏 */
-  private get currentScreen() {
-    return this.screenManager && this.screenManager.currentScreen
-  }
-
   private mounted() {
     const screenBoard = this.$refs.screenBoard as ScreenBoard
     this.screenManager = screenBoard!.screenManager
   }
 
+  /* 视频队列执行器 */
   private get queueExecutor() {
     return this.screenManager && this.screenManager.refs.queueExecutor
   }
 
-  private intervalChange(val: number) {
-    this.screenManager.executeQueueConfig.interval = val
-  }
-
   /**
-   * 获取需要轮巡的视频
+   * 获取需要执行的视频队列并按策略执行
+   * @node 起始树节点
+   * @isRoot 是否为根节点
+   * @policy 执行策略
    */
-  private async videosOnPolling(node: any, isRoot: boolean) {
-    let pollingDevices: Device[] = []
+  private async executeQueue(node: any, isRoot: boolean, policy: 'polling' | 'autoPlay') {
+    let devicesQueue: Device[] = []
     const dirTree: any = this.$refs.dirTree
     if (node) {
       this.currentNode = node
@@ -653,73 +540,50 @@ export default class extends Mixins(ScreenMixin) {
       VGroupModule.SetRealGroupId(this.currentNode!.data.realGroupId || '')
       VGroupModule.SetRealGroupInProtocol(this.currentNode!.data.realGroupInProtocol || '')
     }
-    this.polling.isLoading = true
-    if (!isRoot) {
+    policy === 'polling' && (this.polling.isLoading = true)
+    if (isRoot) {
       for (let i = 0, length = this.dirList.length; i < length; i++) {
-        await this.deepDispatchTree(dirTree, dirTree.getNode(this.dirList[i].id), pollingDevices, 'polling')
+        await this.deepDispatchTree(dirTree, dirTree.getNode(this.dirList[i].id), devicesQueue, policy)
       }
     } else {
-      await this.deepDispatchTree(dirTree, node, pollingDevices, 'polling')
+      await this.deepDispatchTree(dirTree, node, devicesQueue, policy)
     }
     // console.log(this.pollingDevices, 'this.pollingDevices')
-    this.polling.isLoading = false
-    this.executeQueue(pollingDevices, 'polling')
-  }
-
-  /**
-   * 获取需要一键播放的视频
-   */
-  private async videosOnAutoPlay(node: any, isRoot: boolean) {
-    let autoPlayDevices = []
-    const dirTree: any = this.$refs.dirTree
-    if (node) {
-      this.currentNode = node
-      // 设置虚拟业务组相关信息
-      VGroupModule.SetRoleID(this.currentNode!.data.roleId || '')
-      VGroupModule.SetRealGroupId(this.currentNode!.data.realGroupId || '')
-      VGroupModule.SetRealGroupInProtocol(this.currentNode!.data.realGroupInProtocol || '')
-    }
-    if (!isRoot) {
-      for (let i = 0, length = this.dirList.length; i < length; i++) {
-        await this.deepDispatchTree(dirTree, dirTree.getNode(this.dirList[i].id), autoPlayDevices, 'autoPlay')
-        // 当为一键播放时，加载设备数超过最大屏幕数则终止遍历
-        if (autoPlayDevices.length >= this.maxSize) break
-      }
-    } else {
-      await this.deepDispatchTree(dirTree, node, autoPlayDevices, 'autoPlay')
-    }
-    // console.log(this.autoPlayDevices, 'this.autoPlayDevices')
-    this.executeQueue(autoPlayDevices, 'auotoPlay')
-  }
-
-  private executeQueue(devicesQueue: Device[], policy: 'polling' | 'auotoPlay') {
-    console.log(this.screenManager, devicesQueue)
+    policy === 'polling' && (this.polling.isLoading = false)
     if (this.queueExecutor) {
       this.screenManager.devicesQueue = devicesQueue
       this.queueExecutor.executeDevicesQueue(policy)
     }
   }
 
-  private startAutoPlay(devicesQueue: Device[]) {
-    console.log(this.screenManager, devicesQueue)
-    if (this.queueExecutor) {
-      this.screenManager.devicesQueue = devicesQueue
-      this.queueExecutor.executeDevicesQueue()
-    }
+  /**
+   * 改变轮巡时间
+   */
+  private intervalChange(val: number) {
+    this.screenManager.executeQueueConfig.interval = val
   }
 
+  /**
+   * 停止轮巡
+   */
   private stopPolling() {
     if (this.queueExecutor) {
       this.queueExecutor.stopPolling()
     }
   }
 
+  /**
+   * 暂停轮巡
+   */
   private pausePolling() {
     if (this.queueExecutor) {
       this.queueExecutor.pausePolling()
     }
   }
 
+  /**
+   * 继续轮巡
+   */
   private resumePolling() {
     if (this.queueExecutor) {
       this.queueExecutor.resumePolling()

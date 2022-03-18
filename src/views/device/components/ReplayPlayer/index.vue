@@ -3,7 +3,7 @@
     ref="player"
     v-loading="screen.isLoading"
     :url="url"
-    type="hls"
+    :type="type"
     :codec="screen.codec"
     :device-info="screen.deviceInfo"
     :error-msg="screen.errorMsg"
@@ -18,7 +18,7 @@
   />
 </template>
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { PlayerEvent } from '@/components/VssPlayer/models/VssPlayer.d'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import VssPlayer from '@/components/VssPlayer/index.vue'
@@ -42,8 +42,27 @@ export default class extends Vue {
   @Prop()
   private isDebug: Boolean
 
-  private get url() {
-    return this.screen.currentRecord && this.screen.currentRecord.url
+  private url: string = null
+  private type: string = null
+  private codec: string = null
+
+  /* 录像类型 */
+  private get recordType() {
+    return this.screen.recordType
+  }
+
+  @Watch('screen.currentRecord.url')
+  @Watch('screen.url')
+  private onChange() {
+    if (this.recordType === 0) {
+      this.url = this.screen.currentRecord && this.screen.currentRecord.url
+      this.type = 'hls'
+      this.codec = this.screen.currentRecord && this.screen.currentRecord.codec
+    } else {
+      this.url = this.screen.url
+      this.type = 'flv'
+      this.codec = this.screen.codec
+    }
   }
 
   /**

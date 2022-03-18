@@ -61,12 +61,15 @@ export class Screen {
   public loadedRecordDates: Set<number>
   /* 当前正在播放的录像片段 */
   public currentRecord: Record
-  /* 当前播放时间（时间戳/秒） */
-  public currentTime: number
   /* 查找最新录像定时器 */
   private recordInterval: any
   /* 当前日期（时间戳/秒） */
   public currentDate: number
+<<<<<<< HEAD
+=======
+  /* 本地录像起始时间 */
+  public localStartTime: number
+>>>>>>> 3ff3ee91cff39b2738e7802053d64f2d48e6b077
 
   /**
    * ----------------
@@ -105,7 +108,7 @@ export class Screen {
     this.recordList = []
     this.loadedRecordDates = new Set()
     this.currentRecord = null
-    this.currentTime = null
+    // this.currentTime = null
     this.recordInterval = null
     this.currentDate = Math.floor(getLocaleDate().getTime() / 1000)
   }
@@ -249,7 +252,7 @@ export class Screen {
      * 初始化录像
      * 1) 初始化RecordManager录像管理器
      * 2) 获取当前所选日期一整天的录像列表
-     * 3) 获取第一段录像
+     * 3) 云端：获取第一段录像，本地：获取第一段时间的录像URL
      */
   public async initReplay() {
     try {
@@ -260,6 +263,8 @@ export class Screen {
       this.recordManager = new RecordManager({
         deviceId: this.deviceId,
         inProtocol: this.inProtocol,
+        roleId: this.roleId,
+        realGroupId: this.realGroupId,
         recordInfo: this.recordInfo
       })
       this.recordManager.getRecordStatistic() // 获得最近两月录像统计
@@ -267,7 +272,17 @@ export class Screen {
       console.log('this.currentDate', this.currentDate)
       this.loadedRecordDates.add(this.currentDate)
       if (this.recordList && this.recordList.length) {
-        this.currentRecord = this.recordList[0]
+        /**
+         * 0云端：获取第一段录像
+         * 1本地：获取URL
+         */
+        if (this.recordType === 0) {
+          this.currentRecord = this.recordList[0]
+        } else {
+          const res = await this.recordManager.getLocalUrl(this.recordList[0].startTime)
+          this.codec = res.codec
+          this.url = res.url
+        }
         this.getLatestRecord()
       } else {
         this.errorMsg = this.ERROR.NO_RECORD
@@ -330,12 +345,16 @@ export class Screen {
     let record = this.getRecordByTime(time)
     const date = getDateByTime(time * 1000) / 1000
     if (record) {
-      if (!this.currentRecord || this.currentRecord.startTime !== record.startTime) {
-        this.currentRecord = record
-        this.currentRecord.offsetTime = time - record.startTime
-      } else {
-        this.currentRecord.offsetTime = null
-        this.player.seek(time - this.currentRecord.startTime)
+      switch (this.recordType) {
+        case 0:
+          if (!this.currentRecord || this.currentRecord.startTime !== record.startTime) {
+            this.currentRecord = record
+            this.currentRecord.offsetTime = time - record.startTime
+          } else {
+            this.currentRecord.offsetTime = null
+            this.player.seek(time - this.currentRecord.startTime)
+          }
+          break
       }
       this.currentDate = date
     } else {
