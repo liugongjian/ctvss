@@ -299,7 +299,6 @@ export class Screen {
    */
   public async getRecordListByDate(date: number, isConcat = false, isSilence = false) {
     try {
-      console.log('getRecordListByDate')
       if (!isSilence) {
         this.errorMsg = null
         this.isLoading = true
@@ -307,6 +306,7 @@ export class Screen {
         this.recordList = []
       }
       if (!isConcat) {
+        this.player.pause()
         this.loadedRecordDates.clear()
       } else if (this.loadedRecordDates.has(date)) {
         return

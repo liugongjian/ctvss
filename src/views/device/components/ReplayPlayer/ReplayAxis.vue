@@ -70,14 +70,14 @@ export default class extends Vue {
   private resizeObserver: ResizeObserver = null
   /* 当前时间(可修改) */
   private currentTime: number = 0
+  /* 最后一次更新currentTime的时间，用于截流 */
+  private lastUpdateTime = 0
   /* 当前时间轴的头部时间 */
   private axisStartTime: number = 0
   /* 当前时间轴的末尾时间 */
   private axisEndTime: number = 0
   /* 是否加载中 */
   private isLoading = false
-
-  private lastUpdateTime = 0
 
   /* 当前分屏 */
   @Prop()
@@ -105,7 +105,6 @@ export default class extends Vue {
     }
     this.generateData()
     this.draw()
-    console.log('this.loadSiblingRecordList(-1, -1)')
     this.loadSiblingRecordList(-1, -1)
   }
 
