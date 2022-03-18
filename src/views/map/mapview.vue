@@ -80,8 +80,10 @@ export default class MapView extends Vue {
     console.log(`标记点${marker.deviceId}被点击了`)
   }
 
-  handleMarkerDelete(marker) {
-    console.log(`标记点${marker.deviceId}被删除了`)
+  handleMarkerDelete(deviceId) {
+    this.markerlist = this.markerlist.filter(item => item.deviceId !== deviceId);
+    this.vmap.updateMarkerList(this.markerlist);
+    console.log(`标记点${deviceId}被删除了`)
   }
 
   changeEdit(status) {

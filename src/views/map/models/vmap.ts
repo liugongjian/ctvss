@@ -264,11 +264,11 @@ export default class VMap {
       let wrapDiv;
       let optionDiv;
       if (this.isEdit) { // 编辑状态
-        const previewIcon = `<i class="icon icon_preview" onclick="previewMarker(${markerOptions})">p</i>`
-        const replayIcon = `<i class="icon icon_replay" onclick="replayMarker(${markerOptions})">r</i>`
+        const previewIcon = `<i class="icon icon_preview" onclick="previewMarker('${markerOptions.deviceId}')">p</i>`
+        const replayIcon = `<i class="icon icon_replay" onclick="replayMarker('${markerOptions.deviceId}')">r</i>`
         optionDiv = `<div class="marker-options">${previewIcon}${replayIcon}</div>`;
       } else {
-        const deleteIcon = `<i class="icon icon_delete" onclick="deleteMarker(${markerOptions})">×</i>`
+        const deleteIcon = `<i class="icon icon_delete" onclick="deleteMarker('${markerOptions.deviceId}')">×</i>`
         optionDiv = `<div class="marker-options">${deleteIcon}</div>`;
       }
       window.previewMarker = (id) => {
@@ -277,8 +277,8 @@ export default class VMap {
       window.replayMarker = (id) => {
         console.log('回放'+ id);
       }
-      window.deleteMarker = (marker) => {
-        this.markerEventHandlers.onDelete(marker);
+      window.deleteMarker = (id) => {
+        this.markerEventHandlers.onDelete(id);
       }
       wrapDiv = this.createNode(`<div class="marker-wrap" style="${wrapStyle}">${optionDiv}</div>`);
       markerContent.append(wrapDiv);
