@@ -4,7 +4,7 @@ import { RecordManager } from '../Record/RecordManager'
 import { Record } from '../Record/Record'
 import { Player } from '@/components/Player/models/Player'
 import { getDevicePreview } from '@/api/device'
-import { getLocaleDate, getDateByTime } from '@/utils/date'
+import { getLocaleDate, getDateByTime, currentTimeZeroMsec } from '@/utils/date'
 
 export class Screen {
   /* 播放器类型 */
@@ -65,6 +65,9 @@ export class Screen {
   private recordInterval: any
   /* 当前日期（时间戳/秒） */
   public currentDate: number
+  // set\axisS \axisE
+  /* set 已加载录像日期 */
+  private recordsLoadedDates = new Set()
 
   constructor() {
     this.type = 'flv'
