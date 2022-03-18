@@ -64,7 +64,7 @@ export default class extends Vue {
     return this.screenManager
   }
 
-  private mounted() {
+  private created() {
     this.screenManager = new ScreenManager({
       size: 4,
       layout: '4',
@@ -89,7 +89,8 @@ export default class extends Vue {
     VGroupModule.SetRealGroupId(item.realGroupId || '')
     VGroupModule.SetRealGroupInProtocol(item.realGroupInProtocol || '')
 
-    if (item.type === 'ipc' && item.deviceStatus === 'on') {
+    if (item.type === 'ipc') {
+    // if (item.type === 'ipc' && item.deviceStatus === 'on') {
       const screen = this.screenList[this.currentIndex]
       // 如果当前分屏已有播放器，先执行销毁操作
       if (screen.deviceId) {

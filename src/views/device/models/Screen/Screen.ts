@@ -51,12 +51,14 @@ export class Screen {
    * 录像回放相关操作
    * ----------------
    */
-  /* 录像类型 */
-  public recordType: number
   /* 录像管理器实例 */
   public recordManager: RecordManager
+  /* 录像类型 0-云端，1-本地 */
+  public recordType: 0 | 1
   /* 录像列表 */
   public recordList: Record[]
+  /* 已加载的录像日期 */
+  public loadedRecordDates: Set<number>
   /* 当前正在播放的录像片段 */
   public currentRecord: Record
   /* 当前播放时间（时间戳/秒） */
@@ -68,6 +70,15 @@ export class Screen {
   // set\axisS \axisE
   /* set 已加载录像日期 */
   private recordsLoadedDates = new Set()
+
+  /**
+   * ----------------
+   * 文案
+   * ----------------
+   */
+  private ERROR = {
+    NO_RECORD: '该时段没有录像'
+  }
 
   constructor() {
     this.type = 'flv'
@@ -93,7 +104,9 @@ export class Screen {
     this.url = ''
     this.hasRtc = false
     this.recordManager = null
+    this.recordType = 0
     this.recordList = []
+    this.loadedRecordDates = new Set()
     this.currentRecord = null
     this.currentTime = null
     this.recordInterval = null
@@ -118,6 +131,12 @@ export class Screen {
       videoWidth: this.videoWidth,
       videoHeight: this.videoHeight,
       codec: this.codec
+    }
+  }
+
+  public get recordInfo() {
+    return {
+      recordType: this.recordType
     }
   }
 
@@ -164,7 +183,8 @@ export class Screen {
     }
     try {
       this.isLoading = true
-      this.isInitialized = true
+      // this.isInitialized = true
+      this.errorMsg = null
       this.axiosSource = axios.CancelToken.source()
       const res: any = await getDevicePreview({
         deviceId: this.deviceId,
@@ -184,9 +204,7 @@ export class Screen {
         this.videoHeight = videoInfo.videoHeight
       }
     } catch (e) {
-      if (e.code === 5) {
-        this.errorMsg = e.message
-      }
+      this.errorMsg = e.message
     } finally {
       this.isLoading = false
     }
@@ -239,46 +257,70 @@ export class Screen {
   public async initReplay() {
     try {
       this.isLoading = true
+      this.recordList = []
+      this.errorMsg = null
+      this.currentRecord = null
       this.recordManager = new RecordManager({
         deviceId: this.deviceId,
         inProtocol: this.inProtocol,
-        recordType: this.recordType
+        recordInfo: this.recordInfo
       })
       this.recordManager.getRecordStatistic() // 获得最近两月录像统计
       this.recordList = await this.recordManager.getRecordList(this.currentDate, this.currentDate + 24 * 60 * 60)
-      this.currentRecord = this.recordList[0]
-      this.getLatestRecord()
+      if (this.recordList && this.recordList.length) {
+        this.currentRecord = this.recordList[0]
+        this.getLatestRecord()
+      } else {
+        this.errorMsg = this.ERROR.NO_RECORD
+      }
     } catch (e) {
-      console.log(e)
+      this.errorMsg = e.message
     } finally {
       this.isLoading = false
     }
   }
 
   /**
-   * 切换日期
+   * 加载指定日期的录像数据
    * @param date 日期
    * @param isConcat 是否合并到现有列表，如果false将覆盖现有列表并播放第一段
+   * @param isSilence 静悄悄的更新，不出现Loading，不更新当前日期(currentDate)
    */
-  public async changeDate(date: number, isConcat = false) {
+  public async getRecordListByDate(date: number, isConcat = false, isSilence = false) {
     try {
-      this.currentDate = date
-      this.isLoading = true
+      /**
+       * 判断该日期是否存在SET中
+       */
+      if (this.loadedRecordDates.has(date)) {
+        return
+      }
+      if (!isSilence) {
+        this.errorMsg = null
+        this.isLoading = true
+        this.currentDate = date
+      }
       const records = await this.recordManager.getRecordList(date, date + 24 * 60 * 60)
-      if (!records) return
-      if (isConcat) {
-        // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
-        if (date > this.currentDate) {
-          this.recordList = this.recordList.concat(records)
+      if (records) {
+        // 存入日期
+        this.loadedRecordDates.add(date)
+        if (isConcat) {
+          // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
+          if (date > this.currentDate) {
+            this.recordList = this.recordList.concat(records)
+          } else {
+            this.recordList = records.concat(this.recordList)
+          }
         } else {
-          this.recordList = records.concat(this.recordList)
+          this.recordList = records
+          this.currentRecord = this.recordList[0]
         }
-      } else {
-        this.recordList = records
-        this.currentRecord = this.recordList[0]
+      } else if (!isSilence) {
+        this.errorMsg = this.ERROR.NO_RECORD
       }
     } catch (e) {
-      console.log(e)
+      if (!isConcat && !isSilence) {
+        this.errorMsg = e.message
+      }
     } finally {
       this.isLoading = false
     }
@@ -305,7 +347,7 @@ export class Screen {
       this.currentDate = date
     } else {
       if (this.currentDate !== date) {
-        await this.changeDate(date, true)
+        await this.getRecordListByDate(date, true)
       }
       const record = this.getRecordByTime(time)
       if (record) {

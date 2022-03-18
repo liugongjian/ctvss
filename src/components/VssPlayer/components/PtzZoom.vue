@@ -11,6 +11,7 @@ import { Component, Prop } from 'vue-property-decorator'
 import { dragCanvasZoom } from '@/api/device'
 import { StreamInfo, DeviceInfo } from '@/components/VssPlayer/models/VssPlayer.d'
 import ComponentMixin from './mixin'
+import { throttle } from 'lodash'
 
 @Component({
   name: 'PtzZoom'
@@ -26,13 +27,22 @@ export default class extends ComponentMixin {
 
   private showCanvasBox = false
 
-  private mounted() {
-    console.log('playerINfo------>', this.streamInfo, this.deviceInfo)
+  // private mounted() {
+  //   console.log('playerINfo------>', this.streamInfo, this.deviceInfo)
+  // }
+  private addResizeListener() {
+    this.resizeObserver = new ResizeObserver(throttle(() => {
+      const width = this.player.container.clientWidth
+      const height = this.player.container.clientHeight
+      this.oCanvas.width = width
+      this.oCanvas.height = height
+    }, 300))
+    this.resizeObserver.observe(this.player.container)
   }
 
   private changeScaleCanvas() {
     this.showCanvasBox = !this.showCanvasBox
-    console.log('this.player----->', this.player.container)
+    // console.log('this.player----->', this.player.container)
     // todo 视频组件 电子缩放与ptz缩放事件互斥
 
     if (this.showCanvasBox) {
@@ -41,16 +51,19 @@ export default class extends ComponentMixin {
       const height = this.player.container.clientHeight
 
       this.$nextTick(() => {
-        // const oDom = document.querySelector('.canvasScaleBox')
+        // 监听播放器容器大小变化，触发比例缩放
         const canvasEle = document.createElement('canvas')
         this.player.container.appendChild(canvasEle)
         // this.oCanvas = oDom.querySelector('canvas')
         this.oCanvas = canvasEle
         this.oCanvas.style.cursor = 'crosshair'
-        this.oCanvas.style.width = `${width}px`
-        this.oCanvas.style.height = `${height}px`
+        // this.oCanvas.style.width = `${width}px`
+        // this.oCanvas.style.height = `${height}px`
+        this.oCanvas.width = width
+        this.oCanvas.height = height
         this.oCanvasWidth = width
         this.oCanvasHeight = height
+        this.addResizeListener()
         this.oCanvas.style.position = 'absolute'
         this.oCanvas.style.left = `${(width - video.clientWidth) / 2}px`
         this.oCanvas.style.top = `${(height - video.clientHeight) / 2}px`
@@ -60,6 +73,7 @@ export default class extends ComponentMixin {
         this.oCanvas.addEventListener('mouseup', (e) => { this.canvasMouseUp(e) })
         this.oCanvas.addEventListener('mouseleave', (e) => { this.canvasMouseleave(e) })
         this.oCanvas.addEventListener('click', (e) => { this.canvasClickHandle(e) })
+        document.addEventListener('keydown', (e) => { this.keydownEvent(e) })
       })
     } else {
       this.removeListener()
@@ -69,6 +83,8 @@ export default class extends ComponentMixin {
 
   private destroyed() {
     this.oCanvas && this.oCanvas.remove()
+    document.removeEventListener('keydown', (e) => { this.keydownEvent(e) })
+    if (this.resizeObserver) this.resizeObserver.disconnect()
   }
 
   // 解绑canvas缩放事件
@@ -105,18 +121,18 @@ export default class extends ComponentMixin {
       this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
       this.ctxShape.strokeStyle = '#FFFFFF'
       // this.ctxShape.lineCap = 'square'
-      this.ctxShape.lineWidth = 1
+      this.ctxShape.lineWidth = 2
       this.ctxShape.beginPath()
-      this.ctxShape.rect(Math.floor(this.oShape.startX) + 0.5, this.oShape.startY, Math.floor(this.oShape.endX - this.oShape.startX) + 0.5,
-        Math.floor(this.oShape.endY - this.oShape.startY) + 0.5)
+      // this.ctxShape.rect(Math.floor(this.oShape.startX) + 0.5, this.oShape.startY, Math.floor(this.oShape.endX - this.oShape.startX) + 0.5,
+      //   Math.floor(this.oShape.endY - this.oShape.startY) + 0.5)
+      this.ctxShape.rect(Math.floor(this.oShape.startX), this.oShape.startY, Math.floor(this.oShape.endX - this.oShape.startX),
+        Math.floor(this.oShape.endY - this.oShape.startY))
       this.ctxShape.stroke()
-      // this.ctxShape.strokeRect(Math.floor(devide(this.oShape.startX)), Math.floor(devide(this.oShape.startY)), this.oShape.endX - this.oShape.startX,
-      //   this.oShape.endY - this.oShape.startY)
       this.ctxShape.closePath()
     }
   }
 
-  private canvasClickHandle(e: any) {
+  private canvasClickHandle(e: MouseEvent) {
     const mousePos = this.getCanvasMousePos(e)
     if (!mousePos) return
     const [x, y] = mousePos
@@ -128,7 +144,7 @@ export default class extends ComponentMixin {
     }
   }
 
-  private canvasMouseDown(e: any) {
+  private canvasMouseDown(e: MouseEvent) {
     e.stopPropagation()
     const mousePos = this.getCanvasMousePos(e)
     if (!mousePos) return
@@ -142,7 +158,7 @@ export default class extends ComponentMixin {
     }
   }
 
-  private canvasMouseMove(e: any) {
+  private canvasMouseMove(e: MouseEvent) {
     e.stopPropagation()
     if (this.oShape && this.ctxDrawState) {
       const mousePos = this.getCanvasMousePos(e)
@@ -157,7 +173,7 @@ export default class extends ComponentMixin {
       this.drawRect()
     }
   }
-  private canvasMouseUp(e: any) {
+  private canvasMouseUp(e: MouseEvent) {
     e.stopPropagation()
     // TODO 鼠标移入黑色区域，取消画框
     const mousePos = this.getCanvasMousePos(e)
@@ -181,8 +197,9 @@ export default class extends ComponentMixin {
 
     this.oShape = {}
     this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
-    this.removeListener()
-    this.ctxDrawState = false
+    // this.removeListener()
+    // this.oCanvas && this.oCanvas.remove()
+    // this.ctxDrawState = false
 
     const { deviceId } = this.deviceInfo
 
@@ -199,8 +216,8 @@ export default class extends ComponentMixin {
     if (lengthX !== '0' || lengthY !== '0') {
       dragCanvasZoom(param).then(() => {
         this.$message.success('请等待设备调整角度')
-        this.showCanvasBox = false
-        this.oCanvas.style.cursor = 'auto'
+        // this.showCanvasBox = false
+        // this.oCanvas.style.cursor = 'auto'
       }).catch(err => {
         this.$message.error(err)
         this.showCanvasBox = false
@@ -210,8 +227,17 @@ export default class extends ComponentMixin {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public canvasMouseleave(e: any) {
+  private canvasMouseleave(e: MouseEvent) {
     if (this.oShape && Object.keys(this.oShape).length > 0) {
+      this.oShape = {}
+      this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
+      this.ctxDrawState = false
+    }
+    this.removeListener()
+  }
+
+  private keydownEvent(e: KeyboardEvent) {
+    if (e.keyCode === 27 && this.oShape && Object.keys(this.oShape).length > 0) {
       this.oShape = {}
       this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
       this.ctxDrawState = false

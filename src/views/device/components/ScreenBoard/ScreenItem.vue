@@ -1,6 +1,5 @@
 <template>
   <div
-    v-loading="screen.isLoading"
     class="screen-item"
     @click="click"
   >

@@ -1,12 +1,12 @@
 <template>
   <VssPlayer
-    v-if="screen.currentRecord"
     ref="player"
     v-loading="screen.isLoading"
-    :url="screen.currentRecord.url"
+    :url="url"
     type="hls"
     :codec="screen.codec"
     :device-info="screen.deviceInfo"
+    :error-msg="screen.errorMsg"
     :is-auto-play="true"
     :is-live="false"
     :has-close="hasClose"
@@ -41,6 +41,10 @@ export default class extends Vue {
 
   @Prop()
   private isDebug: Boolean
+
+  private get url() {
+    return this.screen.currentRecord && this.screen.currentRecord.url
+  }
 
   /**
    * 播放器事件路由

@@ -17,6 +17,9 @@
       <template slot="headerRight">
         <Close v-if="hasClose" @dispatch="dispatch" />
       </template>
+      <template slot="container">
+        <ErrorMsg v-if="errorMsg" :error-msg="errorMsg" />
+      </template>
       <template slot="controlBody">
         <H265Icon :codec="codec" />
       </template>
@@ -45,6 +48,7 @@ import { adaptiveTools } from './directives/adaptiveTools'
  * 子组件库
  */
 import H265Icon from './components/H265Icon.vue'
+import ErrorMsg from './components/ErrorMsg.vue'
 import Snapshot from './components/Snapshot.vue'
 import Scale from './components/Scale.vue'
 import DigitalZoom from './components/DigitalZoom.vue'
@@ -61,6 +65,7 @@ import Fullscreen from './components/Fullscreen.vue'
   components: {
     Player,
     H265Icon,
+    ErrorMsg,
     Scale,
     Snapshot,
     DigitalZoom,
@@ -95,6 +100,10 @@ export default class extends Vue {
   /* 设备信息 */
   @Prop()
   private streamInfo: StreamInfo
+
+  /* 错误信息 */
+  @Prop()
+  private errorMsg: string
 
   /* 播放流地址 */
   @Prop({

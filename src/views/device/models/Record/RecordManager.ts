@@ -11,8 +11,8 @@ export class RecordManager {
   public deviceId: number
   /* 设备协议 */
   public inProtocol: string
-  /* 录像类型(0-云端，1-本地) */
-  public recordType: 0 | 1
+  /* 录像信息 */
+  public recordInfo: any
   /* 开始时间(时间戳/秒) */
   public startTime?: number
   /* 结束时间(时间戳/秒) */
@@ -31,7 +31,7 @@ export class RecordManager {
   constructor(params: any) {
     this.deviceId = params.deviceId
     this.inProtocol = params.inProtocol
-    this.recordType = params.recordType
+    this.recordInfo = params.recordInfo
     this.recordStatistic = new Map()
     // this.startTime = params.startTime
     // this.endTime = params.endTime
@@ -51,7 +51,7 @@ export class RecordManager {
       const res = await getDeviceRecords({
         deviceId: this.deviceId,
         inProtocol: this.inProtocol,
-        recordType: this.recordType,
+        recordType: this.recordInfo.recordType,
         startTime,
         endTime,
         pageSize: 9999
@@ -84,7 +84,7 @@ export class RecordManager {
         endTime = Math.floor(new Date().getTime() / 1000)
       }
       const res = await getDeviceRecordStatistic({
-        type: this.recordType,
+        type: this.recordInfo.recordType,
         deviceId: this.deviceId,
         inProtocol: this.inProtocol,
         startTime: startTime,

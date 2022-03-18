@@ -69,7 +69,7 @@ function hiddenTools() {
  */
 function showTools() {
   let classVal = this.getAttribute('class')
-  classVal = classVal.replace('player__wrap--hidden cursor--hidden', '')
+  classVal = classVal.replace(' player__wrap--hidden cursor--hidden', '')
   this.setAttribute('class', classVal)
 }
 

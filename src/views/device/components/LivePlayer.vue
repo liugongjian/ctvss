@@ -1,6 +1,5 @@
 <template>
   <VssPlayer
-    v-if="screen.url"
     ref="player"
     v-loading="screen.isLoading"
     :url="screen.url"
@@ -9,6 +8,7 @@
     :device-info="screen.deviceInfo"
     :stream-info="screen.streamInfo"
     :has-type-selector="screen.hasRtc"
+    :error-msg="screen.errorMsg"
     :is-auto-play="true"
     :is-live="true"
     :is-ws="true"

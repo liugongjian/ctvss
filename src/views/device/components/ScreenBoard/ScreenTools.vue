@@ -41,7 +41,7 @@ export default class extends Vue {
   }
 
   public get screen() {
-    return this.screenManager && this.screenManager.screenList[this.screenManager.currentIndex]
+    return this.screenManager.currentScreen
   }
 
   private onAxisTimeChange(time: number) {
