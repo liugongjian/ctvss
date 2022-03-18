@@ -164,7 +164,7 @@
                       placement="top"
                       :open-delay="300"
                     >
-                      <OperateSelector v-if="data.type === 'nvr' || data.type === 'dir' || data.type === 'group'" @onSetOperateValue="setOperateValue($event, node)" />
+                      <OperateSelector v-if="data.type !== 'ipc' && data.type !== 'role'" @onSetOperateValue="setOperateValue($event, node)" />
                     </el-tooltip>
                   </div>
                 </span>
