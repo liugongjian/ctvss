@@ -73,6 +73,7 @@ export default class extends ComponentMixin {
         this.oCanvas.addEventListener('mouseup', (e) => { this.canvasMouseUp(e) })
         this.oCanvas.addEventListener('mouseleave', (e) => { this.canvasMouseleave(e) })
         this.oCanvas.addEventListener('click', (e) => { this.canvasClickHandle(e) })
+        document.addEventListener('keydown', (e) => { this.keydownEvent(e) })
       })
     } else {
       this.removeListener()
@@ -82,6 +83,7 @@ export default class extends ComponentMixin {
 
   private destroyed() {
     this.oCanvas && this.oCanvas.remove()
+    document.removeEventListener('keydown', (e) => { this.keydownEvent(e) })
     if (this.resizeObserver) this.resizeObserver.disconnect()
   }
 
@@ -130,7 +132,7 @@ export default class extends ComponentMixin {
     }
   }
 
-  private canvasClickHandle(e: any) {
+  private canvasClickHandle(e: MouseEvent) {
     const mousePos = this.getCanvasMousePos(e)
     if (!mousePos) return
     const [x, y] = mousePos
@@ -142,7 +144,7 @@ export default class extends ComponentMixin {
     }
   }
 
-  private canvasMouseDown(e: any) {
+  private canvasMouseDown(e: MouseEvent) {
     e.stopPropagation()
     const mousePos = this.getCanvasMousePos(e)
     if (!mousePos) return
@@ -156,7 +158,7 @@ export default class extends ComponentMixin {
     }
   }
 
-  private canvasMouseMove(e: any) {
+  private canvasMouseMove(e: MouseEvent) {
     e.stopPropagation()
     if (this.oShape && this.ctxDrawState) {
       const mousePos = this.getCanvasMousePos(e)
@@ -171,7 +173,7 @@ export default class extends ComponentMixin {
       this.drawRect()
     }
   }
-  private canvasMouseUp(e: any) {
+  private canvasMouseUp(e: MouseEvent) {
     e.stopPropagation()
     // TODO 鼠标移入黑色区域，取消画框
     const mousePos = this.getCanvasMousePos(e)
@@ -195,9 +197,9 @@ export default class extends ComponentMixin {
 
     this.oShape = {}
     this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
-    this.removeListener()
-    this.oCanvas && this.oCanvas.remove()
-    this.ctxDrawState = false
+    // this.removeListener()
+    // this.oCanvas && this.oCanvas.remove()
+    // this.ctxDrawState = false
 
     const { deviceId } = this.deviceInfo
 
@@ -214,8 +216,8 @@ export default class extends ComponentMixin {
     if (lengthX !== '0' || lengthY !== '0') {
       dragCanvasZoom(param).then(() => {
         this.$message.success('请等待设备调整角度')
-        this.showCanvasBox = false
-        this.oCanvas.style.cursor = 'auto'
+        // this.showCanvasBox = false
+        // this.oCanvas.style.cursor = 'auto'
       }).catch(err => {
         this.$message.error(err)
         this.showCanvasBox = false
@@ -225,8 +227,17 @@ export default class extends ComponentMixin {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public canvasMouseleave(e: any) {
+  private canvasMouseleave(e: MouseEvent) {
     if (this.oShape && Object.keys(this.oShape).length > 0) {
+      this.oShape = {}
+      this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
+      this.ctxDrawState = false
+    }
+    this.removeListener()
+  }
+
+  private keydownEvent(e: KeyboardEvent) {
+    if (e.keyCode === 27 && this.oShape && Object.keys(this.oShape).length > 0) {
       this.oShape = {}
       this.ctxShape.clearRect(0, 0, this.oCanvasWidth, this.oCanvasHeight)// 清除画板
       this.ctxDrawState = false
