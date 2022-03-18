@@ -17,7 +17,9 @@ export default class extends Vue {
 
   private recordType = null
 
-  @Watch('screen.recordType')
+  @Watch('screen.recordType', {
+    immediate: true
+  })
   onScreenChange() {
     this.recordType = this.screen.recordType
   }

@@ -21,8 +21,8 @@ const getPageTitle = (key: string) => {
 router.beforeEach(async(to: Route, from: Route, next: any) => {
   // Start progress bar
   NProgress.start()
-  console.log('to: ', to)
-  console.log('UserModule.token: ', UserModule.token)
+  // console.log('to: ', to)
+  // console.log('UserModule.token: ', UserModule.token)
   // Determine whether the user has logged in
   if (UserModule.token) {
     // 已登录

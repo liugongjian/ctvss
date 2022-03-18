@@ -622,8 +622,9 @@ export default class extends Mixins(ScreenMixin) {
     this.pollingStatus = screenManagerStatus.executeQueueConfig.status
   }
 
+  /* 当前选中的分屏 */
   private get currentScreen() {
-    return this.screenManager && this.screenManager.screenList[this.screenManager.currentIndex]
+    return this.screenManager && this.screenManager.currentScreen
   }
 
   private mounted() {
