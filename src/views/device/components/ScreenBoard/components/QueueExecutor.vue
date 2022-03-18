@@ -11,29 +11,35 @@ import ComponentMixin from './mixin'
   name: 'QueueExecutor'
 })
 export default class extends ComponentMixin {
-  private currentPollingIndex = 0
+  private currentExecuteIndex = 0
   private timer: NodeJS.Timeout
 
+  /* 视频队列 */
   private get devicesQueue() {
     return this.screenManager.devicesQueue
   }
 
+  /* 播放器列表 */
   private get screenList() {
     return this.screenManager.screenList
   }
 
+  /* 配置轮巡 */
   private set pollingStatus(val) {
     this.screenManager.executeQueueConfig.status = val
   }
 
+  /* 轮巡状态 */
   private get pollingStatus() {
     return this.screenManager.executeQueueConfig.status
   }
 
+  /* 轮巡间隔 */
   private get pollingInterval() {
     return this.screenManager.executeQueueConfig.interval
   }
 
+  /* 分屏数量 */
   private get maxSize() {
     return this.screenManager.size
   }
@@ -42,49 +48,18 @@ export default class extends ComponentMixin {
    * 执行批量播放策略
    * @policy 设备队列执行策略
    */
-  public executeDevicesQueue(policy: 'polling' | 'auotoPlay') {
-    console.log('executeDevicesQueue')
+  public executeDevicesQueue(policy: 'polling' | 'autoPlay') {
+    console.log('executeDevicesQueue', policy)
+    this.currentExecuteIndex = 0
     switch (policy) {
       case 'polling':
         if (this.pollingStatus === 'free') {
           this.pollingStatus = 'working'
-          console.log('executeDevicesQueue', this.screenManager)
-          this.currentPollingIndex = 0
           this.doPolling()
         }
         break
-      case 'auotoPlay':
+      case 'autoPlay':
         this.doAutoPlay()
-    }
-  }
-
-  /**
-   * 停止轮巡
-   */
-  private stopPolling() {
-    if (this.pollingStatus === 'working') {
-      clearTimeout(this.timer)
-      this.pollingStatus = 'free'
-    }
-  }
-
-  /**
-   * 暂停轮巡
-   */
-  private pausePolling() {
-    if (this.pollingStatus === 'working') {
-      clearTimeout(this.timer)
-      this.pollingStatus = 'pause'
-    }
-  }
-
-  /**
-   * 继续轮巡
-   */
-  private resumePolling() {
-    if (this.pollingStatus === 'pause') {
-      this.doPolling()
-      this.pollingStatus = 'working'
     }
   }
 
@@ -93,18 +68,16 @@ export default class extends ComponentMixin {
    */
   private doAutoPlay() {
     if (!this.devicesQueue.length) {
-      this.$alert('当前设备数需大于0才可开始自动播放', '提示', {
-        confirmButtonText: '确定'
-      })
+      return
     }
     for (let i = 0; i < this.maxSize; i++) {
       this.screenList[i].destroy()
       if (!this.devicesQueue[i]) {
         continue
       } else {
+        Object.assign(this.screenList[i], pick(this.devicesQueue[i], ['inProtocol', 'roleId', 'realGroupId', 'realGroupInProtocol']))
         this.screenList[i].deviceId = this.devicesQueue[i].id
         this.screenList[i].deviceName = this.devicesQueue[i].label
-        this.screenList[i].inProtocol = this.devicesQueue[i].inProtocol
         this.screenList[i].isLive = this.screenManager.isLive
       }
       this.screenList[i].init()
@@ -112,16 +85,13 @@ export default class extends ComponentMixin {
   }
 
   /**
-   * 判断轮巡时是否需要刷新
+   * 轮巡
    */
   private doPolling() {
-    // 不刷新
+    // 轮巡初始化
     this.timer && clearTimeout(this.timer)
     if (this.devicesQueue.length - 1 < this.maxSize) {
-      this.$alert('当前设备数需大于分屏数才可开始轮巡', '提示', {
-        confirmButtonText: '确定'
-      })
-      this.pollingStatus = 'free'
+      this.doAutoPlay()
     } else {
       // 刷新
       this.pollingVideos()
@@ -157,16 +127,15 @@ export default class extends ComponentMixin {
   }
 
   /**
-   * 轮巡
+   * 轮巡视频
    */
   private pollingVideos() {
-    console.log('this.devicesQueue', this.devicesQueue)
     const length = this.devicesQueue.length
-    this.currentPollingIndex = this.currentPollingIndex % length
+    this.currentExecuteIndex = this.currentExecuteIndex % length
     let currentIndex = 0
     for (let i = 0; i < this.maxSize; i++) {
       this.screenList[i].destroy()
-      let deviceInfo = this.devicesQueue[(this.currentPollingIndex + (i % length)) % length]
+      let deviceInfo = this.devicesQueue[(this.currentExecuteIndex + (i % length)) % length]
       Object.assign(this.screenList[i], pick(deviceInfo, ['inProtocol', 'roleId', 'realGroupId', 'realGroupInProtocol']))
       this.screenList[i].deviceId = deviceInfo.id
       this.screenList[i].deviceName = deviceInfo.label
@@ -184,7 +153,7 @@ export default class extends ComponentMixin {
         currentIndex = 0
       }
     }
-    this.currentPollingIndex = this.currentPollingIndex + this.maxSize
+    this.currentExecuteIndex = this.currentExecuteIndex + this.maxSize
   }
 
   /**
@@ -193,11 +162,11 @@ export default class extends ComponentMixin {
   private async preLoadPollingVideos() {
     console.log('轮巡预加载')
     const length = this.devicesQueue.length
-    let currentPollingIndex = this.currentPollingIndex % length
+    let currentExecuteIndex = this.currentExecuteIndex % length
     let currentIndex = 0
     let preLoadScreen = new Screen()
     for (let i = 0; i < this.maxSize; i++) {
-      let pollingDeviceInfo = this.devicesQueue[(currentPollingIndex + (i % length)) % length]
+      let pollingDeviceInfo = this.devicesQueue[(currentExecuteIndex + (i % length)) % length]
       preLoadScreen.destroy()
       preLoadScreen.deviceId = pollingDeviceInfo.id
       preLoadScreen.deviceName = pollingDeviceInfo.label
@@ -206,7 +175,6 @@ export default class extends ComponentMixin {
       await preLoadScreen.init()
       pollingDeviceInfo.url = preLoadScreen.url
       pollingDeviceInfo.codec = preLoadScreen.codec
-
       if (currentIndex < this.maxSize - 1) {
         currentIndex++
       } else {
@@ -214,6 +182,36 @@ export default class extends ComponentMixin {
       }
     }
     preLoadScreen = null
+  }
+
+  /**
+   * 停止轮巡
+   */
+  private stopPolling() {
+    if (this.pollingStatus === 'working') {
+      clearTimeout(this.timer)
+      this.pollingStatus = 'free'
+    }
+  }
+
+  /**
+   * 暂停轮巡
+   */
+  private pausePolling() {
+    if (this.pollingStatus === 'working') {
+      clearTimeout(this.timer)
+      this.pollingStatus = 'pause'
+    }
+  }
+
+  /**
+   * 继续轮巡
+   */
+  private resumePolling() {
+    if (this.pollingStatus === 'pause') {
+      this.doPolling()
+      this.pollingStatus = 'working'
+    }
   }
 }
 
