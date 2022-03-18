@@ -57,6 +57,8 @@ export class Screen {
   public recordType: 0 | 1
   /* 录像列表 */
   public recordList: Record[]
+  /* 已加载的录像日期 */
+  public loadedRecordDates: Set<number>
   /* 当前正在播放的录像片段 */
   public currentRecord: Record
   /* 当前播放时间（时间戳/秒） */
@@ -101,6 +103,7 @@ export class Screen {
     this.recordManager = null
     this.recordType = 0
     this.recordList = []
+    this.loadedRecordDates = new Set()
     this.currentRecord = null
     this.currentTime = null
     this.recordInterval = null
@@ -275,35 +278,44 @@ export class Screen {
   }
 
   /**
-   * 切换日期
+   * 加载指定日期的录像数据
    * @param date 日期
    * @param isConcat 是否合并到现有列表，如果false将覆盖现有列表并播放第一段
+   * @param isSilence 静悄悄的更新，不出现Loading，不更新当前日期(currentDate)
    */
   public async getRecordListByDate(date: number, isConcat = false, isSilence = false) {
     try {
-      this.currentDate = date
-      this.errorMsg = null
-      if (!isSilence) this.isLoading = true
-      const records = await this.recordManager.getRecordList(date, date + 24 * 60 * 60)
-      if (!records) {
-        if (!isSilence) {
-          this.errorMsg = this.ERROR.NO_RECORD
-        }
+      /**
+       * 判断该日期是否存在SET中
+       */
+      if (this.loadedRecordDates.has(date)) {
         return
       }
-      if (isConcat) {
-        // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
-        if (date > this.currentDate) {
-          this.recordList = this.recordList.concat(records)
+      if (!isSilence) {
+        this.errorMsg = null
+        this.isLoading = true
+        this.currentDate = date
+      }
+      const records = await this.recordManager.getRecordList(date, date + 24 * 60 * 60)
+      if (records) {
+        // 存入日期
+        this.loadedRecordDates.add(date)
+        if (isConcat) {
+          // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
+          if (date > this.currentDate) {
+            this.recordList = this.recordList.concat(records)
+          } else {
+            this.recordList = records.concat(this.recordList)
+          }
         } else {
-          this.recordList = records.concat(this.recordList)
+          this.recordList = records
+          this.currentRecord = this.recordList[0]
         }
-      } else {
-        this.recordList = records
-        this.currentRecord = this.recordList[0]
+      } else if (!isSilence) {
+        this.errorMsg = this.ERROR.NO_RECORD
       }
     } catch (e) {
-      if (!isConcat) {
+      if (!isConcat && !isSilence) {
         this.errorMsg = e.message
       }
     } finally {
