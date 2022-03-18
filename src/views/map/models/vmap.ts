@@ -18,6 +18,7 @@ export interface markerObject {
   population?: string,
   houseInfo?: string,
   unitInfo?: string,
+  selected?: boolean
 }
 
 export enum mapStatus {
@@ -29,6 +30,11 @@ export interface events {
   reMarkerEvent: any
 }
 
+export interface markerEventHandlers {
+  onClick?: any
+  onChange?: any
+}
+
 export const getAMapLoad = () => {
   return new Promise((resolve, reject) => {
     if (window.AMap) {
@@ -37,7 +43,7 @@ export const getAMapLoad = () => {
       AMapLoader.load({
         'key': '7f0b2bbe4de7b251916b60012a6fbe3d',
         'version': '2.0',
-        'plugins': ['AMap.MarkerCluster'],
+        'plugins': ['AMap.MarkerCluster', 'AMap.HawkEye'],
       }).then((AMap)=>{
         resolve(AMap);
       }).catch(e => {
@@ -54,7 +60,9 @@ export default class VMap {
   curMarkerList: markerObject[]
   container = ''
   isEdit = false
+  overView: AMap.HawkEye | null = null
   cluster: AMap.MarkerCluster | null = null
+  markerEventHandlers: markerEventHandlers
   constructor(container: string) {
     this.container = container;
   }
@@ -70,11 +78,28 @@ export default class VMap {
         rotation: 0,
         zoom: zoom,
         center:[Number(lng), Number(lat)],
+        zooms: [3, 20]
       });
+      this.overView = new AMap.HawkEye({
+        opened: false,
+        width: '300px',
+        height: '200px',
+      });
+      map.addControl(this.overView);
       this.map = map;
     } catch(e) {
       console.log(e);
     }
+  }
+
+  chooseMarker(marker) {
+    this.curMarkerList = this.curMarkerList.map((item) => {
+      if (item.deviceId === marker.deviceId) {
+        item.selected = true;
+      }
+      return item
+    })
+    this.setCluster(this.wrapMarkers(this.curMarkerList));
   }
 
   changeEdit(status: boolean) {
@@ -82,14 +107,21 @@ export default class VMap {
     this.setCluster(this.curMarkerList);
   }
 
-  reSetMarker(id, options): void {
-    this.curMarkerList = this.curMarkerList.map((item) => {
-      if (id === item.deviceId) {
-        item = {...item, ...options};
-      }
-      return item
-    })
-    this.cluster.setData(this.curMarkerList);
+  toggleOverView(show) {
+    if (show) {
+      this.overView.show();
+    } else {
+      this.overView.hide();
+    }
+  }
+
+  getZoomAndCenter(): object {
+    const zoom = this.map.getZoom();
+    const center = this.map.getCenter();
+    return {
+      zoom,
+      center
+    }
   }
 
   addMarker(marker): void {
@@ -100,11 +132,8 @@ export default class VMap {
     if (!marker.latitude) {
       marker.latitude = lat;
     }
-    if (!marker.lnglat) {
-      marker.lnglat = [marker.longitude, marker.latitude];
-    }
     this.curMarkerList.push(marker);
-    this.cluster.addData([marker]);
+    this.cluster.addData(this.wrapMarkers([marker]));
   }
 
   renderMap(map: mapObject) {
@@ -113,40 +142,47 @@ export default class VMap {
     if (this.map) {
       this.map.setZoomAndCenter(zoom, [longitude, latitude]);
       this.map.clearMap();
+      if (this.cluster) {
+        this.cluster.setMap(null);
+      }
     } else {
       this.creatMap(longitude, latitude, zoom);
     }
   }
-  setMarkerList(markers: any[]) {
+  setMarkerList(markers: any[], handlers: markerEventHandlers) {
     this.curMarkerList = markers;
     this.setCluster(markers);
+    this.markerEventHandlers = handlers;
+  }
+
+  wrapMarkers(markers: any[]) {
+    const result = markers.map((marker) => {
+      return {
+        ...marker,
+        lnglat: [marker.longitude, marker.latitude]
+      }
+    })
+    return result;
+  }
+  updateMarkerList(markers) {
+    this.curMarkerList = markers;
+    this.cluster.setData(this.wrapMarkers(markers));
   }
 
   setCluster(markers: any[]) {
     if (this.cluster) {
       this.cluster.setMap(null);
     }
-    markers.forEach(item => {
-      if (!item.lnglat) {
-        item.lnglat = [item.longitude, item.latitude];
-      }
-    });
     const count = markers.length;
     const _renderClusterMarker =  (context: any) => {
-      const factor = Math.pow(context.count / count, 1 / 18);
       const div = document.createElement('div');
-      const Hue = 180 - factor * 180;
-      const bgColor = 'hsla(' + Hue + ',100%,40%,0.7)';
-      const fontColor = 'hsla(' + Hue + ',100%,90%,1)';
-      const borderColor = 'hsla(' + Hue + ',100%,40%,1)';
-      const shadowColor = 'hsla(' + Hue + ',100%,90%,1)';
+      const bgColor = '#009dd9';
+      const fontColor = '#fff';
       div.style.backgroundColor = bgColor;
-      const size = Math.round(30 + Math.pow(context.count / count, 1 / 5) * 20);
+      const size = Math.round(100 + Math.pow(context.count / count, 1 / 5) * 20);
       div.style.width = div.style.height = size + 'px';
-      div.style.border = 'solid 1px ' + borderColor;
       div.style.borderRadius = size / 2 + 'px';
-      div.style.boxShadow = '0 0 5px ' + shadowColor;
-      div.innerHTML = context.count;
+      div.innerHTML = `${context.count}个监控点位`;
       div.style.lineHeight = size + 'px';
       div.style.color = fontColor;
       div.style.fontSize = '14px';
@@ -162,18 +198,41 @@ export default class VMap {
         context.marker.setDraggable(true);
         context.marker.setCursor('move');
         context.marker.on('dragend', (ev) => {
-          const deviceId = context.marker.getExtData().deviceId;
+          const marker = context.marker.getExtData();
           const {lng, lat} = context.marker.getPosition();
-          this.reSetMarker(deviceId, { lnglat: [lng, lat] });
+          marker.latitude = lat;
+          marker.longitude = lng;
+          this.markerEventHandlers.onChange && this.markerEventHandlers.onChange(marker);
         })
       }
+      context.marker.on('click', () => {
+        const marker = context.marker.getExtData();
+        this.chooseMarker(marker);
+        this.markerEventHandlers.onClick && this.markerEventHandlers.onClick(marker);
+      })
     }
 
-    this.cluster = new window.AMap.MarkerCluster(this.map, markers, {
+    this.cluster = new window.AMap.MarkerCluster(this.map, this.wrapMarkers(markers), {
       gridSize: 80,
       renderClusterMarker: _renderClusterMarker, // 自定义聚合点样式
       renderMarker: _renderMarker, // 自定义非聚合点样式
     });
+
+    this.cluster.on('click', item => {
+      const len = item.clusterData.length;
+      if (len <= 1) {
+        return;
+      }
+      let alllng = 0;
+      let alllat = 0;
+      for (let mo of item.clusterData) {
+        alllng += mo.lnglat.lng;
+        alllat += mo.lnglat.lat;
+      }
+      const lat = alllat / len;
+      const lng = alllng / len;
+      this.map.setZoomAndCenter(this.map.getZoom() + 3, [lng, lat]);
+    })
   }
 
   buildContent(markerOptions: markerObject) {
@@ -182,6 +241,17 @@ export default class VMap {
     const sector = this.drawSector(markerOptions);
     const marker = this.createNode('<img class="marker-center" width="19px" height="32px" src="//webapi.amap.com/theme/v1.3/markers/b/mark_bs.png">')
     const label = this.createNode(`<div class="marker-label">${markerOptions.deviceId}</div>`)
+    let wrapDiv;
+    const size = markerOptions.viewRadius * 2 + 60;
+    let wrapStyle = `width: ${size}px; height: ${size}px; top: ${(50 - size) / 2}px; left: ${(50 - size) / 2}px`;
+    if (this.isEdit) { // 编辑状态
+      wrapDiv = this.createNode(`<div class="marker-wrap" style="${wrapStyle}"><div class="marker-options"><i class="icon icon_delete">×</i></div></div>`)
+    } else {
+      wrapDiv = this.createNode(`<div class="marker-wrap" style="${wrapStyle}"><div class="marker-options"><i class="icon icon_preview">p</i><i class="icon icon_replay">r</i></img></div>`)
+    }
+    if (markerOptions.selected) {
+      markerContent.append(wrapDiv);
+    }
     markerContent.append(sector, marker, label);
     return markerContent;
   }

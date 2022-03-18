@@ -2,43 +2,105 @@
   <div id="mapContainer"></div>
 </template>
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
-import VMap from './models/vmap'
+import {Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import VMap, {getAMapLoad} from './models/vmap'
+import { getMapDevices, updateMarkers } from '@/api/map'
 
 @Component({
   name: 'MapView'
 })
 export default class MapView extends Vue {
-  map = new VMap('mapContainer');
-  mapOption = null;
+  @Prop()
+  private mapOption: any
+
+  vmap = new VMap('mapContainer');
   markerlist = [];
 
-  chooseMap(map) {
-    this.mapOption = map;
-    this.map.renderMap(map);
+  @Watch('mapOption')
+  private onMapChange() {
+    this.setMap(this.mapOption);
+  }
+
+  private mounted() {
+    getAMapLoad().then(() => {
+      this.setMap(this.mapOption);
+    })
+  }
+
+  async setMap(map) {
+    this.vmap.renderMap(map);
+    this.addMapEvent();
+    let markerlist = [];
+    try{
+      const res = await getMapDevices({ mapId: map.mapId });
+      markerlist = res.devices;
+    } catch (e) {
+      console.log('获取标记点列表失败');
+      markerlist = [];
+    } finally {
+      this.setMarkerList(markerlist);
+    }
+  }
+
+  addMapEvent() {
+    const map = this.vmap.map;
+    const getMapInfo = () => {
+      const zoom = map.getZoom();
+      const center = map.getCenter();
+      this.$emit("mapChange",{
+        zoom,
+        center: [center.lng, center.lat]
+      })
+    };
+    map.on('moveend', getMapInfo);
+    map.on('zoomend', getMapInfo);
+  }
+
+  async handleMarkerModify(marker) {
+    console.log('marker 修改了');
+    console.log(marker);
+    this.markerlist = this.markerlist.map((item) => {
+      if (marker.deviceId === item.deviceId) {
+        item = marker;
+      }
+      return item
+    })
+    this.vmap.updateMarkerList(this.markerlist);
+    // try {
+    //   await updateMarkers({
+    //     mapId: this.mapOption.mapId,
+    //     devices: [marker]
+    //   })
+    // } catch(e) {
+    //   console.log('修改标记点失败');
+    // }
+  }
+
+  handleMarkerClick(marker) {
+    console.log(`标记点${marker.deviceId}被点击了`)
+  }
+
+  handleMarkerDelete(marker) {
+    console.log(`标记点${marker.deviceId}被删除了`)
   }
 
   changeEdit(status) {
-    this.map.changeEdit(status);
-  }
-
-  reMarker(markerOption) {
-    this.map.reSetMarker(markerOption);
-  }
-
-  // 标记点信息修改后处理
-  handleReMarker(markerOption) {
-    // 修改标记点信息
-    console.log(`修改标记点：地图${this.mapOption.id}, 标记信息${JSON.stringify(markerOption)}`);
+    this.vmap.changeEdit(status);
   }
 
   addMarker(markerOption) {
-    this.map.addMarker(markerOption);
-    console.log(this.markerlist)
+    this.vmap.addMarker(markerOption);
   }
+
   setMarkerList(markerList) {
     this.markerlist = markerList;
-    this.map.setMarkerList(markerList);
+    this.vmap.setMarkerList(markerList, {
+      onClick: this.handleMarkerClick,
+      onChange: this.handleMarkerModify
+    });
+  }
+  toggleOverView(state) {
+    this.vmap.toggleOverView(state);
   }
 }
 </script>
@@ -79,24 +141,21 @@ export default class MapView extends Vue {
   top: -7px;
   left: 15px;
 }
-.sector {
-  width: 50px;
-  height: 50px;
+.marker-wrap{
   position: absolute;
-  clip: rect(0 50px 50px 25px);
-  overflow: hidden;
   top: 0;
   left: 0;
+  border: 1px solid rgba(217, 0, 27, 1);
+  background-color: rgba(217, 0, 27, 0.0745098039215686);
+  padding: 5px;
 }
-.sector::after {
-  content: '';
-  width: 100%; height: 100%;
-  background: yellow;
-  position: absolute;
-  clip: rect(0 25px 50px 0);
-  transform: rotate(120deg);
-  border-radius: 50%;
-  top: 0;
-  left: 0;
+.marker-options{
+  text-align: right;
+}
+.marker-options .icon{
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #000;
 }
 </style>
