@@ -126,3 +126,11 @@ export const getNextHour = (timestamp: number) => {
 export const prefixZero = (num: number, n: number) => {
   return (Array(n).join('0') + num).slice(-n)
 }
+
+/**
+ * 获取当前时间的零点偏移量（据零点的毫秒数）
+ */
+export const currentTimeZeroMsec = (currentTime: number) => {
+  const currentDate = new Date(currentTime).toLocaleDateString()
+  return currentTime - new Date(currentDate).getTime()
+}

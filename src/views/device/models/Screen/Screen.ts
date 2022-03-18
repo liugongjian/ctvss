@@ -4,7 +4,7 @@ import { RecordManager } from '../Record/RecordManager'
 import { Record } from '../Record/Record'
 import { Player } from '@/components/Player/models/Player'
 import { getDevicePreview } from '@/api/device'
-import { getLocaleDate, getDateByTime } from '@/utils/date'
+import { getLocaleDate, getDateByTime, currentTimeZeroMsec } from '@/utils/date'
 
 export class Screen {
   /* 播放器类型 */
