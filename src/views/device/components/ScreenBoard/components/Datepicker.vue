@@ -80,7 +80,7 @@ export default class extends Vue {
    */
   private changeDate(date: number) {
     console.log(date)
-    this.screen.changeDate(date / 1000)
+    this.screen.getRecordListByDate(date / 1000)
   }
 }
 

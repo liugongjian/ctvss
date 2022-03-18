@@ -1,8 +1,6 @@
 .vss-player__wrap {
   .el-loading-mask {
-    background: none !important;
-    top: 50px;
-    bottom: 50px;
+    background: rgba(0, 0, 0, 0.5);
     z-index: 10;
 
     .el-loading-spinner {

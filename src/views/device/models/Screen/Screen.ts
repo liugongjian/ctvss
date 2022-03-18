@@ -66,6 +66,15 @@ export class Screen {
   /* 当前日期（时间戳/秒） */
   public currentDate: number
 
+  /**
+   * ----------------
+   * 文案
+   * ----------------
+   */
+  private ERROR = {
+    NO_RECORD: '该时段没有录像'
+  }
+
   constructor() {
     this.type = 'flv'
     this.player = null
@@ -168,7 +177,8 @@ export class Screen {
     }
     try {
       this.isLoading = true
-      this.isInitialized = true
+      // this.isInitialized = true
+      this.errorMsg = null
       this.axiosSource = axios.CancelToken.source()
       const res: any = await getDevicePreview({
         deviceId: this.deviceId,
@@ -242,6 +252,7 @@ export class Screen {
     try {
       this.isLoading = true
       this.recordList = []
+      this.errorMsg = null
       this.currentRecord = null
       this.recordManager = new RecordManager({
         deviceId: this.deviceId,
@@ -250,9 +261,11 @@ export class Screen {
       })
       this.recordManager.getRecordStatistic() // 获得最近两月录像统计
       this.recordList = await this.recordManager.getRecordList(this.currentDate, this.currentDate + 24 * 60 * 60)
-      if (this.recordList) {
+      if (this.recordList && this.recordList.length) {
         this.currentRecord = this.recordList[0]
         this.getLatestRecord()
+      } else {
+        this.errorMsg = this.ERROR.NO_RECORD
       }
     } catch (e) {
       this.errorMsg = e.message
@@ -266,12 +279,18 @@ export class Screen {
    * @param date 日期
    * @param isConcat 是否合并到现有列表，如果false将覆盖现有列表并播放第一段
    */
-  public async changeDate(date: number, isConcat = false) {
+  public async getRecordListByDate(date: number, isConcat = false, isSilence = false) {
     try {
       this.currentDate = date
-      this.isLoading = true
+      this.errorMsg = null
+      if (!isSilence) this.isLoading = true
       const records = await this.recordManager.getRecordList(date, date + 24 * 60 * 60)
-      if (!records) return
+      if (!records) {
+        if (!isSilence) {
+          this.errorMsg = this.ERROR.NO_RECORD
+        }
+        return
+      }
       if (isConcat) {
         // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
         if (date > this.currentDate) {
@@ -284,7 +303,9 @@ export class Screen {
         this.currentRecord = this.recordList[0]
       }
     } catch (e) {
-      console.log(e)
+      if (!isConcat) {
+        this.errorMsg = e.message
+      }
     } finally {
       this.isLoading = false
     }
@@ -311,7 +332,7 @@ export class Screen {
       this.currentDate = date
     } else {
       if (this.currentDate !== date) {
-        await this.changeDate(date, true)
+        await this.getRecordListByDate(date, true)
       }
       const record = this.getRecordByTime(time)
       if (record) {

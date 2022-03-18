@@ -105,7 +105,7 @@ export default class extends Vue {
   }
 
   private changeDate() {
-    this.screen.changeDate(this.form.date)
+    this.screen.getRecordListByDate(this.form.date)
   }
 
   private generate() {

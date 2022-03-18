@@ -80,7 +80,6 @@
                   slot-scope="{node, data}"
                   class="custom-tree-node"
                   :class="{'online': data.deviceStatus === 'on', 'offline': (data.deviceStatus !== 'on' && data.type === 'ipc')}"
-                  @contextmenu="($event, node)"
                 >
                   <span class="node-name">
                     <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
@@ -475,7 +474,8 @@ export default class extends Mixins(ScreenMixin) {
     VGroupModule.SetRealGroupId(item.realGroupId || '')
     VGroupModule.SetRealGroupInProtocol(item.realGroupInProtocol || '')
 
-    if (item.type === 'ipc' && item.deviceStatus === 'on') {
+    // if (item.type === 'ipc' && item.deviceStatus === 'on') {
+    if (item.type === 'ipc') {
       const screen = this.screenList[this.currentIndex]
       // 如果当前分屏已有播放器，先执行销毁操作
       if (screen.deviceId) {
@@ -867,9 +867,9 @@ export default class extends Mixins(ScreenMixin) {
   .dir-list__tree {
     position: relative;
 
-    .offline .node-name {
-      cursor: not-allowed;
-    }
+    // .offline .node-name {
+    //   cursor: not-allowed;
+    // }
   }
 
   .dir-list {
