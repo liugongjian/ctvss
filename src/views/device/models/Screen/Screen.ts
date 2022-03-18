@@ -4,7 +4,7 @@ import { RecordManager } from '../Record/RecordManager'
 import { Record } from '../Record/Record'
 import { Player } from '@/components/Player/models/Player'
 import { getDevicePreview, setRecordScale } from '@/api/device'
-import { getLocaleDate, getDateByTime, currentTimeZeroMsec } from '@/utils/date'
+import { getLocaleDate, getDateByTime } from '@/utils/date'
 
 export class Screen {
   /* 播放器类型 */
@@ -266,6 +266,8 @@ export class Screen {
       })
       this.recordManager.getRecordStatistic() // 获得最近两月录像统计
       this.recordList = await this.recordManager.getRecordList(this.currentDate, this.currentDate + 24 * 60 * 60)
+      console.log('this.currentDate', this.currentDate)
+      this.loadedRecordDates.add(this.currentDate)
       if (this.recordList && this.recordList.length) {
         /**
          * 0云端：获取第一段录像
@@ -297,16 +299,17 @@ export class Screen {
    */
   public async getRecordListByDate(date: number, isConcat = false, isSilence = false) {
     try {
-      /**
-       * 判断该日期是否存在SET中
-       */
-      if (this.loadedRecordDates.has(date)) {
-        return
-      }
+      console.log('getRecordListByDate')
       if (!isSilence) {
         this.errorMsg = null
         this.isLoading = true
         this.currentDate = date
+        this.recordList = []
+      }
+      if (!isConcat) {
+        this.loadedRecordDates.clear()
+      } else if (this.loadedRecordDates.has(date)) {
+        return
       }
       const records = await this.recordManager.getRecordList(date, date + 24 * 60 * 60)
       if (records) {
@@ -359,7 +362,8 @@ export class Screen {
       }
       this.currentDate = date
     } else {
-      if (this.currentDate !== date) {
+      // 判断该日期是否存在SET中
+      if (!this.loadedRecordDates.has(date)) {
         await this.getRecordListByDate(date, true)
       }
       const record = this.getRecordByTime(time)

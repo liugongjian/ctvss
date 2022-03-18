@@ -39,7 +39,6 @@ export class RecordManager {
    */
   public async getRecordList(startTime: number, endTime: number) {
     try {
-      this.axiosSource && this.axiosSource.cancel()
       this.axiosSource = axios.CancelToken.source()
       const res = await getDeviceRecords({
         deviceId: this.deviceId,

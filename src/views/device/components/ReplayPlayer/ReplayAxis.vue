@@ -17,7 +17,7 @@
  * 3) 计算刻度位置时使用时间戳除ratio，转换为像素值
  */
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { dateFormat, getNextHour, prefixZero, currentTimeZeroMsec } from '@/utils/date'
+import { isCrossDays, dateFormat, getNextHour, prefixZero, getDateByTime, currentTimeZeroMsec, getDateAfter, getDateBefore } from '@/utils/date'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import { throttle } from 'lodash'
 
@@ -29,7 +29,9 @@ export default class extends Vue {
   private axisDrag: any = {
     isDragging: false,
     deltaX: 0,
-    startX: 0
+    startX: 0,
+    startTime: -1,
+    endTime: -1
   }
   /* 时间轴设置 */
   private settings = {
@@ -37,8 +39,6 @@ export default class extends Vue {
     height: 0,
     scale: 24, // 缩放比例，画布显示的小时数量
     ratio: 0, // 比例尺(秒/每像素)
-    // showTenMins: false,
-    // showFiveMins: false,
     hourWidth: 2,
     hourHeight: 0,
     halfHourWidth: 1,
@@ -63,20 +63,26 @@ export default class extends Vue {
     records: []
   }
   /* 画布 */
-  private canvas: HTMLCanvasElement
+  private canvas: HTMLCanvasElement = null
   /* 画布上下文 */
-  private ctx: CanvasRenderingContext2D
+  private ctx: CanvasRenderingContext2D = null
   /* 尺寸监听器 */
-  private resizeObserver: ResizeObserver
-  /* 当前时间(时间戳/秒) */
-  @Prop()
-  private screen: Screen
+  private resizeObserver: ResizeObserver = null
   /* 当前时间(可修改) */
   private currentTime: number = 0
   /* 当前时间轴的头部时间 */
-  private axisStartTime: number
+  private axisStartTime: number = 0
   /* 当前时间轴的末尾时间 */
-  private axisEndTime: number
+  private axisEndTime: number = 0
+  /* 是否加载中 */
+  private isLoading = false
+
+  private lastUpdateTime = 0
+
+  /* 当前分屏 */
+  @Prop()
+  private screen: Screen
+
   /* 格式化当前时间 */
   private get formatedCurrentTime() {
     return dateFormat(this.currentTime * 1000)
@@ -86,14 +92,21 @@ export default class extends Vue {
   @Watch('screen.player.currentTime')
   private onCurrentTimeChange() {
     if (this.axisDrag.isDragging) return
+    /* 如果与上一次的更新时间差小于1秒，不触发绘制 */
+    if (new Date().getTime() - this.lastUpdateTime < 1000) {
+      return
+    }
     if (this.screen && this.screen.player) {
       const recordCurrentTime = this.screen.player.currentTime
       const offsetTime = this.screen.currentRecord.offsetTime || 0
       const duration = offsetTime > recordCurrentTime ? offsetTime : recordCurrentTime
+      this.lastUpdateTime = new Date().getTime()
       this.currentTime = this.screen.currentRecord.startTime + duration
     }
     this.generateData()
     this.draw()
+    console.log('this.loadSiblingRecordList(-1, -1)')
+    this.loadSiblingRecordList(-1, -1)
   }
 
   private mounted() {
@@ -127,9 +140,6 @@ export default class extends Vue {
     this.axisEndTime = this.currentTime + this.settings.scale * 60 * 60 / 2
     const nextHourTime = Math.floor(getNextHour(this.axisStartTime * 1000) / 1000)
     const offsetX = (nextHourTime - this.axisStartTime) / this.settings.ratio
-    // this.screen.axisStartTime = this.axisStartTime
-    // this.screen.axisEndTime = this.axisEndTime
-    // this.screen.scale = this.scale
     /* 计算小时刻度像素位置 */
     const hours = []
     const hourSpan = 60 * 60 / this.settings.ratio // 计算每小时间隔的像素值
@@ -149,8 +159,6 @@ export default class extends Vue {
 
     /* 计算半小时刻度像素位置 */
     const halfHours = []
-    // const halfHourSpan = hourSpan / 2
-    // if (halfHourSpan > this.settings.spanThreshold) {
     if (hourSpan) {
       for (let i = -2; i <= this.settings.scale; i++) {
         halfHours.push({
@@ -163,8 +171,6 @@ export default class extends Vue {
 
     /* 计算10分钟刻度像素位置 */
     const tenMins = []
-    // const tenMinSpan = hourSpan / 6
-    // if (tenMinSpan > this.settings.spanThreshold) {
     if (hourSpan > this.settings.width / 28) {
       for (let i = -6; i <= this.settings.scale * 6; i++) {
         if (!(i % 3)) continue // 将与半小时重复的线条排除
@@ -178,8 +184,6 @@ export default class extends Vue {
 
     /* 计算5分钟刻度像素位置 */
     const fiveMins = []
-    // const fiveMinSpan = hourSpan / 12
-    // if (fiveMinSpan > this.settings.spanThreshold) {
     if (hourSpan > this.settings.width / 9) {
       for (let i = -12; i <= this.settings.scale * 12; i++) {
         if (!(i % 2)) continue // 将与半小时重复的线条排除
@@ -193,8 +197,6 @@ export default class extends Vue {
 
     /* 计算1分钟刻度像素位置 */
     const oneMins = []
-    // const oneMinSpan = hourSpan / 60
-    // if (oneMinSpan > this.settings.spanThreshold) {
     if (hourSpan > this.settings.width / 5) {
       for (let i = -60; i <= this.settings.scale * 60; i++) {
         if (!(i % 5)) continue // 将与半小时重复的线条排除
@@ -353,6 +355,7 @@ export default class extends Vue {
   private moveAxisStart(e: MouseEvent) {
     this.axisDrag.isDragging = true
     this.axisDrag.startX = e.x
+    this.axisDrag.startTime = this.currentTime
     window.addEventListener('mousemove', this.onAxisMove)
     window.addEventListener('mouseup', this.onAxisMouseup)
   }
@@ -376,7 +379,9 @@ export default class extends Vue {
     window.removeEventListener('mousemove', this.onAxisMove)
     window.removeEventListener('mouseup', this.onAxisMouseup)
     this.axisDrag.isDragging = false
-    this.$emit('change', this.currentTime, this.loadingSeeker())
+    this.axisDrag.endTime = this.currentTime
+    this.$emit('change', this.currentTime)
+    this.loadSiblingRecordList(this.axisDrag.startTime, this.axisDrag.endTime)
   }
 
   /**
@@ -387,11 +392,13 @@ export default class extends Vue {
     switch (e.code) {
       case 'ArrowRight':
         this.currentTime = this.currentTime + 1
-        this.$emit('change', this.currentTime, this.loadingSeeker())
+        this.$emit('change', this.currentTime)
+        this.loadSiblingRecordList(this.currentTime, this.currentTime + 1)
         break
       case 'ArrowLeft':
         this.currentTime = this.currentTime - 1
-        this.$emit('change', this.currentTime, this.loadingSeeker())
+        this.$emit('change', this.currentTime)
+        this.loadSiblingRecordList(this.currentTime, this.currentTime - 1)
         break
     }
   }
@@ -423,19 +430,32 @@ export default class extends Vue {
   }
 
   /**
-   * loadingSeeker
+   * 加载临近天的录像列表
    * 判断当前时刻下是否需要加载前后一天的视频
    */
-  public loadingSeeker() {
-    let thresholdStart = 0.5 * this.settings.scale * 60 * 60 // 单位 s
-    let thresholdEnd = 24 * 60 * 60 - 0.5 * this.settings.scale * 60 * 60
-    let deltaCurrentTime = currentTimeZeroMsec(this.currentTime * 1000) / 1000
-    if (thresholdEnd < deltaCurrentTime) {
-      return '加载后一天🚆'
-    } else if (thresholdStart > deltaCurrentTime) {
-      return '加载前一天✈'
-    } else {
-      return '不需要加载新的视频'
+  public async loadSiblingRecordList(moveStartTime: number, moveEndTime: number) {
+    if (this.isLoading) return
+    try {
+      this.isLoading = true
+      if (!isCrossDays(moveStartTime * 1000, moveEndTime * 1000)) {
+        let thresholdStart = 0.5 * this.settings.scale * 60 * 60 // 单位 s
+        let thresholdEnd = 24 * 60 * 60 - 0.5 * this.settings.scale * 60 * 60
+        let deltaCurrentTime = currentTimeZeroMsec(this.currentTime * 1000) / 1000
+        let date
+        if (thresholdEnd < deltaCurrentTime) {
+          date = getDateByTime(this.currentTime * 1000) / 1000 + 24 * 60 * 60
+          await this.screen.getRecordListByDate(date, true, true)
+          console.log('加载下一天')
+        } else if (thresholdStart > deltaCurrentTime) {
+          date = getDateByTime(this.currentTime * 1000) / 1000 - 24 * 60 * 60
+          await this.screen.getRecordListByDate(date, true, true)
+          console.log('加载上一天')
+        }
+      } else {
+        console.log('跨天')
+      }
+    } finally {
+      this.isLoading = false
     }
   }
 }
