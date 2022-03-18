@@ -51,7 +51,6 @@
               <el-button size="small" @click="changeEdit()">开启编辑</el-button>
               <el-button size="small" @click="addMarker()">添加标记</el-button>
               <el-button size="small" @click="changeTitleShow()">隐藏/显示title</el-button>
-<<<<<<< HEAD
               <el-button size="small" class="tools-item_button" @click="changeTitleShow()">隐藏/显示信息栏</el-button>
               <span>
                 <span class="tools-item"><svg-icon name="selects" /></span>
@@ -66,9 +65,6 @@
                 <span class="tools-item"><svg-icon name="play-video" /></span>
                 <span class="tools-item"><svg-icon name="delete" /></span>
               </span>
-=======
-              <el-button size="small" @click="addMap()">测试</el-button>
->>>>>>> 329904db596a4e4103b6282d25dd20463fad2c01
             </span>
           </div>
           <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
@@ -129,11 +125,6 @@
             </el-dialog>
             <!--<div><img src="./dashboard.png" alt=""></div>-->
             <div :class="['mapwrap', hideTitle?'hide-title':'']">
-<<<<<<< HEAD
-              <map-view ref="mapview" />
-            </div>
-            <div v-show="showMapInfo" class="map-info__right">
-=======
               <map-view
                 v-if="mapList.length > 0 && curMap"
                 ref="mapview"
@@ -145,7 +136,6 @@
               </div>
             </div>
             <div class="map-info__right">
->>>>>>> 329904db596a4e4103b6282d25dd20463fad2c01
               <el-descriptions title="基本信息" :column="1">
                 <el-descriptions-item label="设备名称">
                   <el-input v-model="editValue" disabled />
