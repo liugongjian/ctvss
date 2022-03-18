@@ -127,9 +127,13 @@ export default class extends Vue {
     this.screen.seek(this.form.time)
   }
 
-  private onAxisTimeChange(time: number, flag: any) {
+  private onAxisTimeChange(time: number, dateTime: any) {
     console.log('onAxisTimeChange')
-    console.log(flag)
+    console.log('auto & menmade load:  ', dateTime)
+    if (dateTime) {
+      console.log('需要加载另外的录像')
+    }
+    console.log('time:  ', time)
     this.screen.seek(time)
   }
 }

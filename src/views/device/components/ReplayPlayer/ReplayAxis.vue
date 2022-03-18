@@ -17,7 +17,7 @@
  * 3) 计算刻度位置时使用时间戳除ratio，转换为像素值
  */
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { dateFormat, getNextHour, prefixZero, currentTimeZeroMsec } from '@/utils/date'
+import { isCrossDays, dateFormat, getNextHour, prefixZero, currentTimeZeroMsec, getDateAfter, getDateBefore } from '@/utils/date'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import { throttle } from 'lodash'
 
@@ -29,7 +29,9 @@ export default class extends Vue {
   private axisDrag: any = {
     isDragging: false,
     deltaX: 0,
-    startX: 0
+    startX: 0,
+    startTime: -1,
+    endTime: -1
   }
   /* 时间轴设置 */
   private settings = {
@@ -93,6 +95,7 @@ export default class extends Vue {
       this.currentTime = this.screen.currentRecord.startTime + duration
     }
     this.generateData()
+    this.$emit('change', -1, this.loadingSeeker(-1, -1))
     this.draw()
   }
 
@@ -353,6 +356,7 @@ export default class extends Vue {
   private moveAxisStart(e: MouseEvent) {
     this.axisDrag.isDragging = true
     this.axisDrag.startX = e.x
+    this.axisDrag.startTime = this.currentTime
     window.addEventListener('mousemove', this.onAxisMove)
     window.addEventListener('mouseup', this.onAxisMouseup)
   }
@@ -376,7 +380,8 @@ export default class extends Vue {
     window.removeEventListener('mousemove', this.onAxisMove)
     window.removeEventListener('mouseup', this.onAxisMouseup)
     this.axisDrag.isDragging = false
-    this.$emit('change', this.currentTime, this.loadingSeeker())
+    this.axisDrag.endTime = this.currentTime
+    this.$emit('change', this.currentTime, this.loadingSeeker(this.axisDrag.startTime, this.axisDrag.endTime))
   }
 
   /**
@@ -387,11 +392,11 @@ export default class extends Vue {
     switch (e.code) {
       case 'ArrowRight':
         this.currentTime = this.currentTime + 1
-        this.$emit('change', this.currentTime, this.loadingSeeker())
+        this.$emit('change', this.currentTime, this.loadingSeeker(this.currentTime, this.currentTime + 1))
         break
       case 'ArrowLeft':
         this.currentTime = this.currentTime - 1
-        this.$emit('change', this.currentTime, this.loadingSeeker())
+        this.$emit('change', this.currentTime, this.loadingSeeker(this.currentTime, this.currentTime - 1))
         break
     }
   }
@@ -426,16 +431,25 @@ export default class extends Vue {
    * loadingSeeker
    * 判断当前时刻下是否需要加载前后一天的视频
    */
-  public loadingSeeker() {
-    let thresholdStart = 0.5 * this.settings.scale * 60 * 60 // 单位 s
-    let thresholdEnd = 24 * 60 * 60 - 0.5 * this.settings.scale * 60 * 60
-    let deltaCurrentTime = currentTimeZeroMsec(this.currentTime * 1000) / 1000
-    if (thresholdEnd < deltaCurrentTime) {
-      return '加载后一天🚆'
-    } else if (thresholdStart > deltaCurrentTime) {
-      return '加载前一天✈'
+  public loadingSeeker(MoveStartTime: number, MoveEndTime: number) {
+    // console.log('if moved time cross days: ', isCrossDays(MoveStartTime * 1000, MoveEndTime * 1000))
+    if (!isCrossDays(MoveStartTime * 1000, MoveEndTime * 1000)) {
+      // 在当前record中才进行判断，跨天不判断直接进 seek
+      let thresholdStart = 0.5 * this.settings.scale * 60 * 60 // 单位 s
+      let thresholdEnd = 24 * 60 * 60 - 0.5 * this.settings.scale * 60 * 60
+      let deltaCurrentTime = currentTimeZeroMsec(this.currentTime * 1000) / 1000
+      if (thresholdEnd < deltaCurrentTime) {
+        return getDateAfter(this.currentTime * 1000)
+      } else if (thresholdStart > deltaCurrentTime) {
+        return getDateBefore(this.currentTime * 1000)
+      } else {
+        return {
+          dayBeforeStart: -1,
+          dayBeforeEnd: -1
+        }
+      }
     } else {
-      return '不需要加载新的视频'
+      console.log('跨天了，不归我管')
     }
   }
 }

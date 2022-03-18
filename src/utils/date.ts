@@ -134,3 +134,39 @@ export const currentTimeZeroMsec = (currentTime: number) => {
   const currentDate = new Date(currentTime).toLocaleDateString()
   return currentTime - new Date(currentDate).getTime()
 }
+
+/**
+ * 获取当前日期的后一天 / return s
+ */
+export const getDateAfter = (currentDate: number) => {
+  const dayAfter = new Date(new Date(currentDate).getTime() + 24 * 60 * 60 * 1000).toLocaleDateString()
+  const dayAfterStart = new Date(dayAfter).getTime() / 1000
+  const dayAfterEnd = (new Date(dayAfter).getTime() + 24 * 60 * 60 * 1000 - 1000) / 1000
+  console.log('后一天')
+  return {
+    dayAfterStart,
+    dayAfterEnd
+  }
+}
+
+/**
+ * 获取当前日期的前一天 / return s
+ */
+export const getDateBefore = (currentDate: number) => {
+  const datBefore = new Date(new Date(currentDate).getTime() - 24 * 60 * 60 * 1000).toLocaleDateString()
+  const dayBeforeStart = new Date(datBefore).getTime() / 1000
+  const dayBeforeEnd = (new Date(datBefore).getTime() + 24 * 60 * 60 * 1000 - 1000) / 1000
+  console.log('前一天')
+  return {
+    dayBeforeStart,
+    dayBeforeEnd
+  }
+}
+
+/**
+ * 移动时间轴前后时间是否跨天 / ms
+ */
+export const isCrossDays = (MoveStartTime: number, MoveEndTime: number) => {
+  if (MoveStartTime === MoveEndTime) return false
+  return new Date(MoveStartTime).getDate() - new Date(MoveEndTime).getDate() !== 0
+}
