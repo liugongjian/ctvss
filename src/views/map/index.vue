@@ -26,14 +26,10 @@
               ref="dirTree"
               node-key="id"
               lazy
-              show-checkbox
               :data="dirList"
               :load="loadDirs"
               :props="treeProp"
               :check-strictly="false"
-              @check="checkCallback"
-              @check-change="onCheckDevice"
-              @node-click="selectDevice"
             >
               <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}">
                 <span class="node-name">
@@ -46,12 +42,25 @@
           </div>
         </div>
         <div class="device-list__right">
-          <div class="breadcrumb">
-            <span class="breadcrumb__item">
+          <div class="tools">
+            <span>
               <el-button size="small" @click="changeEdit()">开启编辑</el-button>
               <el-button size="small" @click="addMarker()">添加标记</el-button>
               <el-button size="small" @click="changeTitleShow()">隐藏/显示title</el-button>
-              <el-button size="small" @click="changeTitleShow()">隐藏/显示信息栏</el-button>
+              <el-button size="small" class="tools-item_button" @click="changeTitleShow()">隐藏/显示信息栏</el-button>
+              <span>
+                <span class="tools-item"><svg-icon name="selects" /></span>
+                <span class="tools-item"><svg-icon name="title" /></span>
+                <span class="tools-item"><svg-icon name="show-position" /></span>
+                <span class="tools-item"><svg-icon name="mark" /></span>
+                <span class="tools-item"><svg-icon size="30" name="position" /></span>
+                <span class="tools-item"><svg-icon name="close-all" /></span>
+                <span class="tools-item"><svg-icon name="magnifier" /></span>
+                <span class="tools-item tools-item__cup">|</span>
+                <span class="tools-item"><svg-icon name="player" /></span>
+                <span class="tools-item"><svg-icon name="play-video" /></span>
+                <span class="tools-item"><svg-icon name="delete" /></span>
+              </span>
             </span>
           </div>
           <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
@@ -76,11 +85,45 @@
                 </div>
               </el-form>
             </el-dialog>
-<!--            <div><img src="./dashboard.png" alt=""></div>-->
+            <el-dialog title="添加监控点位" :visible.sync="addPositionDialog" class="dialog-text">
+              <div>
+                <h3>是否继承设备中的经纬度</h3>
+                <h3>如不继续则使用鼠标所在的经纬度</h3>
+              </div>
+              <el-checkbox v-model="checked">本次编辑不再询问</el-checkbox>
+              <el-button @click="addPositionDialog = false">继承</el-button>
+              <el-button @click="addPositionDialog = false">不继承</el-button>
+              <el-button @click="addPositionDialog = false">取消</el-button>
+            </el-dialog>
+            <el-dialog title="开始编辑" :visible.sync="editDialog">
+              <div>
+                <h3>当前为查看模式，是否确定进入编辑模式？</h3>
+              </div>
+              <el-checkbox v-model="checked">本次编辑不再询问</el-checkbox>
+              <div class="footer">
+                <el-button @click="editDialog = false">确定</el-button>
+                <el-button @click="editDialog = false">取消</el-button>
+              </div>
+            </el-dialog>
+            <el-dialog title="删除监控点位" :visible.sync="deleteDialog">
+              <div>
+                <h3>确定在地图中删除监控点位"IPC1"？</h3>
+              </div>
+              <el-button @click="deleteDialog = false">确定</el-button>
+              <el-button @click="deleteDialog = false">取消</el-button>
+            </el-dialog>
+            <el-dialog title="批量删除监控点位" :visible.sync="deletesDialog">
+              <div>
+                <h3>确定在地图中删除以下3个监控点位？</h3>
+              </div>
+              <el-button @click="deletesDialog = false">确定</el-button>
+              <el-button @click="deletesDialog = false">取消</el-button>
+            </el-dialog>
+            <!--<div><img src="./dashboard.png" alt=""></div>-->
             <div :class="['mapwrap', hideTitle?'hide-title':'']">
-              <map-view ref="mapview"></map-view>
+              <map-view ref="mapview" />
             </div>
-            <div class="map-info__right" v-show="showInfo">
+            <div v-show="showMapInfo" class="map-info__right">
               <el-descriptions title="基本信息" :column="1">
                 <el-descriptions-item label="设备名称">
                   <el-input v-model="editValue" disabled />
@@ -127,6 +170,16 @@
                 </el-descriptions-item>
               </el-descriptions>
             </div>
+            <div v-show="!showMapInfo" class="map-info__right">
+              <el-descriptions title="共选中两个节点" :column="1">
+                <el-descriptions-item label="IPC1">
+                  <el-input v-model="editValue" disabled />
+                </el-descriptions-item>
+                <el-descriptions-item label="IPC2">
+                  <el-input v-model="editValue" disabled />
+                </el-descriptions-item>
+              </el-descriptions>
+            </div>
           </div>
         </div>
       </div>
@@ -138,10 +191,9 @@ import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
 import IndexMixin from '../device/mixin/indexMixin'
 import { getGroups } from '@/api/group'
 import { setDirsStreamStatus, renderAlertType, getSums } from '@/utils/device'
-import { describeShareDevices } from '@/api/upPlatform'
+import { describeShareDevices, getPlatforms } from '@/api/upPlatform'
 import { getDeviceTree } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
-import { renderAlertType, getSums } from '@/utils/device'
 import MapView from './mapview.vue'
 import { getAMapLoad } from './models/vmap'
 
@@ -156,11 +208,17 @@ export default class extends Mixins(IndexMixin) {
   private renderAlertType = renderAlertType
   private getSums = getSums
   private dialogVisible = false
+  private addPositionDialog = false
+  private editDialog = true
+  private deleteDialog = true
+  private deletesDialog = true
   private value = 3
   private isEdit = false
   private editValue = 'sss'
   private breadcrumb: Array<any> = []
+  private platformList: Array<any> = []
   private hideTitle = false
+  private showMapInfo = true
   private form = {
     name: '',
     longitude: '',
@@ -179,7 +237,7 @@ export default class extends Mixins(IndexMixin) {
   private curMap = {}
   private test = 4
   @Prop()
-  private platformId: any
+  private platformId: any = '417932083494649856'
   private typeMapping: any = {
     dir: 0,
     nvr: 1
@@ -194,6 +252,11 @@ export default class extends Mixins(IndexMixin) {
       const res = await getGroups({
         pageSize: 1000
       })
+      const result = await getPlatforms({
+        pageNum: 1,
+        pageSize: 1000
+      })
+      this.platformList = result.platforms
       this.dirList = []
       res.groups.forEach((group: any) => {
         // 放开rtsp rtmp
@@ -238,6 +301,7 @@ export default class extends Mixins(IndexMixin) {
    */
   private async getTree(node: any) {
     try {
+      console.log('gettree')
       if (node.data.type === 'role') {
         node.data.roleId = node.data.id
       } else if (node.data.type === 'group') {
@@ -246,6 +310,7 @@ export default class extends Mixins(IndexMixin) {
       }
       let shareDeviceIds: any = []
       if (node.data.type !== 'vgroup' && node.data.type !== 'role') {
+        console.log('this.platformId', this.platformId)
         let params: any = {
           platformId: this.platformId,
           inProtocol: node.data.inProtocol,
@@ -360,11 +425,11 @@ export default class extends Mixins(IndexMixin) {
     })
   }
   changeTitleShow() {
-    this.hideTitle = !this.hideTitle;
+    this.hideTitle = !this.hideTitle
   }
   changeEdit() {
     this.isEdit = !this.isEdit
-    this.$refs.mapview.changeEdit(this.isEdit);
+    this.$refs.mapview.changeEdit(this.isEdit)
   }
   addMarker() {
     const marker = {
@@ -380,7 +445,7 @@ export default class extends Mixins(IndexMixin) {
       houseInfo: '房屋信息',
       unitInfo: '单位信息'
     }
-    this.$refs.mapview.addMarker(marker);
+    this.$refs.mapview.addMarker(marker)
   }
   mounted() {
     this.initDirs()
@@ -391,7 +456,7 @@ export default class extends Mixins(IndexMixin) {
         name: '地图1',
         zoom: 12,
         longitude: 121.487207,
-        latitude: 31.225348,
+        latitude: 31.225348
       }
     ]
     this.markerList = [
@@ -433,12 +498,12 @@ export default class extends Mixins(IndexMixin) {
         population: '人口信息',
         houseInfo: '房屋信息',
         unitInfo: '单位信息'
-      },
-    ];
-    this.curMap = this.mapList[0];
+      }
+    ]
+    this.curMap = this.mapList[0]
     getAMapLoad().then(() => {
-      this.$refs.mapview.chooseMap(this.curMap);
-      this.$refs.mapview.setMarkerList(this.markerList);
+      this.$refs.mapview.chooseMap(this.curMap)
+      this.$refs.mapview.setMarkerList(this.markerList)
     })
   }
 }
@@ -506,6 +571,7 @@ export default class extends Mixins(IndexMixin) {
 
 .footer {
   text-align: center;
+  margin: 30px 0;
 }
 
 .slider {
@@ -525,6 +591,34 @@ export default class extends Mixins(IndexMixin) {
 
 .map-info__right .el-descriptions {
   margin-bottom: 20px;
+}
+
+.tools {
+  height: 40px;
+  line-height: 40px;
+  padding: 0 15px;
+  border-bottom: 1px solid #eee;
+  background: #f8f8f8;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: padding-left 0.2s;
+}
+
+.tools-item_button {
+  margin-right: 20px;
+}
+
+.tools-item {
+  margin-right: 20px;
+  font-size: 20px;
+}
+
+.tools-item__cup {
+  color: rgb(189, 188, 188);
+}
+
+::v-deep .el-dialog__body {
+  text-align: center;
 }
 
 ::v-deep .el-descriptions-item__label {
