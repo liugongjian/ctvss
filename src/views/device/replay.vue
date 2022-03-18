@@ -72,7 +72,7 @@
                       :open-delay="300"
                     >
                       <el-button
-                        v-if="data.type === 'nvr' || data.type === 'dir' || data.type === 'group'"
+                        v-if="data.type !== 'ipc' && data.type !== 'role'"
                         type="text"
                         @click="videosOnAutoPlay(node, true)"
                       >
@@ -120,7 +120,7 @@
                       :open-delay="300"
                     >
                       <el-button
-                        v-if="data.type === 'nvr' || data.type === 'dir' || data.type === 'group'"
+                        v-if="data.type !== 'ipc' && data.type !== 'role'"
                         type="text"
                         @click="videosOnAutoPlay(node, true)"
                       >
