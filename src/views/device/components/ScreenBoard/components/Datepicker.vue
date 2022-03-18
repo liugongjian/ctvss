@@ -38,6 +38,7 @@ export default class extends Vue {
   }
 
   @Watch('screen')
+  @Watch('screen.recordType')
   private onChange() {
     this.showDatepicker = false
     this.$nextTick(() => {
