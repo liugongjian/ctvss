@@ -117,6 +117,13 @@ export default class extends Vue {
     this.loadSiblingRecordList(-1, -1)
   }
 
+  /* 监听设备变化 */
+  @Watch('screen.deviceId')
+  private onDeviceChange() {
+    this.generateData()
+    this.draw()
+  }
+
   private mounted() {
     this.calcSize()
     this.generateData()
@@ -144,21 +151,24 @@ export default class extends Vue {
      * 2) 计算出起始时间下一段的整点的时间戳
      * 3) 计算出起始时间与开始时间的偏移量，并转成像素
      */
-    this.axisStartTime = this.currentTime - this.settings.scale * 60 * 60 / 2
-    this.axisEndTime = this.currentTime + this.settings.scale * 60 * 60 / 2
+    this.axisStartTime = this.currentTime - this.settings.scale * 60 * 60 / 2 // 计算画布的起始时间
+    this.axisEndTime = this.currentTime + this.settings.scale * 60 * 60 / 2 // 计算画布的结束时间
     const nextHourTime = Math.floor(getNextHour(this.axisStartTime * 1000) / 1000)
     const offsetX = (nextHourTime - this.axisStartTime) / this.settings.ratio
     /* 计算小时刻度像素位置 */
     const hours = []
     const hourSpan = 60 * 60 / this.settings.ratio // 计算每小时间隔的像素值
     for (let i = -1; i <= this.settings.scale; i++) {
-      let showText = true
+      const x = Math.floor(i * hourSpan + offsetX - this.settings.hourWidth / 2) // 绘制时偏移刻度本身的宽度
       /* 根据密度控制文字的疏密度 */
-      if ((this.settings.ratio > 100 && i % 2) || (this.settings.ratio > 240 && i % 4)) {
+      let showText = true
+      const timestamp = this.axisStartTime + x * this.settings.ratio // 计算当前line对象的实际时间戳
+      const hour = new Date(getNextHour(timestamp * 1000)).getHours() // 取整点并转换成Date对象
+      if ((this.settings.ratio > 100 && hour % 2) || (this.settings.ratio > 240 && hour % 4)) {
         showText = false
       }
       hours.push({
-        x: Math.floor(i * hourSpan + offsetX - this.settings.hourWidth / 2), // 绘制时偏移刻度本身的宽度
+        x,
         y: 0,
         showText
       })
@@ -283,7 +293,6 @@ export default class extends Vue {
    */
   private draw() {
     this.ctx.clearRect(0, 0, this.settings.width, this.settings.height)
-    const startTime = this.currentTime - this.settings.scale * 60 * 60 / 2 // 计算画布的起始时间
 
     /* 绘制录像线 */
     this.ctx.fillStyle = '#cfd9e7'
@@ -297,7 +306,7 @@ export default class extends Vue {
     for (let i in this.axisData.hours) {
       const line = this.axisData.hours[i]
       this.ctx.fillRect(line.x, line.y, this.settings.hourWidth, this.settings.hourHeight)
-      const timestamp = startTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
+      const timestamp = this.axisStartTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
       const datetime = new Date(getNextHour(timestamp * 1000)) // 取整点并转换成Date对象
       line.showText && this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:00`, line.x - 13, this.settings.hourHeight + 15)
     }
@@ -308,7 +317,7 @@ export default class extends Vue {
       const line = this.axisData.halfHours[i]
       this.ctx.fillRect(line.x, line.y, this.settings.halfHourWidth, this.settings.halfHourHeight)
       if (this.settings.scale < 9.5) {
-        const timestamp = startTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
+        const timestamp = this.axisStartTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
         const datetime = new Date(timestamp * 1000)
         this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:30`, line.x - 13, this.settings.hourHeight + 15)
       }

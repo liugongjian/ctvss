@@ -3,14 +3,14 @@
     <div class="screen-tools__bar">
       <div class="screen-tools__bar__left">
         <QueueExecutor />
-        <Sync />
+        <Sync v-if="!isLive" />
       </div>
       <div class="screen-tools__bar__left">
         <Cleaner />
         <SizeSelector />
       </div>
     </div>
-    <ReplayAxis :screen="screen" @change="onAxisTimeChange" />
+    <ReplayAxis v-if="!isLive" :screen="screen" @change="onAxisTimeChange" />
   </div>
 </template>
 <script lang="ts">
@@ -42,6 +42,10 @@ export default class extends Vue {
 
   private get screen() {
     return this.screenManager.currentScreen
+  }
+
+  private get isLive() {
+    return this.screenManager.isLive
   }
 
   /**
