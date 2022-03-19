@@ -122,7 +122,7 @@ export class RecordManager {
         this.screen.errorMsg = e.message
       }
     } finally {
-      this.screen.isLoading = false
+      if (!isSilence) this.screen.isLoading = false
     }
   }
 
@@ -137,22 +137,31 @@ export class RecordManager {
     let record = this.getRecordByTime(time)
     const date = getDateByTime(time * 1000) / 1000
     if (record) {
-      switch (this.screen.recordType) {
-        case 0:
-          if (!this.currentRecord || this.currentRecord.startTime !== record.startTime) {
-            this.currentRecord = record
-            this.currentRecord.offsetTime = time - record.startTime
-          } else {
-            this.currentRecord.offsetTime = null
-            this.screen.player.seek(time - this.currentRecord.startTime)
-          }
-          break
+      if (this.screen.recordType === 0) { // 云端录像
+        if (!this.currentRecord || this.currentRecord.startTime !== record.startTime) {
+          this.currentRecord = record
+          this.currentRecord.offsetTime = time - record.startTime
+        } else {
+          this.currentRecord.offsetTime = null
+          this.screen.player.seek(time - this.currentRecord.startTime)
+        }
+      } else { // 本地录像
+        try {
+          this.screen.isLoading = true
+          const res = await this.getLocalUrl(time)
+          this.screen.codec = res.codec
+          this.screen.url = res.url
+        } catch (e) {
+          this.screen.errorMsg = e.message
+        } finally {
+          this.screen.isLoading = false
+        }
       }
       this.currentDate = date
     } else {
       // 判断该日期是否存在SET中
       if (!this.loadedRecordDates.has(date)) {
-        await this.getRecordListByDate(date, true)
+        await this.getRecordListByDate(date, true, true)
       }
       const record = this.getRecordByTime(time)
       if (record) {
@@ -241,7 +250,7 @@ export class RecordManager {
   /**
    * 获取日历统计
    */
-  private async getRecordStatistic(startTime?: number, endTime?: number) {
+  public async getRecordStatistic(startTime?: number, endTime?: number) {
     try {
       if (!startTime) {
         // 获得最近两月录像统计
@@ -335,7 +344,7 @@ export class RecordManager {
    */
   private async getLocalUrl(startTime: number) {
     this.localStartTime = startTime
-    this.axiosSource && this.axiosSource.cancel()
+    // this.axiosSource && this.axiosSource.cancel()
     this.axiosSource = axios.CancelToken.source()
     const endTime = startTime + 24 * 60 * 60 - 1
     let url

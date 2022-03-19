@@ -1,6 +1,6 @@
 <template>
   <div ref="axisWrap" class="axis__wrap">
-    <div class="axis__middle" :style="`height: ${settings.hourHeight + 5}px`" />
+    <div class="axis__middle" />
     <div class="axis__time">{{ screen && screen.isLoading ? '加载中' : formatedCurrentTime }}</div>
     <canvas ref="canvas" class="axis__canvas" :class="{'dragging': axisDrag.isDragging}" />
     <div class="axis__zoom">
@@ -328,7 +328,7 @@ export default class extends Vue {
       const line = this.axisData.tenMins[i]
       this.ctx.fillRect(line.x, line.y, this.settings.tenMinsWidth, this.settings.tenMinsHeight)
       if (this.settings.scale < (4 * 60 + 10) / 60) {
-        const timestamp = startTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
+        const timestamp = this.axisStartTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
         const datetime = new Date(timestamp * 1000)
         if ((datetime.getMinutes() + 1)) {
           // 剔除整点
@@ -342,7 +342,7 @@ export default class extends Vue {
       const line = this.axisData.fiveMins[i]
       this.ctx.fillRect(line.x, line.y, this.settings.fiveMinsWidth, this.settings.fiveMinsHeight)
       if (this.settings.ratio < 4) {
-        const timestamp = startTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
+        const timestamp = this.axisStartTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
         const datetime = new Date(timestamp * 1000)
         if ((datetime.getMinutes() + 1) % 10) {
           // 剔除整十
@@ -356,7 +356,7 @@ export default class extends Vue {
       const line = this.axisData.oneMins[i]
       this.ctx.fillRect(line.x, line.y, this.settings.oneMinWidth, this.settings.oneMinHeight)
       if (this.settings.scale < 0.5) {
-        const timestamp = startTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
+        const timestamp = this.axisStartTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
         const datetime = new Date(timestamp * 1000)
         if ((datetime.getMinutes() + 1) % 5) {
           // 剔除整十
@@ -364,6 +364,10 @@ export default class extends Vue {
         }
       }
     }
+
+    /* 中心线 */
+    this.ctx.fillStyle = '#fa8334'
+    this.ctx.fillRect(Math.floor(this.settings.width / 2 - 1), 0, 3, this.settings.hourHeight)
   }
 
   /**
@@ -482,7 +486,7 @@ export default class extends Vue {
    */
   private async getRecordListByDate(date) {
     if (this.screen && this.screen.recordManager) {
-      await this.screen.recordManager.getRecordListByDate(date, true, true)
+      this.screen.recordManager.getRecordListByDate(date, true, true)
     }
   }
 }
@@ -507,10 +511,10 @@ export default class extends Vue {
   &__middle {
     position: absolute;
     width: 3px;
-    height: 30px;
+    height: 5px;
     left: 50%;
     top: -5px;
-    margin-left: -1px;
+    margin-left: -2px;
     background: $primary;
   }
 

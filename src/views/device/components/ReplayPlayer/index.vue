@@ -1,7 +1,6 @@
 <template>
   <VssPlayer
     ref="player"
-    v-loading="screen.isLoading"
     :url="url"
     :type="type"
     :codec="screen.codec"
@@ -11,6 +10,7 @@
     :is-live="false"
     :has-close="hasClose"
     :has-progress="isDebug"
+    :is-loading="screen.isLoading"
     :is-debug="isDebug"
     :has-live-replay-selector="hasLiveReplaySelector"
     @dispatch="onDispatch"

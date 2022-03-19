@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="isLoading" class="vss-player__wrap">
+  <div v-loading="loading" class="vss-player__wrap">
     <Player
       ref="player"
       v-adaptive-tools
@@ -130,6 +130,12 @@ export default class extends Vue {
   })
   private isWs: boolean
 
+  /* 是否加载中 */
+  @Prop({
+    default: false
+  })
+  private isLoading: boolean
+
   /* 默认倍速 */
   @Prop({
     default: 1
@@ -172,8 +178,8 @@ export default class extends Vue {
   }
 
   /* 视频是否加载中 */
-  private get isLoading() {
-    return this.player && this.player.isLoading
+  private get loading() {
+    return (this.player && this.player.isLoading) || this.isLoading
   }
 
   /* 获取播放器实例Provide */

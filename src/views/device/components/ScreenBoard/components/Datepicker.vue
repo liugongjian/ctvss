@@ -30,11 +30,11 @@ export default class extends Vue {
   }
 
   private get recordStatistic() {
-    return this.screen && this.screen.recordManager.recordStatistic
+    return this.recordManager && this.recordManager.recordStatistic
   }
 
   private get currentDate() {
-    return this.screen && this.screen.currentDate * 1000
+    return this.recordManager && this.recordManager.currentDate * 1000
   }
 
   @Watch('screen')
@@ -80,8 +80,7 @@ export default class extends Vue {
    * 切换日期
    */
   private changeDate(date: number) {
-    console.log(date)
-    this.screen.getRecordListByDate(date / 1000)
+    this.recordManager.getRecordListByDate(date / 1000)
   }
 }
 

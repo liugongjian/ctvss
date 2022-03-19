@@ -117,7 +117,7 @@ export default class extends Vue {
   @Watch('url')
   private onUrlChange() {
     this.player && this.player.disposePlayer()
-    this.createPlayer()
+    this.url && this.createPlayer()
   }
 
   private mounted() {
