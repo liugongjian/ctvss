@@ -24,7 +24,7 @@
       </el-form>
     </div>
     <div class="player__body">
-      <div v-if="screen">
+      <div v-if="recordManager">
         <div>
           日期: <el-input v-model.number="form.date" placeholder="日期" @blur="changeDate" />
         </div>
@@ -39,12 +39,12 @@
           :screen="screen"
           :is-debug="true"
         />
+        <br><br><br>
+        <ReplayAxis
+          :screen="screen"
+          @change="onAxisTimeChange"
+        />
       </div>
-      <br><br><br>
-      <ReplayAxis
-        :screen="screen"
-        @change="onAxisTimeChange"
-      />
     </div>
   </div>
 </template>
@@ -83,8 +83,12 @@ export default class extends Vue {
     return this.player && this.player.currentTime
   }
 
+  private get recordManager() {
+    return this.screen && this.screen.recordManager
+  }
+
   private get currentRecord() {
-    return this.screen && this.screen.recordManager.currentRecord
+    return this.recordManager && this.recordManager.currentRecord
   }
 
   private get currentTime() {
@@ -101,11 +105,11 @@ export default class extends Vue {
   }
 
   private get currentDate() {
-    return this.screen && dateFormat(new Date(this.screen.recordManager.currentDate * 1000))
+    return this.screen && dateFormat(new Date(this.recordManager.currentDate * 1000))
   }
 
   private changeDate() {
-    this.screen.recordManager.getRecordListByDate(this.form.date)
+    this.recordManager.getRecordListByDate(this.form.date)
   }
 
   private generate() {
@@ -114,7 +118,6 @@ export default class extends Vue {
     this.$nextTick(() => {
       this.screen.isLive = false
       this.screen = Object.assign(this.screen, this.form.deviceInfo)
-      console.log(this.screen.init)
       this.screen.init()
     })
   }
@@ -124,11 +127,11 @@ export default class extends Vue {
   }
 
   private seek() {
-    this.screen.recordManager.seek(this.form.time)
+    this.recordManager.seek(this.form.time)
   }
 
   private onAxisTimeChange(time: number) {
-    this.screen.recordManager.seek(time)
+    this.recordManager.seek(time)
   }
 }
 </script>
