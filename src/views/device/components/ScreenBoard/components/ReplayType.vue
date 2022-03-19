@@ -26,7 +26,7 @@ export default class extends Vue {
 
   private onChange() {
     this.screen.recordType = this.recordType
-    this.screen.init()
+    this.screen.recordManager.initReplay()
   }
 }
 

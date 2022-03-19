@@ -46,13 +46,17 @@ export default class extends Vue {
   private type: string = null
   private codec: string = null
 
-  @Watch('screen.currentRecord.url')
+  private get recordManager() {
+    return this.screen.recordManager
+  }
+
+  @Watch('screen.recordManager.currentRecord.url')
   @Watch('screen.url')
   private onChange() {
     if (this.screen.recordType === 0) {
-      this.url = this.screen.currentRecord && this.screen.currentRecord.url
+      this.url = this.recordManager.currentRecord && this.recordManager.currentRecord.url
       this.type = 'hls'
-      this.codec = this.screen.currentRecord && this.screen.currentRecord.codec
+      this.codec = this.recordManager.currentRecord && this.recordManager.currentRecord.codec
     } else {
       this.url = this.screen.url
       this.type = 'flv'
@@ -84,10 +88,10 @@ export default class extends Vue {
   private onPlayerCreate(player) {
     this.screen.player = player
     // 片段播放完后播放下一段
-    this.screen.player.config.onEnded = this.screen.playNextRecord.bind(this.screen)
+    this.screen.player.config.onEnded = this.recordManager.playNextRecord.bind(this.screen)
     // 跳转到offsetTime
-    if (this.screen.currentRecord.offsetTime) {
-      this.screen.player.seek(this.screen.currentRecord.offsetTime)
+    if (this.recordManager.currentRecord && this.recordManager.currentRecord.offsetTime) {
+      this.screen.player.seek(this.recordManager.currentRecord.offsetTime)
     }
   }
 
@@ -103,9 +107,8 @@ export default class extends Vue {
    * 本地录像设置倍速播放
    */
   private setPlaybackRate(playbackRate: number) {
-    console.log(playbackRate)
     if (this.screen.recordType === 1) {
-      this.screen.setPlaybackRate(playbackRate)
+      this.recordManager.setPlaybackRate(playbackRate)
     }
   }
 

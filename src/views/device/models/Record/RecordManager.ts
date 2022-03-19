@@ -3,32 +3,205 @@
  */
 import axios from 'axios'
 import { Record } from './Record'
-import { getTimestamp } from '@/utils/date'
-import { getDeviceRecords, getDeviceRecord, getDeviceRecordStatistic, editRecordName, getDeviceRecordRule, describeHeatMap, getDevicePreview, setRecordScale } from '@/api/device'
+import { Screen } from '../Screen/Screen'
+import { getTimestamp, getLocaleDate, getDateByTime } from '@/utils/date'
+import { getDeviceRecords, getDeviceRecordStatistic, getDeviceRecordRule, describeHeatMap, getDevicePreview, setRecordScale } from '@/api/device'
 
 export class RecordManager {
-  /* 设备ID */
-  public deviceId: number
-  /* 设备协议 */
-  public inProtocol: string
-  /* 录像信息 */
-  public recordInfo: any
-  public roleId: string
-  public realGroupId: string
+  /* 当前分屏 */
+  private screen: Screen
+  /* 录像列表 */
+  public recordList: Record[]
+  /* 录像日历统计 */
+  public recordStatistic: Map<string, any>
+  /* 已加载的录像日期 */
+  public loadedRecordDates: Set<number>
+  /* 当前正在播放的录像片段 */
+  public currentRecord: Record
+  /* 查找最新录像定时器 */
+  public recordInterval: any
+  /* 当前日期（时间戳/秒） */
+  public currentDate: number
+  /* 当前本地录像片段的起始时间 */
+  public localStartTime: number
   /* 分页大小 */
   public pageSize?: string
-
+  /* Axios Source */
   private axiosSource
 
-  private recordInterval
-
-  public recordStatistic: Map<string, any>
-
   constructor(params: any) {
-    this.deviceId = params.deviceId
-    this.inProtocol = params.inProtocol
-    this.recordInfo = params.recordInfo
+    this.screen = params.screen
+    this.recordList = []
     this.recordStatistic = new Map()
+    this.loadedRecordDates = new Set()
+    this.currentRecord = null
+    this.recordInterval = null
+    this.currentDate = Math.floor(getLocaleDate().getTime() / 1000)
+    this.localStartTime = null
+    this.pageSize = null
+    this.initReplay()
+  }
+
+  public destroy() {
+    clearInterval(this.recordInterval)
+    this.axiosSource && this.axiosSource.cancel()
+  }
+
+  public async initReplay() {
+    try {
+      this.screen.isLoading = true
+      this.screen.errorMsg = null
+      this.recordList = []
+      this.currentRecord = null
+      this.getRecordStatistic() // 获得最近两月录像统计
+      this.recordList = await this.getRecordList(this.currentDate, this.currentDate + 24 * 60 * 60)
+      this.loadedRecordDates.add(this.currentDate)
+      if (this.recordList && this.recordList.length) {
+        /**
+         * 0云端：获取第一段录像
+         * 1本地：获取URL
+         */
+        if (this.screen.recordType === 0) {
+          this.currentRecord = this.recordList[0]
+        } else {
+          const res = await this.getLocalUrl(this.recordList[0].startTime)
+          this.screen.codec = res.codec
+          this.screen.url = res.url
+        }
+        this.getLatestRecord()
+      } else {
+        this.screen.errorMsg = this.screen.ERROR.NO_RECORD
+      }
+    } catch (e) {
+      this.screen.errorMsg = e.message
+    } finally {
+      this.screen.isLoading = false
+    }
+  }
+
+  /**
+   * 加载指定日期的录像数据
+   * @param date 日期
+   * @param isConcat 是否合并到现有列表，如果false将覆盖现有列表并播放第一段
+   * @param isSilence 静悄悄的更新，不出现Loading，不更新当前日期(currentDate)
+   */
+  public async getRecordListByDate(date: number, isConcat = false, isSilence = false) {
+    try {
+      if (!isSilence) {
+        this.screen.errorMsg = null
+        this.screen.isLoading = true
+        this.currentDate = date
+        this.recordList = []
+      }
+      if (!isConcat) {
+        this.screen.player.pause()
+        this.loadedRecordDates.clear()
+      } else if (this.loadedRecordDates.has(date)) {
+        return
+      }
+      const records = await this.getRecordList(date, date + 24 * 60 * 60)
+      if (records) {
+        // 存入日期
+        this.loadedRecordDates.add(date)
+        if (isConcat) {
+          // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
+          if (date > this.currentDate) {
+            this.recordList = this.recordList.concat(records)
+          } else {
+            this.recordList = records.concat(this.recordList)
+          }
+        } else {
+          this.recordList = records
+          this.currentRecord = this.recordList[0]
+        }
+      } else if (!isSilence) {
+        this.screen.errorMsg = this.screen.ERROR.NO_RECORD
+      }
+    } catch (e) {
+      if (!isConcat && !isSilence) {
+        this.screen.errorMsg = e.message
+      }
+    } finally {
+      this.screen.isLoading = false
+    }
+  }
+
+  /**
+   * 跳转到指定的时间
+   * 1) 获取指定时间的录像片段，在录像列表中寻找，如果未找到则根据日期添加新列表
+   * 2) 如果指定时间的录像!==当前片段，切换currentRecord，并设置初始时间
+   * 3) 如果指定时间的录像===当前片段，执行seek()
+   * @param time 跳转的目标时间（时间戳/秒）
+   */
+  public async seek(time: number) {
+    let record = this.getRecordByTime(time)
+    const date = getDateByTime(time * 1000) / 1000
+    if (record) {
+      switch (this.screen.recordType) {
+        case 0:
+          if (!this.currentRecord || this.currentRecord.startTime !== record.startTime) {
+            this.currentRecord = record
+            this.currentRecord.offsetTime = time - record.startTime
+          } else {
+            this.currentRecord.offsetTime = null
+            this.screen.player.seek(time - this.currentRecord.startTime)
+          }
+          break
+      }
+      this.currentDate = date
+    } else {
+      // 判断该日期是否存在SET中
+      if (!this.loadedRecordDates.has(date)) {
+        await this.getRecordListByDate(date, true)
+      }
+      const record = this.getRecordByTime(time)
+      if (record) {
+        record.offsetTime = time - this.currentRecord.startTime
+      }
+      this.currentRecord = record || this.currentRecord
+    }
+  }
+
+  /**
+   * 播放下一段
+   */
+  public playNextRecord() {
+    const nextRecord = this.recordList.find(record => record.startTime >= this.currentRecord.endTime)
+    if (nextRecord) {
+      this.currentRecord = nextRecord
+      const date = getDateByTime(this.currentRecord.startTime * 1000) / 1000
+      this.currentDate = date
+    }
+  }
+
+  /**
+   * 定时轮询新录像 && 录像中行人时间段信息
+   * 1) 如果当前时间小于今日0点，则不加载最新录像
+   * 1) 获取录制规则
+   * 2) 获取最后一段录像的endTime作为最新录像的startTime查询参数
+   * 3) 查询最新录像
+   * 4) 合并数组
+   */
+  private async getLatestRecord() {
+    if (!this.recordList.length) return
+    console.log('定时轮询新录像', this.screen.deviceId)
+    try {
+      const interval = await this.getRecordInterval()
+      if (interval) {
+        this.recordInterval = setInterval(async() => {
+          if (this.currentDate < getLocaleDate().getTime() / 1000) return
+          const lastRecord = this.recordList[this.recordList.length - 1]
+          const startTime = lastRecord.endTime - 3 * 60
+          const endTime = Math.floor(new Date().getTime() / 1000)
+          const records = await this.getRecordList(startTime, endTime)
+          if (records) {
+            this.recordList = this.recordList.concat(records)
+          }
+        }, interval * 1000)
+      }
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   /**
@@ -37,13 +210,14 @@ export class RecordManager {
    * @param endTime 结束时间（时间戳/秒）
    * @returns 录像文件列表(Promise)
    */
-  public async getRecordList(startTime: number, endTime: number) {
+  private async getRecordList(startTime: number, endTime: number) {
     try {
+      this.axiosSource && this.axiosSource.cancel()
       this.axiosSource = axios.CancelToken.source()
       const res = await getDeviceRecords({
-        deviceId: this.deviceId,
-        inProtocol: this.inProtocol,
-        recordType: this.recordInfo.recordType,
+        deviceId: this.screen.deviceId,
+        inProtocol: this.screen.inProtocol,
+        recordType: this.screen.recordType,
         startTime,
         endTime,
         pageSize: 9999
@@ -67,7 +241,7 @@ export class RecordManager {
   /**
    * 获取日历统计
    */
-  public async getRecordStatistic(startTime?: number, endTime?: number) {
+  private async getRecordStatistic(startTime?: number, endTime?: number) {
     try {
       if (!startTime) {
         // 获得最近两月录像统计
@@ -77,9 +251,9 @@ export class RecordManager {
       }
       const type = ['cloud', 'local']
       const res = await getDeviceRecordStatistic({
-        type: type[this.recordInfo.recordType],
-        deviceId: this.deviceId,
-        inProtocol: this.inProtocol,
+        type: type[this.screen.recordType],
+        deviceId: this.screen.deviceId,
+        inProtocol: this.screen.inProtocol,
         startTime: startTime,
         endTime: endTime
       })
@@ -97,6 +271,17 @@ export class RecordManager {
   }
 
   /**
+   * 根据指定时间查找当前录像列表中的录像片段
+   * @param time 指定时间（时间戳/秒）
+   * @returns 录像片段
+   */
+  private getRecordByTime(time: number) {
+    return this.recordList.find(record => {
+      return (time! >= record.startTime) && (time! < record.endTime)
+    })
+  }
+
+  /**
    * 获取行人时间段列表
    * 来自从化需求
    */
@@ -108,9 +293,9 @@ export class RecordManager {
    * 获取录制规则时间间隔
    * @returns 时间间隔（秒）
    */
-  public async getRecordInterval() {
+  private async getRecordInterval() {
     const res = await getDeviceRecordRule({
-      deviceId: this.deviceId
+      deviceId: this.screen.deviceId
     })
     return res.interval
   }
@@ -130,23 +315,40 @@ export class RecordManager {
   }
 
   /**
+   * ================================
+   * 本地录像相关操作
+   * ================================
+   */
+  /**
+   * 设置播放速率
+   */
+  public setPlaybackRate(playbackRate: number) {
+    setRecordScale({
+      deviceId: this.screen.deviceId,
+      playUrl: this.screen.url,
+      scale: playbackRate.toString()
+    })
+  }
+
+  /**
    * 获取本地录像地址
    */
-  public async getLocalUrl(startTime: number) {
+  private async getLocalUrl(startTime: number) {
+    this.localStartTime = startTime
     this.axiosSource && this.axiosSource.cancel()
     this.axiosSource = axios.CancelToken.source()
     const endTime = startTime + 24 * 60 * 60 - 1
     let url
     let codec
     const res: any = await getDevicePreview({
-      deviceId: this.deviceId,
-      inProtocol: this.inProtocol,
+      deviceId: this.screen.deviceId,
+      inProtocol: this.screen.inProtocol,
       type: 'vod',
       startTime,
       endTime,
       'self-defined-headers': {
-        'role-id': this.roleId || '',
-        'real-group-id': this.realGroupId || ''
+        'role-id': this.screen.roleId || '',
+        'real-group-id': this.screen.realGroupId || ''
       }
     }, this.axiosSource.token)
     if (res.playUrl) {

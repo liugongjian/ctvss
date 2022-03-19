@@ -96,7 +96,6 @@ export default class extends Vue {
       if (screen.deviceId) {
         screen.destroy()
       }
-      screen.isInitialized = true
       screen.isLive = this.isLive
       screen.inProtocol = this.inProtocol
       screen.deviceId = item.id

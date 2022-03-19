@@ -17,7 +17,7 @@
  * 3) 计算刻度位置时使用时间戳除ratio，转换为像素值
  */
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { isCrossDays, dateFormat, getNextHour, prefixZero, getDateByTime, currentTimeZeroMsec, getDateAfter, getDateBefore } from '@/utils/date'
+import { isCrossDays, dateFormat, getNextHour, prefixZero, getDateByTime, currentTimeZeroMsec } from '@/utils/date'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import { throttle } from 'lodash'
 
@@ -83,6 +83,11 @@ export default class extends Vue {
   @Prop()
   private screen: Screen
 
+  /* 当前分屏的录像管理器 */
+  private get recordManager() {
+    return this.screen.recordManager
+  }
+
   /* 格式化当前时间 */
   private get formatedCurrentTime() {
     return dateFormat(this.currentTime * 1000)
@@ -98,10 +103,14 @@ export default class extends Vue {
     }
     if (this.screen && this.screen.player) {
       const recordCurrentTime = this.screen.player.currentTime
-      const offsetTime = this.screen.currentRecord.offsetTime || 0
-      const duration = offsetTime > recordCurrentTime ? offsetTime : recordCurrentTime
+      if (this.screen.recordType === 0) {
+        const offsetTime = this.recordManager.currentRecord.offsetTime || 0
+        const duration = offsetTime > recordCurrentTime ? offsetTime : recordCurrentTime
+        this.currentTime = this.recordManager.currentRecord.startTime + duration
+      } else {
+        this.currentTime = this.recordManager.localStartTime + recordCurrentTime
+      }
       this.lastUpdateTime = new Date().getTime()
-      this.currentTime = this.screen.currentRecord.startTime + duration
     }
     this.generateData()
     this.draw()
@@ -209,9 +218,9 @@ export default class extends Vue {
 
     /* 计算录像片段 */
     const records = []
-    if (this.screen && this.screen.recordList) {
-      for (let i = 0; i < this.screen.recordList.length; i++) {
-        const record = this.screen.recordList[i]
+    if (this.recordManager && this.recordManager.recordList) {
+      for (let i = 0; i < this.recordManager.recordList.length; i++) {
+        const record = this.recordManager.recordList[i]
         if (record.startTime < this.axisEndTime && record.endTime > this.axisStartTime) {
           const recordOffsetTime = record.startTime - this.axisStartTime
           records.push({
@@ -437,17 +446,17 @@ export default class extends Vue {
     try {
       this.isLoading = true
       if (!isCrossDays(moveStartTime * 1000, moveEndTime * 1000)) {
-        let thresholdStart = 0.5 * this.settings.scale * 60 * 60 // 单位 s
-        let thresholdEnd = 24 * 60 * 60 - 0.5 * this.settings.scale * 60 * 60
-        let deltaCurrentTime = currentTimeZeroMsec(this.currentTime * 1000) / 1000
+        const thresholdStart = 0.5 * this.settings.scale * 60 * 60
+        const thresholdEnd = 24 * 60 * 60 - 0.5 * this.settings.scale * 60 * 60
+        const deltaCurrentTime = currentTimeZeroMsec(this.currentTime * 1000) / 1000
         let date
         if (thresholdEnd < deltaCurrentTime) {
           date = getDateByTime(this.currentTime * 1000) / 1000 + 24 * 60 * 60
-          await this.screen.getRecordListByDate(date, true, true)
+          await this.getRecordListByDate(date)
           console.log('加载下一天')
         } else if (thresholdStart > deltaCurrentTime) {
           date = getDateByTime(this.currentTime * 1000) / 1000 - 24 * 60 * 60
-          await this.screen.getRecordListByDate(date, true, true)
+          await this.getRecordListByDate(date)
           console.log('加载上一天')
         }
       } else {
@@ -455,6 +464,16 @@ export default class extends Vue {
       }
     } finally {
       this.isLoading = false
+    }
+  }
+
+  /**
+   * 根据日期加载录像列表
+   * @param date 日期(时间戳/秒)
+   */
+  private async getRecordListByDate(date) {
+    if (this.screen && this.screen.recordManager) {
+      await this.screen.recordManager.getRecordListByDate(date, true, true)
     }
   }
 }

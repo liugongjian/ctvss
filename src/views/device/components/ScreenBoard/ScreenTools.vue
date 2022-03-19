@@ -34,23 +34,26 @@ import SizeSelector from './components/SizeSelector.vue'
 })
 export default class extends Vue {
   @Inject('getScreenManager')
-  public getScreenManager: Function
+  private getScreenManager: Function
 
-  public get screenManager(): ScreenManager {
+  private get screenManager(): ScreenManager {
     return this.getScreenManager()
   }
 
-  public get screen() {
+  private get screen() {
     return this.screenManager.currentScreen
   }
 
+  /**
+   * 时间轴Seek
+   */
   private onAxisTimeChange(time: number) {
     if (this.screenManager.isSync) {
       this.screenManager.screenList.forEach(screen => {
-        screen.seek(time)
+        screen.recordManager.seek(time)
       })
     } else {
-      this.screen.seek(time)
+      this.screen.recordManager.seek(time)
     }
   }
 }

@@ -3,6 +3,7 @@
     class="screen-item"
     @click="click"
   >
+    <div v-if="videoTypeLabel && !screen.isLoading" class="video-type-label">{{ videoTypeLabel }}</div>
     <template v-if="screen.deviceId">
       <LivePlayer
         v-if="screen.isLive"
@@ -28,8 +29,8 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
-// import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
+import { Component, Prop, Vue, Inject } from 'vue-property-decorator'
+import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
 import LivePlayer from '../LivePlayer.vue'
 import ReplayPlayer from '../ReplayPlayer/index.vue'
 import DeviceDir from '../dialogs/DeviceDir.vue'
@@ -46,7 +47,22 @@ export default class extends Vue {
   @Prop()
   private screen
 
-  public dialogs = {
+  @Inject('getScreenManager')
+  private getScreenManager: Function
+
+  private get screenManager(): ScreenManager {
+    return this.getScreenManager()
+  }
+
+  private get videoTypeLabel() {
+    let label = ''
+    if (this.screen.isLive !== null && this.screenManager.isLive !== this.screen.isLive) {
+      label = this.screen.isLive ? '实时画面' : '回放画面'
+    }
+    return label
+  }
+
+  private dialogs = {
     deviceDir: false
   }
 
@@ -68,7 +84,7 @@ export default class extends Vue {
    * 选择视频
    * @param screen 视频
    */
-  public selectDevice() {
+  private selectDevice() {
     this.dialogs.deviceDir = true
   }
 
