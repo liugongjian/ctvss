@@ -6,6 +6,7 @@
     value-format="timestamp"
     placeholder="选择日期"
     size="small"
+    :clearable="false"
     :picker-options="pickerOptions"
     @change="changeDate"
   />

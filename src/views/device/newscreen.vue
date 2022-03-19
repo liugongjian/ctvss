@@ -228,7 +228,7 @@
           <ScreenBoard
             ref="screenBoard"
             class="device-list__right"
-            :is-live="false"
+            :is-live="true"
             :in-protocol="currentGroupInProtocol"
             :has-live-replay-selector="true"
           />

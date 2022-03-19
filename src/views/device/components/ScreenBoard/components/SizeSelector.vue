@@ -2,7 +2,7 @@
   <el-dropdown trigger="click" placement="bottom-start" @command="handleScreenSize">
     <el-tooltip content="选择分屏" placement="top">
       <el-button>
-        <svg-icon :name="`screen${layout}`" />
+        <svg-icon name="screen" />
       </el-button>
     </el-tooltip>
     <el-dropdown-menu slot="dropdown">

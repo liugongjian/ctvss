@@ -84,7 +84,7 @@ export default class extends Vue {
   }
 
   private get currentRecord() {
-    return this.screen && this.screen.currentRecord
+    return this.screen && this.screen.recordManager.currentRecord
   }
 
   private get currentTime() {
@@ -101,11 +101,11 @@ export default class extends Vue {
   }
 
   private get currentDate() {
-    return this.screen && dateFormat(new Date(this.screen.currentDate * 1000))
+    return this.screen && dateFormat(new Date(this.screen.recordManager.currentDate * 1000))
   }
 
   private changeDate() {
-    this.screen.getRecordListByDate(this.form.date)
+    this.screen.recordManager.getRecordListByDate(this.form.date)
   }
 
   private generate() {
@@ -124,11 +124,11 @@ export default class extends Vue {
   }
 
   private seek() {
-    this.screen.seek(this.form.time)
+    this.screen.recordManager.seek(this.form.time)
   }
 
   private onAxisTimeChange(time: number) {
-    this.screen.seek(time)
+    this.screen.recordManager.seek(time)
   }
 }
 </script>

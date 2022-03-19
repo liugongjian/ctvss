@@ -16,6 +16,7 @@
       <ReplayPlayer
         v-else
         :screen="screen"
+        :has-axis="hasAxis"
         :has-close="true"
         :is-debug="true"
         :has-live-replay-selector="true"
@@ -60,6 +61,13 @@ export default class extends Vue {
       label = this.screen.isLive ? '实时画面' : '回放画面'
     }
     return label
+  }
+
+  /**
+   * 在实时预览页面中显示录像回放时间轴
+   */
+  private get hasAxis() {
+    return this.screenManager.isLive && !this.screen.isLive
   }
 
   private dialogs = {

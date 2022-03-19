@@ -4,8 +4,8 @@
     <div class="axis__time">{{ screen && screen.isLoading ? '加载中' : formatedCurrentTime }}</div>
     <canvas ref="canvas" class="axis__canvas" :class="{'dragging': axisDrag.isDragging}" />
     <div class="axis__zoom">
-      <div class="axis__zoom__btn" @click="zoom(1)"><svg-icon name="zoom-in" /></div>
-      <div class="axis__zoom__btn" @click="zoom(0)"><svg-icon name="zoom-out" /></div>
+      <div class="axis__zoom__btn" @click="zoom(1)"><svg-icon name="zoom-in" width="12" /></div>
+      <div class="axis__zoom__btn" @click="zoom(0)"><svg-icon name="zoom-out" width="12" /></div>
     </div>
   </div>
 </template>
@@ -25,6 +25,16 @@ import { throttle } from 'lodash'
   name: 'ReplayAxis'
 })
 export default class extends Vue {
+  /* 当前分屏 */
+  @Prop()
+  private screen: Screen
+
+  /* 是否为内嵌模式 */
+  @Prop({
+    default: false
+  })
+  private isInline: boolean
+
   /* 时间轴拖动数据 */
   private axisDrag: any = {
     isDragging: false,
@@ -33,6 +43,7 @@ export default class extends Vue {
     startTime: -1,
     endTime: -1
   }
+
   /* 时间轴设置 */
   private settings = {
     width: 0,
@@ -50,9 +61,19 @@ export default class extends Vue {
     oneMinWidth: 1,
     oneMinHeight: 0,
     recordHeight: 0,
+    minLineWidth: 0,
+    minLineHeight: 0,
     spanThreshold: 10,
-    hourSpan: null
+    hourSpan: null,
+    y: 0,
+    textY: 0,
+    midLineY: 0,
+    recordColor: '#cfd9e7',
+    hourLineColor: '#222',
+    minLineColor: '#999',
+    midLineColor: '#fa8334'
   }
+
   /* 刻度数据 */
   private axisData = {
     hours: [],
@@ -62,6 +83,7 @@ export default class extends Vue {
     oneMins: [],
     records: []
   }
+
   /* 画布 */
   private canvas: HTMLCanvasElement = null
   /* 画布上下文 */
@@ -78,10 +100,6 @@ export default class extends Vue {
   private axisEndTime: number = 0
   /* 是否加载中 */
   private isLoading = false
-
-  /* 当前分屏 */
-  @Prop()
-  private screen: Screen
 
   /* 当前分屏的录像管理器 */
   private get recordManager() {
@@ -103,11 +121,11 @@ export default class extends Vue {
     }
     if (this.screen && this.screen.player) {
       const recordCurrentTime = this.screen.player.currentTime
-      if (this.screen.recordType === 0) {
+      if (this.screen.recordType === 0 && this.recordManager.currentRecord) {
         const offsetTime = this.recordManager.currentRecord.offsetTime || 0
         const duration = offsetTime > recordCurrentTime ? offsetTime : recordCurrentTime
         this.currentTime = this.recordManager.currentRecord.startTime + duration
-      } else {
+      } else if (this.screen.recordType === 1) {
         this.currentTime = this.recordManager.localStartTime + recordCurrentTime
       }
       this.lastUpdateTime = new Date().getTime()
@@ -122,6 +140,17 @@ export default class extends Vue {
   private onDeviceChange() {
     this.generateData()
     this.draw()
+  }
+
+  private created() {
+    if (this.isInline) {
+      this.settings.recordColor = '#3E5466'
+      this.settings.hourLineColor = '#bbb'
+      this.settings.minLineColor = '#999'
+      this.settings.midLineColor = '#fa8334'
+      this.settings.spanThreshold = 15
+      this.settings.hourWidth = 1
+    }
   }
 
   private mounted() {
@@ -139,126 +168,6 @@ export default class extends Vue {
     this.canvas.removeEventListener('wheel', this.onWheel)
     window.removeEventListener('keydown', this.onHotkey)
     if (this.resizeObserver) this.resizeObserver.disconnect()
-  }
-
-  /**
-   * 构建刻度数据
-   */
-  private generateData() {
-    /**
-     * 计算偏移量
-     * 1) 起始时间 = 当前时间 - 比例尺转换为秒
-     * 2) 计算出起始时间下一段的整点的时间戳
-     * 3) 计算出起始时间与开始时间的偏移量，并转成像素
-     */
-    this.axisStartTime = this.currentTime - this.settings.scale * 60 * 60 / 2 // 计算画布的起始时间
-    this.axisEndTime = this.currentTime + this.settings.scale * 60 * 60 / 2 // 计算画布的结束时间
-    const nextHourTime = Math.floor(getNextHour(this.axisStartTime * 1000) / 1000)
-    const offsetX = (nextHourTime - this.axisStartTime) / this.settings.ratio
-    /* 计算小时刻度像素位置 */
-    const hours = []
-    const hourSpan = 60 * 60 / this.settings.ratio // 计算每小时间隔的像素值
-    for (let i = -1; i <= this.settings.scale; i++) {
-      const x = Math.floor(i * hourSpan + offsetX - this.settings.hourWidth / 2) // 绘制时偏移刻度本身的宽度
-      /* 根据密度控制文字的疏密度 */
-      let showText = true
-      const timestamp = this.axisStartTime + x * this.settings.ratio // 计算当前line对象的实际时间戳
-      const hour = new Date(getNextHour(timestamp * 1000)).getHours() // 取整点并转换成Date对象
-      if ((this.settings.ratio > 100 && hour % 2) || (this.settings.ratio > 240 && hour % 4)) {
-        showText = false
-      }
-      hours.push({
-        x,
-        y: 0,
-        showText
-      })
-    }
-    this.axisData.hours = hours
-
-    /* 计算半小时刻度像素位置 */
-    const halfHours = []
-    if (hourSpan) {
-      for (let i = -2; i <= this.settings.scale; i++) {
-        halfHours.push({
-          x: Math.floor(i * hourSpan + hourSpan / 2 + offsetX - this.settings.halfHourWidth / 2), // 绘制时偏移刻度本身的宽度,
-          y: 0
-        })
-      }
-    }
-    this.axisData.halfHours = halfHours
-
-    /* 计算10分钟刻度像素位置 */
-    const tenMins = []
-    if (hourSpan > this.settings.width / 28) {
-      for (let i = -6; i <= this.settings.scale * 6; i++) {
-        if (!(i % 3)) continue // 将与半小时重复的线条排除
-        tenMins.push({
-          x: Math.floor(i * hourSpan / 6 + offsetX - this.settings.tenMinsWidth / 2), // 绘制时偏移刻度本身的宽度,
-          y: 0
-        })
-      }
-    }
-    this.axisData.tenMins = tenMins
-
-    /* 计算5分钟刻度像素位置 */
-    const fiveMins = []
-    if (hourSpan > this.settings.width / 9) {
-      for (let i = -12; i <= this.settings.scale * 12; i++) {
-        if (!(i % 2)) continue // 将与半小时重复的线条排除
-        fiveMins.push({
-          x: Math.floor(i * hourSpan / 12 + offsetX - this.settings.fiveMinsWidth / 2), // 绘制时偏移刻度本身的宽度,
-          y: 0
-        })
-      }
-    }
-    this.axisData.fiveMins = fiveMins
-
-    /* 计算1分钟刻度像素位置 */
-    const oneMins = []
-    if (hourSpan > this.settings.width / 5) {
-      for (let i = -60; i <= this.settings.scale * 60; i++) {
-        if (!(i % 5)) continue // 将与半小时重复的线条排除
-        oneMins.push({
-          x: Math.floor(i * hourSpan / 60 + offsetX - this.settings.oneMinWidth / 2), // 绘制时偏移刻度本身的宽度,
-          y: 0
-        })
-      }
-    }
-    this.axisData.oneMins = oneMins
-
-    /* 计算录像片段 */
-    const records = []
-    if (this.recordManager && this.recordManager.recordList) {
-      for (let i = 0; i < this.recordManager.recordList.length; i++) {
-        const record = this.recordManager.recordList[i]
-        if (record.startTime < this.axisEndTime && record.endTime > this.axisStartTime) {
-          const recordOffsetTime = record.startTime - this.axisStartTime
-          records.push({
-            x: Math.floor(recordOffsetTime / this.settings.ratio),
-            y: 0,
-            width: Math.ceil((record.endTime - record.startTime) / this.settings.ratio)
-          })
-        }
-      }
-    }
-    this.axisData.records = records
-  }
-
-  /**
-   * 计算画布大小
-   */
-  private calcSize() {
-    const axisWrap = this.$refs.axisWrap as HTMLDivElement
-    this.settings.width = axisWrap.clientWidth
-    this.settings.height = axisWrap.clientHeight
-    this.settings.ratio = this.settings.scale * 60 * 60 / axisWrap.clientWidth
-    this.settings.hourSpan = axisWrap.clientWidth / this.settings.scale // 计算每小时间隔的像素值
-    this.settings.hourHeight = this.settings.height - 20
-    this.settings.halfHourHeight = 0.8 * this.settings.hourHeight
-    this.settings.tenMinsHeight = 0.7 * this.settings.halfHourHeight
-    this.settings.fiveMinsHeight = this.settings.tenMinsHeight
-    this.settings.oneMinHeight = 0.6 * this.settings.fiveMinsHeight
-    this.settings.recordHeight = this.settings.tenMinsHeight
   }
 
   /**
@@ -289,37 +198,161 @@ export default class extends Vue {
   }
 
   /**
+   * 计算画布大小
+   */
+  private calcSize() {
+    const axisWrap = this.$refs.axisWrap as HTMLDivElement
+    this.settings.width = axisWrap.clientWidth
+    this.settings.height = axisWrap.clientHeight - 22
+    this.settings.ratio = this.settings.scale * 60 * 60 / axisWrap.clientWidth
+    this.settings.hourSpan = axisWrap.clientWidth / this.settings.scale // 计算每小时间隔的像素值
+    this.settings.hourHeight = this.settings.height - (this.isInline ? 16 : 18)
+    this.settings.halfHourHeight = 0.8 * this.settings.hourHeight
+    this.settings.tenMinsHeight = 0.7 * this.settings.halfHourHeight
+    this.settings.fiveMinsHeight = this.settings.tenMinsHeight
+    this.settings.oneMinHeight = 0.6 * this.settings.fiveMinsHeight
+    this.settings.recordHeight = this.isInline ? this.settings.hourHeight : this.settings.tenMinsHeight
+    this.settings.minLineWidth = this.isInline ? 2 : 3
+    this.settings.minLineHeight = this.isInline ? this.settings.hourHeight + 25 : this.settings.hourHeight + 5
+    this.settings.textY = this.isInline ? this.settings.hourHeight + 14 : this.settings.hourHeight + 18
+    this.settings.y = this.isInline ? 0 : 5
+  }
+
+  /**
+   * 构建刻度数据
+   */
+  private generateData() {
+    /**
+     * 计算偏移量
+     * 1) 起始时间 = 当前时间 - 比例尺转换为秒
+     * 2) 计算出起始时间下一段的整点的时间戳
+     * 3) 计算出起始时间与开始时间的偏移量，并转成像素
+     */
+    this.axisStartTime = this.currentTime - this.settings.scale * 60 * 60 / 2 // 计算画布的起始时间
+    this.axisEndTime = this.currentTime + this.settings.scale * 60 * 60 / 2 // 计算画布的结束时间
+    const nextHourTime = Math.floor(getNextHour(this.axisStartTime * 1000) / 1000)
+    const offsetX = (nextHourTime - this.axisStartTime) / this.settings.ratio
+    /* 计算小时刻度像素位置 */
+    const hours = []
+    const hourSpan = 60 * 60 / this.settings.ratio // 计算每小时间隔的像素值
+    for (let i = -1; i <= this.settings.scale; i++) {
+      const x = Math.floor(i * hourSpan + offsetX - this.settings.hourWidth / 2) // 绘制时偏移刻度本身的宽度
+      /* 根据密度控制文字的疏密度 */
+      let showText = true
+      const timestamp = this.axisStartTime + x * this.settings.ratio // 计算当前line对象的实际时间戳
+      const hour = new Date(getNextHour(timestamp * 1000)).getHours() // 取整点并转换成Date对象
+      if ((this.settings.ratio > 100 && hour % 2) || (this.settings.ratio > 240 && hour % 4)) {
+        showText = false
+      }
+      hours.push({
+        x,
+        y: this.settings.y,
+        showText
+      })
+    }
+    this.axisData.hours = hours
+
+    /* 计算半小时刻度像素位置 */
+    const halfHours = []
+    if (hourSpan) {
+      for (let i = -2; i <= this.settings.scale; i++) {
+        halfHours.push({
+          x: Math.floor(i * hourSpan + hourSpan / 2 + offsetX - this.settings.halfHourWidth / 2), // 绘制时偏移刻度本身的宽度,
+          y: this.settings.y
+        })
+      }
+    }
+    this.axisData.halfHours = halfHours
+
+    /* 计算10分钟刻度像素位置 */
+    const tenMins = []
+    if (hourSpan > this.settings.width / 28) {
+      for (let i = -6; i <= this.settings.scale * 6; i++) {
+        if (!(i % 3)) continue // 将与半小时重复的线条排除
+        tenMins.push({
+          x: Math.floor(i * hourSpan / 6 + offsetX - this.settings.tenMinsWidth / 2), // 绘制时偏移刻度本身的宽度,
+          y: this.settings.y
+        })
+      }
+    }
+    this.axisData.tenMins = tenMins
+
+    /* 计算5分钟刻度像素位置 */
+    const fiveMins = []
+    if (hourSpan > this.settings.width / 9) {
+      for (let i = -12; i <= this.settings.scale * 12; i++) {
+        if (!(i % 2)) continue // 将与半小时重复的线条排除
+        fiveMins.push({
+          x: Math.floor(i * hourSpan / 12 + offsetX - this.settings.fiveMinsWidth / 2), // 绘制时偏移刻度本身的宽度,
+          y: this.settings.y
+        })
+      }
+    }
+    this.axisData.fiveMins = fiveMins
+
+    /* 计算1分钟刻度像素位置 */
+    const oneMins = []
+    if (hourSpan > this.settings.width / 5) {
+      for (let i = -60; i <= this.settings.scale * 60; i++) {
+        if (!(i % 5)) continue // 将与半小时重复的线条排除
+        oneMins.push({
+          x: Math.floor(i * hourSpan / 60 + offsetX - this.settings.oneMinWidth / 2), // 绘制时偏移刻度本身的宽度,
+          y: this.settings.y
+        })
+      }
+    }
+    this.axisData.oneMins = oneMins
+
+    /* 计算录像片段 */
+    const records = []
+    if (this.recordManager && this.recordManager.recordList) {
+      for (let i = 0; i < this.recordManager.recordList.length; i++) {
+        const record = this.recordManager.recordList[i]
+        if (record.startTime < this.axisEndTime && record.endTime > this.axisStartTime) {
+          const recordOffsetTime = record.startTime - this.axisStartTime
+          records.push({
+            x: Math.floor(recordOffsetTime / this.settings.ratio),
+            y: this.settings.y,
+            width: Math.ceil((record.endTime - record.startTime) / this.settings.ratio)
+          })
+        }
+      }
+    }
+    this.axisData.records = records
+  }
+
+  /**
    * 绘制时间轴
    */
   private draw() {
     this.ctx.clearRect(0, 0, this.settings.width, this.settings.height)
 
     /* 绘制录像线 */
-    this.ctx.fillStyle = '#cfd9e7'
+    this.ctx.fillStyle = this.settings.recordColor
     for (let i in this.axisData.records) {
       const line = this.axisData.records[i]
       this.ctx.fillRect(line.x, line.y, line.width, this.settings.recordHeight)
     }
 
     /* 绘制小时线 */
-    this.ctx.fillStyle = '#222'
+    this.ctx.fillStyle = this.settings.hourLineColor
     for (let i in this.axisData.hours) {
       const line = this.axisData.hours[i]
       this.ctx.fillRect(line.x, line.y, this.settings.hourWidth, this.settings.hourHeight)
       const timestamp = this.axisStartTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
       const datetime = new Date(getNextHour(timestamp * 1000)) // 取整点并转换成Date对象
-      line.showText && this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:00`, line.x - 13, this.settings.hourHeight + 15)
+      line.showText && this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:00`, line.x - 13, this.settings.textY)
     }
 
     /* 绘制半小时线 */
-    this.ctx.fillStyle = '#999'
+    this.ctx.fillStyle = this.settings.minLineColor
     for (let i in this.axisData.halfHours) {
       const line = this.axisData.halfHours[i]
       this.ctx.fillRect(line.x, line.y, this.settings.halfHourWidth, this.settings.halfHourHeight)
       if (this.settings.scale < 9.5) {
         const timestamp = this.axisStartTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
         const datetime = new Date(timestamp * 1000)
-        this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:30`, line.x - 13, this.settings.hourHeight + 15)
+        this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:30`, line.x - 13, this.settings.textY)
       }
     }
 
@@ -332,7 +365,7 @@ export default class extends Vue {
         const datetime = new Date(timestamp * 1000)
         if ((datetime.getMinutes() + 1)) {
           // 剔除整点
-          this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:${prefixZero(datetime.getMinutes() + 1, 2)}`, line.x - 13, this.settings.hourHeight + 15)
+          this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:${prefixZero(datetime.getMinutes() + 1, 2)}`, line.x - 13, this.settings.textY)
         }
       }
     }
@@ -346,7 +379,7 @@ export default class extends Vue {
         const datetime = new Date(timestamp * 1000)
         if ((datetime.getMinutes() + 1) % 10) {
           // 剔除整十
-          this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:${prefixZero(datetime.getMinutes() + 1, 2)}`, line.x - 13, this.settings.hourHeight + 15)
+          this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:${prefixZero(datetime.getMinutes() + 1, 2)}`, line.x - 13, this.settings.textY)
         }
       }
     }
@@ -360,14 +393,14 @@ export default class extends Vue {
         const datetime = new Date(timestamp * 1000)
         if ((datetime.getMinutes() + 1) % 5) {
           // 剔除整十
-          this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:${prefixZero(datetime.getMinutes() + 1, 2)}`, line.x - 13, this.settings.hourHeight + 15)
+          this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:${prefixZero(datetime.getMinutes() + 1, 2)}`, line.x - 13, this.settings.textY)
         }
       }
     }
 
     /* 中心线 */
-    this.ctx.fillStyle = '#fa8334'
-    this.ctx.fillRect(Math.floor(this.settings.width / 2 - 1), 0, 3, this.settings.hourHeight)
+    this.ctx.fillStyle = this.settings.midLineColor
+    this.ctx.fillRect(Math.floor(this.settings.width / 2 - 1), 0, this.settings.minLineWidth, this.settings.minLineHeight)
   }
 
   /**
@@ -496,7 +529,7 @@ export default class extends Vue {
   &__wrap {
     position: relative;
     width: 100%;
-    height: 50px;
+    height: 70px;
   }
 
   &__canvas {
@@ -506,16 +539,6 @@ export default class extends Vue {
     &.dragging {
       cursor: grabbing;
     }
-  }
-
-  &__middle {
-    position: absolute;
-    width: 3px;
-    height: 5px;
-    left: 50%;
-    top: -5px;
-    margin-left: -2px;
-    background: $primary;
   }
 
   &__time {
@@ -536,7 +559,7 @@ export default class extends Vue {
 
     &__btn {
       display: inline-block;
-      padding: 4px;
+      padding: 0 4px;
       cursor: pointer;
     }
   }

@@ -22,6 +22,7 @@
       </template>
       <template slot="controlBody">
         <H265Icon :codec="codec" />
+        <slot name="controlBody" />
       </template>
       <template v-if="player" slot="controlRight">
         <StreamSelector :stream-info="streamInfo" @dispatch="dispatch" />

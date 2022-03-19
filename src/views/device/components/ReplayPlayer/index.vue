@@ -1,6 +1,8 @@
 <template>
   <VssPlayer
     ref="player"
+    class="replay-player"
+    :class="{'has-axis': hasAxis}"
     :url="url"
     :type="type"
     :codec="screen.codec"
@@ -9,24 +11,48 @@
     :is-auto-play="true"
     :is-live="false"
     :has-close="hasClose"
-    :has-progress="isDebug"
     :is-loading="screen.isLoading"
     :is-debug="isDebug"
     :has-live-replay-selector="hasLiveReplaySelector"
     @dispatch="onDispatch"
     @onCreate="onPlayerCreate"
-  />
+  >
+    <template slot="controlBody">
+      <Datepicker
+        v-if="hasAxis"
+        class="datepicker"
+        :screen="screen"
+      />
+      <ReplayType
+        v-if="hasAxis"
+        class="replay-type"
+        :screen="screen"
+      />
+      <ReplayAxis
+        v-if="hasAxis"
+        :screen="screen"
+        :is-inline="true"
+        @change="onAxisTimeChange"
+      />
+    </template>
+  </VssPlayer>
 </template>
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { PlayerEvent } from '@/components/VssPlayer/models/VssPlayer.d'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import VssPlayer from '@/components/VssPlayer/index.vue'
+import ReplayAxis from './ReplayAxis.vue'
+import Datepicker from '../ScreenBoard/components/Datepicker.vue'
+import ReplayType from '../ScreenBoard/components/ReplayType.vue'
 
 @Component({
   name: 'ReplayPlayer',
   components: {
-    VssPlayer
+    VssPlayer,
+    ReplayAxis,
+    Datepicker,
+    ReplayType
   }
 })
 export default class extends Vue {
@@ -38,6 +64,9 @@ export default class extends Vue {
 
   @Prop()
   private hasLiveReplaySelector: Boolean
+
+  @Prop()
+  private hasAxis: Boolean
 
   @Prop()
   private isDebug: Boolean
@@ -113,6 +142,13 @@ export default class extends Vue {
   }
 
   /**
+   * 拖动时间轴
+   */
+  private onAxisTimeChange(time: number) {
+    this.recordManager.seek(time)
+  }
+
+  /**
    * 关闭视频
    */
   private onClose() {
@@ -120,3 +156,86 @@ export default class extends Vue {
   }
 }
 </script>
+<style lang="scss" scoped>
+.replay-player {
+  &.has-axis {
+    ::v-deep {
+      .player__wrap .control {
+        height: 83px;
+      }
+
+      .axis__wrap {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 48px;
+
+        .axis__zoom {
+          margin-right: 5px;
+        }
+
+        .axis__zoom__btn svg {
+          width: 10px!important;
+        }
+      }
+
+      .axis__time {
+        top: 31px;
+        color: #fff;
+        font-size: 12px;
+        transform: scale(0.85);
+      }
+    }
+
+    .datepicker {
+      position: absolute;
+      width: 105px;
+      left: 40px;
+      top: 8px;
+      transform: scale(0.85);
+
+      ::v-deep {
+        .el-input__inner {
+          font-size: 12px;
+          background: none;
+          color: #fff;
+          padding: 0 0 0 23px;
+          height: 21px;
+          line-height: 21px;
+          border-color: rgba(255, 255, 255, 0.7);
+        }
+        .el-input__prefix {
+          left: 2px;
+
+          .el-input__icon {
+            line-height: 21px;
+          }
+        }
+      }
+    }
+
+    .replay-type {
+      position: absolute;
+      left: 140px;
+      top: 8px;
+      transform: scale(0.85);
+
+      ::v-deep {
+        .el-radio-button__inner {
+          padding: 3px 4px;
+          background: none;
+          color: #fff;
+          font-size: 12px;
+        }
+        .el-radio-button__orig-radio:checked + .el-radio-button__inner {
+          background: #fff;
+          border-color: #fff;
+          color: #000;
+          box-shadow: -1px 0 0 0 #fff;
+        }
+      }
+    }
+  }
+}
+
+</style>
