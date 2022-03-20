@@ -1,18 +1,15 @@
 <template>
-  <div v-if="screenManager">
-    <div class="screen-list">
-      <div class="screen-wrap" :class="`screen-size--${size}`">
-        <ScreenItem
-          v-for="(screen, index) in screenList"
-          :key="index"
-          :screen="screen"
-          :has-live-replay-selector="true"
-          :style="`grid-area: item${index}`"
-          :class="[{'actived': index === currentIndex && screenList.length > 1}]"
-          @click="selectScreen(index)"
-          @openScreen="openScreen"
-        />
-      </div>
+  <div v-if="screenManager" class="screen-container">
+    <div class="screen-grid" :class="`screen-size--${size}`">
+      <ScreenItem
+        v-for="(screen, index) in screenList"
+        :key="index"
+        :screen="screen"
+        :has-live-replay-selector="true"
+        :style="`grid-area: item${index}`"
+        :class="[{'actived': index === currentIndex && screenList.length > 1}]"
+        @click="selectScreen(index)"
+      />
     </div>
     <ScreenTools />
   </div>
@@ -20,7 +17,6 @@
 <script lang="ts">
 import { Component, Vue, Prop, Provide } from 'vue-property-decorator'
 import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
-import { VGroupModule } from '@/store/modules/vgroup'
 import ScreenItem from './ScreenItem.vue'
 import ScreenTools from './ScreenTools.vue'
 
@@ -68,53 +64,14 @@ export default class extends Vue {
     this.screenManager = new ScreenManager({
       size: 4,
       layout: '4',
-      isLive: this.isLive
+      isLive: this.isLive,
+      inProtocol: this.inProtocol
     })
   }
 
-  /**
-   * 打开分屏视频
-   */
-  public async openScreen(item: any, streamNum?: number) {
-    // TODO: 放到screen manager里
-    // if (this.polling.isStart) {
-    //   this.$message({
-    //     message: '请先关闭轮巡再进行选择',
-    //     type: 'warning'
-    //   })
-    //   return
-    // }
-    // 设置虚拟业务组相关信息
-    VGroupModule.SetRoleID(item.roleId || '')
-    VGroupModule.SetRealGroupId(item.realGroupId || '')
-    VGroupModule.SetRealGroupInProtocol(item.realGroupInProtocol || '')
-
-    if (item.type === 'ipc') {
-    // if (item.type === 'ipc' && item.deviceStatus === 'on') {
-      const screen = this.screenList[this.currentIndex]
-      // 如果当前分屏已有播放器，先执行销毁操作
-      if (screen.deviceId) {
-        screen.destroy()
-      }
-      screen.isLive = this.isLive
-      screen.inProtocol = this.inProtocol
-      screen.deviceId = item.id
-      screen.deviceName = item.label
-      screen.roleId = item.roleId || ''
-      screen.realGroupId = item.realGroupId || ''
-      // screen.realGroupInProtocol = item.realGroupInProtocol || ''
-      screen.streamSize = item.multiStreamSize
-      screen.streams = item.deviceStreams
-      if (streamNum && !isNaN(streamNum)) {
-        screen.streamNum = streamNum
-      } else {
-        screen.streamNum = item.autoStreamNum
-      }
-      if (this.currentIndex < this.size - 1) {
-        this.screenManager.currentIndex++
-      }
-      screen.init()
-    }
+  private destroyed() {
+    window.removeEventListener('resize', this.calMaxHeight)
+    window.removeEventListener('resize', this.checkFullscreen)
   }
 
   /**

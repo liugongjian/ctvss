@@ -49,7 +49,7 @@ import Datepicker from './components/ScreenBoard/components/Datepicker.vue'
 import ReplayType from './components/ScreenBoard/components/ReplayType.vue'
 
 @Component({
-  name: 'Replay',
+  name: 'Live',
   components: {
     PtzControl,
     ScreenTree,
@@ -58,6 +58,6 @@ import ReplayType from './components/ScreenBoard/components/ReplayType.vue'
   }
 })
 export default class extends Mixins(ScreenMixin) {
-  private isLive = false
+  private isLive = true
 }
 </script>

@@ -1,3 +1,4 @@
+<!-- 创建设备 -->
 <template>
   <component :is="inProtocol" />
 </template>

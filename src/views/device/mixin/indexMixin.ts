@@ -184,7 +184,6 @@ export default class IndexMixin extends Vue {
   public async initTreeStatus() {
     const blackList = ['/screen', '/replay']
     const path = this.$route.path
-    console.log('this.advancedSearchForm.revertSearchFlag: ', this.advancedSearchForm.revertSearchFlag)
     if (this.advancedSearchForm.revertSearchFlag) {
       // 根据搜索结果 组装 目录树
       this.dirList = this.transformDirList(this.dirList)

@@ -1,7 +1,7 @@
 <template>
-  <div class="screen-tools__btn" @click="closeAll">
+  <el-button class="screen-tools__btn" @click="closeAll">
     <svg-icon name="combine" />
-  </div>
+  </el-button>
 </template>
 <script lang="ts">
 import { Component } from 'vue-property-decorator'

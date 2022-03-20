@@ -94,6 +94,7 @@
     "@types/morgan": "^1.7.37",
     "@types/node": "^13.7.0",
     "@types/nprogress": "^0.2.0",
+    "@types/resize-observer-browser": "^0.1.7",
     "@types/sortablejs": "^1.10.2",
     "@types/tinymce": "^4.5.23",
     "@types/webpack-env": "^1.15.1",

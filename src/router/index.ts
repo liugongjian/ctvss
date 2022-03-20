@@ -241,7 +241,7 @@ export const asyncRoutes: RouteConfig[] = [
         children: [
           {
             path: '',
-            component: () => import(/* webpackChunkName: "device" */ '@/views/device/list.vue'),
+            component: () => import(/* webpackChunkName: "device" */ '@/views/device/List.vue'),
             name: 'device-list',
             meta: {
               id: '20210424150201003002',
@@ -254,7 +254,7 @@ export const asyncRoutes: RouteConfig[] = [
           },
           {
             path: 'create',
-            component: () => import(/* webpackChunkName: "device" */ '@/views/device/create.vue'),
+            component: () => import(/* webpackChunkName: "device" */ '@/views/device/Create.vue'),
             name: 'device-create',
             meta: {
               id: '20210424150201003003',
@@ -267,7 +267,7 @@ export const asyncRoutes: RouteConfig[] = [
           },
           {
             path: 'update',
-            component: () => import(/* webpackChunkName: "device" */ '@/views/device/create.vue'),
+            component: () => import(/* webpackChunkName: "device" */ '@/views/device/Create.vue'),
             name: 'device-update',
             meta: {
               id: '20210424150201003004',
@@ -280,7 +280,7 @@ export const asyncRoutes: RouteConfig[] = [
           },
           {
             path: 'detail',
-            component: () => import(/* webpackChunkName: "device" */ '@/views/device/detail.vue'),
+            component: () => import(/* webpackChunkName: "device" */ '@/views/device/Detail.vue'),
             name: 'device-detail',
             meta: {
               id: '20210424150201003005',
@@ -291,19 +291,6 @@ export const asyncRoutes: RouteConfig[] = [
               groupSelector: true
             }
           },
-          // {
-          //   path: 'preview/:tab?',
-          //   component: () => import(/* webpackChunkName: "device" */ '@/views/device/preview.vue'),
-          //   name: 'device-preview',
-          //   meta: {
-          //     id: '20210424150201003006',
-          //     title: '监控查看',
-          //     hidden: true,
-          //     perms: ['DescribeDevice'],
-          //     activeMenu: '/device',
-          //     groupSelector: true
-          //   }
-          // },
           {
             path: 'config-channel',
             component: () => import(/* webpackChunkName: "device" */ '@/views/device/ConfigChannel.vue'),
@@ -402,7 +389,7 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "screen" */ '@/views/device/newscreen.vue'),
+        component: () => import(/* webpackChunkName: "screen" */ '@/views/device/Live.vue'),
         name: 'screen',
         meta: {
           id: '20210424150201004001',
@@ -456,7 +443,7 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "replay" */ '@/views/device/newscreen.vue'),
+        component: () => import(/* webpackChunkName: "replay" */ '@/views/device/Replay.vue'),
         name: 'replay',
         meta: {
           id: '20210424150201006001',
