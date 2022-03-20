@@ -23,8 +23,10 @@
             :screen-manager="screenManager"
             :is-live="isLive"
           >
-            <template slot="bottom">
-              <ReplayType v-if="currentScreen" :screen="currentScreen" />
+            <template v-if="currentScreen && currentScreen.deviceId || screenManager.isSync" slot="bottom">
+              <div class="device-list__replay-type">
+                <ReplayType v-if="currentScreen" :screen="currentScreen" />
+              </div>
               <DatePicker v-if="currentScreen" :screen="currentScreen" :inline="true" />
             </template>
           </ScreenTree>
@@ -62,3 +64,16 @@ export default class extends Mixins(ScreenMixin) {
   private isLive = false
 }
 </script>
+<style lang="scss" scoped>
+  .device-list__replay-type {
+    border-top: 1px solid $borderGrey;
+    margin: 0;
+    padding-top: 5px;
+    text-align: center;
+    ::v-deep {
+      .el-radio-button__inner {
+        padding: 7px 25px;
+      }
+    }
+  }
+</style>
