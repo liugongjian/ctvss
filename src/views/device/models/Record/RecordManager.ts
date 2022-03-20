@@ -99,10 +99,10 @@ export class RecordManager {
       } else if (this.loadedRecordDates.has(date)) {
         return
       }
+      // 在SET中存入日期，防止重复加载
+      this.loadedRecordDates.add(date)
       const records = await this.getRecordList(date, date + 24 * 60 * 60)
       if (records) {
-        // 存入日期
-        this.loadedRecordDates.add(date)
         if (isConcat) {
           // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
           if (date > this.currentDate) {
@@ -118,6 +118,8 @@ export class RecordManager {
         this.screen.errorMsg = this.screen.ERROR.NO_RECORD
       }
     } catch (e) {
+      // 异常时删除日期
+      this.loadedRecordDates.delete(date)
       if (!isConcat && !isSilence) {
         this.screen.errorMsg = e.message
       }
@@ -221,7 +223,7 @@ export class RecordManager {
    */
   private async getRecordList(startTime: number, endTime: number) {
     try {
-      this.axiosSource && this.axiosSource.cancel()
+      // this.axiosSource && this.axiosSource.cancel()
       this.axiosSource = axios.CancelToken.source()
       const res = await getDeviceRecords({
         deviceId: this.screen.deviceId,

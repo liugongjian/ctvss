@@ -43,7 +43,7 @@ import { PlayerEvent } from '@/components/VssPlayer/models/VssPlayer.d'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import VssPlayer from '@/components/VssPlayer/index.vue'
 import ReplayAxis from './ReplayAxis.vue'
-import Datepicker from '../ScreenBoard/components/Datepicker.vue'
+import Datepicker from '../ScreenBoard/components/DatePicker.vue'
 import ReplayType from '../ScreenBoard/components/ReplayType.vue'
 
 @Component({
@@ -203,6 +203,9 @@ export default class extends Vue {
           height: 21px;
           line-height: 21px;
           border-color: rgba(255, 255, 255, 0.7);
+        }
+        .el-date-editor {
+          width: auto;
         }
         .el-input__prefix {
           left: 2px;

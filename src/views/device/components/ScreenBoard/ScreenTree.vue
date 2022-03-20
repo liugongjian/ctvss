@@ -45,7 +45,7 @@
     <div
       v-loading="loading.dir"
       class="dir-list__tree device-list__max-height"
-      :style="{height: `${height - (currentGroup.inProtocol === 'gb28181' ? 40 : 0)}px`, marginBottom: currentGroup.inProtocol === 'gb28181' ? '40px' : '0px'}"
+      :st1yle="{height: `${height - (currentGroup.inProtocol === 'gb28181' ? 40 : 0)}px`, marginBottom: currentGroup.inProtocol === 'gb28181' ? '40px' : '0px'}"
     >
       <el-tree
         v-if="!advancedSearchForm.revertSearchFlag"
@@ -198,11 +198,13 @@
       </div>
     </div>
     <div class="dir-list__bottom">
-      <slot name="bottom" />
       <!-- 国标才展示 -->
-      <div v-if="currentGroup.inProtocol === 'gb28181'">
-        <advanced-search :search-form="advancedSearchForm" @search="doSearch" />
-      </div>
+      <advanced-search
+        v-if="currentGroup.inProtocol === 'gb28181'"
+        :search-form="advancedSearchForm"
+        @search="doSearch"
+      />
+      <slot name="bottom" />
     </div>
   </div>
 </template>
@@ -497,7 +499,7 @@ export default class extends Mixins(IndexMixin) {
     }
   }
 
-  .polling-mask {
+ .polling-mask {
     position: absolute;
     display: flex;
     height: 100%;

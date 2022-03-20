@@ -1,27 +1,45 @@
 <template>
-  <el-date-picker
-    v-if="showDatepicker"
-    v-model="date"
-    type="date"
-    value-format="timestamp"
-    placeholder="选择日期"
-    size="small"
-    :clearable="false"
-    :picker-options="pickerOptions"
-    @change="changeDate"
-  />
+  <div v-if="showDatepicker" class="datepicker">
+    <DatePanel
+      v-if="inline"
+      class="datepicker-inline"
+      :current-date="date"
+      :picker-options="pickerOptions"
+      @pick="changeDate"
+    />
+    <el-date-picker
+      v-else
+      ref="datepicker"
+      v-model="date"
+      type="date"
+      value-format="timestamp"
+      placeholder="选择日期"
+      size="small"
+      :clearable="false"
+      :picker-options="pickerOptions"
+      @change="changeDate"
+    />
+  </div>
 </template>
 <script lang="ts">
 import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
 import { prefixZero } from '@/utils/date'
 import { Screen } from '@/views/device/models/Screen/Screen'
+import DatePanel from './DatePanel.vue'
 
 @Component({
-  name: 'Datepicker'
+  name: 'DatePicker',
+  components: { DatePanel }
 })
 export default class extends Vue {
   @Prop()
   private screen: Screen
+
+  /* 显示为内嵌模式 */
+  @Prop({
+    default: false
+  })
+  private inline
 
   private date: number = null
   private showDatepicker = true
@@ -80,9 +98,45 @@ export default class extends Vue {
   /**
    * 切换日期
    */
-  private changeDate(date: number) {
+  private changeDate(date: number | Date) {
+    if (typeof date !== 'number') {
+      date = date.getTime()
+    }
     this.recordManager.getRecordListByDate(date / 1000)
   }
 }
 
 </script>
+<style lang="scss" scoped>
+.datepicker {
+  display: inline-block;
+
+  .datepicker-inline {
+    ::v-deep .el-picker-panel {
+      width: auto;
+      min-width: 155px;
+      margin: 5px 15px;
+      box-shadow: none;
+      border: none;
+      line-height: 26px;
+
+      .el-picker-panel__icon-btn {
+        padding: 0;
+      }
+
+      .el-date-picker__header-label {
+        font-size: 14px;
+      }
+
+      .el-date-picker__header, .el-picker-panel__content {
+        width: auto;
+        margin: 0;
+      }
+
+      .el-date-table td {
+        padding: 0 0 2px 0;
+      }
+    }
+  }
+}
+</style>

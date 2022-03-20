@@ -4,6 +4,7 @@
     <el-card ref="deviceWrap" class="device-list-wrap">
       <div
         class="device-list"
+        :style="`height: ${maxHeight}px`"
         :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}"
       >
         <el-button class="device-list__expand" @click="toggledirList">
@@ -23,8 +24,8 @@
             :is-live="isLive"
           >
             <template slot="bottom">
-              <Datepicker v-if="currentScreen" :screen="currentScreen" />
               <ReplayType v-if="currentScreen" :screen="currentScreen" />
+              <DatePicker v-if="currentScreen" :screen="currentScreen" :inline="true" />
             </template>
           </ScreenTree>
         </div>
@@ -45,7 +46,7 @@ import { Component, Mixins } from 'vue-property-decorator'
 import ScreenMixin from './mixin/screenMixin'
 import PtzControl from './components/ptzControl.vue'
 import ScreenTree from './components/ScreenBoard/ScreenTree.vue'
-import Datepicker from './components/ScreenBoard/components/Datepicker.vue'
+import DatePicker from './components/ScreenBoard/components/DatePicker.vue'
 import ReplayType from './components/ScreenBoard/components/ReplayType.vue'
 
 @Component({
@@ -53,7 +54,7 @@ import ReplayType from './components/ScreenBoard/components/ReplayType.vue'
   components: {
     PtzControl,
     ScreenTree,
-    Datepicker,
+    DatePicker,
     ReplayType
   }
 })

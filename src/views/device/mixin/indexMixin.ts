@@ -175,7 +175,7 @@ export default class IndexMixin extends Vue {
     const size = deviceWrap.$el.getBoundingClientRect()
     const top = size.top
     const documentHeight = document.body.offsetHeight
-    this.maxHeight = documentHeight - top - 65
+    this.maxHeight = documentHeight - top - 22
   }
 
   /**

@@ -2,7 +2,7 @@
   <div v-loading="loading" class="vss-player__wrap">
     <Player
       ref="player"
-      v-adaptive-tools
+      v-adaptive2-tools
       :type="playerType"
       :url="videoUrl"
       :codec="codec"

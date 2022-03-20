@@ -1,5 +1,8 @@
 // 分屏
 .screen-container {
+  display: flex;
+  flex-direction: column;
+
   .screen-grid {
     flex-grow: 1;
     box-sizing: content-box;
