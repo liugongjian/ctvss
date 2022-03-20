@@ -1,32 +1,43 @@
+<template>
+  <ElDatePanel ref="panel" @pick="pick" />
+</template>
 <script lang="ts">
-/* tslint:disable */
-import { Component, Prop, Watch, Mixins } from 'vue-property-decorator'
+import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
 import ElDatePanel from 'element-ui/packages/date-picker/src/panel/date.vue'
 
 @Component({
-  name: 'DatePanel'
+  name: 'DatePanel',
+  components: {
+    ElDatePanel
+  }
 })
-export default class extends Mixins(ElDatePanel) {
+export default class extends Vue {
   @Prop()
-  private options
+  public pickerOptions
 
   @Prop()
-  private currentDate
+  public value
 
-  public visible = true
+  public get panel(): any {
+    return this.$refs.panel
+  }
 
-  @Watch('currentDate', {
-    immediate: true
-  })
-  private onCurrentDateChange() {
-    this.value = new Date(this.currentDate)
+  @Watch('value')
+  public onValueChange() {
+    const panel: any = this.$refs.panel
+    panel.value = new Date(this.value)
   }
 
   public mounted() {
-    this.disabledDate = this.options.disabledDate
-    this.cellClassName = this.options.cellClassName
-    this.changeCalendar = this.options.changeCalendar
+    const panel: any = this.$refs.panel
+    panel.visible = true
+    panel.disabledDate = this.pickerOptions.disabledDate
+    panel.cellClassName = this.pickerOptions.cellClassName
+    panel.changeCalendar = this.pickerOptions.changeCalendar
+  }
+
+  public pick(date) {
+    this.$emit('change', date.getTime())
   }
 }
-
 </script>

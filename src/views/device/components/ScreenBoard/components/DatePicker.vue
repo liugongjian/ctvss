@@ -2,10 +2,10 @@
   <div v-if="showDatepicker" class="datepicker">
     <DatePanel
       v-if="inline"
+      v-model="date"
       class="datepicker-inline"
-      :current-date="date"
       :picker-options="pickerOptions"
-      @pick="changeDate"
+      @change="changeDate"
     />
     <el-date-picker
       v-else
@@ -100,10 +100,8 @@ export default class extends Vue {
   /**
    * 切换日期
    */
-  private changeDate(date: number | Date) {
-    if (typeof date !== 'number') {
-      date = date.getTime()
-    }
+  private changeDate(date: number) {
+    console.log(date)
     this.recordManager.getRecordListByDate(date / 1000)
   }
 }
