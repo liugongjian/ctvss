@@ -349,7 +349,7 @@ export default class extends Vue {
     for (let i in this.axisData.halfHours) {
       const line = this.axisData.halfHours[i]
       this.ctx.fillRect(line.x, line.y, this.settings.halfHourWidth, this.settings.halfHourHeight)
-      if (this.settings.scale < 9.5) {
+      if (this.settings.hourSpan > 70) {
         const timestamp = this.axisStartTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
         const datetime = new Date(timestamp * 1000)
         this.ctx.fillText(`${prefixZero(datetime.getHours(), 2)}:30`, line.x - 13, this.settings.textY)
@@ -359,8 +359,8 @@ export default class extends Vue {
     /* 绘制10分钟线 */
     for (let i in this.axisData.tenMins) {
       const line = this.axisData.tenMins[i]
-      this.ctx.fillRect(line.x, line.y, this.settings.tenMinsWidth, this.settings.tenMinsHeight)
-      if (this.settings.scale < (4 * 60 + 10) / 60) {
+      if (this.settings.ratio < 200) { this.ctx.fillRect(line.x, line.y, this.settings.tenMinsWidth, this.settings.tenMinsHeight) }
+      if (this.settings.hourSpan > 196) {
         const timestamp = this.axisStartTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
         const datetime = new Date(timestamp * 1000)
         if ((datetime.getMinutes() + 1)) {
@@ -373,8 +373,8 @@ export default class extends Vue {
     /* 绘制5分钟线 */
     for (let i in this.axisData.fiveMins) {
       const line = this.axisData.fiveMins[i]
-      this.ctx.fillRect(line.x, line.y, this.settings.fiveMinsWidth, this.settings.fiveMinsHeight)
-      if (this.settings.ratio < 4) {
+      if (this.settings.ratio < 70) { this.ctx.fillRect(line.x, line.y, this.settings.fiveMinsWidth, this.settings.fiveMinsHeight) }
+      if (this.settings.hourSpan > 673) {
         const timestamp = this.axisStartTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
         const datetime = new Date(timestamp * 1000)
         if ((datetime.getMinutes() + 1) % 10) {
@@ -387,8 +387,8 @@ export default class extends Vue {
     /* 绘制1分钟线 */
     for (let i in this.axisData.oneMins) {
       const line = this.axisData.oneMins[i]
-      this.ctx.fillRect(line.x, line.y, this.settings.oneMinWidth, this.settings.oneMinHeight)
-      if (this.settings.scale < 0.5) {
+      if (this.settings.ratio < 15) { this.ctx.fillRect(line.x, line.y, this.settings.oneMinWidth, this.settings.oneMinHeight) }
+      if (this.settings.hourSpan > 2200) {
         const timestamp = this.axisStartTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
         const datetime = new Date(timestamp * 1000)
         if ((datetime.getMinutes() + 1) % 5) {
@@ -461,6 +461,8 @@ export default class extends Vue {
    * 滚动鼠标滑轮
    */
   private onWheel(e: WheelEvent) {
+    e.stopPropagation()
+    e.preventDefault()
     if (e.deltaY > 0) {
       this.zoom(0)
     } else {
