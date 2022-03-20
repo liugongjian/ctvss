@@ -100,10 +100,10 @@ export default class extends Vue {
    * 关闭视频选择对话框
    * @param device 设备
    */
-  private onDeviceDirClose(device) {
+  private onDeviceDirClose(item) {
     this.dialogs.deviceDir = false
-    if (device) {
-      this.$emit('openScreen', device)
+    if (item) {
+      this.screenManager.openTreeItem(item)
     }
   }
 }

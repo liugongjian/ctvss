@@ -4,6 +4,7 @@
 import { Screen } from './Screen'
 
 interface ScreenManagerConfig {
+  inProtocol: string;
   size: number;
   isLive: boolean;
   layout: string;
@@ -16,10 +17,10 @@ export interface ExecuteQueueConfig {
 }
 
 export class ScreenManager {
+  public inProtocol: string
   public screenList: Screen[]
   public currentIndex: number
   public layout: string
-  private _size: number
   public isLive: boolean
   /* 录像时间轴同步向 */
   public isSync: boolean
@@ -27,9 +28,10 @@ export class ScreenManager {
   public devicesQueue: any[]
   public refs: any
   public executeQueueConfig: ExecuteQueueConfig
+  private _size: number
 
   constructor(config: ScreenManagerConfig) {
-    this._size = config.size
+    this.inProtocol = config.inProtocol
     this.layout = config.layout
     this.isLive = config.isLive
     this.isSync = false
@@ -42,7 +44,32 @@ export class ScreenManager {
       interval: 10,
       status: 'free'
     }
+    this._size = config.size
     this.initScreenList()
+  }
+
+  /**
+   * 获取分屏数量
+  */
+  public get size(): number {
+    return this._size
+  }
+
+  /**
+   * 设置分屏数量
+   * 设置完成后更新screenList数组
+   */
+  public set size(size: number) {
+    this._size = size
+    let startIndex = 0
+    if (this.screenList.length) {
+      this.screenList = this.screenList.slice(0, this._size)
+      startIndex = this.screenList.length
+    }
+    for (let i = startIndex; i < this._size; i++) {
+      const screen = new Screen()
+      this.screenList.push(screen)
+    }
   }
 
   /**
@@ -72,26 +99,37 @@ export class ScreenManager {
   }
 
   /**
-   * 获取分屏数量
-  */
-  public get size(): number {
-    return this._size
-  }
-
-  /**
-   * 设置分屏数量
-   * 设置完成后更新screenList数组
+   * 打开树节点
+   * @param item 树Item
+   * @param streamNum 第几路流
    */
-  public set size(size: number) {
-    this._size = size
-    let startIndex = 0
-    if (this.screenList.length) {
-      this.screenList = this.screenList.slice(0, this._size)
-      startIndex = this.screenList.length
+  public async openTreeItem(item: any, streamNum?: number) {
+    // 1）必须是IPC；2）实时预览必须设备在线
+    if (item.type !== 'ipc' || (this.isLive && item.deviceStatus !== 'on')) {
+      return
     }
-    for (let i = startIndex; i < this._size; i++) {
-      const screen = new Screen()
-      this.screenList.push(screen)
+    const screen = this.screenList[this.currentIndex]
+    // 如果当前分屏已有播放器，先执行销毁操作
+    if (screen.deviceId) {
+      screen.destroy()
     }
+    screen.isLive = this.isLive
+    screen.inProtocol = this.inProtocol
+    screen.deviceId = item.id
+    screen.deviceName = item.label
+    screen.roleId = item.roleId || ''
+    screen.realGroupId = item.realGroupId || ''
+    // screen.realGroupInProtocol = item.realGroupInProtocol || ''
+    screen.streamSize = item.multiStreamSize
+    screen.streams = item.deviceStreams
+    if (streamNum && !isNaN(streamNum)) {
+      screen.streamNum = streamNum
+    } else {
+      screen.streamNum = item.autoStreamNum
+    }
+    if (this.currentIndex < this.size - 1) {
+      this.currentIndex++
+    }
+    screen.init()
   }
 }
