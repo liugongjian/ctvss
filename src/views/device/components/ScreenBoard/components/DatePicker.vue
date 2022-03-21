@@ -14,7 +14,7 @@
       type="date"
       value-format="timestamp"
       placeholder="选择日期"
-      size="small"
+      size="mini"
       :clearable="false"
       :picker-options="pickerOptions"
       @change="changeDate"
@@ -109,34 +109,43 @@ export default class extends Vue {
 </script>
 <style lang="scss" scoped>
 .datepicker {
-  display: inline-block;
-}
+  display: flex;
+  align-items: center;
 
-.datepicker-inline {
-  width: auto;
-  min-width: 155px;
-  margin: 5px 15px;
-  box-shadow: none;
-  border: none;
-  line-height: 26px;
+  ::v-deep .el-date-editor {
+    width: 120px;
 
-  ::v-deep {
-    .el-picker-panel__icon-btn {
-      padding: 0;
+    .el-input__inner {
+      padding-right: 0;
     }
+  }
 
-    .el-date-picker__header-label {
-      font-size: 14px;
-    }
+  .datepicker-inline {
+    width: auto;
+    min-width: 155px;
+    margin: 5px 15px;
+    box-shadow: none;
+    border: none;
+    line-height: 26px;
 
-    .el-date-picker__header,
-    .el-picker-panel__content {
-      width: auto;
-      margin: 0;
-    }
+    ::v-deep {
+      .el-picker-panel__icon-btn {
+        padding: 0;
+      }
 
-    .el-date-table td {
-      padding: 0 0 2px;
+      .el-date-picker__header-label {
+        font-size: 14px;
+      }
+
+      .el-date-picker__header,
+      .el-picker-panel__content {
+        width: auto;
+        margin: 0;
+      }
+
+      .el-date-table td {
+        padding: 0 0 2px;
+      }
     }
   }
 }

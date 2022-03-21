@@ -21,6 +21,8 @@ export class ScreenManager {
   public screenList: Screen[]
   public currentIndex: number
   public layout: string
+  /* 视图：分屏、列表 */
+  public view: 'screen' | 'list'
   public isLive: boolean
   /* 录像时间轴同步向 */
   public isSync: boolean
@@ -33,6 +35,7 @@ export class ScreenManager {
   constructor(config: ScreenManagerConfig) {
     this.inProtocol = config.inProtocol
     this.layout = config.layout
+    this.view = 'screen'
     this.isLive = config.isLive
     this.isSync = false
     this.currentIndex = 0

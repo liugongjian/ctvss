@@ -1,6 +1,6 @@
 <template>
   <div v-if="screenManager" class="screen-container">
-    <div class="screen-grid-wrap">
+    <div v-if="screenManager.view === 'screen'" class="screen-grid-wrap">
       <div class="screen-grid" :class="`screen-size--${size}`">
         <ScreenItem
           v-for="(screen, index) in screenList"
@@ -14,6 +14,7 @@
       </div>
       <PtzControl v-if="isLive" :screen="currentScreen" />
     </div>
+    <ScreenList v-else />
     <ScreenTools />
   </div>
 </template>
@@ -21,6 +22,7 @@
 import { Component, Vue, Prop, Provide } from 'vue-property-decorator'
 import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
 import ScreenItem from './ScreenItem.vue'
+import ScreenList from './ScreenList.vue'
 import ScreenTools from './ScreenTools.vue'
 import PtzControl from './components/PtzControl.vue'
 
@@ -28,6 +30,7 @@ import PtzControl from './components/PtzControl.vue'
   name: 'ScreenBoard',
   components: {
     ScreenItem,
+    ScreenList,
     ScreenTools,
     PtzControl
   }

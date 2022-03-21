@@ -24,6 +24,8 @@ import { Component, Vue, Inject } from 'vue-property-decorator'
 import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
 import ReplayAxis from '../ReplayPlayer/ReplayAxis.vue'
 import QueueExecutor from './components/QueueExecutor.vue'
+import DatePicker from './components/DatePicker.vue'
+import ReplayType from './components/ReplayType.vue'
 import Sync from './components/Sync.vue'
 import Cleaner from './components/Cleaner.vue'
 import SizeSelector from './components/SizeSelector.vue'
@@ -35,6 +37,8 @@ import ViewSelector from './components/ViewSelector.vue'
   components: {
     QueueExecutor,
     ReplayAxis,
+    DatePicker,
+    ReplayType,
     Sync,
     Cleaner,
     SizeSelector,

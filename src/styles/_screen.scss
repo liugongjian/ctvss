@@ -158,6 +158,11 @@
     }
   }
 
+  .screen-list {
+    flex-grow: 1;
+    overflow: auto;
+  }
+
   &.fullscreen,
   .screen-item.fullscreen {
     position: fixed;
