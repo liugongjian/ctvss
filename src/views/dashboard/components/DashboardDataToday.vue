@@ -40,7 +40,7 @@
       <div v-if="storageFlag" class="dashboard-wrap-overview__cell">
         <p class="dashboard-wrap-overview__cell__head">存储使用量</p>
         <p class="dashboard-wrap-overview__cell__content">
-          <span class="dashboard-wrap-overview__num dashboard-wrap-overview__num__light">{{ stats.usage }}</span>
+          <span class="dashboard-wrap-overview__num">{{ stats.usage }}</span>
           <span> / {{ stats.total }}</span>
         </p>
       </div>
