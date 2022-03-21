@@ -46,7 +46,7 @@ export default class extends ComponentMixin {
 
   /**
    * 执行批量播放策略
-   * @policy 设备队列执行策略
+   * @param policy 设备队列执行策略
    */
   public executeDevicesQueue(policy: 'polling' | 'autoPlay') {
     console.log('executeDevicesQueue', policy)

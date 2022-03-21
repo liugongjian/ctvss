@@ -74,7 +74,7 @@ export default class extends ComponentMixin {
 
   /**
    * 调整rightTools样式
-   * @type 调整类型
+   * @param type 调整类型
    */
   private adjustRightTools(type: string) {
     if (!this.palyerWrap) {

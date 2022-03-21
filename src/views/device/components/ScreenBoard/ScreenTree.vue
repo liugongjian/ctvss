@@ -332,9 +332,9 @@ export default class extends Mixins(IndexMixin) {
 
   /**
    * 获取需要执行的视频队列并按策略执行
-   * @node 起始树节点
-   * @isRoot 是否为根节点
-   * @policy 执行策略
+   * @param node 起始树节点
+   * @param isRoot 是否为根节点
+   * @param policy 执行策略
    */
   private async executeQueue(node: any, isRoot: boolean, policy: 'polling' | 'autoPlay') {
     let devicesQueue: Device[] = []
@@ -363,11 +363,11 @@ export default class extends Mixins(IndexMixin) {
 
   /**
    * 深度优先遍历目录树
-   * @dirTree 目录树DOM
-   * @node 当前node节点
-   * @deviceArr 存储有效设备的数组
-   * @policy 播放事件策略（一键播放/轮巡）
-   * @playType 播放视频类型（实时预览/录像回放）
+   * @param dirTree 目录树DOM
+   * @param node 当前node节点
+   * @param deviceArr 存储有效设备的数组
+   * @param policy 播放事件策略（一键播放/轮巡）
+   * @param playType 播放视频类型（实时预览/录像回放）
    */
   private async deepDispatchTree(dirTree: any, node: any, deviceArr: any[], policy?: 'polling' | 'autoPlay', playType?: string) {
     // 当为一键播放时，加载设备数超过最大屏幕数则终止遍历

@@ -75,7 +75,7 @@ export default class extends Vue {
 
   /**
    * 设置当前视频流
-   * @streamNum 视频流类型
+   * @param streamNum 视频流类型
    */
   private setStreamNum(streamNum: number) {
     this.$emit('dispatch', {
