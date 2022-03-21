@@ -1,7 +1,12 @@
-// 分屏
+/* 分屏 */
 .screen-container {
   display: flex;
   flex-direction: column;
+
+  .screen-grid-wrap {
+    display: flex;
+    flex-grow: 1;
+  }
 
   .screen-grid {
     flex-grow: 1;
@@ -151,6 +156,11 @@
       width: 100%;
       height: 100%;
     }
+  }
+
+  .screen-list {
+    flex-grow: 1;
+    overflow: auto;
   }
 
   &.fullscreen,

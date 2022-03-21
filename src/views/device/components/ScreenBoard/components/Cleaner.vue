@@ -8,7 +8,7 @@ import { Component } from 'vue-property-decorator'
 import ComponentMixin from './mixin'
 
 @Component({
-  name: 'Datepicker'
+  name: 'Cleaner'
 })
 export default class extends ComponentMixin {
   private closeAll() {
@@ -17,5 +17,4 @@ export default class extends ComponentMixin {
     })
   }
 }
-
 </script>

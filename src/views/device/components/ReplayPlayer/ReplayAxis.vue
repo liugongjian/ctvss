@@ -90,8 +90,8 @@ export default class extends Vue {
   private ctx: CanvasRenderingContext2D = null
   /* 尺寸监听器 */
   private resizeObserver: ResizeObserver = null
-  /* 当前时间(可修改) */
-  private currentTime: number = 0
+  /* 当前时间 */
+  private currentTime: number = null
   /* 最后一次更新currentTime的时间，用于截流 */
   private lastUpdateTime = 0
   /* 当前时间轴的头部时间 */

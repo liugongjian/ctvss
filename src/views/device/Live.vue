@@ -39,13 +39,11 @@
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import ScreenMixin from './mixin/screenMixin'
-import PtzControl from './components/ptzControl.vue'
 import ScreenTree from './components/ScreenBoard/ScreenTree.vue'
 
 @Component({
   name: 'Live',
   components: {
-    PtzControl,
     ScreenTree
   }
 })

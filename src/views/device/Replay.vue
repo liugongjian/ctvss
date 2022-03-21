@@ -23,8 +23,10 @@
             :screen-manager="screenManager"
             :is-live="isLive"
           >
-            <template slot="bottom">
-              <ReplayType v-if="currentScreen" :screen="currentScreen" />
+            <template v-if="currentScreen && currentScreen.deviceId || screenManager.isSync" slot="bottom">
+              <div class="device-list__replay-type">
+                <ReplayType v-if="currentScreen" :screen="currentScreen" />
+              </div>
               <DatePicker v-if="currentScreen" :screen="currentScreen" :inline="true" />
             </template>
           </ScreenTree>
@@ -44,7 +46,6 @@
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import ScreenMixin from './mixin/screenMixin'
-import PtzControl from './components/ptzControl.vue'
 import ScreenTree from './components/ScreenBoard/ScreenTree.vue'
 import DatePicker from './components/ScreenBoard/components/DatePicker.vue'
 import ReplayType from './components/ScreenBoard/components/ReplayType.vue'
@@ -52,7 +53,6 @@ import ReplayType from './components/ScreenBoard/components/ReplayType.vue'
 @Component({
   name: 'Replay',
   components: {
-    PtzControl,
     ScreenTree,
     DatePicker,
     ReplayType
@@ -62,3 +62,16 @@ export default class extends Mixins(ScreenMixin) {
   private isLive = false
 }
 </script>
+<style lang="scss" scoped>
+  .device-list__replay-type {
+    border-top: 1px solid $borderGrey;
+    margin: 0;
+    padding-top: 5px;
+    text-align: center;
+    ::v-deep {
+      .el-radio-button__inner {
+        padding: 7px 25px;
+      }
+    }
+  }
+</style>

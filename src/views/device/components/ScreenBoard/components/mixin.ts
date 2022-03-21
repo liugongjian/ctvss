@@ -10,6 +10,10 @@ export default class ComponentMixin extends Vue {
     return this.getScreenManager()
   }
 
+  public get currentScreen() {
+    return this.screenManager.currentScreen
+  }
+
   public created() {
     const tag: string = this.$vnode.componentOptions.tag
     const name = tag.substring(0, 1).toLowerCase() + tag.substring(1)

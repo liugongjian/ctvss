@@ -46,6 +46,7 @@ export default class extends Vue {
     padding: 4px;
     cursor: pointer;
     font-style: normal;
+
     .controls__popup {
       position: absolute;
       display: none;
@@ -59,7 +60,8 @@ export default class extends Vue {
       margin: 0;
       padding: 0;
       border-radius: 4px;
-      box-shadow: 0 2px 12px 0 rgb(0 0 0 / 10%);
+      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 50%);
+
       li {
         margin: 0;
         padding: 5px 15px;
@@ -67,12 +69,15 @@ export default class extends Vue {
         font-style: normal;
         color: $text;
         cursor: pointer;
+
         &:hover {
           background: #eee;
         }
+
         &.selected {
           color: $primary;
         }
+
         .status-badge {
           position: relative;
           top: 0;
@@ -80,11 +85,13 @@ export default class extends Vue {
           width: 6px;
           height: 6px;
         }
+
         .status-badge--off {
           display: inline-block;
         }
       }
     }
+
     &:hover {
       .controls__popup {
         display: block;

@@ -175,7 +175,7 @@ export default class extends Vue {
         }
 
         .axis__zoom__btn svg {
-          width: 10px!important;
+          width: 10px !important;
         }
       }
 
@@ -202,11 +202,13 @@ export default class extends Vue {
           padding: 0 0 0 23px;
           height: 21px;
           line-height: 21px;
-          border-color: rgba(255, 255, 255, 0.7);
+          border-color: rgba(255, 255, 255, 70%);
         }
+
         .el-date-editor {
           width: auto;
         }
+
         .el-input__prefix {
           left: 2px;
 
@@ -230,6 +232,7 @@ export default class extends Vue {
           color: #fff;
           font-size: 12px;
         }
+
         .el-radio-button__orig-radio:checked + .el-radio-button__inner {
           background: #fff;
           border-color: #fff;

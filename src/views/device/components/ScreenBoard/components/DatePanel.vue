@@ -18,22 +18,26 @@ export default class extends Vue {
   @Prop()
   public value
 
-  public get panel(): any {
-    return this.$refs.panel
-  }
-
-  @Watch('value')
+  @Watch('value', {
+    immediate: true
+  })
   public onValueChange() {
     const panel: any = this.$refs.panel
-    panel.value = new Date(this.value)
+    if (panel) {
+      panel.value = new Date(this.value)
+    }
   }
 
   public mounted() {
     const panel: any = this.$refs.panel
-    panel.visible = true
-    panel.disabledDate = this.pickerOptions.disabledDate
-    panel.cellClassName = this.pickerOptions.cellClassName
-    panel.changeCalendar = this.pickerOptions.changeCalendar
+    if (panel) {
+      console.log(panel)
+      panel.value = new Date(this.value)
+      panel.visible = true
+      panel.disabledDate = this.pickerOptions.disabledDate
+      panel.cellClassName = this.pickerOptions.cellClassName
+      panel.changeCalendar = this.pickerOptions.changeCalendar
+    }
   }
 
   public pick(date) {
