@@ -36,6 +36,14 @@
           <span> / {{ stats.sum }}</span>
         </p>
       </div>
+      <div v-if="storageFlag" class="column-line" />
+      <div v-if="storageFlag" class="dashboard-wrap-overview__cell">
+        <p class="dashboard-wrap-overview__cell__head">存储使用量</p>
+        <p class="dashboard-wrap-overview__cell__content">
+          <span class="dashboard-wrap-overview__num dashboard-wrap-overview__num__light">{{ stats.usage }}</span>
+          <span> / {{ stats.total }}</span>
+        </p>
+      </div>
     </div>
   </component>
 </template>
@@ -44,7 +52,8 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import DashboardLightContainer from './DashboardLightContainer.vue'
 import DashboardMixin from '../mixin/DashboardMixin'
-import { getDeviceStates, getBandwidthStates } from '@/api/dashboard'
+import { getDeviceStates, getBandwidthStates, getUserStorage } from '@/api/dashboard'
+import { formatStorage } from '@/utils/number'
 
 @Component({
   name: 'DashboardDataToday',
@@ -59,7 +68,9 @@ export default class extends Mixins(DashboardMixin) {
     upstreamBandwidth: 0,
     downstreamBandwidth: 0,
     sum: 0,
-    online: 0
+    online: 0,
+    total: '',
+    usage: ''
   }
   private get container() {
     return 'DashboardLightContainer'
@@ -76,6 +87,7 @@ export default class extends Mixins(DashboardMixin) {
   private getData() {
     this.getDeviceStates()
     this.getBandwidthStates()
+    this.getStorage()
   }
 
   /**
@@ -98,6 +110,16 @@ export default class extends Mixins(DashboardMixin) {
     const online = Math.min(parseInt(res.sum), parseInt(res.online))
     this.stats['sum'] = sum
     this.stats['online'] = online
+  }
+
+  private async getStorage() {
+    const res = await getUserStorage({})
+    this.stats['total'] = formatStorage(res.totalBytes)
+    this.stats['usage'] = formatStorage(res.totalUsage)
+  }
+
+  private get storageFlag() {
+    return this.$store.state.user.tags.showStorageUsage === 'Y'
   }
 }
 </script>
