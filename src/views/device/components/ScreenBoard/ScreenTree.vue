@@ -216,7 +216,6 @@ import { getDeviceTree } from '@/api/device'
 import { VGroupModule } from '@/store/modules/vgroup'
 import IndexMixin from '@/views/device/mixin/indexMixin'
 import StatusBadge from '@/components/StatusBadge/index.vue'
-import PtzControl from '@/views/device/components/ptzControl.vue'
 import StreamSelector from '@/views/device/components/StreamSelector.vue'
 import OperateSelector from '@/views/device/components/OperateSelector.vue'
 import AdvancedSearch from '@/views/device/components/AdvancedSearch.vue'
@@ -226,7 +225,6 @@ import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
   name: 'ScreenTree',
   components: {
     StatusBadge,
-    PtzControl,
     StreamSelector,
     OperateSelector,
     AdvancedSearch
