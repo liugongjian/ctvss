@@ -18,13 +18,21 @@
         <Close v-if="hasClose" @dispatch="dispatch" />
       </template>
       <template slot="container">
-        <ErrorMsg v-if="errorMsg" :error-msg="errorMsg" />
+        <ErrorMsg v-if="errorMsg" :error-msg="errorMsg">
+          <!--用于无录像返回实时预览-->
+          <LiveReplaySelector
+            v-if="hasLiveReplaySelector && !isLive"
+            :is-live="isLive"
+            :is-button="false"
+            @dispatch="dispatch"
+          />
+        </ErrorMsg>
       </template>
       <template slot="controlBody">
         <H265Icon :codec="codec" />
         <slot name="controlBody" />
       </template>
-      <template v-if="player" slot="controlRight">
+      <template slot="controlRight">
         <StreamSelector :stream-info="streamInfo" @dispatch="dispatch" />
         <TypeSelector v-if="hasTypeSelector" :type="type" @dispatch="dispatch" />
         <Intercom v-if="isLive" :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="playerType" :codec="codec" />

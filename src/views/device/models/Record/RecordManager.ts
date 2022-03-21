@@ -53,6 +53,7 @@ export class RecordManager {
       this.screen.errorMsg = null
       this.recordList = []
       this.currentRecord = null
+      this.loadedRecordDates.clear()
       this.getRecordStatistic() // 获得最近两月录像统计
       this.recordList = await this.getRecordList(this.currentDate, this.currentDate + 24 * 60 * 60)
       this.loadedRecordDates.add(this.currentDate)
@@ -136,6 +137,7 @@ export class RecordManager {
    * @param time 跳转的目标时间（时间戳/秒）
    */
   public async seek(time: number) {
+    this.screen.errorMsg = null
     let record = this.getRecordByTime(time)
     const date = getDateByTime(time * 1000) / 1000
     if (record) {
@@ -168,8 +170,14 @@ export class RecordManager {
       const record = this.getRecordByTime(time)
       if (record) {
         record.offsetTime = time - this.currentRecord.startTime
+        this.currentRecord = record || this.currentRecord
+      } else {
+        this.screen.player && this.screen.player.disposePlayer()
+        this.screen.player = null
+        this.screen.errorMsg = this.screen.ERROR.NO_RECORD // 无录像提示
+        this.currentDate = date
+        this.screen.isLoading = false
       }
-      this.currentRecord = record || this.currentRecord
     }
   }
 
@@ -195,11 +203,11 @@ export class RecordManager {
    */
   private async getLatestRecord() {
     if (!this.recordList.length) return
-    console.log('定时轮询新录像', this.screen.deviceId)
     try {
       const interval = await this.getRecordInterval()
       if (interval) {
         this.recordInterval = setInterval(async() => {
+          console.log('定时轮询新录像', this.screen.deviceId)
           if (this.currentDate < getLocaleDate().getTime() / 1000) return
           const lastRecord = this.recordList[this.recordList.length - 1]
           const startTime = lastRecord.endTime - 3 * 60

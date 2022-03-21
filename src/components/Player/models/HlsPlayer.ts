@@ -81,5 +81,6 @@ export class HlsPlayer extends Player {
     this.video.removeEventListener('loadstart', this.onLoadStart)
     this.video.removeEventListener('canplay', this.onCanplay)
     this.hls && this.hls.destroy()
+    this.isLoading = false
   }
 }

@@ -98,5 +98,6 @@ export class RtcPlayer extends Player {
       this.rtc.close()
       this.rtc.pc = null
     }
+    this.isLoading = false
   }
 }

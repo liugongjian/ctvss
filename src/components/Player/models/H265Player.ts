@@ -114,6 +114,7 @@ export class H265Player extends Player {
    */
   public disposePlayer() {
     this.wasmPlayer.destroy()
+    this.isLoading = false
   }
 
   /**

@@ -162,9 +162,17 @@
 
   /* 录像回放列表模式 */
   .screen-list {
+    position: relative;
     flex-grow: 1;
     overflow: auto;
     padding: 15px;
+
+    .tip-select-device {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin-left: -35px;
+    }
   }
 
   /* 分屏工具栏 */

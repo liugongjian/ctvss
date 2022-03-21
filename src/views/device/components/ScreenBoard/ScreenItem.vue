@@ -3,7 +3,7 @@
     class="screen-item"
     @click="click"
   >
-    <div v-if="videoTypeLabel && !screen.isLoading" class="video-type-label">{{ videoTypeLabel }}</div>
+    <div v-if="videoTypeLabel && !screen.isLoading && screen.player" class="video-type-label">{{ videoTypeLabel }}</div>
     <template v-if="screen.deviceId">
       <LivePlayer
         v-if="screen.isLive"

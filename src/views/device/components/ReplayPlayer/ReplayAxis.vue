@@ -130,10 +130,10 @@ export default class extends Vue {
         this.currentTime = this.recordManager.localStartTime + recordCurrentTime
       }
       this.lastUpdateTime = new Date().getTime()
+      this.generateData()
+      this.draw()
+      this.loadSiblingRecordList(-1, -1)
     }
-    this.generateData()
-    this.draw()
-    this.loadSiblingRecordList(-1, -1)
   }
 
   /* 监听设备变化 */
@@ -405,21 +405,23 @@ export default class extends Vue {
     this.ctx.fillRect(Math.floor(this.settings.width / 2 - 1), 0, this.settings.minLineWidth, this.settings.minLineHeight)
 
     /* 绘制左右渐变 */
-    const gradientWidth = this.settings.width * 0.08
-    const startColor = `rgba(${this.settings.gradientColor}, ${this.isInline ? 0.4 : 0.7})`
-    const endColor = `rgba(${this.settings.gradientColor}, 0)`
-    /* 左侧 */
-    const gradientL = this.ctx.createLinearGradient(0, 0, gradientWidth, 0)
-    gradientL.addColorStop(0, startColor)
-    gradientL.addColorStop(1, endColor)
-    this.ctx.fillStyle = gradientL
-    this.ctx.fillRect(0, 0, gradientWidth, this.settings.height)
-    /* 右侧 */
-    const gradientR = this.ctx.createLinearGradient(this.settings.width - gradientWidth, 0, this.settings.width, 0)
-    gradientR.addColorStop(0, endColor)
-    gradientR.addColorStop(1, startColor)
-    this.ctx.fillStyle = gradientR
-    this.ctx.fillRect(this.settings.width - gradientWidth, 0, gradientWidth, this.settings.height)
+    if (!this.isInline) {
+      const gradientWidth = this.settings.width * 0.08
+      const startColor = `rgba(${this.settings.gradientColor}, 0.7)`
+      const endColor = `rgba(${this.settings.gradientColor}, 0)`
+      /* 左侧 */
+      const gradientL = this.ctx.createLinearGradient(0, 0, gradientWidth, 0)
+      gradientL.addColorStop(0, startColor)
+      gradientL.addColorStop(1, endColor)
+      this.ctx.fillStyle = gradientL
+      this.ctx.fillRect(0, 0, gradientWidth, this.settings.height)
+      /* 右侧 */
+      const gradientR = this.ctx.createLinearGradient(this.settings.width - gradientWidth, 0, this.settings.width, 0)
+      gradientR.addColorStop(0, endColor)
+      gradientR.addColorStop(1, startColor)
+      this.ctx.fillStyle = gradientR
+      this.ctx.fillRect(this.settings.width - gradientWidth, 0, gradientWidth, this.settings.height)
+    }
   }
 
   /**
@@ -564,7 +566,7 @@ export default class extends Vue {
 
   &__time {
     position: absolute;
-    top: -20px;
+    top: -22px;
     left: 50%;
     margin-left: -100px;
     width: 200px;

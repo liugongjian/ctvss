@@ -111,5 +111,6 @@ export class FlvPlayer extends Player {
     this.video.removeEventListener('loadstart', this.onLoadStart)
     this.video.removeEventListener('canplay', this.onCanplay)
     this.flv && this.flv.destroy()
+    this.isLoading = false
   }
 }

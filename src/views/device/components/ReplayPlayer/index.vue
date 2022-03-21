@@ -79,7 +79,7 @@ export default class extends Vue {
     return this.screen.recordManager
   }
 
-  @Watch('screen.recordManager.currentRecord.url')
+  @Watch('screen.recordManager.currentRecord.url', { immediate: true })
   @Watch('screen.url')
   private onChange() {
     if (this.screen.recordType === 0) {
