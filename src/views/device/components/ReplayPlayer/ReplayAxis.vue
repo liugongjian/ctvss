@@ -359,7 +359,7 @@ export default class extends Vue {
     /* 绘制10分钟线 */
     for (let i in this.axisData.tenMins) {
       const line = this.axisData.tenMins[i]
-      if (this.settings.ratio < 200) { this.ctx.fillRect(line.x, line.y, this.settings.tenMinsWidth, this.settings.tenMinsHeight) }
+      if (this.settings.ratio < 150) { this.ctx.fillRect(line.x, line.y, this.settings.tenMinsWidth, this.settings.tenMinsHeight) }
       if (this.settings.hourSpan > 196) {
         const timestamp = this.axisStartTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
         const datetime = new Date(timestamp * 1000)
