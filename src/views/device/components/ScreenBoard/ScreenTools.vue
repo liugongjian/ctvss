@@ -3,14 +3,20 @@
     <div class="screen-tools__bar">
       <div class="screen-tools__bar__left">
         <QueueExecutor />
-        <Sync v-if="!isLive" />
+        <template v-if="!isLive">
+          <Sync />
+          <DatePicker v-if="currentScreen" :screen="currentScreen" />
+          <ReplayType v-if="currentScreen" :screen="currentScreen" />
+        </template>
       </div>
-      <div class="screen-tools__bar__left">
+      <div class="screen-tools__bar__right">
         <Cleaner />
         <SizeSelector />
+        <Fullscreen />
+        <ViewSelector />
       </div>
     </div>
-    <ReplayAxis v-if="!isLive" :screen="screen" @change="onAxisTimeChange" />
+    <ReplayAxis v-if="!isLive" :screen="currentScreen" @change="onAxisTimeChange" />
   </div>
 </template>
 <script lang="ts">
@@ -21,6 +27,8 @@ import QueueExecutor from './components/QueueExecutor.vue'
 import Sync from './components/Sync.vue'
 import Cleaner from './components/Cleaner.vue'
 import SizeSelector from './components/SizeSelector.vue'
+import Fullscreen from './components/Fullscreen.vue'
+import ViewSelector from './components/ViewSelector.vue'
 
 @Component({
   name: 'ScreenTools',
@@ -29,7 +37,9 @@ import SizeSelector from './components/SizeSelector.vue'
     ReplayAxis,
     Sync,
     Cleaner,
-    SizeSelector
+    SizeSelector,
+    Fullscreen,
+    ViewSelector
   }
 })
 export default class extends Vue {
@@ -40,7 +50,7 @@ export default class extends Vue {
     return this.getScreenManager()
   }
 
-  private get screen() {
+  private get currentScreen() {
     return this.screenManager.currentScreen
   }
 
@@ -57,7 +67,7 @@ export default class extends Vue {
         screen.recordManager.seek(time)
       })
     } else {
-      this.screen.recordManager.seek(time)
+      this.currentScreen.recordManager.seek(time)
     }
   }
 }
@@ -66,8 +76,9 @@ export default class extends Vue {
 .screen-tools {
   &__bar {
     display: flex;
+    justify-content: space-between;
 
-    &__left {
+    &__left, &__right {
       display: flex;
     }
   }

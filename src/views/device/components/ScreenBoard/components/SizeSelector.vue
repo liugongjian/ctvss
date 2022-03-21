@@ -1,7 +1,7 @@
 <template>
-  <el-dropdown trigger="click" placement="bottom-start" @command="handleScreenSize">
+  <el-dropdown class="dropdown" trigger="click" placement="bottom-start" @command="handleScreenSize">
     <el-tooltip content="选择分屏" placement="top">
-      <el-button>
+      <el-button class="screen-tools__btn">
         <svg-icon name="screen" />
       </el-button>
     </el-tooltip>
@@ -23,7 +23,7 @@ import { Component } from 'vue-property-decorator'
 import ComponentMixin from './mixin'
 
 @Component({
-  name: 'Datepicker'
+  name: 'SizeSelector'
 })
 export default class extends ComponentMixin {
   private screenSizeList = [
@@ -92,5 +92,9 @@ export default class extends ComponentMixin {
     this.screenManager.layout = screenSize.layout
   }
 }
-
 </script>
+<style lang="scss" scoped>
+  .dropdown {
+    margin: 0;
+  }
+</style>

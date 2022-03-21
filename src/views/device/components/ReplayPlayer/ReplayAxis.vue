@@ -17,7 +17,7 @@
  * 3) 计算刻度位置时使用时间戳除ratio，转换为像素值
  */
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { isCrossDays, dateFormat, getNextHour, prefixZero, getDateByTime, currentTimeZeroMsec } from '@/utils/date'
+import { getLocaleDate, isCrossDays, dateFormat, getNextHour, prefixZero, getDateByTime, currentTimeZeroMsec } from '@/utils/date'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import { throttle } from 'lodash'
 
@@ -90,8 +90,8 @@ export default class extends Vue {
   private ctx: CanvasRenderingContext2D = null
   /* 尺寸监听器 */
   private resizeObserver: ResizeObserver = null
-  /* 当前时间(可修改) */
-  private currentTime: number = 0
+  /* 当前时间 */
+  private currentTime: number = Math.floor(getLocaleDate().getTime() / 1000)
   /* 最后一次更新currentTime的时间，用于截流 */
   private lastUpdateTime = 0
   /* 当前时间轴的头部时间 */
