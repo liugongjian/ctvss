@@ -119,6 +119,7 @@ export default class extends Vue {
   box-shadow: none;
   border: none;
   line-height: 26px;
+
   ::v-deep {
     .el-picker-panel__icon-btn {
       padding: 0;
@@ -128,13 +129,14 @@ export default class extends Vue {
       font-size: 14px;
     }
 
-    .el-date-picker__header, .el-picker-panel__content {
+    .el-date-picker__header,
+    .el-picker-panel__content {
       width: auto;
       margin: 0;
     }
 
     .el-date-table td {
-      padding: 0 0 2px 0;
+      padding: 0 0 2px;
     }
   }
 }
