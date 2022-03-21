@@ -1,22 +1,22 @@
 <template>
   <div class="screen-tools">
-    <div class="screen-tools__bar">
+    <div class="screen-tools__bar" :class="{'hidden-axis': !showAxis}">
       <div class="screen-tools__bar__left">
         <QueueExecutor />
-        <template v-if="!isLive">
+        <template v-if="showAxis">
           <Sync />
           <DatePicker v-if="currentScreen" :screen="currentScreen" />
           <ReplayType v-if="currentScreen" :screen="currentScreen" />
         </template>
       </div>
       <div class="screen-tools__bar__right">
-        <Cleaner />
-        <SizeSelector />
+        <Cleaner v-if="showAxis" />
+        <SizeSelector v-if="showAxis" />
         <Fullscreen />
         <ViewSelector />
       </div>
     </div>
-    <ReplayAxis v-if="!isLive" :screen="currentScreen" @change="onAxisTimeChange" />
+    <ReplayAxis v-if="showAxis" :screen="currentScreen" @change="onAxisTimeChange" />
   </div>
 </template>
 <script lang="ts">
@@ -58,8 +58,11 @@ export default class extends Vue {
     return this.screenManager.currentScreen
   }
 
-  private get isLive() {
-    return this.screenManager.isLive
+  /**
+   * 当为录像回放，并且视图为screen时显示时间轴和相关控件
+   */
+  private get showAxis() {
+    return !this.screenManager.isLive && this.screenManager.view === 'screen'
   }
 
   /**
@@ -76,29 +79,3 @@ export default class extends Vue {
   }
 }
 </script>
-<style lang="scss" scoped>
-.screen-tools {
-  &__bar {
-    display: flex;
-    justify-content: space-between;
-
-    &__left, &__right {
-      display: flex;
-    }
-  }
-
-  ::v-deep &__btn {
-    display: flex;
-    padding: 0 4px;
-    margin: 0 3px;
-    height: 35px;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-
-    &.selected {
-      color: $primary;
-    }
-  }
-}
-</style>

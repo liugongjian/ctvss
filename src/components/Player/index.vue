@@ -151,7 +151,6 @@ export default class extends Vue {
       })
     } catch (e) {
       this.isDebug && console.log(e.message)
-      this.error = '浏览器创建失败'
     }
   }
 }

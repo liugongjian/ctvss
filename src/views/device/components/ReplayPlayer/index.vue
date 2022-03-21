@@ -222,7 +222,7 @@ export default class extends Vue {
     .replay-type {
       position: absolute;
       left: 140px;
-      top: 8px;
+      top: 1px;
       transform: scale(0.85);
 
       ::v-deep {

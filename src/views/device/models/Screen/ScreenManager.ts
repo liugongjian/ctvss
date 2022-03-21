@@ -130,9 +130,9 @@ export class ScreenManager {
     } else {
       screen.streamNum = item.autoStreamNum
     }
-    if (this.currentIndex < this.size - 1) {
-      this.currentIndex++
-    }
+    // if (this.currentIndex < this.size - 1) {
+    //   this.currentIndex++
+    // }
     screen.init()
   }
 }

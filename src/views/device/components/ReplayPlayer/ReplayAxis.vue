@@ -71,7 +71,8 @@ export default class extends Vue {
     recordColor: '#cfd9e7',
     hourLineColor: '#222',
     minLineColor: '#999',
-    midLineColor: '#fa8334'
+    midLineColor: '#fa8334',
+    gradientColor: '255, 255, 255'
   }
 
   /* 刻度数据 */
@@ -150,6 +151,7 @@ export default class extends Vue {
       this.settings.midLineColor = '#fa8334'
       this.settings.spanThreshold = 15
       this.settings.hourWidth = 1
+      this.settings.gradientColor = '0, 0, 0'
     }
   }
 
@@ -401,6 +403,23 @@ export default class extends Vue {
     /* 中心线 */
     this.ctx.fillStyle = this.settings.midLineColor
     this.ctx.fillRect(Math.floor(this.settings.width / 2 - 1), 0, this.settings.minLineWidth, this.settings.minLineHeight)
+
+    /* 绘制左右渐变 */
+    const gradientWidth = this.settings.width * 0.08
+    const startColor = `rgba(${this.settings.gradientColor}, ${this.isInline ? 0.4 : 0.7})`
+    const endColor = `rgba(${this.settings.gradientColor}, 0)`
+    /* 左侧 */
+    const gradientL = this.ctx.createLinearGradient(0, 0, gradientWidth, 0)
+    gradientL.addColorStop(0, startColor)
+    gradientL.addColorStop(1, endColor)
+    this.ctx.fillStyle = gradientL
+    this.ctx.fillRect(0, 0, gradientWidth, this.settings.height)
+    /* 右侧 */
+    const gradientR = this.ctx.createLinearGradient(this.settings.width - gradientWidth, 0, this.settings.width, 0)
+    gradientR.addColorStop(0, endColor)
+    gradientR.addColorStop(1, startColor)
+    this.ctx.fillStyle = gradientR
+    this.ctx.fillRect(this.settings.width - gradientWidth, 0, gradientWidth, this.settings.height)
   }
 
   /**
