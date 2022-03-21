@@ -1,15 +1,18 @@
 <template>
   <div v-if="screenManager" class="screen-container">
-    <div class="screen-grid" :class="`screen-size--${size}`">
-      <ScreenItem
-        v-for="(screen, index) in screenList"
-        :key="index"
-        :screen="screen"
-        :has-live-replay-selector="true"
-        :style="`grid-area: item${index}`"
-        :class="[{'actived': index === currentIndex && screenList.length > 1}]"
-        @click="selectScreen(index)"
-      />
+    <div class="screen-grid-wrap">
+      <div class="screen-grid" :class="`screen-size--${size}`">
+        <ScreenItem
+          v-for="(screen, index) in screenList"
+          :key="index"
+          :screen="screen"
+          :has-live-replay-selector="true"
+          :style="`grid-area: item${index}`"
+          :class="[{'actived': index === currentIndex && screenList.length > 1}]"
+          @click="selectScreen(index)"
+        />
+      </div>
+      <PtzControl v-if="isLive" :screen="currentScreen" />
     </div>
     <ScreenTools />
   </div>
@@ -19,12 +22,14 @@ import { Component, Vue, Prop, Provide } from 'vue-property-decorator'
 import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
 import ScreenItem from './ScreenItem.vue'
 import ScreenTools from './ScreenTools.vue'
+import PtzControl from './components/PtzControl.vue'
 
 @Component({
   name: 'ScreenBoard',
   components: {
     ScreenItem,
-    ScreenTools
+    ScreenTools,
+    PtzControl
   }
 })
 export default class extends Vue {
@@ -47,6 +52,11 @@ export default class extends Vue {
   /* 当前选中的索引 */
   private get currentIndex() {
     return this.screenManager && this.screenManager.currentIndex
+  }
+
+  /* 当前选中的分屏 */
+  private get currentScreen() {
+    return this.screenManager && this.screenManager.currentScreen
   }
 
   /* 分屏数 */

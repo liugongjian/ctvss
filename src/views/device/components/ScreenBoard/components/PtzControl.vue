@@ -6,7 +6,9 @@
       </div>
       <div class="container__ptz__content">
         <div class="content-left">
-          <div title="关闭" class="toggle-icon" @click="isClosed = true" />
+          <el-tooltip content="关闭PTZ仪表盘" placement="left">
+            <div class="toggle-icon" @click="isClosed = true" />
+          </el-tooltip>
         </div>
         <div class="content-right">
           <div class="ptz-ctrl">
@@ -147,7 +149,9 @@
       </div>
     </div>
     <div v-show="isClosed" class="container__ptz--shrink">
-      <div title="打开" class="toggle-icon__closed" @click="isClosed = false" />
+      <el-tooltip content="打开PTZ仪表盘" placement="left">
+        <div class="toggle-icon__closed" @click="isClosed = false" />
+      </el-tooltip>
     </div>
     <update-cruise
       v-if="dialog.cruise"
@@ -162,9 +166,9 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { startDeviceMove, endDeviceMove, startDeviceAdjust, endDeviceAdjust, setDevicePreset, gotoDevicePreset, deleteDevicePreset, describeDevicePresets, describePTZCruiseList, startPTZCruise, stopPTZCruise, describePTZKeepwatch, updatePTZKeepwatch } from '@/api/ptz_control'
-import UpdateCruise from './dialogs/UpdateCruise.vue'
+import UpdateCruise from '../../dialogs/UpdateCruise.vue'
 @Component({
-  name: 'ptz-control',
+  name: 'PtzControl',
   components: {
     UpdateCruise
   },
@@ -179,8 +183,9 @@ import UpdateCruise from './dialogs/UpdateCruise.vue'
   }
 })
 export default class extends Vue {
-  @Prop({ default: '' })
-  private deviceId!: string
+  @Prop()
+  private screen
+
   private speed = 5
   private isClosed = true
   private loading: any = {
@@ -213,6 +218,10 @@ export default class extends Vue {
     presetId: [
       { validator: this.validateHomeposition, trigger: 'blur' }
     ]
+  }
+
+  private get deviceId() {
+    return this.screen.deviceId
   }
 
   @Watch('presets')
@@ -477,7 +486,7 @@ export default class extends Vue {
       })
       this.$message({
         type: 'success',
-        message: `启动巡航成功`
+        message: '启动巡航成功'
       })
     } catch (e) {
       this.$message.error(`启用巡航失败，原因：${e && e.message}`)
@@ -492,7 +501,7 @@ export default class extends Vue {
       })
       this.$message({
         type: 'success',
-        message: `停止巡航成功`
+        message: '停止巡航成功'
       })
     } catch (e) {
       this.$message.error(`停止巡航失败，原因：${e && e.message}`)
@@ -514,7 +523,7 @@ export default class extends Vue {
         })
         this.$message({
           type: 'success',
-          message: `保存成功`
+          message: '保存成功'
         })
       } catch (e) {
         this.$message.error(`保存守望信息失败，原因：${e && e.message}`)
@@ -555,6 +564,7 @@ export default class extends Vue {
     width: 210px;
     height: 100%;
     position: relative;
+
     &__title {
       height: 40px;
       line-height: 40px;
@@ -569,120 +579,148 @@ export default class extends Vue {
     &__content {
       display: flex;
       height: calc(100% - 40px);
+
       .content-left {
         width: 10px;
         height: 100%;
         cursor: default;
+
         .toggle-icon {
           width: 100%;
           height: 100%;
           overflow: hidden;
-          background: url("~@/assets/ptz/expand.png") 0 50% no-repeat;
+          background: url('~@/assets/ptz/expand.png') 0 50% no-repeat;
         }
       }
+
       .content-right {
         height: 100%;
         margin-left: 5px;
         position: relative;
+
         .ptz-ctrl {
           height: 120px;
+
           .ctrl-l {
             float: left;
             margin-top: 10px;
             width: 115px;
+
             .direction {
               float: left;
               width: 32px;
               height: 32px;
               margin: 0 4px 4px 0;
               cursor: pointer;
-              background-image: url("~@/assets/ptz/ptz-icons.png");
-              background-color: #ffffff;
+              background-image: url('~@/assets/ptz/ptz-icons.png');
+              background-color: #fff;
               background-position: 0 -90px;
+
               i {
                 display: inline-block;
                 width: 30px;
                 height: 30px;
                 margin: 1px;
-                background: url("~@/assets/ptz/ptz-icons.png");
+                background: url('~@/assets/ptz/ptz-icons.png');
               }
+
               i:hover {
-                background-image: url("~@/assets/ptz/ptz-icons-on.png")
+                background-image: url('~@/assets/ptz/ptz-icons-on.png');
               }
+
               i.icon-ptz-left-up {
                 background-position: 0 0;
               }
+
               i.icon-ptz-up {
                 background-position: -30px 0;
               }
+
               i.icon-ptz-right-up {
                 background-position: -60px 0;
               }
+
               i.icon-ptz-left {
                 background-position: 0 -30px;
               }
+
               i.icon-ptz-auto {
                 background-position: -30px -30px;
               }
+
               i.icon-ptz-right {
                 background-position: -60px -30px;
               }
+
               i.icon-ptz-left-down {
-                background-position: 0px -60px;
+                background-position: 0 -60px;
               }
+
               i.icon-ptz-down {
                 background-position: -30px -60px;
               }
+
               i.icon-ptz-right-down {
                 background-position: -60px -60px;
               }
             }
           }
+
           .ctrl-r {
             float: left;
             margin-top: 10px;
             text-align: right;
             width: 75px;
+
             .operation {
               float: left;
               width: 75px;
               height: 32px;
               margin-bottom: 4px;
               cursor: pointer;
-              background-image: url("~@/assets/ptz/ptz-icons.png");
-              background-color: #ffffff;
+              background-image: url('~@/assets/ptz/ptz-icons.png');
+              background-color: #fff;
               background-position: -32px -90px;
+
               i {
                 float: left;
                 width: 36px;
                 height: 30px;
                 margin: 1px 0 1px 1px;
-                background: url("~@/assets/ptz/ptz-icons.png") no-repeat;
+                background: url('~@/assets/ptz/ptz-icons.png') no-repeat;
               }
+
               i:hover {
-                background: url("~@/assets/ptz/ptz-icons-on.png") no-repeat;
+                background: url('~@/assets/ptz/ptz-icons-on.png') no-repeat;
               }
+
               i.icon-ptz-zoomout {
                 background-position: -90px 0;
               }
+
               i.icon-ptz-zoomin {
                 background-position: -126px 0;
               }
+
               i.icon-ptz-focusout {
                 background-position: -90px -30px;
               }
+
               i.icon-ptz-focusin {
                 background-position: -126px -30px;
               }
+
               i.icon-ptz-irisout {
                 background-position: -90px -60px;
               }
+
               i.icon-ptz-irisin {
                 background-position: -126px -60px;
               }
             }
           }
         }
+
         .ptz-slider {
           ::v-deep {
             .el-slider.el-slider--with-input {
@@ -690,22 +728,27 @@ export default class extends Vue {
                 width: 37px;
                 margin-right: 10px;
               }
+
               input {
                 padding-left: 4px;
                 padding-right: 4px;
               }
             }
+
             .el-slider__runway.show-input {
               margin-right: 56px;
             }
           }
         }
+
         .el-tabs {
           height: calc(100% - 160px);
+
           ::v-deep .el-tabs__content {
             height: calc(100% - 60px);
           }
         }
+
         .ptz-tab-container {
           position: absolute;
           height: 100%;
@@ -715,31 +758,35 @@ export default class extends Vue {
           left: 0;
           right: 0;
           bottom: 0;
+
           .preset-line {
             height: 30px;
             line-height: 30px;
             cursor: pointer;
             padding-left: 10px;
             padding-right: 5px;
-            background-color: #ffffff;
+            background-color: #fff;
             white-space: nowrap;
+
             .index {
               display: inline-block;
               width: 23px;
               vertical-align: super;
-              color: #000000;
+              color: #000;
               overflow: hidden;
               text-overflow: ellipsis;
               white-space: nowrap;
             }
+
             .name {
               display: inline-block;
               width: 68px;
               vertical-align: super;
-              color: #000000;
+              color: #000;
               overflow: hidden;
               text-overflow: ellipsis;
               white-space: nowrap;
+
               ::v-deep {
                 .el-input.el-input--mini input {
                   padding-left: 4px !important;
@@ -747,6 +794,7 @@ export default class extends Vue {
                 }
               }
             }
+
             .handle {
               i {
                 float: right;
@@ -754,43 +802,54 @@ export default class extends Vue {
                 height: 30px;
                 margin: 1px 0 1px 1px;
                 cursor: pointer;
-                background-image: url("~@/assets/ptz/ptz-icons.png");
+                background-image: url('~@/assets/ptz/ptz-icons.png');
               }
+
               i:hover {
-                background-image: url("~@/assets/ptz/ptz-icons-on.png");
+                background-image: url('~@/assets/ptz/ptz-icons-on.png');
               }
-              .handle-delete{
+
+              .handle-delete {
                 width: 20px;
                 background-position: -35px -182px;
               }
+
               .handle-edit {
                 width: 20px;
                 background-position: -35px -152px;
               }
-              .handle-goto, .handle-play {
+
+              .handle-goto,
+              .handle-play {
                 width: 20px;
                 background-position: -10px -152px;
               }
-              .handle-stop, .handle-play {
+
+              .handle-stop,
+              .handle-play {
                 float: right;
                 width: 20px;
                 text-align: center;
+
                 .svg-icon {
                   font-size: 15px;
-                  color: #7D7D7D;
+                  color: #7d7d7d;
                 }
+
                 :hover {
-                  color: #FA8334;
+                  color: #fa8334;
                 }
               }
             }
           }
+
           .preset-line__select {
-            background-color: #eeeeee;
+            background-color: #eee;
           }
+
           .preset-line__no-set {
             .name {
-              color: gray!important;
+              color: gray !important;
             }
           }
         }
@@ -803,20 +862,22 @@ export default class extends Vue {
     height: 100%;
     position: relative;
     cursor: default;
+
     .toggle-icon__closed {
       margin-top: 10px;
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: url("~@/assets/ptz/expand.png") -10px 50% no-repeat;
+      cursor: pointer;
+      background: url('~@/assets/ptz/expand.png') -10px 50% no-repeat;
     }
   }
 
   .el-tabs {
     clear: both;
+
     ::v-deep .el-tabs__item {
       font-size: 12px;
-      padding: 0 15px;
       width: 66px;
       padding: 0;
       text-align: center;
@@ -825,26 +886,33 @@ export default class extends Vue {
     ::v-deep .el-tabs__nav-scroll {
       width: 100%;
     }
+
     .el-form {
       margin-left: 10px;
+
       .el-input {
         width: 70px;
         font-size: 12px;
         margin-right: 10px;
       }
+
       .el-select {
         width: 105px;
       }
+
       ::v-deep .el-form-item__content {
         font-size: 12px;
       }
+
       ::v-deep .el-form-item__error {
         font-size: 10px;
       }
+
       ::v-deep .el-form-item__label {
         font-size: 12px;
         padding-right: 5px;
       }
+
       .submit-button {
         margin-top: 15px;
       }

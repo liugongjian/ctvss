@@ -223,7 +223,7 @@ import AdvancedSearch from '@/views/device/components/AdvancedSearch.vue'
 import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
 
 @Component({
-  name: 'Screen',
+  name: 'ScreenTree',
   components: {
     StatusBadge,
     PtzControl,
@@ -261,6 +261,11 @@ export default class extends Mixins(IndexMixin) {
   /* 视频队列执行器 */
   private get queueExecutor() {
     return this.screenManager && this.screenManager.refs.queueExecutor
+  }
+
+  /* 分屏数量 */
+  private get maxSize() {
+    return this.screenManager.size
   }
 
   @Watch('currentGroupId', { immediate: true })
@@ -499,7 +504,7 @@ export default class extends Mixins(IndexMixin) {
     }
   }
 
- .polling-mask {
+  .polling-mask {
     position: absolute;
     display: flex;
     height: 100%;
@@ -537,6 +542,7 @@ export default class extends Mixins(IndexMixin) {
         width: 100px;
       }
 
+      /* stylelint-disable-next-line no-descending-specificity */
       .svg-icon {
         color: inherit;
       }

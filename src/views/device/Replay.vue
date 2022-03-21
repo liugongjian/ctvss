@@ -46,7 +46,6 @@
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import ScreenMixin from './mixin/screenMixin'
-import PtzControl from './components/ptzControl.vue'
 import ScreenTree from './components/ScreenBoard/ScreenTree.vue'
 import DatePicker from './components/ScreenBoard/components/DatePicker.vue'
 import ReplayType from './components/ScreenBoard/components/ReplayType.vue'
@@ -54,7 +53,6 @@ import ReplayType from './components/ScreenBoard/components/ReplayType.vue'
 @Component({
   name: 'Replay',
   components: {
-    PtzControl,
     ScreenTree,
     DatePicker,
     ReplayType
