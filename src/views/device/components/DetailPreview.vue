@@ -1,51 +1,68 @@
 <template>
-  <player-container :on-can-play="onCanPlay">
-    <live-view
-      :class="{'fullscreen': isFullscreen}"
-      :device-id="deviceId"
-      :in-protocol="inProtocol"
-      :is-fullscreen="isFullscreen"
-      @onCanPlay="playEvent"
-      @onFullscreen="isFullscreen = true; fullscreen()"
-      @onExitFullscreen="exitFullscreen()"
-    />
-  </player-container>
+  <LivePlayer
+    v-if="screen"
+    :style="`height: ${height}`"
+    :screen="screen"
+  />
 </template>
 
 <script lang="ts">
-import { Component, Prop, Mixins, Inject } from 'vue-property-decorator'
-import FullscreenMixin from '../mixin/fullscreenMixin'
-import LiveView from './LiveView.vue'
-import PlayerContainer from './PlayerContainer.vue'
+import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Stream } from '@/components/VssPlayer/models/VssPlayer'
+import LivePlayer from './LivePlayer.vue'
+import { Screen } from '../models/Screen/Screen'
 
 @Component({
   name: 'DevicePreview',
   components: {
-    LiveView,
-    PlayerContainer
+    LivePlayer
   }
 })
-export default class extends Mixins(FullscreenMixin) {
-  @Inject('deviceRouter') private deviceRouter!: Function
+export default class extends Vue {
+  @Prop()
+  private deviceId?: number
 
-  @Prop() private deviceId?: string
-  @Prop() private inProtocol?: string
+  @Prop()
+  private inProtocol?: string
 
-  private onCanPlay = false
+  @Prop()
+  private deviceName?: string
+
+  @Prop()
+  private streams?: Stream[]
+
+  @Prop()
+  private streamSize?: number
+
+  private screen = {}
+
+  private height = 'auto'
 
   private mounted() {
-    window.addEventListener('resize', this.checkFullscreen)
+    const screen = new Screen()
+    screen.deviceId = this.deviceId
+    screen.inProtocol = this.inProtocol
+    screen.deviceName = this.deviceName
+    screen.streams = this.streams
+    screen.streamSize = this.streamSize
+    screen.streamNum = 1
+    screen.type = 'flv'
+    this.screen = screen
+    screen.init()
+    this.calMaxHeight()
+    window.addEventListener('resize', this.calMaxHeight)
   }
 
   private beforeDestroy() {
-    window.removeEventListener('resize', this.checkFullscreen)
+    window.removeEventListener('resize', this.calMaxHeight)
   }
 
   /**
-   * 鼠标移入移出视频触发事件
+   * 计算最大高度
    */
-  private playEvent(val: boolean) {
-    this.onCanPlay = val
+  public calMaxHeight() {
+    const deviceList: any = document.querySelector('.device-list__max-height')
+    this.height = `${deviceList.clientHeight - 84}px`
   }
 }
 </script>

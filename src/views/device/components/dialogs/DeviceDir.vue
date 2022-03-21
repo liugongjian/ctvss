@@ -2,6 +2,7 @@
   <el-dialog
     title="选择设备"
     :visible="dialogVisible"
+    :append-to-body="true"
     :close-on-click-modal="true"
     width="400px"
     center

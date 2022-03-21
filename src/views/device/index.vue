@@ -1,7 +1,7 @@
 <template>
   <div v-loading="loading.group" class="app-container">
     <el-card ref="deviceWrap" class="device-list-wrap">
-      <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
+      <div class="device-list" :style="{height: `${maxHeight}px`}" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
         <el-button class="device-list__expand" @click="toggledirList">
           <svg-icon name="hamburger" />
         </el-button>
@@ -142,7 +142,7 @@
               {{ item.label }}
             </span>
           </div>
-          <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
+          <div class="device-list__max-height" :style="{height: `${maxHeight - 40}px`}">
             <router-view />
           </div>
         </div>

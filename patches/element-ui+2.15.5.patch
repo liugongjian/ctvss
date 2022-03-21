@@ -51,3 +51,43 @@ index 6534063..2031b19 100644
              ), h(
                'span',
                {
+diff --git a/node_modules/element-ui/packages/date-picker/src/panel/date.vue b/node_modules/element-ui/packages/date-picker/src/panel/date.vue
+index dc58c28..56cf9ef 100644
+--- a/node_modules/element-ui/packages/date-picker/src/panel/date.vue
++++ b/node_modules/element-ui/packages/date-picker/src/panel/date.vue
+@@ -1,5 +1,5 @@
+ <template>
+-  <transition name="el-zoom-in-top" @after-enter="handleEnter" @after-leave="handleLeave">
++  <transition @after-enter="handleEnter" @after-leave="handleLeave">
+     <div
+       v-show="visible"
+       class="el-picker-panel el-date-picker el-popper"
+@@ -277,10 +277,12 @@
+ 
+       prevMonth() {
+         this.date = prevMonth(this.date);
++        this.changeCalendar && this.changeCalendar(this.date);
+       },
+ 
+       nextMonth() {
+         this.date = nextMonth(this.date);
++        this.changeCalendar && this.changeCalendar(this.date);
+       },
+ 
+       prevYear() {
+@@ -289,6 +291,7 @@
+         } else {
+           this.date = prevYear(this.date);
+         }
++        this.changeCalendar && this.changeCalendar(this.date);
+       },
+ 
+       nextYear() {
+@@ -297,6 +300,7 @@
+         } else {
+           this.date = nextYear(this.date);
+         }
++        this.changeCalendar && this.changeCalendar(this.date);
+       },
+ 
+       handleShortcutClick(shortcut) {
