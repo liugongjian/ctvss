@@ -1,6 +1,7 @@
 <template>
   <div
     class="screen-item"
+    :class="{'screen-item--fullscreen': isFullscreen, 'screen-item--live': isLive, 'screen-item--replay': !isLive}"
     @click="click"
   >
     <div v-if="videoTypeLabel && !screen.isLoading && screen.player" class="video-type-label">{{ videoTypeLabel }}</div>
@@ -48,6 +49,10 @@ export default class extends Vue {
   @Prop()
   private screen
 
+  private dialogs = {
+    deviceDir: false
+  }
+
   @Inject('getScreenManager')
   private getScreenManager: Function
 
@@ -55,6 +60,10 @@ export default class extends Vue {
     return this.getScreenManager()
   }
 
+  /**
+   * 在实时预览显示录像回放的标签
+   * 在录像回放显示实时预览的标签
+   */
   private get videoTypeLabel() {
     let label = ''
     if (this.screen.isLive !== null && this.screenManager.isLive !== this.screen.isLive) {
@@ -70,8 +79,18 @@ export default class extends Vue {
     return this.screenManager.isLive && !this.screen.isLive
   }
 
-  private dialogs = {
-    deviceDir: false
+  /**
+   * 是否开启全屏
+   */
+  private get isFullscreen() {
+    return this.screen && this.screen.isFullscreen
+  }
+
+  /**
+   * 是否为直播
+   */
+  private get isLive() {
+    return this.screen && this.screen.isLive
   }
 
   /**

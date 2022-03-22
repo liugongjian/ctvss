@@ -12,7 +12,7 @@
       <div class="screen-tools__bar__right">
         <Cleaner />
         <SizeSelector />
-        <Fullscreen />
+        <Fullscreen :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
         <ViewSelector v-if="!isLive" />
       </div>
     </div>
@@ -22,6 +22,7 @@
 <script lang="ts">
 import { Component, Vue, Inject } from 'vue-property-decorator'
 import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
+import { ScreenModule } from '@/store/modules/screen'
 import ReplayAxis from '../ReplayPlayer/ReplayAxis.vue'
 import QueueExecutor from './components/QueueExecutor.vue'
 import DatePicker from './components/DatePicker.vue'
@@ -72,6 +73,11 @@ export default class extends Vue {
     return !this.isLive && this.screenManager.view === 'screen'
   }
 
+  /* 是否全屏 */
+  private get isFullscreen() {
+    return ScreenModule.isFullscreen
+  }
+
   /**
    * 时间轴Seek
    */
@@ -83,6 +89,13 @@ export default class extends Vue {
     } else {
       this.currentScreen.recordManager.seek(time)
     }
+  }
+
+  /**
+   * 全屏操作
+   */
+  private onFullscreenChange(isFullscreen) {
+    ScreenModule.SetIsFullscreen(isFullscreen)
   }
 }
 </script>

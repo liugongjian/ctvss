@@ -296,9 +296,6 @@ export default class extends Mixins(IndexMixin) {
     if (!groupId) return
     this.$nextTick(() => {
       this.initDirs()
-      
-      // this.stopPolling()
-      console.log(this.screenManager)
     })
   }
 
