@@ -243,13 +243,19 @@ export class RecordManager {
         pageSize: 9999
       }, this.axiosSource.token)
       return res.records.map((record: any, index: number) => {
+        /**
+         * 根据 fixRecordGap 标签对缺失的录像片段进行视觉填补，当前后两段 record 的时间间隔
+         * 小于 fixRecordGap 标签值时，进行缝隙填补（令当前片段的 endTime = 下一片段的 startTime）
+         * 修改后，由于播放的时移速度是根据每一个片段长度动态变化的，所以不会影响播放时时间条变化过程
+         */
         const currentEnd = getTimestamp(record.endTime)
-        const threshold = +UserModule.tags.fixRecordGap
-        record.endTime = currentEnd
-        if (index + 1 < res.records.length) {
-          const nextStart = getTimestamp(res.records[index + 1]['startTime'])
-          record.endTime = (nextStart - currentEnd) / 1000 < threshold ? nextStart : currentEnd
-          record.testdelta = (nextStart - getTimestamp(record.startTime))
+        if (UserModule.tags.fixRecordGap) {
+          const threshold = +UserModule.tags.fixRecordGap
+          record.endTime = currentEnd
+          if (index + 1 < res.records.length) {
+            const nextStart = getTimestamp(res.records[index + 1]['startTime'])
+            record.endTime = (nextStart - currentEnd) / 1000 < threshold ? nextStart : currentEnd
+          }
         }
         return new Record({
           startTime: getTimestamp(record.startTime) / 1000,
