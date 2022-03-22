@@ -23,7 +23,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
-import { prefixZero } from '@/utils/date'
+import { prefixZero } from '@/utils/number'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import DatePanel from './DatePanel.vue'
 
@@ -59,12 +59,19 @@ export default class extends Vue {
   }
 
   @Watch('screen')
+  @Watch('screen.deviceId', { immediate: true })
   @Watch('screen.recordType')
-  private onChange() {
-    this.showDatepicker = false
-    this.$nextTick(() => {
-      this.showDatepicker = true
-    })
+  private async onChange() {
+    if (this.recordManager) {
+      this.showDatepicker = false
+      const date = new Date()
+      const startTime = Math.floor(new Date(date.getFullYear(), date.getMonth()).getTime() / 1000)
+      const endTime = Math.floor(new Date(date.getFullYear(), date.getMonth() + 1).getTime() / 1000)
+      await this.recordManager.getRecordStatistic(startTime, endTime)
+      this.$nextTick(() => {
+        this.showDatepicker = true
+      })
+    }
   }
 
   @Watch('currentDate', {
@@ -88,12 +95,9 @@ export default class extends Vue {
     },
     changeCalendar: (date: any) => {
       if (!this.recordManager) return
-      const monthStr = `${date.getFullYear()}-${date.getMonth()}`
-      if (!this.recordStatistic.has(monthStr)) {
-        const startTime = Math.floor(new Date(date.getFullYear(), date.getMonth() - 1).getTime() / 1000)
-        const endTime = Math.floor(new Date(date.getFullYear(), date.getMonth() + 1).getTime() / 1000)
-        this.recordManager.getRecordStatistic(startTime, endTime)
-      }
+      const startTime = Math.floor(new Date(date.getFullYear(), date.getMonth() - 1).getTime() / 1000)
+      const endTime = Math.floor(new Date(date.getFullYear(), date.getMonth() + 1).getTime() / 1000)
+      this.recordManager.getRecordStatistic(startTime, endTime)
     }
   }
 

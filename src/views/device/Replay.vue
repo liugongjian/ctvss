@@ -94,9 +94,12 @@ export default class extends Mixins(ScreenMixin) {
     text-align: center;
     width: 100%;
     background: #fff;
+    padding: 0 0 5px 0;
 
     &__active {
-      transform: rotate(180deg) ;
+      svg {
+        transform: rotate(180deg);
+      }
     }
   }
 </style>

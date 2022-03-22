@@ -17,7 +17,8 @@
  * 3) 计算刻度位置时使用时间戳除ratio，转换为像素值
  */
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { isCrossDays, dateFormat, getNextHour, prefixZero, getDateByTime, currentTimeZeroMsec } from '@/utils/date'
+import { isCrossDays, dateFormat, getNextHour, getDateByTime, currentTimeZeroMsec } from '@/utils/date'
+import { prefixZero } from '@/utils/number'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import { throttle } from 'lodash'
 

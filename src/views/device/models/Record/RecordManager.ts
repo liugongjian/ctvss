@@ -7,6 +7,7 @@ import { Screen } from '../Screen/Screen'
 import { getTimestamp, getLocaleDate, getDateByTime } from '@/utils/date'
 import { getDeviceRecords, getDeviceRecordStatistic, getDeviceRecordRule, describeHeatMap, getDevicePreview, setRecordScale } from '@/api/device'
 import { UserModule } from '@/store/modules/user'
+import { prefixZero } from '@/utils/number'
 
 export class RecordManager {
   /* 当前分屏 */
@@ -55,7 +56,6 @@ export class RecordManager {
       this.recordList = []
       this.currentRecord = null
       this.loadedRecordDates.clear()
-      this.getRecordStatistic() // 获得最近两月录像统计
       this.recordList = await this.getRecordList(this.currentDate, this.currentDate + 24 * 60 * 60)
       this.loadedRecordDates.add(this.currentDate)
       if (this.recordList && this.recordList.length) {
@@ -285,14 +285,16 @@ export class RecordManager {
         startTime: startTime,
         endTime: endTime
       })
-      res.records.forEach((statistic: any) => {
-        const monthArray = statistic.day.match(/\d+-\d+/)
-        const month = monthArray ? monthArray[0] : null
-        if (!this.recordStatistic.has(month)) {
-          this.recordStatistic.set(month, new Set())
-        }
-        this.recordStatistic.get(month).add(statistic.day)
-      })
+      if (res.records) {
+        res.records.forEach((statistic: any) => {
+          const monthArray = statistic.day.match(/\d+-\d+/)
+          const month = monthArray ? monthArray[0] : null
+          if (!this.recordStatistic.has(month)) {
+            this.recordStatistic.set(month, new Set())
+          }
+          this.recordStatistic.get(month).add(statistic.day)
+        })
+      }
     } catch (e) {
       console.log(e)
     }
