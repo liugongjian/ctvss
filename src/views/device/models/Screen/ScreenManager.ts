@@ -142,7 +142,7 @@ export class ScreenManager {
    */
   public toggleAllMuteStatus(isMutedAll) {
     this.screenList.forEach(screen => {
-      screen.player.toggleMuteStatus(isMutedAll)
+      screen.player && screen.player.toggleMuteStatus(isMutedAll)
     })
   }
 }
