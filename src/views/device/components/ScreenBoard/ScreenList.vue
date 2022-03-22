@@ -2,6 +2,8 @@
   <div class="screen-list">
     <div v-if="currentScreen.deviceId">
       {{ currentScreen.deviceName }}
+      {{ recordList }}
+      <!--原来的表格-->
     </div>
     <div v-else class="tip-select-device">
       <el-button type="text" @click="selectDevice">请选择设备</el-button>
@@ -10,7 +12,8 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Inject } from 'vue-property-decorator'
+import { Component, Vue, Inject, Watch } from 'vue-property-decorator'
+import { Record } from '@/views/device/models/Record/Record'
 import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
 import DeviceDir from '../dialogs/DeviceDir.vue'
 
@@ -24,12 +27,19 @@ export default class extends Vue {
   @Inject('getScreenManager')
   private getScreenManager: Function
 
+  private recordList: Record[] = null
+
   private get screenManager(): ScreenManager {
     return this.getScreenManager()
   }
 
   private get currentScreen() {
     return this.screenManager.currentScreen
+  }
+
+  @Watch('currentScreen.deviceId')
+  private onDeviceChange() {
+    this.recordList = this.currentScreen.recordManager.getRecordListByPage(0)
   }
 
   private dialogs = {

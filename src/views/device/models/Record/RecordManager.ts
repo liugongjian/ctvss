@@ -330,9 +330,11 @@ export class RecordManager {
 
   /**
    * 分页获取录像列表
+   * 过滤当前所选日期的列表
    */
-  public getRecordListByPage() {
-
+  public getRecordListByPage(pageNum: number) {
+    console.log(this.currentDate, pageNum)
+    return [1]
   }
 
   /**
