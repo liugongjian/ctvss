@@ -16,6 +16,7 @@
     :has-live-replay-selector="hasLiveReplaySelector"
     :is-debug="isDebug"
     @dispatch="onDispatch"
+    @onCreate="onPlayerCreate"
   />
 </template>
 <script lang="ts">
@@ -42,6 +43,13 @@ export default class extends Vue {
 
   @Prop()
   private isDebug: Boolean
+
+  /**
+   * 当播放器实例创建
+   */
+  private onPlayerCreate(player) {
+    this.screen.player = player
+  }
 
   /**
    * 播放器事件路由

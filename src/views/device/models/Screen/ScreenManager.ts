@@ -135,4 +135,14 @@ export class ScreenManager {
     // }
     screen.init()
   }
+
+  /**
+   * 设置所有分屏静音状态
+   * @param isMutedAll 是否全部静音
+   */
+  public toggleAllMuteStatus(isMutedAll) {
+    this.screenList.forEach(screen => {
+      screen.player.toggleMuteStatus(isMutedAll)
+    })
+  }
 }

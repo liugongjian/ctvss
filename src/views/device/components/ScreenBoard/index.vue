@@ -16,10 +16,12 @@
     </div>
     <ScreenList v-else />
     <ScreenTools />
+    <el-button @click="muteAll">全部静音</el-button>
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop, Provide } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch, Provide } from 'vue-property-decorator'
+import { ScreenModule } from '@/store/modules/screen'
 import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
 import ScreenItem from './ScreenItem.vue'
 import ScreenList from './ScreenList.vue'
@@ -67,10 +69,21 @@ export default class extends Vue {
     return this.screenManager && this.screenManager.size
   }
 
+  /* 是否全部静音的状态 */
+  private get isMutedAll() {
+    return ScreenModule.isMutedAll
+  }
+
   /* 获取分屏管理器Provide */
   @Provide('getScreenManager')
   private getScreenManager() {
     return this.screenManager
+  }
+
+  /* 监听是否全部静音的状态 */
+  @Watch('isMutedAll')
+  private onIsMutedAllChange(isMutedAll) {
+    this.screenManager.toggleAllMuteStatus(isMutedAll)
   }
 
   private created() {
