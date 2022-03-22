@@ -6,6 +6,7 @@ import { Record } from './Record'
 import { Screen } from '../Screen/Screen'
 import { getTimestamp, getLocaleDate, getDateByTime } from '@/utils/date'
 import { getDeviceRecords, getDeviceRecordStatistic, getDeviceRecordRule, describeHeatMap, getDevicePreview, setRecordScale } from '@/api/device'
+import { UserModule } from '@/store/modules/user'
 
 export class RecordManager {
   /* 当前分屏 */
@@ -241,6 +242,7 @@ export class RecordManager {
         endTime,
         pageSize: 9999
       }, this.axiosSource.token)
+      console.log(UserModule.tags)
       return res.records.map((record: any) => {
         return new Record({
           startTime: getTimestamp(record.startTime) / 1000,

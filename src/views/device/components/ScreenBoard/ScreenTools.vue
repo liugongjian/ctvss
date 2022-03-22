@@ -11,7 +11,7 @@
       </div>
       <div class="screen-tools__bar__right">
         <Cleaner v-if="showAxis" />
-        <SizeSelector v-if="showAxis" />
+        <SizeSelector />
         <Fullscreen />
         <ViewSelector />
       </div>
