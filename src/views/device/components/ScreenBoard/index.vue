@@ -83,11 +83,14 @@ export default class extends Vue {
   /* 监听是否全部静音的状态 */
   @Watch('isMutedAll')
   private onIsMutedAllChange(isMutedAll) {
-    this.screenManager.toggleAllMuteStatus(isMutedAll)
+    if (isMutedAll !== null) {
+      this.screenManager.toggleAllMuteStatus(isMutedAll)
+      ScreenModule.SetIsMutedAll(null)
+    }
   }
 
   private muteAll() {
-    this.screenManager.toggleAllMuteStatus(true)
+    ScreenModule.SetIsMutedAll(true)
   }
 
   private created() {
