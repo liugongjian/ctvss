@@ -14,10 +14,12 @@
           <el-button class="map__add" size="small" @click="dialogVisible = true">添加地图</el-button>
           <el-card class="map__user">
             <div v-for="map in mapList" :key="map.mapId">
-              <span @click="chooseMap(map)">{{ map.name }}></span>
-              <span @click="deleteMap(map.mapId)">删除</span>
+              <el-button class="choose-map" @click="chooseMap(map)">
+                <span class="map-text">{{ map.name }}</span>
+                <span class="edit-icon"><svg-icon name="edit" @click="editMap(map.mapId)" /></span>
+                <span class="delete-icon"><svg-icon name="delete" @click="deleteMap(map.mapId)" /></span>
+              </el-button>
             </div>
-<!--            <el-button class="map-item__user">我的地图</el-button>-->
           </el-card>
           <div class="device-tree__title">
             <span class="device-tree__text">设备树</span>
@@ -79,14 +81,18 @@
                 <el-form-item label="中心点纬度">
                   <el-input v-model="form.latitude" placeholder="请输入地图中心点纬度" />
                 </el-form-item>
-                <div class="block">
-                  <span class="demonstration">默认缩放级别</span>
-                  <el-slider v-model="value" :min="3" :max="18" />
-                </div>
-                <div class="footer">
-                  <el-button @click="dialogVisible = false">确定</el-button>
-                  <el-button @click="dialogVisible = false">取消</el-button>
-                </div>
+                <el-form-item>
+                  <div class="block">
+                    <span class="demonstration">默认缩放级别</span>
+                    <el-slider v-model="form.zoom" :min="3" :max="18" />
+                  </div>
+                </el-form-item>
+                <el-form-item>
+                  <div class="footer">
+                    <el-button type="primary" @click="addMap"> 确定 </el-button>
+                    <el-button @click="dialogVisible = false">取消</el-button>
+                  </div>
+                </el-form-item>
               </el-form>
             </el-dialog>
             <el-dialog title="添加监控点位" :visible.sync="addPositionDialog" class="dialog-text">
@@ -128,69 +134,20 @@
               <map-view
                 v-if="mapList.length > 0 && curMap"
                 ref="mapview"
-                :mapOption="curMap"
+                :map-option="curMap"
                 @mapChange="modifyMapInfo"
-              ></map-view>
-              <div v-else>
-                <el-button @click="addMap">添加地图</el-button>
+              />
+              <div v-else class="init-map">
+                <el-button @click="dialogVisible = true">添加地图</el-button>
               </div>
             </div>
-            <div class="map-info__right">
-              <el-descriptions title="基本信息" :column="1">
-                <el-descriptions-item label="设备名称">
-                  <el-input v-model="editValue" disabled />
-                </el-descriptions-item>
-                <el-descriptions-item label="设备状态">
-                  <el-input v-model="editValue" disabled />
-                </el-descriptions-item>
-                <el-descriptions-item label="流状态">
-                  <el-input v-model="editValue" disabled />
-                </el-descriptions-item>
-                <el-descriptions-item label="录制状态">
-                  <el-input v-model="editValue" disabled />
-                </el-descriptions-item>
-              </el-descriptions>
-              <el-descriptions title="位置信息" :column="1">
-                <el-descriptions-item label="经度">
-                  <el-input v-model="editValue" :disabled="!isEdit" />
-                </el-descriptions-item>
-                <el-descriptions-item label="纬度">
-                  <el-input v-model="editValue" :disabled="!isEdit" />
-                </el-descriptions-item>
-                <el-descriptions-item label="设备角度">
-                  <el-input v-model="editValue" :disabled="!isEdit" />
-                </el-descriptions-item>
-                <el-descriptions-item label="可视角度">
-                  <el-input v-model="editValue" :disabled="!isEdit" />
-                </el-descriptions-item>
-                <el-descriptions-item label="可视半径">
-                  <el-input v-model="editValue" :disabled="!isEdit" />
-                </el-descriptions-item>
-              </el-descriptions>
-              <el-descriptions title="一标三实" :column="1">
-                <el-descriptions-item label="地址">
-                  <el-input v-model="editValue" :disabled="!isEdit" />
-                </el-descriptions-item>
-                <el-descriptions-item label="人口信息">
-                  <el-input v-model="editValue" :disabled="!isEdit" />
-                </el-descriptions-item>
-                <el-descriptions-item label="房屋信息">
-                  <el-input v-model="editValue" :disabled="!isEdit" />
-                </el-descriptions-item>
-                <el-descriptions-item label="单位信息">
-                  <el-input v-model="editValue" :disabled="!isEdit" />
-                </el-descriptions-item>
-              </el-descriptions>
-            </div>
-            <div v-show="!showMapInfo" class="map-info__right">
-              <el-descriptions title="共选中两个节点" :column="1">
-                <el-descriptions-item label="IPC1">
-                  <el-input v-model="editValue" disabled />
-                </el-descriptions-item>
-                <el-descriptions-item label="IPC2">
-                  <el-input v-model="editValue" disabled />
-                </el-descriptions-item>
-              </el-descriptions>
+            <div v-show="showInfo" class="map-info__right">
+              <div v-show="showMapInfo">
+                <point-info :is-edit="isEdit" :edit-value="editValue" :marker="marker" />
+              </div>
+              <div v-show="!showMapInfo">
+                <selected-point />
+              </div>
             </div>
           </div>
         </div>
@@ -208,16 +165,19 @@ import { getDeviceTree } from '@/api/device'
 import { describeShareDevices } from '@/api/upPlatform'
 import {getDeviceEvents, getDevices, getDeviceTree} from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
-import MapView from './mapview.vue'
+import MapView from './MapView.vue'
+import PointInfo from './PointInfo.vue'
+import SelectedPoint from './SelectedPoint.vue'
 // import { getAMapLoad } from './models/vmap'
 import { getMaps, createMap, deleteMap, modifyMap } from '@/api/map'
-import axios from "axios";
 
 @Component({
   name: 'Map',
   components: {
     StatusBadge,
-    MapView
+    MapView,
+    PointInfo,
+    SelectedPoint
   }
 })
 export default class extends Mixins(IndexMixin) {
@@ -225,20 +185,35 @@ export default class extends Mixins(IndexMixin) {
   private getSums = getSums
   private dialogVisible = false
   private addPositionDialog = false
-  private editDialog = true
-  private deleteDialog = true
-  private deletesDialog = true
-  private value = 3
+  private editDialog = false
+  private deleteDialog = false
+  private deletesDialog = false
   private isEdit = false
   private editValue = 'sss'
   private breadcrumb: Array<any> = []
   private platformList: Array<any> = []
   private hideTitle = false
+  private showInfo = true
   private showMapInfo = true
+  private marker = {
+    deviceId: '399422801670782976',
+    inProtocol: 'rtmp',
+    deviceType: 'ipc',
+    deviceLabel: 'ipc006',
+    longitude: 121.487207,
+    latitude: 31.225348,
+    viewRadius: '0',
+    viewAngle: '0',
+    deviceAngle: '0',
+    population: 'xx',
+    houseInfo: 'xx',
+    unitInfo: 'xx'
+  }
   private form = {
     name: '',
     longitude: '',
-    latitude: ''
+    latitude: '',
+    zoom: 3
   }
   private submitting = false
   private dirList: any = []
@@ -450,7 +425,7 @@ export default class extends Mixins(IndexMixin) {
     this.$refs.mapview.changeEdit(this.isEdit)
   }
   fntest() {
-    this.$refs.mapview.getZoom();
+    this.$refs.mapview.getZoom()
   }
   addMarker() {
     const marker = {
@@ -474,16 +449,18 @@ export default class extends Mixins(IndexMixin) {
     this.$refs.mapview.setMarkersView(this.showMarkers)
   }
   toggleOverView() {
-    this.overView = !this.overView;
-    this.$refs.mapview.toggleOverView(this.overView);
+    this.overView = !this.overView
+    this.$refs.mapview.toggleOverView(this.overView)
   }
+
   async addMap() {
     try {
+      this.dialogVisible = false
       const map = {
-        name: '地图3',
-        longitude: 121.487207,
-        latitude: 31.225348,
-        zoom: 15,
+        name: this.form.name,
+        longitude: this.form.longitude,
+        latitude: this.form.latitude,
+        zoom: this.form.zoom
       }
       const res = await createMap(map);
       const mapId = res.mapId;
@@ -518,12 +495,13 @@ export default class extends Mixins(IndexMixin) {
   }
 
   private chooseMap(map) {
-    this.showMarkers = true;
-    this.curMap = map;
+    this.showMarkers = true
+    this.curMap = map
   }
   private async deleteMap(id) {
     try {
-      await deleteMap({ mapId: id });
+      console.log('shanchu')
+      await deleteMap({ mapId: id })
       this.mapList = this.mapList.filter(item => item.id !== id);
       if (this.curMap.mapId === id) {
         this.curMap = this.mapList[0] || null
@@ -534,30 +512,30 @@ export default class extends Mixins(IndexMixin) {
   }
   private modifyMapInfo(info) {
     console.log('==================mapinfo===============');
-    console.log(info.zoom);
-    console.log(info.center);
+    console.log(info.zoom)
+    console.log(info.center)
   }
 
   private async modifyMap(map) {
-    try{
-      await modifyMap({ mapId: map.mapId });
-      this.curMap = map;
+    try {
+      await modifyMap({ mapId: map.mapId })
+      this.curMap = map
       this.mapList = this.mapList.map(item => {
-        if (item.mapId === map.mapId){
-          return map;
+        if (item.mapId === map.mapId) {
+          return map
         } else {
-          return item;
+          return item
         }
-      });
-    } catch(e) {
+      })
+    } catch (e) {
       console.log('修改地图失败')
-    }``
+    }
   }
 
   private async mounted() {
-    this.initDirs();
-    await this.getMapList();
-    this.curMap = this.mapList[0];
+    this.initDirs()
+    await this.getMapList()
+    this.curMap = this.mapList[0]
   }
 }
 </script>
@@ -670,8 +648,74 @@ export default class extends Mixins(IndexMixin) {
   color: rgb(189, 188, 188);
 }
 
+.init-map {
+  text-align: center;
+  line-height: 100%;
+}
+
+.choose-map {
+  width: 100%;
+}
+
+.choose-map .map-text {
+  margin-right: 10px;
+}
+
+.choose-map .delete-icon {
+  display: none;
+}
+
+.choose-map .edit-icon {
+  display: none;
+}
+
+.choose-map:hover .delete-icon {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.choose-map:hover .edit-icon {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+// .tip {
+//   display: inline-block;
+//   position: relative;
+//   z-index: 2000;
+//   background: #303133;
+//   width: 50px;
+//   height: 30px;
+//   margin-left: 8px;
+//   line-height: 30px;
+//   font-size: 12px;
+//   color: #FFFFFF;
+//   border-radius: 4px;
+//   word-wrap: break-word;
+// }
+
+// .tip:before {
+//   position: absolute;
+//   left: -29%;
+//   top: 25%;
+//   content: '';
+//   color: #303133;
+//   overflow: hidden;
+//   pointer-events: none;
+//   border: 0.6em solid transparent;
+//   border-right-color: currentColor;
+//   visibility: visible;
+//   white-space: nowrap;
+//   opacity: 1;
+// }
+
 ::v-deep .el-dialog__body {
   text-align: center;
+}
+
+::v-deep .el-descriptions-item__content {
+  text-align: center;
+  line-height: 36px;
 }
 
 ::v-deep .el-descriptions-item__label {
