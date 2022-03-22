@@ -113,6 +113,7 @@ export class ScreenManager {
     if (item.type !== 'ipc' || (this.isLive && item.deviceStatus !== 'on')) {
       return
     }
+    this.currentIndex = this.findRightIndex()
     const screen = this.screenList[this.currentIndex]
     // 如果当前分屏已有播放器，先执行销毁操作
     if (screen.deviceId) {
@@ -146,5 +147,31 @@ export class ScreenManager {
     this.screenList.forEach(screen => {
       screen.player && screen.player.toggleMuteStatus(isMutedAll)
     })
+  }
+
+  /**
+   * 查找合适插入的分屏位置
+   * 1) 判断当前选中的位置是否为空，如果为空则插入
+   * 2) 然后，优先查找没有占用的位置(无DeviceId)
+   * 3) 最后，如果全部占满，从选中位置开始重新循环插入，如果当前位置为最后位置，则重第一个重新开始
+   * @return index
+   */
+  private findRightIndex(): number {
+    // Step1
+    if (!this.screenList[this.currentIndex].deviceId) {
+      return this.currentIndex
+    }
+    // Step2
+    for (let i = 0; i < this.screenList.length; i++) {
+      if (!this.screenList[i].deviceId) {
+        return i
+      }
+    }
+    // Step3
+    if (this.currentIndex === this.screenList.length - 1) {
+      return 0
+    } else {
+      return this.currentIndex + 1
+    }
   }
 }

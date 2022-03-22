@@ -16,7 +16,6 @@
     </div>
     <ScreenList v-else />
     <ScreenTools />
-    <el-button @click="muteAll">全部静音</el-button>
   </div>
 </template>
 <script lang="ts">
@@ -87,10 +86,6 @@ export default class extends Vue {
       this.screenManager.toggleAllMuteStatus(isMutedAll)
       ScreenModule.SetIsMutedAll(null)
     }
-  }
-
-  private muteAll() {
-    ScreenModule.SetIsMutedAll(true)
   }
 
   private created() {

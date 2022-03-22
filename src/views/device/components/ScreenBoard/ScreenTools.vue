@@ -10,10 +10,10 @@
         </template>
       </div>
       <div class="screen-tools__bar__right">
-        <Cleaner v-if="showAxis" />
+        <Cleaner />
         <SizeSelector />
         <Fullscreen />
-        <ViewSelector />
+        <ViewSelector v-if="!isLive" />
       </div>
     </div>
     <ReplayAxis v-if="showAxis" :screen="currentScreen" @change="onAxisTimeChange" />
@@ -59,10 +59,17 @@ export default class extends Vue {
   }
 
   /**
+   * 是否为实时预览
+   */
+  private get isLive() {
+    return this.screenManager.isLive
+  }
+
+  /**
    * 当为录像回放，并且视图为screen时显示时间轴和相关控件
    */
   private get showAxis() {
-    return !this.screenManager.isLive && this.screenManager.view === 'screen'
+    return !this.isLive && this.screenManager.view === 'screen'
   }
 
   /**
