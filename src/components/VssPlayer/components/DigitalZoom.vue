@@ -38,6 +38,16 @@ export default class extends ComponentMixin {
    */
   public toggleZoom() {
     this.isZoom = !this.isZoom
+    if (this.isZoom) {
+      this.$emit('dispatch', {
+        eventType: 'enableZoom',
+        payload: 'digital'
+      })
+    }
+  }
+
+  public close() {
+    this.isZoom = false
   }
 
   private bindEvent(container: HTMLDivElement) {

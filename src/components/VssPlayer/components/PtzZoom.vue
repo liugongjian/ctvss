@@ -27,6 +27,10 @@ export default class extends ComponentMixin {
 
   private showCanvasBox = false
 
+  public close() {
+    this.showCanvasBox = false
+  }
+
   // private mounted() {
   //   console.log('playerINfo------>', this.streamInfo, this.deviceInfo)
   // }
@@ -42,6 +46,12 @@ export default class extends ComponentMixin {
 
   private changeScaleCanvas() {
     this.showCanvasBox = !this.showCanvasBox
+    if (this.showCanvasBox) {
+      this.$emit('dispatch', {
+        eventType: 'enableZoom',
+        payload: 'ptz'
+      })
+    }
     // console.log('this.player----->', this.player.container)
     // todo 视频组件 电子缩放与ptz缩放事件互斥
 

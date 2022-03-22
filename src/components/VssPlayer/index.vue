@@ -36,12 +36,13 @@
         <StreamSelector :stream-info="streamInfo" @dispatch="dispatch" />
         <TypeSelector v-if="hasTypeSelector" :type="type" @dispatch="dispatch" />
         <Intercom v-if="isLive" :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="playerType" :codec="codec" />
-        <DigitalZoom />
-        <PtzZoom v-if="isLive" :stream-info="streamInfo" :device-info="deviceInfo" />
+        <DigitalZoom ref="digitalZoom" @dispatch="dispatch" />
+        <PtzZoom v-if="isLive" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
         <Snapshot :name="deviceInfo.deviceName" />
         <Scale />
         <LiveReplaySelector v-if="hasLiveReplaySelector" :is-live="isLive" @dispatch="dispatch" />
-        <Fullscreen @dispatch="dispatch" />
+        <!-- <Fullscreen @dispatch="dispatch" /> -->
+        <slot name="controlRight" />
       </template>
     </Player>
   </div>
@@ -217,7 +218,25 @@ export default class extends Vue {
    * 当切换视频格式
    */
   private dispatch(event: PlayerEvent) {
+    switch (event.eventType) {
+      case 'enableZoom':
+        this.enableZoom(event.payload)
+        break
+    }
     this.$emit('dispatch', event)
+  }
+
+  /**
+   * 切换Zoom类型
+   */
+  private enableZoom(payload) {
+    let zoomRef
+    if (payload === 'ptz') {
+      zoomRef = this.$refs.digitalZoom
+    } else {
+      zoomRef = this.$refs.ptzZoom
+    }
+    zoomRef.close()
   }
 
   /* 替换播放地址协议 */
