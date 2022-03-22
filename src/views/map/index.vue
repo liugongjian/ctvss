@@ -483,11 +483,10 @@ export default class extends Mixins(IndexMixin) {
         name: '地图3',
         longitude: 121.487207,
         latitude: 31.225348,
-        zoom: 13,
+        zoom: 15,
       }
-      // const res = await createMap(map);
-      // const mapId = res.mapId;
-      const mapId = '00001111';
+      const res = await createMap(map);
+      const mapId = res.mapId;
       this.curMap = {...map, mapId}
       this.mapList.push(this.curMap);
     } catch (e) {

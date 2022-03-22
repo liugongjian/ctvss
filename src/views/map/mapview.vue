@@ -169,10 +169,10 @@ export default class MapView extends Vue {
       markerOption.latitude = lat;
     }
     try {
-      // await addMarkers({
-      //   mapId: this.mapOption.mapId,
-      //   devices: [this.handleDevice(markerOption)]
-      // });
+      await addMarkers({
+        mapId: this.mapOption.mapId,
+        devices: [this.handleDevice(markerOption)]
+      });
       this.vmap.addMarker(markerOption);
     } catch(e) {
       console.log('添加标记点失败');
