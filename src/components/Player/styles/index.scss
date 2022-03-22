@@ -70,6 +70,10 @@
     align-items: center;
   }
 
+  .player__h265 div {
+    display: none !important;
+  }
+
   .el-loading-mask {
     background: none !important;
     top: 50px;
