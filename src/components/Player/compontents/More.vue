@@ -25,8 +25,25 @@ export default class extends ComponentMixin {
   /**
    * 监听播放器是否创建
    */
-  @Watch('player')
-  private onPlayerCreate() {
+  @Watch('isShowTools')
+  private onShowTools(isShowTools: boolean) {
+    if (isShowTools) {
+      this.adjustRightTools('show')
+      window.addEventListener('click', this.onClickWindow)
+    } else {
+      this.adjustRightTools('hidden')
+      window.removeEventListener('click', this.onClickWindow)
+    }
+  }
+
+  private beforeMount() {
+    this.observerInit()
+  }
+
+  /**
+   * 挂载屏幕尺寸观测器
+   */
+  private observerInit() {
     this.palyerWrap = this.player.container.parentElement.parentElement
     // 监听播放器容器大小变化
     this.resizeObserver = new ResizeObserver(throttle(() => {
@@ -42,20 +59,6 @@ export default class extends ComponentMixin {
       }
     }, 300))
     this.resizeObserver.observe(this.player.container.parentElement)
-  }
-
-  /**
-   * 监听播放器是否创建
-   */
-  @Watch('isShowTools')
-  private onShowTools(isShowTools: boolean) {
-    if (isShowTools) {
-      this.adjustRightTools('show')
-      window.addEventListener('click', this.onClickWindow)
-    } else {
-      this.adjustRightTools('hidden')
-      window.removeEventListener('click', this.onClickWindow)
-    }
   }
 
   /**

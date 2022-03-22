@@ -231,9 +231,9 @@ export default class extends Vue {
     })
   }
 
-  @Watch('deviceId')
-  private async onDeviceIdChange(newValue: string) {
-    if (newValue) {
+  @Watch('isClosed')
+  private async onDeviceIdChange(isClosed: boolean) {
+    if (!isClosed) {
       this.getPresets()
       this.getCruises()
       this.getKeepWatchInfo()
