@@ -242,8 +242,15 @@ export class RecordManager {
         endTime,
         pageSize: 9999
       }, this.axiosSource.token)
-      console.log(UserModule.tags)
-      return res.records.map((record: any) => {
+      return res.records.map((record: any, index: number) => {
+        const currentEnd = getTimestamp(record.endTime)
+        const threshold = +UserModule.tags.fixRecordGap
+        record.endTime = currentEnd
+        if (index + 1 < res.records.length) {
+          const nextStart = getTimestamp(res.records[index + 1]['startTime'])
+          record.endTime = (nextStart - currentEnd) / 1000 < threshold ? nextStart : currentEnd
+          record.testdelta = (nextStart - getTimestamp(record.startTime))
+        }
         return new Record({
           startTime: getTimestamp(record.startTime) / 1000,
           endTime: getTimestamp(record.endTime) / 1000,
