@@ -49,6 +49,7 @@ export default class extends Vue {
    */
   private onPlayerCreate(player) {
     this.screen.player = player
+    this.screen.errorMsg = null
   }
 
   /**

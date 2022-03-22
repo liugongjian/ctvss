@@ -116,6 +116,7 @@ export default class extends Vue {
    */
   private onPlayerCreate(player) {
     this.screen.player = player
+    this.screen.errorMsg = null
     // 片段播放完后播放下一段
     this.screen.player.config.onEnded = this.recordManager.playNextRecord.bind(this.recordManager)
     // 跳转到offsetTime

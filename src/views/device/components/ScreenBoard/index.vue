@@ -86,6 +86,10 @@ export default class extends Vue {
     this.screenManager.toggleAllMuteStatus(isMutedAll)
   }
 
+  private muteAll() {
+    this.screenManager.toggleAllMuteStatus(true)
+  }
+
   private created() {
     this.screenManager = new ScreenManager({
       size: 4,
