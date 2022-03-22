@@ -92,9 +92,11 @@ export class ScreenManager {
   }
 
   /**
-   * 获取分屏数量
+   * 初始化屏幕列表
   */
   public initScreenList() {
+    this.screenList = []
+    this.currentIndex = 0
     for (let i = 0; i < this._size; i++) {
       const screen = new Screen()
       this.screenList.push(screen)

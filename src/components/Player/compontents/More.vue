@@ -47,7 +47,6 @@ export default class extends ComponentMixin {
     this.palyerWrap = this.player.container.parentElement.parentElement
     // 监听播放器容器大小变化
     this.resizeObserver = new ResizeObserver(throttle(() => {
-      console.log(this.player.container.clientWidth)
       if (this.player.container.clientHeight < 100 || this.player.container.clientWidth < 300) {
         this.isShowMoreBtn = true
         !this.isShowTools && this.adjustRightTools('hidden')

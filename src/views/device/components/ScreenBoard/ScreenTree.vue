@@ -268,6 +268,8 @@ export default class extends Mixins(IndexMixin) {
 
   @Watch('currentGroupId', { immediate: true })
   private onCurrentGroupChange(groupId: String, oldGroupId: String) {
+    this.screenManager.initScreenList()
+    this.screenManager.inProtocol = this.currentGroupInProtocol
     // search为inject变量，不能直接整体赋值为其他，否则inject会失效
     this.advancedSearchForm.deviceStatusKeys = []
     this.advancedSearchForm.streamStatusKeys = []
@@ -294,7 +296,9 @@ export default class extends Mixins(IndexMixin) {
     if (!groupId) return
     this.$nextTick(() => {
       this.initDirs()
+      
       // this.stopPolling()
+      console.log(this.screenManager)
     })
   }
 
