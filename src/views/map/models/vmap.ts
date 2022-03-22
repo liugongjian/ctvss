@@ -1,4 +1,5 @@
 import AMapLoader from "@amap/amap-jsapi-loader";
+import LngLat = AMap.LngLat;
 
 export interface mapObject {
   mapId: string,
@@ -10,15 +11,19 @@ export interface mapObject {
 
 export interface markerObject {
   longitude: number,
-  Latitude: number,
+  latitude: number,
   deviceId: string,
-  deviceAngle: number,
-  viewAngle: number,
-  viewRadius: number,
+  deviceType: string,
+  inProtocol: string,
+  deviceLabel: string,
+  deviceAngle: string,
+  viewAngle: string,
+  viewRadius: string,
   population?: string,
   houseInfo?: string,
   unitInfo?: string,
-  selected?: boolean
+  selected?: boolean,
+  lnglat?: [number, number] | LngLat
 }
 
 export enum mapStatus {
@@ -34,6 +39,7 @@ export interface markerEventHandlers {
   onClick?: any
   onChange?: any
   onDelete?: any
+  onPlay?: any
 }
 
 export const getAMapLoad = () => {
@@ -129,13 +135,6 @@ export default class VMap {
   }
 
   addMarker(marker): void {
-    const {lng, lat} = this.map.getCenter();
-    if (!marker.longitude) {
-      marker.longitude = lng;
-    }
-    if (!marker.latitude) {
-      marker.latitude = lat;
-    }
     this.curMarkerList.push(marker);
     this.cluster.addData(this.wrapMarkers([marker]));
   }
@@ -182,6 +181,13 @@ export default class VMap {
       this.setCluster(this.wrapMarkers(this.curMarkerList));
     }
   }
+  setMarkersView(show: boolean) {
+    if (show) {
+      this.setCluster(this.curMarkerList);
+    } else {
+      this.cluster.setMap(null);
+    }
+  }
 
   setCluster(markers: any[]) {
     if (this.cluster) {
@@ -207,6 +213,7 @@ export default class VMap {
     const _renderMarker = (context: any) => {
       const content = this.buildContent(context.data[0]);
       context.marker.setContent(content)
+      context.marker.setOffset(new AMap.Pixel(-25, -30));
       context.marker.setExtData(context.data[0]);
       if (this.isEdit) {
         context.marker.setDraggable(true);
@@ -248,34 +255,54 @@ export default class VMap {
       }
       const lat = alllat / len;
       const lng = alllng / len;
-      this.map.setZoomAndCenter(this.map.getZoom() + 3, [lng, lat]);
+      this.map.setZoomAndCenter(this.map.getZoom() + 2, [lng, lat]);
     })
   }
 
   buildContent(markerOptions: markerObject) {
     const markerContent = document.createElement('div');
     markerContent.setAttribute('class', 'marker-containt');
-    const sector = this.drawSector(markerOptions);
+    // const sector = this.drawSector(markerOptions);
     const marker = this.createNode('<img class="marker-center" width="19px" height="32px" src="//webapi.amap.com/theme/v1.3/markers/b/mark_bs.png">')
-    const label = this.createNode(`<div class="marker-label">${markerOptions.deviceId}</div>`)
+    const label = this.createNode(`<div class="marker-label">${markerOptions.deviceLabel}</div>`)
     if (markerOptions.selected) {
-      const size = markerOptions.viewRadius * 2 + 60;
-      const wrapStyle = `width: ${size}px; height: ${size}px; top: ${(50 - size) / 2}px; left: ${(50 - size) / 2}px`;
+      // const size = markerOptions.viewRadius * 2 + 60;
+      const size = 100;
+      // const wrapStyle = `width: ${size}px; height: ${size + 20}px; top: ${(50 - size) / 2 - 20}px; left: ${(50 - size) / 2}px`;
+      const wrapStyle = `width: ${size}px; height: ${size}px; top: ${(50 - size) / 2 - 20}px; left: ${(50 - size) / 2}px`;
       let wrapDiv;
       let optionDiv;
-      if (this.isEdit) { // 编辑状态
+      if (!this.isEdit) { // 编辑状态
         const previewIcon = `<i class="icon icon_preview" onclick="previewMarker('${markerOptions.deviceId}')">p</i>`
         const replayIcon = `<i class="icon icon_replay" onclick="replayMarker('${markerOptions.deviceId}')">r</i>`
         optionDiv = `<div class="marker-options">${previewIcon}${replayIcon}</div>`;
       } else {
-        const deleteIcon = `<i class="icon icon_delete" onclick="deleteMarker('${markerOptions.deviceId}')">×</i>`
+        const deleteIcon = `<i class="icon icon_delete" onclick="deleteMarker('${markerOptions.deviceId}')"></i>`
         optionDiv = `<div class="marker-options">${deleteIcon}</div>`;
       }
       window.previewMarker = (id) => {
-        console.log('播放'+ id);
+        console.log('播放'+ id)
+        const pos = this.map.lngLatToContainer(new AMap.LngLat(markerOptions.longitude, markerOptions.latitude));
+        const data = {
+          show: 'live',
+          deviceId: markerOptions.deviceId,
+          inProtocol: markerOptions.inProtocol,
+          top: pos.y,
+          left: pos.x
+        }
+        this.markerEventHandlers.onPlay && this.markerEventHandlers.onPlay(data)
       }
       window.replayMarker = (id) => {
         console.log('回放'+ id);
+        const pos = this.map.lngLatToContainer(new AMap.LngLat(markerOptions.longitude, markerOptions.latitude));
+        const data = {
+          show: 'replay',
+          deviceId: markerOptions.deviceId,
+          inProtocol: markerOptions.inProtocol,
+          top: pos.y,
+          left: pos.x
+        }
+        this.markerEventHandlers.onPlay && this.markerEventHandlers.onPlay(data)
       }
       window.deleteMarker = (id) => {
         this.markerEventHandlers.onDelete(id);
@@ -283,7 +310,8 @@ export default class VMap {
       wrapDiv = this.createNode(`<div class="marker-wrap" style="${wrapStyle}">${optionDiv}</div>`);
       markerContent.append(wrapDiv);
     }
-    markerContent.append(sector, marker, label);
+    // markerContent.append(sector, marker, label);
+    markerContent.append(marker, label);
     return markerContent;
   }
 
@@ -294,7 +322,7 @@ export default class VMap {
   }
 
   drawSector(markerOptions: markerObject) {
-    const sectorSize = markerOptions.viewRadius * 2;
+    const sectorSize = Number(markerOptions.viewRadius) * 2;
     const canvas = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     canvas.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
     canvas.setAttribute('width', sectorSize.toString());
@@ -311,11 +339,12 @@ export default class VMap {
     path.setAttribute('id', markerOptions.deviceId);
     path.style.cssText = cssText;
     path.setAttribute('d', buildPath(markerOptions, this.map!));
-    path.setAttribute('transform', `rotate(${markerOptions.deviceAngle - 90 - markerOptions.viewAngle / 2}, ${markerOptions.viewRadius}, ${markerOptions.viewRadius})`);
+    path.setAttribute('transform', `rotate(${Number(markerOptions.deviceAngle) - 90 - Number(markerOptions.viewAngle) / 2}, ${markerOptions.viewRadius}, ${markerOptions.viewRadius})`);
     canvas.appendChild(path);
 
     function buildPath(markerOptions: markerObject, map: AMap.Map): string {
-      const { viewRadius, viewAngle } = markerOptions;
+      const viewRadius = Number(markerOptions.viewRadius)
+      const viewAngle = Number(markerOptions.viewAngle)
       const endPosX = Math.cos((viewAngle / 180) * Math.PI) * viewRadius + viewRadius;
       const endPosY = Math.sin((viewAngle / 180) * Math.PI) * viewRadius + viewRadius;
       return `M ${viewRadius} ${viewRadius} L ${viewRadius * 2} ${viewRadius} A ${viewRadius} ${viewRadius} 0 0 1 ${endPosX} ${endPosY} L ${viewRadius} ${viewRadius}`;

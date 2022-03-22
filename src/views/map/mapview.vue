@@ -1,20 +1,43 @@
 <template>
-  <div id="mapContainer"></div>
+  <div id="mapContainer">
+    <div class="play-wrap" v-if="playWindowInfo.show !== 'none'" :style="playWindowInfo.style">
+<!--      <live-view-->
+<!--        v-if="playWindowInfo.show === 'live'"-->
+<!--        :device-id="playWindowInfo.deviceId"-->
+<!--        :in-protocol="playWindowInfo.inProtocol"-->
+<!--      />-->
+    </div>
+  </div>
 </template>
 <script lang="ts">
 import {Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import VMap, {getAMapLoad} from './models/vmap'
-import { getMapDevices, updateMarkers } from '@/api/map'
+import { getMapDevices, updateMarkers, addMarkers, deleteMarkers } from '@/api/map'
+import LiveView from '@/views/device/components/LiveView.vue'
+// import { getDevice } from '@/api/device'
+// import { DeviceStatus, RecordStatus } from '@/dics'
 
 @Component({
-  name: 'MapView'
+  name: 'MapView',
+  components: {
+    LiveView,
+  }
 })
 export default class MapView extends Vue {
   @Prop()
   private mapOption: any
 
-  vmap = new VMap('mapContainer');
-  markerlist = [];
+  vmap = new VMap('mapContainer')
+  markerlist = []
+
+  playWindowInfo = {
+    style: null,
+    show: 'none', // none|live|replay
+    top: 0,
+    left: 0,
+    deviceId: '',
+    inProtocol: ''
+  }
 
   @Watch('mapOption')
   private onMapChange() {
@@ -58,40 +81,107 @@ export default class MapView extends Vue {
 
   async handleMarkerModify(marker) {
     console.log('marker 修改了');
-    console.log(marker);
-    this.markerlist = this.markerlist.map((item) => {
-      if (marker.deviceId === item.deviceId) {
-        item = marker;
+    try {
+      const data = {
+        mapId: this.mapOption.mapId,
+        devices: [this.handleDevice(marker)]
       }
-      return item
-    })
-    this.vmap.updateMarkerList(this.markerlist);
-    // try {
-    //   await updateMarkers({
-    //     mapId: this.mapOption.mapId,
-    //     devices: [marker]
-    //   })
-    // } catch(e) {
-    //   console.log('修改标记点失败');
-    // }
+      console.log(data);
+      await updateMarkers(data);
+      this.markerlist = this.markerlist.map((item) => {
+        if (marker.deviceId === item.deviceId) {
+          item = marker;
+        }
+        return item
+      })
+      this.vmap.updateMarkerList(this.markerlist)
+    } catch(e) {
+      console.log('修改标记点失败')
+    }
   }
 
   handleMarkerClick(marker) {
     console.log(`标记点${marker.deviceId}被点击了`)
+    console.log(marker)
   }
 
-  handleMarkerDelete(deviceId) {
-    this.markerlist = this.markerlist.filter(item => item.deviceId !== deviceId);
-    this.vmap.updateMarkerList(this.markerlist);
-    console.log(`标记点${deviceId}被删除了`)
+  handleMarkerPlay(data) {
+    console.log(`标记点${data.deviceId}开始播放了`)
+    this.playWindowInfo = data;
+    const width = 240;
+    const height = 200;
+    const size = 100;
+    const style = {
+      width: `${width}px`,
+      height: `${height}px`,
+      top: `${data.top - (height + size/2 + 40)}px`,
+      left: `${data.left - width/2}px`
+    };
+    this.playWindowInfo = {
+      ...data,
+      style
+    }
+  }
+
+  async handleMarkerDelete(deviceId) {
+    try {
+      await deleteMarkers({
+        mapId: this.mapOption.mapId,
+        devices: [{ deviceId }]
+      });
+      this.markerlist = this.markerlist.filter(item => item.deviceId !== deviceId)
+      this.vmap.updateMarkerList(this.markerlist);
+      console.log(`标记点${deviceId}被删除了`)
+    } catch(e) {
+      console.log('添加标记点失败');
+    }
   }
 
   changeEdit(status) {
     this.vmap.changeEdit(status);
+    this.playWindowInfo.show = 'none';
   }
 
-  addMarker(markerOption) {
-    this.vmap.addMarker(markerOption);
+  handleDevice(device) {
+    const result = {
+      deviceId: device.deviceId,
+      inProtocol: device.inProtocol,
+      deviceType: device.deviceType,
+      deviceLabel: device.deviceLabel,
+      longitude: device.longitude.toString(),
+      latitude: device.latitude.toString(),
+      viewRadius: device.viewRadius,
+      viewAngle: device.viewAngle,
+      deviceAngle: device.deviceAngle,
+      population: device.population,
+      houseInfo: device.houseInfo,
+      unitInfo: device.unitInfo
+    }
+    return result;
+  }
+
+  async addMarker(markerOption) {
+    const {lng, lat} = this.vmap.map.getCenter();
+    if (!markerOption.longitude) {
+      markerOption.longitude = lng;
+    }
+    if (!markerOption.latitude) {
+      markerOption.latitude = lat;
+    }
+    try {
+      // await addMarkers({
+      //   mapId: this.mapOption.mapId,
+      //   devices: [this.handleDevice(markerOption)]
+      // });
+      this.vmap.addMarker(markerOption);
+    } catch(e) {
+      console.log('添加标记点失败');
+    }
+  }
+
+  setMarkersView(isShow) {
+    console.log('是否显示标记点：', isShow);
+    this.vmap.setMarkersView(isShow);
   }
 
   setMarkerList(markerList) {
@@ -99,7 +189,8 @@ export default class MapView extends Vue {
     this.vmap.setMarkerList(markerList, {
       onClick: this.handleMarkerClick,
       onChange: this.handleMarkerModify,
-      onDelete: this.handleMarkerDelete
+      onDelete: this.handleMarkerDelete,
+      onPlay: this.handleMarkerPlay
     });
   }
   toggleOverView(state) {
@@ -159,6 +250,23 @@ export default class MapView extends Vue {
   display: inline-block;
   width: 20px;
   height: 20px;
-  border: 1px solid #000;
+}
+.marker-options .icon_delete {
+  background: url('~@/icons/svg/delete.svg') no-repeat;
+  background-size: contain;
+}
+.marker-options .icon_preview {
+  background: url('~@/icons/svg/player.svg') no-repeat;
+  background-size: contain;
+  margin-right: 5px;
+}
+.marker-options .icon_replay {
+  background: url('~@/icons/svg/play-video.svg') no-repeat;
+  background-size: contain;
+}
+.play-wrap{
+  position: absolute;
+  z-index: 9;
+  border: 1px solid grey;
 }
 </style>

@@ -252,8 +252,8 @@ export default class extends Mixins(IndexMixin) {
   private mapPager = {}
   private markerList = []
   private curMap = null
-  private test = 4
   private overView = false
+  private showMarkers = true
   @Prop()
   private platformId: any = '417932083494649856'
   private typeMapping: any = {
@@ -454,19 +454,24 @@ export default class extends Mixins(IndexMixin) {
   }
   addMarker() {
     const marker = {
-      deviceId: `00${this.test++}`,
-      inProtocol: 'rtsp',
+      deviceId: '399422801670782977',
+      inProtocol: 'rtmp',
       deviceType: 'ipc',
+      deviceLabel: 'ipc006',
       // longitude: 121.487207,
       // latitude: 31.225348,
-      viewRadius: 30,
-      viewAngle: 100,
-      deviceAngle: 0,
-      population: '人口信息',
-      houseInfo: '房屋信息',
-      unitInfo: '单位信息'
+      viewRadius: '0',
+      viewAngle: '0',
+      deviceAngle: '0',
+      population: 'xx',
+      houseInfo: 'xx',
+      unitInfo: 'xx'
     }
     this.$refs.mapview.addMarker(marker)
+  }
+  toggleMarkersShow() {
+    this.showMarkers = !this.showMarkers;
+    this.$refs.mapview.setMarkersView(this.showMarkers)
   }
   toggleOverView() {
     this.overView = !this.overView;
@@ -514,6 +519,7 @@ export default class extends Mixins(IndexMixin) {
   }
 
   private chooseMap(map) {
+    this.showMarkers = true;
     this.curMap = map;
   }
   private async deleteMap(id) {

@@ -69,10 +69,8 @@ export const getMapDevices = (params: any): Promise<any> =>
 export const addMarkers = (params: any): Promise<any> =>
   request({
     url: '/map/MarkOnMap',
-    method: 'get',
-    params: {
-      ...params
-    }
+    method: 'post',
+    data: params
   })
 
 /**
@@ -81,10 +79,8 @@ export const addMarkers = (params: any): Promise<any> =>
 export const updateMarkers = (params: any): Promise<any> =>
   request({
     url: '/map/ReMarkOnMap',
-    method: 'get',
-    params: {
-      ...params
-    }
+    method: 'post',
+    data: params
   })
 
 /**
@@ -93,8 +89,6 @@ export const updateMarkers = (params: any): Promise<any> =>
 export const deleteMarkers = (params: any): Promise<any> =>
   request({
     url: '/map/UnMarkOnMap',
-    method: 'get',
-    params: {
-      ...params
-    }
+    method: 'post',
+    data: params
   })
