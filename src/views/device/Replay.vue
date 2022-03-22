@@ -24,10 +24,15 @@
             :is-live="isLive"
           >
             <template v-if="currentScreen && currentScreen.deviceId || screenManager.isSync" slot="bottom">
-              <div class="device-list__replay-type">
-                <ReplayType v-if="currentScreen" :screen="currentScreen" />
+              <div class="device-list__calander" :class="{'device-list__calander__hidden': isCollapse}">
+                <div class="device-list__replay-type">
+                  <ReplayType v-if="currentScreen" :screen="currentScreen" />
+                </div>
+                <DatePicker v-if="currentScreen" :screen="currentScreen" :inline="true" />
               </div>
-              <DatePicker v-if="currentScreen" :screen="currentScreen" :inline="true" />
+              <el-button class="device-list__arrow" :class="{'device-list__arrow__active': isCollapse}" type="text" @click="isCollapse = !isCollapse">
+                  <svg-icon name="arrow-down" />
+                </el-button>
             </template>
           </ScreenTree>
         </div>
@@ -60,6 +65,7 @@ import ReplayType from './components/ScreenBoard/components/ReplayType.vue'
 })
 export default class extends Mixins(ScreenMixin) {
   private isLive = false
+  private isCollapse = false
 }
 </script>
 <style lang="scss" scoped>
@@ -72,6 +78,25 @@ export default class extends Mixins(ScreenMixin) {
       .el-radio-button__inner {
         padding: 7px 25px;
       }
+    }
+  }
+  .device-list__calander {
+    max-height: 1000px;
+    transition: all 0.5s;
+    overflow: hidden;
+
+    &__hidden {
+      max-height: 0px;
+    }
+  }
+  .device-list__arrow {
+    display: inline-block;
+    text-align: center;
+    width: 100%;
+    background: #fff;
+
+    &__active {
+      transform: rotate(180) ;
     }
   }
 </style>
