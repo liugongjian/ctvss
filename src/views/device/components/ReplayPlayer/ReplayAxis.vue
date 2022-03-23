@@ -21,6 +21,7 @@ import { isCrossDays, dateFormat, getNextHour, getDateByTime, currentTimeZeroMse
 import { prefixZero } from '@/utils/number'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import { throttle } from 'lodash'
+import { clear } from 'console'
 
 @Component({
   name: 'ReplayAxis'
@@ -102,6 +103,8 @@ export default class extends Vue {
   private axisEndTime: number = 0
   /* 是否加载中 */
   private isLoading = false
+  /* 延时加载相邻日期定时器 */
+  private timeout = null
 
   /* 当前分屏的录像管理器 */
   private get recordManager() {
@@ -139,9 +142,21 @@ export default class extends Vue {
 
   /* 监听设备变化 */
   @Watch('screen.deviceId')
-  private onDeviceChange() {
+  /* 监听日历变化 */
+  @Watch('recordManager.currentDate')
+  private onDeviceOrDateChange() {
+    this.currentTime = this.recordManager.currentDate
     this.generateData()
     this.draw()
+    /* 继续加载上一天的录像列表 */
+    clearTimeout(this.timeout)
+    this.timeout = setTimeout(async() => {
+      await this.loadSiblingRecordList(-1, -1)
+      setTimeout(() => {
+        this.generateData()
+        this.draw()
+      }, 100)
+    }, 1000)
   }
 
   private created() {
@@ -543,7 +558,7 @@ export default class extends Vue {
    */
   private async getRecordListByDate(date) {
     if (this.screen && this.screen.recordManager) {
-      this.screen.recordManager.getRecordListByDate(date, true, true)
+      await this.screen.recordManager.getRecordListByDate(date, true, true)
     }
   }
 }

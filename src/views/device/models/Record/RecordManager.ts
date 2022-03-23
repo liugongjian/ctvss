@@ -7,7 +7,6 @@ import { Screen } from '../Screen/Screen'
 import { getTimestamp, getLocaleDate, getDateByTime } from '@/utils/date'
 import { getDeviceRecords, getDeviceRecordStatistic, getDeviceRecordRule, describeHeatMap, getDevicePreview, setRecordScale } from '@/api/device'
 import { UserModule } from '@/store/modules/user'
-import { prefixZero } from '@/utils/number'
 
 export class RecordManager {
   /* 当前分屏 */
@@ -90,13 +89,14 @@ export class RecordManager {
   public async getRecordListByDate(date: number, isConcat = false, isSilence = false) {
     try {
       if (!isSilence) {
+        this.axiosSource && this.axiosSource.cancel()
         this.screen.errorMsg = null
         this.screen.isLoading = true
         this.currentDate = date
         this.recordList = []
       }
       if (!isConcat) {
-        this.screen.player.pause()
+        this.screen.player && this.screen.player.pause()
         this.loadedRecordDates.clear()
       } else if (this.loadedRecordDates.has(date)) {
         return
@@ -104,19 +104,18 @@ export class RecordManager {
       // 在SET中存入日期，防止重复加载
       this.loadedRecordDates.add(date)
       const records = await this.getRecordList(date, date + 24 * 60 * 60)
-      if (records) {
-        if (isConcat) {
-          // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
-          if (date > this.currentDate) {
-            this.recordList = this.recordList.concat(records)
-          } else {
-            this.recordList = records.concat(this.recordList)
-          }
+      if (records && records.length) {
+        // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
+        if (date > this.currentDate) {
+          this.recordList = this.recordList.concat(records)
         } else {
-          this.recordList = records
-          this.currentRecord = this.recordList[0]
+          this.recordList = records.concat(this.recordList)
+        }
+        if (!isConcat) {
+          this.currentRecord = records[0]
         }
       } else if (!isSilence) {
+        this.currentRecord = null
         this.screen.errorMsg = this.screen.ERROR.NO_RECORD
       }
     } catch (e) {

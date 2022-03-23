@@ -104,9 +104,9 @@ export default class extends Vue {
   /**
    * 切换日期
    */
-  private changeDate(date: number) {
-    console.log(date)
-    this.recordManager.getRecordListByDate(date / 1000)
+  private async changeDate(date: number) {
+    if (this.screen.isLoading) return
+    await this.recordManager.getRecordListByDate(date / 1000)
   }
 }
 
