@@ -49,6 +49,11 @@ export default class extends Vue {
   @Prop()
   private inProtocol: string
 
+  @Prop({
+    default: 4
+  })
+  private defaultSize: number
+
   /* 分屏管理器 */
   public screenManager: ScreenManager = null
 
@@ -99,8 +104,8 @@ export default class extends Vue {
 
   private created() {
     this.screenManager = new ScreenManager({
-      size: 4,
-      layout: '4',
+      size: this.defaultSize,
+      layout: this.defaultSize.toString(),
       isLive: this.isLive,
       inProtocol: this.inProtocol
     })

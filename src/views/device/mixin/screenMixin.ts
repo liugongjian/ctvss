@@ -1,6 +1,5 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import IndexMixin from './indexMixin'
-import FullscreenMixin from './fullscreenMixin'
 import { ScreenManager } from '../models/Screen/ScreenManager'
 import ScreenBoard from '../components/ScreenBoard/index.vue'
 
@@ -10,7 +9,7 @@ import ScreenBoard from '../components/ScreenBoard/index.vue'
     ScreenBoard
   }
 })
-export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
+export default class ScreenMixin extends Mixins(IndexMixin) {
   public screenManager: ScreenManager = null
 
   /* 当前选中的分屏 */
@@ -24,11 +23,9 @@ export default class ScreenMixin extends Mixins(IndexMixin, FullscreenMixin) {
     this.screenManager = screenBoard!.screenManager
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
-    window.addEventListener('resize', this.checkFullscreen)
   }
 
   public destroyed() {
     window.removeEventListener('resize', this.calMaxHeight)
-    window.removeEventListener('resize', this.checkFullscreen)
   }
 }

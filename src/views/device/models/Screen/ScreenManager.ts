@@ -26,6 +26,8 @@ export class ScreenManager {
   public isLive: boolean
   /* 录像时间轴同步向 */
   public isSync: boolean
+  /* 是否只需要单窗口（用于设备管理播放） */
+  public isSingle: boolean
   /* 设备数队列（用于轮巡） */
   public devicesQueue: any[]
   public refs: any
@@ -38,6 +40,7 @@ export class ScreenManager {
     this.view = 'screen'
     this.isLive = config.isLive
     this.isSync = false
+    this.isSingle = false
     this.currentIndex = 0
     this.screenList = []
     this.devicesQueue = null
