@@ -31,8 +31,8 @@
                 <DatePicker v-if="currentScreen" :screen="currentScreen" :inline="true" />
               </div>
               <el-button class="device-list__arrow" :class="{'device-list__arrow__active': isCollapse}" type="text" @click="isCollapse = !isCollapse">
-                  <svg-icon name="arrow-down" />
-                </el-button>
+                <svg-icon name="arrow-down" />
+              </el-button>
             </template>
           </ScreenTree>
         </div>
@@ -94,9 +94,12 @@ export default class extends Mixins(ScreenMixin) {
     text-align: center;
     width: 100%;
     background: #fff;
+    padding: 0 0 5px 0;
 
     &__active {
-      transform: rotate(180deg);
+      svg {
+        transform: rotate(180deg);
+      }
     }
   }
 </style>

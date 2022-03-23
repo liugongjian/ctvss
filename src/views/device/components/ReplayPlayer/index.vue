@@ -5,7 +5,7 @@
     :class="{'has-axis': hasAxis}"
     :url="url"
     :type="type"
-    :codec="screen.codec"
+    :codec="codec"
     :device-info="screen.deviceInfo"
     :error-msg="screen.errorMsg"
     :is-auto-play="true"
@@ -35,16 +35,21 @@
         @change="onAxisTimeChange"
       />
     </template>
+    <template slot="controlRight">
+      <Fullscreen @change="onFullscreenChange" />
+    </template>
   </VssPlayer>
 </template>
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
+import { ScreenModule } from '@/store/modules/screen'
 import { PlayerEvent } from '@/components/VssPlayer/models/VssPlayer.d'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import VssPlayer from '@/components/VssPlayer/index.vue'
 import ReplayAxis from './ReplayAxis.vue'
 import Datepicker from '../ScreenBoard/components/DatePicker.vue'
 import ReplayType from '../ScreenBoard/components/ReplayType.vue'
+import Fullscreen from '../ScreenBoard/components/Fullscreen.vue'
 
 @Component({
   name: 'ReplayPlayer',
@@ -52,7 +57,8 @@ import ReplayType from '../ScreenBoard/components/ReplayType.vue'
     VssPlayer,
     ReplayAxis,
     Datepicker,
-    ReplayType
+    ReplayType,
+    Fullscreen
   }
 })
 export default class extends Vue {
@@ -154,6 +160,14 @@ export default class extends Vue {
    */
   private onClose() {
     this.$emit('close')
+  }
+
+  /**
+   * 全屏操作
+   */
+  private onFullscreenChange(isFullscreen) {
+    this.screen.isFullscreen = isFullscreen
+    ScreenModule.SetIsFullscreen(isFullscreen)
   }
 }
 </script>

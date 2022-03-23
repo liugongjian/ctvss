@@ -2,6 +2,7 @@
   <div class="dir-list">
     <div class="dir-list__tools">
       <el-tooltip
+        v-if="isLive"
         class="item"
         effect="dark"
         content="轮巡根目录"
@@ -45,7 +46,7 @@
     <div
       v-loading="loading.dir"
       class="dir-list__tree device-list__max-height"
-      :st1yle="{height: `${height - (currentGroup.inProtocol === 'gb28181' ? 40 : 0)}px`, marginBottom: currentGroup.inProtocol === 'gb28181' ? '40px' : '0px'}"
+      :class="{'dir-list__tree--live': isLive, 'dir-list__tree--replay': !isLive}"
     >
       <el-tree
         v-if="!advancedSearchForm.revertSearchFlag"
@@ -94,7 +95,7 @@
               placement="top"
               :open-delay="300"
             >
-              <OperateSelector v-if="data.type !== 'ipc' && data.type !== 'role'" @onSetOperateValue="setOperateValue($event, node)" />
+              <OperateSelector v-if="data.type !== 'ipc' && data.type !== 'role'" :is-live="isLive" @onSetOperateValue="setOperateValue($event, node)" />
             </el-tooltip>
           </div>
         </span>
@@ -235,7 +236,7 @@ export default class extends Mixins(IndexMixin) {
   private screenManager: ScreenManager
 
   @Prop()
-  public height: number
+  public isLive: boolean
 
   private getSums = getSums
 
@@ -296,9 +297,6 @@ export default class extends Mixins(IndexMixin) {
     if (!groupId) return
     this.$nextTick(() => {
       this.initDirs()
-      
-      // this.stopPolling()
-      console.log(this.screenManager)
     })
   }
 
@@ -460,7 +458,7 @@ export default class extends Mixins(IndexMixin) {
 .dir-list__tree {
   position: relative;
 
-  .offline .node-name {
+  &--live .offline .node-name {
     cursor: not-allowed;
   }
 }

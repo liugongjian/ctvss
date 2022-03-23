@@ -55,7 +55,6 @@ export class RecordManager {
       this.recordList = []
       this.currentRecord = null
       this.loadedRecordDates.clear()
-      this.getRecordStatistic() // 获得最近两月录像统计
       this.recordList = await this.getRecordList(this.currentDate, this.currentDate + 24 * 60 * 60)
       this.loadedRecordDates.add(this.currentDate)
       if (this.recordList && this.recordList.length) {
@@ -90,13 +89,14 @@ export class RecordManager {
   public async getRecordListByDate(date: number, isConcat = false, isSilence = false) {
     try {
       if (!isSilence) {
+        this.axiosSource && this.axiosSource.cancel()
         this.screen.errorMsg = null
         this.screen.isLoading = true
         this.currentDate = date
         this.recordList = []
       }
       if (!isConcat) {
-        this.screen.player.pause()
+        this.screen.player && this.screen.player.pause()
         this.loadedRecordDates.clear()
       } else if (this.loadedRecordDates.has(date)) {
         return
@@ -104,19 +104,18 @@ export class RecordManager {
       // 在SET中存入日期，防止重复加载
       this.loadedRecordDates.add(date)
       const records = await this.getRecordList(date, date + 24 * 60 * 60)
-      if (records) {
-        if (isConcat) {
-          // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
-          if (date > this.currentDate) {
-            this.recordList = this.recordList.concat(records)
-          } else {
-            this.recordList = records.concat(this.recordList)
-          }
+      if (records && records.length) {
+        // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
+        if (date > this.currentDate) {
+          this.recordList = this.recordList.concat(records)
         } else {
-          this.recordList = records
-          this.currentRecord = this.recordList[0]
+          this.recordList = records.concat(this.recordList)
+        }
+        if (!isConcat) {
+          this.currentRecord = records[0]
         }
       } else if (!isSilence) {
+        this.currentRecord = null
         this.screen.errorMsg = this.screen.ERROR.NO_RECORD
       }
     } catch (e) {
@@ -243,13 +242,19 @@ export class RecordManager {
         pageSize: 9999
       }, this.axiosSource.token)
       return res.records.map((record: any, index: number) => {
+        /**
+         * 根据 fixRecordGap 标签对缺失的录像片段进行视觉填补，当前后两段 record 的时间间隔
+         * 小于 fixRecordGap 标签值时，进行缝隙填补（令当前片段的 endTime = 下一片段的 startTime）
+         * 修改后，由于播放的时移速度是根据每一个片段长度动态变化的，所以不会影响播放时时间条变化过程
+         */
         const currentEnd = getTimestamp(record.endTime)
-        const threshold = +UserModule.tags.fixRecordGap
-        record.endTime = currentEnd
-        if (index + 1 < res.records.length) {
-          const nextStart = getTimestamp(res.records[index + 1]['startTime'])
-          record.endTime = (nextStart - currentEnd) / 1000 < threshold ? nextStart : currentEnd
-          record.testdelta = (nextStart - getTimestamp(record.startTime))
+        if (UserModule.tags.fixRecordGap) {
+          const threshold = +UserModule.tags.fixRecordGap
+          record.endTime = currentEnd
+          if (index + 1 < res.records.length) {
+            const nextStart = getTimestamp(res.records[index + 1]['startTime'])
+            record.endTime = (nextStart - currentEnd) / 1000 < threshold ? nextStart : currentEnd
+          }
         }
         return new Record({
           startTime: getTimestamp(record.startTime) / 1000,
@@ -285,14 +290,16 @@ export class RecordManager {
         startTime: startTime,
         endTime: endTime
       })
-      res.records.forEach((statistic: any) => {
-        const monthArray = statistic.day.match(/\d+-\d+/)
-        const month = monthArray ? monthArray[0] : null
-        if (!this.recordStatistic.has(month)) {
-          this.recordStatistic.set(month, new Set())
-        }
-        this.recordStatistic.get(month).add(statistic.day)
-      })
+      if (res.records) {
+        res.records.forEach((statistic: any) => {
+          const monthArray = statistic.day.match(/\d+-\d+/)
+          const month = monthArray ? monthArray[0] : null
+          if (!this.recordStatistic.has(month)) {
+            this.recordStatistic.set(month, new Set())
+          }
+          this.recordStatistic.get(month).add(statistic.day)
+        })
+      }
     } catch (e) {
       console.log(e)
     }
@@ -330,9 +337,11 @@ export class RecordManager {
 
   /**
    * 分页获取录像列表
+   * 过滤当前所选日期的列表
    */
-  public getRecordListByPage() {
-
+  public getRecordListByPage(pageNum: number) {
+    console.log(this.currentDate, pageNum)
+    return [1]
   }
 
   /**

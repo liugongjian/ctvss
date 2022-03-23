@@ -17,18 +17,24 @@
     :is-debug="isDebug"
     @dispatch="onDispatch"
     @onCreate="onPlayerCreate"
-  />
+  >
+    <template slot="controlRight">
+      <Fullscreen @change="onFullscreenChange" />
+    </template>
+  </VssPlayer>
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { PlayerEvent } from '@/components/VssPlayer/models/VssPlayer.d'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import VssPlayer from '@/components/VssPlayer/index.vue'
+import Fullscreen from './ScreenBoard/components/Fullscreen.vue'
 
 @Component({
   name: 'LivePlayer',
   components: {
-    VssPlayer
+    VssPlayer,
+    Fullscreen
   }
 })
 export default class extends Vue {
@@ -101,6 +107,13 @@ export default class extends Vue {
    */
   private onClose() {
     this.$emit('close')
+  }
+
+  /**
+   * 全屏操作
+   */
+  private onFullscreenChange(isFullscreen) {
+    this.screen.isFullscreen = isFullscreen
   }
 }
 </script>

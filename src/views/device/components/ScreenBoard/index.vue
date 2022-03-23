@@ -1,5 +1,9 @@
 <template>
-  <div v-if="screenManager" class="screen-container">
+  <div
+    v-if="screenManager"
+    class="screen-container"
+    :class="{'screen-container--fullscreen': isFullscreen, 'screen-container--live': isLive, 'screen-container--replay': !isLive}"
+  >
     <div v-if="screenManager.view === 'screen'" class="screen-grid-wrap">
       <div class="screen-grid" :class="`screen-size--${size}`">
         <ScreenItem
@@ -71,6 +75,11 @@ export default class extends Vue {
   /* 是否全部静音的状态 */
   private get isMutedAll() {
     return ScreenModule.isMutedAll
+  }
+
+  /* 是否全屏 */
+  private get isFullscreen() {
+    return ScreenModule.isFullscreen
   }
 
   /* 获取分屏管理器Provide */
