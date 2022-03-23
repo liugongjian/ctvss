@@ -19,12 +19,15 @@
   </span>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 
 @Component({
   name: 'OperateSelector'
 })
 export default class extends Vue {
+  @Prop()
+  private isLive
+
   private operateList = [
     {
       label: '轮巡',
@@ -34,6 +37,10 @@ export default class extends Vue {
       value: 'autoPlay'
     }
   ]
+
+  private mounted() {
+    if (!this.isLive) this.operateList.shift()
+  }
 
   private setOperateValue(operateValue: string) {
     this.$emit('onSetOperateValue', operateValue)

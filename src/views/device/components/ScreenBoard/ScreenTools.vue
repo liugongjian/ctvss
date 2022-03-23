@@ -5,8 +5,8 @@
         <QueueExecutor />
         <template v-if="showAxis">
           <Sync />
-          <DatePicker v-if="currentScreen" :screen="currentScreen" />
-          <ReplayType v-if="currentScreen" :screen="currentScreen" />
+          <DatePicker v-if="(currentScreen && currentScreen.deviceId || screenManager.isSync) && isFullscreen" :screen="currentScreen" />
+          <ReplayType v-if="(currentScreen && currentScreen.deviceId || screenManager.isSync) && isFullscreen" :screen="currentScreen" />
         </template>
       </div>
       <div class="screen-tools__bar__right">
@@ -16,7 +16,7 @@
         <ViewSelector v-if="!isLive" />
       </div>
     </div>
-    <ReplayAxis v-if="showAxis" :screen="currentScreen" @change="onAxisTimeChange" />
+    <ReplayAxis v-if="showAxis" :screen="currentScreen" :disabled="!(currentScreen && currentScreen.deviceId) && !screenManager.isSync" @change="onAxisTimeChange" />
   </div>
 </template>
 <script lang="ts">

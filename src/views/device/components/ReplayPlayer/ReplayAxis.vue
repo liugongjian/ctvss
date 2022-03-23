@@ -1,5 +1,5 @@
 <template>
-  <div ref="axisWrap" class="axis__wrap">
+  <div ref="axisWrap" class="axis__wrap" :class="{'axis__wrap--disabled': disabled}">
     <div class="axis__middle" />
     <div class="axis__time">{{ screen && screen.isLoading ? '加载中' : formatedCurrentTime }}</div>
     <canvas ref="canvas" class="axis__canvas" :class="{'dragging': axisDrag.isDragging}" />
@@ -21,7 +21,6 @@ import { isCrossDays, dateFormat, getNextHour, getDateByTime, currentTimeZeroMse
 import { prefixZero } from '@/utils/number'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import { throttle } from 'lodash'
-import { clear } from 'console'
 
 @Component({
   name: 'ReplayAxis'
@@ -36,6 +35,12 @@ export default class extends Vue {
     default: false
   })
   private isInline: boolean
+
+  /* 是否禁用 */
+  @Prop({
+    default: false
+  })
+  private disabled: boolean
 
   /* 时间轴拖动数据 */
   private axisDrag: any = {
@@ -142,9 +147,11 @@ export default class extends Vue {
 
   /* 监听设备变化 */
   @Watch('screen.deviceId')
+  /* 监听录像类型变化 */
+  @Watch('screen.recordType')
   /* 监听日历变化 */
   @Watch('recordManager.currentDate')
-  private onDeviceOrDateChange() {
+  private onStatusChange() {
     this.currentTime = this.recordManager && this.recordManager.currentDate
     this.generateData()
     this.draw()
@@ -569,6 +576,18 @@ export default class extends Vue {
     position: relative;
     width: 100%;
     height: 70px;
+
+    &--disabled {
+      &::after {
+        content: ' ';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        background: rgba(255, 255, 255, 60%);
+        cursor: not-allowed;
+      }
+    }
   }
 
   &__canvas {
