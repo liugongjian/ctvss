@@ -1,8 +1,9 @@
 <template>
   <div class="screen-list">
     <div v-if="currentScreen.deviceId">
-      {{ currentScreen.deviceName }}
-      {{ recordList }}
+      <div class="device-name">
+        {{ currentScreen.deviceName }}
+      </div>
       <!--原来的表格-->
       <div class="replay-time-list">
         <el-table
@@ -111,6 +112,7 @@ import { checkPermission } from '@/utils/permission'
   }
 })
 export default class extends Vue {
+  private loading = false
   private dialog = {
     play: false,
     slice: false
@@ -145,7 +147,27 @@ export default class extends Vue {
 
   @Watch('currentScreen.deviceId')
   private onDeviceChange() {
+    console.log('???: ', this.currentScreen.deviceId)
     this.recordList = this.currentScreen.recordManager.getRecordListByPage(0, this.pager)
+  }
+
+  @Watch('currentScreen.recordManager.currentDate')
+  private onDateChange() {
+    console.log('日期改变：  ', this.currentScreen.recordManager.currentDate)
+    this.recordList = this.currentScreen.recordManager.getRecordListByPage(0, this.pager)
+    console.log('this.record list : ', this.recordList)
+  }
+
+  private async mounted() {
+    try {
+      console.log('-0-0-0-0-0    :  ', this.currentScreen)
+      this.loading = true
+      this.recordList = this.currentScreen.recordManager.getRecordListByPage(0, this.pager)
+    } catch (e) {
+      this.$message(e)
+    } finally {
+      this.loading = false
+    }
   }
 
   /**
@@ -279,9 +301,14 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
+.device-name {
+  padding: 20px;
+}
+
 .replay-time-list {
   flex: 1;
   margin-left: 15px;
+  margin-top: 15px;
   overflow: auto;
 
   .el-range-editor {

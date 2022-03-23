@@ -232,6 +232,7 @@ export class RecordManager {
   private async getRecordList(startTime: number, endTime: number) {
     try {
       // this.axiosSource && this.axiosSource.cancel()
+      console.log('⭐')
       this.axiosSource = axios.CancelToken.source()
       const res = await getDeviceRecords({
         deviceId: this.screen.deviceId,
@@ -341,6 +342,7 @@ export class RecordManager {
    */
   public getRecordListByPage(pageNum: number, pager: any) {
     console.log(this.currentDate, pageNum)
+    console.log('this.recordList:    ', this.recordList)
     return this.recordList.slice((pager.pageNum - 1) * pager.pageSize, pager.pageNum * pager.pageSize).map(record => ({
       ...record,
       edit: false
