@@ -52,20 +52,19 @@
             <span>
               <el-button size="small" @click="changeEdit()">开启编辑</el-button>
               <el-button size="small" @click="addMarker()">添加标记</el-button>
-              <el-button size="small" @click="changeTitleShow()">隐藏/显示title</el-button>
               <el-button size="small" class="tools-item_button" @click="changeTitleShow()">隐藏/显示信息栏</el-button>
               <span>
-                <span class="tools-item"><svg-icon name="selects" /></span>
-                <span class="tools-item"><svg-icon name="title" /></span>
-                <span class="tools-item"><svg-icon name="show-position" /></span>
-                <span class="tools-item"><svg-icon name="mark" /></span>
-                <span class="tools-item"><svg-icon size="30" name="position" /></span>
+                <!-- <span class="tools-item"><svg-icon name="selects" /></span> -->
+                <span class="tools-item"><svg-icon name="title" @click="changeTitleShow()" /></span>
+                <span class="tools-item"><svg-icon name="show-position" @click="toggleOverView()" /></span>
+                <span class="tools-item"><svg-icon name="mark" @click="toggleMap3D()" /></span>
+                <span class="tools-item"><svg-icon size="30" name="position" @click="toggleMarkersShow()" /></span>
                 <span class="tools-item"><svg-icon name="close-all" /></span>
-                <span class="tools-item"><svg-icon name="magnifier" /></span>
-                <span class="tools-item tools-item__cup">|</span>
+                <!-- <span class="tools-item"><svg-icon name="magnifier" /></span> -->
+                <!-- <span class="tools-item tools-item__cup">|</span>
                 <span class="tools-item"><svg-icon name="player" /></span>
                 <span class="tools-item"><svg-icon name="play-video" /></span>
-                <span class="tools-item"><svg-icon name="delete" /></span>
+                <span class="tools-item"><svg-icon name="delete" /></span> -->
               </span>
             </span>
           </div>
@@ -136,6 +135,7 @@
                 ref="mapview"
                 :map-option="curMap"
                 @mapChange="modifyMapInfo"
+                @mapClick="handleMapClick"
               />
               <div v-else class="init-map">
                 <el-button @click="dialogVisible = true">添加地图</el-button>
@@ -193,7 +193,7 @@ export default class extends Mixins(IndexMixin) {
   private breadcrumb: Array<any> = []
   private platformList: Array<any> = []
   private hideTitle = false
-  private showInfo = true
+  private showInfo = false
   private showMapInfo = true
   private marker = {
     deviceId: '399422801670782976',
@@ -229,6 +229,7 @@ export default class extends Mixins(IndexMixin) {
   private curMap = null
   private overView = false
   private showMarkers = true
+  private is3D = true
   @Prop()
   private platformId: any = '417932083494649856'
   private typeMapping: any = {
@@ -417,16 +418,27 @@ export default class extends Mixins(IndexMixin) {
       return (node.type === 'ipc' && !node.sharedFlag)
     })
   }
+  handleMapClick(infos) {
+    const { type, info } = infos;
+    if (type === 'map') {
+      console.log('显示地图信息', info)
+      this.showMapInfo = true
+    } else if (type === 'marker') {
+      console.log('显示标记点信息', info)
+      this.showMapInfo = false
+      this.showInfo = true
+    }
+  }
+
   changeTitleShow() {
     this.hideTitle = !this.hideTitle
   }
+
   changeEdit() {
     this.isEdit = !this.isEdit
     this.$refs.mapview.changeEdit(this.isEdit)
   }
-  fntest() {
-    this.$refs.mapview.getZoom()
-  }
+
   addMarker() {
     const marker = {
       deviceId: '399422801670782977',
@@ -444,13 +456,18 @@ export default class extends Mixins(IndexMixin) {
     }
     this.$refs.mapview.addMarker(marker)
   }
+
   toggleMarkersShow() {
-    this.showMarkers = !this.showMarkers;
+    this.showMarkers = !this.showMarkers
     this.$refs.mapview.setMarkersView(this.showMarkers)
   }
   toggleOverView() {
     this.overView = !this.overView
     this.$refs.mapview.toggleOverView(this.overView)
+  }
+  toggleMap3D() {
+    this.is3D = !this.is3D
+    this.$refs.mapview.toggleMap3D(this.is3D)
   }
 
   async addMap() {

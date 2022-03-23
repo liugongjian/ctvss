@@ -1,4 +1,5 @@
 import AMapLoader from "@amap/amap-jsapi-loader";
+import { e } from "mathjs";
 import LngLat = AMap.LngLat;
 
 export interface mapObject {
@@ -23,7 +24,9 @@ export interface markerObject {
   houseInfo?: string,
   unitInfo?: string,
   selected?: boolean,
-  lnglat?: [number, number] | LngLat
+  lnglat?: [number, number] | LngLat,
+  streamStatus?: string,
+  recordStatus?: number
 }
 
 export enum mapStatus {
@@ -73,20 +76,24 @@ export default class VMap {
   constructor(container: string) {
     this.container = container;
   }
-  creatMap(lng: number, lat: number, zoom: number) {
+  creatMap(lng: number, lat: number, zoom: number, is3D: boolean = true) {
     try{
       const AMap = window.AMap;
-      const map = new AMap.Map(this.container, {
+      const options = {
         rotateEnable: false,
         pitchEnable: false,
         animateEnable: false,
-        viewMode:'3D',
+        zoom: zoom,
+        viewMode: '2D',
         pitch: 50,
         rotation: 0,
-        zoom: zoom,
         center:[Number(lng), Number(lat)],
         zooms: [3, 20]
-      });
+      }
+      if (is3D) {
+        options.viewMode = '3D'
+      }
+      const map = new AMap.Map(this.container, options);
       this.overView = new AMap.HawkEye({
         opened: false,
         width: '300px',
@@ -100,6 +107,12 @@ export default class VMap {
     } catch(e) {
       console.log(e);
     }
+  }
+
+  change3D(is3D) {
+    const { longitude, latitude, zoom } = this.curMapOptions;
+    this.map.destroy();
+    this.creatMap(longitude, latitude, zoom, is3D);
   }
 
   chooseMarker(marker) {
@@ -273,8 +286,8 @@ export default class VMap {
       let wrapDiv;
       let optionDiv;
       if (!this.isEdit) { // 编辑状态
-        const previewIcon = `<i class="icon icon_preview" onclick="previewMarker('${markerOptions.deviceId}')">p</i>`
-        const replayIcon = `<i class="icon icon_replay" onclick="replayMarker('${markerOptions.deviceId}')">r</i>`
+        const previewIcon = `<span class="icon-wrap ${markerOptions.streamStatus === 'on'? '' : 'off'}" onclick="previewMarker('${markerOptions.deviceId}')"><i class="icon icon_preview"></i></span>`
+        const replayIcon = `<span class="icon-wrap ${(markerOptions.recordStatus === 1 || markerOptions.recordStatus === 2 ) ? '' : 'off'}" onclick="replayMarker('${markerOptions.deviceId}')"><i class="icon icon_replay"></i></span>`
         optionDiv = `<div class="marker-options">${previewIcon}${replayIcon}</div>`;
       } else {
         const deleteIcon = `<i class="icon icon_delete" onclick="deleteMarker('${markerOptions.deviceId}')"></i>`
@@ -288,7 +301,8 @@ export default class VMap {
           deviceId: markerOptions.deviceId,
           inProtocol: markerOptions.inProtocol,
           top: pos.y,
-          left: pos.x
+          left: pos.x,
+          canPlay: markerOptions.streamStatus === 'on'
         }
         this.markerEventHandlers.onPlay && this.markerEventHandlers.onPlay(data)
       }
@@ -300,7 +314,8 @@ export default class VMap {
           deviceId: markerOptions.deviceId,
           inProtocol: markerOptions.inProtocol,
           top: pos.y,
-          left: pos.x
+          left: pos.x,
+          canPlay: markerOptions.recordStatus === 1 || markerOptions.recordStatus === 2
         }
         this.markerEventHandlers.onPlay && this.markerEventHandlers.onPlay(data)
       }

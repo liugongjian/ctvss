@@ -1,11 +1,16 @@
 <template>
   <div id="mapContainer">
     <div class="play-wrap" v-if="playWindowInfo.show !== 'none'" :style="playWindowInfo.style">
-<!--      <live-view-->
-<!--        v-if="playWindowInfo.show === 'live'"-->
-<!--        :device-id="playWindowInfo.deviceId"-->
-<!--        :in-protocol="playWindowInfo.inProtocol"-->
-<!--      />-->
+     <live-view
+       v-if="playWindowInfo.show === 'live'"
+       :device-id="playWindowInfo.deviceId"
+       :in-protocol="playWindowInfo.inProtocol"
+     />
+     <replay-view
+       v-if="playWindowInfo.show === 'replay'"
+       :device-id="playWindowInfo.deviceId"
+       :in-protocol="playWindowInfo.inProtocol"
+     />
     </div>
   </div>
 </template>
@@ -14,6 +19,7 @@ import {Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import VMap, {getAMapLoad} from './models/vmap'
 import { getMapDevices, updateMarkers, addMarkers, deleteMarkers } from '@/api/map'
 import LiveView from '@/views/device/components/LiveView.vue'
+import ReplayView from '@/views/device/components/ReplayView.vue'
 // import { getDevice } from '@/api/device'
 // import { DeviceStatus, RecordStatus } from '@/dics'
 
@@ -21,6 +27,7 @@ import LiveView from '@/views/device/components/LiveView.vue'
   name: 'MapView',
   components: {
     LiveView,
+    ReplayView
   }
 })
 export default class MapView extends Vue {
@@ -51,32 +58,38 @@ export default class MapView extends Vue {
   }
 
   async setMap(map) {
-    this.vmap.renderMap(map);
-    this.addMapEvent();
-    let markerlist = [];
+    this.vmap.renderMap(map)
+    this.addMapEvent()
     try{
-      const res = await getMapDevices({ mapId: map.mapId });
-      markerlist = res.devices;
+      const res = await getMapDevices({ mapId: map.mapId })
+      this.markerlist = res.devices
     } catch (e) {
-      console.log('获取标记点列表失败');
-      markerlist = [];
+      console.log('获取标记点列表失败')
+      this.markerlist = []
     } finally {
-      this.setMarkerList(markerlist);
+      this.setMarkerList(this.markerlist)
     }
   }
 
   addMapEvent() {
     const map = this.vmap.map;
     const getMapInfo = () => {
-      const zoom = map.getZoom();
-      const center = map.getCenter();
+      const zoom = map.getZoom()
+      const center = map.getCenter()
       this.$emit("mapChange",{
         zoom,
         center: [center.lng, center.lat]
       })
     };
-    map.on('moveend', getMapInfo);
-    map.on('zoomend', getMapInfo);
+    map.on('moveend', getMapInfo)
+    map.on('zoomend', getMapInfo)
+    map.on('click', () => {
+      this.vmap.cancelChoose()
+      this.$emit('mapClick', {
+      type: 'map',
+      info: this.mapOption
+    })
+    })
   }
 
   async handleMarkerModify(marker) {
@@ -103,23 +116,29 @@ export default class MapView extends Vue {
   handleMarkerClick(marker) {
     console.log(`标记点${marker.deviceId}被点击了`)
     console.log(marker)
+    this.$emit('mapClick', {
+      type: 'marker',
+      info: marker
+    })
   }
 
   handleMarkerPlay(data) {
     console.log(`标记点${data.deviceId}开始播放了`)
-    this.playWindowInfo = data;
-    const width = 240;
-    const height = 200;
-    const size = 100;
-    const style = {
-      width: `${width}px`,
-      height: `${height}px`,
-      top: `${data.top - (height + size/2 + 40)}px`,
-      left: `${data.left - width/2}px`
-    };
-    this.playWindowInfo = {
-      ...data,
-      style
+    if (data.canPlay) {
+      this.playWindowInfo = data;
+      const width = 150;
+      const height = data.show === 'live' ? 100 : 160;
+      const size = 100;
+      const style = {
+        width: `${width}px`,
+        height: `${height}px`,
+        top: `${data.top - (height + size/2 + 40)}px`,
+        left: `${data.left - width/2}px`
+      };
+      this.playWindowInfo = {
+        ...data,
+        style
+      }
     }
   }
 
@@ -158,6 +177,11 @@ export default class MapView extends Vue {
       unitInfo: device.unitInfo
     }
     return result;
+  }
+
+  toggleMap3D(is3D) {
+    this.vmap.change3D(is3D);
+    this.setMarkerList(this.markerlist);
   }
 
   async addMarker(markerOption) {
@@ -199,11 +223,11 @@ export default class MapView extends Vue {
 }
 </script>
 <style>
-#mapContainer{
+#mapContainer {
   width: 100%;
   height: 100%;
 }
-.marker-containt{
+.marker-containt {
   position: relative;
   display: flex;
   width: 50px;
@@ -211,7 +235,7 @@ export default class MapView extends Vue {
   justify-content: center;
   align-items: center;
 }
-.marker-circle{
+.marker-circle {
   position: absolute;
   top: 0;
   left: 0;
@@ -221,21 +245,21 @@ export default class MapView extends Vue {
   opacity: 0.3;
   border-radius: 50%;
 }
-.marker-label{
+.marker-label {
   display: block;
   position: absolute;
   bottom: 10px;
   font-size: 12px;
 }
-.hide-title .marker-label{
+.hide-title .marker-label {
   display: none;
 }
-.marker-center{
+.marker-center {
   position: absolute;
   top: -7px;
   left: 15px;
 }
-.marker-wrap{
+.marker-wrap {
   position: absolute;
   top: 0;
   left: 0;
@@ -243,13 +267,28 @@ export default class MapView extends Vue {
   background-color: rgba(217, 0, 27, 0.0745098039215686);
   padding: 5px;
 }
-.marker-options{
+.marker-options {
   text-align: right;
 }
-.marker-options .icon{
+.marker-options .icon-wrap {
   display: inline-block;
   width: 20px;
   height: 20px;
+  overflow: hidden;
+  margin-right: 5px;
+}
+.marker-options .icon-wrap:last-child{
+  margin-right: 0;
+}
+.marker-options .icon {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+}
+.marker-options .off .icon{
+  position: relative;
+  left: -20px;
+  filter: drop-shadow(#ccc 20px 0);
 }
 .marker-options .icon_delete {
   background: url('~@/icons/svg/delete.svg') no-repeat;
@@ -258,15 +297,19 @@ export default class MapView extends Vue {
 .marker-options .icon_preview {
   background: url('~@/icons/svg/player.svg') no-repeat;
   background-size: contain;
-  margin-right: 5px;
 }
 .marker-options .icon_replay {
   background: url('~@/icons/svg/play-video.svg') no-repeat;
   background-size: contain;
 }
-.play-wrap{
+.play-wrap {
   position: absolute;
   z-index: 9;
-  border: 1px solid grey;
+}
+.play-wrap  .replay-view {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 </style>
