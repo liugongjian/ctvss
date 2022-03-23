@@ -1,11 +1,11 @@
 <template>
   <el-tooltip v-if="!currentFullscreen" content="进入全屏" placement="top">
-    <div class="screen-tools__btn" @click.stop.prevent="fullscreen">
+    <div class="control__btn screen-tools__btn" @click.stop.prevent="fullscreen">
       <svg-icon name="fullscreen" width="15px" height="15px" />
     </div>
   </el-tooltip>
   <el-tooltip v-else content="退出全屏" placement="top">
-    <div class="screen-tools__btn" @click.stop.prevent="exitFullscreen">
+    <div class="control__btn screen-tools__btn" @click.stop.prevent="exitFullscreen">
       <svg-icon name="exit-fullscreen" width="15px" height="15px" />
     </div>
   </el-tooltip>

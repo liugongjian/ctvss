@@ -168,8 +168,8 @@ export default class extends Vue {
     this.$nextTick(() => {
       const $timeline: any = this.$refs.timeline
       this.timelineSize = $timeline.getBoundingClientRect()
-      this.handleList[0].$handle = $timeline.querySelector(`#handle-0`)
-      this.handleList[1].$handle = $timeline.querySelector(`#handle-1`)
+      this.handleList[0].$handle = $timeline.querySelector('#handle-0')
+      this.handleList[1].$handle = $timeline.querySelector('#handle-1')
     })
   }
 
@@ -203,10 +203,10 @@ export default class extends Vue {
       if (handleData.tmpHandlePos > 100) {
         handleData.tmpHandlePos = 100
       }
-      handleData.$handle.style.left = `calc(100% - 4px)`
+      handleData.$handle.style.left = 'calc(100% - 4px)'
     } else if (handleData.tmpHandlePos < 0) {
       handleData.tmpHandlePos = 0
-      handleData.$handle.style.left = `0`
+      handleData.$handle.style.left = '0'
     }
     handleData.numTime = +(handleData.tmpHandlePos * 24 * 60 * 60 / 100).toFixed(6)
     handleData.formatTime = this.timeFormat(handleData.numTime, true)
@@ -333,12 +333,12 @@ export default class extends Vue {
     const handle2Location = $handle2.getBoundingClientRect()
     if (Math.abs(handleLocation.x - handle2Location.x) <= 80) {
       // 升起来
-      $handle.style.height = `76px`
-      $timeSign.style.bottom = `55px`
+      $handle.style.height = '76px'
+      $timeSign.style.bottom = '55px'
     } else {
       // 降下去
-      $handle.style.height = `50px`
-      $timeSign.style.bottom = `29px`
+      $handle.style.height = '50px'
+      $timeSign.style.bottom = '29px'
     }
   }
 
@@ -426,7 +426,7 @@ export default class extends Vue {
     let minSecPercent = +(minTimeSec * 100 / 86400).toFixed(4) // %
     minHandleData.formatTime = minTime
     if (minSecPercent >= 99.5) {
-      minHandleData.style.left = `calc(100% - 4px)`
+      minHandleData.style.left = 'calc(100% - 4px)'
       minHandleData.tmpHandlePos = 99.5
     } else {
       minHandleData.tmpHandlePos = minSecPercent
@@ -437,7 +437,7 @@ export default class extends Vue {
     let maxSecPercent = +(maxTimeSec * 100 / 86400).toFixed(4) // %
     maxHandleData.formatTime = maxTime
     if (maxSecPercent >= 99.5) {
-      maxHandleData.style.left = `calc(100% - 4px)`
+      maxHandleData.style.left = 'calc(100% - 4px)'
       maxHandleData.tmpHandlePos = 99.5
     } else {
       maxHandleData.tmpHandlePos = maxSecPercent
