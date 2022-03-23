@@ -269,11 +269,11 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item
-          label="通道名称:"
-          prop="channelName"
-          class="form-with-tip"
-        >
+        <el-form-item v-show="form.deviceType !== 'platform'" label="经纬度:" prop="longlat">
+          <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
+          <el-input v-model="form.deviceLatitude" class="longlat-input" />
+        </el-form-item>
+        <el-form-item label="通道名称:" prop="channelName" class="form-with-tip">
           <el-input v-model="form.channelName" />
           <div class="form-tip">
             2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
@@ -460,41 +460,10 @@ export default class extends Mixins(createMixin) {
         return channel.channelNum
       })
       if (this.isUpdate) {
-        this.form = Object.assign(
-          this.form,
-          pick(info, [
-            'groupId',
-            'dirId',
-            'deviceId',
-            'deviceName',
-            'inProtocol',
-            'deviceType',
-            'deviceVendor',
-            'gbVersion',
-            'deviceIp',
-            'devicePort',
-            'macAddr',
-            'channelNum',
-            'channelName',
-            'description',
-            'createSubDevice',
-            'pullType',
-            'transPriority',
-            'parentDeviceId',
-            'poleId',
-            'gbId',
-            'userName',
-            'deviceLongitude',
-            'deviceLatitude',
-            'gbRegion',
-            'gbRegionLevel',
-            'industryCode',
-            'networkCode'
-          ])
-        )
-        // 记录当前设备gbid
-        this.deviceGbId = info.gbId
-
+        this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
+          'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority',
+          'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
+        this.cascaderInit()
         // 获取绑定资源包列表
         this.getDeviceResources(
           info.deviceId,
@@ -515,6 +484,8 @@ export default class extends Mixins(createMixin) {
           }
         }
       } else {
+        this.form.deviceLatitude = info.deviceLatitude
+        this.form.deviceLongitude = info.deviceLongitude
         this.form = Object.assign(this.form, pick(info, ['userName']))
       }
       // 构建可选择的通道，排除已选择通道
@@ -650,19 +621,13 @@ export default class extends Mixins(createMixin) {
         }
       } else {
         // NVR通道
-        params = Object.assign(
-          params,
-          {
-            deviceType: 'ipc',
-            createSubDevice: this.isUpdate ? null : '2',
-            parentDeviceId: this.isUpdate
-              ? this.form.parentDeviceId
-              : this.deviceId,
-            channelName: this.form.channelName,
-            channelNum: this.form.channelNum
-          },
-          pick(this.form, ['userName'])
-        )
+        params = Object.assign(params, {
+          deviceType: 'ipc',
+          createSubDevice: this.isUpdate ? null : '2',
+          parentDeviceId: this.isUpdate ? this.form.parentDeviceId : this.deviceId,
+          channelName: this.form.channelName,
+          channelNum: this.form.channelNum
+        }, pick(this.form, ['userName', 'deviceLongitude', 'deviceLatitude']))
       }
       if (this.isUpdate) {
         delete params.deviceType
