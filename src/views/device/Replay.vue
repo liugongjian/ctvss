@@ -96,7 +96,7 @@ export default class extends Mixins(ScreenMixin) {
     background: #fff;
 
     &__active {
-      transform: rotate(180deg) ;
+      transform: rotate(180deg);
     }
   }
 </style>

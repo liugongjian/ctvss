@@ -373,12 +373,12 @@ export default class extends Mixins(IndexMixin) {
    * @param policy 播放事件策略（一键播放/轮巡）
    * @param playType 播放视频类型（实时预览/录像回放）
    */
-  private async deepDispatchTree(dirTree: any, node: any, deviceArr: any[], policy?: 'polling' | 'autoPlay', playType?: string) {
+  private async deepDispatchTree(dirTree: any, node: any, deviceArr: any[], policy?: 'polling' | 'autoPlay') {
     // 当为一键播放时，加载设备数超过最大屏幕数则终止遍历
     if (policy === 'autoPlay' && deviceArr.length >= this.maxSize) return
     if (node.data.type === 'ipc') {
       // 实时预览的一键播放和轮巡需要判断设备是否在线，录像回放的一键播放不需要
-      if (node.data.deviceStatus === 'on' || playType === 'replay') {
+      if (node.data.deviceStatus === 'on' || !this.screenManager.isLive) {
         node.data.inProtocol = this.currentGroupInProtocol
         deviceArr.push(node.data)
       }
