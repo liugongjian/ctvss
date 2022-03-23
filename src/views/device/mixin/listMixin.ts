@@ -485,6 +485,7 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
    * 创建设备
    */
   public goToCreate() {
+    const { deviceLatitude = '0', deviceLongitude = '0' } = this.deviceInfo || {}
     this.deviceRouter({
       id: this.dirId,
       deviceId: this.deviceId,

@@ -297,6 +297,10 @@
             2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
           </div>
         </el-form-item>
+        <el-form-item label="经纬度:" prop="longlat">
+          <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
+          <el-input v-model="form.deviceLatitude" class="longlat-input" />
+        </el-form-item>
         <el-form-item v-if="isUpdate" label="配置资源包:" prop="resources">
           <ResourceTabs
             v-model="form.resources"
@@ -518,6 +522,9 @@ export default class extends Mixins(createMixin) {
             this.form.channelName = channel.channelName
           }
         }
+      } else {
+        this.form.deviceLatitude = info.deviceLatitude
+        this.form.deviceLongitude = info.deviceLongitude
       }
       if (this.isChannel) {
         this.form.deviceName = info.deviceName
@@ -563,37 +570,13 @@ export default class extends Mixins(createMixin) {
         'description'
       ])
       if (this.isUpdate) {
-        params = Object.assign(params, pick(this.form, ['deviceId']))
+        params = Object.assign(params, pick(this.form, ['deviceId', 'deviceLongitude', 'deviceLatitude']))
       } else {
-        params = Object.assign(
-          params,
-          pick(this.form, ['resources', 'vssAIApps'])
-        )
+        params = Object.assign(params, pick(this.form, ['resources', 'vssAIApps', 'deviceLongitude', 'deviceLatitude']))
       }
       if (!this.isChannel) {
         // 通用参数
-        params = Object.assign(
-          params,
-          pick(this.form, [
-            'dirId',
-            'deviceType',
-            'deviceIp',
-            'devicePort',
-            'macAddr',
-            'pullType',
-            'ehomeVersion',
-            'transPriority',
-            'multiStreamSize',
-            'deviceLongitude',
-            'deviceLatitude',
-            'gbRegion',
-            'gbRegionLevel',
-            'industryCode',
-            'networkCode'
-          ])
-        )
-        // 强制转换设备端口字段类型
-        params.devicePort = parseInt(params.devicePort)
+        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'deviceIp', 'devicePort', 'pullType', 'ehomeVersion', 'transPriority', 'multiStreamSize', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
         if (this.form.pullType === 1) {
           params = Object.assign(params, pick(this.form, ['autoStreamNum']))
         }
@@ -661,13 +644,16 @@ export default class extends Mixins(createMixin) {
     content: '/';
     color: $textGrey;
   }
+
   &__item:last-child:after {
     content: '';
   }
 }
+
 .longlat-input {
   width: 193px;
 }
+
 .lainzhou-cascader {
   width: 400px;
 }
