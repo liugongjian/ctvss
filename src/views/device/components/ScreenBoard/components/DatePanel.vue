@@ -31,7 +31,6 @@ export default class extends Vue {
   public mounted() {
     const panel: any = this.$refs.panel
     if (panel) {
-      console.log(panel)
       panel.value = new Date(this.value)
       panel.visible = true
       panel.disabledDate = this.pickerOptions.disabledDate

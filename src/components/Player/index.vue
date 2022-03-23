@@ -141,6 +141,7 @@ export default class extends Vue {
         type: this.type,
         container: this.$refs.playerContainer as HTMLDivElement,
         url: this.url,
+        isLive: this.isLive,
         isDebug: this.isDebug,
         isAutoPlay: this.isAutoPlay,
         playbackRate: this.playbackRate,

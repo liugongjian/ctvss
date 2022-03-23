@@ -44,14 +44,13 @@
     &__left,
     &__right {
       position: absolute;
-      left: 10px;
       height: 100%;
       display: flex;
     }
 
     &__right {
       left: auto;
-      right: 10px;
+      right: 0;
     }
   }
 

@@ -5,7 +5,7 @@
     :class="{'has-axis': hasAxis}"
     :url="url"
     :type="type"
-    :codec="screen.codec"
+    :codec="codec"
     :device-info="screen.deviceInfo"
     :error-msg="screen.errorMsg"
     :is-auto-play="true"

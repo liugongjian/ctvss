@@ -55,7 +55,6 @@ export class RecordManager {
       this.recordList = []
       this.currentRecord = null
       this.loadedRecordDates.clear()
-      this.getRecordStatistic() // 获得最近两月录像统计
       this.recordList = await this.getRecordList(this.currentDate, this.currentDate + 24 * 60 * 60)
       this.loadedRecordDates.add(this.currentDate)
       if (this.recordList && this.recordList.length) {
@@ -90,13 +89,14 @@ export class RecordManager {
   public async getRecordListByDate(date: number, isConcat = false, isSilence = false) {
     try {
       if (!isSilence) {
+        this.axiosSource && this.axiosSource.cancel()
         this.screen.errorMsg = null
         this.screen.isLoading = true
         this.currentDate = date
         this.recordList = []
       }
       if (!isConcat) {
-        this.screen.player.pause()
+        this.screen.player && this.screen.player.pause()
         this.loadedRecordDates.clear()
       } else if (this.loadedRecordDates.has(date)) {
         return
@@ -104,19 +104,18 @@ export class RecordManager {
       // 在SET中存入日期，防止重复加载
       this.loadedRecordDates.add(date)
       const records = await this.getRecordList(date, date + 24 * 60 * 60)
-      if (records) {
-        if (isConcat) {
-          // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
-          if (date > this.currentDate) {
-            this.recordList = this.recordList.concat(records)
-          } else {
-            this.recordList = records.concat(this.recordList)
-          }
+      if (records && records.length) {
+        // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
+        if (date > this.currentDate) {
+          this.recordList = this.recordList.concat(records)
         } else {
-          this.recordList = records
-          this.currentRecord = this.recordList[0]
+          this.recordList = records.concat(this.recordList)
+        }
+        if (!isConcat) {
+          this.currentRecord = records[0]
         }
       } else if (!isSilence) {
+        this.currentRecord = null
         this.screen.errorMsg = this.screen.ERROR.NO_RECORD
       }
     } catch (e) {
@@ -291,14 +290,16 @@ export class RecordManager {
         startTime: startTime,
         endTime: endTime
       })
-      res.records.forEach((statistic: any) => {
-        const monthArray = statistic.day.match(/\d+-\d+/)
-        const month = monthArray ? monthArray[0] : null
-        if (!this.recordStatistic.has(month)) {
-          this.recordStatistic.set(month, new Set())
-        }
-        this.recordStatistic.get(month).add(statistic.day)
-      })
+      if (res.records) {
+        res.records.forEach((statistic: any) => {
+          const monthArray = statistic.day.match(/\d+-\d+/)
+          const month = monthArray ? monthArray[0] : null
+          if (!this.recordStatistic.has(month)) {
+            this.recordStatistic.set(month, new Set())
+          }
+          this.recordStatistic.get(month).add(statistic.day)
+        })
+      }
     } catch (e) {
       console.log(e)
     }

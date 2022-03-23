@@ -1,5 +1,6 @@
 import { format } from 'date-fns'
 import { isIE } from './browser'
+import { prefixZero } from './number'
 
 export const dateFormat = (date: Date | number, formatString = 'yyyy-MM-dd HH:mm:ss') => {
   if (!date) return ''
@@ -116,15 +117,6 @@ export const getNextHour = (timestamp: number) => {
   const seconds = date.getMinutes() * 60 + date.getSeconds()
   const offsetTimestamp = (60 * 60 - seconds) * 1000
   return timestamp + offsetTimestamp
-}
-
-/**
- * 前置补零
- * @param num 数字
- * @param n 位数
- */
-export const prefixZero = (num: number, n: number) => {
-  return (Array(n).join('0') + num).slice(-n)
 }
 
 /**

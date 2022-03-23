@@ -12,7 +12,7 @@
       </div>
     </el-tooltip>
   </span>
-  <div v-else>
+  <div v-else class="toggle-live-replay">
     <el-button v-if="isLive" type="text" size="small" @click.stop.prevent="toggleLiveReplay">
       播放录像回放
     </el-button>
