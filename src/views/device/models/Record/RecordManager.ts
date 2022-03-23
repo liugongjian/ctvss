@@ -33,14 +33,14 @@ export class RecordManager {
   constructor(params: any) {
     this.screen = params.screen
     this.recordList = []
-    this.recordStatistic = new Map()
+    this.recordStatistic = null
     this.loadedRecordDates = new Set()
     this.currentRecord = null
     this.recordInterval = null
     this.currentDate = Math.floor(getLocaleDate().getTime() / 1000)
     this.localStartTime = null
     this.pageSize = null
-    this.initReplay()
+    this.init()
   }
 
   public destroy() {
@@ -48,6 +48,17 @@ export class RecordManager {
     this.axiosSource && this.axiosSource.cancel()
   }
 
+  public init() {
+    if (this.screen.currentRecordDatetime) {
+      this.loadCache()
+    } else {
+      this.initReplay()
+    }
+  }
+
+  /**
+   * 初始化录像
+   */
   public async initReplay() {
     try {
       this.screen.isLoading = true
@@ -55,6 +66,7 @@ export class RecordManager {
       this.recordList = []
       this.currentRecord = null
       this.loadedRecordDates.clear()
+      this.getRecordStatistic()
       this.recordList = await this.getRecordList(this.currentDate, this.currentDate + 24 * 60 * 60)
       this.loadedRecordDates.add(this.currentDate)
       if (this.recordList && this.recordList.length) {
@@ -77,6 +89,17 @@ export class RecordManager {
       this.screen.errorMsg = e.message
     } finally {
       this.screen.isLoading = false
+    }
+  }
+
+  /**
+   * 从缓存中恢复
+   */
+  private loadCache() {
+    if (this.screen.deviceId) {
+      this.getRecordStatistic()
+      this.seek(this.screen.currentRecordDatetime)
+      this.getLatestRecord()
     }
   }
 
@@ -140,6 +163,7 @@ export class RecordManager {
     this.screen.errorMsg = null
     let record = this.getRecordByTime(time)
     const date = getDateByTime(time * 1000) / 1000
+    this.currentDate = date
     if (record) {
       if (this.screen.recordType === 0) { // 云端录像
         if (!this.currentRecord || this.currentRecord.startTime !== record.startTime) {
@@ -161,7 +185,6 @@ export class RecordManager {
           this.screen.isLoading = false
         }
       }
-      this.currentDate = date
     } else {
       // 判断该日期是否存在SET中
       if (!this.loadedRecordDates.has(date)) {
@@ -169,13 +192,12 @@ export class RecordManager {
       }
       const record = this.getRecordByTime(time)
       if (record) {
-        record.offsetTime = time - this.currentRecord.startTime
+        record.offsetTime = time - record.startTime
         this.currentRecord = record || this.currentRecord
       } else {
         this.screen.player && this.screen.player.disposePlayer()
         this.screen.player = null
         this.screen.errorMsg = this.screen.ERROR.NO_RECORD // 无录像提示
-        this.currentDate = date
         this.screen.isLoading = false
       }
     }
@@ -291,6 +313,9 @@ export class RecordManager {
         endTime: endTime
       })
       if (res.records) {
+        if (!this.recordStatistic) {
+          this.recordStatistic = new Map()
+        }
         res.records.forEach((statistic: any) => {
           const monthArray = statistic.day.match(/\d+-\d+/)
           const month = monthArray ? monthArray[0] : null

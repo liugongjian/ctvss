@@ -52,6 +52,8 @@ export class Screen {
   public recordManager: RecordManager
   /* 录像类型 0-云端，1-本地 */
   public recordType: 0 | 1
+  /* 当前时间（时间戳/秒），用于缓存恢复 */
+  public currentRecordDatetime: number
 
   /**
    * ----------------
@@ -86,6 +88,7 @@ export class Screen {
     this.hasRtc = false
     this.recordManager = null
     this.recordType = 0
+    this.currentRecordDatetime = null
   }
 
   public get deviceInfo(): DeviceInfo {
@@ -223,6 +226,7 @@ export class Screen {
      * 3) 云端：获取第一段录像，本地：获取第一段时间的录像URL
      */
   public async initReplay() {
+    if (!this.deviceId) return
     this.recordManager = new RecordManager({
       screen: this
     })
