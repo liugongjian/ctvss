@@ -2,6 +2,9 @@
  * 分屏管理器
  */
 import { Screen } from './Screen'
+import { getLocalStorage, setLocalStorage, removeLocalStorage } from '@/utils/storage'
+import { UserModule } from '@/store/modules/user'
+import { pick } from 'lodash'
 
 interface ScreenManagerConfig {
   inProtocol: string;
@@ -10,6 +13,12 @@ interface ScreenManagerConfig {
   layout: string;
 }
 
+const SCREEN_CACHE_KEY = {
+  live: 'liveScreenCache',
+  replay: 'replayScreenCache'
+}
+
+const SCREEN_CACHE_PARAMS = ['isLive', 'inProtocol', 'deviceId', 'deviceName', 'roleId', 'realGroupId', 'streamSize', 'streams', 'streamNum', 'currentRecordDatetime']
 export interface ExecuteQueueConfig {
   policy: 'autoPlay' | 'polling';
   interval: number;
@@ -100,6 +109,7 @@ export class ScreenManager {
   public initScreenList() {
     this.screenList = []
     this.currentIndex = 0
+    if (this.loadCache()) return // 读取分屏缓存
     for (let i = 0; i < this._size; i++) {
       const screen = new Screen()
       this.screenList.push(screen)
@@ -136,10 +146,61 @@ export class ScreenManager {
     } else {
       screen.streamNum = item.autoStreamNum
     }
-    // if (this.currentIndex < this.size - 1) {
-    //   this.currentIndex++
-    // }
     screen.init()
+  }
+
+  /**
+   * 保存分屏至LocalStorage
+   */
+  public saveCache() {
+    try {
+      /* 判断用户是否开启缓存功能 */
+      if ((this.isLive && UserModule.settings.screenCache.screen === 'true') ||
+        (!this.isLive && UserModule.settings.screenCache.replay === 'true')) {
+        const screenCacheKey = this.isLive ? SCREEN_CACHE_KEY['live'] : SCREEN_CACHE_KEY['replay']
+        const screenCache: any = {
+          mainUserID: UserModule.mainUserID,
+          layout: this.layout,
+          size: this._size
+        }
+        screenCache.screenList = this.screenList.map(screen => {
+          return pick(screen, ...SCREEN_CACHE_PARAMS) // 仅保存恢复缓存必要的数据
+        })
+        setLocalStorage(screenCacheKey, screenCache)
+      } else {
+        /* 如果用户关闭缓存功能需要删除之前存的记录 */
+        UserModule.settings.screenCache.screen !== 'true' && removeLocalStorage(SCREEN_CACHE_KEY['live'])
+        UserModule.settings.screenCache.replay !== 'true' && removeLocalStorage(SCREEN_CACHE_KEY['replay'])
+      }
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  /**
+   * 读取缓存
+   * @returns 是否存在缓存并成功返回
+   */
+  public loadCache(): boolean {
+    try {
+      const screenCacheKey = this.isLive ? SCREEN_CACHE_KEY['live'] : SCREEN_CACHE_KEY['replay']
+      const screenCacheStr = getLocalStorage(screenCacheKey)
+      if (!screenCacheStr) return false
+      const screenCache = JSON.parse(screenCacheStr)
+      console.log('screenCache', screenCache)
+      this.layout = screenCache.layout
+      this._size = screenCache.size
+      this.screenList = []
+      for (let i = 0; i < this._size; i++) {
+        let screen = new Screen()
+        screen = Object.assign(screen, { ...screenCache.screenList[i] })
+        screen.init()
+        this.screenList.push(screen)
+      }
+      return true
+    } catch (e) {
+      return false
+    }
   }
 
   /**

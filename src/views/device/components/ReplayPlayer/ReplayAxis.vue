@@ -139,6 +139,7 @@ export default class extends Vue {
         this.currentTime = this.recordManager.localStartTime + recordCurrentTime
       }
       this.lastUpdateTime = new Date().getTime()
+      this.screen.currentRecordDatetime = this.currentTime
       this.generateData()
       this.draw()
       this.loadSiblingRecordList(-1, -1)

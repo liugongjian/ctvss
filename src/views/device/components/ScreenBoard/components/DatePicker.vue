@@ -58,7 +58,6 @@ export default class extends Vue {
     return this.recordManager && this.recordManager.currentDate * 1000
   }
 
-  @Watch('screen')
   @Watch('screen.deviceId', { immediate: true })
   @Watch('screen.recordType')
   private async onChange() {

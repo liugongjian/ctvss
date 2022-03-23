@@ -23,9 +23,19 @@ export default class ScreenMixin extends Mixins(IndexMixin) {
     this.screenManager = screenBoard!.screenManager
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
+    window.addEventListener('beforeunload', this.saveCache)
   }
 
   public destroyed() {
+    this.screenManager.saveCache()
     window.removeEventListener('resize', this.calMaxHeight)
+    window.removeEventListener('beforeunload', this.saveCache)
+  }
+
+  /**
+   * 保存分屏缓存
+   */
+  private saveCache() {
+    this.screenManager.saveCache()
   }
 }
