@@ -41,9 +41,18 @@
               </template>
             </template>
           </el-table-column>
+          <el-table-column label="录像截图" min-width="200">
+            <template slot-scope="{row}">
+              <el-image
+                style="width: 150px; height: 100px"
+                :src="row.cover"
+                :preview-src-list="[row.cover]"
+              />
+            </template>
+          </el-table-column>
           <el-table-column
             label="开始时间"
-            prop="startAt"
+            prop="startTime"
             min-width="180"
             :formatter="dateFormatInTable"
           />
@@ -145,26 +154,53 @@ export default class extends Vue {
     return this.screenManager.currentScreen
   }
 
+  /**
+   * 切换不同设备
+   */
   @Watch('currentScreen.deviceId')
   private onDeviceChange() {
-    console.log('???: ', this.currentScreen.deviceId)
+    this.resetPager()
+    // 切换不同设备时首先触发该监听, 如果没有在回访页面访问过，则交由日期监听器进行处理
+    if (this.currentScreen.recordManager.getRecordListByPage(0, this.pager).length === 0) return
     this.recordList = this.currentScreen.recordManager.getRecordListByPage(0, this.pager)
+    this.pager.total = this.currentScreen.recordManager.recordList.length
+    this.secToMs(this.recordList)
   }
 
+  /**
+   * 切换日期
+   */
   @Watch('currentScreen.recordManager.currentDate')
-  private onDateChange() {
-    console.log('日期改变：  ', this.currentScreen.recordManager.currentDate)
-    this.recordList = this.currentScreen.recordManager.getRecordListByPage(0, this.pager)
-    console.log('this.record list : ', this.recordList)
+  private async onDateChange() {
+    try {
+      this.loading = true
+      this.resetPager()
+      await this.currentScreen.recordManager.getRecordListByDate(this.currentScreen.recordManager.currentDate)
+      // 当天没有记录则将页面置空并return
+      if (!this.currentScreen.recordManager.recordList || this.currentScreen.recordManager.recordList.length === 0) {
+        this.recordList = []
+        return
+      }
+      this.recordList = this.currentScreen.recordManager.getRecordListByPage(0, this.pager)
+      this.pager.total = this.currentScreen.recordManager.recordList.length
+      this.secToMs(this.recordList)
+    } catch (e) {
+      this.$message.error(e)
+    } finally {
+      this.loading = false
+    }
   }
 
   private async mounted() {
     try {
-      console.log('-0-0-0-0-0    :  ', this.currentScreen)
+      // 没有提前查看回放录像，没有记录
+      if (!this.currentScreen.recordManager) return
       this.loading = true
       this.recordList = this.currentScreen.recordManager.getRecordListByPage(0, this.pager)
+      this.pager.total = this.currentScreen.recordManager.recordList.length
+      this.secToMs(this.recordList)
     } catch (e) {
-      this.$message(e)
+      this.$message.error(e)
     } finally {
       this.loading = false
     }
@@ -176,11 +212,15 @@ export default class extends Vue {
   private async handleSizeChange(val: number) {
     this.pager.pageSize = val
     this.recordList = this.currentScreen.recordManager.getRecordListByPage(0, this.pager)
+    this.pager.total = this.currentScreen.recordManager.recordList.length
+    this.secToMs(this.recordList)
   }
 
   private async handleCurrentChange(val: number) {
     this.pager.pageNum = val
     this.recordList = this.currentScreen.recordManager.getRecordListByPage(0, this.pager)
+    this.pager.total = this.currentScreen.recordManager.recordList.length
+    this.secToMs(this.recordList)
   }
 
   private dialogs = {
@@ -297,6 +337,26 @@ export default class extends Vue {
    */
   private closeSliceDownload() {
     this.dialog.slice = false
+  }
+
+  /**
+   * startTime 秒转毫秒
+   */
+  private secToMs(records: any) {
+    this.records = records.map((record: any) => {
+      record.startTime = record.startTime * 1000
+    })
+  }
+
+  /**
+   * pager 重置
+   */
+  private resetPager() {
+    this.pager = {
+      pageNum: 1,
+      pageSize: 10,
+      total: 0
+    }
   }
 }
 </script>
