@@ -16,7 +16,7 @@ export const formatStorage = (bytesize) => {
     i++
     if (i === 5) break
   }
-  const units = ['B', 'K', 'M', 'G', 'T', 'P']
+  const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
   const newsize = _.round(bytesize,3)
   return newsize + units[i]
 }
