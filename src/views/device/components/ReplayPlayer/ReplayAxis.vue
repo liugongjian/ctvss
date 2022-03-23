@@ -145,7 +145,7 @@ export default class extends Vue {
   /* 监听日历变化 */
   @Watch('recordManager.currentDate')
   private onDeviceOrDateChange() {
-    this.currentTime = this.recordManager.currentDate
+    this.currentTime = this.recordManager && this.recordManager.currentDate
     this.generateData()
     this.draw()
     /* 继续加载上一天的录像列表 */

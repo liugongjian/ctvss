@@ -14,6 +14,7 @@ export interface PlayerConfig {
   container: HTMLDivElement;
   type: PlayerType;
   url: string;
+  isLive: boolean;
   isDebug: boolean;
   isAutoPlay: boolean;
   playbackRate?: number;

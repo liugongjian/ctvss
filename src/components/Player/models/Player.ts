@@ -16,6 +16,8 @@ export class Player {
   public type: PlayerType
   /* 播放流地址 */
   public url: string
+  /* 是否为直播模式 */
+  public isLive: boolean
   /* 是否启用Debug模式 */
   public isDebug: boolean
   /* 是否启用自动播放 */
@@ -44,6 +46,7 @@ export class Player {
     this.container = config.container
     this.type = config.type
     this.url = config.url
+    this.isLive = config.isLive
     this.isDebug = config.isDebug
     this.isAutoPlay = config.isAutoPlay
     this.playbackRate = config.playbackRate
