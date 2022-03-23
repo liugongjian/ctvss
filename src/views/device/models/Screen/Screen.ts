@@ -226,6 +226,7 @@ export class Screen {
      * 3) 云端：获取第一段录像，本地：获取第一段时间的录像URL
      */
   public async initReplay() {
+    if (!this.deviceId) return
     this.recordManager = new RecordManager({
       screen: this
     })

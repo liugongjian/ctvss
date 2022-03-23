@@ -33,23 +33,27 @@ export class RecordManager {
   constructor(params: any) {
     this.screen = params.screen
     this.recordList = []
-    this.recordStatistic = new Map()
+    this.recordStatistic = null
     this.loadedRecordDates = new Set()
     this.currentRecord = null
     this.recordInterval = null
     this.currentDate = Math.floor(getLocaleDate().getTime() / 1000)
     this.localStartTime = null
     this.pageSize = null
-    if (params.screen.currentRecordDatetime) {
-      this.loadCache()
-    } else {
-      this.initReplay()
-    }
+    this.init()
   }
 
   public destroy() {
     clearInterval(this.recordInterval)
     this.axiosSource && this.axiosSource.cancel()
+  }
+
+  public init() {
+    if (this.screen.currentRecordDatetime) {
+      this.loadCache()
+    } else {
+      this.initReplay()
+    }
   }
 
   /**
@@ -62,6 +66,7 @@ export class RecordManager {
       this.recordList = []
       this.currentRecord = null
       this.loadedRecordDates.clear()
+      this.getRecordStatistic()
       this.recordList = await this.getRecordList(this.currentDate, this.currentDate + 24 * 60 * 60)
       this.loadedRecordDates.add(this.currentDate)
       if (this.recordList && this.recordList.length) {
@@ -91,8 +96,11 @@ export class RecordManager {
    * 从缓存中恢复
    */
   private loadCache() {
-    this.seek(this.screen.currentRecordDatetime)
-    this.getLatestRecord()
+    if (this.screen.deviceId) {
+      this.getRecordStatistic()
+      this.seek(this.screen.currentRecordDatetime)
+      this.getLatestRecord()
+    }
   }
 
   /**
@@ -305,6 +313,9 @@ export class RecordManager {
         endTime: endTime
       })
       if (res.records) {
+        if (!this.recordStatistic) {
+          this.recordStatistic = new Map()
+        }
         res.records.forEach((statistic: any) => {
           const monthArray = statistic.day.match(/\d+-\d+/)
           const month = monthArray ? monthArray[0] : null

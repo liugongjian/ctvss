@@ -187,7 +187,7 @@ export class ScreenManager {
       const screenCacheStr = getLocalStorage(screenCacheKey)
       if (!screenCacheStr) return false
       const screenCache = JSON.parse(screenCacheStr)
-      console.log('screenCache', screenCache)
+      if (screenCache.mainUserID !== UserModule.mainUserID) return false
       this.layout = screenCache.layout
       this._size = screenCache.size
       this.screenList = []

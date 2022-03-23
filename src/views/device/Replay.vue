@@ -26,9 +26,9 @@
             <template v-if="currentScreen && currentScreen.deviceId || screenManager.isSync" slot="bottom">
               <div class="device-list__calander" :class="{'device-list__calander__hidden': isCollapse}">
                 <div class="device-list__replay-type">
-                  <ReplayType v-if="currentScreen" :screen="currentScreen" />
+                  <ReplayType :screen="currentScreen" />
                 </div>
-                <DatePicker v-if="currentScreen" :screen="currentScreen" :inline="true" />
+                <DatePicker v-if="recordStatistic" :screen="currentScreen" :inline="true" />
               </div>
               <el-button class="device-list__arrow" :class="{'device-list__arrow__active': isCollapse}" type="text" @click="isCollapse = !isCollapse">
                 <svg-icon name="arrow-down" />
@@ -65,6 +65,14 @@ import ReplayType from './components/ScreenBoard/components/ReplayType.vue'
 export default class extends Mixins(ScreenMixin) {
   private isLive = false
   private isCollapse = false
+
+  private get recordManager() {
+    return this.currentScreen && this.currentScreen.recordManager
+  }
+
+  private get recordStatistic() {
+    return this.recordManager && this.recordManager.recordStatistic
+  }
 }
 </script>
 <style lang="scss" scoped>
