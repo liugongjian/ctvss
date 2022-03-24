@@ -98,6 +98,10 @@ export default class extends Vue {
   @Prop()
   private volume: number
 
+  /* 是否静音 */
+  @Prop()
+  private isMuted: boolean
+
   /* 是否显示进度条 */
   @Prop({
     default: false
@@ -145,7 +149,8 @@ export default class extends Vue {
         isDebug: this.isDebug,
         isAutoPlay: this.isAutoPlay,
         playbackRate: this.playbackRate,
-        volume: this.volume
+        volume: this.volume,
+        isMuted: this.isMuted
       })
       this.$nextTick(() => {
         this.$emit('onCreate', this.player)

@@ -59,7 +59,9 @@ export class H265Player extends Player {
   /**
    * 设置默认值
    */
-  protected setDefault() {}
+  protected setDefault() {
+    this.toggleMuteStatus(this.isMuted)
+  }
 
   /**
    * 播放

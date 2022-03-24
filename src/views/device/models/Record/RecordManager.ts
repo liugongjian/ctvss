@@ -97,7 +97,10 @@ export class RecordManager {
    */
   private loadCache() {
     if (this.screen.deviceId) {
-      this.getRecordStatistic()
+      const date = new Date(this.screen.currentRecordDatetime * 1000)
+      const startTime = Math.floor(new Date(date.getFullYear(), date.getMonth() - 1).getTime() / 1000)
+      const endTime = Math.floor(new Date(date.getFullYear(), date.getMonth() + 1).getTime() / 1000)
+      this.getRecordStatistic(startTime, endTime)
       this.seek(this.screen.currentRecordDatetime)
       this.getLatestRecord()
     }
@@ -164,6 +167,7 @@ export class RecordManager {
     let record = this.getRecordByTime(time)
     const date = getDateByTime(time * 1000) / 1000
     this.currentDate = date
+    this.screen.currentRecordDatetime = time
     if (record) {
       if (this.screen.recordType === 0) { // 云端录像
         if (!this.currentRecord || this.currentRecord.startTime !== record.startTime) {

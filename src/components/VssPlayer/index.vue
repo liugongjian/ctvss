@@ -7,6 +7,7 @@
       :url="videoUrl"
       :codec="codec"
       :volume="volume"
+      :is-muted="isMuted"
       :playback-rate="playbackRate"
       :has-progress="hasProgress"
       :is-live="isLive"
@@ -39,7 +40,7 @@
         <DigitalZoom ref="digitalZoom" @dispatch="dispatch" />
         <PtzZoom v-if="isLive" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
         <Snapshot :name="deviceInfo.deviceName" />
-        <Scale />
+        <Scale :default-scale="scale" />
         <LiveReplaySelector v-if="hasLiveReplaySelector" :is-live="isLive" @dispatch="dispatch" />
         <!-- <Fullscreen @dispatch="dispatch" /> -->
         <slot name="controlRight" />
@@ -127,6 +128,16 @@ export default class extends Vue {
     default: 0.3
   })
   private volume: number
+
+  /* 默认音量 */
+  @Prop({
+    default: false
+  })
+  private isMuted: boolean
+
+  /* 默认缩放比例 */
+  @Prop()
+  private scale: string
 
   /* 是否为直播 */
   @Prop({
