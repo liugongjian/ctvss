@@ -186,7 +186,7 @@ export default class extends Vue {
         this.recordList = []
         return
       }
-      this.recordList = this.currentScreen.recordManager.getRecordListByPage(0, this.pager)
+      this.recordList = this.currentScreen.recordManager.getRecordListByPage(this.pager)
       this.pager.total = this.currentScreen.recordManager.recordList.length
       this.secToMs(this.recordList)
     } catch (e) {
