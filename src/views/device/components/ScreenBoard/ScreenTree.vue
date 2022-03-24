@@ -86,7 +86,7 @@
               placement="top"
               :open-delay="500"
             >
-              <StreamSelector v-if="data.type === 'ipc'" class="set-stream" :stream-size="data.multiStreamSize" :streams="data.deviceStreams" @onSetStreamNum="openScreen(data, ...arguments)" />
+              <StreamSelector v-if="data.type === 'ipc' && isLive" class="set-stream" :stream-size="data.multiStreamSize" :streams="data.deviceStreams" @onSetStreamNum="openScreen(data, ...arguments)" />
             </el-tooltip>
             <el-tooltip
               class="item"
@@ -137,7 +137,7 @@
               placement="top"
               :open-delay="500"
             >
-              <StreamSelector v-if="data.type === 'ipc'" class="set-stream" :stream-size="data.multiStreamSize" :streams="data.deviceStreams" @onSetStreamNum="openScreen(data, ...arguments)" />
+              <StreamSelector v-if="data.type === 'ipc' && isLive" class="set-stream" :stream-size="data.multiStreamSize" :streams="data.deviceStreams" @onSetStreamNum="openScreen(data, ...arguments)" />
             </el-tooltip>
             <el-tooltip
               class="item"
@@ -146,7 +146,7 @@
               placement="top"
               :open-delay="300"
             >
-              <OperateSelector v-if="data.type !== 'ipc' && data.type !== 'role'" @onSetOperateValue="setOperateValue($event, node)" />
+              <OperateSelector v-if="data.type !== 'ipc' && data.type !== 'role'" :is-live="isLive" @onSetOperateValue="setOperateValue($event, node)" />
             </el-tooltip>
           </div>
         </span>
