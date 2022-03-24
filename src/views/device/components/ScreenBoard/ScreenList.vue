@@ -84,17 +84,22 @@
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
         />
-        <!-- <replay-player
-          v-if="dialog.play"
-          :video="currentListRecord"
-          @on-close="closeReplayPlayer"
-        /> -->
       </div>
     </div>
     <div v-else class="tip-select-device">
       <el-button type="text" @click="selectDevice">请选择设备</el-button>
     </div>
     <device-dir v-if="dialogs.deviceDir" @on-close="onDeviceDirClose" />
+    <el-dialog
+      v-if="dialogs.play"
+      class="video-player"
+      title="录像回放"
+      :visible="true"
+      :close-on-click-modal="false"
+      @close="closeReplayPlayer()"
+    >
+      <VssPlayer :url="currentListRecord.url" type="hls" :codec="currentListRecord.codc" :has-progress="true" />
+    </el-dialog>
   </div>
 </template>
 <script lang="ts">
@@ -102,15 +107,17 @@ import { Component, Vue, Inject, Watch } from 'vue-property-decorator'
 import { Record } from '@/views/device/models/Record/Record'
 import { dateFormatInTable, durationFormatInTable } from '@/utils/date'
 import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
-import DeviceDir from '../dialogs/DeviceDir.vue'
 import { getDeviceRecord, editRecordName } from '@/api/device'
 import { GroupModule } from '@/store/modules/group'
 import { checkPermission } from '@/utils/permission'
+import DeviceDir from '../dialogs/DeviceDir.vue'
+import VssPlayer from '@/components/VssPlayer/index.vue'
 
 @Component({
   name: 'ScreenList',
   components: {
-    DeviceDir
+    DeviceDir,
+    VssPlayer
   }
 })
 export default class extends Vue {
@@ -311,7 +318,7 @@ export default class extends Vue {
    */
   private playReplay(record: any) {
     // 变了变了
-    this.dialog.play = true
+    this.dialogs.play = true
     this.currentListRecord = record
   }
 
@@ -320,7 +327,7 @@ export default class extends Vue {
    */
   private closeReplayPlayer() {
     // 变了变了
-    this.dialog.play = false
+    this.dialogs.play = false
     this.currentListRecord = null
   }
 
@@ -368,6 +375,16 @@ export default class extends Vue {
   }
   .edit-save-button {
     margin-left: 10px;
+  }
+}
+
+.video-player ::v-deep .el-dialog__body {
+  padding-top: 10px;
+  padding-bottom: 20px;
+
+  .vss-player__wrap {
+    background: #333;
+    height: 350px;
   }
 }
 </style>
