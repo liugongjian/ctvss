@@ -368,7 +368,7 @@ export class RecordManager {
    * 分页获取录像列表
    * 过滤当前所选日期的列表
    */
-  public getRecordListByPage(pageNum: number, pager: any) {
+  public getRecordListByPage(pager: any) {
     return this.recordList && this.recordList.slice((pager.pageNum - 1) * pager.pageSize, pager.pageNum * pager.pageSize).map(record => ({
       ...record,
       edit: false

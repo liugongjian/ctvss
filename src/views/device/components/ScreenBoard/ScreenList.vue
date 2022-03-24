@@ -166,8 +166,8 @@ export default class extends Vue {
   private onDeviceChange() {
     this.resetPager()
     // 切换不同设备时首先触发该监听, 如果没有在回访页面访问过，则交由日期监听器进行处理
-    if (this.currentScreen.recordManager.getRecordListByPage(0, this.pager).length === 0) return
-    this.recordList = this.currentScreen.recordManager.getRecordListByPage(0, this.pager)
+    if (this.currentScreen.recordManager.getRecordListByPage(this.pager).length === 0) return
+    this.recordList = this.currentScreen.recordManager.getRecordListByPage(this.pager)
     this.pager.total = this.currentScreen.recordManager.recordList.length
     this.secToMs(this.recordList)
   }
@@ -201,7 +201,7 @@ export default class extends Vue {
       // 没有提前查看回放录像，没有记录
       if (!this.currentScreen.recordManager) return
       this.loading = true
-      this.recordList = this.currentScreen.recordManager.getRecordListByPage(0, this.pager)
+      this.recordList = this.currentScreen.recordManager.getRecordListByPage(this.pager)
       this.pager.total = this.currentScreen.recordManager.recordList.length
       this.secToMs(this.recordList)
     } catch (e) {
@@ -216,14 +216,14 @@ export default class extends Vue {
    */
   private async handleSizeChange(val: number) {
     this.pager.pageSize = val
-    this.recordList = this.currentScreen.recordManager.getRecordListByPage(0, this.pager)
+    this.recordList = this.currentScreen.recordManager.getRecordListByPage(this.pager)
     this.pager.total = this.currentScreen.recordManager.recordList.length
     this.secToMs(this.recordList)
   }
 
   private async handleCurrentChange(val: number) {
     this.pager.pageNum = val
-    this.recordList = this.currentScreen.recordManager.getRecordListByPage(0, this.pager)
+    this.recordList = this.currentScreen.recordManager.getRecordListByPage(this.pager)
     this.pager.total = this.currentScreen.recordManager.recordList.length
     this.secToMs(this.recordList)
   }
@@ -274,7 +274,7 @@ export default class extends Vue {
         customName: this.recordName
       })
       await this.currentScreen.recordManager.getRecordListByDate(this.currentScreen.recordManager.currentDate)
-      this.recordList = this.currentScreen.recordManager.getRecordListByPage(this.pager.pageNum, this.pager)
+      this.recordList = this.currentScreen.recordManager.getRecordListByPage(this.pager)
       this.pager.total = this.currentScreen.recordManager.recordList.length
       this.secToMs(this.recordList)
     } catch (e) {
