@@ -130,6 +130,9 @@
             <el-checkbox label="DOWDLOAD">录像下载</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
+        <el-form-item label="是否使用通道的实际名称">
+          <el-switch v-model="form.ifNvrName" :active-value="1" :inactive-value="0" />
+        </el-form-item>
         <el-form-item label="描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
         </el-form-item>
@@ -171,7 +174,8 @@ export default class extends Vue {
     transType: 'UDP',
     characterType: 'UTF-8',
     permissionSet: [],
-    description: ''
+    description: '',
+    ifNvrName: 0 // 不使用 0， 使用 1
   }
   private submitting = false
   private loading = false
