@@ -13,6 +13,8 @@ export class RecordManager {
   private screen: Screen
   /* 录像列表 */
   public recordList: Record[]
+  /* AI热力列表 */
+  public heatmapList: Record[]
   /* 录像日历统计 */
   public recordStatistic: Map<string, any>
   /* 已加载的录像日期 */
@@ -33,6 +35,7 @@ export class RecordManager {
   constructor(params: any) {
     this.screen = params.screen
     this.recordList = []
+    this.heatmapList = []
     this.recordStatistic = null
     this.loadedRecordDates = new Set()
     this.currentRecord = null
@@ -64,10 +67,12 @@ export class RecordManager {
       this.screen.isLoading = true
       this.screen.errorMsg = null
       this.recordList = []
+      this.heatmapList = []
       this.currentRecord = null
       this.loadedRecordDates.clear()
       this.getRecordStatistic()
       this.recordList = await this.getRecordList(this.currentDate, this.currentDate + 24 * 60 * 60)
+      // this.heatmapList = await this.getHeatmapList(this.currentDate, this.currentDate + 24 * 60 * 60)
       this.loadedRecordDates.add(this.currentDate)
       if (this.recordList && this.recordList.length) {
         /**
@@ -120,6 +125,7 @@ export class RecordManager {
         this.screen.isLoading = true
         this.currentDate = date
         this.recordList = []
+        this.heatmapList = []
       }
       if (!isConcat) {
         this.screen.player && this.screen.player.pause()
@@ -144,6 +150,8 @@ export class RecordManager {
         this.currentRecord = null
         this.screen.errorMsg = this.screen.ERROR.NO_RECORD
       }
+      // 加载AI热力列表
+      // this.heatmapList = await this.getHeatmapList(date, date + 24 * 60 * 60)
     } catch (e) {
       // 异常时删除日期
       this.loadedRecordDates.delete(date)
@@ -349,8 +357,28 @@ export class RecordManager {
    * 获取行人时间段列表
    * 来自从化需求
    */
-  public getHeatMapList() {
-
+  private async getHeatmapList(startTime: number, endTime: number) {
+    try {
+      this.axiosSource = axios.CancelToken.source()
+      const res = await describeHeatMap({
+        deviceId: this.screen.deviceId,
+        inProtocol: this.screen.inProtocol,
+        recordType: this.screen.recordType,
+        startTime,
+        endTime,
+        pageSize: 9999,
+        aiCode: '10006'
+      }, this.axiosSource.token)
+      return res.heatMap.map((heatMap: any) => {
+        return new Record({
+          startTime: getTimestamp(heatMap.startTime) / 1000,
+          endTime: getTimestamp(heatMap.endTime) / 1000,
+          isHeatmap: true
+        })
+      })
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   /**
