@@ -40,6 +40,7 @@
       />
     </template>
     <template slot="controlRight">
+      <RecordDownload :screen="screen" />
       <Fullscreen @change="onFullscreenChange" />
     </template>
   </VssPlayer>
@@ -54,6 +55,7 @@ import ReplayAxis from './ReplayAxis.vue'
 import Datepicker from '../ScreenBoard/components/DatePicker.vue'
 import ReplayType from '../ScreenBoard/components/ReplayType.vue'
 import Fullscreen from '../ScreenBoard/components/Fullscreen.vue'
+import RecordDownload from './RecordDownload.vue'
 
 @Component({
   name: 'ReplayPlayer',
@@ -62,7 +64,8 @@ import Fullscreen from '../ScreenBoard/components/Fullscreen.vue'
     ReplayAxis,
     Datepicker,
     ReplayType,
-    Fullscreen
+    Fullscreen,
+    RecordDownload
   }
 })
 export default class extends Vue {

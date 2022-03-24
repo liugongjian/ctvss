@@ -14,7 +14,7 @@
       type="date"
       value-format="timestamp"
       placeholder="选择日期"
-      size="mini"
+      :size="size"
       :clearable="false"
       :picker-options="pickerOptions"
       @change="changeDate"
@@ -43,6 +43,11 @@ export default class extends Vue {
   })
   private inline
 
+  @Prop({
+    default: 'mini'
+  })
+  private size
+
   private date: number = null
   private showDatepicker = true
 
@@ -57,21 +62,6 @@ export default class extends Vue {
   private get currentDate() {
     return this.recordManager && this.recordManager.currentDate * 1000
   }
-
-  // @Watch('screen.deviceId', { immediate: true })
-  // @Watch('screen.recordType')
-  // private async onChange() {
-  //   if (this.recordManager) {
-  //     this.showDatepicker = false
-  //     const date = new Date()
-  //     const startTime = Math.floor(new Date(date.getFullYear(), date.getMonth()).getTime() / 1000)
-  //     const endTime = Math.floor(new Date(date.getFullYear(), date.getMonth() + 1).getTime() / 1000)
-  //     await this.recordManager.getRecordStatistic(startTime, endTime)
-  //     this.$nextTick(() => {
-  //       this.showDatepicker = true
-  //     })
-  //   }
-  // }
 
   @Watch('currentDate', {
     immediate: true
