@@ -1,5 +1,5 @@
 <template>
-  <component :is="container" title="实时告警信息">
+  <component :is="container" title="实时告警信息" :less-padding="true">
     <ul v-loading="loading && !list.length" class="alert-list" :class="{'light': isLight}" :style="`height:${height}vh`">
       <div v-if="!list.length && !loading" class="empty-text">暂无数据</div>
       <li v-for="item in list" :key="item.id" :class="{'new-alert': item.isNew}" @click="openDialog(item)">
@@ -71,7 +71,7 @@ export default class extends Mixins(DashboardMixin) {
         limit: 6
       })
       this.list = res.Result
-      this.list.forEach((item:any) => {
+      this.list.forEach((item: any) => {
         item.id = Math.random().toString(16).slice(-10)
         item.level = this.checkLevel(item)
         item.isNew = this.lastTime && (getTimestamp(item.timeStamp) > this.lastTime)

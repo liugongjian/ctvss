@@ -26,7 +26,10 @@
       </div>
     </div>
     <div v-if="(type === '8' || type === '10005') && img" class="ai-recognation__images__item__count" :class="{'ai-recognation__images__item__count--warning': img && img.locations && img.locations.length > 10}">聚集人数: {{ img && img.locations && img.locations.length || '-' }}</div>
-    <div v-if="(type === '13' || type === '10010') && img" class="ai-recognation__images__item__count">蜜蜂密度: {{ img && img.locations && img.locations[0].beeDensity }}</div>
+    <div v-if="(type === '13' || type === '10010') && img.locations[0].beeDensity" class="ai-recognation__images__item__count">蜜蜂密度: {{ img && img.locations && img.locations[0].beeDensity }}</div>
+    <div v-if="(type === '25' || type === '10022') && img.locations && img.locations.JamCount" class="ai-recognation__images__item__count">实际车辆数: {{ img.locations.JamCount || 0 }}, 检测阈值: {{ img.locations.JamThreshold || 0 }}</div>
+    <div v-if="(type === '27' || type === '10024') && img.locations && (img.locations.IsOffDuty || img.locations.IsSleepOnDuty)" class="ai-recognation__images__item__count">{{ img && img.locations && `${img.locations.IsOffDuty ? '脱岗' : ''}${img.locations.IsSleepOnDuty ? '睡岗' : ''}告警` }}</div>
+    <div v-if="(type === '26' || type === '10023') && img.locations && img.locations.PersonNum" class="ai-recognation__images__item__count">人群聚集：{{ img && img.locations && img.locations.PersonNum }}</div>
   </div>
 </template>
 <script lang="ts">
@@ -127,7 +130,7 @@ export default class extends Vue {
 
     &__count {
       position: absolute;
-      top: 0;
+      top: 3px;
       left: 0;
       background: rgba(0, 0, 0, 0.6);
       color: #fff;

@@ -24,7 +24,7 @@
                 <div class="info-list__edit">
                   <div class="info-list__edit--value">
                     <status-badge :status="info.streamStatus" />
-                    {{ deviceStatus[info.streamStatus] || '-' }}
+                    {{ streamStatus[info.streamStatus] || '-' }}
                   </div>
                 </div>
               </info-list-item>
@@ -69,8 +69,9 @@ export default class extends Mixins(detailMixin) {}
   .app-container {
     ::v-deep {
       .info-list__title {
-        margin: 10px 5px 0 5px;
+        margin: 10px 5px 0;
       }
+
       .info-item .el-button {
         padding: 0;
       }
@@ -80,6 +81,7 @@ export default class extends Mixins(detailMixin) {}
   .detail-wrap {
     position: relative;
     padding-top: 6px;
+
     .btn-detail {
       position: absolute;
       top: -12px;

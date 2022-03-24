@@ -31,7 +31,7 @@
                 <template v-if="info && !isNVR && !isPlatform">
                   <el-descriptions-item v-for="num in info.multiStreamSize" :key="num" :label="`${autoStreamNumObj[num]}状态`">
                     <status-badge :status="getStreamStatus(info.deviceStreams, num) || 'false'" />
-                    {{ deviceStatus[getStreamStatus(info.deviceStreams, num)] || '-' }}
+                    {{ streamStatus[getStreamStatus(info.deviceStreams, num)] || '-' }}
                     <!-- <el-link v-if="getStreamStatus(info.deviceStreams, num) === 'on' && checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('stopDevice', num)">停用{{ autoStreamNumObj[num] }}</el-link>
                     <el-link v-else-if="checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('startDevice', num)">启用{{ autoStreamNumObj[num] }}</el-link> -->
                   </el-descriptions-item>
@@ -121,6 +121,9 @@
                   </el-descriptions-item>
                 </template>
                 <!--通用信息-->
+                <el-descriptions-item label="经纬度">
+                  {{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}
+                </el-descriptions-item>
                 <el-descriptions-item label="主子码流数量">
                   {{ info.multiStreamSize }}
                 </el-descriptions-item>
