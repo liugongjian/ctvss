@@ -399,15 +399,9 @@ export class RecordManager {
   public getRecordListByPage(pageNum: number, pager: any) {
     return this.recordList && this.recordList.slice((pager.pageNum - 1) * pager.pageSize, pager.pageNum * pager.pageSize).map(record => ({
       ...record,
-      edit: false
+      edit: false,
+      loading: false
     }))
-  }
-
-  /**
-   * 下载录像
-   */
-  public downloadRecord() {
-
   }
 
   /**

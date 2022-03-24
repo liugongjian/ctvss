@@ -2,9 +2,8 @@
   <div class="screen-list">
     <div v-if="currentScreen.deviceId">
       <div class="device-name">
-        {{ currentScreen.deviceName }}
+        设备名称：{{ currentScreen.deviceName }}
       </div>
-      <!--原来的表格-->
       <div class="replay-time-list">
         <el-table
           v-loading="loading"
@@ -91,12 +90,6 @@
           @on-close="closeReplayPlayer"
         /> -->
       </div>
-      <slice-download
-        v-if="dialog.slice"
-        :in-protocol="inProtocol"
-        :device-id="deviceId"
-        @on-close="closeSliceDownload"
-      />
     </div>
     <div v-else class="tip-select-device">
       <el-button type="text" @click="selectDevice">请选择设备</el-button>
@@ -113,13 +106,11 @@ import DeviceDir from '../dialogs/DeviceDir.vue'
 import { getDeviceRecord, editRecordName } from '@/api/device'
 import { GroupModule } from '@/store/modules/group'
 import { checkPermission } from '@/utils/permission'
-import SliceDowenload from '../dialogs/SliceDownload.vue'
 
 @Component({
   name: 'ScreenList',
   components: {
-    DeviceDir,
-    SliceDowenload
+    DeviceDir
   }
 })
 export default class extends Vue {
@@ -127,15 +118,17 @@ export default class extends Vue {
   private inProtocol = ''
   private deviceId = ''
 
-  private dialog = {
-    play: false,
-    slice: false
-  }
   private pager = {
     pageNum: 1,
     pageSize: 10,
     total: 0
   }
+
+  private dialogs = {
+    deviceDir: false,
+    play: false
+  }
+
   private currentListRecord: any = null
   private recordName = ''
   private dateFormatInTable = dateFormatInTable
@@ -228,10 +221,6 @@ export default class extends Vue {
     this.secToMs(this.recordList)
   }
 
-  private dialogs = {
-    deviceDir: false
-  }
-
   /**
    * 选择视频
    * @param screen 视频
@@ -297,7 +286,7 @@ export default class extends Vue {
    */
   private async downloadReplay(record: any) {
     try {
-      this.dialog.slice = true
+      record.loading = true
       const res = await getDeviceRecord({
         deviceId: this.currentScreen.deviceId,
         startTime: record.startTime / 1000,
@@ -313,7 +302,7 @@ export default class extends Vue {
     } catch (e) {
       this.$message.error(e.message)
     } finally {
-      this.dialog.slice = false
+      record.loading = false
     }
   }
 
@@ -333,20 +322,6 @@ export default class extends Vue {
     // 变了变了
     this.dialog.play = false
     this.currentListRecord = null
-  }
-
-  /**
-   * 切片下载
-   */
-  private sliceDownload() {
-    this.dialog.slice = true
-  }
-
-  /**
-   * 关闭切片下载弹出框
-   */
-  private closeSliceDownload() {
-    this.dialog.slice = false
   }
 
   /**
@@ -372,7 +347,7 @@ export default class extends Vue {
 </script>
 <style lang="scss" scoped>
 .device-name {
-  padding: 20px;
+  padding: 10px 20px;
 }
 
 .replay-time-list {
