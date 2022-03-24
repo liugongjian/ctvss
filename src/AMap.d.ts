@@ -325,7 +325,7 @@ declare namespace AMap {
     public panBy(x: number, y: number): void;
 
     /**根据地图上添加的覆盖物分布情况, 自动缩放地图到合适的视野级别, 参数overlayList默认为当前地图上添加的所有覆盖物图层**/
-    public setFitView(overlayList: Array<any>): void;
+    public setFitView(overlayList: Array<any>, immediately: boolean, avoid: Array<Number>, maxZoom?:number): void;
 
     /**删除地图上所有的覆盖物**/
     public clearMap(): void;

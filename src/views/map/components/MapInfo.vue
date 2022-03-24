@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-descriptions title="地图属性" :column="1">
+    <el-descriptions title="地图属性" :column="1" v-if="map">
       <template slot="extra">
         <svg-icon name="save" @click="save()" width="25" height="25" />
       </template>

@@ -290,7 +290,7 @@ export default class VMap {
         const replayIcon = `<span class="icon-wrap ${(markerOptions.recordStatus === 1 || markerOptions.recordStatus === 2 ) ? '' : 'off'}" onclick="replayMarker('${markerOptions.deviceId}')"><i class="icon icon_replay"></i></span>`
         optionDiv = `<div class="marker-options">${previewIcon}${replayIcon}</div>`;
       } else {
-        const deleteIcon = `<i class="icon icon_delete" onclick="deleteMarker('${markerOptions.deviceId}')"></i>`
+        const deleteIcon = `<i class="icon icon_delete" onclick="deleteMarker('${markerOptions.deviceId}', '${markerOptions.deviceLabel}')"></i>`
         optionDiv = `<div class="marker-options">${deleteIcon}</div>`;
       }
       window.previewMarker = (id) => {
@@ -319,8 +319,8 @@ export default class VMap {
         }
         this.markerEventHandlers.onPlay && this.markerEventHandlers.onPlay(data)
       }
-      window.deleteMarker = (id) => {
-        this.markerEventHandlers.onDelete(id);
+      window.deleteMarker = (id, name) => {
+        this.markerEventHandlers.onDelete(id, name);
       }
       wrapDiv = this.createNode(`<div class="marker-wrap" style="${wrapStyle}">${optionDiv}</div>`);
       markerContent.append(wrapDiv);

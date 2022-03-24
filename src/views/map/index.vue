@@ -14,11 +14,10 @@
           <el-button class="map__add" size="small" @click="dialogVisible = true">添加地图</el-button>
           <el-card class="map__user">
             <div v-for="map in mapList" :key="map.mapId">
-              <el-button class="choose-map" @click="chooseMap(map)">
+              <div class="choose-map" @click="chooseMap(map)" :class="map.mapId == curMap.mapId ? 'active' : ''" >
                 <span class="map-text">{{ map.name }}</span>
-                <span class="edit-icon"><svg-icon name="edit" @click="editMap(map.mapId)" /></span>
                 <span class="delete-icon"><svg-icon name="delete" @click="deleteMap(map)" /></span>
-              </el-button>
+              </div>
             </div>
           </el-card>
           <div class="device-tree__title">
@@ -43,6 +42,16 @@
                   <svg-icon :name="data.type" />
                   {{ node.label }}
                 </span>
+                <span 
+                  class="node-option"
+                  v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) < 0"
+                  @click="addMarker(data)"
+                >+</span>
+                <span
+                  class="node-option"
+                  v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0"
+                  @click="deleteMarker(data)"
+                >-</span>
               </span>
             </el-tree>
           </div>
@@ -50,20 +59,18 @@
         <div class="device-list__right">
           <div class="tools">
             <span class="left">
-              <el-button size="small" @click="changeEdit()" class="tools-item">{{ isEdit ? '完成编辑' : '开启编辑' }}</el-button>
-              <span>
-                <!-- <span class="tools-item"><svg-icon name="selects" /></span> -->
-                <span class="tools-item"><svg-icon name="title" @click="changeTitleShow()" /></span>
-                <span class="tools-item"><svg-icon name="hawkeye" @click="toggleOverView()" /></span>
-                <span class="tools-item"><svg-icon name="3d" @click="toggleMap3D()" /></span>
-                <span class="tools-item"><svg-icon size="30" name="mark" @click="toggleMarkersShow()" /></span>
-                <span class="tools-item"><svg-icon name="close-all" /></span>
-                <!-- <span class="tools-item"><svg-icon name="magnifier" /></span> -->
-                <!-- <span class="tools-item tools-item__cup">|</span>
-                <span class="tools-item"><svg-icon name="player" /></span>
-                <span class="tools-item"><svg-icon name="play-video" /></span>
-                <span class="tools-item"><svg-icon name="delete" /></span> -->
-              </span>
+              <span @click="changeEdit()" class="btn-edit tools-item">{{ isEdit ? '完成编辑' : '开启编辑' }}</span>
+              <!-- <span class="tools-item"><svg-icon name="selects" /></span> -->
+              <span class="tools-item"><svg-icon name="title" @click="changeTitleShow()" /></span>
+              <span class="tools-item"><svg-icon name="hawkeye" @click="toggleOverView()" /></span>
+              <span class="tools-item"><svg-icon name="3d" @click="toggleMap3D()" /></span>
+              <span class="tools-item"><svg-icon size="30" name="mark" @click="toggleMarkersShow()" /></span>
+              <span class="tools-item"><svg-icon name="close-all" /></span>
+              <!-- <span class="tools-item"><svg-icon name="magnifier" /></span> -->
+              <!-- <span class="tools-item tools-item__cup">|</span>
+              <span class="tools-item"><svg-icon name="player" /></span>
+              <span class="tools-item"><svg-icon name="play-video" /></span>
+              <span class="tools-item"><svg-icon name="delete" /></span> -->
             </span>
             <span class="right">
               <span class="tools-item"><svg-icon name="toggle-show" @click="showInfo = !showInfo" /></span>
@@ -84,7 +91,7 @@
                 <el-form-item>
                   <div class="block">
                     <span class="demonstration">默认缩放级别</span>
-                    <el-slider v-model="form.zoom" :min="3" :max="18" />
+                    <el-slider v-model="form.zoom" :min="3" :max="20" />
                   </div>
                 </el-form-item>
                 <el-form-item>
@@ -111,23 +118,24 @@
             <el-dialog title="添加监控点位" :visible.sync="addPositionDialog" class="dialog-text">
               <div>
                 <h3>是否继承设备中的经纬度</h3>
-                <h3>如不继续则使用鼠标所在的经纬度</h3>
+                <h3>如不继承则使用地图当前的中心经纬度</h3>
               </div>
-              <el-checkbox v-model="checked">本次编辑不再询问</el-checkbox>
-              <el-button @click="addPositionDialog = false">继承</el-button>
-              <el-button @click="addPositionDialog = false">不继承</el-button>
-              <el-button @click="addPositionDialog = false">取消</el-button>
+              <h3>
+                <el-checkbox v-model="addPositionDialogCheck">本次编辑不再询问</el-checkbox>
+              </h3>
+              <el-button @click="confirmAddMarker(true)">继承</el-button>
+              <el-button @click="confirmAddMarker(false)">不继承</el-button>
+              <el-button @click="cancelAddMark()">取消</el-button>
             </el-dialog>
-            <el-dialog title="开始编辑" :visible.sync="editDialog">
+            <!-- <el-dialog title="开始编辑" :visible.sync="editDialog">
               <div>
                 <h3>当前为查看模式，是否确定进入编辑模式？</h3>
               </div>
-              <el-checkbox v-model="checked">本次编辑不再询问</el-checkbox>
               <div class="footer">
                 <el-button @click="editDialog = false">确定</el-button>
                 <el-button @click="editDialog = false">取消</el-button>
               </div>
-            </el-dialog>
+            </el-dialog> -->
             <el-dialog title="删除监控点位" :visible.sync="deleteDialog">
               <div>
                 <h3>确定在地图中删除监控点位"IPC1"？</h3>
@@ -148,19 +156,21 @@
                 v-if="mapList.length > 0 && curMap"
                 ref="mapview"
                 :map-option="curMap"
-                @mapChange="modifyMapInfo"
+                :is-edit="isEdit"
+                @mapChange="handleMapInfo"
                 @mapClick="handleMapClick"
+                @markerlistChange="handleMarksChange"
               />
               <div v-else class="init-map">
                 <el-button @click="dialogVisible = true">添加地图</el-button>
               </div>
             </div>
             <div v-show="showInfo" class="map-info__right">
-              <div v-show="showMapInfo">
-                <map-info :map="curMapInfo" @save="modifyMapDialog = true"/>
+              <div v-if="showMapInfo">
+                <map-info :map="curMapInfo" @save="modifyMapDialog = true" />
               </div>
-              <div v-show="!showMapInfo">
-                <point-info :is-edit="isEdit" :marker="curMarkInfo" />
+              <div v-if="!showMapInfo">
+                <point-info :is-edit="isEdit" :marker="curMarkInfo" @save="changeMarkerInfos" />
                 <!-- <selected-point /> -->
               </div>
             </div>
@@ -178,7 +188,7 @@ import { setDirsStreamStatus, renderAlertType, getSums } from '@/utils/device'
 import { describeShareDevices, getPlatforms } from '@/api/upPlatform'
 import { getDeviceTree } from '@/api/device'
 import { describeShareDevices } from '@/api/upPlatform'
-import {getDeviceEvents, getDevices, getDeviceTree} from '@/api/device'
+import {getDeviceEvents, getDevices, getDeviceTree, getDevice} from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MapView from './mapview.vue'
 import PointInfo from './components/PointInfo.vue'
@@ -201,7 +211,6 @@ export default class extends Mixins(IndexMixin) {
   private renderAlertType = renderAlertType
   private getSums = getSums
   private dialogVisible = false
-  private addPositionDialog = false
   private editDialog = false
   private deleteDialog = false
   private deletesDialog = false
@@ -212,20 +221,9 @@ export default class extends Mixins(IndexMixin) {
   private hideTitle = false
   private showInfo = false
   private showMapInfo = true
-  private marker = {
-    deviceId: '399422801670782976',
-    inProtocol: 'rtmp',
-    deviceType: 'ipc',
-    deviceLabel: 'ipc006',
-    longitude: 121.487207,
-    latitude: 31.225348,
-    viewRadius: '0',
-    viewAngle: '0',
-    deviceAngle: '0',
-    population: 'xx',
-    houseInfo: 'xx',
-    unitInfo: 'xx'
-  }
+  private addPositionDialog = false // 显示询问本次编辑要不要继承设备坐标的对话弹窗
+  private addPositionDialogCheck = false // 是否询问本次编辑要不要继承设备坐标
+  private uselnglat = true // 是否要继承设备坐标
   private form = {
     name: '',
     longitude: '',
@@ -280,9 +278,10 @@ export default class extends Mixins(IndexMixin) {
   private curMap = null
   private curMapInfo = null
   private curMarkInfo = null
-  private overView = false
+  private overView = true
   private showMarkers = true
   private is3D = true
+  private marker = null
   @Prop()
   private platformId: any = '417932083494649856'
   private typeMapping: any = {
@@ -483,31 +482,93 @@ export default class extends Mixins(IndexMixin) {
     }
   }
 
+  handleMarksChange(list) {
+    this.markerList = list
+  }
+
+  private get mapDeviceIds() {
+    return this.markerList.map(marker => marker.deviceId)
+  }
+
   changeTitleShow() {
     this.hideTitle = !this.hideTitle
   }
 
   changeEdit() {
     this.isEdit = !this.isEdit
-    this.$refs.mapview.changeEdit(this.isEdit)
   }
 
-  addMarker() {
-    const marker = {
-      deviceId: '399422801670782977',
-      inProtocol: 'rtmp',
-      deviceType: 'ipc',
-      deviceLabel: 'ipc006',
-      // longitude: 121.487207,
-      // latitude: 31.225348,
-      viewRadius: '0',
-      viewAngle: '0',
-      deviceAngle: '0',
-      population: 'xx',
-      houseInfo: 'xx',
-      unitInfo: 'xx'
+  cancelAddMark() {
+    this.addPositionDialog = false
+    this.addPositionDialogCheck = false
+  }
+
+  addMarker(marker) {
+    if (!this.isEdit) {
+      this.$msgbox({
+        title: '开始编辑',
+        message: '当前为查看模式，是否确定进入编辑模式？',
+        showCancelButton: true,
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+      }).then(() => {
+        this.isEdit = true
+        this.handleMarkerOn(marker)
+      }).catch(() => {
+        console.log('取消进入编辑模式')
+      })
+    } else {
+      this.handleMarkerOn(marker)
     }
-    this.$refs.mapview.addMarker(marker)
+  }
+
+  private handleMarkerOn(marker) {
+    this.marker = marker
+    if (!this.addPositionDialogCheck) {
+      this.addPositionDialog = true
+    } else {
+      this.confirmAddMarker(this.uselnglat)
+    }
+  }
+
+  async confirmAddMarker(uselnglat: boolean) {
+    this.uselnglat = uselnglat
+    try {
+      const device = await getDevice({
+        deviceId: this.marker.id,
+        inProtocol: this.marker.inProtocol
+      })
+      const markerInfo = {
+        deviceId: device.deviceId,
+        inProtocol: device.inProtocol,
+        deviceType: device.deviceType,
+        deviceLabel: device.deviceName,
+        longitude: '',
+        latitude: '',
+        deviceStatus: device.deviceStatus,
+        streamStatus: device.streamStatus,
+        recordStatus: device.recordStatus,
+        regionNames: device.regionNames,
+        viewRadius: '0',
+        viewAngle: '0',
+        deviceAngle: '0',
+        population: 'xx',
+        houseInfo: 'xx',
+        unitInfo: 'xx'
+      }
+      if (uselnglat) {
+        markerInfo.longitude = device.deviceLongitude
+        markerInfo.latitude = device.deviceLatitude
+      }
+      this.$refs.mapview.addMarker(markerInfo)
+    } catch (e) {
+      this.$alertError(e);
+    } finally {
+      this.addPositionDialog = false
+    }
+  }
+  deleteMarker(marker) {
+    this.$refs.mapview.handleMarkerDelete(marker.id, marker.label)
   }
 
   toggleMarkersShow() {
@@ -515,8 +576,10 @@ export default class extends Mixins(IndexMixin) {
     this.$refs.mapview.setMarkersView(this.showMarkers)
   }
   toggleOverView() {
-    this.overView = !this.overView
-    this.$refs.mapview.toggleOverView(this.overView)
+    if (this.mapList.length > 0) {
+      this.overView = !this.overView
+      this.$refs.mapview.toggleOverView(this.overView)
+    }
   }
   toggleMap3D() {
     this.is3D = !this.is3D
@@ -526,7 +589,6 @@ export default class extends Mixins(IndexMixin) {
   addMap() {
     this.$refs.mapform.validate(async (valid: any) => {
       if (valid) {
-        console.log(this.form)
         try {
           const map = {
             name: this.form.name,
@@ -547,6 +609,10 @@ export default class extends Mixins(IndexMixin) {
         return false
       }
     })
+  }
+
+  changeMarkerInfos(mark) {
+    this.$refs.mapview.markerChange(mark)
   }
 
   /**
@@ -593,8 +659,13 @@ export default class extends Mixins(IndexMixin) {
       }
     })
   }
-  private modifyMapInfo(info) {
-    this.curMapInfo = info
+  private handleMapInfo(infos) {
+    const { type, info } = infos
+    if (type === 'map') {
+      this.curMapInfo = info
+    } else if (type === 'marker') {
+      this.curMarkInfo = info
+    }
   }
 
   private async modifyMap() {
@@ -616,6 +687,7 @@ export default class extends Mixins(IndexMixin) {
           return item
         }
       })
+      this.$alertSuccess('地图修改成功')
     } catch (e) {
       this.$alertError(e.message)
     } finally {
@@ -667,6 +739,8 @@ export default class extends Mixins(IndexMixin) {
   width: 100%;
   height: 150px;
   text-align: center;
+  padding: 15px 12px;
+  overflow: scroll;
 }
 
 .map-item__user {
@@ -723,11 +797,9 @@ export default class extends Mixins(IndexMixin) {
   background: rgba(255, 255, 255, 80%);
   width: 20%;
   height: 100%;
-  padding: 20px 0 0 20px;
-}
-
-.map-info__right .el-descriptions {
-  margin-bottom: 20px;
+  padding: 20px 20px 0 20px;
+  overflow: scroll;
+  min-width: 270px;
 }
 
 .tools {
@@ -742,13 +814,39 @@ export default class extends Mixins(IndexMixin) {
   white-space: nowrap;
   overflow: hidden;
   transition: padding-left 0.2s;
+  .btn-edit{
+    width: 90px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    background: #fa8334;
+    color: #fff;
+    border-radius: 5px;
+    font-size: 12px;
+  }
   svg {
     font-size: 20px;
   }
   .left {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
     .tools-item{
       margin-right: 20px;
     }
+  }
+}
+.device-list__left .dir-list__tree .custom-tree-node{
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  .node-option{
+    padding: 2px;
+    font-size: 18px;
+    font-weight: bolder;
   }
 }
 
@@ -762,29 +860,25 @@ export default class extends Mixins(IndexMixin) {
 }
 
 .choose-map {
-  width: 100%;
-}
-
-.choose-map .map-text {
-  margin-right: 10px;
-}
-
-.choose-map .delete-icon {
-  display: none;
-}
-
-.choose-map .edit-icon {
-  display: none;
+  height: 33px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 auto;
+  padding: 0 10px;
+  border-radius: 5px;
+  &.active {
+    background: #fa8334;
+    color: #fff;
+  }
+  .delete-icon {
+    display: none;
+  }
 }
 
 .choose-map:hover .delete-icon {
   display: inline-block;
-  margin-right: 10px;
-}
-
-.choose-map:hover .edit-icon {
-  display: inline-block;
-  margin-right: 10px;
 }
 
 // .tip {
@@ -817,29 +911,34 @@ export default class extends Mixins(IndexMixin) {
 //   opacity: 1;
 // }
 
-::v-deep .el-dialog__body {
-  text-align: center;
+::v-deep .el-descriptions {
+  font-size: 12px;
+  margin-top: 10px;
 }
 
-::v-deep .el-descriptions-item__content {
-  text-align: center;
-  line-height: 36px;
+::v-deep .el-descriptions__title{
+  font-size: 14px;
 }
 
-::v-deep .el-descriptions-item__label {
-  min-width: 60px;
-  line-height: 36px;
+::v-deep .el-descriptions__header {
+  margin-bottom: 12px;
 }
 
-::v-deep .el-descriptions__body {
-  background-color: rgba(255, 255, 255, 0%);
+::v-deep .el-descriptions__body{
+  background: transparent;
 }
 
-::v-deep .el-input__inner {
+::v-deep .el-input--medium {
+  font-size: 12px;
+}
+::v-deep .el-input .el-input__inner {
   background-color: rgba(255, 255, 255, 0%);
   border: none;
   border-radius: 0;
   border-bottom: 1px solid black;
+  height: 18px;
+  line-height: 18px;
+  font-size: 12px;
 }
 
 ::v-deep .el-input.is-disabled .el-input__inner {
@@ -847,6 +946,8 @@ export default class extends Mixins(IndexMixin) {
   color: rgba(0, 0, 0, 85%);
   border: none;
   cursor: default;
+  padding: 0;
+  text-overflow: ellipsis;
 }
 
 </style>
