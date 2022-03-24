@@ -85,11 +85,11 @@
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
         />
-        <replay-player
+        <!-- <replay-player
           v-if="dialog.play"
           :video="currentListRecord"
           @on-close="closeReplayPlayer"
-        />
+        /> -->
       </div>
       <slice-download
         v-if="dialog.slice"
@@ -113,19 +113,20 @@ import DeviceDir from '../dialogs/DeviceDir.vue'
 import { getDeviceRecord, editRecordName } from '@/api/device'
 import { GroupModule } from '@/store/modules/group'
 import { checkPermission } from '@/utils/permission'
-import ReplayPlayer from '../dialogs/ReplayPlayer.vue'
 import SliceDowenload from '../dialogs/SliceDownload.vue'
 
 @Component({
   name: 'ScreenList',
   components: {
     DeviceDir,
-    ReplayPlayer,
     SliceDowenload
   }
 })
 export default class extends Vue {
   private loading = false
+  private inProtocol = ''
+  private deviceId = ''
+
   private dialog = {
     play: false,
     slice: false
@@ -296,7 +297,7 @@ export default class extends Vue {
    */
   private async downloadReplay(record: any) {
     try {
-      this.loading = true
+      this.dialog.slice = true
       const res = await getDeviceRecord({
         deviceId: this.currentScreen.deviceId,
         startTime: record.startTime / 1000,
@@ -312,7 +313,7 @@ export default class extends Vue {
     } catch (e) {
       this.$message.error(e.message)
     } finally {
-      this.loading = false
+      this.dialog.slice = false
     }
   }
 
@@ -320,6 +321,7 @@ export default class extends Vue {
    * 播放录像（模态框）
    */
   private playReplay(record: any) {
+    // 变了变了
     this.dialog.play = true
     this.currentListRecord = record
   }
@@ -328,6 +330,7 @@ export default class extends Vue {
    * 关闭播放录像弹出框
    */
   private closeReplayPlayer() {
+    // 变了变了
     this.dialog.play = false
     this.currentListRecord = null
   }
