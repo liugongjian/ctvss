@@ -268,11 +268,14 @@ export default class extends Vue {
         startTime: Math.floor(new Date(row.startTime).getTime() / 1000),
         customName: this.recordName
       })
-      this.getRecordList()
-      this.loading = false
+      await this.currentScreen.recordManager.getRecordListByDate(this.currentScreen.recordManager.currentDate)
+      this.recordList = this.currentScreen.recordManager.getRecordListByPage(this.pager.pageNum, this.pager)
+      this.pager.total = this.currentScreen.recordManager.recordList.length
+      this.secToMs(this.recordList)
     } catch (e) {
-      this.loading = false
       this.$message.error(e.message)
+    } finally {
+      this.loading = false
     }
   }
 
@@ -290,7 +293,6 @@ export default class extends Vue {
   private async downloadReplay(record: any) {
     try {
       this.loading = true
-      console.log('下载：   ', record)
       const res = await getDeviceRecord({
         deviceId: this.currentScreen.deviceId,
         startTime: record.startTime / 1000,
