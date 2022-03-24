@@ -13,8 +13,6 @@ import DashboardMixin from '@/views/dashboard/mixin/DashboardMixin'
 import DashboardContainer from '@/views/dashboard/components/DashboardContainer.vue'
 import debounce from '@/utils/debounce'
 import { eachHourOfInterval, parse, isEqual, format } from 'date-fns'
-// import json from '../testdata/terrorism.json'
-// import json2 from '../testdata/terrorism2.json'
 
 @Component({
   name: 'PeopleTrendChart',

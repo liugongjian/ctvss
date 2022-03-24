@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard-container">
+  <div class="dashboard-container" :class="lessPadding ? 'less-padding' : ''">
     <div class="dashboard-container__header">
       <div class="dashboard-container__header__slot">
         <slot name="header" />
@@ -22,9 +22,13 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 })
 export default class extends Vue {
   @Prop() private title?: string
+  @Prop() private lessPadding?: boolean
 }
 </script>
 <style lang="scss" scoped>
+  .dashboard-container.less-padding{
+    padding: 2.7vh 3vw 4vh 3vw;
+  }
   .dashboard-container {
     position: relative;
     color: #fff;

@@ -2,6 +2,7 @@
   <div>
     <div v-if="!device.deviceId" class="no-device">请先选择设备</div>
     <div v-else>
+      <!-- <div> -->
       <!-- <div v-if="isFaceAlgoCode" class="face-filter">
       <el-descriptions :column="1">
         <el-descriptions-item label="人脸库">
@@ -62,8 +63,11 @@
             </el-select>
           </div>
         </span>
+        <span>
+          <el-button class="el-button-rect" :disabled="dataLoading" @click="refresh"><svg-icon name="refresh" /></el-button>
+        </span>
       </div>
-      <div v-if="isGatheringCode" class="chart-wrapper">
+      <div v-if="isGatheringCode && !queryLoading.peopleChart" class="chart-wrapper">
         <div class="title">
           <div class="title-block" />
           <span>人员聚集趋势</span>
@@ -75,6 +79,46 @@
           :device="device"
           :app-info="appInfo"
         />
+      </div>
+
+      <div v-if="!queryLoading.carChart && isCarFlowCode" class="chart-wrapper car-spec">
+        <div class="title">
+          <div class="title-block" />
+          <span>车流量统计结果</span>
+        </div>
+        <CarFlowChart
+          :height="24"
+          :param="queryParam"
+          :face-lib="faceLib"
+          :device="device"
+          :app-info="appInfo"
+        />
+      </div>
+      <div v-if="!queryLoading.carAlarmTable && isCarFlowCode" class="table-wrapper">
+        <div class="title">
+          <div class="title-block" />
+          <span>告警列表</span>
+        </div>
+        <el-table
+          v-if="alarms.length"
+          ref="multipleTable"
+          :data="alarms"
+          tooltip-effect="dark"
+          style="width: 100%"
+          height="300"
+        >
+          <el-table-column type="index" label="序号" align="center" />
+          <el-table-column prop="AlarmCount" label="告警车辆" align="center" />
+          <el-table-column prop="AlarmTime" label="时间" align="center" />
+        </el-table>
+        <div v-else class="no-data">暂无数据</div>
+      <!-- <el-pagination
+          :current-page="chartPager.pageNum"
+          :page-size="chartPager.pageSize"
+          :total="chartPager.totalNum"
+          layout="total, prev, pager, next, jumper"
+          @current-change="handleChartTableCurrentChange"
+        /> -->
       </div>
 
       <div v-loading="queryLoading.pic" class="pic-wrapper">
@@ -125,10 +169,11 @@
 import { Component, Vue, Watch, Prop } from 'vue-property-decorator'
 import PicCard from './PicCard.vue'
 import PeopleTrendChart from './PeopleTrendChart.vue'
+import CarFlowChart from './CarFlowChart.vue'
 import Locations from '@/views/dashboard/ai/components/Locations.vue'
 import Attributes from '@/views/dashboard/ai/components/Attributes.vue'
 import { parseMetaDataNewAi, transformLocationAi } from '@/utils/ai'
-import { getAppScreenShot } from '@/api/ai-app'
+import { getAppScreenShot, getVehiclesAlarmStatic } from '@/api/ai-app'
 import { getGroupPersonAlready } from '@/api/aiConfig'
 import { decodeBase64 } from '@/utils/base64'
 import debounce from '@/utils/debounce'
@@ -140,7 +185,8 @@ import { ResultTimeInterval } from '@/dics/index'
     PicCard,
     PeopleTrendChart,
     Locations,
-    Attributes
+    Attributes,
+    CarFlowChart
   }
 })
 export default class extends Vue {
@@ -149,7 +195,10 @@ export default class extends Vue {
     @Prop() private faceLib!: any
     private dialoguePic: any = null
     private queryLoading: any = {
-      pic: false
+      pic: false,
+      carChart: false,
+      peopleChart: false,
+      carAlarmTable: false
     }
     private currentLocationIndex: number = -1
     private visibile = false
@@ -159,6 +208,11 @@ export default class extends Vue {
       pageNum: 1,
       pageSize: 12,
       totalNum: 0
+    }
+    private chartPager = {
+      pageNum: 1,
+      pageSize: 5,
+      totalNum: 300
     }
     private breadCrumbContent: String = '应用详情'
     private queryParam: any = {
@@ -170,8 +224,24 @@ export default class extends Vue {
     }
     private faceInfos: any = []
     private picInfos: any = []
+    private alarms: any = []
     // 防抖
-    private debounceHandle = debounce(this.getScreenShot, 500)
+    private debounceHandle = debounce(() => {
+      Object.keys(this.queryLoading).forEach(key => { this.queryLoading[key] = true })
+      this.getScreenShot()
+      this.isCarFlowCode && this.getAlarmsList()
+      Object.keys(this.queryLoading).forEach(key => { this.queryLoading[key] = false })
+    }, 500)
+
+    get dataLoading() {
+      let loading = false
+      Object.keys(this.queryLoading).forEach(key => {
+        if (this.queryLoading[key]) {
+          loading = true
+        }
+      })
+      return loading
+    }
 
     @Watch('queryParam.periodType')
     private periodTypeUpdated(newVal) {
@@ -204,9 +274,15 @@ export default class extends Vue {
       return this.appInfo.algorithm.code === '10005'
     }
 
+    private get isCarFlowCode() {
+      return this.appInfo.algorithm.code === '10019'
+    }
     private async mounted() {
       this.initFaceInfos()
-      this.device.deviceId.length > 0 && this.getScreenShot()
+      if (this.device.deviceId.length > 0) {
+        this.getScreenShot()
+        this.isCarFlowCode && this.getAlarmsList()
+      }
     }
 
     /**
@@ -254,6 +330,19 @@ export default class extends Vue {
       }
     }
 
+    private async getAlarmsList() {
+      this.alarms = []
+      const [startTime, endTime] = this.queryParam.period
+      const query = {
+        appId: this.appInfo.id,
+        startTime: Math.floor(startTime / 1000),
+        endTime: Math.floor(endTime / 1000),
+        deviceId: this.device.deviceId
+      }
+      const res = await getVehiclesAlarmStatic(query)
+      this.alarms = res.vehiclesAlarmList
+    }
+
     /**
      * 初始化人脸选项图片
      */
@@ -292,6 +381,14 @@ export default class extends Vue {
       this.pager.pageNum = val
       this.getScreenShot()
     }
+
+    /**
+     * 分页操作
+     */
+    private handleChartTableCurrentChange(val: number) {
+      this.chartPager.pageNum = val
+    }
+
     private dialogueOprate() {
       this.visibile = !this.visibile
     }
@@ -307,6 +404,9 @@ export default class extends Vue {
     }
     private onLocationChanged(index: number) {
       this.currentLocationIndex = index
+    }
+    private async refresh() {
+      this.debounceHandle()
     }
 }
 </script>
@@ -362,6 +462,7 @@ export default class extends Vue {
 .query-wrapper{
     // height: 36px;
     margin-bottom: 20px;
+    line-height: 52px;
     &>span{
         margin-right: 20px;
     }
@@ -375,6 +476,7 @@ export default class extends Vue {
       vertical-align: middle;
       width:11vw;
       margin-right: 20px;
+      padding-left: 8px;
     }
     .time-interval{
       display: inline-block;
@@ -389,26 +491,37 @@ export default class extends Vue {
       overflow-y: auto;
     }
 }
+.table-wrapper,.chart-wrapper{
+  display: inline-block;
+  vertical-align: top;
+}
+.chart-wrapper{
+  width: 100%;
+}
+.table-wrapper{
+  width: 400px;
+}
+
 .title{
-        height: 50px;
-        vertical-align: middle;
-        &>div{
-            // display: inline-block;
-            padding-top: 5px;
-        }
-        .title-block{
-            width: 7px;
-            height: 15px;
-            background-color: rgba(250, 131, 52, 1);
-            border: none;
-            margin-top: 2px;
-            margin-right: 5px;
-            display: inline-block;
-        }
-        span {
-            font-weight: bold;
-        }
+    height: 50px;
+    vertical-align: middle;
+    &>div{
+        // display: inline-block;
+        padding-top: 5px;
     }
+    .title-block{
+        width: 7px;
+        height: 15px;
+        background-color: rgba(250, 131, 52, 1);
+        border: none;
+        margin-top: 2px;
+        margin-right: 5px;
+        display: inline-block;
+    }
+    span {
+        font-weight: bold;
+    }
+}
 
 .no-data{
   height: 200px;
@@ -440,5 +553,8 @@ export default class extends Vue {
   line-height: 50vh;
   text-align: center;
   font-size: 25px;
+}
+.car-spec{
+  width: calc(100% - 400px) !important;
 }
 </style>
