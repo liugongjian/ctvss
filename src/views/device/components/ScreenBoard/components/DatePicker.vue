@@ -1,5 +1,5 @@
 <template>
-  <div v-if="showDatepicker" class="datepicker">
+  <div class="datepicker">
     <DatePanel
       v-if="inline"
       v-model="date"
@@ -9,7 +9,6 @@
     />
     <el-date-picker
       v-else
-      ref="datepicker"
       v-model="date"
       type="date"
       value-format="timestamp"
@@ -49,7 +48,6 @@ export default class extends Vue {
   private size
 
   private date: number = null
-  private showDatepicker = true
 
   private get recordManager() {
     return this.screen && this.screen.recordManager
@@ -83,6 +81,7 @@ export default class extends Vue {
       return hasRecords ? 'has-records' : ''
     },
     changeCalendar: (date: any) => {
+      console.log('changeCalendar', date)
       if (!this.recordManager) return
       const startTime = Math.floor(new Date(date.getFullYear(), date.getMonth() - 1).getTime() / 1000)
       const endTime = Math.floor(new Date(date.getFullYear(), date.getMonth() + 1).getTime() / 1000)

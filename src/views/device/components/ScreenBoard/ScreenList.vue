@@ -2,9 +2,8 @@
   <div class="screen-list">
     <div v-if="currentScreen.deviceId">
       <div class="device-name">
-        {{ currentScreen.deviceName }}
+        设备名称：{{ currentScreen.deviceName }}
       </div>
-      <!--原来的表格-->
       <div class="replay-time-list">
         <el-table
           v-loading="loading"
@@ -85,23 +84,22 @@
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
         />
-        <!-- <replay-player
-          v-if="dialog.play"
-          :video="currentListRecord"
-          @on-close="closeReplayPlayer"
-        /> -->
       </div>
-      <slice-download
-        v-if="dialog.slice"
-        :in-protocol="inProtocol"
-        :device-id="deviceId"
-        @on-close="closeSliceDownload"
-      />
     </div>
     <div v-else class="tip-select-device">
       <el-button type="text" @click="selectDevice">请选择设备</el-button>
     </div>
     <device-dir v-if="dialogs.deviceDir" @on-close="onDeviceDirClose" />
+    <el-dialog
+      v-if="dialogs.play"
+      class="video-player"
+      title="录像回放"
+      :visible="true"
+      :close-on-click-modal="false"
+      @close="closeReplayPlayer()"
+    >
+      <VssPlayer :url="currentListRecord.url" type="hls" :codec="currentListRecord.codc" :has-progress="true" />
+    </el-dialog>
   </div>
 </template>
 <script lang="ts">
@@ -109,17 +107,17 @@ import { Component, Vue, Inject, Watch } from 'vue-property-decorator'
 import { Record } from '@/views/device/models/Record/Record'
 import { dateFormatInTable, durationFormatInTable } from '@/utils/date'
 import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
-import DeviceDir from '../dialogs/DeviceDir.vue'
 import { getDeviceRecord, editRecordName } from '@/api/device'
 import { GroupModule } from '@/store/modules/group'
 import { checkPermission } from '@/utils/permission'
-import SliceDowenload from '../dialogs/SliceDownload.vue'
+import DeviceDir from '../dialogs/DeviceDir.vue'
+import VssPlayer from '@/components/VssPlayer/index.vue'
 
 @Component({
   name: 'ScreenList',
   components: {
     DeviceDir,
-    SliceDowenload
+    VssPlayer
   }
 })
 export default class extends Vue {
@@ -127,15 +125,17 @@ export default class extends Vue {
   private inProtocol = ''
   private deviceId = ''
 
-  private dialog = {
-    play: false,
-    slice: false
-  }
   private pager = {
     pageNum: 1,
     pageSize: 10,
     total: 0
   }
+
+  private dialogs = {
+    deviceDir: false,
+    play: false
+  }
+
   private currentListRecord: any = null
   private recordName = ''
   private dateFormatInTable = dateFormatInTable
@@ -228,10 +228,6 @@ export default class extends Vue {
     this.secToMs(this.recordList)
   }
 
-  private dialogs = {
-    deviceDir: false
-  }
-
   /**
    * 选择视频
    * @param screen 视频
@@ -297,7 +293,7 @@ export default class extends Vue {
    */
   private async downloadReplay(record: any) {
     try {
-      this.dialog.slice = true
+      record.loading = true
       const res = await getDeviceRecord({
         deviceId: this.currentScreen.deviceId,
         startTime: record.startTime / 1000,
@@ -313,7 +309,7 @@ export default class extends Vue {
     } catch (e) {
       this.$message.error(e.message)
     } finally {
-      this.dialog.slice = false
+      record.loading = false
     }
   }
 
@@ -322,7 +318,7 @@ export default class extends Vue {
    */
   private playReplay(record: any) {
     // 变了变了
-    this.dialog.play = true
+    this.dialogs.play = true
     this.currentListRecord = record
   }
 
@@ -331,22 +327,8 @@ export default class extends Vue {
    */
   private closeReplayPlayer() {
     // 变了变了
-    this.dialog.play = false
+    this.dialogs.play = false
     this.currentListRecord = null
-  }
-
-  /**
-   * 切片下载
-   */
-  private sliceDownload() {
-    this.dialog.slice = true
-  }
-
-  /**
-   * 关闭切片下载弹出框
-   */
-  private closeSliceDownload() {
-    this.dialog.slice = false
   }
 
   /**
@@ -372,7 +354,7 @@ export default class extends Vue {
 </script>
 <style lang="scss" scoped>
 .device-name {
-  padding: 20px;
+  padding: 10px 20px;
 }
 
 .replay-time-list {
@@ -393,6 +375,16 @@ export default class extends Vue {
   }
   .edit-save-button {
     margin-left: 10px;
+  }
+}
+
+.video-player ::v-deep .el-dialog__body {
+  padding-top: 10px;
+  padding-bottom: 20px;
+
+  .vss-player__wrap {
+    background: #333;
+    height: 350px;
   }
 }
 </style>
