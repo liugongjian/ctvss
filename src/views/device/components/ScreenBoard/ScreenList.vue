@@ -85,13 +85,13 @@
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
         />
-        <replay-player-dialog
+        <replay-player
           v-if="dialog.play"
           :video="currentListRecord"
           @on-close="closeReplayPlayer"
         />
       </div>
-      <slice-download-dialog
+      <slice-download
         v-if="dialog.slice"
         :in-protocol="inProtocol"
         :device-id="deviceId"
@@ -113,11 +113,15 @@ import DeviceDir from '../dialogs/DeviceDir.vue'
 import { getDeviceRecord, editRecordName } from '@/api/device'
 import { GroupModule } from '@/store/modules/group'
 import { checkPermission } from '@/utils/permission'
+import ReplayPlayer from '../dialogs/ReplayPlayer.vue'
+import SliceDowenload from '../dialogs/SliceDownload.vue'
 
 @Component({
   name: 'ScreenList',
   components: {
-    DeviceDir
+    DeviceDir,
+    ReplayPlayer,
+    SliceDowenload
   }
 })
 export default class extends Vue {
