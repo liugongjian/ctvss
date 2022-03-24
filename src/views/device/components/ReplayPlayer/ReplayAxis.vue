@@ -113,7 +113,7 @@ export default class extends Vue {
 
   /* 当前分屏的录像管理器 */
   private get recordManager() {
-    return this.screen.recordManager
+    return this.screen && this.screen.recordManager
   }
 
   /* 格式化当前时间 */
