@@ -250,7 +250,7 @@ export default class extends Vue {
    */
   private editRecordName(row: any) {
     this.recordName = row.templateName
-    this.recordListSlice.forEach((record: any) => {
+    this.recordList.forEach((record: any) => {
       record.edit = false
     })
     row.edit = true
@@ -263,8 +263,8 @@ export default class extends Vue {
     try {
       this.loading = true
       await editRecordName({
-        deviceId: this.deviceId,
-        inProtocol: this.inProtocol,
+        deviceId: this.currentScreen.deviceId,
+        inProtocol: this.currentScreen.inProtocol,
         startTime: Math.floor(new Date(row.startTime).getTime() / 1000),
         customName: this.recordName
       })
@@ -289,12 +289,13 @@ export default class extends Vue {
    */
   private async downloadReplay(record: any) {
     try {
-      record.loading = true
+      this.loading = true
+      console.log('下载：   ', record)
       const res = await getDeviceRecord({
-        deviceId: this.deviceId,
-        startTime: record.startAt / 1000,
+        deviceId: this.currentScreen.deviceId,
+        startTime: record.startTime / 1000,
         fileFormat: 'mp4',
-        inProtocol: this.inProtocol
+        inProtocol: this.currentScreen.inProtocol
       })
       if (res.downloadUrl) {
         const link: HTMLAnchorElement = document.createElement('a')
@@ -305,7 +306,7 @@ export default class extends Vue {
     } catch (e) {
       this.$message.error(e.message)
     } finally {
-      record.loading = false
+      this.loading = false
     }
   }
 
