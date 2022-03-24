@@ -17,7 +17,7 @@
               <el-button class="choose-map" @click="chooseMap(map)">
                 <span class="map-text">{{ map.name }}</span>
                 <span class="edit-icon"><svg-icon name="edit" @click="editMap(map.mapId)" /></span>
-                <span class="delete-icon"><svg-icon name="delete" @click="deleteMap(map.mapId)" /></span>
+                <span class="delete-icon"><svg-icon name="delete" @click="deleteMap(map)" /></span>
               </el-button>
             </div>
           </el-card>
@@ -70,14 +70,14 @@
           </div>
           <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
             <el-dialog title="添加地图" :visible.sync="dialogVisible" width="45%">
-              <el-form ref="form" :model="form" label-width="150px">
-                <el-form-item label="名称">
+              <el-form ref="mapform" :model="form" label-width="150px" :rules="rules">
+                <el-form-item label="名称" prop="name">
                   <el-input v-model="form.name" placeholder="请输入地图名称" />
                 </el-form-item>
-                <el-form-item label="中心点经度">
+                <el-form-item label="中心点经度" prop="longitude">
                   <el-input v-model="form.longitude" placeholder="请输入地图中心点经度" />
                 </el-form-item>
-                <el-form-item label="中心点纬度">
+                <el-form-item label="中心点纬度" prop="latitude">
                   <el-input v-model="form.latitude" placeholder="请输入地图中心点纬度" />
                 </el-form-item>
                 <el-form-item>
@@ -214,6 +214,35 @@ export default class extends Mixins(IndexMixin) {
     longitude: '',
     latitude: '',
     zoom: 3
+  }
+  private rules = {
+    name: [
+      { required: true, message: '请填写地图名称', trigger: 'blur' }
+    ],
+    longitude: [
+      { required: true, message: '请填写地图经度，[-180, 180]', trigger: 'blur' },
+      { validator: this.validatelng, trigger: 'blur' }
+    ],
+    latitude: [
+      { required: true, message: '请填写地图纬度，[-90, 90]', trigger: 'blur' },
+      { validator: this.validatelat, trigger: 'blur' }
+    ]
+  }
+  private validatelng(rule: any, value: string, callback: Function) {
+    const val = Number(value)
+    if (isNaN(val) || val < -180 || val > 180) {
+      callback(new Error('请填写正确的经度'))
+    } else {
+      callback()
+    }
+  }
+  private validatelat(rule: any, value: string, callback: Function) {
+    const val = Number(value)
+    if (isNaN(val) || val < -90 || val > 90) {
+      callback(new Error('请填写正确的纬度'))
+    } else {
+      callback()
+    }
   }
   private submitting = false
   private dirList: any = []
@@ -470,22 +499,30 @@ export default class extends Mixins(IndexMixin) {
     this.$refs.mapview.toggleMap3D(this.is3D)
   }
 
-  async addMap() {
-    try {
-      this.dialogVisible = false
-      const map = {
-        name: this.form.name,
-        longitude: this.form.longitude,
-        latitude: this.form.latitude,
-        zoom: this.form.zoom
+  addMap() {
+    this.$refs.mapform.validate(async (valid: any) => {
+      if (valid) {
+        console.log(this.form)
+        try {
+          const map = {
+            name: this.form.name,
+            longitude: this.form.longitude,
+            latitude: this.form.latitude,
+            zoom: this.form.zoom
+          }
+          const res = await createMap(map)
+          const mapId = res.mapId
+          this.curMap = {...map, mapId}
+          this.mapList.push(this.curMap)
+          this.dialogVisible = false
+        } catch (e) {
+          this.$alertError(e.message)
+        }
+      } else {
+        console.log('提交失败')
+        return false
       }
-      const res = await createMap(map);
-      const mapId = res.mapId;
-      this.curMap = {...map, mapId}
-      this.mapList.push(this.curMap);
-    } catch (e) {
-      console.log('创建地图失败')
-    }
+    })
   }
 
   /**
@@ -507,6 +544,7 @@ export default class extends Mixins(IndexMixin) {
       }
     } catch (e) {
       console.log('获取地图列表失败')
+      this.$alertError(e.message)
       this.mapList = []
     }
   }
@@ -515,17 +553,20 @@ export default class extends Mixins(IndexMixin) {
     this.showMarkers = true
     this.curMap = map
   }
-  private async deleteMap(id) {
-    try {
-      console.log('shanchu')
-      await deleteMap({ mapId: id })
-      this.mapList = this.mapList.filter(item => item.id !== id);
-      if (this.curMap.mapId === id) {
-        this.curMap = this.mapList[0] || null
+
+  private deleteMap(map) {
+    this.$alertDelete({
+      type: '地图',
+      msg: `确定删除"${map.name}"?`,
+      method: deleteMap,
+      payload: { mapId: map.mapId },
+      onSuccess: () => {
+        this.mapList = this.mapList.filter(item => item.mapId !== map.mapId);
+        if (this.curMap.mapId === map.mapId) {
+          this.curMap = this.mapList[0] || null
+        }
       }
-    } catch (e) {
-      console.log('删除地图失败')
-    }
+    })
   }
   private modifyMapInfo(info) {
     console.log('==================mapinfo===============');
