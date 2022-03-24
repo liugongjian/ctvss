@@ -1,5 +1,5 @@
 <template>
-  <div v-if="deviceId" class="container">
+  <div v-if="deviceId && !disablePTZ" class="container">
     <div v-show="!isClosed" class="container__ptz">
       <div class="container__ptz__title">
         <label>云台控制</label>
@@ -167,6 +167,8 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { startDeviceMove, endDeviceMove, startDeviceAdjust, endDeviceAdjust, setDevicePreset, gotoDevicePreset, deleteDevicePreset, describeDevicePresets, describePTZCruiseList, startPTZCruise, stopPTZCruise, describePTZKeepwatch, updatePTZKeepwatch } from '@/api/ptz_control'
 import UpdateCruise from '../../dialogs/UpdateCruise.vue'
+import { UserModule } from '@/store/modules/user'
+
 @Component({
   name: 'PtzControl',
   components: {
@@ -222,6 +224,10 @@ export default class extends Vue {
 
   private get deviceId() {
     return this.screen.deviceId
+  }
+
+  private get disablePTZ() {
+    return UserModule.tags && UserModule.tags.disablePTZ === 'Y'
   }
 
   @Watch('presets')
