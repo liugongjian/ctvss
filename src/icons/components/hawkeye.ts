@@ -3,7 +3,7 @@
 // @ts-ignore
 import icon from 'vue-svgicon'
 icon.register({
-  'show-position': {
+  'hawkeye': {
     width: 200,
     height: 200,
     viewBox: '0 0 1024 1024',

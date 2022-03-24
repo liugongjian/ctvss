@@ -2,16 +2,16 @@
   <div>
     <el-descriptions title="基本信息" :column="1">
       <el-descriptions-item label="设备名称">
-        {{ DeviceStatus['on'] || '-' }}
+        {{ marker.deviceLabel }}
       </el-descriptions-item>
       <el-descriptions-item label="设备状态">
-        {{ DeviceStatus['on'] || '-' }}
+        {{ DeviceStatus[marker.deviceStatus] || '-' }}
       </el-descriptions-item>
       <el-descriptions-item label="流状态">
-        {{ RecordStatus['on'] || '-' }}
+        {{ DeviceStatus[marker.streamStatus] || '-' }}
       </el-descriptions-item>
       <el-descriptions-item label="录制状态">
-        {{ RecordStatus['on'] || '-' }}
+        {{ RecordStatus[marker.recordStatus] || '-' }}
       </el-descriptions-item>
     </el-descriptions>
     <el-descriptions title="位置信息" :column="1">
@@ -21,7 +21,7 @@
       <el-descriptions-item label="纬度">
         <el-input v-model="marker.latitude" :disabled="!isEdit" />
       </el-descriptions-item>
-      <el-descriptions-item label="设备角度">
+      <!-- <el-descriptions-item label="设备角度">
         <el-input v-model="marker.viewRadius" :disabled="!isEdit" />
       </el-descriptions-item>
       <el-descriptions-item label="可视角度">
@@ -29,11 +29,11 @@
       </el-descriptions-item>
       <el-descriptions-item label="可视半径.">
         <el-input v-model="marker.viewRadius" :disabled="!isEdit" />
-      </el-descriptions-item>
+      </el-descriptions-item> -->
     </el-descriptions>
     <el-descriptions title="一标三实" :column="1">
       <el-descriptions-item label="地址">
-        <el-input v-model="marker" :disabled="!isEdit" />
+        <el-input v-model="deviceAddress" disabled />
       </el-descriptions-item>
       <el-descriptions-item label="人口信息">
         <el-input v-model="marker.population" :disabled="!isEdit" />
@@ -59,22 +59,16 @@ import { DeviceStatus, RecordStatus } from '@/dics'
 
 export default class extends Vue {
   @Prop()
-  private isEdit = false
+  private isEdit
+
+  @Prop()
+  private marker
+
   private DeviceStatus = DeviceStatus
   private RecordStatus = RecordStatus
-  private marker = {
-    deviceId: '',
-    inProtocol: 'rtmp',
-    deviceType: 'ipc',
-    deviceLabel: 'ipc006',
-    longitude: 121.487207,
-    latitude: 31.225348,
-    viewRadius: '0',
-    viewAngle: '0',
-    deviceAngle: '0',
-    population: 'xx',
-    houseInfo: 'xx',
-    unitInfo: 'xx'
+
+  private get deviceAddress() {
+    return this.marker.gbRegionNames && this.marker.gbRegionNames.reverse().join('/')
   }
 }
 </script>

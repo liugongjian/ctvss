@@ -1,16 +1,18 @@
 <template>
   <div id="mapContainer">
     <div class="play-wrap" v-if="playWindowInfo.show !== 'none'" :style="playWindowInfo.style">
-     <live-view
-       v-if="playWindowInfo.show === 'live'"
-       :device-id="playWindowInfo.deviceId"
-       :in-protocol="playWindowInfo.inProtocol"
-     />
-     <replay-view
-       v-if="playWindowInfo.show === 'replay'"
-       :device-id="playWindowInfo.deviceId"
-       :in-protocol="playWindowInfo.inProtocol"
-     />
+      <i class="el-icon el-icon-close" @click="playWindowInfo.show = 'none'"></i>
+      <live-view
+        v-if="playWindowInfo.show === 'live'"
+        :device-id="playWindowInfo.deviceId"
+        :in-protocol="playWindowInfo.inProtocol"
+      />
+      <replay-view
+        v-if="playWindowInfo.show === 'replay'"
+        :device-id="playWindowInfo.deviceId"
+        :in-protocol="playWindowInfo.inProtocol"
+        :has-playlive="false"
+      />
     </div>
   </div>
 </template>
@@ -76,9 +78,12 @@ export default class MapView extends Vue {
     const getMapInfo = () => {
       const zoom = map.getZoom()
       const center = map.getCenter()
-      this.$emit("mapChange",{
-        zoom,
-        center: [center.lng, center.lat]
+      this.$emit("mapChange", {
+        mapId: this.mapOption.mapId,
+        name: this.mapOption.name,
+        longitude: center.lng,
+        latitude: center.lat,
+        zoom
       })
     };
     map.on('moveend', getMapInfo)
@@ -86,9 +91,9 @@ export default class MapView extends Vue {
     map.on('click', () => {
       this.vmap.cancelChoose()
       this.$emit('mapClick', {
-      type: 'map',
-      info: this.mapOption
-    })
+        type: 'map',
+        info: this.mapOption
+      })
     })
   }
 
@@ -126,8 +131,8 @@ export default class MapView extends Vue {
     console.log(`标记点${data.deviceId}开始播放了`)
     if (data.canPlay) {
       this.playWindowInfo = data;
-      const width = 150;
-      const height = data.show === 'live' ? 100 : 160;
+      const width = data.show === 'live' ? 160 : 400;
+      const height = data.show === 'live' ? 100 : 300;
       const size = 100;
       const style = {
         width: `${width}px`,
@@ -222,7 +227,7 @@ export default class MapView extends Vue {
   }
 }
 </script>
-<style>
+<style lang="scss">
 #mapContainer {
   width: 100%;
   height: 100%;
@@ -305,11 +310,17 @@ export default class MapView extends Vue {
 .play-wrap {
   position: absolute;
   z-index: 9;
-}
-.play-wrap  .replay-view {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+  background: #000;
+  .replay-view {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .el-icon{
+    position: absolute;
+    top: 5px;
+    right: 5px;
+  }
 }
 </style>

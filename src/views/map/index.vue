@@ -49,16 +49,14 @@
         </div>
         <div class="device-list__right">
           <div class="tools">
-            <span>
-              <el-button size="small" @click="changeEdit()">开启编辑</el-button>
-              <el-button size="small" @click="addMarker()">添加标记</el-button>
-              <el-button size="small" class="tools-item_button" @click="changeTitleShow()">隐藏/显示信息栏</el-button>
+            <span class="left">
+              <el-button size="small" @click="changeEdit()" class="tools-item">{{ isEdit ? '完成编辑' : '开启编辑' }}</el-button>
               <span>
                 <!-- <span class="tools-item"><svg-icon name="selects" /></span> -->
                 <span class="tools-item"><svg-icon name="title" @click="changeTitleShow()" /></span>
-                <span class="tools-item"><svg-icon name="show-position" @click="toggleOverView()" /></span>
-                <span class="tools-item"><svg-icon name="mark" @click="toggleMap3D()" /></span>
-                <span class="tools-item"><svg-icon size="30" name="position" @click="toggleMarkersShow()" /></span>
+                <span class="tools-item"><svg-icon name="hawkeye" @click="toggleOverView()" /></span>
+                <span class="tools-item"><svg-icon name="3d" @click="toggleMap3D()" /></span>
+                <span class="tools-item"><svg-icon size="30" name="mark" @click="toggleMarkersShow()" /></span>
                 <span class="tools-item"><svg-icon name="close-all" /></span>
                 <!-- <span class="tools-item"><svg-icon name="magnifier" /></span> -->
                 <!-- <span class="tools-item tools-item__cup">|</span>
@@ -66,6 +64,9 @@
                 <span class="tools-item"><svg-icon name="play-video" /></span>
                 <span class="tools-item"><svg-icon name="delete" /></span> -->
               </span>
+            </span>
+            <span class="right">
+              <span class="tools-item"><svg-icon name="toggle-show" @click="showInfo = !showInfo" /></span>
             </span>
           </div>
           <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
@@ -93,6 +94,19 @@
                   </div>
                 </el-form-item>
               </el-form>
+            </el-dialog>
+            <el-dialog title="修改地图" :visible.sync="modifyMapDialog" class="dialog-text">
+              <div>
+                <h3>确定覆盖“{{ curMapInfo && curMapInfo.name }}”的属性？</h3>
+              </div>
+              <div>
+                <el-checkbox v-model="modifyMapForm.center">中心坐标</el-checkbox>
+                <el-checkbox v-model="modifyMapForm.zoom">缩放</el-checkbox>
+              </div>
+              <span slot="footer" class="dialog-footer">
+                <el-button @click="modifyMapDialog = false">取消</el-button>
+                <el-button type="primary" @click="modifyMap">确定</el-button>
+              </span>
             </el-dialog>
             <el-dialog title="添加监控点位" :visible.sync="addPositionDialog" class="dialog-text">
               <div>
@@ -143,10 +157,11 @@
             </div>
             <div v-show="showInfo" class="map-info__right">
               <div v-show="showMapInfo">
-                <point-info :is-edit="isEdit" :edit-value="editValue" :marker="marker" />
+                <map-info :map="curMapInfo" @save="modifyMapDialog = true"/>
               </div>
               <div v-show="!showMapInfo">
-                <selected-point />
+                <point-info :is-edit="isEdit" :marker="curMarkInfo" />
+                <!-- <selected-point /> -->
               </div>
             </div>
           </div>
@@ -166,8 +181,9 @@ import { describeShareDevices } from '@/api/upPlatform'
 import {getDeviceEvents, getDevices, getDeviceTree} from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MapView from './mapview.vue'
-import PointInfo from './PointInfo.vue'
-import SelectedPoint from './SelectedPoint.vue'
+import PointInfo from './components/PointInfo.vue'
+import SelectedPoint from './components/SelectedPoint.vue'
+import MapInfo from './components/MapInfo.vue'
 // import { getAMapLoad } from './models/vmap'
 import { getMaps, createMap, deleteMap, modifyMap } from '@/api/map'
 
@@ -176,6 +192,7 @@ import { getMaps, createMap, deleteMap, modifyMap } from '@/api/map'
   components: {
     StatusBadge,
     MapView,
+    MapInfo,
     PointInfo,
     SelectedPoint
   }
@@ -244,6 +261,11 @@ export default class extends Mixins(IndexMixin) {
       callback()
     }
   }
+  private modifyMapDialog = false
+  private modifyMapForm = {
+    center: false,
+    zoom: false
+  }
   private submitting = false
   private dirList: any = []
   private deviceList: any = []
@@ -256,6 +278,8 @@ export default class extends Mixins(IndexMixin) {
   private mapPager = {}
   private markerList = []
   private curMap = null
+  private curMapInfo = null
+  private curMarkInfo = null
   private overView = false
   private showMarkers = true
   private is3D = true
@@ -448,14 +472,14 @@ export default class extends Mixins(IndexMixin) {
     })
   }
   handleMapClick(infos) {
-    const { type, info } = infos;
+    const { type, info } = infos
     if (type === 'map') {
-      console.log('显示地图信息', info)
+      this.showInfo = false
       this.showMapInfo = true
     } else if (type === 'marker') {
-      console.log('显示标记点信息', info)
       this.showMapInfo = false
       this.showInfo = true
+      this.curMarkInfo = info
     }
   }
 
@@ -513,13 +537,13 @@ export default class extends Mixins(IndexMixin) {
           const res = await createMap(map)
           const mapId = res.mapId
           this.curMap = {...map, mapId}
+          this.curMapInfo = this.curMap
           this.mapList.push(this.curMap)
           this.dialogVisible = false
         } catch (e) {
           this.$alertError(e.message)
         }
       } else {
-        console.log('提交失败')
         return false
       }
     })
@@ -543,7 +567,6 @@ export default class extends Mixins(IndexMixin) {
         total: res.totalNum
       }
     } catch (e) {
-      console.log('获取地图列表失败')
       this.$alertError(e.message)
       this.mapList = []
     }
@@ -552,6 +575,7 @@ export default class extends Mixins(IndexMixin) {
   private chooseMap(map) {
     this.showMarkers = true
     this.curMap = map
+    this.curMapInfo = this.curMap
   }
 
   private deleteMap(map) {
@@ -564,36 +588,60 @@ export default class extends Mixins(IndexMixin) {
         this.mapList = this.mapList.filter(item => item.mapId !== map.mapId);
         if (this.curMap.mapId === map.mapId) {
           this.curMap = this.mapList[0] || null
+          this.curMapInfo = this.curMap
         }
       }
     })
   }
   private modifyMapInfo(info) {
-    console.log('==================mapinfo===============');
-    console.log(info.zoom)
-    console.log(info.center)
+    this.curMapInfo = info
   }
 
-  private async modifyMap(map) {
+  private async modifyMap() {
     try {
-      await modifyMap({ mapId: map.mapId })
-      this.curMap = map
+      const params = { ...this.curMap }
+      if (this.modifyMapForm.center) {
+        params.longitude = this.curMapInfo.longitude
+        params.latitude = this.curMapInfo.latitude
+      }
+      if (this.modifyMapForm.zoom) {
+        params.zoom = this.curMapInfo.zoom;
+      }
+      await modifyMap(params)
+      this.curMap = params
       this.mapList = this.mapList.map(item => {
-        if (item.mapId === map.mapId) {
-          return map
+        if (item.mapId === params.mapId) {
+          return params
         } else {
           return item
         }
       })
     } catch (e) {
-      console.log('修改地图失败')
+      this.$alertError(e.message)
+    } finally {
+      this.modifyMapDialog = false
     }
+  }
+
+  calHeight() {
+    const deviceWrap: any = this.$refs.deviceWrap
+    const size = deviceWrap.$el.getBoundingClientRect()
+    const top = size.top
+    const documentHeight = document.body.offsetHeight
+    this.maxHeight = documentHeight - top - 60
   }
 
   private async mounted() {
     this.initDirs()
     await this.getMapList()
     this.curMap = this.mapList[0]
+    this.curMapInfo = this.curMap
+    this.calHeight()
+    window.addEventListener('resize', this.calHeight)
+  }
+
+  private destroyed() {
+    window.removeEventListener('resize', this.calHeight)
   }
 }
 </script>
@@ -683,23 +731,25 @@ export default class extends Mixins(IndexMixin) {
 }
 
 .tools {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
   height: 40px;
-  line-height: 40px;
   padding: 0 15px;
   border-bottom: 1px solid #eee;
   background: #f8f8f8;
   white-space: nowrap;
   overflow: hidden;
   transition: padding-left 0.2s;
-}
-
-.tools-item_button {
-  margin-right: 20px;
-}
-
-.tools-item {
-  margin-right: 20px;
-  font-size: 20px;
+  svg {
+    font-size: 20px;
+  }
+  .left {
+    .tools-item{
+      margin-right: 20px;
+    }
+  }
 }
 
 .tools-item__cup {
