@@ -40,6 +40,8 @@ export class Player {
   public bufferedTime: number
   /* 是否加载中 */
   public isLoading: boolean
+  /* 缩放比例 */
+  public scale: string
 
   constructor(config: PlayerConfig) {
     this.config = config
@@ -51,13 +53,14 @@ export class Player {
     this.isAutoPlay = config.isAutoPlay
     this.playbackRate = config.playbackRate
     this.volume = config.volume
+    this.isMuted = config.isMuted
     this.hasAudio = null
     this.isPaused = null
-    this.isMuted = null
     this.currentTime = null
     this.duration = null
     this.bufferedTime = null
     this.isLoading = true
+    this.scale = null
     this.init()
     this.bindEvent()
     this.setDefault()
@@ -135,6 +138,7 @@ export class Player {
   protected setDefault() {
     this.video.playbackRate = this.playbackRate
     this.video.volume = this.volume
+    this.video.muted = this.isMuted
   }
 
   /**

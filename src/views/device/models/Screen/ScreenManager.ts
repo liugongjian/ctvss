@@ -17,8 +17,8 @@ const SCREEN_CACHE_KEY = {
   live: 'liveScreenCache',
   replay: 'replayScreenCache'
 }
-
-const SCREEN_CACHE_PARAMS = ['isLive', 'inProtocol', 'deviceId', 'deviceName', 'roleId', 'realGroupId', 'streamSize', 'streams', 'streamNum', 'currentRecordDatetime']
+const SCREEN_CACHE_MANAGER_PARAMS = ['layout', '_size', 'currentIndex']
+const SCREEN_CACHE_PARAMS = ['isLive', 'inProtocol', 'deviceId', 'deviceName', 'roleId', 'realGroupId', 'streamSize', 'streams', 'streamNum', 'currentRecordDatetime', 'volume', 'isMuted', 'playbackRate', 'scale']
 export interface ExecuteQueueConfig {
   policy: 'autoPlay' | 'polling';
   interval: number;
@@ -160,8 +160,7 @@ export class ScreenManager {
         const screenCacheKey = this.isLive ? SCREEN_CACHE_KEY['live'] : SCREEN_CACHE_KEY['replay']
         const screenCache: any = {
           mainUserID: UserModule.mainUserID,
-          layout: this.layout,
-          size: this._size
+          ...pick(this, ...SCREEN_CACHE_MANAGER_PARAMS)
         }
         screenCache.screenList = this.screenList.map(screen => {
           return pick(screen, ...SCREEN_CACHE_PARAMS) // 仅保存恢复缓存必要的数据
@@ -188,9 +187,9 @@ export class ScreenManager {
       if (!screenCacheStr) return false
       const screenCache = JSON.parse(screenCacheStr)
       if (screenCache.mainUserID !== UserModule.mainUserID) return false
-      this.layout = screenCache.layout
-      this._size = screenCache.size
-      this.screenList = []
+      SCREEN_CACHE_MANAGER_PARAMS.forEach(key => {
+        this[key] = screenCache[key]
+      })
       for (let i = 0; i < this._size; i++) {
         let screen = new Screen()
         screen = Object.assign(screen, { ...screenCache.screenList[i] })
