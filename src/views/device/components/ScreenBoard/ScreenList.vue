@@ -172,6 +172,7 @@ export default class extends Vue {
     try {
       // 没有加载录像直接进入录像列表时，没有 recordManager
       if (!this.currentScreen.recordManager || this.loading === true) return
+      this.recordList = []
       this.loading = true
       this.resetPager()
       await this.currentScreen.recordManager.getRecordListByDate(this.currentScreen.recordManager.currentDate)
