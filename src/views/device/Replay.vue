@@ -26,9 +26,9 @@
             <template v-if="currentScreen && currentScreen.deviceId || screenManager.isSync" slot="bottom">
               <div class="device-list__calander" :class="{'device-list__calander__hidden': isCollapse}">
                 <div class="device-list__replay-type">
-                  <ReplayType :screen="currentScreen" />
+                  <ReplayType :screen="currentScreen" @change="onReplayTypeChange" />
                 </div>
-                <DatePicker v-if="recordStatistic" :screen="currentScreen" :inline="true" />
+                <DatePicker v-if="recordStatistic" :screen="currentScreen" :inline="true" @change="onDateChange" />
               </div>
               <el-button class="device-list__arrow" :class="{'device-list__arrow__active': isCollapse}" type="text" @click="isCollapse = !isCollapse">
                 <svg-icon name="arrow-down" />
@@ -72,6 +72,34 @@ export default class extends Mixins(ScreenMixin) {
 
   private get recordStatistic() {
     return this.recordManager && this.recordManager.recordStatistic
+  }
+
+  /**
+   * 切换日期
+   */
+  private onDateChange(date) {
+    if (this.screenManager.isSync) {
+      this.screenManager.screenList.forEach(screen => {
+        screen.recordManager && screen.recordManager.getRecordListByDate(date)
+      })
+    } else {
+      this.currentScreen.recordManager.getRecordListByDate(date)
+    }
+  }
+
+  /**
+   * 切换录像类型
+   */
+  private onReplayTypeChange(recordType) {
+    if (this.screenManager.isSync) {
+      this.screenManager.screenList.forEach(screen => {
+        screen.recordType = recordType
+        screen.recordManager && screen.recordManager.initReplay()
+      })
+    } else {
+      this.currentScreen.recordType = recordType
+      this.currentScreen.recordManager.initReplay()
+    }
   }
 }
 </script>

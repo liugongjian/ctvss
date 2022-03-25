@@ -88,8 +88,9 @@ export default class extends Vue {
   /**
    * 切换日期
    */
-  private async changeDate(date: number) {
-    await this.recordManager.getRecordListByDate(date / 1000)
+  private changeDate(date: number) {
+    console.log('this.$emit')
+    this.$emit('change', (date / 1000))
   }
 }
 
