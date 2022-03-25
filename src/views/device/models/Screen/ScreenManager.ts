@@ -4,6 +4,7 @@
 import { Screen } from './Screen'
 import { getLocalStorage, setLocalStorage, removeLocalStorage } from '@/utils/storage'
 import { UserModule } from '@/store/modules/user'
+import { GroupModule } from '@/store/modules/group'
 import { pick } from 'lodash'
 
 interface ScreenManagerConfig {
@@ -11,6 +12,7 @@ interface ScreenManagerConfig {
   size: number;
   isLive: boolean;
   layout: string;
+  isSingle: boolean;
 }
 
 const SCREEN_CACHE_KEY = {
@@ -49,7 +51,7 @@ export class ScreenManager {
     this.view = 'screen'
     this.isLive = config.isLive
     this.isSync = false
-    this.isSingle = false
+    this.isSingle = config.isSingle
     this.currentIndex = 0
     this.screenList = []
     this.devicesQueue = null
@@ -109,7 +111,7 @@ export class ScreenManager {
   public initScreenList() {
     this.screenList = []
     this.currentIndex = 0
-    if (this.loadCache()) return // 读取分屏缓存
+    if (!this.isSingle && this.loadCache()) return // 读取分屏缓存
     for (let i = 0; i < this._size; i++) {
       const screen = new Screen()
       this.screenList.push(screen)
@@ -160,6 +162,7 @@ export class ScreenManager {
         const screenCacheKey = this.isLive ? SCREEN_CACHE_KEY['live'] : SCREEN_CACHE_KEY['replay']
         const screenCache: any = {
           mainUserID: UserModule.mainUserID,
+          groupId: GroupModule.group.groupId,
           ...pick(this, ...SCREEN_CACHE_MANAGER_PARAMS)
         }
         screenCache.screenList = this.screenList.map(screen => {
@@ -187,6 +190,7 @@ export class ScreenManager {
       if (!screenCacheStr) return false
       const screenCache = JSON.parse(screenCacheStr)
       if (screenCache.mainUserID !== UserModule.mainUserID) return false
+      if (screenCache.groupId !== GroupModule.group.groupId) return false
       SCREEN_CACHE_MANAGER_PARAMS.forEach(key => {
         this[key] = screenCache[key]
       })
@@ -204,33 +208,49 @@ export class ScreenManager {
 
   /**
    * 设置所有分屏静音状态
+   * 保存最后一次的静音状态
    * @param isMutedAll 是否全部静音
    */
   public toggleAllMuteStatus(isMutedAll) {
     this.screenList.forEach(screen => {
+      screen.lastIsMuted = screen.isMuted
       screen.player && screen.player.toggleMuteStatus(isMutedAll)
     })
   }
 
   /**
+   * 恢复最后一次静音状态
+   */
+  public restoreAllMuteStatus() {
+    this.screenList.forEach(screen => {
+      screen.player && screen.player.toggleMuteStatus(screen.lastIsMuted)
+    })
+  }
+
+  /**
    * 查找合适插入的分屏位置
-   * 1) 判断当前选中的位置是否为空，如果为空则插入
-   * 2) 然后，优先查找没有占用的位置(无DeviceId)
-   * 3) 最后，如果全部占满，从选中位置开始重新循环插入，如果当前位置为最后位置，则重第一个重新开始
+   * 1) 如果是列表模式直接返回当前索引
+   * 2) 判断当前选中的位置是否为空，如果为空则插入
+   * 3) 然后，优先查找没有占用的位置(无DeviceId)
+   * 4) 最后，如果全部占满，从选中位置开始重新循环插入，如果当前位置为最后位置，则重第一个重新开始
    * @return index
    */
   private findRightIndex(): number {
     // Step1
-    if (!this.screenList[this.currentIndex].deviceId) {
+    if (this.view === 'list') {
       return this.currentIndex
     }
     // Step2
+    if (!this.screenList[this.currentIndex].deviceId) {
+      return this.currentIndex
+    }
+    // Step3
     for (let i = 0; i < this.screenList.length; i++) {
       if (!this.screenList[i].deviceId) {
         return i
       }
     }
-    // Step3
+    // Step4
     if (this.currentIndex === this.screenList.length - 1) {
       return 0
     } else {

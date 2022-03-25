@@ -5,6 +5,7 @@
     :is-live="false"
     :in-protocol="inProtocol"
     :default-size="1"
+    :is-single="true"
   />
 </template>
 
@@ -31,7 +32,6 @@ export default class extends Vue {
     const screenBoard = this.$refs.screenBoard as ScreenBoard
     // @ts-ignore
     this.screenManager = screenBoard!.screenManager
-    this.screenManager.isSingle = true
     const screen = this.screenManager.currentScreen
     screen.deviceId = this.deviceId
     screen.inProtocol = this.inProtocol

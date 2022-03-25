@@ -88,7 +88,7 @@ export default class extends Vue {
    * 切换主子码流
    */
   private onStreamNumChange(streamNum: number) {
-    this.screen.streamInfo.streamNum = streamNum
+    this.screen.streamNum = streamNum
     this.screen.init()
   }
 

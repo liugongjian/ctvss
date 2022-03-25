@@ -65,7 +65,7 @@ export default class extends Vue {
     immediate: true
   })
   private onCurrentDateChange() {
-    this.date = this.currentDate
+    this.date = this.currentDate || new Date().getTime()
   }
 
   private pickerOptions = {
@@ -88,8 +88,8 @@ export default class extends Vue {
   /**
    * 切换日期
    */
-  private async changeDate(date: number) {
-    await this.recordManager.getRecordListByDate(date / 1000)
+  private changeDate(date: number) {
+    this.$emit('change', (date / 1000))
   }
 }
 

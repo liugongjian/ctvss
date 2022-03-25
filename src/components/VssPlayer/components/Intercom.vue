@@ -5,12 +5,13 @@
     <el-tooltip content="开启语音对讲" placement="top">
       <!-- v-if="isLive" -->
       <div class="control__btn control__snapshot" @click.stop.prevent="toIntercom">
-        <svg-icon name="micro" width="18px" height="18px" />
+        <svg-icon name="micro" />
       </div>
     </el-tooltip>
     <el-dialog
+      v-if="showDialog"
       title="语音对讲"
-      :visible="showDialog"
+      :visible="true"
       :close-on-click-modal="true"
       :append-to-body="true"
       :destroy-on-close="true"
@@ -120,6 +121,7 @@ export default class extends ComponentMixin {
     if (this.ws || this.sourceAudio) {
       this.intercomMouseup()
     }
+    ScreenModule.SetIsMutedAll(false)
   }
 
   private mounted() {

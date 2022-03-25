@@ -1,12 +1,12 @@
 <template>
-  <div class="screen-tools">
-    <div class="screen-tools__bar" :class="{'hidden-axis': !showAxis}">
+  <div class="screen-tools" :class="{'hidden-axis': !showAxis}">
+    <div class="screen-tools__bar">
       <div class="screen-tools__bar__left">
         <QueueExecutor />
         <template v-if="showAxis">
           <Sync v-if="showScreenTool" />
-          <DatePicker v-if="showDatePicker" :screen="currentScreen" />
-          <ReplayType v-if="showDatePicker" :screen="currentScreen" />
+          <DatePicker v-if="showDatePicker" :screen="currentScreen" @change="onDateChange" />
+          <ReplayType v-if="showDatePicker" :screen="currentScreen" @change="onReplayTypeChange" />
         </template>
       </div>
       <div class="screen-tools__bar__right">
@@ -16,7 +16,7 @@
         <ViewSelector v-if="!isLive" />
       </div>
     </div>
-    <ReplayAxis v-if="showAxis" :screen="currentScreen" :disabled="!(currentScreen && currentScreen.deviceId) && !screenManager.isSync" @change="onAxisTimeChange" />
+    <ReplayAxis v-if="showAxis" :screen="currentScreen" :disabled="!enableAxis" @change="onAxisTimeChange" />
   </div>
 </template>
 <script lang="ts">
@@ -69,6 +69,11 @@ export default class extends Vue {
     return !this.isLive && this.screenManager.view === 'screen'
   }
 
+  /* 是否启用时间轴 */
+  private get enableAxis() {
+    return (this.currentScreen && this.currentScreen.deviceId && !this.currentScreen.isLive) || this.screenManager.isSync
+  }
+
   /* 是否显示日历组件 */
   private get showDatePicker() {
     // 单屏显示时
@@ -98,10 +103,38 @@ export default class extends Vue {
   private onAxisTimeChange(time: number) {
     if (this.screenManager.isSync) {
       this.screenManager.screenList.forEach(screen => {
-        screen.recordManager.seek(time)
+        screen.recordManager && screen.recordManager.seek(time)
       })
     } else {
       this.currentScreen.recordManager.seek(time)
+    }
+  }
+
+  /**
+   * 切换日期
+   */
+  private onDateChange(date) {
+    if (this.screenManager.isSync) {
+      this.screenManager.screenList.forEach(screen => {
+        screen.recordManager && screen.recordManager.getRecordListByDate(date)
+      })
+    } else {
+      this.currentScreen.recordManager.getRecordListByDate(date)
+    }
+  }
+
+  /**
+   * 切换录像类型
+   */
+  private onReplayTypeChange(recordType) {
+    if (this.screenManager.isSync) {
+      this.screenManager.screenList.forEach(screen => {
+        screen.recordType = recordType
+        screen.recordManager && screen.recordManager.initReplay()
+      })
+    } else {
+      this.currentScreen.recordType = recordType
+      this.currentScreen.recordManager.initReplay()
     }
   }
 

@@ -3,12 +3,12 @@
   <span v-if="isButton">
     <el-tooltip v-if="isLive" content="播放录像回放" placement="top">
       <div class="control__btn" @click.stop.prevent="toggleLiveReplay">
-        <svg-icon name="playback2" width="18px" height="18px" />
+        <svg-icon name="playback2" />
       </div>
     </el-tooltip>
     <el-tooltip v-else content="播放实时预览" placement="top">
       <div class="control__btn" @click.stop.prevent="toggleLiveReplay">
-        <svg-icon name="ipc" width="18px" height="18px" />
+        <svg-icon name="ipc" />
       </div>
     </el-tooltip>
   </span>

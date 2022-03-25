@@ -70,7 +70,6 @@ import TypeSelector from './components/TypeSelector.vue'
 import PtzZoom from './components/PtzZoom.vue'
 import Intercom from './components/Intercom.vue'
 import LiveReplaySelector from './components/LiveReplaySelector.vue'
-import Fullscreen from './components/Fullscreen.vue'
 
 @Component({
   name: 'VssPlayer',
@@ -86,8 +85,7 @@ import Fullscreen from './components/Fullscreen.vue'
     TypeSelector,
     PtzZoom,
     Intercom,
-    LiveReplaySelector,
-    Fullscreen
+    LiveReplaySelector
   },
   directives: {
     // 动态隐藏播放器工具栏与头部
@@ -105,7 +103,12 @@ export default class extends Vue {
 
   /* 设备信息 */
   @Prop({
-    default: {}
+    default: () => {
+      return {
+        deviceId: null,
+        deviceName: ''
+      }
+    }
   })
   private deviceInfo: DeviceInfo
 

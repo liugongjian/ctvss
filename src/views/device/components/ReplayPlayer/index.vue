@@ -22,15 +22,17 @@
     @onCreate="onPlayerCreate"
   >
     <template slot="controlBody">
-      <Datepicker
+      <DatePicker
         v-if="hasAxis"
         class="datepicker"
         :screen="screen"
+        @change="onDateChange"
       />
       <ReplayType
         v-if="hasAxis"
         class="replay-type"
         :screen="screen"
+        @change="onReplayTypeChange"
       />
       <ReplayAxis
         v-if="hasAxis"
@@ -40,19 +42,20 @@
       />
     </template>
     <template slot="controlRight">
-      <RecordDownload :screen="screen" />
+      <RecordDownload v-if="hasAdminRecord" :screen="screen" />
       <Fullscreen @change="onFullscreenChange" />
     </template>
   </VssPlayer>
 </template>
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
+import { checkPermission } from '@/utils/permission'
 import { ScreenModule } from '@/store/modules/screen'
 import { PlayerEvent } from '@/components/VssPlayer/models/VssPlayer.d'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import VssPlayer from '@/components/VssPlayer/index.vue'
 import ReplayAxis from './ReplayAxis.vue'
-import Datepicker from '../ScreenBoard/components/DatePicker.vue'
+import DatePicker from '../ScreenBoard/components/DatePicker.vue'
 import ReplayType from '../ScreenBoard/components/ReplayType.vue'
 import Fullscreen from '../ScreenBoard/components/Fullscreen.vue'
 import RecordDownload from './RecordDownload.vue'
@@ -62,7 +65,7 @@ import RecordDownload from './RecordDownload.vue'
   components: {
     VssPlayer,
     ReplayAxis,
-    Datepicker,
+    DatePicker,
     ReplayType,
     Fullscreen,
     RecordDownload
@@ -90,6 +93,10 @@ export default class extends Vue {
 
   private get recordManager() {
     return this.screen.recordManager
+  }
+
+  private get hasAdminRecord() {
+    return checkPermission(['AdminRecord'])
   }
 
   @Watch('screen.recordManager.currentRecord.url', { immediate: true })
@@ -163,6 +170,21 @@ export default class extends Vue {
   }
 
   /**
+   * 切换日期
+   */
+  private onDateChange(date) {
+    this.recordManager.getRecordListByDate(date)
+  }
+
+  /**
+   * 切换录像类型
+   */
+  private onReplayTypeChange(recordType) {
+    this.screen.recordType = recordType
+    this.recordManager.initReplay()
+  }
+
+  /**
    * 关闭视频
    */
   private onClose() {
@@ -212,8 +234,8 @@ export default class extends Vue {
     .datepicker {
       position: absolute;
       width: 105px;
-      left: 40px;
-      top: 8px;
+      left: 30px;
+      top: 7px;
       transform: scale(0.85);
 
       ::v-deep {
@@ -243,8 +265,8 @@ export default class extends Vue {
 
     .replay-type {
       position: absolute;
-      left: 140px;
-      top: 1px;
+      left: 120px;
+      top: 0;
       transform: scale(0.85);
 
       ::v-deep {

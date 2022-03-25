@@ -11,7 +11,7 @@
         :screen="screen"
         :has-close="true"
         :is-debug="true"
-        :has-live-replay-selector="true"
+        :has-live-replay-selector="hasReplayRecord"
         @close="close"
       />
       <ReplayPlayer
@@ -32,6 +32,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue, Inject } from 'vue-property-decorator'
+import { checkPermission } from '@/utils/permission'
 import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
 import LivePlayer from '../LivePlayer.vue'
 import ReplayPlayer from '../ReplayPlayer/index.vue'
@@ -58,6 +59,10 @@ export default class extends Vue {
 
   private get screenManager(): ScreenManager {
     return this.getScreenManager()
+  }
+
+  private get hasReplayRecord() {
+    return checkPermission(['ReplayRecord'])
   }
 
   /**
