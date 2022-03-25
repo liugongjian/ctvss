@@ -70,6 +70,12 @@
         <el-form-item v-if="form.enabledNat === 1" label="本地端口:" prop="natPort">
           <el-input v-model="form.natPort" />
         </el-form-item>
+        <el-form-item label="网络类型:" prop="transType">
+          <el-radio-group v-model="form.networkKind">
+            <el-radio label="internet">互联网</el-radio>
+            <el-radio label="selfnet">专线网络</el-radio>
+          </el-radio-group>
+        </el-form-item>
         <el-form-item label="开启鉴权:" prop="isAuth">
           <el-switch v-model="form.isAuth" />
         </el-form-item>
@@ -171,7 +177,8 @@ export default class extends Vue {
     transType: 'UDP',
     characterType: 'UTF-8',
     permissionSet: [],
-    description: ''
+    description: '',
+    networkKind: 'internet'
   }
   private submitting = false
   private loading = false
