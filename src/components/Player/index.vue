@@ -12,7 +12,7 @@
       <div ref="playerContainer" class="player__container" />
     </div>
     <slot name="container" />
-    <div v-if="player" id="control" class="control" :class="{'control--large': hasProgress}">
+    <div v-if="player && hasControl" id="control" class="control" :class="{'control--large': hasProgress}">
       <slot name="controlBody" />
       <Progress v-if="hasProgress" />
       <div class="control__left">
@@ -91,11 +91,15 @@ export default class extends Vue {
   private isLive: boolean
 
   /* 播放速率 */
-  @Prop()
+  @Prop({
+    default: 1
+  })
   private playbackRate: number
 
   /* 音量 */
-  @Prop()
+  @Prop({
+    default: 0.3
+  })
   private volume: number
 
   /* 是否静音 */
@@ -107,6 +111,12 @@ export default class extends Vue {
     default: false
   })
   private hasProgress: boolean
+
+  /* 是否显示控制栏 */
+  @Prop({
+    default: true
+  })
+  private hasControl: boolean
 
   /* 播放器实例 */
   private player: Player = null
@@ -140,6 +150,7 @@ export default class extends Vue {
    * 创建播放器
    */
   private createPlayer() {
+    console.log('createPlayer')
     try {
       this.player = createPlayer({
         type: this.type,

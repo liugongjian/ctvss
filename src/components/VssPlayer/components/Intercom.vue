@@ -88,7 +88,7 @@ export default class extends ComponentMixin {
     default: ''
   }) private codec: string
   @Prop({
-    default: 30
+    default: 0.3
   }) private volume: number
 
   private intercomInfo?: any = {}

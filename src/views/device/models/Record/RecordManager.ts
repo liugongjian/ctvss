@@ -16,7 +16,7 @@ export class RecordManager {
   /* AI热力列表 */
   public heatmapList: Record[]
   /* 录像日历统计 */
-  public recordStatistic: Map<string, any>
+  public recordStatistic: Set<string>
   /* 已加载的录像日期 */
   public loadedRecordDates: Set<number>
   /* 当前正在播放的录像片段 */
@@ -311,9 +311,9 @@ export class RecordManager {
   public async getRecordStatistic(startTime?: number, endTime?: number) {
     try {
       if (!startTime) {
-        // 获得最近两月录像统计
+        // 获得最近4月录像统计
         const current = new Date()
-        startTime = Math.floor(new Date(current.getFullYear(), current.getMonth() - 1).getTime() / 1000)
+        startTime = Math.floor(new Date(current.getFullYear(), current.getMonth() - 4).getTime() / 1000)
         endTime = Math.floor(new Date().getTime() / 1000)
       }
       const type = ['cloud', 'local']
@@ -325,17 +325,11 @@ export class RecordManager {
         endTime: endTime
       })
       if (res.records) {
-        if (!this.recordStatistic) {
-          this.recordStatistic = new Map()
-        }
+        const recordStatistic: Set<string> = new Set()
         res.records.forEach((statistic: any) => {
-          const monthArray = statistic.day.match(/\d+-\d+/)
-          const month = monthArray ? monthArray[0] : null
-          if (!this.recordStatistic.has(month)) {
-            this.recordStatistic.set(month, new Set())
-          }
-          this.recordStatistic.get(month).add(statistic.day)
+          recordStatistic.add(statistic.day)
         })
+        this.recordStatistic = recordStatistic
       }
     } catch (e) {
       console.log(e)
