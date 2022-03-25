@@ -5,7 +5,7 @@
       <svg-icon v-if="isMuted || volume === 0" name="mute" width="18px" height="18px" />
       <svg-icon v-else name="volume" width="18px" height="18px" />
     </span>
-    <div v-if="player && !isMuted" class="control__popup control__volume">
+    <div v-if="player && !isMuted && !isH265" class="control__popup control__volume">
       <el-slider
         :max="1"
         :step="0.01"
@@ -40,6 +40,10 @@ export default class extends ComponentMixin {
 
   private get volume() {
     return this.player.volume
+  }
+
+  private get isH265() {
+    return this.player && this.player.type === 'h265'
   }
 
   /**
