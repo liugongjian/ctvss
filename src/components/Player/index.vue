@@ -150,7 +150,6 @@ export default class extends Vue {
    * 创建播放器
    */
   private createPlayer() {
-    console.log('createPlayer')
     try {
       this.player = createPlayer({
         type: this.type,

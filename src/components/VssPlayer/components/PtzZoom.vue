@@ -29,11 +29,11 @@ export default class extends ComponentMixin {
 
   public close() {
     this.showCanvasBox = false
+    this.oCanvas.style.cursor = 'auto'
+    this.removeListener()
+    this.oCanvas && this.oCanvas.remove()
   }
 
-  // private mounted() {
-  //   console.log('playerINfo------>', this.streamInfo, this.deviceInfo)
-  // }
   private addResizeListener() {
     this.resizeObserver = new ResizeObserver(throttle(() => {
       const width = this.player.container.clientWidth
@@ -46,20 +46,19 @@ export default class extends ComponentMixin {
 
   private changeScaleCanvas() {
     this.showCanvasBox = !this.showCanvasBox
+
     if (this.showCanvasBox) {
       this.$emit('dispatch', {
         eventType: 'enableZoom',
         payload: 'ptz'
       })
     }
-    // console.log('this.player----->', this.player.container)
-    // todo 视频组件 电子缩放与ptz缩放事件互斥
 
     if (this.showCanvasBox) {
       const video = this.player.video || this.player.canvas
-      const width = this.player.container.clientWidth
-      const height = this.player.container.clientHeight
-
+      const width = video.clientWidth
+      const height = video.clientHeight
+      console.log('showCanvasBox--Info', width, video.clientWidth)
       this.$nextTick(() => {
         // 监听播放器容器大小变化，触发比例缩放
         const canvasEle = document.createElement('canvas')
@@ -67,16 +66,21 @@ export default class extends ComponentMixin {
         // this.oCanvas = oDom.querySelector('canvas')
         this.oCanvas = canvasEle
         this.oCanvas.style.cursor = 'crosshair'
-        // this.oCanvas.style.width = `${width}px`
-        // this.oCanvas.style.height = `${height}px`
+
         this.oCanvas.width = width
         this.oCanvas.height = height
-        this.oCanvasWidth = width
-        this.oCanvasHeight = height
+
+        this.oCanvas.style.width = `${width}px`
+        this.oCanvas.style.height = `${height}px`
+
+        this.oCanvasWidth = this.player.container.clientWidth
+        this.oCanvasHeight = this.player.container.clientHeight
+
+        // this.player.container.style.position = 'relative'
         this.addResizeListener()
         this.oCanvas.style.position = 'absolute'
-        this.oCanvas.style.left = `${(width - video.clientWidth) / 2}px`
-        this.oCanvas.style.top = `${(height - video.clientHeight) / 2}px`
+        // this.oCanvas.style.left = `${(width - video.clientWidth) / 2}px`
+        // this.oCanvas.style.top = `${(height - video.clientHeight) / 2}px`
         this.ctxShape = this.oCanvas.getContext('2d')
         this.oCanvas.addEventListener('mousedown', (e) => { this.canvasMouseDown(e) })
         this.oCanvas.addEventListener('mousemove', (e) => { this.canvasMouseMove(e) })
@@ -86,6 +90,7 @@ export default class extends ComponentMixin {
         document.addEventListener('keydown', (e) => { this.keydownEvent(e) })
       })
     } else {
+      this.oCanvas.style.cursor = 'auto'
       this.removeListener()
       this.oCanvas && this.oCanvas.remove()
     }

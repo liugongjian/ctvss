@@ -103,7 +103,12 @@ export default class extends Vue {
 
   /* 设备信息 */
   @Prop({
-    default: {}
+    default: () => {
+      return {
+        deviceId: null,
+        deviceName: ''
+      }
+    }
   })
   private deviceInfo: DeviceInfo
 
