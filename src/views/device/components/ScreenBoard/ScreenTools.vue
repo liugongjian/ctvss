@@ -1,6 +1,6 @@
 <template>
-  <div class="screen-tools">
-    <div class="screen-tools__bar" :class="{'hidden-axis': !showAxis}">
+  <div class="screen-tools" :class="{'hidden-axis': !showAxis}">
+    <div class="screen-tools__bar">
       <div class="screen-tools__bar__left">
         <QueueExecutor />
         <template v-if="showAxis">
