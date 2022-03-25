@@ -15,6 +15,7 @@ export class Screen {
   public axiosSource: any
   public errorMsg?: string
   public isCache?: boolean
+  public lastIsMuted?: boolean
 
   /**
    * ----------------

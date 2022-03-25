@@ -204,11 +204,22 @@ export class ScreenManager {
 
   /**
    * 设置所有分屏静音状态
+   * 保存最后一次的静音状态
    * @param isMutedAll 是否全部静音
    */
   public toggleAllMuteStatus(isMutedAll) {
     this.screenList.forEach(screen => {
+      screen.lastIsMuted = screen.isMuted
       screen.player && screen.player.toggleMuteStatus(isMutedAll)
+    })
+  }
+
+  /**
+   * 恢复最后一次静音状态
+   */
+  public restoreAllMuteStatus() {
+    this.screenList.forEach(screen => {
+      screen.player && screen.player.toggleMuteStatus(screen.lastIsMuted)
     })
   }
 

@@ -121,6 +121,7 @@ export default class extends ComponentMixin {
     if (this.ws || this.sourceAudio) {
       this.intercomMouseup()
     }
+    ScreenModule.SetIsMutedAll(false)
   }
 
   private mounted() {
