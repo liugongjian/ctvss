@@ -43,7 +43,6 @@
         <Snapshot :name="deviceInfo.deviceName" />
         <Scale :default-scale="scale" />
         <LiveReplaySelector v-if="hasLiveReplaySelector" :is-live="isLive" @dispatch="dispatch" />
-        <!-- <Fullscreen @dispatch="dispatch" /> -->
         <slot name="controlRight" />
       </template>
     </Player>

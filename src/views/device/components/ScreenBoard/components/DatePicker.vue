@@ -74,17 +74,13 @@ export default class extends Vue {
     },
     cellClassName: (date: any) => {
       if (!this.recordManager) return
-      const monthStr = `${date.getFullYear()}-${prefixZero(date.getMonth() + 1, 2)}`
-      const dateStr = monthStr + `-${prefixZero(date.getDate(), 2)}`
-      const month = this.recordStatistic.get(monthStr)
-      const hasRecords = month ? month.has(dateStr) : ''
-      return hasRecords ? 'has-records' : ''
+      const dateStr = `${date.getFullYear()}-${prefixZero(date.getMonth() + 1, 2)}-${prefixZero(date.getDate(), 2)}`
+      return this.recordStatistic.has(dateStr) ? 'has-records' : ''
     },
     changeCalendar: (date: any) => {
-      console.log('changeCalendar', date)
       if (!this.recordManager) return
-      const startTime = Math.floor(new Date(date.getFullYear(), date.getMonth() - 1).getTime() / 1000)
-      const endTime = Math.floor(new Date(date.getFullYear(), date.getMonth() + 1).getTime() / 1000)
+      const startTime = Math.floor(new Date(date.getFullYear(), date.getMonth() - 2).getTime() / 1000)
+      const endTime = Math.floor(new Date(date.getFullYear(), date.getMonth() + 2).getTime() / 1000)
       this.recordManager.getRecordStatistic(startTime, endTime)
     }
   }

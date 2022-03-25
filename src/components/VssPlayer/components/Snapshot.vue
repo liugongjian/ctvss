@@ -53,6 +53,10 @@ export default class extends ComponentMixin {
   private getCanvas(): HTMLCanvasElement {
     let canvas: HTMLCanvasElement
     if (this.player.type === 'h265') {
+      /**
+       * 需要修改EasyWasmPlayer.js
+       * 在getContext webgl 增加 preserveDrawingBuffer: true
+       */
       canvas = this.player.canvas
     } else {
       const $video = this.player.video
