@@ -228,15 +228,15 @@
     background-color: #fff;
     height: 108px;
 
+    &.hidden-axis {
+      height: 40px;
+    }
+
     &__bar {
       display: flex;
       justify-content: space-between;
       border-top: 1px solid $borderGrey;
       padding-top: 2px;
-
-      &.hidden-axis {
-        padding-bottom: 2px;
-      }
   
       &__left, &__right {
         display: flex;

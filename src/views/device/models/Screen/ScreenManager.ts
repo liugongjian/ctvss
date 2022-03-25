@@ -229,23 +229,28 @@ export class ScreenManager {
 
   /**
    * 查找合适插入的分屏位置
-   * 1) 判断当前选中的位置是否为空，如果为空则插入
-   * 2) 然后，优先查找没有占用的位置(无DeviceId)
-   * 3) 最后，如果全部占满，从选中位置开始重新循环插入，如果当前位置为最后位置，则重第一个重新开始
+   * 1) 如果是列表模式直接返回当前索引
+   * 2) 判断当前选中的位置是否为空，如果为空则插入
+   * 3) 然后，优先查找没有占用的位置(无DeviceId)
+   * 4) 最后，如果全部占满，从选中位置开始重新循环插入，如果当前位置为最后位置，则重第一个重新开始
    * @return index
    */
   private findRightIndex(): number {
     // Step1
-    if (!this.screenList[this.currentIndex].deviceId) {
+    if (this.view === 'list') {
       return this.currentIndex
     }
     // Step2
+    if (!this.screenList[this.currentIndex].deviceId) {
+      return this.currentIndex
+    }
+    // Step3
     for (let i = 0; i < this.screenList.length; i++) {
       if (!this.screenList[i].deviceId) {
         return i
       }
     }
-    // Step3
+    // Step4
     if (this.currentIndex === this.screenList.length - 1) {
       return 0
     } else {
