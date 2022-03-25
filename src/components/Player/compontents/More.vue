@@ -1,11 +1,7 @@
 <!-- 更多 -->
 <template>
   <div v-if="isShowMoreBtn" class="control__btn control__more" :class="{'control__more--active': isShowTools}" @click.stop.prevent="isShowTools = !isShowTools">
-    <svg-icon
-      name="more2"
-      width="18px"
-      height="18px"
-    />
+    <svg-icon name="more2" />
   </div>
 </template>
 <script lang="ts">
@@ -47,7 +43,7 @@ export default class extends ComponentMixin {
     this.playerWrap = this.player.container.parentElement.parentElement
     // 监听播放器容器大小变化
     this.resizeObserver = new ResizeObserver(throttle(() => {
-      if (this.player.container.clientHeight < 100 || this.player.container.clientWidth < 300) {
+      if (this.player.container.clientHeight < 100 || this.player.container.clientWidth < 400) {
         this.isShowMoreBtn = true
         !this.isShowTools && this.adjustRightTools('hidden')
         this.adjustRightTools('offset')

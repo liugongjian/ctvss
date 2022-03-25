@@ -2,7 +2,7 @@
 <template>
   <el-tooltip content="保存截图" placement="top">
     <div class="control__btn control__snapshot" @click.stop.prevent="snapshot">
-      <svg-icon name="snapshot" width="18px" height="18px" />
+      <svg-icon name="snapshot" />
     </div>
   </el-tooltip>
 </template>

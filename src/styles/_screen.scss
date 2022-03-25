@@ -232,18 +232,24 @@
   
       &__left, &__right {
         display: flex;
+        margin: 0 5px
       }
     }
   
     &__btn {
       display: flex;
-      padding: 0 4px;
+      padding: 0 3px;
       margin: 0 3px;
       height: 35px;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       border: none;
+
+      svg {
+        width: 16px !important;
+        height: 16px !important;
+      }
   
       &.selected {
         color: $primary;

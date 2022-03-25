@@ -1,7 +1,7 @@
 <!-- 截图 -->
 <template>
   <div class="control__btn control__scale">
-    <svg-icon name="screenratio" width="18px" height="18px" />
+    <svg-icon name="screenratio" />
     <ul class="control__popup">
       <li
         v-for="item in scaleKind"
