@@ -1,9 +1,10 @@
 <template>
   <div ref="axisWrap" class="axis__wrap" :class="{'axis__wrap--disabled': disabled}">
     <div class="axis__middle" />
+    <div class="axis__border" />
     <div v-if="!edit" class="axis__time" @click="editTime">{{ screen && screen.isLoading ? '加载中' : formatedCurrentTime }}</div>
     <div v-else class="axis__time__edit">
-      <TimeEditer :screen="screen" />
+      <TimeEditer :screen="screen" :current-time="currentTime" />
     </div>
     <canvas ref="canvas" class="axis__canvas" :class="{'dragging': axisDrag.isDragging}" />
     <div class="axis__zoom">
@@ -649,6 +650,12 @@ export default class extends Vue {
     font-size: 12px;
     font-weight: bold;
     user-select: none;
+    border: 1px solid transparent;
+    &:hover {
+      border: 1px solid $primary;
+      border-radius: 6px 6px 15px 15px;
+      cursor: pointer;
+    }
   }
 
   &__time__edit {
@@ -663,7 +670,8 @@ export default class extends Vue {
     user-select: none;
     margin-top: -35px;
     height: 20px;
-    background-color: rgba(87, 169, 240, 0.897);
+    // background-color: rgba(250, 208, 117, 0.897);
+    border-radius: 6px 6px 15px 15px;
   }
 
   &__zoom {

@@ -1,15 +1,16 @@
 <template>
   <div class="time-editer">
-    <el-form :inline="true" class="time-editer__form">
+    <el-form :inline="true" :rules="rules" class="time-editer__form">
       <el-form-item v-for="(item, index) in timeEditer" :key="index" class="time-editer__item">
-        <el-input v-model="item.val" class="input__time" :placeholder="item.time" @input="editTime" />
+        <div :class="`address__${index === 0 ? 'wide' : 'narrow'}`">
+          <el-input v-model="item.val" :placeholder="item.time" :maxlength="`${index > 0 ? 2 : 4}`" @input="editTime(index,item.val)" @blur="validateTime" /><span style="position:absolute;">{{ connector(index) }}</span>
+        </div>
       </el-form-item>
     </el-form>
   </div>
 </template>
 <script lang="ts">
 import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
-import { prefixZero } from '@/utils/number'
 import { Screen } from '@/views/device/models/Screen/Screen'
 
 @Component({
@@ -17,28 +18,38 @@ import { Screen } from '@/views/device/models/Screen/Screen'
 })
 export default class extends Vue {
   private timeEditer = [
-    { time: 'Y', val: '' },
-    { time: 'M', val: '' },
-    { time: 'D', val: '' },
-    { time: 'H', val: '' },
-    { time: 'M', val: '' },
-    { time: 'S', val: '' }
+    { time: '年', val: '' },
+    { time: '月', val: '' },
+    { time: '日', val: '' },
+    { time: '时', val: '' },
+    { time: '分', val: '' },
+    { time: '秒', val: '' }
   ]
+
+  private editingTime = false
+
   @Prop()
   private screen: Screen
+  @Prop()
+  private currentTime: number
 
-  // /* 显示为内嵌模式 */
-  // @Prop({
-  //   default: false
-  // })
-  // private inline
+  private connector(index: number) {
+    if (index === 0 || index === 1) return '-'
+    if (index === 3 || index === 4) return ':'
+  }
 
-  // @Prop({
-  //   default: 'mini'
-  // })
-  // private size
-
-  // private date: number = null
+  private rules = {
+    policyName: [
+      { required: true, message: '请输入策略名称', trigger: 'blur' },
+      { validator: this.validatePolicyName, trigger: 'blur' }
+    ],
+    actionList: [
+      { validator: this.validatorActionList, trigger: 'blur' }
+    ],
+    resourceList: [
+      { validator: this.validateResourceList, trigger: 'blur' }
+    ]
+  }
 
   private get recordManager() {
     return this.screen && this.screen.recordManager
@@ -51,12 +62,118 @@ export default class extends Vue {
   private get currentDate() {
     return this.recordManager && this.recordManager.currentDate * 1000
   }
-  private editTime() {
-    console.log('输入时间： ', this.timeEditer)
+  private editTime(index: number, val: any) {
+    console.log('val:  ', val)
+    console.log('index:  ', index)
+    this.editingTime = true // 停止 currentTime 更新
+    this.isPositiveInteger(index, val)
+    if (index === 0) {
+      this.isYear(val)
+    } else if (index === 1) {
+      this.isMonth(val)
+    } else if (index === 2) {
+      this.isDay(val)
+    } else if (index === 3) {
+      this.isHour(val)
+    } else if (index === 4) {
+      this.isMin(val)
+    } else if (index === 5) {
+      this.isSec(val)
+    }
+  }
+
+  /* 校验 */
+  private validateTime() {
+    this.isYear(this.timeEditer[0])
+    this.isMonth(this.timeEditer[1])
+    this.isDay(this.timeEditer[2])
+    this.isHour(this.timeEditer[3])
+    this.isMin(this.timeEditer[4])
+    this.isSec(this.timeEditer[5])
+  }
+
+  /* 是否为正整数 */
+  private isPositiveInteger(index: number, val: any) {
+    const reg = /^[0-9]{1,4}$/ // 正整数
+    console.log('reg.test(val): ', reg.test(val))
+    if (!reg.test(val)) {
+      this.timeEditer[index]['val'] = ''
+    }
+  }
+
+  /* 年 */
+  private isYear(val: any) {
+    const reg = /^\+?[1-9][0-9]*$/
+    this.timeEditer[0]['val'] = reg.test(val) ? val : ''
+  }
+
+  /* 月 */
+  private isMonth(val: any) {
+    if (+val > 12 || +val < 1) {
+      this.timeEditer[1]['val'] = ''
+    }
+  }
+
+  /* 日 */
+  private isDay(val: any) {
+    if (+this.timeEditer[1]['val'] === 2) {
+      if (+val <= 0 || +val > 28) {
+        this.timeEditer[2]['val'] = ''
+      }
+    } else if (+this.timeEditer[1]['val'] === 1 || +this.timeEditer[1]['val'] === 3 || +this.timeEditer[1]['val'] === 5 || +this.timeEditer[1]['val'] === 7 || +this.timeEditer[1]['val'] === 8 || +this.timeEditer[1]['val'] === 10 || +this.timeEditer[1]['val'] === 12) {
+      if (+val <= 0 || +val > 31) {
+        this.timeEditer[2]['val'] = ''
+      }
+    } else {
+      if (+val <= 0 || +val > 30) {
+        this.timeEditer[2]['val'] = ''
+      }
+    }
+  }
+
+  /* 时 */
+  private isHour(val: any) {
+    if (+val < 0 || +val > 24) {
+      this.timeEditer[3]['val'] = ''
+    }
+  }
+
+  /* 分 */
+  private isMin(val: any) {
+    if (+val < 0 || +val > 59) {
+      this.timeEditer[4]['val'] = ''
+    }
+  }
+
+  /* 秒 */
+  private isSec(val: any) {
+    if (+val < 0 || +val > 59) {
+      this.timeEditer[5]['val'] = ''
+    }
   }
 
   private mounted() {
-    console.log('编辑时间啊兄弟！！！！', this.recordManager)
+    this.calcTime(this.currentTime)
+  }
+
+  private calcTime(time: number) {
+    const formatTime = new Date(time * 1000).toLocaleString('sv-SE').split(' ')
+    this.timeEditer[0]['val'] = formatTime[0].split('-')[0]
+    this.timeEditer[1]['val'] = formatTime[0].split('-')[1]
+    this.timeEditer[2]['val'] = formatTime[0].split('-')[2]
+    this.timeEditer[3]['val'] = formatTime[1].split(':')[0]
+    this.timeEditer[4]['val'] = formatTime[1].split(':')[1]
+    this.timeEditer[5]['val'] = formatTime[1].split(':')[2]
+  }
+
+  @Watch('currentTime', {
+    immediate: true
+  })
+  private onCurrentTimeChange() {
+    if (!this.editingTime) {
+      // 没有编辑的时候才一直更新时间
+      this.calcTime(this.currentTime)
+    }
   }
 
   // @Watch('currentDate', {
@@ -103,25 +220,37 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
+::v-deep input::-webkit-input-placeholder {
+    color: $primary;
+}
 
 ::v-deep .el-input__inner {
-  position: absolute;
-  top: -35px;
-  width: 20px;
-  height: 20px;
+  color: $primary;
   padding: 0;
+  height: 23px;
   border-top-width: 0px;
   border-left-width: 0px;
   border-right-width: 0px;
-  border-bottom-width: 1px;
+  border-bottom-width: 2px;
   /*outline: medium;*/
 }
 .time-editer__form {
-  // display: flex;
-  // justify-content: start;
-  margin-right: 20px;
+  margin-right: -14px;
+  margin-top: -2px;
 }
-.time-editer__item {
-  margin-left: 20px;
+// .time-editer__item {
+//   margin-left: 20px;
+// }
+.address {
+  position: absolute;
+  top: -35px;
+  height: 20px;
+  &__wide {
+    width: 40px;
+    margin-left: -20px;
+  }
+  &__narrow {
+    width: 20px;
+  }
 }
 </style>
