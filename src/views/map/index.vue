@@ -860,6 +860,7 @@ export default class extends Mixins(IndexMixin) {
   margin: 0 auto;
   padding: 0 10px;
   border-radius: 5px;
+  cursor: pointer;
   &.active {
     background: #fa8334;
     color: #fff;
