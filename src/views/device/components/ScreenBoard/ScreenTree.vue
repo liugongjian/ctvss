@@ -243,6 +243,45 @@ export default class extends Mixins(IndexMixin) {
   /* 轮巡及一键播放 */
   private pollingStatus: string = 'free'
 
+  private pollingInterval = [
+    {
+      value: 5,
+      label: '5秒'
+    },
+    {
+      value: 10,
+      label: '10秒'
+    },
+    {
+      value: 20,
+      label: '20秒'
+    },
+    {
+      value: 40,
+      label: '40秒'
+    },
+    {
+      value: 60,
+      label: '1分钟'
+    },
+    {
+      value: 180,
+      label: '3分钟'
+    },
+    {
+      value: 300,
+      label: '5分钟'
+    },
+    {
+      value: 600,
+      label: '10分钟'
+    },
+    {
+      value: 1800,
+      label: '30分钟'
+    }
+  ]
+
   /* 轮询配置 */
   private polling = {
     interval: 10,
@@ -535,7 +574,8 @@ export default class extends Mixins(IndexMixin) {
       }
 
       &__select {
-        width: 80px;
+        width: 86px;
+        margin-left: 5px;
       }
 
       .el-button--mini {

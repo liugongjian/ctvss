@@ -176,7 +176,12 @@ export class Screen {
    * ----------------
    */
   public init() {
-    this.isLive ? this.initLive() : this.initReplay()
+    try {
+      this.isLive ? this.initLive() : this.initReplay()
+    } catch (e) {
+      console.error(e)
+      throw new Error(e.message)
+    }
   }
 
   public fullscreen() {
@@ -215,6 +220,7 @@ export class Screen {
       this.isLoading = true
       this.errorMsg = null
       this.axiosSource = axios.CancelToken.source()
+      this.url = ''
       const res: any = await getDevicePreview({
         deviceId: this.deviceId,
         inProtocol: this.inProtocol,
@@ -234,6 +240,7 @@ export class Screen {
       }
     } catch (e) {
       this.errorMsg = e.message
+      throw new Error(e.message)
     } finally {
       this.isLoading = false
     }

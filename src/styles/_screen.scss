@@ -192,6 +192,13 @@
     &--replay.screen-item--fullscreen {
       height: calc(100% - 108px);
     }
+
+    /* 微屏模式隐藏工具栏 */
+    .player__wrap--right-hidden {
+      .datepicker, .replay-type, .axis__zoom {
+        display: none;
+      }
+    }
   }
 
   /* 录像回放列表模式 */

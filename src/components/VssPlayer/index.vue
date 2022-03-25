@@ -13,6 +13,7 @@
       :is-live="isLive"
       :is-debug="true"
       @onCreate="onPlayerCreate"
+      @onRetry="onRetry"
     >
       <template slot="headerLeft" />
       <template slot="headerRight">
@@ -223,6 +224,16 @@ export default class extends Vue {
   private onPlayerCreate(player) {
     this.player = player
     this.$emit('onCreate', player)
+  }
+
+  /**
+   * 向上抛出重试事件
+   */
+  private onRetry(payload) {
+    this.$emit('dispatch', {
+      eventType: 'retry',
+      payload
+    })
   }
 
   /**

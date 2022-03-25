@@ -267,7 +267,7 @@ export default class extends Vue {
       let showText = true
       const timestamp = this.axisStartTime + x * this.settings.ratio // 计算当前line对象的实际时间戳
       const hour = new Date(getNextHour(timestamp * 1000)).getHours() // 取整点并转换成Date对象
-      if ((this.settings.ratio > 100 && hour % 2) || (this.settings.ratio > 240 && hour % 4)) {
+      if ((this.settings.ratio > 100 && hour % 2) || (this.settings.ratio > 240 && hour % 4) || (this.settings.ratio > 480 && hour % 8)) {
         showText = false
       }
       hours.push({

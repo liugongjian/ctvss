@@ -20,7 +20,7 @@ export default class extends ComponentMixin {
   private isShowTools: boolean = false
   private isShowMoreBtn: boolean = false
   private resizeObserver: ResizeObserver
-  private palyerWrap: HTMLElement = null
+  private playerWrap: HTMLElement = null
 
   /**
    * 监听播放器是否创建
@@ -44,7 +44,7 @@ export default class extends ComponentMixin {
    * 挂载屏幕尺寸观测器
    */
   private observerInit() {
-    this.palyerWrap = this.player.container.parentElement.parentElement
+    this.playerWrap = this.player.container.parentElement.parentElement
     // 监听播放器容器大小变化
     this.resizeObserver = new ResizeObserver(throttle(() => {
       if (this.player.container.clientHeight < 100 || this.player.container.clientWidth < 300) {
@@ -80,10 +80,10 @@ export default class extends ComponentMixin {
    * @param type 调整类型
    */
   private adjustRightTools(type: string) {
-    if (!this.palyerWrap) {
+    if (!this.playerWrap) {
       return
     }
-    let classVal = this.palyerWrap.getAttribute('class')
+    let classVal = this.playerWrap.getAttribute('class')
     switch (type) {
       case 'hidden':
         classVal = classVal.concat(classVal.indexOf('player__wrap--right-hidden') >= 0 ? '' : ' player__wrap--right-hidden')
@@ -98,7 +98,7 @@ export default class extends ComponentMixin {
         classVal = classVal.replace('player__wrap--right-offset', '')
         break
     }
-    this.palyerWrap.setAttribute('class', classVal)
+    this.playerWrap.setAttribute('class', classVal)
   }
 
   private beforeDestroy() {

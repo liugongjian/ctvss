@@ -150,7 +150,8 @@ export default class extends Vue {
         isAutoPlay: this.isAutoPlay,
         playbackRate: this.playbackRate,
         volume: this.volume,
-        isMuted: this.isMuted
+        isMuted: this.isMuted,
+        onRetry: this.onRetry
       })
       this.$nextTick(() => {
         this.$emit('onCreate', this.player)
@@ -158,6 +159,13 @@ export default class extends Vue {
     } catch (e) {
       this.isDebug && console.log(e.message)
     }
+  }
+
+  /**
+   * 向上抛出重试事件
+   */
+  private onRetry(payload) {
+    this.$emit('onRetry', payload)
   }
 }
 </script>
