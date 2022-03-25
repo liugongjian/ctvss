@@ -6,7 +6,7 @@
       </div>
       <div class="replay-time-list">
         <el-table
-          v-loading="loading"
+          v-loading="isLoading"
           :data="recordList"
           empty-text="所选日期暂无录像"
         >
@@ -93,7 +93,7 @@
     <el-dialog
       v-if="dialogs.play"
       class="video-player"
-      title="录像回放"
+      :title="`${currentListRecord.templateName}  ${dateFormat(currentListRecord.startTime)}`"
       :visible="true"
       :close-on-click-modal="false"
       @close="closeReplayPlayer()"
@@ -105,7 +105,7 @@
 <script lang="ts">
 import { Component, Vue, Inject, Watch } from 'vue-property-decorator'
 import { Record } from '@/views/device/models/Record/Record'
-import { dateFormatInTable, durationFormatInTable } from '@/utils/date'
+import { dateFormatInTable, durationFormatInTable, dateFormat } from '@/utils/date'
 import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
 import { getDeviceRecord, editRecordName } from '@/api/device'
 import { GroupModule } from '@/store/modules/group'
@@ -121,9 +121,8 @@ import VssPlayer from '@/components/VssPlayer/index.vue'
   }
 })
 export default class extends Vue {
-  private loading = false
-  private inProtocol = ''
-  private deviceId = ''
+  @Inject('getScreenManager')
+  private getScreenManager: Function
 
   private pager = {
     pageNum: 1,
@@ -140,16 +139,16 @@ export default class extends Vue {
   private recordName = ''
   private dateFormatInTable = dateFormatInTable
   private durationFormatInTable = durationFormatInTable
+  private dateFormat = dateFormat
+  private checkPermission = checkPermission
 
+  /* 当前分页后的录像列表 */
+  private recordList: Record[] = null
+
+  /* 是否为虚拟业务组 */
   private get isVGroup() {
     return GroupModule.group?.inProtocol === 'vgroup'
   }
-  private checkPermission = checkPermission
-
-  @Inject('getScreenManager')
-  private getScreenManager: Function
-
-  private recordList: Record[] = null
 
   private get screenManager(): ScreenManager {
     return this.getScreenManager()
@@ -159,29 +158,27 @@ export default class extends Vue {
     return this.screenManager.currentScreen
   }
 
+  private get isLoading() {
+    return this.currentScreen.isLoading
+  }
+
   /**
    * 切换不同设备/切换日期
    */
-  @Watch('currentScreen.deviceId', {
-    immediate: true
-  })
-  @Watch('currentScreen.recordManager.currentDate', {
+  @Watch('currentScreen.recordManager.recordList', {
     immediate: true
   })
   private async getRecordList() {
     try {
       // 没有加载录像直接进入录像列表时，没有 recordManager
-      if (!this.currentScreen.recordManager || this.loading === true) return
-      this.loading = true
+      if (!this.currentScreen.recordManager || this.isLoading === true) return
       this.resetPager()
-      await this.currentScreen.recordManager.getRecordListByDate(this.currentScreen.recordManager.currentDate)
       // 当天没有记录则将页面置空并return
       if (!this.currentScreen.recordManager.recordList || this.currentScreen.recordManager.recordList.length === 0) {
         this.recordList = []
         return
       }
       this.getRecordListByPage()
-      this.loading = false
     } catch (e) {
       this.$message.error(e)
     }
@@ -355,13 +352,18 @@ export default class extends Vue {
   }
 }
 
-.video-player ::v-deep .el-dialog__body {
-  padding-top: 10px;
-  padding-bottom: 20px;
+.video-player ::v-deep {
+  .el-dialog {
+    width: 840px;
+  }
+  .el-dialog__body {
+    padding-top: 10px;
+    padding-bottom: 20px;
 
-  .vss-player__wrap {
-    background: #333;
-    height: 350px;
+    .vss-player__wrap {
+      background: #333;
+      height: 450px;
+    }
   }
 }
 </style>
