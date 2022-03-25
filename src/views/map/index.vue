@@ -77,7 +77,7 @@
             </span>
           </div>
           <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
-            <el-dialog title="添加地图" :visible.sync="dialogVisible" width="45%">
+            <el-dialog title="添加地图" :visible.sync="dialogVisible" width="45%" class="dialog-text">
               <el-form ref="mapform" :model="form" label-width="150px" :rules="rules">
                 <el-form-item label="名称" prop="name">
                   <el-input v-model="form.name" placeholder="请输入地图名称" />
@@ -88,19 +88,16 @@
                 <el-form-item label="中心点纬度" prop="latitude">
                   <el-input v-model="form.latitude" placeholder="请输入地图中心点纬度" />
                 </el-form-item>
-                <el-form-item>
+                <el-form-item label="默认缩放级别" prop="zoom">
                   <div class="block">
-                    <span class="demonstration">默认缩放级别</span>
-                    <el-slider v-model="form.zoom" :min="3" :max="20" />
-                  </div>
-                </el-form-item>
-                <el-form-item>
-                  <div class="footer">
-                    <el-button type="primary" @click="addMap"> 确定 </el-button>
-                    <el-button @click="dialogVisible = false">取消</el-button>
+                    <el-slider v-model="form.zoom" :min="3" :max="20" :marks="{ 3: '3', 20: '20' }"/>
                   </div>
                 </el-form-item>
               </el-form>
+              <span slot="footer" class="dialog-footer">
+                <el-button type="primary" @click="addMap"> 确定 </el-button>
+                <el-button @click="dialogVisible = false">取消</el-button>
+              </span>
             </el-dialog>
             <el-dialog title="修改地图" :visible.sync="modifyMapDialog" class="dialog-text">
               <div>
@@ -549,9 +546,9 @@ export default class extends Mixins(IndexMixin) {
         viewRadius: '0',
         viewAngle: '0',
         deviceAngle: '0',
-        population: 'xx',
-        houseInfo: 'xx',
-        unitInfo: 'xx'
+        population: '',
+        houseInfo: '',
+        unitInfo: ''
       }
       if (uselnglat) {
         markerInfo.longitude = device.deviceLongitude
@@ -820,6 +817,28 @@ export default class extends Mixins(IndexMixin) {
   overflow: scroll;
   min-width: 270px;
 }
+.dialog-text {
+  ::v-deep .el-dialog__footer {
+    text-align: center;
+  }
+  ::v-deep .el-button + .el-button {
+    margin-left: 30px;
+  }
+  ::v-deep .el-dialog__body {
+    padding: 30px 50px;
+  }
+  ::v-deep .el-form-item__content {
+    padding-right: 50px;
+  }
+  ::v-deep .el-slider {
+    margin: 0 auto;
+    width: 80%;
+  }
+  ::v-deep .el-slider__marks-text {
+    width: 30px;
+    color: #fa8334;
+  }
+}
 
 .tools {
   display: flex;
@@ -903,44 +922,44 @@ export default class extends Mixins(IndexMixin) {
 .choose-map:hover .delete-icon {
   display: inline-block;
 }
+.map-info__right{
+  ::v-deep .el-descriptions {
+    font-size: 12px;
+    margin-top: 10px;
+  }
 
-::v-deep .el-descriptions {
-  font-size: 12px;
-  margin-top: 10px;
-}
+  ::v-deep .el-descriptions__title{
+    font-size: 14px;
+  }
 
-::v-deep .el-descriptions__title{
-  font-size: 14px;
-}
+  ::v-deep .el-descriptions__header {
+    margin-bottom: 12px;
+  }
 
-::v-deep .el-descriptions__header {
-  margin-bottom: 12px;
-}
+  ::v-deep .el-descriptions__body{
+    background: transparent;
+  }
 
-::v-deep .el-descriptions__body{
-  background: transparent;
-}
+  ::v-deep .el-input--medium {
+    font-size: 12px;
+  }
+  ::v-deep .el-input .el-input__inner {
+    background-color: rgba(255, 255, 255, 0%);
+    border: none;
+    border-radius: 0;
+    border-bottom: 1px solid black;
+    height: 18px;
+    line-height: 18px;
+    font-size: 12px;
+  }
 
-::v-deep .el-input--medium {
-  font-size: 12px;
+  ::v-deep .el-input.is-disabled .el-input__inner {
+    background-color: rgba(255, 255, 255, 0%);
+    color: rgba(0, 0, 0, 85%);
+    border: none;
+    cursor: default;
+    padding: 0;
+    text-overflow: ellipsis;
+  }
 }
-::v-deep .el-input .el-input__inner {
-  background-color: rgba(255, 255, 255, 0%);
-  border: none;
-  border-radius: 0;
-  border-bottom: 1px solid black;
-  height: 18px;
-  line-height: 18px;
-  font-size: 12px;
-}
-
-::v-deep .el-input.is-disabled .el-input__inner {
-  background-color: rgba(255, 255, 255, 0%);
-  color: rgba(0, 0, 0, 85%);
-  border: none;
-  cursor: default;
-  padding: 0;
-  text-overflow: ellipsis;
-}
-
 </style>
