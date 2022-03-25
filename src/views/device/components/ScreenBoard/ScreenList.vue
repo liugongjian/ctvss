@@ -160,24 +160,18 @@ export default class extends Vue {
   }
 
   /**
-   * 切换不同设备
+   * 切换不同设备/切换日期
    */
-  @Watch('currentScreen.deviceId')
-  private onDeviceChange() {
-    this.resetPager()
-    // 切换不同设备时首先触发该监听, 如果没有在回访页面访问过，则交由日期监听器进行处理
-    if (this.currentScreen.recordManager.getRecordListByPage(this.pager).length === 0) return
-    this.recordList = this.currentScreen.recordManager.getRecordListByPage(this.pager)
-    this.pager.total = this.currentScreen.recordManager.recordList.length
-    this.secToMs(this.recordList)
-  }
-
-  /**
-   * 切换日期
-   */
-  @Watch('currentScreen.recordManager.currentDate')
-  private async onDateChange() {
+  @Watch('currentScreen.deviceId', {
+    immediate: true
+  })
+  @Watch('currentScreen.recordManager.currentDate', {
+    immediate: true
+  })
+  private async getRecordList() {
     try {
+      // 没有加载录像直接进入录像列表时，没有 recordManager
+      if (!this.currentScreen.recordManager || this.loading === true) return
       this.loading = true
       this.resetPager()
       await this.currentScreen.recordManager.getRecordListByDate(this.currentScreen.recordManager.currentDate)
@@ -186,28 +180,10 @@ export default class extends Vue {
         this.recordList = []
         return
       }
-      this.recordList = this.currentScreen.recordManager.getRecordListByPage(this.pager)
-      this.pager.total = this.currentScreen.recordManager.recordList.length
-      this.secToMs(this.recordList)
+      this.getRecordListByPage()
+      this.loading = false
     } catch (e) {
       this.$message.error(e)
-    } finally {
-      this.loading = false
-    }
-  }
-
-  private async mounted() {
-    try {
-      // 没有提前查看回放录像，没有记录
-      if (!this.currentScreen.recordManager) return
-      this.loading = true
-      this.recordList = this.currentScreen.recordManager.getRecordListByPage(this.pager)
-      this.pager.total = this.currentScreen.recordManager.recordList.length
-      this.secToMs(this.recordList)
-    } catch (e) {
-      this.$message.error(e)
-    } finally {
-      this.loading = false
     }
   }
 
@@ -216,18 +192,20 @@ export default class extends Vue {
    */
   private async handleSizeChange(val: number) {
     this.pager.pageSize = val
-    this.recordList = this.currentScreen.recordManager.getRecordListByPage(this.pager)
-    this.pager.total = this.currentScreen.recordManager.recordList.length
-    this.secToMs(this.recordList)
+    this.getRecordListByPage()
   }
 
   private async handleCurrentChange(val: number) {
     this.pager.pageNum = val
+    this.getRecordListByPage()
+  }
+
+  /* 获取录像列表，重置/保留当前页码状态 */
+  private getRecordListByPage() {
     this.recordList = this.currentScreen.recordManager.getRecordListByPage(this.pager)
     this.pager.total = this.currentScreen.recordManager.recordList.length
     this.secToMs(this.recordList)
   }
-
   /**
    * 选择视频
    * @param screen 视频
@@ -306,10 +284,9 @@ export default class extends Vue {
         link.click()
         link.remove()
       }
+      record.loading = false
     } catch (e) {
       this.$message.error(e.message)
-    } finally {
-      record.loading = false
     }
   }
 
