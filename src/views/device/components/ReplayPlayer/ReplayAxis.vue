@@ -546,14 +546,10 @@ export default class extends Vue {
         if (thresholdEnd < deltaCurrentTime) {
           date = getDateByTime(this.currentTime * 1000) / 1000 + 24 * 60 * 60
           await this.getRecordListByDate(date)
-          console.log('加载下一天')
         } else if (thresholdStart > deltaCurrentTime) {
           date = getDateByTime(this.currentTime * 1000) / 1000 - 24 * 60 * 60
           await this.getRecordListByDate(date)
-          console.log('加载上一天')
         }
-      } else {
-        console.log('跨天')
       }
     } finally {
       this.isLoading = false
