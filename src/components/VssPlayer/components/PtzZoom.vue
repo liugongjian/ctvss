@@ -229,7 +229,6 @@ export default class extends ComponentMixin {
       lengthY
     }
     if (lengthX !== '0' || lengthY !== '0') {
-      /**
       dragCanvasZoom(param).then(() => {
         this.$message.success('请等待设备调整角度')
         // this.showCanvasBox = false
@@ -239,7 +238,6 @@ export default class extends ComponentMixin {
         this.showCanvasBox = false
         this.oCanvas.style.cursor = 'auto'
       })
-       */
     }
   }
 
