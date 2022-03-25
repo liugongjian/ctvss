@@ -93,11 +93,19 @@ export default class extends Vue {
     return this.screenManager
   }
 
-  /* 监听是否全部静音的状态 */
+  /**
+   * 监听是否全部静音的状态
+   * true: 静音所有窗口
+   * false: 恢复之前窗口的静音状态
+   */
   @Watch('isMutedAll')
   private onIsMutedAllChange(isMutedAll) {
     if (isMutedAll !== null) {
-      this.screenManager.toggleAllMuteStatus(isMutedAll)
+      if (isMutedAll) {
+        this.screenManager.toggleAllMuteStatus(isMutedAll)
+      } else {
+        this.screenManager.restoreAllMuteStatus()
+      }
       ScreenModule.SetIsMutedAll(null)
     }
   }
