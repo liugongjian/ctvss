@@ -36,21 +36,21 @@
               :props="treeProp"
               :check-strictly="false"
             >
-              <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}">
+              <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}" @click="deviceClick(data)">
                 <span class="node-name">
                   <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                   <svg-icon :name="data.type" />
                   {{ node.label }}
                 </span>
-                <span 
+                <span
                   class="node-option"
                   v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) < 0"
-                  @click="addMarker(data)"
+                  @click.stop="addMarker(data)"
                 >+</span>
                 <span
                   class="node-option"
                   v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0"
-                  @click="deleteMarker(data)"
+                  @click.stop="deleteMarker(data)"
                 >-</span>
               </span>
             </el-tree>
@@ -65,7 +65,7 @@
               <span class="tools-item"><svg-icon name="hawkeye" @click="toggleOverView()" /></span>
               <span class="tools-item"><svg-icon name="3d" @click="toggleMap3D()" /></span>
               <span class="tools-item"><svg-icon size="30" name="mark" @click="toggleMarkersShow()" /></span>
-              <span class="tools-item"><svg-icon name="close-all" /></span>
+              <!-- <span class="tools-item"><svg-icon name="close-all" /></span> -->
               <!-- <span class="tools-item"><svg-icon name="magnifier" /></span> -->
               <!-- <span class="tools-item tools-item__cup">|</span>
               <span class="tools-item"><svg-icon name="player" /></span>
@@ -127,30 +127,6 @@
               <el-button @click="confirmAddMarker(false)">不继承</el-button>
               <el-button @click="cancelAddMark()">取消</el-button>
             </el-dialog>
-            <!-- <el-dialog title="开始编辑" :visible.sync="editDialog">
-              <div>
-                <h3>当前为查看模式，是否确定进入编辑模式？</h3>
-              </div>
-              <div class="footer">
-                <el-button @click="editDialog = false">确定</el-button>
-                <el-button @click="editDialog = false">取消</el-button>
-              </div>
-            </el-dialog> -->
-            <el-dialog title="删除监控点位" :visible.sync="deleteDialog">
-              <div>
-                <h3>确定在地图中删除监控点位"IPC1"？</h3>
-              </div>
-              <el-button @click="deleteDialog = false">确定</el-button>
-              <el-button @click="deleteDialog = false">取消</el-button>
-            </el-dialog>
-            <el-dialog title="批量删除监控点位" :visible.sync="deletesDialog">
-              <div>
-                <h3>确定在地图中删除以下3个监控点位？</h3>
-              </div>
-              <el-button @click="deletesDialog = false">确定</el-button>
-              <el-button @click="deletesDialog = false">取消</el-button>
-            </el-dialog>
-            <!--<div><img src="./dashboard.png" alt=""></div>-->
             <div :class="['mapwrap', hideTitle?'hide-title':'']">
               <map-view
                 v-if="mapList.length > 0 && curMap"
@@ -186,8 +162,6 @@ import IndexMixin from '../device/mixin/indexMixin'
 import { getGroups } from '@/api/group'
 import { setDirsStreamStatus, renderAlertType, getSums } from '@/utils/device'
 import { describeShareDevices, getPlatforms } from '@/api/upPlatform'
-import { getDeviceTree } from '@/api/device'
-import { describeShareDevices } from '@/api/upPlatform'
 import {getDeviceEvents, getDevices, getDeviceTree, getDevice} from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MapView from './mapview.vue'
@@ -208,6 +182,11 @@ import { getMaps, createMap, deleteMap, modifyMap } from '@/api/map'
   }
 })
 export default class extends Mixins(IndexMixin) {
+  public $refs: {
+    mapview: MapView
+    dirTree: any
+    mapform: any
+  }
   private renderAlertType = renderAlertType
   private getSums = getSums
   private dialogVisible = false
@@ -567,6 +546,16 @@ export default class extends Mixins(IndexMixin) {
       this.addPositionDialog = false
     }
   }
+
+  deviceClick(data) {
+    if (data.isLeaf && this.mapDeviceIds.indexOf(data.id) < 0) {
+      this.$message.warning(`该设备尚未添加到当前地图上`)
+    } else if (data.isLeaf && this.mapDeviceIds.indexOf(data.id) >= 0){
+      const marker = this.markerList.filter(item => item.deviceId === data.id)[0]
+      this.$refs.mapview.setMapCenter(marker.longitude, marker.latitude)
+    }
+  }
+
   deleteMarker(marker) {
     this.$refs.mapview.handleMarkerDelete(marker.id, marker.label)
   }
@@ -849,6 +838,9 @@ export default class extends Mixins(IndexMixin) {
     font-weight: bolder;
   }
 }
+.dialog-text {
+  text-align: center;
+}
 
 .tools-item__cup {
   color: rgb(189, 188, 188);
@@ -880,36 +872,6 @@ export default class extends Mixins(IndexMixin) {
 .choose-map:hover .delete-icon {
   display: inline-block;
 }
-
-// .tip {
-//   display: inline-block;
-//   position: relative;
-//   z-index: 2000;
-//   background: #303133;
-//   width: 50px;
-//   height: 30px;
-//   margin-left: 8px;
-//   line-height: 30px;
-//   font-size: 12px;
-//   color: #FFFFFF;
-//   border-radius: 4px;
-//   word-wrap: break-word;
-// }
-
-// .tip:before {
-//   position: absolute;
-//   left: -29%;
-//   top: 25%;
-//   content: '';
-//   color: #303133;
-//   overflow: hidden;
-//   pointer-events: none;
-//   border: 0.6em solid transparent;
-//   border-right-color: currentColor;
-//   visibility: visible;
-//   white-space: nowrap;
-//   opacity: 1;
-// }
 
 ::v-deep .el-descriptions {
   font-size: 12px;

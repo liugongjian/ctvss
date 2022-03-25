@@ -10,6 +10,12 @@ export interface mapObject {
   zoom: number,
 }
 
+export interface Window {
+  deleteMarker?: any,
+  replayMarker?: any,
+  previewMarker?: any,
+}
+
 export interface markerObject {
   longitude: number,
   latitude: number,
@@ -27,6 +33,7 @@ export interface markerObject {
   lnglat?: [number, number] | LngLat,
   streamStatus?: string,
   recordStatus?: number
+  gbRegionNames?: Array<any>
 }
 
 export enum mapStatus {
