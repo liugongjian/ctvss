@@ -76,7 +76,8 @@ export default class extends Vue {
     latitude: '',
     population: '',
     houseInfo: '',
-    unitInfo: ''
+    unitInfo: '',
+    gbRegionNames: []
   }
 
   private DeviceStatus = DeviceStatus

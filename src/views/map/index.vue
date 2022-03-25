@@ -143,7 +143,7 @@
             </div>
             <div v-show="showInfo" class="map-info__right">
               <div v-if="showMapInfo">
-                <map-info :map="curMapInfo" @save="modifyMapDialog = true" />
+                <map-info :is-edit="isEdit" :map="curMapInfo" @save="modifyMapDialog = true" />
               </div>
               <div v-if="!showMapInfo">
                 <point-info :is-edit="isEdit" :marker="curMarkInfo" @save="changeMarkerInfos" />
@@ -214,17 +214,17 @@ export default class extends Mixins(IndexMixin) {
       { required: true, message: '请填写地图名称', trigger: 'blur' }
     ],
     longitude: [
-      { required: true, message: '请填写地图经度，[-180, 180]', trigger: 'blur' },
+      // { required: true, message: '请填写地图经度，[-180, 180]', trigger: 'blur' },
       { validator: this.validatelng, trigger: 'blur' }
     ],
     latitude: [
-      { required: true, message: '请填写地图纬度，[-90, 90]', trigger: 'blur' },
+      // { required: true, message: '请填写地图纬度，[-90, 90]', trigger: 'blur' },
       { validator: this.validatelat, trigger: 'blur' }
     ]
   }
   private validatelng(rule: any, value: string, callback: Function) {
     const val = Number(value)
-    if (isNaN(val) || val < -180 || val > 180) {
+    if (!this.checklng) {
       callback(new Error('请填写正确的经度'))
     } else {
       callback()
@@ -232,12 +232,30 @@ export default class extends Mixins(IndexMixin) {
   }
   private validatelat(rule: any, value: string, callback: Function) {
     const val = Number(value)
-    if (isNaN(val) || val < -90 || val > 90) {
+    if (!this.checklat) {
       callback(new Error('请填写正确的纬度'))
     } else {
       callback()
     }
   }
+
+  private checklng(lng) {
+    const val = Number(lng)
+    const result = isNaN(val) || val < -180 || val > 180
+    return !result
+  }
+
+  private checklat(lat) {
+    const val = Number(lat)
+    const result = isNaN(val) || val < -90 || val > 90
+    return !result
+  }
+  private checkZoom(zoom) {
+    const val = Number(zoom)
+    const result = isNaN(val) || val < 3 || val > 20
+    return !result
+  }
+
   private modifyMapDialog = false
   private modifyMapForm = {
     center: false,
@@ -581,8 +599,8 @@ export default class extends Mixins(IndexMixin) {
         try {
           const map = {
             name: this.form.name,
-            longitude: this.form.longitude,
-            latitude: this.form.latitude,
+            longitude: this.form.longitude || '116.397428',
+            latitude: this.form.latitude || '39.90923',
             zoom: this.form.zoom
           }
           const res = await createMap(map)
@@ -658,25 +676,37 @@ export default class extends Mixins(IndexMixin) {
   }
 
   private async modifyMap() {
+    let checklnglat = true
+    let checkzoom = true
     try {
       const params = { ...this.curMap }
       if (this.modifyMapForm.center) {
         params.longitude = this.curMapInfo.longitude
         params.latitude = this.curMapInfo.latitude
+        checklnglat = this.checklng(params.longitude) && this.checklat(params.latitude)
       }
       if (this.modifyMapForm.zoom) {
         params.zoom = this.curMapInfo.zoom;
+        checkzoom = this.checkZoom(params.zoom)
       }
-      await modifyMap(params)
-      this.curMap = params
-      this.mapList = this.mapList.map(item => {
-        if (item.mapId === params.mapId) {
-          return params
-        } else {
-          return item
+      if (checklnglat && checkzoom) {
+        await modifyMap(params)
+        this.curMap = params
+        this.mapList = this.mapList.map(item => {
+          if (item.mapId === params.mapId) {
+            return params
+          } else {
+            return item
+          }
+        })
+        this.$alertSuccess('地图修改成功')
+      } else {
+        if (!checklnglat) {
+          this.$alertError('请填写正确的经纬度')
+        } else if (!checkzoom) {
+          this.$alertError('级别取值范围为[3, 20]')
         }
-      })
-      this.$alertSuccess('地图修改成功')
+      }
     } catch (e) {
       this.$alertError(e.message)
     } finally {

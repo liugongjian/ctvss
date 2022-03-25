@@ -5,13 +5,13 @@
         <svg-icon name="save" @click="save()" width="25" height="25" />
       </template>
       <el-descriptions-item label="中心经度">
-        <el-input v-model="map.longitude" disabled />
+        <el-input v-model="map.longitude" :disabled="!isEdit" />
       </el-descriptions-item>
       <el-descriptions-item label="中心纬度">
-        <el-input v-model="map.latitude" disabled />
+        <el-input v-model="map.latitude" :disabled="!isEdit" />
       </el-descriptions-item>
       <el-descriptions-item label="缩放等级">
-        <el-input v-model="map.zoom" disabled />
+        <el-input v-model="map.zoom" :disabled="!isEdit" />
       </el-descriptions-item>
     </el-descriptions>
   </div>
@@ -25,6 +25,9 @@ import { mapObject } from '../models/vmap'
 })
 
 export default class extends Vue {
+  @Prop()
+  private isEdit: boolean
+
   @Prop()
   private map: any
 
