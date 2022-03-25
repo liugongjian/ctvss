@@ -147,10 +147,11 @@
       z-index: 10;
       color: #fff;
       border: 1px solid #fff;
+      background: rgba(0, 0, 0, 0.3);
       border-radius: 5px;
-      top: 10px;
+      bottom: 50px;
       left: 10px;
-      opacity: 0.8;
+      opacity: 0.9;
       font-size: 11px;
       padding: 3px 5px;
     }
@@ -193,6 +194,12 @@
       height: calc(100% - 108px);
     }
 
+    &--replay {
+      .video-type-label {
+        bottom: 95px;
+      }
+    }
+
     /* 微屏模式隐藏工具栏 */
     .player__wrap--right-hidden {
       .datepicker, .replay-type, .axis__zoom {
@@ -219,6 +226,7 @@
   /* 分屏工具栏 */
   .screen-tools {
     background-color: #fff;
+    height: 108px;
 
     &__bar {
       display: flex;
@@ -258,6 +266,16 @@
       &:hover, &:focus {
         background: none;
       }
+    }
+  }
+
+  &--live {
+    .screen-item--replay.screen-item--fullscreen {
+      height: 100%;
+    }
+
+    .screen-item--replay .player__wrap--right-offset .control__right {
+      bottom: 83px !important;
     }
   }
 }

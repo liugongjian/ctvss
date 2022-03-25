@@ -65,7 +65,7 @@ export default class extends Vue {
     immediate: true
   })
   private onCurrentDateChange() {
-    this.date = this.currentDate
+    this.date = this.currentDate || new Date().getTime()
   }
 
   private pickerOptions = {
@@ -89,7 +89,6 @@ export default class extends Vue {
    * 切换日期
    */
   private changeDate(date: number) {
-    console.log('this.$emit')
     this.$emit('change', (date / 1000))
   }
 }

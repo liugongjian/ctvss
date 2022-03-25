@@ -10,7 +10,7 @@
         v-for="(item, index) in screenSizeList"
         :key="index"
         :command="item"
-        :class="{'el-dropdown-item__active': item.layout === size}"
+        :class="{'el-dropdown-item__active': item.layout === layout}"
       >
         <span class="el-dropdown-menu__screen-icon"><svg-icon :name="`screen${item.layout}`" /></span>
         <label>{{ item.label }}</label>
@@ -78,10 +78,6 @@ export default class extends ComponentMixin {
       size: 16
     }
   ]
-
-  private get size() {
-    return this.screenManager.size
-  }
 
   private get layout() {
     return this.screenManager.layout
