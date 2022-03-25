@@ -1,7 +1,7 @@
 <template>
   <el-radio-group v-model="recordType" class="screen-tools__btn" size="mini" @change="onChange">
     <el-radio-button :label="0">云端</el-radio-button>
-    <el-radio-button :label="1">本地</el-radio-button>
+    <el-radio-button :label="1">设备</el-radio-button>
   </el-radio-group>
 </template>
 <script lang="ts">

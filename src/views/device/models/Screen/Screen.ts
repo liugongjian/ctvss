@@ -52,6 +52,18 @@ export class Screen {
   public recordManager: RecordManager
   /* 录像类型 0-云端，1-本地 */
   public recordType: 0 | 1
+  /* 当前时间（时间戳/秒），用于缓存恢复 */
+  public currentRecordDatetime: number
+
+  /**
+   * ----------------
+   * 私有变量
+   * ----------------
+   */
+  private _volume?: number
+  private _isMuted?: boolean
+  private _playbackRate?: number
+  private _scale?: string
 
   /**
    * ----------------
@@ -86,6 +98,11 @@ export class Screen {
     this.hasRtc = false
     this.recordManager = null
     this.recordType = 0
+    this.currentRecordDatetime = null
+    this._volume = null
+    this._isMuted = null
+    this._playbackRate = null
+    this._scale = null
   }
 
   public get deviceInfo(): DeviceInfo {
@@ -109,13 +126,62 @@ export class Screen {
     }
   }
 
+  /* 获取音量 */
+  public get volume() {
+    return (this.player && this.player.volume) || this._volume || 0.3
+  }
+
+  /* 存音量 */
+  public set volume(volume) {
+    this._volume = volume
+  }
+
+  /* 获取是否静音 */
+  public get isMuted() {
+    if (this.player) {
+      return this.player.isMuted
+    } else {
+      return this._isMuted || false
+    }
+  }
+
+  /* 存是否静音 */
+  public set isMuted(isMuted) {
+    this._isMuted = isMuted
+  }
+
+  /* 获取倍速 */
+  public get playbackRate() {
+    return (this.player && this.player.playbackRate) || this._playbackRate || 1
+  }
+
+  /* 存倍速 */
+  public set playbackRate(playbackRate) {
+    this._playbackRate = playbackRate
+  }
+
+  /* 获取缩放比例 */
+  public get scale() {
+    return (this.player && this.player.scale) || this._scale
+  }
+
+  /* 存缩放比例 */
+  public set scale(scale) {
+    this._scale = scale
+  }
+
   /**
    * ----------------
    * 公共操作
    * ----------------
    */
   public init() {
-    this.isLive ? this.initLive() : this.initReplay()
+    try {
+      this.isLive ? this.initLive() : this.initReplay()
+    } catch (e) {
+      console.error(e)
+      throw new Error(e.message)
+    }
   }
 
   public fullscreen() {
@@ -154,6 +220,7 @@ export class Screen {
       this.isLoading = true
       this.errorMsg = null
       this.axiosSource = axios.CancelToken.source()
+      this.url = ''
       const res: any = await getDevicePreview({
         deviceId: this.deviceId,
         inProtocol: this.inProtocol,
@@ -173,6 +240,7 @@ export class Screen {
       }
     } catch (e) {
       this.errorMsg = e.message
+      throw new Error(e.message)
     } finally {
       this.isLoading = false
     }
@@ -223,6 +291,7 @@ export class Screen {
      * 3) 云端：获取第一段录像，本地：获取第一段时间的录像URL
      */
   public async initReplay() {
+    if (!this.deviceId) return
     this.recordManager = new RecordManager({
       screen: this
     })

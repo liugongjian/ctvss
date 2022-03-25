@@ -59,6 +59,7 @@ import { Component, Prop, Watch } from 'vue-property-decorator'
 import { startTalk, stopTalk } from '@/api/intercom'
 import { StreamInfo, DeviceInfo } from '@/components/VssPlayer/models/VssPlayer.d'
 import Player from '@/components/Player/index.vue'
+import { ScreenModule } from '@/store/modules/screen'
 import ComponentMixin from './mixin'
 
 @Component({
@@ -127,6 +128,7 @@ export default class extends ComponentMixin {
 
   private toIntercom() {
     this.showDialog = true
+    ScreenModule.SetIsMutedAll(true)
     window.addEventListener('beforeunload', () => this.destroyIntercom())
   }
 

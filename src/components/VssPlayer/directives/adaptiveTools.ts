@@ -1,3 +1,4 @@
+import { Player } from '@/components/Player/models/Player'
 import { DirectiveOptions } from 'vue'
 
 /**
@@ -43,7 +44,7 @@ function setMouseEvent(delay: number) {
  * @returns 校验结果
  */
 function checkIsVideo(dom: EventTarget) {
-  if (['VIDEO', 'CANVAS'].includes((dom as HTMLElement).nodeName)) {
+  if (/player__container/.test((dom as HTMLElement).parentElement.className)) {
     return true
   } else {
     return false

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="showDatepicker" class="datepicker">
+  <div class="datepicker">
     <DatePanel
       v-if="inline"
       v-model="date"
@@ -9,12 +9,11 @@
     />
     <el-date-picker
       v-else
-      ref="datepicker"
       v-model="date"
       type="date"
       value-format="timestamp"
       placeholder="选择日期"
-      size="mini"
+      :size="size"
       :clearable="false"
       :picker-options="pickerOptions"
       @change="changeDate"
@@ -23,7 +22,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
-import { prefixZero } from '@/utils/date'
+import { prefixZero } from '@/utils/number'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import DatePanel from './DatePanel.vue'
 
@@ -43,8 +42,12 @@ export default class extends Vue {
   })
   private inline
 
+  @Prop({
+    default: 'mini'
+  })
+  private size
+
   private date: number = null
-  private showDatepicker = true
 
   private get recordManager() {
     return this.screen && this.screen.recordManager
@@ -56,15 +59,6 @@ export default class extends Vue {
 
   private get currentDate() {
     return this.recordManager && this.recordManager.currentDate * 1000
-  }
-
-  @Watch('screen')
-  @Watch('screen.recordType')
-  private onChange() {
-    this.showDatepicker = false
-    this.$nextTick(() => {
-      this.showDatepicker = true
-    })
   }
 
   @Watch('currentDate', {
@@ -87,22 +81,19 @@ export default class extends Vue {
       return hasRecords ? 'has-records' : ''
     },
     changeCalendar: (date: any) => {
+      console.log('changeCalendar', date)
       if (!this.recordManager) return
-      const monthStr = `${date.getFullYear()}-${date.getMonth()}`
-      if (!this.recordStatistic.has(monthStr)) {
-        const startTime = Math.floor(new Date(date.getFullYear(), date.getMonth() - 1).getTime() / 1000)
-        const endTime = Math.floor(new Date(date.getFullYear(), date.getMonth() + 1).getTime() / 1000)
-        this.recordManager.getRecordStatistic(startTime, endTime)
-      }
+      const startTime = Math.floor(new Date(date.getFullYear(), date.getMonth() - 1).getTime() / 1000)
+      const endTime = Math.floor(new Date(date.getFullYear(), date.getMonth() + 1).getTime() / 1000)
+      this.recordManager.getRecordStatistic(startTime, endTime)
     }
   }
 
   /**
    * 切换日期
    */
-  private changeDate(date: number) {
-    console.log(date)
-    this.recordManager.getRecordListByDate(date / 1000)
+  private async changeDate(date: number) {
+    await this.recordManager.getRecordListByDate(date / 1000)
   }
 }
 

@@ -12,22 +12,32 @@
     :is-live="true"
     :is-ws="true"
     :is-loading="screen.isLoading"
+    :volume="screen.volume"
+    :is-muted="screen.isMuted"
     :has-close="hasClose"
     :has-live-replay-selector="hasLiveReplaySelector"
+    :scale="screen.scale"
     :is-debug="isDebug"
     @dispatch="onDispatch"
-  />
+    @onCreate="onPlayerCreate"
+  >
+    <template slot="controlRight">
+      <Fullscreen @change="onFullscreenChange" />
+    </template>
+  </VssPlayer>
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { PlayerEvent } from '@/components/VssPlayer/models/VssPlayer.d'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import VssPlayer from '@/components/VssPlayer/index.vue'
+import Fullscreen from './ScreenBoard/components/Fullscreen.vue'
 
 @Component({
   name: 'LivePlayer',
   components: {
-    VssPlayer
+    VssPlayer,
+    Fullscreen
   }
 })
 export default class extends Vue {
@@ -42,6 +52,14 @@ export default class extends Vue {
 
   @Prop()
   private isDebug: Boolean
+
+  /**
+   * 当播放器实例创建
+   */
+  private onPlayerCreate(player) {
+    this.screen.player = player
+    this.screen.errorMsg = null
+  }
 
   /**
    * 播放器事件路由
@@ -59,6 +77,9 @@ export default class extends Vue {
         break
       case 'toggleLiveReplay':
         this.toggleLiveReplay()
+        break
+      case 'retry':
+        this.onRetry(event.payload)
         break
     }
   }
@@ -88,10 +109,34 @@ export default class extends Vue {
   }
 
   /**
+   * 视频断流30秒后重试
+   */
+  private onRetry(payload?) {
+    let timeout = 30 * 1000
+    if (payload && payload.immediate) {
+      timeout = 100
+    }
+    setTimeout(() => {
+      try {
+        this.screen.init()
+      } catch {
+        this.onRetry()
+      }
+    }, timeout)
+  }
+
+  /**
    * 关闭视频
    */
   private onClose() {
     this.$emit('close')
+  }
+
+  /**
+   * 全屏操作
+   */
+  private onFullscreenChange(isFullscreen) {
+    this.screen.isFullscreen = isFullscreen
   }
 }
 </script>

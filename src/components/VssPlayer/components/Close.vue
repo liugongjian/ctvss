@@ -2,7 +2,7 @@
 <template>
   <el-tooltip content="关闭视频">
     <el-button class="close" type="text" @click="close">
-      <svg-icon name="close" width="16" height="16" />
+      <svg-icon name="close" width="14" height="14" />
     </el-button>
   </el-tooltip>
 </template>
@@ -24,6 +24,10 @@ export default class extends ComponentMixin {
 
 <style lang="scss" scoped>
   .close {
+    padding: 5px 8px;
+    height: auto;
+    line-height: 100%;
     color: #fff;
+    background: rgba(0, 0, 0, 0.4);
   }
 </style>

@@ -1,5 +1,9 @@
 <template>
-  <div v-if="screenManager" class="screen-container">
+  <div
+    v-if="screenManager"
+    class="screen-container"
+    :class="{'screen-container--fullscreen': isFullscreen, 'screen-container--live': isLive, 'screen-container--replay': !isLive}"
+  >
     <div v-if="screenManager.view === 'screen'" class="screen-grid-wrap">
       <div class="screen-grid" :class="`screen-size--${size}`">
         <ScreenItem
@@ -19,7 +23,8 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop, Provide } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch, Provide } from 'vue-property-decorator'
+import { ScreenModule } from '@/store/modules/screen'
 import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
 import ScreenItem from './ScreenItem.vue'
 import ScreenList from './ScreenList.vue'
@@ -44,6 +49,11 @@ export default class extends Vue {
   @Prop()
   private inProtocol: string
 
+  @Prop({
+    default: 4
+  })
+  private defaultSize: number
+
   /* 分屏管理器 */
   public screenManager: ScreenManager = null
 
@@ -67,16 +77,35 @@ export default class extends Vue {
     return this.screenManager && this.screenManager.size
   }
 
+  /* 是否全部静音的状态 */
+  private get isMutedAll() {
+    return ScreenModule.isMutedAll
+  }
+
+  /* 是否全屏 */
+  private get isFullscreen() {
+    return ScreenModule.isFullscreen
+  }
+
   /* 获取分屏管理器Provide */
   @Provide('getScreenManager')
   private getScreenManager() {
     return this.screenManager
   }
 
+  /* 监听是否全部静音的状态 */
+  @Watch('isMutedAll')
+  private onIsMutedAllChange(isMutedAll) {
+    if (isMutedAll !== null) {
+      this.screenManager.toggleAllMuteStatus(isMutedAll)
+      ScreenModule.SetIsMutedAll(null)
+    }
+  }
+
   private created() {
     this.screenManager = new ScreenManager({
-      size: 4,
-      layout: '4',
+      size: this.defaultSize,
+      layout: this.defaultSize.toString(),
       isLive: this.isLive,
       inProtocol: this.inProtocol
     })

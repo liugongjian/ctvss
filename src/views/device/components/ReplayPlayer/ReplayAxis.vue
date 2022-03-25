@@ -1,5 +1,5 @@
 <template>
-  <div ref="axisWrap" class="axis__wrap">
+  <div ref="axisWrap" class="axis__wrap" :class="{'axis__wrap--disabled': disabled}">
     <div class="axis__middle" />
     <div class="axis__time">{{ screen && screen.isLoading ? '加载中' : formatedCurrentTime }}</div>
     <canvas ref="canvas" class="axis__canvas" :class="{'dragging': axisDrag.isDragging}" />
@@ -17,7 +17,8 @@
  * 3) 计算刻度位置时使用时间戳除ratio，转换为像素值
  */
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { isCrossDays, dateFormat, getNextHour, prefixZero, getDateByTime, currentTimeZeroMsec } from '@/utils/date'
+import { isCrossDays, dateFormat, getNextHour, getDateByTime, currentTimeZeroMsec } from '@/utils/date'
+import { prefixZero } from '@/utils/number'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import { throttle } from 'lodash'
 
@@ -34,6 +35,12 @@ export default class extends Vue {
     default: false
   })
   private isInline: boolean
+
+  /* 是否禁用 */
+  @Prop({
+    default: false
+  })
+  private disabled: boolean
 
   /* 时间轴拖动数据 */
   private axisDrag: any = {
@@ -71,7 +78,8 @@ export default class extends Vue {
     recordColor: '#cfd9e7',
     hourLineColor: '#222',
     minLineColor: '#999',
-    midLineColor: '#fa8334'
+    midLineColor: '#fa8334',
+    gradientColor: '255, 255, 255'
   }
 
   /* 刻度数据 */
@@ -100,10 +108,12 @@ export default class extends Vue {
   private axisEndTime: number = 0
   /* 是否加载中 */
   private isLoading = false
+  /* 延时加载相邻日期定时器 */
+  private timeout = null
 
   /* 当前分屏的录像管理器 */
   private get recordManager() {
-    return this.screen.recordManager
+    return this.screen && this.screen.recordManager
   }
 
   /* 格式化当前时间 */
@@ -129,17 +139,32 @@ export default class extends Vue {
         this.currentTime = this.recordManager.localStartTime + recordCurrentTime
       }
       this.lastUpdateTime = new Date().getTime()
+      this.screen.currentRecordDatetime = this.currentTime
+      this.generateData()
+      this.draw()
+      this.loadSiblingRecordList(-1, -1)
     }
-    this.generateData()
-    this.draw()
-    this.loadSiblingRecordList(-1, -1)
   }
 
   /* 监听设备变化 */
   @Watch('screen.deviceId')
-  private onDeviceChange() {
+  /* 监听录像类型变化 */
+  @Watch('screen.recordType')
+  /* 监听日历变化 */
+  @Watch('recordManager.currentDate')
+  private onStatusChange() {
+    this.currentTime = this.recordManager && this.recordManager.currentDate
     this.generateData()
     this.draw()
+    /* 继续加载上一天的录像列表 */
+    clearTimeout(this.timeout)
+    this.timeout = setTimeout(async() => {
+      await this.loadSiblingRecordList(-1, -1)
+      setTimeout(() => {
+        this.generateData()
+        this.draw()
+      }, 100)
+    }, 1000)
   }
 
   private created() {
@@ -150,6 +175,7 @@ export default class extends Vue {
       this.settings.midLineColor = '#fa8334'
       this.settings.spanThreshold = 15
       this.settings.hourWidth = 1
+      this.settings.gradientColor = '0, 0, 0'
     }
   }
 
@@ -241,7 +267,7 @@ export default class extends Vue {
       let showText = true
       const timestamp = this.axisStartTime + x * this.settings.ratio // 计算当前line对象的实际时间戳
       const hour = new Date(getNextHour(timestamp * 1000)).getHours() // 取整点并转换成Date对象
-      if ((this.settings.ratio > 100 && hour % 2) || (this.settings.ratio > 240 && hour % 4)) {
+      if ((this.settings.ratio > 100 && hour % 2) || (this.settings.ratio > 240 && hour % 4) || (this.settings.ratio > 480 && hour % 8)) {
         showText = false
       }
       hours.push({
@@ -359,7 +385,7 @@ export default class extends Vue {
     /* 绘制10分钟线 */
     for (let i in this.axisData.tenMins) {
       const line = this.axisData.tenMins[i]
-      if (this.settings.ratio < 200) { this.ctx.fillRect(line.x, line.y, this.settings.tenMinsWidth, this.settings.tenMinsHeight) }
+      if (this.settings.ratio < 150) { this.ctx.fillRect(line.x, line.y, this.settings.tenMinsWidth, this.settings.tenMinsHeight) }
       if (this.settings.hourSpan > 196) {
         const timestamp = this.axisStartTime + line.x * this.settings.ratio // 计算当前line对象的实际时间戳
         const datetime = new Date(timestamp * 1000)
@@ -401,6 +427,25 @@ export default class extends Vue {
     /* 中心线 */
     this.ctx.fillStyle = this.settings.midLineColor
     this.ctx.fillRect(Math.floor(this.settings.width / 2 - 1), 0, this.settings.minLineWidth, this.settings.minLineHeight)
+
+    /* 绘制左右渐变 */
+    if (!this.isInline) {
+      const gradientWidth = this.settings.width * 0.08
+      const startColor = `rgba(${this.settings.gradientColor}, 0.7)`
+      const endColor = `rgba(${this.settings.gradientColor}, 0)`
+      /* 左侧 */
+      const gradientL = this.ctx.createLinearGradient(0, 0, gradientWidth, 0)
+      gradientL.addColorStop(0, startColor)
+      gradientL.addColorStop(1, endColor)
+      this.ctx.fillStyle = gradientL
+      this.ctx.fillRect(0, 0, gradientWidth, this.settings.height)
+      /* 右侧 */
+      const gradientR = this.ctx.createLinearGradient(this.settings.width - gradientWidth, 0, this.settings.width, 0)
+      gradientR.addColorStop(0, endColor)
+      gradientR.addColorStop(1, startColor)
+      this.ctx.fillStyle = gradientR
+      this.ctx.fillRect(this.settings.width - gradientWidth, 0, gradientWidth, this.settings.height)
+    }
   }
 
   /**
@@ -521,7 +566,7 @@ export default class extends Vue {
    */
   private async getRecordListByDate(date) {
     if (this.screen && this.screen.recordManager) {
-      this.screen.recordManager.getRecordListByDate(date, true, true)
+      await this.screen.recordManager.getRecordListByDate(date, true, true)
     }
   }
 }
@@ -532,6 +577,18 @@ export default class extends Vue {
     position: relative;
     width: 100%;
     height: 70px;
+
+    &--disabled {
+      &::after {
+        content: ' ';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        background: rgba(255, 255, 255, 60%);
+        cursor: not-allowed;
+      }
+    }
   }
 
   &__canvas {
@@ -545,7 +602,7 @@ export default class extends Vue {
 
   &__time {
     position: absolute;
-    top: -20px;
+    top: -22px;
     left: 50%;
     margin-left: -100px;
     width: 200px;

@@ -5,13 +5,17 @@
     :class="{'has-axis': hasAxis}"
     :url="url"
     :type="type"
-    :codec="screen.codec"
+    :codec="codec"
     :device-info="screen.deviceInfo"
     :error-msg="screen.errorMsg"
     :is-auto-play="true"
     :is-live="false"
     :has-close="hasClose"
     :is-loading="screen.isLoading"
+    :volume="screen.volume"
+    :is-muted="screen.isMuted"
+    :playback-rate="screen.playbackRate"
+    :scale="screen.scale"
     :is-debug="isDebug"
     :has-live-replay-selector="hasLiveReplaySelector"
     @dispatch="onDispatch"
@@ -35,16 +39,23 @@
         @change="onAxisTimeChange"
       />
     </template>
+    <template slot="controlRight">
+      <RecordDownload :screen="screen" />
+      <Fullscreen @change="onFullscreenChange" />
+    </template>
   </VssPlayer>
 </template>
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
+import { ScreenModule } from '@/store/modules/screen'
 import { PlayerEvent } from '@/components/VssPlayer/models/VssPlayer.d'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import VssPlayer from '@/components/VssPlayer/index.vue'
 import ReplayAxis from './ReplayAxis.vue'
 import Datepicker from '../ScreenBoard/components/DatePicker.vue'
 import ReplayType from '../ScreenBoard/components/ReplayType.vue'
+import Fullscreen from '../ScreenBoard/components/Fullscreen.vue'
+import RecordDownload from './RecordDownload.vue'
 
 @Component({
   name: 'ReplayPlayer',
@@ -52,7 +63,9 @@ import ReplayType from '../ScreenBoard/components/ReplayType.vue'
     VssPlayer,
     ReplayAxis,
     Datepicker,
-    ReplayType
+    ReplayType,
+    Fullscreen,
+    RecordDownload
   }
 })
 export default class extends Vue {
@@ -79,7 +92,7 @@ export default class extends Vue {
     return this.screen.recordManager
   }
 
-  @Watch('screen.recordManager.currentRecord.url')
+  @Watch('screen.recordManager.currentRecord.url', { immediate: true })
   @Watch('screen.url')
   private onChange() {
     if (this.screen.recordType === 0) {
@@ -116,6 +129,7 @@ export default class extends Vue {
    */
   private onPlayerCreate(player) {
     this.screen.player = player
+    this.screen.errorMsg = null
     // 片段播放完后播放下一段
     this.screen.player.config.onEnded = this.recordManager.playNextRecord.bind(this.recordManager)
     // 跳转到offsetTime
@@ -153,6 +167,14 @@ export default class extends Vue {
    */
   private onClose() {
     this.$emit('close')
+  }
+
+  /**
+   * 全屏操作
+   */
+  private onFullscreenChange(isFullscreen) {
+    this.screen.isFullscreen = isFullscreen
+    ScreenModule.SetIsFullscreen(isFullscreen)
   }
 }
 </script>
@@ -222,7 +244,7 @@ export default class extends Vue {
     .replay-type {
       position: absolute;
       left: 140px;
-      top: 8px;
+      top: 1px;
       transform: scale(0.85);
 
       ::v-deep {

@@ -484,7 +484,7 @@ export default class IndexMixin extends Vue {
         node.data.roleId = node.data.id
       } else if (node.data.type === 'group') {
         node.data.realGroupId = node.data.id
-        node.data.realGroupInProtocol = node.data.inProtocol
+        node.data.realGroupInProtocol = this.currentGroupInProtocol
       }
       VGroupModule.SetRoleID(node.data.roleId || '')
       VGroupModule.SetRealGroupId(node.data.realGroupId || '')

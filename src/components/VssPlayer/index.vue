@@ -7,33 +7,44 @@
       :url="videoUrl"
       :codec="codec"
       :volume="volume"
+      :is-muted="isMuted"
       :playback-rate="playbackRate"
       :has-progress="hasProgress"
       :is-live="isLive"
       :is-debug="true"
       @onCreate="onPlayerCreate"
+      @onRetry="onRetry"
     >
       <template slot="headerLeft" />
       <template slot="headerRight">
         <Close v-if="hasClose" @dispatch="dispatch" />
       </template>
       <template slot="container">
-        <ErrorMsg v-if="errorMsg" :error-msg="errorMsg" />
+        <ErrorMsg v-if="errorMsg" :error-msg="errorMsg">
+          <!--用于无录像返回实时预览-->
+          <LiveReplaySelector
+            v-if="hasLiveReplaySelector && !isLive"
+            :is-live="isLive"
+            :is-button="false"
+            @dispatch="dispatch"
+          />
+        </ErrorMsg>
       </template>
       <template slot="controlBody">
         <H265Icon :codec="codec" />
         <slot name="controlBody" />
       </template>
-      <template v-if="player" slot="controlRight">
+      <template slot="controlRight">
         <StreamSelector :stream-info="streamInfo" @dispatch="dispatch" />
         <TypeSelector v-if="hasTypeSelector" :type="type" @dispatch="dispatch" />
         <Intercom v-if="isLive" :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="playerType" :codec="codec" />
-        <DigitalZoom />
-        <PtzZoom v-if="isLive" :stream-info="streamInfo" :device-info="deviceInfo" />
+        <DigitalZoom ref="digitalZoom" @dispatch="dispatch" />
+        <PtzZoom v-if="isLive" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
         <Snapshot :name="deviceInfo.deviceName" />
-        <Scale />
+        <Scale :default-scale="scale" />
         <LiveReplaySelector v-if="hasLiveReplaySelector" :is-live="isLive" @dispatch="dispatch" />
-        <Fullscreen @dispatch="dispatch" />
+        <!-- <Fullscreen @dispatch="dispatch" /> -->
+        <slot name="controlRight" />
       </template>
     </Player>
   </div>
@@ -118,6 +129,16 @@ export default class extends Vue {
     default: 0.3
   })
   private volume: number
+
+  /* 默认音量 */
+  @Prop({
+    default: false
+  })
+  private isMuted: boolean
+
+  /* 默认缩放比例 */
+  @Prop()
+  private scale: string
 
   /* 是否为直播 */
   @Prop({
@@ -206,10 +227,38 @@ export default class extends Vue {
   }
 
   /**
+   * 向上抛出重试事件
+   */
+  private onRetry(payload) {
+    this.$emit('dispatch', {
+      eventType: 'retry',
+      payload
+    })
+  }
+
+  /**
    * 当切换视频格式
    */
   private dispatch(event: PlayerEvent) {
+    switch (event.eventType) {
+      case 'enableZoom':
+        this.enableZoom(event.payload)
+        break
+    }
     this.$emit('dispatch', event)
+  }
+
+  /**
+   * 切换Zoom类型
+   */
+  private enableZoom(payload) {
+    let zoomRef
+    if (payload === 'ptz') {
+      zoomRef = this.$refs.digitalZoom
+    } else {
+      zoomRef = this.$refs.ptzZoom
+    }
+    zoomRef.close()
   }
 
   /* 替换播放地址协议 */

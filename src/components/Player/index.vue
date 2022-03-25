@@ -98,6 +98,10 @@ export default class extends Vue {
   @Prop()
   private volume: number
 
+  /* 是否静音 */
+  @Prop()
+  private isMuted: boolean
+
   /* 是否显示进度条 */
   @Prop({
     default: false
@@ -141,18 +145,27 @@ export default class extends Vue {
         type: this.type,
         container: this.$refs.playerContainer as HTMLDivElement,
         url: this.url,
+        isLive: this.isLive,
         isDebug: this.isDebug,
         isAutoPlay: this.isAutoPlay,
         playbackRate: this.playbackRate,
-        volume: this.volume
+        volume: this.volume,
+        isMuted: this.isMuted,
+        onRetry: this.onRetry
       })
       this.$nextTick(() => {
         this.$emit('onCreate', this.player)
       })
     } catch (e) {
       this.isDebug && console.log(e.message)
-      this.error = '浏览器创建失败'
     }
+  }
+
+  /**
+   * 向上抛出重试事件
+   */
+  private onRetry(payload) {
+    this.$emit('onRetry', payload)
   }
 }
 </script>

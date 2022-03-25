@@ -16,6 +16,8 @@ export class Player {
   public type: PlayerType
   /* 播放流地址 */
   public url: string
+  /* 是否为直播模式 */
+  public isLive: boolean
   /* 是否启用Debug模式 */
   public isDebug: boolean
   /* 是否启用自动播放 */
@@ -38,23 +40,27 @@ export class Player {
   public bufferedTime: number
   /* 是否加载中 */
   public isLoading: boolean
+  /* 缩放比例 */
+  public scale: string
 
   constructor(config: PlayerConfig) {
     this.config = config
     this.container = config.container
     this.type = config.type
     this.url = config.url
+    this.isLive = config.isLive
     this.isDebug = config.isDebug
     this.isAutoPlay = config.isAutoPlay
     this.playbackRate = config.playbackRate
     this.volume = config.volume
+    this.isMuted = config.isMuted
     this.hasAudio = null
     this.isPaused = null
-    this.isMuted = null
     this.currentTime = null
     this.duration = null
     this.bufferedTime = null
     this.isLoading = true
+    this.scale = null
     this.init()
     this.bindEvent()
     this.setDefault()
@@ -132,6 +138,7 @@ export class Player {
   protected setDefault() {
     this.video.playbackRate = this.playbackRate
     this.video.volume = this.volume
+    this.video.muted = this.isMuted
   }
 
   /**

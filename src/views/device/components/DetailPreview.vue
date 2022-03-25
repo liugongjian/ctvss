@@ -1,6 +1,8 @@
 <template>
   <LivePlayer
     v-if="screen"
+    class="live-player"
+    :class="{'fullscreen': screen.isFullscreen}"
     :style="`height: ${height}`"
     :screen="screen"
   />
@@ -47,6 +49,7 @@ export default class extends Vue {
     screen.streamSize = this.streamSize
     screen.streamNum = 1
     screen.type = 'flv'
+    screen.isLive = true
     this.screen = screen
     screen.init()
     this.calMaxHeight()
@@ -62,33 +65,22 @@ export default class extends Vue {
    */
   public calMaxHeight() {
     const deviceList: any = document.querySelector('.device-list__max-height')
-    this.height = `${deviceList.clientHeight - 84}px`
+    this.height = `${deviceList.clientHeight}px`
   }
 }
 </script>
 <style lang="scss" scoped>
-  .fullscreen ::v-deep .preview-player .video-wrap {
-    position: fixed;
-    z-index: 1001;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 100% !important;
+  .live-player {
     background: #333;
-  }
-
-  .fullscreen ::v-deep .preview-player video {
-    position: absolute;
-    height: 100%;
-  }
-
-  .fullscreen ::v-deep .preview-player canvas {
-    position: absolute;
-    width: 100%;
-  }
-
-  .fullscreen ::v-deep .preview-player .video-wrap {
-    max-height: 100%;
+    &.fullscreen {
+      position: fixed;
+      z-index: 1001;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 100% !important;
+      background: #333;
+    }
   }
 </style>

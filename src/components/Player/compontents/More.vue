@@ -20,14 +20,31 @@ export default class extends ComponentMixin {
   private isShowTools: boolean = false
   private isShowMoreBtn: boolean = false
   private resizeObserver: ResizeObserver
-  private palyerWrap: HTMLElement = null
+  private playerWrap: HTMLElement = null
 
   /**
    * 监听播放器是否创建
    */
-  @Watch('player')
-  private onPlayerCreate() {
-    this.palyerWrap = this.player.container.parentElement.parentElement
+  @Watch('isShowTools')
+  private onShowTools(isShowTools: boolean) {
+    if (isShowTools) {
+      this.adjustRightTools('show')
+      window.addEventListener('click', this.onClickWindow)
+    } else {
+      this.adjustRightTools('hidden')
+      window.removeEventListener('click', this.onClickWindow)
+    }
+  }
+
+  private beforeMount() {
+    this.observerInit()
+  }
+
+  /**
+   * 挂载屏幕尺寸观测器
+   */
+  private observerInit() {
+    this.playerWrap = this.player.container.parentElement.parentElement
     // 监听播放器容器大小变化
     this.resizeObserver = new ResizeObserver(throttle(() => {
       if (this.player.container.clientHeight < 100 || this.player.container.clientWidth < 300) {
@@ -42,20 +59,6 @@ export default class extends ComponentMixin {
       }
     }, 300))
     this.resizeObserver.observe(this.player.container.parentElement)
-  }
-
-  /**
-   * 监听播放器是否创建
-   */
-  @Watch('isShowTools')
-  private onShowTools(isShowTools: boolean) {
-    if (isShowTools) {
-      this.adjustRightTools('show')
-      window.addEventListener('click', this.onClickWindow)
-    } else {
-      this.adjustRightTools('hidden')
-      window.removeEventListener('click', this.onClickWindow)
-    }
   }
 
   /**
@@ -74,13 +77,13 @@ export default class extends ComponentMixin {
 
   /**
    * 调整rightTools样式
-   * @type 调整类型
+   * @param type 调整类型
    */
   private adjustRightTools(type: string) {
-    if (!this.palyerWrap) {
+    if (!this.playerWrap) {
       return
     }
-    let classVal = this.palyerWrap.getAttribute('class')
+    let classVal = this.playerWrap.getAttribute('class')
     switch (type) {
       case 'hidden':
         classVal = classVal.concat(classVal.indexOf('player__wrap--right-hidden') >= 0 ? '' : ' player__wrap--right-hidden')
@@ -95,7 +98,7 @@ export default class extends ComponentMixin {
         classVal = classVal.replace('player__wrap--right-offset', '')
         break
     }
-    this.palyerWrap.setAttribute('class', classVal)
+    this.playerWrap.setAttribute('class', classVal)
   }
 
   private beforeDestroy() {

@@ -14,10 +14,12 @@ export interface PlayerConfig {
   container: HTMLDivElement;
   type: PlayerType;
   url: string;
+  isLive: boolean;
   isDebug: boolean;
   isAutoPlay: boolean;
   playbackRate?: number;
   volume: number;
+  isMuted: boolean;
   onPlay?: () => void;
   onPause?: () => void;
   onRetry?: (immediate: OnRetryParams) => void;

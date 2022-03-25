@@ -1,65 +1,56 @@
 <template>
-  <div>1</div>
+  <ScreenBoard
+    ref="screenBoard"
+    :style="`height: ${height}`"
+    :is-live="false"
+    :in-protocol="inProtocol"
+    :default-size="1"
+  />
 </template>
 
 <script lang="ts">
-import { Component, Prop, Mixins, Inject, Watch } from 'vue-property-decorator'
-import FullscreenMixin from '../mixin/fullscreenMixin'
+import { Component, Prop, Vue } from 'vue-property-decorator'
+import ScreenBoard from './ScreenBoard/index.vue'
+import { ScreenManager } from '../models/Screen/ScreenManager'
 
 @Component({
-  name: 'DevicePreview',
+  name: 'DeviceReplay',
   components: {
+    ScreenBoard
   }
 })
-export default class extends Mixins(FullscreenMixin) {
-  @Inject('deviceRouter') private deviceRouter!: Function
-
-  @Prop() private deviceId?: string
+export default class extends Vue {
+  @Prop() private deviceId?: number
   @Prop() private inProtocol?: string
 
-  @Watch('isFullscreen')
-  private isFullscreenChange(val: any) {
-    !val && this.$nextTick(this.resizeReplayVideo)
-  }
+  private height = 'auto'
 
-  private onCanPlay = false
-  private calendarFocus = false
+  public screenManager: ScreenManager = null
 
-  private mounted() {
-    this.$nextTick(this.resizeReplayVideo)
-    window.addEventListener('resize', this.resizeReplayVideo)
-    window.addEventListener('resize', this.checkFullscreen)
+  public mounted() {
+    const screenBoard = this.$refs.screenBoard as ScreenBoard
+    // @ts-ignore
+    this.screenManager = screenBoard!.screenManager
+    this.screenManager.isSingle = true
+    const screen = this.screenManager.currentScreen
+    screen.deviceId = this.deviceId
+    screen.inProtocol = this.inProtocol
+    screen.isLive = false
+    screen.init()
+    this.calMaxHeight()
+    window.addEventListener('resize', this.calMaxHeight)
   }
 
   private beforeDestroy() {
-    window.removeEventListener('resize', this.resizeReplayVideo)
-    window.removeEventListener('resize', this.checkFullscreen)
+    window.removeEventListener('resize', this.calMaxHeight)
   }
 
   /**
-   * 设置播放器大小
+   * 计算最大高度
    */
-  private resizeReplayVideo() {
-    const replayView: any = this.$refs.replayView
-    if (!replayView) return
-    const $replayView = replayView.$el
-    const playerSize = $replayView.getBoundingClientRect()
-    const documentHeight = document.body.offsetHeight
-    $replayView.style.height = `${documentHeight - playerSize.top - 50}px`
-  }
-
-  /**
-   * 鼠标移入移出视频触发事件
-   */
-  private playEvent(val: boolean) {
-    this.onCanPlay = val
-  }
-
-  /**
-   * 日历获取焦点
-   */
-  private onCalendarFocus(val: boolean) {
-    this.calendarFocus = val
+  public calMaxHeight() {
+    const deviceList: any = document.querySelector('.device-list__max-height')
+    this.height = `${deviceList.clientHeight}px`
   }
 }
 </script>

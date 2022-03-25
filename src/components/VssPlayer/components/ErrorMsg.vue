@@ -1,6 +1,9 @@
 <!-- 错误信息 -->
 <template>
-  <div class="error-msg">{{ errorMsg }}</div>
+  <div class="error-msg">
+    {{ errorMsg }}
+    <slot />
+  </div>
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'

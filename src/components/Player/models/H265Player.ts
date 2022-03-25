@@ -24,7 +24,7 @@ export class H265Player extends Player {
       enableAudio: true
     })
     this.canvas = this.wasmPlayer.canvas as HTMLCanvasElement
-    this.canvas.parentElement.className = 'player__container'
+    this.canvas.parentElement.className = 'player__container player__h265'
     this.config.onLoadStart && this.onLoadStart()
     this.wasmPlayer.play(this.url, this.config.isAutoPlay)
   }
@@ -52,14 +52,16 @@ export class H265Player extends Player {
         this.onTimeUpdate && this.onTimeUpdate()
         break
       case 'endLoading':
-        this.onEndLoading && this.onEndLoading()
+        this.isLive && this.onEndLoading && this.onEndLoading() // 直播直接隐藏loading，点播需要等待playbackTime出现
     }
   }
 
   /**
    * 设置默认值
    */
-  protected setDefault() {}
+  protected setDefault() {
+    this.toggleMuteStatus(this.isMuted)
+  }
 
   /**
    * 播放
@@ -110,10 +112,18 @@ export class H265Player extends Player {
   }
 
   /**
+   * 调整音量
+   * @param volume 音量大小，取值0-1
+   */
+  public setVolume() {
+  }
+
+  /**
    * 销毁播放器
    */
   public disposePlayer() {
     this.wasmPlayer.destroy()
+    this.isLoading = false
   }
 
   /**
@@ -150,11 +160,10 @@ export class H265Player extends Player {
    */
   protected onTimeUpdate() {
     this.getDuration()
-    // this.config.onTimeUpdate && this.config.onTimeUpdate(this.wasmPlayer.currentTime)
     this.currentTime = this.wasmPlayer.currentTime
-    // if (this.wasmPlayer.currentTime === 0) {
-    //   this.onCanplay && this.onCanplay()
-    // }
+    if (this.wasmPlayer.currentTime === 0) { // 点播需要等待playbackTime出现
+      this.onEndLoading && this.onEndLoading()
+    }
   }
 
   /**
@@ -163,7 +172,6 @@ export class H265Player extends Player {
    */
   protected onDurationChange() {
     this.duration = this.wasmPlayer.duration
-    // this.config.onDurationChange && this.config.onDurationChange(this.wasmPlayer.duration)
   }
 
   /**

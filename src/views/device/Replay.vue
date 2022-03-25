@@ -24,10 +24,15 @@
             :is-live="isLive"
           >
             <template v-if="currentScreen && currentScreen.deviceId || screenManager.isSync" slot="bottom">
-              <div class="device-list__replay-type">
-                <ReplayType v-if="currentScreen" :screen="currentScreen" />
+              <div class="device-list__calander" :class="{'device-list__calander__hidden': isCollapse}">
+                <div class="device-list__replay-type">
+                  <ReplayType :screen="currentScreen" />
+                </div>
+                <DatePicker v-if="recordStatistic" :screen="currentScreen" :inline="true" />
               </div>
-              <DatePicker v-if="currentScreen" :screen="currentScreen" :inline="true" />
+              <el-button class="device-list__arrow" :class="{'device-list__arrow__active': isCollapse}" type="text" @click="isCollapse = !isCollapse">
+                <svg-icon name="arrow-down" />
+              </el-button>
             </template>
           </ScreenTree>
         </div>
@@ -38,7 +43,6 @@
           :in-protocol="currentGroupInProtocol"
           :has-live-replay-selector="true"
         />
-        <!-- <ptz-control v-if="pollingStatus !== 'working' && currentGroupInProtocol === 'gb28181'" :device-id="selectedDeviceId" /> -->
       </div>
     </el-card>
   </div>
@@ -60,6 +64,15 @@ import ReplayType from './components/ScreenBoard/components/ReplayType.vue'
 })
 export default class extends Mixins(ScreenMixin) {
   private isLive = false
+  private isCollapse = false
+
+  private get recordManager() {
+    return this.currentScreen && this.currentScreen.recordManager
+  }
+
+  private get recordStatistic() {
+    return this.recordManager && this.recordManager.recordStatistic
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -71,6 +84,28 @@ export default class extends Mixins(ScreenMixin) {
     ::v-deep {
       .el-radio-button__inner {
         padding: 7px 25px;
+      }
+    }
+  }
+  .device-list__calander {
+    max-height: 1000px;
+    transition: all 0.5s;
+    overflow: hidden;
+
+    &__hidden {
+      max-height: 0px;
+    }
+  }
+  .device-list__arrow {
+    display: inline-block;
+    text-align: center;
+    width: 100%;
+    background: #fff;
+    padding: 0 0 5px 0;
+
+    &__active {
+      svg {
+        transform: rotate(180deg);
       }
     }
   }
