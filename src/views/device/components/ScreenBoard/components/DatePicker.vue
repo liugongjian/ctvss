@@ -65,7 +65,7 @@ export default class extends Vue {
     immediate: true
   })
   private onCurrentDateChange() {
-    this.date = this.currentDate
+    this.date = this.currentDate || new Date().getTime()
   }
 
   private pickerOptions = {

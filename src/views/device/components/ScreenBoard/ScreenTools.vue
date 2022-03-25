@@ -16,7 +16,7 @@
         <ViewSelector v-if="!isLive" />
       </div>
     </div>
-    <ReplayAxis v-if="showAxis" :screen="currentScreen" :disabled="!(currentScreen && currentScreen.deviceId) && !screenManager.isSync" @change="onAxisTimeChange" />
+    <ReplayAxis v-if="showAxis" :screen="currentScreen" :disabled="!enableAxis" @change="onAxisTimeChange" />
   </div>
 </template>
 <script lang="ts">
@@ -67,6 +67,11 @@ export default class extends Vue {
   /* 当为录像回放，并且视图为screen时显示时间轴和相关控件 */
   private get showAxis() {
     return !this.isLive && this.screenManager.view === 'screen'
+  }
+
+  /* 是否启用时间轴 */
+  private get enableAxis() {
+    return (this.currentScreen && this.currentScreen.deviceId && !this.currentScreen.isLive) || this.screenManager.isSync
   }
 
   /* 是否显示日历组件 */
