@@ -5,7 +5,7 @@
     <el-tooltip content="开启语音对讲" placement="top">
       <!-- v-if="isLive" -->
       <div class="control__btn control__snapshot" @click.stop.prevent="toIntercom">
-        <svg-icon name="micro" width="18px" height="18px" />
+        <svg-icon name="micro" />
       </div>
     </el-tooltip>
     <el-dialog

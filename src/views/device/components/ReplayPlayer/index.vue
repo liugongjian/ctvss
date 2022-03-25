@@ -212,8 +212,8 @@ export default class extends Vue {
     .datepicker {
       position: absolute;
       width: 105px;
-      left: 40px;
-      top: 8px;
+      left: 30px;
+      top: 7px;
       transform: scale(0.85);
 
       ::v-deep {
@@ -243,8 +243,8 @@ export default class extends Vue {
 
     .replay-type {
       position: absolute;
-      left: 140px;
-      top: 1px;
+      left: 120px;
+      top: 0;
       transform: scale(0.85);
 
       ::v-deep {

@@ -141,11 +141,16 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 3px;
-      padding: 0 3px;
+      margin: 0 2px;
+      padding: 0 2px;
       height: 35px;
-      font-size: 12px;
+      font-size: 11px;
       cursor: pointer;
+
+      svg {
+        width: 16px !important;
+        height: 16px !important;
+      }
 
       .control__popup {
         display: none;

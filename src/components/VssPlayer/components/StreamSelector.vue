@@ -1,11 +1,7 @@
 <!-- 码流选择 -->
 <template>
   <div v-if="streamSize > 1" class="control__btn control__stream-selector" :stream-num="streamNum">
-    <svg-icon
-      name="branch"
-      width="16px"
-      height="16px"
-    />
+    <svg-icon name="branch" />
     <ul class="control__popup">
       <li
         v-for="(stream, index) in subStreamList"

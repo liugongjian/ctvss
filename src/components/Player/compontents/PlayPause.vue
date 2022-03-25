@@ -1,10 +1,10 @@
 <!-- 播放 / 暂停按钮 -->
 <template>
   <div v-if="isPaused" class="control__btn" @click="play">
-    <svg-icon name="play" width="16px" height="16px" />
+    <svg-icon name="play" />
   </div>
   <div v-else class="control__btn" @click="pause">
-    <svg-icon name="pause" width="18px" height="18px" />
+    <svg-icon name="pause" />
   </div>
 </template>
 <script lang="ts">
