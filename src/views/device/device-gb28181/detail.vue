@@ -31,7 +31,7 @@
                 <template v-if="info && !isNVR && !isPlatform">
                   <el-descriptions-item label="流状态">
                     <status-badge :status="info.streamStatus" />
-                    {{ deviceStatus[info.streamStatus] || '-' }}
+                    {{ streamStatus[info.streamStatus] || '-' }}
                     <!-- <el-link v-if="info.streamStatus === 'on' && checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('stopDevice')">停用流</el-link>
                     <el-link v-else-if="checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('startDevice')">启用流</el-link> -->
                   </el-descriptions-item>
@@ -76,9 +76,6 @@
                   </el-descriptions-item>
                   <el-descriptions-item v-if="info.networkCode && networkFlag" label="网络标识">
                     {{ networkMap[info.networkCode] }}
-                  </el-descriptions-item>
-                  <el-descriptions-item label="经纬度">
-                    {{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}
                   </el-descriptions-item>
                   <el-descriptions-item label="设备IP">
                     {{ info.deviceIp || '-' }}
@@ -136,6 +133,9 @@
                     {{ info.deviceStats && info.deviceStats.onlineSize }}
                   </el-descriptions-item>
                 </template>
+                <el-descriptions-item label="经纬度">
+                  {{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}
+                </el-descriptions-item>
                 <!--通用信息-->
                 <el-descriptions-item>
                   <template slot="label">

@@ -5,6 +5,12 @@ import { checkPermission } from '@/utils/permission'
 @Component
 export default class AppMixin extends Vue {
   public checkPermission = checkPermission
+  public alarms: any = []
+  public period: any = {
+    periodType: '今天',
+    period: [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)]
+  }
+  public msOfADay = 864 * 100000
 
   /**
    * 刷新数据
@@ -83,5 +89,24 @@ export default class AppMixin extends Vue {
     this.$router.push({
       name: 'AI-AppList'
     })
+  }
+
+  /**
+   * 得到N天前的时间戳
+   */
+  public getDateBefore(dayCount) {
+    let dd = new Date()
+    dd.setDate(dd.getDate() - dayCount)
+    let time = dd.setHours(0, 0, 0)
+    return time
+  }
+
+  public getAlarms() {}
+
+  /**
+   * 告警搜索时间
+   */
+  public handleChange() {
+    this.getAlarms()
   }
 }

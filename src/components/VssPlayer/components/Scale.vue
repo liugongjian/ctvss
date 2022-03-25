@@ -1,7 +1,7 @@
 <!-- 截图 -->
 <template>
   <div class="control__btn control__scale">
-    <svg-icon name="screenratio" width="18px" height="18px" />
+    <svg-icon name="screenratio" />
     <ul class="control__popup">
       <li
         v-for="item in scaleKind"
@@ -15,7 +15,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Watch } from 'vue-property-decorator'
+import { Component, Prop, Watch } from 'vue-property-decorator'
 import { UserModule } from '@/store/modules/user'
 import { scaleKind } from '@/dics/index'
 import ComponentMixin from './mixin'
@@ -25,7 +25,10 @@ import { throttle } from 'lodash'
   name: 'Scale'
 })
 export default class extends ComponentMixin {
-  private scale: string = 'fit'
+  @Prop()
+  private defaultScale
+
+  private scale: string = null
 
   private scaleKind = scaleKind
 
@@ -63,7 +66,7 @@ export default class extends ComponentMixin {
     immediate: true
   })
   private onGlobalScaleChange(globalScale) {
-    this.scale = globalScale
+    this.scale = this.defaultScale || globalScale || 'fit'
     this.scaleVideo(this.scale)
   }
 
@@ -72,6 +75,7 @@ export default class extends ComponentMixin {
    */
   private scaleVideo(scale) {
     this.scale = scale
+    this.player.scale = scale
     // h264使用video，h265使用canvas
     const video = this.player.video || this.player.canvas
     const width = this.player.container.clientWidth

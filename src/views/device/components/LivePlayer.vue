@@ -12,8 +12,11 @@
     :is-live="true"
     :is-ws="true"
     :is-loading="screen.isLoading"
+    :volume="screen.volume"
+    :is-muted="screen.isMuted"
     :has-close="hasClose"
     :has-live-replay-selector="hasLiveReplaySelector"
+    :scale="screen.scale"
     :is-debug="isDebug"
     @dispatch="onDispatch"
     @onCreate="onPlayerCreate"
@@ -75,6 +78,9 @@ export default class extends Vue {
       case 'toggleLiveReplay':
         this.toggleLiveReplay()
         break
+      case 'retry':
+        this.onRetry(event.payload)
+        break
     }
   }
 
@@ -100,6 +106,23 @@ export default class extends Vue {
   private toggleLiveReplay() {
     this.screen.isLive = false
     this.screen.init()
+  }
+
+  /**
+   * 视频断流30秒后重试
+   */
+  private onRetry(payload?) {
+    let timeout = 30 * 1000
+    if (payload && payload.immediate) {
+      timeout = 100
+    }
+    setTimeout(() => {
+      try {
+        this.screen.init()
+      } catch {
+        this.onRetry()
+      }
+    }, timeout)
   }
 
   /**

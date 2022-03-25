@@ -1,5 +1,5 @@
 <template>
-  <div v-if="showDatepicker" class="datepicker">
+  <div class="datepicker">
     <DatePanel
       v-if="inline"
       v-model="date"
@@ -9,12 +9,11 @@
     />
     <el-date-picker
       v-else
-      ref="datepicker"
       v-model="date"
       type="date"
       value-format="timestamp"
       placeholder="选择日期"
-      size="mini"
+      :size="size"
       :clearable="false"
       :picker-options="pickerOptions"
       @change="changeDate"
@@ -43,8 +42,12 @@ export default class extends Vue {
   })
   private inline
 
+  @Prop({
+    default: 'mini'
+  })
+  private size
+
   private date: number = null
-  private showDatepicker = true
 
   private get recordManager() {
     return this.screen && this.screen.recordManager
@@ -56,21 +59,6 @@ export default class extends Vue {
 
   private get currentDate() {
     return this.recordManager && this.recordManager.currentDate * 1000
-  }
-
-  @Watch('screen.deviceId', { immediate: true })
-  @Watch('screen.recordType')
-  private async onChange() {
-    if (this.recordManager) {
-      this.showDatepicker = false
-      const date = new Date()
-      const startTime = Math.floor(new Date(date.getFullYear(), date.getMonth()).getTime() / 1000)
-      const endTime = Math.floor(new Date(date.getFullYear(), date.getMonth() + 1).getTime() / 1000)
-      await this.recordManager.getRecordStatistic(startTime, endTime)
-      this.$nextTick(() => {
-        this.showDatepicker = true
-      })
-    }
   }
 
   @Watch('currentDate', {
@@ -86,16 +74,13 @@ export default class extends Vue {
     },
     cellClassName: (date: any) => {
       if (!this.recordManager) return
-      const monthStr = `${date.getFullYear()}-${prefixZero(date.getMonth() + 1, 2)}`
-      const dateStr = monthStr + `-${prefixZero(date.getDate(), 2)}`
-      const month = this.recordStatistic.get(monthStr)
-      const hasRecords = month ? month.has(dateStr) : ''
-      return hasRecords ? 'has-records' : ''
+      const dateStr = `${date.getFullYear()}-${prefixZero(date.getMonth() + 1, 2)}-${prefixZero(date.getDate(), 2)}`
+      return this.recordStatistic.has(dateStr) ? 'has-records' : ''
     },
     changeCalendar: (date: any) => {
       if (!this.recordManager) return
-      const startTime = Math.floor(new Date(date.getFullYear(), date.getMonth() - 1).getTime() / 1000)
-      const endTime = Math.floor(new Date(date.getFullYear(), date.getMonth() + 1).getTime() / 1000)
+      const startTime = Math.floor(new Date(date.getFullYear(), date.getMonth() - 2).getTime() / 1000)
+      const endTime = Math.floor(new Date(date.getFullYear(), date.getMonth() + 2).getTime() / 1000)
       this.recordManager.getRecordStatistic(startTime, endTime)
     }
   }

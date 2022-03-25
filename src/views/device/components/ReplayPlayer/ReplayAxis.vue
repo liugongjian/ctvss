@@ -113,7 +113,7 @@ export default class extends Vue {
 
   /* 当前分屏的录像管理器 */
   private get recordManager() {
-    return this.screen.recordManager
+    return this.screen && this.screen.recordManager
   }
 
   /* 格式化当前时间 */
@@ -267,7 +267,7 @@ export default class extends Vue {
       let showText = true
       const timestamp = this.axisStartTime + x * this.settings.ratio // 计算当前line对象的实际时间戳
       const hour = new Date(getNextHour(timestamp * 1000)).getHours() // 取整点并转换成Date对象
-      if ((this.settings.ratio > 100 && hour % 2) || (this.settings.ratio > 240 && hour % 4)) {
+      if ((this.settings.ratio > 100 && hour % 2) || (this.settings.ratio > 240 && hour % 4) || (this.settings.ratio > 480 && hour % 8)) {
         showText = false
       }
       hours.push({
@@ -546,14 +546,10 @@ export default class extends Vue {
         if (thresholdEnd < deltaCurrentTime) {
           date = getDateByTime(this.currentTime * 1000) / 1000 + 24 * 60 * 60
           await this.getRecordListByDate(date)
-          console.log('加载下一天')
         } else if (thresholdStart > deltaCurrentTime) {
           date = getDateByTime(this.currentTime * 1000) / 1000 - 24 * 60 * 60
           await this.getRecordListByDate(date)
-          console.log('加载上一天')
         }
-      } else {
-        console.log('跨天')
       }
     } finally {
       this.isLoading = false

@@ -192,6 +192,13 @@
     &--replay.screen-item--fullscreen {
       height: calc(100% - 108px);
     }
+
+    /* 微屏模式隐藏工具栏 */
+    .player__wrap--right-hidden {
+      .datepicker, .replay-type, .axis__zoom {
+        display: none;
+      }
+    }
   }
 
   /* 录像回放列表模式 */
@@ -230,13 +237,18 @@
   
     &__btn {
       display: flex;
-      padding: 0 4px;
+      padding: 0 3px;
       margin: 0 3px;
       height: 35px;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       border: none;
+
+      svg {
+        width: 16px !important;
+        height: 16px !important;
+      }
   
       &.selected {
         color: $primary;

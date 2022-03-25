@@ -7,7 +7,7 @@ import { queryGroup } from '@/api/group'
 import { GroupModule } from '@/store/modules/group'
 import { DeviceModule } from '@/store/modules/device'
 import { getDevice } from '@/api/device'
-import { DeviceStatus, DeviceGb28181Type, RecordStatus, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType, RecordStatusType } from '@/dics'
+import { DeviceStatus, StreamStatus, DeviceGb28181Type, RecordStatus, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType, RecordStatusType } from '@/dics'
 import { getDeviceResources } from '@/api/billing'
 import TemplateBind from '../../components/templateBind.vue'
 import SetAuthConfig from '../components/dialogs/SetAuthConfig.vue'
@@ -50,6 +50,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   public checkPermission = checkPermission
   public activeName: any = 'info'
   public deviceStatus = DeviceStatus
+  public streamStatus = StreamStatus
   public recordStatusType = RecordStatusType
   public deviceType = DeviceGb28181Type
   public recordStatus = RecordStatus
@@ -283,6 +284,18 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
         deviceId: this.deviceId,
         inProtocol: this.inProtocol
       })
+      /**
+       * 2022-03-16修改
+       * 如果设备为子通道，使用channel下的设备状态、流状态、录制状态字段
+       */
+      if (this.info.parentDeviceId !== '-1') {
+        // @ts-ignore
+        const channel = this.info.deviceChannels[0]
+        this.info.deviceStatus = channel.deviceStatus
+        this.info.streamStatus = channel.streamStatus
+        this.info.recordStatus = channel.recordStatus
+      }
+
     } catch (e) {
       console.error(e)
     } finally {

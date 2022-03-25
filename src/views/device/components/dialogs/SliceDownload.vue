@@ -4,6 +4,7 @@
     :visible="dialogVisible"
     :close-on-click-modal="false"
     width="900px"
+    :append-to-body="true"
     center
     @close="closeDialog"
   >
@@ -17,12 +18,7 @@
       label-width="100px"
     >
       <el-form-item label="日期:" prop="date">
-        <el-date-picker
-          v-model="form.date"
-          class="form-date"
-          type="date"
-          placeholder="选择日期"
-        />
+        <Datepicker class="form-date" :screen="screen" size="small" />
       </el-form-item>
       <el-form-item label="时间区间:" prop="endTime" class="time-range">
         <vue-timepicker
@@ -93,28 +89,21 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { getDeviceRecord } from '@/api/device'
 import VueTimepicker from 'vue2-timepicker'
+import Datepicker from '../ScreenBoard/components/DatePicker.vue'
 import { cloneDeep } from 'lodash'
 
 @Component({
   name: 'SliceDownload',
   components: {
-    VueTimepicker
+    VueTimepicker,
+    Datepicker
   }
 })
 export default class extends Vue {
-  @Prop({
-    default: () => {
-      return []
-    }
-  })
-  private recordList!: Array<any>
+  @Prop()
+  private screen
   private isWarning = false
   private warningText = ''
-
-  @Prop()
-  private deviceId!: number | string
-  @Prop()
-  private inProtocol!: string
   private dialogVisible = true
   private submitting = false
   private today = new Date()
@@ -480,11 +469,11 @@ export default class extends Vue {
           this.submitting = true
           const { startTime, endTime } = this.getRangeTime()
           const res = await getDeviceRecord({
-            deviceId: this.deviceId,
+            deviceId: this.screen.deviceId,
             startTime: startTime / 1000,
             endTime: endTime / 1000,
             fileFormat: 'mp4',
-            inProtocol: this.inProtocol
+            inProtocol: this.screen.inProtocol
           })
           if (res.downloadUrl) {
             const link: HTMLAnchorElement = document.createElement('a')
@@ -530,6 +519,8 @@ export default class extends Vue {
       .vue__time-picker, .vue__time-picker input.display-time {
         width: 170px;
         z-index: 2007;
+        height: 32px;
+        line-height: 32px;
       }
       .vue__time-picker .dropdown, .vue__time-picker-dropdown {
         width: 100%;
@@ -555,7 +546,9 @@ export default class extends Vue {
     padding-top: 0;
   }
   .form-date {
-    width: 100%;
+    ::v-deep .el-date-editor {
+      width: 190px;
+    }
   }
   .floatbox {
     float: left;

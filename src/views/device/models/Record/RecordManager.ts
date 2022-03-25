@@ -13,8 +13,10 @@ export class RecordManager {
   private screen: Screen
   /* 录像列表 */
   public recordList: Record[]
+  /* AI热力列表 */
+  public heatmapList: Record[]
   /* 录像日历统计 */
-  public recordStatistic: Map<string, any>
+  public recordStatistic: Set<string>
   /* 已加载的录像日期 */
   public loadedRecordDates: Set<number>
   /* 当前正在播放的录像片段 */
@@ -33,23 +35,28 @@ export class RecordManager {
   constructor(params: any) {
     this.screen = params.screen
     this.recordList = []
-    this.recordStatistic = new Map()
+    this.heatmapList = []
+    this.recordStatistic = null
     this.loadedRecordDates = new Set()
     this.currentRecord = null
     this.recordInterval = null
     this.currentDate = Math.floor(getLocaleDate().getTime() / 1000)
     this.localStartTime = null
     this.pageSize = null
-    if (params.screen.currentRecordDatetime) {
-      this.loadCache()
-    } else {
-      this.initReplay()
-    }
+    this.init()
   }
 
   public destroy() {
     clearInterval(this.recordInterval)
     this.axiosSource && this.axiosSource.cancel()
+  }
+
+  public init() {
+    if (this.screen.currentRecordDatetime) {
+      this.loadCache()
+    } else {
+      this.initReplay()
+    }
   }
 
   /**
@@ -60,9 +67,12 @@ export class RecordManager {
       this.screen.isLoading = true
       this.screen.errorMsg = null
       this.recordList = []
+      this.heatmapList = []
       this.currentRecord = null
       this.loadedRecordDates.clear()
+      this.getRecordStatistic()
       this.recordList = await this.getRecordList(this.currentDate, this.currentDate + 24 * 60 * 60)
+      // this.heatmapList = await this.getHeatmapList(this.currentDate, this.currentDate + 24 * 60 * 60)
       this.loadedRecordDates.add(this.currentDate)
       if (this.recordList && this.recordList.length) {
         /**
@@ -91,8 +101,14 @@ export class RecordManager {
    * 从缓存中恢复
    */
   private loadCache() {
-    this.seek(this.screen.currentRecordDatetime)
-    this.getLatestRecord()
+    if (this.screen.deviceId) {
+      const date = new Date(this.screen.currentRecordDatetime * 1000)
+      const startTime = Math.floor(new Date(date.getFullYear(), date.getMonth() - 1).getTime() / 1000)
+      const endTime = Math.floor(new Date(date.getFullYear(), date.getMonth() + 1).getTime() / 1000)
+      this.getRecordStatistic(startTime, endTime)
+      this.seek(this.screen.currentRecordDatetime)
+      this.getLatestRecord()
+    }
   }
 
   /**
@@ -109,6 +125,7 @@ export class RecordManager {
         this.screen.isLoading = true
         this.currentDate = date
         this.recordList = []
+        this.heatmapList = []
       }
       if (!isConcat) {
         this.screen.player && this.screen.player.pause()
@@ -133,6 +150,8 @@ export class RecordManager {
         this.currentRecord = null
         this.screen.errorMsg = this.screen.ERROR.NO_RECORD
       }
+      // 加载AI热力列表
+      // this.heatmapList = await this.getHeatmapList(date, date + 24 * 60 * 60)
     } catch (e) {
       // 异常时删除日期
       this.loadedRecordDates.delete(date)
@@ -156,6 +175,7 @@ export class RecordManager {
     let record = this.getRecordByTime(time)
     const date = getDateByTime(time * 1000) / 1000
     this.currentDate = date
+    this.screen.currentRecordDatetime = time
     if (record) {
       if (this.screen.recordType === 0) { // 云端录像
         if (!this.currentRecord || this.currentRecord.startTime !== record.startTime) {
@@ -291,9 +311,9 @@ export class RecordManager {
   public async getRecordStatistic(startTime?: number, endTime?: number) {
     try {
       if (!startTime) {
-        // 获得最近两月录像统计
+        // 获得最近4月录像统计
         const current = new Date()
-        startTime = Math.floor(new Date(current.getFullYear(), current.getMonth() - 1).getTime() / 1000)
+        startTime = Math.floor(new Date(current.getFullYear(), current.getMonth() - 4).getTime() / 1000)
         endTime = Math.floor(new Date().getTime() / 1000)
       }
       const type = ['cloud', 'local']
@@ -305,14 +325,11 @@ export class RecordManager {
         endTime: endTime
       })
       if (res.records) {
+        const recordStatistic: Set<string> = new Set()
         res.records.forEach((statistic: any) => {
-          const monthArray = statistic.day.match(/\d+-\d+/)
-          const month = monthArray ? monthArray[0] : null
-          if (!this.recordStatistic.has(month)) {
-            this.recordStatistic.set(month, new Set())
-          }
-          this.recordStatistic.get(month).add(statistic.day)
+          recordStatistic.add(statistic.day)
         })
+        this.recordStatistic = recordStatistic
       }
     } catch (e) {
       console.log(e)
@@ -334,8 +351,28 @@ export class RecordManager {
    * 获取行人时间段列表
    * 来自从化需求
    */
-  public getHeatMapList() {
-
+  private async getHeatmapList(startTime: number, endTime: number) {
+    try {
+      this.axiosSource = axios.CancelToken.source()
+      const res = await describeHeatMap({
+        deviceId: this.screen.deviceId,
+        inProtocol: this.screen.inProtocol,
+        recordType: this.screen.recordType,
+        startTime,
+        endTime,
+        pageSize: 9999,
+        aiCode: '10006'
+      }, this.axiosSource.token)
+      return res.heatMap.map((heatMap: any) => {
+        return new Record({
+          startTime: getTimestamp(heatMap.startTime) / 1000,
+          endTime: getTimestamp(heatMap.endTime) / 1000,
+          isHeatmap: true
+        })
+      })
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   /**
@@ -353,16 +390,12 @@ export class RecordManager {
    * 分页获取录像列表
    * 过滤当前所选日期的列表
    */
-  public getRecordListByPage(pageNum: number) {
-    console.log(this.currentDate, pageNum)
-    return [1]
-  }
-
-  /**
-   * 下载录像
-   */
-  public downloadRecord() {
-
+  public getRecordListByPage(pager: any) {
+    return this.recordList && this.recordList.slice((pager.pageNum - 1) * pager.pageSize, pager.pageNum * pager.pageSize).map(record => ({
+      ...record,
+      edit: false,
+      loading: false
+    }))
   }
 
   /**

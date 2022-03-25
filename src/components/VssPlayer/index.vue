@@ -7,11 +7,13 @@
       :url="videoUrl"
       :codec="codec"
       :volume="volume"
+      :is-muted="isMuted"
       :playback-rate="playbackRate"
       :has-progress="hasProgress"
       :is-live="isLive"
       :is-debug="true"
       @onCreate="onPlayerCreate"
+      @onRetry="onRetry"
     >
       <template slot="headerLeft" />
       <template slot="headerRight">
@@ -35,13 +37,12 @@
       <template slot="controlRight">
         <StreamSelector :stream-info="streamInfo" @dispatch="dispatch" />
         <TypeSelector v-if="hasTypeSelector" :type="type" @dispatch="dispatch" />
-        <Intercom v-if="isLive" :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="playerType" :codec="codec" />
+        <Intercom v-if="isLive && deviceInfo.inProtocol === 'gb28181'" :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="playerType" :codec="codec" />
         <DigitalZoom ref="digitalZoom" @dispatch="dispatch" />
         <PtzZoom v-if="isLive" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
         <Snapshot :name="deviceInfo.deviceName" />
-        <Scale />
+        <Scale :default-scale="scale" />
         <LiveReplaySelector v-if="hasLiveReplaySelector" :is-live="isLive" @dispatch="dispatch" />
-        <!-- <Fullscreen @dispatch="dispatch" /> -->
         <slot name="controlRight" />
       </template>
     </Player>
@@ -69,7 +70,6 @@ import TypeSelector from './components/TypeSelector.vue'
 import PtzZoom from './components/PtzZoom.vue'
 import Intercom from './components/Intercom.vue'
 import LiveReplaySelector from './components/LiveReplaySelector.vue'
-import Fullscreen from './components/Fullscreen.vue'
 
 @Component({
   name: 'VssPlayer',
@@ -85,8 +85,7 @@ import Fullscreen from './components/Fullscreen.vue'
     TypeSelector,
     PtzZoom,
     Intercom,
-    LiveReplaySelector,
-    Fullscreen
+    LiveReplaySelector
   },
   directives: {
     // 动态隐藏播放器工具栏与头部
@@ -127,6 +126,16 @@ export default class extends Vue {
     default: 0.3
   })
   private volume: number
+
+  /* 默认音量 */
+  @Prop({
+    default: false
+  })
+  private isMuted: boolean
+
+  /* 默认缩放比例 */
+  @Prop()
+  private scale: string
 
   /* 是否为直播 */
   @Prop({
@@ -212,6 +221,16 @@ export default class extends Vue {
   private onPlayerCreate(player) {
     this.player = player
     this.$emit('onCreate', player)
+  }
+
+  /**
+   * 向上抛出重试事件
+   */
+  private onRetry(payload) {
+    this.$emit('dispatch', {
+      eventType: 'retry',
+      payload
+    })
   }
 
   /**

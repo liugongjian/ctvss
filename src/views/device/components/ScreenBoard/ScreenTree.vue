@@ -86,7 +86,7 @@
               placement="top"
               :open-delay="500"
             >
-              <StreamSelector v-if="data.type === 'ipc'" class="set-stream" :stream-size="data.multiStreamSize" :streams="data.deviceStreams" @onSetStreamNum="openScreen(data, ...arguments)" />
+              <StreamSelector v-if="data.type === 'ipc' && isLive" class="set-stream" :stream-size="data.multiStreamSize" :streams="data.deviceStreams" @onSetStreamNum="openScreen(data, ...arguments)" />
             </el-tooltip>
             <el-tooltip
               class="item"
@@ -137,7 +137,7 @@
               placement="top"
               :open-delay="500"
             >
-              <StreamSelector v-if="data.type === 'ipc'" class="set-stream" :stream-size="data.multiStreamSize" :streams="data.deviceStreams" @onSetStreamNum="openScreen(data, ...arguments)" />
+              <StreamSelector v-if="data.type === 'ipc' && isLive" class="set-stream" :stream-size="data.multiStreamSize" :streams="data.deviceStreams" @onSetStreamNum="openScreen(data, ...arguments)" />
             </el-tooltip>
             <el-tooltip
               class="item"
@@ -146,7 +146,7 @@
               placement="top"
               :open-delay="300"
             >
-              <OperateSelector v-if="data.type !== 'ipc' && data.type !== 'role'" @onSetOperateValue="setOperateValue($event, node)" />
+              <OperateSelector v-if="data.type !== 'ipc' && data.type !== 'role'" :is-live="isLive" @onSetOperateValue="setOperateValue($event, node)" />
             </el-tooltip>
           </div>
         </span>
@@ -242,6 +242,45 @@ export default class extends Mixins(IndexMixin) {
 
   /* 轮巡及一键播放 */
   private pollingStatus: string = 'free'
+
+  private pollingInterval = [
+    {
+      value: 5,
+      label: '5秒'
+    },
+    {
+      value: 10,
+      label: '10秒'
+    },
+    {
+      value: 20,
+      label: '20秒'
+    },
+    {
+      value: 40,
+      label: '40秒'
+    },
+    {
+      value: 60,
+      label: '1分钟'
+    },
+    {
+      value: 180,
+      label: '3分钟'
+    },
+    {
+      value: 300,
+      label: '5分钟'
+    },
+    {
+      value: 600,
+      label: '10分钟'
+    },
+    {
+      value: 1800,
+      label: '30分钟'
+    }
+  ]
 
   /* 轮询配置 */
   private polling = {
@@ -535,7 +574,8 @@ export default class extends Mixins(IndexMixin) {
       }
 
       &__select {
-        width: 80px;
+        width: 86px;
+        margin-left: 5px;
       }
 
       .el-button--mini {

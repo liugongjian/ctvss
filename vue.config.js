@@ -1,5 +1,5 @@
 const path = require('path')
-const styleLintPlugin = require('stylelint-webpack-plugin')
+// const styleLintPlugin = require('stylelint-webpack-plugin')
 const environment = process.argv[3] === '--env' ? process.argv[4] : 'dev'
 const isHttps = process.argv[process.argv.length - 1] === '--https'
 const name = '天翼云视频云网平台-客户控制台'

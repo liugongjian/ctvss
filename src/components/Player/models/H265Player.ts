@@ -33,7 +33,7 @@ export class H265Player extends Player {
    * 绑定事件
    */
   private bindH265Event(...res: any) {
-    this.isDebug && console.log('H265播放器事件:', res)
+    // this.isDebug && console.log('H265播放器事件:', res)
     switch (res[0]) {
       case 'play':
         this.onPlay && this.onPlay()
@@ -59,7 +59,9 @@ export class H265Player extends Player {
   /**
    * 设置默认值
    */
-  protected setDefault() {}
+  protected setDefault() {
+    this.toggleMuteStatus(this.isMuted)
+  }
 
   /**
    * 播放

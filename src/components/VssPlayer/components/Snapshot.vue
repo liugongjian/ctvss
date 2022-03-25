@@ -2,7 +2,7 @@
 <template>
   <el-tooltip content="保存截图" placement="top">
     <div class="control__btn control__snapshot" @click.stop.prevent="snapshot">
-      <svg-icon name="snapshot" width="18px" height="18px" />
+      <svg-icon name="snapshot" />
     </div>
   </el-tooltip>
 </template>
@@ -53,6 +53,10 @@ export default class extends ComponentMixin {
   private getCanvas(): HTMLCanvasElement {
     let canvas: HTMLCanvasElement
     if (this.player.type === 'h265') {
+      /**
+       * 需要修改EasyWasmPlayer.js
+       * 在getContext webgl 增加 preserveDrawingBuffer: true
+       */
       canvas = this.player.canvas
     } else {
       const $video = this.player.video
