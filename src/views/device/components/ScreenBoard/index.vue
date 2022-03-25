@@ -5,7 +5,7 @@
     :class="{'screen-container--fullscreen': isFullscreen, 'screen-container--live': isLive, 'screen-container--replay': !isLive}"
   >
     <div v-if="screenManager.view === 'screen'" class="screen-grid-wrap">
-      <div class="screen-grid" :class="`screen-size--${size}`">
+      <div class="screen-grid" :class="`screen-size--${layout}`">
         <ScreenItem
           v-for="(screen, index) in screenList"
           :key="index"
@@ -54,6 +54,11 @@ export default class extends Vue {
   })
   private defaultSize: number
 
+  @Prop({
+    default: false
+  })
+  private isSingle
+
   /* 分屏管理器 */
   public screenManager: ScreenManager = null
 
@@ -73,8 +78,8 @@ export default class extends Vue {
   }
 
   /* 分屏数 */
-  private get size() {
-    return this.screenManager && this.screenManager.size
+  private get layout() {
+    return this.screenManager && this.screenManager.layout
   }
 
   /* 是否全部静音的状态 */
@@ -115,7 +120,8 @@ export default class extends Vue {
       size: this.defaultSize,
       layout: this.defaultSize.toString(),
       isLive: this.isLive,
-      inProtocol: this.inProtocol
+      inProtocol: this.inProtocol,
+      isSingle: this.isSingle
     })
   }
 

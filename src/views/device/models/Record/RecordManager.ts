@@ -310,6 +310,10 @@ export class RecordManager {
    */
   public async getRecordStatistic(startTime?: number, endTime?: number) {
     try {
+      if (this.screen.recordType === 1) {
+        this.recordStatistic = new Set()
+        return
+      }
       if (!startTime) {
         // 获得最近4月录像统计
         const current = new Date()

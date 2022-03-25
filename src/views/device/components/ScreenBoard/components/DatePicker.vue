@@ -89,7 +89,6 @@ export default class extends Vue {
    * 切换日期
    */
   private changeDate(date: number) {
-    console.log('this.$emit')
     this.$emit('change', (date / 1000))
   }
 }

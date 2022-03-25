@@ -4,6 +4,7 @@
 import { Screen } from './Screen'
 import { getLocalStorage, setLocalStorage, removeLocalStorage } from '@/utils/storage'
 import { UserModule } from '@/store/modules/user'
+import { GroupModule } from '@/store/modules/group'
 import { pick } from 'lodash'
 
 interface ScreenManagerConfig {
@@ -11,6 +12,7 @@ interface ScreenManagerConfig {
   size: number;
   isLive: boolean;
   layout: string;
+  isSingle: boolean;
 }
 
 const SCREEN_CACHE_KEY = {
@@ -49,7 +51,7 @@ export class ScreenManager {
     this.view = 'screen'
     this.isLive = config.isLive
     this.isSync = false
-    this.isSingle = false
+    this.isSingle = config.isSingle
     this.currentIndex = 0
     this.screenList = []
     this.devicesQueue = null
@@ -109,7 +111,7 @@ export class ScreenManager {
   public initScreenList() {
     this.screenList = []
     this.currentIndex = 0
-    if (this.loadCache()) return // 读取分屏缓存
+    if (!this.isSingle && this.loadCache()) return // 读取分屏缓存
     for (let i = 0; i < this._size; i++) {
       const screen = new Screen()
       this.screenList.push(screen)
@@ -160,6 +162,7 @@ export class ScreenManager {
         const screenCacheKey = this.isLive ? SCREEN_CACHE_KEY['live'] : SCREEN_CACHE_KEY['replay']
         const screenCache: any = {
           mainUserID: UserModule.mainUserID,
+          groupId: GroupModule.group.groupId,
           ...pick(this, ...SCREEN_CACHE_MANAGER_PARAMS)
         }
         screenCache.screenList = this.screenList.map(screen => {
@@ -187,6 +190,7 @@ export class ScreenManager {
       if (!screenCacheStr) return false
       const screenCache = JSON.parse(screenCacheStr)
       if (screenCache.mainUserID !== UserModule.mainUserID) return false
+      if (screenCache.groupId !== GroupModule.group.groupId) return false
       SCREEN_CACHE_MANAGER_PARAMS.forEach(key => {
         this[key] = screenCache[key]
       })

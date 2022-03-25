@@ -57,7 +57,7 @@ export default class extends Vue {
     height: 0,
     scale: 24, // 缩放比例，画布显示的小时数量
     ratio: 0, // 比例尺(秒/每像素)
-    hourWidth: 2,
+    hourWidth: 1,
     hourHeight: 0,
     halfHourWidth: 1,
     halfHourHeight: 0,
@@ -75,9 +75,9 @@ export default class extends Vue {
     y: 0,
     textY: 0,
     midLineY: 0,
-    recordColor: '#cfd9e7',
-    hourLineColor: '#222',
-    minLineColor: '#999',
+    recordColor: '#feefc7',
+    hourLineColor: '#000',
+    minLineColor: '#bbb',
     midLineColor: '#fa8334',
     gradientColor: '255, 255, 255'
   }
@@ -169,7 +169,7 @@ export default class extends Vue {
 
   private created() {
     if (this.isInline) {
-      this.settings.recordColor = '#3E5466'
+      this.settings.recordColor = '#4d493f'
       this.settings.hourLineColor = '#bbb'
       this.settings.minLineColor = '#999'
       this.settings.midLineColor = '#fa8334'
@@ -207,7 +207,7 @@ export default class extends Vue {
     this.canvas.height = this.settings.height
     if (this.canvas.getContext) {
       this.ctx = this.canvas.getContext('2d')
-      this.ctx.font = '11px arial'
+      this.ctx.font = '11.5px arial'
       this.draw()
     }
   }

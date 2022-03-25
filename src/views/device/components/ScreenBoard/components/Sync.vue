@@ -22,7 +22,7 @@ export default class extends ComponentMixin {
 
   private toggleSync() {
     this.screenManager.isSync = !this.screenManager.isSync
-    this.$message(`已切换为${this.screenManager.isSync ? '同步' : '异步'}回放模式`)
+    this.$alertSuccess(`已切换为${this.screenManager.isSync ? '同步' : '异步'}回放模式`)
   }
 }
 </script>

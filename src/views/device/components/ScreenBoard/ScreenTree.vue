@@ -449,7 +449,7 @@ export default class extends Mixins(IndexMixin) {
             item.realGroupId = node.data.realGroupId
             item.realGroupInProtocol = node.data.realGroupInProtocol
           }
-          await this.deepDispatchTree(dirTree, dirTree.getNode(item.id), deviceArr, policy, playType)
+          await this.deepDispatchTree(dirTree, dirTree.getNode(item.id), deviceArr, policy)
           // 当为一键播放时，加载设备数超过最大屏幕数则终止遍历
           if (policy === 'autoPlay' && deviceArr.length >= this.maxSize) return
         }
