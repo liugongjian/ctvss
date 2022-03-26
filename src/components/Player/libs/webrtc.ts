@@ -177,7 +177,7 @@ export const srsRtcPlayerAsync = () => {
       return session
     },
     close: function() {
-      self.pc.close()
+      self.pc && self.pc.close()
     },
     // callbacks.
     onaddstream: null,

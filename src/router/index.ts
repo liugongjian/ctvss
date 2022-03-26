@@ -825,7 +825,7 @@ export const asyncRoutes: RouteConfig[] = [
     meta: {
       id: '20210424150201010000',
       title: 'AI管理',
-      icon: 'key',
+      icon: 'ai-face',
       alwaysShow: true,
       perms: ['*']
     },
@@ -1146,7 +1146,7 @@ export const asyncRoutes: RouteConfig[] = [
     meta: {
       id: '20210515200901013000',
       title: '批量导出设备信息',
-      icon: 'billing',
+      icon: 'download',
       alwaysShow: false,
       perms: ['*']
     },
@@ -1158,7 +1158,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           id: '20210515200901013001',
           title: '批量导出设备信息',
-          icon: 'key',
+          icon: 'download',
           breadcrumb: false,
           perms: ['*'],
           activeMenu: '/exportDevices'

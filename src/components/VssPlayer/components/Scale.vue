@@ -20,6 +20,7 @@ import { UserModule } from '@/store/modules/user'
 import { scaleKind } from '@/dics/index'
 import ComponentMixin from './mixin'
 import { throttle } from 'lodash'
+import ResizeObserver from 'resize-observer-polyfill'
 
 @Component({
   name: 'Scale'
