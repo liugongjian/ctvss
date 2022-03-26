@@ -326,8 +326,8 @@ export const asyncRoutes: RouteConfig[] = [
     component: Layout,
     meta: {
       id: '20210424150201004000',
-      title: '查看电子地图',
-      icon: 'component',
+      title: '电子地图',
+      icon: 'mark',
       perms: ['DescribeMap'],
       alwaysShow: false,
       only: true,
@@ -340,8 +340,8 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'map',
         meta: {
           id: '20210424150201004001',
-          title: '查看电子地图',
-          icon: 'component',
+          title: '电子地图',
+          icon: 'mark',
           breadcrumb: false,
           perms: ['DescribeMap'],
           groupSelector: true

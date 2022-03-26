@@ -865,6 +865,9 @@ export default class extends Mixins(IndexMixin) {
   svg {
     font-size: 20px;
   }
+  .tools-item {
+    cursor: pointer;
+  }
   .left {
     display: flex;
     flex-direction: row;
