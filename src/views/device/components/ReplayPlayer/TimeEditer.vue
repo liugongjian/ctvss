@@ -3,7 +3,7 @@
     <el-form :inline="true" class="time-editer__form">
       <el-form-item v-for="(item, index) in timeEditer" :key="index" class="time-editer__item">
         <div :class="`address__${index === 0 ? 'wide' : 'narrow'}`">
-          <el-input v-model="item.val" :placeholder="item.time" :maxlength="`${index > 0 ? 2 : 4}`" @input="editTime(index,item.val)" @blur="validateTime" /><span style="position:absolute;">{{ connector(index) }}</span>
+          <el-input v-model="item.val" :placeholder="item.time" :maxlength="`${index > 0 ? 2 : 4}`" @input="editTime(index,item.val)" /><span style="position:absolute;">{{ connector(index) }}</span>
         </div>
       </el-form-item>
     </el-form>
@@ -25,6 +25,7 @@ export default class extends Vue {
     { time: '分', val: '' },
     { time: '秒', val: '' }
   ]
+  private twoIntegerReg = /^[0-9][0-9]$/
 
   private editingTime = false
 
@@ -70,15 +71,6 @@ export default class extends Vue {
   }
 
   /* 校验 */
-  private validateTime() {
-    this.isYear(this.timeEditer[0])
-    this.isMonth(this.timeEditer[1])
-    this.isDay(this.timeEditer[2])
-    this.isHour(this.timeEditer[3])
-    this.isMin(this.timeEditer[4])
-    this.isSec(this.timeEditer[5])
-  }
-
   /* 是否为正整数 */
   private isPositiveInteger(index: number, val: any) {
     const reg = /^[0-9]{1,4}$/ // 正整数
@@ -88,61 +80,84 @@ export default class extends Vue {
     }
   }
 
-  /* 年,输入检查和失焦检查 */
+  // 失焦提交时检查
+  private validateTime() {
+    console.log('失焦检查')
+    (this.isYearUnfocus(this.timeEditer[0]) &&
+    this.isMonthUnfocus(this.timeEditer[1]) &&
+    this.isDayUnfocus(this.timeEditer[2]) &&
+    this.isHourUnfocus(this.timeEditer[3]) &&
+    this.isMinUnfocus(this.timeEditer[4]) &&
+    this.isSecUnfocus(this.timeEditer[5]))
+      ? console.log('失焦检查成功:    √') : console.log('失焦检测失败:    ×')
+  }
+  /*
+   *
+   * 输入检查和失焦检查
+   * 输入检查判定年月日时分秒的数字格式规范
+   * 失焦检查判定是否符合合理范围,不符合则在用户提交修改后提示
+   *
+   * 年
+   * */
   private isYear(val: any) {
     const reg = /^\+?[1-9][0-9]*$/
     this.timeEditer[0]['val'] = reg.test(val) ? val : ''
   }
   private isYearUnfocus(val: any) {
     const reg = /^[1-9]([0-9]{3})$/
-    if (+val < 1970 || reg.test(val)) {
-      this.
-    }
+    return !(+val < 1970 || !reg.test(val))
   }
 
   /* 月 */
   private isMonth(val: any) {
-    if (+val > 12 || +val < 1) {
-      this.timeEditer[1]['val'] = ''
-    }
+    this.timeEditer[1]['val'] = this.twoIntegerReg.test(val) ? val : ''
+  }
+  private isMonthUnfocus(val: any) {
+    return !(+val > 12 || +val < 1)
   }
 
   /* 日 */
   private isDay(val: any) {
+    this.timeEditer[2]['val'] = this.twoIntegerReg.test(val) ? val : ''
+  }
+  private isDayUnfocus(val: any) {
     if (+this.timeEditer[1]['val'] === 2) {
       if (+val <= 0 || +val > 28) {
-        this.timeEditer[2]['val'] = ''
+        return false
       }
     } else if (+this.timeEditer[1]['val'] === 1 || +this.timeEditer[1]['val'] === 3 || +this.timeEditer[1]['val'] === 5 || +this.timeEditer[1]['val'] === 7 || +this.timeEditer[1]['val'] === 8 || +this.timeEditer[1]['val'] === 10 || +this.timeEditer[1]['val'] === 12) {
       if (+val <= 0 || +val > 31) {
-        this.timeEditer[2]['val'] = ''
+        return false
       }
+    } else if (+val <= 0 || +val > 30) {
+      return false
     } else {
-      if (+val <= 0 || +val > 30) {
-        this.timeEditer[2]['val'] = ''
-      }
+      return true
     }
   }
 
   /* 时 */
   private isHour(val: any) {
-    if (+val < 0 || +val > 24) {
-      this.timeEditer[3]['val'] = ''
-    }
+    this.timeEditer[3]['val'] = this.twoIntegerReg.test(val) ? val : ''
+  }
+  private isHourUnfocus(val: any) {
+    return !(+val < 0 || +val > 24)
   }
 
   /* 分 */
   private isMin(val: any) {
-    if (+val < 0 || +val > 59) {
-      this.timeEditer[4]['val'] = ''
-    }
+    this.timeEditer[4]['val'] = this.twoIntegerReg.test(val) ? val : ''
+  }
+  private isMinUnfocus(val: any) {
+    return !(+val < 0 || +val > 59)
   }
 
   /* 秒 */
   private isSec(val: any) {
-    if (+val < 0 || +val > 59) {
-      this.timeEditer[5]['val'] = ''
-    }
+    this.timeEditer[5]['val'] = this.twoIntegerReg.test(val) ? val : ''
+  }
+  private isSecUnfocus(val: any) {
+    return !(+val < 0 || +val > 59)
   }
 
   private mounted() {
