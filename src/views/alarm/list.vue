@@ -134,6 +134,7 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { deleteAlarmInfo, getAlarmRules } from '@/api/alarm'
+import ResizeObserver from 'resize-observer-polyfill'
 
 @Component({
   name: 'alarm-list'

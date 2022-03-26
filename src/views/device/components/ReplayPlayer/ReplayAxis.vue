@@ -26,6 +26,7 @@ import { prefixZero } from '@/utils/number'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import { throttle } from 'lodash'
 import TimeEditer from '@/views/device/components/ReplayPlayer/TimeEditer.vue'
+import ResizeObserver from 'resize-observer-polyfill'
 
 @Component({
   name: 'ReplayAxis',

@@ -6,6 +6,7 @@
 </template>
 <script lang="ts">
 import { Component, Watch } from 'vue-property-decorator'
+import ResizeObserver from 'resize-observer-polyfill'
 import ComponentMixin from './mixin'
 import { throttle } from 'lodash'
 

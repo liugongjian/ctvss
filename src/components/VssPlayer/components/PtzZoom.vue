@@ -12,6 +12,7 @@ import { dragCanvasZoom } from '@/api/device'
 import { StreamInfo, DeviceInfo } from '@/components/VssPlayer/models/VssPlayer.d'
 import ComponentMixin from './mixin'
 import { throttle } from 'lodash'
+import ResizeObserver from 'resize-observer-polyfill'
 
 @Component({
   name: 'PtzZoom'
