@@ -1,6 +1,6 @@
 <template>
   <div class="time-editer">
-    <el-form :inline="true" :rules="rules" class="time-editer__form">
+    <el-form :inline="true" class="time-editer__form">
       <el-form-item v-for="(item, index) in timeEditer" :key="index" class="time-editer__item">
         <div :class="`address__${index === 0 ? 'wide' : 'narrow'}`">
           <el-input v-model="item.val" :placeholder="item.time" :maxlength="`${index > 0 ? 2 : 4}`" @input="editTime(index,item.val)" @blur="validateTime" /><span style="position:absolute;">{{ connector(index) }}</span>
@@ -36,19 +36,6 @@ export default class extends Vue {
   private connector(index: number) {
     if (index === 0 || index === 1) return '-'
     if (index === 3 || index === 4) return ':'
-  }
-
-  private rules = {
-    policyName: [
-      { required: true, message: '请输入策略名称', trigger: 'blur' },
-      { validator: this.validatePolicyName, trigger: 'blur' }
-    ],
-    actionList: [
-      { validator: this.validatorActionList, trigger: 'blur' }
-    ],
-    resourceList: [
-      { validator: this.validateResourceList, trigger: 'blur' }
-    ]
   }
 
   private get recordManager() {
@@ -101,10 +88,16 @@ export default class extends Vue {
     }
   }
 
-  /* 年 */
+  /* 年,输入检查和失焦检查 */
   private isYear(val: any) {
     const reg = /^\+?[1-9][0-9]*$/
     this.timeEditer[0]['val'] = reg.test(val) ? val : ''
+  }
+  private isYearUnfocus(val: any) {
+    const reg = /^[1-9]([0-9]{3})$/
+    if (+val < 1970 || reg.test(val)) {
+      this.
+    }
   }
 
   /* 月 */
