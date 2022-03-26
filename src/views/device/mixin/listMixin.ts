@@ -13,6 +13,7 @@ import Resource from '../components/dialogs/Resource.vue'
 import { checkPermission } from '@/utils/permission'
 import { VGroupModule } from '@/store/modules/vgroup'
 import ExcelMixin from '../mixin/excelMixin'
+import ResizeObserver from 'resize-observer-polyfill'
 
 @Component({
   components: {

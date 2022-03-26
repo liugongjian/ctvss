@@ -188,6 +188,7 @@ import { DeviceStatus, StreamStatus, PlatformStatus } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AddDevices from './compontents/dialogs/AddDevices.vue'
 import PlatformDetail from './compontents/dialogs/PlatformDetail.vue'
+import ResizeObserver from 'resize-observer-polyfill'
 
 @Component({
   name: 'UpPlatformList',
