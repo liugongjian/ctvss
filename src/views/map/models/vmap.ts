@@ -10,10 +10,12 @@ export interface mapObject {
   zoom: number,
 }
 
-export interface Window {
-  deleteMarker?: any,
-  replayMarker?: any,
-  previewMarker?: any,
+declare global {
+  interface Window {
+    deleteMarker?: any,
+    replayMarker?: any,
+    previewMarker?: any,
+  }
 }
 
 export interface markerObject {

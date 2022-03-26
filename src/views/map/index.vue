@@ -61,17 +61,17 @@
             <span class="left">
               <span @click="changeEdit()" class="btn-edit tools-item">{{ isEdit ? '完成编辑' : '开启编辑' }}</span>
               <!-- <span class="tools-item"><svg-icon name="selects" /></span> -->
-              <el-tooltip content="显示/隐藏监控点位名称" placement="top">
-                <span class="tools-item"><svg-icon name="title" @click="changeTitleShow()" /></span>
+              <el-tooltip :content="hideTitle ? '显示监控点位名称': '隐藏监控点位名称'" placement="top">
+                <span class="tools-item"><svg-icon name="title" @click="changeTitleShow()" :class="curMap && !hideTitle ?'active':''" /></span>
               </el-tooltip>
-              <el-tooltip content="显示/隐藏鹰眼地图" placement="top">
-                <span class="tools-item"><svg-icon name="hawkeye" @click="toggleOverView()" /></span>
+              <el-tooltip :content="overView ? '隐藏鹰眼地图' : '显示鹰眼地图'" placement="top">
+                <span class="tools-item"><svg-icon name="hawkeye" @click="toggleOverView()" :class="curMap && overView?'active':''" /></span>
               </el-tooltip>
-              <el-tooltip content="显示2.5D视图" placement="top">
-                <span class="tools-item"><svg-icon name="3d" @click="toggleMap3D()" /></span>
+              <el-tooltip :content="is3D ? '关闭2.5D视图' : '显示2.5D视图'" placement="top">
+                <span class="tools-item"><svg-icon name="3d" @click="toggleMap3D()" :class="curMap && is3D?'active':''" /></span>
               </el-tooltip>
-              <el-tooltip content="显示/隐藏监控点位" placement="top">
-                <span class="tools-item"><svg-icon size="30" name="mark" @click="toggleMarkersShow()" /></span>
+              <el-tooltip :content="showMarkers ? '隐藏监控点位' : '显示监控点位'" placement="top">
+                <span class="tools-item"><svg-icon size="30" name="mark" @click="toggleMarkersShow()" :class="curMap && showMarkers?'active':''" /></span>
               </el-tooltip>
               <!-- <span class="tools-item"><svg-icon name="close-all" /></span> -->
               <!-- <span class="tools-item"><svg-icon name="magnifier" /></span> -->
@@ -193,6 +193,7 @@ export default class extends Mixins(IndexMixin) {
     mapview: MapView
     dirTree: any
     mapform: any
+    deviceWrap: any
   }
   private renderAlertType = renderAlertType
   private getSums = getSums
@@ -202,7 +203,7 @@ export default class extends Mixins(IndexMixin) {
   private deletesDialog = false
   private isEdit = false
   private editValue = 'sss'
-  private breadcrumb: Array<any> = []
+  public breadcrumb: Array<any> = []
   private platformList: Array<any> = []
   private hideTitle = false
   private showInfo = false
@@ -269,9 +270,9 @@ export default class extends Mixins(IndexMixin) {
     zoom: false
   }
   private submitting = false
-  private dirList: any = []
+  public dirList: any = []
   private deviceList: any = []
-  private treeProp = {
+  public treeProp = {
     label: 'label',
     children: 'children',
     isLeaf: 'isLeaf'
@@ -340,7 +341,7 @@ export default class extends Mixins(IndexMixin) {
   /**
    * 加载目录
    */
-  private async loadDirs(node: any, resolve: Function) {
+  public async loadDirs(node: any, resolve: Function) {
     if (node.level === 0) return resolve([])
     const dirs = await this.getTree(node)
     resolve(dirs)
@@ -495,7 +496,9 @@ export default class extends Mixins(IndexMixin) {
   }
 
   changeTitleShow() {
-    this.hideTitle = !this.hideTitle
+    if (this.curMap) {
+      this.hideTitle = !this.hideTitle
+    }
   }
 
   changeEdit() {
@@ -560,7 +563,7 @@ export default class extends Mixins(IndexMixin) {
         houseInfo: '',
         unitInfo: ''
       }
-      if (uselnglat) {
+      if (uselnglat && device.deviceLongitude && device.deviceLatitude) {
         markerInfo.longitude = device.deviceLongitude
         markerInfo.latitude = device.deviceLatitude
       }
@@ -586,8 +589,10 @@ export default class extends Mixins(IndexMixin) {
   }
 
   toggleMarkersShow() {
-    this.showMarkers = !this.showMarkers
-    this.$refs.mapview.setMarkersView(this.showMarkers)
+    if (this.curMap) {
+      this.showMarkers = !this.showMarkers
+      this.$refs.mapview.setMarkersView(this.showMarkers)
+    }
   }
   toggleOverView() {
     if (this.mapList.length > 0) {
@@ -596,8 +601,10 @@ export default class extends Mixins(IndexMixin) {
     }
   }
   toggleMap3D() {
-    this.is3D = !this.is3D
-    this.$refs.mapview.toggleMap3D(this.is3D)
+    if (this.curMap) {
+      this.is3D = !this.is3D
+      this.$refs.mapview.toggleMap3D(this.is3D)
+    }
   }
 
   addMap() {
@@ -877,6 +884,9 @@ export default class extends Mixins(IndexMixin) {
   }
   .tools-item {
     cursor: pointer;
+    .active {
+      color: #fa8334;
+    }
   }
   .left {
     display: flex;
