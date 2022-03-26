@@ -61,10 +61,18 @@
             <span class="left">
               <span @click="changeEdit()" class="btn-edit tools-item">{{ isEdit ? '完成编辑' : '开启编辑' }}</span>
               <!-- <span class="tools-item"><svg-icon name="selects" /></span> -->
-              <span class="tools-item"><svg-icon name="title" @click="changeTitleShow()" /></span>
-              <span class="tools-item"><svg-icon name="hawkeye" @click="toggleOverView()" /></span>
-              <span class="tools-item"><svg-icon name="3d" @click="toggleMap3D()" /></span>
-              <span class="tools-item"><svg-icon size="30" name="mark" @click="toggleMarkersShow()" /></span>
+              <el-tooltip content="显示/隐藏监控点位名称" placement="top">
+                <span class="tools-item"><svg-icon name="title" @click="changeTitleShow()" /></span>
+              </el-tooltip>
+              <el-tooltip content="显示/隐藏鹰眼地图" placement="top">
+                <span class="tools-item"><svg-icon name="hawkeye" @click="toggleOverView()" /></span>
+              </el-tooltip>
+              <el-tooltip content="显示2.5D视图" placement="top">
+                <span class="tools-item"><svg-icon name="3d" @click="toggleMap3D()" /></span>
+              </el-tooltip>
+              <el-tooltip content="显示/隐藏监控点位" placement="top">
+                <span class="tools-item"><svg-icon size="30" name="mark" @click="toggleMarkersShow()" /></span>
+              </el-tooltip>
               <!-- <span class="tools-item"><svg-icon name="close-all" /></span> -->
               <!-- <span class="tools-item"><svg-icon name="magnifier" /></span> -->
               <!-- <span class="tools-item tools-item__cup">|</span>
@@ -73,7 +81,9 @@
               <span class="tools-item"><svg-icon name="delete" /></span> -->
             </span>
             <span class="right">
-              <span class="tools-item"><svg-icon name="toggle-show" @click="showInfo = !showInfo" /></span>
+              <el-tooltip content="属性" placement="top">
+                <span class="tools-item"><svg-icon name="toggle-show" @click="showInfo = !showInfo" /></span>
+              </el-tooltip>
             </span>
           </div>
           <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
@@ -135,7 +145,7 @@
                 @markerlistChange="handleMarksChange"
               />
               <div v-else class="init-map">
-                <el-button @click="dialogVisible = true">添加地图</el-button>
+                <el-button type="primary" @click="dialogVisible = true">添加地图</el-button>
               </div>
             </div>
             <div v-show="showInfo" class="map-info__right">
@@ -899,8 +909,11 @@ export default class extends Mixins(IndexMixin) {
 }
 
 .init-map {
-  text-align: center;
-  line-height: 100%;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .choose-map {
