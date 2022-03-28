@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-page-header :content="breadCrumbContent" @back="back" />
     <el-card v-loading="loading.resource">
-      <el-form ref="form" class="form" :rules="rules" :model="form" label-width="100px">
+      <el-form ref="form" class="form" :rules="rules" :model="form" label-width="120px">
         <el-form-item v-if="isUpdate" label="策略ID：" prop="id">
           <el-input v-model="form.id" class="form__input" :disabled="isUpdate" />
         </el-form-item>
@@ -18,13 +18,103 @@
             rows="4"
           />
         </el-form-item>
-        <el-form-item label="推送方式：" prop="">
-          <el-radio-group v-model="resourceType" style="margin-bottom: 5px;" :disabled="isCtyunPolicy">
-            <el-radio label="all">所有资源</el-radio>
-            <el-radio label="selected">特定资源</el-radio>
+        <el-form-item label="推送方式：" prop="notifyChannel">
+          <el-radio-group v-model="form.notifyChannel">
+            <el-radio label="1">邮件推送</el-radio>
+            <el-radio label="2">
+              短信推送 
+              <el-popover
+                placement="top-start"
+                width="400"
+                trigger="hover"
+                :open-delay="300"
+                content="使用推送对象的邮箱和手机信息"
+              >
+                <svg-icon slot="reference" class="form-question" name="help" />
+              </el-popover>
+            </el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="生效资源：" prop="resourceList">
+        <el-form-item label="推送时段：" prop="effectiveTime">
+          <el-radio-group v-model="form.effectiveTimeType">
+            <el-radio label="all">全天</el-radio>
+            <el-radio label="range">时间段</el-radio>
+          </el-radio-group>
+          <el-table
+            v-if="form.effectiveTimeType === 'range'"
+            ref="timeTable"
+            class="time-table"
+            :data="effectiveTimeList"
+            empty-text="请选择生效时间段"
+            max-height="400"
+          >
+            <el-table-column key="label" prop="label" width="380">
+              <template slot="header">
+                <span>生效时间段 </span>
+                <el-tooltip
+                  content="添加"
+                  placement="right"
+                >
+                  <el-button type="text" @click="addEffectiveTime()">
+                    <svg-icon name="plus" width="15" height="15" />
+                  </el-button>
+                </el-tooltip>
+              </template>
+              <template slot-scope="{row}">
+                <el-time-picker
+                  is-range
+                  v-model="row.effectiveTime"
+                  range-separator="至"
+                  start-placeholder="开始时间"
+                  end-placeholder="结束时间"
+                  placeholder="选择时间范围">
+                </el-time-picker>
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" prop="action" class-name="col-action" width="110" fixed="right">
+              <template slot-scope="scope">
+                <el-button type="text" @click="removeEffectiveTime(scope.$index)">移除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-form-item>
+        <el-form-item label="推送频率：" prop="notifyFreq">
+          <el-select v-model="form.notifyFreq">
+            <el-option
+              v-for="(item, index) in notifyFreqOptions"
+              :key="index"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="消息类型：" prop="source">
+          <el-radio-group v-model="form.source" disabled>
+            <el-radio label="1">设备消息</el-radio>
+            <el-radio label="2">资源包消息</el-radio>
+            <el-radio label="3">AI消息</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item v-if="form.source === '3'" label="子类型：" prop="sourceRules">
+          <el-select v-model="form.sourceRules" multiple>
+            <el-option
+              v-for="(item, index) in sourceRulesOptions"
+              :key="index"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="消息内容" prop="notifyTemplate">
+          <el-input
+            v-model="form.notifyTemplate"
+            class="form__input"
+            type="textarea"
+            rows="4"
+            disabled
+          />
+        </el-form-item>
+        <el-form-item v-if="form.source !== '2'" label="生效资源：" prop="notifyResources">
           <div class="dialog-wrap">
             <div v-loading="loading.dir" class="tree-wrap">
               <el-tree
@@ -68,6 +158,59 @@
             </div>
           </div>
         </el-form-item>
+        <el-form-item v-if="form.source !== '2'" label="推送对象：" prop="notifyDestinations">
+          <div class="dialog-wrap">
+            <div v-loading="loading.dir" class="tree-wrap">
+              <el-tree
+                ref="dirTree"
+                node-key="id"
+                lazy
+                show-checkbox
+                :data="dirList"
+                :load="loadDirs"
+                :props="treeProp"
+                :check-strictly="false"
+                @check-change="onCheckDevice"
+              >
+                <span slot-scope="{node, data}" class="custom-tree-node" :class="`custom-tree-node__${data.type}`">
+                  <span class="node-name">
+                    <svg-icon :name="data.type" color="#6e7c89" />
+                    {{ node.label }}
+                  </span>
+                </span>
+              </el-tree>
+            </div>
+            <div class="device-wrap">
+              <div class="device-wrap__header">已选资源({{ form.resourceList.length }})</div>
+              <el-table ref="deviceTable" :data="form.resourceList" empty-text="暂无选择对象" fit>
+                <el-table-column key="label" prop="label" width="180" label="对象名称">
+                  <template slot-scope="{row}">
+                    {{ row.label || '-' }}
+                  </template>
+                </el-table-column>
+                <el-table-column key="path" prop="path" label="资源归属">
+                  <template slot-scope="{row}">
+                    {{ renderPath(row.path) }}
+                  </template>
+                </el-table-column>
+                <el-table-column label="操作" prop="action" class-name="col-action" width="110" fixed="right">
+                  <template slot-scope="scope">
+                    <el-button type="text" @click="removeDevice(scope.row)">移除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+          </div>
+        </el-form-item>
+        <el-form-item label="立即生效：" prop="active">
+          <el-switch
+            v-model="form.active"
+            active-color="#FA8334"
+            inactive-color="#C1C1C1"
+            :active-value="1"
+            :inactive-value="0"
+          />
+        </el-form-item>
         <el-form-item>
           <el-row style="margin: 20px 0;">
             <template>
@@ -86,6 +229,7 @@ import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
 import { getNotificationPolicyInfo, createNotificationPolicy, editNotificationPolicy } from '@/api/notification'
 import { INotifictionPolicyForm } from '@/type/notification'
+import { dateFormat } from '@/utils/date'
 
 @Component({
   name: 'notification-policy-create-or-update'
@@ -103,25 +247,71 @@ export default class extends Vue {
     isLeaf: 'isLeaf'
   }
   private form: INotifictionPolicyForm = {
+    /* 接口字段 */
     id: '',
     name: '',
     description: '',
-    source: '',
+    notifyChannel: '1',
+    effectiveTime: [],
+    notifyFreq: '30',
+    source: '3',
     sourceRules: [],
-    notifyChannel: '',
-    notifyTemplate: '',
-    effectiveTime: '',
-    notifyFreq: '',
+    notifyTemplate: 'XXX等设备在XX-XX时间段内发生什么类型的告警-来自推送策略 ${name}',
     notifyResources: [],
     notifyDestinations: [],
-    active: 0
+    active: 1,
+    /* 辅助字段 */
+    effectiveTimeType: 'all',
+    resourceList: [],
+    policyName: '',
+    desc: ''
   }
+
+  private effectiveTimeList: any[] = [{}]
+
+  private notifyFreqOptions = [
+    { value: '30', label: '半小时' },
+    { value: '60', label: '1小时' },
+    { value: '120', label: '2小时' },
+    { value: '240', label: '4小时' },
+    { value: '480', label: '8小时' },
+    { value: '1440', label: '24小时' }
+  ]
+
+  private sourceRulesOptions = [
+    { value: '1', label: '人脸识别' },
+    { value: '2', label: '行人检测' },
+    { value: '3', label: '口罩检测' }
+  ]
+
   private rules = {
-    policyName: [
-      { required: true, message: '请输入策略名称', trigger: 'blur' },
-      { validator: this.validatePolicyName, trigger: 'blur' }
+    name: [
+      { required: true, message: '请填写策略名', trigger: 'blur' }
     ],
-    resourceList: [
+    notifyChannel: [
+      { required: true, message: '请选择推送方式', trigger: 'blur' }
+    ],
+    effectiveTime: [
+      { required: true, message: '请选择推送时间段', trigger: 'blur' }
+    ],
+    notifyFreq: [
+      { required: true, message: '请选择推送频率', trigger: 'blur' }
+    ],
+    source: [
+      { required: true, message: '请选择消息类型', trigger: 'blur' }
+    ],
+    sourceRules: [
+      { required: true, message: '请选择子类型', trigger: 'blur' }
+    ],
+    notifyTemplate: [
+      { required: true, message: '请选择消息内容', trigger: 'blur' }
+    ],
+    notifyResources: [
+      { required: true, message: '请选择生效资源', trigger: 'blur' },
+      { validator: this.validateResourceList, trigger: 'blur' }
+    ],
+    notifyDestinations: [
+      { required: true, message: '请选择推送对象', trigger: 'blur' },
       { validator: this.validateResourceList, trigger: 'blur' }
     ]
   }
@@ -145,6 +335,7 @@ export default class extends Vue {
   private get isUpdate() {
     return this.$route.name === 'notification-policy-edit'
   }
+
   private async mounted() {
     this.breadCrumbContent = this.$route.meta.title
     await this.initDirs()
@@ -159,6 +350,54 @@ export default class extends Vue {
     }
   }
 
+  /**
+   * 上传配置
+   */
+  private upload() {
+    this.transformFormData()
+    const form: any = this.$refs.form
+    form.validate(async(valid: boolean) => {
+      try {
+        if (valid) {
+          console.log(this.form)
+          this.$message.success(`${this.form.id ? '编辑策略成功！' : '创建策略成功！'}`)
+          // this.back()
+        } else {
+          return false
+        }
+      } catch (e) {
+        this.$message.error(e && e.message)
+      } finally {
+        // TODO
+      }
+    })
+  }
+
+  /**
+   * 转换form相关字段
+   */
+  private transformFormData() {
+    // 获取effectiveTime
+    if (this.form.effectiveTimeType === 'all') {
+      this.form.effectiveTime = [{
+        start_time: '00:00:00',
+        end_time: '23:59:59'
+      }]
+    } else {
+      let timeList = this.effectiveTimeList.filter(item => {
+        return item.effectiveTime && item.effectiveTime[0] && item.effectiveTime[1]
+      })
+      this.form.effectiveTime = timeList.map(item => {
+        return {
+          start_time: dateFormat(item.effectiveTime[0]).split(' ')[1],
+          end_time: dateFormat(item.effectiveTime[1]).split(' ')[1]
+        }
+      })
+    }
+  }
+
+
+  /* 资源选择相关 */
   /*
    * 获取策略详情
    */
@@ -357,47 +596,29 @@ export default class extends Vue {
     return dirPathName.join('/')
   }
 
-  private upload() {
-    const form: any = this.$refs.form
-    form.validate(async(valid: boolean) => {
-      try {
-        if (valid) {
-          let data = {
-            id: this.form.id || undefined,
-            policyName: this.form.policyName,
-            desc: this.form.desc,
-            policyDocument: JSON.stringify({
-              'Version': '2022-03-25',
-              'Statement': [
-                {
-                  'Effect': 'Allow',
-                  'Resource': this.form.resourceList.map((resource: any) => {
-                    const mainUserID = this.$store.state.user.mainUserID
-                    const inProtocol = resource.inProtocol
-                    const type = resource.type
-                    const pathIds = resource.path.map((obj: any) => obj.id)
-                    return `${mainUserID}:${inProtocol}-${type === 'group' ? 'vssgroup' : 'directory'}:${pathIds[0]}${(pathIds.length > 1 ? ':' : '') + pathIds.slice(1).join('/')}`
-                  })
-                }
-              ]
-            })
-          }
-          await this.form.id ? editNotificationPolicy(data) : createNotificationPolicy(data)
-          this.$message.success(`${this.form.id ? '编辑策略成功！' : '创建策略成功！'}`)
-          this.back()
-        } else {
-          return false
-        }
-      } catch (e) {
-        this.$message.error(e && e.message)
-      } finally {
-        // TODO
-      }
-    })
-  }
+  
   private back() {
     // this.$router.push(`/accessManage/policy`)
     this.$router.go(-1)
+  }
+
+  /* 时间段选择相关 */
+
+  /**
+   * 添加时间段条目
+   */
+  addEffectiveTime() {
+    this.effectiveTimeList.push({
+      effecitiveTime: []
+    })
+  }
+
+  /**
+   * 移除时间段条目
+   * @param index 条目索引
+   */
+  removeEffectiveTime(index: any) {
+    this.effectiveTimeList.splice(index, 1)
   }
 }
 </script>
@@ -467,5 +688,9 @@ export default class extends Vue {
       text-align: center;
       padding: 10px;
     }
+  }
+
+  .time-table {
+    width: 600px;
   }
 </style>

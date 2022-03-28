@@ -21,16 +21,20 @@ export interface INotifictionPolicy {
 }
 
 export interface INotifictionPolicyForm {
-  id?: string;
-  name: string;
-  description?: string;
-  source: string;
-  sourceRules: string[];
-  notifyChannel: string;
-  notifyTemplate: string;
-  effectiveTime: string;
-  notifyFreq: string;
-  notifyResources: string[];
-  notifyDestinations: string[];
-  active: number;
+  id?: string
+  name: string
+  description?: string
+  notifyChannel: string
+  effectiveTime: any[]
+  notifyFreq: string
+  source: string
+  sourceRules: string[]
+  notifyTemplate: string
+  notifyResources: string[]
+  notifyDestinations: string[]
+  active: number
+  effectiveTimeType: 'all' | 'range'
+  resourceList?: any
+  policyName?: string
+  desc?: string
 }
