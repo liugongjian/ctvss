@@ -8,7 +8,7 @@
         :rules="rules"
         :model="form"
         label-position="right"
-        label-width="180px"
+        label-width="240px"
       >
         <el-form-item label="平台名称:" prop="name">
           <el-input v-model="form.name" />
@@ -130,6 +130,22 @@
             <el-checkbox label="DOWDLOAD">录像下载</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
+        <el-form-item label="是否使用通道的实际名称">
+          <template slot="label">
+            是否使用通道的实际名称:
+            <el-popover
+              placement="top-start"
+              title="是否使用通道的实际名称"
+              width="400"
+              trigger="hover"
+              :open-delay="300"
+              content="开启该功能，NVR通道重新上线不会覆盖用户自定义的通道名称"
+            >
+              <svg-icon slot="reference" class="form-question" name="help" />
+            </el-popover>
+          </template>
+          <el-switch v-model="form.enableLocalChannelName" :active-value="1" :inactive-value="0" />
+        </el-form-item>
         <el-form-item label="描述:" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
         </el-form-item>
@@ -171,7 +187,8 @@ export default class extends Vue {
     transType: 'UDP',
     characterType: 'UTF-8',
     permissionSet: [],
-    description: ''
+    description: '',
+    enableLocalChannelName: 0 // 不使用 0， 使用 1
   }
   private submitting = false
   private loading = false
