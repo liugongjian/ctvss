@@ -218,11 +218,35 @@
     .control__btn {
       height: 21px;
       margin: 0 1px;
-      padding: 0 1px;
+      padding: 0 2px;
 
       svg {
         width: 13px !important;
         height: 13px !important;
+      }
+
+      .control__popup {
+        bottom: 24px !important;
+      }
+    }
+
+    .control__scale {
+      .control__popup {
+        left: -30px !important;
+      }
+    }
+
+    .control__volume {
+      .control__popup {
+        left: -4px !important;
+        min-width: 22px !important;
+      }
+    }
+
+    .control__playback {
+      width: 26px;
+      .control__popup {
+        left: -15px !important;
       }
     }
   }
