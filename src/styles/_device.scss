@@ -38,6 +38,7 @@
   position: relative;
   display: flex;
   height: 800px;
+  z-index: 10;
 
   &__wrap {
     min-height: 100px;
