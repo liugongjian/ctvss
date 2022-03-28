@@ -127,10 +127,11 @@ export default class extends ComponentMixin {
   }
 
   private mounted() {
-    this.intercomInfo = { ...this.deviceInfo, ...this.streamInfo, ...{ type: this.type, url: this.url } }
+    // this.intercomInfo = { ...this.deviceInfo, ...this.streamInfo, ...{ type: this.type, url: this.url } }
   }
 
   private toIntercom() {
+    this.intercomInfo = { ...this.deviceInfo, ...this.streamInfo, ...{ type: this.type, url: this.url } }
     this.showDialog = true
     ScreenModule.SetIsMutedAll(true)
     DeviceModule.setMutedStatus(true)
