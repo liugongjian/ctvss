@@ -86,6 +86,10 @@ export default class extends ComponentMixin {
   private handleScreenSize(screenSize) {
     this.screenManager.size = screenSize.size
     this.screenManager.layout = screenSize.layout
+    /* 当前选中的index如果是大于分屏数量，将index切换到最后一个分屏 */
+    if (screenSize.size < this.screenManager.currentIndex) {
+      this.screenManager.currentIndex = screenSize.size - 1
+    }
   }
 }
 </script>

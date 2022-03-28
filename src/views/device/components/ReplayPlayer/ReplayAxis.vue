@@ -511,7 +511,7 @@ export default class extends Vue {
     if (!this.axisDrag.isDragging) return
     this.axisDrag.deltaX = this.axisDrag.startX - e.x
     this.axisDrag.startX = e.x
-    this.currentTime = Math.floor(this.currentTime + this.axisDrag.deltaX * this.settings.ratio) // 将偏移像素值转换成时间戳
+    this.currentTime = this.currentTime + this.axisDrag.deltaX * this.settings.ratio // 将偏移像素值转换成时间戳
     this.generateData()
     this.draw()
   }
