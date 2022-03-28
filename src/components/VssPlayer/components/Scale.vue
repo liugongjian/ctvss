@@ -27,6 +27,9 @@ import ResizeObserver from 'resize-observer-polyfill'
 })
 export default class extends ComponentMixin {
   @Prop()
+  private url
+
+  @Prop()
   private defaultScale
 
   private scale: string = null
@@ -55,8 +58,9 @@ export default class extends ComponentMixin {
     if (this.resizeObserver) this.resizeObserver.disconnect()
   }
 
-  @Watch('player.url')
+  @Watch('url')
   private onUrlChange() {
+    console.log('@@@@@@@', this.player.url)
     this.scaleVideo(this.scale)
   }
 

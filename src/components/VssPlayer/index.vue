@@ -41,7 +41,7 @@
         <DigitalZoom ref="digitalZoom" @dispatch="dispatch" />
         <PtzZoom v-if="isLive" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
         <Snapshot :name="deviceInfo.deviceName" />
-        <Scale :default-scale="scale" />
+        <Scale :url="videoUrl" :default-scale="scale" />
         <LiveReplaySelector v-if="hasLiveReplaySelector" :is-live="isLive" @dispatch="dispatch" />
         <slot name="controlRight" />
       </template>
