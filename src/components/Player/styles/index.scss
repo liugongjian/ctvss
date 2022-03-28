@@ -100,12 +100,9 @@
     text-align: center;
   }
 
-  /* 视频需要按16:9, 4:3缩放
-  video {
-    width: 100%;
-    height: 100%;
+  video, canvas {
+    position: absolute;
   }
-  */
 
   .control {
     * {
