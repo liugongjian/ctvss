@@ -1,7 +1,7 @@
 /**
  * 录像管理器
  */
-import axios from 'axios'
+import axios, { CancelTokenSource } from 'axios'
 import { Record } from './Record'
 import { Screen } from '../Screen/Screen'
 import { getTimestamp, getLocaleDate, getDateByTime } from '@/utils/date'
@@ -30,7 +30,7 @@ export class RecordManager {
   /* 分页大小 */
   public pageSize?: string
   /* Axios Source */
-  private axiosSource
+  private axiosSourceList: CancelTokenSource[]
 
   constructor(params: any) {
     this.screen = params.screen
@@ -43,12 +43,8 @@ export class RecordManager {
     this.currentDate = Math.floor(getLocaleDate().getTime() / 1000)
     this.localStartTime = null
     this.pageSize = null
+    this.axiosSourceList = []
     this.init()
-  }
-
-  public destroy() {
-    clearInterval(this.recordInterval)
-    this.axiosSource && this.axiosSource.cancel()
   }
 
   public init() {
@@ -57,6 +53,20 @@ export class RecordManager {
     } else {
       this.initReplay()
     }
+  }
+
+  public destroy() {
+    clearInterval(this.recordInterval)
+    this.cancelAxiosSource()
+  }
+
+  /**
+   * 取消Axios请求
+   */
+  private cancelAxiosSource() {
+    this.axiosSourceList.forEach(source => {
+      source.cancel()
+    })
   }
 
   /**
@@ -120,7 +130,7 @@ export class RecordManager {
   public async getRecordListByDate(date: number, isConcat = false, isSilence = false) {
     try {
       if (!isSilence) {
-        this.axiosSource && this.axiosSource.cancel()
+        this.cancelAxiosSource()
         this.screen.errorMsg = null
         this.screen.isLoading = true
         this.currentDate = date
@@ -155,9 +165,6 @@ export class RecordManager {
     } catch (e) {
       // 异常时删除日期
       this.loadedRecordDates.delete(date)
-      if (!isConcat && !isSilence) {
-        this.screen.errorMsg = e.message
-      }
     } finally {
       if (!isSilence) this.screen.isLoading = false
     }
@@ -265,8 +272,8 @@ export class RecordManager {
    */
   private async getRecordList(startTime: number, endTime: number) {
     try {
-      // this.axiosSource && this.axiosSource.cancel()
-      this.axiosSource = axios.CancelToken.source()
+      const axiosSource = axios.CancelToken.source()
+      this.axiosSourceList.push(axiosSource)
       const res = await getDeviceRecords({
         deviceId: this.screen.deviceId,
         inProtocol: this.screen.inProtocol,
@@ -274,7 +281,7 @@ export class RecordManager {
         startTime,
         endTime,
         pageSize: 9999
-      }, this.axiosSource.token)
+      }, axiosSource.token)
       return res.records.map((record: any, index: number) => {
         /**
          * 根据 fixRecordGap 标签对缺失的录像片段进行视觉填补，当前后两段 record 的时间间隔
@@ -301,7 +308,7 @@ export class RecordManager {
         })
       })
     } catch (e) {
-      console.log(e)
+      throw new Error(e.message)
     }
   }
 
@@ -321,13 +328,15 @@ export class RecordManager {
         endTime = Math.floor(new Date().getTime() / 1000)
       }
       const type = ['cloud', 'local']
+      const axiosSource = axios.CancelToken.source()
+      this.axiosSourceList.push(axiosSource)
       const res = await getDeviceRecordStatistic({
         type: type[this.screen.recordType],
         deviceId: this.screen.deviceId,
         inProtocol: this.screen.inProtocol,
         startTime: startTime,
         endTime: endTime
-      })
+      }, axiosSource.token)
       if (res.records) {
         const recordStatistic: Set<string> = new Set()
         res.records.forEach((statistic: any) => {
@@ -357,7 +366,8 @@ export class RecordManager {
    */
   private async getHeatmapList(startTime: number, endTime: number) {
     try {
-      this.axiosSource = axios.CancelToken.source()
+      const axiosSource = axios.CancelToken.source()
+      this.axiosSourceList.push(axiosSource)
       const res = await describeHeatMap({
         deviceId: this.screen.deviceId,
         inProtocol: this.screen.inProtocol,
@@ -366,7 +376,7 @@ export class RecordManager {
         endTime,
         pageSize: 9999,
         aiCode: '10006'
-      }, this.axiosSource.token)
+      }, axiosSource.token)
       return res.heatMap.map((heatMap: any) => {
         return new Record({
           startTime: getTimestamp(heatMap.startTime) / 1000,
@@ -423,8 +433,8 @@ export class RecordManager {
    */
   private async getLocalUrl(startTime: number) {
     this.localStartTime = startTime
-    // this.axiosSource && this.axiosSource.cancel()
-    this.axiosSource = axios.CancelToken.source()
+    const axiosSource = axios.CancelToken.source()
+    this.axiosSourceList.push(axiosSource)
     const endTime = startTime + 24 * 60 * 60 - 1
     let url
     let codec
@@ -438,7 +448,7 @@ export class RecordManager {
         'role-id': this.screen.roleId || '',
         'real-group-id': this.screen.realGroupId || ''
       }
-    }, this.axiosSource.token)
+    }, axiosSource.token)
     if (res.playUrl) {
       url = res.playUrl.flvUrl
       codec = res.video.codec
