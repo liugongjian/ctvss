@@ -61,6 +61,7 @@ import { startTalk, stopTalk } from '@/api/intercom'
 import { StreamInfo, DeviceInfo } from '@/components/VssPlayer/models/VssPlayer.d'
 import Player from '@/components/Player/index.vue'
 import { ScreenModule } from '@/store/modules/screen'
+import { DeviceModule } from '@/store/modules/device'
 import ComponentMixin from './mixin'
 
 @Component({
@@ -122,6 +123,7 @@ export default class extends ComponentMixin {
       this.intercomMouseup()
     }
     ScreenModule.SetIsMutedAll(false)
+    DeviceModule.setMutedStatus(false)
   }
 
   private mounted() {
@@ -131,6 +133,7 @@ export default class extends ComponentMixin {
   private toIntercom() {
     this.showDialog = true
     ScreenModule.SetIsMutedAll(true)
+    DeviceModule.setMutedStatus(true)
     window.addEventListener('beforeunload', () => this.destroyIntercom())
   }
 
