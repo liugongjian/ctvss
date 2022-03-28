@@ -227,7 +227,7 @@ export default class extends Vue {
   }
 
   private get disablePTZ() {
-    return UserModule.tags && UserModule.tags.disablePTZ === 'Y'
+    return (UserModule.tags && UserModule.tags.disablePTZ === 'Y') || this.screen.inProtocol !== 'gb28181'
   }
 
   @Watch('presets')
