@@ -11,6 +11,7 @@
         :key="index"
         :command="item"
         :class="{'el-dropdown-item__active': item.layout === layout}"
+        :disabled="disabled"
       >
         <span class="el-dropdown-menu__screen-icon"><svg-icon :name="`screen${item.layout}`" /></span>
         <label>{{ item.label }}</label>
@@ -19,13 +20,16 @@
   </el-dropdown>
 </template>
 <script lang="ts">
-import { Component } from 'vue-property-decorator'
+import { Component, Prop } from 'vue-property-decorator'
 import ComponentMixin from './mixin'
 
 @Component({
   name: 'SizeSelector'
 })
 export default class extends ComponentMixin {
+  @Prop()
+  private disabled: boolean
+
   private screenSizeList = [
     {
       label: '1分屏',

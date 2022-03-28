@@ -10,8 +10,8 @@
         </template>
       </div>
       <div class="screen-tools__bar__right">
-        <Cleaner v-if="showScreenTool" />
-        <SizeSelector v-if="showScreenTool" />
+        <Cleaner v-if="showScreenTool" :disabled="isPolling" />
+        <SizeSelector v-if="showScreenTool" :disabled="isPolling" />
         <Fullscreen :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
         <ViewSelector v-if="!isLive" />
       </div>
@@ -95,6 +95,13 @@ export default class extends Vue {
   /* 是否全屏 */
   private get isFullscreen() {
     return ScreenModule.isFullscreen
+  }
+
+  /**
+   * 是否处于轮询状态
+   */
+  private get isPolling() {
+    return this.screenManager.executeQueueConfig.status === 'working'
   }
 
   /**
