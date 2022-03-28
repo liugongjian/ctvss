@@ -27,12 +27,11 @@
   </VssPlayer>
 </template>
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 import { PlayerEvent } from '@/components/VssPlayer/models/VssPlayer.d'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import VssPlayer from '@/components/VssPlayer/index.vue'
 import Fullscreen from './ScreenBoard/components/Fullscreen.vue'
-import { DeviceModule } from '@/store/modules/device'
 
 @Component({
   name: 'LivePlayer',
@@ -138,36 +137,6 @@ export default class extends Vue {
    */
   private onFullscreenChange(isFullscreen) {
     this.screen.isFullscreen = isFullscreen
-  }
-
-  /* 是否为静音的状态 */
-  private get mutedStatus() {
-    return DeviceModule.mutedStatus
-  }
-  /**
-   * 保存最后一次的静音状态
-   */
-  public toggleMuteStatus(isMuted) {
-    this.screen.lastIsMuted = this.screen.isMuted
-    this.screen.player && this.screen.player.toggleMuteStatus(isMuted)
-  }
-
-  /**
-   * 恢复最后一次静音状态
-   */
-  public restoreMuteStatus() {
-    this.screen.player && this.screen.player.toggleMuteStatus(this.screen.lastIsMuted)
-  }
-
-  @Watch('mutedStatus')
-  private onMutedStatusChange(isMuted) {
-    if (isMuted !== null) {
-      if (isMuted) {
-        this.toggleMuteStatus(isMuted)
-      } else {
-        this.restoreMuteStatus()
-      }
-    }
   }
 }
 </script>
