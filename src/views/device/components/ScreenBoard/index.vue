@@ -11,6 +11,7 @@
           :key="index"
           :screen="screen"
           :has-live-replay-selector="true"
+          :has-close="!isSingle"
           :style="`grid-area: item${index}`"
           :class="[{'actived': index === currentIndex && screenList.length > 1}]"
           @click="selectScreen(index)"
@@ -19,7 +20,7 @@
       <PtzControl v-if="isLive" :screen="currentScreen" />
     </div>
     <ScreenList v-else />
-    <ScreenTools />
+    <ScreenTools v-if="hasScreenTool" />
   </div>
 </template>
 <script lang="ts">
@@ -90,6 +91,11 @@ export default class extends Vue {
   /* 是否全屏 */
   private get isFullscreen() {
     return ScreenModule.isFullscreen
+  }
+
+  /* 是否显示工具栏 */
+  private get hasScreenTool() {
+    return (this.isLive && !this.isSingle) || !this.isLive
   }
 
   /* 获取分屏管理器Provide */

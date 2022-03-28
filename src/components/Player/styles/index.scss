@@ -12,21 +12,6 @@
     }
   }
 
-  &--right-hidden {
-    .control__right {
-      display: none !important;
-    }
-  }
-
-  &--right-offset {
-    .control__right {
-      display: inline-block;
-      right: 0 !important;
-      bottom: 35px !important;
-      background: rgba(0, 0, 0, 70%);
-    }
-  }
-
   .header {
     * {
       user-select: none;
@@ -67,6 +52,10 @@
     display: flex;
     justify-content: center;
     align-items: center;
+
+    video, canvas {
+      position: absolute;
+    }
   }
 
   .player__h265 div {
@@ -99,13 +88,6 @@
     width: 100%;
     text-align: center;
   }
-
-  /* 视频需要按16:9, 4:3缩放
-  video {
-    width: 100%;
-    height: 100%;
-  }
-  */
 
   .control {
     * {
@@ -211,6 +193,37 @@
   &:hover {
     .control {
       opacity: 1;
+    }
+  }
+
+  &--right-hidden {
+    .control__right {
+      display: none !important;
+    }
+  }
+
+  &--right-offset {
+    .control__right {
+      right: 0;
+      bottom: 26px;
+      padding: 3px;
+      background: rgba(0, 0, 0, 70%);
+    }
+
+    .control {
+      height: 26px;
+      padding: 2px 0;
+    }
+
+    .control__btn {
+      height: 21px;
+      margin: 0 1px;
+      padding: 0 1px;
+
+      svg {
+        width: 13px !important;
+        height: 13px !important;
+      }
     }
   }
 }

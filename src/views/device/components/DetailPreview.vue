@@ -1,56 +1,41 @@
 <template>
-  <LivePlayer
-    v-if="screen"
-    class="live-player"
-    :class="{'fullscreen': screen.isFullscreen}"
+  <ScreenBoard
+    ref="screenBoard"
     :style="`height: ${height}`"
-    :screen="screen"
+    :is-live="true"
+    :in-protocol="inProtocol"
+    :default-size="1"
+    :is-single="true"
   />
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { Stream } from '@/components/VssPlayer/models/VssPlayer'
-import LivePlayer from './LivePlayer.vue'
-import { Screen } from '../models/Screen/Screen'
+import ScreenBoard from './ScreenBoard/index.vue'
+import { ScreenManager } from '../models/Screen/ScreenManager'
 
 @Component({
-  name: 'DevicePreview',
+  name: 'DeviceLive',
   components: {
-    LivePlayer
+    ScreenBoard
   }
 })
 export default class extends Vue {
-  @Prop()
-  private deviceId?: number
-
-  @Prop()
-  private inProtocol?: string
-
-  @Prop()
-  private deviceName?: string
-
-  @Prop()
-  private streams?: Stream[]
-
-  @Prop()
-  private streamSize?: number
-
-  private screen = {}
+  @Prop() private deviceId?: number
+  @Prop() private inProtocol?: string
 
   private height = 'auto'
 
-  private mounted() {
-    const screen = new Screen()
+  public screenManager: ScreenManager = null
+
+  public mounted() {
+    const screenBoard = this.$refs.screenBoard as ScreenBoard
+    // @ts-ignore
+    this.screenManager = screenBoard!.screenManager
+    const screen = this.screenManager.currentScreen
     screen.deviceId = this.deviceId
     screen.inProtocol = this.inProtocol
-    screen.deviceName = this.deviceName
-    screen.streams = this.streams
-    screen.streamSize = this.streamSize
-    screen.streamNum = 1
-    screen.type = 'flv'
     screen.isLive = true
-    this.screen = screen
     screen.init()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
