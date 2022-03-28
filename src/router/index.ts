@@ -331,7 +331,7 @@ export const asyncRoutes: RouteConfig[] = [
       perms: ['DescribeMap'],
       alwaysShow: false,
       only: true,
-      groupSelector: true
+      groupSelector: false
     },
     children: [
       {
@@ -343,8 +343,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '电子地图',
           icon: 'mark',
           breadcrumb: false,
-          perms: ['DescribeMap'],
-          groupSelector: true
+          perms: ['DescribeMap']
         }
       }]
   },
