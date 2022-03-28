@@ -9,7 +9,7 @@
       <LivePlayer
         v-if="screen.isLive"
         :screen="screen"
-        :has-close="true"
+        :has-close="hasClose"
         :is-debug="true"
         :has-live-replay-selector="hasReplayRecord"
         @close="close"
@@ -18,7 +18,7 @@
         v-else
         :screen="screen"
         :has-axis="hasAxis"
-        :has-close="true"
+        :has-close="hasClose"
         :is-debug="true"
         :has-live-replay-selector="true"
         @close="close"
@@ -49,6 +49,11 @@ import DeviceDir from '../dialogs/DeviceDir.vue'
 export default class extends Vue {
   @Prop()
   private screen
+
+  @Prop({
+    default: true
+  })
+  private hasClose
 
   private dialogs = {
     deviceDir: false

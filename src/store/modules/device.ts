@@ -10,7 +10,6 @@ export interface IDeviceState {
 class Device extends VuexModule implements IDeviceState {
   public breadcrumb: any = null
   isSorted: boolean = false
-  public mutedStatus = false
 
   @Mutation
   public SET_BREADCRUMB(payload: any) {
@@ -40,16 +39,6 @@ class Device extends VuexModule implements IDeviceState {
   @Action
   public ResetIsSorted() {
     this.SET_ISSORTED(false)
-  }
-
-  @Mutation
-  public SET_MUTEDSTATUS(payload: boolean) {
-    this.mutedStatus = payload
-  }
-
-  @Action
-  public setMutedStatus(payload: boolean) {
-    this.SET_MUTEDSTATUS(payload)
   }
 }
 
