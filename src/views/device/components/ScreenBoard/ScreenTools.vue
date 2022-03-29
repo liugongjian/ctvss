@@ -12,7 +12,7 @@
       <div class="screen-tools__bar__right">
         <Cleaner v-if="showScreenTool && isScreenView" :disabled="isPolling" />
         <SizeSelector v-if="showScreenTool && isScreenView" :disabled="isPolling" />
-        <Fullscreen v-if="isScreenView" :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
+        <Fullscreen :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
         <ViewSelector v-if="!isLive" />
       </div>
     </div>
