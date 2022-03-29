@@ -48,12 +48,6 @@ export default class MapView extends Vue {
     inProtocol: ''
   }
 
-  @Watch('mapOption')
-  private onMapChange() {
-    if (this.mapOption) {
-      this.setMap(this.mapOption)
-    }
-  }
   @Watch('isEdit')
   private onEditChange() {
     this.changeEdit(this.isEdit)
@@ -140,6 +134,10 @@ export default class MapView extends Vue {
       this.$alertError(e);
       console.log('修改标记点失败')
     }
+  }
+
+  public chooseDevice(device) {
+    this.vmap.chooseMarker(device)
   }
 
   handleMarkerClick(marker) {
@@ -275,6 +273,10 @@ export default class MapView extends Vue {
     position: absolute;
     top: 5px;
     right: 5px;
+    z-index: 2001;
+  }
+  ::v-deep .preview-player {
+    height: auto;
   }
 }
 </style>

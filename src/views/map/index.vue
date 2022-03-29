@@ -42,6 +42,7 @@
                   <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                   <svg-icon :name="data.type" />
                   {{ node.label }}
+                  <svg-icon name="mark" v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0" />
                   <span class="sum-icon">{{ getSums(data) }}</span>
                 </span>
                 <span
@@ -73,7 +74,7 @@
                 <span class="tools-item"><svg-icon name="3d" @click="toggleMap3D()" :class="curMap && is3D?'active':''" /></span>
               </el-tooltip>
               <el-tooltip :content="showMarkers ? '隐藏监控点位' : '显示监控点位'" placement="top">
-                <span class="tools-item"><svg-icon size="30" name="mark" @click="toggleMarkersShow()" :class="curMap && showMarkers?'active':''" /></span>
+                <span class="tools-item"><svg-icon name="mark" @click="toggleMarkersShow()" :class="curMap && showMarkers?'active':''" /></span>
               </el-tooltip>
               <!-- <span class="tools-item"><svg-icon name="close-all" /></span> -->
               <!-- <span class="tools-item"><svg-icon name="magnifier" /></span> -->
@@ -502,6 +503,7 @@ export default class extends Mixins(IndexMixin) {
 
   changeEdit() {
     this.isEdit = !this.isEdit
+    this.addPositionDialogCheck = false
   }
 
   cancelAddMark() {
@@ -563,10 +565,27 @@ export default class extends Mixins(IndexMixin) {
         unitInfo: ''
       }
       if (uselnglat && device.deviceLongitude && device.deviceLatitude) {
-        markerInfo.longitude = device.deviceLongitude
-        markerInfo.latitude = device.deviceLatitude
+        const checklnglat = this.checklng(device.deviceLongitude) && this.checklat(device.deviceLatitude)
+        if (!checklnglat) {
+          this.$confirm('当前设备的经纬度有误，继续添加将默认设为当前地图的中心点，是否继续?', {
+            confirmButtonText: '确认',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            markerInfo.longitude = ''
+            markerInfo.latitude = ''
+            this.$refs.mapview.addMarker(markerInfo)
+          }).catch(() => {
+            console.log('cancel')
+          });
+        } else {
+          markerInfo.longitude = device.deviceLongitude
+          markerInfo.latitude = device.deviceLatitude
+          this.$refs.mapview.addMarker(markerInfo)
+        }
+      } else {
+        this.$refs.mapview.addMarker(markerInfo)
       }
-      this.$refs.mapview.addMarker(markerInfo)
     } catch (e) {
       this.$alertError(e);
     } finally {
@@ -580,6 +599,7 @@ export default class extends Mixins(IndexMixin) {
     } else if (data.isLeaf && this.mapDeviceIds.indexOf(data.id) >= 0){
       const marker = this.markerList.filter(item => item.deviceId === data.id)[0]
       this.$refs.mapview.setMapCenter(marker.longitude, marker.latitude)
+      this.$refs.mapview.chooseDevice(marker)
     }
   }
 
@@ -644,7 +664,12 @@ export default class extends Mixins(IndexMixin) {
   }
 
   changeMarkerInfos(mark) {
-    this.$refs.mapview.markerChange(mark)
+    const checklnglat = this.checklng(mark.longitude) && this.checklat(mark.latitude)
+    if (checklnglat) {
+      this.$refs.mapview.markerChange(mark)
+    } else {
+      this.$alertError('请填写正确的经纬度')
+    }
   }
 
   changeMapInfos(map) {
@@ -700,8 +725,11 @@ export default class extends Mixins(IndexMixin) {
   }
 
   private chooseMap(map) {
+    this.showInfo = false
+    this.showMapInfo = true
     this.showMarkers = true
     this.curMap = map
+    this.$refs.mapview.setMap(map)
   }
 
   private deleteMap(map) {
