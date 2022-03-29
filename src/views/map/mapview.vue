@@ -22,8 +22,6 @@ import VMap, {getAMapLoad} from './models/vmap'
 import { getMapDevices, updateMarkers, addMarkers, deleteMarkers } from '@/api/map'
 import LiveView from '@/views/device/components/LiveView.vue'
 import ReplayView from '@/views/device/components/ReplayView.vue'
-// import { getDevice } from '@/api/device'
-// import { DeviceStatus, RecordStatus } from '@/dics'
 
 @Component({
   name: 'MapView',
@@ -74,6 +72,7 @@ export default class MapView extends Vue {
       const res = await getMapDevices({ mapId: map.mapId })
       this.markerlist = res.devices
     } catch (e) {
+      this.$alertError(e);
       this.markerlist = []
     } finally {
       this.setMarkerList(this.markerlist)
@@ -138,6 +137,7 @@ export default class MapView extends Vue {
       this.vmap.updateMarkerList(this.markerlist)
       showMsg && this.$alertSuccess('标记点修改成功')
     } catch(e) {
+      this.$alertError(e);
       console.log('修改标记点失败')
     }
   }
@@ -233,7 +233,7 @@ export default class MapView extends Vue {
       this.vmap.addMarker(markerOption)
       this.$emit('markerlistChange', this.markerlist)
     } catch(e) {
-      console.log('添加标记点失败')
+      this.$alertError(e);
     }
   }
 
@@ -256,85 +256,10 @@ export default class MapView extends Vue {
   }
 }
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 #mapContainer {
   width: 100%;
   height: 100%;
-}
-.marker-containt {
-  position: relative;
-  display: flex;
-  width: 50px;
-  height: 50px;
-  justify-content: center;
-  align-items: center;
-}
-.marker-circle {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 50px;
-  height: 50px;
-  background: orange;
-  opacity: 0.3;
-  border-radius: 50%;
-}
-.marker-label {
-  display: block;
-  position: absolute;
-  bottom: 10px;
-  font-size: 12px;
-}
-.hide-title .marker-label {
-  display: none;
-}
-.marker-center {
-  position: absolute;
-  top: -7px;
-  left: 15px;
-}
-.marker-wrap {
-  position: absolute;
-  top: 0;
-  left: 0;
-  border: 1px solid rgba(217, 0, 27, 1);
-  background-color: rgba(217, 0, 27, 0.0745098039215686);
-  padding: 5px;
-}
-.marker-options {
-  text-align: right;
-}
-.marker-options .icon-wrap {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  overflow: hidden;
-  margin-right: 5px;
-}
-.marker-options .icon-wrap:last-child{
-  margin-right: 0;
-}
-.marker-options .icon {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-}
-.marker-options .off .icon{
-  position: relative;
-  left: -20px;
-  filter: drop-shadow(#ccc 20px 0);
-}
-.marker-options .icon_delete {
-  background: url('~@/icons/svg/delete.svg') no-repeat;
-  background-size: contain;
-}
-.marker-options .icon_preview {
-  background: url('~@/icons/svg/player.svg') no-repeat;
-  background-size: contain;
-}
-.marker-options .icon_replay {
-  background: url('~@/icons/svg/play-video.svg') no-repeat;
-  background-size: contain;
 }
 .play-wrap {
   position: absolute;

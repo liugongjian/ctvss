@@ -18,8 +18,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
-import { mapObject } from '../models/vmap'
+import {Component, Vue, Prop, Watch} from 'vue-property-decorator'
 @Component({
   name: 'mapInfo',
 })
@@ -31,8 +30,25 @@ export default class extends Vue {
   @Prop()
   private map: any
 
+  private mapInfo = {
+    mapId: '',
+    name: '',
+    longitude: '',
+    latitude: '',
+    zoom: ''
+  }
+
+  @Watch('map')
+  private onInfoChange() {
+    this.mapInfo = this.map
+  }
+
+  mounted() {
+    this.mapInfo = this.map
+  }
+
   save() {
-    this.$emit('save')
+    this.$emit('save', this.mapInfo)
   }
 }
 </script>

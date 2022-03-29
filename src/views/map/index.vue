@@ -11,12 +11,13 @@
           @mousedown="changeWidthStart($event)"
         />
         <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
-          <el-button class="map__add" size="small" @click="dialogVisible = true">添加地图</el-button>
+          <el-button class="map__add" size="small" @click="openMapEditDialog()">添加地图</el-button>
           <el-card class="map__user">
             <div v-for="map in mapList" :key="map.mapId">
               <div class="choose-map" @click="chooseMap(map)" :class="map.mapId == curMap.mapId ? 'active' : ''" >
                 <span class="map-text">{{ map.name }}</span>
-                <span class="delete-icon"><svg-icon name="delete" @click="deleteMap(map)" /></span>
+                <span class="edit-icon"><svg-icon name="edit" @click.stop="openMapEditDialog(map)" /></span>
+                <span class="delete-icon"><svg-icon name="delete" @click.stop="deleteMap(map)" /></span>
               </div>
             </div>
           </el-card>
@@ -87,7 +88,7 @@
             </span>
           </div>
           <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
-            <el-dialog title="添加地图" :visible.sync="dialogVisible" width="45%" class="dialog-text">
+            <el-dialog :title="mapEditDialog.status == 'add' ? '添加地图' : '编辑地图'" :visible.sync="mapEditDialog.dialogVisible" width="45%" class="dialog-text">
               <el-form ref="mapform" :model="form" label-width="150px" :rules="rules">
                 <el-form-item label="名称" prop="name">
                   <el-input v-model="form.name" placeholder="请输入地图名称" />
@@ -105,13 +106,13 @@
                 </el-form-item>
               </el-form>
               <span slot="footer" class="dialog-footer">
-                <el-button type="primary" @click="addMap"> 确定 </el-button>
-                <el-button @click="dialogVisible = false">取消</el-button>
+                <el-button type="primary" @click="addOrEditMap">确定</el-button>
+                <el-button @click="mapEditDialog.dialogVisible = false">取消</el-button>
               </span>
             </el-dialog>
             <el-dialog title="修改地图" :visible.sync="modifyMapDialog" class="dialog-text">
               <div>
-                <h3>确定覆盖“{{ curMapInfo && curMapInfo.name }}”的属性？</h3>
+                <h3>确定覆盖“{{ curMap && curMap.name }}”的属性？</h3>
               </div>
               <div>
                 <el-checkbox v-model="modifyMapForm.center">中心坐标</el-checkbox>
@@ -145,12 +146,12 @@
                 @markerlistChange="handleMarksChange"
               />
               <div v-else class="init-map">
-                <el-button type="primary" @click="dialogVisible = true">添加地图</el-button>
+                <el-button type="primary" @click="openMapEditDialog()">添加地图</el-button>
               </div>
             </div>
             <div v-show="showInfo" class="map-info__right">
               <div v-if="showMapInfo">
-                <map-info :is-edit="isEdit" :map="curMapInfo" @save="modifyMapDialog = true" />
+                <map-info :is-edit="isEdit" :map="curMap" @save="changeMapInfos" />
               </div>
               <div v-if="!showMapInfo">
                 <point-info :is-edit="isEdit" :marker="curMarkInfo" @save="changeMarkerInfos" />
@@ -175,8 +176,8 @@ import MapView from './mapview.vue'
 import PointInfo from './components/PointInfo.vue'
 import SelectedPoint from './components/SelectedPoint.vue'
 import MapInfo from './components/MapInfo.vue'
-// import { getAMapLoad } from './models/vmap'
 import { getMaps, createMap, deleteMap, modifyMap } from '@/api/map'
+import {mapObject} from "@/views/map/models/vmap";
 
 @Component({
   name: 'Map',
@@ -197,7 +198,10 @@ export default class extends Mixins(IndexMixin) {
   }
   private renderAlertType = renderAlertType
   private getSums = getSums
-  private dialogVisible = false
+  private mapEditDialog = { // 修改或添加地图对话框
+    dialogVisible: false,
+    status: 'add' // add|edit
+  }
   private editDialog = false
   private deleteDialog = false
   private deletesDialog = false
@@ -212,10 +216,11 @@ export default class extends Mixins(IndexMixin) {
   private addPositionDialogCheck = false // 是否询问本次编辑要不要继承设备坐标
   private uselnglat = true // 是否要继承设备坐标
   private form = {
+    mapId: '',
     name: '',
     longitude: '',
     latitude: '',
-    zoom: 3
+    zoom: 12
   }
   private rules = {
     name: [
@@ -232,7 +237,7 @@ export default class extends Mixins(IndexMixin) {
   }
   private validatelng(rule: any, value: string, callback: Function) {
     const val = Number(value)
-    if (!this.checklng) {
+    if (!this.checklng(val)) {
       callback(new Error('请填写正确的经度'))
     } else {
       callback()
@@ -240,7 +245,7 @@ export default class extends Mixins(IndexMixin) {
   }
   private validatelat(rule: any, value: string, callback: Function) {
     const val = Number(value)
-    if (!this.checklat) {
+    if (!this.checklat(val)) {
       callback(new Error('请填写正确的纬度'))
     } else {
       callback()
@@ -607,7 +612,7 @@ export default class extends Mixins(IndexMixin) {
     }
   }
 
-  addMap() {
+  addOrEditMap() {
     this.$refs.mapform.validate(async (valid: any) => {
       if (valid) {
         try {
@@ -617,12 +622,24 @@ export default class extends Mixins(IndexMixin) {
             latitude: this.form.latitude || '39.90923',
             zoom: this.form.zoom
           }
-          const res = await createMap(map)
-          const mapId = res.mapId
-          this.curMap = {...map, mapId}
-          this.curMapInfo = this.curMap
-          this.mapList.push(this.curMap)
-          this.dialogVisible = false
+          if (this.mapEditDialog.status === 'add') {
+            const res = await createMap(map)
+            const mapId = res.mapId
+            this.curMap = {...map, mapId}
+            this.mapList.push(this.curMap)
+            this.mapEditDialog.dialogVisible = false
+          } else {
+            await modifyMap(this.form)
+            this.mapList = this.mapList.map(item => {
+              if (item.mapId === this.form.mapId) {
+                return this.form
+              } else {
+                return item
+              }
+            })
+            this.$alertSuccess('地图修改成功')
+            this.mapEditDialog.dialogVisible = false
+          }
         } catch (e) {
           this.$alertError(e.message)
         }
@@ -634,6 +651,35 @@ export default class extends Mixins(IndexMixin) {
 
   changeMarkerInfos(mark) {
     this.$refs.mapview.markerChange(mark)
+  }
+
+  changeMapInfos(map) {
+    this.curMapInfo = map
+    this.modifyMapDialog = true
+  }
+
+  // 打开地图信息编辑弹窗 新增/修改
+  private openMapEditDialog(map?: mapObject) {
+    if (map) {
+      this.form = {
+        mapId: map.mapId,
+        name: map.name,
+        longitude: map.longitude + '',
+        latitude: map.latitude + '',
+        zoom: map.zoom
+      }
+      this.mapEditDialog.status = 'edit'
+    } else {
+      this.form = {
+        mapId: '',
+        name: '',
+        longitude: '',
+        latitude: '',
+        zoom: 12
+      }
+      this.mapEditDialog.status = 'add'
+    }
+    this.mapEditDialog.dialogVisible = true;
   }
 
   /**
@@ -662,7 +708,6 @@ export default class extends Mixins(IndexMixin) {
   private chooseMap(map) {
     this.showMarkers = true
     this.curMap = map
-    this.curMapInfo = this.curMap
   }
 
   private deleteMap(map) {
@@ -675,7 +720,6 @@ export default class extends Mixins(IndexMixin) {
         this.mapList = this.mapList.filter(item => item.mapId !== map.mapId);
         if (this.curMap.mapId === map.mapId) {
           this.curMap = this.mapList[0] || null
-          this.curMapInfo = this.curMap
         }
       }
     })
@@ -683,7 +727,7 @@ export default class extends Mixins(IndexMixin) {
   private handleMapInfo(infos) {
     const { type, info } = infos
     if (type === 'map') {
-      this.curMapInfo = info
+      this.curMap = info
     } else if (type === 'marker') {
       this.curMarkInfo = info
     }
@@ -740,7 +784,6 @@ export default class extends Mixins(IndexMixin) {
     this.initDirs()
     await this.getMapList()
     this.curMap = this.mapList[0]
-    this.curMapInfo = this.curMap
     this.calHeight()
     window.addEventListener('resize', this.calHeight)
   }
@@ -930,24 +973,35 @@ export default class extends Mixins(IndexMixin) {
   height: 33px;
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   margin: 0 auto;
   padding: 0 10px;
   border-radius: 5px;
   cursor: pointer;
+  .map-text {
+    flex: 1;
+    text-align: left;
+  }
   &.active {
     background: #fa8334;
     color: #fff;
   }
+  .edit-icon,
   .delete-icon {
     display: none;
   }
+  .edit-icon {
+    margin-right: 5px;
+  }
+  &:hover {
+    .edit-icon,
+    .delete-icon {
+      display: inline-block;
+    }
+  }
 }
 
-.choose-map:hover .delete-icon {
-  display: inline-block;
-}
 .map-info__right{
   ::v-deep .el-descriptions {
     font-size: 12px;
