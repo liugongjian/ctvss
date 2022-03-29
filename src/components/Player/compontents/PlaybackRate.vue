@@ -1,8 +1,11 @@
 <!-- 切换播放速率 -->
 <template>
-  <div v-if="player" class="control__btn control__playback">
-    {{ playbackRate === 1 ? '倍速' : `${playbackRate}x` }}
-    <ul class="control__popup">
+  <el-popover
+    placement="top"
+    trigger="hover"
+    popper-class="player__popover"
+  >
+    <ul class="player__popover__panel">
       <li
         v-for="rate in playbackRateList"
         :key="rate"
@@ -12,7 +15,10 @@
         {{ rate }}x
       </li>
     </ul>
-  </div>
+    <div slot="reference" class="control__btn control__playback">
+      <span class="label">{{ playbackRate === 1 ? '倍速' : `${playbackRate}x` }}</span>
+    </div>
+  </el-popover>
 </template>
 <script lang="ts">
 import { Component } from 'vue-property-decorator'
@@ -37,39 +43,7 @@ export default class extends ComponentMixin {
 }
 </script>
 <style lang="scss" scoped>
-  .control__btn .control__popup {
-    display: none;
-    position: absolute;
-    bottom: 34px;
-    left: -10px;
-    margin: auto 0;
-    padding: 5px 0;
-    min-width: 50px;
-    list-style: none;
-    background: rgba(0, 0, 0, 70%);
-
-    li {
-      margin: 0;
-      padding: 5px 15px;
-      list-style: none;
-
-      &:hover {
-        background: #444;
-      }
-
-      &.selected {
-        color: $primary;
-      }
-    }
-  }
-
-  .control__btn:hover {
-    .control__popup {
-      display: block;
-    }
-  }
-
-  .control__btn .selected {
-    color: $primary;
+  .control__playback {
+    width: 30px;
   }
 </style>

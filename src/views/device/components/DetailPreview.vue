@@ -1,56 +1,49 @@
 <template>
-  <LivePlayer
-    v-if="screen"
+  <ScreenBoard
+    ref="screenBoard"
     class="live-player"
-    :class="{'fullscreen': screen.isFullscreen}"
     :style="`height: ${height}`"
-    :screen="screen"
+    :is-live="true"
+    :in-protocol="inProtocol"
+    :default-size="1"
+    :is-single="true"
   />
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Stream } from '@/components/VssPlayer/models/VssPlayer'
-import LivePlayer from './LivePlayer.vue'
-import { Screen } from '../models/Screen/Screen'
+import ScreenBoard from './ScreenBoard/index.vue'
+import { ScreenManager } from '../models/Screen/ScreenManager'
 
 @Component({
-  name: 'DevicePreview',
+  name: 'DeviceLive',
   components: {
-    LivePlayer
+    ScreenBoard
   }
 })
 export default class extends Vue {
-  @Prop()
-  private deviceId?: number
-
-  @Prop()
-  private inProtocol?: string
-
-  @Prop()
-  private deviceName?: string
-
-  @Prop()
-  private streams?: Stream[]
-
-  @Prop()
-  private streamSize?: number
-
-  private screen = {}
+  @Prop() private deviceId?: number
+  @Prop() private inProtocol?: string
+  @Prop() private deviceName?: string
+  @Prop() private streams?: Stream[]
+  @Prop() private streamSize?: number
 
   private height = 'auto'
 
-  private mounted() {
-    const screen = new Screen()
+  public screenManager: ScreenManager = null
+
+  public mounted() {
+    const screenBoard = this.$refs.screenBoard as ScreenBoard
+    // @ts-ignore
+    this.screenManager = screenBoard!.screenManager
+    const screen = this.screenManager.currentScreen
     screen.deviceId = this.deviceId
     screen.inProtocol = this.inProtocol
-    screen.deviceName = this.deviceName
     screen.streams = this.streams
     screen.streamSize = this.streamSize
     screen.streamNum = 1
-    screen.type = 'flv'
     screen.isLive = true
-    this.screen = screen
     screen.init()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
@@ -64,23 +57,15 @@ export default class extends Vue {
    * 计算最大高度
    */
   public calMaxHeight() {
-    const deviceList: any = document.querySelector('.device-list__max-height')
-    this.height = `${deviceList.clientHeight}px`
+    const deviceList: HTMLDivElement = document.querySelector('.device-list')
+    this.height = `${deviceList.clientHeight - 125}px`
   }
 }
 </script>
 <style lang="scss" scoped>
   .live-player {
-    background: #333;
-    &.fullscreen {
-      position: fixed;
-      z-index: 1001;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 100% !important;
-      background: #333;
+    ::v-deep .screen-item {
+      border: none;
     }
   }
 </style>

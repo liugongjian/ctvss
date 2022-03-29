@@ -1,5 +1,5 @@
-import { Player } from '@/components/Player/models/Player'
 import { DirectiveOptions } from 'vue'
+import { removeClass, addClass } from '@/utils'
 
 /**
  * 鼠标进入回调
@@ -55,9 +55,7 @@ function checkIsVideo(dom: EventTarget) {
  * 隐藏player__wrap工具栏与头部
  */
 function hiddenTools() {
-  let classVal = this.getAttribute('class')
-  classVal = classVal.concat(classVal.indexOf('player__wrap--hidden cursor--hidden') >= 0 ? '' : ' player__wrap--hidden cursor--hidden')
-  this.setAttribute('class', classVal)
+  addClass(this, 'player__wrap--hidden cursor--hidden')
   // 去除tooltip（可能出现tooltip隐藏不了）
   let tooltipDoms = document.getElementsByClassName('el-tooltip__popper')
   Array.from(tooltipDoms).forEach((dom: any) => {
@@ -69,9 +67,7 @@ function hiddenTools() {
  * 显示player__wrap工具栏与头部
  */
 function showTools() {
-  let classVal = this.getAttribute('class')
-  classVal = classVal.replace(' player__wrap--hidden cursor--hidden', '')
-  this.setAttribute('class', classVal)
+  removeClass(this, 'player__wrap--hidden cursor--hidden')
 }
 
 export const adaptiveTools: DirectiveOptions = {

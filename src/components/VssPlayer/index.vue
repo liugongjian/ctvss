@@ -32,16 +32,17 @@
       </template>
       <template slot="controlBody">
         <H265Icon :codec="codec" />
+        <More :has-axis="hasAxis" />
         <slot name="controlBody" />
       </template>
       <template slot="controlRight">
         <StreamSelector :stream-info="streamInfo" @dispatch="dispatch" />
-        <TypeSelector v-if="hasTypeSelector" :type="type" @dispatch="dispatch" />
+        <TypeSelector v-if="hasTypeSelector && codec !== 'h265' " :type="type" @dispatch="dispatch" />
         <Intercom v-if="isLive && deviceInfo.inProtocol === 'gb28181'" :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="playerType" :codec="codec" />
         <DigitalZoom ref="digitalZoom" @dispatch="dispatch" />
         <PtzZoom v-if="isLive" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
         <Snapshot :name="deviceInfo.deviceName" />
-        <Scale :default-scale="scale" />
+        <Scale :url="videoUrl" :default-scale="scale" />
         <LiveReplaySelector v-if="hasLiveReplaySelector" :is-live="isLive" @dispatch="dispatch" />
         <slot name="controlRight" />
       </template>
@@ -70,6 +71,7 @@ import TypeSelector from './components/TypeSelector.vue'
 import PtzZoom from './components/PtzZoom.vue'
 import Intercom from './components/Intercom.vue'
 import LiveReplaySelector from './components/LiveReplaySelector.vue'
+import More from './components/More.vue'
 
 @Component({
   name: 'VssPlayer',
@@ -85,7 +87,8 @@ import LiveReplaySelector from './components/LiveReplaySelector.vue'
     TypeSelector,
     PtzZoom,
     Intercom,
-    LiveReplaySelector
+    LiveReplaySelector,
+    More
   },
   directives: {
     // 动态隐藏播放器工具栏与头部
@@ -187,6 +190,12 @@ export default class extends Vue {
     default: false
   })
   private hasLiveReplaySelector: boolean
+
+  /* 是否含有录像时间轴 */
+  @Prop({
+    default: false
+  })
+  private hasAxis: boolean
 
   /* 播放器实例 */
   private player: PlayerModel = null

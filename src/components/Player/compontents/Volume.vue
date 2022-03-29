@@ -1,11 +1,12 @@
 <!-- 音量控制按钮 -->
 <template>
-  <div v-if="hasAudio" class="control__btn volume">
-    <span @click="toggleMuteStatus">
-      <svg-icon v-if="isMuted || volume === 0" name="mute" />
-      <svg-icon v-else name="volume" />
-    </span>
-    <div v-if="player && !isMuted && !isH265" class="control__popup control__volume">
+  <el-popover
+    placement="top"
+    trigger="hover"
+    popper-class="player__popover"
+    :disabled="isMuted || isH265"
+  >
+    <div class="player__popover__panel volume__panel">
       <el-slider
         :max="1"
         :step="0.01"
@@ -13,14 +14,22 @@
         :show-tooltip="false"
         class="volume"
         vertical
-        height="165px"
+        height="80px"
         @input="setVolume"
       />
     </div>
-  </div>
-  <div v-else class="control__btn unloaded__volume">
-    <svg-icon name="mute" class="mute_gray" />
-  </div>
+    <template slot="reference">
+      <div v-if="hasAudio" class="control__btn control__volume">
+        <span @click="toggleMuteStatus">
+          <svg-icon v-if="isMuted || volume === 0" name="mute" />
+          <svg-icon v-else name="volume" />
+        </span>
+      </div>
+      <div v-else class="control__btn unloaded__volume">
+        <svg-icon name="mute" class="mute_gray" />
+      </div>
+    </template>
+  </el-popover>
 </template>
 <script lang="ts">
 import { Component } from 'vue-property-decorator'
@@ -62,14 +71,28 @@ export default class extends ComponentMixin {
 }
 </script>
 <style lang="scss" scoped>
-  .volume {
+  .volume__panel {
+    padding: 7px 0;
+
     ::v-deep .el-slider.is-vertical .el-slider__runway {
-      margin: 0 auto;
+      margin: 0 10px;
       background-color: gray;
+      width: 4px;
     }
 
     ::v-deep .el-slider__bar {
       background-color: aliceblue;
+      width: 4px;
+    }
+
+    ::v-deep .el-slider__button {
+      width: 10px;
+      height: 10px;
+      border: none;
+    }
+
+    ::v-deep .el-slider__button-wrapper {
+      left: -16px;
     }
   }
 
@@ -80,9 +103,5 @@ export default class extends ComponentMixin {
 
   .unloaded__volume {
     cursor: not-allowed !important; //优先级
-  }
-
-  .control__volume {
-    min-width: 35px;
   }
 </style>

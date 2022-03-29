@@ -220,6 +220,7 @@ export class Screen {
     try {
       this.isLoading = true
       this.errorMsg = null
+      this.axiosSource && this.axiosSource.cancel()
       this.axiosSource = axios.CancelToken.source()
       this.url = ''
       const res: any = await getDevicePreview({

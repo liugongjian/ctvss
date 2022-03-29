@@ -49,8 +49,8 @@ export default class extends Vue {
    * 计算最大高度
    */
   public calMaxHeight() {
-    const deviceList: any = document.querySelector('.device-list__max-height')
-    this.height = `${deviceList.clientHeight}px`
+    const deviceList: HTMLDivElement = document.querySelector('.device-list')
+    this.height = `${deviceList.clientHeight - 125}px`
   }
 }
 </script>

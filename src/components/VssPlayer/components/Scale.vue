@@ -1,8 +1,11 @@
-<!-- 截图 -->
+<!-- 比例 -->
 <template>
-  <div class="control__btn control__scale">
-    <svg-icon name="screenratio" />
-    <ul class="control__popup">
+  <el-popover
+    placement="top"
+    trigger="hover"
+    popper-class="player__popover"
+  >
+    <ul class="player__popover__panel">
       <li
         v-for="item in scaleKind"
         :key="item.kind"
@@ -12,7 +15,10 @@
         {{ item.label }}
       </li>
     </ul>
-  </div>
+    <div slot="reference" class="control__btn control__scale">
+      <svg-icon name="screenratio" />
+    </div>
+  </el-popover>
 </template>
 <script lang="ts">
 import { Component, Prop, Watch } from 'vue-property-decorator'
@@ -26,6 +32,9 @@ import ResizeObserver from 'resize-observer-polyfill'
   name: 'Scale'
 })
 export default class extends ComponentMixin {
+  @Prop()
+  private url
+
   @Prop()
   private defaultScale
 
@@ -55,7 +64,7 @@ export default class extends ComponentMixin {
     if (this.resizeObserver) this.resizeObserver.disconnect()
   }
 
-  @Watch('player.url')
+  @Watch('url')
   private onUrlChange() {
     this.scaleVideo(this.scale)
   }
