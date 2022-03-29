@@ -52,6 +52,10 @@
 
   &--show-tools {
     .player__wrap {
+      .control {
+        z-index: 200;
+      }
+      
       .control__right {
         display: flex;
         right: 0;
