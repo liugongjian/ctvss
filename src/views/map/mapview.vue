@@ -1,5 +1,8 @@
 <template>
   <div id="mapContainer">
+    <div class="search-wrap">
+      <el-input v-model="mapTip" id="map-tip-input" placeholder="请输入关键字"></el-input>
+    </div>
     <div class="play-wrap" v-if="playWindowInfo.show !== 'none'" :style="playWindowInfo.style">
       <i class="el-icon el-icon-close" @click="playWindowInfo.show = 'none'"></i>
       <live-view
@@ -38,6 +41,7 @@ export default class MapView extends Vue {
 
   vmap = new VMap('mapContainer')
   markerlist = []
+  mapTip = ''
 
   playWindowInfo = {
     style: null,
@@ -258,6 +262,12 @@ export default class MapView extends Vue {
 #mapContainer {
   width: 100%;
   height: 100%;
+}
+.search-wrap {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 8;
 }
 .play-wrap {
   position: absolute;

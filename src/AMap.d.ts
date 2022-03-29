@@ -1302,14 +1302,30 @@ declare namespace AMap {
     public getSize(): Size;
   }
 
-  export class HawkEyeOption {
+  export interface HawkEyeOption {
     opened?: boolean // 是否默认展开
     width?: string
     height?: string
   }
-  export class HawkEye{
+  export class HawkEye {
     constructor(opt: HawkEyeOption)
     public show: any
     public hide: any
+  }
+  export interface AutoCompleteOption {
+    input: string
+  }
+  export class AutoComplete {
+    constructor(opt: AutoCompleteOption)
+    public on: any
+    public search: any
+  }
+  export interface PlaceSearchOption {
+    map: AMap.Map
+  }
+  export class PlaceSearch {
+    constructor(opt: PlaceSearchOption)
+    public setCity: any
+    public search: any
   }
 }

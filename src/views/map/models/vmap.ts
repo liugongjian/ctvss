@@ -61,7 +61,7 @@ export const getAMapLoad = () => {
       AMapLoader.load({
         'key': '7f0b2bbe4de7b251916b60012a6fbe3d',
         'version': '2.0',
-        'plugins': ['AMap.MarkerCluster', 'AMap.HawkEye'],
+        'plugins': ['AMap.MarkerCluster', 'AMap.HawkEye', 'AMap.AutoComplete'],
       }).then((AMap)=>{
         resolve(AMap)
       }).catch(e => {
@@ -107,6 +107,12 @@ export default class VMap {
         width: '300px',
         height: '200px',
       })
+      const auto = new AMap.AutoComplete({ input: "map-tip-input" })
+      auto.on("select", (e) => {
+        if (e.poi.location) {
+          map.setCenter(e.poi.location);
+        }
+      });
       map.addControl(this.overView)
       map.on('click', () => {
         this.cancelChoose()
