@@ -610,11 +610,6 @@ export default class extends Vue {
     font-weight: bold;
     user-select: none;
     border: 1px solid transparent;
-    &:hover {
-      border: 1px solid $primary;
-      border-radius: 6px 6px 15px 15px;
-      cursor: pointer;
-    }
   }
 
   &__time__edit {

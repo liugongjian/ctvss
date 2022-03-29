@@ -35,7 +35,6 @@ export default class extends Vue {
   // min-height: calc(100vh - 104px);
   width: 100%;
   position: relative;
-  overflow: hidden;
 }
 
 .fixed-header+.app-main {
