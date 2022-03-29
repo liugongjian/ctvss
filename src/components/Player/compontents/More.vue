@@ -9,6 +9,7 @@ import { Component, Watch } from 'vue-property-decorator'
 import ResizeObserver from 'resize-observer-polyfill'
 import ComponentMixin from './mixin'
 import { throttle } from 'lodash'
+import { addClass, removeClass } from '../utils/dom'
 
 @Component({
   name: 'More'
@@ -80,22 +81,20 @@ export default class extends ComponentMixin {
     if (!this.playerWrap) {
       return
     }
-    let classVal = this.playerWrap.getAttribute('class')
     switch (type) {
       case 'hidden':
-        classVal = classVal.concat(classVal.indexOf('player__wrap--right-hidden') >= 0 ? '' : ' player__wrap--right-hidden')
+        addClass(this.playerWrap, 'player__wrap--right-hidden')
         break
       case 'show':
-        classVal = classVal.replace('player__wrap--right-hidden', '')
+        removeClass(this.playerWrap, 'player__wrap--right-hidden')
         break
       case 'offset':
-        classVal = classVal.concat(classVal.indexOf('player__wrap--right-offset') >= 0 ? '' : ' player__wrap--right-offset')
+        addClass(this.playerWrap, 'player__wrap--right-offset')
         break
       case 'cancelOffset':
-        classVal = classVal.replace('player__wrap--right-offset', '')
+        removeClass(this.playerWrap, 'player__wrap--right-offset')
         break
     }
-    this.playerWrap.setAttribute('class', classVal)
   }
 
   private beforeDestroy() {

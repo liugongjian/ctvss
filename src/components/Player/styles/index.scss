@@ -126,7 +126,7 @@
       margin: 0 2px;
       padding: 0 2px;
       height: 35px;
-      font-size: 11px;
+      font-size: 12px;
       cursor: pointer;
 
       svg {
@@ -137,8 +137,8 @@
       .control__popup {
         display: none;
         position: absolute;
-        bottom: 34px;
-        left: -10px;
+        bottom: 35px;
+        left: -12px;
         margin: auto 0;
         padding: 5px 0;
         min-width: 50px;
@@ -177,7 +177,9 @@
     }
 
     &__playback {
-      width: 32px;
+      .label {
+        transform: scale(0.9);
+      }
 
       li {
         text-align: center;
@@ -240,11 +242,15 @@
       .control__popup {
         left: -4px !important;
         min-width: 22px !important;
+
+        .el-slider {
+          transform: scale(0.8);
+        }
       }
     }
 
     .control__playback {
-      width: 26px;
+      width: 30px;
       .control__popup {
         left: -15px !important;
       }
