@@ -216,7 +216,9 @@ export default class extends Mixins(AppMixin) {
       name: 'device-detail',
       query: {
         inProtocol: row.inProtocol,
-        deviceId: row.deviceId
+        deviceId: row.deviceId,
+        type: row.deviceType,
+        path: row.deviceDir
       }
     })
   }
