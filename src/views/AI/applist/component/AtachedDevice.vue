@@ -95,6 +95,7 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 import { getAttachedDevice, getAiAlarm } from '@/api/ai-app'
 import { startAppResource, stopAppResource, unBindAppResource } from '@/api/device'
 import AppMixin from '../../mixin/app-mixin'
+import { GroupModule } from '@/store/modules/group'
 
 @Component({
   name: 'AtachedDevice',
@@ -212,6 +213,8 @@ export default class extends Mixins(AppMixin) {
     })
   }
   private rowClick(row: any) {
+    const curGroup = GroupModule.groups.filter(group => group.groupId === row.groupId)
+    GroupModule.SetGroup(curGroup[0])
     this.$router.push({
       name: 'device-detail',
       query: {

@@ -260,6 +260,7 @@ export default class extends Mixins(DashboardMixin) {
 
   private async mounted() {
     GroupModule.GetGroupList()
+    console.log(GroupModule.groups)
     this.aiInfos = await this.getAiApps()
 
     // TODO: Hardcode 300015
@@ -320,7 +321,7 @@ export default class extends Mixins(DashboardMixin) {
     if (data.iamUserId) {
       this.$router.push(`/login/subAccount?redirect=%2Fdashboard&mainUserID=${data.mainUserID}`)
     } else {
-      this.$router.push(`/login?redirect=%2Fdashboard`)
+      this.$router.push('/login?redirect=%2Fdashboard')
     }
   }
 
