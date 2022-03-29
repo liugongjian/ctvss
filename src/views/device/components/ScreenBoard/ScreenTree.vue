@@ -306,8 +306,12 @@ export default class extends Mixins(IndexMixin) {
     return this.screenManager.size
   }
 
+  /* 监听业务组切换 */
   @Watch('currentGroupId', { immediate: true })
   private onCurrentGroupChange(groupId: String, oldGroupId: String) {
+    // 停止轮巡
+    this.pollingStatus !== 'free' && this.stopPolling()
+    // 初始化分屏
     this.screenManager.initScreenList()
     this.screenManager.inProtocol = this.currentGroupInProtocol
     // search为inject变量，不能直接整体赋值为其他，否则inject会失效
