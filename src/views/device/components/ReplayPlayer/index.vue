@@ -18,6 +18,7 @@
     :scale="screen.scale"
     :is-debug="isDebug"
     :has-live-replay-selector="hasLiveReplaySelector"
+    :has-axis="hasAxis"
     @dispatch="onDispatch"
     @onCreate="onPlayerCreate"
   >
@@ -203,34 +204,6 @@ export default class extends Vue {
 <style lang="scss" scoped>
 .replay-player {
   &.has-axis {
-    ::v-deep {
-      .player__wrap .control {
-        height: 83px;
-      }
-
-      .axis__wrap {
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-        height: 48px;
-
-        .axis__zoom {
-          margin-right: 5px;
-        }
-
-        .axis__zoom__btn svg {
-          width: 10px !important;
-        }
-      }
-
-      .axis__time {
-        top: 31px;
-        color: #fff;
-        font-size: 12px;
-        transform: scale(0.85);
-      }
-    }
-
     .datepicker {
       position: absolute;
       width: 105px;
@@ -266,7 +239,8 @@ export default class extends Vue {
     .replay-type {
       position: absolute;
       left: 120px;
-      top: 0;
+      top: 7px;
+      height: auto;
       transform: scale(0.85);
 
       ::v-deep {
@@ -282,6 +256,58 @@ export default class extends Vue {
           border-color: #fff;
           color: #000;
           box-shadow: -1px 0 0 0 #fff;
+        }
+      }
+    }
+
+    ::v-deep {
+      .axis__wrap {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 48px;
+        background: rgba(0, 0, 0, 50%);
+
+        .axis__zoom {
+          margin-right: 5px;
+        }
+
+        .axis__zoom__btn svg {
+          width: 10px !important;
+        }
+      }
+
+      .axis__time {
+        top: 31px;
+        color: #fff;
+        font-size: 12px;
+        transform: scale(0.85);
+      }
+    }
+
+    &.vss-player__wrap--medium {
+      ::v-deep .control {
+        height: 83px;
+      }
+    }
+
+    &.vss-player__wrap--small,
+    &.vss-player__wrap--mini {
+      ::v-deep {
+        .control {
+          height: 73px;
+        }
+
+        .datepicker {
+          top: 1px;
+          left: 15px;
+          transform: scale(0.7);
+        }
+
+        .replay-type {
+          top: 1px;
+          left: 95px;
+          transform: scale(0.7);
         }
       }
     }

@@ -108,9 +108,10 @@
     &__left,
     &__right {
       position: absolute;
+      top: 0;
       left: 5px;
       display: flex;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
     }
 
     &__right {
@@ -147,59 +148,6 @@
   &--right-hidden {
     .control__right {
       display: none !important;
-    }
-  }
-
-  &--right-offset {
-    .control__right {
-      right: 0;
-      bottom: 26px;
-      padding: 0 3px;
-      background: rgba(0, 0, 0, 70%);
-    }
-
-    .control {
-      height: 26px;
-      padding: 2px 0;
-    }
-
-    .control__btn {
-      height: 24px;
-      margin: 0 1px;
-      padding: 0 2px;
-
-      svg {
-        width: 13px !important;
-        height: 13px !important;
-      }
-
-      .control__popup {
-        bottom: 24px !important;
-      }
-    }
-
-    .control__scale {
-      .control__popup {
-        left: -30px !important;
-      }
-    }
-
-    .control__volume {
-      .control__popup {
-        left: -4px !important;
-        min-width: 22px !important;
-
-        .el-slider {
-          transform: scale(0.8);
-        }
-      }
-    }
-
-    .control__playback {
-      width: 30px;
-      .control__popup {
-        left: -15px !important;
-      }
     }
   }
 }

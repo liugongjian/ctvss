@@ -171,7 +171,7 @@ export default class extends Vue {
 
   private created() {
     if (this.isInline) {
-      this.settings.recordColor = '#4d493f'
+      this.settings.recordColor = '#584d37'
       this.settings.hourLineColor = '#bbb'
       this.settings.minLineColor = '#999'
       this.settings.midLineColor = '#fa8334'

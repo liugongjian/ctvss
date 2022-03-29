@@ -25,7 +25,7 @@
       />
     </template>
     <div v-else class="tip-text tip-select-device">
-      <el-button type="text" @click="selectDevice">请选择设备</el-button>
+      <el-button type="text" size="mini" @click="selectDevice">请选择设备</el-button>
     </div>
     <device-dir v-if="dialogs.deviceDir" @on-close="onDeviceDirClose" />
   </div>

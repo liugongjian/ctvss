@@ -1,5 +1,8 @@
 <template>
-  <div class="player__wrap">
+  <div
+    class="player__wrap"
+    :class="[{'player__wrap--live': isLive, 'player__wrap--replay': !isLive}]"
+  >
     <div class="header">
       <div class="header__left">
         <slot name="headerLeft" />
@@ -21,7 +24,6 @@
           <Timer v-if="hasProgress" />
         </template>
       </div>
-      <More class="control__more" />
       <div class="control__right">
         <Volume />
         <PlaybackRate v-if="!isLive && codec !== 'h265'" />
@@ -44,7 +46,6 @@ import Timer from './compontents/Timer.vue'
 import Volume from './compontents/Volume.vue'
 import PlaybackRate from './compontents/PlaybackRate.vue'
 import Progress from './compontents/Progress.vue'
-import More from './compontents/More.vue'
 
 @Component({
   name: 'Player',
@@ -53,8 +54,7 @@ import More from './compontents/More.vue'
     Timer,
     Volume,
     PlaybackRate,
-    Progress,
-    More
+    Progress
   }
 })
 export default class extends Vue {
