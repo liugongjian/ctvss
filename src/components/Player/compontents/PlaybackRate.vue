@@ -36,3 +36,10 @@ export default class extends ComponentMixin {
   }
 }
 </script>
+<style lang="scss" scoped>
+  .control__playback {
+    .control__popup {
+      left: -18px;
+    }
+  }
+</style>
