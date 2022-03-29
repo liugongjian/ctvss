@@ -136,7 +136,7 @@ export default class extends ComponentMixin {
       this.screenList[i].destroy()
       let deviceInfo = this.devicesQueue[(this.currentExecuteIndex + (i % length)) % length]
       this.screenManager.transformDeviceParams(this.screenList[i], deviceInfo)
-      this.screenList[i].inProtocol = this.deviceInfo.inProtocol 
+      this.screenList[i].inProtocol = deviceInfo.inProtocol 
       this.screenList[i].isLive = this.screenManager.isLive
       if (deviceInfo.url && deviceInfo.codec) {
         this.$nextTick(() => {

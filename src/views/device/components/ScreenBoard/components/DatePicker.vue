@@ -1,14 +1,14 @@
 <template>
   <div class="datepicker">
     <DatePanel
-      v-if="inline"
+      v-if="inline && showPanel"
       v-model="date"
       class="datepicker-inline"
       :picker-options="pickerOptions"
       @change="changeDate"
     />
     <el-date-picker
-      v-else
+      v-if="!inline"
       v-model="date"
       type="date"
       value-format="timestamp"
@@ -49,6 +49,8 @@ export default class extends Vue {
 
   private date: number = null
 
+  private showPanel = true
+
   private get recordManager() {
     return this.screen && this.screen.recordManager
   }
@@ -68,12 +70,22 @@ export default class extends Vue {
     this.date = this.currentDate || new Date().getTime()
   }
 
+  @Watch('screen.deviceId')
+  @Watch('recordStatistic')
+  private onDeviceChange() {
+    console.log('deviceId')
+    this.showPanel = false
+    this.$nextTick(() => {
+      this.showPanel = true
+    })
+  }
+
   private pickerOptions = {
     disabledDate(time: any) {
       return time.getTime() > Date.now()
     },
     cellClassName: (date: any) => {
-      if (!this.recordManager) return
+      if (!this.recordStatistic) return
       const dateStr = `${date.getFullYear()}-${prefixZero(date.getMonth() + 1, 2)}-${prefixZero(date.getDate(), 2)}`
       return this.recordStatistic.has(dateStr) ? 'has-records' : ''
     },
