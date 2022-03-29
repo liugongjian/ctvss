@@ -1,12 +1,8 @@
 <template>
   <div ref="axisWrap" class="axis__wrap" :class="{'axis__wrap--disabled': disabled}">
     <div class="axis__middle" />
-    <!-- <div class="axis__border" /> -->
-    <!-- <div v-if="!edit" class="axis__time" @click="editTime">{{ screen && screen.isLoading ? '加载中' : formatedCurrentTime }}</div> -->
-    <div class="axis__time">{{ screen && screen.isLoading ? '加载中' : formatedCurrentTime }}</div>
-    <!-- <div v-else class="axis__time__edit"> -->
-    <!-- <TimeEditer :screen="screen" :current-time="currentTime" /> -->
-    <!-- </div> -->
+    <div class="axis__border" />
+    <div class="axis__time">{{ formatedCurrentTime }}</div>
     <canvas ref="canvas" class="axis__canvas" :class="{'dragging': axisDrag.isDragging}" />
     <div class="axis__zoom">
       <div class="axis__zoom__btn" @click="zoom(1)"><svg-icon name="zoom-in" width="12" /></div>
@@ -27,13 +23,9 @@ import { prefixZero } from '@/utils/number'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import { throttle } from 'lodash'
 import ResizeObserver from 'resize-observer-polyfill'
-// import TimeEditer from '@/views/device/components/ReplayPlayer/TimeEditer.vue'
 
 @Component({
   name: 'ReplayAxis'
-  // components: {
-  //   TimeEditer
-  // }
 })
 export default class extends Vue {
   /* 当前分屏 */
@@ -109,7 +101,7 @@ export default class extends Vue {
   /* 尺寸监听器 */
   private resizeObserver: ResizeObserver = null
   /* 当前时间 */
-  private currentTime: number = null
+  private currentTime: number = getDateByTime(new Date().getTime()) / 1000
   /* 最后一次更新currentTime的时间，用于截流 */
   private lastUpdateTime = 0
   /* 当前时间轴的头部时间 */
@@ -120,41 +112,6 @@ export default class extends Vue {
   private isLoading = false
   /* 延时加载相邻日期定时器 */
   private timeout = null
-  /* 是否编辑时间轴时间 */
-  // private edit = false
-
-  /* edit 监听器注销 */
-  // @Watch('edit')
-  // private onEditChange() {
-  //   if (this.edit) {
-  //     window.addEventListener('click', this.closeTimeEditer)
-  //   } else {
-  //     window.removeEventListener('click', this.closeTimeEditer)
-  //   }
-  // }
-
-  // /* 显示编辑时间及添加页面点击监听 */
-  // private editTime() {
-  //   this.edit = true
-  //   console.log('点击时刻的时间:  ', this.currentTime * 1000)
-  // }
-
-  /* 时间编辑器 */
-  // private closeTimeEditer(e: MouseEvent) {
-  //   // 点击时间编辑器外区域则隐藏编辑器并提交修改
-  //   // console.log('☀：   ', e.target.className)
-  //   // console.log('☀：   ', e.target.className.indexOf('axis__time__edit'))
-  //   // console.log('☀：   ', e.target.form ? e.target.form : '木得')
-  //   if (e.target.className === 'axis__time__edit' || e.target.className.indexOf('time-editer__form') >= 0 || e.target.form) {
-  //     // 在编辑区域内，执行输入时间的逻辑
-  //     console.log('在区域内部')
-  //   } else {
-  //     // 不在区域内部，确认修改时间，关闭修改器，移除监听事件
-  //     console.log('不在区域内部')
-  //     this.edit = false
-  //   }
-  //   // if (e.target)
-  // }
 
   /* 当前分屏的录像管理器 */
   private get recordManager() {
@@ -198,7 +155,7 @@ export default class extends Vue {
   /* 监听日历变化 */
   @Watch('recordManager.currentDate')
   private onStatusChange() {
-    this.currentTime = this.recordManager && this.recordManager.currentDate
+    this.currentTime = (this.recordManager && this.recordManager.currentDate) || getDateByTime(new Date().getTime()) / 1000
     this.generateData()
     this.draw()
     /* 继续加载上一天的录像列表 */
@@ -214,7 +171,7 @@ export default class extends Vue {
 
   private created() {
     if (this.isInline) {
-      this.settings.recordColor = '#4d493f'
+      this.settings.recordColor = '#584d37'
       this.settings.hourLineColor = '#bbb'
       this.settings.minLineColor = '#999'
       this.settings.midLineColor = '#fa8334'
@@ -511,7 +468,7 @@ export default class extends Vue {
     if (!this.axisDrag.isDragging) return
     this.axisDrag.deltaX = this.axisDrag.startX - e.x
     this.axisDrag.startX = e.x
-    this.currentTime = Math.floor(this.currentTime + this.axisDrag.deltaX * this.settings.ratio) // 将偏移像素值转换成时间戳
+    this.currentTime = this.currentTime + this.axisDrag.deltaX * this.settings.ratio // 将偏移像素值转换成时间戳
     this.generateData()
     this.draw()
   }
@@ -653,11 +610,6 @@ export default class extends Vue {
     font-weight: bold;
     user-select: none;
     border: 1px solid transparent;
-    // &:hover {
-    //   border: 1px solid $primary;
-    //   border-radius: 6px 6px 15px 15px;
-    //   cursor: pointer;
-    // }
   }
 
   &__time__edit {
@@ -672,6 +624,7 @@ export default class extends Vue {
     user-select: none;
     margin-top: -35px;
     height: 20px;
+    // background-color: rgba(250, 208, 117, 0.897);
     border-radius: 6px 6px 15px 15px;
   }
 

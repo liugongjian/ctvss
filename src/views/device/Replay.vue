@@ -121,6 +121,7 @@ export default class extends Mixins(ScreenMixin) {
   }
   .device-list__calander {
     max-height: 1000px;
+    height: 300px;
     transition: all 0.5s;
     overflow: hidden;
 

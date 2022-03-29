@@ -4,7 +4,66 @@
     z-index: 10;
 
     .el-loading-spinner {
-      margin-top: 0;
+      margin-top: -15px;
+
+      .circular {
+        width: 30px;
+        height: 30px;
+      }
+    }
+  }
+  
+  .player__wrap .control__more {
+    display: none;
+  }
+
+  &--small,
+  &--mini {
+    .player__wrap {
+      .control {
+        height: 26px;
+      }
+
+      .control__btn {
+        height: 26px;
+        line-height: 26px;
+        margin: 0 1px;
+        padding: 0 2px;
+
+        svg {
+          width: 13px !important;
+          height: 13px !important;
+        }
+      }
+    }
+  }
+
+  &--mini {
+    .player__wrap {
+      .control__more {
+        display: inline-block;
+      }
+
+      .control__right {
+        display: none;
+      }
+    }
+  }
+
+  &--show-tools {
+    .player__wrap {
+      .control__right {
+        display: flex;
+        right: 0;
+        top: auto;
+        bottom: 26px;
+        padding: 0 3px;
+        background: rgba(0, 0, 0, 70%);
+      }
+
+      .control__live-replay-selector {
+        display: none;
+      }
     }
   }
 }

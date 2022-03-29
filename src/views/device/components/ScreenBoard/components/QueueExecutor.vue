@@ -75,9 +75,8 @@ export default class extends ComponentMixin {
       if (!this.devicesQueue[i]) {
         continue
       } else {
-        Object.assign(this.screenList[i], pick(this.devicesQueue[i], ['inProtocol', 'roleId', 'realGroupId', 'realGroupInProtocol']))
-        this.screenList[i].deviceId = this.devicesQueue[i].id
-        this.screenList[i].deviceName = this.devicesQueue[i].label
+        this.screenManager.transformDeviceParams(this.screenList[i], this.devicesQueue[i])
+        this.screenList[i].inProtocol = this.devicesQueue[i].inProtocol 
         this.screenList[i].isLive = this.screenManager.isLive
       }
       this.screenList[i].init()
@@ -136,9 +135,8 @@ export default class extends ComponentMixin {
     for (let i = 0; i < this.maxSize; i++) {
       this.screenList[i].destroy()
       let deviceInfo = this.devicesQueue[(this.currentExecuteIndex + (i % length)) % length]
-      Object.assign(this.screenList[i], pick(deviceInfo, ['inProtocol', 'roleId', 'realGroupId', 'realGroupInProtocol']))
-      this.screenList[i].deviceId = deviceInfo.id
-      this.screenList[i].deviceName = deviceInfo.label
+      this.screenManager.transformDeviceParams(this.screenList[i], deviceInfo)
+      this.screenList[i].inProtocol = deviceInfo.inProtocol 
       this.screenList[i].isLive = this.screenManager.isLive
       if (deviceInfo.url && deviceInfo.codec) {
         this.$nextTick(() => {

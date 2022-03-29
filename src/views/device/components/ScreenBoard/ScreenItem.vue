@@ -9,7 +9,7 @@
       <LivePlayer
         v-if="screen.isLive"
         :screen="screen"
-        :has-close="true"
+        :has-close="hasClose"
         :is-debug="true"
         :has-live-replay-selector="hasReplayRecord"
         @close="close"
@@ -18,14 +18,14 @@
         v-else
         :screen="screen"
         :has-axis="hasAxis"
-        :has-close="true"
+        :has-close="hasClose"
         :is-debug="true"
         :has-live-replay-selector="true"
         @close="close"
       />
     </template>
     <div v-else class="tip-text tip-select-device">
-      <el-button type="text" @click="selectDevice">请选择设备</el-button>
+      <el-button type="text" size="mini" @click="selectDevice">请选择设备</el-button>
     </div>
     <device-dir v-if="dialogs.deviceDir" @on-close="onDeviceDirClose" />
   </div>
@@ -49,6 +49,11 @@ import DeviceDir from '../dialogs/DeviceDir.vue'
 export default class extends Vue {
   @Prop()
   private screen
+
+  @Prop({
+    default: true
+  })
+  private hasClose
 
   private dialogs = {
     deviceDir: false

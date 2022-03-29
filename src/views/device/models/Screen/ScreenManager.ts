@@ -134,21 +134,31 @@ export class ScreenManager {
     if (screen.deviceId) {
       screen.destroy()
     }
+    this.transformDeviceParams(screen, item, streamNum)
     screen.isLive = this.isLive
     screen.inProtocol = this.inProtocol
-    screen.deviceId = item.id
-    screen.deviceName = item.label
-    screen.roleId = item.roleId || ''
-    screen.realGroupId = item.realGroupId || ''
+    screen.init()
+  }
+
+  /**
+   * 参数适配转换
+   * @param screen screen对象
+   * @param data 设备数据
+   * @param streamNum 指定码流
+   */
+  public transformDeviceParams(screen: Screen, data: any, streamNum?: number) {
+    screen.deviceId = data.id
+    screen.deviceName = data.label
+    screen.roleId = data.roleId || ''
+    screen.realGroupId = data.realGroupId || ''
     // screen.realGroupInProtocol = item.realGroupInProtocol || ''
-    screen.streamSize = item.multiStreamSize
-    screen.streams = item.deviceStreams
+    screen.streamSize = data.multiStreamSize
+    screen.streams = data.deviceStreams
     if (streamNum && !isNaN(streamNum)) {
       screen.streamNum = streamNum
     } else {
-      screen.streamNum = item.autoStreamNum
+      screen.streamNum = data.autoStreamNum
     }
-    screen.init()
   }
 
   /**

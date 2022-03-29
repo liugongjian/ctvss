@@ -1,8 +1,11 @@
 <!-- 码流选择 -->
 <template>
-  <div v-if="streamSize > 1" class="control__btn control__stream-selector" :stream-num="streamNum">
-    <svg-icon name="branch" />
-    <ul class="control__popup">
+  <el-popover
+    placement="top"
+    trigger="hover"
+    popper-class="player__popover"
+  >
+    <ul class="player__popover__panel stream-selector__panel">
       <li
         v-for="(stream, index) in subStreamList"
         :key="index"
@@ -13,7 +16,10 @@
         {{ stream.label }}
       </li>
     </ul>
-  </div>
+    <div v-if="streamSize > 1" slot="reference" class="control__btn control__stream-selector" :stream-num="streamNum">
+      <svg-icon name="branch" />
+    </div>
+  </el-popover>
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
@@ -82,19 +88,20 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-  .control__stream-selector {
-    .control__popup {
-      width: 95px;
-      left: -36px;
+  .stream-selector__panel {
+    li {
       text-align: left;
     }
+  }
 
+  .control__stream-selector {
     &:after {
       content: attr(stream-num);
       position: absolute;
       bottom: 3px;
       right: 2px;
-      font-size: 11px;
+      font-size: 12px;
+      transform: scale(0.7);
     }
   }
 </style>

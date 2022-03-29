@@ -11,6 +11,7 @@
         :key="index"
         :command="item"
         :class="{'el-dropdown-item__active': item.layout === layout}"
+        :disabled="disabled"
       >
         <span class="el-dropdown-menu__screen-icon"><svg-icon :name="`screen${item.layout}`" /></span>
         <label>{{ item.label }}</label>
@@ -19,13 +20,16 @@
   </el-dropdown>
 </template>
 <script lang="ts">
-import { Component } from 'vue-property-decorator'
+import { Component, Prop } from 'vue-property-decorator'
 import ComponentMixin from './mixin'
 
 @Component({
   name: 'SizeSelector'
 })
 export default class extends ComponentMixin {
+  @Prop()
+  private disabled: boolean
+
   private screenSizeList = [
     {
       label: '1分屏',
@@ -86,6 +90,10 @@ export default class extends ComponentMixin {
   private handleScreenSize(screenSize) {
     this.screenManager.size = screenSize.size
     this.screenManager.layout = screenSize.layout
+    /* 当前选中的index如果是大于分屏数量，将index切换到最后一个分屏 */
+    if (screenSize.size < this.screenManager.currentIndex) {
+      this.screenManager.currentIndex = screenSize.size - 1
+    }
   }
 }
 </script>

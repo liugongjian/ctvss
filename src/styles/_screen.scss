@@ -171,6 +171,8 @@
 
     .tip-text {
       color: #fff;
+      max-width: 100%;
+      overflow: hidden;
     }
 
     .vss-player__wrap {
@@ -274,8 +276,24 @@
       height: 100%;
     }
 
-    .screen-item--replay .player__wrap--right-offset .control__right {
-      bottom: 83px !important;
+    .screen-item--replay .player__wrap.player__wrap--right-offset {
+      .control {
+        height: 73px !important;
+      }
+
+      .datepicker {
+        top: 3px;
+        left: 21px;
+      }
+      
+      .replay-type {
+        height: 25px;
+        left: 112px;
+      }
+
+      .control__right {
+        bottom: 73px !important;
+      }
     }
   }
 }
