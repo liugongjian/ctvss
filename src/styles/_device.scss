@@ -246,6 +246,7 @@
 
   &__right {
     flex: 1;
+    overflow: hidden;
 
     .filter-container__search-group {
       margin-right: 10px;
