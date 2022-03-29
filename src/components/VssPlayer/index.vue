@@ -32,6 +32,7 @@
       </template>
       <template slot="controlBody">
         <H265Icon :codec="codec" />
+        <More :has-axis="hasAxis" />
         <slot name="controlBody" />
       </template>
       <template slot="controlRight">
@@ -70,6 +71,7 @@ import TypeSelector from './components/TypeSelector.vue'
 import PtzZoom from './components/PtzZoom.vue'
 import Intercom from './components/Intercom.vue'
 import LiveReplaySelector from './components/LiveReplaySelector.vue'
+import More from './components/More.vue'
 
 @Component({
   name: 'VssPlayer',
@@ -85,7 +87,8 @@ import LiveReplaySelector from './components/LiveReplaySelector.vue'
     TypeSelector,
     PtzZoom,
     Intercom,
-    LiveReplaySelector
+    LiveReplaySelector,
+    More
   },
   directives: {
     // 动态隐藏播放器工具栏与头部
@@ -187,6 +190,12 @@ export default class extends Vue {
     default: false
   })
   private hasLiveReplaySelector: boolean
+
+  /* 是否含有录像时间轴 */
+  @Prop({
+    default: false
+  })
+  private hasAxis: boolean
 
   /* 播放器实例 */
   private player: PlayerModel = null

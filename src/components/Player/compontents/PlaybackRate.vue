@@ -42,3 +42,8 @@ export default class extends ComponentMixin {
   }
 }
 </script>
+<style lang="scss" scoped>
+  .control__playback {
+    width: 30px;
+  }
+</style>
