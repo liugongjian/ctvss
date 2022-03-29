@@ -23,7 +23,7 @@
           </el-card>
           <div class="device-tree__title">
             <span class="device-tree__text">设备树</span>
-            <span class="device-tree__refresh">
+            <span class="device-tree__refresh" @click="initDirs">
               <svg-icon name="refresh" />
             </span>
           </div>
@@ -42,6 +42,7 @@
                   <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                   <svg-icon :name="data.type" />
                   {{ node.label }}
+                  <span class="sum-icon">{{ getSums(data) }}</span>
                 </span>
                 <span
                   class="node-option"
@@ -208,7 +209,6 @@ export default class extends Mixins(IndexMixin) {
   private isEdit = false
   private editValue = 'sss'
   public breadcrumb: Array<any> = []
-  private platformList: Array<any> = []
   private hideTitle = false
   private showInfo = false
   private showMapInfo = true
@@ -235,6 +235,7 @@ export default class extends Mixins(IndexMixin) {
       { validator: this.validatelat, trigger: 'blur' }
     ]
   }
+
   private validatelng(rule: any, value: string, callback: Function) {
     const val = Number(value)
     if (!this.checklng(val)) {
@@ -292,8 +293,8 @@ export default class extends Mixins(IndexMixin) {
   private showMarkers = true
   private is3D = true
   private marker = null
-  @Prop()
-  private platformId: any = '417932083494649856'
+  // @Prop()
+  // private platformId: any = '417932083494649856'
   private typeMapping: any = {
     dir: 0,
     nvr: 1
@@ -308,11 +309,6 @@ export default class extends Mixins(IndexMixin) {
       const res = await getGroups({
         pageSize: 1000
       })
-      const result = await getPlatforms({
-        pageNum: 1,
-        pageSize: 1000
-      })
-      this.platformList = result.platforms
       this.dirList = []
       res.groups.forEach((group: any) => {
         // 放开rtsp rtmp
@@ -357,7 +353,6 @@ export default class extends Mixins(IndexMixin) {
    */
   private async getTree(node: any) {
     try {
-      console.log('gettree')
       if (node.data.type === 'role') {
         node.data.roleId = node.data.id
       } else if (node.data.type === 'group') {
@@ -365,22 +360,21 @@ export default class extends Mixins(IndexMixin) {
         node.data.realGroupInProtocol = node.data.inProtocol
       }
       let shareDeviceIds: any = []
-      if (node.data.type !== 'vgroup' && node.data.type !== 'role') {
-        console.log('this.platformId', this.platformId)
-        let params: any = {
-          platformId: this.platformId,
-          inProtocol: node.data.inProtocol,
-          groupId: node.data.realGroupId || node.data.groupId,
-          dirId: node.data.type === 'top-group' || node.data.type === 'group' ? 0 : node.data.id,
-          dirType: '0',
-          pageNum: 1,
-          pageSize: 1000
-        }
-        const shareDevices: any = await describeShareDevices(params)
-        shareDeviceIds = shareDevices.devices.map((device: any) => {
-          return device.deviceId
-        })
-      }
+      // if (node.data.type !== 'vgroup' && node.data.type !== 'role') {
+      //   let params: any = {
+      //     platformId: this.platformId,
+      //     inProtocol: node.data.inProtocol,
+      //     groupId: node.data.realGroupId || node.data.groupId,
+      //     dirId: node.data.type === 'top-group' || node.data.type === 'group' ? 0 : node.data.id,
+      //     dirType: '0',
+      //     pageNum: 1,
+      //     pageSize: 1000
+      //   }
+      //   const shareDevices: any = await describeShareDevices(params)
+      //   shareDeviceIds = shareDevices.devices.map((device: any) => {
+      //     return device.deviceId
+      //   })
+      // }
 
       const devices: any = await getDeviceTree({
         groupId: node.data.groupId,
@@ -416,17 +410,17 @@ export default class extends Mixins(IndexMixin) {
           type: dir.type,
           deviceStatus: dir.deviceStatus,
           streamStatus: dir.streamStatus,
-          // disabled: dir.type !== 'ipc' || sharedFlag,
           disabled: sharedFlag,
           path: node.data.path.concat([dir]),
           sharedFlag: sharedFlag,
           roleId: node.data.roleId || '',
           realGroupId: node.data.realGroupId || '',
-          realGroupInProtocol: node.data.realGroupInProtocol || ''
+          realGroupInProtocol: node.data.realGroupInProtocol || '',
+          onlineSize: dir.onlineSize,
+          totalSize: dir.totalSize
         }
       })
       dirs = setDirsStreamStatus(dirs)
-      console.log(dirs)
       return dirs
     } catch (e) {
       console.log(e)
