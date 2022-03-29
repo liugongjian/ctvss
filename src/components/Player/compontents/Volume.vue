@@ -13,7 +13,7 @@
         :show-tooltip="false"
         class="volume"
         vertical
-        height="165px"
+        height="100px"
         @input="setVolume"
       />
     </div>
