@@ -260,7 +260,6 @@ export default class extends Mixins(DashboardMixin) {
 
   private async mounted() {
     GroupModule.GetGroupList()
-    console.log(GroupModule.groups)
     this.aiInfos = await this.getAiApps()
 
     // TODO: Hardcode 300015
