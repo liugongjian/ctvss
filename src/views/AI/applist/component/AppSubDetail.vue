@@ -133,6 +133,7 @@
             :pic="pic"
             :type="appInfo.algorithm.code"
             @showDialogue="showDialogue"
+            @videoOp="videoOp"
           />
         </div>
         <div v-else class="no-data">{{ device ? '暂无数据' : '请选择设备' }}</div>
@@ -147,8 +148,8 @@
         />
       </div>
       <el-dialog
-        v-if="visibile"
-        :visible="visibile"
+        v-if="visibile || videoVisibile"
+        :visible="visibile || videoVisibile"
         :fullscreen="true"
         :custom-class="`light-ai-image-fullscreen`"
         @close="dialogueOprate"
@@ -156,10 +157,11 @@
         <div slot="title">{{ dialoguePic && dialoguePic.deviceName }} | {{ dialoguePic && dialoguePic.time }}</div>
         <div class="ai-recognation__images__item__wrap ai-image-fullscreen__img">
           <div class="ai-recognation__images__item__img--wrap ai-image-fullscreen__img--wrap">
-            <img v-if="dialoguePic" ref="dialogue" :src="dialoguePic.image" @load="onload">
-            <Locations :type="appInfo.algorithm.code" :img="dialoguePic" :clickable="true" @click-location="onLocationChanged" />
+            <img v-if="dialoguePic && visibile" ref="dialogue" :src="dialoguePic.image" @load="onload">
+            <Locations v-if="dialoguePic && visibile" :type="appInfo.algorithm.code" :img="dialoguePic" :clickable="true" @click-location="onLocationChanged" />
+            <div v-if="videoVisibile">test</div>
           </div>
-          <Attributes v-if="appInfo.algorithm.code === '10009'" class="ai-image-fullscreen__img--attributes" :type="appInfo.algorithm.code" :img="dialoguePic" :attributes-index="currentLocationIndex" />
+          <Attributes v-if="appInfo.algorithm.code === '10009' && dialoguePic && visibile" class="ai-image-fullscreen__img--attributes" :type="appInfo.algorithm.code" :img="dialoguePic" :attributes-index="currentLocationIndex" />
         </div>
       </el-dialog>
     </div>
@@ -178,6 +180,7 @@ import { getGroupPersonAlready } from '@/api/aiConfig'
 import { decodeBase64 } from '@/utils/base64'
 import debounce from '@/utils/debounce'
 import { ResultTimeInterval } from '@/dics/index'
+import { getUnixTime, parse } from 'date-fns'
 
 @Component({
   name: 'AppSubDetail',
@@ -202,6 +205,7 @@ export default class extends Vue {
     }
     private currentLocationIndex: number = -1
     private visibile = false
+    private videoVisibile = false
     private decodeBase64: Function = decodeBase64
     private timeInterval = ResultTimeInterval
     private pager = {
@@ -390,7 +394,12 @@ export default class extends Vue {
     }
 
     private dialogueOprate() {
-      this.visibile = !this.visibile
+      if (this.visibile) {
+        this.visibile = !this.visibile
+      }
+      if (this.videoVisibile) {
+        this.videoVisibile = !this.videoVisibile
+      }
     }
     private showDialogue(val) {
       this.visibile = true
@@ -407,6 +416,11 @@ export default class extends Vue {
     }
     private async refresh() {
       this.debounceHandle()
+    }
+    private videoOp(video) {
+      this.videoVisibile = true
+      const eventId = getUnixTime(parse(video.info.time, 'yyyy-MM-dd HH:mm:ss', new Date()))
+      const { deviceId, inProtocol } = this.device
     }
 }
 </script>

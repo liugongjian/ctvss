@@ -1,9 +1,13 @@
-
 <template>
   <el-card @click.native="viewDetail">
     <div class="pic-wrapper">
       <img ref="img" :src="pic.image" @load="onload" @error="nopic">
       <Locations v-if="picInfo && isPicLoaded" :type="type" :img="picInfo" />
+      <div class="pic-wrapper__video-buttons">
+        <div class="pic-wrapper__video-buttons__play" @click.stop="dialogue('play')"><el-image :src="require(`../../assets/icon/videoPlay.svg`)" />播放</div>
+        <div class="pic-wrapper__video-buttons__download" @click.stop="dialogue('download')"><el-image :src="require(`../../assets/icon/videoDownload.svg`)" />下载</div>
+        <div class="pic-wrapper__video-buttons__copy" @click.stop="dialogue('copy')"><el-image :src="require(`../../assets/icon/videoCopyUrl.svg`)" />链接</div>
+      </div>
     </div>
     <div class="content-wrapper">
       <el-descriptions :column="1">
@@ -63,6 +67,9 @@ export default class extends Vue {
   private viewDetail() {
     this.$emit('showDialogue', this.pic)
   }
+  private dialogue(op) {
+    this.$emit('videoOp', { type: op, info: this.pic })
+  }
 }
 </script>
 <style lang='scss' scoped>
@@ -84,6 +91,39 @@ export default class extends Vue {
           width: 100%;
           // height: 100%;
           height: auto;
+        }
+        &__video-buttons{
+          position: absolute;
+          bottom: 0;
+          right: 0;
+          display: flex;
+          &>div{
+            display: flex;
+            align-items: center;
+            height: 28px;
+            font-size: 12px;
+            color: white;
+            padding: 5px 5px;
+            .el-image{
+              height: 100%;
+            }
+          }
+          &__play{
+            background: #556677;
+            border-radius: 3px 0 0 3px;
+          }
+          &__download{
+            background: #F39C12;
+          }
+          &__copy{
+            background: #00C0EF;
+            border-radius: 0 3px 3px 0;
+          }
+          ::v-deep .el-image__inner{
+            padding-right: 3px;
+            height: 17px;
+          }
+
         }
     }
     .content-wrapper{
