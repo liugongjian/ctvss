@@ -1,8 +1,11 @@
 <!-- 截图 -->
 <template>
-  <div class="control__btn control__video-type">
-    {{ types[type] }}
-    <ul class="control__popup">
+  <el-popover
+    placement="top"
+    trigger="hover"
+    popper-class="player__popover"
+  >
+    <ul class="player__popover__panel">
       <li
         v-for="(label, key) in types"
         :key="key"
@@ -12,7 +15,10 @@
         {{ label }}
       </li>
     </ul>
-  </div>
+    <div slot="reference" class="control__btn control__video-type">
+      <span class="label">{{ types[type] }}</span>
+    </div>
+  </el-popover>
 </template>
 <script lang="ts">
 import { Component, Prop } from 'vue-property-decorator'
@@ -41,10 +47,3 @@ export default class extends ComponentMixin {
   }
 }
 </script>
-<style lang="scss" scoped>
-  .video-type .control__popup {
-    width: 78px;
-    left: -26px;
-    text-align: center;
-  }
-</style>

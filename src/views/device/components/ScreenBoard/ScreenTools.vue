@@ -10,9 +10,9 @@
         </template>
       </div>
       <div class="screen-tools__bar__right">
-        <Cleaner v-if="showScreenTool && showAxis" :disabled="isPolling" />
-        <SizeSelector v-if="showScreenTool && showAxis" :disabled="isPolling" />
-        <Fullscreen v-if="showAxis" :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
+        <Cleaner v-if="showScreenTool && isScreenView" :disabled="isPolling" />
+        <SizeSelector v-if="showScreenTool && isScreenView" :disabled="isPolling" />
+        <Fullscreen v-if="isScreenView" :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
         <ViewSelector v-if="!isLive" />
       </div>
     </div>
@@ -64,9 +64,14 @@ export default class extends Vue {
     return this.screenManager.isLive
   }
 
+  /* 是否为分屏视图 */
+  private get isScreenView() {
+    return this.screenManager.view === 'screen'
+  }
+
   /* 当为录像回放，并且视图为screen时显示时间轴和相关控件 */
   private get showAxis() {
-    return !this.isLive && this.screenManager.view === 'screen'
+    return !this.isLive && this.isScreenView
   }
 
   /* 是否启用时间轴 */
