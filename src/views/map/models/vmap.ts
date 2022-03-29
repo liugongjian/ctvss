@@ -132,11 +132,10 @@ export default class VMap {
   chooseMarker(marker) {
     if (!marker.selected) {
       this.cancelChoose()
-      this.curMarkerList = this.curMarkerList.map((item) => {
+      this.curMarkerList.forEach((item) => {
         if (item.deviceId === marker.deviceId) {
           item.selected = true
         }
-        return item
       })
       this.setCluster(this.wrapMarkers(this.curMarkerList))
     }
@@ -205,9 +204,8 @@ export default class VMap {
 
   cancelChoose() {
     if (this.curMarkerList.length > 0) {
-      this.curMarkerList = this.curMarkerList.map((item) => {
+      this.curMarkerList.forEach((item) => {
         item.selected = false
-        return item
       })
       this.setCluster(this.wrapMarkers(this.curMarkerList))
     }

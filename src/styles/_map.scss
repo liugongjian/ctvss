@@ -22,9 +22,6 @@
     bottom: 10px;
     font-size: 12px;
   }
-  .hide-title .marker-label {
-    display: none;
-  }
   .marker-center {
     position: absolute;
     top: -7px;
@@ -61,6 +58,7 @@
     left: -20px;
     filter: drop-shadow(#ccc 20px 0);
   }
+
   .marker-options .icon_delete {
     background: url('~@/icons/svg/delete.svg') no-repeat;
     background-size: contain;
@@ -73,4 +71,7 @@
     background: url('~@/icons/svg/play-video.svg') no-repeat;
     background-size: contain;
   }
+}
+.hide-title .marker-label {
+  display: none;
 }

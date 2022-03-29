@@ -92,9 +92,9 @@
           <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
             <el-dialog :title="mapEditDialog.status == 'add' ? '添加地图' : '编辑地图'" :visible.sync="mapEditDialog.dialogVisible" width="45%" class="dialog-text">
               <el-form ref="mapform" :model="form" label-width="150px" :rules="rules">
-                <el-form-item label="名称" prop="name">
-                  <el-input v-model="form.name" placeholder="请输入地图名称" />
-                </el-form-item>
+<!--                <el-form-item label="名称" prop="name">-->
+<!--                  <el-input v-model="form.name" placeholder="请输入地图名称" />-->
+<!--                </el-form-item>-->
                 <el-form-item label="中心点经度" prop="longitude">
                   <el-input v-model="form.longitude" placeholder="请输入地图中心点经度" />
                 </el-form-item>
