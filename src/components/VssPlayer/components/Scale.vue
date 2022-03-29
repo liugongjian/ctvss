@@ -60,7 +60,6 @@ export default class extends ComponentMixin {
 
   @Watch('url')
   private onUrlChange() {
-    console.log('@@@@@@@', this.player.url)
     this.scaleVideo(this.scale)
   }
 

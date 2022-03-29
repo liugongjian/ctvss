@@ -101,7 +101,7 @@ export default class extends Vue {
   /* 尺寸监听器 */
   private resizeObserver: ResizeObserver = null
   /* 当前时间 */
-  private currentTime: number = null
+  private currentTime: number = getDateByTime(new Date().getTime()) / 1000
   /* 最后一次更新currentTime的时间，用于截流 */
   private lastUpdateTime = 0
   /* 当前时间轴的头部时间 */
@@ -155,7 +155,7 @@ export default class extends Vue {
   /* 监听日历变化 */
   @Watch('recordManager.currentDate')
   private onStatusChange() {
-    this.currentTime = this.recordManager && this.recordManager.currentDate
+    this.currentTime = (this.recordManager && this.recordManager.currentDate) || getDateByTime(new Date().getTime()) / 1000
     this.generateData()
     this.draw()
     /* 继续加载上一天的录像列表 */
