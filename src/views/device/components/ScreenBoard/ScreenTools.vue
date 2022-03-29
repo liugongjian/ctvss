@@ -10,9 +10,9 @@
         </template>
       </div>
       <div class="screen-tools__bar__right">
-        <Cleaner v-if="showScreenTool" :disabled="isPolling" />
-        <SizeSelector v-if="showScreenTool" :disabled="isPolling" />
-        <Fullscreen :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
+        <Cleaner v-if="showScreenTool && showAxis" :disabled="isPolling" />
+        <SizeSelector v-if="showScreenTool && showAxis" :disabled="isPolling" />
+        <Fullscreen v-if="showAxis" :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
         <ViewSelector v-if="!isLive" />
       </div>
     </div>
