@@ -417,21 +417,21 @@ export default class extends Mixins(IndexMixin) {
       }
     } else {
       // 不为搜索树时需要调接口添加node的children
-      // if (!this.advancedSearchForm.revertSearchFlag) {
-      let data = await getDeviceTree({
-        groupId: this.currentGroupId,
-        id: node!.data.id,
-        type: node!.data.type,
-        'self-defined-headers': {
-          'role-id': node!.data.roleId || '',
-          'real-group-id': node!.data.realGroupId || ''
-        }
-      })
-      const dirs = this.setDirsStreamStatus(data.dirs)
-      dirTree.updateKeyChildren(node.data.id, dirs)
-      node.expanded = true
-      node.loaded = true
-      // }
+      if (!this.advancedSearchForm.revertSearchFlag) {
+        let data = await getDeviceTree({
+          groupId: this.currentGroupId,
+          id: node!.data.id,
+          type: node!.data.type,
+          'self-defined-headers': {
+            'role-id': node!.data.roleId || '',
+            'real-group-id': node!.data.realGroupId || ''
+          }
+        })
+        const dirs = this.setDirsStreamStatus(data.dirs)
+        dirTree.updateKeyChildren(node.data.id, dirs)
+        node.expanded = true
+        node.loaded = true
+      }
       if (node.data.children && node.data.children.length) {
         for (let i = 0, len = node.data.children.length; i < len; i++) {
           const item = node.data.children[i]
