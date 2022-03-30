@@ -106,7 +106,7 @@ export default class extends Vue {
    * 是否处于轮询状态
    */
   private get isPolling() {
-    return this.screenManager.executeQueueConfig.status === 'working'
+    return this.screenManager.executeQueueConfig.status !== 'free'
   }
 
   /**

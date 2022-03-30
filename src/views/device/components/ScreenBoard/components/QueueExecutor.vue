@@ -186,7 +186,7 @@ export default class extends ComponentMixin {
    * 停止轮巡
    */
   private stopPolling() {
-    if (this.pollingStatus === 'working') {
+    if (this.pollingStatus !== 'free') {
       clearTimeout(this.timer)
       this.pollingStatus = 'free'
     }
