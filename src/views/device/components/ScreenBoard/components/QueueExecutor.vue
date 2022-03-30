@@ -67,9 +67,6 @@ export default class extends ComponentMixin {
    * 一键播放
    */
   private doAutoPlay() {
-    if (!this.devicesQueue.length) {
-      return
-    }
     for (let i = 0; i < this.maxSize; i++) {
       this.screenList[i].destroy()
       if (!this.devicesQueue[i]) {
