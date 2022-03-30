@@ -320,7 +320,7 @@ export default class extends Mixins(AppMixin) {
       // 处理人脸库选项
       this.editTransformFaceData()
       // 处理置信度
-      this.form = { ...this.form, confidence: this.form.confidence * 100 }
+      this.form = { ...this.form, confidence: parseInt(this.form.confidence * 100 + '') }
     } else { // 新建
       const algorithmMetadata = this.ifShow('10021') ? { pvTime: '10' } : {}
       this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [], validateType: '无验证', confidence: 60 }
