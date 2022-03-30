@@ -78,8 +78,12 @@ export default class MapView extends Vue {
     }
   }
 
-  setMapCenter(lng, lat) {
+  public setMapCenter(lng, lat) {
     this.vmap.map.setCenter([lng, lat]);
+  }
+
+  public closePlayer() {
+    this.playWindowInfo.show = 'none'
   }
 
   addMapEvent() {
