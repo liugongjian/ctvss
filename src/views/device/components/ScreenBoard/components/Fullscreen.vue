@@ -36,7 +36,9 @@ export default class extends ComponentMixin {
     this.$emit('change', this.currentFullscreen)
   }
 
-  @Watch('isFullscreen')
+  @Watch('isFullscreen', {
+    immediate: true
+  })
   private onIsFullscreenChange() {
     this.currentFullscreen = this.isFullscreen
   }
