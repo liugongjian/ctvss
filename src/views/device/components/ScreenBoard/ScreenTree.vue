@@ -86,17 +86,9 @@
               placement="top"
               :open-delay="500"
             >
-              <StreamSelector v-if="data.type === 'ipc' && isLive" class="set-stream" :stream-size="data.multiStreamSize" :streams="data.deviceStreams" @onSetStreamNum="openScreen(data, ...arguments)" />
+              <StreamSelector v-if="data.type === 'ipc' && isLive" :stream-size="data.multiStreamSize" :streams="data.deviceStreams" @onSetStreamNum="openScreen(data, ...arguments)" />
             </el-tooltip>
-            <el-tooltip
-              class="item"
-              effect="dark"
-              content="更多操作"
-              placement="top"
-              :open-delay="300"
-            >
-              <OperateSelector v-if="data.type !== 'ipc' && data.type !== 'role'" :is-live="isLive" @onSetOperateValue="setOperateValue($event, node)" />
-            </el-tooltip>
+            <OperateSelector v-if="data.type !== 'ipc' && data.type !== 'role'" :is-live="isLive" @onSetOperateValue="setOperateValue($event, node)" />
           </div>
         </span>
       </el-tree>
