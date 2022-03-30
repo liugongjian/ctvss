@@ -5,6 +5,8 @@
     trigger="hover"
     popper-class="player__popover"
     :disabled="isMuted || isH265"
+    @after-enter="enterPopover"
+    @after-leave="leavePopover"
   >
     <div class="player__popover__panel volume__panel">
       <el-slider

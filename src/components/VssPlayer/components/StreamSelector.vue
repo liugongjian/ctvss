@@ -4,6 +4,8 @@
     placement="top"
     trigger="hover"
     popper-class="player__popover"
+    @after-enter="enterPopover"
+    @after-leave="leavePopover"
   >
     <ul class="player__popover__panel stream-selector__panel">
       <li
@@ -22,7 +24,8 @@
   </el-popover>
 </template>
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { Component, Prop, Watch } from 'vue-property-decorator'
+import ComponentMixin from './mixin'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { Stream, StreamInfo } from '@/components/VssPlayer/models/VssPlayer.d'
 
@@ -32,7 +35,7 @@ import { Stream, StreamInfo } from '@/components/VssPlayer/models/VssPlayer.d'
     StatusBadge
   }
 })
-export default class extends Vue {
+export default class extends ComponentMixin {
   @Prop()
   private streamInfo: StreamInfo
   private streamNum: number = null

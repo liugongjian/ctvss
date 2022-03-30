@@ -12,6 +12,15 @@
     }
   }
 
+  &--popover {
+    cursor: default !important;
+    
+    .header,
+    .control {
+      opacity: 1 !important;
+    }
+  }
+
   .header {
     * {
       user-select: none;
@@ -183,7 +192,7 @@
       cursor: pointer;
   
       &:hover {
-        background: #444;
+        background: #555;
       }
   
       &.selected {

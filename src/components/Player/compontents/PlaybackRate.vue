@@ -4,6 +4,8 @@
     placement="top"
     trigger="hover"
     popper-class="player__popover"
+    @after-enter="enterPopover"
+    @after-leave="leavePopover"
   >
     <ul class="player__popover__panel">
       <li
