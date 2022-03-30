@@ -52,13 +52,13 @@ index 6534063..2031b19 100644
                'span',
                {
 diff --git a/node_modules/element-ui/packages/date-picker/src/panel/date.vue b/node_modules/element-ui/packages/date-picker/src/panel/date.vue
-index dc58c28..e9bdd07 100644
+index dc58c28..558f79d 100644
 --- a/node_modules/element-ui/packages/date-picker/src/panel/date.vue
 +++ b/node_modules/element-ui/packages/date-picker/src/panel/date.vue
 @@ -1,5 +1,5 @@
  <template>
 -  <transition name="el-zoom-in-top" @after-enter="handleEnter" @after-leave="handleLeave">
-+  <transition @after-enter="handleEnter" @after-leave="handleLeave">
++  <transition>
      <div
        v-show="visible"
        class="el-picker-panel el-date-picker el-popper"
