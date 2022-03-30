@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="loading.group" class="app-container">
+  <div v-loading.body="loading.group" class="app-container">
     <el-card ref="deviceWrap" class="device-list-wrap">
       <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
         <el-button class="device-list__expand" @click="toggledirList">
@@ -27,7 +27,7 @@
               <svg-icon name="refresh" />
             </span>
           </div>
-          <div v-loading="loading.dir" class="dir-list__tree device-list__max-height el-tree__content" :style="{height: `${maxHeight-230}px`}">
+          <div v-loading.body="loading.dir" class="dir-list__tree device-list__max-height el-tree__content" :style="{height: `${maxHeight-230}px`}">
             <el-tree
               ref="dirTree"
               node-key="id"
@@ -361,22 +361,6 @@ export default class extends Mixins(IndexMixin) {
         node.data.realGroupInProtocol = node.data.inProtocol
       }
       let shareDeviceIds: any = []
-      // if (node.data.type !== 'vgroup' && node.data.type !== 'role') {
-      //   let params: any = {
-      //     platformId: this.platformId,
-      //     inProtocol: node.data.inProtocol,
-      //     groupId: node.data.realGroupId || node.data.groupId,
-      //     dirId: node.data.type === 'top-group' || node.data.type === 'group' ? 0 : node.data.id,
-      //     dirType: '0',
-      //     pageNum: 1,
-      //     pageSize: 1000
-      //   }
-      //   const shareDevices: any = await describeShareDevices(params)
-      //   shareDeviceIds = shareDevices.devices.map((device: any) => {
-      //     return device.deviceId
-      //   })
-      // }
-
       const devices: any = await getDeviceTree({
         groupId: node.data.groupId,
         id: node.data.type === 'top-group' || node.data.type === 'vgroup' ? 0 : node.data.id,
@@ -387,9 +371,6 @@ export default class extends Mixins(IndexMixin) {
           'real-group-id': node.data.realGroupId
         }
       })
-      // if (node.data.type === 'role') {
-      //   devices.dirs = devices.dirs.filter((dir: any) => dir.inProtocol === 'gb28181' || dir.inProtocol === 'ehome')
-      // }
       const dirTree: any = this.$refs.dirTree
       let checkedKeys = dirTree.getCheckedKeys()
       let dirs: any = devices.dirs.map((dir: any) => {
@@ -596,7 +577,7 @@ export default class extends Mixins(IndexMixin) {
   deviceClick(data) {
     if (data.isLeaf && this.mapDeviceIds.indexOf(data.id) < 0) {
       this.$message.warning(`该设备尚未添加到当前地图上`)
-    } else if (data.isLeaf && this.mapDeviceIds.indexOf(data.id) >= 0){
+    } else if (data.isLeaf && this.mapDeviceIds.indexOf(data.id) >= 0) {
       const marker = this.markerList.filter(item => item.deviceId === data.id)[0]
       this.$refs.mapview.setMapCenter(marker.longitude, marker.latitude)
       this.$refs.mapview.chooseDevice(marker)
