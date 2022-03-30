@@ -71,9 +71,8 @@ export default class extends Vue {
   }
 
   @Watch('screen.deviceId')
-  @Watch('recordStatistic')
+  // @Watch('recordStatistic')
   private onDeviceChange() {
-    console.log('deviceId')
     this.showPanel = false
     this.$nextTick(() => {
       this.showPanel = true

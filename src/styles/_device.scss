@@ -587,3 +587,12 @@
     }
   }
 }
+
+.operate-selector-popover {
+  min-width: 0;
+  padding: 5px;
+
+  &.el-popper[x-placement^=bottom] {
+    margin: 0;
+  }
+}
