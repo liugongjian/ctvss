@@ -22,13 +22,14 @@
     @onCreate="onPlayerCreate"
   >
     <template slot="controlRight">
-      <Fullscreen @change="onFullscreenChange" />
+      <Fullscreen :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
     </template>
   </VssPlayer>
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { PlayerEvent } from '@/components/VssPlayer/models/VssPlayer.d'
+import { ScreenModule } from '@/store/modules/screen'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import VssPlayer from '@/components/VssPlayer/index.vue'
 import Fullscreen from './ScreenBoard/components/Fullscreen.vue'
@@ -52,6 +53,11 @@ export default class extends Vue {
 
   @Prop()
   private isDebug: Boolean
+
+  /* 当前全屏状态 */
+  private get isFullscreen() {
+    return this.screen && this.screen.isFullscreen
+  }
 
   /**
    * 当播放器实例创建
@@ -106,6 +112,9 @@ export default class extends Vue {
   private toggleLiveReplay() {
     this.screen.isLive = false
     this.screen.init()
+    if (this.screen.isFullscreen) {
+      ScreenModule.SetIsFullscreen(this.screen.isFullscreen)
+    }
   }
 
   /**

@@ -44,7 +44,7 @@
     </template>
     <template slot="controlRight">
       <RecordDownload v-if="hasAdminRecord" :screen="screen" />
-      <Fullscreen @change="onFullscreenChange" />
+      <Fullscreen :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
     </template>
   </VssPlayer>
 </template>
@@ -98,6 +98,11 @@ export default class extends Vue {
 
   private get hasAdminRecord() {
     return checkPermission(['AdminRecord'])
+  }
+
+  /* 当前全屏状态 */
+  private get isFullscreen() {
+    return this.screen && this.screen.isFullscreen
   }
 
   @Watch('screen.recordManager.currentRecord.url', { immediate: true })
