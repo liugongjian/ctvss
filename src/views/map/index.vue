@@ -1,7 +1,7 @@
 <template>
   <div v-loading.body="loading.group" class="app-container">
     <el-card ref="deviceWrap" class="device-list-wrap">
-      <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
+      <div class="device-list" :style="{height: `${maxHeight + 35}px`}" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
         <el-button class="device-list__expand" @click="toggledirList">
           <svg-icon name="hamburger" />
         </el-button>
