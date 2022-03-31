@@ -46,6 +46,14 @@ export class RtcPlayer extends Player {
   }
 
   /**
+   * 检测是否有音频
+   */
+  protected testHasAudio() {
+    // @ts-ignore
+    this.hasAudio = Boolean(this.video.srcObject && this.video.srcObject.getAudioTracks && this.video.srcObject.getAudioTracks().length)
+  }
+
+  /**
    * 重新拉流
    */
   private retry(immediate: boolean = false) {
