@@ -274,7 +274,8 @@ export default class extends Vue {
   }
 
   /* 替换播放地址协议 */
-  private replaceProtocol(url: string, isWs: boolean) {
+  private replaceProtocol(url: string, isWs: boolean): string {
+    if (!url) return ''
     let _url = url
     const isHttps = window.location.protocol === 'https:'
     if (isHttps) {

@@ -169,7 +169,6 @@ export default class extends Vue {
     immediate: true
   })
   private async getRecordList() {
-    console.log('🌞🌞recordList')
     try {
       // 没有加载录像直接进入录像列表时，没有 recordManager
       if (!this.currentScreen.recordManager) return
