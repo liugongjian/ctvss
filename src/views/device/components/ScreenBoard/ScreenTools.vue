@@ -5,8 +5,8 @@
         <QueueExecutor />
         <template v-if="showAxis">
           <Sync v-if="showScreenTool" />
-          <DatePicker v-if="showDatePicker" :screen="currentScreen" @change="onDateChange" />
-          <ReplayType v-if="showDatePicker" :screen="currentScreen" @change="onReplayTypeChange" />
+          <DatePicker v-if="showDatePicker" :screen="currentScreen" :disabled="!enableAxis" @change="onDateChange" />
+          <ReplayType v-if="showDatePicker" :screen="currentScreen" :disabled="!enableAxis" @change="onReplayTypeChange" />
         </template>
       </div>
       <div class="screen-tools__bar__right">
@@ -115,7 +115,9 @@ export default class extends Vue {
   private onAxisTimeChange(time: number) {
     if (this.screenManager.isSync) {
       this.screenManager.screenList.forEach(screen => {
-        screen.recordManager && screen.recordManager.seek(time)
+        if (!screen.isLive) {
+          screen.recordManager && screen.recordManager.seek(time)
+        }
       })
     } else {
       this.currentScreen.recordManager.seek(time)
@@ -128,7 +130,9 @@ export default class extends Vue {
   private onDateChange(date) {
     if (this.screenManager.isSync) {
       this.screenManager.screenList.forEach(screen => {
-        screen.recordManager && screen.recordManager.getRecordListByDate(date)
+        if (!screen.isLive) {
+          screen.recordManager && screen.recordManager.getRecordListByDate(date)
+        }
       })
     } else {
       this.currentScreen.recordManager.getRecordListByDate(date)
@@ -142,7 +146,9 @@ export default class extends Vue {
     if (this.screenManager.isSync) {
       this.screenManager.screenList.forEach(screen => {
         screen.recordType = recordType
-        screen.recordManager && screen.recordManager.initReplay()
+        if (!screen.isLive) {
+          screen.recordManager && screen.recordManager.initReplay()
+        }
       })
     } else {
       this.currentScreen.recordType = recordType

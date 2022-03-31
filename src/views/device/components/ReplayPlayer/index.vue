@@ -22,6 +22,9 @@
     @dispatch="onDispatch"
     @onCreate="onPlayerCreate"
   >
+    <template slot="container">
+      <slot name="default" />
+    </template>
     <template slot="controlBody">
       <DatePicker
         v-if="hasAxis"

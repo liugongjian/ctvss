@@ -165,6 +165,10 @@ export class RecordManager {
     } catch (e) {
       // 异常时删除日期
       this.loadedRecordDates.delete(date)
+      if (!isSilence) {
+        this.currentRecord = null
+        this.screen.errorMsg = this.screen.ERROR.NO_RECORD
+      }
     } finally {
       if (!isSilence) this.screen.isLoading = false
     }

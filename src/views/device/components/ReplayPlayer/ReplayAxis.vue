@@ -126,11 +126,9 @@ export default class extends Vue {
   /* 监听播放器时间变化 */
   @Watch('screen.player.currentTime')
   private onCurrentTimeChange() {
-    if (this.axisDrag.isDragging) return
+    if (this.screen.isLive || this.disabled || this.axisDrag.isDragging) return
     /* 如果与上一次的更新时间差小于1秒，不触发绘制 */
-    if (new Date().getTime() - this.lastUpdateTime < 1000) {
-      return
-    }
+    if (new Date().getTime() - this.lastUpdateTime < 1000) return
     if (this.screen && this.screen.player) {
       const recordCurrentTime = this.screen.player.currentTime
       if (this.screen.recordType === 0 && this.recordManager.currentRecord) {
@@ -155,6 +153,7 @@ export default class extends Vue {
   /* 监听日历变化 */
   @Watch('recordManager.currentDate')
   private onStatusChange() {
+    if (this.screen.isLive || this.disabled) return
     this.currentTime = (this.recordManager && this.recordManager.currentDate) || getDateByTime(new Date().getTime()) / 1000
     this.generateData()
     this.draw()

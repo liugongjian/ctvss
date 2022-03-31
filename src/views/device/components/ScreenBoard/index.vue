@@ -12,6 +12,7 @@
           :screen="screen"
           :has-live-replay-selector="true"
           :has-close="!isSingle"
+          :is-single="isSingle"
           :style="`grid-area: item${index}`"
           :class="[{'actived': index === currentIndex && screenList.length > 1}]"
           @click="selectScreen(index)"

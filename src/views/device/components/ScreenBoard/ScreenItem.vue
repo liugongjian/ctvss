@@ -4,25 +4,28 @@
     :class="{'screen-item--fullscreen': isFullscreen, 'screen-item--live': isLive, 'screen-item--replay': !isLive}"
     @click="click"
   >
-    <div v-if="videoTypeLabel && !screen.isLoading && screen.player" class="video-type-label">{{ videoTypeLabel }}</div>
     <template v-if="screen.deviceId">
       <LivePlayer
         v-if="screen.isLive"
         :screen="screen"
         :has-close="hasClose"
         :is-debug="true"
-        :has-live-replay-selector="hasReplayRecord"
+        :has-live-replay-selector="hasReplayRecord && !isSingle"
         @close="close"
-      />
+      >
+        <div v-if="videoTypeLabel && !screen.isLoading && screen.player" class="video-type-label">{{ videoTypeLabel }}</div>
+      </LivePlayer>
       <ReplayPlayer
         v-else
         :screen="screen"
         :has-axis="hasAxis"
         :has-close="hasClose"
         :is-debug="true"
-        :has-live-replay-selector="true"
+        :has-live-replay-selector="!isSingle"
         @close="close"
-      />
+      >
+        <div v-if="videoTypeLabel && !screen.isLoading && screen.player" class="video-type-label">{{ videoTypeLabel }}</div>
+      </ReplayPlayer>
     </template>
     <div v-else class="tip-text tip-select-device">
       <el-button type="text" size="mini" @click="selectDevice">请选择设备</el-button>
@@ -54,6 +57,11 @@ export default class extends Vue {
     default: true
   })
   private hasClose
+
+  @Prop({
+    default: false
+  })
+  private isSingle
 
   private dialogs = {
     deviceDir: false

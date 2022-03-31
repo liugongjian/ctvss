@@ -21,6 +21,9 @@
     @dispatch="onDispatch"
     @onCreate="onPlayerCreate"
   >
+    <template slot="container">
+      <slot name="default" />
+    </template>
     <template slot="controlRight">
       <Fullscreen :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
     </template>

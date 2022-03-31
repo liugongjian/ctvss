@@ -29,6 +29,7 @@
             @dispatch="dispatch"
           />
         </ErrorMsg>
+        <slot name="container" />
       </template>
       <template slot="controlBody">
         <H265Icon :codec="codec" />

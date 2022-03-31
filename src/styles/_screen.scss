@@ -155,6 +155,10 @@
       font-size: 11px;
       padding: 3px 5px;
     }
+
+    .player__wrap--hidden .video-type-label {
+      bottom: 10px;
+    }
     
     .tip-select-device .el-button--text {
       color: #fff;
