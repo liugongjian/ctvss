@@ -6,9 +6,11 @@ import { VGroupModule } from '@/store/modules/vgroup'
 import { getLocalStorage } from '@/utils/storage'
 import settings from '@/settings'
 
-class VSSError extends Error {
-  constructor(public code: string, message: string) {
+export class VSSError extends Error {
+  public code
+  constructor(code: string, message: string) {
     super(message)
+    this.code = code
   }
 }
 
@@ -46,7 +48,14 @@ service.interceptors.response.use(
     return responseHandler(response)
   },
   (error) => {
-    console.dir(error)
+    if (axios.isCancel(error)) {
+      error.response = {
+        data: {
+          code: -2,
+          message: 'Canceled'
+        }
+      }
+    }
     return responseHandler(error.response)
   }
 )

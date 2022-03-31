@@ -563,7 +563,7 @@ export default class extends Vue {
    */
   private async getRecordListByDate(date) {
     if (this.screen && this.screen.recordManager) {
-      await this.screen.recordManager.getRecordListByDate(date, true, true)
+      await this.screen.recordManager.getRecordListByDate(date, true)
     }
   }
 }

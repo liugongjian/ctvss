@@ -82,7 +82,7 @@ export class RecordManager {
   /**
    * 从缓存中恢复
    */
-  private loadCache() {
+  private async loadCache() {
     try {
       this.screen.isLoading = true
       if (this.screen.deviceId) {
@@ -90,7 +90,7 @@ export class RecordManager {
         const startTime = Math.floor(new Date(date.getFullYear(), date.getMonth() - 1).getTime() / 1000)
         const endTime = Math.floor(new Date(date.getFullYear(), date.getMonth() + 1).getTime() / 1000)
         this.getRecordStatistic(startTime, endTime)
-        this.seek(this.screen.currentRecordDatetime)
+        await this.seek(this.screen.currentRecordDatetime)
         this.getLatestRecord()
       }
     } finally {
@@ -102,20 +102,16 @@ export class RecordManager {
    * 加载指定日期的录像数据
    * @param date 日期
    * @param isConcat 是否合并到现有列表，如果false将覆盖现有列表并播放第一段
-   * @param isSilence 静悄悄的更新，不出现Loading，不更新当前日期(currentDate)
    */
-  public async getRecordListByDate(date: number, isConcat = false, isSilence = false) {
+  public async getRecordListByDate(date: number, isConcat = false) {
     try {
-      if (!isSilence) {
-        this.cancelAxiosSource()
+      if (!isConcat) {
         this.screen.url = ''
         this.screen.errorMsg = null
         this.screen.isLoading = true
         this.currentDate = date
         this.recordList = []
         this.heatmapList = []
-      }
-      if (!isConcat) {
         this.screen.player && this.screen.player.pause()
         this.loadedRecordDates.clear()
       } else if (this.loadedRecordDates.has(date)) {
@@ -123,6 +119,7 @@ export class RecordManager {
       }
       // 在SET中存入日期，防止重复加载
       this.loadedRecordDates.add(date)
+      !isConcat && this.cancelAxiosSource()
       const records = await this.getRecordList(date, date + 24 * 60 * 60)
       if (records && records.length) {
         // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
@@ -144,23 +141,23 @@ export class RecordManager {
             this.screen.url = res.url
           }
         }
-      } else if (!isSilence) {
+      } else if (!isConcat) {
         this.currentRecord = null
         this.screen.url = ''
         this.screen.errorMsg = this.screen.ERROR.NO_RECORD
       }
+      if (!isConcat) this.screen.isLoading = false
       // 加载AI热力列表
       // this.heatmapList = await this.getHeatmapList(date, date + 24 * 60 * 60)
     } catch (e) {
       // 异常时删除日期
       this.loadedRecordDates.delete(date)
-      if (!isSilence) {
+      if (!isConcat && e.code === 13) {
         this.currentRecord = null
         this.screen.url = ''
         this.screen.errorMsg = this.screen.ERROR.NO_RECORD
       }
-    } finally {
-      if (!isSilence) this.screen.isLoading = false
+      if (!isConcat && e.code !== -2) this.screen.isLoading = false
     }
   }
 
@@ -201,7 +198,7 @@ export class RecordManager {
     } else {
       // 判断该日期是否存在SET中
       if (!this.loadedRecordDates.has(date)) {
-        await this.getRecordListByDate(date, true, true)
+        await this.getRecordListByDate(date, true)
       }
       const record = this.getRecordByTime(time)
       if (record) {
@@ -265,45 +262,41 @@ export class RecordManager {
    * @returns 录像文件列表(Promise)
    */
   private async getRecordList(startTime: number, endTime: number) {
-    try {
-      const axiosSource = axios.CancelToken.source()
-      this.axiosSourceList.push(axiosSource)
-      const res = await getDeviceRecords({
-        deviceId: this.screen.deviceId,
-        inProtocol: this.screen.inProtocol,
-        recordType: this.screen.recordType,
-        startTime,
-        endTime,
-        pageSize: 9999
-      }, axiosSource.token)
-      return res.records.map((record: any, index: number) => {
-        /**
-         * 根据 fixRecordGap 标签对缺失的录像片段进行视觉填补，当前后两段 record 的时间间隔
-         * 小于 fixRecordGap 标签值时，进行缝隙填补（令当前片段的 endTime = 下一片段的 startTime）
-         * 修改后，由于播放的时移速度是根据每一个片段长度动态变化的，所以不会影响播放时时间条变化过程
-         */
-        const currentEnd = getTimestamp(record.endTime)
-        if (UserModule.tags.fixRecordGap) {
-          const threshold = +UserModule.tags.fixRecordGap
-          record.endTime = currentEnd
-          if (index + 1 < res.records.length) {
-            const nextStart = getTimestamp(res.records[index + 1]['startTime'])
-            record.endTime = (nextStart - currentEnd) / 1000 < threshold ? nextStart : currentEnd
-          }
+    const axiosSource = axios.CancelToken.source()
+    this.axiosSourceList.push(axiosSource)
+    const res = await getDeviceRecords({
+      deviceId: this.screen.deviceId,
+      inProtocol: this.screen.inProtocol,
+      recordType: this.screen.recordType,
+      startTime,
+      endTime,
+      pageSize: 9999
+    }, axiosSource.token)
+    return res.records.map((record: any, index: number) => {
+      /**
+       * 根据 fixRecordGap 标签对缺失的录像片段进行视觉填补，当前后两段 record 的时间间隔
+       * 小于 fixRecordGap 标签值时，进行缝隙填补（令当前片段的 endTime = 下一片段的 startTime）
+       * 修改后，由于播放的时移速度是根据每一个片段长度动态变化的，所以不会影响播放时时间条变化过程
+       */
+      const currentEnd = getTimestamp(record.endTime)
+      if (UserModule.tags.fixRecordGap) {
+        const threshold = +UserModule.tags.fixRecordGap
+        record.endTime = currentEnd
+        if (index + 1 < res.records.length) {
+          const nextStart = getTimestamp(res.records[index + 1]['startTime'])
+          record.endTime = (nextStart - currentEnd) / 1000 < threshold ? nextStart : currentEnd
         }
-        return new Record({
-          startTime: getTimestamp(record.startTime) / 1000,
-          endTime: getTimestamp(record.endTime) / 1000,
-          duration: record.duration,
-          url: record.playUrl.hlsUrl,
-          codec: record.video.codec,
-          templateName: record.templateName,
-          cover: record.cover
-        })
+      }
+      return new Record({
+        startTime: getTimestamp(record.startTime) / 1000,
+        endTime: getTimestamp(record.endTime) / 1000,
+        duration: record.duration,
+        url: record.playUrl.hlsUrl,
+        codec: record.video.codec,
+        templateName: record.templateName,
+        cover: record.cover
       })
-    } catch (e) {
-      throw new Error(e.message)
-    }
+    })
   }
 
   /**
@@ -359,28 +352,24 @@ export class RecordManager {
    * 来自从化需求
    */
   private async getHeatmapList(startTime: number, endTime: number) {
-    try {
-      const axiosSource = axios.CancelToken.source()
-      this.axiosSourceList.push(axiosSource)
-      const res = await describeHeatMap({
-        deviceId: this.screen.deviceId,
-        inProtocol: this.screen.inProtocol,
-        recordType: this.screen.recordType,
-        startTime,
-        endTime,
-        pageSize: 9999,
-        aiCode: '10006'
-      }, axiosSource.token)
-      return res.heatMap.map((heatMap: any) => {
-        return new Record({
-          startTime: getTimestamp(heatMap.startTime) / 1000,
-          endTime: getTimestamp(heatMap.endTime) / 1000,
-          isHeatmap: true
-        })
+    const axiosSource = axios.CancelToken.source()
+    this.axiosSourceList.push(axiosSource)
+    const res = await describeHeatMap({
+      deviceId: this.screen.deviceId,
+      inProtocol: this.screen.inProtocol,
+      recordType: this.screen.recordType,
+      startTime,
+      endTime,
+      pageSize: 9999,
+      aiCode: '10006'
+    }, axiosSource.token)
+    return res.heatMap.map((heatMap: any) => {
+      return new Record({
+        startTime: getTimestamp(heatMap.startTime) / 1000,
+        endTime: getTimestamp(heatMap.endTime) / 1000,
+        isHeatmap: true
       })
-    } catch (e) {
-      console.log(e)
-    }
+    })
   }
 
   /**
