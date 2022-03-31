@@ -4,28 +4,28 @@
       <div class="dashboard-wrap-overview__cell">
         <p class="dashboard-wrap-overview__cell__head">实时上行带宽</p>
         <p class="dashboard-wrap-overview__cell__content">
-          <span class="dashboard-wrap-overview__num">{{ stats.realUpstreamBandwidth }}</span> Mbps
+          <span class="dashboard-wrap-overview__num">{{ splitBandWidth(stats.realUpstreamBandwidth)[0] }}</span> {{ splitBandWidth(stats.realUpstreamBandwidth)[1] }}
         </p>
       </div>
       <div class="column-line" />
       <div class="dashboard-wrap-overview__cell">
         <p class="dashboard-wrap-overview__cell__head">实时下行带宽</p>
         <p class="dashboard-wrap-overview__cell__content">
-          <span class="dashboard-wrap-overview__num">{{ stats.realDownstreamBandwidth }}</span> Mbps
+          <span class="dashboard-wrap-overview__num">{{ splitBandWidth(stats.realDownstreamBandwidth)[0] }}</span> {{ splitBandWidth(stats.realDownstreamBandwidth)[1] }}
         </p>
       </div>
       <div class="column-line" />
       <div class="dashboard-wrap-overview__cell">
         <p class="dashboard-wrap-overview__cell__head">今日上行流量峰值</p>
         <p class="dashboard-wrap-overview__cell__content">
-          <span class="dashboard-wrap-overview__num">{{ stats.upstreamBandwidth }}</span> Mbps
+          <span class="dashboard-wrap-overview__num">{{ splitBandWidth(stats.upstreamBandwidth)[0] }}</span> {{ splitBandWidth(stats.upstreamBandwidth)[1] }}
         </p>
       </div>
       <div class="column-line" />
       <div class="dashboard-wrap-overview__cell">
         <p class="dashboard-wrap-overview__cell__head">今日下行流量峰值</p>
         <p class="dashboard-wrap-overview__cell__content">
-          <span class="dashboard-wrap-overview__num">{{ stats.downstreamBandwidth }}</span> Mbps
+          <span class="dashboard-wrap-overview__num">{{ splitBandWidth(stats.downstreamBandwidth)[0] }}</span> {{ splitBandWidth(stats.downstreamBandwidth)[1] }}
         </p>
       </div>
       <div class="column-line" />
@@ -36,6 +36,14 @@
           <span> / {{ stats.sum }}</span>
         </p>
       </div>
+      <div v-if="storageFlag" class="column-line" />
+      <div v-if="storageFlag" class="dashboard-wrap-overview__cell">
+        <p class="dashboard-wrap-overview__cell__head">存储使用量</p>
+        <p class="dashboard-wrap-overview__cell__content">
+          <span class="dashboard-wrap-overview__num">{{ stats.usage.substr(0, stats.usage.length-2) }}</span>{{ stats.usage.substr(stats.usage.length-2, 2) }}
+          <span> / {{ stats.total }}</span>
+        </p>
+      </div>
     </div>
   </component>
 </template>
@@ -44,7 +52,8 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import DashboardLightContainer from './DashboardLightContainer.vue'
 import DashboardMixin from '../mixin/DashboardMixin'
-import { getDeviceStates, getBandwidthStates } from '@/api/dashboard'
+import { getDeviceStates, getBandwidthStates, getUserStorage } from '@/api/dashboard'
+import { formatStorage, formatBandWidth } from '@/utils/number'
 
 @Component({
   name: 'DashboardDataToday',
@@ -54,12 +63,14 @@ import { getDeviceStates, getBandwidthStates } from '@/api/dashboard'
 })
 export default class extends Mixins(DashboardMixin) {
   private stats: any = {
-    realUpstreamBandwidth: 0,
-    realDownstreamBandwidth: 0,
-    upstreamBandwidth: 0,
-    downstreamBandwidth: 0,
+    realUpstreamBandwidth: '',
+    realDownstreamBandwidth: '',
+    upstreamBandwidth: '',
+    downstreamBandwidth: '',
     sum: 0,
-    online: 0
+    online: 0,
+    total: '',
+    usage: ''
   }
   private get container() {
     return 'DashboardLightContainer'
@@ -76,6 +87,7 @@ export default class extends Mixins(DashboardMixin) {
   private getData() {
     this.getDeviceStates()
     this.getBandwidthStates()
+    this.getStorage()
   }
 
   /**
@@ -83,10 +95,10 @@ export default class extends Mixins(DashboardMixin) {
    */
   private async getBandwidthStates() {
     const res = await getBandwidthStates(null)
-    this.stats['realUpstreamBandwidth'] = res.realUpstreamBandwidth
-    this.stats['realDownstreamBandwidth'] = res.realDownstreamBandwidth
-    this.stats['upstreamBandwidth'] = res.upstreamBandwidth
-    this.stats['downstreamBandwidth'] = res.downstreamBandwidth
+    this.stats['realUpstreamBandwidth'] = formatBandWidth(res.realUpstreamBandwidth).toString()
+    this.stats['realDownstreamBandwidth'] = formatBandWidth(res.realDownstreamBandwidth).toString()
+    this.stats['upstreamBandwidth'] = formatBandWidth(res.upstreamBandwidth).toString()
+    this.stats['downstreamBandwidth'] = formatBandWidth(res.downstreamBandwidth).toString()
   }
 
   /**
@@ -98,6 +110,20 @@ export default class extends Mixins(DashboardMixin) {
     const online = Math.min(parseInt(res.sum), parseInt(res.online))
     this.stats['sum'] = sum
     this.stats['online'] = online
+  }
+
+  private async getStorage() {
+    const res = await getUserStorage({})
+    this.stats['total'] = formatStorage(res.totalBytes)
+    this.stats['usage'] = formatStorage(res.totalUsage)
+  }
+
+  private get storageFlag() {
+    return this.$store.state.user.tags.showStorageUsage === 'Y'
+  }
+
+  private splitBandWidth(bandwidth) {
+    return [bandwidth.substr(0,bandwidth.length-4), bandwidth.substr(bandwidth.length-4,bandwidth.length-1)]
   }
 }
 </script>
