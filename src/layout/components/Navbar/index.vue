@@ -320,7 +320,7 @@ export default class extends Mixins(DashboardMixin) {
     if (data.iamUserId) {
       this.$router.push(`/login/subAccount?redirect=%2Fdashboard&mainUserID=${data.mainUserID}`)
     } else {
-      this.$router.push(`/login?redirect=%2Fdashboard`)
+      this.$router.push('/login?redirect=%2Fdashboard')
     }
   }
 

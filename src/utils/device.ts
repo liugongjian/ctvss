@@ -31,7 +31,7 @@ export const renderAlertType = (node: any) => {
  * 获取目录设备数统计信息
  */
 export const getSums = (data: any) => {
-  if (data.type === 'nvr' || data.type === 'dir') {
+  if (~['nvr', 'dir', 'platform', 'platformDir'].indexOf(data.type)) {
     return ` (${data.onlineSize}/${data.totalSize})`
   } else {
     return ''
