@@ -298,6 +298,16 @@ export const syncDeviceStatus = (params: any): Promise<any> =>
   })
 
 /**
+ * 轮询同步设备状态
+ */
+export const syncStatusPolling = (params: any): Promise<any> =>
+  request({
+    url: '/device/notify/sync',
+    method: 'post',
+    data: params
+  })
+
+/**
  * 开始录制
  */
 export const startRecord = (params: any): Promise<any> =>

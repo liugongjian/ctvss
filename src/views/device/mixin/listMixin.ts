@@ -4,7 +4,7 @@ import DeviceMixin from './deviceMixin'
 import { DeviceParams, DeviceStatus, StreamStatus, RecordStatus, RecordStatusType, RecordStatusFilterType, DeviceGb28181Type, SipTransType, StreamTransType, TransPriority } from '@/dics'
 import { Device } from '@/type/device'
 import { GroupModule } from '@/store/modules/group'
-import { deleteDevice, startDevice, stopDevice, getDevice, getDevices, syncDevice, syncDeviceStatus, getDeviceEvents } from '@/api/device'
+import { deleteDevice, startDevice, stopDevice, getDevice, getDevices, syncDevice, syncDeviceStatus, getDeviceEvents, syncStatusPolling } from '@/api/device'
 import { DeviceModule } from '@/store/modules/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MoveDir from '../components/dialogs/MoveDir.vue'
@@ -734,19 +734,55 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
   /**
    * 设备同步
    */
-  public async syncDevice() {
-    try {
-      this.loading.syncDevice = true
-      await syncDevice({
-        deviceId: this.deviceInfo.deviceId,
-        inProtocol: this.inProtocol
-      })
-      this.init()
-    } catch (e) {
-      this.$message.error(e && e.message)
-    } finally {
-      this.loading.syncDevice = false
+  // public async syncDevice() {
+  //   try {
+  //     this.loading.syncDevice = true
+  //     await syncDevice({
+  //       deviceId: this.deviceInfo.deviceId,
+  //       inProtocol: this.inProtocol
+  //     })
+  //     this.init()
+  //   } catch (e) {
+  //     this.$message.error(e && e.message)
+  //   } finally {
+  //     this.loading.syncDevice = false
+  //   }
+  // }
+  /**
+   * 设备同步
+   */
+  public syncDevice() {
+    this.loading.syncDevice = true
+    const param = {
+      deviceId: this.deviceInfo.deviceId,
+      inProtocol: this.inProtocol
     }
+    this.statusPolling(param, 3000).then(() => {
+      this.loading.syncDevice = false
+      this.init()
+    }).catch(e => {
+      this.loading.syncDevice = false
+      this.$message.error(e && e.message)
+    })
+  }
+
+  /**
+   * 轮询同步设备状态
+   * @param param 请求体 Object
+   * @param delay 轮询间隔 number of ms
+   */
+  public statusPolling(param: any, delay: number = 3000) {
+    return new Promise((resolve, reject) => {
+      syncStatusPolling(param).then(res => {
+        if (res.syncStatus === 'false') {
+          setTimeout(() => {
+            resolve(this.statusPolling(param, delay))
+          }, delay)
+        } else {
+          resolve(res)
+        }
+      }).catch(err => reject(err))
+    })
   }
 
   /**
