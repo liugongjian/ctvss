@@ -123,7 +123,7 @@ export default class extends Mixins(DashboardMixin) {
   }
 
   private splitBandWidth(bandwidth) {
-    return [bandwidth.substr(0,bandwidth.length-4), bandwidth.substr(bandwidth.length-4,bandwidth.length-1)]
+    return [bandwidth.substr(0, bandwidth.length - 4), bandwidth.substr(bandwidth.length - 4, bandwidth.length - 1)]
   }
 }
 </script>
