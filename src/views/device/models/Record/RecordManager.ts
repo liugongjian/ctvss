@@ -73,51 +73,28 @@ export class RecordManager {
    * 初始化录像
    */
   public async initReplay() {
-    try {
-      this.screen.isLoading = true
-      this.screen.errorMsg = null
-      this.recordList = []
-      this.heatmapList = []
-      this.currentRecord = null
-      this.loadedRecordDates.clear()
-      this.getRecordStatistic()
-      this.recordList = await this.getRecordList(this.currentDate, this.currentDate + 24 * 60 * 60)
-      // this.heatmapList = await this.getHeatmapList(this.currentDate, this.currentDate + 24 * 60 * 60)
-      this.loadedRecordDates.add(this.currentDate)
-      if (this.recordList && this.recordList.length) {
-        /**
-         * 0云端：获取第一段录像
-         * 1本地：获取URL
-         */
-        if (this.screen.recordType === 0) {
-          this.currentRecord = this.recordList[0]
-        } else {
-          const res = await this.getLocalUrl(this.recordList[0].startTime)
-          this.screen.codec = res.codec
-          this.screen.url = res.url
-        }
-        this.getLatestRecord()
-      } else {
-        this.screen.errorMsg = this.screen.ERROR.NO_RECORD
-      }
-    } catch (e) {
-      this.screen.errorMsg = e.message
-    } finally {
-      this.screen.isLoading = false
-    }
+    this.currentRecord = null
+    this.getRecordListByDate(this.currentDate)
+    this.getRecordStatistic()
+    this.getLatestRecord()
   }
 
   /**
    * 从缓存中恢复
    */
   private loadCache() {
-    if (this.screen.deviceId) {
-      const date = new Date(this.screen.currentRecordDatetime * 1000)
-      const startTime = Math.floor(new Date(date.getFullYear(), date.getMonth() - 1).getTime() / 1000)
-      const endTime = Math.floor(new Date(date.getFullYear(), date.getMonth() + 1).getTime() / 1000)
-      this.getRecordStatistic(startTime, endTime)
-      this.seek(this.screen.currentRecordDatetime)
-      this.getLatestRecord()
+    try {
+      this.screen.isLoading = true
+      if (this.screen.deviceId) {
+        const date = new Date(this.screen.currentRecordDatetime * 1000)
+        const startTime = Math.floor(new Date(date.getFullYear(), date.getMonth() - 1).getTime() / 1000)
+        const endTime = Math.floor(new Date(date.getFullYear(), date.getMonth() + 1).getTime() / 1000)
+        this.getRecordStatistic(startTime, endTime)
+        this.seek(this.screen.currentRecordDatetime)
+        this.getLatestRecord()
+      }
+    } finally {
+      this.screen.isLoading = false
     }
   }
 
@@ -131,6 +108,7 @@ export class RecordManager {
     try {
       if (!isSilence) {
         this.cancelAxiosSource()
+        this.screen.url = ''
         this.screen.errorMsg = null
         this.screen.isLoading = true
         this.currentDate = date
@@ -154,10 +132,21 @@ export class RecordManager {
           this.recordList = records.concat(this.recordList)
         }
         if (!isConcat) {
-          this.currentRecord = records[0]
+          /**
+         * 0云端：获取第一段录像
+         * 1本地：获取URL
+         */
+          if (this.screen.recordType === 0) {
+            this.currentRecord = records[0]
+          } else {
+            const res = await this.getLocalUrl(this.recordList[0].startTime)
+            this.screen.codec = res.codec
+            this.screen.url = res.url
+          }
         }
       } else if (!isSilence) {
         this.currentRecord = null
+        this.screen.url = ''
         this.screen.errorMsg = this.screen.ERROR.NO_RECORD
       }
       // 加载AI热力列表
@@ -167,6 +156,7 @@ export class RecordManager {
       this.loadedRecordDates.delete(date)
       if (!isSilence) {
         this.currentRecord = null
+        this.screen.url = ''
         this.screen.errorMsg = this.screen.ERROR.NO_RECORD
       }
     } finally {
