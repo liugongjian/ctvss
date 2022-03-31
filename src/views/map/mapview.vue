@@ -59,6 +59,7 @@ export default class MapView extends Vue {
   }
 
   @Watch('playWindowInfo.show')
+  @Watch('playWindowInfo.deviceId')
   private onPlayWindowInfoChange() {
     if (this.playWindowInfo.show !== 'none') {
       this.screen = new Screen()
