@@ -31,10 +31,18 @@
             <el-input v-model="searchForm.description" />
           </el-form-item>
           <el-form-item label="用户组" prop="userGroup">
-            <div class="user-group">
+            <!-- <div class="user-group">
               <el-select v-model="searchForm.userGroup" />
               <el-select v-model="searchForm.userGroup" />
-            </div>
+            </div> -->
+            <el-select v-model="searchForm.userGroup">
+              <el-option
+                v-for="(item, index) in userGroupOptions"
+                :key="index"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
           </el-form-item>
           <el-form-item label="推送方式" prop="notifyChannel">
             <el-select v-model="searchForm.notifyChannel" multiple>
@@ -105,6 +113,7 @@ import { Component, Vue, Watch } from 'vue-property-decorator'
 import { INotifictionPolicy } from '@/type/notification'
 import { dateFormatInTable } from '@/utils/date'
 import { getAITemplates, deleteAITemplate } from '@/api/template'
+import { getGroupList } from '@/api/accessManage'
 
 @Component({
   name: 'notification-history-list'
@@ -122,8 +131,9 @@ export default class extends Vue {
   private sourceOptions = [
     { value: '1', label: '设备消息' },
     { value: '2', label: '资源包消息' },
-    { value: '3', label: 'AI消息' },
+    { value: '3', label: 'AI消息' }
   ]
+  private userGroupOptions = []
   private searchForm = {
     name: '',
     description: '',
@@ -150,12 +160,13 @@ export default class extends Vue {
     data === 0 && this.pager.pageNum > 1 && this.handleCurrentChange(this.pager.pageNum - 1)
   }
 
-  private async mounted() {
-    await this.getList()
+  private mounted() {
+    this.getUserGroupList()
+    this.getList()
   }
 
-  private async refresh() {
-    await this.search()
+  private refresh() {
+    this.search()
   }
 
   private async getList() {
@@ -167,7 +178,7 @@ export default class extends Vue {
         params.description = '',
         params.userGroup = '',
         params.notifyChannel = [],
-        // params.source = '3',
+        params.source = '',
         params.notifyContent = ''
       }
       console.log(params)
@@ -232,6 +243,25 @@ export default class extends Vue {
         break
     }
     this.search()
+  }
+
+  /**
+   * 获取用户列表
+   */
+  public async getUserGroupList() {
+    try {
+      const { groups } = await getGroupList({
+        pageSize: 1000
+      })
+      this.userGroupOptions = groups.map(item => {
+        return {
+          value: item.groupId,
+          label: item.groupName
+        }
+      })
+    } catch (e) {
+      this.$alertError(e && e.message)
+    }
   }
 
   private async handleSizeChange(val: number) {

@@ -8,9 +8,9 @@
           lazy
           show-checkbox
           :data="dirList"
-          :load="loadDirs"
           :props="treeProp"
           :check-strictly="false"
+          :default-checked-keys="checkedList"
           @check-change="onCheckDevice"
         >
           <span slot-scope="{node, data}" class="custom-tree-node" :class="`custom-tree-node__${data.type}`">
@@ -29,11 +29,11 @@
               {{ row.label || '-' }}
             </template>
           </el-table-column>
-          <el-table-column key="path" prop="path" label="所在位置">
+          <!-- <el-table-column key="path" prop="path" label="所在位置">
             <template slot-scope="{row}">
               {{ renderPath(row.path) }}
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column label="操作" prop="action" class-name="col-action" width="110" fixed="right">
             <template slot-scope="scope">
               <el-button type="text" @click="removeDevice(scope.row)">移除</el-button>
@@ -70,48 +70,51 @@ export default class extends Vue {
     isLeaf: 'isLeaf'
   }
 
-  @Watch('checkedList')
-  private checkedListChange(checkedList) {
-    this.initResourceStatus(checkedList)
-  }
+  // @Watch('checkedList')
+  // private checkedListChange(checkedList) {
+  //   this.initResourceStatus(checkedList)
+  // }
 
   @Watch('resourceList')
   private resourceListChange(resourceList) {
-    this.$emit('resourceListChange', resourceList)
+    this.$emit('resourceListChange', resourceList.map(item => item.id))
   }
 
 
-  private mounted() {
-    this.initDirs()
+  private async mounted() {
+    await this.initDirs()
+    this.$nextTick(() => {
+      this.onCheckDevice()
+    })
   }
 
   /**
    * 初始化资源选中状态
    */
-  public async initResourceStatus(checkedList: any) {
-    const dirTree: any = this.$refs.dirTree
-    const checkedKeys = []
-    for (let index = 0, len = checkedList.length; index < len; index++) {
-      const resource = checkedList[index]
-      if (/vssgroup/.test(resource)) {
-        const _key = resource.split(':').slice(-1)[0]
-        checkedKeys.push(_key)
-      } else {
-        const keyPath = resource.split(':').slice(2).join('/').split(/\//)
-        if (keyPath && keyPath.length) {
-          for (let i = 0; i < keyPath.length - 1; i++) {
-            const _key = keyPath[i]
-            const node = dirTree.getNode(_key)
-            if (node) {
-              await this.loadDirChildren(_key, node)
-            }
-          }
-          checkedKeys.push(keyPath[keyPath.length - 1])
-        }
-      }
-    }
-    dirTree.setCheckedKeys(checkedKeys)
-  }
+  // public async initResourceStatus(checkedList: any) {
+  //   const dirTree: any = this.$refs.dirTree
+  //   const checkedKeys = []
+  //   for (let index = 0, len = checkedList.length; index < len; index++) {
+  //     const resource = checkedList[index]
+  //     if (/vssgroup/.test(resource)) {
+  //       const _key = resource.split(':').slice(-1)[0]
+  //       checkedKeys.push(_key)
+  //     } else {
+  //       const keyPath = resource.split(':').slice(2).join('/').split(/\//)
+  //       if (keyPath && keyPath.length) {
+  //         for (let i = 0; i < keyPath.length - 1; i++) {
+  //           const _key = keyPath[i]
+  //           const node = dirTree.getNode(_key)
+  //           if (node) {
+  //             await this.loadDirChildren(_key, node)
+  //           }
+  //         }
+  //         checkedKeys.push(keyPath[keyPath.length - 1])
+  //       }
+  //     }
+  //   }
+  //   dirTree.setCheckedKeys(checkedKeys)
+  // }
 
   /**
    * 目录初始化
@@ -136,7 +139,8 @@ export default class extends Vue {
               id: group.groupId,
               label: group.groupName,
               type: 'group'
-            }]
+            }],
+            isLeaf: true
           })
         )
       })
@@ -150,85 +154,85 @@ export default class extends Vue {
   /**
    * 加载子目录
    */
-  public async loadDirChildren(key: string, node: any) {
-    if (node.loaded) {
-      node.parent.expanded = true
-      return
-    }
-    try {
-      const dirTree: any = this.$refs.dirTree
-      let data = await getDeviceTree({
-        groupId: node.data.groupId,
-        id: node.data.type === 'group' ? 0 : node.data.id,
-        inProtocol: node.data.inProtocol,
-        type: node.data.type === 'group' ? undefined : node.data.type
-      })
-      if (data.dirs) {
-        const dirs = data.dirs.filter((dir: any) => dir.type === 'dir').map((dir: any) => ({
-          id: dir.id,
-          groupId: node.data.groupId,
-          label: dir.label,
-          inProtocol: node.data.inProtocol,
-          isLeaf: dir.isLeaf,
-          type: dir.type,
-          path: node.data.path.concat([dir]),
-          parentId: node.data.id
-        }))
-        dirTree.updateKeyChildren(key, dirs)
-      }
-      node.expanded = true
-      node.loaded = true
-    } catch (e) {
-      console.log(e)
-    }
-  }
+  // public async loadDirChildren(key: string, node: any) {
+  //   if (node.loaded) {
+  //     node.parent.expanded = true
+  //     return
+  //   }
+  //   try {
+  //     const dirTree: any = this.$refs.dirTree
+  //     let data = await getDeviceTree({
+  //       groupId: node.data.groupId,
+  //       id: node.data.type === 'group' ? 0 : node.data.id,
+  //       inProtocol: node.data.inProtocol,
+  //       type: node.data.type === 'group' ? undefined : node.data.type
+  //     })
+  //     if (data.dirs) {
+  //       const dirs = data.dirs.filter((dir: any) => dir.type === 'dir').map((dir: any) => ({
+  //         id: dir.id,
+  //         groupId: node.data.groupId,
+  //         label: dir.label,
+  //         inProtocol: node.data.inProtocol,
+  //         isLeaf: dir.isLeaf,
+  //         type: dir.type,
+  //         path: node.data.path.concat([dir]),
+  //         parentId: node.data.id
+  //       }))
+  //       dirTree.updateKeyChildren(key, dirs)
+  //     }
+  //     node.expanded = true
+  //     node.loaded = true
+  //   } catch (e) {
+  //     console.log(e)
+  //   }
+  // }
 
   /**
    * 加载目录
    */
-  private async loadDirs(node: any, resolve: Function) {
-    if (node.level === 0) return resolve([])
-    const dirs = await this.getTree(node)
-    resolve(dirs)
-  }
+  // private async loadDirs(node: any, resolve: Function) {
+  //   if (node.level === 0) return resolve([])
+  //   const dirs = await this.getTree(node)
+  //   resolve(dirs)
+  // }
 
   /**
    * 获取菜单树
    */
-  private async getTree(node: any) {
-    try {
-      let shareDeviceIds: any = []
+  // private async getTree(node: any) {
+  //   try {
+  //     let shareDeviceIds: any = []
 
-      const devices: any = await getDeviceTree({
-        groupId: node.data.groupId,
-        id: node.data.type === 'group' ? 0 : node.data.id,
-        inProtocol: node.data.inProtocol,
-        type: node.data.type === 'group' ? undefined : node.data.type
-      })
+  //     const devices: any = await getDeviceTree({
+  //       groupId: node.data.groupId,
+  //       id: node.data.type === 'group' ? 0 : node.data.id,
+  //       inProtocol: node.data.inProtocol,
+  //       type: node.data.type === 'group' ? undefined : node.data.type
+  //     })
 
-      const dirTree: any = this.$refs.dirTree
-      let checkedKeys = dirTree.getCheckedKeys()
-      let dirs: any = devices.dirs.filter((dir: any) => dir.type === 'dir').map((dir: any) => {
-        if (shareDeviceIds.includes(dir.id) && dir.type === 'ipc') {
-          checkedKeys.push(dir.id)
-          dirTree.setCheckedKeys(checkedKeys)
-        }
-        return {
-          id: dir.id,
-          groupId: node.data.groupId,
-          label: dir.label,
-          inProtocol: node.data.inProtocol,
-          isLeaf: dir.isLeaf,
-          type: dir.type,
-          path: node.data.path.concat([dir]),
-          parentId: node.data.id
-        }
-      })
-      return dirs
-    } catch (e) {
-      console.log(e)
-    }
-  }
+  //     const dirTree: any = this.$refs.dirTree
+  //     let checkedKeys = dirTree.getCheckedKeys()
+  //     let dirs: any = devices.dirs.filter((dir: any) => dir.type === 'dir').map((dir: any) => {
+  //       if (shareDeviceIds.includes(dir.id) && dir.type === 'ipc') {
+  //         checkedKeys.push(dir.id)
+  //         dirTree.setCheckedKeys(checkedKeys)
+  //       }
+  //       return {
+  //         id: dir.id,
+  //         groupId: node.data.groupId,
+  //         label: dir.label,
+  //         inProtocol: node.data.inProtocol,
+  //         isLeaf: dir.isLeaf,
+  //         type: dir.type,
+  //         path: node.data.path.concat([dir]),
+  //         parentId: node.data.id
+  //       }
+  //     })
+  //     return dirs
+  //   } catch (e) {
+  //     console.log(e)
+  //   }
+  // }
 
   /**
    * 当设备被选中时回调，将选中的设备列出

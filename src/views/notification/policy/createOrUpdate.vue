@@ -51,14 +51,14 @@
             <el-table-column key="label" prop="label" width="380">
               <template slot="header">
                 <span>生效时间段 </span>
-                <el-tooltip
+                <!-- <el-tooltip
                   content="添加"
                   placement="right"
                 >
                   <el-button type="text" @click="addEffectiveTime()">
                     <svg-icon name="plus" width="15" height="15" />
                   </el-button>
-                </el-tooltip>
+                </el-tooltip> -->
               </template>
               <template slot-scope="{row}">
                 <el-time-picker
@@ -71,11 +71,11 @@
                 </el-time-picker>
               </template>
             </el-table-column>
-            <el-table-column label="操作" prop="action" class-name="col-action" width="110" fixed="right">
+            <!-- <el-table-column label="操作" prop="action" class-name="col-action" width="110" fixed="right">
               <template slot-scope="scope">
                 <el-button type="text" @click="removeEffectiveTime(scope.$index)">移除</el-button>
               </template>
-            </el-table-column>
+            </el-table-column> -->
           </el-table>
         </el-form-item>
         <el-form-item label="推送频率：" prop="notifyFreq">
@@ -149,9 +149,8 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { getDeviceTree } from '@/api/device'
-import { getGroups } from '@/api/group'
 import { getNotificationPolicyInfo, createNotificationPolicy, editNotificationPolicy } from '@/api/notification'
+import { getAlgorithmList } from '@/api/ai-app'
 import { INotifictionPolicyForm } from '@/type/notification'
 import { dateFormat } from '@/utils/date'
 import ResourceTree from './components/ResourceTree.vue'
@@ -213,8 +212,8 @@ export default class extends Vue {
     { value: '3', label: '口罩检测' }
   ]
 
-  private resourceList = []
-  private destinationList = []
+  private resourceList = ['312697971628146688']
+  private destinationList = ['342275160830951424']
 
   private rules = {
     name: [
@@ -270,6 +269,7 @@ export default class extends Vue {
 
   private async mounted() {
     this.breadCrumbContent = this.$route.meta.title
+    this.getAlgorithmList()
     if (this.isUpdate) {
       const id = this.$route.query.id
       if (id) {
@@ -278,6 +278,23 @@ export default class extends Vue {
       } else {
         this.back()
       }
+    }
+  }
+
+  /**
+   * 获取算法列表
+   */
+  private async getAlgorithmList() {
+    try {
+      const { aiAbilityAlgorithms } = await getAlgorithmList({ name: this.searchApp, abilityId: this.activeName })
+      this.sourceRulesOptions = aiAbilityAlgorithms.map(item => {
+        return {
+          value: item.id,
+          label: item.name
+        }
+      })
+    } catch (e) {
+      this.$alertError(e && e.message)
     }
   }
 
