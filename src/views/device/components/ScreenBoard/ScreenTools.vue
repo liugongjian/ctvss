@@ -12,8 +12,8 @@
       <div class="screen-tools__bar__right">
         <Cleaner v-if="showScreenTool && isScreenView" :disabled="isPolling" />
         <SizeSelector v-if="showScreenTool && isScreenView" :disabled="isPolling" />
-        <Fullscreen :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
-        <ViewSelector v-if="!isLive" />
+        <Fullscreen v-if="isScreenView" :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
+        <ViewSelector v-if="!isLive && !isFullscreen" />
       </div>
     </div>
     <ReplayAxis v-if="showAxis" :screen="currentScreen" :disabled="!enableAxis" @change="onAxisTimeChange" />
