@@ -175,8 +175,8 @@ export default class MapView extends Vue {
   handleMarkerPlay(data) {
     if (data.canPlay) {
       this.playWindowInfo = data
-      const width = data.show === 'live' ? 160 : 400
-      const height = data.show === 'live' ? 100 : 300
+      const width = 400
+      const height = 300
       const size = 100
       const style = {
         width: `${width}px`,
