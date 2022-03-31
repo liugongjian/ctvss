@@ -123,7 +123,6 @@ export default class extends Vue {
           }]
         })
       })
-      console.log('this.dirList:', this.dirList)
     } catch (e) {
       this.dirList = []
     } finally {
@@ -153,6 +152,7 @@ export default class extends Vue {
       }
       let shareDeviceIds: any = []
       if (node.data.type !== 'vgroup' && node.data.type !== 'role') {
+        console.log('plat------', this.platformId)
         let params: any = {
           platformId: this.platformId,
           inProtocol: node.data.inProtocol,
