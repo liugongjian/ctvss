@@ -1,35 +1,34 @@
 <template>
   <div id="mapContainer">
     <div class="search-wrap">
-      <el-input v-model="mapTip" id="map-tip-input" placeholder="请输入关键字"></el-input>
+      <el-input id="map-tip-input" v-model="mapTip" placeholder="请输入关键字" />
     </div>
-    <div class="play-wrap" v-if="playWindowInfo.show !== 'none'" :style="playWindowInfo.style">
-      <i class="el-icon el-icon-close" @click="playWindowInfo.show = 'none'"></i>
-      <live-view
+    <div v-if="playWindowInfo.show !== 'none'" class="play-wrap" :style="playWindowInfo.style">
+      <i class="el-icon el-icon-close" @click="playWindowInfo.show = 'none'" />
+      <live-player
         v-if="playWindowInfo.show === 'live'"
-        :device-id="playWindowInfo.deviceId"
-        :in-protocol="playWindowInfo.inProtocol"
+        :screen="screen"
       />
       <replay-view
         v-if="playWindowInfo.show === 'replay'"
-        :device-id="playWindowInfo.deviceId"
-        :in-protocol="playWindowInfo.inProtocol"
-        :has-playlive="false"
+        :screen="screen"
+        :has-axis="true"
       />
     </div>
   </div>
 </template>
 <script lang="ts">
-import {Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import VMap, {getAMapLoad} from './models/vmap'
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
+import VMap, { getAMapLoad } from './models/vmap'
 import { getMapDevices, updateMarkers, addMarkers, deleteMarkers } from '@/api/map'
-import LiveView from '@/views/device/components/LiveView.vue'
-import ReplayView from '@/views/device/components/ReplayView.vue'
+import { Screen } from '@/views/device/models/Screen/Screen'
+import LivePlayer from '@/views/device/components/LivePlayer.vue'
+import ReplayView from '@/views/device/components/ReplayPlayer/index.vue'
 
 @Component({
   name: 'MapView',
   components: {
-    LiveView,
+    LivePlayer,
     ReplayView
   }
 })
@@ -39,22 +38,35 @@ export default class MapView extends Vue {
   @Prop()
   private isEdit: boolean
 
-  vmap = new VMap('mapContainer')
-  markerlist = []
-  mapTip = ''
+  private vmap = new VMap('mapContainer')
+  private markerlist = []
+  private mapTip = ''
 
-  playWindowInfo = {
+  private playWindowInfo = {
     style: null,
     show: 'none', // none|live|replay
     top: 0,
     left: 0,
-    deviceId: '',
+    deviceId: null,
     inProtocol: ''
   }
+
+  private screen: Screen = null
 
   @Watch('isEdit')
   private onEditChange() {
     this.changeEdit(this.isEdit)
+  }
+
+  @Watch('playWindowInfo.show')
+  private onPlayWindowInfoChange() {
+    if (this.playWindowInfo.show !== 'none') {
+      this.screen = new Screen()
+      this.screen.deviceId = this.playWindowInfo.deviceId
+      this.screen.inProtocol = this.playWindowInfo.inProtocol
+      this.screen.isLive = this.playWindowInfo.show === 'live'
+      this.screen.init()
+    }
   }
 
   private mounted() {
@@ -66,11 +78,11 @@ export default class MapView extends Vue {
   async setMap(map) {
     this.vmap.renderMap(map)
     this.addMapEvent()
-    try{
+    try {
       const res = await getMapDevices({ mapId: map.mapId })
       this.markerlist = res.devices
     } catch (e) {
-      this.$alertError(e);
+      this.$alertError(e)
       this.markerlist = []
     } finally {
       this.setMarkerList(this.markerlist)
@@ -79,11 +91,11 @@ export default class MapView extends Vue {
   }
 
   public setMapCenter(lng, lat) {
-    this.vmap.map.setCenter([lng, lat]);
+    this.vmap.map.setCenter([lng, lat])
   }
 
   public setMapZoomAndCenter(zoom, lng, lat) {
-    this.vmap.map.setZoomAndCenter(zoom,[lng, lat]);
+    this.vmap.map.setZoomAndCenter(zoom, [lng, lat])
   }
 
   public closePlayer() {
@@ -102,7 +114,7 @@ export default class MapView extends Vue {
         latitude: center.lat,
         zoom
       }
-      this.$emit("mapChange", {
+      this.$emit('mapChange', {
         type: 'map',
         info: mapInfo
       })
@@ -119,10 +131,10 @@ export default class MapView extends Vue {
   }
 
   private async handleMarkerModify(marker) {
-    this.$emit("mapChange", {
-        type: 'marker',
-        info: marker
-      })
+    this.$emit('mapChange', {
+      type: 'marker',
+      info: marker
+    })
     this.markerChange(marker, false)
   }
 
@@ -142,8 +154,8 @@ export default class MapView extends Vue {
       this.$emit('markerlistChange', this.markerlist)
       this.vmap.updateMarkerList(this.markerlist)
       showMsg && this.$alertSuccess('标记点修改成功')
-    } catch(e) {
-      this.$alertError(e);
+    } catch (e) {
+      this.$alertError(e)
       console.log('修改标记点失败')
     }
   }
@@ -168,8 +180,8 @@ export default class MapView extends Vue {
       const style = {
         width: `${width}px`,
         height: `${height}px`,
-        top: `${data.top - (height + size/2 + 40)}px`,
-        left: `${data.left - width/2}px`
+        top: `${data.top - (height + size / 2 + 40)}px`,
+        left: `${data.left - width / 2}px`
       }
       this.playWindowInfo = {
         ...data,
@@ -228,7 +240,7 @@ export default class MapView extends Vue {
   }
 
   async addMarker(markerOption) {
-    const {lng, lat} = this.vmap.map.getCenter()
+    const { lng, lat } = this.vmap.map.getCenter()
     if (!markerOption.longitude) {
       markerOption.longitude = lng
     }
@@ -242,8 +254,8 @@ export default class MapView extends Vue {
       })
       this.vmap.addMarker(markerOption)
       this.$emit('markerlistChange', this.markerlist)
-    } catch(e) {
-      this.$alertError(e);
+    } catch (e) {
+      this.$alertError(e)
     }
   }
 
@@ -281,7 +293,7 @@ export default class MapView extends Vue {
   position: absolute;
   z-index: 9;
   background: #000;
-  .replay-view {
+  .vss-player__wrap {
     width: 100%;
     height: 100%;
     display: flex;
@@ -292,6 +304,7 @@ export default class MapView extends Vue {
     top: 5px;
     right: 5px;
     z-index: 2001;
+    color: #fff;
   }
   ::v-deep .preview-player {
     height: auto;
