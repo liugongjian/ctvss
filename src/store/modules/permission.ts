@@ -143,6 +143,10 @@ class Permission extends VuexModule implements IPermissionState {
     if (store.state.user.tags && store.state.user.tags.isLianZhouEdu !== 'Y') {
       filteredRoutes = filteredRoutes.filter(route => route.path !== '/exportDevices')
     }
+    // TODO: 重庆公租房客户显示电子地图
+    if (store.state.user.tags && store.state.user.tags.showDigitalMap !== 'Y') {
+      filteredRoutes = filteredRoutes.filter(route => route.path !== '/map')
+    }
     if (params.perms.includes('*')) {
       accessedRoutes = filteredRoutes
     } else {
