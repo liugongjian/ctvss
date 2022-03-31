@@ -1,9 +1,9 @@
 <template>
   <div class="app-container">
-    <el-form ref="form" :model="form" :rules="rules">
+    <el-form ref="form" :model="form" :rules="rules" label-width="200px">
       <el-tabs v-model="activeName" type="border-card">
         <el-tab-pane label="通用" name="common">
-          <el-form-item label="是否启用短信告警" label-width="240px">
+          <el-form-item label="是否启用短信告警">
             <template slot="label">
               是否启用短信告警:
               <el-popover
@@ -22,7 +22,7 @@
           <el-form-item v-if="form.active" label="手机号" prop="phoneNumber">
             <el-input v-model="form.phoneNumber" />
           </el-form-item>
-          <el-form-item prop="screen" label-width="240px">
+          <el-form-item prop="screen">
             <template slot="label">
               实时预览记录功能:
               <el-popover
@@ -38,7 +38,7 @@
             </template>
             <el-switch v-model="form.screen" active-value="true" inactive-value="false" />
           </el-form-item>
-          <el-form-item prop="replay" label-width="240px">
+          <el-form-item prop="replay">
             <template slot="label">
               录像回看记录功能:
               <el-popover
@@ -54,7 +54,7 @@
             </template>
             <el-switch v-model="form.replay" active-value="true" inactive-value="false" />
           </el-form-item>
-          <el-form-item prop="enableCloudChannelName" label-width="240px">
+          <!-- <el-form-item prop="enableCloudChannelName" label-width="240px">
             <template slot="label">
               平台自定义NVR通道名称:
               <el-popover
@@ -69,7 +69,7 @@
               </el-popover>
             </template>
             <el-switch v-model="form.enableCloudChannelName" active-value="true" inactive-value="false" />
-          </el-form-item>
+          </el-form-item> -->
         </el-tab-pane>
         <el-tab-pane label="画面" name="frame">
           <el-form-item label="默认画面比例">
@@ -183,10 +183,11 @@ export default class extends Vue {
         // 前后端参数不一致，设置转换字典
         let dic = {
           screen: 'live',
-          replay: 'record',
-          enableCloudChannelName: 'enableCloudChannelName'
+          replay: 'record'
+          // enableCloudChannelName: 'enableCloudChannelName'
         }
-        let keyList = ['screen', 'replay', 'enableCloudChannelName']
+        // let keyList = ['screen', 'replay', 'enableCloudChannelName']
+        let keyList = ['screen', 'replay']
         keyList.forEach(item => {
           params.push({
             key: dic[item],
