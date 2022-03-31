@@ -200,7 +200,10 @@ export class ScreenManager {
       if (!screenCacheStr) return false
       const screenCache = JSON.parse(screenCacheStr)
       if (screenCache.mainUserID !== UserModule.mainUserID) return false
-      if (screenCache.groupId !== GroupModule.group.groupId) return false
+      if (screenCache.groupId !== GroupModule.group.groupId) {
+        this.clearCache()
+        return false
+      }
       SCREEN_CACHE_MANAGER_PARAMS.forEach(key => {
         this[key] = screenCache[key]
       })
@@ -213,6 +216,17 @@ export class ScreenManager {
       return true
     } catch (e) {
       return false
+    }
+  }
+
+  /**
+   * 清空缓存
+   */
+  public clearCache() {
+    if (this.isLive) {
+      removeLocalStorage(SCREEN_CACHE_KEY['live'])
+    } else {
+      removeLocalStorage(SCREEN_CACHE_KEY['replay'])
     }
   }
 
