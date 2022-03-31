@@ -82,6 +82,10 @@ export default class MapView extends Vue {
     this.vmap.map.setCenter([lng, lat]);
   }
 
+  public setMapZoomAndCenter(zoom, lng, lat) {
+    this.vmap.map.setZoomAndCenter(zoom,[lng, lat]);
+  }
+
   public closePlayer() {
     this.playWindowInfo.show = 'none'
   }

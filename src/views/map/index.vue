@@ -636,6 +636,8 @@ export default class extends Mixins(IndexMixin) {
                 return item
               }
             })
+            this.curMap = this.form
+            this.$refs.mapview.setMapZoomAndCenter(this.curMap.zoom, this.curMap.longitude, this.curMap.latitude)
             this.$alertSuccess('地图修改成功')
             this.mapEditDialog.dialogVisible = false
           }
@@ -744,8 +746,9 @@ export default class extends Mixins(IndexMixin) {
   private async modifyMap() {
     let checklnglat = true
     let checkzoom = true
+    const originMap = this.mapList.filter(item => item.mapId === this.curMap.mapId)[0]
     try {
-      const params = { ...this.curMap }
+      const params = { ...originMap }
       if (this.modifyMapForm.center) {
         params.longitude = this.curMapInfo.longitude
         params.latitude = this.curMapInfo.latitude
@@ -765,6 +768,7 @@ export default class extends Mixins(IndexMixin) {
             return item
           }
         })
+        this.$refs.mapview.setMapZoomAndCenter(this.curMap.zoom, this.curMap.longitude, this.curMap.latitude)
         this.$alertSuccess('地图修改成功')
       } else {
         if (!checklnglat) {
