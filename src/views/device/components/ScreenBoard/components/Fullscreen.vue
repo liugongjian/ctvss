@@ -11,13 +11,12 @@
   </el-tooltip>
 </template>
 <script lang="ts">
-import { Component, Watch, Prop } from 'vue-property-decorator'
-import ComponentMixin from './mixin'
+import { Component, Watch, Prop, Vue } from 'vue-property-decorator'
 
 @Component({
   name: 'Fullscreen'
 })
-export default class extends ComponentMixin {
+export default class extends Vue {
   @Prop()
   public isFullscreen
 
