@@ -48,6 +48,7 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
   public exportLoading: boolean = false
   public selectedFile: any = null
   public fileData: any = {}
+  public times: number = 1
 
   public loading: any = {
     info: false,
@@ -757,9 +758,11 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
       deviceId: this.deviceInfo.deviceId,
       inProtocol: this.inProtocol
     }
-    this.statusPolling(param, 3000).then(() => {
+    this.statusPolling(param).then(() => {
       this.loading.syncDevice = false
       this.init()
+      this.initDirs()
+      this.times = 1
     }).catch(e => {
       this.loading.syncDevice = false
       this.$message.error(e && e.message)
@@ -769,15 +772,19 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
   /**
    * 轮询同步设备状态
    * @param param 请求体 Object
-   * @param delay 轮询间隔 number of ms
    */
-  public statusPolling(param: any, delay: number = 3000) {
+  public statusPolling(param: any) {
+    if (this.times < 8) {
+      this.times = this.times + 1
+    } else {
+      this.times = 8
+    }
     return new Promise((resolve, reject) => {
       syncStatusPolling(param).then(res => {
-        if (res.syncStatus === 'false') {
+        if (res.syncStatus === true) {
           setTimeout(() => {
-            resolve(this.statusPolling(param, delay))
-          }, delay)
+            resolve(this.statusPolling(param))
+          }, this.times * 1000)
         } else {
           resolve(res)
         }
