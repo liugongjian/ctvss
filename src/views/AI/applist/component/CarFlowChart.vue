@@ -160,23 +160,23 @@ export default class extends Mixins(DashboardMixin) {
       //             {type}: {value}
       //           </div>
       //         `
-        customContent: (time, items) => {
-          const container = document.createElement('div');
-          container.className = 'g2-tooltip';
-          const temp = format(fromUnixTime(time / 1000), 'yyyy-MM-dd HH:mm:ss')
-          const title = `<div class="g2-tooltip-title" style="margin-top: 12px;margin-bottom: 12px;">${temp}</div>`;
-          let listItem = '';
-          items.forEach((item) => {
-            listItem += `<li class="g2-tooltip-list-item" data-index={index} style="margin-bottom:4px;display:flex;align-items: center;">
+      customContent: (time, items) => {
+        const container = document.createElement('div')
+        container.className = 'g2-tooltip'
+        const temp = format(fromUnixTime(time / 1000), 'yyyy-MM-dd HH:mm:ss')
+        const title = `<div class="g2-tooltip-title" style="margin-top: 12px;margin-bottom: 12px;">${temp}</div>`
+        let listItem = ''
+        items.forEach((item) => {
+          listItem += `<li class="g2-tooltip-list-item" data-index={index} style="margin-bottom:4px;display:flex;align-items: center;">
                 <span style="background-color:${item?.mappingData?.color || item?.color};" class="g2-tooltip-marker"></span>
                 <span style="display:inline-flex;flex:1;justify-content:space-between">
                 <span style="margin-right: 16px;">${item?.type}:</span><span>${item?.value}</span>
                 </span>
-            </li>`;
-          });
-          container.innerHTML = title + listItem;
-          return container;
-        }
+            </li>`
+        })
+        container.innerHTML = title + listItem
+        return container
+      }
     })
 
     // 注册交互

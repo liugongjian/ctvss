@@ -14,7 +14,7 @@
           <el-button class="map__add" size="small" @click="openMapEditDialog()">添加地图</el-button>
           <el-card class="map__user">
             <div v-for="map in mapList" :key="map.mapId">
-              <div class="choose-map" @click="chooseMap(map)" :class="map.mapId == curMap.mapId ? 'active' : ''" >
+              <div class="choose-map" :class="map.mapId == curMap.mapId ? 'active' : ''" @click="chooseMap(map)">
                 <span class="map-text">{{ map.name }}</span>
                 <span class="edit-icon"><svg-icon name="edit" @click.stop="openMapEditDialog(map)" /></span>
                 <span class="delete-icon"><svg-icon name="delete" @click.stop="deleteMap(map)" /></span>
@@ -42,17 +42,17 @@
                   <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                   <svg-icon :name="data.type" />
                   {{ node.label }}
-                  <svg-icon name="mark" v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0" />
+                  <svg-icon v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0" name="mark" />
                   <span class="sum-icon">{{ getSums(data) }}</span>
                 </span>
                 <span
-                  class="node-option"
                   v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) < 0"
+                  class="node-option"
                   @click.stop="addMarker(data)"
                 >+</span>
                 <span
-                  class="node-option"
                   v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0"
+                  class="node-option"
                   @click.stop="deleteMarker(data)"
                 >-</span>
               </span>
@@ -62,19 +62,19 @@
         <div class="device-list__right">
           <div class="tools">
             <span class="left">
-              <span @click="changeEdit()" class="btn-edit tools-item">{{ isEdit ? '完成编辑' : '开启编辑' }}</span>
+              <span class="btn-edit tools-item" @click="changeEdit()">{{ isEdit ? '完成编辑' : '开启编辑' }}</span>
               <!-- <span class="tools-item"><svg-icon name="selects" /></span> -->
               <el-tooltip :content="hideTitle ? '显示监控点位名称': '隐藏监控点位名称'" placement="top">
-                <span class="tools-item"><svg-icon name="title" @click="changeTitleShow()" :class="curMap && !hideTitle ?'active':''" /></span>
+                <span class="tools-item"><svg-icon name="title" :class="curMap && !hideTitle ?'active':''" @click="changeTitleShow()" /></span>
               </el-tooltip>
               <el-tooltip :content="overView ? '隐藏鹰眼地图' : '显示鹰眼地图'" placement="top">
-                <span class="tools-item"><svg-icon name="hawkeye" @click="toggleOverView()" :class="curMap && overView?'active':''" /></span>
+                <span class="tools-item"><svg-icon name="hawkeye" :class="curMap && overView?'active':''" @click="toggleOverView()" /></span>
               </el-tooltip>
               <el-tooltip :content="is3D ? '关闭2.5D视图' : '显示2.5D视图'" placement="top">
-                <span class="tools-item"><svg-icon name="3d" @click="toggleMap3D()" :class="curMap && is3D?'active':''" /></span>
+                <span class="tools-item"><svg-icon name="3d" :class="curMap && is3D?'active':''" @click="toggleMap3D()" /></span>
               </el-tooltip>
               <el-tooltip :content="showMarkers ? '隐藏监控点位' : '显示监控点位'" placement="top">
-                <span class="tools-item"><svg-icon name="mark" @click="toggleMarkersShow()" :class="curMap && showMarkers?'active':''" /></span>
+                <span class="tools-item"><svg-icon name="mark" :class="curMap && showMarkers?'active':''" @click="toggleMarkersShow()" /></span>
               </el-tooltip>
               <!-- <span class="tools-item"><svg-icon name="close-all" /></span> -->
               <!-- <span class="tools-item"><svg-icon name="magnifier" /></span> -->
@@ -92,7 +92,7 @@
           <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
             <el-dialog :title="mapEditDialog.status == 'add' ? '添加地图' : '编辑地图'" :visible.sync="mapEditDialog.dialogVisible" width="45%" class="dialog-text">
               <el-form ref="mapform" :model="form" label-width="150px" :rules="rules">
-                <el-form-item label="名称" prop="name" v-if="mapEditDialog.status == 'add'">
+                <el-form-item v-if="mapEditDialog.status == 'add'" label="名称" prop="name">
                   <el-input v-model="form.name" placeholder="请输入地图名称" />
                 </el-form-item>
                 <el-form-item label="中心点经度" prop="longitude">
@@ -103,7 +103,7 @@
                 </el-form-item>
                 <el-form-item label="默认缩放级别" prop="zoom">
                   <div class="block">
-                    <el-slider v-model="form.zoom" :min="3" :max="20" :marks="{ 3: '3', 20: '20' }"/>
+                    <el-slider v-model="form.zoom" :min="3" :max="20" :marks="{3: '3', 20: '20'}" />
                   </div>
                 </el-form-item>
               </el-form>
@@ -172,14 +172,14 @@ import IndexMixin from '../device/mixin/indexMixin'
 import { getGroups } from '@/api/group'
 import { setDirsStreamStatus, renderAlertType, getSums } from '@/utils/device'
 import { describeShareDevices, getPlatforms } from '@/api/upPlatform'
-import {getDeviceEvents, getDevices, getDeviceTree, getDevice} from '@/api/device'
+import { getDeviceEvents, getDevices, getDeviceTree, getDevice } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MapView from './mapview.vue'
 import PointInfo from './components/PointInfo.vue'
 import SelectedPoint from './components/SelectedPoint.vue'
 import MapInfo from './components/MapInfo.vue'
 import { getMaps, createMap, deleteMap, modifyMap } from '@/api/map'
-import {mapObject} from "@/views/map/models/vmap";
+import { mapObject } from '@/views/map/models/vmap'
 
 @Component({
   name: 'Map',
@@ -499,7 +499,7 @@ export default class extends Mixins(IndexMixin) {
         message: '当前为查看模式，是否确定进入编辑模式？',
         showCancelButton: true,
         confirmButtonText: '确定',
-        cancelButtonText: '取消',
+        cancelButtonText: '取消'
       }).then(() => {
         this.isEdit = true
         this.handleMarkerOn(marker)
@@ -558,7 +558,7 @@ export default class extends Mixins(IndexMixin) {
             this.$refs.mapview.addMarker(markerInfo)
           }).catch(() => {
             console.log('cancel')
-          });
+          })
         } else {
           markerInfo.longitude = device.deviceLongitude
           markerInfo.latitude = device.deviceLatitude
@@ -568,7 +568,7 @@ export default class extends Mixins(IndexMixin) {
         this.$refs.mapview.addMarker(markerInfo)
       }
     } catch (e) {
-      this.$alertError(e);
+      this.$alertError(e)
     } finally {
       this.addPositionDialog = false
     }
@@ -576,7 +576,7 @@ export default class extends Mixins(IndexMixin) {
 
   deviceClick(data) {
     if (data.isLeaf && this.mapDeviceIds.indexOf(data.id) < 0) {
-      this.$message.warning(`该设备尚未添加到当前地图上`)
+      this.$message.warning('该设备尚未添加到当前地图上')
     } else if (data.isLeaf && this.mapDeviceIds.indexOf(data.id) >= 0) {
       const marker = this.markerList.filter(item => item.deviceId === data.id)[0]
       this.$refs.mapview.setMapCenter(marker.longitude, marker.latitude)
@@ -608,7 +608,7 @@ export default class extends Mixins(IndexMixin) {
   }
 
   addOrEditMap() {
-    this.$refs.mapform.validate(async (valid: any) => {
+    this.$refs.mapform.validate(async(valid: any) => {
       if (valid) {
         try {
           const map = {
@@ -620,7 +620,7 @@ export default class extends Mixins(IndexMixin) {
           if (this.mapEditDialog.status === 'add') {
             const res = await createMap(map)
             const mapId = res.mapId
-            this.curMap = {...map, mapId}
+            this.curMap = { ...map, mapId }
             if (this.mapList.length > 0) {
               this.$refs.mapview.setMap(this.curMap)
               this.$refs.mapview.closePlayer()
@@ -685,7 +685,7 @@ export default class extends Mixins(IndexMixin) {
       }
       this.mapEditDialog.status = 'add'
     }
-    this.mapEditDialog.dialogVisible = true;
+    this.mapEditDialog.dialogVisible = true
   }
 
   /**
@@ -727,7 +727,7 @@ export default class extends Mixins(IndexMixin) {
       method: deleteMap,
       payload: { mapId: map.mapId },
       onSuccess: () => {
-        this.mapList = this.mapList.filter(item => item.mapId !== map.mapId);
+        this.mapList = this.mapList.filter(item => item.mapId !== map.mapId)
         if (this.curMap.mapId === map.mapId) {
           this.curMap = this.mapList[0] || null
         }
@@ -755,7 +755,7 @@ export default class extends Mixins(IndexMixin) {
         checklnglat = this.checklng(params.longitude) && this.checklat(params.latitude)
       }
       if (this.modifyMapForm.zoom) {
-        params.zoom = this.curMapInfo.zoom;
+        params.zoom = this.curMapInfo.zoom
         checkzoom = this.checkZoom(params.zoom)
       }
       if (checklnglat && checkzoom) {

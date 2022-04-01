@@ -190,224 +190,224 @@ import { ResultTimeInterval } from '@/dics/index'
   }
 })
 export default class extends Vue {
-    @Prop() private device!: any
-    @Prop() private appInfo!: any
-    @Prop() private faceLib!: any
-    private dialoguePic: any = null
-    private queryLoading: any = {
-      pic: false,
-      carChart: false,
-      peopleChart: false,
-      carAlarmTable: false
+  @Prop() private device!: any
+  @Prop() private appInfo!: any
+  @Prop() private faceLib!: any
+  private dialoguePic: any = null
+  private queryLoading: any = {
+    pic: false,
+    carChart: false,
+    peopleChart: false,
+    carAlarmTable: false
+  }
+  private currentLocationIndex: number = -1
+  private visibile = false
+  private decodeBase64: Function = decodeBase64
+  private timeInterval = ResultTimeInterval
+  private pager = {
+    pageNum: 1,
+    pageSize: 12,
+    totalNum: 0
+  }
+  private chartPager = {
+    pageNum: 1,
+    pageSize: 5,
+    totalNum: 300
+  }
+  private breadCrumbContent: String = '应用详情'
+  private queryParam: any = {
+    periodType: '今天',
+    period: [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)],
+    confidence: [0, 100],
+    faceSelected: [],
+    resultTimeInterval: 1
+  }
+  private faceInfos: any = []
+  private picInfos: any = []
+  private alarms: any = []
+  // 防抖
+  private debounceHandle = debounce(() => {
+    Object.keys(this.queryLoading).forEach(key => { this.queryLoading[key] = true })
+    this.getScreenShot()
+    this.isCarFlowCode && this.getAlarmsList()
+    Object.keys(this.queryLoading).forEach(key => { this.queryLoading[key] = false })
+  }, 500)
+
+  get dataLoading() {
+    let loading = false
+    Object.keys(this.queryLoading).forEach(key => {
+      if (this.queryLoading[key]) {
+        loading = true
+      }
+    })
+    return loading
+  }
+
+  @Watch('queryParam.periodType')
+  private periodTypeUpdated(newVal) {
+    switch (newVal) {
+      case '今天':
+        this.$set(this.queryParam, 'period', [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)])
+        break
+      case '近3天':
+        this.$set(this.queryParam, 'period', [this.getDateBefore(2), new Date().setHours(23, 59, 59, 999)])
+        break
+      case '自定义时间':
+        this.$set(this.queryParam, 'period', [this.getDateBefore(6), new Date().setHours(23, 59, 59, 999)])
+        break
     }
-    private currentLocationIndex: number = -1
-    private visibile = false
-    private decodeBase64: Function = decodeBase64
-    private timeInterval = ResultTimeInterval
-    private pager = {
-      pageNum: 1,
-      pageSize: 12,
-      totalNum: 0
-    }
-    private chartPager = {
-      pageNum: 1,
-      pageSize: 5,
-      totalNum: 300
-    }
-    private breadCrumbContent: String = '应用详情'
-    private queryParam: any = {
-      periodType: '今天',
-      period: [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)],
-      confidence: [0, 100],
-      faceSelected: [],
-      resultTimeInterval: 1
-    }
-    private faceInfos: any = []
-    private picInfos: any = []
-    private alarms: any = []
-    // 防抖
-    private debounceHandle = debounce(() => {
-      Object.keys(this.queryLoading).forEach(key => { this.queryLoading[key] = true })
+  }
+
+  @Watch('device', { deep: true })
+  private deviceIdUpdate() {
+    this.debounceHandle()
+  }
+  @Watch('appInfo', { deep: true })
+  private appInfoUpdate() {
+    this.device.deviceId.length > 0 && this.debounceHandle()
+  }
+
+  private get isFaceAlgoCode() {
+    return this.appInfo.algorithm.code === '10001'
+  }
+  private get isGatheringCode() {
+    return this.appInfo.algorithm.code === '10005'
+  }
+
+  private get isCarFlowCode() {
+    return this.appInfo.algorithm.code === '10019'
+  }
+  private async mounted() {
+    this.initFaceInfos()
+    if (this.device.deviceId.length > 0) {
       this.getScreenShot()
       this.isCarFlowCode && this.getAlarmsList()
-      Object.keys(this.queryLoading).forEach(key => { this.queryLoading[key] = false })
-    }, 500)
+    }
+  }
 
-    get dataLoading() {
-      let loading = false
-      Object.keys(this.queryLoading).forEach(key => {
-        if (this.queryLoading[key]) {
-          loading = true
-        }
-      })
-      return loading
-    }
-
-    @Watch('queryParam.periodType')
-    private periodTypeUpdated(newVal) {
-      switch (newVal) {
-        case '今天':
-          this.$set(this.queryParam, 'period', [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)])
-          break
-        case '近3天':
-          this.$set(this.queryParam, 'period', [this.getDateBefore(2), new Date().setHours(23, 59, 59, 999)])
-          break
-        case '自定义时间':
-          this.$set(this.queryParam, 'period', [this.getDateBefore(6), new Date().setHours(23, 59, 59, 999)])
-          break
-      }
-    }
-
-    @Watch('device', { deep: true })
-    private deviceIdUpdate() {
-      this.debounceHandle()
-    }
-    @Watch('appInfo', { deep: true })
-    private appInfoUpdate() {
-      this.device.deviceId.length > 0 && this.debounceHandle()
-    }
-
-    private get isFaceAlgoCode() {
-      return this.appInfo.algorithm.code === '10001'
-    }
-    private get isGatheringCode() {
-      return this.appInfo.algorithm.code === '10005'
-    }
-
-    private get isCarFlowCode() {
-      return this.appInfo.algorithm.code === '10019'
-    }
-    private async mounted() {
-      this.initFaceInfos()
-      if (this.device.deviceId.length > 0) {
-        this.getScreenShot()
-        this.isCarFlowCode && this.getAlarmsList()
-      }
-    }
-
-    /**
+  /**
      * 得到N天前的时间戳
      */
-    private getDateBefore(dayCount) {
-      let dd = new Date()
-      dd.setDate(dd.getDate() - dayCount)
-      let time = dd.setHours(0, 0, 0)
-      return time
-    }
+  private getDateBefore(dayCount) {
+    let dd = new Date()
+    dd.setDate(dd.getDate() - dayCount)
+    let time = dd.setHours(0, 0, 0)
+    return time
+  }
 
-    /**
+  /**
      * 请求截屏数据
      */
-    private async getScreenShot() {
-      this.picInfos = []
-      const [startTime, endTime] = this.queryParam.period
-      const [confidenceMin, confidenceMax] = this.queryParam.confidence
-      const { deviceId, inProtocol } = this.device
-      const { pageNum, pageSize } = this.pager
-      const query = {
-        startTime: Math.floor(startTime / 1000),
-        endTime: Math.floor(endTime / 1000),
-        confidenceMin,
-        confidenceMax,
-        faceDb: this.faceLib.id,
-        faceIdList: this.queryParam.faceSelected,
-        resultTimeInterval: this.queryParam.resultTimeInterval,
-        appId: this.appInfo.id,
-        deviceId,
-        inProtocol,
-        pageNum,
-        pageSize }
-      try {
-        this.queryLoading.pic = true
-        const res = await getAppScreenShot(query)
-        this.pager.totalNum = res.totalNum
-        this.picInfos = res.screenShotList
-      } catch (e) {
-        // 异常处理
-        console.log(e)
-      } finally {
-        this.queryLoading.pic = false
-      }
+  private async getScreenShot() {
+    this.picInfos = []
+    const [startTime, endTime] = this.queryParam.period
+    const [confidenceMin, confidenceMax] = this.queryParam.confidence
+    const { deviceId, inProtocol } = this.device
+    const { pageNum, pageSize } = this.pager
+    const query = {
+      startTime: Math.floor(startTime / 1000),
+      endTime: Math.floor(endTime / 1000),
+      confidenceMin,
+      confidenceMax,
+      faceDb: this.faceLib.id,
+      faceIdList: this.queryParam.faceSelected,
+      resultTimeInterval: this.queryParam.resultTimeInterval,
+      appId: this.appInfo.id,
+      deviceId,
+      inProtocol,
+      pageNum,
+      pageSize }
+    try {
+      this.queryLoading.pic = true
+      const res = await getAppScreenShot(query)
+      this.pager.totalNum = res.totalNum
+      this.picInfos = res.screenShotList
+    } catch (e) {
+      // 异常处理
+      console.log(e)
+    } finally {
+      this.queryLoading.pic = false
     }
+  }
 
-    private async getAlarmsList() {
-      this.alarms = []
-      const [startTime, endTime] = this.queryParam.period
-      const query = {
-        appId: this.appInfo.id,
-        startTime: Math.floor(startTime / 1000),
-        endTime: Math.floor(endTime / 1000),
-        deviceId: this.device.deviceId
-      }
-      const res = await getVehiclesAlarmStatic(query)
-      this.alarms = res.vehiclesAlarmList
+  private async getAlarmsList() {
+    this.alarms = []
+    const [startTime, endTime] = this.queryParam.period
+    const query = {
+      appId: this.appInfo.id,
+      startTime: Math.floor(startTime / 1000),
+      endTime: Math.floor(endTime / 1000),
+      deviceId: this.device.deviceId
     }
+    const res = await getVehiclesAlarmStatic(query)
+    this.alarms = res.vehiclesAlarmList
+  }
 
-    /**
+  /**
      * 初始化人脸选项图片
      */
-    private async initFaceInfos() {
-      if (this.appInfo.algorithmMetadata.length > 0) {
-        const algorithmMetadata = JSON.parse(this.appInfo.algorithmMetadata)
-        if (algorithmMetadata.FaceDbName) {
-          const { faces }: any = await getGroupPersonAlready({ id: algorithmMetadata.FaceDbName })
-          this.faceInfos = faces.map(face => {
-            return { ...face, labels: JSON.parse(face.labels) }
-          })
-        }
+  private async initFaceInfos() {
+    if (this.appInfo.algorithmMetadata.length > 0) {
+      const algorithmMetadata = JSON.parse(this.appInfo.algorithmMetadata)
+      if (algorithmMetadata.FaceDbName) {
+        const { faces }: any = await getGroupPersonAlready({ id: algorithmMetadata.FaceDbName })
+        this.faceInfos = faces.map(face => {
+          return { ...face, labels: JSON.parse(face.labels) }
+        })
       }
     }
-    /**
+  }
+  /**
      * 拦截所有操作，并防抖发起查询请求
      */
-    private handleChange() {
-      if (this.device.deviceId.length > 0) {
-        (this.queryParam.periodType !== '自定义时间' || this.queryParam.period.length !== 0) && this.debounceHandle()
-      } else {
-        this.$message.error('请先选择设备')
-      }
+  private handleChange() {
+    if (this.device.deviceId.length > 0) {
+      (this.queryParam.periodType !== '自定义时间' || this.queryParam.period.length !== 0) && this.debounceHandle()
+    } else {
+      this.$message.error('请先选择设备')
     }
-    /**
+  }
+  /**
      * 分页操作
      */
-    private handleSizeChange(val: number) {
-      this.pager.pageSize = val
-      this.getScreenShot()
-    }
-    /**
+  private handleSizeChange(val: number) {
+    this.pager.pageSize = val
+    this.getScreenShot()
+  }
+  /**
      * 分页操作
      */
-    private handleCurrentChange(val: number) {
-      this.pager.pageNum = val
-      this.getScreenShot()
-    }
+  private handleCurrentChange(val: number) {
+    this.pager.pageNum = val
+    this.getScreenShot()
+  }
 
-    /**
+  /**
      * 分页操作
      */
-    private handleChartTableCurrentChange(val: number) {
-      this.chartPager.pageNum = val
-    }
+  private handleChartTableCurrentChange(val: number) {
+    this.chartPager.pageNum = val
+  }
 
-    private dialogueOprate() {
-      this.visibile = !this.visibile
-    }
-    private showDialogue(val) {
-      this.visibile = true
-      this.dialoguePic = val
-    }
-    private onload() {
-      const metaData = JSON.parse(this.dialoguePic.metadata)
-      const locations = parseMetaDataNewAi(this.appInfo.algorithm.code, metaData)
-      const img = this.$refs.dialogue
-      this.dialoguePic = { ...this.dialoguePic, locations: transformLocationAi(locations, img) }
-    }
-    private onLocationChanged(index: number) {
-      this.currentLocationIndex = index
-    }
-    private async refresh() {
-      this.debounceHandle()
-    }
+  private dialogueOprate() {
+    this.visibile = !this.visibile
+  }
+  private showDialogue(val) {
+    this.visibile = true
+    this.dialoguePic = val
+  }
+  private onload() {
+    const metaData = JSON.parse(this.dialoguePic.metadata)
+    const locations = parseMetaDataNewAi(this.appInfo.algorithm.code, metaData)
+    const img = this.$refs.dialogue
+    this.dialoguePic = { ...this.dialoguePic, locations: transformLocationAi(locations, img) }
+  }
+  private onLocationChanged(index: number) {
+    this.currentLocationIndex = index
+  }
+  private async refresh() {
+    this.debounceHandle()
+  }
 }
 </script>
 

@@ -188,7 +188,7 @@
         <el-input v-model="form.description" type="textarea" :rows="2" />
       </el-form-item>
       <el-form-item>
-        <el-button v-if="!this.$route.query.id" @click="changeStep({step: 0})">上一步</el-button>
+        <el-button v-if="!$route.query.id" @click="changeStep({step: 0})">上一步</el-button>
         <el-button type="primary" @click="onSubmit">确定</el-button>
         <el-button @click="cancel">取消</el-button>
       </el-form-item>
