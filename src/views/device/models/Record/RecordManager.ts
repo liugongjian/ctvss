@@ -152,10 +152,15 @@ export class RecordManager {
     } catch (e) {
       // 异常时删除日期
       this.loadedRecordDates.delete(date)
-      if (!isConcat && e.code === 13) {
+      if (!isConcat) {
         this.currentRecord = null
         this.screen.url = ''
-        this.screen.errorMsg = this.screen.ERROR.NO_RECORD
+        if (e.code === 13) {
+          this.screen.errorMsg = this.screen.ERROR.NO_RECORD
+        }
+        if (e.code === 8) {
+          this.screen.errorMsg = this.screen.ERROR.NO_STORE
+        }
       }
       if (!isConcat && e.code !== -2) this.screen.isLoading = false
     }
@@ -415,6 +420,7 @@ export class RecordManager {
    * 获取本地录像地址
    */
   private async getLocalUrl(startTime: number) {
+    startTime = Math.round(startTime)
     this.localStartTime = startTime
     const axiosSource = axios.CancelToken.source()
     this.axiosSourceList.push(axiosSource)

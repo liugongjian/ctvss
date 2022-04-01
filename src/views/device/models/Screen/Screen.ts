@@ -72,7 +72,8 @@ export class Screen {
    * ----------------
    */
   public ERROR = {
-    NO_RECORD: '该时段没有录像'
+    NO_RECORD: '该时段没有录像',
+    NO_STORE: '视频资源包未包含存储'
   }
 
   constructor() {

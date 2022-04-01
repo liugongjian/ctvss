@@ -10,7 +10,7 @@
       :is-muted="isMuted"
       :playback-rate="playbackRate"
       :has-progress="hasProgress"
-      :is-live="isLive"
+      :is-live="videoIsLive"
       :is-debug="true"
       @onCreate="onPlayerCreate"
       @onRetry="onRetry"
@@ -204,6 +204,11 @@ export default class extends Vue {
   /* 如视频编码为H265，播放器类型变为h265 */
   private get playerType() {
     return this.codec === 'h265' ? 'h265' : this.type
+  }
+
+  /* 如类型为FLV强制改为直播模式，为了支持设备录像播放 */
+  private get videoIsLive() {
+    return this.type === 'flv' ? true : this.isLive
   }
 
   /* 获取转换协议后的URL */
