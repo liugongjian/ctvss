@@ -1,5 +1,5 @@
 <template>
-  <el-radio-group v-model="recordType" class="screen-tools__btn" size="mini" :disabled="disabled" @change="onChange">
+  <el-radio-group v-if="isGb" v-model="recordType" class="screen-tools__btn" size="mini" :disabled="disabled" @change="onChange">
     <el-radio-button :label="0">云端</el-radio-button>
     <el-radio-button :label="1">设备</el-radio-button>
   </el-radio-group>
@@ -21,6 +21,11 @@ export default class extends Vue {
   private disabled: boolean
 
   private recordType = null
+
+  /* 是否为国标协议 */
+  private get isGb() {
+    return this.screen.inProtocol === 'gb28181'
+  }
 
   @Watch('screen.recordType', {
     immediate: true

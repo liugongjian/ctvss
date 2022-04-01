@@ -157,9 +157,10 @@ export class RecordManager {
         this.screen.url = ''
         if (e.code === 13) {
           this.screen.errorMsg = this.screen.ERROR.NO_RECORD
-        }
-        if (e.code === 8) {
+        } else if (e.code === 8) {
           this.screen.errorMsg = this.screen.ERROR.NO_STORE
+        } else if (e.code !== -2 && e.code !== -1) {
+          this.screen.errorMsg = e.message
         }
       }
       if (!isConcat && e.code !== -2) this.screen.isLoading = false
