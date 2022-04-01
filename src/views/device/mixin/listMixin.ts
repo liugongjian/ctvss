@@ -764,6 +764,7 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
       this.initDirs()
       this.times = 1
     }).catch(e => {
+      this.times = 1
       this.loading.syncDevice = false
       this.$message.error(e && e.message)
     })
