@@ -308,32 +308,6 @@ export const asyncRoutes: RouteConfig[] = [
       }
     ]
   },
-  {
-    path: '/map',
-    component: Layout,
-    meta: {
-      id: '20210424150201004000',
-      title: '电子地图',
-      icon: 'mark',
-      perms: ['DescribeMap'],
-      alwaysShow: false,
-      only: true,
-      groupSelector: false
-    },
-    children: [
-      {
-        path: '',
-        component: () => import(/* webpackChunkName: "map" */ '@/views/map/index.vue'),
-        name: 'map',
-        meta: {
-          id: '20210424150201004001',
-          title: '电子地图',
-          icon: 'mark',
-          breadcrumb: false,
-          perms: ['DescribeMap']
-        }
-      }]
-  },
   // {
   //   path: '/stream',
   //   component: Layout,
@@ -483,6 +457,32 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
 
+  {
+    path: '/map',
+    component: Layout,
+    meta: {
+      id: '20210424150201004000',
+      title: '电子地图',
+      icon: 'mark',
+      perms: ['DescribeMap'],
+      alwaysShow: false,
+      only: true,
+      groupSelector: false
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "map" */ '@/views/map/index.vue'),
+        name: 'map',
+        meta: {
+          id: '20210424150201004001',
+          title: '电子地图',
+          icon: 'mark',
+          breadcrumb: false,
+          perms: ['DescribeMap']
+        }
+      }]
+  },
   {
     path: '/up-platform',
     component: Layout,
