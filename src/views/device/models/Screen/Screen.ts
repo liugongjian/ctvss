@@ -179,6 +179,9 @@ export class Screen {
    */
   public init() {
     try {
+      // 先销毁原有的录像列表和取消原有请求
+      this.recordManager && this.recordManager.destroy()
+      this.axiosSource && this.axiosSource.cancel()
       this.isLive ? this.initLive() : this.initReplay()
     } catch (e) {
       console.error(e)
@@ -195,7 +198,7 @@ export class Screen {
   }
 
   /**
-   * 销毁录像
+   * 销毁
    */
   public destroy() {
     this.recordManager && this.recordManager.destroy()
