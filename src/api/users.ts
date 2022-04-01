@@ -99,7 +99,7 @@ export const getUserConfig = (): Promise<any> =>
 /**
  * 保存用户配置
  */
-export const updatetUserConfig = (data:any): Promise<any> =>
+export const updatetUserConfig = (data: any): Promise<any> =>
   request({
     url: '/user/config/createOrUpdate',
     method: 'post',

@@ -192,7 +192,7 @@ export default class extends Vue {
           })
           this.$message({
             type: 'success',
-            message: `设置成功`
+            message: '设置成功'
           })
           this.closeDialog(true)
         } catch (e) {

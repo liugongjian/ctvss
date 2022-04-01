@@ -381,7 +381,7 @@ export default class extends Vue {
   private async deleteAlarm(row: any) {
     this.$alertDelete({
       type: '告警信息',
-      msg: `确定删除该告警信息`,
+      msg: '确定删除该告警信息',
       method: deleteAlarmInfo,
       payload: { alarmId: row.alarmId },
       onSuccess: this.getList

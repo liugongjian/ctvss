@@ -381,7 +381,7 @@ export default class extends Vue {
   }
   private createUser() {
     this.$router.push({
-      name: `accessManage-user-create`,
+      name: 'accessManage-user-create',
       query: {
         type: 'add',
         groupId: this.currentNode.data.groupId,
@@ -392,7 +392,7 @@ export default class extends Vue {
   private editUser(row: any) {
     this.getSubuserLoginLink(row.iamUserName)
     this.$router.push({
-      name: `accessManage-user-create`,
+      name: 'accessManage-user-create',
       query: {
         type: 'edit',
         userId: row.iamUserId,
@@ -416,7 +416,7 @@ export default class extends Vue {
     this.getSubuserLoginLink(user.iamUserName)
     // 传递参数去获取用户详情数据
     this.$router.push({
-      name: `accessManage-user-detail`,
+      name: 'accessManage-user-detail',
       query: {
         type: 'edit',
         userId: user.iamUserId,
