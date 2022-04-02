@@ -139,7 +139,7 @@
               width="400"
               trigger="hover"
               :open-delay="300"
-              content="开启该功能，NVR通道重新上线不会覆盖用户自定义的通道名称"
+              content="开启该功能，NVR通道向上级联使用通道的实际名称"
             >
               <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
