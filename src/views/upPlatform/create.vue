@@ -70,7 +70,7 @@
         <el-form-item v-if="form.enabledNat === 1" label="本地端口:" prop="natPort">
           <el-input v-model="form.natPort" />
         </el-form-item>
-        <el-form-item label="网络类型:" prop="transType">
+        <el-form-item label="网络类型:" prop="cascadeNetWork">
           <el-radio-group v-model="form.cascadeNetWork">
             <el-radio label="public">互联网</el-radio>
             <el-radio label="private">专线网络</el-radio>
@@ -178,7 +178,7 @@ export default class extends Vue {
     characterType: 'UTF-8',
     permissionSet: [],
     description: '',
-    cascadeNetWork: ''
+    cascadeNetWork: 'public'
   }
   private submitting = false
   private loading = false
@@ -222,7 +222,11 @@ export default class extends Vue {
     ],
     characterType: [
       { required: true, message: '请选择字符集', trigger: 'change' }
-    ]
+    ],
+    cascadeNetWork: [
+      { required: true, message: '请选择网络类型', trigger: 'change' }
+    ],
+    
   }
 
   private get isUpdate() {
