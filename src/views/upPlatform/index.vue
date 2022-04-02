@@ -51,7 +51,7 @@
             <div class="platform-status">平台状态: <status-badge :status="currentPlatform.status" />{{ platformStatus[currentPlatform.status] }}</div>
           </div>
         </div>
-        <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
+        <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}" :style="{height: `${maxHeight}px`}">
           <el-button class="device-list__expand" @click="toggledirList">
             <svg-icon name="hamburger" />
           </el-button>
@@ -67,7 +67,7 @@
                   <el-button type="text" @click="initDirs"><svg-icon name="refresh" /></el-button>
                 </el-tooltip>
               </div>
-              <div v-loading="loading.dir" class="dir-list__tree device-list__max-height" :style="{height: `${maxHeight}px`}">
+              <div v-loading="loading.dir" class="dir-list__tree device-list__max-height">
                 <el-tree
                   ref="dirTree"
                   empty-text="暂无目录或设备"
@@ -110,7 +110,7 @@
                 {{ item.label }}
               </span>
             </div>
-            <div v-if="hasDir" ref="listWrap" class="device-list__max-height" :style="{height: `${maxHeight}px`}">
+            <div v-if="hasDir" ref="listWrap" class="device-list__max-height">
               <div ref="toolWrap" class="device-list__tools">
                 <el-button class="cancle-btn" @click="cancleShareDevice(selectedList)">移除选中设备</el-button>
                 <el-input v-model="searchDeviceName" class="filter-container__search-group" placeholder="请输入关键词" clearable @keyup.enter.native="handleFilter" @clear="handleFilter">
@@ -188,7 +188,6 @@ import { DeviceStatus, StreamStatus, PlatformStatus } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AddDevices from './compontents/dialogs/AddDevices.vue'
 import PlatformDetail from './compontents/dialogs/PlatformDetail.vue'
-import ResizeObserver from 'resize-observer-polyfill'
 
 @Component({
   name: 'UpPlatformList',
@@ -215,8 +214,8 @@ export default class extends Vue {
   private defaultExpandedKeys: Array<any> = []
   private currentPlatformDetail = null
   public isExpanded = true
-  public maxHeight = 1000
-  private tableMaxHeight: any = null
+  public maxHeight = null
+  private tableMaxHeight = null
   private observer: any = null
   public dirDrag = {
     isDragging: false,
@@ -277,21 +276,10 @@ export default class extends Vue {
     await this.getPlatformList()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
-    this.calTableMaxHeight()
-    // @ts-ignore
-    this.observer = new ResizeObserver(() => {
-      this.calTableMaxHeight()
-    })
-    const listWrap: any = this.$refs.listWrap
-    listWrap && this.observer.observe(listWrap)
   }
 
-  private calTableMaxHeight() {
-    const listWrap: any = this.$refs.listWrap
-    if (!listWrap) return
-    const toolWrap: any = this.$refs.toolWrap
-    const documentHeight = listWrap.offsetHeight - (toolWrap ? toolWrap.offsetHeight : 0) - 90
-    this.tableMaxHeight = documentHeight
+  private destroyed() {
+    window.removeEventListener('resize', this.calMaxHeight)
   }
 
   // 面包屑导航
@@ -303,12 +291,6 @@ export default class extends Vue {
     this.getList(currentNode.data, false)
     this.currentNodeData = currentNode.data
     this.breadcrumb = this.getNodePath(currentNode)
-  }
-
-  private destroyed() {
-    window.removeEventListener('resize', this.calMaxHeight)
-    const listWrap: any = this.$refs.listWrap
-    listWrap && this.observer.unobserve(listWrap)
   }
 
   private handleSelectionChange(rows: any) {
@@ -638,7 +620,8 @@ export default class extends Vue {
     const size = deviceWrap.$el.getBoundingClientRect()
     const top = size.top
     const documentHeight = document.body.offsetHeight
-    this.maxHeight = documentHeight - top - 130
+    this.maxHeight = documentHeight - top - 90
+    this.tableMaxHeight = this.maxHeight - 160
   }
 
   /**
@@ -676,10 +659,12 @@ export default class extends Vue {
   &__search-group {
     margin-right: 10px;
   }
+
   &__select {
     display: inline;
     margin-right: 10px;
   }
+
   .platform-status {
     margin: 10px 10px 0 0;
   }
@@ -698,7 +683,6 @@ export default class extends Vue {
 
     &__header {
       border-bottom: 1px solid $borderGrey;
-      padding-bottom: 10px;
       padding: 15px;
 
       .el-button--primary {
@@ -718,9 +702,11 @@ export default class extends Vue {
     &__list {
       padding: 15px;
       min-height: 100px;
+
       ul {
         margin: 0;
         padding: 0;
+
         li {
           position: relative;
           list-style: none;
@@ -729,6 +715,7 @@ export default class extends Vue {
           cursor: pointer;
           border-radius: 4px;
           padding-left: 10px;
+
           span {
             display: block;
             white-space: nowrap;
@@ -754,16 +741,19 @@ export default class extends Vue {
             right: 0;
             top: 0;
             background: $treeHover;
+
             .el-button {
               padding: 5px;
             }
-            .el-button+.el-button {
-              margin-left: 0px;
+
+            .el-button + .el-button {
+              margin-left: 0;
             }
           }
 
           &:hover {
             background: $treeHover;
+
             .tools {
               display: block;
             }
@@ -772,9 +762,11 @@ export default class extends Vue {
           &.actived {
             background: $primary;
             color: #fff;
+
             .tools {
               background: $primary;
             }
+
             svg {
               color: #fff;
             }
@@ -788,6 +780,7 @@ export default class extends Vue {
     text-align: right;
     margin-bottom: 10px;
     position: relative;
+
     .cancle-btn {
       float: left;
     }

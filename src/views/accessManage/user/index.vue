@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div ref="container" class="app-container">
     <el-card :class="{'collapsed': isCollapsed, 'dragging': handleDrag.isDragging}">
       <div
         class="handle"
@@ -24,7 +24,7 @@
           <span>{{ nodePath }}</span>
         </div>
       </div>
-      <div class="user-content">
+      <div class="user-content" :style="`height: ${maxHeight}px`">
         <el-main v-loading="loading.menu" class="user-content__menu" :style="`width: ${handleDrag.width}px`">
           <el-tree
             ref="groupTree"
@@ -76,7 +76,7 @@
               <el-button class="el-button-rect" @click="getUserList"><svg-icon name="refresh" /></el-button>
             </div>
           </div>
-          <el-table v-loading="loading.body" :data="userList">
+          <el-table v-loading="loading.body" :data="userList" :height="tableMaxHeight">
             <el-table-column prop="iamUserName" label="用户名">
               <template slot-scope="{row}">
                 <span class="click__user" @click="getDetail(row)">{{ row.iamUserName || '-' }}</span>
@@ -162,6 +162,8 @@ export default class extends Vue {
     }
   }
   private subUserLoginLink: string = ''
+  private maxHeight = null
+  private tableMaxHeight = null
 
   @Watch('userList.length')
   private onUserListChange(data: any) {
@@ -173,7 +175,24 @@ export default class extends Vue {
       this.nodeKeyPath = this.$route.params.nodeKeyPath
     )
     this.initGroupTree('')
-    // console.log(this.handleDrag)
+    this.calMaxHeight()
+    window.addEventListener('resize', this.calMaxHeight)
+  }
+
+  private destroyed() {
+    window.removeEventListener('resize', this.calMaxHeight)
+  }
+
+  /**
+   * 计算最大高度
+   */
+  public calMaxHeight() {
+    const container: any = this.$refs.container
+    const size = container.getBoundingClientRect()
+    const top = size.top
+    const documentHeight = document.body.offsetHeight
+    this.maxHeight = documentHeight - top - 90
+    this.tableMaxHeight = this.maxHeight - 135
   }
 
   private changeHandle(e: any) {
