@@ -163,6 +163,16 @@ export class ScreenManager {
   }
 
   /**
+   * 清空所有分屏
+   */
+  public clearAllScreen() {
+    this.screenList.forEach(screen => {
+      screen.destroy()
+    })
+    this.currentIndex = 0
+  }
+
+  /**
    * 保存分屏至LocalStorage
    */
   public saveCache() {
