@@ -54,7 +54,7 @@
             </template>
             <el-switch v-model="form.replay" active-value="true" inactive-value="false" />
           </el-form-item>
-          <el-form-item prop="enableCloudChannelName" label-width="240px">
+          <!-- <el-form-item prop="enableCloudChannelName">
             <template slot="label">
               平台自定义NVR通道名称:
               <el-popover
@@ -69,7 +69,7 @@
               </el-popover>
             </template>
             <el-switch v-model="form.enableCloudChannelName" active-value="true" inactive-value="false" />
-          </el-form-item>
+          </el-form-item> -->
         </el-tab-pane>
         <el-tab-pane label="画面" name="frame">
           <el-form-item label="默认画面比例">
@@ -126,13 +126,13 @@ export default class extends Vue {
 
   private tips = {
     screen: '除首次实时预览需要打开指定摄像头外，后续切换回实时预览模块，都会直接播放上一次摄像头实时画面，默认关闭',
-    replay: '除首次录像回放需要打开指定摄像头外，后续切换回录像回放模块，都会自动打开上一次摄像头录像回放界面，默认关闭',
-    enableCloudChannelName: '开启该功能，NVR通道重新上线不会覆盖用户自定义的通道名称'
+    replay: '除首次录像回放需要打开指定摄像头外，后续切换回录像回放模块，都会自动打开上一次摄像头录像回放界面，默认关闭'
+    // enableCloudChannelName: '开启该功能，NVR通道重新上线不会覆盖用户自定义的通道名称'
   }
   private cacheForm = {
     screen: 'false',
-    replay: 'false',
-    enableCloudChannelName: 'false'
+    replay: 'false'
+    // enableCloudChannelName: 'false'
   }
   private loading: boolean = false
 
@@ -183,10 +183,11 @@ export default class extends Vue {
         // 前后端参数不一致，设置转换字典
         let dic = {
           screen: 'live',
-          replay: 'record',
-          enableCloudChannelName: 'enableCloudChannelName'
+          replay: 'record'
+          // enableCloudChannelName: 'enableCloudChannelName'
         }
-        let keyList = ['screen', 'replay', 'enableCloudChannelName']
+        // let keyList = ['screen', 'replay', 'enableCloudChannelName']
+        let keyList = ['screen', 'replay']
         keyList.forEach(item => {
           params.push({
             key: dic[item],
