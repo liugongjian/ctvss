@@ -77,9 +77,9 @@ export default class extends Vue {
     y: 0,
     textY: 0,
     midLineY: 0,
-    recordColor: '#feefc7',
+    recordColor: '#abd0ff',
     hourLineColor: '#000',
-    minLineColor: '#bbb',
+    minLineColor: '#94a4ba',
     midLineColor: '#fa8334',
     gradientColor: '255, 255, 255'
   }
@@ -170,7 +170,7 @@ export default class extends Vue {
 
   private created() {
     if (this.isInline) {
-      this.settings.recordColor = '#584d37'
+      this.settings.recordColor = '#445469'
       this.settings.hourLineColor = '#bbb'
       this.settings.minLineColor = '#999'
       this.settings.midLineColor = '#fa8334'
@@ -430,23 +430,23 @@ export default class extends Vue {
     this.ctx.fillRect(Math.floor(this.settings.width / 2 - 1), 0, this.settings.minLineWidth, this.settings.minLineHeight)
 
     /* 绘制左右渐变 */
-    if (!this.isInline) {
-      const gradientWidth = this.settings.width * 0.08
-      const startColor = `rgba(${this.settings.gradientColor}, 0.7)`
-      const endColor = `rgba(${this.settings.gradientColor}, 0)`
-      /* 左侧 */
-      const gradientL = this.ctx.createLinearGradient(0, 0, gradientWidth, 0)
-      gradientL.addColorStop(0, startColor)
-      gradientL.addColorStop(1, endColor)
-      this.ctx.fillStyle = gradientL
-      this.ctx.fillRect(0, 0, gradientWidth, this.settings.height)
-      /* 右侧 */
-      const gradientR = this.ctx.createLinearGradient(this.settings.width - gradientWidth, 0, this.settings.width, 0)
-      gradientR.addColorStop(0, endColor)
-      gradientR.addColorStop(1, startColor)
-      this.ctx.fillStyle = gradientR
-      this.ctx.fillRect(this.settings.width - gradientWidth, 0, gradientWidth, this.settings.height)
-    }
+    // if (!this.isInline) {
+    //   const gradientWidth = this.settings.width * 0.08
+    //   const startColor = `rgba(${this.settings.gradientColor}, 0.7)`
+    //   const endColor = `rgba(${this.settings.gradientColor}, 0)`
+    //   /* 左侧 */
+    //   const gradientL = this.ctx.createLinearGradient(0, 0, gradientWidth, 0)
+    //   gradientL.addColorStop(0, startColor)
+    //   gradientL.addColorStop(1, endColor)
+    //   this.ctx.fillStyle = gradientL
+    //   this.ctx.fillRect(0, 0, gradientWidth, this.settings.height)
+    //   /* 右侧 */
+    //   const gradientR = this.ctx.createLinearGradient(this.settings.width - gradientWidth, 0, this.settings.width, 0)
+    //   gradientR.addColorStop(0, endColor)
+    //   gradientR.addColorStop(1, startColor)
+    //   this.ctx.fillStyle = gradientR
+    //   this.ctx.fillRect(this.settings.width - gradientWidth, 0, gradientWidth, this.settings.height)
+    // }
   }
 
   /**
