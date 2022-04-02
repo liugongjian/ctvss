@@ -153,10 +153,10 @@ export default class extends Vue {
   /* 监听日历变化 */
   @Watch('recordManager.currentDate')
   private onStatusChange() {
-    if (this.screen.isLive || this.disabled) return
     this.currentTime = (this.recordManager && this.recordManager.currentDate) || getDateByTime(new Date().getTime()) / 1000
     this.generateData()
     this.draw()
+    if (this.screen.isLive || this.disabled) return
     /* 继续加载上一天的录像列表 */
     clearTimeout(this.timeout)
     this.timeout = setTimeout(async() => {
