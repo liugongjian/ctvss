@@ -21,7 +21,7 @@ export default class IndexMixin extends Vue {
     searchKey: '',
     revertSearchFlag: false
   }
-  public maxHeight = 1000
+  public maxHeight = null
   public dirList = []
   public isExpanded = true
   public dirDrag = {

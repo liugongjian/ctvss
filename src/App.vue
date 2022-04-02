@@ -1,5 +1,5 @@
 <template>
-  <div :id="ctLogin ? 'ctcloud-console' : ''">
+  <div :id="ctLogin ? 'ctcloud-console' : ''" class="app-wrap">
     <div id="app">
       <router-view />
     </div>
