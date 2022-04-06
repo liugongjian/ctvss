@@ -155,6 +155,9 @@ export default class extends Vue {
 
   private mounted() {
     this.$nextTick(() => {
+      if (this.screen.recordManager && this.screen.recordManager.currentDate) {
+        this.form.date = new Date(this.screen.recordManager.currentDate * 1000)
+      }
       const $timeline: any = this.$refs.timeline
       this.timelineSize = $timeline.getBoundingClientRect()
       this.handleList[0].$handle = $timeline.querySelector('#handle-0')
