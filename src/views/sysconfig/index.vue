@@ -127,7 +127,7 @@ export default class extends Vue {
   private tips = {
     screen: '除首次实时预览需要打开指定摄像头外，后续切换回实时预览模块，都会直接播放上一次摄像头实时画面，默认关闭',
     replay: '除首次录像回放需要打开指定摄像头外，后续切换回录像回放模块，都会自动打开上一次摄像头录像回放界面，默认关闭',
-    enableCloudChannelName: '开启该功能，NVR通道向上级联使用通道的实际名称'
+    enableCloudChannelName: '默认使用平台自定义通道名称，如果开启该功能，NVR通道重新上线会覆盖平台自定义的通道名称'
   }
   private cacheForm = {
     screen: 'false',
