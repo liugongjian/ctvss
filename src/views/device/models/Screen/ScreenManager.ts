@@ -138,6 +138,7 @@ export class ScreenManager {
     screen.isLive = this.isLive
     screen.inProtocol = this.inProtocol
     screen.init()
+    this.currentIndex = this.findRightIndexAfterOpen()
   }
 
   /**
@@ -159,6 +160,16 @@ export class ScreenManager {
     } else {
       screen.streamNum = data.autoStreamNum
     }
+  }
+
+  /**
+   * 清空所有分屏
+   */
+  public clearAllScreen() {
+    this.screenList.forEach(screen => {
+      screen.destroy()
+    })
+    this.currentIndex = 0
   }
 
   /**
@@ -254,31 +265,73 @@ export class ScreenManager {
   /**
    * 查找合适插入的分屏位置
    * 1) 如果是列表模式直接返回当前索引
-   * 2) 判断当前选中的位置是否为空，如果为空则插入
-   * 3) 然后，优先查找没有占用的位置(无DeviceId)
-   * 4) 最后，如果全部占满，从选中位置开始重新循环插入，如果当前位置为最后位置，则重第一个重新开始
+   * 2) 实时预览:
+   *    -- 视频播放永远使用选中态的窗口
+   *    -- 点击设备时，使用选中态窗口进行播放，播放后当页面存在空窗口时，选中态自动跳到index最小的空窗口上
+   *    -- 当播放页不存在空窗口时，选中态保留在当前播放窗口上
+   * 3) 录像回放:
+   *    -- 新播放的画面选中态保持在该窗口上，不进行跳动
+   *    -- 选中态为空窗口时，使用选中态当前窗口
+   *    -- 选中态为非空窗口时，如果页面存在空窗口，则使用index最小的空窗口进行播放，播放后选中态页跟随跳到新窗口；选中态为非空窗口时，如果页面不存在空窗口，则使用选中窗口播放
    * @return index
    */
   private findRightIndex(): number {
-    // Step1
+    // 如果是列表模式直接返回当前索引
     if (this.view === 'list') {
       return this.currentIndex
     }
-    // Step2
-    if (!this.screenList[this.currentIndex].deviceId) {
+    if (this.isLive) {
+      // 视频播放永远使用选中态的窗口
       return this.currentIndex
-    }
-    // Step3
-    for (let i = 0; i < this.screenList.length; i++) {
-      if (!this.screenList[i].deviceId) {
-        return i
+    } else {
+      // 选中态为空窗口时，使用选中态当前窗口
+      if (!this.screenList[this.currentIndex].deviceId) {
+        return this.currentIndex
+      }
+      // 选中态为非空窗口时，如果页面存在空窗口，则使用index最小的空窗口进行播放，播放后选中态页跟随跳到新窗口；选中态为非空窗口时，如果页面不存在空窗口，则使用选中窗口播放
+      let count = 0
+      for (let i = 0; i < this.screenList.length; i++) {
+        if (!this.screenList[i].deviceId) {
+          return i
+        }
+        count++
+      }
+      // 选中态为非空窗口时，如果页面存在空窗口，则使用index最小的空窗口进行播放，播放后选中态页跟随跳到新窗口；选中态为非空窗口时，如果页面不存在空窗口，则使用选中窗口播放
+      if (count === this.screenList.length) {
+        return this.currentIndex
       }
     }
-    // Step4
-    if (this.currentIndex === this.screenList.length - 1) {
-      return 0
+  }
+
+  /**
+   * 在打开分屏后查找合适选中位置
+   * 1) 如果是列表模式直接返回当前索引
+   * 2）实时预览:
+   *    -- 点击设备时，使用选中态窗口进行播放，播放后当页面存在空窗口时，选中态自动跳到index最小的空窗口上
+   * 3）录像回放:
+   *    -- 位置不变
+   * @return index
+   */
+  private findRightIndexAfterOpen(): number {
+    // 如果是列表模式直接返回当前索引
+    if (this.view === 'list') {
+      return this.currentIndex
+    }
+    if (this.isLive) {
+      // 选中态为非空窗口时，如果页面存在空窗口，则使用index最小的空窗口进行播放，播放后选中态页跟随跳到新窗口；选中态为非空窗口时，如果页面不存在空窗口，则使用选中窗口播放
+      let count = 0
+      for (let i = 0; i < this.screenList.length; i++) {
+        if (!this.screenList[i].deviceId) {
+          return i
+        }
+        count++
+      }
+      // 选中态为非空窗口时，如果页面存在空窗口，则使用index最小的空窗口进行播放，播放后选中态页跟随跳到新窗口；选中态为非空窗口时，如果页面不存在空窗口，则使用选中窗口播放
+      if (count === this.screenList.length) {
+        return this.currentIndex
+      }
     } else {
-      return this.currentIndex + 1
+      return this.currentIndex
     }
   }
 }
