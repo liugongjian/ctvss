@@ -17,9 +17,7 @@ export default class extends ComponentMixin {
   private disabled: boolean
 
   private closeAll() {
-    this.screenManager.screenList.forEach(screen => {
-      screen.destroy()
-    })
+    this.screenManager.clearAllScreen()
   }
 }
 </script>
