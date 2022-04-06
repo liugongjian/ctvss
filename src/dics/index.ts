@@ -189,7 +189,8 @@ export const AlertType: any = {
   24: '车辆违停检测',
   25: '车辆拥堵检测',
   26: '人群感应检测',
-  27: '实时在岗检测'
+  27: '实时在岗检测',
+  28: '人员徘徊检测'
 }
 
 export const AiMaskType: any = {

@@ -29,7 +29,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 import { decodeBase64 } from '@/utils/base64'
 import Locations from '@/views/dashboard/ai/components/Locations.vue'
 import Attributes from '@/views/dashboard/ai/components/Attributes.vue'
-import { parseMetaDataNewAi, transformLocationAi } from '@/utils/ai'
+import { parseMetaData, transformLocationAi } from '@/utils/ai'
 
 @Component({
   name: 'PicCard',
@@ -50,7 +50,7 @@ export default class extends Vue {
       return
     }
     const metaData = JSON.parse(this.pic.metadata)
-    const locations = parseMetaDataNewAi(this.type, metaData)
+    const locations = parseMetaData(this.type, metaData)
     const img = this.$refs.img
     this.picInfo = { ...this.pic, locations: transformLocationAi(locations, img) }
   }
@@ -66,42 +66,48 @@ export default class extends Vue {
 }
 </script>
 <style lang='scss' scoped>
-.el-card{
-    // width:400px;
-    cursor: pointer;
-    // height:400px;
-    // min-width: 100px;
-    // margin-top: 2% !important;
-    // margin-right: 2% !important;
-    // display: inline-block;
-    ::v-deep &__body{
-      padding: 0 !important;
+.el-card {
+  // width:400px;
+  cursor: pointer;
+  // height:400px;
+  // min-width: 100px;
+  // margin-top: 2% !important;
+  // margin-right: 2% !important;
+  // display: inline-block;
+  ::v-deep &__body {
+    padding: 0 !important;
+  }
+
+  .pic-wrapper {
+    position: relative;
+    line-height: 0;
+
+    img {
+      width: 100%;
+      // height: 100%;
+      height: auto;
     }
-    .pic-wrapper{
-      position: relative;
-      line-height: 0;
-        img{
-          width: 100%;
-          // height: 100%;
-          height: auto;
-        }
+  }
+
+  .content-wrapper {
+    // position: absolute;
+    // bottom: 0;
+    // left: 0;
+    // height: 33%;
+    padding: 10px 0;
+
+    ::v-deep .el-descriptions-item__container {
+      display: grid;
+      grid-template-columns: 35% 65%;
+
+      .el-descriptions-item__label.has-colon {
+        text-align: end;
+      }
+
+      .el-descriptions-item__label {
+        min-width: 0 !important;
+      }
     }
-    .content-wrapper{
-        // position: absolute;
-        // bottom: 0;
-        // left: 0;
-        // height: 33%;
-        padding: 10px 0;
-        ::v-deep .el-descriptions-item__container{
-          display: grid;
-          grid-template-columns: 35% 65%;
-          .el-descriptions-item__label.has-colon{
-            text-align: end;
-          }
-          .el-descriptions-item__label{
-            min-width: 0 !important;
-          }
-        }
-    }
+  }
 }
 </style>

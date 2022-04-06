@@ -104,7 +104,7 @@
           ref="multipleTable"
           :data="alarms"
           tooltip-effect="dark"
-          style="width: 100%"
+          style="width: 100%;"
           height="300"
         >
           <el-table-column type="index" label="序号" align="center" />
@@ -172,7 +172,7 @@ import PeopleTrendChart from './PeopleTrendChart.vue'
 import CarFlowChart from './CarFlowChart.vue'
 import Locations from '@/views/dashboard/ai/components/Locations.vue'
 import Attributes from '@/views/dashboard/ai/components/Attributes.vue'
-import { parseMetaDataNewAi, transformLocationAi } from '@/utils/ai'
+import { parseMetaData, transformLocationAi } from '@/utils/ai'
 import { getAppScreenShot, getVehiclesAlarmStatic } from '@/api/ai-app'
 import { getGroupPersonAlready } from '@/api/aiConfig'
 import { decodeBase64 } from '@/utils/base64'
@@ -398,7 +398,7 @@ export default class extends Vue {
   }
   private onload() {
     const metaData = JSON.parse(this.dialoguePic.metadata)
-    const locations = parseMetaDataNewAi(this.appInfo.algorithm.code, metaData)
+    const locations = parseMetaData(this.appInfo.algorithm.code, metaData)
     const img = this.$refs.dialogue
     this.dialoguePic = { ...this.dialoguePic, locations: transformLocationAi(locations, img) }
   }
@@ -412,44 +412,51 @@ export default class extends Vue {
 </script>
 
 <style lang='scss' scoped>
-
-.face-filter{
+.face-filter {
   margin-bottom: 20px;
+
   ::v-deep .el-descriptions-item__label {
     min-width: 48px !important;
   }
-  .el-checkbox-group{
+
+  .el-checkbox-group {
     padding-left: 55px;
-    .el-checkbox{
+
+    .el-checkbox {
       line-height: 63px;
       height: 84px;
       width: 200px;
       position: relative;
-      padding:0;
+      padding: 0;
       margin: 0 58px 20px 0;
-      ::v-deep .el-checkbox__input{
+
+      ::v-deep .el-checkbox__input {
         position: absolute;
         right: 20px;
         top: 50%;
         transform: translateY(-41%);
       }
-      ::v-deep .el-checkbox__label{
+
+      ::v-deep .el-checkbox__label {
         position: absolute;
         padding: 0;
         width: 160px;
         height: 100%;
         vertical-align: middle;
-        .checkbox-content{
+
+        .checkbox-content {
           width: 100%;
           height: 100%;
           display: flex;
           flex-direction: row;
-          justify-content:space-between;
+          justify-content: space-between;
           align-items: center;
+
           img {
             width: 50%;
             height: 100%;
           }
+
           div {
             width: 50%;
             text-align: center;
@@ -459,102 +466,120 @@ export default class extends Vue {
     }
   }
 }
-.query-wrapper{
-    // height: 36px;
-    margin-bottom: 20px;
-    line-height: 52px;
-    &>span{
-        margin-right: 20px;
-    }
-    .el-date-editor{
-      margin-left: 10px;
-      padding-top: 2px;
-    }
-    .confidence-slider{
-      display: inline-block;
-      line-height: 100%;
-      vertical-align: middle;
-      width:11vw;
-      margin-right: 20px;
-      padding-left: 8px;
-    }
-    .time-interval{
-      display: inline-block;
-      width: 5vw;
-    }
+
+.query-wrapper {
+  // height: 36px;
+  margin-bottom: 20px;
+  line-height: 52px;
+
+  & > span {
+    margin-right: 20px;
+  }
+
+  .el-date-editor {
+    margin-left: 10px;
+    padding-top: 2px;
+  }
+
+  .confidence-slider {
+    display: inline-block;
+    line-height: 100%;
+    vertical-align: middle;
+    width: 11vw;
+    margin-right: 20px;
+    padding-left: 8px;
+  }
+
+  .time-interval {
+    display: inline-block;
+    width: 5vw;
+  }
 }
-.pic-wrapper{
-    .card-wrapper{
-      display: grid;
-      grid-gap: 1rem;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      overflow-y: auto;
-    }
+
+.pic-wrapper {
+  .card-wrapper {
+    display: grid;
+    grid-gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    overflow-y: auto;
+  }
 }
-.table-wrapper,.chart-wrapper{
+
+.table-wrapper,
+.chart-wrapper {
   display: inline-block;
   vertical-align: top;
 }
-.chart-wrapper{
+
+.chart-wrapper {
   width: 100%;
 }
-.table-wrapper{
+
+.table-wrapper {
   width: 400px;
 }
 
-.title{
-    height: 50px;
-    vertical-align: middle;
-    &>div{
-        // display: inline-block;
-        padding-top: 5px;
-    }
-    .title-block{
-        width: 7px;
-        height: 15px;
-        background-color: rgba(250, 131, 52, 1);
-        border: none;
-        margin-top: 2px;
-        margin-right: 5px;
-        display: inline-block;
-    }
-    span {
-        font-weight: bold;
-    }
+.title {
+  height: 50px;
+  vertical-align: middle;
+
+  & > div {
+    // display: inline-block;
+    padding-top: 5px;
+  }
+
+  .title-block {
+    width: 7px;
+    height: 15px;
+    background-color: rgba(250, 131, 52, 100%);
+    border: none;
+    margin-top: 2px;
+    margin-right: 5px;
+    display: inline-block;
+  }
+
+  span {
+    font-weight: bold;
+  }
 }
 
-.no-data{
+.no-data {
   height: 200px;
   line-height: 200px;
   vertical-align: middle;
   text-align: center;
-  color: rgba(186,198,198);
+  color: rgba(186, 198, 198);
 }
 
 .ai-image-fullscreen__img {
   width: 100%;
   display: flex;
+
   &--wrap {
     position: relative;
     flex: 4;
   }
+
   &--attributes {
     flex: 1;
     background: #f7f7f7;
     padding: 20px 15px;
   }
+
   img {
     width: 100%;
   }
 }
-.no-device{
+
+.no-device {
   height: 70vh;
-  color: rgba(186,198,198);
+  color: rgba(186, 198, 198);
   line-height: 50vh;
   text-align: center;
   font-size: 25px;
 }
-.car-spec{
+
+.car-spec {
   width: calc(100% - 400px) !important;
 }
 </style>
