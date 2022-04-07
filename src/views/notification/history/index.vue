@@ -143,7 +143,7 @@ export default class extends Vue {
     notifyContent: '',
     startTime: 0,
     endTime: 0,
-    sortBy: 'createTime',
+    sortBy: 'create_time',
     sortDirection: 'desc'
   }
   private dataList: Array<INotifictionPolicy> = []
@@ -179,7 +179,7 @@ export default class extends Vue {
       if (!this.advancedFilterFlag) {
         params.name = '',
         params.description = '',
-        params.userGroup = '',
+        params.userGroup = '212994626587967488',
         params.notifyChannel = '',
         // params.source = '3',
         params.notifyContent = ''

@@ -10,9 +10,9 @@
           <el-input v-model="form.name" class="form__input" placeholder="请填写策略名称" />
           <div class="form-tip">2-32位，可包含大小写字母、数字、中文、中划线、空格。</div>
         </el-form-item>
-        <el-form-item label="描述：" prop="desciption">
+        <el-form-item label="描述：" prop="description">
           <el-input
-            v-model="form.desciption"
+            v-model="form.description"
             class="form__input"
             type="textarea"
             rows="4"
@@ -48,7 +48,7 @@
             empty-text="请选择生效时间段"
             max-height="400"
           >
-            <el-table-column key="label" prop="label" width="380">
+            <el-table-column key="effectiveTime" prop="effectiveTime" width="380">
               <template slot="header">
                 <span>生效时间段 </span>
                 <!-- <el-tooltip
@@ -67,7 +67,9 @@
                   range-separator="至"
                   start-placeholder="开始时间"
                   end-placeholder="结束时间"
-                  placeholder="选择时间范围">
+                  placeholder="选择时间范围"
+                  @change="transformFormData"
+                >
                 </el-time-picker>
               </template>
             </el-table-column>
@@ -116,13 +118,13 @@
         </el-form-item>
         <el-form-item v-if="form.source !== '2'" label="生效资源：" prop="notifyResources">
           <resource-tree
-            :checkedList="resourceList"
+            :checkedList="form.notifyResources"
             @resourceListChange="resourceListChange"
           />
         </el-form-item>
         <el-form-item label="推送对象：" prop="notifyDestinations">
           <destinations-tree
-            :checkedList="destinationList"
+            :checkedList="form.notifyDestinations"
             @destinationListChange="destinationListChange"
           />
         </el-form-item>
@@ -166,6 +168,7 @@ import { pick } from 'lodash'
 })
 export default class extends Vue {
   private breadCrumbContent = ''
+  private defaultValue = [new Date(2022, 4, 5, 0, 0, 0), new Date(2022, 4, 5, 23, 59, 59)]
   private dirList: any = []
   public isloading: boolean = false
   private treeProp = {
@@ -193,7 +196,7 @@ export default class extends Vue {
     desc: ''
   }
 
-  private effectiveTimeList: any[] = [{}]
+  private effectiveTimeList: any[] = [{ effectiveTime: [new Date(2022, 4, 5, 0, 0, 0), new Date(2022, 4, 5, 23, 59, 59)] }]
 
   private notifyFreqOptions = [
     { value: '30', label: '半小时' },
@@ -222,7 +225,7 @@ export default class extends Vue {
       { required: true, message: '请选择推送方式', trigger: 'blur' }
     ],
     effectiveTime: [
-      { required: true, message: '请选择推送时间段', trigger: 'blur' }
+      { required: true, message: '请选择推送时间段', trigger: 'change' }
     ],
     notifyFreq: [
       { required: true, message: '请选择推送频率', trigger: 'blur' }
@@ -269,7 +272,6 @@ export default class extends Vue {
   private async mounted() {
     this.breadCrumbContent = this.$route.meta.title
     this.getAlgorithmList()
-    console.log(this.isUpdate)
     if (this.isUpdate) {
       const id = this.$route.query.id
       if (id) {
@@ -283,18 +285,48 @@ export default class extends Vue {
   }
 
   /**
-   * 获取算法列表
+   * 初始化策略信息
    */
   private async initNotificationPolicy() {
     try {
       this.isloading = true
-      const res = await getNotificationPolicyInfo({ id: this.form.id })
-      console.log(res)
+      const info = await getNotificationPolicyInfo({ id: this.form.id })
+      Object.assign(this.form, pick(info, ['name', 'description', 'notifyChannel', 'notifyFreq', 'source', 'notifyTemplate', 'active']))
+      this.form.sourceRules = JSON.parse(info.sourceRules)
+      this.form.notifyResources = JSON.parse(info.notifyResources)
+      this.form.notifyDestinations = JSON.parse(info.notifyDestinations)
+      this.form.effectiveTime = JSON.parse(info.effectiveTime)
+      this.parseEffectiveTime(this.form.effectiveTime)
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
       this.isloading = false
     }
+  }
+
+  /**
+   * 获取算法列表
+   */
+  private parseEffectiveTime(effectiveTime) {
+    this.form.effectiveTime = []
+    if (effectiveTime[0].start_time === '00:00:00' && effectiveTime[0].end_time === '23:59:59') {
+      this.form.effectiveTimeType = 'all'
+    } else {
+      this.form.effectiveTimeType = 'range'
+      this.effectiveTimeList = effectiveTime.map(item => {
+        let start = new Date()
+        let end = new Date()
+        start.setHours(item.start_time.split(':')[0])
+        start.setMinutes(item.start_time.split(':')[1])
+        start.setSeconds(item.start_time.split(':')[2])
+        end.setHours(item.end_time.split(':')[0])
+        end.setMinutes(item.end_time.split(':')[1])
+        end.setSeconds(item.end_time.split(':')[2])
+        console.log(start, end)
+        return { effectiveTime: [start, end] }
+      })
+    }
+    this.transformFormData()
   }
 
   /**
@@ -323,7 +355,6 @@ export default class extends Vue {
     form.validate(async(valid: boolean) => {
       try {
         if (valid) {
-          console.log(this.form)
           let params: any= {}
           Object.assign(params, pick(this.form, ['name', 'description', 'notifyChannel', 'notifyFreq', 'source', 'notifyTemplate', 'active']))
           params.effectiveTime = JSON.stringify(this.form.effectiveTime)
@@ -390,7 +421,7 @@ export default class extends Vue {
    */
   addEffectiveTime() {
     this.effectiveTimeList.push({
-      effecitiveTime: []
+      effectiveTime: [{ effectiveTime: [new Date(2022, 4, 5, 0, 0, 0), new Date(2022, 4, 5, 23, 59, 59)] }]
     })
   }
 

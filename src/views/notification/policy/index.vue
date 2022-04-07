@@ -19,7 +19,7 @@
         </el-table-column>
         <el-table-column prop="notifyChannel" label="推送方式" min-width="160">
           <template slot-scope="scope">
-            {{ scope.row.notifyChannel === 1 ? '邮件推送' : '短信推送' }}
+            {{ scope.row.notifyChannel === '1' ? '邮件推送' : '短信推送' }}
           </template>
         </el-table-column>
         <el-table-column prop="effectiveTime" label="推送时段" min-width="160">
