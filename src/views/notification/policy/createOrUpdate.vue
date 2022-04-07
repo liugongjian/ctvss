@@ -225,7 +225,7 @@ export default class extends Vue {
       { required: true, message: '请选择推送方式', trigger: 'blur' }
     ],
     effectiveTime: [
-      { required: true, message: '请选择推送时间段', trigger: 'change' }
+      { required: true, message: '请选择推送时间段', trigger: 'blur' }
     ],
     notifyFreq: [
       { required: true, message: '请选择推送频率', trigger: 'blur' }

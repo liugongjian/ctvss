@@ -20,12 +20,13 @@
         />
         <div class="filter-container__right">
           <el-button v-if="advancedFilterFlag" type="primary" @click="search">查询</el-button>
+          <el-button v-else class="el-button-rect" @click="search"><svg-icon name="refresh" /></el-button>
           <el-button v-if="advancedFilterFlag" type="primary" @click="advancedFilterFlag = !advancedFilterFlag">收起</el-button>
           <el-button v-else type="primary" @click="advancedFilterFlag = !advancedFilterFlag">高级筛选</el-button>
         </div>
         <el-form ref="form" :model="searchForm" label-width="120px" class="filter-container__advance-search" :class="{'filter-container__advance-search__expanded': advancedFilterFlag}">
-          <el-form-item label="策略名称" prop="name">
-            <el-input v-model="searchForm.name" />
+          <el-form-item label="策略名称" prop="policyName">
+            <el-input v-model="searchForm.policyName" />
           </el-form-item>
           <el-form-item label="策略描述" prop="description">
             <el-input v-model="searchForm.description" />
@@ -45,7 +46,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="推送方式" prop="notifyChannel">
-            <el-select v-model="searchForm.notifyChannel" multiple>
+            <el-select v-model="searchForm.notifyChannel">
               <el-option
                 v-for="(item, index) in notifyChannelOptions"
                 :key="index"
@@ -78,8 +79,8 @@
         @sort-change="sortChange"
       > 
         <el-table-column
-          key="CreateTime"
-          column-key="CreateTime"
+          key="create_time"
+          column-key="create_time"
           prop="createTime"
           sortable="custom"
           label="发生时间"
@@ -89,12 +90,24 @@
             {{ row.createTime }}
           </template>
         </el-table-column>
-        <el-table-column prop="policyName" label="策略名称" min-width="260" />
-        <el-table-column prop="description" label="策略描述" min-width="260" />
-        <el-table-column prop="notifyChannelLabel" label="推送方式" min-width="260" />
-        <el-table-column prop="sourceLabel" label="消息类型" min-width="260" />
-        <el-table-column prop="notifyContent" label="消息内容" min-width="260" />
-        <el-table-column prop="description" label="推送对象" min-width="260" />
+        <el-table-column prop="policyName" label="策略名称" min-width="260"  show-overflow-tooltip />
+        <el-table-column prop="description" label="策略描述" min-width="260"  show-overflow-tooltip />
+        <el-table-column prop="notifyChannel" label="推送方式" min-width="160">
+          <template slot-scope="scope">
+            {{ scope.row.notifyChannel === '1' ? '邮件推送' : '短信推送' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="source" label="消息类型" width="200">
+          <template slot-scope="{row}">
+            {{ sourceMap[row.source] }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="notifyContent" label="消息内容" min-width="260"  show-overflow-tooltip />
+        <el-table-column prop="notifyUserDetails" label="推送对象" min-width="260"  show-overflow-tooltip>
+          <template slot-scope="{row}">
+            {{ row.notifyUserDetails && JSON.parse(row.notifyUserDetails).user }}
+          </template>
+        </el-table-column>
       </el-table>
       <el-pagination
         :current-page="pager.pageNum"
@@ -125,6 +138,7 @@ export default class extends Vue {
   private timeRange = []
   private advancedFilterFlag: boolean = false
   private notifyChannelOptions = [
+    { value: '', label: '所有方式' },
     { value: '1', label: '邮件推送' },
     { value: '2', label: '短信推送' }
   ]
@@ -133,9 +147,14 @@ export default class extends Vue {
     { value: '2', label: '资源包消息' },
     { value: '3', label: 'AI消息' }
   ]
+  private sourceMap = {
+    '1': '设备消息',
+    '2': '资源包消息',
+    '3': 'AI消息'
+  }
   private userGroupOptions = []
   private searchForm = {
-    name: '',
+    policyName: '',
     description: '',
     userGroup: '',
     notifyChannel: '',
@@ -177,25 +196,23 @@ export default class extends Vue {
       this.loading = true
       let params: any = this.searchForm
       if (!this.advancedFilterFlag) {
-        params.name = '',
+        params.policyName = '',
         params.description = '',
-        params.userGroup = '212994626587967488',
+        params.userGroup = '',
         params.notifyChannel = '',
         // params.source = '3',
         params.notifyContent = ''
       }
       params.pageNum = this.pager.pageNum,
       params.pageSize = this.pager.pageSize
-      console.log(params)
       const res = await getNotificationHistory(params)
-      console.log(res)
-      this.dataList = res.data.data
+      this.dataList = res.data
       this.pager.total = res.totalNum
-      this.loading = false
-      // this.pager.pageNum = res.pageNum
-      // this.pager.pageSize = res.pageSize
+      this.pager.pageNum = res.pageNum
+      this.pager.pageSize = res.pageSize
     } catch (e) {
       this.$message.error(`获取推送历史列表失败，原因：${e && e.message}`)
+    } finally {
       this.loading = false
     }
   }
@@ -267,6 +284,10 @@ export default class extends Vue {
           value: item.groupId,
           label: item.groupName
         }
+      })
+      this.userGroupOptions.unshift({
+        value: '',
+        label: '所有用户组'
       })
     } catch (e) {
       this.$alertError(e && e.message)

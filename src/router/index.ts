@@ -1066,7 +1066,7 @@ export const asyncRoutes: RouteConfig[] = [
     meta: {
       id: '20220325143201014000',
       title: '消息推送',
-      icon: 'user',
+      icon: 'notify',
       alwaysShow: true,
       breadcrumb: true,
       perms: ['*']
