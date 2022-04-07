@@ -13,14 +13,17 @@
       >
         <div v-if="['4', '10001'].includes(type) && !!location.score" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
           置信度:{{ location.score }}%<br>
-          <span v-if="type === '10001'">姓名:{{ location.name }}</span>
+          <span v-if="['4', '10001'].includes(type)">姓名:{{ location.name }}</span>
+        </div>
+        <div v-if="['29', '10026'].includes(type)" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
+          {{ location.label }}
         </div>
         <div v-if="type === '17'|| type === '10014'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning, 'ai-recognation__images__item__mask__text--top': location.clientTopPercent + location.clientHeightPercent > 80, 'ai-recognation__images__item__mask__text--left': location.clientLeftPercent + location.clientWidthPercent> 80}">
           {{ location.text }}
         </div>
       </div>
       <div v-else class="ai-recognation__images__item__mask--zone">
-        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" :viewBox="`0 0 ${location.imgNaturalWidth} ${location.imgNaturalHeight}`" style="enable-background:new 0 0 100 50.5;" xml:space="preserve">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" :viewBox="`0 0 ${location.imgNaturalWidth} ${location.imgNaturalHeight}`" style="enable-background: new 0 0 100 50.5;" xml:space="preserve">
           <polygon :points="location.zoneSvg" />
         </svg>
       </div>
@@ -72,13 +75,16 @@ export default class extends Vue {
     &__clickable {
       cursor: pointer;
     }
+
     &__mask {
       position: absolute;
       border: 2px solid $dashboardGreen;
       z-index: 1;
+
       &--warning {
         border-color: $red;
       }
+
       &--zone {
         position: absolute;
         top: 0;
@@ -89,6 +95,7 @@ export default class extends Vue {
         svg {
           width: 100%;
           height: 100%;
+
           polygon {
             fill: none;
             stroke: #6bd174;
@@ -100,6 +107,7 @@ export default class extends Vue {
       &--11 {
         border-width: 4px;
       }
+
       &__text {
         position: absolute;
         display: block;
@@ -111,18 +119,22 @@ export default class extends Vue {
         left: -2px;
         padding: 2px;
         opacity: 0.8;
+
         &--warning {
           background: $white;
         }
+
         &--top {
           top: -19px !important;
           bottom: auto;
         }
+
         &--left {
           right: -2px !important;
           left: auto;
         }
       }
+
       &--selected {
         border-color: $primary;
       }
@@ -132,10 +144,11 @@ export default class extends Vue {
       position: absolute;
       top: 3px;
       left: 0;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 60%);
       color: #fff;
       font-size: 11px;
       padding: 5px;
+
       &--warning {
         background: $red;
       }
