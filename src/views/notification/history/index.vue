@@ -112,7 +112,7 @@
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { INotifictionPolicy } from '@/type/notification'
 import { dateFormatInTable } from '@/utils/date'
-import { getAITemplates, deleteAITemplate } from '@/api/template'
+import { getNotificationHistory } from '@/api/notification'
 import { getGroupList } from '@/api/accessManage'
 
 @Component({
@@ -138,7 +138,7 @@ export default class extends Vue {
     name: '',
     description: '',
     userGroup: '',
-    notifyChannel: [],
+    notifyChannel: '',
     source: '3',
     notifyContent: '',
     startTime: 0,
@@ -162,30 +162,36 @@ export default class extends Vue {
 
   private mounted() {
     this.getUserGroupList()
-    this.getList()
+    this.timeRangeTypeChange(this.timeRangeType)
   }
 
   private refresh() {
     this.search()
   }
 
+  /**
+   * 获取推送历史列表
+   */
   private async getList() {
     try {
       this.loading = true
-      let params = this.searchForm
+      let params: any = this.searchForm
       if (!this.advancedFilterFlag) {
         params.name = '',
         params.description = '',
         params.userGroup = '',
-        params.notifyChannel = [],
-        params.source = '',
+        params.notifyChannel = '',
+        // params.source = '3',
         params.notifyContent = ''
       }
+      params.pageNum = this.pager.pageNum,
+      params.pageSize = this.pager.pageSize
       console.log(params)
-      // const res = await getAITemplates(params)
+      const res = await getNotificationHistory(params)
+      console.log(res)
+      this.dataList = res.data.data
+      this.pager.total = res.totalNum
       this.loading = false
-      // this.dataList = res.aITemplates
-      // this.pager.total = res.totalNum
       // this.pager.pageNum = res.pageNum
       // this.pager.pageSize = res.pageSize
     } catch (e) {
@@ -194,6 +200,9 @@ export default class extends Vue {
     }
   }
 
+  /**
+   * 搜索
+   */
   private search() {
     this.pager.pageNum = 1
     this.getList()
@@ -281,16 +290,6 @@ export default class extends Vue {
   private async handleFilter() {
     this.pager.pageNum = 1
     await this.getList()
-  }
-
-  private async deleteTemplate(row: INotifictionPolicy) {
-    this.$alertDelete({
-      type: 'AI模板',
-      msg: `确定删除AI模板"${row.name}"`,
-      method: deleteAITemplate,
-      payload: { templateId: row.id },
-      onSuccess: this.getList
-    })
   }
 
   private update(row: INotifictionPolicy) {

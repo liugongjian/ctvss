@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-page-header :content="breadCrumbContent" @back="back" />
-    <el-card v-loading="loading.resource">
+    <el-card v-loading="isloading">
       <el-form ref="form" class="form" :rules="rules" :model="form" label-width="120px">
         <el-form-item v-if="isUpdate" label="策略ID：" prop="id">
           <el-input v-model="form.id" class="form__input" :disabled="isUpdate" />
@@ -155,6 +155,7 @@ import { INotifictionPolicyForm } from '@/type/notification'
 import { dateFormat } from '@/utils/date'
 import ResourceTree from './components/ResourceTree.vue'
 import DestinationsTree from './components/DestinationsTree.vue'
+import { pick } from 'lodash'
 
 @Component({
   name: 'notification-policy-create-or-update',
@@ -166,10 +167,7 @@ import DestinationsTree from './components/DestinationsTree.vue'
 export default class extends Vue {
   private breadCrumbContent = ''
   private dirList: any = []
-  public loading = {
-    dir: false,
-    resource: false
-  }
+  public isloading: boolean = false
   private treeProp = {
     label: 'label',
     children: 'children',
@@ -185,7 +183,7 @@ export default class extends Vue {
     notifyFreq: '30',
     source: '3',
     sourceRules: [],
-    notifyTemplate: 'XXX等设备在XX-XX时间段内发生什么类型的告警-来自推送策略 ${name}',
+    notifyTemplate: '尊敬的客户，您好！我是天翼云视频监控的小瞰，根据推送策略【${policyName}】，最新检测到AI告警${count}条，请登录平台查看',
     notifyResources: [],
     notifyDestinations: [],
     active: 1,
@@ -217,7 +215,8 @@ export default class extends Vue {
 
   private rules = {
     name: [
-      { required: true, message: '请填写策略名', trigger: 'blur' }
+      { required: true, message: '请填写策略名', trigger: 'blur' },
+      { validator: this.validatePolicyName, trigger: 'blur' }
     ],
     notifyChannel: [
       { required: true, message: '请选择推送方式', trigger: 'blur' }
@@ -270,14 +269,31 @@ export default class extends Vue {
   private async mounted() {
     this.breadCrumbContent = this.$route.meta.title
     this.getAlgorithmList()
+    console.log(this.isUpdate)
     if (this.isUpdate) {
       const id = this.$route.query.id
       if (id) {
         this.$set(this.form, 'id', id)
-        await this.getNotificationPolicyInfo()
+        await this.initNotificationPolicy()
       } else {
         this.back()
       }
+    }
+    
+  }
+
+  /**
+   * 获取算法列表
+   */
+  private async initNotificationPolicy() {
+    try {
+      this.isloading = true
+      const res = await getNotificationPolicyInfo({ id: this.form.id })
+      console.log(res)
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.isloading = false
     }
   }
 
@@ -308,15 +324,25 @@ export default class extends Vue {
       try {
         if (valid) {
           console.log(this.form)
-          this.$message.success(`${this.form.id ? '编辑策略成功！' : '创建策略成功！'}`)
-          // this.back()
+          let params: any= {}
+          Object.assign(params, pick(this.form, ['name', 'description', 'notifyChannel', 'notifyFreq', 'source', 'notifyTemplate', 'active']))
+          params.effectiveTime = JSON.stringify(this.form.effectiveTime)
+          params.sourceRules = JSON.stringify(this.form.sourceRules)
+          params.notifyResources = JSON.stringify(this.form.notifyResources)
+          params.notifyDestinations = JSON.stringify(this.form.notifyDestinations)
+          if (this.isUpdate) {
+            params.id = this.form.id
+            await editNotificationPolicy(params)
+          } else {
+            await createNotificationPolicy(params)
+          }
+          this.$message.success(`${this.isUpdate ? '编辑策略成功！' : '创建策略成功！'}`)
+          this.back()
         } else {
           return false
         }
       } catch (e) {
         this.$message.error(e && e.message)
-      } finally {
-        // TODO
       }
     })
   }
