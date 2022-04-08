@@ -3,9 +3,9 @@
     <el-page-header :content="breadCrumbContent" @back="back" />
     <el-card v-loading="isloading">
       <el-form ref="form" class="form" :rules="rules" :model="form" label-width="120px">
-        <el-form-item v-if="isUpdate" label="策略ID：" prop="id">
+        <!-- <el-form-item v-if="isUpdate" label="策略ID：" prop="id">
           <el-input v-model="form.id" class="form__input" :disabled="isUpdate" />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="策略名：" prop="name">
           <el-input v-model="form.name" class="form__input" placeholder="请填写策略名称" />
           <div class="form-tip">2-32位，可包含大小写字母、数字、中文、中划线、空格。</div>
