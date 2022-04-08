@@ -1,8 +1,8 @@
 <template>
   <div>
-    <el-descriptions title="地图属性" :column="1" v-if="map">
+    <el-descriptions v-if="map" title="地图属性" :column="1">
       <template slot="extra">
-        <svg-icon name="save" @click="save()" width="25" height="25" />
+        <svg-icon name="save" width="25" height="25" @click="save()" />
       </template>
       <el-descriptions-item label="中心经度">
         <el-input v-model="mapInfo.longitude" :disabled="!isEdit" />
@@ -18,9 +18,9 @@
 </template>
 
 <script lang="ts">
-import {Component, Vue, Prop, Watch} from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 @Component({
-  name: 'mapInfo',
+  name: 'mapInfo'
 })
 
 export default class extends Vue {

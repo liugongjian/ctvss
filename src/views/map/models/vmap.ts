@@ -1,4 +1,4 @@
-import AMapLoader from "@amap/amap-jsapi-loader"
+import AMapLoader from '@amap/amap-jsapi-loader'
 import LngLat = AMap.LngLat
 
 export interface mapObject {
@@ -61,8 +61,8 @@ export const getAMapLoad = () => {
       AMapLoader.load({
         'key': '7f0b2bbe4de7b251916b60012a6fbe3d',
         'version': '2.0',
-        'plugins': ['AMap.MarkerCluster', 'AMap.HawkEye', 'AMap.AutoComplete'],
-      }).then((AMap)=>{
+        'plugins': ['AMap.MarkerCluster', 'AMap.HawkEye', 'AMap.AutoComplete']
+      }).then((AMap) => {
         resolve(AMap)
       }).catch(e => {
         console.log(e)
@@ -85,7 +85,7 @@ export default class VMap {
     this.container = container
   }
   creatMap(lng: number, lat: number, zoom: number, is3D: boolean = true) {
-    try{
+    try {
       const AMap = window.AMap
       const options = {
         rotateEnable: false,
@@ -95,7 +95,7 @@ export default class VMap {
         viewMode: '2D',
         pitch: 50,
         rotation: 0,
-        center:[Number(lng), Number(lat)],
+        center: [Number(lng), Number(lat)],
         zooms: [3, 20]
       }
       if (is3D) {
@@ -105,20 +105,20 @@ export default class VMap {
       this.overView = new AMap.HawkEye({
         opened: false,
         width: '300px',
-        height: '200px',
+        height: '200px'
       })
-      const auto = new AMap.AutoComplete({ input: "map-tip-input" })
-      auto.on("select", (e) => {
+      const auto = new AMap.AutoComplete({ input: 'map-tip-input' })
+      auto.on('select', (e) => {
         if (e.poi.location) {
-          map.setCenter(e.poi.location);
+          map.setCenter(e.poi.location)
         }
-      });
+      })
       map.addControl(this.overView)
       map.on('click', () => {
         this.cancelChoose()
       })
       this.map = map
-    } catch(e) {
+    } catch (e) {
       console.log(e)
     }
   }
@@ -223,7 +223,7 @@ export default class VMap {
       this.cluster.setMap(null)
     }
     const count = markers.length
-    const _renderClusterMarker =  (context: any) => {
+    const _renderClusterMarker = (context: any) => {
       const div = document.createElement('div')
       const bgColor = '#009dd9'
       const fontColor = '#fff'
@@ -249,7 +249,7 @@ export default class VMap {
         context.marker.setCursor('move')
         context.marker.on('dragend', (ev) => {
           const marker = context.marker.getExtData()
-          const {lng, lat} = context.marker.getPosition()
+          const { lng, lat } = context.marker.getPosition()
           marker.latitude = lat
           marker.longitude = lng
           this.markerEventHandlers.onChange && this.markerEventHandlers.onChange(marker)
@@ -264,7 +264,7 @@ export default class VMap {
     this.cluster = new window.AMap.MarkerCluster(this.map, this.wrapMarkers(markers), {
       gridSize: 80,
       renderClusterMarker: _renderClusterMarker, // 自定义聚合点样式
-      renderMarker: _renderMarker, // 自定义非聚合点样式
+      renderMarker: _renderMarker // 自定义非聚合点样式
     })
 
     this.cluster.on('click', item => {
@@ -298,15 +298,15 @@ export default class VMap {
       let wrapDiv
       let optionDiv
       if (!this.isEdit) { // 编辑状态
-        const previewIcon = `<span class="icon-wrap ${markerOptions.streamStatus === 'on'? '' : 'off'}" onclick="previewMarker('${markerOptions.deviceId}')"><i class="icon icon_preview"></i></span>`
-        const replayIcon = `<span class="icon-wrap ${(markerOptions.recordStatus === 1 || markerOptions.recordStatus === 2 ) ? '' : 'off'}" onclick="replayMarker('${markerOptions.deviceId}')"><i class="icon icon_replay"></i></span>`
+        const previewIcon = `<span class="icon-wrap ${markerOptions.streamStatus === 'on' ? '' : 'off'}" onclick="previewMarker('${markerOptions.deviceId}')"><i class="icon icon_preview"></i></span>`
+        const replayIcon = `<span class="icon-wrap ${(markerOptions.recordStatus === 1 || markerOptions.recordStatus === 2) ? '' : 'off'}" onclick="replayMarker('${markerOptions.deviceId}')"><i class="icon icon_replay"></i></span>`
         optionDiv = `<div class="marker-options">${previewIcon}${replayIcon}</div>`
       } else {
         const deleteIcon = `<i class="icon icon_delete" onclick="deleteMarker('${markerOptions.deviceId}', '${markerOptions.deviceLabel}')"></i>`
         optionDiv = `<div class="marker-options">${deleteIcon}</div>`
       }
       window.previewMarker = (id) => {
-        console.log('播放'+ id)
+        console.log('播放' + id)
         const pos = this.map.lngLatToContainer(new AMap.LngLat(markerOptions.longitude, markerOptions.latitude))
         const data = {
           show: 'live',
@@ -319,7 +319,7 @@ export default class VMap {
         this.markerEventHandlers.onPlay && this.markerEventHandlers.onPlay(data)
       }
       window.replayMarker = (id) => {
-        console.log('回放'+ id)
+        console.log('回放' + id)
         const pos = this.map.lngLatToContainer(new AMap.LngLat(markerOptions.longitude, markerOptions.latitude))
         const data = {
           show: 'replay',
@@ -378,5 +378,4 @@ export default class VMap {
     }
     return canvas
   }
-
 }

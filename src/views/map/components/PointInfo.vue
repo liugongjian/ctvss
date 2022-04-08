@@ -1,8 +1,8 @@
 <template>
   <div class="pointInfo">
-    <el-descriptions title="基本信息" :column="1" v-if="markerInfo">
-      <template slot="extra" v-if="isEdit">
-        <svg-icon name="save" @click="save()" width="25" height="25" />
+    <el-descriptions v-if="markerInfo" title="基本信息" :column="1">
+      <template v-if="isEdit" slot="extra">
+        <svg-icon name="save" width="25" height="25" @click="save()" />
       </template>
       <el-descriptions-item label="设备名称">
         {{ markerInfo.deviceLabel }}
