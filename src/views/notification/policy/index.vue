@@ -204,4 +204,10 @@ export default class extends Vue {
     }
   }
 }
+
+body {
+  ::v-deep .el-tooltip__popper {
+    max-width: 300px;
+  }
+} 
 </style>
