@@ -6,8 +6,10 @@
 @import './margin.scss';
 @import './animation.scss';
 @import './device.scss';
+@import './screen.scss';
 @import './dashboard.scss';
 @import './ctcloud.scss';
+@import './map.scss';
 
 /* Global scss */
 
@@ -23,6 +25,10 @@ body {
 html {
   height: 100%;
   width: 100%;
+}
+
+.app-wrap {
+  height: 100%;
 }
 
 #app {

@@ -214,10 +214,17 @@
           <!-- <template-bind v-if="activeName==='config'" :device-id="deviceId" :in-protocol="inProtocol" /> -->
         </el-tab-pane>
         <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ScreenPreview'])" label="实时预览" name="preview">
-          <detail-preview v-if="activeName==='preview'" :device-id="deviceId" :in-protocol="inProtocol" />
+          <detail-preview
+            v-if="activeName==='preview'"
+            :device-id="deviceId"
+            :in-protocol="inProtocol"
+            :device-name="info.deviceName"
+            :streams="info.deviceStreams"
+            :stream-size="info.multiStreamSize"
+          />
         </el-tab-pane>
         <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ReplayRecord'])" label="录像回放" name="replay">
-          <detail-replay v-if="activeName==='replay'" :device-id="deviceId" :in-protocol="inProtocol" />
+          <detail-replay v-if="activeName==='replay'" :device-id="deviceId" :in-protocol="inProtocol" :device-name="info.deviceName" />
         </el-tab-pane>
         <el-tab-pane label="AI分析" name="ai">
           <detail-ai v-if="activeName==='ai'" :device-id="deviceId" :in-protocol="inProtocol" />

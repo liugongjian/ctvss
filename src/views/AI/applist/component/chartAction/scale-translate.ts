@@ -7,9 +7,9 @@ import TransformAction from './scale-transform'
  * @ignore
  */
 class ScaleTranslate extends TransformAction {
-  protected startPoint: Point = null;
-  protected starting = false;
-  private startCache = {};
+  protected startPoint: Point = null
+  protected starting = false
+  private startCache = {}
   /**
    * 开始
    */

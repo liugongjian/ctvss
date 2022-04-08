@@ -52,13 +52,11 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 import { getRecordAudits, auditEventConfirm } from '@/api/dashboard'
 import { AlertType, AlertLevel, AlertIcon, AiMaskType } from '@/dics'
 import { parseMetaData, transformLocation } from '@/utils/ai'
-import Player from '@/views/device/components/Player.vue'
 import Locations from '@/views/dashboard/ai/components/Locations.vue'
 
 @Component({
   name: 'AlertBoardDetailDialog',
   components: {
-    Player,
     Locations
   }
 })
@@ -161,38 +159,47 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-  $lightColor: #CCC;
+  $lightColor: #ccc;
+
   .light-alert {
     .alert-header {
       border-bottom: 1px solid $lightColor;
     }
+
     .alert-body {
       &__image {
         border: 1px solid $lightColor;
         border-left: 5px solid $lightColor;
         border-right: 5px solid $lightColor;
+
         &__mask {
           &__count {
             color: $text;
           }
         }
+
         &__decorator--top,
         &__decorator--bottom {
           position: absolute;
           width: 100%;
           left: 0;
-          &::before, &::after {
+
+          &:before,
+          &:after {
             border-top: 7px solid $lightColor;
           }
-          &::before {
+
+          &:before {
             left: 0;
           }
-          &::after {
+
+          &:after {
             right: 0;
           }
         }
       }
     }
+
     .dashboard-alert-live-dialog {
       .alert-body {
         border-top: 1px solid #6086a6;
@@ -203,10 +210,12 @@ export default class extends Vue {
   .alert {
     min-height: 10vh;
   }
+
   .alert-error {
     margin-top: 10px;
     text-align: center;
   }
+
   .alert-header {
     display: flex;
     width: 100%;
@@ -216,17 +225,21 @@ export default class extends Vue {
 
     &__level {
       &--warning {
-        color: #F4C46C;
+        color: #f4c46c;
       }
+
       &--alert {
-        color: #E56161;
+        color: #e56161;
       }
+
       margin-right: 10px;
     }
+
     &__device {
       flex: 1;
       text-align: center;
     }
+
     &__datetime {
       flex: 1;
       text-align: right;
@@ -243,17 +256,21 @@ export default class extends Vue {
       position: relative;
       flex: 1;
       margin-right: 20px;
-      ::v-deep .video-wrap, ::v-deep video {
+
+      ::v-deep .video-wrap,
+      ::v-deep video {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
       }
+
       ::v-deep canvas {
         position: absolute;
       }
     }
+
     &__image {
       flex: 1;
       position: relative;
@@ -261,6 +278,7 @@ export default class extends Vue {
       border-left: 5px solid #0187ee;
       border-right: 5px solid #0187ee;
       padding: 20px;
+
       &__wrap {
         position: relative;
 
@@ -269,12 +287,15 @@ export default class extends Vue {
           display: block;
         }
       }
+
       &__mask {
         position: absolute;
         border: 2px solid $dashboardGreen;
+
         &--warning {
           border-color: $red;
         }
+
         &__text {
           position: absolute;
           display: block;
@@ -286,10 +307,12 @@ export default class extends Vue {
           left: -2px;
           padding: 2px;
           opacity: 0.8;
+
           &--warning {
             background: $white;
           }
         }
+
         &__count {
           position: absolute;
           top: 0;
@@ -298,6 +321,7 @@ export default class extends Vue {
           color: #fff;
           font-size: 12px;
           padding: 3px 6px;
+
           &--warning {
             background: $red;
           }
@@ -309,26 +333,33 @@ export default class extends Vue {
         position: absolute;
         width: 100%;
         left: 0;
-        &::before, &::after {
+
+        &:before,
+        &:after {
           position: absolute;
           display: block;
           content: ' ';
           width: 10px;
           border-top: 7px solid #0187ee;
         }
-        &::before {
+
+        &:before {
           left: 0;
         }
-        &::after {
+
+        &:after {
           right: 0;
         }
       }
+
       &__decorator--top {
-        top: 0px;
+        top: 0;
       }
+
       &__decorator--bottom {
         bottom: 7px;
       }
+
       img {
         width: 100%;
       }

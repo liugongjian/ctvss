@@ -189,7 +189,8 @@ export const AlertType: any = {
   24: '车辆违停检测',
   25: '车辆拥堵检测',
   26: '人群感应检测',
-  27: '实时在岗检测'
+  27: '实时在岗检测',
+  28: '人员徘徊检测'
 }
 
 export const AiMaskType: any = {
@@ -259,7 +260,10 @@ export const eventsType = {
   'record': '录制事件',
   'coderate_overflow': '超码率'
 }
-// 视频播放比例
+
+/**
+ * 视频播放比例
+ */
 export const scaleKind = [
   { label: '16:9', kind: '16 / 9', num: '3' },
   { label: '4:3', kind: '4 / 3', num: '4' },

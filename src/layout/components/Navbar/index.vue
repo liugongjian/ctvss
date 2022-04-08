@@ -320,7 +320,7 @@ export default class extends Mixins(DashboardMixin) {
     if (data.iamUserId) {
       this.$router.push(`/login/subAccount?redirect=%2Fdashboard&mainUserID=${data.mainUserID}`)
     } else {
-      this.$router.push(`/login?redirect=%2Fdashboard`)
+      this.$router.push('/login?redirect=%2Fdashboard')
     }
   }
 
@@ -383,8 +383,9 @@ export default class extends Mixins(DashboardMixin) {
 
 <style lang="scss" scoped>
 .navbar {
-  height: 50px;
   position: relative;
+  z-index: 50;
+  height: 50px;
   background: #fff;
   box-shadow: 0 1px 4px rgba(0,21,41,.08);
 
@@ -481,7 +482,7 @@ export default class extends Mixins(DashboardMixin) {
       .header-dropdown {
         display: none;
         position: absolute;
-        z-index: 10;
+        z-index: 20;
         top: 50px;
         right: 0;
         width: 180px;

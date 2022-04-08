@@ -45,7 +45,7 @@ module.exports = {
     'keyword-spacing': 'off',
     '@typescript-eslint/keyword-spacing': ['error'],
     '@typescript-eslint/no-unused-vars': ['error'],
-    '@typescript-eslint/type-annotation-spacing': ['error', { before: false, after: true }],
+    '@typescript-eslint/type-annotation-spacing': ['error', { before: false, after: true, overrides: { arrow: { before: true, after: true } } }],
     'space-infix-ops': 'off',
     '@typescript-eslint/space-infix-ops': ['error', { 'int32Hint': false }],
     'comma-spacing': 'off',

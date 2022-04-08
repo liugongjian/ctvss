@@ -1,77 +1,71 @@
 <template>
-  <player-container :on-can-play="onCanPlay">
-    <live-view
-      :class="{'fullscreen': isFullscreen}"
-      :device-id="deviceId"
-      :in-protocol="inProtocol"
-      :is-fullscreen="isFullscreen"
-      @onCanPlay="playEvent"
-      @onFullscreen="isFullscreen = true; fullscreen()"
-      @onExitFullscreen="exitFullscreen()"
-    />
-  </player-container>
+  <ScreenBoard
+    ref="screenBoard"
+    class="live-player"
+    :style="`height: ${height}`"
+    :is-live="true"
+    :in-protocol="inProtocol"
+    :default-size="1"
+    :is-single="true"
+  />
 </template>
 
 <script lang="ts">
-import { Component, Prop, Mixins, Inject } from 'vue-property-decorator'
-import FullscreenMixin from '../mixin/fullscreenMixin'
-import LiveView from './LiveView.vue'
-import PlayerContainer from './PlayerContainer.vue'
+import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Stream } from '@/components/VssPlayer/models/VssPlayer'
+import ScreenBoard from './ScreenBoard/index.vue'
+import { ScreenManager } from '../models/Screen/ScreenManager'
 
 @Component({
-  name: 'DevicePreview',
+  name: 'DeviceLive',
   components: {
-    LiveView,
-    PlayerContainer
+    ScreenBoard
   }
 })
-export default class extends Mixins(FullscreenMixin) {
-  @Inject('deviceRouter') private deviceRouter!: Function
-
-  @Prop() private deviceId?: string
+export default class extends Vue {
+  @Prop() private deviceId?: number
   @Prop() private inProtocol?: string
+  @Prop() private deviceName?: string
+  @Prop() private streams?: Stream[]
+  @Prop() private streamSize?: number
 
-  private onCanPlay = false
+  private height = 'auto'
 
-  private mounted() {
-    window.addEventListener('resize', this.checkFullscreen)
+  public screenManager: ScreenManager = null
+
+  public mounted() {
+    const screenBoard = this.$refs.screenBoard as ScreenBoard
+    // @ts-ignore
+    this.screenManager = screenBoard!.screenManager
+    const screen = this.screenManager.currentScreen
+    screen.deviceId = this.deviceId
+    screen.inProtocol = this.inProtocol
+    screen.streams = this.streams
+    screen.streamSize = this.streamSize
+    screen.streamNum = 1
+    screen.isLive = true
+    screen.init()
+    this.calMaxHeight()
+    window.addEventListener('resize', this.calMaxHeight)
   }
 
   private beforeDestroy() {
-    window.removeEventListener('resize', this.checkFullscreen)
+    window.removeEventListener('resize', this.calMaxHeight)
   }
 
   /**
-   * 鼠标移入移出视频触发事件
+   * 计算最大高度
    */
-  private playEvent(val: boolean) {
-    this.onCanPlay = val
+  public calMaxHeight() {
+    const deviceList: HTMLDivElement = document.querySelector('.device-list')
+    this.height = `${deviceList.clientHeight - 125}px`
   }
 }
 </script>
 <style lang="scss" scoped>
-  .fullscreen ::v-deep .preview-player .video-wrap {
-    position: fixed;
-    z-index: 1001;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 100% !important;
-    background: #333;
-  }
-
-  .fullscreen ::v-deep .preview-player video {
-    position: absolute;
-    height: 100%;
-  }
-
-  .fullscreen ::v-deep .preview-player canvas {
-    position: absolute;
-    width: 100%;
-  }
-
-  .fullscreen ::v-deep .preview-player .video-wrap {
-    max-height: 100%;
+  .live-player {
+    ::v-deep .screen-item {
+      border: none;
+    }
   }
 </style>

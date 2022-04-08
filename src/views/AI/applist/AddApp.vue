@@ -1,16 +1,16 @@
 <template>
   <div class="app-container">
     <el-page-header :content="`${header}AI应用`" @back="back" />
-    <div v-if="!this.$route.query.id" class="process">
+    <div v-if="!$route.query.id" class="process">
       <el-steps :active="step" simple>
         <el-step title="选择AI算法"><span slot="icon">1</span></el-step>
         <el-step title="创建AI应用"><span slot="icon">2</span></el-step>
       </el-steps>
     </div>
-    <div v-if="!step && !this.$route.query.id">
+    <div v-if="!step && !$route.query.id">
       <AlgoOption :step.sync="step" :prod.sync="prod" />
     </div>
-    <div v-if="step || this.$route.query.id">
+    <div v-if="step || $route.query.id">
       <AlgoDetail :step.sync="step" :prod="prod" />
     </div>
   </div>
@@ -30,23 +30,23 @@ import AppMixin from '../mixin/app-mixin'
   }
 })
 export default class extends Mixins(AppMixin) {
-    private step: Number = 0
-    private prod: any = {}// 新建时传入组件的参数
-    private isLoading: boolean = false
-    private get header() {
-      return this.$route.query.id ? '编辑' : '创建'
-    }
+  private step: Number = 0
+  private prod: any = {}// 新建时传入组件的参数
+  private isLoading: boolean = false
+  private get header() {
+    return this.$route.query.id ? '编辑' : '创建'
+  }
 
-    private back() {
-      this.backToAppList()
-    }
+  private back() {
+    this.backToAppList()
+  }
 }
 </script>
 <style lang="scss" scoped>
 .input-with-select {
   width: 260px;
   position: absolute;
-  top:0;
+  top: 0;
   right: 0;
 }
 
@@ -58,8 +58,9 @@ export default class extends Mixins(AppMixin) {
   overflow: auto;
   display: flex;
   flex-direction: row;
+  /* stylelint-disable-next-line declaration-block-no-redundant-longhand-properties */
   flex-wrap: wrap;
-  justify-content:space-around;
+  justify-content: space-around;
   align-content: flex-start;
   height: 60vh;
   min-width: 1200px;
@@ -68,30 +69,36 @@ export default class extends Mixins(AppMixin) {
 
 .process {
   margin-bottom: 20px;
-  padding: 20px 0 5px 0;
+  padding: 20px 0 5px;
   border-top: 1px solid $borderGrey2;
 
   .el-steps--simple {
     width: 400px;
     background: none;
     padding: 0;
+
     ::v-deep {
       .el-step.is-simple .el-step__head {
         padding-right: 15px;
       }
-      .el-step.is-simple .el-step__arrow::before, .el-step.is-simple .el-step__arrow::after {
+
+      .el-step.is-simple .el-step__arrow:before,
+      .el-step.is-simple .el-step__arrow:after {
         background: $textGrey;
         width: 2px;
       }
+
       .el-step__title {
         font-weight: bold;
       }
+
       .el-step__icon {
         width: 35px;
         height: 35px;
         font-size: 16px;
         font-weight: bold;
       }
+
       .is-process {
         .el-step__icon {
           background: $primary;
@@ -99,12 +106,16 @@ export default class extends Mixins(AppMixin) {
           border-color: $primary;
         }
       }
-      .is-wait, .is-finish {
+
+      .is-wait,
+      .is-finish {
         color: $textGrey;
+
         .el-step__icon {
           border-color: $textGrey;
         }
       }
+
       .is-finish {
         .el-step__icon {
           background: #bbb;

@@ -1,6 +1,6 @@
 <template>
   <div v-loading="queryLoading.chart">
-    <el-tag v-if="chartInfo.vehiclesThreshold.length" style="margin-right:20px;">车辆数阈值：{{ chartInfo.vehiclesThreshold }}</el-tag>
+    <el-tag v-if="chartInfo.vehiclesThreshold.length" style="margin-right: 20px;">车辆数阈值：{{ chartInfo.vehiclesThreshold }}</el-tag>
     <el-tag v-if="chartInfo.timeSlide.length">时间窗口：{{ chartInfo.timeSlide }}小时</el-tag>
     <div v-show="chartData.length > 0" id="car-container" :style="`height:${height}vh`" />
     <div v-show="chartData.length === 0" class="no-data">暂无数据</div>
@@ -160,23 +160,23 @@ export default class extends Mixins(DashboardMixin) {
       //             {type}: {value}
       //           </div>
       //         `
-        customContent: (time, items) => {
-          const container = document.createElement('div');
-          container.className = 'g2-tooltip';
-          const temp = format(fromUnixTime(time / 1000), 'yyyy-MM-dd HH:mm:ss')
-          const title = `<div class="g2-tooltip-title" style="margin-top: 12px;margin-bottom: 12px;">${temp}</div>`;
-          let listItem = '';
-          items.forEach((item) => {
-            listItem += `<li class="g2-tooltip-list-item" data-index={index} style="margin-bottom:4px;display:flex;align-items: center;">
+      customContent: (time, items) => {
+        const container = document.createElement('div')
+        container.className = 'g2-tooltip'
+        const temp = format(fromUnixTime(time / 1000), 'yyyy-MM-dd HH:mm:ss')
+        const title = `<div class="g2-tooltip-title" style="margin-top: 12px;margin-bottom: 12px;">${temp}</div>`
+        let listItem = ''
+        items.forEach((item) => {
+          listItem += `<li class="g2-tooltip-list-item" data-index={index} style="margin-bottom:4px;display:flex;align-items: center;">
                 <span style="background-color:${item?.mappingData?.color || item?.color};" class="g2-tooltip-marker"></span>
                 <span style="display:inline-flex;flex:1;justify-content:space-between">
                 <span style="margin-right: 16px;">${item?.type}:</span><span>${item?.value}</span>
                 </span>
-            </li>`;
-          });
-          container.innerHTML = title + listItem;
-          return container;
-        }
+            </li>`
+        })
+        container.innerHTML = title + listItem
+        return container
+      }
     })
 
     // 注册交互
@@ -268,11 +268,11 @@ export default class extends Mixins(DashboardMixin) {
 }
 </script>
 <style lang="scss" scoped>
-.no-data{
+.no-data {
   height: 200px;
   line-height: 200px;
   vertical-align: middle;
   text-align: center;
-  color: rgba(186,198,198);
+  color: rgba(186, 198, 198);
 }
 </style>

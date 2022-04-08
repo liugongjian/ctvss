@@ -257,12 +257,10 @@
             @change="onDeviceAddressChange"
           />
         </el-form-item>
-        <template>
-          <el-form-item label="经纬度:" prop="longlat">
-            <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
-            <el-input v-model="form.deviceLatitude" class="longlat-input" />
-          </el-form-item>
-        </template>
+        <el-form-item label="经纬度:" prop="longlat">
+          <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
+          <el-input v-model="form.deviceLatitude" class="longlat-input" />
+        </el-form-item>
         <el-form-item
           v-if="!isUpdate || !!form.industryCode || !form.gbId"
           label="所属行业:"
