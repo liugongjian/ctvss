@@ -19,7 +19,7 @@
           />
         </el-form-item>
         <el-form-item label="推送方式：" prop="notifyChannel">
-          <el-radio-group v-model="form.notifyChannel">
+          <el-radio-group v-model="form.notifyChannel" disabled>
             <el-radio label="1">邮件推送</el-radio>
             <el-radio label="2">
               短信推送 
@@ -182,7 +182,7 @@ export default class extends Vue {
     id: '',
     name: '',
     description: '',
-    notifyChannel: '1',
+    notifyChannel: '2',
     effectiveTime: [],
     notifyFreq: '30',
     source: '3',
