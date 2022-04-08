@@ -78,7 +78,7 @@ import { toggleNotificationPolicyStatus, getNotificationPolicyList, deleteNotifi
   filters: {
     timeFormat: (value: string) => {
       let timeRange = JSON.parse(value)[0]
-      return timeRange.start_time + ' - ' + timeRange.end_time
+      return timeRange.start_time.substr(0, 5) + ' - ' + timeRange.end_time.substr(0, 5)
     }
   }
 })
