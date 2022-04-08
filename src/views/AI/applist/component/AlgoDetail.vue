@@ -250,7 +250,7 @@ export default class extends Mixins(AppMixin) {
 
   get analyseAiType() {
     let res = Object.assign({}, ResourceAiType)
-    if (this.ifShow('10019', '10024')) {
+    if (this.ifShow('10019')) {
       delete res['AI-100']
     } else if (this.ifShow('10025')) {
       delete res['AI-100']
