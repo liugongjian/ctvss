@@ -5,7 +5,7 @@ export const getRule = (msg) => {
   } else if (['人员数量阈值', '车辆数量阈值',
     '临停时间', '拥堵车辆阈值', '人员数量阈值',
     '脱岗超时时间', '睡岗超时时间', '临停时间',
-    '拥堵车辆阈值', '视野遮挡阈值'].includes(msg)) {
+    '拥堵车辆阈值', '视野遮挡阈值', '徘徊时间'].includes(msg)) {
     rule.push({ required: true, message: '不能为空', trigger: 'blur' })
     rule.push({
       validator: (rule, value, callback) => {
