@@ -28,6 +28,7 @@
 import { Component, Vue, Prop, Watch, Provide } from 'vue-property-decorator'
 import { ScreenModule } from '@/store/modules/screen'
 import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
+import screenLogManager from '@/views/device/models/Screen/ScreenLogManager'
 import ScreenItem from './ScreenItem.vue'
 import ScreenList from './ScreenList.vue'
 import ScreenTools from './ScreenTools.vue'
@@ -133,6 +134,7 @@ export default class extends Vue {
   }
 
   private destroyed() {
+    screenLogManager.flushLogs()
     window.removeEventListener('resize', this.calMaxHeight)
     window.removeEventListener('resize', this.checkFullscreen)
   }

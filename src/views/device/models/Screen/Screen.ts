@@ -1,4 +1,5 @@
 import axios from 'axios'
+import screenLogManager from './ScreenLogManager'
 import { DeviceInfo, StreamInfo, Stream } from '@/components/VssPlayer/models/VssPlayer'
 import { RecordManager } from '../Record/RecordManager'
 import { Player } from '@/components/Player/models/Player'
@@ -17,6 +18,7 @@ export class Screen {
   public isCache?: boolean
   public lastIsMuted?: boolean
   public log?: {
+    previewRequestId: string,
     previewStartTimestamp?: number
     previewEndTimestamp?: number
     previewError: string
@@ -114,6 +116,7 @@ export class Screen {
     this._playbackRate = null
     this._scale = null
     this.log = {
+      previewRequestId: null,
       previewStartTimestamp: null,
       previewEndTimestamp: null,
       previewError: null,
@@ -254,6 +257,7 @@ export class Screen {
         }
       }, this.axiosSource.token)
       this.log.previewEndTimestamp = new Date().getTime()
+      this.log.previewRequestId = res.requestId
       if (res.playUrl) {
         this.url = this.getVideoUrl(res.playUrl)
         this.hasRtc = !!res.playUrl.webrtcUrl
@@ -265,6 +269,9 @@ export class Screen {
     } catch (e) {
       this.errorMsg = e.message
       this.log.previewError = e.message
+      this.log.previewRequestId = e.requestId
+      this.log.previewEndTimestamp = new Date().getTime()
+      screenLogManager.addLog(this)
       throw new Error(e.message)
     } finally {
       this.isLoading = false
