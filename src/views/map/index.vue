@@ -90,9 +90,9 @@
             </span>
           </div>
           <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
-            <el-dialog :title="mapEditDialog.status == 'add' ? '添加地图' : '编辑地图'" :visible.sync="mapEditDialog.dialogVisible" width="45%" class="dialog-text">
+            <el-dialog :title="mapEditDialog.status === 'add' ? '添加地图' : '编辑地图'" :visible.sync="mapEditDialog.dialogVisible" width="45%" class="dialog-text">
               <el-form ref="mapform" :model="form" label-width="150px" :rules="rules">
-                <el-form-item v-if="mapEditDialog.status == 'add'" label="名称" prop="name">
+                <el-form-item v-if="mapEditDialog.status === 'add'" label="名称" prop="name">
                   <el-input v-model="form.name" placeholder="请输入地图名称" />
                 </el-form-item>
                 <el-form-item label="中心点经度" prop="longitude">
@@ -167,12 +167,16 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
+import { Component, Mixins,
+  // Prop,
+  Watch } from 'vue-property-decorator'
 import IndexMixin from '../device/mixin/indexMixin'
 import { getGroups } from '@/api/group'
 import { setDirsStreamStatus, renderAlertType, getSums } from '@/utils/device'
-import { describeShareDevices, getPlatforms } from '@/api/upPlatform'
-import { getDeviceEvents, getDevices, getDeviceTree, getDevice } from '@/api/device'
+// import { describeShareDevices, getPlatforms } from '@/api/upPlatform'
+import {
+  // getDeviceEvents, getDevices,
+  getDeviceTree, getDevice } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MapView from './mapview.vue'
 import PointInfo from './components/PointInfo.vue'
