@@ -12,7 +12,7 @@
         />
         <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
           <el-button class="map__add" size="small" @click="openMapEditDialog()">添加地图</el-button>
-          <el-card class="map__user">
+          <el-card v-if="curMap" class="map__user">
             <div v-for="map in mapList" :key="map.mapId">
               <div class="choose-map" :class="map.mapId === curMap.mapId ? 'active' : ''" @click="chooseMap(map)">
                 <span class="map-text">{{ map.name }}</span>
@@ -213,7 +213,7 @@ export default class extends Mixins(IndexMixin) {
   private deletesDialog = false
   private isEdit = false
   private editValue = 'sss'
-  public breadcrumb: Array<any> = []
+  // public breadcrumb: Array<any> = []
   private hideTitle = false
   private showInfo = false
   private showMapInfo = true
