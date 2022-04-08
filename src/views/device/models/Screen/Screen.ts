@@ -16,6 +16,14 @@ export class Screen {
   public errorMsg?: string
   public isCache?: boolean
   public lastIsMuted?: boolean
+  public log?: {
+    previewStartTimestamp?: number
+    previewEndTimestamp?: number
+    previewError: string
+    playerInitTimestamp?: number
+    playerLoadstartTimestamp?: number
+    playerCanplayTimstamp?: number
+  }
 
   /**
    * ----------------
@@ -105,6 +113,14 @@ export class Screen {
     this._isMuted = null
     this._playbackRate = null
     this._scale = null
+    this.log = {
+      previewStartTimestamp: null,
+      previewEndTimestamp: null,
+      previewError: null,
+      playerInitTimestamp: null,
+      playerLoadstartTimestamp: null,
+      playerCanplayTimstamp: null
+    }
   }
 
   public get deviceInfo(): DeviceInfo {
@@ -227,6 +243,7 @@ export class Screen {
       this.axiosSource && this.axiosSource.cancel()
       this.axiosSource = axios.CancelToken.source()
       this.url = ''
+      this.log.previewStartTimestamp = new Date().getTime()
       const res: any = await getDevicePreview({
         deviceId: this.deviceId,
         inProtocol: this.inProtocol,
@@ -236,6 +253,7 @@ export class Screen {
           'real-group-id': this.realGroupId || ''
         }
       }, this.axiosSource.token)
+      this.log.previewEndTimestamp = new Date().getTime()
       if (res.playUrl) {
         this.url = this.getVideoUrl(res.playUrl)
         this.hasRtc = !!res.playUrl.webrtcUrl
@@ -246,6 +264,7 @@ export class Screen {
       }
     } catch (e) {
       this.errorMsg = e.message
+      this.log.previewError = e.message
       throw new Error(e.message)
     } finally {
       this.isLoading = false

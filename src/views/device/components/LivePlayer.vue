@@ -68,6 +68,7 @@ export default class extends Vue {
   private onPlayerCreate(player) {
     this.screen.player = player
     this.screen.errorMsg = null
+    this.screen.log.playerInitTimestamp = new Date().getTime()
   }
 
   /**
@@ -89,6 +90,15 @@ export default class extends Vue {
         break
       case 'retry':
         this.onRetry(event.payload)
+        break
+      case 'loadStart':
+        this.screen.log.playerLoadstartTimestamp = new Date().getTime()
+        break
+      case 'canplay':
+        if (!this.screen.log.playerCanplayTimstamp) {
+          this.screen.log.playerCanplayTimstamp = new Date().getTime()
+          this.printLog()
+        }
         break
     }
   }
@@ -149,6 +159,25 @@ export default class extends Vue {
    */
   private onFullscreenChange(isFullscreen) {
     this.screen.isFullscreen = isFullscreen
+  }
+
+  /**
+   * 打印日志
+   */
+  private printLog() {
+    const formateTime = (timestamp) => {
+      if (timestamp > 1000) {
+        return `${timestamp / 1000} 秒`
+      } else {
+        return `${timestamp}毫秒`
+      }
+    }
+    console.log({
+      ...this.screen.log,
+      '请求URL耗时': formateTime(this.screen.log.previewEndTimestamp - this.screen.log.previewStartTimestamp),
+      '播放器画面加载耗时': formateTime(this.screen.log.playerCanplayTimstamp - this.screen.log.playerInitTimestamp),
+      '总共耗时': formateTime(this.screen.log.playerCanplayTimstamp - this.screen.log.previewStartTimestamp)
+    })
   }
 }
 </script>

@@ -14,6 +14,8 @@
       :is-debug="true"
       @onCreate="onPlayerCreate"
       @onRetry="onRetry"
+      @onLoadStart="onLoadStart"
+      @onCanplay="onCanplay"
     >
       <template slot="headerLeft" />
       <template slot="headerRight">
@@ -250,6 +252,24 @@ export default class extends Vue {
     this.$emit('dispatch', {
       eventType: 'retry',
       payload
+    })
+  }
+
+  /**
+   * 向上抛出开始加载事件
+   */
+  private onLoadStart() {
+    this.$emit('dispatch', {
+      eventType: 'loadStart'
+    })
+  }
+
+  /**
+   * 向上抛出可以播放事件
+   */
+  private onCanplay() {
+    this.$emit('dispatch', {
+      eventType: 'canplay'
     })
   }
 
