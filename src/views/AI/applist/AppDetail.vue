@@ -241,20 +241,23 @@ export default class extends Mixins(AppMixin, IndexMixin) {
 </script>
 
 <style lang='scss' scoped>
-
 .el-tab-pane {
   display: flex;
 }
+
 .app-container__result {
   position: relative;
   width: 100%;
-  &__device{
+
+  &__device {
     float: left;
     padding: 0 20px;
     line-height: 50px;
-    & > span{
+
+    & > span {
       margin-right: 10px;
     }
+
     .el-select {
       max-width: 120px;
     }
@@ -265,38 +268,45 @@ export default class extends Mixins(AppMixin, IndexMixin) {
     vertical-align: top;
     height: 100%;
     overflow: auto;
-    .el-tree{
+
+    .el-tree {
       min-width: 100%;
       display: inline-block !important;
+
       ::v-deep .el-tree-node > .el-tree-node__children {
         overflow: visible;
       }
     }
+
     .is-disabled + .custom-tree-node__ipc {
       cursor: not-allowed;
     }
   }
-  .right{
+
+  .right {
     padding-left: 20px;
     // display: inline-block;
     // border-left: 1px solid $borderGrey;
   }
 }
-.online{
+
+.online {
   .svg-icon {
     color: #65c465;
   }
 }
-.offline{
+
+.offline {
   .svg-icon {
     color: #6e7c89;
   }
 }
-.no-data{
+
+.no-data {
   height: 200px;
   line-height: 200px;
   vertical-align: middle;
   text-align: center;
-  color: rgba(186,198,198);
+  color: rgba(186, 198, 198);
 }
 </style>

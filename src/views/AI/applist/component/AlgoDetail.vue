@@ -140,6 +140,11 @@
           </el-popover>
         </template>
       </el-form-item>
+      <!-- 人员徘徊 -->
+      <el-form-item v-if="ifShow('10025')" prop="algorithmMetadata.lingerInterval" label="徘徊时间">
+        <el-input v-model="form.algorithmMetadata.lingerInterval" />
+        <span class="comment">分钟</span>
+      </el-form-item>
       <el-form-item v-if="ifShow('10001','10016','10017')" prop="algorithmMetadata.FaceDbName" label="人脸库">
         <el-select v-model="form.algorithmMetadata.FaceDbName" placeholder="请选择人脸库" :loading="isfaceLibLoading">
           <el-option v-for="item in faceLibs" :key="item.id" :label="item.name" :value="item.id" />
@@ -201,61 +206,8 @@ import { getAIConfigGroupData } from '@/api/aiConfig'
 import { getAppInfo, updateAppInfo, createApp } from '@/api/ai-app'
 import { ResourceAiType } from '@/dics'
 import AppMixin from '../../mixin/app-mixin'
+import { getRule } from '../util/form-helper'
 
-const getRule = (msg) => {
-  let rule = []
-  if (msg === '应用名称') {
-    rule.push({ min: 1, max: 10, message: '名称需在 1 到 10 个字符之间', trigger: 'blur' })
-  } else if (msg === '人员数量阈值' || msg === '车辆数量阈值' ||
-             msg === '临停时间' || msg === '拥堵车辆阈值' ||
-             msg === '人员数量阈值' || msg === '脱岗超时时间' ||
-             msg === '睡岗超时时间' || msg === '临停时间' ||
-             msg === '拥堵车辆阈值') {
-    rule.push({ required: true, message: '不能为空', trigger: 'blur' })
-    rule.push({
-      validator: (rule, value, callback) => {
-        if (/^(?:[0-9]\d*)$/.test(value) === false) {
-          callback(new Error('请输入合理的整数'))
-        } else {
-          callback()
-        }
-      },
-      trigger: 'blur' })
-    if (msg === '人员数量阈值') {
-      rule.push({
-        validator: (rule, value, callback) => {
-          if (parseInt(value) > 100) {
-            callback(new Error('需小于100'))
-          } else if (parseInt(value) === 0) {
-            callback(new Error('请输入合理的整数'))
-          } else {
-            callback()
-          }
-        },
-        trigger: 'blur' })
-    } else if (msg === '脱岗超时时间' || msg === '睡岗超时时间') {
-      rule.push({
-        validator: (rule, value, callback) => {
-          if (parseInt(value) > 600) {
-            callback(new Error('需小于600'))
-          } else if (parseInt(value) === 0) {
-            callback(new Error('需大于等于0的整数'))
-          } else {
-            callback()
-          }
-        },
-        trigger: 'blur' })
-    }
-  } else if (msg === '起始时间') {
-    rule.push({
-      validator: (rule, value, callback) => {
-        value[0] === value[1] ? callback(new Error('起始时间不能相同')) : callback()
-      },
-      trigger: 'blur' })
-  }
-  rule.push({ required: true, trigger: 'blur', message: '请输入' + msg })
-  return rule
-}
 @Component({
   name: 'AlgoDetail',
   components: {
@@ -285,6 +237,7 @@ export default class extends Mixins(AppMixin) {
     'algorithmMetadata.jamThreshold': getRule('拥堵车辆阈值'),
     'algorithmMetadata.timeSlide': getRule('时间窗口'),
     'algorithmMetadata.vehiclesThreshold': getRule('车辆数量阈值'),
+    'algorithmMetadata.lingerInterval': getRule('徘徊时间'),
     period: getRule('起始时间')
   }
   private effectiveTime: any = []
@@ -296,9 +249,14 @@ export default class extends Mixins(AppMixin) {
   }
 
   get analyseAiType() {
-    let lessMinuteType = Object.assign({}, ResourceAiType)
-    delete lessMinuteType['AI-100']
-    return this.ifShow('10019', '10024') ? lessMinuteType : ResourceAiType
+    let res = Object.assign({}, ResourceAiType)
+    if (this.ifShow('10019', '10024')) {
+      delete res['AI-100']
+    } else if (this.ifShow('10025')) {
+      delete res['AI-100']
+      delete res['AI-200']
+    }
+    return res
   }
 
   private ifShow(...codes) {
@@ -483,48 +441,61 @@ export default class extends Mixins(AppMixin) {
 </script>
 <style lang="scss" scoped>
 .app-container {
-  .confidence-info{
+  .confidence-info {
     display: inline-block;
     height: 45px;
     line-height: 100%;
     vertical-align: middle;
     margin-left: -71px;
-    &>span:nth-child(2){
+
+    & > span:nth-child(2) {
       margin-left: 10px;
       margin-right: 10px;
     }
   }
-  .el-slider{
-    width:500px;
+
+  .el-slider {
+    width: 500px;
     display: inline-block;
-    ::v-deep .el-slider__input{
-      width:60px;
-      margin-right:80px;
+
+    ::v-deep .el-slider__input {
+      width: 60px;
+      margin-right: 80px;
     }
   }
-  .el-input,.el-textarea,.el-table {
-      width: 500px
-  }
-  .tabrow-add{
-    padding-left: 180px;
-  }
-  .mb5{
+
+  .el-input,
+  .el-textarea,
+  .el-table {
     width: 500px;
   }
-  .el-icon-refresh{
+
+  .tabrow-add {
+    padding-left: 180px;
+  }
+
+  .mb5 {
+    width: 500px;
+  }
+
+  .el-icon-refresh {
     margin-left: 20px;
     font-size: 16px;
-    &:hover{
+
+    &:hover {
       cursor: pointer;
     }
   }
+
   .el-button--text {
     margin-left: 15px;
   }
+
   .comment {
     padding-left: 10px;
     color: $textGrey;
   }
+
   .el-form-item.is-error.el-form-item--medium {
     margin-bottom: 20px;
   }

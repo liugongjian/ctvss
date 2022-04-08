@@ -130,7 +130,8 @@
                   <template slot-scope="{row}">
                     <div class="device-list__device-name">
                       <div class="device-list__device-id">{{ row.deviceId }}</div>
-                      <div>{{ row.channelName || row.deviceName }}</div>
+                      <!-- <div>{{ row.channelName || row.deviceName }}</div> -->
+                      <div>{{ row.deviceName || row.channelName }}</div>
                     </div>
                   </template>
                 </el-table-column>

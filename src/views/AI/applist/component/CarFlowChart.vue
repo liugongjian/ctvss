@@ -1,6 +1,6 @@
 <template>
   <div v-loading="queryLoading.chart">
-    <el-tag v-if="chartInfo.vehiclesThreshold.length" style="margin-right:20px;">车辆数阈值：{{ chartInfo.vehiclesThreshold }}</el-tag>
+    <el-tag v-if="chartInfo.vehiclesThreshold.length" style="margin-right: 20px;">车辆数阈值：{{ chartInfo.vehiclesThreshold }}</el-tag>
     <el-tag v-if="chartInfo.timeSlide.length">时间窗口：{{ chartInfo.timeSlide }}小时</el-tag>
     <div v-show="chartData.length > 0" id="car-container" :style="`height:${height}vh`" />
     <div v-show="chartData.length === 0" class="no-data">暂无数据</div>
@@ -268,11 +268,11 @@ export default class extends Mixins(DashboardMixin) {
 }
 </script>
 <style lang="scss" scoped>
-.no-data{
+.no-data {
   height: 200px;
   line-height: 200px;
   vertical-align: middle;
   text-align: center;
-  color: rgba(186,198,198);
+  color: rgba(186, 198, 198);
 }
 </style>
