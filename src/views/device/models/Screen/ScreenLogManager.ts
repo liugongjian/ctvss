@@ -1,6 +1,7 @@
 
 import { getLocalStorage, setLocalStorage } from '@/utils/storage'
 import { msFormate } from '@/utils/date'
+import { saveLogs } from '@/api/log'
 
 const SCREEN_LOGS_KEY = 'screenLogs'
 
@@ -21,7 +22,7 @@ class ScreenLog {
       totalTime: msFormate(screen.log.playerCanplayTimstamp - screen.log.previewStartTimestamp)
     }
     logs.push(log)
-    console.log(log)
+    console.log('播放器日志', log)
     setLocalStorage(SCREEN_LOGS_KEY, logs)
   }
 
@@ -29,9 +30,15 @@ class ScreenLog {
    * 保存日志到后端，并清空本地日志
    */
   public flushLogs() {
-    const logs: Array<any> = JSON.parse(getLocalStorage(SCREEN_LOGS_KEY))
-    console.log(logs)
-    setLocalStorage(SCREEN_LOGS_KEY, [])
+    try {
+      const logs: Array<any> = JSON.parse(getLocalStorage(SCREEN_LOGS_KEY))
+      if (logs && logs.length) {
+        saveLogs(logs)
+        setLocalStorage(SCREEN_LOGS_KEY, [])
+      }
+    } catch (e) {
+      console.error(e)
+    }
   }
 }
 

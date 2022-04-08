@@ -62,6 +62,9 @@ export default class extends Vue {
   })
   private isSingle
 
+  /* 日志写入定时器 */
+  private flushLogsInterval = null
+
   /* 分屏管理器 */
   public screenManager: ScreenManager = null
 
@@ -131,6 +134,7 @@ export default class extends Vue {
       inProtocol: this.inProtocol,
       isSingle: this.isSingle
     })
+    this.flushLogsInterval = setInterval(screenLogManager.flushLogs, 60 * 1000)
   }
 
   private destroyed() {
