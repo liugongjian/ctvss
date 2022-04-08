@@ -1,5 +1,6 @@
 
 import { getLocalStorage, setLocalStorage } from '@/utils/storage'
+import { UserModule } from '@/store/modules/user'
 import { msFormate } from '@/utils/date'
 import { saveLogs } from '@/api/log'
 
@@ -13,6 +14,7 @@ class ScreenLog {
     const logs: Array<any> = JSON.parse(getLocalStorage(SCREEN_LOGS_KEY)) || []
     const log = {
       ...screen.log,
+      mainUserID: UserModule.mainUserID,
       deviceId: screen.deviceId,
       inProtocol: screen.inProtocol,
       streamNum: screen.streamNum,
