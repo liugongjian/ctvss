@@ -91,3 +91,10 @@ export const auditEventConfirm = (params: any): Promise<any> =>
     method: 'get',
     params
   })
+
+export const getUserStorage = (params: any): Promise<any> =>
+  request({
+    url: '/statistics/user/storage',
+    method: 'get',
+    params
+  })

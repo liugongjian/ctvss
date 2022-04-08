@@ -101,7 +101,6 @@ import { Component, Vue, Watch } from 'vue-property-decorator'
 import { getRecordAuditEvents } from '@/api/dashboard'
 import { AlertType } from '@/dics'
 import { parseMetaData, transformLocation } from '@/utils/ai'
-import Player from '@/views/device/components/Player.vue'
 import Locations from './components/Locations.vue'
 import Attributes from './components/Attributes.vue'
 import { AiGroups } from '../helper/aiGroups'
@@ -110,7 +109,6 @@ import { UserModule } from '@/store/modules/user'
 @Component({
   name: 'DashboardAI',
   components: {
-    Player,
     Locations,
     Attributes
   }
@@ -261,103 +259,131 @@ export default class extends Vue {
 </script>
 
 <style lang="scss" scoped>
-  $lightColor: #CCC;
-  $lightFont: #4C4C4C;
+  $lightColor: #ccc;
+  $lightFont: #4c4c4c;
+
   .light-btns {
     margin: 3vh 5vh;
+
     .el-dropdown {
       margin-right: 15px;
     }
   }
 
   .light-dashboard-wrap {
-    background-color: #F6F6F6;
+    background-color: #f6f6f6;
+
     .ai-recognation {
-      margin: 0vh 5vh;
+      margin: 0 5vh;
       border: 2px solid $lightColor;
+
       &__empty {
         color: $lightFont;
       }
+
       &__decorator--top,
       &__decorator--bottom {
-        &::before, &::after {
+        &:before,
+        &:after {
           border: 7px solid $lightColor;
         }
       }
+
       &__decorator--top {
         top: -3px;
-        &::before {
+
+        &:before {
           border-right: 0;
           border-bottom: 0;
         }
-        &::after {
+
+        &:after {
           right: -8px;
           border-left: 0;
           border-bottom: 0;
         }
       }
+
       &__decorator--bottom {
         bottom: -3px;
-        &::before, &::after {
+
+        &:before,
+        &:after {
           bottom: -3px;
         }
-        &::before {
+
+        &:before {
           border-right: 0;
           border-top: 0;
         }
-        &::after {
+
+        &:after {
           right: -8px;
           border-left: 0;
           border-top: 0;
         }
       }
+
       &__title {
         margin: 20px 0;
+
         img {
           display: none;
         }
+
         &--text {
           color: $lightFont;
           left: 1vw;
         }
       }
+
       &__video {
         border: 1px solid $lightColor;
+
         &__loading {
           color: $lightFont;
         }
       }
+
       &__images {
         &__item {
           border: 1px solid $lightColor;
           border-left: 5px solid $lightColor;
           border-right: 5px solid $lightColor;
+
           &__count {
             color: $lightFont;
           }
+
           &__decorator--top,
           &__decorator--bottom {
-            &::before, &::after {
+            &:before,
+            &:after {
               border-top: 7px solid $lightColor;
             }
           }
+
           &--datetime {
-            color: #cccccc;
-            background: rgba(100, 100, 100, 0.4);
+            color: #ccc;
+            background: rgba(100, 100, 100, 40%);
           }
+
           &__tools {
             color: $lightFont;
           }
         }
       }
+
       &__bottom {
         &--fresh {
           background: $primary;
-          color: #ffffff;
+          color: #fff;
         }
 
         .el-pagination {
-          ::v-deep .el-pager li, ::v-deep .btn-prev, ::v-deep  .btn-next {
+          ::v-deep .el-pager li,
+          ::v-deep .btn-prev,
+          ::v-deep .btn-next {
             color: $lightFont;
           }
         }
@@ -375,9 +401,10 @@ export default class extends Vue {
     overflow: auto;
 
     ::v-deep .el-loading-mask {
-      background: rgba(35, 59, 88, 0.6);
+      background: rgba(35, 59, 88, 60%);
     }
   }
+
   .ai-recognation {
     border: 2px solid #0185ea;
     margin: 8vh 5vh;
@@ -399,7 +426,9 @@ export default class extends Vue {
       position: absolute;
       left: -3px;
       width: 100%;
-      &::before, &::after {
+
+      &:before,
+      &:after {
         position: absolute;
         display: block;
         content: ' ';
@@ -407,35 +436,45 @@ export default class extends Vue {
         height: 10vh;
         border: 7px solid #0187ee;
       }
-      &::before {
+
+      &:before {
         left: -1px;
       }
-      &::after {
+
+      &:after {
         right: -8px;
       }
     }
+
     &__decorator--top {
       top: -3px;
-      &::before {
+
+      &:before {
         border-right: 0;
         border-bottom: 0;
       }
-      &::after {
+
+      &:after {
         right: -8px;
         border-left: 0;
         border-bottom: 0;
       }
     }
+
     &__decorator--bottom {
       bottom: -3px;
-      &::before, &::after {
+
+      &:before,
+      &:after {
         bottom: -3px;
       }
-      &::before {
+
+      &:before {
         border-right: 0;
         border-top: 0;
       }
-      &::after {
+
+      &:after {
         right: -8px;
         border-left: 0;
         border-top: 0;
@@ -445,17 +484,21 @@ export default class extends Vue {
     &__body {
       display: flex;
     }
+
     &--left {
       display: flex;
       flex: 1;
       margin: 0.7%;
       flex-direction: column;
     }
+
     &__title {
       position: relative;
+
       img {
         display: block;
       }
+
       &--text {
         position: absolute;
         top: 0;
@@ -468,6 +511,7 @@ export default class extends Vue {
         color: #fff;
       }
     }
+
     &__video {
       position: relative;
       flex: 1;
@@ -476,6 +520,7 @@ export default class extends Vue {
       min-height: 30vh;
       display: flex;
       align-items: center;
+
       &__loading {
         position: absolute;
         top: 50%;
@@ -487,31 +532,38 @@ export default class extends Vue {
         height: 50px;
         line-height: 50px;
         text-align: center;
-        background: rgba(20, 34, 51, 0.9);
+        background: rgba(20, 34, 51, 90%);
       }
+
       img {
         width: 100%;
       }
-      ::v-deep .video-wrap, ::v-deep video {
+
+      ::v-deep .video-wrap,
+      ::v-deep video {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
       }
+
       ::v-deep canvas {
         position: absolute;
       }
     }
+
     &__images__wrap {
       flex: 2;
       display: flex;
       flex-direction: column;
     }
+
     &__images {
       display: grid;
       grid-gap: 1rem;
       grid-template-columns: repeat(auto-fit, minmax(30%, 1fr));
+
       &__item {
         position: relative;
         margin: 1%;
@@ -522,20 +574,25 @@ export default class extends Vue {
         cursor: pointer;
         display: flex;
         align-items: center;
+
         &__wrap {
           position: relative;
           width: 100%;
         }
+
         &__img--wrap {
           position: relative;
           width: 100%;
+
           &--left {
             cursor: pointer;
           }
         }
+
         &__img {
           width: 100%;
         }
+
         &__count {
           position: absolute;
           top: 0;
@@ -544,6 +601,7 @@ export default class extends Vue {
           color: #fff;
           font-size: 12px;
           padding: 3px 6px;
+
           &--warning {
             background: $red;
           }
@@ -554,23 +612,29 @@ export default class extends Vue {
           position: absolute;
           width: 100%;
           left: 0;
-          &::before, &::after {
+
+          &:before,
+          &:after {
             position: absolute;
             display: block;
             content: ' ';
             width: 10px;
             border-top: 7px solid #0187ee;
           }
-          &::before {
+
+          &:before {
             left: 0;
           }
-          &::after {
+
+          &:after {
             right: 0;
           }
         }
+
         &__decorator--top {
-          top: 0px;
+          top: 0;
         }
+
         &__decorator--bottom {
           bottom: 7px;
         }
@@ -583,27 +647,33 @@ export default class extends Vue {
           text-align: right;
           right: 10px;
           bottom: 10px;
-          background: rgba(0, 0, 0, 0.8);
+          background: rgba(0, 0, 0, 80%);
           padding: 5px 10px;
         }
+
         &__tools {
           color: #fff;
           text-align: right;
           margin: 5px 10px 0 0;
+
           &--zoomin {
             cursor: pointer;
           }
         }
+
         img {
           width: 100%;
           display: block;
         }
 
-        &:hover, &.actived {
+        &:hover,
+        &.actived {
           border-color: $primary;
+
           .ai-recognation__images__item__decorator--top,
           .ai-recognation__images__item__decorator--bottom {
-            &::after, &::before {
+            &:after,
+            &:before {
               border-color: $primary;
             }
           }
@@ -622,6 +692,7 @@ export default class extends Vue {
         border: none;
         padding: 15px 20px;
         color: #fff;
+
         &:hover {
           background: $primary;
         }
@@ -631,26 +702,34 @@ export default class extends Vue {
         position: relative;
         margin: 0;
         z-index: 100;
-        ::v-deep .el-pager li, ::v-deep .btn-prev, ::v-deep  .btn-next {
+
+        ::v-deep .el-pager li,
+        ::v-deep .btn-prev,
+        ::v-deep .btn-next {
           background: none;
           color: #fff;
         }
+
         ::v-deep .el-pager li.active {
           color: $primary;
         }
       }
     }
   }
+
   .ai-image-fullscreen__img {
     display: flex;
+
     &--wrap {
       flex: 4;
     }
+
     &--attributes {
       flex: 1;
       background: #f7f7f7;
       padding: 20px 15px;
     }
+
     img {
       width: 100%;
     }

@@ -641,8 +641,8 @@ export default class ExcelMixin extends Vue {
   /**
    * 表格填写各字段校验
    */
-  private optionsInit(worksheet: any, deviceType: string) {
-    this.excelTemplate[deviceType].forEach((column, index) => {
+  private optionsInit(worksheet: any, template: any) {
+    template.forEach((column, index) => {
       let columnIndex = String.fromCharCode(65 + index)
       worksheet.dataValidations.add(`${columnIndex}2:${columnIndex}9999`, column.validation)
     })
@@ -681,7 +681,7 @@ export default class ExcelMixin extends Vue {
       worksheet.addRow(device)
     })
     // 添加校验规则
-    this.optionsInit(worksheet, this.exelDeviceType)
+    this.optionsInit(worksheet, template)
     // 调整样式
     worksheet._columns.forEach((column: any) => {
       column.alignment = {

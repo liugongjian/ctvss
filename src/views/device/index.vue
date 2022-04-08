@@ -1,7 +1,7 @@
 <template>
   <div v-loading="loading.group" class="app-container">
     <el-card ref="deviceWrap" class="device-list-wrap">
-      <div class="device-list" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
+      <div class="device-list" :style="{height: `${maxHeight}px`}" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
         <el-button class="device-list__expand" @click="toggledirList">
           <svg-icon name="hamburger" />
         </el-button>
@@ -26,7 +26,7 @@
                 <el-button type="text"><i class="el-icon-setting" /></el-button>
               </el-tooltip>
             </div>
-            <div v-loading="loading.dir" class="dir-list__tree device-list__max-height" :style="{height: `${maxHeight - (currentGroup.inProtocol === 'gb28181' ? 40 : 0)}px`, marginBottom: currentGroup.inProtocol === 'gb28181' ? '40px' : '0px'}">
+            <div v-loading="loading.dir" class="dir-list__tree device-list__max-height">
               <div class="dir-list__tree--root" :class="{'actived': isRootDir}" @click="gotoRoot">
                 <svg-icon name="component" width="12px" />
                 根目录
@@ -125,9 +125,7 @@
               </el-tree>
             </div>
             <!-- 国标才展示 -->
-            <div v-if="currentGroup.inProtocol === 'gb28181'">
-              <advanced-search :search-form="advancedSearchForm" @search="doSearch" />
-            </div>
+            <advanced-search v-if="currentGroup.inProtocol === 'gb28181'" :search-form="advancedSearchForm" @search="doSearch" />
           </div>
         </div>
         <div class="device-list__right">
@@ -142,7 +140,7 @@
               {{ item.label }}
             </span>
           </div>
-          <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
+          <div class="device-list__max-height" :style="{height: `${maxHeight - 40}px`}">
             <router-view />
           </div>
         </div>

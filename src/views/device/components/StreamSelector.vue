@@ -1,25 +1,34 @@
 <template>
-  <span v-if="streamSize && streamSize > 1">
-    <i class="set-stream">
+  <el-popover
+    v-if="streamSize && streamSize > 1"
+    placement="bottom-end"
+    trigger="hover"
+    :visible-arrow="false"
+    :offset="0"
+    transition=""
+    :open-delay="200"
+    popper-class="operate-selector-popover"
+  >
+    <ul class="controls__popup">
+      <li
+        v-for="stream in subStreamList"
+        :key="stream.value"
+        :class="{'selected': stream.value === streamNum}"
+        @click="setStreamNum(stream.value)"
+      >
+        <status-badge v-if="stream.streamStatus" :status="stream.streamStatus" />
+        {{ stream.label }}
+      </li>
+    </ul>
+    <i slot="reference" class="set-stream">
       <svg-icon
         name="branch"
         width="16px"
         height="16px"
       />
       <span>{{ streamName }}</span>
-      <ul class="controls__popup">
-        <li
-          v-for="stream in subStreamList"
-          :key="stream.value"
-          :class="{'selected': stream.value === streamNum}"
-          @click="setStreamNum(stream.value)"
-        >
-          <status-badge v-if="stream.streamStatus" :status="stream.streamStatus" />
-          {{ stream.label }}
-        </li>
-      </ul>
     </i>
-  </span>
+  </el-popover>
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
@@ -91,48 +100,37 @@ export default class extends Vue {
     padding: 4px;
     cursor: pointer;
     font-style: normal;
-    .controls__popup {
-      position: absolute;
-      display: none;
-      width: 105px;
-      left: -20px;
-      top: 25px;
-      z-index: 10;
-      background: #fff;
-      border: 1px solid #ddd;
-      list-style: none;
+
+    .svg-icon {
       margin: 0;
-      padding: 0;
-      border-radius: 4px;
-      box-shadow: 0 2px 12px 0 rgb(0 0 0 / 10%);
-      li {
-        margin: 0;
-        padding: 5px 15px;
-        list-style: none;
-        font-style: normal;
-        color: $text;
-        cursor: pointer;
-        &:hover {
-          background: #eee;
-        }
-        &.selected {
-          color: $primary;
-        }
-        .status-badge {
-          position: relative;
-          top: 0;
-          left: 0;
-          width: 6px;
-          height: 6px;
-        }
-        .status-badge--off, .status-badge--on, .status-badge--failed {
-          display: inline-block;
-        }
-      }
     }
-    &:hover {
-      .controls__popup {
-        display: block;
+  }
+  .controls__popup {
+    padding: 0;
+    margin: 0;
+    li {
+      margin: 0;
+      padding: 5px 15px;
+      list-style: none;
+      font-style: normal;
+      color: $text;
+      cursor: pointer;
+
+      &:hover {
+        background: #eee;
+      }
+      &.selected {
+        color: $primary;
+      }
+      .status-badge {
+        position: relative;
+        top: 0;
+        left: 0;
+        width: 6px;
+        height: 6px;
+      }
+      .status-badge--off, .status-badge--on, .status-badge--failed {
+        display: inline-block;
       }
     }
   }

@@ -4,7 +4,7 @@ import DeviceMixin from './deviceMixin'
 import { DeviceParams, DeviceStatus, StreamStatus, RecordStatus, RecordStatusType, RecordStatusFilterType, DeviceGb28181Type, SipTransType, StreamTransType, TransPriority } from '@/dics'
 import { Device } from '@/type/device'
 import { GroupModule } from '@/store/modules/group'
-import { deleteDevice, startDevice, stopDevice, getDevice, getDevices, syncDevice, syncDeviceStatus, getDeviceEvents } from '@/api/device'
+import { deleteDevice, startDevice, stopDevice, getDevice, getDevices, syncDevice, syncDeviceStatus, getDeviceEvents, syncStatusPolling } from '@/api/device'
 import { DeviceModule } from '@/store/modules/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MoveDir from '../components/dialogs/MoveDir.vue'
@@ -13,6 +13,7 @@ import Resource from '../components/dialogs/Resource.vue'
 import { checkPermission } from '@/utils/permission'
 import { VGroupModule } from '@/store/modules/vgroup'
 import ExcelMixin from '../mixin/excelMixin'
+import ResizeObserver from 'resize-observer-polyfill'
 
 @Component({
   components: {
@@ -48,6 +49,7 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
   public exportLoading: boolean = false
   public selectedFile: any = null
   public fileData: any = {}
+  public times: number = 1
 
   public loading: any = {
     info: false,
@@ -734,19 +736,62 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
   /**
    * 设备同步
    */
-  public async syncDevice() {
-    try {
-      this.loading.syncDevice = true
-      await syncDevice({
-        deviceId: this.deviceInfo.deviceId,
-        inProtocol: this.inProtocol
-      })
-      this.init()
-    } catch (e) {
-      this.$message.error(e && e.message)
-    } finally {
-      this.loading.syncDevice = false
+  // public async syncDevice() {
+  //   try {
+  //     this.loading.syncDevice = true
+  //     await syncDevice({
+  //       deviceId: this.deviceInfo.deviceId,
+  //       inProtocol: this.inProtocol
+  //     })
+  //     this.init()
+  //   } catch (e) {
+  //     this.$message.error(e && e.message)
+  //   } finally {
+  //     this.loading.syncDevice = false
+  //   }
+  // }
+  /**
+   * 设备同步
+   */
+  public syncDevice() {
+    this.loading.syncDevice = true
+    const param = {
+      deviceId: this.deviceInfo.deviceId,
+      inProtocol: this.inProtocol
     }
+    this.statusPolling(param).then(() => {
+      this.loading.syncDevice = false
+      this.init()
+      this.initDirs()
+      this.times = 1
+    }).catch(e => {
+      this.times = 1
+      this.loading.syncDevice = false
+      this.$message.error(e && e.message)
+    })
+  }
+
+  /**
+   * 轮询同步设备状态
+   * @param param 请求体 Object
+   */
+  public statusPolling(param: any) {
+    if (this.times < 8) {
+      this.times = this.times + 1
+    } else {
+      this.times = 8
+    }
+    return new Promise((resolve, reject) => {
+      syncStatusPolling(param).then(res => {
+        if (res.syncStatus === true) {
+          setTimeout(() => {
+            resolve(this.statusPolling(param))
+          }, this.times * 1000)
+        } else {
+          resolve(res)
+        }
+      }).catch(err => reject(err))
+    })
   }
 
   /**

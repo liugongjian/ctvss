@@ -6,7 +6,7 @@ import TransformAction from './scale-transform'
  * @ignore
  */
 class ScaleTranslate extends TransformAction {
-  private zoomRatio = 0.05;
+  private zoomRatio = 0.05
   /**
    * 缩小
    */

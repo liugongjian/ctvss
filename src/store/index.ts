@@ -8,6 +8,7 @@ import { IPermissionState } from './modules/permission'
 import { ISettingsState } from './modules/settings'
 import { IDeviceState } from './modules/device'
 import { IGroupState } from './modules/group'
+import { IScreenState } from './modules/screen'
 
 Vue.use(Vuex)
 
@@ -20,6 +21,7 @@ export interface IRootState {
   settings: ISettingsState
   device: IDeviceState
   group: IGroupState
+  screen: IScreenState
 }
 
 // Declare empty store first, dynamically register all modules later.

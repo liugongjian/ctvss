@@ -132,7 +132,6 @@ export const getDeviceRecords = (params: any, cancelToken?: any): Promise<any> =
       outNetwork: UserModule.outNetwork || undefined,
       ...params
     },
-
     cancelToken
   })
 
@@ -170,11 +169,12 @@ export const getDeviceRecordRule = (params: any): Promise<any> =>
 /**
  * 获取设备录制统计
  */
-export const getDeviceRecordStatistic = (params: any): Promise<any> =>
+export const getDeviceRecordStatistic = (params: any, cancelToken?: any): Promise<any> =>
   request({
     url: '/record/statistic',
     method: 'get',
-    params
+    params,
+    cancelToken
   })
 
 /**
@@ -293,6 +293,16 @@ export const syncDevice = (params: any): Promise<any> =>
 export const syncDeviceStatus = (params: any): Promise<any> =>
   request({
     url: '/device/consistent',
+    method: 'post',
+    data: params
+  })
+
+/**
+ * 轮询同步设备状态
+ */
+export const syncStatusPolling = (params: any): Promise<any> =>
+  request({
+    url: '/device/notify/sync',
     method: 'post',
     data: params
   })

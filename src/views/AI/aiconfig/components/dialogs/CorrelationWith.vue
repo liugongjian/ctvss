@@ -27,7 +27,8 @@
         :disabled="isAble"
         :loading="loading"
         @click="doBindGroupPerson"
-        >{{ '确定' }}
+      >
+        {{ '确定' }}
       </el-button>
       <el-button @click="closeDialog">取消</el-button>
     </div>
