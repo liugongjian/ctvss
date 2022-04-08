@@ -68,6 +68,7 @@
                   start-placeholder="开始时间"
                   end-placeholder="结束时间"
                   placeholder="选择时间范围"
+                  format="HH:mm"
                   @change="transformFormData"
                 >
                 </el-time-picker>
@@ -168,7 +169,7 @@ import { pick } from 'lodash'
 })
 export default class extends Vue {
   private breadCrumbContent = ''
-  private defaultValue = [new Date(2022, 4, 5, 0, 0, 0), new Date(2022, 4, 5, 23, 59, 59)]
+  private defaultValue = [new Date(2022, 4, 5, 0, 0), new Date(2022, 4, 5, 23, 59)]
   private dirList: any = []
   public isloading: boolean = false
   private treeProp = {
@@ -196,7 +197,7 @@ export default class extends Vue {
     desc: ''
   }
 
-  private effectiveTimeList: any[] = [{ effectiveTime: [new Date(2022, 4, 5, 0, 0, 0), new Date(2022, 4, 5, 23, 59, 59)] }]
+  private effectiveTimeList: any[] = [{ effectiveTime: [new Date(2022, 4, 5, 0, 0), new Date(2022, 4, 5, 23, 59)] }]
 
   private notifyFreqOptions = [
     { value: '30', label: '半小时' },
@@ -225,7 +226,8 @@ export default class extends Vue {
       { required: true, message: '请选择推送方式', trigger: 'blur' }
     ],
     effectiveTime: [
-      { required: true, message: '请选择推送时间段', trigger: 'blur' }
+      { required: true, message: '请选择推送时间段', trigger: 'blur' },
+      { validator: this.validateEffectiveTime, trigger: 'blur' }
     ],
     notifyFreq: [
       { required: true, message: '请选择推送频率', trigger: 'blur' }
@@ -260,6 +262,14 @@ export default class extends Vue {
   private validateResourceList(rule: any, value: string, callback: Function) {
     if (!this.form.notifyResources.length) {
       callback(new Error('资源列表不能为空！'))
+    } else {
+      callback()
+    }
+  }
+
+  private validateEffectiveTime(rule: any, value: any, callback: Function) {
+    if (value[0].start_time === value[0].end_time) {
+      callback(new Error('起止时间不能相同！'))
     } else {
       callback()
     }
@@ -309,7 +319,7 @@ export default class extends Vue {
    */
   private parseEffectiveTime(effectiveTime) {
     this.form.effectiveTime = []
-    if (effectiveTime[0].start_time === '00:00:00' && effectiveTime[0].end_time === '23:59:59') {
+    if (effectiveTime[0].start_time === '00:00:00' && effectiveTime[0].end_time === '23:59:00') {
       this.form.effectiveTimeType = 'all'
     } else {
       this.form.effectiveTimeType = 'range'
@@ -322,7 +332,6 @@ export default class extends Vue {
         end.setHours(item.end_time.split(':')[0])
         end.setMinutes(item.end_time.split(':')[1])
         end.setSeconds(item.end_time.split(':')[2])
-        console.log(start, end)
         return { effectiveTime: [start, end] }
       })
     }
@@ -386,7 +395,7 @@ export default class extends Vue {
     if (this.form.effectiveTimeType === 'all') {
       this.form.effectiveTime = [{
         start_time: '00:00:00',
-        end_time: '23:59:59'
+        end_time: '23:59:00'
       }]
     } else {
       let timeList = this.effectiveTimeList.filter(item => {
@@ -421,7 +430,7 @@ export default class extends Vue {
    */
   addEffectiveTime() {
     this.effectiveTimeList.push({
-      effectiveTime: [{ effectiveTime: [new Date(2022, 4, 5, 0, 0, 0), new Date(2022, 4, 5, 23, 59, 59)] }]
+      effectiveTime: [{ effectiveTime: [new Date(2022, 4, 5, 0), new Date(2022, 4, 5, 23)] }]
     })
   }
 
