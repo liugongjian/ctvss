@@ -307,7 +307,7 @@ export default class extends Vue {
       _url = _url.replace('http://', 'https://')
     }
     if (isWs) {
-      if (isHttps) {
+      if (_url.startsWith('https://')) {
         _url = _url.replace('https://', 'wss://')
       } else {
         _url = _url.replace('http://', 'ws://')
