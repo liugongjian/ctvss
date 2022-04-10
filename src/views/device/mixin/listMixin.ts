@@ -826,7 +826,7 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
         inProtocol: this.inProtocol
       })
       this.init()
-      this.initDirs()
+      this.initDirs(false)
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
