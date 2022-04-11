@@ -141,7 +141,7 @@
         <el-form-item>
           <el-row style="margin: 20px 0;">
             <template>
-              <el-button type="primary" class="confirm" @click="upload">确定</el-button>
+              <el-button :loading="uploadLoading" type="primary" class="confirm" @click="upload">确定</el-button>
             </template>
           </el-row>
         </el-form-item>
@@ -172,6 +172,7 @@ export default class extends Vue {
   private defaultValue = [new Date(2022, 4, 5, 0, 0), new Date(2022, 4, 5, 23, 59)]
   private dirList: any = []
   public isloading: boolean = false
+  public uploadLoading: boolean = false
   private treeProp = {
     label: 'label',
     children: 'children',
@@ -364,6 +365,7 @@ export default class extends Vue {
     form.validate(async(valid: boolean) => {
       try {
         if (valid) {
+          this.uploadLoading = true
           let params: any= {}
           Object.assign(params, pick(this.form, ['name', 'description', 'notifyChannel', 'notifyFreq', 'source', 'notifyTemplate', 'active']))
           params.effectiveTime = JSON.stringify(this.form.effectiveTime)
@@ -383,6 +385,8 @@ export default class extends Vue {
         }
       } catch (e) {
         this.$message.error(e && e.message)
+      } finally {
+        this.uploadLoading = false
       }
     })
   }
