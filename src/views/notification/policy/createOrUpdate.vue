@@ -283,8 +283,9 @@ export default class extends Vue {
   }
 
   private async mounted() {
+    this.isloading = true
     this.breadCrumbContent = this.$route.meta.title
-    this.getAlgorithmList()
+    await this.getAlgorithmList()
     if (this.isUpdate) {
       const id = this.$route.query.id
       if (id) {
@@ -294,7 +295,7 @@ export default class extends Vue {
         this.back()
       }
     }
-    
+    this.isloading = false
   }
 
   /**
@@ -302,7 +303,6 @@ export default class extends Vue {
    */
   private async initNotificationPolicy() {
     try {
-      this.isloading = true
       const info = await getNotificationPolicyInfo({ id: this.form.id })
       Object.assign(this.form, pick(info, ['name', 'description', 'notifyChannel', 'notifyFreq', 'source', 'notifyTemplate', 'active']))
       this.form.sourceRules = JSON.parse(info.sourceRules)
@@ -312,8 +312,6 @@ export default class extends Vue {
       this.parseEffectiveTime(this.form.effectiveTime)
     } catch (e) {
       this.$message.error(e && e.message)
-    } finally {
-      this.isloading = false
     }
   }
 
