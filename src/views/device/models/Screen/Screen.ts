@@ -266,6 +266,7 @@ export class Screen {
         this.videoWidth = videoInfo.videoWidth
         this.videoHeight = videoInfo.videoHeight
       }
+      this.isLoading = false
     } catch (e) {
       if (e.code !== -2 && e.code !== -1) {
         this.errorMsg = e.message
@@ -274,9 +275,8 @@ export class Screen {
         this.log.previewEndTimestamp = new Date().getTime()
         screenLogManager.addLog(this)
       }
+      if (e.code !== -2) this.isLoading = false
       throw new Error(e.message)
-    } finally {
-      this.isLoading = false
     }
   }
 
