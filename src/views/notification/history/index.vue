@@ -243,9 +243,11 @@ export default class extends Vue {
    */
   private timeRangeChange(val) {
     this.searchForm.startTime = val[0].getTime()
-    if (val[0] === val[1]) {
-      this.searchForm.endTime = val[1].getTime() + 24 * 60 * 60 * 1000
+    this.searchForm.endTime = val[1].getTime()
+    if (this.searchForm.startTime === this.searchForm.endTime) {
+      this.searchForm.endTime = this.searchForm.endTime + 24 * 60 * 60 * 1000
     }
+    console.log(val[0], val[1])
     this.search()
   }
 
