@@ -276,7 +276,7 @@ export default class extends Mixins(IndexMixin) {
 
   /* 轮询配置 */
   private polling = {
-    interval: 10,
+    interval: 20,
     isLoading: false
   }
 

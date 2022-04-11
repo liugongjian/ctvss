@@ -267,11 +267,13 @@ export class Screen {
         this.videoHeight = videoInfo.videoHeight
       }
     } catch (e) {
-      this.errorMsg = e.message
-      this.log.previewError = e.message
-      this.log.previewRequestId = e.requestId
-      this.log.previewEndTimestamp = new Date().getTime()
-      screenLogManager.addLog(this)
+      if (e.code !== -2 && e.code !== -1) {
+        this.errorMsg = e.message
+        this.log.previewError = e.message
+        this.log.previewRequestId = e.requestId
+        this.log.previewEndTimestamp = new Date().getTime()
+        screenLogManager.addLog(this)
+      }
       throw new Error(e.message)
     } finally {
       this.isLoading = false
