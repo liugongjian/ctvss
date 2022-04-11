@@ -135,7 +135,7 @@ export default class extends Vue {
   }
 
   private mounted() {
-    this.createPlayer()
+    this.url && this.createPlayer()
   }
 
   /**
@@ -161,7 +161,9 @@ export default class extends Vue {
         playbackRate: this.playbackRate,
         volume: this.volume,
         isMuted: this.isMuted,
-        onRetry: this.onRetry
+        onRetry: this.onRetry,
+        onLoadStart: this.onLoadStart,
+        onCanplay: this.onCanplay
       })
       this.$nextTick(() => {
         this.$emit('onCreate', this.player)
@@ -176,6 +178,20 @@ export default class extends Vue {
    */
   private onRetry(payload) {
     this.$emit('onRetry', payload)
+  }
+
+  /**
+   * 向上抛出开始加载事件
+   */
+  private onLoadStart() {
+    this.$emit('onLoadStart')
+  }
+
+  /**
+   * 向上抛出可以播放事件
+   */
+  private onCanplay() {
+    this.$emit('onCanplay')
   }
 }
 </script>

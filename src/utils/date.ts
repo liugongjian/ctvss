@@ -68,6 +68,21 @@ export const durationFormatInVideo = (duration: number) => {
 }
 
 /**
+ * 将毫秒格式化为字符串
+ * @param ms 毫秒
+ * @returns 字符串
+ */
+export const msFormate = (ms: number) => {
+  if (ms > 1000) {
+    return `${ms / 1000}s`
+  } else if (ms < 0) {
+    return '0ms'
+  } else {
+    return `${ms}ms`
+  }
+}
+
+/**
  * 获取客户端日期 (待检查是否弃用)
  * @returns 日期
  */

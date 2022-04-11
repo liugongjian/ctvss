@@ -12,6 +12,7 @@ export class H265Player extends Player {
   private loading = true
   private seekTime = 0
   private muteTimeout: any = null
+  private isStartPlay: boolean
 
   /**
    * 初始化
@@ -131,6 +132,7 @@ export class H265Player extends Player {
    * 当开始播放
    */
   protected onPlay() {
+    this.isStartPlay = true
     this.isPaused = false
     this.config.onLoadStart && this.onLoadStart()
     this.config.onPlay && this.config.onPlay()
@@ -184,7 +186,9 @@ export class H265Player extends Player {
     }
     this.loading = false
     this.onResume && this.onResume()
-    this.onCanplay && this.onCanplay()
+    if (this.isStartPlay) {
+      this.onCanplay && this.onCanplay()
+    }
   }
 
   /**

@@ -28,6 +28,7 @@
 import { Component, Vue, Prop, Watch, Provide } from 'vue-property-decorator'
 import { ScreenModule } from '@/store/modules/screen'
 import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
+import screenLogManager from '@/views/device/models/Screen/ScreenLogManager'
 import ScreenItem from './ScreenItem.vue'
 import ScreenList from './ScreenList.vue'
 import ScreenTools from './ScreenTools.vue'
@@ -60,6 +61,9 @@ export default class extends Vue {
     default: false
   })
   private isSingle
+
+  /* 日志写入定时器 */
+  private flushLogsInterval = null
 
   /* 分屏管理器 */
   public screenManager: ScreenManager = null
@@ -130,9 +134,11 @@ export default class extends Vue {
       inProtocol: this.inProtocol,
       isSingle: this.isSingle
     })
+    this.flushLogsInterval = setInterval(screenLogManager.flushLogs, 60 * 1000)
   }
 
   private destroyed() {
+    screenLogManager.flushLogs()
     window.removeEventListener('resize', this.calMaxHeight)
     window.removeEventListener('resize', this.checkFullscreen)
   }

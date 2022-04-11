@@ -14,6 +14,8 @@
       :is-debug="true"
       @onCreate="onPlayerCreate"
       @onRetry="onRetry"
+      @onLoadStart="onLoadStart"
+      @onCanplay="onCanplay"
     >
       <template slot="headerLeft" />
       <template slot="headerRight">
@@ -254,6 +256,24 @@ export default class extends Vue {
   }
 
   /**
+   * 向上抛出开始加载事件
+   */
+  private onLoadStart() {
+    this.$emit('dispatch', {
+      eventType: 'loadStart'
+    })
+  }
+
+  /**
+   * 向上抛出可以播放事件
+   */
+  private onCanplay() {
+    this.$emit('dispatch', {
+      eventType: 'canplay'
+    })
+  }
+
+  /**
    * 当切换视频格式
    */
   private dispatch(event: PlayerEvent) {
@@ -287,7 +307,7 @@ export default class extends Vue {
       _url = _url.replace('http://', 'https://')
     }
     if (isWs) {
-      if (isHttps) {
+      if (_url.startsWith('https://')) {
         _url = _url.replace('https://', 'wss://')
       } else {
         _url = _url.replace('http://', 'ws://')

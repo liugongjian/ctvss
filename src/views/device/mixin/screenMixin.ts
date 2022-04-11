@@ -2,6 +2,7 @@ import { Component, Mixins } from 'vue-property-decorator'
 import IndexMixin from './indexMixin'
 import { ScreenManager } from '../models/Screen/ScreenManager'
 import ScreenBoard from '../components/ScreenBoard/index.vue'
+import { updatetUserConfig } from '@/api/users'
 
 @Component({
   name: 'Screen',

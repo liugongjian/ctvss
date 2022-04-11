@@ -8,9 +8,11 @@ import settings from '@/settings'
 
 export class VSSError extends Error {
   public code
-  constructor(code: string, message: string) {
+  public requestId
+  constructor(code: string, message: string, requestId: string) {
     super(message)
     this.code = code
+    this.requestId = requestId
   }
 }
 
@@ -88,10 +90,11 @@ function responseHandler(response: any) {
       })
     }
     const data = response && response.data
+    const requestId = data && data.requestId
     const code = data && data.code ? data.code : '-1'
     let message = data && data.message ? data.message : '服务器异常，请稍后再试。'
     console.log('code: ', code, ' message: ', message)
-    return Promise.reject(new VSSError(code, message))
+    return Promise.reject(new VSSError(code, message, requestId))
   }
 }
 
