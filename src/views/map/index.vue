@@ -101,9 +101,17 @@
                 <el-form-item label="中心点纬度" prop="latitude">
                   <el-input v-model="form.latitude" placeholder="请输入地图中心点纬度" />
                 </el-form-item>
-                <el-form-item label="默认缩放级别" prop="zoom">
+                <el-form-item prop="zoom">
+                  <template slot="label">
+                    <span>默认缩放比例
+                      <el-tooltip content="设置地图的默认缩放比例，表示每厘米对应实际的距离。">
+                        <svg-icon name="help" />
+                      </el-tooltip>
+                    </span>
+                  </template>
                   <div class="block">
-                    <el-slider v-model="form.zoom" :min="3" :max="20" :marks="{3: '3', 20: '20'}" />
+                    <el-slider v-model="form.zoom" :min="3" :max="20" />
+                    <span class="zoomdesc">{{ zoomDesc }}</span>
                   </div>
                 </el-form-item>
               </el-form>
@@ -226,6 +234,30 @@ export default class extends Mixins(IndexMixin) {
     longitude: '',
     latitude: '',
     zoom: 12
+  }
+  private get zoomDesc() {
+    const map = {
+      20: '1:10m',
+      19: '1:10m',
+      18: '1:25m',
+      17: '1:50m',
+      16: '1:100m',
+      15: '1:200m',
+      14: '1:500m',
+      13: '1:1km',
+      12: '1:2km',
+      11: '1:5km',
+      10: '1:10km',
+      9: '1:20km',
+      8: '1:30km',
+      7: '1:50km',
+      6: '1:100km',
+      5: '1:200km',
+      4: '1:500km',
+      3: '1:1000km',
+      2: '1:1000km',
+    }
+    return map[this.form.zoom]
   }
   private rules = {
     name: [
@@ -894,6 +926,18 @@ export default class extends Mixins(IndexMixin) {
   min-width: 270px;
 }
 .dialog-text {
+  .block {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    color: #888;
+  }
+  .zoomdesc{
+    margin-left: 20px;
+    min-width: 60px;
+  }
   ::v-deep .el-dialog__footer {
     text-align: center;
   }
@@ -907,8 +951,7 @@ export default class extends Mixins(IndexMixin) {
     padding-right: 50px;
   }
   ::v-deep .el-slider {
-    margin: 0 auto;
-    width: 80%;
+    flex: 1;
   }
   ::v-deep .el-slider__marks-text {
     width: 30px;
