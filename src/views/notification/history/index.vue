@@ -247,7 +247,6 @@ export default class extends Vue {
     if (this.searchForm.startTime === this.searchForm.endTime) {
       this.searchForm.endTime = this.searchForm.endTime + 24 * 60 * 60 * 1000
     }
-    console.log(val[0], val[1])
     this.search()
   }
 
