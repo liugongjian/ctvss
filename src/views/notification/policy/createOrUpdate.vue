@@ -201,8 +201,6 @@ export default class extends Vue {
   private effectiveTimeList: any[] = [{ effectiveTime: [new Date(2022, 4, 5, 0, 0), new Date(2022, 4, 5, 23, 59)] }]
 
   private notifyFreqOptions = [
-    { value: '3', label: '3分钟' },
-    { value: '5', label: '5分钟' },
     { value: '30', label: '半小时' },
     { value: '60', label: '1小时' },
     { value: '120', label: '2小时' },
