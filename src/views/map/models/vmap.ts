@@ -32,6 +32,7 @@ export interface markerObject {
   unitInfo?: string,
   selected?: boolean,
   lnglat?: [number, number] | LngLat,
+  deviceStatus?: string,
   streamStatus?: string,
   recordStatus?: number
   gbRegionNames?: Array<any>
@@ -298,8 +299,8 @@ export default class VMap {
       let wrapDiv
       let optionDiv
       if (!this.isEdit) { // 编辑状态
-        const previewIcon = `<span class="icon-wrap ${markerOptions.streamStatus === 'on' ? '' : 'off'}" onclick="previewMarker('${markerOptions.deviceId}')"><i class="icon icon_preview"></i></span>`
-        const replayIcon = `<span class="icon-wrap ${(markerOptions.recordStatus === 1 || markerOptions.recordStatus === 2) ? '' : 'off'}" onclick="replayMarker('${markerOptions.deviceId}')"><i class="icon icon_replay"></i></span>`
+        const previewIcon = `<span class="icon-wrap ${markerOptions.deviceStatus === 'on' ? '' : 'off'}" onclick="previewMarker('${markerOptions.deviceId}')"><i class="icon icon_preview"></i></span>`
+        const replayIcon = `<span class="icon-wrap" onclick="replayMarker('${markerOptions.deviceId}')"><i class="icon icon_replay"></i></span>`
         optionDiv = `<div class="marker-options">${previewIcon}${replayIcon}</div>`
       } else {
         const deleteIcon = `<i class="icon icon_delete" onclick="deleteMarker('${markerOptions.deviceId}', '${markerOptions.deviceLabel}')"></i>`
@@ -314,7 +315,7 @@ export default class VMap {
           inProtocol: markerOptions.inProtocol,
           top: pos.y,
           left: pos.x,
-          canPlay: markerOptions.streamStatus === 'on'
+          canPlay: markerOptions.deviceStatus === 'on'
         }
         this.markerEventHandlers.onPlay && this.markerEventHandlers.onPlay(data)
       }
@@ -327,7 +328,7 @@ export default class VMap {
           inProtocol: markerOptions.inProtocol,
           top: pos.y,
           left: pos.x,
-          canPlay: markerOptions.recordStatus === 1 || markerOptions.recordStatus === 2
+          canPlay: true
         }
         this.markerEventHandlers.onPlay && this.markerEventHandlers.onPlay(data)
       }

@@ -58,7 +58,7 @@ export class ScreenManager {
     this.refs = {}
     this.executeQueueConfig = {
       policy: 'autoPlay',
-      interval: 10,
+      interval: 20,
       status: 'free'
     }
     this._size = config.size
