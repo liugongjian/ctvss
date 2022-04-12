@@ -41,6 +41,8 @@ export default class MapView extends Vue {
   private vmap = new VMap('mapContainer')
   private markerlist = []
   private mapTip = ''
+  private pageTotal = 1
+  private mtime = null
 
   private playWindowInfo = {
     style: null,
@@ -76,19 +78,38 @@ export default class MapView extends Vue {
     })
   }
 
+  private getMapMarkers(pageNum) {
+    return new Promise(async (resolve) => {
+      let params: any = {
+        pageNum: pageNum,
+        pageSize: 100,
+        mapId: this.mapId
+      }
+      try {
+        const res = await getMapDevices(params)
+        this.markerlist = this.markerlist.concat(res.devices)
+        this.pageTotal = res.totalPage
+      } catch (e) {
+        console.log(e)
+      } finally {
+        this.setMarkerList(this.markerlist)
+        this.$emit('markerlistChange', this.markerlist)
+        console.log(this.markerlist.map(item => item.deviceId))
+        if (pageNum + 1 <= this.pageTotal) {
+          this.mtime = setTimeout(() => {
+            this.getMapMarkers(pageNum + 1)
+          }, 30)
+        }
+      }
+    })
+  }
+
   async setMap(map) {
     this.vmap.renderMap(map)
     this.addMapEvent()
-    try {
-      const res = await getMapDevices({ mapId: map.mapId })
-      this.markerlist = res.devices
-    } catch (e) {
-      this.$alertError(e)
-      this.markerlist = []
-    } finally {
-      this.setMarkerList(this.markerlist)
-      this.$emit('markerlistChange', this.markerlist)
-    }
+    this.mapId = map.mapId
+    this.markerlist = []
+    await this.getMapMarkers(1)
   }
 
   public setMapCenter(lng, lat) {
