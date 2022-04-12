@@ -102,10 +102,10 @@
           <svg-icon class="user-container__arrow" name="arrow-down" width="9" height="9" />
         </div>
         <div class="header-dropdown">
-          <div v-if="isMainUser">
-            <router-link to="/changePassword"><i><svg-icon name="password" /></i> 修改密码</router-link>
-            <div class="header-dropdown__divided" />
-          </div>
+          <!-- <div v-if="isMainUser"> -->
+          <router-link to="/changePassword"><i><svg-icon name="password" /></i> 修改密码</router-link>
+          <div class="header-dropdown__divided" />
+          <!-- </div> -->
           <el-button type="text" @click="logout"><i><svg-icon name="logout" /></i> 退出登录</el-button>
         </div>
       </div>
