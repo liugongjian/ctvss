@@ -43,6 +43,7 @@ export default class MapView extends Vue {
   private markerlist = []
   private mapTip = ''
   private pageTotal = 1
+  private axiosSourceList = []
 
   private playWindowInfo = {
     style: null,
@@ -81,27 +82,27 @@ export default class MapView extends Vue {
 
   private async getMapMarkers(pageNum) {
     let params: any = {
-      pageNum: pageNum,
+      pageNum,
       pageSize: 100,
       mapId: this.mapId
     }
-    let err = null
     try {
-      this.axiosSource = axios.CancelToken.source()
-      const res = await getMapDevices(params, this.axiosSource.token)
+      const axiosSource = axios.CancelToken.source()
+      this.axiosSourceList.push(axiosSource)
+      const res = await getMapDevices(params, axiosSource.token)
+      if (pageNum === 1) {
+        this.markerlist = []
+        this.axiosSourceList.forEach(axiosSource => {
+          axiosSource && axiosSource.cancel()
+        })
+      }
       this.markerlist = this.markerlist.concat(res.devices)
       this.pageTotal = res.totalPage
     } catch (e) {
-      err = e
       console.log(e)
     } finally {
-      if ((err && err.code !== -2) || !err) {
-        this.setMarkerList(this.markerlist)
-        this.$emit('markerlistChange', this.markerlist)
-        if (pageNum + 1 <= this.pageTotal) {
-          await this.getMapMarkers(pageNum + 1)
-        }
-      }
+      this.setMarkerList(this.markerlist)
+      this.$emit('markerlistChange', this.markerlist)
     }
   }
 
@@ -109,9 +110,17 @@ export default class MapView extends Vue {
     this.vmap.renderMap(map)
     this.addMapEvent()
     this.mapId = map.mapId
-    this.markerlist = []
-    this.axiosSource && this.axiosSource.cancel()
+    this.axiosSourceList.forEach(axiosSource => {
+      axiosSource && axiosSource.cancel()
+    })
     await this.getMapMarkers(1)
+    const promiseList = []
+    let pageNum = 2
+    while (pageNum <= this.pageTotal) {
+      promiseList.push(this.getMapMarkers(pageNum))
+      pageNum += 1
+    }
+    await Promise.all(promiseList)
   }
 
   public setMapCenter(lng, lat) {
