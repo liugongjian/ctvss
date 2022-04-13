@@ -20,6 +20,7 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import VMap, { getAMapLoad } from './models/vmap'
+import axios from 'axios'
 import { getMapDevices, updateMarkers, addMarkers, deleteMarkers } from '@/api/map'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import LivePlayer from '@/views/device/components/LivePlayer.vue'
@@ -42,7 +43,6 @@ export default class MapView extends Vue {
   private markerlist = []
   private mapTip = ''
   private pageTotal = 1
-  private mtime = null
 
   private playWindowInfo = {
     style: null,
@@ -54,6 +54,7 @@ export default class MapView extends Vue {
   }
 
   private screen: Screen = null
+  private axiosSource = null
 
   @Watch('isEdit')
   private onEditChange() {
@@ -78,30 +79,30 @@ export default class MapView extends Vue {
     })
   }
 
-  private getMapMarkers(pageNum) {
-    return new Promise(async (resolve) => {
-      let params: any = {
-        pageNum: pageNum,
-        pageSize: 100,
-        mapId: this.mapId
-      }
-      try {
-        const res = await getMapDevices(params)
-        this.markerlist = this.markerlist.concat(res.devices)
-        this.pageTotal = res.totalPage
-      } catch (e) {
-        console.log(e)
-      } finally {
+  private async getMapMarkers(pageNum) {
+    let params: any = {
+      pageNum: pageNum,
+      pageSize: 100,
+      mapId: this.mapId
+    }
+    let err = null
+    try {
+      this.axiosSource = axios.CancelToken.source()
+      const res = await getMapDevices(params, this.axiosSource.token)
+      this.markerlist = this.markerlist.concat(res.devices)
+      this.pageTotal = res.totalPage
+    } catch (e) {
+      err = e
+      console.log(e)
+    } finally {
+      if ((err && err.code !== -2) || !err) {
         this.setMarkerList(this.markerlist)
         this.$emit('markerlistChange', this.markerlist)
-        console.log(this.markerlist.map(item => item.deviceId))
         if (pageNum + 1 <= this.pageTotal) {
-          this.mtime = setTimeout(() => {
-            this.getMapMarkers(pageNum + 1)
-          }, 30)
+          await this.getMapMarkers(pageNum + 1)
         }
       }
-    })
+    }
   }
 
   async setMap(map) {
@@ -109,6 +110,7 @@ export default class MapView extends Vue {
     this.addMapEvent()
     this.mapId = map.mapId
     this.markerlist = []
+    this.axiosSource && this.axiosSource.cancel()
     await this.getMapMarkers(1)
   }
 
