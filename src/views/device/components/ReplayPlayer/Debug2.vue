@@ -5,7 +5,8 @@
     <el-button @click="query" type="primary">query</el-button>
 
     <div v-for="channel in list">
-      <h2>{{ channel.channelName }} ({{ channel.deviceId }})</h2>
+      <h2 style="margin-top: 20px;">{{ channel.channelName }}</h2>
+      <h4 style="margin-top: 0;">(channelNum: {{ channel.channelNum }},  deviceId: {{ channel.deviceId }})</h4>
       <ul>
         <li v-for="miss in channel.missList">
           <span>缺失时长: {{ miss.time }}</span>
@@ -14,6 +15,7 @@
         </li>
       </ul>
       <div v-if="!channel.missList.length">无缺失</div>
+      <hr />
     </div>
   </div>
 </template>
@@ -31,6 +33,7 @@ export default class extends Vue {
   private list = []
 
   private async query() {
+    this.list = []
     const nvr = await getDevice({
       inProtocol: 'gb28181',
       deviceId: this.deviceId
@@ -39,6 +42,7 @@ export default class extends Vue {
       const channel = {
         deviceId: device.deviceId,
         channelName: device.channelName,
+        channelNum: device.channelNum,
         missList: []
       }
       const res = await getDeviceRecords({
