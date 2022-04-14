@@ -596,3 +596,13 @@
     margin: 0;
   }
 }
+
+// 创建设备更多选项隐藏展开
+.form-collapse {
+  max-height: 0px;
+  overflow: hidden;
+  transition: all .3s;
+}
+.form-expand {
+  max-height: 1000px;
+}
