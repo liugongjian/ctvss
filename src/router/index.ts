@@ -430,7 +430,7 @@ export const asyncRoutes: RouteConfig[] = [
   },
   {
     path: '/replay-debug2',
-    component: () => import(/* webpackChunkName: "debug" */ '@/views/device/components/ReplayPlayer/Debug2.vue'),
+    component: () => import(/* webpackChunkName: "debug" */ '@/views/device/components/ReplayPlayer/Debug3.vue'),
     name: 'replay-debug2',
     meta: {
       id: '20210424150201005000',
