@@ -94,6 +94,7 @@ export default class extends Vue {
     const spanDay = (this.endDate - this.startDate) / (24 * 60 * 60 * 1000)
     this.currentDate = this.startDate
     this.list = []
+    this.nvrStat.clear()
     const nvr = await getDevice({
       inProtocol: 'gb28181',
       deviceId: this.deviceId
