@@ -77,7 +77,7 @@
         fit
         class="template__table"
         @sort-change="sortChange"
-      > 
+      >
         <el-table-column
           key="create_time"
           column-key="create_time"
@@ -90,8 +90,8 @@
             {{ row.createTime }}
           </template>
         </el-table-column>
-        <el-table-column prop="policyName" label="策略名称" min-width="260"  show-overflow-tooltip />
-        <el-table-column prop="description" label="策略描述" min-width="260"  show-overflow-tooltip />
+        <el-table-column prop="policyName" label="策略名称" min-width="260" show-overflow-tooltip />
+        <el-table-column prop="description" label="策略描述" min-width="260" show-overflow-tooltip />
         <el-table-column prop="notifyChannel" label="推送方式" min-width="160">
           <template slot-scope="scope">
             {{ scope.row.notifyChannel === '1' ? '邮件推送' : '短信推送' }}
@@ -102,8 +102,8 @@
             {{ sourceMap[row.source] }}
           </template>
         </el-table-column>
-        <el-table-column prop="notifyContent" label="消息内容" min-width="260"  show-overflow-tooltip />
-        <el-table-column prop="notifyUserDetails" label="推送对象" min-width="260"  show-overflow-tooltip>
+        <el-table-column prop="notifyContent" label="消息内容" min-width="260" show-overflow-tooltip />
+        <el-table-column prop="notifyUserDetails" label="推送对象" min-width="260" show-overflow-tooltip>
           <template slot-scope="{row}">
             {{ row.notifyUserDetails && JSON.parse(row.notifyUserDetails).user }}
           </template>
@@ -196,14 +196,14 @@ export default class extends Vue {
       this.loading = true
       let params: any = this.searchForm
       if (!this.advancedFilterFlag) {
-        params.policyName = '',
-        params.description = '',
-        params.userGroup = '',
-        params.notifyChannel = '',
+        params.policyName = ''
+        params.description = ''
+        params.userGroup = ''
+        params.notifyChannel = ''
         // params.source = '3',
         params.notifyContent = ''
       }
-      params.pageNum = this.pager.pageNum,
+      params.pageNum = this.pager.pageNum
       params.pageSize = this.pager.pageSize
       const res = await getNotificationHistory(params)
       this.dataList = res.data
@@ -345,7 +345,6 @@ export default class extends Vue {
 
     & > .el-form-item {
       flex: 1 0 33.33%;
-      
       .el-select {
         width: 100%;
       }

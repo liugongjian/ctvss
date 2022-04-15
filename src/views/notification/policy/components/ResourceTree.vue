@@ -24,7 +24,7 @@
       <div class="device-wrap">
         <div class="device-wrap__header">已选资源({{ resourceList.length }})</div>
         <el-table ref="deviceTable" :data="resourceList" empty-text="暂无选择资源" fit>
-          <el-table-column key="label" prop="label" width="180" label="业务组/目录名称">
+          <el-table-column key="label" prop="label" label="业务组/目录名称">
             <template slot-scope="{row}">
               {{ row.label || '-' }}
             </template>
@@ -47,9 +47,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
-import { getNotificationPolicyInfo, createNotificationPolicy, editNotificationPolicy } from '@/api/notification'
 
 @Component({
   name: 'source-tree'
@@ -79,7 +77,6 @@ export default class extends Vue {
   private resourceListChange(resourceList) {
     this.$emit('resourceListChange', resourceList.map(item => item.id))
   }
-
 
   private async mounted() {
     await this.initDirs()
@@ -264,7 +261,6 @@ export default class extends Vue {
     })
     return dirPathName.join('/')
   }
-
 }
 </script>
 
