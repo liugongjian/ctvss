@@ -21,7 +21,9 @@
     </div>
 
     <div class="status">
-      <h2>缺失日期概览</h2>
+      <h2>概览</h2>
+      <h3>发现缺失片段总数: {{ total }}</h3>
+      <h3>缺失日期:</h3>
       <ul>
         <li v-for="val in nvrStat" :key="val">{{ dateFormat(val, 'yyyy-MM-dd') }}</li>
       </ul>
@@ -30,11 +32,12 @@
     <el-card>
       <div v-for="(channel, index) in list" :key="index" class="device">
         <h3 style="margin-top: 20px;">{{ channel.channelName }}  <span style="font-size: 14px; color: #999;">(channelNum: {{ channel.channelNum }} / deviceId: {{ channel.deviceId }})</span></h3>
+        <h4>发现通道下缺失片段总数: {{ channel.total }}</h4>
         <div v-for="(list, key) in channel.missList" :key="key" class="missing-date">
           <template v-if="list.length">
             <svg-icon name="dot" />
-            <span>日期：{{ dateFormat(parseInt(key), 'yyyy-MM-dd') }}</span>
-            <span style="margin: 0 15px;">缺失数量：{{ list.length }}</span>
+            <span>日期: {{ dateFormat(parseInt(key), 'yyyy-MM-dd') }}</span>
+            <span style="margin: 0 15px;">缺失数量: {{ list.length }}</span>
             <el-button type="text" @click="open(channel, key)">{{ openDetail[channel.deviceId + key] ? '隐藏详情' : '查看详情' }}</el-button>
             <table v-if="openDetail[channel.deviceId + key]" style="width: 100%;" border="1" cellspacing="0" cellpadding="0">
               <tr>
@@ -76,6 +79,7 @@ export default class extends Vue {
   }
   private openDetail = {}
   private nvrStat = new Set()
+  private total = 0
 
   private async query() {
     if (!this.startDate || !this.deviceId) {
@@ -108,7 +112,8 @@ export default class extends Vue {
         deviceId: device.deviceId,
         channelName: device.channelName,
         channelNum: device.channelNum,
-        missList: {}
+        missList: {},
+        total: 0
       }
       this.list.push(channel)
       for (let j = 0; j <= spanDay; j++) {
@@ -143,6 +148,8 @@ export default class extends Vue {
         })
         if (list.length) {
           this.nvrStat.add(this.currentDate)
+          channel.total += list.length
+          this.total += list.length
         }
         this.currentDate = this.currentDate + 24 * 60 * 60 * 1000
       }
