@@ -22,7 +22,7 @@
           <el-radio-group v-model="form.notifyChannel" disabled>
             <el-radio label="1">邮件推送</el-radio>
             <el-radio label="2">
-              短信推送 
+              短信推送
               <el-popover
                 placement="top-start"
                 width="400"
@@ -62,16 +62,15 @@
               </template>
               <template slot-scope="{row}">
                 <el-time-picker
-                  is-range
                   v-model="row.effectiveTime"
+                  is-range
                   range-separator="至"
                   start-placeholder="开始时间"
                   end-placeholder="结束时间"
                   placeholder="选择时间范围"
                   format="HH:mm"
                   @change="transformFormData"
-                >
-                </el-time-picker>
+                />
               </template>
             </el-table-column>
             <!-- <el-table-column label="操作" prop="action" class-name="col-action" width="110" fixed="right">
@@ -119,13 +118,13 @@
         </el-form-item>
         <el-form-item v-if="form.source !== '2'" label="生效资源：" prop="notifyResources">
           <resource-tree
-            :checkedList="form.notifyResources"
+            :checked-list="form.notifyResources"
             @resourceListChange="resourceListChange"
           />
         </el-form-item>
         <el-form-item label="推送对象：" prop="notifyDestinations">
           <destinations-tree
-            :checkedList="form.notifyDestinations"
+            :checked-list="form.notifyDestinations"
             @destinationListChange="destinationListChange"
           />
         </el-form-item>
@@ -140,9 +139,7 @@
         </el-form-item>
         <el-form-item>
           <el-row style="margin: 20px 0;">
-            <template>
-              <el-button :loading="uploadLoading" type="primary" class="confirm" @click="upload">确定</el-button>
-            </template>
+            <el-button :loading="uploadLoading" type="primary" class="confirm" @click="upload">确定</el-button>
           </el-row>
         </el-form-item>
       </el-form>
@@ -188,6 +185,7 @@ export default class extends Vue {
     notifyFreq: '30',
     source: '3',
     sourceRules: [],
+    // eslint-disable-next-line no-template-curly-in-string
     notifyTemplate: '尊敬的客户，您好！我是天翼云视频监控的小瞰，根据推送策略【${policyName}】，最新检测到AI告警${count}条，请登录平台查看',
     notifyResources: [],
     notifyDestinations: [],
@@ -364,7 +362,7 @@ export default class extends Vue {
       try {
         if (valid) {
           this.uploadLoading = true
-          let params: any= {}
+          let params: any = {}
           Object.assign(params, pick(this.form, ['name', 'description', 'notifyChannel', 'notifyFreq', 'source', 'notifyTemplate', 'active']))
           params.effectiveTime = JSON.stringify(this.form.effectiveTime)
           params.sourceRules = JSON.stringify(this.form.sourceRules)
@@ -415,11 +413,11 @@ export default class extends Vue {
   private resourceListChange(resourceList) {
     this.form.notifyResources = resourceList
   }
-  
+
   private destinationListChange(destinationList) {
     this.form.notifyDestinations = destinationList
   }
-  
+
   private back() {
     // this.$router.push(`/accessManage/policy`)
     this.$router.go(-1)

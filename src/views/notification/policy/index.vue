@@ -46,10 +46,8 @@
         </el-table-column>
         <el-table-column prop="action" class-name="col-action" label="操作" width="250" fixed="right">
           <template slot-scope="{row}">
-            <template>
-              <el-button v-if="row.active" type="text" @click="toggleStatus(parseInt(row.id), 0)">关闭</el-button>
-              <el-button v-else type="text" @click="toggleStatus(parseInt(row.id), 1)">开启</el-button>
-            </template>
+            <el-button v-if="row.active" type="text" @click="toggleStatus(parseInt(row.id), 0)">关闭</el-button>
+            <el-button v-else type="text" @click="toggleStatus(parseInt(row.id), 1)">开启</el-button>
             <el-button type="text" @click="update(row)">编辑策略</el-button>
             <el-button type="text" @click="deleteTemplate(row)">删除策略</el-button>
           </template>
@@ -209,5 +207,5 @@ body {
   ::v-deep .el-tooltip__popper {
     max-width: 300px;
   }
-} 
+}
 </style>
