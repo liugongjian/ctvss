@@ -10,7 +10,7 @@
           v-for="(screen, index) in screenList"
           :key="index"
           :screen="screen"
-          :index="index"
+          :item-index="index"
           :has-live-replay-selector="true"
           :has-close="!isSingle"
           :is-single="isSingle"

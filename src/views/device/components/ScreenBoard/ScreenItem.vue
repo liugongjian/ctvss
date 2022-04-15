@@ -1,7 +1,7 @@
 <template>
   <div
     class="screen-item"
-    :data-index="index"
+    :data-index="itemIndex"
     :class="{'screen-item--fullscreen': isFullscreen, 'screen-item--live': isLive, 'screen-item--replay': !isLive}"
     @click="click"
   >
@@ -57,7 +57,7 @@ export default class extends Vue {
   private screen
 
   @Prop()
-  private index
+  private itemIndex
 
   @Prop({
     default: true

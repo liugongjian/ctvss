@@ -109,31 +109,34 @@ export default class extends Mixins(ScreenMixin) {
     margin: 0;
     padding-top: 5px;
     text-align: center;
+
     ::v-deep {
       .el-radio-button__inner {
         padding: 7px 25px;
       }
     }
   }
+
   .device-list__calander {
     max-height: 1000px;
     transition: all 0.5s;
     overflow: hidden;
 
     &__hidden {
-      max-height: 0px;
+      max-height: 0;
     }
 
     .datepicker {
       height: 260px;
     }
   }
+
   .device-list__arrow {
     display: inline-block;
     text-align: center;
     width: 100%;
     background: #fff;
-    padding: 0 0 5px 0;
+    padding: 0 0 5px;
 
     &__active {
       svg {

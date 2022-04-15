@@ -89,8 +89,6 @@ export default class extends Vue {
   }
 
   private arrowMove(e: any) {
-    // e.stopPropagation()
-    // e.preventDefault()
     const index = e.target.id ? +e.target.id : null
     const currentInput = this.getInputDom(+e.target.id)
     const start = currentInput.start
@@ -100,14 +98,8 @@ export default class extends Vue {
       if (!nextInput) return
       this.$refs['' + index][0].blur()
       this.$refs['' + (index - 1)][0].focus()
-      // this.$nextTick(() => {
-      //   console.log(nextInput.input.value.length)
-      // })
       e.preventDefault()
       nextInput.input.setSelectionRange(nextInput.input.value.length, nextInput.input.value.length)
-      // setTimeout(function() {
-      //   nextInput.input.setSelectionRange(nextInput.input.value.length, nextInput.input.value.length)
-      // }, 0)
     }
     if (e.code === 'ArrowRight' && (+end === e.target.value.length)) {
       const nextInput: any = index < 5 ? this.getInputDom((index + 1)) : null
@@ -116,9 +108,6 @@ export default class extends Vue {
       this.$refs['' + (index + 1)][0].focus()
       e.preventDefault()
       nextInput.input.setSelectionRange(0, 0)
-    //   setTimeout(function() {
-    //     nextInput.input.setSelectionRange(0, 0)
-    //   }, 0)
     }
   }
 
