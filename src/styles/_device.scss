@@ -632,3 +632,8 @@
     margin: 0;
   }
 }
+
+script + .el-tooltip__popper {
+  max-width: 300px;
+  word-break: break-all;
+}
