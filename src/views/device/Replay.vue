@@ -28,7 +28,7 @@
                 <div class="device-list__replay-type">
                   <ReplayType :screen="currentScreen" @change="onReplayTypeChange" />
                 </div>
-                <DatePicker v-if="recordStatistic || screenManager.isSync" :screen="currentScreen" :inline="true" @change="onDateChange" />
+                <DatePicker :screen="currentScreen" :inline="true" @change="onDateChange" />
               </div>
               <el-button class="device-list__arrow" :class="{'device-list__arrow__active': isCollapse}" type="text" @click="isCollapse = !isCollapse">
                 <svg-icon name="arrow-down" />
@@ -68,10 +68,6 @@ export default class extends Mixins(ScreenMixin) {
 
   private get recordManager() {
     return this.currentScreen && this.currentScreen.recordManager
-  }
-
-  private get recordStatistic() {
-    return this.recordManager && this.recordManager.recordStatistic
   }
 
   private get showRecordTool() {
