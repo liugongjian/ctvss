@@ -1,6 +1,7 @@
 <template>
   <div
     class="screen-item"
+    :data-index="index"
     :class="{'screen-item--fullscreen': isFullscreen, 'screen-item--live': isLive, 'screen-item--replay': !isLive}"
     @click="click"
   >
@@ -54,6 +55,9 @@ import DeviceDir from '../dialogs/DeviceDir.vue'
 export default class extends Vue {
   @Prop()
   private screen
+
+  @Prop()
+  private index
 
   @Prop({
     default: true

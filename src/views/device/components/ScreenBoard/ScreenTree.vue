@@ -67,7 +67,7 @@
           :class="{'online': data.deviceStatus === 'on', 'offline': (data.deviceStatus !== 'on' && data.type === 'ipc')}"
           @contextmenu="($event, node)"
         >
-          <span class="node-name">
+          <span v-drop-screen="node" class="node-name">
             <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
             <span v-else class="node-dir">
               <svg-icon name="dir" width="15" height="15" />
@@ -213,6 +213,7 @@ import StreamSelector from '@/views/device/components/StreamSelector.vue'
 import OperateSelector from '@/views/device/components/OperateSelector.vue'
 import AdvancedSearch from '@/views/device/components/AdvancedSearch.vue'
 import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
+import { dropScreen } from './directives/dropScreen'
 
 @Component({
   name: 'ScreenTree',
@@ -221,6 +222,9 @@ import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
     StreamSelector,
     OperateSelector,
     AdvancedSearch
+  },
+  directives: {
+    'drop-screen': dropScreen
   }
 })
 export default class extends Mixins(IndexMixin) {
@@ -500,6 +504,7 @@ export default class extends Mixins(IndexMixin) {
 
 .dir-list {
   position: relative;
+  user-select: none;
 
   .playing {
     color: $success;
