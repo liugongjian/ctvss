@@ -99,6 +99,7 @@ export default class extends Vue {
     this.currentDate = this.startDate
     this.list = []
     this.nvrStat.clear()
+    this.total = 0
     const nvr = await getDevice({
       inProtocol: 'gb28181',
       deviceId: this.deviceId
