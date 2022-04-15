@@ -62,12 +62,13 @@
         @node-click="openScreen"
       >
         <span
+          v-drop-screen="{node, isLive}"
           slot-scope="{node, data}"
           class="custom-tree-node"
           :class="{'online': data.deviceStatus === 'on', 'offline': (data.deviceStatus !== 'on' && data.type === 'ipc')}"
           @contextmenu="($event, node)"
         >
-          <span v-drop-screen="node" class="node-name">
+          <span class="node-name">
             <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
             <span v-else class="node-dir">
               <svg-icon name="dir" width="15" height="15" />
@@ -105,6 +106,7 @@
         @node-click="openScreen"
       >
         <span
+          v-drop-screen="{node, isLive}"
           slot-scope="{node, data}"
           class="custom-tree-node"
           :class="{'online': data.deviceStatus === 'on', 'offline': (data.deviceStatus !== 'on' && data.type === 'ipc')}"
