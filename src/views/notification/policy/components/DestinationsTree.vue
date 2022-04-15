@@ -13,7 +13,7 @@
           :default-checked-keys="checkedList"
           @check-change="onCheckDevice"
         >
-          <span slot-scope="{node, data}" class="custom-tree-node" :class="`custom-tree-node__${data.type}`">
+          <span slot-scope="{data}" class="custom-tree-node" :class="`custom-tree-node__${data.type}`">
             <span class="node-name">
               {{ data.label }}
             </span>
@@ -23,7 +23,7 @@
       <div class="device-wrap">
         <div class="device-wrap__header">已选对象({{ destinationList.length }})</div>
         <el-table ref="deviceTable" :data="destinationList" empty-text="暂无选择资源" fit>
-          <el-table-column key="label" prop="label" width="180" label="业务组/目录名称">
+          <el-table-column key="label" prop="label" label="用户组/目录名称">
             <template slot-scope="{row}">
               {{ row.label || '-' }}
             </template>
@@ -46,7 +46,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { getGroupList, getUserList, deleteUser } from '@/api/accessManage'
+import { getGroupList } from '@/api/accessManage'
 
 @Component({
   name: 'source-tree'
@@ -76,7 +76,6 @@ export default class extends Vue {
   private destinationListChange(destinationList) {
     this.$emit('destinationListChange', destinationList.map(item => item.id))
   }
-
 
   private async mounted() {
     await this.initDirs()
@@ -209,7 +208,7 @@ export default class extends Vue {
   private removeDevice(group: any) {
     const dirTree: any = this.$refs.dirTree
     console.log(group)
-    const childNodes: any = dirTree.getNode(group.id).childNodes
+    // const childNodes: any = dirTree.getNode(group.id).childNodes
     dirTree.setChecked(group.id, false)
     // while (childNodes.length) {
     //   childNodes.forEach(node => {
@@ -228,7 +227,6 @@ export default class extends Vue {
     })
     return dirPathName.join('/')
   }
-
 }
 </script>
 
