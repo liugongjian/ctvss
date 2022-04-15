@@ -345,7 +345,7 @@ export default class extends Vue {
    * */
   private closeTimeEditer(e: any) {
     let target = e.target
-    while(target) {
+    while (target) {
       if (target.className.startsWith('time-editer')) {
         return
       }
@@ -356,7 +356,6 @@ export default class extends Vue {
     } else {
       this.unfocusValidateFail()
     }
-    
   }
 }
 </script>
