@@ -89,6 +89,7 @@ export default class extends Vue {
   }
 
   private arrowMove(e: any) {
+    e.stopPropagation()
     const index = e.target.id ? +e.target.id : null
     const currentInput = this.getInputDom(+e.target.id)
     const start = currentInput.start
