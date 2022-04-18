@@ -326,7 +326,7 @@ export default class extends Mixins(IndexMixin) {
   private curMap = null
   private curMapInfo = null
   private curMarkInfo = null
-  private overView = true
+  private overView = false
   private showMarkers = true
   private is3D = true
   private marker = null
