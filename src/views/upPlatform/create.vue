@@ -242,8 +242,7 @@ export default class extends Vue {
     ],
     cascadeNetWork: [
       { required: true, message: '请选择网络类型', trigger: 'change' }
-    ],
-    
+    ]
   }
 
   private get isUpdate() {

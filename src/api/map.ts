@@ -53,14 +53,15 @@ export const modifyMap = (params: any): Promise<any> =>
 /**
  * 查询地图标识（设备）
  */
-export const getMapDevices = (params: any): Promise<any> =>
+export const getMapDevices = (params: any, cancelToken: any): Promise<any> =>
   request({
     url: '/map/DescribeMapMarkers',
     method: 'get',
     params: {
       ...params,
       type: 'device'
-    }
+    },
+    cancelToken
   })
 
 /**

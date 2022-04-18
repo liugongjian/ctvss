@@ -7,7 +7,7 @@ export const getRule = (msg) => {
              msg === '临停时间' || msg === '拥堵车辆阈值' ||
              msg === '人员数量阈值' || msg === '脱岗超时时间' ||
              msg === '睡岗超时时间' || msg === '临停时间' ||
-             msg === '拥堵车辆阈值') {
+             msg === '拥堵车辆阈值' || msg === '徘徊时间') {
     rule.push({ required: true, message: '不能为空', trigger: 'blur' })
     rule.push({
       validator: (rule, value, callback) => {

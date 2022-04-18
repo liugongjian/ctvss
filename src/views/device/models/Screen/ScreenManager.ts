@@ -123,12 +123,12 @@ export class ScreenManager {
    * @param item 树Item
    * @param streamNum 第几路流
    */
-  public async openTreeItem(item: any, streamNum?: number) {
+  public async openTreeItem(item: any, streamNum?: number, index?: number) {
     // 1）必须是IPC；2）实时预览必须设备在线
     if (item.type !== 'ipc' || (this.isLive && item.deviceStatus !== 'on')) {
       return
     }
-    this.currentIndex = this.findRightIndex()
+    this.currentIndex = index || this.findRightIndex()
     const screen = this.screenList[this.currentIndex]
     // 如果当前分屏已有播放器，先执行销毁操作
     if (screen.deviceId) {
