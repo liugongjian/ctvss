@@ -38,23 +38,54 @@
               :check-strictly="false"
             >
               <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}" @click="deviceClick(data)">
+                <!-- <template v-if="data.isLeaf">
+                  <draggable
+                    @unchoose="(e) => {
+                      nodeNameUnchoose(e,data)
+                    }"
+                    @start="startDragNodeName"
+                  >
+                    <transition-group>
+                      <span :key="data.id" class="node-name" :class="data.isLeaf ? 'node-name-move' : '' ">
+                        <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
+                        <svg-icon :name="data.type" />
+                        {{ node.label }}
+                        <svg-icon v-if="mapDeviceIds.indexOf(data.id) >= 0" name="mark" />
+                        <span class="sum-icon">{{ getSums(data) }}</span>
+                      </span>
+                    </transition-group>
+                  </draggable>
+                </template>
+                <template v-else>
+                  <span class="node-name">
+                    <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
+                    <svg-icon :name="data.type" />
+                    {{ node.label }}
+                    <svg-icon v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0" name="mark" />
+                    <span class="sum-icon">{{ getSums(data) }}</span>
+                  </span>
+                </template> -->
                 <span class="node-name">
                   <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                   <svg-icon :name="data.type" />
                   {{ node.label }}
                   <svg-icon v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0" name="mark" />
-                  <span class="sum-icon">{{ getSums(data) }}</span>
+                  <span class="sum-icon">{{ getNumbers(node,data) }}</span>
                 </span>
-                <span
-                  v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) < 0"
-                  class="node-option"
-                  @click.stop="addMarker(data)"
-                >+</span>
-                <span
-                  v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0"
-                  class="node-option"
-                  @click.stop="deleteMarker(data)"
-                >-</span>
+                <el-tooltip content="添加该点位至地图" placement="top">
+                  <span
+                    v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) < 0"
+                    class="node-option"
+                    @click.stop.prevent="addMarker(data)"
+                  >+</span>
+                </el-tooltip>
+                <el-tooltip content="将该点位从地图中移除" placement="top">
+                  <span
+                    v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0"
+                    class="node-option"
+                    @click.stop.prevent="deleteMarker(data)"
+                  >-</span>
+                </el-tooltip>
               </span>
             </el-tree>
           </div>
@@ -73,9 +104,9 @@
               <el-tooltip :content="is3D ? '关闭2.5D视图' : '显示2.5D视图'" placement="top">
                 <span class="tools-item"><svg-icon name="3d" :class="curMap && is3D?'active':''" @click="toggleMap3D()" /></span>
               </el-tooltip>
-<!--              <el-tooltip :content="showMarkers ? '隐藏监控点位' : '显示监控点位'" placement="top">-->
-<!--                <span class="tools-item"><svg-icon name="mark" :class="curMap && showMarkers?'active':''" @click="toggleMarkersShow()" /></span>-->
-<!--              </el-tooltip>-->
+              <!--              <el-tooltip :content="showMarkers ? '隐藏监控点位' : '显示监控点位'" placement="top">-->
+              <!--                <span class="tools-item"><svg-icon name="mark" :class="curMap && showMarkers?'active':''" @click="toggleMarkersShow()" /></span>-->
+              <!--              </el-tooltip>-->
               <!-- <span class="tools-item"><svg-icon name="close-all" /></span> -->
               <!-- <span class="tools-item"><svg-icon name="magnifier" /></span> -->
               <!-- <span class="tools-item tools-item__cup">|</span>
@@ -146,6 +177,7 @@
               <el-button @click="cancelAddMark()">取消</el-button>
             </el-dialog>
             <div :class="['mapwrap', hideTitle?'hide-title':'']">
+              <!-- ifMapDisabled -->
               <map-view
                 v-if="mapList.length > 0 && curMap"
                 ref="mapview"
@@ -192,6 +224,7 @@ import SelectedPoint from './components/SelectedPoint.vue'
 import MapInfo from './components/MapInfo.vue'
 import { getMaps, createMap, deleteMap, modifyMap } from '@/api/map'
 import { mapObject } from '@/views/map/models/vmap'
+// import draggable from 'vuedraggable'
 
 @Component({
   name: 'Map',
@@ -201,6 +234,7 @@ import { mapObject } from '@/views/map/models/vmap'
     MapInfo,
     PointInfo,
     SelectedPoint
+    // draggable
   }
 })
 export default class extends Mixins(IndexMixin) {
@@ -255,7 +289,7 @@ export default class extends Mixins(IndexMixin) {
       5: '1:200km',
       4: '1:500km',
       3: '1:1000km',
-      2: '1:1000km',
+      2: '1:1000km'
     }
     return map[this.form.zoom]
   }
@@ -272,6 +306,7 @@ export default class extends Mixins(IndexMixin) {
       { validator: this.validatelat, trigger: 'blur' }
     ]
   }
+  private ifMapDisabled = false
 
   private validatelng(rule: any, value: string, callback: Function) {
     const val = Number(value)
@@ -357,6 +392,7 @@ export default class extends Mixins(IndexMixin) {
           inProtocol: group.inProtocol,
           type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
           disabled: false,
+          groupStats: group.groupStats,
           path: [{
             id: group.groupId,
             label: group.groupName,
@@ -480,6 +516,34 @@ export default class extends Mixins(IndexMixin) {
       const node = dirTree.getNode(data.id)
       dirTree.setChecked(data.id, !node.checked)
     }
+  }
+
+  /**
+   *  设备数 点位开始拖拽事件
+  */
+  private startDragNodeName(e: Event) {
+    this.ifMapDisabled = true
+    console.log(e)
+  }
+
+  /**
+   * 设备数拖拽后松开鼠标事件
+  */
+  private nodeNameUnchoose(e: Event, item: any) {
+    console.log(e)
+    console.log(item)
+  }
+
+  /**
+   * 获取设备数 设备数量
+   */
+  private getNumbers(node: any, data: any) {
+    // console.log('node=-=>', node)
+    console.log('data--->', data.groupStats)
+    if (node.level === 1) {
+      return ` (${data.groupStats.onlineIpcSize}/${data.groupStats.deviceSize})`
+    }
+    return this.getSums(data)
   }
 
   /**
@@ -1006,10 +1070,13 @@ export default class extends Mixins(IndexMixin) {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  .node-option{
+  .node-option {
     padding: 2px;
     font-size: 18px;
     font-weight: bolder;
+  }
+  .node-name-move{
+    cursor: move;
   }
 }
 .dialog-text {
