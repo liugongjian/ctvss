@@ -5,19 +5,25 @@
       v-model="startDate"
       value-format="timestamp"
       type="date"
+      style="width: 160px;"
     />
     结束日期: <el-date-picker
       v-model="endDate"
       value-format="timestamp"
       type="date"
+      style="width: 160px;"
     />
-    设备ID: <el-input v-model="deviceId" style="width: 200px;margin-right: 10px;" />
+    设备ID <el-tooltip content="支持输入NVR或通道的DeviceId"><svg-icon name="help" /></el-tooltip>: <el-input v-model="deviceId" style="width: 180px;" />
+    忽略时长 <el-tooltip content="忽略指定秒内的缺失录像"><svg-icon name="help" /></el-tooltip>:
+    <el-input v-model.number="ignoreTime" style="width: 80px;margin-right: 10px;" />
     <el-button type="primary" :loading="loading" @click="query">查询</el-button>
 
     <div class="logs">
       <h2>查询进度</h2>
+      <p v-if="log.currentNum"><el-progress :text-inside="true" :stroke-width="24" :percentage="Math.floor(log.taskIndex / log.taskSize * 100)" status="success" /></p>
       <p>通道：{{ log.currentNum }} / {{ log.size }}</p>
       <p>当前查询日期：{{ dateFormat(currentDate, 'yyyy-MM-dd') }}</p>
+      <p>任务进度：{{ log.taskIndex }} / {{ log.taskSize }}</p>
     </div>
 
     <div class="status">
@@ -41,12 +47,14 @@
             <el-button type="text" @click="open(channel, key)">{{ openDetail[channel.deviceId + key] ? '隐藏详情' : '查看详情' }}</el-button>
             <table v-if="openDetail[channel.deviceId + key]" style="width: 100%;" border="1" cellspacing="0" cellpadding="0">
               <tr>
+                <th>缺失时长(秒)</th>
                 <th>缺失时长</th>
                 <th>开始时间</th>
                 <th>结束时间</th>
               </tr>
               <tr v-for="(item, index) in list" :key="index">
                 <td>{{ item.time }} s</td>
+                <td>{{ durationFormat(item.time) }}</td>
                 <td>{{ item.start }}</td>
                 <td>{{ item.end }}</td>
               </tr>
@@ -60,22 +68,26 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { getDeviceRecords, getDevice } from '@/api/device'
-import { getTimestamp, dateFormat, getDateByTime } from '@/utils/date'
+import { getTimestamp, dateFormat, getDateByTime, durationFormat } from '@/utils/date'
 
 @Component({
   name: 'PlayerDebug'
 })
 export default class extends Vue {
   private dateFormat = dateFormat
+  private durationFormat = durationFormat
   private startDate = getDateByTime(new Date().getTime())
   private endDate = getDateByTime(new Date().getTime())
   private currentDate = null
   private deviceId = ''
+  private ignoreTime = 0
   private list = []
   private loading = false
   private log = {
     currentNum: 0,
-    size: 0
+    size: 0,
+    taskSize: 0,
+    taskIndex: 0
   }
   private openDetail = {}
   private nvrStat = new Set()
@@ -105,6 +117,7 @@ export default class extends Vue {
       deviceId: this.deviceId
     })
     this.log.size = nvr.deviceChannels.length
+    this.log.taskSize = this.log.size * (spanDay + 1)
     for (let i = 0; i < nvr.deviceChannels.length; i++) {
       this.currentDate = this.startDate
       this.log.currentNum = i + 1
@@ -138,7 +151,7 @@ export default class extends Vue {
           const currentEnd = getTimestamp(record.endTime)
           if (index + 1 < res.records.length) {
             const nextStart = getTimestamp(res.records[index + 1]['startTime'])
-            if ((nextStart - currentEnd) > 0) {
+            if (((nextStart - currentEnd) / 1000) > this.ignoreTime) {
               list.push({
                 time: (nextStart - currentEnd) / 1000,
                 start: dateFormat(new Date(currentEnd)),
@@ -153,6 +166,7 @@ export default class extends Vue {
           this.total += list.length
         }
         this.currentDate = this.currentDate + 24 * 60 * 60 * 1000
+        this.log.taskIndex++
       }
     }
   }
