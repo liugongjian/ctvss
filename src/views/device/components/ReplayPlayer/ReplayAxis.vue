@@ -123,6 +123,8 @@ export default class extends Vue {
   private timeout = null
   /* 是否编辑时间轴时间 */
   private editTime = false
+  /* 是否是跳转时间触发的时间改变 */
+  private skip = false
 
   /* 当前分屏的录像管理器 */
   private get recordManager() {
@@ -142,7 +144,7 @@ export default class extends Vue {
     if (new Date().getTime() - this.lastUpdateTime < 1000) return
     if (this.screen && this.screen.player) {
       const recordCurrentTime = this.screen.player.currentTime
-      if (this.screen.recordType === 0 && this.recordManager.currentRecord) {
+      if (!this.skip && this.screen.recordType === 0 && this.recordManager.currentRecord) {
         const offsetTime = this.recordManager.currentRecord.offsetTime || 0
         const duration = offsetTime > recordCurrentTime ? offsetTime : recordCurrentTime
         this.currentTime = this.recordManager.currentRecord.startTime + duration
@@ -586,11 +588,13 @@ export default class extends Vue {
 
   // 关闭时间编辑器
   private onCloseTimeEditer() {
+    this.skip = false
     this.editTime = false
   }
 
   /* 当时间编辑器的时间改变 */
   private onTimeEditerChange(time: number) {
+    this.skip = true
     this.$emit('change', time)
     this.currentTime = time
     this.generateData()
