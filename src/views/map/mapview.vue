@@ -1,5 +1,6 @@
 <template>
   <div id="mapContainer">
+    <!-- <draggable> -->
     <div class="search-wrap">
       <el-input id="map-tip-input" v-model="mapTip" placeholder="请输入关键字" />
     </div>
@@ -15,6 +16,7 @@
         :has-axis="true"
       />
     </div>
+    <!-- </draggable> -->
   </div>
 </template>
 <script lang="ts">
@@ -24,12 +26,14 @@ import { getMapDevices, updateMarkers, addMarkers, deleteMarkers } from '@/api/m
 import { Screen } from '@/views/device/models/Screen/Screen'
 import LivePlayer from '@/views/device/components/LivePlayer.vue'
 import ReplayView from '@/views/device/components/ReplayPlayer/index.vue'
+// import draggable from 'vuedraggable'
 
 @Component({
   name: 'MapView',
   components: {
     LivePlayer,
     ReplayView
+    // draggable
   }
 })
 export default class MapView extends Vue {

@@ -38,6 +38,33 @@
               :check-strictly="false"
             >
               <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}" @click="deviceClick(data)">
+                <!-- <template v-if="data.isLeaf">
+                  <draggable
+                    @unchoose="(e) => {
+                      nodeNameUnchoose(e,data)
+                    }"
+                    @start="startDragNodeName"
+                  >
+                    <transition-group>
+                      <span :key="data.id" class="node-name" :class="data.isLeaf ? 'node-name-move' : '' ">
+                        <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
+                        <svg-icon :name="data.type" />
+                        {{ node.label }}
+                        <svg-icon v-if="mapDeviceIds.indexOf(data.id) >= 0" name="mark" />
+                        <span class="sum-icon">{{ getSums(data) }}</span>
+                      </span>
+                    </transition-group>
+                  </draggable>
+                </template>
+                <template v-else>
+                  <span class="node-name">
+                    <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
+                    <svg-icon :name="data.type" />
+                    {{ node.label }}
+                    <svg-icon v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0" name="mark" />
+                    <span class="sum-icon">{{ getSums(data) }}</span>
+                  </span>
+                </template> -->
                 <span class="node-name">
                   <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                   <svg-icon :name="data.type" />
@@ -45,6 +72,17 @@
                   <svg-icon v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0" name="mark" />
                   <span class="sum-icon">{{ getSums(data) }}</span>
                 </span>
+                <span
+                  v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) < 0"
+                  class="node-option"
+                  @click.stop="addMarker(data)"
+                >+</span>
+                <span
+                  v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0"
+                  class="node-option"
+                  @click.stop="deleteMarker(data)"
+                >-</span>
+
                 <span
                   v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) < 0"
                   class="node-option"
@@ -138,6 +176,7 @@
               <el-button @click="cancelAddMark()">取消</el-button>
             </el-dialog>
             <div :class="['mapwrap', hideTitle?'hide-title':'']">
+              <!-- ifMapDisabled -->
               <map-view
                 v-if="mapList.length > 0 && curMap"
                 ref="mapview"
@@ -184,6 +223,7 @@ import SelectedPoint from './components/SelectedPoint.vue'
 import MapInfo from './components/MapInfo.vue'
 import { getMaps, createMap, deleteMap, modifyMap } from '@/api/map'
 import { mapObject } from '@/views/map/models/vmap'
+// import draggable from 'vuedraggable'
 
 @Component({
   name: 'Map',
@@ -193,6 +233,7 @@ import { mapObject } from '@/views/map/models/vmap'
     MapInfo,
     PointInfo,
     SelectedPoint
+    // draggable
   }
 })
 export default class extends Mixins(IndexMixin) {
@@ -240,6 +281,7 @@ export default class extends Mixins(IndexMixin) {
       { validator: this.validatelat, trigger: 'blur' }
     ]
   }
+  private ifMapDisabled = false
 
   private validatelng(rule: any, value: string, callback: Function) {
     const val = Number(value)
@@ -448,6 +490,21 @@ export default class extends Mixins(IndexMixin) {
       const node = dirTree.getNode(data.id)
       dirTree.setChecked(data.id, !node.checked)
     }
+  }
+
+  /**
+   *  设备数 点位开始拖拽事件
+  */
+  private startDragNodeName(e: Event) {
+    this.ifMapDisabled = true
+  }
+
+  /**
+   * 设备数拖拽后松开鼠标事件
+  */
+  private nodeNameUnchoose(e: Event, item: any) {
+    console.log(e)
+    console.log(item)
   }
 
   /**
@@ -963,10 +1020,13 @@ export default class extends Mixins(IndexMixin) {
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  .node-option{
+  .node-option {
     padding: 2px;
     font-size: 18px;
     font-weight: bolder;
+  }
+  .node-name-move{
+    cursor: move;
   }
 }
 .dialog-text {
