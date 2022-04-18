@@ -38,7 +38,6 @@ function onMouseUp(e) {
     target = target.parentElement
   }
   if (target) {
-    console.log(target.dataset.index)
     drag.context.screenManager.openTreeItem(drag.node.data, null, parseInt(target.dataset.index))
   }
   drag.cloneElm.remove()

@@ -64,7 +64,14 @@ export default class extends Vue {
   @Watch('currentDate', {
     immediate: true
   })
-  private onCurrentDateChange() {
+  private onCurrentDateChange(newVal: any, oldVal: any) {
+    const newMonth = new Date(new Date(newVal)).getMonth()
+    const newYear = new Date(new Date(newVal)).getUTCFullYear()
+    const oldMonth = new Date(new Date(oldVal)).getMonth()
+    const oldYear = new Date(new Date(oldVal)).getUTCFullYear()
+    if (newMonth !== oldMonth || newYear !== oldYear) {
+      this.recordManager.getRecordStatistic()
+    }
     this.date = this.currentDate || new Date().getTime()
   }
 
