@@ -128,7 +128,7 @@ export class ScreenManager {
     if (item.type !== 'ipc' || (this.isLive && item.deviceStatus !== 'on')) {
       return
     }
-    this.currentIndex = index || this.findRightIndex()
+    this.currentIndex = !isNaN(index) ? index : this.findRightIndex()
     const screen = this.screenList[this.currentIndex]
     // 如果当前分屏已有播放器，先执行销毁操作
     if (screen.deviceId) {
