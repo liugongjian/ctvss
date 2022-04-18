@@ -73,9 +73,9 @@
               <el-tooltip :content="is3D ? '关闭2.5D视图' : '显示2.5D视图'" placement="top">
                 <span class="tools-item"><svg-icon name="3d" :class="curMap && is3D?'active':''" @click="toggleMap3D()" /></span>
               </el-tooltip>
-              <el-tooltip :content="showMarkers ? '隐藏监控点位' : '显示监控点位'" placement="top">
-                <span class="tools-item"><svg-icon name="mark" :class="curMap && showMarkers?'active':''" @click="toggleMarkersShow()" /></span>
-              </el-tooltip>
+<!--              <el-tooltip :content="showMarkers ? '隐藏监控点位' : '显示监控点位'" placement="top">-->
+<!--                <span class="tools-item"><svg-icon name="mark" :class="curMap && showMarkers?'active':''" @click="toggleMarkersShow()" /></span>-->
+<!--              </el-tooltip>-->
               <!-- <span class="tools-item"><svg-icon name="close-all" /></span> -->
               <!-- <span class="tools-item"><svg-icon name="magnifier" /></span> -->
               <!-- <span class="tools-item tools-item__cup">|</span>
