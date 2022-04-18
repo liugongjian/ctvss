@@ -308,32 +308,6 @@ export const asyncRoutes: RouteConfig[] = [
       }
     ]
   },
-  {
-    path: '/map',
-    component: Layout,
-    meta: {
-      id: '20210424150201004000',
-      title: '电子地图',
-      icon: 'mark',
-      perms: ['DescribeMap'],
-      alwaysShow: false,
-      only: true,
-      groupSelector: false
-    },
-    children: [
-      {
-        path: '',
-        component: () => import(/* webpackChunkName: "map" */ '@/views/map/index.vue'),
-        name: 'map',
-        meta: {
-          id: '20210424150201004001',
-          title: '电子地图',
-          icon: 'mark',
-          breadcrumb: false,
-          perms: ['DescribeMap']
-        }
-      }]
-  },
   // {
   //   path: '/stream',
   //   component: Layout,
@@ -455,6 +429,19 @@ export const asyncRoutes: RouteConfig[] = [
     }
   },
   {
+    path: '/replay-debug2',
+    component: () => import(/* webpackChunkName: "debug" */ '@/views/device/components/ReplayPlayer/Debug3.vue'),
+    name: 'replay-debug2',
+    meta: {
+      id: '20210424150201005000',
+      title: '录像调试',
+      icon: 'stream',
+      hidden: true,
+      perms: ['*'],
+      activeMenu: '/device'
+    }
+  },
+  {
     path: '/replay',
     component: Layout,
     meta: {
@@ -483,6 +470,32 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
 
+  {
+    path: '/map',
+    component: Layout,
+    meta: {
+      id: '20210424150201004000',
+      title: '电子地图',
+      icon: 'mark',
+      perms: ['DescribeMap'],
+      alwaysShow: false,
+      only: true,
+      groupSelector: false
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "map" */ '@/views/map/index.vue'),
+        name: 'map',
+        meta: {
+          id: '20210424150201004001',
+          title: '电子地图',
+          icon: 'mark',
+          breadcrumb: false,
+          perms: ['DescribeMap']
+        }
+      }]
+  },
   {
     path: '/up-platform',
     component: Layout,
@@ -1079,6 +1092,73 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dot',
           breadcrumb: true,
           activeMenu: '/accessManage/secretManage',
+          perms: ['*']
+        }
+      }
+    ]
+  },
+  {
+    path: '/notification',
+    component: Layout,
+    redirect: 'noredirect',
+    meta: {
+      id: '20220325143201014000',
+      title: '消息推送',
+      icon: 'notify',
+      alwaysShow: true,
+      breadcrumb: true,
+      perms: ['*']
+    },
+    children: [
+      {
+        path: 'history',
+        component: () => import(/* webpackChunkName: "notification" */ '@/views/notification/history/index.vue'),
+        name: 'notification-history',
+        meta: {
+          id: '20220325143201014001',
+          title: '推送历史',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/notification/history',
+          perms: ['*']
+        }
+      },
+      {
+        path: 'policy',
+        component: () => import(/* webpackChunkName: "notification" */ '@/views/notification/policy/index.vue'),
+        name: 'notification-policy',
+        meta: {
+          id: '20220325143201014002',
+          title: '推送策略',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/notification/policy',
+          perms: ['*']
+        }
+      },
+      {
+        path: 'policy/create',
+        component: () => import(/* webpackChunkName: "notification" */ '@/views/notification/policy/createOrUpdate.vue'),
+        name: 'notification-policy-create',
+        meta: {
+          id: '20210424150201011003',
+          title: '创建推送策略',
+          icon: 'dot',
+          hidden: true,
+          activeMenu: '/notification/policy',
+          perms: ['*']
+        }
+      },
+      {
+        path: 'policy/edit/:id?',
+        component: () => import(/* webpackChunkName: "notification" */ '@/views/notification/policy/createOrUpdate.vue'),
+        name: 'notification-policy-edit',
+        meta: {
+          id: '20210424150201011004',
+          title: '编辑推送策略',
+          icon: 'dot',
+          hidden: true,
+          activeMenu: '/notification/policy',
           perms: ['*']
         }
       }

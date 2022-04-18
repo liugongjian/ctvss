@@ -6,9 +6,13 @@ import { VGroupModule } from '@/store/modules/vgroup'
 import { getLocalStorage } from '@/utils/storage'
 import settings from '@/settings'
 
-class VSSError extends Error {
-  constructor(public code: string, message: string) {
+export class VSSError extends Error {
+  public code
+  public requestId
+  constructor(code: string, message: string, requestId: string) {
     super(message)
+    this.code = code
+    this.requestId = requestId
   }
 }
 
@@ -46,7 +50,14 @@ service.interceptors.response.use(
     return responseHandler(response)
   },
   (error) => {
-    console.dir(error)
+    if (axios.isCancel(error)) {
+      error.response = {
+        data: {
+          code: -2,
+          message: 'Canceled'
+        }
+      }
+    }
     return responseHandler(error.response)
   }
 )
@@ -79,10 +90,11 @@ function responseHandler(response: any) {
       })
     }
     const data = response && response.data
+    const requestId = data && data.requestId
     const code = data && data.code ? data.code : '-1'
     let message = data && data.message ? data.message : '服务器异常，请稍后再试。'
     console.log('code: ', code, ' message: ', message)
-    return Promise.reject(new VSSError(code, message))
+    return Promise.reject(new VSSError(code, message, requestId))
   }
 }
 

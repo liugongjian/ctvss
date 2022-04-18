@@ -133,7 +133,7 @@ class Permission extends VuexModule implements IPermissionState {
   }
 
   @Action
-  public GenerateRoutes(params : {perms: string[], iamUserId: string }) {
+  public GenerateRoutes(params: { perms: string[], iamUserId: string }) {
     let accessedRoutes
     let filteredRoutes = asyncRoutes
     if (params.iamUserId) {

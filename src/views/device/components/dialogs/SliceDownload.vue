@@ -18,7 +18,7 @@
       label-width="100px"
     >
       <el-form-item label="日期:" prop="date">
-        <Datepicker class="form-date" :screen="screen" size="small" />
+        <Datepicker class="form-date" :screen="screen" size="small" @change="onDateChange" />
       </el-form-item>
       <el-form-item label="时间区间:" prop="endTime" class="time-range">
         <vue-timepicker
@@ -155,11 +155,18 @@ export default class extends Vue {
 
   private mounted() {
     this.$nextTick(() => {
+      if (this.screen.recordManager && this.screen.recordManager.currentDate) {
+        this.form.date = new Date(this.screen.recordManager.currentDate * 1000)
+      }
       const $timeline: any = this.$refs.timeline
       this.timelineSize = $timeline.getBoundingClientRect()
       this.handleList[0].$handle = $timeline.querySelector('#handle-0')
       this.handleList[1].$handle = $timeline.querySelector('#handle-1')
     })
+  }
+
+  private onDateChange(date) {
+    this.form.date = new Date(date * 1000)
   }
 
   private renderHour(i: number) {

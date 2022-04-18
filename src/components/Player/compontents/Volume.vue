@@ -4,7 +4,7 @@
     placement="top"
     trigger="hover"
     popper-class="player__popover"
-    :disabled="isMuted || isH265"
+    :disabled="!hasAudio || isMuted || isH265"
     @after-enter="enterPopover"
     @after-leave="leavePopover"
   >

@@ -19,6 +19,6 @@ module.exports={
     "selector-pseudo-element-colon-notation": "single",
     "string-quotes": "single",
     "keyframes-name-pattern": "^[a-z-_0-9]+$",
-    "no-descending-specificity": false
+    "no-descending-specificity": null
   }
 }

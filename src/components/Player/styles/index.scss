@@ -98,6 +98,10 @@
     text-align: center;
   }
 
+  .error-msg {
+    font-size: 12px;
+  }
+
   .control {
     * {
       user-select: none;
@@ -169,8 +173,9 @@
   border: none;
   border-radius: 0;
 
-  &.el-popper[x-placement^=top] {
+  &.el-popper[x-placement^=top], &.el-popper[x-placement^=bottom] {
     margin-bottom: 0;
+    margin-top: 0;
   }
 
   .popper__arrow {

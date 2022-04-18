@@ -21,7 +21,7 @@ export default class IndexMixin extends Vue {
     searchKey: '',
     revertSearchFlag: false
   }
-  public maxHeight = 1000
+  public maxHeight = null
   public dirList = []
   public isExpanded = true
   public dirDrag = {
@@ -123,7 +123,7 @@ export default class IndexMixin extends Vue {
    * 初始化目录
    */
   @Provide('initDirs')
-  public async initDirs() {
+  public async initDirs(isExpand?: boolean) {
     try {
       VGroupModule.resetVGroupInfo()
       this.loading.dir = true
@@ -140,7 +140,7 @@ export default class IndexMixin extends Vue {
       this.dirList = this.setDirsStreamStatus(res.dirs)
       this.getRootSums(this.dirList)
       this.$nextTick(() => {
-        this.initTreeStatus()
+        this.initTreeStatus(isExpand)
       })
     } catch (e) {
       this.dirList = []
@@ -180,14 +180,15 @@ export default class IndexMixin extends Vue {
 
   /**
    * 初始化目录状态
+   * @param isExpand 是否默认打开第一个设备
    */
-  public async initTreeStatus() {
+  public async initTreeStatus(isExpand = true) {
     const blackList = ['/screen', '/replay']
     const path = this.$route.path
     if (this.advancedSearchForm.revertSearchFlag) {
       // 根据搜索结果 组装 目录树
       this.dirList = this.transformDirList(this.dirList)
-      if (blackList.indexOf(path) === -1 && this.dirList.length) {
+      if (blackList.indexOf(path) === -1 && this.dirList.length && isExpand) {
         let nonLeafNode: any = this.dirList[0]
         while (nonLeafNode && nonLeafNode.children && nonLeafNode.children.length) {
           nonLeafNode = nonLeafNode.children[0]
@@ -215,7 +216,7 @@ export default class IndexMixin extends Vue {
         // 如果为查找设备则不执行任何操作
         if (this.$route.query.isSearch === '1') return
         // 如果根目录下无设备，则跳转至第一个目录下
-        this.deviceRouter(this.dirList[0])
+        if (isExpand) this.deviceRouter(this.dirList[0])
       }
     }
   }
@@ -484,7 +485,7 @@ export default class IndexMixin extends Vue {
         node.data.roleId = node.data.id
       } else if (node.data.type === 'group') {
         node.data.realGroupId = node.data.id
-        node.data.realGroupInProtocol = this.currentGroupInProtocol
+        node.data.realGroupInProtocol = node.data.inProtocol
       }
       VGroupModule.SetRoleID(node.data.roleId || '')
       VGroupModule.SetRealGroupId(node.data.realGroupId || '')

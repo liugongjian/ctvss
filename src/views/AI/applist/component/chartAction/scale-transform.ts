@@ -9,9 +9,9 @@ const DIM_Y = 'y'
  */
 class ScaleTranslate extends Action {
   // protected dims = [DIM_X, DIM_Y];
-  protected dims = [DIM_X];
-  protected cfgFields = ['dims'];
-  protected cacheScaleDefs = {};
+  protected dims = [DIM_X]
+  protected cfgFields = ['dims']
+  protected cacheScaleDefs = {}
 
   // 是否支持对应字段的平移
   protected hasDim(dim) {
