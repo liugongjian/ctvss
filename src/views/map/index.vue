@@ -70,29 +70,22 @@
                   <svg-icon :name="data.type" />
                   {{ node.label }}
                   <svg-icon v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0" name="mark" />
-                  <span class="sum-icon">{{ getSums(data) }}</span>
+                  <span class="sum-icon">{{ getNumbers(node,data) }}</span>
                 </span>
-                <span
-                  v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) < 0"
-                  class="node-option"
-                  @click.stop="addMarker(data)"
-                >+</span>
-                <span
-                  v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0"
-                  class="node-option"
-                  @click.stop="deleteMarker(data)"
-                >-</span>
-
-                <span
-                  v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) < 0"
-                  class="node-option"
-                  @click.stop="addMarker(data)"
-                >+</span>
-                <span
-                  v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0"
-                  class="node-option"
-                  @click.stop="deleteMarker(data)"
-                >-</span>
+                <el-tooltip content="添加该点位至地图" placement="top">
+                  <span
+                    v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) < 0"
+                    class="node-option"
+                    @click.stop.prevent="addMarker(data)"
+                  >+</span>
+                </el-tooltip>
+                <el-tooltip content="将该点位从地图中移除" placement="top">
+                  <span
+                    v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0"
+                    class="node-option"
+                    @click.stop.prevent="deleteMarker(data)"
+                  >-</span>
+                </el-tooltip>
               </span>
             </el-tree>
           </div>
@@ -111,9 +104,9 @@
               <el-tooltip :content="is3D ? '关闭2.5D视图' : '显示2.5D视图'" placement="top">
                 <span class="tools-item"><svg-icon name="3d" :class="curMap && is3D?'active':''" @click="toggleMap3D()" /></span>
               </el-tooltip>
-<!--              <el-tooltip :content="showMarkers ? '隐藏监控点位' : '显示监控点位'" placement="top">-->
-<!--                <span class="tools-item"><svg-icon name="mark" :class="curMap && showMarkers?'active':''" @click="toggleMarkersShow()" /></span>-->
-<!--              </el-tooltip>-->
+              <!--              <el-tooltip :content="showMarkers ? '隐藏监控点位' : '显示监控点位'" placement="top">-->
+              <!--                <span class="tools-item"><svg-icon name="mark" :class="curMap && showMarkers?'active':''" @click="toggleMarkersShow()" /></span>-->
+              <!--              </el-tooltip>-->
               <!-- <span class="tools-item"><svg-icon name="close-all" /></span> -->
               <!-- <span class="tools-item"><svg-icon name="magnifier" /></span> -->
               <!-- <span class="tools-item tools-item__cup">|</span>
@@ -296,7 +289,7 @@ export default class extends Mixins(IndexMixin) {
       5: '1:200km',
       4: '1:500km',
       3: '1:1000km',
-      2: '1:1000km',
+      2: '1:1000km'
     }
     return map[this.form.zoom]
   }
@@ -399,6 +392,7 @@ export default class extends Mixins(IndexMixin) {
           inProtocol: group.inProtocol,
           type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
           disabled: false,
+          groupStats: group.groupStats,
           path: [{
             id: group.groupId,
             label: group.groupName,
@@ -529,6 +523,7 @@ export default class extends Mixins(IndexMixin) {
   */
   private startDragNodeName(e: Event) {
     this.ifMapDisabled = true
+    console.log(e)
   }
 
   /**
@@ -537,6 +532,18 @@ export default class extends Mixins(IndexMixin) {
   private nodeNameUnchoose(e: Event, item: any) {
     console.log(e)
     console.log(item)
+  }
+
+  /**
+   * 获取设备数 设备数量
+   */
+  private getNumbers(node: any, data: any) {
+    // console.log('node=-=>', node)
+    console.log('data--->', data.groupStats)
+    if (node.level === 1) {
+      return ` (${data.groupStats.onlineIpcSize}/${data.groupStats.deviceSize})`
+    }
+    return this.getSums(data)
   }
 
   /**
