@@ -28,7 +28,7 @@
                 <div class="device-list__replay-type">
                   <ReplayType :screen="currentScreen" @change="onReplayTypeChange" />
                 </div>
-                <DatePicker v-if="recordStatistic || screenManager.isSync" :screen="currentScreen" :inline="true" @change="onDateChange" />
+                <DatePicker :screen="currentScreen" :inline="true" @change="onDateChange" />
               </div>
               <el-button class="device-list__arrow" :class="{'device-list__arrow__active': isCollapse}" type="text" @click="isCollapse = !isCollapse">
                 <svg-icon name="arrow-down" />
@@ -70,10 +70,6 @@ export default class extends Mixins(ScreenMixin) {
     return this.currentScreen && this.currentScreen.recordManager
   }
 
-  private get recordStatistic() {
-    return this.recordManager && this.recordManager.recordStatistic
-  }
-
   private get showRecordTool() {
     return (this.currentScreen && this.currentScreen.deviceId && !this.currentScreen.isLive) || this.screenManager.isSync
   }
@@ -113,31 +109,34 @@ export default class extends Mixins(ScreenMixin) {
     margin: 0;
     padding-top: 5px;
     text-align: center;
+
     ::v-deep {
       .el-radio-button__inner {
         padding: 7px 25px;
       }
     }
   }
+
   .device-list__calander {
     max-height: 1000px;
     transition: all 0.5s;
     overflow: hidden;
 
     &__hidden {
-      max-height: 0px;
+      max-height: 0;
     }
 
     .datepicker {
       height: 260px;
     }
   }
+
   .device-list__arrow {
     display: inline-block;
     text-align: center;
     width: 100%;
     background: #fff;
-    padding: 0 0 5px 0;
+    padding: 0 0 5px;
 
     &__active {
       svg {
