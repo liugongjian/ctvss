@@ -263,49 +263,60 @@ export default class extends Mixins(AppMixin) {
 }
 </script>
 <style lang="scss" scoped>
-.device-wrapper{
-  .device-list__device-type{
+.device-wrapper {
+  .device-list__device-type {
     display: inline-block;
     position: relative;
     margin: 2px 8px;
-    .status-badge{
+
+    .status-badge {
       position: absolute;
       top: -2px;
       left: -6px;
     }
   }
-  .device-list__device-name{
+
+  .device-list__device-name {
     display: inline-block;
   }
-  flex:1 1 auto;
-  .svg-icon{
+
+  flex: 1 1 auto;
+
+  .svg-icon {
     // margin: 0 8px;
   }
-  .alarm-container{
+
+  .alarm-container {
     display: flex;
     justify-content: space-between;
     margin-bottom: 24px;
+
     &__alarm {
-      & > div{
+      & > div {
         display: inline-block;
         height: 36px;
         line-height: 36px;
         vertical-align: middle;
       }
-      & >div:nth-of-type(2){
+
+      & > div:nth-of-type(2) {
         background: $primary;
-        margin-left: 5px
+        margin-left: 5px;
       }
     }
   }
 }
-.online{
+
+.online {
   color: #65c465;
 }
-.offline{
+
+.offline {
   color: #6e7c89;
 }
-::v-deep .tableCell{
+
+/* stylelint-disable-next-line selector-class-pattern */
+::v-deep .tableCell {
   cursor: pointer;
 }
 </style>

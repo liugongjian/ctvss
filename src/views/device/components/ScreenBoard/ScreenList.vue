@@ -171,7 +171,7 @@ export default class extends Vue {
   private async getRecordList() {
     try {
       // 没有加载录像直接进入录像列表时，没有 recordManager
-      if (!this.currentScreen.recordManager || this.isLoading === true) return
+      if (!this.currentScreen.recordManager) return
       this.resetPager()
       // 当天没有记录则将页面置空并return
       if (!this.currentScreen.recordManager.recordList || this.currentScreen.recordManager.recordList.length === 0) {

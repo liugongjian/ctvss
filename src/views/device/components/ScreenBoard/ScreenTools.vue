@@ -145,8 +145,8 @@ export default class extends Vue {
   private onReplayTypeChange(recordType) {
     if (this.screenManager.isSync) {
       this.screenManager.screenList.forEach(screen => {
-        screen.recordType = recordType
         if (!screen.isLive) {
+          screen.recordType = recordType
           screen.recordManager && screen.recordManager.initReplay()
         }
       })

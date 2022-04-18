@@ -68,6 +68,7 @@ export default class extends Vue {
   private onPlayerCreate(player) {
     this.screen.player = player
     this.screen.errorMsg = null
+    this.screen.log.playerInitTimestamp = new Date().getTime()
   }
 
   /**
@@ -89,6 +90,12 @@ export default class extends Vue {
         break
       case 'retry':
         this.onRetry(event.payload)
+        break
+      case 'loadStart':
+        this.onLoadStart()
+        break
+      case 'canplay':
+        this.onCanplay()
         break
     }
   }
@@ -149,6 +156,23 @@ export default class extends Vue {
    */
   private onFullscreenChange(isFullscreen) {
     this.screen.isFullscreen = isFullscreen
+  }
+
+  /**
+   * 开始加载
+   */
+  private onLoadStart() {
+    this.screen.log.playerLoadstartTimestamp = new Date().getTime()
+  }
+
+  /**
+   * 加载完成可以开始播放
+   */
+  private onCanplay() {
+    if (!this.screen.log.playerCanplayTimstamp) {
+      this.screen.log.playerCanplayTimstamp = new Date().getTime()
+      this.$emit('canplay')
+    }
   }
 }
 </script>

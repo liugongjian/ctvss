@@ -11,6 +11,7 @@
         :has-close="hasClose"
         :is-debug="true"
         :has-live-replay-selector="hasReplayRecord && !isSingle"
+        @canplay="canplay"
         @close="close"
       >
         <div v-if="videoTypeLabel && !screen.isLoading && screen.player" class="video-type-label">{{ videoTypeLabel }}</div>
@@ -37,6 +38,7 @@
 import { Component, Prop, Vue, Inject } from 'vue-property-decorator'
 import { checkPermission } from '@/utils/permission'
 import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
+import screenLogManager from '@/views/device/models/Screen/ScreenLogManager'
 import LivePlayer from '../LivePlayer.vue'
 import ReplayPlayer from '../ReplayPlayer/index.vue'
 import DeviceDir from '../dialogs/DeviceDir.vue'
@@ -141,6 +143,15 @@ export default class extends Vue {
     this.dialogs.deviceDir = false
     if (item) {
       this.screenManager.openTreeItem(item)
+    }
+  }
+
+  /**
+   * 加载完成可以开始播放
+   */
+  private canplay() {
+    if (this.screen.isLive) {
+      screenLogManager.addLog(this.screen)
     }
   }
 }

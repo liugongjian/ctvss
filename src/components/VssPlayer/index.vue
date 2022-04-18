@@ -10,10 +10,12 @@
       :is-muted="isMuted"
       :playback-rate="playbackRate"
       :has-progress="hasProgress"
-      :is-live="isLive"
+      :is-live="videoIsLive"
       :is-debug="true"
       @onCreate="onPlayerCreate"
       @onRetry="onRetry"
+      @onLoadStart="onLoadStart"
+      @onCanplay="onCanplay"
     >
       <template slot="headerLeft" />
       <template slot="headerRight">
@@ -206,6 +208,11 @@ export default class extends Vue {
     return this.codec === 'h265' ? 'h265' : this.type
   }
 
+  /* 如类型为FLV强制改为直播模式，为了支持设备录像播放 */
+  private get videoIsLive() {
+    return this.type === 'flv' ? true : this.isLive
+  }
+
   /* 获取转换协议后的URL */
   private get videoUrl() {
     return this.replaceProtocol(this.url, this.isWs)
@@ -249,6 +256,24 @@ export default class extends Vue {
   }
 
   /**
+   * 向上抛出开始加载事件
+   */
+  private onLoadStart() {
+    this.$emit('dispatch', {
+      eventType: 'loadStart'
+    })
+  }
+
+  /**
+   * 向上抛出可以播放事件
+   */
+  private onCanplay() {
+    this.$emit('dispatch', {
+      eventType: 'canplay'
+    })
+  }
+
+  /**
    * 当切换视频格式
    */
   private dispatch(event: PlayerEvent) {
@@ -274,14 +299,15 @@ export default class extends Vue {
   }
 
   /* 替换播放地址协议 */
-  private replaceProtocol(url: string, isWs: boolean) {
+  private replaceProtocol(url: string, isWs: boolean): string {
+    if (!url) return ''
     let _url = url
     const isHttps = window.location.protocol === 'https:'
     if (isHttps) {
       _url = _url.replace('http://', 'https://')
     }
     if (isWs) {
-      if (isHttps) {
+      if (_url.startsWith('https://')) {
         _url = _url.replace('https://', 'wss://')
       } else {
         _url = _url.replace('http://', 'ws://')

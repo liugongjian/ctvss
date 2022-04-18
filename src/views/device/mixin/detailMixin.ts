@@ -295,7 +295,6 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
         this.info.streamStatus = channel.streamStatus
         this.info.recordStatus = channel.recordStatus
       }
-
     } catch (e) {
       console.error(e)
     } finally {

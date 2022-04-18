@@ -1312,6 +1312,16 @@ declare namespace AMap {
     public show: any
     public hide: any
   }
+
+  export interface ScaleOption {
+    visible?: boolean
+  }
+  export class Scale {
+    constructor(opt: ScaleOption)
+    public show: any
+    public hide: any
+  }
+
   export interface AutoCompleteOption {
     input: string
   }

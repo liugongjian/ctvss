@@ -22,6 +22,7 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import VMap, { getAMapLoad } from './models/vmap'
+import axios from 'axios'
 import { getMapDevices, updateMarkers, addMarkers, deleteMarkers } from '@/api/map'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import LivePlayer from '@/views/device/components/LivePlayer.vue'
@@ -45,6 +46,8 @@ export default class MapView extends Vue {
   private vmap = new VMap('mapContainer')
   private markerlist = []
   private mapTip = ''
+  private pageTotal = 1
+  private axiosSourceList = []
 
   private playWindowInfo = {
     style: null,
@@ -56,6 +59,7 @@ export default class MapView extends Vue {
   }
 
   private screen: Screen = null
+  private axiosSource = null
 
   @Watch('isEdit')
   private onEditChange() {
@@ -80,19 +84,47 @@ export default class MapView extends Vue {
     })
   }
 
-  async setMap(map) {
-    this.vmap.renderMap(map)
-    this.addMapEvent()
+  private async getMapMarkers(pageNum) {
+    let params: any = {
+      pageNum,
+      pageSize: 100,
+      mapId: this.mapId
+    }
     try {
-      const res = await getMapDevices({ mapId: map.mapId })
-      this.markerlist = res.devices
+      const axiosSource = axios.CancelToken.source()
+      this.axiosSourceList.push(axiosSource)
+      const res = await getMapDevices(params, axiosSource.token)
+      if (pageNum === 1) {
+        this.markerlist = []
+        this.axiosSourceList.forEach(axiosSource => {
+          axiosSource && axiosSource.cancel()
+        })
+      }
+      this.markerlist = this.markerlist.concat(res.devices)
+      this.pageTotal = res.totalPage
     } catch (e) {
-      this.$alertError(e)
-      this.markerlist = []
+      console.log(e)
     } finally {
       this.setMarkerList(this.markerlist)
       this.$emit('markerlistChange', this.markerlist)
     }
+  }
+
+  async setMap(map) {
+    this.vmap.renderMap(map)
+    this.addMapEvent()
+    this.mapId = map.mapId
+    this.axiosSourceList.forEach(axiosSource => {
+      axiosSource && axiosSource.cancel()
+    })
+    await this.getMapMarkers(1)
+    const promiseList = []
+    let pageNum = 2
+    while (pageNum <= this.pageTotal) {
+      promiseList.push(this.getMapMarkers(pageNum))
+      pageNum += 1
+    }
+    await Promise.all(promiseList)
   }
 
   public setMapCenter(lng, lat) {

@@ -28,7 +28,7 @@
     <el-table
       ref="table"
       v-loading="loading"
-      :height="tableMaxHeight"
+      :height="maxHeight - 160"
       :data="alarmList"
       fit
       class="template__table"
@@ -134,17 +134,17 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { deleteAlarmInfo, getAlarmRules } from '@/api/alarm'
-import ResizeObserver from 'resize-observer-polyfill'
 
 @Component({
   name: 'alarm-list'
 })
 export default class extends Vue {
+  @Prop() private maxHeight
+  @Prop({ default: '' }) private groupId!: string
   private loading: boolean = false
   private showViewBindDialog = false
   private currentTemplateId: any = ''
   private selectedDeviceList: any = []
-  private tableMaxHeight: any = null
   private observer: any = null
   private searchFrom: any = {
     deviceName: '',
@@ -240,8 +240,6 @@ export default class extends Vue {
     total: 0
   }
 
-  @Prop({ default: '' }) private groupId!: string
-
   @Watch('$route.query', { deep: true })
   public onRouterChange() {
     this.searchFrom = {
@@ -266,27 +264,10 @@ export default class extends Vue {
   private mounted() {
     this.$route.query.inProtocol && this.getList()
     this.setTimer()
-    this.calTableMaxHeight()
-    // @ts-ignore
-    this.observer = new ResizeObserver(() => {
-      this.calTableMaxHeight()
-    })
-    const listWrap: any = this.$refs.listWrap
-    listWrap && this.observer.observe(listWrap)
   }
 
   private destroyed() {
     this.timer && clearInterval(this.timer)
-    const listWrap: any = this.$refs.listWrap
-    listWrap && this.observer.unobserve(listWrap)
-  }
-
-  private calTableMaxHeight() {
-    const listWrap: any = this.$refs.listWrap
-    if (!listWrap) return
-    const filterWrap: any = this.$refs.filterWrap
-    const documentHeight = listWrap.offsetHeight - (filterWrap ? filterWrap.offsetHeight : 0) - 90
-    this.tableMaxHeight = documentHeight
   }
 
   private search() {
@@ -381,7 +362,7 @@ export default class extends Vue {
   private async deleteAlarm(row: any) {
     this.$alertDelete({
       type: '告警信息',
-      msg: `确定删除该告警信息`,
+      msg: '确定删除该告警信息',
       method: deleteAlarmInfo,
       payload: { alarmId: row.alarmId },
       onSuccess: this.getList
@@ -431,7 +412,6 @@ export default class extends Vue {
     }
     switch (command) {
       case 'delete':
-        console.log(1)
         break
     }
   }
@@ -439,9 +419,10 @@ export default class extends Vue {
 </script>
 <style lang="scss" scoped>
   .min-contaniner {
-    min-width: 1050px
+    min-width: 800px;
   }
+
   .data-picker {
-    margin-right: 10px
+    margin-right: 10px;
   }
 </style>
