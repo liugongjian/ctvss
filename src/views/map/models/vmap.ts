@@ -62,7 +62,7 @@ export const getAMapLoad = () => {
       AMapLoader.load({
         'key': '7f0b2bbe4de7b251916b60012a6fbe3d',
         'version': '2.0',
-        'plugins': ['AMap.MarkerCluster', 'AMap.HawkEye', 'AMap.AutoComplete', 'AMap.Scale']
+        'plugins': ['AMap.MarkerCluster', 'AMap.HawkEye', 'AMap.AutoComplete', 'AMap.Scale', 'AMap.ControlBar']
       }).then((AMap) => {
         resolve(AMap)
       }).catch(e => {
@@ -103,13 +103,28 @@ export default class VMap {
         options.viewMode = '3D'
       }
       const map = new AMap.Map(this.container, options)
+      const buildingLayer = new AMap.Buildings({
+        zIndex: 10,
+        zooms: [15,20],
+        heightFactor: 2,
+        wallColor: 'ffc9d2dc',
+        roofColor: 'ffdce3ec'
+      })
+      map.add([buildingLayer]);
       this.overView = new AMap.HawkEye({
-        opened: false,
+        visible: false,
         width: '300px',
         height: '200px'
       })
       const scale = new AMap.Scale({
         visible: true
+      })
+      const controlBar = new AMap.ControlBar({
+        visible: true,
+        position: {
+          top: '10px',
+          right: '10px'
+        }
       })
 
       const auto = new AMap.AutoComplete({ input: 'map-tip-input' })
@@ -120,6 +135,7 @@ export default class VMap {
       })
       map.addControl(this.overView)
       map.addControl(scale)
+      map.addControl(controlBar);
       map.on('click', () => {
         this.cancelChoose()
       })
