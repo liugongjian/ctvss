@@ -204,7 +204,7 @@ export class RecordManager {
     } else {
       // 判断该日期是否存在SET中
       if (!this.loadedRecordDates.has(date)) {
-        await this.getRecordListByDate(date, true)
+        await this.getRecordListByDate(date, false)
       }
       const record = this.getRecordByTime(time)
       if (record) {

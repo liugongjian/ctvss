@@ -562,6 +562,11 @@
 
   .node-name {
     position: relative;
+    color: $text;
+
+    .svg-icon {
+      color: #6e7c89;
+    }
   }
 
   &.online .node-name {
