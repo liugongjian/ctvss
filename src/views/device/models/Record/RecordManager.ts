@@ -87,10 +87,10 @@ export class RecordManager {
       this.screen.isLoading = true
       if (this.screen.deviceId) {
         const date = new Date(this.screen.currentRecordDatetime * 1000)
-        const startTime = Math.floor(new Date(date.getFullYear(), date.getMonth() - 1).getTime() / 1000)
+        const startTime = Math.floor(new Date(date.getFullYear(), date.getMonth() - 4).getTime() / 1000)
         const endTime = Math.floor(new Date(date.getFullYear(), date.getMonth() + 1).getTime() / 1000)
-        this.getRecordStatistic(startTime, endTime)
         await this.seek(this.screen.currentRecordDatetime)
+        this.getRecordStatistic(startTime, endTime)
         this.getLatestRecord()
       }
     } finally {
