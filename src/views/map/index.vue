@@ -176,6 +176,16 @@
               <el-button @click="confirmAddMarker(false)">不继承</el-button>
               <el-button @click="cancelAddMark()">取消</el-button>
             </el-dialog>
+            <el-dialog title="添加监控点位" :visible.sync="addNoPositionDialog" class="dialog-text">
+              <div>
+                <h3>本设备未设置经纬度，是否使用地图当前的中心经纬度？</h3>
+              </div>
+              <h3>
+                <el-checkbox v-model="addNoPositionDialogCheck">本次编辑不再询问</el-checkbox>
+              </h3>
+              <el-button @click="confirmAddMarker(true)">确定</el-button>
+              <el-button @click="cancelAddMark()">取消</el-button>
+            </el-dialog>
             <div :class="['mapwrap', hideTitle?'hide-title':'']">
               <!-- ifMapDisabled -->
               <map-view
@@ -262,6 +272,10 @@ export default class extends Mixins(IndexMixin) {
   private addPositionDialog = false // 显示询问本次编辑要不要继承设备坐标的对话弹窗
   private addPositionDialogCheck = false // 是否询问本次编辑要不要继承设备坐标
   private uselnglat = true // 是否要继承设备坐标
+  private addNoPositionDialog = false
+  private addNoPositionDialogCheck = false
+  private deviceInfo: any = {}
+  private markerInfo: any = {}
   private form = {
     mapId: '',
     name: '',
@@ -538,8 +552,6 @@ export default class extends Mixins(IndexMixin) {
    * 获取设备数 设备数量
    */
   private getNumbers(node: any, data: any) {
-    // console.log('node=-=>', node)
-    console.log('data--->', data.groupStats)
     if (node.level === 1) {
       return ` (${data.groupStats.onlineIpcSize}/${data.groupStats.deviceSize})`
     }
@@ -585,11 +597,14 @@ export default class extends Mixins(IndexMixin) {
   changeEdit() {
     this.isEdit = !this.isEdit
     this.addPositionDialogCheck = false
+    this.addNoPositionDialogCheck = false
   }
 
   cancelAddMark() {
     this.addPositionDialog = false
     this.addPositionDialogCheck = false
+    this.addNoPositionDialog = false
+    this.addNoPositionDialogCheck = false
   }
 
   addMarker(marker) {
@@ -611,66 +626,102 @@ export default class extends Mixins(IndexMixin) {
     }
   }
 
-  private handleMarkerOn(marker) {
+  private async handleMarkerOn(marker) {
     this.marker = marker
-    if (!this.addPositionDialogCheck) {
-      this.addPositionDialog = true
+    await this.getDeviceInfo()
+    if (Number(this.deviceInfo.deviceLongitude) && Number(this.deviceInfo.deviceLatitude)) {
+      if (!this.addPositionDialogCheck) {
+        this.addPositionDialog = true
+      } else {
+        this.confirmAddMarker(this.uselnglat)
+      }
     } else {
-      this.confirmAddMarker(this.uselnglat)
+      if (!this.addNoPositionDialogCheck) {
+        this.addNoPositionDialog = true
+      } else {
+        this.$refs.mapview.addMarker(this.markerInfo)
+      }
     }
   }
 
-  async confirmAddMarker(uselnglat: boolean) {
+  private async getDeviceInfo() {
+    const { id, inProtocol } = this.marker
+    this.deviceInfo = await getDevice({
+      deviceId: id,
+      inProtocol: inProtocol
+    })
+    this.markerInfo = {
+      deviceId: this.deviceInfo.deviceId,
+      inProtocol: this.deviceInfo.inProtocol,
+      deviceType: this.deviceInfo.deviceType,
+      deviceLabel: this.deviceInfo.deviceName,
+      longitude: '',
+      latitude: '',
+      deviceStatus: this.deviceInfo.deviceStatus,
+      streamStatus: this.deviceInfo.streamStatus,
+      recordStatus: this.deviceInfo.recordStatus,
+      regionNames: this.deviceInfo.regionNames,
+      viewRadius: '0',
+      viewAngle: '0',
+      deviceAngle: '0',
+      population: '',
+      houseInfo: '',
+      unitInfo: ''
+    }
+  }
+
+  private confirmAddMarker(uselnglat: boolean) {
     this.uselnglat = uselnglat
     try {
-      const device = await getDevice({
-        deviceId: this.marker.id,
-        inProtocol: this.marker.inProtocol
-      })
-      const markerInfo = {
-        deviceId: device.deviceId,
-        inProtocol: device.inProtocol,
-        deviceType: device.deviceType,
-        deviceLabel: device.deviceName,
-        longitude: '',
-        latitude: '',
-        deviceStatus: device.deviceStatus,
-        streamStatus: device.streamStatus,
-        recordStatus: device.recordStatus,
-        regionNames: device.regionNames,
-        viewRadius: '0',
-        viewAngle: '0',
-        deviceAngle: '0',
-        population: '',
-        houseInfo: '',
-        unitInfo: ''
-      }
-      if (uselnglat && device.deviceLongitude && device.deviceLatitude) {
-        const checklnglat = this.checklng(device.deviceLongitude) && this.checklat(device.deviceLatitude)
+      // const device = await getDevice({
+      //   deviceId: this.marker.id,
+      //   inProtocol: this.marker.inProtocol
+      // })
+      // const markerInfo = {
+      //   deviceId: this.deviceInfo.deviceId,
+      //   inProtocol: this.deviceInfo.inProtocol,
+      //   deviceType: this.deviceInfo.deviceType,
+      //   deviceLabel: this.deviceInfo.deviceName,
+      //   longitude: '',
+      //   latitude: '',
+      //   deviceStatus: this.deviceInfo.deviceStatus,
+      //   streamStatus: this.deviceInfo.streamStatus,
+      //   recordStatus: this.deviceInfo.recordStatus,
+      //   regionNames: this.deviceInfo.regionNames,
+      //   viewRadius: '0',
+      //   viewAngle: '0',
+      //   deviceAngle: '0',
+      //   population: '',
+      //   houseInfo: '',
+      //   unitInfo: ''
+      // }
+      if (uselnglat && this.deviceInfo.deviceLongitude && this.deviceInfo.deviceLatitude) {
+        const checklnglat = this.checklng(this.deviceInfo.deviceLongitude) && this.checklat(this.deviceInfo.deviceLatitude)
         if (!checklnglat) {
           this.$confirm('当前设备的经纬度有误，继续添加将默认设为当前地图的中心点，是否继续?', {
             confirmButtonText: '确认',
             cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
-            markerInfo.longitude = ''
-            markerInfo.latitude = ''
-            this.$refs.mapview.addMarker(markerInfo)
+            this.markerInfo.longitude = ''
+            this.markerInfo.latitude = ''
+            this.$refs.mapview.addMarker(this.markerInfo)
           }).catch(() => {
             console.log('cancel')
           })
         } else {
-          markerInfo.longitude = device.deviceLongitude
-          markerInfo.latitude = device.deviceLatitude
-          this.$refs.mapview.addMarker(markerInfo)
+          this.markerInfo.longitude = this.deviceInfo.deviceLongitude
+          this.markerInfo.latitude = this.deviceInfo.deviceLatitude
+          this.$refs.mapview.addMarker(this.markerInfo)
         }
       } else {
-        this.$refs.mapview.addMarker(markerInfo)
+        this.$refs.mapview.addMarker(this.markerInfo)
       }
     } catch (e) {
       this.$alertError(e)
     } finally {
       this.addPositionDialog = false
+      this.addNoPositionDialog = false
     }
   }
 
