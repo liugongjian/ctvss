@@ -18,9 +18,11 @@ export default class extends ComponentMixin {
   @Prop()
   private hasAxis: boolean
 
+  @Prop()
+  private playerWrap: HTMLDivElement
+
   private isShowTools: boolean = false
   private resizeObserver: ResizeObserver
-  private playerWrap: HTMLElement = null
 
   private sizeThresholdList = {
     normal: {
@@ -48,7 +50,8 @@ export default class extends ComponentMixin {
     }
   }
 
-  private beforeMount() {
+  @Watch('playerWrap')
+  private onPlayerWrap() {
     this.observerInit()
     this.sizeThreshold = this.hasAxis ? this.sizeThresholdList['hasAxis'] : this.sizeThresholdList['normal']
   }
@@ -57,20 +60,19 @@ export default class extends ComponentMixin {
    * 挂载屏幕尺寸观测器
    */
   private observerInit() {
-    this.playerWrap = this.player.container.parentElement.parentElement.parentElement
     // 监听播放器容器大小变化
     this.resizeObserver = new ResizeObserver(throttle(() => {
       this.clearClass()
-      if (this.player.container.clientWidth >= this.sizeThreshold.small[0] && this.player.container.clientWidth < this.sizeThreshold.small[1]) {
+      if (this.playerWrap.clientWidth >= this.sizeThreshold.small[0] && this.playerWrap.clientWidth < this.sizeThreshold.small[1]) {
         addClass(this.playerWrap, 'vss-player__wrap--small')
-      } else if (this.player.container.clientWidth < this.sizeThreshold.mini[1]) {
+      } else if (this.playerWrap.clientWidth < this.sizeThreshold.mini[1]) {
         addClass(this.playerWrap, 'vss-player__wrap--mini')
       } else {
         this.isShowTools = false
         addClass(this.playerWrap, 'vss-player__wrap--medium')
       }
     }, 300))
-    this.resizeObserver.observe(this.player.container.parentElement)
+    this.resizeObserver.observe(this.playerWrap)
   }
 
   /**
