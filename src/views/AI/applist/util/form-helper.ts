@@ -69,7 +69,7 @@ export const formRule = {
   'algorithmMetadata.vehiclesThreshold': getRule('车辆数量阈值'),
   'algorithmMetadata.lingerInterval': getRule('徘徊时间'),
   'algorithmMetadata.areaThreshold': getRule('视野遮挡阈值'),
-  'algorithmMetadata.label': getRule('细分检测项'),
+  'algorithmMetadata.trashRecycleType': getRule('细分检测项'),
   period: getRule('起始时间')
 }
 

@@ -170,12 +170,9 @@
         <span class="comment">%</span>
       </el-form-item>
       <!-- 垃圾投放站检测 -->
-      <el-form-item v-if="ifShow('10026')" label="细分检测项" prop="algorithmMetadata.label">
-        <el-checkbox-group v-model="form.algorithmMetadata.label">
-          <el-checkbox label="1" :disabled="form.algorithmMetadata.label.includes('2')">垃圾桶已盖</el-checkbox>
-          <el-checkbox label="2" :disabled="form.algorithmMetadata.label.includes('1')">垃圾桶未盖</el-checkbox>
-          <el-checkbox label="3">垃圾桶溢满</el-checkbox>
-          <el-checkbox label="4">地面垃圾</el-checkbox>
+      <el-form-item v-if="ifShow('10026')" label="细分检测项" prop="algorithmMetadata.trashRecycleType">
+        <el-checkbox-group v-model="form.algorithmMetadata.trashRecycleType">
+          <el-checkbox v-for="type in TrashType" :key="type.label" :label="type.label">{{ type.cname }}</el-checkbox>
         </el-checkbox-group>
       </el-form-item>
       <!---->
@@ -218,7 +215,7 @@
 import { Component, Mixins, Prop } from 'vue-property-decorator'
 import { getAIConfigGroupData } from '@/api/aiConfig'
 import { getAppInfo, updateAppInfo, createApp } from '@/api/ai-app'
-import { ResourceAiType } from '@/dics'
+import { ResourceAiType, TrashType } from '@/dics'
 import AppMixin from '../../mixin/app-mixin'
 import { formRule, formTips } from '../util/form-helper'
 
@@ -233,7 +230,7 @@ export default class extends Mixins(AppMixin) {
   private ResourceAiType: any = ResourceAiType
   private form: any = {
     algorithmMetadata: {
-      label: []
+      trashRecycleType: []
     }
   }
   private faceLibs = []
@@ -241,6 +238,7 @@ export default class extends Mixins(AppMixin) {
   public rules: any = formRule
   private effectiveTime: any = []
   private tips: any = formTips
+  private TrashType = TrashType
 
   get analyseAiType() {
     let res = Object.assign({}, ResourceAiType)
