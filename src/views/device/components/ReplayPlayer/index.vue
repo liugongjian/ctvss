@@ -158,7 +158,7 @@ export default class extends Vue {
    * 切换录像回放/实时预览
    */
   private toggleLiveReplay() {
-    this.screen.currentRecordDatetime = null
+    // this.screen.currentRecordDatetime = null
     this.screen.isLive = true
     this.screen.init()
   }

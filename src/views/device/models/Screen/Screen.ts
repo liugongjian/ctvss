@@ -15,7 +15,6 @@ export class Screen {
   public isFullscreen?: boolean
   public axiosSource: any
   public errorMsg?: string
-  public isCache?: boolean
   public lastIsMuted?: boolean
   public log?: {
     previewRequestId: string,
@@ -99,7 +98,6 @@ export class Screen {
     this.isFullscreen = false
     this.axiosSource = null
     this.errorMsg = ''
-    this.isCache = false
     this.streams = []
     this.streamSize = null
     this.streamNum = null

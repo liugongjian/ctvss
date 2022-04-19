@@ -110,6 +110,7 @@ export class RecordManager {
         this.screen.errorMsg = null
         this.screen.isLoading = true
         this.currentDate = date
+        this.screen.currentRecordDatetime = date
         this.recordList = []
         this.heatmapList = []
         this.screen.player && this.screen.player.pause()
