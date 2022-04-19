@@ -580,7 +580,7 @@ export default class extends Vue {
 
   /* 显示编辑时间及添加页面点击监听 */
   private enableEditTime() {
-    if (this.disabled) return
+    if (this.screen.isLoading || this.disabled) return
     this.editTime = true
   }
 
@@ -591,8 +591,8 @@ export default class extends Vue {
 
   /* 当时间编辑器的时间改变 */
   private onTimeEditerChange(time: number) {
-    this.$emit('change', time)
     this.currentTime = time
+    this.$emit('change', time)
     this.generateData()
     this.draw()
   }

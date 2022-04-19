@@ -29,7 +29,11 @@ function onMouseMove(e) {
 
 /* 结束拖拽 */
 function onMouseUp(e) {
+  drag.cloneElm.remove()
   drag.isDragging = false
+  removeClass(document.querySelector('.screen-grid'), 'dragging-node')
+  window.removeEventListener('mousemove', onMouseMove)
+  window.removeEventListener('mouseup', onMouseUp)
   let target = e.target
   while (target) {
     if (target.className.startsWith('screen-item')) {
@@ -40,10 +44,6 @@ function onMouseUp(e) {
   if (target) {
     drag.context.screenManager.openTreeItem(drag.node.data, null, parseInt(target.dataset.index))
   }
-  drag.cloneElm.remove()
-  removeClass(document.querySelector('.screen-grid'), 'dragging-node')
-  window.removeEventListener('mousemove', onMouseMove)
-  window.removeEventListener('mouseup', onMouseUp)
 }
 
 export const dropScreen: DirectiveOptions = {
