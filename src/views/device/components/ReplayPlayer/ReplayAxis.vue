@@ -580,7 +580,7 @@ export default class extends Vue {
 
   /* 显示编辑时间及添加页面点击监听 */
   private enableEditTime() {
-    if (this.disabled) return
+    if (this.screen.isLoading || this.disabled) return
     this.editTime = true
   }
 
