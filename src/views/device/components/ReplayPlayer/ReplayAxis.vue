@@ -162,7 +162,7 @@ export default class extends Vue {
   /* 监听录像类型变化 */
   @Watch('screen.recordType')
   /* 监听日历变化 */
-  @Watch('recordManager.currentDate')
+  @Watch('recordManager.currentDate', { immediate: true })
   private onStatusChange() {
     this.currentTime = this.screen.currentRecordDatetime || (this.recordManager && this.recordManager.currentDate) || getDateByTime(new Date().getTime()) / 1000
     this.generateData()
