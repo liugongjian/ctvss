@@ -247,13 +247,13 @@ export default class VMap {
     const count = markers.length
     const _renderClusterMarker = (context: any) => {
       const div = document.createElement('div')
-      const bgColor = '#009dd9'
+      const bgColor = 'rgba(0, 157, 217, 0.8)'
       const fontColor = '#fff'
       div.style.backgroundColor = bgColor
-      const size = Math.round(100 + Math.pow(context.count / count, 1 / 5) * 20)
+      const size = Math.round(15 + Math.pow(context.count / count, 1 / 5) * 20)
       div.style.width = div.style.height = size + 'px'
       div.style.borderRadius = size / 2 + 'px'
-      div.innerHTML = `${context.count}个监控点位`
+      div.innerHTML = `${context.count}`
       div.style.lineHeight = size + 'px'
       div.style.color = fontColor
       div.style.fontSize = '14px'
@@ -281,6 +281,7 @@ export default class VMap {
         const marker = context.marker.getExtData()
         this.chooseMarker(marker)
       })
+      context.marker.setTitle(context.data[0].deviceLabel)
     }
 
     this.cluster = new window.AMap.MarkerCluster(this.map, this.wrapMarkers(markers), {

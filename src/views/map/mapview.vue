@@ -6,8 +6,8 @@
     </div>
     <div
       v-for="playWindowInfo in playWindowList"
-      v-draggable
       :key="playWindowInfo.deviceId"
+      v-draggable
       class="play-wrap"
       :style="playWindowInfo.style"
       :class="{'screen-container--fullscreen': isFullscreen}"
@@ -36,7 +36,7 @@ import { getMapDevices, updateMarkers, addMarkers, deleteMarkers } from '@/api/m
 import { Screen } from '@/views/device/models/Screen/Screen'
 import LivePlayer from '@/views/device/components/LivePlayer.vue'
 import ReplayView from '@/views/device/components/ReplayPlayer/index.vue'
-import draggable from "@/views/map/directives/draggable";
+import draggable from '@/views/map/directives/draggable'
 
 @Component({
   name: 'MapView',

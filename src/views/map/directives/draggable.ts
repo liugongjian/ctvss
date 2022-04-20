@@ -1,14 +1,14 @@
 const draggable = {
-  inserted: function (el) {
+  inserted: function(el) {
     el.style.cursor = 'move'
-    el.onmousedown = function (e) {
+    el.onmousedown = function(e) {
       let disx = e.pageX - el.offsetLeft
       let disy = e.pageY - el.offsetTop
-      const pw =  parseInt(window.getComputedStyle(el.parentElement).width)
-      const ph =  parseInt(window.getComputedStyle(el.parentElement).height)
-      const ew =  parseInt(window.getComputedStyle(el).width)
-      const eh =  parseInt(window.getComputedStyle(el).height)
-      document.onmousemove = function (e) {
+      const pw = parseInt(window.getComputedStyle(el.parentElement).width)
+      const ph = parseInt(window.getComputedStyle(el.parentElement).height)
+      const ew = parseInt(window.getComputedStyle(el).width)
+      const eh = parseInt(window.getComputedStyle(el).height)
+      document.onmousemove = function(e) {
         let x = e.pageX - disx
         let y = e.pageY - disy
         let maxX = pw - ew
@@ -28,10 +28,10 @@ const draggable = {
         el.style.left = x + 'px'
         el.style.top = y + 'px'
       }
-      document.onmouseup = function () {
+      document.onmouseup = function() {
         document.onmousemove = document.onmouseup = null
       }
     }
-  },
+  }
 }
 export default draggable

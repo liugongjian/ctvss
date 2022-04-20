@@ -273,7 +273,7 @@ export default class extends Mixins(IndexMixin) {
   private isEdit = false
   private editValue = 'sss'
   // public breadcrumb: Array<any> = []
-  private hideTitle = false
+  private hideTitle = true
   private showInfo = false
   private showMapInfo = true
   private addPositionDialog = false // 显示询问本次编辑要不要继承设备坐标的对话弹窗
