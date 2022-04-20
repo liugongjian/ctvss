@@ -6,6 +6,7 @@
     </div>
     <div
       v-for="playWindowInfo in playWindowList"
+      v-draggable
       :key="playWindowInfo.deviceId"
       class="play-wrap"
       :style="playWindowInfo.style"
@@ -35,6 +36,7 @@ import { getMapDevices, updateMarkers, addMarkers, deleteMarkers } from '@/api/m
 import { Screen } from '@/views/device/models/Screen/Screen'
 import LivePlayer from '@/views/device/components/LivePlayer.vue'
 import ReplayView from '@/views/device/components/ReplayPlayer/index.vue'
+import draggable from "@/views/map/directives/draggable";
 
 @Component({
   name: 'MapView',
@@ -42,6 +44,9 @@ import ReplayView from '@/views/device/components/ReplayPlayer/index.vue'
     LivePlayer,
     ReplayView
     // draggable
+  },
+  directives: {
+    draggable
   }
 })
 export default class MapView extends Vue {
