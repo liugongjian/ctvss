@@ -68,7 +68,7 @@
                 <span class="node-name">
                   <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                   <svg-icon :name="data.type" />
-                  {{ node.label }}
+                  <span class="node-label">{{ node.label }}</span>
                   <svg-icon v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0" name="mark" />
                   <span class="sum-icon">{{ getNumbers(node,data) }}</span>
                 </span>
@@ -115,6 +115,11 @@
               <span class="tools-item"><svg-icon name="player" /></span>
               <span class="tools-item"><svg-icon name="play-video" /></span>
               <span class="tools-item"><svg-icon name="delete" /></span> -->
+              <el-tooltip content="进入全屏" placement="top">
+                <span class="tools-item">
+                  <svg-icon name="fullscreen" @click="fullscreenMap" />
+                </span>
+              </el-tooltip>
             </span>
             <span class="right">
               <el-tooltip content="属性" placement="top">
@@ -179,6 +184,16 @@
               <el-button @click="confirmAddMarker(false)">不继承</el-button>
               <el-button @click="cancelAddMark()">取消</el-button>
             </el-dialog>
+            <el-dialog title="添加监控点位" :visible.sync="addNoPositionDialog" class="dialog-text">
+              <div>
+                <h3>本设备未设置经纬度，是否使用地图当前的中心经纬度？</h3>
+              </div>
+              <h3>
+                <el-checkbox v-model="addNoPositionDialogCheck">本次编辑不再询问</el-checkbox>
+              </h3>
+              <el-button @click="confirmAddMarker(true)">确定</el-button>
+              <el-button @click="cancelAddMark()">取消</el-button>
+            </el-dialog>
             <div :class="['mapwrap', hideTitle?'hide-title':'']">
               <!-- ifMapDisabled -->
               <map-view
@@ -226,7 +241,7 @@ import PointInfo from './components/PointInfo.vue'
 import SelectedPoint from './components/SelectedPoint.vue'
 import MapInfo from './components/MapInfo.vue'
 import { getMaps, createMap, deleteMap, modifyMap } from '@/api/map'
-import { mapObject } from '@/views/map/models/vmap'
+import { events, mapObject } from '@/views/map/models/vmap'
 // import draggable from 'vuedraggable'
 
 @Component({
@@ -265,6 +280,10 @@ export default class extends Mixins(IndexMixin) {
   private addPositionDialog = false // 显示询问本次编辑要不要继承设备坐标的对话弹窗
   private addPositionDialogCheck = false // 是否询问本次编辑要不要继承设备坐标
   private uselnglat = true // 是否要继承设备坐标
+  private addNoPositionDialog = false
+  private addNoPositionDialogCheck = false
+  private deviceInfo: any = {}
+  private markerInfo: any = {}
   private form = {
     mapId: '',
     name: '',
@@ -522,6 +541,55 @@ export default class extends Mixins(IndexMixin) {
   }
 
   /**
+   *  地图进入全屏
+  */
+  private fullscreenMap() {
+    const mapwrap: any = document.querySelector('.mapwrap')
+    if (mapwrap.requestFullscreen) {
+      mapwrap.requestFullscreen()
+    } else if (mapwrap.webkitRequestFullScreen) {
+      mapwrap.webkitRequestFullScreen()
+    } else if (mapwrap.mozRequestFullScreen) {
+      mapwrap.mozRequestFullScreen()
+    } else if (mapwrap.msRequestFullscreen) {
+      mapwrap.webkitRequestFullscreen()
+    } else if (typeof window.ActiveXObject !== 'undefined') {
+      const wscript = new ActiveXObject('WScript.Shell')
+      if (wscript != null) {
+        wscript.SendKeys('{F11}')
+      }
+    }
+  }
+
+  private keydownEvent(e: KeyboardEvent) {
+    const doc: Document = document
+    if (e.keyCode === 27) {
+      doc.exitFullscreen()
+    }
+  }
+
+  /**
+   *  地图退出全屏
+   */
+  private exitFullscreenMap() {
+    const mapwrap: any = document.querySelector('.mapwrap')
+    if (mapwrap.exitFullscreen) {
+      mapwrap.exitFullscreen()
+    } else if (mapwrap.webkitExitFullscreen) {
+      mapwrap.webkitExitFullscreen()
+    } else if (mapwrap.mozExitFullscreen) {
+      mapwrap.mozExitFullscreen()
+    } else if (mapwrap.msExitFullscreen) {
+      mapwrap.msExitFullscreen()
+    } else if (typeof window.ActiveXObject !== 'undefined') {
+      const wscript = new ActiveXObject('WScript.Shell')
+      if (wscript != null) {
+        wscript.SendKeys('{F11}')
+      }
+    }
+  }
+
+  /**
    *  设备数 点位开始拖拽事件
   */
   private startDragNodeName(e: Event) {
@@ -541,8 +609,6 @@ export default class extends Mixins(IndexMixin) {
    * 获取设备数 设备数量
    */
   private getNumbers(node: any, data: any) {
-    // console.log('node=-=>', node)
-    console.log('data--->', data.groupStats)
     if (node.level === 1) {
       return ` (${data.groupStats.onlineIpcSize}/${data.groupStats.deviceSize})`
     }
@@ -588,11 +654,14 @@ export default class extends Mixins(IndexMixin) {
   changeEdit() {
     this.isEdit = !this.isEdit
     this.addPositionDialogCheck = false
+    this.addNoPositionDialogCheck = false
   }
 
   cancelAddMark() {
     this.addPositionDialog = false
     this.addPositionDialogCheck = false
+    this.addNoPositionDialog = false
+    this.addNoPositionDialogCheck = false
   }
 
   addMarker(marker) {
@@ -614,66 +683,102 @@ export default class extends Mixins(IndexMixin) {
     }
   }
 
-  private handleMarkerOn(marker) {
+  private async handleMarkerOn(marker) {
     this.marker = marker
-    if (!this.addPositionDialogCheck) {
-      this.addPositionDialog = true
+    await this.getDeviceInfo()
+    if (Number(this.deviceInfo.deviceLongitude) && Number(this.deviceInfo.deviceLatitude)) {
+      if (!this.addPositionDialogCheck) {
+        this.addPositionDialog = true
+      } else {
+        this.confirmAddMarker(this.uselnglat)
+      }
     } else {
-      this.confirmAddMarker(this.uselnglat)
+      if (!this.addNoPositionDialogCheck) {
+        this.addNoPositionDialog = true
+      } else {
+        this.$refs.mapview.addMarker(this.markerInfo)
+      }
     }
   }
 
-  async confirmAddMarker(uselnglat: boolean) {
+  private async getDeviceInfo() {
+    const { id, inProtocol } = this.marker
+    this.deviceInfo = await getDevice({
+      deviceId: id,
+      inProtocol: inProtocol
+    })
+    this.markerInfo = {
+      deviceId: this.deviceInfo.deviceId,
+      inProtocol: this.deviceInfo.inProtocol,
+      deviceType: this.deviceInfo.deviceType,
+      deviceLabel: this.deviceInfo.deviceName,
+      longitude: '',
+      latitude: '',
+      deviceStatus: this.deviceInfo.deviceStatus,
+      streamStatus: this.deviceInfo.streamStatus,
+      recordStatus: this.deviceInfo.recordStatus,
+      regionNames: this.deviceInfo.regionNames,
+      viewRadius: '0',
+      viewAngle: '0',
+      deviceAngle: '0',
+      population: '',
+      houseInfo: '',
+      unitInfo: ''
+    }
+  }
+
+  private confirmAddMarker(uselnglat: boolean) {
     this.uselnglat = uselnglat
     try {
-      const device = await getDevice({
-        deviceId: this.marker.id,
-        inProtocol: this.marker.inProtocol
-      })
-      const markerInfo = {
-        deviceId: device.deviceId,
-        inProtocol: device.inProtocol,
-        deviceType: device.deviceType,
-        deviceLabel: device.deviceName,
-        longitude: '',
-        latitude: '',
-        deviceStatus: device.deviceStatus,
-        streamStatus: device.streamStatus,
-        recordStatus: device.recordStatus,
-        regionNames: device.regionNames,
-        viewRadius: '0',
-        viewAngle: '0',
-        deviceAngle: '0',
-        population: '',
-        houseInfo: '',
-        unitInfo: ''
-      }
-      if (uselnglat && device.deviceLongitude && device.deviceLatitude) {
-        const checklnglat = this.checklng(device.deviceLongitude) && this.checklat(device.deviceLatitude)
+      // const device = await getDevice({
+      //   deviceId: this.marker.id,
+      //   inProtocol: this.marker.inProtocol
+      // })
+      // const markerInfo = {
+      //   deviceId: this.deviceInfo.deviceId,
+      //   inProtocol: this.deviceInfo.inProtocol,
+      //   deviceType: this.deviceInfo.deviceType,
+      //   deviceLabel: this.deviceInfo.deviceName,
+      //   longitude: '',
+      //   latitude: '',
+      //   deviceStatus: this.deviceInfo.deviceStatus,
+      //   streamStatus: this.deviceInfo.streamStatus,
+      //   recordStatus: this.deviceInfo.recordStatus,
+      //   regionNames: this.deviceInfo.regionNames,
+      //   viewRadius: '0',
+      //   viewAngle: '0',
+      //   deviceAngle: '0',
+      //   population: '',
+      //   houseInfo: '',
+      //   unitInfo: ''
+      // }
+      if (uselnglat && this.deviceInfo.deviceLongitude && this.deviceInfo.deviceLatitude) {
+        const checklnglat = this.checklng(this.deviceInfo.deviceLongitude) && this.checklat(this.deviceInfo.deviceLatitude)
         if (!checklnglat) {
           this.$confirm('当前设备的经纬度有误，继续添加将默认设为当前地图的中心点，是否继续?', {
             confirmButtonText: '确认',
             cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
-            markerInfo.longitude = ''
-            markerInfo.latitude = ''
-            this.$refs.mapview.addMarker(markerInfo)
+            this.markerInfo.longitude = ''
+            this.markerInfo.latitude = ''
+            this.$refs.mapview.addMarker(this.markerInfo)
           }).catch(() => {
             console.log('cancel')
           })
         } else {
-          markerInfo.longitude = device.deviceLongitude
-          markerInfo.latitude = device.deviceLatitude
-          this.$refs.mapview.addMarker(markerInfo)
+          this.markerInfo.longitude = this.deviceInfo.deviceLongitude
+          this.markerInfo.latitude = this.deviceInfo.deviceLatitude
+          this.$refs.mapview.addMarker(this.markerInfo)
         }
       } else {
-        this.$refs.mapview.addMarker(markerInfo)
+        this.$refs.mapview.addMarker(this.markerInfo)
       }
     } catch (e) {
       this.$alertError(e)
     } finally {
       this.addPositionDialog = false
+      this.addNoPositionDialog = false
     }
   }
 
@@ -905,10 +1010,12 @@ export default class extends Mixins(IndexMixin) {
     this.curMap = this.mapList[0]
     this.calHeight()
     window.addEventListener('resize', this.calHeight)
+    window.addEventListener('keydown', (e) => { this.keydownEvent(e) })
   }
 
   private destroyed() {
     window.removeEventListener('resize', this.calHeight)
+    window.removeEventListener('keydown', (e) => { this.keydownEvent(e) })
   }
 }
 </script>
@@ -996,6 +1103,7 @@ export default class extends Mixins(IndexMixin) {
   overflow: scroll;
   z-index: 10;
 }
+
 .dialog-text {
   .block {
     width: 100%;
@@ -1005,25 +1113,32 @@ export default class extends Mixins(IndexMixin) {
     align-items: center;
     color: #888;
   }
-  .zoomdesc{
+
+  .zoomdesc {
     margin-left: 20px;
     min-width: 60px;
   }
+
   ::v-deep .el-dialog__footer {
     text-align: center;
   }
+
   ::v-deep .el-button + .el-button {
     margin-left: 30px;
   }
+
   ::v-deep .el-dialog__body {
     padding: 30px 50px;
   }
+
   ::v-deep .el-form-item__content {
     padding-right: 50px;
   }
+
   ::v-deep .el-slider {
     flex: 1;
   }
+
   ::v-deep .el-slider__marks-text {
     width: 30px;
     color: #fa8334;
@@ -1042,7 +1157,8 @@ export default class extends Mixins(IndexMixin) {
   white-space: nowrap;
   overflow: hidden;
   transition: padding-left 0.2s;
-  .btn-edit{
+
+  .btn-edit {
     width: 90px;
     height: 30px;
     line-height: 30px;
@@ -1052,40 +1168,65 @@ export default class extends Mixins(IndexMixin) {
     border-radius: 5px;
     font-size: 12px;
   }
+
   svg {
     font-size: 20px;
   }
+
   .tools-item {
     cursor: pointer;
+
     .active {
       color: #fa8334;
     }
   }
+
   .left {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-    .tools-item{
+
+    .tools-item {
       margin-right: 20px;
     }
   }
 }
-.device-list__left .dir-list__tree .custom-tree-node{
-  width: 100%;
+
+.device-list__left .dir-list__tree .custom-tree-node {
+  width: calc(100% - 26px); // 滚动条宽度是26px
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+
   .node-option {
     padding: 2px;
     font-size: 18px;
     font-weight: bolder;
+    margin-left: auto;
   }
-  .node-name-move{
+
+  .node-name {
+    display: flex;
+    width: calc(100% - 20px);
+  }
+
+  .node-label {
+    display: inline-block;
+    width: 80%;
+    flex: 1;
+    word-break: keep-all;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .node-name-move {
     cursor: move;
   }
 }
+
 .dialog-text {
   text-align: center;
 }
@@ -1112,21 +1253,26 @@ export default class extends Mixins(IndexMixin) {
   padding: 0 10px;
   border-radius: 5px;
   cursor: pointer;
+
   .map-text {
     flex: 1;
     text-align: left;
   }
+
   &.active {
     background: #fa8334;
     color: #fff;
   }
+
   .edit-icon,
   .delete-icon {
     display: none;
   }
+
   .edit-icon {
     margin-right: 5px;
   }
+
   &:hover {
     .edit-icon,
     .delete-icon {
@@ -1135,7 +1281,7 @@ export default class extends Mixins(IndexMixin) {
   }
 }
 
-.map-info__right{
+.map-info__right {
   ::v-deep .el-descriptions {
     font-size: 12px;
     margin-top: 10px;
@@ -1149,13 +1295,14 @@ export default class extends Mixins(IndexMixin) {
     margin-bottom: 12px;
   }
 
-  ::v-deep .el-descriptions__body{
+  ::v-deep .el-descriptions__body {
     background: transparent;
   }
 
   ::v-deep .el-input--medium {
     font-size: 12px;
   }
+
   ::v-deep .el-input .el-input__inner {
     background-color: rgba(255, 255, 255, 0%);
     border: none;
@@ -1175,6 +1322,7 @@ export default class extends Mixins(IndexMixin) {
     padding: 0;
     text-overflow: ellipsis;
   }
+
   ::v-deep .el-descriptions-item__label:not(.is-bordered-label) {
     min-width: 52px;
   }
