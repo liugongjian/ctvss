@@ -113,6 +113,11 @@
               <span class="tools-item"><svg-icon name="player" /></span>
               <span class="tools-item"><svg-icon name="play-video" /></span>
               <span class="tools-item"><svg-icon name="delete" /></span> -->
+              <el-tooltip content="进入全屏" placement="top">
+                <span class="tools-item">
+                  <svg-icon name="fullscreen" @click="fullscreenMap" />
+                </span>
+              </el-tooltip>
             </span>
             <span class="right">
               <el-tooltip content="属性" placement="top">
@@ -233,7 +238,7 @@ import PointInfo from './components/PointInfo.vue'
 import SelectedPoint from './components/SelectedPoint.vue'
 import MapInfo from './components/MapInfo.vue'
 import { getMaps, createMap, deleteMap, modifyMap } from '@/api/map'
-import { mapObject } from '@/views/map/models/vmap'
+import { events, mapObject } from '@/views/map/models/vmap'
 // import draggable from 'vuedraggable'
 
 @Component({
@@ -529,6 +534,55 @@ export default class extends Mixins(IndexMixin) {
       const dirTree: any = this.$refs.dirTree
       const node = dirTree.getNode(data.id)
       dirTree.setChecked(data.id, !node.checked)
+    }
+  }
+
+  /**
+   *  地图进入全屏
+  */
+  private fullscreenMap() {
+    const mapwrap: any = document.querySelector('.mapwrap')
+    if (mapwrap.requestFullscreen) {
+      mapwrap.requestFullscreen()
+    } else if (mapwrap.webkitRequestFullScreen) {
+      mapwrap.webkitRequestFullScreen()
+    } else if (mapwrap.mozRequestFullScreen) {
+      mapwrap.mozRequestFullScreen()
+    } else if (mapwrap.msRequestFullscreen) {
+      mapwrap.webkitRequestFullscreen()
+    } else if (typeof window.ActiveXObject !== 'undefined') {
+      const wscript = new ActiveXObject('WScript.Shell')
+      if (wscript != null) {
+        wscript.SendKeys('{F11}')
+      }
+    }
+  }
+
+  private keydownEvent(e: KeyboardEvent) {
+    const doc: Document = document
+    if (e.keyCode === 27) {
+      doc.exitFullscreen()
+    }
+  }
+
+  /**
+   *  地图退出全屏
+   */
+  private exitFullscreenMap() {
+    const mapwrap: any = document.querySelector('.mapwrap')
+    if (mapwrap.exitFullscreen) {
+      mapwrap.exitFullscreen()
+    } else if (mapwrap.webkitExitFullscreen) {
+      mapwrap.webkitExitFullscreen()
+    } else if (mapwrap.mozExitFullscreen) {
+      mapwrap.mozExitFullscreen()
+    } else if (mapwrap.msExitFullscreen) {
+      mapwrap.msExitFullscreen()
+    } else if (typeof window.ActiveXObject !== 'undefined') {
+      const wscript = new ActiveXObject('WScript.Shell')
+      if (wscript != null) {
+        wscript.SendKeys('{F11}')
+      }
     }
   }
 
@@ -949,10 +1003,12 @@ export default class extends Mixins(IndexMixin) {
     this.curMap = this.mapList[0]
     this.calHeight()
     window.addEventListener('resize', this.calHeight)
+    window.addEventListener('keydown', (e) => { this.keydownEvent(e) })
   }
 
   private destroyed() {
     window.removeEventListener('resize', this.calHeight)
+    window.removeEventListener('keydown', (e) => { this.keydownEvent(e) })
   }
 }
 </script>
