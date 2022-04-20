@@ -11,10 +11,11 @@
         <el-input v-model="mapInfo.latitude" :disabled="!isEdit" />
       </el-descriptions-item>
       <el-descriptions-item label="缩放比例">
+        <span>{{ zoomDesc }}</span>
 <!--        <el-input v-model="mapInfo.zoom" :disabled="!isEdit" />-->
-        <el-select v-model="mapInfo.zoom" :disabled="!isEdit">
-          <el-option v-for="item in zoomMap" :label="item.val" :value="item.key"></el-option>
-        </el-select>
+<!--        <el-select v-model="mapInfo.zoom" :disabled="!isEdit">-->
+<!--          <el-option v-for="item in zoomMap" :label="item.val" :value="item.key"></el-option>-->
+<!--        </el-select>-->
       </el-descriptions-item>
     </el-descriptions>
   </div>
@@ -54,6 +55,15 @@ export default class extends Vue {
     {key: '3', val: '1:1000km'},
   ]
 
+  private get zoomDesc() {
+    const zoom = this.zoomMap.filter(item => item.key === this.mapInfo.zoom)
+    if (zoom.length === 1) {
+      return zoom[0].val
+    } else {
+      return '-'
+    }
+  }
+
   private mapInfo = {
     mapId: '',
     name: '',
@@ -64,13 +74,13 @@ export default class extends Vue {
 
   @Watch('map')
   private onInfoChange() {
-    this.mapInfo = { ...this.map, zoom: this.map.zoom.toString() }
+    this.mapInfo = { ...this.map, zoom: this.map?.zoom.toString() }
   }
 
   @Watch('isEdit')
   private onEditChange() {
     if (!this.isEdit) {
-      this.mapInfo = { ...this.map, zoom: this.map.zoom.toString() }
+      this.mapInfo = { ...this.map, zoom: this.map?.zoom.toString() }
     }
   }
 
@@ -80,13 +90,13 @@ export default class extends Vue {
 }
 </script>
 
-<style lang="scss" scoped>
-.mapInfo {
-  ::v-deep .el-input .el-input__inner {
-    height: 18px !important;
-  }
-  ::v-deep .el-input--medium .el-input__icon {
-    line-height: 18px;
-  }
-}
-</style>
+<!--<style lang="scss" scoped>-->
+<!--.mapInfo {-->
+<!--  ::v-deep .el-input .el-input__inner {-->
+<!--    height: 18px !important;-->
+<!--  }-->
+<!--  ::v-deep .el-input&#45;&#45;medium .el-input__icon {-->
+<!--    line-height: 18px;-->
+<!--  }-->
+<!--}-->
+<!--</style>-->
