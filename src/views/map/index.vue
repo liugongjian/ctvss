@@ -68,7 +68,7 @@
                 <span class="node-name">
                   <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                   <svg-icon :name="data.type" />
-                  {{ node.label }}
+                  <span class="node-label">{{ node.label }}</span>
                   <svg-icon v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0" name="mark" />
                   <span class="sum-icon">{{ getNumbers(node,data) }}</span>
                 </span>
@@ -1092,10 +1092,11 @@ export default class extends Mixins(IndexMixin) {
   background: rgba(255, 255, 255, 80%);
   width: 20%;
   height: 100%;
-  padding: 20px 20px 0 20px;
+  padding: 20px 20px 0;
   overflow: scroll;
   min-width: 270px;
 }
+
 .dialog-text {
   .block {
     width: 100%;
@@ -1105,25 +1106,32 @@ export default class extends Mixins(IndexMixin) {
     align-items: center;
     color: #888;
   }
-  .zoomdesc{
+
+  .zoomdesc {
     margin-left: 20px;
     min-width: 60px;
   }
+
   ::v-deep .el-dialog__footer {
     text-align: center;
   }
+
   ::v-deep .el-button + .el-button {
     margin-left: 30px;
   }
+
   ::v-deep .el-dialog__body {
     padding: 30px 50px;
   }
+
   ::v-deep .el-form-item__content {
     padding-right: 50px;
   }
+
   ::v-deep .el-slider {
     flex: 1;
   }
+
   ::v-deep .el-slider__marks-text {
     width: 30px;
     color: #fa8334;
@@ -1142,7 +1150,8 @@ export default class extends Mixins(IndexMixin) {
   white-space: nowrap;
   overflow: hidden;
   transition: padding-left 0.2s;
-  .btn-edit{
+
+  .btn-edit {
     width: 90px;
     height: 30px;
     line-height: 30px;
@@ -1152,40 +1161,65 @@ export default class extends Mixins(IndexMixin) {
     border-radius: 5px;
     font-size: 12px;
   }
+
   svg {
     font-size: 20px;
   }
+
   .tools-item {
     cursor: pointer;
+
     .active {
       color: #fa8334;
     }
   }
+
   .left {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-    .tools-item{
+
+    .tools-item {
       margin-right: 20px;
     }
   }
 }
-.device-list__left .dir-list__tree .custom-tree-node{
-  width: 100%;
+
+.device-list__left .dir-list__tree .custom-tree-node {
+  width: calc(100% - 26px); // 滚动条宽度是26px
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+
   .node-option {
     padding: 2px;
     font-size: 18px;
     font-weight: bolder;
+    margin-left: auto;
   }
-  .node-name-move{
+
+  .node-name {
+    display: flex;
+    width: calc(100% - 20px);
+  }
+
+  .node-label {
+    display: inline-block;
+    width: 80%;
+    flex: 1;
+    word-break: keep-all;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .node-name-move {
     cursor: move;
   }
 }
+
 .dialog-text {
   text-align: center;
 }
@@ -1212,21 +1246,26 @@ export default class extends Mixins(IndexMixin) {
   padding: 0 10px;
   border-radius: 5px;
   cursor: pointer;
+
   .map-text {
     flex: 1;
     text-align: left;
   }
+
   &.active {
     background: #fa8334;
     color: #fff;
   }
+
   .edit-icon,
   .delete-icon {
     display: none;
   }
+
   .edit-icon {
     margin-right: 5px;
   }
+
   &:hover {
     .edit-icon,
     .delete-icon {
@@ -1235,7 +1274,7 @@ export default class extends Mixins(IndexMixin) {
   }
 }
 
-.map-info__right{
+.map-info__right {
   ::v-deep .el-descriptions {
     font-size: 12px;
     margin-top: 10px;
@@ -1249,13 +1288,14 @@ export default class extends Mixins(IndexMixin) {
     margin-bottom: 12px;
   }
 
-  ::v-deep .el-descriptions__body{
+  ::v-deep .el-descriptions__body {
     background: transparent;
   }
 
   ::v-deep .el-input--medium {
     font-size: 12px;
   }
+
   ::v-deep .el-input .el-input__inner {
     background-color: rgba(255, 255, 255, 0%);
     border: none;
