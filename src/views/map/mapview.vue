@@ -4,15 +4,20 @@
     <div class="search-wrap">
       <el-input id="map-tip-input" v-model="mapTip" placeholder="请输入关键字" />
     </div>
-    <div v-if="playWindowInfo.show !== 'none'" class="play-wrap" :style="playWindowInfo.style">
-      <i class="el-icon el-icon-close" @click="playWindowInfo.show = 'none'" />
+    <div v-for="playWindowInfo in playWindowList"
+         v-if="playWindowInfo.show !== 'none'"
+         class="play-wrap"
+         :style="playWindowInfo.style"
+         :key="playWindowInfo.deviceId"
+    >
+      <i class="el-icon el-icon-close" @click="closePlayer(playWindowInfo)" />
       <live-player
         v-if="playWindowInfo.show === 'live'"
-        :screen="screen"
+        :screen="playWindowInfo.screen"
       />
       <replay-view
         v-if="playWindowInfo.show === 'replay'"
-        :screen="screen"
+        :screen="playWindowInfo.screen"
         :has-axis="true"
       />
     </div>
@@ -48,15 +53,16 @@ export default class MapView extends Vue {
   private mapTip = ''
   private pageTotal = 1
   private axiosSourceList = []
+  private playWindowList = []
 
-  private playWindowInfo = {
-    style: null,
-    show: 'none', // none|live|replay
-    top: 0,
-    left: 0,
-    deviceId: null,
-    inProtocol: ''
-  }
+  // private playWindowInfo = {
+  //   style: null,
+  //   show: 'none', // none|live|replay
+  //   top: 0,
+  //   left: 0,
+  //   deviceId: null,
+  //   inProtocol: ''
+  // }
 
   private screen: Screen = null
   private axiosSource = null
@@ -66,17 +72,17 @@ export default class MapView extends Vue {
     this.changeEdit(this.isEdit)
   }
 
-  @Watch('playWindowInfo.show')
-  @Watch('playWindowInfo.deviceId')
-  private onPlayWindowInfoChange() {
-    if (this.playWindowInfo.show !== 'none') {
-      this.screen = new Screen()
-      this.screen.deviceId = this.playWindowInfo.deviceId
-      this.screen.inProtocol = this.playWindowInfo.inProtocol
-      this.screen.isLive = this.playWindowInfo.show === 'live'
-      this.screen.init()
-    }
-  }
+  // @Watch('playWindowInfo.show')
+  // @Watch('playWindowInfo.deviceId')
+  // private onPlayWindowInfoChange() {
+  //   if (this.playWindowInfo.show !== 'none') {
+  //     this.screen = new Screen()
+  //     this.screen.deviceId = this.playWindowInfo.deviceId
+  //     this.screen.inProtocol = this.playWindowInfo.inProtocol
+  //     this.screen.isLive = this.playWindowInfo.show === 'live'
+  //     this.screen.init()
+  //   }
+  // }
 
   private mounted() {
     getAMapLoad().then(() => {
@@ -133,10 +139,6 @@ export default class MapView extends Vue {
 
   public setMapZoomAndCenter(zoom, lng, lat) {
     this.vmap.map.setZoomAndCenter(zoom, [lng, lat])
-  }
-
-  public closePlayer() {
-    this.playWindowInfo.show = 'none'
   }
 
   addMapEvent() {
@@ -208,9 +210,16 @@ export default class MapView extends Vue {
     })
   }
 
+  closeAllPlayer() {
+    this.playWindowList = []
+  }
+
+  closePlayer(info) {
+    this.playWindowList = this.playWindowList.filter(item => item.deviceId !== info.deviceId)
+  }
+
   handleMarkerPlay(data) {
     if (data.canPlay) {
-      this.playWindowInfo = data
       const width = 400
       const height = 300
       const size = 100
@@ -220,10 +229,16 @@ export default class MapView extends Vue {
         top: `${data.top - (height + size / 2 + 40)}px`,
         left: `${data.left - width / 2}px`
       }
-      this.playWindowInfo = {
+      const screen = new Screen()
+      screen.deviceId = data.deviceId
+      screen.inProtocol = data.inProtocol
+      screen.isLive = data.show === 'live'
+      screen.init()
+      this.playWindowList.push({
         ...data,
-        style
-      }
+        style,
+        screen
+      });
     }
   }
 
@@ -250,7 +265,8 @@ export default class MapView extends Vue {
 
   changeEdit(status) {
     this.vmap.changeEdit(status)
-    this.playWindowInfo.show = 'none'
+    // this.playWindowInfo.show = 'none'
+    this.closeAllPlayer()
   }
 
   handleDevice(device) {

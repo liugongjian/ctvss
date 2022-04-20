@@ -723,7 +723,7 @@ export default class extends Mixins(IndexMixin) {
             this.curMap = { ...map, mapId }
             if (this.mapList.length > 0) {
               this.$refs.mapview.setMap(this.curMap)
-              this.$refs.mapview.closePlayer()
+              this.$refs.mapview.closeAllPlayer()
             }
             this.mapList.push(this.curMap)
             this.mapEditDialog.dialogVisible = false
@@ -817,7 +817,7 @@ export default class extends Mixins(IndexMixin) {
     this.showMarkers = true
     this.curMap = map
     this.$refs.mapview.setMap(map)
-    this.$refs.mapview.closePlayer()
+    this.$refs.mapview.closeAllPlayer()
   }
 
   private deleteMap(map) {
