@@ -4,22 +4,24 @@
     <div class="search-wrap">
       <el-input id="map-tip-input" v-model="mapTip" placeholder="请输入关键字" />
     </div>
-    <div v-for="playWindowInfo in playWindowList"
-         v-if="playWindowInfo.show !== 'none'"
-         class="play-wrap"
-         :style="playWindowInfo.style"
-         :key="playWindowInfo.deviceId"
+    <div
+      v-for="playWindowInfo in playWindowList"
+      :key="playWindowInfo.deviceId"
+      class="play-wrap"
+      :style="playWindowInfo.style"
     >
-      <i class="el-icon el-icon-close" @click="closePlayer(playWindowInfo)" />
-      <live-player
-        v-if="playWindowInfo.show === 'live'"
-        :screen="playWindowInfo.screen"
-      />
-      <replay-view
-        v-if="playWindowInfo.show === 'replay'"
-        :screen="playWindowInfo.screen"
-        :has-axis="true"
-      />
+      <div v-if="playWindowInfo.show !== 'none'">
+        <i class="el-icon el-icon-close" @click="closePlayer(playWindowInfo)" />
+        <live-player
+          v-if="playWindowInfo.show === 'live'"
+          :screen="playWindowInfo.screen"
+        />
+        <replay-view
+          v-if="playWindowInfo.show === 'replay'"
+          :screen="playWindowInfo.screen"
+          :has-axis="true"
+        />
+      </div>
     </div>
     <!-- </draggable> -->
   </div>
@@ -237,7 +239,7 @@ export default class MapView extends Vue {
         ...data,
         style,
         screen
-      });
+      })
     }
   }
 

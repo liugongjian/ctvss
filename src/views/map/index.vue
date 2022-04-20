@@ -130,7 +130,6 @@
           <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
             <el-dialog :title="mapEditDialog.status === 'add' ? '添加地图' : '编辑地图'" :visible.sync="mapEditDialog.dialogVisible" width="45%" class="dialog-text">
               <el-form ref="mapform" :model="form" label-width="150px" :rules="rules">
-<!--                <el-form-item v-if="mapEditDialog.status === 'add'" label="名称" prop="name">-->
                 <el-form-item label="名称" prop="name">
                   <el-input v-model="form.name" placeholder="请输入地图名称" />
                 </el-form-item>
@@ -241,7 +240,7 @@ import PointInfo from './components/PointInfo.vue'
 import SelectedPoint from './components/SelectedPoint.vue'
 import MapInfo from './components/MapInfo.vue'
 import { getMaps, createMap, deleteMap, modifyMap } from '@/api/map'
-import { events, mapObject } from '@/views/map/models/vmap'
+import { mapObject } from '@/views/map/models/vmap'
 // import draggable from 'vuedraggable'
 
 @Component({

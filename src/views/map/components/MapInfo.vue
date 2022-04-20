@@ -12,10 +12,10 @@
       </el-descriptions-item>
       <el-descriptions-item label="缩放比例">
         <span>{{ zoomDesc }}</span>
-<!--        <el-input v-model="mapInfo.zoom" :disabled="!isEdit" />-->
-<!--        <el-select v-model="mapInfo.zoom" :disabled="!isEdit">-->
-<!--          <el-option v-for="item in zoomMap" :label="item.val" :value="item.key"></el-option>-->
-<!--        </el-select>-->
+        <!--<el-input v-model="mapInfo.zoom" :disabled="!isEdit" />-->
+        <!--<el-select v-model="mapInfo.zoom" :disabled="!isEdit">-->
+        <!--<el-option v-for="item in zoomMap" :label="item.val" :value="item.key"></el-option>-->
+        <!--</el-select>-->
       </el-descriptions-item>
     </el-descriptions>
   </div>
@@ -35,24 +35,24 @@ export default class extends Vue {
   private map: any
 
   private zoomMap = [
-    {key: '20', val: '1:10m'},
-    {key: '19', val: '1:10m'},
-    {key: '18', val: '1:25m'},
-    {key: '17', val: '1:50m'},
-    {key: '16', val: '1:100m'},
-    {key: '15', val: '1:200m'},
-    {key: '14', val: '1:500m'},
-    {key: '13', val: '1:1km'},
-    {key: '12', val: '1:2km'},
-    {key: '11', val: '1:5km'},
-    {key: '10', val: '1:10km'},
-    {key: '9', val: '1:20km'},
-    {key: '8', val: '1:30km'},
-    {key: '7', val: '1:50km'},
-    {key: '6', val: '1:100km'},
-    {key: '5', val: '1:200km'},
-    {key: '4', val: '1:500km'},
-    {key: '3', val: '1:1000km'},
+    { key: '20', val: '1:10m' },
+    { key: '19', val: '1:10m' },
+    { key: '18', val: '1:25m' },
+    { key: '17', val: '1:50m' },
+    { key: '16', val: '1:100m' },
+    { key: '15', val: '1:200m' },
+    { key: '14', val: '1:500m' },
+    { key: '13', val: '1:1km' },
+    { key: '12', val: '1:2km' },
+    { key: '11', val: '1:5km' },
+    { key: '10', val: '1:10km' },
+    { key: '9', val: '1:20km' },
+    { key: '8', val: '1:30km' },
+    { key: '7', val: '1:50km' },
+    { key: '6', val: '1:100km' },
+    { key: '5', val: '1:200km' },
+    { key: '4', val: '1:500km' },
+    { key: '3', val: '1:1000km' }
   ]
 
   private get zoomDesc() {

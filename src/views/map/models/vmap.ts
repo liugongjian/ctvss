@@ -105,12 +105,12 @@ export default class VMap {
       const map = new AMap.Map(this.container, options)
       const buildingLayer = new AMap.Buildings({
         zIndex: 10,
-        zooms: [15,20],
+        zooms: [15, 20],
         heightFactor: 2,
         wallColor: 'ffc9d2dc',
         roofColor: 'ffdce3ec'
       })
-      map.add([buildingLayer]);
+      map.add([buildingLayer])
       this.overView = new AMap.HawkEye({
         visible: false,
         width: '300px',
@@ -135,7 +135,7 @@ export default class VMap {
       })
       map.addControl(this.overView)
       map.addControl(scale)
-      map.addControl(controlBar);
+      map.addControl(controlBar)
       map.on('click', () => {
         this.cancelChoose()
       })
@@ -269,7 +269,7 @@ export default class VMap {
       if (this.isEdit) {
         context.marker.setDraggable(true)
         context.marker.setCursor('move')
-        context.marker.on('dragend', (ev) => {
+        context.marker.on('dragend', () => {
           const marker = context.marker.getExtData()
           const { lng, lat } = context.marker.getPosition()
           marker.latitude = lat
@@ -387,11 +387,11 @@ export default class VMap {
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
     path.setAttribute('id', markerOptions.deviceId)
     path.style.cssText = cssText
-    path.setAttribute('d', buildPath(markerOptions, this.map!))
+    path.setAttribute('d', buildPath(markerOptions))
     path.setAttribute('transform', `rotate(${Number(markerOptions.deviceAngle) - 90 - Number(markerOptions.viewAngle) / 2}, ${markerOptions.viewRadius}, ${markerOptions.viewRadius})`)
     canvas.appendChild(path)
 
-    function buildPath(markerOptions: markerObject, map: AMap.Map): string {
+    function buildPath(markerOptions: markerObject): string {
       const viewRadius = Number(markerOptions.viewRadius)
       const viewAngle = Number(markerOptions.viewAngle)
       const endPosX = Math.cos((viewAngle / 180) * Math.PI) * viewRadius + viewRadius
