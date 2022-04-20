@@ -9,6 +9,7 @@
       :key="playWindowInfo.deviceId"
       class="play-wrap"
       :style="playWindowInfo.style"
+      :class="{'screen-container--fullscreen': isFullscreen}"
     >
       <div v-if="playWindowInfo.show !== 'none'">
         <i class="el-icon el-icon-close" @click="closePlayer(playWindowInfo)" />
@@ -66,7 +67,10 @@ export default class MapView extends Vue {
   // }
 
   private screen: Screen = null
-  private axiosSource = null
+
+  private get isFullscreen() {
+    return this.playWindowList.filter(item => item.screen.isFullscreen).length > 0
+  }
 
   @Watch('isEdit')
   private onEditChange() {
@@ -216,7 +220,26 @@ export default class MapView extends Vue {
   }
 
   closePlayer(info) {
+    if (this.isFullscreen) {
+      this.exitFullscreen()
+    }
     this.playWindowList = this.playWindowList.filter(item => item.deviceId !== info.deviceId)
+  }
+
+  /**
+   * 退出全屏
+   */
+  public exitFullscreen() {
+    const doc: any = document
+    if (doc.exitFullscreen) {
+      doc.exitFullscreen()
+    } else if (doc.msExitFullscreen) {
+      doc.msExitFullscreen()
+    } else if (doc.mozCancelFullScreen) {
+      doc.mozCancelFullScreen()
+    } else if (doc.webkitCancelFullScreen) {
+      doc.webkitCancelFullScreen()
+    }
   }
 
   handleMarkerPlay(data) {
@@ -235,11 +258,17 @@ export default class MapView extends Vue {
       screen.inProtocol = data.inProtocol
       screen.isLive = data.show === 'live'
       screen.init()
-      this.playWindowList.push({
+      const playIndex = this.playWindowList.findIndex(item => item.deviceId === data.deviceId)
+      const newPlayer = {
         ...data,
         style,
         screen
-      })
+      }
+      if (playIndex >= 0) {
+        this.playWindowList.splice(playIndex, 1, newPlayer)
+      } else {
+        this.playWindowList.push(newPlayer)
+      }
     }
   }
 
@@ -362,6 +391,16 @@ export default class MapView extends Vue {
   }
   ::v-deep .preview-player {
     height: auto;
+  }
+  &.screen-container--fullscreen {
+    position: fixed;
+    z-index: 2002;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    height: 100% !important;
+    width: 100% !important;
   }
 }
 </style>
