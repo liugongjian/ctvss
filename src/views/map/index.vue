@@ -107,7 +107,9 @@
               <!--              <el-tooltip :content="showMarkers ? '隐藏监控点位' : '显示监控点位'" placement="top">-->
               <!--                <span class="tools-item"><svg-icon name="mark" :class="curMap && showMarkers?'active':''" @click="toggleMarkersShow()" /></span>-->
               <!--              </el-tooltip>-->
-              <!-- <span class="tools-item"><svg-icon name="close-all" /></span> -->
+              <el-tooltip content="关闭所有播放窗口" placement="top">
+                <span class="tools-item"><svg-icon name="close-all" @click=" closeAllWindow()" /></span>
+              </el-tooltip>
               <!-- <span class="tools-item"><svg-icon name="magnifier" /></span> -->
               <!-- <span class="tools-item tools-item__cup">|</span>
               <span class="tools-item"><svg-icon name="player" /></span>
@@ -128,7 +130,7 @@
           <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
             <el-dialog :title="mapEditDialog.status === 'add' ? '添加地图' : '编辑地图'" :visible.sync="mapEditDialog.dialogVisible" width="45%" class="dialog-text">
               <el-form ref="mapform" :model="form" label-width="150px" :rules="rules">
-                <el-form-item v-if="mapEditDialog.status === 'add'" label="名称" prop="name">
+                <el-form-item label="名称" prop="name">
                   <el-input v-model="form.name" placeholder="请输入地图名称" />
                 </el-form-item>
                 <el-form-item label="中心点经度" prop="longitude">
@@ -238,7 +240,7 @@ import PointInfo from './components/PointInfo.vue'
 import SelectedPoint from './components/SelectedPoint.vue'
 import MapInfo from './components/MapInfo.vue'
 import { getMaps, createMap, deleteMap, modifyMap } from '@/api/map'
-import { events, mapObject } from '@/views/map/models/vmap'
+import { mapObject } from '@/views/map/models/vmap'
 // import draggable from 'vuedraggable'
 
 @Component({
@@ -271,7 +273,7 @@ export default class extends Mixins(IndexMixin) {
   private isEdit = false
   private editValue = 'sss'
   // public breadcrumb: Array<any> = []
-  private hideTitle = false
+  private hideTitle = true
   private showInfo = false
   private showMapInfo = true
   private addPositionDialog = false // 显示询问本次编辑要不要继承设备坐标的对话弹窗
@@ -827,7 +829,7 @@ export default class extends Mixins(IndexMixin) {
             this.curMap = { ...map, mapId }
             if (this.mapList.length > 0) {
               this.$refs.mapview.setMap(this.curMap)
-              this.$refs.mapview.closePlayer()
+              this.$refs.mapview.closeAllPlayer()
             }
             this.mapList.push(this.curMap)
             this.mapEditDialog.dialogVisible = false
@@ -868,6 +870,10 @@ export default class extends Mixins(IndexMixin) {
     this.modifyMapDialog = true
   }
 
+  private closeAllWindow() {
+    this.$refs.mapview.closeAllPlayer()
+  }
+
   // 打开地图信息编辑弹窗 新增/修改
   private openMapEditDialog(map?: mapObject) {
     if (map) {
@@ -876,7 +882,7 @@ export default class extends Mixins(IndexMixin) {
         name: map.name,
         longitude: map.longitude + '',
         latitude: map.latitude + '',
-        zoom: map.zoom
+        zoom: Number(map.zoom)
       }
       this.mapEditDialog.status = 'edit'
     } else {
@@ -921,7 +927,7 @@ export default class extends Mixins(IndexMixin) {
     this.showMarkers = true
     this.curMap = map
     this.$refs.mapview.setMap(map)
-    this.$refs.mapview.closePlayer()
+    this.$refs.mapview.closeAllPlayer()
   }
 
   private deleteMap(map) {
@@ -1089,11 +1095,11 @@ export default class extends Mixins(IndexMixin) {
   top: 40px;
   right: 0;
   background: rgba(255, 255, 255, 80%);
-  width: 20%;
+  width: 150px;
   height: 100%;
-  padding: 20px 20px 0;
+  padding: 10px;
   overflow: scroll;
-  min-width: 270px;
+  z-index: 10;
 }
 
 .dialog-text {
@@ -1303,6 +1309,7 @@ export default class extends Mixins(IndexMixin) {
     height: 18px;
     line-height: 18px;
     font-size: 12px;
+    padding: 0;
   }
 
   ::v-deep .el-input.is-disabled .el-input__inner {
@@ -1312,6 +1319,10 @@ export default class extends Mixins(IndexMixin) {
     cursor: default;
     padding: 0;
     text-overflow: ellipsis;
+  }
+
+  ::v-deep .el-descriptions-item__label:not(.is-bordered-label) {
+    min-width: 52px;
   }
 }
 </style>

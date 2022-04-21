@@ -5,7 +5,7 @@
         <svg-icon name="save" width="25" height="25" @click="save()" />
       </template>
       <el-descriptions-item label="设备名称">
-        {{ markerInfo.deviceLabel }}
+        <div class="deviceName">{{ markerInfo.deviceLabel }}</div>
       </el-descriptions-item>
       <el-descriptions-item label="设备状态">
         {{ DeviceStatus[markerInfo.deviceStatus] || '-' }}
@@ -108,4 +108,10 @@ export default class extends Vue {
 </script>
 
 <style scoped lang="scss">
+  .deviceName{
+    max-width: 78px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
 </style>

@@ -21,6 +21,10 @@
     position: absolute;
     bottom: 10px;
     font-size: 12px;
+    max-width: 50px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
   .marker-center {
     position: absolute;
