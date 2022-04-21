@@ -68,9 +68,9 @@
                 <span class="node-name">
                   <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                   <svg-icon :name="data.type" />
-                  <span class="node-label">{{ node.label }}</span>
+                  <span class="node-label">{{ node.label }}{{ getNumbers(node,data) }}</span>
                   <svg-icon v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0" name="mark" />
-                  <span class="sum-icon">{{ getNumbers(node,data) }}</span>
+                  <span class="sum-icon" />
                 </span>
                 <el-tooltip content="添加该点位至地图" placement="top">
                   <span
