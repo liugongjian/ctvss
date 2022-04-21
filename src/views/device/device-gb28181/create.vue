@@ -176,9 +176,6 @@
             @change="onDeviceAddressChange"
           />
         </el-form-item>
-        <el-form-item label="设备MAC地址:" prop="macAddr">
-          <el-input v-model="form.macAddr" />
-        </el-form-item>
         <el-form-item v-show="form.deviceType !== 'platform'" label="经纬度:" prop="longlat">
           <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
           <el-input v-model="form.deviceLatitude" class="longlat-input" />
@@ -219,13 +216,6 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item
-          v-if="form.deviceType !== 'nvr'"
-          label="杆号:"
-          prop="poleId"
-        >
-          <el-input v-model="form.poleId " />
-        </el-form-item>
         <el-form-item label="配置资源包:" prop="resources">
           <ResourceTabs
             v-model="form.resources"
@@ -247,6 +237,24 @@
             placeholder="请输入设备描述，如设备用途"
           />
         </el-form-item>
+        <el-form-item>
+          <el-button type="text" @click="formExpand = !formExpand">
+            更多设置
+            <i class="el-icon--right" :class="{'el-icon-arrow-down': formExpand, 'el-icon-arrow-right': !formExpand}" />
+          </el-button>
+        </el-form-item>
+        <div class="form-collapse" :class="{'form-expand': formExpand}">
+          <el-form-item label="设备MAC地址:" prop="macAddr">
+            <el-input v-model="form.macAddr" />
+          </el-form-item>
+          <el-form-item
+            v-if="form.deviceType !== 'nvr'"
+            label="杆号:"
+            prop="poleId"
+          >
+            <el-input v-model="form.poleId " />
+          </el-form-item>
+        </div>
       </template>
       <template v-else>
         <el-form-item label="厂商:" prop="deviceVendor">
@@ -468,7 +476,10 @@ export default class extends Mixins(createMixin) {
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
           'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority',
-          'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode', 'poleId']))
+          'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode', 'poleId', 'macAddr']))
+        if (this.form.macAddr || this.form.poleId) {
+          this.formExpand = true
+        }
         this.cascaderInit()
         // 获取绑定资源包列表
         this.getDeviceResources(
