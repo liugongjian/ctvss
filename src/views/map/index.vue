@@ -559,9 +559,8 @@ export default class extends Mixins(IndexMixin) {
   }
 
   private keydownEvent(e: KeyboardEvent) {
-    const doc: Document = document
     if (e.keyCode === 27) {
-      doc.exitFullscreen()
+      this.exitFullscreenMap()
     }
   }
 
@@ -569,15 +568,15 @@ export default class extends Mixins(IndexMixin) {
    *  地图退出全屏
    */
   private exitFullscreenMap() {
-    const mapwrap: any = document.querySelector('.mapwrap')
-    if (mapwrap.exitFullscreen) {
-      mapwrap.exitFullscreen()
-    } else if (mapwrap.webkitExitFullscreen) {
-      mapwrap.webkitExitFullscreen()
-    } else if (mapwrap.mozExitFullscreen) {
-      mapwrap.mozExitFullscreen()
-    } else if (mapwrap.msExitFullscreen) {
-      mapwrap.msExitFullscreen()
+    const doc: any = document
+    if (doc.exitFullscreen) {
+      doc.exitFullscreen()
+    } else if (doc.webkitExitFullscreen) {
+      doc.webkitExitFullscreen()
+    } else if (doc.mozExitFullscreen) {
+      doc.mozExitFullscreen()
+    } else if (doc.msExitFullscreen) {
+      doc.msExitFullscreen()
     } else if (typeof window.ActiveXObject !== 'undefined') {
       const wscript = new ActiveXObject('WScript.Shell')
       if (wscript != null) {
