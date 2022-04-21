@@ -1,17 +1,20 @@
 <!--查询录像有问题的日期-->
 <template>
   <div class="record" style="padding: 15px;">
-    起始日期: <el-date-picker
+    起始日期:
+    <el-date-picker
       v-model="startDate"
       value-format="timestamp"
-      type="date"
-      style="width: 160px;"
+      type="datetime"
+      style="width: 210px;"
+      default-time="00:00:00"
     />
     结束日期: <el-date-picker
       v-model="endDate"
       value-format="timestamp"
-      type="date"
-      style="width: 160px;"
+      type="datetime"
+      style="width: 210px;"
+      default-time="23:59:59"
     />
     设备ID <el-tooltip content="支持输入NVR或通道的DeviceId"><svg-icon name="help" /></el-tooltip>: <el-input v-model="deviceId" style="width: 180px;" />
     忽略时长 <el-tooltip content="忽略指定秒内的缺失录像"><svg-icon name="help" /></el-tooltip>:
@@ -28,7 +31,8 @@
 
     <div class="status">
       <h2>概览</h2>
-      <h3>发现缺失片段总数: {{ total }}</h3>
+      <h3>发现缺失片段总数: {{ totalMissing }}</h3>
+      <h3 v-if="(log.taskIndex === log.taskSize) && log.taskSize > 0">缺失率: {{ calTotalPercent(totalSec) }}</h3>
       <h3>缺失日期:</h3>
       <ul>
         <li v-for="val in nvrStat" :key="val">{{ dateFormat(val, 'yyyy-MM-dd') }}</li>
@@ -38,7 +42,8 @@
     <el-card>
       <div v-for="(channel, index) in list" :key="index" class="device">
         <h3 style="margin-top: 20px;">{{ channel.channelName }}  <span style="font-size: 14px; color: #999;">(channelNum: {{ channel.channelNum }} / deviceId: {{ channel.deviceId }})</span></h3>
-        <h4>发现通道下缺失片段总数: {{ channel.total }}</h4>
+        <h4>发现通道下缺失片段总数: {{ channel.totalMissing }}</h4>
+        <h4 v-if="channel.finish">通道录像丢失率: {{ calChannelPercent(channel.totalSec) }}</h4>
         <div v-for="(list, key) in channel.missList" :key="key" class="missing-date">
           <template v-if="list.length">
             <svg-icon name="dot" />
@@ -76,8 +81,8 @@ import { getTimestamp, dateFormat, getDateByTime, durationFormat } from '@/utils
 export default class extends Vue {
   private dateFormat = dateFormat
   private durationFormat = durationFormat
-  private startDate = getDateByTime(new Date().getTime())
-  private endDate = getDateByTime(new Date().getTime())
+  private startDate = null
+  private endDate = null
   private currentDate = null
   private deviceId = ''
   private ignoreTime = 0
@@ -91,7 +96,8 @@ export default class extends Vue {
   }
   private openDetail = {}
   private nvrStat = new Set()
-  private total = 0
+  private totalMissing = 0
+  private totalSec = 0
 
   private async query() {
     if (!this.startDate || !this.deviceId) {
@@ -107,27 +113,46 @@ export default class extends Vue {
   }
 
   private async queryByDevice() {
-    const spanDay = (this.endDate - this.startDate) / (24 * 60 * 60 * 1000)
-    this.currentDate = this.startDate
+    const spanDay = Math.floor((this.endDate - this.startDate) / (24 * 60 * 60 * 1000))
     this.list = []
     this.nvrStat.clear()
-    this.total = 0
+    this.totalMissing = 0
+    this.totalSec = 0
+    this.log = {
+      currentNum: 0,
+      size: 0,
+      taskSize: 0,
+      taskIndex: 0
+    }
     const nvr = await getDevice({
       inProtocol: 'gb28181',
       deviceId: this.deviceId
     })
-    this.log.size = nvr.deviceChannels.length
+    let channels
+    // 兼容IPC
+    if (nvr.parentDeviceId === '-1' && nvr.deviceType === 'ipc') {
+      channels = [{
+        deviceId: nvr.deviceId,
+        channelName: nvr.deviceName,
+        channelNum: ''
+      }]
+    } else {
+      channels = nvr.deviceChannels
+    }
+    this.log.size = channels.length
     this.log.taskSize = this.log.size * (spanDay + 1)
-    for (let i = 0; i < nvr.deviceChannels.length; i++) {
-      this.currentDate = this.startDate
+    for (let i = 0; i < channels.length; i++) {
+      this.currentDate = getDateByTime(this.startDate)
       this.log.currentNum = i + 1
-      const device = nvr.deviceChannels[i]
+      const device = channels[i]
       const channel = {
         deviceId: device.deviceId,
         channelName: device.channelName,
         channelNum: device.channelNum,
         missList: {},
-        total: 0
+        totalMissing: 0,
+        totalSec: 0,
+        finish: false
       }
       this.list.push(channel)
       for (let j = 0; j <= spanDay; j++) {
@@ -137,14 +162,20 @@ export default class extends Vue {
         } else {
           channel.missList[this.currentDate] = list
         }
-        const startTime = Math.floor(this.currentDate / 1000)
-        const endTime = startTime + 24 * 60 * 60
+        let startTime = Math.floor(this.currentDate)
+        let endTime = startTime + 24 * 60 * 60 * 1000
+        if (this.startDate > startTime) {
+          startTime = this.startDate
+        }
+        if (this.endDate < endTime) {
+          endTime = this.endDate
+        }
         const res = await getDeviceRecords({
           deviceId: device.deviceId,
           inProtocol: 'gb28181',
           recordType: 0,
-          startTime,
-          endTime,
+          startTime: Math.floor(startTime / 1000),
+          endTime: Math.floor(endTime / 1000),
           pageSize: 999999
         })
         res.records.map((record: any, index: number) => {
@@ -162,13 +193,29 @@ export default class extends Vue {
         })
         if (list.length) {
           this.nvrStat.add(this.currentDate)
-          channel.total += list.length
-          this.total += list.length
+          channel.totalMissing += list.length
+          this.totalMissing += list.length
+          const totalSec = list.reduce((total, item) => {
+            return total + item.time
+          }, 0)
+          channel.totalSec += totalSec
+          this.totalSec += totalSec
         }
         this.currentDate = this.currentDate + 24 * 60 * 60 * 1000
         this.log.taskIndex++
+        if (j === spanDay) {
+          channel.finish = true
+        }
       }
     }
+  }
+
+  private calChannelPercent(totalSec) {
+    return (totalSec / ((this.endDate - this.startDate) / 1000) * 100).toFixed(2) + '%'
+  }
+
+  private calTotalPercent(totalSec) {
+    return (totalSec / ((this.endDate - this.startDate) / 1000 * this.log.size) * 100).toFixed(2) + '%'
   }
 
   private open(channel, key) {
