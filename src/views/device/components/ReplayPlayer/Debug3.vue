@@ -32,7 +32,7 @@
     <div class="status">
       <h2>概览</h2>
       <h3>发现缺失片段总数: {{ totalMissing }}</h3>
-      <h3 v-if="(log.taskIndex === log.taskSize) && log.taskSize > 0">缺失率: {{ calTotalPercent(totalSec) }}</h3>
+      <h3 v-if="(log.taskIndex === log.taskSize) && log.taskSize > 0">录像完整率: {{ calTotalPercent(totalSec) }}</h3>
       <h3>缺失日期:</h3>
       <ul>
         <li v-for="val in nvrStat" :key="val">{{ dateFormat(val, 'yyyy-MM-dd') }}</li>
@@ -43,7 +43,7 @@
       <div v-for="(channel, index) in list" :key="index" class="device">
         <h3 style="margin-top: 20px;">{{ channel.channelName }}  <span style="font-size: 14px; color: #999;">(channelNum: {{ channel.channelNum }} / deviceId: {{ channel.deviceId }})</span></h3>
         <h4>发现通道下缺失片段总数: {{ channel.totalMissing }}</h4>
-        <h4 v-if="channel.finish">通道录像丢失率: {{ calChannelPercent(channel.totalSec) }}</h4>
+        <h4 v-if="channel.finish">通道录像完整率: {{ calChannelPercent(channel.totalSec) }}</h4>
         <div v-for="(list, key) in channel.missList" :key="key" class="missing-date">
           <template v-if="list.length">
             <svg-icon name="dot" />
@@ -211,11 +211,11 @@ export default class extends Vue {
   }
 
   private calChannelPercent(totalSec) {
-    return (totalSec / ((this.endDate - this.startDate) / 1000) * 100).toFixed(2) + '%'
+    return (100 - (totalSec / ((this.endDate - this.startDate) / 1000) * 100)).toFixed(2) + '%'
   }
 
   private calTotalPercent(totalSec) {
-    return (totalSec / ((this.endDate - this.startDate) / 1000 * this.log.size) * 100).toFixed(2) + '%'
+    return (100 - (totalSec / ((this.endDate - this.startDate) / 1000 * this.log.size) * 100)).toFixed(2) + '%'
   }
 
   private open(channel, key) {
