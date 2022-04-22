@@ -50,6 +50,7 @@
             <span>日期: {{ dateFormat(parseInt(key), 'yyyy-MM-dd') }}</span>
             <span style="margin: 0 15px;">缺失数量: {{ list.length }}</span>
             <el-button type="text" @click="open(channel, key)">{{ openDetail[channel.deviceId + key] ? '隐藏详情' : '查看详情' }}</el-button>
+            <div v-if="channel.error">当前日期接口查询失败</div>
             <table v-if="openDetail[channel.deviceId + key]" style="width: 100%;" border="1" cellspacing="0" cellpadding="0">
               <tr>
                 <th>缺失时长(秒)</th>
@@ -113,7 +114,7 @@ export default class extends Vue {
   }
 
   private async queryByDevice() {
-    const spanDay = Math.floor((this.endDate - this.startDate) / (24 * 60 * 60 * 1000))
+    const spanDay = Math.floor((getDateByTime(this.endDate) - getDateByTime(this.startDate)) / (24 * 60 * 60 * 1000))
     this.list = []
     this.nvrStat.clear()
     this.totalMissing = 0
@@ -124,89 +125,99 @@ export default class extends Vue {
       taskSize: 0,
       taskIndex: 0
     }
-    const nvr = await getDevice({
-      inProtocol: 'gb28181',
-      deviceId: this.deviceId
-    })
-    let channels
-    // 兼容IPC
-    if (nvr.parentDeviceId === '-1' && nvr.deviceType === 'ipc') {
-      channels = [{
-        deviceId: nvr.deviceId,
-        channelName: nvr.deviceName,
-        channelNum: ''
-      }]
-    } else {
-      channels = nvr.deviceChannels
-    }
-    this.log.size = channels.length
-    this.log.taskSize = this.log.size * (spanDay + 1)
-    for (let i = 0; i < channels.length; i++) {
-      this.currentDate = getDateByTime(this.startDate)
-      this.log.currentNum = i + 1
-      const device = channels[i]
-      const channel = {
-        deviceId: device.deviceId,
-        channelName: device.channelName,
-        channelNum: device.channelNum,
-        missList: {},
-        totalMissing: 0,
-        totalSec: 0,
-        finish: false
+    try {
+      const nvr = await getDevice({
+        inProtocol: 'gb28181',
+        deviceId: this.deviceId
+      })
+      let channels
+      // 兼容IPC
+      if (nvr.parentDeviceId === '-1' && nvr.deviceType === 'ipc') {
+        channels = [{
+          deviceId: nvr.deviceId,
+          channelName: nvr.deviceName,
+          channelNum: ''
+        }]
+      } else {
+        channels = nvr.deviceChannels
       }
-      this.list.push(channel)
-      for (let j = 0; j <= spanDay; j++) {
-        let list = []
-        if (channel.missList[this.currentDate]) {
-          list = channel.missList[this.currentDate]
-        } else {
-          channel.missList[this.currentDate] = list
-        }
-        let startTime = Math.floor(this.currentDate)
-        let endTime = startTime + 24 * 60 * 60 * 1000
-        if (this.startDate > startTime) {
-          startTime = this.startDate
-        }
-        if (this.endDate < endTime) {
-          endTime = this.endDate
-        }
-        const res = await getDeviceRecords({
+      this.log.size = channels.length
+      this.log.taskSize = this.log.size * (spanDay + 1)
+      for (let i = 0; i < channels.length; i++) {
+        this.currentDate = getDateByTime(this.startDate)
+        this.log.currentNum = i + 1
+        const device = channels[i]
+        const channel = {
           deviceId: device.deviceId,
-          inProtocol: 'gb28181',
-          recordType: 0,
-          startTime: Math.floor(startTime / 1000),
-          endTime: Math.floor(endTime / 1000),
-          pageSize: 999999
-        })
-        res.records.map((record: any, index: number) => {
-          const currentEnd = getTimestamp(record.endTime)
-          if (index + 1 < res.records.length) {
-            const nextStart = getTimestamp(res.records[index + 1]['startTime'])
-            if (((nextStart - currentEnd) / 1000) > this.ignoreTime) {
-              list.push({
-                time: (nextStart - currentEnd) / 1000,
-                start: dateFormat(new Date(currentEnd)),
-                end: dateFormat(new Date(nextStart))
-              })
-            }
-          }
-        })
-        if (list.length) {
-          this.nvrStat.add(this.currentDate)
-          channel.totalMissing += list.length
-          this.totalMissing += list.length
-          const totalSec = list.reduce((total, item) => {
-            return total + item.time
-          }, 0)
-          channel.totalSec += totalSec
-          this.totalSec += totalSec
+          channelName: device.channelName,
+          channelNum: device.channelNum,
+          missList: {},
+          totalMissing: 0,
+          totalSec: 0,
+          finish: false,
+          error: false
         }
-        this.currentDate = this.currentDate + 24 * 60 * 60 * 1000
-        this.log.taskIndex++
-        if (j === spanDay) {
-          channel.finish = true
+        this.list.push(channel)
+        for (let j = 0; j <= spanDay; j++) {
+          let list = []
+          if (channel.missList[this.currentDate]) {
+            list = channel.missList[this.currentDate]
+          } else {
+            channel.missList[this.currentDate] = list
+          }
+          let startTime = Math.floor(this.currentDate)
+          let endTime = startTime + 24 * 60 * 60 * 1000
+          if (this.startDate > startTime) {
+            startTime = this.startDate
+          }
+          if (this.endDate < endTime) {
+            endTime = this.endDate
+          }
+          try {
+            const res = await getDeviceRecords({
+              deviceId: device.deviceId,
+              inProtocol: 'gb28181',
+              recordType: 0,
+              startTime: Math.floor(startTime / 1000),
+              endTime: Math.floor(endTime / 1000),
+              pageSize: 999999
+            })
+            res.records.map((record: any, index: number) => {
+              const currentEnd = getTimestamp(record.endTime)
+              if (index + 1 < res.records.length) {
+                const nextStart = getTimestamp(res.records[index + 1]['startTime'])
+                if (((nextStart - currentEnd) / 1000) > this.ignoreTime) {
+                  list.push({
+                    time: (nextStart - currentEnd) / 1000,
+                    start: dateFormat(new Date(currentEnd)),
+                    end: dateFormat(new Date(nextStart))
+                  })
+                }
+              }
+            })
+            if (list.length) {
+              this.nvrStat.add(this.currentDate)
+              channel.totalMissing += list.length
+              this.totalMissing += list.length
+              const totalSec = list.reduce((total, item) => {
+                return total + item.time
+              }, 0)
+              channel.totalSec += totalSec
+              this.totalSec += totalSec
+            }
+          } catch (e) {
+            channel.error = true
+            this.$message.error(e.message)
+          }
+          this.currentDate = this.currentDate + 24 * 60 * 60 * 1000
+          this.log.taskIndex++
+          if (j === spanDay) {
+            channel.finish = true
+          }
         }
       }
+    } catch (e) {
+      this.$message.error(e.message)
     }
   }
 
