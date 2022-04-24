@@ -33,6 +33,7 @@
       <h2>概览</h2>
       <h3>发现缺失片段总数: {{ totalMissing }}</h3>
       <h3 v-if="(log.taskIndex === log.taskSize) && log.taskSize > 0">录像完整率: {{ calTotalPercent(totalSec) }}</h3>
+      <h3>总缺失时长: {{ totalSec }}s <span v-if="totalSec > 60" style="font-size: 14px; color: #999;">({{ durationFormat(totalSec) }})</span></h3>
       <h3>缺失日期:</h3>
       <ul>
         <li v-for="val in nvrStat" :key="val">{{ dateFormat(val, 'yyyy-MM-dd') }}</li>
@@ -44,6 +45,7 @@
         <h3 style="margin-top: 20px;">{{ channel.channelName }}  <span style="font-size: 14px; color: #999;">(channelNum: {{ channel.channelNum }} / deviceId: {{ channel.deviceId }})</span></h3>
         <h4>发现通道下缺失片段总数: {{ channel.totalMissing }}</h4>
         <h4 v-if="channel.finish">通道录像完整率: {{ calChannelPercent(channel.totalSec) }}</h4>
+        <h4 v-if="channel.finish">通道总缺失时长: {{ channel.totalSec }}s <span v-if="channel.totalSec > 60" style="font-size: 14px; color: #999;">({{ durationFormat(channel.totalSec) }})</span></h4>
         <div v-for="(list, key) in channel.missList" :key="key" class="missing-date">
           <template v-if="list.length">
             <svg-icon name="dot" />
