@@ -6,9 +6,8 @@ import { RecordTemplate } from '@/type/template'
 import { queryGroup } from '@/api/group'
 import { GroupModule } from '@/store/modules/group'
 import { DeviceModule } from '@/store/modules/device'
-// import { DeviceStatus, DeviceGb28181Type, RecordStatus, RecordStatusType, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType } from '@/dics'
-import { getDevice, getAddressArea } from '@/api/device'
-import { DeviceStatus, DeviceGb28181Type, RecordStatus, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType, RecordStatusType } from '@/dics'
+import { getDevice } from '@/api/device'
+import { DeviceStatus, StreamStatus, DeviceGb28181Type, RecordStatus, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType, RecordStatusType } from '@/dics'
 import { getDeviceResources } from '@/api/billing'
 import TemplateBind from '../../components/templateBind.vue'
 import SetAuthConfig from '../components/dialogs/SetAuthConfig.vue'
@@ -26,7 +25,6 @@ import Resource from '@/views/device/components/dialogs/Resource.vue'
 import { VGroupModule } from '@/store/modules/vgroup'
 import { industryMap } from '@/assets/region/industry'
 import { networkMap } from '@/assets/region/network'
-import { allRegionList } from '@/assets/region/region'
 import MoveDir from '../components/dialogs/MoveDir.vue'
 import DetailOperation from '../components/DetailOperation.vue'
 
@@ -52,6 +50,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   public checkPermission = checkPermission
   public activeName: any = 'info'
   public deviceStatus = DeviceStatus
+  public streamStatus = StreamStatus
   public recordStatusType = RecordStatusType
   public deviceType = DeviceGb28181Type
   public recordStatus = RecordStatus
@@ -116,7 +115,6 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     2: '子码流',
     3: '第三码流'
   }
-  public lianzhouFlag: boolean = false
   public regionList = regionList
   public lianzhouAddress: string = ''
 
@@ -172,9 +170,23 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     return this.groupInfo && this.groupInfo.sipId && this.groupInfo.sipId.toString().substr(0, 10)
   }
 
+  /**
+   * 显示设备地址
+   */
+  public get deviceAddress() {
+    return this.info.gbRegionNames && this.info.gbRegionNames.reverse().join('/')
+  }
+
   @Watch('$route.query')
   public onRouterChange() {
     this.detailInit()
+  }
+
+  @Watch('realGroupId')
+  public async onRealGroupIdChange(realGroupId: string, oldRealGroupId: string) {
+    if (!realGroupId || oldRealGroupId) return
+    await this.getDevice()
+    await this.getDeviceResources()
   }
 
   /**
@@ -195,11 +207,8 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     } else {
       this.activeName = 'info'
     }
-    // TODO: 连州教育局一机一档专用
-    this.lianzhouFlag = this.$store.state.user.tags.isLianZhouEdu === 'Y'
     await this.getDevice()
     await this.getDeviceResources()
-    await this.getAddress(this.info!.gbRegion)
   }
 
   public delayDetailInit() {
@@ -243,59 +252,8 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   }
 
   /**
-   * 获取连州region
+   * 判断是否为专线
    */
-  public async getAddress(gbRegion: any) {
-    this.$set(this.info!, 'address', '')
-    if (this.lianzhouFlag) {
-      let res = await getAddressArea({
-        pid: 441882,
-        level: 5
-      })
-      this.info!.address = '广东省/清远市/连州市'
-      let lianzhouArea = res.areas.map((item: any) => {
-        return {
-          name: item.name,
-          code: item.id,
-          level: item.level
-        }
-      })
-      lianzhouArea.forEach((item: any) => {
-        if (item.code === gbRegion) {
-          this.info!.address += `/${item.name}`
-        }
-      })
-    } else {
-      const list = [
-        parseInt(gbRegion!.substring(0, 2)),
-        parseInt(gbRegion!.substring(0, 4)),
-        parseInt(gbRegion!.substring(0, 6))
-      ]
-      let region0 = allRegionList.find((item0: any) => {
-        return item0.code === list[0]
-      })
-      if (region0) {
-        this.info!.address += region0.name
-        let region1 = region0.children.find((item1: any) => {
-          return item1.code === list[1]
-        })
-        if (region1) {
-          this.info!.address += '/' + region1.name
-          let region2 = region1.children.find((item2: any) => {
-            return item2.code === list[2]
-          })
-          if (region2) {
-            this.info!.address += '/' + region2.name
-          } else {
-            this.info!.address += '/' + region1.children[0].name
-          }
-        } else {
-          this.info!.address += '/' + region0.children[0].name + '/' + region0.children[0].children[0].name
-        }
-      }
-    }
-  }
-
   public get isPrivateInNetwork() {
     return this.inNetworkType && this.inNetworkType !== 'public'
   }
@@ -326,6 +284,17 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
         deviceId: this.deviceId,
         inProtocol: this.inProtocol
       })
+      /**
+       * 2022-03-16修改
+       * 如果设备为子通道，使用channel下的设备状态、流状态、录制状态字段
+       */
+      if (this.info.parentDeviceId !== '-1') {
+        // @ts-ignore
+        const channel = this.info.deviceChannels[0]
+        this.info.deviceStatus = channel.deviceStatus
+        this.info.streamStatus = channel.streamStatus
+        this.info.recordStatus = channel.recordStatus
+      }
     } catch (e) {
       console.error(e)
     } finally {
@@ -447,6 +416,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
         type: superior.type
       })
     } else {
+      console.log('goSuperior: we are goto root')
       this.gotoRoot()
     }
   }
@@ -492,13 +462,5 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   public copyUrl(text: string) {
     copy(text)
     this.$message.success('复制成功')
-  }
-
-  @Watch('realGroupId')
-  public async onRealGroupIdChange(realGroupId: string, oldRealGroupId: string) {
-    if (!realGroupId || oldRealGroupId) return
-    await this.getDevice()
-    await this.getDeviceResources()
-    await this.getAddress(this.info!.gbRegion)
   }
 }

@@ -1,82 +1,56 @@
 <template>
-  <player-container :on-can-play="onCanPlay" :calendar-focus="calendarFocus">
-    <replay-view
-      ref="replayView"
-      :class="{'fullscreen': isFullscreen}"
-      :device-id="deviceId"
-      :in-protocol="inProtocol"
-      :is-fullscreen="isFullscreen"
-      :has-playlive="false"
-      @onCalendarFocus="onCalendarFocus"
-      @onCanPlay="playEvent"
-      @onFullscreen="isFullscreen = true; fullscreen()"
-      @onExitFullscreen="exitFullscreen()"
-    />
-  </player-container>
+  <ScreenBoard
+    ref="screenBoard"
+    :style="`height: ${height}`"
+    :is-live="false"
+    :in-protocol="inProtocol"
+    :default-size="1"
+    :is-single="true"
+  />
 </template>
 
 <script lang="ts">
-import { Component, Prop, Mixins, Inject, Watch } from 'vue-property-decorator'
-import FullscreenMixin from '../mixin/fullscreenMixin'
-import ReplayView from './ReplayView.vue'
-import PlayerContainer from './PlayerContainer.vue'
+import { Component, Prop, Vue } from 'vue-property-decorator'
+import ScreenBoard from './ScreenBoard/index.vue'
+import { ScreenManager } from '../models/Screen/ScreenManager'
 
 @Component({
-  name: 'DevicePreview',
+  name: 'DeviceReplay',
   components: {
-    ReplayView,
-    PlayerContainer
+    ScreenBoard
   }
 })
-export default class extends Mixins(FullscreenMixin) {
-  @Inject('deviceRouter') private deviceRouter!: Function
-
-  @Prop() private deviceId?: string
+export default class extends Vue {
+  @Prop() private deviceId?: number
   @Prop() private inProtocol?: string
 
-  @Watch('isFullscreen')
-  private isFullscreenChange(val: any) {
-    !val && this.$nextTick(this.resizeReplayVideo)
-  }
+  private height = 'auto'
 
-  private onCanPlay = false
-  private calendarFocus = false
+  public screenManager: ScreenManager = null
 
-  private mounted() {
-    this.$nextTick(this.resizeReplayVideo)
-    window.addEventListener('resize', this.resizeReplayVideo)
-    window.addEventListener('resize', this.checkFullscreen)
+  public mounted() {
+    const screenBoard = this.$refs.screenBoard as ScreenBoard
+    // @ts-ignore
+    this.screenManager = screenBoard!.screenManager
+    const screen = this.screenManager.currentScreen
+    screen.deviceId = this.deviceId
+    screen.inProtocol = this.inProtocol
+    screen.isLive = false
+    screen.init()
+    this.calMaxHeight()
+    window.addEventListener('resize', this.calMaxHeight)
   }
 
   private beforeDestroy() {
-    window.removeEventListener('resize', this.resizeReplayVideo)
-    window.removeEventListener('resize', this.checkFullscreen)
+    window.removeEventListener('resize', this.calMaxHeight)
   }
 
   /**
-   * 设置播放器大小
+   * 计算最大高度
    */
-  private resizeReplayVideo() {
-    const replayView: any = this.$refs.replayView
-    if (!replayView) return
-    const $replayView = replayView.$el
-    const playerSize = $replayView.getBoundingClientRect()
-    const documentHeight = document.body.offsetHeight
-    $replayView.style.height = `${documentHeight - playerSize.top - 50}px`
-  }
-
-  /**
-   * 鼠标移入移出视频触发事件
-   */
-  private playEvent(val: boolean) {
-    this.onCanPlay = val
-  }
-
-  /**
-   * 日历获取焦点
-   */
-  private onCalendarFocus(val: boolean) {
-    this.calendarFocus = val
+  public calMaxHeight() {
+    const deviceList: HTMLDivElement = document.querySelector('.device-list')
+    this.height = `${deviceList.clientHeight - 125}px`
   }
 }
 </script>
@@ -85,12 +59,14 @@ export default class extends Mixins(FullscreenMixin) {
     width: 100%;
     display: flex;
     flex-direction: column;
+
     ::v-deep .replay-player {
       flex: 1;
     }
   }
 
-  .fullscreen ::v-deep .preview-player .video-wrap, .fullscreen.replay-view {
+  .fullscreen ::v-deep .preview-player .video-wrap,
+  .fullscreen.replay-view {
     position: fixed;
     z-index: 1001;
     top: 0;

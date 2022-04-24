@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div ref="container" class="app-container">
     <el-card :class="{'collapsed': isCollapsed, 'dragging': handleDrag.isDragging}">
       <div
         class="handle"
@@ -24,7 +24,7 @@
           <span>{{ nodePath }}</span>
         </div>
       </div>
-      <div class="user-content">
+      <div class="user-content" :style="`height: ${maxHeight}px`">
         <el-main v-loading="loading.menu" class="user-content__menu" :style="`width: ${handleDrag.width}px`">
           <el-tree
             ref="groupTree"
@@ -76,7 +76,7 @@
               <el-button class="el-button-rect" @click="getUserList"><svg-icon name="refresh" /></el-button>
             </div>
           </div>
-          <el-table v-loading="loading.body" :data="userList">
+          <el-table v-loading="loading.body" :data="userList" :height="tableMaxHeight">
             <el-table-column prop="iamUserName" label="用户名">
               <template slot-scope="{row}">
                 <span class="click__user" @click="getDetail(row)">{{ row.iamUserName || '-' }}</span>
@@ -162,6 +162,8 @@ export default class extends Vue {
     }
   }
   private subUserLoginLink: string = ''
+  private maxHeight = null
+  private tableMaxHeight = null
 
   @Watch('userList.length')
   private onUserListChange(data: any) {
@@ -173,7 +175,24 @@ export default class extends Vue {
       this.nodeKeyPath = this.$route.params.nodeKeyPath
     )
     this.initGroupTree('')
-    // console.log(this.handleDrag)
+    this.calMaxHeight()
+    window.addEventListener('resize', this.calMaxHeight)
+  }
+
+  private destroyed() {
+    window.removeEventListener('resize', this.calMaxHeight)
+  }
+
+  /**
+   * 计算最大高度
+   */
+  public calMaxHeight() {
+    const container: any = this.$refs.container
+    const size = container.getBoundingClientRect()
+    const top = size.top
+    const documentHeight = document.body.offsetHeight
+    this.maxHeight = documentHeight - top - 90
+    this.tableMaxHeight = this.maxHeight - 135
   }
 
   private changeHandle(e: any) {
@@ -381,7 +400,7 @@ export default class extends Vue {
   }
   private createUser() {
     this.$router.push({
-      name: `accessManage-user-create`,
+      name: 'accessManage-user-create',
       query: {
         type: 'add',
         groupId: this.currentNode.data.groupId,
@@ -392,7 +411,7 @@ export default class extends Vue {
   private editUser(row: any) {
     this.getSubuserLoginLink(row.iamUserName)
     this.$router.push({
-      name: `accessManage-user-create`,
+      name: 'accessManage-user-create',
       query: {
         type: 'edit',
         userId: row.iamUserId,
@@ -416,7 +435,7 @@ export default class extends Vue {
     this.getSubuserLoginLink(user.iamUserName)
     // 传递参数去获取用户详情数据
     this.$router.push({
-      name: `accessManage-user-detail`,
+      name: 'accessManage-user-detail',
       query: {
         type: 'edit',
         userId: user.iamUserId,
@@ -429,8 +448,9 @@ export default class extends Vue {
 </script>
 
 <style lang='scss' scoped>
-  $borderGrey: #EEEEEE;
-  $titleBackground: #F8F8F8;
+  $borderGrey: #eee;
+  $titleBackground: #f8f8f8;
+
   ::v-deep {
     .el-card {
       &__body {
@@ -438,16 +458,19 @@ export default class extends Vue {
         position: relative;
       }
     }
+
     .titleBar .el-button {
       &--medium {
         border-radius: 0;
         border: none;
         height: 100%;
       }
+
       &--default {
         background: $titleBackground;
       }
     }
+
     .el-tree {
       .el-tree-node {
         &__content {
@@ -456,27 +479,32 @@ export default class extends Vue {
       }
     }
   }
+
   .handle {
     height: 100%;
     position: absolute;
     width: 8px;
     border-right: 1px solid $borderGrey;
     cursor: ew-resize;
+
     &:hover {
       border-right-color: #ccc;
     }
   }
+
   .titleBar {
     height: 40px;
     border-bottom: 1px solid $borderGrey;
     display: flex;
     background: $titleBackground;
+
     &__menu {
       width: 250px;
       overflow: hidden;
-      transition: .2s;
+      transition: 0.2s;
       display: flex;
       justify-content: space-between;
+
       &__tools {
         .el-button {
           border: none;
@@ -484,51 +512,60 @@ export default class extends Vue {
           margin-right: 10px;
           font-size: 20px;
         }
+
         &__icon {
           width: 16px !important;
           height: 16px !important;
-          color: #000000;
+          color: #000;
         }
       }
     }
+
     &__title {
       padding-left: 20px;
       display: flex;
       align-items: center;
     }
   }
+
   .user-content {
     height: 85vh;
     min-height: 0;
     display: flex;
+
     &__menu {
       overflow-x: auto;
       width: 250px;
       height: 100%;
       flex-shrink: 0;
-      transition: .2s;
+      transition: 0.2s;
       padding: 10px;
+
       &__item {
         flex: 1;
         position: relative;
         overflow: hidden;
         font-size: 14px;
         padding-right: 8px;
+
         &__btns {
-          background: #F5F7FA;
+          background: #f5f7fa;
           position: absolute;
           right: 5px;
           top: -10px;
           display: none;
+
           &__icon {
-            color: #6E7C89;
+            color: #6e7c89;
           }
         }
+
         &:hover .user-content__menu__item__btns {
           display: block;
         }
       }
     }
+
     &__body {
       overflow: auto;
       width: 100%;
@@ -536,41 +573,51 @@ export default class extends Vue {
       flex-shrink: 1;
     }
   }
+
   .collapsed {
     .handle {
       display: none;
     }
+
     .titleBar__menu {
       width: 50px !important;
     }
+
     .user-content__menu {
-      width: 0px !important;
+      width: 0 !important;
       padding-left: 0;
       padding-right: 0;
-      border-right: 0px
+      border-right: 0;
     }
   }
+
   .dragging {
     cursor: ew-resize;
 
-    .titleBar__menu, .user-content__menu {
+    .titleBar__menu,
+    .user-content__menu {
       transition: none;
     }
+
     * {
-      user-select:none;
+      user-select: none;
     }
   }
+
   .head {
     display: flex;
     justify-content: space-between;
     margin-bottom: 20px;
+
     &__right {
       display: flex;
+
       .el-input {
-        margin-right: 10px
+        margin-right: 10px;
       }
     }
   }
+
   :hover .click__user {
     cursor: pointer;
   }

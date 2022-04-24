@@ -1,5 +1,30 @@
 <template>
   <div class="device-wrapper">
+    <div class="alarm-container">
+      <div class="alarm-container__time">
+        告警时间：
+        <el-radio-group v-model="period.periodType" size="medium" @change="handleChange">
+          <!-- <el-radio-group> -->
+          <el-radio-button label="今天" />
+          <el-radio-button label="近3天" />
+          <el-radio-button label="自定义时间" />
+        </el-radio-group>
+        <el-date-picker
+          v-if="period.periodType === '自定义时间'"
+          v-model="period.period"
+          type="daterange"
+          value-format="timestamp"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          @change="handleChange"
+        />
+      </div>
+      <div class="alarm-container__alarm">
+        <div>总告警次数：</div>
+        <div>{{ totalAlarm }}次</div>
+      </div>
+    </div>
     <el-table
       ref="multipleTable"
       v-loading="loading"
@@ -38,6 +63,7 @@
           <span>{{ parseInt(scope.row.status) ? '启用' : '停用' }}</span>
         </template>
       </el-table-column>
+      <el-table-column prop="count" label="告警次数" />
       <el-table-column label="操作" prop="action" class-name="col-action">
         <template slot-scope="scope">
           <el-button type="text" @click="rowClick(scope.row)">
@@ -64,16 +90,18 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Mixins, Watch } from 'vue-property-decorator'
 import StatusBadge from '@/components/StatusBadge/index.vue'
-import { getAttachedDevice } from '@/api/ai-app'
+import { getAttachedDevice, getAiAlarm } from '@/api/ai-app'
 import { startAppResource, stopAppResource, unBindAppResource } from '@/api/device'
+import AppMixin from '../../mixin/app-mixin'
+import { GroupModule } from '@/store/modules/group'
 
 @Component({
   name: 'AtachedDevice',
   components: { StatusBadge }
 })
-export default class extends Vue {
+export default class extends Mixins(AppMixin) {
   private pager = {
     pageNum: 1,
     pageSize: 10,
@@ -81,12 +109,30 @@ export default class extends Vue {
   }
   private loading = false
   private devices: any = []
+  private totalAlarm = 0
+
+  @Watch('period.periodType')
+  private periodTypeUpdated(newVal) {
+    switch (newVal) {
+      case '今天':
+        this.period.period = [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)]
+        break
+      case '近3天':
+        this.period.period = [this.getDateBefore(2), new Date().setHours(23, 59, 59, 999)]
+        break
+      case '自定义时间':
+        this.period.period = [this.getDateBefore(6), new Date().setHours(0, 0, 0, 0)]
+        break
+    }
+  }
 
   private async mounted() {
-    this.getAttachedDevice()
+    await this.getAttachedDevice()
+    this.getAlarms()
   }
 
   private async getAttachedDevice() {
+    this.loading = true
     const { deviceList, pageNum, pageSize, totalNum } = await getAttachedDevice({
       appId: this.$route.query.appid,
       pageNum: this.pager.pageNum,
@@ -96,6 +142,7 @@ export default class extends Vue {
     this.pager.pageNum = pageNum
     this.pager.pageSize = pageSize
     this.pager.totalNum = totalNum
+    this.loading = false
   }
   /**
    * 启停用应用
@@ -127,9 +174,10 @@ export default class extends Vue {
         appIds: [this.$route.query.appid],
         deviceId: device.deviceId
       },
-      onSuccess: () => {
+      onSuccess: async() => {
         this.$message.success(`已通知${method}AI应用`)
-        this.getAttachedDevice()
+        await this.getAttachedDevice()
+        this.getAlarms()
       }
     })
   }
@@ -165,53 +213,110 @@ export default class extends Vue {
     })
   }
   private rowClick(row: any) {
+    const curGroup = GroupModule.groups.filter(group => group.groupId === row.groupId)
+    GroupModule.SetGroup(curGroup[0])
     this.$router.push({
       name: 'device-detail',
       query: {
         inProtocol: row.inProtocol,
-        deviceId: row.deviceId
+        deviceId: row.deviceId,
+        type: row.deviceType,
+        path: row.deviceDir
       }
     })
   }
 
-  private handleSizeChange(val: number) {
+  private async handleSizeChange(val: number) {
     this.pager.pageSize = val
-    this.getAttachedDevice()
+    await this.getAttachedDevice()
+    this.getAlarms()
   }
 
-  private handleCurrentChange(val: number) {
+  private async handleCurrentChange(val: number) {
     this.pager.pageNum = val
-    this.getAttachedDevice()
+    await this.getAttachedDevice()
+    this.getAlarms()
+  }
+
+  public async getAlarms() {
+    this.loading = true
+    this.alarms = []
+    this.getAlarm(this.$route.query.appid, null, this.period.period)
+    const promiseArray = this.devices.map(item => this.getAlarm(this.$route.query.appid, item.deviceId, this.period.period))
+    await Promise.all(promiseArray)
+    this.devices = this.devices.map(device => {
+      const result = this.alarms.filter(alarm => alarm.deviceId === device.deviceId)
+      return { ...device, count: result[0].count }
+    })
+    this.loading = false
+  }
+
+  public async getAlarm(appId, deviceId, period) {
+    if (deviceId) {
+      const res = await getAiAlarm({ appId, deviceId, startTime: period[0], endTime: this.period.periodType === '自定义时间' ? period[1] + this.msOfADay : period[1] })
+      this.alarms.push(res)
+    } else {
+      const { count } = await getAiAlarm({ appId, startTime: period[0], endTime: this.period.periodType === '自定义时间' ? period[1] + this.msOfADay : period[1] })
+      this.totalAlarm = count
+    }
   }
 }
 </script>
 <style lang="scss" scoped>
-.device-wrapper{
-  .device-list__device-type{
+.device-wrapper {
+  .device-list__device-type {
     display: inline-block;
     position: relative;
     margin: 2px 8px;
-    .status-badge{
+
+    .status-badge {
       position: absolute;
       top: -2px;
       left: -6px;
     }
   }
-  .device-list__device-name{
+
+  .device-list__device-name {
     display: inline-block;
   }
-  flex:1 1 auto;
-  .svg-icon{
+
+  flex: 1 1 auto;
+
+  .svg-icon {
     // margin: 0 8px;
   }
+
+  .alarm-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 24px;
+
+    &__alarm {
+      & > div {
+        display: inline-block;
+        height: 36px;
+        line-height: 36px;
+        vertical-align: middle;
+      }
+
+      & > div:nth-of-type(2) {
+        background: $primary;
+        margin-left: 5px;
+      }
+    }
+  }
 }
-.online{
+
+.online {
   color: #65c465;
 }
-.offline{
+
+.offline {
   color: #6e7c89;
 }
-::v-deep .tableCell{
+
+/* stylelint-disable-next-line selector-class-pattern */
+::v-deep .tableCell {
   cursor: pointer;
 }
 </style>

@@ -1,16 +1,21 @@
 import { Component, Watch, Vue, Inject } from 'vue-property-decorator'
+import { DeviceAddress } from '@/type/device'
 import { GroupModule } from '@/store/modules/group'
 import { UserModule } from '@/store/modules/user'
 import { DeviceModule } from '@/store/modules/device'
-import { regionList } from '@/assets/region/lianzhouRegion'
-import { getAddressArea } from '@/api/device'
 import { getDeviceResources } from '@/api/billing'
 import { DeviceTips } from '@/dics/tips'
 import { industryMap } from '@/assets/region/industry'
 import { networkMap } from '@/assets/region/network'
-import { allRegionList } from '@/assets/region/region'
+import AddressCascader from '@/views/components/AddressCascader.vue'
+import ResourceTabs from '../components/ResourceTabs.vue'
 
-@Component
+@Component({
+  components: {
+    AddressCascader,
+    ResourceTabs
+  }
+})
 export default class CreateMixin extends Vue {
   @Inject({ from: 'deviceRouter', default: null }) public deviceRouter!: Function
   @Inject({ from: 'initDirs', default: null }) public initDirs!: Function
@@ -19,11 +24,7 @@ export default class CreateMixin extends Vue {
   public orginalResourceIdList: Array<string> = []
   public orginalChannelSize = 0
   public inNetworkType = ''
-  public addressProps: any = {
-    value: 'code',
-    label: 'name',
-    children: 'children'
-  }
+  public deviceGbId: string = ''
 
   public loading = {
     account: false,
@@ -33,10 +34,9 @@ export default class CreateMixin extends Vue {
   public submitting = false
 
   public deviceVendorList = ['海康', '大华', '宇视', '其他']
+  // public deviceVendorList = ['海康', '大华', '宇视', '科达', '华为', '其他']
 
   public tips = DeviceTips
-
-  public regionList: any = []
 
   public get currentGroup() {
     return GroupModule.group
@@ -106,17 +106,17 @@ export default class CreateMixin extends Vue {
   }
 
   /**
-   * 针对连州设备管理
-   */
-  public get lianzhouFlag() {
-    return this.$store.state.user.tags.isLianZhouEdu === 'Y'
-  }
-
-  /**
    * 针对网络标识
    */
   public get networkFlag() {
     return this.$store.state.user.tags.isNeedDeviceNetworkCode === 'Y'
+  }
+
+  /**
+   * 是否显示自定义国标ID
+   */
+  public get isShowGbIdEditor() {
+    return this.$store.state.user.tags.enabled_input_gbid === 'Y'
   }
 
   @Watch('currentGroup', { immediate: true, deep: true })
@@ -129,89 +129,40 @@ export default class CreateMixin extends Vue {
   }
 
   public mounted() {
-    this.form.gbRegion = this.currentGroup!.gbRegion
-    this.cascaderInit()
-    this.form.industryCode = this.currentGroup!.industryCode
-    this.form.networkCode = this.currentGroup!.networkCode
-  }
-
-  // 设备地址动态变化
-  public async cascaderInit() {
-    if (this.lianzhouFlag) {
-      this.regionList = regionList
-      this.regionList[0].children[0].children[0].children = await this.getExpandList(441882)
-    } else {
-      this.regionList = allRegionList
-    }
-    if (!this.form.gbRegion) return
-    let list = [
-      parseInt(this.form.gbRegion!.substring(0, 2)),
-      parseInt(this.form.gbRegion!.substring(0, 4)),
-      parseInt(this.form.gbRegion!.substring(0, 6))
-    ]
-    await this.regionChange(list)
-    this.form.address = this.lianzhouFlag ? [ ...list, this.form.gbRegion ] : [
-      parseInt(this.form.gbRegion!.substring(0, 2)),
-      parseInt(this.form.gbRegion!.substring(0, 4)),
-      parseInt(this.form.gbRegion!.substring(0, 6))
-    ]
-    this.$nextTick(() => {
-      this.addressChange()
-    })
-  }
-
-  public async regionChange(val: any) {
-    if (val.length !== 3 || !val[0] || !val[1] || !val[2]) {
-      return
-    }
-    let index1 = this.regionList.findIndex((item: any) => {
-      return item.code === val[0]
-    })
-    if (index1 !== -1) {
-      let index2 = this.regionList[index1].children.findIndex((item: any) => {
-        return item.code === val[1]
-      })
-      if (index2 !== -1) {
-        let index3 = this.regionList[index1].children[index2].children.findIndex((item: any) => {
-          return item.code === val[2]
-        })
-        if (index3 !== -1) {
-          if (this.lianzhouFlag) {
-            this.regionList[index1].children[index2].children[index3].children = await this.getExpandList(val[2])
-          }
-        } else {
-          this.form.gbRegion = this.regionList[index1].children[index2].children[0].code + '00'
-        }
-      } else {
-        this.form.gbRegion = this.regionList[index1].children[0].children[0].code + '00'
+    if (!this.isUpdate) {
+      this.form.gbRegion = this.currentGroup!.gbRegion
+      this.form.gbRegionLevel = this.currentGroup!.gbRegionLevel
+      if (Object.keys(industryMap).indexOf(this.currentGroup!.industryCode) > -1) {
+        this.form.industryCode = this.currentGroup!.industryCode
+        this.form.industryCode = this.currentGroup!.industryCode
+        this.form.networkCode = this.currentGroup!.networkCode
+        this.cascaderInit()
       }
     }
   }
-  public async getExpandList(id: any) {
-    let params: any = {
-      pid: id,
-      level: this.lianzhouFlag ? 5 : 4
-    }
-    let res = await getAddressArea(params)
-    if (res.areas.length) {
-      return res.areas.map((item: any) => {
-        return {
-          name: item.name,
-          code: item.id,
-          level: item.level
-        }
-      })
+
+  /**
+   * 将gbRegion转成el-cascader格式的数组
+   */
+  public async cascaderInit() {
+    if (!this.form.gbRegion) return
+    const list = []
+    for (let i = 0; i < 4; i++) {
+      if (parseInt(this.form.gbRegion!.substring(i * 2, i * 2 + 2)) !== 0) {
+        list.push(parseInt(this.form.gbRegion!.substring(0, (i + 1) * 2)))
+      }
+      if (Object.keys(networkMap).indexOf(this.currentGroup!.networkCode) > -1) {
+        this.form.networkCode = this.currentGroup!.networkCode
+      }
     }
   }
 
-  public addressChange() {
-    if (!this.form.address) return
-    const addressCascader: any = this.$refs['addressCascader']
-    if (addressCascader && addressCascader.getCheckedNodes()[0]) {
-      const currentAddress = addressCascader.getCheckedNodes()[0].data
-      this.form.gbRegion = this.lianzhouFlag ? currentAddress.code : currentAddress.code + '00'
-      this.form.gbRegionLevel = currentAddress.level
-    }
+  /**
+   * 选择设备地址
+   */
+  public onDeviceAddressChange(region: DeviceAddress) {
+    this.form.gbRegion = region.code
+    this.form.gbRegionLevel = region.level
   }
 
   /*
@@ -411,7 +362,6 @@ export default class CreateMixin extends Vue {
   public validateResources(rule: any, value: string, callback: Function) {
     let hasVideo = false
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    let hasUpload = false
     const remainError: any = []
     this.form.resources.forEach((resource: any) => {
       // 剩余可接入设备数
@@ -432,7 +382,6 @@ export default class CreateMixin extends Vue {
           }
           break
         case 'VSS_UPLOAD_BW':
-          hasUpload = true
           break
       }
     })
@@ -460,8 +409,19 @@ export default class CreateMixin extends Vue {
     }
   }
 
+  /**
+   * 校验端口号
+   */
+  public validateDevicePort(rule: any, value: string, callback: Function) {
+    if (value && !/^[0-9]+$/.test(value)) {
+      callback(new Error('设备端口仅支持数字'))
+    } else {
+      callback()
+    }
+  }
+
   // 接受子组件传来的VSSAIApps
-  private changeVSSAIApps(res:any) {
+  private changeVSSAIApps(res: any) {
     if (this.isUpdate) {
       this.form.aIApps = res
     }

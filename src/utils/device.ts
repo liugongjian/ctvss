@@ -31,9 +31,26 @@ export const renderAlertType = (node: any) => {
  * 获取目录设备数统计信息
  */
 export const getSums = (data: any) => {
-  if (data.type === 'nvr' || data.type === 'dir') {
+  if (~['nvr', 'dir', 'platform', 'platformDir'].indexOf(data.type)) {
     return ` (${data.onlineSize}/${data.totalSize})`
   } else {
     return ''
   }
+}
+
+/**
+ * 设置目录树设备流状态
+ */
+export const setDirsStreamStatus = (dirs: any) => {
+  return dirs.map((dir: any) => {
+    if (!dir.streamStatus && dir.deviceStreams && dir.deviceStreams.length > 0) {
+      const hasOnline = dir.deviceStreams.some((stream: any) => {
+        return stream.streamStatus === 'on'
+      })
+      if (hasOnline) {
+        dir.streamStatus = 'on'
+      }
+    }
+    return dir
+  })
 }

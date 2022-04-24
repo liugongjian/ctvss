@@ -68,7 +68,7 @@ if (isIE()) {
 try {
   // 从localstorage中读取选中的业务组
   GroupModule.GetGroupFromLs()
-  CtcloudLayout.getPublicInfo().authCurrentPromise.then(async(data :any) => {
+  CtcloudLayout.getPublicInfo().authCurrentPromise.then(async(data: any) => {
     // 海南特殊用户处理
     const href = window.location.href
     if (href.indexOf('userId=') !== -1 || getLocalStorage('whiteListFlag') === '1') {

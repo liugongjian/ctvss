@@ -25,8 +25,18 @@
           </div>
         </el-form-item>
         <el-form-item label="设备类型:" prop="deviceType">
-          <el-select v-model="form.deviceType" placeholder="请选择" :disabled="isUpdate" @change="(form.multiStreamSize = 1) && (form.autoStreamNum = 1)">
-            <el-option v-for="item in deviceTypeList" :key="item.value" :label="item.label" :value="item.value" />
+          <el-select
+            v-model="form.deviceType"
+            placeholder="请选择"
+            :disabled="isUpdate"
+            @change=";(form.multiStreamSize = 1) && (form.autoStreamNum = 1)"
+          >
+            <el-option
+              v-for="item in deviceTypeList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
           </el-select>
         </el-form-item>
         <!-- <el-form-item v-if="form.deviceType === 'nvr'" label="自动创建子设备:" prop="createSubDevice" class="form-with-tip">
@@ -45,8 +55,16 @@
           </template>
           <el-switch v-model="form.createSubDevice" :active-value="1" :inactive-value="2" :disabled="isUpdate" />
         </el-form-item> -->
-        <el-form-item v-if="form.deviceType === 'nvr'" label="子设备数量:" prop="channelSize">
-          <el-input-number v-model="form.channelSize" :min="minChannelSize" type="number" />
+        <el-form-item
+          v-if="form.deviceType === 'nvr'"
+          label="子设备数量:"
+          prop="channelSize"
+        >
+          <el-input-number
+            v-model="form.channelSize"
+            :min="minChannelSize"
+            type="number"
+          />
         </el-form-item>
         <el-form-item label="厂商:" prop="deviceVendor">
           <el-select v-model="form.deviceVendor">
@@ -55,18 +73,28 @@
         </el-form-item>
         <el-form-item label="版本:" prop="ehomeVersion">
           <el-radio-group v-model="form.ehomeVersion">
-            <el-radio-button v-for="item in ehomeVersionList" :key="item" :label="item" :value="item" />
+            <el-radio-button
+              v-for="item in ehomeVersionList"
+              :key="item"
+              :label="item"
+              :value="item"
+            />
           </el-radio-group>
         </el-form-item>
         <el-form-item label="设备名称:" prop="deviceName" class="form-with-tip">
           <el-input v-model="form.deviceName" />
-          <div class="form-tip">2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。</div>
+          <div class="form-tip">
+            2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
+          </div>
         </el-form-item>
         <el-form-item label="设备IP:" prop="deviceIp">
           <el-input v-model="form.deviceIp" />
         </el-form-item>
         <el-form-item label="设备端口:" prop="devicePort">
           <el-input v-model.number="form.devicePort" />
+        </el-form-item>
+        <el-form-item label="设备MAC地址:" prop="macAddr">
+          <el-input v-model="form.macAddr" />
         </el-form-item>
         <el-form-item label="主子码流数量:" prop="multiStreamSize">
           <template slot="label">
@@ -78,7 +106,10 @@
               trigger="hover"
               :open-delay="300"
             >
-              <div>单码流: 仅有一种码流<br>双码流: 主、子码流<br>三码流: 主、子、第三码流</div>
+              <div>
+                单码流: 仅有一种码流<br>双码流: 主、子码流<br>三码流:
+                主、子、第三码流
+              </div>
               <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
           </template>
@@ -87,7 +118,9 @@
               v-for="multiStreamSize in multiStreamSizeList"
               :key="multiStreamSize.value"
               :label="multiStreamSize.value"
-              :disabled="form.deviceType === 'nvr' && multiStreamSize.value === 3"
+              :disabled="
+                form.deviceType === 'nvr' && multiStreamSize.value === 3
+              "
               @change="onMultiStreamSizeChange"
             >
               {{ multiStreamSize.label }}
@@ -108,11 +141,26 @@
               <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
           </template>
-          <el-switch v-model="form.pullType" :active-value="1" :inactive-value="2" />
+          <el-switch
+            v-model="form.pullType"
+            :active-value="1"
+            :inactive-value="2"
+          />
         </el-form-item>
-        <el-form-item v-if="form.pullType === 1" label="自动拉取码流:" prop="autoStreamNum">
+        <el-form-item
+          v-if="form.pullType === 1"
+          label="自动拉取码流:"
+          prop="autoStreamNum"
+        >
           <el-radio-group v-model="form.autoStreamNum">
-            <el-radio v-for="autoStreamNum in autoStreamNumList" :key="autoStreamNum.value" :label="autoStreamNum.value" :disabled="autoStreamNum.value > form.multiStreamSize">{{ autoStreamNum.label }}</el-radio>
+            <el-radio
+              v-for="autoStreamNum in autoStreamNumList"
+              :key="autoStreamNum.value"
+              :label="autoStreamNum.value"
+              :disabled="autoStreamNum.value > form.multiStreamSize"
+            >
+              {{ autoStreamNum.label }}
+            </el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item v-if="form.inType === 'push'" prop="pushType">
@@ -129,33 +177,58 @@
               <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
           </template>
-          <el-switch v-model="form.pushType" :active-value="1" :inactive-value="2" />
-        </el-form-item>
-        <el-form-item v-if="(!isUpdate || form.gbRegion || !form.gbId)" label="设备地址:" prop="address">
-          <el-cascader
-            ref="addressCascader"
-            v-model="form.address"
-            expand-trigger="click"
-            :disabled="form.gbId !== ''"
-            :options="regionList"
-            :props="addressProps"
-            @change="addressChange"
+          <el-switch
+            v-model="form.pushType"
+            :active-value="1"
+            :inactive-value="2"
           />
         </el-form-item>
-        <template v-if="lianzhouFlag">
-          <el-form-item label="经纬度:" prop="longlat">
-            <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
-            <el-input v-model="form.deviceLatitude" class="longlat-input" />
-          </el-form-item>
-        </template>
-        <el-form-item v-if="!isUpdate || form.industryCode || !form.gbId" label="所属行业:" prop="industryCode">
-          <el-select v-model="form.industryCode" :disabled="form.gbId !== ''" placeholder="请选择所属行业">
-            <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
+        <el-form-item v-if="(!isUpdate || form.gbRegion || !form.gbId)" label="设备地址:" prop="gbRegion">
+          <AddressCascader
+            :code="form.gbRegion"
+            :level="form.gbRegionLevel"
+            :disabled="form.gbId !== ''"
+            @change="onDeviceAddressChange"
+          />
+        </el-form-item>
+        <el-form-item label="经纬度:" prop="longlat">
+          <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
+          <el-input v-model="form.deviceLatitude" class="longlat-input" />
+        </el-form-item>
+        <el-form-item
+          v-if="!isUpdate || form.industryCode || !form.gbId"
+          label="所属行业:"
+          prop="industryCode"
+        >
+          <el-select
+            v-model="form.industryCode"
+            :disabled="form.gbId !== ''"
+            placeholder="请选择所属行业"
+          >
+            <el-option
+              v-for="(item, index) in industryList"
+              :key="index"
+              :label="item.name"
+              :value="item.value"
+            />
           </el-select>
         </el-form-item>
-        <el-form-item v-if="(!isUpdate || form.networkCode || !form.gbId) && networkFlag" label="网络标识:" prop="networkCode">
-          <el-select v-model="form.networkCode" :disabled="form.gbId !== ''" placeholder="请选择网络标识">
-            <el-option v-for="(item, index) in networkList" :key="index" :label="item.name" :value="item.value" />
+        <el-form-item
+          v-if="(!isUpdate || form.networkCode || !form.gbId) && networkFlag"
+          label="网络标识:"
+          prop="networkCode"
+        >
+          <el-select
+            v-model="form.networkCode"
+            :disabled="form.gbId !== ''"
+            placeholder="请选择网络标识"
+          >
+            <el-option
+              v-for="(item, index) in networkList"
+              :key="index"
+              :label="item.name"
+              :value="item.value"
+            />
           </el-select>
         </el-form-item>
         <!-- <el-form-item prop="transPriority">
@@ -175,13 +248,25 @@
           <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" disabled />
         </el-form-item> -->
         <el-form-item label="配置资源包:" prop="resources">
-          <ResourceTabs v-model="form.resources" :is-update="isUpdate"
-                        :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" :device-id="form.deviceId"
-                        :vss-ai-apps="form.vssAIApps" @on-change="onResourceChange" @changevssaiapps="changeVSSAIApps"
+          <ResourceTabs
+            v-model="form.resources"
+            :is-update="isUpdate"
+            :in-protocol="form.inProtocol"
+            :is-private-in-network="isPrivateInNetwork"
+            :device-id="form.deviceId"
+            :form-info="form"
+            :vss-ai-apps="form.vssAIApps"
+            @on-change="onResourceChange"
+            @changevssaiapps="changeVSSAIApps"
           />
         </el-form-item>
         <el-form-item label="设备描述:" prop="description">
-          <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
+          <el-input
+            v-model="form.description"
+            type="textarea"
+            :rows="3"
+            placeholder="请输入设备描述，如设备用途"
+          />
         </el-form-item>
       </template>
       <template v-else>
@@ -192,17 +277,39 @@
         </el-form-item>
         <el-form-item label="通道号:" prop="channelNum">
           <el-select v-model="form.channelNum" :disabled="isUpdate">
-            <el-option v-for="item in availableChannels" :key="item" :label="`D${item}`" :value="item" />
+            <el-option
+              v-for="item in availableChannels"
+              :key="item"
+              :label="`D${item}`"
+              :value="item"
+            />
           </el-select>
         </el-form-item>
-        <el-form-item label="通道名称:" prop="channelName" class="form-with-tip">
+        <el-form-item
+          label="通道名称:"
+          prop="channelName"
+          class="form-with-tip"
+        >
           <el-input v-model="form.channelName" />
-          <div class="form-tip">2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。</div>
+          <div class="form-tip">
+            2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
+          </div>
+        </el-form-item>
+        <el-form-item label="经纬度:" prop="longlat">
+          <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
+          <el-input v-model="form.deviceLatitude" class="longlat-input" />
         </el-form-item>
         <el-form-item v-if="isUpdate" label="配置资源包:" prop="resources">
-          <ResourceTabs v-model="form.resources" :is-update="isUpdate"
-                        :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" :device-id="form.deviceId"
-                        :vss-ai-apps="form.vssAIApps" @on-change="onResourceChange" @changevssaiapps="changeVSSAIApps"
+          <ResourceTabs
+            v-model="form.resources"
+            :is-update="isUpdate"
+            :in-protocol="form.inProtocol"
+            :is-private-in-network="isPrivateInNetwork"
+            :device-id="deviceId"
+            :form-info="form"
+            :vss-ai-apps="form.vssAIApps"
+            @on-change="onResourceChange"
+            @changevssaiapps="changeVSSAIApps"
           />
         </el-form-item>
       </template>
@@ -213,20 +320,16 @@
     </el-form>
   </div>
 </template>
-<script lang='ts'>
+<script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import createMixin from '../mixin/createMixin'
 import { InType, DeviceRtspType } from '@/dics'
 import { pick } from 'lodash'
 import { createDevice, updateDevice, getDevice } from '@/api/device'
 import { updateDeviceResources } from '@/api/billing'
-import ResourceTabs from '../components/ResourceTabs.vue'
 
 @Component({
-  name: 'CreateEhomeDevice',
-  components: {
-    ResourceTabs
-  }
+  name: 'CreateEhomeDevice'
 })
 export default class extends Mixins(createMixin) {
   private rules = {
@@ -248,18 +351,17 @@ export default class extends Mixins(createMixin) {
     deviceIp: [
       { validator: this.validateDeviceIp, trigger: 'blur' }
     ],
-    address: [
-      { required: true, message: '请选择设备地址', trigger: 'blur' }
+    devicePort: [
+      { validator: this.validateDevicePort, trigger: 'change' }
+    ],
+    gbRegion: [
+      { required: true, message: '请选择设备地址', trigger: 'change' }
     ],
     industryCode: [
       { required: true, message: '请选择所属行业', trigger: 'blur' }
     ],
     networkCode: [
       { required: true, message: '请选择网络标识', trigger: 'blur' }
-    ],
-    longlat: [
-      { required: true, message: '请选择经纬度', trigger: 'blur' },
-      { validator: this.validateLonglat, trigger: 'blur' }
     ],
     resources: [
       { required: true, validator: this.validateResources, trigger: 'blur' }
@@ -280,6 +382,7 @@ export default class extends Mixins(createMixin) {
     channelName: '',
     deviceIp: '',
     devicePort: null,
+    macAddr: '',
     deviceVendor: '',
     description: '',
     multiStreamSize: 1,
@@ -288,7 +391,6 @@ export default class extends Mixins(createMixin) {
     transPriority: 'tcp',
     parentDeviceId: '',
     gbId: '',
-    address: [],
     longlat: 'required',
     deviceLongitude: '0.000000',
     deviceLatitude: '0.000000',
@@ -370,11 +472,41 @@ export default class extends Mixins(createMixin) {
       //   return channel.channelNum
       // })
       if (this.isUpdate) {
-        this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'deviceType', 'ehomeVersion', 'createSubDevice', 'deviceVendor',
-          'deviceIp', 'devicePort', 'description', 'multiStreamSize', 'autoStreamNum', 'pullType', 'transPriority', 'parentDeviceId', 'deviceLongitude', 'deviceLatitude', 'gbId', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
-        this.cascaderInit()
+        this.form = Object.assign(
+          this.form,
+          pick(info, [
+            'groupId',
+            'dirId',
+            'deviceId',
+            'deviceName',
+            'deviceType',
+            'ehomeVersion',
+            'createSubDevice',
+            'deviceVendor',
+            'deviceIp',
+            'devicePort',
+            'macAddr',
+            'description',
+            'multiStreamSize',
+            'autoStreamNum',
+            'pullType',
+            'transPriority',
+            'parentDeviceId',
+            'deviceLongitude',
+            'deviceLatitude',
+            'gbId',
+            'gbRegion',
+            'gbRegionLevel',
+            'industryCode',
+            'networkCode'
+          ])
+        )
         // 获取绑定资源包列表
-        this.getDeviceResources(info.deviceId, info.deviceType!, info.inProtocol!)
+        this.getDeviceResources(
+          info.deviceId,
+          info.deviceType!,
+          info.inProtocol!
+        )
         if (info.deviceStats) {
           this.form.channelSize = info.deviceStats.maxChannelSize
           // 编辑的时候，设置数量不得小于已创建的子通道channelSize或1
@@ -388,6 +520,9 @@ export default class extends Mixins(createMixin) {
             this.form.channelName = channel.channelName
           }
         }
+      } else {
+        this.form.deviceLatitude = info.deviceLatitude
+        this.form.deviceLongitude = info.deviceLongitude
       }
       if (this.isChannel) {
         this.form.deviceName = info.deviceName
@@ -425,15 +560,21 @@ export default class extends Mixins(createMixin) {
   private async doSubmit() {
     try {
       this.submitting = true
-      let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceVendor', 'description'])
+      let params: any = pick(this.form, [
+        'groupId',
+        'deviceName',
+        'inProtocol',
+        'deviceVendor',
+        'description'
+      ])
       if (this.isUpdate) {
-        params = Object.assign(params, pick(this.form, ['deviceId']))
+        params = Object.assign(params, pick(this.form, ['deviceId', 'deviceLongitude', 'deviceLatitude']))
       } else {
-        params = Object.assign(params, pick(this.form, ['resources', 'vssAIApps']))
+        params = Object.assign(params, pick(this.form, ['resources', 'vssAIApps', 'deviceLongitude', 'deviceLatitude']))
       }
       if (!this.isChannel) {
         // 通用参数
-        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'deviceIp', 'devicePort', 'pullType', 'ehomeVersion', 'transPriority', 'multiStreamSize', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
+        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'deviceIp', 'devicePort', 'pullType', 'ehomeVersion', 'transPriority', 'multiStreamSize', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
         if (this.form.pullType === 1) {
           params = Object.assign(params, pick(this.form, ['autoStreamNum']))
         }
@@ -449,7 +590,9 @@ export default class extends Mixins(createMixin) {
         params = Object.assign(params, {
           deviceType: 'ipc',
           createSubDevice: this.isUpdate ? null : '2',
-          parentDeviceId: this.isUpdate ? this.form.parentDeviceId : this.deviceId,
+          parentDeviceId: this.isUpdate
+            ? this.form.parentDeviceId
+            : this.deviceId,
           channelName: this.form.channelName,
           channelNum: this.form.channelNum,
           deviceName: this.form.deviceName
@@ -483,27 +626,33 @@ export default class extends Mixins(createMixin) {
 </script>
 
 <style lang="scss" scoped>
-  .el-input, .el-select, .el-textarea, .el-cascader {
-    width: 400px;
-  }
+.el-input,
+.el-select,
+.el-textarea,
+.el-cascader {
+  width: 400px;
+}
 
-  .in-protocol {
+.in-protocol {
+  color: $textGrey;
+}
+
+.breadcrumb {
+  &__item:after {
+    content: '/';
     color: $textGrey;
   }
 
-  .breadcrumb {
-    &__item:after {
-      content: '/';
-      color: $textGrey;
-    }
-    &__item:last-child:after {
-      content: '';
-    }
+  &__item:last-child:after {
+    content: '';
   }
-  .longlat-input {
-    width: 193px;
-  }
-  .lainzhou-cascader {
-    width: 400px
-  }
+}
+
+.longlat-input {
+  width: 193px;
+}
+
+.lainzhou-cascader {
+  width: 400px;
+}
 </style>

@@ -30,7 +30,7 @@
                 <template v-if="info && !isNVR && !isPlatform">
                   <el-descriptions-item label="流状态">
                     <status-badge :status="info.streamStatus" />
-                    {{ deviceStatus[info.streamStatus] || '-' }}
+                    {{ streamStatus[info.streamStatus] || '-' }}
                     <!-- <el-link v-if="info.streamStatus === 'on' && checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('stopDevice')">停用流</el-link>
                     <el-link v-else-if="checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('startDevice')">启用流</el-link> -->
                   </el-descriptions-item>
@@ -67,14 +67,17 @@
                   <el-descriptions-item label="设备厂商">
                     {{ info.deviceVendor || '-' }}
                   </el-descriptions-item>
-                  <el-descriptions-item v-if="info.address" label="设备地址">
-                    {{ info.address }}
+                  <el-descriptions-item label="设备地址">
+                    {{ deviceAddress || '-' }}
                   </el-descriptions-item>
                   <el-descriptions-item v-if="info.industryCode" label="所属行业">
                     {{ industryMap[info.industryCode] }}
                   </el-descriptions-item>
                   <el-descriptions-item v-if="info.networkCode && networkFlag" label="网络标识">
                     {{ networkMap[info.networkCode] }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="经纬度">
+                    {{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}
                   </el-descriptions-item>
                   <el-descriptions-item label="视频流接入方式">
                     {{ inType[info.inType] }}
@@ -259,12 +262,14 @@ export default class extends Mixins(detailMixin) {}
   .app-container {
     ::v-deep {
       .info-list__title {
-        margin: 10px 5px 0 5px;
+        margin: 10px 5px 0;
       }
+
       .info-item .el-button {
         padding: 0;
       }
-      .info-item  .el-tag--medium {
+
+      .info-item .el-tag--medium {
         height: 24px;
         line-height: 22px;
         margin-right: 5px;
@@ -275,6 +280,7 @@ export default class extends Mixins(detailMixin) {}
   .detail-wrap {
     position: relative;
     padding-top: 6px;
+
     .btn-detail {
       position: absolute;
       top: -12px;

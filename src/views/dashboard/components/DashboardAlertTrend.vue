@@ -14,9 +14,9 @@ import { AlertType } from '@/dics'
 import { dateFormatInTable } from '@/utils/date'
 
 declare module 'vue/types/vue' {
-    interface Vue {
-        [key: string]: any,
-    }
+  interface Vue {
+    [key: string]: any,
+  }
 }
 
 @Component({

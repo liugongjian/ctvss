@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import { UserModule } from '@/store/modules/user'
 
 /**
  * 获取设备详情
@@ -105,10 +106,12 @@ export const sortDeviceTree = (params: any): Promise<any> => {
 export const getDevicePreview = (params: any, cancelToken?: any): Promise<any> => {
   const headers = params['self-defined-headers']
   delete params['self-defined-headers']
+  const url = params.isAi ? '/ai/preview' : '/device/preview'
   return request({
-    url: '/device/preview',
+    url,
     method: 'get',
     params: {
+      outNetwork: UserModule.outNetwork || undefined,
       outProtocol: 'rtmp,flv,hls',
       type: params.type || 'live',
       ...params
@@ -125,7 +128,10 @@ export const getDeviceRecords = (params: any, cancelToken?: any): Promise<any> =
   request({
     url: '/record/list',
     method: 'get',
-    params,
+    params: {
+      outNetwork: UserModule.outNetwork || undefined,
+      ...params
+    },
     cancelToken
   })
 
@@ -163,11 +169,12 @@ export const getDeviceRecordRule = (params: any): Promise<any> =>
 /**
  * 获取设备录制统计
  */
-export const getDeviceRecordStatistic = (params: any): Promise<any> =>
+export const getDeviceRecordStatistic = (params: any, cancelToken?: any): Promise<any> =>
   request({
     url: '/record/statistic',
     method: 'get',
-    params
+    params,
+    cancelToken
   })
 
 /**
@@ -291,6 +298,16 @@ export const syncDeviceStatus = (params: any): Promise<any> =>
   })
 
 /**
+ * 轮询同步设备状态
+ */
+export const syncStatusPolling = (params: any): Promise<any> =>
+  request({
+    url: '/device/notify/sync',
+    method: 'post',
+    data: params
+  })
+
+/**
  * 开始录制
  */
 export const startRecord = (params: any): Promise<any> =>
@@ -321,6 +338,16 @@ export const importDevice = (params: any): Promise<any> =>
   })
 
 /**
+ * 导出搜索结果
+ */
+export const exportSearchResult = (data: any): Promise<any> =>
+  request({
+    url: '/device/search/export',
+    method: 'post',
+    data: data
+  })
+
+/**
  * 导出全部设备表格
  */
 export const exportDeviceAll = (params: any): Promise<any> =>
@@ -341,11 +368,44 @@ export const exportDeviceOption = (params: any): Promise<any> =>
   })
 
 /**
- * 获取连州公安局列表
+ * 获取子地址列表，返回Promise
  */
 export const getAddressArea = (params: any): Promise<any> =>
   request({
     url: '/area/list',
+    method: 'get',
+    params
+  })
+
+/**
+ * 获取子地址列表, 返回地址列表
+ */
+export const getChildAddress = async(id: any, level: number) => {
+  let params: any = {
+    pid: id,
+    level
+  }
+  let res = await getAddressArea(params)
+  let list = []
+  if (res.areas.length) {
+    list = res.areas.map((item: any) => {
+      return {
+        name: item.name,
+        code: item.id,
+        level: item.level,
+        leaf: item.level === '4' ? true : undefined
+      }
+    })
+  }
+  return list
+}
+
+/**
+ * 获取设备地址父级树结构，用户修改时回显
+ */
+export const getAddressAreaDir = (params: any): Promise<any> =>
+  request({
+    url: '/area/dir',
     method: 'get',
     params
   })
@@ -406,6 +466,24 @@ export const configChannels = (params: any): Promise<any> =>
 export const getDeviceEvents = (params: any): Promise<any> =>
   request({
     url: '/device/event',
+    method: 'get',
+    params
+  })
+
+// player组件  缩放
+export const dragCanvasZoom = (params: any): Promise<any> =>
+  request({
+    url: '/ptz/dragzoom',
+    method: 'post',
+    data: params
+  })
+
+/**
+ * 校验国标ID
+ */
+export const validGbId = (params: any): Promise<any> =>
+  request({
+    url: '/device/customGbId',
     method: 'get',
     params
   })

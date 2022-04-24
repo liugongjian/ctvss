@@ -122,8 +122,9 @@ export const prepareUrl = (url: string) => {
   }
 
   // @see https://github.com/rtcdn/rtcdn-draft
-  var api = urlObject.userQuery.play || '/rtc/v1/play/'
-  if (api.lastIndexOf('/') !== api.length - 1) {
+  // var api = urlObject.userQuery.play || '/rtc/v1/play/'
+  var api = urlObject.userQuery.play || '/streamingserver/v1/webrtc/sdp'
+  if (urlObject.userQuery.play && api.lastIndexOf('/') !== api.length - 1) {
     api += '/'
   }
 
@@ -154,10 +155,10 @@ export const srsRtcPlayerAsync = () => {
         var data = {
           api: apiUrl, streamurl: streamUrl, clientip: null, sdp: offer.sdp
         }
-        console.log('Generated offer: ', data)
+        // console.log('Generated offer: ', data)
 
         axios.post(apiUrl, data).then(function(data: any) {
-          console.log('Got answer: ', data)
+          // console.log('Got answer: ', data)
           if (data.code) {
             reject(data); return
           }
@@ -169,7 +170,7 @@ export const srsRtcPlayerAsync = () => {
       })
       const session = res.data
 
-      console.log({ type: 'answer', sdp: session.sdp })
+      // console.log({ type: 'answer', sdp: session.sdp })
       await self.pc.setRemoteDescription(
         new RTCSessionDescription({ type: 'answer', sdp: session.sdp })
       )
@@ -179,15 +180,23 @@ export const srsRtcPlayerAsync = () => {
       self.pc.close()
     },
     // callbacks.
-    onaddstream: null
+    onaddstream: null,
+    onconnectionstatechange: null
   }
 
   self.pc = new RTCPeerConnection()
+
   self.pc.onaddstream = function(event: any) {
-    console.log(event)
     if (self.onaddstream) {
       self.onaddstream(event)
     }
   }
+
+  self.pc.onconnectionstatechange = function() {
+    if (self.onconnectionstatechange) {
+      self.onconnectionstatechange(self.pc.connectionState)
+    }
+  }
+
   return self
 }

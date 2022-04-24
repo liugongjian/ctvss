@@ -25,8 +25,18 @@
           </div>
         </el-form-item>
         <el-form-item label="设备类型:" prop="deviceType">
-          <el-select v-model="form.deviceType" placeholder="请选择" :disabled="isUpdate" @change="clearValidate">
-            <el-option v-for="item in deviceTypeList" :key="item.value" :label="item.label" :value="item.value" />
+          <el-select
+            v-model="form.deviceType"
+            placeholder="请选择"
+            :disabled="isUpdate"
+            @change="clearValidate"
+          >
+            <el-option
+              v-for="item in deviceTypeList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
           </el-select>
         </el-form-item>
         <!-- <el-form-item v-if="form.deviceType === 'nvr'" label="自动创建子设备:" prop="createSubDevice" class="form-with-tip">
@@ -45,22 +55,46 @@
           </template>
           <el-switch v-model="form.createSubDevice" :active-value="1" :inactive-value="2" :disabled="isUpdate" />
         </el-form-item> -->
-        <el-form-item v-if="form.deviceType === 'nvr'" label="子设备数量:" prop="channelSize">
-          <el-input-number v-model="form.channelSize" :min="minChannelSize" type="number" />
+        <el-form-item
+          v-if="form.deviceType === 'nvr'"
+          label="子设备数量:"
+          prop="channelSize"
+        >
+          <el-input-number
+            v-model="form.channelSize"
+            :min="minChannelSize"
+            type="number"
+          />
         </el-form-item>
-        <el-form-item v-if="form.deviceType === 'nvr' || form.deviceType === 'ipc'" label="国标版本:" prop="gbVersion">
+        <el-form-item
+          v-if="form.deviceType === 'nvr' || form.deviceType === 'ipc'"
+          label="国标版本:"
+          prop="gbVersion"
+        >
           <el-radio-group v-model="form.gbVersion">
-            <el-radio-button v-for="item in gbVersionList" :key="item" :label="item" :value="item" />
+            <el-radio-button
+              v-for="item in gbVersionList"
+              :key="item"
+              :label="item"
+              :value="item"
+            />
           </el-radio-group>
         </el-form-item>
         <el-form-item label="厂商:" prop="deviceVendor">
           <el-select v-model="form.deviceVendor">
-            <el-option v-for="item in deviceVendorList" :key="item" :label="item" :value="item" />
+            <el-option
+              v-for="item in deviceVendorList"
+              :key="item"
+              :label="item"
+              :value="item"
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="设备名称:" prop="deviceName" class="form-with-tip">
           <el-input v-model="form.deviceName" />
-          <div class="form-tip">2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。</div>
+          <div class="form-tip">
+            2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
+          </div>
         </el-form-item>
         <el-form-item label="设备IP:" prop="deviceIp">
           <el-input v-model="form.deviceIp" />
@@ -68,29 +102,28 @@
         <el-form-item label="设备端口:" prop="devicePort">
           <el-input v-model.number="form.devicePort" />
         </el-form-item>
-        <!-- <el-form-item v-if="form.deviceType === 'platform'" label="设备国标编号:" prop="gbId">
+        <el-form-item v-if="form.deviceType !== 'platform' && isShowGbIdEditor" label="国标ID:" prop="gbId">
           <el-input v-model="form.gbId" />
-        </el-form-item> -->
-        <el-form-item label="GB28181账号:" prop="userName">
+          <div class="form-tip">
+            用户可自行录入规范国标ID，未录入该项，平台会自动生成规范国标ID。
+          </div>
+        </el-form-item>
+        <el-form-item label="GB28181凭证:" prop="userName">
           <el-select v-model="form.userName" :loading="loading.account">
-            <el-option-group label="匿名">
-              <el-option
-                v-for="item in gbAccountList.anonymous"
-                :key="item.userName"
-                :label="item.userName"
-                :value="item.userName"
-              />
-            </el-option-group>
-            <el-option-group label="非匿名">
-              <el-option
-                v-for="item in gbAccountList.normal"
-                :key="item.userName"
-                :label="item.userName"
-                :value="item.userName"
-              />
-            </el-option-group>
+            <el-option
+              v-for="item in gbAccountList"
+              :key="item.userName"
+              :label="item.userName"
+              :value="item.userName"
+            />
           </el-select>
-          <el-button type="text" class="ml10" @click="openDialog('createGb28181Certificate')">新建账号</el-button>
+          <el-button
+            type="text"
+            class="ml10"
+            @click="openDialog('createGb28181Certificate')"
+          >
+            新建GB28181凭证
+          </el-button>
         </el-form-item>
         <el-form-item prop="pullType">
           <template slot="label">
@@ -106,9 +139,16 @@
               <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
           </template>
-          <el-switch v-model="form.pullType" :active-value="1" :inactive-value="2" />
+          <el-switch
+            v-model="form.pullType"
+            :active-value="1"
+            :inactive-value="2"
+          />
         </el-form-item>
-        <el-form-item v-if="form.deviceType === 'nvr' || form.deviceType === 'ipc'" prop="transPriority">
+        <el-form-item
+          v-if="form.deviceType === 'nvr' || form.deviceType === 'ipc'"
+          prop="transPriority"
+        >
           <template slot="label">
             优先TCP传输:
             <el-popover
@@ -122,62 +162,140 @@
               <svg-icon slot="reference" class="form-question" name="help" />
             </el-popover>
           </template>
-          <el-switch v-model="form.transPriority" active-value="tcp" inactive-value="udp" />
-        </el-form-item>
-        <el-form-item v-if="(!isUpdate || form.gbRegion || !form.gbId)" label="设备地址:" prop="address">
-          <el-cascader
-            ref="addressCascader"
-            v-model="form.address"
-            expand-trigger="click"
-            :disabled="form.gbId !== ''"
-            :options="regionList"
-            :props="addressProps"
-            @change="addressChange"
+          <el-switch
+            v-model="form.transPriority"
+            active-value="tcp"
+            inactive-value="udp"
           />
         </el-form-item>
-        <el-form-item v-if="lianzhouFlag" v-show="form.deviceType !== 'platform'" label="经纬度:" prop="longlat">
+        <el-form-item v-if="(!isUpdate || form.gbRegion || !deviceGbId)" label="设备地址:" prop="gbRegion">
+          <AddressCascader
+            :code="form.gbRegion"
+            :level="form.gbRegionLevel"
+            :disabled="deviceGbId !== ''"
+            @change="onDeviceAddressChange"
+          />
+        </el-form-item>
+        <el-form-item label="设备MAC地址:" prop="macAddr">
+          <el-input v-model="form.macAddr" />
+        </el-form-item>
+        <el-form-item v-show="form.deviceType !== 'platform'" label="经纬度:" prop="longlat">
           <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
           <el-input v-model="form.deviceLatitude" class="longlat-input" />
         </el-form-item>
-        <el-form-item v-if="!isUpdate || form.industryCode || !form.gbId" label="所属行业:" prop="industryCode">
-          <el-select v-model="form.industryCode" :disabled="form.gbId !== ''" placeholder="请选择所属行业">
-            <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
+        <el-form-item
+          v-if="!isUpdate || form.industryCode || !deviceGbId"
+          label="所属行业:"
+          prop="industryCode"
+        >
+          <el-select
+            v-model="form.industryCode"
+            :disabled="deviceGbId !== ''"
+            placeholder="请选择所属行业"
+          >
+            <el-option
+              v-for="(item, index) in industryList"
+              :key="index"
+              :label="item.name"
+              :value="item.value"
+            />
           </el-select>
         </el-form-item>
-        <el-form-item v-if="(!isUpdate || form.networkCode || !form.gbId) && networkFlag" label="网络标识:" prop="networkCode">
-          <el-select v-model="form.networkCode" :disabled="form.gbId !== ''" placeholder="请选择网络标识">
-            <el-option v-for="(item, index) in networkList" :key="index" :label="item.name" :value="item.value" />
+        <el-form-item
+          v-if="(!isUpdate || form.networkCode || !deviceGbId) && networkFlag"
+          label="网络标识:"
+          prop="networkCode"
+        >
+          <el-select
+            v-model="form.networkCode"
+            :disabled="deviceGbId !== ''"
+            placeholder="请选择网络标识"
+          >
+            <el-option
+              v-for="(item, index) in networkList"
+              :key="index"
+              :label="item.name"
+              :value="item.value"
+            />
           </el-select>
+        </el-form-item>
+        <el-form-item
+          v-if="form.deviceType !== 'nvr'"
+          label="杆号:"
+          prop="poleId"
+        >
+          <el-input v-model="form.poleId " />
         </el-form-item>
         <el-form-item label="配置资源包:" prop="resources">
-          <ResourceTabs v-model="form.resources" :is-update="isUpdate"
-                        :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" :device-id="form.deviceId"
-                        :vss-ai-apps="form.vssAIApps" @on-change="onResourceChange" @changevssaiapps="changeVSSAIApps"
+          <ResourceTabs
+            v-model="form.resources"
+            :is-update="isUpdate"
+            :in-protocol="form.inProtocol"
+            :is-private-in-network="isPrivateInNetwork"
+            :device-id="form.deviceId"
+            :form-info="form"
+            :vss-ai-apps="form.vssAIApps"
+            @on-change="onResourceChange"
+            @changevssaiapps="changeVSSAIApps"
           />
         </el-form-item>
         <el-form-item label="设备描述:" prop="description">
-          <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
+          <el-input
+            v-model="form.description"
+            type="textarea"
+            :rows="3"
+            placeholder="请输入设备描述，如设备用途"
+          />
         </el-form-item>
       </template>
       <template v-else>
         <el-form-item label="厂商:" prop="deviceVendor">
           <el-select v-model="form.deviceVendor">
-            <el-option v-for="item in deviceVendorList" :key="item" :label="item" :value="item" />
+            <el-option
+              v-for="item in deviceVendorList"
+              :key="item"
+              :label="item"
+              :value="item"
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="通道号:" prop="channelNum">
           <el-select v-model="form.channelNum" :disabled="isUpdate">
-            <el-option v-for="item in availableChannels" :key="item" :label="`D${item}`" :value="item" />
+            <el-option
+              v-for="item in availableChannels"
+              :key="item"
+              :label="`D${item}`"
+              :value="item"
+            />
           </el-select>
+        </el-form-item>
+        <el-form-item v-show="form.deviceType !== 'platform'" label="经纬度:" prop="longlat">
+          <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
+          <el-input v-model="form.deviceLatitude" class="longlat-input" />
         </el-form-item>
         <el-form-item label="通道名称:" prop="channelName" class="form-with-tip">
           <el-input v-model="form.channelName" />
-          <div class="form-tip">2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。</div>
+          <div class="form-tip">
+            2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
+          </div>
+        </el-form-item>
+        <el-form-item
+          label="杆号:"
+          prop="poleId"
+        >
+          <el-input v-model="form.poleId " />
         </el-form-item>
         <el-form-item v-if="isUpdate" label="配置资源包:" prop="resources">
-          <ResourceTabs v-model="form.resources" :is-update="isUpdate"
-                        :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" :device-id="form.deviceId"
-                        :vss-ai-apps="form.vssAIApps" @on-change="onResourceChange" @changevssaiapps="changeVSSAIApps"
+          <ResourceTabs
+            v-model="form.resources"
+            :is-update="isUpdate"
+            :in-protocol="form.inProtocol"
+            :is-private-in-network="isPrivateInNetwork"
+            :device-id="deviceId"
+            :form-info="form"
+            :vss-ai-apps="form.vssAIApps"
+            @on-change="onResourceChange"
+            @changevssaiapps="changeVSSAIApps"
           />
         </el-form-item>
       </template>
@@ -186,7 +304,10 @@
         <el-button @click="back">取 消</el-button>
       </el-form-item>
     </el-form>
-    <create-gb28181-certificate v-if="dialog.createGb28181Certificate" @on-close="closeDialog('createGb28181Certificate', ...arguments)" />
+    <create-gb28181-certificate
+      v-if="dialog.createGb28181Certificate"
+      @on-close="closeDialog('createGb28181Certificate', ...arguments)"
+    />
   </div>
 </template>
 <script lang='ts'>
@@ -194,17 +315,15 @@ import { Component, Mixins } from 'vue-property-decorator'
 import createMixin from '../mixin/createMixin'
 import { pick } from 'lodash'
 import { DeviceGb28181Type } from '@/dics'
-import { createDevice, updateDevice, getDevice } from '@/api/device'
+import { createDevice, updateDevice, getDevice, validGbId } from '@/api/device'
 import { updateDeviceResources } from '@/api/billing'
 import { getList as getGbList } from '@/api/certificate/gb28181'
 import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
-import ResourceTabs from '../components/ResourceTabs.vue'
 
 @Component({
   name: 'CreateGb28181Device',
   components: {
-    CreateGb28181Certificate,
-    ResourceTabs
+    CreateGb28181Certificate
   }
 })
 export default class extends Mixins(createMixin) {
@@ -233,10 +352,9 @@ export default class extends Mixins(createMixin) {
       { required: true, message: '请填写通道号', trigger: 'change' },
       { validator: this.validateChannelNum, trigger: 'change' }
     ],
-    // gbId: [
-    //   { required: true, message: '请填写国标ID', trigger: 'blur' },
-    //   { validator: this.validateGbId, trigger: 'blur' }
-    // ],
+    gbId: [
+      { validator: this.validateGbId, trigger: 'blur' }
+    ],
     industryCode: [
       { required: true, message: '请选择所属行业', trigger: 'blur' }
     ],
@@ -249,28 +367,34 @@ export default class extends Mixins(createMixin) {
     deviceIp: [
       { validator: this.validateDeviceIp, trigger: 'blur' }
     ],
-    address: [
-      { required: true, message: '请选择设备地址', trigger: 'blur' }
+    devicePort: [
+      { validator: this.validateDevicePort, trigger: 'change' }
+    ],
+    gbRegion: [
+      { required: true, message: '请选择设备地址', trigger: 'change' }
     ],
     longlat: [
       { required: true, message: '请选择经纬度', trigger: 'blur' },
       { validator: this.validateLonglat, trigger: 'blur' }
+    ],
+    macAddr: [
+      { validator: this.validateMacAddr, trigger: 'blur' }
+    ],
+    poleId: [
+      { validator: this.validatePoleId, trigger: 'blur' }
     ],
     resources: [
       { required: true, validator: this.validateResources, trigger: 'blur' }
     ]
   }
   private gbVersionList = ['2011', '2016']
-  private deviceTypeList = Object.values(DeviceGb28181Type).map(type => {
+  private deviceTypeList = Object.values(DeviceGb28181Type).map((type) => {
     return {
       label: type,
       value: type.toLowerCase()
     }
   })
-  private gbAccountList = {
-    normal: [],
-    anonymous: []
-  }
+  private gbAccountList = []
   public form: any = {
     dirId: '',
     groupId: '',
@@ -282,8 +406,9 @@ export default class extends Mixins(createMixin) {
     gbVersion: '2016',
     deviceIp: '',
     devicePort: null,
-    channelSize: '',
-    channelNum: '',
+    macAddr: '',
+    channelSize: null,
+    // channelNum: '',
     channelName: '',
     description: '',
     createSubDevice: 1,
@@ -291,8 +416,8 @@ export default class extends Mixins(createMixin) {
     transPriority: 'tcp',
     parentDeviceId: '',
     gbId: '',
+    poleId: '',
     userName: '',
-    address: [],
     longlat: 'required',
     deviceLongitude: '0.000000',
     deviceLatitude: '0.000000',
@@ -304,6 +429,7 @@ export default class extends Mixins(createMixin) {
     industryCode: '',
     networkCode: ''
   }
+
   private minChannelSize = 1
   private availableChannels: Array<number> = []
   private dialog = {
@@ -336,13 +462,15 @@ export default class extends Mixins(createMixin) {
       })
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
-          'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority', 'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
+          'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority',
+          'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode', 'poleId']))
         this.cascaderInit()
         // 获取绑定资源包列表
-        this.getDeviceResources(info.deviceId, info.deviceType!, info.inProtocol!)
-        // 设备地址参数转换
-        // let gbCode = this.form.gbRegion.substring(0, 4)
-        // this.form.address = [gbCode.substring(0, 2) + '00', gbCode]
+        this.getDeviceResources(
+          info.deviceId,
+          info.deviceType!,
+          info.inProtocol!
+        )
         if (info.deviceStats) {
           // 编辑的时候，设置数量不得小于已创建的子通道中最大通道号或1
           this.minChannelSize = Math.max(...usedChannelNum, 1)
@@ -357,6 +485,8 @@ export default class extends Mixins(createMixin) {
           }
         }
       } else {
+        this.form.deviceLatitude = info.deviceLatitude
+        this.form.deviceLongitude = info.deviceLongitude
         this.form = Object.assign(this.form, pick(info, ['userName']))
       }
       // 构建可选择的通道，排除已选择通道
@@ -376,17 +506,6 @@ export default class extends Mixins(createMixin) {
       this.$message.error(e && e.message)
     } finally {
       this.loading.device = false
-    }
-  }
-
-  /**
-   * 校验设备国标编号
-   */
-  private validateGbId(rule: any, value: string, callback: Function) {
-    if (value && !/^[0-9]{20}$/.test(value)) {
-      callback(new Error('设备国标编号为20位数字'))
-    } else {
-      callback()
     }
   }
 
@@ -418,14 +537,7 @@ export default class extends Mixins(createMixin) {
       const res = await getGbList({
         pageSize: 1000
       })
-      this.gbAccountList = {
-        normal: [],
-        anonymous: []
-      }
-      res.gbCerts.forEach((account: any) => {
-        // @ts-ignore
-        this.gbAccountList[account.userType].push(account)
-      })
+      this.gbAccountList = res.gbCerts
     } catch (e) {
       console.error(e)
     } finally {
@@ -446,15 +558,46 @@ export default class extends Mixins(createMixin) {
   private async doSubmit() {
     try {
       this.submitting = true
-      let params: any = pick(this.form, ['groupId', 'deviceName', 'inProtocol', 'deviceVendor', 'description'])
+      let params: any = pick(this.form, [
+        'groupId',
+        'deviceName',
+        'inProtocol',
+        'deviceVendor',
+        'poleId',
+        'description'
+      ])
       if (this.isUpdate) {
         params = Object.assign(params, pick(this.form, ['deviceId']))
       } else {
-        params = Object.assign(params, pick(this.form, ['resources', 'vssAIApps']))
+        params = Object.assign(
+          params,
+          pick(this.form, ['resources', 'vssAIApps'])
+        )
       }
       if (!this.isChannel) {
         // 通用参数
-        params = Object.assign(params, pick(this.form, ['dirId', 'deviceType', 'inProtocol', 'deviceIp', 'devicePort', 'pullType', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
+        params = Object.assign(
+          params,
+          pick(this.form, [
+            'dirId',
+            'deviceType',
+            'inProtocol',
+            'deviceIp',
+            'devicePort',
+            'macAddr',
+            'pullType',
+            'userName',
+            'deviceLongitude',
+            'deviceLatitude',
+            'gbId',
+            'gbRegion',
+            'gbRegionLevel',
+            'industryCode',
+            'networkCode'
+          ])
+        )
+        // 强制转换设备端口字段类型
+        params.devicePort = parseInt(params.devicePort)
         // IPC类型添加额外参数
         if (this.form.deviceType === 'ipc') {
           params = Object.assign(params, {
@@ -485,7 +628,7 @@ export default class extends Mixins(createMixin) {
           parentDeviceId: this.isUpdate ? this.form.parentDeviceId : this.deviceId,
           channelName: this.form.channelName,
           channelNum: this.form.channelNum
-        }, pick(this.form, ['userName']))
+        }, pick(this.form, ['userName', 'deviceLongitude', 'deviceLatitude']))
       }
       if (this.isUpdate) {
         delete params.deviceType
@@ -512,28 +655,80 @@ export default class extends Mixins(createMixin) {
       this.submitting = false
     }
   }
+
+  /**
+   * 校验MAC地址
+   */
+  private async validateMacAddr(rule: any, value: string, callback: Function) {
+    let reg1 = /^([0-9A-Fa-f]{2}[:]){5}([0-9A-Fa-f]{2})$/
+    let reg2 = /^([0-9A-Fa-f]{2}[-]){5}([0-9A-Fa-f]{2})$/
+    if (value && !reg1.test(value) && !reg2.test(value)) {
+      callback(new Error('请输入规范MAC地址'))
+    } else {
+      callback()
+    }
+  }
+
+  /**
+   * 校验杆号
+   */
+  private async validatePoleId(rule: any, value: string, callback: Function) {
+    if (value && !/^[\w]{1,21}$/.test(value)) {
+      callback(new Error('请输入规范杆号'))
+    } else {
+      callback()
+    }
+  }
+
+  /**
+   * 校验设备国标ID
+   */
+  private async validateGbId(rule: any, value: string, callback: Function) {
+    let validInfo: any
+    try {
+      validInfo = await validGbId({
+        deviceId: this.deviceId,
+        inProtocol: this.form.inProtocol,
+        gbId: this.form.gbId
+      })
+    } catch (e) {
+      console.log(e)
+    }
+    if (value && !/^[0-9]{20}$/.test(value)) {
+      callback(new Error('请输入规范国标ID'))
+    } else if (value && validInfo && !validInfo.isValidGbId) {
+      callback(new Error('存在重复国标ID'))
+    } else {
+      callback()
+    }
+  }
 }
 </script>
 
 <style lang="scss" scoped>
-  .el-input, .el-select, .el-textarea, .el-cascader {
-    width: 400px;
-  }
+.el-input,
+.el-select,
+.el-textarea,
+.el-cascader {
+  width: 400px;
+}
 
-  .in-protocol {
+.in-protocol {
+  color: $textGrey;
+}
+
+.breadcrumb {
+  &__item:after {
+    content: '/';
     color: $textGrey;
   }
 
-  .breadcrumb {
-    &__item:after {
-      content: '/';
-      color: $textGrey;
-    }
-    &__item:last-child:after {
-      content: '';
-    }
+  &__item:last-child:after {
+    content: '';
   }
-  .longlat-input {
-    width: 193px;
-  }
+}
+
+.longlat-input {
+  width: 193px;
+}
 </style>

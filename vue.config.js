@@ -1,4 +1,5 @@
 const path = require('path')
+// const styleLintPlugin = require('stylelint-webpack-plugin')
 const environment = process.argv[3] === '--env' ? process.argv[4] : 'dev'
 const isHttps = process.argv[process.argv.length - 1] === '--https'
 const name = '天翼云视频云网平台-客户控制台'
@@ -10,7 +11,7 @@ const serverAddressMapping = {
   test1: 'https://182.43.127.35:9160', // 测试环境test-1
   test2: 'http://182.43.127.35:9080', // http 测试环境 test
   pre: 'http://182.43.127.35:9070', // 预发布环境
-  prod: 'https://182.43.127.45' // 生产环境
+  prod: 'http://console.vcn.ctyun.cn' // 生产环境
 }
 const portMapping = {
   local: 8081,
@@ -26,7 +27,7 @@ const serverAddress = serverAddressMapping[environment]
 const devServerPort = portMapping[environment]
 
 console.info(`启动${environment}环境:`, serverAddress)
-console.info(`是否开启https:`, isHttps)
+console.info('是否开启https:', isHttps)
 
 module.exports = {
   publicPath: process.env.NODE_ENV === 'production' ? '/vss/' : '/',
@@ -91,13 +92,6 @@ module.exports = {
     historyApiFallback: true,
     disableHostCheck: true
   },
-  pwa: {
-    name: name,
-    workboxPluginMode: 'InjectManifest',
-    workboxOptions: {
-      swSrc: path.resolve(__dirname, 'src/pwa/service-worker.js')
-    }
-  },
   pluginOptions: {
     'style-resources-loader': {
       preProcessor: 'scss',
@@ -123,10 +117,30 @@ module.exports = {
     config.plugins.delete('progress')
     // replace with another progress output plugin to solve the this bug:
     // https://github.com/vuejs/vue-cli/issues/4557
+    // config.plugin('stylelint').use(styleLintPlugin, [
+    //   {
+    //     files: ['**/*.{html,vue,css,sass,scss}'],
+    //     // fix: true, // 自动修复
+    //     cache: true,
+    //     emitError: true,
+    //     failOnError: false
+    //   }
+    // ])
     config.plugin('simple-progress-webpack-plugin')
       .use(require.resolve('simple-progress-webpack-plugin'), [{
         format: 'compact'
       }])
+
+    config.module
+      .rule('thejs')
+      .test(/\.js$/)
+      .include
+      .add(path.resolve('src'))
+      .add(path.resolve('node_modules/element-ui/packages'))
+      .end()
+      .use('babel-loader')
+      .loader('babel-loader')
+      .end()
 
     config
       .when(process.env.NODE_ENV !== 'development',

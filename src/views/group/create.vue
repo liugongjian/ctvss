@@ -40,15 +40,12 @@
             :disabled="isEdit"
           />
         </el-form-item>
-        <el-form-item v-if="(!isEdit || !form.gbId || form.gbRegion) && form.inProtocol !== 'vgroup'" label="设备地址:" prop="address">
-          <el-cascader
-            ref="addressCascader"
-            v-model="form.address"
-            expand-trigger="click"
+        <el-form-item v-if="(!isEdit || !form.gbId || form.gbRegion) && form.inProtocol !== 'vgroup'" label="设备地址:" prop="gbRegion">
+          <AddressCascader
+            :code="form.gbRegion"
+            :level="form.gbRegionLevel"
             :disabled="form.gbId !== ''"
-            :options="gbRegionList"
-            :props="addressProps"
-            @change="addressChange"
+            @change="onDeviceAddressChange"
           />
         </el-form-item>
         <el-form-item v-if="(!isEdit || !form.gbId || !!form.industryCode) && form.inProtocol !== 'vgroup'" label="所属行业:" prop="industryCode">
@@ -160,30 +157,24 @@
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
 import { Group } from '@/type/group'
+import { DeviceAddress } from '@/type/device'
 import { GroupModule } from '@/store/modules/group'
 import { InProtocolType, OutProtocolType } from '@/dics'
 import { createGroup, queryGroup, updateGroup } from '@/api/group'
 import { getRegions } from '@/api/region'
 import { industryMap } from '@/assets/region/industry'
 import { networkMap } from '@/assets/region/network'
-import { allRegionList } from '@/assets/region/region'
-import { regionList } from '@/assets/region/lianzhouRegion'
-import { getAddressArea } from '@/api/device'
 import templateBind from '../components/templateBind.vue'
+import AddressCascader from '@/views/components/AddressCascader.vue'
 
 @Component({
-  components: { templateBind },
+  components: { templateBind, AddressCascader },
   name: 'CreateGroup'
 })
 export default class extends Vue {
   private breadCrumbContent = ''
   private loading = false
   private submitting = false
-  public addressProps: any = {
-    value: 'code',
-    label: 'name',
-    children: 'children'
-  }
   private rules = {
     groupName: [
       { required: true, message: '请输入业务组名称', trigger: 'blur' },
@@ -192,14 +183,14 @@ export default class extends Vue {
     region: [
       { required: true, message: '请选择区域', trigger: 'change' }
     ],
-    address: [
-      { required: true, message: '请选设备地址', trigger: 'blur' }
+    gbRegion: [
+      { required: true, message: '请选设备地址', trigger: 'change' }
     ],
     industryCode: [
-      { required: true, message: '请选择所属行业', trigger: 'blur' }
+      { required: true, message: '请选择所属行业', trigger: 'change' }
     ],
     networkCode: [
-      { required: true, message: '请选择网络标识', trigger: 'blur' }
+      { required: true, message: '请选择网络标识', trigger: 'change' }
     ],
     inProtocol: [
       { required: true, message: '请选择接入类型', trigger: 'change' }
@@ -217,7 +208,8 @@ export default class extends Vue {
   }
   private outProtocolList = Object.values(OutProtocolType)
   private inProtocolList = Object.values(InProtocolType)
-  private form: Group = {
+
+  public form: Group = {
     groupName: '',
     description: '',
     region: [],
@@ -227,23 +219,14 @@ export default class extends Vue {
     pushType: 1,
     inNetworkType: 'public',
     outNetworkType: 'public',
-    address: [],
     gbId: '',
     gbRegion: '',
     gbRegionLevel: '',
     industryCode: '',
     networkCode: ''
   }
-  private gbRegionList: any = []
 
   private regionList = []
-
-  /**
-   * 针对连州设备管理
-   */
-  public get lianzhouFlag() {
-    return this.$store.state.user.tags.isLianZhouEdu === 'Y'
-  }
 
   private get industryList() {
     return Object.keys(industryMap).map((key: any) => {
@@ -280,12 +263,6 @@ export default class extends Vue {
 
   private async mounted() {
     await this.getRegionList()
-    if (this.lianzhouFlag) {
-      this.gbRegionList = regionList
-      this.gbRegionList[0].children[0].children[0].children = await this.getExpandList(441882)
-    } else {
-      this.gbRegionList = allRegionList
-    }
     this.breadCrumbContent = this.$route.meta.title
     let query: any = this.$route.query
     if (query.groupId) {
@@ -298,87 +275,11 @@ export default class extends Vue {
         res.inNetworkType = res.inNetworkType || 'public'
         res.outNetworkType = res.outNetworkType || 'public'
         this.form = res
-        this.cascaderInit()
       } catch (e) {
         this.$message.error(e && e.message)
       } finally {
         this.loading = false
       }
-    }
-  }
-
-  /**
-   * 设备地址
-   */
-  private async cascaderInit() {
-    if (!this.form.gbRegion) return
-    let list = [
-      parseInt(this.form.gbRegion!.substring(0, 2)),
-      parseInt(this.form.gbRegion!.substring(0, 4)),
-      parseInt(this.form.gbRegion!.substring(0, 6))
-    ]
-    await this.regionChange(list)
-    this.form.address = this.lianzhouFlag ? [ ...list, this.form.gbRegion ] : [
-      parseInt(this.form.gbRegion!.substring(0, 2)),
-      parseInt(this.form.gbRegion!.substring(0, 4)),
-      parseInt(this.form.gbRegion!.substring(0, 6))
-    ]
-    this.$nextTick(() => {
-      this.addressChange()
-    })
-  }
-
-  private async regionChange(val: any) {
-    if (val.length !== 3 || !val[0] || !val[1] || !val[2]) {
-      return
-    }
-    let index1 = this.gbRegionList.findIndex((item: any) => {
-      return item.code === val[0]
-    })
-    if (index1 !== -1) {
-      let index2 = this.gbRegionList[index1].children.findIndex((item: any) => {
-        return item.code === val[1]
-      })
-      if (index2 !== -1) {
-        let index3 = this.gbRegionList[index1].children[index2].children.findIndex((item: any) => {
-          return item.code === val[2]
-        })
-        if (index3 !== -1) {
-          if (this.lianzhouFlag) {
-            this.gbRegionList[index1].children[index2].children[index3].children = await this.getExpandList(val[2])
-          }
-        } else {
-          this.form.gbRegion = this.gbRegionList[index1].children[index2].children[0].code + '00'
-        }
-      } else {
-        this.form.gbRegion = this.gbRegionList[index1].children[0].children[0].code + '00'
-      }
-    }
-  }
-  private async getExpandList(id: any) {
-    let params: any = {
-      pid: id,
-      level: this.lianzhouFlag ? 5 : 4
-    }
-    let res = await getAddressArea(params)
-    if (res.areas.length) {
-      return res.areas.map((item: any) => {
-        return {
-          name: item.name,
-          code: item.id,
-          level: item.level
-        }
-      })
-    }
-  }
-
-  private addressChange() {
-    if (!this.form.address) return
-    const addressCascader: any = this.$refs['addressCascader']
-    if (addressCascader && addressCascader.getCheckedNodes()[0]) {
-      const currentAddress = addressCascader.getCheckedNodes()[0].data
-      this.form.gbRegion = this.lianzhouFlag ? currentAddress.code : currentAddress.code + '00'
-      this.form.gbRegionLevel = currentAddress.level
     }
   }
 
@@ -406,7 +307,7 @@ export default class extends Vue {
   }
 
   /**
-   * 获取区域列表
+   * 获取接入区域列表
    */
   private async getRegionList() {
     this.loading = true
@@ -417,6 +318,14 @@ export default class extends Vue {
     } finally {
       this.loading = false
     }
+  }
+
+  /**
+   * 选择设备地址
+   */
+  public onDeviceAddressChange(region: DeviceAddress) {
+    this.form.gbRegion = region.code
+    this.form.gbRegionLevel = region.level
   }
 
   private validateGroupName(rule: any, value: string, callback: Function) {

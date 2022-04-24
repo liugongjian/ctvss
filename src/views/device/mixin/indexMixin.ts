@@ -3,10 +3,25 @@ import { DeviceModule } from '@/store/modules/device'
 import { GroupModule } from '@/store/modules/group'
 import { getDeviceTree } from '@/api/device'
 import { VGroupModule } from '@/store/modules/vgroup'
+import { setDirsStreamStatus } from '@/utils/device'
+import { AdvancedSearch } from '@/type/advancedSearch'
 
 @Component
 export default class IndexMixin extends Vue {
-  public maxHeight = 1000
+  @Provide('outerSearch')
+  public advancedSearchForm: AdvancedSearch = {
+    deviceStatusKeys: [],
+    streamStatusKeys: [],
+    deviceAddresses: {
+      code: '',
+      level: ''
+    },
+    matchKeys: [],
+    inputKey: '',
+    searchKey: '',
+    revertSearchFlag: false
+  }
+  public maxHeight = null
   public dirList = []
   public isExpanded = true
   public dirDrag = {
@@ -31,6 +46,14 @@ export default class IndexMixin extends Vue {
     label: 'label',
     children: 'children',
     isLeaf: 'isLeaf'
+  }
+
+  public get defaultKey() {
+    const id = this.$route.query.deviceId || this.$route.query.dirId
+    if (!id) {
+      return null
+    }
+    return id
   }
 
   public get currentGroup() {
@@ -62,23 +85,62 @@ export default class IndexMixin extends Vue {
     return DeviceModule.isSorted
   }
 
+  public setDirsStreamStatus = setDirsStreamStatus
+
+  public doSearch(payload: any) {
+    this.advancedSearchForm.deviceStatusKeys = payload.deviceStatusKeys
+    this.advancedSearchForm.streamStatusKeys = payload.streamStatusKeys
+    this.advancedSearchForm.matchKeys = payload.matchKeys
+    this.advancedSearchForm.deviceAddresses = payload.deviceAddresses
+    this.advancedSearchForm.inputKey = payload.inputKey
+    this.advancedSearchForm.searchKey = payload.searchKey
+    this.advancedSearchForm.revertSearchFlag = payload.revertSearchFlag
+
+    this.initDirs()
+  }
+
+  public initSearchStatus() {
+    const query: any = this.$route.query
+    this.advancedSearchForm.deviceStatusKeys = (query.deviceStatusKeys && query.deviceStatusKeys.split(',')) || []
+    this.advancedSearchForm.streamStatusKeys = (query.streamStatusKeys && query.streamStatusKeys.split(',')) || []
+    if (query.deviceAddresses) {
+      const temp = query.deviceAddresses.split(',')
+      this.advancedSearchForm.deviceAddresses = {
+        code: temp[0],
+        level: temp[1]
+      }
+    }
+    this.advancedSearchForm.matchKeys = (query.matchKeys && query.matchKeys.split(',')) || []
+    this.advancedSearchForm.inputKey = query.searchKey || ''
+    this.advancedSearchForm.searchKey = query.searchKey || ''
+    this.advancedSearchForm.revertSearchFlag = Boolean(this.advancedSearchForm.searchKey ||
+                                                        this.advancedSearchForm.deviceStatusKeys.length ||
+                                                        this.advancedSearchForm.streamStatusKeys.length ||
+                                                        this.advancedSearchForm.deviceAddresses.code)
+  }
+
   /**
    * 初始化目录
    */
   @Provide('initDirs')
-  public async initDirs() {
+  public async initDirs(isExpand?: boolean) {
     try {
       VGroupModule.resetVGroupInfo()
       this.loading.dir = true
       await DeviceModule.ResetBreadcrumb()
       const res = await getDeviceTree({
         groupId: this.currentGroupId,
-        id: 0
+        id: 0,
+        deviceStatusKeys: this.advancedSearchForm.deviceStatusKeys.join(',') || undefined,
+        streamStatusKeys: this.advancedSearchForm.streamStatusKeys.join(',') || undefined,
+        matchKeys: this.advancedSearchForm.matchKeys.join(',') || undefined,
+        deviceAddresses: this.advancedSearchForm.deviceAddresses.code ? this.advancedSearchForm.deviceAddresses.code + ',' + this.advancedSearchForm.deviceAddresses.level : undefined,
+        searchKey: this.advancedSearchForm.searchKey || undefined
       })
       this.dirList = this.setDirsStreamStatus(res.dirs)
       this.getRootSums(this.dirList)
       this.$nextTick(() => {
-        this.initTreeStatus()
+        this.initTreeStatus(isExpand)
       })
     } catch (e) {
       this.dirList = []
@@ -113,53 +175,68 @@ export default class IndexMixin extends Vue {
     const size = deviceWrap.$el.getBoundingClientRect()
     const top = size.top
     const documentHeight = document.body.offsetHeight
-    this.maxHeight = documentHeight - top - 65
+    this.maxHeight = documentHeight - top - 22
   }
 
   /**
    * 初始化目录状态
+   * @param isExpand 是否默认打开第一个设备
    */
-  public async initTreeStatus() {
-    const dirTree: any = this.$refs.dirTree
-    const path: string | (string | null)[] | null = this.$route.query.path
-    const keyPath = path ? path.toString().split(',') : null
-    if (keyPath) {
-      for (let i = 0; i < keyPath.length; i++) {
-        const _key = keyPath[i]
-        const node = dirTree.getNode(_key)
-        if (node) {
-          await this.loadDirChildren(_key, node)
-          if (i === keyPath.length - 1) {
-            DeviceModule.SetBreadcrumb(this.getDirPath(node).reverse())
+  public async initTreeStatus(isExpand = true) {
+    const blackList = ['/screen', '/replay']
+    const path = this.$route.path
+    if (this.advancedSearchForm.revertSearchFlag) {
+      // 根据搜索结果 组装 目录树
+      this.dirList = this.transformDirList(this.dirList)
+      if (blackList.indexOf(path) === -1 && this.dirList.length && isExpand) {
+        let nonLeafNode: any = this.dirList[0]
+        while (nonLeafNode && nonLeafNode.children && nonLeafNode.children.length) {
+          nonLeafNode = nonLeafNode.children[0]
+        }
+        this.$nextTick(() => this.deviceRouter(nonLeafNode))
+      }
+    } else if (blackList.indexOf(path) === -1) {
+      const dirTree: any = this.$refs.dirTree
+      const path: string | (string | null)[] | null = this.$route.query.path
+      const keyPath = path ? path.toString().split(',') : null
+      if (keyPath) {
+        for (let i = 0; i < keyPath.length; i++) {
+          const _key = keyPath[i]
+          const node = dirTree.getNode(_key)
+          if (node) {
+            await this.loadDirChildren(_key, node)
+            if (i === keyPath.length - 1) {
+              // 避免刷新目录后无法选中
+              dirTree.setCurrentKey(this.defaultKey)
+              DeviceModule.SetBreadcrumb(this.getDirPath(node).reverse())
+            }
           }
         }
+      } else if (this.dirList.length && this.dirList.every((dir: any) => dir.type === 'dir')) {
+        // 如果为查找设备则不执行任何操作
+        if (this.$route.query.isSearch === '1') return
+        // 如果根目录下无设备，则跳转至第一个目录下
+        if (isExpand) this.deviceRouter(this.dirList[0])
       }
-    } else if (this.dirList.length && this.dirList.every((dir: any) => dir.type === 'dir')) {
-      // 如果为查找设备则不执行任何操作
-      if (this.$route.query.isSearch === '1') return
-      // 如果根目录下无设备，则跳转至第一个目录下
-      this.deviceRouter(this.dirList[0])
-    } else {
-      this.dealTzTree()
     }
   }
 
-  // TODO: 对泰州用户单独处理，后续需删除
-  public async dealTzTree() {
-    if (this.currentGroupId === '80337930297556992') {
-      const dirTree: any = this.$refs.dirTree
-      const keyPath = ['29942060635128281', '85528278015803392']
-      for (let i = 0; i < keyPath.length; i++) {
-        const _key = keyPath[i]
-        const node = dirTree.getNode(_key)
-        if (node) {
-          await this.loadDirChildren(_key, node)
-          if (i === keyPath.length - 1) {
-            DeviceModule.SetBreadcrumb(this.getDirPath(node).reverse())
-          }
+  /**
+   * 转化搜索目录树
+   */
+  public transformDirList(dirList: any) {
+    return dirList.map(dir => {
+      if (dir.dirs) {
+        return {
+          ...dir,
+          children: this.transformDirList(dir.dirs)
+        }
+      } else {
+        return {
+          ...dir
         }
       }
-    }
+    })
   }
 
   /**
@@ -235,7 +312,8 @@ export default class IndexMixin extends Vue {
     if (!node) {
       _node = dirTree.getNode(item.id)
       if (_node) {
-        if (!_node.loaded) {
+        // 过滤状态全量返回,不需要手动加载
+        if (!_node.loaded && !this.advancedSearchForm.revertSearchFlag) {
           this.loadDirChildren(item.id, _node)
         }
         _node.parent.expanded = true
@@ -352,6 +430,11 @@ export default class IndexMixin extends Vue {
       inProtocol: this.currentGroup!.inProtocol,
       type: item.type,
       path: this.breadcrumb.map((item: any) => item.id).join(','),
+      deviceStatusKeys: this.advancedSearchForm.deviceStatusKeys.join(',') || undefined,
+      streamStatusKeys: this.advancedSearchForm.streamStatusKeys.join(',') || undefined,
+      matchKeys: this.advancedSearchForm.matchKeys.join(',') || undefined,
+      deviceAddresses: this.advancedSearchForm.deviceAddresses.code ? this.advancedSearchForm.deviceAddresses.code + ',' + this.advancedSearchForm.deviceAddresses.level : undefined,
+      searchKey: this.advancedSearchForm.searchKey || undefined,
       ...query
     }
 
@@ -426,22 +509,5 @@ export default class IndexMixin extends Vue {
     } catch (e) {
       resolve([])
     }
-  }
-
-  /**
-   * 设置目录树设备流状态
-   */
-  public setDirsStreamStatus(dirs: any) {
-    return dirs.map((dir: any) => {
-      if (!dir.streamStatus && dir.deviceStreams && dir.deviceStreams.length > 0) {
-        const hasOnline = dir.deviceStreams.some((stream: any) => {
-          return stream.streamStatus === 'on'
-        })
-        if (hasOnline) {
-          dir.streamStatus = 'on'
-        }
-      }
-      return dir
-    })
   }
 }

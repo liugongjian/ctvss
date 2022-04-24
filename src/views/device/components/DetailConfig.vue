@@ -270,17 +270,17 @@ export default class extends Vue {
     }
   ]
 
-  private algoListData:any = []
+  private algoListData: any = []
 
-  private canvasDialog = false;
+  private canvasDialog = false
 
-  private showResourceDialog = false;
+  private showResourceDialog = false
 
-  private algoTabTypeDefault = '';
+  private algoTabTypeDefault = ''
 
-  private resources:any = {}
+  private resources: any = {}
 
-  private configAlgoInfo:any = {}
+  private configAlgoInfo: any = {}
 
   private async mounted() {
     // 需要设备信息，传给resource组件 弹窗使用
@@ -292,7 +292,7 @@ export default class extends Vue {
     await this.getDeviceResource()
   }
 
-  private openCanvasDialog(rowInfo:any) {
+  private openCanvasDialog(rowInfo: any) {
     const streamNum = this.deviceInfo?.deviceStreams[0]?.streamNum
     const deviceId = this.inProtocol === 'ehome' ? `${this.deviceId}_${streamNum}` : this.deviceId
     const param = {
@@ -317,7 +317,7 @@ export default class extends Vue {
   }
   private closeCanvasDialog() {
     this.canvasDialog = false
-    this.getAlgoList()
+    // this.getAlgoList()
     this.getDeviceInfo()
     this.getDeviceResource()
   }
@@ -465,7 +465,7 @@ export default class extends Vue {
   }
 
   // 打开算法配置弹窗
-  private changeResourceDialog(kind:String) {
+  private changeResourceDialog(kind: String) {
     this.showResourceDialog = true
     if (kind && kind === 'AI') {
       this.algoTabTypeDefault = 'AI'
@@ -491,7 +491,7 @@ export default class extends Vue {
       })
       const result = {}
       // 以resourceType 为key 重组数据，渲染使用
-      resourcesRes.resources.forEach((ele:any) => {
+      resourcesRes.resources.forEach((ele: any) => {
         result[ele.resourceType] = ele
       })
       this.resources = result
@@ -503,7 +503,7 @@ export default class extends Vue {
   }
 
   // 启用停用
-  private async changeRunningStatus(rowInfo:any) {
+  private async changeRunningStatus(rowInfo: any) {
     this.loading.AITable = true
     const status = parseInt(rowInfo.status)
     const param = {
@@ -534,7 +534,7 @@ export default class extends Vue {
   }
 
   // 解绑
-  private changeBindStatus(rowInfo:any) {
+  private changeBindStatus(rowInfo: any) {
     this.loading.AITable = true
     const param = {
       deviceId: this.deviceId,
@@ -553,7 +553,7 @@ export default class extends Vue {
     })
   }
 
-  private ifShowAlgoBtn(rowCode:any) {
+  private ifShowAlgoBtn(rowCode: any) {
     /** algorithm.code
      * 危险区域: code 10006
      * 人脸搜索: code 10001
@@ -567,6 +567,11 @@ export default class extends Vue {
       case '10014':
       case '10015':
       case '10020':
+      case '10024':
+      case '10023':
+      case '10022':
+      case '10021':
+      case '10019':
         return true
       default:
         return false

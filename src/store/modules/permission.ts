@@ -133,7 +133,7 @@ class Permission extends VuexModule implements IPermissionState {
   }
 
   @Action
-  public GenerateRoutes(params : {perms: string[], iamUserId: string }) {
+  public GenerateRoutes(params: { perms: string[], iamUserId: string }) {
     let accessedRoutes
     let filteredRoutes = asyncRoutes
     if (params.iamUserId) {
@@ -142,6 +142,10 @@ class Permission extends VuexModule implements IPermissionState {
     // TODO: 连州教育局一机一档专用
     if (store.state.user.tags && store.state.user.tags.isLianZhouEdu !== 'Y') {
       filteredRoutes = filteredRoutes.filter(route => route.path !== '/exportDevices')
+    }
+    // TODO: 重庆公租房客户显示电子地图
+    if (store.state.user.tags && store.state.user.tags.showDigitalMap !== 'Y') {
+      filteredRoutes = filteredRoutes.filter(route => route.path !== '/map')
     }
     if (params.perms.includes('*')) {
       accessedRoutes = filteredRoutes

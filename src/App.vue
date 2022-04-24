@@ -1,8 +1,7 @@
 <template>
-  <div :id="ctLogin ? 'ctcloud-console' : ''">
+  <div :id="ctLogin ? 'ctcloud-console' : ''" class="app-wrap">
     <div id="app">
       <router-view />
-      <service-worker-update-popup />
     </div>
   </div>
 </template>
@@ -10,14 +9,10 @@
 <script lang="ts">
 import { isIE } from '@/utils/browser'
 import { Component, Vue } from 'vue-property-decorator'
-import ServiceWorkerUpdatePopup from '@/pwa/components/ServiceWorkerUpdatePopup.vue'
 import { UserModule } from '@/store/modules/user'
 
 @Component({
-  name: 'App',
-  components: {
-    ServiceWorkerUpdatePopup
-  }
+  name: 'App'
 })
 export default class extends Vue {
   private async mounted() {
@@ -39,8 +34,8 @@ export default class extends Vue {
 </script>
 
 <style>
-.more{
-    min-width: 0 !important;
-    text-align: center;
+.more {
+  min-width: 0 !important;
+  text-align: center;
 }
 </style>

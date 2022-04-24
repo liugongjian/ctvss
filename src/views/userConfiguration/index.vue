@@ -86,8 +86,8 @@ export default class extends Vue {
       }
       Object.keys(this.form).forEach(item => {
         params.push({
-          type: dic[item],
-          enable: this.form[item]
+          key: dic[item],
+          value: this.form[item]
         })
       })
       await updatetUserConfig({

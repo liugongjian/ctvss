@@ -25,19 +25,36 @@
       </el-form-item>
       <el-form-item label="厂商:" prop="deviceVendor">
         <el-select v-model="form.deviceVendor">
-          <el-option v-for="item in deviceVendorList" :key="item" :label="item" :value="item" />
+          <el-option
+            v-for="item in deviceVendorList"
+            :key="item"
+            :label="item"
+            :value="item"
+          />
         </el-select>
       </el-form-item>
       <el-form-item label="设备名称:" prop="deviceName" class="form-with-tip">
         <el-input v-model="form.deviceName" />
-        <div class="form-tip">2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。</div>
+        <div class="form-tip">
+          2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
+        </div>
       </el-form-item>
       <el-form-item label="视频流接入方式:" prop="inType">
         <el-radio-group v-model="form.inType" @change="clearValidate">
-          <el-radio v-for="(inType, key) in inTypeList" :key="key" :label="key">{{ inType }}</el-radio>
+          <el-radio
+            v-for="(inType, key) in inTypeList"
+            :key="key"
+            :label="key"
+          >
+            {{ inType }}
+          </el-radio>
         </el-radio-group>
       </el-form-item>
-      <el-form-item v-if="form.inType === 'pull'" label="拉流地址:" prop="pullUrl">
+      <el-form-item
+        v-if="form.inType === 'pull'"
+        label="拉流地址:"
+        prop="pullUrl"
+      >
         <el-input v-model="form.pullUrl" />
       </el-form-item>
       <el-form-item v-if="form.inType === 'pull'" prop="pullType">
@@ -54,7 +71,11 @@
             <svg-icon slot="reference" class="form-question" name="help" />
           </el-popover>
         </template>
-        <el-switch v-model="form.pullType" :active-value="1" :inactive-value="2" />
+        <el-switch
+          v-model="form.pullType"
+          :active-value="1"
+          :inactive-value="2"
+        />
       </el-form-item>
       <el-form-item v-if="form.inType === 'push'" prop="pushType">
         <template slot="label">
@@ -70,40 +91,79 @@
             <svg-icon slot="reference" class="form-question" name="help" />
           </el-popover>
         </template>
-        <el-switch v-model="form.pushType" :active-value="1" :inactive-value="2" />
+        <el-switch
+          v-model="form.pushType"
+          :active-value="1"
+          :inactive-value="2"
+        />
       </el-form-item>
       <el-form-item label="视频标签:" prop="description">
         <Tags v-model="form.tags" class="tags" />
       </el-form-item>
-      <el-form-item v-if="(!isUpdate || form.gbRegion || !form.gbId)" label="设备地址:" prop="address">
-        <el-cascader
-          ref="addressCascader"
-          v-model="form.address"
-          expand-trigger="click"
+      <el-form-item v-if="(!isUpdate || form.gbRegion || !form.gbId)" label="设备地址:" prop="gbRegion">
+        <AddressCascader
+          :code="form.gbRegion"
+          :level="form.gbRegionLevel"
           :disabled="form.gbId !== ''"
-          :options="regionList"
-          :props="addressProps"
-          @change="addressChange"
+          @change="onDeviceAddressChange"
         />
       </el-form-item>
-      <el-form-item v-if="!isUpdate || !!form.industryCode || !form.gbId" label="所属行业:" prop="industryCode">
-        <el-select v-model="form.industryCode" :disabled="form.gbId !== ''" placeholder="请选择所属行业">
-          <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
+      <el-form-item
+        v-if="!isUpdate || !!form.industryCode || !form.gbId"
+        label="所属行业:"
+        prop="industryCode"
+      >
+        <el-select
+          v-model="form.industryCode"
+          :disabled="form.gbId !== ''"
+          placeholder="请选择所属行业"
+        >
+          <el-option
+            v-for="(item, index) in industryList"
+            :key="index"
+            :label="item.name"
+            :value="item.value"
+          />
         </el-select>
       </el-form-item>
-      <el-form-item v-if="(!isUpdate || !!form.industryCode || !form.gbId) && networkFlag" label="网络标识:" prop="networkCode">
-        <el-select v-model="form.networkCode" :disabled="form.gbId !== ''" placeholder="请选择网络标识">
-          <el-option v-for="(item, index) in networkList" :key="index" :label="item.name" :value="item.value" />
+      <el-form-item
+        v-if="(!isUpdate || !!form.industryCode || !form.gbId) && networkFlag"
+        label="网络标识:"
+        prop="networkCode"
+      >
+        <el-select
+          v-model="form.networkCode"
+          :disabled="form.gbId !== ''"
+          placeholder="请选择网络标识"
+        >
+          <el-option
+            v-for="(item, index) in networkList"
+            :key="index"
+            :label="item.name"
+            :value="item.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item label="配置资源包:" prop="resources">
-        <ResourceTabs v-model="form.resources" :is-update="isUpdate"
-                      :in-protocol="form.inProtocol" :is-private-in-network="isPrivateInNetwork" :device-id="form.deviceId"
-                      :vss-ai-apps="form.vssAIApps" @on-change="onResourceChange" @changevssaiapps="changeVSSAIApps"
+        <ResourceTabs
+          v-model="form.resources"
+          :is-update="isUpdate"
+          :in-protocol="form.inProtocol"
+          :is-private-in-network="isPrivateInNetwork"
+          :device-id="deviceId"
+          :form-info="form"
+          :vss-ai-apps="form.vssAIApps"
+          @on-change="onResourceChange"
+          @changevssaiapps="changeVSSAIApps"
         />
       </el-form-item>
       <el-form-item label="设备描述:" prop="description">
-        <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入设备描述，如设备用途" />
+        <el-input
+          v-model="form.description"
+          type="textarea"
+          :rows="3"
+          placeholder="请输入设备描述，如设备用途"
+        />
       </el-form-item>
       <el-form-item label="">
         <el-button type="primary" :loading="submitting" @click="submit">确 定</el-button>
@@ -112,7 +172,7 @@
     </el-form>
   </div>
 </template>
-<script lang='ts'>
+<script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import createMixin from '../mixin/createMixin'
 import { InType } from '@/dics'
@@ -120,13 +180,11 @@ import { pick } from 'lodash'
 import { createDevice, updateDevice, getDevice } from '@/api/device'
 import { updateDeviceResources } from '@/api/billing'
 import Tags from '@/components/Tags/index.vue'
-import ResourceTabs from '../components/ResourceTabs.vue'
 
 @Component({
   name: 'CreateRtmpDevice',
   components: {
-    Tags,
-    ResourceTabs
+    Tags
   }
 })
 export default class extends Mixins(createMixin) {
@@ -141,14 +199,14 @@ export default class extends Mixins(createMixin) {
     pullUrl: [
       { required: true, message: '请输入拉流地址', trigger: 'blur' }
     ],
-    address: [
-      { required: true, message: '请选择设备地址', trigger: 'blur' }
+    gbRegion: [
+      { required: true, message: '请选择设备地址', trigger: 'change' }
     ],
     industryCode: [
-      { required: true, message: '请选择所属行业', trigger: 'blur' }
+      { required: true, message: '请选择所属行业', trigger: 'change' }
     ],
     networkCode: [
-      { required: true, message: '请选择网络标识', trigger: 'blur' }
+      { required: true, message: '请选择网络标识', trigger: 'change' }
     ],
     resources: [
       { required: true, validator: this.validateResources, trigger: 'blur' }
@@ -172,7 +230,9 @@ export default class extends Mixins(createMixin) {
     resources: [],
     vssAIApps: [],
     aIApps: [],
-    address: [],
+    longlat: 'required',
+    deviceLongitude: '0.000000',
+    deviceLatitude: '0.000000',
     gbId: '',
     gbRegion: '',
     gbRegionLevel: null,
@@ -203,9 +263,29 @@ export default class extends Mixins(createMixin) {
         deviceId: this.form.deviceId,
         inProtocol: this.inProtocol
       })
-      this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
-        'description', 'inType', 'pullType', 'pushType', 'pullUrl', 'tags', 'gbId', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode']))
-      this.cascaderInit()
+      this.form = Object.assign(
+        this.form,
+        pick(info, [
+          'groupId',
+          'dirId',
+          'deviceId',
+          'deviceName',
+          'inProtocol',
+          'deviceType',
+          'deviceVendor',
+          'description',
+          'inType',
+          'pullType',
+          'pushType',
+          'pullUrl',
+          'tags',
+          'gbId',
+          'gbRegion',
+          'gbRegionLevel',
+          'industryCode',
+          'networkCode'
+        ])
+      )
       // 获取绑定资源包列表
       this.getDeviceResources(info.deviceId, info.deviceType!, info.inProtocol!)
     } catch (e) {
@@ -228,11 +308,28 @@ export default class extends Mixins(createMixin) {
   private async doSubmit() {
     try {
       this.submitting = true
-      let params: any = pick(this.form, ['groupId', 'dirId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor', 'description', 'inType', 'tags', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode'])
+      let params: any = pick(this.form, [
+        'groupId',
+        'dirId',
+        'deviceName',
+        'inProtocol',
+        'deviceType',
+        'deviceVendor',
+        'description',
+        'inType',
+        'tags',
+        'gbRegion',
+        'gbRegionLevel',
+        'industryCode',
+        'networkCode'
+      ])
       if (this.isUpdate) {
         params = Object.assign(params, pick(this.form, ['deviceId']))
       } else {
-        params = Object.assign(params, pick(this.form, ['resources', 'vssAIApps']))
+        params = Object.assign(
+          params,
+          pick(this.form, ['resources', 'vssAIApps'])
+        )
       }
       if (this.form.inType === 'push') {
         params = Object.assign(params, pick(this.form, ['pushType']))
@@ -268,21 +365,25 @@ export default class extends Mixins(createMixin) {
 </script>
 
 <style lang="scss" scoped>
-  .el-input, .el-select, .el-textarea, .tags, .el-cascader {
-    width: 400px;
-  }
+.el-input,
+.el-select,
+.el-textarea,
+.tags,
+.el-cascader {
+  width: 400px;
+}
 
-  .in-protocol {
+.in-protocol {
+  color: $textGrey;
+}
+
+.breadcrumb {
+  &__item:after {
+    content: '/';
     color: $textGrey;
   }
-
-  .breadcrumb {
-    &__item:after {
-      content: '/';
-      color: $textGrey;
-    }
-    &__item:last-child:after {
-      content: '';
-    }
+  &__item:last-child:after {
+    content: '';
   }
+}
 </style>

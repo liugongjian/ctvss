@@ -30,7 +30,7 @@
         <el-dropdown v-if="!isVGroup" placement="bottom" @command="exportExcel">
           <el-button :loading="exportLoading">导出<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item v-if="!(isChannel && !isNVR)" command="exportAll" :disabled="!deviceList.length">导出全部</el-dropdown-item>
+            <el-dropdown-item v-if="!(isChannel && !isNVR)" command="exportAll" :disabled="!deviceList.length">导出所有分页</el-dropdown-item>
             <el-dropdown-item command="exportCurrentPage" :disabled="!deviceList.length">导出当前页</el-dropdown-item>
             <el-dropdown-item command="exportSelect" :disabled="!selectedDeviceList.length">导出选定项</el-dropdown-item>
           </el-dropdown-menu>
@@ -169,9 +169,14 @@
             {{ row.deviceVendor || '-' }}
           </template>
         </el-table-column>
-        <el-table-column key="deviceIp" label="设备IP" min-width="130">
+        <el-table-column key="deviceIp" label="设备IP/域名" min-width="130">
           <template slot-scope="{row}">
-            {{ row.deviceIp || '-' }}
+            <template v-if="row.deviceVendor === '其他'">
+              {{ row.deviceDomain || row.deviceIp || '-' }}
+            </template>
+            <template v-else>
+              {{ row.enableDomain === 1 ? row.deviceDomain : row.deviceIp }}
+            </template>
           </template>
         </el-table-column>
         <el-table-column key="devicePort" label="设备端口">
@@ -232,7 +237,7 @@
         </el-table-column>
       </el-table>
       <el-pagination
-        v-if="deviceList.length && (isRealGroup || isDir || isPlatformDir)"
+        v-if="deviceList.length && (isRealGroup || isDir || isPlatform)"
         :current-page="pager.pageNum"
         :page-size="pager.pageSize"
         :total="pager.total"
@@ -255,84 +260,10 @@
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
 import listMixin from '../mixin/listMixin'
-import excelMixin from '../mixin/excelMixin'
 
 @Component({
   name: 'DeviceRtspList'
 })
-export default class extends Mixins(listMixin, excelMixin) {
-  private exportLoading = false
-  /**
-   * 导入设备表
-   */
-  private uploadExcel(data: any) {
-    if (data.file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || data.file.type === 'application/vnd.ms-excel') {
-      this.dialog.uploadExcel = true
-      this.selectedFile = data.file
-      this.fileData = {
-        groupId: this.groupId,
-        inProtocol: this.inProtocol,
-        dirId: this.dirId,
-        fileName: data.file.name
-      }
-      if (this.isNVR) {
-        this.fileData.parentDeviceId = this.deviceInfo.deviceId
-        delete this.fileData.dirId
-      }
-    } else {
-      this.$message.error('导入文件必须为表格')
-    }
-  }
-
-  /**
-   * 导出设备表
-   */
-  private async exportExcel(command: any) {
-    this.exportLoading = true
-    try {
-      let params: any = {
-        groupId: this.groupId,
-        inProtocol: this.inProtocol,
-        dirId: this.dirId,
-        parentDeviceId: this.deviceId
-      }
-      // this.isNVR && (params.parentDeviceId = this.deviceInfo.parentDeviceId)
-      if (command === 'exportAll') {
-        params.command = 'all'
-      } else {
-        params.command = 'selected'
-        let deviceArr: any = []
-        if (command === 'exportCurrentPage') {
-          deviceArr = this.deviceList
-        } else if (command === 'exportSelect') {
-          deviceArr = this.selectedDeviceList
-        }
-        params.deviceIds = deviceArr.map((device: any) => {
-          return { deviceId: device.deviceId }
-        })
-      }
-      await this.exportDevicesExcel(params)
-    } catch (e) {
-      this.$message.error('导出失败')
-      console.log(e)
-    }
-    this.exportLoading = false
-  }
-
-  /**
-   * 导出模板
-   */
-  private exportTemplate() {
-    this.exelType = 'template'
-    this.exelDeviceType = 'rtsp'
-    this.exelName = 'RTSP导入模板'
-    if (this.isNVR) {
-      this.exelDeviceType = 'nvr'
-      this.exelName = 'NVR添加子设备导入模板'
-      this.excelInProtocol = this.deviceInfo.inProtocol
-      this.parentDeviceId = this.deviceInfo.deviceId
-    }
-    this.exportExel()
-  }
+export default class extends Mixins(listMixin) {
 }
 </script>

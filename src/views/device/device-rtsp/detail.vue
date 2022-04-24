@@ -31,7 +31,7 @@
                 <template v-if="info && !isNVR && !isPlatform">
                   <el-descriptions-item label="流状态">
                     <status-badge :status="info.streamStatus" />
-                    {{ deviceStatus[info.streamStatus] || '-' }}
+                    {{ streamStatus[info.streamStatus] || '-' }}
                     <!-- <el-link v-if="info.streamStatus === 'on' && checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('stopDevice')">停用流</el-link>
                     <el-link v-else-if="checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('startDevice')">启用流</el-link> -->
                   </el-descriptions-item>
@@ -68,8 +68,8 @@
                   <el-descriptions-item label="设备厂商">
                     {{ info.deviceVendor || '-' }}
                   </el-descriptions-item>
-                  <el-descriptions-item v-if="info.address" label="设备地址">
-                    {{ info.address }}
+                  <el-descriptions-item label="设备地址">
+                    {{ deviceAddress || '-' }}
                   </el-descriptions-item>
                   <el-descriptions-item v-if="info.industryCode" label="所属行业">
                     {{ industryMap[info.industryCode] }}
@@ -77,7 +77,7 @@
                   <el-descriptions-item v-if="info.networkCode && networkFlag" label="网络标识">
                     {{ networkMap[info.networkCode] }}
                   </el-descriptions-item>
-                  <el-descriptions-item v-if="lianzhouFlag" label="经纬度">
+                  <el-descriptions-item label="经纬度">
                     {{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}
                   </el-descriptions-item>
                   <el-descriptions-item label="视频流接入方式">
@@ -87,7 +87,9 @@
                     {{ pushType[info.pushType] || '-' }}
                   </el-descriptions-item>
                   <template v-if="info.deviceVendor === '其他'">
-                    <el-descriptions-item v-if="info.inType === 'pull'" label="自定义拉流地址:">{{ info.deviceDomain }}</el-descriptions-item>
+                    <el-descriptions-item v-if="info.inType === 'pull' && info.deviceDomain" label="设备域名">{{ info.deviceDomain }}</el-descriptions-item>
+                    <el-descriptions-item v-if="info.inType === 'pull' && info.deviceIp" label="设备IP">{{ info.deviceIp }}</el-descriptions-item>
+                    <el-descriptions-item v-if="info.inType === 'pull' && info.devicePort" label="设备端口">{{ info.devicePort }}</el-descriptions-item>
                   </template>
                   <template v-else>
                     <el-descriptions-item v-if="info.inType === 'pull'" label="用户名">{{ info.userName }}</el-descriptions-item>
@@ -95,6 +97,12 @@
                     <el-descriptions-item v-if="info.inType === 'pull' && info.enableDomain === 2" label="设备IP">{{ info.deviceIp }}</el-descriptions-item>
                     <el-descriptions-item v-if="info.inType === 'pull'" label="设备端口">{{ info.devicePort }}</el-descriptions-item>
                   </template>
+                  <el-descriptions-item v-if="info.deviceVendor === '其他'" label="自定义拉流地址">
+                    {{ info.pullUrl || '-' }}
+                    <el-tooltip v-if="info.pullUrl" class="item" effect="dark" content="复制链接" placement="top">
+                      <el-button type="text" class="copy-button" @click="copyUrl(info.pullUrl)"><svg-icon name="copy" /></el-button>
+                    </el-tooltip>
+                  </el-descriptions-item>
                 </template>
                 <!--子通道信息-->
                 <template v-if="info && isNVRChannel">
@@ -155,13 +163,7 @@
                 <el-descriptions-item v-if="info.inType === 'push'" label="推流地址">
                   {{ info.pushUrl || '-' }}
                   <el-tooltip v-if="info.pushUrl" class="item" effect="dark" content="复制链接" placement="top">
-                    <el-button type="text" @click="copyUrl(info.pushUrl)"><svg-icon name="copy" /></el-button>
-                  </el-tooltip>
-                </el-descriptions-item>
-                <el-descriptions-item v-else label="拉流地址">
-                  {{ info.pullUrl || '-' }}
-                  <el-tooltip v-if="info.pullUrl" class="item" effect="dark" content="复制链接" placement="top">
-                    <el-button type="text" @click="copyUrl(info.pullUrl)"><svg-icon name="copy" /></el-button>
+                    <el-button type="text" class="copy-button" @click="copyUrl(info.pushUrl)"><svg-icon name="copy" /></el-button>
                   </el-tooltip>
                 </el-descriptions-item>
               </el-descriptions>
@@ -258,7 +260,14 @@
           <detail-config v-if="activeName==='config'" :device-id="deviceId" :in-protocol="info.inProtocol" />
         </el-tab-pane>
         <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ScreenPreview'])" label="实时预览" name="preview">
-          <detail-preview v-if="activeName==='preview'" :device-id="deviceId" :in-protocol="inProtocol" />
+          <detail-preview
+            v-if="activeName==='preview'"
+            :device-id="deviceId"
+            :in-protocol="inProtocol"
+            :device-name="info.deviceName"
+            :streams="info.deviceStreams"
+            :stream-size="info.multiStreamSize"
+          />
         </el-tab-pane>
         <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ReplayRecord'])" label="录像回放" name="replay">
           <detail-replay v-if="activeName==='replay'" :device-id="deviceId" :in-protocol="inProtocol" />
@@ -293,5 +302,9 @@ export default class extends Mixins(detailMixin) {}
     ::v-deep .el-descriptions-item__label {
       min-width: 120px;
     }
+  }
+
+  .copy-button {
+    padding: 0;
   }
 </style>

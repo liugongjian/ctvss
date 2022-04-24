@@ -31,7 +31,7 @@
                 <template v-if="info && !isNVR && !isPlatform">
                   <el-descriptions-item v-for="num in info.multiStreamSize" :key="num" :label="`${autoStreamNumObj[num]}状态`">
                     <status-badge :status="getStreamStatus(info.deviceStreams, num) || 'false'" />
-                    {{ deviceStatus[getStreamStatus(info.deviceStreams, num)] || '-' }}
+                    {{ streamStatus[getStreamStatus(info.deviceStreams, num)] || '-' }}
                     <!-- <el-link v-if="getStreamStatus(info.deviceStreams, num) === 'on' && checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('stopDevice', num)">停用{{ autoStreamNumObj[num] }}</el-link>
                     <el-link v-else-if="checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('startDevice', num)">启用{{ autoStreamNumObj[num] }}</el-link> -->
                   </el-descriptions-item>
@@ -71,8 +71,8 @@
                   <!-- <el-descriptions-item label="设备国标ID">
                     {{ info.gbId || '-' }}
                   </el-descriptions-item> -->
-                  <el-descriptions-item v-if="info.address" label="设备地址">
-                    {{ info.address }}
+                  <el-descriptions-item label="设备地址">
+                    {{ deviceAddress || '-' }}
                   </el-descriptions-item>
                   <el-descriptions-item v-if="info.industryCode" label="所属行业">
                     {{ industryMap[info.industryCode] }}
@@ -80,7 +80,7 @@
                   <el-descriptions-item v-if="info.networkCode && networkFlag" label="网络标识">
                     {{ networkMap[info.networkCode] }}
                   </el-descriptions-item>
-                  <el-descriptions-item v-if="lianzhouFlag" label="经纬度">
+                  <el-descriptions-item label="经纬度">
                     {{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}
                   </el-descriptions-item>
                   <el-descriptions-item label="设备IP">
@@ -88,6 +88,9 @@
                   </el-descriptions-item>
                   <el-descriptions-item label="设备端口">
                     {{ info.devicePort || '-' }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="设备MAC地址">
+                    {{ info.macAddr || '-' }}
                   </el-descriptions-item>
                 </template>
                 <!--子通道信息-->
@@ -104,9 +107,9 @@
                 </template>
                 <!--NVR信息-->
                 <template v-if="info.deviceType === 'nvr'">
-                  <el-descriptions-item label="自动创建子设备">
+                  <!-- <el-descriptions-item label="自动创建子设备">
                     {{ createSubDevice[info.createSubDevice] }}
-                  </el-descriptions-item>
+                  </el-descriptions-item> -->
                   <el-descriptions-item :label="info.createSubDevice === 2 ? '实际通道数量' : '通道数量'">
                     {{ info.deviceStats && info.deviceStats.channelSize }}
                   </el-descriptions-item>
@@ -118,6 +121,9 @@
                   </el-descriptions-item>
                 </template>
                 <!--通用信息-->
+                <el-descriptions-item label="经纬度">
+                  {{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}
+                </el-descriptions-item>
                 <el-descriptions-item label="主子码流数量">
                   {{ info.multiStreamSize }}
                 </el-descriptions-item>
@@ -140,9 +146,9 @@
                 <el-descriptions-item v-if="info.pullType === 1" label="自动拉取码流">
                   {{ autoStreamNumObj[info.autoStreamNum] }}
                 </el-descriptions-item>
-                <el-descriptions-item label="优先TCP传输">
+                <!-- <el-descriptions-item label="优先TCP传输">
                   {{ transPriority[info.transPriority] || '-' }}
-                </el-descriptions-item>
+                </el-descriptions-item> -->
                 <el-descriptions-item label="设备描述">
                   {{ info.description || '-' }}
                 </el-descriptions-item>

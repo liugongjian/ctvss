@@ -31,7 +31,7 @@
                 <template v-if="info && !isNVR && !isPlatform">
                   <el-descriptions-item label="流状态">
                     <status-badge :status="info.streamStatus" />
-                    {{ deviceStatus[info.streamStatus] || '-' }}
+                    {{ streamStatus[info.streamStatus] || '-' }}
                     <!-- <el-link v-if="info.streamStatus === 'on' && checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('stopDevice')">停用流</el-link>
                     <el-link v-else-if="checkPermission(['AdminDevice']) && !isVGroup" @click="detailOperate('startDevice')">启用流</el-link> -->
                   </el-descriptions-item>
@@ -68,23 +68,23 @@
                   <el-descriptions-item label="设备厂商">
                     {{ info.deviceVendor || '-' }}
                   </el-descriptions-item>
-                  <el-descriptions-item v-if="info.address" label="设备地址">
-                    {{ info.address }}
+                  <el-descriptions-item label="设备地址">
+                    {{ deviceAddress || '-' }}
                   </el-descriptions-item>
                   <el-descriptions-item v-if="info.industryCode" label="所属行业">
-                    {{ industryMap[info.industryCode] }}
+                    {{ industryMap[info.industryCode] || '-' }}
                   </el-descriptions-item>
                   <el-descriptions-item v-if="info.networkCode && networkFlag" label="网络标识">
                     {{ networkMap[info.networkCode] }}
-                  </el-descriptions-item>
-                  <el-descriptions-item v-if="lianzhouFlag" label="经纬度">
-                    {{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}
                   </el-descriptions-item>
                   <el-descriptions-item label="设备IP">
                     {{ info.deviceIp || '-' }}
                   </el-descriptions-item>
                   <el-descriptions-item label="设备端口">
                     {{ info.devicePort || '-' }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="设备MAC地址">
+                    {{ info.macAddr || '-' }}
                   </el-descriptions-item>
                 </template>
                 <!--子通道信息-->
@@ -103,8 +103,11 @@
                 <el-descriptions-item label="设备国标ID">
                   {{ info.gbId || '-' }}
                 </el-descriptions-item>
-                <el-descriptions-item label="GB28181账号">
+                <el-descriptions-item label="GB28181凭证注册用户名">
                   {{ info.userName }}
+                </el-descriptions-item>
+                <el-descriptions-item v-if="info.deviceType !== 'nvr'" label="杆号">
+                  {{ info.poleId || '-' }}
                 </el-descriptions-item>
                 <!--NVR信息-->
                 <template v-if="info.deviceType === 'nvr'">
@@ -130,6 +133,9 @@
                     {{ info.deviceStats && info.deviceStats.onlineSize }}
                   </el-descriptions-item>
                 </template>
+                <el-descriptions-item label="经纬度">
+                  {{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}
+                </el-descriptions-item>
                 <!--通用信息-->
                 <el-descriptions-item>
                   <template slot="label">
@@ -208,10 +214,17 @@
           <!-- <template-bind v-if="activeName==='config'" :device-id="deviceId" :in-protocol="inProtocol" /> -->
         </el-tab-pane>
         <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ScreenPreview'])" label="实时预览" name="preview">
-          <detail-preview v-if="activeName==='preview'" :device-id="deviceId" :in-protocol="inProtocol" />
+          <detail-preview
+            v-if="activeName==='preview'"
+            :device-id="deviceId"
+            :in-protocol="inProtocol"
+            :device-name="info.deviceName"
+            :streams="info.deviceStreams"
+            :stream-size="info.multiStreamSize"
+          />
         </el-tab-pane>
         <el-tab-pane v-if="info && info.deviceType === 'ipc' && checkPermission(['ReplayRecord'])" label="录像回放" name="replay">
-          <detail-replay v-if="activeName==='replay'" :device-id="deviceId" :in-protocol="inProtocol" />
+          <detail-replay v-if="activeName==='replay'" :device-id="deviceId" :in-protocol="inProtocol" :device-name="info.deviceName" />
         </el-tab-pane>
         <el-tab-pane label="AI分析" name="ai">
           <detail-ai v-if="activeName==='ai'" :device-id="deviceId" :in-protocol="inProtocol" />
@@ -243,9 +256,9 @@ export default class extends Mixins(detailMixin) {
 }
 </script>
 <style lang="scss" scoped>
-  .detail-wrap {
-    ::v-deep .el-descriptions-item__label {
-      min-width: 130px;
-    }
+.detail-wrap {
+  ::v-deep .el-descriptions-item__label {
+    min-width: 130px;
   }
+}
 </style>
