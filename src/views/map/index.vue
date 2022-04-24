@@ -68,9 +68,9 @@
                 <span class="node-name">
                   <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                   <svg-icon :name="data.type" />
-                  <span class="node-label">{{ node.label }}</span>
+                  <span class="node-label">{{ node.label }}{{ getNumbers(node,data) }}</span>
                   <svg-icon v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0" name="mark" />
-                  <span class="sum-icon">{{ getNumbers(node,data) }}</span>
+                  <span class="sum-icon" />
                 </span>
                 <el-tooltip content="添加该点位至地图" placement="top">
                   <span
@@ -190,8 +190,8 @@
               <h3>
                 <el-checkbox v-model="addNoPositionDialogCheck">本次编辑不再询问</el-checkbox>
               </h3>
-              <el-button @click="confirmAddMarker(true)">确定</el-button>
-              <el-button @click="cancelAddMark()">取消</el-button>
+              <el-button @click="confirmAddZeroMarker">确定</el-button>
+              <el-button @click="cancelAddMark">取消</el-button>
             </el-dialog>
             <div :class="['mapwrap', hideTitle?'hide-title':'']">
               <!-- ifMapDisabled -->
@@ -207,14 +207,14 @@
               <div v-else class="init-map">
                 <el-button type="primary" @click="openMapEditDialog()">添加地图</el-button>
               </div>
-            </div>
-            <div v-show="showInfo" class="map-info__right">
-              <div v-if="showMapInfo">
-                <map-info :is-edit="isEdit" :map="curMap" @save="changeMapInfos" />
-              </div>
-              <div v-if="!showMapInfo">
-                <point-info :is-edit="isEdit" :marker="curMarkInfo" @save="changeMarkerInfos" />
+              <div v-show="showInfo" class="map-info__right">
+                <div v-if="showMapInfo">
+                  <map-info :is-edit="isEdit" :map="curMap" @save="changeMapInfos" />
+                </div>
+                <div v-if="!showMapInfo">
+                  <point-info :is-edit="isEdit" :marker="curMarkInfo" @save="changeMarkerInfos" />
                 <!-- <selected-point /> -->
+                </div>
               </div>
             </div>
           </div>
@@ -558,34 +558,22 @@ export default class extends Mixins(IndexMixin) {
         wscript.SendKeys('{F11}')
       }
     }
+    const mapInfo: any = document.querySelector('.map-info__right')
+    mapInfo.style.top = 0
   }
 
-  private keydownEvent(e: KeyboardEvent) {
-    const doc: Document = document
-    if (e.keyCode === 27) {
-      doc.exitFullscreen()
-    }
+  // 判断是否全屏
+  private getIfFullscreen() {
+    const doc: any = document
+    return doc.webkitIsFullScreen || doc.mozFullScreen || doc.msFullscreenElement || doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullscreenElement
   }
 
   /**
    *  地图退出全屏
    */
   private exitFullscreenMap() {
-    const mapwrap: any = document.querySelector('.mapwrap')
-    if (mapwrap.exitFullscreen) {
-      mapwrap.exitFullscreen()
-    } else if (mapwrap.webkitExitFullscreen) {
-      mapwrap.webkitExitFullscreen()
-    } else if (mapwrap.mozExitFullscreen) {
-      mapwrap.mozExitFullscreen()
-    } else if (mapwrap.msExitFullscreen) {
-      mapwrap.msExitFullscreen()
-    } else if (typeof window.ActiveXObject !== 'undefined') {
-      const wscript = new ActiveXObject('WScript.Shell')
-      if (wscript != null) {
-        wscript.SendKeys('{F11}')
-      }
-    }
+    const mapInfo: any = document.querySelector('.map-info__right')
+    mapInfo.style.top = '40px'
   }
 
   /**
@@ -695,7 +683,7 @@ export default class extends Mixins(IndexMixin) {
       if (!this.addNoPositionDialogCheck) {
         this.addNoPositionDialog = true
       } else {
-        this.$refs.mapview.addMarker(this.markerInfo)
+        this.confirmAddZeroMarker()
       }
     }
   }
@@ -782,8 +770,12 @@ export default class extends Mixins(IndexMixin) {
       this.$alertError(e)
     } finally {
       this.addPositionDialog = false
-      this.addNoPositionDialog = false
     }
+  }
+
+  private confirmAddZeroMarker() {
+    this.$refs.mapview.addMarker(this.markerInfo)
+    this.addNoPositionDialog = false
   }
 
   deviceClick(data) {
@@ -1000,12 +992,16 @@ export default class extends Mixins(IndexMixin) {
     }
   }
 
-  calHeight() {
+  private calHeight() {
     const deviceWrap: any = this.$refs.deviceWrap
     const size = deviceWrap.$el.getBoundingClientRect()
     const top = size.top
     const documentHeight = document.body.offsetHeight
     this.maxHeight = documentHeight - top - 60
+    if (!this.getIfFullscreen()) {
+      // 退出全屏
+      this.exitFullscreenMap()
+    }
   }
 
   private async mounted() {
@@ -1014,12 +1010,10 @@ export default class extends Mixins(IndexMixin) {
     this.curMap = this.mapList[0]
     this.calHeight()
     window.addEventListener('resize', this.calHeight)
-    window.addEventListener('keydown', (e) => { this.keydownEvent(e) })
   }
 
   private destroyed() {
     window.removeEventListener('resize', this.calHeight)
-    window.removeEventListener('keydown', (e) => { this.keydownEvent(e) })
   }
 }
 </script>
