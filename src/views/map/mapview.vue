@@ -55,7 +55,7 @@ export default class MapView extends Vue {
   @Prop()
   private isEdit: boolean
 
-  private vmap = new VMap('mapContainer')
+  public vmap = new VMap('mapContainer')
   private markerlist = []
   private mapTip = ''
   private pageTotal = 1

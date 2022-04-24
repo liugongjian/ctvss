@@ -37,38 +37,17 @@
               :props="treeProp"
               :check-strictly="false"
             >
-              <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}" @click="deviceClick(data)">
-                <!-- <template v-if="data.isLeaf">
-                  <draggable
-                    @unchoose="(e) => {
-                      nodeNameUnchoose(e,data)
-                    }"
-                    @start="startDragNodeName"
-                  >
-                    <transition-group>
-                      <span :key="data.id" class="node-name" :class="data.isLeaf ? 'node-name-move' : '' ">
-                        <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
-                        <svg-icon :name="data.type" />
-                        {{ node.label }}
-                        <svg-icon v-if="mapDeviceIds.indexOf(data.id) >= 0" name="mark" />
-                        <span class="sum-icon">{{ getSums(data) }}</span>
-                      </span>
-                    </transition-group>
-                  </draggable>
-                </template>
-                <template v-else>
-                  <span class="node-name">
-                    <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
-                    <svg-icon :name="data.type" />
-                    {{ node.label }}
-                    <svg-icon v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0" name="mark" />
-                    <span class="sum-icon">{{ getSums(data) }}</span>
-                  </span>
-                </template> -->
+              <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}" @click.stop.prevent="deviceClick(data)">
                 <span class="node-name">
                   <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                   <svg-icon :name="data.type" />
-                  <span class="node-label">{{ node.label }}{{ getNumbers(node,data) }}</span>
+                  <!-- v-nodeDrag="{node, data}"  -->
+                  <span
+                    class="node-label"
+                    @mousedown="(e) => {
+                      mousedownHandle(e,data)
+                    }"
+                  >{{ node.label }}{{ getNumbers(node,data) }}</span>
                   <svg-icon v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0" name="mark" />
                   <span class="sum-icon" />
                 </span>
@@ -193,6 +172,16 @@
               <el-button @click="confirmAddZeroMarker">确定</el-button>
               <el-button @click="cancelAddMark">取消</el-button>
             </el-dialog>
+            <el-dialog title="添加监控点位" :visible.sync="dragAddNoPositionDialog" class="dialog-text">
+              <div>
+                <h3>本设备未设置经纬度，是否使用鼠标所在的经纬度？</h3>
+              </div>
+              <h3>
+                <el-checkbox v-model="dragAddNoPositionDialogCheck">本次编辑不再询问</el-checkbox>
+              </h3>
+              <el-button @click="confirmDragAddZeroMarker">确定</el-button>
+              <el-button @click="cancelAddMark">取消</el-button>
+            </el-dialog>
             <div :class="['mapwrap', hideTitle?'hide-title':'']">
               <!-- ifMapDisabled -->
               <map-view
@@ -241,7 +230,7 @@ import SelectedPoint from './components/SelectedPoint.vue'
 import MapInfo from './components/MapInfo.vue'
 import { getMaps, createMap, deleteMap, modifyMap } from '@/api/map'
 import { mapObject } from '@/views/map/models/vmap'
-// import draggable from 'vuedraggable'
+import nodeDrag from './directives/nodeDragToMap'
 
 @Component({
   name: 'Map',
@@ -251,7 +240,9 @@ import { mapObject } from '@/views/map/models/vmap'
     MapInfo,
     PointInfo,
     SelectedPoint
-    // draggable
+  },
+  directives: {
+    nodeDrag
   }
 })
 export default class extends Mixins(IndexMixin) {
@@ -278,11 +269,15 @@ export default class extends Mixins(IndexMixin) {
   private showMapInfo = true
   private addPositionDialog = false // 显示询问本次编辑要不要继承设备坐标的对话弹窗
   private addPositionDialogCheck = false // 是否询问本次编辑要不要继承设备坐标
+  private dragAddNoPositionDialogCheck = false
   private uselnglat = true // 是否要继承设备坐标
   private addNoPositionDialog = false
   private addNoPositionDialogCheck = false
+  private dragAddNoPositionDialog = false
   private deviceInfo: any = {}
   private markerInfo: any = {}
+  private dragNodeInfo: any = {}
+  private ifDragging: boolean = false
   private form = {
     mapId: '',
     name: '',
@@ -577,22 +572,6 @@ export default class extends Mixins(IndexMixin) {
   }
 
   /**
-   *  设备数 点位开始拖拽事件
-  */
-  private startDragNodeName(e: Event) {
-    this.ifMapDisabled = true
-    console.log(e)
-  }
-
-  /**
-   * 设备数拖拽后松开鼠标事件
-  */
-  private nodeNameUnchoose(e: Event, item: any) {
-    console.log(e)
-    console.log(item)
-  }
-
-  /**
    * 获取设备数 设备数量
    */
   private getNumbers(node: any, data: any) {
@@ -600,6 +579,109 @@ export default class extends Mixins(IndexMixin) {
       return ` (${data.groupStats.onlineIpcSize}/${data.groupStats.deviceSize})`
     }
     return this.getSums(data)
+  }
+
+  /**
+   * 设备树 设备绑定拖拽事件(鼠标事件代替拖拽事件)
+   */
+
+  private mousedownHandle(eve: any, data: any) {
+    if (!data.isLeaf) return
+    this.ifDragging = true
+    const { target: ele } = eve
+
+    const shiftX = eve.clientX - ele.getBoundingClientRect().left
+    const shiftY = eve.clientY - ele.getBoundingClientRect().top
+
+    const cloneEle = ele.cloneNode(true)
+
+    this.dragNodeInfo = {
+      shiftX,
+      shiftY,
+      ele: cloneEle,
+      data: data
+    }
+
+    cloneEle.style.position = 'absolute'
+    cloneEle.style.zIndex = 10000
+    document.body.append(cloneEle)
+    document.body.style.userSelect = 'none'
+    this.getBoundary()
+
+    this.startMovePoint(eve.pageX, eve.pageY)
+
+    document.addEventListener('mousemove', this.mousemoveHandle)
+    document.addEventListener('mouseup', this.mouseupHandle)
+  }
+
+  private mousemoveHandle(eve: any) {
+    const { startTop, startLeft, endTop, endLeft } = this.dragNodeInfo.moveBoundaryInfo
+    if (eve.pageX > startLeft && eve.pageX < endLeft && eve.pageY > startTop && eve.pageY < endTop) {
+      this.startMovePoint(eve.pageX, eve.pageY)
+    } else {
+    // todo  边界移动
+    }
+    // this.startMovePoint(eve.pageX, eve.pageY)
+  }
+
+  private mouseupHandle(eve: any) {
+    const { pageX, pageY } = eve
+    const { releaseBoundaryInfo, data } = this.dragNodeInfo
+
+    const { startTop, startLeft, endTop, endLeft } = releaseBoundaryInfo
+
+    if (pageX >= startLeft && pageX <= endLeft && pageY >= startTop && pageY <= endTop) {
+      const pixelXInMap = pageX - startLeft
+      const pixelYInMap = pageY - startTop
+
+      const pixel = new AMap.Pixel(pixelXInMap, pixelYInMap)
+      const lnglat = this.$refs.mapview.vmap.map.containerToLngLat(pixel)
+
+      const { lat, lng } = lnglat
+
+      this.dragNodeInfo.lat = lat
+      this.dragNodeInfo.lng = lng
+
+      document.body.style.userSelect = 'auto'
+
+      this.addMarker(data)
+    } else {
+    // todo  边界移动
+    }
+
+    this.dragNodeInfo.ele.remove()
+    // this.dragNodeInfo = {}
+    document.body.style.userSelect = 'auto'
+    document.removeEventListener('mousemove', this.mousemoveHandle)
+    document.removeEventListener('mouseup', this.mouseupHandle)
+  }
+
+  private getBoundary() {
+    // 获取范围，需要处理边界
+    const releaseBoundaryWrap = document.querySelector('.mapwrap').getBoundingClientRect()
+    const moveBoundaryWrap = document.querySelector('.device-list').getBoundingClientRect()
+    const { top, left, right, bottom } = releaseBoundaryWrap
+    const { top: topM, left: leftM, right: rightM, bottom: bottomM } = moveBoundaryWrap
+    // 有效可释放边界
+    this.dragNodeInfo.releaseBoundaryInfo = {
+      startTop: top,
+      startLeft: left,
+      endTop: bottom,
+      endLeft: right
+    }
+    // 有效可拖动边界
+    this.dragNodeInfo.moveBoundaryInfo = {
+      startTop: topM + 40,
+      startLeft: leftM,
+      endTop: bottomM,
+      endLeft: rightM // 如果影响右侧滚动条，需要  减去 （ele的宽度除以2）
+    }
+  }
+
+  private startMovePoint(pageX, pageY) {
+    const { ele, shiftX, shiftY } = this.dragNodeInfo
+    ele.style.left = `${pageX - shiftX}px`
+    ele.style.top = `${pageY - shiftY}px`
   }
 
   /**
@@ -649,6 +731,8 @@ export default class extends Mixins(IndexMixin) {
     this.addPositionDialogCheck = false
     this.addNoPositionDialog = false
     this.addNoPositionDialogCheck = false
+    this.dragAddNoPositionDialog = false
+    this.dragAddNoPositionDialogCheck = false
   }
 
   addMarker(marker) {
@@ -680,10 +764,18 @@ export default class extends Mixins(IndexMixin) {
         this.confirmAddMarker(this.uselnglat)
       }
     } else {
-      if (!this.addNoPositionDialogCheck) {
-        this.addNoPositionDialog = true
+      if (this.ifDragging) {
+        if (!this.dragAddNoPositionDialogCheck) {
+          this.dragAddNoPositionDialog = true
+        } else {
+          this.confirmDragAddZeroMarker()
+        }
       } else {
-        this.confirmAddZeroMarker()
+        if (!this.addNoPositionDialogCheck) {
+          this.addNoPositionDialog = true
+        } else {
+          this.confirmAddZeroMarker()
+        }
       }
     }
   }
@@ -771,6 +863,14 @@ export default class extends Mixins(IndexMixin) {
   private confirmAddZeroMarker() {
     this.$refs.mapview.addMarker(this.markerInfo)
     this.addNoPositionDialog = false
+  }
+
+  private confirmDragAddZeroMarker() {
+    const { lat, lng } = this.dragNodeInfo
+    this.markerInfo.longitude = lng
+    this.markerInfo.latitude = lat
+    this.$refs.mapview.addMarker(this.markerInfo)
+    this.dragAddNoPositionDialog = false
   }
 
   deviceClick(data) {
