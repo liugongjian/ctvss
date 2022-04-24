@@ -15,7 +15,7 @@
           置信度:{{ location.score }}%<br>
           <span v-if="['4', '10001'].includes(type)">姓名:{{ location.name }}</span>
         </div>
-        <div v-if="['29', '10026'].includes(type)" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
+        <div v-if="['29', '10026'].includes(type)" class="ai-recognation__images__item__mask__text dustbin" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
           {{ location.label }}
         </div>
         <div v-if="type === '17'|| type === '10014'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning, 'ai-recognation__images__item__mask__text--top': location.clientTopPercent + location.clientHeightPercent > 80, 'ai-recognation__images__item__mask__text--left': location.clientLeftPercent + location.clientWidthPercent> 80}">
@@ -71,6 +71,11 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
+  .dustbin {
+    line-height: 100%;
+    bottom: -18px !important;
+  }
+
   .ai-recognation__images__item {
     &__clickable {
       cursor: pointer;
