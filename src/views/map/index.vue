@@ -706,17 +706,22 @@ export default class extends Mixins(IndexMixin) {
       deviceId: id,
       inProtocol: inProtocol
     })
+    let deviceLabel = this.deviceInfo.deviceName
+    if (this.deviceInfo.deviceChannels.length > 0) {
+      deviceLabel = this.deviceInfo.deviceChannels[0].channelName
+    }
     this.markerInfo = {
       deviceId: this.deviceInfo.deviceId,
       inProtocol: this.deviceInfo.inProtocol,
       deviceType: this.deviceInfo.deviceType,
-      deviceLabel: this.deviceInfo.deviceName,
+      deviceLabel,
       longitude: '',
       latitude: '',
       deviceStatus: this.deviceInfo.deviceStatus,
       streamStatus: this.deviceInfo.streamStatus,
       recordStatus: this.deviceInfo.recordStatus,
       regionNames: this.deviceInfo.regionNames,
+      gbRegionNames: this.deviceInfo.gbRegionNames,
       viewRadius: '0',
       viewAngle: '0',
       deviceAngle: '0',
