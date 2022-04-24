@@ -606,13 +606,7 @@ export default class extends Mixins(IndexMixin) {
   }
 
   private mousemoveHandle(eve: any) {
-    const { startTop, startLeft, endTop, endLeft } = this.dragNodeInfo.moveBoundaryInfo
-    if (eve.pageX > startLeft && eve.pageX < endLeft && eve.pageY > startTop && eve.pageY < endTop) {
-      this.startMovePoint(eve.pageX, eve.pageY)
-    } else {
-    // todo  边界移动
-    }
-    // this.startMovePoint(eve.pageX, eve.pageY)
+    this.startMovePoint(eve.pageX, eve.pageY)
   }
 
   private mouseupHandle(eve: any) {
@@ -636,12 +630,9 @@ export default class extends Mixins(IndexMixin) {
       document.body.style.userSelect = 'auto'
 
       this.addMarker(data)
-    } else {
-    // todo  边界移动
     }
 
     this.dragNodeInfo.ele.remove()
-    // this.dragNodeInfo = {}
     document.body.style.userSelect = 'auto'
     document.removeEventListener('mousemove', this.mousemoveHandle)
     document.removeEventListener('mouseup', this.mouseupHandle)
@@ -671,8 +662,30 @@ export default class extends Mixins(IndexMixin) {
 
   private startMovePoint(pageX, pageY) {
     const { ele, shiftX, shiftY } = this.dragNodeInfo
-    ele.style.left = `${pageX - shiftX}px`
-    ele.style.top = `${pageY - shiftY}px`
+    const { startTop, startLeft, endTop, endLeft } = this.dragNodeInfo.moveBoundaryInfo
+
+    if (pageX > startLeft && pageX < endLeft && pageY > startTop && pageY < endTop) {
+      ele.style.left = `${pageX - shiftX}px`
+      ele.style.top = `${pageY - shiftY}px`
+    } else {
+      // 左右移动 超出边界
+      if (pageX >= startLeft && pageX <= endLeft) {
+        ele.style.left = `${pageX - shiftX}px`
+      } else if (pageX > endLeft) {
+        ele.style.left = `${endLeft - shiftX}px`
+      } else if (pageX < startLeft) {
+        ele.style.left = `${startLeft - shiftX}px`
+      }
+
+      // 上下移动 超出边界
+      if (pageY >= startTop && pageY <= endTop) {
+        ele.style.top = `${pageY - shiftY}px`
+      } else if (pageY > endTop) {
+        ele.style.top = `${endTop - shiftY}px`
+      } else if (pageY < startTop) {
+        ele.style.top = `${startTop - shiftY}px`
+      }
+    }
   }
 
   /**
