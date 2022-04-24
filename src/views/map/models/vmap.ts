@@ -1,5 +1,6 @@
 import AMapLoader from '@amap/amap-jsapi-loader'
 import LngLat = AMap.LngLat
+import { getDevice } from '@/api/device'
 
 export interface mapObject {
   mapId: string,
@@ -151,12 +152,21 @@ export default class VMap {
     this.creatMap(longitude, latitude, zoom, is3D)
   }
 
-  chooseMarker(marker) {
+  async chooseMarker(marker) {
     if (!marker.selected) {
       this.cancelChoose()
+      if (!marker.deviceStatus) {
+        const { deviceId, inProtocol } = marker
+        const deviceInfo = await getDevice({
+          deviceId,
+          inProtocol
+        })
+        marker.deviceStatus = deviceInfo.deviceStatus
+      }
       this.curMarkerList.forEach((item) => {
         if (item.deviceId === marker.deviceId) {
           item.selected = true
+          item.deviceStatus = marker.deviceStatus
         }
       })
       this.setCluster(this.wrapMarkers(this.curMarkerList))

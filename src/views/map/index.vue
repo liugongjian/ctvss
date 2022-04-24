@@ -41,7 +41,6 @@
                 <span class="node-name">
                   <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                   <svg-icon :name="data.type" />
-                  <!-- v-nodeDrag="{node, data}"  -->
                   <span
                     class="node-label"
                     @mousedown="(e) => {
@@ -213,16 +212,11 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Mixins,
-  // Prop,
-  Watch } from 'vue-property-decorator'
+import { Component, Mixins, Watch } from 'vue-property-decorator'
 import IndexMixin from '../device/mixin/indexMixin'
 import { getGroups } from '@/api/group'
 import { setDirsStreamStatus, renderAlertType, getSums } from '@/utils/device'
-// import { describeShareDevices, getPlatforms } from '@/api/upPlatform'
-import {
-  // getDeviceEvents, getDevices,
-  getDeviceTree, getDevice } from '@/api/device'
+import { getDeviceTree, getDevice } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MapView from './mapview.vue'
 import PointInfo from './components/PointInfo.vue'
@@ -230,7 +224,6 @@ import SelectedPoint from './components/SelectedPoint.vue'
 import MapInfo from './components/MapInfo.vue'
 import { getMaps, createMap, deleteMap, modifyMap } from '@/api/map'
 import { mapObject } from '@/views/map/models/vmap'
-import nodeDrag from './directives/nodeDragToMap'
 
 @Component({
   name: 'Map',
@@ -240,9 +233,6 @@ import nodeDrag from './directives/nodeDragToMap'
     MapInfo,
     PointInfo,
     SelectedPoint
-  },
-  directives: {
-    nodeDrag
   }
 })
 export default class extends Mixins(IndexMixin) {
@@ -267,6 +257,7 @@ export default class extends Mixins(IndexMixin) {
   private hideTitle = true
   private showInfo = false
   private showMapInfo = true
+  private firstShowMarkerInfo = true
   private addPositionDialog = false // 显示询问本次编辑要不要继承设备坐标的对话弹窗
   private addPositionDialogCheck = false // 是否询问本次编辑要不要继承设备坐标
   private dragAddNoPositionDialogCheck = false
@@ -701,7 +692,8 @@ export default class extends Mixins(IndexMixin) {
       this.showMapInfo = true
     } else if (type === 'marker') {
       this.showMapInfo = false
-      this.showInfo = true
+      this.showInfo = this.firstShowMarkerInfo
+      this.firstShowMarkerInfo = false
       this.curMarkInfo = info
     }
   }
@@ -786,17 +778,22 @@ export default class extends Mixins(IndexMixin) {
       deviceId: id,
       inProtocol: inProtocol
     })
+    let deviceLabel = this.deviceInfo.deviceName
+    if (this.deviceInfo.deviceChannels.length > 0) {
+      deviceLabel = this.deviceInfo.deviceChannels[0].channelName
+    }
     this.markerInfo = {
       deviceId: this.deviceInfo.deviceId,
       inProtocol: this.deviceInfo.inProtocol,
       deviceType: this.deviceInfo.deviceType,
-      deviceLabel: this.deviceInfo.deviceName,
+      deviceLabel,
       longitude: '',
       latitude: '',
       deviceStatus: this.deviceInfo.deviceStatus,
       streamStatus: this.deviceInfo.streamStatus,
       recordStatus: this.deviceInfo.recordStatus,
       regionNames: this.deviceInfo.regionNames,
+      gbRegionNames: this.deviceInfo.gbRegionNames,
       viewRadius: '0',
       viewAngle: '0',
       deviceAngle: '0',

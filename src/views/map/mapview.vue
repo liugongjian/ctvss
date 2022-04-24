@@ -317,7 +317,8 @@ export default class MapView extends Vue {
       deviceAngle: device.deviceAngle,
       population: device.population,
       houseInfo: device.houseInfo,
-      unitInfo: device.unitInfo
+      unitInfo: device.unitInfo,
+      gbRegionNames: device.gbRegionNames
     }
     return result
   }

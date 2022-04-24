@@ -84,6 +84,10 @@ export default class extends Vue {
     }
   }
 
+  mounted() {
+    this.mapInfo = { ...this.map, zoom: this.map?.zoom.toString() }
+  }
+
   save() {
     this.$emit('save', this.mapInfo)
   }
