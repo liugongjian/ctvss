@@ -1,7 +1,7 @@
 <template>
   <el-radio-group v-if="isGb" v-model="recordType" class="screen-tools__btn" size="mini" :disabled="disabled" @change="onChange">
     <el-radio-button :label="0">云端</el-radio-button>
-    <el-radio-button :label="1">设备</el-radio-button>
+    <el-radio-button :disabled="screenManager.view === 'list'" :label="1">设备</el-radio-button>
   </el-radio-group>
 </template>
 <script lang="ts">
@@ -14,6 +14,8 @@ import { Screen } from '@/views/device/models/Screen/Screen'
 export default class extends Vue {
   @Prop()
   private screen: Screen
+  @Prop()
+  private screenManager: any
 
   @Prop({
     default: false

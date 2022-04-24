@@ -13,7 +13,7 @@
         <Cleaner v-if="showScreenTool && isScreenView" :disabled="isPolling" />
         <SizeSelector v-if="showScreenTool && isScreenView" :disabled="isPolling" />
         <Fullscreen v-if="isScreenView" :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
-        <ViewSelector v-if="!isLive && !isFullscreen" />
+        <ViewSelector v-if="!isLive && !isFullscreen && currentScreen.recordType !== 1" :screen="currentScreen" />
       </div>
     </div>
     <ReplayAxis v-if="showAxis" :screen="currentScreen" :disabled="!enableAxis" @change="onAxisTimeChange" />

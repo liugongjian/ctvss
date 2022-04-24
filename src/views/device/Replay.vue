@@ -26,7 +26,7 @@
             <template v-if="showRecordTool" slot="bottom">
               <div class="device-list__calander" :class="{'device-list__calander__hidden': isCollapse}">
                 <div class="device-list__replay-type">
-                  <ReplayType :screen="currentScreen" @change="onReplayTypeChange" />
+                  <ReplayType :screen-manager="screenManager" :screen="currentScreen" @change="onReplayTypeChange" />
                 </div>
                 <DatePicker :screen="currentScreen" :inline="true" @change="onDateChange" />
               </div>
