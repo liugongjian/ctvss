@@ -1,5 +1,6 @@
 import request from '@/utils/request'
 import axios from 'axios'
+import { UserModule } from '@/store/modules/user'
 
 export const getFlowData = (params: any): Promise<any> =>
   axios({
@@ -54,7 +55,10 @@ export const getAuditList = (params: any): Promise<any> =>
   request({
     url: '/record/auditList',
     method: 'get',
-    params
+    params: {
+      ...params,
+      outNetwork: UserModule.outNetwork || undefined
+    }
   })
 
 export const getAuditTrend = (params: any): Promise<any> =>
