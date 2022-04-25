@@ -574,13 +574,13 @@ export default class extends Mixins(IndexMixin) {
 
   /**
    * 设备树 设备绑定拖拽事件(鼠标事件代替拖拽事件)
-   */
-
+  */
   private mousedownHandle(eve: any, data: any) {
     if (!data.isLeaf) return
     this.ifDragging = true
     const { target: ele } = eve
 
+    // 计算鼠标与目标元素的初始偏移量
     const shiftX = eve.clientX - ele.getBoundingClientRect().left
     const shiftY = eve.clientY - ele.getBoundingClientRect().top
 
@@ -597,6 +597,8 @@ export default class extends Mixins(IndexMixin) {
     cloneEle.style.zIndex = 10000
     document.body.append(cloneEle)
     document.body.style.userSelect = 'none'
+
+    // 获取可拖动边界与可释放边界
     this.getBoundary()
 
     this.startMovePoint(eve.pageX, eve.pageY)
@@ -609,12 +611,16 @@ export default class extends Mixins(IndexMixin) {
     this.startMovePoint(eve.pageX, eve.pageY)
   }
 
+  /**
+   * 鼠标松开
+  */
   private mouseupHandle(eve: any) {
     const { pageX, pageY } = eve
     const { releaseBoundaryInfo, data } = this.dragNodeInfo
 
     const { startTop, startLeft, endTop, endLeft } = releaseBoundaryInfo
 
+    // 处理可释放边界逻辑,即地图范围内可以释放
     if (pageX >= startLeft && pageX <= endLeft && pageY >= startTop && pageY <= endTop) {
       const pixelXInMap = pageX - startLeft
       const pixelYInMap = pageY - startTop
@@ -634,6 +640,7 @@ export default class extends Mixins(IndexMixin) {
 
     this.dragNodeInfo.ele.remove()
     document.body.style.userSelect = 'auto'
+    this.ifDragging = false
     document.removeEventListener('mousemove', this.mousemoveHandle)
     document.removeEventListener('mouseup', this.mouseupHandle)
   }
@@ -644,14 +651,15 @@ export default class extends Mixins(IndexMixin) {
     const moveBoundaryWrap = document.querySelector('.device-list').getBoundingClientRect()
     const { top, left, right, bottom } = releaseBoundaryWrap
     const { top: topM, left: leftM, right: rightM, bottom: bottomM } = moveBoundaryWrap
-    // 有效可释放边界
+
+    // 有效可释放边界，地图范围
     this.dragNodeInfo.releaseBoundaryInfo = {
       startTop: top,
       startLeft: left,
       endTop: bottom,
       endLeft: right
     }
-    // 有效可拖动边界
+    // 有效可拖动边界，页面有效区域
     this.dragNodeInfo.moveBoundaryInfo = {
       startTop: topM + 40,
       startLeft: leftM,
@@ -660,14 +668,18 @@ export default class extends Mixins(IndexMixin) {
     }
   }
 
-  private startMovePoint(pageX, pageY) {
+  /**
+    * 鼠标按住的移动事件
+  */
+  private startMovePoint(pageX: number, pageY: number) {
     const { ele, shiftX, shiftY } = this.dragNodeInfo
     const { startTop, startLeft, endTop, endLeft } = this.dragNodeInfo.moveBoundaryInfo
 
+    // 在边界内，则任意移动
     if (pageX > startLeft && pageX < endLeft && pageY > startTop && pageY < endTop) {
       ele.style.left = `${pageX - shiftX}px`
       ele.style.top = `${pageY - shiftY}px`
-    } else {
+    } else { // 边界外，取一个最大值，一个移动值
       // 左右移动 超出边界
       if (pageX >= startLeft && pageX <= endLeft) {
         ele.style.left = `${pageX - shiftX}px`
