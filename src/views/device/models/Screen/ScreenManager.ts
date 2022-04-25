@@ -137,6 +137,11 @@ export class ScreenManager {
     this.transformDeviceParams(screen, item, streamNum)
     screen.isLive = this.isLive
     screen.inProtocol = this.inProtocol
+    // 如果是同步向，新开的窗口使用与现在打开窗口相同的时间
+    if (this.isSync) {
+      const currentRecordDatetime = this.findRecordCurrentDatetime()
+      if (currentRecordDatetime) screen.currentRecordDatetime = currentRecordDatetime
+    }
     screen.init()
     this.currentIndex = this.findRightIndexAfterOpen()
   }
@@ -332,6 +337,18 @@ export class ScreenManager {
       }
     } else {
       return this.currentIndex
+    }
+  }
+
+  /**
+   * 查找首个分屏的录像播放时间
+   * @returns 当前录像播放时间
+   */
+  private findRecordCurrentDatetime() {
+    for (let i = 0; i < this.screenList.length; i++) {
+      if (this.screenList[i].currentRecordDatetime) {
+        return this.screenList[i].currentRecordDatetime
+      }
     }
   }
 }
