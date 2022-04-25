@@ -22,7 +22,7 @@ export const getRule = (msg) => {
           if (parseInt(value) > 100) {
             callback(new Error('需小于100'))
           } else if (parseInt(value) === 0) {
-            callback(new Error('请输入合理的整数'))
+            callback(new Error('请输入大于等于1的整数'))
           } else {
             callback()
           }
@@ -34,7 +34,7 @@ export const getRule = (msg) => {
           if (parseInt(value) > 600) {
             callback(new Error('需小于600'))
           } else if (parseInt(value) === 0) {
-            callback(new Error('需大于等于0的整数'))
+            callback(new Error('请输入大于等于1的整数'))
           } else {
             callback()
           }

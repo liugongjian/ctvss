@@ -73,7 +73,9 @@ export default class extends Vue {
 <style lang="scss" scoped>
   .dustbin {
     line-height: 100%;
-    bottom: -18px !important;
+    word-break: break-all !important;
+    top: 0;
+    bottom: auto !important;
   }
 
   .ai-recognation__images__item {
