@@ -560,6 +560,8 @@ export default class extends Vue {
      * 车牌检测: code 10014
      * 棉花检测: code 10015
      * 电瓶车进电梯 code 10020
+     * 垃圾站  code  10026
+     * 人员跌倒  code 10028
      */
     switch (rowCode) {
       case '10006':
@@ -572,6 +574,8 @@ export default class extends Vue {
       case '10022':
       case '10021':
       case '10019':
+      case '10026':
+      case '10028':
         return true
       default:
         return false
