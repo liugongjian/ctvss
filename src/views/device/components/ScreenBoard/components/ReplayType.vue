@@ -7,6 +7,7 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Screen } from '@/views/device/models/Screen/Screen'
+import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
 
 @Component({
   name: 'ReplayType'
@@ -15,7 +16,7 @@ export default class extends Vue {
   @Prop()
   private screen: Screen
   @Prop()
-  private screenManager: any
+  private screenManager: ScreenManager
 
   @Prop({
     default: false
