@@ -65,6 +65,7 @@ export default class extends Vue {
     immediate: true
   })
   private onCurrentDateChange(newVal: any, oldVal: any) {
+    if (!this.recordManager) return
     const newMonth = new Date(new Date(newVal)).getMonth()
     const newYear = new Date(new Date(newVal)).getUTCFullYear()
     const oldMonth = new Date(new Date(oldVal)).getMonth()

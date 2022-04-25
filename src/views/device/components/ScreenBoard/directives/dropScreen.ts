@@ -36,7 +36,7 @@ function onMouseUp(e) {
   window.removeEventListener('mouseup', onMouseUp)
   let target = e.target
   while (target) {
-    if (target.className.startsWith('screen-item')) {
+    if (target.className && target.className.startsWith('screen-item')) {
       break
     }
     target = target.parentElement

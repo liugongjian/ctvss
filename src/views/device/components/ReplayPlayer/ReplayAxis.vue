@@ -363,6 +363,7 @@ export default class extends Vue {
    * 绘制时间轴
    */
   private draw() {
+    if (!this.ctx) return
     this.ctx.clearRect(0, 0, this.settings.width, this.settings.height)
 
     /* 绘制录像线 */
