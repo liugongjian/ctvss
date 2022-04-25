@@ -277,7 +277,7 @@ export const scaleKind = [
  * 视频播放比例
  */
 export const TrashType = [
-  { label: 'cas_yes', cname: '垃圾桶已盖' },
+  { label: 'cask_yes', cname: '垃圾桶已盖' },
   { label: 'cask_no', cname: '垃圾桶未盖' },
   { label: 'cask_overflow', cname: '垃圾桶溢满' },
   { label: 'trash', cname: '地面垃圾' }

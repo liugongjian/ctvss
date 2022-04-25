@@ -76,7 +76,7 @@ export const parseMetaData = (type: string, metaData: any) => {
         try {
           let label
           switch (box.Label) {
-            case 'cas_yes':
+            case 'cask_yes':
               label = '垃圾桶已盖'
               break
             case 'trash':
