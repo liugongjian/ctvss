@@ -1,26 +1,41 @@
 <!--查询录像有问题的日期-->
 <template>
-  <div class="record" style="padding: 15px;">
-    起始日期:
-    <el-date-picker
-      v-model="startDate"
-      value-format="timestamp"
-      type="datetime"
-      style="width: 210px;"
-      default-time="00:00:00"
-    />
-    结束日期: <el-date-picker
-      v-model="endDate"
-      value-format="timestamp"
-      type="datetime"
-      style="width: 210px;"
-      default-time="23:59:59"
-    />
-    设备ID <el-tooltip content="支持输入NVR或通道的DeviceId"><svg-icon name="help" /></el-tooltip>: <el-input v-model="deviceId" style="width: 180px;" />
-    忽略时长 <el-tooltip content="忽略指定秒内的缺失录像"><svg-icon name="help" /></el-tooltip>:
-    <el-input v-model.number="ignoreTime" style="width: 80px;margin-right: 10px;" />
-    <el-button type="primary" :loading="loading" @click="query">查询</el-button>
-
+  <div class="record">
+    <div class="form">
+      <div class="form-item">
+        <label>起始日期:</label>
+        <el-date-picker
+          v-model="startDate"
+          value-format="timestamp"
+          type="datetime"
+          style="width: 310px;"
+          default-time="00:00:00"
+        />
+      </div>
+      <div class="form-item">
+        <label>结束日期:</label>
+        <el-date-picker
+          v-model="endDate"
+          value-format="timestamp"
+          type="datetime"
+          style="width: 310px;"
+          default-time="23:59:59"
+        />
+      </div>
+      <div class="form-item">
+        <label>忽略时长 <el-tooltip content="忽略指定秒内的缺失录像"><svg-icon name="help" /></el-tooltip>:</label>
+        <el-input v-model.number="ignoreTime" style="width: 310px;" />
+      </div>
+      <div class="form-item">
+        <label>设备IDs <el-tooltip content="支持输入NVR或通道的DeviceId，多个设备以回车分隔"><svg-icon name="help" /></el-tooltip>:</label>
+        <el-input v-model="deviceId" type="textarea" style="width: 310px;" rows="5" placeholder="多个设备以回车分隔" />
+      </div>
+      <div class="form-item">
+        <label />
+        <el-button type="primary" :loading="loading" @click="query">查询</el-button>
+      </div>
+    </div>
+    <el-button class="back-top" @click="backTop">回到顶部</el-button>
     <div class="logs">
       <h2>查询进度</h2>
       <p v-if="log.currentNum"><el-progress :text-inside="true" :stroke-width="24" :percentage="Math.floor(log.taskIndex / log.taskSize * 100)" status="success" /></p>
@@ -31,26 +46,37 @@
 
     <div class="status">
       <h2>概览</h2>
-      <h3>发现缺失片段总数: {{ totalMissing }}</h3>
-      <h3 v-if="(log.taskIndex === log.taskSize) && log.taskSize > 0">录像完整率: {{ calTotalPercent(totalSec) }}</h3>
-      <h3>总缺失时长: {{ totalSec }}s <span v-if="totalSec > 60" style="font-size: 14px; color: #999;">({{ durationFormat(totalSec) }})</span></h3>
-      <h3>缺失日期:</h3>
-      <ul>
-        <li v-for="val in nvrStat" :key="val">{{ dateFormat(val, 'yyyy-MM-dd') }}</li>
-      </ul>
+      <h4>发现缺失片段总数: {{ totalMissing }}</h4>
+      <h4 v-if="(log.taskIndex === log.taskSize) && log.taskSize > 0">录像完整率: {{ calTotalPercent(totalSec) }}</h4>
+      <h4>总缺失时长: {{ totalSec }}s <span v-if="totalSec > 60" style="font-size: 14px; color: #999;">({{ durationFormat(totalSec) }})</span></h4>
+      <table v-if="totalMissing > 0" style="width: 100%; margin-bottom: 15px;" border="1" cellspacing="0" cellpadding="0">
+        <tr>
+          <th>日期</th>
+          <th>缺失时长(秒)</th>
+          <th>缺失时长</th>
+          <th>缺失数量</th>
+        </tr>
+        <tr v-for="({totalSec, totalMissing}, key) in nvrStat" :key="key">
+          <td><strong>{{ dateFormat(parseInt(key), 'yyyy-MM-dd') }}</strong></td>
+          <td>{{ totalSec }} s</td>
+          <td>{{ durationFormat(totalSec) }}</td>
+          <td>{{ totalMissing }}</td>
+        </tr>
+      </table>
     </div>
 
     <el-card>
       <div v-for="(channel, index) in list" :key="index" class="device">
-        <h3 style="margin-top: 20px;">{{ channel.channelName }}  <span style="font-size: 14px; color: #999;">(channelNum: {{ channel.channelNum }} / deviceId: {{ channel.deviceId }})</span></h3>
+        <h3 style="margin-top: 20px;"><span v-if="channel.nvrName">{{ channel.nvrName }}-</span>{{ channel.channelName }}  <span style="font-size: 14px; color: #999;">(channelNum: {{ channel.channelNum }} / deviceId: {{ channel.deviceId }})</span></h3>
         <h4>发现通道下缺失片段总数: {{ channel.totalMissing }}</h4>
         <h4 v-if="channel.finish">通道录像完整率: {{ calChannelPercent(channel.totalSec) }}</h4>
         <h4 v-if="channel.finish">通道总缺失时长: {{ channel.totalSec }}s <span v-if="channel.totalSec > 60" style="font-size: 14px; color: #999;">({{ durationFormat(channel.totalSec) }})</span></h4>
-        <div v-for="(list, key) in channel.missList" :key="key" class="missing-date">
+        <div v-for="({list, totalSec}, key) in channel.dateList" :key="key" class="missing-date">
           <template v-if="list.length">
             <svg-icon name="dot" />
-            <span>日期: {{ dateFormat(parseInt(key), 'yyyy-MM-dd') }}</span>
+            <strong>日期: {{ dateFormat(parseInt(key), 'yyyy-MM-dd') }}</strong>
             <span style="margin: 0 15px;">缺失数量: {{ list.length }}</span>
+            <span style="margin: 0 15px 0 0;">缺失时长: {{ totalSec }}s <span v-if="totalSec > 60" style="font-size: 14px; color: #999;">({{ durationFormat(totalSec) }})</span></span>
             <el-button type="text" @click="open(channel, key)">{{ openDetail[channel.deviceId + key] ? '隐藏详情' : '查看详情' }}</el-button>
             <div v-if="channel.error">当前日期接口查询失败</div>
             <table v-if="openDetail[channel.deviceId + key]" style="width: 100%;" border="1" cellspacing="0" cellpadding="0">
@@ -77,6 +103,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { getDeviceRecords, getDevice } from '@/api/device'
 import { getTimestamp, dateFormat, getDateByTime, durationFormat } from '@/utils/date'
+import { trim } from 'lodash'
 
 @Component({
   name: 'PlayerDebug'
@@ -98,7 +125,7 @@ export default class extends Vue {
     taskIndex: 0
   }
   private openDetail = {}
-  private nvrStat = new Set()
+  private nvrStat = {}
   private totalMissing = 0
   private totalSec = 0
 
@@ -118,7 +145,7 @@ export default class extends Vue {
   private async queryByDevice() {
     const spanDay = Math.floor((getDateByTime(this.endDate) - getDateByTime(this.startDate)) / (24 * 60 * 60 * 1000))
     this.list = []
-    this.nvrStat.clear()
+    this.nvrStat = {}
     this.totalMissing = 0
     this.totalSec = 0
     this.log = {
@@ -128,20 +155,27 @@ export default class extends Vue {
       taskIndex: 0
     }
     try {
-      const nvr = await getDevice({
-        inProtocol: 'gb28181',
-        deviceId: this.deviceId
-      })
-      let channels
-      // 兼容IPC
-      if (nvr.parentDeviceId === '-1' && nvr.deviceType === 'ipc') {
-        channels = [{
-          deviceId: nvr.deviceId,
-          channelName: nvr.deviceName,
-          channelNum: ''
-        }]
-      } else {
-        channels = nvr.deviceChannels
+      const deviceIdList = trim(this.deviceId).split('\n')
+      let channels = []
+      for (let i = 0; i < deviceIdList.length; i++) {
+        const device = await getDevice({
+          inProtocol: 'gb28181',
+          deviceId: deviceIdList[i]
+        })
+        // 兼容IPC
+        if (device.parentDeviceId === '-1' && device.deviceType === 'ipc') {
+          channels.push({
+            nvrName: '',
+            deviceId: device.deviceId,
+            channelName: device.deviceName,
+            channelNum: ''
+          })
+        } else {
+          device.deviceChannels.forEach(channel => {
+            channel.nvrName = device.deviceName
+          })
+          channels = channels.concat(device.deviceChannels)
+        }
       }
       this.log.size = channels.length
       this.log.taskSize = this.log.size * (spanDay + 1)
@@ -151,9 +185,10 @@ export default class extends Vue {
         const device = channels[i]
         const channel = {
           deviceId: device.deviceId,
+          nvrName: device.nvrName,
           channelName: device.channelName,
           channelNum: device.channelNum,
-          missList: {},
+          dateList: {},
           totalMissing: 0,
           totalSec: 0,
           finish: false,
@@ -162,10 +197,15 @@ export default class extends Vue {
         this.list.push(channel)
         for (let j = 0; j <= spanDay; j++) {
           let list = []
-          if (channel.missList[this.currentDate]) {
-            list = channel.missList[this.currentDate]
+          let missDate = channel.dateList[this.currentDate]
+          if (missDate) {
+            list = missDate.list
           } else {
-            channel.missList[this.currentDate] = list
+            channel.dateList[this.currentDate] = {
+              list,
+              totalSec: 0
+            }
+            missDate = channel.dateList[this.currentDate]
           }
           let startTime = Math.floor(this.currentDate)
           let endTime = startTime + 24 * 60 * 60 * 1000
@@ -198,16 +238,27 @@ export default class extends Vue {
               }
             })
             if (list.length) {
-              this.nvrStat.add(this.currentDate)
+              let nvrStat = this.nvrStat[this.currentDate]
+              if (!nvrStat) {
+                this.nvrStat[this.currentDate] = {
+                  totalSec: 0,
+                  totalMissing: 0
+                }
+                nvrStat = this.nvrStat[this.currentDate]
+              }
               channel.totalMissing += list.length
+              nvrStat.totalMissing += list.length
               this.totalMissing += list.length
               const totalSec = list.reduce((total, item) => {
                 return total + item.time
               }, 0)
+              missDate.totalSec = totalSec
               channel.totalSec += totalSec
+              nvrStat.totalSec += totalSec
               this.totalSec += totalSec
             }
           } catch (e) {
+            console.log(e)
             channel.error = true
             this.$message.error(e.message)
           }
@@ -219,6 +270,7 @@ export default class extends Vue {
         }
       }
     } catch (e) {
+      console.log(e)
       this.$message.error(e.message)
     }
   }
@@ -235,14 +287,42 @@ export default class extends Vue {
     const val = this.openDetail[`${channel.deviceId}${key}`]
     this.$set(this.openDetail, `${channel.deviceId}${key}`, !val)
   }
+
+  private backTop() {
+    document.querySelector('#app').scrollTop = 0
+  }
 }
 </script>
 <style lang="scss" scoped>
+.record {
+  padding: 20px;
+}
+
+.form {
+  margin: 0 0 20px 0;
+  padding: 10px 20px;
+  border: 1px solid #bbbbbb;
+  background: #fff;
+
+  label {
+    width: 100px;
+    display: inline-block;
+  }
+
+  .form-item {
+    margin: 10px 0;
+  }
+}
+
 .status {
   margin: 20px 0;
   padding: 0 20px;
   border: 1px solid #c6872a;
   background: #fff7ec;
+
+  li {
+    margin: 5px 0;
+  }
 }
 
 .logs {
@@ -271,5 +351,16 @@ table {
     text-align: center;
     font-size: 12px;
   }
+}
+
+.back-top {
+  position: fixed;
+  right: 0;
+  bottom: 20px;
+  background: $primary;
+  color: #fff;
+  padding: 15px 20px;
+  font-size: 14px;
+  cursor: pointer;
 }
 </style>
