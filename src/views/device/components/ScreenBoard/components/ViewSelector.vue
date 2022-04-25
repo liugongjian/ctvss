@@ -1,5 +1,5 @@
 <template>
-  <el-radio-group v-model="screenManager.view" class="screen-tools__btn" size="mini" @change="changeView">
+  <el-radio-group v-model="screenManager.view" class="screen-tools__btn" size="mini">
     <el-tooltip content="分屏视图" placement="top">
       <el-radio-button label="screen"><svg-icon name="timeline" width="15" height="15" /></el-radio-button>
     </el-tooltip>
@@ -16,9 +16,6 @@ import ComponentMixin from './mixin'
   name: 'ViewSelector'
 })
 export default class extends ComponentMixin {
-  private changeView(val: any) {
-    this.$emit('change', val)
-  }
 }
 </script>
 <style lang="scss" scoped>
