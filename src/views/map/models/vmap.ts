@@ -98,7 +98,8 @@ export default class VMap {
         pitch: 50,
         rotation: 0,
         center: [Number(lng), Number(lat)],
-        zooms: [3, 20]
+        zooms: [3, 20],
+        mapStyle: process.env.VUE_APP_MAP_STYLE
       }
       if (is3D) {
         options.viewMode = '3D'
