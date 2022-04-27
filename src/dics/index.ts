@@ -279,6 +279,6 @@ export const scaleKind = [
 export const TrashType = [
   { label: 'cask_yes', cname: '垃圾桶已盖' },
   { label: 'cask_no', cname: '垃圾桶未盖' },
-  { label: 'cask_overflow', cname: '垃圾桶溢满' },
+  { label: 'cask_overflows', cname: '垃圾桶溢满' },
   { label: 'trash', cname: '地面垃圾' }
 ]
