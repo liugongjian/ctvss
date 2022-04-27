@@ -319,7 +319,7 @@
   </div>
 </template>
 <script lang='ts'>
-import { Component, Mixins, Watch } from 'vue-property-decorator'
+import { Component, Mixins } from 'vue-property-decorator'
 import createMixin from '../mixin/createMixin'
 import { pick } from 'lodash'
 import { DeviceGb28181Type } from '@/dics'
@@ -415,7 +415,7 @@ export default class extends Mixins(createMixin) {
     deviceIp: '',
     devicePort: null,
     macAddr: '',
-    // channelSize: '',
+    channelSize: null,
     // channelNum: '',
     channelName: '',
     description: '',
@@ -436,11 +436,6 @@ export default class extends Mixins(createMixin) {
     aIApps: [],
     industryCode: '',
     networkCode: ''
-  }
-
-  @Watch('form.channelSize')
-  onchannelNum() {
-    console.log('channelSize!!!')
   }
 
   private minChannelSize = 1
