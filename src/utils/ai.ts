@@ -293,6 +293,8 @@ export const parseMetaData = (type: string, metaData: any) => {
     case '10019': // 车辆统计
     case '10021': // 车辆违停
     case '10022': // 车辆拥堵
+    case '31':// 跌倒
+    case '10028':// 跌倒
       if (metaData.Data && metaData.Data.Boxes) {
         const boxes = metaData.Data.Boxes
         for (let i = 0; i < boxes.length; i++) {
@@ -332,8 +334,6 @@ export const parseMetaData = (type: string, metaData: any) => {
     case '10020':// 电动车
     case '30':// 摄像头遮挡
     case '10027':// 摄像头遮挡
-    case '31':// 跌倒
-    case '10028':// 跌倒
       if (metaData.Data && metaData.Data.DetectBoxes) {
         const boxes = metaData.Data.DetectBoxes
         for (let i = 0; i < boxes.length; i += 4) {
