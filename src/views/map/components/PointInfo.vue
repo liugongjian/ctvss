@@ -34,20 +34,20 @@
         <el-input v-model="markerInfo.viewRadius" :disabled="!isEdit" />
       </el-descriptions-item> -->
     </el-descriptions>
-    <el-descriptions title="一标三实" :column="1">
-      <el-descriptions-item label="地址">
-        <el-input v-model="deviceAddress" disabled :title="deviceAddress" />
-      </el-descriptions-item>
-      <el-descriptions-item label="人口信息">
-        <el-input v-model="markerInfo.population" :disabled="!isEdit" :title="markerInfo.population" />
-      </el-descriptions-item>
-      <el-descriptions-item label="房屋信息">
-        <el-input v-model="markerInfo.houseInfo" :disabled="!isEdit" :title="markerInfo.houseInfo" />
-      </el-descriptions-item>
-      <el-descriptions-item label="单位信息">
-        <el-input v-model="markerInfo.unitInfo" :disabled="!isEdit" :title="markerInfo.unitInfo" />
-      </el-descriptions-item>
-    </el-descriptions>
+<!--    <el-descriptions title="一标三实" :column="1">-->
+<!--      <el-descriptions-item label="地址">-->
+<!--        <el-input v-model="deviceAddress" disabled :title="deviceAddress" />-->
+<!--      </el-descriptions-item>-->
+<!--      <el-descriptions-item label="人口信息">-->
+<!--        <el-input v-model="markerInfo.population" :disabled="!isEdit" :title="markerInfo.population" />-->
+<!--      </el-descriptions-item>-->
+<!--      <el-descriptions-item label="房屋信息">-->
+<!--        <el-input v-model="markerInfo.houseInfo" :disabled="!isEdit" :title="markerInfo.houseInfo" />-->
+<!--      </el-descriptions-item>-->
+<!--      <el-descriptions-item label="单位信息">-->
+<!--        <el-input v-model="markerInfo.unitInfo" :disabled="!isEdit" :title="markerInfo.unitInfo" />-->
+<!--      </el-descriptions-item>-->
+<!--    </el-descriptions>-->
   </div>
 </template>
 

@@ -1,6 +1,5 @@
 <template>
   <div id="mapContainer">
-    <!-- <draggable> -->
     <div class="search-wrap">
       <el-input id="map-tip-input" v-model="mapTip" placeholder="请输入关键字" />
     </div>
@@ -12,7 +11,7 @@
       :style="playWindowInfo.style"
       :class="{'screen-container--fullscreen': isFullscreen}"
     >
-      <div v-if="playWindowInfo.show !== 'none'">
+      <div class="play-container" v-if="playWindowInfo.show !== 'none'">
         <i class="el-icon el-icon-close" @click="closePlayer(playWindowInfo)" />
         <live-player
           v-if="playWindowInfo.show === 'live'"
@@ -25,7 +24,6 @@
         />
       </div>
     </div>
-    <!-- </draggable> -->
   </div>
 </template>
 <script lang="ts">
@@ -408,5 +406,9 @@ export default class MapView extends Vue {
     height: 100% !important;
     width: 100% !important;
   }
+}
+.play-container{
+  width: 100%;
+  height: 100%;
 }
 </style>

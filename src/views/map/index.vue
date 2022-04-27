@@ -298,7 +298,8 @@ export default class extends Mixins(IndexMixin) {
       3: '1:1000km',
       2: '1:1000km'
     }
-    return map[this.form.zoom]
+    const zoomGrade = Math.round(this.form.zoom)
+    return map[zoomGrade]
   }
   private rules = {
     name: [
@@ -717,8 +718,10 @@ export default class extends Mixins(IndexMixin) {
       this.showMapInfo = true
     } else if (type === 'marker') {
       this.showMapInfo = false
-      this.showInfo = this.firstShowMarkerInfo
-      this.firstShowMarkerInfo = false
+      if (this.firstShowMarkerInfo) {
+        this.showInfo = true;
+        this.firstShowMarkerInfo = false
+      }
       this.curMarkInfo = info
     }
   }

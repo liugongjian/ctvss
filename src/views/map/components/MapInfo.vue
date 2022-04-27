@@ -56,7 +56,8 @@ export default class extends Vue {
   ]
 
   private get zoomDesc() {
-    const zoom = this.zoomMap.filter(item => item.key === this.mapInfo.zoom)
+    const zoomGrade = Math.round(Number(this.mapInfo.zoom))
+    const zoom = this.zoomMap.filter(item => item.key === zoomGrade.toString())
     if (zoom.length === 1) {
       return zoom[0].val
     } else {
