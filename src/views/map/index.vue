@@ -719,7 +719,7 @@ export default class extends Mixins(IndexMixin) {
     } else if (type === 'marker') {
       this.showMapInfo = false
       if (this.firstShowMarkerInfo) {
-        this.showInfo = true;
+        this.showInfo = true
         this.firstShowMarkerInfo = false
       }
       this.curMarkInfo = info

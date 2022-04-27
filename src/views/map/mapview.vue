@@ -11,7 +11,7 @@
       :style="playWindowInfo.style"
       :class="{'screen-container--fullscreen': isFullscreen}"
     >
-      <div class="play-container" v-if="playWindowInfo.show !== 'none'">
+      <div v-if="playWindowInfo.show !== 'none'" class="play-container">
         <i class="el-icon el-icon-close" @click="closePlayer(playWindowInfo)" />
         <live-player
           v-if="playWindowInfo.show === 'live'"

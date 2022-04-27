@@ -271,6 +271,14 @@ export default class VMap {
       div.style.textAlign = 'center'
       context.marker.setOffset(new AMap.Pixel(-size / 2, -size / 2))
       context.marker.setContent(div)
+      let content = `${context.clusterData[0].deviceLabel}<br>${context.clusterData[1].deviceLabel}`
+      if (context.count > 2) {
+        content += '<br>......'
+      }
+      context.marker.setLabel({
+        content: `<div class='marker-label-info'>${content}</div>`,
+        direction: 'bottom'
+      })
     }
     const _renderMarker = (context: any) => {
       const content = this.buildContent(context.data[0])
@@ -292,7 +300,11 @@ export default class VMap {
         const marker = context.marker.getExtData()
         this.chooseMarker(marker)
       })
-      context.marker.setTitle(context.data[0].deviceLabel)
+      context.marker.setLabel({
+        offset: new AMap.Pixel(0, 10),
+        content: `<div class='marker-label-info'>${context.data[0].deviceLabel}</div>`,
+        direction: 'center'
+      })
     }
 
     this.cluster = new window.AMap.MarkerCluster(this.map, this.wrapMarkers(markers), {

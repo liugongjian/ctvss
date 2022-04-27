@@ -79,3 +79,12 @@
 .hide-title .marker-label {
   display: none;
 }
+
+.amap-marker-label{
+  visibility: hidden;
+  background-color: transparent;
+  border: none;
+}
+.amap-marker:hover .amap-marker-label{
+  visibility: visible;
+}
