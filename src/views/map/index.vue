@@ -1,5 +1,5 @@
 <template>
-  <div v-loading.body="loading.group" class="app-container">
+  <div v-loading="loading.group" class="app-container">
     <el-card ref="deviceWrap" class="device-list-wrap">
       <div class="device-list" :style="{height: `${maxHeight + 35}px`}" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
         <el-button class="device-list__expand" @click="toggledirList">
@@ -27,7 +27,7 @@
               <svg-icon name="refresh" />
             </span>
           </div>
-          <div v-loading.body="loading.dir" class="dir-list__tree device-list__max-height el-tree__content" :style="{height: `${maxHeight-230}px`}">
+          <div v-loading="loading.dir" class="dir-list__tree device-list__max-height el-tree__content" :style="{height: `${maxHeight-230}px`}">
             <el-tree
               ref="dirTree"
               node-key="id"
