@@ -3,17 +3,26 @@
     <div class="search-wrap">
       <el-input id="map-tip-input" v-model="mapTip" placeholder="请输入关键字" />
     </div>
-    <div v-if="playWindowInfo.show !== 'none'" class="play-wrap" :style="playWindowInfo.style">
-      <i class="el-icon el-icon-close" @click="playWindowInfo.show = 'none'" />
-      <live-player
-        v-if="playWindowInfo.show === 'live'"
-        :screen="screen"
-      />
-      <replay-view
-        v-if="playWindowInfo.show === 'replay'"
-        :screen="screen"
-        :has-axis="true"
-      />
+    <div
+      v-for="playWindowInfo in playWindowList"
+      :key="playWindowInfo.deviceId"
+      v-draggable
+      class="play-wrap"
+      :style="playWindowInfo.style"
+      :class="{'screen-container--fullscreen': isFullscreen}"
+    >
+      <div v-if="playWindowInfo.show !== 'none'" class="play-container">
+        <i class="el-icon el-icon-close" @click="closePlayer(playWindowInfo)" />
+        <live-player
+          v-if="playWindowInfo.show === 'live'"
+          :screen="playWindowInfo.screen"
+        />
+        <replay-view
+          v-if="playWindowInfo.show === 'replay'"
+          :screen="playWindowInfo.screen"
+          :has-axis="true"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -25,12 +34,17 @@ import { getMapDevices, updateMarkers, addMarkers, deleteMarkers } from '@/api/m
 import { Screen } from '@/views/device/models/Screen/Screen'
 import LivePlayer from '@/views/device/components/LivePlayer.vue'
 import ReplayView from '@/views/device/components/ReplayPlayer/index.vue'
+import draggable from '@/views/map/directives/draggable'
 
 @Component({
   name: 'MapView',
   components: {
     LivePlayer,
     ReplayView
+    // draggable
+  },
+  directives: {
+    draggable
   }
 })
 export default class MapView extends Vue {
@@ -39,40 +53,44 @@ export default class MapView extends Vue {
   @Prop()
   private isEdit: boolean
 
-  private vmap = new VMap('mapContainer')
+  public vmap = new VMap('mapContainer')
   private markerlist = []
   private mapTip = ''
   private pageTotal = 1
   private axiosSourceList = []
+  private playWindowList = []
 
-  private playWindowInfo = {
-    style: null,
-    show: 'none', // none|live|replay
-    top: 0,
-    left: 0,
-    deviceId: null,
-    inProtocol: ''
-  }
+  // private playWindowInfo = {
+  //   style: null,
+  //   show: 'none', // none|live|replay
+  //   top: 0,
+  //   left: 0,
+  //   deviceId: null,
+  //   inProtocol: ''
+  // }
 
   private screen: Screen = null
-  private axiosSource = null
+
+  private get isFullscreen() {
+    return this.playWindowList.filter(item => item.screen.isFullscreen).length > 0
+  }
 
   @Watch('isEdit')
   private onEditChange() {
     this.changeEdit(this.isEdit)
   }
 
-  @Watch('playWindowInfo.show')
-  @Watch('playWindowInfo.deviceId')
-  private onPlayWindowInfoChange() {
-    if (this.playWindowInfo.show !== 'none') {
-      this.screen = new Screen()
-      this.screen.deviceId = this.playWindowInfo.deviceId
-      this.screen.inProtocol = this.playWindowInfo.inProtocol
-      this.screen.isLive = this.playWindowInfo.show === 'live'
-      this.screen.init()
-    }
-  }
+  // @Watch('playWindowInfo.show')
+  // @Watch('playWindowInfo.deviceId')
+  // private onPlayWindowInfoChange() {
+  //   if (this.playWindowInfo.show !== 'none') {
+  //     this.screen = new Screen()
+  //     this.screen.deviceId = this.playWindowInfo.deviceId
+  //     this.screen.inProtocol = this.playWindowInfo.inProtocol
+  //     this.screen.isLive = this.playWindowInfo.show === 'live'
+  //     this.screen.init()
+  //   }
+  // }
 
   private mounted() {
     getAMapLoad().then(() => {
@@ -129,10 +147,6 @@ export default class MapView extends Vue {
 
   public setMapZoomAndCenter(zoom, lng, lat) {
     this.vmap.map.setZoomAndCenter(zoom, [lng, lat])
-  }
-
-  public closePlayer() {
-    this.playWindowInfo.show = 'none'
   }
 
   addMapEvent() {
@@ -204,9 +218,35 @@ export default class MapView extends Vue {
     })
   }
 
+  closeAllPlayer() {
+    this.playWindowList = []
+  }
+
+  closePlayer(info) {
+    if (this.isFullscreen) {
+      this.exitFullscreen()
+    }
+    this.playWindowList = this.playWindowList.filter(item => item.deviceId !== info.deviceId)
+  }
+
+  /**
+   * 退出全屏
+   */
+  public exitFullscreen() {
+    const doc: any = document
+    if (doc.exitFullscreen) {
+      doc.exitFullscreen()
+    } else if (doc.msExitFullscreen) {
+      doc.msExitFullscreen()
+    } else if (doc.mozCancelFullScreen) {
+      doc.mozCancelFullScreen()
+    } else if (doc.webkitCancelFullScreen) {
+      doc.webkitCancelFullScreen()
+    }
+  }
+
   handleMarkerPlay(data) {
     if (data.canPlay) {
-      this.playWindowInfo = data
       const width = 400
       const height = 300
       const size = 100
@@ -216,9 +256,21 @@ export default class MapView extends Vue {
         top: `${data.top - (height + size / 2 + 40)}px`,
         left: `${data.left - width / 2}px`
       }
-      this.playWindowInfo = {
+      const screen = new Screen()
+      screen.deviceId = data.deviceId
+      screen.inProtocol = data.inProtocol
+      screen.isLive = data.show === 'live'
+      screen.init()
+      const playIndex = this.playWindowList.findIndex(item => item.deviceId === data.deviceId)
+      const newPlayer = {
         ...data,
-        style
+        style,
+        screen
+      }
+      if (playIndex >= 0) {
+        this.playWindowList.splice(playIndex, 1, newPlayer)
+      } else {
+        this.playWindowList.push(newPlayer)
       }
     }
   }
@@ -246,7 +298,8 @@ export default class MapView extends Vue {
 
   changeEdit(status) {
     this.vmap.changeEdit(status)
-    this.playWindowInfo.show = 'none'
+    // this.playWindowInfo.show = 'none'
+    this.closeAllPlayer()
   }
 
   handleDevice(device) {
@@ -262,7 +315,8 @@ export default class MapView extends Vue {
       deviceAngle: device.deviceAngle,
       population: device.population,
       houseInfo: device.houseInfo,
-      unitInfo: device.unitInfo
+      unitInfo: device.unitInfo,
+      gbRegionNames: device.gbRegionNames
     }
     return result
   }
@@ -342,5 +396,19 @@ export default class MapView extends Vue {
   ::v-deep .preview-player {
     height: auto;
   }
+  &.screen-container--fullscreen {
+    position: fixed;
+    z-index: 2002;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    height: 100% !important;
+    width: 100% !important;
+  }
+}
+.play-container{
+  width: 100%;
+  height: 100%;
 }
 </style>

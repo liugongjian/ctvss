@@ -1,5 +1,5 @@
 <template>
-  <div v-loading.body="loading.group" class="app-container">
+  <div v-loading="loading.group" class="app-container">
     <el-card ref="deviceWrap" class="device-list-wrap">
       <div class="device-list" :style="{height: `${maxHeight + 35}px`}" :class="{'device-list--collapsed': !isExpanded, 'device-list--dragging': dirDrag.isDragging}">
         <el-button class="device-list__expand" @click="toggledirList">
@@ -12,9 +12,9 @@
         />
         <div ref="dirList" class="device-list__left" :style="`width: ${dirDrag.width}px`">
           <el-button class="map__add" size="small" @click="openMapEditDialog()">添加地图</el-button>
-          <el-card class="map__user">
+          <el-card v-if="curMap" class="map__user">
             <div v-for="map in mapList" :key="map.mapId">
-              <div class="choose-map" :class="map.mapId == curMap.mapId ? 'active' : ''" @click="chooseMap(map)">
+              <div class="choose-map" :class="map.mapId === curMap.mapId ? 'active' : ''" @click="chooseMap(map)">
                 <span class="map-text">{{ map.name }}</span>
                 <span class="edit-icon"><svg-icon name="edit" @click.stop="openMapEditDialog(map)" /></span>
                 <span class="delete-icon"><svg-icon name="delete" @click.stop="deleteMap(map)" /></span>
@@ -27,7 +27,7 @@
               <svg-icon name="refresh" />
             </span>
           </div>
-          <div v-loading.body="loading.dir" class="dir-list__tree device-list__max-height el-tree__content" :style="{height: `${maxHeight-230}px`}">
+          <div v-loading="loading.dir" class="dir-list__tree device-list__max-height el-tree__content" :style="{height: `${maxHeight-230}px`}">
             <el-tree
               ref="dirTree"
               node-key="id"
@@ -37,24 +37,33 @@
               :props="treeProp"
               :check-strictly="false"
             >
-              <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}" @click="deviceClick(data)">
+              <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}" @click.stop.prevent="deviceClick(data)">
                 <span class="node-name">
                   <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                   <svg-icon :name="data.type" />
-                  {{ node.label }}
+                  <span
+                    class="node-label"
+                    @mousedown="(e) => {
+                      mousedownHandle(e,data)
+                    }"
+                  >{{ node.label }}{{ getNumbers(node,data) }}</span>
                   <svg-icon v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0" name="mark" />
-                  <span class="sum-icon">{{ getSums(data) }}</span>
+                  <span class="sum-icon" />
                 </span>
-                <span
-                  v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) < 0"
-                  class="node-option"
-                  @click.stop="addMarker(data)"
-                >+</span>
-                <span
-                  v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0"
-                  class="node-option"
-                  @click.stop="deleteMarker(data)"
-                >-</span>
+                <el-tooltip content="添加该点位至地图" placement="top">
+                  <span
+                    v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) < 0"
+                    class="node-option"
+                    @click.stop.prevent="addMarker(data)"
+                  >+</span>
+                </el-tooltip>
+                <el-tooltip content="将该点位从地图中移除" placement="top">
+                  <span
+                    v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0"
+                    class="node-option"
+                    @click.stop.prevent="deleteMarker(data)"
+                  >-</span>
+                </el-tooltip>
               </span>
             </el-tree>
           </div>
@@ -73,15 +82,22 @@
               <el-tooltip :content="is3D ? '关闭2.5D视图' : '显示2.5D视图'" placement="top">
                 <span class="tools-item"><svg-icon name="3d" :class="curMap && is3D?'active':''" @click="toggleMap3D()" /></span>
               </el-tooltip>
-              <el-tooltip :content="showMarkers ? '隐藏监控点位' : '显示监控点位'" placement="top">
-                <span class="tools-item"><svg-icon name="mark" :class="curMap && showMarkers?'active':''" @click="toggleMarkersShow()" /></span>
+              <!--              <el-tooltip :content="showMarkers ? '隐藏监控点位' : '显示监控点位'" placement="top">-->
+              <!--                <span class="tools-item"><svg-icon name="mark" :class="curMap && showMarkers?'active':''" @click="toggleMarkersShow()" /></span>-->
+              <!--              </el-tooltip>-->
+              <el-tooltip content="关闭所有播放窗口" placement="top">
+                <span class="tools-item"><svg-icon name="close-all" @click=" closeAllWindow()" /></span>
               </el-tooltip>
-              <!-- <span class="tools-item"><svg-icon name="close-all" /></span> -->
               <!-- <span class="tools-item"><svg-icon name="magnifier" /></span> -->
               <!-- <span class="tools-item tools-item__cup">|</span>
               <span class="tools-item"><svg-icon name="player" /></span>
               <span class="tools-item"><svg-icon name="play-video" /></span>
               <span class="tools-item"><svg-icon name="delete" /></span> -->
+              <el-tooltip content="进入全屏" placement="top">
+                <span class="tools-item">
+                  <svg-icon name="fullscreen" @click="fullscreenMap" />
+                </span>
+              </el-tooltip>
             </span>
             <span class="right">
               <el-tooltip content="属性" placement="top">
@@ -90,9 +106,9 @@
             </span>
           </div>
           <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
-            <el-dialog :title="mapEditDialog.status == 'add' ? '添加地图' : '编辑地图'" :visible.sync="mapEditDialog.dialogVisible" width="45%" class="dialog-text">
+            <el-dialog :title="mapEditDialog.status === 'add' ? '添加地图' : '编辑地图'" :visible.sync="mapEditDialog.dialogVisible" width="45%" class="dialog-text">
               <el-form ref="mapform" :model="form" label-width="150px" :rules="rules">
-                <el-form-item v-if="mapEditDialog.status == 'add'" label="名称" prop="name">
+                <el-form-item label="名称" prop="name">
                   <el-input v-model="form.name" placeholder="请输入地图名称" />
                 </el-form-item>
                 <el-form-item label="中心点经度" prop="longitude">
@@ -101,9 +117,17 @@
                 <el-form-item label="中心点纬度" prop="latitude">
                   <el-input v-model="form.latitude" placeholder="请输入地图中心点纬度" />
                 </el-form-item>
-                <el-form-item label="默认缩放级别" prop="zoom">
+                <el-form-item prop="zoom">
+                  <template slot="label">
+                    <span>默认缩放比例
+                      <el-tooltip content="设置地图的默认缩放比例，表示每厘米对应实际的距离。">
+                        <svg-icon name="help" />
+                      </el-tooltip>
+                    </span>
+                  </template>
                   <div class="block">
-                    <el-slider v-model="form.zoom" :min="3" :max="20" :marks="{3: '3', 20: '20'}" />
+                    <el-slider v-model="form.zoom" :min="3" :max="20" />
+                    <span class="zoomdesc">{{ zoomDesc }}</span>
                   </div>
                 </el-form-item>
               </el-form>
@@ -137,7 +161,28 @@
               <el-button @click="confirmAddMarker(false)">不继承</el-button>
               <el-button @click="cancelAddMark()">取消</el-button>
             </el-dialog>
+            <el-dialog title="添加监控点位" :visible.sync="addNoPositionDialog" class="dialog-text">
+              <div>
+                <h3>本设备未设置经纬度，是否使用地图当前的中心经纬度？</h3>
+              </div>
+              <h3>
+                <el-checkbox v-model="addNoPositionDialogCheck">本次编辑不再询问</el-checkbox>
+              </h3>
+              <el-button @click="confirmAddZeroMarker">确定</el-button>
+              <el-button @click="cancelAddMark">取消</el-button>
+            </el-dialog>
+            <el-dialog title="添加监控点位" :visible.sync="dragAddNoPositionDialog" class="dialog-text">
+              <div>
+                <h3>本设备未设置经纬度，是否使用鼠标所在的经纬度？</h3>
+              </div>
+              <h3>
+                <el-checkbox v-model="dragAddNoPositionDialogCheck">本次编辑不再询问</el-checkbox>
+              </h3>
+              <el-button @click="confirmDragAddZeroMarker">确定</el-button>
+              <el-button @click="cancelAddMark">取消</el-button>
+            </el-dialog>
             <div :class="['mapwrap', hideTitle?'hide-title':'']">
+              <!-- ifMapDisabled -->
               <map-view
                 v-if="mapList.length > 0 && curMap"
                 ref="mapview"
@@ -150,14 +195,14 @@
               <div v-else class="init-map">
                 <el-button type="primary" @click="openMapEditDialog()">添加地图</el-button>
               </div>
-            </div>
-            <div v-show="showInfo" class="map-info__right">
-              <div v-if="showMapInfo">
-                <map-info :is-edit="isEdit" :map="curMap" @save="changeMapInfos" />
-              </div>
-              <div v-if="!showMapInfo">
-                <point-info :is-edit="isEdit" :marker="curMarkInfo" @save="changeMarkerInfos" />
+              <div v-show="showInfo" class="map-info__right">
+                <div v-if="showMapInfo">
+                  <map-info :is-edit="isEdit" :map="curMap" @save="changeMapInfos" />
+                </div>
+                <div v-if="!showMapInfo">
+                  <point-info :is-edit="isEdit" :marker="curMarkInfo" @save="changeMarkerInfos" />
                 <!-- <selected-point /> -->
+                </div>
               </div>
             </div>
           </div>
@@ -167,12 +212,11 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, Mixins, Prop, Watch } from 'vue-property-decorator'
+import { Component, Mixins, Watch } from 'vue-property-decorator'
 import IndexMixin from '../device/mixin/indexMixin'
 import { getGroups } from '@/api/group'
 import { setDirsStreamStatus, renderAlertType, getSums } from '@/utils/device'
-import { describeShareDevices, getPlatforms } from '@/api/upPlatform'
-import { getDeviceEvents, getDevices, getDeviceTree, getDevice } from '@/api/device'
+import { getDeviceTree, getDevice } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import MapView from './mapview.vue'
 import PointInfo from './components/PointInfo.vue'
@@ -209,19 +253,53 @@ export default class extends Mixins(IndexMixin) {
   private deletesDialog = false
   private isEdit = false
   private editValue = 'sss'
-  public breadcrumb: Array<any> = []
-  private hideTitle = false
+  // public breadcrumb: Array<any> = []
+  private hideTitle = true
   private showInfo = false
   private showMapInfo = true
+  private firstShowMarkerInfo = true
   private addPositionDialog = false // 显示询问本次编辑要不要继承设备坐标的对话弹窗
   private addPositionDialogCheck = false // 是否询问本次编辑要不要继承设备坐标
+  private dragAddNoPositionDialogCheck = false
   private uselnglat = true // 是否要继承设备坐标
+  private addNoPositionDialog = false
+  private addNoPositionDialogCheck = false
+  private dragAddNoPositionDialog = false
+  private deviceInfo: any = {}
+  private markerInfo: any = {}
+  private dragNodeInfo: any = {}
+  private ifDragging: boolean = false
   private form = {
     mapId: '',
     name: '',
     longitude: '',
     latitude: '',
     zoom: 12
+  }
+  private get zoomDesc() {
+    const map = {
+      20: '1:10m',
+      19: '1:10m',
+      18: '1:25m',
+      17: '1:50m',
+      16: '1:100m',
+      15: '1:200m',
+      14: '1:500m',
+      13: '1:1km',
+      12: '1:2km',
+      11: '1:5km',
+      10: '1:10km',
+      9: '1:20km',
+      8: '1:30km',
+      7: '1:50km',
+      6: '1:100km',
+      5: '1:200km',
+      4: '1:500km',
+      3: '1:1000km',
+      2: '1:1000km'
+    }
+    const zoomGrade = Math.round(this.form.zoom)
+    return map[zoomGrade]
   }
   private rules = {
     name: [
@@ -236,6 +314,7 @@ export default class extends Mixins(IndexMixin) {
       { validator: this.validatelat, trigger: 'blur' }
     ]
   }
+  private ifMapDisabled = false
 
   private validatelng(rule: any, value: string, callback: Function) {
     const val = Number(value)
@@ -290,7 +369,7 @@ export default class extends Mixins(IndexMixin) {
   private curMap = null
   private curMapInfo = null
   private curMarkInfo = null
-  private overView = true
+  private overView = false
   private showMarkers = true
   private is3D = true
   private marker = null
@@ -321,6 +400,7 @@ export default class extends Mixins(IndexMixin) {
           inProtocol: group.inProtocol,
           type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
           disabled: false,
+          groupStats: group.groupStats,
           path: [{
             id: group.groupId,
             label: group.groupName,
@@ -447,6 +527,181 @@ export default class extends Mixins(IndexMixin) {
   }
 
   /**
+   *  地图进入全屏
+  */
+  private fullscreenMap() {
+    const mapwrap: any = document.querySelector('.mapwrap')
+    if (mapwrap.requestFullscreen) {
+      mapwrap.requestFullscreen()
+    } else if (mapwrap.webkitRequestFullScreen) {
+      mapwrap.webkitRequestFullScreen()
+    } else if (mapwrap.mozRequestFullScreen) {
+      mapwrap.mozRequestFullScreen()
+    } else if (mapwrap.msRequestFullscreen) {
+      mapwrap.webkitRequestFullscreen()
+    } else if (typeof window.ActiveXObject !== 'undefined') {
+      const wscript = new ActiveXObject('WScript.Shell')
+      if (wscript != null) {
+        wscript.SendKeys('{F11}')
+      }
+    }
+    const mapInfo: any = document.querySelector('.map-info__right')
+    mapInfo.style.top = 0
+  }
+
+  // 判断是否全屏
+  private getIfFullscreen() {
+    const doc: any = document
+    return doc.webkitIsFullScreen || doc.mozFullScreen || doc.msFullscreenElement || doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullscreenElement
+  }
+
+  /**
+   *  地图退出全屏
+   */
+  private exitFullscreenMap() {
+    const mapInfo: any = document.querySelector('.map-info__right')
+    mapInfo.style.top = '40px'
+  }
+
+  /**
+   * 获取设备数 设备数量
+   */
+  private getNumbers(node: any, data: any) {
+    if (node.level === 1) {
+      return ` (${data.groupStats.onlineIpcSize}/${data.groupStats.deviceSize})`
+    }
+    return this.getSums(data)
+  }
+
+  /**
+   * 设备树 设备绑定拖拽事件(鼠标事件代替拖拽事件)
+  */
+  private mousedownHandle(eve: any, data: any) {
+    if (!data.isLeaf) return
+    this.ifDragging = true
+    const { target: ele } = eve
+
+    // 计算鼠标与目标元素的初始偏移量
+    const shiftX = eve.clientX - ele.getBoundingClientRect().left
+    const shiftY = eve.clientY - ele.getBoundingClientRect().top
+
+    const cloneEle = ele.cloneNode(true)
+
+    this.dragNodeInfo = {
+      shiftX,
+      shiftY,
+      ele: cloneEle,
+      data: data
+    }
+
+    cloneEle.style.position = 'absolute'
+    cloneEle.style.zIndex = 10000
+    document.body.append(cloneEle)
+    document.body.style.userSelect = 'none'
+
+    // 获取可拖动边界与可释放边界
+    this.getBoundary()
+
+    this.startMovePoint(eve.pageX, eve.pageY)
+
+    document.addEventListener('mousemove', this.mousemoveHandle)
+    document.addEventListener('mouseup', this.mouseupHandle)
+  }
+
+  private mousemoveHandle(eve: any) {
+    this.startMovePoint(eve.pageX, eve.pageY)
+  }
+
+  /**
+   * 鼠标松开
+  */
+  private mouseupHandle(eve: any) {
+    const { pageX, pageY } = eve
+    const { releaseBoundaryInfo, data } = this.dragNodeInfo
+
+    const { startTop, startLeft, endTop, endLeft } = releaseBoundaryInfo
+
+    // 处理可释放边界逻辑,即地图范围内可以释放
+    if (pageX >= startLeft && pageX <= endLeft && pageY >= startTop && pageY <= endTop) {
+      const pixelXInMap = pageX - startLeft
+      const pixelYInMap = pageY - startTop
+
+      const pixel = new AMap.Pixel(pixelXInMap, pixelYInMap)
+      const lnglat = this.$refs.mapview.vmap.map.containerToLngLat(pixel)
+
+      const { lat, lng } = lnglat
+
+      this.dragNodeInfo.lat = lat
+      this.dragNodeInfo.lng = lng
+
+      document.body.style.userSelect = 'auto'
+
+      this.addMarker(data)
+    }
+
+    this.dragNodeInfo.ele.remove()
+    document.body.style.userSelect = 'auto'
+    this.ifDragging = false
+    document.removeEventListener('mousemove', this.mousemoveHandle)
+    document.removeEventListener('mouseup', this.mouseupHandle)
+  }
+
+  private getBoundary() {
+    // 获取范围，需要处理边界
+    const releaseBoundaryWrap = document.querySelector('.mapwrap').getBoundingClientRect()
+    const moveBoundaryWrap = document.querySelector('.device-list').getBoundingClientRect()
+    const { top, left, right, bottom } = releaseBoundaryWrap
+    const { top: topM, left: leftM, right: rightM, bottom: bottomM } = moveBoundaryWrap
+
+    // 有效可释放边界，地图范围
+    this.dragNodeInfo.releaseBoundaryInfo = {
+      startTop: top,
+      startLeft: left,
+      endTop: bottom,
+      endLeft: right
+    }
+    // 有效可拖动边界，页面有效区域
+    this.dragNodeInfo.moveBoundaryInfo = {
+      startTop: topM + 40,
+      startLeft: leftM,
+      endTop: bottomM,
+      endLeft: rightM // 如果影响右侧滚动条，需要  减去 （ele的宽度除以2）
+    }
+  }
+
+  /**
+    * 鼠标按住的移动事件
+  */
+  private startMovePoint(pageX: number, pageY: number) {
+    const { ele, shiftX, shiftY } = this.dragNodeInfo
+    const { startTop, startLeft, endTop, endLeft } = this.dragNodeInfo.moveBoundaryInfo
+
+    // 在边界内，则任意移动
+    if (pageX > startLeft && pageX < endLeft && pageY > startTop && pageY < endTop) {
+      ele.style.left = `${pageX - shiftX}px`
+      ele.style.top = `${pageY - shiftY}px`
+    } else { // 边界外，取一个最大值，一个移动值
+      // 左右移动 超出边界
+      if (pageX >= startLeft && pageX <= endLeft) {
+        ele.style.left = `${pageX - shiftX}px`
+      } else if (pageX > endLeft) {
+        ele.style.left = `${endLeft - shiftX}px`
+      } else if (pageX < startLeft) {
+        ele.style.left = `${startLeft - shiftX}px`
+      }
+
+      // 上下移动 超出边界
+      if (pageY >= startTop && pageY <= endTop) {
+        ele.style.top = `${pageY - shiftY}px`
+      } else if (pageY > endTop) {
+        ele.style.top = `${endTop - shiftY}px`
+      } else if (pageY < startTop) {
+        ele.style.top = `${startTop - shiftY}px`
+      }
+    }
+  }
+
+  /**
    * 当设备被选中时回调，将选中的设备列出
    */
   private onCheckDevice() {
@@ -463,7 +718,10 @@ export default class extends Mixins(IndexMixin) {
       this.showMapInfo = true
     } else if (type === 'marker') {
       this.showMapInfo = false
-      this.showInfo = true
+      if (this.firstShowMarkerInfo) {
+        this.showInfo = true
+        this.firstShowMarkerInfo = false
+      }
       this.curMarkInfo = info
     }
   }
@@ -485,11 +743,16 @@ export default class extends Mixins(IndexMixin) {
   changeEdit() {
     this.isEdit = !this.isEdit
     this.addPositionDialogCheck = false
+    this.addNoPositionDialogCheck = false
   }
 
   cancelAddMark() {
     this.addPositionDialog = false
     this.addPositionDialogCheck = false
+    this.addNoPositionDialog = false
+    this.addNoPositionDialogCheck = false
+    this.dragAddNoPositionDialog = false
+    this.dragAddNoPositionDialogCheck = false
   }
 
   addMarker(marker) {
@@ -511,67 +774,128 @@ export default class extends Mixins(IndexMixin) {
     }
   }
 
-  private handleMarkerOn(marker) {
+  private async handleMarkerOn(marker) {
     this.marker = marker
-    if (!this.addPositionDialogCheck) {
-      this.addPositionDialog = true
+    await this.getDeviceInfo()
+    if (Number(this.deviceInfo.deviceLongitude) && Number(this.deviceInfo.deviceLatitude)) {
+      if (!this.addPositionDialogCheck) {
+        this.addPositionDialog = true
+      } else {
+        this.confirmAddMarker(this.uselnglat)
+      }
     } else {
-      this.confirmAddMarker(this.uselnglat)
+      if (this.ifDragging) {
+        if (!this.dragAddNoPositionDialogCheck) {
+          this.dragAddNoPositionDialog = true
+        } else {
+          this.confirmDragAddZeroMarker()
+        }
+      } else {
+        if (!this.addNoPositionDialogCheck) {
+          this.addNoPositionDialog = true
+        } else {
+          this.confirmAddZeroMarker()
+        }
+      }
     }
   }
 
-  async confirmAddMarker(uselnglat: boolean) {
+  private async getDeviceInfo() {
+    const { id, inProtocol } = this.marker
+    this.deviceInfo = await getDevice({
+      deviceId: id,
+      inProtocol: inProtocol
+    })
+    let deviceLabel = this.deviceInfo.deviceName
+    if (this.deviceInfo.deviceChannels.length > 0) {
+      deviceLabel = this.deviceInfo.deviceChannels[0].channelName
+    }
+    this.markerInfo = {
+      deviceId: this.deviceInfo.deviceId,
+      inProtocol: this.deviceInfo.inProtocol,
+      deviceType: this.deviceInfo.deviceType,
+      deviceLabel,
+      longitude: '',
+      latitude: '',
+      deviceStatus: this.deviceInfo.deviceStatus,
+      streamStatus: this.deviceInfo.streamStatus,
+      recordStatus: this.deviceInfo.recordStatus,
+      regionNames: this.deviceInfo.regionNames,
+      gbRegionNames: this.deviceInfo.gbRegionNames,
+      viewRadius: '0',
+      viewAngle: '0',
+      deviceAngle: '0',
+      population: '',
+      houseInfo: '',
+      unitInfo: ''
+    }
+  }
+
+  private confirmAddMarker(uselnglat: boolean) {
     this.uselnglat = uselnglat
     try {
-      const device = await getDevice({
-        deviceId: this.marker.id,
-        inProtocol: this.marker.inProtocol
-      })
-      const markerInfo = {
-        deviceId: device.deviceId,
-        inProtocol: device.inProtocol,
-        deviceType: device.deviceType,
-        deviceLabel: device.deviceName,
-        longitude: '',
-        latitude: '',
-        deviceStatus: device.deviceStatus,
-        streamStatus: device.streamStatus,
-        recordStatus: device.recordStatus,
-        regionNames: device.regionNames,
-        viewRadius: '0',
-        viewAngle: '0',
-        deviceAngle: '0',
-        population: '',
-        houseInfo: '',
-        unitInfo: ''
-      }
-      if (uselnglat && device.deviceLongitude && device.deviceLatitude) {
-        const checklnglat = this.checklng(device.deviceLongitude) && this.checklat(device.deviceLatitude)
+      // const device = await getDevice({
+      //   deviceId: this.marker.id,
+      //   inProtocol: this.marker.inProtocol
+      // })
+      // const markerInfo = {
+      //   deviceId: this.deviceInfo.deviceId,
+      //   inProtocol: this.deviceInfo.inProtocol,
+      //   deviceType: this.deviceInfo.deviceType,
+      //   deviceLabel: this.deviceInfo.deviceName,
+      //   longitude: '',
+      //   latitude: '',
+      //   deviceStatus: this.deviceInfo.deviceStatus,
+      //   streamStatus: this.deviceInfo.streamStatus,
+      //   recordStatus: this.deviceInfo.recordStatus,
+      //   regionNames: this.deviceInfo.regionNames,
+      //   viewRadius: '0',
+      //   viewAngle: '0',
+      //   deviceAngle: '0',
+      //   population: '',
+      //   houseInfo: '',
+      //   unitInfo: ''
+      // }
+      if (uselnglat && this.deviceInfo.deviceLongitude && this.deviceInfo.deviceLatitude) {
+        const checklnglat = this.checklng(this.deviceInfo.deviceLongitude) && this.checklat(this.deviceInfo.deviceLatitude)
         if (!checklnglat) {
           this.$confirm('当前设备的经纬度有误，继续添加将默认设为当前地图的中心点，是否继续?', {
             confirmButtonText: '确认',
             cancelButtonText: '取消',
             type: 'warning'
           }).then(() => {
-            markerInfo.longitude = ''
-            markerInfo.latitude = ''
-            this.$refs.mapview.addMarker(markerInfo)
+            this.markerInfo.longitude = ''
+            this.markerInfo.latitude = ''
+            this.$refs.mapview.addMarker(this.markerInfo)
           }).catch(() => {
             console.log('cancel')
           })
         } else {
-          markerInfo.longitude = device.deviceLongitude
-          markerInfo.latitude = device.deviceLatitude
-          this.$refs.mapview.addMarker(markerInfo)
+          this.markerInfo.longitude = this.deviceInfo.deviceLongitude
+          this.markerInfo.latitude = this.deviceInfo.deviceLatitude
+          this.$refs.mapview.addMarker(this.markerInfo)
         }
       } else {
-        this.$refs.mapview.addMarker(markerInfo)
+        this.$refs.mapview.addMarker(this.markerInfo)
       }
     } catch (e) {
       this.$alertError(e)
     } finally {
       this.addPositionDialog = false
     }
+  }
+
+  private confirmAddZeroMarker() {
+    this.$refs.mapview.addMarker(this.markerInfo)
+    this.addNoPositionDialog = false
+  }
+
+  private confirmDragAddZeroMarker() {
+    const { lat, lng } = this.dragNodeInfo
+    this.markerInfo.longitude = lng
+    this.markerInfo.latitude = lat
+    this.$refs.mapview.addMarker(this.markerInfo)
+    this.dragAddNoPositionDialog = false
   }
 
   deviceClick(data) {
@@ -623,7 +947,7 @@ export default class extends Mixins(IndexMixin) {
             this.curMap = { ...map, mapId }
             if (this.mapList.length > 0) {
               this.$refs.mapview.setMap(this.curMap)
-              this.$refs.mapview.closePlayer()
+              this.$refs.mapview.closeAllPlayer()
             }
             this.mapList.push(this.curMap)
             this.mapEditDialog.dialogVisible = false
@@ -664,6 +988,10 @@ export default class extends Mixins(IndexMixin) {
     this.modifyMapDialog = true
   }
 
+  private closeAllWindow() {
+    this.$refs.mapview.closeAllPlayer()
+  }
+
   // 打开地图信息编辑弹窗 新增/修改
   private openMapEditDialog(map?: mapObject) {
     if (map) {
@@ -672,7 +1000,7 @@ export default class extends Mixins(IndexMixin) {
         name: map.name,
         longitude: map.longitude + '',
         latitude: map.latitude + '',
-        zoom: map.zoom
+        zoom: Number(map.zoom)
       }
       this.mapEditDialog.status = 'edit'
     } else {
@@ -717,7 +1045,7 @@ export default class extends Mixins(IndexMixin) {
     this.showMarkers = true
     this.curMap = map
     this.$refs.mapview.setMap(map)
-    this.$refs.mapview.closePlayer()
+    this.$refs.mapview.closeAllPlayer()
   }
 
   private deleteMap(map) {
@@ -784,12 +1112,16 @@ export default class extends Mixins(IndexMixin) {
     }
   }
 
-  calHeight() {
+  private calHeight() {
     const deviceWrap: any = this.$refs.deviceWrap
     const size = deviceWrap.$el.getBoundingClientRect()
     const top = size.top
     const documentHeight = document.body.offsetHeight
     this.maxHeight = documentHeight - top - 60
+    if (!this.getIfFullscreen()) {
+      // 退出全屏
+      this.exitFullscreenMap()
+    }
   }
 
   private async mounted() {
@@ -883,29 +1215,48 @@ export default class extends Mixins(IndexMixin) {
   top: 40px;
   right: 0;
   background: rgba(255, 255, 255, 80%);
-  width: 20%;
+  width: 150px;
   height: 100%;
-  padding: 20px 20px 0 20px;
+  padding: 10px;
   overflow: scroll;
-  min-width: 270px;
+  z-index: 10;
 }
+
 .dialog-text {
+  .block {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    color: #888;
+  }
+
+  .zoomdesc {
+    margin-left: 20px;
+    min-width: 60px;
+  }
+
   ::v-deep .el-dialog__footer {
     text-align: center;
   }
+
   ::v-deep .el-button + .el-button {
     margin-left: 30px;
   }
+
   ::v-deep .el-dialog__body {
     padding: 30px 50px;
   }
+
   ::v-deep .el-form-item__content {
     padding-right: 50px;
   }
+
   ::v-deep .el-slider {
-    margin: 0 auto;
-    width: 80%;
+    flex: 1;
   }
+
   ::v-deep .el-slider__marks-text {
     width: 30px;
     color: #fa8334;
@@ -924,7 +1275,8 @@ export default class extends Mixins(IndexMixin) {
   white-space: nowrap;
   overflow: hidden;
   transition: padding-left 0.2s;
-  .btn-edit{
+
+  .btn-edit {
     width: 90px;
     height: 30px;
     line-height: 30px;
@@ -934,37 +1286,65 @@ export default class extends Mixins(IndexMixin) {
     border-radius: 5px;
     font-size: 12px;
   }
+
   svg {
     font-size: 20px;
   }
+
   .tools-item {
     cursor: pointer;
+
     .active {
       color: #fa8334;
     }
   }
+
   .left {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
-    .tools-item{
+
+    .tools-item {
       margin-right: 20px;
     }
   }
 }
-.device-list__left .dir-list__tree .custom-tree-node{
-  width: 100%;
+
+.device-list__left .dir-list__tree .custom-tree-node {
+  width: calc(100% - 26px); // 滚动条宽度是26px
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  .node-option{
+
+  .node-option {
     padding: 2px;
     font-size: 18px;
     font-weight: bolder;
+    margin-left: auto;
+  }
+
+  .node-name {
+    display: flex;
+    width: calc(100% - 20px);
+  }
+
+  .node-label {
+    display: inline-block;
+    width: 80%;
+    flex: 1;
+    word-break: keep-all;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .node-name-move {
+    cursor: move;
   }
 }
+
 .dialog-text {
   text-align: center;
 }
@@ -991,21 +1371,26 @@ export default class extends Mixins(IndexMixin) {
   padding: 0 10px;
   border-radius: 5px;
   cursor: pointer;
+
   .map-text {
     flex: 1;
     text-align: left;
   }
+
   &.active {
     background: #fa8334;
     color: #fff;
   }
+
   .edit-icon,
   .delete-icon {
     display: none;
   }
+
   .edit-icon {
     margin-right: 5px;
   }
+
   &:hover {
     .edit-icon,
     .delete-icon {
@@ -1014,7 +1399,7 @@ export default class extends Mixins(IndexMixin) {
   }
 }
 
-.map-info__right{
+.map-info__right {
   ::v-deep .el-descriptions {
     font-size: 12px;
     margin-top: 10px;
@@ -1028,13 +1413,14 @@ export default class extends Mixins(IndexMixin) {
     margin-bottom: 12px;
   }
 
-  ::v-deep .el-descriptions__body{
+  ::v-deep .el-descriptions__body {
     background: transparent;
   }
 
   ::v-deep .el-input--medium {
     font-size: 12px;
   }
+
   ::v-deep .el-input .el-input__inner {
     background-color: rgba(255, 255, 255, 0%);
     border: none;
@@ -1043,6 +1429,7 @@ export default class extends Mixins(IndexMixin) {
     height: 18px;
     line-height: 18px;
     font-size: 12px;
+    padding: 0;
   }
 
   ::v-deep .el-input.is-disabled .el-input__inner {
@@ -1052,6 +1439,10 @@ export default class extends Mixins(IndexMixin) {
     cursor: default;
     padding: 0;
     text-overflow: ellipsis;
+  }
+
+  ::v-deep .el-descriptions-item__label:not(.is-bordered-label) {
+    min-width: 52px;
   }
 }
 </style>

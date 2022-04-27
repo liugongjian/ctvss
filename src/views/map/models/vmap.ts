@@ -1,5 +1,6 @@
 import AMapLoader from '@amap/amap-jsapi-loader'
 import LngLat = AMap.LngLat
+import { getDevice } from '@/api/device'
 
 export interface mapObject {
   mapId: string,
@@ -62,7 +63,7 @@ export const getAMapLoad = () => {
       AMapLoader.load({
         'key': '7f0b2bbe4de7b251916b60012a6fbe3d',
         'version': '2.0',
-        'plugins': ['AMap.MarkerCluster', 'AMap.HawkEye', 'AMap.AutoComplete']
+        'plugins': ['AMap.MarkerCluster', 'AMap.HawkEye', 'AMap.AutoComplete', 'AMap.Scale', 'AMap.ControlBar']
       }).then((AMap) => {
         resolve(AMap)
       }).catch(e => {
@@ -97,17 +98,37 @@ export default class VMap {
         pitch: 50,
         rotation: 0,
         center: [Number(lng), Number(lat)],
-        zooms: [3, 20]
+        zooms: [3, 20],
+        mapStyle: process.env.VUE_APP_MAP_STYLE
       }
       if (is3D) {
         options.viewMode = '3D'
       }
       const map = new AMap.Map(this.container, options)
+      const buildingLayer = new AMap.Buildings({
+        zIndex: 10,
+        zooms: [15, 20],
+        heightFactor: 2,
+        wallColor: 'ffc9d2dc',
+        roofColor: 'ffdce3ec'
+      })
+      map.add([buildingLayer])
       this.overView = new AMap.HawkEye({
-        opened: false,
+        visible: false,
         width: '300px',
         height: '200px'
       })
+      const scale = new AMap.Scale({
+        visible: true
+      })
+      const controlBar = new AMap.ControlBar({
+        visible: true,
+        position: {
+          top: '10px',
+          right: '10px'
+        }
+      })
+
       const auto = new AMap.AutoComplete({ input: 'map-tip-input' })
       auto.on('select', (e) => {
         if (e.poi.location) {
@@ -115,6 +136,8 @@ export default class VMap {
         }
       })
       map.addControl(this.overView)
+      map.addControl(scale)
+      map.addControl(controlBar)
       map.on('click', () => {
         this.cancelChoose()
       })
@@ -130,12 +153,21 @@ export default class VMap {
     this.creatMap(longitude, latitude, zoom, is3D)
   }
 
-  chooseMarker(marker) {
+  async chooseMarker(marker) {
     if (!marker.selected) {
       this.cancelChoose()
+      if (!marker.deviceStatus) {
+        const { deviceId, inProtocol } = marker
+        const deviceInfo = await getDevice({
+          deviceId,
+          inProtocol
+        })
+        marker.deviceStatus = deviceInfo.deviceStatus
+      }
       this.curMarkerList.forEach((item) => {
         if (item.deviceId === marker.deviceId) {
           item.selected = true
+          item.deviceStatus = marker.deviceStatus
         }
       })
       this.setCluster(this.wrapMarkers(this.curMarkerList))
@@ -226,19 +258,27 @@ export default class VMap {
     const count = markers.length
     const _renderClusterMarker = (context: any) => {
       const div = document.createElement('div')
-      const bgColor = '#009dd9'
+      const bgColor = 'rgba(0, 157, 217, 0.8)'
       const fontColor = '#fff'
       div.style.backgroundColor = bgColor
-      const size = Math.round(100 + Math.pow(context.count / count, 1 / 5) * 20)
+      const size = Math.round(15 + Math.pow(context.count / count, 1 / 5) * 20)
       div.style.width = div.style.height = size + 'px'
       div.style.borderRadius = size / 2 + 'px'
-      div.innerHTML = `${context.count}个监控点位`
+      div.innerHTML = `${context.count}`
       div.style.lineHeight = size + 'px'
       div.style.color = fontColor
       div.style.fontSize = '14px'
       div.style.textAlign = 'center'
       context.marker.setOffset(new AMap.Pixel(-size / 2, -size / 2))
       context.marker.setContent(div)
+      let content = `${context.clusterData[0].deviceLabel}<br>${context.clusterData[1].deviceLabel}`
+      if (context.count > 2) {
+        content += '<br>......'
+      }
+      context.marker.setLabel({
+        content: `<div class='marker-label-info'>${content}</div>`,
+        direction: 'bottom'
+      })
     }
     const _renderMarker = (context: any) => {
       const content = this.buildContent(context.data[0])
@@ -248,7 +288,7 @@ export default class VMap {
       if (this.isEdit) {
         context.marker.setDraggable(true)
         context.marker.setCursor('move')
-        context.marker.on('dragend', (ev) => {
+        context.marker.on('dragend', () => {
           const marker = context.marker.getExtData()
           const { lng, lat } = context.marker.getPosition()
           marker.latitude = lat
@@ -259,6 +299,11 @@ export default class VMap {
       context.marker.on('click', () => {
         const marker = context.marker.getExtData()
         this.chooseMarker(marker)
+      })
+      context.marker.setLabel({
+        offset: new AMap.Pixel(0, 10),
+        content: `<div class='marker-label-info'>${context.data[0].deviceLabel}</div>`,
+        direction: 'center'
       })
     }
 
@@ -366,11 +411,11 @@ export default class VMap {
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
     path.setAttribute('id', markerOptions.deviceId)
     path.style.cssText = cssText
-    path.setAttribute('d', buildPath(markerOptions, this.map!))
+    path.setAttribute('d', buildPath(markerOptions))
     path.setAttribute('transform', `rotate(${Number(markerOptions.deviceAngle) - 90 - Number(markerOptions.viewAngle) / 2}, ${markerOptions.viewRadius}, ${markerOptions.viewRadius})`)
     canvas.appendChild(path)
 
-    function buildPath(markerOptions: markerObject, map: AMap.Map): string {
+    function buildPath(markerOptions: markerObject): string {
       const viewRadius = Number(markerOptions.viewRadius)
       const viewAngle = Number(markerOptions.viewAngle)
       const endPosX = Math.cos((viewAngle / 180) * Math.PI) * viewRadius + viewRadius

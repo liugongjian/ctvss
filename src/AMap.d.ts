@@ -1302,8 +1302,30 @@ declare namespace AMap {
     public getSize(): Size;
   }
 
+  export interface BuildingsOption {
+    zooms?: [number, number]
+    opacity?: number
+    heightFactor?: number
+    visible?: boolean
+    map?: AMap.Map
+    zIndex?: number // 默认8
+    wallColor?: string
+    roofColor?: string
+  }
+
+  export class Buildings {
+    constructor(opt: BuildingsOption)
+    public setMap: any
+    public show: any
+    public hide: any
+    public setStyle: any
+  }
+  export class TileLayer {
+    constructor()
+  }
+
   export interface HawkEyeOption {
-    opened?: boolean // 是否默认展开
+    visible?: boolean // 是否默认展开
     width?: string
     height?: string
   }
@@ -1312,6 +1334,25 @@ declare namespace AMap {
     public show: any
     public hide: any
   }
+
+  export interface ScaleOption {
+    visible?: boolean
+  }
+  export class Scale {
+    constructor(opt: ScaleOption)
+    public show: any
+    public hide: any
+  }
+
+  export interface ControlBarOption {
+    visible?: boolean
+    position?: any
+  }
+
+  export class ControlBar {
+    constructor(opt: ControlBarOption)
+  }
+
   export interface AutoCompleteOption {
     input: string
   }
