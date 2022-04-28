@@ -190,7 +190,10 @@ export const AlertType: any = {
   25: '车辆拥堵检测',
   26: '人群感应检测',
   27: '实时在岗检测',
-  28: '人员徘徊检测'
+  28: '人员徘徊检测',
+  29: '垃圾站检测',
+  30: '视野遮挡检测',
+  31: '跌倒检测'
 }
 
 export const AiMaskType: any = {
@@ -269,4 +272,13 @@ export const scaleKind = [
   { label: '4:3', kind: '4 / 3', num: '4' },
   { label: '原始比例', kind: 'normal', num: '2' },
   { label: '拉伸', kind: 'fit', num: '1' }
+]
+/**
+ * 视频播放比例
+ */
+export const TrashType = [
+  { label: 'cask_yes', cname: '垃圾桶已盖' },
+  { label: 'cask_no', cname: '垃圾桶未盖' },
+  { label: 'cask_overflows', cname: '垃圾桶溢满' },
+  { label: 'trash', cname: '地面垃圾' }
 ]

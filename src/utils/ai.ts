@@ -70,6 +70,45 @@ export const parseMetaData = (type: string, metaData: any) => {
       }
       break
 
+    case '29':// 垃圾站
+    case '10026':// 垃圾站
+      locations = metaData.Data && metaData.Data.Boxes.map((box: any) => {
+        try {
+          let label
+          switch (box.Label) {
+            case 'cask_yes':
+              label = '垃圾桶已盖'
+              break
+            case 'trash':
+              label = '地面垃圾'
+              break
+            case 'cask_no':
+              label = '垃圾桶未盖'
+              break
+            case 'cask_overflows':
+              label = '垃圾桶溢满'
+              break
+          }
+          return {
+            top: box.TopLeftY,
+            left: box.TopLeftX,
+            width: box.BottomRightX - box.TopLeftX,
+            height: box.BottomRightY - box.TopLeftY,
+            isWarning: box.Score.length > 0 && box.Score > 60,
+            label
+          }
+        } catch (error) {
+          console.log(error)
+        }
+      })
+      if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+        locations.push(
+          {
+            zone: metaData.DangerZoneBox
+          }
+        )
+      }
+      break
     case '6': // 研发二部未带口罩
     case '10003': // 研发二部未带口罩
       if (metaData.Data && metaData.Data.FaceRectangles) {
@@ -254,6 +293,8 @@ export const parseMetaData = (type: string, metaData: any) => {
     case '10019': // 车辆统计
     case '10021': // 车辆违停
     case '10022': // 车辆拥堵
+    case '31':// 跌倒
+    case '10028':// 跌倒
       if (metaData.Data && metaData.Data.Boxes) {
         const boxes = metaData.Data.Boxes
         for (let i = 0; i < boxes.length; i++) {
@@ -291,6 +332,8 @@ export const parseMetaData = (type: string, metaData: any) => {
     case '23': // 电动车
     case '10018':// 垃圾检测
     case '10020':// 电动车
+    case '30':// 摄像头遮挡
+    case '10027':// 摄像头遮挡
       if (metaData.Data && metaData.Data.DetectBoxes) {
         const boxes = metaData.Data.DetectBoxes
         for (let i = 0; i < boxes.length; i += 4) {
