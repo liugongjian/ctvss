@@ -577,7 +577,8 @@ export default class extends Mixins(IndexMixin) {
    * 设备树 设备绑定拖拽事件(鼠标事件代替拖拽事件)
   */
   private mousedownHandle(eve: any, data: any) {
-    if (!data.isLeaf) return
+    if (!data.isLeaf || (data.isLeaf && this.mapDeviceIds.indexOf(data.id) >= 0)) return
+
     this.ifDragging = true
     const { target: ele } = eve
 
@@ -596,6 +597,7 @@ export default class extends Mixins(IndexMixin) {
 
     cloneEle.style.position = 'absolute'
     cloneEle.style.zIndex = 10000
+    cloneEle.style.cursor = 'move'
     document.body.append(cloneEle)
     document.body.style.userSelect = 'none'
 
@@ -637,11 +639,14 @@ export default class extends Mixins(IndexMixin) {
       document.body.style.userSelect = 'auto'
 
       this.addMarker(data)
+    } else {
+      this.ifDragging = false
     }
 
     this.dragNodeInfo.ele.remove()
     document.body.style.userSelect = 'auto'
-    this.ifDragging = false
+    this.dragNodeInfo.ele.cursor = 'auto'
+
     document.removeEventListener('mousemove', this.mousemoveHandle)
     document.removeEventListener('mouseup', this.mouseupHandle)
   }
@@ -896,6 +901,7 @@ export default class extends Mixins(IndexMixin) {
     this.markerInfo.latitude = lat
     this.$refs.mapview.addMarker(this.markerInfo)
     this.dragAddNoPositionDialog = false
+    this.ifDragging = false
   }
 
   deviceClick(data) {
