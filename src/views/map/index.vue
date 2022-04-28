@@ -577,7 +577,8 @@ export default class extends Mixins(IndexMixin) {
    * 设备树 设备绑定拖拽事件(鼠标事件代替拖拽事件)
   */
   private mousedownHandle(eve: any, data: any) {
-    if (!data.isLeaf) return
+    if (!data.isLeaf || (data.isLeaf && this.mapDeviceIds.indexOf(data.id) >= 0)) return
+
     this.ifDragging = true
     const { target: ele } = eve
 
