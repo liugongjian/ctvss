@@ -271,7 +271,14 @@ export default class VMap {
       div.style.textAlign = 'center'
       context.marker.setOffset(new AMap.Pixel(-size / 2, -size / 2))
       context.marker.setContent(div)
-      let content = `${context.clusterData[0].deviceLabel}<br>${context.clusterData[1].deviceLabel}`
+      let content = ''
+      const len = context.clusterData.length
+      if (len >= 1) {
+        content += `${context.clusterData[0].deviceLabel}`
+      }
+      if (len >= 2) {
+        content += `<br>${context.clusterData[1].deviceLabel}`
+      }
       if (context.count > 2) {
         content += '<br>......'
       }
