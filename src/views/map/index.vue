@@ -641,6 +641,7 @@ export default class extends Mixins(IndexMixin) {
       this.addMarker(data)
     } else {
       this.ifDragging = false
+      this.dragAddNoPositionDialog = false
     }
 
     this.dragNodeInfo.ele.remove()
