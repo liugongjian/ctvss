@@ -74,7 +74,7 @@ export default class extends Vue {
   .dustbin {
     line-height: 100%;
     word-break: break-all !important;
-    top: 0;
+    top: -1px;
     bottom: auto !important;
   }
 
