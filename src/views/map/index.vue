@@ -596,6 +596,7 @@ export default class extends Mixins(IndexMixin) {
 
     cloneEle.style.position = 'absolute'
     cloneEle.style.zIndex = 10000
+    cloneEle.style.cursor = 'move'
     document.body.append(cloneEle)
     document.body.style.userSelect = 'none'
 
@@ -637,11 +638,14 @@ export default class extends Mixins(IndexMixin) {
       document.body.style.userSelect = 'auto'
 
       this.addMarker(data)
+    } else {
+      this.ifDragging = false
     }
 
     this.dragNodeInfo.ele.remove()
     document.body.style.userSelect = 'auto'
-    this.ifDragging = false
+    this.dragNodeInfo.ele.cursor = 'auto'
+
     document.removeEventListener('mousemove', this.mousemoveHandle)
     document.removeEventListener('mouseup', this.mouseupHandle)
   }
@@ -896,6 +900,7 @@ export default class extends Mixins(IndexMixin) {
     this.markerInfo.latitude = lat
     this.$refs.mapview.addMarker(this.markerInfo)
     this.dragAddNoPositionDialog = false
+    this.ifDragging = false
   }
 
   deviceClick(data) {
