@@ -85,7 +85,7 @@ export const parseMetaData = (type: string, metaData: any) => {
             case 'cask_no':
               label = '垃圾桶未盖'
               break
-            case 'cask_overflow':
+            case 'cask_overflows':
               label = '垃圾桶溢满'
               break
           }
