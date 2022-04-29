@@ -303,7 +303,7 @@ export default class extends Mixins(IndexMixin) {
   }
   private rules = {
     name: [
-      { required: true, message: '请填写地图名称', trigger: 'blur' }
+      { validator: this.validateName, trigger: 'blur' }
     ],
     longitude: [
       // { required: true, message: '请填写地图经度，[-180, 180]', trigger: 'blur' },
@@ -316,6 +316,13 @@ export default class extends Mixins(IndexMixin) {
   }
   private ifMapDisabled = false
 
+  private validateName(rule: any, value: string, callback: Function) {
+    if (!value.trim()) {
+      callback(new Error('地图名称不能为空'))
+    } else {
+      callback()
+    }
+  }
   private validatelng(rule: any, value: string, callback: Function) {
     const val = Number(value)
     if (!this.checklng(val)) {
@@ -1222,7 +1229,7 @@ export default class extends Mixins(IndexMixin) {
   top: 40px;
   right: 0;
   background: rgba(255, 255, 255, 80%);
-  width: 150px;
+  width: 180px;
   height: 100%;
   padding: 10px;
   overflow: scroll;

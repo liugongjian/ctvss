@@ -163,11 +163,15 @@ export default class VMap {
           inProtocol
         })
         marker.deviceStatus = deviceInfo.deviceStatus
+        marker.streamStatus = deviceInfo.streamStatus
+        marker.recordStatus = deviceInfo.recordStatus
       }
       this.curMarkerList.forEach((item) => {
         if (item.deviceId === marker.deviceId) {
           item.selected = true
           item.deviceStatus = marker.deviceStatus
+          item.streamStatus = marker.streamStatus
+          item.recordStatus = marker.recordStatus
         }
       })
       this.setCluster(this.wrapMarkers(this.curMarkerList))
