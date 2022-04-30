@@ -133,7 +133,7 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
   }
 
   public get isPlatformDir() {
-    return this.$route.query.type === 'isPlatformDir'
+    return this.$route.query.type === 'platformDir'
   }
 
   public get isIPC() {
