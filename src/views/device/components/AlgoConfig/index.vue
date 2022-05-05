@@ -138,12 +138,16 @@ export default class extends Vue {
           if (DangerZoneParse.length) {
             this.cannotDraw = true
             const shape = () => {
-              if (DangerZoneParse.length === 2) {
+              if (this.configAlgoInfo.algorithm.code === '10032') {
                 return 'line'
-              } else if (DangerZoneParse.length === 4) {
-                return 'rect'
-              } else if (DangerZoneParse.length > 4) {
-                return 'polygon'
+              } else {
+                if (DangerZoneParse.length === 2) {
+                  return 'line'
+                } else if (DangerZoneParse.length === 4) {
+                  return 'rect'
+                } else if (DangerZoneParse.length > 4) {
+                  return 'polygon'
+                }
               }
             }
             const perDangerZoneParse = DangerZoneParse.map((item: any) => {
@@ -368,21 +372,19 @@ export default class extends Vue {
             // 绘制方向
             this.canvas.stroke()
             this.canvas.closePath()
-            break
-          }
-          case DRAW_MODES.DIRECTION: {
-            const curRatio = area.origin ? this.ratio : 1
-            const toRatio = x => math.divide(x, curRatio)
-            const startPoint = [toRatio(points[0][0]), toRatio(points[0][1])]
-            const endPoint = [toRatio(points[1][0]), toRatio(points[1][1])]
-            this.canvas.beginPath()
-            this.canvas.setLineDash([3, 1])
-            if (this.direction) {
-              drawArrow(this.canvas, endPoint[0], endPoint[1], startPoint[0], startPoint[1], 30, 10)
-            } else {
-              drawArrow(this.canvas, startPoint[0], startPoint[1], endPoint[0], endPoint[1], 30, 10)
+            if (this.configAlgoInfo.algorithm.code === '10032') {
+              const [, , x, y] = points
+              const startP = [toRatio(x[0]), toRatio(x[1])]
+              const endP = [toRatio(y[0]), toRatio(y[1])]
+              this.canvas.beginPath()
+              this.canvas.setLineDash([3, 1])
+              if (this.direction) {
+                drawArrow(this.canvas, endP[0], endP[1], startP[0], endP[1], 30, 10)
+              } else {
+                drawArrow(this.canvas, startP[0], startP[1], endP[0], endP[1], 30, 10)
+              }
+              this.canvas.closePath()
             }
-            this.canvas.closePath()
             break
           }
           default: break

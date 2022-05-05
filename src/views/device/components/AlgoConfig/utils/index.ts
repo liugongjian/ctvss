@@ -42,7 +42,7 @@ export const getVerticalLinePoints = (start: Array<number>, end: Array<number>, 
   }
   // 中垂线斜率
   const verticalK = -1 * math.divide!(start[0] - end[0], start[1] - end[1])
-  console.log('verticalK', verticalK)
+  // console.log('verticalK', verticalK)
   // 统一长度为100
   const verticalLen = math.divide!(length, 2)
   const offsetX = getOffsetX(verticalLen, verticalK) // 中垂线起止点距离中点的偏移量
@@ -97,11 +97,9 @@ export const drawArrow = (ctx, fromX, fromY, toX, toY, theta, headlen) => {
   ctx.beginPath()
   ctx.setLineDash([])
   ctx.moveTo(arrowX, arrowY)
-  console.log('toX, toY', toX, toY)
   ctx.lineTo(toX, toY)
   arrowX = toX + botX
   arrowY = toY + botY
-  console.log('arrowX, arrowY', arrowX, arrowY)
   ctx.lineTo(arrowX, arrowY)
 
   ctx.stroke()
