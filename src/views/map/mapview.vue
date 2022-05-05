@@ -392,6 +392,7 @@ export default class MapView extends Vue {
     right: 5px;
     z-index: 2001;
     color: #fff;
+    cursor: pointer;
   }
   ::v-deep .preview-player {
     height: auto;
