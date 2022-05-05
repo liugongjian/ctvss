@@ -91,13 +91,13 @@
           </el-select>
         </el-form-item>
         <el-form-item label="消息类型：" prop="source">
-          <el-radio-group v-model="form.source" disabled>
+          <el-radio-group v-model="form.source">
             <el-radio label="1">设备消息</el-radio>
-            <el-radio label="2">资源包消息</el-radio>
+            <!-- <el-radio label="2">资源包消息</el-radio> -->
             <el-radio label="3">AI消息</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item v-if="form.source === '3'" label="子类型：" prop="sourceRules">
+        <el-form-item v-if="form.source !== '2'" label="子类型：" prop="sourceRules">
           <el-select v-model="form.sourceRules" multiple>
             <el-option
               v-for="(item, index) in sourceRulesOptions"
@@ -183,10 +183,10 @@ export default class extends Vue {
     notifyChannel: '2',
     effectiveTime: [],
     notifyFreq: '30',
-    source: '3',
+    source: '1',
     sourceRules: [],
     // eslint-disable-next-line no-template-curly-in-string
-    notifyTemplate: '尊敬的客户，您好！我是天翼云视频监控的小瞰，根据推送策略【${policyName}】，最新检测到AI告警${count}条，请登录平台查看',
+    notifyTemplate: '',
     notifyResources: [],
     notifyDestinations: [],
     active: 1,
@@ -207,14 +207,19 @@ export default class extends Vue {
     { value: '1440', label: '24小时' }
   ]
 
-  private sourceRulesOptions = [
-    { value: '1', label: '人脸识别' },
-    { value: '2', label: '行人检测' },
-    { value: '3', label: '口罩检测' }
+  private aiSourceRulesOptions = []
+  private deviceSourceRulesOptions = [
+    { value: '1', label: '设备状态通知' },
+    { value: '2', label: '流状态通知' },
+    { value: '3', label: '录制状态通知' }
   ]
 
-  private resourceList = ['312697971628146688']
-  private destinationList = ['342275160830951424']
+  private notifyTemplate = {
+    // eslint-disable-next-line no-template-curly-in-string
+    ai: '【天翼云】尊敬的${userName}：根据推送策略【${policyName}】，最近${notify_freq}小时内，视频监控小瞰最新检测到需推送 AI告警${count}条，请及时处理。详情请登录平台查看。感谢您对天翼云视频监控的支持！',
+    // eslint-disable-next-line no-template-curly-in-string
+    device: '【天翼云】尊敬的${userName}：根据推送策略【${policyName}】，最近${notify_freq}小时内，视频监控小瞰最新检测到需推送 ${子类型} ${count}条，请及时处理。详情请登录平台查看。感谢您对天翼云视频监控的支持！'
+  }
 
   private rules = {
     name: [
@@ -271,6 +276,21 @@ export default class extends Vue {
       callback(new Error('起止时间不能相同！'))
     } else {
       callback()
+    }
+  }
+
+  private get sourceRulesOptions() {
+    switch (this.form.source) {
+      case '1':
+        this.form.sourceRules = []
+        this.form.notifyTemplate = this.notifyTemplate.device
+        return this.deviceSourceRulesOptions
+      case '3':
+        this.form.sourceRules = []
+        this.form.notifyTemplate = this.notifyTemplate.ai
+        return this.aiSourceRulesOptions
+      default:
+        return []
     }
   }
 
@@ -341,7 +361,7 @@ export default class extends Vue {
   private async getAlgorithmList() {
     try {
       const { aiAbilityAlgorithms } = await getAlgorithmList({ name: this.searchApp, abilityId: this.activeName })
-      this.sourceRulesOptions = aiAbilityAlgorithms.map(item => {
+      this.aiSourceRulesOptions = aiAbilityAlgorithms.map(item => {
         return {
           value: item.id,
           label: item.name

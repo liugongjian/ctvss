@@ -56,7 +56,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="消息类型" prop="source">
-            <el-select v-model="searchForm.source" disabled>
+            <el-select v-model="searchForm.source">
               <el-option
                 v-for="(item, index) in sourceOptions"
                 :key="index"
@@ -143,8 +143,9 @@ export default class extends Vue {
     { value: '2', label: '短信推送' }
   ]
   private sourceOptions = [
+    { value: '', label: '所有类型' },
     { value: '1', label: '设备消息' },
-    { value: '2', label: '资源包消息' },
+    // { value: '2', label: '资源包消息' },
     { value: '3', label: 'AI消息' }
   ]
   private sourceMap = {
@@ -158,7 +159,7 @@ export default class extends Vue {
     description: '',
     userGroup: '',
     notifyChannel: '',
-    source: '3',
+    source: '',
     notifyContent: '',
     startTime: 0,
     endTime: 0,
@@ -200,7 +201,7 @@ export default class extends Vue {
         params.description = ''
         params.userGroup = ''
         params.notifyChannel = ''
-        // params.source = '3',
+        params.source = ''
         params.notifyContent = ''
       }
       params.pageNum = this.pager.pageNum
