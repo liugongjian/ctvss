@@ -757,6 +757,7 @@ export default class extends Mixins(IndexMixin) {
     this.isEdit = !this.isEdit
     this.addPositionDialogCheck = false
     this.addNoPositionDialogCheck = false
+    this.dragAddNoPositionDialogCheck = false
   }
 
   cancelAddMark() {
@@ -791,18 +792,10 @@ export default class extends Mixins(IndexMixin) {
     this.marker = marker
     await this.getDeviceInfo()
     if (Number(this.deviceInfo.deviceLongitude) && Number(this.deviceInfo.deviceLatitude)) {
-      if (this.ifDragging) {
-        if (!this.dragAddNoPositionDialogCheck) {
-          this.dragAddNoPositionDialog = true
-        } else {
-          this.confirmDragAddZeroMarker()
-        }
+      if (!this.addPositionDialogCheck) {
+        this.addPositionDialog = true
       } else {
-        if (!this.addPositionDialogCheck) {
-          this.addPositionDialog = true
-        } else {
-          this.confirmAddMarker(this.uselnglat)
-        }
+        this.confirmAddMarker(this.uselnglat)
       }
     } else {
       if (this.ifDragging) {
