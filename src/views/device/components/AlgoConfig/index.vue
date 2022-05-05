@@ -22,10 +22,10 @@
         <div class="configureDetail">
           <span class="configureName">检测区域：</span>
           <span class="configureValue">
-            <!-- v-if="configAlgoInfo.algorithm.code === '10032'"  -->
-            <el-button :disabled="cannotDraw" @click="chooseMode('line')">画直线</el-button>
-            <el-button :disabled="cannotDraw" @click="chooseMode('rect')">画矩形</el-button>
-            <el-button :disabled="cannotDraw" @click="chooseMode('polygon')">画多边形</el-button>
+            <!--   -->
+            <el-button v-if="configAlgoInfo.algorithm.code === '10032'" :disabled="cannotDraw" @click="chooseMode('line')">画直线</el-button>
+            <el-button v-if="configAlgoInfo.algorithm.code !== '10032'" :disabled="cannotDraw" @click="chooseMode('rect')">画矩形</el-button>
+            <el-button v-if="configAlgoInfo.algorithm.code !== '10032'" :disabled="cannotDraw" @click="chooseMode('polygon')">画多边形</el-button>
             <el-button @click="clear">清除</el-button>
           </span>
         </div>
@@ -258,13 +258,21 @@ export default class extends Vue {
       if (this.mode === 'rect') {
         const { points: [x, y] } = this.areas[0]
         pointsInfo = this.getRectPoints(x, y)
+      } else if (this.configAlgoInfo.algorithm.code === '10032') {
+        const directorP = this.areas.find((item: any) => { return item.shape === 'director' })
+        const { points: [x, y] } = directorP
+        if (this.direction) {
+          pointsInfo = this.getLinePoints(y, x)
+        } else {
+          pointsInfo = this.getLinePoints(x, y)
+        }
       } else {
         pointsInfo = this.areas[0].points
       }
     } else {
       pointsInfo = []
     }
-
+    console.log('pointsInfo==>', pointsInfo)
     const perPoints = pointsInfo.map((item: any) => {
       const [x, y] = item
       return [Math.floor(x * this.ratio / this.imageWidth * 100), Math.floor(y * this.ratio / this.imageHeight * 100)]
@@ -311,6 +319,12 @@ export default class extends Vue {
     const point2 = [endP[0], startP[1]]
     const point4 = [startP[0], endP[1]]
     return [startP, point2, endP, point4]
+  }
+
+  private getLinePoints(startP: Array<number>, endP: Array<number>) {
+    const lineP = this.areas.find((item: any) => { return item.shape === 'line' })
+    const { points: [x, y] } = lineP
+    return [x, y, startP, endP]
   }
 
   private renderBeforeAreas() {
