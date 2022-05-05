@@ -184,7 +184,7 @@
         </el-table-column>
       </el-table>
       <el-pagination
-        v-if="deviceList.length && (isRealGroup || isDir || isPlatform)"
+        v-if="deviceList.length && (isRealGroup || isDir || isPlatform || isPlatformDir)"
         :current-page="pager.pageNum"
         :page-size="pager.pageSize"
         :total="pager.total"
