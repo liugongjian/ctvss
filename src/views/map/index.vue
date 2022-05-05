@@ -757,6 +757,7 @@ export default class extends Mixins(IndexMixin) {
     this.isEdit = !this.isEdit
     this.addPositionDialogCheck = false
     this.addNoPositionDialogCheck = false
+    this.dragAddNoPositionDialogCheck = false
   }
 
   cancelAddMark() {
