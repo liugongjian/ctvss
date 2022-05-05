@@ -791,10 +791,18 @@ export default class extends Mixins(IndexMixin) {
     this.marker = marker
     await this.getDeviceInfo()
     if (Number(this.deviceInfo.deviceLongitude) && Number(this.deviceInfo.deviceLatitude)) {
-      if (!this.addPositionDialogCheck) {
-        this.addPositionDialog = true
+      if (this.ifDragging) {
+        if (!this.dragAddNoPositionDialogCheck) {
+          this.dragAddNoPositionDialog = true
+        } else {
+          this.confirmDragAddZeroMarker()
+        }
       } else {
-        this.confirmAddMarker(this.uselnglat)
+        if (!this.addPositionDialogCheck) {
+          this.addPositionDialog = true
+        } else {
+          this.confirmAddMarker(this.uselnglat)
+        }
       }
     } else {
       if (this.ifDragging) {
