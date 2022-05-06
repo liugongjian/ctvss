@@ -225,7 +225,29 @@ export default class extends Vue {
               pageSize: 999999
             })
             res.records.map((record: any, index: number) => {
+              const currentStart = getTimestamp(record.startTime)
               const currentEnd = getTimestamp(record.endTime)
+              // 判断第一段视频是否从00:00开始
+              if (index === 0) {
+                if (((currentStart - startTime) / 1000) > this.ignoreTime) {
+                  list.push({
+                    time: (currentStart - startTime) / 1000,
+                    start: dateFormat(new Date(startTime)),
+                    end: dateFormat(new Date(currentStart))
+                  })
+                }
+              }
+              // 判断最后一段视频是否为24:00结束
+              if (index === res.records.length - 1 && res.records.length > 1) {
+                const endTime = startTime + 24 * 60 * 60 * 1000
+                if (((endTime - currentEnd) / 1000) > this.ignoreTime) {
+                  list.push({
+                    time: (endTime - currentEnd) / 1000,
+                    start: dateFormat(new Date(currentEnd)),
+                    end: dateFormat(new Date(endTime))
+                  })
+                }
+              }
               if (index + 1 < res.records.length) {
                 const nextStart = getTimestamp(res.records[index + 1]['startTime'])
                 if (((nextStart - currentEnd) / 1000) > this.ignoreTime) {
