@@ -1320,11 +1320,16 @@ export default class extends Mixins(IndexMixin) {
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
+    transition: margin-left 0.3s;
 
     .tools-item {
       margin-right: 20px;
     }
   }
+}
+
+.device-list--collapsed .tools .left {
+  margin-left: 50px;
 }
 
 .device-list__left .dir-list__tree .custom-tree-node {

@@ -162,9 +162,14 @@ export default class VMap {
           deviceId,
           inProtocol
         })
+        let deviceLabel = deviceInfo.deviceName
+        if (deviceInfo.deviceChannels.length > 0) {
+          deviceLabel = deviceInfo.deviceChannels[0].channelName
+        }
         marker.deviceStatus = deviceInfo.deviceStatus
         marker.streamStatus = deviceInfo.streamStatus
         marker.recordStatus = deviceInfo.recordStatus
+        marker.deviceLabel = deviceLabel
       }
       this.curMarkerList.forEach((item) => {
         if (item.deviceId === marker.deviceId) {
@@ -172,6 +177,7 @@ export default class VMap {
           item.deviceStatus = marker.deviceStatus
           item.streamStatus = marker.streamStatus
           item.recordStatus = marker.recordStatus
+          item.deviceLabel = marker.deviceLabel
         }
       })
       this.setCluster(this.wrapMarkers(this.curMarkerList))
