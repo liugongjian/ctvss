@@ -47,7 +47,7 @@
     </template>
     <template slot="controlRight">
       <RecordDownload v-if="hasAdminRecord" :screen="screen" />
-      <Fullscreen :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
+      <Fullscreen :is-fullscreen="isFullscreen" :container="fullscreenContainer" @change="onFullscreenChange" />
     </template>
   </VssPlayer>
 </template>
@@ -90,6 +90,9 @@ export default class extends Vue {
 
   @Prop()
   private isDebug: Boolean
+
+  @Prop()
+  private fullscreenContainer: HTMLDivElement
 
   private url: string = null
   private type: string = null
