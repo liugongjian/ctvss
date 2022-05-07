@@ -250,7 +250,6 @@ export default class extends Vue {
                 }
               }
               // 判断最后一段视频是否为24:00结束
-              console.log(j, spanDay)
               if ((index === res.records.length - 1 && res.records.length > 1) && !(this.ignoreLast && j === spanDay)) {
                 if (((endTime - currentEnd) / 1000) > this.ignoreTime) {
                   list.push({
