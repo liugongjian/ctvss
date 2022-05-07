@@ -15,9 +15,13 @@
           <el-card v-if="curMap" class="map__user">
             <div v-for="map in mapList" :key="map.mapId">
               <div class="choose-map" :class="map.mapId === curMap.mapId ? 'active' : ''" @click="chooseMap(map)">
-                <span class="map-text">{{ map.name }}</span>
-                <span class="edit-icon"><svg-icon name="edit" @click.stop="openMapEditDialog(map)" /></span>
-                <span class="delete-icon"><svg-icon name="delete" @click.stop="deleteMap(map)" /></span>
+                <el-tooltip :content="map.name" placement="top">
+                  <span class="map-text">{{ map.name }}</span>
+                </el-tooltip>
+                <div>
+                  <span class="edit-icon"><svg-icon name="edit" @click.stop="openMapEditDialog(map)" /></span>
+                  <span class="delete-icon"><svg-icon name="delete" @click.stop="deleteMap(map)" /></span>
+                </div>
               </div>
             </div>
           </el-card>
@@ -317,8 +321,11 @@ export default class extends Mixins(IndexMixin) {
   private ifMapDisabled = false
 
   private validateName(rule: any, value: string, callback: Function) {
-    if (!value.trim()) {
+    const val = value.trim();
+    if (!val.trim()) {
       callback(new Error('地图名称不能为空'))
+    } else if (val.length > 64) {
+      callback(new Error('地图名称过长，请输入64字以内名称'))
     } else {
       callback()
     }
@@ -1386,7 +1393,7 @@ export default class extends Mixins(IndexMixin) {
   height: 33px;
   display: flex;
   flex-direction: row;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
   margin: 0 auto;
   padding: 0 10px;
@@ -1396,6 +1403,10 @@ export default class extends Mixins(IndexMixin) {
   .map-text {
     flex: 1;
     text-align: left;
+    overflow: hidden;
+    max-width: 140px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   &.active {
