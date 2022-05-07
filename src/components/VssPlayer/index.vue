@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="loading" class="vss-player__wrap">
+  <div ref="vssPlayerWrap" v-loading="loading" class="vss-player__wrap vss-player__wrap--medium">
     <Player
       ref="player"
       v-adaptive-tools
@@ -35,17 +35,17 @@
       </template>
       <template slot="controlBody">
         <H265Icon :codec="codec" />
-        <More :has-axis="hasAxis" />
+        <More :has-axis="hasAxis" :player-wrap="$refs.vssPlayerWrap" />
         <slot name="controlBody" />
       </template>
       <template slot="controlRight">
-        <StreamSelector :stream-info="streamInfo" @dispatch="dispatch" />
+        <StreamSelector :stream-info="player && streamInfo" @dispatch="dispatch" />
         <TypeSelector v-if="hasTypeSelector && codec !== 'h265' " :type="type" @dispatch="dispatch" />
-        <Intercom v-if="isLive && deviceInfo.inProtocol === 'gb28181'" :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="playerType" :codec="codec" />
-        <DigitalZoom ref="digitalZoom" @dispatch="dispatch" />
-        <PtzZoom v-if="isLive" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
-        <Snapshot :name="deviceInfo.deviceName" />
-        <Scale :url="videoUrl" :default-scale="scale" />
+        <Intercom v-if="player && isLive && deviceInfo.inProtocol === 'gb28181'" :stream-info="streamInfo" :device-info="deviceInfo" :url="videoUrl" :type="playerType" :codec="codec" />
+        <DigitalZoom v-if="player" ref="digitalZoom" @dispatch="dispatch" />
+        <PtzZoom v-if="player && isLive" ref="ptzZoom" :stream-info="streamInfo" :device-info="deviceInfo" @dispatch="dispatch" />
+        <Snapshot v-if="player" :name="deviceInfo.deviceName" />
+        <Scale v-if="player" :url="videoUrl" :default-scale="scale" />
         <LiveReplaySelector v-if="hasLiveReplaySelector" :is-live="isLive" @dispatch="dispatch" />
         <slot name="controlRight" />
       </template>
@@ -221,6 +221,11 @@ export default class extends Vue {
   /* 视频是否加载中 */
   private get loading() {
     return (this.player && this.player.isLoading) || this.isLoading
+  }
+
+  /* 播放器容器 */
+  private get vssPlayerWrap() {
+    return this.$refs.vssPlayerWrap
   }
 
   /* 获取播放器实例Provide */

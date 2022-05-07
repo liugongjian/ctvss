@@ -1,7 +1,7 @@
 <template>
   <div class="datepicker">
     <DatePanel
-      v-if="inline && showPanel"
+      v-if="inline"
       v-model="date"
       class="datepicker-inline"
       :picker-options="pickerOptions"
@@ -49,8 +49,6 @@ export default class extends Vue {
 
   private date: number = null
 
-  private showPanel = true
-
   private get recordManager() {
     return this.screen && this.screen.recordManager
   }
@@ -66,17 +64,16 @@ export default class extends Vue {
   @Watch('currentDate', {
     immediate: true
   })
-  private onCurrentDateChange() {
+  private onCurrentDateChange(newVal: any, oldVal: any) {
+    if (!this.recordManager) return
+    const newMonth = new Date(new Date(newVal)).getMonth()
+    const newYear = new Date(new Date(newVal)).getUTCFullYear()
+    const oldMonth = new Date(new Date(oldVal)).getMonth()
+    const oldYear = new Date(new Date(oldVal)).getUTCFullYear()
+    if (newMonth !== oldMonth || newYear !== oldYear) {
+      this.recordManager.getRecordStatistic()
+    }
     this.date = this.currentDate || new Date().getTime()
-  }
-
-  @Watch('screen.deviceId')
-  // @Watch('recordStatistic')
-  private onDeviceChange() {
-    this.showPanel = false
-    this.$nextTick(() => {
-      this.showPanel = true
-    })
   }
 
   private pickerOptions = {

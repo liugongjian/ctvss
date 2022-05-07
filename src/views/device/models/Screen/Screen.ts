@@ -15,7 +15,6 @@ export class Screen {
   public isFullscreen?: boolean
   public axiosSource: any
   public errorMsg?: string
-  public isCache?: boolean
   public lastIsMuted?: boolean
   public log?: {
     previewRequestId: string,
@@ -63,7 +62,7 @@ export class Screen {
   public recordManager: RecordManager
   /* 录像类型 0-云端，1-本地 */
   public recordType: 0 | 1
-  /* 当前时间（时间戳/秒），用于缓存恢复 */
+  /* 当前时间（时间戳/秒），用于缓存恢复和同步向相邻录像时间 */
   public currentRecordDatetime: number
 
   /**
@@ -99,7 +98,6 @@ export class Screen {
     this.isFullscreen = false
     this.axiosSource = null
     this.errorMsg = ''
-    this.isCache = false
     this.streams = []
     this.streamSize = null
     this.streamNum = null

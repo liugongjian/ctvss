@@ -15,7 +15,8 @@ import ComponentMixin from './mixin'
 @Component({
   name: 'ViewSelector'
 })
-export default class extends ComponentMixin {}
+export default class extends ComponentMixin {
+}
 </script>
 <style lang="scss" scoped>
 .screen-tools__btn {

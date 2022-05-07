@@ -87,10 +87,10 @@ export class RecordManager {
       this.screen.isLoading = true
       if (this.screen.deviceId) {
         const date = new Date(this.screen.currentRecordDatetime * 1000)
-        const startTime = Math.floor(new Date(date.getFullYear(), date.getMonth() - 1).getTime() / 1000)
+        const startTime = Math.floor(new Date(date.getFullYear(), date.getMonth() - 4).getTime() / 1000)
         const endTime = Math.floor(new Date(date.getFullYear(), date.getMonth() + 1).getTime() / 1000)
-        this.getRecordStatistic(startTime, endTime)
         await this.seek(this.screen.currentRecordDatetime)
+        this.getRecordStatistic(startTime, endTime)
         this.getLatestRecord()
       }
     } finally {
@@ -110,6 +110,7 @@ export class RecordManager {
         this.screen.errorMsg = null
         this.screen.isLoading = true
         this.currentDate = date
+        this.screen.currentRecordDatetime = date
         this.recordList = []
         this.heatmapList = []
         this.screen.player && this.screen.player.pause()
@@ -204,7 +205,7 @@ export class RecordManager {
     } else {
       // 判断该日期是否存在SET中
       if (!this.loadedRecordDates.has(date)) {
-        await this.getRecordListByDate(date, true)
+        await this.getRecordListByDate(date, false)
       }
       const record = this.getRecordByTime(time)
       if (record) {

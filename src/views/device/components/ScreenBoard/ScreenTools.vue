@@ -12,8 +12,8 @@
       <div class="screen-tools__bar__right">
         <Cleaner v-if="showScreenTool && isScreenView" :disabled="isPolling" />
         <SizeSelector v-if="showScreenTool && isScreenView" :disabled="isPolling" />
-        <Fullscreen v-if="isScreenView" :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
-        <ViewSelector v-if="!isLive && !isFullscreen" />
+        <Fullscreen v-if="isScreenView" :is-fullscreen="isFullscreen" :container="fullscreenContainer" @change="onFullscreenChange" />
+        <ViewSelector v-if="!isLive && !isFullscreen && currentScreen.recordType !== 1" :screen="currentScreen" />
       </div>
     </div>
     <ReplayAxis v-if="showAxis" :screen="currentScreen" :disabled="!enableAxis" @change="onAxisTimeChange" />
@@ -50,6 +50,9 @@ import ViewSelector from './components/ViewSelector.vue'
 export default class extends Vue {
   @Inject('getScreenManager')
   private getScreenManager: Function
+
+  /* 全屏容器DOM对象 */
+  private fullscreenContainer: HTMLDivElement = null
 
   private get screenManager(): ScreenManager {
     return this.getScreenManager()
@@ -107,6 +110,10 @@ export default class extends Vue {
    */
   private get isPolling() {
     return this.screenManager.executeQueueConfig.status !== 'free'
+  }
+
+  private mounted() {
+    this.fullscreenContainer = document.querySelector('.screen-container')
   }
 
   /**

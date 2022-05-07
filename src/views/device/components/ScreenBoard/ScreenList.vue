@@ -43,7 +43,7 @@
           <el-table-column label="录像截图" min-width="200">
             <template slot-scope="{row}">
               <el-image
-                style="width: 150px; height: 100px"
+                style="width: 150px; height: 100px;"
                 :src="row.cover"
                 :preview-src-list="[row.cover]"
               />

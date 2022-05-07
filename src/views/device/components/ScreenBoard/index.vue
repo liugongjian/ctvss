@@ -2,7 +2,7 @@
   <div
     v-if="screenManager"
     class="screen-container"
-    :class="{'screen-container--fullscreen': isFullscreen, 'screen-container--live': isLive, 'screen-container--replay': !isLive}"
+    :class="{'screen-container--live': isLive, 'screen-container--replay': !isLive}"
   >
     <div v-if="screenManager.view === 'screen'" class="screen-grid-wrap">
       <div class="screen-grid" :class="`screen-size--${layout}`">
@@ -10,6 +10,7 @@
           v-for="(screen, index) in screenList"
           :key="index"
           :screen="screen"
+          :item-index="index"
           :has-live-replay-selector="true"
           :has-close="!isSingle"
           :is-single="isSingle"
