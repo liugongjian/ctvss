@@ -642,3 +642,14 @@ script + .el-tooltip__popper {
   max-width: 300px;
   word-break: break-all;
 }
+
+/* 创建设备更多选项隐藏展开 */
+.form-collapse {
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.form-expand {
+  max-height: 1000px;
+}

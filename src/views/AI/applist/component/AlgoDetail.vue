@@ -164,6 +164,17 @@
           class="mb5"
         />
       </el-form-item>
+      <!-- 摄像头遮挡 -->
+      <el-form-item v-if="ifShow('10027')" label="视野遮挡阈值" prop="algorithmMetadata.areaThreshold">
+        <el-input v-model="form.algorithmMetadata.areaThreshold" />
+        <span class="comment">%</span>
+      </el-form-item>
+      <!-- 垃圾投放站检测 -->
+      <el-form-item v-if="ifShow('10026')" label="细分检测项" prop="algorithmMetadata.trashRecycleType">
+        <el-checkbox-group v-model="form.algorithmMetadata.trashRecycleType">
+          <el-checkbox v-for="type in TrashType" :key="type.label" :label="type.label">{{ type.cname }}</el-checkbox>
+        </el-checkbox-group>
+      </el-form-item>
       <!---->
       <el-form-item label="置信度" prop="confidence">
         <el-slider
@@ -204,9 +215,9 @@
 import { Component, Mixins, Prop } from 'vue-property-decorator'
 import { getAIConfigGroupData } from '@/api/aiConfig'
 import { getAppInfo, updateAppInfo, createApp } from '@/api/ai-app'
-import { ResourceAiType } from '@/dics'
+import { ResourceAiType, TrashType } from '@/dics'
 import AppMixin from '../../mixin/app-mixin'
-import { getRule } from '../util/form-helper'
+import { formRule, formTips } from '../util/form-helper'
 
 @Component({
   name: 'AlgoDetail',
@@ -218,35 +229,16 @@ export default class extends Mixins(AppMixin) {
   private breadCrumbContent: String = ''
   private ResourceAiType: any = ResourceAiType
   private form: any = {
-    algorithmMetadata: {}
+    algorithmMetadata: {
+      trashRecycleType: []
+    }
   }
   private faceLibs = []
   private isfaceLibLoading = false
-  public rules: any = {
-    name: getRule('应用名称'),
-    analyseType: getRule('分析类型'),
-    effectPeriod: getRule('生效时段'),
-    'algorithmMetadata.FaceDbName': getRule('人脸库'),
-    'algorithmMetadata.pedThreshold': getRule('人员数量阈值'),
-    confidence: getRule('置信度'),
-    callbackKey: getRule('回调key'),
-    'algorithmMetadata.crowdThreShold': getRule('人员数量阈值'),
-    'algorithmMetadata.offDutyThreShold': getRule('脱岗超时时间'),
-    'algorithmMetadata.sleepOnDutyThreShold': getRule('睡岗超时时间'),
-    'algorithmMetadata.pvTime': getRule('临停时间'),
-    'algorithmMetadata.jamThreshold': getRule('拥堵车辆阈值'),
-    'algorithmMetadata.timeSlide': getRule('时间窗口'),
-    'algorithmMetadata.vehiclesThreshold': getRule('车辆数量阈值'),
-    'algorithmMetadata.lingerInterval': getRule('徘徊时间'),
-    period: getRule('起始时间')
-  }
+  public rules: any = formRule
   private effectiveTime: any = []
-  private tips: any = {
-    offDutyThreShold: '不能超过600分钟',
-    sleepOnDutyThreShold: '不能超过600分钟',
-    pvTime: '超过临停时间阈值车辆未行驶离开拍摄区域即被定义违停，默认时间为10分钟，只可以输入整数',
-    jamThreshold: '通过拍摄区域的车辆低于“拥堵车辆阈值”即视为拥堵'
-  }
+  private tips: any = formTips
+  private TrashType = TrashType
 
   get analyseAiType() {
     let res = Object.assign({}, ResourceAiType)
@@ -280,7 +272,7 @@ export default class extends Mixins(AppMixin) {
       // 处理置信度
       this.form = { ...this.form, confidence: parseInt(this.form.confidence * 100 + '') }
     } else { // 新建
-      const algorithmMetadata = this.ifShow('10021') ? { pvTime: '10' } : {}
+      const algorithmMetadata = this.ifShow('10021') ? { pvTime: '10' } : this.form.algorithmMetadata
       this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [], validateType: '无验证', confidence: 60 }
     }
     try {

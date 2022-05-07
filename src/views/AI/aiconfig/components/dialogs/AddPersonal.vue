@@ -153,6 +153,7 @@ export default class extends Vue {
     width: 178px;
     height: 178px;
   }
+
   .avatar-uploader-icon {
     font-size: 28px;
     color: #8c939d;
@@ -161,13 +162,16 @@ export default class extends Vue {
     line-height: 178px;
     text-align: center;
   }
+
   .avatar {
     max-width: 178px;
     max-height: 178px;
     display: block;
   }
+
   .form-tip-avatar {
     position: relative;
+
     p {
       margin: 2px 0;
       line-height: 120%;

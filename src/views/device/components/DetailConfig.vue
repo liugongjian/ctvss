@@ -560,7 +560,12 @@ export default class extends Vue {
      * 车牌检测: code 10014
      * 棉花检测: code 10015
      * 电瓶车进电梯 code 10020
+<<<<<<< HEAD
      * 人车流量统计 code 10032 需要单独增加crossline 画线
+=======
+     * 垃圾站  code  10026
+     * 人员跌倒  code 10028
+>>>>>>> origin/feature-Sprint4-network
      */
     switch (rowCode) {
       case '10006':
@@ -574,6 +579,8 @@ export default class extends Vue {
       case '10021':
       case '10019':
       case '10032':
+      case '10026':
+      case '10028':
         return true
       default:
         return false
@@ -586,15 +593,18 @@ export default class extends Vue {
     ::v-deep .el-descriptions-item__label {
       min-width: 100px;
     }
+
     ::v-deep .el-table {
       border: 1px solid $borderGrey;
     }
+
     ::v-deep .detail__table-row {
       padding-right: 15px;
       flex: 1;
     }
   }
-  .disableBtnBox{
+
+  .disableBtnBox {
     display: inline-block;
     padding: 0 10px;
   }
