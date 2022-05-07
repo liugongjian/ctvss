@@ -23,6 +23,10 @@
         />
       </div>
       <div class="form-item">
+        <label>忽略末尾时段 <el-tooltip content="如果结束日期超过最后一段录像时间，结束日期与最后一段录像的差值不会判断为丢失时间"><svg-icon name="help" /></el-tooltip>:</label>
+        <el-checkbox v-model="ignoreLast" />
+      </div>
+      <div class="form-item">
         <label>忽略时长 <el-tooltip content="忽略指定秒内的缺失录像"><svg-icon name="help" /></el-tooltip>:</label>
         <el-input v-model.number="ignoreTime" style="width: 310px;" />
       </div>
@@ -116,6 +120,7 @@ export default class extends Vue {
   private currentDate = null
   private deviceId = ''
   private ignoreTime = 0
+  private ignoreLast = true
   private list = []
   private loading = false
   private log = {
@@ -245,7 +250,8 @@ export default class extends Vue {
                 }
               }
               // 判断最后一段视频是否为24:00结束
-              if (index === res.records.length - 1 && res.records.length > 1) {
+              console.log(j, spanDay)
+              if ((index === res.records.length - 1 && res.records.length > 1) && !(this.ignoreLast && j === spanDay)) {
                 if (((endTime - currentEnd) / 1000) > this.ignoreTime) {
                   list.push({
                     time: (endTime - currentEnd) / 1000,
@@ -333,7 +339,7 @@ export default class extends Vue {
   background: #fff;
 
   label {
-    width: 100px;
+    width: 120px;
     display: inline-block;
   }
 
