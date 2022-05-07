@@ -62,7 +62,7 @@
         @node-click="openScreen"
       >
         <span
-          v-drop-screen="{node, isLive}"
+          v-drop-screen="{node, isLive, view}"
           slot-scope="{node, data}"
           class="custom-tree-node"
           :class="{'online': data.deviceStatus === 'on', 'offline': (data.deviceStatus !== 'on' && data.type === 'ipc')}"
@@ -106,7 +106,7 @@
         @node-click="openScreen"
       >
         <span
-          v-drop-screen="{node, isLive}"
+          v-drop-screen="{node, isLive, view}"
           slot-scope="{node, data}"
           class="custom-tree-node"
           :class="{'online': data.deviceStatus === 'on', 'offline': (data.deviceStatus !== 'on' && data.type === 'ipc')}"
@@ -301,7 +301,12 @@ export default class extends Mixins(IndexMixin) {
 
   /* 分屏数量 */
   private get maxSize() {
-    return this.screenManager.size
+    return this.screenManager && this.screenManager.size
+  }
+
+  /* 视图类型 */
+  private get view() {
+    return this.screenManager && this.screenManager.view
   }
 
   /* 监听业务组切换 */
