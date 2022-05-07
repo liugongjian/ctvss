@@ -47,7 +47,7 @@
     </template>
     <template slot="controlRight">
       <RecordDownload v-if="hasAdminRecord" :screen="screen" />
-      <Fullscreen :is-fullscreen="isFullscreen" :container="currentFullscreenContainer" @change="onFullscreenChange" />
+      <Fullscreen :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
     </template>
   </VssPlayer>
 </template>
@@ -91,14 +91,9 @@ export default class extends Vue {
   @Prop()
   private isDebug: Boolean
 
-  @Prop()
-  private fullscreenContainer: HTMLDivElement
-
   private url: string = null
   private type: string = null
   private codec: string = null
-  /* 全屏容器 */
-  private currentFullscreenContainer = null
 
   private get recordManager() {
     return this.screen.recordManager
@@ -125,11 +120,6 @@ export default class extends Vue {
       this.type = 'flv'
       this.codec = this.screen.codec
     }
-  }
-
-  private mounted() {
-    const player: any = this.$refs.player
-    this.currentFullscreenContainer = this.fullscreenContainer || player.$el
   }
 
   /**

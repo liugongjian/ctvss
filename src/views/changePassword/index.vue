@@ -154,12 +154,32 @@ export default class extends Vue {
     }
   }
 
+  get isMainUser() {
+    return !UserModule.iamUserId
+  }
+
   private handleChangePassword() {
     (this.$refs.form as ElForm).validate(async(valid: boolean) => {
       if (valid) {
         try {
           this.loading = true
-          await UserModule.ChangePassword(this.form)
+          if (this.isMainUser) {
+            await UserModule.ChangePassword(this.form)
+          } else {
+            // const { subUserName, mainUserID } = this.$route.query
+            const subUserName = UserModule.name
+            const mainUserID = UserModule.mainUserID
+            const { originalPwd, newPwd, confirmPwd } = this.form
+            const param = {
+              mainUserID,
+              subUserName,
+              originalPwd,
+              newPwd,
+              confirmPwd
+            }
+            await UserModule.ResetIAMPassword(param)
+          }
+
           this.$message.success('修改密码成功！')
           this.logout()
         } catch (err) {

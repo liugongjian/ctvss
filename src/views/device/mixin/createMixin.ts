@@ -25,6 +25,7 @@ export default class CreateMixin extends Vue {
   public orginalChannelSize = 0
   public inNetworkType = ''
   public deviceGbId: string = ''
+  public formExpand: boolean = false
 
   public loading = {
     account: false,

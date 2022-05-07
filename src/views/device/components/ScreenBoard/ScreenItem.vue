@@ -12,7 +12,6 @@
         :has-close="hasClose"
         :is-debug="true"
         :has-live-replay-selector="hasReplayRecord && !isSingle"
-        :fullscreen-container="fullscreenContainer"
         @canplay="canplay"
         @close="close"
       >
@@ -25,7 +24,6 @@
         :has-close="hasClose"
         :is-debug="true"
         :has-live-replay-selector="!isSingle"
-        :fullscreen-container="fullscreenContainer"
         @close="close"
       >
         <div v-if="videoTypeLabel && !screen.isLoading && screen.player" class="video-type-label">{{ videoTypeLabel }}</div>
@@ -75,9 +73,6 @@ export default class extends Vue {
     deviceDir: false
   }
 
-  /* 全屏容器DOM对象 */
-  private fullscreenContainer: HTMLDivElement = null
-
   @Inject('getScreenManager')
   private getScreenManager: Function
 
@@ -120,10 +115,6 @@ export default class extends Vue {
    */
   private get isLive() {
     return this.screen && this.screen.isLive
-  }
-
-  private mounted() {
-    this.fullscreenContainer = document.querySelector('.screen-container')
   }
 
   /**

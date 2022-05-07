@@ -20,9 +20,6 @@ export default class extends Vue {
   @Prop()
   public isFullscreen
 
-  @Prop()
-  public container: HTMLDivElement
-
   private currentFullscreen = false
 
   private mounted() {
@@ -49,7 +46,7 @@ export default class extends Vue {
    * 全屏
    */
   public fullscreen() {
-    const element: any = this.container || document.documentElement
+    const element: any = document.documentElement
     if (element.requestFullscreen) {
       element.requestFullscreen()
     } else if (element.msRequestFullscreen) {

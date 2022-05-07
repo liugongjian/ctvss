@@ -136,8 +136,11 @@ class Permission extends VuexModule implements IPermissionState {
   public GenerateRoutes(params: { perms: string[], iamUserId: string }) {
     let accessedRoutes
     let filteredRoutes = asyncRoutes
+    let changePWDRoute = []
     if (params.iamUserId) {
       filteredRoutes = filteredRoutes.filter(route => route.path !== '/accessManage')
+      // 子账号，不需要接口的Action字段来判断  改密码  权限
+      changePWDRoute = filteredRoutes.filter(route => route.path === '/changePassword')
     }
     // TODO: 连州教育局一机一档专用
     if (store.state.user.tags && store.state.user.tags.isLianZhouEdu !== 'Y') {
@@ -147,12 +150,13 @@ class Permission extends VuexModule implements IPermissionState {
     if (store.state.user.tags && store.state.user.tags.showDigitalMap !== 'Y') {
       filteredRoutes = filteredRoutes.filter(route => route.path !== '/map')
     }
+
     if (params.perms.includes('*')) {
       accessedRoutes = filteredRoutes
     } else {
       accessedRoutes = filterAsyncRoutes(filteredRoutes, params.perms)
     }
-    this.SET_ROUTES(accessedRoutes)
+    this.SET_ROUTES([...accessedRoutes, ...changePWDRoute])
     if (getLocalStorage('ctLoginId')) {
       console.log('generateCTMenuData:', getLocalStorage('ctLoginId'))
       generateCTMenuData(this.routes)
