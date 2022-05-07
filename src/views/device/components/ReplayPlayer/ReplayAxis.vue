@@ -161,6 +161,8 @@ export default class extends Vue {
   @Watch('screen.deviceId')
   /* 监听录像类型变化 */
   @Watch('screen.recordType')
+  /* 监听录像列表 */
+  @Watch('recordManager.recordList')
   /* 监听日历变化 */
   @Watch('recordManager.currentDate', { immediate: true })
   private onStatusChange() {

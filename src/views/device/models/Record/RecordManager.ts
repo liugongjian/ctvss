@@ -44,7 +44,6 @@ export class RecordManager {
     this.localStartTime = null
     this.pageSize = null
     this.axiosSourceList = []
-    this.init()
   }
 
   public init() {
@@ -105,6 +104,10 @@ export class RecordManager {
    */
   public async getRecordListByDate(date: number, isConcat = false) {
     try {
+      if (!this.screen.deviceId && !isConcat) {
+        this.currentDate = date
+        throw new Error('缺少deviceId')
+      }
       if (!isConcat) {
         this.screen.url = ''
         this.screen.errorMsg = null
@@ -176,11 +179,16 @@ export class RecordManager {
    * @param time 跳转的目标时间（时间戳/秒）
    */
   public async seek(time: number) {
+    if (this.screen.deviceId) {
+      this.screen.currentRecordDatetime = time
+    } else {
+      this.screen.recordManager.currentDate = time
+      return
+    }
     this.screen.errorMsg = null
     let record = this.getRecordByTime(time)
     const date = getDateByTime(time * 1000) / 1000
     this.currentDate = date
-    this.screen.currentRecordDatetime = time
     if (record) {
       if (this.screen.recordType === 0) { // 云端录像
         if (!this.currentRecord || this.currentRecord.startTime !== record.startTime) {

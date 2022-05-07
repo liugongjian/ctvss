@@ -192,7 +192,7 @@ export class ScreenManager {
           ...pick(this, ...SCREEN_CACHE_MANAGER_PARAMS)
         }
         screenCache.screenList = this.screenList.map(screen => {
-          return pick(screen, ...SCREEN_CACHE_PARAMS) // 仅保存恢复缓存必要的数据
+          return screen.deviceId ? pick(screen, ...SCREEN_CACHE_PARAMS) : screen // 仅保存恢复缓存必要的数据
         })
         setLocalStorage(screenCacheKey, screenCache)
       } else {
@@ -265,6 +265,34 @@ export class ScreenManager {
     this.screenList.forEach(screen => {
       screen.player && screen.player.toggleMuteStatus(screen.lastIsMuted)
     })
+  }
+
+  /**
+   * 切换录像日期
+   */
+  public changeReplayDate(date) {
+    if (this.isSync) {
+      this.screenList.forEach(screen => {
+        screen.recordManager && screen.recordManager.getRecordListByDate(date)
+      })
+    } else {
+      this.currentScreen.recordManager.getRecordListByDate(date)
+    }
+  }
+
+  /**
+   * 切换录像类型
+   */
+  public changeReplayType(recordType) {
+    if (this.isSync) {
+      this.screenList.forEach(screen => {
+        screen.recordType = recordType
+        screen.recordManager && screen.recordManager.initReplay()
+      })
+    } else {
+      this.currentScreen.recordType = recordType
+      this.currentScreen.recordManager.initReplay()
+    }
   }
 
   /**

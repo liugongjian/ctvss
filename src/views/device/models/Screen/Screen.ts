@@ -122,6 +122,9 @@ export class Screen {
       playerLoadstartTimestamp: null,
       playerCanplayTimstamp: null
     }
+    this.recordManager = new RecordManager({
+      screen: this
+    })
   }
 
   public get deviceInfo(): DeviceInfo {
@@ -324,8 +327,9 @@ export class Screen {
      */
   public async initReplay() {
     if (!this.deviceId) return
-    this.recordManager = new RecordManager({
-      screen: this
-    })
+    this.recordManager.init()
+    // this.recordManager = new RecordManager({
+    //   screen: this
+    // })
   }
 }

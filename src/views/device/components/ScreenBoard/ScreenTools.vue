@@ -128,32 +128,14 @@ export default class extends Vue {
    * 切换日期
    */
   private onDateChange(date) {
-    if (this.screenManager.isSync) {
-      this.screenManager.screenList.forEach(screen => {
-        if (!screen.isLive) {
-          screen.recordManager && screen.recordManager.getRecordListByDate(date)
-        }
-      })
-    } else {
-      this.currentScreen.recordManager.getRecordListByDate(date)
-    }
+    this.screenManager.changeReplayDate(date)
   }
 
   /**
    * 切换录像类型
    */
   private onReplayTypeChange(recordType) {
-    if (this.screenManager.isSync) {
-      this.screenManager.screenList.forEach(screen => {
-        if (!screen.isLive) {
-          screen.recordType = recordType
-          screen.recordManager && screen.recordManager.initReplay()
-        }
-      })
-    } else {
-      this.currentScreen.recordType = recordType
-      this.currentScreen.recordManager.initReplay()
-    }
+    this.screenManager.changeReplayType(recordType)
   }
 
   /**
