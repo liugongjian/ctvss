@@ -321,11 +321,13 @@ export default class extends Mixins(IndexMixin) {
   private ifMapDisabled = false
 
   private validateName(rule: any, value: string, callback: Function) {
-    const val = value.trim();
+    const val = value.trim()
     if (!val.trim()) {
       callback(new Error('地图名称不能为空'))
     } else if (val.length > 64) {
       callback(new Error('地图名称过长，请输入64字以内名称'))
+    } else if (/^[\s]|[\s]$/.test(value)) {
+      callback(new Error('不能以空格作为名称的首尾。'))
     } else {
       callback()
     }
