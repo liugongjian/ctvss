@@ -224,8 +224,36 @@ export default class extends Vue {
               endTime: Math.floor(endTime / 1000),
               pageSize: 999999
             })
+            if (!res.records.length) {
+              list.push({
+                time: (endTime - startTime) / 1000,
+                start: dateFormat(new Date(startTime)),
+                end: dateFormat(new Date(endTime))
+              })
+            }
             res.records.map((record: any, index: number) => {
+              const currentStart = getTimestamp(record.startTime)
               const currentEnd = getTimestamp(record.endTime)
+              // 判断第一段视频是否从00:00开始
+              if (index === 0) {
+                if (((currentStart - startTime) / 1000) > this.ignoreTime) {
+                  list.push({
+                    time: (currentStart - startTime) / 1000,
+                    start: dateFormat(new Date(startTime)),
+                    end: dateFormat(new Date(currentStart))
+                  })
+                }
+              }
+              // 判断最后一段视频是否为24:00结束
+              if (index === res.records.length - 1 && res.records.length > 1) {
+                if (((endTime - currentEnd) / 1000) > this.ignoreTime) {
+                  list.push({
+                    time: (endTime - currentEnd) / 1000,
+                    start: dateFormat(new Date(currentEnd)),
+                    end: dateFormat(new Date(endTime))
+                  })
+                }
+              }
               if (index + 1 < res.records.length) {
                 const nextStart = getTimestamp(res.records[index + 1]['startTime'])
                 if (((nextStart - currentEnd) / 1000) > this.ignoreTime) {
@@ -299,9 +327,9 @@ export default class extends Vue {
 }
 
 .form {
-  margin: 0 0 20px 0;
+  margin: 0 0 20px;
   padding: 10px 20px;
-  border: 1px solid #bbbbbb;
+  border: 1px solid #bbb;
   background: #fff;
 
   label {

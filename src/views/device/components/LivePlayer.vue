@@ -25,7 +25,7 @@
       <slot name="default" />
     </template>
     <template slot="controlRight">
-      <Fullscreen :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
+      <Fullscreen :is-fullscreen="isFullscreen" :container="fullscreenContainer" @change="onFullscreenChange" />
     </template>
   </VssPlayer>
 </template>
@@ -56,6 +56,9 @@ export default class extends Vue {
 
   @Prop()
   private isDebug: Boolean
+
+  @Prop()
+  private fullscreenContainer: HTMLDivElement
 
   /* 当前全屏状态 */
   private get isFullscreen() {

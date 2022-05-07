@@ -291,6 +291,8 @@ export const parseMetaData = (type: string, metaData: any) => {
     case '23': // 电动车
     case '10018':// 垃圾检测
     case '10020':// 电动车
+    case '32':// 人车流量统计
+    case '10032':// 人车流量统计
       if (metaData.Data && metaData.Data.DetectBoxes) {
         const boxes = metaData.Data.DetectBoxes
         for (let i = 0; i < boxes.length; i += 4) {

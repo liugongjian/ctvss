@@ -22,9 +22,10 @@
         <div class="configureDetail">
           <span class="configureName">检测区域：</span>
           <span class="configureValue">
-            <!-- <el-button :disabled="cannotDraw" @click="chooseMode('line')">画直线</el-button> -->
-            <el-button :disabled="cannotDraw" @click="chooseMode('rect')">画矩形</el-button>
-            <el-button :disabled="cannotDraw" @click="chooseMode('polygon')">画多边形</el-button>
+            <!--   -->
+            <el-button v-if="configAlgoInfo.algorithm.code === '10032'" :disabled="cannotDraw" @click="chooseMode('line')">画直线</el-button>
+            <el-button v-if="configAlgoInfo.algorithm.code !== '10032'" :disabled="cannotDraw" @click="chooseMode('rect')">画矩形</el-button>
+            <el-button v-if="configAlgoInfo.algorithm.code !== '10032'" :disabled="cannotDraw" @click="chooseMode('polygon')">画多边形</el-button>
             <el-button @click="clear">清除</el-button>
           </span>
         </div>
@@ -54,13 +55,13 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import math from './utils/math'
-import { getRectPropFromPoints
-//   getVerticalLinePoints
+import { getRectPropFromPoints,
+  getVerticalLinePoints, drawArrow
 } from './utils/index'
 import { getAppDescribeLine, sendAppDescribeLine
 // getAlgoStreamFrame
 } from '@/api/ai-app'
-// import plate from './plate4.jpg'
+import plate from './plate4.jpg'
 import { DRAW_MODES
 //   DRAW_MODES_TEXT
 } from './contants'
@@ -94,6 +95,7 @@ export default class extends Vue {
   private points: any[] = []
   private ratio = 1
   private cannotDraw = false
+  private direction = false
 
   private mounted() {
     // this.$nextTick(() => {
@@ -136,12 +138,16 @@ export default class extends Vue {
           if (DangerZoneParse.length) {
             this.cannotDraw = true
             const shape = () => {
-              if (DangerZoneParse.length === 2) {
+              if (this.configAlgoInfo.algorithm.code === '10032') {
                 return 'line'
-              } else if (DangerZoneParse.length === 4) {
-                return 'rect'
-              } else if (DangerZoneParse.length > 4) {
-                return 'polygon'
+              } else {
+                if (DangerZoneParse.length === 2) {
+                  return 'line'
+                } else if (DangerZoneParse.length === 4) {
+                  return 'rect'
+                } else if (DangerZoneParse.length > 4) {
+                  return 'polygon'
+                }
               }
             }
             const perDangerZoneParse = DangerZoneParse.map((item: any) => {
@@ -256,13 +262,21 @@ export default class extends Vue {
       if (this.mode === 'rect') {
         const { points: [x, y] } = this.areas[0]
         pointsInfo = this.getRectPoints(x, y)
+      } else if (this.configAlgoInfo.algorithm.code === '10032') {
+        const directorP = this.areas.find((item: any) => { return item.shape === 'director' })
+        const { points: [x, y] } = directorP
+        if (this.direction) {
+          pointsInfo = this.getLinePoints(y, x)
+        } else {
+          pointsInfo = this.getLinePoints(x, y)
+        }
       } else {
         pointsInfo = this.areas[0].points
       }
     } else {
       pointsInfo = []
     }
-
+    console.log('pointsInfo==>', pointsInfo)
     const perPoints = pointsInfo.map((item: any) => {
       const [x, y] = item
       return [Math.floor(x * this.ratio / this.imageWidth * 100), Math.floor(y * this.ratio / this.imageHeight * 100)]
@@ -311,6 +325,12 @@ export default class extends Vue {
     return [startP, point2, endP, point4]
   }
 
+  private getLinePoints(startP: Array<number>, endP: Array<number>) {
+    const lineP = this.areas.find((item: any) => { return item.shape === 'line' })
+    const { points: [x, y] } = lineP
+    return [x, y, startP, endP]
+  }
+
   private renderBeforeAreas() {
     if (this.areas?.length) {
       for (const area of this.areas) {
@@ -352,6 +372,19 @@ export default class extends Vue {
             // 绘制方向
             this.canvas.stroke()
             this.canvas.closePath()
+            if (this.configAlgoInfo.algorithm.code === '10032') {
+              const [, , x, y] = points
+              const startP = [toRatio(x[0]), toRatio(x[1])]
+              const endP = [toRatio(y[0]), toRatio(y[1])]
+              this.canvas.beginPath()
+              this.canvas.setLineDash([3, 1])
+              if (this.direction) {
+                drawArrow(this.canvas, endP[0], endP[1], startP[0], endP[1], 30, 10)
+              } else {
+                drawArrow(this.canvas, startP[0], startP[1], endP[0], endP[1], 30, 10)
+              }
+              this.canvas.closePath()
+            }
             break
           }
           default: break
@@ -558,20 +591,29 @@ export default class extends Vue {
           name: `area-${this.areas.length}` // 父级传入 初始area信息
         }
         // TODO 绘制方向 中垂线求法
-        //   const [startPoint, endPoint] = getVerticalLinePoints(this.points[0], curPoint, 140)
-        //   const director = {
-        //     shape: DRAW_MODES.DIRECTION,
-        //     points: [startPoint, endPoint],
-        //     ratio,
-        //     imageHeight,
-        //     imageWidth,
-        //     name: `area-${areas.length + 1}`
-        //   }
+        const [startPoint, endPoint] = getVerticalLinePoints(this.points[0], curPoint, 140)
+        const director = {
+          shape: DRAW_MODES.DIRECTION,
+          points: [startPoint, endPoint],
+          ratio: this.ratio,
+          imageHeight: this.imageHeight,
+          imageWidth: this.imageWidth,
+          name: `area-${this.areas.length + 1}`
+        }
+
+        this.canvas.beginPath()
+        this.canvas.setLineDash([3, 1])
+        if (this.direction) {
+          drawArrow(this.canvas, endPoint[0], endPoint[1], startPoint[0], startPoint[1], 30, 10)
+        } else {
+          drawArrow(this.canvas, startPoint[0], startPoint[1], endPoint[0], endPoint[1], 30, 10)
+        }
+        this.canvas.closePath()
+
         // 将区域暂存；清空轨迹；清除作画状态
         this.points = []
         this.isDraw = false
-        this.areas = [...this.areas, newArea]
-        //   this.$parent.onAreasChange([...areas, newArea, director])
+        this.areas = [...this.areas, newArea, director]
         break
       }
       default:
@@ -583,30 +625,36 @@ export default class extends Vue {
 </script>
 
 <style  lang="scss" scoped>
-.canvasBox{
-  ::v-deep.el-dialog{
-    .el-dialog__header{
+.canvasBox {
+  ::v-deep.el-dialog {
+    .el-dialog__header {
       padding: 20px;
     }
-    .el-dialog__body{
+
+    .el-dialog__body {
       padding: 0 20px 10px;
     }
-    .el-dialog__footer{
+
+    .el-dialog__footer {
       text-align: center;
       margin-top: 0;
     }
   }
-  .configureDetail{
+
+  .configureDetail {
     padding: 10px 20px;
     font-size: 14px;
-    .configureName{
+
+    .configureName {
       color:#878887;
     }
   }
-  .canvasDraw{
+
+  .canvasDraw {
     position: relative;
   }
-  .canvasOperator{
+
+  .canvasOperator {
     position: absolute;
     top: 0;
     left: 0;

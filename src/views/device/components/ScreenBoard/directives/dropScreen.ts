@@ -13,6 +13,7 @@ function onMouseDown() {
   drag.isDragging = true
   drag.node = this.node
   drag.cloneElm = this.elm.cloneNode(true)
+  drag.cloneElm.style.display = 'none'
   addClass(drag.cloneElm, 'dragging-node')
   document.body.append(drag.cloneElm)
   addClass(document.querySelector('.screen-grid'), 'dragging-node')
@@ -22,6 +23,7 @@ function onMouseDown() {
 
 /* 拖拽中 */
 function onMouseMove(e) {
+  drag.cloneElm.style.display = 'block'
   drag.cloneElm.style.position = 'absolute'
   drag.cloneElm.style.left = `${e.x + 10}px`
   drag.cloneElm.style.top = `${e.y + 10}px`
@@ -48,7 +50,8 @@ function onMouseUp(e) {
 
 export const dropScreen: DirectiveOptions = {
   bind(el: any, binding, vnode) {
-    const { node, isLive } = binding.value
+    const { node, isLive, view } = binding.value
+    if (view !== 'screen') return
     if (node.data.type !== 'ipc') return
     if (isLive && node.data.deviceStatus !== 'on') return
     drag.context = vnode.context
