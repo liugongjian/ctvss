@@ -2,7 +2,12 @@
   <div ref="axisWrap" class="axis__wrap" :class="{'axis__wrap--disabled': disabled}">
     <div class="axis__middle" />
     <div class="axis__border" />
-    <div class="axis__time">{{ formatedCurrentTime }}</div>
+    <div v-if="!editTime" class="axis__time" @click="enableEditTime">
+      <el-tooltip placement="right" content="编辑时间" :disabled="disabled">
+        <span class="axis__span" :class="{'axis__time__btn': !disabled}">{{ formatedCurrentTime }}</span>
+      </el-tooltip>
+    </div>
+    <TimeEditer v-else :screen="screen" :current-time="currentTime" @change="onTimeEditerChange" @close="onCloseTimeEditer" />
     <canvas ref="canvas" class="axis__canvas" :class="{'dragging': axisDrag.isDragging}" />
     <div class="axis__zoom">
       <div class="axis__zoom__btn" @click="zoom(1)"><svg-icon name="zoom-in" width="12" /></div>
@@ -22,10 +27,14 @@ import { isCrossDays, dateFormat, getNextHour, getDateByTime, currentTimeZeroMse
 import { prefixZero } from '@/utils/number'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import { throttle } from 'lodash'
+import TimeEditer from '@/views/device/components/ReplayPlayer/TimeEditer.vue'
 import ResizeObserver from 'resize-observer-polyfill'
 
 @Component({
-  name: 'ReplayAxis'
+  name: 'ReplayAxis',
+  components: {
+    TimeEditer
+  }
 })
 export default class extends Vue {
   /* 当前分屏 */
@@ -112,6 +121,8 @@ export default class extends Vue {
   private isLoading = false
   /* 延时加载相邻日期定时器 */
   private timeout = null
+  /* 是否编辑时间轴时间 */
+  private editTime = false
 
   /* 当前分屏的录像管理器 */
   private get recordManager() {
@@ -120,7 +131,7 @@ export default class extends Vue {
 
   /* 格式化当前时间 */
   private get formatedCurrentTime() {
-    return dateFormat(this.currentTime * 1000)
+    return this.screen && this.screen.isLoading ? '加载中' : dateFormat(this.currentTime * 1000)
   }
 
   /* 监听播放器时间变化 */
@@ -151,7 +162,7 @@ export default class extends Vue {
   /* 监听录像类型变化 */
   @Watch('screen.recordType')
   /* 监听日历变化 */
-  @Watch('recordManager.currentDate')
+  @Watch('recordManager.currentDate', { immediate: true })
   private onStatusChange() {
     this.currentTime = this.screen.currentRecordDatetime || (this.recordManager && this.recordManager.currentDate) || getDateByTime(new Date().getTime()) / 1000
     this.generateData()
@@ -352,6 +363,7 @@ export default class extends Vue {
    * 绘制时间轴
    */
   private draw() {
+    if (!this.ctx) return
     this.ctx.clearRect(0, 0, this.settings.width, this.settings.height)
 
     /* 绘制录像线 */
@@ -566,6 +578,25 @@ export default class extends Vue {
       await this.screen.recordManager.getRecordListByDate(date, true)
     }
   }
+
+  /* 显示编辑时间及添加页面点击监听 */
+  private enableEditTime() {
+    if (this.screen.isLoading || this.disabled) return
+    this.editTime = true
+  }
+
+  // 关闭时间编辑器
+  private onCloseTimeEditer() {
+    this.editTime = false
+  }
+
+  /* 当时间编辑器的时间改变 */
+  private onTimeEditerChange(time: number) {
+    this.currentTime = time
+    this.$emit('change', time)
+    this.generateData()
+    this.draw()
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -576,7 +607,7 @@ export default class extends Vue {
     height: 70px;
 
     &--disabled {
-      &::after {
+      &:after {
         content: ' ';
         position: absolute;
         width: 100%;
@@ -609,15 +640,21 @@ export default class extends Vue {
     font-weight: bold;
     user-select: none;
     border: 1px solid transparent;
+
+    &__btn:hover {
+      border: 1px solid $primary;
+      padding: 3px 6px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
   }
 
   &__time__edit {
     position: absolute;
     left: 50%;
-    margin-left: -100px;
-    width: 200px;
+    margin-left: -110px;
+    width: 220px;
     text-align: center;
-    color: $primary;
     font-size: 12px;
     font-weight: bold;
     user-select: none;

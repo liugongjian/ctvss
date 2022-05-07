@@ -153,7 +153,7 @@
                 <el-button type="primary" @click="modifyMap">确定</el-button>
               </span>
             </el-dialog>
-            <el-dialog title="添加监控点位" :visible.sync="addPositionDialog" class="dialog-text" @close="closeDialog">
+            <el-dialog title="添加监控点位" :visible.sync="addPositionDialog" class="dialog-text" :before-close="cancelAddMark">
               <div>
                 <h3>是否继承设备中的经纬度</h3>
                 <h3>如不继承则使用地图当前的中心经纬度</h3>
@@ -165,7 +165,7 @@
               <el-button @click="confirmAddMarker(false)">不继承</el-button>
               <el-button @click="cancelAddMark">取消</el-button>
             </el-dialog>
-            <el-dialog title="添加监控点位" :visible.sync="addNoPositionDialog" class="dialog-text" @close="closeDialog">
+            <el-dialog title="添加监控点位" :visible.sync="addNoPositionDialog" class="dialog-text" :before-close="cancelAddMark">
               <div>
                 <h3>本设备未设置经纬度，是否使用地图当前的中心经纬度？</h3>
               </div>
@@ -175,7 +175,7 @@
               <el-button @click="confirmAddZeroMarker">确定</el-button>
               <el-button @click="cancelAddMark">取消</el-button>
             </el-dialog>
-            <el-dialog title="添加监控点位" :visible.sync="dragAddNoPositionDialog" class="dialog-text" @close="closeDialog">
+            <el-dialog title="添加监控点位" :visible.sync="dragAddNoPositionDialog" class="dialog-text" :before-close="cancelAddMark">
               <div>
                 <h3>本设备未设置经纬度，是否使用鼠标所在的经纬度？</h3>
               </div>
@@ -775,13 +775,6 @@ export default class extends Mixins(IndexMixin) {
     this.addNoPositionDialogCheck = false
     this.dragAddNoPositionDialog = false
     this.dragAddNoPositionDialogCheck = false
-  }
-
-  closeDialog() {
-    this.ifDragging = false
-    this.addPositionDialog = false
-    this.addNoPositionDialog = false
-    this.dragAddNoPositionDialog = false
   }
 
   addMarker(marker) {

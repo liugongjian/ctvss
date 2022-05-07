@@ -1,7 +1,8 @@
 export const DRAW_MODES = {
   RECT: 'rect',
   LINE: 'line',
-  POLYGON: 'polygon'
+  POLYGON: 'polygon',
+  DIRECTION: 'director'
 }
 
 export const DRAW_MODES_TEXT = {

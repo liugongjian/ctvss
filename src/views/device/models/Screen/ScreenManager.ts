@@ -123,12 +123,12 @@ export class ScreenManager {
    * @param item 树Item
    * @param streamNum 第几路流
    */
-  public async openTreeItem(item: any, streamNum?: number) {
+  public async openTreeItem(item: any, streamNum?: number, index?: number) {
     // 1）必须是IPC；2）实时预览必须设备在线
     if (item.type !== 'ipc' || (this.isLive && item.deviceStatus !== 'on')) {
       return
     }
-    this.currentIndex = this.findRightIndex()
+    this.currentIndex = !isNaN(index) ? index : this.findRightIndex()
     const screen = this.screenList[this.currentIndex]
     // 如果当前分屏已有播放器，先执行销毁操作
     if (screen.deviceId) {
@@ -137,6 +137,11 @@ export class ScreenManager {
     this.transformDeviceParams(screen, item, streamNum)
     screen.isLive = this.isLive
     screen.inProtocol = this.inProtocol
+    // 如果是同步向，新开的窗口使用与现在打开窗口相同的时间
+    if (this.isSync) {
+      const currentRecordDatetime = this.findRecordCurrentDatetime()
+      if (currentRecordDatetime) screen.currentRecordDatetime = currentRecordDatetime
+    }
     screen.init()
     this.currentIndex = this.findRightIndexAfterOpen()
   }
@@ -332,6 +337,18 @@ export class ScreenManager {
       }
     } else {
       return this.currentIndex
+    }
+  }
+
+  /**
+   * 查找首个分屏的录像播放时间
+   * @returns 当前录像播放时间
+   */
+  private findRecordCurrentDatetime() {
+    for (let i = 0; i < this.screenList.length; i++) {
+      if (this.screenList[i].currentRecordDatetime) {
+        return this.screenList[i].currentRecordDatetime
+      }
     }
   }
 }

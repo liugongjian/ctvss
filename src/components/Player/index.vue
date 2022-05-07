@@ -15,18 +15,18 @@
       <div ref="playerContainer" class="player__container" />
     </div>
     <slot name="container" />
-    <div v-if="player && hasControl" id="control" class="control" :class="{'control--large': hasProgress}">
+    <div v-if="hasControl" id="control" class="control" :class="{'control--large': hasProgress}">
       <slot name="controlBody" />
-      <Progress v-if="hasProgress" />
+      <Progress v-if="player && hasProgress" />
       <div class="control__left">
         <template v-if="!isLive">
-          <PlayPause />
-          <Timer v-if="hasProgress" />
+          <PlayPause v-if="player" />
+          <Timer v-if="player && hasProgress" />
         </template>
       </div>
       <div class="control__right">
-        <Volume />
-        <PlaybackRate v-if="!isLive && codec !== 'h265'" />
+        <Volume v-if="player" />
+        <PlaybackRate v-if="player && !isLive && codec !== 'h265'" />
         <slot name="controlRight" />
       </div>
     </div>

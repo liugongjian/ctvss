@@ -560,6 +560,7 @@ export default class extends Vue {
      * 车牌检测: code 10014
      * 棉花检测: code 10015
      * 电瓶车进电梯 code 10020
+     * 人车流量统计 code 10032 需要单独增加crossline 画线
      */
     switch (rowCode) {
       case '10006':
@@ -572,6 +573,7 @@ export default class extends Vue {
       case '10022':
       case '10021':
       case '10019':
+      case '10032':
         return true
       default:
         return false

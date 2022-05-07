@@ -1,12 +1,13 @@
 <template>
   <el-radio-group v-if="isGb" v-model="recordType" class="screen-tools__btn" size="mini" :disabled="disabled" @change="onChange">
     <el-radio-button :label="0">云端</el-radio-button>
-    <el-radio-button :label="1">设备</el-radio-button>
+    <el-radio-button :disabled="view === 'list'" :label="1">设备</el-radio-button>
   </el-radio-group>
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Screen } from '@/views/device/models/Screen/Screen'
+import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
 
 @Component({
   name: 'ReplayType'
@@ -14,6 +15,8 @@ import { Screen } from '@/views/device/models/Screen/Screen'
 export default class extends Vue {
   @Prop()
   private screen: Screen
+  @Prop()
+  private screenManager: ScreenManager
 
   @Prop({
     default: false
@@ -25,6 +28,11 @@ export default class extends Vue {
   /* 是否为国标协议 */
   private get isGb() {
     return this.screen.inProtocol === 'gb28181'
+  }
+
+  /* 视图类型 */
+  private get view() {
+    return this.screenManager && this.screenManager.view
   }
 
   @Watch('screen.recordType', {

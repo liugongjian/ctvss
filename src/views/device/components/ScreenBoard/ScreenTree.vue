@@ -62,6 +62,7 @@
         @node-click="openScreen"
       >
         <span
+          v-drop-screen="{node, isLive, view}"
           slot-scope="{node, data}"
           class="custom-tree-node"
           :class="{'online': data.deviceStatus === 'on', 'offline': (data.deviceStatus !== 'on' && data.type === 'ipc')}"
@@ -105,6 +106,7 @@
         @node-click="openScreen"
       >
         <span
+          v-drop-screen="{node, isLive, view}"
           slot-scope="{node, data}"
           class="custom-tree-node"
           :class="{'online': data.deviceStatus === 'on', 'offline': (data.deviceStatus !== 'on' && data.type === 'ipc')}"
@@ -213,6 +215,7 @@ import StreamSelector from '@/views/device/components/StreamSelector.vue'
 import OperateSelector from '@/views/device/components/OperateSelector.vue'
 import AdvancedSearch from '@/views/device/components/AdvancedSearch.vue'
 import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
+import { dropScreen } from './directives/dropScreen'
 
 @Component({
   name: 'ScreenTree',
@@ -221,6 +224,9 @@ import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
     StreamSelector,
     OperateSelector,
     AdvancedSearch
+  },
+  directives: {
+    'drop-screen': dropScreen
   }
 })
 export default class extends Mixins(IndexMixin) {
@@ -295,7 +301,12 @@ export default class extends Mixins(IndexMixin) {
 
   /* 分屏数量 */
   private get maxSize() {
-    return this.screenManager.size
+    return this.screenManager && this.screenManager.size
+  }
+
+  /* 视图类型 */
+  private get view() {
+    return this.screenManager && this.screenManager.view
   }
 
   /* 监听业务组切换 */
@@ -500,6 +511,7 @@ export default class extends Mixins(IndexMixin) {
 
 .dir-list {
   position: relative;
+  user-select: none;
 
   .playing {
     color: $success;
