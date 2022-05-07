@@ -89,17 +89,20 @@ export default class extends Mixins(AppMixin) {
       padding-bottom: 10px;
       margin-bottom: 15px;
     }
+
     ::v-deep .el-descriptions {
       &__header {
         margin: 10px 0;
       }
+
       &__title {
         position: relative;
         padding-left: 15px;
         margin: 10px 0;
         font-size: 16px;
         font-weight: bold;
-        &::before {
+
+        &:before {
           content: ' ';
           display: block;
           position: absolute;
@@ -110,11 +113,13 @@ export default class extends Mixins(AppMixin) {
           height: 18px;
         }
       }
+
       &-item__label {
         min-width: 100px;
         text-align: right;
         color: $textGrey;
       }
+
       .el-link {
         margin-left: 10px;
       }

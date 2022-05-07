@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import { UserModule } from '@/store/modules/user'
 
 export const getAbilityList = (params: any): Promise<any> =>
   request({
@@ -66,7 +67,10 @@ export const getAppScreenShot = (params: any): Promise<any> =>
   request({
     url: '/ai/analysis/result/screenshot',
     method: 'get',
-    params
+    params: {
+      ...params,
+      outNetwork: UserModule.outNetwork || undefined
+    }
   })
 
 // 获取 已编辑过的区域划线
