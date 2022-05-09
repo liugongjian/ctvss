@@ -88,3 +88,7 @@
 .amap-marker:hover .amap-marker-label{
   visibility: visible;
 }
+
+.amap-marker.selected{
+  z-index: 13 !important;
+}

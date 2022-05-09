@@ -313,6 +313,9 @@ export default class VMap {
           this.markerEventHandlers.onChange && this.markerEventHandlers.onChange(marker)
         })
       }
+      if (context.data[0].selected) {
+        context.marker.dom.setAttribute('class', 'amap-marker selected')
+      }
       context.marker.on('click', () => {
         const marker = context.marker.getExtData()
         this.chooseMarker(marker)
