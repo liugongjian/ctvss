@@ -321,11 +321,13 @@ export default class extends Mixins(IndexMixin) {
   private ifMapDisabled = false
 
   private validateName(rule: any, value: string, callback: Function) {
-    const val = value.trim();
+    const val = value.trim()
     if (!val.trim()) {
       callback(new Error('地图名称不能为空'))
     } else if (val.length > 64) {
       callback(new Error('地图名称过长，请输入64字以内名称'))
+    } else if (/^[\s]|[\s]$/.test(value)) {
+      callback(new Error('不能以空格作为名称的首尾。'))
     } else {
       callback()
     }
@@ -545,20 +547,26 @@ export default class extends Mixins(IndexMixin) {
   */
   private fullscreenMap() {
     const mapwrap: any = document.querySelector('.mapwrap')
-    if (mapwrap.requestFullscreen) {
-      mapwrap.requestFullscreen()
-    } else if (mapwrap.webkitRequestFullScreen) {
-      mapwrap.webkitRequestFullScreen()
-    } else if (mapwrap.mozRequestFullScreen) {
-      mapwrap.mozRequestFullScreen()
-    } else if (mapwrap.msRequestFullscreen) {
-      mapwrap.webkitRequestFullscreen()
+    const docEle: any = document.documentElement
+    if (docEle.requestFullscreen) {
+      docEle.requestFullscreen()
+    } else if (docEle.webkitRequestFullScreen) {
+      docEle.webkitRequestFullScreen()
+    } else if (docEle.mozRequestFullScreen) {
+      docEle.mozRequestFullScreen()
+    } else if (docEle.msRequestFullscreen) {
+      docEle.webkitRequestFullscreen()
     } else if (typeof window.ActiveXObject !== 'undefined') {
       const wscript = new ActiveXObject('WScript.Shell')
       if (wscript != null) {
         wscript.SendKeys('{F11}')
       }
     }
+    mapwrap.style.position = 'fixed'
+    mapwrap.style.zIndex = '2001'
+    mapwrap.style.left = '0'
+    mapwrap.style.top = '0'
+
     const mapInfo: any = document.querySelector('.map-info__right')
     mapInfo.style.top = 0
   }
@@ -575,6 +583,12 @@ export default class extends Mixins(IndexMixin) {
   private exitFullscreenMap() {
     const mapInfo: any = document.querySelector('.map-info__right')
     mapInfo.style.top = '40px'
+
+    const mapwrap: any = document.querySelector('.mapwrap')
+    mapwrap.style.position = 'initial'
+    mapwrap.style.zIndex = 'initial'
+    mapwrap.style.left = 'initial'
+    mapwrap.style.top = 'initial'
   }
 
   /**
