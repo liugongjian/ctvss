@@ -192,7 +192,7 @@ export class ScreenManager {
           ...pick(this, ...SCREEN_CACHE_MANAGER_PARAMS)
         }
         screenCache.screenList = this.screenList.map(screen => {
-          return screen.deviceId ? pick(screen, ...SCREEN_CACHE_PARAMS) : screen // 仅保存恢复缓存必要的数据
+          return screen.deviceId ? pick(screen, ...SCREEN_CACHE_PARAMS) : null // 仅保存恢复缓存必要的数据
         })
         setLocalStorage(screenCacheKey, screenCache)
       } else {

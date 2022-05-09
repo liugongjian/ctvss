@@ -57,6 +57,9 @@ export class RecordManager {
   public destroy() {
     clearInterval(this.recordInterval)
     this.cancelAxiosSource()
+    this.constructor({
+      screen: this.screen
+    })
   }
 
   /**

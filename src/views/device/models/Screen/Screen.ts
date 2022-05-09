@@ -106,7 +106,6 @@ export class Screen {
     this.codec = null
     this.url = ''
     this.hasRtc = false
-    this.recordManager = null
     this.recordType = 0
     this.currentRecordDatetime = null
     this._volume = null
