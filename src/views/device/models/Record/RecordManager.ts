@@ -405,12 +405,21 @@ export class RecordManager {
    * 分页获取录像列表
    * 过滤当前所选日期的列表
    */
-  public getRecordListByPage(pager: any) {
-    return this.recordList && this.recordList.slice((pager.pageNum - 1) * pager.pageSize, pager.pageNum * pager.pageSize).map(record => ({
-      ...record,
-      edit: false,
-      loading: false
-    }))
+  public getRecordListByPage(pager: any, currentDate?: number) {
+    currentDate = new Date(new Date(new Date(currentDate * 1000)).toLocaleDateString()).getTime() / 1000
+    if (currentDate) {
+      const recordList = this.recordList && this.recordList.filter(record => {
+        return record.endTime <= (currentDate + 24 * 60 * 60) && record.startTime >= currentDate
+      })
+      return {
+        recordList: recordList.slice((pager.pageNum - 1) * pager.pageSize, pager.pageNum * pager.pageSize).map(record => ({
+          ...record,
+          edit: false,
+          loading: false
+        })),
+        length: recordList.length
+      }
+    }
   }
 
   /**
