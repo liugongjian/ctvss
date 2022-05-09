@@ -199,7 +199,7 @@ export default class extends Vue {
 
   /* 获取录像列表，重置/保留当前页码状态 */
   private getRecordListByPage() {
-    this.recordList = this.currentScreen.recordManager.getRecordListByPage(this.pager)
+    this.recordList = this.currentScreen.recordManager.getRecordListByPage(this.pager, this.screenManager.currentScreen.currentRecordDatetime)
     this.pager.total = this.currentScreen.recordManager.recordList.length
     this.secToMs(this.recordList)
   }
@@ -341,12 +341,15 @@ export default class extends Vue {
     width: 100%;
     margin-bottom: 15px;
   }
+
   .edit-button {
     margin-left: 5px;
   }
+
   .edit-input {
     width: 50%;
   }
+
   .edit-save-button {
     margin-left: 10px;
   }
@@ -356,6 +359,7 @@ export default class extends Vue {
   .el-dialog {
     width: 840px;
   }
+
   .el-dialog__body {
     padding-top: 10px;
     padding-bottom: 20px;
