@@ -9,7 +9,8 @@
       v-draggable
       class="play-wrap"
       :style="playWindowInfo.style"
-      :class="{'screen-container--fullscreen': isFullscreen}"
+      :class="{'screen-container--fullscreen': isFullscreen, 'selected': playWindowInfo.selected}"
+      @click="choosePlayer(playWindowInfo.deviceId)"
     >
       <div v-if="playWindowInfo.show !== 'none'" class="play-container">
         <i class="el-icon el-icon-close" @click="closePlayer(playWindowInfo)" />
@@ -174,6 +175,17 @@ export default class MapView extends Vue {
         type: 'map',
         info: this.mapOption
       })
+    })
+  }
+
+  private choosePlayer(id) {
+    this.playWindowList = this.playWindowList.map(item => {
+      if (item.deviceId === id) {
+        item.selected = true
+      } else {
+        item.selected = false
+      }
+      return item
     })
   }
 
@@ -380,6 +392,9 @@ export default class MapView extends Vue {
   position: absolute;
   z-index: 9;
   background: #000;
+  &.selected {
+    z-index: 10;
+  }
   .vss-player__wrap {
     width: 100%;
     height: 100%;
