@@ -192,6 +192,14 @@ export class RecordManager {
     let record = this.getRecordByTime(time)
     const date = getDateByTime(time * 1000) / 1000
     this.currentDate = date
+    if (!record) {
+      // 判断该日期是否存在SET中
+      if (!this.loadedRecordDates.has(date)) {
+        await this.getRecordListByDate(date, false)
+      }
+      record = this.getRecordByTime(time)
+    }
+
     if (record) {
       if (this.screen.recordType === 0) { // 云端录像
         if (!this.currentRecord || this.currentRecord.startTime !== record.startTime) {
@@ -214,20 +222,10 @@ export class RecordManager {
         }
       }
     } else {
-      // 判断该日期是否存在SET中
-      if (!this.loadedRecordDates.has(date)) {
-        await this.getRecordListByDate(date, false)
-      }
-      const record = this.getRecordByTime(time)
-      if (record) {
-        record.offsetTime = time - record.startTime
-        this.currentRecord = record || this.currentRecord
-      } else {
-        this.screen.player && this.screen.player.disposePlayer()
-        this.screen.player = null
-        this.screen.errorMsg = this.screen.ERROR.NO_RECORD // 无录像提示
-        this.screen.isLoading = false
-      }
+      this.screen.player && this.screen.player.disposePlayer()
+      this.screen.player = null
+      this.screen.errorMsg = this.screen.ERROR.NO_RECORD // 无录像提示
+      this.screen.isLoading = false
     }
   }
 

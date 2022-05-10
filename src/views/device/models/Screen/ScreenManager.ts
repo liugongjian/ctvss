@@ -287,11 +287,11 @@ export class ScreenManager {
     if (this.isSync) {
       this.screenList.forEach(screen => {
         screen.recordType = recordType
-        screen.recordManager && screen.recordManager.initReplay()
+        screen.recordManager && screen.init()
       })
     } else {
       this.currentScreen.recordType = recordType
-      this.currentScreen.recordManager.initReplay()
+      this.currentScreen.init()
     }
   }
 

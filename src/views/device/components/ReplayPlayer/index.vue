@@ -46,7 +46,7 @@
       />
     </template>
     <template slot="controlRight">
-      <RecordDownload v-if="hasAdminRecord" :screen="screen" />
+      <RecordDownload v-if="hasAdminRecord && recordType === 0" :screen="screen" />
       <Fullscreen :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
     </template>
   </VssPlayer>
@@ -106,6 +106,11 @@ export default class extends Vue {
   /* 当前全屏状态 */
   private get isFullscreen() {
     return this.screen && this.screen.isFullscreen
+  }
+
+  /* 录像类型 */
+  private get recordType() {
+    return this.screen && this.screen.recordType
   }
 
   @Watch('screen.recordManager.currentRecord.url', { immediate: true })
@@ -190,8 +195,7 @@ export default class extends Vue {
    * 切换录像类型
    */
   private onReplayTypeChange(recordType) {
-    this.screen.recordType = recordType
-    this.recordManager.initReplay()
+    this.screenManager.changeReplayType(recordType)
   }
 
   /**
