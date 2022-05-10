@@ -182,49 +182,54 @@ export class RecordManager {
    * @param time 跳转的目标时间（时间戳/秒）
    */
   public async seek(time: number) {
-    if (this.screen.deviceId) {
-      this.screen.currentRecordDatetime = time
-    } else {
-      this.screen.recordManager.currentDate = time
-      return
-    }
-    this.screen.errorMsg = null
-    let record = this.getRecordByTime(time)
-    const date = getDateByTime(time * 1000) / 1000
-    this.currentDate = date
-    if (!record) {
-      // 判断该日期是否存在SET中
-      if (!this.loadedRecordDates.has(date)) {
-        await this.getRecordListByDate(date, false)
+    try {
+      if (this.screen.deviceId) {
+        this.screen.currentRecordDatetime = time
+      } else {
+        this.screen.recordManager.currentDate = time
+        return
       }
-      record = this.getRecordByTime(time)
-    }
+      this.screen.errorMsg = null
+      let record = this.getRecordByTime(time)
+      const date = getDateByTime(time * 1000) / 1000
+      this.currentDate = date
+      if (!record) {
+        // 判断该日期是否存在SET中
+        if (!this.loadedRecordDates.has(date)) {
+          await this.getRecordListByDate(date, false)
+        }
+        record = this.getRecordByTime(time)
+      }
 
-    if (record) {
-      if (this.screen.recordType === 0) { // 云端录像
-        if (!this.currentRecord || this.currentRecord.startTime !== record.startTime) {
-          this.currentRecord = record
-          this.currentRecord.offsetTime = time - record.startTime
-        } else {
-          this.currentRecord.offsetTime = null
-          this.screen.player.seek(time - this.currentRecord.startTime)
+      if (record) {
+        if (this.screen.recordType === 0) { // 云端录像
+          if (!this.currentRecord || this.currentRecord.startTime !== record.startTime) {
+            this.currentRecord = record
+            this.currentRecord.offsetTime = time - record.startTime
+          } else {
+            this.currentRecord.offsetTime = null
+            this.screen.player.seek(time - this.currentRecord.startTime)
+          }
+        } else { // 本地录像
+          try {
+            this.screen.isLoading = true
+            const res = await this.getLocalUrl(time)
+            this.screen.codec = res.codec
+            this.screen.url = res.url
+          } catch (e) {
+            this.screen.errorMsg = e.message
+          } finally {
+            this.screen.isLoading = false
+          }
         }
-      } else { // 本地录像
-        try {
-          this.screen.isLoading = true
-          const res = await this.getLocalUrl(time)
-          this.screen.codec = res.codec
-          this.screen.url = res.url
-        } catch (e) {
-          this.screen.errorMsg = e.message
-        } finally {
-          this.screen.isLoading = false
-        }
+      } else {
+        this.screen.player && this.screen.player.disposePlayer()
+        this.screen.player = null
+        this.screen.errorMsg = this.screen.ERROR.NO_RECORD // 无录像提示
+        this.screen.isLoading = false
       }
-    } else {
-      this.screen.player && this.screen.player.disposePlayer()
-      this.screen.player = null
-      this.screen.errorMsg = this.screen.ERROR.NO_RECORD // 无录像提示
+    } catch (e) {
+      this.screen.url = ''
       this.screen.isLoading = false
     }
   }
@@ -440,31 +445,35 @@ export class RecordManager {
    * 获取本地录像地址
    */
   private async getLocalUrl(startTime: number) {
-    startTime = Math.round(startTime)
-    this.localStartTime = startTime
-    const axiosSource = axios.CancelToken.source()
-    this.axiosSourceList.push(axiosSource)
-    const endTime = startTime + 24 * 60 * 60 - 1
-    let url
-    let codec
-    const res: any = await getDevicePreview({
-      deviceId: this.screen.deviceId,
-      inProtocol: this.screen.inProtocol,
-      type: 'vod',
-      startTime,
-      endTime,
-      'self-defined-headers': {
-        'role-id': this.screen.roleId || '',
-        'real-group-id': this.screen.realGroupId || ''
+    try {
+      startTime = Math.round(startTime)
+      this.localStartTime = startTime
+      const axiosSource = axios.CancelToken.source()
+      this.axiosSourceList.push(axiosSource)
+      const endTime = startTime + 24 * 60 * 60 - 1
+      let url
+      let codec
+      const res: any = await getDevicePreview({
+        deviceId: this.screen.deviceId,
+        inProtocol: this.screen.inProtocol,
+        type: 'vod',
+        startTime,
+        endTime,
+        'self-defined-headers': {
+          'role-id': this.screen.roleId || '',
+          'real-group-id': this.screen.realGroupId || ''
+        }
+      }, axiosSource.token)
+      if (res.playUrl) {
+        url = res.playUrl.flvUrl
+        codec = res.video.codec
       }
-    }, axiosSource.token)
-    if (res.playUrl) {
-      url = res.playUrl.flvUrl
-      codec = res.video.codec
-    }
-    return {
-      url,
-      codec
+      return {
+        url,
+        codec
+      }
+    } catch (e) {
+      throw new Error(e)
     }
   }
 }
