@@ -19,8 +19,8 @@ const SCREEN_CACHE_KEY = {
   live: 'liveScreenCache',
   replay: 'replayScreenCache'
 }
-const SCREEN_CACHE_MANAGER_PARAMS = ['layout', '_size', 'currentIndex']
-const SCREEN_CACHE_PARAMS = ['isLive', 'inProtocol', 'deviceId', 'deviceName', 'roleId', 'realGroupId', 'streamSize', 'streams', 'streamNum', 'currentRecordDatetime', 'volume', 'isMuted', 'playbackRate', 'scale']
+const SCREEN_CACHE_MANAGER_PARAMS = ['layout', '_size', 'currentIndex', 'isSync']
+const SCREEN_CACHE_PARAMS = ['isLive', 'inProtocol', 'deviceId', 'deviceName', 'roleId', 'realGroupId', 'streamSize', 'streams', 'streamNum', 'currentRecordDatetime', 'volume', 'isMuted', 'playbackRate', 'scale', 'recordType']
 export interface ExecuteQueueConfig {
   policy: 'autoPlay' | 'polling';
   interval: number;
