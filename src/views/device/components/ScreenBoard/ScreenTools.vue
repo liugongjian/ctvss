@@ -113,15 +113,7 @@ export default class extends Vue {
    * 时间轴Seek
    */
   private onAxisTimeChange(time: number) {
-    if (this.screenManager.isSync) {
-      this.screenManager.screenList.forEach(screen => {
-        if (!screen.isLive) {
-          screen.recordManager && screen.recordManager.seek(time)
-        }
-      })
-    } else {
-      this.currentScreen.recordManager.seek(time)
-    }
+    this.screenManager.changeReplayTime(time)
   }
 
   /**
