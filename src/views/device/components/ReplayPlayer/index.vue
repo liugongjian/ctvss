@@ -40,6 +40,7 @@
       />
       <ReplayAxis
         v-if="hasAxis"
+        :has-axis="hasAxis"
         :screen="screen"
         :is-inline="true"
         @change="onAxisTimeChange"
