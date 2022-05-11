@@ -276,8 +276,8 @@ export default class extends Vue {
       const temp = this.$store.state.user.userConfigInfo
       const result = temp.find((item: any) => item.key === 'videoScale')
       result.value = this.form.scaleVal
-      const tempObj = temp.find((item: any) => item.key !== 'videoScale') || {}
-      const final = [...tempObj, result]
+      const tempObj = temp.filter((item: any) => item.key !== 'videoScale') || []
+      const final = [...tempObj, [result]]
       this.$store.state.user.userConfigInfo = final
     }).catch(err => {
       // this.$message.error('操作失败')
