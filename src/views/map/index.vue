@@ -1023,6 +1023,10 @@ export default class extends Mixins(IndexMixin) {
   changeMapInfos(map) {
     this.curMapInfo = map
     this.modifyMapDialog = true
+    this.modifyMapForm = {
+      center: true,
+      zoom: true
+    }
   }
 
   private closeAllWindow() {
@@ -1083,10 +1087,6 @@ export default class extends Mixins(IndexMixin) {
     this.curMap = map
     this.$refs.mapview.setMap(map)
     this.$refs.mapview.closeAllPlayer()
-    this.modifyMapForm = {
-      center: true,
-      zoom: true
-    }
   }
 
   private deleteMap(map) {
