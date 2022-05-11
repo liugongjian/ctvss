@@ -2,12 +2,17 @@
   <div ref="axisWrap" class="axis__wrap" :class="{'axis__wrap--disabled': disabled}">
     <div class="axis__middle" />
     <div class="axis__border" />
-    <div v-if="!editTime" class="axis__time" @click="enableEditTime">
-      <el-tooltip placement="right" content="编辑时间" :disabled="disabled">
-        <span class="axis__span" :class="{'axis__time__btn': !disabled}">{{ formatedCurrentTime }}</span>
-      </el-tooltip>
+    <div v-if="!hasAxis">
+      <div v-if="!editTime" class="axis__time" @click="enableEditTime">
+        <el-tooltip placement="right" content="编辑时间" :disabled="disabled">
+          <span class="axis__span" :class="{'axis__time__btn': !disabled}">{{ formatedCurrentTime }}</span>
+        </el-tooltip>
+      </div>
+      <TimeEditer v-else :screen="screen" :current-time="currentTime" @change="onTimeEditerChange" @close="onCloseTimeEditer" />
     </div>
-    <TimeEditer v-else :screen="screen" :current-time="currentTime" @change="onTimeEditerChange" @close="onCloseTimeEditer" />
+    <div v-else class="axis__time">
+      <span class="axis__span">{{ formatedCurrentTime }}</span>
+    </div>
     <canvas ref="canvas" class="axis__canvas" :class="{'dragging': axisDrag.isDragging}" />
     <div class="axis__zoom">
       <div class="axis__zoom__btn" @click="zoom(1)"><svg-icon name="zoom-in" width="12" /></div>
@@ -37,6 +42,9 @@ import ResizeObserver from 'resize-observer-polyfill'
   }
 })
 export default class extends Vue {
+  /* 时间是否可编辑 */
+  @Prop()
+  private hasAxis: boolean
   /* 当前分屏 */
   @Prop()
   private screen: Screen
