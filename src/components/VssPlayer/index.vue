@@ -10,7 +10,7 @@
       :is-muted="isMuted"
       :playback-rate="playbackRate"
       :has-progress="hasProgress"
-      :is-live="videoIsLive"
+      :is-live="isLive"
       :is-debug="true"
       @onCreate="onPlayerCreate"
       @onRetry="onRetry"
@@ -208,11 +208,6 @@ export default class extends Vue {
     return this.codec === 'h265' ? 'h265' : this.type
   }
 
-  /* 如类型为FLV强制改为直播模式，为了支持设备录像播放 */
-  private get videoIsLive() {
-    return this.type === 'flv' ? true : this.isLive
-  }
-
   /* 获取转换协议后的URL */
   private get videoUrl() {
     return this.replaceProtocol(this.url, this.isWs)
@@ -234,6 +229,10 @@ export default class extends Vue {
     return this.player
   }
 
+  /**
+   * 监听录像倍速播放变化
+   * 用于触发设备录像的倍速播放
+   */
   @Watch('player.playbackRate')
   private onPlaybackRateChange() {
     this.$emit('dispatch', {

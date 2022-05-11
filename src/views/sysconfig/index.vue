@@ -93,11 +93,13 @@ import { getPhoneNumberForAISMS, activatePhone } from '@/api/ai-app'
 import { UserModule } from '@/store/modules/user'
 import { updatetUserConfig } from '@/api/users'
 import { scaleKind } from '@/dics/index'
+import { removeLocalStorage } from '@/utils/storage'
 
 function isvalidPhone(str) {
   const reg = /^1[3|4|5|7|8][0-9]\d{8}$/
   return reg.test(str)
 }
+
 const validPhone = (rule, value, callback) => {
   if (!value) {
     callback(new Error('请输入电话号码'))
@@ -106,6 +108,11 @@ const validPhone = (rule, value, callback) => {
   } else {
     callback()
   }
+}
+
+const SCREEN_CACHE_KEY = {
+  live: 'liveScreenCache',
+  replay: 'replayScreenCache'
 }
 @Component({
   name: 'Sysconfig'
@@ -210,6 +217,13 @@ export default class extends Vue {
           ...await getPhoneNumberForAISMS({})
         }
         this.loading = false
+        // 立即清除对应的缓存
+        if (this.cacheForm.replay === 'false') {
+          removeLocalStorage(SCREEN_CACHE_KEY['replay'])
+        }
+        if (this.cacheForm.screen === 'false') {
+          removeLocalStorage(SCREEN_CACHE_KEY['live'])
+        }
       }
     })
   }
@@ -262,8 +276,8 @@ export default class extends Vue {
       const temp = this.$store.state.user.userConfigInfo
       const result = temp.find((item: any) => item.key === 'videoScale')
       result.value = this.form.scaleVal
-      const tempObj = temp.find((item: any) => item.key !== 'videoScale') || {}
-      const final = [...tempObj, result]
+      const tempObj = temp.filter((item: any) => item.key !== 'videoScale') || []
+      const final = [...tempObj, [result]]
       this.$store.state.user.userConfigInfo = final
     }).catch(err => {
       // this.$message.error('操作失败')

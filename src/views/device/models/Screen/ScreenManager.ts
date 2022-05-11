@@ -19,8 +19,8 @@ const SCREEN_CACHE_KEY = {
   live: 'liveScreenCache',
   replay: 'replayScreenCache'
 }
-const SCREEN_CACHE_MANAGER_PARAMS = ['layout', '_size', 'currentIndex']
-const SCREEN_CACHE_PARAMS = ['isLive', 'inProtocol', 'deviceId', 'deviceName', 'roleId', 'realGroupId', 'streamSize', 'streams', 'streamNum', 'currentRecordDatetime', 'volume', 'isMuted', 'playbackRate', 'scale']
+const SCREEN_CACHE_MANAGER_PARAMS = ['layout', '_size', 'currentIndex', 'isSync']
+const SCREEN_CACHE_PARAMS = ['isLive', 'inProtocol', 'deviceId', 'deviceName', 'roleId', 'realGroupId', 'streamSize', 'streams', 'streamNum', 'currentRecordDatetime', 'volume', 'isMuted', 'playbackRate', 'scale', 'recordType']
 export interface ExecuteQueueConfig {
   policy: 'autoPlay' | 'polling';
   interval: number;
@@ -268,6 +268,35 @@ export class ScreenManager {
   }
 
   /**
+   * 同步录像时间
+   * 开启“同步”操作后，将当前选中的分屏的时间同步到其他分屏
+   */
+  public syncReplayTime() {
+    if (this.isSync) {
+      this.screenList.forEach(screen => {
+        if (!screen.isLive) {
+          screen.recordManager && screen.recordManager.seek(this.currentScreen.currentRecordDatetime)
+        }
+      })
+    }
+  }
+
+  /**
+   * 切换录像时间(seek)
+   */
+  public changeReplayTime(time) {
+    if (this.isSync) {
+      this.screenList.forEach(screen => {
+        if (!screen.isLive) {
+          screen.recordManager && screen.recordManager.seek(time)
+        }
+      })
+    } else {
+      this.currentScreen.recordManager.seek(time)
+    }
+  }
+
+  /**
    * 切换录像日期
    */
   public changeReplayDate(date) {
@@ -287,11 +316,11 @@ export class ScreenManager {
     if (this.isSync) {
       this.screenList.forEach(screen => {
         screen.recordType = recordType
-        screen.recordManager && screen.recordManager.initReplay()
+        screen.recordManager && screen.init()
       })
     } else {
       this.currentScreen.recordType = recordType
-      this.currentScreen.recordManager.initReplay()
+      this.currentScreen.init()
     }
   }
 
