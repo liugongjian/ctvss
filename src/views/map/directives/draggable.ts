@@ -2,6 +2,9 @@ const draggable = {
   inserted: function(el) {
     el.style.cursor = 'move'
     el.onmousedown = function(e) {
+      if (e.target.classList.contains('axis__canvas')) {
+        return
+      }
       let disx = e.pageX - el.offsetLeft
       let disy = e.pageY - el.offsetTop
       const pw = parseInt(window.getComputedStyle(el.parentElement).width)
