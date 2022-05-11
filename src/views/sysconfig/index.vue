@@ -279,6 +279,7 @@ export default class extends Vue {
       const tempObj = temp.filter((item: any) => item.key !== 'videoScale') || []
       const final = [...tempObj, [result]]
       this.$store.state.user.userConfigInfo = final
+      UserModule.getUserConfigInfo()
     }).catch(err => {
       // this.$message.error('操作失败')
       console.log('err->', err)
