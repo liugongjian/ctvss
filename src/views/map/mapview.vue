@@ -10,7 +10,7 @@
       class="play-wrap"
       :style="playWindowInfo.style"
       :class="{'screen-container--fullscreen': isFullscreen, 'selected': playWindowInfo.selected}"
-      @click="choosePlayer(playWindowInfo.deviceId)"
+      @mousedown="choosePlayer(playWindowInfo.deviceId)"
     >
       <div v-if="playWindowInfo.show !== 'none'" class="play-container">
         <i class="el-icon el-icon-close" @click="closePlayer(playWindowInfo)" />
