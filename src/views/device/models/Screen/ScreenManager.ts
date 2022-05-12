@@ -275,7 +275,7 @@ export class ScreenManager {
     if (this.isSync) {
       this.screenList.forEach(screen => {
         if (!screen.isLive) {
-          screen.recordManager && screen.recordManager.seek(this.currentScreen.currentRecordDatetime)
+          screen.recordManager && screen.recordManager.seek(this.currentScreen.currentRecordDatetime, true)
         }
       })
     }
@@ -288,7 +288,7 @@ export class ScreenManager {
     if (this.isSync) {
       this.screenList.forEach(screen => {
         if (!screen.isLive) {
-          screen.recordManager && screen.recordManager.seek(time)
+          screen.recordManager && screen.recordManager.seek(time, true)
         }
       })
     } else {
