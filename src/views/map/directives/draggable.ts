@@ -18,13 +18,13 @@ const draggable = {
         let maxY = ph - eh
         if (x < 0) {
           x = 0
-        } else if (x > maxX) {
+        } else if (x > maxX && maxX > 0) {
           x = maxX
         }
 
         if (y < 0) {
           y = 0
-        } else if (y > maxY) {
+        } else if (y > maxY && maxY > 0) {
           y = maxY
         }
 

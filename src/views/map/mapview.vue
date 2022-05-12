@@ -9,7 +9,7 @@
       v-draggable
       class="play-wrap"
       :style="playWindowInfo.style"
-      :class="{'screen-container--fullscreen': isFullscreen, 'selected': playWindowInfo.selected}"
+      :class="{'screen-container--fullscreen': isFullscreen, 'selected': playWindowInfo.selected, 'isFullscreen': playWindowInfo.screen.isFullscreen}"
       @mousedown="choosePlayer(playWindowInfo.deviceId)"
     >
       <div v-if="playWindowInfo.show !== 'none'" class="play-container">
@@ -421,6 +421,9 @@ export default class MapView extends Vue {
     bottom: 0 !important;
     height: 100% !important;
     width: 100% !important;
+  }
+  &.screen-container--fullscreen.selected {
+    z-index: 2003;
   }
 }
 .play-container{
