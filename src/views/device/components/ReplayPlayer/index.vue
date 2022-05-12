@@ -196,7 +196,8 @@ export default class extends Vue {
    * 切换录像类型
    */
   private onReplayTypeChange(recordType) {
-    this.screenManager.changeReplayType(recordType)
+    this.screen.recordType = recordType
+    this.screen.init()
   }
 
   /**
