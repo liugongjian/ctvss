@@ -475,6 +475,7 @@ export default class extends Vue {
    * 开始拖拽时间轴
    */
   private moveAxisStart(e: MouseEvent) {
+    e.stopPropagation()
     this.axisDrag.isDragging = true
     this.axisDrag.startX = e.x
     this.axisDrag.startTime = this.currentTime
