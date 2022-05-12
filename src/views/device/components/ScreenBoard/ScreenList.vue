@@ -98,7 +98,7 @@
       :close-on-click-modal="false"
       @close="closeReplayPlayer()"
     >
-      <VssPlayer :url="currentListRecord.url" type="hls" :codec="currentListRecord.codc" :has-progress="true" />
+      <VssPlayer :url="currentListRecord.url" type="hls" :codec="currentListRecord.codec" :has-progress="true" />
     </el-dialog>
   </div>
 </template>
