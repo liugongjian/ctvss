@@ -2,6 +2,9 @@ const draggable = {
   inserted: function(el) {
     el.style.cursor = 'move'
     el.onmousedown = function(e) {
+      if (e.target.classList.contains('axis__canvas')) {
+        return
+      }
       let disx = e.pageX - el.offsetLeft
       let disy = e.pageY - el.offsetTop
       const pw = parseInt(window.getComputedStyle(el.parentElement).width)
@@ -15,13 +18,13 @@ const draggable = {
         let maxY = ph - eh
         if (x < 0) {
           x = 0
-        } else if (x > maxX) {
+        } else if (x > maxX && maxX > 0) {
           x = maxX
         }
 
         if (y < 0) {
           y = 0
-        } else if (y > maxY) {
+        } else if (y > maxY && maxY > 0) {
           y = maxY
         }
 
