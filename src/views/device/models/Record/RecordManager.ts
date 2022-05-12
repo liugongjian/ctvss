@@ -224,6 +224,8 @@ export class RecordManager {
           }
         }
       } else {
+        this.screen.currentRecordDatetime = time
+        this.screen.recordManager.currentDate = time
         this.screen.player && this.screen.player.disposePlayer()
         this.screen.player = null
         this.screen.errorMsg = this.screen.ERROR.NO_RECORD // 无录像提示
