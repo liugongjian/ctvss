@@ -180,8 +180,9 @@ export class RecordManager {
    * 2) 如果指定时间的录像!==当前片段，切换currentRecord，并设置初始时间
    * 3) 如果指定时间的录像===当前片段，执行seek()
    * @param time 跳转的目标时间（时间戳/秒）
+   * @param isConcat 是否合并到现有列表
    */
-  public async seek(time: number) {
+  public async seek(time: number, isConcat = false) {
     try {
       if (this.screen.deviceId) {
         this.screen.currentRecordDatetime = time
@@ -196,7 +197,7 @@ export class RecordManager {
       if (!record) {
         // 判断该日期是否存在SET中
         if (!this.loadedRecordDates.has(date)) {
-          await this.getRecordListByDate(date, false)
+          await this.getRecordListByDate(date, isConcat)
         }
         record = this.getRecordByTime(time)
       }
