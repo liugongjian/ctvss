@@ -89,7 +89,8 @@ export default class extends Vue {
   private platformId: any
   private typeMapping: any = {
     dir: 0,
-    nvr: 1
+    nvr: 1,
+    platform: 3
   }
 
   private mounted() {
@@ -318,7 +319,7 @@ export default class extends Vue {
         }
         // 构建dir列表
         const pathDirs = item.path.filter((path: any) => {
-          if (path.type === 'dir' || path.type === 'nvr') return true
+          if (['dir', 'nvr', 'platform'].includes(path.type)) return true
         })
         let dirId = '0'
         let currentGroupDir
