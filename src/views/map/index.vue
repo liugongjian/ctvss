@@ -19,6 +19,7 @@
                   <span class="map-text">{{ map.name }}</span>
                 </el-tooltip>
                 <div>
+                  <span class="edit-icon"><svg-icon name="mark" @click.stop="editMark(map)" /></span>
                   <span class="edit-icon"><svg-icon name="edit" @click.stop="openMapEditDialog(map)" /></span>
                   <span class="delete-icon"><svg-icon name="delete" @click.stop="deleteMap(map)" /></span>
                 </div>
