@@ -175,6 +175,12 @@
           <el-checkbox v-for="type in TrashType" :key="type.label" :label="type.label">{{ type.cname }}</el-checkbox>
         </el-checkbox-group>
       </el-form-item>
+      <!-- 安全帽反光服 -->
+      <el-form-item v-if="ifShow('10004')" label="检测项" prop="algorithmMetadata.helmetReflectiveType">
+        <el-checkbox-group v-model="form.algorithmMetadata.helmetReflectiveType">
+          <el-checkbox v-for="type in HelmetClothType" :key="type.label" :label="type.label">{{ type.cname }}</el-checkbox>
+        </el-checkbox-group>
+      </el-form-item>
       <!---->
       <el-form-item label="置信度" prop="confidence">
         <el-slider
@@ -215,7 +221,7 @@
 import { Component, Mixins, Prop } from 'vue-property-decorator'
 import { getAIConfigGroupData } from '@/api/aiConfig'
 import { getAppInfo, updateAppInfo, createApp } from '@/api/ai-app'
-import { ResourceAiType, TrashType } from '@/dics'
+import { ResourceAiType, TrashType, HelmetClothType } from '@/dics'
 import AppMixin from '../../mixin/app-mixin'
 import { formRule, formTips } from '../util/form-helper'
 
@@ -230,7 +236,8 @@ export default class extends Mixins(AppMixin) {
   private ResourceAiType: any = ResourceAiType
   private form: any = {
     algorithmMetadata: {
-      trashRecycleType: []
+      trashRecycleType: [],
+      helmetReflectiveType: []
     }
   }
   private faceLibs = []
@@ -239,6 +246,7 @@ export default class extends Mixins(AppMixin) {
   private effectiveTime: any = []
   private tips: any = formTips
   private TrashType = TrashType
+  private HelmetClothType: any = HelmetClothType
 
   get analyseAiType() {
     let res = Object.assign({}, ResourceAiType)
