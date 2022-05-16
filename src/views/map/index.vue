@@ -211,6 +211,7 @@
               </div>
             </div>
           </div>
+          <custom-point v-if="showCustomPoint" />
         </div>
       </div>
     </el-card>
@@ -229,6 +230,7 @@ import SelectedPoint from './components/SelectedPoint.vue'
 import MapInfo from './components/MapInfo.vue'
 import { getMaps, createMap, deleteMap, modifyMap } from '@/api/map'
 import { mapObject } from '@/views/map/models/vmap'
+import CustomPoint from './components/CustomPoint/index.vue'
 
 @Component({
   name: 'Map',
@@ -237,7 +239,8 @@ import { mapObject } from '@/views/map/models/vmap'
     MapView,
     MapInfo,
     PointInfo,
-    SelectedPoint
+    SelectedPoint,
+    CustomPoint
   }
 })
 export default class extends Mixins(IndexMixin) {
@@ -396,6 +399,9 @@ export default class extends Mixins(IndexMixin) {
     dir: 0,
     nvr: 1
   }
+
+  private showCustomPoint = false
+  private customPointInfo: any = {}
 
   /**
    * 目录初始化
@@ -1058,6 +1064,18 @@ export default class extends Mixins(IndexMixin) {
     this.mapEditDialog.dialogVisible = true
   }
 
+  // 设置地图点位
+  private editMark(map?: mapObject) {
+    this.showCustomPoint = true
+    this.customPointInfo = map
+  }
+  // 关闭地图点位
+  private closeEditMark() {
+    // toto 是否  await this.getMapList()
+    this.showCustomPoint = false
+    this.customPointInfo = {}
+  }
+
   /**
    * 加载地图列表
    */
@@ -1185,7 +1203,8 @@ export default class extends Mixins(IndexMixin) {
   height: 100%;
 }
 
-.device-list__left {
+.device-list__left,
+.device-list__right {
   position: relative;
 }
 
