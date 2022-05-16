@@ -25,7 +25,10 @@
           <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}">
             <span class="node-name">
               <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
-              <svg-icon :name="data.type" />
+              <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
+              <span v-else class="node-dir">
+                <svg-icon name="dir" width="15" height="15" />
+              </span>
               {{ node.label }}
             </span>
           </span>
@@ -298,6 +301,7 @@ export default class extends Vue {
     try {
       this.submitting = true
       const groups: any = []
+      console.log(this.deviceList)
       this.deviceList.forEach((item: any) => {
         // 构建group
         if (item.path[0].type === 'vgroup') {
@@ -319,7 +323,7 @@ export default class extends Vue {
         }
         // 构建dir列表
         const pathDirs = item.path.filter((path: any) => {
-          if (['dir', 'nvr', 'platform'].includes(path.type)) return true
+          if (['dir', 'nvr', 'platform', 'platformDir'].includes(path.type)) return true
         })
         let dirId = '0'
         let currentGroupDir
@@ -341,7 +345,7 @@ export default class extends Vue {
             currentGroupDir = {
               dirId,
               parentDirId,
-              dirType: this.typeMapping[dirType],
+              dirType: this.typeMapping[dirType] || 0,
               devices: []
             }
             currentGroup.dirs.push(currentGroupDir)
