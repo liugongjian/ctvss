@@ -83,7 +83,7 @@
           column-key="create_time"
           prop="createTime"
           sortable="custom"
-          label="发生时间"
+          label="推送时间"
           min-width="240"
         >
           <template slot-scope="{row}">
