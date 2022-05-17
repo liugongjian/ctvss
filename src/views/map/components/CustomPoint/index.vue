@@ -6,6 +6,10 @@
           v-if="activeTab === item.name"
           :list-data="activeData"
           :active-info="item"
+          :active-tab="activeTab"
+          :custom-point-info="customPointInfo"
+          @getPointsList="getPointsList"
+          @closePointMark="closePointMark"
         />
       </el-tab-pane>
     </el-tabs>
@@ -13,8 +17,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator'
 import CustomList from './CustomList.vue'
+import { getInterestList } from '@/api/map'
+
 @Component({
   name: 'CustomPoint',
   components: {
@@ -22,37 +28,47 @@ import CustomList from './CustomList.vue'
   }
 })
 export default class CustomPoint extends Vue {
+  @Prop() private customPointInfo: any
+
   // 定义tabs相关字典
   private tabsList = [
-    { name: 'highlight', label: '高亮区域', sortName: '区域名称' },
-    { name: 'build', label: '兴趣点建筑', sortName: '建筑名称' },
-    { name: 'point', label: '兴趣点', sortName: '兴趣点名称' }
+    { name: 'HighLightArea', label: '高亮区域', sortName: '区域名称' },
+    { name: 'InterestBuilding', label: '兴趣点建筑', sortName: '建筑名称' },
+    { name: 'InterestPoint', label: '兴趣点', sortName: '兴趣点名称' }
   ]
 
-  private activeTab = 'highlight'
-  private activeData = []
+  private activeTab = 'HighLightArea'
+  private activeData = {}
+  private customPoint: any
 
-  private changeTab(tab: any) {
-    const { label } = tab
-    this.activeLabel = label
+  private changeTab() {
+    this.getPointsList()
   }
 
   private mounted() {
-    this.activeData = [{
-      name: '王小虎',
-      remarks: '上海市普陀区金沙江路 1518 弄'
-    }, {
-      name: '王小虎',
-      remarks: '上海市普陀区金沙江路 1517 弄'
-    }, {
-      date: '2016-05-01',
-      name: '王小虎',
-      remarks: '上海市普陀区金沙江路 1519 弄'
-    }, {
-      date: '2016-05-03',
-      name: '王小虎',
-      remarks: '上海市普陀区金沙江路 1516 弄'
-    }]
+    this.getPointsList()
+  }
+
+  private getPointsList(pageNum: number = 1, pageSize: number = 20) {
+    const { mapId } = this.customPointInfo
+    const param = {
+      mapId,
+      type: this.activeTab,
+      pageNum,
+      pageSize
+    }
+    getInterestList(param).then(res => {
+      if (res && res.tags && res.tags.length > 0) {
+        this.activeData = res
+      } else {
+        this.activeData = {}
+      }
+    }).catch(err => console.log(err))
+  }
+
+  private closePointMark() {
+    this.$emit('closeEditMark')
+    this.$emit('chooseMap', this.customPointInfo)
   }
 }
 </script>
@@ -62,7 +78,7 @@ export default class CustomPoint extends Vue {
   .cutsom-point-box {
     background-color: #fff;
     position: absolute;
-    z-index: 2003;
+    z-index: 200;
     top: 0;
     right: 0;
     bottom: 0;
