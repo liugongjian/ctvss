@@ -283,3 +283,11 @@ export const TrashType = [
   { label: 'cask_overflows', cname: '垃圾桶溢满' },
   { label: 'trash', cname: '地面垃圾' }
 ]
+
+export const ViewTypes = [
+  { value: 'all', cname: '全部' },
+  { value: 'face', cname: '人脸' },
+  { value: 'people', cname: '人员' },
+  { value: 'moter', cname: '机动车' },
+  { value: 'vehicle', cname: '非机动车' }
+]

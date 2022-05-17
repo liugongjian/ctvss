@@ -92,21 +92,24 @@ export default class extends Vue {
 //     min-width: 160px;
 //   }
 // }
-.select{
+.select {
   float: left;
   padding-right: 20px;
+
   .el-select {
     width: 120px;
-    ::v-deep .el-input{
+
+    ::v-deep .el-input {
       padding-top: 2px;
     }
   }
 }
-.no-data{
+
+.no-data {
   height: 400px;
   line-height: 200px;
   vertical-align: middle;
   text-align: center;
-  color: rgba(186,198,198);
+  color: rgba(186, 198, 198);
 }
 </style>

@@ -229,6 +229,9 @@
         <el-tab-pane label="AI分析" name="ai">
           <detail-ai v-if="activeName==='ai'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
+        <el-tab-pane label="视图数据" name="viewlib">
+          <detail-view-lib v-if="activeName==='viewlib'" :device-id="deviceId" :in-protocol="inProtocol" />
+        </el-tab-pane>
       </el-tabs>
     </div>
     <set-auth-config v-if="dialog.setAuthConfig" @on-close="closeDialog('setAuthConfig')" />
@@ -242,11 +245,13 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import detailMixin from '../mixin/detailMixin'
 import DetailAi from '../components/DetailAi.vue'
+import DetailViewLib from '../components/DetailViewLib.vue'
 
 @Component({
   name: 'DeviceGb28181Detail',
   components: {
-    DetailAi
+    DetailAi,
+    DetailViewLib
   }
 })
 export default class extends Mixins(detailMixin) {
