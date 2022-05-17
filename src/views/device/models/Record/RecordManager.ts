@@ -155,7 +155,12 @@ export class RecordManager {
       }
       if (!isConcat) this.screen.isLoading = false
       // 加载AI热力列表
-      // this.heatmapList = await this.getHeatmapList(date, date + 24 * 60 * 60)
+      const heatmaps = await this.getHeatmapList(date, date + 24 * 60 * 60)
+      if (date > this.currentDate) {
+        this.heatmapList = this.heatmapList.concat(heatmaps)
+      } else {
+        this.heatmapList = heatmaps.concat(this.heatmapList)
+      }
     } catch (e) {
       // 异常时删除日期
       this.loadedRecordDates.delete(date)

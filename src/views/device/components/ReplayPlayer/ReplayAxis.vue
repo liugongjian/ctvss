@@ -95,6 +95,7 @@ export default class extends Vue {
     textY: 0,
     midLineY: 0,
     recordColor: '#abd0ff',
+    heatmapColor: '#d94f4f',
     hourLineColor: '#000',
     minLineColor: '#94a4ba',
     midLineColor: '#fa8334',
@@ -108,7 +109,8 @@ export default class extends Vue {
     tenMins: [],
     fiveMins: [],
     oneMins: [],
-    records: []
+    records: [],
+    heatmaps: []
   }
 
   /* 画布 */
@@ -192,6 +194,7 @@ export default class extends Vue {
   private created() {
     if (this.isInline) {
       this.settings.recordColor = '#445469'
+      this.settings.heatmapColor = '#8d4b4b'
       this.settings.hourLineColor = '#bbb'
       this.settings.minLineColor = '#999'
       this.settings.midLineColor = '#fa8334'
@@ -351,11 +354,11 @@ export default class extends Vue {
     }
     this.axisData.oneMins = oneMins
 
-    /* 计算录像片段 */
-    const records = []
-    if (this.recordManager && this.recordManager.recordList) {
-      for (let i = 0; i < this.recordManager.recordList.length; i++) {
-        const record = this.recordManager.recordList[i]
+    /* 计算片段 */
+    const calRecords = (list) => {
+      const records = []
+      for (let i = 0; i < list.length; i++) {
+        const record = list[i]
         if (record.startTime < this.axisEndTime && record.endTime > this.axisStartTime) {
           const recordOffsetTime = record.startTime - this.axisStartTime
           records.push({
@@ -365,8 +368,12 @@ export default class extends Vue {
           })
         }
       }
+      return records
     }
-    this.axisData.records = records
+    /* 计算录像片段 */
+    this.axisData.records = this.recordManager && this.recordManager.recordList ? calRecords(this.recordManager.recordList) : []
+    /* 计算Heatmap片段 */
+    this.axisData.heatmaps = this.recordManager && this.recordManager.heatmapList ? calRecords(this.recordManager.heatmapList) : []
   }
 
   /**
@@ -380,6 +387,13 @@ export default class extends Vue {
     this.ctx.fillStyle = this.settings.recordColor
     for (let i in this.axisData.records) {
       const line = this.axisData.records[i]
+      this.ctx.fillRect(line.x, line.y, line.width, this.settings.recordHeight)
+    }
+
+    /* 绘制heatmap线 */
+    this.ctx.fillStyle = this.settings.heatmapColor
+    for (let i in this.axisData.heatmaps) {
+      const line = this.axisData.heatmaps[i]
       this.ctx.fillRect(line.x, line.y, line.width, this.settings.recordHeight)
     }
 
