@@ -55,10 +55,10 @@
 <script lang="ts">
 import { Component, Vue, Prop, Provide, Watch } from 'vue-property-decorator'
 import './styles/index.scss'
-import { PlayerType } from '@/components/Player/models/Player.d'
-import { PlayerEvent, DeviceInfo, StreamInfo } from '@/components/VssPlayer/models/VssPlayer.d'
+import { PlayerType } from '@/components/Player/types/Player.d'
+import { PlayerEvent, DeviceInfo, StreamInfo } from '@/components/VssPlayer/types/VssPlayer'
 import Player from '@/components/Player/index.vue'
-import { Player as PlayerModel } from '@/components/Player/models/Player'
+import { Player as PlayerModel } from '@/components/Player/services/Player'
 import { adaptiveTools } from './directives/adaptiveTools'
 /**
  * 子组件库
@@ -299,7 +299,7 @@ export default class extends Vue {
     } else {
       zoomRef = this.$refs.ptzZoom
     }
-    zoomRef.close()
+    zoomRef && zoomRef.close()
   }
 
   /* 替换播放地址协议 */

@@ -30,7 +30,7 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { isCrossDays, dateFormat, getNextHour, getDateByTime, currentTimeZeroMsec } from '@/utils/date'
 import { prefixZero } from '@/utils/number'
-import { Screen } from '@/views/device/models/Screen/Screen'
+import { Screen } from '@/views/device/services/Screen/Screen'
 import { throttle } from 'lodash'
 import TimeEditer from '@/views/device/components/ReplayPlayer/TimeEditer.vue'
 import ResizeObserver from 'resize-observer-polyfill'

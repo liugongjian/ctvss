@@ -38,8 +38,8 @@
 <script lang="ts">
 import { Component, Prop, Vue, Inject } from 'vue-property-decorator'
 import { checkPermission } from '@/utils/permission'
-import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
-import screenLogManager from '@/views/device/models/Screen/ScreenLogManager'
+import { ScreenManager } from '@/views/device/services/Screen/ScreenManager'
+import screenLogManager from '@/views/device/services/Screen/ScreenLogManager'
 import LivePlayer from '../LivePlayer.vue'
 import ReplayPlayer from '../ReplayPlayer/index.vue'
 import DeviceDir from '../dialogs/DeviceDir.vue'

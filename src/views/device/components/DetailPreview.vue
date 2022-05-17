@@ -12,9 +12,9 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { Stream } from '@/components/VssPlayer/models/VssPlayer'
+import { Stream } from '@/components/VssPlayer/types/VssPlayer'
 import ScreenBoard from './ScreenBoard/index.vue'
-import { ScreenManager } from '../models/Screen/ScreenManager'
+import { ScreenManager } from '../services/Screen/ScreenManager'
 
 @Component({
   name: 'DeviceLive',

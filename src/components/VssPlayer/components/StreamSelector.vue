@@ -27,7 +27,7 @@
 import { Component, Prop, Watch } from 'vue-property-decorator'
 import ComponentMixin from './mixin'
 import StatusBadge from '@/components/StatusBadge/index.vue'
-import { Stream, StreamInfo } from '@/components/VssPlayer/models/VssPlayer.d'
+import { Stream, StreamInfo } from '@/components/VssPlayer/types/VssPlayer'
 
 @Component({
   name: 'StreamSelector',
