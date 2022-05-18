@@ -310,5 +310,7 @@
 
   &--replay.screen-container--fullscreen {
     @include fullscreen();
+
+    height: 100% !important;
   }
 }
