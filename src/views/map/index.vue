@@ -135,8 +135,8 @@
                     <span class="zoomdesc">{{ zoomDesc }}</span>
                   </div>
                 </el-form-item>
-                <el-form-item label="是否启用模板" prop="mask" class="mask" v-if="mapEditDialog.status === 'edit'">
-                  <el-checkbox v-model="form.mask"></el-checkbox>
+                <el-form-item v-if="mapEditDialog.status === 'edit'" label="是否启用模板" prop="mask" class="mask">
+                  <el-checkbox v-model="form.mask" />
                 </el-form-item>
               </el-form>
               <span slot="footer" class="dialog-footer">
@@ -876,7 +876,7 @@ export default class extends Mixins(IndexMixin) {
       houseInfo: '',
       unitInfo: '',
       groupId: this.deviceInfo.groupId,
-      deviceColor: '',
+      deviceColor: ''
     }
   }
 
@@ -989,7 +989,7 @@ export default class extends Mixins(IndexMixin) {
             name: this.form.name,
             longitude: this.form.longitude || '116.397428',
             latitude: this.form.latitude || '39.90923',
-            zoom: this.form.zoom,
+            zoom: this.form.zoom
           }
           if (this.mapEditDialog.status === 'add') {
             const res = await createMap(map)
@@ -1064,7 +1064,7 @@ export default class extends Mixins(IndexMixin) {
         longitude: map.longitude + '',
         latitude: map.latitude + '',
         zoom: Number(map.zoom),
-        mask: map.mask === 'Y',
+        mask: map.mask === 'Y'
       }
       this.mapEditDialog.status = 'edit'
     } else {
