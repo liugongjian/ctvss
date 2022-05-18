@@ -1119,6 +1119,8 @@ export default class extends Mixins(IndexMixin) {
   }
 
   private chooseMap(map) {
+    this.showCustomPoint = false
+    this.customPointInfo = {}
     this.showInfo = false
     this.showMapInfo = true
     this.showMarkers = true

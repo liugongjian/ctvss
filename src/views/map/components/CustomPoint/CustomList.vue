@@ -14,6 +14,7 @@
       border
       style="width: 100%;"
       class="cutsom-point-list__table"
+      height="calc(100vh - 300px)"
     >
       <el-table-column
         prop="tagName"
@@ -155,10 +156,10 @@ export default class CustomList extends Vue {
 <style lang="scss" scoped>
 .device-list__right {
   .cutsom-point-list {
-    &__table {
+    /* &__table {
       max-height: calc(100vh - 300px);
       overflow-y: auto;
-    }
+    } */
 
     &__btn {
       display: flex;

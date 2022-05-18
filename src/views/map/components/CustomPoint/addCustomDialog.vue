@@ -9,7 +9,7 @@
   >
     <el-form ref="pointForm" :model="pointForm" label-width="110px" :rules="formRules">
       <el-form-item :label="activeInfo.sortName" prop="tagName">
-        <el-input v-model="pointForm.tagName" :placeholder="`请输入${activeInfo.sortName}`" />
+        <el-input v-model.trim="pointForm.tagName" :placeholder="`请输入${activeInfo.sortName}`" />
       </el-form-item>
       <el-form-item label="备注" prop="description">
         <el-input
