@@ -49,13 +49,14 @@ export default class CustomPoint extends Vue {
     this.getPointsList()
   }
 
-  private getPointsList(pageNum: number = 1, pageSize: number = 20) {
+  private getPointsList({ pageNum = 1, pageSize = 20, kw = '' } = {}) {
     const { mapId } = this.customPointInfo
     const param = {
       mapId,
       type: this.activeTab,
       pageNum,
-      pageSize
+      pageSize,
+      tagName: kw
     }
     getInterestList(param).then(res => {
       if (res && res.tags && res.tags.length > 0) {

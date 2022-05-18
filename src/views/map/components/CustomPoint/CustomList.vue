@@ -3,6 +3,11 @@
     <div class="cutsom-point-list__btn">
       <el-button @click="backToMap">返回</el-button>
       <el-button type="primary" @click="createNew">新建{{ activeInfo.label }}</el-button>
+      <div class="cutsom-point-list__search">
+        <el-input v-model="searchKeyWord" placeholder="请输入关键词" @keyup.enter.native="searchList">
+          <el-button slot="append" icon="el-icon-search" @click="searchList" />
+        </el-input>
+      </div>
     </div>
     <el-table
       :data="thisTabData.tags||[]"
@@ -77,6 +82,7 @@ export default class CustomList extends Vue {
   private editData: any = {}
   private isUpdated = false
   private pointData: any = {}
+  private searchKeyWord: string = ''
 
   @Watch('activeTab', { immediate: true })
   private onActiveTabChange() {
@@ -134,8 +140,12 @@ export default class CustomList extends Vue {
     this.isUpdated = false
   }
 
+  private searchList() {
+    this.freshList(1)
+  }
+
   private freshList(curPage: number = 1) {
-    this.$emit('getPointsList', curPage)
+    this.$emit('getPointsList', { pageNum: curPage, pageSize: 20, kw: this.searchKeyWord })
     this.showAddDialog = false
     this.isUpdated = false
   }
@@ -151,8 +161,14 @@ export default class CustomList extends Vue {
     }
 
     &__btn {
+      display: flex;
       margin-top: 4px;
       margin-bottom: 20px;
+    }
+
+    &__search {
+      display: inline-block;
+      margin-left: auto;
     }
 
     &__edit {
