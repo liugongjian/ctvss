@@ -19,7 +19,7 @@
           <el-row
             v-for="(item,index) in pointForm.points"
             :key="index"
-            :class="{'custom-point-item__box': activeInfo.name !=='InterestPoint'}"
+            :class="{'custom-point-item__box': activeInfo.name !=='InterestPoint' || showError}"
           >
             <el-col :span="10">
               <el-form-item
@@ -55,10 +55,10 @@
       </el-form-item>
       <el-form-item v-if="activeInfo.name ==='InterestPoint'" label="颜色">
         <el-select v-model="pointForm.color" placeholder="请选择气泡颜色">
-          <el-option label="#285CF2" value="#285CF2" />
-          <el-option label="#19a22b" value="#19a22b" />
-          <el-option label="#ab3312" value="#ab3312" />
-          <el-option label="#ffaa00" value="#ffaa00" />
+          <el-option v-for="item in colorList" :key="item.label" :label="item.label" :value="item.color">
+            <span class="custom-point-option-color" :style="`background-color: ${item.color}`" />
+            <span class="custom-point-option">{{ item.label }}</span>
+          </el-option>
         </el-select>
         <span class="custom-point-color-info" :style="`background-color: ${pointForm.color}`">{{ pointForm.color }}</span>
       </el-form-item>
@@ -91,6 +91,33 @@ export default class addCustomDialog extends Vue {
   private pointForm: any = {}
 
   private formRules: any = {}
+
+  private showError: boolean = false
+
+  private colorList = [
+    { label: '#1e78e0', color: '#1e78e0' },
+    { label: '#007f1b', color: '#007f1b' },
+    { label: '#eab809', color: '#eab809' },
+    { label: '#ee5007', color: '#ee5007' },
+    { label: '#b22727', color: '#b22727' },
+    { label: '#a85cf9', color: '#a85cf9' },
+    { label: '#5534a5', color: '#5534a5' },
+    { label: '#4b7be5', color: '#4b7be5' }
+  ]
+  // [{
+  //   color: '#1e78e0',
+  //   label: '#1e78e0'
+  // }, {
+  //   color: '#19a22b',
+  //   label: '#19a22b'
+  // }, {
+  //   color: '#ab3312',
+  //   label: '#ab3312'
+  // }, {
+  //   color: '#ffaa00',
+  //   label: '#ffaa00'
+  // }]
+
   private mounted() {
     this.setEditData()
     this.formRules = {
@@ -114,7 +141,7 @@ export default class addCustomDialog extends Vue {
     } else {
       this.pointForm = {
         points: [{ longitude: '0.000000', latitude: '0.000000' }],
-        color: '#285CF2',
+        color: this.colorList[0].color,
         colorType: 'bubble'
       }
     }
@@ -122,10 +149,13 @@ export default class addCustomDialog extends Vue {
 
   private validateLonglat(rule: any, value: string, callback: Function, item: any) {
     if (!/^[-+]?(0(\.\d{1,10})?|([1-9](\d)?)(\.\d{1,10})?|1[0-7]\d{1}(\.\d{1,10})?|180\.0{1,10})$/.test(item.longitude)) {
+      this.showError = true
       callback(new Error('经度坐标格式错误'))
     } else if (!/^[-+]?((0|([1-9]\d?))(\.\d{1,10})?|90(\.0{1,10})?)$/.test(item.latitude)) {
+      this.showError = true
       callback(new Error('纬度坐标格式错误'))
     } else {
+      this.showError = false
       callback()
     }
   }
@@ -212,6 +242,18 @@ export default class addCustomDialog extends Vue {
   font-size: 14px;
   line-height: 14px;
   color: #fff;
+}
+
+.custom-point-option {
+  float: right;
+  height: 34px;
+  line-height: 34px;
+}
+
+.custom-point-option-color {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
 }
 
 ::v-deep .el-dialog__footer {
