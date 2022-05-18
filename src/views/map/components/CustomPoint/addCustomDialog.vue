@@ -38,7 +38,7 @@
                 <el-input v-model="item.latitude" class="custom-point-box__info" placeholder="请输入纬度" />
               </el-form-item>
             </el-col>
-            <el-col :span="3" style="text-align: center;">
+            <el-col v-if="activeInfo.name !=='InterestPoint'" :span="3" style="text-align: center;">
               <el-button type="text" @click.prevent="removeThis(item,index)">删除</el-button>
             </el-col>
           </el-row>
