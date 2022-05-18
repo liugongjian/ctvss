@@ -75,7 +75,6 @@ export default class CustomList extends Vue {
   private thisTabData: any = []
   private showAddDialog = false
   private editData: any = {}
-  private showEditDialog = false
   private isUpdated = false
   private pointData: any = {}
 
@@ -109,11 +108,9 @@ export default class CustomList extends Vue {
         this.pointData = res
         this.isUpdated = true
       }
-    }).catch(err => console.log(err))
-  }
-
-  private closeEdit() {
-    this.showEditDialog = false
+    }).catch(err => {
+      this.$message.error(`${err.message ? err.message : err}`)
+    })
   }
 
   private deleteThis(row: any) {
@@ -134,11 +131,13 @@ export default class CustomList extends Vue {
 
   private closeThis() {
     this.showAddDialog = false
+    this.isUpdated = false
   }
 
   private freshList(curPage: number = 1) {
     this.$emit('getPointsList', curPage)
     this.showAddDialog = false
+    this.isUpdated = false
   }
 }
 </script>

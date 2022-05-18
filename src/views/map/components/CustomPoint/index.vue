@@ -63,7 +63,9 @@ export default class CustomPoint extends Vue {
       } else {
         this.activeData = {}
       }
-    }).catch(err => console.log(err))
+    }).catch(err => {
+      this.$message.error(`${err.message ? err.message : err}`)
+    })
   }
 
   private closePointMark() {

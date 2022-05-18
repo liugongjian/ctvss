@@ -1,10 +1,11 @@
 <template>
   <el-dialog
-    :title="`新建${activeInfo.label}`"
+    :title="`${isUpdated ? '编辑' : '新建'}${activeInfo.label}`"
     :visible="showAddDialog"
     :append-to-body="true"
     width="600px"
     :before-close="handleClose"
+    :destroy-on-close="true"
   >
     <el-form ref="pointForm" :model="pointForm" label-width="110px" :rules="formRules">
       <el-form-item :label="activeInfo.sortName" prop="tagName">
@@ -18,7 +19,7 @@
           <el-row
             v-for="(item,index) in pointForm.points"
             :key="index"
-            class="custom-point-item__box"
+            :class="{'custom-point-item__box': activeInfo.name !=='InterestPoint'}"
           >
             <el-col :span="10">
               <el-form-item
@@ -43,8 +44,23 @@
           </el-row>
         </div>
       </el-form-item>
-      <el-form-item class="custom-point-item__addBtn">
+      <el-form-item v-if="activeInfo.name !=='InterestPoint'" class="custom-point-item__addBtn">
         <el-button class="custom-point-btn" @click="addPoints">添加坐标点</el-button>
+      </el-form-item>
+      <el-form-item v-if="activeInfo.name ==='InterestPoint'" label="类型">
+        <el-select v-model="pointForm.colorType" placeholder="请选择气泡类型">
+          <el-option label="气泡" value="bubble" />
+          <el-option label="文本" value="text" />
+        </el-select>
+      </el-form-item>
+      <el-form-item v-if="activeInfo.name ==='InterestPoint'" label="颜色">
+        <el-select v-model="pointForm.color" placeholder="请选择气泡颜色">
+          <el-option label="#285CF2" value="#285CF2" />
+          <el-option label="#19a22b" value="#19a22b" />
+          <el-option label="#ab3312" value="#ab3312" />
+          <el-option label="#ffaa00" value="#ffaa00" />
+        </el-select>
+        <span class="custom-point-color-info" :style="`background-color: ${pointForm.color}`">{{ pointForm.color }}</span>
       </el-form-item>
     </el-form>
     <span slot="footer" class="custom-point-dialog-footer">
@@ -55,8 +71,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { addInterestPoint } from '@/api/map'
+import { Component, Vue, Prop } from 'vue-property-decorator'
+import { addInterestPoint, editInterestPoint } from '@/api/map'
 
 @Component({
   name: 'addCustomDialog',
@@ -86,16 +102,20 @@ export default class addCustomDialog extends Vue {
 
   private setEditData() {
     if (this.isUpdated) {
-      const { tagName, type, description, points } = this.pointData
+      const { tagName, type, description, points, color, colorType } = this.pointData
       this.pointForm = {
         tagName,
         type,
         description,
-        points
+        points,
+        color,
+        colorType
       }
     } else {
       this.pointForm = {
-        points: [{ longitude: '0.000000', latitude: '0.000000' }]
+        points: [{ longitude: '0.000000', latitude: '0.000000' }],
+        color: '#285CF2',
+        colorType: 'bubble'
       }
     }
   }
@@ -119,19 +139,40 @@ export default class addCustomDialog extends Vue {
         type: this.activeInfo.name,
         description: this.pointForm.description,
         mapId: this.customPointInfo.mapId,
-        points: this.pointForm.points
+        points: this.pointForm.points,
+        color: this.pointForm.color,
+        colorType: this.pointForm.colorType
       }
-      addInterestPoint(param).then(() => {
-        this.$parent.freshList()
-      }).catch(err => console.log(err))
+      if (this.isUpdated) {
+        const { tagId } = this.pointData
+        editInterestPoint({ ...param, tagId }).then(() => {
+          this.$message.success('编辑成功')
+          this.$parent.freshList()
+        }).catch(err => {
+          this.$message.error(`${err.message ? err.message : err}`)
+        })
+      } else {
+        addInterestPoint(param).then(() => {
+          this.$message.success('新增成功')
+          this.$parent.freshList()
+        }).catch(err => {
+          this.$message.error(`${err.message ? err.message : err}`)
+        })
+      }
     })
   }
 
   private cancelThis() {
+    const form: any = this.$refs.pointForm
+    form.clearValidate()
+    form.resetFields()
     this.$parent.closeThis()
   }
 
   private handleClose() {
+    const form: any = this.$refs.pointForm
+    form.clearValidate()
+    form.resetFields()
     this.$parent.closeThis()
   }
 
@@ -162,6 +203,15 @@ export default class addCustomDialog extends Vue {
   &__addBtn {
     margin-top: -24px;
   }
+}
+
+.custom-point-color-info {
+  display: inline-block;
+  padding: 10px 20px;
+  margin-left: 20px;
+  font-size: 14px;
+  line-height: 14px;
+  color: #fff;
 }
 
 ::v-deep .el-dialog__footer {
