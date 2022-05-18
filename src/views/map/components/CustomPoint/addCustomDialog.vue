@@ -9,7 +9,7 @@
   >
     <el-form ref="pointForm" :model="pointForm" label-width="110px" :rules="formRules">
       <el-form-item :label="activeInfo.sortName" prop="tagName">
-        <el-input v-model.trim="pointForm.tagName" :placeholder="`请输入${activeInfo.sortName}`" />
+        <el-input v-model="pointForm.tagName" :placeholder="`请输入${activeInfo.sortName}`" />
       </el-form-item>
       <el-form-item label="备注" prop="description">
         <el-input
@@ -57,7 +57,7 @@
           <el-option label="文本" value="text" />
         </el-select>
       </el-form-item>
-      <el-form-item v-if="activeInfo.name ==='InterestPoint'" label="颜色">
+      <el-form-item v-if="activeInfo.name ==='InterestPoint' && pointForm.colorType === 'bubble'" label="颜色">
         <el-select v-model="pointForm.color" placeholder="请选择气泡颜色">
           <el-option v-for="item in colorList" :key="item.label" :label="item.label" :value="item.color">
             <span class="custom-point-option-color" :style="`background-color: ${item.color}`" />
@@ -126,8 +126,16 @@ export default class addCustomDialog extends Vue {
     this.setEditData()
     this.formRules = {
       tagName: [
-        { required: true, message: `请输入${this.activeInfo.sortName}`, trigger: 'blur' }
+        { required: true, validator: this.checkSpace, trigger: 'blur' }
       ]
+    }
+  }
+
+  private checkSpace(rule: any, value: string, callback: Function) {
+    if (!value.trim()) {
+      callback(new Error(`请输入${this.activeInfo.sortName}`))
+    } else {
+      callback()
     }
   }
 
@@ -174,7 +182,7 @@ export default class addCustomDialog extends Vue {
         description: this.pointForm.description,
         mapId: this.customPointInfo.mapId,
         points: this.pointForm.points,
-        color: this.pointForm.color,
+        color: this.pointForm.colorType === 'bubble' ? this.pointForm.color : '',
         colorType: this.pointForm.colorType
       }
       if (this.isUpdated) {

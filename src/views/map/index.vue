@@ -618,6 +618,7 @@ export default class extends Mixins(IndexMixin) {
   private mousedownHandle(eve: any, data: any) {
     if (!data.isLeaf || (data.isLeaf && this.mapDeviceIds.indexOf(data.id) >= 0)) return
 
+    this.closeEditMark()
     this.ifDragging = true
     const { target: ele } = eve
 
@@ -803,6 +804,7 @@ export default class extends Mixins(IndexMixin) {
   }
 
   addMarker(marker) {
+    this.closeEditMark()
     if (!this.isEdit) {
       this.$msgbox({
         title: '开始编辑',
@@ -949,6 +951,7 @@ export default class extends Mixins(IndexMixin) {
   }
 
   deviceClick(data) {
+    this.closeEditMark()
     if (data.isLeaf && this.mapDeviceIds.indexOf(data.id) < 0) {
       this.$message.warning('该设备尚未添加到当前地图上')
     } else if (data.isLeaf && this.mapDeviceIds.indexOf(data.id) >= 0) {
@@ -959,6 +962,7 @@ export default class extends Mixins(IndexMixin) {
   }
 
   deleteMarker(marker) {
+    this.closeEditMark()
     this.$refs.mapview.handleMarkerDelete(marker.id, marker.label)
   }
 
