@@ -595,6 +595,43 @@ export const asyncRoutes: RouteConfig[] = [
           perms: ['*'],
           activeMenu: '/certificate/gb28181'
         }
+      },
+      {
+        path: 'ga1400',
+        component: () => import(/* webpackChunkName: "tree" */ '@/views/certificate/ga1400/index.vue'),
+        name: 'ga1400',
+        meta: {
+          id: '20210424150201007004',
+          name: 'certificate',
+          title: 'GA1400凭证',
+          icon: 'dot',
+          perms: ['*'],
+          activeMenu: '/certificate/ga1400'
+        }
+      },
+      {
+        path: 'ga1400/create',
+        component: () => import(/* webpackChunkName: "tree" */ '@/views/certificate/ga1400/create.vue'),
+        name: 'ga1400-create',
+        meta: {
+          id: '20210424150201007005',
+          title: '新建GA1400凭证',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/certificate/ga1400'
+        }
+      },
+      {
+        path: 'ga1400/update/:id?',
+        component: () => import(/* webpackChunkName: "tree" */ '@/views/certificate/ga1400/create.vue'),
+        name: 'ga1400-update',
+        meta: {
+          id: '20210424150201007006',
+          title: '编辑GA1400凭证',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/certificate/ga1400'
+        }
       }
     ]
   },
