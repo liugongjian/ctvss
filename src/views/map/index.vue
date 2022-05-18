@@ -135,6 +135,9 @@
                     <span class="zoomdesc">{{ zoomDesc }}</span>
                   </div>
                 </el-form-item>
+                <el-form-item label="是否启用模板" prop="mask" class="mask" v-if="mapEditDialog.status === 'edit'">
+                  <el-checkbox v-model="form.mask"></el-checkbox>
+                </el-form-item>
               </el-form>
               <span slot="footer" class="dialog-footer">
                 <el-button type="primary" @click="addOrEditMap">确定</el-button>
@@ -282,7 +285,8 @@ export default class extends Mixins(IndexMixin) {
     name: '',
     longitude: '',
     latitude: '',
-    zoom: 12
+    zoom: 12,
+    mask: false
   }
   private get zoomDesc() {
     const map = {
@@ -870,7 +874,9 @@ export default class extends Mixins(IndexMixin) {
       deviceAngle: '0',
       population: '',
       houseInfo: '',
-      unitInfo: ''
+      unitInfo: '',
+      groupId: this.deviceInfo.groupId,
+      deviceColor: '',
     }
   }
 
@@ -983,7 +989,7 @@ export default class extends Mixins(IndexMixin) {
             name: this.form.name,
             longitude: this.form.longitude || '116.397428',
             latitude: this.form.latitude || '39.90923',
-            zoom: this.form.zoom
+            zoom: this.form.zoom,
           }
           if (this.mapEditDialog.status === 'add') {
             const res = await createMap(map)
@@ -996,15 +1002,24 @@ export default class extends Mixins(IndexMixin) {
             this.mapList.push(this.curMap)
             this.mapEditDialog.dialogVisible = false
           } else {
-            await modifyMap(this.form)
+            const mask = this.form.mask ? 'Y' : 'N'
+            const map = {
+              mapId: this.form.mapId,
+              name: this.form.name,
+              longitude: this.form.longitude || '116.397428',
+              latitude: this.form.latitude || '39.90923',
+              zoom: this.form.zoom,
+              mask
+            }
+            await modifyMap(map)
             this.mapList = this.mapList.map(item => {
-              if (item.mapId === this.form.mapId) {
-                return this.form
+              if (item.mapId === map.mapId) {
+                return map
               } else {
                 return item
               }
             })
-            this.curMap = this.form
+            this.curMap = map
             this.$refs.mapview.setMapZoomAndCenter(this.curMap.zoom, this.curMap.longitude, this.curMap.latitude)
             this.$alertSuccess('地图修改成功')
             this.mapEditDialog.dialogVisible = false
@@ -1048,7 +1063,8 @@ export default class extends Mixins(IndexMixin) {
         name: map.name,
         longitude: map.longitude + '',
         latitude: map.latitude + '',
-        zoom: Number(map.zoom)
+        zoom: Number(map.zoom),
+        mask: map.mask === 'Y',
       }
       this.mapEditDialog.status = 'edit'
     } else {
@@ -1057,7 +1073,8 @@ export default class extends Mixins(IndexMixin) {
         name: '',
         longitude: '',
         latitude: '',
-        zoom: 12
+        zoom: 12,
+        mask: false
       }
       this.mapEditDialog.status = 'add'
     }
@@ -1413,6 +1430,9 @@ export default class extends Mixins(IndexMixin) {
 
 .dialog-text {
   text-align: center;
+}
+.dialog-text .mask {
+  text-align: left;
 }
 
 .tools-item__cup {

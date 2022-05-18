@@ -24,6 +24,9 @@
       <el-descriptions-item label="纬度">
         <el-input v-model="markerInfo.latitude" :disabled="!isEdit" />
       </el-descriptions-item>
+      <el-descriptions-item label="设备颜色">
+        <el-input v-model="markerInfo.deviceColor" :disabled="!isEdit" />
+      </el-descriptions-item>
       <!-- <el-descriptions-item label="设备角度">
         <el-input v-model="markerInfo.viewRadius" :disabled="!isEdit" />
       </el-descriptions-item>
@@ -77,7 +80,9 @@ export default class extends Vue {
     population: '',
     houseInfo: '',
     unitInfo: '',
-    gbRegionNames: []
+    gbRegionNames: [],
+    groupId: '',
+    deviceColor: '#6fdfdf',
   }
 
   private DeviceStatus = DeviceStatus
