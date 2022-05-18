@@ -25,7 +25,13 @@
         <el-input v-model="markerInfo.latitude" :disabled="!isEdit" />
       </el-descriptions-item>
       <el-descriptions-item label="设备颜色">
-        <el-input v-model="markerInfo.deviceColor" :disabled="!isEdit" />
+        <!--        <el-input v-model="markerInfo.deviceColor" :disabled="!isEdit" />-->
+        <el-select v-model="markerInfo.deviceColor" :disabled="!isEdit">
+          <el-option v-for="item in colorMap" :key="item" :label="item" :value="item" class="option-item">
+            <span class="color-icon" :style="`backgroundColor: ${item}`" />
+            <span>{{ item }}</span>
+          </el-option>
+        </el-select>
       </el-descriptions-item>
       <!-- <el-descriptions-item label="设备角度">
         <el-input v-model="markerInfo.viewRadius" :disabled="!isEdit" />
@@ -70,6 +76,18 @@ export default class extends Vue {
   @Prop()
   private marker
 
+  private colorMap = [
+    '#1e78e0',
+    '#007f1b',
+    '#eab809',
+    '#ee5007',
+    '#b22727',
+    '#a85cf9',
+    '#5534a5',
+    '#4b7be5',
+    '#6fdfdf'
+  ]
+
   markerInfo = {
     deviceLabel: '',
     deviceStatus: '',
@@ -82,7 +100,7 @@ export default class extends Vue {
     unitInfo: '',
     gbRegionNames: [],
     groupId: '',
-    deviceColor: '#6fdfdf',
+    deviceColor: '#1e78e0'
   }
 
   private DeviceStatus = DeviceStatus
@@ -99,10 +117,12 @@ export default class extends Vue {
 
   @Watch('marker')
   private onInfoChange() {
+    this.marker.deviceColor = this.marker.deviceColor || '#1e78e0'
     this.markerInfo = this.marker
   }
 
   mounted() {
+    this.marker.deviceColor = this.marker.deviceColor || '#1e78e0'
     this.markerInfo = this.marker
   }
 
@@ -113,10 +133,33 @@ export default class extends Vue {
 </script>
 
 <style scoped lang="scss">
-  .deviceName{
-    max-width: 78px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
+   .pointInfo {
+     .deviceName{
+       max-width: 78px;
+       overflow: hidden;
+       white-space: nowrap;
+       text-overflow: ellipsis;
+     }
+     ::v-deep .el-input .el-input__inner {
+       height: 18px !important;
+     }
+     ::v-deep .el-input--medium .el-input__icon {
+       line-height: 18px;
+     }
+   }
+   .option-item{
+     padding: 0 10px;
+     display: flex;
+     flex-direction: row;
+     justify-content: space-between;
+     align-items: center;
+     font-size: 12px;
+     .color-icon{
+       display: inline-block;
+       width: 10px;
+       height: 10px;
+       border: none;
+       background-color: #1e78e0;
+     }
+   }
 </style>
