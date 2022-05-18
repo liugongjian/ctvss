@@ -12,7 +12,11 @@
         <el-input v-model="pointForm.tagName" :placeholder="`请输入${activeInfo.sortName}`" />
       </el-form-item>
       <el-form-item label="备注" prop="description">
-        <el-input v-model="pointForm.description" />
+        <el-input
+          v-model="pointForm.description"
+          type="textarea" maxlength="60" show-word-limit
+          :autosize="{minRows: 4, maxRows: 4}"
+        />
       </el-form-item>
       <el-form-item label="坐标点">
         <div class="custom-point-item">
