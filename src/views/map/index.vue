@@ -214,7 +214,7 @@
               </div>
             </div>
           </div>
-          <custom-point v-if="showCustomPoint" />
+          <custom-point v-if="showCustomPoint" :key="freshWithKey" :custom-point-info="customPointInfo" @closeEditMark="closeEditMark" @chooseMap="chooseMap" />
         </div>
       </div>
     </el-card>
@@ -1083,12 +1083,14 @@ export default class extends Mixins(IndexMixin) {
 
   // 设置地图点位
   private editMark(map?: mapObject) {
+    this.curMap = map
+    // 使用 更改key的方式，让vue的diff算法更新dom
+    this.freshWithKey = map.mapId
     this.showCustomPoint = true
     this.customPointInfo = map
   }
   // 关闭地图点位
   private closeEditMark() {
-    // toto 是否  await this.getMapList()
     this.showCustomPoint = false
     this.customPointInfo = {}
   }

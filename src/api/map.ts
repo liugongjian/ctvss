@@ -93,3 +93,53 @@ export const deleteMarkers = (params: any): Promise<any> =>
     method: 'post',
     data: params
   })
+
+/**
+ * 查询兴趣点列表
+ */
+export const getInterestList = (params: any): Promise<any> =>
+  request({
+    url: '/map/tag/list',
+    method: 'get',
+    params
+  })
+
+/**
+ * 查询兴趣点
+ */
+export const getInterestPoint = (params: any): Promise<any> =>
+  request({
+    url: '/map/tag',
+    method: 'get',
+    params
+  })
+
+/**
+ * 修改兴趣点
+ */
+export const editInterestPoint = (params: any): Promise<any> =>
+  request({
+    url: '/map/tag/update',
+    method: 'post',
+    data: params
+  })
+
+/**
+ * 删除兴趣点
+ */
+export const delInterestPoint = (params: any): Promise<any> =>
+  request({
+    url: '/map/tag/delete',
+    method: 'post',
+    data: params
+  })
+
+/**
+ * 新增兴趣点
+ */
+export const addInterestPoint = (params: any): Promise<any> =>
+  request({
+    url: '/map/tag/create',
+    method: 'post',
+    data: params
+  })
