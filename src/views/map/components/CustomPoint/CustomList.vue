@@ -156,11 +156,6 @@ export default class CustomList extends Vue {
 <style lang="scss" scoped>
 .device-list__right {
   .cutsom-point-list {
-    /* &__table {
-      max-height: calc(100vh - 300px);
-      overflow-y: auto;
-    } */
-
     &__btn {
       display: flex;
       margin-top: 4px;
