@@ -19,6 +19,11 @@ import ResourceTabs from '../components/ResourceTabs.vue'
 export default class CreateMixin extends Vue {
   @Inject({ from: 'deviceRouter', default: null }) public deviceRouter!: Function
   @Inject({ from: 'initDirs', default: null }) public initDirs!: Function
+  public activeStep = 0
+  public activeTabPane = 'video'
+  public tabPaneList = [
+    { label: '视频接入', name: 'video' }
+  ]
   public form: any = {}
   public resourcesMapping: any = {}
   public orginalResourceIdList: Array<string> = []
@@ -104,6 +109,32 @@ export default class CreateMixin extends Vue {
         value: key
       }
     })
+  }
+
+  /**
+   * step切换
+   */
+  public stepChange(val: number) {
+    if (val === 0) {
+      this.activeStep = val
+    } else {
+      const form: any = this.$refs.dataForm
+      let validArr = ['deviceName', 'deviceType', 'gbVersion', 'deviceVendor', 'industryCode', 'networkCode', 'gbRegion', 'longlat']
+      let valid = true
+      form.validateField(validArr, (err) => {
+        if (err !== '') {
+          valid = false
+        }
+      })
+      if (valid) this.activeStep = val
+    }
+  }
+
+  /**
+   * TAB切换
+   */
+  public async handleClick(tab: any) {
+    this.activeTabPane = tab.name
   }
 
   /**

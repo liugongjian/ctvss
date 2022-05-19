@@ -1,6 +1,12 @@
 <template>
   <div v-loading="loading.device" class="app-container">
     <el-page-header :content="breadCrumbContent" @back="back" />
+    <div v-if="!isChannel" class="process">
+      <el-steps :active="activeStep" finish-status="success" simple>
+        <el-step title="设备配置"><span slot="icon">1</span></el-step>
+        <el-step title="接入配置"><span slot="icon">2</span></el-step>
+      </el-steps>
+    </div>
     <el-form
       ref="dataForm"
       :rules="rules"
@@ -9,241 +15,247 @@
       label-width="150px"
     >
       <template v-if="!isChannel">
-        <el-form-item v-if="currentGroup" label="业务组:">
-          {{ currentGroup.groupName }}
-          <span class="in-protocol">({{ inProtocolUpper }})</span>
-        </el-form-item>
-        <el-form-item v-if="breadcrumb && !isUpdate" label="当前目录:">
-          <div class="breadcrumb">
-            <span
-              v-for="item in breadcrumb"
-              :key="item.id"
-              class="breadcrumb__item"
+        <div v-show="activeStep === 0">
+          <el-form-item v-if="currentGroup" label="业务组:">
+            {{ currentGroup.groupName }}
+            <span class="in-protocol">({{ inProtocolUpper }})</span>
+          </el-form-item>
+          <el-form-item v-if="breadcrumb && !isUpdate" label="当前目录:">
+            <div class="breadcrumb">
+              <span
+                v-for="item in breadcrumb"
+                :key="item.id"
+                class="breadcrumb__item"
+              >
+                {{ item.label }}
+              </span>
+            </div>
+          </el-form-item>
+          <el-form-item label="设备类型:" prop="deviceType">
+            <el-select
+              v-model="form.deviceType"
+              placeholder="请选择"
+              :disabled="isUpdate"
+              @change="clearValidate"
             >
-              {{ item.label }}
-            </span>
-          </div>
-        </el-form-item>
-        <el-form-item label="设备类型:" prop="deviceType">
-          <el-select
-            v-model="form.deviceType"
-            placeholder="请选择"
-            :disabled="isUpdate"
-            @change="clearValidate"
+              <el-option
+                v-for="item in deviceTypeList"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+          <!-- <el-form-item v-if="form.deviceType === 'nvr'" label="自动创建子设备:" prop="createSubDevice" class="form-with-tip">
+            <template slot="label">
+              自动创建子设备:
+              <el-popover
+                placement="top-start"
+                title="自动创建子设备"
+                width="400"
+                trigger="hover"
+                :open-delay="300"
+                :content="tips.createSubDevice"
+              >
+                <svg-icon slot="reference" class="form-question" name="help" />
+              </el-popover>
+            </template>
+            <el-switch v-model="form.createSubDevice" :active-value="1" :inactive-value="2" :disabled="isUpdate" />
+          </el-form-item> -->
+          <el-form-item
+            v-if="form.deviceType === 'nvr'"
+            label="子设备数量:"
+            prop="channelSize"
           >
-            <el-option
-              v-for="item in deviceTypeList"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+            <el-input-number
+              v-model="form.channelSize"
+              :min="minChannelSize"
+              type="number"
             />
-          </el-select>
-        </el-form-item>
-        <!-- <el-form-item v-if="form.deviceType === 'nvr'" label="自动创建子设备:" prop="createSubDevice" class="form-with-tip">
-          <template slot="label">
-            自动创建子设备:
-            <el-popover
-              placement="top-start"
-              title="自动创建子设备"
-              width="400"
-              trigger="hover"
-              :open-delay="300"
-              :content="tips.createSubDevice"
+          </el-form-item>
+          <el-form-item
+            v-if="form.deviceType === 'nvr' || form.deviceType === 'ipc'"
+            label="国标版本:"
+            prop="gbVersion"
+          >
+            <el-radio-group v-model="form.gbVersion">
+              <el-radio-button
+                v-for="item in gbVersionList"
+                :key="item"
+                :label="item"
+                :value="item"
+              />
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="厂商:" prop="deviceVendor">
+            <el-select v-model="form.deviceVendor">
+              <el-option
+                v-for="item in deviceVendorList"
+                :key="item"
+                :label="item"
+                :value="item"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="设备名称:" prop="deviceName" class="form-with-tip">
+            <el-input v-model="form.deviceName" />
+            <div class="form-tip">
+              2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
+            </div>
+          </el-form-item>
+          <el-form-item v-if="(!isUpdate || form.gbRegion || !deviceGbId)" label="设备地址:" prop="gbRegion">
+            <AddressCascader
+              :code="form.gbRegion"
+              :level="form.gbRegionLevel"
+              :disabled="deviceGbId !== ''"
+              @change="onDeviceAddressChange"
+            />
+          </el-form-item>
+          <el-form-item v-show="form.deviceType !== 'platform'" label="经纬度:" prop="longlat">
+            <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
+            <el-input v-model="form.deviceLatitude" class="longlat-input" />
+          </el-form-item>
+          <el-form-item
+            v-if="!isUpdate || form.industryCode || !deviceGbId"
+            label="所属行业:"
+            prop="industryCode"
+          >
+            <el-select
+              v-model="form.industryCode"
+              :disabled="deviceGbId !== ''"
+              placeholder="请选择所属行业"
             >
-              <svg-icon slot="reference" class="form-question" name="help" />
-            </el-popover>
-          </template>
-          <el-switch v-model="form.createSubDevice" :active-value="1" :inactive-value="2" :disabled="isUpdate" />
-        </el-form-item> -->
-        <el-form-item
-          v-if="form.deviceType === 'nvr'"
-          label="子设备数量:"
-          prop="channelSize"
-        >
-          <el-input-number
-            v-model="form.channelSize"
-            :min="minChannelSize"
-            type="number"
-          />
-        </el-form-item>
-        <el-form-item
-          v-if="form.deviceType === 'nvr' || form.deviceType === 'ipc'"
-          label="国标版本:"
-          prop="gbVersion"
-        >
-          <el-radio-group v-model="form.gbVersion">
-            <el-radio-button
-              v-for="item in gbVersionList"
-              :key="item"
-              :label="item"
-              :value="item"
-            />
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="厂商:" prop="deviceVendor">
-          <el-select v-model="form.deviceVendor">
-            <el-option
-              v-for="item in deviceVendorList"
-              :key="item"
-              :label="item"
-              :value="item"
-            />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="设备名称:" prop="deviceName" class="form-with-tip">
-          <el-input v-model="form.deviceName" />
-          <div class="form-tip">
-            2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
-          </div>
-        </el-form-item>
-        <el-form-item label="设备IP:" prop="deviceIp">
-          <el-input v-model="form.deviceIp" />
-        </el-form-item>
-        <el-form-item label="设备端口:" prop="devicePort">
-          <el-input v-model.number="form.devicePort" />
-        </el-form-item>
-        <el-form-item v-if="form.deviceType !== 'platform' && isShowGbIdEditor" label="国标ID:" prop="gbId">
-          <el-input v-model="form.gbId" />
-          <div class="form-tip">
-            用户可自行录入规范国标ID，未录入该项，平台会自动生成规范国标ID。
-          </div>
-        </el-form-item>
-        <el-form-item label="GB28181凭证:" prop="userName">
-          <el-select v-model="form.userName" :loading="loading.account">
-            <el-option
-              v-for="item in gbAccountList"
-              :key="item.userName"
-              :label="item.userName"
-              :value="item.userName"
-            />
-          </el-select>
-          <el-button
-            type="text"
-            class="ml10"
-            @click="openDialog('createGb28181Certificate')"
+              <el-option
+                v-for="(item, index) in industryList"
+                :key="index"
+                :label="item.name"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item
+            v-if="(!isUpdate || form.networkCode || !deviceGbId) && networkFlag"
+            label="网络标识:"
+            prop="networkCode"
           >
-            新建GB28181凭证
-          </el-button>
-        </el-form-item>
-        <el-form-item prop="pullType">
-          <template slot="label">
-            自动拉流:
-            <el-popover
-              placement="top-start"
-              title="自动拉流"
-              width="400"
-              trigger="hover"
-              :open-delay="300"
-              :content="tips.pullType"
+            <el-select
+              v-model="form.networkCode"
+              :disabled="deviceGbId !== ''"
+              placeholder="请选择网络标识"
             >
-              <svg-icon slot="reference" class="form-question" name="help" />
-            </el-popover>
-          </template>
-          <el-switch
-            v-model="form.pullType"
-            :active-value="1"
-            :inactive-value="2"
-          />
-        </el-form-item>
-        <el-form-item
-          v-if="form.deviceType === 'nvr' || form.deviceType === 'ipc'"
-          prop="transPriority"
-        >
-          <template slot="label">
-            优先TCP传输:
-            <el-popover
-              placement="top-start"
-              title="优先TCP传输"
-              width="400"
-              trigger="hover"
-              :open-delay="300"
-              :content="tips.transPriority"
+              <el-option
+                v-for="(item, index) in networkList"
+                :key="index"
+                :label="item.name"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="设备描述:" prop="description">
+            <el-input
+              v-model="form.description"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入设备描述，如设备用途"
+            />
+          </el-form-item>
+        </div>
+        <div v-show="activeStep === 1">
+          <el-tabs v-model="activeTabPane" class="title-tabs" @tab-click="1">
+            <el-tab-pane v-for="item in tabPaneList" :key="item.name" :label="item.label" :name="item.name"><br></el-tab-pane>
+          </el-tabs>
+          <el-form-item label="接入协议:" prop="inProtocol">
+            <el-radio-group v-model="form.inProtocol">
+              <el-radio label="gb28181">{{ form.inProtocol }}</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="设备类型:" prop="deviceType">
+            <el-select
+              v-model="form.deviceType"
+              placeholder="请选择"
+              disabled
+              @change="clearValidate"
             >
-              <svg-icon slot="reference" class="form-question" name="help" />
-            </el-popover>
-          </template>
-          <el-switch
-            v-model="form.transPriority"
-            active-value="tcp"
-            inactive-value="udp"
-          />
-        </el-form-item>
-        <el-form-item v-if="(!isUpdate || form.gbRegion || !deviceGbId)" label="设备地址:" prop="gbRegion">
-          <AddressCascader
-            :code="form.gbRegion"
-            :level="form.gbRegionLevel"
-            :disabled="deviceGbId !== ''"
-            @change="onDeviceAddressChange"
-          />
-        </el-form-item>
-        <el-form-item v-show="form.deviceType !== 'platform'" label="经纬度:" prop="longlat">
-          <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
-          <el-input v-model="form.deviceLatitude" class="longlat-input" />
-        </el-form-item>
-        <el-form-item
-          v-if="!isUpdate || form.industryCode || !deviceGbId"
-          label="所属行业:"
-          prop="industryCode"
-        >
-          <el-select
-            v-model="form.industryCode"
-            :disabled="deviceGbId !== ''"
-            placeholder="请选择所属行业"
-          >
-            <el-option
-              v-for="(item, index) in industryList"
-              :key="index"
-              :label="item.name"
-              :value="item.value"
+              <el-option
+                v-for="item in deviceTypeList"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="设备IP:" prop="deviceIp">
+            <el-input v-model="form.deviceIp" />
+          </el-form-item>
+          <el-form-item label="设备端口:" prop="devicePort">
+            <el-input v-model.number="form.devicePort" />
+          </el-form-item>
+          <el-form-item v-if="form.deviceType !== 'platform' && isShowGbIdEditor" label="国标ID:" prop="gbId">
+            <el-input v-model="form.gbId" />
+            <div class="form-tip">
+              用户可自行录入规范国标ID，未录入该项，平台会自动生成规范国标ID。
+            </div>
+          </el-form-item>
+          <el-form-item label="GB28181凭证:" prop="userName">
+            <el-select v-model="form.userName" :loading="loading.account">
+              <el-option
+                v-for="item in gbAccountList"
+                :key="item.userName"
+                :label="item.userName"
+                :value="item.userName"
+              />
+            </el-select>
+            <el-button
+              type="text"
+              class="ml10"
+              @click="openDialog('createGb28181Certificate')"
+            >
+              新建GB28181凭证
+            </el-button>
+          </el-form-item>
+          <el-form-item prop="pullType">
+            <template slot="label">
+              自动拉流:
+              <el-popover
+                placement="top-start"
+                title="自动拉流"
+                width="400"
+                trigger="hover"
+                :open-delay="300"
+                :content="tips.pullType"
+              >
+                <svg-icon slot="reference" class="form-question" name="help" />
+              </el-popover>
+            </template>
+            <el-switch
+              v-model="form.pullType"
+              :active-value="1"
+              :inactive-value="2"
             />
-          </el-select>
-        </el-form-item>
-        <el-form-item
-          v-if="(!isUpdate || form.networkCode || !deviceGbId) && networkFlag"
-          label="网络标识:"
-          prop="networkCode"
-        >
-          <el-select
-            v-model="form.networkCode"
-            :disabled="deviceGbId !== ''"
-            placeholder="请选择网络标识"
+          </el-form-item>
+          <el-form-item
+            v-if="form.deviceType === 'nvr' || form.deviceType === 'ipc'"
+            prop="transPriority"
           >
-            <el-option
-              v-for="(item, index) in networkList"
-              :key="index"
-              :label="item.name"
-              :value="item.value"
+            <template slot="label">
+              优先TCP传输:
+              <el-popover
+                placement="top-start"
+                title="优先TCP传输"
+                width="400"
+                trigger="hover"
+                :open-delay="300"
+                :content="tips.transPriority"
+              >
+                <svg-icon slot="reference" class="form-question" name="help" />
+              </el-popover>
+            </template>
+            <el-switch
+              v-model="form.transPriority"
+              active-value="tcp"
+              inactive-value="udp"
             />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="配置资源包:" prop="resources">
-          <ResourceTabs
-            v-model="form.resources"
-            :is-update="isUpdate"
-            :in-protocol="form.inProtocol"
-            :is-private-in-network="isPrivateInNetwork"
-            :device-id="form.deviceId"
-            :form-info="form"
-            :vss-ai-apps="form.vssAIApps"
-            @on-change="onResourceChange"
-            @changevssaiapps="changeVSSAIApps"
-          />
-        </el-form-item>
-        <el-form-item label="设备描述:" prop="description">
-          <el-input
-            v-model="form.description"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入设备描述，如设备用途"
-          />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="text" @click="formExpand = !formExpand">
-            更多设置
-            <i class="el-icon--right" :class="{'el-icon-arrow-down': formExpand, 'el-icon-arrow-right': !formExpand}" />
-          </el-button>
-        </el-form-item>
-        <div class="form-collapse" :class="{'form-expand': formExpand}">
+          </el-form-item>
           <el-form-item label="设备MAC地址:" prop="macAddr">
             <el-input v-model="form.macAddr" />
           </el-form-item>
@@ -253,6 +265,19 @@
             prop="poleId"
           >
             <el-input v-model="form.poleId " />
+          </el-form-item>
+          <el-form-item label="配置资源包:" prop="resources">
+            <ResourceTabs
+              v-model="form.resources"
+              :is-update="isUpdate"
+              :in-protocol="form.inProtocol"
+              :is-private-in-network="isPrivateInNetwork"
+              :device-id="form.deviceId"
+              :form-info="form"
+              :vss-ai-apps="form.vssAIApps"
+              @on-change="onResourceChange"
+              @changevssaiapps="changeVSSAIApps"
+            />
           </el-form-item>
         </div>
       </template>
@@ -308,7 +333,9 @@
         </el-form-item>
       </template>
       <el-form-item label="">
-        <el-button type="primary" :loading="submitting" @click="submit">确 定</el-button>
+        <el-button v-if="!isChannel && activeStep === 1" type="primary" @click="stepChange(0)">上一步</el-button>
+        <el-button v-if="!isChannel && activeStep === 0" type="primary" @click="stepChange(1)">下一步</el-button>
+        <el-button v-if="isChannel || activeStep === 1" type="primary" :loading="submitting" @click="submit">确 定</el-button>
         <el-button @click="back">取 消</el-button>
       </el-form-item>
     </el-form>
@@ -406,7 +433,7 @@ export default class extends Mixins(createMixin) {
   public form: any = {
     dirId: '',
     groupId: '',
-    inProtocol: '',
+    inProtocol: this.inProtocol,
     deviceId: '',
     deviceName: '',
     deviceType: '',
@@ -742,4 +769,90 @@ export default class extends Mixins(createMixin) {
 .longlat-input {
   width: 193px;
 }
+
+.process {
+  padding: 20px 30px;
+  border-bottom: 1px solid $borderGrey;
+
+  .el-steps--simple {
+    width: 400px;
+    background: none;
+    padding: 0;
+
+    ::v-deep {
+      .el-step.is-simple .el-step__head {
+        padding-right: 15px;
+      }
+
+      .el-step.is-simple .el-step__arrow {
+        margin-right: 15px;
+        align-self: center;
+        height: 0;
+        border-bottom: 2px solid $primary;
+        &::before, &::after {
+          content: none;
+        }
+      }
+
+      .el-step__title {
+        flex: 0 0 80px;
+        color: #000;
+      }
+
+      .el-step__icon {
+        width: 30px;
+        height: 30px;
+        font-size: 16px;
+        font-weight: bold;
+      }
+
+      .is-success {
+        .el-step__icon {
+          color: $primary;
+          border-color: $primary;
+        }
+      }
+
+      .is-process {
+        .el-step__icon {
+          background: $primary;
+          color: #fff;
+          border-color: $primary;
+        }
+      }
+
+      .is-wait,
+      .is-finish {
+        color: $textGrey;
+
+        .el-step__icon {
+          border-color: $textGrey;
+        }
+      }
+
+      .is-finish {
+        .el-step__icon {
+          background: #bbb;
+          color: #fff;
+          border-color: #bbb;
+        }
+      }
+    }
+  }
+}
+
+.title-tabs {
+  clear: both;
+  ::v-deep{
+    .el-tabs__item {
+      width: 110px;
+      text-align: center;
+      padding: 0;
+    }
+    .el-tabs__nav-scroll {
+      width: 100%;
+    }
+  }
+}
+
 </style>
