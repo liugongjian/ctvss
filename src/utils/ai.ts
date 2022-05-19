@@ -131,9 +131,9 @@ export const parseMetaData = (type: string, metaData: any) => {
 
     case '7': // 安全帽反光服检测
     case '10004': // 安全帽反光服检测
-      if (metaData.Data && metaData.Data.DetectBoxes && metaData.Data.Label) {
+      if (metaData.Data && metaData.Data.DetectBoxes) {
         const boxes = metaData.Data.DetectBoxes
-        const label = metaData.Data.Label
+        // const label = metaData.Data.Label
         for (let i = 0; i < boxes.length; i += 4) {
           locations.push(
             {
@@ -141,7 +141,7 @@ export const parseMetaData = (type: string, metaData: any) => {
               left: boxes[i],
               width: boxes[i + 2],
               height: boxes[i + 3],
-              label: label[i / 4],
+              // label: label[i / 4],
               isWarning: !!~[1, 2].indexOf(metaData.Data.DetectClses[i / 4])
             }
           )
