@@ -277,6 +277,8 @@ export default class extends Mixins(AppMixin) {
       this.editTransformEffectiveTime()
       // 处理人脸库选项
       this.editTransformFaceData()
+      // 处理老安全帽反光服meta
+      this.editTransformHelmetReflectiveType()
       // 处理置信度
       this.form = { ...this.form, confidence: parseInt(this.form.confidence * 100 + '') }
     } else { // 新建
@@ -312,6 +314,10 @@ export default class extends Mixins(AppMixin) {
     this.form.algorithmMetadata.length !== 0
       ? (this.form.algorithmMetadata = JSON.parse(this.form.algorithmMetadata))
       : (this.form = { ...this.form, algorithmMetadata: { FaceDbName: '', pedThreshold: '' } })
+  }
+
+  private editTransformHelmetReflectiveType() {
+    !this.form.algorithmMetadata.helmetReflectiveType && this.$set(this.form.algorithmMetadata, 'helmetReflectiveType', ['helmet', 'reflective'])
   }
 
   private getHourInterval = (min, max) => {
