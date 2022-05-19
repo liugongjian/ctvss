@@ -134,7 +134,7 @@ export default class addCustomDialog extends Vue {
   private checkSpace(rule: any, value: string, callback: Function) {
     if (!value.trim()) {
       callback(new Error(`请输入${this.activeInfo.sortName}`))
-    } else if (value.trim().length > 64 || value.trim().length > 2) {
+    } else if (value.trim().length > 64 || value.trim().length < 2) {
       callback(new Error('请输入2到64字以内的名称'))
     } else if (/^[\s]|[\s]$/.test(value)) {
       callback(new Error('不能以空格作为名称的首尾。'))
