@@ -41,7 +41,8 @@ export default class extends Vue {
 
 <style lang="scss" scoped>
 .app-container {
-  ::v-deep .el-input, ::v-deep .el-textarea {
+  ::v-deep .el-input,
+  ::v-deep .el-textarea {
     width: 400px;
   }
 }

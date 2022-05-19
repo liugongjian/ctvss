@@ -11,14 +11,14 @@
       <el-input v-model="form.userName" :disabled="disabled" />
     </el-form-item>
     <el-form-item v-if="disabled" label="旧密码:" prop="password">
-      <el-input v-model="form.password" show-password />
+      <el-input v-model="form.password" show-password auto-complete="new-password" />
     </el-form-item>
     <el-form-item label="密码:" prop="newPassword">
-      <el-input v-model="form.newPassword" show-password />
+      <el-input v-model="form.newPassword" show-password auto-complete="new-password" />
       <div class="form-tip">修改凭证密码后，已使用该凭证接入的设备将会下线</div>
     </el-form-item>
     <el-form-item label="确认密码:" prop="confirmPassword">
-      <el-input v-model="form.confirmPassword" show-password />
+      <el-input v-model="form.confirmPassword" show-password auto-complete="new-password" />
     </el-form-item>
     <el-form-item label="描述:" prop="description">
       <el-input v-model="form.description" type="textarea" :rows="3" placeholder="请输入凭证描述，如凭证介绍或用途" />

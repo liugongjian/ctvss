@@ -136,6 +136,7 @@ export default class extends Vue {
   &__search-group {
     margin-right: 10px;
   }
+
   &__select {
     display: inline;
     margin-right: 10px;

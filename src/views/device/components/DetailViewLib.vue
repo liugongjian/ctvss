@@ -83,6 +83,9 @@
                 </el-carousel-item>
               </el-carousel>
             </div>
+            <div class="dialogue-left__id">
+              <span>sourceID:{{picInfos[activeIndex].id}}</span>
+            </div>
             <div ref="picListWrapper" class="dialogue-left__list" @mousewheel.stop="scrollPicList">
               <div ref="picList" class="infinite-list-wrapper" style="overflow: auto;">
                 <ul
@@ -103,7 +106,7 @@
             </div>
           </div>
           <div class="dialogue-right">
-            <el-descriptions :column="1" label-class-name="desc">
+            <el-descriptions :column="1" label-class-name="desc" :label-style="{color:'white','font-weight':'bold' }" :content-style="{color:'white','font-weight':'bold'}">
               <el-descriptions-item label="人脸标识">{{ picInfos[activeIndex].id }}</el-descriptions-item>
             </el-descriptions>
           </div>
@@ -119,7 +122,7 @@ import ViewCard from './ViewCard.vue'
 import debounce from '@/utils/debounce'
 import { ViewTypes } from '@/dics/index'
 
-const sr = 'https://guiyang.vcn.ctyun.cn/vss-resource03_ai_wgw1-1/29942159419407308/ai/2022-05-07/20220507-180711-dfcc84de-cfc8-48f0-b0ec-8b64d001addc.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=QK3UOU50KUN39XM4L3E1%2F20220517%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20220517T072852Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=b315726b182c86086cd8976e00d7b4ea43f5bc6b734dbdb35fb87f9d4a9b1b25'
+const sr = 'https://guiyang.vcn.ctyun.cn/vss-resource03_ai_wgw1-1/29942159419407308/ai/2022-05-07/20220507-180711-dfcc84de-cfc8-48f0-b0ec-8b64d001addc.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=QK3UOU50KUN39XM4L3E1%2F20220518%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20220518T090744Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=7367bc253f5f7e385558350f5f161e9e2288c1dfdc5165ef7d509b7b68cf0d54'
 
 @Component({
   name: 'DetailViewLib',
@@ -438,6 +441,18 @@ export default class extends Vue {
   font-size: 25px;
 }
 
+.el-dialog__wrapper {
+  ::v-deep .el-dialog__body,
+  ::v-deep .el-dialog__header,
+  ::v-deep .el-descriptions__body {
+    background: $subMenuBg !important;
+  }
+
+  ::v-deep .el-icon-close {
+    color: white !important;
+  }
+}
+
 .dialogue-wrapper {
   display: flex;
   height: 100%;
@@ -456,13 +471,31 @@ export default class extends Vue {
     color: black;
   }
 
+  &__id {
+    margin: 20px auto 5px;
+    color: white;
+    font-weight: bold;
+  }
+
   &__pic {
     .el-carousel {
       width: 100%;
       padding: 0 30px;
 
+      ::v-deep .el-carousel__arrow {
+        background-color: #ededed !important;
+
+        i {
+          color: black !important;
+        }
+      }
+
+      ::v-deep .el-carousel__indicators {
+        display: none;
+      }
+
       ::v-deep &__container {
-        height: 67vh;
+        height: 64vh;
       }
 
       &__item {
@@ -476,14 +509,37 @@ export default class extends Vue {
     width: 80vw;
     height: fill-available;
     padding: 10px;
-    overflow: auto;
+
+    .infinite-list-wrapper {
+      padding-bottom: 5px;
+    }
+
+    .infinite-list-wrapper::-webkit-scrollbar {
+      /* 滚动条整体样式 */
+      width: 10px;  /* 高宽分别对应横竖滚动条的尺寸 */
+      height: 5px;
+    }
+
+    .infinite-list-wrapper::-webkit-scrollbar-thumb {
+      /* 滚动条里面小方块 */
+      border-radius: 10px;
+      box-shadow: inset 0 0 5px rgba(0, 0, 0, 20%);
+      background: $primary;
+    }
+
+    .infinite-list-wrapper::-webkit-scrollbar-track {
+      /* 滚动条里面轨道 */
+      box-shadow: inset 0 0 5px rgba(0, 0, 0, 20%);
+      border-radius: 20px;
+      background: #ededed;
+    }
 
     ul {
       white-space: nowrap; //处理块元素中的空白符和换行符的，这个属性保证图片不换行
       .list-item {
         list-style: none;
         float: left;
-        margin-left: 15px;
+        margin-right: 15px;
         width: 280px;
         display: flex;
         align-items: center;
@@ -497,7 +553,7 @@ export default class extends Vue {
 }
 
 .dialogue-right {
-  flex: 0 0 20vw;
+  flex: 0 0 18vw;
 }
 
 .desc {
