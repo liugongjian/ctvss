@@ -81,7 +81,7 @@ export default class CustomPoint extends Vue {
   .cutsom-point-box {
     background-color: #fff;
     position: absolute;
-    z-index: 200;
+    z-index: 10;
     top: 0;
     right: 0;
     bottom: 0;
