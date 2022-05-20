@@ -93,7 +93,8 @@ export default class extends Vue {
   private typeMapping: any = {
     dir: 0,
     nvr: 1,
-    platform: 3
+    platform: 3,
+    platformDir: 3
   }
 
   private mounted() {
@@ -216,7 +217,6 @@ export default class extends Vue {
         }
       })
       dirs = setDirsStreamStatus(dirs)
-      console.log(dirs)
       return dirs
     } catch (e) {
       console.log(e)
@@ -301,7 +301,6 @@ export default class extends Vue {
     try {
       this.submitting = true
       const groups: any = []
-      console.log(this.deviceList)
       this.deviceList.forEach((item: any) => {
         // 构建group
         if (item.path[0].type === 'vgroup') {
@@ -329,14 +328,21 @@ export default class extends Vue {
         let currentGroupDir
         let dirType = 0
         let parentDirId = '0'
+        // patform特殊字段
+        let parentDirType = ''
         if (pathDirs.length) {
           const parentPath = pathDirs.slice(0, -1)
           parentDirId = '0'
+          parentDirType = ''
           if (parentPath.length) {
             const ids = parentPath.map((path: any) => {
               return path.id
             })
+            const types = parentPath.map((path: any) => {
+              return this.typeMapping[path.type]
+            })
             parentDirId = ids.join(',')
+            parentDirType = types.join(',')
           }
           dirId = pathDirs[pathDirs.length - 1].id
           dirType = pathDirs[pathDirs.length - 1].type
@@ -365,6 +371,10 @@ export default class extends Vue {
         currentGroupDir.devices.push({
           deviceId: item.id
         })
+        // 针对patform特殊处理
+        if (currentGroupDir.dirType === 3) {
+          currentGroupDir.parentDirType = parentDirType
+        }
       })
       await shareDevice({
         platformId: this.platformId,
