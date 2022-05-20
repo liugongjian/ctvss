@@ -1,5 +1,5 @@
 import { Component, Vue, Inject } from 'vue-property-decorator'
-import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
+import { ScreenManager } from '@/views/device/services/Screen/ScreenManager'
 
 @Component
 export default class ComponentMixin extends Vue {

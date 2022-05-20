@@ -18,7 +18,7 @@
         {{ stream.label }}
       </li>
     </ul>
-    <div v-if="streamSize > 1" slot="reference" class="control__btn control__stream-selector" :stream-num="streamNum">
+    <div v-show="streamSize > 1" slot="reference" class="control__btn control__stream-selector" :stream-num="streamNum">
       <svg-icon name="branch" />
     </div>
   </el-popover>
@@ -27,7 +27,7 @@
 import { Component, Prop, Watch } from 'vue-property-decorator'
 import ComponentMixin from './mixin'
 import StatusBadge from '@/components/StatusBadge/index.vue'
-import { Stream, StreamInfo } from '@/components/VssPlayer/models/VssPlayer.d'
+import { Stream, StreamInfo } from '@/components/VssPlayer/types/VssPlayer'
 
 @Component({
   name: 'StreamSelector',

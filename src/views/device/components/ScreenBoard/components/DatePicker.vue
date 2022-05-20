@@ -23,7 +23,7 @@
 <script lang="ts">
 import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
 import { prefixZero } from '@/utils/number'
-import { Screen } from '@/views/device/models/Screen/Screen'
+import { Screen } from '@/views/device/services/Screen/Screen'
 import DatePanel from './DatePanel.vue'
 
 @Component({

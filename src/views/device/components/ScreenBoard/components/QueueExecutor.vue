@@ -2,7 +2,7 @@
   <div />
 </template>
 <script lang="ts">
-import { Screen } from '@/views/device/models/Screen/Screen'
+import { Screen } from '@/views/device/services/Screen/Screen'
 import { pick } from 'lodash'
 import { Component } from 'vue-property-decorator'
 import ComponentMixin from './mixin'

@@ -9,7 +9,7 @@ const serverAddressMapping = {
   dev1: 'http://182.43.127.35:9050', // 开发环境dev-1
   dev2: 'http://182.43.127.35:9060', // 新环境
   test: 'https://182.43.127.35:9180', // 测试环境
-  test1: 'https://182.43.127.35:9160', // 测试环境test-1
+  test1: 'http://182.43.127.35:9060', // 测试环境test-1
   test2: 'http://182.43.127.35:9080', // http 测试环境 test
   pre: 'http://182.43.127.35:9070', // 预发布环境
   prod: 'http://console.vcn.ctyun.cn' // 生产环境

@@ -34,9 +34,9 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Provide, Watch } from 'vue-property-decorator'
-import { createPlayer } from './models/PlayerFactory'
-import { PlayerType } from './models/Player.d'
-import { Player } from './models/Player'
+import { createPlayer } from './services/PlayerFactory'
+import { PlayerType } from './types/Player'
+import { Player } from './services/Player'
 import './styles/index.scss'
 /**
  * 子组件库

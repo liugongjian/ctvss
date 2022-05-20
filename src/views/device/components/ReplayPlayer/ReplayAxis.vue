@@ -30,7 +30,7 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { isCrossDays, dateFormat, getNextHour, getDateByTime, currentTimeZeroMsec } from '@/utils/date'
 import { prefixZero } from '@/utils/number'
-import { Screen } from '@/views/device/models/Screen/Screen'
+import { Screen } from '@/views/device/services/Screen/Screen'
 import { throttle } from 'lodash'
 import TimeEditer from '@/views/device/components/ReplayPlayer/TimeEditer.vue'
 import ResizeObserver from 'resize-observer-polyfill'
@@ -150,7 +150,7 @@ export default class extends Vue {
     if (this.screen.isLive || this.disabled || this.axisDrag.isDragging) return
     /* 如果与上一次的更新时间差小于1秒，不触发绘制 */
     if (new Date().getTime() - this.lastUpdateTime < 1000) return
-    if (this.screen && this.screen.player) {
+    if (this.screen && this.screen.player && this.screen.player.currentTime) {
       const recordCurrentTime = this.screen.player.currentTime
       if (this.screen.recordType === 0 && this.recordManager.currentRecord) {
         const offsetTime = this.recordManager.currentRecord.offsetTime || 0
@@ -518,7 +518,9 @@ export default class extends Vue {
     this.axisDrag.isDragging = false
     this.axisDrag.endTime = this.currentTime
     this.$emit('change', this.currentTime)
-    this.loadSiblingRecordList(this.axisDrag.startTime, this.axisDrag.endTime)
+    this.$nextTick(() => {
+      this.loadSiblingRecordList(this.axisDrag.startTime, this.axisDrag.endTime)
+    })
   }
 
   /**
@@ -530,12 +532,16 @@ export default class extends Vue {
       case 'ArrowRight':
         this.currentTime = this.currentTime + 1
         this.$emit('change', this.currentTime)
-        this.loadSiblingRecordList(this.currentTime, this.currentTime + 1)
+        this.$nextTick(() => {
+          this.loadSiblingRecordList(this.currentTime, this.currentTime + 1)
+        })
         break
       case 'ArrowLeft':
         this.currentTime = this.currentTime - 1
         this.$emit('change', this.currentTime)
-        this.loadSiblingRecordList(this.currentTime, this.currentTime - 1)
+        this.$nextTick(() => {
+          this.loadSiblingRecordList(this.currentTime, this.currentTime - 1)
+        })
         break
     }
   }
