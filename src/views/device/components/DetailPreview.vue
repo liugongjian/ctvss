@@ -44,6 +44,7 @@ export default class extends Vue {
     screen.streamSize = this.streamSize
     screen.streamNum = 1
     screen.isLive = true
+    screen.streams = this.screenManager.fillStreams(screen)
     screen.init()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
