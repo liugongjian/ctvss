@@ -182,8 +182,10 @@ export class ScreenManager {
           streamStatus: 'off'
         })
       }
+      return streams
+    } else {
+      return screen.streams
     }
-    return streams
   }
 
   /**
