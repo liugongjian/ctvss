@@ -18,7 +18,7 @@
         {{ stream.label }}
       </li>
     </ul>
-    <div v-if="streamSize > 1" slot="reference" class="control__btn control__stream-selector" :stream-num="streamNum">
+    <div v-show="streamSize > 1" slot="reference" class="control__btn control__stream-selector" :stream-num="streamNum">
       <svg-icon name="branch" />
     </div>
   </el-popover>
