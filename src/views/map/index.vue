@@ -1030,6 +1030,8 @@ export default class extends Mixins(IndexMixin) {
           }
         } catch (e) {
           this.$alertError(e.message)
+        } finally {
+          this.closeEditMark()
         }
       } else {
         return false
@@ -1085,7 +1087,7 @@ export default class extends Mixins(IndexMixin) {
     this.mapEditDialog.dialogVisible = true
   }
 
-  // 设置地图点位
+  // 设置地图点兴趣点
   private editMark(map?: mapObject) {
     this.curMap = map
     // 使用 更改key的方式，让vue的diff算法更新dom
@@ -1093,7 +1095,7 @@ export default class extends Mixins(IndexMixin) {
     this.showCustomPoint = true
     this.customPointInfo = map
   }
-  // 关闭地图点位
+  // 关闭地图兴趣点
   private closeEditMark() {
     this.showCustomPoint = false
     this.customPointInfo = {}
