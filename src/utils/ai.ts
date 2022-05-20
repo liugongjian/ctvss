@@ -142,7 +142,7 @@ export const parseMetaData = (type: string, metaData: any) => {
               width: boxes[i + 2],
               height: boxes[i + 3],
               // label: label[i / 4],
-              isWarning: !!~[1, 2].indexOf(metaData.Data.DetectClses[i / 4])
+              isWarning: !![1, 2].includes(metaData.Data.DetectClses[i / 4])
             }
           )
         }
