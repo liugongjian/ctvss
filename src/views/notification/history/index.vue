@@ -20,7 +20,7 @@
         />
         <div class="filter-container__right">
           <el-button v-if="advancedFilterFlag" type="primary" @click="search">查询</el-button>
-          <el-button v-else class="el-button-rect" @click="search"><svg-icon name="refresh" /></el-button>
+          <el-button v-else class="el-button-rect" @click="timeRangeTypeChange(timeRangeType)"><svg-icon name="refresh" /></el-button>
           <el-button v-if="advancedFilterFlag" type="primary" @click="advancedFilterFlag = !advancedFilterFlag">收起</el-button>
           <el-button v-else type="primary" @click="advancedFilterFlag = !advancedFilterFlag">高级筛选</el-button>
         </div>
