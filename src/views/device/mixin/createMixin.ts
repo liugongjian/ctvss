@@ -44,6 +44,29 @@ export default class CreateMixin extends Vue {
 
   public tips = DeviceTips
 
+  public ga1400Form = {
+    inProtocol: 'ga1400',
+    deviceType: '',
+    userName: '',
+    deviceIp: '',
+    devicePort: ''
+  }
+
+  public ga1400Rules = {
+    deviceType: [
+      { required: true, message: '请选择设备类型', trigger: 'change' }
+    ],
+    userName: [
+      { required: true, message: '请选择账号', trigger: 'change' }
+    ],
+    deviceIp: [
+      { validator: this.validateDeviceIp, trigger: 'blur' }
+    ],
+    devicePort: [
+      { validator: this.validateDevicePort, trigger: 'change' }
+    ]
+  }
+
   public get currentGroup() {
     return GroupModule.group
   }
@@ -135,6 +158,17 @@ export default class CreateMixin extends Vue {
    */
   public async handleClick(tab: any) {
     this.activeTabPane = tab.name
+  }
+  /**
+   * 添加tab
+   */
+  private addTabPane() {
+    this.$confirm('是否添加"视图接入"', '添加接入类型', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消'
+    }).then(async() => {
+      this.tabPaneList.push({ label: '视图接入', name: 'view' })
+    })
   }
 
   /**
@@ -261,6 +295,16 @@ export default class CreateMixin extends Vue {
     const form: any = this.$refs.dataForm
     form.validate((valid: any) => {
       if (valid) {
+        const ga1400Form: any = this.$refs.ga1400Form
+        this.tabPaneList.length !== 1 && ga1400Form.validate((ga1400Valid: any) => {
+          if (ga1400Valid) {
+            // TODO
+          } else {
+            this.activeTabPane = 'view'
+            valid = false
+          }
+        })
+        if (!valid) return
         // 判断通道数量的变化
         let alertMsg = []
         if (this.form.channelSize < this.orginalChannelSize) {
@@ -333,6 +377,7 @@ export default class CreateMixin extends Vue {
           submit()
         }
       } else {
+        this.activeTabPane = 'video'
         return false
       }
     })

@@ -71,6 +71,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   public resources: any = []
   public algoTabTypeDefault = ''
   public showResourceDialog = false
+  public activeTabPane = 'video'
 
   public tips = DeviceTips
 
