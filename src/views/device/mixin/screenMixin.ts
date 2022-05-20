@@ -1,6 +1,6 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import IndexMixin from './indexMixin'
-import { ScreenManager } from '../models/Screen/ScreenManager'
+import { ScreenManager } from '../services/Screen/ScreenManager'
 import ScreenBoard from '../components/ScreenBoard/index.vue'
 
 @Component({

@@ -1,5 +1,5 @@
 
-import { PlayerConfig } from './Player.d'
+import { PlayerConfig } from '../types/Player'
 import { FlvPlayer } from './FlvPlayer'
 import { HlsPlayer } from './HlsPlayer'
 import { H265Player } from './H265Player'

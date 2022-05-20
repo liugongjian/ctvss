@@ -29,6 +29,8 @@ export class RecordManager {
   public localStartTime: number
   /* 分页大小 */
   public pageSize?: string
+  /* 录像列表加载状态（不在UI中显示转圈，只用于逻辑判断） */
+  public isLoading: boolean
   /* Axios Source */
   private axiosSourceList: CancelTokenSource[]
 
@@ -43,6 +45,7 @@ export class RecordManager {
     this.currentDate = Math.floor(getLocaleDate().getTime() / 1000)
     this.localStartTime = null
     this.pageSize = null
+    this.isLoading = false
     this.axiosSourceList = []
   }
 
@@ -105,7 +108,7 @@ export class RecordManager {
    * @param date 日期
    * @param isConcat 是否合并到现有列表，如果false将覆盖现有列表并播放第一段
    */
-  public async getRecordListByDate(date: number, isConcat = false) {
+  public async getRecordListByDate(date: number, isConcat = false, isSeek = false) {
     try {
       if (!this.screen.deviceId && !isConcat) {
         this.currentDate = date
@@ -115,18 +118,23 @@ export class RecordManager {
         this.screen.url = ''
         this.screen.errorMsg = null
         this.screen.isLoading = true
-        this.currentDate = date
-        this.screen.currentRecordDatetime = date
         this.recordList = []
         this.heatmapList = []
+        this.currentRecord = null
         this.screen.player && this.screen.player.pause()
         this.loadedRecordDates.clear()
+        // 如果是seek操作，不更新当前时间
+        if (!isSeek) {
+          this.currentDate = date
+          this.screen.currentRecordDatetime = date
+        }
       } else if (this.loadedRecordDates.has(date)) {
         return
       }
       // 在SET中存入日期，防止重复加载
       this.loadedRecordDates.add(date)
       !isConcat && this.cancelAxiosSource()
+      this.isLoading = true
       const records = await this.getRecordList(date, date + 24 * 60 * 60)
       if (records && records.length) {
         // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
@@ -154,8 +162,15 @@ export class RecordManager {
         this.screen.errorMsg = this.screen.ERROR.NO_RECORD
       }
       if (!isConcat) this.screen.isLoading = false
+      this.isLoading = false
+      this.seek(this.screen.currentRecordDatetime, true)
       // 加载AI热力列表
-      // this.heatmapList = await this.getHeatmapList(date, date + 24 * 60 * 60)
+      const heatmaps = await this.getHeatmapList(date, date + 24 * 60 * 60)
+      if (date > this.currentDate) {
+        this.heatmapList = this.heatmapList.concat(heatmaps)
+      } else {
+        this.heatmapList = heatmaps.concat(this.heatmapList)
+      }
     } catch (e) {
       // 异常时删除日期
       this.loadedRecordDates.delete(date)
@@ -171,6 +186,8 @@ export class RecordManager {
         }
       }
       if (!isConcat && e.code !== -2) this.screen.isLoading = false
+    } finally {
+      this.isLoading = false
     }
   }
 
@@ -197,7 +214,7 @@ export class RecordManager {
       if (!record) {
         // 判断该日期是否存在SET中
         if (!this.loadedRecordDates.has(date)) {
-          await this.getRecordListByDate(date, isConcat)
+          await this.getRecordListByDate(date, isConcat, true)
         }
         record = this.getRecordByTime(time)
       }
@@ -228,8 +245,10 @@ export class RecordManager {
         this.screen.recordManager.currentDate = time
         this.screen.player && this.screen.player.disposePlayer()
         this.screen.player = null
-        this.screen.errorMsg = this.screen.ERROR.NO_RECORD // 无录像提示
         this.screen.isLoading = false
+        if (!this.isLoading) {
+          this.screen.errorMsg = this.screen.ERROR.NO_RECORD // 无录像提示
+        }
       }
     } catch (e) {
       this.screen.url = ''

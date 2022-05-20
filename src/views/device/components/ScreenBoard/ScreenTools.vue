@@ -21,7 +21,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Inject } from 'vue-property-decorator'
-import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
+import { ScreenManager } from '@/views/device/services/Screen/ScreenManager'
 import { ScreenModule } from '@/store/modules/screen'
 import ReplayAxis from '../ReplayPlayer/ReplayAxis.vue'
 import QueueExecutor from './components/QueueExecutor.vue'

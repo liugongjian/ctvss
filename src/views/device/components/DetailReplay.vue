@@ -12,7 +12,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import ScreenBoard from './ScreenBoard/index.vue'
-import { ScreenManager } from '../models/Screen/ScreenManager'
+import { ScreenManager } from '../services/Screen/ScreenManager'
 
 @Component({
   name: 'DeviceReplay',
