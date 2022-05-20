@@ -27,7 +27,7 @@
             :key="index"
             :class="{'custom-point-item__box': activeInfo.name !=='InterestPoint' || showError}"
           >
-            <el-col :span="2" style="text-align: center;color:#a85cf9">{{ index + 1 }}</el-col>
+            <el-col v-if="activeInfo.name !=='InterestPoint'" :span="2" style="text-align: center;color:#a85cf9">{{ index + 1 }}</el-col>
             <el-col :span="8">
               <el-form-item
                 :prop="`longlat${[index]}`"
@@ -47,7 +47,7 @@
             </el-col>
             <el-col v-if="activeInfo.name !=='InterestPoint'" :span="4" style="text-align: center;">
               <el-button type="text" :disabled="index === pointForm.points.length-1" @click.prevent="insertOne(item,index)">插入</el-button>
-              <el-button type="text" @click.prevent="removeThis(item,index)">删除</el-button>
+              <el-button type="text" :disabled="pointForm.points.length === 1" @click.prevent="removeThis(item,index)">删除</el-button>
             </el-col>
           </el-row>
           <div v-if="showImportTextArea">
@@ -275,7 +275,13 @@ export default class addCustomDialog extends Vue {
   private saveImportPoints() {
     if (this.pointForm.importTextArea.length > 0) {
       try {
-        const textAreaValue = JSON.parse(this.pointForm.importTextArea)
+        let textAreaVal = this.pointForm.importTextArea.trim()
+        if (textAreaVal.endsWith(';') || textAreaVal.endsWith('；')) {
+          textAreaVal = textAreaVal.substr(0, textAreaVal.length - 1)
+        }
+
+        const textAreaValue = JSON.parse(textAreaVal)
+
         if (Array.isArray(textAreaValue) && textAreaValue.length > 0) {
           const tempData = textAreaValue[0] ? textAreaValue[0].path : []
           const finalData = tempData.filter((item: any) => {
@@ -285,9 +291,11 @@ export default class addCustomDialog extends Vue {
           result.forEach((item: any) => {
             this.pointForm.points.push(item)
           })
+        } else {
+          this.$message.warning('请输出 [ ] 格式的数据')
         }
       } catch (e) {
-        this.$message.error('请导入正确的格式')
+        // this.$message.error('请导入正确的格式')
       }
     }
   }
