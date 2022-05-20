@@ -83,9 +83,6 @@
                 </el-carousel-item>
               </el-carousel>
             </div>
-            <div class="dialogue-left__id">
-              <span>sourceID:{{picInfos[activeIndex].id}}</span>
-            </div>
             <div ref="picListWrapper" class="dialogue-left__list" @mousewheel.stop="scrollPicList">
               <div ref="picList" class="infinite-list-wrapper" style="overflow: auto;">
                 <ul
@@ -95,20 +92,37 @@
                 >
                   <li
                     v-for="(pic,index) in picInfos"
-                    :key="index" class="list-item"
+                    :key="index"
+                    class="list-item"
                     :class="`${activeIndex === index ? 'active' : ''}`"
                     @click="active(index)"
                   >
                     <img :src="pic.image" alt="">
+                      <el-tooltip effect="dark" :content="pic.id" placement="bottom">
+                        <div>sourceId:{{ (pic.id && pic.id.length > 5) ? pic.id.slice(0,5) + '...' : pic.id }}</div>
+                      </el-tooltip>
                   </li>
                 </ul>
               </div>
             </div>
           </div>
           <div class="dialogue-right">
-            <el-descriptions :column="1" label-class-name="desc" :label-style="{color:'white','font-weight':'bold' }" :content-style="{color:'white','font-weight':'bold'}">
-              <el-descriptions-item label="人脸标识">{{ picInfos[activeIndex].id }}</el-descriptions-item>
-            </el-descriptions>
+            <div class="dialogue-right__section">
+              <div class="dialogue-right__section__title">基础信息</div>
+              <el-descriptions :column="1" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
+                <el-descriptions-item label="人脸标识">{{ picInfos[activeIndex].id }}</el-descriptions-item>
+                <el-descriptions-item label="人脸标识">{{ picInfos[activeIndex].id }}</el-descriptions-item>
+                <el-descriptions-item label="人脸标识">{{ picInfos[activeIndex].id }}</el-descriptions-item>
+              </el-descriptions>
+            </div>
+            <div class="dialogue-right__section">
+              <div class="dialogue-right__section__title">图像列表</div>
+              <el-descriptions :column="1" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
+                <el-descriptions-item label="人脸标识">{{ picInfos[activeIndex].id }}</el-descriptions-item>
+                <el-descriptions-item label="人脸标识">{{ picInfos[activeIndex].id }}</el-descriptions-item>
+                <el-descriptions-item label="人脸标识">{{ picInfos[activeIndex].id }}</el-descriptions-item>
+              </el-descriptions>
+            </div>
           </div>
         </div>
       </el-dialog>
@@ -122,7 +136,7 @@ import ViewCard from './ViewCard.vue'
 import debounce from '@/utils/debounce'
 import { ViewTypes } from '@/dics/index'
 
-const sr = 'https://guiyang.vcn.ctyun.cn/vss-resource03_ai_wgw1-1/29942159419407308/ai/2022-05-07/20220507-180711-dfcc84de-cfc8-48f0-b0ec-8b64d001addc.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=QK3UOU50KUN39XM4L3E1%2F20220518%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20220518T090744Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=7367bc253f5f7e385558350f5f161e9e2288c1dfdc5165ef7d509b7b68cf0d54'
+const sr = 'https://guiyang.vcn.ctyun.cn/vss-resource03_ai_wgw1-1/29942159419407308/ai/2022-05-20/20220520-144551-af4a63ee-a1d2-45c5-b81d-c90fd188cded.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=QK3UOU50KUN39XM4L3E1%2F20220520%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20220520T065433Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=254df84025683a739a6a9bcc40d0e4c3136692185e0643dc893059fab625110b'
 
 @Component({
   name: 'DetailViewLib',
@@ -445,11 +459,7 @@ export default class extends Vue {
   ::v-deep .el-dialog__body,
   ::v-deep .el-dialog__header,
   ::v-deep .el-descriptions__body {
-    background: $subMenuBg !important;
-  }
-
-  ::v-deep .el-icon-close {
-    color: white !important;
+    // background: $subMenuBg !important;
   }
 }
 
@@ -463,7 +473,7 @@ export default class extends Vue {
 }
 
 .dialogue-left {
-  flex: 1 1 80vw;
+  flex: 1 1 70vw;
   display: flex;
   flex-direction: column;
 
@@ -473,7 +483,6 @@ export default class extends Vue {
 
   &__id {
     margin: 20px auto 5px;
-    color: white;
     font-weight: bold;
   }
 
@@ -483,7 +492,8 @@ export default class extends Vue {
       padding: 0 30px;
 
       ::v-deep .el-carousel__arrow {
-        background-color: #ededed !important;
+        background: none !important;
+        font-size: 50px;
 
         i {
           color: black !important;
@@ -517,21 +527,21 @@ export default class extends Vue {
     .infinite-list-wrapper::-webkit-scrollbar {
       /* 滚动条整体样式 */
       width: 10px;  /* 高宽分别对应横竖滚动条的尺寸 */
-      height: 5px;
+      height: 10px;
     }
 
     .infinite-list-wrapper::-webkit-scrollbar-thumb {
       /* 滚动条里面小方块 */
       border-radius: 10px;
       box-shadow: inset 0 0 5px rgba(0, 0, 0, 20%);
-      background: $primary;
+      background: #ddd;
     }
 
     .infinite-list-wrapper::-webkit-scrollbar-track {
       /* 滚动条里面轨道 */
       box-shadow: inset 0 0 5px rgba(0, 0, 0, 20%);
       border-radius: 20px;
-      background: #ededed;
+      background: #fbfbfb;
     }
 
     ul {
@@ -542,6 +552,8 @@ export default class extends Vue {
         margin-right: 15px;
         width: 280px;
         display: flex;
+        flex-direction: column;
+        justify-content: center;
         align-items: center;
 
         img {
@@ -553,7 +565,34 @@ export default class extends Vue {
 }
 
 .dialogue-right {
-  flex: 0 0 18vw;
+  flex: 1 1 15vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+  overflow: auto;
+
+  &__section {
+    margin-bottom: 12%;
+    padding: 10%;
+    width: 80%;
+    border: 1px solid #f5f5f5;
+    background: #fbfbfb;
+
+    &__title {
+      font-weight: bold;
+      margin-bottom: 5%;
+    }
+
+    ::v-deep .el-descriptions-item__label {
+      min-width: 0 !important;
+    }
+
+    ::v-deep .el-descriptions-item__container {
+      padding-left: 10%;
+      justify-content: start;
+    }
+  }
 }
 
 .desc {
