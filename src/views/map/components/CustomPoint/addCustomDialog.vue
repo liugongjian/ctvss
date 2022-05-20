@@ -6,6 +6,7 @@
     width="600px"
     :before-close="handleClose"
     :destroy-on-close="true"
+    :close-on-click-modal="false"
   >
     <el-form ref="pointForm" :model="pointForm" label-width="110px" :rules="formRules">
       <el-form-item :label="activeInfo.sortName" prop="tagName">
@@ -16,6 +17,7 @@
           v-model="pointForm.description"
           type="textarea" maxlength="60" show-word-limit
           :autosize="{minRows: 4, maxRows: 4}"
+          placeholder="请输入备注"
         />
       </el-form-item>
       <el-form-item label="坐标点">
@@ -25,7 +27,8 @@
             :key="index"
             :class="{'custom-point-item__box': activeInfo.name !=='InterestPoint' || showError}"
           >
-            <el-col :span="10">
+            <el-col :span="2" style="text-align: center;color:#a85cf9">{{ index + 1 }}</el-col>
+            <el-col :span="8">
               <el-form-item
                 :prop="`longlat${[index]}`"
                 :rules="{validator: (rule,val,cb) => validateLonglat(rule,val,cb,item), trigger: 'blur'}"
@@ -34,7 +37,7 @@
               </el-form-item>
             </el-col>
             <el-col :span="1" style="text-align: center;">:</el-col>
-            <el-col :span="10">
+            <el-col :span="8">
               <el-form-item
                 :prop="`longlat${[index]}`"
                 :rules="{validator: (rule,val,cb) => validateLonglat(rule,val,cb,item), trigger: 'blur'}"
@@ -42,14 +45,31 @@
                 <el-input v-model="item.latitude" class="custom-point-box__info" placeholder="请输入纬度" />
               </el-form-item>
             </el-col>
-            <el-col v-if="activeInfo.name !=='InterestPoint'" :span="3" style="text-align: center;">
+            <el-col v-if="activeInfo.name !=='InterestPoint'" :span="4" style="text-align: center;">
+              <el-button type="text" :disabled="index === pointForm.points.length-1" @click.prevent="insertOne(item,index)">插入</el-button>
               <el-button type="text" @click.prevent="removeThis(item,index)">删除</el-button>
             </el-col>
           </el-row>
+          <div v-if="showImportTextArea">
+            <div class="custom-point-dialog-import__btn">
+              <el-button size="mini" type="primary" @click="saveImportPoints">解析</el-button>
+              <el-button size="mini" @click="closeImportPoints">关闭</el-button>
+            </div>
+            <el-form-item prop="importTextArea" class="custom-point-dialog-import__txtara">
+              <el-input
+                v-model="pointForm.importTextArea"
+                type="textarea"
+                :autosize="{minRows: 4, maxRows: 4}"
+                placeholder="请输入 [ ] 格式数据"
+              />
+            </el-form-item>
+          </div>
         </div>
       </el-form-item>
+
       <el-form-item v-if="activeInfo.name !=='InterestPoint'" class="custom-point-item__addBtn">
         <el-button class="custom-point-btn" @click="addPoints">添加坐标点</el-button>
+        <el-button class="custom-point-btn" @click="importPoints">从高德地图工具导入</el-button>
       </el-form-item>
       <el-form-item v-if="activeInfo.name ==='InterestPoint'" label="类型">
         <el-select v-model="pointForm.colorType" placeholder="请选择气泡类型">
@@ -97,6 +117,8 @@ export default class addCustomDialog extends Vue {
   private formRules: any = {}
 
   private showError: boolean = false
+
+  private showImportTextArea: boolean = false
 
   private colorList = [
     { label: '#1e78e0', color: '#1e78e0' },
@@ -164,10 +186,10 @@ export default class addCustomDialog extends Vue {
   }
 
   private validateLonglat(rule: any, value: string, callback: Function, item: any) {
-    if (!/^[-+]?(0(\.\d{1,10})?|([1-9](\d)?)(\.\d{1,10})?|1[0-7]\d{1}(\.\d{1,10})?|180\.0{1,10})$/.test(item.longitude)) {
+    if (!this.validateIsLng(item.longitude)) {
       this.showError = true
       callback(new Error('经度坐标格式错误'))
-    } else if (!/^[-+]?((0|([1-9]\d?))(\.\d{1,10})?|90(\.0{1,10})?)$/.test(item.latitude)) {
+    } else if (!this.validateIsLat(item.latitude)) {
       this.showError = true
       callback(new Error('纬度坐标格式错误'))
     } else {
@@ -229,12 +251,52 @@ export default class addCustomDialog extends Vue {
   private removeThis(item: any, idx: number) {
     this.pointForm.points.splice(idx, 1)
   }
+
+  private insertOne(item: any, idx: number) {
+    this.pointForm.points.splice(idx + 1, 0, { longitude: '0.000000', latitude: '0.000000' })
+  }
+
+  private importPoints() {
+    this.showImportTextArea = true
+  }
+
+  private closeImportPoints() {
+    this.showImportTextArea = false
+  }
+
+  private validateIsLng(str: any) {
+    return /^[-+]?(0(\.\d{1,10})?|([1-9](\d)?)(\.\d{1,10})?|1[0-7]\d{1}(\.\d{1,10})?|180\.0{1,10})$/.test(str)
+  }
+
+  private validateIsLat(str: any) {
+    return /^[-+]?((0|([1-9]\d?))(\.\d{1,10})?|90(\.0{1,10})?)$/.test(str)
+  }
+
+  private saveImportPoints() {
+    if (this.pointForm.importTextArea.length > 0) {
+      try {
+        const textAreaValue = JSON.parse(this.pointForm.importTextArea)
+        if (Array.isArray(textAreaValue) && textAreaValue.length > 0) {
+          const tempData = textAreaValue[0] ? textAreaValue[0].path : []
+          const finalData = tempData.filter((item: any) => {
+            return this.validateIsLng(item.lng) && this.validateIsLat(item.lat)
+          })
+          const result = finalData.map((item: any) => ({ longitude: item.lng, latitude: item.lat }))
+          result.forEach((item: any) => {
+            this.pointForm.points.push(item)
+          })
+        }
+      } catch (e) {
+        this.$message.error('请导入正确的格式')
+      }
+    }
+  }
 }
 </script>
 
 <style lang="scss" scoped>
 .custom-point-btn {
-  width: 100%;
+  width: 45%;
 }
 
 .custom-point-item {
@@ -248,6 +310,7 @@ export default class addCustomDialog extends Vue {
 
   &__addBtn {
     margin-top: -24px;
+    text-align: center;
   }
 }
 
@@ -270,6 +333,16 @@ export default class addCustomDialog extends Vue {
   display: inline-block;
   width: 10px;
   height: 10px;
+}
+
+.custom-point-dialog-import {
+  &__btn {
+    text-align: right;
+    margin-bottom: 10px;
+  }
+  &__txtara {
+    margin-bottom: 10px;
+  }
 }
 
 ::v-deep .el-dialog__footer {
