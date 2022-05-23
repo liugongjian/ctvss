@@ -26,10 +26,14 @@ export default class extends Vue {
     &--on {
       background-color: $success;
     }
+
     &--warning {
       background-color: $primary;
     }
-    &--red, &--failed, &--error {
+
+    &--red,
+    &--failed,
+    &--error {
       background-color: #ccc;
     }
   }
