@@ -293,15 +293,16 @@ export default class extends Vue {
   }
 
   private openCanvasDialog(rowInfo: any) {
-    const streamNum = this.deviceInfo?.deviceStreams[0]?.streamNum
-    const deviceId = this.inProtocol === 'ehome' ? `${this.deviceId}_${streamNum}` : this.deviceId
+    // 新接口不需要单独处理ehome
+    // const streamNum = this.deviceInfo?.deviceStreams[0]?.streamNum
+    // const deviceId = this.inProtocol === 'ehome' ? `${this.deviceId}_${streamNum}` : this.deviceId
     // '{"frames": [{"stream": "29942069225065679", "inProtocol": "rtsp"}]}'
     // const param = {
     //   streams: [deviceId]
     // }
     const param = {
       frames: [{
-        stream: deviceId,
+        stream: this.deviceId,
         inProtocol: this.inProtocol
       }]
     }
