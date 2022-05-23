@@ -37,8 +37,10 @@ export interface markerObject {
   lnglat?: [number, number] | LngLat,
   deviceStatus?: string,
   streamStatus?: string,
-  recordStatus?: number
-  gbRegionNames?: Array<any>
+  recordStatus?: number,
+  gbRegionNames?: Array<any>,
+  groupId?: string
+  deviceColor?: string
 }
 
 export enum mapStatus {
@@ -302,7 +304,7 @@ export default class VMap {
     const _renderMarker = (context: any) => {
       const content = this.buildContent(context.data[0])
       context.marker.setContent(content)
-      context.marker.setOffset(new AMap.Pixel(-25, -30))
+      context.marker.setOffset(new AMap.Pixel(-25, -25))
       context.marker.setExtData(context.data[0])
       if (this.isEdit) {
         context.marker.setDraggable(true)
@@ -355,8 +357,10 @@ export default class VMap {
   buildContent(markerOptions: markerObject) {
     const markerContent = document.createElement('div')
     markerContent.setAttribute('class', 'marker-containt')
+    const mColor = markerOptions.deviceColor || '#1e78e0'
     // const sector = this.drawSector(markerOptions)
-    const marker = this.createNode('<img class="marker-center" width="19px" height="32px" src="//webapi.amap.com/theme/v1.3/markers/b/mark_bs.png">')
+    // const marker = this.createNode('<img class="marker-center" width="19px" height="32px" src="//webapi.amap.com/theme/v1.3/markers/b/mark_bs.png">')
+    const marker = this.createNode(`<svg class="marker-center" style="fill:${mColor}" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="8054"><path d="M97.28 572.928l-65.536-13.312c-10.752-2.048-20.992 5.12-23.04 15.36-0.512 1.536-0.512 3.072-0.512 4.608v402.944c0 16.896 16.896 28.672 32.256 22.528l26.624-9.728c27.136-9.728 45.568-35.84 45.568-65.024v-92.672c0-11.264 8.704-19.968 19.456-19.968h139.776c6.144 0 12.288-3.072 15.872-8.192l73.728-99.328c6.656-9.216 4.096-22.016-5.12-28.672-0.512-0.512-81.92-51.2-81.92-51.2-9.216-5.12-20.992-2.048-26.112 7.168-0.512 1.536-1.536 2.56-1.536 4.096l-20.48 65.024c-2.56 8.192-10.24 13.824-18.432 13.824H132.608c-10.752 0-19.456-9.216-19.456-19.968v-107.008c0-10.24-6.656-18.432-15.872-20.48zM684.544 732.16L87.04 317.952c-24.576-16.896-31.744-50.176-16.896-74.24l118.272-185.856c15.36-24.576 48.64-29.696 68.608-14.336l650.752 487.936c34.304 25.6 34.816 70.656 5.12 90.624l-171.008 112.128c-17.408 11.264-39.936 10.24-57.344-2.048zM81.92 397.312l-28.672 40.448c-6.144 9.216-4.608 21.504 4.096 28.16l1.024 1.024 675.84 440.832c8.192 5.632 19.456 4.096 26.112-3.584l87.04-100.352c7.168-8.192 6.656-20.48-0.512-28.672l-2.048-2.048c-7.168-7.68-18.944-8.704-27.136-2.048l-60.416 48.128c-6.656 5.632-16.384 5.632-23.552 1.024L108.032 392.704c-8.704-6.144-20.48-4.096-26.112 4.608z" p-id="8055"></path></svg>`)
     const label = this.createNode(`<div class="marker-label">${markerOptions.deviceLabel}</div>`)
     if (markerOptions.selected) {
       // const size = markerOptions.viewRadius * 2 + 60
