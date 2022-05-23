@@ -1,6 +1,7 @@
 import AMapLoader from '@amap/amap-jsapi-loader'
 import LngLat = AMap.LngLat
 import { getDevice } from '@/api/device'
+import { checkPermission } from '@/utils/permission'
 
 export interface mapObject {
   mapId: string,
@@ -365,8 +366,14 @@ export default class VMap {
       let wrapDiv
       let optionDiv
       if (!this.isEdit) { // 编辑状态
-        const previewIcon = `<span class="icon-wrap ${markerOptions.deviceStatus === 'on' ? '' : 'off'}" onclick="previewMarker('${markerOptions.deviceId}')"><i class="icon icon_preview"></i></span>`
-        const replayIcon = `<span class="icon-wrap" onclick="replayMarker('${markerOptions.deviceId}')"><i class="icon icon_replay"></i></span>`
+        let previewIcon = ''
+        let replayIcon = ''
+        if (checkPermission(['ScreenPreview'])) {
+          previewIcon = `<span class="icon-wrap ${markerOptions.deviceStatus === 'on' ? '' : 'off'}" onclick="previewMarker('${markerOptions.deviceId}')"><i class="icon icon_preview"></i></span>`
+        }
+        if (checkPermission(['ReplayRecord'])) {
+          replayIcon = `<span class="icon-wrap" onclick="replayMarker('${markerOptions.deviceId}')"><i class="icon icon_replay"></i></span>`
+        }
         optionDiv = `<div class="marker-options">${previewIcon}${replayIcon}</div>`
       } else {
         const deleteIcon = `<i class="icon icon_delete" onclick="deleteMarker('${markerOptions.deviceId}', '${markerOptions.deviceLabel}')"></i>`
