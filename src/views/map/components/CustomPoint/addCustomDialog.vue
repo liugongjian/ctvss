@@ -287,7 +287,7 @@ export default class addCustomDialog extends Vue {
           const finalData = tempData.filter((item: any) => {
             return this.validateIsLng(item.lng) && this.validateIsLat(item.lat)
           })
-          const result = finalData.map((item: any) => ({ longitude: item.lng, latitude: item.lat }))
+          const result = finalData.map((item: any) => ({ longitude: item.lng.toString(), latitude: item.lat.toString() }))
           result.forEach((item: any) => {
             this.pointForm.points.push(item)
           })
