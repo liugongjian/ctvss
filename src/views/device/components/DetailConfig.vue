@@ -213,7 +213,7 @@ import { GroupModule } from '@/store/modules/group'
 import { getDeviceRecordTemplate, getDeviceCallbackTemplate, getDevice,
   unBindAppResource, startAppResource, stopAppResource } from '@/api/device'
 import { getAlertBind } from '@/api/template'
-import { getAppList, getAlgoStreamFrame } from '@/api/ai-app'
+import { getAppList, getAlgoStreamFrameShot } from '@/api/ai-app'
 import { getDeviceResources } from '@/api/billing'
 import SetRecordTemplate from '@/views/components/dialogs/SetRecordTemplate.vue'
 import SetCallBackTemplate from '@/views/components/dialogs/SetCallBackTemplate.vue'
@@ -295,11 +295,17 @@ export default class extends Vue {
   private openCanvasDialog(rowInfo: any) {
     const streamNum = this.deviceInfo?.deviceStreams[0]?.streamNum
     const deviceId = this.inProtocol === 'ehome' ? `${this.deviceId}_${streamNum}` : this.deviceId
+    // '{"frames": [{"stream": "29942069225065679", "inProtocol": "rtsp"}]}'
+    // const param = {
+    //   streams: [deviceId]
+    // }
     const param = {
-      // streams: JSON.stringify([Number(this.deviceId)])
-      streams: [deviceId]
+      frames: [{
+        stream: deviceId,
+        inProtocol: this.inProtocol
+      }]
     }
-    getAlgoStreamFrame(param).then(res => {
+    getAlgoStreamFrameShot(param).then(res => {
       if (res) {
         const { frames = [] } = res
         const { frame = '' } = frames[0] || []
