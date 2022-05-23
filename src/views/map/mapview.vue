@@ -328,7 +328,9 @@ export default class MapView extends Vue {
       population: device.population,
       houseInfo: device.houseInfo,
       unitInfo: device.unitInfo,
-      gbRegionNames: device.gbRegionNames
+      gbRegionNames: device.gbRegionNames,
+      groupId: device.groupId,
+      deviceColor: device.deviceColor
     }
     return result
   }

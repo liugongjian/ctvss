@@ -152,6 +152,11 @@ export default class extends Vue {
       actionName: '管理录像',
       actionValue: 'AdminRecord',
       actionDesc: '拥有录像下载，录像文件改名的权限'
+    },
+    {
+      actionName: '查看电子地图',
+      actionValue: 'DescribeMap',
+      actionDesc: '拥有电子地图的查看权限'
     }
   ]
   private dirList: any = []

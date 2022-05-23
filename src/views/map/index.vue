@@ -19,6 +19,7 @@
                   <span class="map-text">{{ map.name }}</span>
                 </el-tooltip>
                 <div>
+                  <span class="edit-icon"><svg-icon name="mark" @click.stop="editMark(map)" /></span>
                   <span class="edit-icon"><svg-icon name="edit" @click.stop="openMapEditDialog(map)" /></span>
                   <span class="delete-icon"><svg-icon name="delete" @click.stop="deleteMap(map)" /></span>
                 </div>
@@ -134,6 +135,9 @@
                     <span class="zoomdesc">{{ zoomDesc }}</span>
                   </div>
                 </el-form-item>
+                <el-form-item v-if="mapEditDialog.status === 'edit'" label="是否启用模板" prop="mask" class="mask">
+                  <el-checkbox v-model="form.mask" />
+                </el-form-item>
               </el-form>
               <span slot="footer" class="dialog-footer">
                 <el-button type="primary" @click="addOrEditMap">确定</el-button>
@@ -210,6 +214,7 @@
               </div>
             </div>
           </div>
+          <custom-point v-if="showCustomPoint" :key="freshWithKey" :custom-point-info="customPointInfo" @closeEditMark="closeEditMark" @chooseMap="chooseMap" />
         </div>
       </div>
     </el-card>
@@ -228,6 +233,7 @@ import SelectedPoint from './components/SelectedPoint.vue'
 import MapInfo from './components/MapInfo.vue'
 import { getMaps, createMap, deleteMap, modifyMap } from '@/api/map'
 import { mapObject } from '@/views/map/models/vmap'
+import CustomPoint from './components/CustomPoint/index.vue'
 
 @Component({
   name: 'Map',
@@ -236,7 +242,8 @@ import { mapObject } from '@/views/map/models/vmap'
     MapView,
     MapInfo,
     PointInfo,
-    SelectedPoint
+    SelectedPoint,
+    CustomPoint
   }
 })
 export default class extends Mixins(IndexMixin) {
@@ -278,7 +285,8 @@ export default class extends Mixins(IndexMixin) {
     name: '',
     longitude: '',
     latitude: '',
-    zoom: 12
+    zoom: 12,
+    mask: false
   }
   private get zoomDesc() {
     const map = {
@@ -395,6 +403,9 @@ export default class extends Mixins(IndexMixin) {
     dir: 0,
     nvr: 1
   }
+
+  private showCustomPoint = false
+  private customPointInfo: any = {}
 
   /**
    * 目录初始化
@@ -607,6 +618,7 @@ export default class extends Mixins(IndexMixin) {
   private mousedownHandle(eve: any, data: any) {
     if (!data.isLeaf || (data.isLeaf && this.mapDeviceIds.indexOf(data.id) >= 0)) return
 
+    this.closeEditMark()
     this.ifDragging = true
     const { target: ele } = eve
 
@@ -792,6 +804,7 @@ export default class extends Mixins(IndexMixin) {
   }
 
   addMarker(marker) {
+    this.closeEditMark()
     if (!this.isEdit) {
       this.$msgbox({
         title: '开始编辑',
@@ -863,7 +876,9 @@ export default class extends Mixins(IndexMixin) {
       deviceAngle: '0',
       population: '',
       houseInfo: '',
-      unitInfo: ''
+      unitInfo: '',
+      groupId: this.deviceInfo.groupId,
+      deviceColor: ''
     }
   }
 
@@ -936,6 +951,7 @@ export default class extends Mixins(IndexMixin) {
   }
 
   deviceClick(data) {
+    this.closeEditMark()
     if (data.isLeaf && this.mapDeviceIds.indexOf(data.id) < 0) {
       this.$message.warning('该设备尚未添加到当前地图上')
     } else if (data.isLeaf && this.mapDeviceIds.indexOf(data.id) >= 0) {
@@ -946,6 +962,7 @@ export default class extends Mixins(IndexMixin) {
   }
 
   deleteMarker(marker) {
+    this.closeEditMark()
     this.$refs.mapview.handleMarkerDelete(marker.id, marker.label)
   }
 
@@ -989,21 +1006,32 @@ export default class extends Mixins(IndexMixin) {
             this.mapList.push(this.curMap)
             this.mapEditDialog.dialogVisible = false
           } else {
-            await modifyMap(this.form)
+            const mask = this.form.mask ? 'Y' : 'N'
+            const map = {
+              mapId: this.form.mapId,
+              name: this.form.name,
+              longitude: this.form.longitude || '116.397428',
+              latitude: this.form.latitude || '39.90923',
+              zoom: this.form.zoom,
+              mask
+            }
+            await modifyMap(map)
             this.mapList = this.mapList.map(item => {
-              if (item.mapId === this.form.mapId) {
-                return this.form
+              if (item.mapId === map.mapId) {
+                return map
               } else {
                 return item
               }
             })
-            this.curMap = this.form
+            this.curMap = map
             this.$refs.mapview.setMapZoomAndCenter(this.curMap.zoom, this.curMap.longitude, this.curMap.latitude)
             this.$alertSuccess('地图修改成功')
             this.mapEditDialog.dialogVisible = false
           }
         } catch (e) {
           this.$alertError(e.message)
+        } finally {
+          this.closeEditMark()
         }
       } else {
         return false
@@ -1041,7 +1069,8 @@ export default class extends Mixins(IndexMixin) {
         name: map.name,
         longitude: map.longitude + '',
         latitude: map.latitude + '',
-        zoom: Number(map.zoom)
+        zoom: Number(map.zoom),
+        mask: map.mask === 'Y'
       }
       this.mapEditDialog.status = 'edit'
     } else {
@@ -1050,11 +1079,26 @@ export default class extends Mixins(IndexMixin) {
         name: '',
         longitude: '',
         latitude: '',
-        zoom: 12
+        zoom: 12,
+        mask: false
       }
       this.mapEditDialog.status = 'add'
     }
     this.mapEditDialog.dialogVisible = true
+  }
+
+  // 设置地图点兴趣点
+  private editMark(map?: mapObject) {
+    this.curMap = map
+    // 使用 更改key的方式，让vue的diff算法更新dom
+    this.freshWithKey = map.mapId
+    this.showCustomPoint = true
+    this.customPointInfo = map
+  }
+  // 关闭地图兴趣点
+  private closeEditMark() {
+    this.showCustomPoint = false
+    this.customPointInfo = {}
   }
 
   /**
@@ -1081,6 +1125,8 @@ export default class extends Mixins(IndexMixin) {
   }
 
   private chooseMap(map) {
+    this.showCustomPoint = false
+    this.customPointInfo = {}
     this.showInfo = false
     this.showMapInfo = true
     this.showMarkers = true
@@ -1184,7 +1230,8 @@ export default class extends Mixins(IndexMixin) {
   height: 100%;
 }
 
-.device-list__left {
+.device-list__left,
+.device-list__right {
   position: relative;
 }
 
@@ -1393,6 +1440,9 @@ export default class extends Mixins(IndexMixin) {
 
 .dialog-text {
   text-align: center;
+}
+.dialog-text .mask {
+  text-align: left;
 }
 
 .tools-item__cup {
