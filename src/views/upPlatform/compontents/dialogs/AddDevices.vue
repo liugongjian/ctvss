@@ -94,7 +94,7 @@ export default class extends Vue {
     dir: 0,
     nvr: 1,
     platform: 3,
-    platformDir: 3
+    platformDir: 4
   }
 
   private mounted() {
@@ -372,7 +372,7 @@ export default class extends Vue {
           deviceId: item.id
         })
         // 针对patform特殊处理
-        if (currentGroupDir.dirType === 3) {
+        if ([3, 4].includes(currentGroupDir.dirType)) {
           currentGroupDir.parentDirType = parentDirType
         }
       })
