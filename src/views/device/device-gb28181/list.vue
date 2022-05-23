@@ -148,6 +148,24 @@
           </template>
         </el-table-column>
         <el-table-column
+          key="streamStatus1"
+          column-key="streamStatus1"
+          prop="streamStatus1"
+          label="流状态"
+          min-width="110"
+          :filters="isIPC ? [] : filtersArray.streamStatus"
+          :filter-multiple="false"
+        >
+          <template slot="header">
+            <span class="filter">接入协议</span>
+            <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
+          </template>
+          <template slot-scope="{row}">
+            <status-badge :status="row.streamStatus" />
+            {{ streamStatus[row.streamStatus] || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column
           key="streamStatus"
           column-key="streamStatus"
           prop="streamStatus"

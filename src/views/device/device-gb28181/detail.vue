@@ -28,6 +28,9 @@
                 <el-descriptions-item label="设备ID">
                   {{ info.deviceId }}
                 </el-descriptions-item>
+                <el-descriptions-item label="业务组">
+                  {{ groupInfo.groupName }}
+                </el-descriptions-item>
                 <template v-if="info && !isNVRChannel">
                   <el-descriptions-item label="设备名称">
                     {{ info.deviceName }}
@@ -72,7 +75,7 @@
             <!--状态信息-->
             <div class="detail__section">
               <div class="detail__title">接入信息</div>
-              <el-tabs v-model="activeTabPane" type="card" class="title-tabs" @tab-click="1">
+              <el-tabs v-model="activeTabPane" type="card" class="detail-tabs">
                 <el-tab-pane label="视频接入" name="video">
                   <!--状态信息-->
                   <div class="detail__section">
@@ -106,7 +109,7 @@
                   </div>
                   <!--设备信息-->
                   <div class="detail__section">
-                    <div class="detail__title">设备信息</div>
+                    <div class="detail__title">接入信息</div>
                     <el-descriptions :column="2">
                       <!--通用信息-->
                       <template v-if="info && !isNVRChannel">
@@ -229,6 +232,48 @@
                     </el-descriptions>
                   </div>
                 </el-tab-pane>
+                <el-tab-pane label="视图接入" name="view">
+                  <div class="detail__section">
+                    <div class="detail__title">状态信息</div>
+                    <el-descriptions :column="2">
+                      <el-descriptions-item label="设备状态">
+                        <status-badge :status="info.deviceStatus" />
+                        {{ deviceStatus[info.deviceStatus] || '-' }}
+                      </el-descriptions-item>
+                    </el-descriptions>
+                  </div>
+                  <div class="detail__section">
+                    <div class="detail__title">接入信息</div>
+                    <el-descriptions :column="2">
+                      <el-descriptions-item label="视图ID">
+                        {{ info.gbId || '-' }}
+                      </el-descriptions-item>
+                      <el-descriptions-item label="GA1400凭证">
+                        {{ info.userName }}
+                      </el-descriptions-item>
+                      <el-descriptions-item label="协议类型">
+                        {{ deviceType[info.deviceType] }}
+                      </el-descriptions-item>
+                      <el-descriptions-item label="设备IP">
+                        {{ groupInfo.sipIp || '-' }}
+                      </el-descriptions-item>
+                      <el-descriptions-item label="设备端口">
+                        {{ groupInfo.sipTcpPort || '-' }}
+                      </el-descriptions-item>
+                    </el-descriptions>
+                  </div>
+                  <div class="detail__section">
+                    <div class="detail__title">视图库信息</div>
+                    <el-descriptions v-if="groupInfo" :column="2">
+                      <el-descriptions-item label="视图库IP">
+                        {{ groupInfo.sipIp || '-' }}
+                      </el-descriptions-item>
+                      <el-descriptions-item label="视图库端口">
+                        {{ groupInfo.sipTcpPort || '-' }}
+                      </el-descriptions-item>
+                    </el-descriptions>
+                  </div>
+                </el-tab-pane>
               </el-tabs>
             </div>
           </div>
@@ -291,6 +336,25 @@ export default class extends Mixins(detailMixin) {
 .detail-wrap {
   ::v-deep .el-descriptions-item__label {
     min-width: 130px;
+  }
+}
+
+.detail-tabs {
+  margin-top: 20px;
+  ::v-deep {
+    .el-tabs__content {
+      padding: 0 20px;
+    }
+    .detail__title {
+      &:before {
+        content: '';
+        display: none;
+      }
+    }
+    .el-tabs__item {
+      height: 38px;
+      line-height: 38px;
+    }
   }
 }
 </style>
