@@ -32,7 +32,7 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import VMap, { getAMapLoad } from './models/vmap'
 import axios from 'axios'
 import { getMapDevices, updateMarkers, addMarkers, deleteMarkers } from '@/api/map'
-import { Screen } from '@/views/device/models/Screen/Screen'
+import { Screen } from '@/views/device/services/Screen/Screen'
 import LivePlayer from '@/views/device/components/LivePlayer.vue'
 import ReplayView from '@/views/device/components/ReplayPlayer/index.vue'
 import draggable from '@/views/map/directives/draggable'
@@ -328,7 +328,9 @@ export default class MapView extends Vue {
       population: device.population,
       houseInfo: device.houseInfo,
       unitInfo: device.unitInfo,
-      gbRegionNames: device.gbRegionNames
+      gbRegionNames: device.gbRegionNames,
+      groupId: device.groupId,
+      deviceColor: device.deviceColor
     }
     return result
   }

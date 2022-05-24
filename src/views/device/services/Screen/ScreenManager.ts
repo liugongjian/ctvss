@@ -135,6 +135,7 @@ export class ScreenManager {
       screen.destroy()
     }
     this.transformDeviceParams(screen, item, streamNum)
+    screen.streams = this.fillStreams(screen)
     screen.isLive = this.isLive
     screen.inProtocol = this.inProtocol
     // 如果是同步向，新开的窗口使用与现在打开窗口相同的时间
@@ -148,7 +149,7 @@ export class ScreenManager {
 
   /**
    * 参数适配转换
-   * @param screen screen对象
+   * @param screen 分屏对象
    * @param data 设备数据
    * @param streamNum 指定码流
    */
@@ -164,6 +165,26 @@ export class ScreenManager {
       screen.streamNum = streamNum
     } else {
       screen.streamNum = data.autoStreamNum
+    }
+  }
+
+  /**
+   * 如果streams为空，需要手动补足数组
+   * @param screen 分屏对象
+   * @returns streams
+   */
+  public fillStreams(screen: Screen) {
+    const streams = []
+    if (screen.streamSize > 0 && !screen.streams.length) {
+      for (let i = 0; i < screen.streamSize; i++) {
+        streams.push({
+          streamNum: i + 1,
+          streamStatus: 'off'
+        })
+      }
+      return streams
+    } else {
+      return screen.streams
     }
   }
 

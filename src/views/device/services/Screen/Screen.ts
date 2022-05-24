@@ -1,8 +1,8 @@
 import axios from 'axios'
 import screenLogManager from './ScreenLogManager'
-import { DeviceInfo, StreamInfo, Stream } from '@/components/VssPlayer/models/VssPlayer'
+import { DeviceInfo, StreamInfo, Stream } from '@/components/VssPlayer/types/VssPlayer'
 import { RecordManager } from '../Record/RecordManager'
-import { Player } from '@/components/Player/models/Player'
+import { Player } from '@/components/Player/services/Player'
 import { getDevicePreview } from '@/api/device'
 
 export class Screen {
@@ -265,6 +265,10 @@ export class Screen {
         const videoInfo = this.parseVideoInfo(res.videoInfo)
         this.videoWidth = videoInfo.videoWidth
         this.videoHeight = videoInfo.videoHeight
+        if (this.streamNum && this.streams.length) {
+          const stream = this.streams[this.streamNum - 1]
+          if (stream) stream.streamStatus = 'on'
+        }
       }
       this.isLoading = false
     } catch (e) {

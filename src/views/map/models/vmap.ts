@@ -8,6 +8,7 @@ export interface mapObject {
   longitude: number,
   latitude: number,
   zoom: number,
+  mask?: string
 }
 
 declare global {

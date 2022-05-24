@@ -12,9 +12,9 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { Stream } from '@/components/VssPlayer/models/VssPlayer'
+import { Stream } from '@/components/VssPlayer/types/VssPlayer'
 import ScreenBoard from './ScreenBoard/index.vue'
-import { ScreenManager } from '../models/Screen/ScreenManager'
+import { ScreenManager } from '../services/Screen/ScreenManager'
 
 @Component({
   name: 'DeviceLive',
@@ -44,6 +44,7 @@ export default class extends Vue {
     screen.streamSize = this.streamSize
     screen.streamNum = 1
     screen.isLive = true
+    screen.streams = this.screenManager.fillStreams(screen)
     screen.init()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)

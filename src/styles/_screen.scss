@@ -1,24 +1,18 @@
+@mixin fullscreen {
+  position: fixed;
+  z-index: 2002;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100%;
+  max-width: 100%;
+}
+
 /* 分屏 */
 .screen-container {
   display: flex;
   flex-direction: column;
-
-  &--fullscreen {
-    position: fixed;
-    z-index: 2002;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 100% !important;
-    max-width: 100%;
-  }
-
-  &--replay {
-    .toggle-live-replay {
-      display: none;
-    }
-  }
 
   .screen-grid-wrap {
     display: flex;
@@ -185,14 +179,8 @@
     }
 
     &--fullscreen {
-      position: fixed;
-      z-index: 2002;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 100%;
-      max-width: 100%;
+      @include fullscreen();
+
       border: none;
     }
 
@@ -308,5 +296,21 @@
         bottom: 73px !important;
       }
     }
+  }
+
+  &--replay {
+    .toggle-live-replay {
+      display: none;
+    }
+  }
+
+  &--live.screen-container--fullscreen .screen-grid-wrap {
+    @include fullscreen();
+  }
+
+  &--replay.screen-container--fullscreen {
+    @include fullscreen();
+
+    height: 100% !important;
   }
 }
