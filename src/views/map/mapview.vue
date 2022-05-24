@@ -128,7 +128,7 @@ export default class MapView extends Vue {
     }
   }
 
-  private async getPointList() {
+  private async getPointList(map) {
     this.hightAreaList = []
     this.interestBuildingList = []
     this.interestPointList = []
@@ -152,13 +152,14 @@ export default class MapView extends Vue {
     } catch (e) {
       console.log(e)
     } finally {
-      this.renderPoints()
+      this.renderPoints(map)
     }
   }
 
   // 渲染兴趣点
-  public renderPoints() {
-    this.renderMask(this.mapOption.mask) //
+  public renderPoints(map) {
+    this.renderMask(map.mask)
+    this.vmap.renderBuilding(this.hightAreaList, this.interestBuildingList)
     this.vmap.renderPoi(this.interestPointList)
   }
 
@@ -181,7 +182,7 @@ export default class MapView extends Vue {
       pageNum += 1
     }
     await Promise.all(promiseList)
-    await this.getPointList()
+    await this.getPointList(map)
   }
 
   public setMapCenter(lng, lat) {

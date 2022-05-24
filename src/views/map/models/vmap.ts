@@ -89,6 +89,7 @@ export default class VMap {
   markerEventHandlers: markerEventHandlers
   community: AMap.Polygon | null = null // 社区高亮区域
   pois: Array<AMap.Marker | AMap.LabelsLayer> | null = null // 兴趣点
+  buildingLayer: AMap.Buildings | null = null // 兴趣点建筑
   constructor(container: string) {
     this.container = container
   }
@@ -111,14 +112,14 @@ export default class VMap {
         options.viewMode = '3D'
       }
       const map = new AMap.Map(this.container, options)
-      const buildingLayer = new AMap.Buildings({
-        zIndex: 10,
-        zooms: [15, 20],
-        heightFactor: 2,
-        wallColor: 'ffc9d2dc',
-        roofColor: 'ffdce3ec'
-      })
-      map.add([buildingLayer])
+      // const buildingLayer = new AMap.Buildings({
+      //   zIndex: 10,
+      //   zooms: [15, 20],
+      //   heightFactor: 2,
+      //   wallColor: 'ffc9d2dc',
+      //   roofColor: 'ffdce3ec'
+      // })
+      // map.add([buildingLayer])
       this.overView = new AMap.HawkEye({
         visible: false,
         width: '300px',
@@ -549,6 +550,48 @@ export default class VMap {
     })
     this.pois.push(layer)
     this.map.add(this.pois)
+  }
+
+  /**
+   * 渲染楼房颜色
+   */
+  public renderBuilding(highlightList, buildingList) {
+    if (this.buildingLayer) {
+      this.map.remove(this.buildingLayer)
+    }
+
+    this.buildingLayer = new AMap.Buildings({
+      wallColor: 'rgba(220, 220, 220, 0)',
+      roofColor: 'rgba(220, 220, 220, 0)',
+      opacity: 0.9,
+      zIndex: 130
+    })
+    const areas = []
+
+    // 增加高亮区域楼层颜色
+    highlightList.forEach(area => {
+      areas.push({
+        color1: '#bccfde', // 楼顶颜色
+        color2: '#cfdde8', // 楼面颜色
+        path: this.handlePoint(area.points)
+      })
+    })
+
+    // 增加兴趣楼房颜色
+    buildingList.forEach(area => {
+      areas.push({
+        color1: '#ffce6f',
+        color2: '#eab754',
+        path: this.handlePoint(area.points)
+      })
+    })
+
+    const buildingOptions = {
+      hideWithoutStyle: false, // 是否隐藏设定区域外的楼块
+      areas
+    }
+    this.buildingLayer.setStyle(buildingOptions)
+    this.map.add(this.buildingLayer)
   }
 
   handlePoint(points) {
