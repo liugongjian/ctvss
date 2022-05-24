@@ -7,7 +7,7 @@
       <div
         v-if="!location.zone"
         class="ai-recognation__images__item__mask"
-        :class="[{'ai-recognation__images__item__mask--warning': location.isWarning, 'ai-recognation__images__item__clickable': clickable, 'ai-recognation__images__item__mask--selected': currentIndex === locationIndex}, `ai-recognation__images__item__mask--${type}`]"
+        :class="[{'ai-recognation__images__item__mask--warning': location.isWarning, 'ai-recognation__images__item__clickable': clickable, 'ai-recognation__images__item__mask--selected': currentIndex === locationIndex, 'orange': location.isNoReflective}, `ai-recognation__images__item__mask--${type}`]"
         :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
         @click="clickLocation(locationIndex)"
       >
@@ -15,7 +15,7 @@
           置信度:{{ location.score }}%<br>
           <span v-if="['4', '10001'].includes(type)">姓名:{{ location.name }}</span>
         </div>
-        <div v-if="['7', '29', '10004', '10026'].includes(type)" class="ai-recognation__images__item__mask__text dustbin" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
+        <div v-if="['29', '10026'].includes(type)" class="ai-recognation__images__item__mask__text dustbin" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
           {{ location.label }}
         </div>
         <div v-if="type === '17'|| type === '10014'" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning, 'ai-recognation__images__item__mask__text--top': location.clientTopPercent + location.clientHeightPercent > 80, 'ai-recognation__images__item__mask__text--left': location.clientLeftPercent + location.clientWidthPercent> 80}">
@@ -76,6 +76,10 @@ export default class extends Vue {
     word-break: break-all !important;
     top: -1px;
     bottom: auto !important;
+  }
+
+  .orange {
+    border: 2px solid $primary !important;
   }
 
   .ai-recognation__images__item {
