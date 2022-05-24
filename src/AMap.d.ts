@@ -56,7 +56,7 @@ declare namespace AMap {
   /** 经纬度坐标, 确定地图上的一个点。 **/
   export class LngLat {
     /**构造一个地理坐标对象, lng、lat分别代表经度、纬度值**/
-    constructor(lng: number, lat: number);
+    constructor(lng: number, lat: number, noAutofix?: boolean);
     public lng: number;
     public lat: number;
     /**当前经纬度坐标值经度移动w, 纬度移动s, 得到新的坐标。经度向右移为正值, 纬度向上移为正值, 单位为米。(自v1.2 新增)**/
@@ -274,10 +274,10 @@ declare namespace AMap {
     public setLayers(layers: Array<any>): void;
 
     /**添加地图覆盖物数组, 数组为一个或多个覆盖物。**/
-    public add(overlayers: Array<any>): void;
+    public add(overlayers: Array<any> | any): void;
 
     /**删除地图覆盖物数组, 数组为一个或多个覆盖物。**/
-    public remove(overlayers: Array<any>): void;
+    public remove(overlayers: Array<any> | any): void;
 
     /**返回添加的覆盖物对象, 可选类型包括marker、circle、polyline、polygon； Type可缺省, 缺省时返回所有覆盖物(marker、circle、polyline、polygon)。 返回结果不包含官方覆盖物等, 比如定位marker, 周边搜索圆等**/
     public getAllOverlays(type: any): any;
@@ -474,6 +474,8 @@ declare namespace AMap {
 
     /**添加文本标注, content为文本标注的内容, offset为偏移量, 左上角为偏移量为(0, 0)**/
     label?: { content: string, offset: LngLat };
+
+    zooms?: [number, number];
 
   }
 

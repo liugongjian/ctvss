@@ -31,7 +31,7 @@
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import VMap, { getAMapLoad } from './models/vmap'
 import axios from 'axios'
-import { getMapDevices, updateMarkers, addMarkers, deleteMarkers } from '@/api/map'
+import { getMapDevices, updateMarkers, addMarkers, deleteMarkers, getInterestList } from '@/api/map'
 import { Screen } from '@/views/device/models/Screen/Screen'
 import LivePlayer from '@/views/device/components/LivePlayer.vue'
 import ReplayView from '@/views/device/components/ReplayPlayer/index.vue'
@@ -60,6 +60,9 @@ export default class MapView extends Vue {
   private pageTotal = 1
   private axiosSourceList = []
   private playWindowList = []
+  private hightAreaList = [] // 高亮区域
+  private interestBuildingList = [] // 兴趣点建筑
+  private interestPointList = [] // 兴趣点
 
   // private playWindowInfo = {
   //   style: null,
@@ -125,6 +128,37 @@ export default class MapView extends Vue {
     }
   }
 
+  private async getPointList() {
+    this.hightAreaList = []
+    this.interestBuildingList = []
+    this.interestPointList = []
+    const param = {
+      mapId: this.mapId,
+      pageNum: 1,
+      pageSize: 1000,
+      tagName: ''
+    }
+    try {
+      const res = await getInterestList(param)
+      res.tags.forEach(item => {
+        if (item.type === 'HighLightArea') {
+          this.hightAreaList.push(item)
+          this.renderMask(this.mapOption.mask)
+        } else if (item.type === 'InterestBuilding') {
+          this.interestBuildingList.push(item)
+        } else if (item.type === 'InterestPoint') {
+          this.interestPointList.push(item)
+        }
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  public renderMask(mask) {
+    this.vmap.renderCommunity(this.hightAreaList, mask)
+  }
+
   async setMap(map) {
     this.vmap.renderMap(map)
     this.addMapEvent()
@@ -140,6 +174,7 @@ export default class MapView extends Vue {
       pageNum += 1
     }
     await Promise.all(promiseList)
+    await this.getPointList()
   }
 
   public setMapCenter(lng, lat) {

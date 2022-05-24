@@ -87,6 +87,9 @@ export default class VMap {
   overView: AMap.HawkEye | null = null
   cluster: AMap.MarkerCluster | null = null
   markerEventHandlers: markerEventHandlers
+  community: AMap.Polygon | null = null // 社区高亮区域
+  poi: AMap.Marker | null = null // 兴趣点（图标）
+  poiText: AMap.Marker | null = null // 兴趣点 (文本)
   constructor(container: string) {
     this.container = container
   }
@@ -455,5 +458,72 @@ export default class VMap {
       return `M ${viewRadius} ${viewRadius} L ${viewRadius * 2} ${viewRadius} A ${viewRadius} ${viewRadius} 0 0 1 ${endPosX} ${endPosY} L ${viewRadius} ${viewRadius}`
     }
     return canvas
+  }
+
+  /**
+   * 渲染社区蒙版
+   */
+  public renderCommunity(pointsList, mask) {
+    if (this.community) {
+      this.map.remove(this.community)
+    }
+    if (mask === 'Y') {
+      const outer = [
+        new AMap.LngLat(-360, 90, true),
+        new AMap.LngLat(-360, -90, true),
+        new AMap.LngLat(360, -90, true),
+        new AMap.LngLat(360, 90, true)
+      ]
+      const holes = []
+      pointsList.forEach(list => {
+        holes.push(this.handlePoint(list.points))
+      })
+      const path = [
+        outer,
+        ...holes
+      ]
+      this.community = new AMap.Polygon({
+        zIndex: 3000,
+        bubble: true,
+        fillColor: '#545d80',
+        fillOpacity: 0.45,
+        strokeColor: '#ffc000',
+        strokeWeight: 0,
+        path
+      })
+      this.map.add(this.community)
+    }
+  }
+  /**
+   * 渲染兴趣点
+   */
+  private renderPoi(pointsList) {
+    console.log(pointsList)
+    pointsList.forEach(point => {
+      // const marker = new AMap.Marker({
+      //   position: new AMap.LngLat(point.lnglat.lng, point.lnglat.lat),
+      //   offset: new AMap.Pixel(-10, -10),
+      //   zooms: [17, 22],
+      //   content: `<svg class="icon icon-poi" style="fill:${point.color}" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5241"><path d="M832.179718 379.057175c0-176.277796-143.353942-319.077106-320.18023-319.077106-176.898943 0-320.18023 142.79931-320.18023 319.077106 0 212.71159 320.18023 584.961732 320.18023 584.961732S832.179718 591.768765 832.179718 379.057175zM378.580826 379.057175c0-73.443709 59.737546-132.942825 133.418662-132.942825 73.610508 0 133.421732 59.499116 133.421732 132.942825 0 73.364915-59.811224 132.942825-133.421732 132.942825C438.318372 512 378.580826 452.42209 378.580826 379.057175z" p-id="5242"></path></svg>`
+      // })
+      // marker.on('mouseover', () => {
+      //   marker.setLabel({
+      //     content: point.name,
+      //     direction: 'bottom'
+      //   })
+      //   marker.setzIndex(20)
+      // })
+      // marker.on('mouseout', () => {
+      //   marker.setLabel({
+      //     content: ''
+      //   })
+      //   marker.setzIndex(12)
+      // })
+      // this.map.add(marker)
+    })
+  }
+
+  handlePoint(points) {
+    return points.map(item => [item.longitude, item.latitude])
   }
 }
