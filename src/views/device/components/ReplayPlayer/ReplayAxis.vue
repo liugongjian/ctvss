@@ -588,10 +588,10 @@ export default class extends Vue {
         const deltaCurrentTime = currentTimeZeroMsec(this.currentTime * 1000) / 1000
         let date
         if (thresholdEnd < deltaCurrentTime) {
-          date = getDateByTime(this.currentTime * 1000) / 1000 + 24 * 60 * 60
+          date = getDateByTime(this.currentTime, 's') + 24 * 60 * 60
           await this.getRecordListByDate(date)
         } else if (thresholdStart > deltaCurrentTime) {
-          date = getDateByTime(this.currentTime * 1000) / 1000 - 24 * 60 * 60
+          date = getDateByTime(this.currentTime, 's') - 24 * 60 * 60
           await this.getRecordListByDate(date)
         }
       }
