@@ -1326,6 +1326,34 @@ declare namespace AMap {
     constructor()
   }
 
+  export interface LabelsLayerOptions {
+    visible?: boolean
+    zIndex?: number
+    opacity?: number
+    collision?: boolean
+    animation?: boolean
+    zooms?: [number, number]
+    allowCollision?: boolean
+  }
+
+  export class LabelsLayer {
+    constructor(opts: LabelsLayerOptions)
+    public add(obj: LabelMarker): void;
+  }
+
+  export interface LabelMarkerOptions {
+    position?: [number, number] | LngLat
+    zooms?: [number, number]
+    opacity?: number
+    zIndex?: number
+    name?: string
+    text?: any
+  }
+
+  export class LabelMarker {
+    constructor(opt:LabelMarkerOptions)
+  }
+
   export interface HawkEyeOption {
     visible?: boolean // 是否默认展开
     width?: string

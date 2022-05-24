@@ -143,7 +143,6 @@ export default class MapView extends Vue {
       res.tags.forEach(item => {
         if (item.type === 'HighLightArea') {
           this.hightAreaList.push(item)
-          this.renderMask(this.mapOption.mask)
         } else if (item.type === 'InterestBuilding') {
           this.interestBuildingList.push(item)
         } else if (item.type === 'InterestPoint') {
@@ -152,7 +151,15 @@ export default class MapView extends Vue {
       })
     } catch (e) {
       console.log(e)
+    } finally {
+      this.renderPoints()
     }
+  }
+
+  // 渲染兴趣点
+  public renderPoints() {
+    this.renderMask(this.mapOption.mask) //
+    this.vmap.renderPoi(this.interestPointList)
   }
 
   public renderMask(mask) {

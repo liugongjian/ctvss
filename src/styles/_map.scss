@@ -50,7 +50,7 @@
     overflow: hidden;
     margin-right: 5px;
   }
-  .marker-options .icon-wrap:last-child{
+  .marker-options .icon-wrap:last-child {
     margin-right: 0;
   }
   .marker-options .icon {
@@ -58,7 +58,7 @@
     width: 20px;
     height: 20px;
   }
-  .marker-options .off .icon{
+  .marker-options .off .icon {
     position: relative;
     left: -20px;
     filter: drop-shadow(#ccc 20px 0);
@@ -81,15 +81,18 @@
   display: none;
 }
 
-.amap-marker-label{
+.amap-marker-label {
   visibility: hidden;
   background-color: #fff;
   border: none;
 }
-.amap-marker:hover .amap-marker-label{
+.amap-marker:hover .amap-marker-label {
   visibility: visible;
 }
 
-.amap-marker.selected{
+.amap-marker.selected {
   z-index: 13 !important;
+}
+.marker-icon {
+  width: 20px;
 }
