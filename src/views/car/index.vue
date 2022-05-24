@@ -41,13 +41,13 @@
         <el-table-column prop="action" class-name="col-action" label="视频查看" width="150" fixed="right">
           <template slot-scope="scope">
             <el-button type="text" @click.stop.native="preview(scope.row)">实时预览</el-button>
-            <el-button type="text" @click="deleteTemplate(scope.row)">录像回放</el-button>
+            <el-button type="text" @click.stop.native="preview(scope.row)">录像回放</el-button>
           </template>
         </el-table-column>
         <el-table-column prop="action" class-name="col-action" label="任务操作" width="180" fixed="right">
           <template slot-scope="scope">
-            <el-button type="text" @click="update(scope.row)">暂停</el-button>
-            <el-button type="text" @click="deleteTemplate(scope.row)">结束</el-button>
+            <el-button type="text" @click.stop.native="pause(scope.row)">暂停</el-button>
+            <el-button type="text" @click.stop.native="stop(scope.row)">结束</el-button>
             <el-button type="text" @click="detail(scope.row)">查看详情</el-button>
           </template>
         </el-table-column>
@@ -197,10 +197,19 @@ export default class extends Vue {
     await this.getList()
   }
 
-  private async deleteTemplate(row: RecordTemplate) {
+  private async stop(row: any) {
     this.$alertDelete({
-      type: '录制模板',
-      msg: `确定删除录制模板"${row.templateName}"`,
+      type: '车辆录像',
+      msg: `确定结束录制"${row.templateName}"`,
+      method: deleteRecordTemplate,
+      payload: { templateId: row.templateId },
+      onSuccess: this.getList
+    })
+  }
+  private async pause(row: any) {
+    this.$alertDelete({
+      type: '车辆录像',
+      msg: `确定暂停录制"${row.templateName}"`,
       method: deleteRecordTemplate,
       payload: { templateId: row.templateId },
       onSuccess: this.getList
