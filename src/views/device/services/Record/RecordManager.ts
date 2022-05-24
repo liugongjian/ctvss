@@ -168,6 +168,7 @@ export class RecordManager {
          */
           if (this.screen.recordType === 0) {
             this.currentRecord = records[0]
+            this.screen.currentRecordDatetime = this.currentRecord.startTime
           } else {
             const res = await this.getLocalUrl(this.recordList[0].startTime)
             this.screen.codec = res.codec
