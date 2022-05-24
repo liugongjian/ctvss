@@ -52,12 +52,12 @@
               <el-table-column v-if=" !isNvr && !isVGroup && checkPermission(['AdminDevice'])" label="操作" min-width="200">
                 <template slot-scope="scope">
                   <el-tooltip v-if="ifShowAlgoBtn(scope.row.algorithm.code)" class="item" effect="dark" content="设备离线时不可配置算法" placement="top-start" :disabled="deviceInfo.deviceStatus === 'on'">
-                    <div class="disableBtnBox">
+                    <div class="disable-btn-box">
                       <el-button type="text" :disabled="deviceInfo.deviceStatus !== 'on'" @click="openCanvasDialog(scope.row)">算法配置</el-button>
                     </div>
                   </el-tooltip>
                   <el-tooltip class="item" effect="dark" content="应用启用时不可解绑" placement="top-start" :disabled="scope.row.status === '0'">
-                    <div class="disableBtnBox">
+                    <div class="disable-btn-box">
                       <el-button type="text" :disabled="scope.row.status === '1'" @click="changeBindStatus(scope.row)">解除绑定</el-button>
                     </div>
                   </el-tooltip>
@@ -67,7 +67,7 @@
               <el-table-column v-if=" isNvr && !isVGroup && checkPermission(['AdminDevice'])" label="操作" min-width="200">
                 <template slot-scope="scope">
                   <el-tooltip class="item" effect="dark" content="应用启用时不可解绑" placement="top-start" :disabled="scope.row.status === '0'">
-                    <div class="disableBtnBox">
+                    <div class="disable-btn-box">
                       <el-button type="text" :disabled="scope.row.status === '1'" @click="changeBindStatus(scope.row)">解除绑定</el-button>
                     </div>
                   </el-tooltip>
@@ -293,13 +293,6 @@ export default class extends Vue {
   }
 
   private openCanvasDialog(rowInfo: any) {
-    // 新接口不需要单独处理ehome
-    // const streamNum = this.deviceInfo?.deviceStreams[0]?.streamNum
-    // const deviceId = this.inProtocol === 'ehome' ? `${this.deviceId}_${streamNum}` : this.deviceId
-    // '{"frames": [{"stream": "29942069225065679", "inProtocol": "rtsp"}]}'
-    // const param = {
-    //   streams: [deviceId]
-    // }
     const param = {
       frames: [{
         stream: this.deviceId,
@@ -567,12 +560,9 @@ export default class extends Vue {
      * 车牌检测: code 10014
      * 棉花检测: code 10015
      * 电瓶车进电梯 code 10020
-<<<<<<< HEAD
      * 人车流量统计 code 10032 需要单独增加crossline 画线
-=======
      * 垃圾站  code  10026
      * 人员跌倒  code 10028
->>>>>>> origin/feature-Sprint4-network
      */
     switch (rowCode) {
       case '10006':
@@ -611,7 +601,7 @@ export default class extends Vue {
     }
   }
 
-  .disableBtnBox {
+  .disable-btn-box {
     display: inline-block;
     padding: 0 10px;
   }
