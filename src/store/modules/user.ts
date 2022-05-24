@@ -1,25 +1,21 @@
 import { VuexModule, Module, Action, Mutation, getModule } from 'vuex-module-decorators'
 import { Base64 } from 'js-base64'
 import { login, logout, getMainUserInfo, getIAMUserInfo, changePassword, resetIAMPassword, getUserConfig } from '@/api/users'
-import { switchUserRole, exitUserRole } from '@/api/accessManage'
 import { getToken, setToken, removeToken, getUsername, setUsername, removeUsername, getIamUserId, setIamUserId, removeIamUserId } from '@/utils/cookies'
 import { setLocalStorage, getLocalStorage } from '@/utils/storage'
-import router, { resetRouter } from '@/router'
-import { PermissionModule } from './permission'
+import { resetRouter } from '@/router'
 import { GroupModule } from './group'
 import { TagsViewModule } from './tags-view'
 import { DeviceModule } from '@/store/modules/device'
 import { VGroupModule } from '@/store/modules/vgroup'
+import settings from '@/settings'
 import store from '@/store'
+
 export interface IUserState {
   token: string
   name: string
-  avatar: string
-  introduction: string
-  roles: string[],
   perms: string[],
   iamUserId: string,
-  email: string,
   type: string,
   mainUserID: string,
   mainUserAddress: string,
@@ -32,30 +28,20 @@ export interface IUserState {
 class User extends VuexModule implements IUserState {
   public token = getToken() || ''
   public name = getUsername() || ''
-  public avatar = ''
-  public introduction = ''
   public iamUserId = getIamUserId() || ''
-  public roles: string[] = []
   public perms: string[] = []
   public resources: string[] = []
   public resourcesSet: Set<any> = new Set()
-  public email = ''
   public type = ''
   public mainUserID = ''
   public mainUserAddress = ''
   public tags: any = null
   public ctLoginId = getLocalStorage('ctLoginId') || ''
-  public whiteListFlag = getLocalStorage('whiteListFlag') || ''
   public settings: any = {
     screenCache: {}
   }
   public userConfigInfo: any = []
   public outNetwork: 'internet' | 'vpn' = 'internet'
-
-  @Mutation
-  private SET_WHITELIST(flag: string) {
-    this.whiteListFlag = flag
-  }
 
   @Mutation
   private SET_TOKEN(token: string) {
@@ -73,16 +59,6 @@ class User extends VuexModule implements IUserState {
   }
 
   @Mutation
-  private SET_AVATAR(avatar: string) {
-    this.avatar = avatar
-  }
-
-  @Mutation
-  private SET_INTRODUCTION(introduction: string) {
-    this.introduction = introduction
-  }
-
-  @Mutation
   private SET_PERMS(perms: string[]) {
     this.perms = perms
   }
@@ -91,16 +67,6 @@ class User extends VuexModule implements IUserState {
   private SET_RESOURCES(data: any) {
     this.resources = data.resources
     this.resourcesSet = data.resourcesSet
-  }
-
-  @Mutation
-  private SET_ROLES(roles: string[]) {
-    this.roles = roles
-  }
-
-  @Mutation
-  private SET_EMAIL(email: string) {
-    this.email = email
   }
 
   @Mutation
@@ -159,15 +125,10 @@ class User extends VuexModule implements IUserState {
     setIamUserId(data.iamUserId)
     this.SET_TOKEN(data.token)
     this.SET_NAME(userName)
-    const introduction = '欢迎光临'
-    const email = 'vss@chinatelecom.cn'
     const type = userName === 'tywl' ? 'kanjia' : 'default' // HARDCODE: 针对天翼看家单独判断
-    this.SET_INTRODUCTION(introduction)
-    this.SET_EMAIL(email)
     this.SET_TYPE(type)
     this.SET_IAM_USER_ID(data.iamUserId)
     GroupModule.ResetGroupListIndex()
-    // this.SET_AVATAR(avatar)
     return data
   }
 
@@ -201,12 +162,6 @@ class User extends VuexModule implements IUserState {
   public async SetToken(token: string) {
     setToken(token)
     this.SET_TOKEN(token)
-  }
-
-  @Action({ rawError: true })
-  public async SetWhiteList(flag: string) {
-    setLocalStorage('whiteListFlag', flag)
-    this.SET_WHITELIST(flag)
   }
 
   @Action({ rawError: true })
@@ -259,24 +214,6 @@ class User extends VuexModule implements IUserState {
     }
   }
 
-  // 该方法已弃用
-  @Action
-  public async GetUserInfo() {
-    if (this.token === '') {
-      throw Error('GetUserInfo: token is undefined!')
-    }
-    const data: any = await getMainUserInfo()
-    if (!data) {
-      throw Error('Verification failed, please Login again.')
-    }
-    const roles = ['admin']
-    // roles must be a non-empty array
-    if (!roles || roles.length <= 0) {
-      throw Error('GetUserInfo: roles must be a non-null array!')
-    }
-    this.SET_ROLES(roles)
-  }
-
   @Action({ rawError: true })
   public async GetGlobalInfo() {
     if (this.token === '') {
@@ -285,13 +222,7 @@ class User extends VuexModule implements IUserState {
     // 设置视频记录保存配置项
     this.getUserConfigInfo()
 
-    // 获取用户的网络访问类型：专线 or 公网
-    const outNetworkWhiteList = [
-      '182.43.127.35',
-      'console.vcn.ctyun.cn'
-    ]
-    console.log('process.env: ', process.env.NODE_ENV)
-    if (process.env.NODE_ENV === 'development' || outNetworkWhiteList.indexOf(location.hostname) !== -1) {
+    if (process.env.NODE_ENV === 'development' || settings.outNetworkWhiteList.indexOf(location.hostname) !== -1) {
       this.SET_OUTER_NETWORK('internet')
     } else {
       this.SET_OUTER_NETWORK('vpn')
@@ -358,30 +289,6 @@ class User extends VuexModule implements IUserState {
     this.SET_RESOURCES(data)
   }
 
-  @Action
-  public async switchRole(roleInfo: { role: any, needWebRequest: boolean }) {
-    if (roleInfo.needWebRequest) {
-      if (!roleInfo.role) {
-        await exitUserRole()
-      } else {
-        await switchUserRole({ roleId: roleInfo.role.roleId })
-      }
-    }
-    // 清理 业务组列表 和 当前业务组
-    await GroupModule.ResetGroup()
-    await GroupModule.ResetGroupList()
-    await GroupModule.GetGroupList()
-
-    await this.GetGlobalInfo()
-    resetRouter()
-    // Generate dynamic accessible routes based on roles
-    PermissionModule.GenerateRoutes({ perms: this.perms, iamUserId: this.iamUserId })
-    // Add generated routes
-    router.addRoutes(PermissionModule.dynamicRoutes)
-    // Reset visited views and cached views
-    TagsViewModule.delAllViews()
-  }
-
   @Action({ rawError: true })
   public async ChangePassword(form: { originalPwd: string, newPwd: string }) {
     let { originalPwd, newPwd } = form
@@ -422,9 +329,7 @@ class User extends VuexModule implements IUserState {
     DeviceModule.ResetBreadcrumb()
     // 清空虚拟业务组相关信息
     VGroupModule.resetVGroupInfo()
-    this.SET_WHITELIST('')
     this.SET_TOKEN('')
-    this.SET_ROLES([])
     this.SET_PERMS([])
     this.SET_RESOURCES({ resources: [], resourcesSet: new Set() })
     this.SET_NAME('')

@@ -43,6 +43,30 @@ module.exports = {
     },
     progress: false,
     proxy: {
+      /**
+       * CDN单点登录
+       */
+      '/iam/gw/': {
+        target: 'https://iam-test.ctcdn.cn/',
+        secure: false,
+        changeOrigin: true,
+        bypass: (req) => {
+          if (req.headers && req.headers.referer) {
+            const url = new URL(req.headers.referer)
+            url.host = 'iam-test.ctcdn.cn'
+            url.port = ''
+            req.headers.referer = url.href
+          }
+        }
+      },
+      '/iam/': {
+        target: 'https://iam-test.ctcdn.cn/',
+        secure: false,
+        changeOrigin: true
+      },
+      /**
+       * 天翼云单点登录
+       */
       '/ctyun/': {
         target: 'https://www.ctyun.cn/',
         secure: false,

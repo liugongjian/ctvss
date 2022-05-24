@@ -10,7 +10,7 @@ export const checkPermission = (value: string[], data?: any): boolean => {
     }) && !resourcesSet.has(data?.id || ''))
     return hasPermission
   } else {
-    console.error(`need perms! Like v-permission="['GET']"`)
+    console.error('need perms! Like v-permission="[\'GET\']"')
     return false
   }
 }

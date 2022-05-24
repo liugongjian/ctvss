@@ -80,13 +80,6 @@ export const changeIAMPassword = (data: any) =>
     data
   })
 
-export const getWhiteListUserAccessToken = (params: any): Promise<any> =>
-  request({
-    url: '/user/white',
-    method: 'get',
-    params
-  })
-
 /**
  * 查询用户配置
  */

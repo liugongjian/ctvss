@@ -26,8 +26,8 @@ import * as directives from '@/directives'
 import * as filters from '@/filters'
 import settings from './settings'
 import { getLocalStorage, setLocalStorage } from '@/utils/storage'
-import { getWhiteListUserAccessToken } from '@/api/users'
-import { removeTicket } from '@/utils/cookies'
+
+import { initCas } from '@/models/Cas'
 
 // @ts-ignore
 window._typeof = (e: any) => {
@@ -65,42 +65,21 @@ if (isIE()) {
   document.getElementsByTagName('html')[0].className = 'ie'
 }
 
+/**
+ * 先判断用户是否登录
+ */
+initCas('#container').then(() => {
+  new Vue({
+    router,
+    store,
+    render: h => h(App)
+  }).$mount('#app')
+})
+
 try {
   // 从localstorage中读取选中的业务组
   GroupModule.GetGroupFromLs()
   CtcloudLayout.getPublicInfo().authCurrentPromise.then(async(data: any) => {
-    // 海南特殊用户处理
-    const href = window.location.href
-    if (href.indexOf('userId=') !== -1 || getLocalStorage('whiteListFlag') === '1') {
-      let userId = href.slice(href.indexOf('userId=') + 'userId='.length)
-      if (getLocalStorage('whiteListFlag') === '1') {
-        userId = '570006'
-      }
-      if (userId === '570006') {
-        try {
-          // 清空所有外部登录信息
-          UserModule.ResetToken()
-          UserModule.SetCTLoginId('')
-          removeTicket()
-          const res = await getWhiteListUserAccessToken({ userId })
-          UserModule.SetToken(res.token)
-          UserModule.SetWhiteList('1')
-          setLocalStorage('loginType', 'main')
-          new Vue({
-            router,
-            store,
-            render: (h) => h(App)
-          }).$mount('#app')
-          // window.history.replaceState(null, '', href.slice(0, href.indexOf('?userId=')))
-          return
-        } catch (err) {
-          // 接口报错，执行原先初始化流程
-          console.log('err: ', err)
-        }
-      }
-    }
-
-    // 默认路径
     if (!data.isLoggedIn) {
       // 天翼云未登录
       const loginType = getLocalStorage('loginType')

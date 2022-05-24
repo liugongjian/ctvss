@@ -113,7 +113,7 @@ import setDangerArea from './dialogs/setDangerArea.vue'
   }
 })
 export default class extends Vue {
-  private codeTypeMap: {[index: string]: string} = {
+  private codeTypeMap: { [index: string]: string } = {
     '10001': 'setFaceRecognition',
     '10003': 'setMaskDetection',
     '10005': 'setPeopleGathering',
@@ -154,7 +154,7 @@ export default class extends Vue {
     trigger: ['blur', 'change']
   }
   private systemAbilityList: Array<AIAbility> = []
-  private systemAbilityAlgorithmsMap: {[index: string]: AIAbilityAlgorithm[]} = {}
+  private systemAbilityAlgorithmsMap: { [index: string]: AIAbilityAlgorithm[] } = {}
   private form: any = {
     templateName: '',
     enableType: null,
@@ -454,26 +454,31 @@ export default class extends Vue {
 </script>
 
 <style lang="scss" scoped>
-  .fixed-width.el-input, .fixed-width.el-select, .fixed-width.el-textarea {
-    width: 600px;
-  }
-  .ability-row {
-    margin-bottom: 10px;
-    &_selectbox {
-      margin-bottom: 8px;
-    }
-    &_table {
-      margin-left: 40px;
-      width: 60%;
-    }
+.fixed-width.el-input,
+.fixed-width.el-select,
+.fixed-width.el-textarea {
+  width: 600px;
+}
+
+.ability-row {
+  margin-bottom: 10px;
+
+  &_selectbox {
+    margin-bottom: 8px;
   }
 
-  .remove-param-icon {
-    font-size: 18px;
-    margin-left: 10px;
+  &_table {
+    margin-left: 40px;
+    width: 60%;
   }
+}
 
-  .dashed-div {
+.remove-param-icon {
+  font-size: 18px;
+  margin-left: 10px;
+}
+
+.dashed-div {
   width: 600px;
   height: 36px;
   min-width: 600px;
@@ -481,8 +486,9 @@ export default class extends Vue {
   cursor: pointer;
   border: 1px dashed transparent;
   border-radius: 4px;
-  background: linear-gradient(white,white) padding-box,
-  repeating-linear-gradient(-45deg,#dcdfe6 0, #dcdfe6 0.5em, white 0,white 0.85em);
+  background:
+    linear-gradient(white, white) padding-box,
+    repeating-linear-gradient(-45deg, #dcdfe6 0, #dcdfe6 0.5em, white 0, white 0.85em);
 }
 
 .fixed-width-botton {

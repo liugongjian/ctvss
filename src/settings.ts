@@ -12,6 +12,7 @@ interface ISettings {
   mainLoginUrl: string // 主账号登录路径
   subLoginUrl: string // 子账号登录路径
   projectPrefix: string // 项目前缀路径
+  outNetworkWhiteList: Array<string> // 公网白名单
 }
 
 // You can customize below settings :)
@@ -28,7 +29,11 @@ const settings: ISettings = {
   casLoginUrl: '/v1/cas/callback',
   mainLoginUrl: '/login',
   subLoginUrl: '/login/subAccount',
-  projectPrefix: '/vss'
+  projectPrefix: '/vss',
+  outNetworkWhiteList: [
+    '182.43.127.35',
+    'console.vcn.ctyun.cn'
+  ]
 }
 
 export default settings
