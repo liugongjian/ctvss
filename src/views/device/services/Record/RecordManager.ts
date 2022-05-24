@@ -434,7 +434,7 @@ export class RecordManager {
     currentDate = new Date(new Date(new Date(currentDate * 1000)).toLocaleDateString()).getTime() / 1000
     if (currentDate) {
       const recordList = this.recordList && this.recordList.filter(record => {
-        return (record.endTime <= (currentDate + 24 * 60 * 60) && record.startTime >= currentDate)
+        return (getDateByTime(record.startTime * 1000) / 1000 === currentDate)
       })
       return {
         recordList: recordList.slice((pager.pageNum - 1) * pager.pageSize, pager.pageNum * pager.pageSize).map(record => ({
