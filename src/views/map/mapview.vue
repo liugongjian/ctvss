@@ -84,7 +84,7 @@ export default class MapView extends Vue {
   private async getMapMarkers(pageNum) {
     let params: any = {
       pageNum,
-      pageSize: 100,
+      pageSize: 10000,
       mapId: this.mapId
     }
     try {
