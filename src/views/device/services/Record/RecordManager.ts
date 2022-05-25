@@ -68,6 +68,7 @@ export class RecordManager {
     this.constructor({
       screen: this.screen
     })
+    this.screen.currentRecordDatetime = null
   }
 
   /**
@@ -155,12 +156,6 @@ export class RecordManager {
       this.isLoading = true
       const records = await this.getRecordList(startTime, endTime)
       if (records && records.length) {
-        // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
-        if (date > this.currentDate) {
-          this.recordList = this.recordList.concat(records)
-        } else {
-          this.recordList = records.concat(this.recordList)
-        }
         if (!isConcat) {
           /**
          * 0云端：获取第一段录像
@@ -170,10 +165,17 @@ export class RecordManager {
             this.currentRecord = records[0]
             this.screen.currentRecordDatetime = this.currentRecord.startTime
           } else {
-            const res = await this.getLocalUrl(this.recordList[0].startTime)
+            const res = await this.getLocalUrl(records[0].startTime)
+            this.screen.currentRecordDatetime = records[0].startTime
             this.screen.codec = res.codec
             this.screen.url = res.url
           }
+        }
+        // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
+        if (date > this.currentDate) {
+          this.recordList = this.recordList.concat(records)
+        } else {
+          this.recordList = records.concat(this.recordList)
         }
       } else if (!isConcat) {
         this.currentRecord = null
@@ -264,10 +266,16 @@ export class RecordManager {
           }
         }
       } else {
-        // 如果加载录像列表完成后未找到录像片段，则需要显示无录像提示
+        this.screen.currentRecordDatetime = time
+        this.currentDate = time
+        this.screen.player && this.screen.player.disposePlayer()
+        this.screen.player = null
+        this.screen.isLoading = false
         if (!this.isLoading) {
+          // 如果加载录像列表完成后未找到录像片段，则需要显示无录像提示
           throw new VSSError(this.screen.ERROR_CODE.NO_RECORD, this.screen.ERROR.NO_RECORD)
         }
+        // 静默错误信息（不在界面上显示）
         throw new Error(this.screen.ERROR.NO_RECORD)
       }
     } catch (e) {

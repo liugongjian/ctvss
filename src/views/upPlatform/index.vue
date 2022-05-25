@@ -86,7 +86,7 @@
                     :class="{'online': data.deviceStatus === 'on'}"
                   >
                     <span class="node-name">
-                      <svg-icon v-if="data.type !== 'dir'" :name="data.type" width="15" height="15" />
+                      <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
                       <span v-else class="node-dir">
                         <svg-icon name="dir" width="15" height="15" />
                         <svg-icon name="dir-close" width="15" height="15" />
@@ -228,7 +228,8 @@ export default class extends Vue {
   private dirTypeMap: any = {
     '0': 'dir',
     '1': 'nvr',
-    '3': 'platform'
+    '3': 'platform',
+    '4': 'platformDir'
   }
   private pager = {
     pageNum: 1,

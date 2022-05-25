@@ -27,7 +27,7 @@
               <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
               <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
               <span v-else class="node-dir">
-                <svg-icon name="dir" width="15" height="15" />
+                <svg-icon name="dir-close" width="15" height="15" />
               </span>
               {{ node.label }}
             </span>
@@ -94,7 +94,7 @@ export default class extends Vue {
     dir: 0,
     nvr: 1,
     platform: 3,
-    platformDir: 3
+    platformDir: 4
   }
 
   private mounted() {
@@ -372,7 +372,7 @@ export default class extends Vue {
           deviceId: item.id
         })
         // 针对patform特殊处理
-        if (currentGroupDir.dirType === 3) {
+        if ([3, 4].includes(currentGroupDir.dirType)) {
           currentGroupDir.parentDirType = parentDirType
         }
       })
