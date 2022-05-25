@@ -96,3 +96,28 @@
 .marker-icon {
   width: 20px;
 }
+
+.amap-marker .index-cluster {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(17, 118, 191, 65%);
+  color: #fff;
+  border-radius: 100%;
+  text-align: center;
+
+  .showName,
+  .showCount {
+    display: block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 90%;
+    font-size: 12px;
+  }
+
+  .showCount {
+    margin-top: 4px;
+  }
+}

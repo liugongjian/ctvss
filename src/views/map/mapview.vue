@@ -64,15 +64,6 @@ export default class MapView extends Vue {
   private interestBuildingList = [] // 兴趣点建筑
   private interestPointList = [] // 兴趣点
 
-  // private playWindowInfo = {
-  //   style: null,
-  //   show: 'none', // none|live|replay
-  //   top: 0,
-  //   left: 0,
-  //   deviceId: null,
-  //   inProtocol: ''
-  // }
-
   private screen: Screen = null
 
   private get isFullscreen() {
@@ -83,18 +74,6 @@ export default class MapView extends Vue {
   private onEditChange() {
     this.changeEdit(this.isEdit)
   }
-
-  // @Watch('playWindowInfo.show')
-  // @Watch('playWindowInfo.deviceId')
-  // private onPlayWindowInfoChange() {
-  //   if (this.playWindowInfo.show !== 'none') {
-  //     this.screen = new Screen()
-  //     this.screen.deviceId = this.playWindowInfo.deviceId
-  //     this.screen.inProtocol = this.playWindowInfo.inProtocol
-  //     this.screen.isLive = this.playWindowInfo.show === 'live'
-  //     this.screen.init()
-  //   }
-  // }
 
   private mounted() {
     getAMapLoad().then(() => {
@@ -128,6 +107,7 @@ export default class MapView extends Vue {
     }
   }
 
+  // 获取兴趣点信息
   private async getPointList(map) {
     this.hightAreaList = []
     this.interestBuildingList = []

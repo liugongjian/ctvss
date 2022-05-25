@@ -824,8 +824,22 @@ declare namespace AMap {
     lnglat: [number, number]
     weight?: number
   }
-  export class MarkerCluster extends Marker{
+  export class MarkerCluster extends Marker {
     constructor(map: Map, dataOptions: dataOptions[], opt: MarkerClusterOptions);
+    public setData(dataOptions: dataOptions[]): any;
+    public addData(dataOptions: dataOptions[]): any;
+  }
+
+  export interface IndexClusterOptions {
+    averageCenter?: boolean;
+    clusterByZoomChange?: boolean;
+    styles?: Array<object>;
+    renderClusterMarker?: any;
+    clusterIndexSet?: any;
+  }
+
+  export class IndexCluster extends Marker {
+    constructor(map: Map, dataOptions: dataOptions[], opt: IndexClusterOptions);
     setData: any;
     addData: any;
   }

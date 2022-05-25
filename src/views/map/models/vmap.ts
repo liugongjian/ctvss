@@ -67,7 +67,7 @@ export const getAMapLoad = () => {
       AMapLoader.load({
         'key': '7f0b2bbe4de7b251916b60012a6fbe3d',
         'version': '2.0',
-        'plugins': ['AMap.MarkerCluster', 'AMap.HawkEye', 'AMap.AutoComplete', 'AMap.Scale', 'AMap.ControlBar']
+        'plugins': ['AMap.MarkerCluster', 'AMap.HawkEye', 'AMap.AutoComplete', 'AMap.Scale', 'AMap.ControlBar', 'AMap.IndexCluster']
       }).then((AMap) => {
         resolve(AMap)
       }).catch(e => {
@@ -85,7 +85,8 @@ export default class VMap {
   container = ''
   isEdit = false
   overView: AMap.HawkEye | null = null
-  cluster: AMap.MarkerCluster | null = null
+  markerCluster: AMap.MarkerCluster | null = null
+  indexCluster: AMap.IndexCluster | null = null
   markerEventHandlers: markerEventHandlers
   community: AMap.Polygon | null = null // 社区高亮区域
   pois: Array<AMap.Marker | AMap.LabelsLayer> | null = null // 兴趣点
@@ -216,7 +217,8 @@ export default class VMap {
 
   addMarker(marker): void {
     this.curMarkerList.push(marker)
-    this.cluster.addData(this.wrapMarkers([marker]))
+    this.markerCluster.addData(this.wrapMarkers([marker]))
+    this.indexCluster.setData(this.wrapMarkers(this.curMarkerList))
   }
 
   renderMap(map: mapObject) {
@@ -225,8 +227,11 @@ export default class VMap {
     if (this.map) {
       this.map.setZoomAndCenter(zoom, [longitude, latitude])
       this.map.clearMap()
-      if (this.cluster) {
-        this.cluster.setMap(null)
+      if (this.markerCluster) {
+        this.markerCluster.setMap(null)
+      }
+      if (this.indexCluster) {
+        this.indexCluster.setMap(null)
       }
     } else {
       this.creatMap(longitude, latitude, zoom)
@@ -249,7 +254,8 @@ export default class VMap {
   }
   updateMarkerList(markers) {
     this.curMarkerList = markers
-    this.cluster.setData(this.wrapMarkers(markers))
+    this.markerCluster.setData(this.wrapMarkers(markers))
+    this.indexCluster.setData(this.wrapMarkers(markers))
   }
 
   cancelChoose() {
@@ -264,96 +270,168 @@ export default class VMap {
     if (show) {
       this.setCluster(this.curMarkerList)
     } else {
-      this.cluster.setMap(null)
+      this.markerCluster.setMap(null)
+      this.indexCluster.setMap(null)
     }
   }
 
   setCluster(markers: any[]) {
-    if (this.cluster) {
-      this.cluster.setMap(null)
+    this.setIndexCluster(markers)
+    this.setMarkerCluster(markers)
+  }
+
+  // 设置索引聚合
+  private setIndexCluster(markers: any[]) {
+    if (this.indexCluster) {
+      this.indexCluster.setMap(null)
+    }
+    const clusterIndexSet = {
+      groupName: {
+        minZoom: 12,
+        maxZoom: 17
+      }
+    }
+
+    const _getStyle = (context) => {
+      const clusterData = context.clusterData
+      const index = context.index
+      const count = context.count
+      const indexs = Object.keys(clusterIndexSet)
+      const i = indexs.indexOf(index.mainKey)
+      let text = clusterData[0][index.mainKey]
+      let size = Math.round(30 + Math.pow(count / markers.length, 1 / 5) * 70)
+      if (i <= 3) {
+        const extra = '<span class="showCount">' + context.count + '</span>'
+        text = '<span class="showName">' + text + '</span>'
+        text += extra
+      } else {
+        size = 12 * text.length + 20
+      }
+      return {
+        text: text,
+        size: size,
+        index: i,
+        textAlign: 'center'
+      }
+    }
+    // 自定义聚合点样式
+    const _renderIndexClusterMarker = (context) => {
+      const index = context.index
+      const styleObj = _getStyle(context)
+      // 自定义点标记样式
+      const div = document.createElement('div')
+      div.className = 'index-cluster'
+      div.style.width = styleObj.size + 'px'
+      div.style.height = styleObj.size + 'px'
+      // 自定义点击事件
+      context.marker.on('click', (e) => {
+        let curZoom = this.map.getZoom()
+        if (curZoom < 20) {
+          curZoom = clusterIndexSet[index.mainKey].maxZoom
+        }
+        this.map.setZoomAndCenter(curZoom, e.lnglat)
+      })
+      div.innerHTML = styleObj.text
+      const centerLnglat = this.calAverageLnglat(context.clusterData)
+      context.marker.setPosition(new AMap.LngLat(centerLnglat[0], centerLnglat[1]))
+      context.marker.setContent(div)
+      context.marker.setAnchor('center')
+    }
+
+    this.indexCluster = new AMap.IndexCluster(this.map, this.wrapMarkers(markers), {
+      averageCenter: false,
+      renderClusterMarker: _renderIndexClusterMarker,
+      clusterIndexSet: clusterIndexSet
+    })
+  }
+
+  // 设置相邻聚合
+  setMarkerCluster(markers: any[]) {
+    if (this.markerCluster) {
+      this.markerCluster.setMap(null)
     }
     const count = markers.length
     const _renderClusterMarker = (context: any) => {
-      const div = document.createElement('div')
-      const bgColor = 'rgba(0, 157, 217, 0.8)'
-      const fontColor = '#fff'
-      div.style.backgroundColor = bgColor
-      const size = Math.round(15 + Math.pow(context.count / count, 1 / 5) * 20)
-      div.style.width = div.style.height = size + 'px'
-      div.style.borderRadius = size / 2 + 'px'
-      div.innerHTML = `${context.count}`
-      div.style.lineHeight = size + 'px'
-      div.style.color = fontColor
-      div.style.fontSize = '14px'
-      div.style.textAlign = 'center'
-      context.marker.setOffset(new AMap.Pixel(-size / 2, -size / 2))
-      context.marker.setContent(div)
-      let content = ''
-      const len = context.clusterData.length
-      if (len >= 1) {
-        content += `${context.clusterData[0].deviceLabel}`
-      }
-      if (len >= 2) {
-        content += `<br>${context.clusterData[1].deviceLabel}`
-      }
-      if (context.count > 2) {
-        content += '<br>......'
-      }
-      context.marker.setLabel({
-        content: `<div class='marker-label-info'>${content}</div>`,
-        direction: 'bottom'
-      })
-    }
-    const _renderMarker = (context: any) => {
-      const content = this.buildContent(context.data[0])
-      context.marker.setContent(content)
-      context.marker.setOffset(new AMap.Pixel(-25, -25))
-      context.marker.setExtData(context.data[0])
-      if (this.isEdit) {
-        context.marker.setDraggable(true)
-        context.marker.setCursor('move')
-        context.marker.on('dragend', () => {
-          const marker = context.marker.getExtData()
-          const { lng, lat } = context.marker.getPosition()
-          marker.latitude = lat
-          marker.longitude = lng
-          this.markerEventHandlers.onChange && this.markerEventHandlers.onChange(marker)
+      if (this.map.getZoom() < 17) {
+        context.marker.setContent(' ')
+      } else {
+        const div = document.createElement('div')
+        const bgColor = 'rgba(0, 157, 217, 0.8)'
+        const fontColor = '#fff'
+        div.style.backgroundColor = bgColor
+        const size = Math.round(15 + Math.pow(context.count / count, 1 / 5) * 20)
+        div.style.width = div.style.height = size + 'px'
+        div.style.borderRadius = size / 2 + 'px'
+        div.innerHTML = `${context.count}`
+        div.style.lineHeight = size + 'px'
+        div.style.color = fontColor
+        div.style.fontSize = '14px'
+        div.style.textAlign = 'center'
+        context.marker.setOffset(new AMap.Pixel(-size / 2, -size / 2))
+        context.marker.setContent(div)
+        let content = ''
+        const len = context.clusterData.length
+        if (len >= 1) {
+          content += `${context.clusterData[0].deviceLabel}`
+        }
+        if (len >= 2) {
+          content += `<br>${context.clusterData[1].deviceLabel}`
+        }
+        if (context.count > 2) {
+          content += '<br>......'
+        }
+        context.marker.setLabel({
+          content: `<div class='marker-label-info'>${content}</div>`,
+          direction: 'bottom'
         })
       }
-      if (context.data[0].selected) {
-        context.marker.dom.setAttribute('class', 'amap-marker selected')
+    }
+    const _renderMarker = (context: any) => {
+      if (this.map.getZoom() < 17) {
+        context.marker.setContent(' ')
+      } else {
+        const content = this.buildContent(context.data[0])
+        context.marker.setContent(content)
+        context.marker.setOffset(new AMap.Pixel(-25, -25))
+        context.marker.setExtData(context.data[0])
+        if (this.isEdit) {
+          context.marker.setDraggable(true)
+          context.marker.setCursor('move')
+          context.marker.on('dragend', () => {
+            const marker = context.marker.getExtData()
+            const { lng, lat } = context.marker.getPosition()
+            marker.latitude = lat
+            marker.longitude = lng
+            this.markerEventHandlers.onChange && this.markerEventHandlers.onChange(marker)
+          })
+        }
+        if (context.data[0].selected) {
+          context.marker.dom.setAttribute('class', 'amap-marker selected')
+        }
+        context.marker.on('click', () => {
+          const marker = context.marker.getExtData()
+          this.chooseMarker(marker)
+        })
+        context.marker.setLabel({
+          offset: new AMap.Pixel(0, 10),
+          content: `<div class='marker-label-info'>${context.data[0].deviceLabel}</div>`,
+          direction: 'center'
+        })
       }
-      context.marker.on('click', () => {
-        const marker = context.marker.getExtData()
-        this.chooseMarker(marker)
-      })
-      context.marker.setLabel({
-        offset: new AMap.Pixel(0, 10),
-        content: `<div class='marker-label-info'>${context.data[0].deviceLabel}</div>`,
-        direction: 'center'
-      })
     }
 
-    this.cluster = new window.AMap.MarkerCluster(this.map, this.wrapMarkers(markers), {
-      gridSize: 80,
+    this.markerCluster = new window.AMap.MarkerCluster(this.map, this.wrapMarkers(markers), {
+      maxZoom: 19,
       renderClusterMarker: _renderClusterMarker, // 自定义聚合点样式
       renderMarker: _renderMarker // 自定义非聚合点样式
     })
 
-    this.cluster.on('click', item => {
+    this.markerCluster.on('click', item => {
       const len = item.clusterData.length
       if (len <= 1) {
         return
       }
-      let alllng = 0
-      let alllat = 0
-      for (let mo of item.clusterData) {
-        alllng += mo.lnglat.lng
-        alllat += mo.lnglat.lat
-      }
-      const lat = alllat / len
-      const lng = alllng / len
-      this.map.setZoomAndCenter(this.map.getZoom() + 2, [lng, lat])
+      this.map.setZoomAndCenter(this.map.getZoom() + 1, this.calAverageLnglat(item.clusterData))
     })
   }
 
@@ -483,7 +561,7 @@ export default class VMap {
         ...holes
       ]
       this.community = new AMap.Polygon({
-        zIndex: 3000,
+        // zIndex: 30,
         bubble: true,
         fillColor: '#545d80',
         fillOpacity: 0.45,
@@ -503,8 +581,8 @@ export default class VMap {
     }
     this.pois = []
     const layer = new AMap.LabelsLayer({
-      // zooms: [17, 20],
-      zIndex: 9000,
+      zooms: [17, 20],
+      zIndex: 200,
       collision: true,
       allowCollision: true
     })
@@ -513,7 +591,7 @@ export default class VMap {
         const marker = new AMap.Marker({
           position: this.handlePoint(point.points)[0],
           offset: new AMap.Pixel(-10, -20),
-          // zooms: [17, 22],
+          zooms: [17, 20],
           content: `<svg class="marker-icon" style="fill:${point.color}" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5241"><path d="M832.179718 379.057175c0-176.277796-143.353942-319.077106-320.18023-319.077106-176.898943 0-320.18023 142.79931-320.18023 319.077106 0 212.71159 320.18023 584.961732 320.18023 584.961732S832.179718 591.768765 832.179718 379.057175zM378.580826 379.057175c0-73.443709 59.737546-132.942825 133.418662-132.942825 73.610508 0 133.421732 59.499116 133.421732 132.942825 0 73.364915-59.811224 132.942825-133.421732 132.942825C438.318372 512 378.580826 452.42209 378.580826 379.057175z" p-id="5242"></path></svg>`
         })
         marker.on('mouseover', () => {
@@ -564,7 +642,7 @@ export default class VMap {
       wallColor: 'rgba(220, 220, 220, 0)',
       roofColor: 'rgba(220, 220, 220, 0)',
       opacity: 0.9,
-      zIndex: 130
+      zIndex: 120
     })
     const areas = []
 
@@ -596,5 +674,18 @@ export default class VMap {
 
   handlePoint(points) {
     return points.map(item => [item.longitude, item.latitude])
+  }
+
+  /**
+   * 计算平均坐标
+   */
+  private calAverageLnglat(points) {
+    let lng = 0
+    let lat = 0
+    points.forEach(point => {
+      lng += point.lnglat.lng
+      lat += point.lnglat.lat
+    })
+    return [lng / points.length, lat / points.length]
   }
 }
