@@ -218,7 +218,7 @@ export default class VMap {
   addMarker(marker): void {
     this.curMarkerList.push(marker)
     this.markerCluster.addData(this.wrapMarkers([marker]))
-    this.indexCluster.setData(this.wrapMarkers(this.curMarkerList))
+    this.indexCluster.addData(this.wrapMarkers([marker]))
   }
 
   renderMap(map: mapObject) {
