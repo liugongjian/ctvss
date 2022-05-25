@@ -7,6 +7,7 @@ import { Screen } from '../Screen/Screen'
 import { getTimestamp, getLocaleDate, getDateByTime } from '@/utils/date'
 import { getDeviceRecords, getDeviceRecordStatistic, getDeviceRecordRule, describeHeatMap, getDevicePreview, setRecordScale } from '@/api/device'
 import { UserModule } from '@/store/modules/user'
+import { VSSError } from '@/utils/request'
 
 export class RecordManager {
   /* 当前分屏 */
@@ -143,17 +144,18 @@ export class RecordManager {
         } else {
           this.recordList = records.concat(this.recordList)
         }
-        if (!isConcat) {
+        // 如果不是seek操作，默认播放第一段录像
+        if (!isConcat && !isSeek) {
           /**
          * 0云端：获取第一段录像
          * 1本地：获取URL
          */
           if (this.screen.recordType === 0) {
             this.currentRecord = records[0]
-            // this.screen.currentRecordDatetime = this.currentRecord.startTime
+            this.screen.currentRecordDatetime = this.currentRecord.startTime
           } else {
+            this.screen.currentRecordDatetime = records[0].startTime
             const res = await this.getLocalUrl(records[0].startTime)
-            // this.screen.currentRecordDatetime = records[0].startTime
             this.screen.codec = res.codec
             this.screen.url = res.url
           }
@@ -237,7 +239,9 @@ export class RecordManager {
             this.screen.codec = res.codec
             this.screen.url = res.url
           } catch (e) {
-            this.screen.errorMsg = e.message
+            if (e.code !== -2 && e.code !== -1) {
+              this.screen.errorMsg = e.message
+            }
           } finally {
             this.screen.isLoading = false
           }
@@ -491,13 +495,14 @@ export class RecordManager {
       if (res.playUrl) {
         url = res.playUrl.flvUrl
         codec = res.video.codec
+        this.screen.errorMsg = null
       }
       return {
         url,
         codec
       }
     } catch (e) {
-      throw new Error(e)
+      throw new VSSError(e.code, e.message, null)
     }
   }
 }
