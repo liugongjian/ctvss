@@ -97,6 +97,14 @@ export const getAlgoStreamFrame = (params: any): Promise<any> =>
     params
   })
 
+// 新的获取视频截图接口 stream/frame
+export const getAlgoStreamFrameShot = (params: any): Promise<any> =>
+  request({
+    url: '/stream/framenew',
+    method: 'post',
+    data: params
+  })
+
 export const getAttachedDevice = (params: any): Promise<any> =>
   request({
     url: '/ai/aiAPP/relation',
