@@ -150,10 +150,10 @@ export class RecordManager {
          */
           if (this.screen.recordType === 0) {
             this.currentRecord = records[0]
-            this.screen.currentRecordDatetime = this.currentRecord.startTime
+            // this.screen.currentRecordDatetime = this.currentRecord.startTime
           } else {
             const res = await this.getLocalUrl(records[0].startTime)
-            this.screen.currentRecordDatetime = records[0].startTime
+            // this.screen.currentRecordDatetime = records[0].startTime
             this.screen.codec = res.codec
             this.screen.url = res.url
           }
