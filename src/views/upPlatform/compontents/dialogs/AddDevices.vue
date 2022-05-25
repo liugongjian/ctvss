@@ -372,7 +372,7 @@ export default class extends Vue {
           deviceId: item.id
         })
         // 针对patform特殊处理
-        if ([3, 4].includes(currentGroupDir.dirType)) {
+        if ((parentDirType + ',' + currentGroupDir.dirType).split(',').some(type => ['3', '4'].includes(type))) {
           currentGroupDir.parentDirType = parentDirType
         }
       })
