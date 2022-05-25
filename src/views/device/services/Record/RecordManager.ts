@@ -63,7 +63,6 @@ export class RecordManager {
     this.constructor({
       screen: this.screen
     })
-    this.screen.currentRecordDatetime = null
   }
 
   /**
@@ -138,6 +137,12 @@ export class RecordManager {
       this.isLoading = true
       const records = await this.getRecordList(date, date + 24 * 60 * 60)
       if (records && records.length) {
+        // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
+        if (date > this.currentDate) {
+          this.recordList = this.recordList.concat(records)
+        } else {
+          this.recordList = records.concat(this.recordList)
+        }
         if (!isConcat) {
           /**
          * 0云端：获取第一段录像
@@ -152,12 +157,6 @@ export class RecordManager {
             this.screen.codec = res.codec
             this.screen.url = res.url
           }
-        }
-        // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
-        if (date > this.currentDate) {
-          this.recordList = this.recordList.concat(records)
-        } else {
-          this.recordList = records.concat(this.recordList)
         }
       } else if (!isConcat) {
         this.currentRecord = null
