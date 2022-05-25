@@ -63,6 +63,7 @@ export class RecordManager {
     this.constructor({
       screen: this.screen
     })
+    this.screen.currentRecordDatetime = null
   }
 
   /**
@@ -137,12 +138,6 @@ export class RecordManager {
       this.isLoading = true
       const records = await this.getRecordList(date, date + 24 * 60 * 60)
       if (records && records.length) {
-        // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
-        if (date > this.currentDate) {
-          this.recordList = this.recordList.concat(records)
-        } else {
-          this.recordList = records.concat(this.recordList)
-        }
         if (!isConcat) {
           /**
          * 0云端：获取第一段录像
@@ -150,11 +145,19 @@ export class RecordManager {
          */
           if (this.screen.recordType === 0) {
             this.currentRecord = records[0]
+            this.screen.currentRecordDatetime = this.currentRecord.startTime
           } else {
-            const res = await this.getLocalUrl(this.recordList[0].startTime)
+            const res = await this.getLocalUrl(records[0].startTime)
+            this.screen.currentRecordDatetime = records[0].startTime
             this.screen.codec = res.codec
             this.screen.url = res.url
           }
+        }
+        // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
+        if (date > this.currentDate) {
+          this.recordList = this.recordList.concat(records)
+        } else {
+          this.recordList = records.concat(this.recordList)
         }
       } else if (!isConcat) {
         this.currentRecord = null
@@ -242,7 +245,7 @@ export class RecordManager {
         }
       } else {
         this.screen.currentRecordDatetime = time
-        this.screen.recordManager.currentDate = time
+        this.currentDate = time
         this.screen.player && this.screen.player.disposePlayer()
         this.screen.player = null
         this.screen.isLoading = false
@@ -434,7 +437,7 @@ export class RecordManager {
     currentDate = new Date(new Date(new Date(currentDate * 1000)).toLocaleDateString()).getTime() / 1000
     if (currentDate) {
       const recordList = this.recordList && this.recordList.filter(record => {
-        return (record.endTime <= (currentDate + 24 * 60 * 60) && record.startTime >= currentDate)
+        return (getDateByTime(record.startTime * 1000) / 1000 === currentDate)
       })
       return {
         recordList: recordList.slice((pager.pageNum - 1) * pager.pageSize, pager.pageNum * pager.pageSize).map(record => ({
