@@ -41,7 +41,7 @@
         <el-table-column prop="action" class-name="col-action" label="视频查看" width="150" fixed="right">
           <template slot-scope="scope">
             <el-button type="text" @click.stop.native="preview(scope.row)">实时预览</el-button>
-            <el-button type="text" @click.stop.native="preview(scope.row)">录像回放</el-button>
+            <el-button type="text" @click.stop.native="record(scope.row)">录像回放</el-button>
           </template>
         </el-table-column>
         <el-table-column prop="action" class-name="col-action" label="任务操作" width="180" fixed="right">
@@ -62,7 +62,7 @@
       />
     </el-card>
     <detail-dialog v-if="showDetailDialog" :record="currentRecord" @on-close="closeDetail" />
-    <video-dialog v-if="showVideoDialog" :record="currentRecord" @on-close="closeVideo" />
+    <video-dialog v-if="showVideoDialog" :record="currentRecord" :type="videoType" @on-close="closeVideo" />
   </div>
 </template>
 
@@ -96,6 +96,7 @@ export default class extends Vue {
   private showDetailDialog = false
   private showVideoDialog = false
   private currentRecord: any = {}
+  private videoType = ''
 
   @Watch('dataList.length')
   private onDataListChange(data: any) {
@@ -116,7 +117,15 @@ export default class extends Vue {
   private preview(row: any) {
     this.currentRecord = row
     this.showVideoDialog = true
+    this.videoType = 'preview'
   }
+
+  private record(row: any) {
+    this.currentRecord = row
+    this.showVideoDialog = true
+    this.videoType = 'record'
+  }
+
   private closeDetail() {
     this.currentRecord = {}
     this.showDetailDialog = false
