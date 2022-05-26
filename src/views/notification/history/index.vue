@@ -20,7 +20,7 @@
         />
         <div class="filter-container__right">
           <el-button v-if="advancedFilterFlag" type="primary" @click="search">查询</el-button>
-          <el-button v-else class="el-button-rect" @click="search"><svg-icon name="refresh" /></el-button>
+          <el-button v-else class="el-button-rect" @click="timeRangeTypeChange(timeRangeType)"><svg-icon name="refresh" /></el-button>
           <el-button v-if="advancedFilterFlag" type="primary" @click="advancedFilterFlag = !advancedFilterFlag">收起</el-button>
           <el-button v-else type="primary" @click="advancedFilterFlag = !advancedFilterFlag">高级筛选</el-button>
         </div>
@@ -56,7 +56,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="消息类型" prop="source">
-            <el-select v-model="searchForm.source" disabled>
+            <el-select v-model="searchForm.source">
               <el-option
                 v-for="(item, index) in sourceOptions"
                 :key="index"
@@ -83,7 +83,7 @@
           column-key="create_time"
           prop="createTime"
           sortable="custom"
-          label="发生时间"
+          label="推送时间"
           min-width="240"
         >
           <template slot-scope="{row}">
@@ -143,8 +143,9 @@ export default class extends Vue {
     { value: '2', label: '短信推送' }
   ]
   private sourceOptions = [
+    { value: '', label: '所有类型' },
     { value: '1', label: '设备消息' },
-    { value: '2', label: '资源包消息' },
+    // { value: '2', label: '资源包消息' },
     { value: '3', label: 'AI消息' }
   ]
   private sourceMap = {
@@ -158,7 +159,7 @@ export default class extends Vue {
     description: '',
     userGroup: '',
     notifyChannel: '',
-    source: '3',
+    source: '',
     notifyContent: '',
     startTime: 0,
     endTime: 0,
@@ -200,7 +201,7 @@ export default class extends Vue {
         params.description = ''
         params.userGroup = ''
         params.notifyChannel = ''
-        // params.source = '3',
+        params.source = ''
         params.notifyContent = ''
       }
       params.pageNum = this.pager.pageNum
