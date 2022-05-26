@@ -416,7 +416,7 @@ export default class MapView extends Vue {
 .play-wrap {
   position: absolute;
   z-index: 9;
-  background: #000;
+  background: #333;
   &.selected {
     z-index: 10;
   }
@@ -427,7 +427,10 @@ export default class MapView extends Vue {
     flex-direction: column;
   }
   .el-icon{
+    display: inline-block;
     position: absolute;
+    padding: 5px;
+    background: rgba(0, 0, 0, 0.4);
     top: 5px;
     right: 5px;
     z-index: 2001;

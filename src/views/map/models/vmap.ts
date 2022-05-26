@@ -43,11 +43,6 @@ export interface markerObject {
   deviceColor?: string
 }
 
-export enum mapStatus {
-  Default = 1,
-  Edit,
-}
-
 export interface events {
   reMarkerEvent: any
 }
@@ -113,14 +108,13 @@ export default class VMap {
         options.viewMode = '3D'
       }
       const map = new AMap.Map(this.container, options)
-      // const buildingLayer = new AMap.Buildings({
-      //   zIndex: 10,
-      //   zooms: [15, 20],
-      //   heightFactor: 2,
-      //   wallColor: 'ffc9d2dc',
-      //   roofColor: 'ffdce3ec'
-      // })
-      // map.add([buildingLayer])
+      this.buildingLayer = new AMap.Buildings({
+        wallColor: 'rgba(220, 220, 220, 0)',
+        roofColor: 'rgba(220, 220, 220, 0)',
+        opacity: 0.9,
+        zIndex: 130
+      })
+      map.add(this.buildingLayer)
       this.overView = new AMap.HawkEye({
         visible: false,
         width: '300px',
@@ -637,16 +631,6 @@ export default class VMap {
    * 渲染楼房颜色
    */
   public renderBuilding(highlightList, buildingList) {
-    if (this.buildingLayer) {
-      this.map.remove(this.buildingLayer)
-    }
-
-    this.buildingLayer = new AMap.Buildings({
-      wallColor: 'rgba(220, 220, 220, 0)',
-      roofColor: 'rgba(220, 220, 220, 0)',
-      opacity: 0.9,
-      zIndex: 120
-    })
     const areas = []
 
     // 增加高亮区域楼层颜色
@@ -672,7 +656,6 @@ export default class VMap {
       areas
     }
     this.buildingLayer.setStyle(buildingOptions)
-    this.map.add(this.buildingLayer)
   }
 
   handlePoint(points) {
