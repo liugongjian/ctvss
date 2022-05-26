@@ -281,8 +281,8 @@ export default class VMap {
     }
     const clusterIndexSet = {
       groupName: {
-        minZoom: 12,
-        maxZoom: 17
+        minZoom: 3,
+        maxZoom: 15
       }
     }
 
@@ -346,7 +346,7 @@ export default class VMap {
     }
     const count = markers.length
     const _renderClusterMarker = (context: any) => {
-      if (this.map.getZoom() < 17) {
+      if (this.map.getZoom() < 15) {
         context.marker.setContent(' ')
       } else {
         const div = document.createElement('div')
@@ -381,7 +381,7 @@ export default class VMap {
       }
     }
     const _renderMarker = (context: any) => {
-      if (this.map.getZoom() < 17) {
+      if (this.map.getZoom() < 15) {
         context.marker.setContent(' ')
       } else {
         const content = this.buildContent(context.data[0])
