@@ -136,6 +136,15 @@
                 <el-descriptions-item label="经纬度">
                   {{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}
                 </el-descriptions-item>
+                <!--IPC信息-->
+                <template v-if="info.deviceType === 'ipc'">
+                  <el-descriptions-item label="设备SN码">
+                    {{ info.serialNumber }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="设备型号">
+                    {{ info.deviceModel }}
+                  </el-descriptions-item>
+                </template>
                 <!--通用信息-->
                 <el-descriptions-item>
                   <template slot="label">
