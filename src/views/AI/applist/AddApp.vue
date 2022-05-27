@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import { Component, Mixins } from 'vue-property-decorator'
-import AlgoOption from './component/AlgoOption.vue'
+import AlgoOption from './component/AlgoOption.vue'// 待优化
 import AlgoDetail from './component/AlgoDetail.vue'
 import AppMixin from '../mixin/app-mixin'
 
