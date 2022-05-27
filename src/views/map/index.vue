@@ -135,7 +135,7 @@
                     <span class="zoomdesc">{{ zoomDesc }}</span>
                   </div>
                 </el-form-item>
-                <el-form-item v-if="mapEditDialog.status === 'edit'" label="是否启用模板" prop="mask" class="mask">
+                <el-form-item v-if="mapEditDialog.status === 'edit'" label="是否启用蒙版" prop="mask" class="mask">
                   <el-checkbox v-model="form.mask" />
                 </el-form-item>
               </el-form>
@@ -1025,6 +1025,7 @@ export default class extends Mixins(IndexMixin) {
             })
             this.curMap = map
             this.$refs.mapview.setMapZoomAndCenter(this.curMap.zoom, this.curMap.longitude, this.curMap.latitude)
+            this.$refs.mapview.renderMask(mask)
             this.$alertSuccess('地图修改成功')
             this.mapEditDialog.dialogVisible = false
           }
