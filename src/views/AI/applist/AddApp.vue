@@ -20,7 +20,7 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import AlgoOption from './component/AlgoOption.vue'
 import AlgoDetail from './component/AlgoDetail.vue'
-import AppMixin from '../mixin/app-mixin'
+import AppMixin from '../mixin/app-mixin' // 考虑优化的mixin
 
 @Component({
   name: 'AddApp',
