@@ -23,6 +23,10 @@
         />
       </div>
       <div class="form-item">
+        <label>忽略起始时段 <el-tooltip content="忽略起始时间到实际第一段录像的startTime"><svg-icon name="help" /></el-tooltip>:</label>
+        <el-checkbox v-model="ignoreFirst" />
+      </div>
+      <div class="form-item">
         <label>忽略末尾时段 <el-tooltip content="如果结束日期超过最后一段录像时间，结束日期与最后一段录像的差值不会判断为丢失时间"><svg-icon name="help" /></el-tooltip>:</label>
         <el-checkbox v-model="ignoreLast" />
       </div>
@@ -120,6 +124,7 @@ export default class extends Vue {
   private currentDate = null
   private deviceId = ''
   private ignoreTime = 0
+  private ignoreFirst = true
   private ignoreLast = true
   private list = []
   private loading = false
@@ -240,7 +245,7 @@ export default class extends Vue {
               const currentStart = getTimestamp(record.startTime)
               const currentEnd = getTimestamp(record.endTime)
               // 判断第一段视频是否从00:00开始
-              if (index === 0) {
+              if (index === 0 && !this.ignoreFirst) {
                 if (((currentStart - startTime) / 1000) > this.ignoreTime) {
                   list.push({
                     time: (currentStart - startTime) / 1000,
