@@ -8,6 +8,7 @@ import ExcelJS from 'exceljs'
 
 @Component
 export default class ExcelMixin extends Vue {
+  private workbook = null
   public resourceAiType: any = ResourceAiType
   public exelType: string = ''
   public exelDeviceType: any = ''
@@ -34,6 +35,13 @@ export default class ExcelMixin extends Vue {
   private AIList: any = []
   private VIDEOList: any = []
   private BWList: any = []
+  private options: any = {
+    gbAccountList: [],
+    availableChannels: [],
+    VIDEOList: [],
+    BWList: [],
+    options: []
+  }
   // 表格字段配置
   private get excelTemplate() {
     return {
@@ -87,13 +95,7 @@ export default class ExcelMixin extends Vue {
         },
         {
           title: { header: '*国标用户名', key: 'userName', width: 16 },
-          validation: {
-            type: 'list',
-            allowBlank: false,
-            showErrorMessage: true,
-            formulae: [`"${this.gbAccountList.join(',')}"`],
-            error: '请选择国标用户名'
-          }
+          validation: this.getGbAccountValidation()
         },
         {
           title: { header: '设备MAC地址', key: 'macAddr', width: 24 },
@@ -132,15 +134,15 @@ export default class ExcelMixin extends Vue {
         },
         {
           title: { header: '*视频包', key: 'videoPackage', width: 40 },
-          validation: this.getVideoPackageValidation(this.VIDEOList)
+          validation: this.getVideoPackageValidation()
         },
         {
           title: { header: 'AI包', key: 'AIPackage', width: 40 },
-          validation: this.getAIPackageValidation(this.AIList)
+          validation: this.getAIPackageValidation()
         },
         {
           title: { header: '上行带宽包', key: 'BWPackage', width: 40 },
-          validation: this.getBWPackageValidation(this.BWList)
+          validation: this.getBWPackageValidation()
         }
       ],
       ehome: [
@@ -227,15 +229,15 @@ export default class ExcelMixin extends Vue {
         },
         {
           title: { header: '*视频包', key: 'videoPackage', width: 40 },
-          validation: this.getVideoPackageValidation(this.VIDEOList)
+          validation: this.getVideoPackageValidation()
         },
         {
           title: { header: 'AI包', key: 'AIPackage', width: 40 },
-          validation: this.getAIPackageValidation(this.AIList)
+          validation: this.getAIPackageValidation()
         },
         {
           title: { header: '上行带宽包', key: 'BWPackage', width: 40 },
-          validation: this.getBWPackageValidation(this.BWList)
+          validation: this.getBWPackageValidation()
         }
       ],
       rtmp: [
@@ -291,15 +293,15 @@ export default class ExcelMixin extends Vue {
         },
         {
           title: { header: '*视频包', key: 'videoPackage', width: 40 },
-          validation: this.getVideoPackageValidation(this.VIDEOList)
+          validation: this.getVideoPackageValidation()
         },
         {
           title: { header: 'AI包', key: 'AIPackage', width: 40 },
-          validation: this.getAIPackageValidation(this.AIList)
+          validation: this.getAIPackageValidation()
         },
         {
           title: { header: '上行带宽包', key: 'BWPackage', width: 40 },
-          validation: this.getBWPackageValidation(this.BWList)
+          validation: this.getBWPackageValidation()
         }
       ],
       rtsp: [
@@ -401,27 +403,21 @@ export default class ExcelMixin extends Vue {
         },
         {
           title: { header: '*视频包', key: 'videoPackage', width: 40 },
-          validation: this.getVideoPackageValidation(this.VIDEOList)
+          validation: this.getVideoPackageValidation()
         },
         {
           title: { header: 'AI包', key: 'AIPackage', width: 40 },
-          validation: this.getAIPackageValidation(this.AIList)
+          validation: this.getAIPackageValidation()
         },
         {
           title: { header: '上行带宽包', key: 'BWPackage', width: 40 },
-          validation: this.getBWPackageValidation(this.BWList)
+          validation: this.getBWPackageValidation()
         }
       ],
       nvr: [
         {
           title: { header: '通道号', key: 'channelNum', width: 10 },
-          validation: {
-            type: 'list',
-            allowBlank: false,
-            showErrorMessage: true,
-            formulae: [`"${this.availableChannels.join(',')}"`],
-            error: '请选择通道号'
-          }
+          validation: this.getAvailableChannelsValidation()
         },
         {
           title: { header: '厂商', key: 'deviceVendor', width: 16 },
@@ -523,32 +519,51 @@ export default class ExcelMixin extends Vue {
   /**
    * 动态validation
    */
-  private getVideoPackageValidation(VIDEOList: any) {
+  private getGbAccountValidation() {
+    console.log()
+    return {
+      type: 'list',
+      allowBlank: false,
+      showErrorMessage: true,
+      formulae: this.options.gbAccountList.length ? [`'gbAccountListSheet'!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + this.options.gbAccountList.length)}$1`] : ['""'],
+      error: '请选择国标用户名'
+    }
+  }
+  private getAvailableChannelsValidation() {
+    return {
+      type: 'list',
+      allowBlank: false,
+      showErrorMessage: true,
+      formulae: this.options.availableChannels.length ? [`'availableChannelsSheet'!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + this.options.availableChannels.length)}$1`] : ['""'],
+      error: '请选择通道号'
+    }
+  }
+  private getVideoPackageValidation() {
     return {
       type: 'list',
       allowBlank: true,
       showErrorMessage: true,
-      formulae: [`"${VIDEOList.join(',')}"`],
+      formulae: this.options.VIDEOList.length ? [`'VIDEOListSheet'!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + this.options.VIDEOList.length)}$1`] : ['""'],
       error: '请选择视频包'
     }
   }
 
-  private getAIPackageValidation(AIList: any) {
+  private getAIPackageValidation() {
     return {
       type: 'list',
       allowBlank: true,
       showErrorMessage: true,
-      formulae: [`"${AIList.join(',')}"`],
+      formulae: this.options.AIList.length ? [`'AIListSheet'!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + this.options.AIList.length)}$1`] : ['""'],
       error: '请选择AI包'
     }
   }
 
-  private getBWPackageValidation(BWList: any) {
+  private getBWPackageValidation() {
     return {
       type: 'list',
       allowBlank: true,
       showErrorMessage: true,
-      formulae: [`"${BWList.join(',')}"`],
+      formulae: this.options.BWList.length ? [`'BWListSheet'!$${String.fromCharCode(65)}$1:$${String.fromCharCode(64 + this.options.BWList.length)}$1`] : ['""'],
       error: '请选择上行带宽包'
     }
   }
@@ -560,15 +575,15 @@ export default class ExcelMixin extends Vue {
     // 获取资源包选项
     try {
       let VIDEORes: any = await getResources({ type: 'VSS_VIDEO' })
-      this.VIDEOList = VIDEORes.resPkgList ? VIDEORes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
+      this.options.VIDEOList = VIDEORes.resPkgList ? VIDEORes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
         return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${item.bitRate}M:${item.storageTime}天||${item.resourceId}`
       }) : []
       let AIRes: any = await getResources({ type: 'VSS_AI' })
-      this.AIList = AIRes.resPkgList ? AIRes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
+      this.options.AIList = AIRes.resPkgList ? AIRes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
         return `${item.totalDeviceCount}路:${item.remainDeviceCount}路:${this.resourceAiType[item.aiType]}||${item.resourceId}`
       }) : []
       let BWRes: any = await getResources({ type: 'VSS_UPLOAD_BW' })
-      this.BWList = BWRes.resPkgList ? BWRes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
+      this.options.BWList = BWRes.resPkgList ? BWRes.resPkgList.filter(pkg => new Date().getTime() < new Date(pkg.expireTime).getTime()).map((item: any) => {
         return `${item.bitRate}M||${item.resourceId}`
       }) : []
     } catch (e) {
@@ -581,7 +596,7 @@ export default class ExcelMixin extends Vue {
           pageSize: 1000
         })
         res.gbCerts.forEach((account: any) => {
-          this.gbAccountList.push(account.userName)
+          this.options.gbAccountList.push(account.userName)
         })
       } catch (e) {
         console.error(e)
@@ -629,11 +644,19 @@ export default class ExcelMixin extends Vue {
         return channel.channelNum
       })
       const channelSize = info.deviceStats.maxChannelSize
-      this.availableChannels = []
+      this.options.availableChannels = []
       for (let i = 1; i <= channelSize; i++) {
         if (!~usedChannelNum.indexOf(i)) {
           this.availableChannels.push(`D${i}`)
         }
+      }
+    }
+    // 生成额外sheet存储动态选项
+    for (const key in this.options) {
+      if (this.options[key].length) {
+        const sheet = this.workbook.addWorksheet(`${key}Sheet`)
+        sheet.state = 'hidden'
+        sheet.addRow(this.options[key])
       }
     }
   }
@@ -660,11 +683,11 @@ export default class ExcelMixin extends Vue {
    * 导出模板
    */
   public async exportExel() {
-    await this.getOptions()
     const exelName = this.exelName
-    const workbook = new ExcelJS.Workbook()
-    workbook.views = this.excelViews
-    const worksheet: any = workbook.addWorksheet('My Sheet')
+    this.workbook = new ExcelJS.Workbook()
+    this.workbook.views = this.excelViews
+    await this.getOptions()
+    const worksheet: any = this.workbook.addWorksheet('My Sheet')
     worksheet.name = exelName
     let template = this.excelTemplate[this.exelDeviceType]
     // 过滤template
@@ -701,7 +724,7 @@ export default class ExcelMixin extends Vue {
         column: worksheet._columns.length
       }
     }
-    const buffer = await workbook.xlsx.writeBuffer()
+    const buffer = await this.workbook.xlsx.writeBuffer()
     var blob = new Blob([buffer], { type: 'application/xlsx' })
     var link = document.createElement('a')
     link.href = window.URL.createObjectURL(blob)
