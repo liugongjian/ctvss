@@ -104,7 +104,7 @@ export const asyncRoutes: RouteConfig[] = [
       title: '概览',
       icon: 'dashboard',
       breadcrumb: false,
-      perms: ['*'],
+      perms: ['DescribeDashboard'],
       alwaysShow: false
     },
     children: [
@@ -117,7 +117,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '概览',
           icon: 'dashboard',
           breadcrumb: true,
-          perms: ['*']
+          perms: ['DescribeDashboard']
         }
       },
       {
@@ -130,7 +130,7 @@ export const asyncRoutes: RouteConfig[] = [
           hidden: true,
           icon: 'dashboard',
           breadcrumb: false,
-          perms: ['*']
+          perms: ['DescribeDashboard']
         }
       },
       {
@@ -143,7 +143,7 @@ export const asyncRoutes: RouteConfig[] = [
           hidden: true,
           icon: 'dashboard',
           breadcrumb: false,
-          perms: ['*']
+          perms: ['DescribeDashboard']
         }
       }
     ]

@@ -20,7 +20,7 @@
           />
         </el-form-item>
         <el-form-item label="操作：" prop="actionList">
-          <span v-if="actionType === 'besideSelected'" style="color: #C0C4CC">所有操作权限</span>
+          <span v-if="actionType === 'besideSelected'" style="color: #c0c4cc;">所有操作权限</span>
           <el-table
             v-else-if="actionType === 'selected'"
             ref="actionTable"
@@ -87,7 +87,7 @@
           </div>
         </el-form-item>
         <el-form-item>
-          <el-row style="margin: 20px 0">
+          <el-row style="margin: 20px 0;">
             <template v-if="!isCtyunPolicy">
               <el-button type="primary" class="confirm" @click="upload">确定</el-button>
               <el-button class="cancel" @click="back">取消</el-button>
@@ -157,6 +157,11 @@ export default class extends Vue {
       actionName: '查看电子地图',
       actionValue: 'DescribeMap',
       actionDesc: '拥有电子地图的查看权限'
+    },
+    {
+      actionName: '查看概览页面',
+      actionValue: 'DescribeDashboard',
+      actionDesc: '拥有概览页面的查看权限'
     }
   ]
   private dirList: any = []
@@ -544,29 +549,34 @@ export default class extends Vue {
 <style lang="scss" scoped>
   .form {
     margin-left: 10px;
+
     &__input {
       width: 600px;
     }
   }
+
   .policy {
     display: flex;
   }
+
   .list {
     height: 400px;
     width: 400px;
     overflow: auto;
-    border: 1px solid #D7D7D7;
+    border: 1px solid #d7d7d7;
     border-top: none;
     border-radius: 5px;
+
     &__title {
       height: 40px;
       line-height: 40px;
-      background: #F2F2F2;
+      background: #f2f2f2;
       padding-left: 20px;
     }
   }
+
   .el-table {
-    width: 100%
+    width: 100%;
   }
 
   .el-table ::v-deep .is-ctyun-policy .cell .el-checkbox__inner {
@@ -578,6 +588,7 @@ export default class extends Vue {
     display: flex;
     border: 1px solid $borderGrey;
   }
+
   .tree-wrap {
     flex: 1 0;
     height: 550px;
@@ -589,10 +600,12 @@ export default class extends Vue {
       cursor: not-allowed;
     }
   }
+
   .device-wrap {
     flex: 1 0;
     height: 550px;
     overflow: auto;
+
     &__header {
       font-weight: bold;
       text-align: center;
