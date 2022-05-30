@@ -87,7 +87,7 @@
             {{ resources.VSS_UPLOAD_BW.codeRate ? `${resources.VSS_UPLOAD_BW.codeRate}Mbps` : '' }}
           </el-descriptions-item>
           <el-descriptions-item label="上行带宽总量">
-            {{ resources.VSS_UPLOAD_BW.bwDeviceCount ? `${resources.VSS_UPLOAD_BW.bwDeviceCount}Mbps` :'' }}
+            {{ resources.VSS_UPLOAD_BW.bwDeviceCount && resources.VSS_UPLOAD_BW.codeRate ? `${resources.VSS_UPLOAD_BW.bwDeviceCount * resources.VSS_UPLOAD_BW.codeRate}Mbps` :'' }}
           </el-descriptions-item>
           <el-descriptions-item label="到期时间">
             {{ resources.VSS_UPLOAD_BW.expTime }}
