@@ -9,12 +9,19 @@
   >
     <div class="dialog-player-wrapper">
       <detail-preview
-        v-if="info"
+        v-if="info && type === 'preview'"
         :device-id="deviceId"
         :in-protocol="inProtocol"
         :device-name="info.deviceName"
         :streams="info.deviceStreams"
         :stream-size="info.multiStreamSize"
+      />
+      <detail-replay
+        v-if="info && type === 'record'"
+        :device-id="deviceId"
+        :in-protocol="inProtocol"
+        :device-name="info.deviceName"
+        :date-time-range="{startTime: record.startTime, endTime: record.endTime}"
       />
     </div>
   </el-dialog>
@@ -22,17 +29,21 @@
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import DetailPreview from '@/views/device/components/DetailPreview.vue'
+import DetailReplay from '@/views/device/components/DetailReplay.vue'
 import { getDevice } from '@/api/device'
 
 @Component({
   name: 'VideoDialog',
   components: {
-    DetailPreview
+    DetailPreview,
+    DetailReplay
   }
 })
 export default class extends Vue {
   @Prop({ default: () => {} })
   private record!: Object
+  @Prop({ default: '' })
+  private type!: String
 
   private hasClose = true
 
@@ -42,9 +53,9 @@ export default class extends Vue {
   private bindData = []
   private filtersArray = [{ text: '组', value: 'group' }, { text: '设备', value: 'device' }]
 
-  private deviceId = '29942129354625426'
+  private deviceId = '29941976883272184'
 
-  private inProtocol = 'gb28181'
+  private inProtocol = 'rtsp'
 
   private info = null
 

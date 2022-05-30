@@ -68,7 +68,6 @@ export class RecordManager {
     this.constructor({
       screen: this.screen
     })
-    this.screen.currentRecordDatetime = null
   }
 
   /**
@@ -156,7 +155,14 @@ export class RecordManager {
       this.isLoading = true
       const records = await this.getRecordList(startTime, endTime)
       if (records && records.length) {
-        if (!isConcat) {
+        // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
+        if (date > this.currentDate) {
+          this.recordList = this.recordList.concat(records)
+        } else {
+          this.recordList = records.concat(this.recordList)
+        }
+        // 如果不是seek操作，默认播放第一段录像
+        if (!isConcat && !isSeek) {
           /**
          * 0云端：获取第一段录像
          * 1本地：获取URL
@@ -165,17 +171,11 @@ export class RecordManager {
             this.currentRecord = records[0]
             this.screen.currentRecordDatetime = this.currentRecord.startTime
           } else {
-            const res = await this.getLocalUrl(records[0].startTime)
             this.screen.currentRecordDatetime = records[0].startTime
+            const res = await this.getLocalUrl(records[0].startTime)
             this.screen.codec = res.codec
             this.screen.url = res.url
           }
-        }
-        // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
-        if (date > this.currentDate) {
-          this.recordList = this.recordList.concat(records)
-        } else {
-          this.recordList = records.concat(this.recordList)
         }
       } else if (!isConcat) {
         this.currentRecord = null
@@ -260,7 +260,9 @@ export class RecordManager {
             this.screen.codec = res.codec
             this.screen.url = res.url
           } catch (e) {
-            this.screen.errorMsg = e.message
+            if (e.code !== -2 && e.code !== -1) {
+              this.screen.errorMsg = e.message
+            }
           } finally {
             this.screen.isLoading = false
           }
@@ -532,13 +534,14 @@ export class RecordManager {
       if (res.playUrl) {
         url = res.playUrl.flvUrl
         codec = res.video.codec
+        this.screen.errorMsg = null
       }
       return {
         url,
         codec
       }
     } catch (e) {
-      throw new Error(e)
+      throw new VSSError(e.code, e.message, null)
     }
   }
 }
