@@ -49,21 +49,18 @@ export default class extends Vue {
   }
   private async getRecord() {
     try {
-      this.loading = true
       let params = {
         taskId: this.record?.Id,
         deviceId: this.record?.DeviceId
       }
       const res = await getCarTask(params)
-      this.loading = false
       this.VehicleTask = res?.VehicleTask
       this.Operations = res?.Operations
       this.pager.total = res.totalNum
       this.pager.pageNum = res.pageNum
       this.pager.pageSize = res.pageSize
     } catch (e) {
-      this.$message.error(`获取车辆任务列表失败，原因：${e && e.message}`)
-      this.loading = false
+      this.$message.error(`获取车辆任务信息失败，原因：${e && e.message}`)
     }
   }
   private getOpType(type) {

@@ -10,18 +10,18 @@
     <div class="dialog-player-wrapper">
       <detail-preview
         v-if="info && type === 'preview'"
-        :device-id="deviceId"
-        :in-protocol="inProtocol"
+        :device-id="record.deviceId"
+        :in-protocol="record.inProtocol"
         :device-name="info.deviceName"
         :streams="info.deviceStreams"
         :stream-size="info.multiStreamSize"
       />
       <detail-replay
         v-if="info && type === 'record'"
-        :device-id="deviceId"
-        :in-protocol="inProtocol"
+        :device-id="record.deviceId"
+        :in-protocol="record.inProtocol"
         :device-name="info.deviceName"
-        :date-time-range="{startTime: record.startTime, endTime: record.endTime}"
+        :date-time-range="dateTimeRange"
       />
     </div>
   </el-dialog>
@@ -31,6 +31,7 @@ import { Component, Prop, Vue } from 'vue-property-decorator'
 import DetailPreview from '@/views/device/components/DetailPreview.vue'
 import DetailReplay from '@/views/device/components/DetailReplay.vue'
 import { getDevice } from '@/api/device'
+import { getUnixTime, parse } from 'date-fns'
 
 @Component({
   name: 'VideoDialog',
@@ -41,7 +42,7 @@ import { getDevice } from '@/api/device'
 })
 export default class extends Vue {
   @Prop({ default: () => {} })
-  private record!: Object
+  private record!: any
   @Prop({ default: '' })
   private type!: String
 
@@ -49,25 +50,30 @@ export default class extends Vue {
 
   private isSingle = false
 
-  private loading = false
-  private bindData = []
-  private filtersArray = [{ text: '组', value: 'group' }, { text: '设备', value: 'device' }]
-
-  private deviceId = '29941976883272184'
-
-  private inProtocol = 'rtsp'
-
   private info = null
 
+  private dateTimeRange = {}
+
   public async mounted() {
-    this.info = await getDevice({
-      deviceId: this.deviceId,
-      inProtocol: this.inProtocol
-    })
+    try{
+      this.info = await getDevice({
+        deviceId: this.record?.DeviceId,
+        inProtocol: this.record?.inProtocol
+      })
+      if(this.type === 'record'){
+        this.dateTimeRange = {startTime: this.getTimeStampFromString(this.record.startTime), endTime: this.getTimeStampFromString(this.record.endTime)}
+      }
+    } catch (e) {
+      this.$message.error(`设备信息失败，原因：${e && e.message}`)
+    }
   }
 
   private closeDialog() {
     this.$emit('on-close')
+  }
+
+  private getTimeStampFromString(str){
+    return getUnixTime(parse(str, 'yyyy-MM-dd HH:mm:ss', new Date()))
   }
 }
 </script>
