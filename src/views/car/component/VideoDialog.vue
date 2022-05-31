@@ -1,7 +1,6 @@
 <template>
   <el-dialog
     :visible="true"
-    :title="record.plateNumber"
     width="800px"
     center
     :destroy-on-close="true"
@@ -23,6 +22,10 @@
         :device-name="info.deviceName"
         :date-time-range="dateTimeRange"
       />
+    </div>
+    <div slot="title" class="dialog-title">
+      <div class="plate">{{record.plateNumber}}</div>
+      <div v-if="type === 'record'" class="time">{{record.startTime + (record.endTime.length > 0 ? ' - ' + record.endTime : '至今')}}</div>
     </div>
   </el-dialog>
 </template>
@@ -92,5 +95,17 @@ export default class extends Vue {
 
 .dialog-player-wrapper {
   height: 500px;
+}
+
+.dialog-title {
+  .plate {
+    line-height: 24px;
+    font-size: 18px;
+    color: #303133;
+  }
+
+  .time {
+    color: #9e9e9e;
+  }
 }
 </style>
