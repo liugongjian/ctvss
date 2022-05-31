@@ -14,3 +14,10 @@ export const getCarTask = (params: any): Promise<any> =>
     method: 'get',
     params
   })
+
+export const operateCarTask = (params: any): Promise<any> =>
+  request({
+    url: '/vehicle/operate',
+    method: 'post',
+    data: params
+  })

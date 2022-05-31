@@ -62,10 +62,6 @@ export default class extends Vue {
     return this.screen && this.screen.isFullscreen
   }
 
-  private mounted() {
-    console.log('this.screen:', this.screen)
-  }
-
   /**
    * 当播放器实例创建
    */

@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     :visible="true"
-    :title="record.templateId"
+    :title="record.plateNumber"
     width="800px"
     center
     :destroy-on-close="true"
@@ -57,7 +57,7 @@ export default class extends Vue {
   public async mounted() {
     try{
       this.info = await getDevice({
-        deviceId: this.record?.DeviceId,
+        deviceId: this.record?.deviceId,
         inProtocol: this.record?.inProtocol
       })
       if(this.type === 'record'){

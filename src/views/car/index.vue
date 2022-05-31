@@ -3,7 +3,7 @@
     <el-card>
       <div class="filter-container">
         <div class="filter-container__right">
-          <el-input v-model="PlateNumber" class="filter-container__search-group" placeholder="请输入车牌号" @keyup.enter.native="handleFilter">
+          <el-input v-model="plateNumber" class="filter-container__search-group" placeholder="请输入车牌号" @keyup.enter.native="handleFilter">
             <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
           </el-input>
           <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
@@ -13,42 +13,48 @@
         <el-table-column label="设备ID/设备名" min-width="200">
           <template slot-scope="{row}">
             <div class="device-list__device-name">
-              <div class="device-list__device-id">{{ row.DeviceId }}</div>
-              <div>{{ row.DeviceName }}</div>
+              <div class="device-list__device-id">{{ row.deviceId }}</div>
+              <div>{{ row.deviceName }}</div>
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="PlateNumber" label="车牌号" width="120">
+        <el-table-column prop="plateNumber" label="车牌号" width="120">
           <template slot-scope="{row}">
-            <span>{{ row.PlateNumber }}</span>
+            <span>{{ row.plateNumber }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="Driver" label="司机" min-width="260" />
-        <el-table-column prop="TransCompany" label="运输公司" width="200" />
-        <el-table-column prop="Factory" label="工厂" width="200" />
+        <el-table-column prop="driver" label="司机" min-width="260" />
+        <el-table-column prop="transCompany" label="运输公司" width="200" />
+        <el-table-column prop="factory" label="工厂" width="200" />
         <el-table-column
-          prop="createdTime"
           label="任务状态"
           min-width="110"
         >
           <template slot-scope="{row}">
-            <status-badge :status="row.Status" />
-            {{ row.Status }}
+            <status-badge :status="transformStatus(row.status).status" />
+            {{ `${transformStatus(row.status).cname}` }}
           </template>
         </el-table-column>
-        <el-table-column prop="StartTime" label="开始时间" width="200" />
-        <el-table-column prop="EndTime" label="结束时间" width="200" />
+        <el-table-column prop="startTime" label="开始时间" width="200" />
+        <el-table-column
+          label="结束时间"
+          width="200"
+        >
+          <template slot-scope="{row}">
+            {{ `${row.endTime.length > 0 ? row.endTime : '—'}` }}
+          </template>
+        </el-table-column>
         <el-table-column prop="action" class-name="col-action" label="视频查看" width="150" fixed="right">
           <template slot-scope="scope">
-            <el-button type="text" @click.stop.native="preview(scope.row)">实时预览</el-button>
+            <el-button type="text" @click.stop.native="preview(scope.row)" :disabled="scope.row.status !== 0">实时预览</el-button>
             <el-button type="text" @click.stop.native="record(scope.row)">录像回放</el-button>
           </template>
         </el-table-column>
         <el-table-column prop="action" class-name="col-action" label="任务操作" width="180" fixed="right">
           <template slot-scope="scope">
-            <el-button type="text" v-if="scope.row.Status === 0" @click.stop.native="operate(scope.row)">暂停</el-button>
-            <el-button type="text" v-if="scope.row.Status === 1" @click.stop.native="operate(scope.row)">继续</el-button>
-            <el-button type="text" v-if="scope.row.Status === 0" @click.stop.native="stop(scope.row)">结束</el-button>
+            <el-button type="text" v-if="scope.row.status === 0" @click.stop.native="operate(scope.row)">暂停</el-button>
+            <el-button type="text" v-if="scope.row.status === 1" @click.stop.native="operate(scope.row)">继续</el-button>
+            <el-button type="text" v-if="scope.row.status === 0 || scope.row.status === 1" @click.stop.native="stop(scope.row)">结束</el-button>
             <el-button type="text" @click="detail(scope.row)">查看详情</el-button>
           </template>
         </el-table-column>
@@ -71,8 +77,7 @@
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { RecordTemplate } from '@/type/template'
 import { dateFormatInTable } from '@/utils/date'
-import { getRecordTemplates, deleteRecordTemplate } from '@/api/template'
-import { getCarTasks } from '@/api/car'
+import { getCarTasks, operateCarTask } from '@/api/car'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import DetailDialog from './component/DetailDialog.vue'
 import VideoDialog from './component/VideoDialog.vue'
@@ -87,7 +92,7 @@ import VideoDialog from './component/VideoDialog.vue'
 })
 export default class extends Vue {
   private loading = false
-  private PlateNumber = ''
+  private plateNumber = ''
   private dataList: Array<RecordTemplate> = []
   private pager = {
     pageNum: 1,
@@ -143,13 +148,14 @@ export default class extends Vue {
     try {
       this.loading = true
       let params = {
-        PlateNumber: this.PlateNumber || undefined,
+        plateNumber: this.plateNumber || undefined,
         pageNum: this.pager.pageNum,
-        pageSize: this.pager.pageSize
+        pageSize: this.pager.pageSize,
+        status: -1
       }
       const res = await getCarTasks(params)
       this.loading = false
-      this.dataList = res?.VehicleTasks
+      this.dataList = res?.vehicleTasks
       this.pager.total = res.totalNum
       this.pager.pageNum = res.pageNum
       this.pager.pageSize = res.pageSize
@@ -175,20 +181,22 @@ export default class extends Vue {
   }
 
   private async stop(row: any) {
-    this.$alertDelete({
+    this.$alertHandle({
+      handleName:'结束',
       type: '车辆录像',
-      msg: `确定结束录制"${row.TaskId}"`,
-      method: deleteRecordTemplate,
-      payload: { TaskId: row.TaskId, DeviceId: row.DeviceId , Operate: 2},
+      msg: `确定结束录制任务："${row.id}"？`,
+      method: operateCarTask,
+      payload: { ...row , operate: 2, taskId: row.id},
       onSuccess: this.getList
     })
   }
   private async operate(row: any) {
-    this.$alertDelete({
+    this.$alertHandle({
+      handleName:`${row.status === 0 ? '暂停' : '继续'}`,
       type: '车辆录像',
-      msg: `确定${row.Status === 0 ? '暂停' : '继续'}录制"${row.TaskId}"`,
-      method: deleteRecordTemplate,
-      payload: { TaskId: row.TaskId, DeviceId: row.DeviceId, Operate: row.Status === 0 ? 1 : 3 },
+      msg: `确定${row.status === 0 ? '暂停' : '继续'}录制任务："${row.id}"？`,
+      method: operateCarTask,
+      payload: { ...row, operate: row.status === 0 ? 1 : 3, taskId: row.id },
       onSuccess: this.getList
     })
   }
@@ -198,6 +206,17 @@ export default class extends Vue {
    */
   private rowClick(row: any) {
     this.detail(row)
+  }
+
+  private transformStatus(status){
+    switch(status){
+      case 0 :
+        return { status:'on', cname: '运输中' }
+      case 1 :
+        return { status:'warning', cname: '暂停中' }
+      case 2 :
+        return { status:'error', cname: '已结束' }
+    }
   }
 }
 </script>

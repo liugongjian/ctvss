@@ -7,17 +7,35 @@
     :destroy-on-close="true"
     @close="closeDialog"
   >
-    <el-descriptions :column="1">
-      <el-descriptions-item label="设备名">{{ VehicleTask.DeviceName }}</el-descriptions-item>
-      <el-descriptions-item label="设备ID">{{ VehicleTask.DeviceId }}</el-descriptions-item>
-      <el-descriptions-item label="任务状态">{{ VehicleTask.Status }}</el-descriptions-item>
-      <el-descriptions-item label="车牌号">{{ VehicleTask.PlateNumber }}</el-descriptions-item>
-      <el-descriptions-item label="司机">{{ VehicleTask.Driver }}</el-descriptions-item>
-      <el-descriptions-item label="工厂">{{ VehicleTask.Factory }}</el-descriptions-item>
-      <el-descriptions-item label="运输公司">{{ VehicleTask.TransCompany }}</el-descriptions-item>
-      <el-descriptions-item label="运输任务">{{ VehicleTask.TransDetail }}</el-descriptions-item>
-      <el-descriptions-item label="任务历史"><div v-for="op in Operations" :key="op.Id">{{ `${getOpType(op.Operate)} ${op.OperateTime}` }}</div></el-descriptions-item>
-    </el-descriptions>
+    <el-form label-width="100px" size="small">
+      <el-form-item label="设备名：">
+        <span>{{ VehicleTask.deviceName }}</span>
+      </el-form-item>
+      <el-form-item label="设备ID：">
+        <span>{{ VehicleTask.deviceId }}</span>
+      </el-form-item>
+      <el-form-item label="任务状态：">
+        <span>{{ VehicleTask.plateNumber }}</span>
+      </el-form-item>
+      <el-form-item label="车牌号：">
+        <span>{{ VehicleTask.plateNumber }}</span>
+      </el-form-item>
+      <el-form-item label="司机：">
+        <span>{{ VehicleTask.driver }}</span>
+      </el-form-item>
+      <el-form-item label="工厂：">
+        <span>{{ VehicleTask.factory }}</span>
+      </el-form-item>
+      <el-form-item label="运输公司：">
+        <span>{{ VehicleTask.transCompany }}</span>
+      </el-form-item>
+      <el-form-item label="运输任务：">
+        <span>{{ VehicleTask.transDetail }}</span>
+      </el-form-item>
+      <el-form-item label="任务历史：">
+        <div v-for="op in Operations" :key="op.Id">{{ `${getOpType(op.operate)} ` }}<span style="color: #9e9e9e;">{{ `${op.operateTime}` }}</span></div>
+      </el-form-item>
+    </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="closeDialog">关闭</el-button>
     </div>
@@ -40,9 +58,6 @@ export default class extends Vue {
   }
   private VehicleTask = {}
   private Operations = []
-  private loading = false
-  private bindData = []
-  private filtersArray = [{ text: '组', value: 'group' }, { text: '设备', value: 'device' }]
 
   private async mounted() {
     this.getRecord()
@@ -50,12 +65,12 @@ export default class extends Vue {
   private async getRecord() {
     try {
       let params = {
-        taskId: this.record?.Id,
-        deviceId: this.record?.DeviceId
+        taskId: this.record?.id,
+        deviceId: this.record?.deviceId
       }
       const res = await getCarTask(params)
-      this.VehicleTask = res?.VehicleTask
-      this.Operations = res?.Operations
+      this.VehicleTask = res?.vehicleTask
+      this.Operations = res?.operations
       this.pager.total = res.totalNum
       this.pager.pageNum = res.pageNum
       this.pager.pageSize = res.pageSize
@@ -85,6 +100,10 @@ export default class extends Vue {
 ::v-deep .el-dialog__body {
   max-height: 540px;
   overflow: auto;
+
+  .el-form {
+    padding-left: 15%;
+  }
 }
 
 ::v-deep .el-dialog__footer {
