@@ -180,10 +180,10 @@
           <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
           <el-input v-model="form.deviceLatitude" class="longlat-input" />
         </el-form-item>
-        <el-form-item label="设备SN码:" prop="serialNumber">
+        <el-form-item v-if="form.deviceType === 'ipc'" label="设备SN码:" prop="serialNumber">
           <el-input v-model="form.serialNumber" />
         </el-form-item>
-        <el-form-item label="设备型号:" prop="deviceModel">
+        <el-form-item v-if="form.deviceType === 'ipc'" label="设备型号:" prop="deviceModel">
           <el-input v-model="form.deviceModel" />
         </el-form-item>
         <el-form-item
