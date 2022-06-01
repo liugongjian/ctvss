@@ -35,7 +35,6 @@ export async function initLogin() {
     // 从localstorage中读取选中的业务组
     GroupModule.GetGroupFromLs()
     casService.authCas().then(async(data: any) => {
-      console.log('data: ', data)
       const casLoggedIn = data.isLoggedIn
       const innerLoggedInLastTime = ['main', 'sub'].includes(getLoginType())
       const curCasLoginId = data.property && data.property.loginId
