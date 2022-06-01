@@ -6,10 +6,6 @@ const sidebarStatusKey = 'sidebar_status'
 export const getSidebarStatus = () => Cookies.get(sidebarStatusKey)
 export const setSidebarStatus = (sidebarStatus: string) => Cookies.set(sidebarStatusKey, sidebarStatus)
 
-// const languageKey = 'language'
-// export const getLanguage = () => Cookies.get(languageKey)
-// export const setLanguage = (language: string) => Cookies.set(languageKey, language)
-
 const sizeKey = 'size'
 export const getSize = () => Cookies.get(sizeKey)
 export const setSize = (size: string) => Cookies.set(sizeKey, size)
@@ -33,4 +29,8 @@ export const setIamUserId = (id: string) => Cookies.set(iamUserIdKey, id)
 export const removeIamUserId = () => Cookies.remove(iamUserIdKey)
 
 // ticket
-export const removeTicket = () => Cookies.remove('ticket', { path: '/', domain: '.ctyun.cn' })
+export const removeTicket = (casDomain: string) => {
+  Cookies.remove('ticket', { path: '/', domain: `.${casDomain}.cn` })
+  const key = casDomain === 'ctcdn' ? 'cdn_tgc' : 'ct_tgc'
+  Cookies.remove(key, { path: '/', domain: `.${casDomain}.cn` })
+}

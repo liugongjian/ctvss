@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 import axios from 'axios'
-import { UserModule } from '@//modules/user'
+import { UserModule } from '@/store/modules/user'
 
 export const getFlowData = (params: any): Promise<any> =>
   axios({

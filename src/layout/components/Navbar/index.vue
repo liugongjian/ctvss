@@ -1,7 +1,7 @@
 <template>
   <div class="navbar" :class="isLight ? '' : `navbar--${routerName}`">
     <hamburger
-      v-if="!ctLogin"
+      v-if="!casLogin"
       id="hamburger-container"
       :is-active="sidebar.opened"
       class="hamburger-container"
@@ -91,12 +91,12 @@
             </el-form>
           </div>
         </div> -->
-        <div :class="['links', ctLogin ? 'ct-login' : '']">
+        <div :class="['links', casLogin ? 'ct-login' : '']">
           <a target="_blank" href="https://vcn.ctyun.cn/document/api/">API文档</a>
-          <span v-if="!ctLogin" class="links__split"> | </span>
+          <span v-if="!casLogin" class="links__split"> | </span>
         </div>
       </template>
-      <div v-if="!ctLogin" class="user-container">
+      <div v-if="!casLogin" class="user-container">
         <div class="user-container__menu">
           <span class="user-container__name">{{ name }}</span>
           <svg-icon class="user-container__arrow" name="arrow-down" width="9" height="9" />
@@ -132,6 +132,7 @@ import SizeSelect from '@/components/SizeSelect/index.vue'
 import TemplateBind from '@/views/components/templateBind.vue'
 import { checkPermission } from '@/utils/permission'
 import DashboardMixin from '@/views/dashboard/mixin/DashboardMixin'
+import * as loginService from '@/services/loginService'
 
 @Component({
   name: 'Navbar',
@@ -177,8 +178,8 @@ export default class extends Mixins(DashboardMixin) {
     group: false
   }
 
-  get ctLogin() {
-    return !!UserModule.ctLoginId
+  get casLogin() {
+    return !!UserModule.casLoginId
   }
 
   get isMainUser() {
@@ -314,9 +315,9 @@ export default class extends Mixins(DashboardMixin) {
   private async logout() {
     const data: any = await UserModule.LogOut()
     if (data.iamUserId) {
-      this.$router.push(`/login/subAccount?redirect=%2Fdashboard&mainUserID=${data.mainUserID}`)
+      this.$router.push(`${loginService.innerUrl.sub}?redirect=%2Fdashboard&mainUserID=${data.mainUserID}`)
     } else {
-      this.$router.push('/login?redirect=%2Fdashboard')
+      this.$router.push(`${loginService.innerUrl.main}?redirect=%2Fdashboard`)
     }
   }
 

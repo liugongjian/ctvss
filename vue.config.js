@@ -11,7 +11,7 @@ const serverAddressMapping = {
   test: 'https://182.43.127.35:9180', // 测试环境
   test1: 'http://182.43.127.35:9060', // 测试环境test-1
   test2: 'http://182.43.127.35:9080', // http 测试环境 test
-  pre: 'http://182.43.127.35:9070', // 预发布环境
+  pre: 'https://182.43.127.35:9170', // 预发布环境
   prod: 'http://console.vcn.ctyun.cn' // 生产环境
 }
 const portMapping = {
@@ -22,7 +22,7 @@ const portMapping = {
   test: 9180,
   test1: 9160,
   test2: 9080,
-  pre: 9070,
+  pre: 9170,
   prod: 443
 }
 const serverAddress = serverAddressMapping[environment]
@@ -49,20 +49,20 @@ module.exports = {
        * CDN单点登录
        */
       '/iam/gw/': {
-        target: 'https://iam-test.ctcdn.cn/',
+        target: 'https://vip.ctcdn.cn/',
         secure: false,
         changeOrigin: true,
         bypass: (req) => {
           if (req.headers && req.headers.referer) {
             const url = new URL(req.headers.referer)
-            url.host = 'iam-test.ctcdn.cn'
+            url.host = 'vip.ctcdn.cn'
             url.port = ''
             req.headers.referer = url.href
           }
         }
       },
       '/iam/': {
-        target: 'https://iam-test.ctcdn.cn/',
+        target: 'https://vip.ctcdn.cn/',
         secure: false,
         changeOrigin: true
       },
@@ -111,6 +111,11 @@ module.exports = {
       },
       '/v1': {
         target: serverAddress,
+        changeOrigin: true,
+        secure: false
+      },
+      '/v2': {
+        target: 'http://127.0.0.1:3000',
         changeOrigin: true,
         secure: false
       }

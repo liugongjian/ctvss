@@ -20,7 +20,7 @@ export interface IUserState {
   mainUserID: string,
   mainUserAddress: string,
   tags: any,
-  ctLoginId: string
+  casLoginId: string
   settings: any
 }
 
@@ -36,7 +36,7 @@ class User extends VuexModule implements IUserState {
   public mainUserID = ''
   public mainUserAddress = ''
   public tags: any = null
-  public ctLoginId = getLocalStorage('ctLoginId') || ''
+  public casLoginId = getLocalStorage('casLoginId') || ''
   public settings: any = {
     screenCache: {}
   }
@@ -90,8 +90,8 @@ class User extends VuexModule implements IUserState {
   }
 
   @Mutation
-  private SET_CT_LOGIN_ID(ctLoginId: string) {
-    this.ctLoginId = ctLoginId
+  private SET_CAS_LOGIN_ID(casLoginId: string) {
+    this.casLoginId = casLoginId
   }
 
   @Mutation
@@ -165,9 +165,9 @@ class User extends VuexModule implements IUserState {
   }
 
   @Action({ rawError: true })
-  public async SetCTLoginId(loginId: string) {
-    setLocalStorage('ctLoginId', loginId)
-    this.SET_CT_LOGIN_ID(loginId)
+  public async SetCASLoginId(loginId: string) {
+    setLocalStorage('casLoginId', loginId)
+    this.SET_CAS_LOGIN_ID(loginId)
   }
 
   @Action
@@ -184,6 +184,7 @@ class User extends VuexModule implements IUserState {
     this.SET_MAIN_USER_ADDRESS('')
     this.SET_MAIN_USER_TAGS('')
     this.SET_MAIN_USER_ID('')
+    this.SetCASLoginId('')
     // 清空设备管理面包屑
     DeviceModule.ResetBreadcrumb()
     // 清空虚拟业务组相关信息

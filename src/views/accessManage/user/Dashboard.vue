@@ -76,7 +76,7 @@ import { Component, Mixins } from 'vue-property-decorator'
 import DashboardLightContainer from '@/views/dashboard/components/DashboardLightContainer.vue'
 import DashboardMixin from '@/views/dashboard/mixin/DashboardMixin'
 import copy from 'copy-to-clipboard'
-import settings from '@/settings'
+import * as loginService from '@/services/loginService'
 import { getIamInfo } from '@/api/iamDashboard'
 
 @Component({
@@ -178,7 +178,7 @@ export default class extends Mixins(DashboardMixin) {
   private getUserLoginLink() {
     const origin = window.location.origin
     this.mainUserID = this.$store.state.user.mainUserID
-    const link: string = `${origin}${settings.projectPrefix}/login/subAccount?&mainUserID=${this.mainUserID}`
+    const link = `${origin}${loginService.innerUrl.prefix}${loginService.innerUrl.sub}?&mainUserID=${this.mainUserID}`
     this.userLoginLink = link
   }
 }

@@ -82,6 +82,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Form as ElForm, Input } from 'element-ui'
 import { UserModule } from '@/store/modules/user'
+import * as loginService from '@/services/loginService'
 
 @Component({
   name: 'resetPassword'
@@ -143,7 +144,7 @@ export default class extends Vue {
       this.form.subUserName = query.subUserName
     } else {
       this.$message.error('状态异常，请重新登录')
-      this.$router.push('/login/subAccount?redirect=%2Fdashboard')
+      this.$router.push(`${loginService.innerUrl.sub}?redirect=%2Fdashboard`)
     }
     if (this.form.originalPwd === '') {
       (this.$refs.originalPwd as Input).focus()
@@ -166,9 +167,9 @@ export default class extends Vue {
   private async logout() {
     const data: any = await UserModule.LogOut()
     if (data.iamUserId) {
-      this.$router.push(`/login/subAccount?redirect=%2Fdashboard&mainUserID=${data.mainUserID}`)
+      this.$router.push(`${loginService.innerUrl.sub}?redirect=%2Fdashboard&mainUserID=${data.mainUserID}`)
     } else {
-      this.$router.push('/login?redirect=%2Fdashboard')
+      this.$router.push(`${loginService.innerUrl.main}?redirect=%2Fdashboard`)
     }
   }
 
@@ -183,7 +184,7 @@ export default class extends Vue {
           } else {
             this.$message.success('重置密码成功！')
             this.$router.push({
-              path: '/login/subAccount',
+              path: `${loginService.innerUrl.sub}`,
               query: this.$route.query
             })
           }
