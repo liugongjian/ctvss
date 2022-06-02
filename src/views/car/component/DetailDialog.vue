@@ -15,7 +15,10 @@
         <span>{{ VehicleTask.deviceId }}</span>
       </el-form-item>
       <el-form-item label="任务状态：">
-        <span>{{ VehicleTask.plateNumber }}</span>
+        <span class="status">
+          <status-badge :status="transformStatus(VehicleTask.status).status" />
+          {{ `${transformStatus(VehicleTask.status).cname}` }}
+        </span>
       </el-form-item>
       <el-form-item label="车牌号：">
         <span>{{ VehicleTask.plateNumber }}</span>
@@ -44,9 +47,13 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { getCarTask } from '@/api/car'
+import StatusBadge from '@/components/StatusBadge/index.vue'
 
 @Component({
-  name: 'DetailDialog'
+  name: 'DetailDialog',
+  components: {
+    StatusBadge
+  }
 })
 export default class extends Vue {
   @Prop({ default: () => {} })
@@ -94,6 +101,17 @@ export default class extends Vue {
   private closeDialog() {
     this.$emit('on-close')
   }
+
+  private transformStatus(status) {
+    switch (status) {
+      case 0 :
+        return { status: 'on', cname: '运输中' }
+      case 1 :
+        return { status: 'warning', cname: '暂停中' }
+      case 2 :
+        return { status: 'error', cname: '已结束' }
+    }
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -114,7 +132,8 @@ export default class extends Vue {
   margin-top: 0 !important;
 }
 
-.el-descriptions {
-  padding-left: 15%;
+.status {
+  display: flex;
+  align-items: center;
 }
 </style>
