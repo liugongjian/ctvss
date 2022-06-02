@@ -7,7 +7,7 @@
     :destroy-on-close="true"
     @close="closeDialog"
   >
-    <el-form label-width="100px" size="small">
+    <el-form label-width="100px" size="mini">
       <el-form-item label="设备名：">
         <span>{{ VehicleTask.deviceName }}</span>
       </el-form-item>
@@ -103,6 +103,10 @@ export default class extends Vue {
 
   .el-form {
     padding-left: 15%;
+
+    .el-form-item {
+      margin-bottom: 2px;
+    }
   }
 }
 

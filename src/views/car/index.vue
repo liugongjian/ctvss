@@ -182,9 +182,10 @@ export default class extends Vue {
 
   private async stop(row: any) {
     this.$alertHandle({
-      handleName:'结束',
+      titleConfirmHide: true,
+      handleName: '操作提示',
       type: '车辆录像',
-      msg: `确定结束录制任务："${row.id}"？`,
+      msg: `当前任务正在${row.status === 0 ? '运输中' : '暂停中'}，确定结束录制任务吗？`,
       method: operateCarTask,
       payload: { ...row , operate: 2, taskId: row.id},
       onSuccess: this.getList
@@ -192,9 +193,10 @@ export default class extends Vue {
   }
   private async operate(row: any) {
     this.$alertHandle({
-      handleName:`${row.status === 0 ? '暂停' : '继续'}`,
+      titleConfirmHide: true,
+      handleName: '操作提示',
       type: '车辆录像',
-      msg: `确定${row.status === 0 ? '暂停' : '继续'}录制任务："${row.id}"？`,
+      msg: `当前任务正在${row.status === 0 ? '运输中' : '暂停中'}，确定${row.status === 0 ? '暂停' : '继续'}录制任务吗？`,
       method: operateCarTask,
       payload: { ...row, operate: row.status === 0 ? 1 : 3, taskId: row.id },
       onSuccess: this.getList

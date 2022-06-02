@@ -67,7 +67,7 @@ export default class extends Vue {
         this.dateTimeRange = {startTime: this.getTimeStampFromString(this.record.startTime), endTime: this.getTimeStampFromString(this.record.endTime)}
       }
     } catch (e) {
-      this.$message.error(`设备信息失败，原因：${e && e.message}`)
+      this.$message.error(`查询设备信息失败，原因：${e && e.message}`)
     }
   }
 
