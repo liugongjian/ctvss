@@ -352,6 +352,8 @@ export class RecordManager {
   private async getRecordList(startTime: number, endTime: number) {
     const axiosSource = axios.CancelToken.source()
     this.axiosSourceList.push(axiosSource)
+    startTime = parseInt(startTime + '')
+    endTime = parseInt(endTime + '')
     const res = await getDeviceRecords({
       deviceId: this.screen.deviceId,
       inProtocol: this.screen.inProtocol,
@@ -413,6 +415,8 @@ export class RecordManager {
       const type = ['cloud', 'local']
       const axiosSource = axios.CancelToken.source()
       this.axiosSourceList.push(axiosSource)
+      startTime = parseInt(startTime + '')
+      endTime = parseInt(endTime + '')
       const res = await getDeviceRecordStatistic({
         type: type[this.screen.recordType],
         deviceId: this.screen.deviceId,
