@@ -12,7 +12,7 @@ interface ISettings {
 
 // You can customize below settings :)
 const settings: ISettings = {
-  title: '天翼云视频云网平台-客户控制台',
+  title: '视频监控',
   showSettings: true,
   showTagsView: true,
   fixedHeader: false,
