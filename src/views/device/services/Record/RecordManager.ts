@@ -141,7 +141,11 @@ export class RecordManager {
         this.screen.datetimeRange &&
         (date < getDateByTime(this.screen.datetimeRange.startTime, 's') || date > this.screen.datetimeRange.endTime)
       ) {
-        throw new VSSError(this.screen.ERROR_CODE.OUT_OF_RANGE, this.screen.ERROR.OUT_OF_RANGE)
+        if (this.recordList.length === 0) {
+          throw new VSSError(this.screen.ERROR_CODE.NO_RECORD, this.screen.ERROR.NO_RECORD)
+        } else {
+          throw new VSSError(this.screen.ERROR_CODE.OUT_OF_RANGE, this.screen.ERROR.OUT_OF_RANGE)
+        }
       }
       let startTime = date
       let endTime = date + 24 * 60 * 60
@@ -231,7 +235,11 @@ export class RecordManager {
       this.screen.errorMsg = null
       // 约束录像起始时间和结束时间范围
       if (this.screen.datetimeRange && (time < this.screen.datetimeRange.startTime || time > this.screen.datetimeRange.endTime)) {
-        throw new VSSError(this.screen.ERROR_CODE.OUT_OF_RANGE, this.screen.ERROR.OUT_OF_RANGE)
+        if (this.recordList.length === 0) {
+          throw new VSSError(this.screen.ERROR_CODE.NO_RECORD, this.screen.ERROR.NO_RECORD)
+        } else {
+          throw new VSSError(this.screen.ERROR_CODE.OUT_OF_RANGE, this.screen.ERROR.OUT_OF_RANGE)
+        }
       }
       let record = this.getRecordByTime(time)
       const date = getDateByTime(time, 's')

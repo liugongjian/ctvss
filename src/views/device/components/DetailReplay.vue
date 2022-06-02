@@ -24,6 +24,7 @@ export default class extends Vue {
   @Prop({ required: true }) private readonly deviceId: number
   @Prop({ required: true }) private readonly inProtocol: string
   @Prop() private readonly datetimeRange?: { startTime: number; endTime: number; }
+  @Prop() private readonly isCarTask?: boolean
 
   private height = 'auto'
 
@@ -33,6 +34,7 @@ export default class extends Vue {
     const screenBoard = this.$refs.screenBoard as ScreenBoard
     // @ts-ignore
     this.screenManager = screenBoard!.screenManager
+    this.screenManager.isCarTask = this.isCarTask
     const screen = this.screenManager.currentScreen
     screen.deviceId = this.deviceId
     screen.inProtocol = this.inProtocol

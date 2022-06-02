@@ -24,6 +24,7 @@
         :has-close="hasClose"
         :is-debug="true"
         :has-live-replay-selector="!isSingle"
+        :is-car-task="isCarTask"
         @close="close"
       >
         <div v-if="videoTypeLabel && !screen.isLoading && screen.player" class="video-type-label">{{ videoTypeLabel }}</div>
@@ -78,6 +79,11 @@ export default class extends Vue {
 
   private get screenManager(): ScreenManager {
     return this.getScreenManager()
+  }
+
+  /* 是否是车辆管理的录像回放，是则隐藏下载功能 */
+  private get isCarTask() {
+    return this.screenManager.isCarTask
   }
 
   private get hasReplayRecord() {

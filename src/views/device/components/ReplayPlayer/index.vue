@@ -47,7 +47,7 @@
       />
     </template>
     <template slot="controlRight">
-      <RecordDownload v-if="hasAdminRecord && recordType === 0" :screen="screen" />
+      <RecordDownload v-if="hasAdminRecord && recordType === 0 && !isCarTask" :screen="screen" />
       <Fullscreen :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
     </template>
   </VssPlayer>
@@ -91,6 +91,10 @@ export default class extends Vue {
 
   @Prop()
   private isDebug: Boolean
+
+  /* 车辆管理中的录像回放需要隐藏下载功能 */
+  @Prop()
+  private isCarTask: Boolean
 
   private url: string = null
   private type: string = null

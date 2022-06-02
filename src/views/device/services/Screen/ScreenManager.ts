@@ -28,6 +28,7 @@ export interface ExecuteQueueConfig {
 }
 
 export class ScreenManager {
+  public isCarTask: boolean
   public inProtocol: string
   public screenList: Screen[]
   public currentIndex: number
@@ -46,6 +47,7 @@ export class ScreenManager {
   private _size: number
 
   constructor(config: ScreenManagerConfig) {
+    this.isCarTask = false
     this.inProtocol = config.inProtocol
     this.layout = config.layout
     this.view = 'screen'

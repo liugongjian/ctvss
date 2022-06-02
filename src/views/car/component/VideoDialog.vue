@@ -20,12 +20,13 @@
         :device-id="record.deviceId"
         :in-protocol="record.inProtocol"
         :device-name="info.deviceName"
-        :date-time-range="dateTimeRange"
+        :datetime-range="dateTimeRange"
+        :is-car-task="true"
       />
     </div>
     <div slot="title" class="dialog-title">
-      <div class="plate">{{record.plateNumber}}</div>
-      <div v-if="type === 'record'" class="time">{{record.startTime + (record.endTime.length > 0 ? ' - ' + record.endTime : '至今')}}</div>
+      <div class="plate">{{ record.plateNumber }}</div>
+      <div v-if="type === 'record'" class="time">{{ record.startTime + (record.endTime.length > 0 ? ' - ' + record.endTime : '至今') }}</div>
     </div>
   </el-dialog>
 </template>
@@ -58,13 +59,13 @@ export default class extends Vue {
   private dateTimeRange = {}
 
   public async mounted() {
-    try{
+    try {
       this.info = await getDevice({
         deviceId: this.record?.deviceId,
         inProtocol: this.record?.inProtocol
       })
-      if(this.type === 'record'){
-        this.dateTimeRange = {startTime: this.getTimeStampFromString(this.record.startTime), endTime: this.getTimeStampFromString(this.record.endTime)}
+      if (this.type === 'record') {
+        this.dateTimeRange = { startTime: this.getTimeStampFromString(this.record.startTime), endTime: this.getTimeStampFromString(this.record.endTime) || new Date(new Date()).getTime() / 1000 }
       }
     } catch (e) {
       this.$message.error(`设备信息失败，原因：${e && e.message}`)
@@ -75,7 +76,7 @@ export default class extends Vue {
     this.$emit('on-close')
   }
 
-  private getTimeStampFromString(str){
+  private getTimeStampFromString(str) {
     return getUnixTime(parse(str, 'yyyy-MM-dd HH:mm:ss', new Date()))
   }
 }
