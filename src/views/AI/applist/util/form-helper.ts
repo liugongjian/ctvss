@@ -43,8 +43,8 @@ export const getRule = (msg) => {
     } else if (msg === '蜜蜂数量') {
       rule.push({
         validator: (rule, value, callback) => {
-          if (parseInt(value) > 201) {
-            callback(new Error('需小于200'))
+          if (parseInt(value) > 500) {
+            callback(new Error('需小于500'))
           } else if (parseInt(value) === 0) {
             callback(new Error('请输入大于等于1的整数'))
           } else {
