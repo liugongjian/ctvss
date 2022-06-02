@@ -86,8 +86,7 @@ export default class CtyunCas extends BaseCas {
     // cas菜单点击后按spa模式跳转
     this.casLayout.config({
       pushHash: (route: any) => {
-        console.log('router.currentRoute.path: ', router.currentRoute.path)
-        if (router.currentRoute.path) {
+        if (router.currentRoute.path !== route.code) {
           router.push({
             path: route.code
           })
