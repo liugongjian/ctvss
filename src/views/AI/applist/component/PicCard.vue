@@ -49,6 +49,7 @@ export default class extends Vue {
     if (!this.pic || !this.pic.image) {
       return
     }
+
     const metaData = JSON.parse(this.pic.metadata)
     const locations = parseMetaData(this.type, metaData)
     const img = this.$refs.img

@@ -104,7 +104,7 @@ export const asyncRoutes: RouteConfig[] = [
       title: '概览',
       icon: 'dashboard',
       breadcrumb: false,
-      perms: ['*'],
+      perms: ['DescribeDashboard'],
       alwaysShow: false
     },
     children: [
@@ -117,7 +117,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '概览',
           icon: 'dashboard',
           breadcrumb: true,
-          perms: ['*']
+          perms: ['DescribeDashboard']
         }
       },
       {
@@ -130,7 +130,7 @@ export const asyncRoutes: RouteConfig[] = [
           hidden: true,
           icon: 'dashboard',
           breadcrumb: false,
-          perms: ['*']
+          perms: ['DescribeDashboard']
         }
       },
       {
@@ -143,7 +143,7 @@ export const asyncRoutes: RouteConfig[] = [
           hidden: true,
           icon: 'dashboard',
           breadcrumb: false,
-          perms: ['*']
+          perms: ['DescribeDashboard']
         }
       }
     ]
@@ -865,7 +865,7 @@ export const asyncRoutes: RouteConfig[] = [
       title: 'AI管理',
       icon: 'ai-face',
       alwaysShow: true,
-      perms: ['*']
+      perms: ['DescribeAi']
     },
     children: [
       {
@@ -879,7 +879,7 @@ export const asyncRoutes: RouteConfig[] = [
           hidden: true,
           breadcrumb: false,
           activeMenu: '/AI',
-          perms: ['*']
+          perms: ['DescribeAi']
         }
       },
       {
@@ -894,7 +894,7 @@ export const asyncRoutes: RouteConfig[] = [
           breadcrumb: true,
           only: true,
           activeMenu: '/AI/ai-app-list',
-          perms: ['*']
+          perms: ['DescribeAi']
         }
       },
       {
@@ -908,7 +908,7 @@ export const asyncRoutes: RouteConfig[] = [
           hidden: true,
           breadcrumb: true,
           activeMenu: '/AI/ai-app-list',
-          perms: ['*']
+          perms: ['AdminAi']
         }
       },
       {
@@ -922,7 +922,7 @@ export const asyncRoutes: RouteConfig[] = [
           hidden: true,
           breadcrumb: true,
           activeMenu: '/AI/ai-app-list',
-          perms: ['*']
+          perms: ['AdminAi']
         }
       },
       {
@@ -936,7 +936,7 @@ export const asyncRoutes: RouteConfig[] = [
           hidden: true,
           breadcrumb: false,
           activeMenu: '/AI/ai-app-list',
-          perms: ['*']
+          perms: ['DescribeAi']
         }
       },
       {
@@ -949,7 +949,7 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dot',
           breadcrumb: true,
           activeMenu: '/AI/config',
-          perms: ['*']
+          perms: ['AdminAi']
         }
       }
     ]
@@ -1208,6 +1208,29 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
+    path: '/car',
+    component: Layout,
+    meta: {
+      id: '20210515200901013321',
+      title: '车辆管理',
+      breadcrumb: true,
+      icon: 'car'
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "car" */ '@/views/car/index.vue'),
+        name: 'car',
+        meta: {
+          id: '20210515200901013321',
+          title: '车辆管理',
+          breadcrumb: false,
+          icon: 'car'
+        }
+      }
+    ]
+  },
+  {
     path: '/billing',
     component: Layout,
     redirect: 'noredirect',
@@ -1300,31 +1323,6 @@ export const asyncRoutes: RouteConfig[] = [
     path: '*',
     redirect: '/404',
     meta: { hidden: true }
-  },
-  {
-    path: '/car',
-    component: Layout,
-    meta: {
-      id: '20210515200901013321',
-      title: '车辆管理',
-      breadcrumb: true,
-      icon: 'car',
-      perms: ['*']
-    },
-    children: [
-      {
-        path: '',
-        component: () => import(/* webpackChunkName: "car" */ '@/views/car/index.vue'),
-        name: 'car',
-        meta: {
-          id: '20210515200901013321',
-          title: '车辆管理',
-          breadcrumb: false,
-          icon: 'car',
-          perms: ['*']
-        }
-      }
-    ]
   }
 ]
 

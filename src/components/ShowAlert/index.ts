@@ -7,6 +7,7 @@ type handleParams = {
   method: Function;
   payload: any;
   onSuccess?: Function;
+  titleConfirmHide?: boolean
 }
 
 declare module 'vue/types/vue' {
@@ -20,7 +21,7 @@ declare module 'vue/types/vue' {
 const install = function(Vue: any) {
   const alertHandle = function(params: handleParams) {
     this.$msgbox({
-      title: `确认${params.handleName}？`,
+      title: `${params.titleConfirmHide ? '' : '确认'}${params.handleName}${params.titleConfirmHide ? '' : '?'}`,
       message: params.msg,
       showCancelButton: true,
       confirmButtonText: '确定',

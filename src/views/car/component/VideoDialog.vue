@@ -4,6 +4,7 @@
     width="800px"
     center
     :destroy-on-close="true"
+    :close-on-click-modal="false"
     @close="closeDialog"
   >
     <div class="dialog-player-wrapper">
@@ -68,7 +69,7 @@ export default class extends Vue {
         this.dateTimeRange = { startTime: this.getTimeStampFromString(this.record.startTime), endTime: this.getTimeStampFromString(this.record.endTime) || new Date(new Date()).getTime() / 1000 }
       }
     } catch (e) {
-      this.$message.error(`设备信息失败，原因：${e && e.message}`)
+      this.$message.error(`查询设备信息失败，原因：${e && e.message}`)
     }
   }
 

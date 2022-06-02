@@ -7,7 +7,7 @@
       <div
         v-if="!location.zone"
         class="ai-recognation__images__item__mask"
-        :class="[{'ai-recognation__images__item__mask--warning': location.isWarning, 'ai-recognation__images__item__clickable': clickable, 'ai-recognation__images__item__mask--selected': currentIndex === locationIndex}, `ai-recognation__images__item__mask--${type}`]"
+        :class="[{'ai-recognation__images__item__mask--warning': location.isWarning, 'ai-recognation__images__item__clickable': clickable, 'ai-recognation__images__item__mask--selected': currentIndex === locationIndex, 'orange': location.isNoReflective}, `ai-recognation__images__item__mask--${type}`]"
         :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
         @click="clickLocation(locationIndex)"
       >
@@ -76,6 +76,10 @@ export default class extends Vue {
     word-break: break-all !important;
     top: -1px;
     bottom: auto !important;
+  }
+
+  .orange {
+    border: 2px solid $primary !important;
   }
 
   .ai-recognation__images__item {
