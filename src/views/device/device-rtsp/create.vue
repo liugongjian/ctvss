@@ -191,6 +191,7 @@
             v-model="form.pullType"
             :active-value="1"
             :inactive-value="2"
+            @change="onPullTypeChange"
           />
         </el-form-item>
         <el-form-item
