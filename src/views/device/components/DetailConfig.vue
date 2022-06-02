@@ -87,7 +87,7 @@
             {{ resources.VSS_UPLOAD_BW.codeRate ? `${resources.VSS_UPLOAD_BW.codeRate}Mbps` : '' }}
           </el-descriptions-item>
           <el-descriptions-item label="上行带宽总量">
-            {{ resources.VSS_UPLOAD_BW.bwDeviceCount ? `${resources.VSS_UPLOAD_BW.bwDeviceCount}Mbps` :'' }}
+            {{ resources.VSS_UPLOAD_BW.bwDeviceCountRate }}
           </el-descriptions-item>
           <el-descriptions-item label="到期时间">
             {{ resources.VSS_UPLOAD_BW.expTime }}
@@ -494,6 +494,12 @@ export default class extends Vue {
       resourcesRes.resources.forEach((ele: any) => {
         result[ele.resourceType] = ele
       })
+      if (result['VSS_UPLOAD_BW']) {
+        const obj = result['VSS_UPLOAD_BW']
+        const codeRate = parseInt(obj.codeRate, 10)
+        const bwDeviceCount = parseInt(obj.bwDeviceCount, 10)
+        obj.bwDeviceCountRate = codeRate && bwDeviceCount ? `${codeRate * bwDeviceCount}Mbps` : ''
+      }
       this.resources = result
     } catch (e) {
       this.$message.error(e && e.message)

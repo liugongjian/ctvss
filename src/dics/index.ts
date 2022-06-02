@@ -283,3 +283,8 @@ export const TrashType = [
   { label: 'cask_overflows', cname: '垃圾桶溢满' },
   { label: 'trash', cname: '地面垃圾' }
 ]
+
+export const HelmetClothType = [
+  { label: 'helmet', cname: '未带安全帽告警' },
+  { label: 'reflective', cname: '未穿反光服告警' }
+]
