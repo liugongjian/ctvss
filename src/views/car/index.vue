@@ -23,7 +23,7 @@
             <span>{{ row.plateNumber }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="driver" label="司机" min-width="130" />
+        <el-table-column prop="driver" label="司机" />
         <el-table-column prop="transCompany" label="运输公司" width="200" />
         <el-table-column prop="factory" label="工厂" width="200" />
         <el-table-column
@@ -46,15 +46,15 @@
         </el-table-column>
         <el-table-column prop="action" class-name="col-action" label="视频查看" width="150" fixed="right">
           <template slot-scope="scope">
-            <el-button type="text" @click.stop.native="preview(scope.row)" :disabled="scope.row.status !== 0">实时预览</el-button>
+            <el-button type="text" :disabled="scope.row.status !== 0" @click.stop.native="preview(scope.row)">实时预览</el-button>
             <el-button type="text" @click.stop.native="record(scope.row)">录像回放</el-button>
           </template>
         </el-table-column>
         <el-table-column prop="action" class-name="col-action" label="任务操作" width="180" fixed="right">
           <template slot-scope="scope">
-            <el-button type="text" v-if="scope.row.status === 0" @click.stop.native="operate(scope.row)">暂停</el-button>
-            <el-button type="text" v-if="scope.row.status === 1" @click.stop.native="operate(scope.row)">继续</el-button>
-            <el-button type="text" v-if="scope.row.status === 0 || scope.row.status === 1" @click.stop.native="stop(scope.row)">结束</el-button>
+            <el-button v-if="scope.row.status === 0" type="text" @click.stop.native="operate(scope.row)">暂停</el-button>
+            <el-button v-if="scope.row.status === 1" type="text" @click.stop.native="operate(scope.row)">继续</el-button>
+            <el-button v-if="scope.row.status === 0 || scope.row.status === 1" type="text" @click.stop.native="stop(scope.row)">结束</el-button>
             <el-button type="text" @click="detail(scope.row)">查看详情</el-button>
           </template>
         </el-table-column>
@@ -187,7 +187,7 @@ export default class extends Vue {
       type: '车辆录像',
       msg: `当前任务正在${row.status === 0 ? '运输中' : '暂停中'}，确定结束录制任务吗？`,
       method: operateCarTask,
-      payload: { ...row , operate: 2, taskId: row.id},
+      payload: { ...row, operate: 2, taskId: row.id },
       onSuccess: this.getList
     })
   }
@@ -210,14 +210,14 @@ export default class extends Vue {
     this.detail(row)
   }
 
-  private transformStatus(status){
-    switch(status){
+  private transformStatus(status) {
+    switch (status) {
       case 0 :
-        return { status:'on', cname: '运输中' }
+        return { status: 'on', cname: '运输中' }
       case 1 :
-        return { status:'warning', cname: '暂停中' }
+        return { status: 'warning', cname: '暂停中' }
       case 2 :
-        return { status:'error', cname: '已结束' }
+        return { status: 'error', cname: '已结束' }
     }
   }
 }
