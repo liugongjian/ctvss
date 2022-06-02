@@ -55,11 +55,6 @@ export default class extends Vue {
     return this.getScreenManager()
   }
 
-  /* 是否是车辆管理中的录像回放，是则隐去部分功能按钮 */
-  private get isCarTask() {
-    return this.screenManager.isCarTask
-  }
-
   private get currentScreen() {
     return this.screenManager.currentScreen
   }
@@ -112,6 +107,13 @@ export default class extends Vue {
    */
   private get isPolling() {
     return this.screenManager.executeQueueConfig.status !== 'free'
+  }
+
+  /**
+   * 是否是车辆管理中的录像回放，是则隐去部分功能按钮
+   *  */
+  private get isCarTask() {
+    return this.screenManager.isCarTask
   }
 
   /**

@@ -81,11 +81,6 @@ export default class extends Vue {
     return this.getScreenManager()
   }
 
-  /* 是否是车辆管理的录像回放，是则隐藏下载功能 */
-  private get isCarTask() {
-    return this.screenManager.isCarTask
-  }
-
   private get hasReplayRecord() {
     return checkPermission(['ReplayRecord'])
   }
@@ -121,6 +116,13 @@ export default class extends Vue {
    */
   private get isLive() {
     return this.screen && this.screen.isLive
+  }
+
+  /**
+   * 是否是车辆管理的录像回放，是则隐藏下载功能
+   */
+  private get isCarTask() {
+    return this.screenManager.isCarTask
   }
 
   /**
