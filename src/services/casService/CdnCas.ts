@@ -1,5 +1,6 @@
 import BaseCas from './BaseCas'
 import settings from '@/settings'
+import router from '@/router'
 
 export default class CdnCas extends BaseCas {
   static readonly TYPE = 'ctcdn'
@@ -93,6 +94,17 @@ export default class CdnCas extends BaseCas {
           'ucode': 'vss'
         }
       ])
+    })
+    // cas菜单点击后按spa模式跳转
+    this.casLayout.setConfig({
+      mode: 'hash',
+      routePush: (route: any) => {
+        if (router.currentRoute.path !== route) {
+          router.push({
+            path: route
+          })
+        }
+      }
     })
   }
 
