@@ -23,7 +23,7 @@
             <span>{{ row.plateNumber }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="driver" label="司机" min-width="260" />
+        <el-table-column prop="driver" label="司机" min-width="130" />
         <el-table-column prop="transCompany" label="运输公司" width="200" />
         <el-table-column prop="factory" label="工厂" width="200" />
         <el-table-column
