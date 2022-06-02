@@ -16,8 +16,8 @@
       </el-form-item>
       <el-form-item label="任务状态：">
         <span class="status">
-          <status-badge :status="transformStatus(VehicleTask.status).status" />
-          {{ `${transformStatus(VehicleTask.status).cname}` }}
+          <status-badge :status="VehicleTask.status === 0 ? 'on' : (VehicleTask.status === 1 ? 'warning' : 'error')" />
+          {{ `${VehicleTask.status === 0 ? '运输中' : (VehicleTask.status === 1 ? '暂停中' : '已结束')}` }}
         </span>
       </el-form-item>
       <el-form-item label="车牌号：">
@@ -100,17 +100,6 @@ export default class extends Vue {
 
   private closeDialog() {
     this.$emit('on-close')
-  }
-
-  private transformStatus(status) {
-    switch (status) {
-      case 0 :
-        return { status: 'on', cname: '运输中' }
-      case 1 :
-        return { status: 'warning', cname: '暂停中' }
-      case 2 :
-        return { status: 'error', cname: '已结束' }
-    }
   }
 }
 </script>
