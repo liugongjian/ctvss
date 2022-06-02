@@ -82,6 +82,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Form as ElForm, Input } from 'element-ui'
 import { UserModule } from '@/store/modules/user'
+import * as loginService from '@/services/loginService'
 
 @Component({
   name: 'resetPassword'
@@ -143,7 +144,7 @@ export default class extends Vue {
       this.form.subUserName = query.subUserName
     } else {
       this.$message.error('状态异常，请重新登录')
-      this.$router.push(`/login/subAccount?redirect=%2Fdashboard`)
+      this.$router.push(`${loginService.innerUrl.sub}?redirect=%2Fdashboard`)
     }
     if (this.form.originalPwd === '') {
       (this.$refs.originalPwd as Input).focus()
@@ -166,9 +167,9 @@ export default class extends Vue {
   private async logout() {
     const data: any = await UserModule.LogOut()
     if (data.iamUserId) {
-      this.$router.push(`/login/subAccount?redirect=%2Fdashboard&mainUserID=${data.mainUserID}`)
+      this.$router.push(`${loginService.innerUrl.sub}?redirect=%2Fdashboard&mainUserID=${data.mainUserID}`)
     } else {
-      this.$router.push(`/login?redirect=%2Fdashboard`)
+      this.$router.push(`${loginService.innerUrl.main}?redirect=%2Fdashboard`)
     }
   }
 
@@ -183,7 +184,7 @@ export default class extends Vue {
           } else {
             this.$message.success('重置密码成功！')
             this.$router.push({
-              path: '/login/subAccount',
+              path: `${loginService.innerUrl.sub}`,
               query: this.$route.query
             })
           }
@@ -209,7 +210,7 @@ export default class extends Vue {
 @supports (-webkit-mask: none) and (not (cater-color: $loginCursorColor)) {
   .reset-container .el-input {
     input { color: $text; }
-    input::first-line { color: $text; }
+    input:first-line { color: $text; }
   }
 }
 
@@ -234,6 +235,7 @@ export default class extends Vue {
       height: 100%;
       display: flex;
       align-items: center;
+
       img {
         height: 30px;
       }
@@ -242,19 +244,23 @@ export default class extends Vue {
 
   &__body {
     width: 1100px;
-    margin: 100px auto 0 auto;
+    margin: 100px auto 0;
+
     &_headline {
       font-size: 26px;
       font-weight: bold;
       margin-bottom: 20px;
     }
+
     &_sub_headline {
       font-size: 22px;
     }
+
     &_form {
       position: relative;
       width: 52%;
       margin: 40px 0 60px 20px;
+
       .show-pwd {
         position: absolute;
         right: 10px;
@@ -263,8 +269,10 @@ export default class extends Vue {
         cursor: pointer;
         user-select: none;
       }
+
       ::v-deep .el-form-item {
         margin-bottom: 30px;
+
         .error-tip {
           font-size: 12px;
           color: $danger;
@@ -274,6 +282,7 @@ export default class extends Vue {
           left: 0;
           padding-top: 6px;
         }
+
         .form-item-tip {
           font-size: 12px;
           color: $darkGray;
@@ -284,10 +293,12 @@ export default class extends Vue {
           padding-top: 6px;
         }
       }
+
       ::v-deep .el-form-item.is-error {
         .error-tip {
           display: none;
         }
+
         .form-item-tip {
           display: none;
         }

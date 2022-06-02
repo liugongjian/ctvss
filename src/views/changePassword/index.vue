@@ -73,7 +73,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Form as ElForm, Input } from 'element-ui'
 import { UserModule } from '@/store/modules/user'
-import settings from '@/settings'
+import * as loginService from '@/services/loginService'
 
 @Component({
   name: 'changePassword'
@@ -148,9 +148,9 @@ export default class extends Vue {
   private async logout() {
     const data: any = await UserModule.LogOut()
     if (data.iamUserId) {
-      this.$router.push(`${settings.subLoginUrl}?redirect=%2Fdashboard&mainUserID=${data.mainUserID}`)
+      this.$router.push(`${loginService.innerUrl.sub}?redirect=%2Fdashboard&mainUserID=${data.mainUserID}`)
     } else {
-      this.$router.push(`${settings.mainLoginUrl}?redirect=%2Fdashboard`)
+      this.$router.push(`${loginService.innerUrl.main}?redirect=%2Fdashboard`)
     }
   }
 
@@ -204,6 +204,7 @@ export default class extends Vue {
   position: relative;
   width: 40%;
   margin: 60px 0 60px 20px;
+
   .show-pwd {
     position: absolute;
     right: 10px;
@@ -212,8 +213,10 @@ export default class extends Vue {
     cursor: pointer;
     user-select: none;
   }
+
   ::v-deep .el-form-item {
     margin-bottom: 30px;
+
     .error-tip {
       font-size: 12px;
       color: $danger;
@@ -223,6 +226,7 @@ export default class extends Vue {
       left: 0;
       padding-top: 6px;
     }
+
     .form-item-tip {
       font-size: 12px;
       color: $darkGray;
@@ -233,10 +237,12 @@ export default class extends Vue {
       padding-top: 6px;
     }
   }
+
   ::v-deep .el-form-item.is-error {
     .error-tip {
       display: none;
     }
+
     .form-item-tip {
       display: none;
     }

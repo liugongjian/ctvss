@@ -169,7 +169,7 @@ export default class extends Vue {
   }
 
   private async deleteSecret(row: Secret) {
-    this.$confirm(`删除此密钥后无法再恢复，视频监控API将拒绝此密钥的所有请求。是否确定要删除此密钥？`, '提示', {
+    this.$confirm('删除此密钥后无法再恢复，视频监控API将拒绝此密钥的所有请求。是否确定要删除此密钥？', '提示', {
       confirmButtonText: '删除',
       cancelButtonText: '取消',
       type: 'warning'
@@ -193,20 +193,25 @@ export default class extends Vue {
 .filter-container__search-group {
   margin-right: 10px;
 }
+
 ::v-deep .el-alert__icon.is-big {
-  font-size: 16px!important;
-  width: 16px!important;
+  font-size: 16px !important;
+  width: 16px !important;
 }
+
 ul.alert-desc {
   padding-inline-start: 16px;
+
   li:not(:first-child) {
     margin-top: 12px;
   }
 }
+
 ::v-deep .el-alert {
-  align-items: flex-start!important;
+  align-items: flex-start !important;
+
   .el-alert__title {
-    line-height: 16px!important;
+    line-height: 16px !important;
   }
 }
 </style>
