@@ -6,7 +6,7 @@
     <div
       v-for="playWindowInfo in playWindowList"
       :key="playWindowInfo.deviceId"
-      v-draggable
+      v-draggable:[playWindowInfo.deviceId]="changeStyle"
       class="play-wrap"
       :style="playWindowInfo.style"
       :class="{'screen-container--fullscreen': isFullscreen, 'selected': playWindowInfo.selected, 'isFullscreen': playWindowInfo.screen.isFullscreen}"
@@ -65,6 +65,11 @@ export default class MapView extends Vue {
   private interestPointList = [] // 兴趣点
 
   private screen: Screen = null
+
+  private playWindowStyle = {
+    width: 400,
+    height: 300
+  }
 
   private get isFullscreen() {
     return this.playWindowList.filter(item => item.screen.isFullscreen).length > 0
@@ -282,8 +287,8 @@ export default class MapView extends Vue {
 
   handleMarkerPlay(data) {
     if (data.canPlay) {
-      const width = 400
-      const height = 300
+      const width = this.playWindowStyle.width
+      const height = this.playWindowStyle.height
       const size = 100
       const style = {
         width: `${width}px`,
@@ -399,6 +404,45 @@ export default class MapView extends Vue {
   }
   toggleOverView(state) {
     this.vmap.toggleOverView(state)
+  }
+
+  changeStyle(id, left, top) {
+    this.playWindowList = this.playWindowList.map(item => {
+      if (item.deviceId === id) {
+        item.style.left = left + 'px'
+        item.style.top = top + 'px'
+      }
+      return item
+    })
+  }
+
+  public adjustPlayWindowPos() {
+    if (this.playWindowList.length > 0) {
+      const pw = parseInt(window.getComputedStyle(document.getElementById('mapContainer')).width)
+      const ph = parseInt(window.getComputedStyle(document.getElementById('mapContainer')).height)
+      const maxX = pw - this.playWindowStyle.width
+      const maxY = ph - this.playWindowStyle.height
+      this.playWindowList = this.playWindowList.map(item => {
+        let x = parseInt(item.style.left)
+        let y = parseInt(item.style.top)
+        if (x > maxX) {
+          x = maxX
+        }
+        if (x < 0) {
+          x = 0
+        }
+        if (y > maxY) {
+          y = maxY
+        }
+        if (y < 0) {
+          y = 0
+        }
+
+        item.style.left = x + 'px'
+        item.style.top = y + 'px'
+        return item
+      })
+    }
   }
 }
 </script>

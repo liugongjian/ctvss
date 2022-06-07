@@ -1,5 +1,5 @@
 const draggable = {
-  inserted: function(el) {
+  inserted: function(el, binding) {
     el.style.cursor = 'move'
     el.onmousedown = function(e) {
       if (e.target.classList.contains('axis__canvas')) {
@@ -30,6 +30,7 @@ const draggable = {
 
         el.style.left = x + 'px'
         el.style.top = y + 'px'
+        binding.value(binding.arg, x, y)
       }
       document.onmouseup = function() {
         document.onmousemove = document.onmouseup = null
