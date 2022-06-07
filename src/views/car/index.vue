@@ -181,22 +181,22 @@ export default class extends Vue {
   }
 
   private async stop(row: any) {
-    this.$alertHandle({
+    this.messageBox({
       titleConfirmHide: true,
-      handleName: '操作提示',
+      handleName: '操作',
       type: '车辆录像',
-      msg: `当前任务正在${row.status === 0 ? '运输中' : '暂停中'}，确定结束录制任务吗？`,
+      msg: `当前任务正在${row.status === 0 ? '运输中' : '暂停中'}，确定结束任务吗？`,
       method: operateCarTask,
       payload: { ...row, operate: 2, taskId: row.id },
       onSuccess: this.getList
     })
   }
   private async operate(row: any) {
-    this.$alertHandle({
+    this.messageBox({
       titleConfirmHide: true,
-      handleName: '操作提示',
+      handleName: '操作',
       type: '车辆录像',
-      msg: `当前任务正在${row.status === 0 ? '运输中' : '暂停中'}，确定${row.status === 0 ? '暂停' : '继续'}录制任务吗？`,
+      msg: `当前任务正在${row.status === 0 ? '运输中' : '暂停中'}，确定${row.status === 0 ? '暂停' : '继续'}任务吗？`,
       method: operateCarTask,
       payload: { ...row, operate: row.status === 0 ? 1 : 3, taskId: row.id },
       onSuccess: this.getList
@@ -219,6 +219,47 @@ export default class extends Vue {
       case 2 :
         return { status: 'error', cname: '已结束' }
     }
+  }
+
+  private messageBox(params) {
+    this.$msgbox({
+      title: `${params.titleConfirmHide ? '' : '确认'}${params.handleName}${params.titleConfirmHide ? '' : '?'}`,
+      message: params.msg,
+      showCancelButton: true,
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      beforeClose: async(action: any, instance: any, done: Function) => {
+        if (action === 'confirm') {
+          instance.confirmButtonLoading = true
+          instance.confirmButtonText = `${params.handleName}中...`
+          try {
+            await params.method(params.payload)
+            done()
+          } catch (e) {
+            // this.$message.error(e.message)
+            instance.message = e.message
+            instance.title = '操作失败'
+            instance.showConfirmButton = false
+            instance.cancelButtonText = '确定'
+          } finally {
+            instance.confirmButtonLoading = false
+            instance.confirmButtonText = '确定'
+          }
+        } else {
+          done()
+        }
+      }
+    }).then(() => {
+      params.onSuccess && params.onSuccess()
+      this.$message({
+        type: 'success',
+        message: `${params.handleName}${params.type}成功`
+      })
+    }).catch((e) => {
+      if (e === 'cancel' || e === 'close') return
+      // this.$message.error(e)
+      console.log(e)
+    })
   }
 }
 </script>
