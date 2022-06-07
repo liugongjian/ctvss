@@ -5,16 +5,7 @@ import { GroupModule } from '@/store/modules/group'
 import { VGroupModule } from '@/store/modules/vgroup'
 import { getLocalStorage } from '@/utils/storage'
 import settings from '@/settings'
-
-export class VSSError extends Error {
-  public code
-  public requestId
-  constructor(code: string, message: string, requestId: string) {
-    super(message)
-    this.code = code
-    this.requestId = requestId
-  }
-}
+import { VSSError } from '@/utils/error'
 
 let timeoutPromise: Promise<any>
 const service = axios.create({

@@ -1208,6 +1208,29 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
+    path: '/car',
+    component: Layout,
+    meta: {
+      id: '20210515200901013321',
+      title: '车辆管理',
+      breadcrumb: true,
+      icon: 'car'
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "car" */ '@/views/car/index.vue'),
+        name: 'car',
+        meta: {
+          id: '20210515200901013321',
+          title: '车辆管理',
+          breadcrumb: false,
+          icon: 'car'
+        }
+      }
+    ]
+  },
+  {
     path: '/billing',
     component: Layout,
     redirect: 'noredirect',
