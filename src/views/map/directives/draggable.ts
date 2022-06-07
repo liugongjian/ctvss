@@ -12,6 +12,9 @@ const draggable = {
       const ew = parseInt(window.getComputedStyle(el).width)
       const eh = parseInt(window.getComputedStyle(el).height)
       document.onmousemove = function(e) {
+        if (binding.value.screen.isFullscreen) {
+          return
+        }
         let x = e.pageX - disx
         let y = e.pageY - disy
         let maxX = pw - ew
@@ -30,7 +33,7 @@ const draggable = {
 
         el.style.left = x + 'px'
         el.style.top = y + 'px'
-        binding.value(binding.arg, x, y)
+        binding.value.cb(binding.arg, x, y)
       }
       document.onmouseup = function() {
         document.onmousemove = document.onmouseup = null

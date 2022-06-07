@@ -6,7 +6,7 @@
     <div
       v-for="playWindowInfo in playWindowList"
       :key="playWindowInfo.deviceId"
-      v-draggable:[playWindowInfo.deviceId]="changeStyle"
+      v-draggable:[playWindowInfo.deviceId]="{cb: changeStyle, screen: playWindowInfo.screen}"
       class="play-wrap"
       :style="playWindowInfo.style"
       :class="{'screen-container--fullscreen': isFullscreen, 'selected': playWindowInfo.selected, 'isFullscreen': playWindowInfo.screen.isFullscreen}"
