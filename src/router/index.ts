@@ -1214,7 +1214,8 @@ export const asyncRoutes: RouteConfig[] = [
       id: '20210515200901013321',
       title: '车辆管理',
       breadcrumb: true,
-      icon: 'car'
+      icon: 'car',
+      perms: ['AdminCar']
     },
     children: [
       {
@@ -1225,7 +1226,8 @@ export const asyncRoutes: RouteConfig[] = [
           id: '20210515200901013321',
           title: '车辆管理',
           breadcrumb: false,
-          icon: 'car'
+          icon: 'car',
+          perms: ['AdminCar']
         }
       }
     ]

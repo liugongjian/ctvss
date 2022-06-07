@@ -172,6 +172,11 @@ export default class extends Vue {
       actionName: '查看概览页面',
       actionValue: 'DescribeDashboard',
       actionDesc: '拥有概览页面的查看权限'
+    },
+    {
+      actionName: '车辆管理',
+      actionValue: 'AdminCar',
+      actionDesc: '拥有车辆管理权限'
     }
   ]
   private dirList: any = []
