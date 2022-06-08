@@ -2,6 +2,7 @@ import AMapLoader from '@amap/amap-jsapi-loader'
 import LngLat = AMap.LngLat
 import { getDevice } from '@/api/device'
 import { checkPermission } from '@/utils/permission'
+import { getStyle } from '@/utils/map'
 
 export interface mapObject {
   mapId: string,
@@ -102,7 +103,7 @@ export default class VMap {
         rotation: 0,
         center: [Number(lng), Number(lat)],
         zooms: [3, 20],
-        mapStyle: process.env.VUE_APP_MAP_STYLE
+        mapStyle: getStyle()
       }
       if (is3D) {
         options.viewMode = '3D'

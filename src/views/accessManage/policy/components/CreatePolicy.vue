@@ -154,6 +154,16 @@ export default class extends Vue {
       actionDesc: '拥有录像下载，录像文件改名的权限'
     },
     {
+      actionName: '查看AI应用',
+      actionValue: 'DescribeAi',
+      actionDesc: '拥有AI管理权限'
+    },
+    {
+      actionName: '管理AI应用',
+      actionValue: 'AdminAi',
+      actionDesc: '拥有AI管理权限'
+    },
+    {
       actionName: '查看电子地图',
       actionValue: 'DescribeMap',
       actionDesc: '拥有电子地图的查看权限'
@@ -162,6 +172,11 @@ export default class extends Vue {
       actionName: '查看概览页面',
       actionValue: 'DescribeDashboard',
       actionDesc: '拥有概览页面的查看权限'
+    },
+    {
+      actionName: '车辆管理',
+      actionValue: 'AdminCar',
+      actionDesc: '拥有车辆管理权限'
     }
   ]
   private dirList: any = []
@@ -255,6 +270,12 @@ export default class extends Vue {
       if (action.actionValue === 'AdminRecord') {
         actionTable.toggleRowSelection(this.systemActionList[5], true)
       }
+      if (action.actionValue === 'AdminRecord') {
+        actionTable.toggleRowSelection(this.systemActionList[5], true)
+      }
+      if (action.actionValue === 'AdminAi') {
+        actionTable.toggleRowSelection(this.systemActionList[7], true)
+      }
     })
     this.form.actionList = actions.map((action: any) => action.actionValue)
   }
@@ -287,7 +308,7 @@ export default class extends Vue {
       } else {
         this.actionType = 'selected'
         if (this.form.actionList[0] === 'vss:Get*') {
-          this.form.actionList = ['DescribeGroup', 'DescribeDevice', 'ScreenPreview', 'ReplayRecord']
+          this.form.actionList = ['DescribeGroup', 'DescribeDevice', 'ScreenPreview', 'ReplayRecord', 'DescribeAi', 'DescribeMap', 'DescribeDashboard']
         }
         this.$nextTick(() => {
           const actionTable: any = this.$refs.actionTable
@@ -321,7 +342,8 @@ export default class extends Vue {
     return !(this.isCtyunPolicy ||
             (row.actionValue === 'DescribeGroup' && actionList.indexOf('AdminGroup') !== -1) ||
             (row.actionValue === 'DescribeDevice' && actionList.indexOf('AdminDevice') !== -1) ||
-            (row.actionValue === 'ReplayRecord' && actionList.indexOf('AdminRecord') !== -1))
+            (row.actionValue === 'ReplayRecord' && actionList.indexOf('AdminRecord') !== -1) ||
+            (row.actionValue === 'DescribeAi' && actionList.indexOf('AdminAi') !== -1))
   }
   /**
    * 初始化资源选中状态

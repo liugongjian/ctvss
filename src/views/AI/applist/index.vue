@@ -44,7 +44,7 @@
           </div>
           <div class="alarm-container__alarm">
             <div>总告警次数：</div>
-            <div v-loading="loading.appList" style="min-width:31px">{{ totalAlarm + '次' }}</div>
+            <div v-loading="loading.appList" style="min-width: 31px;">{{ totalAlarm + '次' }}</div>
           </div>
         </div>
         <el-row>
@@ -53,7 +53,7 @@
             v-loading="loading.appList"
             :data="aiApps"
             tooltip-effect="dark"
-            style="width: 100%"
+            style="width: 100%;"
             cell-class-name="tableCell"
             @selection-change="handleSelectionChange"
             @row-click="rowClick"
@@ -391,41 +391,51 @@ export default class extends Mixins(AppMixin) {
 .filter-container__search-group {
   margin-right: 10px;
 }
+
 .el-table {
-  ::v-deep .el-table__row{
+  ::v-deep .el-table__row {
     cursor: pointer;
-    .col-action, .col-selection {
+
+    .col-action,
+    .col-selection {
       cursor: default;
     }
   }
+
   .app-name {
     color: $primary;
   }
 }
+
 .list__buttons {
   min-width: 1000px;
 }
+
 .list__op {
   margin-bottom: 10px;
 }
+
 ::v-deep .el-dialog__body {
   text-align: center;
   margin-bottom: 30px;
 }
-.alarm-container{
+
+.alarm-container {
   display: flex;
   justify-content: space-between;
   margin-bottom: 24px;
+
   &__alarm {
-    & > div{
+    & > div {
       display: inline-block;
       height: 36px;
       line-height: 36px;
       vertical-align: middle;
     }
-    & >div:nth-of-type(2){
+
+    & > div:nth-of-type(2) {
       background: $primary;
-      margin-left: 5px
+      margin-left: 5px;
     }
   }
 }

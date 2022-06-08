@@ -59,6 +59,10 @@
         </div>
       </el-form-item>
       <!-- 算法定制项--meta数据，考虑单独提取组件 -->
+      <!-- 蜜蜂阈值 -->
+      <el-form-item v-if="ifShow('10010')" label="蜜蜂数量阈值" prop="beeNumber">
+        <el-input v-model="form.beeNumber" />
+      </el-form-item>
       <!-- 人群感应检测 -->
       <el-form-item v-if="ifShow('10023')" label="人员数量阈值" prop="algorithmMetadata.crowdThreShold">
         <el-input v-model="form.algorithmMetadata.crowdThreShold" />
@@ -238,7 +242,8 @@ export default class extends Mixins(AppMixin) {
     algorithmMetadata: {
       trashRecycleType: [],
       helmetReflectiveType: []
-    }
+    },
+    beeNumber: 1
   }
   private faceLibs = []
   private isfaceLibLoading = false
@@ -281,9 +286,14 @@ export default class extends Mixins(AppMixin) {
       this.editTransformHelmetReflectiveType()
       // 处理置信度
       this.form = { ...this.form, confidence: parseInt(this.form.confidence * 100 + '') }
+      // 蜜蜂阈值特别处理
+      if (this.form.algorithm?.code === '10010' || this.prod?.code === '10010') {
+        this.form.beeNumber = this.form.confidence / 100
+        this.form = { ...this.form, confidence: 60 }
+      }
     } else { // 新建
       const algorithmMetadata = this.ifShow('10021') ? { pvTime: '10' } : this.form.algorithmMetadata
-      this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [], validateType: '无验证', confidence: 60 }
+      this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [], validateType: '无验证', confidence: 60, beeNumber: 1 }
     }
     try {
       const { groups } = await getAIConfigGroupData({})
@@ -372,6 +382,11 @@ export default class extends Mixins(AppMixin) {
       callbackKey: this.form.validateType === '无验证' ? '' : this.form.callbackKey,
       algorithmMetadata: JSON.stringify(algorithmMetadata),
       confidence: this.form.confidence / 100
+    }
+
+    // 蜜蜂数量特殊处理
+    if (this.form.algorithm?.code === '10010' || this.prod?.code === '10010') {
+      param.confidence = this.form.beeNumber
     }
     try {
       if (this.$route.query.id) {
