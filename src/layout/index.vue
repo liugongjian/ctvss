@@ -8,7 +8,7 @@
       class="drawer-bg"
       @click="handleClickOutside"
     />
-    <sidebar v-if="!casLogin" class="sidebar-container" />
+    <sidebar v-if="!ctyunCasLogin" :show-headline="ctcdnCasLogin" class="sidebar-container" />
     <div
       class="main-container"
     >
@@ -51,8 +51,12 @@ export default class extends mixins(ResizeMixin) {
     }
   }
 
-  get casLogin() {
-    return !!UserModule.casLoginId
+  get ctyunCasLogin() {
+    return !!UserModule.casLoginId && location.hostname.split('.').slice(-2)[0] === 'ctyun'
+  }
+
+  get ctcdnCasLogin() {
+    return location.hostname.split('.').slice(-2)[0] === 'ctcdn'
   }
 
   get showSettings() {
