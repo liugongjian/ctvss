@@ -87,7 +87,7 @@ export default class CdnCas extends BaseCas {
     this.casConsole.updateMenu({
       topic: 'workspace',
       workspaceId: '0',
-      mainMenuPromise,
+      // mainMenuPromise,
       sidebarMenuPromise: Promise.resolve([
         {
           'icon': 'el-icon-wind-power',

@@ -4,7 +4,10 @@
       v-if="showLogo"
       :collapse="isCollapse"
     />
-    <el-scrollbar wrap-class="scrollbar-wrapper">
+    <div v-if="showHeadline" class="headline">
+      大视频平台
+    </div>
+    <el-scrollbar wrap-class="scrollbar-wrapper" :style="{height: showHeadline ? 'calc(100% - 70px)' : '100%'}">
       <el-menu
         :default-active="activeMenu"
         :collapse="isCollapse"
@@ -28,7 +31,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator'
 import { AppModule } from '@/store/modules/app'
 import { PermissionModule } from '@/store/modules/permission'
 import { SettingsModule } from '@/store/modules/settings'
@@ -44,6 +47,7 @@ import variables from '@/styles/_variables.scss'
   }
 })
 export default class extends Vue {
+  @Prop({ default: false }) private showHeadline!: boolean
   get sidebar() {
     return AppModule.sidebar
   }
@@ -91,17 +95,28 @@ export default class extends Vue {
     transition: 0s width ease-in-out, 0s padding-left ease-in-out, 0s padding-right ease-in-out;
   }
 
+  .headline {
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    line-height: 70px;
+    height: 70px;
+    text-align: center;
+    border-top: 1px solid #565a62;
+    border-bottom: 1px solid #565a62;
+  }
+
   .scrollbar-wrapper {
     overflow-x: hidden !important;
   }
 
   .el-scrollbar__view {
-    height: 100%
+    height: 100%;
   }
 
   .el-scrollbar__bar {
     &.is-vertical {
-      right: 0px;
+      right: 0;
     }
 
     &.is-horizontal {
@@ -113,7 +128,7 @@ export default class extends Vue {
 
 <style lang="scss" scoped>
 .el-scrollbar {
-  height: 100%
+  height: 100%;
 }
 
 .has-logo {
