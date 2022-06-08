@@ -94,7 +94,7 @@
                 <th>开始时间</th>
                 <th>结束时间</th>
               </tr>
-              <tr v-for="(item, idx) in list" :key="idx">
+              <tr v-for="(item, itemIndex) in list" :key="itemIndex">
                 <td>{{ item.time }} s</td>
                 <td>{{ durationFormat(item.time) }}</td>
                 <td>{{ item.start }}</td>

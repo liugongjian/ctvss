@@ -21,8 +21,10 @@ import { ScreenManager } from '../services/Screen/ScreenManager'
   }
 })
 export default class extends Vue {
-  @Prop() private deviceId?: number
-  @Prop() private inProtocol?: string
+  @Prop({ required: true }) private readonly deviceId: number
+  @Prop({ required: true }) private readonly inProtocol: string
+  @Prop() private readonly datetimeRange?: { startTime: number; endTime: number; }
+  @Prop() private readonly isCarTask?: boolean
 
   private height = 'auto'
 
@@ -32,10 +34,12 @@ export default class extends Vue {
     const screenBoard = this.$refs.screenBoard as ScreenBoard
     // @ts-ignore
     this.screenManager = screenBoard!.screenManager
+    this.screenManager.isCarTask = this.isCarTask
     const screen = this.screenManager.currentScreen
     screen.deviceId = this.deviceId
     screen.inProtocol = this.inProtocol
     screen.isLive = false
+    screen.datetimeRange = this.datetimeRange
     screen.init()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
@@ -49,8 +53,13 @@ export default class extends Vue {
    * 计算最大高度
    */
   public calMaxHeight() {
-    const deviceList: HTMLDivElement = document.querySelector('.device-list')
-    this.height = `${deviceList.clientHeight - 125}px`
+    if (document.querySelector('.device-list')) {
+      const deviceList: HTMLDivElement = document.querySelector('.device-list')
+      this.height = `${deviceList.clientHeight - 125}px`
+    } else if (document.querySelector('.dialog-player-wrapper')) {
+      const deviceList: HTMLDivElement = document.querySelector('.dialog-player-wrapper')
+      this.height = `${deviceList.clientHeight - 25}px`
+    }
   }
 }
 </script>

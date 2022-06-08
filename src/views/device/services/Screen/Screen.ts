@@ -64,6 +64,8 @@ export class Screen {
   public recordType: 0 | 1
   /* 当前时间（时间戳/秒），用于缓存恢复和同步向相邻录像时间 */
   public currentRecordDatetime: number
+  /* 录像时间范围约束 */
+  public datetimeRange?: { startTime: number; endTime: number; }
 
   /**
    * ----------------
@@ -77,12 +79,18 @@ export class Screen {
 
   /**
    * ----------------
-   * 文案
+   * 错误码 & 文案
    * ----------------
    */
+  public ERROR_CODE = {
+    NO_RECORD: 13,
+    NO_STORE: 8,
+    OUT_OF_RANGE: 14
+  }
   public ERROR = {
     NO_RECORD: '该时段没有录像',
-    NO_STORE: '视频资源包未包含存储'
+    NO_STORE: '视频资源包未包含存储',
+    OUT_OF_RANGE: '超出时间范围'
   }
 
   constructor() {

@@ -105,7 +105,6 @@ import { dateFormatInTable } from '@/utils/date'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { getGroups, startGroup, stopGroup, deleteGroup } from '@/api/group'
 import { checkPermission } from '@/utils/permission'
-import { ca } from 'date-fns/locale'
 
 @Component({
   name: 'GroupList',
@@ -360,18 +359,22 @@ export default class extends Vue {
 .filter-container__search-group {
   margin-right: 10px;
 }
+
 .group-list__table {
   ::v-deep .el-table__body {
     td {
       cursor: pointer;
     }
+
     .col-action {
       cursor: default;
     }
   }
 }
+
 .group-name {
   cursor: pointer;
+
   &__id {
     color: $primary;
   }

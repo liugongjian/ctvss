@@ -6,14 +6,14 @@
         <template v-if="showAxis">
           <Sync v-if="showScreenTool" />
           <DatePicker v-if="showDatePicker" :screen="currentScreen" :disabled="!enableAxis" @change="onDateChange" />
-          <ReplayType v-if="showDatePicker" :screen="currentScreen" :disabled="!enableAxis" @change="onReplayTypeChange" />
+          <ReplayType v-if="showDatePicker && !isCarTask" :screen="currentScreen" :disabled="!enableAxis" @change="onReplayTypeChange" />
         </template>
       </div>
       <div class="screen-tools__bar__right">
         <Cleaner v-if="showScreenTool && isScreenView" :disabled="isPolling" />
         <SizeSelector v-if="showScreenTool && isScreenView" :disabled="isPolling" />
         <Fullscreen v-if="isScreenView" :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
-        <ViewSelector v-if="!isLive && !isFullscreen && currentScreen.recordType !== 1" :screen="currentScreen" />
+        <ViewSelector v-if="!isLive && !isFullscreen && currentScreen.recordType !== 1 && !isCarTask" :screen="currentScreen" />
       </div>
     </div>
     <ReplayAxis v-if="showAxis" :screen="currentScreen" :disabled="!enableAxis" @change="onAxisTimeChange" />
@@ -107,6 +107,13 @@ export default class extends Vue {
    */
   private get isPolling() {
     return this.screenManager.executeQueueConfig.status !== 'free'
+  }
+
+  /**
+   * 是否是车辆管理中的录像回放，是则隐去部分功能按钮
+   *  */
+  private get isCarTask() {
+    return this.screenManager.isCarTask
   }
 
   /**
