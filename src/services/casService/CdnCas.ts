@@ -51,6 +51,7 @@ export default class CdnCas extends BaseCas {
       if (!currentHidden) {
         result.push({
           name: route.meta.title,
+          mode: 'hash',
           menuId: route.path,
           ucode: route.path,
           href: route.path,
@@ -63,6 +64,7 @@ export default class CdnCas extends BaseCas {
         const path = `${route.path}${childRoute.path ? '/' + childRoute.path : ''}`
         items.push({
           name: childRoute.meta.title,
+          mode: 'hash',
           menuId: path,
           ucode: path,
           href: path
@@ -131,19 +133,14 @@ export default class CdnCas extends BaseCas {
         }
       ])
     })
-    // cas菜单点击后按spa模式跳转
+    // 二级菜单添加mode: hash，会使用下述模式进行路由跳转
+    // NOTE: 请勿全局设置mode, 如需设置要在routePush中规避侧边栏及头像下拉框中的路由
     this.casLayout.setConfig({
-      mode: 'hash',
       routePush: (route: any) => {
-        console.log('---------route: ', route)
         if (router.currentRoute.path !== route) {
-          if (route !== '/iam/sign/out') {
-            router.push({
-              path: route
-            })
-          } else {
-            window.location.href = CdnCas.LOGOUT_URL
-          }
+          router.push({
+            path: route
+          })
         }
       }
     })
