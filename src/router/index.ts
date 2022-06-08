@@ -888,7 +888,7 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'AI-AppList',
         meta: {
           id: '20210424150201010003',
-          title: 'AI应用管理',
+          title: 'AI应用',
           icon: 'dot',
           hidden: false,
           breadcrumb: true,
