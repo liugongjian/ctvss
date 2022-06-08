@@ -85,6 +85,7 @@ export default class extends Vue {
   .platform-info-list {
     display: flex;
     flex-wrap: wrap;
+
     ::v-deep .info-item {
       flex: 1;
       min-width: 50%;

@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="添加资源"
+    title="管理资源"
     :visible="dialogVisible"
     :close-on-click-modal="true"
     width="900px"
@@ -8,7 +8,7 @@
     @close="closeDialog"
   >
     <div class="dialog-wrap">
-      <div v-loading="loading.dir" class="tree-wrap">
+      <div v-show="step === 0" v-loading="loading.dir" class="tree-wrap">
         <el-tree
           ref="dirTree"
           node-key="id"
@@ -18,9 +18,13 @@
           :load="loadDirs"
           :props="treeProp"
           :check-strictly="false"
+          draggable
+          :allow-drop="() => false"
           @check="checkCallback"
           @check-change="onCheckDevice"
           @node-click="selectDevice"
+          @node-drag-start="handleDragstart"
+          @node-drag-end="handleDragend"
         >
           <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}">
             <span class="node-name">
@@ -34,31 +38,78 @@
           </span>
         </el-tree>
       </div>
-      <div class="device-wrap">
-        <div class="device-wrap__header">已选资源({{ deviceList.length }})</div>
-        <el-table ref="deviceTable" :data="deviceList" empty-text="暂无选择资源" fit>
-          <el-table-column key="label" prop="label" width="120" label="设备名称">
-            <template slot-scope="{row}">
-              {{ row.label || '-' }}
-            </template>
-          </el-table-column>
-          <el-table-column key="path" prop="path" label="所在位置">
-            <template slot-scope="{row}">
-              {{ renderPath(row.path) }}
-            </template>
-          </el-table-column>
-          <el-table-column label="操作" prop="action" class-name="col-action" width="110" fixed="right">
-            <template slot-scope="scope">
-              <el-button type="text" @click="removeDevice(scope.row)">移除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
+      <div v-loading="loading.dir" class="tree-wrap">
+        <div class="tree-wrap__sub">
+          <el-tree
+            ref="vgroupTree"
+            node-key="id"
+            draggable
+            :data="vgroupList"
+            :load="loadDirs"
+            :props="treeProp"
+            lazy
+            :allow-drop="() => true"
+            @node-click="selectVGroup"
+          >
+            <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}">
+              <span class="node-name">
+                <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
+                <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
+                <span v-else class="node-dir">
+                  <svg-icon name="dir-close" width="15" height="15" />
+                </span>
+                {{ node.label }}
+              </span>
+            </span>
+          </el-tree>
+        </div>
+        <div v-show="step === 1" class="tree-wrap__sub table">
+          <el-table
+            :data="tableData"
+            style="width: 100%;"
+            row-key="id"
+            lazy
+            :load="load"
+            :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+            :stripe="false"
+            :border="false"
+            :show-header="false"
+            :highlight-current-row="false"
+          >
+            <el-table-column
+              prop="name"
+              label="姓名"
+              width="180"
+            />
+            <el-table-column
+              prop="name"
+              label="姓名"
+              width="180"
+            >
+              <template slot-scope="scope">
+                <el-input v-model="scope.row.name" size="mini" />
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+        <div v-show="step === 1" class="tree-wrap__sub">
+          <el-button type="primary">匹配行政区划</el-button>
+        </div>
+      </div>
+      <div v-if="step === 0" class="device-wrap">
+        <el-button type="primary" @click="openInner('append')">新建组/虚拟组织</el-button>
+        <el-button type="primary" @click="openInner('edit')">编辑</el-button>
+        <el-button type="primary" @click="openInner('deleteGroup')">删除组/虚拟组织</el-button>
+        <el-button type="primary" @click="openInner('deleteDevice')">删除设备</el-button>
       </div>
     </div>
     <div slot="footer" class="dialog-footer">
-      <el-button type="primary" :loading="submitting" @click="submit">确 定</el-button>
+      <el-button v-if="step === 0" type="primary" @click="next">下一步</el-button>
+      <el-button v-if="step === 1" type="primary" @click="prev">上一步</el-button>
+      <el-button v-if="step === 1" type="primary" @click="confirm">确 定</el-button>
       <el-button @click="closeDialog">取 消</el-button>
     </div>
+    <InnerDialog v-if="innerVisible" :platform-id="{}" :type="innerDialogType" @close-inner="closeInner" />
   </el-dialog>
 </template>
 <script lang="ts">
@@ -68,17 +119,20 @@ import { getGroups } from '@/api/group'
 import { shareDevice, describeShareDevices } from '@/api/upPlatform'
 import { setDirsStreamStatus } from '@/utils/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
+import InnerDialog from './InnerDialog.vue'
 
 @Component({
-  name: 'AddDevices',
+  name: 'ManageGroups',
   components: {
-    StatusBadge
+    StatusBadge,
+    InnerDialog
   }
 })
 export default class extends Vue {
   private dialogVisible = true
   private submitting = false
   private dirList: any = []
+  private vgroupList: any = []
   private deviceList: any = []
   public loading = {
     dir: false
@@ -88,6 +142,38 @@ export default class extends Vue {
     children: 'children',
     isLeaf: 'isLeaf'
   }
+
+  private innerDialogType = ''
+
+  private innerVisible = false
+
+  private step = 0
+
+  private tableData = [{
+    id: 1,
+    date: '2016-05-02',
+    name: '王小虎',
+    address: '上海市普陀区金沙江路 1518 弄'
+  }, {
+    id: 2,
+    date: '2016-05-04',
+    name: '王小虎',
+    address: '上海市普陀区金沙江路 1517 弄'
+  }, {
+    id: 3,
+    date: '2016-05-01',
+    name: '王小虎',
+    address: '上海市普陀区金沙江路 1519 弄',
+    hasChildren: true
+  }, {
+    id: 4,
+    date: '2016-05-03',
+    name: '王小虎',
+    address: '上海市普陀区金沙江路 1516 弄'
+  }]
+
+  private selectedNode = null
+
   @Prop()
   private platformId: any
   private typeMapping: any = {
@@ -97,8 +183,10 @@ export default class extends Vue {
     platformDir: 4
   }
 
-  private mounted() {
-    this.initDirs()
+  private async mounted() {
+    await this.initDirs()
+    // 模拟，深拷贝
+    this.vgroupList = JSON.parse(JSON.stringify(this.dirList))
   }
 
   /**
@@ -260,6 +348,12 @@ export default class extends Vue {
     }
   }
 
+  private selectVGroup(data: any, node: any) {
+    console.log('data:', data)
+    console.log('node:', node)
+    this.selectedNode = node
+  }
+
   /**
    * 当设备被选中时回调，将选中的设备列出
    */
@@ -393,72 +487,185 @@ export default class extends Vue {
     this.dialogVisible = false
     this.$emit('on-close', isRefresh)
   }
+
+  private handleDragstart(node, event) {
+    const vgroupTree: any = this.$refs.vgroupTree
+    vgroupTree.$emit('tree-node-drag-start', event, { node: node })
+  }
+
+  private handleDragend(draggingNode, endNode, position, event) {
+    const dirTree: any = this.$refs.dirTree
+    const vgroupTree: any = this.$refs.vgroupTree
+
+    // 插入一个空节点用于占位
+    let emptyData = { id: draggingNode.id, children: [] }
+    dirTree.insertBefore(emptyData, draggingNode)
+
+    vgroupTree.$emit('tree-node-drag-end', event)
+    this.$nextTick(() => {
+      // 如果是移动到了当前树上，需要清掉空节点
+      if (dirTree.getNode(draggingNode.data)) {
+        dirTree.remove(emptyData)
+      } else {
+        // 如果移动到了别的树上，需要恢复该节点，并清掉空节点
+        let data = JSON.parse(JSON.stringify(draggingNode.data))
+        dirTree.insertAfter(data, dirTree.getNode(emptyData))
+        dirTree.remove(emptyData)
+      }
+    })
+  }
+
+  private openInner(type) {
+    this.innerVisible = true
+    this.innerDialogType = type
+    // const vgroupTree: any = this.$refs.vgroupTree
+    // let emptyData = { id: 1, children: [] }
+    // if (this.selectedNode) {
+    //   vgroupTree.append(emptyData, this.selectedNode)
+    // }
+  }
+
+  private closeInner() {
+    console.log('closeInner')
+    this.innerVisible = false
+  }
+
+  private next() {
+    this.step = 1
+    this.$nextTick(() => {
+      console.log('this.dirList:', this.dirList)
+      console.log('this.vgroupList:', this.vgroupList)
+    })
+  }
+
+  private prev() {
+    this.step = 0
+  }
+
+  private confirm() {
+  }
+
+  private load(tree, treeNode, resolve) {
+    setTimeout(() => {
+      resolve([
+        {
+          id: 31,
+          date: '2016-05-01',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1519 弄'
+        }, {
+          id: 32,
+          date: '2016-05-01',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1519 弄'
+        }
+      ])
+    }, 1000)
+  }
 }
 </script>
 <style lang="scss" scoped>
-  .dialog-wrap {
-    display: flex;
-    margin: -15px 0 10px;
-    border: 1px solid $borderGrey;
+.dialog-wrap {
+  display: flex;
+  margin: -15px 0 10px;
+  border: 1px solid $borderGrey;
+}
+
+.tree-wrap {
+  flex: 1 0;
+  height: 550px;
+  padding: 10px;
+  overflow: auto;
+  border-right: 1px solid $borderGrey;
+  display: flex;
+
+  &__sub {
+    flex: 1 0;
   }
 
-  .tree-wrap {
-    flex: 1 0;
-    height: 550px;
-    padding: 10px;
-    overflow: auto;
-    border-right: 1px solid $borderGrey;
+  .table {
+    flex: 2 0 !important;
 
-    .custom-tree-node {
-      width: auto;
+    .el-table:before {
+      height: 0 !important;
+    }
 
+    ::v-deep td {
+      padding: 0 !important;
+      border-bottom: none !important;
+    }
+
+    ::v-deep .cell {
+      .el-input__inner {
+        height: 26px !important;
+      }
+    }
+  }
+
+  .custom-tree-node {
+    width: auto;
+
+    .node-name {
+      position: relative;
+
+      .svg-icon {
+        color: $textGrey;
+      }
+    }
+
+    &.online {
       .node-name {
         position: relative;
 
         .svg-icon {
-          color: $textGrey;
-        }
-      }
-
-      &.online {
-        .node-name {
-          position: relative;
-
-          .svg-icon {
-            color: #65c465;
-          }
-        }
-      }
-
-      .status-badge {
-        position: absolute;
-        top: -1px;
-        left: -3px;
-        width: 6px;
-        height: 6px;
-        opacity: 0.7;
-        display: none;
-
-        &--on {
-          display: block;
+          color: #65c465;
         }
       }
     }
 
-    .is-disabled + .custom-tree-node__ipc {
-      cursor: not-allowed;
+    .status-badge {
+      position: absolute;
+      top: -1px;
+      left: -3px;
+      width: 6px;
+      height: 6px;
+      opacity: 0.7;
+      display: none;
+
+      &--on {
+        display: block;
+      }
     }
   }
 
-  .device-wrap {
-    flex: 1 0;
-    height: 550px;
-    overflow: auto;
-
-    &__header {
-      font-weight: bold;
-      text-align: center;
-      padding: 10px;
-    }
+  .is-disabled + .custom-tree-node__ipc {
+    cursor: not-allowed;
   }
+}
+
+.device-wrap {
+  flex: 1 0;
+  height: 550px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+
+  button {
+    width: 148px;
+    margin-left: 0 !important;
+    margin-top: 20px;
+  }
+
+  &__header {
+    font-weight: bold;
+    text-align: center;
+    padding: 10px;
+  }
+}
+
+.form__input {
+  width: 80%;
+}
 </style>

@@ -45,6 +45,19 @@
               <svg-icon slot="reference" name="help" color="#fff" />
             </el-popover>
           </el-button>
+          <el-button type="primary" @click="manageGroups">
+            管理资源
+            <el-popover
+              placement="top-start"
+              title="管理资源"
+              width="400"
+              trigger="hover"
+              :open-delay="300"
+              :content="tips.manageGroups"
+            >
+              <svg-icon slot="reference" name="help" color="#fff" />
+            </el-popover>
+          </el-button>
           <el-button v-if="!currentPlatform.enabled" :loading="loading.startStop" @click="startShare()">启动级联</el-button>
           <el-button v-else :loading="loading.startStop" @click="stopShare()">停止级联</el-button>
           <div class="filter-container__right">
@@ -178,6 +191,7 @@
       </div>
     </el-card>
     <AddDevices v-if="dialog.addDevices" :platform-id="currentPlatform.platformId" @on-close="closeDialog" />
+    <ManageGroups v-if="dialog.manageGroups" :platform-id="currentPlatform.platformId" @on-close="closeDialog" />
     <PlatformDetail v-if="dialog.platformDetail" :platform-id="currentPlatformDetail.platformId" @on-close="dialog.platformDetail = false" />
   </div>
 </template>
@@ -188,6 +202,7 @@ import { describeShareGroups, describeShareDirs, describeShareDevices, getPlatfo
 import { DeviceStatus, StreamStatus, PlatformStatus } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AddDevices from './compontents/dialogs/AddDevices.vue'
+import ManageGroups from './compontents/dialogs/ManageGroups.vue'
 import PlatformDetail from './compontents/dialogs/PlatformDetail.vue'
 
 @Component({
@@ -195,7 +210,8 @@ import PlatformDetail from './compontents/dialogs/PlatformDetail.vue'
   components: {
     AddDevices,
     PlatformDetail,
-    StatusBadge
+    StatusBadge,
+    ManageGroups
   }
 })
 export default class extends Vue {
@@ -244,7 +260,8 @@ export default class extends Vue {
   }
   public dialog = {
     addDevices: false,
-    platformDetail: false
+    platformDetail: false,
+    manageGroups: false
   }
   public treeProp = {
     label: 'label',
@@ -252,7 +269,8 @@ export default class extends Vue {
     isLeaf: 'isLeaf'
   }
   public tips = {
-    addDevices: '下方列表显示已共享的设备，点击"添加资源"添加想要共享的设备。'
+    addDevices: '下方列表显示已共享的设备，点击"添加资源"添加想要共享的设备。',
+    manageGroups: '管理虚拟业务组'
   }
 
   @Watch('dataList.length')
@@ -506,6 +524,10 @@ export default class extends Vue {
     this.dialog.addDevices = true
   }
 
+  private manageGroups() {
+    this.dialog.manageGroups = true
+  }
+
   private async handleFilter() {
     this.pager.pageNum = 1
     await this.getList(this.currentNodeData, false)
@@ -595,6 +617,7 @@ export default class extends Vue {
 
   private closeDialog(refresh: boolean) {
     this.dialog.addDevices = false
+    this.dialog.manageGroups = false
     refresh === true && this.initDirs()
   }
 
