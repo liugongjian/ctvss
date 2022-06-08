@@ -122,14 +122,12 @@
         AlogicLayout.setConfig({
             mode: 'hash',
             routePush: function() {
-                if (router.currentRoute.path !== route) {
-                    if (route === '/iam/sign/out') {
-                        window.location.href = 'https://iam-cbip.ctcdn.cn:8843' + route
-                    } else if (route.startsWith('https://')) {
-                        window.location.href = route
-                    } else {
-                        // do nothing
-                    }
+                if (route === '/iam/sign/out') {
+                    window.location.href = 'https://iam-cbip.ctcdn.cn:8843' + route
+                } else if (route.startsWith('https://')) {
+                    window.location.href = route
+                } else {
+                    // do nothing
                 }
             }
         })
