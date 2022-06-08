@@ -833,7 +833,7 @@ export const asyncRoutes: RouteConfig[] = [
         component: () => import(/* webpackChunkName: "AI" */ '@/views/AI/applist/index.vue'),
         name: 'AI-AppList',
         meta: {
-          title: 'AI应用管理',
+          title: 'AI应用',
           icon: 'dot',
           hidden: false,
           breadcrumb: true,
