@@ -23,6 +23,7 @@
 <script lang="ts">
 import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
 import { prefixZero } from '@/utils/number'
+import { getDateByTime } from '@/utils/date'
 import { Screen } from '@/views/device/services/Screen/Screen'
 import DatePanel from './DatePanel.vue'
 
@@ -77,8 +78,13 @@ export default class extends Vue {
   }
 
   private pickerOptions = {
-    disabledDate(time: any) {
-      return time.getTime() > Date.now()
+    disabledDate: (time: any) => {
+      // 约束录像起始时间和结束时间范围
+      if (this.screen.datetimeRange) {
+        return time.getTime() < getDateByTime(this.screen.datetimeRange.startTime * 1000) || time.getTime() > this.screen.datetimeRange.endTime * 1000
+      } else {
+        return time.getTime() > Date.now()
+      }
     },
     cellClassName: (date: any) => {
       if (!this.recordStatistic) return

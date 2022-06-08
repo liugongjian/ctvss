@@ -812,7 +812,7 @@ export const asyncRoutes: RouteConfig[] = [
       title: 'AI管理',
       icon: 'ai-face',
       alwaysShow: true,
-      perms: ['*']
+      perms: ['DescribeAi']
     },
     children: [
       {
@@ -825,7 +825,7 @@ export const asyncRoutes: RouteConfig[] = [
           hidden: true,
           breadcrumb: false,
           activeMenu: '/AI',
-          perms: ['*']
+          perms: ['DescribeAi']
         }
       },
       {
@@ -839,7 +839,7 @@ export const asyncRoutes: RouteConfig[] = [
           breadcrumb: true,
           only: true,
           activeMenu: '/AI/ai-app-list',
-          perms: ['*']
+          perms: ['DescribeAi']
         }
       },
       {
@@ -852,7 +852,7 @@ export const asyncRoutes: RouteConfig[] = [
           hidden: true,
           breadcrumb: true,
           activeMenu: '/AI/ai-app-list',
-          perms: ['*']
+          perms: ['AdminAi']
         }
       },
       {
@@ -865,7 +865,7 @@ export const asyncRoutes: RouteConfig[] = [
           hidden: true,
           breadcrumb: true,
           activeMenu: '/AI/ai-app-list',
-          perms: ['*']
+          perms: ['AdminAi']
         }
       },
       {
@@ -878,7 +878,7 @@ export const asyncRoutes: RouteConfig[] = [
           hidden: true,
           breadcrumb: false,
           activeMenu: '/AI/ai-app-list',
-          perms: ['*']
+          perms: ['DescribeAi']
         }
       },
       {
@@ -890,7 +890,7 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dot',
           breadcrumb: true,
           activeMenu: '/AI/config',
-          perms: ['*']
+          perms: ['AdminAi']
         }
       }
     ]
@@ -1128,6 +1128,31 @@ export const asyncRoutes: RouteConfig[] = [
             }
           }
         ]
+      }
+    ]
+  },
+  {
+    path: '/car',
+    component: Layout,
+    meta: {
+      id: '20210515200901013321',
+      title: '车辆管理',
+      breadcrumb: true,
+      icon: 'car',
+      perms: ['AdminCar']
+    },
+    children: [
+      {
+        path: '',
+        component: () => import(/* webpackChunkName: "car" */ '@/views/car/index.vue'),
+        name: 'car',
+        meta: {
+          id: '20210515200901013321',
+          title: '车辆管理',
+          breadcrumb: false,
+          icon: 'car',
+          perms: ['AdminCar']
+        }
       }
     ]
   },

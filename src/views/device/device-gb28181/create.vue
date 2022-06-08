@@ -180,6 +180,12 @@
           <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
           <el-input v-model="form.deviceLatitude" class="longlat-input" />
         </el-form-item>
+        <el-form-item v-if="form.deviceType === 'ipc'" label="设备SN码:" prop="serialNumber">
+          <el-input v-model="form.serialNumber" />
+        </el-form-item>
+        <el-form-item v-if="form.deviceType === 'ipc'" label="设备型号:" prop="deviceModel">
+          <el-input v-model="form.deviceModel" />
+        </el-form-item>
         <el-form-item
           v-if="!isUpdate || form.industryCode || !deviceGbId"
           label="所属行业:"
@@ -286,6 +292,12 @@
           <div class="form-tip">
             2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
           </div>
+        </el-form-item>
+        <el-form-item label="设备SN码:" prop="serialNumber">
+          <el-input v-model="form.serialNumber" />
+        </el-form-item>
+        <el-form-item label="设备型号:" prop="deviceModel">
+          <el-input v-model="form.deviceModel" />
         </el-form-item>
         <el-form-item
           label="杆号:"
@@ -429,6 +441,8 @@ export default class extends Mixins(createMixin) {
     longlat: 'required',
     deviceLongitude: '0.000000',
     deviceLatitude: '0.000000',
+    serialNumber: '',
+    deviceModel: '',
     gbRegion: '',
     gbRegionLevel: null,
     resources: [],
@@ -471,7 +485,7 @@ export default class extends Mixins(createMixin) {
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
           'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority',
-          'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode', 'poleId', 'macAddr']))
+          'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'serialNumber', 'deviceModel', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode', 'poleId', 'macAddr']))
         if (this.form.macAddr || this.form.poleId) {
           this.formExpand = true
         }
@@ -613,7 +627,9 @@ export default class extends Mixins(createMixin) {
         if (this.form.deviceType === 'ipc') {
           params = Object.assign(params, {
             gbVersion: this.form.gbVersion,
-            transPriority: this.form.transPriority
+            transPriority: this.form.transPriority,
+            serialNumber: this.form.serialNumber,
+            deviceModel: this.form.deviceModel
           })
         }
         // NVR类型添加额外参数
@@ -638,7 +654,9 @@ export default class extends Mixins(createMixin) {
           createSubDevice: this.isUpdate ? null : '2',
           parentDeviceId: this.isUpdate ? this.form.parentDeviceId : this.deviceId,
           channelName: this.form.channelName,
-          channelNum: this.form.channelNum
+          channelNum: this.form.channelNum,
+          serialNumber: this.form.serialNumber,
+          deviceModel: this.form.deviceModel
         }, pick(this.form, ['userName', 'deviceLongitude', 'deviceLatitude']))
       }
       if (this.isUpdate) {

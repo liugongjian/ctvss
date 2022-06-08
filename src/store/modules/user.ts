@@ -249,7 +249,7 @@ class User extends VuexModule implements IUserState {
           data.perms = ['*']
           data.resource = ['*']
         } else if (actionList[0] === 'vss:Get*') {
-          data.perms = ['DescribeGroup', 'DescribeDevice', 'ScreenPreview', 'ReplayRecord']
+          data.perms = ['DescribeGroup', 'DescribeDevice', 'ScreenPreview', 'ReplayRecord', 'DescribeAi', 'DescribeMap', 'DescribeDashboard']
           data.resource = ['*']
           data.resourcesSet = new Set()
         } else {

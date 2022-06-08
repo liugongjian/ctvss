@@ -78,6 +78,7 @@ export default class CdnCas extends BaseCas {
    * 渲染cas左侧菜单
    */
   public renderMenu(items: Array<any>): void {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const mainMenuPromise = new Promise(resolve => {
       resolve({
         title: settings.title,
