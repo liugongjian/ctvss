@@ -88,9 +88,45 @@ export default class CdnCas extends BaseCas {
       mainMenuPromise,
       sidebarMenuPromise: Promise.resolve([
         {
-          'icon': 'icon-cloud-service-vision-service',
-          'name': '视频监控',
-          'href': 'https://console.vcn.ctcdn.cn/vss',
+          'icon': 'el-icon-wind-power',
+          'name': 'IAM服务',
+          'href': 'https://iam-cbip.ctcdn.cn:8843/',
+          'ucode': 'iam-cbip'
+        },
+        {
+          'icon': 'el-icon-cpu',
+          'name': '诸葛AI控制台',
+          'href': 'https://aiconsole-cbip.ctcdn.cn:8843/console',
+          'ucode': 'aiconsole-cbip'
+        },
+        {
+          'icon': 'el-icon-data-analysis',
+          'name': '天翼云大屏',
+          'href': 'https://datav-cbip.ctcdn.cn:8843/dashboard',
+          'ucode': 'datav-cbip'
+        },
+        {
+          'icon': 'el-icon-set-up',
+          'name': '大数据运维管理平台',
+          'href': 'https://mozi-cbip.ctcdn.cn:8843/',
+          'ucode': 'mozi-cbip'
+        },
+        {
+          'icon': 'el-icon-lock',
+          'name': '数据安全管理平台',
+          'href': 'https://dsmp-cbip.ctcdn.cn:8843/',
+          'ucode': 'dsmp-cbip'
+        },
+        {
+          'icon': 'el-icon-coin',
+          'name': '数据中台',
+          'href': 'https://bdmp-cbip.ctcdn.cn:8843/control',
+          'ucode': 'bdmp-cbip'
+        },
+        {
+          'icon': 'el-icon-video-camera',
+          'name': '大视频平台',
+          'href': 'https://console.vcn.ctcdn.cn:9190/vss',
           'ucode': 'vss'
         }
       ])
@@ -99,10 +135,15 @@ export default class CdnCas extends BaseCas {
     this.casLayout.setConfig({
       mode: 'hash',
       routePush: (route: any) => {
+        console.log('---------route: ', route)
         if (router.currentRoute.path !== route) {
-          router.push({
-            path: route
-          })
+          if (route !== '/iam/sign/out') {
+            router.push({
+              path: route
+            })
+          } else {
+            window.location.href = CdnCas.LOGOUT_URL
+          }
         }
       }
     })
@@ -114,7 +155,8 @@ export default class CdnCas extends BaseCas {
    */
   public activeMenu(route) {
     this.casConsole.match({
-      key: route.meta.activeMenu || ('/' + route.name)
+      key: route.meta.activeMenu || ('/' + route.name),
+      domain: 'vss'
     })
   }
 }

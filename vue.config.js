@@ -5,7 +5,7 @@ const isHttps = process.argv[process.argv.length - 1] === '--https'
 const name = '天翼云视频云网平台-客户控制台'
 const serverAddressMapping = {
   local: 'http://192.168.245.1:8081', // 本地环境
-  dev: 'http://182.43.127.35:9190', // 开发环境
+  dev: 'https://182.43.127.35:9190', // 开发环境
   dev1: 'http://182.43.127.35:9050', // 开发环境dev-1
   dev2: 'http://182.43.127.35:9060', // 新环境
   test: 'https://182.43.127.35:9180', // 测试环境
@@ -49,20 +49,20 @@ module.exports = {
        * CDN单点登录
        */
       '/iam/gw/': {
-        target: 'https://vip.ctcdn.cn/',
+        target: 'https://iam-cbip.ctcdn.cn:8843/',
         secure: false,
         changeOrigin: true,
         bypass: (req) => {
           if (req.headers && req.headers.referer) {
             const url = new URL(req.headers.referer)
-            url.host = 'vip.ctcdn.cn'
-            url.port = ''
+            url.host = 'iam-cbip.ctcdn.cn'
+            url.port = '8843'
             req.headers.referer = url.href
           }
         }
       },
       '/iam/': {
-        target: 'https://vip.ctcdn.cn/',
+        target: 'https://iam-cbip.ctcdn.cn:8843/',
         secure: false,
         changeOrigin: true
       },
