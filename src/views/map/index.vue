@@ -600,6 +600,9 @@ export default class extends Mixins(IndexMixin) {
     mapwrap.style.zIndex = 'initial'
     mapwrap.style.left = 'initial'
     mapwrap.style.top = 'initial'
+    setTimeout(() => { // 设置 setTimeout 确保完全退出全屏后重新计算宽高
+      this.$refs.mapview && this.$refs.mapview.adjustPlayWindowPos()
+    }, 0)
   }
 
   /**
