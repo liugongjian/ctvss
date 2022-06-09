@@ -127,7 +127,7 @@ export default class CdnCas extends BaseCas {
         {
           'icon': 'el-icon-video-camera',
           'name': '大视频平台',
-          'href': 'https://console.vcn.ctcdn.cn:9190/vss',
+          'href': 'https://console.vcn.ctcdn.cn/vss',
           'ucode': 'vss'
         }
       ])
