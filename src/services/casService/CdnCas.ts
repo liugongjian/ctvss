@@ -102,7 +102,7 @@ export default class CdnCas extends BaseCas {
         },
         {
           'icon': 'el-icon-data-analysis',
-          'name': '天翼云大屏',
+          'name': '天翼大屏',
           'href': 'https://datav-cbip.ctcdn.cn:8843/dashboard',
           'ucode': 'datav-cbip'
         },
