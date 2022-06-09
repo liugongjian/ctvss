@@ -56,7 +56,7 @@ export default class extends mixins(ResizeMixin) {
   }
 
   get ctcdnCasLogin() {
-    return location.hostname.split('.').slice(-2)[0] === 'ctcdn'
+    return !!UserModule.casLoginId && location.hostname.split('.').slice(-2)[0] === 'ctcdn'
   }
 
   get showSettings() {
