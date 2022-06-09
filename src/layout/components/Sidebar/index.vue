@@ -7,7 +7,7 @@
     <div v-if="showHeadline" class="headline">
       大视频平台
     </div>
-    <el-scrollbar wrap-class="scrollbar-wrapper" :style="{height: showHeadline ? 'calc(100% - 70px)' : '100%'}">
+    <el-scrollbar wrap-class="scrollbar-wrapper" :style="{height: showHeadline ? 'calc(100% - 120px)' : '100%'}">
       <el-menu
         :default-active="activeMenu"
         :collapse="isCollapse"

@@ -1,6 +1,8 @@
 #iam-console-container {
   .sidebar-container {
-    position: absolute !important;
+    position: fixed !important;
+    top: 50px !important;
+    left: 50px !important;
     width: 180px !important;
     background-color: #42454f !important;
     z-index: 1;
