@@ -198,7 +198,7 @@
 
 <script lang='ts'>
 import { Component, Vue, Provide, Watch } from 'vue-property-decorator'
-import { describeShareGroups, describeShareDirs, describeShareDevices, getPlatforms, deletePlatform, cancleShareDevice, cancleShareDir, startShareDevice, stopShareDevice } from '@/api/upPlatform'
+import { describeShareGroups, describeShareDirs, describeShareDevices, deletePlatform, cancleShareDevice, getPlatforms, cancleShareDir, startShareDevice, stopShareDevice } from '@/api/upPlatform'
 import { DeviceStatus, StreamStatus, PlatformStatus } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AddDevices from './compontents/dialogs/AddDevices.vue'
@@ -302,6 +302,31 @@ export default class extends Vue {
     window.removeEventListener('resize', this.calMaxHeight)
   }
 
+  /**
+   * 查询上级平台列表
+   */
+  private async getPlatformList() {
+    try {
+      this.loading.platform = true
+      const res = await getPlatforms({
+        pageNum: 1,
+        pageSize: 1000
+      })
+      this.platformList = res.platforms
+      if (this.currentPlatform.platformId) {
+        const currentPlatform = this.platformList.find((platform: any) => platform.platformId === this.currentPlatform.platformId)
+        this.currentPlatform = currentPlatform
+      } else {
+        this.initPlatform()
+      }
+      console.log('this.currentPlatform:', this.currentPlatform)
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.loading.platform = false
+    }
+  }
+
   // 面包屑导航
   private goToPath(item: any) {
     const dirTree: any = this.$refs.dirTree
@@ -323,30 +348,6 @@ export default class extends Vue {
   private initPlatform() {
     if (this.platformList.length !== 0) {
       this.selectPlatform(this.platformList[0])
-    }
-  }
-
-  /**
-   * 查询上级平台列表
-   */
-  private async getPlatformList() {
-    try {
-      this.loading.platform = true
-      const res = await getPlatforms({
-        pageNum: 1,
-        pageSize: 1000
-      })
-      this.platformList = res.platforms
-      if (this.currentPlatform.platformId) {
-        const currentPlatform = this.platformList.find((platform: any) => platform.platformId === this.currentPlatform.platformId)
-        this.currentPlatform = currentPlatform
-      } else {
-        this.initPlatform()
-      }
-    } catch (e) {
-      this.$message.error(e && e.message)
-    } finally {
-      this.loading.platform = false
     }
   }
 

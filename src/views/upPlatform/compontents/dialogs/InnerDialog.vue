@@ -10,6 +10,13 @@
       <el-form-item label="分组名">
         <el-input placeholder="请输入目录名称" class="form__input" />
       </el-form-item>
+      <el-form-item v-if="mode === 'vgroup'" label="所属行业">
+        <el-select class="form__input">
+          <el-option value="flv" label="FLV" />
+          <el-option value="hls" label="HLS" />
+          <el-option value="rtc" label="Webrtc" />
+        </el-select>
+      </el-form-item>
       <el-form-item label="上级平台区域">
         <el-select class="form__input">
           <el-option value="flv" label="FLV" />
@@ -40,7 +47,11 @@ export default class extends Vue {
   @Prop()
   private type!: String
 
+  @Prop()
+  private mode!: String
+
   private get title() {
+    console.log(this.mode)
     switch (this.type) {
       case 'append':
         return '新建目录'
@@ -50,6 +61,8 @@ export default class extends Vue {
         return '删除目录'
       case 'deleteDevice':
         return '删除设备'
+      default:
+        return '提示'
     }
   }
 
