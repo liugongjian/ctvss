@@ -22,7 +22,8 @@ const settings: ISettings = {
   projectPrefix: '/vss',
   outNetworkWhiteList: [
     '182.43.127.35',
-    'console.vcn.ctyun.cn'
+    'console.vcn.ctyun.cn',
+    'console.vcn.ctcdn.cn'
   ]
 }
 
