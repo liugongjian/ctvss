@@ -265,11 +265,11 @@ export default class addCustomDialog extends Vue {
   }
 
   private validateIsLng(str: any) {
-    return /^[-+]?(0(\.\d{1,10})?|([1-9](\d)?)(\.\d{1,10})?|1[0-7]\d{1}(\.\d{1,10})?|180\.0{1,10})$/.test(str)
+    return /^[-+]?(0(\.\d{1,15})?|([1-9](\d)?)(\.\d{1,14})?|1[0-7]\d{1}(\.\d{1,14})?|180\.0{1,14})$/.test(str)
   }
 
   private validateIsLat(str: any) {
-    return /^[-+]?((0|([1-9]\d?))(\.\d{1,10})?|90(\.0{1,10})?)$/.test(str)
+    return /^[-+]?((0|([1-9]\d?))(\.\d{1,14})?|90(\.0{1,14})?)$/.test(str)
   }
 
   private saveImportPoints() {
@@ -295,7 +295,7 @@ export default class addCustomDialog extends Vue {
           this.$message.warning('请输出 [ ] 格式的数据')
         }
       } catch (e) {
-        // this.$message.error('请导入正确的格式')
+        this.$message.error('请导入正确的格式')
       }
     }
   }
