@@ -11,10 +11,17 @@
       .el-menu-item {
         background-color: #42454f !important;
         color: #a8adaf !important;
+        height: 50px !important;
+        line-height: 50px !important;
+        padding-left: 31.15px !important;
 
         &:hover {
           background-color: #8a8b92 !important;
           color: #c0c5c7 !important;
+        }
+
+        .svg-icon {
+          margin-right: 8px;
         }
       }
 
@@ -26,13 +33,34 @@
       }
 
       .el-submenu {
-        .el-submenu__title {
+        &__title {
           background-color: #42454f !important;
           color: #a8adaf !important;
+          height: 50px !important;
+          line-height: 50px !important;
+          padding-left: 31.15px !important;
 
           &:hover {
             background-color: #8a8b92 !important;
             color: #c0c5c7 !important;
+
+            .el-submenu__icon-arrow {
+              color: #c0c5c7 !important;
+            }
+          }
+
+          .svg-icon {
+            margin-right: 8px !important;
+          }
+        }
+
+        .el-menu {
+          .nest-menu {
+            .el-menu-item {
+              .svg-icon {
+                color: rgba(168, 173, 175, 0%) !important;
+              }
+            }
           }
         }
       }
