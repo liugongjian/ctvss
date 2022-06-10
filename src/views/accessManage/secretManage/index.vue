@@ -60,10 +60,11 @@
       <el-tab-pane label="open api授权" name="open">
         <el-form :model="apiForm" label-width="240px">
           <el-form-item label="授权服务:">
-            <span>{{ apiForm.auth }}</span>
+            <span>{{ apiForm.accessKey ? `${apiForm.accessKey}（AccessKey）` : '—' }}</span><br>
+            <span>{{ apiForm.secretKey ? `${apiForm.secretKey}（SecretKey）` : '' }}</span>
           </el-form-item>
           <el-form-item label="授权时间:">
-            <span>{{ apiForm.time }}</span>
+            <span>{{ apiForm.createdTime ? apiForm.createdTime : '—' }}</span>
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="operateAuth">{{ `${apiForm.type ? '取消' : '立即'}授权` }}</el-button>
@@ -92,11 +93,7 @@ export default class extends Vue {
   private secretStatus = SecretStatus
 
   private activeName = 'secret'
-  private apiForm = {
-    auth: 'auth',
-    time: 'askjdf',
-    type: true
-  }
+  private apiForm: any = { type: false }
 
   private async mounted() {
     await this.getList()
@@ -122,11 +119,12 @@ export default class extends Vue {
 
   private async getAuth() {
     try {
-      const res = await getSecretList()
-      this.apiForm = {
-        auth: 'auth1',
-        time: 'askjdf2',
-        type: true
+      const res = await getSecretList({ type: 'public' })
+      console.log(res)
+      if (res.keys.length > 0) {
+        this.apiForm = { ...res.keys[0], type: true }
+      } else {
+        this.apiForm = { type: false }
       }
     } catch (e) {
       this.$message({
@@ -238,10 +236,12 @@ export default class extends Vue {
         cancelButtonText: '取消'
       }).then(async() => {
       try {
+        this.apiForm.type ? await deleteSecret(this.apiForm.id, 'public') : await createSecret({ type: 'public' })
         this.$message({
           message: `${this.apiForm.type ? '取消' : ''}授权成功`,
           type: 'success'
         })
+        this.getAuth()
       } catch (e) {
         this.$message({
           message: `${this.apiForm.type ? '取消' : ''}授权失败 :${e}`,
