@@ -538,7 +538,7 @@ export default class extends Vue {
           deviceStatus: dir.deviceStatus,
           streamStatus: dir.streamStatus,
           // disabled: dir.type !== 'ipc' || sharedFlag,
-          disabled: false,
+          disabled: sharedFlag,
           path: node.data.path.concat([dir]),
           sharedFlag: sharedFlag,
           roleId: node.data.roleId || '',

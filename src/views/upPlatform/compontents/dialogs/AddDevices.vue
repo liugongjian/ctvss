@@ -294,6 +294,7 @@ export default class extends Vue {
    * 提交
    */
   private async submit() {
+    console.log('before:', this.deviceList)
     if (!this.deviceList.length) {
       this.$message.error('未选择任何资源')
       return
@@ -380,6 +381,7 @@ export default class extends Vue {
         platformId: this.platformId,
         vssGroups: groups
       })
+      console.log('after:', groups)
       this.$message.success('添加资源成功！')
     } catch (e) {
       this.$message.error(e && e.message)
