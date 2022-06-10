@@ -35,24 +35,30 @@ export async function initLogin() {
     // 从localstorage中读取选中的业务组
     GroupModule.GetGroupFromLs()
     casService.authCas().then(async(data: any) => {
-      const casLoggedIn = data.isLoggedIn
-      const innerLoggedInLastTime = ['main', 'sub'].includes(getLoginType())
-      const curCasLoginId = data.property && data.property.loginId
-      const preCasLoginId = getLocalStorage('casLoginId')
-      if (casLoggedIn === innerLoggedInLastTime || (casLoggedIn && preCasLoginId && preCasLoginId !== curCasLoginId)) {
-        UserModule.ResetToken()
-      } else if (casLoggedIn) {
-        UserModule.SetCASLoginId(data.property.loginId)
-        setLoginType('cas')
-        casService.initCas('#container')
-      }
+      try {
+        const casLoggedIn = data.isLoggedIn
+        const innerLoggedInLastTime = ['main', 'sub'].includes(getLoginType())
+        const curCasLoginId = data.property && data.property.loginId
+        const preCasLoginId = getLocalStorage('casLoginId')
+        if (casLoggedIn === innerLoggedInLastTime || (casLoggedIn && preCasLoginId && preCasLoginId !== curCasLoginId)) {
+          UserModule.ResetToken()
+        } else if (casLoggedIn) {
+          UserModule.SetCASLoginId(data.property.loginId)
+          setLoginType('cas')
+          casService.initCas('#container')
+        }
 
-      handleUrlToken()
-      new Vue({
-        router,
-        store,
-        render: (h) => h(App)
-      }).$mount('#app')
+        handleUrlToken()
+      } catch (e) {
+        console.log('cas e: ', e.message)
+        UserModule.ResetToken()
+      } finally {
+        new Vue({
+          router,
+          store,
+          render: (h) => h(App)
+        }).$mount('#app')
+      }
     })
   } catch (e) {
     console.log('init login error: ', e.message)
