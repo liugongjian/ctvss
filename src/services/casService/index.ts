@@ -46,6 +46,7 @@ const authCas = async() => {
     return await cas.auth()
   } catch (e) {
     // todo
+    console.log('cas.auth e: ', e)
   }
 }
 

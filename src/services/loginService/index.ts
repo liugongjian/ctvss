@@ -51,7 +51,6 @@ export async function initLogin() {
         handleUrlToken()
       } catch (e) {
         console.log('cas e: ', e.message)
-        UserModule.ResetToken()
       } finally {
         new Vue({
           router,
