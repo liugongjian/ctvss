@@ -370,22 +370,23 @@ export const exportDeviceOption = (params: any): Promise<any> =>
 /**
  * 获取子地址列表，返回Promise
  */
-export const getAddressArea = (params: any): Promise<any> =>
+export const getAddressArea = (params: any, cancelToken: any): Promise<any> =>
   request({
     url: '/area/list',
     method: 'get',
-    params
+    params,
+    cancelToken
   })
 
 /**
  * 获取子地址列表, 返回地址列表
  */
-export const getChildAddress = async(id: any, level: number) => {
+export const getChildAddress = async(id: any, level: number, cancelToken: any) => {
   let params: any = {
     pid: id,
     level
   }
-  let res = await getAddressArea(params)
+  let res = await getAddressArea(params, cancelToken)
   let list = []
   if (res.areas.length) {
     list = res.areas.map((item: any) => {
