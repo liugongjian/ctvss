@@ -36,9 +36,9 @@ export async function initLogin() {
     GroupModule.GetGroupFromLs()
     casService.authCas().then(async(data: any) => {
       try {
-        const casLoggedIn = data.isLoggedIn
+        const casLoggedIn = data && data.isLoggedIn
         const innerLoggedInLastTime = ['main', 'sub'].includes(getLoginType())
-        const curCasLoginId = data.property && data.property.loginId
+        const curCasLoginId = data && data.property && data.property.loginId
         const preCasLoginId = getLocalStorage('casLoginId')
         if (casLoggedIn === innerLoggedInLastTime || (casLoggedIn && preCasLoginId && preCasLoginId !== curCasLoginId)) {
           UserModule.ResetToken()
