@@ -91,13 +91,13 @@
           </el-select>
         </el-form-item>
         <el-form-item label="消息类型：" prop="source">
-          <el-radio-group v-model="form.source">
+          <el-radio-group v-model="form.source" @change="handleSourceChange">
             <el-radio label="1">设备消息</el-radio>
             <!-- <el-radio label="2">资源包消息</el-radio> -->
             <el-radio label="3">AI消息</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item v-if="form.source !== '2'" label="子类型：" prop="sourceRules">
+        <el-form-item v-if="form.source !== '2'" label="子类型：" prop="sourceRules" class="source-rules">
           <el-select v-model="form.sourceRules" multiple>
             <el-option
               v-for="(item, index) in sourceRulesOptions"
@@ -118,12 +118,14 @@
         </el-form-item>
         <el-form-item v-if="form.source !== '2'" label="生效资源：" prop="notifyResources">
           <resource-tree
+            v-if="isloading === false"
             :checked-list="form.notifyResources"
             @resourceListChange="resourceListChange"
           />
         </el-form-item>
         <el-form-item label="推送对象：" prop="notifyDestinations">
           <destinations-tree
+            v-if="isloading === false"
             :checked-list="form.notifyDestinations"
             @destinationListChange="destinationListChange"
           />
@@ -168,7 +170,7 @@ export default class extends Vue {
   private breadCrumbContent = ''
   private defaultValue = [new Date(2022, 4, 5, 0, 0), new Date(2022, 4, 5, 23, 59)]
   private dirList: any = []
-  public isloading: boolean = false
+  public isloading: boolean | null = null
   public uploadLoading: boolean = false
   private treeProp = {
     label: 'label',
@@ -282,12 +284,8 @@ export default class extends Vue {
   private get sourceRulesOptions() {
     switch (this.form.source) {
       case '1':
-        this.form.sourceRules = []
-        this.form.notifyTemplate = this.notifyTemplate.device
         return this.deviceSourceRulesOptions
       case '3':
-        this.form.sourceRules = []
-        this.form.notifyTemplate = this.notifyTemplate.ai
         return this.aiSourceRulesOptions
       default:
         return []
@@ -296,6 +294,18 @@ export default class extends Vue {
 
   private get isUpdate() {
     return this.$route.name === 'notification-policy-edit'
+  }
+
+  private handleSourceChange(newValue: string) {
+    this.form.sourceRules = []
+    switch (newValue) {
+      case '1':
+        this.form.notifyTemplate = this.notifyTemplate.device
+        break
+      case '3':
+        this.form.notifyTemplate = this.notifyTemplate.ai
+        break
+    }
   }
 
   private async mounted() {
@@ -469,6 +479,10 @@ export default class extends Vue {
     margin-left: 10px;
 
     &__input {
+      width: 600px;
+    }
+
+    .el-select {
       width: 600px;
     }
   }

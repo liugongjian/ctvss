@@ -331,14 +331,16 @@ export default class extends Vue {
 <style lang="scss" scoped>
 .filter-container {
   min-width: 1100px;
+
   .el-radio-group {
     margin-right: 20px;
   }
+
   &__advance-search {
     display: flex;
     flex-wrap: wrap;
     max-height: 0;
-    transition: all .5s;
+    transition: all 0.5s;
 
     &__expanded {
       max-height: 500px;
@@ -346,13 +348,16 @@ export default class extends Vue {
 
     & > .el-form-item {
       flex: 1 0 33.33%;
+
       .el-select {
         width: 100%;
       }
+
       .user-group {
         .el-select {
           width: 40%;
         }
+
         .el-select + .el-select {
           width: 55%;
           float: right;
