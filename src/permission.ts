@@ -44,7 +44,11 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
       if (UserModule.token) {
         next({ path: '/' })
       } else {
-        next()
+        if (innerWhiteList.indexOf(to.path) === -1) {
+          next({ path: '/login' })
+        } else {
+          next()
+        }
       }
       NProgress.done()
     }
@@ -93,8 +97,12 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
     } else if (loginType === 'main') {
       next(`${loginService.innerUrl.main}?redirect=%2Fdashboard`)
     } else {
-      window.location.href = `${loginService.casUrl.login}?redirect=${to.path}`
-      NProgress.done()
+      if (loginService.casUrl.login) {
+        window.location.href = `${loginService.casUrl.login}?redirect=${to.path}`
+      } else {
+        next(`${loginService.innerUrl.main}?redirect=%2Fdashboard`)
+        NProgress.done()
+      }
     }
   }
 })
@@ -102,7 +110,6 @@ router.beforeEach(async(to: Route, from: Route, next: any) => {
 router.afterEach((to: Route) => {
   // Finish progress bar
   NProgress.done()
-
   // set page title
   document.title = getPageTitle(to.meta.title)
 })
