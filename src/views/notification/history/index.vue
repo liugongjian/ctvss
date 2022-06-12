@@ -105,7 +105,7 @@
         <el-table-column prop="notifyContent" label="消息内容" min-width="260" show-overflow-tooltip />
         <el-table-column prop="notifyUserDetails" label="推送对象" min-width="260" show-overflow-tooltip>
           <template slot-scope="{row}">
-            {{ row.notifyUserDetails && (scope.row.notifyChannel === '1' ? JSON.parse(row.notifyUserDetails).email : JSON.parse(row.notifyUserDetails).phone) }}
+            {{ row.notifyUserDetails && (row.notifyChannel === '1' ? JSON.parse(row.notifyUserDetails).email : JSON.parse(row.notifyUserDetails).phone) }}
           </template>
         </el-table-column>
       </el-table>
