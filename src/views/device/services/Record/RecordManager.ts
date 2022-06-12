@@ -443,7 +443,7 @@ export class RecordManager {
    */
   private getRecordByTime(time: number) {
     return this.recordList.find(record => {
-      return (time! >= record.startTime) && (time! < record.endTime)
+      return (time! >= record.startTime) && (time! <= record.endTime)
     })
   }
 
