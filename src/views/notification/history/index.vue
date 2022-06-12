@@ -91,7 +91,11 @@
           </template>
         </el-table-column>
         <el-table-column prop="policyName" label="策略名称" min-width="260" show-overflow-tooltip />
-        <el-table-column prop="description" label="策略描述" min-width="260" show-overflow-tooltip />
+        <el-table-column prop="description" label="策略描述" min-width="260" show-overflow-tooltip>
+          <template slot-scope="scope">
+            {{ scope.row.description || '-' }}
+          </template>
+        </el-table-column>
         <el-table-column prop="notifyChannel" label="推送方式" min-width="160">
           <template slot-scope="scope">
             {{ scope.row.notifyChannel === '1' ? '邮件推送' : '短信推送' }}
