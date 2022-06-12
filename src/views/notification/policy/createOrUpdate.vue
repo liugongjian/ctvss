@@ -142,6 +142,7 @@
         <el-form-item>
           <el-row style="margin: 20px 0;">
             <el-button :loading="uploadLoading" type="primary" class="confirm" @click="upload">确定</el-button>
+            <el-button :loading="uploadLoading" @click="back">取消</el-button>
           </el-row>
         </el-form-item>
       </el-form>
@@ -184,7 +185,7 @@ export default class extends Vue {
     description: '',
     notifyChannel: '2',
     effectiveTime: [],
-    notifyFreq: '30',
+    notifyFreq: '240',
     source: '1',
     sourceRules: [],
     // eslint-disable-next-line no-template-curly-in-string
@@ -320,6 +321,8 @@ export default class extends Vue {
       } else {
         this.back()
       }
+    } else {
+      this.handleSourceChange(this.form.source)
     }
     this.isloading = false
   }

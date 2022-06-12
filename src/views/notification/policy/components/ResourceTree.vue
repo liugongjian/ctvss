@@ -66,7 +66,7 @@ export default class extends Vue {
 
   private async mounted() {
     await this.initDirs()
-    this.initResourceStatus(this.checkedList)
+    await this.initResourceStatus(this.checkedList)
   }
 
   /**
@@ -86,7 +86,7 @@ export default class extends Vue {
         if (keyPath && keyPath.length) {
           for (let i = 0; i < keyPath.length - 1; i++) {
             const _key = keyPath[i]
-            const node = dirTree.getNode(_key)
+            const node = dirTree && dirTree.getNode(_key)
             if (node) {
               await this.loadDirChildren(_key, node)
             }
@@ -95,7 +95,7 @@ export default class extends Vue {
         }
       }
     }
-    dirTree.setCheckedKeys(checkedKeys)
+    dirTree && dirTree.setCheckedKeys(checkedKeys)
     this.loading = false
   }
 
@@ -161,7 +161,7 @@ export default class extends Vue {
           path: node.data.path.concat([dir]),
           parentId: node.data.id
         }))
-        dirTree.updateKeyChildren(key, dirs)
+        dirTree && dirTree.updateKeyChildren(key, dirs)
       }
       node.expanded = true
       node.loaded = true
