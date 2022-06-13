@@ -443,7 +443,11 @@ export class RecordManager {
    */
   private getRecordByTime(time: number) {
     return this.recordList.find(record => {
-      return (time! >= record.startTime) && (time! <= record.endTime)
+      // 兼容statTime 和 endTime相等的情况
+      if (time === record.startTime && record.startTime === record.endTime) {
+        time++
+      }
+      return (time! >= record.startTime) && (time! < record.endTime)
     })
   }
 
