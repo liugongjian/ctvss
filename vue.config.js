@@ -52,6 +52,7 @@ module.exports = {
         target: 'https://iam-cbip.ctcdn.cn:8843/',
         secure: false,
         changeOrigin: true,
+        timeout: 3 * 1000,
         bypass: (req) => {
           if (req.headers && req.headers.referer) {
             const url = new URL(req.headers.referer)
@@ -64,7 +65,8 @@ module.exports = {
       '/iam/': {
         target: 'https://iam-cbip.ctcdn.cn:8843/',
         secure: false,
-        changeOrigin: true
+        changeOrigin: true,
+        timeout: 3 * 1000
       },
       /**
        * 天翼云单点登录
