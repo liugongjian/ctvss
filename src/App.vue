@@ -1,15 +1,12 @@
 <template>
-  <div :id="ctLogin ? 'ctcloud-console' : ''" class="app-wrap">
-    <div id="app">
-      <router-view />
-    </div>
+  <div class="app-wrap">
+    <router-view />
   </div>
 </template>
 
 <script lang="ts">
 import { isIE } from '@/utils/browser'
 import { Component, Vue } from 'vue-property-decorator'
-import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'App'
@@ -24,11 +21,6 @@ export default class extends Vue {
         }
       }, false)
     }
-
-    !!this.ctLogin && CtcloudLayout.consoleLayout.init()
-  }
-  get ctLogin() {
-    return !!UserModule.ctLoginId
   }
 }
 </script>

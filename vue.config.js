@@ -5,13 +5,13 @@ const isHttps = process.argv[process.argv.length - 1] === '--https'
 const name = '天翼云视频云网平台-客户控制台'
 const serverAddressMapping = {
   local: 'http://192.168.245.1:8081', // 本地环境
-  dev: 'http://182.43.127.35:9190', // 开发环境
+  dev: 'https://182.43.127.35:9190', // 开发环境
   dev1: 'http://182.43.127.35:9050', // 开发环境dev-1
   dev2: 'http://182.43.127.35:9060', // 新环境
   test: 'https://182.43.127.35:9180', // 测试环境
   test1: 'http://182.43.127.35:9060', // 测试环境test-1
   test2: 'http://182.43.127.35:9080', // http 测试环境 test
-  pre: 'http://182.43.127.35:9070', // 预发布环境
+  pre: 'https://182.43.127.35:9170', // 预发布环境
   prod: 'http://console.vcn.ctyun.cn' // 生产环境
 }
 const portMapping = {
@@ -22,7 +22,7 @@ const portMapping = {
   test: 9180,
   test1: 9160,
   test2: 9080,
-  pre: 9070,
+  pre: 9170,
   prod: 443
 }
 const serverAddress = serverAddressMapping[environment]
@@ -45,6 +45,30 @@ module.exports = {
     },
     progress: false,
     proxy: {
+      /**
+       * CDN单点登录
+       */
+      '/iam/gw/': {
+        target: 'https://iam-cbip.ctcdn.cn:8843/',
+        secure: false,
+        changeOrigin: true,
+        bypass: (req) => {
+          if (req.headers && req.headers.referer) {
+            const url = new URL(req.headers.referer)
+            url.host = 'iam-cbip.ctcdn.cn'
+            url.port = '8843'
+            req.headers.referer = url.href
+          }
+        }
+      },
+      '/iam/': {
+        target: 'https://iam-cbip.ctcdn.cn:8843/',
+        secure: false,
+        changeOrigin: true
+      },
+      /**
+       * 天翼云单点登录
+       */
       '/ctyun/': {
         target: 'https://www.ctyun.cn/',
         secure: false,
@@ -87,6 +111,11 @@ module.exports = {
       },
       '/v1': {
         target: serverAddress,
+        changeOrigin: true,
+        secure: false
+      },
+      '/v2': {
+        target: 'http://127.0.0.1:3000',
         changeOrigin: true,
         secure: false
       }

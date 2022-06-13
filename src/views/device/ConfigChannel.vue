@@ -76,7 +76,7 @@ export default class extends Mixins(createMixin) {
 
   private tableLoading = false
 
-  private selectChannels:any = []
+  private selectChannels: any = []
 
   public async mounted() {
     await this.getChannels()
@@ -94,8 +94,8 @@ export default class extends Mixins(createMixin) {
       // 如果有通道号传入，即为编辑过子通道
       if (this.$route.query.channelNumList) {
         const channelNumList = (this.$route.query.channelNumList as string).split(',').map(Number)
-        const result = deviceChannels.filter((item:any) => {
-          return channelNumList.some((val:any) => {
+        const result = deviceChannels.filter((item: any) => {
+          return channelNumList.some((val: any) => {
             return val === item.channelNum
           })
         })
@@ -114,12 +114,12 @@ export default class extends Mixins(createMixin) {
     }
   }
 
-  private ifDisabled(row:any) {
+  private ifDisabled(row: any) {
     return row.deviceStatus === 'on'
   }
 
   // 通道checkbox状态改变
-  private selectChannel(selection:any) {
+  private selectChannel(selection: any) {
     if (selection.length > this.channelSize) {
       this.selectChannels = selection.slice(0, this.channelSize)
       this.setChecked()
@@ -129,7 +129,7 @@ export default class extends Mixins(createMixin) {
           message: `可配置子通道数量不可超过${this.channelSize}个`,
           type: 'warning'
         })
-        temp.forEach((ele:any) => {
+        temp.forEach((ele: any) => {
           if (this.$refs.channelTable) {
             (this.$refs.channelTable as any).toggleRowSelection(ele, false)
           }
@@ -156,8 +156,8 @@ export default class extends Mixins(createMixin) {
   }
 
   // 手动勾选checkbox逻辑
-  private selectHandle(selection:any, row:any) {
-    const result = selection.filter((item:any) => item.channelNum === row.channelNum)
+  private selectHandle(selection: any, row: any) {
+    const result = selection.filter((item: any) => item.channelNum === row.channelNum)
     if (result.length > 0) {
       this.setChecked()
     } else {
@@ -180,7 +180,7 @@ export default class extends Mixins(createMixin) {
   // 设置选中状态
   private setChecked() {
     this.$nextTick(() => {
-      this.selectChannels.forEach((ele:any) => {
+      this.selectChannels.forEach((ele: any) => {
         if (this.$refs.channelTable) {
           (this.$refs.channelTable as any).toggleRowSelection(ele, true)
         }
@@ -216,8 +216,8 @@ export default class extends Mixins(createMixin) {
 </script>
 
 <style lang="scss" scoped>
-  .configChannelBox{
-    .configChannelBtnBox{
+  .configChannelBox {
+    .configChannelBtnBox {
       margin-top: 20px;
       text-align: center;
     }

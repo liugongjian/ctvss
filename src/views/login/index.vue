@@ -161,16 +161,12 @@ import { Route } from 'vue-router'
 import { Dictionary } from 'vue-router/types/router'
 import { Form as ElForm, Input } from 'element-ui'
 import { UserModule } from '@/store/modules/user'
-// import SocialSign from './components/SocialSignin.vue'
 import { GroupModule } from '@/store/modules/group'
 import { removeTicket } from '@/utils/cookies'
-// import { Module } from 'module'
+import * as loginService from '@/services/loginService'
 
 @Component({
-  name: 'Login',
-  components: {
-    // SocialSign
-  }
+  name: 'Login'
 })
 export default class extends Vue {
   private validateMainUserId = (rule: any, value: string, callback: Function) => {
@@ -223,8 +219,7 @@ export default class extends Vue {
 
   @Watch('$route', { immediate: true })
   private onRouteChange(route: Route) {
-    console.log('route: ', route)
-    this.subUserLogin = (route.path === '/login/subAccount')
+    this.subUserLogin = (route.path === loginService.innerUrl.sub)
     // TODO: remove the "as Dictionary<string>" hack after v4 release for vue-router
     // See https://github.com/vuejs/vue-router/pull/2050 for details
     const query = route.query as Dictionary<string>
@@ -324,7 +319,7 @@ export default class extends Vue {
             loginData.userName = this.loginForm.mainUserName
           }
           const result: any = await UserModule.Login(loginData)
-          removeTicket()
+          removeTicket(loginService.casUrl.type)
           if (this.subUserLogin && result.code === 8) {
             this.$router.push({
               path: '/reset-password',
@@ -370,7 +365,7 @@ export default class extends Vue {
 @supports (-webkit-mask: none) and (not (cater-color: $loginCursorColor)) {
   .login-container .el-input {
     input { color: $text; }
-    input::first-line { color: $text; }
+    input:first-line { color: $text; }
   }
 }
 
@@ -386,22 +381,22 @@ export default class extends Vue {
 
     input {
       background: #fff;
-      border: 0px;
-      border-radius: 0px;
+      border: 0;
+      border-radius: 0;
       padding: 12px 5px 12px 15px;
       color: $text;
-      -webkit-appearance: none;
+      appearance: none;
 
       &:-webkit-autofill {
         background: none;
-        box-shadow: 0 0 0px 1000px #fff inset !important;
+        box-shadow: 0 0 0 1000px #fff inset !important;
         -webkit-text-fill-color: $text !important;
       }
     }
   }
 
   .el-form-item {
-    border: 1px solid #C6C6C6;
+    border: 1px solid #c6c6c6;
     background: #fff;
     border-radius: 5px;
     color: $text;
@@ -442,6 +437,7 @@ export default class extends Vue {
         margin-left: 15px;
         padding-left: 15px;
       }
+
       img {
         height: 30px;
       }
@@ -451,7 +447,7 @@ export default class extends Vue {
   &__body {
     display: flex;
     width: 1100px;
-    margin: 70px auto 0 auto;
+    margin: 70px auto 0;
 
     &__left {
       flex: 1;
@@ -459,6 +455,7 @@ export default class extends Vue {
 
     &__right {
       flex: 1;
+
       img {
         width: 100%;
       }
@@ -498,7 +495,7 @@ export default class extends Vue {
     .title {
       font-size: 26px;
       color: $text;
-      margin: 0px auto 40px auto;
+      margin: 0 auto 40px;
       text-align: center;
       font-weight: bold;
     }
@@ -530,6 +527,7 @@ export default class extends Vue {
     display: flex;
     margin-bottom: 10px;
     justify-content: space-between;
+
     &__login {
       width: 100%;
     }
@@ -537,6 +535,7 @@ export default class extends Vue {
 
   .login-switcher {
     text-align: center;
+
     svg {
       vertical-align: middle;
     }

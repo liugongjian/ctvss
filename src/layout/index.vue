@@ -8,7 +8,7 @@
       class="drawer-bg"
       @click="handleClickOutside"
     />
-    <sidebar v-if="!ctLogin" class="sidebar-container" />
+    <sidebar v-if="!ctyunCasLogin" :show-headline="ctcdnCasLogin" class="sidebar-container" />
     <div
       class="main-container"
     >
@@ -51,8 +51,12 @@ export default class extends mixins(ResizeMixin) {
     }
   }
 
-  get ctLogin() {
-    return !!UserModule.ctLoginId
+  get ctyunCasLogin() {
+    return !!UserModule.casLoginId && location.hostname.split('.').slice(-2)[0] === 'ctyun'
+  }
+
+  get ctcdnCasLogin() {
+    return !!UserModule.casLoginId && location.hostname.split('.').slice(-2)[0] === 'ctcdn'
   }
 
   get showSettings() {
@@ -76,6 +80,7 @@ export default class extends mixins(ResizeMixin) {
 <style lang="scss" scoped>
 .app-wrapper {
   @include clearfix;
+
   position: relative;
   height: 100%;
   width: 100%;
@@ -93,7 +98,7 @@ export default class extends mixins(ResizeMixin) {
 
 .main-container {
   min-height: 100%;
-  transition: margin-left .28s;
+  transition: margin-left 0.28s;
   margin-left: $sideBarWidth;
   position: relative;
 }
@@ -103,7 +108,7 @@ export default class extends mixins(ResizeMixin) {
   width: $sideBarWidth !important;
   height: 100%;
   position: fixed;
-  font-size: 0px;
+  font-size: 0;
   top: 0;
   bottom: 0;
   left: 0;
@@ -130,18 +135,18 @@ export default class extends mixins(ResizeMixin) {
   }
 
   .fixed-header {
-    width: calc(100% - 54px)
+    width: calc(100% - 54px);
   }
 }
 
 /* for mobile response 适配移动端 */
 .mobile {
   .main-container {
-    margin-left: 0px;
+    margin-left: 0;
   }
 
   .sidebar-container {
-    transition: transform .28s;
+    transition: transform 0.28s;
     width: $sideBarWidth !important;
   }
 

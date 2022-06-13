@@ -79,7 +79,7 @@ export default class extends Vue {
       { required: true, message: '请输入回调KEY', trigger: 'blur' }
     ]
   }
-  private urlReg = /^(((http:|https:)\/\/)[a-zA-Z0-9][a-zA-Z0-9-]{0,62}((:(\d*\*\d*|\d+))*|\.[a-zA-Z0-9][a-zA-Z0-9-]{0,62})+(:(\d*\*\d*|\d+))*(\/[a-zA-Z0-9-.]*)*)*$/;
+  private urlReg = /^(((http:|https:)\/\/)[a-zA-Z0-9][a-zA-Z0-9-]{0,62}((:(\d*\*\d*|\d+))*|\.[a-zA-Z0-9][a-zA-Z0-9-]{0,62})+(:(\d*\*\d*|\d+))*(\/[a-zA-Z0-9-.]*)*)*$/
   private selectedRows: any[] = []
   private form: CallbackTemplate = {
     templateName: '',
@@ -193,7 +193,9 @@ export default class extends Vue {
 </script>
 
 <style lang="scss" scoped>
-  .fixed-width.el-input, .fixed-width.el-select, .fixed-width.el-textarea {
+  .fixed-width.el-input,
+  .fixed-width.el-select,
+  .fixed-width.el-textarea {
     width: 600px;
   }
 </style>
