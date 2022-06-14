@@ -194,7 +194,8 @@ export const AlertType: any = {
   28: '人员徘徊检测',
   29: '垃圾站检测',
   30: '视野遮挡检测',
-  31: '跌倒检测'
+  31: '跌倒检测',
+  33: '动物检测'
 }
 
 export const AiMaskType: any = {
@@ -275,7 +276,7 @@ export const scaleKind = [
   { label: '拉伸', kind: 'fit', num: '1' }
 ]
 /**
- * 视频播放比例
+ * 垃圾类别
  */
 export const TrashType = [
   { label: 'cask_yes', cname: '垃圾桶已盖' },
@@ -287,4 +288,8 @@ export const TrashType = [
 export const HelmetClothType = [
   { label: 'helmet', cname: '未带安全帽告警' },
   { label: 'reflective', cname: '未穿反光服告警' }
+]
+
+export const AnimalType = [
+  { label: 'Bear', cname: '狗熊' }
 ]
