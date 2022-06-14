@@ -2,10 +2,10 @@
   <el-dialog
     title="管理资源"
     :visible="dialogVisible"
-    :close-on-click-modal="true"
     width="960px"
     center
     @close="closeDialog"
+    @click.stop.native="clearSelected"
   >
     <div class="dialog-wrap">
       <div v-show="step === 0" v-loading="loading.dir" class="tree-wrap">
@@ -18,6 +18,7 @@
           :load="loadDirs"
           :props="treeProp"
           :check-strictly="false"
+          :allow-drag="allowDrag"
           draggable
           :allow-drop="() => false"
           @check="checkCallback"
@@ -43,13 +44,13 @@
           <el-tree
             ref="vgroupTree"
             node-key="id"
-            draggable
+            :draggable="isDraggable"
             :data="sharedDirList"
             :load="loadSharedDirs"
             :props="treeProp"
             lazy
             :allow-drop="() => true"
-            @node-click="selectVGroup"
+            @node-click="selectSharedDevice"
           >
             <span slot-scope="{node, data}" class="custom-tree-node" :class="[data.deviceStatus === 'on' ? 'online' : '', step === 0 ? 'custom-tree-node' : 'custom-tree-node-right']">
               <span slot="reference" class="node-name">
@@ -60,19 +61,19 @@
                 </span>
                 {{ node.label.length > 10 ? node.label.substring(0,9)+'...' : node.label }}
               </span>
-              <el-popover
-                placement="top"
-                trigger="hover"
-                :open-delay="300"
-                :content="node.label"
-                popper-class="player__popover"
-              >
-                <span v-if="step === 1" slot="reference" class="node-input">
-                  <div class="node-input__label"><span>{{ node.label.length > 10 ? node.label.substring(0,9)+'...' : node.label }}</span></div>
+              <span v-if="step === 1" slot="reference" class="node-input">
+                <el-popover
+                  placement="top"
+                  trigger="hover"
+                  :open-delay="300"
+                  :content="node.label"
+                  popper-class="player__popover"
+                >
+                  <div slot="reference" class="node-input__label"><span>{{ node.label.length > 10 ? node.label.substring(0,9)+'...' : node.label }}</span></div>
+                </el-popover>
+                <div><el-input v-model="data.label" size="mini" /></div>
+              </span>
 
-                  <div><el-input v-model="data.label" size="mini" /></div>
-                </span>
-              </el-popover>
             </span>
           </el-tree>
         </div>
@@ -108,9 +109,9 @@
       </div>
       <div v-if="step === 0" class="device-wrap">
         <el-button type="primary" @click="openInner('append')">新建组/虚拟组织</el-button>
-        <el-button type="primary" @click="openInner('edit')">编辑</el-button>
-        <el-button type="primary" @click="openInner('deleteGroup')">删除组/虚拟组织</el-button>
-        <el-button type="primary" @click="openInner('deleteDevice')">删除设备</el-button>
+        <el-button type="primary" :disabled="!(selectedNode && selectedNode.data.type !== 'ipc')" @click="openInner('edit')">编辑</el-button>
+        <el-button type="primary" :disabled="!(selectedNode && selectedNode.data.type !== 'ipc')" @click="openInner('deleteGroup')">删除组/虚拟组织</el-button>
+        <el-button type="primary" :disabled="!(selectedNode && selectedNode.data.type === 'ipc')" @click="openInner('deleteDevice')">删除设备</el-button>
       </div>
     </div>
     <div slot="footer" class="dialog-footer">
@@ -119,7 +120,7 @@
       <el-button v-if="step === 1" type="primary" @click="confirm">确 定</el-button>
       <el-button @click="closeDialog">取 消</el-button>
     </div>
-    <InnerDialog v-if="innerVisible" :platform-id="{}" :type="innerDialogType" :mode="mode" @close-inner="closeInner" />
+    <InnerDialog v-if="innerVisible" :selected-node="selectedNode" :type="innerDialogType" :mode="mode" @close-inner="closeInner" @inner-op="innerOp" />
   </el-dialog>
 </template>
 <script lang="ts">
@@ -171,9 +172,11 @@ export default class extends Vue {
   // 两种模式：虚拟组：vgroup和行政区：district
   private mode = 'vgroup'
 
-  // private tableData = []
-
   private selectedNode = null
+
+  private get isDraggable() {
+    return this.step === 0
+  }
 
   @Prop()
   private platformId: any
@@ -187,6 +190,7 @@ export default class extends Vue {
   private async mounted() {
     await this.initDirs()
     await this.initSharedDirs()
+    console.log('this.selectedNode:', this.selectedNode)
   }
 
   /**
@@ -363,7 +367,7 @@ export default class extends Vue {
   private async loadAll(node) {
     let res = []
     if (node.data.dragInFlag) { // 对新darg入的节点进行加载
-      res = await this.getTree(node, node.data.dragInFlag)
+      res = await this.getTree(node)
     } else { // 对已共享的目录进行加载
       const dirs = await this.getSharedDirs(node)
       const deviceDirs = await this.getSharedTree(node)
@@ -389,7 +393,7 @@ export default class extends Vue {
         label: dir.dirName,
         id: dir.dirId,
         sharedFlag: true,
-        dragInFlag: false,
+        dragInFlag: node.data.dragInFlag,
         path: [{
           id: dir.dirId,
           label: dir.dirName,
@@ -467,7 +471,7 @@ export default class extends Vue {
           disabled: sharedFlag,
           path: node.data.path.concat([dir]),
           sharedFlag: sharedFlag,
-          dragInFlag: false,
+          dragInFlag: node.data.dragInFlag,
           roleId: node.data.roleId || '',
           realGroupId: node.data.realGroupId || '',
           realGroupInProtocol: node.data.realGroupInProtocol || ''
@@ -484,7 +488,7 @@ export default class extends Vue {
   /**
    * 获取菜单树
    */
-  private async getTree(node: any, dragInFlag: boolean = false) {
+  private async getTree(node: any) {
     try {
       if (node.data.type === 'role') {
         node.data.roleId = node.data.id
@@ -551,7 +555,7 @@ export default class extends Vue {
           roleId: node.data.roleId || '',
           realGroupId: node.data.realGroupId || '',
           realGroupInProtocol: node.data.realGroupInProtocol || '',
-          dragInFlag
+          dragInFlag: !!node.data?.dragInFlag
         }
       })
       dirs = setDirsStreamStatus(dirs)
@@ -564,30 +568,49 @@ export default class extends Vue {
   private async checkCallback(data: any) {
     const dirTree: any = this.$refs.dirTree
     const node = dirTree.getNode(data.id)
-    this.checkNodes(dirTree, node)
+    await this.checkNodes(dirTree, node)
   }
 
-  private async checkNodes(dirTree: any, node: any, dragInFlag: boolean = false) {
-    let dirs = []
-    if (!dragInFlag) {
-      if (node.checked) {
-        if (node.loaded) {
-          node.expanded = true
-        } else {
-          dirs = await this.getTree(node)
-          dirTree.updateKeyChildren(node.data.id, dirs)
-          node.expanded = true
-          node.loaded = true
-        }
-        node.childNodes.forEach((child: any) => {
-          child.checked = true
-          if (child.data.type !== 'ipc') {
-            this.checkNodes(dirTree, child)
-          }
-        })
-        this.onCheckDevice()
+  private async checkNodes(dirTree: any, node: any) {
+    if (node.checked) {
+      if (node.loaded) {
+        node.expanded = true
+      } else {
+        const dirs = await this.getTree(node)
+        dirTree.updateKeyChildren(node.data.id, dirs)
+        node.expanded = true
+        node.loaded = true
       }
+      node.childNodes.forEach((child: any) => {
+        child.checked = true
+        if (child.data.type !== 'ipc') {
+          this.checkNodes(dirTree, child)
+        }
+      })
+      this.onCheckDevice()
+    }
+  }
+  private async expandNodes(dirTree: any, node: any) {
+    let dirs = []
+
+    if (node.data.dragInFlag) {
+      // 如果节点是拉进来的
+      if (node.loaded) {
+        node.expanded = true
+      } else {
+        dirs = await this.getTree(node)
+        dirTree.updateKeyChildren(node.data.id, dirs)
+        node.expanded = true
+        node.loaded = true
+      }
+      node.childNodes.forEach((child: any) => {
+        child.checked = true
+        if (child.data.type !== 'ipc') {
+          this.expandNodes(dirTree, child)
+        }
+      })
     } else {
+      // 如果节点是原有的（已分享的）
       if (node.loaded) {
         node.expanded = true
       } else {
@@ -599,7 +622,7 @@ export default class extends Vue {
       node.childNodes.forEach((child: any) => {
         child.checked = true
         if (child.data.type !== 'ipc') {
-          this.checkNodes(dirTree, child)
+          this.expandNodes(dirTree, child)
         }
       })
     }
@@ -616,8 +639,9 @@ export default class extends Vue {
     }
   }
 
-  private selectVGroup(data: any, node: any) {
+  private selectSharedDevice(data: any, node: any) {
     this.selectedNode = node
+    console.log('click node:', node)
   }
 
   /**
@@ -785,13 +809,17 @@ export default class extends Vue {
   }
 
   private openInner(type) {
+    if (!this.selectedNode || this.selectedNode.data.type === 'ipc') {
+      if (type !== 'deleteDevice' && type !== 'append') {
+        this.$message({
+          message: '请先选择一个目录',
+          type: 'warning'
+        })
+        return
+      }
+    }
     this.innerVisible = true
     this.innerDialogType = type
-    // const vgroupTree: any = this.$refs.vgroupTree
-    // let emptyData = { id: 1, children: [] }
-    // if (this.selectedNode) {
-    //   vgroupTree.append(emptyData, this.selectedNode)
-    // }
   }
 
   private closeInner() {
@@ -802,17 +830,34 @@ export default class extends Vue {
     this.step = 1
     // 点击下一步时，展开所有的node
     const vgroupTree: any = this.$refs.vgroupTree
-    const nodes: any = vgroupTree.store.nodesMap
-    Object.keys(nodes).forEach(nLabel => {
-      this.checkNodes(vgroupTree, nodes[nLabel], true)
-    })
+    // const nodes: any = vgroupTree.store.nodesMap
+    this.sharedDirList.forEach(item => this.expandNodes(vgroupTree, vgroupTree.getNode(item)))
   }
 
   private prev() {
     this.step = 0
   }
 
+  private allowDrag(node) {
+    if (node.data.type !== 'ipc') {
+      this.$message({
+        message: '只能拖拽设备',
+        type: 'warning'
+      })
+      return false
+    }
+    return true
+  }
+
   private confirm() {
+    const vgroupTree: any = this.$refs.vgroupTree
+    const nodes: any = vgroupTree.store.nodesMap
+
+    console.log(Object.keys(nodes).forEach(nLabel => {
+      console.log(nodes[nLabel].data.label + ' : draginFlag   ' + nodes[nLabel].data.dragInFlag + '      shareFlag     ' + nodes[nLabel].data.sharedFlag)
+    }))
+    // console.log('this.sharedDirList:', this.sharedDirList)
+    // console.log('this.dirList:', this.dirList)
   }
 
   private load(tree, treeNode, resolve) {
@@ -834,6 +879,30 @@ export default class extends Vue {
   }
   private changeMode() {
     this.mode = this.mode === 'vgroup' ? 'district' : 'vgroup'
+  }
+
+  private innerOp(param) {
+    console.log('param:', param)
+    const vgroupTree: any = this.$refs.vgroupTree
+    switch (param.type) {
+      case 'append':
+        param.parentDir ? vgroupTree.append(param.form, param.parentDir) : this.sharedDirList.push(param.form)
+        break
+      case 'edit':
+        return '编辑目录'
+      case 'deleteGroup':
+        param.parentDir ? vgroupTree.remove(param.form) : this.sharedDirList = this.sharedDirList.filter(item => item.id !== param.form.id)
+        break
+      case 'deleteDevice':
+        return '删除设备'
+      default:
+        return '提示'
+    }
+    this.innerVisible = false
+  }
+
+  private clearSelected() {
+    this.selectedNode = null
   }
 }
 </script>
