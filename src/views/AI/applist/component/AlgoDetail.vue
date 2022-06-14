@@ -173,6 +173,12 @@
         <el-input v-model="form.algorithmMetadata.areaThreshold" />
         <span class="comment">%</span>
       </el-form-item>
+      <!-- 动物检测 -->
+      <el-form-item v-if="ifShow('10033')" label="动物列表" prop="algorithmMetadata.animalDetectType">
+        <el-checkbox-group v-model="form.algorithmMetadata.animalDetectType">
+          <el-checkbox v-for="type in AnimalType" :key="type.label" :label="type.label">{{ type.cname }}</el-checkbox>
+        </el-checkbox-group>
+      </el-form-item>
       <!-- 垃圾投放站检测 -->
       <el-form-item v-if="ifShow('10026')" label="细分检测项" prop="algorithmMetadata.trashRecycleType">
         <el-checkbox-group v-model="form.algorithmMetadata.trashRecycleType">
@@ -225,7 +231,7 @@
 import { Component, Mixins, Prop } from 'vue-property-decorator'
 import { getAIConfigGroupData } from '@/api/aiConfig'
 import { getAppInfo, updateAppInfo, createApp } from '@/api/ai-app'
-import { ResourceAiType, TrashType, HelmetClothType } from '@/dics'
+import { ResourceAiType, TrashType, HelmetClothType, AnimalType } from '@/dics'
 import AppMixin from '../../mixin/app-mixin'
 import { formRule, formTips } from '../util/form-helper'
 
@@ -241,7 +247,8 @@ export default class extends Mixins(AppMixin) {
   private form: any = {
     algorithmMetadata: {
       trashRecycleType: [],
-      helmetReflectiveType: []
+      helmetReflectiveType: [],
+      animalDetectType: []
     },
     beeNumber: 1
   }
@@ -251,6 +258,7 @@ export default class extends Mixins(AppMixin) {
   private effectiveTime: any = []
   private tips: any = formTips
   private TrashType = TrashType
+  private AnimalType = AnimalType
   private HelmetClothType: any = HelmetClothType
 
   get analyseAiType() {
