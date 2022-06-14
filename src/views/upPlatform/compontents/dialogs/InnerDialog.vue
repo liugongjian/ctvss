@@ -76,7 +76,6 @@ export default class extends Vue {
         break
       case 'deleteGroup':
         this.form = this.selectedNode.data
-        console.log('this.form:', this.form)
         break
       case 'deleteDevice':
         return '删除设备'

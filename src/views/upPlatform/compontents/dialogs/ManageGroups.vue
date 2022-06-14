@@ -103,15 +103,13 @@
             </el-table-column>
           </el-table>
         </div> -->
-        <div v-show="step === 1" class="tree-wrap__sub">
-          <el-button type="primary" @click="changeMode">{{ mode === 'vgroup' ? '' : '退出' }}匹配行政区划</el-button>
-        </div>
       </div>
       <div v-if="step === 0" class="device-wrap">
         <el-button type="primary" @click="openInner('append')">新建组/虚拟组织</el-button>
         <el-button type="primary" :disabled="!(selectedNode && selectedNode.data.type !== 'ipc')" @click="openInner('edit')">编辑</el-button>
         <el-button type="primary" :disabled="!(selectedNode && selectedNode.data.type !== 'ipc')" @click="openInner('deleteGroup')">删除组/虚拟组织</el-button>
         <el-button type="primary" :disabled="!(selectedNode && selectedNode.data.type === 'ipc')" @click="openInner('deleteDevice')">删除设备</el-button>
+        <el-button type="primary" @click="changeMode">{{ mode === 'vgroup' ? '' : '退出' }}匹配行政区划</el-button>
       </div>
     </div>
     <div slot="footer" class="dialog-footer">
@@ -818,6 +816,13 @@ export default class extends Vue {
         return
       }
     }
+    if (this.selectedNode && this.selectedNode.data.type !== 'ipc' && this.mode === 'district' && this.selectedNode.level > 4 && type === 'append') {
+      this.$message({
+        message: '行政区划目录层级不得超过4级',
+        type: 'warning'
+      })
+      return
+    }
     this.innerVisible = true
     this.innerDialogType = type
   }
@@ -856,27 +861,8 @@ export default class extends Vue {
     console.log(Object.keys(nodes).forEach(nLabel => {
       console.log(nodes[nLabel].data.label + ' : draginFlag   ' + nodes[nLabel].data.dragInFlag + '      shareFlag     ' + nodes[nLabel].data.sharedFlag)
     }))
-    // console.log('this.sharedDirList:', this.sharedDirList)
-    // console.log('this.dirList:', this.dirList)
   }
 
-  private load(tree, treeNode, resolve) {
-    setTimeout(() => {
-      resolve([
-        {
-          id: 31,
-          date: '2016-05-01',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1519 弄'
-        }, {
-          id: 32,
-          date: '2016-05-01',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1519 弄'
-        }
-      ])
-    }, 1000)
-  }
   private changeMode() {
     this.mode = this.mode === 'vgroup' ? 'district' : 'vgroup'
   }
@@ -922,10 +908,13 @@ export default class extends Vue {
   display: flex;
 
   &__sub {
-    flex: 1 0;
-    // max-width: 360px;
-    // /* stylelint-disable-next-line declaration-block-no-duplicate-properties */
-    // max-width: 300px;
+    // flex: 1 0;
+    display: flex;
+    justify-content: center;
+
+    &__switch {
+      height: 36px;
+    }
   }
 
   .table {
