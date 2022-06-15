@@ -85,6 +85,39 @@
         <el-form-item v-if="form.isAuth" label="SIP认证密码:" prop="sipPassword">
           <el-input v-model="form.sipPassword" />
         </el-form-item>
+        <el-form-item label="级联方式:" prop="cascadeNetWork">
+          <el-radio-group v-model="form.cascadeNetWork">
+            <el-radio label="public">虚拟业务组</el-radio>
+            <el-radio label="private">行政区划</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="所属行业">
+          <el-select v-model="form.type">
+            <el-option value="flv" label="FLV" />
+            <el-option value="hls" label="HLS" />
+            <el-option value="rtc" label="Webrtc" />
+          </el-select>
+        </el-form-item>
+        <el-form-item prop="cascadeRegion" class="form-with-tip">
+          <template slot="label">
+            上级区域:
+            <el-popover
+              placement="top-start"
+              title="级联区域"
+              width="400"
+              trigger="hover"
+              :open-delay="300"
+              content=""
+            >
+              <svg-icon slot="reference" class="form-question" name="help" />
+            </el-popover>
+          </template>
+          <el-cascader
+            v-model="form.cascadeRegion"
+            placeholder="请选择"
+            :options="regionList"
+          />
+        </el-form-item>
         <el-form-item label="注册周期（秒）:" prop="registerInterval">
           <template slot="label">
             注册周期:
@@ -440,7 +473,8 @@ export default class extends Vue {
 
 <style lang="scss" scoped>
 .app-container {
-  ::v-deep .el-input, ::v-deep .el-textarea {
+  ::v-deep .el-input,
+  ::v-deep .el-textarea {
     width: 400px;
   }
 }

@@ -8,24 +8,22 @@
   >
     <el-form v-if="type === 'append' || type === 'edit'" :label-position="'right'" label-width="130px">
       <el-form-item label="分组名">
-        <el-input v-model="form.label" placeholder="请输入目录名称" class="form__input" />
+        <el-input v-model="form.dirName" placeholder="请输入目录名称" class="form__input" />
       </el-form-item>
-      <el-form-item v-if="mode === 'vgroup'" label="所属行业">
-        <el-select v-model="form.IndustryCode" class="form__input">
-          <el-option value="flv" label="FLV" />
-          <el-option value="hls" label="HLS" />
-          <el-option value="rtc" label="Webrtc" />
+      <el-form-item label="所属行业">
+        <el-select v-model="form.industryCode" class="form__input">
+          <el-option value="04" label="04" />
         </el-select>
       </el-form-item>
       <el-form-item label="上级平台区域">
-        <el-select v-model="form.GbRegionLevel" class="form__input">
-          <el-option value="flv" label="FLV" />
-          <el-option value="hls" label="HLS" />
-          <el-option value="rtc" label="Webrtc" />
+        <el-select v-model="form.gbRegionLevel" class="form__input">
+          <el-option value="1" label="1" />
+          <el-option value="2" label="2" />
+          <el-option value="3" label="3" />
         </el-select>
       </el-form-item>
-      <el-form-item v-model="form.Description" label="描述">
-        <el-input placeholder="请输入相关描述" class="form__input" />
+      <el-form-item label="描述">
+        <el-input v-model="form.description" placeholder="请输入相关描述" class="form__input" />
       </el-form-item>
     </el-form>
     <div v-else class="delete-content">
@@ -39,6 +37,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
+import { createCascadeDir, modifyCascadeDir, describeShareDirs } from '@/api/upPlatform'
 
 @Component({
   name: 'InnerDialog'
@@ -48,39 +47,52 @@ export default class extends Vue {
   private selectedNode!: any
 
   @Prop()
+  private platformId!: any
+
+  @Prop()
   private type!: String
 
   @Prop()
   private mode!: String
 
-  private form: any = null
+  private form: any = {
+    id: '',
+    dirName: '',
+    description: '',
+    industryCode: '',
+    gbRegionLevel: ''
+  }
   private parentDir: String
 
-  mounted() {
+  private async mounted() {
     switch (this.type) {
       case 'append':
-        this.parentDir = this.selectedNode?.data.id || null
-        this.form = {
-          id: '283749',
-          DirName: '',
-          DirType: '0',
-          Description: '',
-          IndustryCode: '',
-          NetworkCode: '',
-          GbRegionLevel: '',
-          type: 'vgroup'
+        this.parentDirId = this.selectedNode?.data.id || '-1'
+        break
+      case 'edit': {
+        try {
+          const res = await describeShareDirs({
+            platformId: this.platformId,
+            dirId: this.selectedNode.data.id,
+            pageSize: 1000
+          })
+          if (res.dirs.length > 0) {
+            this.form = res.dirs[0]
+          }
+        } catch (e) {
+          console.log(e)
         }
         break
-      case 'edit':
-        this.form = this.selectedNode.data
-        break
+      }
       case 'deleteGroup':
+        // 接口没看到
         this.form = this.selectedNode.data
         break
       case 'deleteDevice':
-        return '删除设备'
+
+        break
       default:
-        return '提示'
+        break
     }
   }
 
@@ -103,8 +115,23 @@ export default class extends Vue {
     this.$emit('close-inner')
   }
 
-  private submit() {
-    this.$emit('inner-op', { type: this.type, form: this.form, parentDir: this.parentDir })
+  private async submit() {
+    const param = { platformId: this.platformId, dirs: [{ ...this.form, parentDirId: this.parentDirId, dirType: this.parentDirId ? '1' : '0' }] }
+    switch (this.type) {
+      case 'append':
+        await createCascadeDir(param)
+        break
+      case 'edit':
+        await modifyCascadeDir(param)
+        break
+      case 'deleteGroup':
+        break
+      case 'deleteDevice':
+        break
+      default:
+        break
+    }
+    this.$emit('inner-op', { type: this.type, form: this.form, parentDirId: this.parentDirId })
   }
 }
 </script>
