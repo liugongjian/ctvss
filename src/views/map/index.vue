@@ -206,13 +206,13 @@
                 <el-button type="primary" @click="openMapEditDialog()">添加地图</el-button>
               </div>
               <div v-show="showInfo" class="map-info__right">
-                <div v-if="showMapInfo">
+                <!-- <div v-if="showMapInfo">
                   <map-info :is-edit="isEdit" :map="curMap" @save="changeMapInfos" />
                 </div>
                 <div v-if="!showMapInfo">
                   <point-info :is-edit="isEdit" :marker="curMarkInfo" @save="changeMarkerInfos" />
-                <!-- <selected-point /> -->
-                </div>
+                </div> -->
+                <custom-info />
               </div>
             </div>
           </div>
@@ -236,6 +236,7 @@ import MapInfo from './components/MapInfo.vue'
 import { getMaps, createMap, deleteMap, modifyMap } from '@/api/map'
 import { mapObject } from '@/views/map/models/vmap'
 import CustomPoint from './components/CustomPoint/index.vue'
+import CustomInfo from './components/CustomInfo/index.vue'
 
 @Component({
   name: 'Map',
@@ -245,7 +246,8 @@ import CustomPoint from './components/CustomPoint/index.vue'
     MapInfo,
     PointInfo,
     SelectedPoint,
-    CustomPoint
+    CustomPoint,
+    CustomInfo
   }
 })
 export default class extends Mixins(IndexMixin) {
@@ -595,7 +597,7 @@ export default class extends Mixins(IndexMixin) {
    */
   private exitFullscreenMap() {
     const mapInfo: any = document.querySelector('.map-info__right')
-    mapInfo.style.top = '40px'
+    mapInfo.style.top = '60px'
 
     const mapwrap: any = document.querySelector('.mapwrap')
     mapwrap.style.position = 'initial'
@@ -1304,18 +1306,6 @@ export default class extends Mixins(IndexMixin) {
   width: 50%;
 }
 
-.map-info__right {
-  position: absolute;
-  top: 40px;
-  right: 0;
-  background: rgba(255, 255, 255, 80%);
-  width: 180px;
-  height: 100%;
-  padding: 10px;
-  overflow: scroll;
-  z-index: 10;
-}
-
 .dialog-text {
   .block {
     width: 100%;
@@ -1513,12 +1503,24 @@ export default class extends Mixins(IndexMixin) {
 }
 
 .map-info__right {
-  ::v-deep .el-descriptions {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  background: rgba(255, 255, 255, 50%);
+  width: 246px;
+  height: calc(100% - 80px);
+  border: 1px solid #d3d3d3;
+  border-radius: 5px;
+  overflow: auto;
+  z-index: 10;
+  backdrop-filter: blur(3px);
+
+  /* ::v-deep .el-descriptions {
     font-size: 12px;
     margin-top: 10px;
   }
 
-  ::v-deep .el-descriptions__title{
+  ::v-deep .el-descriptions__title {
     font-size: 14px;
   }
 
@@ -1528,7 +1530,7 @@ export default class extends Mixins(IndexMixin) {
 
   ::v-deep .el-descriptions__body {
     background: transparent;
-  }
+  } */
 
   ::v-deep .el-input--medium {
     font-size: 12px;
