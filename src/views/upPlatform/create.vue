@@ -91,7 +91,7 @@
             <el-radio :label="2">虚拟业务组</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="所属行业">
+        <el-form-item prop="industryCode" label="所属行业">
           <el-select v-model="form.industryCode" placeholder="请选择所属行业">
             <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
           </el-select>
@@ -275,6 +275,9 @@ export default class extends Vue {
     ],
     cascadeType: [
       { required: true, message: '请选择级联类型', trigger: 'change' }
+    ],
+    industryCode: [
+      { required: true, message: '请选择所属行业', trigger: 'change' }
     ]
   }
 

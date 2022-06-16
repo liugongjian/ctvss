@@ -82,7 +82,7 @@
       </div>
     </div>
     <div slot="footer" class="dialog-footer">
-      <el-button v-if="step === 0" type="primary" @click="next">下一步</el-button>
+      <el-button v-if="step === 0" type="primary" :disabled="sharedDirList.length === 0" @click="next">下一步</el-button>
       <el-button v-if="step === 1" type="primary" @click="prev">上一步</el-button>
       <el-button v-if="step === 1" type="primary" @click="confirm">确 定</el-button>
       <el-button @click="closeDialog">取 消</el-button>
@@ -265,7 +265,7 @@ export default class extends Vue {
         })
       }
     } catch (e) {
-      this.sharedDirList = [{ id: 1, label: 'test' }]
+      this.sharedDirList = []
       console.log(e)
     } finally {
       this.loading.sharedDir = false
@@ -723,7 +723,9 @@ export default class extends Vue {
     // 点击下一步时，展开所有的node
     const vgroupTree: any = this.$refs.vgroupTree
     // const nodes: any = vgroupTree.store.nodesMap
-    this.sharedDirList.forEach(item => this.expandNodes(vgroupTree, vgroupTree.getNode(item)))
+    this.loading.sharedDir = true
+    this.sharedDirList.forEach(async item => { await this.expandNodes(vgroupTree, vgroupTree.getNode(item)) })
+    this.loading.sharedDir = false
   }
 
   private prev() {
@@ -819,14 +821,15 @@ export default class extends Vue {
   justify-content: space-between;
 
   .switch {
-    flex-basis: auto;
+    display: flex;
     justify-content: flex-end;
   }
 
   &__sub {
     // flex: 1 0;
-    display: flex;
-    justify-content: center;
+    // display: flex;
+    // justify-content: center;
+    width: 100%;
 
     &__switch {
       height: 36px;
