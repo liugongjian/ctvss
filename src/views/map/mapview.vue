@@ -289,10 +289,11 @@ export default class MapView extends Vue {
     if (data.canPlay) {
       const width = this.playWindowStyle.width
       const height = this.playWindowStyle.height
+      const markerHeight = 65
       const style = {
         width: `${width}px`,
         height: `${height}px`,
-        top: `${data.top - height - 30}px`,
+        top: `${data.top - height - markerHeight - 10}px`,
         left: `${data.left - width / 2}px`
       }
       const screen = new Screen()
