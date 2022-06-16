@@ -1,23 +1,26 @@
 import request from '@/utils/request'
 
-export const getSecretList = (): Promise<any> =>
+export const getSecretList = (params: any = {}): Promise<any> =>
   request({
     url: '/openapi/list',
-    method: 'get'
+    method: 'get',
+    params
   })
 
-export const createSecret = (): Promise<any> =>
+export const createSecret = (data: any = undefined): Promise<any> =>
   request({
     url: '/openapi/create',
-    method: 'post'
+    method: 'post',
+    data
   })
 
-export const deleteSecret = (params: number): Promise<any> =>
+export const deleteSecret = (params: number, type = undefined): Promise<any> =>
   request({
     url: '/openapi/delete',
     method: 'post',
     data: {
-      id: params
+      id: params,
+      type
     }
   })
 
