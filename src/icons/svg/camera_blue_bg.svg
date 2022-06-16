@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="57px" height="79px" viewBox="0 0 57 79" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Group 5</title>
+    <defs>
+        <path d="M19.3333333,0 C9.18977778,0 0,8.22633333 0,18.3731111 C0,33.4595556 15.4118889,35.0545556 19.3333333,58 C23.2547778,35.0545556 38.6666667,33.4595556 38.6666667,18.3731111 C38.6666667,8.22633333 29.4801111,0 19.3333333,0 Z" id="path-1"></path>
+        <filter x="-34.9%" y="-19.8%" width="169.8%" height="152.2%" filterUnits="objectBoundingBox" id="filter-2">
+            <feMorphology radius="0.5" operator="dilate" in="SourceAlpha" result="shadowSpreadOuter1"></feMorphology>
+            <feOffset dx="0" dy="2" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="4" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feComposite in="shadowBlurOuter1" in2="SourceAlpha" operator="out" result="shadowBlurOuter1"></feComposite>
+            <feColorMatrix values="0 0 0 0 0.784313725   0 0 0 0 0.788235294   0 0 0 0 0.8  0 0 0 0.5 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="Web端" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="电子地图--点位编辑" transform="translate(-730.000000, -262.000000)">
+            <g id="Group-5" transform="translate(739.000000, 269.000000)">
+                <circle id="圆点" stroke="#178DE5" stroke-width="2" fill="#F9F9F9" cx="19" cy="60" r="3"></circle>
+                <g id="Path-Copy-2" fill-rule="nonzero">
+                    <use fill="black" fill-opacity="1" filter="url(#filter-2)" xlink:href="#path-1"></use>
+                    <use stroke="#178DE5" stroke-width="1" fill-opacity="0.377458479" fill="#1B9EFF" xlink:href="#path-1"></use>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
