@@ -57,14 +57,20 @@
           </el-table>
         </el-card>
       </el-tab-pane>
-      <el-tab-pane label="open api授权" name="open">
+      <el-tab-pane label="OpenAPI授权" name="open">
         <el-form :model="apiForm" label-width="240px">
           <el-form-item label="授权服务:">
-            <span>{{ apiForm.accessKey ? `${apiForm.accessKey}（AccessKey）` : '—' }}</span><br>
-            <span>{{ apiForm.secretKey ? `${apiForm.secretKey}（SecretKey）` : '' }}</span>
+            <span>OpenAPI</span>
           </el-form-item>
           <el-form-item label="授权时间:">
             <span>{{ apiForm.createdTime ? apiForm.createdTime : '—' }}</span>
+          </el-form-item>
+
+          <el-form-item label="AccessKeyId:">
+            <span>{{ apiForm.accessKey ? `${apiForm.accessKey}` : '—' }}</span>
+          </el-form-item>
+          <el-form-item label="SecretAccessKey:">
+            <span>{{ apiForm.secretKey ? `${apiForm.secretKey}` : '—' }}</span>
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="operateAuth">{{ `${apiForm.type ? '取消' : '立即'}授权` }}</el-button>
