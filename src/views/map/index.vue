@@ -19,7 +19,7 @@
                   <span class="map-text">{{ map.name }}</span>
                 </el-tooltip>
                 <div>
-                  <span class="edit-icon"><svg-icon name="mark" @click.stop="editMark(map)" /></span>
+                  <!-- <span class="edit-icon"><svg-icon name="mark" @click.stop="editMark(map)" /></span> -->
                   <span class="edit-icon"><svg-icon name="edit" @click.stop="openMapEditDialog(map)" /></span>
                   <span class="delete-icon"><svg-icon name="delete" @click.stop="deleteMap(map)" /></span>
                 </div>
@@ -80,13 +80,13 @@
 
               <template v-if="isEdit">
                 <el-tooltip content="多边形工具" placement="top">
-                  <span class="tools-item"><svg-icon name="polygon" @click=" closeAllWindow()" /></span>
+                  <span class="tools-item"><svg-icon name="polygon" @click="changeCustomInfoType('polygon',true)" /></span>
                 </el-tooltip>
                 <el-tooltip content="兴趣点工具" placement="top">
-                  <span class="tools-item"><svg-icon name="interest" @click=" closeAllWindow()" /></span>
+                  <span class="tools-item"><svg-icon name="interest" @click="changeCustomInfoType('interest',true)" /></span>
                 </el-tooltip>
                 <el-tooltip content="文本工具" placement="top">
-                  <span class="tools-item"><svg-icon name="font" @click=" closeAllWindow()" /></span>
+                  <span class="tools-item"><svg-icon name="font" @click="changeCustomInfoType('font',true)" /></span>
                 </el-tooltip>
               </template>
 
@@ -96,8 +96,12 @@
 
               <el-tooltip content="属性" placement="top">
                 <span class="tools-item">
-                  <svg-icon v-if="showInfo" name="unfold" class="device-list__activeSvg" @click="showInfo = !showInfo" />
-                  <svg-icon v-else name="fold" @click="showInfo = !showInfo" />
+                  <svg-icon
+                    v-if="showInfo" name="unfold" class="device-list__activeSvg" @click="changeCustomInfoType('map',false)"
+                  />
+                  <svg-icon
+                    v-else name="fold" @click="changeCustomInfoType('map',false)"
+                  />
                 </span>
               </el-tooltip>
               <el-tooltip content="进入全屏" placement="top">
@@ -212,11 +216,11 @@
                 <div v-if="!showMapInfo">
                   <point-info :is-edit="isEdit" :marker="curMarkInfo" @save="changeMarkerInfos" />
                 </div> -->
-                <custom-info />
+                <custom-info v-if="customInfoType" :key="customInfoType" :map="curMap" :is-edit="isEdit" :marker="curMarkInfo" :custom-info-type="customInfoType" @save="changeMarkerInfos" />
               </div>
             </div>
           </div>
-          <custom-point v-if="showCustomPoint" :key="freshWithKey" :custom-point-info="customPointInfo" @closeEditMark="closeEditMark" @chooseMap="chooseMap" />
+          <!-- <custom-point v-if="showCustomPoint" :key="freshWithKey" :custom-point-info="customPointInfo" @closeEditMark="closeEditMark" @chooseMap="chooseMap" /> -->
         </div>
       </div>
     </el-card>
@@ -284,6 +288,7 @@ export default class extends Mixins(IndexMixin) {
   private markerInfo: any = {}
   private dragNodeInfo: any = {}
   private ifDragging: boolean = false
+  private customInfoType: string = ''
   private form = {
     mapId: '',
     name: '',
@@ -625,7 +630,7 @@ export default class extends Mixins(IndexMixin) {
   private mousedownHandle(eve: any, data: any) {
     if (!data.isLeaf || (data.isLeaf && this.mapDeviceIds.indexOf(data.id) >= 0)) return
 
-    this.closeEditMark()
+    // this.closeEditMark()
     this.ifDragging = true
     const { target: ele } = eve
 
@@ -777,6 +782,16 @@ export default class extends Mixins(IndexMixin) {
       }
       this.curMarkInfo = info
     }
+    this.changeCustomInfoType(type, false)
+  }
+
+  private changeCustomInfoType(type: string, flag: boolean) {
+    if (!flag) {
+      this.showInfo = !this.showInfo
+    } else {
+      this.showInfo = true
+    }
+    this.customInfoType = type
   }
 
   handleMarksChange(list) {
@@ -811,7 +826,7 @@ export default class extends Mixins(IndexMixin) {
   }
 
   addMarker(marker) {
-    this.closeEditMark()
+    // this.closeEditMark()
     if (!this.isEdit) {
       this.$msgbox({
         title: '开始编辑',
@@ -958,7 +973,7 @@ export default class extends Mixins(IndexMixin) {
   }
 
   deviceClick(data) {
-    this.closeEditMark()
+    // this.closeEditMark()
     if (data.isLeaf && this.mapDeviceIds.indexOf(data.id) < 0) {
       this.$message.warning('该设备尚未添加到当前地图上')
     } else if (data.isLeaf && this.mapDeviceIds.indexOf(data.id) >= 0) {
@@ -969,7 +984,7 @@ export default class extends Mixins(IndexMixin) {
   }
 
   deleteMarker(marker) {
-    this.closeEditMark()
+    // this.closeEditMark()
     this.$refs.mapview.handleMarkerDelete(marker.id, marker.label)
   }
 
@@ -1039,7 +1054,7 @@ export default class extends Mixins(IndexMixin) {
         } catch (e) {
           this.$alertError(e.message)
         } finally {
-          this.closeEditMark()
+          // this.closeEditMark()
         }
       } else {
         return false
@@ -1064,7 +1079,6 @@ export default class extends Mixins(IndexMixin) {
       zoom: true
     }
   }
-
   private closeAllWindow() {
     this.$refs.mapview.closeAllPlayer()
   }
