@@ -6,7 +6,7 @@ const name = '天翼云视频云网平台-客户控制台'
 const serverAddressMapping = {
   local: 'http://192.168.245.1:8081', // 本地环境
   dev: 'http://182.43.127.35:9190', // 开发环境
-  dev1: 'http://182.43.127.35:9050', // 开发环境dev-1
+  dev1: 'https://dev1.guiyang.vcn.ctyun.cn', // 开发环境dev-1
   test: 'https://182.43.127.35:9180', // 测试环境
   test1: 'https://182.43.127.35:9160', // 测试环境test-1
   test2: 'http://182.43.127.35:9080', // http 测试环境 test

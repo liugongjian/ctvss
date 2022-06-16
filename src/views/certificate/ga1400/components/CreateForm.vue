@@ -32,7 +32,6 @@
 import { Base64 } from 'js-base64'
 import { Component, Vue } from 'vue-property-decorator'
 import { createCertificate, queryCertificate, updateCertificate } from '@/api/certificate/ga1400'
-import { GA1400 } from '@/type/certificate'
 
 @Component({
   name: 'CreateGb28181CertificateForm'
@@ -57,7 +56,7 @@ export default class extends Vue {
       { validator: this.validateOldPass, trigger: 'blur' }
     ]
   }
-  private form: GA1400 = {
+  private form: any = {
     userName: '',
     password: '',
     newPassword: '',
@@ -109,7 +108,7 @@ export default class extends Vue {
               password: 'YTVjIX' + Base64.encode(this.form.password as string) + 'ZmZUBl',
               newPassword: 'YmNjIW' + Base64.encode(this.form.newPassword as string) + '1mZSNl'
             }
-            await updateCertificate(data)
+            await updateCertificate(data, this.form.id)
           } else {
             this.form.password = this.form.newPassword
             data = {
@@ -144,7 +143,8 @@ export default class extends Vue {
       this.$set(this.form, 'userName', params.userName)
       try {
         const res = await queryCertificate({ userName: this.form.userName })
-        this.$set(this.form, 'description', res.description)
+        this.$set(this.form, 'description', res.data[0].description)
+        this.$set(this.form, 'id', res.data[0].id)
       } catch (e) {
         this.$message.error(e && e.message)
       }

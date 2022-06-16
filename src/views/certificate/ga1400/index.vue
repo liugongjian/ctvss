@@ -17,7 +17,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="description" label="描述" min-width="160" />
-        <el-table-column prop="createdTime" label="创建时间" min-width="160" />
+        <el-table-column prop="createTime" label="创建时间" min-width="160" />
         <el-table-column prop="action" label="操作" width="150" fixed="right">
           <template slot-scope="{row}">
             <el-button type="text" @click="edit(row)">编辑</el-button>
@@ -81,8 +81,8 @@ export default class extends Vue {
     }
     try {
       const res = await getList(params)
-      this.dataList = res.ga1400Certs
-      this.pager.total = res.totalNum
+      this.dataList = res.data
+      this.pager.total = res.total
       this.pager.pageSize = res.pageSize
     } catch (e) {
       this.$message.error(e && e.message)
@@ -119,12 +119,12 @@ export default class extends Vue {
     })
   }
 
-  private async deleteCertificate(row: GA1400) {
+  private async deleteCertificate(row: any) {
     this.$alertDelete({
       type: 'GA1400凭证',
       msg: `是否确认删除GA1400凭证"${row.userName}"`,
       method: deleteCertificate,
-      payload: { userName: row.userName },
+      payload: { userName: row.userName, id: row.id },
       onSuccess: this.getList
     })
   }
