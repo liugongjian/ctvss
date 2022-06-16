@@ -26,6 +26,7 @@
           @node-click="selectDevice"
           @node-drag-start="handleDragstart"
           @node-drag-end="handleDragend"
+          @node-drag-over="handleDragOver"
         >
           <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}">
             <span class="node-name">
@@ -151,7 +152,8 @@ export default class extends Vue {
   private treeProp = {
     label: 'label',
     children: 'children',
-    isLeaf: 'isLeaf'
+    isLeaf: 'isLeaf',
+    disabled: () => {}
   }
   private innerDialogType = ''
 
@@ -211,7 +213,7 @@ export default class extends Vue {
           inProtocol: group.inProtocol,
           gbId: group.gbId,
           type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
-          disabled: false,
+          disabled: true,
           path: [{
             id: group.groupId,
             label: group.groupName,
@@ -224,44 +226,6 @@ export default class extends Vue {
     } finally {
       this.loading.dir = false
     }
-  }
-
-  /**
-   * 查询上级平台列表
-   */
-  private async getPlatformList() {
-    try {
-      const res = await getPlatforms({
-        pageNum: 1,
-        pageSize: 1000
-      })
-      this.platformList = res.platforms
-      if (this.platformId) {
-        const currentPlatform = this.platformList.find((platform: any) => platform.platformId === this.platformId)
-        this.currentPlatform = currentPlatform
-      } else {
-        this.initPlatform()
-      }
-    } catch (e) {
-      this.$message.error(e && e.message)
-    }
-  }
-
-  /**
-   * 初始化上级平台
-   */
-  private initPlatform() {
-    if (this.platformList.length !== 0) {
-      this.selectPlatform(this.platformList[0])
-    }
-  }
-
-  /**
-   * 选择平台
-   */
-  private selectPlatform(platform: any) {
-    this.currentPlatform = platform
-    this.initSharedDirs()
   }
 
   /**
@@ -310,48 +274,8 @@ export default class extends Vue {
         })
       }
     } catch (e) {
-      this.sharedDirList = []
+      this.sharedDirList = [{ id: 1, label: 'test' }]
       console.log(e)
-    }
-  }
-
-  /**
-   * 获取设备列表
-   */
-  private async getList(node: any, isDelete: any) {
-    if (!this.platformId) {
-      return
-    }
-    let params: any = {
-      platformId: this.platformId,
-      inProtocol: node.inProtocol,
-      groupId: node.groupId,
-      dirId: node.dirId || '0',
-      dirType: node.dirType || '0',
-      pageNum: 0,
-      pageSize: 1000
-    }
-    // this.loading.sharedDevices = true
-    try {
-      const res = await describeShareDevices(params)
-      this.dataList = res.devices
-      this.pager.total = res.totalNum
-      // 是否删除目录
-      if (isDelete && node.dirId && this.dataList.length === 0) {
-        try {
-          await cancleShareDir({
-            platformId: this.platformId,
-            inProtocol: node.inProtocol,
-            groupId: node.groupId,
-            dirId: node.dirId
-          })
-          this.initSharedDirs()
-        } catch (e) {
-          this.$message.error(e && e.message)
-        }
-      }
-    } catch (e) {
-      this.$message.error(e && e.message)
     }
   }
 
@@ -553,12 +477,12 @@ export default class extends Vue {
         let sharedFlag = false
         if (shareDeviceIds.includes(dir.id) && dir.type === 'ipc') {
           sharedFlag = true
-          checkedKeys.push(dir.id)
-          dirTree.setCheckedKeys(checkedKeys)
+          // checkedKeys.push(dir.id)
+          // dirTree.setCheckedKeys(checkedKeys)
         }
-        if (dir.type === 'ipc') {
-          node.data.disabled = false
-        }
+        // if (dir.type === 'ipc') {
+        //   node.data.disabled = false
+        // }
         return {
           id: dir.id,
           groupId: node.data.groupId,
@@ -569,7 +493,7 @@ export default class extends Vue {
           deviceStatus: dir.deviceStatus,
           streamStatus: dir.streamStatus,
           // disabled: dir.type !== 'ipc' || sharedFlag,
-          disabled: sharedFlag,
+          disabled: true,
           path: node.data.path.concat([{ ...dir, gbIdDistrict: dir.gbId || '', gbIdVgroup: dir.gbId || '' }]),
           sharedFlag: sharedFlag,
           roleId: node.data.roleId || '',
@@ -613,6 +537,7 @@ export default class extends Vue {
       this.onCheckDevice()
     }
   }
+
   private async expandNodes(dirTree: any, node: any) {
     let dirs = []
 
@@ -677,124 +602,6 @@ export default class extends Vue {
     })
   }
 
-  /**
-   * 移除设备
-   */
-  private removeDevice(device: any) {
-    const dirTree: any = this.$refs.dirTree
-    dirTree.setChecked(device.id, false)
-  }
-
-  /**
-   * 显示设备所在路径
-   */
-  private renderPath(path: any) {
-    const dirPath = path.slice(0, -1)
-    const dirPathName = dirPath.map((dir: any) => {
-      return dir.label
-    })
-    return dirPathName.join('/')
-  }
-
-  /**
-   * 提交
-   */
-  private async submit() {
-    if (!this.deviceList.length) {
-      this.$message.error('未选择任何资源')
-      return
-    }
-    try {
-      this.submitting = true
-      const groups: any = []
-      this.deviceList.forEach((item: any) => {
-        // 构建group
-        if (item.path[0].type === 'vgroup') {
-          item = {
-            ...item,
-            path: item.path.slice(2)
-          }
-        }
-        const groupId = item.path[0].id
-        const inProtocol = item.path[0].inProtocol
-        let currentGroup = groups.find((group: any) => group.groupId === groupId)
-        if (!currentGroup) {
-          currentGroup = {
-            groupId: groupId,
-            inProtocol: inProtocol,
-            dirs: []
-          }
-          groups.push(currentGroup)
-        }
-        // 构建dir列表
-        const pathDirs = item.path.filter((path: any) => {
-          if (['dir', 'nvr', 'platform', 'platformDir'].includes(path.type)) return true
-        })
-        let dirId = '0'
-        let currentGroupDir
-        let dirType = 0
-        let parentDirId = '0'
-        // patform特殊字段
-        let parentDirType = ''
-        if (pathDirs.length) {
-          const parentPath = pathDirs.slice(0, -1)
-          parentDirId = '0'
-          parentDirType = ''
-          if (parentPath.length) {
-            const ids = parentPath.map((path: any) => {
-              return path.id
-            })
-            const types = parentPath.map((path: any) => {
-              return this.typeMapping[path.type]
-            })
-            parentDirId = ids.join(',')
-            parentDirType = types.join(',')
-          }
-          dirId = pathDirs[pathDirs.length - 1].id
-          dirType = pathDirs[pathDirs.length - 1].type
-          currentGroupDir = currentGroup.dirs.find((dir: any) => dir.dirId === dirId)
-          if (!currentGroupDir) {
-            currentGroupDir = {
-              dirId,
-              parentDirId,
-              dirType: this.typeMapping[dirType] || 0,
-              devices: []
-            }
-            currentGroup.dirs.push(currentGroupDir)
-          }
-        }
-        currentGroupDir = currentGroup.dirs.find((dir: any) => dir.dirId === dirId)
-        if (!currentGroupDir) {
-          currentGroupDir = {
-            dirId,
-            parentDirId,
-            dirType,
-            devices: []
-          }
-          currentGroup.dirs.push(currentGroupDir)
-        }
-        // 构建ipc
-        currentGroupDir.devices.push({
-          deviceId: item.id
-        })
-        // 针对patform特殊处理
-        if ((parentDirType + ',' + currentGroupDir.dirType).split(',').some(type => ['3', '4'].includes(type))) {
-          currentGroupDir.parentDirType = parentDirType
-        }
-      })
-      await shareDevice({
-        platformId: this.platformId,
-        vssGroups: groups
-      })
-      this.$message.success('添加资源成功！')
-    } catch (e) {
-      this.$message.error(e && e.message)
-    } finally {
-      this.submitting = false
-    }
-    this.closeDialog(true)
-  }
-
   private closeDialog(isRefresh: boolean = false) {
     this.dialogVisible = false
     this.$emit('on-close', isRefresh)
@@ -803,6 +610,12 @@ export default class extends Vue {
   private handleDragstart(node, event) {
     const vgroupTree: any = this.$refs.vgroupTree
     vgroupTree.$emit('tree-node-drag-start', event, { node: node })
+  }
+
+  private handleDragOver(draggingNode, overNode, event) {
+    const vgroupTree: any = this.$refs.vgroupTree
+    console.log('overNode:', overNode)
+    vgroupTree.$emit('tree-node-drag-over', event)
   }
 
   private handleDragend(draggingNode, endNode, position, event) {

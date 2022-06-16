@@ -85,37 +85,26 @@
         <el-form-item v-if="form.isAuth" label="SIP认证密码:" prop="sipPassword">
           <el-input v-model="form.sipPassword" />
         </el-form-item>
-        <el-form-item label="级联方式:" prop="cascadeNetWork">
-          <el-radio-group v-model="form.cascadeNetWork">
-            <el-radio label="public">虚拟业务组</el-radio>
-            <el-radio label="private">行政区划</el-radio>
+        <el-form-item label="级联方式:" prop="platformType">
+          <el-radio-group v-model="form.platformType">
+            <el-radio label="0">虚拟业务组</el-radio>
+            <el-radio label="1">行政区划</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="所属行业">
-          <el-select v-model="form.type">
-            <el-option value="flv" label="FLV" />
-            <el-option value="hls" label="HLS" />
-            <el-option value="rtc" label="Webrtc" />
+          <el-select v-model="form.industryCode" :disabled="form.gbId !== ''" placeholder="请选择所属行业">
+            <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item prop="cascadeRegion" class="form-with-tip">
           <template slot="label">
-            上级区域:
-            <el-popover
-              placement="top-start"
-              title="级联区域"
-              width="400"
-              trigger="hover"
-              :open-delay="300"
-              content=""
-            >
-              <svg-icon slot="reference" class="form-question" name="help" />
-            </el-popover>
+            上级级联区域:
           </template>
-          <el-cascader
-            v-model="form.cascadeRegion"
-            placeholder="请选择"
-            :options="regionList"
+          <AddressCascader
+            :code="form.gbRegion"
+            :level="form.gbRegionLevel"
+            :disabled="form.gbId !== ''"
+            @change="onDeviceAddressChange"
           />
         </el-form-item>
         <el-form-item label="注册周期（秒）:" prop="registerInterval">
@@ -198,11 +187,15 @@
 </template>
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
+import { DeviceAddress } from '@/type/device'
 import { createPlatform, updatePlatform, getPlatform } from '@/api/upPlatform'
 import { getRegions } from '@/api/region'
+import { industryMap } from '@/assets/region/industry'
+import AddressCascader from '@/views/components/AddressCascader.vue'
 
 @Component({
-  name: 'CreateUpPlatform'
+  name: 'CreateUpPlatform',
+  components: { AddressCascader }
 })
 export default class extends Vue {
   private breadCrumbContent = ''
@@ -228,7 +221,11 @@ export default class extends Vue {
     permissionSet: [],
     description: '',
     enableLocalChannelName: 0, // 不使用 0， 使用 1
-    cascadeNetWork: 'public'
+    cascadeNetWork: 'public',
+    gbRegion: '',
+    gbRegionLevel: '',
+    industryCode: '',
+    platformType: '0'
   }
   private submitting = false
   private loading = false
@@ -278,6 +275,14 @@ export default class extends Vue {
     ]
   }
 
+  private get industryList() {
+    return Object.keys(industryMap).map((key: any) => {
+      return {
+        name: industryMap[key],
+        value: key
+      }
+    })
+  }
   private get isUpdate() {
     return this.$route.name === 'up-platform-gb28121-update'
   }
@@ -320,6 +325,14 @@ export default class extends Vue {
     } finally {
       this.loading = false
     }
+  }
+
+  /**
+   * 选择设备地址
+   */
+  public onDeviceAddressChange(region: DeviceAddress) {
+    this.form.gbRegion = region.code
+    this.form.gbRegionLevel = region.level
   }
 
   /**
