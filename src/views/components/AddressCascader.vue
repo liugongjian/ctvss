@@ -122,7 +122,7 @@ export default class extends Vue {
    */
   private async loadChildAddress(node, resolve) {
     try {
-      if (node.children.length) {
+      if (node && node.children && node.children.length) {
         throw new Error('Has children')
       }
       if (node.data && node.data.leaf) {
