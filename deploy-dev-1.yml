@@ -42,6 +42,6 @@ spec:
   - port: 80
     targetPort: 80
     protocol: TCP
-    nodePort: 32488
+    nodePort: 32588
   selector:
     app: vss-user-web
