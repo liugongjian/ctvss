@@ -91,7 +91,11 @@
           </template>
         </el-table-column>
         <el-table-column prop="policyName" label="策略名称" min-width="260" show-overflow-tooltip />
-        <el-table-column prop="description" label="策略描述" min-width="260" show-overflow-tooltip />
+        <el-table-column prop="description" label="策略描述" min-width="260" show-overflow-tooltip>
+          <template slot-scope="scope">
+            {{ scope.row.description || '-' }}
+          </template>
+        </el-table-column>
         <el-table-column prop="notifyChannel" label="推送方式" min-width="160">
           <template slot-scope="scope">
             {{ scope.row.notifyChannel === '1' ? '邮件推送' : '短信推送' }}
@@ -105,7 +109,7 @@
         <el-table-column prop="notifyContent" label="消息内容" min-width="260" show-overflow-tooltip />
         <el-table-column prop="notifyUserDetails" label="推送对象" min-width="260" show-overflow-tooltip>
           <template slot-scope="{row}">
-            {{ row.notifyUserDetails && JSON.parse(row.notifyUserDetails).user }}
+            {{ row.notifyUserDetails && (row.notifyChannel === '1' ? JSON.parse(row.notifyUserDetails).email : JSON.parse(row.notifyUserDetails).phone) }}
           </template>
         </el-table-column>
       </el-table>
@@ -331,14 +335,16 @@ export default class extends Vue {
 <style lang="scss" scoped>
 .filter-container {
   min-width: 1100px;
+
   .el-radio-group {
     margin-right: 20px;
   }
+
   &__advance-search {
     display: flex;
     flex-wrap: wrap;
     max-height: 0;
-    transition: all .5s;
+    transition: all 0.5s;
 
     &__expanded {
       max-height: 500px;
@@ -346,13 +352,16 @@ export default class extends Vue {
 
     & > .el-form-item {
       flex: 1 0 33.33%;
+
       .el-select {
         width: 100%;
       }
+
       .user-group {
         .el-select {
           width: 40%;
         }
+
         .el-select + .el-select {
           width: 55%;
           float: right;
