@@ -77,38 +77,40 @@
           <div class="tools">
             <span class="left">
               <span class="btn-edit tools-item" @click="changeEdit()">{{ isEdit ? '完成编辑' : '开启编辑' }}</span>
-              <!-- <span class="tools-item"><svg-icon name="selects" /></span> -->
-              <el-tooltip :content="hideTitle ? '显示监控点位名称': '隐藏监控点位名称'" placement="top">
-                <span class="tools-item"><svg-icon name="title" :class="curMap && !hideTitle ?'active':''" @click="changeTitleShow()" /></span>
-              </el-tooltip>
-              <el-tooltip :content="overView ? '隐藏鹰眼地图' : '显示鹰眼地图'" placement="top">
-                <span class="tools-item"><svg-icon name="hawkeye" :class="curMap && overView?'active':''" @click="toggleOverView()" /></span>
-              </el-tooltip>
-              <el-tooltip :content="is3D ? '关闭2.5D视图' : '显示2.5D视图'" placement="top">
-                <span class="tools-item"><svg-icon name="3d" :class="curMap && is3D?'active':''" @click="toggleMap3D()" /></span>
-              </el-tooltip>
-              <!--              <el-tooltip :content="showMarkers ? '隐藏监控点位' : '显示监控点位'" placement="top">-->
-              <!--                <span class="tools-item"><svg-icon name="mark" :class="curMap && showMarkers?'active':''" @click="toggleMarkersShow()" /></span>-->
-              <!--              </el-tooltip>-->
+
+              <template v-if="isEdit">
+                <el-tooltip content="多边形工具" placement="top">
+                  <span class="tools-item"><svg-icon name="polygon" @click=" closeAllWindow()" /></span>
+                </el-tooltip>
+                <el-tooltip content="兴趣点工具" placement="top">
+                  <span class="tools-item"><svg-icon name="interest" @click=" closeAllWindow()" /></span>
+                </el-tooltip>
+                <el-tooltip content="文本工具" placement="top">
+                  <span class="tools-item"><svg-icon name="font" @click=" closeAllWindow()" /></span>
+                </el-tooltip>
+              </template>
+
               <el-tooltip content="关闭所有播放窗口" placement="top">
                 <span class="tools-item"><svg-icon name="close-all" @click=" closeAllWindow()" /></span>
               </el-tooltip>
-              <!-- <span class="tools-item"><svg-icon name="magnifier" /></span> -->
-              <!-- <span class="tools-item tools-item__cup">|</span>
-              <span class="tools-item"><svg-icon name="player" /></span>
-              <span class="tools-item"><svg-icon name="play-video" /></span>
-              <span class="tools-item"><svg-icon name="delete" /></span> -->
+
+              <el-tooltip content="属性" placement="top">
+                <span class="tools-item">
+                  <svg-icon v-if="showInfo" name="unfold" class="device-list__activeSvg" @click="showInfo = !showInfo" />
+                  <svg-icon v-else name="fold" @click="showInfo = !showInfo" />
+                </span>
+              </el-tooltip>
               <el-tooltip content="进入全屏" placement="top">
                 <span class="tools-item">
                   <svg-icon name="fullscreen" @click="fullscreenMap" />
                 </span>
               </el-tooltip>
             </span>
-            <span class="right">
+            <!-- <span class="right">
               <el-tooltip content="属性" placement="top">
                 <span class="tools-item"><svg-icon name="toggle-show" @click="showInfo = !showInfo" /></span>
               </el-tooltip>
-            </span>
+            </span> -->
           </div>
           <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
             <el-dialog :title="mapEditDialog.status === 'add' ? '添加地图' : '编辑地图'" :visible.sync="mapEditDialog.dialogVisible" width="45%" class="dialog-text">
@@ -1397,10 +1399,17 @@ export default class extends Mixins(IndexMixin) {
     align-items: center;
     justify-content: flex-start;
     transition: margin-left 0.3s;
+    margin-left: auto;
 
     .tools-item {
       margin-right: 20px;
     }
+  }
+}
+
+.device-list {
+  &__activeSvg {
+    fill: #fa8334;
   }
 }
 
