@@ -7,7 +7,7 @@ export const getSecretList = (params: any = {}): Promise<any> =>
     params
   })
 
-export const createSecret = (data: any = {}): Promise<any> =>
+export const createSecret = (data: any = undefined): Promise<any> =>
   request({
     url: '/openapi/create',
     method: 'post',

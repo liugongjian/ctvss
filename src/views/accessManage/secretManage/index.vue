@@ -120,7 +120,6 @@ export default class extends Vue {
   private async getAuth() {
     try {
       const res = await getSecretList({ type: 'public' })
-      console.log(res)
       if (res.keys.length > 0) {
         this.apiForm = { ...res.keys[0], type: true }
       } else {
