@@ -26,9 +26,8 @@
           @node-click="selectDevice"
           @node-drag-start="handleDragstart"
           @node-drag-end="handleDragend"
-          @node-drag-over="handleDragOver"
         >
-          <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}">
+          <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}" @click.stop.prevent="">
             <span class="node-name">
               <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
               <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
@@ -51,6 +50,7 @@
             :props="treeProp"
             lazy
             :allow-drop="() => true"
+            @node-drag-end="handleDragendShared"
             @node-click="selectSharedDevice"
           >
             <span slot-scope="{node, data}" class="custom-tree-node" :class="[data.deviceStatus === 'on' ? 'online' : '', step === 0 ? 'custom-tree-node' : 'custom-tree-node-right']">
@@ -609,26 +609,44 @@ export default class extends Vue {
 
   private handleDragstart(node, event) {
     const vgroupTree: any = this.$refs.vgroupTree
+    // const checkedNodes = vgroupTree.getCheckedNodes(true, false)
     vgroupTree.$emit('tree-node-drag-start', event, { node: node })
+    // checkedNodes.forEach(node => vgroupTree.$emit('tree-node-drag-start', event, { node: node }))
   }
 
-  private handleDragOver(draggingNode, overNode, event) {
+  private handleDragendShared(draggingNode, endNode, position, event) {
+    console.log('handleDragendShared endNode:', endNode)
+    const dirTree: any = this.$refs.dirTree
     const vgroupTree: any = this.$refs.vgroupTree
-    console.log('overNode:', overNode)
-    vgroupTree.$emit('tree-node-drag-over', event)
+    // dirTree.setChecked(draggingNode.data, true, false)
+    const checkedNodes = dirTree.getCheckedNodes(true, false)
+    // checkedNodes.push({ ...draggingNode.data, dragInFlag: true })
+    console.log('checkedNodes:', checkedNodes)
+    console.log('this.sharedDirList:', this.sharedDirList)
+    console.log('endNode:', endNode)
+
+    checkedNodes.forEach(data => {
+      debugger
+      if (endNode.data.type === 'ipc') {
+        vgroupTree.insertBefore({ ...data, dragInFlag: true }, endNode)
+      } else {
+        vgroupTree.append({ ...data, dragInFlag: true }, endNode)
+      }
+    })
+    // this.$nextTick(() => dirTree.setChecked(draggingNode.data, true, false))
   }
 
   private handleDragend(draggingNode, endNode, position, event) {
+    console.log('handleDragend endNode:', endNode)
     const dirTree: any = this.$refs.dirTree
     const vgroupTree: any = this.$refs.vgroupTree
 
-    // 插入一个空节点用于占位
+    // // 插入一个空节点用于占位
     let emptyData = { id: draggingNode.id, children: [] }
     dirTree.insertBefore(emptyData, draggingNode)
 
-    // 对拉入到共享树中的节点打上标记
+    // // 对拉入到共享树中的节点打上标记
     draggingNode.data = { ...draggingNode.data, dragInFlag: true }
-
     vgroupTree.$emit('tree-node-drag-end', event)
     this.$nextTick(() => {
       // 如果是移动到了当前树上，需要清掉空节点
