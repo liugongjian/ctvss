@@ -296,7 +296,6 @@ export default class extends Vue {
     if (this.isUpdate) {
       this.getPlatformInfo()
     }
-    console.log('this.form:', this.form)
   }
 
   private async getPlatformInfo() {

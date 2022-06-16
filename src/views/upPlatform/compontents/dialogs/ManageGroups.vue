@@ -71,7 +71,7 @@
           </el-tree>
         </div>
         <div v-if="step === 1" class="tree-wrap__sub switch">
-          <el-button type="primary" class="tree-wrap__sub__switch" @click="changeMode">{{ mode === 'vgroup' ? '' : '退出' }}匹配行政区划</el-button>
+          <el-button type="primary" class="tree-wrap__sub__switch" @click="changeMode">{{ gbIdMode === 'vgroup' ? '' : '退出' }}匹配行政区划</el-button>
         </div>
       </div>
       <div v-if="step === 0" class="device-wrap">
@@ -102,7 +102,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
-import { describeShareDevices, describeShareDirs } from '@/api/upPlatform'
+import { describeShareDevices, describeShareDirs, getPlatform } from '@/api/upPlatform'
 import { setDirsStreamStatus } from '@/utils/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import InnerDialog from './InnerDialog.vue'
@@ -115,6 +115,8 @@ import InnerDialog from './InnerDialog.vue'
   }
 })
 export default class extends Vue {
+  @Prop()
+  private platformId: any
   private dialogVisible = true
   private submitting = false
   private dirList: any = []
@@ -150,14 +152,13 @@ export default class extends Vue {
   // 两种模式：虚拟组：vgroup和行政区：district
   private mode = 'vgroup'
 
+  private gbIdMode = 'vgroup'
+
   private selectedNode = null
 
   private get isDraggable() {
     return this.step === 0
   }
-
-  @Prop()
-  private platformId: any
   private typeMapping: any = {
     dir: 0,
     nvr: 1,
@@ -166,10 +167,17 @@ export default class extends Vue {
   }
 
   private mounted() {
+    this.initPlatform()
     this.initDirs()
     this.initSharedDirs()
   }
 
+  private async initPlatform() {
+    const res = await getPlatform({
+      platformId: this.platformId
+    })
+    this.mode = res.platform?.cascadeType === 1 ? 'district' : 'vgroup'
+  }
   /**
    * 目录初始化
    */
@@ -638,7 +646,6 @@ export default class extends Vue {
       vgroupTree.remove(draggingData)
       checkedNodes.push({ ...draggingData, dragInFlag: true })
       checkedNodes.forEach(data => {
-        debugger
         if (endNode.data.type === 'ipc') {
           vgroupTree.insertBefore({
             ...data,
@@ -739,19 +746,16 @@ export default class extends Vue {
   }
 
   private shareDevices(list) {
-    console.log(list)
-    const param = []
-    list.forEach(item => {
-      if (item.sharedFlag) {
-
-      }
-    })
+    // const param = []
+    // list.forEach(item => {
+    //   const dirId = item.path[item.path.length - 2].dirId
+    //   if (item.type === 'ipc' && item.dragInFlag) {
+    //   }
+    // })
   }
 
   private changeMode() {
-    this.mode = this.mode === 'vgroup' ? 'district' : 'vgroup'
-    console.log('this.sharedDirList:', this.sharedDirList)
-    console.log('this.dirList:', this.dirList)
+    this.gbIdMode = this.gbIdMode === 'vgroup' ? 'district' : 'vgroup'
   }
 
   private async innerOp(param) {
@@ -779,7 +783,7 @@ export default class extends Vue {
 
   private rootInput(node, data, val) {
     data.gbIdDistrict = val
-    if (node.level === 1 && this.mode === 'district') { // 根节点
+    if (node.level === 1 && this.gbIdMode === 'district') { // 根节点
       if (val !== data.gbIdDistrictRoot) {
         data.gbIdDistrictRoot = val
         this.changeGbIdDistrictRoot(data, val)

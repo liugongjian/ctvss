@@ -47,16 +47,6 @@
           </el-button>
           <el-button type="primary" @click="manageGroups">
             管理资源
-            <el-popover
-              placement="top-start"
-              title="管理资源"
-              width="400"
-              trigger="hover"
-              :open-delay="300"
-              :content="tips.manageGroups"
-            >
-              <svg-icon slot="reference" name="help" color="#fff" />
-            </el-popover>
           </el-button>
           <el-button v-if="!currentPlatform.enabled" :loading="loading.startStop" @click="startShare()">启动级联</el-button>
           <el-button v-else :loading="loading.startStop" @click="stopShare()">停止级联</el-button>

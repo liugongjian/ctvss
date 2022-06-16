@@ -10,17 +10,18 @@
       <el-form-item label="分组名">
         <el-input v-model="form.dirName" placeholder="请输入目录名称" class="form__input" />
       </el-form-item>
-      <el-form-item label="所属行业">
-        <el-select v-model="form.industryCode" class="form__input">
-          <el-option value="04" label="04" />
+      <el-form-item v-if="mode === 'vgroup'" label="所属行业">
+        <el-select v-model="form.industryCode" placeholder="请选择所属行业">
+          <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
         </el-select>
       </el-form-item>
       <el-form-item label="上级平台区域">
-        <el-select v-model="form.gbRegionLevel" class="form__input">
-          <el-option value="1" label="1" />
-          <el-option value="2" label="2" />
-          <el-option value="3" label="3" />
-        </el-select>
+        <AddressCascader
+          :code="form.gbRegion"
+          :level="form.gbRegionLevel"
+          :disabled="false"
+          @change="onDeviceAddressChange"
+        />
       </el-form-item>
       <el-form-item label="描述">
         <el-input v-model="form.description" placeholder="请输入相关描述" class="form__input" />
@@ -37,10 +38,14 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { createCascadeDir, modifyCascadeDir, describeShareDirs } from '@/api/upPlatform'
+import { createCascadeDir, modifyCascadeDir, describeShareDirs, deleteCascadeDir } from '@/api/upPlatform'
+import AddressCascader from '@/views/components/AddressCascader.vue'
+import { DeviceAddress } from '@/type/device'
+import { industryMap } from '@/assets/region/industry'
 
 @Component({
-  name: 'InnerDialog'
+  name: 'InnerDialog',
+  components: { AddressCascader }
 })
 export default class extends Vue {
   @Prop()
@@ -60,9 +65,19 @@ export default class extends Vue {
     dirName: '',
     description: '',
     industryCode: '',
-    gbRegionLevel: ''
+    gbRegionLevel: '',
+    gbRegion: ''
   }
   private parentDir: String
+
+  private get industryList() {
+    return Object.keys(industryMap).map((key: any) => {
+      return {
+        name: industryMap[key],
+        value: key
+      }
+    })
+  }
 
   private async mounted() {
     switch (this.type) {
@@ -96,6 +111,14 @@ export default class extends Vue {
     }
   }
 
+  /**
+   * 选择设备地址
+   */
+  public onDeviceAddressChange(region: DeviceAddress) {
+    this.form.gbRegion = region.code
+    this.form.gbRegionLevel = region.level
+  }
+
   private get title() {
     switch (this.type) {
       case 'append':
@@ -117,21 +140,29 @@ export default class extends Vue {
 
   private async submit() {
     const param = { platformId: this.platformId, dirs: [{ ...this.form, parentDirId: this.parentDirId, dirType: this.parentDirId ? '1' : '0' }] }
-    switch (this.type) {
-      case 'append':
-        await createCascadeDir(param)
-        break
-      case 'edit':
-        await modifyCascadeDir(param)
-        break
-      case 'deleteGroup':
-        break
-      case 'deleteDevice':
-        break
-      default:
-        break
+    try {
+      switch (this.type) {
+        case 'append':
+          await createCascadeDir(param)
+          break
+        case 'edit':
+          await modifyCascadeDir(param)
+          break
+        case 'deleteGroup':
+          await deleteCascadeDir(param)
+          break
+        case 'deleteDevice':
+          // await deleteCascadeDevice(this.form.id)
+          break
+        default:
+          break
+      }
+      this.closeDialog()
+      this.$emit('inner-op', { type: this.type, form: this.form, parentDirId: this.parentDirId })
+    } catch (e) {
+      this.$message.error('创建失败')
+      console.log(e)
     }
-    this.$emit('inner-op', { type: this.type, form: this.form, parentDirId: this.parentDirId })
   }
 }
 </script>
