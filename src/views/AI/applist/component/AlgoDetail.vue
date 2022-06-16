@@ -176,7 +176,7 @@
       <!-- 动物检测 -->
       <el-form-item v-if="ifShow('10033')" label="动物列表" prop="algorithmMetadata.animalDetectType">
         <el-checkbox-group v-model="form.algorithmMetadata.animalDetectType">
-          <el-checkbox v-for="type in AnimalType" :key="type.label" :label="type.label">{{ type.cname }}</el-checkbox>
+          <el-checkbox v-for="type in AnimalType" :key="type.label" :label="type.label" :disabled="true">{{ type.cname }}</el-checkbox>
         </el-checkbox-group>
       </el-form-item>
       <!-- 垃圾投放站检测 -->
@@ -248,7 +248,7 @@ export default class extends Mixins(AppMixin) {
     algorithmMetadata: {
       trashRecycleType: [],
       helmetReflectiveType: [],
-      animalDetectType: []
+      animalDetectType: ['Bear']
     },
     beeNumber: 1
   }
