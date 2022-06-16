@@ -387,9 +387,9 @@ export default class VMap {
         context.marker.setContent(' ')
       } else {
         // const content = this.buildContent(context.data[0])
-        const content = drawCamera(context.data[0], this.markerEventHandlers)
+        const content = drawCamera(context.data[0], { handlers: this.markerEventHandlers, isEdit: this.isEdit, map: this.map })
         context.marker.setContent(content)
-        context.marker.setOffset(new AMap.Pixel(-25, -25))
+        context.marker.setOffset(new AMap.Pixel(-20, -65))
         context.marker.setExtData(context.data[0])
         if (this.isEdit) {
           context.marker.setDraggable(true)

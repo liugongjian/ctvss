@@ -77,6 +77,104 @@
     background-size: contain;
   }
 }
+
+// 摄像头标记点样式
+.marker-camera {
+  position: relative;
+  width: 40px;
+  height: 65px;
+  background: url('~@/icons/svg/camera_blue_bg.svg') no-repeat;
+  background-size: contain;
+
+  &.selected {
+    background: url('~@/icons/svg/camera_orange_bg.svg') no-repeat;
+    background-size: contain;
+  }
+
+  .icon-camera {
+    display: inline-block;
+    position: absolute;
+    top: 8px;
+    left: 11px;
+    width: 24px;
+  }
+
+  .marker-label {
+    display: block;
+    position: absolute;
+    bottom: -10px;
+    font-size: 12px;
+    text-align: center;
+    width: 50px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .marker-options {
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    top: 0;
+    left: 40px;
+    box-sizing: border-box;
+    background-color: #fff;
+    height: 40px;
+    padding: 12px 18px;
+    :after {
+      content: '';
+      position: absolute;
+      top: 16px;
+      left: -12px;
+      display: inline-block;
+      width: 0;
+      height: 0;
+      border-top: 4px solid transparent;
+      border-right: 6px solid #fff;
+      border-bottom: 4px solid transparent;
+      border-left: 6px solid transparent;
+    }
+  }
+
+  .marker-options .icon-wrap {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    overflow: hidden;
+    margin-right: 12px;
+  }
+  .marker-options .icon-wrap:last-child {
+    margin-right: 0;
+  }
+  .marker-options .icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+  }
+  .marker-options .off .icon {
+    position: relative;
+    left: -16px;
+    filter: drop-shadow(#ccc 16px 0);
+  }
+
+  .marker-options .icon_delete {
+    background: url('~@/icons/svg/delete.svg') no-repeat;
+    background-size: contain;
+  }
+  .marker-options .icon_preview {
+    background: url('~@/icons/svg/camera-play.svg') no-repeat;
+    background-size: contain;
+  }
+  .marker-options .icon_replay {
+    background: url('~@/icons/svg/camera-back.svg') no-repeat;
+    background-size: contain;
+  }
+}
+
+
+
+
 .hide-title .marker-label {
   display: none;
 }
@@ -119,97 +217,5 @@
 
   .showCount {
     margin-top: 4px;
-  }
-}
-
-// 摄像头标记点样式
-.marker-camera {
-  position: relative;
-  width: 40px;
-  height: 65px;
-  background: url('~@/icons/svg/camera_blue_bg.svg') no-repeat;
-  background-size: contain;
-
-  &.selected {
-    background: url('~@/icons/svg/camera_orange_bg.svg') no-repeat;
-    background-size: contain;
-  }
-
-  .icon-camera {
-    display: inline-block;
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    width: 24px;
-    height: 24px;
-    background: url('~@/icons/svg/camera.svg') no-repeat;
-    background-size: contain;
-  }
-
-  .marker-label {
-    display: block;
-    position: absolute;
-    bottom: -10px;
-    font-size: 12px;
-    text-align: center;
-    width: 50px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-
-  .marker-options {
-    position: absolute;
-    top: 0;
-    right: 20px;
-    box-sizing: border-box;
-    background-color: #fff;
-    height: 40px;
-    padding: 12px;
-    :after {
-      content: '';
-      position: absolute;
-      top: 14px;
-      left: -12px;
-      display: inline-block;
-      width: 0;
-      height: 0;
-      border: 12px solid transparent;
-      border-right: 12px solid #fff;
-    }
-  }
-
-  .marker-options .icon-wrap {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    overflow: hidden;
-    margin-right: 5px;
-  }
-  .marker-options .icon-wrap:last-child {
-    margin-right: 0;
-  }
-  .marker-options .icon {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-  }
-  .marker-options .off .icon {
-    position: relative;
-    left: -16px;
-    filter: drop-shadow(#ccc 16px 0);
-  }
-
-  .marker-options .icon_delete {
-    background: url('~@/icons/svg/delete.svg') no-repeat;
-    background-size: contain;
-  }
-  .marker-options .icon_preview {
-    background: url('~@/icons/svg/player.svg') no-repeat;
-    background-size: contain;
-  }
-  .marker-options .icon_replay {
-    background: url('~@/icons/svg/play-video.svg') no-repeat;
-    background-size: contain;
   }
 }

@@ -1,4 +1,4 @@
-import { markerEventHandlers, markerObject } from '@/views/map/models/vmap'
+import { markerObject } from '@/views/map/models/vmap'
 import { checkPermission } from '@/utils/permission'
 
 const createNode = (htmlstr: string) => {
@@ -7,19 +7,19 @@ const createNode = (htmlstr: string) => {
   return div.childNodes[0]
 }
 
-export const drawCamera = (markerOptions: markerObject, handlers: markerEventHandlers) => {
+export const drawCamera = (markerOptions: markerObject, options) => {
   const markerContent = document.createElement('div')
   markerContent.setAttribute('class', 'marker-camera')
   let mColor = markerOptions.deviceColor || '#1e78e0'
   if (mColor === '0') {
     mColor = '#1e78e0'
   }
-  const marker = createNode(`<svg class="icon icon-camera" style="fill:${mColor}" t="1655107099025" viewBox="0 0 1600 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="33340" xmlns:xlink="http://www.w3.org/1999/xlink" width="312.5" height="200"><defs><style type="text/css">@font-face { font-family: feedback-iconfont; src: url("//at.alicdn.com/t/font_1031158_u69w8yhxdu.woff2?t=1630033759944") format("woff2"), url("//at.alicdn.com/t/font_1031158_u69w8yhxdu.woff?t=1630033759944") format("woff"), url("//at.alicdn.com/t/font_1031158_u69w8yhxdu.ttf?t=1630033759944") format("truetype"); }\\n\` + '</style></defs><path d="M342.4 702.272h-108.8v-137.6L128 545.472v441.6l105.6-35.2v-153.6H403.2l92.8-124.8-121.6-64-32 92.8z m550.4 28.8l246.4-156.8-768-505.6H281.6l-121.6 192v64l675.2 409.6h57.6v-3.2z m-92.8 32l-582.4-377.6-60.8 64 675.2 409.6h60.8l32-32 32-92.8s-89.6 64-92.8 64c-35.2-22.4-64-35.2-64-35.2z" p-id="33341"></path></svg>`)
+  const marker = createNode(`<svg class="icon-camera" style="fill:${mColor}; enable-background:new 0 0 198.7 179.4;" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0" y="0" viewBox="0 0 198.7 179.4" xml:space="preserve"> <path d="M41.9,123.8H20.6V96.9L0,93.1v86.3l20.6-6.9v-30h33.1l18.1-24.4l-23.8-12.5L41.9,123.8z M149.4,129.4l48.1-30.6L47.5,0H30 L6.2,37.5V50l131.9,80h11.2L149.4,129.4L149.4,129.4z M131.3,135.6L17.5,61.9L5.6,74.4l131.9,80h11.9l6.2-6.2l6.2-18.1 c0,0-17.5,12.5-18.1,12.5C136.9,138.1,131.3,135.6,131.3,135.6z"/> </svg>`)
   const label = createNode(`<div class="marker-label">${markerOptions.deviceLabel}</div>`)
   markerContent.append(marker, label)
   if (markerOptions.selected) {
     let optionDiv
-    if (!this.isEdit) {
+    if (!options.isEdit) {
       let previewIcon = ''
       let replayIcon = ''
       if (checkPermission(['ScreenPreview'])) {
@@ -28,14 +28,14 @@ export const drawCamera = (markerOptions: markerObject, handlers: markerEventHan
       if (checkPermission(['ReplayRecord'])) {
         replayIcon = '<span class="icon-wrap" onclick="replayMarker()"><i class="icon icon_replay"></i></span>'
       }
-      optionDiv = `<div class="marker-options">${previewIcon}${replayIcon}</div>`
+      optionDiv = createNode(`<div class="marker-options">${previewIcon}${replayIcon}</div>`)
     } else { // 编辑状态
       markerContent.setAttribute('class', 'marker-camera selected')
       const deleteIcon = `<i class="icon icon_delete" onclick="deleteMarker('${markerOptions.deviceId}', '${markerOptions.deviceLabel}')"></i>`
-      optionDiv = `<div class="marker-options">${deleteIcon}</div>`
+      optionDiv = createNode(`<div class="marker-options">${deleteIcon}</div>`)
     }
     window.previewMarker = () => {
-      const pos = this.map.lngLatToContainer(new AMap.LngLat(markerOptions.longitude, markerOptions.latitude))
+      const pos = options.map.lngLatToContainer(new AMap.LngLat(markerOptions.longitude, markerOptions.latitude))
       const data = {
         show: 'live',
         deviceId: markerOptions.deviceId,
@@ -44,10 +44,10 @@ export const drawCamera = (markerOptions: markerObject, handlers: markerEventHan
         left: pos.x,
         canPlay: markerOptions.deviceStatus === 'on'
       }
-      handlers.onPlay && handlers.onPlay(data)
+      options.handlers.onPlay && options.handlers.onPlay(data)
     }
     window.replayMarker = () => {
-      const pos = this.map.lngLatToContainer(new AMap.LngLat(markerOptions.longitude, markerOptions.latitude))
+      const pos = options.map.lngLatToContainer(new AMap.LngLat(markerOptions.longitude, markerOptions.latitude))
       const data = {
         show: 'replay',
         deviceId: markerOptions.deviceId,
@@ -56,10 +56,10 @@ export const drawCamera = (markerOptions: markerObject, handlers: markerEventHan
         left: pos.x,
         canPlay: true
       }
-      handlers.onPlay && handlers.onPlay(data)
+      options.handlers.onPlay && options.handlers.onPlay(data)
     }
     window.deleteMarker = (id, name) => {
-      handlers.onDelete(id, name)
+      options.handlers.onDelete(id, name)
     }
     markerContent.append(optionDiv)
   }
