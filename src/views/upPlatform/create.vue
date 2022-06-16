@@ -85,14 +85,14 @@
         <el-form-item v-if="form.isAuth" label="SIP认证密码:" prop="sipPassword">
           <el-input v-model="form.sipPassword" />
         </el-form-item>
-        <el-form-item label="级联方式:" prop="platformType">
-          <el-radio-group v-model="form.platformType">
-            <el-radio label="0">虚拟业务组</el-radio>
-            <el-radio label="1">行政区划</el-radio>
+        <el-form-item label="级联方式:" prop="cascadeType">
+          <el-radio-group v-model.number="form.cascadeType">
+            <el-radio :label="1">行政区划</el-radio>
+            <el-radio :label="2">虚拟业务组</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="所属行业">
-          <el-select v-model="form.industryCode" :disabled="form.gbId !== ''" placeholder="请选择所属行业">
+          <el-select v-model="form.industryCode" placeholder="请选择所属行业">
             <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
           </el-select>
         </el-form-item>
@@ -103,7 +103,7 @@
           <AddressCascader
             :code="form.gbRegion"
             :level="form.gbRegionLevel"
-            :disabled="form.gbId !== ''"
+            :disabled="false"
             @change="onDeviceAddressChange"
           />
         </el-form-item>
@@ -225,7 +225,7 @@ export default class extends Vue {
     gbRegion: '',
     gbRegionLevel: '',
     industryCode: '',
-    platformType: '0'
+    cascadeType: 1
   }
   private submitting = false
   private loading = false
@@ -272,6 +272,9 @@ export default class extends Vue {
     ],
     cascadeNetWork: [
       { required: true, message: '请选择网络类型', trigger: 'change' }
+    ],
+    cascadeType: [
+      { required: true, message: '请选择级联类型', trigger: 'change' }
     ]
   }
 
@@ -293,6 +296,7 @@ export default class extends Vue {
     if (this.isUpdate) {
       this.getPlatformInfo()
     }
+    console.log('this.form:', this.form)
   }
 
   private async getPlatformInfo() {

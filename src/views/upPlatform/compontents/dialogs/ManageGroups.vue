@@ -27,7 +27,7 @@
           @node-drag-start="handleDragstart"
           @node-drag-end="handleDragend"
         >
-          <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}" @click.stop.prevent="">
+          <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}">
             <span class="node-name">
               <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
               <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
@@ -39,7 +39,7 @@
           </span>
         </el-tree>
       </div>
-      <div v-loading="loading.dir" class="tree-wrap">
+      <div v-loading="loading.sharedDir" class="tree-wrap">
         <div class="tree-wrap__sub">
           <el-tree
             ref="vgroupTree"
@@ -73,32 +73,6 @@
         <div v-if="step === 1" class="tree-wrap__sub switch">
           <el-button type="primary" class="tree-wrap__sub__switch" @click="changeMode">{{ mode === 'vgroup' ? '' : '退出' }}匹配行政区划</el-button>
         </div>
-        <!-- <div v-show="step === 1" class="tree-wrap__sub table">
-          <el-table
-            :data="tableData"
-            style="width: 100%;"
-            default-expand-all
-            row-key="id"
-            :tree-props="{children: 'childNodes'}"
-            :stripe="false"
-            :border="false"
-            :show-header="false"
-            :highlight-current-row="false"
-          >
-            <el-table-column
-              prop="label"
-              label="姓名"
-              width="180"
-            />
-            <el-table-column
-              width="180"
-            >
-              <template slot-scope="scope">
-                <el-input v-model="scope.row.label" size="mini" />
-              </template>
-            </el-table-column>
-          </el-table>
-        </div> -->
       </div>
       <div v-if="step === 0" class="device-wrap">
         <el-button type="primary" @click="openInner('append')">新建组/虚拟组织</el-button>
@@ -128,7 +102,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
-import { shareDevice, describeShareDevices, getPlatforms, describeShareGroups, cancleShareDir, describeShareDirs, describeCascadeDirs } from '@/api/upPlatform'
+import { describeShareDevices, describeShareDirs } from '@/api/upPlatform'
 import { setDirsStreamStatus } from '@/utils/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import InnerDialog from './InnerDialog.vue'
@@ -147,7 +121,8 @@ export default class extends Vue {
   private sharedDirList: any = []
   private deviceList: any = []
   public loading = {
-    dir: false
+    dir: false,
+    sharedDir: false
   }
   private treeProp = {
     label: 'label',
@@ -156,6 +131,8 @@ export default class extends Vue {
     disabled: () => {}
   }
   private innerDialogType = ''
+
+  private handleDragOverFlag = true
 
   private innerVisible = false
 
@@ -217,8 +194,13 @@ export default class extends Vue {
           path: [{
             id: group.groupId,
             label: group.groupName,
-            type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group'
-          }]
+            type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
+            gbIdDistrict: group.gbId || '',
+            gbIdVgroup: group.gbId || ''
+          }],
+          gbIdDistrict: group.gbId || '',
+          gbIdVgroup: group.gbId || '',
+          gbIdDistrictRoot: group.gbId
         })
       })
     } catch (e) {
@@ -239,6 +221,7 @@ export default class extends Vue {
 
   public async initSharedDirs() {
     try {
+      this.loading.sharedDir = true
       this.sharedDirList = []
       const res = await describeShareDirs({
         platformId: this.platformId,
@@ -276,6 +259,8 @@ export default class extends Vue {
     } catch (e) {
       this.sharedDirList = [{ id: 1, label: 'test' }]
       console.log(e)
+    } finally {
+      this.loading.sharedDir = false
     }
   }
 
@@ -471,8 +456,8 @@ export default class extends Vue {
       // if (node.data.type === 'role') {
       //   devices.dirs = devices.dirs.filter((dir: any) => dir.inProtocol === 'gb28181' || dir.inProtocol === 'ehome')
       // }
-      const dirTree: any = this.$refs.dirTree
-      let checkedKeys = dirTree.getCheckedKeys()
+      // const dirTree: any = this.$refs.dirTree
+      // let checkedKeys = dirTree.getCheckedKeys()
       let dirs: any = devices.dirs.map((dir: any) => {
         let sharedFlag = false
         if (shareDeviceIds.includes(dir.id) && dir.type === 'ipc') {
@@ -576,6 +561,36 @@ export default class extends Vue {
     }
   }
 
+  private async expandSingleNode(dirTree: any, node: any) {
+    let dirs = []
+
+    if (node.data.dragInFlag) {
+      // 如果节点是拉进来的
+      if (node.loaded) {
+        node.expanded = true
+      } else {
+        dirs = await this.getTree(node)
+        dirTree.updateKeyChildren(node.data.id, dirs)
+        node.expanded = true
+        node.loaded = true
+      }
+    } else {
+      // 如果节点是原有的（已共享的）
+      if (node.loaded) {
+        node.expanded = true
+      } else {
+        try {
+          dirs = await this.loadAll(node)
+        } catch (e) {
+          dirs = []
+        }
+        dirTree.updateKeyChildren(node.data.id, dirs)
+        node.expanded = true
+        node.loaded = true
+      }
+    }
+  }
+
   /**
    * 单击ipc时直接勾选
    */
@@ -609,35 +624,47 @@ export default class extends Vue {
 
   private handleDragstart(node, event) {
     const vgroupTree: any = this.$refs.vgroupTree
-    // const checkedNodes = vgroupTree.getCheckedNodes(true, false)
     vgroupTree.$emit('tree-node-drag-start', event, { node: node })
-    // checkedNodes.forEach(node => vgroupTree.$emit('tree-node-drag-start', event, { node: node }))
   }
 
-  private handleDragendShared(draggingNode, endNode, position, event) {
-    console.log('handleDragendShared endNode:', endNode)
+  private async handleDragendShared(draggingNode, endNode) {
     const dirTree: any = this.$refs.dirTree
     const vgroupTree: any = this.$refs.vgroupTree
-    // dirTree.setChecked(draggingNode.data, true, false)
-    const checkedNodes = dirTree.getCheckedNodes(true, false)
-    // checkedNodes.push({ ...draggingNode.data, dragInFlag: true })
-    console.log('checkedNodes:', checkedNodes)
-    console.log('this.sharedDirList:', this.sharedDirList)
-    console.log('endNode:', endNode)
+    await this.expandSingleNode(vgroupTree, endNode)
 
-    checkedNodes.forEach(data => {
-      debugger
-      if (endNode.data.type === 'ipc') {
-        vgroupTree.insertBefore({ ...data, dragInFlag: true }, endNode)
-      } else {
-        vgroupTree.append({ ...data, dragInFlag: true }, endNode)
-      }
-    })
-    // this.$nextTick(() => dirTree.setChecked(draggingNode.data, true, false))
+    if (!draggingNode.data.dragInFlag) {
+      const checkedNodes = dirTree.getCheckedNodes(true, false)
+      const draggingData = JSON.parse(JSON.stringify(draggingNode.data))
+      vgroupTree.remove(draggingData)
+      checkedNodes.push({ ...draggingData, dragInFlag: true })
+      checkedNodes.forEach(data => {
+        debugger
+        if (endNode.data.type === 'ipc') {
+          vgroupTree.insertBefore({
+            ...data,
+            dragInFlag: true,
+            path: endNode.data.path,
+            gbIdDistrict: endNode.data.gbIdDistrictRoot + data.gbId || '',
+            gbIdVgroup: data.gbId || '',
+            gbIdDistrictRoot: endNode.data.gbIdDistrictRoot
+          }, endNode)
+        } else {
+          vgroupTree.append({
+            ...data,
+            dragInFlag: true,
+            path: endNode.data.path && endNode.data.path.slice(0, endNode.data.path.length - 1),
+            gbIdDistrict: endNode.data.gbIdDistrictRoot + data.gbId || '',
+            gbIdVgroup: data.gbId || '',
+            gbIdDistrictRoot: endNode.data.gbIdDistrictRoot
+          }, endNode)
+        }
+      })
+    }
+    console.log('this.sharedDirList:', this.sharedDirList)
+    console.log('this.dirList:', this.dirList)
   }
 
   private handleDragend(draggingNode, endNode, position, event) {
-    console.log('handleDragend endNode:', endNode)
     const dirTree: any = this.$refs.dirTree
     const vgroupTree: any = this.$refs.vgroupTree
 
@@ -645,8 +672,6 @@ export default class extends Vue {
     let emptyData = { id: draggingNode.id, children: [] }
     dirTree.insertBefore(emptyData, draggingNode)
 
-    // // 对拉入到共享树中的节点打上标记
-    draggingNode.data = { ...draggingNode.data, dragInFlag: true }
     vgroupTree.$emit('tree-node-drag-end', event)
     this.$nextTick(() => {
       // 如果是移动到了当前树上，需要清掉空节点
@@ -710,11 +735,11 @@ export default class extends Vue {
   }
 
   private confirm() {
-    console.log('confirm', this.sharedDirList)
     this.shareDevices(this.sharedDirList)
   }
 
   private shareDevices(list) {
+    console.log(list)
     const param = []
     list.forEach(item => {
       if (item.sharedFlag) {
@@ -725,6 +750,8 @@ export default class extends Vue {
 
   private changeMode() {
     this.mode = this.mode === 'vgroup' ? 'district' : 'vgroup'
+    console.log('this.sharedDirList:', this.sharedDirList)
+    console.log('this.dirList:', this.dirList)
   }
 
   private async innerOp(param) {
@@ -748,10 +775,6 @@ export default class extends Vue {
 
   private clearSelected() {
     this.selectedNode = null
-  }
-
-  private transformToDistrict(parentId, gbId) {
-    return parentId + gbId
   }
 
   private rootInput(node, data, val) {
@@ -789,6 +812,7 @@ export default class extends Vue {
   overflow: auto;
   border-right: 1px solid $borderGrey;
   display: flex;
+  justify-content: space-between;
 
   .switch {
     flex-basis: auto;
