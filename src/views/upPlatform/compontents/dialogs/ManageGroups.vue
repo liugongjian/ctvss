@@ -102,7 +102,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
-import { describeShareDevices, describeShareDirs, getPlatform } from '@/api/upPlatform'
+import { describeShareDevices, describeShareDirs, getPlatform, shareDevices } from '@/api/upPlatform'
 import { setDirsStreamStatus } from '@/utils/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import InnerDialog from './InnerDialog.vue'
@@ -251,8 +251,8 @@ export default class extends Vue {
             sharedFlag: true,
             dragInFlag: false,
             path: [{
-              id: group.groupId,
-              label: group.groupName,
+              id: group.dirId,
+              label: group.dirName,
               type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
               gbIdDistrict: group.gbId || '',
               gbIdVgroup: group.gbId || ''
@@ -667,8 +667,6 @@ export default class extends Vue {
         }
       })
     }
-    console.log('this.sharedDirList:', this.sharedDirList)
-    console.log('this.dirList:', this.dirList)
   }
 
   private handleDragend(draggingNode, endNode, position, event) {
@@ -743,17 +741,42 @@ export default class extends Vue {
     return true
   }
 
-  private confirm() {
-    this.shareDevices(this.sharedDirList)
+  private async confirm() {
+    // 扁平的list
+    const list = this.generateList(this.sharedDirList)
+    // 获得dirId字典：
+    const temp = list.map(item => item.dirId)
+    let dirIds = Array.from(new Set(temp))
+    const param = []
+    dirIds.forEach(id => {
+      const filterd = list.filter(item => item.dirId === id)
+      const devices = []
+      filterd.forEach(f => devices.push({ deviceId: f.deviceId }))
+      param.push({ dirId: id, devices })
+    })
+
+    try {
+      await shareDevices(param)
+      this.$message.success('添加成功！')
+      this.closeDialog(true)
+    } catch (e) {
+      console.log(e)
+      this.$message.error('添加失败！')
+    }
   }
 
-  private shareDevices(list) {
-    // const param = []
-    // list.forEach(item => {
-    //   const dirId = item.path[item.path.length - 2].dirId
-    //   if (item.type === 'ipc' && item.dragInFlag) {
-    //   }
-    // })
+  private generateList(list) {
+    const res = []
+    list.forEach(item => {
+      const dirId = item.path[item.path.length - 2].dirId
+      if (item.type === 'ipc' && item.dragInFlag) {
+        res.push({ dirId, deviceId: item.id })
+      }
+      if (item.children.length > 0) {
+        res.concat(this.generateList(item.children))
+      }
+    })
+    return res
   }
 
   private changeMode() {
