@@ -58,6 +58,17 @@
         </el-card>
       </el-tab-pane>
       <el-tab-pane label="OpenAPI授权" name="open">
+        <el-alert
+          type="info"
+          show-icon
+          :closable="false"
+          class="mb10"
+        >
+          <span slot="title">使用提示</span>
+          <ul class="alert-desc">
+            <li>OpenAPI平台正在使用临时授权AK/SK访问资源和数据，调用时将发起线上真实资源操作，请谨慎使用以保护您的数据安全</li>
+          </ul>
+        </el-alert>
         <el-form :model="apiForm" label-width="240px">
           <el-form-item label="授权服务:">
             <span>OpenAPI</span>
