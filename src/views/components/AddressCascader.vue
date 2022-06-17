@@ -68,6 +68,7 @@ export default class extends Vue {
     const res = await getAddressAreaDir({
       code: level < 4 ? this.code.substring(0, 6) : this.code
     })
+    debugger
     this.selectedRegionList = res.area
     // 解析gb region
     const list = []

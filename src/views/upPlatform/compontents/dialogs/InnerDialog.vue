@@ -38,7 +38,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { createCascadeDir, modifyCascadeDir, describeShareDirs, deleteCascadeDir } from '@/api/upPlatform'
+import { createCascadeDir, modifyCascadeDir, deleteCascadeDir, describeCascadeDir } from '@/api/upPlatform'
 import AddressCascader from '@/views/components/AddressCascader.vue'
 import { DeviceAddress } from '@/type/device'
 import { industryMap } from '@/assets/region/industry'
@@ -60,13 +60,14 @@ export default class extends Vue {
   @Prop()
   private mode!: String
 
+  private currentNode!: any
   private form: any = {
     id: '',
     dirName: '',
     description: '',
     industryCode: '',
-    gbRegionLevel: '',
-    gbRegion: ''
+    gbRegion: '',
+    gbRegionLevel: ''
   }
   private parentDir: String
 
@@ -80,20 +81,16 @@ export default class extends Vue {
   }
 
   private async mounted() {
+    this.currentNode = this.selectedNode
     switch (this.type) {
       case 'append':
-        this.parentDirId = this.selectedNode?.data.id || '-1'
         break
       case 'edit': {
         try {
-          const res = await describeShareDirs({
+          this.form = await describeCascadeDir({
             platformId: this.platformId,
-            dirId: this.selectedNode.data.id,
-            pageSize: 1000
+            dirId: this.currentNode.data.id
           })
-          if (res.dirs.length > 0) {
-            this.form = res.dirs[0]
-          }
         } catch (e) {
           console.log(e)
         }
@@ -139,26 +136,52 @@ export default class extends Vue {
   }
 
   private async submit() {
-    const param = { platformId: this.platformId, dirs: [{ ...this.form, parentDirId: this.parentDirId, dirType: this.parentDirId ? '1' : '0' }] }
     try {
       switch (this.type) {
-        case 'append':
+        case 'append': {
+          const param = { platformId: this.platformId, dirs: [{ ...this.form, parentDirId: this.currentNode?.data.dirId || '-1' }] }
           await createCascadeDir(param)
           break
-        case 'edit':
-          await modifyCascadeDir(param)
+        }
+        case 'edit': {
+          const paramEdit = {
+            dirId: this.form.dirId,
+            dirName: this.form.dirName,
+            description: this.form.description,
+            industryCode: this.form.industryCode,
+            gbRegion: this.form.gbRegion,
+            gbRegionLevel: this.form.gbRegionLevel,
+            platformId: this.platformId,
+            parentDirId: this.currentNode.parent.data.dirId || '-1'
+          }
+          await modifyCascadeDir(paramEdit)
           break
-        case 'deleteGroup':
-          await deleteCascadeDir(param)
+        }
+        case 'deleteGroup': {
+          const paramDel = {
+            dirId: this.form.dirId,
+            platformId: this.platformId
+          }
+          await deleteCascadeDir(paramDel)
           break
-        case 'deleteDevice':
+        }
+        case 'deleteDevice': {
+          console.log('this.currentNode:', this.currentNode)
+          // const paramDelDevice = {
+          //   dirId: this.form.dirId,
+          //   platformId: this.platformId,
+          //   devices: []
+          // }
           // await deleteCascadeDevice(this.form.id)
+
           break
+        }
         default:
           break
       }
+
       this.closeDialog()
-      this.$emit('inner-op', { type: this.type, form: this.form, parentDirId: this.parentDirId })
+      this.$emit('inner-op', { type: this.type, form: this.form, selectedNode: this.selectedNode })
     } catch (e) {
       this.$message.error('创建失败')
       console.log(e)

@@ -175,10 +175,3 @@ export const describeCascadeDirs = (params: any): Promise<any> =>
     method: 'get',
     params
   })
-
-export const shareDevices = (params: any): Promise<any> =>
-  request({
-    url: '/cascadeDir/list',
-    method: 'post',
-    params
-  })
