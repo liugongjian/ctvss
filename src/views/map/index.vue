@@ -80,19 +80,9 @@
 
               <template v-if="isEdit" >
                 <div class="device-list__right__handleBox">
-                  <el-tooltip content="多边形工具" placement="top">
-                    <span class="device-list__right__handleBox__tools" :class="{'active':customInfoType === 'polygon'}">
-                      <svg-icon name="polygon" @click="changeCustomInfoType('polygon',true)" />
-                    </span>
-                  </el-tooltip>
-                  <el-tooltip content="兴趣点工具" placement="top">
-                    <span class="device-list__right__handleBox__tools" :class="{'active':customInfoType === 'interest'}">
-                      <svg-icon name="interest" @click="changeCustomInfoType('interest',true)" />
-                    </span>
-                  </el-tooltip>
-                  <el-tooltip content="文本工具" placement="top">
-                    <span class="device-list__right__handleBox__tools" :class="{'active':customInfoType === 'font'}">
-                      <svg-icon name="font" @click="changeCustomInfoType('font',true)" />
+                  <el-tooltip v-for="item in customType" :content="item.text" placement="top" :key="item.name">
+                     <span class="device-list__right__handleBox__tools" :class="{'active':customInfoType === item.tool}" @click="changeCustomInfoType(item.tool,true)" >
+                      <svg-icon :name="item.name" />
                     </span>
                   </el-tooltip>
                 </div>
@@ -297,6 +287,25 @@ export default class extends Mixins(IndexMixin) {
   private dragNodeInfo: any = {}
   private ifDragging: boolean = false
   private customInfoType: string = ''
+  private customType=[
+    {
+      name:'pointer',
+      text:'指针工具',
+      tool:'map',
+    },{
+      name:'polygon',
+      text:'多边形工具',
+      tool:'polygon'
+    },{
+      name:'interest',
+      text:'兴趣点工具',
+      tool:'interest'
+    },{
+      name:'font',
+      text:'文本工具',
+      tool:'font'
+    }
+  ]
   private form = {
     mapId: '',
     name: '',
@@ -794,12 +803,32 @@ export default class extends Mixins(IndexMixin) {
   }
 
   private changeCustomInfoType(type: string, flag: boolean) {
-    if (!flag) {
-      this.showInfo = !this.showInfo
-    } else {
-      this.showInfo = true
+    if(type === 'map'){
+      if(!flag){
+        this.showInfo = !this.showInfo
+        this.customInfoType = type
+        if(!this.showInfo){
+          this.customInfoType = ''
+        }
+      }else{
+        this.showInfo = false
+        if(this.customInfoType === 'map'){
+          this.customInfoType = ''
+        }else{
+          this.customInfoType = type
+        }
+      }
+    }else{
+      if(this.customInfoType && type === this.customInfoType){
+        this.showInfo = !this.showInfo
+        if(!this.showInfo){
+          this.customInfoType = ''
+        }
+      }else{
+        this.showInfo = true
+      }
+      this.customInfoType = type
     }
-    this.customInfoType = type
   }
 
   handleMarksChange(list) {
@@ -1277,6 +1306,7 @@ export default class extends Mixins(IndexMixin) {
       width: 40px;
       margin-right: 0;
       text-align: center;
+      cursor: pointer;
 
       &.active {
         color: #fa8334;
