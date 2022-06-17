@@ -2,12 +2,13 @@ import { Component, Mixins, Inject, Watch, Provide } from 'vue-property-decorato
 import DeviceMixin from './deviceMixin'
 import { Device } from '@/type/device'
 import { Group } from '@/type/group'
+import { ViewLib } from '@/type/viewLib'
 import { RecordTemplate } from '@/type/template'
 import { queryGroup } from '@/api/group'
 import { GroupModule } from '@/store/modules/group'
 import { DeviceModule } from '@/store/modules/device'
-import { getDevice } from '@/api/device'
-import { DeviceStatus, StreamStatus, DeviceGb28181Type, RecordStatus, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType, RecordStatusType } from '@/dics'
+import { getDevice, getViewLibInfo } from '@/api/device'
+import { DeviceStatus, StreamStatus, ViewLibStatus, DeviceGb28181Type, RecordStatus, AuthStatus, InType, PullType, PushType, CreateSubDevice, TransPriority, SipTransType, StreamTransType, ResourceType, RecordStatusType } from '@/dics'
 import { getDeviceResources } from '@/api/billing'
 import TemplateBind from '../../components/templateBind.vue'
 import SetAuthConfig from '../components/dialogs/SetAuthConfig.vue'
@@ -51,6 +52,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   public activeName: any = 'info'
   public deviceStatus = DeviceStatus
   public streamStatus = StreamStatus
+  public viewLibStatus = ViewLibStatus
   public recordStatusType = RecordStatusType
   public deviceType = DeviceGb28181Type
   public recordStatus = RecordStatus
@@ -72,6 +74,8 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   public algoTabTypeDefault = ''
   public showResourceDialog = false
   public activeTabPane = 'video'
+  public hasViewLib = false
+  public viewLibInfo: ViewLib | null = null
 
   public tips = DeviceTips
 
@@ -285,6 +289,9 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
         deviceId: this.deviceId,
         inProtocol: this.inProtocol
       })
+      if (this.inProtocol === 'gb28181') {
+        await this.getViewLibInfo()
+      }
       /**
        * 2022-03-16修改
        * 如果设备为子通道，使用channel下的设备状态、流状态、录制状态字段
@@ -341,6 +348,19 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
       console.error(e)
     } finally {
       this.loading.info = false
+    }
+  }
+
+  /**
+   * 获取视图库信息
+   */
+  public async getViewLibInfo() {
+    const { data } = await getViewLibInfo({ deviceId: this.deviceId })
+    if (this.deviceId === data.deviceId) {
+      this.viewLibInfo = data
+      this.hasViewLib = true
+    } else {
+      this.hasViewLib = false
     }
   }
 

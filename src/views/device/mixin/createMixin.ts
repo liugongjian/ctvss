@@ -45,25 +45,25 @@ export default class CreateMixin extends Vue {
   public tips = DeviceTips
 
   public ga1400Form = {
-    inProtocol: 'ga1400',
-    apeType: '',
+    inProtocol: 'GA1400',
+    apeType: 'APE',
     certId: '',
-    deviceIp: '',
-    devicePort: ''
+    ipAddr: '',
+    port: ''
   }
 
   public ga1400Rules = {
-    deviceType: [
+    apeType: [
       { required: true, message: '请选择设备类型', trigger: 'change' }
     ],
     certId: [
       { required: true, message: '请选择账号', trigger: 'change' }
     ],
-    deviceIp: [
-      { validator: this.validateDeviceIp, trigger: 'blur' }
+    ipAddr: [
+      { required: true, validator: this.validateDeviceIp, trigger: 'blur' }
     ],
-    devicePort: [
-      { validator: this.validateDevicePort, trigger: 'change' }
+    port: [
+      { required: true, validator: this.validateDevicePort, trigger: 'change' }
     ]
   }
 

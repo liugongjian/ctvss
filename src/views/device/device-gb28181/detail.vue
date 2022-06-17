@@ -29,7 +29,7 @@
                   {{ info.deviceId }}
                 </el-descriptions-item>
                 <el-descriptions-item label="业务组">
-                  {{ groupInfo.groupName }}
+                  {{ groupInfo && groupInfo.groupName }}
                 </el-descriptions-item>
                 <template v-if="info && !isNVRChannel">
                   <el-descriptions-item label="设备名称">
@@ -67,6 +67,14 @@
                 <el-descriptions-item label="经纬度">
                   {{ `${info.deviceLongitude} : ${info.deviceLatitude}` }}
                 </el-descriptions-item>
+                <template v-if="info.deviceType === 'ipc'">
+                  <el-descriptions-item label="设备SN码">
+                    {{ info.serialNumber || '-' }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="设备型号">
+                    {{ info.deviceModel || '-' }}
+                  </el-descriptions-item>
+                </template>
                 <el-descriptions-item label="设备描述">
                   {{ info.description || '-' }}
                 </el-descriptions-item>
@@ -212,33 +220,33 @@
                     <div class="detail__title">SIP服务信息</div>
                     <el-descriptions v-if="groupInfo" :column="2">
                       <el-descriptions-item label="接入区域">
-                        {{ groupInfo.regionName || '-' }}
+                        {{ groupInfo && groupInfo.regionName || '-' }}
                       </el-descriptions-item>
                       <el-descriptions-item label="SIP服务器ID">
-                        {{ groupInfo.sipId || '-' }}
+                        {{ groupInfo && groupInfo.sipId || '-' }}
                       </el-descriptions-item>
                       <el-descriptions-item label="SIP服务器域">
                         {{ groupSipDomain || '-' }}
                       </el-descriptions-item>
                       <el-descriptions-item label="SIP服务器地址">
-                        {{ groupInfo.sipIp || '-' }}
+                        {{ groupInfo && groupInfo.sipIp || '-' }}
                       </el-descriptions-item>
                       <el-descriptions-item label="SIP服务器TCP端口">
-                        {{ groupInfo.sipTcpPort || '-' }}
+                        {{ groupInfo && groupInfo.sipTcpPort || '-' }}
                       </el-descriptions-item>
                       <el-descriptions-item label="SIP服务器UDP端口">
-                        {{ groupInfo.sipUdpPort || '-' }}
+                        {{ groupInfo && groupInfo.sipUdpPort || '-' }}
                       </el-descriptions-item>
                     </el-descriptions>
                   </div>
                 </el-tab-pane>
-                <el-tab-pane label="视图接入" name="view">
+                <el-tab-pane v-if="hasViewLib" label="视图接入" name="view">
                   <div class="detail__section">
                     <div class="detail__title">状态信息</div>
                     <el-descriptions :column="2">
                       <el-descriptions-item label="设备状态">
-                        <status-badge :status="info.deviceStatus" />
-                        {{ deviceStatus[info.deviceStatus] || '-' }}
+                        <status-badge :status="viewLibInfo.status" />
+                        {{ viewLibStatus && viewLibStatus[viewLibInfo.status] || '-' }}
                       </el-descriptions-item>
                     </el-descriptions>
                   </div>
@@ -246,19 +254,19 @@
                     <div class="detail__title">接入信息</div>
                     <el-descriptions :column="2">
                       <el-descriptions-item label="视图ID">
-                        {{ info.gbId || '-' }}
+                        {{ viewLibInfo.viidServerId || '-' }}
                       </el-descriptions-item>
                       <el-descriptions-item label="GA1400凭证">
-                        {{ info.userName }}
+                        {{ viewLibInfo.certName }}
                       </el-descriptions-item>
                       <el-descriptions-item label="协议类型">
-                        {{ deviceType[info.deviceType] }}
+                        {{ viewLibInfo.inProtocol }}
                       </el-descriptions-item>
                       <el-descriptions-item label="设备IP">
-                        {{ groupInfo.sipIp || '-' }}
+                        {{ viewLibInfo.ipAddr || '-' }}
                       </el-descriptions-item>
                       <el-descriptions-item label="设备端口">
-                        {{ groupInfo.sipTcpPort || '-' }}
+                        {{ viewLibInfo.port || '-' }}
                       </el-descriptions-item>
                     </el-descriptions>
                   </div>
@@ -266,10 +274,10 @@
                     <div class="detail__title">视图库信息</div>
                     <el-descriptions v-if="groupInfo" :column="2">
                       <el-descriptions-item label="视图库IP">
-                        {{ groupInfo.sipIp || '-' }}
+                        {{ viewLibInfo.viidServerIp || '-' }}
                       </el-descriptions-item>
                       <el-descriptions-item label="视图库端口">
-                        {{ groupInfo.sipTcpPort || '-' }}
+                        {{ viewLibInfo.viidServerPort.toString() || '-' }}
                       </el-descriptions-item>
                     </el-descriptions>
                   </div>

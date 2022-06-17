@@ -502,16 +502,15 @@ export const createViewLib = (params: any): Promise<any> =>
  */
 export const getViewLibInfo = (params: any): Promise<any> =>
   request({
-    url: '/viid/devices',
-    method: 'get',
-    params
+    url: `/viid/devices/${params.deviceId}`,
+    method: 'get'
   })
 /**
  * 修改视图库
  */
 export const updateViewLib = (params: any): Promise<any> =>
   request({
-    url: '/viid/devices',
+    url: `/viid/devices/${params[0]}`,
     method: 'put',
-    data: params
+    data: params[1]
   })

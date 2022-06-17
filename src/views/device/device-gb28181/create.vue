@@ -115,6 +115,12 @@
             <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
             <el-input v-model="form.deviceLatitude" class="longlat-input" />
           </el-form-item>
+          <el-form-item v-if="isIPC" label="设备SN码:" prop="serialNumber">
+            <el-input v-model="form.serialNumber" />
+          </el-form-item>
+          <el-form-item v-if="isIPC" label="设备型号:" prop="deviceModel">
+            <el-input v-model="form.deviceModel" />
+          </el-form-item>
           <el-form-item
             v-if="!isUpdate || form.industryCode || !deviceGbId"
             label="所属行业:"
@@ -164,7 +170,7 @@
           <el-tabs v-model="activeTabPane" type="card" class="title-tabs" @tab-click="1">
             <el-tab-pane v-for="item in tabPaneList" :key="item.name" :label="item.label" :name="item.name"><br></el-tab-pane>
           </el-tabs>
-          <el-button v-if="tabPaneList.length === 1 && isIPC" class="add-btn" type="text" @click="addTabPane"><svg-icon name="plus" /></el-button>
+          <el-button v-if="tabPaneList.length === 1 && isIPC && isUpdate" class="add-btn" type="text" @click="addTabPane"><svg-icon name="plus" /></el-button>
           <div v-show="activeTabPane === 'video'">
             <el-form-item label="接入协议:" prop="inProtocol">
               <el-radio-group v-model="form.inProtocol">
@@ -190,7 +196,7 @@
               <el-input v-model="form.deviceIp" />
             </el-form-item>
             <el-form-item label="设备端口:" prop="devicePort">
-              <el-input v-model.number="form.devicePort" />
+              <el-input v-model="form.devicePort" />
             </el-form-item>
             <el-form-item v-if="form.deviceType !== 'platform' && isShowGbIdEditor" label="国标ID:" prop="gbId">
               <el-input v-model="form.gbId" />
@@ -292,7 +298,7 @@
             >
               <el-form-item label="接入协议:" prop="inProtocol">
                 <el-radio-group v-model="ga1400Form.inProtocol">
-                  <el-radio label="ga1400">{{ ga1400Form.inProtocol && ga1400Form.inProtocol.toUpperCase() }}</el-radio>
+                  <el-radio label="GA1400">{{ ga1400Form.inProtocol && ga1400Form.inProtocol.toUpperCase() }}</el-radio>
                 </el-radio-group>
               </el-form-item>
               <el-form-item label="接入类型:" prop="apeType">
@@ -309,28 +315,28 @@
                   />
                 </el-select>
               </el-form-item>
-              <el-form-item label="GB1400凭证:" prop="userName">
-                <el-select v-model="ga1400Form.userName" :loading="loading.account">
+              <el-form-item label="GB1400凭证:" prop="certId">
+                <el-select v-model="ga1400Form.certId" :loading="loading.account">
                   <el-option
-                    v-for="item in gbAccountList"
-                    :key="item.userName"
+                    v-for="item in ga1400AccountList"
+                    :key="item.id"
                     :label="item.userName"
-                    :value="item.userName"
+                    :value="item.id"
                   />
                 </el-select>
                 <el-button
                   type="text"
                   class="ml10"
-                  @click="openDialog('createGb28181Certificate')"
+                  @click="openDialog('createGa1400Certificate')"
                 >
-                  新建GB1400凭证
+                  新建GA1400凭证
                 </el-button>
               </el-form-item>
-              <el-form-item label="IP:" prop="deviceIp">
-                <el-input v-model="ga1400Form.deviceIp" />
+              <el-form-item label="IP:" prop="ipAddr">
+                <el-input v-model="ga1400Form.ipAddr" />
               </el-form-item>
-              <el-form-item label="端口:" prop="devicePort">
-                <el-input v-model.number="ga1400Form.devicePort" />
+              <el-form-item label="端口:" prop="port">
+                <el-input v-model="ga1400Form.port" />
               </el-form-item>
             </el-form>
           </div>
@@ -367,6 +373,12 @@
             2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
           </div>
         </el-form-item>
+        <el-form-item label="设备SN码:" prop="serialNumber">
+          <el-input v-model="form.serialNumber" />
+        </el-form-item>
+        <el-form-item label="设备型号:" prop="deviceModel">
+          <el-input v-model="form.deviceModel" />
+        </el-form-item>
         <el-form-item
           label="杆号:"
           prop="poleId"
@@ -398,10 +410,10 @@
       v-if="dialog.createGb28181Certificate"
       @on-close="closeDialog('createGb28181Certificate', ...arguments)"
     />
-    <!-- <create-gb28181-certificate
-      v-if="dialog.createGb28181Certificate"
-      @on-close="closeDialog('createGb28181Certificate', ...arguments)"
-    /> -->
+    <create-ga1400-certificate
+      v-if="dialog.createGa1400Certificate"
+      @on-close="closeDialog('createGa1400Certificate', ...arguments)"
+    />
   </div>
 </template>
 <script lang='ts'>
@@ -411,13 +423,17 @@ import { pick } from 'lodash'
 import { DeviceGb28181Type } from '@/dics'
 import { createDevice, updateDevice, getDevice, validGbId, createViewLib, getViewLibInfo, updateViewLib } from '@/api/device'
 import { updateDeviceResources } from '@/api/billing'
+import { getList as getGa1400List } from '@/api/certificate/ga1400'
 import { getList as getGbList } from '@/api/certificate/gb28181'
 import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
+import CreateGa1400Certificate from '@/views/certificate/ga1400/components/CreateDialog.vue'
+import { ViewLib2Device } from '../viewLibParamsTransform'
 
 @Component({
   name: 'CreateGb28181Device',
   components: {
-    CreateGb28181Certificate
+    CreateGb28181Certificate,
+    CreateGa1400Certificate
   }
 })
 export default class extends Mixins(createMixin) {
@@ -493,6 +509,7 @@ export default class extends Mixins(createMixin) {
     { label: '视频卡口', value: 'Tollgate' }
   ]
   private gbAccountList = []
+  private ga1400AccountList = []
   public form: any = {
     dirId: '',
     groupId: '',
@@ -519,6 +536,8 @@ export default class extends Mixins(createMixin) {
     longlat: 'required',
     deviceLongitude: '0.000000',
     deviceLatitude: '0.000000',
+    serialNumber: '',
+    deviceModel: '',
     gbRegion: '',
     gbRegionLevel: null,
     resources: [],
@@ -531,8 +550,10 @@ export default class extends Mixins(createMixin) {
   private minChannelSize = 1
   private availableChannels: Array<number> = []
   private dialog = {
-    createGb28181Certificate: false
+    createGb28181Certificate: false,
+    createGa1400Certificate: false
   }
+  private hasViewLib = false
 
   public async mounted() {
     if (this.isUpdate || this.isChannel) {
@@ -556,13 +577,14 @@ export default class extends Mixins(createMixin) {
       const info = await getDevice({
         deviceId: this.form.deviceId
       })
+      await this.getViewLibInfo()
       const usedChannelNum = info.deviceChannels.map((channel: any) => {
         return channel.channelNum
       })
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
           'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority',
-          'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode', 'poleId', 'macAddr']))
+          'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'serialNumber', 'deviceModel', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode', 'poleId', 'macAddr']))
         if (this.form.macAddr || this.form.poleId) {
           this.formExpand = true
         }
@@ -627,6 +649,8 @@ export default class extends Mixins(createMixin) {
     this.dialog[type] = false
     if (type === 'createGb28181Certificate' && payload === true) {
       this.getGbAccounts()
+    } else if (type === 'createGa1400Certificate' && payload === true) {
+      this.getGa1400Accounts()
     }
   }
 
@@ -652,10 +676,10 @@ export default class extends Mixins(createMixin) {
   private async getGa1400Accounts() {
     try {
       this.loading.account = true
-      const res = await getGbList({
+      const res = await getGa1400List({
         pageSize: 1000
       })
-      this.gbAccountList = res.gbCerts
+      this.ga1400AccountList = res.data
     } catch (e) {
       console.error(e)
     } finally {
@@ -720,7 +744,9 @@ export default class extends Mixins(createMixin) {
         if (this.isIPC) {
           params = Object.assign(params, {
             gbVersion: this.form.gbVersion,
-            transPriority: this.form.transPriority
+            transPriority: this.form.transPriority,
+            serialNumber: this.form.serialNumber,
+            deviceModel: this.form.deviceModel
           })
         }
         // NVR类型添加额外参数
@@ -745,7 +771,9 @@ export default class extends Mixins(createMixin) {
           createSubDevice: this.isUpdate ? null : '2',
           parentDeviceId: this.isUpdate ? this.form.parentDeviceId : this.deviceId,
           channelName: this.form.channelName,
-          channelNum: this.form.channelNum
+          channelNum: this.form.channelNum,
+          serialNumber: this.form.serialNumber,
+          deviceModel: this.form.deviceModel
         }, pick(this.form, ['userName', 'deviceLongitude', 'deviceLatitude']))
       }
       if (this.isUpdate) {
@@ -758,13 +786,26 @@ export default class extends Mixins(createMixin) {
           resources: this.form.resources,
           aIApps: this.form.aIApps
         })
-        // 更新设备详情
+        // 更新设备信息
         await updateDevice(params)
-        await this.createOrUpdateViewLib()
+        // 更新视图库
+        if (this.tabPaneList.length !== 1) {
+          if (this.hasViewLib) {
+            await updateViewLib([
+              this.deviceId,
+              {
+                certId: this.ga1400Form.certId,
+                ipAddr: this.ga1400Form.ipAddr,
+                port: this.ga1400Form.port
+              }
+            ])
+          } else {
+            await this.createOrUpdateViewLib()
+          }
+        }
         this.$message.success('修改设备成功！')
       } else {
         await createDevice(params)
-        await this.createOrUpdateViewLib()
         this.$message.success('添加设备成功！')
       }
       this.back()
@@ -779,37 +820,36 @@ export default class extends Mixins(createMixin) {
   /**
    * 创建或修改视图库
    */
-  async createOrUpdateViewLib() {
+  private async createOrUpdateViewLib() {
     if (this.tabPaneList.length !== 1) {
       let params = {
-        latitude: this.form.deviceLatitude,
-        longitude: this.form.deviceLongitude,
-        name: this.form.deviceName,
-        deviceType: this.form.deviceType,
-        dirId: this.form.dirId,
-        placeCode: this.currentGroup.region,
-        groupId: this.form.groupId,
         inProtocol: this.ga1400Form.inProtocol,
         apeType: this.ga1400Form.apeType,
         certId: this.ga1400Form.certId,
-        ipAddr: this.ga1400Form.deviceIp,
-        port: this.ga1400Form.devicePort,
-        gbDeviceId: '???',
-        model: '???'
+        ipAddr: this.ga1400Form.ipAddr,
+        port: this.ga1400Form.port
       }
+      // 载入公共参数
+      const commonParams = ['latitude', 'longitude', 'name', 'deviceType', 'dirId', 'placeCode', 'groupId', 'orgCode', 'gbDeviceId', 'model']
+      commonParams.forEach(param => {
+        params[param] = this.form[ViewLib2Device[param]]
+      })
       await createViewLib(params)
     }
   }
   /**
    * 获取视图库信息
    */
-  async getViewLibInfo() {
-    this.tabPaneList.push({ label: '视图接入', name: 'view' })
-    const info = await getViewLibInfo({ deviceId: this.deviceId })
-    this.ga1400Form.apeType = info.apeType
-    this.ga1400Form.certId = info.certId
-    this.ga1400Form.deviceIp = info.certId
-    this.ga1400Form.devicePort = info.certId
+  private async getViewLibInfo() {
+    const { data } = await getViewLibInfo({ deviceId: this.deviceId })
+    if (data.deviceId && (data.deviceId === this.deviceId)) {
+      this.hasViewLib = true
+      this.tabPaneList.push({ label: '视图接入', name: 'view' })
+      this.ga1400Form.apeType = data.apeType
+      this.ga1400Form.certId = data.certId
+      this.ga1400Form.ipAddr = data.ipAddr
+      this.ga1400Form.port = data.port
+    }
   }
 
   /**

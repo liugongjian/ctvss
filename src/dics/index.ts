@@ -159,6 +159,14 @@ export const AlertIcon = {
 }
 
 /**
+ * 视图库
+ */
+export const ViewLibStatus: any = {
+  'on': '在线',
+  'off': '离线'
+}
+
+/**
  * AI告警类型
  * 相应修改src/utils/device.ts
  */
