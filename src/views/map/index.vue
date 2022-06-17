@@ -792,6 +792,7 @@ export default class extends Mixins(IndexMixin) {
       this.showInfo = true
     }
     this.customInfoType = type
+    this.$refs.mapview.changeMapClickEvent(type)
   }
 
   handleMarksChange(list) {

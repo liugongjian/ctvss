@@ -1,36 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 24.2.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 40 65" style="enable-background:new 0 0 40 65;" xml:space="preserve">
-<style type="text/css">
-	.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#FFFFFF;stroke:#F98233;stroke-width:2;}
-	.st1{filter:url(#filter-2);}
-	.st2{fill:#FA8334;fill-opacity:0.352;stroke:#FA8334;}
-</style>
-<filter  filterUnits="objectBoundingBox" height="152.2%" id="filter-2" width="169.8%" x="-34.9%" y="-19.8%">
-	<feMorphology  in="SourceAlpha" operator="dilate" radius="0.5" result="shadowSpreadOuter1"></feMorphology>
-	<feOffset  dx="0" dy="2" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
-	<feGaussianBlur  in="shadowOffsetOuter1" result="shadowBlurOuter1" stdDeviation="4"></feGaussianBlur>
-	<feComposite  in="shadowBlurOuter1" in2="SourceAlpha" operator="out" result="shadowBlurOuter1"></feComposite>
-	
-		<feColorMatrix  in="shadowBlurOuter1" type="matrix" values="0 0 0 0 0.784313725   0 0 0 0 0.788235294   0 0 0 0 0.8  0 0 0 0.5 0">
-		</feColorMatrix>
-</filter>
-<g id="Web端">
-	<g id="电子地图--点位编辑" transform="translate(-645.000000, -324.000000)">
-		<g id="Group-4" transform="translate(654.000000, 331.000000)">
-			<circle id="圆点" class="st0" cx="10.7" cy="53.8" r="3"/>
-			<g id="Path-Copy-2">
-				<g class="st1">
-					<path id="path-1_2_" d="M11-6.2C0.9-6.2-8.3,2.1-8.3,12.2c0,15.1,15.4,16.7,19.3,39.6c3.9-22.9,19.3-24.5,19.3-39.6
-						C30.4,2.1,21.2-6.2,11-6.2z"/>
-				</g>
-				<g>
-					<path id="path-1_1_" class="st2" d="M11-6.2C0.9-6.2-8.3,2.1-8.3,12.2c0,15.1,15.4,16.7,19.3,39.6
-						c3.9-22.9,19.3-24.5,19.3-39.6C30.4,2.1,21.2-6.2,11-6.2z"/>
-				</g>
-			</g>
-		</g>
-	</g>
-</g>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="41px" height="65px" viewBox="0 0 41 65" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Group 4</title>
+    <g id="Web端" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="电子地图--点位编辑" transform="translate(-653.000000, -330.000000)">
+            <g id="Group-4" transform="translate(654.000000, 331.000000)">
+                <circle id="圆点" stroke="#F98233" stroke-width="2" fill="#FFFFFF" cx="19" cy="60" r="3"></circle>
+                <path d="M19.3333333,0 C9.18977778,0 0,8.22633333 0,18.3731111 C0,33.4595556 15.4118889,35.0545556 19.3333333,58 C23.2547778,35.0545556 38.6666667,33.4595556 38.6666667,18.3731111 C38.6666667,8.22633333 29.4801111,0 19.3333333,0 Z" id="Path-Copy-2" stroke="#FA8334" fill-opacity="0.351999563" fill="#FA8334" fill-rule="nonzero"></path>
+            </g>
+        </g>
+    </g>
 </svg>

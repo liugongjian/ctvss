@@ -31,7 +31,15 @@
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import VMap, { getAMapLoad } from './models/vmap'
 import axios from 'axios'
-import { getMapDevices, updateMarkers, addMarkers, deleteMarkers, getInterestList } from '@/api/map'
+import {
+  getMapDevices,
+  updateMarkers,
+  addMarkers,
+  deleteMarkers,
+  getInterestList,
+  addInterestPoint,
+  editInterestPoint
+} from '@/api/map'
 import { Screen } from '@/views/device/services/Screen/Screen'
 import LivePlayer from '@/views/device/components/LivePlayer.vue'
 import ReplayView from '@/views/device/components/ReplayPlayer/index.vue'
@@ -75,6 +83,9 @@ export default class MapView extends Vue {
     return this.playWindowList.filter(item => item.screen.isFullscreen).length > 0
   }
 
+  private handleMapClick
+  count = 6
+
   @Watch('isEdit')
   private onEditChange() {
     this.changeEdit(this.isEdit)
@@ -83,6 +94,43 @@ export default class MapView extends Vue {
   private mounted() {
     getAMapLoad().then(() => {
       this.setMap(this.mapOption)
+      // this.test2()
+    })
+  }
+
+  test() {
+    const param = {
+      tagName: '文本标记测试',
+      type: 'InterestPoint',
+      description: '',
+      mapId: this.mapId,
+      points: [{ longitude: '116.397797', latitude: '39.909125' }],
+      color: '',
+      colorType: 'text'
+    }
+    addInterestPoint(param).then(() => {
+      this.$message.success('新增成功')
+      this.$parent.freshList()
+    }).catch(err => {
+      this.$message.error(`${err.message ? err.message : err}`)
+    })
+  }
+
+  test2() {
+    const tagId = '485089420492455936'
+    const param = {
+      tagName: '文本标记测试',
+      type: 'InterestPoint',
+      description: '测试测试',
+      mapId: this.mapId,
+      points: [{ longitude: '116.405368', latitude: '39.908899' }],
+      color: '',
+      colorType: 'text'
+    }
+    editInterestPoint({ ...param, tagId }).then(() => {
+      this.$message.success('编辑成功')
+    }).catch(err => {
+      this.$message.error(`${err.message ? err.message : err}`)
     })
   }
 
@@ -197,13 +245,15 @@ export default class MapView extends Vue {
     }
     map.on('moveend', getMapInfo)
     map.on('zoomend', getMapInfo)
-    map.on('click', () => {
-      this.vmap.cancelChoose()
-      this.$emit('mapClick', {
-        type: 'map',
-        info: this.mapOption
-      })
-    })
+    // map.on('click', () => {
+    //   console.log('2222')
+    //   this.vmap.cancelChoose()
+    //   this.$emit('mapClick', {
+    //     type: 'map',
+    //     info: this.mapOption
+    //   })
+    // })
+    this.changeMapClickEvent('other')
   }
 
   private choosePlayer(id) {
@@ -390,6 +440,66 @@ export default class MapView extends Vue {
 
   setMarkersView(isShow) {
     this.vmap.setMarkersView(isShow)
+  }
+
+  changeMapClickEvent(type) {
+    const map = this.vmap.map
+    map.off('click', this.handleMapClick)
+    let event
+    switch (type) {
+      case 'interest':
+        event = () => {
+          console.log('interest')
+          const { lng, lat } = map.getCenter()
+          const param = {
+            tagName: '兴趣点标记' + this.count,
+            type: 'InterestPoint',
+            description: '',
+            mapId: this.mapId,
+            points: [{ longitude: lng.toString(), latitude: lat.toString() }],
+            color: 'blue',
+            colorType: 'bubble'
+          }
+          addInterestPoint(param).then(() => {
+            this.$message.success('新增成功')
+          }).catch(err => {
+            this.$message.error(`${err.message ? err.message : err}`)
+          })
+        }
+        break
+      case 'font':
+        event = () => {
+          console.log('font')
+          const { lng, lat } = map.getCenter()
+          const param = {
+            tagName: '文本标记' + this.count,
+            type: 'InterestPoint',
+            description: '',
+            mapId: this.mapId,
+            points: [{ longitude: lng.toString(), latitude: lat.toString() }],
+            color: '',
+            colorType: 'text'
+          }
+          addInterestPoint(param).then(() => {
+            this.$message.success('新增成功')
+          }).catch(err => {
+            this.$message.error(`${err.message ? err.message : err}`)
+          })
+        }
+        break
+      case 'other':
+      default:
+        event = () => {
+          console.log('2222')
+          this.vmap.cancelChoose()
+          this.$emit('mapClick', {
+            type: 'map',
+            info: this.mapOption
+          })
+        }
+    }
+    this.handleMapClick = event
+    map.on('click', this.handleMapClick)
   }
 
   setMarkerList(markerList) {

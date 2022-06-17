@@ -382,6 +382,7 @@ declare namespace AMap {
      * 绑定事件声明
      */
     public on(event: string, callback: Function): void;
+    public off(event: string, callback: Function): void;
   }
   /** View2DOptions **/
   export interface View2DOptions {
