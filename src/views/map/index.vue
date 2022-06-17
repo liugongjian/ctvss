@@ -79,16 +79,23 @@
               <span class="btn-edit tools-item" @click="changeEdit()">{{ isEdit ? '完成编辑' : '开启编辑' }}</span>
 
               <template v-if="isEdit" >
-                <div class="device-list__right__handleBox"></div>
-                <el-tooltip content="多边形工具" placement="top">
-                  <span class="tools-item"><svg-icon name="polygon" @click="changeCustomInfoType('polygon',true)" /></span>
-                </el-tooltip>
-                <el-tooltip content="兴趣点工具" placement="top">
-                  <span class="tools-item"><svg-icon name="interest" @click="changeCustomInfoType('interest',true)" /></span>
-                </el-tooltip>
-                <el-tooltip content="文本工具" placement="top">
-                  <span class="tools-item"><svg-icon name="font" @click="changeCustomInfoType('font',true)" /></span>
-                </el-tooltip>
+                <div class="device-list__right__handleBox">
+                  <el-tooltip content="多边形工具" placement="top">
+                    <span class="device-list__right__handleBox__tools" :class="{'active':customInfoType === 'polygon'}">
+                      <svg-icon name="polygon" @click="changeCustomInfoType('polygon',true)" />
+                    </span>
+                  </el-tooltip>
+                  <el-tooltip content="兴趣点工具" placement="top">
+                    <span class="device-list__right__handleBox__tools" :class="{'active':customInfoType === 'interest'}">
+                      <svg-icon name="interest" @click="changeCustomInfoType('interest',true)" />
+                    </span>
+                  </el-tooltip>
+                  <el-tooltip content="文本工具" placement="top">
+                    <span class="device-list__right__handleBox__tools" :class="{'active':customInfoType === 'font'}">
+                      <svg-icon name="font" @click="changeCustomInfoType('font',true)" />
+                    </span>
+                  </el-tooltip>
+                </div>
               </template>
 
               <el-tooltip content="关闭所有播放窗口" placement="top">
@@ -1261,6 +1268,24 @@ export default class extends Mixins(IndexMixin) {
 .device-list__right {
   &__handleBox {
     background-color: #e2e2e2;
+    padding: 5px 15px;
+    margin-right: 20px;
+    border-radius: 5px;
+
+    &__tools {
+      display: inline-block;
+      width: 40px;
+      margin-right: 0;
+      text-align: center;
+
+      &.active {
+        color: #fa8334;
+      }
+
+      &:not(:last-child) {
+        border-right: 1px solid #d3d3d3;
+      }
+    }
   }
 }
 
