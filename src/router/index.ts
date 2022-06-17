@@ -308,6 +308,56 @@ export const asyncRoutes: RouteConfig[] = [
       }
     ]
   },
+  {
+    path: '/view-service',
+    component: Layout,
+    redirect: 'noredirect',
+    meta: {
+      id: '20210424150201003100',
+      title: '视图服务',
+      icon: 'component',
+      alwaysShow: true,
+      perms: ['*']
+    },
+    children: [
+      {
+        path: 'up-platform',
+        component: () => import(/* webpackChunkName: "device" */ '@/views/viewService/index.vue'),
+        name: 'view-up-platform',
+        meta: {
+          id: '20210424150201003101',
+          title: '向上级联',
+          icon: 'dot',
+          perms: ['*'],
+          activeMenu: '/view-service/up-platform'
+        }
+      },
+      {
+        path: 'up-platform/create',
+        component: () => import(/* webpackChunkName: "tree" */ '@/views/viewService/create.vue'),
+        name: 'view-up-platform-create',
+        meta: {
+          id: '20210524150201003102',
+          title: '新建平台',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/view-service/up-platform'
+        }
+      },
+      {
+        path: 'up-platform/update/:id?',
+        component: () => import(/* webpackChunkName: "tree" */ '@/views/viewService/create.vue'),
+        name: 'view-up-platform-update',
+        meta: {
+          id: '20210524150201003103',
+          title: '编辑平台',
+          hidden: true,
+          perms: ['*'],
+          activeMenu: '/view-service/up-platform'
+        }
+      }
+    ]
+  },
   // {
   //   path: '/stream',
   //   component: Layout,

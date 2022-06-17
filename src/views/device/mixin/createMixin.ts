@@ -46,8 +46,8 @@ export default class CreateMixin extends Vue {
 
   public ga1400Form = {
     inProtocol: 'ga1400',
-    deviceType: '',
-    userName: '',
+    apeType: '',
+    certId: '',
     deviceIp: '',
     devicePort: ''
   }
@@ -56,7 +56,7 @@ export default class CreateMixin extends Vue {
     deviceType: [
       { required: true, message: '请选择设备类型', trigger: 'change' }
     ],
-    userName: [
+    certId: [
       { required: true, message: '请选择账号', trigger: 'change' }
     ],
     deviceIp: [
@@ -106,6 +106,10 @@ export default class CreateMixin extends Vue {
 
   public get isFreeUser() {
     return UserModule.tags && UserModule.tags.resourceFree === '1'
+  }
+
+  public get isIPC() {
+    return this.form.deviceType === 'ipc'
   }
 
   private get breadCrumbContent() {
@@ -191,6 +195,16 @@ export default class CreateMixin extends Vue {
       this.form.pullType = this.currentGroup.pullType
       this.form.pushType = this.currentGroup.pushType
       this.form.groupId = this.currentGroup.groupId
+    }
+  }
+
+  /**
+   * 非IPC设备不显示视图库
+   */
+  @Watch('form.deviceType', { immediate: true, deep: true })
+  public onDeviceTypeChange() {
+    if (this.form.deviceType !== 'ipc') {
+      this.tabPaneList.length = 1
     }
   }
 

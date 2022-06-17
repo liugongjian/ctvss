@@ -487,3 +487,31 @@ export const validGbId = (params: any): Promise<any> =>
     method: 'get',
     params
   })
+
+/**
+ * 创建视图库
+ */
+export const createViewLib = (params: any): Promise<any> =>
+  request({
+    url: '/viid/devices',
+    method: 'post',
+    data: params
+  })
+/**
+ * 查询视图库详情
+ */
+export const getViewLibInfo = (params: any): Promise<any> =>
+  request({
+    url: '/viid/devices',
+    method: 'get',
+    params
+  })
+/**
+ * 修改视图库
+ */
+export const updateViewLib = (params: any): Promise<any> =>
+  request({
+    url: '/viid/devices',
+    method: 'put',
+    data: params
+  })
