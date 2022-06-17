@@ -78,7 +78,8 @@
             <span class="left">
               <span class="btn-edit tools-item" @click="changeEdit()">{{ isEdit ? '完成编辑' : '开启编辑' }}</span>
 
-              <template v-if="isEdit">
+              <template v-if="isEdit" >
+                <div class="device-list__right__handleBox"></div>
                 <el-tooltip content="多边形工具" placement="top">
                   <span class="tools-item"><svg-icon name="polygon" @click="changeCustomInfoType('polygon',true)" /></span>
                 </el-tooltip>
@@ -1255,6 +1256,12 @@ export default class extends Mixins(IndexMixin) {
 .device-list__left,
 .device-list__right {
   position: relative;
+}
+
+.device-list__right {
+  &__handleBox {
+    background-color: #e2e2e2;
+  }
 }
 
 .map__add {
