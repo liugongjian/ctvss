@@ -78,16 +78,14 @@
             <span class="left">
               <span class="btn-edit tools-item" @click="changeEdit()">{{ isEdit ? '完成编辑' : '开启编辑' }}</span>
 
-              <template v-if="isEdit">
-                <el-tooltip content="多边形工具" placement="top">
-                  <span class="tools-item"><svg-icon name="polygon" @click="changeCustomInfoType('polygon',true)" /></span>
-                </el-tooltip>
-                <el-tooltip content="兴趣点工具" placement="top">
-                  <span class="tools-item"><svg-icon name="interest" @click="changeCustomInfoType('interest',true)" /></span>
-                </el-tooltip>
-                <el-tooltip content="文本工具" placement="top">
-                  <span class="tools-item"><svg-icon name="font" @click="changeCustomInfoType('font',true)" /></span>
-                </el-tooltip>
+              <template v-if="isEdit" >
+                <div class="device-list__right__handleBox">
+                  <el-tooltip v-for="item in customType" :content="item.text" placement="top" :key="item.name">
+                     <span class="device-list__right__handleBox__tools" :class="{'active':customInfoType === item.tool}" @click="changeCustomInfoType(item.tool,true)" >
+                      <svg-icon :name="item.name" />
+                    </span>
+                  </el-tooltip>
+                </div>
               </template>
 
               <el-tooltip content="关闭所有播放窗口" placement="top">
@@ -289,6 +287,25 @@ export default class extends Mixins(IndexMixin) {
   private dragNodeInfo: any = {}
   private ifDragging: boolean = false
   private customInfoType: string = ''
+  private customType=[
+    {
+      name:'pointer',
+      text:'指针工具',
+      tool:'map',
+    },{
+      name:'polygon',
+      text:'多边形工具',
+      tool:'polygon'
+    },{
+      name:'interest',
+      text:'兴趣点工具',
+      tool:'interest'
+    },{
+      name:'font',
+      text:'文本工具',
+      tool:'font'
+    }
+  ]
   private form = {
     mapId: '',
     name: '',
@@ -786,12 +803,32 @@ export default class extends Mixins(IndexMixin) {
   }
 
   private changeCustomInfoType(type: string, flag: boolean) {
-    if (!flag) {
-      this.showInfo = !this.showInfo
-    } else {
-      this.showInfo = true
+    if(type === 'map'){
+      if(!flag){
+        this.showInfo = !this.showInfo
+        this.customInfoType = type
+        if(!this.showInfo){
+          this.customInfoType = ''
+        }
+      }else{
+        this.showInfo = false
+        if(this.customInfoType === 'map'){
+          this.customInfoType = ''
+        }else{
+          this.customInfoType = type
+        }
+      }
+    }else{
+      if(this.customInfoType && type === this.customInfoType){
+        this.showInfo = !this.showInfo
+        if(!this.showInfo){
+          this.customInfoType = ''
+        }
+      }else{
+        this.showInfo = true
+      }
+      this.customInfoType = type
     }
-    this.customInfoType = type
     this.$refs.mapview.changeMapClickEvent(type)
   }
 
@@ -1256,6 +1293,31 @@ export default class extends Mixins(IndexMixin) {
 .device-list__left,
 .device-list__right {
   position: relative;
+}
+
+.device-list__right {
+  &__handleBox {
+    background-color: #e2e2e2;
+    padding: 5px 15px;
+    margin-right: 20px;
+    border-radius: 5px;
+
+    &__tools {
+      display: inline-block;
+      width: 40px;
+      margin-right: 0;
+      text-align: center;
+      cursor: pointer;
+
+      &.active {
+        color: #fa8334;
+      }
+
+      &:not(:last-child) {
+        border-right: 1px solid #d3d3d3;
+      }
+    }
+  }
 }
 
 .map__add {

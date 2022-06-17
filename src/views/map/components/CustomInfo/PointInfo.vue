@@ -21,13 +21,11 @@
       <el-descriptions-item label="纬度">
         <el-input v-model="markerInfo.latitude" :disabled="!isEdit" />
       </el-descriptions-item>
-      <el-descriptions-item label="颜色">
-        <el-select v-model="markerInfo.deviceColor" :disabled="!isEdit">
-          <el-option v-for="item in colorMap" :key="item" :label="item" :value="item" class="option-item">
-            <span class="color-icon" :style="`backgroundColor: ${item}`" />
-            <span>{{ item }}</span>
-          </el-option>
-        </el-select>
+    </el-descriptions>
+    <el-descriptions title="外观" :column="1">
+       <el-descriptions-item label="颜色">
+        <span class="map-point-base-info__color" :style="`background-color: ${color}`" @click="pickColor" />
+        <sketch-picker v-if="ifPickColor" v-model="color" @input="colorChange" />
       </el-descriptions-item>
       <el-descriptions-item label="大小">
         <div class="map-point-base-info__small-box">
@@ -54,6 +52,9 @@ export default class extends Vue {
 
   @Prop()
   private marker
+
+  private color = '#1e78e0'
+  private ifPickColor = false
 
   private colorMap = [
     '#1e78e0',
@@ -108,6 +109,15 @@ export default class extends Vue {
   save() {
     this.$emit('save', this.markerInfo)
   }
+
+  private colorChange(val: any) {
+    this.color = val.hex
+  }
+
+  private pickColor() {
+    this.ifPickColor = !this.ifPickColor
+  }
+
 }
 </script>
 
