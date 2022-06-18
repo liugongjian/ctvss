@@ -777,22 +777,52 @@ export default class extends Vue {
 
   private async confirm() {
     const list = JSON.parse(JSON.stringify(this.sharedDirList))
-    const param = this.generateList(list)
-    console.log('this.confirmList:', this.confirmList)
+
+    if (list.length === 0) {
+      return this.$message({
+        message: '没有要提交的内容',
+        type: 'warning'
+      })
+    }
+    let param = []
+    console.log('list:', list)
+    list.forEach(item => param.push(...this.generateParam(item, item.children)))
     console.log('param:', param)
 
-    // try {
-    //   await shareDevices(param)871886
-    //   this.$message.success('添加成功！')
-    //   this.closeDialog(true)
-    // } catch (e) {
-    //   console.log(e)
-    //   this.$message.error('添加失败！')
-    // }
+    try {
+      await shareDevice({
+        platformId: this.platformId,
+        dirs: param
+      })
+      this.$message.success('添加成功！')
+      this.closeDialog(true)
+    } catch (e) {
+      console.log(e)
+      this.$message.error(e)
+    }
   }
 
-  private generateParamList(list) {
-    
+  private generateParam(dir, list) {
+    const devices = []
+    const dirs = []
+    list.forEach(item => {
+      item.type === 'ipc' ? devices.push(item) : dirs.push(...this.generateParam(item, item.children))
+    })
+    dirs.push({
+      dirId: dir.dirId,
+      gbId: this.gbIdMode === 'vgroup' ? dir.gbIdVgroup : dir.gbIdDistrict,
+      devices: devices.map(device => ({
+        deviceId: device.id,
+        gbId: device.gbId,
+        upGbId: this.gbIdMode === 'vgroup' ? device.gbIdVgroup : device.gbIdDistrict,
+        deviceName: device.label,
+        deviceType: device.type,
+        inProtocol: device.inProtocol,
+        channels: []
+      }))
+    })
+    console.log('dirs:', dirs)
+    return dirs
   }
 
   private changeMode() {
