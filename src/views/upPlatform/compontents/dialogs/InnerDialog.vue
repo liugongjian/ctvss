@@ -173,15 +173,13 @@ export default class extends Vue {
           //   devices: []
           // }
           // await deleteCascadeDevice(this.form.id)
-
           break
         }
         default:
           break
       }
-
+      this.$emit('inner-op', { type: this.type, form: this.form, selectedNode: this.currentNode })
       this.closeDialog()
-      this.$emit('inner-op', { type: this.type, form: this.form, selectedNode: this.selectedNode })
     } catch (e) {
       this.$message.error('创建失败')
       console.log(e)
