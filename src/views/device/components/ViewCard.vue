@@ -1,7 +1,7 @@
 <template>
   <el-card @click.native="viewDetail">
     <div class="pic-wrapper">
-      <img ref="img" :src="pic.image" @error="nopic">
+      <img ref="img" :src="pic.imagePath" @error="nopic">
     </div>
     <div class="content-wrapper">
       <el-descriptions :column="1" :colon="false">
@@ -10,7 +10,7 @@
         </el-descriptions-item>
 
         <el-descriptions-item>
-          {{ pic.time }}
+          {{ pic.recordTime }}
         </el-descriptions-item>
       </el-descriptions>
     </div>
@@ -25,7 +25,6 @@ import { decodeBase64 } from '@/utils/base64'
 })
 export default class extends Vue {
   @Prop() private pic!: any
-  @Prop() private id!: any
   private picInfo = null
   private isPicLoaded: boolean = true
   private decodeBase64: Function = decodeBase64
@@ -37,7 +36,7 @@ export default class extends Vue {
     img.onerror = null // 防止闪图
   }
   private viewDetail() {
-    this.$emit('showDialogue', this.pic, this.id)
+    this.$emit('showDialogue', this.pic)
   }
 }
 </script>

@@ -514,3 +514,23 @@ export const updateViewLib = (params: any): Promise<any> =>
     method: 'put',
     data: params[1]
   })
+
+/**
+ * 查询视图列表
+ */
+export const getViewsList = (params: any): Promise<any> =>
+  request({
+    url: '/viid/videoImages',
+    method: 'get',
+    params
+  })
+
+/**
+ * 查询视图详情
+ */
+export const getViewDetail = (params: any): Promise<any> =>
+  request({
+    url: '/viid/videoImages',
+    method: 'get',
+    params
+  })

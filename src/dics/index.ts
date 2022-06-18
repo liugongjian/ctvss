@@ -293,9 +293,9 @@ export const TrashType = [
 ]
 
 export const ViewTypes = [
-  { value: 'all', cname: '全部' },
-  { value: 'face', cname: '人脸' },
-  { value: 'people', cname: '人员' },
-  { value: 'moter', cname: '机动车' },
-  { value: 'vehicle', cname: '非机动车' }
+  { value: '0', cname: '全部' },
+  { value: '1', cname: '人员' },
+  { value: '2', cname: '人脸' },
+  { value: '3', cname: '机动车' },
+  { value: '4', cname: '非机动车' }
 ]
