@@ -188,7 +188,7 @@
 
 <script lang='ts'>
 import { Component, Vue, Provide, Watch } from 'vue-property-decorator'
-import { describeShareGroups, describeShareDirs, describeShareDevices, deletePlatform, cancleShareDevice, getPlatforms, cancleShareDir, startShareDevice, stopShareDevice } from '@/api/upPlatform'
+import { describeShareDirs, describeShareDevices, deletePlatform, cancleShareDevice, getPlatforms, cancleShareDir, startShareDevice, stopShareDevice } from '@/api/upPlatform'
 import { DeviceStatus, StreamStatus, PlatformStatus } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AddDevices from './compontents/dialogs/AddDevices.vue'
@@ -309,7 +309,6 @@ export default class extends Vue {
       } else {
         this.initPlatform()
       }
-      console.log('this.currentPlatform:', this.currentPlatform)
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
@@ -436,8 +435,8 @@ export default class extends Vue {
     }
     let params: any = {
       platformId: this.currentPlatform.platformId,
-      inProtocol: node.inProtocol,
-      groupId: node.groupId,
+      // inProtocol: node.inProtocol,
+      // groupId: node.groupId,
       dirId: node.dirId || '0',
       dirType: node.dirType || '0',
       pageNum: this.pager.pageNum,
@@ -529,19 +528,25 @@ export default class extends Vue {
     try {
       this.dirList = []
       this.loading.dir = true
-      const res = await describeShareGroups({
+      // const res = await describeShareGroups({
+      //   platformId: this.currentPlatform.platformId,
+      //   pageSize: 1000
+      // })
+      const res = await describeShareDirs({
         platformId: this.currentPlatform.platformId,
+        dirId: '-1',
         pageSize: 1000
       })
-      if (res.groups.length) {
+      if (res.dirs.length) {
         this.hasDir = true
-        res.groups.forEach((group: any) => {
+        res.dirs.forEach((group: any) => {
           // 放开rtsp rtmp
           // (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome') && (
           this.dirList.push({
-            id: group.groupId,
+            id: group.dirId,
+            dirId: group.dirId,
             groupId: group.groupId,
-            label: group.groupName,
+            label: group.dirName,
             inProtocol: group.inProtocol,
             gbId: group.gbId,
             type: 'group'
@@ -577,11 +582,15 @@ export default class extends Vue {
     if (node.level === 0) return resolve([])
     try {
       const res = await describeShareDirs({
-        groupId: node.data.groupId,
-        dirId: node.data.type === 'group' ? 0 : node.data.dirId,
+        // groupId: node.data.groupId,
+        // dirId: node.data.type === 'group' ? 0 : node.data.dirId,
+        // inProtocol: node.data.inProtocol,
+        // platformId: this.currentPlatform.platformId
+        dirId: node.data.dirId,
         inProtocol: node.data.inProtocol,
         platformId: this.currentPlatform.platformId
       })
+
       const dirs = res.dirs.map((dir: any) => {
         return {
           ...dir,
@@ -600,6 +609,8 @@ export default class extends Vue {
   }
 
   private nodeClick(data: any, node: any) {
+    console.log('data:', data)
+    console.log('node:', node)
     node.expanded = true
     this.currentNodeData = data
     this.getList(this.currentNodeData, false)

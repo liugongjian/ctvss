@@ -38,7 +38,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { createCascadeDir, modifyCascadeDir, deleteCascadeDir, describeCascadeDir } from '@/api/upPlatform'
+import { createCascadeDir, modifyCascadeDir, deleteCascadeDir, describeCascadeDir, cancleShareDevice } from '@/api/upPlatform'
 import AddressCascader from '@/views/components/AddressCascader.vue'
 import { DeviceAddress } from '@/type/device'
 import { industryMap } from '@/assets/region/industry'
@@ -100,9 +100,6 @@ export default class extends Vue {
         // 接口没看到
         this.form = this.selectedNode.data
         break
-      case 'deleteDevice':
-
-        break
       default:
         break
     }
@@ -139,7 +136,10 @@ export default class extends Vue {
     try {
       switch (this.type) {
         case 'append': {
-          const param = { platformId: this.platformId, dirs: [{ ...this.form, parentDirId: this.currentNode?.data.dirId || '-1' }] }
+          const param = {
+            platformId: this.platformId,
+            dirs: [{ ...this.form, parentDirId: this.currentNode?.data.dirId || '-1' }]
+          }
           await createCascadeDir(param)
           break
         }
@@ -166,22 +166,22 @@ export default class extends Vue {
           break
         }
         case 'deleteDevice': {
-          console.log('this.currentNode:', this.currentNode)
-          // const paramDelDevice = {
-          //   dirId: this.form.dirId,
-          //   platformId: this.platformId,
-          //   devices: []
-          // }
-          // await deleteCascadeDevice(this.form.id)
+          const paramDelDevice = {
+            platformId: this.platformId,
+            dirId: this.currentNode.parent.data.dirId,
+            devices: [{ deviceId: this.currentNode.data.id }]
+          }
+          await cancleShareDevice(paramDelDevice)
           break
         }
         default:
           break
       }
       this.$emit('inner-op', { type: this.type, form: this.form, selectedNode: this.currentNode })
+
       this.closeDialog()
     } catch (e) {
-      this.$message.error('创建失败')
+      this.$message.error('操作失败: ' + e.message)
       console.log(e)
     }
   }

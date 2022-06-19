@@ -17,7 +17,7 @@
           :data="dirList"
           :load="loadDirs"
           :props="treeProp"
-          :check-strictly="true"
+          :check-strictly="false"
           :allow-drag="allowDrag"
           draggable
           :allow-drop="() => false"
@@ -171,8 +171,8 @@ export default class extends Vue {
     this.loading.sharedDir = !this.loading.sharedDir
   }, 2000)
 
-  private mounted() {
-    this.initPlatform()
+  private async mounted() {
+    await this.initPlatform()
     this.initDirs()
     this.initSharedDirs()
   }
@@ -250,14 +250,14 @@ export default class extends Vue {
             label: group.dirName,
             inProtocol: group.inProtocol,
             gbId: group.gbId,
-            type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
+            type: this.mode === 'vgroup' ? 'dir' : 'top-group',
             dirType: group.dirType,
             sharedFlag: true,
             dragInFlag: false,
             path: [{
               id: group.dirId,
               label: group.dirName,
-              type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
+              type: this.mode === 'vgroup' ? 'group' : 'top-group',
               gbIdDistrict: group.gbId || '',
               gbIdVgroup: group.gbId || '',
               gbIdDistrictRoot: group.gbId
@@ -314,7 +314,7 @@ export default class extends Vue {
       return {
         ...dir,
         platformId: this.platformId,
-        type: dir.dirType === '1' ? 'vgroup' : 'top-group',
+        type: 'dir',
         label: dir.dirName,
         id: dir.dirId,
         sharedFlag: true,
@@ -350,7 +350,7 @@ export default class extends Vue {
       let dirs: any = res.devices.map((dir: any) => {
         const sharedFlag = true
         return {
-          id: dir.id,
+          id: dir.deviceId,
           groupId: node.data.groupId,
           label: dir.deviceName,
           inProtocol: dir.inProtocol || node.data.inProtocol,
@@ -783,6 +783,8 @@ export default class extends Vue {
       let difference = newSharedDirs.filter(x => !this.sharedDirList.find(y => y.dirId === x.dirId))
       this.sharedDirList.push(difference[0])
     }
+
+    this.$message.success('操作成功')
 
     this.innerVisible = false
   }
