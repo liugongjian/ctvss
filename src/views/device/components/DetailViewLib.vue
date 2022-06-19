@@ -135,8 +135,7 @@ import ViewCard from './ViewCard.vue'
 import debounce from '@/utils/debounce'
 import { ViewTypes } from '@/dics/index'
 import { getViewsList, getViewDetail } from '@/api/device'
-
-const sr = 'https://guiyang.vcn.ctyun.cn/vss-resource03_ai_wgw1-1/29942159419407308/ai/2022-05-20/20220520-144551-af4a63ee-a1d2-45c5-b81d-c90fd188cded.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=QK3UOU50KUN39XM4L3E1%2F20220520%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20220520T065433Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=254df84025683a739a6a9bcc40d0e4c3136692185e0643dc893059fab625110b'
+import { parseISO, lightFormat } from 'date-fns'
 
 @Component({
   name: 'DetailViewLib',
@@ -149,7 +148,7 @@ export default class extends Vue {
   @Prop() private inProtocol!: any
 
   private viewTypes = ViewTypes
-  private picInfos = [{ image: sr, id: '123', time: 'xx' }, { image: sr, id: '423', time: 'xx' }, { image: sr, id: '22', time: 'xx' }, { image: sr, id: '53', time: 'xx' }, { image: sr, id: '31', time: 'xx' }, { image: sr, id: '3', time: 'xx' }, { image: sr, id: '332', time: 'xx' }, { image: sr, id: '1312', time: 'xx' }, { image: sr, id: '44232', time: 'xx' }, { image: sr, id: '74', time: 'xx' }, { image: sr, id: '37', time: 'xx' }, { image: sr, id: '32', time: 'xx' }, { image: sr, id: '77', time: 'xx' }]
+  private picInfos = []
   private detailPic = []
   private queryLoading: any = {
     pic: false
@@ -161,7 +160,7 @@ export default class extends Vue {
   }
   private queryParam: any = {
     periodType: '今天',
-    period: [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)],
+    period: [this.getTimeStamp(new Date().setHours(0, 0, 0, 0)), this.getTimeStamp(new Date().setHours(23, 59, 59, 999))],
     viewType: '0'
   }
   private visibile = false
@@ -190,13 +189,13 @@ export default class extends Vue {
   private periodTypeUpdated(newVal) {
     switch (newVal) {
       case '今天':
-        this.$set(this.queryParam, 'period', [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)])
+        this.$set(this.queryParam, 'period', [this.getTimeStamp(new Date().setHours(0, 0, 0, 0)), this.getTimeStamp(new Date().setHours(23, 59, 59, 999))])
         break
       case '近3天':
-        this.$set(this.queryParam, 'period', [this.getDateBefore(2), new Date().setHours(23, 59, 59, 999)])
+        this.$set(this.queryParam, 'period', [this.getTimeStamp(this.getDateBefore(2)), this.getTimeStamp(new Date().setHours(23, 59, 59, 999))])
         break
       case '自定义时间':
-        this.$set(this.queryParam, 'period', [this.getDateBefore(6), new Date().setHours(23, 59, 59, 999)])
+        this.$set(this.queryParam, 'period', [this.getTimeStamp(this.getDateBefore(6)), this.getTimeStamp(new Date().setHours(23, 59, 59, 999))])
         break
     }
   }
@@ -212,9 +211,19 @@ export default class extends Vue {
       endTime: this.queryParam.period[1],
       type: this.queryParam.viewType
     })
-    this.picInfos = res.data
+    this.picInfos = res.data.map(x => ({
+      ...x,
+      recordTime: lightFormat(parseISO(x.recordTime), 'yyyy-MM-dd HH:mm:ss')
+    }))
     const { pageNum, pageSize, total } = res
     this.pager = { pageNum, pageSize, total }
+  }
+
+  /**
+   * 得到秒级时间戳
+   */
+  private getTimeStamp(milTimeStamp) {
+    return Math.trunc(milTimeStamp / 1000)
   }
 
   /**
