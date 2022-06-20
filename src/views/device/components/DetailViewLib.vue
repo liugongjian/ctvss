@@ -78,7 +78,7 @@
                 @change="changeCarousel"
               >
                 <el-carousel-item v-for="(pic,index) in detailPic" :key="index" :name="index+''">
-                  <img :src="pic.image" :alt="pic.id">
+                  <img :src="pic.imagePath" alt="">
                 </el-carousel-item>
               </el-carousel>
             </div>
@@ -96,7 +96,7 @@
                     :class="`${activeIndex === index ? 'active' : ''}`"
                     @click="active(index)"
                   >
-                    <img :src="pic.image" alt="">
+                    <img :src="pic.imagePath" alt="">
                     <el-tooltip effect="dark" :content="pic.id" placement="bottom">
                       <div>sourceId:{{ (pic.id && pic.id.length > 5) ? pic.id.slice(0,5) + '...' : pic.id }}</div>
                     </el-tooltip>
@@ -106,21 +106,21 @@
             </div>
           </div>
           <div class="dialogue-right">
-            <div class="dialogue-right__section">
-              <div class="dialogue-right__section__title">基础信息</div>
-              <el-descriptions :column="1" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
-                <el-descriptions-item label="人脸标识">{{ picInfos[activeIndex].id }}</el-descriptions-item>
-                <el-descriptions-item label="人脸标识">{{ picInfos[activeIndex].id }}</el-descriptions-item>
-                <el-descriptions-item label="人脸标识">{{ picInfos[activeIndex].id }}</el-descriptions-item>
-              </el-descriptions>
-            </div>
-            <div class="dialogue-right__section">
-              <div class="dialogue-right__section__title">图像列表</div>
-              <el-descriptions :column="1" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
-                <el-descriptions-item label="人脸标识">{{ picInfos[activeIndex].id }}</el-descriptions-item>
-                <el-descriptions-item label="人脸标识">{{ picInfos[activeIndex].id }}</el-descriptions-item>
-                <el-descriptions-item label="人脸标识">{{ picInfos[activeIndex].id }}</el-descriptions-item>
-              </el-descriptions>
+            <div class="dialogue-right__wrapper">
+              <div class="dialogue-right__section">
+                <div class="dialogue-right__section__title">基础信息</div>
+                <el-descriptions v-if="picInfos[activeIndex].type === 1" :column="1" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
+                  <!-- <div v-for="(val,key) in peopleInfos" :key="val"> -->
+                  <el-descriptions-item v-if="picInfos[activeIndex][val]" :label="key">{{ picInfos[activeIndex][val] }}</el-descriptions-item>
+                  <!-- </div> -->
+                </el-descriptions>
+              </div>
+              <div class="dialogue-right__section">
+                <div class="dialogue-right__section__title">图像列表</div>
+                <el-descriptions :column="1" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
+                  <el-descriptions-item label="人脸标识">{{ picInfos[activeIndex].id }}</el-descriptions-item>
+                </el-descriptions>
+              </div>
             </div>
           </div>
         </div>
@@ -133,7 +133,7 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import ViewCard from './ViewCard.vue'
 import debounce from '@/utils/debounce'
-import { ViewTypes } from '@/dics/index'
+import { ViewTypes, PeopleInfos } from '@/dics/index'
 import { getViewsList, getViewDetail } from '@/api/device'
 import { parseISO, lightFormat } from 'date-fns'
 
@@ -165,6 +165,7 @@ export default class extends Vue {
   }
   private visibile = false
   private activeIndex = 0
+  private peopleInfos = PeopleInfos
 
   // private dialoguePic!: any
   // 防抖
@@ -271,22 +272,22 @@ export default class extends Vue {
     this.visibile = !this.visibile
   }
   private async showDialogue(pic) {
-    this.visibile = true
     const res = await getViewDetail({
       deviceId: this.deviceId,
-      type: pic.type,
+      type: 2,
       id: pic.id
     })
-    this.detailPic = res.data
+    this.detailPic = res?.data
     this.$nextTick(() => {
       // TODO   这里得问下雪萍两个图片得关联ID如何做
       this.detailPic.length > 0 && this.detailPic.forEach((item, index) => {
-        if (pic.id === item.ImageID) {
+        if (pic.id === item.ImageId) {
           this.active(index)
           this.changeCarousel(index)
         }
       })
     })
+    this.visibile = true
   }
   private async refresh() {
     this.debounceHandle()
@@ -602,7 +603,11 @@ export default class extends Vue {
   flex-direction: column;
   justify-content: start;
   align-items: center;
-  overflow: auto;
+
+  &__wrapper {
+    height: 95vh;
+    overflow-y: scroll;
+  }
 
   &__section {
     margin-bottom: 12%;
