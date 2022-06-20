@@ -109,18 +109,20 @@
             <div class="dialogue-right__wrapper">
               <div class="dialogue-right__section">
                 <div class="dialogue-right__section__title">基础信息</div>
-                <el-descriptions v-if="picInfos[activeIndex].type === 1" :column="1" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
-                  <!-- <div v-for="(val,key) in peopleInfos" :key="val"> -->
-                  <el-descriptions-item v-if="picInfos[activeIndex][val]" :label="key">{{ picInfos[activeIndex][val] }}</el-descriptions-item>
-                  <!-- </div> -->
-                </el-descriptions>
+                <div v-if="picInfos[activeIndex].type === 'ViidFace'" :column="1" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
+                  <div v-for="(val,key) in peopleInfos" :key="val" style="margin-top: 5px;line-height: 18px;">
+                    <span v-if="picInfos[activeIndex][key]" style="font-weight: bold;">{{ val }}:</span>
+                    <span v-if="picInfos[activeIndex][key]">{{ '  ' + picInfos[activeIndex][key] }}</span>
+                  <!-- <el-descriptions-item v-for="(val,key) in peopleInfos" :key="val" :label="key">{{ picInfos[activeIndex][val] }}</el-descriptions-item> -->
+                  </div>
+                </div>
               </div>
-              <div class="dialogue-right__section">
+              <!-- <div class="dialogue-right__section">
                 <div class="dialogue-right__section__title">图像列表</div>
                 <el-descriptions :column="1" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
                   <el-descriptions-item label="人脸标识">{{ picInfos[activeIndex].id }}</el-descriptions-item>
                 </el-descriptions>
-              </div>
+              </div> -->
             </div>
           </div>
         </div>
@@ -203,6 +205,7 @@ export default class extends Vue {
 
   private mounted() {
     this.getViewsList()
+    console.log(this.peopleInfos)
   }
 
   private async getViewsList() {
