@@ -27,7 +27,7 @@
           <!-- @check="checkCallback"
           @check-change="onCheckDevice"
           @node-click="selectDevice" -->
-          <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}" @click.stop.prevent="">
+          <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}" @click="() => preventClick()" @mouseup="() => preventDrag()">
             <span class="node-name">
               <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
               <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
@@ -595,6 +595,7 @@ export default class extends Vue {
         const draggingData = JSON.parse(JSON.stringify(draggingNode.data))
         vgroupTree.remove(draggingData)
         const checkedNodes = dirTree.getCheckedNodes(true, false)
+        console.log('checkedNodes:', checkedNodes)
         checkedNodes.push({ ...draggingData, dragInFlag: true })
         const param = checkedNodes.filter(data => data.type === 'ipc')
         await shareDevice({
@@ -809,6 +810,22 @@ export default class extends Vue {
         this.changeGbIdDistrictRoot(child, val)
       })
     }
+  }
+
+  private preventClick() {
+    // @ts-ignore
+    if (window.mouseup_click_debug) {
+      return false
+    }
+  }
+
+  private preventDrag() {
+    // @ts-ignore
+    window.mouseup_click_debug = true
+    setTimeout(function() {
+      // @ts-ignore
+      window.mouseup_click_debug = false
+    }, 200)
   }
 }
 </script>
