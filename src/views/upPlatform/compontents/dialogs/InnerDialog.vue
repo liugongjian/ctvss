@@ -138,7 +138,10 @@ export default class extends Vue {
         case 'append': {
           const param = {
             platformId: this.platformId,
-            dirs: [{ ...this.form, parentDirId: this.currentNode?.data.dirId || '-1' }]
+            dirs: [{ ...this.form,
+              parentDirId: this.currentNode?.data.dirId || '-1',
+              dirType: this.mode === 'district' && this.currentNode ? '0' : '1'
+            }]
           }
           await createCascadeDir(param)
           break

@@ -651,7 +651,7 @@ export default class extends Vue {
         return
       }
     }
-    if (this.selectedNode && this.selectedNode.data.type !== 'ipc' && this.mode === 'district' && this.selectedNode.level > 4 && type === 'append') {
+    if (this.selectedNode && this.selectedNode.data.type !== 'ipc' && this.mode === 'district' && this.selectedNode.level > 3 && type === 'append') {
       this.$message({
         message: '行政区划目录层级不得超过4级',
         type: 'warning'
