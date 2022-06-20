@@ -11,7 +11,6 @@
  */
 
 import { AnimalType } from '@/dics'
-import { count } from 'console'
 export const parseMetaData = (type: string, metaData: any) => {
   let locations = []
   switch (type) {
