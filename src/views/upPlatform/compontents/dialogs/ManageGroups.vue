@@ -814,12 +814,16 @@ export default class extends Vue {
 
   private preventClick() {
     // @ts-ignore
+    console.log('click   window.mouseup_click_debug:', window.mouseup_click_debug)
+    // @ts-ignore
     if (window.mouseup_click_debug) {
       return false
     }
   }
 
   private preventDrag() {
+    // @ts-ignore
+    console.log('drag   window.mouseup_click_debug:', window.mouseup_click_debug)
     // @ts-ignore
     window.mouseup_click_debug = true
     setTimeout(function() {
