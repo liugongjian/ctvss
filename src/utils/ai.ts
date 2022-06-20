@@ -9,6 +9,8 @@
  *  isWarning: 是否警告
  * }
  */
+
+import { AnimalType } from '@/dics'
 export const parseMetaData = (type: string, metaData: any) => {
   let locations = []
   switch (type) {
@@ -88,6 +90,9 @@ export const parseMetaData = (type: string, metaData: any) => {
             case 'cask_overflows':
               label = '垃圾桶溢满'
               break
+            case 'Bear':
+              label = '狗熊'
+              break
           }
           return {
             top: box.TopLeftY,
@@ -108,6 +113,41 @@ export const parseMetaData = (type: string, metaData: any) => {
           }
         )
       }
+      break
+
+    case '33':// 动物检测
+    case '10033':// 动物检测
+      // eslint-disable-next-line no-case-declarations
+      let counts = {}
+      AnimalType.forEach(item => { counts[item.label] = 0 })
+      console.log('counts 1:', counts)
+      locations = metaData.Data && metaData.Data.Boxes.map((box: any) => {
+        try {
+          if (box.Label && typeof counts[box.Label] !== 'undefined') {
+            counts[box.Label] += 1
+          }
+          return {
+            top: box.TopLeftY,
+            left: box.TopLeftX,
+            width: box.BottomRightX - box.TopLeftX,
+            height: box.BottomRightY - box.TopLeftY,
+            isWarning: box.Score.length > 0 && box.Score > 60,
+            label: box.Label
+          }
+        } catch (error) {
+          console.log(error)
+        }
+      })
+      console.log('counts 2:', counts)
+      if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+        locations.push(
+          {
+            zone: metaData.DangerZoneBox
+          }
+        )
+      }
+      // @ts-ignore
+      locations.counts = counts // 动物数量对象
       break
     case '6': // 研发二部未带口罩
     case '10003': // 研发二部未带口罩

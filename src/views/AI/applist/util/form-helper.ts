@@ -83,6 +83,7 @@ export const formRule = {
   'algorithmMetadata.areaThreshold': getRule('视野遮挡阈值'),
   'algorithmMetadata.trashRecycleType': getRule('细分检测项'),
   'algorithmMetadata.helmetReflectiveType': getRule('检测项'),
+  'algorithmMetadata.animalDetectType': getRule('动物列表'),
   beeNumber: getRule('蜜蜂数量'),
   period: getRule('起始时间')
 }
