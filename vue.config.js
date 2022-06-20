@@ -8,7 +8,7 @@ const serverAddressMapping = {
   dev: 'https://182.43.127.35:9190', // 开发环境
   dev1: 'http://182.43.127.35:9050', // 开发环境dev-1
   dev2: 'http://182.43.127.35:9060', // 新环境
-  test: 'https://182.43.127.35:9180', // 测试环境
+  test: 'https://9080.guiyang.vcn.ctyun.cn', // 测试环境
   test1: 'http://182.43.127.35:9060', // 测试环境test-1
   test2: 'http://182.43.127.35:9080', // http 测试环境 test
   pre: 'https://182.43.127.35:9170', // 预发布环境

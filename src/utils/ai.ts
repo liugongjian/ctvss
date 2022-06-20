@@ -11,6 +11,7 @@
  */
 
 import { AnimalType } from '@/dics'
+import { count } from 'console'
 export const parseMetaData = (type: string, metaData: any) => {
   let locations = []
   switch (type) {
@@ -120,6 +121,7 @@ export const parseMetaData = (type: string, metaData: any) => {
       // eslint-disable-next-line no-case-declarations
       let counts = {}
       AnimalType.forEach(item => { counts[item.label] = 0 })
+      console.log('counts 1:', counts)
       locations = metaData.Data && metaData.Data.Boxes.map((box: any) => {
         try {
           if (box.Label && typeof counts[box.Label] !== 'undefined') {
@@ -137,14 +139,16 @@ export const parseMetaData = (type: string, metaData: any) => {
           console.log(error)
         }
       })
+      console.log('counts 2:', counts)
       if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
         locations.push(
           {
-            zone: metaData.DangerZoneBox,
-            counts
+            zone: metaData.DangerZoneBox
           }
         )
       }
+      // @ts-ignore
+      locations.counts = counts // 动物数量对象
       break
     case '6': // 研发二部未带口罩
     case '10003': // 研发二部未带口罩
