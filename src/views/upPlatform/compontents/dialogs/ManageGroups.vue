@@ -19,15 +19,16 @@
           :props="treeProp"
           :check-strictly="false"
           :allow-drag="allowDrag"
+          :expand-on-click-node="false"
           draggable
           :allow-drop="() => false"
           @node-drag-start="handleDragstart"
           @node-drag-end="handleDragend"
-        >
-          <!-- @check="checkCallback"
+          @check="checkCallback"
           @check-change="onCheckDevice"
-          @node-click="selectDevice" -->
-          <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}" @click="() => preventClick()" @mouseup="() => preventDrag()">
+          @node-click="selectDevice"
+        >
+          <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}" @drag="() => dirTreeNodeDrag(data)">
             <span class="node-name">
               <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
               <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
@@ -76,9 +77,9 @@
       </div>
       <div v-if="step === 0" class="device-wrap">
         <el-button type="primary" @click="openInner('append')">新建组/虚拟组织</el-button>
-        <el-button type="primary" :disabled="!(selectedNode && selectedNode.data.type !== 'ipc')" @click="openInner('edit')">编辑</el-button>
-        <el-button type="primary" :disabled="!(selectedNode && selectedNode.data.type !== 'ipc')" @click="openInner('deleteGroup')">删除组/虚拟组织</el-button>
-        <el-button type="primary" :disabled="!(selectedNode && selectedNode.data.type === 'ipc')" @click="openInner('deleteDevice')">删除设备</el-button>
+        <el-button type="primary" :disabled="!(selectedNode && selectedNode.data.type !== 'ipc' && selectedNode.data.type !== 'nvr')" @click="openInner('edit')">编辑</el-button>
+        <el-button type="primary" :disabled="!(selectedNode && selectedNode.data.type !== 'ipc' && selectedNode.data.type !== 'nvr')" @click="openInner('deleteGroup')">删除组/虚拟组织</el-button>
+        <el-button type="primary" :disabled="!(selectedNode && (selectedNode.data.type === 'ipc' || selectedNode.data.type === 'nvr'))" @click="openInner('deleteDevice')">删除设备</el-button>
       </div>
     </div>
     <div slot="footer" class="dialog-footer">
@@ -295,9 +296,39 @@ export default class extends Vue {
     if (node.data.dragInFlag) { // 对新darg入的节点进行加载
       res = await this.getTree(node)
     } else { // 对已共享的目录进行加载
-      const dirs = await this.getSharedDirs(node)
-      const devices = await this.getSharedTree(node)
-      res = [...dirs, ...devices]
+      if (node.data.type === 'nvr') {
+        res = node.data.channels.map(channel => {
+          return {
+            ...channel,
+            id: channel.deviceId,
+            groupId: channel.groupId,
+            label: channel.channelName,
+            inProtocol: channel.inProtocol || node.data.inProtocol,
+            // isLeaf: dir.isLeaf || true,
+            isLeaf: channel.deviceType === 'ipc',
+            type: channel.deviceType,
+            deviceStatus: channel.deviceStatus,
+            streamStatus: channel.streamStatus,
+            // disabled: dir.type !== 'ipc' || sharedFlag,
+            disabled: false,
+            path: node.data.path.concat([channel]),
+            sharedFlag: true,
+            dragInFlag: false,
+            roleId: node.data.roleId || '',
+            realGroupId: node.data.realGroupId || '',
+            realGroupInProtocol: node.data.realGroupInProtocol || '',
+
+            gbId: channel.gbId,
+            gbIdDistrict: node.data.path[0].gbIdDistrict + (channel.gbId || ''),
+            gbIdVgroup: channel.gbId || '',
+            gbIdDistrictRoot: node.data.path[0].gbIdDistrict
+          }
+        })
+      } else {
+        const dirs = await this.getSharedDirs(node)
+        const devices = await this.getSharedTree(node)
+        res = [...dirs, ...devices]
+      }
     }
     this.debounceLoading()
     return res
@@ -350,11 +381,13 @@ export default class extends Vue {
       let dirs: any = res.devices.map((dir: any) => {
         const sharedFlag = true
         return {
+          ...dir,
           id: dir.deviceId,
           groupId: node.data.groupId,
           label: dir.deviceName,
           inProtocol: dir.inProtocol || node.data.inProtocol,
-          isLeaf: dir.isLeaf || true,
+          // isLeaf: dir.isLeaf || true,
+          isLeaf: dir.deviceType === 'ipc',
           type: dir.deviceType,
           deviceStatus: dir.deviceStatus,
           streamStatus: dir.streamStatus,
@@ -427,6 +460,7 @@ export default class extends Vue {
           groupId: node.data.groupId,
           label: dir.label,
           inProtocol: dir.inProtocol || node.data.inProtocol,
+          channelNum: dir.channelNum || 0,
           isLeaf: dir.isLeaf,
           type: dir.type,
           deviceStatus: dir.deviceStatus,
@@ -452,31 +486,32 @@ export default class extends Vue {
     }
   }
 
-  // private async checkCallback(data: any) {
-  //   const dirTree: any = this.$refs.dirTree
-  //   const node = dirTree.getNode(data.id)
-  //   await this.checkNodes(dirTree, node)
-  // }
+  private async checkCallback(data: any) {
+    const dirTree: any = this.$refs.dirTree
+    const node = dirTree.getNode(data.id)
+    console.log('checked node:', node)
+    await this.checkNodes(dirTree, node)
+  }
 
-  // private async checkNodes(dirTree: any, node: any) {
-  //   if (node.checked) {
-  //     if (node.loaded) {
-  //       node.expanded = true
-  //     } else {
-  //       const dirs = await this.getTree(node)
-  //       dirTree.updateKeyChildren(node.data.id, dirs)
-  //       node.expanded = true
-  //       node.loaded = true
-  //     }
-  //     node.childNodes.forEach((child: any) => {
-  //       child.checked = true
-  //       if (child.data.type !== 'ipc') {
-  //         this.checkNodes(dirTree, child)
-  //       }
-  //     })
-  //     this.onCheckDevice()
-  //   }
-  // }
+  private async checkNodes(dirTree: any, node: any) {
+    if (node.checked) {
+      if (node.loaded) {
+        node.expanded = true
+      } else {
+        const dirs = await this.getTree(node)
+        dirTree.updateKeyChildren(node.data.id, dirs)
+        node.expanded = true
+        node.loaded = true
+      }
+      node.childNodes.forEach((child: any) => {
+        child.checked = true
+        if (child.data.type !== 'ipc') {
+          this.checkNodes(dirTree, child)
+        }
+      })
+      this.onCheckDevice()
+    }
+  }
 
   private async expandNodes(dirTree: any, node: any, singleNode: boolean = false) {
     let dirs = []
@@ -551,28 +586,29 @@ export default class extends Vue {
   /**
    * 单击ipc时直接勾选
    */
-  // private selectDevice(data: any) {
-  //   if (data.type === 'ipc' && !data.sharedFlag) {
-  //     const dirTree: any = this.$refs.dirTree
-  //     const node = dirTree.getNode(data.id)
-  //     dirTree.setChecked(data.id, !node.checked)
-  //   }
-  // }
+  private selectDevice(data: any) {
+    if (data.type === 'ipc' && !data.sharedFlag) {
+      const dirTree: any = this.$refs.dirTree
+      const node = dirTree.getNode(data.id)
+      dirTree.setChecked(data.id, !node.checked)
+    }
+  }
 
   private selectSharedDevice(data: any, node: any) {
+    console.log('selectSharedDevice:', node)
     this.selectedNode = node
   }
 
   /**
    * 当设备被选中时回调，将选中的设备列出
    */
-  // private onCheckDevice() {
-  //   const dirTree: any = this.$refs.dirTree
-  //   const nodes = dirTree.getCheckedNodes()
-  //   this.deviceList = nodes.filter((node: any) => {
-  //     return (node.type === 'ipc' && !node.sharedFlag)
-  //   })
-  // }
+  private onCheckDevice() {
+    const dirTree: any = this.$refs.dirTree
+    const nodes = dirTree.getCheckedNodes()
+    this.deviceList = nodes.filter((node: any) => {
+      return (node.type === 'ipc' && !node.sharedFlag)
+    })
+  }
 
   private closeDialog(isRefresh: boolean = false) {
     this.dialogVisible = false
@@ -585,33 +621,86 @@ export default class extends Vue {
   }
 
   private async handleDragendShared(draggingNode, endNode) {
-    if (endNode.data.type === 'ipc') {
-      return false
-    }
+    console.log('tree2')
+    const dirTree: any = this.$refs.dirTree
+    const vgroupTree: any = this.$refs.vgroupTree
     if (endNode) {
-      const dirTree: any = this.$refs.dirTree
-      const vgroupTree: any = this.$refs.vgroupTree
+      if (endNode.data.type === 'ipc') {
+        return false
+      }
+      setTimeout(() => {
+        dirTree.setChecked(draggingNode.data, true, false)
+      }, 0)
       if (!draggingNode.data.dragInFlag) {
         const draggingData = JSON.parse(JSON.stringify(draggingNode.data))
-        vgroupTree.remove(draggingData)
+        this.$nextTick(() => {
+          vgroupTree.remove(draggingData)
+        })
+
         const checkedNodes = dirTree.getCheckedNodes(true, false)
+        const allNodes = checkedNodes.map(data => dirTree.getNode(data.id))
+        allNodes.push(draggingNode)
         console.log('checkedNodes:', checkedNodes)
-        checkedNodes.push({ ...draggingData, dragInFlag: true })
-        const param = checkedNodes.filter(data => data.type === 'ipc')
+        console.log('param1:', allNodes)
+        // checkedNodes.push({ ...draggingData, dragInFlag: true })
+        const allIPCNodes = allNodes.filter(node => node.data.type === 'ipc')
+
+        console.log('allIPCNodes:', allIPCNodes)
+        // 查看选取设备中是否有nvr通道
+        const devices = []
+        allIPCNodes.forEach(node => {
+          debugger
+          if (node.data.path[node.data.path.length - 2].type === 'nvr') {
+            let findFlag = false
+            devices.forEach(device => {
+              if (node.data.path[node.data.path.length - 2].id === device.deviceId) {
+                device.channels.push({
+                  channelNum: node.data.channelNum,
+                  channelName: node.data.label,
+                  gbId: node.data.gbId,
+                  deviceId: node.data.id
+                })
+                findFlag = true
+              }
+            })
+            if (!findFlag) {
+              const parent = node.data.path[node.data.path.length - 2]
+              devices.push({
+                deviceId: parent.id,
+                gbId: parent.gbId,
+                upGbId: parent.gbId,
+                deviceName: parent.label,
+                deviceType: parent.type,
+                inProtocol: parent.inProtocol,
+                channels: [{
+                  channelNum: node.data.channelNum,
+                  channelName: node.data.label,
+                  gbId: node.data.gbId,
+                  deviceId: node.data.id
+                }]
+              })
+            }
+          } else {
+            devices.push({
+              deviceId: node.data.id,
+              gbId: node.data.gbId,
+              upGbId: node.data.gbId,
+              deviceName: node.data.label,
+              deviceType: node.data.type,
+              inProtocol: node.data.inProtocol,
+              channels: []
+            })
+          }
+        })
+
+        console.log('devices:', devices)
+
         await shareDevice({
           platformId: this.platformId,
           dirs: [{
             dirId: endNode.data.dirId,
             gbId: draggingNode.data.gbId,
-            devices: param.map(data => ({
-              deviceId: data.id,
-              gbId: data.gbId,
-              upGbId: data.gbId,
-              deviceName: data.label,
-              deviceType: data.type,
-              inProtocol: data.inProtocol,
-              channels: []
-            }))
+            devices
           }]
         })
         this.forceRefreshChildren(vgroupTree, endNode)
@@ -620,10 +709,11 @@ export default class extends Vue {
   }
 
   private handleDragend(draggingNode, endNode, position, event) {
+    console.log('tree1')
     const dirTree: any = this.$refs.dirTree
     const vgroupTree: any = this.$refs.vgroupTree
 
-    // // 插入一个空节点用于占位
+    // // // 插入一个空节点用于占位
     let emptyData = { id: draggingNode.id, children: [] }
     dirTree.insertBefore(emptyData, draggingNode)
 
@@ -637,7 +727,7 @@ export default class extends Vue {
         let data = JSON.parse(JSON.stringify(draggingNode.data))
         dirTree.insertAfter(data, dirTree.getNode(emptyData))
         dirTree.remove(emptyData)
-        dirTree.setChecked(data)
+        // dirTree.setChecked(data)
       }
     })
   }
@@ -680,9 +770,15 @@ export default class extends Vue {
   }
 
   private allowDrag(node) {
-    if (node.data.type !== 'ipc') {
+    if (node.data.type === 'nvr') {
       this.$message({
-        message: '只能拖拽设备',
+        message: '请拖拽nvr下的设备，nvr设备本身将自动共享',
+        type: 'warning'
+      })
+      return false
+    } else if (node.data.type !== 'ipc') {
+      this.$message({
+        message: '不能拖拽目录',
         type: 'warning'
       })
       return false
@@ -812,24 +908,12 @@ export default class extends Vue {
     }
   }
 
-  private preventClick() {
-    // @ts-ignore
-    console.log('click   window.mouseup_click_debug:', window.mouseup_click_debug)
-    // @ts-ignore
-    if (window.mouseup_click_debug) {
+  private dirTreeNodeDrag(data) {
+    console.log('drag data:')
+    if (data.type === 'nvr') {
       return false
     }
-  }
-
-  private preventDrag() {
-    // @ts-ignore
-    console.log('drag   window.mouseup_click_debug:', window.mouseup_click_debug)
-    // @ts-ignore
-    window.mouseup_click_debug = true
-    setTimeout(function() {
-      // @ts-ignore
-      window.mouseup_click_debug = false
-    }, 200)
+    return true
   }
 }
 </script>
