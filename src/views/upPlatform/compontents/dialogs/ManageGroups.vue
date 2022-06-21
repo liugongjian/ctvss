@@ -811,7 +811,18 @@ export default class extends Vue {
     const devices = []
     const dirs = []
     list.forEach(item => {
-      item.type === 'ipc' ? devices.push(item) : dirs.push(...this.generateParam(item, item.children))
+      if (item.type === 'ipc') {
+        devices.push(item)
+      } else if (item.type === 'nvr') {
+        devices.push({ ...item,
+          channels: item.children.map(child => ({
+            ...child,
+            upGbId: this.gbIdMode === 'vgroup' ? child.gbIdVgroup : child.gbIdDistrict
+          }))
+        })
+      } else {
+        dirs.push(...this.generateParam(item, item.children))
+      }
     })
     dirs.push({
       dirId: dir.dirId,
@@ -823,10 +834,7 @@ export default class extends Vue {
         deviceName: device.label,
         deviceType: device.type,
         inProtocol: device.inProtocol,
-        channels: dir.type === 'nvr' ? device.children.map(child => ({
-          ...dir,
-          upGbId: this.gbIdMode === 'vgroup' ? child.gbIdVgroup : child.gbIdDistrict
-        })) : []
+        channels: device.channels || []
       }))
     })
     return dirs
