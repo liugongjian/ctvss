@@ -11,37 +11,35 @@ export const createViewLibUpPlatform = (params: any) =>
   })
 
 /**
- * 增加上级视图库
+ * 更新上级视图库
  */
 export const updateViewLibUpPlatform = (params: any) =>
   request({
-    url: `/viid/cascade_viids/${}`,
+    url: `/viid/cascade_viids/${params[0]}`,
     method: 'put',
-    data: params
+    data: params[1]
   })
 
 /**
- * 增加上级视图库
+ * 启动上级视图库
  */
 export const enableViewLibUpPlatform = (params: any) =>
   request({
-    url: `/viid/cascade_viids/${}/active`,
-    method: 'post',
-    data: params
+    url: `/viid/cascade_viids/${params}/active`,
+    method: 'post'
   })
 
 /**
- * 增加上级视图库
+ * 停止上级视图库
  */
 export const stopViewLibUpPlatform = (params: any) =>
   request({
-    url: `/viid/cascade_viids/${}/inactive`,
-    method: 'post',
-    data: params
+    url: `/viid/cascade_viids/${params}/inactive`,
+    method: 'post'
   })
 
 /**
- * 增加上级视图库
+ * 获取上级视图库列表
  */
 export const getViewLibPlatformList = (params: any) =>
   request({
