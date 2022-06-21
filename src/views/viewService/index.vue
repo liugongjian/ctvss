@@ -10,25 +10,30 @@
         </div>
       </div>
       <el-table v-loading="loading" :data="dataList" fit>
-        <el-table-column label="设备ID/名称" min-width="200">
+        <el-table-column label="平台ID/名称" min-width="200">
           <template slot-scope="{row}">
             <div class="device-list__device-name">
-              <div class="device-list__device-id">{{ row.platformId }}</div>
-              <div>{{ row.platformName }}</div>
+              <div class="device-list__device-id">{{ row.cascadeViidId }}</div>
+              <div>{{ row.name }}</div>
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="description" label="视频编码" min-width="250" />
-        <el-table-column prop="createdTime" label="级联状态" min-width="160" />
-        <el-table-column prop="createdTime" label="IP" min-width="160" />
-        <el-table-column prop="createdTime" label="端口" min-width="160" />
+        <el-table-column prop="apsId" label="视频编码" min-width="250" />
+        <el-table-column prop="isOnline" label="级联状态" min-width="160">
+          <template slot-scope="{row}">
+            <status-badge :status="row.isOnline ? 'on' : 'off'" />
+            {{ row.isOnline ? '在线' : '离线' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="ipAddr" label="IP" min-width="160" />
+        <el-table-column prop="port" label="端口" min-width="160" />
         <el-table-column prop="action" label="操作" width="200" fixed="right">
           <template slot-scope="{row}">
-            <el-button type="text" @click="1">启用</el-button>
-            <!-- <el-button type="text" @click="1">停用</el-button> -->
-            <el-button type="text" @click="dialog.viewDetails = true">查看</el-button>
+            <el-button v-if="row.isActive" type="text" @click="stopViewLibUpPlatform(row.cascadeViidId)">停用</el-button>
+            <el-button v-else type="text" @click="enableViewLibUpPlatform(row.cascadeViidId)">启用</el-button>
+            <el-button type="text" @click="viewDetails(row)">查看</el-button>
             <el-button type="text" @click="edit(row)">编辑</el-button>
-            <el-button type="text" @click="deleteCertificate(row)">删除</el-button>
+            <!-- <el-button type="text" @click="deleteCertificate(row)">删除</el-button> -->
           </template>
         </el-table-column>
       </el-table>
@@ -43,6 +48,7 @@
     </el-card>
     <view-details
       v-if="dialog.viewDetails"
+      :platform-details="platformDetails"
       @on-close="closeDialog('viewDetails')"
     />
   </div>
@@ -51,27 +57,31 @@
 <script lang='ts'>
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { dateFormatInTable } from '@/utils/date'
-import { getList, deleteCertificate } from '@/api/certificate/gb28181'
 import { GB28181 } from '@/type/certificate'
 import ViewDetails from './components/ViewDetails.vue'
 import { enableViewLibUpPlatform, stopViewLibUpPlatform, getViewLibPlatformList } from '@/api/viewLib'
+import StatusBadge from '@/components/StatusBadge/index.vue'
 
 @Component({
   name: 'CertificateGb28181List',
   components: {
-    ViewDetails
+    ViewDetails,
+    StatusBadge
   }
 })
 export default class extends Vue {
+  private enableViewLibUpPlatform = enableViewLibUpPlatform
+  private stopViewLibUpPlatform = stopViewLibUpPlatform
   private userType = ''
   private userName = ''
   private loading = false
-  private dataList: Array<GB28181> = []
+  private dataList = []
   private pager = {
-    pageNum: 1,
+    pageNum: 0,
     pageSize: 10,
     total: 0
   }
+  private platformDetails = null
   private dialog = {
     viewDetails: false
   }
@@ -80,7 +90,7 @@ export default class extends Vue {
   @Watch('dataList.length')
   private onDataListChange(data: any) {
     data === 0 &&
-      this.pager.pageNum > 1 &&
+      this.pager.pageNum > 0 &&
       this.handleCurrentChange(this.pager.pageNum - 1)
   }
 
@@ -95,21 +105,27 @@ export default class extends Vue {
   private async getList() {
     this.loading = true
     let params = {
-      userName: this.userName,
-      userType: this.userType,
       pageNum: this.pager.pageNum,
       pageSize: this.pager.pageSize
     }
     try {
-      const res = await getList(params)
-      this.dataList = res.gbCerts
+      const res: any = await getViewLibPlatformList(params)
+      this.dataList = res.data
       this.pager.total = res.totalNum
-      this.pager.pageSize = res.pageSize
+      // this.pager.pageSize = res.pageSize
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
       this.loading = false
     }
+  }
+
+  /**
+   * 查看级联详情
+   */
+  private viewDetails(row) {
+    this.platformDetails = row
+    this.dialog.viewDetails = true
   }
 
   private async handleSizeChange(val: number) {
@@ -118,7 +134,7 @@ export default class extends Vue {
   }
 
   private async handleCurrentChange(val: number) {
-    this.pager.pageNum = val
+    this.pager.pageNum = val - 1
     await this.getList()
   }
 
@@ -131,11 +147,6 @@ export default class extends Vue {
 
   private handleCreate() {
     this.$router.push('/view-service/up-platform/create')
-  }
-
-  private async handleFilter() {
-    this.pager.pageNum = 1
-    await this.getList()
   }
 
   private edit(row: GB28181) {
@@ -151,7 +162,7 @@ export default class extends Vue {
     this.$alertDelete({
       type: '视图库',
       msg: `是否确认删除视图库"${row.userName}"`,
-      method: deleteCertificate,
+      method: () => {},
       payload: { userName: row.userName },
       onSuccess: this.getList
     })
