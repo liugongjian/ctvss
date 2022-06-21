@@ -170,7 +170,7 @@
           <el-tabs v-model="activeTabPane" type="card" class="title-tabs" @tab-click="1">
             <el-tab-pane v-for="item in tabPaneList" :key="item.name" :label="item.label" :name="item.name"><br></el-tab-pane>
           </el-tabs>
-          <el-button v-if="tabPaneList.length === 1 && isIPC && isUpdate" class="add-btn" type="text" @click="addTabPane"><svg-icon name="plus" /></el-button>
+          <el-button v-if="tabPaneList.length === 1 && isIPC && isUpdate && ga1400Flag" class="add-btn" type="text" @click="addTabPane"><svg-icon name="plus" /></el-button>
           <div v-show="activeTabPane === 'video'">
             <el-form-item label="接入协议:" prop="inProtocol">
               <el-radio-group v-model="form.inProtocol">

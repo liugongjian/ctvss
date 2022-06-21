@@ -185,6 +185,13 @@ export default class CreateMixin extends Vue {
   }
 
   /**
+   * 针对ga1400标识
+   */
+  public get ga1400Flag() {
+    return this.$store.state.user.tags.ga1400 === 'Y'
+  }
+
+  /**
    * 是否显示自定义国标ID
    */
   public get isShowGbIdEditor() {
