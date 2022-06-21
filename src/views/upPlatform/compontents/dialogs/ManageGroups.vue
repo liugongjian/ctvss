@@ -672,7 +672,7 @@ export default class extends Vue {
                   deviceId: node.data.id,
                   deviceIp: node.data.deviceIp || '',
                   deviceIpv6: node.data.deviceIpv6 || '',
-                  devicePort: node.data.devicePort || '',
+                  devicePort: node.data.devicePort || ''
                 }]
               })
             }
@@ -823,7 +823,10 @@ export default class extends Vue {
         deviceName: device.label,
         deviceType: device.type,
         inProtocol: device.inProtocol,
-        channels: dir.type === 'nvr' ? dir.channels : []
+        channels: dir.type === 'nvr' ? device.children.map(child => ({
+          ...dir,
+          upGbId: this.gbIdMode === 'vgroup' ? child.gbIdVgroup : child.gbIdDistrict
+        })) : []
       }))
     })
     return dirs
