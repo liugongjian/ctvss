@@ -120,7 +120,8 @@ import UserGroupDialog from './components/dialogs/userGroupDialog.vue'
 import { getGroupList, getUserList, deleteUser } from '@/api/accessManage'
 import { changeIAMPassword } from '@/api/users'
 import copy from 'copy-to-clipboard'
-import settings from '@/settings'
+import * as loginService from '@/services/loginService'
+
 @Component({
   name: 'AccessManageUser',
   components: {
@@ -332,7 +333,7 @@ export default class extends Vue {
   private getSubuserLoginLink(userName: any) {
     const origin = window.location.origin
     const mainUserID = this.$store.state.user.mainUserID
-    const link: string = `${origin}${settings.projectPrefix}/login/subAccount?&subUserName=${userName}&mainUserID=${mainUserID}`
+    const link: string = `${origin}${loginService.innerUrl.prefix}${loginService.innerUrl.sub}?&subUserName=${userName}&mainUserID=${mainUserID}`
     this.subUserLoginLink = link
   }
 

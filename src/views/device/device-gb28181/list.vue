@@ -147,27 +147,9 @@
             {{ deviceStatus[row.deviceStatus] || '-' }}
           </template>
         </el-table-column>
-        <el-table-column v-if="isGb" key="inProtocol" prop="inProtocol" label="接入协议" min-width="100">
+        <el-table-column v-if="isGb && ga1400Flag" key="inProtocol" prop="inProtocol" label="接入协议" min-width="100">
           <template slot-scope="{row}">
             {{ 'GB28181' + (row.apeId && '、GA1400') }}
-          </template>
-        </el-table-column>
-        <el-table-column
-          key="streamStatus1"
-          column-key="streamStatus1"
-          prop="streamStatus1"
-          label="流状态"
-          min-width="110"
-          :filters="isIPC ? [] : filtersArray.streamStatus"
-          :filter-multiple="false"
-        >
-          <template slot="header">
-            <span class="filter">接入协议</span>
-            <svg-icon v-if="!isIPC" class="filter" name="filter" width="15" height="15" />
-          </template>
-          <template slot-scope="{row}">
-            <status-badge :status="row.streamStatus" />
-            {{ streamStatus[row.streamStatus] || '-' }}
           </template>
         </el-table-column>
         <el-table-column
@@ -226,7 +208,7 @@
             {{ row.gbId || '-' }}
           </template>
         </el-table-column>
-        <el-table-column v-if="isGb || isNVR" key="apeId" prop="apeId" label="视图ID" min-width="190">
+        <el-table-column v-if="ga1400Flag && (isGb || isNVR)" key="apeId" prop="apeId" label="视图ID" min-width="190">
           <template slot-scope="{row}">
             {{ row.apeId || '-' }}
           </template>

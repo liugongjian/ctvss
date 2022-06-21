@@ -59,6 +59,10 @@
         </div>
       </el-form-item>
       <!-- 算法定制项--meta数据，考虑单独提取组件 -->
+      <!-- 蜜蜂阈值 -->
+      <el-form-item v-if="ifShow('10010')" label="蜜蜂数量阈值" prop="beeNumber">
+        <el-input v-model="form.beeNumber" />
+      </el-form-item>
       <!-- 人群感应检测 -->
       <el-form-item v-if="ifShow('10023')" label="人员数量阈值" prop="algorithmMetadata.crowdThreShold">
         <el-input v-model="form.algorithmMetadata.crowdThreShold" />
@@ -169,10 +173,22 @@
         <el-input v-model="form.algorithmMetadata.areaThreshold" />
         <span class="comment">%</span>
       </el-form-item>
+      <!-- 动物检测 -->
+      <el-form-item v-if="ifShow('10033')" label="动物列表" prop="algorithmMetadata.animalDetectType">
+        <el-checkbox-group v-model="form.algorithmMetadata.animalDetectType">
+          <el-checkbox v-for="type in AnimalType" :key="type.label" :label="type.label" :disabled="true">{{ type.cname }}</el-checkbox>
+        </el-checkbox-group>
+      </el-form-item>
       <!-- 垃圾投放站检测 -->
       <el-form-item v-if="ifShow('10026')" label="细分检测项" prop="algorithmMetadata.trashRecycleType">
         <el-checkbox-group v-model="form.algorithmMetadata.trashRecycleType">
           <el-checkbox v-for="type in TrashType" :key="type.label" :label="type.label">{{ type.cname }}</el-checkbox>
+        </el-checkbox-group>
+      </el-form-item>
+      <!-- 安全帽反光服 -->
+      <el-form-item v-if="ifShow('10004')" label="检测项" prop="algorithmMetadata.helmetReflectiveType">
+        <el-checkbox-group v-model="form.algorithmMetadata.helmetReflectiveType">
+          <el-checkbox v-for="type in HelmetClothType" :key="type.label" :label="type.label">{{ type.cname }}</el-checkbox>
         </el-checkbox-group>
       </el-form-item>
       <!---->
@@ -215,7 +231,7 @@
 import { Component, Mixins, Prop } from 'vue-property-decorator'
 import { getAIConfigGroupData } from '@/api/aiConfig'
 import { getAppInfo, updateAppInfo, createApp } from '@/api/ai-app'
-import { ResourceAiType, TrashType } from '@/dics'
+import { ResourceAiType, TrashType, HelmetClothType, AnimalType } from '@/dics'
 import AppMixin from '../../mixin/app-mixin'
 import { formRule, formTips } from '../util/form-helper'
 
@@ -230,8 +246,11 @@ export default class extends Mixins(AppMixin) {
   private ResourceAiType: any = ResourceAiType
   private form: any = {
     algorithmMetadata: {
-      trashRecycleType: []
-    }
+      trashRecycleType: [],
+      helmetReflectiveType: [],
+      animalDetectType: ['Bear']
+    },
+    beeNumber: 1
   }
   private faceLibs = []
   private isfaceLibLoading = false
@@ -239,6 +258,8 @@ export default class extends Mixins(AppMixin) {
   private effectiveTime: any = []
   private tips: any = formTips
   private TrashType = TrashType
+  private AnimalType = AnimalType
+  private HelmetClothType: any = HelmetClothType
 
   get analyseAiType() {
     let res = Object.assign({}, ResourceAiType)
@@ -269,11 +290,18 @@ export default class extends Mixins(AppMixin) {
       this.editTransformEffectiveTime()
       // 处理人脸库选项
       this.editTransformFaceData()
+      // 处理老安全帽反光服meta
+      this.editTransformHelmetReflectiveType()
       // 处理置信度
       this.form = { ...this.form, confidence: parseInt(this.form.confidence * 100 + '') }
+      // 蜜蜂阈值特别处理
+      if (this.form.algorithm?.code === '10010' || this.prod?.code === '10010') {
+        this.form.beeNumber = this.form.confidence / 100
+        this.form = { ...this.form, confidence: 60 }
+      }
     } else { // 新建
       const algorithmMetadata = this.ifShow('10021') ? { pvTime: '10' } : this.form.algorithmMetadata
-      this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [], validateType: '无验证', confidence: 60 }
+      this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [], validateType: '无验证', confidence: 60, beeNumber: 1 }
     }
     try {
       const { groups } = await getAIConfigGroupData({})
@@ -304,6 +332,10 @@ export default class extends Mixins(AppMixin) {
     this.form.algorithmMetadata.length !== 0
       ? (this.form.algorithmMetadata = JSON.parse(this.form.algorithmMetadata))
       : (this.form = { ...this.form, algorithmMetadata: { FaceDbName: '', pedThreshold: '' } })
+  }
+
+  private editTransformHelmetReflectiveType() {
+    !this.form.algorithmMetadata.helmetReflectiveType && this.$set(this.form.algorithmMetadata, 'helmetReflectiveType', ['helmet', 'reflective'])
   }
 
   private getHourInterval = (min, max) => {
@@ -358,6 +390,11 @@ export default class extends Mixins(AppMixin) {
       callbackKey: this.form.validateType === '无验证' ? '' : this.form.callbackKey,
       algorithmMetadata: JSON.stringify(algorithmMetadata),
       confidence: this.form.confidence / 100
+    }
+
+    // 蜜蜂数量特殊处理
+    if (this.form.algorithm?.code === '10010' || this.prod?.code === '10010') {
+      param.confidence = this.form.beeNumber
     }
     try {
       if (this.$route.query.id) {

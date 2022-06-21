@@ -240,7 +240,7 @@
                     </el-descriptions>
                   </div>
                 </el-tab-pane>
-                <el-tab-pane v-if="hasViewLib && viewLibInfo" label="视图接入" name="view">
+                <el-tab-pane v-if="hasViewLib && viewLibInfo && ga1400Flag" label="视图接入" name="view">
                   <div class="detail__section">
                     <div class="detail__title">状态信息</div>
                     <el-descriptions :column="2">

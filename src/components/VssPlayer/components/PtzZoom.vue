@@ -9,7 +9,7 @@
 <script lang="ts">
 import { Component, Prop } from 'vue-property-decorator'
 import { dragCanvasZoom } from '@/api/device'
-import { StreamInfo, DeviceInfo } from '@/components/VssPlayer/models/VssPlayer.d'
+import { StreamInfo, DeviceInfo } from '@/components/VssPlayer/types/VssPlayer'
 import ComponentMixin from './mixin'
 import { throttle } from 'lodash'
 import ResizeObserver from 'resize-observer-polyfill'
@@ -30,9 +30,11 @@ export default class extends ComponentMixin {
 
   public close() {
     this.showCanvasBox = false
-    this.oCanvas.style.cursor = 'auto'
-    this.removeListener()
-    this.oCanvas && this.oCanvas.remove()
+    if (this.oCanvas) {
+      this.oCanvas.style.cursor = 'auto'
+      this.oCanvas.remove()
+      this.removeListener()
+    }
   }
 
   private addResizeListener() {

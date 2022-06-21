@@ -104,9 +104,9 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Inject, Watch } from 'vue-property-decorator'
-import { Record } from '@/views/device/models/Record/Record'
+import { Record } from '@/views/device/services/Record/Record'
 import { dateFormatInTable, durationFormatInTable, dateFormat } from '@/utils/date'
-import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
+import { ScreenManager } from '@/views/device/services/Screen/ScreenManager'
 import { getDeviceRecord, editRecordName } from '@/api/device'
 import { GroupModule } from '@/store/modules/group'
 import { checkPermission } from '@/utils/permission'

@@ -24,6 +24,7 @@
         :has-close="hasClose"
         :is-debug="true"
         :has-live-replay-selector="!isSingle"
+        :is-car-task="isCarTask"
         @close="close"
       >
         <div v-if="videoTypeLabel && !screen.isLoading && screen.player" class="video-type-label">{{ videoTypeLabel }}</div>
@@ -38,8 +39,8 @@
 <script lang="ts">
 import { Component, Prop, Vue, Inject } from 'vue-property-decorator'
 import { checkPermission } from '@/utils/permission'
-import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
-import screenLogManager from '@/views/device/models/Screen/ScreenLogManager'
+import { ScreenManager } from '@/views/device/services/Screen/ScreenManager'
+import screenLogManager from '@/views/device/services/Screen/ScreenLogManager'
 import LivePlayer from '../LivePlayer.vue'
 import ReplayPlayer from '../ReplayPlayer/index.vue'
 import DeviceDir from '../dialogs/DeviceDir.vue'
@@ -115,6 +116,13 @@ export default class extends Vue {
    */
   private get isLive() {
     return this.screen && this.screen.isLive
+  }
+
+  /**
+   * 是否是车辆管理的录像回放，是则隐藏下载功能
+   */
+  private get isCarTask() {
+    return this.screenManager.isCarTask
   }
 
   /**

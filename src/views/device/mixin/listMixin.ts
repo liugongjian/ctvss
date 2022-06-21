@@ -91,6 +91,13 @@ export default class ListMixin extends Mixins(DeviceMixin, ExcelMixin) {
     3: '第三码流'
   }
 
+  /**
+   * 针对ga1400标识
+   */
+  public get ga1400Flag() {
+    return this.$store.state.user.tags.ga1400 === 'Y'
+  }
+
   public get inProtocol() {
     return this.$route.query.inProtocol
   }

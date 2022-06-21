@@ -16,6 +16,33 @@
         <el-form-item label="视频编码:" prop="sipId">
           <el-input v-model="form.sipId" placeholder="请输入20位SIP服务国标编码" @change="onSipIdChange" />
         </el-form-item>
+        <el-form-item prop="cascadeRegion" class="form-with-tip">
+          <template slot="label">
+            级联区域:
+            <el-popover
+              placement="top-start"
+              title="级联区域"
+              width="400"
+              trigger="hover"
+              :open-delay="300"
+              content="级联区域，表示向上级平台级联的本级区域。"
+            >
+              <svg-icon slot="reference" class="form-question" name="help" />
+            </el-popover>
+          </template>
+          <el-cascader
+            v-model="form.cascadeRegion"
+            placeholder="请选择"
+            :options="regionList"
+          />
+        </el-form-item>
+        <el-form-item label="网络类型:" prop="cascadeNetWork">
+          <el-radio-group v-model="form.cascadeNetWork">
+            <el-radio label="public">公网</el-radio>
+            <el-radio label="private">专线</el-radio>
+            <el-radio label="internal">内网</el-radio>
+          </el-radio-group>
+        </el-form-item>
         <el-form-item label="用户名:" prop="name">
           <el-input v-model="form.name" />
         </el-form-item>
@@ -49,6 +76,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { createPlatform, updatePlatform, getPlatform } from '@/api/upPlatform'
 import { createViewLibUpPlatform, updateViewLibUpPlatform } from '@/api/viewLib'
+import { getRegions } from '@/api/region'
 
 @Component({
   name: 'CreateUpPlatform'
@@ -116,6 +144,7 @@ export default class extends Vue {
 
   private async mounted() {
     this.breadCrumbContent = this.$route.meta.title
+    await this.getRegionList()
     if (this.isUpdate) {
       this.getPlatformInfo()
     }
@@ -139,6 +168,20 @@ export default class extends Vue {
     platform.cascadeRegion = this.getRegionPath(this.regionList, platform.cascadeRegion)
     this.form = Object.assign(this.form, platform)
     this.loading = false
+  }
+
+  /**
+   * 获取区域列表
+   */
+  private async getRegionList() {
+    this.loading = true
+    try {
+      this.regionList = await getRegions()
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.loading = false
+    }
   }
 
   /**

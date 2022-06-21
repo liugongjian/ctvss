@@ -2,6 +2,8 @@ import { format } from 'date-fns'
 import { isIE } from './browser'
 import { prefixZero } from './number'
 
+type Unit = 's' | 'ms'
+
 export const dateFormat = (date: Date | number, formatString = 'yyyy-MM-dd HH:mm:ss') => {
   if (!date) return ''
   return format(date, formatString)
@@ -113,13 +115,18 @@ export const getTimestamp = (time: string) => {
 
 /**
  * 获取日期的时间戳
- * @param timestamp 毫秒
+ * @param timestamp
+ * @param unit 时间戳单位(秒｜毫秒)
  * @returns 时间戳
  */
-export const getDateByTime = (timestamp: number) => {
+export const getDateByTime = (timestamp: number, unit: Unit = 'ms') => {
+  if (unit === 's') {
+    timestamp = timestamp * 1000
+  }
   const date = new Date(timestamp)
   const zero = new Date(date.getFullYear(), date.getMonth(), date.getDate())
-  return zero.getTime()
+  const zeroTimestamp = zero.getTime()
+  return unit === 's' ? zeroTimestamp / 1000 : zeroTimestamp
 }
 
 /**

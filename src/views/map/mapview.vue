@@ -6,7 +6,7 @@
     <div
       v-for="playWindowInfo in playWindowList"
       :key="playWindowInfo.deviceId"
-      v-draggable
+      v-draggable:[playWindowInfo.deviceId]="{cb: changeStyle, screen: playWindowInfo.screen}"
       class="play-wrap"
       :style="playWindowInfo.style"
       :class="{'screen-container--fullscreen': isFullscreen, 'selected': playWindowInfo.selected, 'isFullscreen': playWindowInfo.screen.isFullscreen}"
@@ -31,8 +31,8 @@
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import VMap, { getAMapLoad } from './models/vmap'
 import axios from 'axios'
-import { getMapDevices, updateMarkers, addMarkers, deleteMarkers } from '@/api/map'
-import { Screen } from '@/views/device/models/Screen/Screen'
+import { getMapDevices, updateMarkers, addMarkers, deleteMarkers, getInterestList } from '@/api/map'
+import { Screen } from '@/views/device/services/Screen/Screen'
 import LivePlayer from '@/views/device/components/LivePlayer.vue'
 import ReplayView from '@/views/device/components/ReplayPlayer/index.vue'
 import draggable from '@/views/map/directives/draggable'
@@ -60,17 +60,16 @@ export default class MapView extends Vue {
   private pageTotal = 1
   private axiosSourceList = []
   private playWindowList = []
-
-  // private playWindowInfo = {
-  //   style: null,
-  //   show: 'none', // none|live|replay
-  //   top: 0,
-  //   left: 0,
-  //   deviceId: null,
-  //   inProtocol: ''
-  // }
+  private hightAreaList = [] // 高亮区域
+  private interestBuildingList = [] // 兴趣点建筑
+  private interestPointList = [] // 兴趣点
 
   private screen: Screen = null
+
+  private playWindowStyle = {
+    width: 400,
+    height: 300
+  }
 
   private get isFullscreen() {
     return this.playWindowList.filter(item => item.screen.isFullscreen).length > 0
@@ -81,18 +80,6 @@ export default class MapView extends Vue {
     this.changeEdit(this.isEdit)
   }
 
-  // @Watch('playWindowInfo.show')
-  // @Watch('playWindowInfo.deviceId')
-  // private onPlayWindowInfoChange() {
-  //   if (this.playWindowInfo.show !== 'none') {
-  //     this.screen = new Screen()
-  //     this.screen.deviceId = this.playWindowInfo.deviceId
-  //     this.screen.inProtocol = this.playWindowInfo.inProtocol
-  //     this.screen.isLive = this.playWindowInfo.show === 'live'
-  //     this.screen.init()
-  //   }
-  // }
-
   private mounted() {
     getAMapLoad().then(() => {
       this.setMap(this.mapOption)
@@ -102,7 +89,7 @@ export default class MapView extends Vue {
   private async getMapMarkers(pageNum) {
     let params: any = {
       pageNum,
-      pageSize: 100,
+      pageSize: 2000,
       mapId: this.mapId
     }
     try {
@@ -125,6 +112,46 @@ export default class MapView extends Vue {
     }
   }
 
+  // 获取兴趣点信息
+  private async getPointList(map) {
+    this.hightAreaList = []
+    this.interestBuildingList = []
+    this.interestPointList = []
+    const param = {
+      mapId: this.mapId,
+      pageNum: 1,
+      pageSize: 1000,
+      tagName: ''
+    }
+    try {
+      const res = await getInterestList(param)
+      res.tags.forEach(item => {
+        if (item.type === 'HighLightArea') {
+          this.hightAreaList.push(item)
+        } else if (item.type === 'InterestBuilding') {
+          this.interestBuildingList.push(item)
+        } else if (item.type === 'InterestPoint') {
+          this.interestPointList.push(item)
+        }
+      })
+    } catch (e) {
+      console.log(e)
+    } finally {
+      this.renderPoints(map)
+    }
+  }
+
+  // 渲染兴趣点
+  public renderPoints(map) {
+    this.renderMask(map.mask)
+    this.vmap.renderBuilding(this.hightAreaList, this.interestBuildingList)
+    this.vmap.renderPoi(this.interestPointList)
+  }
+
+  public renderMask(mask) {
+    this.vmap.renderCommunity(this.hightAreaList, mask)
+  }
+
   async setMap(map) {
     this.vmap.renderMap(map)
     this.addMapEvent()
@@ -140,6 +167,7 @@ export default class MapView extends Vue {
       pageNum += 1
     }
     await Promise.all(promiseList)
+    await this.getPointList(map)
   }
 
   public setMapCenter(lng, lat) {
@@ -259,8 +287,8 @@ export default class MapView extends Vue {
 
   handleMarkerPlay(data) {
     if (data.canPlay) {
-      const width = 400
-      const height = 300
+      const width = this.playWindowStyle.width
+      const height = this.playWindowStyle.height
       const size = 100
       const style = {
         width: `${width}px`,
@@ -328,7 +356,9 @@ export default class MapView extends Vue {
       population: device.population,
       houseInfo: device.houseInfo,
       unitInfo: device.unitInfo,
-      gbRegionNames: device.gbRegionNames
+      gbRegionNames: device.gbRegionNames,
+      groupId: device.groupId,
+      deviceColor: device.deviceColor
     }
     return result
   }
@@ -375,6 +405,45 @@ export default class MapView extends Vue {
   toggleOverView(state) {
     this.vmap.toggleOverView(state)
   }
+
+  changeStyle(id, left, top) {
+    this.playWindowList = this.playWindowList.map(item => {
+      if (item.deviceId === id) {
+        item.style.left = left + 'px'
+        item.style.top = top + 'px'
+      }
+      return item
+    })
+  }
+
+  public adjustPlayWindowPos() {
+    if (this.playWindowList.length > 0) {
+      const pw = parseInt(window.getComputedStyle(document.getElementById('mapContainer')).width)
+      const ph = parseInt(window.getComputedStyle(document.getElementById('mapContainer')).height)
+      const maxX = pw - this.playWindowStyle.width
+      const maxY = ph - this.playWindowStyle.height
+      this.playWindowList = this.playWindowList.map(item => {
+        let x = parseInt(item.style.left)
+        let y = parseInt(item.style.top)
+        if (x > maxX) {
+          x = maxX
+        }
+        if (x < 0) {
+          x = 0
+        }
+        if (y > maxY) {
+          y = maxY
+        }
+        if (y < 0) {
+          y = 0
+        }
+
+        item.style.left = x + 'px'
+        item.style.top = y + 'px'
+        return item
+      })
+    }
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -382,36 +451,46 @@ export default class MapView extends Vue {
   width: 100%;
   height: 100%;
 }
+
 .search-wrap {
   position: absolute;
   top: 20px;
   left: 20px;
   z-index: 8;
 }
+
 .play-wrap {
   position: absolute;
   z-index: 9;
-  background: #000;
+  background: #333;
+
   &.selected {
     z-index: 10;
   }
+
   .vss-player__wrap {
     width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
   }
-  .el-icon{
+
+  .el-icon {
+    display: inline-block;
     position: absolute;
+    padding: 5px;
+    background: rgba(0, 0, 0, 40%);
     top: 5px;
     right: 5px;
     z-index: 2001;
     color: #fff;
     cursor: pointer;
   }
+
   ::v-deep .preview-player {
     height: auto;
   }
+
   &.screen-container--fullscreen {
     position: fixed;
     z-index: 2002;
@@ -422,11 +501,13 @@ export default class MapView extends Vue {
     height: 100% !important;
     width: 100% !important;
   }
+
   &.screen-container--fullscreen.selected {
     z-index: 2003;
   }
 }
-.play-container{
+
+.play-container {
   width: 100%;
   height: 100%;
 }

@@ -1,7 +1,7 @@
 <template>
   <div class="navbar" :class="isLight ? '' : `navbar--${routerName}`">
     <hamburger
-      v-if="!ctLogin"
+      v-if="!casLogin"
       id="hamburger-container"
       :is-active="sidebar.opened"
       class="hamburger-container"
@@ -91,12 +91,12 @@
             </el-form>
           </div>
         </div> -->
-        <div :class="['links', ctLogin ? 'ct-login' : '']">
+        <div :class="['links', casLogin ? 'ct-login' : '']">
           <a target="_blank" href="https://vcn.ctyun.cn/document/api/">API文档</a>
-          <span v-if="!ctLogin" class="links__split"> | </span>
+          <span v-if="!casLogin" class="links__split"> | </span>
         </div>
       </template>
-      <div v-if="!ctLogin" class="user-container">
+      <div v-if="!casLogin" class="user-container">
         <div class="user-container__menu">
           <span class="user-container__name">{{ name }}</span>
           <svg-icon class="user-container__arrow" name="arrow-down" width="9" height="9" />
@@ -132,6 +132,7 @@ import SizeSelect from '@/components/SizeSelect/index.vue'
 import TemplateBind from '@/views/components/templateBind.vue'
 import { checkPermission } from '@/utils/permission'
 import DashboardMixin from '@/views/dashboard/mixin/DashboardMixin'
+import * as loginService from '@/services/loginService'
 
 @Component({
   name: 'Navbar',
@@ -177,8 +178,8 @@ export default class extends Mixins(DashboardMixin) {
     group: false
   }
 
-  get ctLogin() {
-    return !!UserModule.ctLoginId
+  get casLogin() {
+    return !!UserModule.casLoginId
   }
 
   get isMainUser() {
@@ -191,10 +192,6 @@ export default class extends Mixins(DashboardMixin) {
 
   get device() {
     return AppModule.device.toString()
-  }
-
-  get avatar() {
-    return UserModule.avatar
   }
 
   get name() {
@@ -318,9 +315,9 @@ export default class extends Mixins(DashboardMixin) {
   private async logout() {
     const data: any = await UserModule.LogOut()
     if (data.iamUserId) {
-      this.$router.push(`/login/subAccount?redirect=%2Fdashboard&mainUserID=${data.mainUserID}`)
+      this.$router.push(`${loginService.innerUrl.sub}?redirect=%2Fdashboard&mainUserID=${data.mainUserID}`)
     } else {
-      this.$router.push('/login?redirect=%2Fdashboard')
+      this.$router.push(`${loginService.innerUrl.main}?redirect=%2Fdashboard`)
     }
   }
 
@@ -387,7 +384,7 @@ export default class extends Mixins(DashboardMixin) {
   z-index: 50;
   height: 50px;
   background: #fff;
-  box-shadow: 0 1px 4px rgba(0,21,41,.08);
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 8%);
 
   .hamburger-container {
     line-height: 46px;
@@ -395,11 +392,11 @@ export default class extends Mixins(DashboardMixin) {
     float: left;
     padding: 0 15px;
     cursor: pointer;
-    transition: background .3s;
-    -webkit-tap-highlight-color:transparent;
+    transition: background 0.3s;
+    -webkit-tap-highlight-color: transparent;
 
     &:hover {
-      background: rgba(0, 0, 0, .025)
+      background: rgba(0, 0, 0, 2.5%);
     }
   }
 
@@ -434,14 +431,17 @@ export default class extends Mixins(DashboardMixin) {
     a {
       color: $text;
     }
+
     a:hover {
       color: $primary;
     }
+
     &__split {
       color: $borderGrey2;
       padding: 0 10px;
     }
   }
+
   .links.ct-login {
     margin-right: 10px;
   }
@@ -490,9 +490,10 @@ export default class extends Mixins(DashboardMixin) {
         border: 1px solid $borderGrey;
         line-height: 32px;
         padding: 5px 0;
-        animation-duration: .5s;
+        animation-duration: 0.5s;
 
-        a, .el-button--text {
+        a,
+        .el-button--text {
           display: block;
           color: $text;
           padding: 0 15px;
@@ -500,15 +501,18 @@ export default class extends Mixins(DashboardMixin) {
           width: 100%;
           text-align: left;
           cursor: pointer;
+
           &:hover {
             background: #f3f3f3;
           }
         }
+
         i {
           display: inline-block;
           width: 22px;
           color: $textGrey;
         }
+
         &__divided {
           border-top: 1px solid $borderGrey;
           margin: 5px 0;
@@ -520,6 +524,7 @@ export default class extends Mixins(DashboardMixin) {
           animation-name: slideInDown;
           display: block;
         }
+
         .user-container__arrow {
           transform: rotate(-180deg);
         }
@@ -535,33 +540,10 @@ export default class extends Mixins(DashboardMixin) {
 
       &.hover-effect {
         cursor: pointer;
-        transition: background .3s;
+        transition: background 0.3s;
 
         &:hover {
-          background: rgba(0, 0, 0, .025)
-        }
-      }
-    }
-
-    .avatar-container {
-      margin-right: 30px;
-
-      .avatar-wrapper {
-        position: relative;
-
-        .user-avatar {
-          cursor: pointer;
-          width: 40px;
-          height: 40px;
-          border-radius: 10px;
-        }
-
-        .el-icon-caret-bottom {
-          cursor: pointer;
-          position: absolute;
-          right: -15px;
-          top: 19px;
-          font-size: 12px;
+          background: rgba(0, 0, 0, 2.5%);
         }
       }
     }
@@ -570,6 +552,7 @@ export default class extends Mixins(DashboardMixin) {
   .search-box {
     position: relative;
     margin-right: 20px;
+
     &__form {
       display: flex;
       justify-content: space-between;
@@ -584,14 +567,17 @@ export default class extends Mixins(DashboardMixin) {
       background: #fff;
       cursor: pointer;
       transition: background-color 100ms;
+
       &:hover {
         background: #f4f4f4;
         color: $text;
+
         .search-box__icon {
           color: $primary;
         }
       }
     }
+
     &__popup {
       display: none;
       position: absolute;
@@ -604,7 +590,7 @@ export default class extends Mixins(DashboardMixin) {
       line-height: 100%;
       color: $text;
       border-radius: 2px;
-      box-shadow: 2px 2px 5px rgba(0, 0, 0, .15);
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 15%);
       transition: all 2000ms;
 
       &__close {
@@ -613,15 +599,19 @@ export default class extends Mixins(DashboardMixin) {
         top: 10px;
         cursor: pointer;
         transition: color 100ms;
+
         &:hover {
           color: $primary;
         }
       }
+
       &__types {
         margin-bottom: 10px;
       }
+
       &__form {
         display: flex;
+
         .el-button {
           color: $text;
           margin-left: 10px;
@@ -630,7 +620,8 @@ export default class extends Mixins(DashboardMixin) {
     }
   }
 
-  &--visualizationDashboard, &--dashboardAI {
+  &--visualizationDashboard,
+  &--dashboardAI {
     position: absolute;
     top: 0;
     width: 100%;
@@ -638,52 +629,66 @@ export default class extends Mixins(DashboardMixin) {
     background: transparent;
     color: #eee;
     height: auto;
+
     .links a,
     .right-menu .user-container {
       color: #eee;
     }
+
     .right-menu .user-container .header-dropdown {
       background: #131a23;
       border-color: #131a23;
+
       i {
         color: #aaa;
       }
-      a, .el-button--text {
+
+      a,
+      .el-button--text {
         color: #eee;
+
         &:hover {
           background: #242c43;
         }
       }
+
       .header-dropdown__divided {
         border-color: #243243;
       }
     }
+
     .search-box__form {
       color: #eee;
       background: #243243;
       border-color: #131a23;
+
       &:hover {
         background: #2c3c51;
         color: #eee;
       }
     }
+
     .hamburger-container {
       line-height: 40px;
       background: #2c3c51;
       padding: 0 10px;
       border-radius: 0;
+
       ::v-deep svg {
-        color: #7BB3E5;
+        color: #7bb3e5;
       }
     }
+
     .app-breadcrumb {
       display: none;
     }
+
     .right-menu {
       margin-right: 2em;
       line-height: 40px;
 
-      .links a, .links .dropdown {
+      .links a,
+      .links .dropdown {
         display: inline-block;
         cursor: pointer;
         padding: 0 20px;
@@ -694,11 +699,14 @@ export default class extends Mixins(DashboardMixin) {
         border: 1px solid #2c4e9b;
         border-top: 0;
         font-size: 16px;
+
         &:last-child {
           margin: 0;
         }
-        &.actived, &:hover {
-          background-image: linear-gradient(#00B3E9, #002DC1);
+
+        &.actived,
+        &:hover {
+          background-image: linear-gradient(#00b3e9, #002dc1);
           color: #fff;
         }
       }
@@ -721,10 +729,13 @@ export default class extends Mixins(DashboardMixin) {
           list-style: none;
           margin: 0;
           padding: 10px;
+
           li {
             text-align: center;
-            &.actived, &:hover {
-              background: #00B3E9;
+
+            &.actived,
+            &:hover {
+              background: #00b3e9;
             }
           }
         }
@@ -737,7 +748,9 @@ export default class extends Mixins(DashboardMixin) {
 
     .user-container .header-dropdown {
       top: 40px !important;
-      a, button {
+
+      a,
+      button {
         font-size: 14px;
       }
     }
@@ -745,17 +758,21 @@ export default class extends Mixins(DashboardMixin) {
     @media screen and (max-height: 1100px) {
       .hamburger-container {
         line-height: 40px;
+
         ::v-deep svg {
-          width: 15px!important;
-          height: 15px!important;
+          width: 15px !important;
+          height: 15px !important;
         }
       }
+
       .right-menu {
         line-height: 40px;
+
         a {
           font-size: 16px;
           padding: 0 20px;
         }
+
         .dropdown {
           &__menu {
             top: 39px;
@@ -768,19 +785,23 @@ export default class extends Mixins(DashboardMixin) {
       .hamburger-container {
         line-height: 30px;
       }
+
       .right-menu {
         line-height: 30px;
+
         a {
           font-size: 14px;
           padding: 0 15px;
         }
+
         .dropdown {
           &__menu {
             top: 29px;
           }
         }
+
         .user-container .header-dropdown {
-          top: 29px!important;
+          top: 29px !important;
         }
       }
     }

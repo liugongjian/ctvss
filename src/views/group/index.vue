@@ -45,7 +45,7 @@
             {{ scope.row.inProtocol === 'vgroup' ? '-' : scope.row.regionName }}
           </template>
         </el-table-column>
-        <el-table-column prop="deviceSize" label="设备总数" min-width="90">
+        <el-table-column prop="deviceSize" label="通道总数" min-width="90">
           <template slot-scope="scope">{{ scope.row.groupStats && scope.row.groupStats.deviceSize }}</template>
         </el-table-column>
         <el-table-column prop="ipcSize" label="IPC设备数" min-width="90">
@@ -316,18 +316,39 @@ export default class extends Vue {
    */
   private renderPlatformSize(groupStats: any) {
     if (groupStats && groupStats.platformSize) {
-      const size = groupStats.platformSize.split(':')
-      if (size.length) {
-        return [
-          {
-            label: '平台',
-            value: size[0]
-          },
-          {
-            label: '通道',
-            value: size[1]
-          }
-        ]
+      try {
+        const size = groupStats.platformSize.split(':').filter(item => item !== '')
+        switch (size.length) {
+          case 2:
+            return [
+              {
+                label: '平台',
+                value: size[0]
+              },
+              {
+                label: '通道',
+                value: size[1]
+              }
+            ]
+          case 3:
+            return [
+              {
+                label: '平台',
+                value: size[0]
+              },
+              {
+                label: '通道',
+                value: size[1]
+              }, {
+                label: '平台nvr数',
+                value: size[2]
+              }
+            ]
+          default:
+            return []
+        }
+      } catch (e) {
+        console.log(e)
       }
     }
   }
@@ -338,18 +359,22 @@ export default class extends Vue {
 .filter-container__search-group {
   margin-right: 10px;
 }
+
 .group-list__table {
   ::v-deep .el-table__body {
     td {
       cursor: pointer;
     }
+
     .col-action {
       cursor: default;
     }
   }
 }
+
 .group-name {
   cursor: pointer;
+
   &__id {
     color: $primary;
   }

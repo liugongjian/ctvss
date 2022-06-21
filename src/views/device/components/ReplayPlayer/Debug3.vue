@@ -23,6 +23,14 @@
         />
       </div>
       <div class="form-item">
+        <label>忽略起始时段 <el-tooltip content="忽略起始时间到实际第一段录像的startTime"><svg-icon name="help" /></el-tooltip>:</label>
+        <el-checkbox v-model="ignoreFirst" />
+      </div>
+      <div class="form-item">
+        <label>忽略末尾时段 <el-tooltip content="如果结束日期超过最后一段录像时间，结束日期与最后一段录像的差值不会判断为丢失时间"><svg-icon name="help" /></el-tooltip>:</label>
+        <el-checkbox v-model="ignoreLast" />
+      </div>
+      <div class="form-item">
         <label>忽略时长 <el-tooltip content="忽略指定秒内的缺失录像"><svg-icon name="help" /></el-tooltip>:</label>
         <el-input v-model.number="ignoreTime" style="width: 310px;" />
       </div>
@@ -86,7 +94,7 @@
                 <th>开始时间</th>
                 <th>结束时间</th>
               </tr>
-              <tr v-for="(item, index) in list" :key="index">
+              <tr v-for="(item, itemIndex) in list" :key="itemIndex">
                 <td>{{ item.time }} s</td>
                 <td>{{ durationFormat(item.time) }}</td>
                 <td>{{ item.start }}</td>
@@ -116,6 +124,8 @@ export default class extends Vue {
   private currentDate = null
   private deviceId = ''
   private ignoreTime = 0
+  private ignoreFirst = true
+  private ignoreLast = true
   private list = []
   private loading = false
   private log = {
@@ -235,7 +245,7 @@ export default class extends Vue {
               const currentStart = getTimestamp(record.startTime)
               const currentEnd = getTimestamp(record.endTime)
               // 判断第一段视频是否从00:00开始
-              if (index === 0) {
+              if (index === 0 && !this.ignoreFirst) {
                 if (((currentStart - startTime) / 1000) > this.ignoreTime) {
                   list.push({
                     time: (currentStart - startTime) / 1000,
@@ -245,7 +255,7 @@ export default class extends Vue {
                 }
               }
               // 判断最后一段视频是否为24:00结束
-              if (index === res.records.length - 1 && res.records.length > 1) {
+              if ((index === res.records.length - 1 && res.records.length > 1) && !(this.ignoreLast && j === spanDay)) {
                 if (((endTime - currentEnd) / 1000) > this.ignoreTime) {
                   list.push({
                     time: (endTime - currentEnd) / 1000,
@@ -333,7 +343,7 @@ export default class extends Vue {
   background: #fff;
 
   label {
-    width: 100px;
+    width: 120px;
     display: inline-block;
   }
 

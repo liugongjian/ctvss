@@ -25,7 +25,10 @@
           <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}">
             <span class="node-name">
               <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
-              <svg-icon :name="data.type" />
+              <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
+              <span v-else class="node-dir">
+                <svg-icon name="dir-close" width="15" height="15" />
+              </span>
               {{ node.label }}
             </span>
           </span>
@@ -89,7 +92,9 @@ export default class extends Vue {
   private platformId: any
   private typeMapping: any = {
     dir: 0,
-    nvr: 1
+    nvr: 1,
+    platform: 3,
+    platformDir: 4
   }
 
   private mounted() {
@@ -212,7 +217,6 @@ export default class extends Vue {
         }
       })
       dirs = setDirsStreamStatus(dirs)
-      console.log(dirs)
       return dirs
     } catch (e) {
       console.log(e)
@@ -318,20 +322,27 @@ export default class extends Vue {
         }
         // 构建dir列表
         const pathDirs = item.path.filter((path: any) => {
-          if (path.type === 'dir' || path.type === 'nvr') return true
+          if (['dir', 'nvr', 'platform', 'platformDir'].includes(path.type)) return true
         })
         let dirId = '0'
         let currentGroupDir
         let dirType = 0
         let parentDirId = '0'
+        // patform特殊字段
+        let parentDirType = ''
         if (pathDirs.length) {
           const parentPath = pathDirs.slice(0, -1)
           parentDirId = '0'
+          parentDirType = ''
           if (parentPath.length) {
             const ids = parentPath.map((path: any) => {
               return path.id
             })
+            const types = parentPath.map((path: any) => {
+              return this.typeMapping[path.type]
+            })
             parentDirId = ids.join(',')
+            parentDirType = types.join(',')
           }
           dirId = pathDirs[pathDirs.length - 1].id
           dirType = pathDirs[pathDirs.length - 1].type
@@ -340,7 +351,7 @@ export default class extends Vue {
             currentGroupDir = {
               dirId,
               parentDirId,
-              dirType: this.typeMapping[dirType],
+              dirType: this.typeMapping[dirType] || 0,
               devices: []
             }
             currentGroup.dirs.push(currentGroupDir)
@@ -360,6 +371,10 @@ export default class extends Vue {
         currentGroupDir.devices.push({
           deviceId: item.id
         })
+        // 针对patform特殊处理
+        if ((parentDirType + ',' + currentGroupDir.dirType).split(',').some(type => ['3', '4'].includes(type))) {
+          currentGroupDir.parentDirType = parentDirType
+        }
       })
       await shareDevice({
         platformId: this.platformId,

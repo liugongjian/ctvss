@@ -1,4 +1,4 @@
-import { PlayerType, EnhanceHTMLVideoElement, PlayerConfig } from './Player.d'
+import { PlayerType, EnhanceHTMLVideoElement, PlayerConfig } from '../types/Player'
 
 /**
  * 播放器基类

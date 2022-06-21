@@ -31,7 +31,7 @@
           <template slot-scope="scope">
             <el-button type="text" @click="viewBind(scope.row)">查看绑定关系</el-button>
             <el-button type="text" @click="editPolicy(scope.row)">{{ scope.row.policyScope === 'local' ? '编辑策略' : '查看策略' }}</el-button>
-            <el-button v-if="scope.row.policyScope === 'local'" style="color: #A5A5A5" type="text" @click="deletePolicy(scope.row)">删除策略</el-button>
+            <el-button v-if="scope.row.policyScope === 'local'" style="color: #a5a5a5;" type="text" @click="deletePolicy(scope.row)">删除策略</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -84,7 +84,7 @@ export default class extends Vue {
   }
 
   private createPolicy() {
-    this.$router.push(`/accessManage/policy/create`)
+    this.$router.push('/accessManage/policy/create')
   }
   private editPolicy(row: any) {
     this.$router.push({
@@ -151,10 +151,12 @@ export default class extends Vue {
     display: flex;
     justify-content: space-between;
     margin-bottom: 20px;
+
     &__right {
       display: flex;
+
       .el-input {
-        margin-right: 0px
+        margin-right: 0;
       }
     }
   }

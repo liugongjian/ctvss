@@ -30,7 +30,7 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { isCrossDays, dateFormat, getNextHour, getDateByTime, currentTimeZeroMsec } from '@/utils/date'
 import { prefixZero } from '@/utils/number'
-import { Screen } from '@/views/device/models/Screen/Screen'
+import { Screen } from '@/views/device/services/Screen/Screen'
 import { throttle } from 'lodash'
 import TimeEditer from '@/views/device/components/ReplayPlayer/TimeEditer.vue'
 import ResizeObserver from 'resize-observer-polyfill'
@@ -95,6 +95,7 @@ export default class extends Vue {
     textY: 0,
     midLineY: 0,
     recordColor: '#abd0ff',
+    heatmapColor: '#d94f4f',
     hourLineColor: '#000',
     minLineColor: '#94a4ba',
     midLineColor: '#fa8334',
@@ -108,7 +109,8 @@ export default class extends Vue {
     tenMins: [],
     fiveMins: [],
     oneMins: [],
-    records: []
+    records: [],
+    heatmaps: []
   }
 
   /* 画布 */
@@ -148,7 +150,7 @@ export default class extends Vue {
     if (this.screen.isLive || this.disabled || this.axisDrag.isDragging) return
     /* 如果与上一次的更新时间差小于1秒，不触发绘制 */
     if (new Date().getTime() - this.lastUpdateTime < 1000) return
-    if (this.screen && this.screen.player) {
+    if (this.screen && this.screen.player && this.screen.player.currentTime) {
       const recordCurrentTime = this.screen.player.currentTime
       if (this.screen.recordType === 0 && this.recordManager.currentRecord) {
         const offsetTime = this.recordManager.currentRecord.offsetTime || 0
@@ -192,6 +194,7 @@ export default class extends Vue {
   private created() {
     if (this.isInline) {
       this.settings.recordColor = '#445469'
+      this.settings.heatmapColor = '#8d4b4b'
       this.settings.hourLineColor = '#bbb'
       this.settings.minLineColor = '#999'
       this.settings.midLineColor = '#fa8334'
@@ -351,11 +354,11 @@ export default class extends Vue {
     }
     this.axisData.oneMins = oneMins
 
-    /* 计算录像片段 */
-    const records = []
-    if (this.recordManager && this.recordManager.recordList) {
-      for (let i = 0; i < this.recordManager.recordList.length; i++) {
-        const record = this.recordManager.recordList[i]
+    /* 计算片段 */
+    const calRecords = (list) => {
+      const records = []
+      for (let i = 0; i < list.length; i++) {
+        const record = list[i]
         if (record.startTime < this.axisEndTime && record.endTime > this.axisStartTime) {
           const recordOffsetTime = record.startTime - this.axisStartTime
           records.push({
@@ -365,8 +368,12 @@ export default class extends Vue {
           })
         }
       }
+      return records
     }
-    this.axisData.records = records
+    /* 计算录像片段 */
+    this.axisData.records = this.recordManager && this.recordManager.recordList ? calRecords(this.recordManager.recordList) : []
+    /* 计算Heatmap片段 */
+    this.axisData.heatmaps = this.recordManager && this.recordManager.heatmapList ? calRecords(this.recordManager.heatmapList) : []
   }
 
   /**
@@ -380,6 +387,13 @@ export default class extends Vue {
     this.ctx.fillStyle = this.settings.recordColor
     for (let i in this.axisData.records) {
       const line = this.axisData.records[i]
+      this.ctx.fillRect(line.x, line.y, line.width, this.settings.recordHeight)
+    }
+
+    /* 绘制heatmap线 */
+    this.ctx.fillStyle = this.settings.heatmapColor
+    for (let i in this.axisData.heatmaps) {
+      const line = this.axisData.heatmaps[i]
       this.ctx.fillRect(line.x, line.y, line.width, this.settings.recordHeight)
     }
 
@@ -504,7 +518,9 @@ export default class extends Vue {
     this.axisDrag.isDragging = false
     this.axisDrag.endTime = this.currentTime
     this.$emit('change', this.currentTime)
-    this.loadSiblingRecordList(this.axisDrag.startTime, this.axisDrag.endTime)
+    this.$nextTick(() => {
+      this.loadSiblingRecordList(this.axisDrag.startTime, this.axisDrag.endTime)
+    })
   }
 
   /**
@@ -516,12 +532,16 @@ export default class extends Vue {
       case 'ArrowRight':
         this.currentTime = this.currentTime + 1
         this.$emit('change', this.currentTime)
-        this.loadSiblingRecordList(this.currentTime, this.currentTime + 1)
+        this.$nextTick(() => {
+          this.loadSiblingRecordList(this.currentTime, this.currentTime + 1)
+        })
         break
       case 'ArrowLeft':
         this.currentTime = this.currentTime - 1
         this.$emit('change', this.currentTime)
-        this.loadSiblingRecordList(this.currentTime, this.currentTime - 1)
+        this.$nextTick(() => {
+          this.loadSiblingRecordList(this.currentTime, this.currentTime - 1)
+        })
         break
     }
   }
@@ -568,10 +588,10 @@ export default class extends Vue {
         const deltaCurrentTime = currentTimeZeroMsec(this.currentTime * 1000) / 1000
         let date
         if (thresholdEnd < deltaCurrentTime) {
-          date = getDateByTime(this.currentTime * 1000) / 1000 + 24 * 60 * 60
+          date = getDateByTime(this.currentTime, 's') + 24 * 60 * 60
           await this.getRecordListByDate(date)
         } else if (thresholdStart > deltaCurrentTime) {
-          date = getDateByTime(this.currentTime * 1000) / 1000 - 24 * 60 * 60
+          date = getDateByTime(this.currentTime, 's') - 24 * 60 * 60
           await this.getRecordListByDate(date)
         }
       }

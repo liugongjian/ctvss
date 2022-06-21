@@ -207,6 +207,13 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     return this.$store.state.user.tags.isNeedDeviceNetworkCode === 'Y'
   }
 
+  /**
+   * 针对ga1400标识
+   */
+  public get ga1400Flag() {
+    return this.$store.state.user.tags.ga1400 === 'Y'
+  }
+
   public async mounted() {
     this.detailInit()
   }

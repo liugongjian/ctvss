@@ -214,7 +214,7 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 import StreamSelector from '@/views/device/components/StreamSelector.vue'
 import OperateSelector from '@/views/device/components/OperateSelector.vue'
 import AdvancedSearch from '@/views/device/components/AdvancedSearch.vue'
-import { ScreenManager } from '@/views/device/models/Screen/ScreenManager'
+import { ScreenManager } from '@/views/device/services/Screen/ScreenManager'
 import { dropScreen } from './directives/dropScreen'
 
 @Component({

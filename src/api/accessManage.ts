@@ -133,19 +133,6 @@ export const getUserRoleList = (params: any): Promise<any> =>
     params
   })
 
-export const switchUserRole = (data: any): Promise<any> =>
-  request({
-    url: '/iam/role/switch',
-    method: 'post',
-    data
-  })
-
-export const exitUserRole = (): Promise<any> =>
-  request({
-    url: '/iam/role/exit',
-    method: 'post'
-  })
-
 export const getPolicyList = (params: any): Promise<any> =>
   request({
     url: '/iam/policy/list',

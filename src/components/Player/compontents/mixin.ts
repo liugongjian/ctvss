@@ -1,5 +1,5 @@
 import { Component, Vue, Inject } from 'vue-property-decorator'
-import { Player } from '../models/Player'
+import { Player } from '../services/Player'
 import { removeClass, addClass } from '../utils/dom'
 
 @Component

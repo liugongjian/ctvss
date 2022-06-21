@@ -6,6 +6,7 @@
     :options="selectedRegionList"
     :props="addressProps"
     clearable
+    popper-class="address-cascader"
     @change="addressChange"
   />
 </template>
@@ -14,6 +15,7 @@
 import { Component, Prop, Watch, Vue } from 'vue-property-decorator'
 import { getChildAddress, getAddressAreaDir } from '@/api/device'
 import { suffixZero } from '@/utils/number'
+import axios from 'axios'
 
 @Component({
   name: 'AddressCascader'
@@ -50,6 +52,8 @@ export default class extends Vue {
   // 回显列表数据
   private selectedRegionList = []
 
+  private axiosSource = null
+
   // 监听code变化
   @Watch('code', {
     immediate: true
@@ -58,6 +62,13 @@ export default class extends Vue {
     if (this.code && this.code !== this._code) {
       this.cascaderInit()
     }
+  }
+
+  private beforeDestroy() {
+    const addressCascader: any = this.$refs['addressCascader']
+    addressCascader.doDestroy()
+    this.selectedRegionList = []
+    this.axiosSource && this.axiosSource.cancel()
   }
 
   /**
@@ -89,7 +100,6 @@ export default class extends Vue {
    * 当选中设备地址变化时触发
    */
   private async addressChange(address) {
-    console.log('----address: ', address)
     let code = ''
     let level = ''
     if (address.length) {
@@ -111,12 +121,22 @@ export default class extends Vue {
    * 动态加载设备地址列表
    */
   private async loadChildAddress(node, resolve) {
-    if (node.data && node.data.leaf) {
-      resolve([])
-      return
+    try {
+      if (node && node.children && node.children.length) {
+        throw new Error('Has children')
+      }
+      if (node.data && node.data.leaf) {
+        resolve([])
+        return
+      }
+      this.axiosSource && this.axiosSource.cancel()
+      this.axiosSource = axios.CancelToken.source()
+      let list = await getChildAddress(node.data && node.data.code, node.level + 1, this.axiosSource.token)
+      resolve(list)
+    } catch (e) {
+      node.loading = false
+      node.loaded = false
     }
-    let list = await getChildAddress(node.data && node.data.code, node.level + 1)
-    resolve(list)
   }
 
   /**
@@ -130,3 +150,10 @@ export default class extends Vue {
   // }
 }
 </script>
+<style lang="scss">
+  .address-cascader {
+    .el-cascader-menu__list {
+      min-width: 200px;
+    }
+  }
+</style>

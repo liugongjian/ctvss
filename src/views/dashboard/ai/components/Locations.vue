@@ -7,7 +7,7 @@
       <div
         v-if="!location.zone"
         class="ai-recognation__images__item__mask"
-        :class="[{'ai-recognation__images__item__mask--warning': location.isWarning, 'ai-recognation__images__item__clickable': clickable, 'ai-recognation__images__item__mask--selected': currentIndex === locationIndex}, `ai-recognation__images__item__mask--${type}`]"
+        :class="[{'ai-recognation__images__item__mask--warning': location.isWarning, 'ai-recognation__images__item__clickable': clickable, 'ai-recognation__images__item__mask--selected': currentIndex === locationIndex, 'orange': location.isNoReflective}, `ai-recognation__images__item__mask--${type}`]"
         :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
         @click="clickLocation(locationIndex)"
       >
@@ -33,11 +33,14 @@
     <div v-if="(type === '25' || type === '10022') && img.locations && img.locations.JamCount" class="ai-recognation__images__item__count">实际车辆数: {{ img.locations.JamCount || 0 }}, 检测阈值: {{ img.locations.JamThreshold || 0 }}</div>
     <div v-if="(type === '27' || type === '10024') && img.locations && (img.locations.IsOffDuty || img.locations.IsSleepOnDuty)" class="ai-recognation__images__item__count">{{ img && img.locations && `${img.locations.IsOffDuty ? '脱岗' : ''}${img.locations.IsSleepOnDuty ? '睡岗' : ''}告警` }}</div>
     <div v-if="(type === '26' || type === '10023') && img.locations && img.locations.PersonNum" class="ai-recognation__images__item__count">人群聚集：{{ img && img.locations && img.locations.PersonNum }}</div>
+    <div v-if="(type === '33' || type === '10033') && img.locations && img.locations.counts" class="ai-recognation__images__item__count">
+      <div v-for="type in animalType" :key="type.label">{{ type.cname }}数量：{{ img && img.locations && img.locations.counts[type.label] }}只</div>
+    </div>
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { AiMaskType } from '@/dics'
+import { AiMaskType, AnimalType } from '@/dics'
 
 @Component({
   name: 'DashboardAILocation'
@@ -50,6 +53,7 @@ export default class extends Vue {
   @Prop()
   private clickable?: boolean
   private aiMaskType = AiMaskType
+  private animalType = AnimalType
   private currentIndex: number = -1
 
   @Watch('img', {
@@ -76,6 +80,10 @@ export default class extends Vue {
     word-break: break-all !important;
     top: -1px;
     bottom: auto !important;
+  }
+
+  .orange {
+    border: 2px solid $primary !important;
   }
 
   .ai-recognation__images__item {

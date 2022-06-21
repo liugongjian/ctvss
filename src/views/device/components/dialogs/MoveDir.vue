@@ -175,7 +175,7 @@ export default class extends Vue {
       this.$message.error('未选择目标目录')
       return
     }
-    this.$confirm(`移动此设备后，如果存在上级级联则需要重新添加。是否确定要移动此设备？`, '提示', {
+    this.$confirm('移动此设备后，如果存在上级级联则需要重新添加。是否确定要移动此设备？', '提示', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning'
@@ -221,26 +221,31 @@ export default class extends Vue {
     height: 300px;
     overflow: auto;
   }
+
   .breadcrumb {
     height: 50px;
     line-height: 50px;
     padding-left: 20px;
     border: 1px solid $primary;
     background: #f8f8f8;
-    transition: padding-left .2s;
+    transition: padding-left 0.2s;
     margin-bottom: 10px;
+
     label {
       margin-right: 20px;
       color: $textGrey;
     }
+
     &__item {
       cursor: pointer;
     }
+
     &__item:after {
       content: '>';
       color: $textGrey;
       margin: 0 10px;
     }
+
     &__item:last-child:after {
       content: '';
     }

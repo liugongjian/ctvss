@@ -75,7 +75,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { PlayerEvent } from '@/components/VssPlayer/models/VssPlayer.d'
+import { PlayerEvent } from '@/components/VssPlayer/types/VssPlayer'
 import VssPlayer from './index.vue'
 
 @Component({

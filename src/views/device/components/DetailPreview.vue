@@ -12,9 +12,9 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { Stream } from '@/components/VssPlayer/models/VssPlayer'
+import { Stream } from '@/components/VssPlayer/types/VssPlayer'
 import ScreenBoard from './ScreenBoard/index.vue'
-import { ScreenManager } from '../models/Screen/ScreenManager'
+import { ScreenManager } from '../services/Screen/ScreenManager'
 
 @Component({
   name: 'DeviceLive',
@@ -44,6 +44,7 @@ export default class extends Vue {
     screen.streamSize = this.streamSize
     screen.streamNum = 1
     screen.isLive = true
+    screen.streams = this.screenManager.fillStreams(screen)
     screen.init()
     this.calMaxHeight()
     window.addEventListener('resize', this.calMaxHeight)
@@ -57,8 +58,13 @@ export default class extends Vue {
    * 计算最大高度
    */
   public calMaxHeight() {
-    const deviceList: HTMLDivElement = document.querySelector('.device-list')
-    this.height = `${deviceList.clientHeight - 125}px`
+    if (document.querySelector('.device-list')) {
+      const deviceList: HTMLDivElement = document.querySelector('.device-list')
+      this.height = `${deviceList.clientHeight - 125}px`
+    } else if (document.querySelector('.dialog-player-wrapper')) {
+      const deviceList: HTMLDivElement = document.querySelector('.dialog-player-wrapper')
+      this.height = `${deviceList.clientHeight - 25}px`
+    }
   }
 }
 </script>

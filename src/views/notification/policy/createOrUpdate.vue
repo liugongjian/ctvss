@@ -91,13 +91,13 @@
           </el-select>
         </el-form-item>
         <el-form-item label="消息类型：" prop="source">
-          <el-radio-group v-model="form.source" disabled>
+          <el-radio-group v-model="form.source" @change="handleSourceChange">
             <el-radio label="1">设备消息</el-radio>
-            <el-radio label="2">资源包消息</el-radio>
+            <!-- <el-radio label="2">资源包消息</el-radio> -->
             <el-radio label="3">AI消息</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item v-if="form.source === '3'" label="子类型：" prop="sourceRules">
+        <el-form-item v-if="form.source !== '2'" label="子类型：" prop="sourceRules" class="source-rules">
           <el-select v-model="form.sourceRules" multiple>
             <el-option
               v-for="(item, index) in sourceRulesOptions"
@@ -118,12 +118,14 @@
         </el-form-item>
         <el-form-item v-if="form.source !== '2'" label="生效资源：" prop="notifyResources">
           <resource-tree
+            v-if="isloading === false"
             :checked-list="form.notifyResources"
             @resourceListChange="resourceListChange"
           />
         </el-form-item>
         <el-form-item label="推送对象：" prop="notifyDestinations">
           <destinations-tree
+            v-if="isloading === false"
             :checked-list="form.notifyDestinations"
             @destinationListChange="destinationListChange"
           />
@@ -140,6 +142,7 @@
         <el-form-item>
           <el-row style="margin: 20px 0;">
             <el-button :loading="uploadLoading" type="primary" class="confirm" @click="upload">确定</el-button>
+            <el-button :loading="uploadLoading" @click="back">取消</el-button>
           </el-row>
         </el-form-item>
       </el-form>
@@ -168,7 +171,7 @@ export default class extends Vue {
   private breadCrumbContent = ''
   private defaultValue = [new Date(2022, 4, 5, 0, 0), new Date(2022, 4, 5, 23, 59)]
   private dirList: any = []
-  public isloading: boolean = false
+  public isloading: boolean | null = null
   public uploadLoading: boolean = false
   private treeProp = {
     label: 'label',
@@ -182,11 +185,11 @@ export default class extends Vue {
     description: '',
     notifyChannel: '2',
     effectiveTime: [],
-    notifyFreq: '30',
-    source: '3',
+    notifyFreq: '240',
+    source: '1',
     sourceRules: [],
     // eslint-disable-next-line no-template-curly-in-string
-    notifyTemplate: '尊敬的客户，您好！我是天翼云视频监控的小瞰，根据推送策略【${policyName}】，最新检测到AI告警${count}条，请登录平台查看',
+    notifyTemplate: '',
     notifyResources: [],
     notifyDestinations: [],
     active: 1,
@@ -207,14 +210,19 @@ export default class extends Vue {
     { value: '1440', label: '24小时' }
   ]
 
-  private sourceRulesOptions = [
-    { value: '1', label: '人脸识别' },
-    { value: '2', label: '行人检测' },
-    { value: '3', label: '口罩检测' }
+  private aiSourceRulesOptions = []
+  private deviceSourceRulesOptions = [
+    { value: '1', label: '设备离线' },
+    { value: '2', label: '流离线' },
+    { value: '3', label: '录制失败' }
   ]
 
-  private resourceList = ['312697971628146688']
-  private destinationList = ['342275160830951424']
+  private notifyTemplate = {
+    // eslint-disable-next-line no-template-curly-in-string
+    ai: '【天翼云】尊敬的${userName}：根据推送策略【${policyName}】，最近${notify_freq}内，视频监控小瞰共检测到AI告警${count}条，请及时处理。详情请登录平台查看。感谢您对天翼云视频监控的支持！',
+    // eslint-disable-next-line no-template-curly-in-string
+    device: '【天翼云】尊敬的${userName}：根据推送策略【${policyName}】，最近${notify_freq}内，视频监控小瞰共检测到【${主类型}-${子类型}】告警${count}条，请及时处理。详情请登录平台查看。感谢您对天翼云视频监控的支持！'
+  }
 
   private rules = {
     name: [
@@ -274,8 +282,31 @@ export default class extends Vue {
     }
   }
 
+  private get sourceRulesOptions() {
+    switch (this.form.source) {
+      case '1':
+        return this.deviceSourceRulesOptions
+      case '3':
+        return this.aiSourceRulesOptions
+      default:
+        return []
+    }
+  }
+
   private get isUpdate() {
     return this.$route.name === 'notification-policy-edit'
+  }
+
+  private handleSourceChange(newValue: string) {
+    this.form.sourceRules = []
+    switch (newValue) {
+      case '1':
+        this.form.notifyTemplate = this.notifyTemplate.device
+        break
+      case '3':
+        this.form.notifyTemplate = this.notifyTemplate.ai
+        break
+    }
   }
 
   private async mounted() {
@@ -290,6 +321,8 @@ export default class extends Vue {
       } else {
         this.back()
       }
+    } else {
+      this.handleSourceChange(this.form.source)
     }
     this.isloading = false
   }
@@ -341,7 +374,7 @@ export default class extends Vue {
   private async getAlgorithmList() {
     try {
       const { aiAbilityAlgorithms } = await getAlgorithmList({ name: this.searchApp, abilityId: this.activeName })
-      this.sourceRulesOptions = aiAbilityAlgorithms.map(item => {
+      this.aiSourceRulesOptions = aiAbilityAlgorithms.map(item => {
         return {
           value: item.id,
           label: item.name
@@ -449,6 +482,10 @@ export default class extends Vue {
     margin-left: 10px;
 
     &__input {
+      width: 600px;
+    }
+
+    .el-select {
       width: 600px;
     }
   }

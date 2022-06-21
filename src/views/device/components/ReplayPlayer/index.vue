@@ -47,7 +47,7 @@
       />
     </template>
     <template slot="controlRight">
-      <RecordDownload v-if="hasAdminRecord && recordType === 0" :screen="screen" />
+      <RecordDownload v-if="hasAdminRecord && recordType === 0 && !isCarTask" :screen="screen" />
       <Fullscreen :is-fullscreen="isFullscreen" @change="onFullscreenChange" />
     </template>
   </VssPlayer>
@@ -56,8 +56,8 @@
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { checkPermission } from '@/utils/permission'
 import { ScreenModule } from '@/store/modules/screen'
-import { PlayerEvent } from '@/components/VssPlayer/models/VssPlayer.d'
-import { Screen } from '@/views/device/models/Screen/Screen'
+import { PlayerEvent } from '@/components/VssPlayer/types/VssPlayer'
+import { Screen } from '@/views/device/services/Screen/Screen'
 import VssPlayer from '@/components/VssPlayer/index.vue'
 import ReplayAxis from './ReplayAxis.vue'
 import DatePicker from '../ScreenBoard/components/DatePicker.vue'
@@ -91,6 +91,10 @@ export default class extends Vue {
 
   @Prop()
   private isDebug: Boolean
+
+  /* 车辆管理中的录像回放需要隐藏下载功能 */
+  @Prop()
+  private isCarTask: Boolean
 
   private url: string = null
   private type: string = null

@@ -31,9 +31,9 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { PlayerEvent } from '@/components/VssPlayer/models/VssPlayer.d'
+import { PlayerEvent } from '@/components/VssPlayer/types/VssPlayer'
 import { ScreenModule } from '@/store/modules/screen'
-import { Screen } from '@/views/device/models/Screen/Screen'
+import { Screen } from '@/views/device/services/Screen/Screen'
 import VssPlayer from '@/components/VssPlayer/index.vue'
 import Fullscreen from './ScreenBoard/components/Fullscreen.vue'
 

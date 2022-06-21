@@ -20,7 +20,7 @@
         />
         <div class="filter-container__right">
           <el-button v-if="advancedFilterFlag" type="primary" @click="search">查询</el-button>
-          <el-button v-else class="el-button-rect" @click="search"><svg-icon name="refresh" /></el-button>
+          <el-button v-else class="el-button-rect" @click="timeRangeTypeChange(timeRangeType)"><svg-icon name="refresh" /></el-button>
           <el-button v-if="advancedFilterFlag" type="primary" @click="advancedFilterFlag = !advancedFilterFlag">收起</el-button>
           <el-button v-else type="primary" @click="advancedFilterFlag = !advancedFilterFlag">高级筛选</el-button>
         </div>
@@ -56,7 +56,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="消息类型" prop="source">
-            <el-select v-model="searchForm.source" disabled>
+            <el-select v-model="searchForm.source">
               <el-option
                 v-for="(item, index) in sourceOptions"
                 :key="index"
@@ -83,7 +83,7 @@
           column-key="create_time"
           prop="createTime"
           sortable="custom"
-          label="发生时间"
+          label="推送时间"
           min-width="240"
         >
           <template slot-scope="{row}">
@@ -91,7 +91,11 @@
           </template>
         </el-table-column>
         <el-table-column prop="policyName" label="策略名称" min-width="260" show-overflow-tooltip />
-        <el-table-column prop="description" label="策略描述" min-width="260" show-overflow-tooltip />
+        <el-table-column prop="description" label="策略描述" min-width="260" show-overflow-tooltip>
+          <template slot-scope="scope">
+            {{ scope.row.description || '-' }}
+          </template>
+        </el-table-column>
         <el-table-column prop="notifyChannel" label="推送方式" min-width="160">
           <template slot-scope="scope">
             {{ scope.row.notifyChannel === '1' ? '邮件推送' : '短信推送' }}
@@ -105,7 +109,7 @@
         <el-table-column prop="notifyContent" label="消息内容" min-width="260" show-overflow-tooltip />
         <el-table-column prop="notifyUserDetails" label="推送对象" min-width="260" show-overflow-tooltip>
           <template slot-scope="{row}">
-            {{ row.notifyUserDetails && JSON.parse(row.notifyUserDetails).user }}
+            {{ row.notifyUserDetails && (row.notifyChannel === '1' ? JSON.parse(row.notifyUserDetails).email : JSON.parse(row.notifyUserDetails).phone) }}
           </template>
         </el-table-column>
       </el-table>
@@ -143,8 +147,9 @@ export default class extends Vue {
     { value: '2', label: '短信推送' }
   ]
   private sourceOptions = [
+    { value: '', label: '所有类型' },
     { value: '1', label: '设备消息' },
-    { value: '2', label: '资源包消息' },
+    // { value: '2', label: '资源包消息' },
     { value: '3', label: 'AI消息' }
   ]
   private sourceMap = {
@@ -158,7 +163,7 @@ export default class extends Vue {
     description: '',
     userGroup: '',
     notifyChannel: '',
-    source: '3',
+    source: '',
     notifyContent: '',
     startTime: 0,
     endTime: 0,
@@ -200,7 +205,7 @@ export default class extends Vue {
         params.description = ''
         params.userGroup = ''
         params.notifyChannel = ''
-        // params.source = '3',
+        params.source = ''
         params.notifyContent = ''
       }
       params.pageNum = this.pager.pageNum
@@ -330,14 +335,16 @@ export default class extends Vue {
 <style lang="scss" scoped>
 .filter-container {
   min-width: 1100px;
+
   .el-radio-group {
     margin-right: 20px;
   }
+
   &__advance-search {
     display: flex;
     flex-wrap: wrap;
     max-height: 0;
-    transition: all .5s;
+    transition: all 0.5s;
 
     &__expanded {
       max-height: 500px;
@@ -345,13 +352,16 @@ export default class extends Vue {
 
     & > .el-form-item {
       flex: 1 0 33.33%;
+
       .el-select {
         width: 100%;
       }
+
       .user-group {
         .el-select {
           width: 40%;
         }
+
         .el-select + .el-select {
           width: 55%;
           float: right;

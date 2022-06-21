@@ -3,18 +3,8 @@ import { MessageBox } from 'element-ui'
 import { UserModule } from '@/store/modules/user'
 import { GroupModule } from '@/store/modules/group'
 import { VGroupModule } from '@/store/modules/vgroup'
-import { getLocalStorage } from '@/utils/storage'
-import settings from '@/settings'
-
-export class VSSError extends Error {
-  public code
-  public requestId
-  constructor(code: string, message: string, requestId: string) {
-    super(message)
-    this.code = code
-    this.requestId = requestId
-  }
-}
+import * as loginService from '@/services/loginService'
+import { VSSError } from '@/utils/error'
 
 let timeoutPromise: Promise<any>
 const service = axios.create({
@@ -77,15 +67,16 @@ function responseHandler(response: any) {
           type: 'warning'
         }
       )
+      debugger
       timeoutPromise.then(() => {
-        const loginType = getLocalStorage('loginType')
+        const loginType = loginService.getLoginType()
         UserModule.ResetToken()
         if (loginType === 'sub') {
-          window.location.href = `${settings.projectPrefix}/${settings.subLoginUrl}?redirect=%2Fdashboard`
+          window.location.href = `${loginService.innerUrl.prefix}/${loginService.innerUrl.sub}?redirect=%2Fdashboard`
         } else if (loginType === 'main') {
-          window.location.href = `${settings.projectPrefix}${settings.mainLoginUrl}?redirect=%2Fdashboard`
+          window.location.href = `${loginService.innerUrl.prefix}/${loginService.innerUrl.main}?redirect=%2Fdashboard`
         } else {
-          window.location.href = `${settings.casLoginUrl}?redirect=%2Fdashboard`
+          window.location.href = `${loginService.casUrl.login}?redirect=%2Fdashboard`
         }
       })
     }

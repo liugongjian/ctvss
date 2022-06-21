@@ -25,7 +25,7 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import DashboardLightContainer from '@/views/dashboard/components/DashboardLightContainer.vue'
 import DashboardMixin from '@/views/dashboard/mixin/DashboardMixin'
-import settings from '@/settings'
+import * as loginService from '@/services/loginService'
 import { getUserDetail, deleteUser } from '@/api/iamDashboard'
 
 @Component({
@@ -114,7 +114,7 @@ export default class extends Mixins(DashboardMixin) {
   private gotoEdit() {
     this.getSubuserLoginLink(this.detail['iamUserName'])
     this.$router.push({
-      name: `accessManage-user-create`,
+      name: 'accessManage-user-create',
       query: {
         type: 'edit',
         userId: this.detail['iamUserId'],
@@ -125,7 +125,7 @@ export default class extends Mixins(DashboardMixin) {
   private getSubuserLoginLink(userName: any) {
     const origin = window.location.origin
     const mainUserID = this.$store.state.user.mainUserID
-    const link: string = `${origin}${settings.projectPrefix}/login/subAccount?&subUserName=${userName}&mainUserID=${mainUserID}`
+    const link = `${origin}${loginService.innerUrl.prefix}${loginService.innerUrl.sub}?&subUserName=${userName}&mainUserID=${mainUserID}`
     this.subUserLoginLink = link
   }
 
@@ -148,12 +148,13 @@ export default class extends Mixins(DashboardMixin) {
 </script>
 <style lang="scss" scoped>
 ::v-deep .el-descriptions-item__label {
-  color: #888888;
+  color: #888;
   text-align: right;
   min-width: 90px;
 }
+
 .detail__content {
   margin-top: 0;
-  color: #000000;
+  color: #000;
 }
 </style>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <link rel="icon" href="./favicon.ico">
+    <title>天翼云视频监控控制台</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <link rel="stylesheet" type="text/css" href="/iam/layout/alogic-layout.css">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    </link>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .error-page {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            width: 80%;
+            margin: 50px auto 0 auto;
+            padding: 20px;
+            background: #fff;
+            box-sizing: border-box;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .error-code {
+            line-height: 1;
+            font-weight: bolder;
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+
+        .error-desc {
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="iam-console-container">
+        <div class="error-page">
+            <div class="error-code">对不起，您的服务尚未开通</div>
+            <div class="error-desc">您尚未开通<span id="productType"></span>产品，请联系云公司业务受理岗开通！</div>
+            <div class="error-desc">当前登陆邮箱<span id="email"></span></div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/iam/layout/alogic-layout.js"></script>
+    <script type="text/javascript">
+        var productType = {
+            vss: '视频监控',
+            rtc: 'WebRTC'
+        }
+        var href = window.location.href;
+        if (href.indexOf('type=') !== -1) {
+            var type = href.slice(href.indexOf('type=') + 'type='.length);
+            document.getElementById('productType').innerHTML = productType[type];
+        }
+        AlogicLayout.authCurrentPromise.then(function (data) {
+            if (!data || !data.property) return
+            document.getElementById('email').innerHTML = data.property.email;
+        })
+
+        AlogicLayout.consoleContainer.updateMenu({
+            topic: 'workspace',
+            workspaceId: '0',
+            sidebarMenuPromise: Promise.resolve([
+                {
+                    'icon': 'el-icon-wind-power',
+                    'name': 'IAM服务',
+                    'href': 'https://iam-cbip.ctcdn.cn:8843/',
+                    'ucode': 'iam-cbip'
+                },
+                {
+                    'icon': 'el-icon-cpu',
+                    'name': '诸葛AI控制台',
+                    'href': 'https://aiconsole-cbip.ctcdn.cn:8843/console',
+                    'ucode': 'aiconsole-cbip'
+                },
+                {
+                    'icon': 'el-icon-data-analysis',
+                    'name': '天翼大屏',
+                    'href': 'https://datav-cbip.ctcdn.cn:8843/dashboard',
+                    'ucode': 'datav-cbip'
+                },
+                {
+                    'icon': 'el-icon-set-up',
+                    'name': '大数据运维管理平台',
+                    'href': 'https://mozi-cbip.ctcdn.cn:8843/',
+                    'ucode': 'mozi-cbip'
+                },
+                {
+                    'icon': 'el-icon-lock',
+                    'name': '数据安全管理平台',
+                    'href': 'https://dsmp-cbip.ctcdn.cn:8843/',
+                    'ucode': 'dsmp-cbip'
+                },
+                {
+                    'icon': 'el-icon-coin',
+                    'name': '数据中台',
+                    'href': 'https://bdmp-cbip.ctcdn.cn:8843/control',
+                    'ucode': 'bdmp-cbip'
+                },
+                {
+                    'icon': 'el-icon-video-camera',
+                    'name': '大视频平台',
+                    'href': 'https://console.vcn.ctcdn.cn/vss',
+                    'ucode': 'vss'
+                }
+            ])
+        })
+        AlogicLayout.setConfig({
+            mode: 'hash',
+            routePush: function(route) {
+                if (route === '/iam/sign/out') {
+                    window.location.href = 'https://iam-cbip.ctcdn.cn:8843' + route
+                } else if (route.startsWith('https://')) {
+                    window.location.href = route
+                } else {
+                    // do nothing
+                }
+            }
+        })
+        AlogicLayout.consoleContainer.match({
+            domain: 'vss'
+        })
+    </script>
+</body>
+
+</html>

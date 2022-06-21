@@ -52,12 +52,12 @@
               <el-table-column v-if=" !isNvr && !isVGroup && checkPermission(['AdminDevice'])" label="操作" min-width="200">
                 <template slot-scope="scope">
                   <el-tooltip v-if="ifShowAlgoBtn(scope.row.algorithm.code)" class="item" effect="dark" content="设备离线时不可配置算法" placement="top-start" :disabled="deviceInfo.deviceStatus === 'on'">
-                    <div class="disableBtnBox">
+                    <div class="disable-btn-box">
                       <el-button type="text" :disabled="deviceInfo.deviceStatus !== 'on'" @click="openCanvasDialog(scope.row)">算法配置</el-button>
                     </div>
                   </el-tooltip>
                   <el-tooltip class="item" effect="dark" content="应用启用时不可解绑" placement="top-start" :disabled="scope.row.status === '0'">
-                    <div class="disableBtnBox">
+                    <div class="disable-btn-box">
                       <el-button type="text" :disabled="scope.row.status === '1'" @click="changeBindStatus(scope.row)">解除绑定</el-button>
                     </div>
                   </el-tooltip>
@@ -67,7 +67,7 @@
               <el-table-column v-if=" isNvr && !isVGroup && checkPermission(['AdminDevice'])" label="操作" min-width="200">
                 <template slot-scope="scope">
                   <el-tooltip class="item" effect="dark" content="应用启用时不可解绑" placement="top-start" :disabled="scope.row.status === '0'">
-                    <div class="disableBtnBox">
+                    <div class="disable-btn-box">
                       <el-button type="text" :disabled="scope.row.status === '1'" @click="changeBindStatus(scope.row)">解除绑定</el-button>
                     </div>
                   </el-tooltip>
@@ -87,7 +87,7 @@
             {{ resources.VSS_UPLOAD_BW.codeRate ? `${resources.VSS_UPLOAD_BW.codeRate}Mbps` : '' }}
           </el-descriptions-item>
           <el-descriptions-item label="上行带宽总量">
-            {{ resources.VSS_UPLOAD_BW.bwDeviceCount ? `${resources.VSS_UPLOAD_BW.bwDeviceCount}Mbps` :'' }}
+            {{ resources.VSS_UPLOAD_BW.bwDeviceCountRate }}
           </el-descriptions-item>
           <el-descriptions-item label="到期时间">
             {{ resources.VSS_UPLOAD_BW.expTime }}
@@ -213,7 +213,7 @@ import { GroupModule } from '@/store/modules/group'
 import { getDeviceRecordTemplate, getDeviceCallbackTemplate, getDevice,
   unBindAppResource, startAppResource, stopAppResource } from '@/api/device'
 import { getAlertBind } from '@/api/template'
-import { getAppList, getAlgoStreamFrame } from '@/api/ai-app'
+import { getAppList, getAlgoStreamFrameShot } from '@/api/ai-app'
 import { getDeviceResources } from '@/api/billing'
 import SetRecordTemplate from '@/views/components/dialogs/SetRecordTemplate.vue'
 import SetCallBackTemplate from '@/views/components/dialogs/SetCallBackTemplate.vue'
@@ -293,13 +293,13 @@ export default class extends Vue {
   }
 
   private openCanvasDialog(rowInfo: any) {
-    const streamNum = this.deviceInfo?.deviceStreams[0]?.streamNum
-    const deviceId = this.inProtocol === 'ehome' ? `${this.deviceId}_${streamNum}` : this.deviceId
     const param = {
-      // streams: JSON.stringify([Number(this.deviceId)])
-      streams: [deviceId]
+      frames: [{
+        stream: this.deviceId,
+        inProtocol: this.inProtocol
+      }]
     }
-    getAlgoStreamFrame(param).then(res => {
+    getAlgoStreamFrameShot(param).then(res => {
       if (res) {
         const { frames = [] } = res
         const { frame = '' } = frames[0] || []
@@ -494,6 +494,12 @@ export default class extends Vue {
       resourcesRes.resources.forEach((ele: any) => {
         result[ele.resourceType] = ele
       })
+      if (result['VSS_UPLOAD_BW']) {
+        const obj = result['VSS_UPLOAD_BW']
+        const codeRate = parseInt(obj.codeRate, 10)
+        const bwDeviceCount = parseInt(obj.bwDeviceCount, 10)
+        obj.bwDeviceCountRate = codeRate && bwDeviceCount ? `${codeRate * bwDeviceCount}Mbps` : ''
+      }
       this.resources = result
     } catch (e) {
       this.$message.error(e && e.message)
@@ -560,12 +566,10 @@ export default class extends Vue {
      * 车牌检测: code 10014
      * 棉花检测: code 10015
      * 电瓶车进电梯 code 10020
-<<<<<<< HEAD
      * 人车流量统计 code 10032 需要单独增加crossline 画线
-=======
      * 垃圾站  code  10026
      * 人员跌倒  code 10028
->>>>>>> origin/feature-Sprint4-network
+     *  动物检测 code 10033
      */
     switch (rowCode) {
       case '10006':
@@ -581,6 +585,7 @@ export default class extends Vue {
       case '10032':
       case '10026':
       case '10028':
+      case '10033':
         return true
       default:
         return false
@@ -604,7 +609,7 @@ export default class extends Vue {
     }
   }
 
-  .disableBtnBox {
+  .disable-btn-box {
     display: inline-block;
     padding: 0 10px;
   }

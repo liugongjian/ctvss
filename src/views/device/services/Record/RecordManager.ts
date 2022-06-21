@@ -7,6 +7,7 @@ import { Screen } from '../Screen/Screen'
 import { getTimestamp, getLocaleDate, getDateByTime } from '@/utils/date'
 import { getDeviceRecords, getDeviceRecordStatistic, getDeviceRecordRule, describeHeatMap, getDevicePreview, setRecordScale } from '@/api/device'
 import { UserModule } from '@/store/modules/user'
+import { VSSError } from '@/utils/error'
 
 export class RecordManager {
   /* 当前分屏 */
@@ -29,6 +30,8 @@ export class RecordManager {
   public localStartTime: number
   /* 分页大小 */
   public pageSize?: string
+  /* 录像列表加载状态（不在UI中显示转圈，只用于逻辑判断） */
+  public isLoading: boolean
   /* Axios Source */
   private axiosSourceList: CancelTokenSource[]
 
@@ -40,9 +43,14 @@ export class RecordManager {
     this.loadedRecordDates = new Set()
     this.currentRecord = null
     this.recordInterval = null
-    this.currentDate = Math.floor(getLocaleDate().getTime() / 1000)
+    if (this.screen.datetimeRange) {
+      this.currentDate = getDateByTime(this.screen.datetimeRange.startTime, 's')
+    } else {
+      this.currentDate = Math.floor(getLocaleDate().getTime() / 1000)
+    }
     this.localStartTime = null
     this.pageSize = null
+    this.isLoading = false
     this.axiosSourceList = []
   }
 
@@ -105,7 +113,7 @@ export class RecordManager {
    * @param date 日期
    * @param isConcat 是否合并到现有列表，如果false将覆盖现有列表并播放第一段
    */
-  public async getRecordListByDate(date: number, isConcat = false) {
+  public async getRecordListByDate(date: number, isConcat = false, isSeek = false) {
     try {
       if (!this.screen.deviceId && !isConcat) {
         this.currentDate = date
@@ -115,19 +123,41 @@ export class RecordManager {
         this.screen.url = ''
         this.screen.errorMsg = null
         this.screen.isLoading = true
-        this.currentDate = date
-        this.screen.currentRecordDatetime = date
         this.recordList = []
         this.heatmapList = []
+        this.currentRecord = null
         this.screen.player && this.screen.player.pause()
         this.loadedRecordDates.clear()
+        // 如果是seek操作，不更新当前时间
+        if (!isSeek) {
+          this.currentDate = date
+          this.screen.currentRecordDatetime = date
+        }
       } else if (this.loadedRecordDates.has(date)) {
         return
+      }
+      // 约束录像起始时间和结束时间范围
+      if (
+        this.screen.datetimeRange &&
+        (date < getDateByTime(this.screen.datetimeRange.startTime, 's') || date > this.screen.datetimeRange.endTime)
+      ) {
+        if (this.recordList.length === 0) {
+          throw new VSSError(this.screen.ERROR_CODE.NO_RECORD, this.screen.ERROR.NO_RECORD)
+        } else {
+          throw new VSSError(this.screen.ERROR_CODE.OUT_OF_RANGE, this.screen.ERROR.OUT_OF_RANGE)
+        }
+      }
+      let startTime = date
+      let endTime = date + 24 * 60 * 60
+      if (this.screen.datetimeRange) {
+        startTime = Math.max(startTime, this.screen.datetimeRange.startTime)
+        endTime = Math.min(endTime, this.screen.datetimeRange.endTime)
       }
       // 在SET中存入日期，防止重复加载
       this.loadedRecordDates.add(date)
       !isConcat && this.cancelAxiosSource()
-      const records = await this.getRecordList(date, date + 24 * 60 * 60)
+      this.isLoading = true
+      const records = await this.getRecordList(startTime, endTime)
       if (records && records.length) {
         // 如果切换的日期大于现在的日期，则往后添加，否则往前添加
         if (date > this.currentDate) {
@@ -135,15 +165,18 @@ export class RecordManager {
         } else {
           this.recordList = records.concat(this.recordList)
         }
-        if (!isConcat) {
+        // 如果不是seek操作，默认播放第一段录像
+        if (!isConcat && !isSeek) {
           /**
          * 0云端：获取第一段录像
          * 1本地：获取URL
          */
           if (this.screen.recordType === 0) {
             this.currentRecord = records[0]
+            this.screen.currentRecordDatetime = this.currentRecord.startTime
           } else {
-            const res = await this.getLocalUrl(this.recordList[0].startTime)
+            this.screen.currentRecordDatetime = records[0].startTime
+            const res = await this.getLocalUrl(records[0].startTime)
             this.screen.codec = res.codec
             this.screen.url = res.url
           }
@@ -154,23 +187,32 @@ export class RecordManager {
         this.screen.errorMsg = this.screen.ERROR.NO_RECORD
       }
       if (!isConcat) this.screen.isLoading = false
+      this.isLoading = false
+      this.seek(this.screen.currentRecordDatetime, true)
       // 加载AI热力列表
-      // this.heatmapList = await this.getHeatmapList(date, date + 24 * 60 * 60)
+      const heatmaps = await this.getHeatmapList(date, date + 24 * 60 * 60)
+      if (date > this.currentDate) {
+        this.heatmapList = this.heatmapList.concat(heatmaps)
+      } else {
+        this.heatmapList = heatmaps.concat(this.heatmapList)
+      }
     } catch (e) {
       // 异常时删除日期
       this.loadedRecordDates.delete(date)
       if (!isConcat) {
         this.currentRecord = null
         this.screen.url = ''
-        if (e.code === 13) {
+        if (e.code === this.screen.ERROR_CODE.NO_RECORD) {
           this.screen.errorMsg = this.screen.ERROR.NO_RECORD
-        } else if (e.code === 8) {
+        } else if (e.code === this.screen.ERROR_CODE.NO_STORE) {
           this.screen.errorMsg = this.screen.ERROR.NO_STORE
         } else if (e.code !== -2 && e.code !== -1) {
           this.screen.errorMsg = e.message
         }
       }
       if (!isConcat && e.code !== -2) this.screen.isLoading = false
+    } finally {
+      this.isLoading = false
     }
   }
 
@@ -191,13 +233,21 @@ export class RecordManager {
         return
       }
       this.screen.errorMsg = null
+      // 约束录像起始时间和结束时间范围
+      if (this.screen.datetimeRange && (time < this.screen.datetimeRange.startTime || time > this.screen.datetimeRange.endTime)) {
+        if (this.recordList.length === 0) {
+          throw new VSSError(this.screen.ERROR_CODE.NO_RECORD, this.screen.ERROR.NO_RECORD)
+        } else {
+          throw new VSSError(this.screen.ERROR_CODE.OUT_OF_RANGE, this.screen.ERROR.OUT_OF_RANGE)
+        }
+      }
       let record = this.getRecordByTime(time)
-      const date = getDateByTime(time * 1000) / 1000
+      const date = getDateByTime(time, 's')
       this.currentDate = date
       if (!record) {
         // 判断该日期是否存在SET中
         if (!this.loadedRecordDates.has(date)) {
-          await this.getRecordListByDate(date, isConcat)
+          await this.getRecordListByDate(date, isConcat, true)
         }
         record = this.getRecordByTime(time)
       }
@@ -218,22 +268,36 @@ export class RecordManager {
             this.screen.codec = res.codec
             this.screen.url = res.url
           } catch (e) {
-            this.screen.errorMsg = e.message
+            if (e.code !== -2 && e.code !== -1) {
+              this.screen.errorMsg = e.message
+            }
           } finally {
             this.screen.isLoading = false
           }
         }
       } else {
         this.screen.currentRecordDatetime = time
-        this.screen.recordManager.currentDate = time
+        this.currentDate = time
         this.screen.player && this.screen.player.disposePlayer()
         this.screen.player = null
-        this.screen.errorMsg = this.screen.ERROR.NO_RECORD // 无录像提示
         this.screen.isLoading = false
+        if (!this.isLoading) {
+          // 如果加载录像列表完成后未找到录像片段，则需要显示无录像提示
+          throw new VSSError(this.screen.ERROR_CODE.NO_RECORD, this.screen.ERROR.NO_RECORD)
+        }
+        // 静默错误信息（不在界面上显示）
+        throw new Error(this.screen.ERROR.NO_RECORD)
       }
     } catch (e) {
-      this.screen.url = ''
+      if (e.code === this.screen.ERROR_CODE.NO_RECORD || e.code === this.screen.ERROR_CODE.OUT_OF_RANGE) {
+        this.screen.errorMsg = e.message
+      }
+      this.screen.currentRecordDatetime = time
+      this.screen.recordManager.currentDate = time
+      this.screen.player && this.screen.player.disposePlayer()
+      this.screen.player = null
       this.screen.isLoading = false
+      this.screen.url = ''
     }
   }
 
@@ -244,7 +308,7 @@ export class RecordManager {
     const nextRecord = this.recordList.find(record => record.startTime >= this.currentRecord.endTime)
     if (nextRecord) {
       this.currentRecord = nextRecord
-      const date = getDateByTime(this.currentRecord.startTime * 1000) / 1000
+      const date = getDateByTime(this.currentRecord.startTime, 's')
       this.currentDate = date
     }
   }
@@ -288,6 +352,8 @@ export class RecordManager {
   private async getRecordList(startTime: number, endTime: number) {
     const axiosSource = axios.CancelToken.source()
     this.axiosSourceList.push(axiosSource)
+    startTime = parseInt(startTime + '')
+    endTime = parseInt(endTime + '')
     const res = await getDeviceRecords({
       deviceId: this.screen.deviceId,
       inProtocol: this.screen.inProtocol,
@@ -338,9 +404,19 @@ export class RecordManager {
         startTime = Math.floor(new Date(current.getFullYear(), current.getMonth() - 4).getTime() / 1000)
         endTime = Math.floor(new Date().getTime() / 1000)
       }
+      // 约束录像起始时间和结束时间范围
+      if (this.screen.datetimeRange && (endTime < this.screen.datetimeRange.startTime || startTime > this.screen.datetimeRange.endTime)) {
+        throw new VSSError(this.screen.ERROR_CODE.OUT_OF_RANGE, this.screen.ERROR.OUT_OF_RANGE)
+      }
+      if (this.screen.datetimeRange) {
+        startTime = Math.max(startTime, this.screen.datetimeRange.startTime)
+        endTime = Math.min(endTime, this.screen.datetimeRange.endTime)
+      }
       const type = ['cloud', 'local']
       const axiosSource = axios.CancelToken.source()
       this.axiosSourceList.push(axiosSource)
+      startTime = parseInt(startTime + '')
+      endTime = parseInt(endTime + '')
       const res = await getDeviceRecordStatistic({
         type: type[this.screen.recordType],
         deviceId: this.screen.deviceId,
@@ -367,6 +443,10 @@ export class RecordManager {
    */
   private getRecordByTime(time: number) {
     return this.recordList.find(record => {
+      // 兼容statTime 和 endTime相等的情况
+      if (time === record.startTime && record.startTime === record.endTime) {
+        time++
+      }
       return (time! >= record.startTime) && (time! < record.endTime)
     })
   }
@@ -415,7 +495,7 @@ export class RecordManager {
     currentDate = new Date(new Date(new Date(currentDate * 1000)).toLocaleDateString()).getTime() / 1000
     if (currentDate) {
       const recordList = this.recordList && this.recordList.filter(record => {
-        return (record.endTime <= (currentDate + 24 * 60 * 60) && record.startTime >= currentDate)
+        return (getDateByTime(record.startTime, 's') === currentDate)
       })
       return {
         recordList: recordList.slice((pager.pageNum - 1) * pager.pageSize, pager.pageNum * pager.pageSize).map(record => ({
@@ -470,13 +550,14 @@ export class RecordManager {
       if (res.playUrl) {
         url = res.playUrl.flvUrl
         codec = res.video.codec
+        this.screen.errorMsg = null
       }
       return {
         url,
         codec
       }
     } catch (e) {
-      throw new Error(e)
+      throw new VSSError(e.code, e.message, null)
     }
   }
 }

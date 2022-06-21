@@ -273,6 +273,16 @@ export default class CreateMixin extends Vue {
   }
 
   /**
+   * 变换为自动拉流后选择默认流
+   */
+  public onPullTypeChange(payload: number) {
+    console.log(payload)
+    if (!this.form.autoStreamNum && payload === 1) {
+      this.form.autoStreamNum = 1
+    }
+  }
+
+  /**
    * 当资源包改变时获取资源包详情（包含接入剩余设备数）
    */
   public onResourceChange(payload: any) {

@@ -5,7 +5,7 @@ export const getRule = (msg) => {
   } else if (['人员数量阈值', '车辆数量阈值',
     '临停时间', '拥堵车辆阈值', '人员数量阈值',
     '脱岗超时时间', '睡岗超时时间', '临停时间',
-    '拥堵车辆阈值', '视野遮挡阈值', '徘徊时间'].includes(msg)) {
+    '拥堵车辆阈值', '视野遮挡阈值', '徘徊时间', '蜜蜂数量'].includes(msg)) {
     rule.push({ required: true, message: '不能为空', trigger: 'blur' })
     rule.push({
       validator: (rule, value, callback) => {
@@ -33,6 +33,18 @@ export const getRule = (msg) => {
         validator: (rule, value, callback) => {
           if (parseInt(value) > 600) {
             callback(new Error('需小于600'))
+          } else if (parseInt(value) === 0) {
+            callback(new Error('请输入大于等于1的整数'))
+          } else {
+            callback()
+          }
+        },
+        trigger: 'blur' })
+    } else if (msg === '蜜蜂数量') {
+      rule.push({
+        validator: (rule, value, callback) => {
+          if (parseInt(value) > 500) {
+            callback(new Error('需小于500'))
           } else if (parseInt(value) === 0) {
             callback(new Error('请输入大于等于1的整数'))
           } else {
@@ -70,6 +82,9 @@ export const formRule = {
   'algorithmMetadata.lingerInterval': getRule('徘徊时间'),
   'algorithmMetadata.areaThreshold': getRule('视野遮挡阈值'),
   'algorithmMetadata.trashRecycleType': getRule('细分检测项'),
+  'algorithmMetadata.helmetReflectiveType': getRule('检测项'),
+  'algorithmMetadata.animalDetectType': getRule('动物列表'),
+  beeNumber: getRule('蜜蜂数量'),
   period: getRule('起始时间')
 }
 
