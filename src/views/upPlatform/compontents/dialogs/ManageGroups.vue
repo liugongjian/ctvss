@@ -489,7 +489,6 @@ export default class extends Vue {
   private async checkCallback(data: any) {
     const dirTree: any = this.$refs.dirTree
     const node = dirTree.getNode(data.id)
-    console.log('checked node:', node)
     await this.checkNodes(dirTree, node)
   }
 
@@ -595,7 +594,6 @@ export default class extends Vue {
   }
 
   private selectSharedDevice(data: any, node: any) {
-    console.log('selectSharedDevice:', node)
     this.selectedNode = node
   }
 
@@ -621,7 +619,6 @@ export default class extends Vue {
   }
 
   private async handleDragendShared(draggingNode, endNode) {
-    console.log('tree2')
     const dirTree: any = this.$refs.dirTree
     const vgroupTree: any = this.$refs.vgroupTree
     if (endNode) {
@@ -640,16 +637,12 @@ export default class extends Vue {
         const checkedNodes = dirTree.getCheckedNodes(true, false)
         const allNodes = checkedNodes.map(data => dirTree.getNode(data.id))
         allNodes.push(draggingNode)
-        console.log('checkedNodes:', checkedNodes)
-        console.log('param1:', allNodes)
         // checkedNodes.push({ ...draggingData, dragInFlag: true })
         const allIPCNodes = allNodes.filter(node => node.data.type === 'ipc')
 
-        console.log('allIPCNodes:', allIPCNodes)
         // 查看选取设备中是否有nvr通道
         const devices = []
         allIPCNodes.forEach(node => {
-          debugger
           if (node.data.path[node.data.path.length - 2].type === 'nvr') {
             let findFlag = false
             devices.forEach(device => {
@@ -676,24 +669,28 @@ export default class extends Vue {
                   channelNum: node.data.channelNum,
                   channelName: node.data.label,
                   gbId: node.data.gbId,
-                  deviceId: node.data.id
+                  deviceId: node.data.id,
+                  deviceIp: node.data.deviceIp || '',
+                  deviceIpv6: node.data.deviceIpv6 || '',
+                  devicePort: node.data.devicePort || '',
                 }]
               })
             }
           } else {
             devices.push({
-              deviceId: node.data.id,
-              gbId: node.data.gbId,
-              upGbId: node.data.gbId,
-              deviceName: node.data.label,
-              deviceType: node.data.type,
-              inProtocol: node.data.inProtocol,
+              deviceId: node.data.id || '',
+              gbId: node.data.gbId || '',
+              upGbId: node.data.gbId || '',
+              deviceName: node.data.label || '',
+              deviceType: node.data.type || '',
+              inProtocol: node.data.inProtocol || '',
+              deviceIp: node.data.deviceIp || '',
+              deviceIpv6: node.data.deviceIpv6 || '',
+              devicePort: node.data.devicePort || '',
               channels: []
             })
           }
         })
-
-        console.log('devices:', devices)
 
         await shareDevice({
           platformId: this.platformId,
@@ -709,7 +706,6 @@ export default class extends Vue {
   }
 
   private handleDragend(draggingNode, endNode, position, event) {
-    console.log('tree1')
     const dirTree: any = this.$refs.dirTree
     const vgroupTree: any = this.$refs.vgroupTree
 
@@ -827,7 +823,7 @@ export default class extends Vue {
         deviceName: device.label,
         deviceType: device.type,
         inProtocol: device.inProtocol,
-        channels: []
+        channels: dir.type === 'nvr' ? dir.channels : []
       }))
     })
     return dirs
@@ -909,7 +905,6 @@ export default class extends Vue {
   }
 
   private dirTreeNodeDrag(data) {
-    console.log('drag data:')
     if (data.type === 'nvr') {
       return false
     }
