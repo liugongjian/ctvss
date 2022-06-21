@@ -630,7 +630,7 @@ export default class extends Vue {
 
   &__wrapper {
     height: 95vh;
-    overflow-y: scroll;
+    overflow-y: auto;
   }
 
   &__section {
@@ -643,6 +643,7 @@ export default class extends Vue {
     &__title {
       font-weight: bold;
       margin-bottom: 5%;
+      min-width: 180px;
     }
 
     ::v-deep .el-descriptions-item__label {
