@@ -1,18 +1,15 @@
 <template>
   <el-card @click.native="viewDetail">
     <div class="pic-wrapper">
-      <img ref="img" :src="pic.image" @error="nopic">
+      <img ref="img" :src="pic.imagePath" @error="nopic">
     </div>
     <div class="content-wrapper">
-      <el-descriptions :column="1" :colon="false">
-        <el-descriptions-item>
-          {{ pic.id }}
-        </el-descriptions-item>
-
-        <el-descriptions-item>
-          {{ pic.time }}
-        </el-descriptions-item>
-      </el-descriptions>
+      <div>
+        {{ `${id}id:` }}{{ pic.sourceId }}
+      </div>
+      <div>
+        {{ pic.recordTime }}
+      </div>
     </div>
   </el-card>
 </template>
@@ -25,10 +22,26 @@ import { decodeBase64 } from '@/utils/base64'
 })
 export default class extends Vue {
   @Prop() private pic!: any
-  @Prop() private id!: any
-  private picInfo = null
+  private picInfo: any = null
   private isPicLoaded: boolean = true
   private decodeBase64: Function = decodeBase64
+
+  private get id() {
+    switch (this.pic.type) {
+      case 0:
+        return '全部'
+      case 1:
+        return '人员'
+      case 2:
+        return '人脸'
+      case 3:
+        return '机动车'
+      case 4:
+        return '非机动车'
+      default:
+        return ''
+    }
+  }
 
   private nopic() {
     const img: any = this.$refs.img
@@ -37,7 +50,7 @@ export default class extends Vue {
     img.onerror = null // 防止闪图
   }
   private viewDetail() {
-    this.$emit('showDialogue', this.pic, this.id)
+    this.$emit('showDialogue', this.pic)
   }
 }
 </script>
@@ -72,17 +85,12 @@ export default class extends Vue {
     // height: 33%;
     padding: 10px 0;
 
-    ::v-deep .el-descriptions-item__container {
-      display: grid;
-      grid-template-columns: 35% 65%;
-
-      .el-descriptions-item__label.has-colon {
-        text-align: end;
-      }
-
-      .el-descriptions-item__label {
-        min-width: 0 !important;
-      }
+    & > div {
+      height: 50px;
+      font-size: 12px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
   }
 }

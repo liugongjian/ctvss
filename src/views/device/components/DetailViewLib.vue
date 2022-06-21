@@ -43,9 +43,8 @@
         </div>
         <div v-if="picInfos.length > 0 && !queryLoading.pic" class="card-wrapper">
           <ViewCard
-            v-for="(pic, index) in picInfos"
-            :id="index"
-            :key="index"
+            v-for="pic in picInfos"
+            :key="pic.id"
             :pic="pic"
             @showDialogue="showDialogue"
           />
@@ -54,7 +53,7 @@
           :current-page="pager.pageNum"
           :page-size="pager.pageSize"
           :page-sizes="[12,24,36,48,60]"
-          :total="pager.totalNum"
+          :total="pager.total"
           layout="total, sizes, prev, pager, next, jumper"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
@@ -78,8 +77,8 @@
                 :autoplay="false"
                 @change="changeCarousel"
               >
-                <el-carousel-item v-for="(pic,index) in picInfos" :key="pic.id" :name="index+''">
-                  <img :src="pic.image" :alt="pic.id">
+                <el-carousel-item v-for="(pic,index) in detailPic" :key="index" :name="index+''">
+                  <img :src="pic.imagePath" alt="">
                 </el-carousel-item>
               </el-carousel>
             </div>
@@ -88,40 +87,42 @@
                 <ul
                   class="list"
                   infinite-scroll-disabled="disabled"
-                  :style="`width:${300 * picInfos.length}px`"
+                  :style="`width:${300 * detailPic.length}px`"
                 >
                   <li
-                    v-for="(pic,index) in picInfos"
+                    v-for="(pic,index) in detailPic"
                     :key="index"
                     class="list-item"
                     :class="`${activeIndex === index ? 'active' : ''}`"
                     @click="active(index)"
                   >
-                    <img :src="pic.image" alt="">
-                      <el-tooltip effect="dark" :content="pic.id" placement="bottom">
-                        <div>sourceId:{{ (pic.id && pic.id.length > 5) ? pic.id.slice(0,5) + '...' : pic.id }}</div>
-                      </el-tooltip>
+                    <img :src="pic.imagePath" alt="">
+                    <el-tooltip effect="dark" :content="pic.id" placement="bottom">
+                      <div>sourceId:{{ (pic.id && pic.id.length > 5) ? pic.id.slice(0,5) + '...' : pic.id }}</div>
+                    </el-tooltip>
                   </li>
                 </ul>
               </div>
             </div>
           </div>
           <div class="dialogue-right">
-            <div class="dialogue-right__section">
-              <div class="dialogue-right__section__title">基础信息</div>
-              <el-descriptions :column="1" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
-                <el-descriptions-item label="人脸标识">{{ picInfos[activeIndex].id }}</el-descriptions-item>
-                <el-descriptions-item label="人脸标识">{{ picInfos[activeIndex].id }}</el-descriptions-item>
-                <el-descriptions-item label="人脸标识">{{ picInfos[activeIndex].id }}</el-descriptions-item>
-              </el-descriptions>
-            </div>
-            <div class="dialogue-right__section">
-              <div class="dialogue-right__section__title">图像列表</div>
-              <el-descriptions :column="1" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
-                <el-descriptions-item label="人脸标识">{{ picInfos[activeIndex].id }}</el-descriptions-item>
-                <el-descriptions-item label="人脸标识">{{ picInfos[activeIndex].id }}</el-descriptions-item>
-                <el-descriptions-item label="人脸标识">{{ picInfos[activeIndex].id }}</el-descriptions-item>
-              </el-descriptions>
+            <div class="dialogue-right__wrapper">
+              <div class="dialogue-right__section">
+                <div class="dialogue-right__section__title">基础信息</div>
+                <div v-if="picInfos[activeIndex].type === 'ViidFace'" :column="1" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
+                  <div v-for="(val,key) in peopleInfos" :key="val" style="margin-top: 5px;line-height: 18px;">
+                    <span v-if="picInfos[activeIndex][key]" style="font-weight: bold;">{{ val }}:</span>
+                    <span v-if="picInfos[activeIndex][key]">{{ '  ' + picInfos[activeIndex][key] }}</span>
+                  <!-- <el-descriptions-item v-for="(val,key) in peopleInfos" :key="val" :label="key">{{ picInfos[activeIndex][val] }}</el-descriptions-item> -->
+                  </div>
+                </div>
+              </div>
+              <!-- <div class="dialogue-right__section">
+                <div class="dialogue-right__section__title">图像列表</div>
+                <el-descriptions :column="1" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
+                  <el-descriptions-item label="人脸标识">{{ picInfos[activeIndex].id }}</el-descriptions-item>
+                </el-descriptions>
+              </div> -->
             </div>
           </div>
         </div>
@@ -134,9 +135,9 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import ViewCard from './ViewCard.vue'
 import debounce from '@/utils/debounce'
-import { ViewTypes } from '@/dics/index'
-
-const sr = 'https://guiyang.vcn.ctyun.cn/vss-resource03_ai_wgw1-1/29942159419407308/ai/2022-05-20/20220520-144551-af4a63ee-a1d2-45c5-b81d-c90fd188cded.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=QK3UOU50KUN39XM4L3E1%2F20220520%2Fdefault%2Fs3%2Faws4_request&X-Amz-Date=20220520T065433Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=254df84025683a739a6a9bcc40d0e4c3136692185e0643dc893059fab625110b'
+import { ViewTypes, PeopleInfos } from '@/dics/index'
+import { getViewsList, getViewDetail } from '@/api/device'
+import { parseISO, lightFormat } from 'date-fns'
 
 @Component({
   name: 'DetailViewLib',
@@ -149,28 +150,30 @@ export default class extends Vue {
   @Prop() private inProtocol!: any
 
   private viewTypes = ViewTypes
-  private picInfos = [{ image: sr, id: '123', time: 'xx' }, { image: sr, id: '423', time: 'xx' }, { image: sr, id: '22', time: 'xx' }, { image: sr, id: '53', time: 'xx' }, { image: sr, id: '31', time: 'xx' }, { image: sr, id: '3', time: 'xx' }, { image: sr, id: '332', time: 'xx' }, { image: sr, id: '1312', time: 'xx' }, { image: sr, id: '44232', time: 'xx' }, { image: sr, id: '74', time: 'xx' }, { image: sr, id: '37', time: 'xx' }, { image: sr, id: '32', time: 'xx' }, { image: sr, id: '77', time: 'xx' }]
+  private picInfos = []
+  private detailPic = []
   private queryLoading: any = {
     pic: false
   }
   private pager = {
     pageNum: 1,
     pageSize: 12,
-    totalNum: 0
+    total: 0
   }
   private queryParam: any = {
     periodType: '今天',
-    period: [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)],
-    viewType: 'all'
+    period: [this.getTimeStamp(new Date().setHours(0, 0, 0, 0)), this.getTimeStamp(new Date().setHours(23, 59, 59, 999))],
+    viewType: '0'
   }
   private visibile = false
   private activeIndex = 0
+  private peopleInfos = PeopleInfos
 
-  private dialoguePic!: any
+  // private dialoguePic!: any
   // 防抖
   private debounceHandle = debounce(() => {
     Object.keys(this.queryLoading).forEach(key => { this.queryLoading[key] = true })
-    // this.getScreenShot()
+    this.getViewsList()
     // this.isCarFlowCode && this.getAlarmsList()
     Object.keys(this.queryLoading).forEach(key => { this.queryLoading[key] = false })
   }, 500)
@@ -189,19 +192,42 @@ export default class extends Vue {
   private periodTypeUpdated(newVal) {
     switch (newVal) {
       case '今天':
-        this.$set(this.queryParam, 'period', [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)])
+        this.$set(this.queryParam, 'period', [this.getTimeStamp(new Date().setHours(0, 0, 0, 0)), this.getTimeStamp(new Date().setHours(23, 59, 59, 999))])
         break
       case '近3天':
-        this.$set(this.queryParam, 'period', [this.getDateBefore(2), new Date().setHours(23, 59, 59, 999)])
+        this.$set(this.queryParam, 'period', [this.getTimeStamp(this.getDateBefore(2)), this.getTimeStamp(new Date().setHours(23, 59, 59, 999))])
         break
       case '自定义时间':
-        this.$set(this.queryParam, 'period', [this.getDateBefore(6), new Date().setHours(23, 59, 59, 999)])
+        this.$set(this.queryParam, 'period', [this.getTimeStamp(this.getDateBefore(6)), this.getTimeStamp(new Date().setHours(23, 59, 59, 999))])
         break
     }
   }
 
-  private async mounted() {
-    // this.getScreenShot()
+  private mounted() {
+    this.getViewsList()
+    console.log(this.peopleInfos)
+  }
+
+  private async getViewsList() {
+    const res = await getViewsList({
+      deviceId: this.deviceId,
+      startTime: this.queryParam.period[0],
+      endTime: this.queryParam.period[1],
+      type: this.queryParam.viewType
+    })
+    this.picInfos = res.data.map(x => ({
+      ...x,
+      recordTime: lightFormat(parseISO(x.recordTime), 'yyyy-MM-dd HH:mm:ss')
+    }))
+    const { pageNum, pageSize, total } = res
+    this.pager = { pageNum, pageSize, total }
+  }
+
+  /**
+   * 得到秒级时间戳
+   */
+  private getTimeStamp(milTimeStamp) {
+    return Math.trunc(milTimeStamp / 1000)
   }
 
   /**
@@ -228,14 +254,14 @@ export default class extends Vue {
      */
   private handleSizeChange(val: number) {
     this.pager.pageSize = val
-    this.getScreenShot()
+    this.getViewsList()
   }
   /**
      * 分页操作
      */
   private handleCurrentChange(val: number) {
     this.pager.pageNum = val
-    this.getScreenShot()
+    this.getViewsList()
   }
 
   /**
@@ -248,13 +274,23 @@ export default class extends Vue {
   private dialogueOprate() {
     this.visibile = !this.visibile
   }
-  private showDialogue(pic, activeId) {
-    this.visibile = true
-    this.dialoguePic = pic
-    this.$nextTick(() => {
-      this.active(activeId)
-      this.changeCarousel(activeId)
+  private async showDialogue(pic) {
+    const res = await getViewDetail({
+      deviceId: this.deviceId,
+      type: 2,
+      id: pic.id
     })
+    this.detailPic = res?.data
+    this.$nextTick(() => {
+      // TODO   这里得问下雪萍两个图片得关联ID如何做
+      this.detailPic.length > 0 && this.detailPic.forEach((item, index) => {
+        if (pic.id === item.ImageId) {
+          this.active(index)
+          this.changeCarousel(index)
+        }
+      })
+    })
+    this.visibile = true
   }
   private async refresh() {
     this.debounceHandle()
@@ -570,7 +606,11 @@ export default class extends Vue {
   flex-direction: column;
   justify-content: start;
   align-items: center;
-  overflow: auto;
+
+  &__wrapper {
+    height: 95vh;
+    overflow-y: scroll;
+  }
 
   &__section {
     margin-bottom: 12%;
