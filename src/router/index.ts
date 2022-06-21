@@ -621,7 +621,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: 'GA1400凭证',
           icon: 'dot',
           perms: ['*'],
-          tags: ['ga14001'],
+          tags: ['ga1400'],
           activeMenu: '/certificate/ga1400'
         }
       },
