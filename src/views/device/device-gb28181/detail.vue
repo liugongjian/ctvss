@@ -240,13 +240,13 @@
                     </el-descriptions>
                   </div>
                 </el-tab-pane>
-                <el-tab-pane v-if="hasViewLib" label="视图接入" name="view">
+                <el-tab-pane v-if="hasViewLib && viewLibInfo" label="视图接入" name="view">
                   <div class="detail__section">
                     <div class="detail__title">状态信息</div>
                     <el-descriptions :column="2">
                       <el-descriptions-item label="设备状态">
                         <status-badge :status="viewLibInfo.status" />
-                        {{ viewLibStatus && viewLibStatus[viewLibInfo.status] || '-' }}
+                        {{ viewLibStatus[viewLibInfo.status] || '-' }}
                       </el-descriptions-item>
                     </el-descriptions>
                   </div>

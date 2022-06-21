@@ -147,6 +147,11 @@
             {{ deviceStatus[row.deviceStatus] || '-' }}
           </template>
         </el-table-column>
+        <el-table-column v-if="isGb" key="inProtocol" prop="inProtocol" label="接入协议" min-width="100">
+          <template slot-scope="{row}">
+            {{ 'GB28181' + (row.apeId && '、GA1400') }}
+          </template>
+        </el-table-column>
         <el-table-column
           key="streamStatus1"
           column-key="streamStatus1"
@@ -219,6 +224,11 @@
         <el-table-column v-if="isGb || isNVR" key="gbId" prop="gbId" label="国标ID" min-width="190">
           <template slot-scope="{row}">
             {{ row.gbId || '-' }}
+          </template>
+        </el-table-column>
+        <el-table-column v-if="isGb || isNVR" key="apeId" prop="apeId" label="视图ID" min-width="190">
+          <template slot-scope="{row}">
+            {{ row.apeId || '-' }}
           </template>
         </el-table-column>
         <el-table-column v-if="isGb || !isNVR" key="sipTransType" prop="sipTransType" label="信令传输模式" min-width="110">

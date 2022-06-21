@@ -48,6 +48,7 @@
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
 import { createPlatform, updatePlatform, getPlatform } from '@/api/upPlatform'
+import { createViewLibUpPlatform, updateViewLibUpPlatform } from '@/api/viewLib'
 
 @Component({
   name: 'CreateUpPlatform'

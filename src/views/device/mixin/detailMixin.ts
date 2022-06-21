@@ -74,7 +74,6 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   public algoTabTypeDefault = ''
   public showResourceDialog = false
   public activeTabPane = 'video'
-  public hasViewLib = false
   public viewLibInfo: ViewLib | null = null
 
   public tips = DeviceTips
@@ -125,6 +124,13 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
 
   public get isGb() {
     return this.$route.query.inProtocol === 'gb28181' || this.$route.query.realGroupInProtocol === 'gb28181'
+  }
+
+  public get hasViewLib() {
+    if (!this.info.apeId) {
+      this.activeTabPane = 'video'
+    }
+    return !!this.info.apeId
   }
 
   public get isVGroup() {
@@ -289,7 +295,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
         deviceId: this.deviceId,
         inProtocol: this.inProtocol
       })
-      if (this.inProtocol === 'gb28181') {
+      if (this.isGb && this.hasViewLib) {
         await this.getViewLibInfo()
       }
       /**
@@ -356,12 +362,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
    */
   public async getViewLibInfo() {
     const { data } = await getViewLibInfo({ deviceId: this.deviceId })
-    if (this.deviceId === data.deviceId) {
-      this.viewLibInfo = data
-      this.hasViewLib = true
-    } else {
-      this.hasViewLib = false
-    }
+    this.viewLibInfo = data
   }
 
   /**

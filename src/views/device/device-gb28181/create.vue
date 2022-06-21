@@ -577,7 +577,10 @@ export default class extends Mixins(createMixin) {
       const info = await getDevice({
         deviceId: this.form.deviceId
       })
-      await this.getViewLibInfo()
+      if (info.apeId) {
+        this.hasViewLib = true
+        await this.getViewLibInfo()
+      }
       const usedChannelNum = info.deviceChannels.map((channel: any) => {
         return channel.channelNum
       })
@@ -841,15 +844,13 @@ export default class extends Mixins(createMixin) {
    * 获取视图库信息
    */
   private async getViewLibInfo() {
+    console.log(this.hasViewLib)
     const { data } = await getViewLibInfo({ deviceId: this.deviceId })
-    if (data.deviceId && (data.deviceId === this.deviceId)) {
-      this.hasViewLib = true
-      this.tabPaneList.push({ label: '视图接入', name: 'view' })
-      this.ga1400Form.apeType = data.apeType
-      this.ga1400Form.certId = data.certId
-      this.ga1400Form.ipAddr = data.ipAddr
-      this.ga1400Form.port = data.port
-    }
+    this.tabPaneList.push({ label: '视图接入', name: 'view' })
+    this.ga1400Form.apeType = data.apeType
+    this.ga1400Form.certId = data.certId
+    this.ga1400Form.ipAddr = data.ipAddr
+    this.ga1400Form.port = data.port
   }
 
   /**

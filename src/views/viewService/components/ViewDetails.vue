@@ -43,7 +43,7 @@
       </el-descriptions>
     </div>
     <div slot="footer" class="dialog-footer">
-      <el-button type="primary" @click="closeDialog">确 定</el-button>
+      <el-button @click="closeDialog">关 闭</el-button>
     </div>
   </el-dialog>
 </template>

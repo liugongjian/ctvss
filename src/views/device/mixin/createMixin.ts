@@ -60,10 +60,12 @@ export default class CreateMixin extends Vue {
       { required: true, message: '请选择账号', trigger: 'change' }
     ],
     ipAddr: [
-      { required: true, validator: this.validateDeviceIp, trigger: 'blur' }
+      { required: true, message: '请填写IP地址', trigger: 'change' },
+      { validator: this.validateDeviceIp, trigger: 'blur' }
     ],
     port: [
-      { required: true, validator: this.validateDevicePort, trigger: 'change' }
+      { required: true, message: '请填写端口号', trigger: 'change' },
+      { validator: this.validateDevicePort, trigger: 'blur' }
     ]
   }
 

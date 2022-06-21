@@ -22,10 +22,10 @@
         <el-table-column prop="createdTime" label="级联状态" min-width="160" />
         <el-table-column prop="createdTime" label="IP" min-width="160" />
         <el-table-column prop="createdTime" label="端口" min-width="160" />
-        <el-table-column prop="action" label="操作" width="150" fixed="right">
+        <el-table-column prop="action" label="操作" width="200" fixed="right">
           <template slot-scope="{row}">
-            <!-- <el-button type="text" @click="1">启用</el-button>
-            <el-button type="text" @click="1">停用</el-button> -->
+            <el-button type="text" @click="1">启用</el-button>
+            <!-- <el-button type="text" @click="1">停用</el-button> -->
             <el-button type="text" @click="dialog.viewDetails = true">查看</el-button>
             <el-button type="text" @click="edit(row)">编辑</el-button>
             <el-button type="text" @click="deleteCertificate(row)">删除</el-button>
@@ -54,6 +54,7 @@ import { dateFormatInTable } from '@/utils/date'
 import { getList, deleteCertificate } from '@/api/certificate/gb28181'
 import { GB28181 } from '@/type/certificate'
 import ViewDetails from './components/ViewDetails.vue'
+import { enableViewLibUpPlatform, stopViewLibUpPlatform, getViewLibPlatformList } from '@/api/viewLib'
 
 @Component({
   name: 'CertificateGb28181List',
