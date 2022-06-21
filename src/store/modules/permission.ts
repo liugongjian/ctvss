@@ -5,38 +5,40 @@ import store from '@/store'
 import { getLocalStorage } from '@/utils/storage'
 import casService from '@/services/casService'
 
-const hasPermission = (perms: string[], route: RouteConfig) => {
-  if (route.meta && route.meta.perms) {
-    return perms.some(perm => route.meta.perms.includes(perm))
-  } else {
-    return true
-  }
+interface IMatchFn {
+  (infos: string[], route: RouteConfig): boolean
 }
 
-export const filterAsyncRoutes = (routes: RouteConfig[], perms: string[]) => {
+const hasPermission: IMatchFn = (perms, route) => {
+  if (route.meta && route.meta.perms) {
+    return perms.some(perm => route.meta.perms.includes(perm))
+  }
+  return true
+}
+
+const hasTags: IMatchFn = (tags, route) => {
+  if (route.meta && route.meta.tags) {
+    return route.meta.tags.every(neededTag => tags.indexOf(neededTag) !== -1)
+  }
+  return true
+}
+
+const filterAsyncRoutes = (matchFn: IMatchFn, routes: RouteConfig[], infos: string[]) => {
   const res: RouteConfig[] = []
   routes.forEach(route => {
     const r = { ...route }
-    if (hasPermission(perms, r)) {
+    if (matchFn(infos, r)) {
       if (r.children) {
-        r.children = filterAsyncRoutes(r.children, perms)
+        r.children = filterAsyncRoutes(matchFn, r.children, infos)
       }
       res.push(r)
     }
-    // iam3.0 分权分域版本注销该部分，改为使用原先的判断逻辑，自顶向下判断
-    // if (r.children) {
-    //   r.children = filterAsyncRoutes(r.children, perms)
-    //   if (r.children && r.children.length > 0) {
-    //     res.push(r)
-    //   }
-    // } else {
-    //   if (hasPermission(perms, r)) {
-    //     res.push(r)
-    //   }
-    // }
   })
   return res
 }
+
+export const filterAsyncRoutesByPerms = filterAsyncRoutes.bind(null, hasPermission)
+export const filterAsyncRoutesByTags = filterAsyncRoutes.bind(null, hasTags)
 
 export interface IPermissionState {
   routes: RouteConfig[]
@@ -55,7 +57,7 @@ class Permission extends VuexModule implements IPermissionState {
   }
 
   @Action
-  public GenerateRoutes(params: { perms: string[], iamUserId: string }) {
+  public GenerateRoutes(params: { tags: string[], perms: string[], iamUserId: string }) {
     let accessedRoutes
     let filteredRoutes = asyncRoutes
     if (params.iamUserId) {
@@ -63,14 +65,12 @@ class Permission extends VuexModule implements IPermissionState {
     }
 
     // 根据route.meta.tags及用户tags过滤路由
-    const tags = store.state.user.tags || ({})
-    const userTagList = Object.keys(tags).filter(key => tags[key] === 'Y')
-    filteredRoutes = filteredRoutes.filter(route => !route.meta.tags || route.meta.tags.every(neededTag => userTagList.indexOf(neededTag) !== -1))
+    filteredRoutes = filterAsyncRoutesByTags(filteredRoutes, params.tags)
 
     if (params.perms.includes('*')) {
       accessedRoutes = filteredRoutes
     } else {
-      accessedRoutes = filterAsyncRoutes(filteredRoutes, params.perms)
+      accessedRoutes = filterAsyncRoutesByPerms(filteredRoutes, params.perms)
     }
     this.SET_ROUTES(accessedRoutes)
     if (getLocalStorage('casLoginId')) {
