@@ -9,7 +9,7 @@
           </el-button>
         </div>
       </div>
-      <el-table v-loading="loading" :data="dataList" fit>
+      <el-table v-loading="loading" :data="dataList" fit @row-click="viewDetails">
         <el-table-column label="平台ID/名称" min-width="200">
           <template slot-scope="{row}">
             <div class="device-list__device-name">
@@ -29,10 +29,10 @@
         <el-table-column prop="port" label="端口" min-width="160" />
         <el-table-column prop="action" label="操作" width="200" fixed="right">
           <template slot-scope="{row}">
-            <el-button v-if="row.isActive" type="text" @click="stopViewLibUpPlatform(row.cascadeViidId)">停用</el-button>
-            <el-button v-else type="text" @click="enableViewLibUpPlatform(row.cascadeViidId)">启用</el-button>
-            <el-button type="text" @click="viewDetails(row)">查看</el-button>
-            <el-button type="text" @click="edit(row)">编辑</el-button>
+            <el-button v-if="row.isActive" type="text" @click.stop="stopViewLibUpPlatform(row.cascadeViidId)">停用</el-button>
+            <el-button v-else type="text" @click.stop="enableViewLibUpPlatform(row.cascadeViidId)">启用</el-button>
+            <el-button type="text" @click.stop="viewDetails(row)">查看</el-button>
+            <el-button type="text" @click.stop="edit(row)">编辑</el-button>
             <!-- <el-button type="text" @click="deleteCertificate(row)">删除</el-button> -->
           </template>
         </el-table-column>
@@ -70,14 +70,12 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
   }
 })
 export default class extends Vue {
-  private enableViewLibUpPlatform = enableViewLibUpPlatform
-  private stopViewLibUpPlatform = stopViewLibUpPlatform
   private userType = ''
   private userName = ''
   private loading = false
   private dataList = []
   private pager = {
-    pageNum: 0,
+    pageNum: 1,
     pageSize: 10,
     total: 0
   }
@@ -105,7 +103,7 @@ export default class extends Vue {
   private async getList() {
     this.loading = true
     let params = {
-      pageNum: this.pager.pageNum,
+      pageNum: this.pager.pageNum - 1,
       pageSize: this.pager.pageSize
     }
     try {
@@ -123,7 +121,8 @@ export default class extends Vue {
   /**
    * 查看级联详情
    */
-  private viewDetails(row) {
+  private viewDetails(row, column?: any) {
+    if (column && column.property === 'action') return
     this.platformDetails = row
     this.dialog.viewDetails = true
   }
@@ -134,7 +133,7 @@ export default class extends Vue {
   }
 
   private async handleCurrentChange(val: number) {
-    this.pager.pageNum = val - 1
+    this.pager.pageNum = val
     await this.getList()
   }
 
@@ -149,13 +148,31 @@ export default class extends Vue {
     this.$router.push('/view-service/up-platform/create')
   }
 
-  private edit(row: GB28181) {
+  /**
+   * 编辑
+   */
+  private edit(row: any) {
     this.$router.push({
       name: 'view-up-platform-update',
       params: {
-        userName: row.userName
+        platformDetails: row
       }
     })
+  }
+
+  /**
+   * 启用
+   */
+  private async enableViewLibUpPlatform(cascadeViidId) {
+    await enableViewLibUpPlatform(cascadeViidId)
+    this.getList()
+  }
+  /**
+   * 停止
+   */
+  private async stopViewLibUpPlatform(cascadeViidId) {
+    await stopViewLibUpPlatform(cascadeViidId)
+    this.getList()
   }
 
   private async deleteCertificate(row: GB28181) {

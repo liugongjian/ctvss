@@ -15,9 +15,9 @@ export const createViewLibUpPlatform = (params: any) =>
  */
 export const updateViewLibUpPlatform = (params: any) =>
   request({
-    url: `/viid/cascade_viids/${1}`,
+    url: `/viid/cascade_viids/${params[0]}`,
     method: 'put',
-    data: params
+    data: params[1]
   })
 
 /**

@@ -73,6 +73,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { createViewLibUpPlatform, updateViewLibUpPlatform } from '@/api/viewLib'
 import { getRegions } from '@/api/region'
+import { pick } from 'lodash'
 
 @Component({
   name: 'CreateUpPlatform'
@@ -91,6 +92,7 @@ export default class extends Vue {
     keepaliveInterval: 60,
     description: null
   }
+  private cascadeViidId = ''
   private submitting = false
   private loading = false
   private regionList = []
@@ -139,8 +141,10 @@ export default class extends Vue {
 
   private async getPlatformInfo() {
     this.loading = true
-    // this.form.regionCode = this.getRegionPath(this.regionList, platform.regionCode)
-    // this.form = Object.assign(this.form, platform)
+    const platformDetails: any = this.$route.params.platformDetails
+    Object.assign(this.form, pick(platformDetails, ['name', 'apsId', 'network', 'username', 'password', 'ipAddr', 'port']))
+    this.cascadeViidId = platformDetails.cascadeViidId
+    this.form.regionCode = this.getRegionPath(this.regionList, platformDetails.regionCode)
     this.loading = false
   }
 
@@ -170,9 +174,8 @@ export default class extends Vue {
           this.submitting = true
           const params = Object.assign({}, this.form)
           params.regionCode = this.form.regionCode && this.form.regionCode[1]
-          console.log(params)
           if (this.isUpdate) {
-            await updateViewLibUpPlatform(params)
+            await updateViewLibUpPlatform([this.cascadeViidId, params])
             this.$message.success('修改向上级联平台成功！')
           } else {
             await createViewLibUpPlatform(params)

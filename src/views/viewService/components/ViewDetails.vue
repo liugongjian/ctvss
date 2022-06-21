@@ -14,7 +14,7 @@
           {{ platformDetails.cascadeViidId || '-' }}
         </el-descriptions-item>
         <el-descriptions-item label="平台名称：">
-          {{ platformDetails.cascadeViidId || '-' }}
+          {{ platformDetails.name || '-' }}
         </el-descriptions-item>
         <el-descriptions-item label="视频编码：">
           {{ platformDetails.apsId || '-' }}
@@ -54,9 +54,6 @@ export default class extends Vue {
   @Prop({ default: {} })
   private platformDetails
   private dialogVisible = true
-  private mounted() {
-    console.log(this.platformDetails)
-  }
   private closeDialog() {
     this.$emit('on-close')
   }
