@@ -109,11 +109,29 @@
             <div class="dialogue-right__wrapper">
               <div class="dialogue-right__section">
                 <div class="dialogue-right__section__title">基础信息</div>
-                <div v-if="picInfos[activeIndex].type === 'ViidFace'" :column="1" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
+                <div v-if="picInfos[activeIndex].type === '1'" :column="1" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
                   <div v-for="(val,key) in peopleInfos" :key="val" style="margin-top: 5px;line-height: 18px;">
                     <span v-if="picInfos[activeIndex][key]" style="font-weight: bold;">{{ val }}:</span>
                     <span v-if="picInfos[activeIndex][key]">{{ '  ' + picInfos[activeIndex][key] }}</span>
                   <!-- <el-descriptions-item v-for="(val,key) in peopleInfos" :key="val" :label="key">{{ picInfos[activeIndex][val] }}</el-descriptions-item> -->
+                  </div>
+                </div>
+                <div v-if="picInfos[activeIndex].type === '2'" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
+                  <div v-for="(val,key) in faceInfos" :key="val" style="margin-top: 5px;line-height: 18px;">
+                    <span v-if="picInfos[activeIndex][key]" style="font-weight: bold;">{{ val }}:</span>
+                    <span v-if="picInfos[activeIndex][key]">{{ '  ' + picInfos[activeIndex][key] }}</span>
+                  </div>
+                </div>
+                <div v-if="picInfos[activeIndex].type === '3'" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
+                  <div v-for="(val,key) in motorInfos" :key="val" style="margin-top: 5px;line-height: 18px;">
+                    <span v-if="picInfos[activeIndex][key]" style="font-weight: bold;">{{ val }}:</span>
+                    <span v-if="picInfos[activeIndex][key]">{{ '  ' + picInfos[activeIndex][key] }}</span>
+                  </div>
+                </div>
+                <div v-if="picInfos[activeIndex].type === '4'" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
+                  <div v-for="(val,key) in nonMotorInfos" :key="val" style="margin-top: 5px;line-height: 18px;">
+                    <span v-if="picInfos[activeIndex][key]" style="font-weight: bold;">{{ val }}:</span>
+                    <span v-if="picInfos[activeIndex][key]">{{ '  ' + picInfos[activeIndex][key] }}</span>
                   </div>
                 </div>
               </div>
@@ -130,12 +148,12 @@
     </div>
   </div>
 </template>
-
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import ViewCard from './ViewCard.vue'
 import debounce from '@/utils/debounce'
-import { ViewTypes, PeopleInfos } from '@/dics/index'
+import { ViewTypes } from '@/dics/index'
+import { PeopleInfos, FaceInfos, MotorInfos, NonMotorInfos } from '@/dics/ga1400'
 import { getViewsList, getViewDetail } from '@/api/device'
 import { parseISO, lightFormat } from 'date-fns'
 
@@ -168,6 +186,9 @@ export default class extends Vue {
   private visibile = false
   private activeIndex = 0
   private peopleInfos = PeopleInfos
+  private faceInfos = FaceInfos
+  private motorInfos = MotorInfos
+  private nonMotorInfos = NonMotorInfos
 
   // private dialoguePic!: any
   // 防抖
@@ -609,7 +630,7 @@ export default class extends Vue {
 
   &__wrapper {
     height: 95vh;
-    overflow-y: scroll;
+    overflow-y: auto;
   }
 
   &__section {
@@ -622,6 +643,7 @@ export default class extends Vue {
     &__title {
       font-weight: bold;
       margin-bottom: 5%;
+      min-width: 180px;
     }
 
     ::v-deep .el-descriptions-item__label {
