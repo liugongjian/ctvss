@@ -5,7 +5,7 @@ const isHttps = process.argv[process.argv.length - 1] === '--https'
 const name = '天翼云视频云网平台-客户控制台'
 const serverAddressMapping = {
   local: 'https://9190.guiyang.vcn.ctyun.cn', // 本地环境
-  dev: 'https://182.43.127.35:9190', // 开发环境
+  dev: 'https://9190.guiyang.vcn.ctyun.cn', // 开发环境
   dev1: 'http://182.43.127.35:9050', // 开发环境dev-1
   dev2: 'http://182.43.127.35:9060', // 新环境
   test: 'http://182.43.127.35:9180', // 测试环境

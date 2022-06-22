@@ -456,11 +456,12 @@ export default class extends Vue {
           sharedFlag = true
         }
         return {
+          ...dir,
           id: dir.id,
           groupId: node.data.groupId,
           label: dir.label,
           inProtocol: dir.inProtocol || node.data.inProtocol,
-          channelNum: dir.channelNum || 0,
+          channelNum: dir.channelNum + '' || '0',
           isLeaf: dir.isLeaf,
           type: dir.type,
           deviceStatus: dir.deviceStatus,
@@ -591,6 +592,7 @@ export default class extends Vue {
       const node = dirTree.getNode(data.id)
       dirTree.setChecked(data.id, !node.checked)
     }
+    console.log('tree node:', data)
   }
 
   private selectSharedDevice(data: any, node: any) {
@@ -648,7 +650,7 @@ export default class extends Vue {
             devices.forEach(device => {
               if (node.data.path[node.data.path.length - 2].id === device.deviceId) {
                 device.channels.push({
-                  channelNum: node.data.channelNum,
+                  channelNum: node.data.channelNum + '',
                   channelName: node.data.label,
                   gbId: node.data.gbId,
                   deviceId: node.data.id
@@ -658,6 +660,7 @@ export default class extends Vue {
             })
             if (!findFlag) {
               const parent = node.data.path[node.data.path.length - 2]
+              console.log('node:', node)
               devices.push({
                 deviceId: parent.id,
                 gbId: parent.gbId,
@@ -666,7 +669,7 @@ export default class extends Vue {
                 deviceType: parent.type,
                 inProtocol: parent.inProtocol,
                 channels: [{
-                  channelNum: node.data.channelNum,
+                  channelNum: node.data.channelNum + '',
                   channelName: node.data.label,
                   gbId: node.data.gbId,
                   deviceId: node.data.id,
