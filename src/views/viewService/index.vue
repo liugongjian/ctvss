@@ -70,8 +70,6 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
   }
 })
 export default class extends Vue {
-  private userType = ''
-  private userName = ''
   private loading = false
   private dataList = []
   private pager = {
@@ -165,6 +163,7 @@ export default class extends Vue {
    */
   private async enableViewLibUpPlatform(cascadeViidId) {
     await enableViewLibUpPlatform(cascadeViidId)
+    this.$message.success('启用成功！')
     this.getList()
   }
   /**
@@ -172,6 +171,7 @@ export default class extends Vue {
    */
   private async stopViewLibUpPlatform(cascadeViidId) {
     await stopViewLibUpPlatform(cascadeViidId)
+    this.$message.success('停用成功！')
     this.getList()
   }
 

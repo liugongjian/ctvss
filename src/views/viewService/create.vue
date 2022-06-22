@@ -13,7 +13,7 @@
         <el-form-item label="平台名称:" prop="name">
           <el-input v-model="form.name" />
         </el-form-item>
-        <el-form-item label="视频编码:" prop="apsId">
+        <el-form-item label="视图编码:" prop="apsId">
           <el-input v-model="form.apsId" />
         </el-form-item>
         <el-form-item prop="regionCode" class="form-with-tip">

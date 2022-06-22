@@ -10,16 +10,16 @@
   >
     <div class="detail__section">
       <el-descriptions :column="2">
-        <el-descriptions-item label="平台ID：">
+        <el-descriptions-item label="平台ID">
           {{ platformDetails.cascadeViidId || '-' }}
         </el-descriptions-item>
-        <el-descriptions-item label="平台名称：">
+        <el-descriptions-item label="平台名称">
           {{ platformDetails.name || '-' }}
         </el-descriptions-item>
-        <el-descriptions-item label="视频编码：">
+        <el-descriptions-item label="视频编码">
           {{ platformDetails.apsId || '-' }}
         </el-descriptions-item>
-        <el-descriptions-item label="服务器IP地址：">
+        <el-descriptions-item label="服务器IP地址">
           {{ platformDetails.ipAddr || '-' }}
         </el-descriptions-item>
         <el-descriptions-item label="服务器端口">
@@ -62,8 +62,35 @@ export default class extends Vue {
 
 <style lang="scss" scoped>
 .detail__section {
-  padding: 0 50px;
+  padding: 0 15px;
   overflow: hidden;
+}
+::v-deep .el-descriptions {
+  &__header {
+    margin: 10px 0;
+  }
+
+  &-item {
+    vertical-align: top;
+
+    &__content {
+      word-break: break-all;
+    }
+
+    &__label {
+      min-width: 100px;
+      text-align: right;
+      color: $textGrey;
+    }
+  }
+
+  td {
+    padding: 10px 0;
+  }
+
+  .el-link {
+    margin-left: 10px;
+  }
 }
 .dialog-footer {
   margin-top: 30px;

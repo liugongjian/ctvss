@@ -173,6 +173,7 @@ export default class CreateMixin extends Vue {
       confirmButtonText: '确定',
       cancelButtonText: '取消'
     }).then(async() => {
+      this.activeTabPane = 'view'
       this.tabPaneList.push({ label: '视图接入', name: 'view' })
     })
   }
