@@ -254,7 +254,7 @@
                     <div class="detail__title">接入信息</div>
                     <el-descriptions :column="2">
                       <el-descriptions-item label="视图编码">
-                        {{ viewLibInfo.viidServerId || '-' }}
+                        {{ viewLibInfo.apeId || '-' }}
                       </el-descriptions-item>
                       <el-descriptions-item label="GA1400凭证">
                         {{ viewLibInfo.certName }}
