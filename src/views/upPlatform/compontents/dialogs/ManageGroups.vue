@@ -581,6 +581,7 @@ export default class extends Vue {
   }
 
   private selectSharedDevice(data: any, node: any) {
+    console.log('data:', data)
     this.selectedNode = node
   }
 
@@ -772,7 +773,7 @@ export default class extends Vue {
 
   private async confirm() {
     const list = JSON.parse(JSON.stringify(this.sharedDirList))
-
+    debugger
     if (list.length === 0) {
       return this.$message({
         message: '没有要提交的内容',
@@ -798,23 +799,23 @@ export default class extends Vue {
     const vgroupTree: any = this.$refs.vgroupTree
     const devices = []
     const dirs = []
-    list.forEach(item => {
-      const node = vgroupTree.getNode(item)
-      console.log('item:', item)
-      console.log('node:', node)
-      if (item.type === 'ipc') {
-        devices.push(item)
-      } else if (item.type === 'nvr') {
-        devices.push({ ...item,
-          channels: node.childNodes.map(childNode => ({
-            ...childNode.data,
-            upGbId: this.gbIdMode === 'vgroup' ? childNode.data.gbIdVgroup : childNode.data.gbIdDistrict
-          }))
-        })
-      } else {
-        dirs.push(...this.generateParam(item, item.children))
-      }
-    })
+    if (list) {
+      list.forEach(item => {
+        const node = vgroupTree.getNode(item)
+        if (item.type === 'ipc') {
+          devices.push(item)
+        } else if (item.type === 'nvr') {
+          devices.push({ ...item,
+            channels: node.childNodes.map(childNode => ({
+              ...childNode.data,
+              upGbId: this.gbIdMode === 'vgroup' ? childNode.data.gbIdVgroup : childNode.data.gbIdDistrict
+            }))
+          })
+        } else {
+          dirs.push(...this.generateParam(item, item.children))
+        }
+      })
+    }
     dirs.push({
       dirId: dir.dirId,
       gbId: this.gbIdMode === 'vgroup' ? dir.gbIdVgroup : dir.gbIdDistrict,
@@ -843,6 +844,7 @@ export default class extends Vue {
       if (opParam.selectedNode.level !== 1) {
         this.forceRefreshChildren(vgroupTree, opParam.type === 'append' ? opParam.selectedNode : opParam.selectedNode.parent)
       } else {
+        // 根节点更新
         this.initSharedDirs()
       }
     } else {
@@ -912,12 +914,12 @@ export default class extends Vue {
 
   private generateDistrictGbId(rootId, leafId) {
     // node.data.path[0].gbIdDistrict + (channel.gbId || '')
-    const rootIdLength = rootId.length
-    const leafIdLength = leafId.length
+    const rootIdLength = rootId.length // 8
+    const leafIdLength = leafId.length // > 8
     if (rootIdLength >= leafIdLength) {
       return rootId
     }
-    return rootId + leafId.substring(rootIdLength - 1)
+    return rootId + leafId.substring(rootIdLength)
   }
 }
 </script>
