@@ -594,7 +594,6 @@ export default class extends Vue {
       const node = dirTree.getNode(data.id)
       dirTree.setChecked(data.id, !node.checked)
     }
-    console.log('tree node:', data)
   }
 
   private selectSharedDevice(data: any, node: any) {
@@ -798,7 +797,6 @@ export default class extends Vue {
     }
     let param = []
     list.forEach(item => param.push(...this.generateParam(item, item.children)))
-
     try {
       await shareDevice({
         platformId: this.platformId,
@@ -813,16 +811,20 @@ export default class extends Vue {
   }
 
   private generateParam(dir, list) {
+    const vgroupTree: any = this.$refs.vgroupTree
     const devices = []
     const dirs = []
     list.forEach(item => {
+      const node = vgroupTree.getNode(item)
+      console.log('item:', item)
+      console.log('node:', node)
       if (item.type === 'ipc') {
         devices.push(item)
       } else if (item.type === 'nvr') {
         devices.push({ ...item,
-          channels: item.children.map(child => ({
-            ...child,
-            upGbId: this.gbIdMode === 'vgroup' ? child.gbIdVgroup : child.gbIdDistrict
+          channels: node.childNodes.map(childNode => ({
+            ...childNode.data,
+            upGbId: this.gbIdMode === 'vgroup' ? childNode.data.gbIdVgroup : childNode.data.gbIdDistrict
           }))
         })
       } else {
