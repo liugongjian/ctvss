@@ -295,7 +295,8 @@ export default class extends Vue {
     this.loading.sharedDir = true
     if (node.data.dragInFlag) { // 对新darg入的节点进行加载
       res = await this.getTree(node)
-    } else { // 对已共享的目录进行加载
+    } else {
+      // 对已共享的目录进行加载
       if (node.data.type === 'nvr') {
         res = node.data.channels.map(channel => {
           return {
@@ -325,6 +326,7 @@ export default class extends Vue {
           }
         })
       } else {
+        // 目录
         const dirs = await this.getSharedDirs(node)
         const devices = await this.getSharedTree(node)
         res = [...dirs, ...devices]
@@ -401,8 +403,8 @@ export default class extends Vue {
           realGroupInProtocol: node.data.realGroupInProtocol || '',
 
           gbId: dir.gbId,
-          gbIdDistrict: node.data.path[0].gbIdDistrict + (dir.gbId || ''),
-          gbIdVgroup: dir.gbId || '',
+          gbIdDistrict: node.data.path[0].gbIdDistrict + (dir.upGbId || ''),
+          gbIdVgroup: dir.upGbId || '',
           gbIdDistrictRoot: node.data.path[0].gbIdDistrict
         }
       })
