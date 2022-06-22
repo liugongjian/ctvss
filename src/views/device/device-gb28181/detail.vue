@@ -253,7 +253,7 @@
                   <div class="detail__section">
                     <div class="detail__title">接入信息</div>
                     <el-descriptions :column="2">
-                      <el-descriptions-item label="视图ID">
+                      <el-descriptions-item label="视图编码">
                         {{ viewLibInfo.viidServerId || '-' }}
                       </el-descriptions-item>
                       <el-descriptions-item label="GA1400凭证">
