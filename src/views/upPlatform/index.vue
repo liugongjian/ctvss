@@ -126,6 +126,8 @@
                 :data="dataList"
                 :height="tableMaxHeight"
                 fit
+                row-key="deviceId"
+                :tree-props="{children: 'channels', hasChildren: 'hasChildren'}"
                 @selection-change="handleSelectionChange"
               >
                 <el-table-column type="selection" prop="selection" class-name="col-selection" width="55" />
@@ -462,6 +464,7 @@ export default class extends Vue {
           this.$message.error(e && e.message)
         }
       }
+      console.log('this.dataList:', this.dataList)
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
@@ -592,7 +595,6 @@ export default class extends Vue {
       })
 
       const dirs = res.dirs.map((dir: any) => {
-        console.log('dir:', dir)
         return {
           ...dir,
           groupId: node.data.groupId,
@@ -825,6 +827,13 @@ export default class extends Vue {
 
     .device-list__max-height {
       padding: 15px;
+
+      .el-table {
+        ::v-deep .cell {
+          display: flex;
+          align-items: center;
+        }
+      }
     }
 
     .empty-text {
@@ -832,4 +841,5 @@ export default class extends Vue {
     }
   }
 }
+
 </style>
