@@ -19,6 +19,7 @@ declare global {
     deleteMarker?: any,
     replayMarker?: any,
     previewMarker?: any,
+    _AMapSecurityConfig?: any
   }
 }
 
@@ -57,12 +58,15 @@ export interface markerEventHandlers {
 }
 
 export const getAMapLoad = () => {
+  window._AMapSecurityConfig = {
+    securityJsCode:'c2a13cfa2724b2aecf4af86c7dfcb3e2',
+  }
   return new Promise((resolve, reject) => {
     if (window.AMap) {
       resolve(window.AMap)
     } else {
       AMapLoader.load({
-        'key': '7f0b2bbe4de7b251916b60012a6fbe3d',
+        'key': '9a9dac9cd0638cf37e2277ec8e60c0ee',
         'version': '2.0',
         'plugins': ['AMap.MarkerCluster', 'AMap.HawkEye', 'AMap.AutoComplete', 'AMap.Scale', 'AMap.ControlBar', 'AMap.IndexCluster']
       }).then((AMap) => {
