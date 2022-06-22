@@ -14,7 +14,7 @@ function checkPermission(el: any, binding: any) {
       // el.parentNode && el.parentNode.removeChild(el)
     }
   } else {
-    throw new Error(`need roles! Like v-permission="['GET']"`)
+    throw new Error('need roles! Like v-permission="[\'GET\']"')
   }
 }
 export const permission: DirectiveOptions = {

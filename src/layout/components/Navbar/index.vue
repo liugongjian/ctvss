@@ -58,17 +58,19 @@
           <!-- <div v-for="group in aiGroups" :key="group.name" class="dropdown">
             {{ group.name }} <svg-icon name="arrow-down2" width="8" height="8" />
              -->
-          <div v-for="item in aiInfos" :key="item.name" class="dropdown" :style="{width: `${item.name.length * 16 + 56}px`}">
-            {{ item.name }} <svg-icon name="arrow-down2" width="8" height="8" />
-            <ul class="dropdown__menu" :style="{width: `${item.name.length * 16 + 56}px`}">
-              <!-- <li v-for="aiType in group.children" :key="aiType" :class="{'actived': queryAlertType === aiType.toString()}" @click="routeToAI(aiType)">
-                {{ alertType[aiType] }}
-              </li> -->
-              <li v-for="app in item.apps" :key="app.id" @click="goToApp(app.id)">
-                {{ app.name }}
-              </li>
-            </ul>
-          </div>
+          <template v-if="checkPermission(['DescribeAi'])">
+            <div v-for="item in aiInfos" :key="item.name" class="dropdown" :style="{width: `${item.name.length * 16 + 56}px`}">
+              {{ item.name }} <svg-icon name="arrow-down2" width="8" height="8" />
+              <ul class="dropdown__menu" :style="{width: `${item.name.length * 16 + 56}px`}">
+                <!-- <li v-for="aiType in group.children" :key="aiType" :class="{'actived': queryAlertType === aiType.toString()}" @click="routeToAI(aiType)">
+                    {{ alertType[aiType] }}
+                  </li> -->
+                <li v-for="app in item.apps" :key="app.id" @click="goToApp(app.id)">
+                  {{ app.name }}
+                </li>
+              </ul>
+            </div>
+          </template>
         </div>
       </template>
       <template v-else>
@@ -130,7 +132,6 @@ import HeaderSearch from '@/components/HeaderSearch/index.vue'
 import Screenfull from '@/components/Screenfull/index.vue'
 import SizeSelect from '@/components/SizeSelect/index.vue'
 import TemplateBind from '@/views/components/templateBind.vue'
-import { checkPermission } from '@/utils/permission'
 import DashboardMixin from '@/views/dashboard/mixin/DashboardMixin'
 import * as loginService from '@/services/loginService'
 
@@ -166,7 +167,6 @@ import * as loginService from '@/services/loginService'
 })
 export default class extends Mixins(DashboardMixin) {
   private lazyloadTimer = null
-  private checkPermission = checkPermission
   private alertType = AlertType
   private aiGroups = AiGroups
   private aiInfos = []
