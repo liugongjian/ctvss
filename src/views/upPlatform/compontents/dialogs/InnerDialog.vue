@@ -6,16 +6,16 @@
     append-to-body
     @close="closeDialog"
   >
-    <el-form v-if="type === 'append' || type === 'edit'" :label-position="'right'" label-width="130px">
-      <el-form-item label="分组名">
+    <el-form v-if="type === 'append' || type === 'edit'" :label-position="'right'" label-width="130px" :rules="rules">
+      <el-form-item label="分组名" prop="dirName">
         <el-input v-model="form.dirName" placeholder="请输入目录名称" class="form__input" />
       </el-form-item>
-      <el-form-item v-if="mode === 'vgroup'" label="所属行业">
+      <el-form-item v-if="mode === 'vgroup'" label="所属行业" prop="industryCode">
         <el-select v-model="form.industryCode" placeholder="请选择所属行业">
           <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
         </el-select>
       </el-form-item>
-      <el-form-item label="上级平台区域">
+      <el-form-item label="上级平台区域" prop="gbRegion">
         <AddressCascader
           :code="form.gbRegion"
           :level="form.gbRegionLevel"
@@ -60,6 +60,18 @@ export default class extends Vue {
   @Prop()
   private mode!: String
 
+  private rules = {
+    // dirName: [
+    //   { required: true, message: '请输入目录名称', trigger: 'blur' }
+    // ],
+    // industryCode: [
+    //   { required: true, message: '请输入所属行业', trigger: 'blur' }
+    // ],
+    // gbRegion: [
+    //   { required: true, message: '请输入上级平台区域', trigger: 'blur' }
+    // ]
+  }
+
   private currentNode!: any
   private form: any = {
     id: '',
@@ -83,8 +95,6 @@ export default class extends Vue {
   private async mounted() {
     this.currentNode = this.selectedNode
     switch (this.type) {
-      case 'append':
-        break
       case 'edit': {
         try {
           this.form = await describeCascadeDir({
@@ -96,10 +106,6 @@ export default class extends Vue {
         }
         break
       }
-      case 'deleteGroup':
-        // 接口没看到
-        this.form = this.selectedNode.data
-        break
       default:
         break
     }
@@ -140,10 +146,11 @@ export default class extends Vue {
             platformId: this.platformId,
             dirs: [{ ...this.form,
               parentDirId: this.currentNode?.data.dirId || '-1',
-              dirType: this.mode === 'district' && this.currentNode ? '0' : '1'
+              dirType: this.mode === 'vgroup' && !this.currentNode ? '0' : '1'
             }]
           }
           await createCascadeDir(param)
+
           break
         }
         case 'edit': {
@@ -162,7 +169,7 @@ export default class extends Vue {
         }
         case 'deleteGroup': {
           const paramDel = {
-            dirId: this.form.dirId,
+            dirId: this.currentNode.data.dirId,
             platformId: this.platformId
           }
           await deleteCascadeDir(paramDel)
@@ -195,5 +202,11 @@ export default class extends Vue {
   display: flex;
   justify-content: center;
   margin-bottom: 20px;
+}
+
+.el-form-item {
+  .el-cascader--medium {
+    width: fill-available;
+  }
 }
 </style>

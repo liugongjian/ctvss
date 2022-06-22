@@ -9,36 +9,38 @@
   >
     <div class="dialog-wrap">
       <div v-show="step === 0" v-loading="loading.dir" class="tree-wrap">
-        <el-tree
-          ref="dirTree"
-          node-key="id"
-          lazy
-          show-checkbox
-          :data="dirList"
-          :load="loadDirs"
-          :props="treeProp"
-          :check-strictly="false"
-          :allow-drag="allowDrag"
-          :expand-on-click-node="false"
-          draggable
-          :allow-drop="() => false"
-          @node-drag-start="handleDragstart"
-          @node-drag-end="handleDragend"
-          @check="checkCallback"
-          @check-change="onCheckDevice"
-          @node-click="selectDevice"
-        >
-          <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}" @drag="() => dirTreeNodeDrag(data)">
-            <span class="node-name">
-              <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
-              <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
-              <span v-else class="node-dir">
-                <svg-icon name="dir-close" width="15" height="15" />
+        <div class="tree-wrap__sub">
+          <el-tree
+            ref="dirTree"
+            node-key="id"
+            lazy
+            show-checkbox
+            :data="dirList"
+            :load="loadDirs"
+            :props="treeProp"
+            :check-strictly="false"
+            :allow-drag="allowDrag"
+            :expand-on-click-node="false"
+            draggable
+            :allow-drop="() => false"
+            @node-drag-start="handleDragstart"
+            @node-drag-end="handleDragend"
+            @check="checkCallback"
+            @check-change="onCheckDevice"
+            @node-click="selectDevice"
+          >
+            <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}">
+              <span class="node-name">
+                <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
+                <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
+                <span v-else class="node-dir">
+                  <svg-icon name="dir-close" width="15" height="15" />
+                </span>
+                {{ node.label }}
               </span>
-              {{ node.label }}
             </span>
-          </span>
-        </el-tree>
+          </el-tree>
+        </div>
       </div>
       <div v-loading="loading.sharedDir" class="tree-wrap">
         <div class="tree-wrap__sub">
@@ -86,7 +88,7 @@
       <el-button v-if="step === 0" type="primary" :disabled="sharedDirList.length === 0 || loading.sharedDir || loading.dir" @click="next">下一步</el-button>
       <el-button v-if="step === 1" type="primary" :disabled="loading.sharedDir" @click="prev">上一步</el-button>
       <el-button v-if="step === 1" type="primary" :disabled="loading.sharedDir" @click="confirm">确 定</el-button>
-      <el-button @click="closeDialog">取 消</el-button>
+      <el-button @click="() => closeDialog(true)">取 消</el-button>
     </div>
     <InnerDialog
       v-if="innerVisible"
@@ -306,8 +308,8 @@ export default class extends Vue {
             label: channel.channelName,
             inProtocol: channel.inProtocol || node.data.inProtocol,
             // isLeaf: dir.isLeaf || true,
-            isLeaf: channel.deviceType === 'ipc',
-            type: channel.deviceType,
+            isLeaf: true,
+            type: 'ipc',
             deviceStatus: channel.deviceStatus,
             streamStatus: channel.streamStatus,
             // disabled: dir.type !== 'ipc' || sharedFlag,
@@ -320,7 +322,7 @@ export default class extends Vue {
             realGroupInProtocol: node.data.realGroupInProtocol || '',
 
             gbId: channel.gbId,
-            gbIdDistrict: node.data.path[0].gbIdDistrict + (channel.gbId || ''),
+            gbIdDistrict: this.generateDistrictGbId(node.data.path[0].gbIdDistrict, channel.gbId || ''),
             gbIdVgroup: channel.gbId || '',
             gbIdDistrictRoot: node.data.path[0].gbIdDistrict
           }
@@ -354,7 +356,7 @@ export default class extends Vue {
         dragInFlag: false,
         path: node.data.path.concat([dir]),
 
-        gbIdDistrict: node.data.path[0].gbIdDistrict + dir.gbId || '',
+        gbIdDistrict: this.generateDistrictGbId(node.data.path[0].gbIdDistrict, dir.gbId || ''),
         gbIdVgroup: dir.gbId || '',
         gbIdDistrictRoot: node.data.path[0].gbIdDistrict
       }
@@ -403,7 +405,7 @@ export default class extends Vue {
           realGroupInProtocol: node.data.realGroupInProtocol || '',
 
           gbId: dir.gbId,
-          gbIdDistrict: node.data.path[0].gbIdDistrict + (dir.upGbId || ''),
+          gbIdDistrict: this.generateDistrictGbId(node.data.path[0].gbIdDistrict, dir.upGbId || ''),
           gbIdVgroup: dir.upGbId || '',
           gbIdDistrictRoot: node.data.path[0].gbIdDistrict
         }
@@ -477,7 +479,7 @@ export default class extends Vue {
           dragInFlag: !!node.data?.dragInFlag,
 
           gbId: dir.gbId,
-          gbIdDistrict: node.data.path[0].gbIdDistrict + (dir.gbId || ''),
+          gbIdDistrict: this.generateDistrictGbId(node.data.path[0].gbIdDistrict, dir.gbId || ''),
           gbIdVgroup: dir.gbId || '',
           gbIdDistrictRoot: node.data.path[0].gbIdDistrict
         }
@@ -565,24 +567,6 @@ export default class extends Vue {
     dirTree.updateKeyChildren(node.data.id, dirs)
     node.expanded = true
     node.loaded = true
-  }
-
-  private async expandSingleSharedDir(dirTree: any, node: any) {
-    let dirs = []
-
-    // 如果节点是原有的（已共享的）
-    if (node.loaded) {
-      node.expanded = true
-    } else {
-      try {
-        dirs = await this.loadAll(node)
-      } catch (e) {
-        dirs = []
-      }
-      dirTree.updateKeyChildren(node.data.id, dirs)
-      node.expanded = true
-      node.loaded = true
-    }
   }
 
   /**
@@ -856,7 +840,11 @@ export default class extends Vue {
     // 刷新某个节点
     if (opParam.selectedNode) {
       // 有选择节点
-      this.forceRefreshChildren(vgroupTree, opParam.type === 'append' ? opParam.selectedNode : opParam.selectedNode.parent)
+      if (opParam.selectedNode.level !== 1) {
+        this.forceRefreshChildren(vgroupTree, opParam.type === 'append' ? opParam.selectedNode : opParam.selectedNode.parent)
+      } else {
+        this.initSharedDirs()
+      }
     } else {
       // 无选择节点：创建根目录
       const res = await describeShareDirs({
@@ -916,17 +904,20 @@ export default class extends Vue {
     if (data.children && data.children.length > 0) {
       data.children.forEach(child => {
         child.gbIdDistrictRoot = val
-        child.gbIdDistrict = val + child.gbId
+        child.gbIdDistrict = this.generateDistrictGbId(val, child.gbId)
         this.changeGbIdDistrictRoot(child, val)
       })
     }
   }
 
-  private dirTreeNodeDrag(data) {
-    if (data.type === 'nvr') {
-      return false
+  private generateDistrictGbId(rootId, leafId) {
+    // node.data.path[0].gbIdDistrict + (channel.gbId || '')
+    const rootIdLength = rootId.length
+    const leafIdLength = leafId.length
+    if (rootIdLength >= leafIdLength) {
+      return rootId
     }
-    return true
+    return rootId + leafId.substring(rootIdLength - 1)
   }
 }
 </script>

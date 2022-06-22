@@ -592,12 +592,13 @@ export default class extends Vue {
       })
 
       const dirs = res.dirs.map((dir: any) => {
+        console.log('dir:', dir)
         return {
           ...dir,
           groupId: node.data.groupId,
           inProtocol: node.data.inProtocol,
           platformId: this.currentPlatform.platformId,
-          type: this.dirTypeMap[dir.dirType],
+          type: 'dir',
           label: dir.dirName,
           id: dir.dirId
         }
