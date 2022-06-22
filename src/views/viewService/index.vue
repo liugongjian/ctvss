@@ -18,7 +18,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="apsId" label="视频编码" min-width="250" />
+        <el-table-column prop="apsId" label="视图编码" min-width="250" />
         <el-table-column prop="isOnline" label="级联状态" min-width="160">
           <template slot-scope="{row}">
             <status-badge :status="row.isOnline ? 'on' : 'off'" />

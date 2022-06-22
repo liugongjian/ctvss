@@ -16,7 +16,7 @@
         <el-descriptions-item label="平台名称">
           {{ platformDetails.name || '-' }}
         </el-descriptions-item>
-        <el-descriptions-item label="视频编码">
+        <el-descriptions-item label="视图编码">
           {{ platformDetails.apsId || '-' }}
         </el-descriptions-item>
         <el-descriptions-item label="服务器IP地址">
