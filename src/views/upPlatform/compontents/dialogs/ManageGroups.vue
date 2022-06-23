@@ -300,6 +300,7 @@ export default class extends Vue {
     } else {
       // 对已共享的目录进行加载
       if (node.data.type === 'nvr') {
+        // nvr设备无需请求，只需构造节点
         res = node.data.channels.map(channel => {
           return {
             ...channel,
@@ -639,7 +640,10 @@ export default class extends Vue {
                   channelNum: node.data.channelNum + '',
                   channelName: node.data.label,
                   gbId: node.data.gbId,
-                  deviceId: node.data.id
+                  deviceId: node.data.id,
+                  deviceIp: node.data.deviceIp || '',
+                  deviceIpv6: node.data.deviceIpv6 || '',
+                  devicePort: node.data.devicePort || ''
                 })
                 findFlag = true
               }
