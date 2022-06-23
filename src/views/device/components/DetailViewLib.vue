@@ -43,8 +43,8 @@
         </div>
         <div v-if="picInfos.length > 0 && !queryLoading.pic" class="card-wrapper">
           <ViewCard
-            v-for="pic in picInfos"
-            :key="pic.imageId"
+            v-for="(pic,index) in picInfos"
+            :key="index"
             :pic="pic"
             @showDialogue="showDialogue"
           />
@@ -77,7 +77,7 @@
                 :autoplay="false"
                 @change="changeCarousel"
               >
-                <el-carousel-item v-for="(pic,index) in detailPic.SubImageList" :key="index" :name="index+''">
+                <el-carousel-item v-for="(pic,index) in detailPic.subImageList" :key="index" :name="index+''">
                   <img :src="pic.imagePath" alt="">
                 </el-carousel-item>
               </el-carousel>
@@ -90,7 +90,7 @@
                   :style="`width:${300 * detailPic.length}px`"
                 >
                   <li
-                    v-for="(pic,index) in detailPic.SubImageList"
+                    v-for="(pic,index) in detailPic.subImageList"
                     :key="index"
                     class="list-item"
                     :class="`${activeIndex === index ? 'active' : ''}`"
@@ -292,8 +292,8 @@ export default class extends Vue {
       this.detailPic = res.data
       this.$nextTick(() => {
       // TODO   这里得问下雪萍两个图片得关联ID如何做
-        this.detailPic.SubImageList.length > 0 && this.detailPic.SubImageList.forEach((item, index) => {
-          if (pic.id === item.ImageId) {
+        this.detailPic.subImageList.length > 0 && this.detailPic.subImageList.forEach((item, index) => {
+          if (pic.id === item.imageId) {
             this.active(index)
             this.changeCarousel(index)
           }

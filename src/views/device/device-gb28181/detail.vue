@@ -310,6 +310,7 @@
           <detail-ai v-if="activeName==='ai'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
         <el-tab-pane v-if="hasViewLib && ga1400Flag" label="视图数据" name="viewlib">
+          <!-- <el-tab-pane label="视图数据" name="viewlib"> -->
           <detail-view-lib v-if="activeName==='viewlib'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
       </el-tabs>
