@@ -134,7 +134,7 @@ export default class extends Vue {
     label: 'label',
     children: 'children',
     isLeaf: 'isLeaf',
-    disabled: () => {}
+    disabled: data => data.sharedFlag
   }
   private innerDialogType = ''
 
@@ -473,7 +473,7 @@ export default class extends Vue {
           type: dir.type,
           deviceStatus: dir.deviceStatus,
           streamStatus: dir.streamStatus,
-          disabled: true,
+          disabled: sharedFlag,
           path: node.data.path.concat([{ ...dir, gbIdDistrict: dir.gbId || '', gbIdVgroup: dir.gbId || '' }]),
           sharedFlag: sharedFlag,
           roleId: node.data.roleId || '',

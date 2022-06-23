@@ -11,7 +11,7 @@ const serverAddressMapping = {
   test: 'http://182.43.127.35:9180', // 测试环境
   test1: 'http://182.43.127.35:9060', // 测试环境test-1
   test2: 'http://182.43.127.35:9080', // http 测试环境 test
-  pre: 'https://182.43.127.35:9070', // 预发布环境
+  pre: 'https://9070.guiyang.vcn.ctyun.cn', // 预发布环境
   prod: 'http://console.vcn.ctyun.cn' // 生产环境
 }
 const portMapping = {

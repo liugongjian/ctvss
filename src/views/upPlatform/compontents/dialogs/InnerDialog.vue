@@ -6,7 +6,7 @@
     append-to-body
     @close="closeDialog"
   >
-    <el-form v-if="type === 'append' || type === 'edit'" :label-position="'right'" label-width="130px" :rules="rules">
+    <el-form v-if="type === 'append' || type === 'edit'" ref="form" :label-position="'right'" label-width="130px" :rules="rules" :model="form">
       <el-form-item label="分组名" prop="dirName">
         <el-input v-model="form.dirName" placeholder="请输入目录名称" class="form__input" />
       </el-form-item>
@@ -61,15 +61,15 @@ export default class extends Vue {
   private mode!: String
 
   private rules = {
-    // dirName: [
-    //   { required: true, message: '请输入目录名称', trigger: 'blur' }
-    // ],
-    // industryCode: [
-    //   { required: true, message: '请输入所属行业', trigger: 'blur' }
-    // ],
-    // gbRegion: [
-    //   { required: true, message: '请输入上级平台区域', trigger: 'blur' }
-    // ]
+    dirName: [
+      { required: true, message: '请输入目录名称', trigger: 'blur' }
+    ],
+    industryCode: [
+      { required: true, message: '请选择所属行业', trigger: 'blur' }
+    ],
+    gbRegion: [
+      { required: true, message: '请选择上级平台区域', trigger: 'blur' }
+    ]
   }
 
   private currentNode!: any
@@ -139,56 +139,66 @@ export default class extends Vue {
   }
 
   private async submit() {
-    try {
-      switch (this.type) {
-        case 'append': {
-          const param = {
-            platformId: this.platformId,
-            dirs: [{ ...this.form,
-              parentDirId: this.currentNode?.data.dirId || '-1',
-              dirType: this.mode === 'vgroup' && !this.currentNode ? '0' : '1'
-            }]
-          }
-          await createCascadeDir(param)
+    let param = {}
+    let func
 
-          break
+    switch (this.type) {
+      case 'append': {
+        param = {
+          platformId: this.platformId,
+          dirs: [{ ...this.form,
+            parentDirId: this.currentNode?.data.dirId || '-1',
+            dirType: this.mode === 'vgroup' && !this.currentNode ? '0' : '1'
+          }]
         }
-        case 'edit': {
-          const paramEdit = {
-            dirId: this.form.dirId,
-            dirName: this.form.dirName,
-            description: this.form.description,
-            industryCode: this.form.industryCode,
-            gbRegion: this.form.gbRegion,
-            gbRegionLevel: this.form.gbRegionLevel,
-            platformId: this.platformId,
-            parentDirId: this.currentNode.parent.data.dirId || '-1'
-          }
-          await modifyCascadeDir(paramEdit)
-          break
+        func = createCascadeDir
+        break
+      }
+      case 'edit': {
+        param = {
+          dirId: this.form.dirId,
+          dirName: this.form.dirName,
+          description: this.form.description,
+          industryCode: this.form.industryCode,
+          gbRegion: this.form.gbRegion,
+          gbRegionLevel: this.form.gbRegionLevel,
+          platformId: this.platformId,
+          parentDirId: this.currentNode.parent.data.dirId || '-1'
         }
-        case 'deleteGroup': {
-          const paramDel = {
-            dirId: this.currentNode.data.dirId,
-            platformId: this.platformId
-          }
-          await deleteCascadeDir(paramDel)
-          break
+        func = modifyCascadeDir
+        break
+      }
+      case 'deleteGroup': {
+        param = {
+          dirId: this.currentNode.data.dirId,
+          platformId: this.platformId
         }
-        case 'deleteDevice': {
-          const paramDelDevice = {
-            platformId: this.platformId,
-            dirId: this.currentNode.parent.data.dirId,
-            devices: [{ deviceId: this.currentNode.data.id }]
-          }
-          await cancleShareDevice(paramDelDevice)
-          break
+        func = deleteCascadeDir
+        break
+      }
+      case 'deleteDevice': {
+        param = {
+          platformId: this.platformId,
+          dirId: this.currentNode.parent.data.dirId,
+          devices: [{ deviceId: this.currentNode.data.id }]
         }
-        default:
-          break
+        func = cancleShareDevice
+        break
+      }
+      default:
+        break
+    }
+    try {
+      if (this.type === 'append' || this.type === 'edit') {
+        const form: any = this.$refs.form
+        form.validate(async(valid: boolean) => {
+          valid && await func(param)
+        })
+      } else {
+        await func(param)
       }
       this.$emit('inner-op', { type: this.type, form: this.form, selectedNode: this.currentNode })
-
+      this.$message.success('操作成功')
       this.closeDialog()
     } catch (e) {
       this.$message.error('操作失败: ' + e.message)
@@ -205,7 +215,8 @@ export default class extends Vue {
 }
 
 .el-form-item {
-  .el-cascader--medium {
+  .el-cascader--medium,
+  .el-select {
     width: fill-available;
   }
 }
