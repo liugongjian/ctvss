@@ -110,7 +110,7 @@
               <div class="dialogue-right__section">
                 <div class="dialogue-right__section__title">基础信息</div>
                 <div :column="1" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
-                  <div v-for="(val,key) in objectInfos" :key="val" style="margin-top: 5px;line-height: 18px;">
+                  <div v-for="(val,key) in objectInfos" :key="key" style="margin-top: 5px;line-height: 18px;">
                     <span v-if="detailPic[key]" style="font-weight: bold;">{{ val }}:</span>
                     <span v-if="detailPic[key]">{{ '  ' + detailPic[key] }}</span>
                   </div>
@@ -285,24 +285,23 @@ export default class extends Vue {
     this.currentPic = pic
     try {
       const res = await getViewDetail({
-        deviceId: pic.deviceId,
+        deviceId: this.deviceId,
         type: pic.type,
         id: pic.id
       })
       this.detailPic = res.data
+      this.$nextTick(() => {
+      // TODO   这里得问下雪萍两个图片得关联ID如何做
+        this.detailPic.SubImageList.length > 0 && this.detailPic.SubImageList.forEach((item, index) => {
+          if (pic.id === item.ImageId) {
+            this.active(index)
+            this.changeCarousel(index)
+          }
+        })
+      })
     } catch (e) {
       console.log(e)
     }
-
-    this.$nextTick(() => {
-      // TODO   这里得问下雪萍两个图片得关联ID如何做
-      this.detailPic.SubImageList.length > 0 && this.detailPic.SubImageList.forEach((item, index) => {
-        if (pic.id === item.ImageId) {
-          this.active(index)
-          this.changeCarousel(index)
-        }
-      })
-    })
     this.visibile = true
   }
   private async refresh() {
