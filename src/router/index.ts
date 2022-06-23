@@ -524,7 +524,7 @@ export const asyncRoutes: RouteConfig[] = [
     redirect: 'noredirect',
     meta: {
       title: '视图服务',
-      icon: 'component',
+      icon: 'viewLib',
       alwaysShow: true,
       tags: ['ga1400'],
       perms: ['*']
