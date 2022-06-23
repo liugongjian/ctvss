@@ -211,6 +211,7 @@ export default class extends Vue {
             id: group.groupId,
             label: group.groupName,
             type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
+            inProtocol: group.inProtocol || '',
             gbIdDistrict: group.gbId || '',
             gbIdVgroup: group.gbId || '',
             gbIdDistrictRoot: group.gbId
@@ -261,6 +262,7 @@ export default class extends Vue {
               id: group.dirId,
               label: group.dirName,
               type: this.mode === 'vgroup' ? 'group' : 'top-group',
+              inProtocol: group.inProtocol || '',
               gbIdDistrict: group.gbId || '',
               gbIdVgroup: group.gbId || '',
               gbIdDistrictRoot: group.gbId
@@ -579,6 +581,7 @@ export default class extends Vue {
       const node = dirTree.getNode(data.id)
       dirTree.setChecked(data.id, !node.checked)
     }
+    console.log('data:', data)
   }
 
   private selectSharedDevice(data: any, node: any) {
@@ -610,8 +613,14 @@ export default class extends Vue {
   private async handleDragendShared(draggingNode, endNode) {
     const dirTree: any = this.$refs.dirTree
     const vgroupTree: any = this.$refs.vgroupTree
+    console.log('endNode:', endNode)
     if (endNode) {
-      if (endNode.data.type === 'ipc') {
+      if (endNode.data.type === 'ipc' || endNode.data.type === 'nvr') {
+        const draggingData = JSON.parse(JSON.stringify(draggingNode.data))
+        this.$nextTick(() => {
+          vgroupTree.remove(draggingData)
+        })
+        this.$message.error('请拖入目录')
         return false
       }
       setTimeout(() => {
@@ -631,6 +640,7 @@ export default class extends Vue {
 
         // 查看选取设备中是否有nvr通道
         const devices = []
+        console.log('allIPCNodes:', allIPCNodes)
         allIPCNodes.forEach(node => {
           if (node.data.path[node.data.path.length - 2].type === 'nvr') {
             let findFlag = false
@@ -640,6 +650,7 @@ export default class extends Vue {
                   channelNum: node.data.channelNum + '',
                   channelName: node.data.label,
                   gbId: node.data.gbId,
+                  upGbId: node.data.gbId,
                   deviceId: node.data.id,
                   deviceIp: node.data.deviceIp || '',
                   deviceIpv6: node.data.deviceIpv6 || '',
@@ -650,7 +661,7 @@ export default class extends Vue {
             })
             if (!findFlag) {
               const parent = node.data.path[node.data.path.length - 2]
-              console.log('node:', node)
+              console.log('parent:', parent)
               devices.push({
                 deviceId: parent.id,
                 gbId: parent.gbId,
@@ -662,6 +673,7 @@ export default class extends Vue {
                   channelNum: node.data.channelNum + '',
                   channelName: node.data.label,
                   gbId: node.data.gbId,
+                  upGbId: node.data.gbId,
                   deviceId: node.data.id,
                   deviceIp: node.data.deviceIp || '',
                   deviceIpv6: node.data.deviceIpv6 || '',
@@ -684,15 +696,18 @@ export default class extends Vue {
             })
           }
         })
-
-        await shareDevice({
-          platformId: this.platformId,
-          dirs: [{
-            dirId: endNode.data.dirId,
-            gbId: draggingNode.data.gbId,
-            devices
-          }]
-        })
+        try {
+          await shareDevice({
+            platformId: this.platformId,
+            dirs: [{
+              dirId: endNode.data.dirId,
+              gbId: endNode.data.gbId,
+              devices
+            }]
+          })
+        } catch (e) {
+          this.$message.error('共享设备失败 ：' + e)
+        }
         this.forceRefreshChildren(vgroupTree, endNode)
       }
     }
@@ -777,7 +792,6 @@ export default class extends Vue {
 
   private async confirm() {
     const list = JSON.parse(JSON.stringify(this.sharedDirList))
-    debugger
     if (list.length === 0) {
       return this.$message({
         message: '没有要提交的内容',
@@ -786,6 +800,8 @@ export default class extends Vue {
     }
     let param = []
     list.forEach(item => param.push(...this.generateParam(item, item.children)))
+    console.log('list:', list)
+    console.log('param:', param)
     try {
       await shareDevice({
         platformId: this.platformId,
@@ -875,6 +891,7 @@ export default class extends Vue {
               id: group.dirId,
               label: group.dirName,
               type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
+              inProtocol: group.inProtocol || '',
               gbIdDistrict: group.gbId || '',
               gbIdVgroup: group.gbId || '',
               gbIdDistrictRoot: group.gbId
