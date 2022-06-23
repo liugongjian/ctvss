@@ -531,7 +531,6 @@ export const getViewsList = (params: any): Promise<any> =>
  */
 export const getViewDetail = (params: any): Promise<any> =>
   request({
-    url: '/viid/videoImages',
-    method: 'get',
-    params
+    url: '/viid/videoImages/' + `${params.deviceId}/${params.type}/${params.id}`,
+    method: 'get'
   })

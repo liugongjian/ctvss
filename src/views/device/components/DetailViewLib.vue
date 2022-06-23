@@ -43,8 +43,8 @@
         </div>
         <div v-if="picInfos.length > 0 && !queryLoading.pic" class="card-wrapper">
           <ViewCard
-            v-for="pic in picInfos"
-            :key="pic.id"
+            v-for="(pic,index) in picInfos"
+            :key="index"
             :pic="pic"
             @showDialogue="showDialogue"
           />
@@ -77,7 +77,7 @@
                 :autoplay="false"
                 @change="changeCarousel"
               >
-                <el-carousel-item v-for="(pic,index) in detailPic" :key="index" :name="index+''">
+                <el-carousel-item v-for="(pic,index) in detailPic.subImageList" :key="index" :name="index+''">
                   <img :src="pic.imagePath" alt="">
                 </el-carousel-item>
               </el-carousel>
@@ -90,7 +90,7 @@
                   :style="`width:${300 * detailPic.length}px`"
                 >
                   <li
-                    v-for="(pic,index) in detailPic"
+                    v-for="(pic,index) in detailPic.subImageList"
                     :key="index"
                     class="list-item"
                     :class="`${activeIndex === index ? 'active' : ''}`"
@@ -109,29 +109,10 @@
             <div class="dialogue-right__wrapper">
               <div class="dialogue-right__section">
                 <div class="dialogue-right__section__title">基础信息</div>
-                <div v-if="picInfos[activeIndex].type === '1'" :column="1" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
-                  <div v-for="(val,key) in peopleInfos" :key="val" style="margin-top: 5px;line-height: 18px;">
-                    <span v-if="picInfos[activeIndex][key]" style="font-weight: bold;">{{ val }}:</span>
-                    <span v-if="picInfos[activeIndex][key]">{{ '  ' + picInfos[activeIndex][key] }}</span>
-                  <!-- <el-descriptions-item v-for="(val,key) in peopleInfos" :key="val" :label="key">{{ picInfos[activeIndex][val] }}</el-descriptions-item> -->
-                  </div>
-                </div>
-                <div v-if="picInfos[activeIndex].type === '2'" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
-                  <div v-for="(val,key) in faceInfos" :key="val" style="margin-top: 5px;line-height: 18px;">
-                    <span v-if="picInfos[activeIndex][key]" style="font-weight: bold;">{{ val }}:</span>
-                    <span v-if="picInfos[activeIndex][key]">{{ '  ' + picInfos[activeIndex][key] }}</span>
-                  </div>
-                </div>
-                <div v-if="picInfos[activeIndex].type === '3'" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
-                  <div v-for="(val,key) in motorInfos" :key="val" style="margin-top: 5px;line-height: 18px;">
-                    <span v-if="picInfos[activeIndex][key]" style="font-weight: bold;">{{ val }}:</span>
-                    <span v-if="picInfos[activeIndex][key]">{{ '  ' + picInfos[activeIndex][key] }}</span>
-                  </div>
-                </div>
-                <div v-if="picInfos[activeIndex].type === '4'" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
-                  <div v-for="(val,key) in nonMotorInfos" :key="val" style="margin-top: 5px;line-height: 18px;">
-                    <span v-if="picInfos[activeIndex][key]" style="font-weight: bold;">{{ val }}:</span>
-                    <span v-if="picInfos[activeIndex][key]">{{ '  ' + picInfos[activeIndex][key] }}</span>
+                <div :column="1" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
+                  <div v-for="(val,key) in objectInfos" :key="key" style="margin-top: 5px;line-height: 18px;">
+                    <span v-if="detailPic[key]" style="font-weight: bold;">{{ val }}:</span>
+                    <span v-if="detailPic[key]">{{ '  ' + detailPic[key] }}</span>
                   </div>
                 </div>
               </div>
@@ -169,7 +150,8 @@ export default class extends Vue {
 
   private viewTypes = ViewTypes
   private picInfos = []
-  private detailPic = []
+  private detailPic: any = {}
+  private currentPic: any = {}
   private queryLoading: any = {
     pic: false
   }
@@ -185,12 +167,19 @@ export default class extends Vue {
   }
   private visibile = false
   private activeIndex = 0
-  private peopleInfos = PeopleInfos
-  private faceInfos = FaceInfos
-  private motorInfos = MotorInfos
-  private nonMotorInfos = NonMotorInfos
 
-  // private dialoguePic!: any
+  private objectInfos() {
+    switch (this.currentPic.type) {
+      case 1 :
+        return PeopleInfos
+      case 2 :
+        return FaceInfos
+      case 3 :
+        return MotorInfos
+      case 4 :
+        return NonMotorInfos
+    }
+  }
   // 防抖
   private debounceHandle = debounce(() => {
     Object.keys(this.queryLoading).forEach(key => { this.queryLoading[key] = true })
@@ -226,7 +215,6 @@ export default class extends Vue {
 
   private mounted() {
     this.getViewsList()
-    console.log(this.peopleInfos)
   }
 
   private async getViewsList() {
@@ -234,7 +222,8 @@ export default class extends Vue {
       deviceId: this.deviceId,
       startTime: this.queryParam.period[0],
       endTime: this.queryParam.period[1],
-      type: this.queryParam.viewType
+      type: this.queryParam.viewType,
+      ...this.pager
     })
     this.picInfos = res.data.map(x => ({
       ...x,
@@ -259,9 +248,6 @@ export default class extends Vue {
     dd.setDate(dd.getDate() - dayCount)
     let time = dd.setHours(0, 0, 0)
     return time
-  }
-
-  private async initDeviceApp() {
   }
 
   /**
@@ -296,21 +282,26 @@ export default class extends Vue {
     this.visibile = !this.visibile
   }
   private async showDialogue(pic) {
-    const res = await getViewDetail({
-      deviceId: this.deviceId,
-      type: 2,
-      id: pic.id
-    })
-    this.detailPic = res?.data
-    this.$nextTick(() => {
-      // TODO   这里得问下雪萍两个图片得关联ID如何做
-      this.detailPic.length > 0 && this.detailPic.forEach((item, index) => {
-        if (pic.id === item.ImageId) {
-          this.active(index)
-          this.changeCarousel(index)
-        }
+    this.currentPic = pic
+    try {
+      const res = await getViewDetail({
+        deviceId: this.deviceId,
+        type: pic.type,
+        id: pic.id
       })
-    })
+      this.detailPic = res.data
+      this.$nextTick(() => {
+      // TODO   这里得问下雪萍两个图片得关联ID如何做
+        this.detailPic.subImageList.length > 0 && this.detailPic.subImageList.forEach((item, index) => {
+          if (pic.id === item.imageId) {
+            this.active(index)
+            this.changeCarousel(index)
+          }
+        })
+      })
+    } catch (e) {
+      console.log(e)
+    }
     this.visibile = true
   }
   private async refresh() {
