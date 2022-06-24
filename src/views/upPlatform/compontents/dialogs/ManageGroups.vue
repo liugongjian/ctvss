@@ -824,7 +824,6 @@ export default class extends Vue {
       }
       data[route[route.length - 1]].duplicateFlag = true
     })
-    // eslint-disable-next-line no-self-assign
     const addFlag = JSON.parse(JSON.stringify(this.sharedDirList))
     this.sharedDirList = addFlag
     console.log('duplicate:', duplicate)
