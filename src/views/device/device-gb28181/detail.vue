@@ -31,7 +31,7 @@
                 <el-descriptions-item label="业务组">
                   {{ groupInfo && groupInfo.groupName }}
                 </el-descriptions-item>
-                <template v-if="info && !isNVRChannel">
+                <template v-if="info && !isGbNVRChannel">
                   <el-descriptions-item label="设备名称">
                     {{ info.deviceName }}
                   </el-descriptions-item>
@@ -52,7 +52,7 @@
                   </el-descriptions-item>
                 </template>
                 <!--子通道信息-->
-                <template v-if="info && isNVRChannel">
+                <template v-if="info && isGbNVRChannel">
                   <el-descriptions-item v-if="info.deviceChannels.length" label="通道号">
                     {{ 'D' + info.deviceChannels[0].channelNum }}
                   </el-descriptions-item>
@@ -120,7 +120,7 @@
                     <div class="detail__title">接入信息</div>
                     <el-descriptions :column="2">
                       <!--通用信息-->
-                      <template v-if="info && !isNVRChannel">
+                      <template v-if="info && !isGbNVRChannel">
                         <el-descriptions-item label="设备IP">
                           {{ info.deviceIp || '-' }}
                         </el-descriptions-item>
@@ -132,7 +132,7 @@
                         </el-descriptions-item>
                       </template>
                       <!--子通道信息-->
-                      <template v-if="info && isNVRChannel">
+                      <template v-if="info && isGbNVRChannel">
                         <el-descriptions-item v-if="info.deviceChannels.length" label="通道号">
                           {{ 'D' + info.deviceChannels[0].channelNum }}
                         </el-descriptions-item>
