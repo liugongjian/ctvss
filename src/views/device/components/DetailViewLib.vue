@@ -162,7 +162,7 @@ export default class extends Vue {
   }
   private queryParam: any = {
     periodType: '今天',
-    period: [this.getTimeStamp(new Date().setHours(0, 0, 0, 0)), this.getTimeStamp(new Date().setHours(23, 59, 59, 999))],
+    period: [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)],
     viewType: '0'
   }
   private visibile = false
@@ -202,13 +202,13 @@ export default class extends Vue {
   private periodTypeUpdated(newVal) {
     switch (newVal) {
       case '今天':
-        this.$set(this.queryParam, 'period', [this.getTimeStamp(new Date().setHours(0, 0, 0, 0)), this.getTimeStamp(new Date().setHours(23, 59, 59, 999))])
+        this.$set(this.queryParam, 'period', [new Date().setHours(0, 0, 0, 0), new Date().setHours(23, 59, 59, 999)])
         break
       case '近3天':
-        this.$set(this.queryParam, 'period', [this.getTimeStamp(this.getDateBefore(2)), this.getTimeStamp(new Date().setHours(23, 59, 59, 999))])
+        this.$set(this.queryParam, 'period', [this.getDateBefore(2), new Date().setHours(23, 59, 59, 999)])
         break
       case '自定义时间':
-        this.$set(this.queryParam, 'period', [this.getTimeStamp(this.getDateBefore(6)), this.getTimeStamp(new Date().setHours(23, 59, 59, 999))])
+        this.$set(this.queryParam, 'period', [this.getDateBefore(6), new Date().setHours(23, 59, 59, 999)])
         break
     }
   }
@@ -220,8 +220,8 @@ export default class extends Vue {
   private async getViewsList() {
     const res = await getViewsList({
       deviceId: this.deviceId,
-      startTime: this.queryParam.period[0],
-      endTime: this.queryParam.period[1],
+      startTime: this.getTimeStamp(this.queryParam.period[0]),
+      endTime: this.getTimeStamp(this.queryParam.period[1]),
       type: this.queryParam.viewType,
       ...this.pager
     })
