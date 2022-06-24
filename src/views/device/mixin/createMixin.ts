@@ -148,7 +148,7 @@ export default class CreateMixin extends Vue {
       this.activeStep = val
     } else {
       const form: any = this.$refs.dataForm
-      let validArr = ['deviceName', 'deviceType', 'gbVersion', 'deviceVendor', 'industryCode', 'networkCode', 'gbRegion', 'longlat']
+      let validArr = ['deviceName', 'deviceType', 'deviceVendor', 'industryCode', 'networkCode', 'gbRegion', 'longlat']
       let valid = true
       form.validateField(validArr, (err) => {
         if (err !== '') {

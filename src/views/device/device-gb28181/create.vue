@@ -73,20 +73,6 @@
               type="number"
             />
           </el-form-item>
-          <el-form-item
-            v-if="form.deviceType === 'nvr' || isIPC"
-            label="国标版本:"
-            prop="gbVersion"
-          >
-            <el-radio-group v-model="form.gbVersion">
-              <el-radio-button
-                v-for="item in gbVersionList"
-                :key="item"
-                :label="item"
-                :value="item"
-              />
-            </el-radio-group>
-          </el-form-item>
           <el-form-item label="厂商:" prop="deviceVendor">
             <el-select v-model="form.deviceVendor">
               <el-option
@@ -177,6 +163,20 @@
             <el-form-item label="接入协议:" prop="inProtocol">
               <el-radio-group v-model="form.inProtocol">
                 <el-radio label="gb28181">{{ form.inProtocol && form.inProtocol.toUpperCase() }}</el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item
+              v-if="form.deviceType === 'nvr' || isIPC"
+              label="国标版本:"
+              prop="gbVersion"
+            >
+              <el-radio-group v-model="form.gbVersion">
+                <el-radio-button
+                  v-for="item in gbVersionList"
+                  :key="item"
+                  :label="item"
+                  :value="item"
+                />
               </el-radio-group>
             </el-form-item>
             <el-form-item label="设备类型:" prop="deviceType">
