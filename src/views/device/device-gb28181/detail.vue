@@ -54,10 +54,10 @@
                 <!--子通道信息-->
                 <template v-if="info && isGbNVRChannel">
                   <el-descriptions-item v-if="info.deviceChannels.length" label="通道号">
-                    {{ 'D' + info.deviceChannels[0].channelNum }}
+                    {{ 'D' + info.deviceChannels[0].channelNum || '-' }}
                   </el-descriptions-item>
                   <el-descriptions-item v-if="info.deviceChannels.length" label="通道名称">
-                    {{ info.deviceChannels[0].channelName }}
+                    {{ info.deviceChannels[0].channelName || '-' }}
                   </el-descriptions-item>
                   <el-descriptions-item label="设备厂商">
                     {{ info.deviceVendor || '-' }}
@@ -134,10 +134,10 @@
                       <!--子通道信息-->
                       <template v-if="info && isGbNVRChannel">
                         <el-descriptions-item v-if="info.deviceChannels.length" label="通道号">
-                          {{ 'D' + info.deviceChannels[0].channelNum }}
+                          {{ 'D' + info.deviceChannels[0].channelNum || '-' }}
                         </el-descriptions-item>
                         <el-descriptions-item v-if="info.deviceChannels.length" label="通道名称">
-                          {{ info.deviceChannels[0].channelName }}
+                          {{ info.deviceChannels[0].channelName || '-' }}
                         </el-descriptions-item>
                       </template>
                       <!--通用信息-->

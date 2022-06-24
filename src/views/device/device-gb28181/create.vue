@@ -146,7 +146,7 @@
             </el-select>
           </el-form-item>
           <el-form-item
-            v-if="(!isUpdate || form.networkCode || !deviceGbId) && networkFlag"
+            v-if="form.deviceType === 'platform' ||( (!isUpdate || form.networkCode || !deviceGbId) && networkFlag)"
             label="网络标识:"
             prop="networkCode"
           >
@@ -782,7 +782,8 @@ export default class extends Mixins(createMixin) {
         // Platform类型添加额外参数
         if (this.form.deviceType === 'platform') {
           params = Object.assign(params, {
-            gbId: this.form.gbId
+            gbId: this.form.gbId,
+            transPriority: this.form.transPriority
           })
         }
       } else {
