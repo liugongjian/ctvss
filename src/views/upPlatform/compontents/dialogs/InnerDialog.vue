@@ -179,7 +179,9 @@ export default class extends Vue {
       case 'deleteDevice': {
         param = {
           platformId: this.platformId,
-          dirId: this.currentNode.parent.data.dirId,
+          dirId: this.currentNode.parent.data.type !== 'nvr'
+            ? this.currentNode.parent.data.dirId
+            : this.currentNode.parent.parent.data.dirId,
           devices: [{ deviceId: this.currentNode.data.id }]
         }
         func = cancleShareDevice
@@ -189,21 +191,31 @@ export default class extends Vue {
         break
     }
     try {
+      console.log('this.type:', this.type)
       if (this.type === 'append' || this.type === 'edit') {
         const form: any = this.$refs.form
         form.validate(async(valid: boolean) => {
-          valid && await func(param)
+          if (valid) {
+            await func(param)
+            this.successInfo()
+          } else {
+            return false
+          }
         })
       } else {
         await func(param)
+        this.successInfo()
       }
-      this.$emit('inner-op', { type: this.type, form: this.form, selectedNode: this.currentNode })
-      this.$message.success('操作成功')
-      this.closeDialog()
     } catch (e) {
       this.$message.error('操作失败: ' + e.message)
       console.log(e)
     }
+  }
+
+  private successInfo() {
+    this.$emit('inner-op', { type: this.type, form: this.form, selectedNode: this.currentNode })
+    this.$message.success('操作成功')
+    this.closeDialog()
   }
 }
 </script>

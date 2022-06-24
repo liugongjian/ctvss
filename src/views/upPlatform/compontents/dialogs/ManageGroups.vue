@@ -70,6 +70,7 @@
                 <div class="node-input__label"><span>{{ node.data.gbId || '-' }}</span></div>
                 <div v-show="gbIdMode === 'district'"><el-input :value="data.gbIdDistrict" size="mini" @input="val => rootInput(node, data, val)" /></div>
                 <div v-show="gbIdMode === 'vgroup'"><el-input v-model="data.gbIdVgroup" size="mini" /></div>
+                <div v-show="confirmed && !data.repeat">级联国标ID重复!</div>
               </span>
             </span>
           </el-tree>
@@ -137,6 +138,7 @@ export default class extends Vue {
     isLeaf: 'isLeaf',
     disabled: data => data.sharedFlag
   }
+  private confirmed = false
   private innerDialogType = ''
 
   private innerVisible = false
@@ -570,6 +572,7 @@ export default class extends Vue {
   }
 
   private async forceRefreshChildren(dirTree: any, node: any) {
+    console.log('node:', node)
     const dirs = await this.loadAll(node)
     dirTree.updateKeyChildren(node.data.id, dirs)
     node.expanded = true
@@ -794,7 +797,45 @@ export default class extends Vue {
     return true
   }
 
+  private checkGbIdDuplicated(treeList) {
+    let res = []
+    treeList.forEach((item, index) => {
+      debugger
+      res.push({
+        path: [index],
+        gbIdDistrict: item.gbIdDistrict,
+        gbIdVgroup: item.gbIdVgroup
+      })
+      item.path = [index]
+      res.push(...this.flatTree(item))
+    })
+    console.log('res:', res)
+  }
+
+  // 树扁平化
+  private flatTree(parent) {
+    if (parent.children) {
+      let arr = parent.children.map((item, index) => {
+        item.path = [...parent.path, index]
+        return {
+          path: item.path,
+          gbIdDistrict: item.gbIdDistrict,
+          gbIdVgroup: item.gbIdVgroup
+        }
+      })
+      let res = []
+      parent.children.forEach(item => {
+        if (item.children) {
+          res = arr.concat(this.flatTree(item))
+        }
+      })
+      return res
+    }
+    return []
+  }
+
   private async confirm() {
+    // this.checkGbIdDuplicated(this.sharedDirList)
     const list = JSON.parse(JSON.stringify(this.sharedDirList))
     if (list.length === 0) {
       return this.$message({
@@ -805,6 +846,7 @@ export default class extends Vue {
     let param = []
     list.forEach(item => param.push(...this.generateParam(item, item.children)))
     console.log('list:', list)
+    console.log('this.sharedDirList:', this.sharedDirList)
     console.log('param:', param)
     try {
       await shareDevice({
@@ -866,7 +908,13 @@ export default class extends Vue {
     if (opParam.selectedNode) {
       // 有选择节点
       if (opParam.selectedNode.level !== 1) {
-        this.forceRefreshChildren(vgroupTree, opParam.type === 'append' ? opParam.selectedNode : opParam.selectedNode.parent)
+        if (opParam.type === 'deleteDevice' && opParam.selectedNode.parent.data.type === 'nvr') {
+          this.forceRefreshChildren(vgroupTree, opParam.selectedNode.parent.parent)
+        } else {
+          this.forceRefreshChildren(vgroupTree,
+            opParam.type === 'append' ? opParam.selectedNode : opParam.selectedNode.parent
+          )
+        }
       } else {
         // 根节点更新
         this.initSharedDirs()
