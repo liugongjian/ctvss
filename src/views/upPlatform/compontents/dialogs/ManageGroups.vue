@@ -70,7 +70,7 @@
                 <div class="node-input__label"><span>{{ node.data.gbId || '-' }}</span></div>
                 <div v-show="gbIdMode === 'district'"><el-input :value="data.gbIdDistrict" size="mini" @input="val => rootInput(node, data, val)" /></div>
                 <div v-show="gbIdMode === 'vgroup'"><el-input v-model="data.gbIdVgroup" size="mini" /></div>
-                <div v-show="confirmed && !data.repeat">级联国标ID重复!</div>
+                <div v-show="data.duplicateFlag">级联国标ID重复!</div>
               </span>
             </span>
           </el-tree>
@@ -800,38 +800,56 @@ export default class extends Vue {
   private checkGbIdDuplicated(treeList) {
     let res = []
     treeList.forEach((item, index) => {
-      debugger
       res.push({
-        path: [index],
+        route: [index],
         gbIdDistrict: item.gbIdDistrict,
         gbIdVgroup: item.gbIdVgroup
       })
-      item.path = [index]
+      item.route = [index]
       res.push(...this.flatTree(item))
     })
-    console.log('res:', res)
+    let duplicate = []
+    res.forEach(x => {
+      const duplicateArr = res.filter(y => x.gbIdVgroup === y.gbIdVgroup)
+      if (duplicateArr.length > 1) {
+        duplicate.push(x)
+      }
+    })
+    console.log('duplicate:', duplicate)
+    duplicate.forEach(item => {
+      const route = item.route
+      let data = this.sharedDirList
+      for (let i = 0; i < route.length - 1; i++) {
+        data = data[route[i]].children
+      }
+      data[route[route.length - 1]].duplicateFlag = true
+    })
+    // eslint-disable-next-line no-self-assign
+    const addFlag = JSON.parse(JSON.stringify(this.sharedDirList))
+    this.sharedDirList = addFlag
+    console.log('duplicate:', duplicate)
+    console.log('duplicate sharelist:', this.sharedDirList)
   }
 
   // 树扁平化
   private flatTree(parent) {
+    let arr = []
     if (parent.children) {
-      let arr = parent.children.map((item, index) => {
-        item.path = [...parent.path, index]
+      arr = parent.children.map((item, index) => {
+        item.route = [...parent.route, index]
         return {
-          path: item.path,
+          route: item.route,
           gbIdDistrict: item.gbIdDistrict,
           gbIdVgroup: item.gbIdVgroup
         }
       })
-      let res = []
       parent.children.forEach(item => {
         if (item.children) {
-          res = arr.concat(this.flatTree(item))
+          arr = arr.concat(this.flatTree(item))
         }
       })
-      return res
     }
-    return []
+    return arr
   }
 
   private async confirm() {
@@ -845,9 +863,6 @@ export default class extends Vue {
     }
     let param = []
     list.forEach(item => param.push(...this.generateParam(item, item.children)))
-    console.log('list:', list)
-    console.log('this.sharedDirList:', this.sharedDirList)
-    console.log('param:', param)
     try {
       await shareDevice({
         platformId: this.platformId,
@@ -959,9 +974,6 @@ export default class extends Vue {
         this.sharedDirList.push(difference[0])
       })
     }
-
-    this.$message.success('操作成功')
-
     this.innerVisible = false
   }
 

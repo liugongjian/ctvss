@@ -191,7 +191,6 @@ export default class extends Vue {
         break
     }
     try {
-      console.log('this.type:', this.type)
       if (this.type === 'append' || this.type === 'edit') {
         const form: any = this.$refs.form
         form.validate(async(valid: boolean) => {
