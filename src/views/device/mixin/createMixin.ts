@@ -49,7 +49,7 @@ export default class CreateMixin extends Vue {
     apeType: 'APE',
     certId: '',
     ipAddr: '',
-    port: ''
+    port: '0'
   }
 
   public ga1400Rules = {

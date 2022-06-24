@@ -170,7 +170,7 @@
           <el-tabs v-model="activeTabPane" type="card" class="title-tabs" @tab-click="1">
             <el-tab-pane v-for="item in tabPaneList" :key="item.name" :label="item.label" :name="item.name"><br></el-tab-pane>
           </el-tabs>
-          <el-tooltip v-if="tabPaneList.length === 1 && isIPC && isUpdate && ga1400Flag" content="接入视图库设备" placement="top">
+          <el-tooltip v-if="tabPaneList.length === 1 && isIPC && isUpdate && ga1400Flag" content="接入视图设备" placement="top">
             <el-button class="add-btn" type="text" @click="addTabPane"><svg-icon name="plus" /></el-button>
           </el-tooltip>
           <div v-show="activeTabPane === 'video'">
