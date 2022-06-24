@@ -704,7 +704,6 @@ export default class extends Mixins(createMixin) {
    */
   private setIfUseDeviceName() {
     const temp = this.$store.state.user.userConfigInfo.find((item: any) => item.key === 'enableCloudChannelName')
-    console.log('--temp->', temp, Boolean(temp.value))
     const ifUse = temp.value === 'true'
     this.ifUseDeviceName = ifUse
   }
