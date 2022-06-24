@@ -37,6 +37,7 @@
                   <svg-icon name="dir-close" width="15" height="15" />
                 </span>
                 {{ node.label }}
+                <span v-if="data.sharedFlag">(已共享)</span>
               </span>
             </span>
           </el-tree>
@@ -67,8 +68,8 @@
               </span>
               <span v-if="step === 1" slot="reference" class="node-input" @click.stop="">
                 <div class="node-input__label"><span>{{ node.data.gbId || '-' }}</span></div>
-                <div v-if="gbIdMode === 'district'"><el-input :value="data.gbIdDistrict" size="mini" @input="val => rootInput(node, data, val)" /></div>
-                <div v-else><el-input v-model="data.gbIdVgroup" size="mini" /></div>
+                <div v-show="gbIdMode === 'district'"><el-input :value="data.gbIdDistrict" size="mini" @input="val => rootInput(node, data, val)" /></div>
+                <div v-show="gbIdMode === 'vgroup'"><el-input v-model="data.gbIdVgroup" size="mini" /></div>
               </span>
             </span>
           </el-tree>
@@ -371,6 +372,7 @@ export default class extends Vue {
    * 获取树中的共享设备
    */
   private async getSharedTree(node: any) {
+    console.log('getSharedTree node:', node)
     try {
       if (node.data.type === 'role') {
         node.data.roleId = node.data.id
@@ -425,6 +427,7 @@ export default class extends Vue {
    * 获取菜单树
    */
   private async getTree(node: any) {
+    console.log('getTree node:', node)
     try {
       if (node.data.type === 'role') {
         node.data.roleId = node.data.id
@@ -436,9 +439,9 @@ export default class extends Vue {
       if (node.data.type !== 'vgroup' && node.data.type !== 'role') {
         let params: any = {
           platformId: this.platformId,
-          dirId: node.data.type === 'top-group' || node.data.type === 'group' ? -1 : node.data.id,
-          dirType: '0',
-          pageNum: 1,
+          // dirId: node.data.type === 'top-group' || node.data.type === 'group' ? -1 : node.data.id,
+          dirId: node.data.id,
+          dirType: node.data.dirType,
           pageSize: 1000
         }
         const shareDevices: any = await describeShareDevices(params)
@@ -457,6 +460,7 @@ export default class extends Vue {
           'real-group-id': node.data.realGroupId
         }
       })
+      console.log('shareDeviceIds:', shareDeviceIds)
       let dirs: any = devices.dirs.map((dir: any) => {
         let sharedFlag = false
         if (shareDeviceIds.includes(dir.id) && dir.type === 'ipc') {
@@ -903,7 +907,9 @@ export default class extends Vue {
         })
       }
       let difference = newSharedDirs.filter(x => !this.sharedDirList.find(y => y.dirId === x.dirId))
-      this.sharedDirList.push(difference[0])
+      this.$nextTick(() => {
+        this.sharedDirList.push(difference[0])
+      })
     }
 
     this.$message.success('操作成功')
@@ -916,11 +922,13 @@ export default class extends Vue {
   }
 
   private rootInput(node, data, val) {
-    data.gbIdDistrict = val
-    if (node.level === 1 && this.gbIdMode === 'district') { // 根节点
-      data.gbIdDistrictRoot = val
-      this.changeGbIdDistrictRoot(data, val)
-    }
+    this.$nextTick(() => {
+      data.gbIdDistrict = val
+      if (node.level === 1 && this.gbIdMode === 'district') { // 根节点
+        data.gbIdDistrictRoot = val
+        this.changeGbIdDistrictRoot(data, val)
+      }
+    })
   }
 
   private changeGbIdDistrictRoot(data, val) {
