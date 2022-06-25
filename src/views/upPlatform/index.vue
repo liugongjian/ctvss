@@ -32,7 +32,7 @@
     <el-card ref="deviceWrap" class="shared-devices">
       <div v-if="currentPlatform.platformId">
         <div class="filter-container">
-          <el-button type="primary" @click="addDevices">
+          <!-- <el-button type="primary" @click="addDevices">
             添加资源
             <el-popover
               placement="top-start"
@@ -44,7 +44,7 @@
             >
               <svg-icon slot="reference" name="help" color="#fff" />
             </el-popover>
-          </el-button>
+          </el-button> -->
           <el-button type="primary" @click="manageGroups">
             管理资源
           </el-button>
