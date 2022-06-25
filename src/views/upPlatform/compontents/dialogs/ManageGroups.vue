@@ -57,7 +57,11 @@
             @node-drag-end="handleDragendShared"
             @node-click="selectSharedDevice"
           >
-            <span slot-scope="{node, data}" class="custom-tree-node" :class="[data.deviceStatus === 'on' ? 'online' : '', step === 0 ? 'custom-tree-node' : 'custom-tree-node-right']">
+            <span
+              slot-scope="{node, data}"
+              class="custom-tree-node"
+              :class="[data.deviceStatus === 'on' ? 'online' : '', step === 0 ? 'custom-tree-node' : 'custom-tree-node-right']"
+            >
               <span slot="reference" class="node-name">
                 <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                 <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
@@ -68,9 +72,17 @@
               </span>
               <span v-if="step === 1" slot="reference" class="node-input" @click.stop="">
                 <div class="node-input__label"><span>{{ node.data.gbId || '-' }}</span></div>
-                <div v-show="gbIdMode === 'district'"><el-input :value="data.gbIdDistrict" size="mini" @input="val => rootInput(node, data, val)" /></div>
-                <div v-show="gbIdMode === 'vgroup'"><el-input v-model="data.gbIdVgroup" size="mini" /></div>
-                <div v-show="data.duplicateFlag">级联国标ID重复!</div>
+                <div v-show="gbIdMode === 'district'">
+                  <el-input
+                    :value="data.gbIdDistrict"
+                    size="mini"
+                    :class="errorNodesData.find(item => data.id === item.id) ? 'error' : ''"
+                    @input="val => rootInput(node, data, val)"
+                  />
+                </div>
+                <div v-show="gbIdMode === 'vgroup'">
+                  <el-input v-model="data.gbIdVgroup" size="mini" :class="errorNodesData.find(item => data.id === item.id) ? 'error' : ''" />
+                </div>
               </span>
             </span>
           </el-tree>
@@ -142,6 +154,10 @@ export default class extends Vue {
   private innerDialogType = ''
 
   private innerVisible = false
+
+  private dirDigits = [2, 4, 6, 8, 10, 20]
+
+  private errorNodesData = []
 
   private step = 0
 
@@ -797,50 +813,54 @@ export default class extends Vue {
   }
 
   private checkGbIdDuplicated(treeList) {
+    this.errorNodesData = []
     let res = []
-    treeList.forEach((item, index) => {
-      res.push({
-        route: [index],
-        gbIdDistrict: item.gbIdDistrict,
-        gbIdVgroup: item.gbIdVgroup
-      })
-      item.route = [index]
+    treeList.forEach(item => {
+      res.push(item)
       res.push(...this.flatTree(item))
     })
     let duplicate = []
     res.forEach(x => {
-      const duplicateArr = res.filter(y => x.gbIdVgroup === y.gbIdVgroup)
+      const duplicateArr = this.gbIdMode === 'vgroup'
+        ? res.filter(y => x.gbIdVgroup === y.gbIdVgroup)
+        : res.filter(y => x.gbIdDistrict === y.gbIdDistrict)
       if (duplicateArr.length > 1) {
         duplicate.push(x)
       }
     })
-    console.log('duplicate:', duplicate)
-    duplicate.forEach(item => {
-      const route = item.route
-      let data = this.sharedDirList
-      for (let i = 0; i < route.length - 1; i++) {
-        data = data[route[i]].children
-      }
-      data[route[route.length - 1]].duplicateFlag = true
+
+    this.errorNodesData = duplicate
+
+    return this.errorNodesData.length > 1
+  }
+
+  private checkDirDigit(treeList) {
+    this.errorNodesData = []
+    let res = []
+    treeList.forEach(item => {
+      res.push(item)
+      res.push(...this.flatTree(item))
     })
-    const addFlag = JSON.parse(JSON.stringify(this.sharedDirList))
-    this.sharedDirList = addFlag
-    console.log('duplicate:', duplicate)
-    console.log('duplicate sharelist:', this.sharedDirList)
+    let errorDirNodeData = []
+    res.forEach(x => {
+      if (x.type === 'top-group' || x.type === 'dir') {
+        if (this.gbIdMode === 'vgroup' && !this.dirDigits.includes(x.gbIdVgroup.length)) {
+          errorDirNodeData.push(x)
+        } else if (this.gbIdMode === 'district' && !this.dirDigits.includes(x.gbIdDistrict.length)) {
+          errorDirNodeData.push(x)
+        }
+      }
+    })
+
+    this.errorNodesData = errorDirNodeData
+    return this.errorNodesData.length > 0
   }
 
   // 树扁平化
   private flatTree(parent) {
     let arr = []
     if (parent.children) {
-      arr = parent.children.map((item, index) => {
-        item.route = [...parent.route, index]
-        return {
-          route: item.route,
-          gbIdDistrict: item.gbIdDistrict,
-          gbIdVgroup: item.gbIdVgroup
-        }
-      })
+      arr = parent.children
       parent.children.forEach(item => {
         if (item.children) {
           arr = arr.concat(this.flatTree(item))
@@ -851,7 +871,16 @@ export default class extends Vue {
   }
 
   private async confirm() {
-    // this.checkGbIdDuplicated(this.sharedDirList)
+    const isDuplicate = this.checkGbIdDuplicated(this.sharedDirList)
+    if (isDuplicate) {
+      this.$message.error('级联国标ID重复，请修改')
+      return
+    }
+    const isDigitRight = this.checkDirDigit(this.sharedDirList)
+    if (isDigitRight) {
+      this.$message.error('目录级联ID只能为2、4、6、8、10、20位')
+      return
+    }
     const list = JSON.parse(JSON.stringify(this.sharedDirList))
     if (list.length === 0) {
       return this.$message({
@@ -1169,6 +1198,12 @@ export default class extends Vue {
   .el-input {
     width: 100%;
     height: 25px;
+  }
+
+  .error {
+    ::v-deep .el-input__inner {
+      border: 1px solid red;
+    }
   }
 }
 </style>
