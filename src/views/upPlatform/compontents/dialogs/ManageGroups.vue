@@ -462,7 +462,6 @@ export default class extends Vue {
           'real-group-id': node.data.realGroupId
         }
       })
-      console.log('shareDeviceIds:', shareDeviceIds)
       let dirs: any = devices.dirs.map((dir: any) => {
         let sharedFlag = false
         if (shareDeviceIds.includes(dir.id) && dir.type === 'ipc') {
@@ -480,7 +479,7 @@ export default class extends Vue {
           deviceStatus: dir.deviceStatus,
           streamStatus: dir.streamStatus,
           disabled: sharedFlag,
-          path: node.data.path.concat([{ ...dir, gbIdDistrict: dir.gbId || '', gbIdVgroup: dir.gbId || '' }]),
+          path: node.data.path.concat([{ ...dir, gbIdDistrict: dir.gbId || '', gbIdVgroup: dir.gbId || '', inProtocol: dir.inProtocol || node.data.inProtocol }]),
           sharedFlag: sharedFlag,
           roleId: node.data.roleId || '',
           realGroupId: node.data.realGroupId || '',
