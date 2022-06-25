@@ -101,7 +101,7 @@
     <div slot="footer" class="dialog-footer">
       <el-button v-if="step === 0" type="primary" :disabled="sharedDirList.length === 0 || loading.sharedDir || loading.dir" @click="next">下一步</el-button>
       <el-button v-if="step === 1" type="primary" :disabled="loading.sharedDir" @click="prev">上一步</el-button>
-      <el-button v-if="step === 1" type="primary" :disabled="loading.sharedDir" @click="confirm">确 定</el-button>
+      <el-button v-if="step === 1" type="primary" :disabled="loading.sharedDir" @click="submit">确 定</el-button>
       <el-button @click="() => closeDialog(true)">取 消</el-button>
     </div>
     <InnerDialog
@@ -868,6 +868,11 @@ export default class extends Vue {
       })
     }
     return arr
+  }
+
+  private submit() {
+    // 等待 数据变化、加载等完成
+    setTimeout(() => this.confirm(), 0)
   }
 
   private async confirm() {
