@@ -38,7 +38,8 @@ import {
   deleteMarkers,
   getInterestList,
   addInterestPoint,
-  editInterestPoint
+  editInterestPoint,
+  delInterestPoint
 } from '@/api/map'
 import { Screen } from '@/views/device/services/Screen/Screen'
 import LivePlayer from '@/views/device/components/LivePlayer.vue'
@@ -50,7 +51,6 @@ import draggable from '@/views/map/directives/draggable'
   components: {
     LivePlayer,
     ReplayView
-    // draggable
   },
   directives: {
     draggable
@@ -84,7 +84,6 @@ export default class MapView extends Vue {
   }
 
   private handleMapClick
-  count = 6
 
   @Watch('isEdit')
   private onEditChange() {
@@ -94,43 +93,13 @@ export default class MapView extends Vue {
   private mounted() {
     getAMapLoad().then(() => {
       this.setMap(this.mapOption)
-      // this.test2()
-    })
-  }
-
-  test() {
-    const param = {
-      tagName: '文本标记测试',
-      type: 'InterestPoint',
-      description: '',
-      mapId: this.mapId,
-      points: [{ longitude: '116.397797', latitude: '39.909125' }],
-      color: '',
-      colorType: 'text'
-    }
-    addInterestPoint(param).then(() => {
-      this.$message.success('新增成功')
-      this.$parent.freshList()
-    }).catch(err => {
-      this.$message.error(`${err.message ? err.message : err}`)
-    })
-  }
-
-  test2() {
-    const tagId = '485089420492455936'
-    const param = {
-      tagName: '文本标记测试',
-      type: 'InterestPoint',
-      description: '测试测试',
-      mapId: this.mapId,
-      points: [{ longitude: '116.405368', latitude: '39.908899' }],
-      color: '',
-      colorType: 'text'
-    }
-    editInterestPoint({ ...param, tagId }).then(() => {
-      this.$message.success('编辑成功')
-    }).catch(err => {
-      this.$message.error(`${err.message ? err.message : err}`)
+      this.vmap.setInterestHandlers({
+        addPoi: this.addInterstPoi,
+        clickPoi: this.choosePoi,
+        deletePoi: this.deleteInterest,
+        addPolygon: this.addPolygon,
+        clickPolygon: this.choosePolygon,
+      })
     })
   }
 
@@ -204,6 +173,7 @@ export default class MapView extends Vue {
     this.vmap.renderMap(map)
     this.addMapEvent()
     this.mapId = map.mapId
+    this.mapMask = map.mask
     this.axiosSourceList.forEach(axiosSource => {
       axiosSource && axiosSource.cancel()
     })
@@ -245,15 +215,7 @@ export default class MapView extends Vue {
     }
     map.on('moveend', getMapInfo)
     map.on('zoomend', getMapInfo)
-    // map.on('click', () => {
-    //   console.log('2222')
-    //   this.vmap.cancelChoose()
-    //   this.$emit('mapClick', {
-    //     type: 'map',
-    //     info: this.mapOption
-    //   })
-    // })
-    this.changeMapClickEvent('other')
+    this.changeMapClickEvent('map')
   }
 
   private choosePlayer(id) {
@@ -365,17 +327,18 @@ export default class MapView extends Vue {
     }
   }
 
-  async handleMarkerDelete(deviceId, deviceName) {
+  async handleMarkerDelete(id, deviceName) {
+    console.log('delete device id: ', id)
     this.$alertDelete({
       type: '监控点位',
       msg: `确定在地图中删除监控点位"${deviceName}"?`,
       method: deleteMarkers,
       payload: {
         mapId: this.mapOption.mapId,
-        devices: [{ deviceId }]
+        devices: [{ id }]
       },
       onSuccess: () => {
-        this.markerlist = this.markerlist.filter(item => item.deviceId !== deviceId)
+        this.markerlist = this.markerlist.filter(item => item.deviceId !== id)
         this.$emit('markerlistChange', this.markerlist)
         this.vmap.updateMarkerList(this.markerlist)
         this.$emit('mapClick', {
@@ -438,64 +401,170 @@ export default class MapView extends Vue {
     }
   }
 
+  choosePoi(point) {
+    if (point) {
+      const otherPoints = document.getElementsByClassName('marker-containt')
+      let len = otherPoints.length
+      for (let i = 0; i < len; i += 1) {
+        const nClass = otherPoints[i].getAttribute('class').replace('selected', '')
+        otherPoints[i].setAttribute('class', nClass)
+        otherPoints[i].parentElement.setAttribute('class', 'amap-marker')
+      }
+      const $point = document.getElementById(`marker-point-${point.tagId}`);
+      const nClass = $point.getAttribute('class')
+      $point.setAttribute('class', `${nClass} selected`)
+      $point.parentElement.setAttribute('class', 'amap-marker selected')
+
+      console.log('点击了 poi，', point)
+      // 弹出右边的信息窗
+      // this.$emit('mapClick', {
+      //   type: 'marker',
+      //   info: point
+      // })
+    } else {
+      const otherPoints = document.getElementsByClassName('marker-containt')
+      let len = otherPoints.length
+      for (let i = 0; i < len; i += 1) {
+        const nClass = otherPoints[i].getAttribute('class').replace('selected', '')
+        otherPoints[i].setAttribute('class', nClass)
+        otherPoints[i].parentElement.setAttribute('class', 'amap-marker')
+      }
+    }
+  }
+
+  choosePolygon(polygon) {
+    if (polygon) {
+      console.log('点击了polygon，', polygon)
+      // 弹出右边的信息窗
+      // this.$emit('mapClick', {
+      //   type: 'marker',
+      //   info: point
+      // })
+    } else {
+      console.log('取消了 polygon 点击')
+    }
+  }
+
+  addInterstPoi(position, type) {
+    console.log('addInterstPoi', type)
+    const tagName = type === 'interest' ? '兴趣点标记' : '文本标记'
+    const colorType = type === 'interest' ? 'bubble' : 'text'
+    const { lng, lat } = position
+    const param = {
+      tagName,
+      type: 'InterestPoint',
+      description: '',
+      mapId: this.mapId,
+      points: [{ longitude: lng.toString(), latitude: lat.toString() }],
+      color: 'blue',
+      colorType
+    }
+    console.log('新增兴趣点： ', param.points[0])
+    // addInterestPoint(param).then(() => {
+    //   this.$message.success('新增成功')
+    // }).catch(err => {
+    //   this.$message.error(`${err.message ? err.message : err}`)
+    // }
+    const suc = true
+    if (suc) {
+      this.interestPointList.push(param);
+      this.vmap.renderPoi(this.interestPointList)
+      return true
+    } else {
+      return false
+    }
+  }
+
+  addPolygon(points) {
+    const type = 'InterestBuilding' // HighLightArea;InterestBuilding
+    console.log('addPolygon', type)
+    const tagName = '楼层' //  高亮 '楼层'
+    const colorType = ''
+    const param = {
+      tagName,
+      type: 'InterestPoint',
+      description: '',
+      mapId: this.mapId,
+      points: points.map(item => ({longitude: item.lng.toString(), latitude: item.lat.toString()})),
+      color: 'blue',
+      colorType
+    }
+    console.log('新增polygon： ', param.points)
+    // addInterestPoint(param).then(() => {
+    //   this.$message.success('新增成功')
+    // }).catch(err => {
+    //   this.$message.error(`${err.message ? err.message : err}`)
+    // }
+    const suc = true
+    if (suc) {
+      if (type === 'HighLightArea') {
+        this.hightAreaList.push(param)
+        console.log('mask: ', this.mapMask)
+        this.renderMask(this.mapMask)
+      } else {
+        this.interestBuildingList.push(param)
+        this.vmap.renderBuilding(this.hightAreaList, this.interestBuildingList)
+        return true
+      }
+    } else {
+      return false
+    }
+  }
+
+  deleteInterest(id) {
+    console.log('delete interest id: ', id)
+    // delInterestPoint({ tagId: id}).then(() => {
+    //   this.interestPointList = this.interestPointList.filter(item => item.tagId !== id)
+    // })
+  }
+
   setMarkersView(isShow) {
     this.vmap.setMarkersView(isShow)
   }
 
   changeMapClickEvent(type) {
+    console.log('changeMapClickEvent', type)
     const map = this.vmap.map
     map.off('click', this.handleMapClick)
     let event
     switch (type) {
       case 'interest':
+        this.vmap.changeMapState('interest')
         event = () => {
-          console.log('interest')
-          const { lng, lat } = map.getCenter()
-          const param = {
-            tagName: '兴趣点标记' + this.count,
-            type: 'InterestPoint',
-            description: '',
-            mapId: this.mapId,
-            points: [{ longitude: lng.toString(), latitude: lat.toString() }],
-            color: 'blue',
-            colorType: 'bubble'
-          }
-          addInterestPoint(param).then(() => {
-            this.$message.success('新增成功')
-          }).catch(err => {
-            this.$message.error(`${err.message ? err.message : err}`)
-          })
+          console.log('click interest')
         }
         break
       case 'font':
+        this.vmap.changeMapState('font')
         event = () => {
           console.log('font')
-          const { lng, lat } = map.getCenter()
-          const param = {
-            tagName: '文本标记' + this.count,
-            type: 'InterestPoint',
-            description: '',
-            mapId: this.mapId,
-            points: [{ longitude: lng.toString(), latitude: lat.toString() }],
-            color: '',
-            colorType: 'text'
-          }
-          addInterestPoint(param).then(() => {
-            this.$message.success('新增成功')
-          }).catch(err => {
-            this.$message.error(`${err.message ? err.message : err}`)
-          })
+          // addInterestPoint(param).then(() => {
+          //   this.$message.success('新增成功')
+          // }).catch(err => {
+          //   this.$message.error(`${err.message ? err.message : err}`)
+          // })
         }
         break
-      case 'other':
-      default:
+      case 'polygon':
+        this.vmap.changeMapState('polygon')
         event = () => {
-          console.log('2222')
-          this.vmap.cancelChoose()
-          this.$emit('mapClick', {
-            type: 'map',
-            info: this.mapOption
-          })
+          console.log('click polygon')
+        }
+        break;
+        break
+      case 'map':
+      default:
+        this.vmap.changeMapState('pointer')
+        if (this.isEdit) {
+          this.vmap.renderPolygon(this.hightAreaList, this.interestBuildingList)
+        }
+        event = () => {
+          console.log('点击其他')
+          // this.vmap.cancelChoose()
+          // this.$emit('mapClick', {
+          //   type: 'map',
+          //   info: this.mapOption
+          // })
         }
     }
     this.handleMapClick = event

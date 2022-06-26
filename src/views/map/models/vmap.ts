@@ -3,7 +3,7 @@ import LngLat = AMap.LngLat
 import { getDevice } from '@/api/device'
 // import { checkPermission } from '@/utils/permission'
 import { getStyle } from '@/utils/map'
-import { drawCamera } from './draw'
+import { drawCamera, drawBubblePoint, drawTextPoint } from './draw'
 
 export interface mapObject {
   mapId: string,
@@ -16,10 +16,11 @@ export interface mapObject {
 
 declare global {
   interface Window {
-    deleteMarker?: any,
+    deleteDevice?: any,
     replayMarker?: any,
     previewMarker?: any,
-    _AMapSecurityConfig?: any
+    _AMapSecurityConfig?: any,
+    deleteInterest?: any
   }
 }
 
@@ -59,7 +60,7 @@ export interface markerEventHandlers {
 
 export const getAMapLoad = () => {
   window._AMapSecurityConfig = {
-    securityJsCode:'c2a13cfa2724b2aecf4af86c7dfcb3e2',
+    securityJsCode: 'c2a13cfa2724b2aecf4af86c7dfcb3e2'
   }
   return new Promise((resolve, reject) => {
     if (window.AMap) {
@@ -68,7 +69,16 @@ export const getAMapLoad = () => {
       AMapLoader.load({
         'key': '9a9dac9cd0638cf37e2277ec8e60c0ee',
         'version': '2.0',
-        'plugins': ['AMap.MarkerCluster', 'AMap.HawkEye', 'AMap.AutoComplete', 'AMap.Scale', 'AMap.ControlBar', 'AMap.IndexCluster']
+        'plugins': [
+          'AMap.MarkerCluster',
+          'AMap.HawkEye',
+          'AMap.AutoComplete',
+          'AMap.Scale',
+          'AMap.ControlBar',
+          'AMap.IndexCluster',
+          'AMap.MouseTool',
+          'AMap.PolylineEditor'
+        ]
       }).then((AMap) => {
         resolve(AMap)
       }).catch(e => {
@@ -85,6 +95,7 @@ export default class VMap {
   curMarkerList: markerObject[]
   container = ''
   isEdit = false
+  eventState = 'map' // 点击状态 polygen，poi，font
   overView: AMap.HawkEye | null = null
   markerCluster: AMap.MarkerCluster | null = null
   indexCluster: AMap.IndexCluster | null = null
@@ -92,9 +103,15 @@ export default class VMap {
   community: AMap.Polygon | null = null // 社区高亮区域
   pois: Array<AMap.Marker | AMap.LabelsLayer> | null = null // 兴趣点
   buildingLayer: AMap.Buildings | null = null // 兴趣点建筑
+  mouseTool: AMap.MouseTool | null = null
+  mouseToolHandler: any
+  polygonEditor: AMap.PolygonEditor | null = null
+  InterestEventHandlers: any
+  polygons = [] // 为了编辑临时显示的多边形
   constructor(container: string) {
     this.container = container
   }
+
   creatMap(lng: number, lat: number, zoom: number, is3D: boolean = true) {
     try {
       const AMap = window.AMap
@@ -121,6 +138,7 @@ export default class VMap {
         zIndex: 130
       })
       map.add(this.buildingLayer)
+      // this.polygonEditor = new AMap.PolygonEditor(this.map)
       this.overView = new AMap.HawkEye({
         visible: false,
         width: '300px',
@@ -153,6 +171,25 @@ export default class VMap {
     } catch (e) {
       console.log(e)
     }
+  }
+
+  setInterestHandlers(handlers) {
+    this.InterestEventHandlers = handlers
+    this.mouseTool = new AMap.MouseTool(this.map)
+    this.mouseTool.on('draw', (e) => {
+      // pointer，polygen，interest，font)
+      if (this.eventState === 'interest') {
+        this.InterestEventHandlers.addPoi(e.obj.getPosition(), 'interest')
+      } else if (this.eventState === 'font') {
+        this.InterestEventHandlers.addPoi(e.obj.getPosition(), 'font')
+        console.log('draw font')
+      } else if (this.eventState === 'polygon') {
+        this.InterestEventHandlers.addPolygon(e.obj.getPath())
+        console.log('draw polygen')
+      } else {
+        console.log('other')
+      }
+    })
   }
 
   change3D(is3D) {
@@ -237,6 +274,7 @@ export default class VMap {
       this.creatMap(longitude, latitude, zoom)
     }
   }
+
   setMarkerList(markers: any[], handlers: markerEventHandlers) {
     this.curMarkerList = markers
     this.setCluster(markers)
@@ -252,6 +290,7 @@ export default class VMap {
     })
     return result
   }
+
   updateMarkerList(markers) {
     this.curMarkerList = markers
     this.markerCluster.setData(this.wrapMarkers(markers))
@@ -259,6 +298,7 @@ export default class VMap {
   }
 
   cancelChoose() {
+    this.InterestEventHandlers.clickPoi(null)
     if (this.curMarkerList.length > 0) {
       this.curMarkerList.forEach((item) => {
         item.selected = false
@@ -266,6 +306,7 @@ export default class VMap {
       this.setCluster(this.wrapMarkers(this.curMarkerList))
     }
   }
+
   setMarkersView(show: boolean) {
     if (show) {
       this.setCluster(this.curMarkerList)
@@ -391,7 +432,11 @@ export default class VMap {
         context.marker.setContent(' ')
       } else {
         // const content = this.buildContent(context.data[0])
-        const content = drawCamera(context.data[0], { handlers: this.markerEventHandlers, isEdit: this.isEdit, map: this.map })
+        const content = drawCamera(context.data[0], {
+          handlers: this.markerEventHandlers,
+          isEdit: this.isEdit,
+          map: this.map
+        })
         context.marker.setContent(content)
         context.marker.setOffset(new AMap.Pixel(-20, -65))
         context.marker.setExtData(context.data[0])
@@ -410,8 +455,10 @@ export default class VMap {
           context.marker.dom.setAttribute('class', 'amap-marker selected')
         }
         context.marker.on('click', () => {
-          const marker = context.marker.getExtData()
-          this.chooseMarker(marker)
+          if (this.eventState === 'pointer') {
+            const marker = context.marker.getExtData()
+            this.chooseMarker(marker)
+          }
         })
         context.marker.setLabel({
           offset: new AMap.Pixel(0, 10),
@@ -538,6 +585,7 @@ export default class VMap {
       this.map.add(this.community)
     }
   }
+
   /**
    * 渲染兴趣点
    */
@@ -546,19 +594,17 @@ export default class VMap {
       this.map.remove(this.pois)
     }
     this.pois = []
-    const layer = new AMap.LabelsLayer({
-      zooms: [15, 20],
-      zIndex: 200,
-      collision: true,
-      allowCollision: true
-    })
+    window.deleteInterest = (id) => {
+      this.InterestEventHandlers.deletePoi(id)
+    }
     pointsList.forEach(point => {
       if (point.colorType === 'bubble') {
         const marker = new AMap.Marker({
           position: this.handlePoint(point.points)[0],
-          offset: new AMap.Pixel(-10, -20),
+          offset: new AMap.Pixel(-20, -20),
           zooms: [15, 20],
-          content: `<svg class="marker-icon" style="fill:${point.color}" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5241"><path d="M832.179718 379.057175c0-176.277796-143.353942-319.077106-320.18023-319.077106-176.898943 0-320.18023 142.79931-320.18023 319.077106 0 212.71159 320.18023 584.961732 320.18023 584.961732S832.179718 591.768765 832.179718 379.057175zM378.580826 379.057175c0-73.443709 59.737546-132.942825 133.418662-132.942825 73.610508 0 133.421732 59.499116 133.421732 132.942825 0 73.364915-59.811224 132.942825-133.421732 132.942825C438.318372 512 378.580826 452.42209 378.580826 379.057175z" p-id="5242"></path></svg>`
+          // content: `<svg class="marker-icon" style="fill:${point.color}" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5241"><path d="M832.179718 379.057175c0-176.277796-143.353942-319.077106-320.18023-319.077106-176.898943 0-320.18023 142.79931-320.18023 319.077106 0 212.71159 320.18023 584.961732 320.18023 584.961732S832.179718 591.768765 832.179718 379.057175zM378.580826 379.057175c0-73.443709 59.737546-132.942825 133.418662-132.942825 73.610508 0 133.421732 59.499116 133.421732 132.942825 0 73.364915-59.811224 132.942825-133.421732 132.942825C438.318372 512 378.580826 452.42209 378.580826 379.057175z" p-id="5242"></path></svg>`
+          content: drawBubblePoint(point)
         })
         marker.on('mouseover', () => {
           marker.setLabel({
@@ -573,40 +619,29 @@ export default class VMap {
           })
           marker.setzIndex(12)
         })
+        marker.on('click', () => {
+          if (this.eventState === 'pointer' && this.isEdit) {
+            this.cancelChoose()
+            this.InterestEventHandlers.clickPoi(point)
+          }
+        })
         this.pois.push(marker)
       } else if (point.colorType === 'text') {
-        const labelMarker = new AMap.LabelMarker({
-          // text: {
-          //   content: point.tagName,
-          //   direction: 'right',
-          //   offset: [-20, -15],
-          //   style: {
-          //     fontSize: 12,
-          //     fillColor: '#555',
-          //     strokeColor: '#fff',
-          //     strokeWidth: 2
-          //   }
-          // },
-          text: {
-            content: point.tagName,
-            direction: 'center',
-            style: {
-              fontSize: 18,
-              fontWeight: 500,
-              fillColor: '#333',
-              padding: [12, 30, 12, 30],
-              backgroundColor: 'rgba(250,131,52,0.48)',
-              borderColor: '#FA8334',
-              borderRadius: 25,
-              borderWidth: 1
-            }
-          },
-          position: this.handlePoint(point.points)[0]
+        const marker = new AMap.Marker({
+          position: this.handlePoint(point.points)[0],
+          offset: new AMap.Pixel(-90, -26),
+          zooms: [15, 20],
+          content: drawTextPoint(point)
         })
-        layer.add(labelMarker)
+        marker.on('click', () => {
+          if (this.eventState === 'pointer' && this.isEdit) {
+            this.cancelChoose()
+            this.InterestEventHandlers.clickPoi(point)
+          }
+        })
+        this.pois.push(marker)
       }
     })
-    this.pois.push(layer)
     this.map.add(this.pois)
   }
 
@@ -641,8 +676,56 @@ export default class VMap {
     this.buildingLayer.setStyle(buildingOptions)
   }
 
+  /**
+   * 创建多边形区域，为了修改编辑
+   */
+  renderPolygon(highlightList, buildingList) {
+    // this.map.remove(this.polygons)
+    // this.polygons = []
+    const polygons = highlightList.concat(buildingList)
+    polygons.forEach(item => {
+      // const polygon = new AMap.Polygon({
+      //   path: this.handlePoint(item.points),
+      //   fillOpacity: 0,
+      //   cursor: 'wait',
+      //   zIndex: 100
+      // })
+      const polygon = new AMap.Polygon({
+        map: this.map,
+        path: this.handlePoint(item.points),
+        strokeColor: "#FF33FF", //线颜色
+        strokeOpacity: 0.2, //线透明度
+        strokeWeight: 3,    //线宽
+        fillColor: "#1791fc", //填充色
+        fillOpacity: 0.35, //填充透明度
+        draggable: true
+      })
+      console.log(polygon)
+      // polygon.on('click', () => {
+      //   console.log(this.isEdit)
+      //   console.log(this.eventState)
+      //   // if (this.eventState === 'pointer' && this.isEdit) {
+      //     console.log('CLICK polygon')
+      //     // this.cancelChoose() // 取消摄像头点位点击
+      //     // this.InterestEventHandlers.clickPoi() // 取消兴趣点点位点击
+      //     // this.InterestEventHandlers.clickPolygon(item)
+      //     // this.polygonEditor.close()
+      //     // this.polygonEditor.setTarget(polygon)
+      //     // this.polygonEditor.open()
+      //   // }
+      // })
+      // polygon.on('mouseover', () => {
+      //   console.log('mouseover')
+      // })
+      // polygon.on('draggin', () => {
+      //   console.log('draggin')
+      // })
+      // this.polygons.push(polygon)
+    })
+  }
+
   handlePoint(points) {
-    return points.map(item => [item.longitude, item.latitude])
+    return points.map(item => [parseFloat(item.longitude), parseFloat(item.latitude)])
   }
 
   /**
@@ -657,4 +740,36 @@ export default class VMap {
     })
     return [lng / points.length, lat / points.length]
   }
+
+  drawInterest(type) {
+    switch (type) {
+      case 'interest':
+        this.mouseTool.marker({content: '<div></div>'})
+        break
+      case 'font':
+        this.mouseTool.marker({content: '<div></div>'})
+        break
+      case 'polygon':
+        this.mouseTool.polygon({
+          fillOpacity: 0
+        })
+        break
+    }
+  }
+  changeMapState(state) {
+    if (this.eventState !== state) {
+      console.log('changeMapState')
+      this.mouseTool && this.mouseTool.close(true)
+      const drawState = ['interest', 'font', 'polygon']
+      this.eventState = state
+      if (drawState.includes(state)) {
+        (document.getElementsByClassName('amap-maps')[0] as HTMLElement).style.cursor = 'crosshair'
+        this.drawInterest(state)
+      } else {
+        (document.getElementsByClassName('amap-maps')[0] as HTMLElement).style.cursor = 'default'
+        this.eventState = 'pointer'
+      }
+    }
+  }
 }
+

@@ -623,6 +623,7 @@ declare namespace AMap {
     /**获取用户自定义属性**/
     public getExtData(): any;
 
+    public dom: any
 
   }
   /** MarkerShapeOptions **/
@@ -1238,6 +1239,8 @@ declare namespace AMap {
 
     /** 判断指定点坐标是否在多边形范围内 */
     public contains(point: LngLat | number[]): boolean;
+
+    public on(event: string, callback: Function): void;
   }
 
   /**
@@ -1378,6 +1381,23 @@ declare namespace AMap {
     constructor(opt: HawkEyeOption)
     public show: any
     public hide: any
+  }
+
+  export class MouseTool {
+    constructor(map: Map)
+    public marker: any
+    public polygon: any
+    public close: any
+    public on(event: string, callback: Function): void; // event:draw
+  }
+
+  export class PolygonEditor {
+    constructor(map: Map, polygon?: Polygon, opts?: PolygonOption)
+    public open: any
+    public setTarget: any
+    public getTarget: any
+    public close: any
+    public on(event: string, callback: Function): void; // event:draw
   }
 
   export interface ScaleOption {

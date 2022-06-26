@@ -40,9 +40,12 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { DeviceStatus, RecordStatus } from '@/dics'
+import { Sketch } from 'vue-color'
+
 @Component({
   name: 'PointInfo',
   components: {
+      'sketch-picker': Sketch
   }
 })
 

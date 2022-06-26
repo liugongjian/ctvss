@@ -9,7 +9,7 @@ const createNode = (htmlstr: string) => {
 
 export const drawCamera = (markerOptions: markerObject, options) => {
   const markerContent = document.createElement('div')
-  markerContent.setAttribute('class', 'marker-camera')
+  markerContent.setAttribute('class', 'marker-containt marker-camera')
   let mColor = markerOptions.deviceColor || '#1e78e0'
   if (mColor === '0') {
     mColor = '#1e78e0'
@@ -30,8 +30,8 @@ export const drawCamera = (markerOptions: markerObject, options) => {
       }
       optionDiv = createNode(`<div class="marker-options">${previewIcon}${replayIcon}</div>`)
     } else { // 编辑状态
-      markerContent.setAttribute('class', 'marker-camera selected')
-      const deleteIcon = `<i class="icon icon_delete" onclick="deleteMarker('${markerOptions.deviceId}', '${markerOptions.deviceLabel}')"></i>`
+      markerContent.setAttribute('class', 'marker-containt marker-camera selected')
+      const deleteIcon = `<i class="icon icon_delete" onclick="deleteDevice('${markerOptions.deviceId}', '${markerOptions.deviceLabel}')"></i>`
       optionDiv = createNode(`<div class="marker-options">${deleteIcon}</div>`)
     }
     window.previewMarker = () => {
@@ -58,11 +58,35 @@ export const drawCamera = (markerOptions: markerObject, options) => {
       }
       options.handlers.onPlay && options.handlers.onPlay(data)
     }
-    window.deleteMarker = (id, name) => {
+    window.deleteDevice = (id, name) => {
       options.handlers.onDelete(id, name)
     }
     markerContent.append(optionDiv)
   }
+  return markerContent
+}
+
+export const drawBubblePoint = (point) => {
+  const markerContent = document.createElement('div')
+  markerContent.setAttribute('class', 'marker-containt marker-bubblePoint')
+  markerContent.setAttribute('id', `marker-point-${point.tagId}`)
+  const marker = createNode(`<svg class="icon-interest" style="fill:${point.color}; viewBox="0 0 14 17" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"> <title>interest</title> <g id="Web端" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"> <g id="电子地图--点位编辑" transform="translate(-1224.000000, -73.000000)" fill="#333333" fill-rule="nonzero"> <g id="工具" transform="translate(1174.000000, 68.000000)"> <path d="M56.6,5.33333334 C52.96,5.33333334 50,8.33333334 50,11.9733333 C50,16.9333333 56,21.0533333 56.28,21.2133333 C56.4,21.2933333 56.48,21.3333333 56.6,21.3333333 C56.72,21.3333333 56.84,21.2933333 56.92,21.2133333 C57.16,21.0533333 63.2,16.9333333 63.2,11.9733333 C63.2,8.33333334 60.24,5.33333334 56.6,5.33333334 Z M56.6,20.0133333 C55.36,19.0933333 51.2,15.7333333 51.2,12.0133333 C51.2,9.01333333 53.64,6.57333334 56.6,6.57333334 C59.56,6.57333334 62,9.01333333 62,12.0133333 C62,15.6933333 57.84,19.0933333 56.6,20.0133333 Z M56.6,9.73333333 C55.16,9.73333333 54,10.8933333 54,12.3333333 C54,13.7733333 55.16,14.9333333 56.6,14.9333333 C58.04,14.9333333 59.2,13.7733333 59.2,12.3333333 C59.2,10.8933333 58.04,9.73333333 56.6,9.73333333 Z M56.6,13.7333333 C55.84,13.7333333 55.2,13.0933334 55.2,12.3333333 C55.2,11.5733333 55.84,10.9333333 56.6,10.9333333 C57.36,10.9333333 58,11.5733333 58,12.3333333 C58,13.0933334 57.36,13.7333333 56.6,13.7333333 L56.6,13.7333333 Z" id="interest"></path> </g> </g> </g> </svg>`)
+  // const label = createNode(`<div class="marker-label">${point.tagId}</div>`)
+  const deleteIcon = `<i class="icon icon_delete" onclick="deleteInterest('${point.tagId}')"></i>`
+  const optionDiv = createNode(`<div class="marker-options">${deleteIcon}</div>`)
+  markerContent.append(optionDiv)
+  markerContent.append(marker)
+  return markerContent
+}
+
+export const drawTextPoint = (point) => {
+  const markerContent = document.createElement('div')
+  markerContent.setAttribute('class', 'marker-containt marker-textPoint')
+  markerContent.setAttribute('id', `marker-point-${point.tagId}`)
+  const marker = createNode(`<div class="text-wrap">${point.tagName}</div>`)
+  const deleteIcon = `<i class="icon icon_delete" onclick="deleteInterest('${point.tagId}')"></i>`
+  const optionDiv = createNode(`<div class="marker-options">${deleteIcon}</div>`)
+  markerContent.append(marker, optionDiv)
   return markerContent
 }
 
