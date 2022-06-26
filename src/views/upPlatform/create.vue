@@ -87,8 +87,8 @@
         </el-form-item>
         <el-form-item label="级联方式:" prop="cascadeType">
           <el-radio-group v-model.number="form.cascadeType">
-            <el-radio :label="1">行政区划</el-radio>
             <el-radio :label="2">虚拟业务组</el-radio>
+            <el-radio :label="1">行政区划</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item prop="industryCode" label="所属行业">
@@ -225,7 +225,7 @@ export default class extends Vue {
     gbRegion: '',
     gbRegionLevel: '',
     industryCode: '',
-    cascadeType: 1
+    cascadeType: 2
   }
   private submitting = false
   private loading = false

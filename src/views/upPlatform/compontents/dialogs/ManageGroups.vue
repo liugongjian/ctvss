@@ -92,9 +92,9 @@
         </div>
       </div>
       <div v-if="step === 0" class="device-wrap">
-        <el-button type="primary" @click="openInner('append')">新建组/虚拟组织</el-button>
+        <el-button type="primary" @click="openInner('append')">{{ mode === 'district' ? '新建目录' :'新建组/虚拟组织' }}</el-button>
         <el-button type="primary" :disabled="!(selectedNode && selectedNode.data.type !== 'ipc' && selectedNode.data.type !== 'nvr')" @click="openInner('edit')">编辑</el-button>
-        <el-button type="primary" :disabled="!(selectedNode && selectedNode.data.type !== 'ipc' && selectedNode.data.type !== 'nvr')" @click="openInner('deleteGroup')">删除组/虚拟组织</el-button>
+        <el-button type="primary" :disabled="!(selectedNode && selectedNode.data.type !== 'ipc' && selectedNode.data.type !== 'nvr')" @click="openInner('deleteGroup')">{{ mode === 'district' ? '删除目录' :'删除组/虚拟组织' }}</el-button>
         <el-button type="primary" :disabled="!(selectedNode && (selectedNode.data.type === 'ipc' || selectedNode.data.type === 'nvr'))" @click="openInner('deleteDevice')">删除设备</el-button>
       </div>
     </div>
@@ -849,6 +849,12 @@ export default class extends Vue {
         } else if (this.gbIdMode === 'district' && !this.dirDigits.includes(x.gbIdDistrict.length)) {
           errorDirNodeData.push(x)
         }
+      } else {
+        if (this.gbIdMode === 'vgroup' && x.gbIdVgroup.length !== 20) {
+          errorDirNodeData.push(x)
+        } else if (this.gbIdMode === 'district' && x.gbIdDistrict.length !== 20) {
+          errorDirNodeData.push(x)
+        }
       }
     })
 
@@ -883,7 +889,7 @@ export default class extends Vue {
     }
     const isDigitRight = this.checkDirDigit(this.sharedDirList)
     if (isDigitRight) {
-      this.$message.error('目录级联ID只能为2、4、6、8、10、20位')
+      this.$message.error('向上级联国标ID位数错误，目录级联ID只能为2、4、6、8、10、20位，设备级联ID只能为20位')
       return
     }
     const list = JSON.parse(JSON.stringify(this.sharedDirList))
