@@ -560,11 +560,11 @@ export default class MapView extends Vue {
         }
         event = () => {
           console.log('点击其他')
-          // this.vmap.cancelChoose()
-          // this.$emit('mapClick', {
-          //   type: 'map',
-          //   info: this.mapOption
-          // })
+          this.vmap.cancelChoose()
+          this.$emit('mapClick', {
+            type: 'map',
+            info: this.mapOption
+          })
         }
     }
     this.handleMapClick = event
