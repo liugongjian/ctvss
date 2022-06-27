@@ -94,7 +94,7 @@ export default class CreateMixin extends Vue {
   }
 
   public get isChannel() {
-    return this.$route.query.isChannel === 'true' || (this.form.parentDeviceId && this.form.parentDeviceId !== '-1')
+    return this.$route.query.isChannel === 'true' || this.form.deviceClass === 'channel' || (!this.form.deviceClass && this.form.parentDeviceId && this.form.parentDeviceId !== '-1')
   }
 
   public get breadcrumb() {

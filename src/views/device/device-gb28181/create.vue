@@ -98,7 +98,7 @@
             </el-select>
           </el-form-item>
           <el-form-item v-if="isUpdate" :label="ifUseDeviceName ? '设备实际名称:' :'设备名称:' " prop="deviceName" class="form-with-tip">
-            <el-input v-model="form.deviceName" :readonly="ifUseDeviceName" :show-password="ifUseDeviceName" />
+            <el-input v-model="form.deviceName" :disabled="ifUseDeviceName" />
             <div class="form-tip">
               2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
             </div>
@@ -596,7 +596,8 @@ export default class extends Mixins(createMixin) {
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
           'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority',
-          'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'serialNumber', 'deviceModel', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode', 'poleId', 'macAddr']))
+          'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'serialNumber', 'deviceModel', 'gbRegion', 'gbRegionLevel',
+          'industryCode', 'networkCode', 'poleId', 'macAddr', 'deviceClass']))
         if (this.form.macAddr || this.form.poleId) {
           this.formExpand = true
         }
