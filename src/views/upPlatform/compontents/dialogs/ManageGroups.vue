@@ -37,6 +37,7 @@
                   <svg-icon name="dir-close" width="15" height="15" />
                 </span>
                 {{ node.label }}
+                <span v-if="data.sharedFlag">(已共享)</span>
               </span>
             </span>
           </el-tree>
@@ -56,7 +57,11 @@
             @node-drag-end="handleDragendShared"
             @node-click="selectSharedDevice"
           >
-            <span slot-scope="{node, data}" class="custom-tree-node" :class="[data.deviceStatus === 'on' ? 'online' : '', step === 0 ? 'custom-tree-node' : 'custom-tree-node-right']">
+            <span
+              slot-scope="{node, data}"
+              class="custom-tree-node"
+              :class="[data.deviceStatus === 'on' ? 'online' : '', step === 0 ? 'custom-tree-node' : 'custom-tree-node-right']"
+            >
               <span slot="reference" class="node-name">
                 <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                 <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
@@ -67,8 +72,17 @@
               </span>
               <span v-if="step === 1" slot="reference" class="node-input" @click.stop="">
                 <div class="node-input__label"><span>{{ node.data.gbId || '-' }}</span></div>
-                <div v-if="gbIdMode === 'district'"><el-input :value="data.gbIdDistrict" size="mini" @input="val => rootInput(node, data, val)" /></div>
-                <div v-else><el-input v-model="data.gbIdVgroup" size="mini" /></div>
+                <div v-show="gbIdMode === 'district'">
+                  <el-input
+                    :value="data.gbIdDistrict"
+                    size="mini"
+                    :class="errorNodesData.find(item => data.id === item.id) ? 'error' : ''"
+                    @input="val => rootInput(node, data, val)"
+                  />
+                </div>
+                <div v-show="gbIdMode === 'vgroup'">
+                  <el-input v-model="data.gbIdVgroup" size="mini" :class="errorNodesData.find(item => data.id === item.id) ? 'error' : ''" />
+                </div>
               </span>
             </span>
           </el-tree>
@@ -78,16 +92,16 @@
         </div>
       </div>
       <div v-if="step === 0" class="device-wrap">
-        <el-button type="primary" @click="openInner('append')">新建组/虚拟组织</el-button>
+        <el-button type="primary" @click="openInner('append')">{{ mode === 'district' ? '新建目录' :'新建组/虚拟组织' }}</el-button>
         <el-button type="primary" :disabled="!(selectedNode && selectedNode.data.type !== 'ipc' && selectedNode.data.type !== 'nvr')" @click="openInner('edit')">编辑</el-button>
-        <el-button type="primary" :disabled="!(selectedNode && selectedNode.data.type !== 'ipc' && selectedNode.data.type !== 'nvr')" @click="openInner('deleteGroup')">删除组/虚拟组织</el-button>
+        <el-button type="primary" :disabled="!(selectedNode && selectedNode.data.type !== 'ipc' && selectedNode.data.type !== 'nvr')" @click="openInner('deleteGroup')">{{ mode === 'district' ? '删除目录' :'删除组/虚拟组织' }}</el-button>
         <el-button type="primary" :disabled="!(selectedNode && (selectedNode.data.type === 'ipc' || selectedNode.data.type === 'nvr'))" @click="openInner('deleteDevice')">删除设备</el-button>
       </div>
     </div>
     <div slot="footer" class="dialog-footer">
       <el-button v-if="step === 0" type="primary" :disabled="sharedDirList.length === 0 || loading.sharedDir || loading.dir" @click="next">下一步</el-button>
       <el-button v-if="step === 1" type="primary" :disabled="loading.sharedDir" @click="prev">上一步</el-button>
-      <el-button v-if="step === 1" type="primary" :disabled="loading.sharedDir" @click="confirm">确 定</el-button>
+      <el-button v-if="step === 1" type="primary" :disabled="loading.sharedDir" @click="submit">确 定</el-button>
       <el-button @click="() => closeDialog(true)">取 消</el-button>
     </div>
     <InnerDialog
@@ -136,9 +150,14 @@ export default class extends Vue {
     isLeaf: 'isLeaf',
     disabled: data => data.sharedFlag
   }
+  private confirmed = false
   private innerDialogType = ''
 
   private innerVisible = false
+
+  private dirDigits = [2, 4, 6, 8, 10, 20]
+
+  private errorNodesData = []
 
   private step = 0
 
@@ -436,9 +455,9 @@ export default class extends Vue {
       if (node.data.type !== 'vgroup' && node.data.type !== 'role') {
         let params: any = {
           platformId: this.platformId,
-          dirId: node.data.type === 'top-group' || node.data.type === 'group' ? -1 : node.data.id,
-          dirType: '0',
-          pageNum: 1,
+          // dirId: node.data.type === 'top-group' || node.data.type === 'group' ? -1 : node.data.id,
+          dirId: node.data.id,
+          dirType: node.data.dirType,
           pageSize: 1000
         }
         const shareDevices: any = await describeShareDevices(params)
@@ -474,7 +493,7 @@ export default class extends Vue {
           deviceStatus: dir.deviceStatus,
           streamStatus: dir.streamStatus,
           disabled: sharedFlag,
-          path: node.data.path.concat([{ ...dir, gbIdDistrict: dir.gbId || '', gbIdVgroup: dir.gbId || '' }]),
+          path: node.data.path.concat([{ ...dir, gbIdDistrict: dir.gbId || '', gbIdVgroup: dir.gbId || '', inProtocol: dir.inProtocol || node.data.inProtocol }]),
           sharedFlag: sharedFlag,
           roleId: node.data.roleId || '',
           realGroupId: node.data.realGroupId || '',
@@ -581,11 +600,9 @@ export default class extends Vue {
       const node = dirTree.getNode(data.id)
       dirTree.setChecked(data.id, !node.checked)
     }
-    console.log('data:', data)
   }
 
   private selectSharedDevice(data: any, node: any) {
-    console.log('data:', data)
     this.selectedNode = node
   }
 
@@ -613,7 +630,6 @@ export default class extends Vue {
   private async handleDragendShared(draggingNode, endNode) {
     const dirTree: any = this.$refs.dirTree
     const vgroupTree: any = this.$refs.vgroupTree
-    console.log('endNode:', endNode)
     if (endNode) {
       if (endNode.data.type === 'ipc' || endNode.data.type === 'nvr') {
         const draggingData = JSON.parse(JSON.stringify(draggingNode.data))
@@ -640,7 +656,6 @@ export default class extends Vue {
 
         // 查看选取设备中是否有nvr通道
         const devices = []
-        console.log('allIPCNodes:', allIPCNodes)
         allIPCNodes.forEach(node => {
           if (node.data.path[node.data.path.length - 2].type === 'nvr') {
             let findFlag = false
@@ -661,7 +676,6 @@ export default class extends Vue {
             })
             if (!findFlag) {
               const parent = node.data.path[node.data.path.length - 2]
-              console.log('parent:', parent)
               devices.push({
                 deviceId: parent.id,
                 gbId: parent.gbId,
@@ -790,7 +804,86 @@ export default class extends Vue {
     return true
   }
 
+  private checkGbIdDuplicated(treeList) {
+    this.errorNodesData = []
+    let res = []
+    treeList.forEach(item => {
+      res.push(item)
+      res.push(...this.flatTree(item))
+    })
+    let duplicate = []
+    res.forEach(x => {
+      const duplicateArr = this.gbIdMode === 'vgroup'
+        ? res.filter(y => x.gbIdVgroup === y.gbIdVgroup)
+        : res.filter(y => x.gbIdDistrict === y.gbIdDistrict)
+      if (duplicateArr.length > 1) {
+        duplicate.push(x)
+      }
+    })
+
+    this.errorNodesData = duplicate
+
+    return this.errorNodesData.length > 1
+  }
+
+  private checkDirDigit(treeList) {
+    this.errorNodesData = []
+    let res = []
+    treeList.forEach(item => {
+      res.push(item)
+      res.push(...this.flatTree(item))
+    })
+    let errorDirNodeData = []
+    res.forEach(x => {
+      if (x.type === 'top-group' || x.type === 'dir') {
+        if (this.gbIdMode === 'vgroup' && !this.dirDigits.includes(x.gbIdVgroup.length)) {
+          errorDirNodeData.push(x)
+        } else if (this.gbIdMode === 'district' && !this.dirDigits.includes(x.gbIdDistrict.length)) {
+          errorDirNodeData.push(x)
+        }
+      } else {
+        if (this.gbIdMode === 'vgroup' && x.gbIdVgroup.length !== 20) {
+          errorDirNodeData.push(x)
+        } else if (this.gbIdMode === 'district' && x.gbIdDistrict.length !== 20) {
+          errorDirNodeData.push(x)
+        }
+      }
+    })
+
+    this.errorNodesData = errorDirNodeData
+    return this.errorNodesData.length > 0
+  }
+
+  // 树扁平化
+  private flatTree(parent) {
+    let arr = []
+    if (parent.children) {
+      arr = parent.children
+      parent.children.forEach(item => {
+        if (item.children) {
+          arr = arr.concat(this.flatTree(item))
+        }
+      })
+    }
+    return arr
+  }
+
+  private submit() {
+    // 等待 数据变化、加载等完成
+    setTimeout(() => this.confirm(), 0)
+  }
+
   private async confirm() {
+    const isDuplicate = this.checkGbIdDuplicated(this.sharedDirList)
+    if (isDuplicate) {
+      this.$message.error('级联国标ID重复，请修改')
+      return
+    }
+    const isDigitRight = this.checkDirDigit(this.sharedDirList)
+    if (isDigitRight) {
+      this.$message.error('向上级联国标ID位数错误，目录级联ID只能为2、4、6、8、10、20位，设备级联ID只能为20位')
+      return
+    }
     const list = JSON.parse(JSON.stringify(this.sharedDirList))
     if (list.length === 0) {
       return this.$message({
@@ -800,8 +893,6 @@ export default class extends Vue {
     }
     let param = []
     list.forEach(item => param.push(...this.generateParam(item, item.children)))
-    console.log('list:', list)
-    console.log('param:', param)
     try {
       await shareDevice({
         platformId: this.platformId,
@@ -862,7 +953,13 @@ export default class extends Vue {
     if (opParam.selectedNode) {
       // 有选择节点
       if (opParam.selectedNode.level !== 1) {
-        this.forceRefreshChildren(vgroupTree, opParam.type === 'append' ? opParam.selectedNode : opParam.selectedNode.parent)
+        if (opParam.type === 'deleteDevice' && opParam.selectedNode.parent.data.type === 'nvr') {
+          this.forceRefreshChildren(vgroupTree, opParam.selectedNode.parent.parent)
+        } else {
+          this.forceRefreshChildren(vgroupTree,
+            opParam.type === 'append' ? opParam.selectedNode : opParam.selectedNode.parent
+          )
+        }
       } else {
         // 根节点更新
         this.initSharedDirs()
@@ -903,11 +1000,10 @@ export default class extends Vue {
         })
       }
       let difference = newSharedDirs.filter(x => !this.sharedDirList.find(y => y.dirId === x.dirId))
-      this.sharedDirList.push(difference[0])
+      this.$nextTick(() => {
+        this.sharedDirList.push(difference[0])
+      })
     }
-
-    this.$message.success('操作成功')
-
     this.innerVisible = false
   }
 
@@ -916,11 +1012,13 @@ export default class extends Vue {
   }
 
   private rootInput(node, data, val) {
-    data.gbIdDistrict = val
-    if (node.level === 1 && this.gbIdMode === 'district') { // 根节点
-      data.gbIdDistrictRoot = val
-      this.changeGbIdDistrictRoot(data, val)
-    }
+    this.$nextTick(() => {
+      data.gbIdDistrict = val
+      if (node.level === 1 && this.gbIdMode === 'district') { // 根节点
+        data.gbIdDistrictRoot = val
+        this.changeGbIdDistrictRoot(data, val)
+      }
+    })
   }
 
   private changeGbIdDistrictRoot(data, val) {
@@ -1103,6 +1201,12 @@ export default class extends Vue {
   .el-input {
     width: 100%;
     height: 25px;
+  }
+
+  .error {
+    ::v-deep .el-input__inner {
+      border: 1px solid red;
+    }
   }
 }
 </style>

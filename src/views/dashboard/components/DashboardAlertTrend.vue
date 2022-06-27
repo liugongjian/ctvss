@@ -187,5 +187,3 @@ export default class extends Mixins(DashboardMixin) {
   }
 }
 </script>
-<style lang="scss" scoped>
-</style>

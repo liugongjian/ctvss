@@ -294,6 +294,7 @@ export default class extends Vue {
    * 提交
    */
   private async submit() {
+    console.log('before:', this.deviceList)
     if (!this.deviceList.length) {
       this.$message.error('未选择任何资源')
       return
@@ -380,6 +381,7 @@ export default class extends Vue {
         platformId: this.platformId,
         vssGroups: groups
       })
+      console.log('after:', groups)
       this.$message.success('添加资源成功！')
     } catch (e) {
       this.$message.error(e && e.message)
@@ -398,9 +400,10 @@ export default class extends Vue {
 <style lang="scss" scoped>
   .dialog-wrap {
     display: flex;
-    margin: -15px 0 10px 0;
+    margin: -15px 0 10px;
     border: 1px solid $borderGrey;
   }
+
   .tree-wrap {
     flex: 1 0;
     height: 550px;
@@ -410,20 +413,25 @@ export default class extends Vue {
 
     .custom-tree-node {
       width: auto;
+
       .node-name {
         position: relative;
+
         .svg-icon {
           color: $textGrey;
         }
       }
+
       &.online {
         .node-name {
           position: relative;
+
           .svg-icon {
             color: #65c465;
           }
         }
       }
+
       .status-badge {
         position: absolute;
         top: -1px;
@@ -432,19 +440,23 @@ export default class extends Vue {
         height: 6px;
         opacity: 0.7;
         display: none;
+
         &--on {
           display: block;
         }
       }
     }
+
     .is-disabled + .custom-tree-node__ipc {
       cursor: not-allowed;
     }
   }
+
   .device-wrap {
     flex: 1 0;
     height: 550px;
     overflow: auto;
+
     &__header {
       font-weight: bold;
       text-align: center;

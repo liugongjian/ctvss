@@ -85,6 +85,28 @@
         <el-form-item v-if="form.isAuth" label="SIP认证密码:" prop="sipPassword">
           <el-input v-model="form.sipPassword" />
         </el-form-item>
+        <el-form-item label="级联方式:" prop="cascadeType">
+          <el-radio-group v-model.number="form.cascadeType">
+            <el-radio :label="2">虚拟业务组</el-radio>
+            <el-radio :label="1">行政区划</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item prop="industryCode" label="所属行业">
+          <el-select v-model="form.industryCode" placeholder="请选择所属行业">
+            <el-option v-for="(item, index) in industryList" :key="index" :label="item.name" :value="item.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item prop="cascadeRegion" class="form-with-tip">
+          <template slot="label">
+            上级级联区域:
+          </template>
+          <AddressCascader
+            :code="form.gbRegion"
+            :level="form.gbRegionLevel"
+            :disabled="false"
+            @change="onDeviceAddressChange"
+          />
+        </el-form-item>
         <el-form-item label="注册周期（秒）:" prop="registerInterval">
           <template slot="label">
             注册周期:
@@ -165,11 +187,15 @@
 </template>
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
+import { DeviceAddress } from '@/type/device'
 import { createPlatform, updatePlatform, getPlatform } from '@/api/upPlatform'
 import { getRegions } from '@/api/region'
+import { industryMap } from '@/assets/region/industry'
+import AddressCascader from '@/views/components/AddressCascader.vue'
 
 @Component({
-  name: 'CreateUpPlatform'
+  name: 'CreateUpPlatform',
+  components: { AddressCascader }
 })
 export default class extends Vue {
   private breadCrumbContent = ''
@@ -195,7 +221,11 @@ export default class extends Vue {
     permissionSet: [],
     description: '',
     enableLocalChannelName: 0, // 不使用 0， 使用 1
-    cascadeNetWork: 'public'
+    cascadeNetWork: 'public',
+    gbRegion: '',
+    gbRegionLevel: '',
+    industryCode: '',
+    cascadeType: 2
   }
   private submitting = false
   private loading = false
@@ -242,9 +272,23 @@ export default class extends Vue {
     ],
     cascadeNetWork: [
       { required: true, message: '请选择网络类型', trigger: 'change' }
+    ],
+    cascadeType: [
+      { required: true, message: '请选择级联类型', trigger: 'change' }
+    ],
+    industryCode: [
+      { required: true, message: '请选择所属行业', trigger: 'change' }
     ]
   }
 
+  private get industryList() {
+    return Object.keys(industryMap).map((key: any) => {
+      return {
+        name: industryMap[key],
+        value: key
+      }
+    })
+  }
   private get isUpdate() {
     return this.$route.name === 'up-platform-gb28121-update'
   }
@@ -287,6 +331,14 @@ export default class extends Vue {
     } finally {
       this.loading = false
     }
+  }
+
+  /**
+   * 选择设备地址
+   */
+  public onDeviceAddressChange(region: DeviceAddress) {
+    this.form.gbRegion = region.code
+    this.form.gbRegionLevel = region.level
   }
 
   /**
@@ -440,7 +492,8 @@ export default class extends Vue {
 
 <style lang="scss" scoped>
 .app-container {
-  ::v-deep .el-input, ::v-deep .el-textarea {
+  ::v-deep .el-input,
+  ::v-deep .el-textarea {
     width: 400px;
   }
 }
