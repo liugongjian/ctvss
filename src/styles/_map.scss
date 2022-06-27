@@ -116,6 +116,17 @@
     background: url('~@/icons/svg/delete.svg') no-repeat;
     background-size: contain;
   }
+  .marker-label {
+    display: block;
+    position: absolute;
+    bottom: -10px;
+    font-size: 12px;
+    text-align: center;
+    width: 50px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
 }
 
 // 摄像头标记点样式
@@ -138,17 +149,6 @@
     width: 24px;
   }
 
-  .marker-label {
-    display: block;
-    position: absolute;
-    bottom: -10px;
-    font-size: 12px;
-    text-align: center;
-    width: 50px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
   .marker-options .icon-wrap {
     display: inline-block;
     width: 16px;
@@ -203,6 +203,9 @@
     .marker-options {
       display: block;
     }
+  }
+  .marker-label {
+    display: block!important;
   }
 }
 

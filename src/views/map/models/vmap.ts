@@ -3,7 +3,7 @@ import LngLat = AMap.LngLat
 import { getDevice } from '@/api/device'
 // import { checkPermission } from '@/utils/permission'
 import { getStyle } from '@/utils/map'
-import { drawCamera, drawBubblePoint, drawTextPoint } from './draw'
+import { drawCamera, drawBubblePoint, drawTextPoint } from '../utils/draw'
 
 export interface mapObject {
   mapId: string,
@@ -45,6 +45,7 @@ export interface markerObject {
   gbRegionNames?: Array<any>,
   groupId?: string
   deviceColor?: string
+  appearance?: string
 }
 
 export interface events {
@@ -534,7 +535,8 @@ export default class VMap {
       this.InterestEventHandlers.deletePoi(id)
     }
     pointsList.forEach(point => {
-      if (point.colorType === 'bubble') {
+      const { colorType } = JSON.parse(point.appearance)
+      if (colorType === 'bubble') {
         const marker = new AMap.Marker({
           position: this.handlePoint(point.points)[0],
           offset: new AMap.Pixel(-20, -20),
@@ -563,7 +565,7 @@ export default class VMap {
           }
         })
         this.pois.push(marker)
-      } else if (point.colorType === 'text') {
+      } else if (colorType === 'text') {
         const marker = new AMap.Marker({
           position: this.handlePoint(point.points)[0],
           offset: new AMap.Pixel(-90, -26),

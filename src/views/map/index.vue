@@ -115,39 +115,39 @@
             </span> -->
           </div>
           <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
-            <el-dialog :title="mapEditDialog.status === 'add' ? '添加地图' : '编辑地图'" :visible.sync="mapEditDialog.dialogVisible" width="45%" class="dialog-text">
-              <el-form ref="mapform" :model="form" label-width="150px" :rules="rules">
-                <el-form-item label="名称" prop="name">
-                  <el-input v-model="form.name" placeholder="请输入地图名称" />
-                </el-form-item>
-                <el-form-item label="中心点经度" prop="longitude">
-                  <el-input v-model="form.longitude" placeholder="请输入地图中心点经度" />
-                </el-form-item>
-                <el-form-item label="中心点纬度" prop="latitude">
-                  <el-input v-model="form.latitude" placeholder="请输入地图中心点纬度" />
-                </el-form-item>
-                <el-form-item prop="zoom">
-                  <template slot="label">
-                    <span>默认缩放比例
-                      <el-tooltip content="设置地图的默认缩放比例，表示每厘米对应实际的距离。">
-                        <svg-icon name="help" />
-                      </el-tooltip>
-                    </span>
-                  </template>
-                  <div class="block">
-                    <el-slider v-model="form.zoom" :min="3" :max="20" />
-                    <span class="zoomdesc">{{ zoomDesc }}</span>
-                  </div>
-                </el-form-item>
-                <el-form-item v-if="mapEditDialog.status === 'edit'" label="是否启用蒙版" prop="mask" class="mask">
-                  <el-checkbox v-model="form.mask" />
-                </el-form-item>
-              </el-form>
-              <span slot="footer" class="dialog-footer">
-                <el-button type="primary" @click="addOrEditMap">确定</el-button>
-                <el-button @click="mapEditDialog.dialogVisible = false">取消</el-button>
-              </span>
-            </el-dialog>
+<!--            <el-dialog :title="mapEditDialog.status === 'add' ? '添加地图' : '编辑地图'" :visible.sync="mapEditDialog.dialogVisible" width="45%" class="dialog-text">-->
+<!--              <el-form ref="mapform" :model="form" label-width="150px" :rules="rules">-->
+<!--                <el-form-item label="名称" prop="name">-->
+<!--                  <el-input v-model="form.name" placeholder="请输入地图名称" />-->
+<!--                </el-form-item>-->
+<!--                <el-form-item label="中心点经度" prop="longitude">-->
+<!--                  <el-input v-model="form.longitude" placeholder="请输入地图中心点经度" />-->
+<!--                </el-form-item>-->
+<!--                <el-form-item label="中心点纬度" prop="latitude">-->
+<!--                  <el-input v-model="form.latitude" placeholder="请输入地图中心点纬度" />-->
+<!--                </el-form-item>-->
+<!--                <el-form-item prop="zoom">-->
+<!--                  <template slot="label">-->
+<!--                    <span>默认缩放比例-->
+<!--                      <el-tooltip content="设置地图的默认缩放比例，表示每厘米对应实际的距离。">-->
+<!--                        <svg-icon name="help" />-->
+<!--                      </el-tooltip>-->
+<!--                    </span>-->
+<!--                  </template>-->
+<!--                  <div class="block">-->
+<!--                    <el-slider v-model="form.zoom" :min="3" :max="20" />-->
+<!--                    <span class="zoomdesc">{{ zoomDesc }}</span>-->
+<!--                  </div>-->
+<!--                </el-form-item>-->
+<!--                <el-form-item v-if="mapEditDialog.status === 'edit'" label="是否启用蒙版" prop="mask" class="mask">-->
+<!--                  <el-checkbox v-model="form.mask" />-->
+<!--                </el-form-item>-->
+<!--              </el-form>-->
+<!--              <span slot="footer" class="dialog-footer">-->
+<!--                <el-button type="primary" @click="addOrEditMap">确定</el-button>-->
+<!--                <el-button @click="mapEditDialog.dialogVisible = false">取消</el-button>-->
+<!--              </span>-->
+<!--            </el-dialog>-->
             <el-dialog title="修改地图" :visible.sync="modifyMapDialog" class="dialog-text">
               <div>
                 <h3>确定覆盖“{{ curMap && curMap.name }}”的属性？</h3>
@@ -218,7 +218,8 @@
               </div>
             </div>
           </div>
-          <!-- <custom-point v-if="showCustomPoint" :key="freshWithKey" :custom-point-info="customPointInfo" @closeEditMark="closeEditMark" @chooseMap="chooseMap" /> -->
+<!--           <custom-point v-if="showCustomPoint" :key="freshWithKey" :custom-point-info="customPointInfo" @closeEditMark="closeEditMark" @chooseMap="chooseMap" /> -->
+           <map-config v-if="showMapConfig" :info="mapConfigInfo" @close="showMapConfig=false" @changeMap="addOrEditMap"/>
         </div>
       </div>
     </el-card>
@@ -239,6 +240,7 @@ import { getMaps, createMap, deleteMap, modifyMap } from '@/api/map'
 import { mapObject } from '@/views/map/models/vmap'
 import CustomPoint from './components/CustomPoint/index.vue'
 import CustomInfo from './components/CustomInfo/index.vue'
+import MapConfig from './mapConfig'
 
 @Component({
   name: 'Map',
@@ -249,7 +251,8 @@ import CustomInfo from './components/CustomInfo/index.vue'
     PointInfo,
     SelectedPoint,
     CustomPoint,
-    CustomInfo
+    CustomInfo,
+    MapConfig
   }
 })
 export default class extends Mixins(IndexMixin) {
@@ -261,6 +264,7 @@ export default class extends Mixins(IndexMixin) {
   }
   private renderAlertType = renderAlertType
   private getSums = getSums
+  private mapConfigInfo = null
   private mapEditDialog = { // 修改或添加地图对话框
     dialogVisible: false,
     status: 'add' // add|edit
@@ -420,8 +424,8 @@ export default class extends Mixins(IndexMixin) {
   private curMapInfo = null
   private curMarkInfo = null
   private overView = false
-  private showMarkers = true
-  private is3D = true
+  private showMarkers = false
+  private is3D = false
   private marker = null
   // @Prop()
   // private platformId: any = '417932083494649856'
@@ -431,6 +435,7 @@ export default class extends Mixins(IndexMixin) {
   }
 
   private showCustomPoint = false
+  private showMapConfig = false
   private customPointInfo: any = {}
 
   /**
@@ -1026,78 +1031,53 @@ export default class extends Mixins(IndexMixin) {
     this.$refs.mapview.handleMarkerDelete(marker.id, marker.label)
   }
 
-  toggleMarkersShow() {
-    if (this.curMap) {
-      this.showMarkers = !this.showMarkers
-      this.$refs.mapview.setMarkersView(this.showMarkers)
+  toggleMarkersShow(isOpen) {
+    const flag = isOpen === 'Y'
+    if (this.showMarkers !== flag) {
+      this.showMarkers = flag
+      this.$refs.mapview.setMarkersView(flag)
     }
   }
-  toggleOverView() {
-    if (this.mapList.length > 0) {
-      this.overView = !this.overView
-      this.$refs.mapview.toggleOverView(this.overView)
+  toggleOverView(isOpen) {
+    const flag = isOpen === 'Y'
+    if (this.overView !== flag) {
+      this.overView = flag
+      this.$refs.mapview.toggleOverView(flag)
     }
   }
-  toggleMap3D() {
-    if (this.curMap) {
-      this.is3D = !this.is3D
-      this.$refs.mapview.toggleMap3D(this.is3D)
+  toggleMap3D(isOpen) {
+    const flag = isOpen === 'Y'
+    if (this.is3D !== flag) {
+      this.is3D = flag
+      this.$refs.mapview.toggleMap3D(flag)
     }
   }
 
-  addOrEditMap() {
-    this.$refs.mapform.validate(async(valid: any) => {
-      if (valid) {
-        try {
-          const map = {
-            name: this.form.name,
-            longitude: this.form.longitude || '116.397428',
-            latitude: this.form.latitude || '39.90923',
-            zoom: this.form.zoom
-          }
-          if (this.mapEditDialog.status === 'add') {
-            const res = await createMap(map)
-            const mapId = res.mapId
-            this.curMap = { ...map, mapId }
-            if (this.mapList.length > 0) {
-              this.$refs.mapview.setMap(this.curMap)
-              this.$refs.mapview.closeAllPlayer()
-            }
-            this.mapList.push(this.curMap)
-            this.mapEditDialog.dialogVisible = false
-          } else {
-            const mask = this.form.mask ? 'Y' : 'N'
-            const map = {
-              mapId: this.form.mapId,
-              name: this.form.name,
-              longitude: this.form.longitude || '116.397428',
-              latitude: this.form.latitude || '39.90923',
-              zoom: this.form.zoom,
-              mask
-            }
-            await modifyMap(map)
-            this.mapList = this.mapList.map(item => {
-              if (item.mapId === map.mapId) {
-                return map
-              } else {
-                return item
-              }
-            })
-            this.curMap = map
-            this.$refs.mapview.setMapZoomAndCenter(this.curMap.zoom, this.curMap.longitude, this.curMap.latitude)
-            this.$refs.mapview.renderMask(mask)
-            this.$alertSuccess('地图修改成功')
-            this.mapEditDialog.dialogVisible = false
-          }
-        } catch (e) {
-          this.$alertError(e.message)
-        } finally {
-          // this.closeEditMark()
-        }
-      } else {
-        return false
+  addOrEditMap(infos) {
+    const { type, mapinfo } = infos
+    if (type === 'add') {
+      this.curMap = mapinfo
+      if (this.mapList.length > 0) {
+        this.$refs.mapview.setMap(this.curMap)
+        this.$refs.mapview.closeAllPlayer()
       }
-    })
+      this.mapList.push(this.curMap)
+    } else {
+      this.mapList = this.mapList.map(item => {
+        if (item.mapId === mapinfo.mapId) {
+          return mapinfo
+        } else {
+          return item
+        }
+      })
+      this.curMap = mapinfo
+      this.$refs.mapview.setMapZoomAndCenter(this.curMap.zoom, this.curMap.longitude, this.curMap.latitude)
+      this.$refs.mapview.renderMask(mapinfo.mask)
+      this.$alertSuccess('地图修改成功')
+    }
+    this.toggleOverView(mapinfo.eagle)
+    this.toggleMap3D(mapinfo.dimension)
+    this.toggleMarkersShow(mapinfo.marker)
   }
 
   changeMarkerInfos(mark) {
@@ -1124,27 +1104,33 @@ export default class extends Mixins(IndexMixin) {
   // 打开地图信息编辑弹窗 新增/修改
   private openMapEditDialog(map?: mapObject) {
     if (map) {
-      this.form = {
+      this.mapConfigInfo = {
         mapId: map.mapId,
         name: map.name,
         longitude: map.longitude + '',
         latitude: map.latitude + '',
         zoom: Number(map.zoom),
-        mask: map.mask === 'Y'
+        mask: map.mask === 'Y',
+        eagle: map.eagle === 'Y',
+        dimension: map.dimension === 'Y',
+        marker: map.marker === 'Y',
       }
-      this.mapEditDialog.status = 'edit'
+      this.mapConfigInfo.status = 'edit'
     } else {
-      this.form = {
+      this.mapConfigInfo = {
         mapId: '',
         name: '',
         longitude: '',
         latitude: '',
         zoom: 12,
-        mask: false
+        mask: false,
+        eagle: false,
+        dimension: false,
+        marker: false
       }
-      this.mapEditDialog.status = 'add'
+      this.mapConfigInfo.status = 'add'
     }
-    this.mapEditDialog.dialogVisible = true
+    this.showMapConfig = true
   }
 
   // 设置地图点兴趣点

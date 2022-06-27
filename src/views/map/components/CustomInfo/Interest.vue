@@ -6,12 +6,12 @@
     </div>
     <el-descriptions title="基本属性" :column="1">
       <el-descriptions-item label="名称">
-        <el-input v-model="mapInfo.name" placeholder="兴趣点名称" />
+        <el-input v-model="interestInfos.tagName" placeholder="兴趣点名称" />
         <el-checkbox v-model="checked">始终显示名称</el-checkbox>
       </el-descriptions-item>
       <el-descriptions-item label="备注">
         <el-input
-          v-model="mapInfo.name"
+          v-model="interestInfos.description"
           type="textarea"
           :rows="2"
           placeholder="请输入内容"
@@ -22,23 +22,23 @@
     </el-descriptions>
     <el-descriptions title="位置信息" :column="1">
       <el-descriptions-item label="经度">
-        <el-input v-model="mapInfo.longitude" />
+        <el-input v-model="interestInfos.longitude" />
       </el-descriptions-item>
       <el-descriptions-item label="纬度">
-        <el-input v-model="mapInfo.latitude" />
+        <el-input v-model="interestInfos.latitude" />
       </el-descriptions-item>
     </el-descriptions>
     <el-descriptions title="外观" :column="1">
       <el-descriptions-item label="颜色">
-        <span class="map-point-base-info__color" :style="`background-color: ${color}`" @click="pickColor" />
-        <sketch-picker v-if="ifPickColor" v-model="color" @input="colorChange" />
+        <span class="map-point-base-info__color" :style="`background-color: ${interestInfos.color}`" @click="pickColor" />
+        <sketch-picker v-if="ifPickColor" v-model="interestInfos.color" @input="colorChange" />
       </el-descriptions-item>
-      <el-descriptions-item label="大小">
-        <div class="map-point-base-info__small-box">
-          <el-input v-model="mapInfo.info" />宽
-          <el-input v-model="mapInfo.info" />高
-        </div>
-      </el-descriptions-item>
+<!--      <el-descriptions-item label="大小">-->
+<!--        <div class="map-point-base-info__small-box">-->
+<!--          <el-input v-model="mapInfo.info" />宽-->
+<!--          <el-input v-model="mapInfo.info" />高-->
+<!--        </div>-->
+<!--      </el-descriptions-item>-->
     </el-descriptions>
   </div>
 </template>
@@ -46,6 +46,7 @@
 <script  lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Sketch } from 'vue-color'
+import { MapModule } from '@/store/modules/map'
 
 @Component({
   name: 'CustomInfo',
@@ -65,6 +66,10 @@ export default class Interest extends Vue {
     latitude: '',
     zoom: ''
   }
+  get interestInfos() {
+    return MapModule.interestInfos
+  }
+
   private colorChange(val: any) {
     this.color = val.hex
   }

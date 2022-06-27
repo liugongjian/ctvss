@@ -356,6 +356,7 @@ export default class MapView extends Vue {
   }
 
   handleDevice(device) {
+    const appearance = {color: 'red'}
     const result = {
       deviceId: device.deviceId,
       inProtocol: device.inProtocol,
@@ -371,7 +372,8 @@ export default class MapView extends Vue {
       unitInfo: device.unitInfo,
       gbRegionNames: device.gbRegionNames,
       groupId: device.groupId,
-      deviceColor: device.deviceColor
+      deviceColor: '',
+      appearance: JSON.stringify(appearance)
     }
     return result
   }
@@ -450,29 +452,27 @@ export default class MapView extends Vue {
     const tagName = type === 'interest' ? '兴趣点标记' : '文本标记'
     const colorType = type === 'interest' ? 'bubble' : 'text'
     const { lng, lat } = position
+    const appearance = {color: 'yellow', colorType}
     const param = {
       tagName,
       type: 'InterestPoint',
-      description: '',
+      description: 'aaaaa',
       mapId: this.mapId,
       points: [{ longitude: lng.toString(), latitude: lat.toString() }],
-      color: 'blue',
-      colorType
+      color: '',
+      colorType: '',
+      appearance: JSON.stringify(appearance)
     }
     console.log('新增兴趣点： ', param.points[0])
-    // addInterestPoint(param).then(() => {
-    //   this.$message.success('新增成功')
-    // }).catch(err => {
-    //   this.$message.error(`${err.message ? err.message : err}`)
-    // }
-    const suc = true
-    if (suc) {
-      this.interestPointList.push(param);
+    addInterestPoint(param).then(data => {
+      const { tagId } = data
+      this.interestPointList.push({...param, tagId});
       this.vmap.renderPoi(this.interestPointList)
       return true
-    } else {
+    }).catch(err => {
+      this.$message.error(`${err.message ? err.message : err}`)
       return false
-    }
+    })
   }
 
   addPolygon(points) {
