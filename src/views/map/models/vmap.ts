@@ -12,6 +12,9 @@ export interface mapObject {
   latitude: number,
   zoom: number,
   mask?: string
+  eagle?: string
+  dimension?: string
+  marker?: string
 }
 
 declare global {
@@ -299,7 +302,7 @@ export default class VMap {
   }
 
   // @isMarker 是否摄像头点位本身触发的取消选取
-  cancelChoose(isMarker) {
+  cancelChoose(isMarker?) {
     if (isMarker) {
       this.InterestEventHandlers.clickPoi(null)
       this.polygonEditor.close()
@@ -535,7 +538,8 @@ export default class VMap {
       this.InterestEventHandlers.deletePoi(id)
     }
     pointsList.forEach(point => {
-      const { colorType } = JSON.parse(point.appearance)
+      const appearance = point.appearance || '{}'
+      const { colorType } = JSON.parse(appearance)
       if (colorType === 'bubble') {
         const marker = new AMap.Marker({
           position: this.handlePoint(point.points)[0],
@@ -628,8 +632,7 @@ export default class VMap {
       const polygon = new AMap.Polygon({
         map: this.map,
         path: this.handlePoint(item.points),
-        fillOpacity: 0,
-        bubble: false
+        fillOpacity: 0
       })
       polygon.on('click', () => {
         if (this.eventState === 'pointer' && this.isEdit) {
@@ -665,10 +668,10 @@ export default class VMap {
   drawInterest(type) {
     switch (type) {
       case 'interest':
-        this.mouseTool.marker({content: '<div></div>'})
+        this.mouseTool.marker({ content: '<div></div>' })
         break
       case 'font':
-        this.mouseTool.marker({content: '<div></div>'})
+        this.mouseTool.marker({ content: '<div></div>' })
         break
       case 'polygon':
         this.mouseTool.polygon({
@@ -693,4 +696,3 @@ export default class VMap {
     }
   }
 }
-

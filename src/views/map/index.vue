@@ -77,11 +77,10 @@
           <div class="tools">
             <span class="left">
               <span class="btn-edit tools-item" @click="changeEdit()">{{ isEdit ? '完成编辑' : '开启编辑' }}</span>
-
               <template v-if="isEdit" >
                 <div class="device-list__right__handleBox">
-                  <el-tooltip v-for="item in customType" :content="item.text" placement="top" :key="item.name">
-                     <span class="device-list__right__handleBox__tools" :class="{'active':customInfoType === item.tool}" @click="changeCustomInfoType(item.tool,true)" >
+                  <el-tooltip v-for="item in toolType" :content="item.text" placement="top" :key="item.name">
+                     <span class="device-list__right__handleBox__tools" :class="{'active':customInfoType === item.tool}" @click="changeToolState(item.tool)" >
                       <svg-icon :name="item.name" />
                     </span>
                   </el-tooltip>
@@ -89,7 +88,7 @@
               </template>
 
               <el-tooltip content="关闭所有播放窗口" placement="top">
-                <span class="tools-item"><svg-icon name="close-all" @click=" closeAllWindow()" /></span>
+                <span class="tools-item"><svg-icon name="close-all" @click="closeAllWindow()" /></span>
               </el-tooltip>
 
               <el-tooltip content="属性" placement="top">
@@ -108,46 +107,8 @@
                 </span>
               </el-tooltip>
             </span>
-            <!-- <span class="right">
-              <el-tooltip content="属性" placement="top">
-                <span class="tools-item"><svg-icon name="toggle-show" @click="showInfo = !showInfo" /></span>
-              </el-tooltip>
-            </span> -->
           </div>
           <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
-<!--            <el-dialog :title="mapEditDialog.status === 'add' ? '添加地图' : '编辑地图'" :visible.sync="mapEditDialog.dialogVisible" width="45%" class="dialog-text">-->
-<!--              <el-form ref="mapform" :model="form" label-width="150px" :rules="rules">-->
-<!--                <el-form-item label="名称" prop="name">-->
-<!--                  <el-input v-model="form.name" placeholder="请输入地图名称" />-->
-<!--                </el-form-item>-->
-<!--                <el-form-item label="中心点经度" prop="longitude">-->
-<!--                  <el-input v-model="form.longitude" placeholder="请输入地图中心点经度" />-->
-<!--                </el-form-item>-->
-<!--                <el-form-item label="中心点纬度" prop="latitude">-->
-<!--                  <el-input v-model="form.latitude" placeholder="请输入地图中心点纬度" />-->
-<!--                </el-form-item>-->
-<!--                <el-form-item prop="zoom">-->
-<!--                  <template slot="label">-->
-<!--                    <span>默认缩放比例-->
-<!--                      <el-tooltip content="设置地图的默认缩放比例，表示每厘米对应实际的距离。">-->
-<!--                        <svg-icon name="help" />-->
-<!--                      </el-tooltip>-->
-<!--                    </span>-->
-<!--                  </template>-->
-<!--                  <div class="block">-->
-<!--                    <el-slider v-model="form.zoom" :min="3" :max="20" />-->
-<!--                    <span class="zoomdesc">{{ zoomDesc }}</span>-->
-<!--                  </div>-->
-<!--                </el-form-item>-->
-<!--                <el-form-item v-if="mapEditDialog.status === 'edit'" label="是否启用蒙版" prop="mask" class="mask">-->
-<!--                  <el-checkbox v-model="form.mask" />-->
-<!--                </el-form-item>-->
-<!--              </el-form>-->
-<!--              <span slot="footer" class="dialog-footer">-->
-<!--                <el-button type="primary" @click="addOrEditMap">确定</el-button>-->
-<!--                <el-button @click="mapEditDialog.dialogVisible = false">取消</el-button>-->
-<!--              </span>-->
-<!--            </el-dialog>-->
             <el-dialog title="修改地图" :visible.sync="modifyMapDialog" class="dialog-text">
               <div>
                 <h3>确定覆盖“{{ curMap && curMap.name }}”的属性？</h3>
@@ -208,13 +169,7 @@
                 <el-button type="primary" @click="openMapEditDialog()">添加地图</el-button>
               </div>
               <div v-show="showInfo" class="map-info__right">
-                <!-- <div v-if="showMapInfo">
-                  <map-info :is-edit="isEdit" :map="curMap" @save="changeMapInfos" />
-                </div>
-                <div v-if="!showMapInfo">
-                  <point-info :is-edit="isEdit" :marker="curMarkInfo" @save="changeMarkerInfos" />
-                </div> -->
-                <custom-info v-if="customInfoType" :key="customInfoType" :map="curMap" :is-edit="isEdit" :marker="curMarkInfo" :custom-info-type="customInfoType" @save="changeMarkerInfos" />
+                <custom-info v-if="customInfoType" :key="customInfoType" :is-add='isAddCustom' :is-edit="isEdit" :custom-info-type="customInfoType" />
               </div>
             </div>
           </div>
@@ -240,7 +195,8 @@ import { getMaps, createMap, deleteMap, modifyMap } from '@/api/map'
 import { mapObject } from '@/views/map/models/vmap'
 import CustomPoint from './components/CustomPoint/index.vue'
 import CustomInfo from './components/CustomInfo/index.vue'
-import MapConfig from './mapConfig'
+import MapConfig from './mapConfig.vue'
+import { MapModule } from '@/store/modules/map'
 
 @Component({
   name: 'Map',
@@ -277,7 +233,6 @@ export default class extends Mixins(IndexMixin) {
   // public breadcrumb: Array<any> = []
   private hideTitle = true
   private showInfo = false
-  private showMapInfo = true
   private firstShowMarkerInfo = true
   private addPositionDialog = false // 显示询问本次编辑要不要继承设备坐标的对话弹窗
   private addPositionDialogCheck = false // 是否询问本次编辑要不要继承设备坐标
@@ -291,25 +246,7 @@ export default class extends Mixins(IndexMixin) {
   private dragNodeInfo: any = {}
   private ifDragging: boolean = false
   private customInfoType: string = ''
-  private customType=[
-    {
-      name:'pointer',
-      text:'指针工具',
-      tool:'map',
-    },{
-      name:'polygon',
-      text:'多边形工具',
-      tool:'polygon'
-    },{
-      name:'interest',
-      text:'兴趣点工具',
-      tool:'interest'
-    },{
-      name:'font',
-      text:'文本工具',
-      tool:'font'
-    }
-  ]
+
   private form = {
     mapId: '',
     name: '',
@@ -437,6 +374,32 @@ export default class extends Mixins(IndexMixin) {
   private showCustomPoint = false
   private showMapConfig = false
   private customPointInfo: any = {}
+
+  private toolType=[
+    {
+      name:'pointer',
+      text:'指针工具',
+      tool:'map',
+    },{
+      name:'polygon',
+      text:'多边形工具',
+      tool:'polygon'
+    },{
+      name:'interest',
+      text:'兴趣点工具',
+      tool:'interest'
+    },{
+      name:'font',
+      text:'文本工具',
+      tool:'font'
+    }
+  ]
+  private toolState = 'look' // 当前工具栏状态，look 表示非编辑时查看状态
+
+  get isAddCustom() {
+    const addState = ['polygon', 'interest', 'font']
+    return addState.includes(this.toolState)
+  }
 
   /**
    * 目录初始化
@@ -793,29 +756,66 @@ export default class extends Mixins(IndexMixin) {
   }
   handleMapClick(infos) {
     const { type, info } = infos
-    if (type === 'map') {
-      this.showInfo = false
-      this.showMapInfo = true
-    } else if (type === 'marker') {
-      this.showMapInfo = false
-      if (this.firstShowMarkerInfo) {
-        this.showInfo = true
-        this.firstShowMarkerInfo = false
-      }
-      this.curMarkInfo = info
+    this.customInfoType = type
+    switch (type) {
+      case 'map':
+        this.showInfo = false
+        MapModule.SetMapInfo(info)
+        break
+      case 'marker':
+        if (this.firstShowMarkerInfo) {
+          this.showInfo = true
+          this.firstShowMarkerInfo = false
+        }
+        MapModule.SetMarkerInfo(info)
+        break
+      case 'interest':
+        MapModule.SetInterestInfo(info)
+        break
+      case 'font':
+        MapModule.SetFontInfo(info)
+        break
+      case 'polygon':
+        MapModule.SetPolygonInfo(info)
+        break
     }
-    this.changeCustomInfoType(type, false)
+  }
+
+  private changeToolState(type) {
+    this.toolState = type
+    this.$refs.mapview.changeMapClickEvent(type)
+    switch (type) {
+      case 'interest':
+        MapModule.ResetInterestInfo()
+        this.showInfo = true
+        this.customInfoType = type
+        break
+      case 'font':
+        MapModule.ResetFontInfo()
+        this.showInfo = true
+        this.customInfoType = type
+      case 'polygon':
+        MapModule.ResetPolygonInfo()
+        this.showInfo = true
+        this.customInfoType = type
+        break;
+      case 'look':
+      case 'pointer':
+        this.showInfo = false
+        this.customInfoType = ''
+        break
+    }
   }
 
   private changeCustomInfoType(type: string, flag: boolean) {
-    if(type === 'map'){
-      if(!flag){
+    if(type === 'map') {
+      if(!flag) {
         this.showInfo = !this.showInfo
         this.customInfoType = type
         if(!this.showInfo){
           this.customInfoType = ''
         }
-      }else{
+      } else {
         this.showInfo = false
         if(this.customInfoType === 'map'){
           this.customInfoType = ''
@@ -823,13 +823,13 @@ export default class extends Mixins(IndexMixin) {
           this.customInfoType = type
         }
       }
-    }else{
-      if(this.customInfoType && type === this.customInfoType){
+    } else {
+      if(this.customInfoType && type === this.customInfoType) {
         this.showInfo = !this.showInfo
-        if(!this.showInfo){
+        if(!this.showInfo) {
           this.customInfoType = ''
         }
-      }else{
+      } else {
         this.showInfo = true
       }
       this.customInfoType = type
@@ -856,6 +856,7 @@ export default class extends Mixins(IndexMixin) {
     this.addPositionDialogCheck = false
     this.addNoPositionDialogCheck = false
     this.dragAddNoPositionDialogCheck = false
+    this.isEdit ? this.changeToolState('pointer') : this.changeToolState('look')
   }
 
   cancelAddMark() {
@@ -1174,7 +1175,7 @@ export default class extends Mixins(IndexMixin) {
     this.showCustomPoint = false
     this.customPointInfo = {}
     this.showInfo = false
-    this.showMapInfo = true
+    // this.showMapInfo = true
     this.showMarkers = true
     this.curMap = map
     this.$refs.mapview.setMap(map)
@@ -1195,13 +1196,14 @@ export default class extends Mixins(IndexMixin) {
       }
     })
   }
-  private handleMapInfo(infos) {
-    const { type, info } = infos
-    if (type === 'map') {
-      this.curMap = info
-    } else if (type === 'marker') {
-      this.curMarkInfo = info
-    }
+  private handleMapInfo(info) {
+    // const { type, info } = infos
+    // if (type === 'map') {
+    //   this.curMap = info
+    // } else if (type === 'marker') {
+    //   this.curMarkInfo = info
+    // }
+    this.curMap = info
   }
 
   private async modifyMap() {

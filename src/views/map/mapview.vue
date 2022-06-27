@@ -30,6 +30,7 @@
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import VMap, { getAMapLoad } from './models/vmap'
+import { MapModule } from '@/store/modules/map'
 import axios from 'axios'
 import {
   getMapDevices,
@@ -98,7 +99,7 @@ export default class MapView extends Vue {
         clickPoi: this.choosePoi,
         deletePoi: this.deleteInterest,
         addPolygon: this.addPolygon,
-        clickPolygon: this.choosePolygon,
+        clickPolygon: this.choosePolygon
       })
     })
   }
@@ -208,10 +209,7 @@ export default class MapView extends Vue {
         latitude: center.lat,
         zoom
       }
-      this.$emit('mapChange', {
-        type: 'map',
-        info: mapInfo
-      })
+      this.$emit('mapChange', mapInfo)
     }
     map.on('moveend', getMapInfo)
     map.on('zoomend', getMapInfo)
@@ -230,10 +228,10 @@ export default class MapView extends Vue {
   }
 
   private async handleMarkerModify(marker) {
-    this.$emit('mapChange', {
-      type: 'marker',
-      info: marker
-    })
+    // this.$emit('mapChange', {
+    //   type: 'marker',
+    //   info: marker
+    // })
     this.markerChange(marker, false)
   }
 
@@ -356,7 +354,7 @@ export default class MapView extends Vue {
   }
 
   handleDevice(device) {
-    const appearance = {color: 'red'}
+    const appearance = { color: 'red' }
     const result = {
       deviceId: device.deviceId,
       inProtocol: device.inProtocol,
@@ -412,7 +410,7 @@ export default class MapView extends Vue {
         otherPoints[i].setAttribute('class', nClass)
         otherPoints[i].parentElement.setAttribute('class', 'amap-marker')
       }
-      const $point = document.getElementById(`marker-point-${point.tagId}`);
+      const $point = document.getElementById(`marker-point-${point.tagId}`)
       const nClass = $point.getAttribute('class')
       $point.setAttribute('class', `${nClass} selected`)
       $point.parentElement.setAttribute('class', 'amap-marker selected')
@@ -437,6 +435,7 @@ export default class MapView extends Vue {
   choosePolygon(polygon) {
     if (polygon) {
       console.log('点击了polygon，', polygon)
+      // this.vmap.map.off('click', this.handleMapClick) // polygonEditor.open() 会触发map的click事件
       // 弹出右边的信息窗
       // this.$emit('mapClick', {
       //   type: 'marker',
@@ -449,30 +448,35 @@ export default class MapView extends Vue {
 
   addInterstPoi(position, type) {
     console.log('addInterstPoi', type)
-    const tagName = type === 'interest' ? '兴趣点标记' : '文本标记'
-    const colorType = type === 'interest' ? 'bubble' : 'text'
+    let infos
+    if (type === 'interest') {
+      infos = MapModule.interestInfo
+    } else {
+      infos = MapModule.fontInfo
+    }
     const { lng, lat } = position
-    const appearance = {color: 'yellow', colorType}
     const param = {
-      tagName,
-      type: 'InterestPoint',
-      description: 'aaaaa',
+      ...infos,
       mapId: this.mapId,
       points: [{ longitude: lng.toString(), latitude: lat.toString() }],
-      color: '',
-      colorType: '',
-      appearance: JSON.stringify(appearance)
+      appearance: JSON.stringify(infos.appearance)
     }
-    console.log('新增兴趣点： ', param.points[0])
-    addInterestPoint(param).then(data => {
-      const { tagId } = data
-      this.interestPointList.push({...param, tagId});
-      this.vmap.renderPoi(this.interestPointList)
-      return true
-    }).catch(err => {
-      this.$message.error(`${err.message ? err.message : err}`)
-      return false
-    })
+    console.log('新增兴趣点： ', param)
+    // addInterestPoint(param).then(data => {
+    //   const { tagId } = data
+    //   this.interestPointList.push({ ...param, tagId })
+    //   this.vmap.renderPoi(this.interestPointList)
+    //   return true
+    // }).catch(err => {
+    //   this.$message.error(`${err.message ? err.message : err}`)
+    //   return false
+    // })
+
+    // test code start
+    const tagId = Math.random().toString()
+    this.interestPointList.push({ ...param, tagId })
+    this.vmap.renderPoi(this.interestPointList)
+    // test code end
   }
 
   addPolygon(points) {
@@ -485,7 +489,7 @@ export default class MapView extends Vue {
       type: 'InterestPoint',
       description: '',
       mapId: this.mapId,
-      points: points.map(item => ({longitude: item.lng.toString(), latitude: item.lat.toString()})),
+      points: points.map(item => ({ longitude: item.lng.toString(), latitude: item.lat.toString() })),
       color: 'blue',
       colorType
     }
@@ -550,7 +554,6 @@ export default class MapView extends Vue {
         event = () => {
           console.log('click polygon')
         }
-        break;
         break
       case 'map':
       default:
