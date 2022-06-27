@@ -390,7 +390,6 @@ export default class extends Vue {
    * 获取树中的共享设备
    */
   private async getSharedTree(node: any) {
-    console.log('getSharedTree node:', node)
     try {
       if (node.data.type === 'role') {
         node.data.roleId = node.data.id
@@ -445,7 +444,6 @@ export default class extends Vue {
    * 获取菜单树
    */
   private async getTree(node: any) {
-    console.log('getTree node:', node)
     try {
       if (node.data.type === 'role') {
         node.data.roleId = node.data.id
@@ -587,7 +585,6 @@ export default class extends Vue {
   }
 
   private async forceRefreshChildren(dirTree: any, node: any) {
-    console.log('node:', node)
     const dirs = await this.loadAll(node)
     dirTree.updateKeyChildren(node.data.id, dirs)
     node.expanded = true
@@ -603,11 +600,9 @@ export default class extends Vue {
       const node = dirTree.getNode(data.id)
       dirTree.setChecked(data.id, !node.checked)
     }
-    console.log('data:', data)
   }
 
   private selectSharedDevice(data: any, node: any) {
-    console.log('data:', data)
     this.selectedNode = node
   }
 
@@ -635,7 +630,6 @@ export default class extends Vue {
   private async handleDragendShared(draggingNode, endNode) {
     const dirTree: any = this.$refs.dirTree
     const vgroupTree: any = this.$refs.vgroupTree
-    console.log('endNode:', endNode)
     if (endNode) {
       if (endNode.data.type === 'ipc' || endNode.data.type === 'nvr') {
         const draggingData = JSON.parse(JSON.stringify(draggingNode.data))
@@ -662,7 +656,6 @@ export default class extends Vue {
 
         // 查看选取设备中是否有nvr通道
         const devices = []
-        console.log('allIPCNodes:', allIPCNodes)
         allIPCNodes.forEach(node => {
           if (node.data.path[node.data.path.length - 2].type === 'nvr') {
             let findFlag = false
@@ -683,7 +676,6 @@ export default class extends Vue {
             })
             if (!findFlag) {
               const parent = node.data.path[node.data.path.length - 2]
-              console.log('parent:', parent)
               devices.push({
                 deviceId: parent.id,
                 gbId: parent.gbId,

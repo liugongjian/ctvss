@@ -305,6 +305,7 @@ export default class extends Vue {
         pageSize: 1000
       })
       this.platformList = res.platforms
+      console.log('this.platformList:', this.platformList)
       if (this.currentPlatform.platformId) {
         const currentPlatform = this.platformList.find((platform: any) => platform.platformId === this.currentPlatform.platformId)
         this.currentPlatform = currentPlatform
@@ -518,6 +519,10 @@ export default class extends Vue {
   }
 
   private manageGroups() {
+    if (this.currentPlatform.enabled) {
+      this.$message.warning('当前平台已启动级联，无法操作平台资源，请先停止该平台的级联')
+      return
+    }
     this.dialog.manageGroups = true
   }
 

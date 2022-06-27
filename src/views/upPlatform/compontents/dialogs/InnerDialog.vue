@@ -94,6 +94,7 @@ export default class extends Vue {
 
   private async mounted() {
     this.currentNode = this.selectedNode
+    console.log('this.currentNode:', this.currentNode)
     switch (this.type) {
       case 'edit': {
         try {
@@ -139,7 +140,7 @@ export default class extends Vue {
   }
 
   private async submit() {
-    let param = {}
+    let param: any = {}
     let func
 
     switch (this.type) {
@@ -147,6 +148,9 @@ export default class extends Vue {
         param = {
           platformId: this.platformId,
           dirs: [{ ...this.form,
+            gbRegion: this.mode === 'vgroup'
+              ? this.form.gbRegion
+              : this.form.gbRegion.substring(0, this.form.gbRegionLevel * 2),
             parentDirId: this.currentNode?.data.dirId || '-1',
             dirType: this.mode === 'vgroup' && !this.currentNode ? '0' : '1'
           }]
@@ -160,7 +164,9 @@ export default class extends Vue {
           dirName: this.form.dirName,
           description: this.form.description,
           industryCode: this.form.industryCode,
-          gbRegion: this.form.gbRegion,
+          gbRegion: this.mode === 'vgroup'
+            ? this.form.gbRegion
+            : this.form.gbRegion.substring(0, this.form.gbRegionLevel * 2),
           gbRegionLevel: this.form.gbRegionLevel,
           platformId: this.platformId,
           parentDirId: this.currentNode.parent.data.dirId || '-1'
@@ -192,6 +198,12 @@ export default class extends Vue {
     }
     try {
       if (this.type === 'append' || this.type === 'edit') {
+        console.log('param:', param)
+        const checkGbRegion = this.checkRegion(this.type === 'append' ? param?.dirs[0] : param)
+        if (checkGbRegion) {
+          this.$message.error('当前级联为行政区划模式，请选择上级目录的下级区域')
+          return
+        }
         const form: any = this.$refs.form
         form.validate(async(valid: boolean) => {
           if (valid) {
@@ -215,6 +227,31 @@ export default class extends Vue {
     this.$emit('inner-op', { type: this.type, form: this.form, selectedNode: this.currentNode })
     this.$message.success('操作成功')
     this.closeDialog()
+  }
+
+  private checkRegion(param) {
+    if (this.mode === 'district') {
+      if (this.currentNode) {
+        if (this.type === 'append') {
+          const check = param.gbRegion.startsWith(this.currentNode.data.gbIdDistrict) && (param.gbRegion.length > this.currentNode.data.gbIdDistrict.length)
+          return !check
+        } else {
+          // edit
+          if (this.currentNode.level > 1) {
+            const check = param.gbRegion.startsWith(this.currentNode.parent.data.gbIdDistrict) && (param.gbRegion.length > this.currentNode.parent.data.gbIdDistrict.length)
+            return !check
+          } else {
+            // 选择了根节点 不校验
+            return false
+          }
+        }
+      } else {
+        // append 且没有选择节点不校验
+        return false
+      }
+    }
+    // 虚拟组织模式：不校验
+    return false
   }
 }
 </script>
