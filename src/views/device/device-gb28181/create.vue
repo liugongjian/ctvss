@@ -97,7 +97,13 @@
               />
             </el-select>
           </el-form-item>
-          <el-form-item label="设备名称:" prop="deviceName" class="form-with-tip">
+          <el-form-item v-if="isUpdate" :label="ifUseDeviceName ? '设备实际名称:' :'设备名称:' " prop="deviceName" class="form-with-tip">
+            <el-input v-model="form.deviceName" :disabled="ifUseDeviceName" />
+            <div class="form-tip">
+              2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
+            </div>
+          </el-form-item>
+          <el-form-item v-else label="设备名称:" prop="deviceName" class="form-with-tip">
             <el-input v-model="form.deviceName" />
             <div class="form-tip">
               2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
@@ -111,7 +117,7 @@
               @change="onDeviceAddressChange"
             />
           </el-form-item>
-          <el-form-item v-show="form.deviceType !== 'platform'" label="经纬度:" prop="longlat">
+          <el-form-item label="经纬度:" prop="longlat">
             <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
             <el-input v-model="form.deviceLatitude" class="longlat-input" />
           </el-form-item>
@@ -140,7 +146,7 @@
             </el-select>
           </el-form-item>
           <el-form-item
-            v-if="(!isUpdate || form.networkCode || !deviceGbId) && networkFlag"
+            v-if="form.deviceType === 'platform' ||( (!isUpdate || form.networkCode || !deviceGbId) && networkFlag)"
             label="网络标识:"
             prop="networkCode"
           >
@@ -200,7 +206,8 @@
             <el-form-item label="设备端口:" prop="devicePort">
               <el-input v-model="form.devicePort" />
             </el-form-item>
-            <el-form-item v-if="form.deviceType !== 'platform' && isShowGbIdEditor" label="国标ID:" prop="gbId">
+            <!-- v-if="isShowGbIdEditor"  -->
+            <el-form-item label="国标ID:" prop="gbId">
               <el-input v-model="form.gbId" />
               <div class="form-tip">
                 用户可自行录入规范国标ID，未录入该项，平台会自动生成规范国标ID。
@@ -244,7 +251,7 @@
               />
             </el-form-item>
             <el-form-item
-              v-if="form.deviceType === 'nvr' || isIPC"
+              v-if="form.deviceType === 'nvr' || form.deviceType === 'platform' || isIPC"
               prop="transPriority"
             >
               <template slot="label">
@@ -556,6 +563,7 @@ export default class extends Mixins(createMixin) {
     createGa1400Certificate: false
   }
   private hasViewLib = false
+  private ifUseDeviceName = false
 
   public async mounted() {
     if (this.isUpdate || this.isChannel) {
@@ -567,6 +575,7 @@ export default class extends Mixins(createMixin) {
     this.getGbAccounts()
     this.getGa1400Accounts()
     this.onGroupChange()
+    this.setIfUseDeviceName()
   }
 
   /**
@@ -589,7 +598,8 @@ export default class extends Mixins(createMixin) {
       if (this.isUpdate) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
           'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority',
-          'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'serialNumber', 'deviceModel', 'gbRegion', 'gbRegionLevel', 'industryCode', 'networkCode', 'poleId', 'macAddr']))
+          'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'serialNumber', 'deviceModel', 'gbRegion', 'gbRegionLevel',
+          'industryCode', 'networkCode', 'poleId', 'macAddr', 'deviceClass']))
         if (this.form.macAddr || this.form.poleId) {
           this.formExpand = true
         }
@@ -693,6 +703,15 @@ export default class extends Mixins(createMixin) {
   }
 
   /**
+   * 获取是否使用设备名称
+   */
+  private setIfUseDeviceName() {
+    const temp = this.$store.state.user.userConfigInfo.find((item: any) => item.key === 'enableCloudChannelName')
+    const ifUse = temp.value === 'true'
+    this.ifUseDeviceName = ifUse
+  }
+
+  /**
    * 提交
    */
   private submit() {
@@ -766,7 +785,8 @@ export default class extends Mixins(createMixin) {
         // Platform类型添加额外参数
         if (this.form.deviceType === 'platform') {
           params = Object.assign(params, {
-            gbId: this.form.gbId
+            gbId: this.form.gbId,
+            transPriority: this.form.transPriority
           })
         }
       } else {
