@@ -211,7 +211,8 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
    * 针对ga1400标识
    */
   public get ga1400Flag() {
-    return this.$store.state.user.tags.ga1400 === 'Y'
+    return true
+    // return this.$store.state.user.tags.ga1400 === 'Y'
   }
 
   public async mounted() {
