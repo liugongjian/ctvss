@@ -24,7 +24,7 @@ class Map extends VuexModule implements IMapState {
 
   @Action
   public SetMapInfo(payload: any) {
-    this.SET_MAP_INFO(payload)
+    this.SET_MAP_INFO({ ...payload })
   }
 
   @Mutation
@@ -55,7 +55,7 @@ class Map extends VuexModule implements IMapState {
       tagName: '未命名',
       type: 'InterestPoint',
       description: '',
-      points: [],
+      points: [{ longitude: '', latitude: ''}],
       color: '',
       colorType: '',
       appearance: {

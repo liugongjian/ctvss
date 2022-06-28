@@ -555,8 +555,7 @@ export default class MapView extends Vue {
           console.log('click polygon')
         }
         break
-      case 'map':
-      default:
+      case 'pointer':
         this.vmap.changeMapState('pointer')
         if (this.isEdit) {
           this.vmap.renderPolygon(this.hightAreaList, this.interestBuildingList)

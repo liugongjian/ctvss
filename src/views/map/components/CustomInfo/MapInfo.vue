@@ -1,11 +1,14 @@
 <template>
   <div class="map-point-base-info">
     <el-descriptions title="地图属性" :column="1">
+      <template slot="extra">
+        <svg-icon name="save" width="25" height="25" @click="save()" />
+      </template>
       <el-descriptions-item label="中心经度">
-        <el-input v-model="mapInfo.longitude" :disabled="!isEdit" />
+        <el-input v-model="mapInfo.longitude" :disabled="!isEdit" @change="change" />
       </el-descriptions-item>
       <el-descriptions-item label="中心纬度">
-        <el-input v-model="mapInfo.latitude" :disabled="!isEdit" />
+        <el-input v-model="mapInfo.latitude" :disabled="!isEdit" @change="change" />
       </el-descriptions-item>
       <el-descriptions-item label="缩放比例">
         <span>{{ zoomDesc }}</span>
@@ -15,17 +18,19 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator'
+import { MapModule } from '@/store/modules/map'
+
 @Component({
   name: 'MapInfo'
 })
-
 export default class MapInfo extends Vue {
   @Prop()
   private isEdit: boolean
 
-  @Prop()
-  private map: any
+  get mapInfo() {
+    return MapModule.mapInfo
+  }
 
   private zoomMap = [
     { key: '20', val: '1:10m' },
@@ -57,33 +62,11 @@ export default class MapInfo extends Vue {
       return '-'
     }
   }
-
-  private mapInfo = {
-    mapId: '',
-    name: '',
-    longitude: '',
-    latitude: '',
-    zoom: ''
-  }
-
-  @Watch('map')
-  private onInfoChange() {
-    this.mapInfo = { ...this.map, zoom: this.map?.zoom.toString() }
-  }
-
-  @Watch('isEdit')
-  private onEditChange() {
-    if (!this.isEdit) {
-      this.mapInfo = { ...this.map, zoom: this.map?.zoom.toString() }
-    }
-  }
-
-  mounted() {
-    this.mapInfo = { ...this.map, zoom: this.map?.zoom.toString() }
-  }
-
   save() {
     this.$emit('save', this.mapInfo)
+  }
+  change() {
+    this.$emit('change', {type: 'map', info: this.mapInfo })
   }
 }
 </script>

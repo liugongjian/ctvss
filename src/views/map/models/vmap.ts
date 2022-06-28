@@ -301,9 +301,9 @@ export default class VMap {
     this.indexCluster.setData(this.wrapMarkers(markers))
   }
 
-  // @isMarker 是否摄像头点位本身触发的取消选取
-  cancelChoose(isMarker?) {
-    if (isMarker) {
+  cancelChoose(isAll = true) {
+    // @isAll 是否需要取消所有标记点选取（包括摄像头、兴趣点、多边形）
+    if (isAll) {
       this.InterestEventHandlers.clickPoi(null)
       this.polygonEditor.close()
     }
@@ -684,14 +684,13 @@ export default class VMap {
     if (this.eventState !== state) {
       console.log('changeMapState')
       this.mouseTool && this.mouseTool.close(true)
-      const drawState = ['interest', 'font', 'polygon']
       this.eventState = state
-      if (drawState.includes(state)) {
+      if (state === 'pointer') {
+        (document.getElementsByClassName('amap-maps')[0] as HTMLElement).style.cursor = 'default'
+        this.cancelChoose()
+      } else {
         (document.getElementsByClassName('amap-maps')[0] as HTMLElement).style.cursor = 'crosshair'
         this.drawInterest(state)
-      } else {
-        (document.getElementsByClassName('amap-maps')[0] as HTMLElement).style.cursor = 'default'
-        this.eventState = 'pointer'
       }
     }
   }

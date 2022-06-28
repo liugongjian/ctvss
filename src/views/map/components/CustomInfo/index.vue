@@ -2,11 +2,8 @@
   <div class="map-point">
     <component
       :is="showComponent"
-      :map="map"
-      :is-edit="isEdit"
-      :is-add="isAdd"
-      :marker="marker"
-      :custom-info-type="customInfoType"
+      v-bind="$attrs"
+      v-on="$listeners"
     />
   </div>
 </template>
@@ -31,10 +28,6 @@ import Polygon from './Polygon.vue'
 })
 
 export default class CustomInfo extends Vue {
-  @Prop() private map: any
-  @Prop() private isEdit: boolean
-  @Prop() private isAdd: boolean
-  @Prop() private marker: any
   @Prop() private customInfoType: string
   private showComponent: string = ''
 
