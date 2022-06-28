@@ -34,7 +34,10 @@ class Map extends VuexModule implements IMapState {
 
   @Action
   public SetMarkerInfo(payload: any) {
-    this.SET_MARKER_INFO(payload)
+    const info = { ...payload }
+    const appearance = info.appearance || '{}'
+    info.appearance = JSON.parse(appearance)
+    this.SET_MARKER_INFO(info)
   }
 
   @Mutation
@@ -44,9 +47,10 @@ class Map extends VuexModule implements IMapState {
 
   @Action
   public SetInterestInfo(payload: any) {
-    const appearance = payload.appearance || '{}'
-    payload.appearance = JSON.parse(appearance)
-    this.SET_INTEREST_INFO(payload)
+    const info = { ...payload }
+    const appearance = info.appearance || '{}'
+    info.appearance = JSON.parse(appearance)
+    this.SET_INTEREST_INFO(info)
   }
 
   @Action
@@ -55,7 +59,7 @@ class Map extends VuexModule implements IMapState {
       tagName: '未命名',
       type: 'InterestPoint',
       description: '',
-      points: [{ longitude: '', latitude: ''}],
+      points: [{ longitude: '', latitude: '' }],
       color: '',
       colorType: '',
       appearance: {
@@ -73,8 +77,9 @@ class Map extends VuexModule implements IMapState {
 
   @Action
   public SetFontInfo(payload: any) {
-    const appearance = payload.appearance || '{}'
-    payload.appearance = JSON.parse(appearance)
+    const info = { ...payload }
+    const appearance = info.appearance || '{}'
+    info.appearance = JSON.parse(appearance)
     this.SET_FONT_INFO(payload)
   }
 
@@ -101,8 +106,9 @@ class Map extends VuexModule implements IMapState {
 
   @Action
   public SetPolygonInfo(payload: any) {
-    const appearance = payload.appearance || '{}'
-    payload.appearance = JSON.parse(appearance)
+    const info = { ...payload }
+    const appearance = info.appearance || '{}'
+    info.appearance = JSON.parse(appearance)
     this.SET_POLYGON_INFO(payload)
   }
 
@@ -112,11 +118,11 @@ class Map extends VuexModule implements IMapState {
       fillColor: '#545d80',
       strokeColor: '#ffc000',
       wallColor: '#eab754',
-      roofColor: '#ffce6f',
+      roofColor: '#ffce6f'
     }
     this.SET_INTEREST_INFO({
       tagName: '未命名',
-      type: 'HighLightArea',  // HighLightArea;InterestBuilding
+      type: 'HighLightArea', // HighLightArea;InterestBuilding
       description: '',
       points: [],
       color: '',

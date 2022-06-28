@@ -38,7 +38,7 @@
 </template>
 
 <script  lang="ts">
-import {Component, Prop, Vue} from 'vue-property-decorator'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Sketch } from 'vue-color'
 import { MapModule } from '@/store/modules/map'
 
@@ -55,13 +55,13 @@ export default class Interest extends Vue {
   private color
 
   get interestInfo() {
-    this.color = MapModule.interestInfo.appearance.color
+    this.color = MapModule.interestInfo.appearance.color || '#1e78e0'
     return MapModule.interestInfo
   }
 
   private colorChange(val: any) {
     this.pickColorVisble = false
-    const {r,g,b,a} = val.rgba
+    const { r, g, b, a } = val.rgba
     const color = `rgba(${r},${g},${b},${a})`
     MapModule.interestInfo.appearance.color = color
     this.color = color

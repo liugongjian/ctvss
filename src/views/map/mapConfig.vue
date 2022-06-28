@@ -12,11 +12,11 @@
       </el-form-item>
       <el-form-item prop="zoom">
         <template slot="label">
-                    <span>默认缩放比例
-                      <el-tooltip :content="tips.zoom">
-                        <svg-icon name="help" />
-                      </el-tooltip>
-                    </span>
+          <span>默认缩放比例
+            <el-tooltip :content="tips.zoom">
+              <svg-icon name="help" />
+            </el-tooltip>
+          </span>
         </template>
         <div class="block">
           <el-slider v-model="form.zoom" :min="3" :max="20" />
@@ -68,12 +68,12 @@
 </template>
 
 <script  lang="ts">
-import {Component, Prop, Vue} from 'vue-property-decorator'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 import { validateIsLng, validateIsLat } from './utils/validate'
 import { createMap, modifyMap } from '@/api/map'
 
 @Component({
-  name: 'MapConfig',
+  name: 'MapConfig'
 })
 export default class MapConfig extends Vue {
   @Prop()
@@ -82,7 +82,7 @@ export default class MapConfig extends Vue {
   private tips = {
     zoom: '设置地图的默认缩放比例，表示每厘米对应实际的距离',
     mask: '启用蒙版后多边形区域会变为镂空风格',
-    marker: '在点位图标下显示设备名称',
+    marker: '在点位图标下显示设备名称'
   }
   public form: any = {
     mapId: '',
@@ -153,7 +153,7 @@ export default class MapConfig extends Vue {
     }
   }
   private validatelat(rule: any, value: string, callback: Function) {
-    if (!validateIsLat(value) && !value) {
+    if (!validateIsLat(value) && value) {
       callback(new Error('纬度坐标格式错误'))
     } else {
       callback()
@@ -165,8 +165,8 @@ export default class MapConfig extends Vue {
   }
 
   private async submit() {
-    // this.$refs.mapform.validate(async(valid: any) => {
-      // if (!valid) return
+    this.$refs.mapform.validate(async(valid: any) => {
+      if (!valid) return
       let newMap
       try {
         const map = {
@@ -177,7 +177,7 @@ export default class MapConfig extends Vue {
           mask: this.form.mask ? 'Y' : 'N',
           eagle: this.form.eagle ? 'Y' : 'N',
           dimension: this.form.dimension ? 'Y' : 'N',
-          marker: this.form.marker ? 'Y' : 'N',
+          marker: this.form.marker ? 'Y' : 'N'
         }
         if (this.form.status === 'add') {
           console.log('addMap: ', map)
@@ -192,16 +192,16 @@ export default class MapConfig extends Vue {
           console.log('modifyMap: ', newMap)
           await modifyMap(newMap)
         }
-        this.$emit('changeMap', {type: this.form.status, mapinfo: newMap })
+        this.$emit('changeMap', { type: this.form.status, mapinfo: newMap })
         this.$emit('close')
       } catch (e) {
         this.$alertError(e.message)
       }
-    // })
+    })
   }
 
   private mounted() {
-    this.form = { ...this.info };
+    this.form = { ...this.info }
   }
 }
 </script>

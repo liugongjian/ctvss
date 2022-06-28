@@ -66,7 +66,7 @@ export default class MapInfo extends Vue {
     this.$emit('save', this.mapInfo)
   }
   change() {
-    this.$emit('change', {type: 'map', info: this.mapInfo })
+    this.$emit('change', { type: 'map', info: this.mapInfo })
   }
 }
 </script>

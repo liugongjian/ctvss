@@ -213,7 +213,7 @@ export default class MapView extends Vue {
     }
     map.on('moveend', getMapInfo)
     map.on('zoomend', getMapInfo)
-    this.changeMapClickEvent('map')
+    this.changeMapClickEvent('pointer')
   }
 
   private choosePlayer(id) {
@@ -227,30 +227,32 @@ export default class MapView extends Vue {
     })
   }
 
-  private async handleMarkerModify(marker) {
-    // this.$emit('mapChange', {
-    //   type: 'marker',
-    //   info: marker
-    // })
-    this.markerChange(marker, false)
+  private handleMarkerModify(marker) {
+    const appearance = marker.appearance || '{}'
+    this.markerChange({
+      ...marker,
+      appearance: JSON.parse(appearance)
+    })
   }
 
-  public async markerChange(marker, showMsg = true) {
+  public async markerChange(marker) {
     try {
       const data = {
         mapId: this.mapOption.mapId,
         devices: [this.handleDevice(marker)]
       }
       await updateMarkers(data)
+      const appearance = marker.appearance || { color: '#1e78e0' }
+      const mapMarker = { ...marker, appearance: JSON.stringify(appearance) }
+      MapModule.SetMarkerInfo(mapMarker)
       this.markerlist = this.markerlist.map((item) => {
         if (marker.deviceId === item.deviceId) {
-          item = marker
+          item = mapMarker
         }
         return item
       })
       this.$emit('markerlistChange', this.markerlist)
       this.vmap.updateMarkerList(this.markerlist)
-      showMsg && this.$alertSuccess('标记点修改成功')
     } catch (e) {
       this.$alertError(e)
       console.log('修改标记点失败')
@@ -354,7 +356,7 @@ export default class MapView extends Vue {
   }
 
   handleDevice(device) {
-    const appearance = { color: 'red' }
+    const appearance = device.appearance || { color: '#1e78e0' }
     const result = {
       deviceId: device.deviceId,
       inProtocol: device.inProtocol,

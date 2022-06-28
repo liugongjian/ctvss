@@ -304,10 +304,10 @@ export default class VMap {
   cancelChoose(isAll = true) {
     // @isAll 是否需要取消所有标记点选取（包括摄像头、兴趣点、多边形）
     if (isAll) {
-      this.InterestEventHandlers.clickPoi(null)
+      this.InterestEventHandlers && this.InterestEventHandlers.clickPoi(null)
       this.polygonEditor.close()
     }
-    if (this.curMarkerList.length > 0) {
+    if (this.curMarkerList && this.curMarkerList.length > 0) {
       this.curMarkerList.forEach((item) => {
         item.selected = false
       })
@@ -681,8 +681,8 @@ export default class VMap {
     }
   }
   changeMapState(state) {
+    console.log('changeMapState', state)
     if (this.eventState !== state) {
-      console.log('changeMapState')
       this.mouseTool && this.mouseTool.close(true)
       this.eventState = state
       if (state === 'pointer') {

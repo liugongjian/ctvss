@@ -51,7 +51,7 @@
                     @mousedown="(e) => {
                       mousedownHandle(e,data)
                     }"
-                  >{{ node.label }}{{ getNumbers(node,data) }}</span>
+                  >{{ node.label }}{{ getNumbers(node, data) }}</span>
                   <svg-icon v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0" name="mark" />
                   <span class="sum-icon" />
                 </span>
@@ -77,10 +77,10 @@
           <div class="tools">
             <span class="left">
               <span class="btn-edit tools-item" @click="changeEdit()">{{ isEdit ? '完成编辑' : '开启编辑' }}</span>
-              <template v-if="isEdit" >
+              <template v-if="isEdit">
                 <div class="device-list__right__handleBox">
-                  <el-tooltip v-for="item in toolType" :content="item.text" placement="top" :key="item.name">
-                     <span class="device-list__right__handleBox__tools" :class="{'active':toolState === item.tool}" @click="changeToolState(item.tool)" >
+                  <el-tooltip v-for="item in toolType" :key="item.name" :content="item.text" placement="top">
+                    <span class="device-list__right__handleBox__tools" :class="{'active': toolState === item.tool}" @click="changeToolState(item.tool)">
                       <svg-icon :name="item.name" />
                     </span>
                   </el-tooltip>
@@ -169,12 +169,11 @@
                 <el-button type="primary" @click="openMapEditDialog()">添加地图</el-button>
               </div>
               <div v-show="showInfo" class="map-info__right">
-                <custom-info v-if="customInfoType" :key="customInfoType" :is-add='isAddCustom' :is-edit="isEdit" :custom-info-type="customInfoType" @change="handleCustomChange" @save="changeMapInfos"/>
+                <custom-info v-if="customInfoType" :key="customInfoType" :is-add="isAddCustom" :is-edit="isEdit" :custom-info-type="customInfoType" @change="handleCustomChange" @save="changeMapInfos" />
               </div>
             </div>
           </div>
-<!--           <custom-point v-if="showCustomPoint" :key="freshWithKey" :custom-point-info="customPointInfo" @closeEditMark="closeEditMark" @chooseMap="chooseMap" /> -->
-           <map-config v-if="showMapConfig" :info="mapConfigInfo" @close="showMapConfig=false" @changeMap="addOrEditMap"/>
+          <map-config v-if="showMapConfig" :info="mapConfigInfo" @close="showMapConfig=false" @changeMap="addOrEditMap" />
         </div>
       </div>
     </el-card>
@@ -191,7 +190,7 @@ import MapView from './mapview.vue'
 import PointInfo from './components/PointInfo.vue'
 import SelectedPoint from './components/SelectedPoint.vue'
 import MapInfo from './components/MapInfo.vue'
-import { getMaps, createMap, deleteMap, modifyMap } from '@/api/map'
+import { getMaps, deleteMap, modifyMap } from '@/api/map'
 import { mapObject } from '@/views/map/models/vmap'
 import CustomPoint from './components/CustomPoint/index.vue'
 import CustomInfo from './components/CustomInfo/index.vue'
@@ -375,23 +374,23 @@ export default class extends Mixins(IndexMixin) {
   private showMapConfig = false
   private customPointInfo: any = {}
 
-  private toolType=[
+  private toolType = [
     {
-      name:'pointer',
-      text:'指针工具',
-      tool:'pointer',
-    },{
-      name:'polygon',
-      text:'多边形工具',
-      tool:'polygon'
-    },{
-      name:'interest',
-      text:'兴趣点工具',
-      tool:'interest'
-    },{
-      name:'font',
-      text:'文本工具',
-      tool:'font'
+      name: 'pointer',
+      text: '指针工具',
+      tool: 'pointer'
+    }, {
+      name: 'polygon',
+      text: '多边形工具',
+      tool: 'polygon'
+    }, {
+      name: 'interest',
+      text: '兴趣点工具',
+      tool: 'interest'
+    }, {
+      name: 'font',
+      text: '文本工具',
+      tool: 'font'
     }
   ]
   private toolState = 'pointer' // 当前工具栏状态
@@ -798,11 +797,12 @@ export default class extends Mixins(IndexMixin) {
           MapModule.ResetFontInfo()
           this.showInfo = true
           this.customInfoType = type
+          break
         case 'polygon':
           MapModule.ResetPolygonInfo()
           this.showInfo = true
           this.customInfoType = type
-          break;
+          break
         case 'pointer':
           this.showInfo = false
           this.customInfoType = 'map'
@@ -812,25 +812,25 @@ export default class extends Mixins(IndexMixin) {
   }
 
   private changeCustomInfoType(type: string, flag: boolean) {
-    if(type === 'map') {
-      if(!flag) {
+    if (type === 'map') {
+      if (!flag) {
         this.showInfo = !this.showInfo
         this.customInfoType = type
-        if(!this.showInfo){
+        if (!this.showInfo) {
           this.customInfoType = ''
         }
       } else {
         this.showInfo = false
-        if(this.customInfoType === 'map'){
+        if (this.customInfoType === 'map') {
           this.customInfoType = ''
-        }else{
+        } else {
           this.customInfoType = type
         }
       }
     } else {
-      if(this.customInfoType && type === this.customInfoType) {
+      if (this.customInfoType && type === this.customInfoType) {
         this.showInfo = !this.showInfo
-        if(!this.showInfo) {
+        if (!this.showInfo) {
           this.customInfoType = ''
         }
       } else {
@@ -1085,24 +1085,15 @@ export default class extends Mixins(IndexMixin) {
     this.toggleMarkersShow(mapinfo.marker)
   }
 
-  changeMarkerInfos(mark) {
-    const checklnglat = this.checklng(mark.longitude) && this.checklat(mark.latitude)
-    if (checklnglat) {
-      this.$refs.mapview.markerChange(mark)
-    } else {
-      this.$alertError('请填写正确的经纬度')
-    }
-  }
-
   handleCustomChange(infos) {
     const { type, info } = infos
-    switch(type) {
+    switch (type) {
       case 'map':
         this.curMap = info
         this.$refs.mapview.setMapZoomAndCenter(info.zoom, info.longitude, info.latitude)
         break
       case 'marker':
-        console.log('handleCustomChange(marker)', info)
+        this.$refs.mapview.markerChange(info)
         break
       case 'interest':
         console.log('handleCustomChange(interest)', info)
@@ -1140,7 +1131,7 @@ export default class extends Mixins(IndexMixin) {
         mask: map.mask === 'Y',
         eagle: map.eagle === 'Y',
         dimension: map.dimension === 'Y',
-        marker: map.marker === 'Y',
+        marker: map.marker === 'Y'
       }
       this.mapConfigInfo.status = 'edit'
     } else {
