@@ -585,10 +585,12 @@ export default class extends Vue {
   }
 
   private async forceRefreshChildren(dirTree: any, node: any) {
-    const dirs = await this.loadAll(node)
-    dirTree.updateKeyChildren(node.data.id, dirs)
-    node.expanded = true
-    node.loaded = true
+    node.loaded = false
+    node.expand()
+    // const dirs = await this.loadAll(node)
+    // dirTree.updateKeyChildren(node.data.id, dirs)
+    // node.expanded = true
+    // node.loaded = true
   }
 
   /**
@@ -775,9 +777,11 @@ export default class extends Vue {
     this.innerVisible = false
   }
 
-  private next() {
+  private async next() {
     this.step = 1
     // 点击下一步时，展开所有的node
+    // 由于懒加载，tree的data实际上不会更新，因此，强制刷新整个树
+    await this.initSharedDirs()
     const vgroupTree: any = this.$refs.vgroupTree
     // const nodes: any = vgroupTree.store.nodesMap
     this.sharedDirList.forEach(async item => { await this.expandNodes(vgroupTree, vgroupTree.getNode(item)) })
@@ -1000,9 +1004,8 @@ export default class extends Vue {
         })
       }
       let difference = newSharedDirs.filter(x => !this.sharedDirList.find(y => y.dirId === x.dirId))
-      this.$nextTick(() => {
-        this.sharedDirList.push(difference[0])
-      })
+
+      this.sharedDirList.push(difference[0])
     }
     this.innerVisible = false
   }
