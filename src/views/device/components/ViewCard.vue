@@ -5,7 +5,7 @@
     </div>
     <div class="content-wrapper">
       <div>
-        {{ `${id}id:` }}{{ pic.sourceId }}
+        {{ `${id}` }}
       </div>
       <div>
         {{ pic.recordTime }}
@@ -83,15 +83,10 @@ export default class extends Vue {
     // bottom: 0;
     // left: 0;
     // height: 33%;
-    padding: 10px 0;
-
-    & > div {
-      height: 50px;
-      font-size: 12px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
   }
 }
 </style>
