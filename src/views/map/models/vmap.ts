@@ -116,7 +116,7 @@ export default class VMap {
     this.container = container
   }
 
-  creatMap(lng: number, lat: number, zoom: number, is3D: boolean = true) {
+  creatMap(lng: number, lat: number, zoom: number, is3D: boolean = false, isOverView: boolean = false) {
     try {
       const AMap = window.AMap
       const options = {
@@ -143,7 +143,7 @@ export default class VMap {
       })
       map.add(this.buildingLayer)
       this.overView = new AMap.HawkEye({
-        visible: false,
+        visible: isOverView,
         width: '300px',
         height: '200px'
       })
@@ -196,10 +196,10 @@ export default class VMap {
     })
   }
 
-  change3D(is3D) {
+  change3D(is3D, isOverView) {
     const { longitude, latitude, zoom } = this.curMapOptions
     this.map.destroy()
-    this.creatMap(longitude, latitude, zoom, is3D)
+    this.creatMap(longitude, latitude, zoom, is3D, isOverView)
   }
 
   async chooseMarker(marker) {
@@ -312,15 +312,6 @@ export default class VMap {
         item.selected = false
       })
       this.setCluster(this.wrapMarkers(this.curMarkerList))
-    }
-  }
-
-  setMarkersView(show: boolean) {
-    if (show) {
-      this.setCluster(this.curMarkerList)
-    } else {
-      this.markerCluster.setMap(null)
-      this.indexCluster.setMap(null)
     }
   }
 

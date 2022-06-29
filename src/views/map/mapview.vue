@@ -378,8 +378,8 @@ export default class MapView extends Vue {
     return result
   }
 
-  toggleMap3D(is3D) {
-    this.vmap.change3D(is3D)
+  toggleMap3D(is3D, isOverView) {
+    this.vmap.change3D(is3D, isOverView)
     this.setMarkerList(this.markerlist)
   }
 
@@ -522,10 +522,6 @@ export default class MapView extends Vue {
     // delInterestPoint({ tagId: id}).then(() => {
     //   this.interestPointList = this.interestPointList.filter(item => item.tagId !== id)
     // })
-  }
-
-  setMarkersView(isShow) {
-    this.vmap.setMarkersView(isShow)
   }
 
   changeMapClickEvent(type) {

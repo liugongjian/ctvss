@@ -154,7 +154,7 @@
               <el-button @click="confirmDragAddZeroMarker">确定</el-button>
               <el-button @click="cancelAddMark">取消</el-button>
             </el-dialog>
-            <div :class="['mapwrap', hideTitle?'hide-title':'']">
+            <div :class="['mapwrap', showTitle?'':'hide-title']">
               <!-- ifMapDisabled -->
               <map-view
                 v-if="mapList.length > 0 && curMap"
@@ -230,7 +230,7 @@ export default class extends Mixins(IndexMixin) {
   private isEdit = false
   private editValue = 'sss'
   // public breadcrumb: Array<any> = []
-  private hideTitle = true
+  private showTitle = false
   private showInfo = false
   private firstShowMarkerInfo = true
   private addPositionDialog = false // 显示询问本次编辑要不要继承设备坐标的对话弹窗
@@ -360,7 +360,6 @@ export default class extends Mixins(IndexMixin) {
   private curMapInfo = null
   private curMarkInfo = null
   private overView = false
-  private showMarkers = false
   private is3D = false
   private marker = null
   // @Prop()
@@ -849,12 +848,6 @@ export default class extends Mixins(IndexMixin) {
     return this.markerList.map(marker => marker.deviceId)
   }
 
-  changeTitleShow() {
-    if (this.curMap) {
-      this.hideTitle = !this.hideTitle
-    }
-  }
-
   changeEdit() {
     this.isEdit = !this.isEdit
     this.addPositionDialogCheck = false
@@ -1043,6 +1036,7 @@ export default class extends Mixins(IndexMixin) {
       this.$refs.mapview.setMarkersView(flag)
     }
   }
+
   toggleOverView(isOpen) {
     const flag = isOpen === 'Y'
     if (this.overView !== flag) {
@@ -1050,11 +1044,13 @@ export default class extends Mixins(IndexMixin) {
       this.$refs.mapview.toggleOverView(flag)
     }
   }
-  toggleMap3D(isOpen) {
+  toggleMap3D(isOpen, overViewFlag) {
     const flag = isOpen === 'Y'
     if (this.is3D !== flag) {
       this.is3D = flag
-      this.$refs.mapview.toggleMap3D(flag)
+      const oflag = overViewFlag === 'Y'
+      this.overView = oflag
+      this.$refs.mapview.toggleMap3D(flag, oflag)
     }
   }
 
@@ -1080,8 +1076,8 @@ export default class extends Mixins(IndexMixin) {
       this.$refs.mapview.renderMask(mapinfo.mask)
       this.$alertSuccess('地图修改成功')
     }
+    this.toggleMap3D(mapinfo.dimension, mapinfo.eagle)
     this.toggleOverView(mapinfo.eagle)
-    this.toggleMap3D(mapinfo.dimension)
     this.toggleMarkersShow(mapinfo.marker)
   }
 
@@ -1192,9 +1188,10 @@ export default class extends Mixins(IndexMixin) {
     this.showCustomPoint = false
     this.customPointInfo = {}
     this.showInfo = false
-    // this.showMapInfo = true
-    this.showMarkers = true
     this.curMap = map
+    this.toggleMap3D(map.dimension, map.eagle)
+    this.toggleOverView(map.eagle)
+    this.toggleMarkersShow(map.marker)
     this.$refs.mapview.setMap(map)
     this.$refs.mapview.closeAllPlayer()
   }
@@ -1281,6 +1278,8 @@ export default class extends Mixins(IndexMixin) {
     await this.getMapList()
     this.curMap = this.mapList[0]
     this.customInfoType = 'map'
+    this.toggleMap3D(this.curMap.dimension, this.curMap.eagle)
+    this.toggleMarkersShow(this.curMap.marker)
     this.calHeight()
     window.addEventListener('resize', this.calHeight)
   }
