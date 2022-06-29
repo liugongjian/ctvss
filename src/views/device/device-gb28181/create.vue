@@ -109,7 +109,7 @@
               2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
             </div>
           </el-form-item>
-          <el-form-item v-if="(!isUpdate || form.gbRegion || !deviceGbId)" label="设备地址:" prop="gbRegion">
+          <el-form-item v-if="!(form.platFormMsg === 'Y' && (form.deviceClass === 'ipc' || form.deviceClass === 'channel')) && (!isUpdate || form.gbRegion || !deviceGbId)" label="设备地址:" prop="gbRegion">
             <AddressCascader
               :code="form.gbRegion"
               :level="form.gbRegionLevel"
@@ -128,7 +128,7 @@
             <el-input v-model="form.deviceModel" />
           </el-form-item>
           <el-form-item
-            v-if="!isUpdate || form.industryCode || !deviceGbId"
+            v-if="!(form.platFormMsg === 'Y' && (form.deviceClass === 'ipc' || form.deviceClass === 'channel')) &&(!isUpdate || form.industryCode || !deviceGbId)"
             label="所属行业:"
             prop="industryCode"
           >
@@ -599,7 +599,7 @@ export default class extends Mixins(createMixin) {
         this.form = Object.assign(this.form, pick(info, ['groupId', 'dirId', 'deviceId', 'deviceName', 'inProtocol', 'deviceType', 'deviceVendor',
           'gbVersion', 'deviceIp', 'devicePort', 'channelNum', 'channelName', 'description', 'createSubDevice', 'pullType', 'transPriority',
           'parentDeviceId', 'gbId', 'userName', 'deviceLongitude', 'deviceLatitude', 'serialNumber', 'deviceModel', 'gbRegion', 'gbRegionLevel',
-          'industryCode', 'networkCode', 'poleId', 'macAddr', 'deviceClass']))
+          'industryCode', 'networkCode', 'poleId', 'macAddr', 'deviceClass', 'platFormMsg']))
         if (this.form.macAddr || this.form.poleId) {
           this.formExpand = true
         }
