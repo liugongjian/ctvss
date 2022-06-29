@@ -37,10 +37,10 @@
         </span>
       </div>
       <div v-loading="queryLoading.pic" class="pic-wrapper">
-        <div class="title">
+        <!-- <div class="title">
           <div class="title-block" />
           <span>视频截图</span>
-        </div>
+        </div> -->
         <div v-if="picInfos.length > 0 && !queryLoading.pic" class="card-wrapper">
           <ViewCard
             v-for="(pic,index) in picInfos"
@@ -97,8 +97,8 @@
                     @click="active(index)"
                   >
                     <img :src="pic.imagePath" alt="">
-                    <el-tooltip effect="dark" :content="pic.id" placement="bottom">
-                      <div>sourceId:{{ (pic.id && pic.id.length > 5) ? pic.id.slice(0,5) + '...' : pic.id }}</div>
+                    <el-tooltip effect="dark" :content="pic.imageID" placement="bottom">
+                      <div>sourceID:{{ (pic.imageID && pic.imageID.length > 5) ? pic.imageID.slice(0,5) + '...' : pic.imageID }}</div>
                     </el-tooltip>
                   </li>
                 </ul>
@@ -110,9 +110,11 @@
               <div class="dialogue-right__section">
                 <div class="dialogue-right__section__title">基础信息</div>
                 <div :column="1" label-class-name="desc" :label-style="{'font-weight': 'bold', color: 'black'}">
-                  <div v-for="(val,key) in objectInfos" :key="key" style="margin-top: 5px;line-height: 18px;">
-                    <span v-if="detailPic[key]" style="font-weight: bold;">{{ val }}:</span>
-                    <span v-if="detailPic[key]">{{ '  ' + detailPic[key] }}</span>
+                  <div v-for="(val,key) in objectInfos" :key="key">
+                    <div v-if="detailPic[key]" class="dialogue-right__section__item">
+                      <span class="dialogue-right__section__item__key">{{ val }}:</span>
+                      <span class="dialogue-right__section__item__value">{{ detailPic[key] }}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -168,7 +170,7 @@ export default class extends Vue {
   private visibile = false
   private activeIndex = 0
 
-  private objectInfos() {
+  get objectInfos() {
     switch (this.currentPic.type) {
       case 1 :
         return PeopleInfos
@@ -606,6 +608,7 @@ export default class extends Vue {
 
         img {
           width: 100%;
+          height: 172px;
         }
       }
     }
@@ -626,8 +629,8 @@ export default class extends Vue {
 
   &__section {
     margin-bottom: 12%;
-    padding: 10%;
-    width: 80%;
+    padding: 15px;
+    width: 90%;
     border: 1px solid #f5f5f5;
     background: #fbfbfb;
 
@@ -635,6 +638,16 @@ export default class extends Vue {
       font-weight: bold;
       margin-bottom: 5%;
       min-width: 180px;
+    }
+
+    &__item {
+      display: flex;
+      margin: 10px 0;
+
+      &__key {
+        font-weight: bold;
+        min-width: 100px;
+      }
     }
 
     ::v-deep .el-descriptions-item__label {

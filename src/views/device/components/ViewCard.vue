@@ -4,12 +4,12 @@
       <img ref="img" :src="pic.imagePath" @error="nopic">
     </div>
     <div class="content-wrapper">
-      <div>
-        {{ `${id}id:` }}{{ pic.sourceId }}
-      </div>
-      <div>
+      <span>
+        {{ `${id}` }}
+      </span>
+      <span>
         {{ pic.recordTime }}
-      </div>
+      </span>
     </div>
   </el-card>
 </template>
@@ -74,7 +74,7 @@ export default class extends Vue {
     img {
       width: 100%;
       // height: 100%;
-      height: auto;
+      height: 272px;
     }
   }
 
@@ -83,14 +83,12 @@ export default class extends Vue {
     // bottom: 0;
     // left: 0;
     // height: 33%;
-    padding: 10px 0;
+    padding: 10px;
+    font-size: 12px;
+    text-align: center;
 
-    & > div {
-      height: 50px;
-      font-size: 12px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+    span {
+      margin: 0 5px;
     }
   }
 }
