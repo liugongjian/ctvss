@@ -97,8 +97,8 @@
                     @click="active(index)"
                   >
                     <img :src="pic.imagePath" alt="">
-                    <el-tooltip effect="dark" :content="pic.id" placement="bottom">
-                      <div>sourceId:{{ (pic.id && pic.id.length > 5) ? pic.id.slice(0,5) + '...' : pic.id }}</div>
+                    <el-tooltip effect="dark" :content="pic.imageID" placement="bottom">
+                      <div>sourceID:{{ (pic.imageID && pic.imageID.length > 5) ? pic.imageID.slice(0,5) + '...' : pic.imageID }}</div>
                     </el-tooltip>
                   </li>
                 </ul>
@@ -168,7 +168,7 @@ export default class extends Vue {
   private visibile = false
   private activeIndex = 0
 
-  private objectInfos() {
+  get objectInfos() {
     switch (this.currentPic.type) {
       case 1 :
         return PeopleInfos
