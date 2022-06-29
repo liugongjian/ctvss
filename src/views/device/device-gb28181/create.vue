@@ -128,7 +128,7 @@
             <el-input v-model="form.deviceModel" />
           </el-form-item>
           <el-form-item
-            v-if="!(form.platFormMsg === 'Y' && (form.deviceClass === 'ipc' || form.deviceClass === 'channel')) &&(!isUpdate || form.industryCode || !deviceGbId)"
+            v-if="!(form.platFormMsg === 'Y' && (form.deviceClass === 'ipc' || form.deviceClass === 'channel' || form.deviceClass === 'nvr')) &&(!isUpdate || form.industryCode || !deviceGbId)"
             label="所属行业:"
             prop="industryCode"
           >
