@@ -4,6 +4,7 @@ import { getDevice } from '@/api/device'
 // import { checkPermission } from '@/utils/permission'
 import { getStyle } from '@/utils/map'
 import { drawCamera, drawBubblePoint, drawTextPoint } from '../utils/draw'
+import { MapModule } from '@/store/modules/map'
 
 export interface mapObject {
   mapId: string,
@@ -185,10 +186,8 @@ export default class VMap {
         this.InterestEventHandlers.addPoi(e.obj.getPosition(), 'interest')
       } else if (this.eventState === 'font') {
         this.InterestEventHandlers.addPoi(e.obj.getPosition(), 'font')
-        console.log('draw font')
       } else if (this.eventState === 'polygon') {
         this.InterestEventHandlers.addPolygon(e.obj.getPath())
-        console.log('draw polygen')
       } else {
         console.log('other')
       }
@@ -199,11 +198,12 @@ export default class VMap {
     const { longitude, latitude, zoom } = this.curMapOptions
     this.map.destroy()
     this.creatMap(longitude, latitude, zoom, is3D, isOverView)
+    this.setInterestHandlers(this.InterestEventHandlers)
   }
 
   async chooseMarker(marker) {
     if (!marker.selected) {
-      this.cancelChoose(true)
+      this.cancelChoose()
       if (!marker.deviceStatus) {
         const { deviceId, inProtocol } = marker
         const deviceInfo = await getDevice({
@@ -236,6 +236,12 @@ export default class VMap {
   changeEdit(status: boolean) {
     this.isEdit = status
     this.setCluster(this.curMarkerList)
+    if (!this.isEdit) {
+      this.map.remove(this.polygons)
+      this.pois.forEach(poi => {
+        poi.setDraggable(false)
+      })
+    }
   }
 
   toggleOverView(show) {
@@ -300,12 +306,7 @@ export default class VMap {
     this.indexCluster.setData(this.wrapMarkers(markers))
   }
 
-  cancelChoose(isAll = true) {
-    // @isAll 是否需要取消所有标记点选取（包括摄像头、兴趣点、多边形）
-    if (isAll) {
-      this.InterestEventHandlers && this.InterestEventHandlers.clickPoi(null)
-      this.polygonEditor.close()
-    }
+  cancelChoose() {
     if (this.curMarkerList && this.curMarkerList.length > 0) {
       this.curMarkerList.forEach((item) => {
         item.selected = false
@@ -503,6 +504,7 @@ export default class VMap {
         outer,
         ...holes
       ]
+
       this.community = new AMap.Polygon({
         // zIndex: 30,
         bubble: true,
@@ -553,9 +555,10 @@ export default class VMap {
         })
         marker.on('click', () => {
           if (this.eventState === 'pointer' && this.isEdit) {
-            this.cancelChoose(false)
+            console.log('renderPoi click')
+            this.cancelChoose()
+            this.cancelPoly()
             this.InterestEventHandlers.clickPoi(point, 'interest')
-            this.polygonEditor.close()
           }
         })
         marker.on('dragend', () => {
@@ -578,9 +581,9 @@ export default class VMap {
         })
         marker.on('click', () => {
           if (this.eventState === 'pointer' && this.isEdit) {
-            this.cancelChoose(false)
+            this.cancelChoose()
             this.InterestEventHandlers.clickPoi(point, 'font')
-            this.polygonEditor.close()
+            this.cancelPoly()
           }
         })
         marker.on('dragend', () => {
@@ -615,9 +618,11 @@ export default class VMap {
 
     // 增加兴趣楼房颜色
     buildingList.forEach(area => {
+      const appearance = area.appearance || '{}'
+      const { roofColor, wallColor } = JSON.parse(appearance)
       areas.push({
-        color1: '#ffce6f',
-        color2: '#eab754',
+        color1: roofColor || '#ffce6f',
+        color2: wallColor || '#eab754',
         path: this.handlePoint(area.points)
       })
     })
@@ -627,6 +632,20 @@ export default class VMap {
       areas
     }
     this.buildingLayer.setStyle(buildingOptions)
+  }
+
+  cancelPoly() {
+    this.polygonEditor.close()
+  }
+
+  choosePolygon(interest) {
+    MapModule.SetIsClickPoly(true)
+    const polygon = this.polygons.find(item => item.getExtData().tagId === interest.tagId)
+    this.cancelChoose()
+    this.InterestEventHandlers.clickPoi()
+    this.InterestEventHandlers.clickPolygon(interest)
+    this.polygonEditor.setTarget(polygon)
+    this.polygonEditor.open()
   }
 
   /**
@@ -641,16 +660,12 @@ export default class VMap {
       const polygon = new AMap.Polygon({
         map: this.map,
         path: this.handlePoint(item.points),
-        fillOpacity: 0
+        fillOpacity: 0,
+        extData: item
       })
       polygon.on('click', () => {
         if (this.eventState === 'pointer' && this.isEdit) {
-          console.log('polygon click')
-          this.cancelChoose(false) // 取消摄像头点位点击
-          this.InterestEventHandlers.clickPoi() // 取消兴趣点点位点击
-          this.InterestEventHandlers.clickPolygon(item)
-          this.polygonEditor.setTarget(polygon)
-          this.polygonEditor.open()
+          this.choosePolygon(item)
         }
       })
       this.polygons.push(polygon)
@@ -694,9 +709,11 @@ export default class VMap {
     if (this.eventState !== state) {
       this.mouseTool && this.mouseTool.close(true)
       this.eventState = state
+      this.cancelChoose()
+      this.cancelPoly()
+      this.InterestEventHandlers && this.InterestEventHandlers.clickPoi()
       if (state === 'pointer') {
         (document.getElementsByClassName('amap-maps')[0] as HTMLElement).style.cursor = 'default'
-        this.cancelChoose()
         this.isEdit && this.pois.forEach(poi => {
           poi.setDraggable(true)
         })

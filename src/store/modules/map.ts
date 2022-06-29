@@ -3,10 +3,11 @@ import store from '@/store'
 
 export interface IMapState {
   mapInfo?: any
-  markerInfo: any
+  markerInfo?: any
   interestInfo?: any
   fontInfo?: any
   polygonInfo?: any
+  isClickPoly?: boolean
 }
 
 @Module({ dynamic: true, store, name: 'map' })
@@ -16,6 +17,7 @@ class Map extends VuexModule implements IMapState {
   public interestInfo: any = null
   public fontInfo: any = null
   public polygonInfo: any = null
+  public isClickPoly: boolean = false
 
   @Mutation
   public SET_MAP_INFO(payload: any) {
@@ -129,6 +131,11 @@ class Map extends VuexModule implements IMapState {
       colorType: '',
       appearance
     })
+  }
+
+  @Mutation
+  public SetIsClickPoly(state) {
+    this.isClickPoly = state
   }
 }
 

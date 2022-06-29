@@ -100,7 +100,7 @@ export default class MapView extends Vue {
         deletePoi: this.deleteInterest,
         changePoi: this.interestChange,
         addPolygon: this.addPolygon,
-        clickPolygon: this.choosePolygon
+        clickPolygon: this.handlePolygonClick
       })
     })
   }
@@ -132,7 +132,7 @@ export default class MapView extends Vue {
   }
 
   // 获取兴趣点信息
-  private async getPointList(map) {
+  private async getPointList() {
     this.hightAreaList = []
     this.interestBuildingList = []
     this.interestPointList = []
@@ -156,18 +156,19 @@ export default class MapView extends Vue {
     } catch (e) {
       console.log(e)
     } finally {
-      this.renderPoints(map)
+      this.renderPoints()
     }
   }
 
   // 渲染兴趣点
-  public renderPoints(map) {
-    this.renderMask(map.mask)
+  public renderPoints() {
+    this.renderMask(this.mapMask)
     this.vmap.renderBuilding(this.hightAreaList, this.interestBuildingList)
     this.vmap.renderPoi(this.interestPointList)
   }
 
   public renderMask(mask) {
+    this.mapMask = mask
     this.vmap.renderCommunity(this.hightAreaList, mask)
   }
 
@@ -187,7 +188,7 @@ export default class MapView extends Vue {
       pageNum += 1
     }
     await Promise.all(promiseList)
-    await this.getPointList(map)
+    await this.getPointList()
   }
 
   public setMapCenter(lng, lat) {
@@ -268,7 +269,7 @@ export default class MapView extends Vue {
         mapId: this.mapId,
         appearance: JSON.stringify(appearance)
       }
-      await editInterestPoint(data)
+      // await editInterestPoint(data)
       switch (type) {
         case 'interest':
           MapModule.SetInterestInfo(data)
@@ -311,6 +312,8 @@ export default class MapView extends Vue {
             })
             this.vmap.renderBuilding(this.hightAreaList, this.interestBuildingList)
           }
+          this.vmap.renderPolygon(this.hightAreaList, this.interestBuildingList)
+          this.vmap.choosePolygon(data)
           break
       }
     } catch (e) {
@@ -388,7 +391,6 @@ export default class MapView extends Vue {
   }
 
   async handleMarkerDelete(id, deviceName) {
-    console.log('delete device id: ', id)
     this.$alertDelete({
       type: '监控点位',
       msg: `确定在地图中删除监控点位"${deviceName}"?`,
@@ -441,6 +443,7 @@ export default class MapView extends Vue {
   toggleMap3D(is3D, isOverView) {
     this.vmap.change3D(is3D, isOverView)
     this.setMarkerList(this.markerlist)
+    this.renderPoints()
   }
 
   async addMarker(markerOption) {
@@ -463,7 +466,13 @@ export default class MapView extends Vue {
     }
   }
 
-  choosePoi(point, type) {
+  cancleInterest() {
+    this.choosePoi(null)
+    this.vmap.cancelPoly()
+  }
+
+  choosePoi(point, type?) {
+    console.log('choosePoi', point)
     if (point) {
       const otherPoints = document.getElementsByClassName('marker-containt')
       let len = otherPoints.length
@@ -476,7 +485,6 @@ export default class MapView extends Vue {
       const nClass = $point.getAttribute('class')
       $point.setAttribute('class', `${nClass} selected`)
       $point.parentElement.setAttribute('class', 'amap-marker selected')
-
       this.$emit('mapClick', {
         type,
         info: point
@@ -492,18 +500,15 @@ export default class MapView extends Vue {
     }
   }
 
-  choosePolygon(polygon) {
-    if (polygon) {
-      console.log('点击了polygon，', polygon)
-      // this.vmap.map.off('click', this.handleMapClick) // polygonEditor.open() 会触发map的click事件
-      // 弹出右边的信息窗
-      // this.$emit('mapClick', {
-      //   type: 'polygon',
-      //   info: polygon
-      // })
-    } else {
-      console.log('取消了 polygon 点击')
-    }
+  public choosePolygon(polygon) {
+    this.vmap.choosePolygon(polygon)
+  }
+
+  handlePolygonClick(polygon) {
+    this.$emit('mapClick', {
+      type: 'polygon',
+      info: polygon
+    })
   }
 
   async addInterestPoi(position, type) {
@@ -521,9 +526,9 @@ export default class MapView extends Vue {
       appearance: JSON.stringify(infos.appearance)
     }
     try {
-      const data = await addInterestPoint(param)
-      const { tagId } = data
-      // const tagId = Math.random().toString()
+      // const data = await addInterestPoint(param)
+      // const { tagId } = data
+      const tagId = Math.random().toString()
       const newPoint = { ...param, tagId }
       type === 'interest' ? MapModule.SetInterestInfo(newPoint) : MapModule.SetFontInfo(newPoint)
       this.interestPointList.push(newPoint)
@@ -535,45 +540,38 @@ export default class MapView extends Vue {
     }
   }
 
-  addPolygon(points) {
-    const type = 'InterestBuilding' // HighLightArea;InterestBuilding
-    console.log('addPolygon', type)
-    const tagName = '楼层' //  高亮 '楼层'
-    const colorType = ''
+  async addPolygon(points) {
+    const infos = MapModule.polygonInfo
     const param = {
-      tagName,
-      type: 'InterestPoint',
-      description: '',
+      ...infos,
       mapId: this.mapId,
       points: points.map(item => ({ longitude: item.lng.toString(), latitude: item.lat.toString() })),
-      color: 'blue',
-      colorType
+      appearance: JSON.stringify(infos.appearance)
     }
-    console.log('新增polygon： ', param.points)
-    // addInterestPoint(param).then(() => {
-    //   this.$message.success('新增成功')
-    // }).catch(err => {
-    //   this.$message.error(`${err.message ? err.message : err}`)
-    // }
-    const suc = true
-    if (suc) {
-      if (type === 'HighLightArea') {
-        this.hightAreaList.push(param)
-        console.log('mask: ', this.mapMask)
+    try {
+      // const data = await addInterestPoint(param)
+      // const { tagId } = data
+      const tagId = Math.random().toString()
+      const newPoint = { ...param, tagId }
+      MapModule.SetPolygonInfo(newPoint)
+      if (newPoint.type === 'HighLightArea') {
+        this.hightAreaList.push(newPoint)
         this.renderMask(this.mapMask)
       } else {
-        this.interestBuildingList.push(param)
+        this.interestBuildingList.push(newPoint)
         this.vmap.renderBuilding(this.hightAreaList, this.interestBuildingList)
-        return true
       }
-    } else {
-      return false
+      this.vmap.renderPolygon(this.hightAreaList, this.interestBuildingList)
+      this.choosePolygon(newPoint)
+    } catch (e) {
+      this.$alertError(e)
+      console.log('新增失败')
     }
   }
 
   async deleteInterest(id, tagType) {
     try {
-      await delInterestPoint({ tagId: id })
+      // await delInterestPoint({ tagId: id })
       this.$emit('mapClick', {
         type: 'map',
         info: this.mapOption
@@ -586,10 +584,14 @@ export default class MapView extends Vue {
         case 'HighLightArea':
           this.hightAreaList = this.hightAreaList.filter(item => item.tagId !== id)
           this.renderMask(this.mapMask)
+          this.vmap.renderPolygon(this.hightAreaList, this.interestBuildingList)
+          this.vmap.cancelPoly()
           break
         case 'InterestBuilding':
           this.interestBuildingList = this.interestBuildingList.filter(item => item.tagId !== id)
           this.vmap.renderBuilding(this.hightAreaList, this.interestBuildingList)
+          this.vmap.renderPolygon(this.hightAreaList, this.interestBuildingList)
+          this.vmap.cancelPoly()
           break
       }
     } catch (e) {
@@ -600,44 +602,45 @@ export default class MapView extends Vue {
 
   changeMapClickEvent(type) {
     console.log('changeMapClickEvent', type)
-    const map = this.vmap.map
-    map.off('click', this.handleMapClick)
-    let event
-    switch (type) {
-      case 'interest':
-        this.vmap.changeMapState('interest')
-        event = () => {
-          console.log('click interest')
-        }
-        break
-      case 'font':
-        this.vmap.changeMapState('font')
-        event = () => {
-          console.log('font')
-        }
-        break
-      case 'polygon':
-        this.vmap.changeMapState('polygon')
-        event = () => {
-          console.log('click polygon')
-        }
-        break
-      case 'pointer':
-        this.vmap.changeMapState('pointer')
-        if (this.isEdit) {
-          this.vmap.renderPolygon(this.hightAreaList, this.interestBuildingList)
-        }
-        event = () => {
-          console.log('点击其他')
-          this.vmap.cancelChoose()
-          this.$emit('mapClick', {
-            type: 'map',
-            info: this.mapOption
-          })
-        }
-    }
-    this.handleMapClick = event
-    map.on('click', this.handleMapClick)
+    this.$nextTick(() => {
+      const map = this.vmap.map
+      map.off('click', this.handleMapClick)
+      let event
+      switch (type) {
+        case 'interest':
+          this.vmap.changeMapState('interest')
+          event = () => {}
+          break
+        case 'font':
+          this.vmap.changeMapState('font')
+          event = () => {}
+          break
+        case 'polygon':
+          this.vmap.changeMapState('polygon')
+          event = () => {}
+          break
+        case 'pointer':
+          this.vmap.changeMapState('pointer')
+          if (this.isEdit) {
+            this.vmap.renderPolygon(this.hightAreaList, this.interestBuildingList)
+          }
+          event = () => {
+            console.log('地图event')
+            if (!MapModule.isClickPoly) {
+              this.vmap.cancelChoose()
+              this.cancleInterest()
+              this.$emit('mapClick', {
+                type: 'map',
+                info: this.mapOption
+              })
+            }
+            MapModule.SetIsClickPoly(false)
+          }
+          break
+      }
+      this.handleMapClick = event
+      map.on('click', this.handleMapClick)
+    })
   }
 
   setMarkerList(markerList) {

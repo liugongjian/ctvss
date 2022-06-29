@@ -757,6 +757,7 @@ export default class extends Mixins(IndexMixin) {
     })
   }
   handleMapClick(infos) {
+    console.log('handleMapClick', infos.type)
     const { type, info } = infos
     this.customInfoType = type
     switch (type) {
@@ -854,6 +855,15 @@ export default class extends Mixins(IndexMixin) {
     this.addNoPositionDialogCheck = false
     this.dragAddNoPositionDialogCheck = false
     this.changeToolState('pointer')
+    this.$refs.mapview.changeMapClickEvent('pointer')
+    if (!this.isEdit) {
+      const interType = ['interest', 'font', 'polygon']
+      if (interType.includes(this.customInfoType)) {
+        this.customInfoType = 'map'
+        this.showInfo = false
+        this.$refs.mapview.cancleInterest()
+      }
+    }
   }
 
   cancelAddMark() {
@@ -1102,7 +1112,6 @@ export default class extends Mixins(IndexMixin) {
         this.$refs.mapview.interestChange('font', info)
         break
       case 'polygon':
-        console.log('handleCustomChange(polygon)', info)
         this.$refs.mapview.interestChange('polygon', info)
         break
     }

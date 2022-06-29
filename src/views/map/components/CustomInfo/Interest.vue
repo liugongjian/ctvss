@@ -76,7 +76,7 @@ export default class Interest extends Vue {
   }
 
   change() {
-    if (this.interestInfo.tagId) {
+    if (!this.isAdd) {
       const checklnglat = validateIsLng(this.interestInfo.points[0].longitude) && validateIsLat(this.interestInfo.points[0].latitude)
       if (checklnglat) {
         this.$emit('change', { type: 'interest', info: this.interestInfo })

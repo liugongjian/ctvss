@@ -79,6 +79,10 @@ export default class MapConfig extends Vue {
   @Prop()
   private info
 
+  public $refs: {
+    mapform: any
+  }
+
   private tips = {
     zoom: '设置地图的默认缩放比例，表示每厘米对应实际的距离',
     mask: '启用蒙版后多边形区域会变为镂空风格',

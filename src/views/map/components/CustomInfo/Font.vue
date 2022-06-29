@@ -40,8 +40,8 @@
           <el-input v-model="fontInfo.appearance.fontSize" @change="change" />
         </div>
         <div class="map-point-base-info__textInfo">
-          <span class="map-point-base-info__font-weight map-point-base-info__font" :class="{ active: fontInfo.appearance.bolder }" @click="changeStyle('bolder')">B</span>
-          <span class="map-point-base-info__font-style map-point-base-info__font" :class="{ active: fontInfo.appearance.italic }" @click="changeStyle('italic')">I</span>
+          <span class="map-point-base-info__font-weight map-point-base-info__font" :class="{active: fontInfo.appearance.bolder}" @click="changeStyle('bolder')">B</span>
+          <span class="map-point-base-info__font-style map-point-base-info__font" :class="{active: fontInfo.appearance.italic}" @click="changeStyle('italic')">I</span>
         </div>
       </el-descriptions-item>
     </el-descriptions>
@@ -97,7 +97,7 @@ export default class Font extends Vue {
   }
 
   change() {
-    if (this.fontInfo.tagId) {
+    if (!this.isAdd) {
       const checklnglat = validateIsLng(this.fontInfo.points[0].longitude) && validateIsLat(this.fontInfo.points[0].latitude)
       if (checklnglat) {
         this.$emit('change', { type: 'font', info: this.fontInfo })
