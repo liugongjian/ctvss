@@ -606,6 +606,7 @@ export default class extends Vue {
 
         img {
           width: 100%;
+          height: 172px;
         }
       }
     }
