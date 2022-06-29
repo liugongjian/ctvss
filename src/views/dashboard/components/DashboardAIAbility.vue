@@ -3,21 +3,23 @@
     <template slot="header">
       <el-button type="primary" class="dash-btn" @click="$router.push('/dashboard/visualization-dashboard')">可视化大屏</el-button>
     </template>
-    <div v-for="item in aiInfos" :key="item.name">
-      <p class="dashboard-wrap-overview__cell__head">{{ item.name }}</p>
-      <div class="dashboard-wrap-overview__cell__list">
-        <span v-for="app in item.apps.slice(0,5)" :key="app.id">
-          <el-button size="medium" type="text" @click="goToApp(app.id)">{{ app.name }}</el-button>
-        </span>
-        <span v-if="item.apps.length > 5">
-          <el-button class="dashboard-wrap-overview__cell__list__more-text" size="medium" type="text">...</el-button>
-        </span>
+    <div v-if="checkPermission(['DescribeAi'])">
+      <div v-for="item in aiInfos" :key="item.name">
+        <p class="dashboard-wrap-overview__cell__head">{{ item.name }}</p>
+        <div class="dashboard-wrap-overview__cell__list">
+          <span v-for="app in item.apps.slice(0,5)" :key="app.id">
+            <el-button size="medium" type="text" @click="goToApp(app.id)">{{ app.name }}</el-button>
+          </span>
+          <span v-if="item.apps.length > 5">
+            <el-button class="dashboard-wrap-overview__cell__list__more-text" size="medium" type="text">...</el-button>
+          </span>
+        </div>
       </div>
-    </div>
-    <div>
-      <el-button class="applist-btn" size="medium" type="text" @click="$router.push({name: 'AI-AppList'})">
-        查看全部<svg-icon name="arrow-right" />
-      </el-button>
+      <div>
+        <el-button class="applist-btn" size="medium" type="text" @click="$router.push({name: 'AI-AppList'})">
+          查看全部<svg-icon name="arrow-right" />
+        </el-button>
+      </div>
     </div>
   </component>
 </template>
@@ -81,14 +83,17 @@ export default class extends Mixins(DashboardMixin) {
     span {
       margin-right: 15px;
     }
+
     &__more-text {
       cursor: none;
     }
   }
+
   .applist-btn {
     float: right;
     margin-top: -20px;
-    span{
+
+    span {
       svg {
         margin-left: 5px;
       }

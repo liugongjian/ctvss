@@ -253,8 +253,8 @@
                   <div class="detail__section">
                     <div class="detail__title">接入信息</div>
                     <el-descriptions :column="2">
-                      <el-descriptions-item label="视图ID">
-                        {{ viewLibInfo.viidServerId || '-' }}
+                      <el-descriptions-item label="视图编码">
+                        {{ viewLibInfo.apeId || '-' }}
                       </el-descriptions-item>
                       <el-descriptions-item label="GA1400凭证">
                         {{ viewLibInfo.certName }}
@@ -309,7 +309,8 @@
         <el-tab-pane label="AI分析" name="ai">
           <detail-ai v-if="activeName==='ai'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
-        <el-tab-pane label="视图数据" name="viewlib">
+        <el-tab-pane v-if="hasViewLib && ga1400Flag" label="视图数据" name="viewlib">
+          <!-- <el-tab-pane label="视图数据" name="viewlib"> -->
           <detail-view-lib v-if="activeName==='viewlib'" :device-id="deviceId" :in-protocol="inProtocol" />
         </el-tab-pane>
       </el-tabs>
@@ -349,16 +350,19 @@ export default class extends Mixins(detailMixin) {
 
 .detail-tabs {
   margin-top: 20px;
+
   ::v-deep {
     .el-tabs__content {
       padding: 0 20px;
     }
+
     .detail__title {
       &:before {
         content: '';
         display: none;
       }
     }
+
     .el-tabs__item {
       height: 38px;
       line-height: 38px;

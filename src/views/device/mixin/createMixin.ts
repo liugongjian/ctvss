@@ -173,6 +173,7 @@ export default class CreateMixin extends Vue {
       confirmButtonText: '确定',
       cancelButtonText: '取消'
     }).then(async() => {
+      this.activeTabPane = 'view'
       this.tabPaneList.push({ label: '视图接入', name: 'view' })
     })
   }
@@ -188,7 +189,8 @@ export default class CreateMixin extends Vue {
    * 针对ga1400标识
    */
   public get ga1400Flag() {
-    return this.$store.state.user.tags.ga1400 === 'Y'
+    return true
+    // return this.$store.state.user.tags.ga1400 === 'Y'
   }
 
   /**

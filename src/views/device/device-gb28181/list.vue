@@ -208,7 +208,7 @@
             {{ row.gbId || '-' }}
           </template>
         </el-table-column>
-        <el-table-column v-if="ga1400Flag && (isGb || isNVR)" key="apeId" prop="apeId" label="视图ID" min-width="190">
+        <el-table-column v-if="ga1400Flag && (isGb || isNVR)" key="apeId" prop="apeId" label="视图编码" min-width="190">
           <template slot-scope="{row}">
             {{ row.apeId || '-' }}
           </template>

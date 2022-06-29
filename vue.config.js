@@ -44,7 +44,7 @@ module.exports = {
       /**
        * CDN单点登录
        */
-      '/iam/gw/': {
+      '^/iam/gw/': {
         target: 'https://iam-cbip.ctcdn.cn:8843/',
         secure: false,
         changeOrigin: true,
@@ -58,7 +58,7 @@ module.exports = {
           }
         }
       },
-      '/iam/': {
+      '^/iam/': {
         target: 'https://iam-cbip.ctcdn.cn:8843/',
         secure: false,
         changeOrigin: true,
