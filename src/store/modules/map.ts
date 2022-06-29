@@ -4,9 +4,9 @@ import store from '@/store'
 export interface IMapState {
   mapInfo?: any
   markerInfo: any
-  interestInfos?: any
-  fontInfos?: any
-  polygonInfos?: any
+  interestInfo?: any
+  fontInfo?: any
+  polygonInfo?: any
 }
 
 @Module({ dynamic: true, store, name: 'map' })
@@ -80,20 +80,20 @@ class Map extends VuexModule implements IMapState {
     const info = { ...payload }
     const appearance = info.appearance || '{}'
     info.appearance = JSON.parse(appearance)
-    this.SET_FONT_INFO(payload)
+    this.SET_FONT_INFO(info)
   }
 
   @Action
   public ResetFontInfo() {
-    this.SET_INTEREST_INFO({
+    this.SET_FONT_INFO({
       tagName: '未命名',
       type: 'InterestPoint',
       description: '',
-      points: [],
+      points: [{ longitude: '', latitude: '' }],
       color: '',
       colorType: '',
       appearance: {
-        color: '#1e78e0',
+        color: '#333',
         colorType: 'text'
       }
     })
@@ -109,7 +109,7 @@ class Map extends VuexModule implements IMapState {
     const info = { ...payload }
     const appearance = info.appearance || '{}'
     info.appearance = JSON.parse(appearance)
-    this.SET_POLYGON_INFO(payload)
+    this.SET_POLYGON_INFO(info)
   }
 
   @Action
@@ -120,7 +120,7 @@ class Map extends VuexModule implements IMapState {
       wallColor: '#eab754',
       roofColor: '#ffce6f'
     }
-    this.SET_INTEREST_INFO({
+    this.SET_POLYGON_INFO({
       tagName: '未命名',
       type: 'HighLightArea', // HighLightArea;InterestBuilding
       description: '',

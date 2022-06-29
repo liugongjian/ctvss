@@ -146,7 +146,7 @@ export default class MapConfig extends Vue {
     }
   }
   private validatelng(rule: any, value: string, callback: Function) {
-    if (!validateIsLng(value) && !value) {
+    if (!validateIsLng(value) && value) {
       callback(new Error('经度坐标格式错误'))
     } else {
       callback()

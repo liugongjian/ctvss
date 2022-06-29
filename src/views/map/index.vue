@@ -169,7 +169,7 @@
                 <el-button type="primary" @click="openMapEditDialog()">添加地图</el-button>
               </div>
               <div v-show="showInfo" class="map-info__right">
-                <custom-info v-if="customInfoType" :key="customInfoType" :is-add="isAddCustom" :is-edit="isEdit" :custom-info-type="customInfoType" @change="handleCustomChange" @save="changeMapInfos" />
+                <custom-info v-if="customInfoType" :key="customInfoType" :is-add="isAddCustom" :is-edit="isEdit" :custom-info-type="customInfoType" @delete="handleCustomDelete" @change="handleCustomChange" @save="changeMapInfos" />
               </div>
             </div>
           </div>
@@ -1031,9 +1031,8 @@ export default class extends Mixins(IndexMixin) {
 
   toggleMarkersShow(isOpen) {
     const flag = isOpen === 'Y'
-    if (this.showMarkers !== flag) {
-      this.showMarkers = flag
-      this.$refs.mapview.setMarkersView(flag)
+    if (this.showTitle !== flag) {
+      this.showTitle = flag
     }
   }
 
@@ -1081,6 +1080,11 @@ export default class extends Mixins(IndexMixin) {
     this.toggleMarkersShow(mapinfo.marker)
   }
 
+  handleCustomDelete(info) {
+    const { id, type } = info
+    this.$refs.mapview.deleteInterest(id, type)
+  }
+
   handleCustomChange(infos) {
     const { type, info } = infos
     switch (type) {
@@ -1092,13 +1096,14 @@ export default class extends Mixins(IndexMixin) {
         this.$refs.mapview.markerChange(info)
         break
       case 'interest':
-        console.log('handleCustomChange(interest)', info)
+        this.$refs.mapview.interestChange('interest', info)
         break
       case 'font':
-        console.log('handleCustomChange(font)', info)
+        this.$refs.mapview.interestChange('font', info)
         break
       case 'polygon':
         console.log('handleCustomChange(polygon)', info)
+        this.$refs.mapview.interestChange('polygon', info)
         break
     }
   }

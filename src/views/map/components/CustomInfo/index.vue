@@ -107,16 +107,18 @@ export default class CustomInfo extends Vue {
       text-align: center;
       line-height: 24px;
       font-size: 16px;
-      cursor: pointer;
-    }
-
-    &__font-weight {
-      background: #d3d3d3;
       color: #333;
       font-weight: 500;
       cursor: pointer;
-      border-radius: 2px;
+      &.active {
+        background: #d3d3d3;
+        border-radius: 2px;
+      }
+    }
+
+    &__font-weight {
       margin-left: 10px;
+      margin-right: 2px;
     }
 
     &__font-style {

@@ -2,12 +2,12 @@
   <div class="map-point-base-info">
     <div class="map-point-base-info__header">
       <span class="map-point-base-info__header__title">兴趣点</span>
-      <svg-icon name="delete" class="map-point-base-info__header__icon" />
+      <svg-icon v-if="interestInfo.tagId" name="delete" class="map-point-base-info__header__icon" @click="onDelete" />
     </div>
     <el-descriptions title="基本属性" :column="1">
       <el-descriptions-item label="名称">
-        <el-input v-model="interestInfo.tagName" placeholder="兴趣点名称" />
-        <el-checkbox v-model="interestInfo.appearance.showLabel">始终显示名称</el-checkbox>
+        <el-input v-model="interestInfo.tagName" placeholder="兴趣点名称" @change="change" />
+        <el-checkbox v-model="interestInfo.appearance.showLabel" @change="change">始终显示名称</el-checkbox>
       </el-descriptions-item>
       <el-descriptions-item label="备注">
         <el-input
@@ -17,15 +17,16 @@
           placeholder="请输入内容"
           maxlength="68"
           show-word-limit
+          @change="change"
         />
       </el-descriptions-item>
     </el-descriptions>
     <el-descriptions v-if="!isAdd" title="位置信息" :column="1">
       <el-descriptions-item label="经度">
-        <el-input v-model="interestInfo.points[0].longitude" />
+        <el-input v-model="interestInfo.points[0].longitude" @change="change" />
       </el-descriptions-item>
       <el-descriptions-item label="纬度">
-        <el-input v-model="interestInfo.points[0].latitude" />
+        <el-input v-model="interestInfo.points[0].latitude" @change="change" />
       </el-descriptions-item>
     </el-descriptions>
     <el-descriptions title="外观" :column="1">
@@ -41,14 +42,14 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Sketch } from 'vue-color'
 import { MapModule } from '@/store/modules/map'
+import { validateIsLat, validateIsLng } from '@/views/map/utils/validate'
 
 @Component({
-  name: 'CustomInfo',
+  name: 'InterestInfo',
   components: {
     'sketch-picker': Sketch
   }
 })
-
 export default class Interest extends Vue {
   @Prop() private isAdd: boolean
   private ifPickColor = false
@@ -63,12 +64,30 @@ export default class Interest extends Vue {
     this.pickColorVisble = false
     const { r, g, b, a } = val.rgba
     const color = `rgba(${r},${g},${b},${a})`
-    MapModule.interestInfo.appearance.color = color
     this.color = color
   }
 
   private pickColor() {
     this.ifPickColor = !this.ifPickColor
+    if (!this.ifPickColor) { // 关闭状态，表示选取颜色结束
+      MapModule.interestInfo.appearance.color = this.color
+      this.change()
+    }
+  }
+
+  change() {
+    if (this.interestInfo.tagId) {
+      const checklnglat = validateIsLng(this.interestInfo.points[0].longitude) && validateIsLat(this.interestInfo.points[0].latitude)
+      if (checklnglat) {
+        this.$emit('change', { type: 'interest', info: this.interestInfo })
+      } else {
+        this.$alertError('请填写正确的经纬度')
+      }
+    }
+  }
+
+  onDelete() {
+    this.$emit('delete', { id: this.interestInfo.tagId, type: this.interestInfo.type })
   }
 }
 </script>

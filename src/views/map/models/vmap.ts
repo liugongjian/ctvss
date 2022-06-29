@@ -105,7 +105,7 @@ export default class VMap {
   indexCluster: AMap.IndexCluster | null = null
   markerEventHandlers: markerEventHandlers
   community: AMap.Polygon | null = null // 社区高亮区域
-  pois: Array<AMap.Marker | AMap.LabelsLayer> | null = null // 兴趣点
+  pois: Array<AMap.Marker> = [] // 兴趣点
   buildingLayer: AMap.Buildings | null = null // 兴趣点建筑
   mouseTool: AMap.MouseTool | null = null
   mouseToolHandler: any
@@ -181,7 +181,6 @@ export default class VMap {
     this.InterestEventHandlers = handlers
     this.mouseTool = new AMap.MouseTool(this.map)
     this.mouseTool.on('draw', (e) => {
-      // pointer，polygen，interest，font)
       if (this.eventState === 'interest') {
         this.InterestEventHandlers.addPoi(e.obj.getPosition(), 'interest')
       } else if (this.eventState === 'font') {
@@ -521,12 +520,12 @@ export default class VMap {
    * 渲染兴趣点
    */
   public renderPoi(pointsList) {
-    if (this.pois) {
+    if (this.pois.length > 0) {
       this.map.remove(this.pois)
     }
     this.pois = []
-    window.deleteInterest = (id) => {
-      this.InterestEventHandlers.deletePoi(id)
+    window.deleteInterest = (id, type) => {
+      this.InterestEventHandlers.deletePoi(id, type)
     }
     pointsList.forEach(point => {
       const appearance = point.appearance || '{}'
@@ -536,8 +535,8 @@ export default class VMap {
           position: this.handlePoint(point.points)[0],
           offset: new AMap.Pixel(-20, -20),
           zooms: [15, 20],
-          // content: `<svg class="marker-icon" style="fill:${point.color}" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5241"><path d="M832.179718 379.057175c0-176.277796-143.353942-319.077106-320.18023-319.077106-176.898943 0-320.18023 142.79931-320.18023 319.077106 0 212.71159 320.18023 584.961732 320.18023 584.961732S832.179718 591.768765 832.179718 379.057175zM378.580826 379.057175c0-73.443709 59.737546-132.942825 133.418662-132.942825 73.610508 0 133.421732 59.499116 133.421732 132.942825 0 73.364915-59.811224 132.942825-133.421732 132.942825C438.318372 512 378.580826 452.42209 378.580826 379.057175z" p-id="5242"></path></svg>`
-          content: drawBubblePoint(point)
+          content: drawBubblePoint(point),
+          draggable: this.isEdit && this.eventState === 'pointer'
         })
         marker.on('mouseover', () => {
           marker.setLabel({
@@ -555,9 +554,18 @@ export default class VMap {
         marker.on('click', () => {
           if (this.eventState === 'pointer' && this.isEdit) {
             this.cancelChoose(false)
-            this.InterestEventHandlers.clickPoi(point)
+            this.InterestEventHandlers.clickPoi(point, 'interest')
             this.polygonEditor.close()
           }
+        })
+        marker.on('dragend', () => {
+          const { lng, lat } = marker.getPosition()
+          const newPoint = {
+            ...point,
+            points: [{ longitude: lng.toString(), latitude: lat.toString() }],
+            appearance: JSON.parse(appearance)
+          }
+          this.InterestEventHandlers.changePoi('interest', newPoint)
         })
         this.pois.push(marker)
       } else if (colorType === 'text') {
@@ -565,14 +573,24 @@ export default class VMap {
           position: this.handlePoint(point.points)[0],
           offset: new AMap.Pixel(-90, -26),
           zooms: [15, 20],
-          content: drawTextPoint(point)
+          content: drawTextPoint(point),
+          draggable: this.isEdit && this.eventState === 'pointer'
         })
         marker.on('click', () => {
           if (this.eventState === 'pointer' && this.isEdit) {
             this.cancelChoose(false)
-            this.InterestEventHandlers.clickPoi(point)
+            this.InterestEventHandlers.clickPoi(point, 'font')
             this.polygonEditor.close()
           }
+        })
+        marker.on('dragend', () => {
+          const { lng, lat } = marker.getPosition()
+          const newPoint = {
+            ...point,
+            points: [{ longitude: lng.toString(), latitude: lat.toString() }],
+            appearance: JSON.parse(appearance)
+          }
+          this.InterestEventHandlers.changePoi('font', newPoint)
         })
         this.pois.push(marker)
       }
@@ -679,8 +697,14 @@ export default class VMap {
       if (state === 'pointer') {
         (document.getElementsByClassName('amap-maps')[0] as HTMLElement).style.cursor = 'default'
         this.cancelChoose()
+        this.isEdit && this.pois.forEach(poi => {
+          poi.setDraggable(true)
+        })
       } else {
         (document.getElementsByClassName('amap-maps')[0] as HTMLElement).style.cursor = 'crosshair'
+        this.pois.forEach(poi => {
+          poi.setDraggable(false)
+        })
         this.drawInterest(state)
       }
     }
