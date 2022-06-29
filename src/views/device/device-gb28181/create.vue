@@ -109,7 +109,7 @@
               2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
             </div>
           </el-form-item>
-          <el-form-item v-if="!(form.platFormMsg === 'Y' && (form.deviceClass === 'ipc' || form.deviceClass === 'channel')) && (!isUpdate || form.gbRegion || !deviceGbId)" label="设备地址:" prop="gbRegion">
+          <el-form-item v-if="!(form.platFormMsg === 'Y' && (form.deviceClass === 'ipc' || form.deviceClass === 'channel' || form.deviceClass === 'nvr')) && (!isUpdate || form.gbRegion || !deviceGbId)" label="设备地址:" prop="gbRegion">
             <AddressCascader
               :code="form.gbRegion"
               :level="form.gbRegionLevel"
