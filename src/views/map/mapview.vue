@@ -230,6 +230,10 @@ export default class MapView extends Vue {
   }
 
   private handleMarkerModify(marker) {
+    this.$emit('mapChange', {
+      type: 'marker',
+      info: marker
+    })
     const appearance = marker.appearance || '{}'
     this.markerChange({
       ...marker,
@@ -269,7 +273,7 @@ export default class MapView extends Vue {
         mapId: this.mapId,
         appearance: JSON.stringify(appearance)
       }
-      // await editInterestPoint(data)
+      await editInterestPoint(data)
       switch (type) {
         case 'interest':
           MapModule.SetInterestInfo(data)
@@ -468,11 +472,10 @@ export default class MapView extends Vue {
 
   cancleInterest() {
     this.choosePoi(null)
-    this.vmap.cancelPoly()
+    this.vmap.cancelPoly(true)
   }
 
   choosePoi(point, type?) {
-    console.log('choosePoi', point)
     if (point) {
       const otherPoints = document.getElementsByClassName('marker-containt')
       let len = otherPoints.length
@@ -526,9 +529,9 @@ export default class MapView extends Vue {
       appearance: JSON.stringify(infos.appearance)
     }
     try {
-      // const data = await addInterestPoint(param)
-      // const { tagId } = data
-      const tagId = Math.random().toString()
+      const data = await addInterestPoint(param)
+      const { tagId } = data
+      // const tagId = Math.random().toString()
       const newPoint = { ...param, tagId }
       type === 'interest' ? MapModule.SetInterestInfo(newPoint) : MapModule.SetFontInfo(newPoint)
       this.interestPointList.push(newPoint)
@@ -571,7 +574,7 @@ export default class MapView extends Vue {
 
   async deleteInterest(id, tagType) {
     try {
-      // await delInterestPoint({ tagId: id })
+      await delInterestPoint({ tagId: id })
       this.$emit('mapClick', {
         type: 'map',
         info: this.mapOption
@@ -601,7 +604,6 @@ export default class MapView extends Vue {
   }
 
   changeMapClickEvent(type) {
-    console.log('changeMapClickEvent', type)
     this.$nextTick(() => {
       const map = this.vmap.map
       map.off('click', this.handleMapClick)
@@ -625,8 +627,7 @@ export default class MapView extends Vue {
             this.vmap.renderPolygon(this.hightAreaList, this.interestBuildingList)
           }
           event = () => {
-            console.log('地图event')
-            if (!MapModule.isClickPoly) {
+            if (!MapModule.isClickInterest) {
               this.vmap.cancelChoose()
               this.cancleInterest()
               this.$emit('mapClick', {
@@ -634,7 +635,7 @@ export default class MapView extends Vue {
                 info: this.mapOption
               })
             }
-            MapModule.SetIsClickPoly(false)
+            MapModule.SetIsClickInterest(false)
           }
           break
       }

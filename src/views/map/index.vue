@@ -757,7 +757,6 @@ export default class extends Mixins(IndexMixin) {
     })
   }
   handleMapClick(infos) {
-    console.log('handleMapClick', infos.type)
     const { type, info } = infos
     this.customInfoType = type
     switch (type) {

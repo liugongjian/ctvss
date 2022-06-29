@@ -27,12 +27,6 @@
         <span class="map-point-base-info__color" :style="`background-color: ${color}`" @click="pickColor" />
         <sketch-picker v-if="ifPickColor" :value="color" @input="colorChange" />
       </el-descriptions-item>
-<!--      <el-descriptions-item label="大小">-->
-<!--        <div class="map-point-base-info__small-box">-->
-<!--          <el-input v-model="markerInfo.info" :disabled="!isEdit" />宽-->
-<!--          <el-input v-model="markerInfo.info" :disabled="!isEdit" />高-->
-<!--        </div>-->
-<!--      </el-descriptions-item>-->
     </el-descriptions>
   </div>
 </template>

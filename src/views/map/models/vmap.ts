@@ -456,6 +456,8 @@ export default class VMap {
         context.marker.on('click', () => {
           if (this.eventState === 'pointer') {
             const marker = context.marker.getExtData()
+            this.cancelPoly()
+            this.InterestEventHandlers.clickPoi()
             this.chooseMarker(marker)
           }
         })
@@ -555,7 +557,6 @@ export default class VMap {
         })
         marker.on('click', () => {
           if (this.eventState === 'pointer' && this.isEdit) {
-            console.log('renderPoi click')
             this.cancelChoose()
             this.cancelPoly()
             this.InterestEventHandlers.clickPoi(point, 'interest')
@@ -634,12 +635,15 @@ export default class VMap {
     this.buildingLayer.setStyle(buildingOptions)
   }
 
-  cancelPoly() {
+  cancelPoly(isFromMap = false) {
     this.polygonEditor.close()
+    if (!isFromMap) {
+      MapModule.SetIsClickInterest(true)
+    }
   }
 
   choosePolygon(interest) {
-    MapModule.SetIsClickPoly(true)
+    MapModule.SetIsClickInterest(true)
     const polygon = this.polygons.find(item => item.getExtData().tagId === interest.tagId)
     this.cancelChoose()
     this.InterestEventHandlers.clickPoi()
@@ -652,7 +656,6 @@ export default class VMap {
    * 创建多边形区域，为了修改编辑
    */
   renderPolygon(highlightList, buildingList) {
-    console.log('renderPolygon')
     this.map.remove(this.polygons)
     this.polygons = []
     const polygons = highlightList.concat(buildingList)
@@ -705,7 +708,6 @@ export default class VMap {
     }
   }
   changeMapState(state) {
-    console.log('changeMapState', state)
     if (this.eventState !== state) {
       this.mouseTool && this.mouseTool.close(true)
       this.eventState = state

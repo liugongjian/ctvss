@@ -7,7 +7,7 @@ export interface IMapState {
   interestInfo?: any
   fontInfo?: any
   polygonInfo?: any
-  isClickPoly?: boolean
+  isClickInterest?: boolean
 }
 
 @Module({ dynamic: true, store, name: 'map' })
@@ -17,7 +17,7 @@ class Map extends VuexModule implements IMapState {
   public interestInfo: any = null
   public fontInfo: any = null
   public polygonInfo: any = null
-  public isClickPoly: boolean = false
+  public isClickInterest: boolean = false
 
   @Mutation
   public SET_MAP_INFO(payload: any) {
@@ -134,8 +134,8 @@ class Map extends VuexModule implements IMapState {
   }
 
   @Mutation
-  public SetIsClickPoly(state) {
-    this.isClickPoly = state
+  public SetIsClickInterest(state) {
+    this.isClickInterest = state
   }
 }
 
