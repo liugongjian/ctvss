@@ -1,6 +1,7 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { UserModule } from '@/store/modules/user'
 import { getAppList } from '@/api/ai-app'
+import { checkPermission } from '@/utils/permission'
 @Component
 export default class DashboardMixin extends Vue {
   @Prop() public height: any
@@ -8,7 +9,7 @@ export default class DashboardMixin extends Vue {
   get mainUserId() {
     return UserModule.mainUserID
   }
-
+  private checkPermission = checkPermission
   private intervalInstance: any = null
   public intervalTime = 15 * 1000
 

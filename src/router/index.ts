@@ -524,9 +524,9 @@ export const asyncRoutes: RouteConfig[] = [
     redirect: 'noredirect',
     meta: {
       title: '视图服务',
-      icon: 'component',
+      icon: 'viewLib',
       alwaysShow: true,
-      tags: ['ga1400'],
+      // tags: ['ga1400'],
       perms: ['*']
     },
     children: [
@@ -621,7 +621,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: 'GA1400凭证',
           icon: 'dot',
           perms: ['*'],
-          tags: ['ga1400'],
+          // tags: ['ga1400'],
           activeMenu: '/certificate/ga1400'
         }
       },
@@ -634,7 +634,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '新建GA1400凭证',
           hidden: true,
           perms: ['*'],
-          tags: ['ga1400'],
+          // tags: ['ga1400'],
           activeMenu: '/certificate/ga1400'
         }
       },
@@ -647,7 +647,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '编辑GA1400凭证',
           hidden: true,
           perms: ['*'],
-          tags: ['ga1400'],
+          // tags: ['ga1400'],
           activeMenu: '/certificate/ga1400'
         }
       }
