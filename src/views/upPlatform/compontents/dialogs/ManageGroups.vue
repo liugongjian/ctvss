@@ -68,7 +68,16 @@
                 <span v-else class="node-dir">
                   <svg-icon name="dir-close" width="15" height="15" />
                 </span>
-                {{ node.label.length > 10 ? node.label.substring(0,9)+'...' : node.label }}
+                <el-popover
+                  v-if="node.label.length > 10"
+                  placement="top-start"
+                  trigger="hover"
+                  :content="node.label"
+                  popper-class="tree-label-poppover"
+                >
+                  <span slot="reference">{{ node.label.substring(0,9)+'...' }}</span>
+                </el-popover>
+                <span v-else>{{ node.label }}</span>
               </span>
               <span v-if="step === 1" slot="reference" class="node-input" @click.stop="">
                 <div class="node-input__label"><span>{{ node.data.gbId || '-' }}</span></div>
@@ -1122,6 +1131,10 @@ export default class extends Vue {
       width: 240px;
       overflow: hidden;
 
+      span {
+        margin-left: 3px;
+      }
+
       .svg-icon {
         color: $textGrey;
       }
@@ -1212,4 +1225,9 @@ export default class extends Vue {
     }
   }
 }
+
+.el-popover__reference {
+  margin-left: 3px;
+}
+
 </style>
