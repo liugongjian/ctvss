@@ -89,7 +89,7 @@
         <el-form-item>
           <el-row style="margin: 20px 0;">
             <template v-if="!isCtyunPolicy">
-              <el-button type="primary" class="confirm" @click="upload">确定</el-button>
+              <el-button type="primary" class="confirm" :loading="loading.dir || loading.resource" @click="upload">确定</el-button>
               <el-button class="cancel" @click="back">取消</el-button>
             </template>
             <template v-else>
@@ -244,7 +244,6 @@ export default class extends Vue {
   private async mounted() {
     this.isCtyunPolicy = this.$route.query.policyScope === 'ctyun'
     this.breadCrumbContent = !this.isUpdate ? this.$route.meta.title : (this.isCtyunPolicy ? '查看策略' : '编辑策略')
-    await this.initDirs()
     if (this.isUpdate) {
       const policyId = this.$route.query.policyId
       if (policyId) {
@@ -255,6 +254,7 @@ export default class extends Vue {
       }
     } else {
       this.actionType = 'selected'
+      await this.initDirs()
     }
   }
 
@@ -325,8 +325,9 @@ export default class extends Vue {
         this.resourceType = 'all'
       } else {
         this.resourceType = 'selected'
-        this.initResourceStatus(resourceList)
       }
+      await this.initDirs()
+      this.$nextTick(() => this.initResourceStatus(resourceList))
     } catch (e) {
       console.log('e: ', e)
       this.$message.error('查询策略详情出错！')
@@ -349,28 +350,35 @@ export default class extends Vue {
    * 初始化资源选中状态
    */
   public async initResourceStatus(resourceList: any) {
-    const dirTree: any = this.$refs.dirTree
-    const checkedKeys = []
-    for (let index = 0, len = resourceList.length; index < len; index++) {
-      const resource = resourceList[index]
-      if (/vssgroup/.test(resource)) {
-        const _key = resource.split(':').slice(-1)[0]
-        checkedKeys.push(_key)
-      } else {
-        const keyPath = resource.split(':').slice(2).join('/').split(/\//)
-        if (keyPath && keyPath.length) {
-          for (let i = 0; i < keyPath.length - 1; i++) {
-            const _key = keyPath[i]
-            const node = dirTree.getNode(_key)
-            if (node) {
-              await this.loadDirChildren(_key, node)
+    try {
+      this.loading.dir = true
+      const dirTree: any = this.$refs.dirTree
+      const checkedKeys = []
+      for (let index = 0, len = resourceList.length; index < len; index++) {
+        const resource = resourceList[index]
+        if (/vssgroup/.test(resource)) {
+          const _key = resource.split(':').slice(-1)[0]
+          checkedKeys.push(_key)
+        } else {
+          const keyPath = resource.split(':').slice(2).join('/').split(/\//)
+          if (keyPath && keyPath.length) {
+            for (let i = 0; i < keyPath.length - 1; i++) {
+              const _key = keyPath[i]
+              const node = dirTree.getNode(_key)
+              if (node) {
+                await this.loadDirChildren(_key, node)
+              }
             }
+            checkedKeys.push(keyPath[keyPath.length - 1])
           }
-          checkedKeys.push(keyPath[keyPath.length - 1])
         }
       }
+      dirTree.setCheckedKeys(checkedKeys)
+    } catch (e) {
+      console.log('e: ', e)
+    } finally {
+      this.loading.dir = false
     }
-    dirTree.setCheckedKeys(checkedKeys)
   }
 
   /**
