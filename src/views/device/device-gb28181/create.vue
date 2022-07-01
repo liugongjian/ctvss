@@ -507,8 +507,8 @@ export default class extends Mixins(createMixin) {
     }
   })
   private apeTypeList = [
-    { label: '视图采集设备', value: 'APE' },
-    { label: '视频卡口', value: 'Tollgate' }
+    // { label: '视频卡口', value: 'Tollgate' },
+    { label: '视图采集设备', value: 'APE' }
   ]
   private gbAccountList = []
   private ga1400AccountList = []
