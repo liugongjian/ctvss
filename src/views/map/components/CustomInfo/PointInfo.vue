@@ -1,5 +1,9 @@
 <template>
   <div class="map-point-base-info">
+    <div class="map-point-base-info__header">
+      <span class="map-point-base-info__header__title">监控点位</span>
+      <svg-icon v-if="!isAdd" name="delete" class="map-point-base-info__header__icon" @click="onDelete" />
+    </div>
     <el-descriptions title="基本信息" :column="1">
       <el-descriptions-item label="设备名称">
         <div class="deviceName">{{ markerInfo.deviceLabel }}</div>
@@ -24,8 +28,7 @@
     </el-descriptions>
     <el-descriptions title="外观" :column="1">
       <el-descriptions-item label="颜色">
-        <span class="map-point-base-info__color" :style="`background-color: ${color}`" @click="pickColor" />
-        <sketch-picker v-if="ifPickColor" :value="color" @input="colorChange" />
+        <el-color-picker v-model="color" size="mini" :predefine="predefineColor" @change="colorChange" />
       </el-descriptions-item>
     </el-descriptions>
   </div>
@@ -34,19 +37,19 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { DeviceStatus, RecordStatus } from '@/dics'
-import { Sketch } from 'vue-color'
 import { MapModule } from '@/store/modules/map'
 import { validateIsLng, validateIsLat } from '../../utils/validate'
 
 @Component({
   name: 'PointInfo',
-  components: {
-    'sketch-picker': Sketch
-  }
+  components: {}
 })
 export default class extends Vue {
+  @Prop() private isAdd: boolean
   @Prop()
   private isEdit: boolean
+
+  @Prop() private predefineColor: []
 
   private color
   private ifPickColor = false
@@ -69,10 +72,13 @@ export default class extends Vue {
   // }
 
   private colorChange(val: any) {
-    this.pickColorVisble = false
-    const { r, g, b, a } = val.rgba
-    const color = `rgba(${r},${g},${b},${a})`
-    this.color = color
+    // this.pickColorVisble = false
+    // const { r, g, b, a } = val.rgba
+    // const color = `rgba(${r},${g},${b},${a})`
+    // this.color = color
+    this.color = val
+    MapModule.interestInfo.appearance.color = this.color
+    this.change()
   }
 
   private pickColor() {
@@ -93,11 +99,9 @@ export default class extends Vue {
       this.$alertError('请填写正确的经纬度')
     }
   }
+
+  onDelete() {
+    this.$emit('delete', { })
+  }
 }
 </script>
-
-<style scoped lang="scss">
-.map-point-base-info {
-
-}
-</style>

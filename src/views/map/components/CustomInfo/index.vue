@@ -2,6 +2,7 @@
   <div class="map-point">
     <component
       :is="showComponent"
+      :predefine-color="predefineColor"
       v-bind="$attrs"
       v-on="$listeners"
     />
@@ -39,6 +40,8 @@ export default class CustomInfo extends Vue {
     font: 'Font'
   }
 
+  private predefineColor = ['#1e78e0', '#007f1b', '#eab809', '#ee5007', '#b22727', '#a85cf9', '#5534a5', '#4b7be5']
+
   private mounted() {
     this.showComponent = this.componentMap[this.customInfoType]
   }
@@ -54,7 +57,7 @@ export default class CustomInfo extends Vue {
       font-size: 14px;
 
       &__header {
-        padding: 20px;
+        padding: 15px 20px;
         border-bottom: 1px solid #d3d3d3;
       }
 
@@ -68,31 +71,30 @@ export default class CustomInfo extends Vue {
       }
 
       .el-descriptions-item {
-        line-height: 30px;
+        /* line-height: 24px; */
 
         &__label {
           &:not(.is-bordered-label) {
-            width: 66px;
             text-align: right;
           }
         }
       }
     }
 
-    &__small-box {
+    /* &__small-box {
       width: 134px;
 
       .el-input {
         width: 30%;
         margin-right: 5px;
       }
-    }
+    } */
 
     &__small {
       display: inline-block;
       width: 44px;
       height: 24px;
-      margin-left: 10px;
+      vertical-align: top;
     }
 
     &__textInfo {
@@ -110,6 +112,7 @@ export default class CustomInfo extends Vue {
       color: #333;
       font-weight: 500;
       cursor: pointer;
+
       &.active {
         background: #d3d3d3;
         border-radius: 2px;
@@ -129,7 +132,7 @@ export default class CustomInfo extends Vue {
       height: 38px;
       padding: 10px  20px;
       display: flex;
-      background: #c7c7c7;
+      background: #d7d7d7;
       opacity: 0.8;
 
       &__title {
@@ -139,15 +142,15 @@ export default class CustomInfo extends Vue {
 
       &__icon {
         margin-left: auto;
+        cursor: pointer;
       }
     }
 
-    .vc-sketch {
+    /* .vc-sketch {
       position: absolute;
       left: 12px;
-      /* top: 70px; */
       z-index: 9;
-    }
+    } */
 
     &__color {
       display: inline-block;
@@ -162,6 +165,15 @@ export default class CustomInfo extends Vue {
       border: 1px solid #d3d3d3;
       padding-left: 8px;
       background: #fff;
+    }
+
+    .el-checkbox {
+      margin-top: 3px;
+
+      &__label {
+        font-size: 12px;
+        color: #666;
+      }
     }
   }
 }

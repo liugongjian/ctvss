@@ -32,8 +32,7 @@
     </el-descriptions>
     <el-descriptions title="外观" :column="1">
       <el-descriptions-item label="颜色">
-        <span class="map-point-base-info__color" :style="`background-color:${color}`" @click="pickColor" />
-        <sketch-picker v-if="ifPickColor" :value="color" @input="colorChange" />
+        <el-color-picker v-model="color" size="mini" :predefine="predefineColor" @change="colorChange" />
       </el-descriptions-item>
       <el-descriptions-item label="大小">
         <div class="map-point-base-info__small">
@@ -50,19 +49,17 @@
 
 <script  lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { Sketch } from 'vue-color'
 import { MapModule } from '@/store/modules/map'
 import { validateIsLat, validateIsLng } from '@/views/map/utils/validate'
 
 @Component({
-  name: 'FontInfo',
-  components: {
-    'sketch-picker': Sketch
-  }
+  name: 'FontInfo'
 })
 export default class Font extends Vue {
   @Prop() private isAdd: boolean
-  private ifPickColor = false
+
+  @Prop() private predefineColor: []
+  // private ifPickColor = false
   private color
 
   get fontInfo() {
@@ -70,20 +67,22 @@ export default class Font extends Vue {
     return MapModule.fontInfo
   }
 
-  private colorChange(val: any) {
-    this.pickColorVisble = false
-    const { r, g, b, a } = val.rgba
-    const color = `rgba(${r},${g},${b},${a})`
-    this.color = color
+  set fontInfo(val) {
+    console.log('val------?', val)
   }
 
-  private pickColor() {
-    this.ifPickColor = !this.ifPickColor
-    if (!this.ifPickColor) { // 关闭状态，表示选取颜色结束
-      MapModule.fontInfo.appearance.color = this.color
-      this.change()
-    }
+  private colorChange(val: any) {
+    this.color = val
+    MapModule.fontInfo.appearance.color = this.color
   }
+
+  // private pickColor() {
+  //   this.ifPickColor = !this.ifPickColor
+  //   if (!this.ifPickColor) { // 关闭状态，表示选取颜色结束
+  //     MapModule.fontInfo.appearance.color = this.color
+  //     this.change()
+  //   }
+  // }
 
   private changeStyle(type) {
     if (type === 'bolder') {
