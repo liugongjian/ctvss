@@ -801,7 +801,7 @@ export default class extends Mixins(createMixin) {
               {
                 certId: this.ga1400Form.certId,
                 ipAddr: this.ga1400Form.ipAddr,
-                port: this.ga1400Form.port
+                port: String(this.ga1400Form.port)
               }
             ])
           } else {
