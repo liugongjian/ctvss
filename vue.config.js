@@ -177,6 +177,8 @@ module.exports = {
           config
             .optimization.splitChunks({
               chunks: 'all',
+              maxAsyncRequests: 10,
+              maxInitialRequests: 10,
               cacheGroups: {
                 libs: {
                   name: 'chunk-libs',
@@ -188,6 +190,26 @@ module.exports = {
                   name: 'chunk-elementUI', // split elementUI into a single package
                   priority: 20, // the weight needs to be larger than libs and app or it will be packaged into libs or app
                   test: /[\\/]node_modules[\\/]_?element-ui(.*)/ // in order to adapt to cnpm
+                },
+                exceljs: {
+                  name: 'chunk-exceljs', // split exceljs into a single package
+                  priority: 20, // the weight needs to be larger than libs and app or it will be packaged into libs or app
+                  test: /[\\/]node_modules[\\/]_?exceljs(.*)/ // in order to adapt to cnpm
+                },
+                antv: {
+                  name: 'chunk-antv', // split antv into a single package
+                  priority: 20, // the weight needs to be larger than libs and app or it will be packaged into libs or app
+                  test: /[\\/]node_modules[\\/]_?@antv(.*)/ // in order to adapt to cnpm
+                },
+                hlsjs: {
+                  name: 'chunk-hlsjs', // split hlsjs into a single package
+                  priority: 20, // the weight needs to be larger than libs and app or it will be packaged into libs or app
+                  test: /[\\/]node_modules[\\/]_?hls\.js(.*)/ // in order to adapt to cnpm
+                },
+                flvjs: {
+                  name: 'chunk-flvjs', // split hlsjs into a single package
+                  priority: 20, // the weight needs to be larger than libs and app or it will be packaged into libs or app
+                  test: /[\\/]node_modules[\\/]_?flv\.js(.*)/ // in order to adapt to cnpm
                 },
                 commons: {
                   name: 'chunk-commons',

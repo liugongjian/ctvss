@@ -217,7 +217,7 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "device" */ '@/views/device/index.vue'),
+        component: () => import(/* webpackChunkName: "device-index" */ '@/views/device/index.vue'),
         name: 'device',
         meta: {
           title: '设备管理',
@@ -229,7 +229,7 @@ export const asyncRoutes: RouteConfig[] = [
         children: [
           {
             path: '',
-            component: () => import(/* webpackChunkName: "device" */ '@/views/device/List.vue'),
+            component: () => import(/* webpackChunkName: "device-list" */ '@/views/device/List.vue'),
             name: 'device-list',
             meta: {
               title: '设备列表',
@@ -241,7 +241,7 @@ export const asyncRoutes: RouteConfig[] = [
           },
           {
             path: 'create',
-            component: () => import(/* webpackChunkName: "device" */ '@/views/device/Create.vue'),
+            component: () => import(/* webpackChunkName: "device-create" */ '@/views/device/Create.vue'),
             name: 'device-create',
             meta: {
               title: '添加设备',
@@ -253,7 +253,7 @@ export const asyncRoutes: RouteConfig[] = [
           },
           {
             path: 'update',
-            component: () => import(/* webpackChunkName: "device" */ '@/views/device/Create.vue'),
+            component: () => import(/* webpackChunkName: "device-create" */ '@/views/device/Create.vue'),
             name: 'device-update',
             meta: {
               title: '编辑设备',
@@ -265,7 +265,7 @@ export const asyncRoutes: RouteConfig[] = [
           },
           {
             path: 'detail',
-            component: () => import(/* webpackChunkName: "device" */ '@/views/device/Detail.vue'),
+            component: () => import(/* webpackChunkName: "device-detail" */ '@/views/device/Detail.vue'),
             name: 'device-detail',
             meta: {
               title: '设备详情',
@@ -277,7 +277,7 @@ export const asyncRoutes: RouteConfig[] = [
           },
           {
             path: 'config-channel',
-            component: () => import(/* webpackChunkName: "device" */ '@/views/device/ConfigChannel.vue'),
+            component: () => import(/* webpackChunkName: "device-create" */ '@/views/device/ConfigChannel.vue'),
             name: 'config-channel',
             meta: {
               title: '配置子通道',
@@ -532,7 +532,7 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: 'up-platform',
-        component: () => import(/* webpackChunkName: "device" */ '@/views/viewService/index.vue'),
+        component: () => import(/* webpackChunkName: "ga1400" */ '@/views/viewService/index.vue'),
         name: 'view-up-platform',
         meta: {
           title: '向上级联',
@@ -543,7 +543,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'up-platform/create',
-        component: () => import(/* webpackChunkName: "tree" */ '@/views/viewService/create.vue'),
+        component: () => import(/* webpackChunkName: "ga1400" */ '@/views/viewService/create.vue'),
         name: 'view-up-platform-create',
         meta: {
           title: '新建平台',
@@ -554,7 +554,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'up-platform/update/:id?',
-        component: () => import(/* webpackChunkName: "tree" */ '@/views/viewService/create.vue'),
+        component: () => import(/* webpackChunkName: "ga1400" */ '@/views/viewService/create.vue'),
         name: 'view-up-platform-update',
         meta: {
           title: '编辑平台',
@@ -579,7 +579,7 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: 'gb28181',
-        component: () => import(/* webpackChunkName: "tree" */ '@/views/certificate/gb28181/index.vue'),
+        component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/gb28181/index.vue'),
         name: 'gb28181',
         meta: {
           name: 'certificate',
@@ -591,7 +591,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'gb28181/create',
-        component: () => import(/* webpackChunkName: "tree" */ '@/views/certificate/gb28181/create.vue'),
+        component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/gb28181/create.vue'),
         name: 'gb28181-create',
         meta: {
           title: '新建GB28181凭证',
@@ -602,7 +602,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'gb28181/update/:id?',
-        component: () => import(/* webpackChunkName: "tree" */ '@/views/certificate/gb28181/create.vue'),
+        component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/gb28181/create.vue'),
         name: 'gb28181-update',
         meta: {
           title: '编辑GB28181凭证',
@@ -613,7 +613,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'ga1400',
-        component: () => import(/* webpackChunkName: "tree" */ '@/views/certificate/ga1400/index.vue'),
+        component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/ga1400/index.vue'),
         name: 'ga1400',
         meta: {
           id: '20210424150201007004',
@@ -627,7 +627,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'ga1400/create',
-        component: () => import(/* webpackChunkName: "tree" */ '@/views/certificate/ga1400/create.vue'),
+        component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/ga1400/create.vue'),
         name: 'ga1400-create',
         meta: {
           id: '20210424150201007005',
@@ -640,7 +640,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'ga1400/update/:id?',
-        component: () => import(/* webpackChunkName: "tree" */ '@/views/certificate/ga1400/create.vue'),
+        component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/ga1400/create.vue'),
         name: 'ga1400-update',
         meta: {
           id: '20210424150201007006',
