@@ -32,7 +32,7 @@
       <el-descriptions-item label="边框">
         <span class="map-point-base-info__color" :style="`background-color: ${strokeColor}`" @click="pickColor('stroke')" />
         <div class="map-point-base-info__small">
-          <el-input v-model="polygonInfo.appearance.strokeWeight" />
+          <el-input v-model="polygonInfo.appearance.strokeWeight" @change="change" />
         </div>
         <sketch-picker v-if="strokePick" :value="strokeColor" @input="colorChange($event,'stroke')" />
       </el-descriptions-item>
@@ -54,6 +54,14 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Sketch } from 'vue-color'
 import { MapModule } from '@/store/modules/map'
+
+const hex2rgb = (hex, o) => {
+  const r = parseInt(`0x${hex.slice(1,3)}`, 16)
+  const g = parseInt(`0x${hex.slice(3,5)}`, 16)
+  const b = parseInt(`0x${hex.slice(5,7)}`, 16)
+
+  return `rgba(${r},${g},${b},${o})`
+}
 
 @Component({
   name: 'PolygonInfo',
