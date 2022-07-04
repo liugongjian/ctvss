@@ -113,7 +113,7 @@
                   <div v-for="(val,key) in objectInfos" :key="key">
                     <div v-if="detailPic[key]" class="dialogue-right__section__item">
                       <span class="dialogue-right__section__item__key">{{ val }}:</span>
-                      <span class="dialogue-right__section__item__value">{{ detailPic[key] }}</span>
+                      <span class="dialogue-right__section__item__value">{{ detailPic[key] | filter(key, currentPic.type) }}</span>
                     </div>
                   </div>
                 </div>
@@ -136,7 +136,7 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import ViewCard from './ViewCard.vue'
 import debounce from '@/utils/debounce'
 import { ViewTypes } from '@/dics/index'
-import { PeopleInfos, FaceInfos, MotorInfos, NonMotorInfos } from '@/dics/ga1400'
+import { PeopleInfos, FaceInfos, MotorInfos, NonMotorInfos, Filters } from '@/dics/ga1400'
 import { getViewsList, getViewDetail } from '@/api/device'
 import { parseISO, lightFormat } from 'date-fns'
 
@@ -144,6 +144,29 @@ import { parseISO, lightFormat } from 'date-fns'
   name: 'DetailViewLib',
   components: {
     ViewCard
+  },
+  filters: {
+    filter: function(val, key, type) {
+      let filterFuncs
+      switch (type) {
+        case 1 :
+          filterFuncs = Filters.PeopleInfos
+          break
+        case 2 :
+          filterFuncs = Filters.FaceInfos
+          break
+        case 3 :
+          filterFuncs = Filters.MotorInfos
+          break
+        case 4 :
+          filterFuncs = Filters.NonMotorInfos
+          break
+      }
+      if (filterFuncs[key] && typeof filterFuncs[key] === 'function') {
+        return filterFuncs[key](val)
+      }
+      return val
+    }
   }
 })
 export default class extends Vue {
@@ -182,6 +205,18 @@ export default class extends Vue {
         return NonMotorInfos
     }
   }
+  // get filters() {
+  //   switch (this.currentPic.type) {
+  //     case 1 :
+  //       return Filters.PeopleInfos
+  //     case 2 :
+  //       return Filters.FaceInfos
+  //     case 3 :
+  //       return Filters.MotorInfos
+  //     case 4 :
+  //       return Filters.NonMotorInfos
+  //   }
+  // }
   // 防抖
   private debounceHandle = debounce(() => {
     Object.keys(this.queryLoading).forEach(key => { this.queryLoading[key] = true })
