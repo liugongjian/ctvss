@@ -31,8 +31,7 @@
     </el-descriptions>
     <el-descriptions title="外观" :column="1">
       <el-descriptions-item label="颜色">
-        <span class="map-point-base-info__color" :style="`background-color:${color}`" @click="pickColor" />
-        <sketch-picker v-if="ifPickColor" :value="color" @input="colorChange" />
+        <el-color-picker v-model="color" size="mini" :predefine="predefineColor" @change="colorChange" />
       </el-descriptions-item>
     </el-descriptions>
   </div>
@@ -40,18 +39,18 @@
 
 <script  lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { Sketch } from 'vue-color'
 import { MapModule } from '@/store/modules/map'
 import { validateIsLat, validateIsLng } from '@/views/map/utils/validate'
 
 @Component({
   name: 'InterestInfo',
-  components: {
-    'sketch-picker': Sketch
-  }
+  components: {}
 })
 export default class Interest extends Vue {
   @Prop() private isAdd: boolean
+
+  @Prop() private predefineColor: []
+
   private ifPickColor = false
   private color
 
@@ -61,10 +60,13 @@ export default class Interest extends Vue {
   }
 
   private colorChange(val: any) {
-    this.pickColorVisble = false
-    const { r, g, b, a } = val.rgba
-    const color = `rgba(${r},${g},${b},${a})`
-    this.color = color
+    // this.pickColorVisble = false
+    // const { r, g, b, a } = val.rgba
+    // const color = `rgba(${r},${g},${b},${a})`
+    // this.color = color
+    this.color = val
+    MapModule.interestInfo.appearance.color = this.color
+    this.change()
   }
 
   private pickColor() {

@@ -87,7 +87,7 @@
                 </div>
               </template>
 
-              <el-tooltip content="关闭所有播放窗口" placement="top">
+              <el-tooltip v-if="!isEdit" content="关闭所有播放窗口" placement="top">
                 <span class="tools-item"><svg-icon name="close-all" @click="closeAllWindow()" /></span>
               </el-tooltip>
 
