@@ -4,7 +4,7 @@ import { exportDeviceAll, exportDeviceOption, getDevice } from '@/api/device'
 // import { cityMapping, provinceMapping } from '@/assets/region/cities'
 import { getResources } from '@/api/billing'
 import { ResourceAiType } from '@/dics'
-import ExcelJS from 'exceljs'
+// import ExcelJS from 'exceljs'
 
 @Component
 export default class ExcelMixin extends Vue {
@@ -683,6 +683,7 @@ export default class ExcelMixin extends Vue {
    * 导出模板
    */
   public async exportExel() {
+    const ExcelJS = await import(/* webpackChunkName: "exceljs" */'exceljs')
     const exelName = this.exelName
     this.workbook = new ExcelJS.Workbook()
     this.workbook.views = this.excelViews

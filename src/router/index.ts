@@ -217,7 +217,7 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "device-index" */ '@/views/device/index.vue'),
+        component: () => import(/* webpackChunkName: "device" */ '@/views/device/index.vue'),
         name: 'device',
         meta: {
           title: '设备管理',
@@ -229,7 +229,7 @@ export const asyncRoutes: RouteConfig[] = [
         children: [
           {
             path: '',
-            component: () => import(/* webpackChunkName: "device-list" */ '@/views/device/List.vue'),
+            component: () => import(/* webpackChunkName: "device" */ '@/views/device/List.vue'),
             name: 'device-list',
             meta: {
               title: '设备列表',
