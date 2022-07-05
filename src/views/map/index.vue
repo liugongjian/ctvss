@@ -764,10 +764,10 @@ export default class extends Mixins(IndexMixin) {
         // this.showInfo = false
         break
       case 'marker':
-        // if (this.firstShowMarkerInfo) {
-        //   this.showInfo = true
-        //   this.firstShowMarkerInfo = false
-        // }
+        if (this.firstShowMarkerInfo) {
+          this.showInfo = true
+          this.firstShowMarkerInfo = false
+        }
         MapModule.SetMarkerInfo(info)
         break
       case 'interest':
@@ -1195,12 +1195,6 @@ export default class extends Mixins(IndexMixin) {
     })
   }
   private handleMapInfo(info) {
-    // const { type, info } = infos
-    // if (type === 'map') {
-    //   this.curMap = info
-    // } else if (type === 'marker') {
-    //   this.curMarkInfo = info
-    // }
     this.curMap = info
   }
 

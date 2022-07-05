@@ -230,7 +230,7 @@ export default class MapView extends Vue {
   }
 
   private handleMarkerModify(marker) {
-    this.$emit('mapChange', {
+    this.$emit('mapClick', {
       type: 'marker',
       info: marker
     })
@@ -244,7 +244,7 @@ export default class MapView extends Vue {
   public async markerChange(marker) {
     try {
       const data = {
-        mapId: this.mapOption.mapId,
+        mapId: this.mapId,
         devices: [this.handleDevice(marker)]
       }
       await updateMarkers(data)
@@ -254,6 +254,7 @@ export default class MapView extends Vue {
       this.markerlist = this.markerlist.map((item) => {
         if (marker.deviceId === item.deviceId) {
           item = mapMarker
+          item.selected = true
         }
         return item
       })
@@ -496,9 +497,13 @@ export default class MapView extends Vue {
       const otherPoints = document.getElementsByClassName('marker-containt')
       let len = otherPoints.length
       for (let i = 0; i < len; i += 1) {
-        const nClass = otherPoints[i].getAttribute('class').replace('selected', '')
-        otherPoints[i].setAttribute('class', nClass)
-        otherPoints[i].parentElement.setAttribute('class', 'amap-marker')
+        // 只需要取消兴趣点位，不能取消摄像头点位
+        const classes = otherPoints[i].getAttribute('class')
+        if (classes.indexOf('marker-camera') < 0) {
+          const nClass = classes.replace('selected', '')
+          otherPoints[i].setAttribute('class', nClass)
+          otherPoints[i].parentElement.setAttribute('class', 'amap-marker')
+        }
       }
     }
   }

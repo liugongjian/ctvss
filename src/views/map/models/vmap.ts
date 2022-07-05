@@ -106,7 +106,7 @@ export default class VMap {
   indexCluster: AMap.IndexCluster | null = null
   markerEventHandlers: markerEventHandlers
   community: AMap.Polygon | null = null // 社区高亮区域（有蒙版）
-  highlightAreas = [] //社区高亮多边形（无蒙版）
+  highlightAreas = [] // 社区高亮多边形（无蒙版）
   pois: Array<AMap.Marker> = [] // 兴趣点
   buildingLayer: AMap.Buildings | null = null // 兴趣点建筑
   mouseTool: AMap.MouseTool | null = null
@@ -446,7 +446,7 @@ export default class VMap {
         context.marker.setContent(content)
         context.marker.setOffset(new AMap.Pixel(-20, -65))
         context.marker.setExtData(context.data[0])
-        if (this.isEdit) {
+        if (this.isEdit && this.eventState === 'pointer') {
           context.marker.setDraggable(true)
           context.marker.setCursor('move')
           context.marker.on('dragend', () => {
@@ -531,13 +531,13 @@ export default class VMap {
       this.highlightAreas = []
       pointsList.forEach(area => {
         const appearance = area.appearance || '{}'
-        const { fillColor, fillOpacity, strokeColor, strokeWeight  } = JSON.parse(appearance)
+        const { fillColor, fillOpacity, strokeColor, strokeWeight } = JSON.parse(appearance)
         const polygon = new AMap.Polygon({
           path: this.handlePoint(area.points),
           fillColor: fillColor || '#545d80',
           fillOpacity: fillOpacity || 0.45,
           strokeColor: strokeColor || '#ffc000',
-          strokeWeight: strokeWeight || 0,
+          strokeWeight: strokeWeight || 0
         })
         this.highlightAreas.push(polygon)
       })
