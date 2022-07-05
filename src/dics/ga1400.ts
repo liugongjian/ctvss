@@ -16,9 +16,9 @@ const hairStyle = function(h) {
   return hairStyleTypes[h]
 }
 
-const source = function(s) {
-  return sourceTypes[s]
-}
+// const source = function(s) {
+//   return sourceTypes[s]
+// }
 
 const color = function(c) {
   return colorTypes[c]
@@ -42,6 +42,30 @@ const behavior = function(b) {
 
 const appendage = function(a) {
   return appendageType[a]
+}
+
+const hat = function(h) {
+  return hatStyleType[h]
+}
+
+const glass = function(g) {
+  return glassesStyleType[g]
+}
+
+const bag = function(b) {
+  return bagStyleType[b]
+}
+
+const coat = function(c) {
+  return coatStyleType[c]
+}
+
+const coatLength = function(c) {
+  return coatLengthType[c]
+}
+
+const pantLength = function(p) {
+  return pantsStyleType[p]
 }
 
 export const Filters = {
@@ -86,17 +110,17 @@ export const Filters = {
     appendantDescription: '附属物描述',
     umbrellaColor: color,
     respiratorColor: color,
-    capStyle: '帽子款式',
+    capStyle: hat,
     capColor: color,
-    glassStyle: '眼镜款式',
+    glassStyle: glass,
     glassColor: color,
     scarfColor: color,
-    bagStyle: '包款式',
+    bagStyle: bag,
     bagColor: color,
-    coatStyle: '上衣款式',
-    coatLength: '上衣长',
+    coatStyle: coat,
+    coatLength: coatLength,
     coatColor: color,
-    trousersStyle: '裤子款式',
+    trousersStyle: pantLength,
     trousersColor: color,
     trousersLen: '裤子长度',
     shoesStyle: '鞋子款式',
@@ -158,9 +182,9 @@ export const Filters = {
     facialFeature: '脸部特征',
     physicalFeature: '体貌特征',
     respiratorColor: color,
-    capStyle: '帽子款式',
+    capStyle: hat,
     capColor: color,
-    glassStyle: '眼镜款式',
+    glassStyle: glass,
     glassColor: color,
     isDriver: isOrNot,
     isForeigner: isOrNot,
@@ -723,5 +747,86 @@ const appendageType = {
   7: '帽子',
   8: '包',
   9: '围巾',
+  99: '其他'
+}
+
+const hatStyleType = {
+  1: '毛线帽',
+  2: '贝雷帽',
+  3: '棒球帽',
+  4: '平项帽',
+  5: '渔夫帽',
+  6: '套头帽',
+  7: '鸭舌帽',
+  8: '大檐帽',
+  99: '其他'
+}
+
+const glassesStyleType = {
+  1: '全框',
+  2: '半框',
+  3: '无框',
+  4: '眉线框',
+  5: '多功能框',
+  6: '变色镜',
+  7: '太阳镜',
+  8: '无镜片',
+  9: '透明色',
+  99: '其他'
+}
+
+const bagStyleType = {
+  1: '单肩包',
+  2: '手提包',
+  3: '双肩包',
+  4: '钱包',
+  5: '手拿包',
+  6: '腰包',
+  7: '钥匙包',
+  8: '卡包',
+  9: '手拉箱',
+  10: '旅行包',
+  11: '牛仔包',
+  12: '斜挎包',
+  99: '其他'
+}
+
+const coatStyleType = {
+  1: '西装',
+  2: '民族服',
+  3: 'T恤',
+  4: '衬衫',
+  5: '卫衣',
+  6: '夹克',
+  7: '皮夹克',
+  8: '大衣',
+  9: '风衣',
+  10: '毛衣',
+  11: '棉衣',
+  12: '羽绒服',
+  13: '运动服',
+  14: '工作服',
+  15: '牛仔服',
+  16: '睡衣',
+  17: '连衣裙',
+  18: '无上衣',
+  99: '其他'
+}
+
+const coatLengthType = {
+  1: '长袖',
+  2: '短袖',
+  3: '无袖'
+}
+
+const pantsStyleType = {
+  1: '牛仔裤',
+  2: '西裤',
+  3: '工装裤',
+  4: '皮裤',
+  5: '沙滩裤',
+  6: '运动裤',
+  7: '睡裤',
+  8: '无裤子',
   99: '其他'
 }
