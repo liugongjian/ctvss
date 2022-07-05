@@ -32,7 +32,7 @@
     </el-descriptions>
     <el-descriptions title="外观" :column="1">
       <el-descriptions-item label="颜色">
-        <el-color-picker v-model="color" size="mini" :predefine="predefineColor" @change="colorChange" />
+        <el-color-picker v-model="color" size="mini" show-alpha :predefine="predefineColor" @change="colorChange" />
       </el-descriptions-item>
       <el-descriptions-item label="大小">
         <div class="map-point-base-info__small">
@@ -59,7 +59,6 @@ export default class Font extends Vue {
   @Prop() private isAdd: boolean
 
   @Prop() private predefineColor: []
-  // private ifPickColor = false
   private color
 
   get fontInfo() {
@@ -67,22 +66,13 @@ export default class Font extends Vue {
     return MapModule.fontInfo
   }
 
-  set fontInfo(val) {
-    console.log('val------?', val)
-  }
-
   private colorChange(val: any) {
-    this.color = val
-    MapModule.fontInfo.appearance.color = this.color
+    if (val) {
+      this.color = val
+      MapModule.fontInfo.appearance.color = this.color
+      this.change()
+    }
   }
-
-  // private pickColor() {
-  //   this.ifPickColor = !this.ifPickColor
-  //   if (!this.ifPickColor) { // 关闭状态，表示选取颜色结束
-  //     MapModule.fontInfo.appearance.color = this.color
-  //     this.change()
-  //   }
-  // }
 
   private changeStyle(type) {
     if (type === 'bolder') {

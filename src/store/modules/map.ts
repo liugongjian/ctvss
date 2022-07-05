@@ -96,7 +96,8 @@ class Map extends VuexModule implements IMapState {
       colorType: '',
       appearance: {
         color: '#333',
-        colorType: 'text'
+        colorType: 'text',
+        fontSize: '18'
       }
     })
   }
@@ -117,8 +118,9 @@ class Map extends VuexModule implements IMapState {
   @Action
   public ResetPolygonInfo() {
     const appearance = {
-      fillColor: '#545d80',
+      fillColor: 'rgba(84,93,128,0.45)',
       strokeColor: '#ffc000',
+      strokeWeight: '0',
       wallColor: '#eab754',
       roofColor: '#ffce6f'
     }

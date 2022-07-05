@@ -761,13 +761,13 @@ export default class extends Mixins(IndexMixin) {
     this.customInfoType = type
     switch (type) {
       case 'map':
-        this.showInfo = false
+        // this.showInfo = false
         break
       case 'marker':
-        if (this.firstShowMarkerInfo) {
-          this.showInfo = true
-          this.firstShowMarkerInfo = false
-        }
+        // if (this.firstShowMarkerInfo) {
+        //   this.showInfo = true
+        //   this.firstShowMarkerInfo = false
+        // }
         MapModule.SetMarkerInfo(info)
         break
       case 'interest':
@@ -808,36 +808,6 @@ export default class extends Mixins(IndexMixin) {
           break
       }
     }
-  }
-
-  private changeCustomInfoType(type: string, flag: boolean) {
-    if (type === 'map') {
-      if (!flag) {
-        this.showInfo = !this.showInfo
-        this.customInfoType = type
-        if (!this.showInfo) {
-          this.customInfoType = ''
-        }
-      } else {
-        this.showInfo = false
-        if (this.customInfoType === 'map') {
-          this.customInfoType = ''
-        } else {
-          this.customInfoType = type
-        }
-      }
-    } else {
-      if (this.customInfoType && type === this.customInfoType) {
-        this.showInfo = !this.showInfo
-        if (!this.showInfo) {
-          this.customInfoType = ''
-        }
-      } else {
-        this.showInfo = true
-      }
-      this.customInfoType = type
-    }
-    this.$refs.mapview.changeMapClickEvent(type)
   }
 
   handleMarksChange(list) {

@@ -26,29 +26,21 @@
     </el-descriptions>
     <el-descriptions v-if="polygonInfo.type === 'HighLightArea'" title="区域围栏外观" :column="1">
       <el-descriptions-item label="背景">
-        <!-- <span class="map-point-base-info__color" :style="`background-color: ${fillColor}`" @click="pickColor('fill')" />
-        <sketch-picker v-if="fillPick" :value="fillColor" @input="colorChange($event, 'fill')" /> -->
-        <el-color-picker v-model="fillColor" size="mini" :predefine="predefineColor" @change="colorChange($event, 'fill')" />
+        <el-color-picker v-model="fillColor" size="mini" :predefine="predefineColor" show-alpha @change="colorChange($event, 'fill')" />
       </el-descriptions-item>
       <el-descriptions-item label="边框">
-        <!-- <span class="map-point-base-info__color" :style="`background-color: ${strokeColor}`" @click="pickColor('stroke')" /> -->
-        <el-color-picker v-model="strokeColor" size="mini" :predefine="predefineColor" @change="colorChange($event, 'stroke')" />
+        <el-color-picker v-model="strokeColor" size="mini" :predefine="predefineColor" show-alpha @change="colorChange($event, 'stroke')" />
         <div class="map-point-base-info__small">
           <el-input v-model="polygonInfo.appearance.strokeWeight" @change="change" />
         </div>
-        <!-- <sketch-picker v-if="strokePick" :value="strokeColor" @input="colorChange($event,'stroke')" /> -->
       </el-descriptions-item>
     </el-descriptions>
     <el-descriptions v-if="polygonInfo.type === 'InterestBuilding'" title="建筑外观" :column="1">
       <el-descriptions-item label="楼顶颜色">
-        <!-- <span class="map-point-base-info__color" :style="`background-color: ${roofColor}`" @click="pickColor('roof')" />
-        <sketch-picker v-if="roofPick" :value="roofColor" @input="colorChange($event,'roof')" /> -->
-        <el-color-picker v-model="roofColor" size="mini" :predefine="predefineColor" @change="colorChange($event, 'roof')" />
+        <el-color-picker v-model="roofColor" size="mini" :predefine="predefineColor" show-alpha @change="colorChange($event, 'roof')" />
       </el-descriptions-item>
       <el-descriptions-item label="楼面颜色">
-        <!-- <span class="map-point-base-info__color" :style="`background-color: ${wallColor}`" @click="pickColor('wall')" />
-        <sketch-picker v-if="wallPick" :value="wallColor" @input="colorChange($event, 'wall')" /> -->
-        <el-color-picker v-model="wallColor" size="mini" :predefine="predefineColor" @change="colorChange($event, 'wall')" />
+        <el-color-picker v-model="wallColor" size="mini" :predefine="predefineColor" show-alpha @change="colorChange($event, 'wall')" />
       </el-descriptions-item>
     </el-descriptions>
   </div>
@@ -56,22 +48,10 @@
 
 <script  lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { Sketch } from 'vue-color'
 import { MapModule } from '@/store/modules/map'
 
-const hex2rgb = (hex, o) => {
-  const r = parseInt(`0x${hex.slice(1,3)}`, 16)
-  const g = parseInt(`0x${hex.slice(3,5)}`, 16)
-  const b = parseInt(`0x${hex.slice(5,7)}`, 16)
-
-  return `rgba(${r},${g},${b},${o})`
-}
-
 @Component({
-  name: 'PolygonInfo',
-  components: {
-    'sketch-picker': Sketch
-  }
+  name: 'PolygonInfo'
 })
 export default class Polygon extends Vue {
   @Prop() private isAdd: boolean
@@ -79,16 +59,12 @@ export default class Polygon extends Vue {
   @Prop() private predefineColor: []
 
   private fillColor
-  private fillPick = false
   private strokeColor
-  private strokePick = false
   private wallColor
-  private wallPick = false
   private roofColor
-  private roofPick = false
 
   get polygonInfo() {
-    this.fillColor = MapModule.polygonInfo.appearance.fillColor || '#545d80'
+    this.fillColor = MapModule.polygonInfo.appearance.fillColor || 'rgba(84,93,128,0.45)'
     this.strokeColor = MapModule.polygonInfo.appearance.strokeColor || '#ffc000'
     this.wallColor = MapModule.polygonInfo.appearance.wallColor || '#eab754'
     this.roofColor = MapModule.polygonInfo.appearance.roofColor || '#ffce6f'
@@ -96,59 +72,29 @@ export default class Polygon extends Vue {
   }
 
   private colorChange(val: any, type) {
-    // const { r, g, b, a } = val.rgba
-    // const color = `rgba(${r},${g},${b},${a})`
-    switch (type) {
-      case 'fill':
-        this.fillColor = val
-        MapModule.polygonInfo.appearance.fillColor = this.fillColor
-        break
-      case 'stroke':
-        this.strokeColor = val
-        MapModule.polygonInfo.appearance.strokeColor = this.strokeColor
-        break
-      case 'roof':
-        this.roofColor = val
-        MapModule.polygonInfo.appearance.roofColor = this.roofColor
-        break
-      case 'wall':
-        this.wallColor = val
-        MapModule.polygonInfo.appearance.wallColor = this.wallColor
-        break
-    }
-    this.change()
-  }
-
-  private pickColor(type) {
-    switch (type) {
-      case 'fill':
-        this.fillPick = !this.fillPick
-        if (!this.fillPick) {
+    if (val) {
+      const alpha = val.match(/rgba\(\d+, \d+, \d+, (\d+|0\.\d+)\)/)[1]
+      switch (type) {
+        case 'fill':
+          this.fillColor = val
           MapModule.polygonInfo.appearance.fillColor = this.fillColor
-          this.change()
-        }
-        break
-      case 'stroke':
-        this.strokePick = !this.strokePick
-        if (!this.strokePick) {
+          MapModule.polygonInfo.appearance.fillOpacity = alpha
+          break
+        case 'stroke':
+          this.strokeColor = val
           MapModule.polygonInfo.appearance.strokeColor = this.strokeColor
-          this.change()
-        }
-        break
-      case 'roof':
-        this.roofPick = !this.roofPick
-        if (!this.roofPick) {
+          MapModule.polygonInfo.appearance.strokeOpacity = alpha
+          break
+        case 'roof':
+          this.roofColor = val
           MapModule.polygonInfo.appearance.roofColor = this.roofColor
-          this.change()
-        }
-        break
-      case 'wall':
-        this.wallPick = !this.wallPick
-        if (!this.wallPick) {
+          break
+        case 'wall':
+          this.wallColor = val
           MapModule.polygonInfo.appearance.wallColor = this.wallColor
-          this.change()
-        }
-        break
+          break
+      }
+      this.change()
     }
   }
 

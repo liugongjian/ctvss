@@ -28,7 +28,7 @@
     </el-descriptions>
     <el-descriptions title="外观" :column="1">
       <el-descriptions-item label="颜色">
-        <el-color-picker v-model="color" size="mini" :predefine="predefineColor" @change="colorChange" />
+        <el-color-picker v-model="color" size="mini" :predefine="predefineColor" show-alpha :disabled="!isEdit" @change="colorChange" />
       </el-descriptions-item>
     </el-descriptions>
   </div>
@@ -52,7 +52,6 @@ export default class extends Vue {
   @Prop() private predefineColor: []
 
   private color
-  private ifPickColor = false
 
   private DeviceStatus = DeviceStatus
   private RecordStatus = RecordStatus
@@ -72,22 +71,10 @@ export default class extends Vue {
   // }
 
   private colorChange(val: any) {
-    // this.pickColorVisble = false
-    // const { r, g, b, a } = val.rgba
-    // const color = `rgba(${r},${g},${b},${a})`
-    // this.color = color
-    this.color = val
-    MapModule.interestInfo.appearance.color = this.color
-    this.change()
-  }
-
-  private pickColor() {
-    if (this.isEdit) {
-      this.ifPickColor = !this.ifPickColor
-      if (!this.ifPickColor) { // 关闭状态，表示选取颜色结束
-        MapModule.markerInfo.appearance.color = this.color
-        this.change()
-      }
+    if (val) {
+      this.color = val
+      MapModule.interestInfo.appearance.color = this.color
+      this.change()
     }
   }
 
