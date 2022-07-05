@@ -1,5 +1,6 @@
 <template>
   <div class="mapConfig-container">
+    <div class="mapConfig-header">{{ title }}</div>
     <el-form ref="mapform" :model="form" label-width="240px" :rules="rules">
       <el-form-item label="名称" prop="name">
         <el-input v-model="form.name" placeholder="请输入地图名称" />
@@ -13,9 +14,15 @@
       <el-form-item prop="zoom">
         <template slot="label">
           <span>默认缩放比例
-            <el-tooltip :content="tips.zoom">
-              <svg-icon name="help" />
-            </el-tooltip>
+            <el-popover
+              placement="top-start"
+              width="400"
+              trigger="hover"
+              :open-delay="300"
+              :content="tips.zoom"
+            >
+              <svg-icon slot="reference" class="form-question" name="help" />
+            </el-popover>
           </span>
         </template>
         <div class="block">
@@ -52,8 +59,11 @@
             width="400"
             trigger="hover"
             :open-delay="300"
-            content="启用蒙版后多边形区域会变为镂空风格"
           >
+            <div>
+              <p>启用蒙版后多边形区域会变为镂空风格</p>
+              <img :src="require('@/assets/images/mapMask.png')" width="100%">
+            </div>
             <svg-icon slot="reference" class="form-question" name="help" />
           </el-popover>
         </template>
@@ -81,6 +91,14 @@ export default class MapConfig extends Vue {
 
   public $refs: {
     mapform: any
+  }
+
+  private get title() {
+    if (this.form.status === 'add') {
+      return '添加地图'
+    } else {
+      return `修改地图（${this.form.name}）`
+    }
   }
 
   private tips = {
@@ -220,8 +238,33 @@ export default class MapConfig extends Vue {
   bottom: 0;
   left: 0;
   padding: 20px;
+  overflow: scroll;
+  .block {
+    width: 330px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    color: #888;
+  }
+
+  .zoomdesc {
+    margin-left: 20px;
+    min-width: 60px;
+  }
+  ::v-deep .el-slider {
+    flex: 1;
+  }
+}
+.mapConfig-header {
+  color: #333;
+  font-size: 24px;
+  font-weight: 700;
+  padding: 20px 50px;
+  border-bottom: 1px solid #ddd;
 }
 .el-form {
+  margin-top: 20px;
   .el-input {
     width: 250px;
   }

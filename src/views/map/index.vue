@@ -76,7 +76,7 @@
         <div class="device-list__right">
           <div class="tools">
             <span class="left">
-              <span class="btn-edit tools-item" @click="changeEdit()">{{ isEdit ? '完成编辑' : '开启编辑' }}</span>
+              <span class="btn-edit tools-item" @click="changeEdit(!isEdit)">{{ isEdit ? '完成编辑' : '开启编辑' }}</span>
               <template v-if="isEdit">
                 <div class="device-list__right__handleBox">
                   <el-tooltip v-for="item in toolType" :key="item.name" :content="item.text" placement="top">
@@ -369,9 +369,9 @@ export default class extends Mixins(IndexMixin) {
     nvr: 1
   }
 
-  private showCustomPoint = false
+  // private showCustomPoint = false
   private showMapConfig = false
-  private customPointInfo: any = {}
+  // private customPointInfo: any = {}
 
   private toolType = [
     {
@@ -818,8 +818,8 @@ export default class extends Mixins(IndexMixin) {
     return this.markerList.map(marker => marker.deviceId)
   }
 
-  changeEdit() {
-    this.isEdit = !this.isEdit
+  changeEdit(state) {
+    this.isEdit = state
     this.addPositionDialogCheck = false
     this.addNoPositionDialogCheck = false
     this.dragAddNoPositionDialogCheck = false
@@ -1131,18 +1131,18 @@ export default class extends Mixins(IndexMixin) {
   }
 
   // 设置地图点兴趣点
-  private editMark(map?: mapObject) {
-    this.curMap = map
-    // 使用 更改key的方式，让vue的diff算法更新dom
-    this.freshWithKey = map.mapId
-    this.showCustomPoint = true
-    this.customPointInfo = map
-  }
+  // private editMark(map?: mapObject) {
+  //   this.curMap = map
+  //   // 使用 更改key的方式，让vue的diff算法更新dom
+  //   this.freshWithKey = map.mapId
+  //   this.showCustomPoint = true
+  //   this.customPointInfo = map
+  // }
   // 关闭地图兴趣点
-  private closeEditMark() {
-    this.showCustomPoint = false
-    this.customPointInfo = {}
-  }
+  // private closeEditMark() {
+  //   this.showCustomPoint = false
+  //   this.customPointInfo = {}
+  // }
 
   /**
    * 加载地图列表
@@ -1168,10 +1168,11 @@ export default class extends Mixins(IndexMixin) {
   }
 
   private chooseMap(map) {
-    this.showCustomPoint = false
-    this.customPointInfo = {}
+    // this.showCustomPoint = false
+    // this.customPointInfo = {}
     this.showInfo = false
     this.curMap = map
+    this.changeEdit(false)
     this.toggleMap3D(map.dimension, map.eagle)
     this.toggleOverView(map.eagle)
     this.toggleMarkersShow(map.marker)
