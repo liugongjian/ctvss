@@ -175,3 +175,10 @@ export const describeCascadeDirs = (params: any): Promise<any> =>
     method: 'get',
     params
   })
+
+export const validateShareDevices = (params: any): Promise<any> =>
+  request({
+    url: '/device/platform/validateShareDevices',
+    method: 'post',
+    data: params
+  })
