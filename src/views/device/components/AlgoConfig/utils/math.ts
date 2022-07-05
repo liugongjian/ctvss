@@ -1,12 +1,11 @@
-import { create, all } from 'mathjs'
-
-const config = {
-  epsilon: 1e-12,
-  matrix: 'Matrix',
-  number: 'number',
-  precision: 64,
-  predictable: false,
-  randomSeed: undefined
+const math = {
+  atan2: Math.atan2,
+  cos: Math.cos,
+  sin: Math.sin,
+  pi: Math.PI,
+  pow: Math.pow,
+  sqrt: Math.sqrt,
+  divide: (x: number, y: number) => x / y,
+  subtract: (x: number, y: number) => x - y
 }
-const math = create(all, config)
 export default math

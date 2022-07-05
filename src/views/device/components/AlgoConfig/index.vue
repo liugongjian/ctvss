@@ -61,7 +61,7 @@ import { getRectPropFromPoints,
 import { getAppDescribeLine, sendAppDescribeLine
 // getAlgoStreamFrame
 } from '@/api/ai-app'
-import plate from './plate4.jpg'
+// import plate from './plate4.jpg'
 import { DRAW_MODES
 //   DRAW_MODES_TEXT
 } from './contants'
