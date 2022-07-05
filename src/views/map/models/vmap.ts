@@ -184,8 +184,14 @@ export default class VMap {
     this.mouseTool = new AMap.MouseTool(this.map)
     this.mouseTool.on('draw', (e) => {
       if (this.eventState === 'interest') {
+        if (this.map.getZoom() < 15) {
+          this.map.setZoomAndCenter(15, e.obj.getPosition())
+        }
         this.InterestEventHandlers.addPoi(e.obj.getPosition(), 'interest')
       } else if (this.eventState === 'font') {
+        if (this.map.getZoom() < 15) {
+          this.map.setZoomAndCenter(15, e.obj.getPosition())
+        }
         this.InterestEventHandlers.addPoi(e.obj.getPosition(), 'font')
       } else if (this.eventState === 'polygon') {
         this.InterestEventHandlers.addPolygon(e.obj.getPath())

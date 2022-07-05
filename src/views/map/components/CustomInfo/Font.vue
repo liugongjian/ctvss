@@ -86,7 +86,7 @@ export default class Font extends Vue {
   }
 
   change() {
-    if (!this.isAdd) {
+    if (this.fontInfo.tagId) {
       const checklnglat = validateIsLng(this.fontInfo.points[0].longitude) && validateIsLat(this.fontInfo.points[0].latitude)
       if (checklnglat) {
         this.$emit('change', { type: 'font', info: this.fontInfo })
