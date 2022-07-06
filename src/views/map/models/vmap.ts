@@ -5,6 +5,7 @@ import { getDevice } from '@/api/device'
 import { getStyle } from '@/utils/map'
 import { drawCamera, drawBubblePoint, drawTextPoint } from '../utils/draw'
 import { MapModule } from '@/store/modules/map'
+import { isEqual } from 'lodash'
 
 export interface mapObject {
   mapId: string,
@@ -197,6 +198,20 @@ export default class VMap {
         this.InterestEventHandlers.addPolygon(e.obj.getPath())
       } else {
         console.log('other')
+      }
+    })
+    this.polygonEditor.on('end', (e) => {
+      const newId = e.target.getExtData().tagId
+      const oldId = MapModule.polygonEdit?.id
+      const newPath = e.target.getPath()
+      const oldPoints = MapModule.polygonEdit?.points
+      const newPoints = newPath.map(item => ({ longitude: item.lng.toString(), latitude: item.lat.toString() }))
+      if (isEqual(newId, oldId) && !isEqual(oldPoints, newPoints)) {
+        const newPolygon = {
+          ...e.target.getExtData(),
+          points: newPoints
+        }
+        this.InterestEventHandlers.changePolygon(newPolygon)
       }
     })
   }
@@ -669,6 +684,10 @@ export default class VMap {
 
   choosePolygon(interest) {
     MapModule.SetIsClickInterest(true)
+    MapModule.SetPolygonEdit({
+      id: interest.tagId,
+      points: interest.points
+    })
     const polygon = this.polygons.find(item => item.getExtData().tagId === interest.tagId)
     this.cancelChoose()
     this.InterestEventHandlers.clickPoi()
@@ -689,6 +708,8 @@ export default class VMap {
         map: this.map,
         path: this.handlePoint(item.points),
         fillOpacity: 0,
+        strokeWeight: 1,
+        strokeOpacity: 0.5,
         extData: item
       })
       polygon.on('click', () => {
@@ -727,7 +748,8 @@ export default class VMap {
         break
       case 'polygon':
         this.mouseTool.polygon({
-          fillOpacity: 0
+          fillOpacity: 0,
+          strokeWeight: 1
         })
         break
     }

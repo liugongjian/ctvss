@@ -100,7 +100,8 @@ export default class MapView extends Vue {
         deletePoi: this.deleteInterest,
         changePoi: this.interestChange,
         addPolygon: this.addPolygon,
-        clickPolygon: this.handlePolygonClick
+        clickPolygon: this.handlePolygonClick,
+        changePolygon: this.polygonChange
       })
     })
   }
@@ -264,6 +265,15 @@ export default class MapView extends Vue {
       this.$alertError(e)
       console.log('修改标记点失败')
     }
+  }
+
+  private polygonChange(data) {
+    const appearance = data.appearance || '{}'
+    const newInterest = {
+      ...data,
+      appearance: JSON.parse(appearance)
+    }
+    this.interestChange('polygon', newInterest)
   }
 
   public async interestChange(type, interest) {
