@@ -76,7 +76,12 @@ export default class CustomInfo extends Vue {
         &__label {
           &:not(.is-bordered-label) {
             text-align: right;
+            min-width: 60px;
           }
+        }
+
+        &__container {
+          line-height: 30px;
         }
       }
     }
