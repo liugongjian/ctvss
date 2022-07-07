@@ -1050,7 +1050,7 @@ export default class extends Vue {
   private rootInput(node, data, val) {
     this.$nextTick(() => {
       data.gbIdDistrict = val
-      if (node.level === 1 && this.gbIdMode === 'district') { // 根节点
+      if (this.gbIdMode === 'district') { // 根节点
         data.gbIdDistrictRoot = val
         this.changeGbIdDistrictRoot(data, val)
       }

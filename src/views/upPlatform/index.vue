@@ -157,6 +157,11 @@
                     {{ row.gbId || '-' }}
                   </template>
                 </el-table-column>
+                <el-table-column prop="upGbId" label="上级平台国标ID">
+                  <template slot-scope="{row}">
+                    {{ row.upGbId || '-' }}
+                  </template>
+                </el-table-column>
                 <el-table-column prop="action" label="操作" width="80" fixed="right">
                   <template slot-scope="{row}">
                     <el-button type="text" @click="cancleShareDevice([row])">移除</el-button>
