@@ -453,7 +453,6 @@ export const asyncRoutes: RouteConfig[] = [
       title: '电子地图',
       icon: 'mark',
       perms: ['DescribeMap'],
-      tags: ['showDigitalMap'],
       alwaysShow: false,
       only: true,
       groupSelector: false
