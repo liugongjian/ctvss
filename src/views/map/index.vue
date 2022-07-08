@@ -186,15 +186,11 @@ import { getGroups } from '@/api/group'
 import { setDirsStreamStatus, renderAlertType, getSums } from '@/utils/device'
 import { getDeviceTree, getDevice } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
-import MapView from './mapview.vue'
-import PointInfo from './components/PointInfo.vue'
-import SelectedPoint from './components/SelectedPoint.vue'
-import MapInfo from './components/MapInfo.vue'
+import MapView from './MapView.vue'
 import { getMaps, deleteMap, modifyMap } from '@/api/map'
-import { mapObject } from '@/views/map/models/vmap'
-import CustomPoint from './components/CustomPoint/index.vue'
+import { mapObject } from '@/views/map/models/VMap'
 import CustomInfo from './components/CustomInfo/index.vue'
-import MapConfig from './mapConfig.vue'
+import MapConfig from './MapConfig.vue'
 import { MapModule } from '@/store/modules/map'
 
 @Component({
@@ -202,10 +198,6 @@ import { MapModule } from '@/store/modules/map'
   components: {
     StatusBadge,
     MapView,
-    MapInfo,
-    PointInfo,
-    SelectedPoint,
-    CustomPoint,
     CustomInfo,
     MapConfig
   }

@@ -29,7 +29,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
-import VMap, { getAMapLoad } from './models/vmap'
+import VMap, { getAMapLoad } from './models/VMap'
 import { MapModule } from '@/store/modules/map'
 import axios from 'axios'
 import {
