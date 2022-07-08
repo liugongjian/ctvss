@@ -258,7 +258,7 @@ export default class MapConfig extends Vue {
 }
 .mapConfig-header {
   color: #333;
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 700;
   padding: 20px 50px;
   border-bottom: 1px solid #ddd;
