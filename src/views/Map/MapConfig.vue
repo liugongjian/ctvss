@@ -1,6 +1,6 @@
 <template>
-  <div class="mapConfig-container">
-    <div class="mapConfig-header">{{ title }}</div>
+  <div class="map-config-container">
+    <el-page-header :content="title" @back="cancel" />
     <el-form ref="mapform" :model="form" label-width="240px" :rules="rules">
       <el-form-item label="名称" prop="name">
         <el-input v-model="form.name" placeholder="请输入地图名称" />
@@ -229,7 +229,7 @@ export default class MapConfig extends Vue {
 </script>
 
 <style lang='scss' scoped>
-.mapConfig-container {
+.map-config-container {
   background-color: #fff;
   position: absolute;
   z-index: 10;
@@ -239,6 +239,7 @@ export default class MapConfig extends Vue {
   left: 0;
   padding: 20px;
   overflow: scroll;
+
   .block {
     width: 330px;
     display: flex;
@@ -252,19 +253,15 @@ export default class MapConfig extends Vue {
     margin-left: 20px;
     min-width: 60px;
   }
+
   ::v-deep .el-slider {
     flex: 1;
   }
 }
-.mapConfig-header {
-  color: #333;
-  font-size: 18px;
-  font-weight: 700;
-  padding: 20px 50px;
-  border-bottom: 1px solid #ddd;
-}
+
 .el-form {
   margin-top: 20px;
+
   .el-input {
     width: 250px;
   }

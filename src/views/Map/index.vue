@@ -1424,7 +1424,7 @@ export default class extends Mixins(IndexMixin) {
   }
 
   svg {
-    font-size: 20px;
+    font-size: 18px;
   }
 
   .tools-item {
@@ -1496,6 +1496,7 @@ export default class extends Mixins(IndexMixin) {
 .dialog-text {
   text-align: center;
 }
+
 .dialog-text .mask {
   text-align: left;
 }
