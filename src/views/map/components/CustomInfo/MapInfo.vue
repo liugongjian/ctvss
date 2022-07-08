@@ -70,3 +70,8 @@ export default class MapInfo extends Vue {
   }
 }
 </script>
+<style scoped lang="scss">
+  ::v-deep .el-descriptions__extra {
+    cursor: pointer;
+  }
+</style>
