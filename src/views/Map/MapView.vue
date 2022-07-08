@@ -45,7 +45,7 @@ import {
 import { Screen } from '@/views/device/services/Screen/Screen'
 import LivePlayer from '@/views/device/components/LivePlayer.vue'
 import ReplayView from '@/views/device/components/ReplayPlayer/index.vue'
-import draggable from '@/views/map/directives/draggable'
+import draggable from '@/views/Map/directives/draggable'
 
 @Component({
   name: 'MapView',
