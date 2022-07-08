@@ -115,6 +115,7 @@ export default class VMap {
   polygonEditor: AMap.PolygonEditor | null = null
   InterestEventHandlers: any
   polygons = [] // 为了编辑临时显示的多边形
+  EscEvent: any = () => {}
   constructor(container: string) {
     this.container = container
   }
@@ -214,6 +215,15 @@ export default class VMap {
         this.InterestEventHandlers.changePolygon(newPolygon)
       }
     })
+    this.EscEvent = (e) => {
+      if (e.code === 'Escape') {
+        this.mouseTool.close(true)
+        this.mouseTool.polygon({
+          fillOpacity: 0,
+          strokeWeight: 1
+        })
+      }
+    }
   }
 
   change3D(is3D, isOverView) {
@@ -761,6 +771,10 @@ export default class VMap {
       this.cancelChoose()
       this.cancelPoly()
       this.InterestEventHandlers && this.InterestEventHandlers.clickPoi()
+      window.removeEventListener('keydown', this.EscEvent)
+      if (state === 'polygon') {
+        window.addEventListener('keydown', this.EscEvent)
+      }
       if (state === 'pointer') {
         (document.getElementsByClassName('amap-maps')[0] as HTMLElement).style.cursor = 'default'
         this.isEdit && this.pois.forEach(poi => {
