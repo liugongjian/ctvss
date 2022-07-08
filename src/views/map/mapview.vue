@@ -567,9 +567,9 @@ export default class MapView extends Vue {
       appearance: JSON.stringify(infos.appearance)
     }
     try {
-      // const data = await addInterestPoint(param)
-      // const { tagId } = data
-      const tagId = Math.random().toString()
+      const data = await addInterestPoint(param)
+      const { tagId } = data
+      // const tagId = Math.random().toString()
       const newPoint = { ...param, tagId }
       MapModule.SetPolygonInfo(newPoint)
       if (newPoint.type === 'HighLightArea') {

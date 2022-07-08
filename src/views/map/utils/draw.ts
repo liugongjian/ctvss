@@ -24,10 +24,10 @@ export const drawCamera = (markerOptions: markerObject, options) => {
       let previewIcon = ''
       let replayIcon = ''
       if (checkPermission(['ScreenPreview'])) {
-        previewIcon = `<span class="icon-wrap ${markerOptions.deviceStatus === 'on' ? '' : 'off'}" onclick="previewMarker()"><i class="icon icon_preview"></i></span>`
+        previewIcon = `<span class="icon-wrap ${markerOptions.deviceStatus === 'on' ? '' : 'off'}" onclick="previewMarker()" title="实时预览"><i class="icon icon_preview"></i></span>`
       }
       if (checkPermission(['ReplayRecord'])) {
-        replayIcon = '<span class="icon-wrap" onclick="replayMarker()"><i class="icon icon_replay"></i></span>'
+        replayIcon = '<span class="icon-wrap" onclick="replayMarker()" title="录像回放"><i class="icon icon_replay"></i></span>'
       }
       optionDiv = createNode(`<div class="marker-options">${previewIcon}${replayIcon}</div>`)
     } else { // 编辑状态
