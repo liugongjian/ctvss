@@ -1585,7 +1585,7 @@ export default class extends Mixins(IndexMixin) {
   } */
 
   ::v-deep .el-input--medium {
-    font-size: 12px;
+    font-size: 14px;
   }
 
   ::v-deep .el-input .el-input__inner {
@@ -1595,7 +1595,7 @@ export default class extends Mixins(IndexMixin) {
     border-bottom: 1px solid black;
     height: 18px;
     line-height: 18px;
-    font-size: 12px;
+    font-size: 14px;
     padding: 0;
   }
 
