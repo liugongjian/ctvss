@@ -38,7 +38,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
-import { createCascadeDir, modifyCascadeDir, deleteCascadeDir, describeCascadeDir, cancleShareDevice } from '@/api/upPlatform'
+import { createCascadeDir, modifyCascadeDir, deleteCascadeDir, describeCascadeDir } from '@/api/upPlatform'
 import AddressCascader from '@/views/components/AddressCascader.vue'
 import { DeviceAddress } from '@/type/device'
 import { industryMap } from '@/assets/region/industry'
@@ -183,14 +183,14 @@ export default class extends Vue {
         break
       }
       case 'deleteDevice': {
-        param = {
-          platformId: this.platformId,
-          dirId: this.currentNode.parent.data.type !== 'nvr'
-            ? this.currentNode.parent.data.dirId
-            : this.currentNode.parent.parent.data.dirId,
-          devices: [{ deviceId: this.currentNode.data.id }]
-        }
-        func = cancleShareDevice
+        // param = {
+        //   platformId: this.platformId,
+        //   dirId: this.currentNode.parent.data.type !== 'nvr'
+        //     ? this.currentNode.parent.data.dirId
+        //     : this.currentNode.parent.parent.data.dirId,
+        //   devices: [{ deviceId: this.currentNode.data.id }]
+        // }
+        // func = cancleShareDevice
         break
       }
       default:
@@ -198,7 +198,6 @@ export default class extends Vue {
     }
     try {
       if (this.type === 'append' || this.type === 'edit') {
-        console.log('param:', param)
         const checkGbRegion = this.checkRegion(this.type === 'append' ? param?.dirs[0] : param)
         if (checkGbRegion) {
           this.$message.error('当前级联为行政区划模式，请选择上级目录的下级区域')
@@ -213,8 +212,11 @@ export default class extends Vue {
             return false
           }
         })
+      } else if (this.type === 'deleteGroup') {
+        // await func(param)
+        this.successInfo()
       } else {
-        await func(param)
+        // 删除设备
         this.successInfo()
       }
     } catch (e) {
