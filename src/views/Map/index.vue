@@ -795,7 +795,7 @@ export default class extends Mixins(IndexMixin) {
           this.customInfoType = type
           break
         case 'pointer':
-          this.showInfo = false
+          // this.showInfo = false
           this.customInfoType = 'map'
           break
       }

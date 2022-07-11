@@ -20,8 +20,8 @@
         />
       </el-descriptions-item>
       <el-descriptions-item label="类型">
-        <el-radio v-model="polygonInfo.type" label="HighLightArea" :disabled="!isAdd" @change="change">区域围栏</el-radio>
-        <el-radio v-model="polygonInfo.type" label="InterestBuilding" :disabled="!isAdd" @change="change">建筑物样式</el-radio>
+        <el-radio v-model="polygonInfo.type" label="HighLightArea" @change="change">区域围栏</el-radio>
+        <el-radio v-model="polygonInfo.type" label="InterestBuilding" @change="change">建筑物样式</el-radio>
       </el-descriptions-item>
     </el-descriptions>
     <el-descriptions v-if="polygonInfo.type === 'HighLightArea'" title="区域围栏外观" :column="1">
@@ -99,7 +99,7 @@ export default class Polygon extends Vue {
   }
 
   change() {
-    if (!this.isAdd) {
+    if (this.polygonInfo.tagId) {
       this.$emit('change', { type: 'polygon', info: this.polygonInfo })
     }
   }

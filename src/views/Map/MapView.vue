@@ -310,31 +310,51 @@ export default class MapView extends Vue {
           break
         case 'polygon':
           MapModule.SetPolygonInfo(data)
-          if (data.type === 'HighLightArea') {
-            this.hightAreaList = this.hightAreaList.map((item) => {
-              if (data.tagId === item.tagId) {
-                item = data
-              }
-              return item
-            })
-            this.renderMask(this.mapMask)
-          } else if (data.type === 'InterestBuilding') {
-            this.interestBuildingList = this.interestBuildingList.map((item) => {
-              if (data.tagId === item.tagId) {
-                item = data
-              }
-              return item
-            })
-            this.vmap.renderBuilding(this.hightAreaList, this.interestBuildingList)
-          }
-          this.vmap.renderPolygon(this.hightAreaList, this.interestBuildingList)
-          this.vmap.choosePolygon(data)
+          this.handlePolygonChange(data)
           break
       }
     } catch (e) {
       this.$alertError(e)
       console.log('修改兴趣点失败')
     }
+  }
+
+  private handlePolygonChange(data) {
+    let oldType = ''
+    if (this.hightAreaList.some((item) => data.tagId === item.tagId)) {
+      oldType = 'HighLightArea'
+    } else {
+      oldType = 'InterestBuilding'
+    }
+    if (oldType === 'HighLightArea' && data.type === 'HighLightArea') {
+      this.hightAreaList = this.hightAreaList.map((item) => {
+        if (data.tagId === item.tagId) {
+          item = data
+        }
+        return item
+      })
+      this.renderMask(this.mapMask)
+    } else if (oldType === 'InterestBuilding' && data.type === 'InterestBuilding') {
+      this.interestBuildingList = this.interestBuildingList.map((item) => {
+        if (data.tagId === item.tagId) {
+          item = data
+        }
+        return item
+      })
+      this.vmap.renderBuilding(this.hightAreaList, this.interestBuildingList)
+    } else if (oldType === 'HighLightArea' && data.type === 'InterestBuilding') {
+      this.hightAreaList = this.hightAreaList.filter((item) => data.tagId !== item.tagId)
+      this.interestBuildingList.push(data)
+      this.renderMask(this.mapMask)
+      this.vmap.renderBuilding(this.hightAreaList, this.interestBuildingList)
+    } else if (oldType === 'InterestBuilding' && data.type === 'HighLightArea') {
+      this.interestBuildingList = this.interestBuildingList.filter((item) => data.tagId !== item.tagId)
+      this.hightAreaList.push(data)
+      this.renderMask(this.mapMask)
+      this.vmap.renderBuilding(this.hightAreaList, this.interestBuildingList)
+    }
+    this.vmap.renderPolygon(this.hightAreaList, this.interestBuildingList)
+    this.vmap.choosePolygon(data)
   }
 
   public chooseDevice(device) {
@@ -470,11 +490,11 @@ export default class MapView extends Vue {
       markerOption.latitude = lat
     }
     try {
-      await addMarkers({
+      const data = await addMarkers({
         mapId: this.mapOption.mapId,
         devices: [this.handleDevice(markerOption)]
       })
-      this.vmap.addMarker(markerOption)
+      this.vmap.addMarker(data.devices[0])
       this.$emit('markerlistChange', this.markerlist)
     } catch (e) {
       this.$alertError(e)
