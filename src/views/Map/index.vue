@@ -1172,8 +1172,8 @@ export default class extends Mixins(IndexMixin) {
   }
 
   private chooseMap(map) {
-    const option = this.mapConfigInfo.status === 'edit' ? '编辑' : '新建'
     if (this.showMapConfig) {
+      const option = this.mapConfigInfo.status === 'edit' ? '编辑' : '新建'
       this.$confirm(`是否放弃本次${option}操作？`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -1262,7 +1262,9 @@ export default class extends Mixins(IndexMixin) {
     await this.getMapList()
     this.curMap = this.mapList[0]
     this.customInfoType = 'map'
-    this.toggleMap3D(this.curMap.dimension, this.curMap.eagle)
+    // this.toggleMap3D(this.curMap.dimension, this.curMap.eagle)
+    this.is3D = this.curMap.dimension === 'Y'
+    this.overView = this.curMap.eagle === 'Y'
     this.toggleMarkersShow(this.curMap.marker)
     this.calHeight()
     window.addEventListener('resize', this.calHeight)

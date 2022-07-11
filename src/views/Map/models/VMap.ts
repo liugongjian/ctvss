@@ -300,7 +300,9 @@ export default class VMap {
   }
 
   renderMap(map: mapObject) {
-    const { longitude, latitude, zoom } = map
+    const { longitude, latitude, zoom, dimension, eagle } = map
+    const is3D = dimension === 'Y'
+    const overView = eagle === 'Y'
     this.curMapOptions = map
     if (this.map) {
       this.map.setZoomAndCenter(zoom, [longitude, latitude])
@@ -312,7 +314,7 @@ export default class VMap {
         this.indexCluster.setMap(null)
       }
     } else {
-      this.creatMap(longitude, latitude, zoom)
+      this.creatMap(longitude, latitude, zoom, is3D, overView)
     }
   }
 
