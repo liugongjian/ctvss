@@ -319,6 +319,7 @@ export default class extends Vue {
       resolve([])
     } finally {
       this.appendDragInNodes(node)
+      this.removeDeleteNodes()
     }
   }
 
@@ -507,7 +508,7 @@ export default class extends Vue {
           ...dir,
           id: dir.id,
           groupId: node.data.groupId,
-          groupDirId: node.data.type === 'top-group' || node.data.type === 'vgroup' ? -1 : node.data.id,
+          groupDirId: node.data.type === 'top-group' || node.data.type === 'vgroup' ? '-1' : node.data.id,
           label: dir.label,
           inProtocol: dir.inProtocol || node.data.inProtocol,
           channelNum: dir.channelNum + '' || '0',
@@ -626,6 +627,8 @@ export default class extends Vue {
 
   private selectSharedDevice(data: any, node: any) {
     console.log('selectSharedDevice data:', data)
+    console.log('selectSharedDevice dragginnode:', this.dragInNodes)
+    console.log('selectSharedDevice deleteNode:', this.deleteNodes)
     this.selectedNode = node
   }
 
@@ -664,7 +667,7 @@ export default class extends Vue {
         return false
       }
       if (!draggingNode.data.dragInFlag) {
-        const draggingData = JSON.parse(JSON.stringify(draggingNode.data))
+        const draggingData = _.cloneDeep(draggingNode.data)
         this.$nextTick(() => {
           vgroupTree.remove(draggingData)
         })
@@ -782,7 +785,7 @@ export default class extends Vue {
         dirTree.remove(emptyData)
       } else {
         // 如果移动到了别的树上，需要恢复该节点，并清掉空节点
-        let data = JSON.parse(JSON.stringify(draggingNode.data))
+        let data = _.cloneDeep(draggingNode.data)
         dirTree.insertAfter(data, dirTree.getNode(emptyData))
         dirTree.remove(emptyData)
         let newNode = dirTree.getNode(data)
@@ -996,7 +999,13 @@ export default class extends Vue {
         } else if (item.type === 'nvr') {
           devices.push({ ...item,
             channels: node.childNodes.map(childNode => ({
-              ...childNode.data,
+              channelNum: childNode.data.channelNum,
+              channelName: childNode.data.channelName,
+              gbId: childNode.data.gbId,
+              deviceId: childNode.data.id,
+              deviceIp: childNode.data.deviceIp,
+              deviceIpv6: childNode.data.deviceIpv6,
+              devicePort: childNode.data.devicePort,
               upGbId: childNode.data.upGbId
             }))
           })
@@ -1033,6 +1042,9 @@ export default class extends Vue {
     if (opParam.selectedNode) {
       // 有选择节点
       if (opParam.selectedNode.level !== 1) {
+        if (opParam.type === 'deleteDevice') {
+          this.deleteNode(opParam.selectedNode)
+        }
         if (opParam.type === 'deleteDevice' && opParam.selectedNode.parent.data.type === 'nvr') {
           this.forceRefreshChildren(vgroupTree, opParam.selectedNode.parent.parent)
         } else {
@@ -1131,31 +1143,49 @@ export default class extends Vue {
     }
   }
 
+  private removeDeleteNodes() {
+    const vgroupTree: any = this.$refs.vgroupTree
+    this.deleteNodes.forEach(dir => {
+      dir.devices.forEach(device => {
+        vgroupTree.remove(device)
+      })
+    })
+  }
+
   // 目前只操作设备的删除，ipc & nvr
   private deleteNode(node) {
+    const dirTree: any = this.$refs.dirTree
     const parentDirId = node.parent.data.type === 'nvr' ? node.parent.parent.data.dirId : node.parent.data.dirId
-    if (node.sharedFlag) {
+    if (node.data.sharedFlag) {
       let findFlag = false
       this.deleteNodes.forEach(item => {
         if (item.dirId === parentDirId) {
-          item.devices.push({ deviceId: node.data.id })
+          item.devices.push(node.data)
           findFlag = true
         }
       })
       if (!findFlag) {
-        this.deleteNodes.push({ dirId: parentDirId, devices: [node.data.id] })
+        this.deleteNodes.push({ dirId: parentDirId, devices: [node.data] })
       }
     } else {
       if (node.parent.data.type === 'nvr') {
         // nvr通道
         this.dragInNodes[parentDirId].forEach(item => {
-          if (item.deviceId === node.parent.data.deviceId) {
-            item.channels = item.channels.filter(channel => channel.deviceId !== node.data.deviceId)
+          if (item.id === node.parent.data.id) {
+            const nvrNode = dirTree.getNode(item.id)
+            const channelNode = dirTree.getNode(item.channels.filter(channel => channel.id === node.data.id)[0])
+            nvrNode.data.disabled = false
+            channelNode.data.disabled = false
+            channelNode.checked = false
+            item.channels = item.channels.filter(channel => channel.id !== node.data.id)
           }
         })
       } else {
         // 纯ipc
+        const ipcNode = dirTree.getNode(this.dragInNodes[parentDirId].filter(item => item.deviceId === node.data.deviceId)[0])
         this.dragInNodes[parentDirId] = this.dragInNodes[parentDirId].filter(item => item.deviceId !== node.data.deviceId)
+        ipcNode.data.disabled = false
+        ipcNode.checked = false
       }
     }
   }
