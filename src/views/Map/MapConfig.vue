@@ -30,45 +30,55 @@
           <span class="zoomdesc">{{ zoomDesc }}</span>
         </div>
       </el-form-item>
-      <el-form-item label="启用鹰眼地图">
-        <el-switch v-model="form.eagle" />
-      </el-form-item>
-      <el-form-item label="启用3D地图">
-        <el-switch v-model="form.dimension" />
-      </el-form-item>
-      <el-form-item label="显示点位名称">
+      <el-form-item>
         <template slot="label">
-          显示点位名称:
-          <el-popover
-            placement="top-start"
-            width="400"
-            trigger="hover"
-            :open-delay="300"
-            content="在点位图标下显示设备名称"
-          >
-            <svg-icon slot="reference" class="form-question" name="help" />
-          </el-popover>
+          <div @click="showMore = !showMore">
+            <span style="color: #F59A23; margin-right: 10px;">更多设置</span>
+            <svg-icon name="arrow-right" :class="['more-arrow', showMore ? 'on': '']" width="6"/>
+          </div>
         </template>
-        <el-switch v-model="form.marker" />
       </el-form-item>
-      <el-form-item label="启用蒙版">
-        <template slot="label">
-          是否启用蒙版:
-          <el-popover
-            placement="top-start"
-            width="400"
-            trigger="hover"
-            :open-delay="300"
-          >
-            <div>
-              <p>启用蒙版后多边形区域会变为镂空风格</p>
-              <img :src="require('@/assets/images/mapMask.png')" width="100%">
-            </div>
-            <svg-icon slot="reference" class="form-question" name="help" />
-          </el-popover>
-        </template>
-        <el-switch v-model="form.mask" />
-      </el-form-item>
+      <template v-if="showMore">
+        <el-form-item label="启用鹰眼地图">
+          <el-switch v-model="form.eagle" />
+        </el-form-item>
+        <el-form-item label="启用3D地图">
+          <el-switch v-model="form.dimension" />
+        </el-form-item>
+        <el-form-item label="显示点位名称">
+          <template slot="label">
+            显示点位名称:
+            <el-popover
+              placement="top-start"
+              width="400"
+              trigger="hover"
+              :open-delay="300"
+              content="在点位图标下显示设备名称"
+            >
+              <svg-icon slot="reference" class="form-question" name="help" />
+            </el-popover>
+          </template>
+          <el-switch v-model="form.marker" />
+        </el-form-item>
+        <el-form-item label="启用蒙版">
+          <template slot="label">
+            是否启用蒙版:
+            <el-popover
+              placement="top-start"
+              width="400"
+              trigger="hover"
+              :open-delay="300"
+            >
+              <div>
+                <p>启用蒙版后多边形区域会变为镂空风格</p>
+                <img :src="require('@/assets/images/mapMask.png')" width="100%">
+              </div>
+              <svg-icon slot="reference" class="form-question" name="help" />
+            </el-popover>
+          </template>
+          <el-switch v-model="form.mask" />
+        </el-form-item>
+      </template>
       <el-form-item>
         <el-button type="primary" @click="submit">保存</el-button>
         <el-button @click="cancel">取消</el-button>
@@ -88,6 +98,8 @@ import { createMap, modifyMap } from '@/api/map'
 export default class MapConfig extends Vue {
   @Prop()
   private info
+
+  private showMore = false
 
   public $refs: {
     mapform: any
@@ -258,7 +270,12 @@ export default class MapConfig extends Vue {
     flex: 1;
   }
 }
-
+.more-arrow {
+  color: #F59A23;
+  &.on {
+    transform: rotate(90deg);
+  }
+}
 .el-form {
   margin-top: 20px;
 

@@ -80,7 +80,7 @@ export default class extends Vue {
   private colorChange(val: any) {
     if (val) {
       this.color = val
-      MapModule.interestInfo.appearance.color = this.color
+      MapModule.markerInfo.appearance.color = this.color
       this.change()
     }
   }
