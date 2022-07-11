@@ -124,7 +124,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
-import { describeShareDevices, describeShareDirs, getPlatform, shareDevice, validateShareDevices } from '@/api/upPlatform'
+import { describeShareDevices, describeShareDirs, getPlatform, shareDevice, validateShareDevices, cancleShareDevice } from '@/api/upPlatform'
 import { setDirsStreamStatus } from '@/utils/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import InnerDialog from './InnerDialog.vue'
@@ -591,6 +591,7 @@ export default class extends Vue {
           dirs = await this.loadAll(node)
           dirTree.updateKeyChildren(node.data.id, dirs)
           this.appendDragInNodes(node)
+          this.removeDeleteNodes()
           node.expanded = true
           node.loaded = true
         }
@@ -974,12 +975,22 @@ export default class extends Vue {
     }
     let param = []
     list.forEach(item => param.push(...this.generateParam(item, item.children)))
+    console.log('this.deleteNodes:', this.deleteNodes)
     try {
       await shareDevice({
         platformId: this.platformId,
         dirs: param
       })
-      this.$message.success('添加成功！')
+      this.deleteNodes.forEach(async dnode => {
+        await cancleShareDevice({
+          platformId: this.platformId,
+          dirId: dnode.dirId,
+          devices: dnode.devices.map(device => ({
+            deviceId: device.deviceId
+          }))
+        })
+      })
+      this.$message.success('修改成功！')
       this.closeDialog(true)
     } catch (e) {
       console.log(e)
