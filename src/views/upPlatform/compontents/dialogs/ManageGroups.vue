@@ -357,8 +357,8 @@ export default class extends Vue {
               realGroupInProtocol: node.data.realGroupInProtocol || '',
 
               gbId: channel.gbId,
-              upGbId: channel.gbId,
-              upGbIdOrigin: channel.gbId || ''
+              upGbId: channel.upGbId,
+              upGbIdOrigin: channel.upGbId || ''
             }
           })
         } else {
@@ -393,8 +393,8 @@ export default class extends Vue {
         sharedFlag: true,
         dragInFlag: false,
         path: node.data.path.concat([dir]),
-        upGbId: dir.gbId || '',
-        upGbIdOrigin: dir.gbId || ''
+        upGbId: dir.upGbId || '',
+        upGbIdOrigin: dir.upGbId || ''
       }
     })
     return dirs
@@ -925,11 +925,11 @@ export default class extends Vue {
       } else {
         // 设备校验
         if (x.upGbId.length !== 20) {
+          console.log('x.upGbId:  ', x.upGbId)
           errorDirNodeData.push(x)
         }
       }
     })
-
     this.errorNodesData = errorDirNodeData
     return this.errorNodesData.length > 0
   }
@@ -941,7 +941,7 @@ export default class extends Vue {
       arr = _.cloneDeep(parent.children)
       parent.children.forEach(item => {
         if (item.children) {
-          arr = arr.concat(this.flatTree(item))
+          arr.push(...this.flatTree(item))
         }
       })
     }

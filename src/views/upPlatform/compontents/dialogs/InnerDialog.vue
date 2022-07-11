@@ -213,7 +213,7 @@ export default class extends Vue {
           }
         })
       } else if (this.type === 'deleteGroup') {
-        // await func(param)
+        await func(param)
         this.successInfo()
       } else {
         // 删除设备
