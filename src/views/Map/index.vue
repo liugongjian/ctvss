@@ -1162,7 +1162,7 @@ export default class extends Mixins(IndexMixin) {
   private chooseMap(map) {
     // this.showCustomPoint = false
     // this.customPointInfo = {}
-    this.showInfo = false
+    // this.showInfo = false
     this.curMap = map
     this.changeEdit(false)
     this.toggleMap3D(map.dimension, map.eagle)

@@ -425,17 +425,17 @@ export default class MapView extends Vue {
     }
   }
 
-  async handleMarkerDelete(id, deviceName) {
+  async handleMarkerDelete(deviceId, deviceName) {
     this.$alertDelete({
       type: '监控点位',
       msg: `确定在地图中删除监控点位"${deviceName}"?`,
       method: deleteMarkers,
       payload: {
         mapId: this.mapOption.mapId,
-        devices: [{ id }]
+        devices: [{ deviceId }]
       },
       onSuccess: () => {
-        this.markerlist = this.markerlist.filter(item => item.deviceId !== id)
+        this.markerlist = this.markerlist.filter(item => item.deviceId !== deviceId)
         this.$emit('markerlistChange', this.markerlist)
         this.vmap.updateMarkerList(this.markerlist)
         this.$emit('mapClick', {
