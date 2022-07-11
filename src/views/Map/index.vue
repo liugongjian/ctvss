@@ -1159,17 +1159,31 @@ export default class extends Mixins(IndexMixin) {
     }
   }
 
-  private chooseMap(map) {
-    // this.showCustomPoint = false
-    // this.customPointInfo = {}
-    // this.showInfo = false
+  private handleChooseMap(map) {
+    this.showMapConfig = false
     this.curMap = map
     this.changeEdit(false)
+    this.customInfoType = 'map'
     this.toggleMap3D(map.dimension, map.eagle)
     this.toggleOverView(map.eagle)
     this.toggleMarkersShow(map.marker)
     this.$refs.mapview.setMap(map)
     this.$refs.mapview.closeAllPlayer()
+  }
+
+  private chooseMap(map) {
+    const option = this.mapConfigInfo.status === 'edit' ? '编辑' : '新建'
+    if (this.showMapConfig) {
+      this.$confirm(`是否放弃本次${option}操作？`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.handleChooseMap(map)
+      })
+    } else {
+      this.handleChooseMap(map)
+    }
   }
 
   private deleteMap(map) {

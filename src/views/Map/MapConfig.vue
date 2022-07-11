@@ -34,7 +34,7 @@
         <template slot="label">
           <div @click="showMore = !showMore">
             <span style="color: #F59A23; margin-right: 10px;">更多设置</span>
-            <svg-icon name="arrow-right" :class="['more-arrow', showMore ? 'on': '']" width="6"/>
+            <svg-icon name="arrow-right" :class="['more-arrow', showMore ? 'on': '']" width="6" />
           </div>
         </template>
       </el-form-item>
@@ -214,7 +214,6 @@ export default class MapConfig extends Vue {
           marker: this.form.marker ? 'Y' : 'N'
         }
         if (this.form.status === 'add') {
-          console.log('addMap: ', map)
           const res = await createMap(map)
           const mapId = res.mapId
           newMap = { ...map, mapId }
@@ -223,7 +222,6 @@ export default class MapConfig extends Vue {
             mapId: this.form.mapId,
             ...map
           }
-          console.log('modifyMap: ', newMap)
           await modifyMap(newMap)
         }
         this.$emit('changeMap', { type: this.form.status, mapinfo: newMap })
@@ -236,6 +234,9 @@ export default class MapConfig extends Vue {
 
   private mounted() {
     this.form = { ...this.info }
+    if (this.form.mask || this.form.eagle || this.form.dimension || this.form.marker) {
+      this.showMore = true
+    }
   }
 }
 </script>
