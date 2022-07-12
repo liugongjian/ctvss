@@ -1098,7 +1098,7 @@ export default class extends Mixins(IndexMixin) {
   // 打开地图信息编辑弹窗 新增/修改
   private openMapEditDialog(map?: mapObject) {
     if (map && map.mapId !== this.curMap.mapId) {
-      this.$confirm(`本次操作将切换当前地图，是否继续？`, '提示', {
+      this.$confirm('本次操作将切换当前地图，是否继续？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'

@@ -50,7 +50,7 @@
 <script  lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { MapModule } from '@/store/modules/map'
-import { validateIsLat, validateIsLng } from '@/views/Map/utils/validate'
+import { validateIsLat, validateIsLng, validateNum } from '@/views/Map/utils/validate'
 
 @Component({
   name: 'FontInfo'
@@ -88,10 +88,13 @@ export default class Font extends Vue {
   change() {
     if (this.fontInfo.tagId) {
       const checklnglat = validateIsLng(this.fontInfo.points[0].longitude) && validateIsLat(this.fontInfo.points[0].latitude)
-      if (checklnglat) {
-        this.$emit('change', { type: 'font', info: this.fontInfo })
-      } else {
+      const checkFontSize = validateNum(this.fontInfo.appearance.fontSize, 1, 60)
+      if (!checklnglat) {
         this.$alertError('请填写正确的经纬度')
+      } else if (!checkFontSize) {
+        this.$alertError('字体大小范围为1~60')
+      } else {
+        this.$emit('change', { type: 'font', info: this.fontInfo })
       }
     }
   }

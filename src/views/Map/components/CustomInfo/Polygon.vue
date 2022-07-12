@@ -49,6 +49,7 @@
 <script  lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { MapModule } from '@/store/modules/map'
+import { validateNum } from '@/views/Map/utils/validate'
 
 @Component({
   name: 'PolygonInfo'
@@ -100,7 +101,12 @@ export default class Polygon extends Vue {
 
   change() {
     if (this.polygonInfo.tagId) {
-      this.$emit('change', { type: 'polygon', info: this.polygonInfo })
+      const checkStrokeWeight = validateNum(this.polygonInfo.appearance.strokeWeight, 0, 20)
+      if (!checkStrokeWeight) {
+        this.$alertError('边框大小范围为0~20')
+      } else {
+        this.$emit('change', { type: 'polygon', info: this.polygonInfo })
+      }
     }
   }
 
