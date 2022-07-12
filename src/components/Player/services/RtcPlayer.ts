@@ -6,7 +6,7 @@ export class RtcPlayer extends Player {
   private rtc?: any
   private rtcConf: any
 
-  protected init() {
+  protected async init() {
     if (!window.RTCPeerConnection) {
       throw new Error('当前浏览器不支持Webrtc播放器')
     }

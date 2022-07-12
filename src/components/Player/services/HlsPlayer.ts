@@ -1,5 +1,3 @@
-// @ts-ignore
-import HlsJS from 'hls.js'
 import { Player } from './Player'
 import { EnhanceHTMLVideoElement } from '../types/Player'
 
@@ -9,7 +7,9 @@ export class HlsPlayer extends Player {
   /**
    * 初始化
    */
-  protected init() {
+  protected async init() {
+    const HlsJSModule = await import(/* webpackChunkName: "hlsjs" */'hls.js')
+    const HlsJS = HlsJSModule.default
     if (!HlsJS.isSupported()) {
       throw new Error('当前浏览器不支持Hls播放器')
     }
