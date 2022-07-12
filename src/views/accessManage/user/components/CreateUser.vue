@@ -172,7 +172,6 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import copy from 'copy-to-clipboard'
-import ExcelJS from 'exceljs'
 import { createUser, getUser, modifyUser, getPolicyList } from '@/api/accessManage'
 import templateBind from '@/views/components/templateBind.vue'
 
@@ -398,6 +397,7 @@ export default class extends Vue {
    * 导出xlsx
    */
   private async exportExel() {
+    const ExcelJS = await import(/* webpackChunkName: "exceljs" */'exceljs')
     const exelName: string = '新建用户的所有信息'
     const workbook = new ExcelJS.Workbook()
     workbook.views = [
