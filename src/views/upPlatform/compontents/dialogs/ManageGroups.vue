@@ -84,7 +84,7 @@
                   <el-input
                     :value="data.upGbId"
                     size="mini"
-                    :class="[errorNodesData.find(item => data.id === item.id) || errorNodesData.find(item => data.deviceId === item.deviceId) ? 'error' : '', data.upGbId !== data.upGbIdOrigin ? 'modified' : '']"
+                    :class="[errorNodesData.find(item => data.id === item.id) ? 'error' : '', data.upGbId !== data.upGbIdOrigin ? 'modified' : '']"
                     @input="val => rootInput(node, data, val)"
                   />
                 </div>
@@ -1093,6 +1093,7 @@ export default class extends Vue {
             }
           })
           if (!findFlag) {
+            dragNodeData.children = [] // 首次添加nvr节点，需要清空原有children，否则后面利用children做校验会出错
             vgroupTree.append(dragNodeData, node.data)
           }
         } else {
