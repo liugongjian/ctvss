@@ -336,7 +336,7 @@ export default class extends Vue {
         // nvr设备无需请求，只需构造节点
         if (node.data.sharedFlag) {
           // 已共享nvr节点展开时构造数据
-          res = node.data.channels.map(channel => {
+          res = node.data.channels ? node.data.channels.map(channel => {
             return {
               ...channel,
               id: channel.deviceId,
@@ -361,7 +361,7 @@ export default class extends Vue {
               upGbId: channel.upGbId,
               upGbIdOrigin: channel.upGbId || ''
             }
-          })
+          }) : []
         } else {
           // 还未共享，仅是拖拽的nvr节点展开时构造数据
           res = node.data.channels
@@ -1050,7 +1050,12 @@ export default class extends Vue {
     data.upGbId = val
     this.$nextTick(() => {
       if (this.gbIdMode === 'district' && data.type !== 'ipc') {
-        this.changeGbIdDistrictRoot(data, val)
+        if (val.length !== data.upGbIdOrigin && val.length % 2 === 0) {
+          this.changeGbIdDistrictRoot(data, val)
+        } else if (val.length === data.upGbIdOrigin) {
+          const prefix = this.generatePrefixVal(val, data.upGbIdOrigin)
+          this.changeGbIdDistrictRoot(data, prefix)
+        }
       }
     })
   }
@@ -1058,13 +1063,13 @@ export default class extends Vue {
   private changeGbIdDistrictRoot(data, val) {
     if (data.children && data.children.length > 0) {
       data.children.forEach(child => {
-        child.upGbId = this.generateDistrictGbId(val, child.upGbIdOrigin, data.upGbIdOrigin)
+        child.upGbId = this.generateDistrictGbId(val, child.upGbId)
         this.changeGbIdDistrictRoot(child, val)
       })
     }
   }
 
-  private generateDistrictGbId(rootId, leafId, rootIdOrigin) {
+  private generateDistrictGbId(rootId, leafId) {
     const rootIdLength = rootId.length // 8
     const leafIdLength = leafId.length // > 8
     if (rootIdLength >= leafIdLength) {
@@ -1130,7 +1135,7 @@ export default class extends Vue {
         this.deleteNodes.push({ dirId: parentDirId, devices: [node.data] })
       }
     } else {
-      // 暂存的，就不用了进入deleteNodes里了
+      // 暂存的，就不用进入deleteNodes里了
       if (node.parent.data.type === 'nvr') {
         // nvr通道
         this.dragInNodes[parentDirId].forEach(item => {
@@ -1163,6 +1168,17 @@ export default class extends Vue {
         }
       })
     }
+  }
+
+  private generatePrefixVal(cur, origin) {
+    let index = -1
+    for (let i = cur.length - 1; i >= 0; i--) {
+      if (cur[i] !== origin[i]) {
+        index = i % 2 === 1 ? i : i + 1
+        break
+      }
+    }
+    return cur.substring(0, index)
   }
 }
 </script>
