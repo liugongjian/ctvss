@@ -256,11 +256,14 @@ export default class MapView extends Vue {
         if (marker.deviceId === item.deviceId) {
           item = mapMarker
           item.selected = true
+        } else {
+          item.selected = false
         }
         return item
       })
       this.$emit('markerlistChange', this.markerlist)
       this.vmap.updateMarkerList(this.markerlist)
+      this.cancleInterest()
     } catch (e) {
       this.$alertError(e)
       console.log('修改标记点失败')
@@ -313,6 +316,7 @@ export default class MapView extends Vue {
           this.handlePolygonChange(data)
           break
       }
+      this.vmap.cancelChoose()
     } catch (e) {
       this.$alertError(e)
       console.log('修改兴趣点失败')

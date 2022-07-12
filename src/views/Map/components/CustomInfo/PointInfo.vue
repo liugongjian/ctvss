@@ -95,7 +95,7 @@ export default class extends Vue {
   }
 
   onDelete() {
-    this.$emit('delete', { })
+    this.$emit('delete', { type: 'marker', info: this.markerInfo })
   }
 }
 </script>

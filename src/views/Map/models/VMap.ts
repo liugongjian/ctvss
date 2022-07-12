@@ -273,6 +273,10 @@ export default class VMap {
       this.pois.forEach(poi => {
         poi.setDraggable(false)
       })
+    } else {
+      this.pois.forEach(poi => {
+        poi.setDraggable(true)
+      })
     }
   }
 

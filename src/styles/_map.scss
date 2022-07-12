@@ -169,6 +169,12 @@
   display: none;
 }
 
+.in-add .marker-bubblePoint.selected .marker-options,
+.in-add .marker-textPoint.selected .marker-options
+{
+  display: none;
+}
+
 .amap-marker-label {
   visibility: hidden;
   background-color: #fff;

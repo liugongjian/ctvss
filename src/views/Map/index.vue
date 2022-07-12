@@ -154,7 +154,7 @@
               <el-button @click="confirmDragAddZeroMarker">确定</el-button>
               <el-button @click="cancelAddMark">取消</el-button>
             </el-dialog>
-            <div :class="['mapwrap', showTitle?'':'hide-title']">
+            <div :class="['mapwrap', showTitle?'':'hide-title', isAddCustom?'in-add':'']">
               <!-- ifMapDisabled -->
               <map-view
                 v-if="mapList.length > 0 && curMap"
@@ -212,10 +212,6 @@ export default class extends Mixins(IndexMixin) {
   private renderAlertType = renderAlertType
   private getSums = getSums
   private mapConfigInfo = null
-  private mapEditDialog = { // 修改或添加地图对话框
-    dialogVisible: false,
-    status: 'add' // add|edit
-  }
   private editDialog = false
   private deleteDialog = false
   private deletesDialog = false
@@ -350,7 +346,6 @@ export default class extends Mixins(IndexMixin) {
   private markerList = []
   private curMap = null
   private curMapInfo = null
-  private curMarkInfo = null
   private overView = false
   private is3D = false
   private marker = null
@@ -361,9 +356,7 @@ export default class extends Mixins(IndexMixin) {
     nvr: 1
   }
 
-  // private showCustomPoint = false
   private showMapConfig = false
-  // private customPointInfo: any = {}
 
   private toolType = [
     {
@@ -838,7 +831,6 @@ export default class extends Mixins(IndexMixin) {
   }
 
   addMarker(marker) {
-    // this.closeEditMark()
     if (!this.isEdit) {
       this.$msgbox({
         title: '开始编辑',
@@ -919,28 +911,6 @@ export default class extends Mixins(IndexMixin) {
   private confirmAddMarker(uselnglat: boolean) {
     this.uselnglat = uselnglat
     try {
-      // const device = await getDevice({
-      //   deviceId: this.marker.id,
-      //   inProtocol: this.marker.inProtocol
-      // })
-      // const markerInfo = {
-      //   deviceId: this.deviceInfo.deviceId,
-      //   inProtocol: this.deviceInfo.inProtocol,
-      //   deviceType: this.deviceInfo.deviceType,
-      //   deviceLabel: this.deviceInfo.deviceName,
-      //   longitude: '',
-      //   latitude: '',
-      //   deviceStatus: this.deviceInfo.deviceStatus,
-      //   streamStatus: this.deviceInfo.streamStatus,
-      //   recordStatus: this.deviceInfo.recordStatus,
-      //   regionNames: this.deviceInfo.regionNames,
-      //   viewRadius: '0',
-      //   viewAngle: '0',
-      //   deviceAngle: '0',
-      //   population: '',
-      //   houseInfo: '',
-      //   unitInfo: ''
-      // }
       if (uselnglat && this.deviceInfo.deviceLongitude && this.deviceInfo.deviceLatitude) {
         const checklnglat = this.checklng(this.deviceInfo.deviceLongitude) && this.checklat(this.deviceInfo.deviceLatitude)
         if (!checklnglat) {
@@ -985,7 +955,6 @@ export default class extends Mixins(IndexMixin) {
   }
 
   deviceClick(data) {
-    // this.closeEditMark()
     if (data.isLeaf && this.mapDeviceIds.indexOf(data.id) < 0) {
       this.$message.warning('该设备尚未添加到当前地图上')
     } else if (data.isLeaf && this.mapDeviceIds.indexOf(data.id) >= 0) {
@@ -996,7 +965,6 @@ export default class extends Mixins(IndexMixin) {
   }
 
   deleteMarker(marker) {
-    // this.closeEditMark()
     this.$refs.mapview.handleMarkerDelete(marker.id, marker.label)
   }
 
@@ -1051,9 +1019,13 @@ export default class extends Mixins(IndexMixin) {
     this.toggleMarkersShow(mapinfo.marker)
   }
 
-  handleCustomDelete(info) {
-    const { id, type } = info
-    this.$refs.mapview.deleteInterest(id, type)
+  handleCustomDelete(infos) {
+    const { type, id, info } = infos
+    if (type === 'marker') {
+      this.$refs.mapview.handleMarkerDelete(info.deviceId, info.deviceLabel)
+    } else {
+      this.$refs.mapview.deleteInterest(id, type)
+    }
   }
 
   handleCustomChange(infos) {
@@ -1121,20 +1093,6 @@ export default class extends Mixins(IndexMixin) {
     }
     this.showMapConfig = true
   }
-
-  // 设置地图点兴趣点
-  // private editMark(map?: mapObject) {
-  //   this.curMap = map
-  //   // 使用 更改key的方式，让vue的diff算法更新dom
-  //   this.freshWithKey = map.mapId
-  //   this.showCustomPoint = true
-  //   this.customPointInfo = map
-  // }
-  // 关闭地图兴趣点
-  // private closeEditMark() {
-  //   this.showCustomPoint = false
-  //   this.customPointInfo = {}
-  // }
 
   /**
    * 加载地图列表
