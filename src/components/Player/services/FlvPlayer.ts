@@ -15,7 +15,6 @@ export class FlvPlayer extends Player {
    * 初始化
    */
   protected async init() {
-    // @ts-ignore
     const FlvJSModule = await import(/* webpackChunkName: "flvjs" */'flv.js/src/flv.js')
     const FlvJS = FlvJSModule.default
     if (!FlvJS.isSupported()) {
