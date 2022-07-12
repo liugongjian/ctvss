@@ -73,7 +73,7 @@
               type="number"
             />
           </el-form-item>
-          <el-form-item
+          <!-- <el-form-item
             v-if="form.deviceType === 'nvr' || isIPC"
             label="国标版本:"
             prop="gbVersion"
@@ -86,7 +86,7 @@
                 :value="item"
               />
             </el-radio-group>
-          </el-form-item>
+          </el-form-item> -->
           <el-form-item label="厂商:" prop="deviceVendor">
             <el-select v-model="form.deviceVendor">
               <el-option
@@ -709,6 +709,12 @@ export default class extends Mixins(createMixin) {
     const temp = this.$store.state.user.userConfigInfo.find((item: any) => item.key === 'enableCloudChannelName')
     const ifUse = temp.value === 'true'
     this.ifUseDeviceName = ifUse
+    // 新增逻辑，使用设备名称时，屏蔽效验正则
+    if (this.ifUseDeviceName) {
+      this.rules = { ...this.rules,
+        ...{ deviceName: [
+          { required: true, message: '请输入设备名称', trigger: 'blur' } ] } }
+    }
   }
 
   /**
