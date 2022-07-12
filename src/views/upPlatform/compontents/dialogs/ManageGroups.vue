@@ -84,7 +84,7 @@
                   <el-input
                     :value="data.upGbId"
                     size="mini"
-                    :class="[errorNodesData.find(item => data.id === item.id) ? 'error' : '', data.upGbId !== data.upGbIdOrigin ? 'modified' : '']"
+                    :class="[errorNodesData.find(item => data.id === item.id) || errorNodesData.find(item => data.deviceId === item.deviceId) ? 'error' : '', data.upGbId !== data.upGbIdOrigin ? 'modified' : '']"
                     @input="val => rootInput(node, data, val)"
                   />
                 </div>
@@ -423,7 +423,7 @@ export default class extends Vue {
         return {
           ...dir,
           id: dir.deviceId,
-          groupId: node.data.groupId,
+          groupId: dir.groupId,
           label: dir.deviceName,
           inProtocol: dir.inProtocol || node.data.inProtocol,
           // isLeaf: dir.isLeaf || true,
@@ -627,9 +627,7 @@ export default class extends Vue {
   }
 
   private selectSharedDevice(data: any, node: any) {
-    console.log('selectSharedDevice data:', data)
-    console.log('selectSharedDevice dragginnode:', this.dragInNodes)
-    console.log('selectSharedDevice deleteNode:', this.deleteNodes)
+    console.log('this.dragInNodes:', this.dragInNodes)
     this.selectedNode = node
   }
 
@@ -679,86 +677,11 @@ export default class extends Vue {
         draggingNode.parent = { data: draggingNode.data.path[draggingNode.data.path.length - 2] }
         allNodes.push(draggingNode)
         const allIPCNodes = allNodes.filter(node => node.data.type === 'ipc' && node.data.disabled === false)
-        if (this.dragInNodes[endNode.data.id]) {
-          this.resolveFromAppend(allIPCNodes, endNode)
-        } else {
+        if (!this.dragInNodes[endNode.data.id]) {
           this.$set(this.dragInNodes, endNode.data.id, [])
-          this.resolveFromAppend(allIPCNodes, endNode)
         }
-        console.log('this.dragInNodes:', this.dragInNodes)
-        // const devices = []
-        // allIPCNodes.forEach(node => {
-        //   if (node.data.path[node.data.path.length - 2].type === 'nvr') {
-        //     // 选取设备中有nvr通道
-        //     let findFlag = false
-        //     devices.forEach(device => {
-        //       if (node.data.path[node.data.path.length - 2].id === device.deviceId) {
-        //         device.channels.push({
-        //           channelNum: node.data.channelNum + '',
-        //           channelName: node.data.label,
-        //           gbId: node.data.gbId,
-        //           upGbId: node.data.gbId,
-        //           deviceId: node.data.id,
-        //           deviceIp: node.data.deviceIp || '',
-        //           deviceIpv6: node.data.deviceIpv6 || '',
-        //           devicePort: node.data.devicePort || ''
-        //         })
-        //         findFlag = true
-        //       }
-        //     })
-        //     if (!findFlag) {
-        //       const parent = node.data.path[node.data.path.length - 2]
-        //       devices.push({
-        //         deviceId: parent.id,
-        //         gbId: parent.gbId,
-        //         upGbId: parent.gbId,
-        //         deviceName: parent.label,
-        //         deviceType: parent.type,
-        //         inProtocol: parent.inProtocol,
-        //         channels: [{
-        //           channelNum: node.data.channelNum + '',
-        //           channelName: node.data.label,
-        //           gbId: node.data.gbId,
-        //           upGbId: node.data.gbId,
-        //           deviceId: node.data.id,
-        //           deviceIp: node.data.deviceIp || '',
-        //           deviceIpv6: node.data.deviceIpv6 || '',
-        //           devicePort: node.data.devicePort || ''
-        //         }]
-        //       })
-        //     }
-        //   } else {
-        //     devices.push({
-        //       deviceId: node.data.id || '',
-        //       gbId: node.data.gbId || '',
-        //       upGbId: node.data.gbId || '',
-        //       deviceName: node.data.label || '',
-        //       deviceType: node.data.type || '',
-        //       inProtocol: node.data.inProtocol || '',
-        //       deviceIp: node.data.deviceIp || '',
-        //       deviceIpv6: node.data.deviceIpv6 || '',
-        //       devicePort: node.data.devicePort || '',
-        //       channels: []
-        //     })
-        //   }
-        // })
-        // try {
-        //   await shareDevice({
-        //     platformId: this.platformId,
-        //     dirs: [{
-        //       dirId: endNode.data.dirId,
-        //       gbId: endNode.data.gbId,
-        //       devices
-        //     }]
-        //   })
-        //   allIPCNodes.forEach(node => {
-        //     const dirNode = dirTree.getNode(node.data)
-        //     dirNode.data.disabled = true
-        //     dirNode.data.sharedFlag = true
-        //   })
-        // } catch (e) {
-        //   this.$message.error('共享设备失败 ：' + e)
-        // }
+        this.resolveFromAppend(allIPCNodes, endNode)
+
         setTimeout(() => {
           allIPCNodes.forEach(node => {
             const dirNode = dirTree.getNode(node.data)
@@ -820,7 +743,19 @@ export default class extends Vue {
         this.dragInNodes[endNode.data.id].push(node.data)
       }
     })
-    this.dragInNodes[endNode.data.id].push(...nvrDevices)
+    let findFlag = false
+    this.dragInNodes[endNode.data.id].forEach(dnode => {
+      nvrDevices.forEach(device => {
+        if (dnode.id === device.id) {
+          findFlag = true
+          dnode.channels.push(...device.channels)
+        }
+      })
+    })
+    if (!findFlag) {
+      this.dragInNodes[endNode.data.id].push(...nvrDevices)
+    }
+    console.log('this.dragInNodes[endNode.data.id]:', this.dragInNodes[endNode.data.id])
   }
 
   private openInner(type) {
@@ -1149,7 +1084,20 @@ export default class extends Vue {
     if (this.dragInNodes[node.data.id]) {
       const vgroupTree: any = this.$refs.vgroupTree
       this.dragInNodes[node.data.id].forEach(dragNodeData => {
-        vgroupTree.append(dragNodeData, node.data)
+        if (dragNodeData.type === 'nvr') {
+          let findFlag = false
+          node.childNodes.forEach(child => {
+            if (child.data.id === dragNodeData.id) {
+              child.data.channels.push(...dragNodeData.channels)
+              findFlag = true
+            }
+          })
+          if (!findFlag) {
+            vgroupTree.append(dragNodeData, node.data)
+          }
+        } else {
+          vgroupTree.append(dragNodeData, node.data)
+        }
       })
     }
   }
@@ -1179,16 +1127,18 @@ export default class extends Vue {
         this.deleteNodes.push({ dirId: parentDirId, devices: [node.data] })
       }
     } else {
+      // 暂存的，就不用了进入deleteNodes里了
       if (node.parent.data.type === 'nvr') {
         // nvr通道
         this.dragInNodes[parentDirId].forEach(item => {
-          if (item.id === node.parent.data.id) {
+          if (item.id === node.parent.data.id || item.deviceId === node.parent.data.deviceId) {
             const nvrNode = dirTree.getNode(item.id)
             const channelNode = dirTree.getNode(item.channels.filter(channel => channel.id === node.data.id)[0])
             nvrNode.data.disabled = false
             channelNode.data.disabled = false
             channelNode.checked = false
-            item.channels = item.channels.filter(channel => channel.id !== node.data.id)
+            const filterdChannels = item.channels.filter(channel => channel.id !== node.data.id)
+            item.channels = filterdChannels
           }
         })
       } else {
