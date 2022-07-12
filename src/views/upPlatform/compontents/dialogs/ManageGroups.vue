@@ -320,6 +320,7 @@ export default class extends Vue {
     } finally {
       this.appendDragInNodes(node)
       this.removeDeleteNodes()
+      this.tagNvrUnloaded(node)
     }
   }
 
@@ -340,7 +341,7 @@ export default class extends Vue {
               ...channel,
               id: channel.deviceId,
               groupId: channel.groupId,
-              label: channel.channelName,
+              label: channel.channelName || channel.label,
               inProtocol: channel.inProtocol || node.data.inProtocol,
               // isLeaf: dir.isLeaf || true,
               isLeaf: true,
@@ -628,6 +629,7 @@ export default class extends Vue {
 
   private selectSharedDevice(data: any, node: any) {
     console.log('this.dragInNodes:', this.dragInNodes)
+    console.log('selectSharedDevice node:', node)
     this.selectedNode = node
   }
 
@@ -1149,6 +1151,17 @@ export default class extends Vue {
         ipcNode.data.disabled = false
         ipcNode.checked = false
       }
+    }
+  }
+
+  private tagNvrUnloaded(node) {
+    if (node.childNodes) {
+      node.childNodes.forEach(child => {
+        if (child.data.type === 'nvr') {
+          child.expanded = false
+          child.loaded = false
+        }
+      })
     }
   }
 }
