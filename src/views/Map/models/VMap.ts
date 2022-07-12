@@ -268,12 +268,15 @@ export default class VMap {
   changeEdit(status: boolean) {
     this.isEdit = status
     this.setCluster(this.curMarkerList)
+    // 切换编辑状态，自动切换3D角度setPitch
     if (!this.isEdit) {
+      this.map.setPitch(50)
       this.map.remove(this.polygons)
       this.pois.forEach(poi => {
         poi.setDraggable(false)
       })
     } else {
+      this.map.setPitch(0)
       this.pois.forEach(poi => {
         poi.setDraggable(true)
       })

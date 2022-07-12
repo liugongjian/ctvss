@@ -58,6 +58,7 @@
                 <el-tooltip content="添加该点位至地图" placement="top">
                   <span
                     v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) < 0"
+                    v-show="!showMapConfig"
                     class="node-option"
                     @click.stop.prevent="addMarker(data)"
                   >+</span>
@@ -65,6 +66,7 @@
                 <el-tooltip content="将该点位从地图中移除" placement="top">
                   <span
                     v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0"
+                    v-show="!showMapConfig"
                     class="node-option"
                     @click.stop.prevent="deleteMarker(data)"
                   >-</span>
@@ -600,9 +602,8 @@ export default class extends Mixins(IndexMixin) {
    * 设备树 设备绑定拖拽事件(鼠标事件代替拖拽事件)
   */
   private mousedownHandle(eve: any, data: any) {
-    if (!data.isLeaf || (data.isLeaf && this.mapDeviceIds.indexOf(data.id) >= 0)) return
+    if (!data.isLeaf || (data.isLeaf && this.mapDeviceIds.indexOf(data.id) >= 0) || this.showMapConfig) return
 
-    // this.closeEditMark()
     this.ifDragging = true
     const { target: ele } = eve
 
@@ -955,6 +956,7 @@ export default class extends Mixins(IndexMixin) {
   }
 
   deviceClick(data) {
+    if (this.showMapConfig) return
     if (data.isLeaf && this.mapDeviceIds.indexOf(data.id) < 0) {
       this.$message.warning('该设备尚未添加到当前地图上')
     } else if (data.isLeaf && this.mapDeviceIds.indexOf(data.id) >= 0) {
@@ -1062,8 +1064,7 @@ export default class extends Mixins(IndexMixin) {
     this.$refs.mapview.closeAllPlayer()
   }
 
-  // 打开地图信息编辑弹窗 新增/修改
-  private openMapEditDialog(map?: mapObject) {
+  handleOpenMapConfig(map) {
     if (map) {
       this.mapConfigInfo = {
         mapId: map.mapId,
@@ -1092,6 +1093,24 @@ export default class extends Mixins(IndexMixin) {
       this.mapConfigInfo.status = 'add'
     }
     this.showMapConfig = true
+  }
+
+  // 打开地图信息编辑弹窗 新增/修改
+  private openMapEditDialog(map?: mapObject) {
+    if (map && map.mapId !== this.curMap.mapId) {
+      this.$confirm(`本次操作将切换当前地图，是否继续？`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.handleChooseMap(map)
+        this.handleOpenMapConfig(map)
+      }).catch(() => {
+        console.log('cancel')
+      })
+    } else {
+      this.handleOpenMapConfig(map)
+    }
   }
 
   /**
@@ -1138,6 +1157,8 @@ export default class extends Mixins(IndexMixin) {
         type: 'warning'
       }).then(() => {
         this.handleChooseMap(map)
+      }).catch(() => {
+        console.log('cancel')
       })
     } else {
       this.handleChooseMap(map)
