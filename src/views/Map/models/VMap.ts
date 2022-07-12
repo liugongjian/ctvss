@@ -210,6 +210,24 @@ export default class VMap {
         console.log('other')
       }
     })
+    const handlePolyEdit = (polygon) => {
+      const newPath = polygon.getPath()
+      const newPoints = newPath.map(item => ({ longitude: item.lng.toString(), latitude: item.lat.toString() }))
+      const newPolygon = {
+        ...polygon.getExtData(),
+        points: newPoints
+      }
+      this.InterestEventHandlers.changePolygon(newPolygon)
+    }
+    this.polygonEditor.on('adjust', (e) => {
+      handlePolyEdit(e.target)
+    })
+    this.polygonEditor.on('addnode', (e) => {
+      handlePolyEdit(e.target)
+    })
+    this.polygonEditor.on('removenode', (e) => {
+      handlePolyEdit(e.target)
+    })
     this.polygonEditor.on('end', (e) => {
       const newId = e.target.getExtData().tagId
       const oldId = MapModule.polygonEdit?.id
