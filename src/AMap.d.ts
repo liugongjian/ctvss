@@ -15,6 +15,9 @@ declare namespace AMap {
     /** 发生事件的目标对象。 **/
     public target: any;
   }
+  export class GeometryUtil {
+    ringArea: any
+  }
   /** 像素坐标, 确定地图上的一个像素点。 **/
   export class Pixel {
     /**构造一个像素坐标对象。**/

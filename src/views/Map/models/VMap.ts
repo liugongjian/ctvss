@@ -196,7 +196,16 @@ export default class VMap {
         }
         this.InterestEventHandlers.addPoi(e.obj.getPosition(), 'font')
       } else if (this.eventState === 'polygon') {
-        this.InterestEventHandlers.addPolygon(e.obj.getPath())
+        const path = e.obj.getPath()
+        const area = Math.round(AMap.GeometryUtil.ringArea(path))
+        if (area > 0) {
+          this.InterestEventHandlers.addPolygon(e.obj.getPath())
+        }
+        this.mouseTool.close(true)
+        this.mouseTool.polygon({
+          fillOpacity: 0,
+          strokeWeight: 1
+        })
       } else {
         console.log('other')
       }

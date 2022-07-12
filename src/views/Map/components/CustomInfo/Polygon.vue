@@ -73,36 +73,34 @@ export default class Polygon extends Vue {
   }
 
   private colorChange(val: any, type) {
-    if (val) {
-      const alpha = val.match(/rgba\(\d+, \d+, \d+, (\d+|0\.\d+)\)/)[1]
-      switch (type) {
-        case 'fill':
-          this.fillColor = val
-          MapModule.polygonInfo.appearance.fillColor = this.fillColor
-          MapModule.polygonInfo.appearance.fillOpacity = alpha
-          break
-        case 'stroke':
-          this.strokeColor = val
-          MapModule.polygonInfo.appearance.strokeColor = this.strokeColor
-          MapModule.polygonInfo.appearance.strokeOpacity = alpha
-          break
-        case 'roof':
-          this.roofColor = val
-          MapModule.polygonInfo.appearance.roofColor = this.roofColor
-          break
-        case 'wall':
-          this.wallColor = val
-          MapModule.polygonInfo.appearance.wallColor = this.wallColor
-          break
-      }
-      this.change()
+    const alpha = (val && val.match(/rgba\(\d+, \d+, \d+, (\d+|0\.\d+)\)/)[1]) || ''
+    switch (type) {
+      case 'fill':
+        this.fillColor = val
+        MapModule.polygonInfo.appearance.fillColor = this.fillColor || ''
+        MapModule.polygonInfo.appearance.fillOpacity = alpha
+        break
+      case 'stroke':
+        this.strokeColor = val
+        MapModule.polygonInfo.appearance.strokeColor = this.strokeColor || ''
+        MapModule.polygonInfo.appearance.strokeOpacity = alpha
+        break
+      case 'roof':
+        this.roofColor = val
+        MapModule.polygonInfo.appearance.roofColor = this.roofColor || ''
+        break
+      case 'wall':
+        this.wallColor = val
+        MapModule.polygonInfo.appearance.wallColor = this.wallColor || ''
+        break
     }
+    this.change()
   }
 
   change() {
     if (this.polygonInfo.tagId) {
       const checkStrokeWeight = validateNum(this.polygonInfo.appearance.strokeWeight, 0, 20)
-      if (!checkStrokeWeight) {
+      if (this.polygonInfo.type === 'HighLightArea' && !checkStrokeWeight) {
         this.$alertError('边框大小范围为0~20')
       } else {
         this.$emit('change', { type: 'polygon', info: this.polygonInfo })

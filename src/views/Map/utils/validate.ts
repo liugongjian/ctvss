@@ -8,5 +8,5 @@ export const validateIsLat = (str: any) => {
 
 export const validateNum = (str: any, min, max) => {
   const num = Number(str)
-  return num && num >= min && num <= max
+  return num >= min && num <= max
 }

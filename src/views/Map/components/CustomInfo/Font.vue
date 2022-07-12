@@ -67,11 +67,9 @@ export default class Font extends Vue {
   }
 
   private colorChange(val: any) {
-    if (val) {
-      this.color = val
-      MapModule.fontInfo.appearance.color = this.color
-      this.change()
-    }
+    this.color = val
+    MapModule.fontInfo.appearance.color = this.color || ''
+    this.change()
   }
 
   private changeStyle(type) {

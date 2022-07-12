@@ -59,11 +59,9 @@ export default class Interest extends Vue {
   }
 
   private colorChange(val: any) {
-    if (val) {
-      this.color = val
-      MapModule.interestInfo.appearance.color = this.color
-      this.change()
-    }
+    this.color = val
+    MapModule.interestInfo.appearance.color = this.color || ''
+    this.change()
   }
 
   change() {
