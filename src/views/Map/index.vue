@@ -815,7 +815,7 @@ export default class extends Mixins(IndexMixin) {
       const interType = ['interest', 'font', 'polygon']
       if (interType.includes(this.customInfoType)) {
         this.customInfoType = 'map'
-        this.showInfo = false
+        // this.showInfo = false
         this.$refs.mapview.cancleInterest()
       }
     }
