@@ -88,7 +88,7 @@
 </template>
 
 <script  lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { validateIsLng, validateIsLat } from './utils/validate'
 import { createMap, modifyMap } from '@/api/map'
 
@@ -98,6 +98,14 @@ import { createMap, modifyMap } from '@/api/map'
 export default class MapConfig extends Vue {
   @Prop()
   private info
+
+  @Watch('info')
+  private onInfoChange() {
+    this.form = { ...this.info }
+    if (this.form.mask || this.form.eagle || this.form.dimension || this.form.marker) {
+      this.showMore = true
+    }
+  }
 
   private showMore = false
 
