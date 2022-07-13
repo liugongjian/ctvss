@@ -1126,8 +1126,10 @@ export default class extends Vue {
       dir.devices.forEach(device => {
         vgroupTree.remove(device)
         const removedNode = dirTree.getNode(device)
-        removedNode.data.disabled = false
-        removedNode.checked = false
+        if (removedNode) {
+          removedNode.data.disabled = false
+          removedNode.checked = false
+        }
       })
     })
   }
@@ -1164,8 +1166,8 @@ export default class extends Vue {
         })
       } else {
         // 纯ipc
-        const ipcNode = dirTree.getNode(this.dragInNodes[parentDirId].filter(item => item.deviceId === node.data.deviceId)[0])
-        this.dragInNodes[parentDirId] = this.dragInNodes[parentDirId].filter(item => item.deviceId !== node.data.deviceId)
+        const ipcNode = dirTree.getNode(this.dragInNodes[parentDirId].filter(item => item.id === node.data.id)[0])
+        this.dragInNodes[parentDirId] = this.dragInNodes[parentDirId].filter(item => item.id !== node.data.id)
         ipcNode.data.disabled = false
         ipcNode.checked = false
       }
