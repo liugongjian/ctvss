@@ -52,7 +52,7 @@
             :load="loadSharedDirs"
             :props="treeProp"
             lazy
-            :allow-drop="() => true"
+            :allow-drag="allowDragSharedTree"
             @node-drag-end="handleDragendShared"
             @node-click="selectSharedDevice"
           >
@@ -394,8 +394,8 @@ export default class extends Vue {
         sharedFlag: true,
         dragInFlag: false,
         path: node.data.path.concat([dir]),
-        upGbId: dir.upGbId || '',
-        upGbIdOrigin: dir.upGbId || ''
+        upGbId: dir.gbId || '',
+        upGbIdOrigin: dir.gbId || ''
       }
     })
     return dirs
@@ -685,10 +685,16 @@ export default class extends Vue {
         this.resolveFromAppend(allIPCNodes, endNode)
 
         setTimeout(() => {
+          debugger
           allIPCNodes.forEach(node => {
             const dirNode = dirTree.getNode(node.data)
             dirNode.data.disabled = true
             dirNode.data.sharedFlag = true
+            // 如果上级目录/nvr设备为选中状态，则把上级节点disabled
+            const parentNode = dirTree.getNode(dirNode.parent.data)
+            if (parentNode.checked) {
+              parentNode.data.disabled = true
+            }
           })
           this.forceRefreshChildren(vgroupTree, endNode)
         }, 0)
@@ -854,7 +860,7 @@ export default class extends Vue {
     res.forEach(x => {
       if (x.type === 'top-group' || x.type === 'dir') {
         // 目录校验
-        if (this.mode === 'vgroup' && x.upGbId.length !== 8) {
+        if (this.mode === 'vgroup' && x.upGbId.length !== 20) {
           errorDirNodeData.push(x)
         } else if (this.mode === 'district' && !this.dirDigits.includes(x.upGbId.length)) {
           errorDirNodeData.push(x)
@@ -899,7 +905,7 @@ export default class extends Vue {
     const isDigitRight = this.checkDirDigit(this.sharedDirList)
     if (isDigitRight) {
       this.mode === 'vgroup'
-        ? this.$message.error('向上级联国标ID位数错误，目录级联ID只能为8位，设备级联ID只能为20位')
+        ? this.$message.error('向上级联国标ID位数错误，目录级联ID只能为20位，设备级联ID只能为20位')
         : this.$message.error('向上级联国标ID位数错误，目录级联ID只能为2、4、6、8位，设备级联ID只能为20位')
       return
     }
@@ -1047,12 +1053,13 @@ export default class extends Vue {
   }
 
   private rootInput(node, data, val) {
+    debugger
     data.upGbId = val
     this.$nextTick(() => {
       if (this.gbIdMode === 'district' && data.type !== 'ipc') {
-        if (val.length !== data.upGbIdOrigin && val.length % 2 === 0) {
+        if (val.length !== data.upGbIdOrigin.length && val.length % 2 === 0) {
           this.changeGbIdDistrictRoot(data, val)
-        } else if (val.length === data.upGbIdOrigin) {
+        } else if (val.length === data.upGbIdOrigin.length) {
           const prefix = this.generatePrefixVal(val, data.upGbIdOrigin)
           this.changeGbIdDistrictRoot(data, prefix)
         }
@@ -1178,7 +1185,16 @@ export default class extends Vue {
         break
       }
     }
-    return cur.substring(0, index)
+    return cur.substring(0, index + 1)
+  }
+
+  private allowDragSharedTree(draggingNode) {
+    const vgroupTree: any = this.$refs.vgroupTree
+    if (vgroupTree.getNode(draggingNode.data)) {
+      // 不能拖拽共享树下的节点
+      return false
+    }
+    return true
   }
 }
 </script>

@@ -182,17 +182,6 @@ export default class extends Vue {
         func = deleteCascadeDir
         break
       }
-      case 'deleteDevice': {
-        // param = {
-        //   platformId: this.platformId,
-        //   dirId: this.currentNode.parent.data.type !== 'nvr'
-        //     ? this.currentNode.parent.data.dirId
-        //     : this.currentNode.parent.parent.data.dirId,
-        //   devices: [{ deviceId: this.currentNode.data.id }]
-        // }
-        // func = cancleShareDevice
-        break
-      }
       default:
         break
     }
@@ -235,12 +224,12 @@ export default class extends Vue {
     if (this.mode === 'district') {
       if (this.currentNode) {
         if (this.type === 'append') {
-          const check = param.gbRegion.startsWith(this.currentNode.data.gbIdDistrict) && (param.gbRegion.length > this.currentNode.data.gbIdDistrict.length)
+          const check = param.gbRegion.startsWith(this.currentNode.data.upGbId) && (param.gbRegion.length > this.currentNode.data.upGbId.length)
           return !check
         } else {
           // edit
           if (this.currentNode.level > 1) {
-            const check = param.gbRegion.startsWith(this.currentNode.parent.data.gbIdDistrict) && (param.gbRegion.length > this.currentNode.parent.data.gbIdDistrict.length)
+            const check = param.gbRegion.startsWith(this.currentNode.parent.data.upGbId) && (param.gbRegion.length > this.currentNode.parent.data.upGbId.length)
             return !check
           } else {
             // 选择了根节点 不校验
