@@ -373,7 +373,7 @@ export default class extends Vue {
         res = [...dirs, ...devices]
       }
     }
-    this.debounceLoading()
+    this.step === 1 ? this.debounceLoading() : (this.loading.sharedDir = false)
     return res
   }
 
@@ -618,8 +618,9 @@ export default class extends Vue {
   /**
    * 单击ipc时直接勾选
    */
-  private selectDevice(data: any) {
-    console.log('selectDevice:', data)
+  private selectDevice(data: any, node: any) {
+    console.log('selectDevice:', node)
+    console.log('selectDevice:', this.$refs.vgroupTree)
     if (data.type === 'ipc' && !data.sharedFlag) {
       const dirTree: any = this.$refs.dirTree
       const node = dirTree.getNode(data.id)
@@ -660,6 +661,7 @@ export default class extends Vue {
     const vgroupTree: any = this.$refs.vgroupTree
     if (endNode) {
       if (endNode.data.type === 'ipc' || endNode.data.type === 'nvr') {
+        debugger
         const draggingData = _.cloneDeep(draggingNode.data)
         this.$nextTick(() => {
           vgroupTree.remove(draggingData)
@@ -672,13 +674,13 @@ export default class extends Vue {
         this.$nextTick(() => {
           vgroupTree.remove(draggingData)
         })
-
+        debugger
         const checkedNodes = dirTree.getCheckedNodes(true, false)
         const allNodes = checkedNodes.map(data => dirTree.getNode(data.id))
         // 由于拖拽的节点parent会丢失
         draggingNode.parent = { data: draggingNode.data.path[draggingNode.data.path.length - 2] }
-        allNodes.push(draggingNode)
-        const allIPCNodes = allNodes.filter(node => node.data.type === 'ipc' && node.data.disabled === false)
+        const allIPCNodes = allNodes.filter(node => node.data.type === 'ipc' && node.data.disabled === false && node.data.id !== draggingNode.data.id)
+        allIPCNodes.push(draggingNode)
         if (!this.dragInNodes[endNode.data.id]) {
           this.$set(this.dragInNodes, endNode.data.id, [])
         }
@@ -1119,9 +1121,13 @@ export default class extends Vue {
 
   private removeDeleteNodes() {
     const vgroupTree: any = this.$refs.vgroupTree
+    const dirTree: any = this.$refs.dirTree
     this.deleteNodes.forEach(dir => {
       dir.devices.forEach(device => {
         vgroupTree.remove(device)
+        const removedNode = dirTree.getNode(device)
+        removedNode.data.disabled = false
+        removedNode.checked = false
       })
     })
   }
@@ -1162,6 +1168,11 @@ export default class extends Vue {
         this.dragInNodes[parentDirId] = this.dragInNodes[parentDirId].filter(item => item.deviceId !== node.data.deviceId)
         ipcNode.data.disabled = false
         ipcNode.checked = false
+      }
+      // remove之后，树竟然不清除节点，真他妈坑
+      const vgroupTree: any = this.$refs.vgroupTree
+      if (vgroupTree.store.nodesMap[node.data.id]) {
+        this.$delete(vgroupTree.store.nodesMap, node.data.id)
       }
     }
   }
