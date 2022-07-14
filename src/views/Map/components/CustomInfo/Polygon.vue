@@ -24,7 +24,13 @@
         <el-radio v-model="polygonInfo.type" label="InterestBuilding" @change="change">建筑物样式</el-radio>
       </el-descriptions-item>
     </el-descriptions>
-    <el-descriptions v-if="polygonInfo.type === 'HighLightArea'" title="区域围栏外观" :column="1">
+    <el-descriptions v-if="polygonInfo.type === 'HighLightArea'" :column="1">
+      <template slot="title">
+        区域围栏外观
+        <el-tooltip content="该外观属性仅在非蒙版的围栏下生效" placement="top">
+          <svg-icon name="help" />
+        </el-tooltip>
+      </template>
       <el-descriptions-item label="背景">
         <el-color-picker v-model="fillColor" size="mini" :predefine="predefineColor" show-alpha @change="colorChange($event, 'fill')" />
       </el-descriptions-item>
