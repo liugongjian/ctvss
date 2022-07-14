@@ -92,5 +92,5 @@ export const formTips = {
   offDutyThreShold: '不能超过600分钟',
   sleepOnDutyThreShold: '不能超过600分钟',
   pvTime: '超过临停时间阈值车辆未行驶离开拍摄区域即被定义违停，默认时间为10分钟，只可以输入整数',
-  jamThreshold: '通过拍摄区域的车辆低于“拥堵车辆阈值”即视为拥堵'
+  jamThreshold: '通过拍摄区域的车辆高于“拥堵车辆阈值”即视为拥堵'
 }
