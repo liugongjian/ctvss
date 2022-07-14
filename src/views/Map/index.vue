@@ -76,7 +76,7 @@
           </div>
         </div>
         <div class="device-list__right">
-          <div class="tools">
+          <div class="tools" v-if="curMap">
             <span class="left">
               <span class="btn-edit tools-item" @click="changeEdit(!isEdit)">{{ isEdit ? '完成编辑' : '开启编辑' }}</span>
               <template v-if="isEdit">
@@ -1239,12 +1239,13 @@ export default class extends Mixins(IndexMixin) {
   private async mounted() {
     this.initDirs()
     await this.getMapList()
-    this.curMap = this.mapList[0]
-    this.customInfoType = 'map'
-    // this.toggleMap3D(this.curMap.dimension, this.curMap.eagle)
-    this.is3D = this.curMap.dimension === 'Y'
-    this.overView = this.curMap.eagle === 'Y'
-    this.toggleMarkersShow(this.curMap.marker)
+    if (this.mapList.length > 0) {
+      this.curMap = this.mapList[0]
+      this.customInfoType = 'map'
+      this.is3D = this.curMap.dimension === 'Y'
+      this.overView = this.curMap.eagle === 'Y'
+      this.toggleMarkersShow(this.curMap.marker)
+    }
     this.calHeight()
     window.addEventListener('resize', this.calHeight)
   }
