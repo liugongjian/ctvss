@@ -339,7 +339,7 @@ export default class extends Vue {
           res = node.data.channels ? node.data.channels.map(channel => {
             return {
               ...channel,
-              id: channel.deviceId,
+              id: channel.deviceId || channel.id,
               groupId: channel.groupId,
               label: channel.channelName || channel.label,
               inProtocol: channel.inProtocol || node.data.inProtocol,
@@ -674,7 +674,6 @@ export default class extends Vue {
         this.$nextTick(() => {
           vgroupTree.remove(draggingData)
         })
-        debugger
         const checkedNodes = dirTree.getCheckedNodes(true, false)
         const allNodes = checkedNodes.map(data => dirTree.getNode(data.id))
         // 由于拖拽的节点parent会丢失
