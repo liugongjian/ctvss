@@ -628,22 +628,19 @@ export default class VMap {
           content: drawBubblePoint(point),
           draggable: this.isEdit && this.eventState === 'pointer'
         })
-        const show = JSON.parse(appearance).showLabel || false
-        if (!show) {
-          marker.on('mouseover', () => {
-            marker.setLabel({
-              content: point.tagName,
-              direction: 'bottom'
-            })
-            marker.setzIndex(20)
+        marker.on('mouseover', () => {
+          marker.setLabel({
+            content: point.tagName,
+            direction: 'bottom'
           })
-          marker.on('mouseout', () => {
-            marker.setLabel({
-              content: ''
-            })
-            marker.setzIndex(12)
+          marker.setzIndex(20)
+        })
+        marker.on('mouseout', () => {
+          marker.setLabel({
+            content: ''
           })
-        }
+          marker.setzIndex(12)
+        })
         marker.on('click', () => {
           if (this.eventState === 'pointer' && this.isEdit) {
             this.cancelChoose()
