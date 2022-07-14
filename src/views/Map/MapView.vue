@@ -452,8 +452,10 @@ export default class MapView extends Vue {
 
   changeEdit(status) {
     this.vmap.changeEdit(status)
-    // this.playWindowInfo.show = 'none'
     this.closeAllPlayer()
+    if (status) {
+      this.vmap.renderPolygon(this.hightAreaList, this.interestBuildingList)
+    }
   }
 
   handleDevice(device) {
