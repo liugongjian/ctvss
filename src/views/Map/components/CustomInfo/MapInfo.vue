@@ -1,38 +1,36 @@
 <template>
-  <div class="mapInfo">
-    <el-descriptions v-if="map" title="地图属性" :column="1">
+  <div class="map-point-base-info">
+    <el-descriptions title="地图属性" :column="1">
       <template slot="extra">
         <svg-icon name="save" width="25" height="25" @click="save()" />
       </template>
       <el-descriptions-item label="中心经度">
-        <el-input v-model="mapInfo.longitude" :disabled="!isEdit" />
+        <el-input v-model="mapInfo.longitude" :disabled="!isEdit" @change="change" />
       </el-descriptions-item>
       <el-descriptions-item label="中心纬度">
-        <el-input v-model="mapInfo.latitude" :disabled="!isEdit" />
+        <el-input v-model="mapInfo.latitude" :disabled="!isEdit" @change="change" />
       </el-descriptions-item>
       <el-descriptions-item label="缩放比例">
         <span>{{ zoomDesc }}</span>
-        <!--<el-input v-model="mapInfo.zoom" :disabled="!isEdit" />-->
-        <!--<el-select v-model="mapInfo.zoom" :disabled="!isEdit">-->
-        <!--<el-option v-for="item in zoomMap" :label="item.val" :value="item.key"></el-option>-->
-        <!--</el-select>-->
       </el-descriptions-item>
     </el-descriptions>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-@Component({
-  name: 'mapInfo'
-})
+import { Component, Vue, Prop } from 'vue-property-decorator'
+import { MapModule } from '@/store/modules/map'
 
-export default class extends Vue {
+@Component({
+  name: 'MapInfo'
+})
+export default class MapInfo extends Vue {
   @Prop()
   private isEdit: boolean
 
-  @Prop()
-  private map: any
+  get mapInfo() {
+    return MapModule.mapInfo
+  }
 
   private zoomMap = [
     { key: '20', val: '1:10m' },
@@ -64,44 +62,16 @@ export default class extends Vue {
       return '-'
     }
   }
-
-  private mapInfo = {
-    mapId: '',
-    name: '',
-    longitude: '',
-    latitude: '',
-    zoom: ''
-  }
-
-  @Watch('map')
-  private onInfoChange() {
-    this.mapInfo = { ...this.map, zoom: this.map?.zoom.toString() }
-  }
-
-  @Watch('isEdit')
-  private onEditChange() {
-    if (!this.isEdit) {
-      this.mapInfo = { ...this.map, zoom: this.map?.zoom.toString() }
-    }
-  }
-
-  mounted() {
-    this.mapInfo = { ...this.map, zoom: this.map?.zoom.toString() }
-  }
-
   save() {
     this.$emit('save', this.mapInfo)
   }
+  change() {
+    this.$emit('change', { type: 'map', info: this.mapInfo })
+  }
 }
 </script>
-
-<!--<style lang="scss" scoped>-->
-<!--.mapInfo {-->
-<!--  ::v-deep .el-input .el-input__inner {-->
-<!--    height: 18px !important;-->
-<!--  }-->
-<!--  ::v-deep .el-input&#45;&#45;medium .el-input__icon {-->
-<!--    line-height: 18px;-->
-<!--  }-->
-<!--}-->
-<!--</style>-->
+<style scoped lang="scss">
+  ::v-deep .el-descriptions__extra {
+    cursor: pointer;
+  }
+</style>

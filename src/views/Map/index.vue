@@ -19,7 +19,7 @@
                   <span class="map-text">{{ map.name }}</span>
                 </el-tooltip>
                 <div>
-                  <span class="edit-icon"><svg-icon name="mark" @click.stop="editMark(map)" /></span>
+                  <!-- <span class="edit-icon"><svg-icon name="mark" @click.stop="editMark(map)" /></span> -->
                   <span class="edit-icon"><svg-icon name="edit" @click.stop="openMapEditDialog(map)" /></span>
                   <span class="delete-icon"><svg-icon name="delete" @click.stop="deleteMap(map)" /></span>
                 </div>
@@ -51,13 +51,14 @@
                     @mousedown="(e) => {
                       mousedownHandle(e,data)
                     }"
-                  >{{ node.label }}{{ getNumbers(node,data) }}</span>
+                  >{{ node.label }}{{ getNumbers(node, data) }}</span>
                   <svg-icon v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0" name="mark" />
                   <span class="sum-icon" />
                 </span>
                 <el-tooltip content="添加该点位至地图" placement="top">
                   <span
                     v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) < 0"
+                    v-show="!showMapConfig"
                     class="node-option"
                     @click.stop.prevent="addMarker(data)"
                   >+</span>
@@ -65,6 +66,7 @@
                 <el-tooltip content="将该点位从地图中移除" placement="top">
                   <span
                     v-if="data.isLeaf && mapDeviceIds.indexOf(data.id) >= 0"
+                    v-show="!showMapConfig"
                     class="node-option"
                     @click.stop.prevent="deleteMarker(data)"
                   >-</span>
@@ -74,76 +76,41 @@
           </div>
         </div>
         <div class="device-list__right">
-          <div class="tools">
+          <div class="tools" v-if="curMap">
             <span class="left">
-              <span class="btn-edit tools-item" @click="changeEdit()">{{ isEdit ? '完成编辑' : '开启编辑' }}</span>
-              <!-- <span class="tools-item"><svg-icon name="selects" /></span> -->
-              <el-tooltip :content="hideTitle ? '显示监控点位名称': '隐藏监控点位名称'" placement="top">
-                <span class="tools-item"><svg-icon name="title" :class="curMap && !hideTitle ?'active':''" @click="changeTitleShow()" /></span>
+              <span class="btn-edit tools-item" @click="changeEdit(!isEdit)">{{ isEdit ? '完成编辑' : '开启编辑' }}</span>
+              <template v-if="isEdit">
+                <div class="device-list__right__handleBox">
+                  <el-tooltip v-for="item in toolType" :key="item.name" :content="item.text" placement="top">
+                    <span class="device-list__right__handleBox__tools" :class="{'active': toolState === item.tool}" @click="changeToolState(item.tool)">
+                      <svg-icon :name="item.name" />
+                    </span>
+                  </el-tooltip>
+                </div>
+              </template>
+
+              <el-tooltip v-if="!isEdit" content="关闭所有播放窗口" placement="top">
+                <span class="tools-item"><svg-icon name="close-all" @click="closeAllWindow()" /></span>
               </el-tooltip>
-              <el-tooltip :content="overView ? '隐藏鹰眼地图' : '显示鹰眼地图'" placement="top">
-                <span class="tools-item"><svg-icon name="hawkeye" :class="curMap && overView?'active':''" @click="toggleOverView()" /></span>
+
+              <el-tooltip content="属性" placement="top">
+                <span class="tools-item">
+                  <svg-icon
+                    v-if="showInfo" name="unfold" class="device-list__activeSvg" @click="showInfo = false"
+                  />
+                  <svg-icon
+                    v-else name="fold" @click="showInfo = true"
+                  />
+                </span>
               </el-tooltip>
-              <el-tooltip :content="is3D ? '关闭2.5D视图' : '显示2.5D视图'" placement="top">
-                <span class="tools-item"><svg-icon name="3d" :class="curMap && is3D?'active':''" @click="toggleMap3D()" /></span>
-              </el-tooltip>
-              <!--              <el-tooltip :content="showMarkers ? '隐藏监控点位' : '显示监控点位'" placement="top">-->
-              <!--                <span class="tools-item"><svg-icon name="mark" :class="curMap && showMarkers?'active':''" @click="toggleMarkersShow()" /></span>-->
-              <!--              </el-tooltip>-->
-              <el-tooltip content="关闭所有播放窗口" placement="top">
-                <span class="tools-item"><svg-icon name="close-all" @click=" closeAllWindow()" /></span>
-              </el-tooltip>
-              <!-- <span class="tools-item"><svg-icon name="magnifier" /></span> -->
-              <!-- <span class="tools-item tools-item__cup">|</span>
-              <span class="tools-item"><svg-icon name="player" /></span>
-              <span class="tools-item"><svg-icon name="play-video" /></span>
-              <span class="tools-item"><svg-icon name="delete" /></span> -->
               <el-tooltip content="进入全屏" placement="top">
                 <span class="tools-item">
                   <svg-icon name="fullscreen" @click="fullscreenMap" />
                 </span>
               </el-tooltip>
             </span>
-            <span class="right">
-              <el-tooltip content="属性" placement="top">
-                <span class="tools-item"><svg-icon name="toggle-show" @click="showInfo = !showInfo" /></span>
-              </el-tooltip>
-            </span>
           </div>
           <div class="device-list__max-height" :style="{height: `${maxHeight}px`}">
-            <el-dialog :title="mapEditDialog.status === 'add' ? '添加地图' : '编辑地图'" :visible.sync="mapEditDialog.dialogVisible" width="45%" class="dialog-text">
-              <el-form ref="mapform" :model="form" label-width="150px" :rules="rules">
-                <el-form-item label="名称" prop="name">
-                  <el-input v-model="form.name" placeholder="请输入地图名称" />
-                </el-form-item>
-                <el-form-item label="中心点经度" prop="longitude">
-                  <el-input v-model="form.longitude" placeholder="请输入地图中心点经度" />
-                </el-form-item>
-                <el-form-item label="中心点纬度" prop="latitude">
-                  <el-input v-model="form.latitude" placeholder="请输入地图中心点纬度" />
-                </el-form-item>
-                <el-form-item prop="zoom">
-                  <template slot="label">
-                    <span>默认缩放比例
-                      <el-tooltip content="设置地图的默认缩放比例，表示每厘米对应实际的距离。">
-                        <svg-icon name="help" />
-                      </el-tooltip>
-                    </span>
-                  </template>
-                  <div class="block">
-                    <el-slider v-model="form.zoom" :min="3" :max="20" />
-                    <span class="zoomdesc">{{ zoomDesc }}</span>
-                  </div>
-                </el-form-item>
-                <el-form-item v-if="mapEditDialog.status === 'edit'" label="是否启用蒙版" prop="mask" class="mask">
-                  <el-checkbox v-model="form.mask" />
-                </el-form-item>
-              </el-form>
-              <span slot="footer" class="dialog-footer">
-                <el-button type="primary" @click="addOrEditMap">确定</el-button>
-                <el-button @click="mapEditDialog.dialogVisible = false">取消</el-button>
-              </span>
-            </el-dialog>
             <el-dialog title="修改地图" :visible.sync="modifyMapDialog" class="dialog-text">
               <div>
                 <h3>确定覆盖“{{ curMap && curMap.name }}”的属性？</h3>
@@ -189,7 +156,7 @@
               <el-button @click="confirmDragAddZeroMarker">确定</el-button>
               <el-button @click="cancelAddMark">取消</el-button>
             </el-dialog>
-            <div :class="['mapwrap', hideTitle?'hide-title':'']">
+            <div :class="['mapwrap', showTitle?'':'hide-title', isAddCustom?'in-add':'']">
               <!-- ifMapDisabled -->
               <map-view
                 v-if="mapList.length > 0 && curMap"
@@ -204,17 +171,11 @@
                 <el-button type="primary" @click="openMapEditDialog()">添加地图</el-button>
               </div>
               <div v-show="showInfo" class="map-info__right">
-                <div v-if="showMapInfo">
-                  <map-info :is-edit="isEdit" :map="curMap" @save="changeMapInfos" />
-                </div>
-                <div v-if="!showMapInfo">
-                  <point-info :is-edit="isEdit" :marker="curMarkInfo" @save="changeMarkerInfos" />
-                <!-- <selected-point /> -->
-                </div>
+                <custom-info v-if="customInfoType" :key="customInfoType" :is-add="isAddCustom" :is-edit="isEdit" :custom-info-type="customInfoType" @delete="handleCustomDelete" @change="handleCustomChange" @save="changeMapInfos" />
               </div>
             </div>
           </div>
-          <custom-point v-if="showCustomPoint" :key="freshWithKey" :custom-point-info="customPointInfo" @closeEditMark="closeEditMark" @chooseMap="chooseMap" />
+          <map-config v-if="showMapConfig" :info="mapConfigInfo" @close="showMapConfig=false" @changeMap="addOrEditMap" />
         </div>
       </div>
     </el-card>
@@ -227,23 +188,20 @@ import { getGroups } from '@/api/group'
 import { setDirsStreamStatus, renderAlertType, getSums } from '@/utils/device'
 import { getDeviceTree, getDevice } from '@/api/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
-import MapView from './mapview.vue'
-import PointInfo from './components/PointInfo.vue'
-import SelectedPoint from './components/SelectedPoint.vue'
-import MapInfo from './components/MapInfo.vue'
-import { getMaps, createMap, deleteMap, modifyMap } from '@/api/map'
-import { mapObject } from '@/views/map/models/vmap'
-import CustomPoint from './components/CustomPoint/index.vue'
+import MapView from './MapView.vue'
+import { getMaps, deleteMap, modifyMap } from '@/api/map'
+import { mapObject } from '@/views/Map/models/VMap'
+import CustomInfo from './components/CustomInfo/index.vue'
+import MapConfig from './MapConfig.vue'
+import { MapModule } from '@/store/modules/map'
 
 @Component({
   name: 'Map',
   components: {
     StatusBadge,
     MapView,
-    MapInfo,
-    PointInfo,
-    SelectedPoint,
-    CustomPoint
+    CustomInfo,
+    MapConfig
   }
 })
 export default class extends Mixins(IndexMixin) {
@@ -255,19 +213,15 @@ export default class extends Mixins(IndexMixin) {
   }
   private renderAlertType = renderAlertType
   private getSums = getSums
-  private mapEditDialog = { // 修改或添加地图对话框
-    dialogVisible: false,
-    status: 'add' // add|edit
-  }
+  private mapConfigInfo = null
   private editDialog = false
   private deleteDialog = false
   private deletesDialog = false
   private isEdit = false
   private editValue = 'sss'
   // public breadcrumb: Array<any> = []
-  private hideTitle = true
+  private showTitle = false
   private showInfo = false
-  private showMapInfo = true
   private firstShowMarkerInfo = true
   private addPositionDialog = false // 显示询问本次编辑要不要继承设备坐标的对话弹窗
   private addPositionDialogCheck = false // 是否询问本次编辑要不要继承设备坐标
@@ -280,6 +234,8 @@ export default class extends Mixins(IndexMixin) {
   private markerInfo: any = {}
   private dragNodeInfo: any = {}
   private ifDragging: boolean = false
+  private customInfoType: string = ''
+
   private form = {
     mapId: '',
     name: '',
@@ -392,10 +348,8 @@ export default class extends Mixins(IndexMixin) {
   private markerList = []
   private curMap = null
   private curMapInfo = null
-  private curMarkInfo = null
   private overView = false
-  private showMarkers = true
-  private is3D = true
+  private is3D = false
   private marker = null
   // @Prop()
   // private platformId: any = '417932083494649856'
@@ -404,8 +358,37 @@ export default class extends Mixins(IndexMixin) {
     nvr: 1
   }
 
-  private showCustomPoint = false
-  private customPointInfo: any = {}
+  private showMapConfig = false
+
+  private toolType = [
+    {
+      name: 'pointer',
+      text: '指针工具',
+      tool: 'pointer'
+    }, {
+      name: 'polygon',
+      text: '多边形工具',
+      tool: 'polygon'
+    }, {
+      name: 'interest',
+      text: '兴趣点工具',
+      tool: 'interest'
+    }, {
+      name: 'font',
+      text: '文本工具',
+      tool: 'font'
+    }
+  ]
+  private toolState = 'pointer' // 当前工具栏状态
+
+  get isAddCustom() {
+    return this.toolState !== 'pointer'
+  }
+
+  @Watch('curMap')
+  private curmapChange() {
+    MapModule.SetMapInfo(this.curMap)
+  }
 
   /**
    * 目录初始化
@@ -593,7 +576,7 @@ export default class extends Mixins(IndexMixin) {
    */
   private exitFullscreenMap() {
     const mapInfo: any = document.querySelector('.map-info__right')
-    mapInfo.style.top = '40px'
+    mapInfo.style.top = '60px'
 
     const mapwrap: any = document.querySelector('.mapwrap')
     mapwrap.style.position = 'initial'
@@ -619,9 +602,8 @@ export default class extends Mixins(IndexMixin) {
    * 设备树 设备绑定拖拽事件(鼠标事件代替拖拽事件)
   */
   private mousedownHandle(eve: any, data: any) {
-    if (!data.isLeaf || (data.isLeaf && this.mapDeviceIds.indexOf(data.id) >= 0)) return
+    if (!data.isLeaf || (data.isLeaf && this.mapDeviceIds.indexOf(data.id) >= 0) || this.showMapConfig) return
 
-    this.closeEditMark()
     this.ifDragging = true
     const { target: ele } = eve
 
@@ -762,16 +744,55 @@ export default class extends Mixins(IndexMixin) {
   }
   handleMapClick(infos) {
     const { type, info } = infos
-    if (type === 'map') {
-      this.showInfo = false
-      this.showMapInfo = true
-    } else if (type === 'marker') {
-      this.showMapInfo = false
-      if (this.firstShowMarkerInfo) {
-        this.showInfo = true
-        this.firstShowMarkerInfo = false
+    this.customInfoType = type
+    switch (type) {
+      case 'map':
+        // this.showInfo = false
+        break
+      case 'marker':
+        if (this.firstShowMarkerInfo) {
+          this.showInfo = true
+          this.firstShowMarkerInfo = false
+        }
+        MapModule.SetMarkerInfo(info)
+        break
+      case 'interest':
+        MapModule.SetInterestInfo(info)
+        break
+      case 'font':
+        MapModule.SetFontInfo(info)
+        break
+      case 'polygon':
+        MapModule.SetPolygonInfo(info)
+        break
+    }
+  }
+
+  private changeToolState(type) {
+    if (this.toolState !== type) {
+      this.toolState = type
+      this.$refs.mapview.changeMapClickEvent(type)
+      switch (type) {
+        case 'interest':
+          MapModule.ResetInterestInfo()
+          this.showInfo = true
+          this.customInfoType = type
+          break
+        case 'font':
+          MapModule.ResetFontInfo()
+          this.showInfo = true
+          this.customInfoType = type
+          break
+        case 'polygon':
+          MapModule.ResetPolygonInfo()
+          this.showInfo = true
+          this.customInfoType = type
+          break
+        case 'pointer':
+          // this.showInfo = false
+          this.customInfoType = 'map'
+          break
       }
-      this.curMarkInfo = info
     }
   }
 
@@ -783,17 +804,21 @@ export default class extends Mixins(IndexMixin) {
     return this.markerList.map(marker => marker.deviceId)
   }
 
-  changeTitleShow() {
-    if (this.curMap) {
-      this.hideTitle = !this.hideTitle
-    }
-  }
-
-  changeEdit() {
-    this.isEdit = !this.isEdit
+  changeEdit(state) {
+    this.isEdit = state
     this.addPositionDialogCheck = false
     this.addNoPositionDialogCheck = false
     this.dragAddNoPositionDialogCheck = false
+    this.changeToolState('pointer')
+    this.$refs.mapview.changeMapClickEvent('pointer')
+    if (!this.isEdit) {
+      const interType = ['interest', 'font', 'polygon']
+      if (interType.includes(this.customInfoType)) {
+        this.customInfoType = 'map'
+        // this.showInfo = false
+        this.$refs.mapview.cancleInterest()
+      }
+    }
   }
 
   cancelAddMark() {
@@ -807,7 +832,6 @@ export default class extends Mixins(IndexMixin) {
   }
 
   addMarker(marker) {
-    this.closeEditMark()
     if (!this.isEdit) {
       this.$msgbox({
         title: '开始编辑',
@@ -888,28 +912,6 @@ export default class extends Mixins(IndexMixin) {
   private confirmAddMarker(uselnglat: boolean) {
     this.uselnglat = uselnglat
     try {
-      // const device = await getDevice({
-      //   deviceId: this.marker.id,
-      //   inProtocol: this.marker.inProtocol
-      // })
-      // const markerInfo = {
-      //   deviceId: this.deviceInfo.deviceId,
-      //   inProtocol: this.deviceInfo.inProtocol,
-      //   deviceType: this.deviceInfo.deviceType,
-      //   deviceLabel: this.deviceInfo.deviceName,
-      //   longitude: '',
-      //   latitude: '',
-      //   deviceStatus: this.deviceInfo.deviceStatus,
-      //   streamStatus: this.deviceInfo.streamStatus,
-      //   recordStatus: this.deviceInfo.recordStatus,
-      //   regionNames: this.deviceInfo.regionNames,
-      //   viewRadius: '0',
-      //   viewAngle: '0',
-      //   deviceAngle: '0',
-      //   population: '',
-      //   houseInfo: '',
-      //   unitInfo: ''
-      // }
       if (uselnglat && this.deviceInfo.deviceLongitude && this.deviceInfo.deviceLatitude) {
         const checklnglat = this.checklng(this.deviceInfo.deviceLongitude) && this.checklat(this.deviceInfo.deviceLatitude)
         if (!checklnglat) {
@@ -954,7 +956,7 @@ export default class extends Mixins(IndexMixin) {
   }
 
   deviceClick(data) {
-    this.closeEditMark()
+    if (this.showMapConfig) return
     if (data.isLeaf && this.mapDeviceIds.indexOf(data.id) < 0) {
       this.$message.warning('该设备尚未添加到当前地图上')
     } else if (data.isLeaf && this.mapDeviceIds.indexOf(data.id) >= 0) {
@@ -965,90 +967,88 @@ export default class extends Mixins(IndexMixin) {
   }
 
   deleteMarker(marker) {
-    this.closeEditMark()
     this.$refs.mapview.handleMarkerDelete(marker.id, marker.label)
   }
 
-  toggleMarkersShow() {
-    if (this.curMap) {
-      this.showMarkers = !this.showMarkers
-      this.$refs.mapview.setMarkersView(this.showMarkers)
-    }
-  }
-  toggleOverView() {
-    if (this.mapList.length > 0) {
-      this.overView = !this.overView
-      this.$refs.mapview.toggleOverView(this.overView)
-    }
-  }
-  toggleMap3D() {
-    if (this.curMap) {
-      this.is3D = !this.is3D
-      this.$refs.mapview.toggleMap3D(this.is3D)
+  toggleMarkersShow(isOpen) {
+    const flag = isOpen === 'Y'
+    if (this.showTitle !== flag) {
+      this.showTitle = flag
     }
   }
 
-  addOrEditMap() {
-    this.$refs.mapform.validate(async(valid: any) => {
-      if (valid) {
-        try {
-          const map = {
-            name: this.form.name,
-            longitude: this.form.longitude || '116.397428',
-            latitude: this.form.latitude || '39.90923',
-            zoom: this.form.zoom
-          }
-          if (this.mapEditDialog.status === 'add') {
-            const res = await createMap(map)
-            const mapId = res.mapId
-            this.curMap = { ...map, mapId }
-            if (this.mapList.length > 0) {
-              this.$refs.mapview.setMap(this.curMap)
-              this.$refs.mapview.closeAllPlayer()
-            }
-            this.mapList.push(this.curMap)
-            this.mapEditDialog.dialogVisible = false
-          } else {
-            const mask = this.form.mask ? 'Y' : 'N'
-            const map = {
-              mapId: this.form.mapId,
-              name: this.form.name,
-              longitude: this.form.longitude || '116.397428',
-              latitude: this.form.latitude || '39.90923',
-              zoom: this.form.zoom,
-              mask
-            }
-            await modifyMap(map)
-            this.mapList = this.mapList.map(item => {
-              if (item.mapId === map.mapId) {
-                return map
-              } else {
-                return item
-              }
-            })
-            this.curMap = map
-            this.$refs.mapview.setMapZoomAndCenter(this.curMap.zoom, this.curMap.longitude, this.curMap.latitude)
-            this.$refs.mapview.renderMask(mask)
-            this.$alertSuccess('地图修改成功')
-            this.mapEditDialog.dialogVisible = false
-          }
-        } catch (e) {
-          this.$alertError(e.message)
-        } finally {
-          this.closeEditMark()
-        }
-      } else {
-        return false
+  toggleOverView(isOpen) {
+    const flag = isOpen === 'Y'
+    if (this.overView !== flag) {
+      this.overView = flag
+      this.$refs.mapview.toggleOverView(flag)
+    }
+  }
+  toggleMap3D(isOpen, overViewFlag) {
+    const flag = isOpen === 'Y'
+    if (this.is3D !== flag) {
+      this.is3D = flag
+      const oflag = overViewFlag === 'Y'
+      this.overView = oflag
+      this.$refs.mapview.toggleMap3D(flag, oflag)
+    }
+  }
+
+  addOrEditMap(infos) {
+    const { type, mapinfo } = infos
+    if (type === 'add') {
+      this.curMap = mapinfo
+      if (this.mapList.length > 0) {
+        this.$refs.mapview.setMap(this.curMap)
+        this.$refs.mapview.closeAllPlayer()
       }
-    })
+      this.mapList.push(this.curMap)
+    } else {
+      this.mapList = this.mapList.map(item => {
+        if (item.mapId === mapinfo.mapId) {
+          return mapinfo
+        } else {
+          return item
+        }
+      })
+      this.curMap = mapinfo
+      this.$refs.mapview.setMapZoomAndCenter(this.curMap.zoom, this.curMap.longitude, this.curMap.latitude)
+      this.$refs.mapview.renderMask(mapinfo.mask)
+      this.$alertSuccess('地图修改成功')
+    }
+    this.toggleMap3D(mapinfo.dimension, mapinfo.eagle)
+    this.toggleOverView(mapinfo.eagle)
+    this.toggleMarkersShow(mapinfo.marker)
   }
 
-  changeMarkerInfos(mark) {
-    const checklnglat = this.checklng(mark.longitude) && this.checklat(mark.latitude)
-    if (checklnglat) {
-      this.$refs.mapview.markerChange(mark)
+  handleCustomDelete(infos) {
+    const { type, id, info } = infos
+    if (type === 'marker') {
+      this.$refs.mapview.handleMarkerDelete(info.deviceId, info.deviceLabel)
     } else {
-      this.$alertError('请填写正确的经纬度')
+      this.$refs.mapview.deleteInterest(id, type)
+    }
+  }
+
+  handleCustomChange(infos) {
+    const { type, info } = infos
+    switch (type) {
+      case 'map':
+        this.curMap = info
+        this.$refs.mapview.setMapZoomAndCenter(info.zoom, info.longitude, info.latitude)
+        break
+      case 'marker':
+        this.$refs.mapview.markerChange(info)
+        break
+      case 'interest':
+        this.$refs.mapview.interestChange('interest', info)
+        break
+      case 'font':
+        this.$refs.mapview.interestChange('font', info)
+        break
+      case 'polygon':
+        this.$refs.mapview.interestChange('polygon', info)
+        break
     }
   }
 
@@ -1060,49 +1060,57 @@ export default class extends Mixins(IndexMixin) {
       zoom: true
     }
   }
-
   private closeAllWindow() {
     this.$refs.mapview.closeAllPlayer()
   }
 
-  // 打开地图信息编辑弹窗 新增/修改
-  private openMapEditDialog(map?: mapObject) {
+  handleOpenMapConfig(map) {
     if (map) {
-      this.form = {
+      this.mapConfigInfo = {
         mapId: map.mapId,
         name: map.name,
         longitude: map.longitude + '',
         latitude: map.latitude + '',
         zoom: Number(map.zoom),
-        mask: map.mask === 'Y'
+        mask: map.mask === 'Y',
+        eagle: map.eagle === 'Y',
+        dimension: map.dimension === 'Y',
+        marker: map.marker === 'Y'
       }
-      this.mapEditDialog.status = 'edit'
+      this.mapConfigInfo.status = 'edit'
     } else {
-      this.form = {
+      this.mapConfigInfo = {
         mapId: '',
         name: '',
         longitude: '',
         latitude: '',
         zoom: 12,
-        mask: false
+        mask: false,
+        eagle: false,
+        dimension: false,
+        marker: false
       }
-      this.mapEditDialog.status = 'add'
+      this.mapConfigInfo.status = 'add'
     }
-    this.mapEditDialog.dialogVisible = true
+    this.showMapConfig = true
   }
 
-  // 设置地图点兴趣点
-  private editMark(map?: mapObject) {
-    this.curMap = map
-    // 使用 更改key的方式，让vue的diff算法更新dom
-    this.freshWithKey = map.mapId
-    this.showCustomPoint = true
-    this.customPointInfo = map
-  }
-  // 关闭地图兴趣点
-  private closeEditMark() {
-    this.showCustomPoint = false
-    this.customPointInfo = {}
+  // 打开地图信息编辑弹窗 新增/修改
+  private openMapEditDialog(map?: mapObject) {
+    if (map && map.mapId !== this.curMap.mapId) {
+      this.$confirm('本次操作将切换当前地图，是否继续？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.handleChooseMap(map)
+        this.handleOpenMapConfig(map)
+      }).catch(() => {
+        console.log('cancel')
+      })
+    } else {
+      this.handleOpenMapConfig(map)
+    }
   }
 
   /**
@@ -1128,15 +1136,33 @@ export default class extends Mixins(IndexMixin) {
     }
   }
 
-  private chooseMap(map) {
-    this.showCustomPoint = false
-    this.customPointInfo = {}
-    this.showInfo = false
-    this.showMapInfo = true
-    this.showMarkers = true
+  private handleChooseMap(map) {
+    this.showMapConfig = false
     this.curMap = map
+    this.changeEdit(false)
+    this.customInfoType = 'map'
+    this.toggleMap3D(map.dimension, map.eagle)
+    this.toggleOverView(map.eagle)
+    this.toggleMarkersShow(map.marker)
     this.$refs.mapview.setMap(map)
     this.$refs.mapview.closeAllPlayer()
+  }
+
+  private chooseMap(map) {
+    if (this.showMapConfig) {
+      const option = this.mapConfigInfo.status === 'edit' ? '编辑' : '新建'
+      this.$confirm(`是否放弃本次${option}操作？`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.handleChooseMap(map)
+      }).catch(() => {
+        console.log('cancel')
+      })
+    } else {
+      this.handleChooseMap(map)
+    }
   }
 
   private deleteMap(map) {
@@ -1153,13 +1179,8 @@ export default class extends Mixins(IndexMixin) {
       }
     })
   }
-  private handleMapInfo(infos) {
-    const { type, info } = infos
-    if (type === 'map') {
-      this.curMap = info
-    } else if (type === 'marker') {
-      this.curMarkInfo = info
-    }
+  private handleMapInfo(info) {
+    this.curMap = info
   }
 
   private async modifyMap() {
@@ -1218,7 +1239,13 @@ export default class extends Mixins(IndexMixin) {
   private async mounted() {
     this.initDirs()
     await this.getMapList()
-    this.curMap = this.mapList[0]
+    if (this.mapList.length > 0) {
+      this.curMap = this.mapList[0]
+      this.customInfoType = 'map'
+      this.is3D = this.curMap.dimension === 'Y'
+      this.overView = this.curMap.eagle === 'Y'
+      this.toggleMarkersShow(this.curMap.marker)
+    }
     this.calHeight()
     window.addEventListener('resize', this.calHeight)
   }
@@ -1237,6 +1264,31 @@ export default class extends Mixins(IndexMixin) {
 .device-list__left,
 .device-list__right {
   position: relative;
+}
+
+.device-list__right {
+  &__handleBox {
+    background-color: #e2e2e2;
+    padding: 5px 15px;
+    margin-right: 20px;
+    border-radius: 5px;
+
+    &__tools {
+      display: inline-block;
+      width: 40px;
+      margin-right: 0;
+      text-align: center;
+      cursor: pointer;
+
+      &.active {
+        color: #fa8334;
+      }
+
+      &:not(:last-child) {
+        border-right: 1px solid #d3d3d3;
+      }
+    }
+  }
 }
 
 .map__add {
@@ -1300,18 +1352,6 @@ export default class extends Mixins(IndexMixin) {
 .slider {
   display: inline-block;
   width: 50%;
-}
-
-.map-info__right {
-  position: absolute;
-  top: 40px;
-  right: 0;
-  background: rgba(255, 255, 255, 80%);
-  width: 180px;
-  height: 100%;
-  padding: 10px;
-  overflow: scroll;
-  z-index: 10;
 }
 
 .dialog-text {
@@ -1380,7 +1420,7 @@ export default class extends Mixins(IndexMixin) {
   }
 
   svg {
-    font-size: 20px;
+    font-size: 18px;
   }
 
   .tools-item {
@@ -1397,10 +1437,17 @@ export default class extends Mixins(IndexMixin) {
     align-items: center;
     justify-content: flex-start;
     transition: margin-left 0.3s;
+    margin-left: auto;
 
     .tools-item {
       margin-right: 20px;
     }
+  }
+}
+
+.device-list {
+  &__activeSvg {
+    fill: #fa8334;
   }
 }
 
@@ -1445,6 +1492,7 @@ export default class extends Mixins(IndexMixin) {
 .dialog-text {
   text-align: center;
 }
+
 .dialog-text .mask {
   text-align: left;
 }
@@ -1504,12 +1552,24 @@ export default class extends Mixins(IndexMixin) {
 }
 
 .map-info__right {
-  ::v-deep .el-descriptions {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  background: rgba(255, 255, 255, 50%);
+  width: 246px;
+  height: calc(100% - 80px);
+  border: 1px solid #d3d3d3;
+  border-radius: 5px;
+  overflow: auto;
+  z-index: 10;
+  backdrop-filter: blur(3px);
+
+  /* ::v-deep .el-descriptions {
     font-size: 12px;
     margin-top: 10px;
   }
 
-  ::v-deep .el-descriptions__title{
+  ::v-deep .el-descriptions__title {
     font-size: 14px;
   }
 
@@ -1519,10 +1579,10 @@ export default class extends Mixins(IndexMixin) {
 
   ::v-deep .el-descriptions__body {
     background: transparent;
-  }
+  } */
 
   ::v-deep .el-input--medium {
-    font-size: 12px;
+    font-size: 14px;
   }
 
   ::v-deep .el-input .el-input__inner {
@@ -1532,7 +1592,7 @@ export default class extends Mixins(IndexMixin) {
     border-bottom: 1px solid black;
     height: 18px;
     line-height: 18px;
-    font-size: 12px;
+    font-size: 14px;
     padding: 0;
   }
 
