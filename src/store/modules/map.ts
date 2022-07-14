@@ -1,4 +1,5 @@
 import { VuexModule, Module, Mutation, Action, getModule } from 'vuex-module-decorators'
+import { cloneDeep } from 'lodash'
 import store from '@/store'
 
 export interface IMapState {
@@ -28,7 +29,7 @@ class Map extends VuexModule implements IMapState {
 
   @Action
   public SetMapInfo(payload: any) {
-    this.SET_MAP_INFO({ ...payload })
+    this.SET_MAP_INFO(cloneDeep(payload))
   }
 
   @Mutation
@@ -38,7 +39,7 @@ class Map extends VuexModule implements IMapState {
 
   @Action
   public SetMarkerInfo(payload: any) {
-    const info = { ...payload }
+    const info = cloneDeep(payload)
     const appearance = info.appearance || '{}'
     info.appearance = JSON.parse(appearance)
     this.SET_MARKER_INFO(info)
@@ -51,7 +52,7 @@ class Map extends VuexModule implements IMapState {
 
   @Action
   public SetInterestInfo(payload: any) {
-    const info = { ...payload }
+    const info = cloneDeep(payload)
     const appearance = info.appearance || '{}'
     info.appearance = JSON.parse(appearance)
     this.SET_INTEREST_INFO(info)
@@ -81,7 +82,7 @@ class Map extends VuexModule implements IMapState {
 
   @Action
   public SetFontInfo(payload: any) {
-    const info = { ...payload }
+    const info = cloneDeep(payload)
     const appearance = info.appearance || '{}'
     info.appearance = JSON.parse(appearance)
     this.SET_FONT_INFO(info)
@@ -111,7 +112,7 @@ class Map extends VuexModule implements IMapState {
 
   @Action
   public SetPolygonInfo(payload: any) {
-    const info = { ...payload }
+    const info = cloneDeep(payload)
     const appearance = info.appearance || '{}'
     info.appearance = JSON.parse(appearance)
     this.SET_POLYGON_INFO(info)
