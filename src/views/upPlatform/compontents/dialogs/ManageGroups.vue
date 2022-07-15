@@ -130,6 +130,7 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 import InnerDialog from './InnerDialog.vue'
 import debounce from '@/utils/debounce'
 import * as _ from 'lodash'
+import { ValueType } from 'exceljs'
 
 @Component({
   name: 'ManageGroups',
@@ -661,7 +662,6 @@ export default class extends Vue {
     const vgroupTree: any = this.$refs.vgroupTree
     if (endNode) {
       if (endNode.data.type === 'ipc' || endNode.data.type === 'nvr') {
-        debugger
         const draggingData = _.cloneDeep(draggingNode.data)
         this.$nextTick(() => {
           vgroupTree.remove(draggingData)
@@ -732,12 +732,11 @@ export default class extends Vue {
   }
 
   private resolveFromAppend(allIPCNodes, endNode) {
-    const nvrDevices = []
     allIPCNodes.forEach(node => {
       if (node.parent.data.type === 'nvr') {
         // 选取设备中有nvr通道
         let findFlag = false
-        nvrDevices.forEach(device => {
+        this.dragInNodes[endNode.data.id].forEach(device => {
           if (node.parent.data.deviceId === device.deviceId) {
             device.channels.push(node.data)
             findFlag = true
@@ -745,26 +744,13 @@ export default class extends Vue {
         })
         if (!findFlag) {
           this.$set(node.parent.data, 'channels', [node.data])
-          nvrDevices.push(node.parent.data)
+          this.dragInNodes[endNode.data.id].push(node.parent.data)
         }
       } else {
         // 纯IPC
         this.dragInNodes[endNode.data.id].push(node.data)
       }
     })
-    let findFlag = false
-    this.dragInNodes[endNode.data.id].forEach(dnode => {
-      nvrDevices.forEach(device => {
-        if (dnode.id === device.id) {
-          findFlag = true
-          dnode.channels.push(...device.channels)
-        }
-      })
-    })
-    if (!findFlag) {
-      this.dragInNodes[endNode.data.id].push(...nvrDevices)
-    }
-    console.log('this.dragInNodes[endNode.data.id]:', this.dragInNodes[endNode.data.id])
   }
 
   private openInner(type) {
@@ -805,6 +791,12 @@ export default class extends Vue {
   private prev() {
     this.errorNodesData = []
     this.step = 0
+    // 复位拖拽过去还未共享的节点
+    Object.keys(this.dragInNodes).forEach(label => {
+      this.dragInNodes[label].forEach(data => {
+        data.upGbId = data.upGbIdOrigin
+      })
+    })
   }
 
   private allowDrag(node) {
@@ -1054,18 +1046,28 @@ export default class extends Vue {
   }
 
   private rootInput(node, data, val) {
-    debugger
-    data.upGbId = val
+    data.upGbId = ValueType
     this.$nextTick(() => {
       if (this.gbIdMode === 'district' && data.type !== 'ipc') {
         if (val.length !== data.upGbIdOrigin.length && val.length % 2 === 0) {
           this.changeGbIdDistrictRoot(data, val)
         } else if (val.length === data.upGbIdOrigin.length) {
-          const prefix = this.generatePrefixVal(val, data.upGbIdOrigin)
+          const prefix = this.generatePrefixVal(val, data.upGbIdOrigin) // 比较出与原id不相同的最后一个数字的位数，并截取
           this.changeGbIdDistrictRoot(data, prefix)
         }
       }
     })
+  }
+
+  private generatePrefixVal(cur, origin) {
+    let index = -1
+    for (let i = cur.length - 1; i >= 0; i--) {
+      if (cur[i] !== origin[i]) {
+        index = i % 2 === 1 ? i : i + 1
+        break
+      }
+    }
+    return cur.substring(0, index + 1)
   }
 
   private changeGbIdDistrictRoot(data, val) {
@@ -1078,7 +1080,7 @@ export default class extends Vue {
   }
 
   private generateDistrictGbId(rootId, leafId) {
-    const rootIdLength = rootId.length // 8
+    const rootIdLength = rootId.length > 8 // 8 只修改前8位
     const leafIdLength = leafId.length // > 8
     if (rootIdLength >= leafIdLength) {
       return rootId
@@ -1187,17 +1189,6 @@ export default class extends Vue {
         }
       })
     }
-  }
-
-  private generatePrefixVal(cur, origin) {
-    let index = -1
-    for (let i = cur.length - 1; i >= 0; i--) {
-      if (cur[i] !== origin[i]) {
-        index = i % 2 === 1 ? i : i + 1
-        break
-      }
-    }
-    return cur.substring(0, index + 1)
   }
 
   private allowDragSharedTree(draggingNode) {
