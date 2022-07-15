@@ -18,7 +18,7 @@
             :data="dirList"
             :load="loadDirs"
             :props="treeProp"
-            :check-strictly="true"
+            :check-strictly="false"
             :allow-drag="allowDrag"
             :expand-on-click-node="false"
             draggable
@@ -155,6 +155,11 @@ export default class extends Vue {
     children: 'children',
     isLeaf: 'isLeaf'
   }
+
+  private dirNodeStatus = {
+    checked: [],
+    halfChecked: []
+  }
   private confirmed = false
   private innerDialogType = ''
 
@@ -275,7 +280,7 @@ export default class extends Vue {
     checkedIds.forEach(check => {
       const node = dirTree.getNode(check.groupId)
       node.data.disabled = true
-      dirTree.setCheckedKeys([check.groupId], false)
+      node.checked = true
     })
     halfCheckedIds.forEach(half => {
       const node = dirTree.getNode(half.groupId)
@@ -289,24 +294,17 @@ export default class extends Vue {
     const halfCheckedIds = checkeNodes.filter(node => node.dirStatus === 1)
     const dirTree: any = this.$refs.dirTree
 
-    const prevCheckedIds = dirTree.getCheckedKeys()
-    const prevhalfCheckedIds = dirTree.getHalfCheckedKeys()
-
-    dirTree.setCheckedKeys(prevCheckedIds, false)
-    prevhalfCheckedIds.forEach(id => {
-      const node = dirTree.getNode(id)
-      node.indeterminate = true
-    })
     checkedIds.forEach(check => {
       const node = dirTree.getNode(check.dirId)
-      dirTree.setCheckedKeys([check.dirId], false)
       node.data.disabled = true
+      node.checked = true
     })
     halfCheckedIds.forEach(half => {
       const node = dirTree.getNode(half.dirId)
       node.indeterminate = true
     })
   }
+
   /**
    * 加载目录
    */
@@ -315,12 +313,11 @@ export default class extends Vue {
 
     const { checked, indeterminate } = node
     const dirs = await this.getTree(node)
-    console.log('dirs:', dirs)
     resolve(dirs)
     node.checked = checked
     node.indeterminate = indeterminate
 
-    const dirParam = dirs.filter(item => item.type === 'dir' || item.type === 'platform').map(dir => ({ dirId: dir.id }))
+    const dirParam = dirs.filter(item => item.type === 'dir' || item.type === 'platform' || item.type === 'platformDir').map(dir => ({ dirId: dir.id }))
     const { groups } = await validateShareDirs({
       platformId: this.platformId,
       groups: [{
