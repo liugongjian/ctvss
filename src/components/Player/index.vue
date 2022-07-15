@@ -136,7 +136,7 @@ export default class extends Vue {
 
   private mounted() {
     this.url && this.createPlayer()
-    if (this.isLive) document.addEventListener('visibilitychange', this.onVisibilitychange)
+    if (this.isLive && this.type === 'flv') document.addEventListener('visibilitychange', this.onVisibilitychange)
   }
 
   /**
@@ -145,7 +145,7 @@ export default class extends Vue {
   private beforeDestroy() {
     this.isDebug && console.log('销毁播放器')
     this.player && this.player.disposePlayer()
-    if (this.isLive) document.removeEventListener('visibilitychange', this.onVisibilitychange)
+    if (this.isLive && this.type === 'flv') document.removeEventListener('visibilitychange', this.onVisibilitychange)
   }
 
   /**
