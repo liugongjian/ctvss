@@ -18,7 +18,7 @@
             :data="dirList"
             :load="loadDirs"
             :props="treeProp"
-            :check-strictly="false"
+            :check-strictly="true"
             :allow-drag="allowDrag"
             :expand-on-click-node="false"
             draggable
@@ -280,7 +280,6 @@ export default class extends Vue {
     halfCheckedIds.forEach(half => {
       const node = dirTree.getNode(half.groupId)
       node.indeterminate = true
-      node.data.disabled = true
     })
   }
 
@@ -290,6 +289,14 @@ export default class extends Vue {
     const halfCheckedIds = checkeNodes.filter(node => node.dirStatus === 1)
     const dirTree: any = this.$refs.dirTree
 
+    const prevCheckedIds = dirTree.getCheckedKeys()
+    const prevhalfCheckedIds = dirTree.getHalfCheckedKeys()
+
+    dirTree.setCheckedKeys(prevCheckedIds, false)
+    prevhalfCheckedIds.forEach(id => {
+      const node = dirTree.getNode(id)
+      node.indeterminate = true
+    })
     checkedIds.forEach(check => {
       const node = dirTree.getNode(check.dirId)
       dirTree.setCheckedKeys([check.dirId], false)
@@ -298,7 +305,6 @@ export default class extends Vue {
     halfCheckedIds.forEach(half => {
       const node = dirTree.getNode(half.dirId)
       node.indeterminate = true
-      node.data.disabled = true
     })
   }
   /**
@@ -309,16 +315,18 @@ export default class extends Vue {
 
     const { checked, indeterminate } = node
     const dirs = await this.getTree(node)
+    console.log('dirs:', dirs)
     resolve(dirs)
     node.checked = checked
     node.indeterminate = indeterminate
 
+    const dirParam = dirs.filter(item => item.type === 'dir' || item.type === 'platform').map(dir => ({ dirId: dir.id }))
     const { groups } = await validateShareDirs({
       platformId: this.platformId,
       groups: [{
         groupId: node.data.groupId,
         inprotocol: node.data.inprotocol,
-        dirs: dirs.filter(item => item.type === 'dir').map(dir => ({ dirId: dir.id }))
+        dirs: dirParam
       }]
     })
     this.setDirChecked(groups)
