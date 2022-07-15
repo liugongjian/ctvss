@@ -281,10 +281,12 @@ export default class extends Vue {
       const node = dirTree.getNode(check.groupId)
       node.data.disabled = true
       node.checked = true
+      this.dirNodeStatus.checked.push(check.groupId)
     })
     halfCheckedIds.forEach(half => {
       const node = dirTree.getNode(half.groupId)
       node.indeterminate = true
+      this.dirNodeStatus.halfChecked.push(half.groupId)
     })
   }
 
@@ -298,10 +300,23 @@ export default class extends Vue {
       const node = dirTree.getNode(check.dirId)
       node.data.disabled = true
       node.checked = true
+      this.dirNodeStatus.checked.push(check.groupId)
     })
     halfCheckedIds.forEach(half => {
       const node = dirTree.getNode(half.dirId)
       node.indeterminate = true
+      this.dirNodeStatus.halfChecked.push(half.groupId)
+    })
+
+    setTimeout(() => {
+      this.dirNodeStatus.checked.forEach(id => {
+        const node = dirTree.getNode(id)
+        node.checked = true
+      })
+      this.dirNodeStatus.halfChecked.forEach(id => {
+        const node = dirTree.getNode(id)
+        node.indeterminate = true
+      })
     })
   }
 
@@ -405,7 +420,7 @@ export default class extends Vue {
               ...channel,
               id: channel.deviceId || channel.id,
               groupId: channel.groupId,
-              label: channel.channelName || channel.label,
+              label: channel.channelName ?? channel.label,
               inProtocol: channel.inProtocol || node.data.inProtocol,
               // isLeaf: dir.isLeaf || true,
               isLeaf: true,
@@ -750,7 +765,6 @@ export default class extends Vue {
         this.resolveFromAppend(allIPCNodes, endNode)
 
         setTimeout(() => {
-          debugger
           allIPCNodes.forEach(node => {
             const dirNode = dirTree.getNode(node.data)
             dirNode.data.disabled = true
@@ -1058,6 +1072,7 @@ export default class extends Vue {
           this.deleteNode(opParam.selectedNode)
         }
         if (opParam.type === 'deleteDevice' && opParam.selectedNode.parent.data.type === 'nvr') {
+          opParam.selectedNode.parent.loaded = false
           this.forceRefreshChildren(vgroupTree, opParam.selectedNode.parent.parent)
         } else {
           this.forceRefreshChildren(vgroupTree, opParam.type === 'append' ? opParam.selectedNode : opParam.selectedNode.parent)
@@ -1195,6 +1210,14 @@ export default class extends Vue {
         if (removedNode) {
           removedNode.data.disabled = false
           removedNode.checked = false
+          if (removedNode.data.type === 'nvr') {
+            removedNode.childNodes.forEach(child => {
+              if (child) {
+                child.data.disabled = false
+                child.checked = false
+              }
+            })
+          }
         }
       })
     })
