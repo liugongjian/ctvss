@@ -719,7 +719,7 @@ export default class extends Vue {
           allIPCNodes.forEach(node => {
             const dirNode = dirTree.getNode(node.data)
             dirNode.data.disabled = true
-            dirNode.data.sharedFlag = true
+            dirNode.checked = true
             // 如果上级目录/nvr设备为选中状态，则把上级节点disabled
             const parentNode = dirTree.getNode(dirNode.parent.data)
             if (parentNode.checked) {
@@ -766,7 +766,7 @@ export default class extends Vue {
         // 选取设备中有nvr通道
         let findFlag = false
         this.dragInNodes[endNode.data.id].forEach(device => {
-          if (node.parent.data.deviceId === device.deviceId) {
+          if (node.parent.data.id === device.id) {
             device.channels.push(node.data)
             findFlag = true
           }
@@ -846,6 +846,8 @@ export default class extends Vue {
         message: '设备已共享，不能拖拽',
         type: 'warning'
       })
+      return false
+    } else if (node.checked !== true) {
       return false
     }
     return true
