@@ -260,7 +260,7 @@ export default class extends Vue {
         }))
       })
 
-      this.setDirChecked(groups)
+      this.setGroupChecked(groups)
     } catch (e) {
       this.dirList = []
     } finally {
@@ -268,12 +268,34 @@ export default class extends Vue {
     }
   }
 
-  private async setDirChecked(groups) {
+  private async setGroupChecked(groups) {
     const checkeNodes = groups.map(group => group.groupIdStatus)
-    const checkedIds = checkeNodes.filter(node => node.groupStatus === 1 || node.groupStatus === 2)
+    const checkedIds = checkeNodes.filter(node => node.groupStatus === 2)
+    const halfCheckedIds = checkeNodes.filter(node => node.groupStatus === 1)
     const dirTree: any = this.$refs.dirTree
     checkedIds.forEach(check => {
       dirTree.setCheckedKeys([check.groupId], false)
+    })
+    halfCheckedIds.forEach(half => {
+      const node = dirTree.getNode(half.groupId)
+      node.indeterminate = true
+    })
+  }
+
+  private async setDirChecked(groups) {
+    const checkeNodes = groups[0].groupIdStatus.dirs
+    const checkedIds = checkeNodes.filter(node => node.dirStatus === 2)
+    const halfCheckedIds = checkeNodes.filter(node => node.dirStatus === 1)
+    const dirTree: any = this.$refs.dirTree
+
+    checkedIds.forEach(check => {
+      const node = dirTree.getNode(check.dirId)
+      dirTree.setCheckedKeys([check.dirId], false)
+      node.data.disabled = true
+    })
+    halfCheckedIds.forEach(half => {
+      const node = dirTree.getNode(half.dirId)
+      node.indeterminate = true
     })
   }
   /**
@@ -287,9 +309,9 @@ export default class extends Vue {
     const { groups } = await validateShareDirs({
       platformId: this.platformId,
       groups: [{
-        groupId: node.groupId,
-        inprotocol: node.inprotocol,
-        dirs: dirs.map(dir => ({ dirId: dir.id })).filter(item => item.type === 'dir')
+        groupId: node.data.groupId,
+        inprotocol: node.data.inprotocol,
+        dirs: dirs.filter(item => item.type === 'dir').map(dir => ({ dirId: dir.id }))
       }]
     })
     this.setDirChecked(groups)
@@ -682,6 +704,7 @@ export default class extends Vue {
 
   private handleDragstart(node, event) {
     this.tempNode = _.cloneDeep(node)
+    console.log('handleDragstart:', this.tempNode)
     const vgroupTree: any = this.$refs.vgroupTree
     vgroupTree.$emit('tree-node-drag-start', event, { node: node })
   }
@@ -706,7 +729,7 @@ export default class extends Vue {
         const checkedNodes = dirTree.getCheckedNodes(true, false)
         const allNodes = checkedNodes.map(data => dirTree.getNode(data.id))
         // 由于拖拽的节点parent会丢失
-        draggingNode.parent = { data: draggingNode.data.path[draggingNode.data.path.length - 2] }
+        draggingNode.parent = this.tempNode.parent
         const allIPCNodes = allNodes.filter(node => node.data.type === 'ipc' && node.data.disabled === false && node.data.id !== draggingNode.data.id)
         allIPCNodes.push(draggingNode)
         if (!this.dragInNodes[endNode.data.id]) {
