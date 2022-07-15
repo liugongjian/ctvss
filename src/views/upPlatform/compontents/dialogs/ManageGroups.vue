@@ -1076,7 +1076,7 @@ export default class extends Vue {
   }
 
   private rootInput(node, data, val) {
-    data.upGbId = ValueType
+    data.upGbId = val
     this.$nextTick(() => {
       if (this.gbIdMode === 'district' && data.type !== 'ipc') {
         if (val.length !== data.upGbIdOrigin.length && val.length % 2 === 0) {
