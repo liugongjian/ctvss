@@ -387,7 +387,6 @@ export const asyncRoutes: RouteConfig[] = [
       title: '电子地图',
       icon: 'menu-map',
       perms: ['DescribeMap'],
-      tags: ['showDigitalMap'],
       alwaysShow: false,
       only: true,
       groupSelector: false
@@ -395,7 +394,7 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "map" */ '@/views/map/index.vue'),
+        component: () => import(/* webpackChunkName: "map" */ '@/views/Map/index.vue'),
         name: 'map',
         meta: {
           title: '电子地图',
