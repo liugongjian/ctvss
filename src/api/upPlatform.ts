@@ -182,3 +182,10 @@ export const validateShareDevices = (params: any): Promise<any> =>
     method: 'post',
     data: params
   })
+
+export const validateShareDirs = (params: any): Promise<any> =>
+  request({
+    url: '/device/platform/validateShareDirs',
+    method: 'post',
+    data: params
+  })

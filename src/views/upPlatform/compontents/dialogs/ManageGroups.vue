@@ -124,7 +124,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
-import { describeShareDevices, describeShareDirs, getPlatform, shareDevice, validateShareDevices, cancleShareDevice } from '@/api/upPlatform'
+import { describeShareDevices, describeShareDirs, getPlatform, shareDevice, validateShareDevices, cancleShareDevice, validateShareDirs } from '@/api/upPlatform'
 import { setDirsStreamStatus } from '@/utils/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import InnerDialog from './InnerDialog.vue'
@@ -226,6 +226,17 @@ export default class extends Vue {
       const res = await getGroups({
         pageSize: 1000
       })
+
+      const res2 = await validateShareDirs({
+        platformId: this.platformId,
+        groups: res.groups.map(group => ({
+          groupId: group.groupId,
+          inprotocol: group.inProtocol,
+          dirs: []
+        }))
+      })
+
+      console.log('res2:', res2)
       this.dirList = []
       res.groups.forEach((group: any) => {
         // 放开rtsp rtmp
@@ -911,7 +922,6 @@ export default class extends Vue {
     }
     let param = []
     list.forEach(item => param.push(...this.generateParam(item, item.children)))
-    console.log('this.deleteNodes:', this.deleteNodes)
     try {
       await shareDevice({
         platformId: this.platformId,
@@ -1167,8 +1177,10 @@ export default class extends Vue {
         })
       } else {
         // 纯ipc
-        const ipcNode = dirTree.getNode(this.dragInNodes[parentDirId].filter(item => item.id === node.data.id)[0])
-        this.dragInNodes[parentDirId] = this.dragInNodes[parentDirId].filter(item => item.id !== node.data.id)
+        Object.keys(this.dragInNodes).forEach(dir => {
+          this.dragInNodes[dir] = this.dragInNodes[dir].filter(dragInNode => dragInNode.id !== node.data.id)
+        })
+        const ipcNode = dirTree.getNode(node.data)
         ipcNode.data.disabled = false
         ipcNode.checked = false
       }
