@@ -1110,7 +1110,7 @@ export default class extends Vue {
   }
 
   private generateDistrictGbId(rootId, leafId) {
-    const rootIdLength = rootId.length > 8 // 8 只修改前8位
+    const rootIdLength = rootId.length // 8 只修改前8位
     const leafIdLength = leafId.length // > 8
     if (rootIdLength >= leafIdLength) {
       return rootId
