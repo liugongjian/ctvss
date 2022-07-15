@@ -130,7 +130,6 @@ import StatusBadge from '@/components/StatusBadge/index.vue'
 import InnerDialog from './InnerDialog.vue'
 import debounce from '@/utils/debounce'
 import * as _ from 'lodash'
-import { ValueType } from 'exceljs'
 
 @Component({
   name: 'ManageGroups',
@@ -274,11 +273,14 @@ export default class extends Vue {
     const halfCheckedIds = checkeNodes.filter(node => node.groupStatus === 1)
     const dirTree: any = this.$refs.dirTree
     checkedIds.forEach(check => {
+      const node = dirTree.getNode(check.groupId)
+      node.data.disabled = true
       dirTree.setCheckedKeys([check.groupId], false)
     })
     halfCheckedIds.forEach(half => {
       const node = dirTree.getNode(half.groupId)
       node.indeterminate = true
+      node.data.disabled = true
     })
   }
 
@@ -296,6 +298,7 @@ export default class extends Vue {
     halfCheckedIds.forEach(half => {
       const node = dirTree.getNode(half.dirId)
       node.indeterminate = true
+      node.data.disabled = true
     })
   }
   /**
@@ -303,8 +306,12 @@ export default class extends Vue {
    */
   private async loadDirs(node: any, resolve: Function) {
     if (node.level === 0) return resolve([])
+
+    const { checked, indeterminate } = node
     const dirs = await this.getTree(node)
     resolve(dirs)
+    node.checked = checked
+    node.indeterminate = indeterminate
 
     const { groups } = await validateShareDirs({
       platformId: this.platformId,
