@@ -226,17 +226,6 @@ export default class extends Vue {
       const res = await getGroups({
         pageSize: 1000
       })
-
-      const res2 = await validateShareDirs({
-        platformId: this.platformId,
-        groups: res.groups.map(group => ({
-          groupId: group.groupId,
-          inprotocol: group.inProtocol,
-          dirs: []
-        }))
-      })
-
-      console.log('res2:', res2)
       this.dirList = []
       res.groups.forEach((group: any) => {
         // 放开rtsp rtmp
@@ -261,6 +250,17 @@ export default class extends Vue {
           upGbIdOrigin: group.gbId || ''
         })
       })
+
+      const { groups } = await validateShareDirs({
+        platformId: this.platformId,
+        groups: res.groups.map(group => ({
+          groupId: group.groupId,
+          inprotocol: group.inProtocol,
+          dirs: []
+        }))
+      })
+
+      this.setDirChecked(groups)
     } catch (e) {
       this.dirList = []
     } finally {
@@ -268,6 +268,14 @@ export default class extends Vue {
     }
   }
 
+  private async setDirChecked(groups) {
+    const checkeNodes = groups.map(group => group.groupIdStatus)
+    const checkedIds = checkeNodes.filter(node => node.groupStatus === 1 || node.groupStatus === 2)
+    const dirTree: any = this.$refs.dirTree
+    checkedIds.forEach(check => {
+      dirTree.setCheckedKeys([check.groupId], false)
+    })
+  }
   /**
    * 加载目录
    */
@@ -275,6 +283,16 @@ export default class extends Vue {
     if (node.level === 0) return resolve([])
     const dirs = await this.getTree(node)
     resolve(dirs)
+
+    const { groups } = await validateShareDirs({
+      platformId: this.platformId,
+      groups: [{
+        groupId: node.groupId,
+        inprotocol: node.inprotocol,
+        dirs: dirs.map(dir => ({ dirId: dir.id })).filter(item => item.type === 'dir')
+      }]
+    })
+    this.setDirChecked(groups)
     this.disabledNvrNode(node)
   }
 
