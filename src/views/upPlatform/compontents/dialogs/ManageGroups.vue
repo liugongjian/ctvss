@@ -53,6 +53,7 @@
             lazy
             :allow-drag="allowDragSharedTree"
             @node-drag-end="handleDragendShared"
+            @node-drag-start="handleDragstartShared"
             @node-click="selectSharedDevice"
           >
             <span
@@ -680,9 +681,10 @@ export default class extends Vue {
     }
   }
 
-  private forceRefreshChildren(dirTree: any, node: any) {
-    node.loaded = false
-    node.expand()
+  private forceRefreshChildren(tree: any, node: any) {
+    const rNode = tree.getNode(node.data.id)
+    rNode.loaded = false
+    rNode.expand()
   }
 
   /**
@@ -710,8 +712,8 @@ export default class extends Vue {
   }
 
   private handleDragstart(node, event) {
+    debugger
     this.tempNode = _.cloneDeep(node)
-    console.log('handleDragstart:', this.tempNode)
     const vgroupTree: any = this.$refs.vgroupTree
     vgroupTree.$emit('tree-node-drag-start', event, { node: node })
   }
@@ -762,6 +764,7 @@ export default class extends Vue {
   }
 
   private handleDragend(draggingNode, endNode, position, event) {
+    console.log('handleDragend:', this.tempNode)
     const dirTree: any = this.$refs.dirTree
     const vgroupTree: any = this.$refs.vgroupTree
 
@@ -779,12 +782,12 @@ export default class extends Vue {
         let data = _.cloneDeep(draggingNode.data)
         dirTree.insertAfter(data, dirTree.getNode(emptyData))
         dirTree.remove(emptyData)
-        let newNode = dirTree.getNode(data)
-        Object.keys(newNode).forEach(label => {
-          if (label !== 'data') {
-            newNode[label] = this.tempNode[label]
-          }
-        })
+        // let newNode = dirTree.getNode(data)
+        // Object.keys(newNode).forEach(label => {
+        //   if (label !== 'data' && label !== 'id') {
+        //     newNode[label] = this.tempNode[label]
+        //   }
+        // })
       }
     })
   }
@@ -1279,14 +1282,19 @@ export default class extends Vue {
             this.dragInNodes[dirId] = this.dragInNodes[dirId].filter(dragInNode => dragInNode.id !== node.data.id)
           }
         })
-        const ipcNode = dirTree.getNode(node.data)
-        ipcNode.data.disabled = false
-        ipcNode.checked = false
+        const INNode = dirTree.getNode(node.data)
+        INNode.data.disabled = false
+        INNode.checked = false
       }
       // remove之后，树竟然不清除节点，真他妈坑
       const vgroupTree: any = this.$refs.vgroupTree
       if (vgroupTree.store.nodesMap[node.data.id]) {
         this.$delete(vgroupTree.store.nodesMap, node.data.id)
+        if (node.data.type === 'nvr') {
+          node.childNodes.forEach(child => {
+            this.$delete(vgroupTree.store.nodesMap, child.data.id)
+          })
+        }
       }
     }
     if (node.data.type === 'nvr') {
@@ -1297,12 +1305,14 @@ export default class extends Vue {
   private uncheckedNvrNode(id) {
     const dirTree: any = this.$refs.dirTree
     const nvrNode = dirTree.getNode(id)
-    if (nvrNode && nvrNode.childNodes) {
-      nvrNode.childNodes.forEach(child => {
-        child.data.disabled = false
-        child.checked = false
-      })
-    }
+    this.$nextTick(() => {
+      if (nvrNode && nvrNode.childNodes) {
+        nvrNode.childNodes.forEach(child => {
+          child.data.disabled = false
+          child.checked = false
+        })
+      }
+    })
   }
 
   private tagNvrUnloaded(node) {
@@ -1342,6 +1352,10 @@ export default class extends Vue {
       })
     }
     return res
+  }
+
+  private handleDragstartShared(node, event) {
+    console.log('handleDragstartShared:', node)
   }
 }
 </script>
