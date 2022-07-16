@@ -1128,11 +1128,15 @@ export default class extends Vue {
     data.upGbId = val
     this.$nextTick(() => {
       if (this.gbIdMode === 'district' && data.type !== 'ipc') {
-        if (val.length !== data.upGbIdOrigin.length && val.length % 2 === 0) {
-          this.changeGbIdDistrictRoot(data, val)
-        } else if (val.length === data.upGbIdOrigin.length) {
-          const prefix = this.generatePrefixVal(val, data.upGbIdOrigin) // 比较出与原id不相同的最后一个数字的位数，并截取
-          this.changeGbIdDistrictRoot(data, prefix)
+        const prefixCur = val.substr(0, 8)
+        const prefixOrigin = data.upGbIdOrigin.substr(0, 8)
+        const prefix8 = this.generatePrefixVal(prefixCur, prefixOrigin)
+        if (val.length % 2 === 0) {
+          if (prefixCur === prefixOrigin) {
+            this.changeGbIdDistrictRoot(data, prefixCur)
+          } else {
+            this.changeGbIdDistrictRoot(data, prefix8)
+          }
         }
       }
     })
