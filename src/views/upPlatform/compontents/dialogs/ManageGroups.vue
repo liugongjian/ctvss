@@ -707,7 +707,7 @@ export default class extends Vue {
   }
 
   private selectSharedDevice(data: any, node: any) {
-    console.log('this.deleteNodes:', this.deleteNodes)
+    console.log('this.dragInNodes:', this.dragInNodes)
     console.log('selectSharedDevice node:', node)
     this.selectedNode = node
   }
@@ -815,13 +815,14 @@ export default class extends Vue {
         let findFlag = false
         this.dragInNodes[endNode.data.id].forEach(device => {
           if (node.parent.data.id === device.id) {
-            device.channels.push(node.data)
+            device.channels.push(_.cloneDeep(node.data))
             findFlag = true
           }
         })
         if (!findFlag) {
-          this.$set(node.parent.data, 'channels', [node.data])
-          this.dragInNodes[endNode.data.id].push(node.parent.data)
+          const nvrNode = _.cloneDeep(node)
+          this.$set(nvrNode.parent.data, 'channels', [nvrNode.data])
+          this.dragInNodes[endNode.data.id].push(nvrNode.parent.data)
         }
       } else {
         // 纯IPC
@@ -1278,9 +1279,14 @@ export default class extends Vue {
           if (item.id === node.parent.data.id || item.deviceId === node.parent.data.deviceId) {
             const nvrNode = dirTree.getNode(item.id)
             const channelNode = dirTree.getNode(item.channels.filter(channel => channel.id === node.data.id)[0])
-            nvrNode.data.disabled = false
-            channelNode.data.disabled = false
-            channelNode.checked = false
+            if (nvrNode) {
+              nvrNode.data.disabled = false
+            }
+            if (channelNode) {
+              channelNode.data.disabled = false
+              channelNode.checked = false
+            }
+
             const filterdChannels = item.channels.filter(channel => channel.id !== node.data.id)
             item.channels = filterdChannels
           }
