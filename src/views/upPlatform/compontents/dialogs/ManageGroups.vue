@@ -573,6 +573,7 @@ export default class extends Vue {
           }
           dirTree.setCheckedKeys(checkedKeys)
         }
+        // setCheckedKeys会影响所有节点的半选状态，因此要重新设置
         this.initIdeterminateNode(dirTree)
         return {
           ...dir,
