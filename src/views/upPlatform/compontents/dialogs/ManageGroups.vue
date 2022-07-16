@@ -303,16 +303,14 @@ export default class extends Vue {
       this.dirNodeStatus.halfChecked.push(half.groupId)
     })
 
-    setTimeout(() => {
-      this.dirNodeStatus.checked.forEach(id => {
-        const node = dirTree.getNode(id)
-        node.checked = true
-        node.data.disabled = true
-      })
-      this.dirNodeStatus.halfChecked.forEach(id => {
-        const node = dirTree.getNode(id)
-        node.indeterminate = true
-      })
+    this.dirNodeStatus.checked.forEach(id => {
+      const node = dirTree.getNode(id)
+      node.checked = true
+      node.data.disabled = true
+    })
+    this.dirNodeStatus.halfChecked.forEach(id => {
+      const node = dirTree.getNode(id)
+      node.indeterminate = true
     })
   }
 
@@ -325,7 +323,8 @@ export default class extends Vue {
     const dirs = await this.getTree(node)
     resolve(dirs)
 
-    const dirParam = dirs.filter(item => item.type === 'dir' || item.type === 'platform' || item.type === 'platformDir').map(dir => ({ dirId: dir.id }))
+    const dirParam = dirs.filter(item => item.type === 'dir' || item.type === 'platform' || item.type === 'platformDir')
+      .map(dir => ({ dirId: dir.id, parentDirId: node.level === 1 ? '0' : node.id }))
     const { groups } = await validateShareDirs({
       platformId: this.platformId,
       groups: [{
@@ -334,6 +333,7 @@ export default class extends Vue {
         dirs: dirParam
       }]
     })
+
     this.setDirChecked(groups)
     // this.tagNvrUnchecked(node, dirs)
     this.disabledNvrNode(node)
@@ -632,7 +632,7 @@ export default class extends Vue {
         node.loaded = true
       }
       node.childNodes.forEach((child: any) => {
-        child.checked = true
+        // child.checked = true
         if (child.data.type !== 'ipc') {
           this.checkNodes(dirTree, child)
         }
@@ -1276,7 +1276,7 @@ export default class extends Vue {
       if (node.parent.data.type === 'nvr') {
         // nvr通道
         this.dragInNodes[parentDirId].forEach(item => {
-          if (item.id === node.parent.data.id || item.deviceId === node.parent.data.deviceId) {
+          if (item.id === node.parent.data.id || (item.deviceId && item.deviceId === node.parent.data.deviceId)) {
             const nvrNode = dirTree.getNode(item.id)
             const channelNode = dirTree.getNode(item.channels.filter(channel => channel.id === node.data.id)[0])
             if (nvrNode) {
@@ -1293,8 +1293,10 @@ export default class extends Vue {
         })
       } else {
         // 纯ipc或nvr设备本身
-        Object.keys(this.dragInNodes).forEach(dir => {
-          this.dragInNodes[dir] = this.dragInNodes[dir].filter(dragInNode => dragInNode.id !== node.data.id)
+        Object.keys(this.dragInNodes).forEach(dirId => {
+          if (parentDirId === dirId) {
+            this.dragInNodes[dirId] = this.dragInNodes[dirId].filter(dragInNode => dragInNode.id !== node.data.id)
+          }
         })
         const ipcNode = dirTree.getNode(node.data)
         ipcNode.data.disabled = false
