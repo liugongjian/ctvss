@@ -26,7 +26,6 @@
             @node-drag-start="handleDragstart"
             @node-drag-end="handleDragend"
             @check="checkCallback"
-            @check-change="onCheckDevice"
             @node-click="selectDevice"
           >
             <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}">
@@ -263,8 +262,7 @@ export default class extends Vue {
           dirs: []
         }))
       })
-
-      this.setGroupChecked(groups)
+      this.setDirChecked(groups, 'group')
     } catch (e) {
       this.dirList = []
     } finally {
@@ -272,28 +270,10 @@ export default class extends Vue {
     }
   }
 
-  private async setGroupChecked(groups) {
-    const checkeNodes = groups.map(group => group.groupIdStatus)
-    const checkedIds = checkeNodes.filter(node => node.groupStatus === 2)
-    const halfCheckedIds = checkeNodes.filter(node => node.groupStatus === 1)
-    const dirTree: any = this.$refs.dirTree
-    checkedIds.forEach(check => {
-      const node = dirTree.getNode(check.groupId)
-      node.data.disabled = true
-      node.checked = true
-      this.dirNodeStatus.checked.push(check.groupId)
-    })
-    halfCheckedIds.forEach(half => {
-      const node = dirTree.getNode(half.groupId)
-      node.indeterminate = true
-      this.dirNodeStatus.halfChecked.push(half.groupId)
-    })
-  }
-
-  private async setDirChecked(groups) {
-    const checkeNodes = groups[0].groupIdStatus.dirs
-    const checkedIds = checkeNodes.filter(node => node.dirStatus === 2)
-    const halfCheckedIds = checkeNodes.filter(node => node.dirStatus === 1)
+  private async setDirChecked(groups, type) {
+    const checkeNodes = type === 'group' ? groups.map(group => group.groupIdStatus) : groups[0].groupIdStatus.dirs
+    const checkedIds = checkeNodes.filter(node => node[type + 'Status'] === 2)
+    const halfCheckedIds = checkeNodes.filter(node => node[type + 'Status'] === 1)
     const dirTree: any = this.$refs.dirTree
 
     checkedIds.forEach(check => {
@@ -305,12 +285,22 @@ export default class extends Vue {
 
     this.dirNodeStatus.checked.forEach(id => {
       const node = dirTree.getNode(id)
-      node.checked = true
-      node.data.disabled = true
+      if (node) {
+        node.checked = true
+        node.data.disabled = true
+      }
     })
+    this.initIdeterminateNode(dirTree)
+  }
+
+  private initIdeterminateNode(dirTree) {
     this.dirNodeStatus.halfChecked.forEach(id => {
-      const node = dirTree.getNode(id)
-      node.indeterminate = true
+      if (id) {
+        const node = dirTree.getNode(id)
+        if (node) {
+          node.indeterminate = true
+        }
+      }
     })
   }
 
@@ -334,7 +324,7 @@ export default class extends Vue {
       }]
     })
 
-    this.setDirChecked(groups)
+    this.setDirChecked(groups, 'dir')
     // this.tagNvrUnchecked(node, dirs)
     this.disabledNvrNode(node)
   }
@@ -583,6 +573,7 @@ export default class extends Vue {
           }
           dirTree.setCheckedKeys(checkedKeys)
         }
+        this.initIdeterminateNode(dirTree)
         return {
           ...dir,
           id: dir.id,
@@ -632,12 +623,11 @@ export default class extends Vue {
         node.loaded = true
       }
       node.childNodes.forEach((child: any) => {
-        // child.checked = true
+        child.checked = true
         if (child.data.type !== 'ipc') {
           this.checkNodes(dirTree, child)
         }
       })
-      this.onCheckDevice()
     }
   }
 
@@ -710,17 +700,6 @@ export default class extends Vue {
     console.log('this.dragInNodes:', this.dragInNodes)
     console.log('selectSharedDevice node:', node)
     this.selectedNode = node
-  }
-
-  /**
-   * 当设备被选中时回调，将选中的设备列出
-   */
-  private onCheckDevice() {
-    const dirTree: any = this.$refs.dirTree
-    const nodes = dirTree.getCheckedNodes()
-    this.deviceList = nodes.filter((node: any) => {
-      return (node.type === 'ipc' && !node.sharedFlag)
-    })
   }
 
   private closeDialog(isRefresh: boolean = false) {
@@ -1346,7 +1325,7 @@ export default class extends Vue {
 
   private filterShareDeviceIds(id) {
     let res = false
-    console.log(this.deleteNodes)
+
     this.deleteNodes.forEach(node => {
       res = node.devices.find(device => device.id === id)
     })
