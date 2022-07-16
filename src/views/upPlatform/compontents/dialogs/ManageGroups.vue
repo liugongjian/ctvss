@@ -282,15 +282,16 @@ export default class extends Vue {
     halfCheckedIds.forEach(half => {
       this.dirNodeStatus.halfChecked.push(half.groupId)
     })
-
-    this.dirNodeStatus.checked.forEach(id => {
-      const node = dirTree.getNode(id)
-      if (node) {
-        node.checked = true
-        node.data.disabled = true
-      }
-    })
-    this.initIdeterminateNode(dirTree)
+    if (dirTree) {
+      this.dirNodeStatus.checked.forEach(id => {
+        const node = dirTree.getNode(id)
+        if (node) {
+          node.checked = true
+          node.data.disabled = true
+        }
+      })
+      this.initIdeterminateNode(dirTree)
+    }
   }
 
   private initIdeterminateNode(dirTree) {
