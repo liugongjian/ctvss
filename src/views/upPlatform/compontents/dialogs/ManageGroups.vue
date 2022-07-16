@@ -297,14 +297,9 @@ export default class extends Vue {
     const dirTree: any = this.$refs.dirTree
 
     checkedIds.forEach(check => {
-      const node = dirTree.getNode(check.dirId)
-      node.data.disabled = true
-      node.checked = true
       this.dirNodeStatus.checked.push(check.groupId)
     })
     halfCheckedIds.forEach(half => {
-      const node = dirTree.getNode(half.dirId)
-      node.indeterminate = true
       this.dirNodeStatus.halfChecked.push(half.groupId)
     })
 
@@ -312,6 +307,7 @@ export default class extends Vue {
       this.dirNodeStatus.checked.forEach(id => {
         const node = dirTree.getNode(id)
         node.checked = true
+        node.data.disabled = true
       })
       this.dirNodeStatus.halfChecked.forEach(id => {
         const node = dirTree.getNode(id)
@@ -326,11 +322,8 @@ export default class extends Vue {
   private async loadDirs(node: any, resolve: Function) {
     if (node.level === 0) return resolve([])
 
-    const { checked, indeterminate } = node
     const dirs = await this.getTree(node)
     resolve(dirs)
-    node.checked = checked
-    node.indeterminate = indeterminate
 
     const dirParam = dirs.filter(item => item.type === 'dir' || item.type === 'platform' || item.type === 'platformDir').map(dir => ({ dirId: dir.id }))
     const { groups } = await validateShareDirs({
@@ -342,6 +335,7 @@ export default class extends Vue {
       }]
     })
     this.setDirChecked(groups)
+    // this.tagNvrUnchecked(node, dirs)
     this.disabledNvrNode(node)
   }
 
@@ -579,9 +573,14 @@ export default class extends Vue {
       let checkedKeys = dirTree.getCheckedKeys()
       let dirs: any = devices.dirs.map((dir: any) => {
         let sharedFlag = false
-        if (shareDeviceIds.includes(dir.id) && dir.type === 'ipc') {
+        let isDeleteFlag = false
+        if (shareDeviceIds.includes(dir.id)) {
           sharedFlag = true
-          checkedKeys.push(dir.id)
+
+          isDeleteFlag = this.filterShareDeviceIds(dir.id)
+          if (!isDeleteFlag) {
+            checkedKeys.push(dir.id)
+          }
           dirTree.setCheckedKeys(checkedKeys)
         }
         return {
@@ -596,7 +595,7 @@ export default class extends Vue {
           type: dir.type,
           deviceStatus: dir.deviceStatus,
           streamStatus: dir.streamStatus,
-          disabled: sharedFlag,
+          disabled: sharedFlag && !isDeleteFlag,
           path: node.data.path.concat([{ ...dir, upGbId: dir.gbId || '', upGbIdOrigin: dir.gbId || '', inProtocol: dir.inProtocol || node.data.inProtocol }]),
           sharedFlag: sharedFlag,
           roleId: node.data.roleId || '',
@@ -708,7 +707,7 @@ export default class extends Vue {
   }
 
   private selectSharedDevice(data: any, node: any) {
-    console.log('this.dragInNodes:', this.dragInNodes)
+    console.log('this.deleteNodes:', this.deleteNodes)
     console.log('selectSharedDevice node:', node)
     this.selectedNode = node
   }
@@ -1170,10 +1169,12 @@ export default class extends Vue {
 
   private disabledNvrNode(node) {
     const dirTree: any = this.$refs.dirTree
-    if (node.data.type === 'nvr' && node.checked) {
-      const dirNode = dirTree.getNode(node.data)
-      dirNode.data.disabled = true
-      dirNode.data.sharedFlag = true
+    if (node.data.type === 'nvr' && !node.checked) {
+      node.childNodes.forEach(child => {
+        const childNode = dirTree.getNode(child.data)
+        childNode.data.disabled = node.checked
+        childNode.checked = node.checked
+      })
     }
   }
 
@@ -1210,18 +1211,45 @@ export default class extends Vue {
         if (removedNode) {
           removedNode.data.disabled = false
           removedNode.checked = false
-          if (removedNode.data.type === 'nvr') {
-            removedNode.childNodes.forEach(child => {
-              if (child) {
-                child.data.disabled = false
-                child.checked = false
-              }
-            })
-          }
         }
       })
     })
   }
+
+  // private tagNvrUnchecked(node, dirs) {
+  //   const dirTree: any = this.$refs.dirTree
+  //   if (node.data.type === 'nvr') {
+  //     let channels = []
+  //     Object.keys(this.deleteNodes).forEach(label => {
+  //       const res = this.deleteNodes[label].devices.filter(device => device.id === node.data.id)
+  //       if (res.length > 0) {
+  //         channels.push(...res[0].channels)
+  //       }
+  //     })
+  //     channels.forEach(channel => {
+  //       const channelNode = dirTree.getNode(channel.deviceId)
+  //       channelNode.checked = false
+  //       channelNode.data.disabled = false
+  //     })
+  //   } else {
+  //     dirs.forEach(dir => {
+  //       let findFlag = false
+  //       if (dir.type === 'nvr') {
+  //         Object.keys(this.deleteNodes).forEach(label => {
+  //           const res = this.deleteNodes[label].devices.find(device => device.id === dir.id)
+  //           if (res) {
+  //             findFlag = true
+  //           }
+  //         })
+  //       }
+  //       if (findFlag) {
+  //         const nvrNode = dirTree.getNode(dir.id)
+  //         nvrNode.checked = false
+  //         nvrNode.data.disabled = false
+  //       }
+  //     })
+  //   }
+  // }
 
   // 目前只操作设备的删除，ipc & nvr
   private deleteNode(node) {
@@ -1254,7 +1282,7 @@ export default class extends Vue {
           }
         })
       } else {
-        // 纯ipc
+        // 纯ipc或nvr设备本身
         Object.keys(this.dragInNodes).forEach(dir => {
           this.dragInNodes[dir] = this.dragInNodes[dir].filter(dragInNode => dragInNode.id !== node.data.id)
         })
@@ -1267,6 +1295,20 @@ export default class extends Vue {
       if (vgroupTree.store.nodesMap[node.data.id]) {
         this.$delete(vgroupTree.store.nodesMap, node.data.id)
       }
+    }
+    if (node.data.type === 'nvr') {
+      this.uncheckedNvrNode(node.data.id)
+    }
+  }
+
+  private uncheckedNvrNode(id) {
+    const dirTree: any = this.$refs.dirTree
+    const nvrNode = dirTree.getNode(id)
+    if (nvrNode && nvrNode.childNodes) {
+      nvrNode.childNodes.forEach(child => {
+        child.data.disabled = false
+        child.checked = false
+      })
     }
   }
 
@@ -1288,6 +1330,25 @@ export default class extends Vue {
       return false
     }
     return true
+  }
+
+  private filterShareDeviceIds(id) {
+    let res = false
+    console.log(this.deleteNodes)
+    this.deleteNodes.forEach(node => {
+      res = node.devices.find(device => device.id === id)
+    })
+    if (!res) {
+      this.deleteNodes.forEach(node => {
+        node.devices.forEach(device => {
+          if (device.channels) {
+            const channels = device.channels
+            res = !!channels.find(channel => channel.deviceId === id)
+          }
+        })
+      })
+    }
+    return res
   }
 }
 </script>
