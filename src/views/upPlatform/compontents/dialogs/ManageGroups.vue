@@ -53,7 +53,6 @@
             lazy
             :allow-drag="allowDragSharedTree"
             @node-drag-end="handleDragendShared"
-            @node-drag-start="handleDragstartShared"
             @node-click="selectSharedDevice"
           >
             <span
@@ -316,7 +315,7 @@ export default class extends Vue {
     resolve(dirs)
 
     const dirParam = dirs.filter(item => item.type === 'dir' || item.type === 'platform' || item.type === 'platformDir')
-      .map(dir => ({ dirId: dir.id, parentDirId: node.level === 1 ? '0' : node.id }))
+      .map(dir => ({ dirId: dir.id, parentDirId: node.level === 1 ? '0' : node.id + '' }))
     const { groups } = await validateShareDirs({
       platformId: this.platformId,
       groups: [{
@@ -1118,8 +1117,14 @@ export default class extends Vue {
         const prefix8 = this.generatePrefixVal(prefixCur, prefixOrigin)
         if (val.length % 2 === 0) {
           if (prefixCur === prefixOrigin) {
+            if (val !== data.upGbIdOrigin) {
+              // 如果前8位相同，改了其它位，则不做变更
+              return
+            }
+            // 如果前8位相同，也没有改其它位，则把前8位覆盖成当前输入的前8位
             this.changeGbIdDistrictRoot(data, prefixCur)
           } else {
+            // 如果前8位不同，则把前8位覆盖成改变了的位数的偶数位
             this.changeGbIdDistrictRoot(data, prefix8)
           }
         }
@@ -1352,10 +1357,6 @@ export default class extends Vue {
       })
     }
     return res
-  }
-
-  private handleDragstartShared(node, event) {
-    console.log('handleDragstartShared:', node)
   }
 }
 </script>
