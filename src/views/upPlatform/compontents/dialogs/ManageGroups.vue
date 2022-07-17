@@ -271,16 +271,17 @@ export default class extends Vue {
   }
 
   private async setDirChecked(groups, type) {
+    debugger
     const checkeNodes = type === 'group' ? groups.map(group => group.groupIdStatus) : groups[0].groupIdStatus.dirs
     const checkedIds = checkeNodes.filter(node => node[type + 'Status'] === 2)
     const halfCheckedIds = checkeNodes.filter(node => node[type + 'Status'] === 1)
     const dirTree: any = this.$refs.dirTree
 
     checkedIds.forEach(check => {
-      this.dirNodeStatus.checked.push(check.groupId)
+      this.dirNodeStatus.checked.push(check[type + 'Id'])
     })
     halfCheckedIds.forEach(half => {
-      this.dirNodeStatus.halfChecked.push(half.groupId)
+      this.dirNodeStatus.halfChecked.push(half[type + 'Id'])
     })
     if (dirTree) {
       this.initCheckedNode(dirTree)
