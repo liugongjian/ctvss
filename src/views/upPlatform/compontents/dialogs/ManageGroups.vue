@@ -930,7 +930,6 @@ export default class extends Vue {
       } else {
         // 设备校验
         if (x.upGbId.length !== 20) {
-          console.log('x.upGbId:  ', x.upGbId)
           errorDirNodeData.push(x)
         }
       }
@@ -1003,25 +1002,23 @@ export default class extends Vue {
   }
 
   private generateParam(dir, list) {
-    const vgroupTree: any = this.$refs.vgroupTree
     const devices = []
     const dirs = []
     if (list) {
       list.forEach(item => {
-        const node = vgroupTree.getNode(item)
         if (item.type === 'ipc') {
           devices.push(item)
         } else if (item.type === 'nvr') {
           devices.push({ ...item,
-            channels: node.childNodes.map(childNode => ({
-              channelNum: childNode.data.channelNum,
-              channelName: childNode.data.channelName,
-              gbId: childNode.data.gbId,
-              deviceId: childNode.data.id,
-              deviceIp: childNode.data.deviceIp,
-              deviceIpv6: childNode.data.deviceIpv6,
-              devicePort: childNode.data.devicePort,
-              upGbId: childNode.data.upGbId
+            channels: item.channels.map(channel => ({
+              channelNum: channel.channelNum,
+              channelName: channel.label,
+              gbId: channel.gbId,
+              deviceId: channel.id,
+              deviceIp: channel.deviceIp,
+              deviceIpv6: channel.deviceIpv6 || '',
+              devicePort: channel.devicePort,
+              upGbId: channel.upGbId
             }))
           })
         } else {
