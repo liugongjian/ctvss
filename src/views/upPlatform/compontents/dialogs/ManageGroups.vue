@@ -283,13 +283,7 @@ export default class extends Vue {
       this.dirNodeStatus.halfChecked.push(half.groupId)
     })
     if (dirTree) {
-      this.dirNodeStatus.checked.forEach(id => {
-        const node = dirTree.getNode(id)
-        if (node) {
-          node.checked = true
-          node.data.disabled = true
-        }
-      })
+      this.initCheckedNode(dirTree)
       this.initIdeterminateNode(dirTree)
     }
   }
@@ -301,6 +295,16 @@ export default class extends Vue {
         if (node) {
           node.indeterminate = true
         }
+      }
+    })
+  }
+
+  private initCheckedNode(dirTree) {
+    this.dirNodeStatus.checked.forEach(id => {
+      const node = dirTree.getNode(id)
+      if (node) {
+        node.checked = true
+        node.data.disabled = true
       }
     })
   }
