@@ -271,7 +271,6 @@ export default class extends Vue {
   }
 
   private async setDirChecked(groups, type) {
-    debugger
     const checkeNodes = type === 'group' ? groups.map(group => group.groupIdStatus) : groups[0].groupIdStatus.dirs
     const checkedIds = checkeNodes.filter(node => node[type + 'Status'] === 2)
     const halfCheckedIds = checkeNodes.filter(node => node[type + 'Status'] === 1)
@@ -314,6 +313,7 @@ export default class extends Vue {
    * 加载目录
    */
   private async loadDirs(node: any, resolve: Function) {
+    this.loading.dir = true
     if (node.level === 0) return resolve([])
 
     const dirs = await this.getTree(node)
@@ -333,6 +333,7 @@ export default class extends Vue {
     this.setDirChecked(groups, 'dir')
     // this.tagNvrUnchecked(node, dirs)
     this.disabledNvrNode(node)
+    this.loading.dir = false
   }
 
   public async initSharedDirs() {
