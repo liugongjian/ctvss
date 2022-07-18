@@ -817,6 +817,18 @@ export default class extends Vue {
         }
       }
     })
+
+    this.deleteNodes.forEach(dir => {
+      if (dir.dirId === endNode.data.id) {
+        dir.devices = dir.devices.filter(device => {
+          if (device.type === 'nvr') {
+            return device.channels.length !== 0
+          } else {
+            return true
+          }
+        })
+      }
+    })
   }
 
   private checkIPCInDeleteNodes(node, endNode) {
