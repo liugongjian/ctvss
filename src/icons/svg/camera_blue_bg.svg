@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="41px" height="65px" viewBox="0 0 41 65" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Group 5</title>
+    <g id="Web端" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="电子地图--点位编辑" transform="translate(-738.000000, -268.000000)" stroke="#178DE5">
+            <g id="摄像头点位-copy-2" transform="translate(739.000000, -237.000000)">
+                <g id="Group-5" transform="translate(0.000000, 506.000000)">
+                    <circle id="圆点" stroke-width="2" fill="#F9F9F9" cx="19" cy="60" r="3"></circle>
+                    <path d="M19.3333333,0 C9.18977778,0 0,8.22633333 0,18.3731111 C0,33.4595556 15.4118889,35.0545556 19.3333333,58 C23.2547778,35.0545556 38.6666667,33.4595556 38.6666667,18.3731111 C38.6666667,8.22633333 29.4801111,0 19.3333333,0 Z" id="Path-Copy-2" fill-opacity="0.377458479" fill="#1B9EFF" fill-rule="nonzero"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

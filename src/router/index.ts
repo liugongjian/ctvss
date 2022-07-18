@@ -100,7 +100,7 @@ export const asyncRoutes: RouteConfig[] = [
     component: Layout,
     meta: {
       title: '概览',
-      icon: 'dashboard',
+      icon: 'menu-dashboard',
       breadcrumb: false,
       perms: ['DescribeDashboard'],
       alwaysShow: false
@@ -112,7 +112,7 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'dashboard',
         meta: {
           title: '概览',
-          icon: 'dashboard',
+          icon: 'menu-dashboard',
           breadcrumb: true,
           perms: ['DescribeDashboard']
         }
@@ -124,7 +124,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: 'AI监控告警',
           hidden: true,
-          icon: 'dashboard',
+          icon: 'menu-dashboard',
           breadcrumb: false,
           perms: ['DescribeDashboard']
         }
@@ -136,7 +136,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '可视化大屏',
           hidden: true,
-          icon: 'dashboard',
+          icon: 'menu-dashboard',
           breadcrumb: false,
           perms: ['DescribeDashboard']
         }
@@ -148,7 +148,7 @@ export const asyncRoutes: RouteConfig[] = [
     component: Layout,
     meta: {
       title: '业务组管理',
-      icon: 'tree',
+      icon: 'menu-group',
       perms: ['DescribeGroup'],
       alwaysShow: false
     },
@@ -159,7 +159,7 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'group-list',
         meta: {
           title: '业务组管理',
-          icon: 'tree',
+          icon: 'menu-group',
           breadcrumb: false,
           perms: ['DescribeGroup'],
           activeMenu: '/group'
@@ -171,7 +171,7 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'group-create',
         meta: {
           title: '新建业务组',
-          icon: 'tree',
+          icon: 'menu-group',
           hidden: true,
           perms: ['AdminGroup'],
           activeMenu: '/group'
@@ -183,7 +183,7 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'group-update',
         meta: {
           title: '编辑业务组',
-          icon: 'tree',
+          icon: 'menu-group',
           hidden: true,
           perms: ['AdminGroup'],
           activeMenu: '/group'
@@ -195,7 +195,7 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'group-config',
         meta: {
           title: '业务组配置',
-          icon: 'tree',
+          icon: 'menu-group',
           hidden: true,
           perms: ['DescribeGroup'],
           activeMenu: '/group'
@@ -208,7 +208,7 @@ export const asyncRoutes: RouteConfig[] = [
     component: Layout,
     meta: {
       title: '设备管理',
-      icon: 'component',
+      icon: 'menu-device',
       perms: ['DescribeDevice'],
       alwaysShow: false,
       only: true,
@@ -221,7 +221,7 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'device',
         meta: {
           title: '设备管理',
-          icon: 'component',
+          icon: 'menu-device',
           breadcrumb: false,
           perms: ['DescribeDevice'],
           groupSelector: true
@@ -291,78 +291,12 @@ export const asyncRoutes: RouteConfig[] = [
       }
     ]
   },
-  // {
-  //   path: '/stream',
-  //   component: Layout,
-  //   meta: {
-  //     title: '流管理',
-  //     icon: 'stream',
-  //     perms: ['*'],
-  //     alwaysShow: false,
-  //     only: true,
-  //     groupSelector: true
-  //   },
-  //   children: [
-  //     {
-  //       path: '',
-  //       component: () => import(/* webpackChunkName: "stream" */ '@/views/stream/index.vue'),
-  //       name: 'stream',
-  //       meta: {
-  //         title: '流管理',
-  //         icon: 'stream',
-  //         breadcrumb: false,
-  //         perms: ['*'],
-  //         activeMenu: '/stream',
-  //         groupSelector: true
-  //       }
-  //     },
-  //     {
-  //       path: 'info',
-  //       component: () => import(/* webpackChunkName: "stream" */ '@/views/stream/info.vue'),
-  //       name: 'stream-config',
-  //       meta: {
-  //         title: '流详情',
-  //         icon: 'stream',
-  //         hidden: true,
-  //         perms: ['*'],
-  //         activeMenu: '/stream',
-  //         groupSelector: true
-  //       }
-  //     },
-  //     {
-  //       path: 'create',
-  //       component: () => import(/* webpackChunkName: "stream" */ '@/views/stream/create.vue'),
-  //       name: 'stream-create',
-  //       meta: {
-  //         title: '创建流',
-  //         icon: 'stream',
-  //         hidden: true,
-  //         perms: ['*'],
-  //         activeMenu: '/stream',
-  //         groupSelector: true
-  //       }
-  //     },
-  //     {
-  //       path: 'preview',
-  //       component: () => import(/* webpackChunkName: "stream" */ '@/views/stream/preview.vue'),
-  //       name: 'stream-preview',
-  //       meta: {
-  //         title: '实时预览',
-  //         icon: 'tree',
-  //         hidden: true,
-  //         perms: ['*'],
-  //         activeMenu: '/stream',
-  //         groupSelector: true
-  //       }
-  //     }
-  //   ]
-  // },
   {
     path: '/screen',
     component: Layout,
     meta: {
       title: '实时预览',
-      icon: 'ipc',
+      icon: 'menu-live',
       perms: ['ScreenPreview'],
       alwaysShow: false,
       groupSelector: true
@@ -374,7 +308,7 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'screen',
         meta: {
           title: '实时预览',
-          icon: 'ipc',
+          icon: 'menu-live',
           breadcrumb: false,
           perms: ['ScreenPreview'],
           activeMenu: '/screen',
@@ -389,7 +323,7 @@ export const asyncRoutes: RouteConfig[] = [
     name: 'device-debug',
     meta: {
       title: '播放器调试',
-      icon: 'stream',
+      icon: 'menu-replay',
       hidden: true,
       perms: ['*'],
       activeMenu: '/device'
@@ -401,7 +335,7 @@ export const asyncRoutes: RouteConfig[] = [
     name: 'replay-debug',
     meta: {
       title: '录像调试',
-      icon: 'stream',
+      icon: 'menu-replay',
       hidden: true,
       perms: ['*'],
       activeMenu: '/device'
@@ -413,7 +347,7 @@ export const asyncRoutes: RouteConfig[] = [
     name: 'replay-debug2',
     meta: {
       title: '录像调试',
-      icon: 'stream',
+      icon: 'menu-replay',
       hidden: true,
       perms: ['*'],
       activeMenu: '/device'
@@ -424,7 +358,7 @@ export const asyncRoutes: RouteConfig[] = [
     component: Layout,
     meta: {
       title: '录像回放',
-      icon: 'video',
+      icon: 'menu-replay',
       perms: ['ReplayRecord'],
       alwaysShow: false,
       groupSelector: true
@@ -436,7 +370,7 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'replay',
         meta: {
           title: '录像回放',
-          icon: 'video',
+          icon: 'menu-replay',
           breadcrumb: false,
           perms: ['ReplayRecord'],
           activeMenu: '/replay',
@@ -451,9 +385,8 @@ export const asyncRoutes: RouteConfig[] = [
     component: Layout,
     meta: {
       title: '电子地图',
-      icon: 'mark',
+      icon: 'menu-map',
       perms: ['DescribeMap'],
-      tags: ['showDigitalMap'],
       alwaysShow: false,
       only: true,
       groupSelector: false
@@ -461,11 +394,11 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "map" */ '@/views/map/index.vue'),
+        component: () => import(/* webpackChunkName: "map" */ '@/views/Map/index.vue'),
         name: 'map',
         meta: {
           title: '电子地图',
-          icon: 'mark',
+          icon: 'menu-map',
           breadcrumb: false,
           perms: ['DescribeMap']
         }
@@ -477,7 +410,7 @@ export const asyncRoutes: RouteConfig[] = [
     redirect: 'noredirect',
     meta: {
       title: '向上级联',
-      icon: 'platform',
+      icon: 'menu-up-platform',
       alwaysShow: true,
       breadcrumb: true,
       perms: ['*']
@@ -524,7 +457,7 @@ export const asyncRoutes: RouteConfig[] = [
     redirect: 'noredirect',
     meta: {
       title: '视图服务',
-      icon: 'viewLib',
+      icon: 'menu-ga1400',
       alwaysShow: true,
       // tags: ['ga1400'],
       perms: ['*']
@@ -572,7 +505,7 @@ export const asyncRoutes: RouteConfig[] = [
     redirect: 'noredirect',
     meta: {
       title: '凭证管理',
-      icon: 'key',
+      icon: 'menu-certificate',
       alwaysShow: true,
       perms: ['*']
     },
@@ -660,7 +593,7 @@ export const asyncRoutes: RouteConfig[] = [
     name: 'template',
     meta: {
       title: '模板管理',
-      icon: 'template',
+      icon: 'menu-template',
       alwaysShow: true,
       breadcrumb: true,
       perms: ['*']
@@ -732,17 +665,6 @@ export const asyncRoutes: RouteConfig[] = [
           activeMenu: '/template/callback'
         }
       },
-      // {
-      //   path: 'ai',
-      //   component: () => import(/* webpackChunkName: "template" */ '@/views/template/ai/index.vue'),
-      //   name: 'ai',
-      //   meta: {
-      //     title: 'AI模板',
-      //     icon: 'dot',
-      //     perms: ['*'],
-      //     activeMenu: '/template/ai'
-      //   }
-      // },
       {
         path: 'ai/create',
         component: () => import(/* webpackChunkName: "template" */ '@/views/template/ai/createOrUpdate.vue'),
@@ -809,41 +731,6 @@ export const asyncRoutes: RouteConfig[] = [
           activeMenu: '/template/alert'
         }
       }
-      // ,
-      // {
-      //   path: 'snapshot',
-      //   component: () => import(/* webpackChunkName: "template" */ '@/views/template/snapshot/index.vue'),
-      //   name: 'snapshot',
-      //   meta: {
-      //     title: '截图模板',
-      //     icon: 'tree',
-      //     perms: ['*']
-      //   }
-      // },
-      // {
-      //   path: 'snapshot/create',
-      //   component: () => import(/* webpackChunkName: "template" */ '@/views/template/snapshot/createOrUpdate.vue'),
-      //   name: 'snapshot-create',
-      //   meta: {
-      //     title: '新建截图模板',
-      //     icon: 'stream',
-      //     hidden: true,
-      //     perms: ['*'],
-      //     activeMenu: '/template/snapshot'
-      //   }
-      // },
-      // {
-      //   path: 'snapshot/update/:id?',
-      //   component: () => import(/* webpackChunkName: "template" */ '@/views/template/snapshot/createOrUpdate.vue'),
-      //   name: 'snapshot-update',
-      //   meta: {
-      //     title: '编辑截图模板',
-      //     icon: 'stream',
-      //     hidden: true,
-      //     perms: ['*'],
-      //     activeMenu: '/template/snapshot'
-      //   }
-      // }
     ]
   },
   {
@@ -872,7 +759,7 @@ export const asyncRoutes: RouteConfig[] = [
     component: Layout,
     meta: {
       title: '配置',
-      icon: 'tree',
+      icon: 'menu-system',
       hidden: true,
       breadcrumb: true,
       perms: ['*']
@@ -883,7 +770,7 @@ export const asyncRoutes: RouteConfig[] = [
         component: () => import(/* webpackChunkName: "userConfiguration" */ '@/views/userConfiguration/index.vue'),
         meta: {
           title: '配置',
-          icon: 'tree',
+          icon: 'menu-system',
           breadcrumb: false,
           perms: ['*']
         }
@@ -897,7 +784,7 @@ export const asyncRoutes: RouteConfig[] = [
     name: 'ai',
     meta: {
       title: 'AI管理',
-      icon: 'ai-face',
+      icon: 'menu-ai',
       alwaysShow: true,
       perms: ['DescribeAi']
     },
@@ -988,7 +875,7 @@ export const asyncRoutes: RouteConfig[] = [
     redirect: 'noredirect',
     meta: {
       title: '访问管理',
-      icon: 'user',
+      icon: 'menu-iam',
       alwaysShow: true,
       breadcrumb: true,
       perms: ['*']
@@ -1122,7 +1009,7 @@ export const asyncRoutes: RouteConfig[] = [
     redirect: 'noredirect',
     meta: {
       title: '消息推送',
-      icon: 'notify',
+      icon: 'menu-notification',
       alwaysShow: true,
       breadcrumb: true,
       perms: ['*']
@@ -1183,7 +1070,7 @@ export const asyncRoutes: RouteConfig[] = [
     component: Layout,
     meta: {
       title: '告警管理',
-      icon: 'alarm',
+      icon: 'menu-alarm',
       perms: ['*'],
       alwaysShow: false,
       only: true,
@@ -1196,7 +1083,7 @@ export const asyncRoutes: RouteConfig[] = [
         name: 'alarm',
         meta: {
           title: '告警管理',
-          icon: 'alarm',
+          icon: 'menu-alarm',
           breadcrumb: false,
           perms: ['*'],
           groupSelector: true
@@ -1225,7 +1112,7 @@ export const asyncRoutes: RouteConfig[] = [
       id: '20210515200901013321',
       title: '车辆管理',
       breadcrumb: true,
-      icon: 'car',
+      icon: 'menu-car',
       perms: ['AdminCar']
     },
     children: [
@@ -1249,7 +1136,7 @@ export const asyncRoutes: RouteConfig[] = [
     redirect: 'noredirect',
     meta: {
       title: '计费管理',
-      icon: 'billing',
+      icon: 'menu-billing',
       alwaysShow: true,
       perms: ['*']
     },
@@ -1309,7 +1196,7 @@ export const asyncRoutes: RouteConfig[] = [
     meta: {
       title: '系统设置',
       breadcrumb: true,
-      icon: 'config',
+      icon: 'menu-system',
       perms: ['*']
     },
     children: [
@@ -1320,7 +1207,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '系统设置',
           breadcrumb: false,
-          icon: 'config',
+          icon: 'menu-system',
           perms: ['*']
         }
       }
