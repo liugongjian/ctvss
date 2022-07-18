@@ -26,6 +26,7 @@
             @node-drag-start="handleDragstart"
             @node-drag-end="handleDragend"
             @check="checkCallback"
+            @node-click="selectDevice"
           >
             <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}">
               <span class="node-name">
@@ -294,6 +295,7 @@ export default class extends Vue {
         const node = dirTree.getNode(id)
         if (node) {
           node.indeterminate = true
+          node.checked = false
         }
       }
     })
@@ -304,6 +306,7 @@ export default class extends Vue {
       const node = dirTree.getNode(id)
       if (node) {
         node.checked = true
+        node.indeterminate = false
         node.data.disabled = true
       }
     })
@@ -317,7 +320,6 @@ export default class extends Vue {
     if (node.level === 0) return resolve([])
 
     const dirs = await this.getTree(node)
-    resolve(dirs)
 
     const dirParam = dirs.filter(item => item.type === 'dir' || item.type === 'platform' || item.type === 'platformDir' || item.type === 'nvr')
       .map(dir => ({ dirId: dir.id, parentDirId: node.level === 1 ? '0' : node.id + '' }))
@@ -329,10 +331,11 @@ export default class extends Vue {
         dirs: dirParam
       }]
     })
-
+    resolve(dirs)
     this.setDirChecked(groups, 'dir')
+
     // this.tagNvrUnchecked(node, dirs)
-    // this.resetNvrStatus(node)
+    this.resetNvrStatus(node)
     this.loading.dir = false
   }
 
@@ -551,9 +554,10 @@ export default class extends Vue {
         }
       })
       let shareDeviceIds: any = []
+      let paramNoNvrDevice = devices.dirs.filter(item => item.type !== 'nvr')
       const param = {
         platformId: this.platformId,
-        devices: devices.dirs.map(device => ({
+        devices: paramNoNvrDevice.map(device => ({
           deviceId: device.id
         }))
       }
@@ -769,7 +773,6 @@ export default class extends Vue {
   }
 
   private handleDragend(draggingNode, endNode, position, event) {
-    console.log('handleDragend:', this.tempNode)
     const dirTree: any = this.$refs.dirTree
     const vgroupTree: any = this.$refs.vgroupTree
 
@@ -1176,8 +1179,10 @@ export default class extends Vue {
 
   // 根据nvr节点的checked状态改变disabled
   private resetNvrStatus(node) {
-    if (node.data.type === 'nvr' && !node.checked) {
-      node.data.disabled = false
+    if (node.data.type === 'nvr') {
+      node.childNodes.forEach(child => {
+        child.checked = child.data.disabled
+      })
     }
   }
 
@@ -1366,6 +1371,11 @@ export default class extends Vue {
       })
     }
     return res
+  }
+
+  private selectDevice(data: any, node: any) {
+    console.log('selectDevice data:', data)
+    console.log('selectDevice node:', node)
   }
 }
 </script>
