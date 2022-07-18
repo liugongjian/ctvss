@@ -64,6 +64,18 @@ export default class extends Vue {
     description: ''
   }
 
+  private validateUserName(rule: any, value: string, callback: any) {
+    if (!value) {
+      callback(new Error('请输入用户名'))
+    } else {
+      if (!/^[0-9a-z]+$/.test(value)) {
+        callback(new Error('用户名仅支持小写字母和数字'))
+      } else {
+        callback()
+      }
+    }
+  }
+
   private validatePass(rule: any, value: string, callback: any) {
     if (!value && !this.disabled) {
       callback(new Error('请输入密码'))
