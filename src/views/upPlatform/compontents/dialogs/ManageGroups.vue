@@ -26,7 +26,6 @@
             @node-drag-start="handleDragstart"
             @node-drag-end="handleDragend"
             @check="checkCallback"
-            @node-click="selectDevice"
           >
             <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}">
               <span class="node-name">
@@ -67,13 +66,14 @@
                   <svg-icon name="dir-close" width="15" height="15" />
                 </span>
                 <el-popover
-                  v-if="node.label.length > 10"
+                  v-if="node.label.length > 11"
                   placement="top-start"
                   trigger="hover"
                   :content="node.label"
                   popper-class="tree-label-poppover"
+                  :open-delay="500"
                 >
-                  <span slot="reference">{{ node.label.substring(0,9)+'...' }}</span>
+                  <span slot="reference">{{ node.label.substring(0,10)+'...' }}</span>
                 </el-popover>
                 <span v-else>{{ node.label }}</span>
               </span>
@@ -319,7 +319,7 @@ export default class extends Vue {
     const dirs = await this.getTree(node)
     resolve(dirs)
 
-    const dirParam = dirs.filter(item => item.type === 'dir' || item.type === 'platform' || item.type === 'platformDir')
+    const dirParam = dirs.filter(item => item.type === 'dir' || item.type === 'platform' || item.type === 'platformDir' || item.type === 'nvr')
       .map(dir => ({ dirId: dir.id, parentDirId: node.level === 1 ? '0' : node.id + '' }))
     const { groups } = await validateShareDirs({
       platformId: this.platformId,
@@ -332,7 +332,7 @@ export default class extends Vue {
 
     this.setDirChecked(groups, 'dir')
     // this.tagNvrUnchecked(node, dirs)
-    this.resetNvrStatus(node)
+    // this.resetNvrStatus(node)
     this.loading.dir = false
   }
 
@@ -695,15 +695,15 @@ export default class extends Vue {
   /**
    * 单击ipc时直接勾选
    */
-  private selectDevice(data: any, node: any) {
-    console.log('selectDevice:', node)
-    console.log('selectDevice:', this.$refs.vgroupTree)
-    if (data.type === 'ipc' && !data.sharedFlag) {
-      const dirTree: any = this.$refs.dirTree
-      const node = dirTree.getNode(data.id)
-      dirTree.setChecked(data.id, !node.checked)
-    }
-  }
+  // private selectDevice(data: any, node: any) {
+  //   console.log('selectDevice:', node)
+  //   console.log('selectDevice:', this.$refs.vgroupTree)
+  //   if (data.type === 'ipc' && !data.sharedFlag) {
+  //     const dirTree: any = this.$refs.dirTree
+  //     const node = dirTree.getNode(data.id)
+  //     dirTree.setChecked(data.id, !node.checked)
+  //   }
+  // }
 
   private selectSharedDevice(data: any, node: any) {
     console.log('selectSharedDevice data:', data)
@@ -745,6 +745,7 @@ export default class extends Vue {
         draggingNode.parent = this.tempNode.parent
         let allIPCNodes = allNodes.filter(node => node.data.type === 'ipc' && node.data.disabled === false && node.data.id !== draggingNode.data.id)
         allIPCNodes.push(draggingNode)
+        allIPCNodes = this.sortNodeOnOrderSeq(allIPCNodes)
         if (!this.dragInNodes[endNode.data.id]) {
           this.$set(this.dragInNodes, endNode.data.id, [])
         }
@@ -811,6 +812,22 @@ export default class extends Vue {
         this.dragInNodes[endNode.data.id].push(node.data)
       }
     })
+  }
+
+  private sortNodeOnOrderSeq(nodes) {
+    const hasOrderSeq = nodes.filter(node => node.data.orderSequence !== '0')
+    const sortNodesWithOS = hasOrderSeq.sort((n1, n2) => {
+      const n1OS = n1.data?.orderSequence
+      const n2OS = n2.data?.orderSequence
+      return n2OS.localeCompare(n1OS)
+    })
+    const notHasOrderSeq = nodes.filter(node => node.data.orderSequence === '0')
+    const sortNodesWithOutOS = notHasOrderSeq.sort((n1, n2) => {
+      const n1cn = parseInt(n1.data?.channelNum)
+      const n2cn = parseInt(n2.data?.channelNum)
+      return n1cn - n2cn
+    })
+    return [...sortNodesWithOS, ...sortNodesWithOutOS]
   }
 
   private openInner(type) {
