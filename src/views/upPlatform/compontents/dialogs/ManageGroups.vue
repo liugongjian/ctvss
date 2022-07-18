@@ -707,6 +707,7 @@ export default class extends Vue {
 
   private selectSharedDevice(data: any, node: any) {
     console.log('this.dragInNodes:', this.dragInNodes)
+    console.log('this.deleteNodes:', this.deleteNodes)
     console.log('selectSharedDevice node:', node)
     this.selectedNode = node
   }
@@ -717,7 +718,6 @@ export default class extends Vue {
   }
 
   private handleDragstart(node, event) {
-    debugger
     this.tempNode = _.cloneDeep(node)
     const vgroupTree: any = this.$refs.vgroupTree
     vgroupTree.$emit('tree-node-drag-start', event, { node: node })
@@ -769,7 +769,6 @@ export default class extends Vue {
   }
 
   private handleDragend(draggingNode, endNode, position, event) {
-    console.log('handleDragend:', this.tempNode)
     const dirTree: any = this.$refs.dirTree
     const vgroupTree: any = this.$refs.vgroupTree
 
@@ -787,12 +786,6 @@ export default class extends Vue {
         let data = _.cloneDeep(draggingNode.data)
         dirTree.insertAfter(data, dirTree.getNode(emptyData))
         dirTree.remove(emptyData)
-        // let newNode = dirTree.getNode(data)
-        // Object.keys(newNode).forEach(label => {
-        //   if (label !== 'data' && label !== 'id') {
-        //     newNode[label] = this.tempNode[label]
-        //   }
-        // })
       }
     })
   }
@@ -802,22 +795,61 @@ export default class extends Vue {
       if (node.parent.data.type === 'nvr') {
         // 选取设备中有nvr通道
         let findFlag = false
-        this.dragInNodes[endNode.data.id].forEach(device => {
-          if (node.parent.data.id === device.id) {
-            device.channels.push(_.cloneDeep(node.data))
-            findFlag = true
+        const isDeleted = this.checkChannelInDeleteNodes(node.parent.data, node.data, endNode)
+        if (!isDeleted) {
+          this.dragInNodes[endNode.data.id].forEach(device => {
+            if (node.parent.data.id === device.id) {
+              device.channels.push(_.cloneDeep(node.data))
+              findFlag = true
+            }
+          })
+          if (!findFlag) {
+            const nvrNode = _.cloneDeep(node)
+            this.$set(nvrNode.parent.data, 'channels', [nvrNode.data])
+            this.dragInNodes[endNode.data.id].push(nvrNode.parent.data)
           }
-        })
-        if (!findFlag) {
-          const nvrNode = _.cloneDeep(node)
-          this.$set(nvrNode.parent.data, 'channels', [nvrNode.data])
-          this.dragInNodes[endNode.data.id].push(nvrNode.parent.data)
         }
       } else {
         // 纯IPC
-        this.dragInNodes[endNode.data.id].push(node.data)
+        const isDeleted = this.checkIPCInDeleteNodes(node, endNode)
+        if (!isDeleted) {
+          this.dragInNodes[endNode.data.id].push(node.data)
+        }
       }
     })
+  }
+
+  private checkIPCInDeleteNodes(node, endNode) {
+    let flag = false
+    this.deleteNodes.forEach(dir => {
+      if (dir.dirId === endNode.data.id) {
+        const dirDevices = dir.devices.filter(device => device.id !== node.data.id)
+        if (dirDevices.length !== dir.devices.length) {
+          dir.devices = dirDevices
+          flag = true
+        }
+      }
+    })
+    return flag
+  }
+
+  private checkChannelInDeleteNodes(nvr, channel, endNode) {
+    let flag = false
+    debugger
+    this.deleteNodes.forEach(dir => {
+      if (dir.dirId === endNode.data.id) {
+        dir.devices.forEach(device => {
+          if (device.id === nvr.id) {
+            const channels = device.channels.filter(chnel => chnel.deviceId !== channel.id)
+            if (channels.length !== device.channels.length) {
+              flag = true
+              device.channels = channels
+            }
+          }
+        })
+      }
+    })
+    return flag
   }
 
   private openInner(type) {
@@ -1204,6 +1236,7 @@ export default class extends Vue {
     this.deleteNodes.forEach(dir => {
       if (dir.devices) {
         dir.devices.forEach(device => {
+          debugger
           vgroupTree.remove(device)
           if (device.type === 'nvr') {
             device.channels.forEach(channel => {
@@ -1347,7 +1380,6 @@ export default class extends Vue {
   }
 
   private allowDragSharedTree(draggingNode) {
-    debugger
     const vgroupTree: any = this.$refs.vgroupTree
     if (vgroupTree.getNode(draggingNode.data)) {
       // 不能拖拽共享树下的节点
