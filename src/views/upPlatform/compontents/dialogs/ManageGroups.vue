@@ -706,7 +706,7 @@ export default class extends Vue {
   }
 
   private selectSharedDevice(data: any, node: any) {
-    console.log('this.dragInNodes:', this.dragInNodes)
+    console.log('selectSharedDevice data:', data)
     console.log('selectSharedDevice node:', node)
     this.selectedNode = node
   }
@@ -717,7 +717,6 @@ export default class extends Vue {
   }
 
   private handleDragstart(node, event) {
-    debugger
     this.tempNode = _.cloneDeep(node)
     const vgroupTree: any = this.$refs.vgroupTree
     vgroupTree.$emit('tree-node-drag-start', event, { node: node })
@@ -744,7 +743,7 @@ export default class extends Vue {
         const allNodes = checkedNodes.map(data => dirTree.getNode(data.id))
         // 由于拖拽的节点parent会丢失
         draggingNode.parent = this.tempNode.parent
-        const allIPCNodes = allNodes.filter(node => node.data.type === 'ipc' && node.data.disabled === false && node.data.id !== draggingNode.data.id)
+        let allIPCNodes = allNodes.filter(node => node.data.type === 'ipc' && node.data.disabled === false && node.data.id !== draggingNode.data.id)
         allIPCNodes.push(draggingNode)
         if (!this.dragInNodes[endNode.data.id]) {
           this.$set(this.dragInNodes, endNode.data.id, [])
@@ -787,12 +786,6 @@ export default class extends Vue {
         let data = _.cloneDeep(draggingNode.data)
         dirTree.insertAfter(data, dirTree.getNode(emptyData))
         dirTree.remove(emptyData)
-        // let newNode = dirTree.getNode(data)
-        // Object.keys(newNode).forEach(label => {
-        //   if (label !== 'data' && label !== 'id') {
-        //     newNode[label] = this.tempNode[label]
-        //   }
-        // })
       }
     })
   }
@@ -1169,8 +1162,8 @@ export default class extends Vue {
     if (node.data.type === 'nvr' && !node.checked) {
       node.childNodes.forEach(child => {
         const childNode = dirTree.getNode(child.data)
-        childNode.data.disabled = node.checked
-        childNode.checked = node.checked
+        childNode.data.disabled = childNode.checked
+        // childNode.checked = node.checked
       })
     }
   }
