@@ -1202,20 +1202,22 @@ export default class extends Vue {
     const vgroupTree: any = this.$refs.vgroupTree
     const dirTree: any = this.$refs.dirTree
     this.deleteNodes.forEach(dir => {
-      dir.devices.forEach(device => {
-        vgroupTree.remove(device)
-        if (device.type === 'nvr') {
-          device.channels.forEach(channel => {
-            const channelNode = vgroupTree.getNode(channel.deviceId)
-            vgroupTree.remove(channelNode)
-          })
-        }
-        const removedNode = dirTree.getNode(device)
-        if (removedNode) {
-          removedNode.data.disabled = false
-          removedNode.checked = false
-        }
-      })
+      if (dir.devices) {
+        dir.devices.forEach(device => {
+          vgroupTree.remove(device)
+          if (device.type === 'nvr') {
+            device.channels.forEach(channel => {
+              const channelNode = vgroupTree.getNode(channel.deviceId)
+              channelNode && vgroupTree.remove(channelNode)
+            })
+          }
+          const removedNode = dirTree.getNode(device)
+          if (removedNode) {
+            removedNode.data.disabled = false
+            removedNode.checked = false
+          }
+        })
+      }
     })
   }
 
