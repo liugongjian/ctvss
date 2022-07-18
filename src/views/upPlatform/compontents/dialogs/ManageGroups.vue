@@ -1204,6 +1204,12 @@ export default class extends Vue {
     this.deleteNodes.forEach(dir => {
       dir.devices.forEach(device => {
         vgroupTree.remove(device)
+        if (device.type === 'nvr') {
+          device.channels.forEach(channel => {
+            const channelNode = vgroupTree.getNode(channel.deviceId)
+            vgroupTree.remove(channelNode)
+          })
+        }
         const removedNode = dirTree.getNode(device)
         if (removedNode) {
           removedNode.data.disabled = false
@@ -1295,18 +1301,22 @@ export default class extends Vue {
         INNode.checked = false
       }
       // remove之后，树竟然不清除节点，真他妈坑
-      const vgroupTree: any = this.$refs.vgroupTree
-      if (vgroupTree.store.nodesMap[node.data.id]) {
-        this.$delete(vgroupTree.store.nodesMap, node.data.id)
-        if (node.data.type === 'nvr') {
-          node.childNodes.forEach(child => {
-            this.$delete(vgroupTree.store.nodesMap, child.data.id)
-          })
-        }
-      }
+      this.removeNodesFromTreeStore(node)
     }
     if (node.data.type === 'nvr') {
       this.uncheckedNvrNode(node.data.id)
+    }
+  }
+
+  private removeNodesFromTreeStore(node) {
+    const vgroupTree: any = this.$refs.vgroupTree
+    if (vgroupTree.store.nodesMap[node.data.id]) {
+      this.$delete(vgroupTree.store.nodesMap, node.data.id)
+      if (node.data.type === 'nvr') {
+        node.childNodes.forEach(child => {
+          this.$delete(vgroupTree.store.nodesMap, child.data.id)
+        })
+      }
     }
   }
 
@@ -1335,6 +1345,7 @@ export default class extends Vue {
   }
 
   private allowDragSharedTree(draggingNode) {
+    debugger
     const vgroupTree: any = this.$refs.vgroupTree
     if (vgroupTree.getNode(draggingNode.data)) {
       // 不能拖拽共享树下的节点
