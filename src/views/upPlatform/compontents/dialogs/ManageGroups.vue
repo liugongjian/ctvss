@@ -332,7 +332,7 @@ export default class extends Vue {
 
     this.setDirChecked(groups, 'dir')
     // this.tagNvrUnchecked(node, dirs)
-    this.disabledNvrNode(node)
+    this.resetNvrStatus(node)
     this.loading.dir = false
   }
 
@@ -1157,14 +1157,10 @@ export default class extends Vue {
     return rootId + leafId.substring(rootIdLength)
   }
 
-  private disabledNvrNode(node) {
-    const dirTree: any = this.$refs.dirTree
+  // 根据nvr节点的checked状态改变disabled
+  private resetNvrStatus(node) {
     if (node.data.type === 'nvr' && !node.checked) {
-      node.childNodes.forEach(child => {
-        const childNode = dirTree.getNode(child.data)
-        childNode.data.disabled = childNode.checked
-        // childNode.checked = node.checked
-      })
+      node.data.disabled = false
     }
   }
 
