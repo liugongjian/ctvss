@@ -1,8 +1,9 @@
 <template>
   <div class="app-container">
+    <el-page-header content="成员详情" @back="back" />
     <el-card>
       <div class="filter-container">
-        <el-button type="primary" @click="handleCreate">添加人脸库</el-button>
+        <el-button type="primary" @click="handleCreate">添加人员</el-button>
         <el-dropdown placement="bottom" @command="handleBatch">
           <el-button :disabled="!multipleSelection.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
           <el-dropdown-menu slot="dropdown">
@@ -11,7 +12,7 @@
           </el-dropdown-menu>
         </el-dropdown>
         <div class="filter-container__right">
-          <el-input v-model="searchKey" class="filter-container__search-group" placeholder="请输入人脸库名称" clearable @keyup.enter.native="handleFilter" @clear="handleFilter">
+          <el-input v-model="searchKey" class="filter-container__search-group" placeholder="请输入人员名称" clearable @keyup.enter.native="handleFilter" @clear="handleFilter">
             <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
           </el-input>
           <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
@@ -19,15 +20,23 @@
       </div>
       <el-table v-loading="loading" :data="dataList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" />
-        <el-table-column prop="name" label="人脸库名称" align="center" />
-        <el-table-column prop="description" label="描述" align="center" />
-        <el-table-column prop="personCnt" label="人数" width="140" align="center" />
-        <el-table-column prop="createdTime" label="创建时间" width="220" align="center" />
-        <el-table-column prop="updatedTime" label="更新时间" width="220" align="center" />
+        <el-table-column prop="imgString" label="头像">
+          <template slot-scope="{row}">
+            <div class="image-container">
+<!--              <img :src="decodeBase64(row.picUrls[0])">-->
+              <img :src="row.picUrls[0]">
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="name" label="姓名" />
+        <el-table-column prop="number" label="人员编号" />
+        <el-table-column prop="description" label="描述" />
+        <el-table-column prop="updatedTime" label="创建时间" />
+        <el-table-column prop="createdTime" label="更新时间" />
         <el-table-column label="操作" align="center" width="140">
           <template slot-scope="scope">
-            <el-button type="text" @click="viewFace(scope.row)">查看</el-button>
-            <el-button type="text" @click="delFace(scope.row)">删除</el-button>
+            <el-button type="text" @click="editPerson(scope.row)">编辑</el-button>
+            <el-button type="text" @click="delPerson([scope.row.id])">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -40,23 +49,35 @@
         @current-change="handleCurrentChange"
       />
     </el-card>
-    <add-group-dialog v-if="showAddGroupDialog" @on-close="closeAddDialog" />
+    <add-personal v-if="showAddPesronDialog" @on-close="closeAddDialog" />
+    <copy-personal
+      v-if="showCopyPesronDialog"
+      :persons="multipleSelection"
+      :group-id="groupId"
+      @on-close="closeCopyDialog"
+    />
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import AddGroupDialog from './components/AddGroup.vue'
-import { listGroup } from '@/api/face'
+import AddPersonal from './components/AddPersonal.vue'
+import CopyPersonal from './components/CopyPersonal.vue'
+import { decodeBase64 } from '@/utils/base64'
+import { listPerson, deletePerson } from '@/api/face'
 
 @Component({
-  name: 'Face',
+  name: 'Personal',
   components: {
-    AddGroupDialog
+    AddPersonal,
+    CopyPersonal
   }
 })
 export default class extends Vue {
+  private groupId = ''
   private loading = false
-  private showAddGroupDialog = false
+  private decodeBase64 = decodeBase64
+  private showAddPesronDialog = false
+  private showCopyPesronDialog = false
   private pager = {
     pageNum: 1,
     pageSize: 10,
@@ -65,20 +86,13 @@ export default class extends Vue {
   private searchKey = ''
   private dataList: any = [
     {
-      id: '111',
+      picUrls: [''],
+      id: 'a001',
       name: 'aaa',
+      number: '',
       description: '',
-      personCnt: '120',
-      createdTime: '2010-12-2',
-      updatedTime: '2022-12-1'
-    },
-    {
-      id: '112',
-      name: 'bbb',
-      description: '',
-      personCnt: '120',
-      createdTime: '2010-12-2',
-      updatedTime: '2022-12-1'
+      updatedTime: '',
+      createdTime: ''
     }
   ]
   private multipleSelection = []
@@ -86,12 +100,13 @@ export default class extends Vue {
   private async getList() {
     this.loading = true
     let params = {
+      groupId: this.groupId,
       keyword: this.searchKey,
       pageNum: this.pager.pageNum,
       pageSize: this.pager.pageSize
     }
     try {
-      const res = await listGroup(params)
+      const res = await listPerson(params)
       this.dataList = res.data
       this.pager.total = res.totalNum
       this.pager.pageNum = res.pageNum
@@ -104,23 +119,28 @@ export default class extends Vue {
   }
 
   private handleCreate() {
-    this.showAddGroupDialog = true
+    console.log('新建')
+    this.showAddPesronDialog = true
   }
 
   private async handleFilter() {
     console.log('筛选')
   }
-  private viewFace(row) {
-    console.log(row)
-    this.$router.push({
-      path: 'facelib/detail',
-      query: {
-        groupId: row.id
-      }
-    })
+  private editPerson() {
+    console.log('编辑')
   }
-  private delFace() {
-    console.log('删除')
+  private delPerson(ids) {
+    console.log('delPerson', ids)
+    this.$alertDelete({
+      type: '提示',
+      msg: '确定要删除选定人员信息吗',
+      method: deletePerson,
+      payload: {
+        groupId: this.groupId,
+        ids
+      },
+      onSuccess: this.getList
+    })
   }
 
   private async refresh() {
@@ -143,8 +163,12 @@ export default class extends Vue {
   }
 
   private closeAddDialog(refresh: boolean) {
-    this.showAddGroupDialog = false
+    this.showAddPesronDialog = false
     refresh && this.getList()
+  }
+
+  private closeCopyDialog() {
+    this.showCopyPesronDialog = false
   }
 
   /**
@@ -152,20 +176,28 @@ export default class extends Vue {
    */
   public handleBatch(command: any) {
     if (!this.multipleSelection.length) {
-      this.$alertError('请先选择设备')
+      this.$alertError('请先选择人员')
       return
     }
     switch (command) {
       case 'copy':
         console.log('复制')
+        this.showCopyPesronDialog = true
         break
       case 'delete':
         console.log('删除')
+        this.delPerson(this.multipleSelection.map(item => item.id))
         break
     }
   }
 
+  private back() {
+    this.$router.go(-1)
+  }
+
   private async mounted() {
+    console.log(this.$route.query.groupId)
+    this.groupId = this.$route.query.groupId as string
     await this.getList()
   }
 }

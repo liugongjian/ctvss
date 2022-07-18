@@ -991,6 +991,18 @@ export const asyncRoutes: RouteConfig[] = [
           activeMenu: '/AI/face',
           perms: ['AdminAi']
         }
+      },
+      {
+        path: 'facelib/detail',
+        component: () => import(/* webpackChunkName: "AI" */ '@/views/AI/Face/Personal.vue'),
+        name: 'personal',
+        meta: {
+          title: '人脸库详情',
+          icon: 'dot',
+          hidden: true,
+          activeMenu: '/AI/personal',
+          perms: ['AdminAi']
+        }
       }
     ]
   },
