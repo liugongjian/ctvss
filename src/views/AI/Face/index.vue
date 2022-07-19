@@ -3,13 +3,6 @@
     <el-card>
       <div class="filter-container">
         <el-button type="primary" @click="handleCreate">添加人脸库</el-button>
-        <el-dropdown placement="bottom" @command="handleBatch">
-          <el-button :disabled="!multipleSelection.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item command="copy">复制</el-dropdown-item>
-            <el-dropdown-item command="delete">删除</el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
         <div class="filter-container__right">
           <el-input v-model="searchKey" class="filter-container__search-group" placeholder="请输入人脸库名称" clearable @keyup.enter.native="handleFilter" @clear="handleFilter">
             <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
@@ -22,12 +15,13 @@
         <el-table-column prop="name" label="人脸库名称" align="center" />
         <el-table-column prop="description" label="描述" align="center" />
         <el-table-column prop="personCnt" label="人数" width="140" align="center" />
-        <el-table-column prop="createdTime" label="创建时间" width="220" align="center" />
-        <el-table-column prop="updatedTime" label="更新时间" width="220" align="center" />
+        <el-table-column prop="createTime" label="创建时间" width="220" align="center" />
+        <el-table-column prop="updateTime" label="更新时间" width="220" align="center" />
         <el-table-column label="操作" align="center" width="140">
           <template slot-scope="scope">
             <el-button type="text" @click="viewFace(scope.row)">查看</el-button>
-            <el-button type="text" @click="delFace(scope.row)">删除</el-button>
+            <el-button type="text" @click="editFace(scope.row)">编辑</el-button>
+            <el-button type="text" @click="delFace([scope.row.id])">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -40,13 +34,18 @@
         @current-change="handleCurrentChange"
       />
     </el-card>
-    <add-group-dialog v-if="showAddGroupDialog" @on-close="closeAddDialog" />
+    <add-group-dialog
+      v-if="showAddGroupDialog"
+      :status="addDialogStatus"
+      :data="editFaceInfo"
+      @on-close="closeAddDialog"
+    />
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import AddGroupDialog from './components/AddGroup.vue'
-import { listGroup } from '@/api/face'
+import { listGroup, deleteGroup } from '@/api/face'
 
 @Component({
   name: 'Face',
@@ -57,30 +56,15 @@ import { listGroup } from '@/api/face'
 export default class extends Vue {
   private loading = false
   private showAddGroupDialog = false
+  private addDialogStatus = 'add'
+  private editFaceInfo = {}
   private pager = {
     pageNum: 1,
-    pageSize: 10,
+    pageSize: 20,
     total: 0
   }
   private searchKey = ''
-  private dataList: any = [
-    {
-      id: '111',
-      name: 'aaa',
-      description: '',
-      personCnt: '120',
-      createdTime: '2010-12-2',
-      updatedTime: '2022-12-1'
-    },
-    {
-      id: '112',
-      name: 'bbb',
-      description: '',
-      personCnt: '120',
-      createdTime: '2010-12-2',
-      updatedTime: '2022-12-1'
-    }
-  ]
+  private dataList: any = []
   private multipleSelection = []
 
   private async getList() {
@@ -104,23 +88,39 @@ export default class extends Vue {
   }
 
   private handleCreate() {
+    this.addDialogStatus = 'add'
     this.showAddGroupDialog = true
   }
 
   private async handleFilter() {
-    console.log('筛选')
+    await this.getList()
   }
+
+  private editFace(info) {
+    this.editFaceInfo = info
+    this.addDialogStatus = 'edit'
+    this.showAddGroupDialog = true
+  }
+
   private viewFace(row) {
-    console.log(row)
     this.$router.push({
-      path: 'facelib/detail',
+      name: 'facelib-detail',
       query: {
-        groupId: row.id
+        groupId: row.id,
+        groupName: row.name
       }
     })
   }
-  private delFace() {
-    console.log('删除')
+  private delFace(ids) {
+    this.$alertDelete({
+      type: '提示',
+      msg: '确定要删除选定人脸库吗',
+      method: deleteGroup,
+      payload: {
+        ids
+      },
+      onSuccess: this.getList
+    })
   }
 
   private async refresh() {
@@ -128,7 +128,6 @@ export default class extends Vue {
   }
 
   private handleSelectionChange(val) {
-    console.log('handleSelectionChange', val)
     this.multipleSelection = val
   }
 
@@ -147,25 +146,10 @@ export default class extends Vue {
     refresh && this.getList()
   }
 
-  /**
-   * 批量操作菜单
-   */
-  public handleBatch(command: any) {
-    if (!this.multipleSelection.length) {
-      this.$alertError('请先选择设备')
-      return
-    }
-    switch (command) {
-      case 'copy':
-        console.log('复制')
-        break
-      case 'delete':
-        console.log('删除')
-        break
-    }
-  }
-
   private async mounted() {
+    if (this.$route.params.showAdd === 'Y') {
+      this.handleCreate()
+    }
     await this.getList()
   }
 }
@@ -173,25 +157,5 @@ export default class extends Vue {
 <style lang="scss" scoped>
 .filter-container__search-group {
   margin-right: 10px;
-}
-
-.group-list__table {
-  ::v-deep .el-table__body {
-    td {
-      cursor: pointer;
-    }
-
-    .col-action {
-      cursor: default;
-    }
-  }
-}
-
-.group-name {
-  cursor: pointer;
-
-  &__id {
-    color: $primary;
-  }
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="添加人脸库"
+    :title="status === 'add' ? '添加人脸库' : '编辑人脸库'"
     :visible="dialogVisible"
     :close-on-click-modal="false"
     center
@@ -22,14 +22,14 @@
       </el-form-item>
     </el-form>
     <div slot="footer" align="center">
-      <el-button type="primary" :loading="loading" @click="doAddGroup">确定</el-button>
+      <el-button type="primary" :loading="loading" @click="submit">确定</el-button>
       <el-button @click="closeDialog">取消</el-button>
     </div>
   </el-dialog>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
-import { addGroup } from '@/api/face'
+import { Component, Prop, Vue } from 'vue-property-decorator'
+import { addGroup, editGroup } from '@/api/face'
 
 const validate = (rule, value, callback) => {
   const regu = /^[\u4e00-\u9fa50-9a-zA-Z-()（）_]{4,64}$/
@@ -45,6 +45,11 @@ const validate = (rule, value, callback) => {
   name: 'AddGroup'
 })
 export default class extends Vue {
+  @Prop()
+  private status: string
+  @Prop()
+  private data: any
+
   private dialogVisible = true
   private loading = false
   private form = {
@@ -62,13 +67,17 @@ export default class extends Vue {
     this.$emit('on-close', false)
   }
 
-  private async doAddGroup() {
+  private async submit() {
     const form: any = this.$refs.form
     form.validate(async(valid: any) => {
       try {
         if (valid) {
           this.loading = true
-          await addGroup({ ...this.form })
+          if (this.status === 'add') {
+            await addGroup({ ...this.form })
+          } else {
+            await editGroup({ ...this.form })
+          }
           this.loading = false
           this.$emit('on-close', true)
         } else {
@@ -79,6 +88,14 @@ export default class extends Vue {
         this.loading = false
       }
     })
+  }
+
+  private mounted() {
+    if (this.status === 'edit') {
+      this.form = {
+        ...this.data
+      }
+    }
   }
 }
 </script>

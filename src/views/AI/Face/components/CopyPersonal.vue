@@ -11,6 +11,9 @@
       <el-table-column type="selection" width="55" />
       <el-table-column prop="name" label="人脸库名称" align="center" />
       <el-table-column prop="description" label="人脸库描述" align="center" />
+      <template slot="empty">
+        <div>暂无数据，<el-button type="text" @click="toCreateGroup">马上创建></el-button></div>
+      </template>
     </el-table>
     <el-pagination
       :current-page="pager.pageNum"
@@ -37,7 +40,7 @@ export default class extends Vue {
   @Prop()
   private groupId: string
   @Prop()
-  private persons: []
+  private persons: any
 
   private dialogVisible = true
   private submitting = false
@@ -52,7 +55,6 @@ export default class extends Vue {
   private multipleSelection = []
 
   private mounted() {
-    console.log('copy vue:', this.groupId)
     this.$nextTick(() => {
       this.getList()
     })
@@ -67,7 +69,7 @@ export default class extends Vue {
     try {
       const res = await listGroup(params)
       this.dataList = res.data.filter(item => item.id !== this.groupId)
-      this.pager.total = res.totalNum
+      this.pager.total = res.totalNum - 1
       this.pager.pageNum = res.pageNum
       this.pager.pageSize = res.pageSize
     } catch (e) {
@@ -78,7 +80,6 @@ export default class extends Vue {
   }
 
   private handleSelectionChange(val) {
-    console.log('handleSelectionChange', val)
     this.multipleSelection = val
   }
 
@@ -114,40 +115,16 @@ export default class extends Vue {
     this.dialogVisible = false
     this.$emit('on-close')
   }
+
+  private toCreateGroup() {
+    this.$router.push({
+      name: 'facelib',
+      params: {
+        showAdd: 'Y'
+      }
+    })
+  }
 }
 </script>
 <style lang="scss" scoped>
-.tree-wrap {
-  height: 300px;
-  overflow: auto;
-}
-
-.breadcrumb {
-  height: 50px;
-  line-height: 50px;
-  padding-left: 20px;
-  border: 1px solid $primary;
-  background: #f8f8f8;
-  transition: padding-left 0.2s;
-  margin-bottom: 10px;
-
-  label {
-    margin-right: 20px;
-    color: $textGrey;
-  }
-
-  &__item {
-    cursor: pointer;
-  }
-
-  &__item:after {
-    content: '>';
-    color: $textGrey;
-    margin: 0 10px;
-  }
-
-  &__item:last-child:after {
-    content: '';
-  }
-}
 </style>

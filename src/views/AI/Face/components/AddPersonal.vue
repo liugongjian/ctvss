@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="添加人员"
+    :title="status === 'add' ? '添加人员' : '编辑人员'"
     :visible="dialogVisible"
     :close-on-click-modal="false"
     width="30%"
@@ -48,21 +48,29 @@
   </el-dialog>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Prop, Vue } from 'vue-property-decorator'
 import { encodeBase64 } from '@/utils/base64'
-import { addPerson, verify } from '@/api/face'
+import { addPerson, verify, editPerson } from '@/api/face'
 
 @Component({
   name: 'AddPersonal'
 })
 export default class extends Vue {
+  @Prop()
+  private groupId: string
+  @Prop()
+  private status: string
+  @Prop()
+  private data: any
+
   private dialogVisible = true
   private loading = false
+  private needVerify = false
   private form: Record<string, any> = {
     imageString: null,
     imageName: null,
     name: null,
-    cardId: null,
+    number: null,
     description: null
   }
   private rules = {
@@ -88,18 +96,21 @@ export default class extends Vue {
   }
 
   private async validateImage(rule: any, value: string, callback: any) {
-    console.log('validateImage')
-    try {
-      const result = await verify({
-        pic: encodeBase64(value)
-      })
-      if (value && result.code !== '0') {
-        callback(new Error('请上传正常的人脸头像'))
-      } else {
-        callback()
+    if (!this.needVerify) {
+      callback()
+    } else {
+      try {
+        const result = await verify({
+          pic: encodeBase64(value)
+        })
+        if (value && result.verifyCode !== '0') {
+          callback(new Error('请上传正常的人脸头像'))
+        } else {
+          callback()
+        }
+      } catch (e) {
+        callback(new Error(e.message))
       }
-    } catch (e) {
-      callback(new Error(e.message))
     }
   }
 
@@ -122,6 +133,7 @@ export default class extends Vue {
     reader.readAsDataURL(file.raw)
     this.form.imageName = file.raw.name
     reader.onload = (e: any) => {
+      this.needVerify = true
       this.form.imageString = e.target.result
     }
   }
@@ -129,16 +141,34 @@ export default class extends Vue {
   private async addPersonalInfo() {
     try {
       this.loading = true
-      const labels = {
-        name: this.form.name,
-        cardId: this.form.cardId,
-        description: this.form.description
-      }
       const params = {
-        labels: JSON.stringify(labels),
-        imageString: encodeBase64(this.form.imageString)
+        groupId: this.groupId,
+        name: this.form.name,
+        number: this.form.number,
+        description: this.form.description,
+        pics: [encodeBase64(this.form.imageString)]
       }
       await addPerson(params)
+      this.closeDialog(true)
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.loading = false
+    }
+  }
+
+  private async changePersonalInfo() {
+    try {
+      this.loading = true
+      const params = {
+        id: this.form.id,
+        groupId: this.groupId,
+        name: this.form.name,
+        number: this.form.number,
+        description: this.form.description,
+        pics: this.needVerify ? [encodeBase64(this.form.imageString)] : []
+      }
+      await editPerson(params)
       this.closeDialog(true)
     } catch (e) {
       this.$message.error(e && e.message)
@@ -151,11 +181,24 @@ export default class extends Vue {
     const form: any = this.$refs.form
     form.validate((valid: any) => {
       if (valid) {
-        this.addPersonalInfo()
+        if (this.status === 'add') {
+          this.addPersonalInfo()
+        } else {
+          this.changePersonalInfo()
+        }
       } else {
         return false
       }
     })
+  }
+
+  private mounted() {
+    if (this.status === 'edit') {
+      this.form = {
+        ...this.data,
+        imageString: this.data.faceCropUrls[0]
+      }
+    }
   }
 }
 </script>

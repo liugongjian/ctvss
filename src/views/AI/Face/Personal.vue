@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-page-header content="成员详情" @back="back" />
+    <el-page-header :content="`成员详情（${groupName}）`" @back="back" />
     <el-card>
       <div class="filter-container">
         <el-button type="primary" @click="handleCreate">添加人员</el-button>
@@ -18,21 +18,20 @@
           <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
         </div>
       </div>
-      <el-table v-loading="loading" :data="dataList" @selection-change="handleSelectionChange">
+      <el-table v-loading="loading" class="personal-info__table" :data="dataList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" />
         <el-table-column prop="imgString" label="头像">
           <template slot-scope="{row}">
             <div class="image-container">
-<!--              <img :src="decodeBase64(row.picUrls[0])">-->
-              <img :src="row.picUrls[0]">
+              <img :src="row.faceCropUrls[0]">
             </div>
           </template>
         </el-table-column>
         <el-table-column prop="name" label="姓名" />
         <el-table-column prop="number" label="人员编号" />
         <el-table-column prop="description" label="描述" />
-        <el-table-column prop="updatedTime" label="创建时间" />
-        <el-table-column prop="createdTime" label="更新时间" />
+        <el-table-column prop="createTime" label="创建时间" />
+        <el-table-column prop="updateTime" label="更新时间" />
         <el-table-column label="操作" align="center" width="140">
           <template slot-scope="scope">
             <el-button type="text" @click="editPerson(scope.row)">编辑</el-button>
@@ -49,7 +48,13 @@
         @current-change="handleCurrentChange"
       />
     </el-card>
-    <add-personal v-if="showAddPesronDialog" @on-close="closeAddDialog" />
+    <add-personal
+      v-if="showAddPesronDialog"
+      :group-id="groupId"
+      :status="addDialogStatus"
+      :data="editPersonInfo"
+      @on-close="closeAddDialog"
+    />
     <copy-personal
       v-if="showCopyPesronDialog"
       :persons="multipleSelection"
@@ -62,7 +67,6 @@
 import { Component, Vue } from 'vue-property-decorator'
 import AddPersonal from './components/AddPersonal.vue'
 import CopyPersonal from './components/CopyPersonal.vue'
-import { decodeBase64 } from '@/utils/base64'
 import { listPerson, deletePerson } from '@/api/face'
 
 @Component({
@@ -74,27 +78,19 @@ import { listPerson, deletePerson } from '@/api/face'
 })
 export default class extends Vue {
   private groupId = ''
+  private groupName = ''
   private loading = false
-  private decodeBase64 = decodeBase64
   private showAddPesronDialog = false
   private showCopyPesronDialog = false
+  private addDialogStatus = 'add'
+  private editPersonInfo = {}
   private pager = {
     pageNum: 1,
-    pageSize: 10,
+    pageSize: 20,
     total: 0
   }
   private searchKey = ''
-  private dataList: any = [
-    {
-      picUrls: [''],
-      id: 'a001',
-      name: 'aaa',
-      number: '',
-      description: '',
-      updatedTime: '',
-      createdTime: ''
-    }
-  ]
+  private dataList: any = []
   private multipleSelection = []
 
   private async getList() {
@@ -119,18 +115,19 @@ export default class extends Vue {
   }
 
   private handleCreate() {
-    console.log('新建')
+    this.addDialogStatus = 'add'
     this.showAddPesronDialog = true
   }
 
   private async handleFilter() {
-    console.log('筛选')
+    await this.getList()
   }
-  private editPerson() {
-    console.log('编辑')
+  private editPerson(info) {
+    this.editPersonInfo = info
+    this.addDialogStatus = 'edit'
+    this.showAddPesronDialog = true
   }
   private delPerson(ids) {
-    console.log('delPerson', ids)
     this.$alertDelete({
       type: '提示',
       msg: '确定要删除选定人员信息吗',
@@ -148,7 +145,6 @@ export default class extends Vue {
   }
 
   private handleSelectionChange(val) {
-    console.log('handleSelectionChange', val)
     this.multipleSelection = val
   }
 
@@ -181,11 +177,9 @@ export default class extends Vue {
     }
     switch (command) {
       case 'copy':
-        console.log('复制')
         this.showCopyPesronDialog = true
         break
       case 'delete':
-        console.log('删除')
         this.delPerson(this.multipleSelection.map(item => item.id))
         break
     }
@@ -196,8 +190,8 @@ export default class extends Vue {
   }
 
   private async mounted() {
-    console.log(this.$route.query.groupId)
     this.groupId = this.$route.query.groupId as string
+    this.groupName = this.$route.query.groupName as string
     await this.getList()
   }
 }
@@ -206,24 +200,29 @@ export default class extends Vue {
 .filter-container__search-group {
   margin-right: 10px;
 }
-
-.group-list__table {
+.personal-info__table {
+  margin-top: 10px;
   ::v-deep .el-table__body {
     td {
       cursor: pointer;
     }
-
     .col-action {
       cursor: default;
     }
   }
 }
 
-.group-name {
-  cursor: pointer;
+.image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  width: 100px;
+  background-color: #d9d9d9;
 
-  &__id {
-    color: $primary;
+  img {
+    max-width: 100px;
+    max-height: 100px;
   }
 }
 </style>
