@@ -127,6 +127,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   }
 
   public get hasViewLib() {
+    if (!this.info) return false
     if (!this.info.apeId) {
       this.activeTabPane = 'video'
     }

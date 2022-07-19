@@ -77,6 +77,13 @@ export const getGroupList = (params: any): Promise<any> =>
     params
   })
 
+export const getGUserList = (params: any): Promise<any> =>
+  request({
+    url: '/iam/guser/list',
+    method: 'get',
+    params
+  })
+
 export const addToGroup = (params: any): Promise<any> =>
   request({
     url: '/iam/user/addToGroup',

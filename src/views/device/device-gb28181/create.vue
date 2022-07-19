@@ -324,7 +324,7 @@
                   />
                 </el-select>
               </el-form-item>
-              <el-form-item label="GB1400凭证:" prop="certId">
+              <el-form-item label="GA1400凭证:" prop="certId">
                 <el-select v-model="ga1400Form.certId" :loading="loading.account">
                   <el-option
                     v-for="item in ga1400AccountList"
@@ -514,8 +514,8 @@ export default class extends Mixins(createMixin) {
     }
   })
   private apeTypeList = [
-    { label: '视图采集设备', value: 'APE' },
-    { label: '视频卡口', value: 'Tollgate' }
+    // { label: '视频卡口', value: 'Tollgate' },
+    { label: '视图采集设备', value: 'APE' }
   ]
   private gbAccountList = []
   private ga1400AccountList = []
@@ -827,7 +827,7 @@ export default class extends Mixins(createMixin) {
               {
                 certId: this.ga1400Form.certId,
                 ipAddr: this.ga1400Form.ipAddr,
-                port: this.ga1400Form.port
+                port: String(this.ga1400Form.port)
               }
             ])
           } else {
@@ -976,7 +976,9 @@ export default class extends Mixins(createMixin) {
         align-self: center;
         height: 0;
         border-bottom: 2px solid $primary;
-        &::before, &::after {
+
+        &:before,
+        &:after {
           content: none;
         }
       }
@@ -1030,6 +1032,7 @@ export default class extends Mixins(createMixin) {
 
 .step-container {
   position: relative;
+
   .add-btn {
     position: absolute;
     width: 2em;

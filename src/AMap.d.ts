@@ -15,6 +15,7 @@ declare namespace AMap {
     /** 发生事件的目标对象。 **/
     public target: any;
   }
+
   /** 像素坐标, 确定地图上的一个像素点。 **/
   export class Pixel {
     /**构造一个像素坐标对象。**/
@@ -382,6 +383,7 @@ declare namespace AMap {
      * 绑定事件声明
      */
     public on(event: string, callback: Function): void;
+    public off(event: string, callback: Function): void;
   }
   /** View2DOptions **/
   export interface View2DOptions {
@@ -622,6 +624,7 @@ declare namespace AMap {
     /**获取用户自定义属性**/
     public getExtData(): any;
 
+    public dom: any
 
   }
   /** MarkerShapeOptions **/
@@ -1237,6 +1240,8 @@ declare namespace AMap {
 
     /** 判断指定点坐标是否在多边形范围内 */
     public contains(point: LngLat | number[]): boolean;
+
+    public on(event: string, callback: Function): void;
   }
 
   /**
@@ -1379,6 +1384,23 @@ declare namespace AMap {
     public hide: any
   }
 
+  export class MouseTool {
+    constructor(map: Map)
+    public marker: any
+    public polygon: any
+    public close: any
+    public on(event: string, callback: Function): void; // event:draw
+  }
+
+  export class PolygonEditor {
+    constructor(map: Map, polygon?: Polygon, opts?: PolygonOption)
+    public open: any
+    public setTarget: any
+    public getTarget: any
+    public close: any
+    public on(event: string, callback: Function): void; // event:draw
+  }
+
   export interface ScaleOption {
     visible?: boolean
   }
@@ -1412,5 +1434,9 @@ declare namespace AMap {
     constructor(opt: PlaceSearchOption)
     public setCity: any
     public search: any
+  }
+
+  export class GeometryUtil {
+    static ringArea(path: any): any
   }
 }
