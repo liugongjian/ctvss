@@ -104,7 +104,8 @@ export default class extends Vue {
           pic: encodeBase64(value)
         })
         if (value && result.verifyCode !== '0') {
-          callback(new Error('请上传正常的人脸头像'))
+          // callback(new Error('请上传正常的人脸头像'))
+          callback(new Error(result.message))
         } else {
           callback()
         }
