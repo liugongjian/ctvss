@@ -1,6 +1,7 @@
 
 import { Player } from './Player'
 import { EnhanceHTMLVideoElement } from '../types/Player'
+import FlvJS from 'flv.js/src/flv.js'
 
 /**
  * FLV播放器
@@ -14,9 +15,7 @@ export class FlvPlayer extends Player {
   /**
    * 初始化
    */
-  protected async init() {
-    const FlvJSModule = await import(/* webpackChunkName: "flvjs" */'flv.js/src/flv.js')
-    const FlvJS = FlvJSModule.default
+  protected init() {
     if (!FlvJS.isSupported()) {
       throw new Error('当前浏览器不支持Flv播放器')
     }

@@ -18,7 +18,7 @@ export class H265Player extends Player {
   /**
    * 初始化
    */
-  protected async init() {
+  protected init() {
     this.container.id = `h265_player_${new Date().getTime()}`
     // @ts-ignore
     this.wasmPlayer = new WasmPlayer(null, this.container.id, this.bindH265Event.bind(this), {

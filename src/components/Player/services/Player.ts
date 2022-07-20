@@ -61,10 +61,9 @@ export class Player {
     this.bufferedTime = null
     this.isLoading = true
     this.scale = null
-    this.init().then(() => {
-      this.bindEvent()
-      this.setDefault()
-    })
+    this.init()
+    this.bindEvent()
+    this.setDefault()
   }
 
   /**
@@ -126,7 +125,7 @@ export class Player {
   /**
    * 初始化
    */
-  protected async init() {}
+  protected init() {}
 
   /**
    * 绑定事件

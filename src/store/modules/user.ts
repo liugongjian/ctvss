@@ -229,7 +229,7 @@ class User extends VuexModule implements IUserState {
     // 设置视频记录保存配置项
     this.getUserConfigInfo()
 
-    if (process.env.NODE_ENV === 'development' || settings.outNetworkWhiteList.indexOf(location.hostname) !== -1) {
+    if (settings.outNetworkWhiteList.indexOf(location.hostname) !== -1) {
       this.SET_OUTER_NETWORK('internet')
     } else {
       this.SET_OUTER_NETWORK('vpn')
