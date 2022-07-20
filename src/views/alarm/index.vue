@@ -181,6 +181,7 @@ export default class extends Mixins(IndexMixin) {
     dirTree.setCurrentKey(null)
     await DeviceModule.ResetBreadcrumb()
     this.alarmRouter({
+      groupId: this.currentGroupId,
       id: '0',
       type: 'dir'
     })
@@ -246,6 +247,7 @@ export default class extends Mixins(IndexMixin) {
     }
     router.query = {
       inProtocol: this.currentGroup!.inProtocol,
+      groupId: item.groupId,
       type: item.type,
       path: this.breadcrumb.map((item: any) => item.id).join(','),
       ...query
