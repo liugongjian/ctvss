@@ -42,6 +42,7 @@ class User extends VuexModule implements IUserState {
   }
   public userConfigInfo: any = []
   public outNetwork: 'internet' | 'vpn' = 'internet'
+  public isPrivate: boolean = false
 
   @Mutation
   private SET_TOKEN(token: string) {
@@ -108,6 +109,11 @@ class User extends VuexModule implements IUserState {
   @Mutation
   private SET_OUTER_NETWORK(outNetwork: 'internet' | 'vpn') {
     this.outNetwork = outNetwork
+  }
+
+  @Mutation
+  private SET_IS_PRIVATE(isPrivate: boolean) {
+    this.isPrivate = isPrivate
   }
 
   @Action({ rawError: true })
@@ -276,6 +282,7 @@ class User extends VuexModule implements IUserState {
         resourcesSet: new Set()
       }
       this.SET_NAME(userInfo.userName)
+      this.SET_IS_PRIVATE(userInfo.isPrivate)
       setUsername(userInfo.userName)
     }
     if (!data) {

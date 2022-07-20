@@ -31,7 +31,8 @@ export interface Device {
   streamNum?: number;
   channelNum?: number;
   channelSize?: number;
-  apeId?: string
+  apeId?: string;
+  deviceClass?: string
 }
 
 export interface DeviceAddress {

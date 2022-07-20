@@ -455,6 +455,7 @@
     }
   }
 
+  /* stylelint-disable-next-line no-invalid-double-slash-comments */
   // 详情页面
   .detail-wrap {
     .detail__buttons {
@@ -633,7 +634,7 @@
   min-width: 0;
   padding: 5px;
 
-  &.el-popper[x-placement^=bottom] {
+  &.el-popper[x-placement^='bottom'] {
     margin: 0;
   }
 }
@@ -652,4 +653,9 @@ script + .el-tooltip__popper {
 
 .form-expand {
   max-height: 1000px;
+}
+
+.tree-label-poppover {
+  padding: 2px;
+  min-width: 0;
 }

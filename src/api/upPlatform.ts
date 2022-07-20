@@ -11,6 +11,16 @@ export const createPlatform = (params: any): Promise<any> =>
   })
 
 /**
+ * 创建目录
+ */
+export const createShareDir = (params: any): Promise<any> =>
+  request({
+    url: '/platform/createShareDir',
+    method: 'post',
+    data: params
+  })
+
+/**
  * 修改平台
  */
 export const updatePlatform = (params: any): Promise<any> =>
@@ -128,4 +138,54 @@ export const stopShareDevice = (params: any): Promise<any> =>
     url: '/device/platform/stopShareDevice',
     method: 'get',
     params
+  })
+
+// 新级联相关接口
+export const createCascadeDir = (params: any): Promise<any> =>
+  request({
+    url: '/cascadeDir/create',
+    method: 'post',
+    data: params
+  })
+
+export const deleteCascadeDir = (params: any): Promise<any> =>
+  request({
+    url: '/cascadeDir/delete',
+    method: 'get',
+    params
+  })
+
+export const modifyCascadeDir = (params: any): Promise<any> =>
+  request({
+    url: '/cascadeDir/modify',
+    method: 'post',
+    data: params
+  })
+
+export const describeCascadeDir = (params: any): Promise<any> =>
+  request({
+    url: '/cascadeDir/describe',
+    method: 'get',
+    params
+  })
+
+export const describeCascadeDirs = (params: any): Promise<any> =>
+  request({
+    url: '/cascadeDir/list',
+    method: 'get',
+    params
+  })
+
+export const validateShareDevices = (params: any): Promise<any> =>
+  request({
+    url: '/device/platform/validateShareDevices',
+    method: 'post',
+    data: params
+  })
+
+export const validateShareDirs = (params: any): Promise<any> =>
+  request({
+    url: '/device/platform/validateShareDirs',
+    method: 'post',
+    data: params
   })

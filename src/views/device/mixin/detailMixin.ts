@@ -127,6 +127,7 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
   }
 
   public get hasViewLib() {
+    if (!this.info) return false
     if (!this.info.apeId) {
       this.activeTabPane = 'video'
     }
@@ -147,6 +148,10 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
 
   public get isNVRChannel() {
     return this.info && this.info.parentDeviceId !== '-1'
+  }
+
+  public get isGbNVRChannel() {
+    return this.info && this.info.deviceClass === 'channel'
   }
 
   public get isPlatform() {

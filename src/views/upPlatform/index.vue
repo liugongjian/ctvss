@@ -32,7 +32,7 @@
     <el-card ref="deviceWrap" class="shared-devices">
       <div v-if="currentPlatform.platformId">
         <div class="filter-container">
-          <el-button type="primary" @click="addDevices">
+          <!-- <el-button type="primary" @click="addDevices">
             添加资源
             <el-popover
               placement="top-start"
@@ -44,6 +44,9 @@
             >
               <svg-icon slot="reference" name="help" color="#fff" />
             </el-popover>
+          </el-button> -->
+          <el-button type="primary" @click="manageGroups">
+            管理资源
           </el-button>
           <el-button v-if="!currentPlatform.enabled" :loading="loading.startStop" @click="startShare()">启动级联</el-button>
           <el-button v-else :loading="loading.startStop" @click="stopShare()">停止级联</el-button>
@@ -123,6 +126,8 @@
                 :data="dataList"
                 :height="tableMaxHeight"
                 fit
+                row-key="deviceId"
+                :tree-props="{children: 'channels', hasChildren: 'hasChildren'}"
                 @selection-change="handleSelectionChange"
               >
                 <el-table-column type="selection" prop="selection" class-name="col-selection" width="55" />
@@ -152,6 +157,11 @@
                     {{ row.gbId || '-' }}
                   </template>
                 </el-table-column>
+                <el-table-column prop="upGbId" label="上级平台国标ID">
+                  <template slot-scope="{row}">
+                    {{ row.upGbId || '-' }}
+                  </template>
+                </el-table-column>
                 <el-table-column prop="action" label="操作" width="80" fixed="right">
                   <template slot-scope="{row}">
                     <el-button type="text" @click="cancleShareDevice([row])">移除</el-button>
@@ -178,16 +188,18 @@
       </div>
     </el-card>
     <AddDevices v-if="dialog.addDevices" :platform-id="currentPlatform.platformId" @on-close="closeDialog" />
+    <ManageGroups v-if="dialog.manageGroups" :platform-id="currentPlatform.platformId" @on-close="closeDialog" />
     <PlatformDetail v-if="dialog.platformDetail" :platform-id="currentPlatformDetail.platformId" @on-close="dialog.platformDetail = false" />
   </div>
 </template>
 
 <script lang='ts'>
 import { Component, Vue, Provide, Watch } from 'vue-property-decorator'
-import { describeShareGroups, describeShareDirs, describeShareDevices, getPlatforms, deletePlatform, cancleShareDevice, cancleShareDir, startShareDevice, stopShareDevice } from '@/api/upPlatform'
+import { describeShareDirs, describeShareDevices, deletePlatform, cancleShareDevice, getPlatforms, cancleShareDir, startShareDevice, stopShareDevice } from '@/api/upPlatform'
 import { DeviceStatus, StreamStatus, PlatformStatus } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AddDevices from './compontents/dialogs/AddDevices.vue'
+import ManageGroups from './compontents/dialogs/ManageGroups.vue'
 import PlatformDetail from './compontents/dialogs/PlatformDetail.vue'
 
 @Component({
@@ -195,7 +207,8 @@ import PlatformDetail from './compontents/dialogs/PlatformDetail.vue'
   components: {
     AddDevices,
     PlatformDetail,
-    StatusBadge
+    StatusBadge,
+    ManageGroups
   }
 })
 export default class extends Vue {
@@ -244,7 +257,8 @@ export default class extends Vue {
   }
   public dialog = {
     addDevices: false,
-    platformDetail: false
+    platformDetail: false,
+    manageGroups: false
   }
   public treeProp = {
     label: 'label',
@@ -252,7 +266,8 @@ export default class extends Vue {
     isLeaf: 'isLeaf'
   }
   public tips = {
-    addDevices: '下方列表显示已共享的设备，点击"添加资源"添加想要共享的设备。'
+    addDevices: '下方列表显示已共享的设备，点击"添加资源"添加想要共享的设备。',
+    manageGroups: '管理虚拟业务组'
   }
 
   @Watch('dataList.length')
@@ -284,6 +299,31 @@ export default class extends Vue {
     window.removeEventListener('resize', this.calMaxHeight)
   }
 
+  /**
+   * 查询上级平台列表
+   */
+  private async getPlatformList() {
+    try {
+      this.loading.platform = true
+      const res = await getPlatforms({
+        pageNum: 1,
+        pageSize: 1000
+      })
+      this.platformList = res.platforms
+      console.log('this.platformList:', this.platformList)
+      if (this.currentPlatform.platformId) {
+        const currentPlatform = this.platformList.find((platform: any) => platform.platformId === this.currentPlatform.platformId)
+        this.currentPlatform = currentPlatform
+      } else {
+        this.initPlatform()
+      }
+    } catch (e) {
+      this.$message.error(e && e.message)
+    } finally {
+      this.loading.platform = false
+    }
+  }
+
   // 面包屑导航
   private goToPath(item: any) {
     const dirTree: any = this.$refs.dirTree
@@ -305,30 +345,6 @@ export default class extends Vue {
   private initPlatform() {
     if (this.platformList.length !== 0) {
       this.selectPlatform(this.platformList[0])
-    }
-  }
-
-  /**
-   * 查询上级平台列表
-   */
-  private async getPlatformList() {
-    try {
-      this.loading.platform = true
-      const res = await getPlatforms({
-        pageNum: 1,
-        pageSize: 1000
-      })
-      this.platformList = res.platforms
-      if (this.currentPlatform.platformId) {
-        const currentPlatform = this.platformList.find((platform: any) => platform.platformId === this.currentPlatform.platformId)
-        this.currentPlatform = currentPlatform
-      } else {
-        this.initPlatform()
-      }
-    } catch (e) {
-      this.$message.error(e && e.message)
-    } finally {
-      this.loading.platform = false
     }
   }
 
@@ -427,8 +443,8 @@ export default class extends Vue {
     }
     let params: any = {
       platformId: this.currentPlatform.platformId,
-      inProtocol: node.inProtocol,
-      groupId: node.groupId,
+      // inProtocol: node.inProtocol,
+      // groupId: node.groupId,
       dirId: node.dirId || '0',
       dirType: node.dirType || '0',
       pageNum: this.pager.pageNum,
@@ -454,6 +470,7 @@ export default class extends Vue {
           this.$message.error(e && e.message)
         }
       }
+      console.log('this.dataList:', this.dataList)
     } catch (e) {
       this.$message.error(e && e.message)
     } finally {
@@ -506,6 +523,14 @@ export default class extends Vue {
     this.dialog.addDevices = true
   }
 
+  private manageGroups() {
+    if (this.currentPlatform.enabled) {
+      this.$message.warning('当前平台已启动级联，无法操作平台资源，请先停止该平台的级联')
+      return
+    }
+    this.dialog.manageGroups = true
+  }
+
   private async handleFilter() {
     this.pager.pageNum = 1
     await this.getList(this.currentNodeData, false)
@@ -516,19 +541,25 @@ export default class extends Vue {
     try {
       this.dirList = []
       this.loading.dir = true
-      const res = await describeShareGroups({
+      // const res = await describeShareGroups({
+      //   platformId: this.currentPlatform.platformId,
+      //   pageSize: 1000
+      // })
+      const res = await describeShareDirs({
         platformId: this.currentPlatform.platformId,
+        dirId: '-1',
         pageSize: 1000
       })
-      if (res.groups.length) {
+      if (res.dirs.length) {
         this.hasDir = true
-        res.groups.forEach((group: any) => {
+        res.dirs.forEach((group: any) => {
           // 放开rtsp rtmp
           // (group.inProtocol === 'gb28181' || group.inProtocol === 'ehome') && (
           this.dirList.push({
-            id: group.groupId,
+            id: group.dirId,
+            dirId: group.dirId,
             groupId: group.groupId,
-            label: group.groupName,
+            label: group.dirName,
             inProtocol: group.inProtocol,
             gbId: group.gbId,
             type: 'group'
@@ -564,18 +595,22 @@ export default class extends Vue {
     if (node.level === 0) return resolve([])
     try {
       const res = await describeShareDirs({
-        groupId: node.data.groupId,
-        dirId: node.data.type === 'group' ? 0 : node.data.dirId,
+        // groupId: node.data.groupId,
+        // dirId: node.data.type === 'group' ? 0 : node.data.dirId,
+        // inProtocol: node.data.inProtocol,
+        // platformId: this.currentPlatform.platformId
+        dirId: node.data.dirId,
         inProtocol: node.data.inProtocol,
         platformId: this.currentPlatform.platformId
       })
+
       const dirs = res.dirs.map((dir: any) => {
         return {
           ...dir,
           groupId: node.data.groupId,
           inProtocol: node.data.inProtocol,
           platformId: this.currentPlatform.platformId,
-          type: this.dirTypeMap[dir.dirType],
+          type: 'dir',
           label: dir.dirName,
           id: dir.dirId
         }
@@ -587,6 +622,8 @@ export default class extends Vue {
   }
 
   private nodeClick(data: any, node: any) {
+    console.log('data:', data)
+    console.log('node:', node)
     node.expanded = true
     this.currentNodeData = data
     this.getList(this.currentNodeData, false)
@@ -595,6 +632,7 @@ export default class extends Vue {
 
   private closeDialog(refresh: boolean) {
     this.dialog.addDevices = false
+    this.dialog.manageGroups = false
     refresh === true && this.initDirs()
   }
 
@@ -799,6 +837,13 @@ export default class extends Vue {
 
     .device-list__max-height {
       padding: 15px;
+
+      .el-table {
+        ::v-deep .cell {
+          display: flex;
+          align-items: center;
+        }
+      }
     }
 
     .empty-text {
@@ -806,4 +851,5 @@ export default class extends Vue {
     }
   }
 }
+
 </style>

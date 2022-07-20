@@ -13,6 +13,7 @@ export class H265Player extends Player {
   private seekTime = 0
   private muteTimeout: any = null
   private isStartPlay: boolean
+  private isFlv = this.url.endsWith('flv')
 
   /**
    * 初始化
@@ -51,6 +52,14 @@ export class H265Player extends Player {
       case 'playbackTime':
         this.wasmPlayer.currentTime = res[1]
         this.onTimeUpdate && this.onTimeUpdate()
+        break
+      case 'videoTimestamp':
+        // 用于设备录像
+        if (this.isFlv && !this.isLive) {
+          this.wasmPlayer.currentTime = res[1] / 1000
+          this.onTimeUpdate && this.onTimeUpdate()
+          this.onEndLoading && this.onEndLoading()
+        }
         break
       case 'endLoading':
         this.isLive && this.onEndLoading && this.onEndLoading() // 直播直接隐藏loading，点播需要等待playbackTime出现
