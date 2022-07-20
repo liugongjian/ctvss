@@ -387,56 +387,9 @@ export default class extends Mixins(Validate) {
     } catch (e) {
       resolve([])
     } finally {
-      this.appendDragInNodes(node)
-      this.removeDeleteNodes()
-      this.appendDragInNodesInDeleteNodes()
+      this.nodeOperateAfterLoad(node)
       this.tagNvrUnloaded(node)
     }
-  }
-
-  private appendDragInNodesInDeleteNodes() {
-
-    // this.deleteNodes.forEach(dir =>{
-    //   dir.devices.forEach(delDevice => {
-
-    //   })
-    // })
-
-    // const vgroupTree: any = this.$refs.vgroupTree
-    // if (node.data.type !== 'nvr') {
-    //   if (this.dragInNodes[node.data.id]) {
-    //     const dragInDevices = this.dragInNodes[node.data.id]
-    //     dragInDevices.forEach(addDevice => {
-    //       this.deleteNodes.forEach(dir => {
-    //         if (dir.dirId !== node.data.id) {
-    //           dir.devices.forEach(delDevice => {
-    //             if (addDevice.id === delDevice.id) {
-    //               vgroupTree.append(addDevice, node.data)
-    //             }
-    //           })
-    //         }
-    //       })
-    //     })
-    //   }
-    // } else {
-    //   if (this.dragInNodes[node.parent.data.id]) {
-    //     const nvrDragIn = this.dragInNodes[node.parent.data.id].filter(device => device.id === node.data.id)
-    //     if (nvrDragIn.length > 0) {
-    //       let channels = nvrDragIn[0].channels
-    //       this.deleteNodes.forEach(dir => {
-    //         if (dir.dirId !== node.parent.data.id) {
-    //           channels.forEach(channel => {
-    //             dir.devices.forEach(delDevice => {
-    //               if (channel.id === delDevice.id) {
-    //                 vgroupTree.append(channel, node.data)
-    //               }
-    //             })
-    //           })
-    //         }
-    //       })
-    //     }
-    //   }
-    // }
   }
 
   private async loadAll(node) {
@@ -490,6 +443,11 @@ export default class extends Mixins(Validate) {
     }
     this.step === 1 ? this.debounceLoading() : (this.loading.sharedDir = false)
     return res
+  }
+
+  private nodeOperateAfterLoad(node) {
+    this.appendDragInNodes(node)
+    this.removeDeleteNodes()
   }
 
   private async getSharedDirs(node: any) {
@@ -712,8 +670,7 @@ export default class extends Mixins(Validate) {
         } else {
           dirs = await this.loadAll(node)
           dirTree.updateKeyChildren(node.data.id, dirs)
-          this.appendDragInNodes(node)
-          this.removeDeleteNodes()
+          this.nodeOperateAfterLoad(node)
           node.expanded = true
           node.loaded = true
         }
