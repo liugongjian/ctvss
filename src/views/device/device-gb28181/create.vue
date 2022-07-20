@@ -910,19 +910,23 @@ export default class extends Mixins(createMixin) {
    */
   private async validateGbId(rule: any, value: string, callback: Function) {
     let validInfo: any
-    try {
-      validInfo = await validGbId({
-        deviceId: this.deviceId,
-        inProtocol: this.form.inProtocol,
-        gbId: this.form.gbId
-      })
-    } catch (e) {
-      console.log(e)
-    }
     if (value && !/^[0-9]{20}$/.test(value)) {
       callback(new Error('请输入规范国标ID'))
-    } else if (value && validInfo && !validInfo.isValidGbId) {
-      callback(new Error('存在重复国标ID'))
+    } else if (value) {
+      try {
+        validInfo = await validGbId({
+          deviceId: this.deviceId,
+          inProtocol: this.form.inProtocol,
+          gbId: this.form.gbId
+        })
+        if (validInfo && !validInfo.isValidGbId) {
+          callback(new Error('存在重复国标ID'))
+        } else {
+          callback()
+        }
+      } catch (e) {
+        console.log(e)
+      }
     } else {
       callback()
     }
