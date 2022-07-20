@@ -26,8 +26,6 @@
             @node-drag-start="handleDragstart"
             @node-drag-end="handleDragend"
             @check="checkCallback"
-            @check-change="onCheckDevice"
-            @node-click="selectDevice"
           >
             <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}">
               <span class="node-name">
@@ -52,23 +50,43 @@
             :load="loadSharedDirs"
             :props="treeProp"
             lazy
-            :allow-drop="() => true"
+            :allow-drag="allowDragSharedTree"
             @node-drag-end="handleDragendShared"
             @node-click="selectSharedDevice"
           >
-            <span slot-scope="{node, data}" class="custom-tree-node" :class="[data.deviceStatus === 'on' ? 'online' : '', step === 0 ? 'custom-tree-node' : 'custom-tree-node-right']">
+            <span
+              slot-scope="{node, data}"
+              class="custom-tree-node"
+              :class="[data.deviceStatus === 'on' ? 'online' : '', step === 0 ? 'custom-tree-node' : 'custom-tree-node-right']"
+            >
               <span slot="reference" class="node-name">
                 <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
                 <svg-icon v-if="data.type !== 'dir' && data.type !== 'platformDir'" :name="data.type" width="15" height="15" />
                 <span v-else class="node-dir">
                   <svg-icon name="dir-close" width="15" height="15" />
                 </span>
-                {{ node.label.length > 10 ? node.label.substring(0,9)+'...' : node.label }}
+                <el-popover
+                  v-if="node.label.length > 11"
+                  placement="top-start"
+                  trigger="hover"
+                  :content="node.label"
+                  popper-class="tree-label-poppover"
+                  :open-delay="500"
+                >
+                  <span slot="reference">{{ node.label.substring(0,10)+'...' }}</span>
+                </el-popover>
+                <span v-else>{{ node.label }}</span>
               </span>
               <span v-if="step === 1" slot="reference" class="node-input" @click.stop="">
                 <div class="node-input__label"><span>{{ node.data.gbId || '-' }}</span></div>
-                <div v-if="gbIdMode === 'district'"><el-input :value="data.gbIdDistrict" size="mini" @input="val => rootInput(node, data, val)" /></div>
-                <div v-else><el-input v-model="data.gbIdVgroup" size="mini" /></div>
+                <div>
+                  <el-input
+                    :value="data.upGbId"
+                    size="mini"
+                    :class="[errorNodesData.find(item => data.id === item.id) ? 'error' : '', data.upGbId !== data.upGbIdOrigin ? 'modified' : '']"
+                    @input="val => rootInput(node, data, val)"
+                  />
+                </div>
               </span>
             </span>
           </el-tree>
@@ -78,16 +96,16 @@
         </div>
       </div>
       <div v-if="step === 0" class="device-wrap">
-        <el-button type="primary" @click="openInner('append')">新建组/虚拟组织</el-button>
+        <el-button type="primary" @click="openInner('append')">{{ mode === 'district' ? '新建目录' :'新建组/虚拟组织' }}</el-button>
         <el-button type="primary" :disabled="!(selectedNode && selectedNode.data.type !== 'ipc' && selectedNode.data.type !== 'nvr')" @click="openInner('edit')">编辑</el-button>
-        <el-button type="primary" :disabled="!(selectedNode && selectedNode.data.type !== 'ipc' && selectedNode.data.type !== 'nvr')" @click="openInner('deleteGroup')">删除组/虚拟组织</el-button>
+        <el-button type="primary" :disabled="!(selectedNode && selectedNode.data.type !== 'ipc' && selectedNode.data.type !== 'nvr')" @click="openInner('deleteGroup')">{{ mode === 'district' ? '删除目录' :'删除组/虚拟组织' }}</el-button>
         <el-button type="primary" :disabled="!(selectedNode && (selectedNode.data.type === 'ipc' || selectedNode.data.type === 'nvr'))" @click="openInner('deleteDevice')">删除设备</el-button>
       </div>
     </div>
     <div slot="footer" class="dialog-footer">
       <el-button v-if="step === 0" type="primary" :disabled="sharedDirList.length === 0 || loading.sharedDir || loading.dir" @click="next">下一步</el-button>
       <el-button v-if="step === 1" type="primary" :disabled="loading.sharedDir" @click="prev">上一步</el-button>
-      <el-button v-if="step === 1" type="primary" :disabled="loading.sharedDir" @click="confirm">确 定</el-button>
+      <el-button v-if="step === 1" type="primary" :disabled="loading.sharedDir" @click="submit">确 定</el-button>
       <el-button @click="() => closeDialog(true)">取 消</el-button>
     </div>
     <InnerDialog
@@ -102,14 +120,16 @@
   </el-dialog>
 </template>
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Prop, Mixins } from 'vue-property-decorator'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
-import { describeShareDevices, describeShareDirs, getPlatform, shareDevice } from '@/api/upPlatform'
+import { describeShareDevices, describeShareDirs, getPlatform, shareDevice, validateShareDevices, cancleShareDevice, validateShareDirs } from '@/api/upPlatform'
 import { setDirsStreamStatus } from '@/utils/device'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import InnerDialog from './InnerDialog.vue'
 import debounce from '@/utils/debounce'
+import * as _ from 'lodash'
+import Validate from '../../mixins/validate'
 
 @Component({
   name: 'ManageGroups',
@@ -118,7 +138,7 @@ import debounce from '@/utils/debounce'
     InnerDialog
   }
 })
-export default class extends Vue {
+export default class extends Mixins(Validate) {
   @Prop()
   private platformId: any
   private dialogVisible = true
@@ -133,12 +153,21 @@ export default class extends Vue {
   private treeProp = {
     label: 'label',
     children: 'children',
-    isLeaf: 'isLeaf',
-    disabled: data => data.sharedFlag
+    isLeaf: 'isLeaf'
   }
+
+  private dirNodeStatus = {
+    checked: [],
+    halfChecked: []
+  }
+  private confirmed = false
   private innerDialogType = ''
 
   private innerVisible = false
+
+  private dragInNodes = {}
+
+  private deleteNodes = []
 
   private step = 0
 
@@ -153,9 +182,11 @@ export default class extends Vue {
   }
 
   // 两种模式：虚拟组：vgroup和行政区：district
-  private mode = 'vgroup'
+  public mode = 'vgroup'
 
-  private gbIdMode = 'vgroup'
+  private tempNode: any = {}
+
+  public gbIdMode = 'vgroup'
 
   private selectedNode = null
 
@@ -206,21 +237,29 @@ export default class extends Vue {
           inProtocol: group.inProtocol,
           gbId: group.gbId,
           type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
-          disabled: true,
+          disabled: false,
           path: [{
             id: group.groupId,
             label: group.groupName,
             type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
             inProtocol: group.inProtocol || '',
-            gbIdDistrict: group.gbId || '',
-            gbIdVgroup: group.gbId || '',
-            gbIdDistrictRoot: group.gbId
+            upGbId: group.gbId || '',
+            upGbIdOrigin: group.gbId || ''
           }],
-          gbIdDistrict: group.gbId || '',
-          gbIdVgroup: group.gbId || '',
-          gbIdDistrictRoot: group.gbId
+          upGbId: group.gbId || '',
+          upGbIdOrigin: group.gbId || ''
         })
       })
+
+      const { groups } = await validateShareDirs({
+        platformId: this.platformId,
+        groups: res.groups.map(group => ({
+          groupId: group.groupId,
+          inprotocol: group.inProtocol,
+          dirs: []
+        }))
+      })
+      this.setDirChecked(groups, 'group')
     } catch (e) {
       this.dirList = []
     } finally {
@@ -228,13 +267,72 @@ export default class extends Vue {
     }
   }
 
+  private async setDirChecked(groups, type) {
+    const checkeNodes = type === 'group' ? groups.map(group => group.groupIdStatus) : groups[0].groupIdStatus.dirs
+    const checkedIds = checkeNodes.filter(node => node[type + 'Status'] === 2)
+    const halfCheckedIds = checkeNodes.filter(node => node[type + 'Status'] === 1)
+    const dirTree: any = this.$refs.dirTree
+
+    checkedIds.forEach(check => {
+      this.dirNodeStatus.checked.push(check[type + 'Id'])
+    })
+    halfCheckedIds.forEach(half => {
+      this.dirNodeStatus.halfChecked.push(half[type + 'Id'])
+    })
+    if (dirTree) {
+      this.initCheckedNode(dirTree)
+      this.initIdeterminateNode(dirTree)
+    }
+  }
+
+  private initIdeterminateNode(dirTree) {
+    this.dirNodeStatus.halfChecked.forEach(id => {
+      if (id) {
+        const node = dirTree.getNode(id)
+        if (node) {
+          node.indeterminate = true
+          node.checked = false
+        }
+      }
+    })
+  }
+
+  private initCheckedNode(dirTree) {
+    this.dirNodeStatus.checked.forEach(id => {
+      const node = dirTree.getNode(id)
+      if (node) {
+        node.checked = true
+        node.indeterminate = false
+        node.data.disabled = true
+      }
+    })
+  }
+
   /**
    * 加载目录
    */
   private async loadDirs(node: any, resolve: Function) {
+    this.loading.dir = true
     if (node.level === 0) return resolve([])
+
     const dirs = await this.getTree(node)
+
+    const dirParam = dirs.filter(item => item.type === 'dir' || item.type === 'platform' || item.type === 'platformDir' || item.type === 'nvr')
+      .map(dir => ({ dirId: dir.id, parentDirId: node.level === 1 ? '0' : node.id + '' }))
+    const { groups } = await validateShareDirs({
+      platformId: this.platformId,
+      groups: [{
+        groupId: node.data.groupId,
+        inprotocol: node.data.inprotocol,
+        dirs: dirParam
+      }]
+    })
     resolve(dirs)
+    this.setDirChecked(groups, 'dir')
+
+    // this.tagNvrUnchecked(node, dirs)
+    this.resetNvrStatus(node)
+    this.loading.dir = false
   }
 
   public async initSharedDirs() {
@@ -263,13 +361,11 @@ export default class extends Vue {
               label: group.dirName,
               type: this.mode === 'vgroup' ? 'group' : 'top-group',
               inProtocol: group.inProtocol || '',
-              gbIdDistrict: group.gbId || '',
-              gbIdVgroup: group.gbId || '',
-              gbIdDistrictRoot: group.gbId
+              upGbId: group.gbId || '',
+              upGbIdOrigin: group.gbId || ''
             }],
-            gbIdDistrict: group.gbId || '',
-            gbIdVgroup: group.gbId || '',
-            gbIdDistrictRoot: group.gbId
+            upGbId: group.gbId || '',
+            upGbIdOrigin: group.gbId || ''
           })
         })
       }
@@ -290,7 +386,57 @@ export default class extends Vue {
       resolve(temp)
     } catch (e) {
       resolve([])
+    } finally {
+      this.appendDragInNodes(node)
+      this.removeDeleteNodes()
+      this.appendDragInNodesInDeleteNodes()
+      this.tagNvrUnloaded(node)
     }
+  }
+
+  private appendDragInNodesInDeleteNodes() {
+
+    // this.deleteNodes.forEach(dir =>{
+    //   dir.devices.forEach(delDevice => {
+
+    //   })
+    // })
+
+    // const vgroupTree: any = this.$refs.vgroupTree
+    // if (node.data.type !== 'nvr') {
+    //   if (this.dragInNodes[node.data.id]) {
+    //     const dragInDevices = this.dragInNodes[node.data.id]
+    //     dragInDevices.forEach(addDevice => {
+    //       this.deleteNodes.forEach(dir => {
+    //         if (dir.dirId !== node.data.id) {
+    //           dir.devices.forEach(delDevice => {
+    //             if (addDevice.id === delDevice.id) {
+    //               vgroupTree.append(addDevice, node.data)
+    //             }
+    //           })
+    //         }
+    //       })
+    //     })
+    //   }
+    // } else {
+    //   if (this.dragInNodes[node.parent.data.id]) {
+    //     const nvrDragIn = this.dragInNodes[node.parent.data.id].filter(device => device.id === node.data.id)
+    //     if (nvrDragIn.length > 0) {
+    //       let channels = nvrDragIn[0].channels
+    //       this.deleteNodes.forEach(dir => {
+    //         if (dir.dirId !== node.parent.data.id) {
+    //           channels.forEach(channel => {
+    //             dir.devices.forEach(delDevice => {
+    //               if (channel.id === delDevice.id) {
+    //                 vgroupTree.append(channel, node.data)
+    //               }
+    //             })
+    //           })
+    //         }
+    //       })
+    //     }
+    //   }
+    // }
   }
 
   private async loadAll(node) {
@@ -303,33 +449,38 @@ export default class extends Vue {
       // 对已共享的目录进行加载
       if (node.data.type === 'nvr') {
         // nvr设备无需请求，只需构造节点
-        res = node.data.channels.map(channel => {
-          return {
-            ...channel,
-            id: channel.deviceId,
-            groupId: channel.groupId,
-            label: channel.channelName,
-            inProtocol: channel.inProtocol || node.data.inProtocol,
-            // isLeaf: dir.isLeaf || true,
-            isLeaf: true,
-            type: 'ipc',
-            deviceStatus: channel.deviceStatus,
-            streamStatus: channel.streamStatus,
-            // disabled: dir.type !== 'ipc' || sharedFlag,
-            disabled: false,
-            path: node.data.path.concat([channel]),
-            sharedFlag: true,
-            dragInFlag: false,
-            roleId: node.data.roleId || '',
-            realGroupId: node.data.realGroupId || '',
-            realGroupInProtocol: node.data.realGroupInProtocol || '',
+        if (node.data.sharedFlag) {
+          // 已共享nvr节点展开时构造数据
+          res = node.data.channels ? node.data.channels.map(channel => {
+            return {
+              ...channel,
+              id: channel.deviceId || channel.id,
+              groupId: channel.groupId,
+              label: channel.channelName ?? channel.label,
+              inProtocol: channel.inProtocol || node.data.inProtocol,
+              // isLeaf: dir.isLeaf || true,
+              isLeaf: true,
+              type: 'ipc',
+              deviceStatus: channel.deviceStatus,
+              streamStatus: channel.streamStatus,
+              // disabled: dir.type !== 'ipc' || sharedFlag,
+              disabled: false,
+              path: node.data.path.concat([channel]),
+              sharedFlag: true,
+              dragInFlag: false,
+              roleId: node.data.roleId || '',
+              realGroupId: node.data.realGroupId || '',
+              realGroupInProtocol: node.data.realGroupInProtocol || '',
 
-            gbId: channel.gbId,
-            gbIdDistrict: this.generateDistrictGbId(node.data.path[0].gbIdDistrict, channel.gbId || ''),
-            gbIdVgroup: channel.gbId || '',
-            gbIdDistrictRoot: node.data.path[0].gbIdDistrict
-          }
-        })
+              gbId: channel.gbId,
+              upGbId: channel.upGbId,
+              upGbIdOrigin: channel.upGbId || ''
+            }
+          }) : []
+        } else {
+          // 还未共享，仅是拖拽的nvr节点展开时构造数据
+          res = node.data.channels
+        }
       } else {
         // 目录
         const dirs = await this.getSharedDirs(node)
@@ -337,7 +488,7 @@ export default class extends Vue {
         res = [...dirs, ...devices]
       }
     }
-    this.debounceLoading()
+    this.step === 1 ? this.debounceLoading() : (this.loading.sharedDir = false)
     return res
   }
 
@@ -358,10 +509,8 @@ export default class extends Vue {
         sharedFlag: true,
         dragInFlag: false,
         path: node.data.path.concat([dir]),
-
-        gbIdDistrict: this.generateDistrictGbId(node.data.path[0].gbIdDistrict, dir.gbId || ''),
-        gbIdVgroup: dir.gbId || '',
-        gbIdDistrictRoot: node.data.path[0].gbIdDistrict
+        upGbId: dir.gbId || '',
+        upGbIdOrigin: dir.gbId || ''
       }
     })
     return dirs
@@ -390,7 +539,7 @@ export default class extends Vue {
         return {
           ...dir,
           id: dir.deviceId,
-          groupId: node.data.groupId,
+          groupId: dir.groupId,
           label: dir.deviceName,
           inProtocol: dir.inProtocol || node.data.inProtocol,
           // isLeaf: dir.isLeaf || true,
@@ -408,9 +557,8 @@ export default class extends Vue {
           realGroupInProtocol: node.data.realGroupInProtocol || '',
 
           gbId: dir.gbId,
-          gbIdDistrict: this.generateDistrictGbId(node.data.path[0].gbIdDistrict, dir.upGbId || ''),
-          gbIdVgroup: dir.upGbId || '',
-          gbIdDistrictRoot: node.data.path[0].gbIdDistrict
+          upGbId: dir.upGbId || '',
+          upGbIdOrigin: dir.upGbId || ''
         }
       })
       // dirs = dirs.filter(dir => shareDeviceIds.includes(dir.id))
@@ -432,19 +580,8 @@ export default class extends Vue {
         node.data.realGroupId = node.data.id
         node.data.realGroupInProtocol = node.data.inProtocol
       }
-      let shareDeviceIds: any = []
-      if (node.data.type !== 'vgroup' && node.data.type !== 'role') {
-        let params: any = {
-          platformId: this.platformId,
-          dirId: node.data.type === 'top-group' || node.data.type === 'group' ? -1 : node.data.id,
-          dirType: '0',
-          pageNum: 1,
-          pageSize: 1000
-        }
-        const shareDevices: any = await describeShareDevices(params)
-        shareDeviceIds = shareDevices.devices.map((device: any) => {
-          return device.deviceId
-        })
+      if (node.data.type === 'ipc') {
+        return
       }
 
       const devices: any = await getDeviceTree({
@@ -457,15 +594,44 @@ export default class extends Vue {
           'real-group-id': node.data.realGroupId
         }
       })
+      let shareDeviceIds: any = []
+      let paramNoNvrDevice = devices.dirs.filter(item => item.type !== 'nvr')
+      const param = {
+        platformId: this.platformId,
+        devices: paramNoNvrDevice.map(device => ({
+          deviceId: device.id
+        }))
+      }
+      try {
+        const res = await validateShareDevices(param)
+        if (res.isUsed) {
+          shareDeviceIds = res.isUsed.map(item => item.deviceId)
+        }
+      } catch (e) {
+        console.log(e)
+      }
+
+      const dirTree: any = this.$refs.dirTree
+      let checkedKeys = dirTree.getCheckedKeys()
       let dirs: any = devices.dirs.map((dir: any) => {
         let sharedFlag = false
-        if (shareDeviceIds.includes(dir.id) && dir.type === 'ipc') {
+        let isDeleteFlag = false
+        if (shareDeviceIds.includes(dir.id)) {
           sharedFlag = true
+
+          isDeleteFlag = this.filterShareDeviceIds(dir.id)
+          if (!isDeleteFlag) {
+            checkedKeys.push(dir.id)
+          }
+          dirTree.setCheckedKeys(checkedKeys)
         }
+        // setCheckedKeys会影响所有节点的半选状态，因此要重新设置
+        this.initIdeterminateNode(dirTree)
         return {
           ...dir,
           id: dir.id,
           groupId: node.data.groupId,
+          groupDirId: node.data.type === 'top-group' || node.data.type === 'vgroup' ? '-1' : node.data.id,
           label: dir.label,
           inProtocol: dir.inProtocol || node.data.inProtocol,
           channelNum: dir.channelNum + '' || '0',
@@ -473,8 +639,8 @@ export default class extends Vue {
           type: dir.type,
           deviceStatus: dir.deviceStatus,
           streamStatus: dir.streamStatus,
-          disabled: sharedFlag,
-          path: node.data.path.concat([{ ...dir, gbIdDistrict: dir.gbId || '', gbIdVgroup: dir.gbId || '' }]),
+          disabled: sharedFlag && !isDeleteFlag,
+          path: node.data.path.concat([{ ...dir, upGbId: dir.gbId || '', upGbIdOrigin: dir.gbId || '', inProtocol: dir.inProtocol || node.data.inProtocol }]),
           sharedFlag: sharedFlag,
           roleId: node.data.roleId || '',
           realGroupId: node.data.realGroupId || '',
@@ -482,9 +648,8 @@ export default class extends Vue {
           dragInFlag: !!node.data?.dragInFlag,
 
           gbId: dir.gbId,
-          gbIdDistrict: this.generateDistrictGbId(node.data.path[0].gbIdDistrict, dir.gbId || ''),
-          gbIdVgroup: dir.gbId || '',
-          gbIdDistrictRoot: node.data.path[0].gbIdDistrict
+          upGbId: dir.gbId || '',
+          upGbIdOrigin: dir.gbId || ''
         }
       })
       dirs = setDirsStreamStatus(dirs)
@@ -506,7 +671,7 @@ export default class extends Vue {
         node.expanded = true
       } else {
         const dirs = await this.getTree(node)
-        dirTree.updateKeyChildren(node.data.id, dirs)
+        dirs && dirTree.updateKeyChildren(node.data.id, dirs)
         node.expanded = true
         node.loaded = true
       }
@@ -516,7 +681,6 @@ export default class extends Vue {
           this.checkNodes(dirTree, child)
         }
       })
-      this.onCheckDevice()
     }
   }
 
@@ -548,6 +712,8 @@ export default class extends Vue {
         } else {
           dirs = await this.loadAll(node)
           dirTree.updateKeyChildren(node.data.id, dirs)
+          this.appendDragInNodes(node)
+          this.removeDeleteNodes()
           node.expanded = true
           node.loaded = true
         }
@@ -565,39 +731,17 @@ export default class extends Vue {
     }
   }
 
-  private async forceRefreshChildren(dirTree: any, node: any) {
-    const dirs = await this.loadAll(node)
-    dirTree.updateKeyChildren(node.data.id, dirs)
-    node.expanded = true
-    node.loaded = true
-  }
-
-  /**
-   * 单击ipc时直接勾选
-   */
-  private selectDevice(data: any) {
-    if (data.type === 'ipc' && !data.sharedFlag) {
-      const dirTree: any = this.$refs.dirTree
-      const node = dirTree.getNode(data.id)
-      dirTree.setChecked(data.id, !node.checked)
-    }
-    console.log('data:', data)
+  private forceRefreshChildren(tree: any, node: any) {
+    const rNode = tree.getNode(node.data.id)
+    rNode.loaded = false
+    rNode.expand()
   }
 
   private selectSharedDevice(data: any, node: any) {
-    console.log('data:', data)
+    console.log('this.dragInNodes:', this.dragInNodes)
+    console.log('this.deleteNodes:', this.deleteNodes)
+    console.log('selectSharedDevice  node:', node)
     this.selectedNode = node
-  }
-
-  /**
-   * 当设备被选中时回调，将选中的设备列出
-   */
-  private onCheckDevice() {
-    const dirTree: any = this.$refs.dirTree
-    const nodes = dirTree.getCheckedNodes()
-    this.deviceList = nodes.filter((node: any) => {
-      return (node.type === 'ipc' && !node.sharedFlag)
-    })
   }
 
   private closeDialog(isRefresh: boolean = false) {
@@ -606,6 +750,7 @@ export default class extends Vue {
   }
 
   private handleDragstart(node, event) {
+    this.tempNode = _.cloneDeep(node)
     const vgroupTree: any = this.$refs.vgroupTree
     vgroupTree.$emit('tree-node-drag-start', event, { node: node })
   }
@@ -613,102 +758,46 @@ export default class extends Vue {
   private async handleDragendShared(draggingNode, endNode) {
     const dirTree: any = this.$refs.dirTree
     const vgroupTree: any = this.$refs.vgroupTree
-    console.log('endNode:', endNode)
     if (endNode) {
       if (endNode.data.type === 'ipc' || endNode.data.type === 'nvr') {
-        const draggingData = JSON.parse(JSON.stringify(draggingNode.data))
+        const draggingData = _.cloneDeep(draggingNode.data)
         this.$nextTick(() => {
           vgroupTree.remove(draggingData)
         })
         this.$message.error('请拖入目录')
         return false
       }
-      setTimeout(() => {
-        dirTree.setChecked(draggingNode.data, true, false)
-      }, 0)
       if (!draggingNode.data.dragInFlag) {
-        const draggingData = JSON.parse(JSON.stringify(draggingNode.data))
+        const draggingData = _.cloneDeep(draggingNode.data)
         this.$nextTick(() => {
           vgroupTree.remove(draggingData)
         })
-
         const checkedNodes = dirTree.getCheckedNodes(true, false)
         const allNodes = checkedNodes.map(data => dirTree.getNode(data.id))
-        allNodes.push(draggingNode)
-        // checkedNodes.push({ ...draggingData, dragInFlag: true })
-        const allIPCNodes = allNodes.filter(node => node.data.type === 'ipc')
-
-        // 查看选取设备中是否有nvr通道
-        const devices = []
-        console.log('allIPCNodes:', allIPCNodes)
-        allIPCNodes.forEach(node => {
-          if (node.data.path[node.data.path.length - 2].type === 'nvr') {
-            let findFlag = false
-            devices.forEach(device => {
-              if (node.data.path[node.data.path.length - 2].id === device.deviceId) {
-                device.channels.push({
-                  channelNum: node.data.channelNum + '',
-                  channelName: node.data.label,
-                  gbId: node.data.gbId,
-                  upGbId: node.data.gbId,
-                  deviceId: node.data.id,
-                  deviceIp: node.data.deviceIp || '',
-                  deviceIpv6: node.data.deviceIpv6 || '',
-                  devicePort: node.data.devicePort || ''
-                })
-                findFlag = true
-              }
-            })
-            if (!findFlag) {
-              const parent = node.data.path[node.data.path.length - 2]
-              console.log('parent:', parent)
-              devices.push({
-                deviceId: parent.id,
-                gbId: parent.gbId,
-                upGbId: parent.gbId,
-                deviceName: parent.label,
-                deviceType: parent.type,
-                inProtocol: parent.inProtocol,
-                channels: [{
-                  channelNum: node.data.channelNum + '',
-                  channelName: node.data.label,
-                  gbId: node.data.gbId,
-                  upGbId: node.data.gbId,
-                  deviceId: node.data.id,
-                  deviceIp: node.data.deviceIp || '',
-                  deviceIpv6: node.data.deviceIpv6 || '',
-                  devicePort: node.data.devicePort || ''
-                }]
-              })
-            }
-          } else {
-            devices.push({
-              deviceId: node.data.id || '',
-              gbId: node.data.gbId || '',
-              upGbId: node.data.gbId || '',
-              deviceName: node.data.label || '',
-              deviceType: node.data.type || '',
-              inProtocol: node.data.inProtocol || '',
-              deviceIp: node.data.deviceIp || '',
-              deviceIpv6: node.data.deviceIpv6 || '',
-              devicePort: node.data.devicePort || '',
-              channels: []
-            })
-          }
-        })
-        try {
-          await shareDevice({
-            platformId: this.platformId,
-            dirs: [{
-              dirId: endNode.data.dirId,
-              gbId: endNode.data.gbId,
-              devices
-            }]
-          })
-        } catch (e) {
-          this.$message.error('共享设备失败 ：' + e)
+        // 由于拖拽的节点parent会丢失
+        draggingNode.parent = this.tempNode.parent
+        let allIPCNodes = allNodes.filter(node => node.data.type === 'ipc' && node.data.disabled === false && node.data.id !== draggingNode.data.id)
+        allIPCNodes.push(draggingNode)
+        allIPCNodes = this.sortNodeOnOrderSeq(allIPCNodes)
+        if (!this.dragInNodes[endNode.data.id]) {
+          this.$set(this.dragInNodes, endNode.data.id, [])
         }
-        this.forceRefreshChildren(vgroupTree, endNode)
+        // 将数据添加到delete或者draginNode钟维护状态
+        this.resolveFromAppend(allIPCNodes, endNode)
+
+        setTimeout(() => {
+          allIPCNodes.forEach(node => {
+            const dirNode = dirTree.getNode(node.data)
+            dirNode.data.disabled = true
+            dirNode.checked = true
+            // 如果上级目录/nvr设备为选中状态，则把上级节点disabled
+            const parentNode = dirTree.getNode(dirNode.parent.data)
+            if (parentNode.checked) {
+              parentNode.data.disabled = true
+            }
+          })
+          this.forceRefreshChildren(vgroupTree, endNode)
+        }, 0)
       }
     }
   }
@@ -728,12 +817,70 @@ export default class extends Vue {
         dirTree.remove(emptyData)
       } else {
         // 如果移动到了别的树上，需要恢复该节点，并清掉空节点
-        let data = JSON.parse(JSON.stringify(draggingNode.data))
+        let data = _.cloneDeep(draggingNode.data)
         dirTree.insertAfter(data, dirTree.getNode(emptyData))
         dirTree.remove(emptyData)
-        // dirTree.setChecked(data)
       }
     })
+  }
+
+  private resolveFromAppend(allIPCNodes, endNode) {
+    allIPCNodes.forEach(node => {
+      const isInDelete = this.deleteNodeInDeleteNodes(node, endNode)
+      if (!isInDelete) {
+        if (node.parent.data.type === 'nvr') {
+        // 选取设备中有nvr通道
+          let findFlag = false
+          this.dragInNodes[endNode.data.id].forEach(device => {
+            if (node.parent.data.id === device.id) {
+              device.channels.push(_.cloneDeep(node.data))
+              findFlag = true
+            }
+          })
+          if (!findFlag) {
+            const nvrNode = _.cloneDeep(node)
+            this.$set(nvrNode.parent.data, 'channels', [nvrNode.data])
+            this.dragInNodes[endNode.data.id].push(nvrNode.parent.data)
+          }
+        } else {
+        // 纯IPC
+          this.dragInNodes[endNode.data.id].push(node.data)
+        }
+      }
+    })
+  }
+
+  private deleteNodeInDeleteNodes(node, endNode) {
+    let flag = false
+    this.deleteNodes.forEach(dir => {
+      if (endNode.data.id === dir.dirId) {
+        dir.devices.forEach(device => {
+          if (device.id === node.data.id) {
+            flag = true
+            dir.devices = dir.devices.filter(item => item.id !== node.data.id)
+          }
+        })
+      }
+    })
+    return flag
+  }
+
+  private sortNodeOnOrderSeq(nodes) {
+    // ipc
+    const hasOrderSeq = nodes.filter(node => node.data.orderSequence !== '0')
+    const sortNodesWithOS = hasOrderSeq.sort((n1, n2) => {
+      const n1OS = n1.data?.orderSequence
+      const n2OS = n2.data?.orderSequence
+      return n2OS.localeCompare(n1OS)
+    })
+    // nvr通道
+    const notHasOrderSeq = nodes.filter(node => node.data.orderSequence === '0')
+    const sortNodesWithOutOS = notHasOrderSeq.sort((n1, n2) => {
+      const n1cn = parseInt(n1.data?.channelNum)
+      const n2cn = parseInt(n2.data?.channelNum)
+      return n1cn - n2cn
+    })
+    return [...sortNodesWithOS, ...sortNodesWithOutOS]
   }
 
   private openInner(type) {
@@ -761,16 +908,25 @@ export default class extends Vue {
     this.innerVisible = false
   }
 
-  private next() {
+  private async next() {
     this.step = 1
     // 点击下一步时，展开所有的node
+    // 由于懒加载，tree的data实际上不会更新，因此，强制刷新整个树
+    await this.initSharedDirs()
     const vgroupTree: any = this.$refs.vgroupTree
     // const nodes: any = vgroupTree.store.nodesMap
     this.sharedDirList.forEach(async item => { await this.expandNodes(vgroupTree, vgroupTree.getNode(item)) })
   }
 
   private prev() {
+    this.errorNodesData = []
     this.step = 0
+    // 复位拖拽过去还未共享的节点
+    Object.keys(this.dragInNodes).forEach(label => {
+      this.dragInNodes[label].forEach(data => {
+        data.upGbId = data.upGbIdOrigin
+      })
+    })
   }
 
   private allowDrag(node) {
@@ -786,12 +942,32 @@ export default class extends Vue {
         type: 'warning'
       })
       return false
+    } else if (node.data.disabled === true) {
+      this.$message({
+        message: '设备已共享，不能拖拽',
+        type: 'warning'
+      })
+      return false
+    } else if (node.checked !== true) {
+      return false
     }
     return true
   }
 
-  private async confirm() {
-    const list = JSON.parse(JSON.stringify(this.sharedDirList))
+  private async submit() {
+    const isDuplicate = this.checkGbIdDuplicated(this.sharedDirList)
+    if (isDuplicate) {
+      this.$message.error('级联国标ID重复，请修改')
+      return
+    }
+    const isDigitRight = this.checkDirDigit(this.sharedDirList)
+    if (isDigitRight) {
+      this.mode === 'vgroup'
+        ? this.$message.error('向上级联国标ID位数错误，目录级联ID只能为20位，设备级联ID只能为20位')
+        : this.$message.error('向上级联国标ID位数错误，目录级联ID只能为2、4、6、8位，设备级联ID只能为20位')
+      return
+    }
+    const list = _.cloneDeep(this.sharedDirList)
     if (list.length === 0) {
       return this.$message({
         message: '没有要提交的内容',
@@ -800,14 +976,21 @@ export default class extends Vue {
     }
     let param = []
     list.forEach(item => param.push(...this.generateParam(item, item.children)))
-    console.log('list:', list)
-    console.log('param:', param)
     try {
       await shareDevice({
         platformId: this.platformId,
         dirs: param
       })
-      this.$message.success('添加成功！')
+      this.deleteNodes.forEach(async dnode => {
+        await cancleShareDevice({
+          platformId: this.platformId,
+          dirId: dnode.dirId,
+          devices: dnode.devices.map(device => ({
+            deviceId: device.deviceId
+          }))
+        })
+      })
+      this.$message.success('修改成功！')
       this.closeDialog(true)
     } catch (e) {
       console.log(e)
@@ -816,19 +999,23 @@ export default class extends Vue {
   }
 
   private generateParam(dir, list) {
-    const vgroupTree: any = this.$refs.vgroupTree
     const devices = []
     const dirs = []
     if (list) {
       list.forEach(item => {
-        const node = vgroupTree.getNode(item)
         if (item.type === 'ipc') {
           devices.push(item)
         } else if (item.type === 'nvr') {
           devices.push({ ...item,
-            channels: node.childNodes.map(childNode => ({
-              ...childNode.data,
-              upGbId: this.gbIdMode === 'vgroup' ? childNode.data.gbIdVgroup : childNode.data.gbIdDistrict
+            channels: item.channels.map(channel => ({
+              channelNum: channel.channelNum,
+              channelName: channel.label,
+              gbId: channel.gbId,
+              deviceId: channel.id,
+              deviceIp: channel.deviceIp,
+              deviceIpv6: channel.deviceIpv6 || '',
+              devicePort: channel.devicePort,
+              upGbId: channel.upGbId
             }))
           })
         } else {
@@ -838,15 +1025,17 @@ export default class extends Vue {
     }
     dirs.push({
       dirId: dir.dirId,
-      gbId: this.gbIdMode === 'vgroup' ? dir.gbIdVgroup : dir.gbIdDistrict,
+      gbId: dir.upGbId,
       devices: devices.map(device => ({
         deviceId: device.id,
         gbId: device.gbId,
-        upGbId: this.gbIdMode === 'vgroup' ? device.gbIdVgroup : device.gbIdDistrict,
+        upGbId: device.upGbId,
         deviceName: device.label,
         deviceType: device.type,
         inProtocol: device.inProtocol,
-        channels: device.channels || []
+        channels: device.channels || [],
+        groupId: device.groupId,
+        groupDirId: device.groupDirId
       }))
     })
     return dirs
@@ -862,7 +1051,15 @@ export default class extends Vue {
     if (opParam.selectedNode) {
       // 有选择节点
       if (opParam.selectedNode.level !== 1) {
-        this.forceRefreshChildren(vgroupTree, opParam.type === 'append' ? opParam.selectedNode : opParam.selectedNode.parent)
+        if (opParam.type === 'deleteDevice') {
+          this.deleteNode(opParam.selectedNode)
+        }
+        if (opParam.type === 'deleteDevice' && opParam.selectedNode.parent.data.type === 'nvr') {
+          opParam.selectedNode.parent.loaded = false
+          this.forceRefreshChildren(vgroupTree, opParam.selectedNode.parent.parent)
+        } else {
+          this.forceRefreshChildren(vgroupTree, opParam.type === 'append' ? opParam.selectedNode : opParam.selectedNode.parent)
+        }
       } else {
         // 根节点更新
         this.initSharedDirs()
@@ -892,22 +1089,18 @@ export default class extends Vue {
               label: group.dirName,
               type: group.inProtocol === 'vgroup' ? 'vgroup' : 'top-group',
               inProtocol: group.inProtocol || '',
-              gbIdDistrict: group.gbId || '',
-              gbIdVgroup: group.gbId || '',
-              gbIdDistrictRoot: group.gbId
+              upGbId: group.gbId || '',
+              upGbIdOrigin: group.gbId || ''
             }],
-            gbIdDistrict: group.gbId || '',
-            gbIdVgroup: group.gbId || '',
-            gbIdDistrictRoot: group.gbId
+            upGbId: group.gbId || '',
+            upGbIdOrigin: group.gbId || ''
           })
         })
       }
       let difference = newSharedDirs.filter(x => !this.sharedDirList.find(y => y.dirId === x.dirId))
+
       this.sharedDirList.push(difference[0])
     }
-
-    this.$message.success('操作成功')
-
     this.innerVisible = false
   }
 
@@ -915,32 +1108,170 @@ export default class extends Vue {
     this.selectedNode = null
   }
 
-  private rootInput(node, data, val) {
-    data.gbIdDistrict = val
-    if (node.level === 1 && this.gbIdMode === 'district') { // 根节点
-      data.gbIdDistrictRoot = val
-      this.changeGbIdDistrictRoot(data, val)
-    }
-  }
-
-  private changeGbIdDistrictRoot(data, val) {
-    if (data.children && data.children.length > 0) {
-      data.children.forEach(child => {
-        child.gbIdDistrictRoot = val
-        child.gbIdDistrict = this.generateDistrictGbId(val, child.gbId)
-        this.changeGbIdDistrictRoot(child, val)
+  // 根据nvr节点的checked状态改变disabled
+  private resetNvrStatus(node) {
+    if (node.data.type === 'nvr') {
+      node.childNodes.forEach(child => {
+        child.checked = child.data.disabled
       })
     }
   }
 
-  private generateDistrictGbId(rootId, leafId) {
-    // node.data.path[0].gbIdDistrict + (channel.gbId || '')
-    const rootIdLength = rootId.length // 8
-    const leafIdLength = leafId.length // > 8
-    if (rootIdLength >= leafIdLength) {
-      return rootId
+  private appendDragInNodes(node) {
+    if (this.dragInNodes[node.data.id]) {
+      const vgroupTree: any = this.$refs.vgroupTree
+      this.dragInNodes[node.data.id].forEach(dragNodeData => {
+        if (dragNodeData.type === 'nvr') {
+          let findFlag = false
+          node.childNodes.forEach(child => {
+            if (child.data.id === dragNodeData.id) {
+              child.data.channels.push(...dragNodeData.channels)
+              findFlag = true
+            }
+          })
+          if (!findFlag) {
+            dragNodeData.children = [] // 首次添加nvr节点，需要清空原有children，否则后面利用children做校验会出错
+            vgroupTree.append(dragNodeData, node.data)
+          }
+        } else {
+          vgroupTree.append(dragNodeData, node.data)
+        }
+      })
     }
-    return rootId + leafId.substring(rootIdLength)
+  }
+
+  private removeDeleteNodes() {
+    const vgroupTree: any = this.$refs.vgroupTree
+    const dirTree: any = this.$refs.dirTree
+    this.deleteNodes.forEach(dir => {
+      dir.devices.forEach(device => {
+        const node = vgroupTree.getNode(device)
+        if (node) {
+          const parentDir = node.parent.data.type === 'nvr' ? node.parent.parent : node.parent
+          if (node && parentDir.data.id === dir.dirId) {
+            vgroupTree.remove(device)
+            const removedNode = dirTree.getNode(device)
+            if (removedNode) {
+              removedNode.data.disabled = false
+              removedNode.checked = false
+            }
+          }
+        }
+      })
+    })
+  }
+
+  // 目前只操作设备的删除，ipc & nvr
+  private deleteNode(node) {
+    const dirTree: any = this.$refs.dirTree
+    const parentDirId = node.parent.data.type === 'nvr' ? node.parent.parent.data.dirId : node.parent.data.dirId
+    if (node.data.sharedFlag) {
+      let findFlag = false
+      this.deleteNodes.forEach(item => {
+        if (item.dirId === parentDirId) {
+          item.devices.push(node.data)
+          findFlag = true
+        }
+      })
+      if (!findFlag) {
+        this.deleteNodes.push({ dirId: parentDirId, devices: [node.data] })
+      }
+    } else {
+      // 暂存的，就不用进入deleteNodes里了
+      if (node.parent.data.type === 'nvr') {
+        // nvr通道
+        this.dragInNodes[parentDirId].forEach(item => {
+          if (item.id === node.parent.data.id || (item.deviceId && item.deviceId === node.parent.data.deviceId)) {
+            const nvrNode = dirTree.getNode(item.id)
+            const channelNode = dirTree.getNode(item.channels.filter(channel => channel.id === node.data.id)[0])
+            if (nvrNode) {
+              nvrNode.data.disabled = false
+            }
+            if (channelNode) {
+              channelNode.data.disabled = false
+              channelNode.checked = false
+            }
+            const filterdChannels = item.channels.filter(channel => channel.id !== node.data.id)
+            item.channels = filterdChannels
+          }
+        })
+      } else {
+        // 纯ipc或nvr设备本身
+        Object.keys(this.dragInNodes).forEach(dirId => {
+          if (parentDirId === dirId) {
+            this.dragInNodes[dirId] = this.dragInNodes[dirId].filter(dragInNode => dragInNode.id !== node.data.id)
+          }
+        })
+        const INNode = dirTree.getNode(node.data)
+        INNode.data.disabled = false
+        INNode.checked = false
+      }
+      // remove之后，树竟然不清除节点，真他妈坑
+      const vgroupTree: any = this.$refs.vgroupTree
+      if (vgroupTree.store.nodesMap[node.data.id]) {
+        this.$delete(vgroupTree.store.nodesMap, node.data.id)
+        if (node.data.type === 'nvr') {
+          node.childNodes.forEach(child => {
+            this.$delete(vgroupTree.store.nodesMap, child.data.id)
+          })
+        }
+      }
+    }
+    if (node.data.type === 'nvr') {
+      this.uncheckedNvrNode(node.data.id)
+    }
+  }
+
+  private uncheckedNvrNode(id) {
+    const dirTree: any = this.$refs.dirTree
+    const nvrNode = dirTree.getNode(id)
+    this.$nextTick(() => {
+      if (nvrNode && nvrNode.childNodes) {
+        nvrNode.childNodes.forEach(child => {
+          child.data.disabled = false
+          child.checked = false
+        })
+      }
+    })
+  }
+
+  private tagNvrUnloaded(node) {
+    if (node.childNodes) {
+      node.childNodes.forEach(child => {
+        if (child.data.type === 'nvr') {
+          child.expanded = false
+          child.loaded = false
+        }
+      })
+    }
+  }
+
+  private allowDragSharedTree(draggingNode) {
+    const vgroupTree: any = this.$refs.vgroupTree
+    if (vgroupTree.getNode(draggingNode.data)) {
+      // 不能拖拽共享树下的节点
+      return false
+    }
+    return true
+  }
+
+  private filterShareDeviceIds(id) {
+    let res = false
+
+    this.deleteNodes.forEach(node => {
+      res = node.devices.find(device => device.id === id)
+    })
+    if (!res) {
+      this.deleteNodes.forEach(node => {
+        node.devices.forEach(device => {
+          if (device.channels) {
+            const channels = device.channels
+            res = !!channels.find(channel => channel.deviceId === id)
+          }
+        })
+      })
+    }
+    return res
   }
 }
 </script>
@@ -1021,6 +1352,10 @@ export default class extends Vue {
       width: 240px;
       overflow: hidden;
 
+      span {
+        margin-left: 3px;
+      }
+
       .svg-icon {
         color: $textGrey;
       }
@@ -1091,7 +1426,6 @@ export default class extends Vue {
   &__label {
     width: 150px;
     display: flex;
-    justify-content: center;
     overflow: hidden;
     text-align: left;
   }
@@ -1104,5 +1438,22 @@ export default class extends Vue {
     width: 100%;
     height: 25px;
   }
+
+  .error {
+    ::v-deep .el-input__inner {
+      border: 1px solid red;
+    }
+  }
+
+  .modified {
+    ::v-deep .el-input__inner {
+      color: $primary;
+    }
+  }
 }
+
+.el-popover__reference {
+  margin-left: 3px;
+}
+
 </style>

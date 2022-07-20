@@ -150,6 +150,10 @@ export default class DetailMixin extends Mixins(DeviceMixin) {
     return this.info && this.info.parentDeviceId !== '-1'
   }
 
+  public get isGbNVRChannel() {
+    return this.info && this.info.deviceClass === 'channel'
+  }
+
   public get isPlatform() {
     return this.info && this.info.deviceType === 'platform'
   }

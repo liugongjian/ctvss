@@ -57,7 +57,7 @@
           </el-table>
         </el-card>
       </el-tab-pane>
-      <el-tab-pane label="OpenAPI授权" name="open">
+      <el-tab-pane v-if="!isPrivate" label="OpenAPI授权" name="open">
         <el-alert
           type="info"
           show-icon
@@ -99,6 +99,7 @@ import { SecretStatus } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { getSecretList, createSecret, deleteSecret, enableSecret, disableSecret } from '@/api/secret'
 import { MessageBox } from 'element-ui'
+import { UserModule } from '@/store/modules/user'
 
 @Component({
   name: 'secret-manage',
@@ -119,6 +120,10 @@ export default class extends Vue {
 
   private get canCreateFlag() {
     return !this.loading && this.dataList.length < 2
+  }
+
+  private get isPrivate() {
+    return UserModule.isPrivate
   }
 
   private async getList() {
