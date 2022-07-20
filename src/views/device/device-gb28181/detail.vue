@@ -266,7 +266,7 @@
                         {{ viewLibInfo.ipAddr || '-' }}
                       </el-descriptions-item>
                       <el-descriptions-item label="设备端口">
-                        {{ viewLibInfo.port || '-' }}
+                        {{ viewLibInfo.port.toString() || '-' }}
                       </el-descriptions-item>
                     </el-descriptions>
                   </div>
