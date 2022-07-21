@@ -229,7 +229,7 @@
 </template>
 <script lang='ts'>
 import { Component, Mixins, Prop } from 'vue-property-decorator'
-import { getAIConfigGroupData } from '@/api/aiConfig'
+import { listGroup } from '@/api/face'
 import { getAppInfo, updateAppInfo, createApp } from '@/api/ai-app'
 import { ResourceAiType, TrashType, HelmetClothType, AnimalType } from '@/dics'
 import AppMixin from '../../mixin/app-mixin'
@@ -304,8 +304,8 @@ export default class extends Mixins(AppMixin) {
       this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [], validateType: '无验证', confidence: 60, beeNumber: 1 }
     }
     try {
-      const { groups } = await getAIConfigGroupData({})
-      this.faceLibs = groups
+      const { data } = await listGroup({})
+      this.faceLibs = data
     } catch (e) {
       this.$alertError(e && e.message)
     }
@@ -436,8 +436,8 @@ export default class extends Mixins(AppMixin) {
    */
   private async refreshFaceLib() {
     this.isfaceLibLoading = true
-    const { groups } = await getAIConfigGroupData({ })
-    this.faceLibs = groups
+    const { data } = await listGroup({ })
+    this.faceLibs = data
     this.isfaceLibLoading = false
   }
   /**
@@ -462,7 +462,7 @@ export default class extends Mixins(AppMixin) {
    */
   private goFaceLib() {
     const addr = this.$router.resolve({
-      name: 'aiconfig'
+      name: 'facelib'
     })
     window.open(addr.href, '_blank')
   }
