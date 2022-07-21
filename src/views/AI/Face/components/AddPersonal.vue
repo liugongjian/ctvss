@@ -25,11 +25,12 @@
           <img v-if="form.imageString" :src="form.imageString" class="avatar">
           <i v-else class="el-icon-plus avatar-uploader-icon" />
         </el-upload>
-        <div class="form-tip form-tip-avatar">
+        <div v-if="verifyResult.state" class="form-tip form-tip-avatar">
           <p>图片格式：JPG、JPEG、PNG、GIF。</p>
           <p>图片大小：图片大小不超过 5M。</p>
           <p>图片像素：大于 5×5 像素，小于 4096×4096 像素。人脸尺寸建议大于 64×64 像素。</p>
         </div>
+        <div v-if="!verifyResult.state" class="el-form-item__error">{{ verifyResult.msg }}</div>
       </el-form-item>
       <el-form-item label="姓名:" prop="name">
         <el-input v-model="form.name" placeholder="请输入姓名" />
@@ -66,6 +67,10 @@ export default class extends Vue {
   private dialogVisible = true
   private loading = false
   private needVerify = false
+  private verifyResult = {
+    state: true,
+    msg: ''
+  }
   private form: Record<string, any> = {
     imageString: null,
     imageName: null,
@@ -75,8 +80,7 @@ export default class extends Vue {
   }
   private rules = {
     imageString: [
-      { required: true, message: '请选择图片', trigger: 'blur' },
-      { validator: this.validateImage, trigger: 'blur' }
+      { required: true, message: '请选择图片', trigger: 'blur' }
     ],
     name: [
       { required: true, message: '请输入姓名', trigger: 'blur' }
@@ -87,31 +91,35 @@ export default class extends Vue {
     ]
   }
 
+  private async verifyImage(value) {
+    try {
+      const result = await verify({
+        pic: encodeBase64(value)
+      })
+      if (result.verifyCode !== '0') {
+        this.verifyResult = {
+          state: false,
+          msg: result.message
+        }
+      } else {
+        this.verifyResult = {
+          state: true,
+          msg: ''
+        }
+      }
+    } catch (e) {
+      this.verifyResult = {
+        state: false,
+        msg: e.message
+      }
+    }
+  }
+
   private validateCertificate(rule: any, value: string, callback: any) {
     if (value && !/^[0-9]{17}[0-9a-zA-Z]{1}$/.test(value)) {
       callback(new Error('身份证格式错误'))
     } else {
       callback()
-    }
-  }
-
-  private async validateImage(rule: any, value: string, callback: any) {
-    if (!this.needVerify) {
-      callback()
-    } else {
-      try {
-        const result = await verify({
-          pic: encodeBase64(value)
-        })
-        if (value && result.verifyCode !== '0') {
-          // callback(new Error('请上传正常的人脸头像'))
-          callback(new Error(result.message))
-        } else {
-          callback()
-        }
-      } catch (e) {
-        callback(new Error(e.message))
-      }
     }
   }
 
@@ -134,8 +142,11 @@ export default class extends Vue {
     reader.readAsDataURL(file.raw)
     this.form.imageName = file.raw.name
     reader.onload = (e: any) => {
+      const form: any = this.$refs.form
+      form.clearValidate('imageString')
       this.needVerify = true
       this.form.imageString = e.target.result
+      this.verifyImage(this.form.imageString)
     }
   }
 
@@ -179,6 +190,7 @@ export default class extends Vue {
   }
 
   private submit() {
+    if (this.loading) return
     const form: any = this.$refs.form
     form.validate((valid: any) => {
       if (valid) {
