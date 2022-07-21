@@ -557,10 +557,9 @@ export default class extends Mixins(createMixin) {
     createGa1400Certificate: false
   }
   private hasViewLib = false
-  private ifUseDeviceName = false
 
   private created() {
-    this.setIfUseDeviceName()
+    this.getIfUseDeviceName()
   }
 
   public async mounted() {
@@ -703,10 +702,8 @@ export default class extends Mixins(createMixin) {
   /**
    * 获取是否使用设备名称
    */
-  private setIfUseDeviceName() {
-    const temp = this.$store.state.user.userConfigInfo.find((item: any) => item.key === 'enableCloudChannelName')
-    const ifUse = temp.value === 'true'
-    this.ifUseDeviceName = ifUse
+  private getIfUseDeviceName() {
+    this.setIfUseDeviceName()
     // 新增逻辑，使用设备名称时，屏蔽效验正则
     if (this.ifUseDeviceName) {
       this.rules = { ...this.rules,
