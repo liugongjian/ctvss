@@ -137,6 +137,7 @@ export default class extends Vue {
 
         &--warning {
           background: $white;
+          white-space: nowrap;
         }
 
         &--top {

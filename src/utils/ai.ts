@@ -76,13 +76,13 @@ export const parseMetaData = (type: string, metaData: any) => {
     case '10034':
       locations = metaData && metaData.map((person: any) => {
         try {
-          const rect = JSON.parse(person.MatchPicRectangles)
+          const rect = JSON.parse(person.FaceRectangles)
           return {
             top: rect[1],
             left: rect[0],
             width: rect[2],
             height: rect[3],
-            isWarning: person.Score && person.Score > 0.6,
+            isWarning: true,
             score: person.Score && Math.round(person.Score * 100),
             name: person.Name
           }
