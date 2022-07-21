@@ -131,15 +131,6 @@
                           {{ info.macAddr || '-' }}
                         </el-descriptions-item>
                       </template>
-                      <!--子通道信息-->
-                      <template v-if="info && isGbNVRChannel">
-                        <el-descriptions-item v-if="info.deviceChannels.length" label="通道号">
-                          {{ 'D' + info.deviceChannels[0].channelNum || '-' }}
-                        </el-descriptions-item>
-                        <el-descriptions-item v-if="info.deviceChannels.length" label="通道名称">
-                          {{ info.deviceChannels[0].channelName || '-' }}
-                        </el-descriptions-item>
-                      </template>
                       <!--通用信息-->
                       <el-descriptions-item label="设备国标ID">
                         {{ info.gbId || '-' }}
