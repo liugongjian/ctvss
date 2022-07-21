@@ -81,7 +81,7 @@ export default class extends Vue {
 
   .pic-wrapper {
     position: relative;
-    line-height: 0;
+    // line-height: 0;
 
     img {
       width: 100%;

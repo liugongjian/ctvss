@@ -149,7 +149,7 @@
         <el-input v-model="form.algorithmMetadata.lingerInterval" />
         <span class="comment">分钟</span>
       </el-form-item>
-      <el-form-item v-if="ifShow('10001','10016','10017')" prop="algorithmMetadata.FaceDbName" label="人脸库">
+      <el-form-item v-if="ifShow('10001','10016','10017', '10034')" prop="algorithmMetadata.FaceDbName" label="人脸库">
         <el-select v-model="form.algorithmMetadata.FaceDbName" placeholder="请选择人脸库" :loading="isfaceLibLoading">
           <el-option v-for="item in faceLibs" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>

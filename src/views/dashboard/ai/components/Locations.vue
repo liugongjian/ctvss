@@ -11,9 +11,9 @@
         :style="`top:${location.clientTopPercent}%; left:${location.clientLeftPercent}%; width:${location.clientWidthPercent}%; height:${location.clientHeightPercent}%;`"
         @click="clickLocation(locationIndex)"
       >
-        <div v-if="['4', '10001'].includes(type) && !!location.score" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
+        <div v-if="['4', '10001', '34', '10034'].includes(type) && !!location.score" class="ai-recognation__images__item__mask__text" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
           置信度:{{ location.score }}%<br>
-          <span v-if="['4', '10001'].includes(type)">姓名:{{ location.name }}</span>
+          <span v-if="['4', '10001', '34', '10034'].includes(type)">姓名:{{ location.name }}</span>
         </div>
         <div v-if="['29', '10026'].includes(type)" class="ai-recognation__images__item__mask__text dustbin" :class="{'ai-recognation__images__item__mask__text--warning': location.isWarning}">
           {{ location.label }}

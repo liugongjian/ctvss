@@ -399,6 +399,7 @@ export default class extends Vue {
   private onload() {
     const metaData = JSON.parse(this.dialoguePic.metadata)
     const locations = parseMetaData(this.appInfo.algorithm.code, metaData)
+    debugger
     const img = this.$refs.dialogue
     this.dialoguePic = { ...this.dialoguePic, locations: transformLocationAi(locations, img) }
   }
