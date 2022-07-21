@@ -97,13 +97,7 @@
               />
             </el-select>
           </el-form-item>
-          <el-form-item v-if="isUpdate" :label="ifUseDeviceName ? '设备实际名称:' :'设备名称:' " prop="deviceName" class="form-with-tip">
-            <el-input v-model="form.deviceName" :disabled="ifUseDeviceName" />
-            <div class="form-tip">
-              2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
-            </div>
-          </el-form-item>
-          <el-form-item v-else label="设备名称:" prop="deviceName" class="form-with-tip">
+          <el-form-item label="设备名称:" prop="deviceName" class="form-with-tip">
             <el-input v-model="form.deviceName" />
             <div class="form-tip">
               2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
@@ -376,7 +370,13 @@
           <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
           <el-input v-model="form.deviceLatitude" class="longlat-input" />
         </el-form-item>
-        <el-form-item label="通道名称:" prop="channelName" class="form-with-tip">
+        <el-form-item v-if="isUpdate" :label="ifUseDeviceName ? '通道实际名称:' :'通道名称:' " prop="channelName" class="form-with-tip">
+          <el-input v-model="form.channelName" :disabled="ifUseDeviceName" />
+          <div class="form-tip">
+            2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
+          </div>
+        </el-form-item>
+        <el-form-item v-else label="通道名称:" prop="channelName" class="form-with-tip">
           <el-input v-model="form.channelName" />
           <div class="form-tip">
             2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
@@ -565,6 +565,10 @@ export default class extends Mixins(createMixin) {
   private hasViewLib = false
   private ifUseDeviceName = false
 
+  private created() {
+    this.setIfUseDeviceName()
+  }
+
   public async mounted() {
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
@@ -575,7 +579,6 @@ export default class extends Mixins(createMixin) {
     this.getGbAccounts()
     this.getGa1400Accounts()
     this.onGroupChange()
-    this.setIfUseDeviceName()
   }
 
   /**
