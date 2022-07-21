@@ -166,7 +166,6 @@ export default class extends Vue {
           if (this.isMainUser) {
             await UserModule.ChangePassword(this.form)
           } else {
-            // const { subUserName, mainUserID } = this.$route.query
             const subUserName = UserModule.name
             const mainUserID = UserModule.mainUserID
             const { originalPwd, newPwd, confirmPwd } = this.form

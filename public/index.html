@@ -8,6 +8,9 @@
     <link rel="stylesheet" type="text/css" href="/layout/static/css/app.css"></link>
     <link rel="stylesheet" type="text/css" href="/iam/layout/alogic-layout.css"></link>
     <title><%= webpackConfig.name %></title>
+    <script>
+      window.original_btoa = window.btoa
+    </script>
     <script src="<%= BASE_URL %>EasyWasmPlayer.js"></script>
   </head>
   <body>
