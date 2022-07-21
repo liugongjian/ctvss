@@ -583,7 +583,8 @@ export default class extends Mixins(createMixin) {
       this.loading.device = true
       this.form.deviceId = this.deviceId
       const info = await getDevice({
-        deviceId: this.form.deviceId
+        deviceId: this.form.deviceId,
+        inProtocol: this.inProtocol
       })
       if (info.apeId) {
         this.hasViewLib = true
