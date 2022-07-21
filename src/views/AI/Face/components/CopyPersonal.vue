@@ -94,6 +94,7 @@ export default class extends Vue {
   }
 
   private async submit() {
+    if (this.submitting) return
     try {
       this.submitting = true
       const params = {

@@ -68,6 +68,7 @@ export default class extends Vue {
   }
 
   private async submit() {
+    if (this.loading) return
     const form: any = this.$refs.form
     form.validate(async(valid: any) => {
       try {
