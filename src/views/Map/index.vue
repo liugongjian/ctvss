@@ -76,7 +76,7 @@
           </div>
         </div>
         <div class="device-list__right">
-          <div class="tools" v-if="curMap">
+          <div v-if="curMap" class="tools">
             <span class="left">
               <span class="btn-edit tools-item" @click="changeEdit(!isEdit)">{{ isEdit ? '完成编辑' : '开启编辑' }}</span>
               <template v-if="isEdit">
