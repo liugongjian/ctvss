@@ -121,6 +121,11 @@ export default class extends Vue {
   /* 播放器实例 */
   private player: Player = null
 
+  /* 是否为直播264 */
+  private get isLiveH264() {
+    return this.isLive && this.type === 'flv' && this.codec === 'h264'
+  }
+
   /* 获取播放器实例Provide */
   @Provide('getPlayer')
   private getPlayer() {
@@ -136,7 +141,7 @@ export default class extends Vue {
 
   private mounted() {
     this.url && this.createPlayer()
-    if (this.isLive && this.type === 'flv') document.addEventListener('visibilitychange', this.onVisibilitychange)
+    document.addEventListener('visibilitychange', this.onVisibilitychange)
   }
 
   /**
@@ -145,7 +150,7 @@ export default class extends Vue {
   private beforeDestroy() {
     this.isDebug && console.log('销毁播放器')
     this.player && this.player.disposePlayer()
-    if (this.isLive && this.type === 'flv') document.removeEventListener('visibilitychange', this.onVisibilitychange)
+    document.removeEventListener('visibilitychange', this.onVisibilitychange)
   }
 
   /**
@@ -179,7 +184,7 @@ export default class extends Vue {
    * 切换浏览器TAB重新加载视频
    */
   private onVisibilitychange() {
-    if (document.visibilityState === 'visible') {
+    if (this.isLiveH264 && document.visibilityState === 'visible') {
       this.player && this.player.reloadPlayer()
     }
   }
