@@ -38,7 +38,7 @@
         <el-input v-model="form.name" placeholder="请输入姓名" maxlength="64" />
       </el-form-item>
       <el-form-item label="人员编号:" prop="number">
-        <el-input v-model="form.number" placeholder="请输入身份证号" maxlength="18" />
+        <el-input v-model="form.number" placeholder="请输入人员编号" maxlength="64"/>
       </el-form-item>
       <el-form-item label="描述:" prop="description">
         <el-input v-model="form.description" type="textarea" placeholder="请输入描述" maxlength="255" />
@@ -118,8 +118,9 @@ export default class extends Vue {
   }
 
   private validateCertificate(rule: any, value: string, callback: any) {
-    if (value && !/^[0-9]{17}[0-9a-zA-Z]{1}$/.test(value)) {
-      callback(new Error('身份证格式错误'))
+    const val = value.trim()
+    if (val && val.length > 64) {
+      callback(new Error('人员编号长度不能超过64位'))
     } else {
       callback()
     }
@@ -158,7 +159,7 @@ export default class extends Vue {
       const params = {
         groupId: this.groupId,
         name: this.form.name,
-        number: this.form.number,
+        number: this.form.number.trim(),
         description: this.form.description,
         pics: [encodeBase64(this.form.imageString)]
       }
@@ -178,7 +179,7 @@ export default class extends Vue {
         id: this.form.id,
         groupId: this.groupId,
         name: this.form.name,
-        number: this.form.number,
+        number: this.form.number.trim(),
         description: this.form.description,
         pics: this.needVerify ? [encodeBase64(this.form.imageString)] : []
       }
@@ -195,7 +196,7 @@ export default class extends Vue {
     if (this.loading) return
     const form: any = this.$refs.form
     form.validate((valid: any) => {
-      if (valid) {
+      if (valid && this.verifyResult.state) {
         if (this.status === 'add') {
           this.addPersonalInfo()
         } else {
