@@ -4,16 +4,24 @@
       <div class="filter-container">
         <el-button type="primary" @click="handleCreate">添加人脸库</el-button>
         <div class="filter-container__right">
-          <el-input v-model="searchKey" class="filter-container__search-group" placeholder="请输入人脸库名称" clearable @keyup.enter.native="handleFilter" @clear="handleFilter">
+          <el-input
+            v-model="searchKey"
+            class="filter-container__search-group"
+            placeholder="请输入关键字"
+            clearable
+            @keyup.enter.native="handleFilter"
+            @clear="handleFilter"
+            max="64"
+          >
             <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
           </el-input>
           <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
         </div>
       </div>
       <el-table v-loading="loading" :data="dataList" @selection-change="handleSelectionChange">
-        <el-table-column type="selection" width="55" />
-        <el-table-column prop="name" label="人脸库名称" align="center" />
-        <el-table-column prop="description" label="描述" align="center" />
+<!--        <el-table-column type="selection" width="55" />-->
+        <el-table-column prop="name" label="人脸库名称" align="center" :show-overflow-tooltip="true" />
+        <el-table-column prop="description" label="描述" align="center" :show-overflow-tooltip="true" />
         <el-table-column prop="personCnt" label="人数" width="140" align="center" />
         <el-table-column prop="createTime" label="创建时间" width="220" align="center" />
         <el-table-column prop="updateTime" label="更新时间" width="220" align="center" />

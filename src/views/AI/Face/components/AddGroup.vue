@@ -15,10 +15,10 @@
       label-width="120px"
     >
       <el-form-item label="人脸库名称:" prop="name" class="face-name-item">
-        <el-input v-model="form.name" />
+        <el-input v-model="form.name" maxlength="64" />
       </el-form-item>
       <el-form-item label="人脸库描述:" prop="description">
-        <el-input v-model="form.description" />
+        <el-input v-model="form.description" maxlength="255" />
       </el-form-item>
     </el-form>
     <div slot="footer" align="center">

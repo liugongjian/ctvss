@@ -30,16 +30,18 @@
           <p>图片大小：图片大小不超过 5M。</p>
           <p>图片像素：大于 5×5 像素，小于 4096×4096 像素。人脸尺寸建议大于 64×64 像素。</p>
         </div>
-        <div v-if="!verifyResult.state" class="el-form-item__error">{{ verifyResult.msg }}</div>
+        <div v-if="!verifyResult.state" class="form-tip form-tip-avatar error">
+          <p>{{ verifyResult.msg }}</p>
+        </div>
       </el-form-item>
       <el-form-item label="姓名:" prop="name">
-        <el-input v-model="form.name" placeholder="请输入姓名" />
+        <el-input v-model="form.name" placeholder="请输入姓名" maxlength="64" />
       </el-form-item>
-      <el-form-item label="人员编号:" prop="cardId">
-        <el-input v-model="form.number" placeholder="请输入身份证号" />
+      <el-form-item label="人员编号:" prop="number">
+        <el-input v-model="form.number" placeholder="请输入身份证号" maxlength="18" />
       </el-form-item>
       <el-form-item label="描述:" prop="description">
-        <el-input v-model="form.description" type="textarea" placeholder="请输入描述" />
+        <el-input v-model="form.description" type="textarea" placeholder="请输入描述" maxlength="255" />
       </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -83,10 +85,10 @@ export default class extends Vue {
       { required: true, message: '请选择图片', trigger: 'blur' }
     ],
     name: [
-      { required: true, message: '请输入姓名', trigger: 'blur' }
+      { required: true, message: '请输入姓名', trigger: 'blur' },
+      { max: 64, message: '姓名长度不能超过64个字', trigger: 'blur' }
     ],
     number: [
-      { message: '请输入身份证号', trigger: 'blur' },
       { validator: this.validateCertificate, trigger: 'blur' }
     ]
   }
@@ -244,10 +246,14 @@ export default class extends Vue {
 
 .form-tip-avatar {
   position: relative;
+  margin-bottom: -20px;
 
   p {
     margin: 2px 0;
     line-height: 120%;
+  }
+  &.error {
+    color: #f5212d;
   }
 }
 </style>

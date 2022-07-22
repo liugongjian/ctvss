@@ -1,6 +1,14 @@
 <template>
   <div class="app-container">
-    <el-page-header :content="`成员详情（${groupName}）`" @back="back" />
+    <el-page-header @back="back">
+      <div slot="content">
+        成员详情（
+        <el-tooltip :content="groupName" placement="top">
+          <span class="pageHeader">{{ groupName }}</span>
+        </el-tooltip>
+        ）
+      </div>
+    </el-page-header>
     <el-card>
       <div class="filter-container">
         <el-button type="primary" @click="handleCreate">添加人员</el-button>
@@ -12,7 +20,15 @@
           </el-dropdown-menu>
         </el-dropdown>
         <div class="filter-container__right">
-          <el-input v-model="searchKey" class="filter-container__search-group" placeholder="请输入人员名称" clearable @keyup.enter.native="handleFilter" @clear="handleFilter">
+          <el-input
+            v-model="searchKey"
+            class="filter-container__search-group"
+            placeholder="请输入关键字"
+            clearable
+            @keyup.enter.native="handleFilter"
+            @clear="handleFilter"
+            max="64"
+          >
             <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
           </el-input>
           <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
@@ -27,9 +43,9 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="name" label="姓名" />
+        <el-table-column prop="name" label="姓名" :show-overflow-tooltip="true" />
         <el-table-column prop="number" label="人员编号" />
-        <el-table-column prop="description" label="描述" />
+        <el-table-column prop="description" label="描述" :show-overflow-tooltip="true" />
         <el-table-column prop="createTime" label="创建时间" />
         <el-table-column prop="updateTime" label="更新时间" />
         <el-table-column label="操作" align="center" width="140">
@@ -197,6 +213,15 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
+.pageHeader {
+  display: inline-block;
+  max-width: 200px;
+  overflow: hidden;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+}
 .filter-container__search-group {
   margin-right: 10px;
 }
