@@ -1,5 +1,6 @@
 import { VuexModule, Module, Action, Mutation, getModule } from 'vuex-module-decorators'
 import { Base64 } from 'js-base64'
+import { encrypt } from '@/utils/encrypt'
 import { login, logout, getMainUserInfo, getIAMUserInfo, changePassword, resetIAMPassword, getUserConfig } from '@/api/users'
 import { getToken, setToken, removeToken, getUsername, setUsername, removeUsername, getIamUserId, setIamUserId, removeIamUserId } from '@/utils/cookies'
 import { setLocalStorage, getLocalStorage } from '@/utils/storage'
@@ -120,10 +121,12 @@ class User extends VuexModule implements IUserState {
   public async Login(userInfo: { mainUserID?: string, userName: string, password: string }) {
     let { mainUserID, userName, password } = userInfo
     userName = userName.trim()
+    password = await encrypt(password)
     const data: any = await login({
       mainUserID: mainUserID || undefined,
       userName,
-      password: 'YWJjZG' + Base64.encode(password) + 'VmZWRl'
+      password,
+      version: '2.0'
     })
     setLocalStorage('loginType', mainUserID ? 'sub' : 'main')
     setToken(data.token)
@@ -300,20 +303,26 @@ class User extends VuexModule implements IUserState {
   @Action({ rawError: true })
   public async ChangePassword(form: { originalPwd: string, newPwd: string }) {
     let { originalPwd, newPwd } = form
+    originalPwd = await encrypt(originalPwd)
+    newPwd = await encrypt(newPwd)
     await changePassword({
       oldPassword: originalPwd,
-      newPassword: newPwd
+      newPassword: newPwd,
+      version: '2.0'
     })
   }
 
   @Action({ rawError: true })
   public async ResetIAMPassword(form: { mainUserID: string, subUserName: string, originalPwd: string, newPwd: string }) {
     let { mainUserID, subUserName, originalPwd, newPwd } = form
+    originalPwd = await encrypt(originalPwd)
+    newPwd = await encrypt(newPwd)
     const data = await resetIAMPassword({
       mainUserID,
       subUserName,
       oldPassword: originalPwd,
-      newPassword: newPwd
+      newPassword: newPwd,
+      version: '2.0'
     })
     return data
   }
