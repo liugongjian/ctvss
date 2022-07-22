@@ -151,7 +151,7 @@
       </el-form-item>
       <el-form-item v-if="ifShow('10001','10016','10017', '10034')" prop="algorithmMetadata.FaceDbName" label="人脸库">
         <el-select v-model="form.algorithmMetadata.FaceDbName" placeholder="请选择人脸库" :loading="isfaceLibLoading">
-          <el-option v-for="item in faceLibs" :key="item.id" :label="item.name" :value="item.id" />
+          <el-option v-for="item in faceLibs" :key="item.id" :label="item.name" :value="item.id+''" />
         </el-select>
         <i class="el-icon-refresh" @click="refreshFaceLib" />
         <el-button type="text" @click="goFaceLib">+新建人脸库</el-button>
@@ -229,7 +229,7 @@
 </template>
 <script lang='ts'>
 import { Component, Mixins, Prop } from 'vue-property-decorator'
-import { getAIConfigGroupData } from '@/api/aiConfig'
+import { listGroup } from '@/api/face'
 import { getAppInfo, updateAppInfo, createApp } from '@/api/ai-app'
 import { ResourceAiType, TrashType, HelmetClothType, AnimalType } from '@/dics'
 import AppMixin from '../../mixin/app-mixin'
@@ -304,8 +304,11 @@ export default class extends Mixins(AppMixin) {
       this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [], validateType: '无验证', confidence: 60, beeNumber: 1 }
     }
     try {
-      const { groups } = await getAIConfigGroupData({})
-      this.faceLibs = groups
+      const { data } = await listGroup({
+        pageNum: 0,
+        pageSize: 3000
+      })
+      this.faceLibs = data
     } catch (e) {
       this.$alertError(e && e.message)
     }
@@ -436,8 +439,11 @@ export default class extends Mixins(AppMixin) {
    */
   private async refreshFaceLib() {
     this.isfaceLibLoading = true
-    const { groups } = await getAIConfigGroupData({ })
-    this.faceLibs = groups
+    const { data } = await listGroup({
+      pageNum: 0,
+      pageSize: 3000
+    })
+    this.faceLibs = data
     this.isfaceLibLoading = false
   }
   /**
@@ -462,7 +468,7 @@ export default class extends Mixins(AppMixin) {
    */
   private goFaceLib() {
     const addr = this.$router.resolve({
-      name: 'aiconfig'
+      name: 'facelib'
     })
     window.open(addr.href, '_blank')
   }
