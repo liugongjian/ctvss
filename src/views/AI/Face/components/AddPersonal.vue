@@ -118,8 +118,7 @@ export default class extends Vue {
   }
 
   private validateCertificate(rule: any, value: string, callback: any) {
-    const val = value.trim()
-    if (val && val.length > 64) {
+    if (value && value.length > 64) {
       callback(new Error('人员编号长度不能超过64位'))
     } else {
       callback()
@@ -159,7 +158,7 @@ export default class extends Vue {
       const params = {
         groupId: this.groupId,
         name: this.form.name,
-        number: this.form.number.trim(),
+        number: this.form.number,
         description: this.form.description,
         pics: [encodeBase64(this.form.imageString)]
       }
@@ -179,7 +178,7 @@ export default class extends Vue {
         id: this.form.id,
         groupId: this.groupId,
         name: this.form.name,
-        number: this.form.number.trim(),
+        number: this.form.number,
         description: this.form.description,
         pics: this.needVerify ? [encodeBase64(this.form.imageString)] : []
       }

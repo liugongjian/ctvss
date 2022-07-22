@@ -243,7 +243,7 @@ export default class extends Vue {
   align-items: center;
   height: 100px;
   width: 100px;
-  background-color: #d9d9d9;
+  background-color: transparent;
 
   img {
     max-width: 100px;
