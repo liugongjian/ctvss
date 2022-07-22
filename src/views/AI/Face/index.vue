@@ -68,7 +68,7 @@ export default class extends Vue {
   private editFaceInfo = {}
   private pager = {
     pageNum: 1,
-    pageSize: 20,
+    pageSize: 10,
     total: 0
   }
   private searchKey = ''
