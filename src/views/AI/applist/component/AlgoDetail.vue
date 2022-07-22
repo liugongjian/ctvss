@@ -151,7 +151,7 @@
       </el-form-item>
       <el-form-item v-if="ifShow('10001','10016','10017', '10034')" prop="algorithmMetadata.FaceDbName" label="人脸库">
         <el-select v-model="form.algorithmMetadata.FaceDbName" placeholder="请选择人脸库" :loading="isfaceLibLoading">
-          <el-option v-for="item in faceLibs" :key="item.id" :label="item.name" :value="item.id" />
+          <el-option v-for="item in faceLibs" :key="item.id" :label="item.name" :value="item.id+''" />
         </el-select>
         <i class="el-icon-refresh" @click="refreshFaceLib" />
         <el-button type="text" @click="goFaceLib">+新建人脸库</el-button>
@@ -304,7 +304,10 @@ export default class extends Mixins(AppMixin) {
       this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [], validateType: '无验证', confidence: 60, beeNumber: 1 }
     }
     try {
-      const { data } = await listGroup({})
+      const { data } = await listGroup({
+        pageNum: 0,
+        pageSize: 3000
+      })
       this.faceLibs = data
     } catch (e) {
       this.$alertError(e && e.message)
@@ -436,7 +439,10 @@ export default class extends Mixins(AppMixin) {
    */
   private async refreshFaceLib() {
     this.isfaceLibLoading = true
-    const { data } = await listGroup({ })
+    const { data } = await listGroup({
+      pageNum: 0,
+      pageSize: 3000
+    })
     this.faceLibs = data
     this.isfaceLibLoading = false
   }
