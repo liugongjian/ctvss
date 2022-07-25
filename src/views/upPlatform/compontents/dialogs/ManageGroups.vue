@@ -496,7 +496,8 @@ export default class extends Mixins(Validate) {
     const res = await describeShareDirs({
       dirId: node.data.dirId,
       inProtocol: node.data.inProtocol,
-      platformId: this.platformId
+      platformId: this.platformId,
+      pageSize: 1000
     })
 
     const dirs = res.dirs.map((dir: any) => {
