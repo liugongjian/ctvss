@@ -25,9 +25,9 @@
             class="filter-container__search-group"
             placeholder="请输入关键字"
             clearable
+            maxlength="64"
             @keyup.enter.native="handleFilter"
             @clear="handleFilter"
-            max="64"
           >
             <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
           </el-input>
@@ -39,7 +39,7 @@
         <el-table-column prop="imgString" label="头像">
           <template slot-scope="{row}">
             <div class="image-container">
-              <img :src="row.faceCropUrls[0]">
+              <el-image :src="row.faceCropUrls[0]"></el-image>
             </div>
           </template>
         </el-table-column>
