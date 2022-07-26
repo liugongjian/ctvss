@@ -25,13 +25,13 @@
           <img v-if="form.imageString" :src="form.imageString" class="avatar">
           <i v-else class="el-icon-plus avatar-uploader-icon" />
         </el-upload>
-        <div v-if="verifyResult.state" class="form-tip form-tip-avatar">
+        <div v-if="verifyResult.state === 'error'" class="form-tip form-tip-avatar error">
+          <p>{{ verifyResult.msg }}</p>
+        </div>
+        <div v-else class="form-tip form-tip-avatar">
           <p>图片格式：JPG、JPEG、PNG、GIF。</p>
           <p>图片大小：图片大小不超过 5M。</p>
           <p>图片像素：大于 5×5 像素，小于 4096×4096 像素。人脸尺寸建议大于 64×64 像素。</p>
-        </div>
-        <div v-if="!verifyResult.state" class="form-tip form-tip-avatar error">
-          <p>{{ verifyResult.msg }}</p>
         </div>
       </el-form-item>
       <el-form-item label="姓名:" prop="name">
@@ -70,7 +70,7 @@ export default class extends Vue {
   private loading = false
   private needVerify = false
   private verifyResult = {
-    state: true,
+    state: 'success',
     msg: ''
   }
   private form: Record<string, any> = {
@@ -94,24 +94,28 @@ export default class extends Vue {
   }
 
   private async verifyImage(value) {
+    this.verifyResult = {
+      state: 'loading',
+      msg: ''
+    }
     try {
       const result = await verify({
         pic: encodeBase64(value)
       })
       if (result.verifyCode !== '0') {
         this.verifyResult = {
-          state: false,
+          state: 'error',
           msg: result.message
         }
       } else {
         this.verifyResult = {
-          state: true,
+          state: 'success',
           msg: ''
         }
       }
     } catch (e) {
       this.verifyResult = {
-        state: false,
+        state: 'error',
         msg: e.message
       }
     }
@@ -195,7 +199,7 @@ export default class extends Vue {
     if (this.loading) return
     const form: any = this.$refs.form
     form.validate((valid: any) => {
-      if (valid && this.verifyResult.state) {
+      if (valid && this.verifyResult.state === 'success') {
         if (this.status === 'add') {
           this.addPersonalInfo()
         } else {
