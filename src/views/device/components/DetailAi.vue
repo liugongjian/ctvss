@@ -25,7 +25,7 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import AppSubDetail from '@/views/AI/applist/component/AppSubDetail.vue'
 import { getAppList } from '@/api/ai-app'
-import { getAIConfigGroupData } from '@/api/aiConfig'
+// import { getAIConfigGroupData } from '@/api/aiConfig'
 
 @Component({
   name: 'DetailAi',
@@ -51,8 +51,8 @@ export default class extends Vue {
   private async mounted() {
     try {
       this.initDeviceApp()
-      const { groups }: any = await getAIConfigGroupData({})
-      this.initFaceLib(groups)
+      // const { groups }: any = await getAIConfigGroupData({})
+      // this.initFaceLib(groups)
     } catch (e) {
       console.log(e)
     }
