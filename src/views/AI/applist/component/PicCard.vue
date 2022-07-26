@@ -86,7 +86,7 @@ export default class extends Vue {
     img {
       width: 100%;
       // height: 100%;
-      height: auto;
+      max-height: 320px;
     }
   }
 

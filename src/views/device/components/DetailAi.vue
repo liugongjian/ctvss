@@ -94,7 +94,7 @@ export default class extends Vue {
 // }
 .select {
   float: left;
-  padding-right: 20px;
+  padding: 6px 20px 0 0;
 
   .el-select {
     width: 120px;
