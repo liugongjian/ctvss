@@ -31,6 +31,7 @@ export default class CreateMixin extends Vue {
   public inNetworkType = ''
   public deviceGbId: string = ''
   public formExpand: boolean = false
+  public ifUseDeviceName: boolean = false
 
   public loading = {
     account: false,
@@ -536,5 +537,14 @@ export default class CreateMixin extends Vue {
       this.form.aIApps = res
     }
     this.form.vssAIApps = res
+  }
+
+  /**
+   * 获取是否使用设备名称
+   */
+  public setIfUseDeviceName() {
+    const temp = this.$store.state.user.userConfigInfo.find((item: any) => item.key === 'enableCloudChannelName')
+    const ifUse = temp.value === 'true'
+    this.ifUseDeviceName = ifUse
   }
 }

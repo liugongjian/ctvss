@@ -1,7 +1,6 @@
-// @ts-ignore
-import HlsJS from 'hls.js'
 import { Player } from './Player'
 import { EnhanceHTMLVideoElement } from '../types/Player'
+import HlsJS from 'hls.js'
 
 export class HlsPlayer extends Player {
   private hls?: any

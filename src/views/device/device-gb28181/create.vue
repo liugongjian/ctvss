@@ -97,13 +97,7 @@
               />
             </el-select>
           </el-form-item>
-          <el-form-item v-if="isUpdate" :label="ifUseDeviceName ? '设备实际名称:' :'设备名称:' " prop="deviceName" class="form-with-tip">
-            <el-input v-model="form.deviceName" :disabled="ifUseDeviceName" />
-            <div class="form-tip">
-              2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
-            </div>
-          </el-form-item>
-          <el-form-item v-else label="设备名称:" prop="deviceName" class="form-with-tip">
+          <el-form-item label="设备名称:" prop="deviceName" class="form-with-tip">
             <el-input v-model="form.deviceName" />
             <div class="form-tip">
               2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
@@ -376,8 +370,8 @@
           <el-input v-model="form.deviceLongitude" class="longlat-input" /> :
           <el-input v-model="form.deviceLatitude" class="longlat-input" />
         </el-form-item>
-        <el-form-item label="通道名称:" prop="channelName" class="form-with-tip">
-          <el-input v-model="form.channelName" />
+        <el-form-item :label=" isUpdate && ifUseDeviceName ? '通道实际名称:' :'通道名称:' " prop="channelName" class="form-with-tip">
+          <el-input v-model="form.channelName" :disabled="ifUseDeviceName" />
           <div class="form-tip">
             2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
           </div>
@@ -563,7 +557,10 @@ export default class extends Mixins(createMixin) {
     createGa1400Certificate: false
   }
   private hasViewLib = false
-  private ifUseDeviceName = false
+
+  private created() {
+    this.getIfUseDeviceName()
+  }
 
   public async mounted() {
     if (this.isUpdate || this.isChannel) {
@@ -575,7 +572,6 @@ export default class extends Mixins(createMixin) {
     this.getGbAccounts()
     this.getGa1400Accounts()
     this.onGroupChange()
-    this.setIfUseDeviceName()
   }
 
   /**
@@ -586,7 +582,8 @@ export default class extends Mixins(createMixin) {
       this.loading.device = true
       this.form.deviceId = this.deviceId
       const info = await getDevice({
-        deviceId: this.form.deviceId
+        deviceId: this.form.deviceId,
+        inProtocol: this.inProtocol
       })
       if (info.apeId) {
         this.hasViewLib = true
@@ -705,10 +702,8 @@ export default class extends Mixins(createMixin) {
   /**
    * 获取是否使用设备名称
    */
-  private setIfUseDeviceName() {
-    const temp = this.$store.state.user.userConfigInfo.find((item: any) => item.key === 'enableCloudChannelName')
-    const ifUse = temp.value === 'true'
-    this.ifUseDeviceName = ifUse
+  private getIfUseDeviceName() {
+    this.setIfUseDeviceName()
     // 新增逻辑，使用设备名称时，屏蔽效验正则
     if (this.ifUseDeviceName) {
       this.rules = { ...this.rules,
@@ -910,19 +905,23 @@ export default class extends Mixins(createMixin) {
    */
   private async validateGbId(rule: any, value: string, callback: Function) {
     let validInfo: any
-    try {
-      validInfo = await validGbId({
-        deviceId: this.deviceId,
-        inProtocol: this.form.inProtocol,
-        gbId: this.form.gbId
-      })
-    } catch (e) {
-      console.log(e)
-    }
     if (value && !/^[0-9]{20}$/.test(value)) {
       callback(new Error('请输入规范国标ID'))
-    } else if (value && validInfo && !validInfo.isValidGbId) {
-      callback(new Error('存在重复国标ID'))
+    } else if (value) {
+      try {
+        validInfo = await validGbId({
+          deviceId: this.deviceId,
+          inProtocol: this.form.inProtocol,
+          gbId: this.form.gbId
+        })
+        if (validInfo && !validInfo.isValidGbId) {
+          callback(new Error('存在重复国标ID'))
+        } else {
+          callback()
+        }
+      } catch (e) {
+        console.log(e)
+      }
     } else {
       callback()
     }

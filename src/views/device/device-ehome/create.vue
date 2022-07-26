@@ -286,12 +286,8 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item
-          label="通道名称:"
-          prop="channelName"
-          class="form-with-tip"
-        >
-          <el-input v-model="form.channelName" />
+        <el-form-item :label="isUpdate && ifUseDeviceName ? '通道实际名称:' :'通道名称:' " prop="channelName" class="form-with-tip">
+          <el-input v-model="form.channelName" :disabled="ifUseDeviceName" />
           <div class="form-tip">
             2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
           </div>
@@ -442,6 +438,10 @@ export default class extends Mixins(createMixin) {
     }
   ]
 
+  private created() {
+    this.getIfUseDeviceName()
+  }
+
   public async mounted() {
     if (this.isUpdate || this.isChannel) {
       await this.getDeviceInfo()
@@ -545,6 +545,19 @@ export default class extends Mixins(createMixin) {
       this.$message.error(e.message)
     } finally {
       this.loading.device = false
+    }
+  }
+
+  /**
+   * 获取是否使用设备名称
+   */
+  private getIfUseDeviceName() {
+    this.setIfUseDeviceName()
+    // 新增逻辑，使用设备名称时，屏蔽效验正则
+    if (this.ifUseDeviceName) {
+      this.rules = { ...this.rules,
+        ...{ deviceName: [
+          { required: true, message: '请输入设备名称', trigger: 'blur' } ] } }
     }
   }
 

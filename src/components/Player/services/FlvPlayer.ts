@@ -1,7 +1,7 @@
-// @ts-ignore
-import FlvJS from 'flv.js/src/flv.js'
+
 import { Player } from './Player'
 import { EnhanceHTMLVideoElement } from '../types/Player'
+import FlvJS from 'flv.js/src/flv.js'
 
 /**
  * FLV播放器
