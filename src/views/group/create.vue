@@ -164,7 +164,7 @@ import { createGroup, queryGroup, updateGroup } from '@/api/group'
 import { getRegions } from '@/api/region'
 import { industryMap } from '@/assets/region/industry'
 import { networkMap } from '@/assets/region/network'
-import templateBind from '../components/templateBind.vue'
+import templateBind from '../components/TemplateBind.vue'
 import AddressCascader from '@/views/components/AddressCascader.vue'
 
 @Component({
@@ -387,7 +387,10 @@ export default class extends Vue {
 </script>
 
 <style lang="scss" scoped>
-  .el-input, .el-select, .el-textarea, .el-cascader {
+  .el-input,
+  .el-select,
+  .el-textarea,
+  .el-cascader {
     width: 400px;
   }
 </style>

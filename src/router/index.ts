@@ -1,6 +1,6 @@
+import settings from '@/settings'
 import Vue from 'vue'
 import Router, { RouteConfig } from 'vue-router'
-import settings from '@/settings'
 
 /* Layout */
 import Layout from '@/layout/index.vue'
@@ -45,39 +45,39 @@ export const constantRoutes: RouteConfig[] = [
     children: [
       {
         path: '/redirect/:path(.*)',
-        component: () => import(/* webpackChunkName: "common-page" */ '@/views/redirect/index.vue')
+        component: () => import(/* webpackChunkName: "common-page" */ '@/views/Redirect/index.vue')
       }
     ]
   },
   {
     path: '/login',
-    component: () => import(/* webpackChunkName: "login" */ '@/views/login/index.vue'),
+    component: () => import(/* webpackChunkName: "login" */ '@/views/Login/index.vue'),
     meta: { hidden: true },
     children: [
       {
         path: 'subAccount',
-        component: () => import(/* webpackChunkName: "login" */ '@/views/login/index.vue')
+        component: () => import(/* webpackChunkName: "login" */ '@/views/Login/index.vue')
       }
     ]
   },
   {
     path: '/reset-password',
-    component: () => import(/* webpackChunkName: "common-page" */ '@/views/login/resetPassword.vue'),
+    component: () => import(/* webpackChunkName: "common-page" */ '@/views/Login/ResetPassword.vue'),
     meta: { hidden: true }
   },
   {
     path: '/auth-redirect',
-    component: () => import(/* webpackChunkName: "common-page" */ '@/views/login/auth-redirect.vue'),
+    component: () => import(/* webpackChunkName: "common-page" */ '@/views/Login/AuthRedirect.vue'),
     meta: { hidden: true }
   },
   {
     path: '/404',
-    component: () => import(/* webpackChunkName: "common-page" */ '@/views/error-page/404.vue'),
+    component: () => import(/* webpackChunkName: "common-page" */ '@/views/ErrorPage/404.vue'),
     meta: { hidden: true }
   },
   {
     path: '/401',
-    component: () => import(/* webpackChunkName: "common-page" */ '@/views/error-page/401.vue'),
+    component: () => import(/* webpackChunkName: "common-page" */ '@/views/ErrorPage/401.vue'),
     meta: { hidden: true }
   },
   {
@@ -108,8 +108,8 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/dashboard/index.vue'),
-        name: 'dashboard',
+        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/Dashboard/index.vue'),
+        name: 'Dashboard',
         meta: {
           title: '概览',
           icon: 'menu-dashboard',
@@ -119,8 +119,8 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'ai',
-        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/dashboard/ai/index.vue'),
-        name: 'dashboardAI',
+        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/Dashboard/AI/index.vue'),
+        name: 'DashboardAI',
         meta: {
           title: 'AI监控告警',
           hidden: true,
@@ -131,8 +131,8 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'visualization-dashboard',
-        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/dashboard/VisualizationDashboard.vue'),
-        name: 'visualizationDashboard',
+        component: () => import(/* webpackChunkName: "dashboard" */ '@/views/Dashboard/VisualizationDashboard.vue'),
+        name: 'VisualizationDashboard',
         meta: {
           title: '可视化大屏',
           hidden: true,
@@ -465,8 +465,8 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: 'up-platform',
-        component: () => import(/* webpackChunkName: "ga1400" */ '@/views/viewService/index.vue'),
-        name: 'view-up-platform',
+        component: () => import(/* webpackChunkName: "ga1400" */ '@/views/ViewService/index.vue'),
+        name: 'ViewUpPlatform',
         meta: {
           title: '向上级联',
           icon: 'dot',
@@ -476,8 +476,8 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'up-platform/create',
-        component: () => import(/* webpackChunkName: "ga1400" */ '@/views/viewService/create.vue'),
-        name: 'view-up-platform-create',
+        component: () => import(/* webpackChunkName: "ga1400" */ '@/views/ViewService/Create.vue'),
+        name: 'viewUpPlatformCreate',
         meta: {
           title: '新建平台',
           hidden: true,
@@ -487,8 +487,8 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'up-platform/update/:id?',
-        component: () => import(/* webpackChunkName: "ga1400" */ '@/views/viewService/create.vue'),
-        name: 'view-up-platform-update',
+        component: () => import(/* webpackChunkName: "ga1400" */ '@/views/ViewService/Create.vue'),
+        name: 'viewUpPlatformUpdate',
         meta: {
           title: '编辑平台',
           hidden: true,
@@ -778,10 +778,10 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
-    path: '/AI',
+    path: '/ai',
     component: Layout,
     redirect: 'noredirect',
-    name: 'ai',
+    name: 'AI',
     meta: {
       title: 'AI管理',
       icon: 'menu-ai',
@@ -790,9 +790,9 @@ export const asyncRoutes: RouteConfig[] = [
     },
     children: [
       {
-        path: 'maskRecognation',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/maskRecognation/index.vue'),
-        name: 'AI-MaskRecognation',
+        path: 'mask-recognation',
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/MaskRecognation/index.vue'),
+        name: 'AIMaskRecognation',
         meta: {
           title: '口罩识别',
           icon: 'dot',
@@ -804,8 +804,8 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'ai-app-list',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/applist/index.vue'),
-        name: 'AI-AppList',
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/Applist/index.vue'),
+        name: 'AIAppList',
         meta: {
           title: 'AI应用',
           icon: 'dot',
@@ -818,8 +818,8 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'create',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/applist/AddApp.vue'),
-        name: 'AI-AddApp',
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/Applist/AddApp.vue'),
+        name: 'AIAddApp',
         meta: {
           title: '添加应用',
           icon: 'dot',
@@ -831,8 +831,8 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'edit',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/applist/AddApp.vue'),
-        name: 'AI-EditApp',
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/Applist/AddApp.vue'),
+        name: 'AIEditApp',
         meta: {
           title: '编辑应用',
           icon: 'dot',
@@ -844,8 +844,8 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'detail',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/applist/AppDetail.vue'),
-        name: 'AI-AppDetail',
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/Applist/AppDetail.vue'),
+        name: 'AIAppDetail',
         meta: {
           title: '应用详情',
           icon: 'dot',
@@ -857,8 +857,8 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'config',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/aiconfig/index.vue'),
-        name: 'aiconfig',
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/AIconfig/index.vue'),
+        name: 'AIConfig',
         meta: {
           title: '人脸库',
           icon: 'dot',
@@ -870,7 +870,7 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
-    path: '/accessManage',
+    path: '/access-manage',
     component: Layout,
     redirect: 'noredirect',
     meta: {
@@ -883,8 +883,8 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: 'dashboard',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/accessManage/user/Dashboard.vue'),
-        name: 'accessManage-dashboard',
+        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/User/Dashboard.vue'),
+        name: 'AccessManageDashboard',
         meta: {
           title: '概览',
           icon: 'dot',
@@ -895,8 +895,8 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'user',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/accessManage/user/index.vue'),
-        name: 'accessManage-user',
+        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/User/index.vue'),
+        name: 'AccessManageUser',
         meta: {
           title: '用户',
           icon: 'dot',
@@ -907,8 +907,8 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'user/create',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/accessManage/user/components/CreateUser.vue'),
-        name: 'accessManage-user-create',
+        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/User/components/CreateUser.vue'),
+        name: 'AccessManageUserCreate',
         meta: {
           title: '创建用户',
           icon: 'dot',
@@ -919,8 +919,8 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'user/detail',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/accessManage/user/components/UserDetail.vue'),
-        name: 'accessManage-user-detail',
+        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/User/components/UserDetail.vue'),
+        name: 'AccessManageUserDetail',
         meta: {
           title: '成员详情',
           icon: 'dot',
@@ -931,8 +931,8 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'policy',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/accessManage/policy/index.vue'),
-        name: 'accessManage-policy',
+        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/Policy/index.vue'),
+        name: 'AccessManagePolicy',
         meta: {
           title: '策略',
           icon: 'dot',
@@ -943,8 +943,8 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'policy/create',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/accessManage/policy/components/CreatePolicy.vue'),
-        name: 'accessManage-policy-create',
+        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/Policy/components/CreatePolicy.vue'),
+        name: 'AccessManagePolicyCreate',
         meta: {
           title: '创建策略',
           icon: 'dot',
@@ -955,8 +955,8 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'policy/edit/:id?',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/accessManage/policy/components/CreatePolicy.vue'),
-        name: 'accessManage-policy-edit',
+        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/Policy/components/CreatePolicy.vue'),
+        name: 'AccessManagePolicyEdit',
         meta: {
           title: '查看&编辑策略',
           icon: 'dot',
@@ -967,8 +967,8 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'role',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/accessManage/role/index.vue'),
-        name: 'accessManage-role',
+        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/Role/index.vue'),
+        name: 'AccessManageRole',
         meta: {
           title: '角色',
           icon: 'dot',
@@ -979,8 +979,8 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'role/create',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/accessManage/role/components/CreateRole.vue'),
-        name: 'accessManage-role-create',
+        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/Role/components/CreateRole.vue'),
+        name: 'AccessManageRoleCreate',
         meta: {
           title: '创建角色',
           icon: 'dot',
@@ -991,8 +991,8 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'secretManage',
-        component: () => import(/* webpackChunkName: "iam" */ '@/views/accessManage/secretManage/index.vue'),
-        name: 'accessManage-secretManage',
+        component: () => import(/* webpackChunkName: "iam" */ '@/views/AccessManage/SecretManage/index.vue'),
+        name: 'AccessManageSecretManage',
         meta: {
           title: 'API密钥',
           icon: 'dot',
@@ -1017,8 +1017,8 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: 'history',
-        component: () => import(/* webpackChunkName: "notification" */ '@/views/notification/history/index.vue'),
-        name: 'notification-history',
+        component: () => import(/* webpackChunkName: "notification" */ '@/views/Notification/History/index.vue'),
+        name: 'NotificationHistory',
         meta: {
           title: '推送历史',
           icon: 'dot',
@@ -1029,8 +1029,8 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'policy',
-        component: () => import(/* webpackChunkName: "notification" */ '@/views/notification/policy/index.vue'),
-        name: 'notification-policy',
+        component: () => import(/* webpackChunkName: "notification" */ '@/views/Notification/Policy/index.vue'),
+        name: 'NotificationPolicy',
         meta: {
           title: '推送策略',
           icon: 'dot',
@@ -1041,8 +1041,8 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'policy/create',
-        component: () => import(/* webpackChunkName: "notification" */ '@/views/notification/policy/createOrUpdate.vue'),
-        name: 'notification-policy-create',
+        component: () => import(/* webpackChunkName: "notification" */ '@/views/Notification/Policy/CreateOrUpdate.vue'),
+        name: 'NotificationPolicyCreate',
         meta: {
           title: '创建推送策略',
           icon: 'dot',
@@ -1053,8 +1053,8 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'policy/edit/:id?',
-        component: () => import(/* webpackChunkName: "notification" */ '@/views/notification/policy/createOrUpdate.vue'),
-        name: 'notification-policy-edit',
+        component: () => import(/* webpackChunkName: "notification" */ '@/views/Notification/Policy/CreateOrUpdate.vue'),
+        name: 'NotificationPolicyEdit',
         meta: {
           title: '编辑推送策略',
           icon: 'dot',
@@ -1079,8 +1079,8 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "alarm" */ '@/views/alarm/index.vue'),
-        name: 'alarm',
+        component: () => import(/* webpackChunkName: "alarm" */ '@/views/Alarm/index.vue'),
+        name: 'Alarm',
         meta: {
           title: '告警管理',
           icon: 'menu-alarm',
@@ -1091,8 +1091,8 @@ export const asyncRoutes: RouteConfig[] = [
         children: [
           {
             path: '',
-            component: () => import(/* webpackChunkName: "alarm" */ '@/views/alarm/list.vue'),
-            name: 'alarm-list',
+            component: () => import(/* webpackChunkName: "alarm" */ '@/views/Alarm/List.vue'),
+            name: 'AlarmList',
             meta: {
               title: '告警信息列表',
               breadcrumb: false,
@@ -1118,8 +1118,8 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "car" */ '@/views/car/index.vue'),
-        name: 'car',
+        component: () => import(/* webpackChunkName: "car" */ '@/views/Car/index.vue'),
+        name: 'Car',
         meta: {
           id: '20210515200901013321',
           title: '车辆管理',
@@ -1143,8 +1143,8 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: 'resource',
-        component: () => import(/* webpackChunkName: "billing" */ '@/views/billing/resource/index.vue'),
-        name: 'billing-resource',
+        component: () => import(/* webpackChunkName: "billing" */ '@/views/Billing/Resource/index.vue'),
+        name: 'BillingResource',
         meta: {
           title: '资源包管理',
           icon: 'dot',
@@ -1153,8 +1153,8 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'resource/management',
-        component: () => import(/* webpackChunkName: "billing" */ '@/views/billing/resource/manage.vue'),
-        name: 'billing-resource-management',
+        component: () => import(/* webpackChunkName: "billing" */ '@/views/Billing/Resource/Manage.vue'),
+        name: 'BillingResourceManagement',
         meta: {
           title: '资源包管理',
           icon: 'dot',
@@ -1178,7 +1178,7 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/exportDevices/index.vue'),
+        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/ExportDevices/index.vue'),
         name: 'exportDevices',
         meta: {
           title: '批量导出设备信息',
@@ -1202,8 +1202,8 @@ export const asyncRoutes: RouteConfig[] = [
     children: [
       {
         path: '',
-        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/sysconfig/index.vue'),
-        name: 'exportDevices',
+        component: () => import(/* webpackChunkName: "export-devices" */ '@/views/SysConfig/index.vue'),
+        name: 'SysConfig',
         meta: {
           title: '系统设置',
           breadcrumb: false,

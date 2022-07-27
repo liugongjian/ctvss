@@ -1,6 +1,6 @@
-import { Component, Vue } from 'vue-property-decorator'
-import { startOrStopApps, deleteApps } from '@/api/ai-app'
+import { deleteApps, startOrStopApps } from '@/api/ai-app'
 import { checkPermission } from '@/utils/permission'
+import { Component, Vue } from 'vue-property-decorator'
 
 @Component
 export default class AppMixin extends Vue {
@@ -31,7 +31,7 @@ export default class AppMixin extends Vue {
    */
   public appDetail(app: any, tabNum: any) {
     this.$router.push({
-      name: 'AI-AppDetail',
+      name: 'AIAppDetail',
       query: {
         appid: app.id,
         tabNum
@@ -44,7 +44,7 @@ export default class AppMixin extends Vue {
    */
   public editApp(app) {
     this.$router.push({
-      name: 'AI-EditApp',
+      name: 'AIEditApp',
       query: {
         id: app.id
       }
@@ -87,7 +87,7 @@ export default class AppMixin extends Vue {
 
   public backToAppList() {
     this.$router.push({
-      name: 'AI-AppList'
+      name: 'AIAppList'
     })
   }
 

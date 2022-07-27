@@ -1,9 +1,9 @@
-import { VuexModule, Module, Mutation, Action, getModule } from 'vuex-module-decorators'
-import { RouteConfig } from 'vue-router'
 import { asyncRoutes, constantRoutes } from '@/router'
+import casService from '@/services/casService'
 import store from '@/store'
 import { getLocalStorage } from '@/utils/storage'
-import casService from '@/services/casService'
+import { RouteConfig } from 'vue-router'
+import { Action, getModule, Module, Mutation, VuexModule } from 'vuex-module-decorators'
 
 interface IMatchFn {
   (infos: string[], route: RouteConfig): boolean
@@ -61,7 +61,7 @@ class Permission extends VuexModule implements IPermissionState {
     let accessedRoutes
     let filteredRoutes = asyncRoutes
     if (params.iamUserId) {
-      filteredRoutes = filteredRoutes.filter(route => route.path !== '/accessManage')
+      filteredRoutes = filteredRoutes.filter(route => route.path !== '/access-manage')
     }
 
     // 根据route.meta.tags及用户tags过滤路由
