@@ -156,8 +156,8 @@
 </template>
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
-import { Group } from '@/type/group'
-import { DeviceAddress } from '@/type/device'
+import { Group } from '@/type/Group'
+import { DeviceAddress } from '@/type/Device'
 import { GroupModule } from '@/store/modules/group'
 import { InProtocolType, OutProtocolType } from '@/dics'
 import { createGroup, queryGroup, updateGroup } from '@/api/group'

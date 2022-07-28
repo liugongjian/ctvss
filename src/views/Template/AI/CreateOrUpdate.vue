@@ -96,7 +96,7 @@
 </template>
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
-import { AIAbility, AIAbilityAlgorithm } from '@/type/template'
+import { AIAbility, AIAbilityAlgorithm } from '@/type/Template'
 import { queryAITemplate, createAITemplate, updateAITemplate, getAIAbilityList, getAbilityAlgorithmList } from '@/api/template'
 import setFaceRecognition from './Dialogs/SetFaceRecognition.vue'
 import setMaskDetection from './Dialogs/SetMaskDetection.vue'

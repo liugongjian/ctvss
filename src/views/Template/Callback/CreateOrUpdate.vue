@@ -48,7 +48,7 @@
 </template>
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
-import { CallbackTemplate } from '@/type/template'
+import { CallbackTemplate } from '@/type/Template'
 import { queryCallbackTemplate, createCallbackTemplate, updateCallbackTemplate } from '@/api/template'
 
 @Component({

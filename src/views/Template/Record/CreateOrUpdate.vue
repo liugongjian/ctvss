@@ -60,7 +60,7 @@
 </template>
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
-import { RecordTemplate } from '@/type/template'
+import { RecordTemplate } from '@/type/Template'
 import { UserModule } from '@/store/modules/user'
 import { RecordStorageType } from '@/dics'
 import { queryRecordTemplate, createRecordTemplate, updateRecordTemplate } from '@/api/template'

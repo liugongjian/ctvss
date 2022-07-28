@@ -75,7 +75,7 @@
 
 <script lang='ts'>
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import { RecordTemplate } from '@/type/template'
+import { RecordTemplate } from '@/type/Template'
 import { dateFormatInTable } from '@/utils/date'
 import { getCarTasks, operateCarTask } from '@/api/car'
 import StatusBadge from '@/components/StatusBadge/index.vue'

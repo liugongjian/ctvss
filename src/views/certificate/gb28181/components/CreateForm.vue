@@ -45,7 +45,7 @@ import {
   queryCertificate,
   updateCertificate
 } from '@/api/certificate/gb28181'
-import { GB28181 } from '@/type/certificate'
+import { GB28181 } from '@/type/Certificate'
 
 @Component({
   name: 'CreateGb28181CertificateForm'

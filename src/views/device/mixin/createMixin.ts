@@ -1,5 +1,5 @@
 import { Component, Watch, Vue, Inject } from 'vue-property-decorator'
-import { DeviceAddress } from '@/type/device'
+import { DeviceAddress } from '@/type/Device'
 import { GroupModule } from '@/store/modules/group'
 import { UserModule } from '@/store/modules/user'
 import { DeviceModule } from '@/store/modules/device'

@@ -57,7 +57,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { Group } from '@/type/group'
+import { Group } from '@/type/Group'
 import { OutProtocolType, InProtocolType, PullType, PushType } from '@/dics'
 import { queryGroup } from '@/api/group'
 import { formatSeconds } from '@/utils/interval'

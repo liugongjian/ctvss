@@ -48,7 +48,7 @@
 </template>
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
-import { SnapshotTemplate } from '@/type/template'
+import { SnapshotTemplate } from '@/type/Template'
 import { SnapshotStorageType } from '@/dics'
 import { querySnapshotTemplate, createSnapshotTemplate, updateSnapshotTemplate } from '@/api/template'
 
@@ -156,7 +156,9 @@ export default class extends Vue {
 </script>
 
 <style lang="scss" scoped>
-  .el-input, .el-select, .el-textarea {
+  .el-input,
+  .el-select,
+  .el-textarea {
     width: 400px;
   }
 </style>

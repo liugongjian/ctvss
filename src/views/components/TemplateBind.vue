@@ -20,7 +20,7 @@
         </el-table>
       </info-list>
     </el-card>
-    <el-card style="margin-top:20px;">
+    <el-card style="margin-top: 20px;">
       <el-button v-permission="['*']" type="text" class="template-edit" @click="setCallbackTemplate">编辑</el-button>
       <info-list title="回调模板">
         <el-table v-loading="loading.callback" :data="template.callbackTemplate" fit empty-text="该设备或组没有绑定回调模板">
@@ -104,7 +104,7 @@ import SetRecordTemplate from './dialogs/SetRecordTemplate.vue'
 import SetCallBackTemplate from './dialogs/SetCallBackTemplate.vue'
 import SetAITemplate from './dialogs/SetAITemplate.vue'
 import SetAlertTemplate from './dialogs/SetAlertTemplate.vue'
-import { RecordTemplate } from '@/type/template'
+import { RecordTemplate } from '@/type/Template'
 import { getGroupRecordTemplate, getGroupCallbackTemplate } from '@/api/group'
 import { getDeviceRecordTemplate, getDeviceCallbackTemplate } from '@/api/device'
 import { getAIBind, getAlertBind } from '@/api/template'

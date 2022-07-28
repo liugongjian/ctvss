@@ -94,7 +94,7 @@
 
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
-import { Secret } from '@/type/secret'
+import { Secret } from '@/type/Secret'
 import { SecretStatus } from '@/dics'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import { getSecretList, createSecret, deleteSecret, enableSecret, disableSecret } from '@/api/secret'

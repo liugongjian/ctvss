@@ -57,7 +57,7 @@
 <script lang='ts'>
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { dateFormatInTable } from '@/utils/date'
-import { GB28181 } from '@/type/certificate'
+import { GB28181 } from '@/type/Certificate'
 import ViewDetails from './components/ViewDetails.vue'
 import { enableViewLibUpPlatform, stopViewLibUpPlatform, getViewLibPlatformList } from '@/api/viewLib'
 import StatusBadge from '@/components/StatusBadge/index.vue'
@@ -192,6 +192,7 @@ export default class extends Vue {
   &__search-group {
     margin-right: 10px;
   }
+
   &__select {
     display: inline;
     margin-right: 10px;

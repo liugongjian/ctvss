@@ -154,7 +154,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { getNotificationPolicyInfo, createNotificationPolicy, editNotificationPolicy } from '@/api/notification'
 import { getAlgorithmList } from '@/api/ai-app'
-import { INotifictionPolicyForm } from '@/type/notification'
+import { INotifictionPolicyForm } from '@/type/Notification'
 import { dateFormat } from '@/utils/date'
 import ResourceTree from './components/ResourceTree.vue'
 import DestinationsTree from './components/DestinationsTree.vue'

@@ -67,7 +67,7 @@
 
 <script lang='ts'>
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import { INotifictionPolicy } from '@/type/notification'
+import { INotifictionPolicy } from '@/type/Notification'
 import { dateFormatInTable } from '@/utils/date'
 import { toggleNotificationPolicyStatus, getNotificationPolicyList, deleteNotificationPolicy } from '@/api/notification'
 

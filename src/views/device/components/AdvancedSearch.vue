@@ -60,8 +60,8 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import AddressCascader from '@/views/components/AddressCascader.vue'
-import { AdvancedSearch } from '@/type/advancedSearch'
-import { DeviceAddress } from '@/type/device'
+import { AdvancedSearch } from '@/type/AdvancedSearch'
+import { DeviceAddress } from '@/type/Device'
 
 @Component({
   name: 'AdvancedSearch',

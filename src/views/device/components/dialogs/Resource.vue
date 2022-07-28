@@ -33,7 +33,7 @@ import { Component, Mixins, Prop } from 'vue-property-decorator'
 import ResourceTabs from '../../components/ResourceTabs.vue'
 import createMixin from '../../mixin/createMixin'
 import { updateDeviceResources } from '@/api/billing'
-import { Device } from '@/type/device'
+import { Device } from '@/type/Device'
 
 @Component({
   name: 'Resource',

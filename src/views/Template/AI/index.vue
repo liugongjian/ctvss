@@ -43,7 +43,7 @@
 
 <script lang='ts'>
 import { deleteAITemplate, getAITemplates } from '@/api/template'
-import { AITemplate } from '@/type/template'
+import { AITemplate } from '@/type/Template'
 import { dateFormatInTable } from '@/utils/date'
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import ViewBind from './Dialogs/ViewBind.vue'

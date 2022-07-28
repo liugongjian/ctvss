@@ -41,7 +41,7 @@
 
 <script lang='ts'>
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import { SnapshotTemplate } from '@/type/template'
+import { SnapshotTemplate } from '@/type/Template'
 import { dateFormatInTable } from '@/utils/date'
 import { SnapshotStorageType } from '@/dics'
 import { getSnapshotTemplates, deleteSnapshotTemplate } from '@/api/template'
@@ -147,11 +147,13 @@ export default class extends Vue {
 .filter-container__search-group {
   margin-right: 10px;
 }
+
 .template__table {
   ::v-deep .el-table__body {
     td {
       cursor: pointer;
     }
+
     .col-action {
       cursor: default;
     }
