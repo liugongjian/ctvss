@@ -46,7 +46,7 @@ import { deleteAITemplate, getAITemplates } from '@/api/template'
 import { AITemplate } from '@/type/template'
 import { dateFormatInTable } from '@/utils/date'
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import ViewBind from './dialogs/ViewBind.vue'
+import ViewBind from './Dialogs/ViewBind.vue'
 
 @Component({
   name: 'ai-template',

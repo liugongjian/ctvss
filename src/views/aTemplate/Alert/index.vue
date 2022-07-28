@@ -111,7 +111,7 @@
 <script lang='ts'>
 import { deleteAlertTemplate, getAlertTemplates } from '@/api/template'
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import viewBind from './dialogs/viewBind.vue'
+import viewBind from './Dialogs/ViewBind.vue'
 
 @Component({
   components: { viewBind },

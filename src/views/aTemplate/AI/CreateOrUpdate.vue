@@ -98,10 +98,10 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { AIAbility, AIAbilityAlgorithm } from '@/type/template'
 import { queryAITemplate, createAITemplate, updateAITemplate, getAIAbilityList, getAbilityAlgorithmList } from '@/api/template'
-import setFaceRecognition from './dialogs/setFaceRecognition.vue'
-import setMaskDetection from './dialogs/setMaskDetection.vue'
-import setPeopleGathering from './dialogs/setPeopleGathering.vue'
-import setDangerArea from './dialogs/setDangerArea.vue'
+import setFaceRecognition from './Dialogs/SetFaceRecognition.vue'
+import setMaskDetection from './Dialogs/SetMaskDetection.vue'
+import setPeopleGathering from './Dialogs/SetPeopleGathering.vue'
+import setDangerArea from './Dialogs/SetDangerArea.vue'
 
 @Component({
   name: 'create-or-update-callback-template',

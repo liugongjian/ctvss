@@ -63,7 +63,7 @@ import { deleteRecordTemplate, getRecordTemplates } from '@/api/template'
 import { RecordTemplate } from '@/type/template'
 import { dateFormatInTable } from '@/utils/date'
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import ViewBind from './dialogs/viewBind.vue'
+import ViewBind from './Dialogs/ViewBind.vue'
 
 @Component({
   name: 'record-template',
