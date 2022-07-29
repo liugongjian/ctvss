@@ -389,54 +389,8 @@ export default class extends Mixins(Validate) {
     } finally {
       this.appendDragInNodes(node)
       this.removeDeleteNodes()
-      this.appendDragInNodesInDeleteNodes()
       this.tagNvrUnloaded(node)
     }
-  }
-
-  private appendDragInNodesInDeleteNodes() {
-
-    // this.deleteNodes.forEach(dir =>{
-    //   dir.devices.forEach(delDevice => {
-
-    //   })
-    // })
-
-    // const vgroupTree: any = this.$refs.vgroupTree
-    // if (node.data.type !== 'nvr') {
-    //   if (this.dragInNodes[node.data.id]) {
-    //     const dragInDevices = this.dragInNodes[node.data.id]
-    //     dragInDevices.forEach(addDevice => {
-    //       this.deleteNodes.forEach(dir => {
-    //         if (dir.dirId !== node.data.id) {
-    //           dir.devices.forEach(delDevice => {
-    //             if (addDevice.id === delDevice.id) {
-    //               vgroupTree.append(addDevice, node.data)
-    //             }
-    //           })
-    //         }
-    //       })
-    //     })
-    //   }
-    // } else {
-    //   if (this.dragInNodes[node.parent.data.id]) {
-    //     const nvrDragIn = this.dragInNodes[node.parent.data.id].filter(device => device.id === node.data.id)
-    //     if (nvrDragIn.length > 0) {
-    //       let channels = nvrDragIn[0].channels
-    //       this.deleteNodes.forEach(dir => {
-    //         if (dir.dirId !== node.parent.data.id) {
-    //           channels.forEach(channel => {
-    //             dir.devices.forEach(delDevice => {
-    //               if (channel.id === delDevice.id) {
-    //                 vgroupTree.append(channel, node.data)
-    //               }
-    //             })
-    //           })
-    //         }
-    //       })
-    //     }
-    //   }
-    // }
   }
 
   private async loadAll(node) {
@@ -496,7 +450,8 @@ export default class extends Mixins(Validate) {
     const res = await describeShareDirs({
       dirId: node.data.dirId,
       inProtocol: node.data.inProtocol,
-      platformId: this.platformId
+      platformId: this.platformId,
+      pageSize: 1000
     })
 
     const dirs = res.dirs.map((dir: any) => {
@@ -1004,9 +959,10 @@ export default class extends Mixins(Validate) {
     if (list) {
       list.forEach(item => {
         if (item.type === 'ipc') {
-          devices.push(item)
+          this.ifIPCSubmit(dir, item) && devices.push(item)
         } else if (item.type === 'nvr') {
-          devices.push({ ...item,
+          const nvrUnchangedFlag = this.filterNVRChannels(dir, item)
+          nvrUnchangedFlag && devices.push({ ...item,
             channels: item.channels.map(channel => ({
               channelNum: channel.channelNum,
               channelName: channel.label,
@@ -1039,6 +995,42 @@ export default class extends Mixins(Validate) {
       }))
     })
     return dirs
+  }
+
+  private ifIPCSubmit(dir, device) {
+    if (this.dragInNodes[dir.id]) {
+      // 如果是本次拖拽的
+      const res = this.dragInNodes[dir.id].filter(item => item.id === device.id)
+      return res.length > 0
+    } else {
+      // 如果是原来已共享的
+      return device.upGbId !== device.upGbIdOrigin
+    }
+  }
+
+  private filterNVRChannels(dir, device) {
+    let dragInNVR = null
+    if (this.dragInNodes[dir.id]) {
+      const res = this.dragInNodes[dir.id].filter(item => item.id === device.id)
+      if (res.length > 0) {
+        dragInNVR = res[0]
+      }
+    }
+    if (dragInNVR) {
+      const dragInChannels = device.children.filter(child => {
+        const temp = dragInNVR.channels.filter(channel => channel.deviceId === child.id || channel.id === child.id)
+        return temp.length > 0
+      })
+      const sharedChannels = device.children.filter(child => {
+        const temp = dragInNVR.channels.filter(channel => channel.deviceId === child.id || channel.id === child.id)
+        return temp.length === 0
+      })
+      const sharedButModifiedChannels = sharedChannels.filter(child => child.upGbId !== child.upGbIdOrigin)
+      device.channels = [...dragInChannels, ...sharedButModifiedChannels]
+    } else {
+      device.channels = device.children ? device.children.filter(child => child.upGbId !== child.upGbIdOrigin) : []
+    }
+    return !(device.upGbId === device.upGbIdOrigin && device.channels.length === 0)
   }
 
   private changeMode() {
