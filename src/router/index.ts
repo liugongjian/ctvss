@@ -781,7 +781,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'ai-app-list',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/Applist/index.vue'),
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/AppList/index.vue'),
         name: 'AIAppList',
         meta: {
           title: 'AI应用',
@@ -795,7 +795,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'create',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/Applist/AddApp.vue'),
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/AppList/AddApp.vue'),
         name: 'AIAddApp',
         meta: {
           title: '添加应用',
@@ -808,7 +808,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'edit',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/Applist/AddApp.vue'),
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/AppList/AddApp.vue'),
         name: 'AIEditApp',
         meta: {
           title: '编辑应用',
@@ -821,7 +821,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'detail',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/Applist/AppDetail.vue'),
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/AppList/AppDetail.vue'),
         name: 'AIAppDetail',
         meta: {
           title: '应用详情',
@@ -834,7 +834,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'config',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/AIconfig/index.vue'),
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/AIConfig/index.vue'),
         name: 'AIConfig',
         meta: {
           title: '人脸库',
