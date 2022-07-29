@@ -755,29 +755,6 @@ export const asyncRoutes: RouteConfig[] = [
     ]
   },
   {
-    path: '/userConfiguration',
-    component: Layout,
-    meta: {
-      title: '配置',
-      icon: 'menu-system',
-      hidden: true,
-      breadcrumb: true,
-      perms: ['*']
-    },
-    children: [
-      {
-        path: '/',
-        component: () => import(/* webpackChunkName: "common-async-page" */ '@/views/userConfiguration/index.vue'),
-        meta: {
-          title: '配置',
-          icon: 'menu-system',
-          breadcrumb: false,
-          perms: ['*']
-        }
-      }
-    ]
-  },
-  {
     path: '/ai',
     component: Layout,
     redirect: 'noredirect',
