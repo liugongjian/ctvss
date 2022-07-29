@@ -834,7 +834,7 @@ export const asyncRoutes: RouteConfig[] = [
       },
       {
         path: 'config',
-        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/AIConfig/index.vue'),
+        component: () => import(/* webpackChunkName: "ai" */ '@/views/AI/Config/index.vue'),
         name: 'AIConfig',
         meta: {
           title: '人脸库',
