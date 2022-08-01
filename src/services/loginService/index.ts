@@ -51,13 +51,19 @@ export async function initLogin() {
         handleUrlToken()
       } catch (e) {
         console.log('cas e: ', e.message)
-      } finally {
-        new Vue({
-          router,
-          store,
-          render: (h) => h(App)
-        }).$mount('#app')
+      // } finally {
+      //   new Vue({
+      //     router,
+      //     store,
+      //     render: (h) => h(App)
+      //   }).$mount('#app')
       }
+    }).finally(() => {
+      new Vue({
+        router,
+        store,
+        render: (h) => h(App)
+      }).$mount('#app')
     })
   } catch (e) {
     console.log('init login error: ', e.message)
