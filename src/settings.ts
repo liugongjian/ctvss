@@ -8,6 +8,7 @@ interface ISettings {
   sidebarTextTheme: boolean // If true, will change active text color for sidebar based on theme
   projectPrefix: string // 项目前缀路径
   outNetworkWhiteList: Array<string> // 公网白名单
+  apiBaseUrl: string
 }
 
 // You can customize below settings :)
@@ -24,7 +25,8 @@ const settings: ISettings = {
     '182.43.127.35',
     'console.vcn.ctyun.cn',
     'console.vcn.ctcdn.cn'
-  ]
+  ],
+  apiBaseUrl: '/v1'
 }
 
 export default settings

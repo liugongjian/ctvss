@@ -5,10 +5,13 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-    <link rel="stylesheet" type="text/css" href="/layout/static/css/app.css"></link>
-    <link rel="stylesheet" type="text/css" href="/iam/layout/alogic-layout.css"></link>
+    <!-- <link rel="stylesheet" type="text/css" href="/layout/static/css/app.css"></link> -->
+    <!-- <link rel="stylesheet" type="text/css" href="/iam/layout/alogic-layout.css"></link> -->
     <title><%= webpackConfig.name %></title>
-    <script src="<%= BASE_URL %>EasyWasmPlayer.js"></script>
+    <style>
+      @import url('/layout/static/css/app.css');
+      @import url('/iam/layout/alogic-layout.css');
+    </style>
   </head>
   <body>
     <noscript>
@@ -19,6 +22,7 @@
     </div>
     <script type="text/javascript" src="/layout/ctcloud-layout.min.js"></script>
     <script type="text/javascript" src="/iam/layout/alogic-layout.js"></script>
+    <script type="text/javascript" src="<%= BASE_URL %>EasyWasmPlayer.js" defer></script>
     <!-- built files will be auto injected -->
   </body>
 </html>

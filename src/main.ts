@@ -3,7 +3,6 @@ import Polyfill from '@/polyfill'
 import Vue, { DirectiveOptions } from 'vue'
 import { isIE } from '@/utils/browser'
 
-import ElementUI from 'element-ui'
 import SvgIcon from 'vue-svgicon'
 import InfoList from '@/components/InfoList'
 import ShowAlert from '@/components/ShowAlert'
@@ -13,7 +12,6 @@ import 'vue2-timepicker/dist/VueTimepicker.css'
 import '@/styles/element-variables.scss'
 import '@/styles/index.scss'
 
-import { AppModule } from '@/store/modules/app'
 import '@/icons/components'
 import '@/permission'
 import '@/utils/error-log'
@@ -21,15 +19,16 @@ import * as directives from '@/directives'
 import * as filters from '@/filters'
 
 import { initLogin } from '@/services/loginService'
+import VssBase from '@vss/base'
+import VssDevice from '@vss/device'
 
 // @ts-ignore
 window._typeof = (e: any) => {
   return typeof e
 }
 
-Vue.use(ElementUI, {
-  size: AppModule.size // Set element-ui default size
-})
+Vue.use(VssBase)
+Vue.use(VssDevice)
 
 Vue.use(Polyfill)
 
