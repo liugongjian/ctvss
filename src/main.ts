@@ -21,6 +21,7 @@ import * as filters from '@/filters'
 import { initLogin } from '@/services/loginService'
 import VssBase from '@vss/base'
 import VssDevice from '@vss/device'
+import { loadJs } from '@/utils/load-resource'
 
 // @ts-ignore
 window._typeof = (e: any) => {
@@ -56,5 +57,8 @@ Vue.config.productionTip = false
 if (isIE()) {
   document.getElementsByTagName('html')[0].className = 'ie'
 }
+
+// 加载h.265播放器插件
+loadJs(`${process.env.BASE_URL}EasyWasmPlayer.js`)
 
 initLogin()
