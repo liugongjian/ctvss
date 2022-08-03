@@ -14,7 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "element-ui": "^2.15.9",
+    "element-ui": "2.15.5",
     "svg-icon": "^0.8.2"
   }
 }

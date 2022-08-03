@@ -1,4 +1,3 @@
-import ElementUI from 'element-ui'
 // import './assets/css/element-variables.scss'
 // import './assets/css/index.scss'
 
@@ -22,7 +21,6 @@ const componentsList = []
 
 export default {
   install(Vue) {
-    Vue.use(ElementUI, { size: 'medium' })
     componentsList.map((component: any) => {
       Vue.component(component.options.name, component)
     })
