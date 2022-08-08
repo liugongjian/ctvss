@@ -210,19 +210,19 @@ export const asyncRoutes: RouteConfig[] = [
       title: '设备管理',
       icon: 'menu-device',
       perms: ['DescribeDevice'],
-      alwaysShow: false,
-      only: true,
-      groupSelector: true
+      alwaysShow: true
+      // alwaysShow: false,
+      // only: true,
+      // groupSelector: true
     },
     children: [
       {
-        path: '',
+        path: 'camera',
         component: () => import(/* webpackChunkName: "device" */ '@/views/device/index.vue'),
         name: 'device',
         meta: {
           title: '设备管理',
-          icon: 'menu-device',
-          breadcrumb: false,
+          breadcrumb: true,
           perms: ['DescribeDevice'],
           groupSelector: true
         },
@@ -233,9 +233,10 @@ export const asyncRoutes: RouteConfig[] = [
             name: 'device-list',
             meta: {
               title: '设备列表',
+              icon: 'dot',
               breadcrumb: false,
               perms: ['DescribeDevice'],
-              activeMenu: '/device',
+              activeMenu: '/device/camera',
               groupSelector: true
             }
           },
@@ -247,7 +248,7 @@ export const asyncRoutes: RouteConfig[] = [
               title: '添加设备',
               hidden: true,
               perms: ['AdminDevice'],
-              activeMenu: '/device',
+              activeMenu: '/device/camera',
               groupSelector: true
             }
           },
@@ -259,7 +260,7 @@ export const asyncRoutes: RouteConfig[] = [
               title: '编辑设备',
               hidden: true,
               perms: ['AdminDevice'],
-              activeMenu: '/device',
+              activeMenu: '/device/camera',
               groupSelector: true
             }
           },
@@ -271,7 +272,7 @@ export const asyncRoutes: RouteConfig[] = [
               title: '设备详情',
               hidden: true,
               perms: ['DescribeDevice'],
-              activeMenu: '/device',
+              activeMenu: '/device/camera',
               groupSelector: true
             }
           },
@@ -283,8 +284,33 @@ export const asyncRoutes: RouteConfig[] = [
               title: '配置子通道',
               hidden: true,
               perms: ['AdminDevice'],
-              activeMenu: '/device',
+              activeMenu: '/device/camera',
               groupSelector: true
+            }
+          }
+        ]
+      }, {
+        path: 'ibox',
+        component: () => import(/* webpackChunkName: "device" */ '@/views/device/IBox/index.vue'),
+        name: 'ibox',
+        meta: {
+          title: '设备管理',
+          breadcrumb: true,
+          perms: ['DescribeDevice']
+          // groupSelector: true
+        },
+        children: [
+          {
+            path: '',
+            component: () => import(/* webpackChunkName: "device" */ '@/views/device/IBox/List.vue'),
+            name: 'device-list',
+            meta: {
+              title: 'iBox设备列表',
+              breadcrumb: false,
+              icon: 'dot',
+              perms: ['DescribeDevice'],
+              activeMenu: '/device/ibox'
+              // groupSelector: true
             }
           }
         ]
