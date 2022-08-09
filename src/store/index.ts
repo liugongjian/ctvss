@@ -10,6 +10,7 @@ import { IDeviceState } from './modules/device'
 import { IGroupState } from './modules/group'
 import { IScreenState } from './modules/screen'
 import { IMapState } from './modules/map'
+import { IIBoxState } from './modules/ibox'
 
 Vue.use(Vuex)
 
@@ -24,6 +25,7 @@ export interface IRootState {
   group: IGroupState
   screen: IScreenState
   map: IMapState
+  ibox: IIBoxState
 }
 
 // Declare empty store first, dynamically register all modules later.

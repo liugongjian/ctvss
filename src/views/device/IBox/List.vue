@@ -1,23 +1,34 @@
 <template>
-  <div class="ibox-list">
-    List
+  <div class="ibox-list-box">
+    <!-- 使用v-if解决 vuex赋值，取值延迟问题 -->
+    <component :is="componentKind" v-if="IBoxModule.iboxList" />
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import { IBoxModule } from '@/store/modules/ibox'
+import rootlist from './components/List/Root.vue'
+import devicelist from './components/List/Device.vue'
 
 @Component({
   name: 'IBoxList',
   components: {
+    rootlist,
+    devicelist
   }
 })
 
 export default class IBoxList extends Vue {
-
+  public IBoxModule = IBoxModule
+  public get componentKind() {
+    return IBoxModule.iboxList.type
+  }
 }
 </script>
 <style lang="scss" scoped>
-.ibox-list {
-  margin-right: 200px;
+.ibox-list-box {
+  width: 100%;
+  height: calc(100% - 20px);
+  padding: 20px;
 }
 </style>

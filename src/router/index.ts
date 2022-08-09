@@ -206,10 +206,12 @@ export const asyncRoutes: RouteConfig[] = [
   {
     path: '/device',
     component: Layout,
+    redirect: '/device/camera',
     meta: {
       title: '设备管理',
       icon: 'menu-device',
       perms: ['DescribeDevice'],
+      breadcrumb: false,
       alwaysShow: true
       // alwaysShow: false,
       // only: true,
@@ -292,9 +294,9 @@ export const asyncRoutes: RouteConfig[] = [
       }, {
         path: 'ibox',
         component: () => import(/* webpackChunkName: "device" */ '@/views/device/IBox/index.vue'),
-        name: 'ibox',
+        name: 'IBox',
         meta: {
-          title: '设备管理',
+          title: 'iBox设备管理',
           breadcrumb: true,
           perms: ['DescribeDevice']
           // groupSelector: true
@@ -303,13 +305,26 @@ export const asyncRoutes: RouteConfig[] = [
           {
             path: '',
             component: () => import(/* webpackChunkName: "device" */ '@/views/device/IBox/List.vue'),
-            name: 'device-list',
+            name: 'IBoxDeviceList',
             meta: {
               title: 'iBox设备列表',
               breadcrumb: false,
               icon: 'dot',
               perms: ['DescribeDevice'],
               activeMenu: '/device/ibox'
+              // groupSelector: true
+            }
+          },
+          {
+            path: '',
+            component: () => import(/* webpackChunkName: "device" */ '@/views/device/IBox/Detail.vue'),
+            name: 'IBoxDeviceDetail',
+            meta: {
+              title: 'iBox设备列表',
+              breadcrumb: false,
+              perms: ['DescribeDevice'],
+              activeMenu: '/device/ibox',
+              hidden: true
               // groupSelector: true
             }
           }
