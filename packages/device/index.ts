@@ -1,5 +1,4 @@
-// import './assets/css/element-variables.scss'
-// import './assets/css/index.scss'
+import './assets/css/index.scss'
 
 /**
  * 组件清单

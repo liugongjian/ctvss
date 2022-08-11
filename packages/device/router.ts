@@ -22,21 +22,128 @@ export default {
         breadcrumb: false,
         perms: ['DescribeDevice'],
         groupSelector: true
-      }
-      // children: [
-      //   {
-      //     path: '',
-      //     component: () => import(/* webpackChunkName: "device" */ '@/views/device/List.vue'),
-      //     name: 'device-list',
-      //     meta: {
-      //       title: '设备列表',
-      //       breadcrumb: false,
-      //       perms: ['DescribeDevice'],
-      //       activeMenu: '/device',
-      //       groupSelector: true
-      //     }
-      //   }
-      // ]
+      },
+      children: [
+        {
+          path: '',
+          component: () => import(/* webpackChunkName: "device" */ './components/DeviceList/index.vue'),
+          name: 'DeviceList',
+          meta: {
+            title: '设备列表',
+            perms: ['DescribeDevice'],
+            activeMenu: '/device-refactor',
+            groupSelector: true
+          }
+        },
+        {
+          path: 'detail',
+          component: () => import(/* webpackChunkName: "device" */ './components/DeviceDetail/index.vue'),
+          name: 'DeviceDetail',
+          meta: {
+            title: '设备详情',
+            perms: ['DescribeDevice'],
+            activeMenu: '/device-refactor',
+            groupSelector: true
+          },
+          children: [
+            {
+              path: '',
+              component: () => import(/* webpackChunkName: "device" */ './components/DeviceDetail/DeviceInfo/index.vue'),
+              name: 'DeviceInfo',
+              meta: {
+                title: '基本信息',
+                breadcrumb: false,
+                perms: ['DescribeDevice'],
+                activeMenu: '/device-detail',
+                groupSelector: true
+              }
+            },
+            {
+              path: 'events',
+              component: () => import(/* webpackChunkName: "device" */ './components/DeviceDetail/DeviceEvents.vue'),
+              name: 'DeviceEvents',
+              meta: {
+                title: '设备/流信息',
+                breadcrumb: false,
+                perms: ['DescribeDevice'],
+                activeMenu: '/device-detail',
+                groupSelector: true
+              }
+            },
+            {
+              path: 'config',
+              component: () => import(/* webpackChunkName: "device" */ './components/DeviceDetail/DeviceConfig/index.vue'),
+              name: 'DeviceConfig',
+              meta: {
+                title: '配置信息',
+                breadcrumb: false,
+                perms: ['DescribeDevice'],
+                activeMenu: '/device-detail',
+                groupSelector: true
+              }
+            },
+            {
+              path: 'preview',
+              component: () => import(/* webpackChunkName: "device" */ './components/DeviceDetail/DevicePreview.vue'),
+              name: 'DevicePreview',
+              meta: {
+                title: '实时预览',
+                breadcrumb: false,
+                perms: ['DescribeDevice'],
+                activeMenu: '/device-detail',
+                groupSelector: true
+              }
+            },
+            {
+              path: 'replay',
+              component: () => import(/* webpackChunkName: "device" */ './components/DeviceDetail/DeviceReplay.vue'),
+              name: 'DeviceReplay',
+              meta: {
+                title: '录像回放',
+                breadcrumb: false,
+                perms: ['DescribeDevice'],
+                activeMenu: '/device-detail',
+                groupSelector: true
+              }
+            },
+            {
+              path: 'ai',
+              component: () => import(/* webpackChunkName: "device" */ './components/DeviceDetail/DeviceAI.vue'),
+              name: 'DeviceAI',
+              meta: {
+                title: 'AI分析',
+                breadcrumb: false,
+                perms: ['DescribeDevice'],
+                activeMenu: '/device-detail',
+                groupSelector: true
+              }
+            },
+            {
+              path: 'viid',
+              component: () => import(/* webpackChunkName: "device" */ './components/DeviceDetail/DeviceVIID.vue'),
+              name: 'DeviceVIID',
+              meta: {
+                title: '视图库',
+                breadcrumb: false,
+                perms: ['DescribeDevice'],
+                activeMenu: '/device-detail',
+                groupSelector: true
+              }
+            }
+          ]
+        },
+        {
+          path: 'create',
+          component: () => import(/* webpackChunkName: "device" */ './components/DeviceCreate/index.vue'),
+          name: 'DeviceCreate',
+          meta: {
+            title: '创建设备',
+            perms: ['DescribeDevice'],
+            activeMenu: '/device-refactor',
+            groupSelector: true
+          }
+        }
+      ]
     }
   ]
 }

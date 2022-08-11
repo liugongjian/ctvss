@@ -2,6 +2,73 @@ import request from '@/utils/request'
 import { UserModule } from '@/store/modules/user'
 
 /**
+ * 获取设备目录树
+ */
+export const getNodeInfo = (params: any): Promise<any> => {
+  // mock
+  let res: any
+  let count: number = 0
+  if (params === 'root') {
+    res = [
+      {
+        id: count++,
+        label: 'root1',
+        children: []
+      },
+      {
+        id: count++,
+        label: 'root2',
+        children: []
+      },
+      {
+        id: count++,
+        label: 'root3',
+        children: []
+      }
+    ]
+  } else if (params === 'node') {
+    res = [
+      {
+        id: count++,
+        label: 'node1',
+        children: []
+      },
+      {
+        id: count++,
+        label: 'node2',
+        children: []
+      },
+      {
+        id: count++,
+        label: 'node3',
+        children: []
+      }
+    ]
+  } else {
+    res = [
+      {
+        id: count++,
+        label: 'leaf1'
+      },
+      {
+        id: count++,
+        label: 'leaf2'
+      },
+      {
+        id: count++,
+        label: 'leaf3'
+      }
+    ]
+  }
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve(res)
+    }, 1000)
+  })
+}
+
+/* ----------------------------------------------- */
+/**
  * 获取设备详情
  */
 export const getDevice = (params: any, cancelToken?: any): Promise<any> =>
