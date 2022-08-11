@@ -219,6 +219,30 @@
       <el-form-item label="描述">
         <el-input v-model="form.description" type="textarea" :rows="2" />
       </el-form-item>
+      <el-divider content-position="left">告警配置</el-divider>
+      <el-form-item label="静默功能">
+        <el-switch
+          v-model="alertDisabled"
+          active-color="#13ce66"
+          inactive-color="#ff4949"
+        />
+      </el-form-item>
+      <el-form-item label="告警周期">
+        <el-input v-model="form.description" />
+        <el-select v-model="form.analyseType" placeholder="请选择分析类型" :disabled="!alertDisabled">
+          <el-option v-for="(val, key) in analyseAiType" :key="key" :label="val" :value="key" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="告警数量阈值">
+        <el-input v-model="form.description" />
+        <span>个</span>
+      </el-form-item>
+      <el-form-item label="静默时间">
+        <el-input v-model="form.description" />
+        <el-select v-model="form.analyseType" placeholder="请选择分析类型" :disabled="!alertDisabled">
+          <el-option v-for="(val, key) in analyseAiType" :key="key" :label="val" :value="key" />
+        </el-select>
+      </el-form-item>
       <el-form-item>
         <el-button v-if="!$route.query.id" @click="changeStep({step: 0})">上一步</el-button>
         <el-button type="primary" @click="onSubmit">确定</el-button>

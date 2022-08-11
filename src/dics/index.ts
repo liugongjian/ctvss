@@ -203,7 +203,8 @@ export const AlertType: any = {
   29: '垃圾站检测',
   30: '视野遮挡检测',
   31: '跌倒检测',
-  33: '动物检测'
+  33: '动物检测',
+  35: '标准工作服检测'
 }
 
 export const AiMaskType: any = {
