@@ -5,43 +5,81 @@
 
   /* device-list */
   .list-wrap {
-    height: 100%;
+    flex: 1;
     padding: 15px;
     min-width: 910px;
 
-    .filter-container {
-      &__import-button {
-        display: inline-block;
-        margin-right: 10px;
-      }
+    &__header {
 
-      .el-button + .filter-container__import-button {
-        margin-left: 10px;
-      }
+    }
 
-      .el-dropdown + .filter-container__import-button {
-        margin-left: 10px;
-      }
-
-      .el-dropdown + .el-dropdown {
-        margin-left: 10px;
-      }
-
-      .el-dropdown + .el-button {
-        margin-left: 10px;
-      }
-
-      &__sync-button {
-        svg {
-          margin-right: 8px;
+    &__tools {
+      &__left {
+        .import-button {
+          display: inline-block;
+          margin-right: 10px;
         }
 
-        &.loading {
-          .svg-icon {
-            animation: rotating 1s linear infinite;
+        .el-button + .import-button {
+          margin-left: 10px;
+        }
+
+        .el-dropdown + .import-button {
+          margin-left: 10px;
+        }
+
+        .el-dropdown + .el-dropdown {
+          margin-left: 10px;
+        }
+
+        .el-dropdown + .el-button {
+          margin-left: 10px;
+        }
+      }
+
+      &__right {
+        .sync-button {
+          svg {
+            margin-right: 8px;
+          }
+
+          &.loading {
+            .svg-icon {
+              animation: rotating 1s linear infinite;
+            }
           }
         }
+
+        .search-group {
+          margin-right: 10px;
+        }
       }
+    }
+
+    &__filter {
+      &-item {
+
+      }
+    }
+
+    &__body {
+      &__table {
+        .device-name {
+
+        }
+
+        .device-id {
+
+        }
+      }
+
+      &__empty-text {
+
+      }
+    }
+
+    .filter-container {
+
     }
   }
 
@@ -145,4 +183,6 @@
       color: $textGrey;
     }
   }
+
+  @include filter-buttons;
 }
