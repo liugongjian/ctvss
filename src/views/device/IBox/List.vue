@@ -9,12 +9,14 @@ import { Component, Vue } from 'vue-property-decorator'
 import { IBoxModule } from '@/store/modules/ibox'
 import rootlist from './components/List/Root.vue'
 import devicelist from './components/List/Device.vue'
+import nvrlist from './components/List/Nvr.vue'
 
 @Component({
   name: 'IBoxList',
   components: {
     rootlist,
-    devicelist
+    devicelist,
+    nvrlist
   }
 })
 

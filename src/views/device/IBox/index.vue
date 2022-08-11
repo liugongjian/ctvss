@@ -83,6 +83,8 @@ export default class IBox extends Vue {
 
   public iboxDevice: any = {}
 
+  public iboxList = []
+
   async mounted() {
     this.calcHeight()
     window.addEventListener('resize', this.calcHeight)
@@ -105,8 +107,30 @@ export default class IBox extends Vue {
 
   public handleNodeClick(item: any, node: any) {
     // TODO 根据 dirList对应层级，判断右侧是list或者是detail
-    console.log(node)
+    // console.log(item)
     node.expanded = true
+    console.log('node', node, node.level, this.iboxDevice)
+    switch (node.level) {
+      case 1:
+
+        this.setListInfo('devicelist', this.iboxDevice)
+        break
+      case 2:
+        if (item.deviceType === 'nvr') {
+          const iboxNvr = this.getIboxNvr(node)
+          this.setListInfo('nvrlist', iboxNvr)
+        } else if (item.deviceType === 'ipc') {
+        // Todo 展示详情页
+        } else {
+        // todo 展示详情页
+        }
+        break
+      case 3:
+        // Todo 展示详情页
+        break
+      default:
+        this.setListInfo('rootlist', this.iboxes)
+    }
   }
 
   // 获取ibox目录
@@ -166,19 +190,48 @@ export default class IBox extends Vue {
 
     // await this.loadIboxDevice()
 
+    this.iboxes = iboxes
+
     this.setListInfo('rootlist', iboxes)
   }
 
   // 获取ibox下设备目录
-  public loadDirs(node, resolve) {
+  public async loadDirs(node, resolve) {
+    await this.loadIboxDevice()
+    // 根据 deviceType确定是否是子节点
+    const iboxList = this.iboxDevice.map((item: any) => {
+      if (item.deviceType === 'nvr') {
+        return {
+          isLeaf: false,
+          ...item
+        }
+      } else if (item.deviceType === 'ipc') {
+        return {
+          isLeaf: true,
+          ...item
+        }
+      }
+    })
     if (node.level === 1) {
-      window.setTimeout(async() => {
-        await this.loadIboxDevice()
-        return resolve(this.iboxDevice)
+      window.setTimeout(() => {
+        return resolve(iboxList)
       }, 600)
     } else if (node.level === 2) {
+      const { data } = node
+      if (data.deviceType === 'nvr') {
+        const iboxNvr = this.getIboxNvr(node)
+        this.setListInfo('nvrlist', iboxNvr)
+        return resolve(iboxNvr)
+      }
       return resolve([])
     }
+    return resolve([])
+  }
+
+  public getIboxNvr(node: any) {
+    const { data } = node
+    const iboxNvr = data.deviceChannels.map((item: any) => ({ isLeaf: true, ...item }))
+    return iboxNvr
   }
 
   // 获取ibox下设备
@@ -196,7 +249,7 @@ export default class IBox extends Vue {
           'dirId': '-1',
           'deviceType': 'ipc',
           'deviceVendor': '',
-          'deviceName': 'test-nvr',
+          'deviceName': 'test-ipc',
           'description': '',
           'deviceIp': '',
           'devicePort': 0,
@@ -232,15 +285,45 @@ export default class IBox extends Vue {
           },
           'createdTime': '2020-09-02 17:44:12',
           'updatedTime': '2020-09-02 18:14:21',
-          'requestId': '3247575e6e1044668962f5a464fa3885',
-          'isLeaf': true
+          'requestId': '3247575e6e1044668962f5a464fa3885'
         },
         {
           'deviceId': '29942071372546647',
           'groupId': '883904285310976',
           'parentDeviceId': '29942103584801365',
           'dirId': '-1',
-          'deviceType': 'ipc',
+          'deviceType': 'nvr',
+          'deviceChannels': [
+            {
+              'deviceId': '123',
+              'outId': '1111111',
+              'deviceChannelNum': '333',
+              'deviceName': 'nvr-设备1',
+              'deviceStatus': 'on',
+              'streams': []
+            }, {
+              'deviceId': '223',
+              'outId': '2222',
+              'deviceChannelNum': '332',
+              'deviceName': 'nvr-设备2',
+              'deviceStatus': 'off',
+              'streams': []
+            }, {
+              'deviceId': '323',
+              'outId': '3333333',
+              'deviceChannelNum': '323333',
+              'deviceName': 'nvr-设备3',
+              'deviceStatus': 'on',
+              'streams': []
+            }, {
+              'deviceId': '423',
+              'outId': '44444',
+              'deviceChannelNum': '423333',
+              'deviceName': 'nvr-设备4',
+              'deviceStatus': 'new',
+              'streams': []
+            }
+          ],
           'deviceVendor': '',
           'deviceName': 'test-nvr',
           'description': '',
@@ -284,7 +367,6 @@ export default class IBox extends Vue {
 
     }
     this.iboxDevice = data.devices
-    this.setListInfo('devicelist', this.iboxDevice)
   }
 
   public setListInfo(type: string = 'rootlist', data: any = []) {
