@@ -228,19 +228,23 @@
         />
       </el-form-item>
       <el-form-item label="告警周期">
-        <el-input v-model="form.description" />
-        <el-select v-model="form.analyseType" placeholder="请选择分析类型" :disabled="!alertDisabled">
-          <el-option v-for="(val, key) in analyseAiType" :key="key" :label="val" :value="key" />
+        <el-input v-model="form.alertPeriod" class="alarm" />
+        <el-select v-model="alertPeriod">
+          <el-option key="second" label="秒" value="s" />
+          <el-option key="minute" label="分" value="m" />
+          <el-option key="hour" label="时" value="h" />
         </el-select>
       </el-form-item>
       <el-form-item label="告警数量阈值">
-        <el-input v-model="form.description" />
+        <el-input v-model="form.alertTriggerThreshold" class="alarm" />
         <span>个</span>
       </el-form-item>
       <el-form-item label="静默时间">
-        <el-input v-model="form.description" />
-        <el-select v-model="form.analyseType" placeholder="请选择分析类型" :disabled="!alertDisabled">
-          <el-option v-for="(val, key) in analyseAiType" :key="key" :label="val" :value="key" />
+        <el-input v-model="form.alertSilencePeriod" class="alarm" />
+        <el-select v-model="alertSilencePeriod">
+          <el-option key="second" label="秒" value="s" />
+          <el-option key="minute" label="分" value="m" />
+          <el-option key="hour" label="时" value="h" />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -551,6 +555,15 @@ export default class extends Mixins(AppMixin) {
 
   .el-form-item.is-error.el-form-item--medium {
     margin-bottom: 20px;
+  }
+
+  .alarm {
+    width: 415px;
+    margin-right: 10px;
+
+    & + .el-select {
+      width: 80px;
+    }
   }
 }
 </style>
