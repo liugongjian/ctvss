@@ -1,7 +1,7 @@
 <template>
   <div class="device-container">
     <div class="list-wrap">
-      <div class="device-info">
+      <div class="list-wrap__header">
         <info-list v-if="isNVR" label-width="80">
           <info-list-item label="设备名称:">{{ deviceInfo.deviceName }}</info-list-item>
           <info-list-item label="国标ID:">{{ deviceInfo.gbId }}</info-list-item>
@@ -26,14 +26,14 @@
       </div>
       <div class="list-wrap__tools">
         <div class="list-wrap__tools__left">
-          <el-button key="dir-button" type="primary" @click="1">{{ '添加设备' }}</el-button>
-          <el-button v-if="isNVR && checkPermission(['AdminDevice'])" key="dir-button" type="primary" @click="1">{{ '添加子设备' }}</el-button>
+          <el-button v-if="!isVGroup && isNVR && checkPermission(['AdminDevice'])" key="create-button" type="primary" @click="1">{{ '添加设备' }}</el-button>
+          <el-button v-if="isNVR && checkPermission(['AdminDevice'])" key="sub-create-button" type="primary" @click="1">{{ '添加子设备' }}</el-button>
           <el-button v-if="isNVR" key="check-nvr-detail" @click="1">查看NVR设备详情</el-button>
           <el-button v-if="isNVR && checkPermission(['AdminDevice'])" key="edit-nvr" @click="1">编辑NVR设备</el-button>
           <el-button v-if="isPlatform" key="check-platform" @click="1">查看Platform详情</el-button>
           <el-button v-if="isPlatform && checkPermission(['AdminDevice'])" key="edit-platform" @click="1">编辑Platform</el-button>
           <el-button v-if="isPlatform" key="sync" :loading="loading.syncDevice" @click="1">同步</el-button>
-          <el-dropdown v-if="checkPermission(['AdminDevice'], {id: dirId !== '0' ? dirId : currentGroupId})" placement="bottom" @command="1">
+          <el-dropdown placement="bottom" @command="1">
             <el-button>导出<i class="el-icon-arrow-down el-icon--right" /></el-button>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="exportAll" :disabled="!deviceList.length">导出所有分页</el-dropdown-item>
@@ -45,13 +45,13 @@
             ref="excelUpload"
             action="#"
             :show-file-list="false"
-            :http-request="uploadExcel"
+            :http-request="() => {}"
             class="import-button"
           >
             <el-button>导入</el-button>
           </el-upload>
           <el-button @click="1">下载模板</el-button>
-          <el-dropdown v-if="!isVGroup && checkPermission(['AdminDevice'], {id: dirId !== '0' ? dirId : currentGroupId})" key="dropdown" placement="bottom" @command="1">
+          <el-dropdown v-if="!isVGroup" key="dropdown" placement="bottom" @command="1">
             <el-button :disabled="!selectedDeviceList.length">批量操作<i class="el-icon-arrow-down el-icon--right" /></el-button>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="move">移动至</el-dropdown-item>
@@ -68,8 +68,8 @@
           <el-button v-if="!isVGroup && !isChannel" class="el-button-rect sync-button" :disabled="false" :class="{'loading': false}" @click="1"><svg-icon name="refresh" />同步设备状态</el-button>
         </div>
       </div>
-      <div class="list-wrap__filter">
-        <div v-for="{key, value} in filterButtons" :key="key" class="list-wrap__filter-item" @click="1">
+      <div class="filter-buttons">
+        <div v-for="{key, value} in filterButtons" :key="key" class="filter-button" @click="1">
           <label>{{ deviceParams[key] }}</label>
           <span v-if="key === 'deviceType'">{{ deviceType[value] }}</span>
           <span v-if="key === 'deviceStatus'">{{ deviceStatus[value] }}</span>
@@ -79,7 +79,7 @@
         </div>
       </div>
       <div class="list-wrap__body">
-        <el-table ref="deviceTable" :height="tableMaxHeight" :data="deviceList" fit class="list-wrap__body__table">
+        <el-table v-show="deviceList.length" ref="deviceTable" :height="tableMaxHeight" :data="deviceList" fit class="list-wrap__body__table">
           <el-table-column type="selection" prop="selection" class-name="col-selection" width="55" />
           <el-table-column label="设备ID/名称" min-width="200">
             <template slot-scope="{row}">
@@ -239,7 +239,7 @@
                 width="400"
                 :open-delay="800"
                 trigger="hover"
-                @show="getEventsList(scope.row)"
+                @show="1"
               >
                 <el-table
                   v-loading="loading.events"
@@ -253,7 +253,7 @@
                 </el-table>
                 <el-button slot="reference" type="text" @click="deviceRouter({id: scope.row.deviceId, type: 'detail', activeName: 'events'})">设备事件</el-button>
               </el-popover>
-              <el-dropdown @command="handleMore">
+              <el-dropdown @command="1">
                 <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item v-if="scope.row.deviceType === 'nvr'" :command="{type: 'nvr', device: scope.row}">查看通道</el-dropdown-item>
@@ -269,18 +269,26 @@
                   <el-dropdown-item v-if="!isVGroup && (!isNVR && scope.row.parentDeviceId === '-1') && checkPermission(['AdminDevice'])" :command="{type: 'move', device: scope.row}">移动至</el-dropdown-item>
                   <el-dropdown-item v-if="!isVGroup && checkPermission(['AdminDevice'])" :command="{type: 'update', device: scope.row}">编辑</el-dropdown-item>
                   <!--自动创建的子通道不允许删除-->
-                  <el-dropdown-item v-if="!isVGroup && isAllowedDelete && checkPermission(['AdminDevice'])" :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
+                  <el-dropdown-item v-if="!isVGroup && checkPermission(['AdminDevice'])" :command="{type: 'delete', device: scope.row}">删除</el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
             </template>
           </el-table-column>
         </el-table>
-        <el-pagination />
-        <div v-if="isNVR" class="el-pagination">
-          <div class="el-pagination__total">共{{ deviceList.length }}条</div>
-        </div>
         <div v-if="!deviceList.length && !loading.list" class="list-wrap__body__empty-text">
           当前{{ isNVR ? 'NVR' : '目录' }}暂无设备
+        </div>
+        <el-pagination
+          v-if="deviceList.length && !isNVR"
+          :current-page="pager.pageNum"
+          :page-size="pager.pageSize"
+          :total="pager.total"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+        <div v-if="isNVR" class="el-pagination">
+          <div class="el-pagination__total">共{{ deviceList.length }}条</div>
         </div>
       </div>
     </div>
@@ -308,9 +316,34 @@ export default class extends Vue {
   private sipTransType = SipTransType
   private streamTransType = StreamTransType
   private transPriority = TransPriority
+  public tableMaxHeight: any = null
+  public filter: any = {
+    deviceType: undefined,
+    deviceStatus: undefined,
+    streamStatus: undefined,
+    recordStatus: undefined
+  }
+
+  public pager = {
+    pageNum: 1,
+    pageSize: 10,
+    total: 0
+  }
+
+  // 筛选类型
+  public filtersArray = {
+    deviceType: this.dictToFilterArray(DeviceGb28181Type),
+    deviceStatus: this.dictToFilterArray(DeviceStatus),
+    streamStatus: this.dictToFilterArray(StreamStatus),
+    recordStatus: this.dictToFilterArray(RecordStatusFilterType)
+  }
 
   private get isNVR() {
     return true
+  }
+
+  private get isIPC() {
+    return false
   }
 
   private get isPlatform() {
@@ -321,10 +354,85 @@ export default class extends Vue {
     return false
   }
 
+  private get isGb() {
+    return true
+  }
+
+  private get isDir() {
+    return false
+  }
+
+  private get isChannel() {
+    return false
+  }
+
+  private get ga1400Flag() {
+    return false
+  }
+
+  public get filterButtons() {
+    const buttons = []
+    for (let key in this.filter) {
+      const value = this.filter[key]
+      if (value) {
+        buttons.push({
+          key,
+          value
+        })
+      }
+    }
+    return buttons
+  }
+
+  public get hasFiltered() {
+    return !!(this.filter.deviceType || this.filter.deviceStatus || this.filter.streamStatus || this.filter.recordStatus)
+  }
+
+  private loading = {}
+
+  private keyword = ''
+
   private deviceInfo: any = {}
 
-  private deviceList: Array<Device> = []
+  private deviceList: Array<Device> = [{}]
 
   private selectedDeviceList: Array<Device> = []
+
+  private eventsList = []
+
+  private mounted() {
+    this.calTableMaxHeight()
+  }
+
+  private calTableMaxHeight() {
+    const deviceTable: any = this.$refs.deviceTable
+    this.tableMaxHeight = deviceTable.offsetHeight
+  }
+
+  /**
+   * 将字典转为筛选数组
+   */
+  public dictToFilterArray(dict: any) {
+    const filterArray = []
+    for (let key in dict) {
+      filterArray.push({
+        text: dict[key],
+        value: key
+      })
+    }
+    return filterArray
+  }
+
+  private getDevices() {}
+
+  public async handleSizeChange(val: number) {
+    this.pager.pageSize = val
+    await this.getDevices()
+  }
+
+  public async handleCurrentChange(val: number) {
+    this.pager.pageNum = val
+    await this.getDevices()
+  }
 }
 </script>
