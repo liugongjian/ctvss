@@ -1,12 +1,101 @@
-export const PlatformStatus = {
-  'on': '在线',
-  'off': '离线'
+/**
+ * ==================
+ * 新
+ */
+
+/*
+  设备类型
+*/
+export const DeviceType = {
+  'ipc': 'IPC',
+  'nvr': 'NVR',
+  'platform': 'Platform'
 }
 
+/*
+  设备状态
+*/
 export const DeviceStatus = {
   'on': '在线',
   'off': '离线',
   'new': '未注册'
+}
+
+/*
+  流状态
+*/
+export const StreamStatus = {
+  'on': '在线',
+  'off': '离线',
+  'failed': '失败'
+}
+
+/*
+  录制状态
+*/
+export const RecordStatus = {
+  0: '未录制',
+  1: '录制中',
+  2: '录制中',
+  3: '录制失败'
+}
+
+/*
+  录制状态对应的图标类型
+*/
+export const RecordStatusType = {
+  0: 'off',
+  1: 'on',
+  2: 'on',
+  3: 'error'
+}
+
+/*
+  是否启用自动拉流
+*/
+export const DeviceStreamAutoPull = {
+  1: '已启用',
+  2: '未启用'
+}
+
+/**
+ * 接入协议
+ */
+export const InProtocolType = {
+  'gb28181': 'GB28181',
+  'rtmp': 'RTMP',
+  'onvif': 'ONVIF',
+  'rtsp': 'RTSP',
+  'ehome': 'EHOME'
+}
+
+/**
+ * 接入方式
+ */
+export const DeviceInType = {
+  'video': '视频',
+  'viid': '视图',
+  'videoAndViid': '视频、视图'
+}
+
+export default {
+  DeviceType,
+  DeviceStatus,
+  StreamStatus,
+  RecordStatus,
+  RecordStatusType,
+  DeviceStreamAutoPull,
+  InProtocolType,
+  DeviceInType
+}
+
+/**
+ * ==================
+ * 旧，待整理删除
+ */
+export const PlatformStatus = {
+  'on': '在线',
+  'off': '离线'
 }
 
 export const DeviceGb28181Type = {
@@ -28,14 +117,6 @@ export const DeviceRtspType = {
 export const InType = {
   'push': '推流',
   'pull': '拉流'
-}
-
-export const InProtocolType = {
-  'gb28181': 'GB28181',
-  'rtmp': 'RTMP',
-  'onvif': 'ONVIF',
-  'rtsp': 'RTSP',
-  'ehome': 'EHOME'
 }
 
 export const OutProtocolType = {
@@ -108,26 +189,6 @@ export const StreamTransType = {
 export const TransPriority = {
   tcp: '是',
   udp: '否'
-}
-
-export const StreamStatus = {
-  'on': '在线',
-  'off': '离线',
-  'failed': '失败'
-}
-
-export const RecordStatus = {
-  0: '未录制',
-  1: '录制中',
-  2: '录制中',
-  3: '录制失败'
-}
-
-export const RecordStatusType: { [key: number]: any } = {
-  0: 'off',
-  1: 'on',
-  2: 'on',
-  3: 'error'
 }
 
 export const RecordStatusFilterType = {
