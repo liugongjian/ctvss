@@ -78,6 +78,18 @@ export const DeviceInType = {
   'videoAndViid': '视频、视图'
 }
 
+/**
+ * 流传输模式
+ */
+export const StreamTransType = {
+  ps_rtp_udp: 'UDP',
+  ps_rtp_tcp: 'TCP',
+  h264_rtp_udp: 'UDP',
+  h264_rtp_tcp: 'TCP',
+  h265_rtp_udp: 'UDP',
+  h265_rtp_tcp: 'TCP'
+}
+
 export default {
   DeviceType,
   DeviceStatus,
@@ -86,7 +98,8 @@ export default {
   RecordStatusType,
   DeviceStreamAutoPull,
   InProtocolType,
-  DeviceInType
+  DeviceInType,
+  StreamTransType
 }
 
 /**
@@ -175,15 +188,6 @@ export const CreateSubDevice = {
 export const SipTransType = {
   tcp: 'TCP',
   udp: 'UDP'
-}
-
-export const StreamTransType = {
-  ps_rtp_udp: 'UDP',
-  ps_rtp_tcp: 'TCP',
-  h264_rtp_udp: 'UDP',
-  h264_rtp_tcp: 'TCP',
-  h265_rtp_udp: 'UDP',
-  h265_rtp_tcp: 'TCP'
 }
 
 export const TransPriority = {

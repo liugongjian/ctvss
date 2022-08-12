@@ -30,7 +30,7 @@
       <el-descriptions-item label="信令传输模式">缺失</el-descriptions-item>
       <el-descriptions-item label="自动拉流">{{ dicts.DeviceStreamAutoPull[basicInfo.deviceStreamAutoPull] }}</el-descriptions-item>
       <el-descriptions-item label="优先TCP传输">缺失</el-descriptions-item>
-      <el-descriptions-item label="流传输模式">{{ videoInfo.stream.streamTransType }}</el-descriptions-item>
+      <el-descriptions-item label="流传输模式">{{ dicts.StreamTransType[videoInfo.stream.streamTransType] }}</el-descriptions-item>
     </el-descriptions>
 
     <!-- SIP信息 -->
