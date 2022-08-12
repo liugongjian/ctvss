@@ -21,7 +21,7 @@
     <!-- 接入信息 -->
     <el-descriptions title="接入信息" :column="2">
       <el-descriptions-item label="国标ID">{{ videoInfo.outId || '-' }}</el-descriptions-item>
-      <el-descriptions-item label="GB28181凭证注册用户名">缺失</el-descriptions-item>
+      <el-descriptions-item label="GB28181凭证">缺失</el-descriptions-item>
       <el-descriptions-item label="协议类型">缺失</el-descriptions-item>
       <el-descriptions-item label="设备IP">{{ basicInfo.deviceIp }}</el-descriptions-item>
       <el-descriptions-item label="设备端口">{{ basicInfo.devicePort }}</el-descriptions-item>

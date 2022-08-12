@@ -141,7 +141,16 @@
     flex: 1;
 
     .el-tabs {
-      margin-top: -$margin-medium;
+      margin-top: $margin-medium;
+
+      &__item {
+        height: 38px;
+        line-height: 38px;
+      }
+
+      &__content {
+        padding: 0 $padding-medium;
+      }
     }
 
     .detail__buttons {
@@ -159,7 +168,7 @@
     }
 
     .detail__section {
-      padding-bottom: 15px;
+      padding-bottom: $padding-medium;
     }
 
     .detail__title {
@@ -179,16 +188,13 @@
         width: 6px;
         height: 18px;
       }
-
-      .el-link {
-        font-size: 14px;
-        margin-left: 10px;
-      }
     }
 
     .el-descriptions {
+      padding-bottom: $padding-medium;
+
       &__header {
-        margin: 10px 0;
+        margin: $margin-small 0;
       }
 
       &-item {
@@ -199,7 +205,7 @@
         }
 
         &__label {
-          min-width: 100px;
+          min-width: 120px;
           text-align: right;
           color: $textGrey;
         }
