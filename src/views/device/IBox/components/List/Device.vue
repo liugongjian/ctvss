@@ -1,5 +1,12 @@
 <template>
   <div class="ibox-list">
+    <div class="ibox-list__btn-box">
+      <el-button type="primary">添加设备</el-button>
+      <el-button>导出</el-button>
+      <el-button>导入</el-button>
+      <el-button>下载模板</el-button>
+      <el-button>批量操作</el-button>
+    </div>
     <el-table :data="tableData" fit>
       <el-table-column
         fixed
@@ -136,8 +143,3 @@ export default class IBoxList extends Vue {
   }
 }
 </script>
-<style lang="scss" scoped>
-.ibox-list {
-  width: 100%;
-}
-</style>

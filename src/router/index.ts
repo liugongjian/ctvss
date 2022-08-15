@@ -624,6 +624,19 @@ export const asyncRoutes: RouteConfig[] = [
           // tags: ['ga1400'],
           activeMenu: '/certificate/ga1400'
         }
+      }, {
+        path: 'ibox',
+        component: () => import(/* webpackChunkName: "certificate" */ '@/views/certificate/IBox/index.vue'),
+        name: 'IBOX',
+        meta: {
+          id: '20210424150201007004',
+          name: 'certificate',
+          title: 'iBox凭证',
+          icon: 'dot',
+          perms: ['*'],
+          // tags: ['ga1400'],
+          activeMenu: '/certificate/ibox'
+        }
       }
     ]
   },

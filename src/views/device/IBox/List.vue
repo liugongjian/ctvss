@@ -32,5 +32,13 @@ export default class IBoxList extends Vue {
   width: 100%;
   height: calc(100% - 20px);
   padding: 20px;
+
+  ::v-deep .ibox-list {
+    height: 100%;
+
+    &__btn-box {
+      margin-bottom: 10px;
+    }
+  }
 }
 </style>

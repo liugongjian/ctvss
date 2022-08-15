@@ -1,5 +1,8 @@
 <template>
   <div class="ibox-list">
+    <div class="ibox-list__btn-box">
+      <el-button type="primary">添加设备</el-button>
+    </div>
     <el-table :data="tableData" fit>
       <el-table-column
         fixed
