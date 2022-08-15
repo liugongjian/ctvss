@@ -278,7 +278,7 @@ export default class extends Vue {
     return this.appInfo.algorithm.code === '10019'
   }
   private async mounted() {
-    this.initFaceInfos()
+    // this.initFaceInfos()
     if (this.device.deviceId.length > 0) {
       this.getScreenShot()
       this.isCarFlowCode && this.getAlarmsList()
@@ -399,6 +399,7 @@ export default class extends Vue {
   private onload() {
     const metaData = JSON.parse(this.dialoguePic.metadata)
     const locations = parseMetaData(this.appInfo.algorithm.code, metaData)
+    debugger
     const img = this.$refs.dialogue
     this.dialoguePic = { ...this.dialoguePic, locations: transformLocationAi(locations, img) }
   }
