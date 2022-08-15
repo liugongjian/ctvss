@@ -113,7 +113,7 @@ export default class IBox extends Vue {
     switch (node.level) {
       case 1:
 
-        this.setListInfo('devicelist', this.iboxDevice)
+        this.setListInfo('device', this.iboxDevice)
         break
       case 2:
         if (item.deviceType === 'nvr') {
