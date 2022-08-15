@@ -16,7 +16,7 @@
       <div class="certificate-ibox__number">
         <div class="certificate-ibox__number-box">
           <p>接入凭证码</p>
-          <h2>828 368 287</h2>
+          <h2>{{code}}</h2>
           <el-button>点击更换凭证</el-button>
         </div>
       </div>
@@ -44,7 +44,7 @@
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
 export default class extends Vue {
-
+  public code = '828 368 287'
 }
 </script>
 <style lang="scss" scoped>
@@ -94,12 +94,12 @@ export default class extends Vue {
           content: '';
           width: 0;
           height: 0;
-          border-top: 10px solid transparent;
-          border-bottom: 10px solid transparent;
-          border-left: 10px solid #ccc;
+          border-top: 16px solid transparent;
+          border-bottom: 16px solid transparent;
+          border-left: 16px solid #777;
           position: absolute;
-          top: 70px;
-          right: calc(-1*(100vw - 1040px)/8 + 30px);
+          top: 66px;
+          right: min(-19px, calc(-1*(100vw - 1040px)/8 + 26px));
         }
       }
     }
