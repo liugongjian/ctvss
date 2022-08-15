@@ -839,8 +839,33 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '人脸库',
           icon: 'dot',
+          hidden: true,
           breadcrumb: true,
           activeMenu: '/AI/config',
+          perms: ['AdminAi']
+        }
+      },
+      {
+        path: 'facelib',
+        component: () => import(/* webpackChunkName: "AI" */ '@/views/AI/Face/index.vue'),
+        name: 'facelib',
+        meta: {
+          title: '人脸库',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/AI/face',
+          perms: ['AdminAi']
+        }
+      },
+      {
+        path: 'facelib/detail',
+        component: () => import(/* webpackChunkName: "AI" */ '@/views/AI/Face/Personal.vue'),
+        name: 'facelib-detail',
+        meta: {
+          title: '人脸库详情',
+          icon: 'dot',
+          hidden: true,
+          activeMenu: '/AI/personal',
           perms: ['AdminAi']
         }
       }
