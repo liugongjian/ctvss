@@ -1,19 +1,86 @@
-/* Element Variables */
+/* 重置 Element UI 变量
+-------------------------- */
 
-// Override Element UI variables
-$--color-primary: #fa8334;
-$--color-success: #52c41a;
-$--color-warning: #ff9d3b;
-$--color-danger: #f5212d;
-$--color-info: #4a89dc;
+/* 主题色
+-------------------------- */
+$--color-primary: $color-master-1;
+$--color-success: $color-status-success-1;
+$--color-warning: $color-status-warning-1;
+$--color-danger: $color-status-danger-1;
+$--color-info: $color-status-info-1;
+
+$--color-text-primary: $color-grey-1;
+$--color-text-regular: $color-grey-1;
+$--color-text-secondary: $color-grey-4;
+$--color-text-placeholder: $color-grey-4;
+$--border-color-base: $border-color-primary;
+$--border-color-light: $border-color-light-1;
+$--border-color-lighter: $border-color-light-1;
+$--border-color-extra-light: $border-color-light-1;
+$--background-color-base: $color-grey-10;
+
+/* Box-shadow
+-------------------------- */
+$--box-shadow-base: $shadow-card;
+$--box-shadow-dark: $shadow-dialog;
+$--box-shadow-light: $shadow-card;
+
+/* Link
+-------------------------- */
+$--link-color: $color-master-1;
+$--link-hover-color: $color-master-3;
+
+/* Typography
+-------------------------- */
+$--font-color-disabled-base: $color-grey-4;
+
+/* Border
+-------------------------- */
+$--border-radius-base: $border-radius;
+
+/* Button
+-------------------------- */
 $--button-font-weight: 400;
-$--color-text-regular: rgb(0,0,0,0.85);
-$--border-color-light: #dfe4ed;
-$--border-color-lighter: #e6ebf5;
-$--table-border:1px solid#dfe6ec;
 
-// Icon font path, required
+/* Input
+-------------------------- */
+$--input-border: 1px solid $border-color-primary;
+$--input-disabled-fill: $color-grey-10;
+
+/* Table
+-------------------------- */
+$--table-border: 1px solid $border-color-primary;
+
+/* Tree
+-------------------------- */
+$--tree-node-hover-background-color: $color-master-7;
+
+/* Rate
+-------------------------- */
+$--rate-icon-color: $color-master-1;
+
+/* Icon
+-------------------------- */
+$--icon-color: $color-grey-3;
+$--icon-color-base: $color-grey-3;
+$--radio-icon-color: $color-grey-3;
+$--radio-checked-icon-color: $color-grey-3;
+$--message-close-icon-color: $color-grey-3;
+$--input-icon-color: $color-grey-3;
+$--tree-expand-icon-color: $color-grey-3;
+$--rate-icon-color: $color-grey-3;
+$--datepicker-icon-color: $color-grey-3;
+$--notification-success-icon-color: $color-grey-3;
+
+/* DisabledIcon
+-------------------------- */
+$--checkbox-disabled-icon-color: $color-grey-5;
+$--checkbox-disabled-checked-icon-color: $color-grey-5;
+$--radio-disabled-icon-color: $color-grey-5;
+$--radio-disabled-checked-icon-color: $color-grey-5;
+
+/* Icon font path, required */
 $--font-path: '~element-ui/lib/theme-chalk/fonts';
 
-// Apply overrided variables in Element UI
+/* Apply overrided variables in Element UI */
 @import '~element-ui/packages/theme-chalk/src/index';

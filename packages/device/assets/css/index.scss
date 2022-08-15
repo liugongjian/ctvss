@@ -140,8 +140,12 @@
   .detail-wrap {
     flex: 1;
 
+    .el-page-header {
+      margin-bottom: $margin-small;
+    }
+
     .el-tabs {
-      margin-top: $margin-medium;
+      margin-top: 0;
 
       &__item {
         height: 38px;
@@ -154,45 +158,23 @@
     }
 
     .detail__buttons {
-      border-bottom: 1px solid $borderGrey;
-      padding-bottom: 10px;
-      margin-bottom: 15px;
-
-      .el-button + .el-button {
-        margin-left: 10px;
-      }
-
-      .el-dropdown + .el-button {
-        margin-left: 10px;
-      }
-    }
-
-    .detail__section {
-      padding-bottom: $padding-medium;
+      text-align: right;
     }
 
     .detail__title {
       position: relative;
-      padding-left: 15px;
-      margin: 10px 0;
       font-size: 16px;
       font-weight: bold;
+      margin-bottom: $margin-small;
 
-      &:before {
-        content: ' ';
-        display: block;
+      .detail__buttons {
         position: absolute;
-        left: 0;
-        top: 0;
-        background: $primary;
-        width: 6px;
-        height: 18px;
+        top: -10px;
+        right: 0;
       }
     }
 
     .el-descriptions {
-      padding-bottom: $padding-medium;
-
       &__header {
         margin: $margin-small 0;
       }
@@ -240,6 +222,31 @@
     .detail__empty-card {
       padding: 5px 15px;
       color: $textGrey;
+    }
+
+    /* 设备基本信息 */
+    .detail__basic-info {
+      border: 1px solid $border-color-light-1;
+      padding: $padding-medium;
+    }
+
+    /* 设备详情Tabs */
+    .detail__tabs {
+      margin-top: $margin-medium;
+
+      .el-tabs__header {
+        margin-bottom: 0;
+      }
+
+      .el-tabs__item {
+        font-size: 16px;
+      }
+
+      .el-tabs__content {
+        border: 1px solid $border-color-light-1;
+        border-top: none;
+        padding: $padding-medium;
+      }
     }
   }
 

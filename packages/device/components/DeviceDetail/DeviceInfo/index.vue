@@ -1,14 +1,18 @@
 <template>
   <div class="device-container">
     <div class="detail-wrap">
-      <detail-operation />
-      <div class="detail__section">
-        <div class="detail__title">设备信息</div>
+      <div class="detail__section detail__basic-info">
+        <div class="detail__title">
+          设备信息
+          <div class="detail__buttons">
+            <el-button type="text">编辑</el-button>
+            <el-button type="text">删除</el-button>
+          </div>
+        </div>
         <basic-info :device="device" />
       </div>
       <div class="detail__section">
-        <div class="detail__title">接入信息</div>
-        <el-tabs v-model="activeTab" type="card">
+        <el-tabs v-model="activeTab" type="card" class="detail__tabs">
           <el-tab-pane label="视频接入" :name="enums.DeviceInType.Video">
             <video-info :device="device" />
           </el-tab-pane>
@@ -23,7 +27,6 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import DetailOperation from './DetailOperation.vue'
 import BasicInfo from './BasicInfo.vue'
 import VideoInfo from './VideoInfo.vue'
 import ViidInfo from './ViidInfo.vue'
@@ -33,7 +36,6 @@ import enums from '../../../enums'
 @Component({
   name: 'DeviceInfo',
   components: {
-    DetailOperation,
     BasicInfo,
     VideoInfo,
     ViidInfo
