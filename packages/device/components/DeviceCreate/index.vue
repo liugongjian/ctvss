@@ -17,7 +17,7 @@
           :rules="rules"
           :model="deviceForm"
           label-position="right"
-          label-width="150px"
+          label-width="135px"
         >
           <el-form-item label="设备名称:" prop="deviceName" class="form-with-tip">
             <el-input v-model="deviceForm.deviceName" />
@@ -41,10 +41,46 @@
           <el-form-item label="接入类型:" prop="deviceInType">
             <el-radio v-for="(value, key) in deviceInType" :key="key" v-model="deviceForm.deviceInType" :label="key">{{ value }}</el-radio>
           </el-form-item>
+          <el-form-item prop="inNetworkType">
+            <template slot="label">
+              接入网络:
+              <el-popover
+                placement="top-start"
+                width="300"
+                trigger="hover"
+                :open-delay="300"
+                content="设备接入的网络类型"
+              >
+                <svg-icon slot="reference" class="form-question" name="help" />
+              </el-popover>
+            </template>
+            <el-radio-group v-model="deviceForm.inNetworkType">
+              <el-radio label="public">互联网</el-radio>
+              <el-radio label="private">专线网络</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item prop="outNetworkType">
+            <template slot="label">
+              播放网络:
+              <el-popover
+                placement="top-start"
+                width="300"
+                trigger="hover"
+                :open-delay="300"
+                content="视频调阅的网络类型"
+              >
+                <svg-icon slot="reference" class="form-question" name="help" />
+              </el-popover>
+            </template>
+            <el-radio-group v-model="deviceForm.outNetworkType">
+              <el-radio label="public">互联网</el-radio>
+              <el-radio label="private">专线网络</el-radio>
+            </el-radio-group>
+          </el-form-item>
           <div v-if="deviceForm.deviceInType !== 'viid'">
             <div class="form-title">视频接入信息</div>
             <video-create-form
-              :device-type="deviceForm.deviceType"
+              :device-form="deviceForm"
             />
           </div>
           <div v-if="deviceForm.deviceInType !== 'video'">
@@ -86,9 +122,11 @@ export default class extends Vue {
   private deviceForm = {
     deviceName: '',
     deviceType: 'ipc',
-    deviceInType: 'videoAndViid'
+    deviceInType: 'videoAndViid',
+    inNetworkType: 'public',
+    outNetworkType: 'public'
   }
-  rules = []
+  rules = {}
 
   private get isChannel() {
     return false

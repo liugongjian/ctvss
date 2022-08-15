@@ -5,7 +5,7 @@
       :rules="rules"
       :model="videoForm"
       label-position="right"
-      label-width="150px"
+      label-width="135px"
     >
       <el-form-item label="接入协议:" prop="inProtocol">
         <el-radio v-for="(value, key) in inProtocolType" :key="key" v-model="videoForm.inProtocol" :label="key">{{ value }}</el-radio>
@@ -53,7 +53,7 @@
       <el-form-item label="配置资源包:" prop="resources">
         <resource-tabs
           v-model="videoForm.resources"
-          :is-private-in-network="isPrivateInNetwork"
+          :is-private-in-network="deviceForm.inNetworkType === 'private'"
           :form-info="videoForm"
           :vss-ai-apps="videoForm.vssAIApps"
           @on-change="onResourceChange"
@@ -78,7 +78,7 @@
             </div>
           </el-form-item>
           <el-form-item
-            v-if="deviceType !== 'nvr'"
+            v-if="deviceForm.deviceType !== 'nvr'"
             label="杆号:"
             prop="poleId"
           >
@@ -95,7 +95,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { InProtocolType, DeviceType } from '../dicts/index'
+import { InProtocolType } from '../dicts/index'
 import { DeviceTips } from '../dicts/tips'
 import ResourceTabs from './ResourceTabs.vue'
 
@@ -106,8 +106,8 @@ import ResourceTabs from './ResourceTabs.vue'
   }
 })
 export default class extends Vue {
-  @Prop()
-  private deviceType: string
+  @Prop({ default: () => {} })
+  private deviceForm
 
   private tips = DeviceTips
   private inProtocolType = InProtocolType
