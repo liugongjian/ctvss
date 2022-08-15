@@ -5,7 +5,8 @@ export const getRule = (msg) => {
   } else if (['人员数量阈值', '车辆数量阈值',
     '临停时间', '拥堵车辆阈值', '人员数量阈值',
     '脱岗超时时间', '睡岗超时时间', '临停时间',
-    '拥堵车辆阈值', '视野遮挡阈值', '徘徊时间', '蜜蜂数量'].includes(msg)) {
+    '拥堵车辆阈值', '视野遮挡阈值', '徘徊时间',
+    '蜜蜂数量', '告警周期', '告警数量阈值', '静默时间'].includes(msg)) {
     rule.push({ required: true, message: '不能为空', trigger: 'blur' })
     rule.push({
       validator: (rule, value, callback) => {
@@ -85,7 +86,10 @@ export const formRule = {
   'algorithmMetadata.helmetReflectiveType': getRule('检测项'),
   'algorithmMetadata.animalDetectType': getRule('动物列表'),
   beeNumber: getRule('蜜蜂数量'),
-  period: getRule('起始时间')
+  period: getRule('起始时间'),
+  alertPeriod: getRule('告警周期'),
+  alertTriggerThreshold: getRule('告警数量阈值'),
+  alertSilencePeriod: getRule('静默时间')
 }
 
 export const formTips = {

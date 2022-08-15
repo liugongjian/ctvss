@@ -223,30 +223,32 @@
       <el-form-item label="静默功能">
         <el-switch
           v-model="alertDisabled"
-          active-color="#13ce66"
-          inactive-color="#ff4949"
+          active-color="#fa8334"
+          inactive-color="#C0C4CC"
         />
       </el-form-item>
-      <el-form-item label="告警周期">
-        <el-input v-model="form.alertPeriod" class="alarm" />
-        <el-select v-model="alertPeriod">
-          <el-option key="second" label="秒" value="s" />
-          <el-option key="minute" label="分" value="m" />
-          <el-option key="hour" label="时" value="h" />
-        </el-select>
+      <el-form-item v-if="alertDisabled" label="告警周期" prop="alertPeriod" class="inline-form-item">
+        <el-input v-model.number="form.alertPeriod" class="alarm" />
       </el-form-item>
-      <el-form-item label="告警数量阈值">
-        <el-input v-model="form.alertTriggerThreshold" class="alarm" />
-        <span>个</span>
+      <el-select v-if="alertDisabled" v-model="interval.alertPeriod" class="interval-unit">
+        <el-option key="second" label="秒" value="s" />
+        <el-option key="minute" label="分" value="m" />
+        <el-option key="hour" label="时" value="h" />
+      </el-select>
+      <br>
+      <el-form-item v-if="alertDisabled" label="告警数量阈值" prop="alertTriggerThreshold" class="inline-form-item">
+        <el-input v-model.number="form.alertTriggerThreshold" class="alarm" />
       </el-form-item>
-      <el-form-item label="静默时间">
-        <el-input v-model="form.alertSilencePeriod" class="alarm" />
-        <el-select v-model="alertSilencePeriod">
-          <el-option key="second" label="秒" value="s" />
-          <el-option key="minute" label="分" value="m" />
-          <el-option key="hour" label="时" value="h" />
-        </el-select>
+      <span v-if="alertDisabled">个</span>
+      <br>
+      <el-form-item v-if="alertDisabled" label="静默时间" prop="alertSilencePeriod" class="inline-form-item">
+        <el-input v-model.number="form.alertSilencePeriod" class="alarm" />
       </el-form-item>
+      <el-select v-if="alertDisabled" v-model="interval.alertSilencePeriod" class="interval-unit">
+        <el-option key="second" label="秒" value="s" />
+        <el-option key="minute" label="分" value="m" />
+        <el-option key="hour" label="时" value="h" />
+      </el-select>
       <el-form-item>
         <el-button v-if="!$route.query.id" @click="changeStep({step: 0})">上一步</el-button>
         <el-button type="primary" @click="onSubmit">确定</el-button>
@@ -288,6 +290,11 @@ export default class extends Mixins(AppMixin) {
   private TrashType = TrashType
   private AnimalType = AnimalType
   private HelmetClothType: any = HelmetClothType
+  private alertDisabled = false
+  private interval = {
+    alertPeriod: 's',
+    alertSilencePeriod: 's'
+  }
 
   get analyseAiType() {
     let res = Object.assign({}, ResourceAiType)
@@ -337,6 +344,12 @@ export default class extends Mixins(AppMixin) {
     } catch (e) {
       this.$alertError(e && e.message)
     }
+  }
+
+  private editTransformInterval() {
+    [ this.interval.alertPeriod, this.form.alertPeriod ] = this.form.alertPeriod % 60 === 0 ? this.form.alertPeriod % 60 % 60 === 0 ? [ 'h', this.form.alertPeriod / 60 / 60 ] : ['m', this.form.alertPeriod / 60] : ['s', this.form.alertPeriod];
+
+    [ this.interval.alertSilencePeriod, this.form.alertSilencePeriod ] = this.form.alertSilencePeriod % 60 === 0 ? this.form.alertSilencePeriod % 60 % 60 === 0 ? [ 'h', this.form.alertSilencePeriod / 60 / 60 ] : ['m', this.form.alertSilencePeriod / 60] : ['s', this.form.alertSilencePeriod]
   }
 
   /**
@@ -417,7 +430,9 @@ export default class extends Mixins(AppMixin) {
       effectiveTime: this.effectiveTime,
       callbackKey: this.form.validateType === '无验证' ? '' : this.form.callbackKey,
       algorithmMetadata: JSON.stringify(algorithmMetadata),
-      confidence: this.form.confidence / 100
+      confidence: this.form.confidence / 100,
+      alertPeriod: this.interval.alertPeriod === 's' ? this.form.alertPeriod : this.interval.alertPeriod === 'm' ? this.form.alertPeriod * 60 : this.form.alertPeriod * 60 * 60,
+      alertSilencePeriod: this.interval.alertSilencePeriod === 's' ? this.form.alertSilencePeriod : this.interval.alertSilencePeriod === 'm' ? this.form.alertSilencePeriod * 60 : this.form.alertSilencePeriod * 60 * 60
     }
 
     // 蜜蜂数量特殊处理
@@ -558,11 +573,20 @@ export default class extends Mixins(AppMixin) {
   }
 
   .alarm {
-    width: 415px;
+    width: 112px;
     margin-right: 10px;
 
     & + .el-select {
       width: 80px;
+    }
+  }
+
+  .inline-form-item {
+    width: fit-content;
+    display: inline-block;
+
+    .interval-unit {
+      width: 65px;
     }
   }
 }
