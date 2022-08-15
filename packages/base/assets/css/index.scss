@@ -80,6 +80,7 @@ div:focus {
 }
 
 .app-container {
+  overflow: auto;
   padding: $padding-medium;
   flex: 1;
 }

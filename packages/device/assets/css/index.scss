@@ -8,15 +8,13 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    min-width: 910px;
     width: 100%;
 
     &__header {
-      background: #f6f6f6;
-      border-radius: 4px;
-      margin-bottom: 15px;
-      padding: 5px 15px;
-      min-height: 50px;
+      background: $color-grey-10;
+      border-radius: $border-radius;
+      margin-bottom: $margin-medium;
+      padding: $padding-tiny $padding-medium;
 
       .info-list {
         display: flex;
@@ -25,35 +23,37 @@
 
         .info-item {
           width: 33%;
-          padding: 10px 0;
+          padding: $padding-small 0;
         }
       }
     }
 
     &__tools {
       display: flex;
-      margin-bottom: 10px;
+      margin-bottom: $margin-medium;
 
       &__left {
+        white-space: nowrap;
+
         .import-button {
           display: inline-block;
-          margin-right: 10px;
+          margin-right: $margin-medium;
         }
 
         .el-button + .import-button {
-          margin-left: 10px;
+          margin-left: $margin-medium;
         }
 
         .el-dropdown + .import-button {
-          margin-left: 10px;
+          margin-left: $margin-medium;
         }
 
         .el-dropdown + .el-dropdown {
-          margin-left: 10px;
+          margin-left: $margin-medium;
         }
 
         .el-dropdown + .el-button {
-          margin-left: 10px;
+          margin-left: $margin-medium;
         }
       }
 
@@ -64,7 +64,7 @@
 
         .sync-button {
           svg {
-            margin-right: 8px;
+            margin-right: $margin-medium;
           }
 
           &.loading {
@@ -75,26 +75,33 @@
         }
 
         .search-group {
-          margin-right: 10px;
+          margin-right: $margin-medium;
         }
       }
     }
 
     &__filter {
-      &-item {
-
-      }
+      margin-bottom: $margin-medium;
     }
 
     &__body {
       flex: 1;
       display: flex;
       flex-direction: column;
-      min-height: 100px;
-      min-width: 1100px;
+      min-height: 180px;
 
       &__table {
         flex: 1;
+        position: relative;
+        min-height: 0;
+
+        .el-table {
+          position: absolute;
+        }
+
+        .el-table__fixed-right-patch {
+          background: $color-grey-8;
+        }
 
         .el-table__body {
           td {
@@ -117,7 +124,7 @@
 
         .el-popover__reference-wrapper {
           .el-button {
-            margin: 0 10px;
+            margin: 0 $margin-medium;
           }
         }
 
@@ -131,7 +138,7 @@
         text-align: center;
         color: $textGrey;
         border-top: 1px solid $borderGrey;
-        padding-top: 20px;
+        padding-top: $padding-primary;
       }
     }
   }
@@ -234,6 +241,177 @@
     .detail__empty-card {
       padding: 5px 15px;
       color: $textGrey;
+    }
+  }
+
+  /* device-create */
+  .create-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    &__header {
+      border-bottom: 1px solid $border-color-primary;
+
+      .breadcrumb {
+        &__item:after {
+          content: '/';
+          color: $textGrey;
+        }
+
+        &__item:last-child:after {
+          content: '';
+        }
+      }
+
+      .process {
+        padding: 16px 20px;
+
+        .el-steps--simple {
+          width: 300px;
+          background: none;
+          padding: 0;
+
+          .el-step.is-simple .el-step__head {
+            padding-right: 8px;
+          }
+
+          .el-step.is-simple .el-step__arrow {
+            margin-right: 8px;
+            align-self: center;
+            height: 0;
+            border-bottom: 2px solid $primary;
+
+            &:before,
+            &:after {
+              content: none;
+            }
+          }
+
+          .el-step__title {
+            flex: 0 0 70px;
+            font-size: 14px;
+            color: #000;
+          }
+
+          .el-step__icon {
+            width: 22px;
+            height: 22px;
+            font-size: 12px;
+            font-weight: bold;
+          }
+
+          .is-success {
+            .el-step__icon {
+              color: $primary;
+              border-color: $primary;
+            }
+          }
+
+          .is-process {
+            .el-step__icon {
+              background: $primary;
+              color: #fff;
+              border-color: $primary;
+            }
+          }
+
+          .is-wait,
+          .is-finish {
+            color: $textGrey;
+
+            .el-step__icon {
+              border-color: $textGrey;
+            }
+          }
+
+          .is-finish {
+            .el-step__icon {
+              background: #bbb;
+              color: #fff;
+              border-color: #bbb;
+            }
+          }
+        }
+      }
+    }
+
+    &__body {
+      flex: 1;
+      position: relative;
+      overflow: auto;
+      padding: $padding-medium;
+
+      &__form {
+        width: calc(100% - $padding-medium);
+        position: absolute;
+      }
+
+      .form-title {
+        position: relative;
+        padding-left: $padding-medium;
+        margin-left: $margin-small;
+        font-size: 14px;
+        font-weight: bold;
+
+        &:before {
+          content: ' ';
+          display: block;
+          position: absolute;
+          left: 0;
+          top: 0;
+          background: $primary;
+          width: 4px;
+          height: 16px;
+        }
+      }
+
+      .el-input,
+      .el-select,
+      .el-textarea,
+      .el-cascader {
+        width: 420px;
+      }
+
+      .in-protocol {
+        color: $textGrey;
+      }
+
+      .longlat-input {
+        width: 193px;
+      }
+
+      .show-more {
+        &--btn {
+          margin-left: -70px;
+        }
+
+        &--form {
+          overflow: hidden;
+          max-height: 0;
+          transition: max-height 0.5s;
+        }
+
+        &--expanded {
+          .show-more--btn {
+            i {
+              transform: rotate(180deg);
+            }
+          }
+
+          .show-more--form {
+            max-height: 1000px;
+          }
+        }
+      }
+    }
+
+    &__footer {
+      border-top: 1px solid $border-color-primary;
+
+      &__tools {
+        padding: 16px 20px;
+      }
     }
   }
 

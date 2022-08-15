@@ -80,14 +80,23 @@ export default class extends Vue {
 <style lang="scss" scoped>
 $bar-height: 40px;
 
+@media screen and (max-width: 1460px) {
+  .common-layout {
+    margin-bottom: -$margin-medium;
+  }
+}
+
 .common-layout {
+  min-width: 1380px;
+  // margin-bottom: -$margin-medium;
+
   ::v-deep .el-card__body {
     position: relative;
     min-height: 100px;
     display: flex;
     padding: 0;
     width: 100%;
-    height: calc(100vh - $header-height - $padding-medium * 2 - 2px);
+    height: calc(100vh - $header-height - $padding-medium * 2 - 3px);
   }
 
   &--dragging {
