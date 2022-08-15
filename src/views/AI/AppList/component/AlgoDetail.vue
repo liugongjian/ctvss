@@ -239,7 +239,7 @@
       <el-form-item v-if="alertDisabled" label="告警数量阈值" prop="alertTriggerThreshold" class="inline-form-item">
         <el-input v-model.number="form.alertTriggerThreshold" class="alarm" />
       </el-form-item>
-      <span v-if="alertDisabled">个</span>
+      <span v-if="alertDisabled" style="margin-left: 16px;">个</span>
       <br>
       <el-form-item v-if="alertDisabled" label="静默时间" prop="alertSilencePeriod" class="inline-form-item">
         <el-input v-model.number="form.alertSilencePeriod" class="alarm" />
@@ -327,6 +327,8 @@ export default class extends Mixins(AppMixin) {
       this.editTransformFaceData()
       // 处理老安全帽反光服meta
       this.editTransformHelmetReflectiveType()
+      // 处理告警静默参数
+      this.editTransformInterval()
       // 处理置信度
       this.form = { ...this.form, confidence: parseInt(this.form.confidence * 100 + '') }
       // 蜜蜂阈值特别处理
@@ -584,10 +586,10 @@ export default class extends Mixins(AppMixin) {
   .inline-form-item {
     width: fit-content;
     display: inline-block;
+  }
 
-    .interval-unit {
-      width: 65px;
-    }
+  .interval-unit {
+    width: 65px;
   }
 }
 </style>

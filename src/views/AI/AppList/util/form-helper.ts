@@ -7,7 +7,7 @@ export const getRule = (msg) => {
     '脱岗超时时间', '睡岗超时时间', '临停时间',
     '拥堵车辆阈值', '视野遮挡阈值', '徘徊时间',
     '蜜蜂数量', '告警周期', '告警数量阈值', '静默时间'].includes(msg)) {
-    rule.push({ required: true, message: '不能为空', trigger: 'blur' })
+    rule.push({ required: true, message: '请输入' + msg, trigger: 'blur' })
     rule.push({
       validator: (rule, value, callback) => {
         if (/^(?:[0-9]\d*)$/.test(value) === false) {
