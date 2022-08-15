@@ -5,7 +5,7 @@
       :rules="rules"
       :model="viidForm"
       label-position="right"
-      label-width="150px"
+      label-width="135px"
     >
       <el-form-item label="接入协议:" prop="inProtocol">
         <el-radio v-for="(value, key) in inProtocolType" :key="key" v-model="viidForm.inProtocol" :label="key">{{ value }}</el-radio>
@@ -26,6 +26,6 @@ export default class extends Vue {
   private viidForm = {
     inProtocol: 'gb28181'
   }
-  rules = []
+  rules = {}
 }
 </script>
