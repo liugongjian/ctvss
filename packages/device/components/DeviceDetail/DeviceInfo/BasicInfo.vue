@@ -1,5 +1,5 @@
 <template>
-  <el-descriptions title="基本信息" :column="2">
+  <el-descriptions :column="2">
     <el-descriptions-item label="设备名称">{{ basicInfo.deviceName }}</el-descriptions-item>
     <el-descriptions-item label="接入方式">18100000000</el-descriptions-item>
     <el-descriptions-item label="设备类型">{{ dicts.DeviceType[basicInfo.deviceType] }}</el-descriptions-item>

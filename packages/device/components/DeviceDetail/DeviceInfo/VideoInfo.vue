@@ -1,5 +1,15 @@
 <template>
   <div>
+    <div class="detail__buttons">
+      <el-button type="text">编辑</el-button>
+      <el-button type="text">配置资源包</el-button>
+      <el-dropdown>
+        <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item :command="{type: 'delete'}">删除</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+    </div>
     <!-- 状态信息 -->
     <el-descriptions title="状态信息" :column="2">
       <el-descriptions-item label="设备状态">
@@ -21,7 +31,7 @@
     <!-- 接入信息 -->
     <el-descriptions title="接入信息" :column="2">
       <el-descriptions-item label="国标ID">{{ videoInfo.outId || '-' }}</el-descriptions-item>
-      <el-descriptions-item label="GB28181凭证注册用户名">缺失</el-descriptions-item>
+      <el-descriptions-item label="GB28181凭证">缺失</el-descriptions-item>
       <el-descriptions-item label="协议类型">缺失</el-descriptions-item>
       <el-descriptions-item label="设备IP">{{ basicInfo.deviceIp }}</el-descriptions-item>
       <el-descriptions-item label="设备端口">{{ basicInfo.devicePort }}</el-descriptions-item>
@@ -30,7 +40,7 @@
       <el-descriptions-item label="信令传输模式">缺失</el-descriptions-item>
       <el-descriptions-item label="自动拉流">{{ dicts.DeviceStreamAutoPull[basicInfo.deviceStreamAutoPull] }}</el-descriptions-item>
       <el-descriptions-item label="优先TCP传输">缺失</el-descriptions-item>
-      <el-descriptions-item label="流传输模式">{{ videoInfo.stream.streamTransType }}</el-descriptions-item>
+      <el-descriptions-item label="流传输模式">{{ dicts.StreamTransType[videoInfo.stream.streamTransType] }}</el-descriptions-item>
     </el-descriptions>
 
     <!-- SIP信息 -->
