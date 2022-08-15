@@ -115,7 +115,6 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   }
 
   private initFaceLib(groups) {
-    debugger
     const algorithmMetadata = JSON.parse(this.appInfo.algorithmMetadata)
     if (algorithmMetadata.FaceDbName) {
       this.faceLib = groups.filter(item => (item.id + '') === algorithmMetadata.FaceDbName)[0]
