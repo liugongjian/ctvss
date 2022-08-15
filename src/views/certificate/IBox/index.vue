@@ -41,8 +41,9 @@
     </el-card>
   </div>
 </template>
-<script>
-export default {
+<script lang="ts">
+import { Component, Vue, Watch } from 'vue-property-decorator'
+export default class extends Vue {
 
 }
 </script>
@@ -55,7 +56,7 @@ export default {
   &__number {
     position: relative;
     width: 100%;
-    height: calc(100vh - 374px);
+    height: calc(100vh - 316px);
 
     &-box {
       width: 300px;
@@ -74,22 +75,32 @@ export default {
   }
 
   &__step {
-    height: 200px;
+    height: 160px;
+    min-width: 1120px;
     display: flex;
+    // flex-direction: row;
+    justify-content: space-around;
 
-    &-content:not(:last-child) {
-      position: relative;
+    &-content {
+      width: 260px;
+      padding: 20px 10px;
+      border: 1px solid #d3d3d3;
+      flex-shrink: 0;
 
-      &:after {
-        content: '';
-        width: 0;
-        height: 0;
-        border-top: 10px solid transparent;
-        border-bottom: 10px solid transparent;
-        border-left: 10px solid #ccc;
-        position: absolute;
-        top: 40px;
-        left: 210px;
+      &:not(:last-child) {
+        position: relative;
+
+        &:after {
+          content: '';
+          width: 0;
+          height: 0;
+          border-top: 10px solid transparent;
+          border-bottom: 10px solid transparent;
+          border-left: 10px solid #ccc;
+          position: absolute;
+          top: 70px;
+          right: calc(-1*(100vw - 1040px)/8 + 30px);
+        }
       }
     }
   }
