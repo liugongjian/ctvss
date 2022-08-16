@@ -841,6 +841,7 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '人脸库',
           icon: 'dot',
+          hidden: true,
           breadcrumb: true,
           activeMenu: '/ai/config',
           perms: ['AdminAi']
