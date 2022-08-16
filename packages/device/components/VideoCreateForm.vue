@@ -8,7 +8,7 @@
       label-width="135px"
     >
       <el-form-item label="接入协议:" prop="inProtocol">
-        <el-radio v-for="(value, key) in inProtocolType" :key="key" v-model="videoForm.inProtocol" :label="key">{{ value }}</el-radio>
+        <el-radio v-for="(value, key) in videoInProtocolType" :key="key" v-model="videoForm.inProtocol" :label="key">{{ value }}</el-radio>
       </el-form-item>
       <el-form-item label="国标版本:" prop="version">
         {{ videoForm.version }}
@@ -25,7 +25,7 @@
         <el-button
           type="text"
           class="ml10"
-          @click="1"
+          @click="openDialog('createGb28181Certificate')"
         >
           新建GB28181凭证
         </el-button>
@@ -90,18 +90,25 @@
         </div>
       </div>
     </el-form>
+    <create-gb28181-certificate
+      v-if="dialog.createGb28181Certificate"
+      @on-close="closeDialog('createGb28181Certificate', ...arguments)"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { InProtocolType } from '../dicts/index'
+import { VideoInProtocolType } from '../dicts/index'
 import { DeviceTips } from '../dicts/tips'
+import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
 import ResourceTabs from './ResourceTabs.vue'
+import { getList as getGbList } from '@/api/certificate/gb28181'
 
 @Component({
   name: 'VideoCreateForm',
   components: {
+    CreateGb28181Certificate,
     ResourceTabs
   }
 })
@@ -110,7 +117,7 @@ export default class extends Vue {
   private deviceForm
 
   private tips = DeviceTips
-  private inProtocolType = InProtocolType
+  private videoInProtocolType = VideoInProtocolType
   private showMore: boolean = false
   private videoForm = {
     inProtocol: 'gb28181',
@@ -125,9 +132,54 @@ export default class extends Vue {
     aIApps: []
   }
   rules = {}
-  private loading = {}
   private gbAccountList = []
   private isPrivateInNetwork = false
+  private loading = {
+    account: false
+  }
+  private dialog = {
+    createGb28181Certificate: false
+  }
+
+  private mounted() {
+    this.getGbAccounts()
+  }
+
+  /**
+   * 获取国标账号
+   */
+  private async getGbAccounts() {
+    try {
+      this.loading.account = true
+      const res = await getGbList({
+        pageSize: 1000
+      })
+      this.gbAccountList = res.gbCerts
+    } catch (e) {
+      console.error(e)
+    } finally {
+      this.loading.account = false
+    }
+  }
+
+  /**
+   * 打开弹出框
+   */
+  private openDialog(type: string) {
+    // @ts-ignore
+    this.dialog[type] = true
+  }
+
+  /**
+   * 关闭弹出框
+   */
+  private closeDialog(type: string, payload: any) {
+    // @ts-ignore
+    this.dialog[type] = false
+    if (type === 'createGb28181Certificate' && payload === true) {
+      this.getGbAccounts()
+    }
+  }
 
   /**
    * 当资源包改变时获取资源包详情（包含接入剩余设备数）
