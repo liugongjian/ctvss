@@ -1,13 +1,13 @@
 import { VuexModule, Module, Mutation, Action, getModule } from 'vuex-module-decorators'
-import store from '../index'
+import store from '@vss/device/store'
 
-export interface IDeviceAbcState {
+export interface IDeviceState {
   breadcrumb?: any
   isSorted?: boolean
 }
 
-@Module({ dynamic: true, store, name: 'deviceAbc' })
-class DeviceAbc extends VuexModule implements IDeviceAbcState {
+@Module({ dynamic: true, store, name: 'device' })
+export class Device extends VuexModule implements IDeviceState {
   public breadcrumb: any = null
   isSorted: boolean = false
 
@@ -42,4 +42,4 @@ class DeviceAbc extends VuexModule implements IDeviceAbcState {
   }
 }
 
-export const DeviceAbcModule = getModule(DeviceAbc)
+export const DeviceModule = getModule(Device)

@@ -626,6 +626,10 @@ export default class extends Vue {
         height: 18px;
       }
 
+      .detail__buttons {
+        right: 10px;
+      }
+
       .el-link {
         font-size: 14px;
       }
@@ -637,7 +641,7 @@ export default class extends Vue {
 
         .el-button {
           position: absolute;
-          right: 0;
+          right: 10px;
           top: 0;
         }
       }

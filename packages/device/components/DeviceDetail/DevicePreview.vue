@@ -13,8 +13,8 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { Stream } from '@/components/VssPlayer/types/VssPlayer'
 import ScreenBoard from '../ScreenBoard/index.vue'
-import { ScreenManager } from '../../services/Screen/ScreenManager'
-import { DeviceAbcModule } from '../../store/modules/device-abc'
+import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
+import { DeviceModule } from '@vss/device/store/modules/device'
 
 @Component({
   name: 'DevicePreview',
@@ -37,7 +37,7 @@ export default class extends Vue {
   public screenManager: ScreenManager = null
 
   public mounted() {
-    console.log(DeviceAbcModule.breadcrumb)
+    console.log(DeviceModule.breadcrumb)
     const screenBoard = this.$refs.screenBoard as ScreenBoard
     // @ts-ignore
     this.screenManager = screenBoard!.screenManager

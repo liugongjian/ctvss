@@ -29,9 +29,9 @@ import { Component, Vue } from 'vue-property-decorator'
 import BasicInfo from './BasicInfo.vue'
 import VideoInfo from './VideoInfo.vue'
 import ViidInfo from './ViidInfo.vue'
-import { deviceMock } from '../../../mock/device'
-import enums from '../../../enums'
-import { DeviceAbcModule } from '../../../store/modules/device-abc'
+import { deviceMock } from '@vss/device/mock/device'
+import enums from '@vss/device/enums'
+import { DeviceModule } from '@vss/device/store/modules/device'
 
 @Component({
   name: 'DeviceInfo',
@@ -47,7 +47,7 @@ export default class extends Vue {
   private activeTab = enums.DeviceInType.Video
 
   private mounted() {
-    DeviceAbcModule.SetBreadcrumb('abc!!!')
+    DeviceModule.SetBreadcrumb('abc!!!')
   }
 }
 </script>

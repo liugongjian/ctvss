@@ -27,8 +27,8 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import StatusBadge from '@/components/StatusBadge/index.vue'
-import dicts from '../../../dicts'
-import enums from '../../../enums'
+import dicts from '@vss/device/dicts'
+import enums from '@vss/device/enums'
 
 @Component({
   name: 'ViidInfo',

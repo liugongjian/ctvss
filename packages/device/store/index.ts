@@ -1,13 +1,11 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { IDeviceAbcState } from './modules/device-abc'
-
-Vue.config.devtools = true
+import { IDeviceState } from './modules/device'
 
 Vue.use(Vuex)
 
 export interface IRootState {
-  device: IDeviceAbcState
+  device: IDeviceState
 }
 
 // Declare empty store first, dynamically register all modules later.
