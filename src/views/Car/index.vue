@@ -3,47 +3,73 @@
     <el-card>
       <div class="filter-container">
         <div class="filter-container__right">
-          <el-input v-model="plateNumber" class="filter-container__search-group" placeholder="请输入车牌号" @keyup.enter.native="handleFilter">
-            <el-button slot="append" class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
-          </el-input>
-          <el-button class="el-button-rect" @click="refresh"><svg-icon name="refresh" /></el-button>
+          <el-input v-model="factory" class="filter-container__search-group" placeholder="请输入工厂名" @keyup.enter.native="handleFilter" />
+          <el-input v-model="plateNumber" class="filter-container__search-group" placeholder="请输入车牌号" @keyup.enter.native="handleFilter" />
+          <el-button class="el-button-rect" @click="handleFilter"><svg-icon name="search" /></el-button>
         </div>
       </div>
       <el-table ref="table" v-loading="loading" :data="dataList" fit class="template__table" @row-click="rowClick">
-        <el-table-column label="设备ID/设备名" min-width="200">
-          <template slot-scope="{row}">
-            <div class="device-list__device-name">
-              <div class="device-list__device-id">{{ row.deviceId }}</div>
-              <div>{{ row.deviceName }}</div>
-            </div>
-          </template>
-        </el-table-column>
         <el-table-column prop="plateNumber" label="车牌号" width="120">
           <template slot-scope="{row}">
             <span>{{ row.plateNumber }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="driver" label="司机" />
-        <el-table-column prop="transCompany" label="运输公司" width="200" />
-        <el-table-column prop="factory" label="工厂" width="200" />
+        <el-table-column prop="factory" label="工厂" />
         <el-table-column
           label="任务状态"
-          min-width="110"
         >
           <template slot-scope="{row}">
             <status-badge :status="transformStatus(row.status).status" />
             {{ `${transformStatus(row.status).cname}` }}
           </template>
         </el-table-column>
-        <el-table-column prop="startTime" label="开始时间" width="200" />
         <el-table-column
-          label="结束时间"
-          width="200"
+          label="开始/结束"
+          min-width="170"
         >
           <template slot-scope="{row}">
-            {{ `${row.endTime.length > 0 ? row.endTime : '—'}` }}
+            <div class="se-time">
+              <div>{{ row.startTime }}</div>
+              <div>{{ row.endTime.length > 0 ? row.endTime : '—' }}</div>
+            </div>
           </template>
         </el-table-column>
+        <el-table-column
+          label="最近操作"
+          min-width="210"
+        >
+          <template slot-scope="{row}">
+            <span>{{ row.latestOperation.operate | translateOperate }}</span>
+            <span>{{ '  ' + row.latestOperation.operateTime }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="设备名" min-width="180">
+          <template slot-scope="{row}">
+            <div class="device-list__device-name">
+              <!-- <div class="device-list__device-id">{{ row.deviceId }}</div> -->
+              <div>{{ row.deviceName }}</div>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="设备状态"
+        >
+          <template slot-scope="{row}">
+            <status-badge :status="row.deviceStatus === 'on' ? 'on' : 'error'" />
+            {{ row.deviceStatus === 'on' ? '在线' : '离线' }}
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="流状态"
+        >
+          <template slot-scope="{row}">
+            <status-badge :status="row.deviceStatus === 'on' ? 'on' : 'error'" />
+            {{ row.streamStatus === 'on' ? '在线' : '离线' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="driver" label="司机" />
+        <el-table-column prop="transCompany" label="原粮出库点" min-width="120" />
+        <el-table-column prop="manageFactory" label="管理工厂" />
         <el-table-column prop="action" class-name="col-action" label="视频查看" width="150" fixed="right">
           <template slot-scope="scope">
             <el-button type="text" :disabled="scope.row.status !== 0" @click.stop.native="preview(scope.row)">实时预览</el-button>
@@ -88,11 +114,26 @@ import VideoDialog from './component/VideoDialog.vue'
     StatusBadge,
     DetailDialog,
     VideoDialog
+  },
+  filters: {
+    translateOperate: (val: any) => {
+      switch (val) {
+        case 0:
+          return '开始'
+        case 1:
+          return '暂停'
+        case 2:
+          return '结束'
+        case 3:
+          return '继续'
+      }
+    }
   }
 })
 export default class extends Vue {
   private loading = false
   private plateNumber = ''
+  private factory = ''
   private dataList: Array<RecordTemplate> = []
   private pager = {
     pageNum: 1,
@@ -149,6 +190,7 @@ export default class extends Vue {
       this.loading = true
       let params = {
         plateNumber: this.plateNumber || undefined,
+        factory: this.factory || undefined,
         pageNum: this.pager.pageNum,
         pageSize: this.pager.pageSize,
         status: -1
@@ -237,6 +279,12 @@ export default class extends Vue {
     .col-action {
       cursor: default;
     }
+  }
+
+  .se-time {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 }
 </style>
