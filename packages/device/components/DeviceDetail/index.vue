@@ -41,6 +41,7 @@ export default class extends Vue {
 
   private back() {
     this.$router.push({ name: 'DeviceList' })
+    console.log('back')
   }
 }
 </script>
