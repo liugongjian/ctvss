@@ -166,7 +166,7 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { startDeviceMove, endDeviceMove, startDeviceAdjust, endDeviceAdjust, setDevicePreset, gotoDevicePreset, deleteDevicePreset, describeDevicePresets, describePTZCruiseList, startPTZCruise, stopPTZCruise, describePTZKeepwatch, updatePTZKeepwatch } from '@/api/ptz_control'
-import UpdateCruise from '../../dialogs/UpdateCruise.vue'
+import UpdateCruise from '../../UpdateCruise.vue'
 import { UserModule } from '@/store/modules/user'
 
 @Component({
