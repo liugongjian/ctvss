@@ -43,7 +43,7 @@ import { ScreenManager } from '@/views/device/services/Screen/ScreenManager'
 import screenLogManager from '@/views/device/services/Screen/ScreenLogManager'
 import LivePlayer from '../LivePlayer.vue'
 import ReplayPlayer from '../ReplayPlayer/index.vue'
-import DeviceDir from '../dialogs/DeviceDir.vue'
+import DeviceDir from '../DeviceDir.vue'
 
 @Component({
   name: 'ScreenItem',
