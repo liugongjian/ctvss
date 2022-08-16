@@ -90,13 +90,15 @@ $bar-height: 40px;
   min-width: 1380px;
   // margin-bottom: -$margin-medium;
 
-  ::v-deep .el-card__body {
-    position: relative;
-    min-height: 100px;
-    display: flex;
-    padding: 0;
-    width: 100%;
-    height: calc(100vh - $header-height - $padding-medium * 2 - 3px);
+  ::v-deep {
+    > .el-card__body {
+      position: relative;
+      min-height: 100px;
+      display: flex;
+      padding: 0;
+      width: 100%;
+      height: calc(100vh - $header-height - $padding-medium * 2 - 3px);
+    }
   }
 
   &--dragging {

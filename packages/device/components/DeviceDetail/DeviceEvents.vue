@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div>
     <div class="filter-container">
       <span>时间区间:</span>
       <el-date-picker
