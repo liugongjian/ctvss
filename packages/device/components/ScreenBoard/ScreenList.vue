@@ -110,7 +110,7 @@ import { ScreenManager } from '@/views/device/services/Screen/ScreenManager'
 import { getDeviceRecord, editRecordName } from '@/api/device'
 import { GroupModule } from '@/store/modules/group'
 import { checkPermission } from '@/utils/permission'
-import DeviceDir from '../dialogs/DeviceDir.vue'
+import DeviceDir from '../DeviceDir.vue'
 import VssPlayer from '@/components/VssPlayer/index.vue'
 
 @Component({
