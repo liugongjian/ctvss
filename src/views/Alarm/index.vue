@@ -218,7 +218,7 @@ export default class extends Mixins(IndexMixin) {
       case 'platformDir':
       case 'dir':
         router = {
-          name: 'alarm-list'
+          name: 'AlarmList'
         }
         query = {
           dirId: item.id
@@ -226,7 +226,7 @@ export default class extends Mixins(IndexMixin) {
         break
       case 'platform':
         router = {
-          name: 'alarm-list'
+          name: 'AlarmList'
         }
         query = {
           dirId: item.id,
@@ -235,7 +235,7 @@ export default class extends Mixins(IndexMixin) {
         break
       case 'nvr':
         router = {
-          name: 'alarm-list'
+          name: 'AlarmList'
         }
         query = {
           deviceId: item.id
@@ -243,7 +243,7 @@ export default class extends Mixins(IndexMixin) {
         break
       case 'ipc':
         router = {
-          name: 'alarm-list'
+          name: 'AlarmList'
         }
         query = {
           deviceId: item.id
