@@ -154,7 +154,6 @@
 import { Component, Watch, Mixins, Provide } from 'vue-property-decorator'
 import IndexMixin from './mixin/indexMixin'
 import { DeviceModule } from '@/store/modules/device'
-import { DeviceAbcModule } from '@/store/modules/device-abc'
 import CreateDir from './components/dialogs/CreateDir.vue'
 import SortChildren from './components/dialogs/SortChildren.vue'
 import AdvancedSearch from '@/views/device/components/AdvancedSearch.vue'
