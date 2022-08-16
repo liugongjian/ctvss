@@ -55,16 +55,26 @@
           label="设备状态"
         >
           <template slot-scope="{row}">
-            <status-badge :status="row.deviceStatus === 'on' ? 'on' : 'error'" />
-            {{ row.deviceStatus === 'on' ? '在线' : '离线' }}
+            <div v-if="row.status !== 2">
+              <status-badge :status="row.deviceStatus === 'on' ? 'on' : 'error'" />
+              {{ row.deviceStatus === 'on' ? '在线' : '离线' }}
+            </div>
+            <div v-else>
+              {{ '—' }}
+            </div>
           </template>
         </el-table-column>
         <el-table-column
           label="流状态"
         >
           <template slot-scope="{row}">
-            <status-badge :status="row.deviceStatus === 'on' ? 'on' : 'error'" />
-            {{ row.streamStatus === 'on' ? '在线' : '离线' }}
+            <div v-if="row.status !== 2">
+              <status-badge :status="row.streamStatus === 'on' ? 'on' : 'error'" />
+              {{ row.streamStatus === 'on' ? '在线' : '离线' }}
+            </div>
+            <div v-else>
+              {{ '—' }}
+            </div>
           </template>
         </el-table-column>
         <el-table-column prop="driver" label="司机" />
