@@ -28,10 +28,8 @@
           min-width="170"
         >
           <template slot-scope="{row}">
-            <div class="se-time">
-              <div>{{ row.startTime }}</div>
-              <div>{{ row.endTime.length > 0 ? row.endTime : '—' }}</div>
-            </div>
+            <div class="start-time">{{ row.startTime }}</div>
+            <div class="end-time">{{ row.endTime.length > 0 ? row.endTime : '—' }}</div>
           </template>
         </el-table-column>
         <el-table-column
@@ -203,6 +201,8 @@ export default class extends Vue {
         factory: this.factory || undefined,
         pageNum: this.pager.pageNum,
         pageSize: this.pager.pageSize,
+        sortBy: 'updateTime',
+        sortDirection: 'desc',
         status: -1
       }
       const res = await getCarTasks(params)
@@ -291,10 +291,10 @@ export default class extends Vue {
     }
   }
 
-  .se-time {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  .start-time,
+  .end-time {
+    width: 138px;
+    text-align: center;
   }
 }
 </style>
