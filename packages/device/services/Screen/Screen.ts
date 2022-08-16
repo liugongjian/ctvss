@@ -31,7 +31,7 @@ export class Screen {
    * 设备相关属性
    * ----------------
    */
-  public deviceId?: number
+  public deviceId?: number | string
   public inProtocol?: string
   public deviceName?: string
   public roleId?: string

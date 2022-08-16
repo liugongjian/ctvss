@@ -25,14 +25,14 @@ import { DeviceModule } from '@vss/device/store/modules/device'
 export default class extends Vue {
   // @Prop() private deviceId?: number
   // @Prop() private inProtocol?: string
-
-  private deviceId = '29941916753760267'
   private inProtocol = 'gb28181'
   @Prop() private deviceName?: string
   @Prop() private streams?: Stream[]
   @Prop() private streamSize?: number
 
-  private height = 'auto'
+  private get deviceId() {
+    return this.$route.query.deviceId.toString()
+  }
 
   public screenManager: ScreenManager = null
 

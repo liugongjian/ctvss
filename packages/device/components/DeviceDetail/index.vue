@@ -30,8 +30,13 @@ import { Component, Vue, Watch } from 'vue-property-decorator'
 })
 export default class extends Vue {
   private activeRouteName: string = 'DeviceInfo'
-  private handleClick(activeRouteName: string) {
-    this.$router.push(activeRouteName)
+
+  private get deviceId() {
+    return this.$route.query.deviceId.toString()
+  }
+
+  private handleClick(tab) {
+    this.$router.push({ name: tab.name, query: { deviceId: this.deviceId } })
   }
 
   @Watch('$route.name', { immediate: true })

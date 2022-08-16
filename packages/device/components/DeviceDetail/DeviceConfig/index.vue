@@ -246,8 +246,11 @@ import AlgoConfig from './AlgoConfig/index.vue'
 export default class extends Vue {
   // @Prop() private deviceId?: String
   // @Prop() private inProtocol?: String
-  private deviceId = '29941970440842640'
   private inProtocol = 'gb28181'
+
+  private get deviceId() {
+    return this.$route.query.deviceId.toString()
+  }
 
   private checkPermission = checkPermission
 

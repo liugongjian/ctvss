@@ -423,7 +423,7 @@ export default class extends Vue {
   }
 
   private rowClick() {
-    this.$router.push({ path: '/device-refactor/detail' })
+    this.$router.push({ path: '/device-refactor/detail', query: { deviceId: '29941916753760267' } })
   }
 
   private calTableMaxHeight() {

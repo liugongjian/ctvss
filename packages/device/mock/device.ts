@@ -1,6 +1,6 @@
 export const deviceMock = {
   device: {
-    deviceId: 29941916753760268,
+    deviceId: '29941916753760267',
     deviceName: '设备名称',
     deviceType: 'ipc',
     deviceLongitude: '111',
