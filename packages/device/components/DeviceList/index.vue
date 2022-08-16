@@ -80,7 +80,7 @@
       </div>
       <div class="list-wrap__body">
         <div v-if="deviceList.length" ref="deviceTable" class="list-wrap__body__table">
-          <el-table :height="tableMaxHeight" :data="deviceList" fit>
+          <el-table :height="tableMaxHeight" :data="deviceList" fit @row-click="rowClick">
             <el-table-column type="selection" prop="selection" class-name="col-selection" width="55" />
             <el-table-column label="设备ID/名称" min-width="200">
               <template slot-scope="{row}">
@@ -420,6 +420,10 @@ export default class extends Vue {
   public beforeDestroy() {
     const deviceTable: any = this.$refs.deviceTable
     deviceTable && this.observer.unobserve(deviceTable)
+  }
+
+  private rowClick() {
+    this.$router.push({ path: '/device-refactor/detail' })
   }
 
   private calTableMaxHeight() {

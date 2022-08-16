@@ -38,5 +38,9 @@ export default class extends Vue {
   private routeChange(activeRouteName: string) {
     this.activeRouteName = activeRouteName
   }
+
+  private back() {
+    this.$router.push({ name: 'DeviceList' })
+  }
 }
 </script>
