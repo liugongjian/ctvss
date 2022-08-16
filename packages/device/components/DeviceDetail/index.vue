@@ -24,6 +24,7 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
+import { DeviceAbcModule } from '../../store/modules/device-abc'
 
 @Component({
   name: 'DeviceDetail'
@@ -37,6 +38,10 @@ export default class extends Vue {
   @Watch('$route.name', { immediate: true })
   private routeChange(activeRouteName: string) {
     this.activeRouteName = activeRouteName
+  }
+
+  private mounted() {
+    console.log(DeviceAbcModule)
   }
 
   private back() {

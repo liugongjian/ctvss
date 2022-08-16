@@ -4,12 +4,14 @@
     <div class="detail__section">
       <div class="detail__title">
         资源包
-        <el-link v-if="!isVGroup && checkPermission(['AdminDevice'])" @click="changeResourceDialog">配置</el-link>
+        <div class="detail__buttons">
+          <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" type="text" @click="changeResourceDialog">配置</el-button>
+        </div>
       </div>
       <el-card v-if="resources.VSS_VIDEO">
         <template slot="header">
           视频包
-          <el-link v-if="!isVGroup && checkPermission(['AdminDevice'])" @click="changeResourceDialog">配置视频包</el-link>
+          <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" type="text" @click="changeResourceDialog">配置视频包</el-button>
         </template>
         <el-descriptions :column="2">
           <el-descriptions-item label="码率">
@@ -26,7 +28,7 @@
       <el-card v-if="resources.VSS_AI" v-loading="loading.AITable">
         <template slot="header">
           AI包
-          <el-link v-if="!isVGroup && checkPermission(['AdminDevice'])" @click="changeResourceDialog('AI')">配置AI包</el-link>
+          <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" type="text" @click="changeResourceDialog('AI')">配置AI包</el-button>
         </template>
         <el-descriptions :column="2">
           <el-descriptions-item label="分析类型">
@@ -80,7 +82,7 @@
       <el-card v-if="resources.VSS_UPLOAD_BW">
         <template slot="header">
           带宽包
-          <el-link v-if="!isVGroup && checkPermission(['AdminDevice'])" v-permission="['*']" @click="changeResourceDialog">配置带宽包</el-link>
+          <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" v-permission="['*']" type="text" @click="changeResourceDialog">配置带宽包</el-button>
         </template>
         <el-descriptions :column="2">
           <el-descriptions-item label="码率">
@@ -99,7 +101,9 @@
     <div v-loading="loading.recordTemplate" class="detail__section">
       <div class="detail__title">
         录制模板信息
-        <el-link v-if="!isVGroup && checkPermission(['AdminDevice'])" v-permission="['*']" @click="setRecordTemplate">配置</el-link>
+        <div class="detail__buttons">
+          <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" v-permission="['*']" type="text" @click="setRecordTemplate">配置</el-button>
+        </div>
       </div>
       <el-descriptions v-if="template.recordTemplate" :column="2">
         <el-descriptions-item label="模板名称">
@@ -122,7 +126,9 @@
     <div v-loading="loading.callbackTemplate" class="detail__section">
       <div class="detail__title">
         回调模板信息
-        <el-link v-if="!isVGroup && checkPermission(['AdminDevice'])" v-permission="['*']" @click="setCallbackTemplate">配置</el-link>
+        <div class="detail__buttons">
+          <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" v-permission="['*']" type="text" @click="setCallbackTemplate">配置</el-button>
+        </div>
       </div>
       <el-descriptions v-if="template.callbackTemplate" :column="2">
         <el-descriptions-item label="模板名称">
@@ -152,7 +158,9 @@
     <div v-if="inProtocol === 'gb28181'" class="detail__section">
       <div class="detail__title">
         告警模板信息
-        <el-link v-if="!isVGroup && checkPermission(['AdminDevice'])" v-permission="['*']" @click="setAlertTemplate">配置</el-link>
+        <div class="detail__buttons">
+          <el-button v-if="!isVGroup && checkPermission(['AdminDevice'])" v-permission="['*']" type="text" @click="setAlertTemplate">配置</el-button>
+        </div>
       </div>
       <el-descriptions v-if="template.alertTemplate" :column="2">
         <el-descriptions-item label="模板名称">
@@ -597,18 +605,55 @@ export default class extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-  .detail-wrap .detail__section {
-    ::v-deep .el-descriptions-item__label {
-      min-width: 100px;
+  .detail__section {
+    padding-bottom: $padding-medium;
+
+    .detail__title {
+      position: relative;
+      padding-left: 15px;
+      margin: 10px 0;
+      font-size: 16px;
+      font-weight: bold;
+
+      &:before {
+        content: ' ';
+        display: block;
+        position: absolute;
+        left: 0;
+        top: 0;
+        background: $primary;
+        width: 6px;
+        height: 18px;
+      }
+
+      .el-link {
+        font-size: 14px;
+      }
     }
 
-    ::v-deep .el-table {
-      border: 1px solid $borderGrey;
-    }
+    ::v-deep {
+      .el-card .el-card__header {
+        position: relative;
 
-    ::v-deep .detail__table-row {
-      padding-right: 15px;
-      flex: 1;
+        .el-button {
+          position: absolute;
+          right: 0;
+          top: 0;
+        }
+      }
+
+      .el-descriptions-item__label {
+        min-width: 100px;
+      }
+
+      .el-table {
+        border: 1px solid $borderGrey;
+      }
+
+      .detail__table-row {
+        padding-right: 15px;
+        flex: 1;
+      }
     }
   }
 

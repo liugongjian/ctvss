@@ -1,4 +1,5 @@
 import './assets/css/index.scss'
+import store from './store'
 
 /**
  * 组件清单
@@ -20,6 +21,8 @@ const componentsList = []
 
 export default {
   install(Vue) {
+    Vue.use(store)
+
     componentsList.map((component: any) => {
       Vue.component(component.options.name, component)
     })
