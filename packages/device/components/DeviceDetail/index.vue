@@ -32,5 +32,9 @@ export default class extends Vue {
   private routeChange(activeRouteName: string) {
     this.activeRouteName = activeRouteName
   }
+
+  private back() {
+    console.log('back')
+  }
 }
 </script>
