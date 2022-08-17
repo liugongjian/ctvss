@@ -998,6 +998,8 @@ export default class extends Mixins(IndexMixin) {
     const { type, mapinfo } = infos
     if (type === 'add') {
       this.curMap = mapinfo
+      this.changeEdit(false)
+      this.customInfoType = 'map'
       if (this.mapList.length > 0) {
         this.$refs.mapview.setMap(this.curMap)
         this.$refs.mapview.closeAllPlayer()
@@ -1137,6 +1139,10 @@ export default class extends Mixins(IndexMixin) {
   }
 
   private handleChooseMap(map) {
+    if (!map) {
+      this.curMap = null
+      return
+    }
     this.showMapConfig = false
     this.curMap = map
     this.changeEdit(false)
@@ -1174,7 +1180,8 @@ export default class extends Mixins(IndexMixin) {
       onSuccess: () => {
         this.mapList = this.mapList.filter(item => item.mapId !== map.mapId)
         if (this.curMap.mapId === map.mapId) {
-          this.curMap = this.mapList[0] || null
+          // this.curMap = this.mapList[0] || null
+          this.handleChooseMap(this.mapList[0])
         }
       }
     })
