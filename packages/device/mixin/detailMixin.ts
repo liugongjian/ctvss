@@ -16,6 +16,13 @@ export default class DetailMixin extends Vue {
   }
 
   /**
+   * 视频接入协议
+   */
+  public get inVideoProtocol() {
+    return this.device && this.device.videos.length && this.device.videos[0].inVideoProtocol
+  }
+
+  /**
    * 获取设备详情
    */
   public async getDevice() {
