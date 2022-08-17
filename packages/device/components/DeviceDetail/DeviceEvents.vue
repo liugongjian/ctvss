@@ -50,21 +50,18 @@
 </template>
 
 <script lang='ts'>
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Mixins, Prop } from 'vue-property-decorator'
 import { getDeviceEvents } from '@/api/device'
 import { errorLevel, eventsType } from '@/dics/index'
+import detailMixin from '@vss/device/mixin/detailMixin'
 
 @Component({
   name: 'DeviceEvents'
 })
-export default class extends Vue {
+export default class extends Mixins(detailMixin) {
   // @Prop() private deviceId?: String
   // @Prop() private inProtocol?: String
   private inProtocol = 'gb28181'
-
-  private get deviceId() {
-    return this.$route.query.deviceId.toString()
-  }
 
   private loading = false
   private search = {

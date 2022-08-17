@@ -215,7 +215,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Prop, Mixins } from 'vue-property-decorator'
 import { ResourceAiType } from '@/dics'
 import { GroupModule } from '@/store/modules/group'
 import { getDeviceRecordTemplate, getDeviceCallbackTemplate, getDevice,
@@ -231,6 +231,7 @@ import { checkPermission } from '@/utils/permission'
 
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import AlgoConfig from './AlgoConfig/index.vue'
+import detailMixin from '@vss/device/mixin/detailMixin'
 
 @Component({
   name: 'DeviceConfig',
@@ -243,14 +244,10 @@ import AlgoConfig from './AlgoConfig/index.vue'
     Resource
   }
 })
-export default class extends Vue {
+export default class extends Mixins(detailMixin) {
   // @Prop() private deviceId?: String
   // @Prop() private inProtocol?: String
   private inProtocol = 'gb28181'
-
-  private get deviceId() {
-    return this.$route.query.deviceId.toString()
-  }
 
   private checkPermission = checkPermission
 
