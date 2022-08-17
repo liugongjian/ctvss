@@ -122,7 +122,7 @@ class User extends VuexModule implements IUserState {
     userName = userName.trim()
     const data: any = await login({
       mainUserID: mainUserID || undefined,
-      userName,
+      userName: encrypt(userName),
       password: encrypt(password),
       version: '2.0'
     })
@@ -313,7 +313,7 @@ class User extends VuexModule implements IUserState {
     let { mainUserID, subUserName, originalPwd, newPwd } = form
     const data = await resetIAMPassword({
       mainUserID,
-      subUserName,
+      subUserName: encrypt(subUserName),
       oldPassword: encrypt(originalPwd),
       newPassword: encrypt(newPwd),
       version: '2.0'

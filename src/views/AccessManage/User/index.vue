@@ -106,6 +106,7 @@ import { Component, Vue, Watch } from 'vue-property-decorator'
 import UserGroupDialog from './components/dialogs/userGroupDialog.vue'
 import { getGroupList, getUserList, deleteUser } from '@/api/accessManage'
 import { changeIAMPassword } from '@/api/users'
+import { encrypt } from '@/utils/encrypt'
 import copy from 'copy-to-clipboard'
 import * as loginService from '@/services/loginService'
 
@@ -350,8 +351,8 @@ export default class extends Vue {
         if (action === 'confirm') {
           try {
             await changeIAMPassword({
-              newPassword: instance.inputValue,
-              subUserName: row.iamUserName
+              newPassword: encrypt(instance.inputValue),
+              subUserName: encrypt(row.iamUserName)
             })
             this.$message.success(`重置子账号 ${row.iamUserName} 密码成功！`)
             done()
