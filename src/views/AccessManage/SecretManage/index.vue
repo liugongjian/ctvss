@@ -65,8 +65,7 @@
           </el-table>
         </el-card>
       </el-tab-pane>
-      <!-- <el-tab-pane v-if="!isPrivate" label="OpenAPI授权" name="open"> -->
-      <el-tab-pane v-if="true" label="OpenAPI授权" name="open">
+      <el-tab-pane v-if="!isPrivate" label="OpenAPI授权" name="open">
         <el-alert
           type="info"
           show-icon
@@ -278,7 +277,7 @@ export default class extends Vue {
       try {
         this.loading = true
         await deleteSecret(row.id)
-        this.getList()
+        await this.getList()
       } catch (e) {
         // TODO LIST
         // 错误处理
