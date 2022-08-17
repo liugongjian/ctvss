@@ -20,7 +20,7 @@
             <el-button type="primary" :disabled="!canCreateFlag" @click="handleCreate">新建密钥</el-button>
           </div>
           <el-table :data="dataList" fit>
-            <el-table-column label="密钥" min-width="250">
+            <el-table-column label="密钥" min-width="300">
               <template slot-scope="{row}">
                 <div>
                   <span>{{ 'AccessKeyId: ' + row.accessKey }}</span>
@@ -50,7 +50,7 @@
                 {{ secretStatus[row.status] || "已启用" }}
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="250" fixed="right">
+            <el-table-column label="操作" min-width="200" fixed="right">
               <template slot-scope="scope">
                 <template v-if="scope.row.status">
                   <el-button type="text" disabled @click="disableSecret(scope.row)">禁用</el-button>
@@ -65,7 +65,8 @@
           </el-table>
         </el-card>
       </el-tab-pane>
-      <el-tab-pane v-if="!isPrivate" label="OpenAPI授权" name="open">
+      <!-- <el-tab-pane v-if="!isPrivate" label="OpenAPI授权" name="open"> -->
+      <el-tab-pane v-if="true" label="OpenAPI授权" name="open">
         <el-alert
           type="info"
           show-icon
