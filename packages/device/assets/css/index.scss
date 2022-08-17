@@ -156,7 +156,8 @@
 
     &__header {
       .el-page-header {
-        margin-bottom: $margin-small;
+        margin: 0;
+        padding-bottom: $padding-small;
       }
 
       .el-tabs {
