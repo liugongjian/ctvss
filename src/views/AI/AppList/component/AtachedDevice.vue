@@ -129,14 +129,19 @@ export default class extends Mixins(AppMixin) {
   }
 
   private async mounted() {
+    this.loading = true
+    await this.getGroupsList()
     await this.getAttachedDevice()
     this.getAlarms()
+    this.loading = false
+  }
+
+  private async getGroupsList() {
     const { groups } = await getGroups({ pageNum: 1, pageSize: 1000 })
     this.groups = groups
   }
 
   private async getAttachedDevice() {
-    this.loading = true
     const { deviceList, pageNum, pageSize, totalNum } = await getAttachedDevice({
       appId: this.$route.query.appid,
       pageNum: this.pager.pageNum,
@@ -146,7 +151,6 @@ export default class extends Mixins(AppMixin) {
     this.pager.pageNum = pageNum
     this.pager.pageSize = pageSize
     this.pager.totalNum = totalNum
-    this.loading = false
   }
   /**
    * 启停用应用
