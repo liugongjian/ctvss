@@ -870,7 +870,6 @@ export default class extends Vue {
     cursor: default;
 
     .toggle-icon__closed {
-      margin-top: 10px;
       width: 100%;
       height: 100%;
       overflow: hidden;

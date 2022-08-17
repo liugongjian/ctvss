@@ -6,7 +6,6 @@
           设备信息
           <div class="detail__buttons">
             <el-button type="text">编辑</el-button>
-            <el-button type="text">删除</el-button>
           </div>
         </div>
         <basic-info :device="device" />
@@ -30,8 +29,9 @@ import { Component, Vue } from 'vue-property-decorator'
 import BasicInfo from './BasicInfo.vue'
 import VideoInfo from './VideoInfo.vue'
 import ViidInfo from './ViidInfo.vue'
-import { deviceMock } from '../../../mock/device'
-import enums from '../../../enums'
+import { deviceMock } from '@vss/device/mock/device'
+import enums from '@vss/device/enums'
+import { DeviceModule } from '@vss/device/store/modules/device'
 
 @Component({
   name: 'DeviceInfo',
@@ -45,5 +45,9 @@ export default class extends Vue {
   private enums = enums
   private device = deviceMock
   private activeTab = enums.DeviceInType.Video
+
+  private mounted() {
+    DeviceModule.SetBreadcrumb('abc!!!')
+  }
 }
 </script>
