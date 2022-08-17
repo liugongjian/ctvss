@@ -221,8 +221,10 @@ export default class extends Mixins(AppMixin) {
     })
   }
   private rowClick(row: any) {
-    const curGroup = this.groups.filter(group => group.groupId === row.groupId)
-    GroupModule.SetGroup(curGroup[0])
+    const curGroupIndex = this.groups.findIndex(group => group.groupId === row.groupId)
+    GroupModule.SetGroupList(this.groups)
+    GroupModule.SetGroupListIndex(Math.ceil(this.groups.length / 20))
+    GroupModule.SetGroup(this.groups[curGroupIndex])
     this.$router.push({
       name: 'device-detail',
       query: {
