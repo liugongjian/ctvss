@@ -8,7 +8,7 @@
       </el-steps>
     </div>
     <div v-if="!step && !$route.query.id">
-      <AlgoOption :step.sync="step" :prod.sync="prod" />
+      <AlgoOption :step.sync="step" :prod.sync="prod" direction="next" />
     </div>
     <div v-if="step || $route.query.id">
       <AlgoDetail :step.sync="step" :prod="prod" />
@@ -30,13 +30,12 @@ import AppMixin from '../mixin/app-mixin' // 考虑优化的mixin
   }
 })
 export default class extends Mixins(AppMixin) {
-  private step: Number = 0
+  private step: number = 0
   private prod: any = {}// 新建时传入组件的参数
   private isLoading: boolean = false
   private get header() {
     return this.$route.query.id ? '编辑' : '创建'
   }
-
   private back() {
     this.backToAppList()
   }

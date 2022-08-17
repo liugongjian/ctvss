@@ -11,13 +11,15 @@
 import { Component, Vue } from 'vue-property-decorator'
 
 import deviceList from '../Info/DeviceList.vue'
-import aiManage from '../Info/AiManage.vue'
+import aiManage from '../Info/AiManagement.vue'
+import appList from '../Info/AiAppList.vue'
 
 @Component({
   name: 'Device',
   components: {
     deviceList,
-    aiManage
+    aiManage,
+    appList
   }
 })
 

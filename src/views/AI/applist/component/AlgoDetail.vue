@@ -220,7 +220,7 @@
         <el-input v-model="form.description" type="textarea" :rows="2" />
       </el-form-item>
       <el-form-item>
-        <el-button v-if="!$route.query.id" @click="changeStep({step: 0})">上一步</el-button>
+        <el-button v-if="!$route.query.id" @click="changeStep">上一步</el-button>
         <el-button type="primary" @click="onSubmit">确定</el-button>
         <el-button @click="cancel">取消</el-button>
       </el-form-item>
@@ -242,6 +242,7 @@ import { formRule, formTips } from '../util/form-helper'
 })
 export default class extends Mixins(AppMixin) {
   @Prop() private prod!: any
+  @Prop() private step!: number
   private breadCrumbContent: String = ''
   private ResourceAiType: any = ResourceAiType
   private form: any = {
@@ -351,8 +352,9 @@ export default class extends Mixins(AppMixin) {
   /**
    * 步进控制
    */
-  private changeStep(val: any) {
-    this.$emit('update:step', val.step)
+  private changeStep() {
+    console.log('this.step:', this.step)
+    this.$emit('update:step', this.step - 1)
   }
 
   /**
