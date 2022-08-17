@@ -220,8 +220,9 @@
         <el-input v-model="form.description" type="textarea" :rows="2" />
       </el-form-item>
       <el-form-item>
-        <el-button v-if="!$route.query.id" @click="changeStep">上一步</el-button>
-        <el-button type="primary" @click="onSubmit">确定</el-button>
+        <el-button v-if="!$route.query.id" @click="changeStepPrev">上一步</el-button>
+        <el-button v-if="!isSelectDevice" type="primary" @click="onSubmit">确定</el-button>
+        <el-button v-if="isSelectDevice" type="primary" @click="changeStepNext">下一步</el-button>
         <el-button @click="cancel">取消</el-button>
       </el-form-item>
     </el-form>
@@ -243,6 +244,7 @@ import { formRule, formTips } from '../util/form-helper'
 export default class extends Mixins(AppMixin) {
   @Prop() private prod!: any
   @Prop() private step!: number
+  @Prop({ default: false }) public isSelectDevice!: boolean
   private breadCrumbContent: String = ''
   private ResourceAiType: any = ResourceAiType
   private form: any = {
@@ -352,9 +354,13 @@ export default class extends Mixins(AppMixin) {
   /**
    * 步进控制
    */
-  private changeStep() {
-    console.log('this.step:', this.step)
+  private changeStepPrev() {
     this.$emit('update:step', this.step - 1)
+  }
+
+  private changeStepNext() {
+    this.$emit('update:step', this.step + 1)
+    this.$emit('update:prod', this.prod)
   }
 
   /**

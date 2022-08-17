@@ -1,6 +1,6 @@
 <template>
   <div class="algo-container">
-    <div v-if="step === 1" class="tab-container">
+    <div v-if="step === -1" class="tab-container">
       <div class="filter-container">
         <el-button type="primary" @click="addAlgo">添加AI应用</el-button>
       </div>
@@ -13,27 +13,30 @@
         <el-table-column label="操作" />
       </el-table>
     </div>
+    <ai-app-edit v-else />
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import AiAppEdit from './AiAppEdit.vue'
 
 @Component({
   name: 'AiManage',
   components: {
+    AiAppEdit
   }
 })
 
 export default class IBoxList extends Vue {
   public tableData = []
-  private step: number = 1
+  private step: number = -1
   private prod: any = {}// 新建时传入组件的参数
   async mounted() {
 
   }
 
   private addAlgo() {
-    this.step = 2
+    this.step = 0
   }
 }
 </script>
