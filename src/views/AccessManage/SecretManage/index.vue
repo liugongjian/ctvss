@@ -65,8 +65,7 @@
           </el-table>
         </el-card>
       </el-tab-pane>
-      <!-- <el-tab-pane v-if="!isPrivate" label="OpenAPI授权" name="open"> -->
-      <el-tab-pane v-if="true" label="OpenAPI授权" name="open">
+      <el-tab-pane v-if="!isPrivate" label="OpenAPI授权" name="open">
         <el-alert
           type="info"
           show-icon
