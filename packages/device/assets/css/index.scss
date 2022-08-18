@@ -407,11 +407,15 @@
         }
       }
 
-      .el-input,
+      .el-input:not(.el-input-number > .el-input),
       .el-select,
       .el-textarea,
       .el-cascader {
         width: 420px;
+      }
+
+      .el-input-mumber {
+        width: 210px;
       }
 
       .in-protocol {

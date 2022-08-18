@@ -80,7 +80,7 @@ export default class extends Vue {
 <style lang="scss" scoped>
 $bar-height: 40px;
 
-@media screen and (max-width: 1460px) {
+@media screen and (max-width: 1650px) {
   .common-layout {
     margin-bottom: -$margin-medium;
   }

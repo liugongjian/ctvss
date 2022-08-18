@@ -14,6 +14,13 @@ export const DeviceVendor = {
 }
 
 /*
+  ehome版本
+ */
+export const EhomeVersion = {
+  '2.0': '2.0'
+}
+
+/*
   设备类型
 */
 export const DeviceType = {
@@ -66,6 +73,24 @@ export const RecordStatusType = {
 export const DeviceStreamAutoPull = {
   1: '已启用',
   2: '未启用'
+}
+
+/*
+  最大码流数
+*/
+export const MultiStreamSize = {
+  1: '单码流',
+  2: '双码流',
+  3: '三码流'
+}
+
+/*
+  自动拉取第几码流
+*/
+export const AutoStreamNum = {
+  1: '单码流',
+  2: '子码流',
+  3: '第三码流'
 }
 
 /**
