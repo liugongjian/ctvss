@@ -58,6 +58,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import dicts from '@vss/device/dicts'
 import enums from '@vss/device/enums'
+import { showParamByInVideoProtocol } from '@vss/device/utils/detail'
 
 @Component({
   name: 'VideoInfo',
@@ -69,6 +70,8 @@ export default class extends Vue {
   @Prop() private device
   private dicts = dicts
   private enums = enums
+
+  private showParamByInVideoProtocol = showParamByInVideoProtocol
 
   // 设备基本信息
   private get basicInfo() {
