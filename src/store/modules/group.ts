@@ -117,6 +117,11 @@ class GroupStore extends VuexModule implements IGroupState {
   public ResetGroupList() {
     this.SET_GROUP_LIST([])
   }
+
+  @Action
+  public SetGroupList(groups) {
+    this.SET_GROUP_LIST(groups)
+  }
 }
 
 export const GroupModule = getModule(GroupStore)
