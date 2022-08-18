@@ -29,7 +29,7 @@ import { Component, Mixins } from 'vue-property-decorator'
 import BasicInfo from './BasicInfo.vue'
 import VideoInfo from './VideoInfo.vue'
 import ViidInfo from './ViidInfo.vue'
-import enums from '@vss/device/enums'
+import * as enums from '@vss/device/enums'
 import detailMixin from '@vss/device/mixin/detailMixin'
 
 @Component({

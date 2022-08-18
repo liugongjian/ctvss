@@ -16,8 +16,3 @@ export enum VideoInProtocolType {
   Rtsp = 'rtsp',
   Ehome = 'ehome'
 }
-
-export default {
-  DeviceInType,
-  VideoInProtocolType
-}

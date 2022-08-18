@@ -2,7 +2,7 @@
  * ==================
  * 新
  */
-import enums from '../enums'
+import * as enums from '../enums'
 
 /*
   厂商
@@ -75,9 +75,20 @@ export const DeviceStreamAutoPull = {
 export const VideoInProtocolType = {
   [enums.VideoInProtocolType.Gb28181]: 'GB28181',
   [enums.VideoInProtocolType.Rtmp]: 'RTMP',
-  [enums.VideoInProtocolType.Onvif]: 'ONVIF',
   [enums.VideoInProtocolType.Rtsp]: 'RTSP',
-  [enums.VideoInProtocolType.Ehome]: 'EHOME'
+  [enums.VideoInProtocolType.Ehome]: 'EHOME',
+  [enums.VideoInProtocolType.Onvif]: 'ONVIF'
+}
+
+/**
+ * 视频接入协议
+ */
+export const VideoInProtocolModelMapping = {
+  [enums.VideoInProtocolType.Gb28181]: 'gB28181Device',
+  [enums.VideoInProtocolType.Rtmp]: 'rtmpDevice',
+  [enums.VideoInProtocolType.Rtsp]: 'rtspDevice',
+  [enums.VideoInProtocolType.Ehome]: 'ehomeDevice',
+  [enums.VideoInProtocolType.Onvif]: 'onvifDevice'
 }
 
 /**

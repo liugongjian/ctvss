@@ -30,7 +30,8 @@
 
     <!-- 接入信息 -->
     <el-descriptions title="接入信息" :column="2">
-      <el-descriptions-item label="国标ID">{{ videoInfo.outId || '-' }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('deviceChannelSize')" label="deviceChannelSize">{{ videoInfo.outId || '-' }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('outId')" label="国标ID">{{ videoInfo.outId || '-' }}</el-descriptions-item>
       <el-descriptions-item label="GB28181凭证">缺失</el-descriptions-item>
       <el-descriptions-item label="协议类型">缺失</el-descriptions-item>
       <el-descriptions-item label="设备IP">{{ basicInfo.deviceIp }}</el-descriptions-item>
@@ -56,9 +57,9 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import StatusBadge from '@/components/StatusBadge/index.vue'
-import dicts from '@vss/device/dicts'
-import enums from '@vss/device/enums'
-import { showParamByInVideoProtocol } from '@vss/device/utils/detail'
+import * as dicts from '@vss/device/dicts'
+import * as enums from '@vss/device/enums'
+import { checkVisible } from '@vss/device/utils/param'
 
 @Component({
   name: 'VideoInfo',
@@ -71,21 +72,29 @@ export default class extends Vue {
   private dicts = dicts
   private enums = enums
 
-  private showParamByInVideoProtocol = showParamByInVideoProtocol
-
   // 设备基本信息
   private get basicInfo() {
     return this.device.device
   }
 
+  // 视频接入协议
+  private get inVideoProtocol() {
+    return this.device.videos && this.device.videos[0]!.inVideoProtocol
+  }
+
   // 视频接入信息
   private get videoInfo() {
-    return this.device.videos && this.device.videos[0]!.gB28181Device
+    console.log(dicts.VideoInProtocolModelMapping[this.inVideoProtocol])
+    return this.inVideoProtocol && this.device.videos[0]![dicts.VideoInProtocolModelMapping[this.inVideoProtocol]]
   }
 
   // SIP服务器域
   public get sipDomain() {
     return this.videoInfo && this.videoInfo.sipId && this.videoInfo.sipId.toString().substr(0, 10)
+  }
+
+  private checkVisible(prop) {
+    return checkVisible(this.basicInfo.deviceType, this.inVideoProtocol, prop)
   }
 }
 </script>
