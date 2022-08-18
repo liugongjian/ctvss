@@ -1,8 +1,16 @@
-import { VideoInProtocolType } from './enums'
+import { VideoInProtocolType, DeviceType } from './enums'
 
-export const paramsMapping = {
+export const videoInProtocolTypeAllowParams = {
   [VideoInProtocolType.Gb28181]: new Set([
     'outId',
-    'inUserName'
+    'inUserName',
+    'deviceChannelSize'
   ])
+}
+
+export const deviceTypeDenyParams = {
+  [DeviceType.Ipc]: new Set([
+    'deviceChannelSize'
+  ]),
+  [DeviceType.Nvr]: new Set([])
 }

@@ -7,6 +7,14 @@ export enum DeviceInType {
 }
 
 /**
+ * 接入方式
+ */
+export enum DeviceType {
+  Ipc = 'ipc',
+  Nvr = 'nvr'
+}
+
+/**
  * 视频接入协议
  */
 export enum VideoInProtocolType {

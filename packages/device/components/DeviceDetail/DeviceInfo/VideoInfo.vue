@@ -30,7 +30,7 @@
 
     <!-- 接入信息 -->
     <el-descriptions title="接入信息" :column="2">
-      <el-descriptions-item v-if="checkVisible('deviceChannelSize')" label="deviceChannelSize">{{ videoInfo.outId || '-' }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('deviceChannelSize')" prop="label=&quot;deviceChannelSize&quot;">{{ videoInfo.outId || '-' }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible('outId')" label="国标ID">{{ videoInfo.outId || '-' }}</el-descriptions-item>
       <el-descriptions-item label="GB28181凭证">缺失</el-descriptions-item>
       <el-descriptions-item label="协议类型">缺失</el-descriptions-item>

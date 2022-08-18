@@ -1,8 +1,6 @@
-import { paramsMapping } from '../settings'
+import { videoInProtocolTypeAllowParams, deviceTypeDenyParams } from '../settings'
 
 export const checkVisible = (deviceType, inVideoProtocol, prop) => {
-  console.log(inVideoProtocol)
-  if (paramsMapping[inVideoProtocol].has(prop)) {
-    return true
-  }
+  return videoInProtocolTypeAllowParams[inVideoProtocol].has(prop) &&
+          !deviceTypeDenyParams[deviceType].has(prop)
 }
