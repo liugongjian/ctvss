@@ -22,10 +22,11 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Mixins } from 'vue-property-decorator'
 import AppSubDetail from '@/views/AI/AppList/component/AppSubDetail.vue'
 import { getAppList } from '@/api/ai-app'
 // import { getAIConfigGroupData } from '@/api/aiConfig'
+import detailMixin from '@vss/device/mixin/detailMixin'
 
 @Component({
   name: 'DetailAi',
@@ -33,10 +34,9 @@ import { getAppList } from '@/api/ai-app'
     AppSubDetail
   }
 })
-export default class extends Vue {
+export default class extends Mixins(detailMixin) {
 //   @Prop() private deviceId!: any
 //   @Prop() private inProtocol!: any
-  private deviceId = '29941916753760267'
   private inProtocol = 'gb28181'
   private appInfo: any = {}
   private apps: any = []

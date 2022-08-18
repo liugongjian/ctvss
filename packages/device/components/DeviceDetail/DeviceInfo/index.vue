@@ -1,6 +1,6 @@
 <template>
-  <div class="device-container">
-    <div class="detail-wrap">
+  <div v-loading="deviceLoading" class="device-container">
+    <div v-if="device" class="detail-wrap">
       <div class="detail__section detail__basic-info">
         <div class="detail__title">
           设备信息
@@ -25,13 +25,12 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Mixins } from 'vue-property-decorator'
 import BasicInfo from './BasicInfo.vue'
 import VideoInfo from './VideoInfo.vue'
 import ViidInfo from './ViidInfo.vue'
-import { deviceMock } from '@vss/device/mock/device'
-import enums from '@vss/device/enums'
-import { DeviceModule } from '@vss/device/store/modules/device'
+import * as enums from '@vss/device/enums'
+import detailMixin from '@vss/device/mixin/detailMixin'
 
 @Component({
   name: 'DeviceInfo',
@@ -41,13 +40,12 @@ import { DeviceModule } from '@vss/device/store/modules/device'
     ViidInfo
   }
 })
-export default class extends Vue {
+export default class extends Mixins(detailMixin) {
   private enums = enums
-  private device = deviceMock
   private activeTab = enums.DeviceInType.Video
 
-  private mounted() {
-    DeviceModule.SetBreadcrumb('abc!!!')
+  public async mounted() {
+    await this.getDevice()
   }
 }
 </script>

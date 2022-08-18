@@ -10,11 +10,11 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Prop, Mixins } from 'vue-property-decorator'
 import { Stream } from '@/components/VssPlayer/types/VssPlayer'
 import ScreenBoard from '../ScreenBoard/index.vue'
 import { ScreenManager } from '@vss/device/services/Screen/ScreenManager'
-import { DeviceModule } from '@vss/device/store/modules/device'
+import detailMixin from '@vss/device/mixin/detailMixin'
 
 @Component({
   name: 'DevicePreview',
@@ -22,7 +22,7 @@ import { DeviceModule } from '@vss/device/store/modules/device'
     ScreenBoard
   }
 })
-export default class extends Vue {
+export default class extends Mixins(detailMixin) {
   // @Prop() private deviceId?: number
   // @Prop() private inProtocol?: string
   private inProtocol = 'gb28181'
@@ -30,14 +30,10 @@ export default class extends Vue {
   @Prop() private streams?: Stream[]
   @Prop() private streamSize?: number
 
-  private get deviceId() {
-    return this.$route.query.deviceId.toString()
-  }
-
   public screenManager: ScreenManager = null
 
-  public mounted() {
-    console.log(DeviceModule.breadcrumb)
+  public async mounted() {
+    await this.getDevice()
     const screenBoard = this.$refs.screenBoard as ScreenBoard
     // @ts-ignore
     this.screenManager = screenBoard!.screenManager

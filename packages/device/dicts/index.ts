@@ -2,6 +2,7 @@
  * ==================
  * 新
  */
+import * as enums from '../enums'
 
 /*
   厂商
@@ -97,11 +98,22 @@ export const AutoStreamNum = {
  * 视频接入协议
  */
 export const VideoInProtocolType = {
-  'gb28181': 'GB28181',
-  'rtmp': 'RTMP',
-  'onvif': 'ONVIF',
-  'rtsp': 'RTSP',
-  'ehome': 'EHOME'
+  [enums.VideoInProtocolType.Gb28181]: 'GB28181',
+  [enums.VideoInProtocolType.Rtmp]: 'RTMP',
+  [enums.VideoInProtocolType.Rtsp]: 'RTSP',
+  [enums.VideoInProtocolType.Ehome]: 'EHOME',
+  [enums.VideoInProtocolType.Onvif]: 'ONVIF'
+}
+
+/**
+ * 视频接入协议
+ */
+export const VideoInProtocolModelMapping = {
+  [enums.VideoInProtocolType.Gb28181]: 'gB28181Device',
+  [enums.VideoInProtocolType.Rtmp]: 'rtmpDevice',
+  [enums.VideoInProtocolType.Rtsp]: 'rtspDevice',
+  [enums.VideoInProtocolType.Ehome]: 'ehomeDevice',
+  [enums.VideoInProtocolType.Onvif]: 'onvifDevice'
 }
 
 /**

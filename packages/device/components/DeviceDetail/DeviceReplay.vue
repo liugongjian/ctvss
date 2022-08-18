@@ -10,9 +10,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Prop, Mixins } from 'vue-property-decorator'
 import ScreenBoard from '../ScreenBoard/index.vue'
 import { ScreenManager } from '../../services/Screen/ScreenManager'
+import detailMixin from '@vss/device/mixin/detailMixin'
 
 @Component({
   name: 'DeviceReplay',
@@ -20,10 +21,9 @@ import { ScreenManager } from '../../services/Screen/ScreenManager'
     ScreenBoard
   }
 })
-export default class extends Vue {
+export default class extends Mixins(detailMixin) {
   // @Prop({ required: true }) private readonly deviceId: number
   // @Prop({ required: true }) private readonly inProtocol: string
-  private deviceId = '29941916753760267'
   private inProtocol = 'gb28181'
   @Prop() private readonly datetimeRange?: { startTime: number; endTime: number; }
   @Prop() private readonly isCarTask?: boolean
