@@ -5,6 +5,22 @@
       <el-radio :label="'on'">完成后立即启用分析</el-radio>
       <el-radio :label="'off'">暂不选择分析设备</el-radio>
     </el-radio-group>
+    <el-tree
+      ref="dirTree"
+      node-key="deviceId"
+      show-checkbox
+      :data="iboxDevice"
+      :props="treeProp"
+      @check="checkCallback"
+    >
+      <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}">
+        <span class="node-name">
+          <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
+          <svg-icon :name="data.deviceType" width="15" height="15" />
+          {{ data.deviceName }}
+        </span>
+      </span>
+    </el-tree>
   </div>
 </template>
 
@@ -20,7 +36,152 @@ import AppMixin from '@/views/AI/mixin/app-mixin' // 考虑优化的mixin
 export default class extends Mixins(AppMixin) {
   @Prop() private step!: number
   @Prop() private prod!: any
+  private iboxDevice = []
   private isDevice: string = 'on'
+  private treeProp = {
+    label: 'label',
+    children: 'children',
+    isLeaf: 'isLeaf' // 需要手动设置数据源的isLeaf属性，懒加载就不展示 可展开箭头
+  }
+
+  private mounted() {
+    this.loadIboxDevice()
+  }
+
+  public async loadIboxDevice() {
+    const data = {
+      'pageNum': 1,
+      'pageSize': 20,
+      'totalPage': 1,
+      'totalNum': 3,
+      'devices': [
+        {
+          'deviceId': '29942077814997590',
+          'groupId': '883904285310976',
+          'parentDeviceId': '29942103584801365',
+          'dirId': '-1',
+          'deviceType': 'ipc',
+          'deviceVendor': '',
+          'deviceName': 'test-ipc',
+          'description': '',
+          'deviceIp': '',
+          'devicePort': 0,
+          'inProtocol': '',
+          'userName': 'user',
+          'userPassword': 'user',
+          'gbId': '34082400011328566275',
+          'pullType': 2,
+          'transPriority': 'tcp',
+          'deviceEnabled': 1,
+          'deviceStatus': 'new',
+          'streamStatus': '',
+          'sipTransType': '',
+          'streamTransType': '',
+          'createSubDevice': 1,
+          'gbVersion': '2011',
+          'deviceStats': {
+            'channelSize': 1,
+            'onlineChannels': 0,
+            'offlineChannels': 0,
+            'onlineStreams': 0,
+            'offlineStreams': 0,
+            'failedStreams': 0
+          },
+          'deviceDir': {
+            'dirId': '0',
+            'dirName': '',
+            'description': '',
+            'groupId': '0',
+            'parentDirId': '0',
+            'createdTime': '0001-01-01 00:00:00',
+            'updatedTime': '0001-01-01 00:00:00'
+          },
+          'createdTime': '2020-09-02 17:44:12',
+          'updatedTime': '2020-09-02 18:14:21',
+          'requestId': '3247575e6e1044668962f5a464fa3885'
+        },
+        {
+          'deviceId': '29942071372546647',
+          'groupId': '883904285310976',
+          'parentDeviceId': '29942103584801365',
+          'dirId': '-1',
+          'deviceType': 'nvr',
+          'deviceChannels': [
+            {
+              'deviceId': '123',
+              'outId': '1111111',
+              'deviceChannelNum': '333',
+              'deviceName': 'nvr-设备1',
+              'deviceStatus': 'on',
+              'streams': []
+            }, {
+              'deviceId': '223',
+              'outId': '2222',
+              'deviceChannelNum': '332',
+              'deviceName': 'nvr-设备2',
+              'deviceStatus': 'off',
+              'streams': []
+            }, {
+              'deviceId': '323',
+              'outId': '3333333',
+              'deviceChannelNum': '323333',
+              'deviceName': 'nvr-设备3',
+              'deviceStatus': 'on',
+              'streams': []
+            }, {
+              'deviceId': '423',
+              'outId': '44444',
+              'deviceChannelNum': '423333',
+              'deviceName': 'nvr-设备4',
+              'deviceStatus': 'new',
+              'streams': []
+            }
+          ],
+          'deviceVendor': '',
+          'deviceName': 'test-nvr',
+          'description': '',
+          'deviceIp': '',
+          'devicePort': 0,
+          'inProtocol': '',
+          'userName': 'user',
+          'userPassword': 'user',
+          'gbId': '34082400011328199910',
+          'pullType': 2,
+          'transPriority': 'tcp',
+          'deviceEnabled': 1,
+          'deviceStatus': 'new',
+          'streamStatus': '',
+          'sipTransType': '',
+          'streamTransType': '',
+          'createSubDevice': 1,
+          'gbVersion': '2011',
+          'deviceStats': {
+            'channelSize': 1,
+            'onlineChannels': 0,
+            'offlineChannels': 0,
+            'onlineStreams': 0,
+            'offlineStreams': 0,
+            'failedStreams': 0
+          },
+          'deviceDir': {
+            'uirId': '0',
+            'uirName': '',
+            'uescription': '',
+            'uroupId': '0',
+            'uarentDirId': '0',
+            'ureatedTime': '0001-01-01 00:00:00',
+            'updatedTime': '0001-01-01 00:00:00'
+          },
+          'createdTime': '2020-09-02 17:44:12',
+          'updatedTime': '2020-09-02 18:14:21',
+          'requestId': '3247575e6e1044668962f5a464fa3885'
+        }
+      ]
+
+    }
+    this.iboxDevice = data.devices
+  }
+
   private back() {
     this.backToAppList()
   }
@@ -29,5 +190,15 @@ export default class extends Mixins(AppMixin) {
 <style lang="scss" scoped>
 .title {
   margin-right: 25px;
+}
+
+.el-tree {
+  border: 1px solid #bbb;
+  border-radius: 5px;
+  margin-top: 40px;
+  margin-left: 85px;
+  padding: 10px 0;
+  width: 40%;
+  min-height: 550px;
 }
 </style>
