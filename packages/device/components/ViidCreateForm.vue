@@ -7,8 +7,8 @@
       label-position="right"
       label-width="135px"
     >
-      <el-form-item label="接入协议:" prop="inProtocol">
-        <el-radio v-for="(value, key) in viidInProtocolType" :key="key" v-model="viidForm.inProtocol" :label="key">{{ value }}</el-radio>
+      <el-form-item label="接入协议:" prop="inViidProtocol">
+        <el-radio v-for="(value, key) in viidInProtocolType" :key="key" v-model="viidForm.inViidProtocol" :label="key">{{ value }}</el-radio>
       </el-form-item>
       <el-form-item label="接入类型:" prop="apeType">
         <el-select
@@ -23,8 +23,8 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="GA1400凭证:" prop="certId">
-        <el-select v-model="viidForm.certId" :loading="loading.account">
+      <el-form-item label="GA1400凭证:" prop="inUserName">
+        <el-select v-model="viidForm.inUserName" :loading="loading.account">
           <el-option
             v-for="item in ga1400AccountList"
             :key="item.id"
@@ -65,11 +65,21 @@ export default class extends Vue {
   private apeType = ApeType
   private ga1400AccountList = []
   private viidForm = {
-    inProtocol: 'ga1400',
+    inViidProtocol: 'ga1400',
     apeType: 'APE',
-    certId: ''
+    inUserName: ''
   }
-  private rules = {}
+  private rules = {
+    inViidProtocol: [
+      { required: true, message: '请选择接入协议', trigger: 'change' }
+    ],
+    apeType: [
+      { required: true, message: '请选择设备类型', trigger: 'change' }
+    ],
+    inUserName: [
+      { required: true, message: '请选择账号', trigger: 'change' }
+    ]
+  }
   private loading = {
     account: false
   }
@@ -79,6 +89,18 @@ export default class extends Vue {
 
   private mounted() {
     this.getGa1400Accounts()
+  }
+
+  /**
+   * 校验viid表单
+   */
+  private validateViidForm() {
+    let validFlag = true
+    const viidForm: any = this.$refs.viidForm
+    viidForm.validate((valid) => {
+      validFlag = valid
+    })
+    return validFlag
   }
 
   /**
