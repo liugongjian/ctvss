@@ -29,7 +29,7 @@
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button type="primary" @click="downloadSecret">下载密钥</el-button>
+      <el-button type="primary" :loading="downloading" @click="downloadSecret">下载密钥</el-button>
       <el-button @click="closeDialog">关闭</el-button>
     </div>
   </el-dialog>
@@ -46,16 +46,21 @@ export default class extends Mixins(ExcelMixin) {
   @Prop({ default: () => {} })
   private data!: any
 
+  private downloading = false
+
   private closeDialog() {
     this.$emit('on-close')
   }
 
   private async downloadSecret() {
     try {
+      this.downloading = true
       const res = await exportSecret({ ids: [this.data.id] })
       this.downloadFileUrl(`${this.data.type === 'api' ? 'API密钥' : 'OpenAPI授权'}`, res.exportFile)
     } catch (e) {
       this.$message.error(e.message)
+    } finally {
+      this.downloading = false
     }
   }
 

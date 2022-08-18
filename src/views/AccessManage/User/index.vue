@@ -352,7 +352,8 @@ export default class extends Vue {
           try {
             await changeIAMPassword({
               newPassword: encrypt(instance.inputValue),
-              subUserName: encrypt(row.iamUserName)
+              subUserName: encrypt(row.iamUserName),
+              version: '2.0'
             })
             this.$message.success(`重置子账号 ${row.iamUserName} 密码成功！`)
             done()
