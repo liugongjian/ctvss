@@ -2,10 +2,11 @@
   <div class="app-container">
     <span class="title">选择设备:</span>
     <el-radio-group v-model="isDevice">
-      <el-radio :label="'on'">完成后立即启用分析</el-radio>
-      <el-radio :label="'off'">暂不选择分析设备</el-radio>
+      <el-radio :label="true">完成后立即启用分析</el-radio>
+      <el-radio :label="false">暂不选择分析设备</el-radio>
     </el-radio-group>
     <el-tree
+      v-if="isDevice"
       ref="dirTree"
       node-key="deviceId"
       show-checkbox
@@ -17,32 +18,57 @@
         <span class="node-name">
           <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
           <svg-icon :name="data.deviceType" width="15" height="15" />
-          {{ data.deviceName }}
+          {{ node.data.deviceName }}
         </span>
       </span>
     </el-tree>
+    <div class="btns">
+      <el-button @click="changeStepPrev">上一步</el-button>
+      <el-button type="primary" @click="onSubmit">确定</el-button>
+      <el-button @click="cancel">取消</el-button>
+    </div>
+    <algo-config
+      v-if="canvasDialog"
+      :device-id="deviceId"
+      :canvas-if="canvasDialog"
+      :config-algo-info="configAlgoInfo"
+      :frame-image="frameImage"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Mixins, Prop } from 'vue-property-decorator'
 import AppMixin from '@/views/AI/mixin/app-mixin' // 考虑优化的mixin
+import AlgoConfig from './AlgoConfig/index.vue'
 
 @Component({
   name: 'AlgoDevice',
   components: {
+    AlgoConfig
   }
 })
 export default class extends Mixins(AppMixin) {
   @Prop() private step!: number
   @Prop() private prod!: any
   private iboxDevice = []
-  private isDevice: string = 'on'
+  private isDevice: boolean = true
+  private canvasDialog: boolean = false
   private treeProp = {
     label: 'label',
     children: 'children',
     isLeaf: 'isLeaf' // 需要手动设置数据源的isLeaf属性，懒加载就不展示 可展开箭头
   }
+
+  private deviceId = '1'
+  private configAlgoInfo = JSON.stringify(
+    {
+      name: 'test',
+      effectiveTime: [{ start_time: '0:0', end_time: '0:0' }],
+      algorithm: { code: '10031' }
+    }
+  )
+  private frameImage = require('./AlgoConfig/plate4.jpg')
 
   private mounted() {
     this.loadIboxDevice()
@@ -182,6 +208,27 @@ export default class extends Mixins(AppMixin) {
     this.iboxDevice = data.devices
   }
 
+  private changeStepPrev() {
+    this.$emit('update:step', this.step - 1)
+  }
+
+  private cancel() {
+    this.$emit('update:step', -1)
+  }
+
+  private checkCallback(data) {
+    console.log(data)
+    this.canvasDialog = true
+  }
+
+  private onSubmit() {
+
+  }
+
+  public closeCanvasDialog() {
+    this.canvasDialog = false
+  }
+
   private back() {
     this.backToAppList()
   }
@@ -200,5 +247,9 @@ export default class extends Mixins(AppMixin) {
   padding: 10px 0;
   width: 40%;
   min-height: 550px;
+}
+
+.btns {
+  margin-top: 40px;
 }
 </style>
