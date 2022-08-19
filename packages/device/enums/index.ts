@@ -22,5 +22,6 @@ export enum VideoInProtocolType {
   Gb28181 = 'gb28181',
   Rtmp = 'rtmp',
   Rtsp = 'rtsp',
-  Ehome = 'ehome'
+  Ehome = 'ehome',
+  Onvif = 'onvif'
 }
