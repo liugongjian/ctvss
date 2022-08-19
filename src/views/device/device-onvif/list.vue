@@ -179,7 +179,7 @@
 import { Component, Mixins } from 'vue-property-decorator'
 import listMixin from '../mixin/listMixin'
 import { ExportToCsv } from 'export-to-csv'
-import { Device } from '@/type/device'
+import { Device } from '@/type/Device'
 
 @Component({
   name: 'DeviceRtmpList'

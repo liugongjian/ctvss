@@ -115,7 +115,7 @@ export default class extends Vue {
         try {
           if (this.disabled) {
             data = {
-              userName: this.form.userName,
+              userName: encrypt(this.form.userName),
               description: this.form.description,
               password: encrypt(this.form.password),
               newPassword: encrypt(this.form.newPassword),
@@ -125,7 +125,7 @@ export default class extends Vue {
           } else {
             this.form.password = this.form.newPassword
             data = {
-              userName: this.form.userName,
+              userName: encrypt(this.form.userName),
               description: this.form.description,
               password: encrypt(this.form.password),
               version: '2.0'

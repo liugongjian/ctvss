@@ -4,7 +4,7 @@ import { GroupModule } from '@/store/modules/group'
 import { getDeviceTree } from '@/api/device'
 import { VGroupModule } from '@/store/modules/vgroup'
 import { setDirsStreamStatus } from '@/utils/device'
-import { AdvancedSearch } from '@/type/advancedSearch'
+import { AdvancedSearch } from '@/type/AdvancedSearch'
 
 @Component
 export default class IndexMixin extends Vue {

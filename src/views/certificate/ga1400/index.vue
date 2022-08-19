@@ -42,7 +42,7 @@ import { Component, Vue, Watch } from 'vue-property-decorator'
 import { AnonymousType } from '@/dics'
 import { dateFormatInTable } from '@/utils/date'
 import { getList, deleteCertificate } from '@/api/certificate/ga1400'
-import { GA1400 } from '@/type/certificate'
+import { GA1400 } from '@/type/Certificate'
 
 @Component({
   name: 'CertificateGb28181List'

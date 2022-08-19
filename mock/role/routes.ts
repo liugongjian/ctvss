@@ -29,12 +29,12 @@ export const constantRoutes = [
   },
   {
     path: '/404',
-    component: 'views/error-page/404',
+    component: 'views/ErrorPage/404',
     meta: { hidden: true }
   },
   {
     path: '/401',
-    component: 'views/error-page/401',
+    component: 'views/ErrorPage/401',
     meta: { hidden: true }
   },
   {
@@ -44,7 +44,7 @@ export const constantRoutes = [
     children: [
       {
         path: 'dashboard',
-        component: 'views/dashboard/index',
+        component: 'views/Dashboard/index',
         name: 'Dashboard',
         meta: {
           title: 'dashboard',

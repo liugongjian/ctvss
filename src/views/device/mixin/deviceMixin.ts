@@ -2,7 +2,7 @@
  * 设备常规操作：删除、启停录像、启停设备、查看详情、查看实时预览
  */
 import { Component, Vue, Inject, Provide } from 'vue-property-decorator'
-import { Device } from '@/type/device'
+import { Device } from '@/type/Device'
 import { deleteDevice, startDevice, stopDevice, startRecord, stopRecord } from '@/api/device'
 import MoveDir from '../components/dialogs/MoveDir.vue'
 

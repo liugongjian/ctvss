@@ -54,7 +54,7 @@
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { dateFormatInTable } from '@/utils/date'
 import { getList, deleteCertificate } from '@/api/certificate/gb28181'
-import { GB28181 } from '@/type/certificate'
+import { GB28181 } from '@/type/Certificate'
 
 @Component({
   name: 'CertificateGb28181List'
@@ -151,6 +151,7 @@ export default class extends Vue {
   &__search-group {
     margin-right: 10px;
   }
+
   &__select {
     display: inline;
     margin-right: 10px;

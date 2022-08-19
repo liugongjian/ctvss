@@ -99,7 +99,7 @@
 <script lang='ts'>
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { GroupModule } from '@/store/modules/group'
-import { Group } from '@/type/group'
+import { Group } from '@/type/Group'
 import { GroupStatus, InProtocolType } from '@/dics'
 import { dateFormatInTable } from '@/utils/date'
 import StatusBadge from '@/components/StatusBadge/index.vue'

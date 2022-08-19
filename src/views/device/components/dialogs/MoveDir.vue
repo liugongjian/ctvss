@@ -46,7 +46,7 @@
 import { Component, Vue, Prop, Inject } from 'vue-property-decorator'
 import { DeviceModule } from '@/store/modules/device'
 import { GroupModule } from '@/store/modules/group'
-import { Device } from '@/type/device'
+import { Device } from '@/type/Device'
 import { getDeviceTree } from '@/api/device'
 import { bindDir } from '@/api/dir'
 

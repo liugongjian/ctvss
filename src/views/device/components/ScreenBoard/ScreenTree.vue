@@ -206,7 +206,7 @@
 <script lang="ts">
 import { Component, Prop, Mixins, Watch } from 'vue-property-decorator'
 import { getSums } from '@/utils/device'
-import { Device } from '@/type/device'
+import { Device } from '@/type/Device'
 import { getDeviceTree } from '@/api/device'
 import { VGroupModule } from '@/store/modules/vgroup'
 import IndexMixin from '@/views/device/mixin/indexMixin'

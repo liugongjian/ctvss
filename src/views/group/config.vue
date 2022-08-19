@@ -57,13 +57,13 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { Group } from '@/type/group'
+import { Group } from '@/type/Group'
 import { OutProtocolType, InProtocolType, PullType, PushType } from '@/dics'
 import { queryGroup } from '@/api/group'
 import { formatSeconds } from '@/utils/interval'
 import { industryMap } from '@/assets/region/industry'
 import { networkMap } from '@/assets/region/network'
-import TemplateBind from '../components/templateBind.vue'
+import TemplateBind from '../components/TemplateBind.vue'
 
 @Component({
   name: 'GroupConfig',
@@ -172,9 +172,11 @@ export default class extends Vue {
 <style lang="scss" scoped>
 .template-edit {
   display: flex;
+
   &--value {
     min-width: 100px;
   }
+
   &--seperator {
     display: inline-block;
     width: 20px;

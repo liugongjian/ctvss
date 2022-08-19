@@ -65,7 +65,7 @@
 import { Component, Prop, Mixins, Inject } from 'vue-property-decorator'
 import IndexMixin from '../../mixin/indexMixin'
 import { GroupModule } from '@/store/modules/group'
-import { Device } from '@/type/device'
+import { Device } from '@/type/Device'
 import { getDeviceTree } from '@/api/device'
 import { VGroupModule } from '@/store/modules/vgroup'
 import { getSums } from '@/utils/device'

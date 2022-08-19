@@ -40,7 +40,7 @@
 import { Component, Prop, Vue } from 'vue-property-decorator'
 import { createCascadeDir, modifyCascadeDir, deleteCascadeDir, describeCascadeDir } from '@/api/upPlatform'
 import AddressCascader from '@/views/components/AddressCascader.vue'
-import { DeviceAddress } from '@/type/device'
+import { DeviceAddress } from '@/type/Device'
 import { industryMap } from '@/assets/region/industry'
 
 @Component({

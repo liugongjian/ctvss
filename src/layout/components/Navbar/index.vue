@@ -116,24 +116,24 @@
 </template>
 
 <script lang="ts">
-import { Component, Watch, Mixins } from 'vue-property-decorator'
-import { trim } from 'lodash'
-import { AppModule } from '@/store/modules/app'
-import { UserModule } from '@/store/modules/user'
-import { GroupModule } from '@/store/modules/group'
 import { getDevice } from '@/api/device'
-import { Group } from '@/type/group'
-import { AlertType } from '@/dics'
-import { AiGroups } from '@/views/dashboard/helper/aiGroups'
 import Breadcrumb from '@/components/Breadcrumb/index.vue'
 import ErrorLog from '@/components/ErrorLog/index.vue'
 import Hamburger from '@/components/Hamburger/index.vue'
 import HeaderSearch from '@/components/HeaderSearch/index.vue'
 import Screenfull from '@/components/Screenfull/index.vue'
 import SizeSelect from '@/components/SizeSelect/index.vue'
-import TemplateBind from '@/views/components/templateBind.vue'
-import DashboardMixin from '@/views/dashboard/mixin/DashboardMixin'
+import { AlertType } from '@/dics'
 import * as loginService from '@/services/loginService'
+import { AppModule } from '@/store/modules/app'
+import { GroupModule } from '@/store/modules/group'
+import { UserModule } from '@/store/modules/user'
+import { Group } from '@/type/Group'
+import TemplateBind from '@/views/components/TemplateBind.vue'
+import { AiGroups } from '@/views/Dashboard/helper/aiGroups'
+import DashboardMixin from '@/views/Dashboard/mixin/DashboardMixin'
+import { trim } from 'lodash'
+import { Component, Mixins, Watch } from 'vue-property-decorator'
 
 @Component({
   name: 'Navbar',

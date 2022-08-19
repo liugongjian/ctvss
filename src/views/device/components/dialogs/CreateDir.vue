@@ -28,7 +28,7 @@
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { Dir } from '@/type/dir'
+import { Dir } from '@/type/Dir'
 import { createDir, updateDir } from '@/api/dir'
 
 @Component({

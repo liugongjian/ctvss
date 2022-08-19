@@ -1,5 +1,5 @@
 import { VuexModule, Module, Mutation, Action, getModule } from 'vuex-module-decorators'
-import { Group } from '@/type/group'
+import { Group } from '@/type/Group'
 import { getGroups } from '@/api/group'
 import store from '@/store'
 import { setLocalStorage, getLocalStorage } from '@/utils/storage'

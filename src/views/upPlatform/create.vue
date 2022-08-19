@@ -187,7 +187,7 @@
 </template>
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
-import { DeviceAddress } from '@/type/device'
+import { DeviceAddress } from '@/type/Device'
 import { createPlatform, updatePlatform, getPlatform } from '@/api/upPlatform'
 import { getRegions } from '@/api/region'
 import { industryMap } from '@/assets/region/industry'

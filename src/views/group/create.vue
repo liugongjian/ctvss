@@ -156,15 +156,15 @@
 </template>
 <script lang='ts'>
 import { Component, Vue } from 'vue-property-decorator'
-import { Group } from '@/type/group'
-import { DeviceAddress } from '@/type/device'
+import { Group } from '@/type/Group'
+import { DeviceAddress } from '@/type/Device'
 import { GroupModule } from '@/store/modules/group'
 import { InProtocolType, OutProtocolType } from '@/dics'
 import { createGroup, queryGroup, updateGroup } from '@/api/group'
 import { getRegions } from '@/api/region'
 import { industryMap } from '@/assets/region/industry'
 import { networkMap } from '@/assets/region/network'
-import templateBind from '../components/templateBind.vue'
+import templateBind from '../components/TemplateBind.vue'
 import AddressCascader from '@/views/components/AddressCascader.vue'
 
 @Component({
@@ -387,7 +387,10 @@ export default class extends Vue {
 </script>
 
 <style lang="scss" scoped>
-  .el-input, .el-select, .el-textarea, .el-cascader {
+  .el-input,
+  .el-select,
+  .el-textarea,
+  .el-cascader {
     width: 400px;
   }
 </style>
