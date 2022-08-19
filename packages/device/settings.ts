@@ -6,15 +6,16 @@ import { InVideoProtocol, DeviceType } from './enums'
  */
 export const InVideoProtocolAllowParams = {
   [InVideoProtocol.Gb28181]: new Set([
+    'outId',
+    'inVersion',
     'inUserName',
-    'deviceStreamAutoPull',
     'resources',
+    'deviceStreamAutoPull',
     'deviceChannelSize',
     'onlineChannels',
     'showMore',
     'deviceIp',
     'devicePort',
-    'outId',
     'devicePoleId',
     'deviceMac',
     'deviceSerialNumber',
@@ -26,7 +27,9 @@ export const InVideoProtocolAllowParams = {
     'gb28181SipInfo'
   ]),
   [InVideoProtocol.Ehome]: new Set([
+    'outId',
     'inVersion',
+    'inUserName',
     'deviceChannelSize',
     'deviceStreamSize',
     'deviceStreamAutoPull',

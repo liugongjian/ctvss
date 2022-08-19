@@ -130,8 +130,20 @@ export const InViidProtocolModelMapping = {
   [enums.InViidProtocol.Ga1400]: 'gA1400Device'
 }
 
-export const ParamLabel = {
-
+/**
+ * 字段名称翻译
+ */
+export const VideoParamLabel = {
+  [enums.InVideoProtocol.Gb28181]: {
+    'outId': '国标ID',
+    'inVersion': '国标版本',
+    'inUserName': 'GB28181凭证'
+  },
+  [enums.InVideoProtocol.Ehome]: {
+    'outId': 'Ehome ID',
+    'inVersion': 'Ehome版本',
+    'inUserName': 'Ehome凭证'
+  }
 }
 
 /**

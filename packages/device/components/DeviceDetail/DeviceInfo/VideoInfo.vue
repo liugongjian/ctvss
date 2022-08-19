@@ -32,9 +32,9 @@
     <!-- 接入信息 -->
     <el-descriptions title="接入信息" :column="2">
       <el-descriptions-item label="协议类型">{{ dicts.InVideoProtocol[inVideoProtocol] }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible('outId')" label="国标ID">{{ videoInfo.outId || '-' }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible('inVersion')" label="国标版本">{{ videoInfo.inVersion || '-' }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible('inUserName')" label="GB28181凭证">{{ videoInfo.inUserName || '-' }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('outId')" :label="dicts.VideoParamLabel[inVideoProtocol].outId">{{ videoInfo.outId || '-' }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('inVersion')" :label="dicts.VideoParamLabel[inVideoProtocol].inVersion">{{ videoInfo.inVersion || '-' }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('inUserName')" :label="dicts.VideoParamLabel[inVideoProtocol].inUserName">{{ videoInfo.inUserName || '-' }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible('deviceChannelSize')" label="通道数量">{{ basicInfo.deviceChannelSize }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible('deviceIp')" label="设备IP">{{ basicInfo.deviceIp }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible('devicePort')" label="设备端口">{{ basicInfo.devicePort }}</el-descriptions-item>

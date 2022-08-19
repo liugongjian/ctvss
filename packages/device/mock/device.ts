@@ -16,13 +16,14 @@ export const deviceMock = {
     deviceStreamAutoPull: 1,
     deviceStreamSize: 3,
     deviceStreamPullIndex: 1,
+    deviceChannelSize: 5,
     deviceStats: {
       onlineChannels: 4
     }
   },
   videos: [
     {
-      inVideoProtocol: 'gb28181',
+      inVideoProtocol: 'ehome',
       gB28181Device: {
         sipId: '31011500012008469596',
         sipIp: '1.1.1.1',
