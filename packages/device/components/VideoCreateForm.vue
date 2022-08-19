@@ -240,11 +240,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-<<<<<<< HEAD
-import { InVideoProtocol, EhomeVersion, MultiStreamSize, AutoStreamNum } from '../dicts/index'
-=======
-import { VideoInProtocolType, EhomeVersion, InType, MultiStreamSize, AutoStreamNum } from '../dicts/index'
->>>>>>> fe0c60757a05189ba0156caff4548fdfdbb467be
+import { InVideoProtocol, EhomeVersion, InType, MultiStreamSize, AutoStreamNum } from '../dicts/index'
 import { DeviceTips } from '../dicts/tips'
 import { getList as getGbList } from '@/api/certificate/gb28181'
 import { validGbId } from '../api/device'
@@ -267,12 +263,8 @@ export default class extends Vue {
 
   private tips = DeviceTips
   private ehomeVersion = EhomeVersion
-<<<<<<< HEAD
   private InVideoProtocol = InVideoProtocol
-=======
   private inType = InType
-  private videoInProtocolType = VideoInProtocolType
->>>>>>> fe0c60757a05189ba0156caff4548fdfdbb467be
   private multiStreamSize = MultiStreamSize
   private autoStreamNum = AutoStreamNum
   private minChannelSize = 1
