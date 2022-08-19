@@ -1,24 +1,30 @@
-import { VideoInProtocolType, DeviceType } from './enums'
+import { InVideoProtocol, DeviceType } from './enums'
 
 /**
  * 根据设备接入协议需要显示的字段
  * 注意下面是显示的字段(ALLOW)
  */
-export const videoInProtocolTypeAllowParams = {
-  [VideoInProtocolType.Gb28181]: new Set([
-    'deviceChannelSize',
+export const InVideoProtocolAllowParams = {
+  [InVideoProtocol.Gb28181]: new Set([
     'inUserName',
     'deviceStreamAutoPull',
     'resources',
+    'deviceChannelSize',
+    'onlineChannels',
     'deviceIp',
     'devicePort',
     'outId',
     'devicePoleId',
     'deviceMac',
     'deviceSerialNumber',
-    'deviceModel'
+    'deviceModel',
+    'sipTransType',
+    'deviceStreamAutoPull',
+    'transPriority',
+    'streamTransType',
+    'gb28181SipInfo'
   ]),
-  [VideoInProtocolType.Ehome]: new Set([
+  [InVideoProtocol.Ehome]: new Set([
     'inVersion',
     'deviceChannelSize',
     'deviceStreamSize',
@@ -28,10 +34,18 @@ export const videoInProtocolTypeAllowParams = {
     'resources',
     'deviceIp',
     'devicePort',
-    'deviceMac'
+    'deviceMac',
+    'ehomeSipInfo'
   ]),
-  [VideoInProtocolType.Rtsp]: new Set([]),
-  [VideoInProtocolType.Rtmp]: new Set([])
+  [InVideoProtocol.Rtsp]: new Set([
+    'deviceIp',
+    'devicePort',
+    'deviceStreamAutoPull',
+    'deviceStreamSize',
+    'deviceStreamPullIndex',
+    'transPriority'
+  ]),
+  [InVideoProtocol.Rtmp]: new Set([])
 }
 
 /**
@@ -40,7 +54,8 @@ export const videoInProtocolTypeAllowParams = {
  */
 export const deviceTypeDenyParams = {
   [DeviceType.Ipc]: new Set([
-    'deviceChannelSize'
+    'deviceChannelSize',
+    'onlineChannels'
   ]),
   [DeviceType.Nvr]: new Set([
     'devicePoleId',
@@ -49,6 +64,7 @@ export const deviceTypeDenyParams = {
   ]),
   [DeviceType.Platform]: new Set([
     'deviceChannelSize',
+    'onlineChannels',
     'deviceSerialNumber',
     'deviceModel'
   ])

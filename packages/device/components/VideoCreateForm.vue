@@ -8,7 +8,7 @@
       label-width="135px"
     >
       <el-form-item label="接入协议:" prop="inVideoProtocol">
-        <el-radio v-for="(value, key) in videoInProtocolType" :key="key" v-model="videoForm.inVideoProtocol" :label="key">{{ value }}</el-radio>
+        <el-radio v-for="(value, key) in InVideoProtocol" :key="key" v-model="videoForm.inVideoProtocol" :label="key">{{ value }}</el-radio>
       </el-form-item>
       <el-form-item v-if="checkVisible('inVersion')" label="版本:" prop="inVersion">
         <el-radio-group v-model="videoForm.inVersion">
@@ -178,7 +178,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { VideoInProtocolType, EhomeVersion, MultiStreamSize, AutoStreamNum } from '../dicts/index'
+import { InVideoProtocol, EhomeVersion, MultiStreamSize, AutoStreamNum } from '../dicts/index'
 import { DeviceTips } from '../dicts/tips'
 import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
 import ResourceTabs from './ResourceTabs.vue'
@@ -199,7 +199,7 @@ export default class extends Vue {
 
   private tips = DeviceTips
   private ehomeVersion = EhomeVersion
-  private videoInProtocolType = VideoInProtocolType
+  private InVideoProtocol = InVideoProtocol
   private multiStreamSize = MultiStreamSize
   private autoStreamNum = AutoStreamNum
   private minChannelSize = 1

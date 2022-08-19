@@ -97,30 +97,41 @@ export const AutoStreamNum = {
 /**
  * 视频接入协议
  */
-export const VideoInProtocolType = {
-  [enums.VideoInProtocolType.Gb28181]: 'GB28181',
-  [enums.VideoInProtocolType.Rtmp]: 'RTMP',
-  [enums.VideoInProtocolType.Rtsp]: 'RTSP',
-  [enums.VideoInProtocolType.Ehome]: 'EHOME',
-  [enums.VideoInProtocolType.Onvif]: 'ONVIF'
+export const InVideoProtocol = {
+  [enums.InVideoProtocol.Gb28181]: 'GB28181',
+  [enums.InVideoProtocol.Rtmp]: 'RTMP',
+  [enums.InVideoProtocol.Rtsp]: 'RTSP',
+  [enums.InVideoProtocol.Ehome]: 'EHOME',
+  [enums.InVideoProtocol.Onvif]: 'ONVIF'
 }
 
 /**
  * 视频接入协议对应的中台模型字段名
  */
-export const VideoInProtocolModelMapping = {
-  [enums.VideoInProtocolType.Gb28181]: 'gB28181Device',
-  [enums.VideoInProtocolType.Rtmp]: 'rtmpDevice',
-  [enums.VideoInProtocolType.Rtsp]: 'rtspDevice',
-  [enums.VideoInProtocolType.Ehome]: 'ehomeDevice',
-  [enums.VideoInProtocolType.Onvif]: 'onvifDevice'
+export const InVideoProtocolModelMapping = {
+  [enums.InVideoProtocol.Gb28181]: 'gB28181Device',
+  [enums.InVideoProtocol.Rtmp]: 'rtmpDevice',
+  [enums.InVideoProtocol.Rtsp]: 'rtspDevice',
+  [enums.InVideoProtocol.Ehome]: 'ehomeDevice',
+  [enums.InVideoProtocol.Onvif]: 'onvifDevice'
 }
 
 /**
  * 视图接入协议
  */
 export const ViidInProtocolType = {
-  'ga1400': 'GA1400'
+  [enums.InViidProtocol.Ga1400]: 'GA1400'
+}
+
+/**
+ * 视频接入协议对应的中台模型字段名
+ */
+export const InViidProtocolModelMapping = {
+  [enums.InViidProtocol.Ga1400]: 'gA1400Device'
+}
+
+export const ParamLabel = {
+
 }
 
 /**
@@ -149,6 +160,22 @@ export const StreamTransType = {
   h264_rtp_tcp: 'TCP',
   h265_rtp_udp: 'UDP',
   h265_rtp_tcp: 'TCP'
+}
+
+/**
+ *  信令传输模式
+ */
+export const SipTransType = {
+  tcp: 'TCP',
+  udp: 'UDP'
+}
+
+/**
+ *  优先TCP传输
+ */
+export const TransPriority = {
+  tcp: '是',
+  udp: '否'
 }
 
 /**
@@ -199,7 +226,7 @@ export default {
   RecordStatus,
   RecordStatusType,
   DeviceStreamAutoPull,
-  VideoInProtocolType,
+  InVideoProtocol,
   ViidInProtocolType,
   DeviceInType,
   StreamTransType
@@ -286,16 +313,6 @@ export const PushType = {
 export const CreateSubDevice = {
   1: '是',
   2: '否'
-}
-
-export const SipTransType = {
-  tcp: 'TCP',
-  udp: 'UDP'
-}
-
-export const TransPriority = {
-  tcp: '是',
-  udp: '否'
 }
 
 export const RecordStatusFilterType = {
