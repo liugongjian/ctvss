@@ -13,7 +13,7 @@
         <BasicAppInfo v-if="appInfo.name" :app-info="appInfo" :face-lib="faceLib" />
       </el-tab-pane>
       <el-tab-pane label="关联设备" :name="'1'">
-        <AtachedDevice />
+        <AtachedDevice v-if="tabNum === '1'" />
       </el-tab-pane>
       <el-tab-pane label="分析结果" :name="'2'">
         <div class="app-container__result">
@@ -66,6 +66,7 @@ import { getAppInfo, getAttachedDevice } from '@/api/ai-app'
 import { getAIConfigGroupData } from '@/api/aiConfig'
 import { getDeviceTree } from '@/api/device'
 import { getGroups } from '@/api/group'
+import { listGroup } from '@/api/face'
 import IndexMixin from '@/views/device/mixin/indexMixin'
 import { Component, Mixins } from 'vue-property-decorator'
 import AppMixin from '../mixin/app-mixin'
@@ -101,8 +102,11 @@ export default class extends Mixins(AppMixin, IndexMixin) {
     this.tabNum = this.$route.query.tabNum
     this.appInfo = await getAppInfo({ id: this.$route.query.appid })
     this.initDirs()
-    const { groups }: any = await getAIConfigGroupData({})
-    this.initFaceLib(groups)
+    const { data } = await listGroup({
+      pageNum: 0,
+      pageSize: 3000
+    })
+    this.initFaceLib(data)
     const { deviceList } = await getAttachedDevice({
       appId: this.$route.query.appid,
       pageSize: 3000
@@ -114,7 +118,7 @@ export default class extends Mixins(AppMixin, IndexMixin) {
   private initFaceLib(groups) {
     const algorithmMetadata = JSON.parse(this.appInfo.algorithmMetadata)
     if (algorithmMetadata.FaceDbName) {
-      this.faceLib = groups.filter(item => item.id === algorithmMetadata.FaceDbName)[0]
+      this.faceLib = groups.filter(item => (item.id + '') === algorithmMetadata.FaceDbName)[0]
     }
   }
 

@@ -7,7 +7,7 @@ const serverAddressMapping = {
   local: 'http://192.168.245.1:8081', // 本地环境
   dev: 'https://182.43.127.35:9190', // 开发环境
   dev1: 'http://182.43.127.35:9050', // 开发环境dev-1
-  test: 'https://182.43.127.35:9080', // 测试环境
+  test: 'http://182.43.127.35:9080', // 测试环境
   test1: 'https://182.43.127.35:9060', // 测试环境test-1
   pre: 'https://182.43.127.35:9070', // 预发布环境
   prod: 'http://console.vcn.ctyun.cn' // 生产环境

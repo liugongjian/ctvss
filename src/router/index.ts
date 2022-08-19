@@ -775,7 +775,7 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           breadcrumb: false,
-          activeMenu: '/AI',
+          activeMenu: '/ai',
           perms: ['DescribeAi']
         }
       },
@@ -789,7 +789,7 @@ export const asyncRoutes: RouteConfig[] = [
           hidden: false,
           breadcrumb: true,
           only: true,
-          activeMenu: '/AI/ai-app-list',
+          activeMenu: '/ai/ai-app-list',
           perms: ['DescribeAi']
         }
       },
@@ -802,7 +802,7 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           breadcrumb: true,
-          activeMenu: '/AI/ai-app-list',
+          activeMenu: '/ai/ai-app-list',
           perms: ['AdminAi']
         }
       },
@@ -815,7 +815,7 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           breadcrumb: true,
-          activeMenu: '/AI/ai-app-list',
+          activeMenu: '/ai/ai-app-list',
           perms: ['AdminAi']
         }
       },
@@ -828,7 +828,7 @@ export const asyncRoutes: RouteConfig[] = [
           icon: 'dot',
           hidden: true,
           breadcrumb: false,
-          activeMenu: '/AI/ai-app-list',
+          activeMenu: '/ai/ai-app-list',
           perms: ['DescribeAi']
         }
       },
@@ -839,8 +839,33 @@ export const asyncRoutes: RouteConfig[] = [
         meta: {
           title: '人脸库',
           icon: 'dot',
+          hidden: true,
           breadcrumb: true,
-          activeMenu: '/AI/config',
+          activeMenu: '/ai/config',
+          perms: ['AdminAi']
+        }
+      },
+      {
+        path: 'facelib',
+        component: () => import(/* webpackChunkName: "AI" */ '@/views/AI/Face/index.vue'),
+        name: 'facelib',
+        meta: {
+          title: '人脸库',
+          icon: 'dot',
+          breadcrumb: true,
+          activeMenu: '/ai/facelib',
+          perms: ['AdminAi']
+        }
+      },
+      {
+        path: 'facelib/detail',
+        component: () => import(/* webpackChunkName: "AI" */ '@/views/AI/Face/Personal.vue'),
+        name: 'facelib-detail',
+        meta: {
+          title: '人脸库详情',
+          icon: 'dot',
+          hidden: true,
+          activeMenu: '/ai/facelib',
           perms: ['AdminAi']
         }
       }
@@ -866,7 +891,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '概览',
           icon: 'dot',
           breadcrumb: true,
-          activeMenu: '/accessManage/dashboard',
+          activeMenu: '/access-manage/dashboard',
           perms: ['*']
         }
       },
@@ -878,7 +903,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '用户',
           icon: 'dot',
           breadcrumb: true,
-          activeMenu: '/accessManage/user',
+          activeMenu: '/access-manage/user',
           perms: ['*']
         }
       },
@@ -890,7 +915,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '创建用户',
           icon: 'dot',
           hidden: true,
-          activeMenu: '/accessManage/user',
+          activeMenu: '/access-manage/user',
           perms: ['*']
         }
       },
@@ -902,7 +927,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '成员详情',
           icon: 'dot',
           hidden: true,
-          activeMenu: '/accessManage/user',
+          activeMenu: '/access-manage/user',
           perms: ['*']
         }
       },
@@ -914,7 +939,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '策略',
           icon: 'dot',
           breadcrumb: true,
-          activeMenu: '/accessManage/policy',
+          activeMenu: '/access-manage/policy',
           perms: ['*']
         }
       },
@@ -926,7 +951,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '创建策略',
           icon: 'dot',
           hidden: true,
-          activeMenu: '/accessManage/policy',
+          activeMenu: '/access-manage/policy',
           perms: ['*']
         }
       },
@@ -938,7 +963,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '查看&编辑策略',
           icon: 'dot',
           hidden: true,
-          activeMenu: '/accessManage/policy',
+          activeMenu: '/access-manage/policy',
           perms: ['*']
         }
       },
@@ -950,7 +975,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '角色',
           icon: 'dot',
           breadcrumb: true,
-          activeMenu: '/accessManage/role',
+          activeMenu: '/access-manage/role',
           perms: ['*']
         }
       },
@@ -962,7 +987,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: '创建角色',
           icon: 'dot',
           hidden: true,
-          activeMenu: '/accessManage/role',
+          activeMenu: '/access-manage/role',
           perms: ['*']
         }
       },
@@ -974,7 +999,7 @@ export const asyncRoutes: RouteConfig[] = [
           title: 'API密钥',
           icon: 'dot',
           breadcrumb: true,
-          activeMenu: '/accessManage/secretManage',
+          activeMenu: '/access-manage/secretManage',
           perms: ['*']
         }
       }
