@@ -16,6 +16,9 @@
     >
       <el-form-item label="头像:" prop="imageString">
         <el-upload
+          v-loading="verifyResult.state === 'loading'"
+          element-loading-text="图片验证中"
+          element-loading-spinner="el-icon-loading"
           action=""
           class="avatar-uploader"
           :show-file-list="false"
