@@ -44,6 +44,45 @@
           新建GB28181凭证
         </el-button>
       </el-form-item>
+      <el-form-item v-if="checkVisible('inType')" label="视频流接入方式:" prop="inType">
+        <el-radio
+          v-for="(value, key) in inType"
+          :key="key"
+          v-model="videoForm.inType"
+          :label="key"
+        >
+          {{ value }}
+        </el-radio>
+      </el-form-item>
+      <template v-if="deviceForm.deviceVendor === '其他' || checkVisible('onlyPullUrl')">
+        <el-form-item v-if="checkVisible('pullUrl')" label="拉流地址:" prop="pullUrl">
+          <el-input v-model="videoForm.pullUrl" />
+        </el-form-item>
+      </template>
+      <template v-else>
+        <el-form-item v-if="checkVisible('userName')" label="用户名:" prop="userName">
+          <el-input v-model="videoForm.userName" />
+        </el-form-item>
+        <el-form-item v-if="checkVisible('password')" label="密码:" prop="password">
+          <el-input v-model="videoForm.password" type="password" />
+        </el-form-item>
+        <el-form-item v-if="checkVisible('enableDomain')" label="是否启用域名:" prop="enableDomain">
+          <el-switch
+            v-model="videoForm.enableDomain"
+            :active-value="1"
+            :inactive-value="2"
+          />
+        </el-form-item>
+        <el-form-item v-if="checkVisible('deviceDomain')" label="设备域名:" prop="deviceDomain">
+          <el-input v-model="videoForm.deviceDomain" />
+        </el-form-item>
+        <el-form-item v-if="checkVisible('deviceIpRequired')" label="设备IP:" prop="deviceIpRequired">
+          <el-input v-model="videoForm.deviceIpRequired" />
+        </el-form-item>
+        <el-form-item v-if="checkVisible('devicePortRequired')" label="设备端口:" prop="devicePortRequired">
+          <el-input v-model.number="videoForm.devicePortRequired" />
+        </el-form-item>
+      </template>
       <el-form-item v-if="checkVisible('deviceStreamSize')" label="主子码流数量:" prop="deviceStreamSize">
         <template slot="label">
           主子码流数量:
@@ -93,7 +132,7 @@
         />
       </el-form-item>
       <el-form-item
-        v-if="videoForm.deviceStreamAutoPull === 1 && checkVisible('deviceStreamPullIndex')"
+        v-if="checkVisible('deviceStreamPullIndex')"
         label="自动拉取码流:"
         prop="deviceStreamPullIndex"
       >
@@ -106,6 +145,26 @@
         >
           {{ value }}
         </el-radio>
+      </el-form-item>
+      <el-form-item v-if="checkVisible('pushType')" prop="pushType">
+        <template slot="label">
+          自动激活推流地址:
+          <el-popover
+            placement="top-start"
+            title="自动激活推流地址"
+            width="400"
+            trigger="hover"
+            :open-delay="300"
+            :content="tips.pushType"
+          >
+            <svg-icon slot="reference" class="form-question" name="help" />
+          </el-popover>
+        </template>
+        <el-switch
+          v-model="videoForm.pushType"
+          :active-value="1"
+          :inactive-value="2"
+        />
       </el-form-item>
       <el-form-item v-if="checkVisible('streamTransProtocol')" prop="streamTransProtocol">
         <template slot="label">
@@ -137,7 +196,7 @@
           @changevssaiapps="changeVSSAIApps"
         />
       </el-form-item>
-      <div class="show-more" :class="{'show-more--expanded': showMore}">
+      <div v-if="checkVisible('showMore')" class="show-more" :class="{'show-more--expanded': showMore}">
         <el-form-item>
           <el-button class="show-more--btn" type="text" @click="showMore = !showMore">更多<i class="el-icon-arrow-down" /></el-button>
         </el-form-item>
@@ -166,6 +225,9 @@
           <el-form-item v-if="checkVisible('deviceModel')" label="设备型号:" prop="deviceModel">
             <el-input v-model="videoForm.deviceModel" />
           </el-form-item>
+          <el-form-item v-if="checkVisible('tags')" label="视频标签:" prop="description">
+            <tags v-model="videoForm.tags" class="tags" />
+          </el-form-item>
         </div>
       </div>
     </el-form>
@@ -178,18 +240,24 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
+<<<<<<< HEAD
 import { InVideoProtocol, EhomeVersion, MultiStreamSize, AutoStreamNum } from '../dicts/index'
+=======
+import { VideoInProtocolType, EhomeVersion, InType, MultiStreamSize, AutoStreamNum } from '../dicts/index'
+>>>>>>> fe0c60757a05189ba0156caff4548fdfdbb467be
 import { DeviceTips } from '../dicts/tips'
-import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
-import ResourceTabs from './ResourceTabs.vue'
 import { getList as getGbList } from '@/api/certificate/gb28181'
 import { validGbId } from '../api/device'
-import { checkVisible } from '../utils/param'
+import { checkVideoVisible } from '../utils/param'
+import CreateGb28181Certificate from '@/views/certificate/gb28181/components/CreateDialog.vue'
+import ResourceTabs from './ResourceTabs.vue'
+import Tags from './Tags.vue'
 
 @Component({
   name: 'VideoCreateForm',
   components: {
     CreateGb28181Certificate,
+    Tags,
     ResourceTabs
   }
 })
@@ -199,7 +267,12 @@ export default class extends Vue {
 
   private tips = DeviceTips
   private ehomeVersion = EhomeVersion
+<<<<<<< HEAD
   private InVideoProtocol = InVideoProtocol
+=======
+  private inType = InType
+  private videoInProtocolType = VideoInProtocolType
+>>>>>>> fe0c60757a05189ba0156caff4548fdfdbb467be
   private multiStreamSize = MultiStreamSize
   private autoStreamNum = AutoStreamNum
   private minChannelSize = 1
@@ -209,10 +282,20 @@ export default class extends Vue {
     inVersion: '2.0',
     deviceChannelSize: 1,
     inUserName: '',
+    inType: 'pull',
+    pullUrl: '',
+    userName: '',
+    password: '',
+    enableDomain: 2,
+    deviceDomain: '',
+    deviceIpRequired: '',
+    devicePortRequired: '',
     deviceStreamSize: 1,
     deviceStreamAutoPull: 1,
     deviceStreamPullIndex: 1,
+    pushType: 1,
     streamTransProtocol: 'tcp',
+    tags: '',
     resources: [],
     vssAIApps: [],
     aIApps: [],
@@ -233,6 +316,27 @@ export default class extends Vue {
     ],
     inUserName: [
       { required: true, message: '请选择账号', trigger: 'change' }
+    ],
+    pullUrl: [
+      { required: true, message: '请输入自定义设备拉流地址', trigger: 'blur' }
+    ],
+    userName: [
+      { required: true, message: '请输入用户名', trigger: 'blur' }
+    ],
+    password: [
+      { required: true, message: '请输入密码', trigger: 'blur' }
+    ],
+    deviceDomain: [
+      { required: true, message: '请输入设备域名', trigger: 'blur' },
+      { validator: this.validateDeviceDomain, trigger: 'blur' }
+    ],
+    deviceIpRequired: [
+      { required: true, message: '请输入设备IP', trigger: 'blur' },
+      { validator: this.validateDeviceIp, trigger: 'blur' }
+    ],
+    devicePortRequired: [
+      { required: true, message: '请输入设备端口', trigger: 'blur' },
+      { validator: this.validateDevicePort, trigger: 'change' }
     ],
     resources: [
       { required: true, validator: this.validateResources, trigger: 'blur' }
@@ -262,16 +366,12 @@ export default class extends Vue {
   private dialog = {
     createGb28181Certificate: false
   }
-
   private mounted() {
     this.getGbAccounts()
   }
 
-  /**
-   * form-item显示判断
-   */
   private checkVisible(prop) {
-    return checkVisible(this.deviceForm.deviceType, this.videoForm.inVideoProtocol, prop)
+    return checkVideoVisible.call(this.videoForm, this.deviceForm.deviceType, this.videoForm.inVideoProtocol, prop)
   }
 
   /**
@@ -346,6 +446,17 @@ export default class extends Vue {
       this.videoForm.aIApps = res
     }
     this.videoForm.vssAIApps = res
+  }
+
+  /*
+   * 校验设备Domain格式
+   */
+  public validateDeviceDomain(rule: any, value: string, callback: Function) {
+    if (value && !/^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+\.?$/.test(value)) {
+      callback(new Error('设备域名格式不正确。正确域名格式例如: www.domain.com'))
+    } else {
+      callback()
+    }
   }
 
   /**

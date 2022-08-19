@@ -11,6 +11,7 @@ export const InVideoProtocolAllowParams = {
     'resources',
     'deviceChannelSize',
     'onlineChannels',
+    'showMore',
     'deviceIp',
     'devicePort',
     'outId',
@@ -32,20 +33,42 @@ export const InVideoProtocolAllowParams = {
     'deviceStreamPullIndex',
     'streamTransProtocol',
     'resources',
+    'showMore',
     'deviceIp',
     'devicePort',
     'deviceMac',
     'ehomeSipInfo'
   ]),
   [InVideoProtocol.Rtsp]: new Set([
+    'deviceChannelSize',
+    'inType',
+    'pullUrl',
+    'userName',
+    'password',
+    'enableDomain',
+    'deviceDomain',
+    'deviceIpRequired',
+    'devicePortRequired',
+    'deviceStreamAutoPull',
+    'deviceStreamPullIndex',
+    'pushType',
+    'streamTransProtocol',
+    'resources',
     'deviceIp',
     'devicePort',
-    'deviceStreamAutoPull',
     'deviceStreamSize',
-    'deviceStreamPullIndex',
     'transPriority'
   ]),
-  [InVideoProtocol.Rtmp]: new Set([])
+  [InVideoProtocol.Rtmp]: new Set([
+    'inType',
+    'onlyPullUrl',
+    'pullUrl',
+    'deviceStreamAutoPull',
+    'pushType',
+    'resources',
+    'showMore',
+    'tags'
+  ])
 }
 
 /**
