@@ -10,7 +10,7 @@
       <el-form-item label="接入协议:" prop="inVideoProtocol">
         <el-radio v-for="(value, key) in videoInProtocolType" :key="key" v-model="videoForm.inVideoProtocol" :label="key">{{ value }}</el-radio>
       </el-form-item>
-      <el-form-item label="版本:" prop="inVersion">
+      <el-form-item v-if="checkVisible('inVersion')" label="版本:" prop="inVersion">
         <el-radio-group v-model="videoForm.inVersion">
           <el-radio-button
             v-for="(value, key) in ehomeVersion"
@@ -20,14 +20,14 @@
           />
         </el-radio-group>
       </el-form-item>
-      <el-form-item label="子设备数量:" prop="deviceChannelSize">
+      <el-form-item v-if="checkVisible('deviceChannelSize')" label="子设备数量:" prop="deviceChannelSize">
         <el-input-number
           v-model="videoForm.deviceChannelSize"
           :min="minChannelSize"
           type="number"
         />
       </el-form-item>
-      <el-form-item label="GB28181账号:" prop="inUserName">
+      <el-form-item v-if="checkVisible('inUserName')" label="GB28181账号:" prop="inUserName">
         <el-select v-model="videoForm.inUserName" :loading="loading.account">
           <el-option
             v-for="item in gbAccountList"
@@ -44,7 +44,7 @@
           新建GB28181凭证
         </el-button>
       </el-form-item>
-      <el-form-item label="主子码流数量:" prop="deviceStreamSize">
+      <el-form-item v-if="checkVisible('deviceStreamSize')" label="主子码流数量:" prop="deviceStreamSize">
         <template slot="label">
           主子码流数量:
           <el-popover
@@ -72,7 +72,7 @@
           {{ value }}
         </el-radio>
       </el-form-item>
-      <el-form-item prop="deviceStreamAutoPull">
+      <el-form-item v-if="checkVisible('deviceStreamAutoPull')" prop="deviceStreamAutoPull">
         <template slot="label">
           自动拉流:
           <el-popover
@@ -93,9 +93,9 @@
         />
       </el-form-item>
       <el-form-item
-        v-if="videoForm.deviceStreamAutoPull === 1"
+        v-if="videoForm.deviceStreamAutoPull === 1 && checkVisible('deviceStreamPullIndex')"
         label="自动拉取码流:"
-        prop="autoStreamNum"
+        prop="deviceStreamPullIndex"
       >
         <el-radio
           v-for="(value, key) in autoStreamNum"
@@ -107,7 +107,7 @@
           {{ value }}
         </el-radio>
       </el-form-item>
-      <el-form-item prop="streamTransProtocol">
+      <el-form-item v-if="checkVisible('streamTransProtocol')" prop="streamTransProtocol">
         <template slot="label">
           优先TCP传输:
           <el-popover
@@ -127,7 +127,7 @@
           inactive-value="udp"
         />
       </el-form-item>
-      <el-form-item label="配置资源包:" prop="resources">
+      <el-form-item v-if="checkVisible('resources')" label="配置资源包:" prop="resources">
         <resource-tabs
           v-model="videoForm.resources"
           :is-private-in-network="deviceForm.inNetworkType === 'private'"
@@ -142,32 +142,28 @@
           <el-button class="show-more--btn" type="text" @click="showMore = !showMore">更多<i class="el-icon-arrow-down" /></el-button>
         </el-form-item>
         <div class="show-more--form">
-          <el-form-item label="设备IP:" prop="deviceIp">
+          <el-form-item v-if="checkVisible('deviceIp')" label="设备IP:" prop="deviceIp">
             <el-input v-model="videoForm.deviceIp" />
           </el-form-item>
-          <el-form-item label="设备端口:" prop="devicePort">
+          <el-form-item v-if="checkVisible('devicePort')" label="设备端口:" prop="devicePort">
             <el-input v-model="videoForm.devicePort" />
           </el-form-item>
-          <el-form-item label="自定义国标ID:" prop="outId">
+          <el-form-item v-if="checkVisible('outId')" label="自定义国标ID:" prop="outId">
             <el-input v-model="videoForm.outId" />
             <div class="form-tip">
               用户可自行录入规范国标ID，未录入该项，平台会自动生成规范国标ID。
             </div>
           </el-form-item>
-          <el-form-item
-            v-if="deviceForm.deviceType !== 'nvr'"
-            label="杆号:"
-            prop="devicePoleId"
-          >
+          <el-form-item v-if="checkVisible('devicePoleId')" label="杆号:" prop="devicePoleId">
             <el-input v-model="videoForm.devicePoleId " />
           </el-form-item>
-          <el-form-item label="设备MAC地址:" prop="deviceMac">
+          <el-form-item v-if="checkVisible('deviceMac')" label="设备MAC地址:" prop="deviceMac">
             <el-input v-model="videoForm.deviceMac" />
           </el-form-item>
-          <el-form-item label="设备SN码:" prop="deviceSerialNumber">
+          <el-form-item v-if="checkVisible('deviceSerialNumber')" label="设备SN码:" prop="deviceSerialNumber">
             <el-input v-model="videoForm.deviceSerialNumber" />
           </el-form-item>
-          <el-form-item label="设备型号:" prop="deviceModel">
+          <el-form-item v-if="checkVisible('deviceModel')" label="设备型号:" prop="deviceModel">
             <el-input v-model="videoForm.deviceModel" />
           </el-form-item>
         </div>
@@ -188,6 +184,7 @@ import CreateGb28181Certificate from '@/views/certificate/gb28181/components/Cre
 import ResourceTabs from './ResourceTabs.vue'
 import { getList as getGbList } from '@/api/certificate/gb28181'
 import { validGbId } from '../api/device'
+import { checkVisible } from '../utils/param'
 
 @Component({
   name: 'VideoCreateForm',
@@ -268,6 +265,13 @@ export default class extends Vue {
 
   private mounted() {
     this.getGbAccounts()
+  }
+
+  /**
+   * form-item显示判断
+   */
+  private checkVisible(prop) {
+    return checkVisible(this.deviceForm.deviceType, this.videoForm.inVideoProtocol, prop)
   }
 
   /**

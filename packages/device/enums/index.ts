@@ -11,7 +11,8 @@ export enum DeviceInType {
  */
 export enum DeviceType {
   Ipc = 'ipc',
-  Nvr = 'nvr'
+  Nvr = 'nvr',
+  Platform = 'platform'
 }
 
 /**
@@ -20,7 +21,6 @@ export enum DeviceType {
 export enum VideoInProtocolType {
   Gb28181 = 'gb28181',
   Rtmp = 'rtmp',
-  Onvif = 'onvif',
   Rtsp = 'rtsp',
   Ehome = 'ehome'
 }
