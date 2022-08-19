@@ -10,6 +10,7 @@ export const videoInProtocolTypeAllowParams = {
     'inUserName',
     'deviceStreamAutoPull',
     'resources',
+    'showMore',
     'deviceIp',
     'devicePort',
     'outId',
@@ -26,12 +27,38 @@ export const videoInProtocolTypeAllowParams = {
     'deviceStreamPullIndex',
     'streamTransProtocol',
     'resources',
+    'showMore',
     'deviceIp',
     'devicePort',
     'deviceMac'
   ]),
-  [VideoInProtocolType.Rtsp]: new Set([]),
-  [VideoInProtocolType.Rtmp]: new Set([])
+  [VideoInProtocolType.Rtsp]: new Set([
+    'deviceChannelSize',
+    'inType',
+    'pullUrl',
+    'userName',
+    'password',
+    'enableDomain',
+    'deviceDomain',
+    'deviceIpRequired',
+    'devicePortRequired',
+    'deviceStreamSize',
+    'deviceStreamAutoPull',
+    'deviceStreamPullIndex',
+    'pushType',
+    'streamTransProtocol',
+    'resources'
+  ]),
+  [VideoInProtocolType.Rtmp]: new Set([
+    'inType',
+    'onlyPullUrl',
+    'pullUrl',
+    'deviceStreamAutoPull',
+    'pushType',
+    'resources',
+    'showMore',
+    'tags'
+  ])
 }
 
 /**

@@ -407,15 +407,12 @@
         }
       }
 
-      .el-input:not(.el-input-number > .el-input),
+      .el-input:not(.el-input-number > .el-input, .longlat-input),
       .el-select,
       .el-textarea,
-      .el-cascader {
+      .el-cascader,
+      .tags {
         width: 420px;
-      }
-
-      .el-input-mumber {
-        width: 210px;
       }
 
       .in-protocol {
