@@ -74,6 +74,8 @@ export const parseMetaData = (type: string, metaData: any) => {
 
     case '29':// 垃圾站
     case '10026':// 垃圾站
+    case '35':// 标准工作服检测
+    case '10035':// 标准工作服检测
       locations = metaData.Data && metaData.Data.Boxes.map((box: any) => {
         try {
           let label
@@ -92,6 +94,9 @@ export const parseMetaData = (type: string, metaData: any) => {
               break
             case 'Bear':
               label = '狗熊'
+              break
+            default:
+              label = box.Label
               break
           }
           return {
