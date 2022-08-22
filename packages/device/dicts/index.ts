@@ -25,9 +25,22 @@ export const EhomeVersion = {
   设备类型
 */
 export const DeviceType = {
-  'ipc': 'IPC',
-  'nvr': 'NVR',
-  'platform': 'Platform'
+  [enums.VideoInProtocolType.Gb28181]: {
+    'ipc': 'IPC',
+    'nvr': 'NVR',
+    'platform': 'Platform'
+  },
+  [enums.VideoInProtocolType.Ehome]: {
+    'ipc': 'IPC',
+    'nvr': 'NVR'
+  },
+  [enums.VideoInProtocolType.Rtsp]: {
+    'ipc': 'IPC',
+    'nvr': 'NVR'
+  },
+  [enums.VideoInProtocolType.Rtmp]: {
+    'ipc': 'IPC'
+  }
 }
 
 /*
@@ -134,9 +147,18 @@ export const ApeType = {
  * 接入方式
  */
 export const DeviceInType = {
-  'video': '视频',
-  'viid': '视图',
-  'videoAndViid': '视频、视图'
+  [enums.DeviceType.Ipc]: {
+    [enums.DeviceInType.Video]: '视频',
+    [enums.DeviceInType.Viid]: '视图',
+    [enums.DeviceInType.VideoAndViid]: '视频、视图'
+  },
+  [enums.DeviceType.Nvr]: {
+    [enums.DeviceInType.Video]: '视频',
+    [enums.DeviceInType.Viid]: '视图'
+  },
+  [enums.DeviceType.Platform]: {
+    [enums.DeviceInType.Video]: '视频'
+  }
 }
 
 /**

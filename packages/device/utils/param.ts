@@ -2,7 +2,7 @@ import { videoInProtocolTypeAllowParams, deviceTypeDenyParams } from '../setting
 
 export const checkVisible = (deviceType, inVideoProtocol, prop) => {
   return videoInProtocolTypeAllowParams[inVideoProtocol].has(prop) &&
-          !deviceTypeDenyParams[deviceType].has(prop)
+        (deviceTypeDenyParams[deviceType] && !deviceTypeDenyParams[deviceType].has(prop))
 }
 
 /**

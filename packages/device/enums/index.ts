@@ -3,7 +3,8 @@
  */
 export enum DeviceInType {
   Video = 'video',
-  Viid = 'viid'
+  Viid = 'viid',
+  VideoAndViid = 'videoAndViid'
 }
 
 /**

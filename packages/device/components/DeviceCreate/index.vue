@@ -30,9 +30,10 @@
               <el-select
                 v-model="deviceForm.deviceType"
                 placeholder="请选择"
+                @change="deviceTypeChange"
               >
                 <el-option
-                  v-for="(value, key) in deviceType"
+                  v-for="(value, key) in deviceType[inVideoProtocol]"
                   :key="key"
                   :label="value"
                   :value="key"
@@ -40,7 +41,14 @@
               </el-select>
             </el-form-item>
             <el-form-item label="接入类型:" prop="deviceInType">
-              <el-radio v-for="(value, key) in deviceInType" :key="key" v-model="deviceForm.deviceInType" :label="key">{{ value }}</el-radio>
+              <el-radio
+                v-for="(value, key) in deviceInType[deviceForm.deviceType]"
+                :key="key"
+                v-model="deviceForm.deviceInType"
+                :label="key"
+              >
+                {{ value }}
+              </el-radio>
             </el-form-item>
             <el-form-item prop="inNetworkType">
               <template slot="label">
@@ -78,13 +86,20 @@
                 <el-radio label="private">专线网络</el-radio>
               </el-radio-group>
             </el-form-item>
-            <div v-if="deviceForm.deviceInType !== 'viid'">
+            <div v-show="deviceForm.deviceInType !== deviceInTypeEnum.Viid">
               <div class="form-title">视频接入信息</div>
-              <video-create-form ref="videoForm" :device-form="deviceForm" />
+              <video-create-form
+                ref="videoForm"
+                :device-form="deviceForm"
+                @inVideoProtocolChange="inVideoProtocolChange"
+              />
             </div>
-            <div v-if="deviceForm.deviceInType !== 'video'">
+            <div v-show="deviceForm.deviceInType !== deviceInTypeEnum.Video">
               <div class="form-title">视图接入信息</div>
-              <viid-create-form ref="viidForm" />
+              <viid-create-form
+                ref="viidForm"
+                :device-form="deviceForm"
+              />
             </div>
           </div>
           <div v-show="activeStep === 1">
@@ -187,6 +202,7 @@ import AddressCascader from '../AddressCascader.vue'
 import VideoCreateForm from '../VideoCreateForm.vue'
 import ViidCreateForm from '../ViidCreateForm.vue'
 import { DeviceTips } from '../../dicts/tips'
+import { VideoInProtocolType, DeviceType as DeviceTypeEnum, DeviceInType as DeviceInTypeEnum } from '../../enums/index'
 import { createDevice, updateDevice, getDevice, validGbId, createViewLib, getViewLibInfo, updateViewLib } from '../../api/device'
 
 @Component({
@@ -199,13 +215,16 @@ import { createDevice, updateDevice, getDevice, validGbId, createViewLib, getVie
 })
 export default class extends Vue {
   private tips = DeviceTips
+  private deviceTypeEnum = DeviceTypeEnum
   private deviceType = DeviceType
+  private deviceInTypeEnum = DeviceInTypeEnum
   private deviceInType = DeviceInType
   private deviceVendor = DeviceVendor
   private industryMap = IndustryMap
   private networkMap = NetworkMap
   private breadCrumbContent = '添加设备'
   private activeStep: number = 0
+  private inVideoProtocol: string = VideoInProtocolType.Gb28181
   private deviceForm = {
     // step0
     deviceName: '',
@@ -283,6 +302,21 @@ export default class extends Vue {
   }
 
   /**
+   * 设备类型变化
+   */
+  private deviceTypeChange() {
+    this.deviceForm.deviceInType = this.deviceInTypeEnum.Video
+  }
+
+  /**
+   * 视频接入协议变化
+   */
+  private inVideoProtocolChange(val) {
+    this.deviceForm.deviceType = this.deviceTypeEnum.Ipc
+    this.inVideoProtocol = val
+  }
+
+  /**
    * 选择设备地址
    */
   public onDeviceAddressChange(region: DeviceAddress) {
@@ -322,13 +356,13 @@ export default class extends Vue {
       })
       // 校验videoForm
       const videoForm: any = this.$refs.videoForm
-      if (videoForm) {
+      if (this.deviceForm.deviceInType !== this.deviceInTypeEnum.Viid) {
         validFlag = videoForm.validateVideoForm() && validFlag
         this.videoForm = videoForm.videoForm
       }
       // 校验viidForm
       const viidForm: any = this.$refs.viidForm
-      if (viidForm) {
+      if (this.deviceForm.deviceInType !== this.deviceInTypeEnum.Video) {
         validFlag = viidForm.validateViidForm() && validFlag
         this.viidForm = viidForm.viidForm
       }

@@ -8,7 +8,15 @@
       label-width="135px"
     >
       <el-form-item label="接入协议:" prop="inVideoProtocol">
-        <el-radio v-for="(value, key) in videoInProtocolType" :key="key" v-model="videoForm.inVideoProtocol" :label="key">{{ value }}</el-radio>
+        <el-radio
+          v-for="(value, key) in videoInProtocolType"
+          :key="key"
+          v-model="videoForm.inVideoProtocol"
+          :label="key"
+          @change="inVideoProtocolChange"
+        >
+          {{ value }}
+        </el-radio>
       </el-form-item>
       <el-form-item v-if="checkVisible('inVersion')" label="版本:" prop="inVersion">
         <el-radio-group v-model="videoForm.inVersion">
@@ -412,6 +420,13 @@ export default class extends Vue {
     if (type === 'createGb28181Certificate' && payload === true) {
       this.getGbAccounts()
     }
+  }
+
+  /**
+   * 视频接入协议变化
+   */
+  private inVideoProtocolChange(val) {
+    this.$emit('inVideoProtocolChange', val)
   }
 
   /**
