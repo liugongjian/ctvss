@@ -341,7 +341,15 @@ export default class extends Mixins(AppMixin) {
       }
     } else { // 新建
       const algorithmMetadata = this.ifShow('10021') ? { pvTime: '10' } : this.form.algorithmMetadata
-      this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [], validateType: '无验证', confidence: 60, beeNumber: 1 }
+      this.form = {
+        algoName: this.prod.name,
+        algorithmMetadata,
+        availableperiod: [],
+        validateType: '无验证',
+        confidence: 60,
+        beeNumber: 1,
+        alertTriggerThreshold: '1'
+      }
     }
     try {
       // const { groups } = await getAIConfigGroupData({})
@@ -436,7 +444,7 @@ export default class extends Mixins(AppMixin) {
       callbackKey: this.form.validateType === '无验证' ? '' : this.form.callbackKey,
       algorithmMetadata: JSON.stringify(algorithmMetadata),
       confidence: this.form.confidence / 100,
-      alertTriggerThreshold: this.alertDisabled ? this.form.alertTriggerThreshold : '0',
+      alertTriggerThreshold: this.alertDisabled ? this.form.alertTriggerThreshold : '1',
       alertPeriod: this.alertDisabled ? (this.interval.alertPeriod === 's' ? this.form.alertPeriod : this.interval.alertPeriod === 'm' ? +this.form.alertPeriod * 60 : +this.form.alertPeriod * 60 * 60).toString() : '0',
       alertSilencePeriod: this.alertDisabled ? (this.interval.alertSilencePeriod === 's' ? this.form.alertSilencePeriod : this.interval.alertSilencePeriod === 'm' ? +this.form.alertSilencePeriod * 60 : +this.form.alertSilencePeriod * 60 * 60).toString() : '0'
     }
