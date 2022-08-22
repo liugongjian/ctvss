@@ -11,7 +11,7 @@
       <AlgoOption :step.sync="step" :prod.sync="prod" direction="next" />
     </div>
     <div v-if="step === 1">
-      <AlgoDetail :step.sync="step" :prod.sync="prod" :is-select-device="true" />
+      <AlgoDetail :step.sync="step" :prod.sync="prod" :is-select-device="true" :algo-param="algoParam" />
     </div>
     <div v-if="step === 2">
       <AlgoDevice :step.sync="step" :prod.sync="prod" />
@@ -38,6 +38,7 @@ export default class extends Mixins(AppMixin) {
   private step: number = 0
   private prod: any = {}// 新建时传入组件的参数
   private isLoading: boolean = false
+  private algoParam: any = null
   private get header() {
     return this.$route.query.id ? '编辑' : '创建'
   }

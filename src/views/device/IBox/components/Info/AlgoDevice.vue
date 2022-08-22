@@ -12,7 +12,7 @@
       show-checkbox
       :data="iboxDevice"
       :props="treeProp"
-      @check="checkCallback"
+      @check-change="checkCallback"
     >
       <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}">
         <span class="node-name">
@@ -216,8 +216,9 @@ export default class extends Mixins(AppMixin) {
     this.$emit('update:step', -1)
   }
 
-  private checkCallback(data) {
-    console.log(data)
+  private checkCallback(data, ischecked) {
+    console.log('data:', data)
+    console.log('ischecked:', ischecked)
     this.canvasDialog = true
   }
 

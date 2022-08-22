@@ -359,8 +359,16 @@ export default class extends Mixins(AppMixin) {
   }
 
   private changeStepNext() {
-    this.$emit('update:step', this.step + 1)
-    this.$emit('update:prod', this.prod)
+    const form: any = this.$refs.appForm
+    form.validate(async(valid: any) => {
+      if (valid) {
+        let param = this.generateAlgoParam()
+        param = { ...param, algorithmsId: this.prod.id }
+        this.$emit('update:step', this.step + 1)
+        this.$emit('update:prod', this.prod)
+        this.$emit('update:algoPram', param)
+      }
+    })
   }
 
   /**
@@ -386,6 +394,27 @@ export default class extends Mixins(AppMixin) {
    * 提交
    */
   private async submitValidAppInfo() {
+    let param = this.generateAlgoParam()
+    try {
+      if (this.$route.query.id) {
+        // 如果有关联的设备则不能传analyseType参数
+        if (parseInt(param.associateDevices) > 0) {
+          delete param.analyseType
+        }
+        await updateAppInfo(param)
+      } else {
+        // 新建时带上算法ID
+        param = { ...param, algorithmsId: this.prod.id }
+        await createApp(param)
+      }
+      this.$message.success(`${this.$route.query.id ? '修改' : '新建'}应用成功`)
+      this.backToAppList()
+    } catch (e) {
+      this.$alertError(e && e.message)
+    }
+  }
+
+  private generateAlgoParam() {
     this.generateEffectiveTime()
     let algorithmMetadata = this.form.algorithmMetadata
     Object.keys(algorithmMetadata).forEach(key => algorithmMetadata[key] === '' && delete algorithmMetadata[key])
@@ -404,23 +433,8 @@ export default class extends Mixins(AppMixin) {
     if (this.form.algorithm?.code === '10010' || this.prod?.code === '10010') {
       param.confidence = this.form.beeNumber
     }
-    try {
-      if (this.$route.query.id) {
-        // 如果有关联的设备则不能传analyseType参数
-        if (parseInt(param.associateDevices) > 0) {
-          delete param.analyseType
-        }
-        await updateAppInfo(param)
-      } else {
-        // 新建时带上算法ID
-        param = { ...param, algorithmsId: this.prod.id }
-        await createApp(param)
-      }
-      this.$message.success(`${this.$route.query.id ? '修改' : '新建'}应用成功`)
-      this.backToAppList()
-    } catch (e) {
-      this.$alertError(e && e.message)
-    }
+
+    return param
   }
   /**
    * 增加生效时间段选项

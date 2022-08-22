@@ -35,6 +35,7 @@ export default class extends Vue {
 .el-card {
   ::v-deep .el-card__body {
     height: 100%;
+    padding: 20px;
   }
 
   .pic-wrapper {
