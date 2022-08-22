@@ -4,6 +4,7 @@ import { GroupModule } from '@/store/modules/group'
 import { getDeviceTree } from '@/api/device'
 import { VGroupModule } from '@/store/modules/vgroup'
 import { setDirsStreamStatus } from '@/utils/device'
+// @ts-ignore
 import { AdvancedSearch } from '@/type/advancedSearch'
 
 @Component
