@@ -1,10 +1,11 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { DeviceModule } from '@vss/device/store/modules/device'
+import { Device } from '@vss/device/type/Device'
 
 @Component
 export default class DetailMixin extends Vue {
   // 设备详情
-  public device = null
+  public device: Device = null
   // 设备详情加载状态
   public deviceLoading = false
 

@@ -9,12 +9,15 @@
     <el-descriptions-item label="所属行业">{{ industry.industryName || '-' }}</el-descriptions-item>
     <el-descriptions-item label="设备地址">缺失</el-descriptions-item>
     <el-descriptions-item label="设备厂商">{{ basicInfo.deviceVendor || '-' }}</el-descriptions-item>
+    <el-descriptions-item label="设备IP">{{ basicInfo.deviceIp }}</el-descriptions-item>
+    <el-descriptions-item label="设备端口">{{ basicInfo.devicePort }}</el-descriptions-item>
   </el-descriptions>
 </template>
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import dicts from '@vss/device/dicts'
+import { Device } from '@vss/device/type/Device'
 
 @Component({
   name: 'BasicInfo',
@@ -23,7 +26,7 @@ import dicts from '@vss/device/dicts'
   }
 })
 export default class extends Vue {
-  @Prop() private device
+  @Prop() private device: Device
 
   private dicts = dicts
 
