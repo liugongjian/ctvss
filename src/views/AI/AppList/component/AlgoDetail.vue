@@ -336,6 +336,9 @@ export default class extends Mixins(AppMixin) {
         this.form.beeNumber = this.form.confidence / 100
         this.form = { ...this.form, confidence: 60 }
       }
+      if (this.form.alertPeriod > 0 || this.form.alertSilencePeriod > 0 || this.form.alertTriggerThreshold > 0) {
+        this.alertDisabled = true
+      }
     } else { // 新建
       const algorithmMetadata = this.ifShow('10021') ? { pvTime: '10' } : this.form.algorithmMetadata
       this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [], validateType: '无验证', confidence: 60, beeNumber: 1 }
