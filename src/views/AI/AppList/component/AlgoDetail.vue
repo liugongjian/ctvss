@@ -153,7 +153,7 @@
         <el-select v-model="form.algorithmMetadata.FaceDbName" placeholder="请选择人脸库" :loading="isfaceLibLoading">
           <el-option v-for="item in faceLibs" :key="item.id" :label="item.name" :value="item.id" />
         </el-select>
-        <i class="el-icon-refresh" @click="refreshFaceLib" />
+        <!-- <i class="el-icon-refresh" @click="refreshFaceLib" /> -->
         <el-button type="text" @click="goFaceLib">+新建人脸库</el-button>
       </el-form-item>
       <el-form-item v-if="ifShow('10005')" prop="algorithmMetadata.pedThreshold" label="人员数量阈值">
@@ -228,7 +228,7 @@
         />
       </el-form-item>
       <el-form-item v-if="alertDisabled" label="告警周期" prop="alertPeriod" class="inline-form-item">
-        <el-input v-model.number="form.alertPeriod" class="alarm" />
+        <el-input v-model="form.alertPeriod" class="alarm" />
       </el-form-item>
       <el-select v-if="alertDisabled" v-model="interval.alertPeriod" class="interval-unit">
         <el-option key="second" label="秒" value="s" />
@@ -237,12 +237,12 @@
       </el-select>
       <br>
       <el-form-item v-if="alertDisabled" label="告警数量阈值" prop="alertTriggerThreshold" class="inline-form-item">
-        <el-input v-model.number="form.alertTriggerThreshold" class="alarm" />
+        <el-input v-model="form.alertTriggerThreshold" class="alarm" />
       </el-form-item>
       <span v-if="alertDisabled" style="margin-left: 16px;">个</span>
       <br>
       <el-form-item v-if="alertDisabled" label="静默时间" prop="alertSilencePeriod" class="inline-form-item">
-        <el-input v-model.number="form.alertSilencePeriod" class="alarm" />
+        <el-input v-model="form.alertSilencePeriod" class="alarm" />
       </el-form-item>
       <el-select v-if="alertDisabled" v-model="interval.alertSilencePeriod" class="interval-unit">
         <el-option key="second" label="秒" value="s" />
@@ -341,8 +341,8 @@ export default class extends Mixins(AppMixin) {
       this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [], validateType: '无验证', confidence: 60, beeNumber: 1 }
     }
     try {
-      const { groups } = await getAIConfigGroupData({})
-      this.faceLibs = groups
+      // const { groups } = await getAIConfigGroupData({})
+      // this.faceLibs = groups
     } catch (e) {
       this.$alertError(e && e.message)
     }
@@ -433,8 +433,9 @@ export default class extends Mixins(AppMixin) {
       callbackKey: this.form.validateType === '无验证' ? '' : this.form.callbackKey,
       algorithmMetadata: JSON.stringify(algorithmMetadata),
       confidence: this.form.confidence / 100,
-      alertPeriod: this.interval.alertPeriod === 's' ? this.form.alertPeriod : this.interval.alertPeriod === 'm' ? this.form.alertPeriod * 60 : this.form.alertPeriod * 60 * 60,
-      alertSilencePeriod: this.interval.alertSilencePeriod === 's' ? this.form.alertSilencePeriod : this.interval.alertSilencePeriod === 'm' ? this.form.alertSilencePeriod * 60 : this.form.alertSilencePeriod * 60 * 60
+      alertTriggerThreshold: this.alertDisabled ? this.form.alertTriggerThreshold : '0',
+      alertPeriod: this.alertDisabled ? (this.interval.alertPeriod === 's' ? this.form.alertPeriod : this.interval.alertPeriod === 'm' ? +this.form.alertPeriod * 60 : +this.form.alertPeriod * 60 * 60).toString() : '0',
+      alertSilencePeriod: this.alertDisabled ? (this.interval.alertSilencePeriod === 's' ? this.form.alertSilencePeriod : this.interval.alertSilencePeriod === 'm' ? +this.form.alertSilencePeriod * 60 : +this.form.alertSilencePeriod * 60 * 60).toString() : '0'
     }
 
     // 蜜蜂数量特殊处理
