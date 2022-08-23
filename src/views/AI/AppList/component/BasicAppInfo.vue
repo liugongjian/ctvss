@@ -54,12 +54,13 @@ export default class extends Mixins(AppMixin) {
   private resourceAiType: any = ResourceAiType
 
   private get isFaceAlgoCode() {
-    return this.app.algorithm.code === '10001'
+    return ['10001', '10034'].includes(this.app.algorithm.code)
   }
 
   public created() {
     this.app = this.appInfo
   }
+
   /**
    * 刷新数据
    */

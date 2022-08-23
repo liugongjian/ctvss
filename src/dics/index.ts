@@ -204,7 +204,9 @@ export const AlertType: any = {
   30: '视野遮挡检测',
   31: '跌倒检测',
   33: '动物检测',
-  35: '标准工作服检测'
+  34: '人脸识别v2',
+  35: '标准工作服检测',
+  36: '河道垃圾检测'
 }
 
 export const AiMaskType: any = {

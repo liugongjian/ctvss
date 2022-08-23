@@ -96,6 +96,7 @@ import { getAttachedDevice, getAiAlarm } from '@/api/ai-app'
 import { startAppResource, stopAppResource, unBindAppResource } from '@/api/device'
 import AppMixin from '../../mixin/app-mixin'
 import { GroupModule } from '@/store/modules/group'
+import { getGroups } from '@/api/group'
 
 @Component({
   name: 'AtachedDevice',
@@ -110,6 +111,7 @@ export default class extends Mixins(AppMixin) {
   private loading = false
   private devices: any = []
   private totalAlarm = 0
+  private groups = []
 
   @Watch('period.periodType')
   private periodTypeUpdated(newVal) {
@@ -127,12 +129,19 @@ export default class extends Mixins(AppMixin) {
   }
 
   private async mounted() {
+    this.loading = true
+    await this.getGroupsList()
     await this.getAttachedDevice()
     this.getAlarms()
+    this.loading = false
+  }
+
+  private async getGroupsList() {
+    const { groups } = await getGroups({ pageNum: 1, pageSize: 1000 })
+    this.groups = groups
   }
 
   private async getAttachedDevice() {
-    this.loading = true
     const { deviceList, pageNum, pageSize, totalNum } = await getAttachedDevice({
       appId: this.$route.query.appid,
       pageNum: this.pager.pageNum,
@@ -142,7 +151,6 @@ export default class extends Mixins(AppMixin) {
     this.pager.pageNum = pageNum
     this.pager.pageSize = pageSize
     this.pager.totalNum = totalNum
-    this.loading = false
   }
   /**
    * 启停用应用
@@ -213,8 +221,10 @@ export default class extends Mixins(AppMixin) {
     })
   }
   private rowClick(row: any) {
-    const curGroup = GroupModule.groups.filter(group => group.groupId === row.groupId)
-    GroupModule.SetGroup(curGroup[0])
+    const curGroupIndex = this.groups.findIndex(group => group.groupId === row.groupId)
+    GroupModule.SetGroupList(this.groups)
+    GroupModule.SetGroupListIndex(Math.ceil(this.groups.length / 20))
+    GroupModule.SetGroup(this.groups[curGroupIndex])
     this.$router.push({
       name: 'device-detail',
       query: {

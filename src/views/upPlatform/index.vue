@@ -601,7 +601,8 @@ export default class extends Vue {
         // platformId: this.currentPlatform.platformId
         dirId: node.data.dirId,
         inProtocol: node.data.inProtocol,
-        platformId: this.currentPlatform.platformId
+        platformId: this.currentPlatform.platformId,
+        pageSize: 1000
       })
 
       const dirs = res.dirs.map((dir: any) => {

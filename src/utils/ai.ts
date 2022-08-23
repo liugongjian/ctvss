@@ -72,6 +72,33 @@ export const parseMetaData = (type: string, metaData: any) => {
       }
       break
 
+    case '34':
+    case '10034':
+      locations = metaData && metaData.map((person: any) => {
+        try {
+          const rect = JSON.parse(person.FaceRectangles)
+          return {
+            top: rect[1],
+            left: rect[0],
+            width: rect[2],
+            height: rect[3],
+            isWarning: true,
+            score: person.Score && Math.round(person.Score * 100),
+            name: person.Name
+          }
+        } catch (error) {
+          console.log(error)
+        }
+      })
+      if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+        locations.push(
+          {
+            zone: metaData.DangerZoneBox
+          }
+        )
+      }
+      break
+
     case '29':// 垃圾站
     case '10026':// 垃圾站
     case '35':// 标准工作服检测
@@ -125,7 +152,6 @@ export const parseMetaData = (type: string, metaData: any) => {
       // eslint-disable-next-line no-case-declarations
       let counts = {}
       AnimalType.forEach(item => { counts[item.label] = 0 })
-      console.log('counts 1:', counts)
       locations = metaData.Data && metaData.Data.Boxes.map((box: any) => {
         try {
           if (box.Label && typeof counts[box.Label] !== 'undefined') {
