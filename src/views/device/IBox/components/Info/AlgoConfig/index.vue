@@ -16,7 +16,7 @@
         <div class="configureDetail">
           <span class="configureName">生效时段：</span>
           <span class="configureValue">
-            {{ configAlgoInfo.effectiveTime ? `${JSON.parse(configAlgoInfo.effectiveTime)[0].start_time} ~ ${JSON.parse(configAlgoInfo.effectiveTime)[0].end_time}` : '' }}
+            {{ configAlgoInfo.effectiveTime ? `${configAlgoInfo.effectiveTime[0].start_time} ~ ${configAlgoInfo.effectiveTime[0].end_time}` : '' }}
           </span>
         </div>
         <div class="configureDetail">
@@ -58,7 +58,6 @@ import math from './utils/math'
 import { getRectPropFromPoints,
   getVerticalLinePoints, drawArrow
 } from './utils/index'
-import { getAppDescribeLine } from '@/api/ai-app'
 import plate from './plate4.jpg'
 import { DRAW_MODES
 //   DRAW_MODES_TEXT
@@ -81,6 +80,7 @@ export default class extends Vue {
   @Prop() private canvasIf?: boolean
   @Prop() private configAlgoInfo?: any
   @Prop() private frameImage?: any
+  @Prop() private meta!: any
 
   private mode = ''
   private isDraw = false
@@ -105,11 +105,6 @@ export default class extends Vue {
 
   // 获取已编辑过的划线
   private getHasLine() {
-    const param = {
-      id: this.configAlgoInfo.id,
-      deviceId: this.deviceId
-    }
-
     // 一维数组变成二维数组 后续有时间优化此函数
     const oneToTwo = (arr: any) => {
       const len = arr.length
@@ -123,51 +118,49 @@ export default class extends Vue {
       return res
     }
 
-    getAppDescribeLine(param).then(res => {
-      if (res) {
-        const { algorithmMetadata } = res
-        const algorithmMetadataParse = algorithmMetadata ? JSON.parse(algorithmMetadata) : {}
-        const { DangerZone } = algorithmMetadataParse
-        // const DangerZoneParse = JSON.parse(DangerZone)
-        if (DangerZone) {
-          const DangerZoneParse = oneToTwo(DangerZone)
-          if (DangerZoneParse.length) {
-            this.cannotDraw = true
-            const shape = () => {
-              if (this.configAlgoInfo.algorithm.code === '10032') {
+    if (this.meta) {
+      console.log('this.meta:', this.meta)
+      console.log('this.configAlgoInfo:', this.configAlgoInfo)
+      const { algorithmMetadata } = this.meta
+      const algorithmMetadataParse = algorithmMetadata ? JSON.parse(algorithmMetadata) : {}
+      const { DangerZone } = algorithmMetadataParse
+      // const DangerZoneParse = JSON.parse(DangerZone)
+      if (DangerZone) {
+        const DangerZoneParse = oneToTwo(DangerZone)
+        if (DangerZoneParse.length) {
+          this.cannotDraw = true
+          const shape = () => {
+            if (this.configAlgoInfo.algorithm.code === '10032') {
+              return 'line'
+            } else {
+              if (DangerZoneParse.length === 2) {
                 return 'line'
-              } else {
-                if (DangerZoneParse.length === 2) {
-                  return 'line'
-                } else if (DangerZoneParse.length === 4) {
-                  return 'rect'
-                } else if (DangerZoneParse.length > 4) {
-                  return 'polygon'
-                }
+              } else if (DangerZoneParse.length === 4) {
+                return 'rect'
+              } else if (DangerZoneParse.length > 4) {
+                return 'polygon'
               }
             }
-            const perDangerZoneParse = DangerZoneParse.map((item: any) => {
-              const [x, y] = item
-              return [Math.floor(x / this.ratio * this.imageWidth / 100), Math.floor(y / this.ratio * this.imageHeight / 100)]
-            })
-
-            this.areas = [
-              {
-                shape: shape(),
-                points: perDangerZoneParse,
-                ratio: 1,
-                imageHeight: this.imageHeight,
-                imageWidth: this.imageWidth,
-                name: `area-${this.areas.length}`
-              }
-            ]
-            this.renderBeforeAreas()
           }
+          const perDangerZoneParse = DangerZoneParse.map((item: any) => {
+            const [x, y] = item
+            return [Math.floor(x / this.ratio * this.imageWidth / 100), Math.floor(y / this.ratio * this.imageHeight / 100)]
+          })
+
+          this.areas = [
+            {
+              shape: shape(),
+              points: perDangerZoneParse,
+              ratio: 1,
+              imageHeight: this.imageHeight,
+              imageWidth: this.imageWidth,
+              name: `area-${this.areas.length}`
+            }
+          ]
+          this.renderBeforeAreas()
         }
       }
-    }).catch(e => {
-      this.$message.error(e && e.message)
-    })
+    }
   }
 
   private initCanvas() {

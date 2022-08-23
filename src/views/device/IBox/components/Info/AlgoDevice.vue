@@ -7,7 +7,7 @@
     </el-radio-group>
     <el-tree
       v-if="isDevice"
-      ref="dirTree"
+      ref="deviceTree"
       node-key="deviceId"
       show-checkbox
       :data="iboxDevice"
@@ -20,11 +20,11 @@
           <svg-icon :name="data.deviceType || 'ipc'" width="15" height="15" />
           {{ node.data.deviceName }}
         </span>
-        <span>
+        <span v-if="!!data.meta" style="margin-left: 12px;">
           <el-button
             type="text"
             size="mini"
-            @click="() => append(data)">
+            @click="() => editMeta(data)">
             <svg-icon name="clipboard" width="15" height="15" />
           </el-button>
         </span>
@@ -41,6 +41,7 @@
       :canvas-if="canvasDialog"
       :config-algo-info="configAlgoInfo"
       :frame-image="frameImage"
+      :meta="meta"
       @add-meta="addMeta"
     />
   </div>
@@ -72,13 +73,14 @@ export default class extends Mixins(AppMixin) {
   }
 
   private deviceId = '1'
-  private configAlgoInfo = JSON.stringify(
+  private configAlgoInfo =
     {
       name: 'test',
       effectiveTime: [{ start_time: '0:0', end_time: '0:0' }],
-      algorithm: { code: '10031' }
+      algorithm: { code: '10031' },
+      id: '1'
     }
-  )
+  private dangerZone = null
   private frameImage = require('./AlgoConfig/plate4.jpg')
 
   private mounted() {
@@ -218,9 +220,9 @@ export default class extends Mixins(AppMixin) {
     }
     this.iboxDevice = data.devices.map(device => {
       if(device.deviceType === 'nvr'){
-        return {...device, disabled: true}
+        return {...device, disabled: true, meta: null }
       }
-      return device
+      return { ...device, meta: null }
     })
 
   }
@@ -230,8 +232,9 @@ export default class extends Mixins(AppMixin) {
   }
 
   private checkCallback(data, isChecked) {
-    if(isChecked){
+    if(isChecked && !data.meta){
       this.deviceId = data.deviceId
+      this.meta = null
       this.canvasDialog = true
     }
   }
@@ -241,11 +244,22 @@ export default class extends Mixins(AppMixin) {
   }
 
   private addMeta(meta){
-    console.log('meta:', meta)
+    const deviceTree: any = this.$refs.deviceTree
+    const algoMeta = JSON.parse(meta.algorithmMetadata)
+    if(algoMeta.DangerZone.length > 0){
+      const node = deviceTree.getNode(meta.deviceId)
+      this.$set(node.data, 'meta', meta)
+    }
+  }
+
+  private editMeta(data){
+    this.meta = data.meta
+    this.canvasDialog = true
   }
 
   public closeCanvasDialog() {
     this.canvasDialog = false
+    this.meta = null
   }
 
   private back() {

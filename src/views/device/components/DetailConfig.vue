@@ -569,7 +569,7 @@ export default class extends Vue {
      * 人车流量统计 code 10032 需要单独增加crossline 画线
      * 垃圾站  code  10026
      * 人员跌倒  code 10028
-     *  动物检测 code 10033
+     * 动物检测 code 10033
      */
     switch (rowCode) {
       case '10006':
