@@ -9,13 +9,6 @@ export const deviceMock = {
     description: '设备描述',
     deviceIp: '1.1.1.1',
     devicePort: '123',
-    deviceSerialNumber: '382393',
-    deviceModel: 'A1292',
-    deviceMac: '23882323',
-    devicePoleId: '123123',
-    deviceStreamAutoPull: 1,
-    deviceStreamSize: 3,
-    deviceStreamPullIndex: 1,
     deviceChannelSize: 5,
     deviceStats: {
       onlineChannels: 4
@@ -23,7 +16,7 @@ export const deviceMock = {
   },
   videos: [
     {
-      inVideoProtocol: 'ehome',
+      inVideoProtocol: 'rtsp',
       gB28181Device: {
         sipId: '31011500012008469596',
         sipIp: '1.1.1.1',
@@ -32,7 +25,12 @@ export const deviceMock = {
         outId: '123',
         inVersion: '2016',
         inUserName: 'abc',
-        transPriority: 'udp',
+        deviceSerialNumber: '382393',
+        deviceModel: 'A1292',
+        deviceMac: '23882323',
+        devicePoleId: '123123',
+        deviceStreamAutoPull: 1,
+        streamTransProtocol: 'udp',
         sipTransType: 'udp',
         errorMsg: '设备下线',
         deviceStatus: {
@@ -52,9 +50,39 @@ export const deviceMock = {
         outId: '123',
         inVersion: '2020',
         inUserName: 'abc',
-        transPriority: 'udp',
+        deviceStreamAutoPull: 1,
+        deviceStreamSize: 3,
+        deviceStreamPullIndex: 1,
+        streamTransProtocol: 'udp',
         sipTransType: 'udp',
         errorMsg: '设备下线',
+        deviceStatus: {
+          isOnline: 'on'
+        },
+        stream: {
+          streamStatus: 'on',
+          recordStatus: 1,
+          streamTransType: 'ps_rtp_udp',
+          bitrate: 12
+        }
+      },
+      rtspDevice: {
+        sipIp: '1.1.1.1',
+        sipTcpPort: '123',
+        sipUdpPort: '234',
+        outId: '123',
+        inVersion: '2020',
+        userName: 'abc',
+        streamTransProtocol: 'udp',
+        sipTransType: 'udp',
+        errorMsg: '设备下线',
+        inType: 'pull',
+        pullUrl: 'http://abc.com',
+        enableDomain: 1,
+        deviceDomain: 'http://www.domain.com',
+        deviceStreamAutoPull: 1,
+        deviceStreamSize: 3,
+        deviceStreamPullIndex: 1,
         deviceStatus: {
           isOnline: 'on'
         },
