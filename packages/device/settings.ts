@@ -1,7 +1,7 @@
-import { InVideoProtocol, DeviceType } from './enums'
+import { InVideoProtocol, InViidProtocol, DeviceType } from './enums'
 
 /**
- * 根据设备接入协议需要显示的字段
+ * 根据视频接入协议需要显示的字段
  * 注意下面是显示的字段(ALLOW)
  */
 export const InVideoProtocolAllowParams = {
@@ -81,10 +81,20 @@ export const InVideoProtocolAllowParams = {
 }
 
 /**
+ * 根据视频接入协议需要显示的字段
+ * 注意下面是显示的字段(ALLOW)
+ */
+export const InViidProtocolAllowParams = {
+  [InViidProtocol.Ga1400]: new Set([
+
+  ])
+}
+
+/**
  * 根据设备类型需要隐藏的字段
  * 注意下面是不显示的字段(DENY)
  */
-export const deviceTypeDenyParams = {
+export const DeviceTypeDenyParams = {
   [DeviceType.Ipc]: new Set([
     'deviceChannelSize',
     'onlineChannels'

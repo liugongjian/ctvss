@@ -142,7 +142,16 @@ interface Device {
   resource: Resource;
 }
 
+/**
+ * 设备地址
+ */
+interface DeviceAddress {
+  code: string;
+  level: string;
+}
+
 export {
+  DeviceAddress,
   VideoDevice,
   Device
 }

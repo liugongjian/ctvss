@@ -16,7 +16,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import StatusBadge from '@/components/StatusBadge/index.vue'
-import dicts from '@vss/device/dicts'
+import * as dicts from '@vss/device/dicts'
 import { Device } from '@vss/device/type/Device'
 
 @Component({

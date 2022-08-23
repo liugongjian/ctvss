@@ -253,7 +253,7 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { InVideoProtocol as InVideoProtocolEnum } from '../enums/index'
-import { InVideoProtocol, EhomeVersion, DeviceVendor, InType, MultiStreamSize, AutoStreamNum } from '../dicts/index'
+import { InVideoProtocolByDeviceType, EhomeVersion, DeviceVendor, InType, MultiStreamSize, AutoStreamNum } from '../dicts/index'
 import { DeviceTips } from '../dicts/tips'
 import { getList as getGbList } from '@/api/certificate/gb28181'
 import { validGbId } from '../api/device'
@@ -278,7 +278,7 @@ export default class extends Vue {
   private tips = DeviceTips
   private ehomeVersion = EhomeVersion
   private deviceVendor = DeviceVendor
-  private inVideoProtocol = InVideoProtocol
+  private inVideoProtocol = InVideoProtocolByDeviceType
   private inType = InType
   private multiStreamSize = MultiStreamSize
   private autoStreamNum = AutoStreamNum

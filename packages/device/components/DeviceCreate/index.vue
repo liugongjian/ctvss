@@ -208,7 +208,7 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import { DeviceType, DeviceInType, DeviceVendor, IndustryMap, NetworkMap } from '../../dicts/index'
+import { DeviceType, DeviceInTypeByDeviceType, DeviceVendor, IndustryMap, NetworkMap } from '../../dicts/index'
 import { DeviceAddress } from '../../type/Device'
 import { getRegions } from '../../api/region'
 import { checkVideoVisible } from '../../utils/param'
@@ -233,7 +233,7 @@ export default class extends Vue {
   private deviceInTypeEnum = DeviceInTypeEnum
   private inVideoProtocolEnum = InVideoProtocolEnum
   private deviceType = DeviceType
-  private deviceInType = DeviceInType
+  private deviceInType = DeviceInTypeByDeviceType
   private deviceVendor = DeviceVendor
   private industryMap = IndustryMap
   private networkMap = NetworkMap

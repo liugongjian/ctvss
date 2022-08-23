@@ -103,9 +103,9 @@ export const AutoStreamNum = {
 }
 
 /**
- * 视频接入协议
+ * 设备类型对应的视频接入协议
  */
-export const InVideoProtocol = {
+export const InVideoProtocolByDeviceType = {
   [enums.DeviceType.Ipc]: {
     [enums.InVideoProtocol.Gb28181]: 'GB28181',
     [enums.InVideoProtocol.Rtmp]: 'RTMP',
@@ -120,6 +120,16 @@ export const InVideoProtocol = {
   [enums.DeviceType.Platform]: {
     [enums.InVideoProtocol.Gb28181]: 'GB28181'
   }
+}
+
+/**
+ * 视频接入协议
+ */
+export const InVideoProtocol = {
+  [enums.InVideoProtocol.Gb28181]: 'GB28181',
+  [enums.InVideoProtocol.Rtmp]: 'RTMP',
+  [enums.InVideoProtocol.Rtsp]: 'RTSP',
+  [enums.InVideoProtocol.Ehome]: 'EHOME'
 }
 
 /**
@@ -171,9 +181,9 @@ export const ApeType = {
 }
 
 /**
- * 接入方式
+ * 根据设备类型对应的接入方式
  */
-export const DeviceInType = {
+export const DeviceInTypeByDeviceType = {
   [enums.DeviceType.Ipc]: {
     [enums.DeviceInType.Video]: '视频',
     [enums.DeviceInType.Viid]: '视图',
@@ -186,6 +196,15 @@ export const DeviceInType = {
   [enums.DeviceType.Platform]: {
     [enums.DeviceInType.Video]: '视频'
   }
+}
+
+/**
+ * 接入方式
+ */
+export const DeviceInType = {
+  [enums.DeviceInType.Video]: '视频',
+  [enums.DeviceInType.Viid]: '视图',
+  [enums.DeviceInType.VideoAndViid]: '视频、视图'
 }
 
 /**
@@ -255,19 +274,6 @@ export const NetworkMap: any =
   '6': '政务网',
   '7': 'Internet网',
   '8': '社会资源接入网'
-}
-
-export default {
-  DeviceType,
-  DeviceStatus,
-  StreamStatus,
-  RecordStatus,
-  RecordStatusType,
-  DeviceStreamAutoPull,
-  InVideoProtocol,
-  ViidInProtocolType,
-  DeviceInType,
-  StreamTransType
 }
 
 /**
