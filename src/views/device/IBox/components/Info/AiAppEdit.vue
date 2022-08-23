@@ -8,13 +8,13 @@
       </el-steps>
     </div>
     <div v-if="!step">
-      <AlgoOption :step.sync="step" :prod.sync="prod" direction="next" />
+      <AlgoOption :step.sync="step" :prod.sync="prod" direction="next" @back="backToList"/>
     </div>
     <div v-if="step === 1">
-      <AlgoDetail :step.sync="step" :prod.sync="prod" :is-select-device="true" :algo-param="algoParam" />
+      <AlgoDetail :step.sync="step" :prod.sync="prod" :is-select-device="true" :algo-param="algoParam" @back="backToList"/>
     </div>
     <div v-if="step === 2">
-      <AlgoDevice :step.sync="step" :prod.sync="prod" />
+      <AlgoDevice :step.sync="step" :prod.sync="prod" @back="backToList"/>
     </div>
   </div>
 </template>
@@ -42,8 +42,8 @@ export default class extends Mixins(AppMixin) {
   private get header() {
     return this.$route.query.id ? '编辑' : '创建'
   }
-  private back() {
-    this.backToAppList()
+  private backToList() {
+    this.$emit('back')
   }
 }
 </script>

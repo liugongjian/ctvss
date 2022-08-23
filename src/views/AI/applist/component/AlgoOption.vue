@@ -105,13 +105,6 @@ export default class extends Mixins(AppMixin) {
   private async handleSearch() {
     this.getAlgorithmList()
   }
-
-  /**
-   * 返回应用列表
-   */
-  private cancel() {
-    this.backToAppList()
-  }
 }
 </script>
 <style lang="scss" scoped>

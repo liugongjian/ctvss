@@ -29,7 +29,7 @@
       </el-table>
     </div>
     <ai-app-detail v-if="isAppDetail" @back="backToList" />
-    <ai-app-edit v-if="step > -1" />
+    <ai-app-edit v-if="step > -1" @back="backToList"/>
   </div>
 </template>
 <script lang="ts">
@@ -64,6 +64,7 @@ export default class AiAppList extends Vue {
   }
 
   private backToList() {
+    this.step = -1
     this.isAppDetail = false
   }
 

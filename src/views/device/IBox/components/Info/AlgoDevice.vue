@@ -17,8 +17,16 @@
       <span slot-scope="{node, data}" class="custom-tree-node" :class="{'online': data.deviceStatus === 'on'}">
         <span class="node-name">
           <status-badge v-if="data.streamStatus" :status="data.streamStatus" />
-          <svg-icon :name="data.deviceType" width="15" height="15" />
+          <svg-icon :name="data.deviceType || 'ipc'" width="15" height="15" />
           {{ node.data.deviceName }}
+        </span>
+        <span>
+          <el-button
+            type="text"
+            size="mini"
+            @click="() => append(data)">
+            <svg-icon name="clipboard" width="15" height="15" />
+          </el-button>
         </span>
       </span>
     </el-tree>
@@ -33,6 +41,7 @@
       :canvas-if="canvasDialog"
       :config-algo-info="configAlgoInfo"
       :frame-image="frameImage"
+      @add-meta="addMeta"
     />
   </div>
 </template>
@@ -42,6 +51,8 @@ import { Component, Mixins, Prop } from 'vue-property-decorator'
 import AppMixin from '@/views/AI/mixin/app-mixin' // 考虑优化的mixin
 import AlgoConfig from './AlgoConfig/index.vue'
 
+
+//@ts-ignore
 @Component({
   name: 'AlgoDevice',
   components: {
@@ -55,8 +66,8 @@ export default class extends Mixins(AppMixin) {
   private isDevice: boolean = true
   private canvasDialog: boolean = false
   private treeProp = {
-    label: 'label',
-    children: 'children',
+    label: 'deviceName',
+    children: 'deviceChannels',
     isLeaf: 'isLeaf' // 需要手动设置数据源的isLeaf属性，懒加载就不展示 可展开箭头
   }
 
@@ -205,25 +216,32 @@ export default class extends Mixins(AppMixin) {
       ]
 
     }
-    this.iboxDevice = data.devices
+    this.iboxDevice = data.devices.map(device => {
+      if(device.deviceType === 'nvr'){
+        return {...device, disabled: true}
+      }
+      return device
+    })
+
   }
 
   private changeStepPrev() {
     this.$emit('update:step', this.step - 1)
   }
 
-  private cancel() {
-    this.$emit('update:step', -1)
-  }
-
-  private checkCallback(data, ischecked) {
-    console.log('data:', data)
-    console.log('ischecked:', ischecked)
-    this.canvasDialog = true
+  private checkCallback(data, isChecked) {
+    if(isChecked){
+      this.deviceId = data.deviceId
+      this.canvasDialog = true
+    }
   }
 
   private onSubmit() {
 
+  }
+
+  private addMeta(meta){
+    console.log('meta:', meta)
   }
 
   public closeCanvasDialog() {
@@ -248,6 +266,10 @@ export default class extends Mixins(AppMixin) {
   padding: 10px 0;
   width: 40%;
   min-height: 550px;
+
+  ::v-deep .is-disabled {
+    visibility: hidden;
+  }
 }
 
 .btns {

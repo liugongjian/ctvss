@@ -58,9 +58,7 @@ import math from './utils/math'
 import { getRectPropFromPoints,
   getVerticalLinePoints, drawArrow
 } from './utils/index'
-import { getAppDescribeLine, sendAppDescribeLine
-// getAlgoStreamFrame
-} from '@/api/ai-app'
+import { getAppDescribeLine } from '@/api/ai-app'
 import plate from './plate4.jpg'
 import { DRAW_MODES
 //   DRAW_MODES_TEXT
@@ -177,9 +175,9 @@ export default class extends Vue {
     this.imgSrc = this.frameImage
     const that = this
     const img = new Image()
-    img.src = `data:image/png;base64,${this.imgSrc}`
+    // img.src = `data:image/png;base64,${this.imgSrc}`
     // let img = new Image()
-    // img.src = that.dataURL
+    img.src = that.dataURL
 
     const backgroundLayer = document.querySelector('#canvasWrapper') as HTMLCanvasElement
     const backgroundCtx = backgroundLayer.getContext('2d')!
@@ -250,7 +248,6 @@ export default class extends Vue {
   }
 
   private closeThis() {
-    console.log(this.$parent)
     this.$parent.closeCanvasDialog()
   }
 
@@ -299,14 +296,17 @@ export default class extends Vue {
       deviceId: this.deviceId,
       appId: this.configAlgoInfo.id
     }
-    sendAppDescribeLine(param).then((res) => {
-      if (res) {
-        this.$message.success(`算法 ${this.configAlgoInfo.name} 区域划线配置成功！`)
-        this.$parent.closeCanvasDialog()
-      }
-    }).catch(e => {
-      this.$message.error(e && e.message)
-    })
+
+    this.$emit('add-meta', param)
+    this.closeThis()
+    // sendAppDescribeLine(param).then((res) => {
+    //   if (res) {
+    //     this.$message.success(`算法 ${this.configAlgoInfo.name} 区域划线配置成功！`)
+    //     this.$parent.closeCanvasDialog()
+    //   }
+    // }).catch(e => {
+    //   this.$message.error(e && e.message)
+    // })
   }
 
   private clear() {
@@ -624,6 +624,7 @@ export default class extends Vue {
 </script>
 
 <style  lang="scss" scoped>
+/* stylelint-disable selector-class-pattern */
 .canvasBox {
   ::v-deep.el-dialog {
     .el-dialog__header {

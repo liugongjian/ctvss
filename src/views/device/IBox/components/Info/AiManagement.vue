@@ -13,7 +13,7 @@
         <el-table-column label="操作" />
       </el-table>
     </div>
-    <algo-option v-else :step.sync="step" :prod.sync="prod" direction="prev" />
+    <algo-option v-else :step.sync="step" :prod.sync="prod" direction="prev" @back="backToList" />
   </div>
 </template>
 <script lang="ts">
@@ -33,6 +33,10 @@ export default class IBoxList extends Vue {
   private prod: any = {}// 新建时传入组件的参数
   async mounted() {
 
+  }
+
+  private backToList() {
+    this.step = -1
   }
 
   private addAlgo() {
