@@ -12,10 +12,10 @@
       </div>
       <div class="detail__section">
         <el-tabs v-model="activeTab" type="card" class="detail__tabs">
-          <el-tab-pane label="视频接入" :name="enums.DeviceInType.Video">
+          <el-tab-pane v-if="hasVideo" label="视频接入" :name="enums.DeviceInType.Video">
             <video-info :device="device" />
           </el-tab-pane>
-          <el-tab-pane label="视图接入" :name="enums.DeviceInType.Viid">
+          <el-tab-pane v-if="hasViid" label="视图接入" :name="enums.DeviceInType.Viid">
             <viid-info :device="device" />
           </el-tab-pane>
         </el-tabs>

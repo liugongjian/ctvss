@@ -1,5 +1,14 @@
 <template>
   <div>
+    <div class="detail__buttons">
+      <el-button type="text">编辑</el-button>
+      <el-dropdown>
+        <el-button type="text">更多<i class="el-icon-arrow-down" /></el-button>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item :command="{type: 'delete'}">删除</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+    </div>
     <!-- 状态信息 -->
     <el-descriptions title="状态信息" :column="2">
       <el-descriptions-item label="设备状态">
@@ -27,8 +36,8 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import StatusBadge from '@/components/StatusBadge/index.vue'
-import dicts from '@vss/device/dicts'
-import enums from '@vss/device/enums'
+import * as dicts from '@vss/device/dicts'
+import * as enums from '@vss/device/enums'
 
 @Component({
   name: 'ViidInfo',
@@ -46,9 +55,14 @@ export default class extends Vue {
     return this.device.device
   }
 
-  // 视频接入信息
+  // 视图库接入协议
+  private get inViidProtocol() {
+    return this.device.viids && this.device.viids[0]!.inViidProtocol
+  }
+
+  // 视图库接入信息
   private get viidInfo() {
-    return this.device.viids && this.device.viids[0]!.gA1400Device
+    return this.inViidProtocol && this.device.viids[0]![dicts.InViidProtocolModelMapping[this.inViidProtocol]]
   }
 }
 </script>

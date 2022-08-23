@@ -24,33 +24,44 @@
         <status-badge :status="dicts.RecordStatusType[videoInfo.stream.recordStatus]" />
         {{ dicts.RecordStatus[videoInfo.stream.recordStatus] || '-' }}
       </el-descriptions-item>
-      <el-descriptions-item label="当前码率">缺失</el-descriptions-item>
-      <el-descriptions-item label="异常提示">缺失</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('onlineChannels')" label="在线流数量">{{ basicInfo.deviceStats.onlineChannels }}</el-descriptions-item>
+      <el-descriptions-item label="当前码率">{{ videoInfo.stream.bitrate ? (videoInfo.stream.bitrate / 1024).toFixed(2) + 'Mbps' : '-' }}</el-descriptions-item>
+      <el-descriptions-item label="异常提示">{{ videoInfo.errorMsg }}</el-descriptions-item>
     </el-descriptions>
 
     <!-- 接入信息 -->
     <el-descriptions title="接入信息" :column="2">
-      <el-descriptions-item v-if="checkVisible('deviceChannelSize')" prop="label=&quot;deviceChannelSize&quot;">{{ videoInfo.outId || '-' }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible('outId')" label="国标ID">{{ videoInfo.outId || '-' }}</el-descriptions-item>
-      <el-descriptions-item label="GB28181凭证">缺失</el-descriptions-item>
-      <el-descriptions-item label="协议类型">缺失</el-descriptions-item>
-      <el-descriptions-item label="设备IP">{{ basicInfo.deviceIp }}</el-descriptions-item>
-      <el-descriptions-item label="设备端口">{{ basicInfo.devicePort }}</el-descriptions-item>
-      <el-descriptions-item label="设备MAC地址">{{ basicInfo.deviceMac }}</el-descriptions-item>
-      <el-descriptions-item label="杆号">{{ basicInfo.devicePoleId }}</el-descriptions-item>
-      <el-descriptions-item label="信令传输模式">缺失</el-descriptions-item>
-      <el-descriptions-item label="自动拉流">{{ dicts.DeviceStreamAutoPull[basicInfo.deviceStreamAutoPull] }}</el-descriptions-item>
-      <el-descriptions-item label="优先TCP传输">缺失</el-descriptions-item>
-      <el-descriptions-item label="流传输模式">{{ dicts.StreamTransType[videoInfo.stream.streamTransType] }}</el-descriptions-item>
+      <el-descriptions-item label="协议类型">{{ dicts.InVideoProtocol[inVideoProtocol] }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('outId')" :label="dicts.VideoParamLabel[inVideoProtocol].outId">{{ videoInfo.outId || '-' }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('inVersion')" :label="dicts.VideoParamLabel[inVideoProtocol].inVersion">{{ videoInfo.inVersion || '-' }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('inUserName')" :label="dicts.VideoParamLabel[inVideoProtocol].inUserName">{{ videoInfo.inUserName || '-' }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('deviceChannelSize')" label="通道数量">{{ basicInfo.deviceChannelSize }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('deviceIp')" label="设备IP">{{ basicInfo.deviceIp }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('devicePort')" label="设备端口">{{ basicInfo.devicePort }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('deviceMac')" label="设备MAC地址">{{ basicInfo.deviceMac }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('devicePoleId')" label="杆号">{{ basicInfo.devicePoleId }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('sipTransType')" label="信令传输模式">{{ dicts.SipTransType[videoInfo.sipTransType] }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('deviceStreamSize')" label="主子码流数量">{{ basicInfo.deviceStreamSize }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('deviceStreamAutoPull')" label="自动拉流">{{ dicts.DeviceStreamAutoPull[basicInfo.deviceStreamAutoPull] }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('deviceStreamPullIndex')" label="自动拉取码流">{{ basicInfo.deviceStreamPullIndex }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('transPriority')" label="优先TCP传输">{{ dicts.TransPriority[videoInfo.transPriority] }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('streamTransType')" label="流传输模式">{{ dicts.StreamTransType[videoInfo.stream.streamTransType] }}</el-descriptions-item>
     </el-descriptions>
 
-    <!-- SIP信息 -->
-    <el-descriptions title="SIP信息" :column="2">
+    <!-- 国标SIP信息 -->
+    <el-descriptions v-if="checkVisible('gb28181SipInfo')" title="SIP信息" :column="2">
       <el-descriptions-item label="SIP服务器ID">{{ videoInfo.sipId || '-' }}</el-descriptions-item>
       <el-descriptions-item label="SIP服务器域">{{ sipDomain }}</el-descriptions-item>
       <el-descriptions-item label="SIP服务器地址">{{ videoInfo.sipIp || '-' }}</el-descriptions-item>
       <el-descriptions-item label="SIP服务器TCP端口">{{ videoInfo.sipTcpPort || '-' }}</el-descriptions-item>
       <el-descriptions-item label="SIP服务器UDP端口">{{ videoInfo.sipUdpPort || '-' }}</el-descriptions-item>
+    </el-descriptions>
+
+    <!-- EHOME SIP信息 -->
+    <el-descriptions v-if="checkVisible('ehomeSipInfo')" title="EHOME服务信息" :column="2">
+      <el-descriptions-item label="EHOME服务器地址">{{ videoInfo.sipIp || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="EHOME服务器TCP端口">{{ videoInfo.sipTcpPort || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="EHOME服务器UDP端口">{{ videoInfo.sipUdpPort || '-' }}</el-descriptions-item>
     </el-descriptions>
   </div>
 </template>
@@ -84,8 +95,7 @@ export default class extends Vue {
 
   // 视频接入信息
   private get videoInfo() {
-    console.log(dicts.VideoInProtocolModelMapping[this.inVideoProtocol])
-    return this.inVideoProtocol && this.device.videos[0]![dicts.VideoInProtocolModelMapping[this.inVideoProtocol]]
+    return this.inVideoProtocol && this.device.videos[0]![dicts.InVideoProtocolModelMapping[this.inVideoProtocol]]
   }
 
   // SIP服务器域
@@ -93,6 +103,7 @@ export default class extends Vue {
     return this.videoInfo && this.videoInfo.sipId && this.videoInfo.sipId.toString().substr(0, 10)
   }
 
+  // 根据设备类型 & 接入协议判断字段是否显示
   private checkVisible(prop) {
     return checkVisible(this.basicInfo.deviceType, this.inVideoProtocol, prop)
   }

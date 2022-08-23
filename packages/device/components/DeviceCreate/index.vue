@@ -33,7 +33,7 @@
                 @change="deviceTypeChange"
               >
                 <el-option
-                  v-for="(value, key) in deviceType[inVideoProtocol]"
+                  v-for="(value, key) in deviceType"
                   :key="key"
                   :label="value"
                   :value="key"
@@ -108,12 +108,12 @@
               <el-input v-model="deviceForm.deviceLatitude" class="longlat-input" />
             </el-form-item>
             <el-form-item label="厂商:" prop="deviceVendor">
-              <el-select v-model="deviceForm.deviceVendor">
+              <el-select v-model="deviceForm.deviceVendor" :disabled="videoForm.inVideoProtocol === inVideoProtocolEnum.Rtsp">
                 <el-option
-                  v-for="item in deviceVendor"
-                  :key="item"
-                  :label="item"
-                  :value="item"
+                  v-for="(value, key) in deviceVendor[videoForm.inVideoProtocol]"
+                  :key="key"
+                  :label="value"
+                  :value="key"
                 />
               </el-select>
             </el-form-item>
@@ -170,6 +170,19 @@
                 />
               </el-select>
             </el-form-item>
+            <div v-if="checkVisible('deviceShowMore')" class="show-more" :class="{'show-more--expanded': showMore}">
+              <el-form-item>
+                <el-button class="show-more--btn" type="text" @click="showMore = !showMore">更多<i class="el-icon-arrow-down" /></el-button>
+              </el-form-item>
+              <div class="show-more--form">
+                <el-form-item v-if="checkVisible('deviceIp')" label="设备IP:" prop="deviceIp">
+                  <el-input v-model="deviceForm.deviceIp" />
+                </el-form-item>
+                <el-form-item v-if="checkVisible('devicePort')" label="设备端口:" prop="devicePort">
+                  <el-input v-model="deviceForm.devicePort" />
+                </el-form-item>
+              </div>
+            </div>
             <el-form-item label="设备描述:" prop="description">
               <el-input
                 v-model="deviceForm.description"
@@ -194,16 +207,17 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import { DeviceType, DeviceInType, DeviceVendor, IndustryMap, NetworkMap } from '../../dicts/index'
 import { DeviceAddress } from '../../type/Device'
 import { getRegions } from '../../api/region'
+import { checkVideoVisible } from '../../utils/param'
+import { DeviceTips } from '../../dicts/tips'
+import { InVideoProtocol as InVideoProtocolEnum, DeviceType as DeviceTypeEnum, DeviceInType as DeviceInTypeEnum } from '../../enums/index'
+import { createDevice, updateDevice, getDevice, validGbId, createViewLib, getViewLibInfo, updateViewLib } from '../../api/device'
 import AddressCascader from '../AddressCascader.vue'
 import VideoCreateForm from '../VideoCreateForm.vue'
 import ViidCreateForm from '../ViidCreateForm.vue'
-import { DeviceTips } from '../../dicts/tips'
-import { VideoInProtocolType, DeviceType as DeviceTypeEnum, DeviceInType as DeviceInTypeEnum } from '../../enums/index'
-import { createDevice, updateDevice, getDevice, validGbId, createViewLib, getViewLibInfo, updateViewLib } from '../../api/device'
 
 @Component({
   name: 'DeviceCreate',
@@ -216,15 +230,17 @@ import { createDevice, updateDevice, getDevice, validGbId, createViewLib, getVie
 export default class extends Vue {
   private tips = DeviceTips
   private deviceTypeEnum = DeviceTypeEnum
-  private deviceType = DeviceType
   private deviceInTypeEnum = DeviceInTypeEnum
+  private inVideoProtocolEnum = InVideoProtocolEnum
+  private deviceType = DeviceType
   private deviceInType = DeviceInType
   private deviceVendor = DeviceVendor
   private industryMap = IndustryMap
   private networkMap = NetworkMap
   private breadCrumbContent = '添加设备'
+  private inVideoProtocol = InVideoProtocolEnum.Gb28181
   private activeStep: number = 0
-  private inVideoProtocol: string = VideoInProtocolType.Gb28181
+  private showMore: boolean = false
   private deviceForm = {
     // step0
     deviceName: '',
@@ -242,12 +258,13 @@ export default class extends Vue {
     inOrgRegionLevel: null,
     industryCode: '',
     networkCode: '7',
-    description: ''
+    description: '',
+    deviceIp: '',
+    devicePort: ''
   }
-  private videoForm: {}
-  private viidForm: {}
+  private videoForm: any = {}
+  private viidForm: any = {}
   private rules = {
-    // ipc
     deviceName: [
       { required: true, message: '请输入设备名称', trigger: 'blur' },
       { validator: this.validateDeviceName, trigger: 'blur' }
@@ -274,18 +291,11 @@ export default class extends Vue {
     networkCode: [
       { required: true, message: '请选择网络标识', trigger: 'blur' }
     ],
-
-    // channel
-    channelName: [
-      { required: true, message: '请输入通道名称', trigger: 'blur' },
-      { validator: this.validateDeviceName, trigger: 'blur' }
+    deviceIp: [
+      { validator: this.validateDeviceIp, trigger: 'blur' }
     ],
-    channelSize: [
-      { required: true, message: '请填写子设备数量', trigger: 'blur' }
-    ],
-    channelNum: [
-      { required: true, message: '请填写通道号', trigger: 'change' },
-      { validator: this.validateChannelNum, trigger: 'change' }
+    devicePort: [
+      { validator: this.validateDevicePort, trigger: 'change' }
     ]
   }
   private regionList = []
@@ -297,8 +307,17 @@ export default class extends Vue {
     return false
   }
 
+  @Watch('videoForm.videoVendor')
+  private vendorChange(val) {
+    this.deviceForm.deviceVendor = val
+  }
+
   private mounted() {
     this.getRegionList()
+  }
+
+  private checkVisible(prop) {
+    return checkVideoVisible.call(this.videoForm, this.deviceForm.deviceType, this.inVideoProtocol, prop)
   }
 
   /**
@@ -312,7 +331,6 @@ export default class extends Vue {
    * 视频接入协议变化
    */
   private inVideoProtocolChange(val) {
-    this.deviceForm.deviceType = this.deviceTypeEnum.Ipc
     this.inVideoProtocol = val
   }
 
@@ -355,16 +373,16 @@ export default class extends Vue {
         }
       })
       // 校验videoForm
-      const videoForm: any = this.$refs.videoForm
+      const videoFormObj: any = this.$refs.videoForm
       if (this.deviceForm.deviceInType !== this.deviceInTypeEnum.Viid) {
-        validFlag = videoForm.validateVideoForm() && validFlag
-        this.videoForm = videoForm.videoForm
+        validFlag = videoFormObj.validateVideoForm() && validFlag
+        this.videoForm = videoFormObj.videoForm
       }
       // 校验viidForm
-      const viidForm: any = this.$refs.viidForm
+      const viidFormObj: any = this.$refs.viidForm
       if (this.deviceForm.deviceInType !== this.deviceInTypeEnum.Video) {
-        validFlag = viidForm.validateViidForm() && validFlag
-        this.viidForm = viidForm.viidForm
+        validFlag = viidFormObj.validateViidForm() && validFlag
+        this.viidForm = viidFormObj.viidForm
       }
       // 判断校验结果
       if (validFlag) this.activeStep = val
@@ -428,6 +446,28 @@ export default class extends Vue {
       callback(new Error('经度坐标格式错误'))
     } else if (!/^[-+]?((0|([1-9]\d?))(\.\d{1,14})?|90(\.0{1,14})?)$/.test(this.deviceForm.deviceLatitude)) {
       callback(new Error('纬度坐标格式错误'))
+    } else {
+      callback()
+    }
+  }
+
+  /**
+   * 校验设备IP格式
+   */
+  public validateDeviceIp(rule: any, value: string, callback: Function) {
+    if (value && !/^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$/.test(value)) {
+      callback(new Error('设备IP格式不正确'))
+    } else {
+      callback()
+    }
+  }
+
+  /**
+   * 校验端口号
+   */
+  public validateDevicePort(rule: any, value: string, callback: Function) {
+    if (value && !/^[0-9]+$/.test(value)) {
+      callback(new Error('设备端口仅支持数字'))
     } else {
       callback()
     }

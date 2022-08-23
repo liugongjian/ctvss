@@ -1,12 +1,27 @@
-import { videoInProtocolTypeAllowParams, deviceTypeDenyParams } from '../settings'
+import { InVideoProtocolAllowParams, deviceTypeDenyParams } from '../settings'
+import { DeviceInType } from '../enums/index'
 
-export const checkVisible = (deviceType, inVideoProtocol, prop) => {
-  return videoInProtocolTypeAllowParams[inVideoProtocol].has(prop) &&
-        (deviceTypeDenyParams[deviceType] && !deviceTypeDenyParams[deviceType].has(prop))
+/**
+ * 判断是否通过设备类型及接入协议字段过滤
+ * @param formType 表单类型
+ * @param deviceType 设备类型
+ * @param inProtocol 接入协议
+ * @param prop 参数名
+ * @returns 判断结果
+ */
+const checkVisible = (deviceInType, deviceType, inProtocol, prop) => {
+  if (deviceInType === DeviceInType.Video) {
+    return (InVideoProtocolAllowParams[inProtocol] && InVideoProtocolAllowParams[inProtocol].has(prop)) && // 根据接入协议显示接入协议字段列表中包含的
+      (deviceTypeDenyParams[deviceType] && !deviceTypeDenyParams[deviceType].has(prop)) // 根据设备类型过滤掉不需要显示的字段
+  }
+
+  if (deviceInType === DeviceInType.Viid) {
+    return true
+  }
 }
 
 /**
- * form-item显示判断
+ * 视频接入form-item显示判断
  * @param prop 参数名
  * @return 判断结果
  */
@@ -37,5 +52,5 @@ export function checkVideoVisible(deviceType, inVideoProtocol, prop: string): bo
   }
 
   // 默认使用字典过滤
-  return checkVisible(deviceType, inVideoProtocol, prop)
+  return checkVisible(DeviceInType.Video, deviceType, inVideoProtocol, prop)
 }

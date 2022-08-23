@@ -9,7 +9,7 @@
     >
       <el-form-item label="接入协议:" prop="inVideoProtocol">
         <el-radio
-          v-for="(value, key) in videoInProtocolType"
+          v-for="(value, key) in inVideoProtocol[deviceForm.deviceType]"
           :key="key"
           v-model="videoForm.inVideoProtocol"
           :label="key"
@@ -17,6 +17,16 @@
         >
           {{ value }}
         </el-radio>
+      </el-form-item>
+      <el-form-item v-if="checkVisible('videoVendor')" label="厂商:" prop="videoVendor">
+        <el-select v-model="videoForm.videoVendor">
+          <el-option
+            v-for="(value, key) in deviceVendor[videoForm.inVideoProtocol]"
+            :key="key"
+            :label="value"
+            :value="key"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item v-if="checkVisible('inVersion')" label="版本:" prop="inVersion">
         <el-radio-group v-model="videoForm.inVersion">
@@ -62,7 +72,7 @@
           {{ value }}
         </el-radio>
       </el-form-item>
-      <template v-if="deviceForm.deviceVendor === '其他' || checkVisible('onlyPullUrl')">
+      <template v-if="videoForm.videoVendor === '其他' || checkVisible('onlyPullUrl')">
         <el-form-item v-if="checkVisible('pullUrl')" label="拉流地址:" prop="pullUrl">
           <el-input v-model="videoForm.pullUrl" />
         </el-form-item>
@@ -204,17 +214,11 @@
           @changevssaiapps="changeVSSAIApps"
         />
       </el-form-item>
-      <div v-if="checkVisible('showMore')" class="show-more" :class="{'show-more--expanded': showMore}">
+      <div v-if="checkVisible('videoShowMore')" class="show-more" :class="{'show-more--expanded': showMore}">
         <el-form-item>
           <el-button class="show-more--btn" type="text" @click="showMore = !showMore">更多<i class="el-icon-arrow-down" /></el-button>
         </el-form-item>
         <div class="show-more--form">
-          <el-form-item v-if="checkVisible('deviceIp')" label="设备IP:" prop="deviceIp">
-            <el-input v-model="videoForm.deviceIp" />
-          </el-form-item>
-          <el-form-item v-if="checkVisible('devicePort')" label="设备端口:" prop="devicePort">
-            <el-input v-model="videoForm.devicePort" />
-          </el-form-item>
           <el-form-item v-if="checkVisible('outId')" label="自定义国标ID:" prop="outId">
             <el-input v-model="videoForm.outId" />
             <div class="form-tip">
@@ -247,8 +251,9 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
-import { VideoInProtocolType, EhomeVersion, InType, MultiStreamSize, AutoStreamNum } from '../dicts/index'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { InVideoProtocol as InVideoProtocolEnum } from '../enums/index'
+import { InVideoProtocol, EhomeVersion, DeviceVendor, InType, MultiStreamSize, AutoStreamNum } from '../dicts/index'
 import { DeviceTips } from '../dicts/tips'
 import { getList as getGbList } from '@/api/certificate/gb28181'
 import { validGbId } from '../api/device'
@@ -269,16 +274,19 @@ export default class extends Vue {
   @Prop({ default: () => {} })
   private deviceForm
 
+  private inVideoProtocolEnum = InVideoProtocolEnum
   private tips = DeviceTips
   private ehomeVersion = EhomeVersion
+  private deviceVendor = DeviceVendor
+  private inVideoProtocol = InVideoProtocol
   private inType = InType
-  private videoInProtocolType = VideoInProtocolType
   private multiStreamSize = MultiStreamSize
   private autoStreamNum = AutoStreamNum
   private minChannelSize = 1
   private showMore: boolean = false
   private videoForm = {
-    inVideoProtocol: 'gb28181',
+    inVideoProtocol: InVideoProtocolEnum.Gb28181,
+    videoVendor: '',
     inVersion: '2.0',
     deviceChannelSize: 1,
     inUserName: '',
@@ -299,8 +307,6 @@ export default class extends Vue {
     resources: [],
     vssAIApps: [],
     aIApps: [],
-    deviceIp: '',
-    devicePort: '',
     outId: '',
     devicePoleId: '',
     deviceMac: '',
@@ -310,6 +316,9 @@ export default class extends Vue {
   rules = {
     inVideoProtocol: [
       { required: true, message: '请选择接入协议', trigger: 'change' }
+    ],
+    videoVendor: [
+      { required: true, message: '请选择厂商', trigger: 'change' }
     ],
     deviceChannelSize: [
       { required: true, message: '请填写子设备数量', trigger: 'blur' }
@@ -341,12 +350,6 @@ export default class extends Vue {
     resources: [
       { required: true, validator: this.validateResources, trigger: 'blur' }
     ],
-    deviceIp: [
-      { validator: this.validateDeviceIp, trigger: 'blur' }
-    ],
-    devicePort: [
-      { validator: this.validateDevicePort, trigger: 'change' }
-    ],
     outId: [
       { validator: this.validateGbId, trigger: 'blur' }
     ],
@@ -366,6 +369,12 @@ export default class extends Vue {
   private dialog = {
     createGb28181Certificate: false
   }
+
+  @Watch('deviceForm.deviceType')
+  private deviceTypeChange() {
+    this.videoForm.inVideoProtocol = this.inVideoProtocolEnum.Gb28181
+  }
+
   private mounted() {
     this.getGbAccounts()
   }
@@ -427,6 +436,7 @@ export default class extends Vue {
    */
   private inVideoProtocolChange(val) {
     this.$emit('inVideoProtocolChange', val)
+    this.videoForm.videoVendor = ''
   }
 
   /**

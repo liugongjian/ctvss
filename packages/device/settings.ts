@@ -1,40 +1,52 @@
-import { VideoInProtocolType, DeviceType } from './enums'
+import { InVideoProtocol, DeviceType } from './enums'
 
 /**
  * 根据设备接入协议需要显示的字段
  * 注意下面是显示的字段(ALLOW)
  */
-export const videoInProtocolTypeAllowParams = {
-  [VideoInProtocolType.Gb28181]: new Set([
-    'deviceChannelSize',
-    'inUserName',
-    'deviceStreamAutoPull',
-    'resources',
-    'showMore',
-    'deviceIp',
-    'devicePort',
+export const InVideoProtocolAllowParams = {
+  [InVideoProtocol.Gb28181]: new Set([
     'outId',
+    'inVersion',
+    'inUserName',
+    'resources',
+    'deviceStreamAutoPull',
+    'deviceChannelSize',
+    'onlineChannels',
+    'videoShowMore',
     'devicePoleId',
     'deviceMac',
     'deviceSerialNumber',
-    'deviceModel'
+    'deviceModel',
+    'sipTransType',
+    'deviceStreamAutoPull',
+    'transPriority',
+    'streamTransType',
+    'gb28181SipInfo',
+    'deviceShowMore',
+    'deviceIp',
+    'devicePort'
   ]),
-  [VideoInProtocolType.Ehome]: new Set([
+  [InVideoProtocol.Ehome]: new Set([
     'inVersion',
+    'inUserName',
     'deviceChannelSize',
     'deviceStreamSize',
     'deviceStreamAutoPull',
     'deviceStreamPullIndex',
     'streamTransProtocol',
     'resources',
-    'showMore',
+    'videoShowMore',
+    'deviceMac',
+    'ehomeSipInfo',
+    'deviceShowMore',
     'deviceIp',
-    'devicePort',
-    'deviceMac'
+    'devicePort'
   ]),
-  [VideoInProtocolType.Rtsp]: new Set([
+  [InVideoProtocol.Rtsp]: new Set([
     'deviceChannelSize',
     'inType',
+    'videoVendor',
     'pullUrl',
     'userName',
     'password',
@@ -42,22 +54,29 @@ export const videoInProtocolTypeAllowParams = {
     'deviceDomain',
     'deviceIpRequired',
     'devicePortRequired',
-    'deviceStreamSize',
     'deviceStreamAutoPull',
     'deviceStreamPullIndex',
     'pushType',
     'streamTransProtocol',
-    'resources'
+    'resources',
+    'deviceStreamSize',
+    'transPriority',
+    'deviceShowMore',
+    'deviceIp',
+    'devicePort'
   ]),
-  [VideoInProtocolType.Rtmp]: new Set([
+  [InVideoProtocol.Rtmp]: new Set([
     'inType',
     'onlyPullUrl',
     'pullUrl',
     'deviceStreamAutoPull',
     'pushType',
     'resources',
-    'showMore',
-    'tags'
+    'videoShowMore',
+    'tags',
+    'deviceShowMore',
+    'deviceIp',
+    'devicePort'
   ])
 }
 
@@ -67,7 +86,8 @@ export const videoInProtocolTypeAllowParams = {
  */
 export const deviceTypeDenyParams = {
   [DeviceType.Ipc]: new Set([
-    'deviceChannelSize'
+    'deviceChannelSize',
+    'onlineChannels'
   ]),
   [DeviceType.Nvr]: new Set([
     'devicePoleId',
@@ -76,7 +96,11 @@ export const deviceTypeDenyParams = {
   ]),
   [DeviceType.Platform]: new Set([
     'deviceChannelSize',
+    'onlineChannels',
     'deviceSerialNumber',
-    'deviceModel'
+    'deviceModel',
+    'deviceShowMore',
+    'deviceIp',
+    'devicePort'
   ])
 }

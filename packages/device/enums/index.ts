@@ -19,10 +19,17 @@ export enum DeviceType {
 /**
  * 视频接入协议
  */
-export enum VideoInProtocolType {
+export enum InVideoProtocol {
   Gb28181 = 'gb28181',
   Rtmp = 'rtmp',
   Rtsp = 'rtsp',
   Ehome = 'ehome',
   Onvif = 'onvif'
+}
+
+/**
+ * 视图库接入协议
+ */
+export enum InViidProtocol {
+  Ga1400 = 'ga1400'
 }
