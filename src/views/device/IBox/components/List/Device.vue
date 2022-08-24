@@ -4,7 +4,7 @@
       <el-tab-pane v-for="(item,index) in infoList" :key="index" :label="item.label" :name="item.name" />
     </el-tabs>
 
-    <component :is="activeName" />
+    <component :is="activeName" :key="activeName" />
   </div>
 </template>
 <script lang="ts">

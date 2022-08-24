@@ -28,6 +28,7 @@
         </el-table-column>
       </el-table>
     </div>
+    
     <ai-app-detail v-if="isAppDetail" @back="backToList" />
     <ai-app-edit v-if="step > -1" @back="backToList"/>
   </div>
@@ -59,7 +60,6 @@ export default class AiAppList extends Vue {
   }
 
   private appDetail(appInfo) {
-    console.log(appInfo)
     this.isAppDetail = true
   }
 

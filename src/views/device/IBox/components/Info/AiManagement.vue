@@ -10,14 +10,22 @@
         <el-table-column label="当前算法版本" />
         <el-table-column label="告警次数" />
         <el-table-column label="关联设备" />
-        <el-table-column label="操作" />
+        <el-table-column label="操作">
+          <template slot-scope="scope">
+            <el-button type="text" @click="upgrade(scope.row)">升级</el-button>
+            <el-button type="text" @click="uninstall(scope.row)">卸载</el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
-    <algo-option v-else :step.sync="step" :prod.sync="prod" direction="prev" @back="backToList" />
+    <div v-else>
+      <el-page-header content="返回算法列表" @back="backToList" />
+      <algo-option :step.sync="step" :prod.sync="prod" direction="prev" @back="backToList" />
+    </div>
   </div>
 </template>
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import AlgoOption from '@/views/AI/applist/component/AlgoOption.vue'
 
 @Component({
@@ -35,12 +43,29 @@ export default class IBoxList extends Vue {
 
   }
 
+  @Watch('prod', {
+    immediate: true,
+    deep: true
+  })
+  private onProdChanged() {
+    console.log('this.prod:', this.prod)
+    // 这里发送请求
+  }
+
   private backToList() {
     this.step = -1
   }
 
   private addAlgo() {
     this.step = 0
+  }
+
+  private upgrade(algo) {
+    console.log(algo)
+  }
+
+  private uninstall(algo) {
+
   }
 }
 </script>
