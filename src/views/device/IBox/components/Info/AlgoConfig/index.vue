@@ -290,6 +290,7 @@ export default class extends Vue {
       appId: this.configAlgoInfo.id
     }
 
+    console.log('param:', param)
     this.$emit('add-meta', param)
     this.closeThis()
     // sendAppDescribeLine(param).then((res) => {

@@ -246,9 +246,13 @@ export default class extends Mixins(AppMixin) {
   private addMeta(meta){
     const deviceTree: any = this.$refs.deviceTree
     const algoMeta = JSON.parse(meta.algorithmMetadata)
+    const node = deviceTree.getNode(meta.deviceId)
+
     if(algoMeta.DangerZone.length > 0){
-      const node = deviceTree.getNode(meta.deviceId)
       this.$set(node.data, 'meta', meta)
+    } else {
+      this.$set(node.data, 'meta', null)
+      deviceTree.setChecked(node.data, false)
     }
   }
 
