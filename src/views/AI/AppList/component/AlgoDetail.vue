@@ -348,7 +348,9 @@ export default class extends Mixins(AppMixin) {
         validateType: '无验证',
         confidence: 60,
         beeNumber: 1,
-        alertTriggerThreshold: '1'
+        alertTriggerThreshold: '1',
+        alertPeriod: '0',
+        alertSilencePeriod: '3'
       }
     }
     try {
