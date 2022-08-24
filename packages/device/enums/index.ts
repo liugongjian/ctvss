@@ -51,6 +51,7 @@ export enum DeviceEnum {
   InOrgRegionLevel = 'inOrgRegionLevel',
   IndustryCode = 'industryCode',
   NetworkCode = 'networkCode',
+  Resources = 'resources',
   WorkOrderId = 'workOrderId',
   ResourceType = 'resourceType',
   ResourceId = 'resourceId',
@@ -65,6 +66,7 @@ export enum DeviceEnum {
   SipIp = 'sipIp',
   SipTcpPort = 'sipTcpPort',
   SipUdpPort = 'sipUdpPort',
+  SipTransType = 'sipTransType',
   StreamNum = 'streamNum',
   StreamStatus = 'streamStatus',
   StreamTransType = 'streamTransType',
@@ -81,6 +83,9 @@ export enum DeviceEnum {
   HttpsEndpoint = 'httpsEndpoint',
   IncludeDeviceStats = 'includeDeviceStats',
   IncludeDeviceDir = 'includeDeviceDir',
+  LowerApsId = 'lowerApsId',
+  ProtocolDeviceType = 'protocolDeviceType',
+  VideoVendor = 'videoVendor', // 用于RTSP对应视频接入的厂商，如果是“其他”需要手动填入拉流地址
   ErrorCode = 'errorCode',
   ErrorMsg = 'errorMsg'
 }
