@@ -85,6 +85,17 @@ export default class AppMixin extends Vue {
     }
   }
 
+  /**
+   * 返回应用列表
+   */
+  public cancel() {
+    if (this.$route.path.endsWith('ibox')) {
+      this.$emit('back')
+    } else {
+      this.backToAppList()
+    }
+  }
+
   public backToAppList() {
     this.$router.push({
       name: 'AI-AppList'

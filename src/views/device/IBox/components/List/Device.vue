@@ -4,14 +4,15 @@
       <el-tab-pane v-for="(item,index) in infoList" :key="index" :label="item.label" :name="item.name" />
     </el-tabs>
 
-    <component :is="activeName" />
+    <component :is="activeName" :key="activeName" />
   </div>
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 
 import deviceList from '../Info/DeviceList.vue'
-import aiManage from '../Info/AiManage.vue'
+import aiManage from '../Info/AiManagement.vue'
+import appList from '../Info/AiAppList.vue'
 
 import iboxInfo from '../Info/IBoxInfo.vue'
 
@@ -20,7 +21,8 @@ import iboxInfo from '../Info/IBoxInfo.vue'
   components: {
     deviceList,
     aiManage,
-    iboxInfo
+    iboxInfo,
+    appList
   }
 })
 

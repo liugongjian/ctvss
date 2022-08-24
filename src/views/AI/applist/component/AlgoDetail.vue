@@ -220,8 +220,9 @@
         <el-input v-model="form.description" type="textarea" :rows="2" />
       </el-form-item>
       <el-form-item>
-        <el-button v-if="!$route.query.id" @click="changeStep({step: 0})">上一步</el-button>
-        <el-button type="primary" @click="onSubmit">确定</el-button>
+        <el-button v-if="!$route.query.id" @click="changeStepPrev">上一步</el-button>
+        <el-button v-if="!isSelectDevice" type="primary" @click="onSubmit">确定</el-button>
+        <el-button v-if="isSelectDevice" type="primary" @click="changeStepNext">下一步</el-button>
         <el-button @click="cancel">取消</el-button>
       </el-form-item>
     </el-form>
@@ -229,7 +230,8 @@
 </template>
 <script lang='ts'>
 import { Component, Mixins, Prop } from 'vue-property-decorator'
-import { getAIConfigGroupData } from '@/api/aiConfig'
+// import { getAIConfigGroupData } from '@/api/aiConfig'
+import { listGroup } from '@/api/face'
 import { getAppInfo, updateAppInfo, createApp } from '@/api/ai-app'
 import { ResourceAiType, TrashType, HelmetClothType, AnimalType } from '@/dics'
 import AppMixin from '../../mixin/app-mixin'
@@ -242,6 +244,8 @@ import { formRule, formTips } from '../util/form-helper'
 })
 export default class extends Mixins(AppMixin) {
   @Prop() private prod!: any
+  @Prop() private step!: number
+  @Prop({ default: false }) public isSelectDevice!: boolean
   private breadCrumbContent: String = ''
   private ResourceAiType: any = ResourceAiType
   private form: any = {
@@ -304,8 +308,11 @@ export default class extends Mixins(AppMixin) {
       this.form = { algoName: this.prod.name, algorithmMetadata, availableperiod: [], validateType: '无验证', confidence: 60, beeNumber: 1 }
     }
     try {
-      const { groups } = await getAIConfigGroupData({})
-      this.faceLibs = groups
+      const { data } = await listGroup({
+        pageNum: 0,
+        pageSize: 3000
+      })
+      this.faceLibs = data
     } catch (e) {
       this.$alertError(e && e.message)
     }
@@ -351,15 +358,21 @@ export default class extends Mixins(AppMixin) {
   /**
    * 步进控制
    */
-  private changeStep(val: any) {
-    this.$emit('update:step', val.step)
+  private changeStepPrev() {
+    this.$emit('update:step', this.step - 1)
   }
 
-  /**
-   * 步进控制
-   */
-  private cancel() {
-    this.backToAppList()
+  private changeStepNext() {
+    const form: any = this.$refs.appForm
+    form.validate(async(valid: any) => {
+      if (valid) {
+        let param = this.generateAlgoParam()
+        param = { ...param, algorithmsId: this.prod.id }
+        this.$emit('update:step', this.step + 1)
+        this.$emit('update:prod', this.prod)
+        this.$emit('update:algoPram', param)
+      }
+    })
   }
 
   /**
@@ -378,6 +391,27 @@ export default class extends Mixins(AppMixin) {
    * 提交
    */
   private async submitValidAppInfo() {
+    let param = this.generateAlgoParam()
+    try {
+      if (this.$route.query.id) {
+        // 如果有关联的设备则不能传analyseType参数
+        if (parseInt(param.associateDevices) > 0) {
+          delete param.analyseType
+        }
+        await updateAppInfo(param)
+      } else {
+        // 新建时带上算法ID
+        param = { ...param, algorithmsId: this.prod.id }
+        await createApp(param)
+      }
+      this.$message.success(`${this.$route.query.id ? '修改' : '新建'}应用成功`)
+      this.backToAppList()
+    } catch (e) {
+      this.$alertError(e && e.message)
+    }
+  }
+
+  private generateAlgoParam() {
     this.generateEffectiveTime()
     let algorithmMetadata = this.form.algorithmMetadata
     Object.keys(algorithmMetadata).forEach(key => algorithmMetadata[key] === '' && delete algorithmMetadata[key])
@@ -396,23 +430,8 @@ export default class extends Mixins(AppMixin) {
     if (this.form.algorithm?.code === '10010' || this.prod?.code === '10010') {
       param.confidence = this.form.beeNumber
     }
-    try {
-      if (this.$route.query.id) {
-        // 如果有关联的设备则不能传analyseType参数
-        if (parseInt(param.associateDevices) > 0) {
-          delete param.analyseType
-        }
-        await updateAppInfo(param)
-      } else {
-        // 新建时带上算法ID
-        param = { ...param, algorithmsId: this.prod.id }
-        await createApp(param)
-      }
-      this.$message.success(`${this.$route.query.id ? '修改' : '新建'}应用成功`)
-      this.backToAppList()
-    } catch (e) {
-      this.$alertError(e && e.message)
-    }
+
+    return param
   }
   /**
    * 增加生效时间段选项
@@ -436,8 +455,11 @@ export default class extends Mixins(AppMixin) {
    */
   private async refreshFaceLib() {
     this.isfaceLibLoading = true
-    const { groups } = await getAIConfigGroupData({ })
-    this.faceLibs = groups
+    const { data } = await listGroup({
+      pageNum: 0,
+      pageSize: 3000
+    })
+    this.faceLibs = data
     this.isfaceLibLoading = false
   }
   /**
@@ -462,7 +484,7 @@ export default class extends Mixins(AppMixin) {
    */
   private goFaceLib() {
     const addr = this.$router.resolve({
-      name: 'aiconfig'
+      name: 'facelib'
     })
     window.open(addr.href, '_blank')
   }
