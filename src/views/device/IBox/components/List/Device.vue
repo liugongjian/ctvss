@@ -14,11 +14,14 @@ import deviceList from '../Info/DeviceList.vue'
 import aiManage from '../Info/AiManagement.vue'
 import appList from '../Info/AiAppList.vue'
 
+import iboxInfo from '../Info/IBoxInfo.vue'
+
 @Component({
   name: 'Device',
   components: {
     deviceList,
     aiManage,
+    iboxInfo,
     appList
   }
 })
@@ -39,3 +42,28 @@ export default class IBoxList extends Vue {
   }
 }
 </script>
+<style lang="scss" scoped>
+.ibox-list {
+  overflow: auto;
+}
+
+.ibox-list::-webkit-scrollbar {
+  /* 滚动条整体样式 */
+  width: 5px;  /* 高宽分别对应横竖滚动条的尺寸 */
+  height: 10px;
+}
+
+.ibox-list::-webkit-scrollbar-thumb {
+  /* 滚动条里面小方块 */
+  border-radius: 10px;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 20%);
+  background: #ddd;
+}
+
+.ibox-list::-webkit-scrollbar-track {
+  /* 滚动条里面轨道 */
+  // box-shadow: inset 0 0 5px rgba(0, 0, 0, 20%);
+  border-radius: 20px;
+  background: transparent;
+}
+</style>
