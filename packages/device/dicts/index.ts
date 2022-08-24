@@ -14,12 +14,12 @@ const defaultVendor = {
   '其他': '其他'
 }
 export const DeviceVendor = {
-  [enums.InVideoProtocol.Gb28181]: defaultVendor,
-  [enums.InVideoProtocol.Ehome]: {
+  [enums.InVideoProtocolEnum.Gb28181]: defaultVendor,
+  [enums.InVideoProtocolEnum.Ehome]: {
     '海康': '海康'
   },
-  [enums.InVideoProtocol.Rtmp]: defaultVendor,
-  [enums.InVideoProtocol.Rtsp]: defaultVendor
+  [enums.InVideoProtocolEnum.Rtmp]: defaultVendor,
+  [enums.InVideoProtocolEnum.Rtsp]: defaultVendor
 }
 
 /*
@@ -33,9 +33,9 @@ export const EhomeVersion = {
   设备类型
 */
 export const DeviceType = {
-  [enums.DeviceType.Ipc]: 'IPC',
-  [enums.DeviceType.Nvr]: 'NVR',
-  [enums.DeviceType.Platform]: 'Platform'
+  [enums.DeviceTypeEnum.Ipc]: 'IPC',
+  [enums.DeviceTypeEnum.Nvr]: 'NVR',
+  [enums.DeviceTypeEnum.Platform]: 'Platform'
 }
 
 /*
@@ -106,19 +106,19 @@ export const DeviceStreamPullIndex = {
  * 设备类型对应的视频接入协议
  */
 export const InVideoProtocolByDeviceType = {
-  [enums.DeviceType.Ipc]: {
-    [enums.InVideoProtocol.Gb28181]: 'GB28181',
-    [enums.InVideoProtocol.Rtmp]: 'RTMP',
-    [enums.InVideoProtocol.Rtsp]: 'RTSP',
-    [enums.InVideoProtocol.Ehome]: 'EHOME'
+  [enums.DeviceTypeEnum.Ipc]: {
+    [enums.InVideoProtocolEnum.Gb28181]: 'GB28181',
+    [enums.InVideoProtocolEnum.Rtmp]: 'RTMP',
+    [enums.InVideoProtocolEnum.Rtsp]: 'RTSP',
+    [enums.InVideoProtocolEnum.Ehome]: 'EHOME'
   },
-  [enums.DeviceType.Nvr]: {
-    [enums.InVideoProtocol.Gb28181]: 'GB28181',
-    [enums.InVideoProtocol.Rtsp]: 'RTSP',
-    [enums.InVideoProtocol.Ehome]: 'EHOME'
+  [enums.DeviceTypeEnum.Nvr]: {
+    [enums.InVideoProtocolEnum.Gb28181]: 'GB28181',
+    [enums.InVideoProtocolEnum.Rtsp]: 'RTSP',
+    [enums.InVideoProtocolEnum.Ehome]: 'EHOME'
   },
-  [enums.DeviceType.Platform]: {
-    [enums.InVideoProtocol.Gb28181]: 'GB28181'
+  [enums.DeviceTypeEnum.Platform]: {
+    [enums.InVideoProtocolEnum.Gb28181]: 'GB28181'
   }
 }
 
@@ -126,47 +126,47 @@ export const InVideoProtocolByDeviceType = {
  * 视频接入协议
  */
 export const InVideoProtocol = {
-  [enums.InVideoProtocol.Gb28181]: 'GB28181',
-  [enums.InVideoProtocol.Rtmp]: 'RTMP',
-  [enums.InVideoProtocol.Rtsp]: 'RTSP',
-  [enums.InVideoProtocol.Ehome]: 'EHOME'
+  [enums.InVideoProtocolEnum.Gb28181]: 'GB28181',
+  [enums.InVideoProtocolEnum.Rtmp]: 'RTMP',
+  [enums.InVideoProtocolEnum.Rtsp]: 'RTSP',
+  [enums.InVideoProtocolEnum.Ehome]: 'EHOME'
 }
 
 /**
  * 视频接入协议对应的中台模型字段名
  */
 export const InVideoProtocolModelMapping = {
-  [enums.InVideoProtocol.Gb28181]: 'gB28181Device',
-  [enums.InVideoProtocol.Rtmp]: 'rtmpDevice',
-  [enums.InVideoProtocol.Rtsp]: 'rtspDevice',
-  [enums.InVideoProtocol.Ehome]: 'ehomeDevice',
-  [enums.InVideoProtocol.Onvif]: 'onvifDevice'
+  [enums.InVideoProtocolEnum.Gb28181]: 'gb28181Device',
+  [enums.InVideoProtocolEnum.Rtmp]: 'rtmpDevice',
+  [enums.InVideoProtocolEnum.Rtsp]: 'rtspDevice',
+  [enums.InVideoProtocolEnum.Ehome]: 'ehomeDevice',
+  [enums.InVideoProtocolEnum.Onvif]: 'onvifDevice'
 }
 
 /**
  * 视图接入协议
  */
 export const InViidProtocol = {
-  [enums.InViidProtocol.Ga1400]: 'GA1400'
+  [enums.InViidProtocolEnum.Ga1400]: 'GA1400'
 }
 
 /**
  * 视频接入协议对应的中台模型字段名
  */
 export const InViidProtocolModelMapping = {
-  [enums.InViidProtocol.Ga1400]: 'gA1400Device'
+  [enums.InViidProtocolEnum.Ga1400]: 'ga1400Device'
 }
 
 /**
  * 字段名称翻译
  */
 export const VideoParamLabel = {
-  [enums.InVideoProtocol.Gb28181]: {
+  [enums.InVideoProtocolEnum.Gb28181]: {
     'outId': '国标ID',
     'inVersion': '国标版本',
     'inUserName': 'GB28181凭证'
   },
-  [enums.InVideoProtocol.Ehome]: {
+  [enums.InVideoProtocolEnum.Ehome]: {
     'outId': 'Ehome ID',
     'inVersion': 'Ehome版本',
     'inUserName': 'Ehome凭证'
@@ -177,10 +177,10 @@ export const VideoParamLabel = {
  * 设备类型对应的视图接入类型
  */
 export const ProtocolDeviceTypeByDeviceType = {
-  [enums.DeviceType.Ipc]: {
+  [enums.DeviceTypeEnum.Ipc]: {
     'ape': '视图采集设备'
   },
-  [enums.DeviceType.Platform]: {
+  [enums.DeviceTypeEnum.Platform]: {
     'aps': '视图采集系统',
     'viid': '视图库'
   }
@@ -199,17 +199,17 @@ export const ProtocolDeviceType = {
  * 根据设备类型对应的接入方式
  */
 export const DeviceInTypeByDeviceType = {
-  [enums.DeviceType.Ipc]: {
-    [enums.DeviceInType.Video]: '视频',
-    [enums.DeviceInType.Viid]: '视图',
-    [enums.DeviceInType.VideoAndViid]: '视频、视图'
+  [enums.DeviceTypeEnum.Ipc]: {
+    [enums.DeviceInTypeEnum.Video]: '视频',
+    [enums.DeviceInTypeEnum.Viid]: '视图',
+    [enums.DeviceInTypeEnum.VideoAndViid]: '视频、视图'
   },
-  [enums.DeviceType.Nvr]: {
-    [enums.DeviceInType.Video]: '视频'
+  [enums.DeviceTypeEnum.Nvr]: {
+    [enums.DeviceInTypeEnum.Video]: '视频'
   },
-  [enums.DeviceType.Platform]: {
-    [enums.DeviceInType.Video]: '视频',
-    [enums.DeviceInType.Viid]: '视图'
+  [enums.DeviceTypeEnum.Platform]: {
+    [enums.DeviceInTypeEnum.Video]: '视频',
+    [enums.DeviceInTypeEnum.Viid]: '视图'
   }
 }
 
@@ -217,9 +217,9 @@ export const DeviceInTypeByDeviceType = {
  * 接入方式
  */
 export const DeviceInType = {
-  [enums.DeviceInType.Video]: '视频',
-  [enums.DeviceInType.Viid]: '视图',
-  [enums.DeviceInType.VideoAndViid]: '视频、视图'
+  [enums.DeviceInTypeEnum.Video]: '视频',
+  [enums.DeviceInTypeEnum.Viid]: '视图',
+  [enums.DeviceInTypeEnum.VideoAndViid]: '视频、视图'
 }
 
 /**
@@ -248,6 +248,14 @@ export const SipTransType = {
 export const StreamTransProtocol = {
   tcp: '是',
   udp: '否'
+}
+
+/**
+ * 视频流接入方式
+ */
+export const InType = {
+  'push': '推流',
+  'pull': '拉流'
 }
 
 /**
@@ -314,11 +322,6 @@ export const DeviceRtmpType = {
 export const DeviceRtspType = {
   'ipc': 'IPC',
   'nvr': 'NVR'
-}
-
-export const InType = {
-  'push': '推流',
-  'pull': '拉流'
 }
 
 export const OutProtocolType = {

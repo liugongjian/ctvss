@@ -1,11 +1,11 @@
-import { InVideoProtocol, InViidProtocol, DeviceType } from './enums'
+import { InVideoProtocolEnum, InViidProtocolEnum, DeviceTypeEnum } from './enums'
 
 /**
  * 接入协议对应的视频接入字段
  * 仅用在创建设备
  */
 export const InVideoProtocolCreateParams = {
-  [InVideoProtocol.Gb28181]: new Set([
+  [InVideoProtocolEnum.Gb28181]: new Set([
     'inUserName',
     'deviceStreamAutoPull',
     'outId',
@@ -14,7 +14,7 @@ export const InVideoProtocolCreateParams = {
     'deviceSerialNumber',
     'deviceModel'
   ]),
-  [InVideoProtocol.Ehome]: new Set([
+  [InVideoProtocolEnum.Ehome]: new Set([
     'inVersion',
     'deviceStreamSize',
     'deviceStreamAutoPull',
@@ -22,7 +22,7 @@ export const InVideoProtocolCreateParams = {
     'streamTransProtocol',
     'deviceMac'
   ]),
-  [InVideoProtocol.Rtsp]: new Set([
+  [InVideoProtocolEnum.Rtsp]: new Set([
     'inType',
     'pullUrl',
     'userName',
@@ -37,7 +37,7 @@ export const InVideoProtocolCreateParams = {
     'pushType',
     'streamTransProtocol'
   ]),
-  [InVideoProtocol.Rtmp]: new Set([
+  [InVideoProtocolEnum.Rtmp]: new Set([
     'inType',
     'pullUrl',
     'deviceStreamAutoPull',
@@ -51,8 +51,8 @@ export const InVideoProtocolCreateParams = {
  * 注意下面是显示的字段(ALLOW)
  */
 export const InVideoProtocolAllowParams = {
-  [InVideoProtocol.Gb28181]: new Set([
-    ...InVideoProtocolCreateParams[InVideoProtocol.Gb28181],
+  [InVideoProtocolEnum.Gb28181]: new Set([
+    ...InVideoProtocolCreateParams[InVideoProtocolEnum.Gb28181],
     'resources',
     'deviceChannelSize',
     'onlineChannels',
@@ -66,8 +66,8 @@ export const InVideoProtocolAllowParams = {
     'deviceIp',
     'devicePort'
   ]),
-  [InVideoProtocol.Ehome]: new Set([
-    ...InVideoProtocolCreateParams[InVideoProtocol.Ehome],
+  [InVideoProtocolEnum.Ehome]: new Set([
+    ...InVideoProtocolCreateParams[InVideoProtocolEnum.Ehome],
     'deviceChannelSize',
     'resources',
     'videoShowMore',
@@ -76,8 +76,8 @@ export const InVideoProtocolAllowParams = {
     'deviceIp',
     'devicePort'
   ]),
-  [InVideoProtocol.Rtsp]: new Set([
-    ...InVideoProtocolCreateParams[InVideoProtocol.Rtsp],
+  [InVideoProtocolEnum.Rtsp]: new Set([
+    ...InVideoProtocolCreateParams[InVideoProtocolEnum.Rtsp],
     'deviceChannelSize',
     'videoVendor',
     'resources',
@@ -87,8 +87,8 @@ export const InVideoProtocolAllowParams = {
     'deviceIp',
     'devicePort'
   ]),
-  [InVideoProtocol.Rtmp]: new Set([
-    ...InVideoProtocolCreateParams[InVideoProtocol.Rtmp],
+  [InVideoProtocolEnum.Rtmp]: new Set([
+    ...InVideoProtocolCreateParams[InVideoProtocolEnum.Rtmp],
     'onlyPullUrl',
     'resources',
     'videoShowMore',
@@ -103,16 +103,16 @@ export const InVideoProtocolAllowParams = {
  * 注意下面是不显示的字段(DENY)
  */
 export const DeviceTypeDenyParamsForVideo = {
-  [DeviceType.Ipc]: new Set([
+  [DeviceTypeEnum.Ipc]: new Set([
     'deviceChannelSize',
     'onlineChannels'
   ]),
-  [DeviceType.Nvr]: new Set([
+  [DeviceTypeEnum.Nvr]: new Set([
     'devicePoleId',
     'deviceSerialNumber',
     'deviceModel'
   ]),
-  [DeviceType.Platform]: new Set([
+  [DeviceTypeEnum.Platform]: new Set([
     'deviceChannelSize',
     'onlineChannels',
     'deviceSerialNumber',
@@ -128,7 +128,7 @@ export const DeviceTypeDenyParamsForVideo = {
  * 注意下面是显示的字段(ALLOW)
  */
 export const InViidProtocolAllowParams = {
-  [InViidProtocol.Ga1400]: new Set([
+  [InViidProtocolEnum.Ga1400]: new Set([
     'apsId',
     'protocolDeviceType',
     'inUserName',
@@ -142,16 +142,16 @@ export const InViidProtocolAllowParams = {
  * 注意下面是不显示的字段(DENY)
  */
 export const DeviceTypeDenyParamsForViid = {
-  [DeviceType.Ipc]: new Set([
+  [DeviceTypeEnum.Ipc]: new Set([
     'apsId',
     'ip',
     'port'
   ]),
-  [DeviceType.Nvr]: new Set([
+  [DeviceTypeEnum.Nvr]: new Set([
     'apsId',
     'ip',
     'port'
   ]),
-  [DeviceType.Platform]: new Set([
+  [DeviceTypeEnum.Platform]: new Set([
   ])
 }

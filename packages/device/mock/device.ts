@@ -16,8 +16,8 @@ export const deviceMock = {
   },
   videos: [
     {
-      inVideoProtocol: 'rtsp',
-      gB28181Device: {
+      inVideoProtocol: 'ehome',
+      gb28181Device: {
         sipId: '31011500012008469596',
         sipIp: '1.1.1.1',
         sipTcpPort: '123',
@@ -79,7 +79,7 @@ export const deviceMock = {
         errorMsg: '设备下线',
         inType: 'pull',
         pullUrl: 'http://abc.com',
-        enableDomain: 1,
+        enableDomain: 2,
         deviceDomain: 'http://www.domain.com',
         deviceStreamAutoPull: 1,
         deviceStreamSize: 3,
@@ -99,7 +99,7 @@ export const deviceMock = {
   viids: [
     {
       inViidProtocol: 'ga1400',
-      gA1400Device: {
+      ga1400Device: {
         httpEndpoint: '',
         httpsEndpoint: '',
         outId: '1233',
