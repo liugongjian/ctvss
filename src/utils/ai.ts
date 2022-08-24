@@ -219,6 +219,13 @@ export const parseMetaData = (type: string, metaData: any) => {
           )
         }
       }
+      if (metaData.DangerZoneBox && metaData.DangerZoneBox.length) {
+        locations.push(
+          {
+            zone: metaData.DangerZoneBox
+          }
+        )
+      }
       break
 
     case '8': // 研发二部人员聚集
