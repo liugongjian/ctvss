@@ -8,22 +8,32 @@
       label-width="135px"
     >
       <el-form-item label="接入协议:" prop="inViidProtocol">
-        <el-radio v-for="(value, key) in viidInProtocolType" :key="key" v-model="viidForm.inViidProtocol" :label="key">{{ value }}</el-radio>
+        <el-radio
+          v-for="(value, key) in inViidProtocol"
+          :key="key"
+          v-model="viidForm.inViidProtocol"
+          :label="key"
+        >
+          {{ value }}
+        </el-radio>
       </el-form-item>
-      <el-form-item label="接入类型:" prop="apeType">
+      <el-form-item v-if="checkVisible('apsId')" label="视图编码:" prop="apsId">
+        <el-input v-model="viidForm.apsId" />
+      </el-form-item>
+      <el-form-item v-if="checkVisible('protocolDeviceType')" label="接入类型:" prop="protocolDeviceType">
         <el-select
-          v-model="viidForm.apeType"
+          v-model="viidForm.protocolDeviceType"
           placeholder="请选择"
         >
           <el-option
-            v-for="(value, key) in apeType"
+            v-for="(value, key) in protocolDeviceTypeByDeviceType[deviceForm.deviceType]"
             :key="key"
             :label="value"
             :value="key"
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="GA1400凭证:" prop="inUserName">
+      <el-form-item v-if="checkVisible('inUserName')" label="GA1400凭证:" prop="inUserName">
         <el-select v-model="viidForm.inUserName" :loading="loading.account">
           <el-option
             v-for="item in ga1400AccountList"
@@ -40,6 +50,12 @@
           新建GA1400凭证
         </el-button>
       </el-form-item>
+      <el-form-item v-if="checkVisible('ip')" label="平台IP:" prop="ip">
+        <el-input v-model="viidForm.ip" placeholder="请输入平台IP" />
+      </el-form-item>
+      <el-form-item v-if="checkVisible('port')" label="端口:" prop="port">
+        <el-input v-model.number="viidForm.port" placeholder="请输入端口" />
+      </el-form-item>
     </el-form>
     <create-ga1400-certificate
       v-if="dialog.createGa1400Certificate"
@@ -49,10 +65,12 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
-import { ViidInProtocolType, ApeType } from '../dicts/index'
-import CreateGa1400Certificate from '@/views/certificate/ga1400/components/CreateDialog.vue'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { InViidProtocol, ProtocolDeviceTypeByDeviceType } from '../dicts/index'
+import { InViidProtocol as InViidProtocolEnum } from '../enums/index'
+import { checkViidVisible } from '../utils/param'
 import { getList as getGa1400List } from '@/api/certificate/ga1400'
+import CreateGa1400Certificate from '@/views/certificate/ga1400/components/CreateDialog.vue'
 
 @Component({
   name: 'ViidCreateForm',
@@ -61,23 +79,41 @@ import { getList as getGa1400List } from '@/api/certificate/ga1400'
   }
 })
 export default class extends Vue {
-  private viidInProtocolType = ViidInProtocolType
-  private apeType = ApeType
+  @Prop({ default: () => {} })
+  private deviceForm
+
+  private inViidProtocol = InViidProtocol
+  private protocolDeviceTypeByDeviceType = ProtocolDeviceTypeByDeviceType
   private ga1400AccountList = []
   private viidForm = {
-    inViidProtocol: 'ga1400',
-    apeType: 'APE',
-    inUserName: ''
+    inViidProtocol: InViidProtocolEnum.Ga1400,
+    apsId: '',
+    protocolDeviceType: '',
+    inUserName: '',
+    ip: '',
+    port: ''
   }
   private rules = {
     inViidProtocol: [
       { required: true, message: '请选择接入协议', trigger: 'change' }
     ],
-    apeType: [
+    apsId: [
+      { required: true, message: '请输入视图编码', trigger: 'blur' },
+      { validator: this.validateApsId, trigger: 'blur' }
+    ],
+    protocolDeviceType: [
       { required: true, message: '请选择设备类型', trigger: 'change' }
     ],
     inUserName: [
       { required: true, message: '请选择账号', trigger: 'change' }
+    ],
+    ip: [
+      { required: true, message: '请输入平台IP', trigger: 'blur' },
+      { validator: this.validateDeviceIp, trigger: 'blur' }
+    ],
+    port: [
+      { required: true, message: '请输入端口', trigger: 'blur' },
+      { validator: this.validateDevicePort, trigger: 'change' }
     ]
   }
   private loading = {
@@ -87,8 +123,17 @@ export default class extends Vue {
     createGa1400Certificate: false
   }
 
+  @Watch('deviceForm.deviceType')
+  private deviceTypeChange() {
+    this.viidForm.protocolDeviceType = ''
+  }
+
   private mounted() {
     this.getGa1400Accounts()
+  }
+
+  private checkVisible(prop) {
+    return checkViidVisible.call(this.viidForm, this.deviceForm.deviceType, this.viidForm.inViidProtocol, prop)
   }
 
   /**
@@ -136,6 +181,17 @@ export default class extends Vue {
       console.error(e)
     } finally {
       this.loading.account = false
+    }
+  }
+
+  /**
+   * 校验视图编码
+   */
+  private validateApsId(rule: any, value: string, callback: Function) {
+    if (!/^[0-9]{20}$/.test(value)) {
+      callback(new Error('视图标编码为20位数字'))
+    } else {
+      callback()
     }
   }
 }

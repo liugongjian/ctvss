@@ -208,12 +208,14 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import { DeviceType, DeviceInTypeByDeviceType, DeviceVendor, IndustryMap, NetworkMap } from '../../dicts/index'
+import { pick } from 'lodash'
+import { DeviceType, DeviceInTypeByDeviceType, DeviceVendor, IndustryMap, NetworkMap, InVideoProtocolModelMapping, InViidProtocolModelMapping } from '../../dicts/index'
 import { DeviceAddress } from '../../type/Device'
 import { getRegions } from '../../api/region'
 import { checkVideoVisible } from '../../utils/param'
 import { DeviceTips } from '../../dicts/tips'
-import { InVideoProtocol as InVideoProtocolEnum, DeviceType as DeviceTypeEnum, DeviceInType as DeviceInTypeEnum } from '../../enums/index'
+import { InVideoProtocol as InVideoProtocolEnum, DeviceType as DeviceTypeEnum, DeviceInType as DeviceInTypeEnum, InViidProtocol as InViidProtocolEnum } from '../../enums/index'
+import { InVideoProtocolCreateParams, InVideoProtocolAllowParams, DeviceTypeDenyParamsForVideo, InViidProtocolAllowParams, DeviceTypeDenyParamsForViid } from '../../settings'
 import { createDevice, updateDevice, getDevice, validGbId, createViewLib, getViewLibInfo, updateViewLib } from '../../api/device'
 import AddressCascader from '../AddressCascader.vue'
 import VideoCreateForm from '../VideoCreateForm.vue'
@@ -232,6 +234,7 @@ export default class extends Vue {
   private deviceTypeEnum = DeviceTypeEnum
   private deviceInTypeEnum = DeviceInTypeEnum
   private inVideoProtocolEnum = InVideoProtocolEnum
+  private inViidProtocolEnum = InViidProtocolEnum
   private deviceType = DeviceType
   private deviceInType = DeviceInTypeByDeviceType
   private deviceVendor = DeviceVendor
@@ -411,11 +414,122 @@ export default class extends Vue {
     })
     // 判断校验结果
     if (validFlag) {
-      console.log({
-        ...this.deviceForm,
-        videoForm: this.videoForm,
-        viidForm: this.viidForm
-      })
+      const params: any = {
+        ...pick(this.deviceForm, [
+          'region',
+          'inNetworkType',
+          'outNetworkType'
+        ]),
+        device: {
+          ...pick(this.deviceForm, [
+            'deviceType',
+            'deviceVendor',
+            'deviceName',
+            'deviceIp',
+            'devicePort',
+            'deviceLongitude',
+            'deviceLatitude',
+            'deviceChannelSize',
+            'description'
+          ])
+        },
+        industry: {
+          ...pick(this.deviceForm, [
+            'industryCode',
+            'networkCode',
+            'outId'
+          ])
+        },
+        resource: this.videoForm.resources
+      }
+      // 补充视频接入信息
+      if (this.deviceForm.deviceInType !== this.deviceInTypeEnum.Viid) {
+        params.videos = {
+          ...pick(this.videoForm, [
+            'inVideoProtocol'
+          ])
+        }
+        // 补充gb28181信息
+        if (this.videoForm.inVideoProtocol === this.inVideoProtocolEnum.Gb28181) {
+          params.videos[InVideoProtocolModelMapping[this.videoForm.inVideoProtocol]] = {
+            ...pick(this.videoForm, [
+              'inUserName',
+              'deviceStreamAutoPull',
+              'outId',
+              'deviceMac',
+              'devicePoleId',
+              'deviceSerialNumber',
+              'deviceModel'
+            ])
+          }
+        }
+        // 补充ehome信息
+        if (this.videoForm.inVideoProtocol === this.inVideoProtocolEnum.Ehome) {
+          params.videos[InVideoProtocolModelMapping[this.videoForm.inVideoProtocol]] = {
+            ...pick(this.videoForm, [
+              'inVersion',
+              'deviceStreamSize',
+              'deviceStreamAutoPull',
+              'deviceStreamPullIndex',
+              'streamTransProtocol',
+              'deviceMac'
+            ])
+          }
+        }
+        // 补充rtsp信息
+        if (this.videoForm.inVideoProtocol === this.inVideoProtocolEnum.Rtsp) {
+          params.videos[InVideoProtocolModelMapping[this.videoForm.inVideoProtocol]] = {
+            ...pick(this.videoForm, [
+              'inType',
+              'pullUrl',
+              'userName',
+              'password',
+              'enableDomain',
+              'deviceDomain',
+              'deviceIpRequired',
+              'devicePortRequired',
+              'deviceStreamSize',
+              'deviceStreamAutoPull',
+              'deviceStreamPullIndex',
+              'pushType',
+              'streamTransProtocol'
+            ])
+          }
+        }
+        // 补充rtmp信息
+        if (this.videoForm.inVideoProtocol === this.inVideoProtocolEnum.Rtmp) {
+          params.videos[InVideoProtocolModelMapping[this.videoForm.inVideoProtocol]] = {
+            ...pick(this.videoForm, [
+              'inType',
+              'pullUrl',
+              'deviceStreamAutoPull',
+              'pushType',
+              'tags'
+            ])
+          }
+        }
+      }
+      // 补充视图接入信息
+      if (this.deviceForm.deviceInType !== this.deviceInTypeEnum.Viid) {
+        params.viids = {
+          ...pick(this.viidForm, [
+            'inViidProtocol'
+          ])
+        }
+        // 补充ga1400信息
+        if (this.viidForm.inViidProtocol === this.inViidProtocolEnum.Ga1400) {
+          params.viids[InViidProtocolModelMapping[this.viidForm.inViidProtocol]] = {
+            ...pick(this.viidForm, [
+              'apsId',
+              'protocolDeviceType',
+              'inUserName',
+              'ip',
+              'port'
+            ])
+          }
+        }
+      }
+      console.log(params)
     }
   }
 

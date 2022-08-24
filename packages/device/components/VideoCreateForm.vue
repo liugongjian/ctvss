@@ -119,12 +119,12 @@
           </el-popover>
         </template>
         <el-radio
-          v-for="(value, key) in multiStreamSize"
+          v-for="(value, key) in deviceStreamSize"
           :key="key"
           v-model="videoForm.deviceStreamSize"
           :label="+key"
           :disabled="deviceForm.deviceType === 'nvr' && +key === 3 "
-          @change="onMultiStreamSizeChange"
+          @change="onDeviceStreamSizeChange"
         >
           {{ value }}
         </el-radio>
@@ -155,7 +155,7 @@
         prop="deviceStreamPullIndex"
       >
         <el-radio
-          v-for="(value, key) in autoStreamNum"
+          v-for="(value, key) in deviceStreamPullIndex"
           :key="key"
           v-model="videoForm.deviceStreamPullIndex"
           :label="+key"
@@ -253,7 +253,7 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { InVideoProtocol as InVideoProtocolEnum } from '../enums/index'
-import { InVideoProtocolByDeviceType, EhomeVersion, DeviceVendor, InType, MultiStreamSize, AutoStreamNum } from '../dicts/index'
+import { InVideoProtocolByDeviceType, EhomeVersion, DeviceVendor, InType, DeviceStreamSize, DeviceStreamPullIndex } from '../dicts/index'
 import { DeviceTips } from '../dicts/tips'
 import { getList as getGbList } from '@/api/certificate/gb28181'
 import { validGbId } from '../api/device'
@@ -280,8 +280,8 @@ export default class extends Vue {
   private deviceVendor = DeviceVendor
   private inVideoProtocol = InVideoProtocolByDeviceType
   private inType = InType
-  private multiStreamSize = MultiStreamSize
-  private autoStreamNum = AutoStreamNum
+  private deviceStreamSize = DeviceStreamSize
+  private deviceStreamPullIndex = DeviceStreamPullIndex
   private minChannelSize = 1
   private showMore: boolean = false
   private videoForm = {
@@ -442,7 +442,7 @@ export default class extends Vue {
   /**
    * 码流数变化回调
    */
-  private onMultiStreamSizeChange() {
+  private onDeviceStreamSizeChange() {
     if (this.videoForm.deviceStreamSize < this.videoForm.deviceStreamPullIndex) {
       this.videoForm.deviceStreamPullIndex = this.videoForm.deviceStreamSize
     }
