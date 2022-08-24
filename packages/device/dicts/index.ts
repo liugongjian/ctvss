@@ -146,7 +146,7 @@ export const InVideoProtocolModelMapping = {
 /**
  * 视图接入协议
  */
-export const ViidInProtocolType = {
+export const InViidProtocol = {
   [enums.InViidProtocol.Ga1400]: 'GA1400'
 }
 
@@ -230,7 +230,7 @@ export const SipTransType = {
 /**
  *  优先TCP传输
  */
-export const TransPriority = {
+export const StreamTransProtocol = {
   tcp: '是',
   udp: '否'
 }

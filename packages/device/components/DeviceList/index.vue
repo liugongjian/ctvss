@@ -206,9 +206,9 @@
                 {{ streamTransType[row.streamTransType] || '-' }}
               </template>
             </el-table-column>
-            <el-table-column v-if="isGb || !isNVR" key="transPriority" prop="transPriority" label="优先TCP传输" min-width="110">
+            <el-table-column v-if="isGb || !isNVR" key="streamTransProtocol" prop="streamTransProtocol" label="优先TCP传输" min-width="110">
               <template slot-scope="{row}">
-                {{ transPriority[row.transPriority] || '-' }}
+                {{ streamTransProtocol[row.transPriority] || '-' }}
               </template>
             </el-table-column>
             <el-table-column v-if="isGb && !isNVR" key="tunnelNum" prop="tunnelNum" label="通道数">
@@ -300,7 +300,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Device } from '../../type/Device'
-import { DeviceParams, DeviceStatus, StreamStatus, RecordStatus, RecordStatusType, RecordStatusFilterType, DeviceGb28181Type, SipTransType, StreamTransType, TransPriority } from '../../dicts/index'
+import { DeviceParams, DeviceStatus, StreamStatus, RecordStatus, RecordStatusType, RecordStatusFilterType, DeviceGb28181Type, SipTransType, StreamTransType, StreamTransProtocol } from '../../dicts/index'
 import { checkPermission } from '@/utils/permission'
 import ResizeObserver from 'resize-observer-polyfill'
 import MoveDir from '../MoveDir.vue'
@@ -321,7 +321,7 @@ export default class extends Vue {
   private deviceType = DeviceGb28181Type
   private sipTransType = SipTransType
   private streamTransType = StreamTransType
-  private transPriority = TransPriority
+  private streamTransProtocol = StreamTransProtocol
   public tableMaxHeight: any = null
   public observer: any = null
   public filter: any = {

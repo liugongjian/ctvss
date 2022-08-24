@@ -36,13 +36,13 @@
       <el-descriptions-item v-if="checkVisible('inVersion')" :label="dicts.VideoParamLabel[inVideoProtocol].inVersion">{{ videoInfo.inVersion || '-' }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible('inUserName')" :label="dicts.VideoParamLabel[inVideoProtocol].inUserName">{{ videoInfo.inUserName || '-' }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible('deviceChannelSize')" label="通道数量">{{ basicInfo.deviceChannelSize }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible('deviceMac')" label="设备MAC地址">{{ basicInfo.deviceMac }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible('devicePoleId')" label="杆号">{{ basicInfo.devicePoleId }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('deviceMac')" label="设备MAC地址">{{ videoInfo.deviceMac }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('devicePoleId')" label="杆号">{{ videoInfo.devicePoleId }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible('sipTransType')" label="信令传输模式">{{ dicts.SipTransType[videoInfo.sipTransType] }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible('deviceStreamSize')" label="主子码流数量">{{ videoInfo.deviceStreamSize }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible('deviceStreamAutoPull')" label="自动拉流">{{ dicts.DeviceStreamAutoPull[videoInfo.deviceStreamAutoPull] }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible('deviceStreamPullIndex')" label="自动拉取码流">{{ videoInfo.deviceStreamPullIndex }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible('streamTransProtocol')" label="优先TCP传输">{{ dicts.TransPriority[videoInfo.streamTransProtocol] }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('streamTransProtocol')" label="优先TCP传输">{{ dicts.StreamTransProtocol[videoInfo.streamTransProtocol] }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible('streamTransType')" label="流传输模式">{{ dicts.StreamTransType[videoInfo.stream.streamTransType] }}</el-descriptions-item>
 
       <template v-if="basicInfo.deviceVendor === '其他' || checkVisible('onlyPullUrl')">
