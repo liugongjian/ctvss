@@ -227,19 +227,19 @@
           inactive-color="#C0C4CC"
         />
       </el-form-item>
-      <el-form-item v-if="alertDisabled" label="告警周期" prop="alertPeriod" class="inline-form-item">
+      <el-form-item v-if="alertDisabled && !ifShow('10001')" label="告警周期" prop="alertPeriod" class="inline-form-item">
         <el-input v-model="form.alertPeriod" class="alarm" />
       </el-form-item>
-      <el-select v-if="alertDisabled" v-model="interval.alertPeriod" class="interval-unit">
+      <el-select v-if="alertDisabled && !ifShow('10001')" v-model="interval.alertPeriod" class="interval-unit">
         <el-option key="second" label="秒" value="s" />
         <el-option key="minute" label="分" value="m" />
         <el-option key="hour" label="时" value="h" />
       </el-select>
       <br>
-      <el-form-item v-if="alertDisabled" label="告警数量阈值" prop="alertTriggerThreshold" class="inline-form-item">
+      <el-form-item v-if="alertDisabled && !ifShow('10001')" label="告警数量阈值" prop="alertTriggerThreshold" class="inline-form-item">
         <el-input v-model="form.alertTriggerThreshold" class="alarm" />
       </el-form-item>
-      <span v-if="alertDisabled" style="margin-left: 16px;">个</span>
+      <span v-if="alertDisabled && !ifShow('10001')" style="margin-left: 16px;">个</span>
       <br>
       <el-form-item v-if="alertDisabled" label="静默时间" prop="alertSilencePeriod" class="inline-form-item">
         <el-input v-model="form.alertSilencePeriod" class="alarm" />
