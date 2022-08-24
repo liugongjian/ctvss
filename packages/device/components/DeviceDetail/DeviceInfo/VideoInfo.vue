@@ -36,21 +36,21 @@
       <el-descriptions-item v-if="checkVisible('inVersion')" :label="dicts.VideoParamLabel[inVideoProtocol].inVersion">{{ videoInfo.inVersion || '-' }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible('inUserName')" :label="dicts.VideoParamLabel[inVideoProtocol].inUserName">{{ videoInfo.inUserName || '-' }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible('deviceChannelSize')" label="通道数量">{{ basicInfo.deviceChannelSize }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible('deviceMac')" label="设备MAC地址">{{ basicInfo.deviceMac }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible('devicePoleId')" label="杆号">{{ basicInfo.devicePoleId }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('deviceMac')" label="设备MAC地址">{{ videoInfo.deviceMac }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('devicePoleId')" label="杆号">{{ videoInfo.devicePoleId }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible('sipTransType')" label="信令传输模式">{{ dicts.SipTransType[videoInfo.sipTransType] }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible('deviceStreamSize')" label="主子码流数量">{{ videoInfo.deviceStreamSize }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('deviceStreamSize')" label="主子码流数量">{{ dicts.DeviceStreamSize[videoInfo.deviceStreamSize] }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible('deviceStreamAutoPull')" label="自动拉流">{{ dicts.DeviceStreamAutoPull[videoInfo.deviceStreamAutoPull] }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible('deviceStreamPullIndex')" label="自动拉取码流">{{ videoInfo.deviceStreamPullIndex }}</el-descriptions-item>
-      <el-descriptions-item v-if="checkVisible('streamTransProtocol')" label="优先TCP传输">{{ dicts.TransPriority[videoInfo.streamTransProtocol] }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('deviceStreamPullIndex')" label="自动拉取码流">{{ dicts.DeviceStreamPullIndex[videoInfo.deviceStreamPullIndex] }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('streamTransProtocol')" label="优先TCP传输">{{ dicts.StreamTransProtocol[videoInfo.streamTransProtocol] }}</el-descriptions-item>
       <el-descriptions-item v-if="checkVisible('streamTransType')" label="流传输模式">{{ dicts.StreamTransType[videoInfo.stream.streamTransType] }}</el-descriptions-item>
-
+      <el-descriptions-item v-if="checkVisible('inType')" label="视频流接入方式">{{ dicts.InType[videoInfo.inType] }}</el-descriptions-item>
+      <el-descriptions-item v-if="checkVisible('pushType')" label="自动激活推流地址">{{ dicts.PushType[videoInfo.pushType] }}</el-descriptions-item>
       <template v-if="basicInfo.deviceVendor === '其他' || checkVisible('onlyPullUrl')">
         <el-descriptions-item v-if="checkVisible('pullUrl')" label="拉流地址">{{ videoInfo.pullUrl }}</el-descriptions-item>
       </template>
       <template v-else>
         <el-descriptions-item v-if="checkVisible('userName')" label="用户名">{{ videoInfo.userName }}</el-descriptions-item>
-        <el-descriptions-item v-if="checkVisible('enableDomain')" label="是否启用域名">{{ videoInfo.enableDomain }}</el-descriptions-item>
         <el-descriptions-item v-if="checkVisible('deviceDomain')" label="设备域名">{{ videoInfo.deviceDomain }}</el-descriptions-item>
         <el-descriptions-item v-if="checkVisible('deviceIp')" label="设备IP">{{ basicInfo.deviceIp }}</el-descriptions-item>
         <el-descriptions-item v-if="checkVisible('devicePort')" label="设备端口">{{ basicInfo.devicePort }}</el-descriptions-item>
@@ -78,7 +78,6 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import StatusBadge from '@/components/StatusBadge/index.vue'
 import * as dicts from '@vss/device/dicts'
-import * as enums from '@vss/device/enums'
 import { checkVideoVisible } from '@vss/device/utils/param'
 import { Device, VideoDevice } from '@vss/device/type/Device'
 
@@ -91,7 +90,6 @@ import { Device, VideoDevice } from '@vss/device/type/Device'
 export default class extends Vue {
   @Prop() private device: Device
   private dicts = dicts
-  private enums = enums
 
   // 设备基本信息
   private get basicInfo() {

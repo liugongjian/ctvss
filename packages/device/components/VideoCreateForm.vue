@@ -245,7 +245,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { InVideoProtocol as InVideoProtocolEnum } from '../enums/index'
+import { InVideoProtocolEnum } from '../enums/index'
 import { InVideoProtocolByDeviceType, VersionByInVideoProtocol, DeviceVendor, InType, DeviceStreamSize, DeviceStreamPullIndex } from '../dicts/index'
 import { DeviceTips } from '../dicts/tips'
 import { getList as getGbList } from '@/api/certificate/gb28181'

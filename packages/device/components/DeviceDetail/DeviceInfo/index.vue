@@ -42,7 +42,7 @@ import detailMixin from '@vss/device/mixin/detailMixin'
 })
 export default class extends Mixins(detailMixin) {
   private enums = enums
-  private activeTab = enums.DeviceInType.Video
+  private activeTab = enums.DeviceInTypeEnum.Video
 
   public async mounted() {
     await this.getDevice()

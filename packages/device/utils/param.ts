@@ -1,5 +1,5 @@
 import { InVideoProtocolAllowParams, DeviceTypeDenyParamsForVideo, InViidProtocolAllowParams, DeviceTypeDenyParamsForViid } from '../settings'
-import { DeviceInType } from '../enums/index'
+import { DeviceInTypeEnum, InTypeEnum } from '../enums/index'
 
 /**
  * 判断是否通过设备类型及接入协议字段过滤
@@ -10,12 +10,12 @@ import { DeviceInType } from '../enums/index'
  * @returns 判断结果
  */
 const checkVisible = (deviceInType, deviceType, inProtocol, prop): boolean => {
-  if (deviceInType === DeviceInType.Video) {
+  if (deviceInType === DeviceInTypeEnum.Video) {
     return (InVideoProtocolAllowParams[inProtocol] && InVideoProtocolAllowParams[inProtocol].has(prop)) && // 根据接入协议显示接入协议字段列表中包含的
       (DeviceTypeDenyParamsForVideo[deviceType] && !DeviceTypeDenyParamsForVideo[deviceType].has(prop)) // 根据设备类型过滤掉不需要显示的字段
   }
 
-  if (deviceInType === DeviceInType.Viid) {
+  if (deviceInType === DeviceInTypeEnum.Viid) {
     return (InViidProtocolAllowParams[inProtocol] && InViidProtocolAllowParams[inProtocol].has(prop)) && // 根据接入协议显示接入协议字段列表中包含的
       (DeviceTypeDenyParamsForViid[deviceType] && !DeviceTypeDenyParamsForViid[deviceType].has(prop)) // 根据设备类型过滤掉不需要显示的字段
   }
@@ -30,9 +30,7 @@ const checkVisible = (deviceInType, deviceType, inProtocol, prop): boolean => {
  */
 export function checkVideoVisible(deviceType, inVideoProtocol, prop: string): boolean {
   // 接入方式
-  if (this.inType === 'pull') {
-    if (['pushType'].includes(prop)) return false
-  } else {
+  if (this.inType === InTypeEnum.Push) {
     if ([
       'pullUrl',
       'userName',
@@ -40,6 +38,8 @@ export function checkVideoVisible(deviceType, inVideoProtocol, prop: string): bo
       'deviceStreamAutoPull',
       'deviceStreamPullIndex'
     ].includes(prop)) return false
+  } else {
+    if (['pushType'].includes(prop)) return false
   }
 
   // 是否自动拉流
@@ -55,7 +55,7 @@ export function checkVideoVisible(deviceType, inVideoProtocol, prop: string): bo
   }
 
   // 默认使用字典过滤
-  return checkVisible(DeviceInType.Video, deviceType, inVideoProtocol, prop)
+  return checkVisible(DeviceInTypeEnum.Video, deviceType, inVideoProtocol, prop)
 }
 
 /**
@@ -67,5 +67,5 @@ export function checkVideoVisible(deviceType, inVideoProtocol, prop: string): bo
  */
 export function checkViidVisible(deviceType, inViidProtocol, prop: string): boolean {
   // 默认使用字典过滤
-  return checkVisible(DeviceInType.Viid, deviceType, inViidProtocol, prop)
+  return checkVisible(DeviceInTypeEnum.Viid, deviceType, inViidProtocol, prop)
 }

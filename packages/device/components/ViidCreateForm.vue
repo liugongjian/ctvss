@@ -17,10 +17,10 @@
           {{ value }}
         </el-radio>
       </el-form-item>
-      <el-form-item v-if="checkVisible('apsId')" label="视图编码:" prop="apsId">
+      <el-form-item v-if="checkVisible(deviceEnum.LowerApsId)" label="视图编码:" :prop="deviceEnum.LowerApsId">
         <el-input v-model="viidForm.apsId" />
       </el-form-item>
-      <el-form-item v-if="checkVisible('protocolDeviceType')" label="接入类型:" prop="protocolDeviceType">
+      <el-form-item v-if="checkVisible(deviceEnum.ProtocolDeviceType)" label="接入类型:" :prop="deviceEnum.ProtocolDeviceType">
         <el-select
           v-model="viidForm.protocolDeviceType"
           placeholder="请选择"
@@ -33,7 +33,7 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item v-if="checkVisible('inUserName')" label="GA1400凭证:" prop="inUserName">
+      <el-form-item v-if="checkVisible(deviceEnum.InUserName)" label="GA1400凭证:" :prop="deviceEnum.InUserName">
         <el-select v-model="viidForm.inUserName" :loading="loading.account">
           <el-option
             v-for="item in ga1400AccountList"
@@ -50,10 +50,10 @@
           新建GA1400凭证
         </el-button>
       </el-form-item>
-      <el-form-item v-if="checkVisible('ip')" label="平台IP:" prop="ip">
+      <el-form-item v-if="checkVisible(deviceEnum.Ip)" label="平台IP:" :prop="deviceEnum.Ip">
         <el-input v-model="viidForm.ip" placeholder="请输入平台IP" />
       </el-form-item>
-      <el-form-item v-if="checkVisible('port')" label="端口:" prop="port">
+      <el-form-item v-if="checkVisible(deviceEnum.Port)" label="端口:" :prop="deviceEnum.Port">
         <el-input v-model.number="viidForm.port" placeholder="请输入端口" />
       </el-form-item>
     </el-form>
@@ -67,7 +67,7 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { InViidProtocol, ProtocolDeviceTypeByDeviceType } from '../dicts/index'
-import { InViidProtocol as InViidProtocolEnum } from '../enums/index'
+import { InViidProtocolEnum, DeviceEnum } from '../enums/index'
 import { checkViidVisible } from '../utils/param'
 import { getList as getGa1400List } from '@/api/certificate/ga1400'
 import CreateGa1400Certificate from '@/views/certificate/ga1400/components/CreateDialog.vue'
@@ -82,36 +82,37 @@ export default class extends Vue {
   @Prop({ default: () => {} })
   private deviceForm
 
+  private deviceEnum = DeviceEnum
   private inViidProtocol = InViidProtocol
   private protocolDeviceTypeByDeviceType = ProtocolDeviceTypeByDeviceType
   private ga1400AccountList = []
   private viidForm = {
-    inViidProtocol: InViidProtocolEnum.Ga1400,
-    apsId: '',
-    protocolDeviceType: '',
-    inUserName: '',
-    ip: '',
-    port: ''
+    [DeviceEnum.InViidProtocol]: InViidProtocolEnum.Ga1400,
+    [DeviceEnum.LowerApsId]: '',
+    [DeviceEnum.ProtocolDeviceType]: '',
+    [DeviceEnum.InUserName]: '',
+    [DeviceEnum.Ip]: '',
+    [DeviceEnum.Port]: ''
   }
   private rules = {
-    inViidProtocol: [
+    [DeviceEnum.InViidProtocol]: [
       { required: true, message: '请选择接入协议', trigger: 'change' }
     ],
-    apsId: [
+    [DeviceEnum.LowerApsId]: [
       { required: true, message: '请输入视图编码', trigger: 'blur' },
       { validator: this.validateApsId, trigger: 'blur' }
     ],
-    protocolDeviceType: [
+    [DeviceEnum.ProtocolDeviceType]: [
       { required: true, message: '请选择设备类型', trigger: 'change' }
     ],
-    inUserName: [
+    [DeviceEnum.InUserName]: [
       { required: true, message: '请选择账号', trigger: 'change' }
     ],
-    ip: [
+    [DeviceEnum.Ip]: [
       { required: true, message: '请输入平台IP', trigger: 'blur' },
       { validator: this.validateDeviceIp, trigger: 'blur' }
     ],
-    port: [
+    [DeviceEnum.Port]: [
       { required: true, message: '请输入端口', trigger: 'blur' },
       { validator: this.validateDevicePort, trigger: 'change' }
     ]

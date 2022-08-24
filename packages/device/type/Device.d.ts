@@ -40,7 +40,7 @@ interface Stream {
   StreamNum: string;
   streamStatus: string;
   recordStatus: number;
-  streamTransType: string;
+  streamTransType: string; // 流传输类型
   bitrate: number;
 }
 

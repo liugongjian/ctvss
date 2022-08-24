@@ -19,17 +19,17 @@
 
     <!-- 接入信息 -->
     <el-descriptions title="接入信息" :column="2">
+      <el-descriptions-item label="协议类型">{{ dicts.InViidProtocol[inViidProtocol] }}</el-descriptions-item>
       <el-descriptions-item label="视图ID">{{ viidInfo.outId || '-' }}</el-descriptions-item>
-      <el-descriptions-item label="GA1400凭证">缺失</el-descriptions-item>
-      <el-descriptions-item label="协议类型">缺失</el-descriptions-item>
-      <el-descriptions-item label="设备IP">{{ basicInfo.deviceIp }}</el-descriptions-item>
-      <el-descriptions-item label="设备端口">{{ basicInfo.devicePort }}</el-descriptions-item>
+      <el-descriptions-item label="GA1400凭证">{{ viidInfo.inUserName }}</el-descriptions-item>
+      <el-descriptions-item label="平台IP">{{ viidInfo.ip }}</el-descriptions-item>
+      <el-descriptions-item label="端口">{{ viidInfo.port }}</el-descriptions-item>
     </el-descriptions>
 
     <!-- 视图库信息 -->
     <el-descriptions title="视图库信息" :column="2">
-      <el-descriptions-item label="视图库IP">缺失</el-descriptions-item>
-      <el-descriptions-item label="视图库端口号">缺失</el-descriptions-item>
+      <el-descriptions-item label="视图库IP">{{ viidInfo.viidServerIp }}</el-descriptions-item>
+      <el-descriptions-item label="视图库端口号">{{ viidInfo.viidServerPort }}</el-descriptions-item>
     </el-descriptions>
   </div>
 </template>
