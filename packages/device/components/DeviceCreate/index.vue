@@ -20,13 +20,13 @@
           label-width="135px"
         >
           <div v-show="activeStep === 0">
-            <el-form-item label="设备名称:" prop="deviceName" class="form-with-tip">
+            <el-form-item label="设备名称:" :prop="deviceEnum.DeviceName" class="form-with-tip">
               <el-input v-model="deviceForm.deviceName" />
               <div class="form-tip">
                 2-64位，可包含大小写字母、数字、中文、中划线、下划线、小括号、空格。
               </div>
             </el-form-item>
-            <el-form-item label="设备分类:" prop="deviceType">
+            <el-form-item label="设备分类:" :prop="deviceEnum.DeviceType">
               <el-select
                 v-model="deviceForm.deviceType"
                 placeholder="请选择"
@@ -40,14 +40,7 @@
                 />
               </el-select>
             </el-form-item>
-            <el-form-item v-if="checkVisible('deviceChannelSize')" label="子设备数量:" prop="deviceChannelSize">
-              <el-input-number
-                v-model="deviceForm.deviceChannelSize"
-                :min="minChannelSize"
-                type="number"
-              />
-            </el-form-item>
-            <el-form-item label="接入类型:" prop="deviceInType">
+            <el-form-item label="接入类型:" :prop="deviceEnum.DeviceInType">
               <el-radio
                 v-for="(value, key) in deviceInType[deviceForm.deviceType]"
                 :key="key"
@@ -57,7 +50,7 @@
                 {{ value }}
               </el-radio>
             </el-form-item>
-            <el-form-item prop="inNetworkType">
+            <el-form-item :prop="deviceEnum.InNetworkType">
               <template slot="label">
                 接入网络:
                 <el-popover
@@ -71,11 +64,11 @@
                 </el-popover>
               </template>
               <el-radio-group v-model="deviceForm.inNetworkType">
-                <el-radio label="public">互联网</el-radio>
-                <el-radio label="private">专线网络</el-radio>
+                <el-radio :label="inNetworkTypeEnum.Public">互联网</el-radio>
+                <el-radio :label="inNetworkTypeEnum.Private">专线网络</el-radio>
               </el-radio-group>
             </el-form-item>
-            <el-form-item prop="outNetworkType">
+            <el-form-item :prop="deviceEnum.OutNetworkType">
               <template slot="label">
                 播放网络:
                 <el-popover
@@ -89,8 +82,8 @@
                 </el-popover>
               </template>
               <el-radio-group v-model="deviceForm.outNetworkType">
-                <el-radio label="public">互联网</el-radio>
-                <el-radio label="private">专线网络</el-radio>
+                <el-radio :label="outNetworkTypeEnum.Public">互联网</el-radio>
+                <el-radio :label="outNetworkTypeEnum.Private">专线网络</el-radio>
               </el-radio-group>
             </el-form-item>
             <div v-show="deviceForm.deviceInType !== deviceInTypeEnum.Viid">
@@ -110,11 +103,11 @@
             </div>
           </div>
           <div v-show="activeStep === 1">
-            <el-form-item label="经纬度:" prop="longlat">
+            <el-form-item label="经纬度:" :prop="deviceEnum.Longlat">
               <el-input v-model="deviceForm.deviceLongitude" class="longlat-input" /> :
               <el-input v-model="deviceForm.deviceLatitude" class="longlat-input" />
             </el-form-item>
-            <el-form-item label="厂商:" prop="deviceVendor">
+            <el-form-item label="厂商:" :prop="deviceEnum.DeviceVendor">
               <el-select v-model="deviceForm.deviceVendor" :disabled="videoForm.inVideoProtocol === inVideoProtocolEnum.Rtsp">
                 <el-option
                   v-for="(value, key) in deviceVendor[videoForm.inVideoProtocol]"
@@ -124,7 +117,7 @@
                 />
               </el-select>
             </el-form-item>
-            <el-form-item v-loading="loading.region" prop="region" class="form-with-tip">
+            <el-form-item v-loading="loading.region" :prop="deviceEnum.Region" class="form-with-tip">
               <template slot="label">
                 接入区域:
                 <el-popover
@@ -144,14 +137,14 @@
                 :options="regionList"
               />
             </el-form-item>
-            <el-form-item label="设备地址:" prop="inOrgRegion">
+            <el-form-item label="设备地址:" :prop="deviceEnum.InOrgRegion">
               <address-cascader
                 :code="deviceForm.inOrgRegion"
                 :level="deviceForm.inOrgRegionLevel"
                 @change="onDeviceAddressChange"
               />
             </el-form-item>
-            <el-form-item label="所属行业:" prop="industryCode">
+            <el-form-item label="所属行业:" :prop="deviceEnum.IndustryCode">
               <el-select
                 v-model="deviceForm.industryCode"
                 placeholder="请选择所属行业"
@@ -164,7 +157,7 @@
                 />
               </el-select>
             </el-form-item>
-            <el-form-item label="网络标识:" prop="networkCode">
+            <el-form-item label="网络标识:" :prop="deviceEnum.NetworkCode">
               <el-select
                 v-model="deviceForm.networkCode"
                 placeholder="请选择网络标识"
@@ -177,20 +170,32 @@
                 />
               </el-select>
             </el-form-item>
-            <div v-if="checkVisible('deviceShowMore')" class="show-more" :class="{'show-more--expanded': showMore}">
+            <div v-show="showMoreVisable" class="show-more" :class="{'show-more--expanded': showMore}">
               <el-form-item>
                 <el-button class="show-more--btn" type="text" @click="showMore = !showMore">更多<i class="el-icon-arrow-down" /></el-button>
               </el-form-item>
-              <div class="show-more--form">
-                <el-form-item v-if="checkVisible('deviceIp')" label="设备IP:" prop="deviceIp">
+              <div ref="showMoreForm" class="show-more--form">
+                <el-form-item v-if="checkVisible(deviceEnum.DeviceIp)" label="设备IP:" :prop="deviceEnum.DeviceIp">
                   <el-input v-model="deviceForm.deviceIp" />
                 </el-form-item>
-                <el-form-item v-if="checkVisible('devicePort')" label="设备端口:" prop="devicePort">
+                <el-form-item v-if="checkVisible(deviceEnum.DevicePort)" label="设备端口:" :prop="deviceEnum.DevicePort">
                   <el-input v-model="deviceForm.devicePort" />
+                </el-form-item>
+                <el-form-item v-if="checkVisible(deviceEnum.DevicePoleId)" label="杆号:" :prop="deviceEnum.DevicePoleId">
+                  <el-input v-model="deviceForm.devicePoleId " />
+                </el-form-item>
+                <el-form-item v-if="checkVisible(deviceEnum.DeviceMac)" label="设备MAC地址:" :prop="deviceEnum.DeviceMac">
+                  <el-input v-model="deviceForm.deviceMac" />
+                </el-form-item>
+                <el-form-item v-if="checkVisible(deviceEnum.DeviceSerialNumber)" label="设备SN码:" :prop="deviceEnum.DeviceSerialNumber">
+                  <el-input v-model="deviceForm.deviceSerialNumber" />
+                </el-form-item>
+                <el-form-item v-if="checkVisible(deviceEnum.DeviceModel)" label="设备型号:" :prop="deviceEnum.DeviceModel">
+                  <el-input v-model="deviceForm.deviceModel" />
                 </el-form-item>
               </div>
             </div>
-            <el-form-item label="设备描述:" prop="description">
+            <el-form-item label="设备描述:" :prop="deviceEnum.Description">
               <el-input
                 v-model="deviceForm.description"
                 type="textarea"
@@ -221,7 +226,7 @@ import { DeviceAddress } from '../../type/Device'
 import { getRegions } from '../../api/region'
 import { checkVideoVisible } from '../../utils/param'
 import { DeviceTips } from '../../dicts/tips'
-import { InVideoProtocolEnum, DeviceTypeEnum, DeviceInTypeEnum, InViidProtocolEnum } from '../../enums/index'
+import { DeviceEnum, InVideoProtocolEnum, DeviceTypeEnum, DeviceInTypeEnum, InViidProtocolEnum, InNetworkTypeEnum, OutNetworkTypeEnum } from '../../enums/index'
 import { InVideoProtocolAllowParams, InViidProtocolCreateParams } from '../../settings'
 import { createDevice } from '../../api/device'
 import AddressCascader from '../AddressCascader.vue'
@@ -238,10 +243,13 @@ import ViidCreateForm from '../ViidCreateForm.vue'
 })
 export default class extends Vue {
   private tips = DeviceTips
+  private deviceEnum = DeviceEnum
   private deviceTypeEnum = DeviceTypeEnum
   private deviceInTypeEnum = DeviceInTypeEnum
   private inVideoProtocolEnum = InVideoProtocolEnum
   private inViidProtocolEnum = InViidProtocolEnum
+  private inNetworkTypeEnum = InNetworkTypeEnum
+  private outNetworkTypeEnum = OutNetworkTypeEnum
   private deviceType = DeviceType
   private deviceInType = DeviceInTypeByDeviceType
   private deviceVendor = DeviceVendor
@@ -251,66 +259,72 @@ export default class extends Vue {
   private inVideoProtocol = InVideoProtocolEnum.Gb28181
   private activeStep: number = 0
   private showMore: boolean = false
-  private minChannelSize = 1
+  private showMoreVisable: boolean = false
   private deviceForm = {
     // step0
-    deviceName: '',
-    deviceType: DeviceTypeEnum.Ipc,
-    deviceChannelSize: 1,
-    deviceInType: DeviceInTypeEnum.VideoAndViid,
-    inNetworkType: 'public',
-    outNetworkType: 'public',
+    [DeviceEnum.DeviceName]: '',
+    [DeviceEnum.DeviceType]: DeviceTypeEnum.Ipc,
+    [DeviceEnum.DeviceInType]: DeviceInTypeEnum.VideoAndViid,
+    [DeviceEnum.InNetworkType]: InNetworkTypeEnum.Public,
+    [DeviceEnum.OutNetworkType]: OutNetworkTypeEnum.Public,
     // step1
     longlat: 'required',
-    deviceLongitude: '0.000000',
-    deviceLatitude: '0.000000',
-    deviceVendor: '',
-    region: '',
-    inOrgRegion: '',
-    inOrgRegionLevel: null,
-    industryCode: '',
-    networkCode: '7',
-    description: '',
-    deviceIp: '',
-    devicePort: ''
+    [DeviceEnum.DeviceLongitude]: '0.000000',
+    [DeviceEnum.DeviceLatitude]: '0.000000',
+    [DeviceEnum.DeviceVendor]: '',
+    [DeviceEnum.Region]: '',
+    [DeviceEnum.InOrgRegion]: '',
+    [DeviceEnum.InOrgRegionLevel]: null,
+    [DeviceEnum.IndustryCode]: '',
+    [DeviceEnum.NetworkCode]: '7',
+    [DeviceEnum.Description]: '',
+    [DeviceEnum.DeviceIp]: '',
+    [DeviceEnum.DevicePort]: '',
+    [DeviceEnum.DevicePoleId]: '',
+    [DeviceEnum.DeviceMac]: '',
+    [DeviceEnum.DeviceSerialNumber]: '',
+    [DeviceEnum.DeviceModel]: ''
   }
   private videoForm: any = {}
   private viidForm: any = {}
   private rules = {
-    deviceName: [
+    [DeviceEnum.DeviceName]: [
       { required: true, message: '请输入设备名称', trigger: 'blur' },
       { validator: this.validateDeviceName, trigger: 'blur' }
     ],
-    deviceType: [
+    [DeviceEnum.DeviceType]: [
       { required: true, message: '请选择设备类型', trigger: 'change' }
-    ],
-    deviceChannelSize: [
-      { required: true, message: '请填写子设备数量', trigger: 'blur' }
     ],
     longlat: [
       { required: true, message: '请选择经纬度', trigger: 'blur' },
       { validator: this.validateLonglat, trigger: 'blur' }
     ],
-    deviceVendor: [
+    [DeviceEnum.DeviceVendor]: [
       { required: true, message: '请选择厂商', trigger: 'change' }
     ],
-    region: [
+    [DeviceEnum.Region]: [
       { required: true, message: '请选择区域', trigger: 'change' }
     ],
-    inOrgRegion: [
+    [DeviceEnum.InOrgRegion]: [
       { required: true, message: '请选择设备地址', trigger: 'change' }
     ],
-    industryCode: [
+    [DeviceEnum.IndustryCode]: [
       { required: true, message: '请选择所属行业', trigger: 'blur' }
     ],
-    networkCode: [
+    [DeviceEnum.NetworkCode]: [
       { required: true, message: '请选择网络标识', trigger: 'blur' }
     ],
-    deviceIp: [
+    [DeviceEnum.DeviceIp]: [
       { validator: this.validateDeviceIp, trigger: 'blur' }
     ],
-    devicePort: [
+    [DeviceEnum.DevicePort]: [
       { validator: this.validateDevicePort, trigger: 'change' }
+    ],
+    [DeviceEnum.DevicePoleId]: [
+      { validator: this.validatePoleId, trigger: 'blur' }
+    ],
+    [DeviceEnum.DeviceMac]: [
+      { validator: this.validateMacAddr, trigger: 'blur' }
     ]
   }
   private regionList = []
@@ -331,8 +345,23 @@ export default class extends Vue {
     this.getRegionList()
   }
 
+  private updated() {
+    this.checkIsShwoMore()
+  }
+
+  /**
+   * 判断是否显示form-item
+   */
   private checkVisible(prop) {
     return checkVideoVisible.call(this.videoForm, this.deviceForm.deviceType, this.inVideoProtocol, prop)
+  }
+
+  /**
+   * 判断是否显示更多下拉框
+   */
+  private checkIsShwoMore() {
+    const showMoreForm = this.$refs.showMoreForm as HTMLDivElement
+    this.showMoreVisable = showMoreForm.children.length !== 0
   }
 
   /**
@@ -381,7 +410,10 @@ export default class extends Vue {
       let validFlag: boolean = true
       // 校验step1中deviceForm
       const deviceForm: any = this.$refs.deviceForm
-      let validArr = ['deviceName', 'deviceType']
+      let validArr = [
+        DeviceEnum.DeviceName,
+        DeviceEnum.DeviceType
+      ]
       deviceForm.validateField(validArr, (err) => {
         if (err !== '') {
           validFlag = false
@@ -413,11 +445,15 @@ export default class extends Vue {
     const form: any = this.$refs.deviceForm
     let validArr = [
       'longlat',
-      'deviceVendor',
-      'region',
-      'inOrgRegion',
-      'industryCode',
-      'networkCode'
+      DeviceEnum.DeviceVendor,
+      DeviceEnum.Region,
+      DeviceEnum.InOrgRegion,
+      DeviceEnum.IndustryCode,
+      DeviceEnum.NetworkCode,
+      DeviceEnum.DeviceIp,
+      DeviceEnum.DevicePort,
+      DeviceEnum.DevicePoleId,
+      DeviceEnum.DeviceMac
     ]
     form.validateField(validArr, (err) => {
       if (err !== '') {
@@ -428,28 +464,33 @@ export default class extends Vue {
     if (validFlag) {
       const params: any = {
         ...pick(this.deviceForm, [
-          'region',
-          'inNetworkType',
-          'outNetworkType'
+          DeviceEnum.Region,
+          DeviceEnum.InNetworkType,
+          DeviceEnum.OutNetworkType
         ]),
         device: {
           ...pick(this.deviceForm, [
-            'deviceType',
-            'deviceVendor',
-            'deviceName',
-            'deviceIp',
-            'devicePort',
-            'deviceLongitude',
-            'deviceLatitude',
-            'deviceChannelSize',
-            'description'
+            DeviceEnum.DeviceType,
+            DeviceEnum.DeviceVendor,
+            DeviceEnum.DeviceName,
+            DeviceEnum.DeviceLongitude,
+            DeviceEnum.DeviceLatitude,
+            DeviceEnum.DeviceIp,
+            DeviceEnum.DevicePort,
+            DeviceEnum.DeviceMac,
+            DeviceEnum.DevicePoleId,
+            DeviceEnum.DeviceSerialNumber,
+            DeviceEnum.DeviceModel,
+            DeviceEnum.Description
+          ]),
+          ...pick(this.videoForm, [
+            DeviceEnum.DeviceChannelSize
           ])
         },
         industry: {
           ...pick(this.deviceForm, [
-            'industryCode',
-            'networkCode',
-            'outId'
+            DeviceEnum.IndustryCode,
+            DeviceEnum.NetworkCode
           ])
         },
         resource: this.videoForm.resources
@@ -458,7 +499,7 @@ export default class extends Vue {
       if (this.deviceForm.deviceInType !== this.deviceInTypeEnum.Viid) {
         params.videos = {
           ...pick(this.videoForm, [
-            'inVideoProtocol'
+            DeviceEnum.InVideoProtocol
           ])
         }
         // 补充协议信息
@@ -470,7 +511,7 @@ export default class extends Vue {
       if (this.deviceForm.deviceInType !== this.deviceInTypeEnum.Viid) {
         params.viids = {
           ...pick(this.viidForm, [
-            'inViidProtocol'
+            DeviceEnum.InViidProtocol
           ])
         }
         // 补充协议信息

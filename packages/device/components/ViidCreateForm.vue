@@ -7,7 +7,7 @@
       label-position="right"
       label-width="135px"
     >
-      <el-form-item label="接入协议:" prop="inViidProtocol">
+      <el-form-item label="接入协议:" :prop="deviceEnum.InViidProtocol">
         <el-radio
           v-for="(value, key) in inViidProtocol"
           :key="key"
@@ -67,7 +67,7 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { InViidProtocol, ProtocolDeviceTypeByDeviceType } from '../dicts/index'
-import { InViidProtocolEnum, DeviceEnum } from '../enums/index'
+import { DeviceEnum, InViidProtocolEnum } from '../enums/index'
 import { checkViidVisible } from '../utils/param'
 import { getList as getGa1400List } from '@/api/certificate/ga1400'
 import CreateGa1400Certificate from '@/views/certificate/ga1400/components/CreateDialog.vue'

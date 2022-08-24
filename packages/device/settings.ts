@@ -6,14 +6,11 @@ import { DeviceEnum, InVideoProtocolEnum, InViidProtocolEnum, DeviceTypeEnum } f
  */
 export const InVideoProtocolCreateParams = {
   [InVideoProtocolEnum.Gb28181]: new Set([
+    DeviceEnum.InVersion,
     DeviceEnum.InUserName,
     DeviceEnum.DeviceStreamAutoPull,
     DeviceEnum.StreamTransProtocol,
-    DeviceEnum.OutId,
-    DeviceEnum.DeviceMac,
-    DeviceEnum.DevicePoleId,
-    DeviceEnum.DeviceSerialNumber,
-    DeviceEnum.DeviceModel
+    DeviceEnum.OutId
   ]),
   [InVideoProtocolEnum.Ehome]: new Set([
     DeviceEnum.InVersion,
@@ -30,8 +27,8 @@ export const InVideoProtocolCreateParams = {
     DeviceEnum.Password,
     DeviceEnum.EnableDomain,
     DeviceEnum.DeviceDomain,
-    'deviceIpRequired',
-    'devicePortRequired',
+    DeviceEnum.DeviceIp,
+    DeviceEnum.DevicePort,
     DeviceEnum.DeviceStreamSize,
     DeviceEnum.DeviceStreamAutoPull,
     DeviceEnum.DeviceStreamPullIndex,
@@ -63,8 +60,7 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.DeviceIp,
     DeviceEnum.DevicePort,
     'gb28181SipInfo',
-    'videoShowMore',
-    'deviceShowMore'
+    'videoShowMore'
   ]),
   [InVideoProtocolEnum.Ehome]: new Set([
     ...InVideoProtocolCreateParams[InVideoProtocolEnum.Ehome],
@@ -73,8 +69,7 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.DeviceIp,
     DeviceEnum.DevicePort,
     'ehomeSipInfo',
-    'videoShowMore',
-    'deviceShowMore'
+    'videoShowMore'
   ]),
   [InVideoProtocolEnum.Rtsp]: new Set([
     ...InVideoProtocolCreateParams[InVideoProtocolEnum.Rtsp],
@@ -83,17 +78,14 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.DeviceStreamSize,
     DeviceEnum.DeviceIp,
     DeviceEnum.DevicePort,
-    DeviceEnum.VideoVendor,
-    'deviceShowMore'
+    DeviceEnum.VideoVendor
   ]),
   [InVideoProtocolEnum.Rtmp]: new Set([
     ...InVideoProtocolCreateParams[InVideoProtocolEnum.Rtmp],
     DeviceEnum.Resources,
     DeviceEnum.DeviceIp,
     DeviceEnum.DevicePort,
-    'onlyPullUrl',
-    'videoShowMore',
-    'deviceShowMore'
+    'onlyPullUrl'
   ])
 }
 
@@ -114,11 +106,12 @@ export const DeviceTypeDenyParamsForVideo = {
   [DeviceTypeEnum.Platform]: new Set([
     DeviceEnum.DeviceChannelSize,
     DeviceEnum.OnlineChannels,
+    DeviceEnum.DeviceMac,
+    DeviceEnum.DevicePoleId,
     DeviceEnum.DeviceSerialNumber,
     DeviceEnum.DeviceModel,
     DeviceEnum.DeviceIp,
-    DeviceEnum.DevicePort,
-    'deviceShowMore'
+    DeviceEnum.DevicePort
   ])
 }
 
@@ -128,11 +121,11 @@ export const DeviceTypeDenyParamsForVideo = {
  */
 export const InViidProtocolCreateParams = {
   [InViidProtocolEnum.Ga1400]: new Set([
-    'apsId',
-    'protocolDeviceType',
-    'inUserName',
-    'ip',
-    'port'
+    DeviceEnum.LowerApsId,
+    DeviceEnum.ProtocolDeviceType,
+    DeviceEnum.InUserName,
+    DeviceEnum.Ip,
+    DeviceEnum.Port
   ])
 }
 

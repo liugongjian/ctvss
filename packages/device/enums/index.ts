@@ -5,7 +5,7 @@
 export enum DeviceEnum {
   Region = 'region',
   InNetworkType = 'inNetworkType',
-  OutNetworkType = 'inNetworkType',
+  OutNetworkType = 'outNetworkType',
   Device = 'device',
   Videos = 'videos',
   Viids = 'viids',
@@ -33,6 +33,7 @@ export enum DeviceEnum {
   DeviceStreamAutoPull = 'deviceStreamAutoPull',
   DeviceStreamPullIndex = 'deviceStreamPullIndex',
   Description = 'description',
+  DeviceInType = 'deviceInType',
   InVideoProtocol = 'inVideoProtocol',
   InViidProtocol = 'inViidProtocol',
   InVersion = 'inVersion',
@@ -122,7 +123,7 @@ export enum DeviceInTypeEnum {
 }
 
 /**
- * 接入方式
+ * 设备类型
  */
 export enum DeviceTypeEnum {
   Ipc = 'ipc',
@@ -149,6 +150,14 @@ export enum InViidProtocolEnum {
 }
 
 /**
+ * 协议版本
+ */
+export enum InVersionEnum {
+  Gb2016 = '2016',
+  Ehome2 = '2.0'
+}
+
+/**
  * 视频流接入方式
  */
 export enum InTypeEnum {
@@ -159,7 +168,15 @@ export enum InTypeEnum {
 /**
  * 接入网络类型
  */
-export enum InNetworkType {
+export enum InNetworkTypeEnum {
+  Public = 'public',
+  Private = 'private'
+}
+
+/**
+ * 播放网络类型
+ */
+export enum OutNetworkTypeEnum {
   Public = 'public',
   Private = 'private'
 }
