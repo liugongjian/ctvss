@@ -87,7 +87,7 @@ export const DeviceStreamAutoPull = {
 /*
   最大码流数
 */
-export const MultiStreamSize = {
+export const DeviceStreamSize = {
   1: '单码流',
   2: '双码流',
   3: '三码流'
@@ -96,8 +96,8 @@ export const MultiStreamSize = {
 /*
   自动拉取第几码流
 */
-export const AutoStreamNum = {
-  1: '单码流',
+export const DeviceStreamPullIndex = {
+  1: '主码流',
   2: '子码流',
   3: '第三码流'
 }
@@ -146,7 +146,7 @@ export const InVideoProtocolModelMapping = {
 /**
  * 视图接入协议
  */
-export const ViidInProtocolType = {
+export const InViidProtocol = {
   [enums.InViidProtocol.Ga1400]: 'GA1400'
 }
 
@@ -174,10 +174,25 @@ export const VideoParamLabel = {
 }
 
 /**
+ * 设备类型对应的视图接入类型
+ */
+export const ProtocolDeviceTypeByDeviceType = {
+  [enums.DeviceType.Ipc]: {
+    'ape': '视图采集设备'
+  },
+  [enums.DeviceType.Platform]: {
+    'aps': '视图采集系统',
+    'viid': '视图库'
+  }
+}
+
+/**
  * 视图接入类型
  */
-export const ApeType = {
-  'APE': '视图采集设备'
+export const ProtocolDeviceType = {
+  'ape': '视图采集设备',
+  'aps': '视图采集系统',
+  'viid': '视图库'
 }
 
 /**
@@ -190,11 +205,11 @@ export const DeviceInTypeByDeviceType = {
     [enums.DeviceInType.VideoAndViid]: '视频、视图'
   },
   [enums.DeviceType.Nvr]: {
-    [enums.DeviceInType.Video]: '视频',
-    [enums.DeviceInType.Viid]: '视图'
+    [enums.DeviceInType.Video]: '视频'
   },
   [enums.DeviceType.Platform]: {
-    [enums.DeviceInType.Video]: '视频'
+    [enums.DeviceInType.Video]: '视频',
+    [enums.DeviceInType.Viid]: '视图'
   }
 }
 

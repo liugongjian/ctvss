@@ -1,4 +1,4 @@
-import { InVideoProtocolAllowParams, DeviceTypeDenyParams } from '../settings'
+import { InVideoProtocolAllowParams, DeviceTypeDenyParamsForVideo, InViidProtocolAllowParams, DeviceTypeDenyParamsForViid } from '../settings'
 import { DeviceInType } from '../enums/index'
 
 /**
@@ -9,19 +9,22 @@ import { DeviceInType } from '../enums/index'
  * @param prop 参数名
  * @returns 判断结果
  */
-const checkVisible = (deviceInType, deviceType, inProtocol, prop) => {
+const checkVisible = (deviceInType, deviceType, inProtocol, prop): boolean => {
   if (deviceInType === DeviceInType.Video) {
     return (InVideoProtocolAllowParams[inProtocol] && InVideoProtocolAllowParams[inProtocol].has(prop)) && // 根据接入协议显示接入协议字段列表中包含的
-      (DeviceTypeDenyParams[deviceType] && !DeviceTypeDenyParams[deviceType].has(prop)) // 根据设备类型过滤掉不需要显示的字段
+      (DeviceTypeDenyParamsForVideo[deviceType] && !DeviceTypeDenyParamsForVideo[deviceType].has(prop)) // 根据设备类型过滤掉不需要显示的字段
   }
 
   if (deviceInType === DeviceInType.Viid) {
-    return true
+    return (InViidProtocolAllowParams[inProtocol] && InViidProtocolAllowParams[inProtocol].has(prop)) && // 根据接入协议显示接入协议字段列表中包含的
+      (DeviceTypeDenyParamsForViid[deviceType] && !DeviceTypeDenyParamsForViid[deviceType].has(prop)) // 根据设备类型过滤掉不需要显示的字段
   }
 }
 
 /**
  * 视频接入form-item显示判断
+ * @param deviceType 设备类型
+ * @param inVideoProtocol 视频接入协议
  * @param prop 参数名
  * @return 判断结果
  */
@@ -57,12 +60,12 @@ export function checkVideoVisible(deviceType, inVideoProtocol, prop: string): bo
 
 /**
  * 视图接入form-item显示判断
+ * @param deviceType 设备类型
+ * @param inViidProtocol 视图接入协议
  * @param prop 参数名
  * @return 判断结果
  */
-export function checkViidVisible(deviceType, inVideoProtocol, prop: string): boolean {
-  // 接入方式
-
+export function checkViidVisible(deviceType, inViidProtocol, prop: string): boolean {
   // 默认使用字典过滤
-  return checkVisible(DeviceInType.Viid, deviceType, inVideoProtocol, prop)
+  return checkVisible(DeviceInType.Viid, deviceType, inViidProtocol, prop)
 }

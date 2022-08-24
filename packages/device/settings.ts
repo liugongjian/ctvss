@@ -1,52 +1,29 @@
 import { InVideoProtocol, InViidProtocol, DeviceType } from './enums'
 
 /**
- * 根据视频接入协议需要显示的字段
- * 注意下面是显示的字段(ALLOW)
+ * 接入协议对应的视频接入字段
+ * 仅用在创建设备
  */
-export const InVideoProtocolAllowParams = {
+export const InVideoProtocolCreateParams = {
   [InVideoProtocol.Gb28181]: new Set([
-    'outId',
-    'inVersion',
     'inUserName',
-    'resources',
     'deviceStreamAutoPull',
-    'deviceChannelSize',
-    'onlineChannels',
-    'videoShowMore',
-    'devicePoleId',
+    'outId',
     'deviceMac',
+    'devicePoleId',
     'deviceSerialNumber',
-    'deviceModel',
-    'sipTransType',
-    'deviceStreamAutoPull',
-    'transPriority',
-    'streamTransType',
-    'gb28181SipInfo',
-    'deviceShowMore',
-    'deviceIp',
-    'devicePort'
+    'deviceModel'
   ]),
   [InVideoProtocol.Ehome]: new Set([
     'inVersion',
-    'inUserName',
-    'deviceChannelSize',
     'deviceStreamSize',
     'deviceStreamAutoPull',
     'deviceStreamPullIndex',
     'streamTransProtocol',
-    'resources',
-    'videoShowMore',
-    'deviceMac',
-    'ehomeSipInfo',
-    'deviceShowMore',
-    'deviceIp',
-    'devicePort'
+    'deviceMac'
   ]),
   [InVideoProtocol.Rtsp]: new Set([
-    'deviceChannelSize',
     'inType',
-    'videoVendor',
     'pullUrl',
     'userName',
     'password',
@@ -54,10 +31,55 @@ export const InVideoProtocolAllowParams = {
     'deviceDomain',
     'deviceIpRequired',
     'devicePortRequired',
+    'deviceStreamSize',
     'deviceStreamAutoPull',
     'deviceStreamPullIndex',
     'pushType',
+    'streamTransProtocol'
+  ]),
+  [InVideoProtocol.Rtmp]: new Set([
+    'inType',
+    'pullUrl',
+    'deviceStreamAutoPull',
+    'pushType',
+    'tags'
+  ])
+}
+
+/**
+ * 根据视频接入协议需要显示的字段
+ * 注意下面是显示的字段(ALLOW)
+ */
+export const InVideoProtocolAllowParams = {
+  [InVideoProtocol.Gb28181]: new Set([
+    ...InVideoProtocolCreateParams[InVideoProtocol.Gb28181],
+    'resources',
+    'deviceChannelSize',
+    'onlineChannels',
+    'videoShowMore',
+    'deviceModel',
+    'sipTransType',
     'streamTransProtocol',
+    'streamTransType',
+    'gb28181SipInfo',
+    'deviceShowMore',
+    'deviceIp',
+    'devicePort'
+  ]),
+  [InVideoProtocol.Ehome]: new Set([
+    ...InVideoProtocolCreateParams[InVideoProtocol.Ehome],
+    'deviceChannelSize',
+    'resources',
+    'videoShowMore',
+    'ehomeSipInfo',
+    'deviceShowMore',
+    'deviceIp',
+    'devicePort'
+  ]),
+  [InVideoProtocol.Rtsp]: new Set([
+    ...InVideoProtocolCreateParams[InVideoProtocol.Rtsp],
+    'deviceChannelSize',
+    'videoVendor',
     'resources',
     'deviceStreamSize',
     'transPriority',
@@ -66,14 +88,10 @@ export const InVideoProtocolAllowParams = {
     'devicePort'
   ]),
   [InVideoProtocol.Rtmp]: new Set([
-    'inType',
+    ...InVideoProtocolCreateParams[InVideoProtocol.Rtmp],
     'onlyPullUrl',
-    'pullUrl',
-    'deviceStreamAutoPull',
-    'pushType',
     'resources',
     'videoShowMore',
-    'tags',
     'deviceShowMore',
     'deviceIp',
     'devicePort'
@@ -81,20 +99,10 @@ export const InVideoProtocolAllowParams = {
 }
 
 /**
- * 根据视频接入协议需要显示的字段
- * 注意下面是显示的字段(ALLOW)
- */
-export const InViidProtocolAllowParams = {
-  [InViidProtocol.Ga1400]: new Set([
-
-  ])
-}
-
-/**
- * 根据设备类型需要隐藏的字段
+ * 根据设备类型视频接入需要隐藏的字段
  * 注意下面是不显示的字段(DENY)
  */
-export const DeviceTypeDenyParams = {
+export const DeviceTypeDenyParamsForVideo = {
   [DeviceType.Ipc]: new Set([
     'deviceChannelSize',
     'onlineChannels'
@@ -112,5 +120,38 @@ export const DeviceTypeDenyParams = {
     'deviceShowMore',
     'deviceIp',
     'devicePort'
+  ])
+}
+
+/**
+ * 根据视频接入协议需要显示的字段
+ * 注意下面是显示的字段(ALLOW)
+ */
+export const InViidProtocolAllowParams = {
+  [InViidProtocol.Ga1400]: new Set([
+    'apsId',
+    'protocolDeviceType',
+    'inUserName',
+    'ip',
+    'port'
+  ])
+}
+
+/**
+ * 根据设备类型视图接入需要隐藏的字段
+ * 注意下面是不显示的字段(DENY)
+ */
+export const DeviceTypeDenyParamsForViid = {
+  [DeviceType.Ipc]: new Set([
+    'apsId',
+    'ip',
+    'port'
+  ]),
+  [DeviceType.Nvr]: new Set([
+    'apsId',
+    'ip',
+    'port'
+  ]),
+  [DeviceType.Platform]: new Set([
   ])
 }
