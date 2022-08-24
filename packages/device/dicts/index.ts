@@ -23,10 +23,15 @@ export const DeviceVendor = {
 }
 
 /*
-  ehome版本
+  版本
  */
-export const EhomeVersion = {
-  '2.0': '2.0'
+export const VersionByInVideoProtocol = {
+  [enums.InVideoProtocol.Gb28181]: {
+    '2016': '2016'
+  },
+  [enums.InVideoProtocol.Ehome]: {
+    '2.0': '2.0'
+  }
 }
 
 /*

@@ -6,8 +6,10 @@ import { InVideoProtocol, InViidProtocol, DeviceType } from './enums'
  */
 export const InVideoProtocolCreateParams = {
   [InVideoProtocol.Gb28181]: new Set([
+    'inVersion',
     'inUserName',
     'deviceStreamAutoPull',
+    'streamTransProtocol',
     'outId',
     'deviceMac',
     'devicePoleId',
@@ -57,9 +59,7 @@ export const InVideoProtocolAllowParams = {
     'deviceChannelSize',
     'onlineChannels',
     'videoShowMore',
-    'deviceModel',
     'sipTransType',
-    'streamTransProtocol',
     'streamTransType',
     'gb28181SipInfo',
     'deviceShowMore',
@@ -120,6 +120,20 @@ export const DeviceTypeDenyParamsForVideo = {
     'deviceShowMore',
     'deviceIp',
     'devicePort'
+  ])
+}
+
+/**
+ * 接入协议对应的视图接入字段
+ * 仅用在创建设备
+ */
+export const InViidProtocolCreateParams = {
+  [InViidProtocol.Ga1400]: new Set([
+    'apsId',
+    'protocolDeviceType',
+    'inUserName',
+    'ip',
+    'port'
   ])
 }
 

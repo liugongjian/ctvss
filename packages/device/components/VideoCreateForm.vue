@@ -31,19 +31,12 @@
       <el-form-item v-if="checkVisible('inVersion')" label="版本:" prop="inVersion">
         <el-radio-group v-model="videoForm.inVersion">
           <el-radio-button
-            v-for="(value, key) in ehomeVersion"
+            v-for="(value, key) in versionByInVideoProtocol[videoForm.inVideoProtocol]"
             :key="key"
             :label="value"
             :value="key"
           />
         </el-radio-group>
-      </el-form-item>
-      <el-form-item v-if="checkVisible('deviceChannelSize')" label="子设备数量:" prop="deviceChannelSize">
-        <el-input-number
-          v-model="videoForm.deviceChannelSize"
-          :min="minChannelSize"
-          type="number"
-        />
       </el-form-item>
       <el-form-item v-if="checkVisible('inUserName')" label="GB28181账号:" prop="inUserName">
         <el-select v-model="videoForm.inUserName" :loading="loading.account">
@@ -253,7 +246,7 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { InVideoProtocol as InVideoProtocolEnum } from '../enums/index'
-import { InVideoProtocolByDeviceType, EhomeVersion, DeviceVendor, InType, DeviceStreamSize, DeviceStreamPullIndex } from '../dicts/index'
+import { InVideoProtocolByDeviceType, VersionByInVideoProtocol, DeviceVendor, InType, DeviceStreamSize, DeviceStreamPullIndex } from '../dicts/index'
 import { DeviceTips } from '../dicts/tips'
 import { getList as getGbList } from '@/api/certificate/gb28181'
 import { validGbId } from '../api/device'
@@ -276,19 +269,17 @@ export default class extends Vue {
 
   private inVideoProtocolEnum = InVideoProtocolEnum
   private tips = DeviceTips
-  private ehomeVersion = EhomeVersion
+  private versionByInVideoProtocol = VersionByInVideoProtocol
   private deviceVendor = DeviceVendor
   private inVideoProtocol = InVideoProtocolByDeviceType
   private inType = InType
   private deviceStreamSize = DeviceStreamSize
   private deviceStreamPullIndex = DeviceStreamPullIndex
-  private minChannelSize = 1
   private showMore: boolean = false
   private videoForm = {
     inVideoProtocol: InVideoProtocolEnum.Gb28181,
     videoVendor: '',
-    inVersion: '2.0',
-    deviceChannelSize: 1,
+    inVersion: '2016',
     inUserName: '',
     inType: 'pull',
     pullUrl: '',
@@ -319,9 +310,6 @@ export default class extends Vue {
     ],
     videoVendor: [
       { required: true, message: '请选择厂商', trigger: 'change' }
-    ],
-    deviceChannelSize: [
-      { required: true, message: '请填写子设备数量', trigger: 'blur' }
     ],
     inUserName: [
       { required: true, message: '请选择账号', trigger: 'change' }
@@ -370,9 +358,24 @@ export default class extends Vue {
     createGb28181Certificate: false
   }
 
+  /**
+   * 设备类型变化
+   */
   @Watch('deviceForm.deviceType')
   private deviceTypeChange() {
     this.videoForm.inVideoProtocol = this.inVideoProtocolEnum.Gb28181
+  }
+
+  /**
+   * 视频接入协议变化
+   */
+  private inVideoProtocolChange(val) {
+    this.$emit('inVideoProtocolChange', val)
+    // 重置vendor
+    this.videoForm.videoVendor = ''
+    // 重置version
+    const versionMap = VersionByInVideoProtocol[this.videoForm.inVideoProtocol]
+    versionMap && (this.videoForm.inVersion = Object.values(versionMap)[0] as string)
   }
 
   private mounted() {
@@ -432,14 +435,6 @@ export default class extends Vue {
   }
 
   /**
-   * 视频接入协议变化
-   */
-  private inVideoProtocolChange(val) {
-    this.$emit('inVideoProtocolChange', val)
-    this.videoForm.videoVendor = ''
-  }
-
-  /**
    * 码流数变化回调
    */
   private onDeviceStreamSizeChange() {
@@ -486,7 +481,7 @@ export default class extends Vue {
     this.videoForm.resources.forEach((resource: any) => {
       // 剩余可接入设备数
       const remainDeviceCount = parseInt(this.resourcesMapping[resource.resourceId] && this.resourcesMapping[resource.resourceId].remainDeviceCount)
-      const devicesCount = this.deviceForm.deviceType === 'ipc' ? 1 : this.videoForm.deviceChannelSize
+      const devicesCount = this.deviceForm.deviceType === 'ipc' ? 1 : this.deviceForm.deviceChannelSize
       // 如果当前resourceId不在orginalResourceIdList，则表示该类型的资源包的值被更改。如果未更改则需要跳过数量判断。
       const isChanged = this.orginalResourceIdList.indexOf(resource.resourceId) === -1
       switch (resource.resourceType) {

@@ -40,6 +40,13 @@
                 />
               </el-select>
             </el-form-item>
+            <el-form-item v-if="checkVisible('deviceChannelSize')" label="子设备数量:" prop="deviceChannelSize">
+              <el-input-number
+                v-model="deviceForm.deviceChannelSize"
+                :min="minChannelSize"
+                type="number"
+              />
+            </el-form-item>
             <el-form-item label="接入类型:" prop="deviceInType">
               <el-radio
                 v-for="(value, key) in deviceInType[deviceForm.deviceType]"
@@ -215,8 +222,8 @@ import { getRegions } from '../../api/region'
 import { checkVideoVisible } from '../../utils/param'
 import { DeviceTips } from '../../dicts/tips'
 import { InVideoProtocol as InVideoProtocolEnum, DeviceType as DeviceTypeEnum, DeviceInType as DeviceInTypeEnum, InViidProtocol as InViidProtocolEnum } from '../../enums/index'
-import { InVideoProtocolCreateParams, InVideoProtocolAllowParams, DeviceTypeDenyParamsForVideo, InViidProtocolAllowParams, DeviceTypeDenyParamsForViid } from '../../settings'
-import { createDevice, updateDevice, getDevice, validGbId, createViewLib, getViewLibInfo, updateViewLib } from '../../api/device'
+import { InVideoProtocolAllowParams, InViidProtocolCreateParams } from '../../settings'
+import { createDevice } from '../../api/device'
 import AddressCascader from '../AddressCascader.vue'
 import VideoCreateForm from '../VideoCreateForm.vue'
 import ViidCreateForm from '../ViidCreateForm.vue'
@@ -244,11 +251,13 @@ export default class extends Vue {
   private inVideoProtocol = InVideoProtocolEnum.Gb28181
   private activeStep: number = 0
   private showMore: boolean = false
+  private minChannelSize = 1
   private deviceForm = {
     // step0
     deviceName: '',
-    deviceType: 'ipc',
-    deviceInType: 'videoAndViid',
+    deviceType: DeviceTypeEnum.Ipc,
+    deviceChannelSize: 1,
+    deviceInType: DeviceInTypeEnum.VideoAndViid,
     inNetworkType: 'public',
     outNetworkType: 'public',
     // step1
@@ -274,6 +283,9 @@ export default class extends Vue {
     ],
     deviceType: [
       { required: true, message: '请选择设备类型', trigger: 'change' }
+    ],
+    deviceChannelSize: [
+      { required: true, message: '请填写子设备数量', trigger: 'blur' }
     ],
     longlat: [
       { required: true, message: '请选择经纬度', trigger: 'blur' },
@@ -327,7 +339,7 @@ export default class extends Vue {
    * 设备类型变化
    */
   private deviceTypeChange() {
-    this.deviceForm.deviceInType = this.deviceInTypeEnum.Video
+    this.deviceForm.deviceInType = DeviceInTypeEnum.Video
   }
 
   /**
@@ -449,64 +461,9 @@ export default class extends Vue {
             'inVideoProtocol'
           ])
         }
-        // 补充gb28181信息
-        if (this.videoForm.inVideoProtocol === this.inVideoProtocolEnum.Gb28181) {
-          params.videos[InVideoProtocolModelMapping[this.videoForm.inVideoProtocol]] = {
-            ...pick(this.videoForm, [
-              'inUserName',
-              'deviceStreamAutoPull',
-              'outId',
-              'deviceMac',
-              'devicePoleId',
-              'deviceSerialNumber',
-              'deviceModel'
-            ])
-          }
-        }
-        // 补充ehome信息
-        if (this.videoForm.inVideoProtocol === this.inVideoProtocolEnum.Ehome) {
-          params.videos[InVideoProtocolModelMapping[this.videoForm.inVideoProtocol]] = {
-            ...pick(this.videoForm, [
-              'inVersion',
-              'deviceStreamSize',
-              'deviceStreamAutoPull',
-              'deviceStreamPullIndex',
-              'streamTransProtocol',
-              'deviceMac'
-            ])
-          }
-        }
-        // 补充rtsp信息
-        if (this.videoForm.inVideoProtocol === this.inVideoProtocolEnum.Rtsp) {
-          params.videos[InVideoProtocolModelMapping[this.videoForm.inVideoProtocol]] = {
-            ...pick(this.videoForm, [
-              'inType',
-              'pullUrl',
-              'userName',
-              'password',
-              'enableDomain',
-              'deviceDomain',
-              'deviceIpRequired',
-              'devicePortRequired',
-              'deviceStreamSize',
-              'deviceStreamAutoPull',
-              'deviceStreamPullIndex',
-              'pushType',
-              'streamTransProtocol'
-            ])
-          }
-        }
-        // 补充rtmp信息
-        if (this.videoForm.inVideoProtocol === this.inVideoProtocolEnum.Rtmp) {
-          params.videos[InVideoProtocolModelMapping[this.videoForm.inVideoProtocol]] = {
-            ...pick(this.videoForm, [
-              'inType',
-              'pullUrl',
-              'deviceStreamAutoPull',
-              'pushType',
-              'tags'
-            ])
-          }
+        // 补充协议信息
+        params.videos[InVideoProtocolModelMapping[this.videoForm.inVideoProtocol]] = {
+          ...pick(this.videoForm, [...InVideoProtocolAllowParams[this.videoForm.inVideoProtocol]])
         }
       }
       // 补充视图接入信息
@@ -516,17 +473,9 @@ export default class extends Vue {
             'inViidProtocol'
           ])
         }
-        // 补充ga1400信息
-        if (this.viidForm.inViidProtocol === this.inViidProtocolEnum.Ga1400) {
-          params.viids[InViidProtocolModelMapping[this.viidForm.inViidProtocol]] = {
-            ...pick(this.viidForm, [
-              'apsId',
-              'protocolDeviceType',
-              'inUserName',
-              'ip',
-              'port'
-            ])
-          }
+        // 补充协议信息
+        params.viids[InViidProtocolModelMapping[this.viidForm.inViidProtocol]] = {
+          ...pick(this.viidForm, [...InViidProtocolCreateParams[this.viidForm.inViidProtocol]])
         }
       }
       console.log(params)
