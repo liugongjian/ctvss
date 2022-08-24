@@ -85,6 +85,8 @@ export enum DeviceEnum {
   IncludeDeviceDir = 'includeDeviceDir',
   LowerApsId = 'lowerApsId',
   ProtocolDeviceType = 'protocolDeviceType',
+  Ip = 'ip',
+  Port = 'port',
   VideoVendor = 'videoVendor', // 用于RTSP对应视频接入的厂商，如果是“其他”需要手动填入拉流地址
   ErrorCode = 'errorCode',
   ErrorMsg = 'errorMsg'
