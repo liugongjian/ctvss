@@ -12,10 +12,10 @@
       </div>
       <div class="detail__section">
         <el-tabs v-model="activeTab" type="card" class="detail__tabs">
-          <el-tab-pane v-if="hasVideo" label="视频接入" :name="enums.DeviceInTypeEnum.Video">
+          <el-tab-pane v-if="hasVideo" label="视频接入" :name="deviceInTypeEnum.Video">
             <video-info :device="device" />
           </el-tab-pane>
-          <el-tab-pane v-if="hasViid" label="视图接入" :name="enums.DeviceInTypeEnum.Viid">
+          <el-tab-pane v-if="hasViid" label="视图接入" :name="deviceInTypeEnum.Viid">
             <viid-info :device="device" />
           </el-tab-pane>
         </el-tabs>
@@ -29,7 +29,7 @@ import { Component, Mixins } from 'vue-property-decorator'
 import BasicInfo from './BasicInfo.vue'
 import VideoInfo from './VideoInfo.vue'
 import ViidInfo from './ViidInfo.vue'
-import * as enums from '@vss/device/enums'
+import { DeviceInTypeEnum } from '@vss/device/enums'
 import detailMixin from '@vss/device/mixin/detailMixin'
 
 @Component({
@@ -41,8 +41,8 @@ import detailMixin from '@vss/device/mixin/detailMixin'
   }
 })
 export default class extends Mixins(detailMixin) {
-  private enums = enums
-  private activeTab = enums.DeviceInTypeEnum.Video
+  private deviceInTypeEnum = DeviceInTypeEnum
+  private activeTab = DeviceInTypeEnum.Video
 
   public async mounted() {
     await this.getDevice()
