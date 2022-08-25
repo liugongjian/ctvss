@@ -72,7 +72,7 @@
           {{ value }}
         </el-radio>
       </el-form-item>
-      <template v-if="videoForm.videoVendor === '其他' || checkVisible('onlyPullUrl')">
+      <template v-if="videoForm.videoVendor === '其他' || checkVisible(deviceEnum.OnlyPullUrl)">
         <el-form-item v-if="checkVisible(deviceEnum.PullUrl)" label="拉流地址:" :prop="deviceEnum.PullUrl">
           <el-input v-model="videoForm.pullUrl" />
         </el-form-item>

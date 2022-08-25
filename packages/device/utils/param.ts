@@ -49,7 +49,7 @@ export function checkVideoVisible(deviceType, inVideoProtocol, prop: string): bo
 
   // 是否启用域名
   if (this.enableDomain === 1) {
-    if (['deviceIpRequired'].includes(prop)) return false
+    if ([DeviceEnum.DeviceIp as string].includes(prop)) return false
   } else {
     if ([DeviceEnum.DeviceDomain as string].includes(prop)) return false
   }
