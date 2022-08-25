@@ -110,6 +110,8 @@ export enum DeviceEnum {
   EhomeDevice = 'EhomeDevice',
   OnvifDevicevice = 'OnvifDevicevice',
   Ga1400Device = 'Ga1400Device',
+  Gb28181SipInfo = 'gb28181SipInfo', // 详情中的国标SIP信息
+  EhomeSipInfo = 'ehomeSipInfo', // 详情中的Ehome SIP信息
   ErrorCode = 'errorCode',
   ErrorMsg = 'errorMsg'
 }
