@@ -59,8 +59,7 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.StreamTransType,
     DeviceEnum.DeviceIp,
     DeviceEnum.DevicePort,
-    'gb28181SipInfo',
-    'videoShowMore'
+    DeviceEnum.Gb28181SipInfo
   ]),
   [InVideoProtocolEnum.Ehome]: new Set([
     ...InVideoProtocolCreateParams[InVideoProtocolEnum.Ehome],
@@ -68,8 +67,7 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.Resources,
     DeviceEnum.DeviceIp,
     DeviceEnum.DevicePort,
-    'ehomeSipInfo',
-    'videoShowMore'
+    DeviceEnum.EhomeSipInfo
   ]),
   [InVideoProtocolEnum.Rtsp]: new Set([
     ...InVideoProtocolCreateParams[InVideoProtocolEnum.Rtsp],
@@ -85,7 +83,7 @@ export const InVideoProtocolAllowParams = {
     DeviceEnum.Resources,
     DeviceEnum.DeviceIp,
     DeviceEnum.DevicePort,
-    'onlyPullUrl'
+    DeviceEnum.OnlyPullUrl
   ])
 }
 

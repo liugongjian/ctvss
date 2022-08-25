@@ -16,7 +16,7 @@ export const deviceMock = {
   },
   videos: [
     {
-      inVideoProtocol: 'ehome',
+      inVideoProtocol: 'gb28181',
       gb28181Device: {
         sipId: '31011500012008469596',
         sipIp: '1.1.1.1',

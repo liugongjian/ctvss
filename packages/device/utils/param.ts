@@ -1,5 +1,5 @@
 import { InVideoProtocolAllowParams, DeviceTypeDenyParamsForVideo, InViidProtocolAllowParams, DeviceTypeDenyParamsForViid } from '../settings'
-import { DeviceInTypeEnum, InTypeEnum } from '../enums/index'
+import { DeviceEnum, DeviceInTypeEnum, InTypeEnum } from '../enums/index'
 
 /**
  * 判断是否通过设备类型及接入协议字段过滤
@@ -32,26 +32,26 @@ export function checkVideoVisible(deviceType, inVideoProtocol, prop: string): bo
   // 接入方式
   if (this.inType === InTypeEnum.Push) {
     if ([
-      'pullUrl',
-      'userName',
-      'password',
-      'deviceStreamAutoPull',
-      'deviceStreamPullIndex'
+      DeviceEnum.PullUrl as string,
+      DeviceEnum.UserName as string,
+      DeviceEnum.Password as string,
+      DeviceEnum.DeviceStreamAutoPull as string,
+      DeviceEnum.DeviceStreamPullIndex as string
     ].includes(prop)) return false
   } else {
-    if (['pushType'].includes(prop)) return false
+    if ([DeviceEnum.PushType as string].includes(prop)) return false
   }
 
   // 是否自动拉流
   if (this.deviceStreamAutoPull === 2) {
-    if (['deviceStreamPullIndex'].includes(prop)) return false
+    if ([DeviceEnum.DeviceStreamPullIndex as string].includes(prop)) return false
   }
 
   // 是否启用域名
   if (this.enableDomain === 1) {
     if (['deviceIpRequired'].includes(prop)) return false
   } else {
-    if (['deviceDomain'].includes(prop)) return false
+    if ([DeviceEnum.DeviceDomain as string].includes(prop)) return false
   }
 
   // 默认使用字典过滤
