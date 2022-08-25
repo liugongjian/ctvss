@@ -24,7 +24,8 @@
           <el-button
             type="text"
             size="mini"
-            @click="() => editMeta(data)">
+            @click="() => editMeta(data)"
+          >
             <svg-icon name="clipboard" width="15" height="15" />
           </el-button>
         </span>
@@ -52,8 +53,7 @@ import { Component, Mixins, Prop } from 'vue-property-decorator'
 import AppMixin from '@/views/AI/mixin/app-mixin' // 考虑优化的mixin
 import AlgoConfig from './AlgoConfig/index.vue'
 
-
-//@ts-ignore
+// @ts-ignore
 @Component({
   name: 'AlgoDevice',
   components: {
@@ -74,12 +74,12 @@ export default class extends Mixins(AppMixin) {
 
   private deviceId = '1'
   private configAlgoInfo =
-    {
-      name: 'test',
-      effectiveTime: [{ start_time: '0:0', end_time: '0:0' }],
-      algorithm: { code: '10031' },
-      id: '1'
-    }
+  {
+    name: 'test',
+    effectiveTime: [{ start_time: '0:0', end_time: '0:0' }],
+    algorithm: { code: '10031' },
+    id: '1'
+  }
   private dangerZone = null
   private frameImage = require('./AlgoConfig/plate4.jpg')
 
@@ -219,12 +219,11 @@ export default class extends Mixins(AppMixin) {
 
     }
     this.iboxDevice = data.devices.map(device => {
-      if(device.deviceType === 'nvr'){
-        return {...device, disabled: true, meta: null }
+      if (device.deviceType === 'nvr') {
+        return { ...device, disabled: true, meta: null }
       }
       return { ...device, meta: null }
     })
-
   }
 
   private changeStepPrev() {
@@ -232,7 +231,7 @@ export default class extends Mixins(AppMixin) {
   }
 
   private checkCallback(data, isChecked) {
-    if(isChecked && !data.meta){
+    if (isChecked && !data.meta) {
       this.deviceId = data.deviceId
       this.meta = null
       this.canvasDialog = true
@@ -243,12 +242,12 @@ export default class extends Mixins(AppMixin) {
 
   }
 
-  private addMeta(meta){
+  private addMeta(meta) {
     const deviceTree: any = this.$refs.deviceTree
     const algoMeta = JSON.parse(meta.algorithmMetadata)
     const node = deviceTree.getNode(meta.deviceId)
 
-    if(algoMeta.DangerZone.length > 0){
+    if (algoMeta.DangerZone.length > 0) {
       this.$set(node.data, 'meta', meta)
     } else {
       this.$set(node.data, 'meta', null)
@@ -256,7 +255,7 @@ export default class extends Mixins(AppMixin) {
     }
   }
 
-  private editMeta(data){
+  private editMeta(data) {
     this.meta = data.meta
     this.canvasDialog = true
   }
