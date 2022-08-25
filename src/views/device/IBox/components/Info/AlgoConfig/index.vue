@@ -6,7 +6,7 @@
       :destroy-on-close="true"
       :modal-append-to-body="false"
       top="7vh"
-      @close="closeThis"
+      @close="cancel"
     >
       <div class="configureInfo">
         <div class="configureDetail">
@@ -46,7 +46,7 @@
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="sureThis">确 定</el-button>
-        <el-button @click="closeThis">取 消</el-button>
+        <el-button @click="cancel">取 消</el-button>
       </span>
     </el-dialog>
   </div>
@@ -119,8 +119,6 @@ export default class extends Vue {
     }
 
     if (this.meta) {
-      console.log('this.meta:', this.meta)
-      console.log('this.configAlgoInfo:', this.configAlgoInfo)
       const { algorithmMetadata } = this.meta
       const algorithmMetadataParse = algorithmMetadata ? JSON.parse(algorithmMetadata) : {}
       const { DangerZone } = algorithmMetadataParse
@@ -242,6 +240,11 @@ export default class extends Vue {
 
   private closeThis() {
     this.$parent.closeCanvasDialog()
+  }
+
+  private cancel() {
+    this.closeThis()
+    this.$parent.setNodeOppositeChecked(this.deviceId)
   }
 
   private sureThis() {

@@ -20,7 +20,7 @@
           <svg-icon :name="data.deviceType || 'ipc'" width="15" height="15" />
           {{ node.data.deviceName }}
         </span>
-        <span v-if="!!data.meta" style="margin-left: 12px;">
+        <span v-if="!!data.meta && node.checked" style="margin-left: 12px;">
           <el-button
             type="text"
             size="mini"
@@ -71,6 +71,8 @@ export default class extends Mixins(AppMixin) {
     children: 'deviceChannels',
     isLeaf: 'isLeaf' // 需要手动设置数据源的isLeaf属性，懒加载就不展示 可展开箭头
   }
+
+  private nodeChecked: boolean = false
 
   private deviceId = '1'
   private configAlgoInfo =
@@ -231,10 +233,12 @@ export default class extends Mixins(AppMixin) {
   }
 
   private checkCallback(data, isChecked) {
+    console.log('data:', data)
     if (isChecked && !data.meta) {
       this.deviceId = data.deviceId
       this.meta = null
       this.canvasDialog = true
+      this.nodeChecked = !isChecked
     }
   }
 
@@ -258,11 +262,18 @@ export default class extends Mixins(AppMixin) {
   private editMeta(data) {
     this.meta = data.meta
     this.canvasDialog = true
+    this.nodeChecked = true
   }
 
   public closeCanvasDialog() {
     this.canvasDialog = false
     this.meta = null
+  }
+
+  private setNodeOppositeChecked(deviceId) {
+    const deviceTree: any = this.$refs.deviceTree
+    const node = deviceTree.getNode(deviceId)
+    deviceTree.setChecked(node.data, this.nodeChecked)
   }
 
   private back() {

@@ -8,13 +8,13 @@
       </el-steps>
     </div>
     <div v-if="!step">
-      <AlgoOption :step.sync="step" :prod.sync="prod" direction="next" @back="backToList"/>
+      <AlgoOption :step.sync="step" :prod.sync="prod" direction="next" @back="backToList" />
     </div>
     <div v-if="step === 1">
-      <AlgoDetail :step.sync="step" :prod.sync="prod" :is-select-device="true" :algo-param="algoParam" @back="backToList"/>
+      <AlgoDetail :step.sync="step" :prod.sync="prod" :is-select-device="true" :algo-param="algoParam" @back="backToList" />
     </div>
     <div v-if="step === 2">
-      <AlgoDevice :step.sync="step" :prod.sync="prod" @back="backToList"/>
+      <AlgoDevice :step.sync="step" :prod.sync="prod" @back="backToList" />
     </div>
   </div>
 </template>
